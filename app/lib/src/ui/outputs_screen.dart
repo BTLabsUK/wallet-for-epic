@@ -13,8 +13,10 @@ import '../settings.dart';
 import '../smart_outputs.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'info_hint.dart';
 import 'pin.dart';
 import 'theme/brand.dart';
+import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 
@@ -68,17 +70,15 @@ String _meaning(AppLocalizations l, OutputLabel w, int need) => switch (w) {
 String _strategyName(AppLocalizations l, SelectionStrategy s) =>
     s == SelectionStrategy.smallest ? l.outputsSmallest : l.outputsAll;
 
-/// The state line of a row: the word, then what it needs to say (confirmations, when it came,
-/// which send holds it).
-String _rowText(
+/// The note under a row's state word: when it came, which send holds it. Confirmations have a
+/// column of their own.
+String? _rowNote(
   AppLocalizations l,
   WalletOutput o,
   TxEntry? tx,
-  DateTime now,
-  int need, {
+  DateTime now, {
   String? who,
 }) {
-  final word = _wordText(l, outputWord(o));
   final when = tx == null
       ? null
       : shortDate(
@@ -89,20 +89,21 @@ String _rowText(
   final received = tx != null && tx.kind != TxKind.sent && when != null
       ? l.outputsNoteReceived(when)
       : null;
-  final note = switch (outputWord(o)) {
-    OutputLabel.confirming => [
-      l.outputsNoteConfirmations(o.confirmations.toInt(), need),
-      ?received,
-    ].join(' · '),
+  return switch (outputWord(o)) {
+    OutputLabel.confirming || OutputLabel.spendable => received,
     OutputLabel.locked =>
       tx?.counterparty == null
           ? l.outputsNoteSendPlain
           : l.outputsNoteSend(who ?? shortAddress(tx!.counterparty!)),
-    OutputLabel.spendable => received,
     _ => null,
   };
-  return note == null || note.isEmpty ? word : l.outputsRow(word, note);
 }
+
+/// The confirmations cell: confirmations of the needed, a dash for an output not on chain yet.
+String _confirmations(AppLocalizations l, WalletOutput o, int need) =>
+    o.height == BigInt.zero
+    ? '–'
+    : l.outputsNoteConfirmations(o.confirmations.toInt(), need);
 
 class OutputsScreen extends ConsumerStatefulWidget {
   const OutputsScreen({super.key, this.filter});
@@ -238,9 +239,9 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     String money(BigInt v) => shownEpic(l, v, hidden: hidden);
     Widget tile(String label, BigInt? value, int? n) => _Tile(
       label: label,
+      count: n == null ? null : l.outputsCount(n),
       value: value == null ? null : money(value),
-      caption: n == null ? null : l.outputsCount(n),
-      dim: value == BigInt.zero,
+      dim: n == 0,
     );
 
     final shown = [
@@ -298,72 +299,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            l.outputsExplainer,
-            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(44),
-                  ),
-                  icon: const Icon(Icons.call_split),
-                  label: Text(l.outputsSplitButton),
-                  onPressed: canSplit
-                      ? () => _openAction(
-                          _SplitSheet(spendableOutputs: nSpendable),
-                        )
-                      : null,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(44),
-                  ),
-                  icon: const Icon(Icons.merge),
-                  label: Text(l.outputsConsolidateButton),
-                  onPressed: canConsolidate
-                      ? () => _openAction(
-                          _ConsolidateSheet(spendableOutputs: nSpendable),
-                        )
-                      : null,
-                ),
-              ),
-            ],
-          ),
-          if (reason != null && reason.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                reason,
-                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-              ),
-            ),
-          const SizedBox(height: 8),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(l.outputsStrategy),
-            subtitle: Text(_strategyName(l, strategy)),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _pickStrategy,
-          ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(l.outputsSplitChange),
-            subtitle: Text(l.outputsSplitChangeText),
-            value: settings?.splitChange ?? true,
-            onChanged: settings == null
-                ? null
-                : (v) =>
-                      ref.read(appSettingsProvider.notifier).setSplitChange(v),
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           SegmentedButton<OutputsFilter>(
             showSelectedIcon: false,
             emptySelectionAllowed: true,
@@ -440,17 +376,23 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                 ),
               ),
             )
-          else
+          else ...[
+            _TableHead(
+              state: l.outputsColState,
+              value: l.outputsColValue,
+              confirmations: l.outputsColConfirmations,
+            ),
             for (final o in shown)
               _OutputRow(
                 output: o,
                 value: money(o.value),
-                text: _rowText(
+                confirmations: _confirmations(l, o, need),
+                word: _wordText(l, outputWord(o)),
+                note: _rowNote(
                   l,
                   o,
                   txs[o.txId],
                   now,
-                  need,
                   // The contact's name, else the short address without the own server.
                   who: contactName(ref, txs[o.txId]?.counterparty) ??
                       (txs[o.txId]?.counterparty == null
@@ -462,30 +404,115 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                 ),
                 onTap: () => _openSheet(o, txs[o.txId]),
               ),
+          ],
+          const SizedBox(height: 24),
+          ProtocolSectionHead(l.outputsAdvanced),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(44),
+                  ),
+                  icon: const Icon(Icons.call_split),
+                  label: Text(l.outputsSplitButton),
+                  onPressed: canSplit
+                      ? () => _openAction(
+                          _SplitSheet(spendableOutputs: nSpendable),
+                        )
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(44),
+                  ),
+                  icon: const Icon(Icons.merge),
+                  label: Text(l.outputsConsolidateButton),
+                  onPressed: canConsolidate
+                      ? () => _openAction(
+                          _ConsolidateSheet(spendableOutputs: nSpendable),
+                        )
+                      : null,
+                ),
+              ),
+            ],
+          ),
+          if (reason != null && reason.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                reason,
+                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+              ),
+            ),
+          const SizedBox(height: 8),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(l.outputsStrategy),
+            subtitle: Text(_strategyName(l, strategy)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: _pickStrategy,
+          ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: TitleWithHint(
+              l.outputsSplitChange,
+              hint: l.outputsSplitChangeText,
+            ),
+            value: settings?.splitChange ?? true,
+            onChanged: settings == null
+                ? null
+                : (v) =>
+                      ref.read(appSettingsProvider.notifier).setSplitChange(v),
+          ),
         ],
       ),
     );
   }
 }
 
-/// A balance tile: label, value in mono, caption. [value] null shows a spinner.
 /// A segment's label: one line, shrunk to the segment instead of cut.
 Widget _fit(String text) => FittedBox(fit: BoxFit.scaleDown, child: Text(text));
 
+/// A balance tile: the label as the eyebrow, the output count as the main line, the value in
+/// mono below. A null [count] or [value] shows a spinner in its place.
 class _Tile extends StatelessWidget {
-  const _Tile({required this.label, required this.value, this.caption, this.dim = false});
+  const _Tile({
+    required this.label,
+    required this.count,
+    required this.value,
+    this.dim = false,
+  });
 
   final String label;
+  final String? count;
   final String? value;
-  final String? caption;
 
-  /// A zero balance: the value in the dim colour.
+  /// No outputs in the tile: the count in the dim colour.
   final bool dim;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final theme = Theme.of(context);
+    Widget spinner(double size) => Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: SizedBox.square(
+        dimension: size,
+        child: const CircularProgressIndicator(strokeWidth: 2),
+      ),
+    );
+    Widget line(double height, Widget child) =>
+        SizedBox(height: height, child: child);
+    Widget fit(Widget child) => FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
+      child: child,
+    );
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -499,51 +526,110 @@ class _Tile extends StatelessWidget {
         children: [
           Text(label, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
           const SizedBox(height: 4),
-          SizedBox(
-            height: 24,
-            child: value == null
-                ? const Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  )
-                : FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(
-                      value!,
-                      style: TextStyle(
-                        fontFamily: t.monoFamily,
-                        fontSize: 18,
+          line(
+            28,
+            count == null
+                ? spinner(20)
+                : fit(
+                    Text(
+                      count!,
+                      style: theme.textTheme.titleMedium?.copyWith(
                         color: dim ? t.dim : t.text,
                       ),
                     ),
                   ),
           ),
-          if (caption != null)
-            Text(
-              caption!,
-              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-            ),
+          line(
+            20,
+            value == null
+                ? spinner(14)
+                : fit(
+                    Text(
+                      value!,
+                      style: TextStyle(
+                        fontFamily: t.monoFamily,
+                        fontSize: 14,
+                        color: t.dim,
+                      ),
+                    ),
+                  ),
+          ),
         ],
       ),
     );
   }
 }
 
+/// The columns of the output table: the state takes the room the value leaves, the
+/// confirmations a fixed width, so the header and every row line up.
+const double _confWidth = 84;
+const double _cellGap = 8;
+
+/// The table's header: three small dim labels over the columns of [_OutputRow].
+class _TableHead extends StatelessWidget {
+  const _TableHead({
+    required this.state,
+    required this.value,
+    required this.confirmations,
+  });
+
+  final String state;
+  final String value;
+  final String confirmations;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final style = Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim);
+    Widget cell(String text, TextAlign align) => Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      textAlign: align,
+      style: style,
+    );
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: t.line)),
+      ),
+      child: Row(
+        children: [
+          Expanded(flex: 11, child: cell(state, TextAlign.start)),
+          const SizedBox(width: _cellGap),
+          Expanded(flex: 10, child: cell(value, TextAlign.end)),
+          const SizedBox(width: _cellGap),
+          SizedBox(
+            width: _confWidth,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerEnd,
+              child: cell(confirmations, TextAlign.end),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One row of the table: the state mark with its word and note, the value and the
+/// confirmations. The whole row is the tap target.
 class _OutputRow extends StatelessWidget {
   const _OutputRow({
     required this.output,
     required this.value,
-    required this.text,
+    required this.confirmations,
+    required this.word,
+    required this.note,
     required this.onTap,
   });
 
   final WalletOutput output;
   final String value;
-  final String text;
+  final String confirmations;
+  final String word;
+  final String? note;
   final VoidCallback onTap;
 
   @override
@@ -551,49 +637,81 @@ class _OutputRow extends StatelessWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final mark = _mark(t, outputWord(output));
+    final mono = TextStyle(fontFamily: t.monoFamily, color: t.text);
     return InkWell(
       onTap: onTap,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 64),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 56),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: t.line)),
+        ),
         child: Row(
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: mark.color),
-              ),
-              child: ExcludeSemantics(
-                child: Icon(mark.icon, size: 18, color: mark.color),
-              ),
-            ),
-            const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+              flex: 11,
+              child: Row(
                 children: [
-                  Text(
-                    value,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: t.monoFamily,
-                      fontSize: 15,
-                      color: t.text,
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: mark.color),
+                    ),
+                    child: ExcludeSemantics(
+                      child: Icon(mark.icon, size: 18, color: mark.color),
                     ),
                   ),
-                  Text(
-                    text,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          word,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        if (note != null)
+                          Text(
+                            note!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: t.dim,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: t.dim),
+            const SizedBox(width: _cellGap),
+            Expanded(
+              flex: 10,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerEnd,
+                child: Text(value, maxLines: 1, style: mono.copyWith(fontSize: 14)),
+              ),
+            ),
+            const SizedBox(width: _cellGap),
+            SizedBox(
+              width: _confWidth,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerEnd,
+                child: Text(
+                  confirmations,
+                  maxLines: 1,
+                  style: mono.copyWith(fontSize: 13),
+                ),
+              ),
+            ),
           ],
         ),
       ),

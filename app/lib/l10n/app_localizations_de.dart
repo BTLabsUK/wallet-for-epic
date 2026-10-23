@@ -3907,10 +3907,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get outputsExplainer =>
-      'Outputs sind die Teile, aus denen sich das Guthaben zusammensetzt. Eine Zahlung verbraucht ganze Outputs und gibt den Rest als neuen Output zurück.';
-
-  @override
   String get outputsSplitButton => 'Teilen…';
 
   @override
@@ -4043,11 +4039,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get outputsNoteSendPlain => 'Zahlung läuft';
 
   @override
-  String outputsRow(String note, String word) {
-    return '$word · $note';
-  }
-
-  @override
   String get outputsFactHeight => 'Höhe';
 
   @override
@@ -4169,6 +4160,18 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get outputsConsolidateStarted =>
       'Zusammenführen gestartet: ein Output, Bestätigung in etwa 3 Blöcken';
+
+  @override
+  String get outputsAdvanced => 'Erweitert';
+
+  @override
+  String get outputsColState => 'Status';
+
+  @override
+  String get outputsColValue => 'Wert';
+
+  @override
+  String get outputsColConfirmations => 'Bestätigungen';
 
   @override
   String homePendingShort(String amount) {
