@@ -201,9 +201,11 @@ class _StatusRow extends StatelessWidget {
         if (overTor) context.l10n.netStatusOverTor,
       ].join(', '),
       hint: detail ?? context.l10n.netStatusOpenHint,
-      // With an info icon the row's own words are excluded one by one, so the icon stays a
-      // button of its own (a screen reader reaches it; a browser's semantics tap opens it).
+      // With an info icon the row's own words are excluded one by one and the icon is an
+      // explicit child node, so it stays a button of its own (a screen reader reaches it; a
+      // browser's semantics tap opens it).
       excludeSemantics: hint == null,
+      explicitChildNodes: hint != null,
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
