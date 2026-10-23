@@ -196,7 +196,14 @@ void main() {
     );
     expect(find.textContaining('go through Tor'), findsNothing);
     expect(
-      tester.widget<SwitchListTile>(find.byKey(torReceivingSwitchKey)).value,
+      tester
+          .widget<Switch>(
+            find.descendant(
+              of: find.byKey(torReceivingSwitchKey),
+              matching: find.byType(Switch),
+            ),
+          )
+          .value,
       isTrue,
     );
     // The choice is saved for this wallet.

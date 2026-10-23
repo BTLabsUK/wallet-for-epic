@@ -477,12 +477,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   subtitle: Text(_languageLabel(l, s.language)),
                   onTap: () => _pickLanguage(s),
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.terminal),
-                  title: TitleWithHint(
-                    l.settingsAdvancedOptions,
-                    hint: l.settingsAdvancedOptionsSubtitle,
-                  ),
+                HintSwitchTile(
+                  icon: Icons.terminal,
+                  title: l.settingsAdvancedOptions,
+                  hint: l.settingsAdvancedOptionsSubtitle,
                   value: s.advancedOptions,
                   onChanged: _settings.setAdvancedOptions,
                 ),
@@ -496,12 +494,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 if (walletOpen && torAvailable) const TorSwitchTile(),
-                SwitchListTile(
-                  secondary: const Icon(Icons.travel_explore),
-                  title: TitleWithHint(
-                    l.settingsUseStatusSite,
-                    hint: l.settingsUseStatusSiteSubtitle,
-                  ),
+                HintSwitchTile(
+                  icon: Icons.travel_explore,
+                  title: l.settingsUseStatusSite,
+                  hint: l.settingsUseStatusSiteSubtitle,
                   value: s.useStatusSite,
                   onChanged: _settings.setUseStatusSite,
                 ),

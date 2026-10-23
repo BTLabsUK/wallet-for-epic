@@ -143,3 +143,44 @@ class TitleWithHint extends StatelessWidget {
     ],
   );
 }
+
+/// A switch row whose title carries an [InfoHint]: a `ListTile` with a `Switch`, not a
+/// `SwitchListTile`, because that one merges its semantics and the info icon would vanish
+/// into the switch (a screen reader could not reach it, and with semantics on, as in a
+/// browser, a tap on the icon toggled the switch). A tap on the row toggles; the icon opens
+/// its hint.
+class HintSwitchTile extends StatelessWidget {
+  const HintSwitchTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.hint,
+    required this.value,
+    required this.onChanged,
+    this.subtitle,
+    this.sheetTitle,
+    this.sheetIcon,
+  });
+
+  final IconData icon;
+  final String title;
+  final String hint;
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+  final Widget? subtitle;
+  final String? sheetTitle;
+  final IconData? sheetIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    final onChanged = this.onChanged;
+    return ListTile(
+      leading: Icon(icon),
+      title: TitleWithHint(title, hint: hint, sheetTitle: sheetTitle, icon: sheetIcon),
+      subtitle: subtitle,
+      trailing: Switch(value: value, onChanged: onChanged),
+      enabled: onChanged != null,
+      onTap: onChanged == null ? null : () => onChanged(!value),
+    );
+  }
+}
