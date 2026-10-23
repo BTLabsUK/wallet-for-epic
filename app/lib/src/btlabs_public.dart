@@ -1016,7 +1016,8 @@ _Parsed<BtlabsPublic> _parsePayload(List<int> bytes) {
 }
 
 /// The optional onion list. Version 1 clients ignore the field, so a bad entry is skipped (never
-/// a reason to reject the file) and a repeated `host:port` keeps the first.
+/// a reason to reject the file) and a repeated `host:port` keeps the first. Only BT Labs' own
+/// hosts ([isBtlabsHost]) may be mapped to an onion; an entry for any other host is skipped.
 List<BtlOnion>? _onions(Object? v) {
   if (v is! List) return null;
   final seen = <String>{};
@@ -1037,6 +1038,7 @@ List<BtlOnion>? _onions(Object? v) {
         onionPort: _int(o['onion_port'], 1, 65535),
         tls: tls,
       );
+      if (!isBtlabsHost(entry.host)) continue;
       if (seen.add('${entry.host}:${entry.port}')) out.add(entry);
     } on _Bad {
       continue;
@@ -1046,6 +1048,13 @@ List<BtlOnion>? _onions(Object? v) {
 }
 
 final _onionRe = RegExp(r'^[a-z2-7]{56}\.onion$');
+
+/// Whether [host] is `btlabs.uk` or a name under it (whole labels: `xbtlabs.uk` and
+/// `btlabs.uk.example.com` are not).
+bool isBtlabsHost(String host) {
+  final h = host.toLowerCase();
+  return h == 'btlabs.uk' || h.endsWith('.btlabs.uk');
+}
 
 Map<String, dynamic> _obj(Object? v) => v is Map<String, dynamic> ? v : throw const _Bad();
 
