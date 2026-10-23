@@ -8,12 +8,14 @@ import '../network.dart';
 import '../providers.dart';
 import '../public_servers.dart';
 import '../relay_directory.dart';
+import '../server_switch.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 import 'theme/tokens.dart';
 
-/// Network, node and relay settings. Saving restarts the app flow on the chosen network.
+/// Network, node and relay settings. Saving another node or relay of the open wallet's network
+/// switches it live, keeping it unlocked; saving another network restarts the app flow on it.
 class SetupScreen extends ConsumerStatefulWidget {
   const SetupScreen({super.key});
 
@@ -24,6 +26,9 @@ class SetupScreen extends ConsumerStatefulWidget {
 class _SetupScreenState extends ConsumerState<SetupScreen> {
   NetworkPreset? _preset;
   EpicboxRelay? _relay;
+
+  /// The network saved when the screen opened; only another one restarts the app flow.
+  NetworkPreset? _savedPreset;
 
   /// The relay saved when the screen opened, so a change can be flagged.
   EpicboxRelay? _savedRelay;
@@ -50,6 +55,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       if (!mounted) return;
       setState(() {
         _preset = choice.preset;
+        _savedPreset = choice.preset;
         _relay = choice.relay;
         _savedRelay = choice.relay;
         _nodeUrl.text = choice.nodeUrl;
@@ -152,15 +158,30 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       setState(() => _urlError = l.setupNodeUrlInvalid);
       return;
     }
+    final relay = _relay ?? preset.defaultRelay;
+    final live = preset == _savedPreset && ref.read(sessionProvider) != null;
+    final saved = _savedRelay;
+    if (live &&
+        saved != null &&
+        !await confirmRelaySwitch(context, from: saved, to: relay)) {
+      return;
+    }
+    if (!mounted) return;
     setState(() {
       _busy = true;
       _urlError = null;
       _error = null;
     });
     try {
-      await ref
-          .read(networkChoiceProvider.notifier)
-          .save(preset, url, relay: _relay);
+      if (live && await switchServersLive(ref, nodeUrl: url, relay: relay)) {
+        if (mounted) Navigator.of(context).pop();
+        return;
+      }
+      if (!live) {
+        await ref
+            .read(networkChoiceProvider.notifier)
+            .save(preset, url, relay: _relay);
+      }
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),

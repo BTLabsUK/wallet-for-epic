@@ -469,6 +469,10 @@ class GatedWalletSession implements WalletSession {
   }) => _inner.consolidateOutputs(minimumConfirmations: minimumConfirmations);
 
   @override
+  Future<void> setServers({required WalletConfig config}) =>
+      _inner.setServers(config: config);
+
+  @override
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,

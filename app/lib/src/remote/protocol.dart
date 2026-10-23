@@ -75,6 +75,7 @@ enum SessionMember {
   estimateConsolidate,
   consolidateOutputs,
   spendOutputsToSelf,
+  setServers,
 }
 
 /// Interface members the client answers without the server.
