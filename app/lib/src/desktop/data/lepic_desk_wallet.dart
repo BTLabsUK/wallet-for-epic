@@ -3891,7 +3891,7 @@ Object historyFileError(core.WalletError e) {
     historyOtherWallet => const HistoryFileError(HistoryFileProblem.otherWallet, 'The file was exported from a wallet with a different recovery phrase.'),
     historyNewer => const HistoryFileError(HistoryFileProblem.newer, 'A newer version of the app made this file. Update the app, then import it.'),
     historyDamaged => const HistoryFileError(HistoryFileProblem.damaged, 'The file is incomplete or was changed.'),
-    _ => const HistoryFileError(HistoryFileProblem.notOurs, 'The file was not made by Epic Wallet.'),
+    _ => const HistoryFileError(HistoryFileProblem.notOurs, 'The file was not made by Epic Cash Desktop or Epic Cash Mobile.'),
   };
 }
 
@@ -3901,7 +3901,7 @@ Future<void> writeWalletTxt(String dir, {required String label, required String 
   String two(int v) => v.toString().padLeft(2, '0');
   final day = '${created.year}-${two(created.month)}-${two(created.day)}';
   final text = [
-    'Epic Wallet (BT Labs) wallet folder',
+    'Epic Cash Desktop (BT Labs) wallet folder',
     'Label:     $label',
     'Network:   $network',
     'Created:   $day',

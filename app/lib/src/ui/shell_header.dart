@@ -11,6 +11,7 @@ import '../wallet_service.dart';
 import 'common.dart';
 import 'status.dart';
 import 'theme/protocol.dart';
+import 'theme/brand.dart' show BrandVariant, BrandWordmark;
 import 'theme/tokens.dart';
 
 /// The key of Wallet's balance area: the figure, the fiat row and the pending line, for tests.
@@ -441,7 +442,7 @@ class PendingLine extends StatelessWidget {
 }
 
 /// The app bar's title on every tab, cross-faded by the page position ([openness], 1 on
-/// Wallet): Wallet's [ShellTitle] ("Epic Wallet", or the demo's pill in [trailing]), and on
+/// Wallet): Wallet's [ShellTitle] (the wordmark, or the demo's pill in [trailing]), and on
 /// Send and Receive the spendable figure with a small gold EPIC, and under it what is on hold
 /// or coming in. Each shrinks rather than overflows when the bar is narrow.
 class ShellBarTitle extends StatelessWidget {
@@ -719,10 +720,14 @@ class ShellTitle extends StatelessWidget {
         Flexible(
           child:
               trailing ??
-              Text(
-                context.l10n.shellTitle,
-                maxLines: 1,
-                overflow: TextOverflow.fade,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: BrandWordmark(
+                  variant: BrandVariant.mobile,
+                  size: 17,
+                  label: context.l10n.shellTitle,
+                ),
               ),
         ),
       ],
