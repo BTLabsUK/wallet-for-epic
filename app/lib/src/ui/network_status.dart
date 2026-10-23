@@ -206,10 +206,13 @@ class _StatusRow extends StatelessWidget {
       // browser's semantics tap opens it).
       excludeSemantics: hint == null,
       explicitChildNodes: hint != null,
+      // The row's action lives on this node; the InkWell adds none of its own.
+      onTap: onTap,
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
           onTap: onTap,
+          excludeFromSemantics: true,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 56),
             child: Padding(
@@ -239,7 +242,8 @@ class _StatusRow extends StatelessWidget {
                               children: [
                                 Flexible(child: ExcludeSemantics(child: Text(title))),
                                 const SizedBox(width: 4),
-                                InfoHint(hint!, size: 32, title: title, icon: torIcon),
+                                // 48 dp: the icon is a target of its own on this row.
+                                InfoHint(hint!, size: 48, title: title, icon: torIcon),
                               ],
                             ),
                           ),

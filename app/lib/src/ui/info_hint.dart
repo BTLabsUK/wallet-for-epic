@@ -14,7 +14,7 @@ import 'theme/tokens.dart';
 /// The info icon with [text] as its explanation, [size] square (a 40 dp target inside a row
 /// that is itself the 48 dp target). With a [title], a tap opens [InfoSheet] instead of a
 /// tooltip, with [icon] beside the title.
-class InfoHint extends StatelessWidget {
+class InfoHint extends StatefulWidget {
   const InfoHint(this.text, {super.key, this.size = 40, this.title, this.icon});
 
   final String text;
@@ -23,31 +23,44 @@ class InfoHint extends StatelessWidget {
   final IconData? icon;
 
   @override
+  State<InfoHint> createState() => _InfoHintState();
+}
+
+class _InfoHintState extends State<InfoHint> {
+  final _tip = GlobalKey<TooltipState>();
+
+  @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final glyph = SizedBox.square(
-      dimension: size,
+      dimension: widget.size,
       child: Center(child: Icon(Icons.info_outline, size: 18, color: t.dim)),
     );
-    final title = this.title;
+    final title = widget.title;
+    // The semantics node carries the tap itself: the row around it is a button too, and a
+    // tap sent to this node (a screen reader, a browser with semantics on) must open the
+    // hint, not the row.
     if (title != null) {
+      void open() => showInfoSheet(context, title: title, text: widget.text, icon: widget.icon);
       return Semantics(
         button: true,
         label: title,
-        hint: text,
+        hint: widget.text,
         excludeSemantics: true,
-        child: InkResponse(
-          radius: size / 2,
-          onTap: () => showInfoSheet(context, title: title, text: text, icon: icon),
-          child: glyph,
-        ),
+        onTap: open,
+        child: InkResponse(radius: widget.size / 2, onTap: open, child: glyph),
       );
     }
     return Tooltip(
-      message: text,
+      key: _tip,
+      message: widget.text,
       triggerMode: TooltipTriggerMode.tap,
       showDuration: const Duration(seconds: 8),
-      child: Semantics(button: true, child: glyph),
+      child: Semantics(
+        button: true,
+        onTap: () => _tip.currentState?.ensureTooltipVisible(),
+        child: glyph,
+      ),
     );
   }
 }
