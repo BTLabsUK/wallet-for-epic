@@ -380,6 +380,44 @@ void main() {
       },
     );
 
+    test(
+      'a withdrawal of an invoice this wallet never held raises no notice',
+      () async {
+        final events = <InvoiceEvent>[];
+        final sub = session.invoiceEvents().listen(events.add);
+        wallet.eventSink.add(
+          _event(lepic.WalletEventKind.invoiceWithdrawn, slateId: 'other'),
+        );
+        await _settle();
+        await sub.cancel();
+        expect(events, isEmpty);
+      },
+    );
+
+    test(
+      'a withdrawal of a waiting invoice raises one notice, none after a decline',
+      () async {
+        wallet.park('inv-1', BigInt.from(500));
+        wallet.park('inv-2', BigInt.from(500));
+        await session.pendingInvoices();
+        await session.declineInvoice(slateId: 'inv-2');
+        final events = <InvoiceEvent>[];
+        final sub = session.invoiceEvents().listen(events.add);
+        wallet.eventSink.add(_event(lepic.WalletEventKind.invoiceWithdrawn));
+        wallet.eventSink.add(
+          _event(lepic.WalletEventKind.invoiceWithdrawn, slateId: 'inv-2'),
+        );
+        await _settle();
+        await sub.cancel();
+        expect(
+          events
+              .where((e) => e.kind == InvoiceEventKind.withdrawn)
+              .map((e) => e.slateId),
+          ['inv-1'],
+        );
+      },
+    );
+
     test('no event leads to a payment', () async {
       wallet.park('inv-1', BigInt.from(500));
       final events = <InvoiceEvent>[];
