@@ -3879,6 +3879,44 @@
   "@settingsSectionPrivacy": {
     "description": "Settings section header above the status.btlabs.uk switch."
   },
+  "settingsSectionPrivacyNetwork": "Privacy & network",
+  "@settingsSectionPrivacyNetwork": {
+    "description": "Settings group on the phone's Settings hub: the Tor switch, the status site and the node and Epicbox servers."
+  },
+  "settingsSectionHelpFeedback": "Help & feedback",
+  "@settingsSectionHelpFeedback": {
+    "description": "Settings group on the phone's Settings hub: opens Help, which starts with Send feedback."
+  },
+  "settingsStateBackUp": "Back up your recovery phrase",
+  "@settingsStateBackUp": {
+    "description": "State line under the Security group while the recovery phrase has not been backed up."
+  },
+  "settingsStateNotBackedUp": "Not backed up yet",
+  "@settingsStateNotBackedUp": {
+    "description": "State line under the Back up recovery phrase row on the Security page while the phrase has not been backed up."
+  },
+  "settingsStatePin": "PIN",
+  "@settingsStatePin": {
+    "description": "State line under the Security group: the wallet unlocks with the PIN only."
+  },
+  "settingsStatePinBiometrics": "PIN and biometrics",
+  "@settingsStatePinBiometrics": {
+    "description": "State line under the Security group: the wallet unlocks with the PIN or biometrics."
+  },
+  "settingsStateJoin": "{a} · {b}",
+  "@settingsStateJoin": {
+    "description": "Two state words on one line under a Settings group, with a middle dot between them.",
+    "placeholders": {
+      "a": {
+        "type": "String",
+        "example": "Tor"
+      },
+      "b": {
+        "type": "String",
+        "example": "Off"
+      }
+    }
+  },
   "settingsUseStatusSite": "Use status.btlabs.uk",
   "@settingsUseStatusSite": {
     "description": "Settings switch: read server health and node lists from the status.btlabs.uk monitor. Keep status.btlabs.uk as it is."
@@ -5372,6 +5410,64 @@
   "@netStatusTitle": {
     "description": "Screen reader name of the status card."
   },
+  "serverMyRelays": "My servers",
+  "@serverMyRelays": {
+    "description": "Epicbox picker section head: relays the wallet has connected to that the public list does not have, each with a remove button. Beside the 'Public servers' head."
+  },
+  "serverRemoveRelay": "Remove from my servers",
+  "@serverRemoveRelay": {
+    "description": "Tooltip and screen reader name of the remove button on a My servers row of the Epicbox picker."
+  },
+  "serverRemoveInUse": "In use. Switch to another server first.",
+  "@serverRemoveInUse": {
+    "description": "Tooltip of the disabled remove button (Epicbox) or star (node) on the server the wallet uses now: why it cannot be removed."
+  },
+  "serverRemoveRelayTitle": "Remove this server?",
+  "@serverRemoveRelayTitle": {
+    "description": "Title of the dialog that confirms removing an Epicbox relay from My servers."
+  },
+  "serverRemoveNodeTitle": "Remove this node?",
+  "@serverRemoveNodeTitle": {
+    "description": "Title of the dialog that confirms removing a node from My nodes (the star of a My nodes row)."
+  },
+  "serverRemoveBody": "{host} leaves this list. Type it in again to use it later.",
+  "@serverRemoveBody": {
+    "description": "Body of the dialogs that confirm removing a node or an Epicbox relay from the user's own list.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "relay.example.org"
+      }
+    }
+  },
+  "serverRemoveConfirm": "Remove",
+  "@serverRemoveConfirm": {
+    "description": "Confirm button of the remove dialogs."
+  },
+  "serverSupportsNotifications": "Supports notifications",
+  "@serverSupportsNotifications": {
+    "description": "Screen reader words for the bell icon on the Epicbox relay that can send push notifications."
+  },
+  "netStatusReachable": "Reachable",
+  "@netStatusReachable": {
+    "description": "Direct receive status icon state word: the wallet's Tor address is published and reachable."
+  },
+  "netStatusPublishing": "Publishing…",
+  "@netStatusPublishing": {
+    "description": "Direct receive status icon state word: Tor is connected and the address is being published."
+  },
+  "netStatusNotReachable": "Not reachable",
+  "@netStatusNotReachable": {
+    "description": "Direct receive status icon state word: the Tor address could not be published."
+  },
+  "netStatusTorOpenHint": "Opens the privacy settings",
+  "@netStatusTorOpenHint": {
+    "description": "Screen reader hint on the Tor status icon: a tap opens Settings \u203a Privacy."
+  },
+  "netStatusDirectOpenHint": "Opens the Direct receive address",
+  "@netStatusDirectOpenHint": {
+    "description": "Screen reader hint on the Direct receive status icon: a tap opens the Receive tab's Direct address."
+  },
   "netStatusOpenHint": "Shows the servers",
   "@netStatusOpenHint": {
     "description": "Screen reader hint on a status card row."
@@ -5671,6 +5767,18 @@
   "methodSendEpicboxTitle": "The recipient can be offline.",
   "@methodSendEpicboxTitle": {
     "description": "Send strip title for Epicbox."
+  },
+  "settingsShowTipsAgain": "Show tips again",
+  "@settingsShowTipsAgain": {
+    "description": "Settings row that brings back every guide box the user closed with its X (the method explanations on Send and Receive)."
+  },
+  "settingsShowTipsAgainDone": "Tips will show again",
+  "@settingsShowTipsAgainDone": {
+    "description": "Notice after Show tips again: the closed guide boxes are back."
+  },
+  "tipHide": "Hide tip",
+  "@tipHide": {
+    "description": "Screen reader label of the small X that closes a guide box (for example the method explanation on Send) for good."
   },
   "methodSendEpicboxLine": "The Epicbox server holds the payment until they open their wallet.",
   "@methodSendEpicboxLine": {
@@ -7454,5 +7562,14 @@
   "torWayNotConnected": "Tor is not connected.",
   "@torWayNotConnected": {
     "description": "Detail after 'Waiting for Tor' when Tor failed: read out and shown as the row's hint."
+  },
+  "sendUsesAllOutputs": "{count, plural, =1{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}",
+  "@sendUsesAllOutputs": {
+    "description": "Line in the payment review when the send spends every spendable output (strategy All) and change comes back: it is always one change output, whatever Split change says.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

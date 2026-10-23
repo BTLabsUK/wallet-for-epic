@@ -156,7 +156,9 @@ class ESectionHead extends StatelessWidget {
   }
 }
 
-enum ETone { neutral, ok, warn, risk, gold }
+/// [ok] green for done and working, [warn] amber, [risk] red, [info] blue for in progress,
+/// [gold] for a brand highlight only (never a state), [neutral] for the rest.
+enum ETone { neutral, ok, warn, risk, info, gold }
 
 extension on ETone {
   (Color fg, Color bg) colors(DeskColors c) => switch (this) {
@@ -164,6 +166,7 @@ extension on ETone {
     ETone.ok => (c.ok, c.okSoft),
     ETone.warn => (c.warn, c.warnSoft),
     ETone.risk => (c.risk, c.riskSoft),
+    ETone.info => (c.info, c.infoSoft),
     ETone.gold => (c.accentText, c.accentSoft),
   };
 }

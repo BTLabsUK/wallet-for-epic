@@ -238,7 +238,7 @@ class NodeDirectoryDialog extends ConsumerWidget {
                               HealthLine(nodes[i].health, latencyMs: nodes[i].latencyMs),
                               SizedBox(width: Sp.x3),
                               nodes[i].url == current
-                                  ? const ETag('In use', tone: ETone.gold)
+                                  ? const ETag('In use')
                                   : EButton(
                                       label: 'Use',
                                       size: EBtnSize.inline,

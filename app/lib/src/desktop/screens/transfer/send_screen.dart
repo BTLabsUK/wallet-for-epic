@@ -11,6 +11,7 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/tor_view.dart';
 import '../../../smart_outputs.dart';
 import '../../app/tour.dart';
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/tor_chip.dart';
 import 'contact_picker.dart';
@@ -1214,7 +1215,7 @@ class _SwitchTag extends StatelessWidget {
           opacity: shown ? 1 : 0,
           duration: reduce ? Duration.zero : Motion.cross,
           curve: shown ? Motion.easeOut : Motion.easeIn,
-          child: SizedBox(height: 22.u, child: ETag(word, tone: ETone.gold, icon: methodIcon(_segmentOf(m)))),
+          child: SizedBox(height: 22.u, child: ETag(word, icon: methodIcon(_segmentOf(m)))),
         ),
       ),
     );
@@ -1413,7 +1414,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       TxMethod.file => 'Transaction file',
     };
     final sum = d.summary;
-    final lines = sum == null ? null : reviewOutputLines(sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, extraFee: d.extraFee);
+    final lines = sum == null ? null : reviewOutputLines(sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, extraFee: d.extraFee, usesAll: context.l10n.sendUsesAllOutputs);
     return EDialog(
       title: 'Check and send',
       description: 'A send cannot be undone once it is posted.',

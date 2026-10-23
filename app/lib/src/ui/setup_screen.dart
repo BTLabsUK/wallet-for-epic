@@ -317,7 +317,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                           children: [
                             Icon(
                               Icons.check_circle,
-                              color: theme.colorScheme.primary,
+                              color: context.tokens.ok,
                               semanticLabel: l.setupConnectedIconLabel,
                             ),
                             const SizedBox(width: 8),

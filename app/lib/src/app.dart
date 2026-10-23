@@ -159,7 +159,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     final context = _navigator.currentContext;
     if (context == null || ref.read(sessionProvider) == null) return;
     logInfo('session', 'auto-lock');
-    lockWallet(context, ref);
+    lockWallet(context, ref, reason: LockReason.timeout);
   }
 
   @override

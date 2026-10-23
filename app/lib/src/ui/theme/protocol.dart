@@ -148,8 +148,9 @@ class ProtocolSectionHead extends StatelessWidget {
   }
 }
 
-/// A notice on a panel: hairline enclosure with a 2 px accent edge on the left. Waiting notices
-/// take [WalletTokens.accent], reminders [WalletTokens.warn].
+/// A notice on a panel: hairline enclosure with a 2 px coloured edge on the left. A brand
+/// highlight takes [WalletTokens.accent]; a state takes its status colour: in progress
+/// [WalletTokens.info], reminders [WalletTokens.warn], done [WalletTokens.ok].
 class EdgeCard extends StatelessWidget {
   const EdgeCard({super.key, required this.edge, required this.child});
 
@@ -187,11 +188,11 @@ enum TimelineState { done, current, todo }
 /// with rounded corners.
 const double currentMarkStroke = 2;
 
-/// The current mark's line.
-Color currentMarkEdge(WalletTokens t) => t.accent;
+/// The current mark's line: the in-progress blue, never the gold (gold is brand, not state).
+Color currentMarkEdge(WalletTokens t) => t.info;
 
 /// The current mark's halo.
-Color currentMarkHalo(WalletTokens t) => t.accentSoft;
+Color currentMarkHalo(WalletTokens t) => t.infoSoft;
 
 /// A done mark's line and rail, which a payment's tile closes in when it lands.
 Color doneMarkEdge(WalletTokens t) => t.ok;

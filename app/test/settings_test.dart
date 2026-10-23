@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
@@ -14,6 +15,8 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_licence.dart';
+import 'package:epic_wallet/src/tor_location.dart';
+import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -22,6 +25,7 @@ import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
 import 'package:epic_wallet/src/ui/licences_screen.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
+import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -138,6 +142,7 @@ class _Harness {
     bool walletExists = true,
     bool advanced = false,
     bool scanSupported = false,
+    this.tor = false,
   }) : scanner = FakeQrScanner(supported: scanSupported) {
     if (advanced) store.values['app.advanced'] = 'true';
     if (sealed) {
@@ -156,6 +161,9 @@ class _Harness {
   final push = _FakePush();
   final posts = <({Uri url, String body, Duration timeout})>[];
   final FakeQrScanner scanner;
+
+  /// A bundled tor on this device, so the Tor switch is offered.
+  final bool tor;
   final updates = _UpdateScript();
   int cleanups = 0;
   late final FakeWalletService service;
@@ -190,6 +198,10 @@ class _Harness {
           }),
           qrScannerProvider.overrideWithValue(scanner),
           sharedFilesCleanupProvider.overrideWithValue(() async => cleanups++),
+          if (tor)
+            torBundleFinderProvider.overrideWithValue(
+              () async => const TorBundle(binary: '/data/app/lib/arm64/libtor.so'),
+            ),
         ],
         child: const WalletApp(),
       ),
@@ -210,13 +222,18 @@ class _Harness {
   }
 
   /// [openSettings] for screens with endless animations, such as a running scan.
-  Future<void> openSettingsNow(WidgetTester tester) async {
+  Future<void> openSettingsNow(
+    WidgetTester tester, [
+    SettingsSection? section,
+  ]) async {
     final navigator = tester.state<NavigatorState>(
       find.byType(Navigator).first,
     );
     unawaited(
       navigator.push(
-        MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+        MaterialPageRoute<void>(
+          builder: (_) => SettingsScreen(section: section),
+        ),
       ),
     );
     for (var i = 0; i < 10; i++) {
@@ -224,13 +241,19 @@ class _Harness {
     }
   }
 
-  Future<void> openSettings(WidgetTester tester) async {
+  /// The Settings hub, or with [section] that page over it.
+  Future<void> openSettings(
+    WidgetTester tester, [
+    SettingsSection? section,
+  ]) async {
     final navigator = tester.state<NavigatorState>(
       find.byType(Navigator).first,
     );
     unawaited(
       navigator.push(
-        MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+        MaterialPageRoute<void>(
+          builder: (_) => SettingsScreen(section: section),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -393,7 +416,7 @@ void main() {
       MaterialApp app() => tester.widget(find.byType(MaterialApp));
       expect(app().themeMode, ThemeMode.dark);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.display);
       await _tapText(tester, 'Theme');
       await _tapText(tester, 'Light');
       expect(app().themeMode, ThemeMode.light);
@@ -410,7 +433,7 @@ void main() {
       MaterialApp app() => tester.widget(find.byType(MaterialApp));
       expect(app().locale, isNull);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.display);
       expect(find.text('System default'), findsOneWidget);
       await _tapText(tester, 'Language');
       for (final language in appLanguages) {
@@ -420,6 +443,94 @@ void main() {
       expect(h.store.values['app.language'], 'de');
       expect(h.container.read(appSettingsProvider).value?.language, 'de');
       expect(app().locale, const Locale('de'));
+    });
+  });
+
+  group('hub', () {
+    testWidgets('shows the seven groups in order, and each opens its page', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      final order = [
+        settingsGroupKey(SettingsSection.security),
+        settingsGroupKey(SettingsSection.privacyNetwork),
+        settingsPushKey,
+        settingsGroupKey(SettingsSection.wallet),
+        settingsGroupKey(SettingsSection.display),
+        settingsHelpKey,
+        settingsGroupKey(SettingsSection.about),
+      ];
+      var last = -1.0;
+      for (final key in order) {
+        expect(find.byKey(key), findsOneWidget, reason: '$key');
+        final top = tester.getTopLeft(find.byKey(key)).dy;
+        expect(top, greaterThan(last), reason: '$key');
+        last = top;
+      }
+      for (final section in SettingsSection.values) {
+        await tester.tap(find.byKey(settingsGroupKey(section)));
+        await tester.pumpAndSettle();
+        expect(find.byKey(settingsSectionKey(section)), findsOneWidget);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+      }
+      await tester.tap(find.byKey(settingsHelpKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(HelpScreen), findsOneWidget);
+    });
+
+    testWidgets('Security starts with the backup and ends with Lock wallet; '
+        'Wallet ends with Delete', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.security);
+      final titles = tester
+          .widgetList<ListTile>(find.byType(ListTile))
+          .map((t) => (t.title as Text?)?.data)
+          .whereType<String>()
+          .toList();
+      expect(titles.first, 'Back up recovery phrase');
+      expect(titles.last, 'Lock wallet');
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await h.openSettings(tester, SettingsSection.wallet);
+      await _reveal(tester, find.text('Delete this wallet'));
+      final tiles = tester.widgetList<ListTile>(find.byType(ListTile)).toList();
+      expect((tiles.last.title as Text).data, 'Delete this wallet');
+    });
+
+    testWidgets('Privacy & network opens at once with the Tor switch under '
+        'the Privacy header', (tester) async {
+      final h = _Harness(tor: true);
+      await h.pump(tester);
+      await h.unlock(tester);
+      final navigator = tester.state<NavigatorState>(
+        find.byType(Navigator).first,
+      );
+      unawaited(
+        navigator.push(
+          MaterialPageRoute<void>(
+            builder: (_) => const SettingsScreen(privacy: true),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(settingsSectionKey(SettingsSection.privacyNetwork)),
+        findsOneWidget,
+      );
+      expect(find.byKey(settingsPrivacyKey), findsOneWidget);
+      expect(find.byKey(torReceivingSwitchKey), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.byKey(torReceivingSwitchKey)).dy,
+        greaterThan(tester.getTopLeft(find.byKey(settingsPrivacyKey)).dy),
+      );
     });
   });
 
@@ -636,6 +747,72 @@ void main() {
     });
   });
 
+  group('biometric unlock', () {
+    _Harness withBiometrics({bool succeed = true}) {
+      final h = _Harness();
+      h.bio
+        ..available = true
+        ..succeed = succeed
+        ..values['wallet.mainnet.pin'] = _pin;
+      h.store.values['wallet.mainnet.pinBiometrics'] = '1';
+      return h;
+    }
+
+    testWidgets('a cold start prompts once', (tester) async {
+      final h = withBiometrics();
+      await h.pump(tester);
+      expect(h.bio.prompts, 1);
+      expect(h.container.read(sessionProvider), isNotNull);
+    });
+
+    testWidgets('Lock wallet waits for a tap on Use biometrics', (
+      tester,
+    ) async {
+      final h = withBiometrics();
+      await h.pump(tester);
+      expect(h.bio.prompts, 1);
+
+      await tester.tap(find.byTooltip('Lock wallet'));
+      await tester.pumpAndSettle();
+      expect(h.container.read(sessionProvider), isNull);
+      expect(find.text('Unlock wallet'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(h.bio.prompts, 1);
+
+      await tester.tap(find.text('Use biometrics'));
+      await tester.pumpAndSettle();
+      expect(h.bio.prompts, 2);
+      expect(h.container.read(sessionProvider), isNotNull);
+    });
+
+    testWidgets('a dismissed prompt is not offered again on a return', (
+      tester,
+    ) async {
+      final h = withBiometrics(succeed: false);
+      await h.pump(tester);
+      expect(h.bio.prompts, 1);
+      expect(find.text('Unlock wallet'), findsOneWidget);
+
+      await _leave(tester);
+      h.now = h.now.add(const Duration(minutes: 10));
+      await _return(tester);
+      expect(h.bio.prompts, 1);
+      expect(find.text('Unlock wallet'), findsOneWidget);
+    });
+
+    testWidgets('the auto-lock timeout prompts again', (tester) async {
+      final h = withBiometrics();
+      await h.pump(tester);
+      expect(h.bio.prompts, 1);
+
+      await _leave(tester);
+      h.now = h.now.add(const Duration(minutes: 5));
+      await _return(tester);
+      expect(h.bio.prompts, 2);
+      expect(h.container.read(sessionProvider), isNotNull);
+    });
+  });
+
   group('security', () {
     testWidgets('change PIN asks for the current PIN and a new one twice', (
       tester,
@@ -643,7 +820,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.security);
       await _tapText(tester, 'Change PIN');
 
       await _enter(tester, 'Current PIN', '000000');
@@ -690,7 +867,7 @@ void main() {
       h.store.values['app.history_exported.floonet'] = '1790000002';
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Delete this wallet');
 
       FilledButton deleteButton() =>
@@ -737,9 +914,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
 
-      await _reveal(tester, find.text('Back up recovery phrase'));
       await _tapText(tester, 'Export history backup');
       // Share comes first: the copy that matters is the one off this phone.
       expect(
@@ -806,7 +982,7 @@ void main() {
       h.files.canShare = false;
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Export history backup');
       expect(find.text('Share'), findsNothing);
       expect(h.files.saved.single.name, 'epic-history-mainnet-20260930.wfeh');
@@ -816,7 +992,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Export history backup');
       await tester.tapAt(const Offset(200, 100));
       await tester.pumpAndSettle();
@@ -855,7 +1031,7 @@ void main() {
       final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
 
       await _tapText(tester, 'Rescan the chain');
       await _tapText(tester, 'From a block height');
@@ -881,7 +1057,7 @@ void main() {
       await h.unlock(tester);
       unawaited(h.container.read(scanProvider.notifier).run());
       await tester.pump();
-      await h.openSettingsNow(tester);
+      await h.openSettingsNow(tester, SettingsSection.wallet);
       final tile = find.text('Delete this wallet');
       await tester.scrollUntilVisible(
         tile,
@@ -907,6 +1083,10 @@ void main() {
     const relay = 'esPushKey@flooepicbox.btlabs.uk';
 
     Finder row() => find.byKey(settingsPushKey);
+
+    Switch pushSwitch(WidgetTester tester) => tester.widget<Switch>(
+      find.descendant(of: row(), matching: find.byType(Switch)),
+    );
 
     /// Unlocks, then moves the wallet to the BT Labs relay, the only one that can push.
     Future<void> unlockOnRelay(_Harness h, WidgetTester tester) async {
@@ -964,7 +1144,11 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(tester.widget<SwitchListTile>(row()).subtitle, isNull);
+      expect(tester
+          .widget<ListTile>(
+            find.descendant(of: row(), matching: find.byType(ListTile)),
+          )
+          .subtitle, isNull);
 
       await tapRow(tester);
       expect(find.text('Turn on notifications?'), findsOneWidget);
@@ -979,7 +1163,7 @@ void main() {
       expect(h.push.starts, 0);
       expect(h.store.values['app.push'], isNot('true'));
       expect(h.posts, isEmpty);
-      expect(tester.widget<SwitchListTile>(row()).value, isFalse);
+      expect(pushSwitch(tester).value, isFalse);
     });
 
     testWidgets('Turn on registers; turning off unregisters, drops the token and says so', (
@@ -993,7 +1177,7 @@ void main() {
       await turnOn(tester);
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'true');
-      expect(tester.widget<SwitchListTile>(row()).value, isTrue);
+      expect(pushSwitch(tester).value, isTrue);
       expect(h.posts, hasLength(1));
       expect(h.posts.single.url.toString(),
           'https://flooepicbox.btlabs.uk/push/v1/register');
@@ -1017,7 +1201,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(tester.widget<SwitchListTile>(row()).value, isFalse);
+      expect(pushSwitch(tester).value, isFalse);
     });
 
     testWidgets('turn back off and say so when the system blocks them', (
@@ -1033,7 +1217,7 @@ void main() {
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'false');
       expect(find.text(englishStrings.settingsPushBlocked), findsOneWidget);
-      expect(tester.widget<SwitchListTile>(row()).value, isFalse);
+      expect(pushSwitch(tester).value, isFalse);
       expect(h.posts, isEmpty);
 
       // Allowed now: turning them on asks again and the warning goes.
@@ -1211,7 +1395,7 @@ void main() {
     final h = _Harness();
     await h.pump(tester);
     await h.unlock(tester);
-    await h.openSettings(tester);
+    await h.openSettings(tester, SettingsSection.wallet);
     await _tapText(tester, 'Contacts');
     final screen = tester.widget<ContactsScreen>(find.byType(ContactsScreen));
     expect(screen.pick, isFalse);
@@ -1233,7 +1417,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await before?.call(h);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Invoice address and trusted services');
       expect(find.byType(InvoiceSettingsScreen), findsOneWidget);
       return h;
@@ -1249,7 +1433,7 @@ void main() {
       h.session.invoicesSupported = false;
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
       // The section would sit between History and Wallet.
       await _reveal(tester, find.text('Import history backup'));
       expect(find.text('Contacts'), findsOneWidget);
@@ -1261,9 +1445,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
       await _reveal(tester, find.text('Import history backup'));
-      expect(find.text('Invoices'), findsOneWidget);
       expect(find.text('Invoice address and trusted services'), findsOneWidget);
     });
 
@@ -1480,7 +1663,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.about);
       await _reveal(tester, find.byKey(settingsLicencesKey));
       expect(find.text('Licences'), findsOneWidget);
       final row = tester.widget<ListTile>(find.byKey(settingsLicencesKey));
@@ -1521,7 +1704,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.display);
       expect(find.text(englishStrings.settingsPricesOnNotice), findsNothing);
       await _tapText(tester, 'Show prices');
       expect(h.store.values['app.show_fiat'], 'false');
@@ -1534,22 +1717,36 @@ void main() {
       final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
-      for (final title in [
-        'Back up recovery phrase',
+      // Rows on the pages are labels only; a state line is allowed on the hub, not here.
+      Future<void> noSubtitles(
+        SettingsSection section,
+        List<String> titles,
+      ) async {
+        await h.openSettings(tester, section);
+        for (final title in titles) {
+          await _reveal(tester, find.text(title));
+          final tile = tester.widget<ListTile>(
+            find.widgetWithText(ListTile, title),
+          );
+          expect(tile.subtitle, isNull, reason: title);
+        }
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+      }
+
+      await noSubtitles(SettingsSection.wallet, [
         'Export history backup',
         'Export CSV',
         'Import history backup',
         'Contacts',
         'Rescan the chain',
         'Delete this wallet',
-      ]) {
-        await _reveal(tester, find.text(title));
-        final tile = tester.widget<ListTile>(
-          find.widgetWithText(ListTile, title),
-        );
-        expect(tile.subtitle, isNull, reason: title);
-      }
+      ]);
+      // Node and Epicbox and Epicbox server show their server as a state line, so only
+      // the plain words are checked on the Privacy & network page.
+      await h.openSettings(tester, SettingsSection.privacyNetwork);
       await _reveal(tester, find.text('Epicbox server'));
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('Relay'), findsNothing);
@@ -1562,7 +1759,7 @@ void main() {
       final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.privacyNetwork);
       await _tapText(tester, 'Node and Epicbox');
       await _reveal(tester, find.text('Epicbox server'));
       expect(find.text('Epicbox server'), findsOneWidget);
@@ -1600,7 +1797,7 @@ void main() {
       final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.privacyNetwork);
       await _tapText(tester, 'Node and Epicbox');
       // A release names no network: no picker, no description of the chain.
       expect(find.text('The real Epic Cash network.'), findsNothing);
@@ -1624,53 +1821,53 @@ void main() {
   });
 
   group('advanced options', () {
-    /// Every text in the Settings list, built by scrolling it from top to bottom.
-    Future<Set<String>> settingsTexts(WidgetTester tester) async {
-      final seen = <String>{};
-      final list = find.byType(Scrollable).last;
-      await tester.drag(list, const Offset(0, 20000));
-      await tester.pumpAndSettle();
-      for (var i = 0; i < 20; i++) {
-        seen.addAll(
-          tester.widgetList<Text>(find.byType(Text)).map((t) => t.data ?? ''),
-        );
-        await tester.drag(list, const Offset(0, -400));
-        await tester.pumpAndSettle();
-      }
-      await tester.drag(list, const Offset(0, 20000));
-      await tester.pumpAndSettle();
-      return seen;
-    }
+    /// Every text built on the page in front: the pages are short enough to build whole.
+    Set<String> pageTexts(WidgetTester tester) => tester
+        .widgetList<Text>(find.byType(Text))
+        .map((t) => t.data ?? '')
+        .toSet();
 
     testWidgets('the switch shows network, node, relay and rescan, and is '
         'saved', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.about);
 
-      final off = await settingsTexts(tester);
+      // The switch is on About; the pages it changes are Privacy & network and Wallet.
+      // Each visit opens the page over the last one, and About is the one left in front.
+      Future<Set<String>> texts() async {
+        final seen = <String>{};
+        for (final section in [
+          SettingsSection.privacyNetwork,
+          SettingsSection.wallet,
+          SettingsSection.about,
+        ]) {
+          await h.openSettings(tester, section);
+          if (section != SettingsSection.about) seen.addAll(pageTexts(tester));
+        }
+        return seen;
+      }
+
+      final off = await texts();
       for (final hidden in ['Rescan the chain', 'Epicbox server']) {
         expect(off, isNot(contains(hidden)), reason: hidden);
       }
       // Kept: the connection is for everyone (the status card on Home opens the same
-      // pickers), the Home backup reminder points at the exports, and help is for everyone.
+      // pickers), and the Home backup reminder points at the exports.
       for (final kept in [
         'Node and Epicbox',
         'Servers',
         'Export history backup',
         'Export CSV',
         'Import history backup',
-        'Help',
-        'Send feedback',
-        'Advanced options',
       ]) {
         expect(off, contains(kept), reason: kept);
       }
 
       await _tapText(tester, 'Advanced options');
       expect(h.store.values['app.advanced'], 'true');
-      final on = await settingsTexts(tester);
+      final on = await texts();
       for (final shown in [
         'Node and Epicbox',
         'Rescan the chain',
@@ -1682,7 +1879,7 @@ void main() {
 
       await _tapText(tester, 'Advanced options');
       expect(h.store.values['app.advanced'], 'false');
-      expect(await settingsTexts(tester), isNot(contains('Rescan the chain')));
+      expect(await texts(), isNot(contains('Rescan the chain')));
     });
 
     testWidgets(

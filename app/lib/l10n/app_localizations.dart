@@ -4892,6 +4892,48 @@ abstract class AppLocalizations {
   /// **'Privacy'**
   String get settingsSectionPrivacy;
 
+  /// Settings group on the phone's Settings hub: the Tor switch, the status site and the node and Epicbox servers.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & network'**
+  String get settingsSectionPrivacyNetwork;
+
+  /// Settings group on the phone's Settings hub: opens Help, which starts with Send feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & feedback'**
+  String get settingsSectionHelpFeedback;
+
+  /// State line under the Security group while the recovery phrase has not been backed up.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up your recovery phrase'**
+  String get settingsStateBackUp;
+
+  /// State line under the Back up recovery phrase row on the Security page while the phrase has not been backed up.
+  ///
+  /// In en, this message translates to:
+  /// **'Not backed up yet'**
+  String get settingsStateNotBackedUp;
+
+  /// State line under the Security group: the wallet unlocks with the PIN only.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN'**
+  String get settingsStatePin;
+
+  /// State line under the Security group: the wallet unlocks with the PIN or biometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN and biometrics'**
+  String get settingsStatePinBiometrics;
+
+  /// Two state words on one line under a Settings group, with a middle dot between them.
+  ///
+  /// In en, this message translates to:
+  /// **'{a} · {b}'**
+  String settingsStateJoin(String a, String b);
+
   /// Settings switch: read server health and node lists from the status.btlabs.uk monitor. Keep status.btlabs.uk as it is.
   ///
   /// In en, this message translates to:
@@ -6661,6 +6703,84 @@ abstract class AppLocalizations {
   /// **'Network status'**
   String get netStatusTitle;
 
+  /// Epicbox picker section head: relays the wallet has connected to that the public list does not have, each with a remove button. Beside the 'Public servers' head.
+  ///
+  /// In en, this message translates to:
+  /// **'My servers'**
+  String get serverMyRelays;
+
+  /// Tooltip and screen reader name of the remove button on a My servers row of the Epicbox picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from my servers'**
+  String get serverRemoveRelay;
+
+  /// Tooltip of the disabled remove button (Epicbox) or star (node) on the server the wallet uses now: why it cannot be removed.
+  ///
+  /// In en, this message translates to:
+  /// **'In use. Switch to another server first.'**
+  String get serverRemoveInUse;
+
+  /// Title of the dialog that confirms removing an Epicbox relay from My servers.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this server?'**
+  String get serverRemoveRelayTitle;
+
+  /// Title of the dialog that confirms removing a node from My nodes (the star of a My nodes row).
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this node?'**
+  String get serverRemoveNodeTitle;
+
+  /// Body of the dialogs that confirm removing a node or an Epicbox relay from the user's own list.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} leaves this list. Type it in again to use it later.'**
+  String serverRemoveBody(String host);
+
+  /// Confirm button of the remove dialogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get serverRemoveConfirm;
+
+  /// Screen reader words for the bell icon on the Epicbox relay that can send push notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Supports notifications'**
+  String get serverSupportsNotifications;
+
+  /// Direct receive status icon state word: the wallet's Tor address is published and reachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Reachable'**
+  String get netStatusReachable;
+
+  /// Direct receive status icon state word: Tor is connected and the address is being published.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing…'**
+  String get netStatusPublishing;
+
+  /// Direct receive status icon state word: the Tor address could not be published.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable'**
+  String get netStatusNotReachable;
+
+  /// Screen reader hint on the Tor status icon: a tap opens Settings › Privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the privacy settings'**
+  String get netStatusTorOpenHint;
+
+  /// Screen reader hint on the Direct receive status icon: a tap opens the Receive tab's Direct address.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the Direct receive address'**
+  String get netStatusDirectOpenHint;
+
   /// Screen reader hint on a status card row.
   ///
   /// In en, this message translates to:
@@ -6984,6 +7104,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The recipient can be offline.'**
   String get methodSendEpicboxTitle;
+
+  /// Settings row that brings back every guide box the user closed with its X (the method explanations on Send and Receive).
+  ///
+  /// In en, this message translates to:
+  /// **'Show tips again'**
+  String get settingsShowTipsAgain;
+
+  /// Notice after Show tips again: the closed guide boxes are back.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips will show again'**
+  String get settingsShowTipsAgainDone;
+
+  /// Screen reader label of the small X that closes a guide box (for example the method explanation on Send) for good.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide tip'**
+  String get tipHide;
 
   /// Send strip line for Epicbox.
   ///
@@ -9240,6 +9378,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tor is not connected.'**
   String get torWayNotConnected;
+
+  /// Line in the payment review when the send spends every spendable output (strategy All) and change comes back: it is always one change output, whatever Split change says.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}'**
+  String sendUsesAllOutputs(int count);
 }
 
 class _AppLocalizationsDelegate

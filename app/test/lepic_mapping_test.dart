@@ -299,6 +299,17 @@ void main() {
   });
 
   group('send options', () {
+    test('strategy All always reaches LEPIC with one change output', () {
+      final all = lepicSendOptions(
+        const SendOptions(strategy: SelectionStrategy.all, changeOutputs: 4),
+      );
+      expect(all.strategy, lepic.SelectionStrategy.all);
+      expect(all.changeOutputs, 1);
+      final smallest = lepicSendOptions(const SendOptions(changeOutputs: 4));
+      expect(smallest.strategy, lepic.SelectionStrategy.smallest);
+      expect(smallest.changeOutputs, 4);
+    });
+
     test('send all uses every coin and one change output, others none', () async {
       final wallet = _SendingWallet();
       final session = LepicWalletSession(wallet);

@@ -156,6 +156,8 @@ class DeskColors extends ThemeExtension<DeskColors> {
     required this.warnSoft,
     required this.risk,
     required this.riskSoft,
+    required this.info,
+    required this.infoSoft,
     required this.hover,
     required this.press,
     required this.grid,
@@ -172,8 +174,15 @@ class DeskColors extends ThemeExtension<DeskColors> {
 
   final Color text, dim, faint;
 
+  /// The brand gold and its ink, text, soft and faint fills, and the corner ticks. Buttons,
+  /// focus, links, the mark. Never a state colour: see [ok], [info] and [s3] for selection.
   final Color accent, accentDeep, accentInk, accentText, accentSoft, accentFaint, tick;
-  final Color ok, okSoft, warn, warnSoft, risk, riskSoft;
+
+  /// Status: [ok] green (connected, synced, confirmed, sent, received, success), [warn] amber
+  /// (needs attention, not ready), [risk] red (error), [info] blue (in progress: confirming,
+  /// the current step, checking). Each `Soft` is the translucent fill behind it. A selected or
+  /// current row takes [s3], plus an [ok] check only when it is working.
+  final Color ok, okSoft, warn, warnSoft, risk, riskSoft, info, infoSoft;
   final Color hover, press, grid, scrim, glow;
 
   @override
@@ -204,10 +213,12 @@ const DeskColors deskDark = DeskColors(
   tick: Color(0xFFC98A3E),
   ok: Color(0xFF8AD98A),
   okSoft: Color(0x1F8AD98A),
-  warn: Color(0xFFF0C274),
-  warnSoft: Color(0x1FF0C274),
+  warn: Color(0xFFF5A54A),
+  warnSoft: Color(0x1FF5A54A),
   risk: Color(0xFFF08A8A),
   riskSoft: Color(0x1FF08A8A),
+  info: Color(0xFF8FB8E8),
+  infoSoft: Color(0x1F8FB8E8),
   hover: Color(0x0DFFF9F9),
   press: Color(0x17FFF9F9),
   grid: Color(0x09FFF9F9),
@@ -236,10 +247,12 @@ const DeskColors deskLight = DeskColors(
   tick: Color(0xFF1C1E21),
   ok: Color(0xFF1F7A3A),
   okSoft: Color(0x1A1F7A3A),
-  warn: Color(0xFF815525),
-  warnSoft: Color(0x1A8F5E1F),
+  warn: Color(0xFF9C4A00),
+  warnSoft: Color(0x1A9C4A00),
   risk: Color(0xFFB3261E),
   riskSoft: Color(0x14B3261E),
+  info: Color(0xFF2F5F9E),
+  infoSoft: Color(0x1A2F5F9E),
   hover: Color(0x0A000000),
   press: Color(0x12000000),
   grid: Color(0x0D1C1E21),

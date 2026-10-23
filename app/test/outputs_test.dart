@@ -421,6 +421,27 @@ void main() {
     expect(h.session.consolidations, 1);
   });
 
+  testWidgets('Consolidate makes one output with Split change on', (tester) async {
+    final h = _Harness();
+    h.store.values['app.split_change'] = 'true';
+    final spendable = h.session.outputsValue
+        .where((o) => o.category == OutputCategory.spendable)
+        .length;
+    expect(spendable, greaterThan(1));
+    await h.pump(tester, const OutputsScreen());
+    await tester.tap(find.text(_l.outputsConsolidateButton));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(_l.outputsConsolidateAction));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, _pin);
+    await tester.pumpAndSettle();
+    expect(h.session.consolidations, 1);
+    expect(h.session.splits, isEmpty);
+    expect(h.session.sentOptions, isEmpty);
+    final made = h.session.outputsValue.where((o) => o.commitment.startsWith('self-'));
+    expect(made, hasLength(1));
+  });
+
   testWidgets('both actions wait while a send is in progress', (tester) async {
     final h = _Harness();
     h.session.summaryValue = _summary(locked: 4, spendable: 13);
@@ -450,12 +471,15 @@ void main() {
     expect(container.read(appSettingsProvider).value?.splitChange, isFalse);
   });
 
-  testWidgets('Settings lists Outputs with its count and strategy', (
+  testWidgets('Settings › Wallet lists Outputs with its count and strategy', (
     tester,
   ) async {
     final h = _Harness();
     h.store.values['app.send_strategy'] = 'all';
-    await h.pump(tester, const SettingsScreen());
+    await h.pump(
+      tester,
+      const SettingsSectionScreen(section: SettingsSection.wallet),
+    );
     await tester.scrollUntilVisible(
       find.text(_l.outputsTitle),
       200,

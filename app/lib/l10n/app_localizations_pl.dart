@@ -3386,6 +3386,29 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSectionPrivacy => 'Prywatność';
 
   @override
+  String get settingsSectionPrivacyNetwork => 'Prywatność i sieć';
+
+  @override
+  String get settingsSectionHelpFeedback => 'Pomoc i opinie';
+
+  @override
+  String get settingsStateBackUp => 'Zapisz frazę odzyskiwania';
+
+  @override
+  String get settingsStateNotBackedUp => 'Jeszcze nie zapisano';
+
+  @override
+  String get settingsStatePin => 'PIN';
+
+  @override
+  String get settingsStatePinBiometrics => 'PIN i biometria';
+
+  @override
+  String settingsStateJoin(String a, String b) {
+    return '$a · $b';
+  }
+
+  @override
   String get settingsUseStatusSite => 'Używaj status.btlabs.uk';
 
   @override
@@ -4482,6 +4505,47 @@ class AppLocalizationsPl extends AppLocalizations {
   String get netStatusTitle => 'Stan sieci';
 
   @override
+  String get serverMyRelays => 'Moje serwery';
+
+  @override
+  String get serverRemoveRelay => 'Usuń z moich serwerów';
+
+  @override
+  String get serverRemoveInUse => 'W użyciu. Najpierw przełącz na inny serwer.';
+
+  @override
+  String get serverRemoveRelayTitle => 'Usunąć ten serwer?';
+
+  @override
+  String get serverRemoveNodeTitle => 'Usunąć ten węzeł?';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host zniknie z tej listy. Wpisz go ponownie, aby użyć go później.';
+  }
+
+  @override
+  String get serverRemoveConfirm => 'Usuń';
+
+  @override
+  String get serverSupportsNotifications => 'Obsługuje powiadomienia';
+
+  @override
+  String get netStatusReachable => 'Osiągalny';
+
+  @override
+  String get netStatusPublishing => 'Publikowanie…';
+
+  @override
+  String get netStatusNotReachable => 'Nieosiągalny';
+
+  @override
+  String get netStatusTorOpenHint => 'Otwiera ustawienia prywatności';
+
+  @override
+  String get netStatusDirectOpenHint => 'Otwiera adres odbioru bezpośredniego';
+
+  @override
   String get netStatusOpenHint => 'Pokazuje serwery';
 
   @override
@@ -4712,6 +4776,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get methodSendEpicboxTitle => 'Odbiorca może być offline.';
+
+  @override
+  String get settingsShowTipsAgain => 'Pokaż wskazówki ponownie';
+
+  @override
+  String get settingsShowTipsAgainDone => 'Wskazówki znów będą widoczne';
+
+  @override
+  String get tipHide => 'Ukryj wskazówkę';
 
   @override
   String get methodSendEpicboxLine =>
@@ -6116,4 +6189,17 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torWayNotConnected => 'Tor nie jest połączony.';
+
+  @override
+  String sendUsesAllOutputs(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Używa wszystkich $count wyjścia · reszta 1 wyjście',
+      many: 'Używa wszystkich $count wyjść · reszta 1 wyjście',
+      few: 'Używa wszystkich $count wyjść · reszta 1 wyjście',
+      one: 'Używa wszystkich wyjść ($count) · reszta 1 wyjście',
+    );
+    return '$_temp0';
+  }
 }

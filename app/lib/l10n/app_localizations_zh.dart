@@ -3043,6 +3043,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionPrivacy => '隐私';
 
   @override
+  String get settingsSectionPrivacyNetwork => '隐私与网络';
+
+  @override
+  String get settingsSectionHelpFeedback => '帮助与反馈';
+
+  @override
+  String get settingsStateBackUp => '备份恢复短语';
+
+  @override
+  String get settingsStateNotBackedUp => '尚未备份';
+
+  @override
+  String get settingsStatePin => 'PIN 码';
+
+  @override
+  String get settingsStatePinBiometrics => 'PIN 码和生物识别';
+
+  @override
+  String settingsStateJoin(String a, String b) {
+    return '$a · $b';
+  }
+
+  @override
   String get settingsUseStatusSite => '使用 status.btlabs.uk';
 
   @override
@@ -4075,6 +4098,47 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netStatusTitle => '网络状态';
 
   @override
+  String get serverMyRelays => '我的服务器';
+
+  @override
+  String get serverRemoveRelay => '从我的服务器移除';
+
+  @override
+  String get serverRemoveInUse => '正在使用。请先切换到其他服务器。';
+
+  @override
+  String get serverRemoveRelayTitle => '移除此服务器？';
+
+  @override
+  String get serverRemoveNodeTitle => '移除此节点？';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host 将从此列表中移除。以后要使用，请重新输入。';
+  }
+
+  @override
+  String get serverRemoveConfirm => '移除';
+
+  @override
+  String get serverSupportsNotifications => '支持通知';
+
+  @override
+  String get netStatusReachable => '可访问';
+
+  @override
+  String get netStatusPublishing => '正在发布…';
+
+  @override
+  String get netStatusNotReachable => '不可访问';
+
+  @override
+  String get netStatusTorOpenHint => '打开隐私设置';
+
+  @override
+  String get netStatusDirectOpenHint => '打开直接接收地址';
+
+  @override
   String get netStatusOpenHint => '显示服务器';
 
   @override
@@ -4286,6 +4350,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get methodSendEpicboxTitle => '对方可以不在线。';
+
+  @override
+  String get settingsShowTipsAgain => '再次显示提示';
+
+  @override
+  String get settingsShowTipsAgainDone => '提示将再次显示';
+
+  @override
+  String get tipHide => '隐藏提示';
 
   @override
   String get methodSendEpicboxLine => 'Epicbox 服务器会暂存付款，直到对方打开钱包。';
@@ -5570,4 +5643,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get torWayNotConnected => 'Tor 未连接。';
+
+  @override
+  String sendUsesAllOutputs(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '使用全部 $count 个输出 · 找零 1 个输出',
+    );
+    return '$_temp0';
+  }
 }

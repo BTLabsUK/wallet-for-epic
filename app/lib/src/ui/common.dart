@@ -45,8 +45,14 @@ void showShellTab(BuildContext context, ShellTab tab, {String? recipient}) {
   Navigator.of(context).popUntil((route) => route.isFirst);
 }
 
-/// Closes the wallet and returns to the unlock screen.
-void lockWallet(BuildContext context, WidgetRef ref) {
+/// Closes the wallet and returns to the unlock screen. [reason] is manual unless the auto-lock
+/// locks it ([LockReason.timeout]), which lets the unlock screen start biometrics itself.
+void lockWallet(
+  BuildContext context,
+  WidgetRef ref, {
+  LockReason reason = LockReason.manual,
+}) {
+  ref.read(lockReasonProvider.notifier).set(reason);
   ref.read(sessionProvider.notifier).lock();
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
@@ -469,7 +475,7 @@ String txStatusLabel(
   final t = context.tokens;
   return switch (phase) {
     TxPhase.completed => (Icons.check_circle_outline, t.ok),
-    TxPhase.confirming => (Icons.timelapse, t.accentText),
+    TxPhase.confirming => (Icons.timelapse, t.info),
     TxPhase.waitingRecipient ||
     TxPhase.waitingSender ||
     TxPhase.waitingPayer => (Icons.hourglass_empty, t.dim),
@@ -478,8 +484,8 @@ String txStatusLabel(
   };
 }
 
-/// The second line of a payment row: the status word with its mark (the word in accent while
-/// confirming, dim otherwise), then the time, dim. Replaces the chip in lists.
+/// The second line of a payment row: the status word with its mark (the word in [WalletTokens.info]
+/// while confirming, dim otherwise), then the time, dim. Replaces the chip in lists.
 class TxStatusLine extends ConsumerWidget {
   const TxStatusLine({
     super.key,
@@ -515,7 +521,7 @@ class TxStatusLine extends ConsumerWidget {
                 TextSpan(
                   text: txStatusLabel(context.l10n, tx, tip, target: target),
                   style: phase == TxPhase.confirming
-                      ? base?.copyWith(color: t.accentText)
+                      ? base?.copyWith(color: t.info)
                       : base,
                 ),
                 TextSpan(text: ' \u00B7 $date', style: base),

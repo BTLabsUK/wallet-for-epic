@@ -571,7 +571,10 @@ void main() {
       final h = _Harness();
       await h.pump(tester, height: 3000);
       await h.unlock(tester);
-      await h.open(tester, const SettingsScreen());
+      await h.open(
+        tester,
+        const SettingsSectionScreen(section: SettingsSection.wallet),
+      );
       expect(find.text(l.settingsDeleteWallet), findsNothing);
       await _tap(tester, find.text(l.demoEnd));
       expect(find.text(l.demoEndTitle), findsOneWidget);
@@ -788,35 +791,50 @@ void main() {
         await h.pump(tester, height: 4000);
         await h.unlock(tester);
         await h.open(tester, const SettingsScreen());
-        for (final text in [
-          l.settingsNetworkAndNode,
-          l.settingsRescan,
-          l.settingsBiometrics,
-          l.settingsCheckUpdates,
-          l.settingsBackupPhrase,
-          l.settingsExportHistory,
-          l.settingsExportCsv,
-          l.settingsImportHistory,
-          l.settingsSendFeedback,
-          l.settingsDeleteWallet,
-          // The demo wallet keeps the demo PIN, which unlock fills in.
-          l.settingsChangePin,
-        ]) {
-          expect(find.text(text), present, reason: text);
-        }
-        // The row and its section header share the word.
+        // The push row is on the hub: the demo has no notifications.
         expect(find.byKey(settingsPushKey), present);
-        // What stays: display, contacts, help, and the other way out.
+        // What the demo hides, page by page. Send feedback lives in Help.
+        final pages = {
+          SettingsSection.security: [
+            l.settingsBiometrics,
+            l.settingsBackupPhrase,
+            // The demo wallet keeps the demo PIN, which unlock fills in.
+            l.settingsChangePin,
+          ],
+          SettingsSection.privacyNetwork: [l.settingsNetworkAndNode],
+          SettingsSection.wallet: [
+            l.settingsRescan,
+            l.settingsExportHistory,
+            l.settingsExportCsv,
+            l.settingsImportHistory,
+            l.settingsDeleteWallet,
+          ],
+          SettingsSection.about: [l.settingsCheckUpdates],
+        };
+        for (final MapEntry(key: section, value: texts) in pages.entries) {
+          await tester.tap(find.byKey(settingsGroupKey(section)));
+          await tester.pumpAndSettle();
+          for (final text in texts) {
+            expect(find.text(text), present, reason: '$section $text');
+          }
+          if (section == SettingsSection.wallet) {
+            expect(find.text(l.demoEnd), demo ? findsOneWidget : findsNothing);
+            // What stays.
+            expect(find.text(l.settingsContacts), findsOneWidget);
+          }
+          await tester.pageBack();
+          await tester.pumpAndSettle();
+        }
+        // What stays: display.
+        await tester.tap(find.byKey(settingsGroupKey(SettingsSection.display)));
+        await tester.pumpAndSettle();
         for (final text in [
           l.settingsTheme,
           l.languageSetting,
           l.settingsCurrency,
-          l.settingsContacts,
-          l.settingsHelp,
         ]) {
           expect(find.text(text), findsOneWidget, reason: text);
         }
-        expect(find.text(l.demoEnd), demo ? findsOneWidget : findsNothing);
       });
 
       testWidgets('Help: feedback ($mode)', (tester) async {
