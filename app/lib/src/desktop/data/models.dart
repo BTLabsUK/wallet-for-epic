@@ -5,6 +5,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../l10n.dart' show AppLocalizations, englishStrings;
 import '../../models.dart' show SelectionStrategy, SendOptions;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../smart_outputs.dart' show smartOutputsDefault;
@@ -556,9 +557,21 @@ class HistoryFileError implements Exception {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx});
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx})
+    : _text = null;
 
+  /// An error the user reads in their language: [text] words it when shown ([DeskError.text]),
+  /// [message] keeps its English for logs.
+  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx})
+    : message = text(englishStrings),
+      _text = text;
+
+  /// English, for logs. The user reads [text].
   final String message;
+  final String Function(AppLocalizations l)? _text;
+
+  /// The message in [l]'s language; English for an error made with a plain [message].
+  String text(AppLocalizations l) => _text?.call(l) ?? message;
   final bool wrongPassword;
 
   /// A restore whose phrase belongs to this listed wallet (O1): nothing was made. The restore

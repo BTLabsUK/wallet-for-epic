@@ -31,6 +31,7 @@ import '../../btlabs_public.dart';
 import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
+import '../../l10n.dart' show AppLocalizations, englishStrings;
 import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
 import '../../network.dart';
@@ -84,8 +85,10 @@ const String scanRunning = 'A scan is already running.';
 /// Why a cancel was refused: LEPIC reports a payment in the pool or on chain as invalid input.
 const String cancelRefusedText = 'Not cancelled: the node already has this payment.';
 
-String deskErrorText(Object error) {
-  if (error is DeskError) return error.message;
+/// [error] in [l]'s language; English without [l] (logs, and callers not yet localised).
+String deskErrorText(Object error, [AppLocalizations? l]) {
+  l ??= englishStrings;
+  if (error is DeskError) return error.text(l);
   if (error is! core.WalletError) return 'Something went wrong';
   final detail = error.message.split('\n').first.trim();
   return switch (error.kind) {
