@@ -3044,6 +3044,24 @@ abstract class AppLocalizations {
   /// **'Changing the epicbox server changes your address. Give senders the new address. Payments sent to the old one wait on the old server until you switch back.'**
   String get setupRelayChangeWarning;
 
+  /// Title of the confirm before the epicbox server of the open wallet changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch epicbox server?'**
+  String get serverSwitchRelayTitle;
+
+  /// Body of that confirm: the address keeps its key and takes the new server.
+  ///
+  /// In en, this message translates to:
+  /// **'The epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.'**
+  String serverSwitchRelayBody(String relay);
+
+  /// Button of that confirm that switches the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get serverSwitchRelayConfirm;
+
   /// No description provided for @setupWalletPerNetwork.
   ///
   /// In en, this message translates to:
@@ -8940,6 +8958,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The change comes back once the send confirms.'**
   String get sendSpendableUntilChangeHint;
+
+  /// Notice after the node or Epicbox server changed live, without locking the wallet. {host} is the new host.
+  ///
+  /// In en, this message translates to:
+  /// **'Switched to {host}'**
+  String serverSwitched(String host);
 }
 
 class _AppLocalizationsDelegate

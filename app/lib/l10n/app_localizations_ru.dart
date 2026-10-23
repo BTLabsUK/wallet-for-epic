@@ -2212,6 +2212,17 @@ class AppLocalizationsRu extends AppLocalizations {
       'При смене сервера epicbox меняется ваш адрес. Сообщите отправителям новый адрес. Платежи, отправленные на старый, будут ждать на старом сервере, пока вы не переключитесь обратно.';
 
   @override
+  String get serverSwitchRelayTitle => 'Сменить сервер epicbox?';
+
+  @override
+  String serverSwitchRelayBody(String relay) {
+    return 'Адрес epicbox изменится на …@$relay. Отправителям нужен новый адрес. Платежи, отправленные на старый адрес, остаются на старом сервере.';
+  }
+
+  @override
+  String get serverSwitchRelayConfirm => 'Сменить';
+
+  @override
   String get setupWalletPerNetwork =>
       'У каждой сети свой кошелёк. Для сети без кошелька будет создан новый.';
 
@@ -5935,4 +5946,9 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get sendSpendableUntilChangeHint =>
       'Сдача вернётся, когда отправка подтвердится.';
+
+  @override
+  String serverSwitched(String host) {
+    return 'Переключено на $host';
+  }
 }

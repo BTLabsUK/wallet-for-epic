@@ -1967,6 +1967,17 @@ class AppLocalizationsZh extends AppLocalizations {
       '更换 epicbox 服务器会改变你的地址。请把新地址告诉发送方。发送到旧地址的付款会留在旧服务器上，直到你切换回去。';
 
   @override
+  String get serverSwitchRelayTitle => '更换 epicbox 服务器？';
+
+  @override
+  String serverSwitchRelayBody(String relay) {
+    return 'epicbox 地址将变为 …@$relay。发送方需要新地址。发送到旧地址的付款会留在旧服务器上。';
+  }
+
+  @override
+  String get serverSwitchRelayConfirm => '更换';
+
+  @override
   String get setupWalletPerNetwork => '每个网络都有各自的钱包。尚无钱包的网络会创建一个新钱包。';
 
   @override
@@ -5413,4 +5424,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sendSpendableUntilChangeHint => '找零在发送确认后返回。';
+
+  @override
+  String serverSwitched(String host) {
+    return '已切换到 $host';
+  }
 }

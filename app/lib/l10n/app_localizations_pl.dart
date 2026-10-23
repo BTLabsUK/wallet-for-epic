@@ -2221,6 +2221,17 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zmiana serwera epicbox zmienia Twój adres. Przekaż nadawcom nowy adres. Płatności wysłane na stary adres czekają na starym serwerze, dopóki do niego nie wrócisz.';
 
   @override
+  String get serverSwitchRelayTitle => 'Zmienić serwer epicbox?';
+
+  @override
+  String serverSwitchRelayBody(String relay) {
+    return 'Adres epicbox zmieni się na …@$relay. Nadawcy potrzebują nowego adresu. Płatności wysłane na stary adres zostają na starym serwerze.';
+  }
+
+  @override
+  String get serverSwitchRelayConfirm => 'Zmień';
+
+  @override
   String get setupWalletPerNetwork =>
       'Każda sieć ma własny portfel. W sieci, która go nie ma, zostanie utworzony nowy.';
 
@@ -5951,4 +5962,9 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get sendSpendableUntilChangeHint =>
       'Reszta wraca, gdy wysyłka zostanie potwierdzona.';
+
+  @override
+  String serverSwitched(String host) {
+    return 'Przełączono na $host';
+  }
 }

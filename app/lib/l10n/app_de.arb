@@ -484,6 +484,9 @@
   "setupCustomRelayUse": "Diesen Server verwenden",
   "setupCustomRelayInvalid": "Geben Sie einen Host ein, z. B. epicbox.example.com",
   "setupRelayChangeWarning": "Wenn Sie den epicbox-Server wechseln, ändert sich Ihre Adresse. Geben Sie Absendern die neue Adresse. An die alte Adresse gesendete Zahlungen warten auf dem alten Server, bis Sie zurückwechseln.",
+  "serverSwitchRelayTitle": "epicbox-Server wechseln?",
+  "serverSwitchRelayBody": "Die epicbox-Adresse ändert sich zu …@{relay}. Absender brauchen die neue Adresse. An die alte Adresse gesendete Zahlungen bleiben auf dem alten Server.",
+  "serverSwitchRelayConfirm": "Wechseln",
   "setupWalletPerNetwork": "Jedes Netzwerk hat eine eigene Wallet. Für ein Netzwerk ohne Wallet wird eine neue erstellt.",
   "setupRelayHealthyIconLabel": "Funktioniert",
   "setupRelayDownIconLabel": "Ausgefallen",
@@ -1465,5 +1468,6 @@
   "helpMoreInSection": "Mehr in diesem Abschnitt",
   "sendBalanceAfter": "Saldo danach",
   "sendSpendableUntilChange": "Verfügbar, bis das Wechselgeld bestätigt ist",
-  "sendSpendableUntilChangeHint": "Das Wechselgeld kommt zurück, sobald die Zahlung bestätigt ist."
+  "sendSpendableUntilChangeHint": "Das Wechselgeld kommt zurück, sobald die Zahlung bestätigt ist.",
+  "serverSwitched": "Gewechselt zu {host}"
 }

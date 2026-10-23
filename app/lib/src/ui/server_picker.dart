@@ -16,10 +16,12 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../models.dart' show Chain;
 import '../network.dart';
+import '../server_switch.dart';
 import '../providers.dart';
 import '../public_servers.dart';
 import '../relay_directory.dart';
 import 'common.dart' show groupDigits;
+import 'notices.dart';
 import 'help_screen.dart' show HelpButton, HelpId;
 import 'launch_screen.dart';
 import 'status.dart' hide NodeStatus;
@@ -761,7 +763,7 @@ Future<void> _showPicker(BuildContext context, ServerKind kind) =>
       ),
     );
 
-/// Starts the app again on the saved network choice, as Settings › Network's Save does.
+/// Starts the app again on the saved network choice, when no wallet was open to switch live.
 void relaunchAfterSwitch(BuildContext context) {
   Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
     MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
@@ -771,19 +773,28 @@ void relaunchAfterSwitch(BuildContext context) {
 
 /// The picker sheet's content: title and close, for nodes the current node's card and the
 /// search field, for relays the address warning; the list; the confirm strip at the foot once
-/// another server is tapped. [afterSave] runs after a switch is saved (tests replace the
-/// relaunch).
+/// another server is tapped. A switch goes live through [liveSwitch]; [afterSave] runs when it
+/// could not, after the choice is saved (tests replace the relaunch).
 class ServerPickerSheet extends ConsumerStatefulWidget {
   const ServerPickerSheet({
     super.key,
     required this.kind,
     this.scrollController,
     this.afterSave = relaunchAfterSwitch,
+    this.liveSwitch = switchServersLive,
   });
 
   final ServerKind kind;
   final ScrollController? scrollController;
   final void Function(BuildContext context) afterSave;
+
+  /// Moves the open wallet onto the servers; false when no wallet is open (tests replace it).
+  final Future<bool> Function(
+    WidgetRef ref, {
+    required String nodeUrl,
+    required EpicboxRelay relay,
+  })
+  liveSwitch;
 
   @override
   ConsumerState<ServerPickerSheet> createState() => _ServerPickerSheetState();
@@ -871,26 +882,29 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
       _error = null;
     });
     try {
-      if (_node) {
-        // A typed address joins My nodes, so it can be found again.
-        if (_typed?.url == value) {
-          await ref
-              .read(myNodesProvider(choice.preset.chain).notifier)
-              .add(value);
-        }
+      // A typed address joins My nodes, so it can be found again.
+      if (_node && _typed?.url == value) {
         await ref
-            .read(networkChoiceProvider.notifier)
-            .save(choice.preset, value, relay: choice.relay);
-      } else {
-        await ref
-            .read(networkChoiceProvider.notifier)
-            .save(
-              choice.preset,
-              choice.nodeUrl,
-              relay: EpicboxRelay.parse(value),
-            );
+            .read(myNodesProvider(choice.preset.chain).notifier)
+            .add(value);
       }
+      final nodeUrl = _node ? value : choice.nodeUrl;
+      final relay = _node ? choice.relay : EpicboxRelay.parse(value);
+      if (relay == null) return;
+      // The open wallet moves onto the servers without locking (switchServersLive saves the
+      // choice once it worked); with no wallet open the choice is saved and the app starts
+      // again on it. The strip's Switch, with its caption, is the confirmation.
+      final live = await widget.liveSwitch(ref, nodeUrl: nodeUrl, relay: relay);
       if (!mounted) return;
+      if (live) {
+        final host = _node ? (Uri.tryParse(nodeUrl)?.host ?? nodeUrl) : relay.label;
+        Navigator.of(context).maybePop();
+        ref.read(noticeProvider.notifier).show(
+          context.l10n.serverSwitched(host),
+          level: NoticeLevel.success,
+        );
+        return;
+      }
       widget.afterSave(context);
       // The app usually starts again on the new server; when it does not, the sheet is idle.
       if (mounted) {

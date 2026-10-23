@@ -6,6 +6,7 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/server_switch.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -74,6 +75,8 @@ Future<void> _pump(
   required MemorySecretStore store,
   _Directory? directory,
   void Function()? onSaved,
+  Future<bool> Function(WidgetRef ref, {required String nodeUrl, required EpicboxRelay relay})?
+  liveSwitch,
 }) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 3;
@@ -96,6 +99,13 @@ Future<void> _pump(
           body: ServerPickerSheet(
             kind: kind,
             afterSave: (_) => onSaved?.call(),
+            liveSwitch:
+                liveSwitch ??
+                (ref, {required nodeUrl, required relay}) async {
+                  // No wallet open in these tests: save and hand over, as the real one does.
+                  await switchServersLive(ref, nodeUrl: nodeUrl, relay: relay);
+                  return false;
+                },
           ),
         ),
       ),
@@ -275,6 +285,37 @@ void main() {
       expect(jsonDecode(store.values['app.myNodes.mainnet']!), [
         'https://my.node.example:3413',
       ]);
+    });
+
+    testWidgets('with a wallet open the switch is live: the sheet closes, no relaunch', (
+      tester,
+    ) async {
+      final store = _store();
+      var saved = 0;
+      var live = 0;
+      const url = 'https://node.epicnet.us:3413';
+      await _pump(
+        tester,
+        ServerKind.node,
+        store: store,
+        onSaved: () => saved++,
+        liveSwitch: (ref, {required nodeUrl, required relay}) async {
+          live++;
+          expect(nodeUrl, url);
+          expect(relay.label, 'epicbox.stackwallet.com');
+          return true;
+        },
+      );
+      await tester.scrollUntilVisible(_row(url), 200, scrollable: _list);
+      await tester.tap(_row(url));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverSwitchKey));
+      // Not pumpAndSettle: the success notice's timer runs after the switch.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(live, 1);
+      expect(saved, 0);
+      expect(store.values['app.node.mainnet'], 'https://node.btlabs.uk');
     });
 
     testWidgets('a tap asks first; Switch saves the url and keeps the relay', (
