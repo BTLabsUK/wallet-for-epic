@@ -1628,7 +1628,10 @@ class _SendViewState extends ConsumerState<SendView> {
   List<Widget> _methodHead(BuildContext context, TransferMethod method) => [
     _methodSelector(context, method),
     const SizedBox(height: 12),
-    MethodStrip(method: method),
+    DismissibleTip(
+      id: sendMethodTipId,
+      child: MethodStrip(method: method),
+    ),
     const SizedBox(height: 16),
   ];
 

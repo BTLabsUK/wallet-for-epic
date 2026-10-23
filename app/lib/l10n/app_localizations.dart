@@ -6985,6 +6985,24 @@ abstract class AppLocalizations {
   /// **'The recipient can be offline.'**
   String get methodSendEpicboxTitle;
 
+  /// Settings row that brings back every guide box the user closed with its X (the method explanations on Send and Receive).
+  ///
+  /// In en, this message translates to:
+  /// **'Show tips again'**
+  String get settingsShowTipsAgain;
+
+  /// Notice after Show tips again: the closed guide boxes are back.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips will show again'**
+  String get settingsShowTipsAgainDone;
+
+  /// Screen reader label of the small X that closes a guide box (for example the method explanation on Send) for good.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide tip'**
+  String get tipHide;
+
   /// Send strip line for Epicbox.
   ///
   /// In en, this message translates to:

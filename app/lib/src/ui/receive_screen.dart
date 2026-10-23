@@ -135,16 +135,19 @@ class ReceiveView extends ConsumerWidget {
     // What the tab means, so the sender's side is plain: picture, title, one line.
     final strip = Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: MethodStrip(
-        method: switch (tab) {
-          ReceiveTab.epicbox => TransferMethod.epicbox,
-          ReceiveTab.direct => TransferMethod.direct,
-          ReceiveTab.file => TransferMethod.file,
-        },
-        receiving: true,
-        overTor:
-            tab == ReceiveTab.epicbox &&
-            torWay(TorRoute.epicbox, torState) == TorWay.overTor,
+      child: DismissibleTip(
+        id: receiveMethodTipId,
+        child: MethodStrip(
+          method: switch (tab) {
+            ReceiveTab.epicbox => TransferMethod.epicbox,
+            ReceiveTab.direct => TransferMethod.direct,
+            ReceiveTab.file => TransferMethod.file,
+          },
+          receiving: true,
+          overTor:
+              tab == ReceiveTab.epicbox &&
+              torWay(TorRoute.epicbox, torState) == TorWay.overTor,
+        ),
       ),
     );
     Widget caption(String text) => Padding(

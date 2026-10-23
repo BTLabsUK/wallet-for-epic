@@ -4594,6 +4594,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodSendEpicboxTitle => 'Die Gegenseite kann offline sein.';
 
   @override
+  String get settingsShowTipsAgain => 'Tipps wieder zeigen';
+
+  @override
+  String get settingsShowTipsAgainDone => 'Tipps werden wieder gezeigt';
+
+  @override
+  String get tipHide => 'Tipp ausblenden';
+
+  @override
   String get methodSendEpicboxLine =>
       'Der Epicbox-Server hält die Zahlung, bis die Gegenseite ihre Wallet öffnet.';
 
