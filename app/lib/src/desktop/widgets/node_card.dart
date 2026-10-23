@@ -45,9 +45,15 @@ class SwitchTarget {
 }
 
 class NodeCard extends StatelessWidget {
-  const NodeCard({super.key, required this.url, this.info, this.downSince, this.switchTo, this.onSwitch, this.now});
+  const NodeCard({super.key, required this.url, this.info, this.health, this.torOn = false, this.downSince, this.switchTo, this.onSwitch, this.now});
 
   final String url;
+
+  /// The wallet's own view of the node: ok keeps a failed info probe from saying it is down.
+  final ServiceHealth? health;
+
+  /// Whether the Tor switch is on: a latency measured directly is not shown then.
+  final bool torOn;
 
   /// Null while nothing has come in yet: every value prints "–".
   final NodeInfo? info;
@@ -65,7 +71,10 @@ class NodeCard extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final i = info;
-    final v = remoteNodeView(url, i, downSince: downSince);
+    // Only the wallet reaching the node counts here; a down of its own shows in the head and the rail.
+    final v = remoteNodeView(url, i, health: health == ServiceHealth.ok ? health : null, downSince: downSince, torOn: torOn);
+    final latency = i == null ? null : shownLatency(i, torOn: torOn);
+    final where = i == null ? null : latencyWhere(i, torOn: torOn);
     final host = nodeHost(url);
     final down = v.state == EState.risk;
     final limited = i != null && i.source == NodeInfoSource.limited;
@@ -88,7 +97,7 @@ class NodeCard extends StatelessWidget {
           i.readyForTxs == null ? 'node before 4.1.0' : null,
           tone: i.readyForTxs == false ? EState.warn : null,
         ),
-        _Fact('Latency', i.latencyMs == null ? '–' : '${digitsText(i.latencyMs!)} ms', latencyWhere(i)),
+        _Fact('Latency', latency == null ? '–' : '${digitsText(latency)} ms', where),
       ]);
     } else {
       final behind = i?.blocksBehind;
@@ -106,7 +115,7 @@ class NodeCard extends StatelessWidget {
           i?.version == null ? null : (old ? '${i!.releasedVersion} is out' : (i!.releasedVersion == null ? null : 'latest')),
           tone: old ? EState.warn : null,
         ),
-        _Fact('Latency', i?.latencyMs == null ? '–' : '${digitsText(i!.latencyMs!)} ms', i == null ? null : latencyWhere(i)),
+        _Fact('Latency', latency == null ? '–' : '${digitsText(latency)} ms', where),
         _Fact('Uptime', i?.uptime24h == null ? '–' : '${(i!.uptime24h! * 100).toStringAsFixed(1)} %', 'last 24 h'),
         _Fact('Peers', i?.peers == null ? '–' : '${i!.peers}', down && i?.at != null ? 'at ${hhmm(i!.at)}' : null),
         _Fact('Operator', i?.operator == null ? '–' : i!.operator!, i?.listing == 'official' ? 'listed as official' : null),
@@ -116,10 +125,9 @@ class NodeCard extends StatelessWidget {
     final (netLine, forked) = directory && i.network != null ? networkLine(i.network!) : (limited ? limitedNetworkLine : '–', false);
     final String? sourceLine;
     if (directory) {
-      final where = latencyWhere(i);
       sourceLine = [
         'status.btlabs.uk, checked ${hhmm(i.at)}',
-        if (!i.latencyFromMonitor) 'latency measured $where',
+        if (where != null && !i.latencyFromMonitor) 'latency measured $where',
       ].join(' · ');
     } else if (limited) {
       sourceLine = i.directoryReachedAt == null ? null : 'Status site last reached ${hhmm(i.directoryReachedAt!)}';
@@ -247,10 +255,10 @@ class _Fact extends StatelessWidget {
   }
 }
 
-/// Where [i]'s latency was measured: over Tor while the Tor switch is on, never shown as this
-/// computer's own then.
-String latencyWhere(NodeInfo i) => i.latencyFromMonitor
-    ? 'from status.btlabs.uk'
-    : i.latencyOverTor
-    ? 'over Tor'
-    : 'from this computer';
+/// Where [i]'s latency was measured, or null with no figure shown ([shownLatency]). While the
+/// Tor switch is on ([torOn]) it is never "from this computer" for a remote node.
+String? latencyWhere(NodeInfo i, {bool torOn = false}) {
+  if (shownLatency(i, torOn: torOn) == null) return null;
+  if (i.latencyFromMonitor) return 'from status.btlabs.uk';
+  return i.latencyOverTor || (torOn && !isLocalNodeUrl(i.url)) ? 'over Tor' : 'from this computer';
+}

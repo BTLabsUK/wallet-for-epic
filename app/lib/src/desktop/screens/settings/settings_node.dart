@@ -7,6 +7,7 @@ import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/node_view.dart';
+import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/node_card.dart';
@@ -335,6 +336,12 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final value = prefs.builtin ? builtinNode : current.url;
     final local = ref.watch(deskLocalNodeProvider).value;
     final info = prefs.builtin ? null : ref.watch(deskNodeInfoProvider(current.url)).value;
+    // A figure measured the other way is dropped at once (shownLatency); the node is asked
+    // again the new way.
+    final torOn = torStateOf(st.settings, status) != TorState.off;
+    ref.listen(deskProvider.select((s) => torStateOf(s.settings, s.status) != TorState.off), (was, now) {
+      if (was != now && !prefs.builtin) ref.invalidate(deskNodeInfoProvider(current.url));
+    });
     final released = info?.releasedVersion ?? info?.network?.releasedNodeVersion;
 
     final myRows = serverRows(mine, released: released, starred: true);
@@ -382,10 +389,12 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       );
     }
 
-    // The word and state of the head: the same the rail shows.
+    // The word and state of the head: the same the rail shows. The down demo's mock wallet
+    // still reaches its node, which would keep it Synced.
+    final nodeHealth = widget.arg == NodeDemo.down ? ServiceHealth.down : status.nodeHealth;
     final NodeView view = prefs.builtin
         ? localNodeView(local, fallbackUrl: status.node.url)
-        : remoteNodeView(current.url, info, health: status.nodeHealth);
+        : remoteNodeView(current.url, info, health: nodeHealth, torOn: torOn);
     final down = view.state == EState.risk && !prefs.builtin;
     // The Switch action's target: the healthy node with the lowest latency, My nodes first.
     SwitchTarget? best;
@@ -466,6 +475,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     child: NodeCard(
                       url: current.url,
                       info: info,
+                      health: nodeHealth,
+                      torOn: torOn,
                       switchTo: best,
                       onSwitch: (t) => _useRemote(t.url),
                     ),

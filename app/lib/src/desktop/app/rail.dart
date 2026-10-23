@@ -253,8 +253,15 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       final url = (prefs.typedNode ?? status.node).url;
       _url = url;
       final health = _settledHealth(status.nodeHealth);
-      final v = remoteNodeView(url, ref.watch(deskNodeInfoProvider(url)).value, health: health, downSince: health == ServiceHealth.down ? _downSince : null);
-      final tor = torNodeLines(url, torStateOf(settings, status));
+      final torState = torStateOf(settings, status);
+      final v = remoteNodeView(
+        url,
+        ref.watch(deskNodeInfoProvider(url)).value,
+        health: health,
+        downSince: health == ServiceHealth.down ? _downSince : null,
+        torOn: torState != TorState.off,
+      );
+      final tor = torNodeLines(url, torState);
       node = tor.isEmpty ? v : NodeView(word: v.word, state: v.state, host: v.host, marker: v.marker, lines: [...v.lines, ...tor]);
     }
     final items = [nodeRailItem(node), ...receivingRailItems(status, settings)];

@@ -148,6 +148,8 @@ class LepicDeskWallet implements DeskWalletApi {
     BigInt? minimumConfirmations,
     this.nodePoll = const Duration(seconds: 30),
     this.nodeTimeout = const Duration(seconds: 15),
+    this.nodeTorTimeout = const Duration(seconds: 90),
+    this.torNodeGrace = const Duration(minutes: 2),
     this.torRetryAfter = const Duration(seconds: 60),
     this.torStartBackoff = const [Duration(seconds: 2), Duration(seconds: 5), Duration(seconds: 10)],
     this.closeWait = const Duration(seconds: 30),
@@ -225,6 +227,14 @@ class LepicDeskWallet implements DeskWalletApi {
   }
   final Duration nodePoll;
   final Duration nodeTimeout;
+
+  /// How long a node may take over Tor: LEPIC's own node timeout there, as a first onion
+  /// circuit can take most of a minute.
+  final Duration nodeTorTimeout;
+
+  /// After tor connects, how long a failed node check over Tor is not counted: the first
+  /// circuits are still being built.
+  final Duration torNodeGrace;
 
   /// How long tor may connect before Retry is offered beside "Connecting to Tor…".
   final Duration torRetryAfter;
@@ -313,6 +323,16 @@ class LepicDeskWallet implements DeskWalletApi {
   List<core.TxEntry>? _entries;
   int _tip = 0;
   ServiceHealth _nodeHealth = ServiceHealth.checking;
+
+  /// When the node last answered, to a tip check or a sync; a check over Tor failing soon
+  /// after is not counted.
+  DateTime? _nodeReachedAt;
+
+  /// A tip check is under way: the poll does not start another.
+  bool _tipBusy = false;
+
+  /// When tor last connected; null while it is starting, restarting or off.
+  DateTime? _torConnectedAt;
 
   /// The node's last answer said it is not ready for transactions (O2): a sync that reached it
   /// does not turn that back into Online.
@@ -1547,6 +1567,7 @@ class LepicDeskWallet implements DeskWalletApi {
         final summary = p.summary;
         if (summary != null) {
           _summary = summary;
+          if (summary.validatedWithNode) _nodeReachedAt = DateTime.now();
           _nodeHealth = !summary.validatedWithNode
               ? ServiceHealth.down
               : _nodeNotReady
@@ -1596,10 +1617,14 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<void> _checkTip() async {
     final config = _config;
-    if (config == null) return;
+    if (config == null || _tipBusy) return;
+    // Over Tor, LEPIC holds the check until tor is connected; a failure meanwhile is not counted.
+    final overTor = _nodeOverTor(config.nodeUrl);
+    _tipBusy = true;
     try {
       final tip = await _nodeTip(config);
       if (tip == null) return;
+      _nodeReachedAt = DateTime.now();
       final h = tip.height.toInt();
       final grew = h > _tip;
       _tip = h;
@@ -1618,12 +1643,42 @@ class LepicDeskWallet implements DeskWalletApi {
       // A new block: confirmations move, payments may have landed.
       if (grew && _summary != null) unawaited(sync());
     } on Object catch (e) {
+      final why = e is core.WalletError ? e.kind.name : e.runtimeType;
+      if (overTor && _torGrace()) {
+        logInfo('desk', 'node check over Tor failed: $why; not counted while tor settles or the node syncs');
+        return;
+      }
       if (_nodeHealth != ServiceHealth.down) {
-        logWarn('desk', 'node check failed: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
+        logWarn('desk', 'node check failed: $why');
         _nodeHealth = ServiceHealth.down;
         _changed();
       }
+    } finally {
+      _tipBusy = false;
     }
+  }
+
+  /// Whether [url] is asked over Tor: the Tor switch is on and the node is not on this computer.
+  bool _nodeOverTor(String url) => _torFeature && _settings.tor && !isLoopbackUrl(Uri.tryParse(url) ?? Uri());
+
+  /// A failed check over Tor is not counted: tor is not connected, connected under
+  /// [torNodeGrace] ago, or the node answered (a sync reached it) within [nodeTorTimeout].
+  bool _torGrace() {
+    final now = DateTime.now();
+    final connected = _torConnectedAt;
+    if (!_torCanSend || connected == null || now.difference(connected) < torNodeGrace) return true;
+    final reached = _nodeReachedAt;
+    return reached != null && now.difference(reached) < nodeTorTimeout;
+  }
+
+  /// Tor connected (again): a node that went down over the old circuits is checked afresh.
+  void _torConnected() {
+    if (_torConnectedAt != null) return;
+    _torConnectedAt = DateTime.now();
+    final url = _config?.nodeUrl;
+    if (url == null || !_nodeOverTor(url)) return;
+    if (_nodeHealth == ServiceHealth.down) _nodeHealth = ServiceHealth.checking;
+    unawaited(_checkTip());
   }
 
   @override
@@ -2599,7 +2654,10 @@ class LepicDeskWallet implements DeskWalletApi {
   /// as not known yet) unless the node is on this computer.
   Future<core.NodeTip?> _nodeTip(core.WalletConfig config) async {
     final session = _session;
-    if (session != null) return session.nodeTipFor(config: config).timeout(nodeTimeout);
+    if (session != null) {
+      final wait = _nodeOverTor(config.nodeUrl) && nodeTorTimeout > nodeTimeout ? nodeTorTimeout : nodeTimeout;
+      return session.nodeTipFor(config: config).timeout(wait);
+    }
     if (_torFeature && (await _store.torSwitch() ?? _settings.torAutostart) && !isLoopbackUrl(Uri.tryParse(config.nodeUrl) ?? Uri())) {
       return null;
     }
@@ -2861,6 +2919,7 @@ class LepicDeskWallet implements DeskWalletApi {
       _torProgress = null;
       _torStartedAt = null;
       _torSocks = null;
+      _torConnectedAt = null;
     }
 
     sub = session.startTor(torBinary: bundle.binary, libDir: bundle.libDir).listen(
@@ -2876,11 +2935,13 @@ class LepicDeskWallet implements DeskWalletApi {
             _torCanSend = true;
             _torStartedAt = null;
             if (_torHealth != ServiceHealth.slow) _torHealth = ServiceHealth.checking;
+            _torConnected();
           case core.TorEventKind.ready:
             _takeSocks(e.socksPort);
             _torHealth = ServiceHealth.ok;
             _torCanSend = true;
             _torProblem = null;
+            _torConnected();
             final onion = e.onion;
             if (onion != null) _onion = core.onionHost(onion);
           case core.TorEventKind.failed:
@@ -2897,7 +2958,10 @@ class LepicDeskWallet implements DeskWalletApi {
             final forSends = e.failure == core.TorFailure.listener || e.failure == core.TorFailure.keys;
             _torHealth = forSends ? ServiceHealth.slow : ServiceHealth.down;
             _torProblem = torFailureText(e.failure);
-            if (!forSends) _torCanSend = false;
+            if (!forSends) {
+              _torCanSend = false;
+              _torConnectedAt = null;
+            }
           case core.TorEventKind.sending:
             return;
           case core.TorEventKind.received:
@@ -2936,6 +3000,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _torProgress = 0;
     _torSocks = null;
     _torStartedAt = null;
+    _torConnectedAt = null;
     unawaited(_restartTor(session, sub, after: wait));
     return true;
   }
@@ -2976,6 +3041,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final sub = _tor;
     _tor = null;
     _torStartedAt = null;
+    _torConnectedAt = null;
     _torSlowTimer?.cancel();
     final was = _torHealth;
     _torHealth = ServiceHealth.off;
