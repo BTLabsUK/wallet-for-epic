@@ -65,7 +65,9 @@ class _Harness {
     double textScale = 1,
     Chain chain = Chain.mainnet,
   }) async {
-    tester.view.physicalSize = const Size(1080, 2340);
+    // Taller than a phone: the test font draws every glyph a full em wide, so the method
+    // strip takes about twice its real height. receive_fit_test checks real phones.
+    tester.view.physicalSize = const Size(1080, 3300);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
@@ -176,7 +178,13 @@ void main() {
       expect(tabs.showSelectedIcon, isFalse);
       expect(tabs.expandedInsets, EdgeInsets.zero);
       expect(
-        [for (final s in tabs.segments) (s.value, (s.label! as Text).data)],
+        [
+          for (final s in tabs.segments)
+            (
+              s.value,
+              ((s.label! as FittedBox).child! as Text).data,
+            ),
+        ],
         [(ReceiveTab.epicbox, 'Epicbox'), (ReceiveTab.file, 'File')],
       );
       expect(

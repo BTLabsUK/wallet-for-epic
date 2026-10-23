@@ -147,10 +147,6 @@ String? checkContactAddress(
   WalletService service,
   String text,
 ) {
-  if (text.trim().isNotEmpty &&
-      parseRecipient(text).kind == RecipientKind.http) {
-    return l.sendUrlUnsupported;
-  }
   return checkRecipient(l, service, text);
 }
 

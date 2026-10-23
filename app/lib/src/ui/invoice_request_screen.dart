@@ -37,6 +37,7 @@ const Key requestPayerKey = ValueKey('request-payer');
 const Key requestNoInvoicesKey = ValueKey('request-no-invoices');
 const Key requestAmountKey = ValueKey('request-amount');
 const Key requestMessageKey = ValueKey('request-message');
+const Key requestSummaryKey = ValueKey('request-summary');
 
 /// The payer as the user knows them: the contact's name, else the start of the address.
 String payerName(Iterable<Contact> contacts, String address) =>
@@ -274,6 +275,11 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     return null;
   }
 
+  bool _payerOk(AppLocalizations l) {
+    final text = _payer.text.trim();
+    return text.isNotEmpty && _checkPayer(l, text) == null;
+  }
+
   Future<void> _request() async {
     if (_busy) return;
     final l = context.l10n;
@@ -313,7 +319,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
       // The request in the list, where its state follows.
       unawaited(
         navigator.pushReplacement(
-          MaterialPageRoute<void>(builder: (_) => const InvoicesScreen()),
+          MaterialPageRoute<void>(
+            builder: (_) => const InvoicesScreen(segment: InvoicesSegment.sent),
+          ),
         ),
       );
     } catch (error) {
@@ -350,6 +358,14 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               .watch(peerCapabilityProvider(parseRecipient(payerText).address))
               .value;
     final amount = _parsedAmount;
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    // What Send request does, once the payer and the amount are good.
+    final summary = amount == null || !_payerOk(l)
+        ? null
+        : l.invoicesRequestSummary(
+            payerName(contacts, parseRecipient(payerText).address),
+            epicExact(l, amount),
+          );
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
@@ -361,13 +377,31 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
       appBar: AppBar(title: Text(l.requestTitle)),
       idle: _busy ? SlotProgress(label: l.requestTitle) : null,
       body: ScreenBody(
-        bottom: BusyButton(
-          label: l.requestButton,
-          busy: _busy,
-          onPressed: _request,
+        bottom: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (summary != null) ...[
+              EdgeCard(
+                edge: t.accent,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Text(summary, key: requestSummaryKey),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            BusyButton(
+              label: l.invoicesSendRequest,
+              busy: _busy,
+              onPressed: _request,
+            ),
+          ],
         ),
         children: [
-          Text(l.requestStepsIntro, style: theme.textTheme.titleSmall),
+          ProtocolSectionHead(l.invoicesRequestHowTitle),
+          const SizedBox(height: 8),
+          Text(l.requestStepsIntro, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 8),
           Text(l.requestStepTrust),
           const SizedBox(height: 8),
@@ -437,7 +471,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
             keyboardType: TextInputType.url,
             textInputAction: TextInputAction.next,
             onEditingComplete: _amountFocus.requestFocus,
-            style: theme.textTheme.bodyMedium,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontFamily: t.monoFamily,
+            ),
             onChanged: (_) => setState(() => _payerError = null),
             decoration: InputDecoration(
               labelText: l.requestPayerLabel,

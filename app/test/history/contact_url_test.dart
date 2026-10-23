@@ -1,6 +1,6 @@
-// Phone contacts hold epicbox addresses only: the contact form refuses a wallet URL on save, in
-// the words Send uses (OD-2). The archive underneath is shared with the desktop, which pays
-// http(s) addresses, so it stores one as typed and leaves the rule to each screen.
+// Phone contacts take an Epicbox address, an http(s) wallet address or an onion (the Direct
+// methods), checked the way Send checks a recipient; an incomplete URL is refused with the
+// example. The archive underneath stores an address as typed and leaves the rule to each screen.
 import 'dart:io';
 
 import 'package:epic_wallet/l10n/app_localizations.dart';
@@ -15,8 +15,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final String _bob = '${'b' * 52}@epicbox.epiccash.com';
-const _refusal =
-    'Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.';
 
 class _OpenSession extends SessionNotifier {
   _OpenSession(this.session);
@@ -28,31 +26,26 @@ class _OpenSession extends SessionNotifier {
 }
 
 void main() {
-  test('checkContactAddress refuses wallet URLs and checks the rest', () async {
+  test('checkContactAddress takes complete URLs and onions, checks the rest', () async {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final service = FakeWalletService();
-    for (final url in [
+    for (final address in [
       'http://203.0.113.5:3415',
       ' HTTPS://wallet.example ',
-      'http://',
+      _bob,
+      '${'t' * 55}d.onion',
     ]) {
-      expect(checkContactAddress(l, service, url), _refusal, reason: url);
+      expect(checkContactAddress(l, service, address), isNull, reason: address);
     }
-    expect(checkContactAddress(l, service, _bob), isNull);
+    expect(checkContactAddress(l, service, 'http://'), contains('http://203.0.113.5:3415'));
     expect(checkContactAddress(l, service, ''), checkRecipient(l, service, ''));
     expect(
       checkContactAddress(l, service, 'nonsense'),
       contains('not a valid address'),
     );
-    for (final locale in AppLocalizations.supportedLocales) {
-      final t = await AppLocalizations.delegate.load(locale);
-      expect(t.sendUrlUnsupported, isNotEmpty, reason: '$locale');
-    }
   });
 
-  testWidgets('the contact form refuses a wallet URL and saves nothing', (
-    tester,
-  ) async {
+  testWidgets('the contact form saves a wallet URL', (tester) async {
     final session = FakeWalletSession();
     await tester.pumpWidget(
       ProviderScope(
@@ -75,8 +68,7 @@ void main() {
     await tester.enterText(fields.at(1), 'https://203.0.113.5:3415');
     await tester.tap(find.text('Save contact'));
     await tester.pumpAndSettle();
-    expect(find.text(_refusal), findsOneWidget);
-    expect(session.contactsValue, isEmpty);
+    expect(session.contactsValue.single.address, 'https://203.0.113.5:3415');
   });
 
   test('the archive keeps a wallet URL; the screens decide', () async {

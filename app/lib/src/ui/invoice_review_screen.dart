@@ -11,12 +11,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../amount.dart';
 import '../providers.dart';
+import '../send_preflight.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'invoice_rows.dart';
 import 'invoices_screen.dart';
 import 'pin.dart';
+import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
@@ -210,8 +214,14 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
         !expired &&
         pending != null &&
         !pending.any((i) => i.slateId == _invoice.slateId);
-    final canAnswer = unsent == null && !expired && !gone && !_busy;
     final display = amountDisplay(ref);
+    final spendable = ref.watch(homeProvider).value?.summary.spendable;
+    // The wallet adds the fee; this catches what cannot be paid at all.
+    final short =
+        unsent == null && spendable != null && _invoice.amount > spendable
+        ? _invoice.amount - spendable
+        : null;
+    final canAnswer = unsent == null && !expired && !gone && !_busy;
     // The amount shows even with balances hidden: nobody approves what they cannot see.
     final fiat = approxFiat(l, _invoice.amount, (
       hidden: false,
@@ -219,25 +229,54 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
       currency: display.currency,
     ));
     final message = invoiceMessageLine(_invoice.message);
+    final mono = TextStyle(
+      fontFamily: t.monoFamily,
+      fontSize: 13,
+      color: t.text,
+    );
 
     final Widget bottom = unsent != null
         ? BusyButton(label: l.invoiceRetry, busy: _busy, onPressed: _retry)
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+        : Row(
             children: [
-              BusyButton(
-                label: l.invoiceApprove,
-                busy: _busy,
-                onPressed: canAnswer ? _approve : null,
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
+              Expanded(
+                child: BusyButton(
+                  label: l.invoiceApprove,
+                  busy: _busy,
+                  onPressed: canAnswer && short == null ? _approve : null,
                 ),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
                 onPressed: canAnswer ? _decline : null,
                 child: Text(l.invoiceDecline),
+              ),
+            ],
+          );
+
+    final Widget expiry = expired || gone
+        ? Row(
+            children: [
+              Icon(Icons.timer_off_outlined, size: 18, color: t.warn),
+              const SizedBox(width: 6),
+              Expanded(child: Text(expired ? l.invoiceExpired : l.invoiceGone)),
+            ],
+          )
+        : Wrap(
+            spacing: 6,
+            children: [
+              Text(
+                invoiceTimeLeft(l, _invoice.timeLeftAt(now)),
+                style: TextStyle(
+                  color: _invoice.timeLeftAt(now) < invoiceWarnUnder
+                      ? t.warn
+                      : t.text,
+                ),
+              ),
+              Text(
+                l.invoicesUntil(localClock(l, _invoice.expiresAt)),
+                style: TextStyle(color: t.dim),
               ),
             ],
           );
@@ -248,65 +287,82 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
       body: ScreenBody(
         bottom: bottom,
         children: [
-          Text(
-            l.invoiceReviewAsks(service),
-            style: theme.textTheme.titleMedium,
+          // The service, by the user's own label; its key shortened, never the relay's name.
+          Row(
+            children: [
+              const GlyphTile(
+                size: 40,
+                child: Icon(Icons.receipt_long_outlined),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        service,
+                        style: theme.textTheme.titleMedium,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      _shortKey(_invoice.senderAddress),
+                      style: mono.copyWith(color: t.dim),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              epicExact(l, _invoice.amount),
-              maxLines: 1,
-              style: theme.textTheme.displaySmall,
-            ),
-          ),
+          const SizedBox(height: 24),
+          _ReviewAmount(amount: _invoice.amount),
           if (fiat != null)
             Text(
               fiat,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+              style: theme.textTheme.titleMedium?.copyWith(color: t.dim),
+            ),
+          const SizedBox(height: 20),
+          _Fact(label: l.invoicesExpires, child: expiry),
+          if (message != null)
+            // Hostile text: plain, its controls and line breaks gone, never a link.
+            _Fact(label: l.invoicesMessage, child: Text(message, maxLines: 3)),
+          _Fact(
+            label: l.invoicesFrom,
+            child: _AddressText(_invoice.senderAddress, style: mono),
+          ),
+          if (unsent == null)
+            _Fact(
+              label: l.invoicesPaysFrom,
+              child: Text(
+                l.invoicesAvailable(
+                  spendable == null
+                      ? '…'
+                      : shownEpic(l, spendable, hidden: display.hidden),
+                ),
               ),
             ),
-          const SizedBox(height: 16),
-          if (unsent == null)
-            Row(
-              children: [
-                Icon(
-                  expired || gone ? Icons.timer_off_outlined : Icons.timer,
-                  size: 20,
-                  color: expired || gone ? t.warn : t.dim,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    expired
-                        ? l.invoiceExpired
-                        : gone
-                        ? l.invoiceGone
-                        : invoiceTimeLeft(l, _invoice.timeLeftAt(now)),
-                  ),
-                ),
-              ],
-            ),
-          if (message != null) ...[
+          if (unsent == null && !expired && !gone) ...[
+            const SizedBox(height: 8),
+            const _Checks(),
+          ],
+          if (short != null && canAnswer) ...[
             const SizedBox(height: 16),
-            Text(
-              l.invoiceReviewMessageLabel,
-              style: theme.textTheme.labelLarge,
-            ),
-            const SizedBox(height: 4),
-            // Hostile text: one plain line, never a link.
-            Text(
-              message,
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.ellipsis,
+            EdgeCard(
+              edge: t.risk,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Semantics(
+                  liveRegion: true,
+                  child: Text(l.invoicesShort(epicExact(l, short))),
+                ),
+              ),
             ),
           ],
-          const SizedBox(height: 16),
-          if (unsent != null)
+          if (unsent != null) ...[
+            const SizedBox(height: 16),
             EdgeCard(
               edge: t.warn,
               child: Padding(
@@ -323,14 +379,193 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
                   ],
                 ),
               ),
-            )
-          else
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// The key of [address], shortened, without its relay.
+String _shortKey(String address) {
+  final at = address.indexOf('@');
+  return shortAddress(at < 0 ? address : address.substring(0, at));
+}
+
+/// The invoice's amount in the display face at 34, with every decimal, and a small gold
+/// EPIC after it.
+class _ReviewAmount extends StatelessWidget {
+  const _ReviewAmount({required this.amount});
+
+  final BigInt amount;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return Semantics(
+      label: epicExact(l, amount),
+      excludeSemantics: true,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: AlignmentDirectional.centerStart,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
             Text(
-              l.invoiceReviewNote,
-              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+              localDigits(l, formatEpic(amount, grouped: true)),
+              key: invoiceReviewAmountKey,
+              maxLines: 1,
+              style: TextStyle(
+                fontFamily: t.headFamily,
+                fontSize: 34,
+                fontWeight: FontWeight.w600,
+                color: t.text,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              'EPIC',
+              style: TextStyle(
+                fontFamily: t.headFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: t.accentText,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The key of the review's amount, for tests.
+const Key invoiceReviewAmountKey = ValueKey('invoice-review-amount');
+
+/// One fact of the review: the label in a narrow column, the value beside it.
+class _Fact extends StatelessWidget {
+  const _Fact({required this.label, required this.child});
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: t.line)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 96,
+            child: Text(label, style: TextStyle(color: t.dim)),
+          ),
+          const SizedBox(width: 8),
+          Expanded(child: child),
+        ],
+      ),
+    );
+  }
+}
+
+/// A whole address, wrapping, the relay part dim.
+class _AddressText extends StatelessWidget {
+  const _AddressText(this.address, {required this.style});
+
+  final String address;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final at = address.indexOf('@');
+    return SelectableText.rich(
+      TextSpan(
+        style: style,
+        children: [
+          TextSpan(text: at < 0 ? address : address.substring(0, at)),
+          if (at >= 0)
+            TextSpan(
+              text: address.substring(at),
+              style: TextStyle(color: context.tokens.dim),
             ),
         ],
       ),
+    );
+  }
+}
+
+/// What paying needs, checked as the review opens: the node answers, and the epicbox
+/// listener is connected, as Send's review does. They inform; nothing here blocks Approve.
+class _Checks extends ConsumerWidget {
+  const _Checks();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final node = ref.watch(sendNodeCheckProvider);
+    final listener = ref.watch(listenerProvider);
+    Widget check(
+      String label,
+      Widget mark,
+      String word, {
+      VoidCallback? retry,
+    }) => ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 32),
+      child: Row(
+        children: [
+          SizedBox(width: 20, child: mark),
+          const SizedBox(width: 8),
+          Text(label, style: TextStyle(color: t.dim)),
+          const SizedBox(width: 8),
+          Expanded(child: Text(word)),
+          if (retry != null)
+            TextButton(
+              style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+              onPressed: retry,
+              child: Text(l.commonRetry),
+            ),
+        ],
+      ),
+    );
+    final ok = Icon(Icons.check, size: 18, color: t.ok);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        switch (node) {
+          AsyncValue(isLoading: true) => check(
+            l.invoicesCheckNode,
+            const SizedBox.square(
+              dimension: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            l.sendChecking,
+          ),
+          AsyncValue(hasError: true) => check(
+            l.invoicesCheckNode,
+            Icon(Icons.error_outline, size: 18, color: t.risk),
+            l.invoicesNodeDown,
+            retry: () => ref.invalidate(sendNodeCheckProvider),
+          ),
+          _ => check(l.invoicesCheckNode, ok, l.invoicesNodeOk),
+        },
+        listener.connected
+            ? check(l.invoicesCheckEpicbox, ok, l.invoicesEpicboxOk)
+            : check(
+                l.invoicesCheckEpicbox,
+                Icon(Icons.sync_problem, size: 18, color: t.warn),
+                l.invoicesEpicboxDown,
+              ),
+      ],
     );
   }
 }

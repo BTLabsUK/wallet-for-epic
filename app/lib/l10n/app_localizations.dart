@@ -3044,24 +3044,6 @@ abstract class AppLocalizations {
   /// **'Changing the epicbox server changes your address. Give senders the new address. Payments sent to the old one wait on the old server until you switch back.'**
   String get setupRelayChangeWarning;
 
-  /// Title of the confirm before the epicbox server of the open wallet changes.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch epicbox server?'**
-  String get serverSwitchRelayTitle;
-
-  /// Body of that confirm: the address keeps its key and takes the new server.
-  ///
-  /// In en, this message translates to:
-  /// **'The epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.'**
-  String serverSwitchRelayBody(String relay);
-
-  /// Button of that confirm that switches the server.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch'**
-  String get serverSwitchRelayConfirm;
-
   /// No description provided for @setupWalletPerNetwork.
   ///
   /// In en, this message translates to:
@@ -3989,7 +3971,7 @@ abstract class AppLocalizations {
   /// Label of the contact's address field, which holds an epicbox address. epicbox is a proper name.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox address'**
+  /// **'Address'**
   String get contactsAddressLabel;
 
   /// No description provided for @contactsDuplicate.
@@ -4013,7 +3995,7 @@ abstract class AppLocalizations {
   /// Error under a recipient or contact address field left empty.
   ///
   /// In en, this message translates to:
-  /// **'Enter their epicbox address.'**
+  /// **'Enter their address.'**
   String get contactsAddressMissing;
 
   /// Error under an address field holding an incomplete web address.
@@ -4718,126 +4700,6 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get helpTitle;
 
-  /// A question on the help page. Quote the status chip's text exactly as txStatusWaitingRecipient translates it.
-  ///
-  /// In en, this message translates to:
-  /// **'Why does my payment say \"Waiting for recipient\"?'**
-  String get helpWaitingQuestion;
-
-  /// Answer on the help page. epicbox is the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'An Epic Cash payment is built by both wallets together: yours starts it, the recipient\'s wallet accepts it, then yours finishes it. Epic\'s epicbox service holds your payment for about a week, until the recipient\'s wallet comes online and answers. Until then the amount stays locked in your wallet, so you cannot spend it twice. If the payment is not completed, your wallet cancels it by itself after {days, plural, =1{1 day} other{{days} days}} and unlocks the amount.'**
-  String helpWaitingAnswer(int days);
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'Should I cancel a payment?'**
-  String get helpCancellingQuestion;
-
-  /// Answer on the help page. "Waiting for recipient" is the status chip (txStatusWaitingRecipient) and Cancel payment the button on the payment's details screen: use the same words as those.
-  ///
-  /// In en, this message translates to:
-  /// **'Usually you do not need to: a payment that is not completed cancels itself after {days, plural, =1{1 day} other{{days} days}} and unlocks the amount. To stop one sooner, for example when the recipient says they will never answer, open it while it still says \"Waiting for recipient\" and tap Cancel payment; you would then have to send it again. A payment that is already confirming cannot be cancelled. Payments made with older versions of this app do not cancel themselves: if one has waited more than two weeks, cancel it and send again.'**
-  String helpCancellingAnswer(int days);
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'Why must I keep the app open to receive?'**
-  String get helpReceivingQuestion;
-
-  /// Answer on the help page. epicbox is the relay service that carries payments (a proper name). Waiting for sender is the status chip (txStatusWaitingSender): use the same words.
-  ///
-  /// In en, this message translates to:
-  /// **'Your wallet has to accept every incoming payment, and it can only do that while the app is open and connected to epicbox. A payment sent while the app is closed waits in epicbox for about a week and arrives the next time you unlock. After that epicbox deletes it; if the sender uses this app, their wallet cancels it by itself after {days, plural, =1{1 day} other{{days} days}}, and they can send it again. Once your wallet accepts a payment, the sender\'s wallet must finish it; until then it shows as Waiting for sender.'**
-  String helpReceivingAnswer(int days);
-
-  /// A question on the help page: why the wallet waits for this many blocks.
-  ///
-  /// In en, this message translates to:
-  /// **'What are confirmations and why {count}?'**
-  String helpConfirmationsQuestion(int count);
-
-  /// Answer on the help page. Completed is the status chip (txStatusCompleted): use the same word.
-  ///
-  /// In en, this message translates to:
-  /// **'A confirmation is a new block added to the Epic Cash blockchain after the one that holds your payment; a block arrives about once a minute. Each block makes it harder to undo the payment. After {count, plural, =1{1 confirmation, about 1 minute} other{{count} confirmations, about {count} minutes}}, a payment shows as Completed and received coins can be spent; that is the Epic wallet\'s standard.'**
-  String helpConfirmationsAnswer(int count);
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'Why is my history missing after a restore?'**
-  String get helpHistoryQuestion;
-
-  /// Answer on the help page. Settings, Payment history and Import history backup are the names on the settings screen (settingsTitle, settingsSectionHistory, settingsImportHistory): use the same words.
-  ///
-  /// In en, this message translates to:
-  /// **'The recovery phrase brings back your balance: the wallet scans the blockchain for coins that belong to it. Who you paid, your notes and most dates are never stored on the blockchain, so a restore cannot find them. If you saved a history backup, import it in Settings, under Payment history, Import history backup, to get them back. The backup must be a copy you kept outside the lost phone, for example in email or cloud storage.'**
-  String get helpHistoryAnswer;
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'Does my address ever change?'**
-  String get helpAddressQuestion;
-
-  /// Answer on the help page. epicbox is the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'Your address is made from your recovery phrase and the epicbox server you use, and it ends in @ and that server\'s name. It stays the same as long as you keep the same epicbox server. If you pick another one in network settings, your address changes, so give the new one to people who pay you.'**
-  String get helpAddressAnswer;
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'What is the recovery phrase and who can see it?'**
-  String get helpPhraseQuestion;
-
-  /// Answer on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'The recovery phrase is a list of words that is the key to your money: anyone who has it can take your coins, and with it you can restore your wallet on a new phone. The app shows it only after you enter your PIN, and it never sends it anywhere. Write it on paper, keep it somewhere safe, and never share it or type it into a website.'**
-  String get helpPhraseAnswer;
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'What does the fee pay for?'**
-  String get helpFeesQuestion;
-
-  /// Answer on the help page. EPIC is the coin's ticker: keep it.
-  ///
-  /// In en, this message translates to:
-  /// **'The fee goes to the miners who add your payment to the blockchain. It is usually a small fraction of an EPIC and depends on how many coins your wallet combines to make the payment. You see the exact fee before you send.'**
-  String get helpFeesAnswer;
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'What is a node?'**
-  String get helpNodeQuestion;
-
-  /// Answer on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'A node is a computer that keeps a copy of the Epic Cash blockchain. The wallet asks a node for your balance and sends your payments to the network through it. The node sees your IP address and which coins the wallet asks about, so pick one you trust in network settings. Network settings are in Settings once Advanced options is on, and on the unlock screen.'**
-  String get helpNodeAnswer;
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'Are there other ways to send?'**
-  String get helpOtherWaysQuestion;
-
-  /// Answer on the help page. "Send by transaction file" and "Other ways to send" are names on the send screen: use the same words. Keep .response as it is.
-  ///
-  /// In en, this message translates to:
-  /// **'For advanced users. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish. \"Other ways to send\" appears once Advanced options is on in Settings.'**
-  String get helpOtherWaysAnswer;
-
   /// Heading at the end of the help page.
   ///
   /// In en, this message translates to:
@@ -5003,7 +4865,7 @@ abstract class AppLocalizations {
   /// Under the Advanced options switch: what it shows. epicbox is a proper name.
   ///
   /// In en, this message translates to:
-  /// **'Network, node, epicbox server, files and logs'**
+  /// **'Technical details, files and logs'**
   String get settingsAdvancedOptionsSubtitle;
 
   /// Settings section header above the status.btlabs.uk switch.
@@ -5231,7 +5093,7 @@ abstract class AppLocalizations {
   /// Send, step 1: the text is not a valid Epic address for this network.
   ///
   /// In en, this message translates to:
-  /// **'This is not an Epic address.'**
+  /// **'This is not an Epicbox address.'**
   String get sendAddressNotEpic;
 
   /// Send: shown on the recipient card instead of a name when the address is not in the user's contacts.
@@ -5771,7 +5633,7 @@ abstract class AppLocalizations {
   /// The lines that describe Tor receiving, under the switch: only what is true. No time promises. The last sentence: the phone cuts the app's network when it leaves the screen, so a payment over Tor reaches the wallet only while the app is open; nothing waits for it elsewhere.
   ///
   /// In en, this message translates to:
-  /// **'Slower and more private. Blocked or not allowed in some countries. Receives only while the app is open.'**
+  /// **'Tor receiving works while the app is open or briefly in the background.'**
   String get torHonestLine;
 
   /// Tor status line on Receive: the switch is off, so other wallets cannot reach this one over Tor.
@@ -5917,6 +5779,1397 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Receiving'**
   String get settingsSectionReceiving;
+
+  /// Caption above Wallet's big figure: the spendable balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Available to spend'**
+  String get homeAvailableToSpend;
+
+  /// Balance tile label: payments offered to this wallet that are not in a block yet (awaiting finalization). 1 to 3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for sender'**
+  String get homeTileWaitingSender;
+
+  /// Balance tile label: coins a send in progress holds until it confirms. 1 to 3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked in sends'**
+  String get homeTileLocked;
+
+  /// Balance tile label: mining rewards not spendable yet. 1 to 3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards maturing'**
+  String get homeTileMaturing;
+
+  /// Balance tile label: the whole balance, spendable and pending together.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get homeTileTotal;
+
+  /// Button beside Recent activity: opens History. {count} is the number of payments.
+  ///
+  /// In en, this message translates to:
+  /// **'View all {count}'**
+  String homeViewAll(int count);
+
+  /// Home destination tile: the payment history.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get homeDestActivity;
+
+  /// Home destination tile: the Outputs screen (the pieces the balance is made of).
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs'**
+  String get homeDestOutputs;
+
+  /// Status word of a completed incoming payment or mining reward in lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get txStatusReceived;
+
+  /// Status word of a completed outgoing payment in lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get txStatusSent;
+
+  /// The PIN prompt's reason right before a send is posted. {amount} is the exact amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the PIN to send {amount} EPIC.'**
+  String sendPinReason(String amount);
+
+  /// The PIN prompt's reason right before a payment file is made, which locks the coins. {amount} is the exact amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the PIN to make a payment file for {amount} EPIC.'**
+  String sendFilePinReason(String amount);
+
+  /// Outputs screen title and Settings row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs'**
+  String get outputsTitle;
+
+  /// Outputs tile and filter: outputs that can be spent now.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable'**
+  String get outputsSpendable;
+
+  /// Outputs tile and filter: outputs waiting for confirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get outputsConfirming;
+
+  /// Outputs tile: outputs a send in progress spends.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked in sends'**
+  String get outputsLockedTile;
+
+  /// Outputs tile: mining rewards not yet spendable.
+  ///
+  /// In en, this message translates to:
+  /// **'Immature'**
+  String get outputsImmature;
+
+  /// Under a tile value: how many outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 output} other{{count} outputs}}'**
+  String outputsCount(int count);
+
+  /// Outputs screen: what outputs are.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs are the pieces the balance is made of. A send spends whole outputs and returns the rest as a new one.'**
+  String get outputsExplainer;
+
+  /// Button: open the Split sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Split…'**
+  String get outputsSplitButton;
+
+  /// Button: open the Consolidate sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate…'**
+  String get outputsConsolidateButton;
+
+  /// Caption under the buttons: why Split is disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Split needs at least 1 EPIC spendable.'**
+  String get outputsSplitNeeds;
+
+  /// Caption under the buttons: why Consolidate is disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate needs at least 2 spendable outputs.'**
+  String get outputsConsolidateNeeds;
+
+  /// Caption under the buttons: a send is in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait until the send in progress confirms (about 3 blocks).'**
+  String get outputsWaitLocked;
+
+  /// Row: which outputs a send spends.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy for sends'**
+  String get outputsStrategy;
+
+  /// Strategy name.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest'**
+  String get outputsSmallest;
+
+  /// Strategy name and filter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get outputsAll;
+
+  /// Strategy explanation, one line.
+  ///
+  /// In en, this message translates to:
+  /// **'Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.'**
+  String get outputsSmallestText;
+
+  /// Strategy explanation, one line.
+  ///
+  /// In en, this message translates to:
+  /// **'Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.'**
+  String get outputsAllText;
+
+  /// Row with a switch: split the change of a send.
+  ///
+  /// In en, this message translates to:
+  /// **'Split change'**
+  String get outputsSplitChange;
+
+  /// Caption under the Split change switch.
+  ///
+  /// In en, this message translates to:
+  /// **'When few outputs would be left'**
+  String get outputsSplitChangeText;
+
+  /// Filter segment with a count.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count}'**
+  String outputsFilterAll(int count);
+
+  /// Filter segment with a count.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable {count}'**
+  String outputsFilterSpendable(int count);
+
+  /// Filter segment with a count.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming {count}'**
+  String outputsFilterConfirming(int count);
+
+  /// Filter segment with a count, shown only when any output is locked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked {count}'**
+  String outputsFilterLocked(int count);
+
+  /// Toggle: list outputs already spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Show spent'**
+  String get outputsShowSpent;
+
+  /// Toggle: hide outputs already spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide spent'**
+  String get outputsHideSpent;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable'**
+  String get outputsWordSpendable;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get outputsWordConfirming;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting finalization'**
+  String get outputsWordFinalizing;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Immature'**
+  String get outputsWordImmature;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Mining'**
+  String get outputsWordMining;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get outputsWordLocked;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent'**
+  String get outputsWordSpent;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be spent now.'**
+  String get outputsMeanSpendable;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs {need} confirmations before it can be spent.'**
+  String outputsMeanConfirming(int need);
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the sender to finish the payment.'**
+  String get outputsMeanFinalizing;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A mining reward. It can be spent after a delay.'**
+  String get outputsMeanImmature;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A mining reward not confirmed yet.'**
+  String get outputsMeanMining;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Being spent by a send in progress.'**
+  String get outputsMeanLocked;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Already spent.'**
+  String get outputsMeanSpent;
+
+  /// Row note: confirmations so far of the needed.
+  ///
+  /// In en, this message translates to:
+  /// **'{conf} / {need}'**
+  String outputsNoteConfirmations(int conf, int need);
+
+  /// Row note: when the output was received.
+  ///
+  /// In en, this message translates to:
+  /// **'Received {date}'**
+  String outputsNoteReceived(String date);
+
+  /// Row note on a locked output: the send that holds it.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to {who}'**
+  String outputsNoteSend(String who);
+
+  /// Row note on a locked output when the send is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Send in progress'**
+  String get outputsNoteSendPlain;
+
+  /// Row subtitle: a status word and a note.
+  ///
+  /// In en, this message translates to:
+  /// **'{word} · {note}'**
+  String outputsRow(String note, String word);
+
+  /// Output sheet fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get outputsFactHeight;
+
+  /// Output sheet fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations'**
+  String get outputsFactConfirmations;
+
+  /// Output sheet fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction'**
+  String get outputsFactTransaction;
+
+  /// Output sheet label above the full commitment.
+  ///
+  /// In en, this message translates to:
+  /// **'Commitment'**
+  String get outputsFactCommitment;
+
+  /// Button: copy the commitment.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get outputsCopy;
+
+  /// Notice: the commitment was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Commitment copied'**
+  String get outputsCopied;
+
+  /// Empty state title.
+  ///
+  /// In en, this message translates to:
+  /// **'No outputs yet'**
+  String get outputsEmpty;
+
+  /// Empty state hint.
+  ///
+  /// In en, this message translates to:
+  /// **'The first payment received makes one. Receive shows the address.'**
+  String get outputsEmptyHint;
+
+  /// Empty list under a filter.
+  ///
+  /// In en, this message translates to:
+  /// **'No outputs in this view'**
+  String get outputsNoMatch;
+
+  /// Button: load the outputs again.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get outputsRetry;
+
+  /// Settings row subtitle: output count and strategy name.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 output · {strategy}} other{{count} outputs · {strategy}}}'**
+  String outputsSettingsSubtitle(int count, String strategy);
+
+  /// Button: close a sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get outputsCancel;
+
+  /// Sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Split outputs'**
+  String get outputsSplitTitle;
+
+  /// Split sheet paragraph. {spent} and {made} are counts such as "3 outputs".
+  ///
+  /// In en, this message translates to:
+  /// **'Spends {spent} ({amount}) and makes {made} of about {each} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.'**
+  String outputsSplitText(
+    String amount,
+    String each,
+    String made,
+    String spent,
+  );
+
+  /// Stepper label in the Split sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs to make'**
+  String get outputsToMake;
+
+  /// Stepper range hint.
+  ///
+  /// In en, this message translates to:
+  /// **'2 to 10'**
+  String get outputsStepperHint;
+
+  /// Sheet fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Network fee'**
+  String get outputsFactFee;
+
+  /// Sheet fact: value of each new output.
+  ///
+  /// In en, this message translates to:
+  /// **'Each output'**
+  String get outputsFactEach;
+
+  /// A value with "about" in front.
+  ///
+  /// In en, this message translates to:
+  /// **'about {amount}'**
+  String outputsFactAbout(String amount);
+
+  /// Sheet fact: what gets locked and for how long.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get outputsFactLocked;
+
+  /// Sheet fact value.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount}, about 3 blocks'**
+  String outputsFactLockedValue(String amount);
+
+  /// Warning line in the sheets.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing stays spendable meanwhile.'**
+  String get outputsNothingSpendable;
+
+  /// Warning line: Split needs bigger outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Each output must be at least 0.5 EPIC.'**
+  String get outputsMinEach;
+
+  /// Button in the Split sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Split into {count}'**
+  String outputsSplitInto(int count);
+
+  /// Sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate outputs'**
+  String get outputsConsolidateTitle;
+
+  /// Consolidate sheet paragraph. {spent} is a count such as "3 outputs".
+  ///
+  /// In en, this message translates to:
+  /// **'Spends {spent} ({amount}) and makes one output of {result}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.'**
+  String outputsConsolidateText(String amount, String result, String spent);
+
+  /// Button in the Consolidate sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate'**
+  String get outputsConsolidateAction;
+
+  /// Reason shown in the PIN prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm with your PIN to split outputs'**
+  String get outputsSplitPin;
+
+  /// Reason shown in the PIN prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm with your PIN to consolidate outputs'**
+  String get outputsConsolidatePin;
+
+  /// Notice after a split was posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Split started: {count} outputs, confirming in about 3 blocks'**
+  String outputsSplitStarted(int count);
+
+  /// Notice after a consolidation was posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate started: one output, confirming in about 3 blocks'**
+  String get outputsConsolidateStarted;
+
+  /// One line under the pending-sends card's title: the locked amount and what it waits for. {amount} is the total of the waiting sends.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} stays locked until the recipient\'s wallet answers.'**
+  String homePendingShort(String amount);
+
+  /// Contacts: the search field's hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or address'**
+  String get contactsSearchHint;
+
+  /// Contacts: the empty list's heading.
+  ///
+  /// In en, this message translates to:
+  /// **'No contacts yet'**
+  String get contactsEmptyTitle;
+
+  /// Contacts: one line under the empty list's heading.
+  ///
+  /// In en, this message translates to:
+  /// **'A contact is a name for an address.'**
+  String get contactsEmptyCaption;
+
+  /// Contacts: no contact matches the search text.
+  ///
+  /// In en, this message translates to:
+  /// **'No contact matches \"{query}\"'**
+  String contactsNoMatchQuery(String query);
+
+  /// Contact sheet: opens Send with this contact as the recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get contactsSendAction;
+
+  /// Contact sheet: opens the contact's edit screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get contactsEditAction;
+
+  /// Contact sheet: label over the full address.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get contactsAddressHeading;
+
+  /// Contact sheet: label over the contact's note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get contactsNoteHeading;
+
+  /// Contact sheet: shows the address as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Show code'**
+  String get contactsShowCode;
+
+  /// Contact sheet: hides the QR code again.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide code'**
+  String get contactsHideCode;
+
+  /// Contact sheet: screen reader label of the QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code of {name}\'s address'**
+  String contactsQrLabel(String name);
+
+  /// Contact delete confirm: what changes after deleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments to this address show the address instead of the name after this.'**
+  String get contactsDeleteConfirmBody;
+
+  /// Notice after a contact was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} deleted.'**
+  String contactsDeleted(String name);
+
+  /// Notice after the contact's address was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied.'**
+  String get contactsCopied;
+
+  /// Invoices: app bar action that opens the request form.
+  ///
+  /// In en, this message translates to:
+  /// **'New request'**
+  String get invoicesNewRequest;
+
+  /// Invoices: segment with the requests this wallet sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get invoicesSegmentSent;
+
+  /// Invoices: screen reader text of a segment with its count.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, {count, plural, =0{none} =1{1 item} other{{count} items}}'**
+  String invoicesSegmentCount(String label, int count);
+
+  /// Invoices: empty To pay segment, heading.
+  ///
+  /// In en, this message translates to:
+  /// **'No invoices to pay'**
+  String get invoicesToPayEmpty;
+
+  /// Invoices: empty To pay segment, caption.
+  ///
+  /// In en, this message translates to:
+  /// **'Services on your trusted list can bill this wallet. Each invoice waits here for your approval.'**
+  String get invoicesToPayEmptyCaption;
+
+  /// Invoices: empty Sent segment, heading.
+  ///
+  /// In en, this message translates to:
+  /// **'No requests sent'**
+  String get invoicesSentEmpty;
+
+  /// Invoices: empty Sent segment, caption.
+  ///
+  /// In en, this message translates to:
+  /// **'A request asks someone to pay you an amount.'**
+  String get invoicesSentEmptyCaption;
+
+  /// Invoices, Sent row: a request still waiting, before its time left.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment'**
+  String get invoicesWaitingPayment;
+
+  /// Invoice review: label of the expiry row.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires'**
+  String get invoicesExpires;
+
+  /// Invoice review: the clock time an invoice expires.
+  ///
+  /// In en, this message translates to:
+  /// **'until {time}'**
+  String invoicesUntil(String time);
+
+  /// Invoice review: label of the service's message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get invoicesMessage;
+
+  /// Invoice review: label of the service's full address.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get invoicesFrom;
+
+  /// Invoice review: label of the balance the payment comes from.
+  ///
+  /// In en, this message translates to:
+  /// **'Pays from'**
+  String get invoicesPaysFrom;
+
+  /// Invoice review: the spendable balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Available to spend {amount}'**
+  String invoicesAvailable(String amount);
+
+  /// Invoice review: the invoice is more than the spendable balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough to pay. {amount} short.'**
+  String invoicesShort(String amount);
+
+  /// Invoice review: the node check's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get invoicesCheckNode;
+
+  /// Invoice review: the epicbox check's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get invoicesCheckEpicbox;
+
+  /// Invoice review: the node answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Responding'**
+  String get invoicesNodeOk;
+
+  /// Invoice review: the node did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Not responding'**
+  String get invoicesNodeDown;
+
+  /// Invoice review: the epicbox listener is connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get invoicesEpicboxOk;
+
+  /// Invoice review: the epicbox listener is not connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get invoicesEpicboxDown;
+
+  /// Request form: the button that sends the request.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get invoicesSendRequest;
+
+  /// Request form: summary above Send request.
+  ///
+  /// In en, this message translates to:
+  /// **'{payer} is asked to pay {amount}. The request expires in 24 h.'**
+  String invoicesRequestSummary(String payer, String amount);
+
+  /// Request form: heading of what the payer must do first.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you request'**
+  String get invoicesRequestHowTitle;
+
+  /// Status card row title: the node the wallet uses.
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get netStatusNode;
+
+  /// Status card row title: the Epicbox relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get netStatusEpicbox;
+
+  /// Status card row title: Tor on the phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor'**
+  String get netStatusTor;
+
+  /// Status card: the node is at the chain tip.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get netStatusSynced;
+
+  /// Status card: the wallet is syncing with the node, no percent known.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get netStatusSyncing;
+
+  /// Status card: syncing with a percent.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing {percent} %'**
+  String netStatusSyncingPercent(int percent);
+
+  /// Status card: no answer yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting'**
+  String get netStatusConnecting;
+
+  /// Status card: the node is {count} blocks behind the network.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Behind {count}} other{Behind {count}}}'**
+  String netStatusBehind(int count);
+
+  /// Status card: the service does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get netStatusOffline;
+
+  /// Status card: the Epicbox relay is connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get netStatusOnline;
+
+  /// Status card: the service is turned off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get netStatusOff;
+
+  /// Status card: Tor is connected.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get netStatusOn;
+
+  /// Status card: Tor stopped with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get netStatusFailed;
+
+  /// Status card: Tor is starting, percent done.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting {percent} %'**
+  String netStatusStarting(int percent);
+
+  /// Status card host line on a test network: the network name, then the host.
+  ///
+  /// In en, this message translates to:
+  /// **'{network} · {host}'**
+  String netStatusTestHost(String network, String host);
+
+  /// Screen reader name of the status card.
+  ///
+  /// In en, this message translates to:
+  /// **'Network status'**
+  String get netStatusTitle;
+
+  /// Screen reader hint on a status card row.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the servers'**
+  String get netStatusOpenHint;
+
+  /// Node picker sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get serverNodeTitle;
+
+  /// Epicbox picker sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get serverEpicboxTitle;
+
+  /// Node picker search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Find or type a node address'**
+  String get serverSearchHint;
+
+  /// Row offering a typed node address that matches no list row.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {address}'**
+  String serverUseAddress(String address);
+
+  /// While a typed node address is being tested.
+  ///
+  /// In en, this message translates to:
+  /// **'Testing…'**
+  String get serverTesting;
+
+  /// The typed node answered: its block and version.
+  ///
+  /// In en, this message translates to:
+  /// **'Block {height} · v{version}'**
+  String serverTestAnswer(String height, String version);
+
+  /// The typed node did not answer; {error} says why.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer. {error}'**
+  String serverTestFailed(String error);
+
+  /// Node picker section head: starred and typed nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'My nodes'**
+  String get serverMyNodes;
+
+  /// Node picker section head: public nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Public nodes'**
+  String get serverPublicNodes;
+
+  /// Epicbox picker section head: public relays.
+  ///
+  /// In en, this message translates to:
+  /// **'Public servers'**
+  String get serverPublicRelays;
+
+  /// Caption under the lists when the monitor did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'status.btlabs.uk not reachable; health unknown'**
+  String get serverHealthUnknown;
+
+  /// Node row: the node is at the network tip.
+  ///
+  /// In en, this message translates to:
+  /// **'at tip'**
+  String get serverAtTip;
+
+  /// Node row: blocks behind the tip, as a short number with a minus sign.
+  ///
+  /// In en, this message translates to:
+  /// **'−{count}'**
+  String serverBehindShort(String count);
+
+  /// Screen reader: the node is behind the tip.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} block behind} other{{count} blocks behind}}'**
+  String serverBehindLabel(int count);
+
+  /// Star button: add the node to My nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my nodes'**
+  String get serverAddMine;
+
+  /// Star button: remove the node from My nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from my nodes'**
+  String get serverRemoveMine;
+
+  /// Row: the server does not answer the monitor.
+  ///
+  /// In en, this message translates to:
+  /// **'Not responding'**
+  String get serverNotResponding;
+
+  /// Screen reader: the monitor saw the server healthy.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthy'**
+  String get serverHealthy;
+
+  /// Screen reader: the monitor saw the server answer but lag or misbehave.
+  ///
+  /// In en, this message translates to:
+  /// **'Degraded'**
+  String get serverDegraded;
+
+  /// Screen reader: no health known for the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Health unknown'**
+  String get serverHealthNone;
+
+  /// Row trailing word: the server in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get serverCurrent;
+
+  /// Tag on the default Epicbox relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get serverDefault;
+
+  /// Latency in milliseconds, measured by the monitor.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms} ms'**
+  String serverLatency(String ms);
+
+  /// Relay uptime over the last day.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} % up'**
+  String serverUptime(String percent);
+
+  /// Confirm strip button: switch to the chosen server.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {host}'**
+  String serverSwitchTo(String host);
+
+  /// Confirm strip caption: what switching the node does.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet reconnects. Balances are checked again against the new node.'**
+  String get serverNodeSwitchNote;
+
+  /// Epicbox picker warning above the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address includes this server. Switching changes your address; senders need the new one.'**
+  String get serverRelayWarning;
+
+  /// Epicbox confirm strip caption.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address changes; senders need the new one.'**
+  String get serverRelaySwitchNote;
+
+  /// Epicbox picker field for a relay not in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Other server, host or host:port'**
+  String get serverOtherRelay;
+
+  /// Current node card label: the node's block height.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get serverFactHeight;
+
+  /// Current node card label: the node's version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get serverFactVersion;
+
+  /// Current node card label: peers the node is connected to.
+  ///
+  /// In en, this message translates to:
+  /// **'Peers'**
+  String get serverFactPeers;
+
+  /// Current node card label: uptime over the last 24 hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Uptime 24 h'**
+  String get serverFactUptime;
+
+  /// Current node card: height and at tip.
+  ///
+  /// In en, this message translates to:
+  /// **'{height} · at tip'**
+  String serverHeightAtTip(String height);
+
+  /// Directory line: the height the nodes agree on.
+  ///
+  /// In en, this message translates to:
+  /// **'Nodes agree on {height}'**
+  String serverNodesAgree(String height);
+
+  /// Directory line: healthy nodes of all nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'{total, plural, one{{up} of {total} node up} other{{up} of {total} nodes up}}'**
+  String serverNodesUp(int up, int total);
+
+  /// Directory line: age of the last block in seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds, plural, one{last block {seconds} s ago} other{last block {seconds} s ago}}'**
+  String serverLastBlockSeconds(int seconds);
+
+  /// Directory line: age of the last block in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, one{last block {minutes} min ago} other{last block {minutes} min ago}}'**
+  String serverLastBlockMinutes(int minutes);
+
+  /// Directory source line with the time of the monitor's last check.
+  ///
+  /// In en, this message translates to:
+  /// **'status.btlabs.uk, checked {time}'**
+  String serverCheckedAt(String time);
+
+  /// Screen reader label of a server row: host, then its facts.
+  ///
+  /// In en, this message translates to:
+  /// **'{host}, {facts}'**
+  String serverRowLabel(String host, String facts);
+
+  /// Method name on Send and Receive segments.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get methodEpicbox;
+
+  /// Method name: straight to the other wallet over HTTP.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP'**
+  String get methodHttp;
+
+  /// Method name: straight to the other wallet over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor'**
+  String get methodTor;
+
+  /// Method name: a transaction file handed over by hand.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get methodFile;
+
+  /// Caption under the Epicbox picture, a few words, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server holds it'**
+  String get methodArtCaptionEpicbox;
+
+  /// Caption under the HTTP picture, a few words, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to their wallet'**
+  String get methodArtCaptionHttp;
+
+  /// Caption under the Tor picture, a few words, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight, through Tor'**
+  String get methodArtCaptionTor;
+
+  /// Caption under the File picture, a few words, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'File out, response back'**
+  String get methodArtCaptionFile;
+
+  /// Screen reader label of the Epicbox picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox: the payment goes to the Epicbox server, which holds it until the recipient\'s wallet is back'**
+  String get methodArtLabelEpicbox;
+
+  /// Screen reader label of the HTTP picture.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
+  String get methodArtLabelHttp;
+
+  /// Screen reader label of the Tor picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
+  String get methodArtLabelTor;
+
+  /// Screen reader label of the File picture.
+  ///
+  /// In en, this message translates to:
+  /// **'File: a transaction file is handed over, a response file comes back, then the sender finalizes'**
+  String get methodArtLabelFile;
+
+  /// Send strip title for Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient can be offline.'**
+  String get methodSendEpicboxTitle;
+
+  /// Send strip line for Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'The Epicbox server holds the payment until they open their wallet.'**
+  String get methodSendEpicboxLine;
+
+  /// Send strip title for HTTP.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to their wallet.'**
+  String get methodSendHttpTitle;
+
+  /// Send strip line for HTTP.
+  ///
+  /// In en, this message translates to:
+  /// **'It must be open and reachable at its HTTP address.'**
+  String get methodSendHttpLine;
+
+  /// Send strip title for Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to their wallet, over Tor.'**
+  String get methodSendTorTitle;
+
+  /// Send strip line for Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Slower and more private. Their wallet must be open.'**
+  String get methodSendTorLine;
+
+  /// Send strip title for File.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection needed.'**
+  String get methodSendFileTitle;
+
+  /// Send strip line for File.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand the file over, get their response file back, then finalize it here.'**
+  String get methodSendFileLine;
+
+  /// Receive strip title for Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Share it to get paid.'**
+  String get methodReceiveEpicboxTitle;
+
+  /// Receive strip line for Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Works while the wallet is closed: the Epicbox server holds payments until it is back.'**
+  String get methodReceiveEpicboxLine;
+
+  /// Receive strip title for Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Slower and more private.'**
+  String get methodReceiveTorTitle;
+
+  /// Receive strip line for Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Works only while the app is open or briefly in the background.'**
+  String get methodReceiveTorLine;
+
+  /// Receive strip title for File.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand a file back and forth.'**
+  String get methodReceiveFileTitle;
+
+  /// Receive strip line for File.
+  ///
+  /// In en, this message translates to:
+  /// **'Works with no connection between the wallets.'**
+  String get methodReceiveFileLine;
+
+  /// Tooltip of the ? beside the address shape under Send's To field; opens help on address kinds.
+  ///
+  /// In en, this message translates to:
+  /// **'Address kinds'**
+  String get methodAddressKindsTooltip;
+
+  /// Screen reader name of Send's method selector, and the review row naming the method.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get sendMethodLabel;
+
+  /// Label of Send's recipient field.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get sendToLabel;
+
+  /// Placeholder of Send's recipient field.
+  ///
+  /// In en, this message translates to:
+  /// **'Address or contact'**
+  String get sendToHint;
+
+  /// Tag beside the To label for 3 s after the method moved to HTTP because of the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Over HTTP'**
+  String get sendSwitchedHttp;
+
+  /// Tag beside the To label for 3 s after the method moved to Epicbox because of the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Via Epicbox'**
+  String get sendSwitchedEpicbox;
+
+  /// Read out when a Tor address moved the method to Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor address. Method set to Tor.'**
+  String get sendSwitchedTorAnnounce;
+
+  /// Read out when an HTTP address moved the method to HTTP.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP address. Method set to HTTP.'**
+  String get sendSwitchedHttpAnnounce;
+
+  /// Read out when an Epicbox address moved the method to Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox address. Method set to Epicbox.'**
+  String get sendSwitchedEpicboxAnnounce;
+
+  /// Review, Method row for an HTTP send.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP, straight to their wallet'**
+  String get sendReviewMethodHttp;
+
+  /// Review caption: when an Epicbox send can be cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be cancelled while it waits for the recipient.'**
+  String get sendCancelRuleEpicbox;
+
+  /// Review caption: an HTTP or Tor send cannot be cancelled once the other wallet accepted it.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be cancelled once their wallet accepts it.'**
+  String get sendCancelRuleDirect;
+
+  /// Caption on the payment file step: when a file payment can be cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be cancelled until the response file is finalized.'**
+  String get sendCancelRuleFile;
+
+  /// Send, review: an HTTP send is under way.
+  ///
+  /// In en, this message translates to:
+  /// **'Reaching their wallet… Keep the app open.'**
+  String get sendHttpReaching;
+
+  /// Send tracker and payment details: an HTTP or Tor send the other wallet accepted, not in a block yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered · Waiting for a block'**
+  String get sendDeliveredWaitingBlock;
+
+  /// Send: the text under the HTTP method is not a web address.
+  ///
+  /// In en, this message translates to:
+  /// **'An HTTP address starts with http:// or https://.'**
+  String get sendHttpAddressShape;
+
+  /// Dialog title before a send over plain http to another device.
+  ///
+  /// In en, this message translates to:
+  /// **'Not encrypted. Send anyway?'**
+  String get sendPlainHttpTitle;
+
+  /// Dialog text before a send over plain http to another device.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.'**
+  String get sendPlainHttpBody;
+
+  /// Payment details: caption under Cancel payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible while the payment waits for the recipient.'**
+  String get sendCancelPossibleWhileWaiting;
+
+  /// Receive, Epicbox tab: caption under the address.
+  ///
+  /// In en, this message translates to:
+  /// **'When reading it out, check the first six and last six characters.'**
+  String get receiveEpicboxCaption;
+
+  /// Receive, Tor tab: caption under the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Some wallets show the address without .onion; both are the same address.'**
+  String get receiveTorCaption;
+
+  /// Send, review: the recipient's wallet was not reached over HTTP; the payment is kept with its coins on hold until it is cancelled, and cancels itself after {days} days. Try again and Cancel payment follow.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Their wallet was not reached. The amount is on hold until you cancel it, or for at most 1 day.} other{Their wallet was not reached. The amount is on hold until you cancel it, or for at most {days} days.}}'**
+  String sendHttpNotReached(int days);
 
   /// Activity row title of an invoice you paid; label is your name for the service.
   ///
@@ -7627,6 +8880,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restored this wallet from its recovery phrase? Give services this invoice address again.'**
   String get deskInvSetRestoredHint;
+
+  /// Title of the confirm before the epicbox server of the open wallet changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch epicbox server?'**
+  String get serverSwitchRelayTitle;
+
+  /// Body of that confirm: the address keeps its key and takes the new server.
+  ///
+  /// In en, this message translates to:
+  /// **'The epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.'**
+  String serverSwitchRelayBody(String relay);
+
+  /// Button of that confirm that switches the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get serverSwitchRelayConfirm;
+
+  /// Tooltip of the small ? button that opens one help topic.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get helpButton;
+
+  /// Hint of the search field at the top of Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Search help'**
+  String get helpSearchHint;
+
+  /// Caption at the top of Help in every language but English: the topics are not translated yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Help is in English for now.'**
+  String get helpEnglishOnly;
+
+  /// Help search with no result. {query} is what was typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No help matches \"{query}\"'**
+  String helpNoMatch(String query);
+
+  /// Help search result count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 topic} other{{count} topics}}'**
+  String helpMatchCount(int count);
+
+  /// Button under the handshake help topic: opens the animated handshake sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Show how it works'**
+  String get helpShowHandshake;
+
+  /// Heading over the other topics of the same section at the end of a help topic.
+  ///
+  /// In en, this message translates to:
+  /// **'More in this section'**
+  String get helpMoreInSection;
+
+  /// Send review row: the spendable balance once this send and its fee are out.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance after'**
+  String get sendBalanceAfter;
+
+  /// Send review row: what stays spendable while the send's change confirms (spendable minus the outputs the send locks).
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable until change confirms'**
+  String get sendSpendableUntilChange;
+
+  /// Caption under the Spendable until change confirms row.
+  ///
+  /// In en, this message translates to:
+  /// **'The change comes back once the send confirms.'**
+  String get sendSpendableUntilChangeHint;
+
+  /// Notice after the node or Epicbox server changed live, without locking the wallet. {host} is the new host.
+  ///
+  /// In en, this message translates to:
+  /// **'Switched to {host}'**
+  String serverSwitched(String host);
+
+  /// Send and Receive method: straight to the other wallet, at an http(s) or onion address.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get methodDirect;
+
+  /// Under Send's empty To field on Direct: the two shapes a Direct address takes. Keep the addresses as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'http://host:3415 or xxxx….onion'**
+  String get methodDirectShape;
+
+  /// Send's strip line for Direct.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet must be open. An onion address goes over Tor.'**
+  String get methodSendDirectLine;
+
+  /// Screen reader label of the Direct picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct: the payment goes straight to the recipient\'s wallet, which must be open'**
+  String get methodArtLabelDirect;
+
+  /// Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No "app": the web demo shows it too.
+  ///
+  /// In en, this message translates to:
+  /// **'Works with the wallet closed.'**
+  String get methodReceiveEpicboxShort;
+
+  /// Receive's Direct strip title.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to this wallet.'**
+  String get methodReceiveDirectTitle;
+
+  /// Receive's Direct strip line: the onion address answers only while the app runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Works while the app is open.'**
+  String get methodReceiveDirectLine;
+
+  /// A strip line followed by 'Over Tor.' when its connection goes through Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'{line} Over Tor.'**
+  String methodLineOverTor(String line);
+
+  /// Tag beside Send's To label for 3 s after the address moved the method to Direct.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct address'**
+  String get sendSwitchedDirect;
+
+  /// Read out once when the address moved Send's method to Direct.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct address. Method set to Direct.'**
+  String get sendSwitchedDirectAnnounce;
+
+  /// Error under To when Direct is chosen and the text is not an http(s) or onion address.
+  ///
+  /// In en, this message translates to:
+  /// **'A Direct address starts with http:// or https://, or ends in .onion.'**
+  String get sendDirectAddressShape;
+
+  /// Tag on Send and Review: this connection stays on the clearnet although Tor is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Not over Tor'**
+  String get torNotOverTor;
+
+  /// Notice under Send's To: an onion address needs Tor, which is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Tor.'**
+  String get torNeeds;
+
+  /// Button that turns the Tor switch on.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Tor'**
+  String get torTurnOn;
+
+  /// Button that turns the Tor switch off.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Tor off'**
+  String get torTurnOff;
+
+  /// Notice on Send while Tor is on but not connected: nothing that needs it goes.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not connected.'**
+  String get torNotConnectedNotice;
+
+  /// Send's Review button while Tor starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor'**
+  String get torWaiting;
+
+  /// Tor state word: the switch is on and Tor is connecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting…'**
+  String get torWordStarting;
+
+  /// Tor state word: Tor is on but could not connect.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get torWordNotConnected;
+
+  /// Settings › Privacy › Tor subtitle: what the switch routes through Tor in this build.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox and onion sends go through Tor.'**
+  String get torCoversEpicbox;
+
+  /// Settings › Privacy › Tor subtitle once the node is covered too.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox, the node and onion sends go through Tor.'**
+  String get torCoversEpicboxNode;
+
+  /// Settings › Privacy › Tor subtitle once the node and the app's own requests are covered.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox, the node, onion sends and the app’s own requests go through Tor.'**
+  String get torCoversAll;
+
+  /// Text link on Receive's Direct tab to Settings › Privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor settings'**
+  String get torSettingsLink;
+
+  /// Receive tab: receiving straight to this wallet at its onion address.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get receiveTabDirect;
+
+  /// Receive's Direct tab while Tor is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct receiving needs Tor.'**
+  String get receiveDirectNeedsTor;
+
+  /// Caption under 'Direct receiving needs Tor.'
+  ///
+  /// In en, this message translates to:
+  /// **'Senders use the Epicbox address meanwhile.'**
+  String get receiveDirectMeanwhile;
+
+  /// Caption under the disabled notifications switch while Tor is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Off while Tor is on'**
+  String get settingsPushOffWhileTor;
+
+  /// Status card: read out after a service whose connection goes through Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'over Tor'**
+  String get netStatusOverTor;
 }
 
 class _AppLocalizationsDelegate

@@ -1,7 +1,6 @@
-/// Tor on the phone, as the user sees it: the one "Tor receiving" switch (Receive and
-/// Settings share it, [phoneTorProvider] is the one source of truth), the status line under
-/// it, and the words for each way Tor can fail. Tor is slower, more private, and blocked or
-/// not allowed in some countries: that is all the app says about it (F21).
+/// Tor on the phone, as the user sees it: the one Tor switch in Settings › Privacy
+/// ([phoneTorProvider] is the one source of truth), its state in the same four words
+/// everywhere, and the words for each way Tor can fail.
 library;
 
 import 'package:flutter/material.dart';
@@ -9,19 +8,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
 import '../phone_tor.dart';
+import '../tor_phone.dart';
+import '../tor_routes.dart';
 import '../wallet_service.dart';
 import 'theme/tokens.dart';
 
 /// Tor's icon wherever a method or a status needs one: a private connection.
 const IconData torIcon = Icons.private_connectivity;
 
-/// Whether Receive's Tor tab and Settings' Tor block exist: the app has Tor and the
+/// Whether Receive's Direct tab and Settings' Tor switch exist: the app has Tor and the
 /// controller has read this wallet's onion. Before that the controller says `off` with no
 /// onion, and nothing Tor shows, so no tab flashes on a phone without Tor.
 bool torShown(PhoneTorState s) =>
     s.phase != PhoneTorPhase.unavailable && s.onion != null;
 
-/// The key of the Tor receiving switch, for tests.
+/// The key of the Tor switch in Settings › Privacy, for tests.
 const Key torReceivingSwitchKey = ValueKey('tor-receiving-switch');
 
 /// The key of the Tor status line, for tests.
@@ -29,6 +30,9 @@ const Key torStatusKey = ValueKey('tor-status');
 
 /// The key of Retry under a failed Tor, for tests.
 const Key torRetryKey = ValueKey('tor-retry');
+
+/// The key of Receive's link to the Tor switch in Settings, for tests.
+const Key torSettingsLinkKey = ValueKey('tor-settings-link');
 
 /// Why Tor is not working, in one short sentence.
 String torFailureText(AppLocalizations l, TorFailure failure) =>
@@ -101,101 +105,170 @@ torStatusOf(AppLocalizations l, WalletTokens t, PhoneTorState state) {
   };
 }
 
-/// The "Tor receiving" switch with its status under the title: off, connecting with a
-/// progress bar, on, or why it stopped, then the one honest line about Tor. Retry follows a
-/// failure. The same block on Receive and in Settings; [leading] adds the icon Settings' rows
-/// have.
-class TorReceivingBlock extends ConsumerWidget {
-  const TorReceivingBlock({super.key, this.leading = false});
+/// The Tor switch's state in one word, the same everywhere: Off, Starting…, On, Not
+/// connected.
+String torWord(AppLocalizations l, TorState state) => switch (state) {
+  TorState.off => l.netStatusOff,
+  TorState.starting => l.torWordStarting,
+  TorState.on => l.netStatusOn,
+  TorState.failed => l.torWordNotConnected,
+};
 
-  final bool leading;
+/// The colour of [torWord]: faint when off, dim while starting, ok when on, risk when not
+/// connected.
+Color torWordColor(WalletTokens t, TorState state) => switch (state) {
+  TorState.off => t.faint,
+  TorState.starting => t.dim,
+  TorState.on => t.ok,
+  TorState.failed => t.risk,
+};
+
+/// What the switch carries through Tor in this build, from [torCovered]: one line, so it
+/// stays true as more connections join.
+String torCoversLine(AppLocalizations l) {
+  if (torCovered.containsAll(const {TorRoute.node, TorRoute.appHttp})) {
+    return l.torCoversAll;
+  }
+  if (torCovered.contains(TorRoute.node)) return l.torCoversEpicboxNode;
+  return l.torCoversEpicbox;
+}
+
+/// Settings › Privacy's one Tor switch: the phone's per-wallet switch ([PhoneTor.setReceiving]).
+/// Its line says what it covers; with Tor not connected it reads "Not connected" with Retry.
+/// No confirmation and no other change: Tor on routes, nothing the user chose moves.
+class TorSwitchTile extends ConsumerWidget {
+  const TorSwitchTile({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
-    final state = ref.watch(phoneTorProvider);
-    final status = torStatusOf(l, t, state);
-    final busy = state.phase == PhoneTorPhase.unavailable;
+    final tor = ref.watch(phoneTorProvider);
+    final state = phoneTorState(tor);
+    final failed = state == TorState.failed;
+    final busy = tor.phase == PhoneTorPhase.unavailable;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SwitchListTile(
           key: torReceivingSwitchKey,
-          secondary: leading ? const Icon(torIcon) : null,
-          contentPadding: leading
-              ? null
-              : const EdgeInsetsDirectional.only(start: 4, end: 8),
-          title: Text(l.torReceivingTitle),
-          isThreeLine: true,
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 2),
-              Semantics(
-                key: torStatusKey,
-                liveRegion: true,
-                container: true,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 1),
-                      child: ExcludeSemantics(
-                        child: Icon(status.icon, size: 16, color: status.color),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        status.text,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: status.color,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (status.progress case final progress?)
-                Padding(
-                  padding: const EdgeInsets.only(top: 6, bottom: 2),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(2),
-                    child: LinearProgressIndicator(
-                      minHeight: 3,
-                      value: progress,
-                      semanticsLabel: status.text,
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 4),
-              Text(
-                l.torHonestLine,
-                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-              ),
-            ],
+          secondary: const Icon(torIcon),
+          title: Text(l.netStatusTor),
+          subtitle: Semantics(
+            key: torStatusKey,
+            liveRegion: true,
+            container: true,
+            child: Text(
+              switch (state) {
+                TorState.failed => l.torWordNotConnected,
+                TorState.starting => '${l.torWordStarting} ${torCoversLine(l)}',
+                _ => torCoversLine(l),
+              },
+              style: failed
+                  ? theme.textTheme.bodyMedium?.copyWith(color: t.risk)
+                  : null,
+            ),
           ),
-          value: state.receiving,
+          value: tor.receiving,
           onChanged: busy
               ? null
               : (on) => ref.read(phoneTorProvider.notifier).setReceiving(on),
         ),
-        if (status.retry)
+        if (failed)
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: Padding(
-              padding: EdgeInsetsDirectional.only(start: leading ? 60 : 12),
-              child: TextButton.icon(
+              padding: const EdgeInsetsDirectional.only(start: 60),
+              child: TextButton(
                 key: torRetryKey,
                 style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
-                icon: const Icon(Icons.refresh),
-                label: Text(l.commonRetry),
                 onPressed: () => ref.read(phoneTorProvider.notifier).retry(),
+                child: Text(l.commonRetry),
               ),
             ),
           ),
+      ],
+    );
+  }
+}
+
+/// Receive's Direct tab under the onion address: "Tor · Starting…" (or On, Not connected),
+/// why the address is not reachable yet when that is known, Retry after a failure, and a link
+/// to the switch in Settings › Privacy.
+class TorStateLine extends ConsumerWidget {
+  const TorStateLine({super.key, required this.openSettings});
+
+  final VoidCallback openSettings;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final tor = ref.watch(phoneTorProvider);
+    final state = phoneTorState(tor);
+    final status = torStatusOf(l, t, tor);
+    // Starting, on and ready say it in the state word; a failure says why.
+    final why = status.retry ? status.text : null;
+    final quiet = TextButton.styleFrom(minimumSize: const Size(48, 44));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          key: torStatusKey,
+          liveRegion: true,
+          container: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    state == TorState.failed ? Icons.error_outline : torIcon,
+                    size: 16,
+                    color: torWordColor(t, state),
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      '${l.netStatusTor} · ${torWord(l, state)}',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: torWordColor(t, state),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (why != null)
+                Text(
+                  why,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+                ),
+            ],
+          ),
+        ),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 4,
+          children: [
+            if (status.retry)
+              TextButton(
+                key: torRetryKey,
+                style: quiet,
+                onPressed: () => ref.read(phoneTorProvider.notifier).retry(),
+                child: Text(l.commonRetry),
+              ),
+            TextButton(
+              key: torSettingsLinkKey,
+              style: quiet,
+              onPressed: openSettings,
+              child: Text(l.torSettingsLink),
+            ),
+          ],
+        ),
       ],
     );
   }

@@ -2441,24 +2441,6 @@
   "@setupRelayChangeWarning": {
     "description": "Warning shown once a different epicbox server is selected."
   },
-  "serverSwitchRelayTitle": "Switch epicbox server?",
-  "@serverSwitchRelayTitle": {
-    "description": "Title of the confirm before the epicbox server of the open wallet changes."
-  },
-  "serverSwitchRelayBody": "The epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.",
-  "@serverSwitchRelayBody": {
-    "description": "Body of that confirm: the address keeps its key and takes the new server.",
-    "placeholders": {
-      "relay": {
-        "type": "String",
-        "example": "epicbox.epiccash.com"
-      }
-    }
-  },
-  "serverSwitchRelayConfirm": "Switch",
-  "@serverSwitchRelayConfirm": {
-    "description": "Button of that confirm that switches the server."
-  },
   "setupWalletPerNetwork": "Each network has its own wallet. A network without one gets a new wallet.",
   "setupRelayHealthyIconLabel": "Healthy",
   "@setupRelayHealthyIconLabel": {
@@ -3193,7 +3175,7 @@
   "@contactsNameLabel": {
     "description": "Label of the contact's name field."
   },
-  "contactsAddressLabel": "Epicbox address",
+  "contactsAddressLabel": "Address",
   "@contactsAddressLabel": {
     "description": "Label of the contact's address field, which holds an epicbox address. epicbox is a proper name."
   },
@@ -3214,7 +3196,7 @@
   "@contactsSave": {
     "description": "Button that saves the contact."
   },
-  "contactsAddressMissing": "Enter their epicbox address.",
+  "contactsAddressMissing": "Enter their address.",
   "@contactsAddressMissing": {
     "description": "Error under a recipient or contact address field left empty."
   },
@@ -3758,111 +3740,6 @@
   "@helpTitle": {
     "description": "Title of the help page."
   },
-  "helpWaitingQuestion": "Why does my payment say \"Waiting for recipient\"?",
-  "@helpWaitingQuestion": {
-    "description": "A question on the help page. Quote the status chip's text exactly as txStatusWaitingRecipient translates it."
-  },
-  "helpWaitingAnswer": "An Epic Cash payment is built by both wallets together: yours starts it, the recipient's wallet accepts it, then yours finishes it. Epic's epicbox service holds your payment for about a week, until the recipient's wallet comes online and answers. Until then the amount stays locked in your wallet, so you cannot spend it twice. If the payment is not completed, your wallet cancels it by itself after {days, plural, =1{1 day} other{{days} days}} and unlocks the amount.",
-  "@helpWaitingAnswer": {
-    "description": "Answer on the help page. epicbox is the relay service that carries payments (a proper name).",
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "helpCancellingQuestion": "Should I cancel a payment?",
-  "@helpCancellingQuestion": {
-    "description": "A question on the help page."
-  },
-  "helpCancellingAnswer": "Usually you do not need to: a payment that is not completed cancels itself after {days, plural, =1{1 day} other{{days} days}} and unlocks the amount. To stop one sooner, for example when the recipient says they will never answer, open it while it still says \"Waiting for recipient\" and tap Cancel payment; you would then have to send it again. A payment that is already confirming cannot be cancelled. Payments made with older versions of this app do not cancel themselves: if one has waited more than two weeks, cancel it and send again.",
-  "@helpCancellingAnswer": {
-    "description": "Answer on the help page. \"Waiting for recipient\" is the status chip (txStatusWaitingRecipient) and Cancel payment the button on the payment's details screen: use the same words as those.",
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "helpReceivingQuestion": "Why must I keep the app open to receive?",
-  "@helpReceivingQuestion": {
-    "description": "A question on the help page."
-  },
-  "helpReceivingAnswer": "Your wallet has to accept every incoming payment, and it can only do that while the app is open and connected to epicbox. A payment sent while the app is closed waits in epicbox for about a week and arrives the next time you unlock. After that epicbox deletes it; if the sender uses this app, their wallet cancels it by itself after {days, plural, =1{1 day} other{{days} days}}, and they can send it again. Once your wallet accepts a payment, the sender's wallet must finish it; until then it shows as Waiting for sender.",
-  "@helpReceivingAnswer": {
-    "description": "Answer on the help page. epicbox is the relay service that carries payments (a proper name). Waiting for sender is the status chip (txStatusWaitingSender): use the same words.",
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "helpConfirmationsQuestion": "What are confirmations and why {count}?",
-  "@helpConfirmationsQuestion": {
-    "description": "A question on the help page: why the wallet waits for this many blocks.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "helpConfirmationsAnswer": "A confirmation is a new block added to the Epic Cash blockchain after the one that holds your payment; a block arrives about once a minute. Each block makes it harder to undo the payment. After {count, plural, =1{1 confirmation, about 1 minute} other{{count} confirmations, about {count} minutes}}, a payment shows as Completed and received coins can be spent; that is the Epic wallet's standard.",
-  "@helpConfirmationsAnswer": {
-    "description": "Answer on the help page. Completed is the status chip (txStatusCompleted): use the same word.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "helpHistoryQuestion": "Why is my history missing after a restore?",
-  "@helpHistoryQuestion": {
-    "description": "A question on the help page."
-  },
-  "helpHistoryAnswer": "The recovery phrase brings back your balance: the wallet scans the blockchain for coins that belong to it. Who you paid, your notes and most dates are never stored on the blockchain, so a restore cannot find them. If you saved a history backup, import it in Settings, under Payment history, Import history backup, to get them back. The backup must be a copy you kept outside the lost phone, for example in email or cloud storage.",
-  "@helpHistoryAnswer": {
-    "description": "Answer on the help page. Settings, Payment history and Import history backup are the names on the settings screen (settingsTitle, settingsSectionHistory, settingsImportHistory): use the same words."
-  },
-  "helpAddressQuestion": "Does my address ever change?",
-  "@helpAddressQuestion": {
-    "description": "A question on the help page."
-  },
-  "helpAddressAnswer": "Your address is made from your recovery phrase and the epicbox server you use, and it ends in @ and that server's name. It stays the same as long as you keep the same epicbox server. If you pick another one in network settings, your address changes, so give the new one to people who pay you.",
-  "@helpAddressAnswer": {
-    "description": "Answer on the help page. epicbox is the relay service that carries payments (a proper name)."
-  },
-  "helpPhraseQuestion": "What is the recovery phrase and who can see it?",
-  "@helpPhraseQuestion": {
-    "description": "A question on the help page."
-  },
-  "helpPhraseAnswer": "The recovery phrase is a list of words that is the key to your money: anyone who has it can take your coins, and with it you can restore your wallet on a new phone. The app shows it only after you enter your PIN, and it never sends it anywhere. Write it on paper, keep it somewhere safe, and never share it or type it into a website.",
-  "@helpPhraseAnswer": {
-    "description": "Answer on the help page."
-  },
-  "helpFeesQuestion": "What does the fee pay for?",
-  "@helpFeesQuestion": {
-    "description": "A question on the help page."
-  },
-  "helpFeesAnswer": "The fee goes to the miners who add your payment to the blockchain. It is usually a small fraction of an EPIC and depends on how many coins your wallet combines to make the payment. You see the exact fee before you send.",
-  "@helpFeesAnswer": {
-    "description": "Answer on the help page. EPIC is the coin's ticker: keep it."
-  },
-  "helpNodeQuestion": "What is a node?",
-  "@helpNodeQuestion": {
-    "description": "A question on the help page."
-  },
-  "helpNodeAnswer": "A node is a computer that keeps a copy of the Epic Cash blockchain. The wallet asks a node for your balance and sends your payments to the network through it. The node sees your IP address and which coins the wallet asks about, so pick one you trust in network settings. Network settings are in Settings once Advanced options is on, and on the unlock screen.",
-  "@helpNodeAnswer": {
-    "description": "Answer on the help page."
-  },
-  "helpOtherWaysQuestion": "Are there other ways to send?",
-  "@helpOtherWaysQuestion": {
-    "description": "A question on the help page."
-  },
-  "helpOtherWaysAnswer": "For advanced users. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish. \"Other ways to send\" appears once Advanced options is on in Settings.",
-  "@helpOtherWaysAnswer": {
-    "description": "Answer on the help page. \"Send by transaction file\" and \"Other ways to send\" are names on the send screen: use the same words. Keep .response as it is."
-  },
   "helpStillStuck": "Still stuck?",
   "@helpStillStuck": {
     "description": "Heading at the end of the help page."
@@ -3982,7 +3859,7 @@
   "@settingsAdvancedOptions": {
     "description": "Settings switch that shows the technical controls (network, node, epicbox server, transaction files, logs) across the app. Off by default."
   },
-  "settingsAdvancedOptionsSubtitle": "Network, node, epicbox server, files and logs",
+  "settingsAdvancedOptionsSubtitle": "Technical details, files and logs",
   "@settingsAdvancedOptionsSubtitle": {
     "description": "Under the Advanced options switch: what it shows. epicbox is a proper name."
   },
@@ -4150,7 +4027,7 @@
   "@sendAddressIncomplete": {
     "description": "Send, step 1: the text looks like the start of an Epic address but is too short or lacks its server part."
   },
-  "sendAddressNotEpic": "This is not an Epic address.",
+  "sendAddressNotEpic": "This is not an Epicbox address.",
   "@sendAddressNotEpic": {
     "description": "Send, step 1: the text is not a valid Epic address for this network."
   },
@@ -4604,7 +4481,7 @@
   "@torReceivingTitle": {
     "description": "Title of the on/off switch for receiving payments over Tor, on the Receive tab and in Settings. Same words in both places."
   },
-  "torHonestLine": "Slower and more private. Blocked or not allowed in some countries. Receives only while the app is open.",
+  "torHonestLine": "Tor receiving works while the app is open or briefly in the background.",
   "@torHonestLine": {
     "description": "The lines that describe Tor receiving, under the switch: only what is true. No time promises. The last sentence: the phone cuts the app's network when it leaves the screen, so a payment over Tor reaches the wallet only while the app is open; nothing waits for it elsewhere."
   },
@@ -4723,6 +4600,1222 @@
   "settingsSectionReceiving": "Receiving",
   "@settingsSectionReceiving": {
     "description": "Settings section header: how payments reach this wallet (Tor receiving)."
+  },
+  "homeAvailableToSpend": "Available to spend",
+  "@homeAvailableToSpend": {
+    "description": "Caption above Wallet's big figure: the spendable balance."
+  },
+  "homeTileWaitingSender": "Waiting for sender",
+  "@homeTileWaitingSender": {
+    "description": "Balance tile label: payments offered to this wallet that are not in a block yet (awaiting finalization). 1 to 3 words."
+  },
+  "homeTileLocked": "Locked in sends",
+  "@homeTileLocked": {
+    "description": "Balance tile label: coins a send in progress holds until it confirms. 1 to 3 words."
+  },
+  "homeTileMaturing": "Rewards maturing",
+  "@homeTileMaturing": {
+    "description": "Balance tile label: mining rewards not spendable yet. 1 to 3 words."
+  },
+  "homeTileTotal": "Total",
+  "@homeTileTotal": {
+    "description": "Balance tile label: the whole balance, spendable and pending together."
+  },
+  "homeViewAll": "View all {count}",
+  "@homeViewAll": {
+    "description": "Button beside Recent activity: opens History. {count} is the number of payments.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "34"
+      }
+    }
+  },
+  "homeDestActivity": "Activity",
+  "@homeDestActivity": {
+    "description": "Home destination tile: the payment history."
+  },
+  "homeDestOutputs": "Outputs",
+  "@homeDestOutputs": {
+    "description": "Home destination tile: the Outputs screen (the pieces the balance is made of)."
+  },
+  "txStatusReceived": "Received",
+  "@txStatusReceived": {
+    "description": "Status word of a completed incoming payment or mining reward in lists."
+  },
+  "txStatusSent": "Sent",
+  "@txStatusSent": {
+    "description": "Status word of a completed outgoing payment in lists."
+  },
+  "sendPinReason": "Enter the PIN to send {amount} EPIC.",
+  "@sendPinReason": {
+    "description": "The PIN prompt's reason right before a send is posted. {amount} is the exact amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "sendFilePinReason": "Enter the PIN to make a payment file for {amount} EPIC.",
+  "@sendFilePinReason": {
+    "description": "The PIN prompt's reason right before a payment file is made, which locks the coins. {amount} is the exact amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "outputsTitle": "Outputs",
+  "@outputsTitle": {
+    "description": "Outputs screen title and Settings row title."
+  },
+  "outputsSpendable": "Spendable",
+  "@outputsSpendable": {
+    "description": "Outputs tile and filter: outputs that can be spent now."
+  },
+  "outputsConfirming": "Confirming",
+  "@outputsConfirming": {
+    "description": "Outputs tile and filter: outputs waiting for confirmations."
+  },
+  "outputsLockedTile": "Locked in sends",
+  "@outputsLockedTile": {
+    "description": "Outputs tile: outputs a send in progress spends."
+  },
+  "outputsImmature": "Immature",
+  "@outputsImmature": {
+    "description": "Outputs tile: mining rewards not yet spendable."
+  },
+  "outputsCount": "{count, plural, =1{1 output} other{{count} outputs}}",
+  "@outputsCount": {
+    "description": "Under a tile value: how many outputs.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outputsExplainer": "Outputs are the pieces the balance is made of. A send spends whole outputs and returns the rest as a new one.",
+  "@outputsExplainer": {
+    "description": "Outputs screen: what outputs are."
+  },
+  "outputsSplitButton": "Split…",
+  "@outputsSplitButton": {
+    "description": "Button: open the Split sheet."
+  },
+  "outputsConsolidateButton": "Consolidate…",
+  "@outputsConsolidateButton": {
+    "description": "Button: open the Consolidate sheet."
+  },
+  "outputsSplitNeeds": "Split needs at least 1 EPIC spendable.",
+  "@outputsSplitNeeds": {
+    "description": "Caption under the buttons: why Split is disabled."
+  },
+  "outputsConsolidateNeeds": "Consolidate needs at least 2 spendable outputs.",
+  "@outputsConsolidateNeeds": {
+    "description": "Caption under the buttons: why Consolidate is disabled."
+  },
+  "outputsWaitLocked": "Wait until the send in progress confirms (about 3 blocks).",
+  "@outputsWaitLocked": {
+    "description": "Caption under the buttons: a send is in progress."
+  },
+  "outputsStrategy": "Strategy for sends",
+  "@outputsStrategy": {
+    "description": "Row: which outputs a send spends."
+  },
+  "outputsSmallest": "Smallest",
+  "@outputsSmallest": {
+    "description": "Strategy name."
+  },
+  "outputsAll": "All",
+  "@outputsAll": {
+    "description": "Strategy name and filter."
+  },
+  "outputsSmallestText": "Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.",
+  "@outputsSmallestText": {
+    "description": "Strategy explanation, one line."
+  },
+  "outputsAllText": "Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.",
+  "@outputsAllText": {
+    "description": "Strategy explanation, one line."
+  },
+  "outputsSplitChange": "Split change",
+  "@outputsSplitChange": {
+    "description": "Row with a switch: split the change of a send."
+  },
+  "outputsSplitChangeText": "When few outputs would be left",
+  "@outputsSplitChangeText": {
+    "description": "Caption under the Split change switch."
+  },
+  "outputsFilterAll": "All {count}",
+  "@outputsFilterAll": {
+    "description": "Filter segment with a count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outputsFilterSpendable": "Spendable {count}",
+  "@outputsFilterSpendable": {
+    "description": "Filter segment with a count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outputsFilterConfirming": "Confirming {count}",
+  "@outputsFilterConfirming": {
+    "description": "Filter segment with a count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outputsFilterLocked": "Locked {count}",
+  "@outputsFilterLocked": {
+    "description": "Filter segment with a count, shown only when any output is locked.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outputsShowSpent": "Show spent",
+  "@outputsShowSpent": {
+    "description": "Toggle: list outputs already spent."
+  },
+  "outputsHideSpent": "Hide spent",
+  "@outputsHideSpent": {
+    "description": "Toggle: hide outputs already spent."
+  },
+  "outputsWordSpendable": "Spendable",
+  "@outputsWordSpendable": {
+    "description": "Status word of an output."
+  },
+  "outputsWordConfirming": "Confirming",
+  "@outputsWordConfirming": {
+    "description": "Status word of an output."
+  },
+  "outputsWordFinalizing": "Awaiting finalization",
+  "@outputsWordFinalizing": {
+    "description": "Status word of an output."
+  },
+  "outputsWordImmature": "Immature",
+  "@outputsWordImmature": {
+    "description": "Status word of an output."
+  },
+  "outputsWordMining": "Mining",
+  "@outputsWordMining": {
+    "description": "Status word of an output."
+  },
+  "outputsWordLocked": "Locked",
+  "@outputsWordLocked": {
+    "description": "Status word of an output."
+  },
+  "outputsWordSpent": "Spent",
+  "@outputsWordSpent": {
+    "description": "Status word of an output."
+  },
+  "outputsMeanSpendable": "Can be spent now.",
+  "@outputsMeanSpendable": {
+    "description": "One line in the output sheet."
+  },
+  "outputsMeanConfirming": "Needs {need} confirmations before it can be spent.",
+  "@outputsMeanConfirming": {
+    "description": "One line in the output sheet.",
+    "placeholders": {
+      "need": {
+        "type": "int"
+      }
+    }
+  },
+  "outputsMeanFinalizing": "Waiting for the sender to finish the payment.",
+  "@outputsMeanFinalizing": {
+    "description": "One line in the output sheet."
+  },
+  "outputsMeanImmature": "A mining reward. It can be spent after a delay.",
+  "@outputsMeanImmature": {
+    "description": "One line in the output sheet."
+  },
+  "outputsMeanMining": "A mining reward not confirmed yet.",
+  "@outputsMeanMining": {
+    "description": "One line in the output sheet."
+  },
+  "outputsMeanLocked": "Being spent by a send in progress.",
+  "@outputsMeanLocked": {
+    "description": "One line in the output sheet."
+  },
+  "outputsMeanSpent": "Already spent.",
+  "@outputsMeanSpent": {
+    "description": "One line in the output sheet."
+  },
+  "outputsNoteConfirmations": "{conf} / {need}",
+  "@outputsNoteConfirmations": {
+    "description": "Row note: confirmations so far of the needed.",
+    "placeholders": {
+      "conf": {
+        "type": "int"
+      },
+      "need": {
+        "type": "int"
+      }
+    }
+  },
+  "outputsNoteReceived": "Received {date}",
+  "@outputsNoteReceived": {
+    "description": "Row note: when the output was received.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "outputsNoteSend": "Send to {who}",
+  "@outputsNoteSend": {
+    "description": "Row note on a locked output: the send that holds it.",
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "outputsNoteSendPlain": "Send in progress",
+  "@outputsNoteSendPlain": {
+    "description": "Row note on a locked output when the send is not known."
+  },
+  "outputsRow": "{word} · {note}",
+  "@outputsRow": {
+    "description": "Row subtitle: a status word and a note.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      },
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "outputsFactHeight": "Height",
+  "@outputsFactHeight": {
+    "description": "Output sheet fact."
+  },
+  "outputsFactConfirmations": "Confirmations",
+  "@outputsFactConfirmations": {
+    "description": "Output sheet fact."
+  },
+  "outputsFactTransaction": "Transaction",
+  "@outputsFactTransaction": {
+    "description": "Output sheet fact."
+  },
+  "outputsFactCommitment": "Commitment",
+  "@outputsFactCommitment": {
+    "description": "Output sheet label above the full commitment."
+  },
+  "outputsCopy": "Copy",
+  "@outputsCopy": {
+    "description": "Button: copy the commitment."
+  },
+  "outputsCopied": "Commitment copied",
+  "@outputsCopied": {
+    "description": "Notice: the commitment was copied."
+  },
+  "outputsEmpty": "No outputs yet",
+  "@outputsEmpty": {
+    "description": "Empty state title."
+  },
+  "outputsEmptyHint": "The first payment received makes one. Receive shows the address.",
+  "@outputsEmptyHint": {
+    "description": "Empty state hint."
+  },
+  "outputsNoMatch": "No outputs in this view",
+  "@outputsNoMatch": {
+    "description": "Empty list under a filter."
+  },
+  "outputsRetry": "Retry",
+  "@outputsRetry": {
+    "description": "Button: load the outputs again."
+  },
+  "outputsSettingsSubtitle": "{count, plural, =1{1 output · {strategy}} other{{count} outputs · {strategy}}}",
+  "@outputsSettingsSubtitle": {
+    "description": "Settings row subtitle: output count and strategy name.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "strategy": {
+        "type": "String"
+      }
+    }
+  },
+  "outputsCancel": "Cancel",
+  "@outputsCancel": {
+    "description": "Button: close a sheet."
+  },
+  "outputsSplitTitle": "Split outputs",
+  "@outputsSplitTitle": {
+    "description": "Sheet title."
+  },
+  "outputsSplitText": "Spends {spent} ({amount}) and makes {made} of about {each} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.",
+  "@outputsSplitText": {
+    "description": "Split sheet paragraph. {spent} and {made} are counts such as \"3 outputs\".",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "each": {
+        "type": "String"
+      },
+      "made": {
+        "type": "String"
+      },
+      "spent": {
+        "type": "String"
+      }
+    }
+  },
+  "outputsToMake": "Outputs to make",
+  "@outputsToMake": {
+    "description": "Stepper label in the Split sheet."
+  },
+  "outputsStepperHint": "2 to 10",
+  "@outputsStepperHint": {
+    "description": "Stepper range hint."
+  },
+  "outputsFactFee": "Network fee",
+  "@outputsFactFee": {
+    "description": "Sheet fact."
+  },
+  "outputsFactEach": "Each output",
+  "@outputsFactEach": {
+    "description": "Sheet fact: value of each new output."
+  },
+  "outputsFactAbout": "about {amount}",
+  "@outputsFactAbout": {
+    "description": "A value with \"about\" in front.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "outputsFactLocked": "Locked",
+  "@outputsFactLocked": {
+    "description": "Sheet fact: what gets locked and for how long."
+  },
+  "outputsFactLockedValue": "{amount}, about 3 blocks",
+  "@outputsFactLockedValue": {
+    "description": "Sheet fact value.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "outputsNothingSpendable": "Nothing stays spendable meanwhile.",
+  "@outputsNothingSpendable": {
+    "description": "Warning line in the sheets."
+  },
+  "outputsMinEach": "Each output must be at least 0.5 EPIC.",
+  "@outputsMinEach": {
+    "description": "Warning line: Split needs bigger outputs."
+  },
+  "outputsSplitInto": "Split into {count}",
+  "@outputsSplitInto": {
+    "description": "Button in the Split sheet.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outputsConsolidateTitle": "Consolidate outputs",
+  "@outputsConsolidateTitle": {
+    "description": "Sheet title."
+  },
+  "outputsConsolidateText": "Spends {spent} ({amount}) and makes one output of {result}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
+  "@outputsConsolidateText": {
+    "description": "Consolidate sheet paragraph. {spent} is a count such as \"3 outputs\".",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "result": {
+        "type": "String"
+      },
+      "spent": {
+        "type": "String"
+      }
+    }
+  },
+  "outputsConsolidateAction": "Consolidate",
+  "@outputsConsolidateAction": {
+    "description": "Button in the Consolidate sheet."
+  },
+  "outputsSplitPin": "Confirm with your PIN to split outputs",
+  "@outputsSplitPin": {
+    "description": "Reason shown in the PIN prompt."
+  },
+  "outputsConsolidatePin": "Confirm with your PIN to consolidate outputs",
+  "@outputsConsolidatePin": {
+    "description": "Reason shown in the PIN prompt."
+  },
+  "outputsSplitStarted": "Split started: {count} outputs, confirming in about 3 blocks",
+  "@outputsSplitStarted": {
+    "description": "Notice after a split was posted.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outputsConsolidateStarted": "Consolidate started: one output, confirming in about 3 blocks",
+  "@outputsConsolidateStarted": {
+    "description": "Notice after a consolidation was posted."
+  },
+  "homePendingShort": "{amount} stays locked until the recipient's wallet answers.",
+  "@homePendingShort": {
+    "description": "One line under the pending-sends card's title: the locked amount and what it waits for. {amount} is the total of the waiting sends.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "contactsSearchHint": "Name or address",
+  "@contactsSearchHint": {
+    "description": "Contacts: the search field's hint."
+  },
+  "contactsEmptyTitle": "No contacts yet",
+  "@contactsEmptyTitle": {
+    "description": "Contacts: the empty list's heading."
+  },
+  "contactsEmptyCaption": "A contact is a name for an address.",
+  "@contactsEmptyCaption": {
+    "description": "Contacts: one line under the empty list's heading."
+  },
+  "contactsNoMatchQuery": "No contact matches \"{query}\"",
+  "@contactsNoMatchQuery": {
+    "description": "Contacts: no contact matches the search text.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "contactsSendAction": "Send",
+  "@contactsSendAction": {
+    "description": "Contact sheet: opens Send with this contact as the recipient."
+  },
+  "contactsEditAction": "Edit",
+  "@contactsEditAction": {
+    "description": "Contact sheet: opens the contact's edit screen."
+  },
+  "contactsAddressHeading": "Address",
+  "@contactsAddressHeading": {
+    "description": "Contact sheet: label over the full address."
+  },
+  "contactsNoteHeading": "Note",
+  "@contactsNoteHeading": {
+    "description": "Contact sheet: label over the contact's note."
+  },
+  "contactsShowCode": "Show code",
+  "@contactsShowCode": {
+    "description": "Contact sheet: shows the address as a QR code."
+  },
+  "contactsHideCode": "Hide code",
+  "@contactsHideCode": {
+    "description": "Contact sheet: hides the QR code again."
+  },
+  "contactsQrLabel": "QR code of {name}'s address",
+  "@contactsQrLabel": {
+    "description": "Contact sheet: screen reader label of the QR code.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "contactsDeleteConfirmBody": "Payments to this address show the address instead of the name after this.",
+  "@contactsDeleteConfirmBody": {
+    "description": "Contact delete confirm: what changes after deleting."
+  },
+  "contactsDeleted": "{name} deleted.",
+  "@contactsDeleted": {
+    "description": "Notice after a contact was deleted.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "contactsCopied": "Address copied.",
+  "@contactsCopied": {
+    "description": "Notice after the contact's address was copied."
+  },
+  "invoicesNewRequest": "New request",
+  "@invoicesNewRequest": {
+    "description": "Invoices: app bar action that opens the request form."
+  },
+  "invoicesSegmentSent": "Sent",
+  "@invoicesSegmentSent": {
+    "description": "Invoices: segment with the requests this wallet sent."
+  },
+  "invoicesSegmentCount": "{label}, {count, plural, =0{none} =1{1 item} other{{count} items}}",
+  "@invoicesSegmentCount": {
+    "description": "Invoices: screen reader text of a segment with its count.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "invoicesToPayEmpty": "No invoices to pay",
+  "@invoicesToPayEmpty": {
+    "description": "Invoices: empty To pay segment, heading."
+  },
+  "invoicesToPayEmptyCaption": "Services on your trusted list can bill this wallet. Each invoice waits here for your approval.",
+  "@invoicesToPayEmptyCaption": {
+    "description": "Invoices: empty To pay segment, caption."
+  },
+  "invoicesSentEmpty": "No requests sent",
+  "@invoicesSentEmpty": {
+    "description": "Invoices: empty Sent segment, heading."
+  },
+  "invoicesSentEmptyCaption": "A request asks someone to pay you an amount.",
+  "@invoicesSentEmptyCaption": {
+    "description": "Invoices: empty Sent segment, caption."
+  },
+  "invoicesWaitingPayment": "Waiting for payment",
+  "@invoicesWaitingPayment": {
+    "description": "Invoices, Sent row: a request still waiting, before its time left."
+  },
+  "invoicesExpires": "Expires",
+  "@invoicesExpires": {
+    "description": "Invoice review: label of the expiry row."
+  },
+  "invoicesUntil": "until {time}",
+  "@invoicesUntil": {
+    "description": "Invoice review: the clock time an invoice expires.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "invoicesMessage": "Message",
+  "@invoicesMessage": {
+    "description": "Invoice review: label of the service's message."
+  },
+  "invoicesFrom": "From",
+  "@invoicesFrom": {
+    "description": "Invoice review: label of the service's full address."
+  },
+  "invoicesPaysFrom": "Pays from",
+  "@invoicesPaysFrom": {
+    "description": "Invoice review: label of the balance the payment comes from."
+  },
+  "invoicesAvailable": "Available to spend {amount}",
+  "@invoicesAvailable": {
+    "description": "Invoice review: the spendable balance.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "invoicesShort": "Not enough to pay. {amount} short.",
+  "@invoicesShort": {
+    "description": "Invoice review: the invoice is more than the spendable balance.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "invoicesCheckNode": "Node",
+  "@invoicesCheckNode": {
+    "description": "Invoice review: the node check's label."
+  },
+  "invoicesCheckEpicbox": "Epicbox",
+  "@invoicesCheckEpicbox": {
+    "description": "Invoice review: the epicbox check's label."
+  },
+  "invoicesNodeOk": "Responding",
+  "@invoicesNodeOk": {
+    "description": "Invoice review: the node answered."
+  },
+  "invoicesNodeDown": "Not responding",
+  "@invoicesNodeDown": {
+    "description": "Invoice review: the node did not answer."
+  },
+  "invoicesEpicboxOk": "Connected",
+  "@invoicesEpicboxOk": {
+    "description": "Invoice review: the epicbox listener is connected."
+  },
+  "invoicesEpicboxDown": "Not connected",
+  "@invoicesEpicboxDown": {
+    "description": "Invoice review: the epicbox listener is not connected."
+  },
+  "invoicesSendRequest": "Send request",
+  "@invoicesSendRequest": {
+    "description": "Request form: the button that sends the request."
+  },
+  "invoicesRequestSummary": "{payer} is asked to pay {amount}. The request expires in 24 h.",
+  "@invoicesRequestSummary": {
+    "description": "Request form: summary above Send request.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "invoicesRequestHowTitle": "Before you request",
+  "@invoicesRequestHowTitle": {
+    "description": "Request form: heading of what the payer must do first."
+  },
+  "netStatusNode": "Node",
+  "@netStatusNode": {
+    "description": "Status card row title: the node the wallet uses."
+  },
+  "netStatusEpicbox": "Epicbox",
+  "@netStatusEpicbox": {
+    "description": "Status card row title: the Epicbox relay."
+  },
+  "netStatusTor": "Tor",
+  "@netStatusTor": {
+    "description": "Status card row title: Tor on the phone."
+  },
+  "netStatusSynced": "Synced",
+  "@netStatusSynced": {
+    "description": "Status card: the node is at the chain tip."
+  },
+  "netStatusSyncing": "Syncing",
+  "@netStatusSyncing": {
+    "description": "Status card: the wallet is syncing with the node, no percent known."
+  },
+  "netStatusSyncingPercent": "Syncing {percent} %",
+  "@netStatusSyncingPercent": {
+    "description": "Status card: syncing with a percent.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "netStatusConnecting": "Connecting",
+  "@netStatusConnecting": {
+    "description": "Status card: no answer yet."
+  },
+  "netStatusBehind": "{count, plural, one{Behind {count}} other{Behind {count}}}",
+  "@netStatusBehind": {
+    "description": "Status card: the node is {count} blocks behind the network.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "netStatusOffline": "Offline",
+  "@netStatusOffline": {
+    "description": "Status card: the service does not answer."
+  },
+  "netStatusOnline": "Online",
+  "@netStatusOnline": {
+    "description": "Status card: the Epicbox relay is connected."
+  },
+  "netStatusOff": "Off",
+  "@netStatusOff": {
+    "description": "Status card: the service is turned off."
+  },
+  "netStatusOn": "On",
+  "@netStatusOn": {
+    "description": "Status card: Tor is connected."
+  },
+  "netStatusFailed": "Failed",
+  "@netStatusFailed": {
+    "description": "Status card: Tor stopped with an error."
+  },
+  "netStatusStarting": "Starting {percent} %",
+  "@netStatusStarting": {
+    "description": "Status card: Tor is starting, percent done.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "netStatusTestHost": "{network} · {host}",
+  "@netStatusTestHost": {
+    "description": "Status card host line on a test network: the network name, then the host.",
+    "placeholders": {
+      "network": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "netStatusTitle": "Network status",
+  "@netStatusTitle": {
+    "description": "Screen reader name of the status card."
+  },
+  "netStatusOpenHint": "Shows the servers",
+  "@netStatusOpenHint": {
+    "description": "Screen reader hint on a status card row."
+  },
+  "serverNodeTitle": "Node",
+  "@serverNodeTitle": {
+    "description": "Node picker sheet title."
+  },
+  "serverEpicboxTitle": "Epicbox",
+  "@serverEpicboxTitle": {
+    "description": "Epicbox picker sheet title."
+  },
+  "serverSearchHint": "Find or type a node address",
+  "@serverSearchHint": {
+    "description": "Node picker search field."
+  },
+  "serverUseAddress": "Use {address}",
+  "@serverUseAddress": {
+    "description": "Row offering a typed node address that matches no list row.",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "serverTesting": "Testing…",
+  "@serverTesting": {
+    "description": "While a typed node address is being tested."
+  },
+  "serverTestAnswer": "Block {height} · v{version}",
+  "@serverTestAnswer": {
+    "description": "The typed node answered: its block and version.",
+    "placeholders": {
+      "height": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "serverTestFailed": "No answer. {error}",
+  "@serverTestFailed": {
+    "description": "The typed node did not answer; {error} says why.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "serverMyNodes": "My nodes",
+  "@serverMyNodes": {
+    "description": "Node picker section head: starred and typed nodes."
+  },
+  "serverPublicNodes": "Public nodes",
+  "@serverPublicNodes": {
+    "description": "Node picker section head: public nodes."
+  },
+  "serverPublicRelays": "Public servers",
+  "@serverPublicRelays": {
+    "description": "Epicbox picker section head: public relays."
+  },
+  "serverHealthUnknown": "status.btlabs.uk not reachable; health unknown",
+  "@serverHealthUnknown": {
+    "description": "Caption under the lists when the monitor did not answer."
+  },
+  "serverAtTip": "at tip",
+  "@serverAtTip": {
+    "description": "Node row: the node is at the network tip."
+  },
+  "serverBehindShort": "−{count}",
+  "@serverBehindShort": {
+    "description": "Node row: blocks behind the tip, as a short number with a minus sign.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "serverBehindLabel": "{count, plural, one{{count} block behind} other{{count} blocks behind}}",
+  "@serverBehindLabel": {
+    "description": "Screen reader: the node is behind the tip.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "serverAddMine": "Add to my nodes",
+  "@serverAddMine": {
+    "description": "Star button: add the node to My nodes."
+  },
+  "serverRemoveMine": "Remove from my nodes",
+  "@serverRemoveMine": {
+    "description": "Star button: remove the node from My nodes."
+  },
+  "serverNotResponding": "Not responding",
+  "@serverNotResponding": {
+    "description": "Row: the server does not answer the monitor."
+  },
+  "serverHealthy": "Healthy",
+  "@serverHealthy": {
+    "description": "Screen reader: the monitor saw the server healthy."
+  },
+  "serverDegraded": "Degraded",
+  "@serverDegraded": {
+    "description": "Screen reader: the monitor saw the server answer but lag or misbehave."
+  },
+  "serverHealthNone": "Health unknown",
+  "@serverHealthNone": {
+    "description": "Screen reader: no health known for the server."
+  },
+  "serverCurrent": "Current",
+  "@serverCurrent": {
+    "description": "Row trailing word: the server in use."
+  },
+  "serverDefault": "Default",
+  "@serverDefault": {
+    "description": "Tag on the default Epicbox relay."
+  },
+  "serverLatency": "{ms} ms",
+  "@serverLatency": {
+    "description": "Latency in milliseconds, measured by the monitor.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "serverUptime": "{percent} % up",
+  "@serverUptime": {
+    "description": "Relay uptime over the last day.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "serverSwitchTo": "Switch to {host}",
+  "@serverSwitchTo": {
+    "description": "Confirm strip button: switch to the chosen server.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "serverNodeSwitchNote": "The wallet reconnects. Balances are checked again against the new node.",
+  "@serverNodeSwitchNote": {
+    "description": "Confirm strip caption: what switching the node does."
+  },
+  "serverRelayWarning": "Your address includes this server. Switching changes your address; senders need the new one.",
+  "@serverRelayWarning": {
+    "description": "Epicbox picker warning above the list."
+  },
+  "serverRelaySwitchNote": "Your address changes; senders need the new one.",
+  "@serverRelaySwitchNote": {
+    "description": "Epicbox confirm strip caption."
+  },
+  "serverOtherRelay": "Other server, host or host:port",
+  "@serverOtherRelay": {
+    "description": "Epicbox picker field for a relay not in the list."
+  },
+  "serverFactHeight": "Height",
+  "@serverFactHeight": {
+    "description": "Current node card label: the node's block height."
+  },
+  "serverFactVersion": "Version",
+  "@serverFactVersion": {
+    "description": "Current node card label: the node's version."
+  },
+  "serverFactPeers": "Peers",
+  "@serverFactPeers": {
+    "description": "Current node card label: peers the node is connected to."
+  },
+  "serverFactUptime": "Uptime 24 h",
+  "@serverFactUptime": {
+    "description": "Current node card label: uptime over the last 24 hours."
+  },
+  "serverHeightAtTip": "{height} · at tip",
+  "@serverHeightAtTip": {
+    "description": "Current node card: height and at tip.",
+    "placeholders": {
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "serverNodesAgree": "Nodes agree on {height}",
+  "@serverNodesAgree": {
+    "description": "Directory line: the height the nodes agree on.",
+    "placeholders": {
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "serverNodesUp": "{total, plural, one{{up} of {total} node up} other{{up} of {total} nodes up}}",
+  "@serverNodesUp": {
+    "description": "Directory line: healthy nodes of all nodes.",
+    "placeholders": {
+      "up": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "serverLastBlockSeconds": "{seconds, plural, one{last block {seconds} s ago} other{last block {seconds} s ago}}",
+  "@serverLastBlockSeconds": {
+    "description": "Directory line: age of the last block in seconds.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "serverLastBlockMinutes": "{minutes, plural, one{last block {minutes} min ago} other{last block {minutes} min ago}}",
+  "@serverLastBlockMinutes": {
+    "description": "Directory line: age of the last block in minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "serverCheckedAt": "status.btlabs.uk, checked {time}",
+  "@serverCheckedAt": {
+    "description": "Directory source line with the time of the monitor's last check.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "serverRowLabel": "{host}, {facts}",
+  "@serverRowLabel": {
+    "description": "Screen reader label of a server row: host, then its facts.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "facts": {
+        "type": "String"
+      }
+    }
+  },
+  "methodEpicbox": "Epicbox",
+  "@methodEpicbox": {
+    "description": "Method name on Send and Receive segments."
+  },
+  "methodHttp": "HTTP",
+  "@methodHttp": {
+    "description": "Method name: straight to the other wallet over HTTP."
+  },
+  "methodTor": "Tor",
+  "@methodTor": {
+    "description": "Method name: straight to the other wallet over Tor."
+  },
+  "methodFile": "File",
+  "@methodFile": {
+    "description": "Method name: a transaction file handed over by hand."
+  },
+  "methodArtCaptionEpicbox": "Epicbox server holds it",
+  "@methodArtCaptionEpicbox": {
+    "description": "Caption under the Epicbox picture, a few words, shown in capitals."
+  },
+  "methodArtCaptionHttp": "Straight to their wallet",
+  "@methodArtCaptionHttp": {
+    "description": "Caption under the HTTP picture, a few words, shown in capitals."
+  },
+  "methodArtCaptionTor": "Straight, through Tor",
+  "@methodArtCaptionTor": {
+    "description": "Caption under the Tor picture, a few words, shown in capitals."
+  },
+  "methodArtCaptionFile": "File out, response back",
+  "@methodArtCaptionFile": {
+    "description": "Caption under the File picture, a few words, shown in capitals."
+  },
+  "methodArtLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient's wallet is back",
+  "@methodArtLabelEpicbox": {
+    "description": "Screen reader label of the Epicbox picture."
+  },
+  "methodArtLabelHttp": "HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "@methodArtLabelHttp": {
+    "description": "Screen reader label of the HTTP picture."
+  },
+  "methodArtLabelTor": "Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "@methodArtLabelTor": {
+    "description": "Screen reader label of the Tor picture."
+  },
+  "methodArtLabelFile": "File: a transaction file is handed over, a response file comes back, then the sender finalizes",
+  "@methodArtLabelFile": {
+    "description": "Screen reader label of the File picture."
+  },
+  "methodSendEpicboxTitle": "The recipient can be offline.",
+  "@methodSendEpicboxTitle": {
+    "description": "Send strip title for Epicbox."
+  },
+  "methodSendEpicboxLine": "The Epicbox server holds the payment until they open their wallet.",
+  "@methodSendEpicboxLine": {
+    "description": "Send strip line for Epicbox."
+  },
+  "methodSendHttpTitle": "Straight to their wallet.",
+  "@methodSendHttpTitle": {
+    "description": "Send strip title for HTTP."
+  },
+  "methodSendHttpLine": "It must be open and reachable at its HTTP address.",
+  "@methodSendHttpLine": {
+    "description": "Send strip line for HTTP."
+  },
+  "methodSendTorTitle": "Straight to their wallet, over Tor.",
+  "@methodSendTorTitle": {
+    "description": "Send strip title for Tor."
+  },
+  "methodSendTorLine": "Slower and more private. Their wallet must be open.",
+  "@methodSendTorLine": {
+    "description": "Send strip line for Tor."
+  },
+  "methodSendFileTitle": "No connection needed.",
+  "@methodSendFileTitle": {
+    "description": "Send strip title for File."
+  },
+  "methodSendFileLine": "Hand the file over, get their response file back, then finalize it here.",
+  "@methodSendFileLine": {
+    "description": "Send strip line for File."
+  },
+  "methodReceiveEpicboxTitle": "Share it to get paid.",
+  "@methodReceiveEpicboxTitle": {
+    "description": "Receive strip title for Epicbox."
+  },
+  "methodReceiveEpicboxLine": "Works while the wallet is closed: the Epicbox server holds payments until it is back.",
+  "@methodReceiveEpicboxLine": {
+    "description": "Receive strip line for Epicbox."
+  },
+  "methodReceiveTorTitle": "Slower and more private.",
+  "@methodReceiveTorTitle": {
+    "description": "Receive strip title for Tor."
+  },
+  "methodReceiveTorLine": "Works only while the app is open or briefly in the background.",
+  "@methodReceiveTorLine": {
+    "description": "Receive strip line for Tor."
+  },
+  "methodReceiveFileTitle": "Hand a file back and forth.",
+  "@methodReceiveFileTitle": {
+    "description": "Receive strip title for File."
+  },
+  "methodReceiveFileLine": "Works with no connection between the wallets.",
+  "@methodReceiveFileLine": {
+    "description": "Receive strip line for File."
+  },
+  "methodAddressKindsTooltip": "Address kinds",
+  "@methodAddressKindsTooltip": {
+    "description": "Tooltip of the ? beside the address shape under Send's To field; opens help on address kinds."
+  },
+  "sendMethodLabel": "Method",
+  "@sendMethodLabel": {
+    "description": "Screen reader name of Send's method selector, and the review row naming the method."
+  },
+  "sendToLabel": "To",
+  "@sendToLabel": {
+    "description": "Label of Send's recipient field."
+  },
+  "sendToHint": "Address or contact",
+  "@sendToHint": {
+    "description": "Placeholder of Send's recipient field."
+  },
+  "sendSwitchedHttp": "Over HTTP",
+  "@sendSwitchedHttp": {
+    "description": "Tag beside the To label for 3 s after the method moved to HTTP because of the address."
+  },
+  "sendSwitchedEpicbox": "Via Epicbox",
+  "@sendSwitchedEpicbox": {
+    "description": "Tag beside the To label for 3 s after the method moved to Epicbox because of the address."
+  },
+  "sendSwitchedTorAnnounce": "Tor address. Method set to Tor.",
+  "@sendSwitchedTorAnnounce": {
+    "description": "Read out when a Tor address moved the method to Tor."
+  },
+  "sendSwitchedHttpAnnounce": "HTTP address. Method set to HTTP.",
+  "@sendSwitchedHttpAnnounce": {
+    "description": "Read out when an HTTP address moved the method to HTTP."
+  },
+  "sendSwitchedEpicboxAnnounce": "Epicbox address. Method set to Epicbox.",
+  "@sendSwitchedEpicboxAnnounce": {
+    "description": "Read out when an Epicbox address moved the method to Epicbox."
+  },
+  "sendReviewMethodHttp": "HTTP, straight to their wallet",
+  "@sendReviewMethodHttp": {
+    "description": "Review, Method row for an HTTP send."
+  },
+  "sendCancelRuleEpicbox": "Can be cancelled while it waits for the recipient.",
+  "@sendCancelRuleEpicbox": {
+    "description": "Review caption: when an Epicbox send can be cancelled."
+  },
+  "sendCancelRuleDirect": "Cannot be cancelled once their wallet accepts it.",
+  "@sendCancelRuleDirect": {
+    "description": "Review caption: an HTTP or Tor send cannot be cancelled once the other wallet accepted it."
+  },
+  "sendCancelRuleFile": "Can be cancelled until the response file is finalized.",
+  "@sendCancelRuleFile": {
+    "description": "Caption on the payment file step: when a file payment can be cancelled."
+  },
+  "sendHttpReaching": "Reaching their wallet… Keep the app open.",
+  "@sendHttpReaching": {
+    "description": "Send, review: an HTTP send is under way."
+  },
+  "sendDeliveredWaitingBlock": "Delivered · Waiting for a block",
+  "@sendDeliveredWaitingBlock": {
+    "description": "Send tracker and payment details: an HTTP or Tor send the other wallet accepted, not in a block yet."
+  },
+  "sendHttpAddressShape": "An HTTP address starts with http:// or https://.",
+  "@sendHttpAddressShape": {
+    "description": "Send: the text under the HTTP method is not a web address."
+  },
+  "sendPlainHttpTitle": "Not encrypted. Send anyway?",
+  "@sendPlainHttpTitle": {
+    "description": "Dialog title before a send over plain http to another device."
+  },
+  "sendPlainHttpBody": "Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.",
+  "@sendPlainHttpBody": {
+    "description": "Dialog text before a send over plain http to another device."
+  },
+  "sendCancelPossibleWhileWaiting": "Possible while the payment waits for the recipient.",
+  "@sendCancelPossibleWhileWaiting": {
+    "description": "Payment details: caption under Cancel payment."
+  },
+  "receiveEpicboxCaption": "When reading it out, check the first six and last six characters.",
+  "@receiveEpicboxCaption": {
+    "description": "Receive, Epicbox tab: caption under the address."
+  },
+  "receiveTorCaption": "Some wallets show the address without .onion; both are the same address.",
+  "@receiveTorCaption": {
+    "description": "Receive, Tor tab: caption under the address."
+  },
+  "sendHttpNotReached": "{days, plural, =1{Their wallet was not reached. The amount is on hold until you cancel it, or for at most 1 day.} other{Their wallet was not reached. The amount is on hold until you cancel it, or for at most {days} days.}}",
+  "@sendHttpNotReached": {
+    "description": "Send, review: the recipient's wallet was not reached over HTTP; the payment is kept with its coins on hold until it is cancelled, and cancels itself after {days} days. Try again and Cancel payment follow.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "deskInvActFrom": "Invoice from {label}",
   "@deskInvActFrom": {
@@ -6111,5 +7204,199 @@
   "deskInvSetRestoredHint": "Restored this wallet from its recovery phrase? Give services this invoice address again.",
   "@deskInvSetRestoredHint": {
     "description": "Line under the invoice address while its index is 1: a wallet restored without its history file starts again at the first invoice address, so services hold an old one (flow.md §2, P-16)."
+  },
+  "serverSwitchRelayTitle": "Switch epicbox server?",
+  "@serverSwitchRelayTitle": {
+    "description": "Title of the confirm before the epicbox server of the open wallet changes."
+  },
+  "serverSwitchRelayBody": "The epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.",
+  "@serverSwitchRelayBody": {
+    "description": "Body of that confirm: the address keeps its key and takes the new server.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
+  },
+  "serverSwitchRelayConfirm": "Switch",
+  "@serverSwitchRelayConfirm": {
+    "description": "Button of that confirm that switches the server."
+  },
+  "helpButton": "Help",
+  "@helpButton": {
+    "description": "Tooltip of the small ? button that opens one help topic."
+  },
+  "helpSearchHint": "Search help",
+  "@helpSearchHint": {
+    "description": "Hint of the search field at the top of Help."
+  },
+  "helpEnglishOnly": "Help is in English for now.",
+  "@helpEnglishOnly": {
+    "description": "Caption at the top of Help in every language but English: the topics are not translated yet."
+  },
+  "helpNoMatch": "No help matches \"{query}\"",
+  "@helpNoMatch": {
+    "description": "Help search with no result. {query} is what was typed.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "helpMatchCount": "{count, plural, =1{1 topic} other{{count} topics}}",
+  "@helpMatchCount": {
+    "description": "Help search result count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "helpShowHandshake": "Show how it works",
+  "@helpShowHandshake": {
+    "description": "Button under the handshake help topic: opens the animated handshake sheet."
+  },
+  "helpMoreInSection": "More in this section",
+  "@helpMoreInSection": {
+    "description": "Heading over the other topics of the same section at the end of a help topic."
+  },
+  "sendBalanceAfter": "Balance after",
+  "sendSpendableUntilChange": "Spendable until change confirms",
+  "sendSpendableUntilChangeHint": "The change comes back once the send confirms.",
+  "@sendBalanceAfter": {
+    "description": "Send review row: the spendable balance once this send and its fee are out."
+  },
+  "@sendSpendableUntilChange": {
+    "description": "Send review row: what stays spendable while the send's change confirms (spendable minus the outputs the send locks)."
+  },
+  "@sendSpendableUntilChangeHint": {
+    "description": "Caption under the Spendable until change confirms row."
+  },
+  "serverSwitched": "Switched to {host}",
+  "@serverSwitched": {
+    "description": "Notice after the node or Epicbox server changed live, without locking the wallet. {host} is the new host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "methodDirect": "Direct",
+  "@methodDirect": {
+    "description": "Send and Receive method: straight to the other wallet, at an http(s) or onion address."
+  },
+  "methodDirectShape": "http://host:3415 or xxxx….onion",
+  "@methodDirectShape": {
+    "description": "Under Send's empty To field on Direct: the two shapes a Direct address takes. Keep the addresses as they are."
+  },
+  "methodSendDirectLine": "Their wallet must be open. An onion address goes over Tor.",
+  "@methodSendDirectLine": {
+    "description": "Send's strip line for Direct."
+  },
+  "methodArtLabelDirect": "Direct: the payment goes straight to the recipient's wallet, which must be open",
+  "@methodArtLabelDirect": {
+    "description": "Screen reader label of the Direct picture."
+  },
+  "methodReceiveEpicboxShort": "Works with the wallet closed.",
+  "@methodReceiveEpicboxShort": {
+    "description": "Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No \"app\": the web demo shows it too."
+  },
+  "methodReceiveDirectTitle": "Straight to this wallet.",
+  "@methodReceiveDirectTitle": {
+    "description": "Receive's Direct strip title."
+  },
+  "methodReceiveDirectLine": "Works while the app is open.",
+  "@methodReceiveDirectLine": {
+    "description": "Receive's Direct strip line: the onion address answers only while the app runs."
+  },
+  "methodLineOverTor": "{line} Over Tor.",
+  "@methodLineOverTor": {
+    "description": "A strip line followed by 'Over Tor.' when its connection goes through Tor.",
+    "placeholders": {
+      "line": {
+        "type": "String"
+      }
+    }
+  },
+  "sendSwitchedDirect": "Direct address",
+  "@sendSwitchedDirect": {
+    "description": "Tag beside Send's To label for 3 s after the address moved the method to Direct."
+  },
+  "sendSwitchedDirectAnnounce": "Direct address. Method set to Direct.",
+  "@sendSwitchedDirectAnnounce": {
+    "description": "Read out once when the address moved Send's method to Direct."
+  },
+  "sendDirectAddressShape": "A Direct address starts with http:// or https://, or ends in .onion.",
+  "@sendDirectAddressShape": {
+    "description": "Error under To when Direct is chosen and the text is not an http(s) or onion address."
+  },
+  "torNotOverTor": "Not over Tor",
+  "@torNotOverTor": {
+    "description": "Tag on Send and Review: this connection stays on the clearnet although Tor is on."
+  },
+  "torNeeds": "Needs Tor.",
+  "@torNeeds": {
+    "description": "Notice under Send's To: an onion address needs Tor, which is off."
+  },
+  "torTurnOn": "Turn on Tor",
+  "@torTurnOn": {
+    "description": "Button that turns the Tor switch on."
+  },
+  "torTurnOff": "Turn Tor off",
+  "@torTurnOff": {
+    "description": "Button that turns the Tor switch off."
+  },
+  "torNotConnectedNotice": "Tor is not connected.",
+  "@torNotConnectedNotice": {
+    "description": "Notice on Send while Tor is on but not connected: nothing that needs it goes."
+  },
+  "torWaiting": "Waiting for Tor",
+  "@torWaiting": {
+    "description": "Send's Review button while Tor starts."
+  },
+  "torWordStarting": "Starting…",
+  "@torWordStarting": {
+    "description": "Tor state word: the switch is on and Tor is connecting."
+  },
+  "torWordNotConnected": "Not connected",
+  "@torWordNotConnected": {
+    "description": "Tor state word: Tor is on but could not connect."
+  },
+  "torCoversEpicbox": "Epicbox and onion sends go through Tor.",
+  "@torCoversEpicbox": {
+    "description": "Settings › Privacy › Tor subtitle: what the switch routes through Tor in this build."
+  },
+  "torCoversEpicboxNode": "Epicbox, the node and onion sends go through Tor.",
+  "@torCoversEpicboxNode": {
+    "description": "Settings › Privacy › Tor subtitle once the node is covered too."
+  },
+  "torCoversAll": "Epicbox, the node, onion sends and the app’s own requests go through Tor.",
+  "@torCoversAll": {
+    "description": "Settings › Privacy › Tor subtitle once the node and the app's own requests are covered."
+  },
+  "torSettingsLink": "Tor settings",
+  "@torSettingsLink": {
+    "description": "Text link on Receive's Direct tab to Settings › Privacy."
+  },
+  "receiveTabDirect": "Direct",
+  "@receiveTabDirect": {
+    "description": "Receive tab: receiving straight to this wallet at its onion address."
+  },
+  "receiveDirectNeedsTor": "Direct receiving needs Tor.",
+  "@receiveDirectNeedsTor": {
+    "description": "Receive's Direct tab while Tor is off."
+  },
+  "receiveDirectMeanwhile": "Senders use the Epicbox address meanwhile.",
+  "@receiveDirectMeanwhile": {
+    "description": "Caption under 'Direct receiving needs Tor.'"
+  },
+  "settingsPushOffWhileTor": "Off while Tor is on",
+  "@settingsPushOffWhileTor": {
+    "description": "Caption under the disabled notifications switch while Tor is on."
+  },
+  "netStatusOverTor": "over Tor",
+  "@netStatusOverTor": {
+    "description": "Status card: read out after a service whose connection goes through Tor."
   }
 }
