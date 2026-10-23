@@ -47,7 +47,7 @@ class _Sample implements RelayDirectory, NodeDirectory {
 }
 
 const _hosts = ['node.btlabs.uk', 'node.epicnet.us:3413', 'node.epiccash.com:3413', 'epic.stackwallet.com:3413', 'epic-node.iniaku.my.id'];
-const _boxes = ['epicbox.epiccash.com', 'epicbox.stackwallet.com', 'epicbox.epicnet.us', 'epicbox.iniaku.my.id'];
+const _boxes = ['epicbox.epiccash.com', 'epicbox.stackwallet.com', 'epicbox.epicnet.us', 'epicbox.iniaku.my.id', 'flooepicbox.btlabs.uk'];
 
 void main() {
   late Directory support;
@@ -66,7 +66,7 @@ void main() {
     nodeTimeout: const Duration(seconds: 1),
   );
 
-  test('the monitor down: the five built-in nodes and four relays, BT Labs the default', () async {
+  test('the monitor down: the five built-in nodes and five relays, BT Labs the default', () async {
     final w = make(_Down());
     addTearDown(w.dispose);
     await w.nodes();
