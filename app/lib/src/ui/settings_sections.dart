@@ -482,7 +482,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       if (walletOpen)
         const Padding(
           padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
-          child: NetworkStatusCard(),
+          child: NetworkStatusCard(showTor: false),
         ),
       // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
       // state; it moves nothing the user chose.
