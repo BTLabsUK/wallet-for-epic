@@ -2,7 +2,7 @@
 # Builds the Android release from the checkout: LEPIC at the pin (tools/lepic.rev), the
 # arm64-v8a APK (the one phone download; no universal APK), copies it to an output dir with its
 # release name, writes SHA256SUMS and verifies it (signing cert, package, version, label,
-# LEPIC library, Tor's libtor.so and licence, 16 KB-aligned ELF segments, no Firebase config). The signing key is the release key named by
+# LEPIC library, Tor's libtor.so and licence, 16 KB-aligned ELF segments, the Firebase config of the package). The signing key is the release key named by
 # WFE_ANDROID_KEY_PROPERTIES (default ~/.config/btlabs/android/key.properties, never in a
 # repository); without it the build stops (android/app/build.gradle.kts, README "Release signing").
 #
@@ -42,8 +42,13 @@ aapt2="$bt/aapt2" apksigner="$bt/apksigner" zipalign="$bt/zipalign"
 readelf="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
 [[ -x "$readelf" ]] || { echo "llvm-readelf not found in $ANDROID_NDK_HOME" >&2; exit 1; }
 
-[[ ! -e "$app_dir/android/app/google-services.json" ]] \
-  || { echo "android/app/google-services.json exists: releases ship without Firebase" >&2; exit 1; }
+# Releases include Firebase (push notifications, off by default and while Tor is on). The config
+# is git-ignored; BT Labs keeps it in ~/.config/btlabs/fcm/google-services.json.
+services="$app_dir/android/app/google-services.json"
+[[ -f "$services" ]] \
+  || { echo "android/app/google-services.json is missing: copy ~/.config/btlabs/fcm/google-services.json" >&2; exit 1; }
+grep -q "\"package_name\": *\"$want_package\"" "$services" \
+  || { echo "android/app/google-services.json has no client for $want_package" >&2; exit 1; }
 
 cd "$app_dir"
 flutter pub get
@@ -124,8 +129,8 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   grep -q 'extractNativeLibs.*=true' <<<"$manifest" && r=0 || r=1
   check "manifest extractNativeLibs=true" $r
   grep -qiE 'google-services|firebase|google_app_id' <<<"$("$aapt2" dump resources "$apk" 2>/dev/null | grep -iE 'google_app_id|firebase_database_url|gcm_defaultSenderId' || true)" \
-    && r=1 || r=0
-  check "no Firebase config" $r
+    && r=0 || r=1
+  check "Firebase config" $r
 done
 # The phone download is arm64-v8a only.
 published="$(cd "$out_dir" && ls epic-cash-mobile-$version-*.apk)"
