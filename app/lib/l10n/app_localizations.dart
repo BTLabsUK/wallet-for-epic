@@ -4892,6 +4892,42 @@ abstract class AppLocalizations {
   /// **'Privacy'**
   String get settingsSectionPrivacy;
 
+  /// Settings group on the phone's Settings hub: the Tor switch, the status site and the node and Epicbox servers.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & network'**
+  String get settingsSectionPrivacyNetwork;
+
+  /// Settings group on the phone's Settings hub: opens Help, which starts with Send feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & feedback'**
+  String get settingsSectionHelpFeedback;
+
+  /// State line under the Security group while the recovery phrase has not been backed up.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up your recovery phrase'**
+  String get settingsStateBackUp;
+
+  /// State line under the Security group: the wallet unlocks with the PIN only.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN'**
+  String get settingsStatePin;
+
+  /// State line under the Security group: the wallet unlocks with the PIN or biometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN and biometrics'**
+  String get settingsStatePinBiometrics;
+
+  /// Two state words on one line under a Settings group, with a middle dot between them.
+  ///
+  /// In en, this message translates to:
+  /// **'{a} · {b}'**
+  String settingsStateJoin(String a, String b);
+
   /// Settings switch: read server health and node lists from the status.btlabs.uk monitor. Keep status.btlabs.uk as it is.
   ///
   /// In en, this message translates to:

@@ -3386,6 +3386,26 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSectionPrivacy => 'Prywatność';
 
   @override
+  String get settingsSectionPrivacyNetwork => 'Prywatność i sieć';
+
+  @override
+  String get settingsSectionHelpFeedback => 'Pomoc i opinie';
+
+  @override
+  String get settingsStateBackUp => 'Zapisz frazę odzyskiwania';
+
+  @override
+  String get settingsStatePin => 'PIN';
+
+  @override
+  String get settingsStatePinBiometrics => 'PIN i biometria';
+
+  @override
+  String settingsStateJoin(String a, String b) {
+    return '$a · $b';
+  }
+
+  @override
   String get settingsUseStatusSite => 'Używaj status.btlabs.uk';
 
   @override

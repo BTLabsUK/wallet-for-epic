@@ -3367,6 +3367,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionPrivacy => 'Конфиденциальность';
 
   @override
+  String get settingsSectionPrivacyNetwork => 'Приватность и сеть';
+
+  @override
+  String get settingsSectionHelpFeedback => 'Помощь и отзыв';
+
+  @override
+  String get settingsStateBackUp => 'Сохраните фразу восстановления';
+
+  @override
+  String get settingsStatePin => 'PIN-код';
+
+  @override
+  String get settingsStatePinBiometrics => 'PIN-код и биометрия';
+
+  @override
+  String settingsStateJoin(String a, String b) {
+    return '$a · $b';
+  }
+
+  @override
   String get settingsUseStatusSite => 'Использовать status.btlabs.uk';
 
   @override

@@ -3043,6 +3043,26 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionPrivacy => '隐私';
 
   @override
+  String get settingsSectionPrivacyNetwork => '隐私与网络';
+
+  @override
+  String get settingsSectionHelpFeedback => '帮助与反馈';
+
+  @override
+  String get settingsStateBackUp => '备份恢复短语';
+
+  @override
+  String get settingsStatePin => 'PIN 码';
+
+  @override
+  String get settingsStatePinBiometrics => 'PIN 码和生物识别';
+
+  @override
+  String settingsStateJoin(String a, String b) {
+    return '$a · $b';
+  }
+
+  @override
   String get settingsUseStatusSite => '使用 status.btlabs.uk';
 
   @override

@@ -1,8 +1,13 @@
-import '../app_info.dart';
-import '../app_version.dart';
+/// Settings on the phone: a hub of seven groups that fits one screen, in the order people
+/// reach for them. Security, Privacy & network, Wallet, Display and About open a page each
+/// (`settings_sections.dart`); Notifications is its one switch, right on the hub; Help &
+/// feedback opens Help, which starts with Send feedback. A group's row shows its state on a
+/// second line ("Tor · Off · epicbox.epiccash.com"), so the state is visible without opening
+/// the page. No search: the hub is scanned at a glance, and Help has its own search for
+/// questions.
+library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
@@ -10,7 +15,6 @@ import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
-import '../price.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../push.dart';
@@ -18,79 +22,23 @@ import '../push_controller.dart';
 import '../push_registration.dart';
 import '../server_switch.dart';
 import '../settings.dart';
-import '../slate_files.dart';
-import '../smart_outputs.dart' show OutputLabel, outputWord;
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
-import 'contacts_screen.dart';
-import 'outputs_screen.dart';
-import 'demo_screens.dart' show endDemo;
-import 'feedback_screen.dart';
 import 'help_screen.dart';
 import 'info_hint.dart';
-import 'launch_screen.dart';
-import 'licences_screen.dart';
-
-import 'pin.dart';
-import 'restore_screen.dart'
-    show ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
-import 'settings_history.dart';
-import 'settings_invoices.dart';
-import 'settings_pin.dart';
-import 'theme/advanced.dart';
-import 'theme/brand.dart' show BrandLockup, BrandVariant;
+import 'restore_screen.dart' show ScanSlotLine;
+import 'settings_sections.dart';
 import 'theme/tokens.dart';
-import 'setup_screen.dart';
 import 'tor_ui.dart';
 
-/// The project's source code.
-const String projectRepoUrl = 'https://github.com/blacktyger/wallet-for-epic';
-const String epicCashUrl = 'https://epiccash.com';
+export 'settings_sections.dart';
 
-/// Deletes leftover copies of shared files; uisend's `clearSharedFiles`. Tests replace it.
-final sharedFilesCleanupProvider = Provider<Future<void> Function()>(
-  (ref) => clearSharedFiles,
-);
-
-/// Whether this device offers biometric unlock, and whether the open wallet uses it.
-final _biometricsProvider =
-    FutureProvider.autoDispose<({bool available, bool enabled})>((ref) async {
-      final config = ref.watch(walletConfigProvider);
-      final available = await ref.watch(biometricStoreProvider).isAvailable();
-      final enabled =
-          config != null &&
-          await ref.watch(vaultProvider).biometricsEnabled(config.chain);
-      return (available: available, enabled: enabled);
-    });
-
-/// The app version and the core's: the installed package's on Android, else the one this
-/// build was made from (`pubspec.yaml`, passed in by `flutter build`), with the build's commit
-/// when the release script passed one: `26.10.0 · core 0.1.0 (ba10dec)`. Null when neither is
-/// known.
-final appVersionProvider = FutureProvider<String?>((ref) async {
-  final platform = ref.watch(updatePlatformProvider);
-  if (platform != null) {
-    try {
-      final app = await platform.installedApp();
-      return _withCore(app.versionName);
-    } catch (error) {
-      // Fall back to the build's own version.
-      logInfo('app', 'installed version unknown: $error');
-    }
-  }
-  const name = String.fromEnvironment('FLUTTER_BUILD_NAME');
-  if (name.isEmpty) return null;
-  return _withCore(name);
-});
-
-String _withCore(String name) => withBuildId(withCoreVersion(name));
-
-/// App settings: network, display, security, history backup, wallet and about.
-/// Opens Settings at its Privacy section, where the Tor switch is.
+/// Opens Settings at Privacy & network, where the Tor switch is: the page over the hub, so
+/// Back lands on the hub.
 Future<void> openPrivacySettings(BuildContext context) => Navigator.of(context)
     .push(
       MaterialPageRoute<void>(
@@ -98,178 +46,50 @@ Future<void> openPrivacySettings(BuildContext context) => Navigator.of(context)
       ),
     );
 
-/// The key of Settings' Privacy header, for tests.
-const Key settingsPrivacyKey = ValueKey('settings-privacy');
-
 /// The key of the push notifications switch, for tests.
 const Key settingsPushKey = ValueKey('settings-push');
 
-class SettingsScreen extends ConsumerStatefulWidget {
-  const SettingsScreen({super.key, this.privacy = false});
+/// The Settings row that offers an update, for tests.
+const Key settingsUpdateRowKey = ValueKey('settings-update-row');
 
-  /// Opens scrolled to the Privacy section.
+/// The key of a hub row, for tests: `settingsGroupKey(SettingsSection.x)`.
+Key settingsGroupKey(SettingsSection section) =>
+    ValueKey('settings-group-${section.name}');
+
+/// The key of the hub's Help & feedback row, for tests.
+const Key settingsHelpKey = ValueKey('settings-group-help');
+
+/// The Settings hub. With [section] (or [privacy], the Privacy & network page), that page
+/// opens over the hub on arrival.
+class SettingsScreen extends ConsumerStatefulWidget {
+  const SettingsScreen({super.key, this.privacy = false, this.section});
+
+  /// Opens the Privacy & network page at once.
   final bool privacy;
+
+  /// The page to open at once.
+  final SettingsSection? section;
 
   @override
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  bool _busy = false;
-
-  final GlobalKey _privacy = GlobalKey();
-  final ScrollController _scroll = ScrollController();
-
   @override
   void initState() {
     super.initState();
-    if (widget.privacy) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _showPrivacy());
-    }
-  }
-
-  @override
-  void dispose() {
-    _scroll.dispose();
-    super.dispose();
-  }
-
-  /// Brings the Privacy section to the top. The list builds rows as they come near, so it
-  /// steps down a screen at a time until the section exists.
-  Future<void> _showPrivacy() async {
-    for (var i = 0; i < 20; i++) {
-      if (!mounted) return;
-      final target = _privacy.currentContext;
-      if (target != null && target.mounted) {
-        await Scrollable.ensureVisible(target);
-        return;
-      }
-      if (!_scroll.hasClients) return;
-      final p = _scroll.position;
-      if (p.pixels >= p.maxScrollExtent) return;
-      _scroll.jumpTo(
-        (p.pixels + p.viewportDimension).clamp(0, p.maxScrollExtent),
-      );
-      await WidgetsBinding.instance.endOfFrame;
+    final section =
+        widget.section ??
+        (widget.privacy ? SettingsSection.privacyNetwork : null);
+    if (section != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) openSettingsSection(context, section);
+      });
     }
   }
 
   void _say(String message, {required NoticeLevel level}) {
     ref.read(noticeProvider.notifier).show(message, level: level);
-  }
-
-  Future<void> _push(Widget screen) =>
-      Navigator.of(context)
-          .push(MaterialPageRoute<void>(builder: (_) => screen));
-
-  Future<void> _run(Future<void> Function() action) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      await action();
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  AppSettingsNotifier get _settings => ref.read(appSettingsProvider.notifier);
-
-  Future<T?> _choose<T>({
-    required String title,
-    required List<({T value, String label})> options,
-    required T current,
-  }) {
-    return showDialog<T>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: Text(title),
-        children: [
-          RadioGroup<T>(
-            groupValue: current,
-            onChanged: (value) => Navigator.pop(context, value),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final option in options)
-                  RadioListTile<T>(
-                    value: option.value,
-                    title: Text(option.label),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Display.
-
-  Future<void> _pickCurrency(AppSettings s) async {
-    final l = context.l10n;
-    final code = await _choose(
-      title: l.settingsCurrency,
-      current: s.fiatCurrency,
-      options: [
-        for (final c in fiatCurrencies) (value: c, label: _currencyName(l, c)),
-      ],
-    );
-    if (code != null) await _settings.setFiatCurrency(code);
-  }
-
-  Future<void> _pickTheme(AppSettings s) async {
-    final l = context.l10n;
-    final mode = await _choose(
-      title: l.settingsTheme,
-      current: s.themeMode,
-      options: [
-        for (final m in ThemeMode.values) (value: m, label: themeLabel(l, m)),
-      ],
-    );
-    if (mode != null) await _settings.setThemeMode(mode);
-  }
-
-  Future<void> _pickLanguage(AppSettings s) async {
-    // A sentinel, because the dialog returns null when dismissed and null also means the
-    // system's language.
-    const system = '';
-    final code = await _choose<String>(
-      title: context.l10n.languageSetting,
-      current: s.language ?? system,
-      options: [
-        (value: system, label: context.l10n.languageSystem),
-        for (final a in appLanguages) (value: a.code, label: a.name),
-      ],
-    );
-    if (code != null) {
-      await _settings.setLanguage(code == system ? null : code);
-    }
-  }
-
-  Future<void> _setShowFiat(bool on) async {
-    await _settings.setShowFiat(on);
-    if (on && mounted) {
-      _say(context.l10n.settingsPricesOnNotice, level: NoticeLevel.info);
-    }
-  }
-
-  // Security.
-
-  Future<void> _pickAutoLock(AppSettings s) async {
-    final l = context.l10n;
-    // A sentinel, because the dialog returns null when dismissed and null also means never.
-    const never = -1;
-    final minutes = await _choose<int>(
-      title: l.settingsAutoLock,
-      current: s.autoLockMinutes ?? never,
-      options: [
-        for (final m in autoLockChoices)
-          (value: m ?? never, label: autoLockLabel(l, m)),
-      ],
-    );
-    if (minutes != null) {
-      await _settings.setAutoLockMinutes(minutes == never ? null : minutes);
-    }
   }
 
   /// On: one confirm, then the registration. Only the BT Labs relay can push, so a wallet on
@@ -328,157 +148,44 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await push.turnOn();
   }
 
-  Future<void> _setBiometrics(bool on) async {
-    final config = ref.read(walletConfigProvider);
-    final session = ref.read(sessionProvider);
-    if (config == null || session == null) return;
-    final vault = ref.read(vaultProvider);
-    if (!on) {
-      await vault.disableBiometrics(config.chain);
-      if (mounted) {
-        _say(context.l10n.settingsBiometricsOff, level: NoticeLevel.success);
-      }
-    } else {
-      final ok = await askPin(
-        context,
-        reason: context.l10n.settingsBiometricsPinReason,
-        allowBiometrics: false,
-        action: (pin) => vault.enableBiometrics(session, config, pin),
-      );
-      if (ok == null) return;
-      if (mounted) {
-        final l = context.l10n;
-        if (ok) {
-          _say(l.settingsBiometricsOn, level: NoticeLevel.success);
-        } else {
-          _say(l.settingsBiometricsFailed, level: NoticeLevel.error);
-        }
-      }
-    }
-    ref.invalidate(_biometricsProvider);
-  }
-
-  Future<void> _showPhrase() async {
-    final done = await Navigator.of(context)
-        .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
-    if (done == true && mounted) {
-      _say(context.l10n.settingsPhraseConfirmed, level: NoticeLevel.success);
-    }
-  }
-
-  // Wallet.
-
-  Future<void> _rescan() async {
-    final chain = ref.read(walletConfigProvider)?.chain;
-    final start = await showDialog<BigInt>(
-      context: context,
-      builder: (_) => _RescanDialog(datesSupported: chain == Chain.mainnet),
-    );
-    if (start == null || !mounted) return;
-    final ok = await ref.read(scanProvider.notifier).run(startHeight: start);
-    if (!mounted) return;
-    ref.invalidate(homeProvider);
-    if (ok) {
-      _say(context.l10n.settingsRescanFinished, level: NoticeLevel.success);
-    }
-  }
-
-  Future<void> _deleteWallet() async {
-    final config = ref.read(walletConfigProvider);
-    if (config == null) return;
-    // A scan writes to the wallet's files until it ends.
-    if (ref.read(scanProvider).running) {
-      _say(context.l10n.settingsDeleteDuringScan, level: NoticeLevel.warning);
-      return;
-    }
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => const DeleteWalletDialog(),
-    );
-    if (confirmed != true || !mounted) return;
-    final session = ref.read(sessionProvider);
-    if (session == null) return;
-    final vault = ref.read(vaultProvider);
-    final checked = await askPin(
-      context,
-      reason: context.l10n.settingsDeletePinReason,
-      allowBiometrics: false,
-      action: (pin) async {
-        await vault.checkPin(session, config, pin);
-        return true;
-      },
-    );
-    if (checked == null || !mounted) return;
-    if (ref.read(scanProvider).running) {
-      _say(context.l10n.settingsDeleteDuringScan, level: NoticeLevel.warning);
-      return;
-    }
-    await _run(() async {
-      try {
-        ref.read(sessionProvider.notifier).lock();
-        // The core waits until every call on this wallet has ended before it removes the files.
-        await ref.read(walletServiceProvider).deleteWallet(config: config);
-        await ref.read(vaultProvider).forget(config.chain);
-        await ref
-            .read(appSettingsProvider.notifier)
-            .forgetHistoryBackup(config.chain);
-        try {
-          await ref.read(sharedFilesCleanupProvider)();
-        } catch (error) {
-          // Leftover copies in the cache are harmless next to a deleted wallet; keep going.
-          logWarn('delete', 'clearing shared files failed: $error');
-        }
-        if (!mounted) return;
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
-          (_) => false,
-        );
-      } catch (error) {
-        if (mounted) {
-          _say(describeError(context.l10n, error), level: NoticeLevel.error);
-        }
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final settings = ref.watch(appSettingsProvider);
-    final s = settings.value ?? const AppSettings();
+    final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final config = ref.watch(walletConfigProvider);
     final network = ref.watch(networkChoiceProvider).value;
     final scan = ref.watch(scanProvider);
-    final biometrics = ref.watch(_biometricsProvider).value;
-    final version = ref.watch(appVersionProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
-    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
-    final torState = phoneTorState(ref.watch(phoneTorProvider));
-    // Invoices only on a core that has them (UP-14); until then no entry at all.
-    final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
-    final outputs = walletOpen ? ref.watch(walletOutputsProvider).value : null;
-    final outputsSubtitle = outputs == null
-        ? null
-        : Text(
-            l.outputsSettingsSubtitle(
-              outputs.where((o) => outputWord(o) != OutputLabel.spent).length,
-              s.sendStrategy == SelectionStrategy.smallest
-                  ? l.outputsSmallest
-                  : l.outputsAll,
-            ),
-          );
-    // The web demo hides what makes no sense in a browser or on a temporary wallet: network
-    // settings, rescan, biometrics, push, updates, the phrase, history files and feedback.
     final demo = ref.watch(demoModeProvider);
     final updates = !demo && ref.read(updateProvider.notifier).supported;
-    final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
-    final devNetworks = ref.watch(devNetworksProvider);
-    // Network, node, relay and rescan are technical; the Display switch shows them.
-    final advanced = AdvancedOptions.of(context);
+    final torState = phoneTorState(ref.watch(phoneTorProvider));
+    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    final biometrics = ref.watch(biometricsProvider).value;
+    final backedUp = ref.watch(backedUpProvider).value ?? true;
+    final version = ref.watch(appVersionProvider).value;
+    final push = ref.watch(pushProvider);
+    final pushOffered =
+        !demo && (ref.watch(pushConfiguredProvider).value ?? false);
+    final t = context.tokens;
+
+    // The relay's host, from the open wallet, else from the saved choice.
+    final relay = config != null
+        ? config.epicboxDomain
+        : network?.relay.host;
+    final privacyState = [
+      if (torAvailable) l.settingsStateJoin(l.netStatusTor, torWord(l, torState)),
+      ?relay,
+    ];
+    final securityState = !backedUp
+        ? (text: l.settingsStateBackUp, color: t.warn)
+        : (
+            text: (biometrics?.enabled ?? false)
+                ? l.settingsStatePinBiometrics
+                : l.settingsStatePin,
+            color: null,
+          );
 
     return SlotScaffold(
-      // A running scan shows in the slot. `_busy` shows nothing: most of its time is spent
-      // waiting on a sheet or dialog, where a progress bar would say the wrong thing.
       idle: scan.running ? ScanSlotLine(scan: scan) : null,
       appBar: AppBar(title: Text(l.settingsTitle)),
       body: SafeArea(
@@ -486,7 +193,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
-              controller: _scroll,
+              padding: const EdgeInsets.only(top: 4, bottom: 24),
               children: [
                 if (updates) const _UpdateRow(),
                 if (!scan.running && scan.error != null)
@@ -494,75 +201,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     padding: const EdgeInsets.all(16),
                     child: ErrorText(describeError(l, scan.error!)),
                   ),
-                _Header(l.settingsSectionDisplay),
-                ListTile(
-                  leading: const Icon(Icons.attach_money),
-                  title: Text(l.settingsCurrency),
-                  subtitle: Text(_currencyName(l, s.fiatCurrency)),
-                  enabled: s.showFiat,
-                  onTap: () => _pickCurrency(s),
-                ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.show_chart),
-                  title: Text(l.settingsShowPrices),
-                  value: s.showFiat,
-                  onChanged: _setShowFiat,
-                ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.visibility_off),
-                  title: Text(l.settingsHideBalances),
-                  value: s.hideBalances,
-                  onChanged: _settings.setHideBalances,
-                ),
-                ListTile(
-                  leading: const Icon(Icons.brightness_6),
-                  title: Text(l.settingsTheme),
-                  subtitle: Text(themeLabel(l, s.themeMode)),
-                  onTap: () => _pickTheme(s),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.language),
-                  title: Text(l.languageSetting),
-                  subtitle: Text(_languageLabel(l, s.language)),
-                  onTap: () => _pickLanguage(s),
-                ),
-                HintSwitchTile(
-                  icon: Icons.terminal,
-                  title: l.settingsAdvancedOptions,
-                  hint: l.settingsAdvancedOptionsSubtitle,
-                  value: s.advancedOptions,
-                  onChanged: _settings.setAdvancedOptions,
-                ),
-                // The one Tor switch (phoneTorProvider): Send, Receive and the status card
-                // read its state; it moves nothing the user chose.
-                KeyedSubtree(
-                  key: _privacy,
-                  child: _Header(
-                    l.settingsSectionPrivacy,
-                    key: settingsPrivacyKey,
+                if (walletOpen)
+                  _GroupRow(
+                    key: settingsGroupKey(SettingsSection.security),
+                    section: SettingsSection.security,
+                    state: demo ? null : securityState.text,
+                    stateColor: securityState.color,
                   ),
+                _GroupRow(
+                  key: settingsGroupKey(SettingsSection.privacyNetwork),
+                  section: SettingsSection.privacyNetwork,
+                  state: privacyState.isEmpty
+                      ? null
+                      : privacyState.reduce(l.settingsStateJoin),
                 ),
-                if (walletOpen && torAvailable) const TorSwitchTile(),
-                HintSwitchTile(
-                  icon: Icons.travel_explore,
-                  title: l.settingsUseStatusSite,
-                  hint: l.settingsUseStatusSiteSubtitle,
-                  value: s.useStatusSite,
-                  onChanged: _settings.setUseStatusSite,
-                ),
-                if (!demo &&
-                    (ref.watch(pushConfiguredProvider).value ?? false)) ...[
-                  _Header(l.settingsSectionNotifications),
-                  // Tor on pauses them (a registration would show this phone's address): turning
-                  // them off still works, turning them on is not offered.
-                  SwitchListTile(
+                if (pushOffered)
+                  // Tor on pauses them (a registration would show this phone's address):
+                  // turning them off still works, turning them on is not offered.
+                  _GroupSwitch(
                     key: settingsPushKey,
-                    secondary: const Icon(Icons.notifications_outlined),
-                    title: TitleWithHint(
-                      l.settingsNotifications,
-                      hint: l.settingsNotificationsHint,
-                    ),
-                    subtitle: _pushStateLine(l, ref.watch(pushProvider), s, torState),
+                    icon: Icons.notifications_outlined,
+                    title: l.settingsNotifications,
+                    hint: l.settingsNotificationsHint,
+                    state: pushStateLine(l, push, s, torState),
                     value: s.pushNotifications,
                     onChanged:
                         torWay(TorRoute.push, torState) == TorWay.off &&
@@ -570,214 +231,165 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ? null
                         : _setPushNotifications,
                   ),
-                ],
-                if (walletOpen) ...[
-                  _Header(l.settingsSectionSecurity),
-                  // The demo wallet opens with the demo PIN, filled in; another would lock
-                  // the visitor out.
-                  if (!demo)
-                    ListTile(
-                      leading: const Icon(Icons.pin),
-                      title: Text(l.settingsChangePin),
-                      onTap: () => _push(const ChangePinScreen()),
-                    ),
-                  if (!demo && (biometrics?.available ?? false))
-                    SwitchListTile(
-                      secondary: const Icon(Icons.fingerprint),
-                      title: Text(l.settingsBiometrics),
-                      value: biometrics!.enabled,
-                      onChanged: _setBiometrics,
-                    ),
-                  ListTile(
-                    leading: const Icon(Icons.lock_clock),
-                    title: Text(l.settingsAutoLock),
-                    subtitle: Text(autoLockLabel(l, s.autoLockMinutes)),
-                    onTap: () => _pickAutoLock(s),
+                if (walletOpen)
+                  _GroupRow(
+                    key: settingsGroupKey(SettingsSection.wallet),
+                    section: SettingsSection.wallet,
+                    state: [
+                      l.settingsContacts,
+                      l.outputsTitle,
+                      if (ref.watch(sessionProvider)?.supportsInvoices ?? false)
+                        l.settingsSectionInvoices,
+                    ].reduce(l.settingsStateJoin),
                   ),
-                  if (!demo)
-                    ListTile(
-                      leading: const Icon(Icons.key),
-                      title: Text(l.settingsBackupPhrase),
-                      onTap: _showPhrase,
-                    ),
-                  ListTile(
-                    leading: const Icon(Icons.lock),
-                    title: Text(l.settingsLockWallet),
-                    onTap: () => lockWallet(context, ref),
-                  ),
-                  if (!demo) ...[
-                    _Header(l.settingsSectionHistory),
-                    ListTile(
-                      leading: const Icon(Icons.upload_file),
-                      title: Text(l.settingsExportHistory),
-                      onTap: _busy
-                          ? null
-                          : () => _run(() => exportHistoryBackup(context, ref)),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.table_view),
-                      title: Text(l.settingsExportCsv),
-                      onTap: _busy
-                          ? null
-                          : () => _run(() => exportHistoryCsv(context, ref)),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.download),
-                      title: Text(l.settingsImportHistory),
-                      onTap: _busy
-                          ? null
-                          : () => _run(() => importHistoryBackup(context, ref)),
-                    ),
-                  ],
-                  if (invoices) ...[
-                    _Header(l.settingsSectionInvoices),
-                    ListTile(
-                      leading: const Icon(Icons.request_quote_outlined),
-                      title: TitleWithHint(
-                        l.settingsInvoices,
-                        hint: l.settingsInvoicesSubtitle,
-                      ),
-                      onTap: () => _push(const InvoiceSettingsScreen()),
-                    ),
-                  ],
-                  _Header(l.settingsSectionWallet),
-                  ListTile(
-                    leading: const Icon(Icons.contacts_outlined),
-                    title: Text(l.settingsContacts),
-                    onTap: () => _push(const ContactsScreen()),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.grain),
-                    title: Text(l.outputsTitle),
-                    subtitle: outputsSubtitle,
-                    onTap: () => _push(const OutputsScreen()),
-                  ),
-                  if (advanced && !demo)
-                    ListTile(
-                      leading: const Icon(Icons.sync),
-                      title: Text(l.settingsRescan),
-                      enabled: !scan.running,
-                      onTap: _rescan,
-                    ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.delete_forever,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    title: Text(
-                      demo ? l.demoEnd : l.settingsDeleteWallet,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    enabled: !_busy,
-                    onTap: demo
-                        ? () => _run(() => endDemo(context, ref))
-                        : _deleteWallet,
-                  ),
-                ],
-                // Everyday items first: the node and the Epicbox server come after them, before
-                // About (the status card on Home opens the same pickers).
-                if (!demo) ...[
-                  _Header(l.settingsSectionNetwork),
-                  ListTile(
-                    leading: const Icon(Icons.settings_ethernet),
-                    title: Text(l.settingsNetworkAndNode),
-                    // The node's host; the network's name only where networks are offered.
-                    // Under it, the Epicbox connection over Tor or waiting for it.
-                    subtitle: _withTorWay(
-                      network == null
-                          ? (devNetworks ? Text(chain) : null)
-                          : Text(
-                              devNetworks
-                                  ? l.settingsNetworkSubtitle(
-                                      chain,
-                                      Uri.tryParse(network.nodeUrl)?.host ??
-                                          network.nodeUrl,
-                                    )
-                                  : Uri.tryParse(network.nodeUrl)?.host ??
-                                        network.nodeUrl,
-                            ),
-                      torWay(TorRoute.epicbox, torState),
-                    ),
-                    onTap: () => _push(const SetupScreen()),
-                  ),
-                ],
-                _Header(l.settingsSectionAbout),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
-                  child: BrandLockup(variant: BrandVariant.mobile, size: 40),
+                _GroupRow(
+                  key: settingsGroupKey(SettingsSection.display),
+                  section: SettingsSection.display,
+                  state: [
+                    themeLabel(l, s.themeMode),
+                    languageLabel(l, s.language),
+                    if (s.showFiat) s.fiatCurrency.toUpperCase(),
+                  ].reduce(l.settingsStateJoin),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.info_outline),
-                  title: Text(l.settingsVersion),
-                  subtitle: Text(
-                    version.hasValue ? version.value ?? l.commonUnknown : '…',
-                  ),
-                ),
-                if (advanced) ...[
-                  if (devNetworks)
-                    ListTile(
-                      leading: const Icon(Icons.hub),
-                      title: Text(l.settingsAboutNetwork),
-                      subtitle: Text(chain),
-                    ),
-                  ListTile(
-                    leading: const Icon(Icons.dns_outlined),
-                    title: Text(l.settingsEpicboxServer),
-                    subtitle: Text(
-                      network?.relay.label ??
-                          (config == null
-                              ? l.commonUnknown
-                              : EpicboxRelay(
-                                  host: config.epicboxDomain,
-                                  port: config.epicboxPort,
-                                ).label),
-                    ),
-                  ),
-                ],
-                if (updates)
-                  ListTile(
-                    leading: const Icon(Icons.system_update),
-                    title: Text(l.settingsCheckUpdates),
-                    onTap: () {
-                      ref.read(updateProvider.notifier).check();
-                      // The result follows as a notice of its own.
-                      _say(l.updateChecking, level: NoticeLevel.info);
-                    },
-                  ),
-                ListTile(
-                  leading: const Icon(Icons.help_outline),
-                  title: Text(l.settingsHelp),
+                _GroupRow(
+                  key: settingsHelpKey,
+                  icon: Icons.help_outline,
+                  title: l.settingsSectionHelpFeedback,
                   onTap: () => openHelp(context),
                 ),
-                // No feedback report in the web demo until a feedback proxy exists.
-                if (!demo)
-                  ListTile(
-                    leading: const Icon(Icons.feedback_outlined),
-                    title: TitleWithHint(
-                      l.settingsSendFeedback,
-                      hint: l.settingsSendFeedbackHint,
-                    ),
-                    onTap: () => openFeedback(context),
-                  ),
-                // The short Licences screen; the full texts (the packages', the fonts', the
-                // word lists' and the bundled tor's) are one tap further.
-                ListTile(
-                  key: settingsLicencesKey,
-                  leading: const Icon(Icons.article_outlined),
-                  title: Text(l.settingsLicences),
-                  onTap: () => _push(LicencesScreen(version: version.value)),
+                _GroupRow(
+                  key: settingsGroupKey(SettingsSection.about),
+                  section: SettingsSection.about,
+                  state: version,
                 ),
-                // A proper name, the same in every language.
-                const _LinkTile(title: 'Epic Cash', url: epicCashUrl),
-                _LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),
-                const SizedBox(height: 24),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The Notifications row's state line, only when there is a state to say: paused by Tor, or
+/// why the switch went back off.
+String? pushStateLine(
+  AppLocalizations l,
+  PushState push,
+  AppSettings settings,
+  TorState tor,
+) {
+  if (torWay(TorRoute.push, tor) == TorWay.off) {
+    return settings.pushNotifications ? l.settingsPushPaused : null;
+  }
+  return push.blocked
+      ? l.settingsPushBlocked
+      : push.unavailable
+      ? l.settingsPushUnavailable
+      : null;
+}
+
+/// A group's glyph in a small hairline tile, so the hub reads as a short list of places
+/// rather than a run of settings rows.
+class _GroupGlyph extends StatelessWidget {
+  const _GroupGlyph(this.icon);
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border.all(color: t.line),
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+      ),
+      child: Icon(icon, size: 20, color: t.accentText),
+    );
+  }
+}
+
+/// A hub row: the group's glyph, its title, its state on a second line, a chevron. With
+/// [section] it opens that page; else [icon], [title] and [onTap] describe it.
+class _GroupRow extends StatelessWidget {
+  const _GroupRow({
+    super.key,
+    this.section,
+    this.icon,
+    this.title,
+    this.onTap,
+    this.state,
+    this.stateColor,
+  }) : assert(section != null || (icon != null && title != null && onTap != null));
+
+  final SettingsSection? section;
+  final IconData? icon;
+  final String? title;
+  final VoidCallback? onTap;
+  final String? state;
+  final Color? stateColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final section = this.section;
+    final state = this.state;
+    return ListTile(
+      minVerticalPadding: 12,
+      leading: _GroupGlyph(section == null ? icon! : settingsSectionIcon(section)),
+      title: Text(section == null ? title! : settingsSectionTitle(l, section)),
+      subtitle: state == null
+          ? null
+          : Text(
+              state,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: stateColor == null ? null : TextStyle(color: stateColor),
+            ),
+      trailing: Icon(Icons.chevron_right, color: t.dim),
+      onTap: section == null
+          ? onTap
+          : () => openSettingsSection(context, section),
+    );
+  }
+}
+
+/// The hub's one inline setting, Notifications: the group's glyph and title with the
+/// explanation behind an info icon, the state line, and the switch.
+class _GroupSwitch extends StatelessWidget {
+  const _GroupSwitch({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.hint,
+    required this.value,
+    required this.onChanged,
+    this.state,
+  });
+
+  final IconData icon;
+  final String title;
+  final String hint;
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+  final String? state;
+
+  @override
+  Widget build(BuildContext context) {
+    final onChanged = this.onChanged;
+    final state = this.state;
+    return ListTile(
+      minVerticalPadding: 12,
+      leading: _GroupGlyph(icon),
+      title: TitleWithHint(title, hint: hint),
+      subtitle: state == null ? null : Text(state),
+      trailing: Switch(value: value, onChanged: onChanged),
+      enabled: onChanged != null,
+      onTap: onChanged == null ? null : () => onChanged(!value),
     );
   }
 }
@@ -814,340 +426,4 @@ class _UpdateRow extends ConsumerWidget {
       ),
     );
   }
-}
-
-/// The Settings row that offers an update, for tests.
-const Key settingsUpdateRowKey = ValueKey('settings-update-row');
-
-/// `Euro (EUR)`, or the bare code for one the list does not know.
-String _currencyName(AppLocalizations l, String code) =>
-    fiatCurrencies.contains(code)
-    ? l.settingsCurrencyWithCode(currencyName(l, code), code.toUpperCase())
-    : code.toUpperCase();
-
-/// Plain words for a theme choice.
-String themeLabel(AppLocalizations l, ThemeMode mode) => switch (mode) {
-  ThemeMode.system => l.settingsThemeSystem,
-  ThemeMode.light => l.settingsThemeLight,
-  ThemeMode.dark => l.settingsThemeDark,
-};
-
-/// The language setting as the user reads it: [AppLocalizations.languageSystem] for null, else
-/// the language's own name from [appLanguages], which is never translated.
-String _languageLabel(AppLocalizations l, String? code) {
-  for (final a in appLanguages) {
-    if (a.code == code) return a.name;
-  }
-  return l.languageSystem;
-}
-
-/// [subtitle] with the [TorWayLine] under it while the Epicbox connection goes over Tor or
-/// waits for it ([way]); [subtitle] alone otherwise.
-Widget? _withTorWay(Widget? subtitle, TorWay way) {
-  if (way != TorWay.overTor && way != TorWay.wait && way != TorWay.blocked) {
-    return subtitle;
-  }
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisSize: MainAxisSize.min,
-    children: [?subtitle, const TorWayLine(route: TorRoute.epicbox)],
-  );
-}
-
-class _Header extends StatelessWidget {
-  const _Header(this.title, {super.key});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-      child: Semantics(
-        header: true,
-        child: Text(
-          title,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.primary,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The key of the Licences row in About, for tests.
-const Key settingsLicencesKey = ValueKey('settings-licences');
-
-/// Flutter's licence page under the app's name and [version]. The app writes British English
-/// ("Licences", "Cancelled"), and Flutter's own strings for `en` are American ("Licenses"):
-/// in English the page takes the `en_GB` Material strings so its title matches the row.
-void openFlutterLicences(BuildContext context, String? version) {
-  final locale = Localizations.localeOf(context);
-  final page = LicensePage(
-    applicationName: context.l10n.appTitle,
-    applicationVersion: version,
-  );
-  Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (_) => locale.languageCode == 'en'
-          ? Localizations.override(
-              context: context,
-              locale: const Locale('en', 'GB'),
-              child: page,
-            )
-          : page,
-    ),
-  );
-}
-
-/// A web link. The app has no browser launcher, so tapping copies the address.
-class _LinkTile extends StatelessWidget {
-  const _LinkTile({required this.title, required this.url});
-
-  final String title;
-  final String url;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return ListTile(
-      leading: const Icon(Icons.link),
-      title: Text(title),
-      subtitle: Text(url),
-      trailing: Icon(Icons.copy, semanticLabel: l.settingsCopyLink),
-      onTap: () => copyText(context, url, l.settingsLinkCopied),
-    );
-  }
-}
-
-enum _RescanFrom { date, height, start }
-
-/// Where a rescan starts. Pops the start height, or null when cancelled.
-class _RescanDialog extends StatefulWidget {
-  const _RescanDialog({required this.datesSupported});
-
-  final bool datesSupported;
-
-  @override
-  State<_RescanDialog> createState() => _RescanDialogState();
-}
-
-class _RescanDialogState extends State<_RescanDialog> {
-  late _RescanFrom _from = widget.datesSupported
-      ? _RescanFrom.date
-      : _RescanFrom.height;
-  DateTime? _date;
-  final _height = TextEditingController();
-  String? _error;
-
-  @override
-  void dispose() {
-    _height.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _date ?? now,
-      firstDate: mainnetFirstDay,
-      lastDate: now,
-    );
-    if (picked != null) setState(() => _date = picked);
-  }
-
-  void _start() {
-    final l = context.l10n;
-    final BigInt? start;
-    switch (_from) {
-      case _RescanFrom.date:
-        final date = _date;
-        if (date == null) {
-          setState(() => _error = l.settingsRescanPickDateFirst);
-          return;
-        }
-        start = mainnetHeightForDate(date);
-      case _RescanFrom.height:
-        final height = BigInt.tryParse(_height.text.trim());
-        if (height == null || height < BigInt.one) {
-          setState(() => _error = l.settingsRescanHeightInvalid);
-          return;
-        }
-        start = height;
-      case _RescanFrom.start:
-        start = BigInt.one;
-    }
-    Navigator.pop(context, start);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final date = _date;
-    return AlertDialog(
-      title: Text(l.settingsRescanTitle),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l.settingsRescanBody),
-            const SizedBox(height: 8),
-            RadioGroup<_RescanFrom>(
-              groupValue: _from,
-              onChanged: (value) => setState(() {
-                _from = value ?? _from;
-                _error = null;
-              }),
-              child: Column(
-                children: [
-                  if (widget.datesSupported)
-                    RadioListTile(
-                      contentPadding: EdgeInsets.zero,
-                      value: _RescanFrom.date,
-                      title: Text(l.settingsRescanFromDate),
-                    ),
-                  RadioListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: _RescanFrom.height,
-                    title: Text(l.settingsRescanFromHeight),
-                  ),
-                  RadioListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: _RescanFrom.start,
-                    title: Text(l.settingsRescanWholeChain),
-                  ),
-                ],
-              ),
-            ),
-            if (_from == _RescanFrom.date)
-              OutlinedButton.icon(
-                icon: const Icon(Icons.calendar_today),
-                label: Text(
-                  date == null ? l.settingsRescanPickDate : localDay(l, date),
-                ),
-                onPressed: _pickDate,
-              ),
-            if (_from == _RescanFrom.height)
-              TextField(
-                controller: _height,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  labelText: l.settingsRescanStartHeight,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-            if (_error != null) ErrorText(_error!),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l.commonCancel),
-        ),
-        FilledButton(onPressed: _start, child: Text(l.settingsRescanButton)),
-      ],
-    );
-  }
-}
-
-/// A strong warning before deleting the wallet. Pops true only after the user typed the
-/// confirm word ([AppLocalizations.settingsDeleteConfirmWord]) and confirmed they have the
-/// recovery phrase.
-class DeleteWalletDialog extends StatefulWidget {
-  const DeleteWalletDialog({super.key});
-
-  @override
-  State<DeleteWalletDialog> createState() => _DeleteWalletDialogState();
-}
-
-class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
-  final _word = TextEditingController();
-  bool _understood = false;
-
-  @override
-  void dispose() {
-    _word.dispose();
-    super.dispose();
-  }
-
-  // Lower case on both sides only to match what was typed, never for display.
-  bool _ready(String word) =>
-      _understood && _word.text.trim().toLowerCase() == word.toLowerCase();
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final word = l.settingsDeleteConfirmWord;
-    final error = Theme.of(context).colorScheme.error;
-    return AlertDialog(
-      icon: Icon(
-        Icons.warning_amber,
-        color: error,
-        semanticLabel: l.settingsDeleteWarningIcon,
-      ),
-      title: Text(l.settingsDeleteTitle),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l.settingsDeleteBody),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              value: _understood,
-              onChanged: (value) =>
-                  setState(() => _understood = value ?? false),
-              title: Text(l.settingsDeleteHavePhrase),
-            ),
-            TextField(
-              controller: _word,
-              autocorrect: false,
-              enableSuggestions: false,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                labelText: l.settingsDeleteTypeToConfirm(word),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(l.settingsDeleteKeep),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: error),
-          onPressed: _ready(word) ? () => Navigator.pop(context, true) : null,
-          child: Text(l.settingsDeleteConfirm),
-        ),
-      ],
-    );
-  }
-}
-
-/// The Notifications row's state line, only when there is a state to say: paused by Tor, or
-/// why the switch went back off.
-Widget? _pushStateLine(
-  AppLocalizations l,
-  PushState push,
-  AppSettings settings,
-  TorState tor,
-) {
-  if (torWay(TorRoute.push, tor) == TorWay.off) {
-    return settings.pushNotifications ? Text(l.settingsPushPaused) : null;
-  }
-  final problem = push.blocked
-      ? l.settingsPushBlocked
-      : push.unavailable
-      ? l.settingsPushUnavailable
-      : null;
-  return problem == null ? null : Text(problem);
 }

@@ -13,9 +13,11 @@ import '../help/help_content.dart';
 import '../l10n.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
+import '../settings.dart';
 import 'common.dart';
 import 'feedback_screen.dart';
 import 'handshake.dart';
+import 'info_hint.dart';
 import 'history_screen.dart';
 import 'outputs_screen.dart';
 import 'server_picker.dart';
@@ -167,6 +169,9 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Send feedback first, above the topics and the search: the one thing a
+                // stuck user needs most, one tap from Settings.
+                const _FeedbackRow(),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                   child: TextField(
@@ -214,6 +219,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                           for (final x in topics.where((x) => x.section == s.id)) row(x),
                           const SizedBox(height: 16),
                         ],
+                      if (!searching) const _ShowTipsAgain(),
                       const _StillStuck(),
                     ],
                   ),
@@ -223,6 +229,60 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The key of the Send feedback row at the top of Help, for tests.
+const Key helpFeedbackKey = ValueKey('help-feedback');
+
+/// The key of the Show tips again row, for tests.
+const Key helpShowTipsKey = ValueKey('help-show-tips');
+
+/// Send feedback at the top of Help: a row with the explanation behind its info icon and a
+/// hairline under it. Not in the web demo, which has no feedback report.
+class _FeedbackRow extends ConsumerWidget {
+  const _FeedbackRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(demoModeProvider)) return const SizedBox.shrink();
+    final l = context.l10n;
+    final t = context.tokens;
+    return Container(
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t.line))),
+      child: ListTile(
+        key: helpFeedbackKey,
+        leading: Icon(Icons.feedback_outlined, color: t.accentText),
+        title: TitleWithHint(l.settingsSendFeedback, hint: l.settingsSendFeedbackHint),
+        trailing: Icon(Icons.chevron_right, color: t.dim),
+        onTap: () => openFeedback(context),
+      ),
+    );
+  }
+}
+
+/// Show tips again: brings back every inline guide closed with its X. Off while none is
+/// hidden.
+class _ShowTipsAgain extends ConsumerWidget {
+  const _ShowTipsAgain();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final hidden = ref.watch(tipsHiddenProvider);
+    return ListTile(
+      key: helpShowTipsKey,
+      contentPadding: EdgeInsets.zero,
+      leading: const Icon(Icons.lightbulb_outline),
+      title: Text(l.settingsShowTipsAgain),
+      enabled: hidden,
+      onTap: hidden
+          ? () async {
+              await ref.read(appSettingsProvider.notifier).showTipsAgain();
+              ref.read(noticeProvider.notifier).show(l.settingsShowTipsAgainDone, level: NoticeLevel.success);
+            }
+          : null,
     );
   }
 }
