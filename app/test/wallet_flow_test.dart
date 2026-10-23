@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart' show serverRowKey;
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
@@ -118,7 +119,12 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
       200,
       scrollable: find
           .descendant(
-            of: find.byType(ListView).last,
+            // The balance tiles are a ListView too, but they run sideways.
+            of: find
+                .byWidgetPredicate(
+                  (w) => w is ListView && w.scrollDirection == Axis.vertical,
+                )
+                .last,
             matching: find.byType(Scrollable),
           )
           .first,
@@ -590,34 +596,49 @@ void main() {
       expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '12.5');
       final handle = tester.ensureSemantics();
       await tester.pump();
-      expect(find.bySemanticsLabel('Node offline'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Node offline,')), findsOneWidget);
       handle.dispose();
-      // Total 16, spendable 12.5: the rest is behind the ? beside the figure.
-      expect(find.textContaining('Confirming'), findsNothing);
-      await tester.tap(find.byType(BalanceHelp));
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(find.textContaining('Total: 16 EPIC'), findsOneWidget);
-      expect(find.textContaining('Confirming: 1 EPIC'), findsOneWidget);
+      // Total 16, spendable 12.5: the rest is in the tiles under the figure; the row scrolls.
+      for (final (kind, label, value) in [
+        (BalanceKind.confirming, 'Confirming', '1'),
+        (BalanceKind.locked, 'Locked in sends', '2'),
+        (BalanceKind.immature, 'Rewards maturing', '0.5'),
+        (BalanceKind.total, 'Total', '16'),
+      ]) {
+        // The row builds the tiles near the edge only: drag until this one is there.
+        for (var i = 0; i < 10; i++) {
+          if (find.byKey(balanceTileKey(kind)).evaluate().isNotEmpty) break;
+          await tester.drag(find.byKey(balanceTilesKey), const Offset(-100, 0));
+          await tester.pumpAndSettle();
+        }
+        expect(
+          find.descendant(
+            of: find.byKey(balanceTileKey(kind)),
+            matching: find.text(label),
+          ),
+          findsOneWidget,
+          reason: label,
+        );
+        expect(
+          find.descendant(
+            of: find.byKey(balanceTileKey(kind)),
+            matching: find.text(value),
+          ),
+          findsOneWidget,
+          reason: label,
+        );
+      }
+      // Nothing waits to finish, so that tile is left out.
       expect(
-        find.textContaining('Locked by a payment in progress: 2 EPIC'),
-        findsOneWidget,
+        find.byKey(balanceTileKey(BalanceKind.waitingSender)),
+        findsNothing,
       );
-      expect(
-        find.textContaining('Mining rewards not spendable yet: 0.5 EPIC'),
-        findsOneWidget,
-      );
-      // Nothing waits to finish, so that line is left out.
-      expect(find.textContaining('Waiting to finish'), findsNothing);
-      // A tap anywhere closes it.
-      await tester.tapAt(tester.getCenter(find.byKey(balanceFigureKey)));
-      await tester.pumpAndSettle();
-      expect(find.textContaining('Total: 16 EPIC'), findsNothing);
 
       await _reveal(tester, find.text('+5 EPIC'));
       expect(find.text('Incoming payment'), findsOneWidget);
       expect(find.text('-1 EPIC'), findsOneWidget);
-      expect(find.text('Waiting for recipient'), findsOneWidget);
-      expect(find.text('Completed'), findsOneWidget);
+      expect(find.textContaining('Waiting for recipient'), findsOneWidget);
+      expect(find.textContaining('Received'), findsOneWidget);
       // No actions on rows: cancel lives in the details.
       expect(find.byTooltip('Cancel payment'), findsNothing);
     });
@@ -782,25 +803,20 @@ void main() {
       final service = _existing(session: session);
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
-      expect(find.bySemanticsLabel('Epicbox connecting'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(RegExp('^Epicbox connecting,')),
+        findsOneWidget,
+      );
 
       session.listenerEvents.add(
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
-      expect(find.bySemanticsLabel('Epicbox online'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Epicbox online,')), findsOneWidget);
       // Balances the node did not check count as the node being offline, and say why.
-      expect(find.bySemanticsLabel('Node offline'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Node offline,')), findsOneWidget);
       expect(
-        tester
-            .widget<Tooltip>(
-              find.descendant(
-                // Where the app bar has no room, Wallet's row holds the first.
-                of: find.byKey(nodeStatusKey).first,
-                matching: find.byType(Tooltip),
-              ),
-            )
-            .message,
+        tester.getSemantics(find.byKey(nodeStatusKey).first).hint,
         startsWith('Not validated with node. Balances may be out of date.'),
       );
 

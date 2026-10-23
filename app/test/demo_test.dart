@@ -185,7 +185,7 @@ class _Harness {
   /// Pumps the app; with [settle] off, only its first frame.
   Future<void> pump(
     WidgetTester tester, {
-    double height = 780,
+    double height = 2200,
     bool settle = true,
   }) async {
     tester.view.physicalSize = Size(412 * 3, height * 3);
@@ -649,9 +649,9 @@ void main() {
             demo ? BigInt.one : BigInt.from(3),
           });
           // Rows count with what the balance counted (3 here, as the fake LEPIC reports),
-          // so a row never says Completed under coins the balance still has as confirming.
-          expect(find.text(l.txStatusConfirming(1, 3)), findsWidgets);
-          expect(find.text(l.txStatusCompleted), findsNothing);
+          // so a row never says Received under coins the balance still has as confirming.
+          expect(find.textContaining(l.txStatusConfirming(1, 3)), findsWidgets);
+          expect(find.textContaining(l.txStatusReceived), findsNothing);
         },
       );
     }
