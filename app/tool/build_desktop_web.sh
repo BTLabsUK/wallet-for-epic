@@ -14,7 +14,7 @@ out="${1:-build/desktop_web}"
 cd "$app_dir"
 
 flutter build web --release -t lib/main_desktop_web.dart \
-  --dart-define=WFE_DESK_MOCK=true \
+  --dart-define=WFE_DESK_MOCK=true ${WFE_DESK_START:+--dart-define=WFE_DESK_START=$WFE_DESK_START} \
   --no-web-resources-cdn --no-wasm-dry-run --base-href / -o "$out"
 
 # Relative base, so the site runs under any path. Fail loudly if the build changed shape.
