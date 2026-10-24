@@ -8,6 +8,8 @@ import 'errors.dart';
 import 'l10n.dart' show englishStrings;
 import 'network.dart';
 import 'phone_tor.dart';
+import 'tor_phone.dart' show phoneTorState;
+import 'tor_routes.dart';
 import 'secret_store.dart';
 import 'advanced.dart' show NetworkMode;
 import 'net/node_peers.dart';
@@ -640,6 +642,15 @@ final listenerProvider = NotifierProvider<ListenerNotifier, ListenerState>(
 /// it starts a new one anyway.
 const Duration listenerStopWait = Duration(seconds: 5);
 
+/// How long a listener the wallet expects may go unconnected before [ListenerNotifier] restarts
+/// it on its own. LEPIC retries a lost connection itself; this catches a listener that stays
+/// down anyway (a dead socket it never noticed, a stream that ended, a backoff on a clock that
+/// slept). Each restart that does not connect doubles the wait, up to [listenerHealMax].
+const Duration listenerHealAfter = Duration(seconds: 30);
+
+/// The longest wait between two self-heal restarts of a listener that does not connect.
+const Duration listenerHealMax = Duration(minutes: 5);
+
 class ListenerNotifier extends Notifier<ListenerState> {
   StreamSubscription<ListenerEvent>? _events;
 
@@ -651,6 +662,12 @@ class ListenerNotifier extends Notifier<ListenerState> {
   /// LEPIC may be sleeping out its backoff, so a resume or a returning network restarts it.
   bool _down = false;
 
+  /// Runs while the listener is not connected and the wallet expects it to be ([_heal]).
+  Timer? _healTimer;
+
+  /// Self-heal restarts since the listener was last connected: each doubles the next wait.
+  int _heals = 0;
+
   static const String _connecting = 'Connecting to the epicbox relay…';
 
   @override
@@ -659,6 +676,9 @@ class ListenerNotifier extends Notifier<ListenerState> {
     ref.onDispose(() {
       _events?.cancel();
       _down = false;
+      _healTimer?.cancel();
+      _healTimer = null;
+      _heals = 0;
     });
     if (session == null) return const ListenerState();
     // Offline: nothing listens; leaving it rebuilds this, which starts the listener again.
@@ -676,8 +696,50 @@ class ListenerNotifier extends Notifier<ListenerState> {
       }
     });
     ref.onDispose(network.cancel);
+    // Called with the state this build returns, and with every one after it.
+    listenSelf((_, next) => _heal(next));
     _listen(session);
     return const ListenerState(status: _connecting);
+  }
+
+  /// Arms the self-heal while [now] is not connected, and disarms it once it is: a listener
+  /// the wallet expects that has not been connected for [listenerHealAfter] (doubling with
+  /// each restart that did not help, up to [listenerHealMax]) is restarted, with a log line.
+  /// Offline mode expects no listener.
+  void _heal(ListenerState now) {
+    // Armed only by a listener that said it is down (lost or stopped): one still making its
+    // first connection is LEPIC's to finish, and says "disconnected" when that attempt fails.
+    if (now.connected || now.offline || !(now.lost || now.stopped)) {
+      _healTimer?.cancel();
+      _healTimer = null;
+      if (now.connected) _heals = 0;
+      return;
+    }
+    if (_healTimer != null) return;
+    final wait = listenerHealAfter * (1 << _heals.clamp(0, 4));
+    final after = wait > listenerHealMax ? listenerHealMax : wait;
+    _healTimer = Timer(after, () {
+      _healTimer = null;
+      if (!ref.mounted) return;
+      final state = this.state;
+      if (state.connected || state.offline || !(state.lost || state.stopped)) return;
+      // A connection held for Tor while it starts is not down: it waits as long as tor does.
+      final torWait =
+          ref.exists(phoneTorProvider) &&
+          torWay(TorRoute.epicbox, phoneTorState(ref.read(phoneTorProvider))) ==
+              TorWay.wait;
+      if (_restarting || torWait) {
+        _heal(state);
+        return;
+      }
+      _heals++;
+      logWarn(
+        'listener',
+        'not connected for ${after.inSeconds} s'
+            '${state.status == null ? '' : ' (${state.status})'}; restarting it',
+      );
+      unawaited(restart());
+    });
   }
 
   /// Restarts a listener that is down, so it reconnects now rather than after LEPIC's backoff,
@@ -712,6 +774,8 @@ class ListenerNotifier extends Notifier<ListenerState> {
       onError: (Object error) {
         if (!identical(_events, events)) return;
         failed = true;
+        // Nothing listens any more: a resume or a returning network starts it again.
+        _down = true;
         logWarn(
           'listener',
           'stream failed: ${describeError(englishStrings, error)}',

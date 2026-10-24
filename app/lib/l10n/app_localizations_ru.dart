@@ -1725,13 +1725,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get statusNodeOffline => 'Узел не в сети';
 
   @override
-  String get statusEpicboxOnline => 'Epicbox в сети';
+  String get statusEpicboxOnline => 'Epicbox подключён';
 
   @override
   String get statusEpicboxConnecting => 'Подключение к epicbox';
 
   @override
-  String get statusEpicboxOffline => 'Epicbox не в сети';
+  String get statusEpicboxOffline => 'Epicbox не подключён';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -1754,7 +1754,8 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get homeEpicboxOffline => 'Epicbox недоступен, переподключение.';
+  String get homeEpicboxOffline =>
+      'Кошелёк не подключён к своему серверу Epicbox и продолжает попытки.';
 
   @override
   String get homeEpicboxConnecting => 'Подключение к epicbox…';
@@ -2194,7 +2195,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return 'Epic Cash Mobile закроется, чтобы установить версию $version. Затем откройте его снова.';
+    return 'Установка версии $version…';
   }
 
   @override
@@ -4653,6 +4654,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get netStatusOff => 'Выключен';
+
+  @override
+  String get netStatusConnected => 'Подключено';
+
+  @override
+  String get netStatusNotConnected => 'Нет подключения';
+
+  @override
+  String get serverUpNotConnected => 'Сервер работает · нет подключения';
 
   @override
   String get netStatusOn => 'Включён';

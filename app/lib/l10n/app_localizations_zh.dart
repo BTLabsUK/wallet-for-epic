@@ -1522,13 +1522,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statusNodeOffline => '节点离线';
 
   @override
-  String get statusEpicboxOnline => 'Epicbox 在线';
+  String get statusEpicboxOnline => 'Epicbox 已连接';
 
   @override
   String get statusEpicboxConnecting => '正在连接 Epicbox';
 
   @override
-  String get statusEpicboxOffline => 'Epicbox 离线';
+  String get statusEpicboxOffline => 'Epicbox 未连接';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -1551,7 +1551,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get homeEpicboxOffline => 'Epicbox 已离线，正在重新连接。';
+  String get homeEpicboxOffline => '钱包未连接到其 Epicbox 服务器，正在继续尝试。';
 
   @override
   String get homeEpicboxConnecting => '正在连接 Epicbox…';
@@ -1951,7 +1951,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return 'Epic Cash Mobile 将关闭以安装版本 $version。完成后请重新打开。';
+    return '正在安装版本 $version…';
   }
 
   @override
@@ -4249,6 +4249,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get netStatusOff => '关闭';
+
+  @override
+  String get netStatusConnected => '已连接';
+
+  @override
+  String get netStatusNotConnected => '未连接';
+
+  @override
+  String get serverUpNotConnected => '服务器正常 · 未连接';
 
   @override
   String get netStatusOn => '开启';

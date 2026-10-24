@@ -2296,10 +2296,10 @@ abstract class AppLocalizations {
   /// **'Node offline'**
   String get statusNodeOffline;
 
-  /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. Connected to the epicbox relay, so payments arrive.
+  /// Status beside the Epicbox icon, also what a screen reader says: this wallet's connection to its Epicbox server (the relay payments arrive through) is up.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox online'**
+  /// **'Epicbox connected'**
   String get statusEpicboxOnline;
 
   /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. No connection to the epicbox relay yet.
@@ -2308,10 +2308,10 @@ abstract class AppLocalizations {
   /// **'Epicbox connecting'**
   String get statusEpicboxConnecting;
 
-  /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The connection to the epicbox relay was lost; it retries.
+  /// Status beside the Epicbox icon, also what a screen reader says: this wallet is not connected to its Epicbox server; it retries. About the wallet's connection, not the server.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox offline'**
+  /// **'Epicbox not connected'**
   String get statusEpicboxOffline;
 
   /// First line of the node status tooltip on a test network only, since the app bar names no network: the network's name (for example Floonet) and that its coins are test coins with no value.
@@ -2338,10 +2338,10 @@ abstract class AppLocalizations {
   /// **'Server: {relay}'**
   String statusRelay(Object relay);
 
-  /// Second sentence of the status line: the connection to epicbox (the relay service that carries payments, a proper name) was lost.
+  /// Tooltip sentence of the Epicbox status: this wallet is not connected to its Epicbox server (the relay that carries payments, a proper name) and keeps retrying.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox offline, reconnecting.'**
+  /// **'Your wallet is not connected to its Epicbox server and keeps trying.'**
   String get homeEpicboxOffline;
 
   /// Second sentence of the status line while the app connects to epicbox (the relay service that carries payments, a proper name).
@@ -2998,10 +2998,10 @@ abstract class AppLocalizations {
   /// **'Downloading version {version}… {percent}%'**
   String updateDownloading(String version, int percent);
 
-  /// Notice at the top of the screen for a few seconds before Android's installer takes over: it closes the app and does not reopen it.
+  /// Notice at the top of the screen while Android's installer opens and installs the update.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Mobile closes to install version {version}. Open it again afterwards.'**
+  /// **'Installing version {version}…'**
   String updateInstalling(String version);
 
   /// Notice at the top of the screen when an update failed for no known reason.
@@ -6956,6 +6956,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Off'**
   String get netStatusOff;
+
+  /// State word on the Epicbox row of the network status card and Home's Epicbox icon: this wallet's own connection to its Epicbox server is up (not the server's health).
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get netStatusConnected;
+
+  /// State word on the Epicbox row and Home's Epicbox icon: this wallet is not connected to its Epicbox server (it keeps retrying). About the wallet's connection, not the server's health.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get netStatusNotConnected;
+
+  /// On the Epicbox server in use in the server list: the monitor says the server is up, but this wallet is not connected to it. A Retry button follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Server up · not connected'**
+  String get serverUpNotConnected;
 
   /// Status card: Tor is connected.
   ///

@@ -1803,17 +1803,17 @@
   "@statusNodeOffline": {
     "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The node cannot be reached, or did not check the balances."
   },
-  "statusEpicboxOnline": "Epicbox online",
+  "statusEpicboxOnline": "Epicbox connected",
   "@statusEpicboxOnline": {
-    "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. Connected to the epicbox relay, so payments arrive."
+    "description": "Status beside the Epicbox icon, also what a screen reader says: this wallet's connection to its Epicbox server (the relay payments arrive through) is up."
   },
   "statusEpicboxConnecting": "Epicbox connecting",
   "@statusEpicboxConnecting": {
     "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. No connection to the epicbox relay yet."
   },
-  "statusEpicboxOffline": "Epicbox offline",
+  "statusEpicboxOffline": "Epicbox not connected",
   "@statusEpicboxOffline": {
-    "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The connection to the epicbox relay was lost; it retries."
+    "description": "Status beside the Epicbox icon, also what a screen reader says: this wallet is not connected to its Epicbox server; it retries. About the wallet's connection, not the server."
   },
   "statusNodeTestNetwork": "{network}, test coins",
   "@statusNodeTestNetwork": {
@@ -1837,9 +1837,9 @@
   "@statusRelay": {
     "description": "Line in the epicbox status tooltip: the epicbox server as host:port."
   },
-  "homeEpicboxOffline": "Epicbox offline, reconnecting.",
+  "homeEpicboxOffline": "Your wallet is not connected to its Epicbox server and keeps trying.",
   "@homeEpicboxOffline": {
-    "description": "Second sentence of the status line: the connection to epicbox (the relay service that carries payments, a proper name) was lost."
+    "description": "Tooltip sentence of the Epicbox status: this wallet is not connected to its Epicbox server (the relay that carries payments, a proper name) and keeps retrying."
   },
   "homeEpicboxConnecting": "Connecting to epicbox…",
   "@homeEpicboxConnecting": {
@@ -2419,9 +2419,9 @@
       }
     }
   },
-  "updateInstalling": "Epic Cash Mobile closes to install version {version}. Open it again afterwards.",
+  "updateInstalling": "Installing version {version}…",
   "@updateInstalling": {
-    "description": "Notice at the top of the screen for a few seconds before Android's installer takes over: it closes the app and does not reopen it.",
+    "description": "Notice at the top of the screen while Android's installer opens and installs the update.",
     "placeholders": {
       "version": {
         "type": "String",
@@ -5591,6 +5591,18 @@
   "netStatusOff": "Off",
   "@netStatusOff": {
     "description": "Status card: the service is turned off."
+  },
+  "netStatusConnected": "Connected",
+  "@netStatusConnected": {
+    "description": "State word on the Epicbox row of the network status card and Home's Epicbox icon: this wallet's own connection to its Epicbox server is up (not the server's health)."
+  },
+  "netStatusNotConnected": "Not connected",
+  "@netStatusNotConnected": {
+    "description": "State word on the Epicbox row and Home's Epicbox icon: this wallet is not connected to its Epicbox server (it keeps retrying). About the wallet's connection, not the server's health."
+  },
+  "serverUpNotConnected": "Server up · not connected",
+  "@serverUpNotConnected": {
+    "description": "On the Epicbox server in use in the server list: the monitor says the server is up, but this wallet is not connected to it. A Retry button follows."
   },
   "netStatusOn": "On",
   "@netStatusOn": {

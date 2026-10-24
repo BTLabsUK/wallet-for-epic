@@ -995,7 +995,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       await tester.pump(statusSettle);
-      expect(find.bySemanticsLabel(RegExp('^Epicbox, Online')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Epicbox, Connected')), findsOneWidget);
       // Balances the node did not check count as the node being offline, and say why.
       expect(find.bySemanticsLabel(RegExp('^Node, Offline')), findsOneWidget);
       expect(

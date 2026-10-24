@@ -250,9 +250,9 @@ void main() {
 
   group('epicbox row', () {
     for (final (listener, word) in [
-      (const ListenerState(connected: true), 'Online'),
+      (const ListenerState(connected: true), 'Connected'),
       (const ListenerState(), 'Connecting'),
-      (const ListenerState(lost: true), 'Offline'),
+      (const ListenerState(lost: true), 'Not connected'),
       (const ListenerState(stopped: true), 'Off'),
     ]) {
       testWidgets(word, (tester) async {
@@ -338,9 +338,9 @@ void main() {
           findsOneWidget,
         );
       }
-      expect(_in(netStatusEpicboxKey, 'Online'), findsOneWidget);
+      expect(_in(netStatusEpicboxKey, 'Connected'), findsOneWidget);
       expect(
-        find.bySemanticsLabel(RegExp(r'^Epicbox.*, Online, over Tor$')),
+        find.bySemanticsLabel(RegExp(r'^Epicbox.*, Connected, over Tor$')),
         findsOneWidget,
       );
       // The node goes over Tor too (LEPIC E-12).
@@ -381,9 +381,9 @@ void main() {
           t.warn,
         );
       }
-      expect(_in(netStatusEpicboxKey, 'Online'), findsOneWidget);
+      expect(_in(netStatusEpicboxKey, 'Connected'), findsOneWidget);
       expect(
-        find.bySemanticsLabel(RegExp(r'^Epicbox.*, Online, Waiting for Tor$')),
+        find.bySemanticsLabel(RegExp(r'^Epicbox.*, Connected, Waiting for Tor$')),
         findsOneWidget,
       );
       expect(

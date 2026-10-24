@@ -1620,13 +1620,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusNodeOffline => 'Node offline';
 
   @override
-  String get statusEpicboxOnline => 'Epicbox online';
+  String get statusEpicboxOnline => 'Epicbox connected';
 
   @override
   String get statusEpicboxConnecting => 'Epicbox connecting';
 
   @override
-  String get statusEpicboxOffline => 'Epicbox offline';
+  String get statusEpicboxOffline => 'Epicbox not connected';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -1649,7 +1649,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homeEpicboxOffline => 'Epicbox offline, reconnecting.';
+  String get homeEpicboxOffline =>
+      'Your wallet is not connected to its Epicbox server and keeps trying.';
 
   @override
   String get homeEpicboxConnecting => 'Connecting to epicbox…';
@@ -2078,7 +2079,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return 'Epic Cash Mobile closes to install version $version. Open it again afterwards.';
+    return 'Installing version $version…';
   }
 
   @override
@@ -4492,6 +4493,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get netStatusOff => 'Off';
+
+  @override
+  String get netStatusConnected => 'Connected';
+
+  @override
+  String get netStatusNotConnected => 'Not connected';
+
+  @override
+  String get serverUpNotConnected => 'Server up · not connected';
 
   @override
   String get netStatusOn => 'On';

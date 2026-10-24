@@ -14,6 +14,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../connection_state.dart' show walletStatusProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
@@ -579,6 +580,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
         ? ref.watch(publicNodeStatusProvider(choice.preset))
         : ref.watch(relayStatusProvider(choice.preset));
     final nodeLocal = _node && torSkipsLocalNode && isLoopbackUrl(Uri.parse(choice.nodeUrl));
+    // The health is the server's; the wallet's own connection to it can be down while the
+    // server is up. Then the row in use says so, with Retry, which restarts the listener.
+    final relayNotConnected = !_node && epicboxNotConnected(ref);
 
     // The field's helper: what typing does now.
     final String? helper;
@@ -694,7 +698,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           busy: _adding,
           onTap: () => _add(choice),
         ),
-      for (final e in shown)
+      for (final e in shown) ...[
         _ServerRow(
           key: serverListRowKey(e.value),
           kind: widget.kind,
@@ -706,6 +710,13 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           onTap: () => _pick(e.value, choice),
           onRemove: () => _remove(e, choice),
         ),
+        if (relayNotConnected &&
+            _same(e.value, current) &&
+            e.state == NodeHealthState.healthy)
+          NotConnectedLine(
+            onRetry: () => ref.read(listenerProvider.notifier).restart(),
+          ),
+      ],
       if (restorable.isNotEmpty && !filtering)
         _RestoreRow(count: restorable.length, onTap: () => _restore(choice, public)),
       _HealthCaption(status: dirStatus, preset: choice.preset),
@@ -1136,6 +1147,58 @@ class ServerTile extends StatelessWidget {
         risk: t.risk,
         unknown: t.faint,
         ring: Theme.of(context).colorScheme.surface,
+      ),
+    );
+  }
+}
+
+/// The key of the "Server up · not connected" line under the Epicbox server in use.
+const Key serverNotConnectedKey = ValueKey('server-list-not-connected');
+
+/// Whether the open wallet expects its Epicbox listener to be connected and it is not, as the
+/// status shows it (offline once it lasts, or stopped). False without a wallet and in Offline
+/// mode, where no listener runs.
+bool epicboxNotConnected(WidgetRef ref) {
+  if (ref.watch(sessionProvider) == null) return false;
+  if (ref.watch(listenerProvider.select((l) => l.offline))) return false;
+  final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
+  return epicbox == null || epicbox == EpicboxState.offline;
+}
+
+/// Under the Epicbox server in use while the monitor says it is up and this wallet is not
+/// connected to it: "Server up · not connected" and Retry, which restarts the listener.
+class NotConnectedLine extends StatelessWidget {
+  const NotConnectedLine({super.key, required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return Padding(
+      key: serverNotConnectedKey,
+      padding: const EdgeInsetsDirectional.only(start: 8, bottom: 4),
+      child: Row(
+        children: [
+          Icon(Icons.unsubscribe_outlined, size: 18, color: t.risk),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                l.serverUpNotConnected,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.risk),
+              ),
+            ),
+          ),
+          TextButton.icon(
+            style: TextButton.styleFrom(minimumSize: const Size(64, 44)),
+            icon: const Icon(Icons.refresh, size: 18),
+            label: Text(l.commonRetry),
+            onPressed: onRetry,
+          ),
+        ],
       ),
     );
   }

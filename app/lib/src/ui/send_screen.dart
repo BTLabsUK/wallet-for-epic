@@ -161,6 +161,9 @@ const Key sendCancelPaymentKey = ValueKey('send-cancel-payment');
 /// Send's method selector, and the tag beside the To label after the method followed the
 /// address, for tests.
 const Key sendMethodsKey = ValueKey('send-methods');
+
+/// The Smallest / All choice for this payment, shown with Advanced › Send options.
+const Key sendStrategyKey = ValueKey('send-strategy');
 const Key sendSwitchedTagKey = ValueKey('send-switched-tag');
 
 /// The shape of an HTTP address, in the sentence about an incomplete one.
@@ -302,6 +305,9 @@ class _SendViewState extends ConsumerState<SendView> {
   /// The options a send goes out with: those reviewed, or LEPIC's send-all after Max.
   SendOptions? get _sendOptions => _maxUsed ? null : _options;
 
+  /// The strategy picked for this one payment under Advanced › Send options; null = the setting.
+  SelectionStrategy? _strategyOverride;
+
   /// [planSessionSend] with the Outputs settings.
   Future<({FeeEstimate estimate, SendOptions options})> _plan(
     WalletSession session,
@@ -313,7 +319,10 @@ class _SendViewState extends ConsumerState<SendView> {
       session,
       amount: amount,
       minimumConfirmations: minimumConfirmations,
-      strategy: settings?.sendStrategy ?? SelectionStrategy.smallest,
+      strategy:
+          _strategyOverride ??
+          settings?.sendStrategy ??
+          SelectionStrategy.smallest,
       splitChange: settings?.splitChange ?? true,
     );
   }
@@ -734,6 +743,60 @@ class _SendViewState extends ConsumerState<SendView> {
       }
       return null;
     }
+  }
+
+  void _chooseStrategy(SelectionStrategy strategy) {
+    setState(() => _strategyOverride = strategy);
+    final amount = _parsedAmount;
+    if (amount != null && !_maxUsed) _estimateFee(amount);
+  }
+
+  /// Smallest / All for this payment; only with Send options on.
+  Widget _strategyPicker(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final current =
+        _strategyOverride ??
+        ref.watch(appSettingsProvider).value?.sendStrategy ??
+        SelectionStrategy.smallest;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Named, so All never reads as "send all".
+          Text(
+            l.deskSendAdvStrategy,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+          ),
+          const SizedBox(height: 6),
+          Semantics(
+            label: l.deskSendAdvStrategy,
+            container: true,
+            child: SegmentedButton<SelectionStrategy>(
+              key: sendStrategyKey,
+              segments: [
+                ButtonSegment(
+                  value: SelectionStrategy.smallest,
+                  label: Text(l.outputsSmallest),
+                ),
+                ButtonSegment(
+                  value: SelectionStrategy.all,
+                  label: Text(l.outputsAll),
+                ),
+              ],
+              selected: {current},
+              showSelectedIcon: false,
+              expandedInsets: EdgeInsets.zero,
+              style: const ButtonStyle(
+                minimumSize: WidgetStatePropertyAll(Size(0, 44)),
+              ),
+              onSelectionChanged: (chosen) => _chooseStrategy(chosen.first),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Switches the amount field between EPIC and fiat, keeping the amount.
@@ -2074,6 +2137,8 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ),
       if (_estimateError != null) ErrorText(_estimateError!),
+      if (!_maxUsed && AdvancedOptions.has(context, AdvancedFeature.sendOptions))
+        _strategyPicker(context),
       const SizedBox(height: 12),
       Divider(color: t.line, height: 1),
       if (!_noteOpen)

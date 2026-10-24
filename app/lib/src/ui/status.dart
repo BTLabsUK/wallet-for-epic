@@ -553,10 +553,11 @@ NetFace epicboxNetFace(BuildContext context, EpicboxState? state) {
   final l = context.l10n;
   final t = context.tokens;
   return switch (state) {
+    // This wallet's connection, not the server's health (the picker shows that).
     EpicboxState.online => (
       level: SignalLevel.three,
       color: t.ok,
-      word: l.netStatusOnline,
+      word: l.netStatusConnected,
     ),
     EpicboxState.connecting => (
       level: SignalLevel.one,
@@ -566,7 +567,7 @@ NetFace epicboxNetFace(BuildContext context, EpicboxState? state) {
     EpicboxState.offline => (
       level: SignalLevel.one,
       color: t.risk,
-      word: l.netStatusOffline,
+      word: l.netStatusNotConnected,
     ),
     null => (level: SignalLevel.none, color: t.dim, word: l.netStatusOff),
   };
