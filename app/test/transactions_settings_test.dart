@@ -201,6 +201,46 @@ void main() {
     expect(find.text(_l.txDefaultsHeader), findsOneWidget);
   });
 
+  testWidgets('a setting never disappears because it was changed: back at the defaults, both rows stay', (
+    tester,
+  ) async {
+    // Send options off: the defaults show only because they are changed.
+    final store = _store({'app.send_strategy': 'all', 'app.split_change': 'false'});
+    final c = await _pump(tester, store);
+    expect(tester.widget<Switch>(_switchOf('tx-split')).value, isFalse);
+    await tester.tap(_row('tx-split'));
+    await tester.pumpAndSettle();
+    expect(c.read(appSettingsProvider).value?.splitChange, isTrue);
+    expect(_row('tx-split'), findsOneWidget, reason: 'the row stays, with its new value');
+    expect(tester.widget<Switch>(_switchOf('tx-split')).value, isTrue);
+    await tester.tap(_row('tx-strategy'));
+    await tester.pumpAndSettle();
+    await tester.tap(_row('tx-strategy-smallest'));
+    await tester.pumpAndSettle();
+    expect(c.read(appSettingsProvider).value?.sendStrategy, SelectionStrategy.smallest);
+    expect(find.descendant(of: _row('tx-strategy'), matching: find.text(_l.outputsSmallest)), findsOneWidget);
+    expect(_row('tx-split'), findsOneWidget);
+    // Every switch on the page toggles in place.
+    for (final key in ['tx-direct', 'tx-file', 'tx-split']) {
+      await tester.tap(_row(key));
+      await tester.pumpAndSettle();
+      expect(_row(key), findsOneWidget, reason: key);
+    }
+  });
+
+  testWidgets('every Advanced switch stays in place when toggled', (tester) async {
+    await _pump(tester, _store(), section: SettingsSection.advanced);
+    for (final f in AdvancedFeature.values) {
+      final row = _row('adv-${f.name}');
+      if (row.evaluate().isEmpty) continue;
+      final before = tester.widget<Switch>(find.descendant(of: row, matching: find.byType(Switch))).value;
+      await tester.tap(find.descendant(of: row, matching: find.byType(Switch)));
+      await tester.pumpAndSettle();
+      expect(row, findsOneWidget, reason: f.name);
+      expect(tester.widget<Switch>(find.descendant(of: row, matching: find.byType(Switch))).value, !before, reason: f.name);
+    }
+  });
+
   testWidgets('Advanced no longer holds a Direct switch', (tester) async {
     await _pump(tester, _store(), section: SettingsSection.advanced);
     expect(find.byKey(const ValueKey('adv-sendOptions')), findsOneWidget);
