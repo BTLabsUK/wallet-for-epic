@@ -196,6 +196,14 @@ void main() {
       expect(_container.read(deskOutputPrefsProvider).value!.smartOutputs, !before);
     });
 
+    testWidgets('linux-07: Split change says which change it splits, behind its info icon', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving, advanced: AdvancedPrefs(features: {AdvancedFeature.sendOptions}));
+      // The rule (smart_outputs.dart): change of at least 1 EPIC, parts of at least 0.5 EPIC.
+      final hint = find.byWidgetPredicate((w) => w is EInfoHint && w.text.contains('at least 1 EPIC') && w.text.contains('0.5 EPIC'));
+      expect(hint, findsOneWidget);
+      expect(find.textContaining('at least 1 EPIC'), findsNothing);
+    });
+
     testWidgets('Outputs has no defaults box and, with Send options off, no line either', (tester) async {
       await _open(tester, DeskRoute.outputs, advanced: AdvancedPrefs(features: {AdvancedFeature.outputs}));
       expect(find.text('Defaults for sends'), findsNothing);
