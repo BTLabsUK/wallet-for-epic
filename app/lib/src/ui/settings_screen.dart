@@ -352,10 +352,9 @@ class _GroupRow extends StatelessWidget {
       title: Text(section == null ? title! : settingsSectionTitle(l, section)),
       subtitle: state == null
           ? null
+          // Wraps rather than cuts: every part counts (node · Epicbox · Tor ends on Tor).
           : Text(
               state,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               style: stateColor == null ? null : TextStyle(color: stateColor),
             ),
       trailing: Icon(Icons.chevron_right, color: t.dim),
