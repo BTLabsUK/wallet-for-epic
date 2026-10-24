@@ -21739,6 +21739,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Receive through Epicbox'**
   String get deskSlSetupEpicboxOn;
+
+  /// Under the field of Setup's Node or Epicbox list while nothing is typed: before a wallet exists a pick chooses at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one, or type to filter the list or add a server.'**
+  String get deskSlHelpChoose;
 }
 
 class _AppLocalizationsDelegate

@@ -8,5 +8,6 @@
   "deskSlLatency": "{ms} ms",
   "deskSlDefault": "Domyślny",
   "deskSlTesting": "Sprawdzanie {host}…",
-  "deskSlSetupEpicboxOn": "Odbieraj przez Epicbox"
+  "deskSlSetupEpicboxOn": "Odbieraj przez Epicbox",
+  "deskSlHelpChoose": "Wybierz jeden albo wpisz, aby przefiltrować listę lub dodać serwer."
 }

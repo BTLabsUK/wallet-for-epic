@@ -13927,4 +13927,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSlSetupEpicboxOn => 'Über Epicbox empfangen';
+
+  @override
+  String get deskSlHelpChoose =>
+      'Wählen Sie einen aus oder tippen Sie, um die Liste zu filtern oder einen Server hinzuzufügen.';
 }

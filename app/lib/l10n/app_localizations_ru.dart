@@ -14164,4 +14164,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSlSetupEpicboxOn => 'Получать через Epicbox';
+
+  @override
+  String get deskSlHelpChoose =>
+      'Выберите сервер или введите текст, чтобы отфильтровать список или добавить сервер.';
 }

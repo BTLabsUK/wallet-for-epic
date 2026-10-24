@@ -13043,4 +13043,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSlSetupEpicboxOn => '通过 Epicbox 接收';
+
+  @override
+  String get deskSlHelpChoose => '选择一个，或输入以筛选列表或添加服务器。';
 }

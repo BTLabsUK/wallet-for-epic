@@ -3597,5 +3597,6 @@
   "deskSlLatency": "{ms} มิลลิวินาที",
   "deskSlDefault": "ค่าเริ่มต้น",
   "deskSlTesting": "กำลังทดสอบ {host}…",
-  "deskSlSetupEpicboxOn": "รับผ่าน Epicbox"
+  "deskSlSetupEpicboxOn": "รับผ่าน Epicbox",
+  "deskSlHelpChoose": "เลือกหนึ่งรายการ หรือพิมพ์เพื่อกรองรายการหรือเพิ่มเซิร์ฟเวอร์"
 }

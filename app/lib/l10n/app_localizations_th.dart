@@ -13502,4 +13502,8 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSlSetupEpicboxOn => 'รับผ่าน Epicbox';
+
+  @override
+  String get deskSlHelpChoose =>
+      'เลือกหนึ่งรายการ หรือพิมพ์เพื่อกรองรายการหรือเพิ่มเซิร์ฟเวอร์';
 }

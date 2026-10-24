@@ -529,7 +529,8 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<ServiceStatus> status() async {
     final node = _nodes.firstWhere((n) => n.url == _node, orElse: () => _nodes.first);
-    final box = _epicboxes.firstWhere((e) => e.domain == _epicbox, orElse: () => _epicboxes.first);
+    // A relay added by hand is in no list: it is still the one in use.
+    final box = _epicboxes.firstWhere((e) => e.domain == _epicbox, orElse: () => EpicboxServer(domain: _epicbox, health: ServiceHealth.checking));
     return ServiceStatus(
       node: node,
       nodeHealth: node.health,

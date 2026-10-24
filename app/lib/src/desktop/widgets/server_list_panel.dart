@@ -248,6 +248,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   final _listScope = FocusScopeNode(debugLabel: 'server list rows');
   final _group = Object();
   final _text = TextEditingController();
+  final _scroll = ScrollController();
   double _width = 480;
   Timer? _busyTimer;
   bool _slow = false;
@@ -310,6 +311,12 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
       _busyTimer?.cancel();
       _slow = false;
     }
+    // The server changed while the list is open (Setup's preselection came in): an untouched
+    // field follows it.
+    if (isOpen && widget.value != oldWidget.value && _text.text.trim() == _filled.trim()) {
+      _filled = _inUseText;
+      _text.text = _filled;
+    }
   }
 
   void _startBusy() {
@@ -328,6 +335,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     _field.dispose();
     _listScope.dispose();
     _text.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -504,6 +512,13 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     });
     _say(l.slAdded(panelHost(widget.kind, value)));
     _field.requestFocus();
+    // The new row is the last: bring it into view once the list rebuilt with it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scroll.hasClients) return;
+      final reduce = MediaQuery.disableAnimationsOf(context);
+      final end = _scroll.position.maxScrollExtent;
+      reduce ? _scroll.jumpTo(end) : _scroll.animateTo(end, duration: const Duration(milliseconds: 220), curve: Curves.easeOut);
+    });
   }
 
   Future<void> _remove(PanelServer s) async {
@@ -579,6 +594,8 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
             excludeSemantics: true,
             child: InkWell(
               onTap: open ? collapse : this.open,
+              // The detector above holds the focus: one Tab stop.
+              canRequestFocus: false,
               borderRadius: BorderRadius.circular(Rad.sm),
               child: Container(
                 height: Ctl.sm,
@@ -672,7 +689,8 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final selected = _pending ?? widget.value;
     final known = [for (final s in widget.servers) (operator: s.listedAs ?? s.operator, icon: s.icon)];
 
-    final helper = _fieldError ?? (!filtering ? (_node ? l.slHelpIdleNode : l.slHelpIdleRelay) : l.slHelpMatches(shown.length));
+    final helper =
+        _fieldError ?? (filtering ? l.slHelpMatches(shown.length) : (widget.chooseOnly ? l.deskSlHelpChoose : (_node ? l.slHelpIdleNode : l.slHelpIdleRelay)));
 
     final rows = <Widget>[
       if (showLocal)
@@ -691,7 +709,8 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           server: s,
           // Its own icon, else the one the monitor holds for the same operator.
           icon: serverIconFor(s.icon, s.listedAs ?? s.operator, known),
-          inUse: widget.value.isNotEmpty && _same(s.value, widget.value),
+          // Before a wallet exists nothing is in use: the check marks the choice.
+          inUse: !widget.chooseOnly && widget.value.isNotEmpty && _same(s.value, widget.value),
           selected: selected.isNotEmpty && _same(s.value, selected),
           onTap: () => _pick(s.value),
           onRemove: () => _remove(s),
@@ -874,6 +893,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                           child: FocusScope(
                             node: _listScope,
                             child: ListView(
+                              controller: _scroll,
                               padding: EdgeInsets.fromLTRB(Sp.x2, 0, Sp.x2, Sp.x2),
                               shrinkWrap: true,
                               children: rows,

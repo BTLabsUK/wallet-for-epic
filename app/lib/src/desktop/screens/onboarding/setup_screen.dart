@@ -25,13 +25,16 @@ enum SetupStep { prefs, node, local, epicbox, review }
 /// A tour start state: the step, and for the local step which probe answer to show.
 @immutable
 class SetupDemo {
-  const SetupDemo(this.step, {this.local = LocalNodeDemo.none, this.localChosen = false});
+  const SetupDemo(this.step, {this.local = LocalNodeDemo.none, this.localChosen = false, this.listOpen = false});
 
   final SetupStep step;
   final LocalNodeDemo local;
 
   /// The Review step with the local node chosen.
   final bool localChosen;
+
+  /// The node or Epicbox step with its server list open.
+  final bool listOpen;
 }
 
 /// The first run of a wallet just made or restored (spec §21: password, phrase, Node, Epicbox,
@@ -334,6 +337,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       source: nodeSource(nodes ?? const [], removedNodes: ref.watch(settingsPrefsProvider).removedNodes, inUse: st.status?.node.url ?? _currentNode),
       listNote: nodeListNoteText(l),
       chooseOnly: true,
+      openInitially: _demo?.listOpen ?? false,
       onChoose: (v) async => setState(() {
         _picked = true;
         _nodeUrl = nodeUrlOf(v);
@@ -435,6 +439,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 servers: [...rows, if (row == null) PanelServer.bare(ServerKind.relay, _relay)],
                 source: relaySource(boxes ?? const [], inUse: _relay),
                 chooseOnly: true,
+                openInitially: _demo?.listOpen ?? false,
                 onChoose: (v) async => setState(() => _relay = v),
                 onTest: _testRelay,
               ),

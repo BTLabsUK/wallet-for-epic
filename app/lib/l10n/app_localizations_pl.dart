@@ -14197,4 +14197,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSlSetupEpicboxOn => 'Odbieraj przez Epicbox';
+
+  @override
+  String get deskSlHelpChoose =>
+      'Wybierz jeden albo wpisz, aby przefiltrować listę lub dodać serwer.';
 }

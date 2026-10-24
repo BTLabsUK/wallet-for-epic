@@ -18074,5 +18074,9 @@
   "deskSlSetupEpicboxOn": "Receive through Epicbox",
   "@deskSlSetupEpicboxOn": {
     "description": "Setup's Epicbox step: the switch that turns Epicbox receiving on or off for this wallet."
+  },
+  "deskSlHelpChoose": "Pick one, or type to filter the list or add a server.",
+  "@deskSlHelpChoose": {
+    "description": "Under the field of Setup's Node or Epicbox list while nothing is typed: before a wallet exists a pick chooses at once."
   }
 }
