@@ -10170,7 +10170,7 @@ abstract class AppLocalizations {
   /// Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor.
   ///
   /// In en, this message translates to:
-  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on.'**
+  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. Being paid at a Tor address is the Link · Tor switch under Transactions.'**
   String get torNetworkHint;
 
   /// Receive tab: receiving straight to this wallet at its onion address.
@@ -10182,7 +10182,7 @@ abstract class AppLocalizations {
   /// Receive's Link tab while Tor is off.
   ///
   /// In en, this message translates to:
-  /// **'Link receiving needs Tor.'**
+  /// **'Link · Tor receiving needs Tor.'**
   String get receiveDirectNeedsTor;
 
   /// Caption under 'Link receiving needs Tor.'
@@ -10190,6 +10190,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Senders use the Epicbox address meanwhile.'**
   String get receiveDirectMeanwhile;
+
+  /// Title of the HTTP address card on the phone’s Receive › Link tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · HTTP address'**
+  String get receiveHttpTitle;
+
+  /// Line under the HTTP address on the phone’s Receive › Link tab: who can reach it.
+  ///
+  /// In en, this message translates to:
+  /// **'For wallets on this Wi-Fi network, while the app is open.'**
+  String get receiveHttpLanLine;
+
+  /// The HTTP address card on the phone’s Receive › Link tab when the phone has no Wi-Fi (or other local network) address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on a Wi-Fi network. No address to hand out.'**
+  String get receiveHttpNoNetwork;
+
+  /// The HTTP address card on the phone’s Receive › Link tab while Tor runs: the listener does not start (it would show the phone’s own address).
+  ///
+  /// In en, this message translates to:
+  /// **'Off while Tor is on.'**
+  String get receiveHttpOffWhileTor;
+
+  /// The HTTP address card when the listener could not start because the port is taken. {port} is the port number.
+  ///
+  /// In en, this message translates to:
+  /// **'Port {port} is used by another program.'**
+  String receiveHttpPortInUse(String port);
+
+  /// The HTTP address card when the listener could not start for another reason; Retry is next to it.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start.'**
+  String get receiveHttpFailed;
 
   /// Status card: read out after a service whose connection goes through Tor.
   ///
@@ -20393,13 +20429,13 @@ abstract class AppLocalizations {
   /// Settings > Receiving: heading of the HTTP group.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · HTTP receiving'**
+  /// **'Link · HTTP receiving'**
   String get deskSetRecvHttpTitle;
 
   /// Settings > Receiving: text of the HTTP receiving row.
   ///
   /// In en, this message translates to:
-  /// **'Straight from another wallet while this one is open.'**
+  /// **'Straight from another wallet at this computer’s web address, while this wallet is open.'**
   String get deskSetRecvHttpText;
 
   /// Settings > Receiving: notice title in the HTTP group when Tor is on.
@@ -20411,7 +20447,7 @@ abstract class AppLocalizations {
   /// Settings > Receiving: notice text in the HTTP group when Tor is on.
   ///
   /// In en, this message translates to:
-  /// **'Link payments arrive at this wallet’s Tor address instead.'**
+  /// **'Payments straight from another wallet arrive at the Link · Tor address instead.'**
   String get deskSetRecvHttpOffText;
 
   /// Settings > Receiving: notice button that jumps to the Tor switch in Settings > Privacy.
@@ -23078,22 +23114,70 @@ abstract class AppLocalizations {
   /// **'Payment methods'**
   String get txMethodsHeader;
 
+  /// One line under the Link family header on Settings › Transactions (Link · HTTP and Link · Tor).
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to the other wallet while both are open.'**
+  String get txFamilyLinkLine;
+
+  /// One line under the Direct family header on Settings › Transactions (QR Payment and File Transfer).
+  ///
+  /// In en, this message translates to:
+  /// **'Hand to hand, with no connection between the wallets.'**
+  String get txFamilyDirectLine;
+
+  /// Second line of the Link › HTTP switch row on Settings › Transactions (phone). Honest: the phone is reachable only from the same Wi-Fi network.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay web addresses; get paid from this Wi-Fi network.'**
+  String get txLinkHttpLine;
+
+  /// Info sheet behind the Link › HTTP row on Settings › Transactions (phone).
+  ///
+  /// In en, this message translates to:
+  /// **'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.'**
+  String get txLinkHttpHint;
+
+  /// Second line of the Link › Tor switch row on Settings › Transactions (phone).
+  ///
+  /// In en, this message translates to:
+  /// **'Pay onion addresses; get paid at this phone’s Tor address.'**
+  String get txLinkTorLine;
+
+  /// Info sheet behind the Link › Tor row on Settings › Transactions (phone).
+  ///
+  /// In en, this message translates to:
+  /// **'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.'**
+  String get txLinkTorHint;
+
+  /// Line under the Link › Tor row on Settings › Transactions while that switch is on and Tor (Privacy & network) is off. A tap opens Privacy & network.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Tor. Turn it on under Privacy & network.'**
+  String get txLinkTorNeedsTor;
+
+  /// Notice when the last payment method that is on is switched off: the switch stays on. Phone and desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep at least one payment method on.'**
+  String get txLastMethodNotice;
+
   /// Info sheet text of the Epicbox row on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox pays through a relay, so the other wallet does not have to be open. Off, the wallet connects to no relay: no Epicbox payments, invoices or notifications. QR Payment and files still work.'**
+  /// **'Epicbox pays through a relay, so the other wallet does not have to be open. Off, the wallet connects to no relay: no Epicbox payments, invoices or notifications. The other methods still work.'**
   String get txEpicboxHint;
 
   /// One line under the Link switch on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay onion and web addresses; get paid at this phone\'s Tor address.'**
+  /// **'Pay web and onion addresses; get paid straight from other wallets.'**
   String get txDirectLine;
 
   /// Info sheet text of the Link switch on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Link Payment to Send and Receive.'**
+  /// **'Link pays straight to the other wallet at a web or onion address, and lets this phone be paid the same way. Both wallets must be open. HTTP works on this Wi-Fi network; Tor needs Tor. Adds Link to Send and Receive.'**
   String get txDirectHint;
 
   /// One line under the File switch on Settings › Transactions.
@@ -23105,7 +23189,7 @@ abstract class AppLocalizations {
   /// Info sheet text of the File switch on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'File makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File to Send and Receive.'**
+  /// **'File Transfer makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.'**
   String get txFileHint;
 
   /// Header on Settings › Transactions above the choice of the method Send opens on.
@@ -23318,7 +23402,7 @@ abstract class AppLocalizations {
   /// **'Transactions'**
   String get deskSetFrameTransactions;
 
-  /// Title of the group on Settings › Transactions with one row per payment method (Epicbox, Link, File).
+  /// Title of the page’s first part on Settings › Transactions: one group per family (Epicbox, Link, Direct) with a switch per method.
   ///
   /// In en, this message translates to:
   /// **'Payment methods'**
@@ -23327,19 +23411,19 @@ abstract class AppLocalizations {
   /// Hover card behind the info icon of the Epicbox row on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. Files still work.'**
+  /// **'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work.'**
   String get deskSetTxEpicboxHint;
 
-  /// Hover card behind the info icon of the Link row (switch) on Settings › Transactions.
+  /// Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Link Payment to Send and its address to Receive.'**
+  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.'**
   String get deskSetTxDirectHint;
 
   /// Hover card behind the info icon of the File row (switch) on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.'**
+  /// **'Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive.'**
   String get deskSetTxFileHint;
 
   /// Title of the group on Settings › Transactions with what the Send page starts on and, with Advanced › Send options on, its defaults.
@@ -23557,6 +23641,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A QR Payment code. Scan it with Epic Cash Mobile.'**
   String get deskSendToQrPayment;
+
+  /// Head of the Link · Tor group on Settings › Transactions (shown while its switch is on).
+  ///
+  /// In en, this message translates to:
+  /// **'Link · Tor receiving'**
+  String get deskSetRecvTorTitle;
+
+  /// Description row of the Link · Tor group on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight from another wallet at this wallet’s Tor address, while it is open.'**
+  String get deskSetRecvTorText;
+
+  /// Hover card behind the info icon of the Link › Tor row (switch) on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.'**
+  String get deskSetTxTorHint;
+
+  /// Notice under the Link › Tor switch on Settings › Transactions while it is on and Tor (Settings › Privacy) is off; the button beside it opens Privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is off. Turn it on under Privacy to be paid at the Tor address.'**
+  String get deskSetTxTorNeedsTor;
+
+  /// Toast when the last payment method that is on is switched off on Settings › Transactions: the switch stays on.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep at least one payment method on.'**
+  String get deskSetTxLastMethod;
 }
 
 class _AppLocalizationsDelegate

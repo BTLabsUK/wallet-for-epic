@@ -45,7 +45,8 @@ abstract final class MethodIcons {
     MethodFamily.direct => direct,
   };
 
-  /// The short name: Epicbox, HTTP, Tor, QR, File.
+  /// The name where space is short (badges, tags, segments): Epicbox, Link · HTTP, Link · Tor,
+  /// Direct · QR, Direct · File. Never a sub-option alone (the owner, 2026-10-25).
   static String shortName(AppLocalizations l, MethodKind m) => switch (m) {
     MethodKind.epicbox => l.methodEpicbox,
     MethodKind.linkHttp => l.methodShortHttp,

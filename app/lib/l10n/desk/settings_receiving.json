@@ -96,11 +96,11 @@
   "@deskSetRecvListNote": {
     "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
   },
-  "deskSetRecvHttpTitle": "Link Payment · HTTP receiving",
+  "deskSetRecvHttpTitle": "Link · HTTP receiving",
   "@deskSetRecvHttpTitle": {
     "description": "Settings > Receiving: heading of the HTTP group."
   },
-  "deskSetRecvHttpText": "Straight from another wallet while this one is open.",
+  "deskSetRecvHttpText": "Straight from another wallet at this computer’s web address, while this wallet is open.",
   "@deskSetRecvHttpText": {
     "description": "Settings > Receiving: text of the HTTP receiving row."
   },
@@ -108,7 +108,7 @@
   "@deskSetRecvHttpOffTitle": {
     "description": "Settings > Receiving: notice title in the HTTP group when Tor is on."
   },
-  "deskSetRecvHttpOffText": "Link payments arrive at this wallet’s Tor address instead.",
+  "deskSetRecvHttpOffText": "Payments straight from another wallet arrive at the Link · Tor address instead.",
   "@deskSetRecvHttpOffText": {
     "description": "Settings > Receiving: notice text in the HTTP group when Tor is on."
   },
@@ -235,5 +235,13 @@
   "deskSetHttpBackLocal": "Back to local only",
   "@deskSetHttpBackLocal": {
     "description": "Internet guide dialog: button that goes back to local only."
+  },
+  "deskSetRecvTorTitle": "Link · Tor receiving",
+  "@deskSetRecvTorTitle": {
+    "description": "Head of the Link · Tor group on Settings › Transactions (shown while its switch is on)."
+  },
+  "deskSetRecvTorText": "Straight from another wallet at this wallet’s Tor address, while it is open.",
+  "@deskSetRecvTorText": {
+    "description": "Description row of the Link · Tor group on Settings › Transactions."
   }
 }

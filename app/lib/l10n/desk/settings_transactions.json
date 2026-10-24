@@ -5,17 +5,17 @@
   },
   "deskSetTxMethods": "Payment methods",
   "@deskSetTxMethods": {
-    "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Link, File)."
+    "description": "Title of the page’s first part on Settings › Transactions: one group per family (Epicbox, Link, Direct) with a switch per method."
   },
-  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. Files still work.",
+  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work.",
   "@deskSetTxEpicboxHint": {
     "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
   },
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Link Payment to Send and its address to Receive.",
+  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.",
   "@deskSetTxDirectHint": {
-    "description": "Hover card behind the info icon of the Link row (switch) on Settings › Transactions."
+    "description": "Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions."
   },
-  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.",
+  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive.",
   "@deskSetTxFileHint": {
     "description": "Hover card behind the info icon of the File row (switch) on Settings › Transactions."
   },
@@ -30,5 +30,17 @@
   "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send.",
   "@deskSetTxStartHint": {
     "description": "Hover card behind the info icon of the Send starts on row."
+  },
+  "deskSetTxTorHint": "Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.",
+  "@deskSetTxTorHint": {
+    "description": "Hover card behind the info icon of the Link › Tor row (switch) on Settings › Transactions."
+  },
+  "deskSetTxTorNeedsTor": "Tor is off. Turn it on under Privacy to be paid at the Tor address.",
+  "@deskSetTxTorNeedsTor": {
+    "description": "Notice under the Link › Tor switch on Settings › Transactions while it is on and Tor (Settings › Privacy) is off; the button beside it opens Privacy."
+  },
+  "deskSetTxLastMethod": "Keep at least one payment method on.",
+  "@deskSetTxLastMethod": {
+    "description": "Toast when the last payment method that is on is switched off on Settings › Transactions: the switch stays on."
   }
 }

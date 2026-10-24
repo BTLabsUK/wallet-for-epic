@@ -6114,6 +6114,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveDirectMeanwhile => '在此期间，发送方使用 Epicbox 地址。';
 
   @override
+  String get receiveHttpTitle => 'Link · HTTP address';
+
+  @override
+  String get receiveHttpLanLine =>
+      'For wallets on this Wi-Fi network, while the app is open.';
+
+  @override
+  String get receiveHttpNoNetwork =>
+      'Not on a Wi-Fi network. No address to hand out.';
+
+  @override
+  String get receiveHttpOffWhileTor => 'Off while Tor is on.';
+
+  @override
+  String receiveHttpPortInUse(String port) {
+    return 'Port $port is used by another program.';
+  }
+
+  @override
+  String get receiveHttpFailed => 'Could not start.';
+
+  @override
   String get netStatusOverTor => '经由 Tor';
 
   @override
@@ -13776,6 +13798,37 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txMethodsHeader => '付款方式';
 
   @override
+  String get txFamilyLinkLine =>
+      'Straight to the other wallet while both are open.';
+
+  @override
+  String get txFamilyDirectLine =>
+      'Hand to hand, with no connection between the wallets.';
+
+  @override
+  String get txLinkHttpLine =>
+      'Pay web addresses; get paid from this Wi-Fi network.';
+
+  @override
+  String get txLinkHttpHint =>
+      'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.';
+
+  @override
+  String get txLinkTorLine =>
+      'Pay onion addresses; get paid at this phone’s Tor address.';
+
+  @override
+  String get txLinkTorHint =>
+      'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.';
+
+  @override
+  String get txLinkTorNeedsTor =>
+      'Needs Tor. Turn it on under Privacy & network.';
+
+  @override
+  String get txLastMethodNotice => 'Keep at least one payment method on.';
+
+  @override
   String get txEpicboxHint =>
       'Epicbox 通过中继付款，所以对方的钱包不必打开。关闭后，钱包不连接任何中继：没有 Epicbox 付款、账单或通知。二维码付款和文件仍然可用。';
 
@@ -14043,4 +14096,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment => '这是二维码付款码，请用 Epic Cash Mobile 扫描。';
+
+  @override
+  String get deskSetRecvTorTitle => 'Link · Tor receiving';
+
+  @override
+  String get deskSetRecvTorText =>
+      'Straight from another wallet at this wallet’s Tor address, while it is open.';
+
+  @override
+  String get deskSetTxTorHint =>
+      'Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.';
+
+  @override
+  String get deskSetTxTorNeedsTor =>
+      'Tor is off. Turn it on under Privacy to be paid at the Tor address.';
+
+  @override
+  String get deskSetTxLastMethod => 'Keep at least one payment method on.';
 }

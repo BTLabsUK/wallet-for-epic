@@ -6469,17 +6469,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on.';
+      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on. Being paid at a Tor address is the Link · Tor switch under Transactions.';
 
   @override
   String get receiveTabDirect => 'Link';
 
   @override
-  String get receiveDirectNeedsTor => 'Link receiving needs Tor.';
+  String get receiveDirectNeedsTor => 'Link · Tor receiving needs Tor.';
 
   @override
   String get receiveDirectMeanwhile =>
       'Senders use the Epicbox address meanwhile.';
+
+  @override
+  String get receiveHttpTitle => 'Link · HTTP address';
+
+  @override
+  String get receiveHttpLanLine =>
+      'For wallets on this Wi-Fi network, while the app is open.';
+
+  @override
+  String get receiveHttpNoNetwork =>
+      'Not on a Wi-Fi network. No address to hand out.';
+
+  @override
+  String get receiveHttpOffWhileTor => 'Off while Tor is on.';
+
+  @override
+  String receiveHttpPortInUse(String port) {
+    return 'Port $port is used by another program.';
+  }
+
+  @override
+  String get receiveHttpFailed => 'Could not start.';
 
   @override
   String get netStatusOverTor => 'over Tor';
@@ -12918,18 +12940,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'State from status.btlabs.uk, checked every few minutes.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Link Payment · HTTP receiving';
+  String get deskSetRecvHttpTitle => 'Link · HTTP receiving';
 
   @override
   String get deskSetRecvHttpText =>
-      'Straight from another wallet while this one is open.';
+      'Straight from another wallet at this computer’s web address, while this wallet is open.';
 
   @override
   String get deskSetRecvHttpOffTitle => 'Off while Tor is on';
 
   @override
   String get deskSetRecvHttpOffText =>
-      'Link payments arrive at this wallet’s Tor address instead.';
+      'Payments straight from another wallet arrive at the Link · Tor address instead.';
 
   @override
   String get deskSetRecvPrivacySettings => 'Privacy settings';
@@ -14550,23 +14572,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txMethodsHeader => 'Payment methods';
 
   @override
+  String get txFamilyLinkLine =>
+      'Straight to the other wallet while both are open.';
+
+  @override
+  String get txFamilyDirectLine =>
+      'Hand to hand, with no connection between the wallets.';
+
+  @override
+  String get txLinkHttpLine =>
+      'Pay web addresses; get paid from this Wi-Fi network.';
+
+  @override
+  String get txLinkHttpHint =>
+      'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.';
+
+  @override
+  String get txLinkTorLine =>
+      'Pay onion addresses; get paid at this phone’s Tor address.';
+
+  @override
+  String get txLinkTorHint =>
+      'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.';
+
+  @override
+  String get txLinkTorNeedsTor =>
+      'Needs Tor. Turn it on under Privacy & network.';
+
+  @override
+  String get txLastMethodNotice => 'Keep at least one payment method on.';
+
+  @override
   String get txEpicboxHint =>
-      'Epicbox pays through a relay, so the other wallet does not have to be open. Off, the wallet connects to no relay: no Epicbox payments, invoices or notifications. QR Payment and files still work.';
+      'Epicbox pays through a relay, so the other wallet does not have to be open. Off, the wallet connects to no relay: no Epicbox payments, invoices or notifications. The other methods still work.';
 
   @override
   String get txDirectLine =>
-      'Pay onion and web addresses; get paid at this phone\'s Tor address.';
+      'Pay web and onion addresses; get paid straight from other wallets.';
 
   @override
   String get txDirectHint =>
-      'Link Payment sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Link Payment to Send and Receive.';
+      'Link pays straight to the other wallet at a web or onion address, and lets this phone be paid the same way. Both wallets must be open. HTTP works on this Wi-Fi network; Tor needs Tor. Adds Link to Send and Receive.';
 
   @override
   String get txFileLine => 'Pay or get paid with a file you pass on yourself.';
 
   @override
   String get txFileHint =>
-      'File makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File to Send and Receive.';
+      'File Transfer makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.';
 
   @override
   String get txStartHeader => 'Send starts on';
@@ -14710,15 +14763,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetTxEpicboxHint =>
-      'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. Files still work.';
+      'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work.';
 
   @override
   String get deskSetTxDirectHint =>
-      'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Link Payment to Send and its address to Receive.';
+      'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.';
 
   @override
   String get deskSetTxFileHint =>
-      'Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.';
+      'Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive.';
 
   @override
   String get deskSetTxSend => 'Send';
@@ -14838,4 +14891,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSendToQrPayment =>
       'A QR Payment code. Scan it with Epic Cash Mobile.';
+
+  @override
+  String get deskSetRecvTorTitle => 'Link · Tor receiving';
+
+  @override
+  String get deskSetRecvTorText =>
+      'Straight from another wallet at this wallet’s Tor address, while it is open.';
+
+  @override
+  String get deskSetTxTorHint =>
+      'Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.';
+
+  @override
+  String get deskSetTxTorNeedsTor =>
+      'Tor is off. Turn it on under Privacy to be paid at the Tor address.';
+
+  @override
+  String get deskSetTxLastMethod => 'Keep at least one payment method on.';
 }

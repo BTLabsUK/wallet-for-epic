@@ -33,7 +33,7 @@ export 'method_icons.dart';
 enum BadgeTone { neutral, ok, warn, risk, info, gold }
 
 /// How the badge is drawn. Three directions were rendered side by side for the owner
-/// (2026-10-25); [badgeLook] is the pick ([outline]: a hairline is native to the Protocol look),
+/// (2026-10-25); [badgeLook] is the owner's pick, [bare] (no box: the glyph or dot carries the tone),
 /// the other two stay so a swap is this one line plus a rebuild.
 ///  - [bare]: no box. A 6 dp dot or a 13 dp glyph in the tone, then the words in the dim text
 ///    colour (Linear, Vercel).
@@ -44,7 +44,7 @@ enum BadgeTone { neutral, ok, warn, risk, info, gold }
 enum BadgeLook { bare, outline, ghost }
 
 /// The look in force. The tours set it from `BADGE_LOOK` to render the directions page.
-BadgeLook badgeLook = BadgeLook.outline;
+BadgeLook badgeLook = BadgeLook.bare;
 
 /// The badge's colours and scale, from the theme in force. [scale] is the theme's interface
 /// scale (1 on the phone, the desktop's factor), applied to every size but the text, which the
@@ -209,8 +209,9 @@ class EBadge extends StatelessWidget {
         dimension: px(10),
         child: CircularProgressIndicator(strokeWidth: 1.5, color: ink),
       );
-    } else if (dot || (!boxed && icon == null && tone != BadgeTone.neutral)) {
-      // Bare has no box to tint, so a toned badge without a glyph gets the dot.
+    } else if (dot || (!boxed && icon == null)) {
+      // Bare has no box to tint, so a badge without a glyph gets the dot: filled in its tone,
+      // a faint ring when neutral ("Default", "Updating"), so the words still read as a tag.
       final filled = tone != BadgeTone.neutral;
       glyph = Container(
         width: px(6),
