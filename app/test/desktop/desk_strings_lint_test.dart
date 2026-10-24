@@ -20,6 +20,7 @@ const _skipped = <String>{
   'data/mock_wallet.dart',
   'data/mock_invoices.dart',
   'screens/debug/',
+  'screens/invoices/proto_panel.dart', // the mock wallet's prototype panel: never ships
   'app/shots.dart',
   'screens/invoices/shots.dart',
   'screens/invoices/shots_core.dart',
@@ -37,14 +38,6 @@ const _skipped = <String>{
 /// that has nothing left, so this list only shrinks.
 const _pending = <String>{
   // PENDING-START
-  'app/desk_app.dart',
-  'data/models.dart',
-  'screens/invoices/proto_panel.dart',
-  'screens/onboarding/onboarding_parts.dart',
-  'screens/onboarding/setup_screen.dart',
-  'screens/settings/settings_about.dart',
-  'screens/settings/settings_appearance.dart',
-  'screens/settings/settings_help.dart',
   // PENDING-END
 };
 

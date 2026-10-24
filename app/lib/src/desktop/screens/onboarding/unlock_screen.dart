@@ -340,7 +340,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final l = context.l10n;
     final wallets = _wallets;
     final selected = _selected;
-    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).notice : null;
+    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).notice ?? context.l10n.deskSetupNewWalletAdded : null;
     return EHeroScreen(
       footer: const AuthFoot(),
       child: EAuthCard(

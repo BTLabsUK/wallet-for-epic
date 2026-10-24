@@ -125,13 +125,7 @@ class DeskTextScaler extends TextScaler {
   int get hashCode => Object.hash(base, factor);
 }
 
-/// The locale of Settings › Appearance › Language (its names: English, Deutsch, Polski,
-/// Русский, 中文, ไทย); English for anything else.
-Locale deskLocaleOf(String language) => switch (language) {
-  'Deutsch' => const Locale('de'),
-  'Polski' => const Locale('pl'),
-  'Русский' => const Locale('ru'),
-  '中文' || '简体中文' => const Locale('zh'),
-  'ไทย' => const Locale('th'),
-  _ => const Locale('en'),
-};
+/// The locale of Settings › Appearance › Language (a code from `appLanguages`); null follows
+/// the computer: the first of its languages the app has, else English (l10n.yaml puts English
+/// first among the supported locales).
+Locale? deskLocaleOf(String? language) => language == null ? null : Locale(language);

@@ -12844,4 +12844,416 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetWalletsRestoreText => 'From a recovery phrase.';
+
+  @override
+  String get deskSetupConfirmPassword => 'Confirm password';
+
+  @override
+  String get deskSetupPasswordShort => 'At least 8 characters';
+
+  @override
+  String get deskSetupPasswordsDiffer => 'Passwords differ';
+
+  @override
+  String get deskSetupBack => 'Back';
+
+  @override
+  String get deskSetupNewWalletAdded => 'New wallet added.';
+
+  @override
+  String get deskSetupCapsLock => 'Caps Lock is on';
+
+  @override
+  String deskSetupStepSem(int number, int total, String label) {
+    return 'Step $number of $total: $label';
+  }
+
+  @override
+  String get deskSetupTryAgain => 'Try again';
+
+  @override
+  String get deskSetupNotSaved => 'Not saved';
+
+  @override
+  String get deskSetupStepPrefs => 'Preferences';
+
+  @override
+  String get deskSetupStepNode => 'Node';
+
+  @override
+  String get deskSetupStepEpicbox => 'Epicbox';
+
+  @override
+  String get deskSetupStepReview => 'Review';
+
+  @override
+  String get deskSetupAgain =>
+      'Running setup again. Nothing changes until Save on the last step.';
+
+  @override
+  String get deskSetupPrefsLead => 'App language. It can be changed later.';
+
+  @override
+  String get deskSetupNodeTitle => 'Choose a node';
+
+  @override
+  String get deskSetupNodeLead =>
+      'The wallet reads the chain and sends through an Epic node.';
+
+  @override
+  String get deskSetupLocalTitle => 'Local node';
+
+  @override
+  String get deskSetupLocalLead =>
+      'What running the node here means, and which node to use.';
+
+  @override
+  String get deskSetupEpicboxTitle => 'Receive when offline';
+
+  @override
+  String get deskSetupReviewTitle => 'Check settings';
+
+  @override
+  String get deskSetupReviewLead =>
+      'Change anything that is not right, then save.';
+
+  @override
+  String get deskSetupSideTitle => 'Set up';
+
+  @override
+  String get deskSetupBackToWallet => 'Back to wallet';
+
+  @override
+  String get deskSetupLaterNote =>
+      'Everything here can be changed later in Settings.';
+
+  @override
+  String get deskSetupSave => 'Save settings';
+
+  @override
+  String get deskSetupLanguage => 'Language';
+
+  @override
+  String get deskSetupNodeServer => 'Node server';
+
+  @override
+  String get deskSetupNodeHint => 'Find or type a node address';
+
+  @override
+  String get deskSetupCheckingNodes => 'Checking nodes…';
+
+  @override
+  String get deskSetupPickNode => 'Pick a node';
+
+  @override
+  String get deskSetupPublicNodes => 'Public nodes';
+
+  @override
+  String get deskSetupNotInList => 'not in the public list';
+
+  @override
+  String get deskSetupEnterUses => 'Enter uses it.';
+
+  @override
+  String get deskSetupNoNodes => 'No nodes to show.';
+
+  @override
+  String get deskSetupRemoteNode => 'Remote node';
+
+  @override
+  String get deskSetupRemoteNodeText => 'Any public node. Ready at once.';
+
+  @override
+  String get deskSetupLocalNodeText =>
+      'Runs the Epic node on this computer. Nothing is shared with an operator. Needs disk space and hours to sync.';
+
+  @override
+  String get deskSetupEpicboxText =>
+      'Epicbox delivers payments to the Epicbox address and holds them until the wallet is online.';
+
+  @override
+  String get deskSetupEpicboxPrivacy =>
+      'It does not hide the IP address from the Epicbox server. Use a VPN if that matters.';
+
+  @override
+  String get deskSetupEpicboxServer => 'Epicbox server';
+
+  @override
+  String get deskSetupEpicboxHelp =>
+      'Leave empty to turn receiving through Epicbox off.';
+
+  @override
+  String get deskSetupChangePrefsSem => 'Change preferences';
+
+  @override
+  String get deskSetupChangeNodeSem => 'Change node';
+
+  @override
+  String get deskSetupChangeEpicboxSem => 'Change epicbox';
+
+  @override
+  String get deskSetupChange => 'Change';
+
+  @override
+  String get deskSetupType => 'Type';
+
+  @override
+  String get deskSetupAddress => 'Address';
+
+  @override
+  String deskSetupExistingNode(String host) {
+    return 'Existing node at $host';
+  }
+
+  @override
+  String get deskSetupBundledNode => 'Local node, bundled';
+
+  @override
+  String get deskSetupWhileSyncing => 'While syncing';
+
+  @override
+  String get deskSetupWait => 'wait';
+
+  @override
+  String get deskSetupDataFolder => 'Data folder';
+
+  @override
+  String deskSetupSaveStartsFallback(String node) {
+    return 'Save starts the node. The first sync takes hours; the wallet opens meanwhile and uses $node until then.';
+  }
+
+  @override
+  String get deskSetupSaveStarts =>
+      'Save starts the node. The first sync takes hours; the wallet opens meanwhile.';
+
+  @override
+  String get deskSetupServer => 'Server';
+
+  @override
+  String get deskSetupOff => 'Off';
+
+  @override
+  String get deskSetAboutLicencesLead =>
+      'Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.';
+
+  @override
+  String get deskSetAboutLicenceApp =>
+      'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.';
+
+  @override
+  String get deskSetAboutBrowserNotOpened => 'Browser not opened';
+
+  @override
+  String get deskSetAboutOpen => 'Open';
+
+  @override
+  String deskSetAboutVersion(String version) {
+    return 'Version  $version';
+  }
+
+  @override
+  String deskSetAboutNode(String version) {
+    return 'Node  $version';
+  }
+
+  @override
+  String get deskSetAboutCommunity => 'Community';
+
+  @override
+  String get deskSetAboutLicences => 'Licences';
+
+  @override
+  String get deskSetAboutSource => 'Source code';
+
+  @override
+  String get deskSetAboutView => 'View';
+
+  @override
+  String deskSetAboutChecked(String ago) {
+    return 'Checked $ago.';
+  }
+
+  @override
+  String deskSetAboutLatest(String version) {
+    return '$version is the latest';
+  }
+
+  @override
+  String deskSetAboutAvailable(String version) {
+    return 'Update available: $version';
+  }
+
+  @override
+  String get deskSetAboutCouldNotCheck => 'Could not check';
+
+  @override
+  String get deskSetAboutUpdates => 'Updates';
+
+  @override
+  String deskSetAboutGet(String version) {
+    return 'Get $version';
+  }
+
+  @override
+  String get deskSetAboutCheckNow => 'Check now';
+
+  @override
+  String get deskSetAboutAgoNow => 'just now';
+
+  @override
+  String deskSetAboutAgoMin(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String deskSetAboutAgoHours(int count) {
+    return '$count h ago';
+  }
+
+  @override
+  String deskSetAboutAgoDays(int count) {
+    return '$count d ago';
+  }
+
+  @override
+  String get deskSetAboutCopyLink => 'Copy link';
+
+  @override
+  String get deskSetAboutCopied => 'Copied';
+
+  @override
+  String get deskSetAboutNotCopied => 'Not copied';
+
+  @override
+  String get deskSetAppearTheme => 'Theme';
+
+  @override
+  String get deskSetAppearThemeHint => 'System follows the computer’s setting.';
+
+  @override
+  String get deskSetAppearSystem => 'System';
+
+  @override
+  String get deskSetAppearDark => 'Dark';
+
+  @override
+  String get deskSetAppearLight => 'Light';
+
+  @override
+  String get deskSetAppearScale => 'Interface scale';
+
+  @override
+  String get deskSetAppearScaleHint =>
+      'Text and controls, larger or smaller. Applies at once.';
+
+  @override
+  String get deskSetAppearLanguage => 'Language';
+
+  @override
+  String get deskSetAppearLanguageHint => 'Applies at once.';
+
+  @override
+  String get deskSetAppearHideHint =>
+      'Shows dots in place of balances and amounts.';
+
+  @override
+  String deskSetHelpNoMatchText(String query) {
+    return 'No topic matches “$query”. Try another word.';
+  }
+
+  @override
+  String deskSetHelpFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Topics found: $count',
+      one: 'Topics found: $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetHelpNoMatch => 'No topic matches';
+
+  @override
+  String get deskSetHelpReportText =>
+      'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer. Save to file keeps a copy to send by hand.';
+
+  @override
+  String get deskSetHelpShowLess => 'Show less';
+
+  @override
+  String get deskSetHelpReadMore => 'Read more';
+
+  @override
+  String get deskSetHelpEb1 =>
+      'The sending wallet passes the payment to Epicbox and locks the outputs.';
+
+  @override
+  String get deskSetHelpEb2 =>
+      'Epicbox delivers it when the receiving wallet is online. That wallet adds its part and signs.';
+
+  @override
+  String get deskSetHelpEb3 => 'The receiving wallet sends it back to Epicbox.';
+
+  @override
+  String get deskSetHelpEb4 => 'Epicbox passes it back to the sending wallet.';
+
+  @override
+  String get deskSetHelpSigns =>
+      'The sending wallet signs too, finishes the transaction and posts it to the network.';
+
+  @override
+  String deskSetHelpFinal(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'The network puts it in a block. After $count confirmations it is final.',
+      one:
+          'The network puts it in a block. After $count confirmation it is final.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetHelpFile1 =>
+      'The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.';
+
+  @override
+  String get deskSetHelpFile2 =>
+      'The recipient opens it. Their wallet adds its part, signs and saves a response file.';
+
+  @override
+  String get deskSetHelpFile3 => 'The response file comes back to the sender.';
+
+  @override
+  String get deskSetHelpFile4 =>
+      'The sender opens the response file under Finalize.';
+
+  @override
+  String get deskSetHelpSender => 'Sender';
+
+  @override
+  String get deskSetHelpFile => 'File';
+
+  @override
+  String get deskSetHelpRecipient => 'Recipient';
+
+  @override
+  String get deskSetHelpNetwork => 'Network';
+
+  @override
+  String get deskSetHelpTravels => 'How a transaction travels';
+
+  @override
+  String get deskSetHelpOverEpicbox => 'Over Epicbox';
+
+  @override
+  String get deskSetHelpWithFile => 'With a file';
+
+  @override
+  String deskSetHelpStep(int number, int total) {
+    return 'Step $number of $total';
+  }
 }

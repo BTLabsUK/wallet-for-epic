@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/invoice_state.dart';
 import '../../data/mock_wallet.dart';
 import '../../widgets/kit.dart';
-import '../onboarding/onboarding_parts.dart' show deskLanguageCodes, deskLanguageItems;
 import 'invoice_parts.dart';
 
 /// The floating "Prototype" button, bottom right, when the wallet is the mock.
@@ -134,19 +133,8 @@ class _ProtoPanelState extends ConsumerState<_ProtoPanel> {
                     onChanged: (v) => n.saveSettings(s.copyWith(theme: v)),
                   ),
                 ),
-                SizedBox(
-                  width: InvW.md,
-                  child: ESelect<String>(
-                    semanticLabel: 'Language of the invoice screens',
-                    value: deskLanguageCodes.containsKey(s.language) ? s.language : 'English',
-                    items: deskLanguageItems(),
-                    onChanged: (v) => n.saveSettings(s.copyWith(language: v)),
-                  ),
-                ),
               ],
             ),
-            SizedBox(height: Sp.x2),
-            Text('Language applies to the invoice screens; the rest of the desktop app is English only.', style: ts.small),
           ],
         ),
       ),

@@ -72,7 +72,7 @@ abstract final class DeskFeatures {
   static const bool paymentProofs = false;
   static const bool changePassword = true;
   static const bool walletProcesses = false;
-  static const bool languages = false;
+  static const bool languages = true;
   static const bool fiatPrice = false;
   static const bool contactPictures = false;
 }

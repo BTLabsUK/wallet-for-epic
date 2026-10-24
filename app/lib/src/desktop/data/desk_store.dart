@@ -241,6 +241,7 @@ HttpPrefs _httpPrefsFromJson(Map<String, dynamic> j, HttpPrefs d) {
 Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'theme': s.theme.name,
   'scale': s.scale,
+  'language': s.language,
   'helpLanguage': s.helpLanguage,
   'hideAmounts': s.hideAmounts,
   'newLookSeen': s.newLookSeen,
@@ -258,6 +259,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
   const d = DeskSettings();
   final scale = j['scale'];
   final hide = j['hideAmounts'];
+  final language = j['language'];
   final helpLanguage = j['helpLanguage'];
   final seen = j['newLookSeen'];
   final guide = j['internetGuideSeen'];
@@ -269,6 +271,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
   return DeskSettings(
     theme: ThemeChoice.values.where((t) => t.name == j['theme']).firstOrNull ?? d.theme,
     scale: scale is int && deskScales.contains(scale) ? scale : d.scale,
+    language: language is String && appLanguages.any((a) => a.code == language) ? language : null,
     helpLanguage: helpLanguage is String && appLanguages.any((a) => a.code == helpLanguage) ? helpLanguage : null,
     hideAmounts: hide is bool ? hide : d.hideAmounts,
     newLookSeen: seen is bool ? seen : d.newLookSeen,
