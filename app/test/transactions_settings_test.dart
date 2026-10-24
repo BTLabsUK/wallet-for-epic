@@ -2,7 +2,6 @@
 // as switches), the method Send starts on (only among the methods offered), and, with Advanced
 // › Send options, the send defaults that used to sit on Outputs. The Advanced page no longer
 // holds a Direct switch; an old one is taken over.
-import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/phone_tor.dart';

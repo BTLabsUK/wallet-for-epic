@@ -3,7 +3,6 @@
 // payment stands, and the whole exchange on the fake wallet: the sender makes the payment and
 // shows it, the receiver scans, accepts and shows the reply, the sender scans it and posts.
 
-import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
