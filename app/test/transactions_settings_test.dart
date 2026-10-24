@@ -2,6 +2,7 @@
 // as switches), the method Send starts on (only among the methods offered), and, with Advanced
 // › Send options, the send defaults that used to sit on Outputs. The Advanced page no longer
 // holds a Direct switch; an old one is taken over.
+import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -46,6 +47,7 @@ Future<ProviderContainer> _pump(
   WidgetTester tester,
   MemorySecretStore store, {
   SettingsSection section = SettingsSection.transactions,
+  bool phone = false,
 }) async {
   tester.view.physicalSize = const Size(1080, 4800);
   tester.view.devicePixelRatio = 3;
@@ -56,6 +58,7 @@ Future<ProviderContainer> _pump(
       overrides: [
         walletServiceProvider.overrideWithValue(FakeWalletService()),
         secretStoreProvider.overrideWithValue(store),
+        phonePaymentsProvider.overrideWithValue(phone),
         updatePlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_NoRelays()),
         sessionProvider.overrideWith(_OpenSession.new),
@@ -253,5 +256,87 @@ void main() {
     final c = await _pump(tester, store);
     expect(_payments(c).direct, isTrue);
     expect(tester.widget<Switch>(_switchOf('tx-direct')).value, isTrue);
+  });
+
+  group('on a phone: QR for everyone, File behind Advanced', () {
+    const files = AdvancedPrefs(features: {AdvancedFeature.transactionFiles});
+
+    testWidgets('a new phone: QR is on, there is no File row', (tester) async {
+      await _pump(tester, _store(), phone: true);
+      expect(tester.widget<Switch>(_switchOf('tx-qr')).value, isTrue);
+      expect(find.text(_l.txQrLine), findsOneWidget);
+      expect(_row('tx-file'), findsNothing);
+      expect(_row('tx-start-qr'), findsOneWidget);
+      expect(_row('tx-start-file'), findsNothing);
+    });
+
+    testWidgets('Advanced › Transaction files brings the File switch, off', (tester) async {
+      final store = _store({'app.advanced_prefs': files.encode()});
+      final c = await _pump(tester, store, phone: true);
+      expect(tester.widget<Switch>(_switchOf('tx-file')).value, isFalse);
+      await tester.tap(_row('tx-file'));
+      await tester.pumpAndSettle();
+      expect(_payments(c).file, isTrue);
+      expect(_row('tx-start-file'), findsOneWidget);
+    });
+
+    testWidgets('a phone that has File on keeps the row, so it can switch it off', (
+      tester,
+    ) async {
+      final c = await _pump(
+        tester,
+        _store({'app.payment_prefs': 'file|epicbox'}),
+        phone: true,
+      );
+      expect(tester.widget<Switch>(_switchOf('tx-file')).value, isTrue);
+      await tester.tap(_row('tx-file'));
+      await tester.pumpAndSettle();
+      expect(_payments(c).file, isFalse);
+      // It stays on the page, so a changed setting does not vanish under the finger.
+      expect(_row('tx-file'), findsOneWidget);
+    });
+
+    testWidgets('the QR switch saves, and Send starts on QR when chosen', (tester) async {
+      final store = _store();
+      final c = await _pump(tester, store, phone: true);
+      await tester.tap(_row('tx-start-qr'));
+      await tester.pumpAndSettle();
+      expect(_payments(c).startMethod, PayMethod.qr);
+      await tester.tap(_row('tx-qr'));
+      await tester.pumpAndSettle();
+      expect(_payments(c).qr, isFalse);
+      expect(store.values['app.payment_prefs'], contains('noqr'));
+      // Off: it is no longer a choice and Send starts on Epicbox.
+      expect(_row('tx-start-qr'), findsNothing);
+      expect(_payments(c).startMethod, PayMethod.epicbox);
+    });
+
+    testWidgets('the QR switch has an info sheet', (tester) async {
+      await _pump(tester, _store(), phone: true);
+      await tester.tap(
+        find.byWidgetPredicate((w) => w is InfoHint && w.title == _l.methodQr),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(of: find.byType(InfoSheet), matching: find.text(_l.txQrHint)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('the Advanced page has the Transaction files switch', (tester) async {
+      final c = await _pump(
+        tester,
+        _store(),
+        section: SettingsSection.advanced,
+        phone: true,
+      );
+      expect(_row('adv-transactionFiles'), findsOneWidget);
+      await tester.tap(_row('adv-transactionFiles'));
+      await tester.pumpAndSettle();
+      expect(
+        c.read(appSettingsProvider).value!.advanced.has(AdvancedFeature.transactionFiles),
+        isTrue,
+      );
+    });
   });
 }

@@ -235,11 +235,13 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final name = switch (m) {
       PayMethod.epicbox => 'Epicbox', // l10n-ok: product name
       PayMethod.direct => l.deskSendMethodDirect,
+      PayMethod.qr => 'QR', // l10n-ok: the phone's method, never listed here
       PayMethod.file => l.deskSendMethodFile,
     };
     final hint = switch (m) {
       PayMethod.epicbox => l.deskSetTxEpicboxHint,
       PayMethod.direct => l.deskSetTxDirectHint,
+      PayMethod.qr => '',
       PayMethod.file => l.deskSetTxFileHint,
     };
     return ESetRow(
@@ -261,6 +263,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   String _startName(AppLocalizations l, PayMethod m) => switch (m) {
     PayMethod.epicbox => 'Epicbox', // l10n-ok: product name
     PayMethod.direct => l.deskSendMethodDirect,
+    PayMethod.qr => 'QR', // l10n-ok: the phone's method, never listed here
     PayMethod.file => l.deskSendMethodFile,
   };
 
@@ -271,7 +274,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       title: l.deskSetTxMethods,
       rows: [
         for (final m in PayMethod.values)
-          if (m != PayMethod.direct || DeskFeatures.httpDirect || DeskFeatures.tor) _methodRow(m, p),
+          if (m != PayMethod.qr && (m != PayMethod.direct || DeskFeatures.httpDirect || DeskFeatures.tor)) _methodRow(m, p),
       ],
     );
   }
@@ -282,7 +285,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final l = context.l10n;
     final offered = [
       for (final m in PayMethod.values)
-        if (p.offers(m) && (m != PayMethod.direct || DeskFeatures.httpDirect || DeskFeatures.tor)) m,
+        if (m != PayMethod.qr && p.offers(m) && (m != PayMethod.direct || DeskFeatures.httpDirect || DeskFeatures.tor)) m,
     ];
     final options = advancedHas(ref, AdvancedFeature.sendOptions);
     if (offered.length < 2 && !options) return null;

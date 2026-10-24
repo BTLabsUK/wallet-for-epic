@@ -8,8 +8,27 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('defaults: Epicbox and File offered, Direct not, Send starts on Epicbox', () {
     const p = PaymentPrefs.defaults;
-    expect([for (final m in PayMethod.values) p.offers(m)], [true, false, true]);
+    expect([for (final m in PayMethod.values) p.offers(m)], [true, false, true, true]);
     expect(p.startMethod, PayMethod.epicbox);
+  });
+
+  test('a new phone: Epicbox and QR offered, File and Direct not', () {
+    const p = PaymentPrefs.phoneDefaults;
+    expect([for (final m in PayMethod.values) p.offers(m)], [true, false, true, false]);
+    expect(PaymentPrefs.decode(null, phone: true), p);
+    expect(PaymentPrefs.decode(null, phone: true, legacyDirect: true).direct, isTrue);
+    // A stored value wins over the platform's defaults.
+    expect(PaymentPrefs.decode('file|epicbox', phone: true).file, isTrue);
+  });
+
+  test('QR reads as on in a value stored before it existed, and off once saved off', () {
+    expect(PaymentPrefs.decode('direct,file|epicbox').qr, isTrue);
+    const off = PaymentPrefs(qr: false);
+    expect(PaymentPrefs.decode(off.encode()).qr, isFalse);
+    expect(PaymentPrefs.fromJson({'direct': false, 'file': true}).qr, isTrue);
+    expect(PaymentPrefs.fromJson(off.toJson()).qr, isFalse);
+    expect(const PaymentPrefs(defaultMethod: PayMethod.qr, qr: false).startMethod, PayMethod.epicbox);
+    expect(const PaymentPrefs(defaultMethod: PayMethod.qr).startMethod, PayMethod.qr);
   });
 
   test('a default method that is not offered starts Send on Epicbox', () {
