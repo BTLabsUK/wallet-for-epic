@@ -4481,29 +4481,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverMyRelays => 'My servers';
 
   @override
-  String get serverRemoveRelay => 'Remove from my servers';
+  String get serverMenuRemove => 'Remove from my list';
 
   @override
-  String get serverRemoveInUse => 'In use. Switch to another server first.';
+  String get serverMenuDelete => 'Delete';
 
   @override
-  String get serverRemoveRelayTitle => 'Remove this server?';
-
-  @override
-  String get serverRemoveNodeTitle => 'Remove this node?';
-
-  @override
-  String serverRemoveBodyPublic(String host) {
-    return '$host leaves my list. Select it from the public list to use it again.';
+  String settingsStateTor(String state) {
+    return 'Tor $state';
   }
 
   @override
-  String serverRemoveBodyCustom(String host) {
-    return '$host leaves my list. Type it in again to use it.';
-  }
-
-  @override
-  String get serverRemoveConfirm => 'Remove';
+  String get serverRemoveInUse => 'In use. Pick another server first.';
 
   @override
   String get serverSupportsNotifications => 'Supports notifications';
@@ -4584,12 +4573,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get serverAddMine => 'Add to my nodes';
-
-  @override
-  String get serverRemoveMine => 'Remove from my nodes';
 
   @override
   String get serverNotResponding => 'Not responding';

@@ -6933,47 +6933,29 @@ abstract class AppLocalizations {
   /// **'My servers'**
   String get serverMyRelays;
 
-  /// Tooltip and screen reader name of the remove button on a My servers row of the Epicbox picker.
+  /// Tooltip of the down arrow on a public server in the My nodes or My servers list, and the one item of the popup it opens: the server goes back to the public list.
   ///
   /// In en, this message translates to:
-  /// **'Remove from my servers'**
-  String get serverRemoveRelay;
+  /// **'Remove from my list'**
+  String get serverMenuRemove;
 
-  /// Tooltip of the disabled remove button (Epicbox) or star (node) on the server the wallet uses now: why it cannot be removed.
+  /// Tooltip of the bin on a typed-in server in the My nodes or My servers list, and the one item of the popup it opens: the server is deleted.
   ///
   /// In en, this message translates to:
-  /// **'In use. Switch to another server first.'**
+  /// **'Delete'**
+  String get serverMenuDelete;
+
+  /// Tor's part of the state line under Privacy & network on the Settings hub, after the node and Epicbox hosts: the word is lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor {state}'**
+  String settingsStateTor(String state);
+
+  /// Tooltip of the disabled arrow or bin on the My list row of the server the wallet uses now: why it cannot be removed or deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'In use. Pick another server first.'**
   String get serverRemoveInUse;
-
-  /// Title of the dialog that confirms removing an Epicbox relay from My servers.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove this server?'**
-  String get serverRemoveRelayTitle;
-
-  /// Title of the dialog that confirms removing a node from My nodes (the star of a My nodes row).
-  ///
-  /// In en, this message translates to:
-  /// **'Remove this node?'**
-  String get serverRemoveNodeTitle;
-
-  /// Body of the dialog that confirms removing a public node or Epicbox relay from the user's own list: it goes back to the public list.
-  ///
-  /// In en, this message translates to:
-  /// **'{host} leaves my list. Select it from the public list to use it again.'**
-  String serverRemoveBodyPublic(String host);
-
-  /// Body of the dialog that confirms removing a node or Epicbox relay the user typed in (not in the public list) from their own list: it is gone.
-  ///
-  /// In en, this message translates to:
-  /// **'{host} leaves my list. Type it in again to use it.'**
-  String serverRemoveBodyCustom(String host);
-
-  /// Confirm button of the remove dialogs.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove'**
-  String get serverRemoveConfirm;
 
   /// Screen reader words for the bell icon on the Epicbox relay that can send push notifications.
   ///
@@ -7100,18 +7082,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{{count} block behind} other{{count} blocks behind}}'**
   String serverBehindLabel(int count);
-
-  /// Star button: add the node to My nodes.
-  ///
-  /// In en, this message translates to:
-  /// **'Add to my nodes'**
-  String get serverAddMine;
-
-  /// Star button: remove the node from My nodes.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove from my nodes'**
-  String get serverRemoveMine;
 
   /// Row: the server does not answer the monitor.
   ///

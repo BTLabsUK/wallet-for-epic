@@ -4546,30 +4546,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get serverMyRelays => 'Meine Server';
 
   @override
-  String get serverRemoveRelay => 'Aus meinen Servern entfernen';
+  String get serverMenuRemove => 'Aus meiner Liste entfernen';
+
+  @override
+  String get serverMenuDelete => 'Löschen';
+
+  @override
+  String settingsStateTor(String state) {
+    return 'Tor $state';
+  }
 
   @override
   String get serverRemoveInUse =>
-      'In Verwendung. Wechseln Sie zuerst zu einem anderen Server.';
-
-  @override
-  String get serverRemoveRelayTitle => 'Diesen Server entfernen?';
-
-  @override
-  String get serverRemoveNodeTitle => 'Diesen Node entfernen?';
-
-  @override
-  String serverRemoveBodyPublic(String host) {
-    return '$host verschwindet aus meiner Liste. Wählen Sie ihn aus der öffentlichen Liste, um ihn wieder zu nutzen.';
-  }
-
-  @override
-  String serverRemoveBodyCustom(String host) {
-    return '$host verschwindet aus meiner Liste. Geben Sie ihn erneut ein, um ihn zu nutzen.';
-  }
-
-  @override
-  String get serverRemoveConfirm => 'Entfernen';
+      'In Verwendung. Wählen Sie zuerst einen anderen Server.';
 
   @override
   String get serverSupportsNotifications => 'Unterstützt Benachrichtigungen';
@@ -4651,12 +4640,6 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get serverAddMine => 'Zu meinen Nodes hinzufügen';
-
-  @override
-  String get serverRemoveMine => 'Aus meinen Nodes entfernen';
 
   @override
   String get serverNotResponding => 'Antwortet nicht';

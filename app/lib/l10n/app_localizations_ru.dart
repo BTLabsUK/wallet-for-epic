@@ -4643,30 +4643,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverMyRelays => 'Мои серверы';
 
   @override
-  String get serverRemoveRelay => 'Удалить из моих серверов';
+  String get serverMenuRemove => 'Убрать из моего списка';
+
+  @override
+  String get serverMenuDelete => 'Удалить';
+
+  @override
+  String settingsStateTor(String state) {
+    return 'Tor $state';
+  }
 
   @override
   String get serverRemoveInUse =>
-      'Используется. Сначала переключитесь на другой сервер.';
-
-  @override
-  String get serverRemoveRelayTitle => 'Удалить этот сервер?';
-
-  @override
-  String get serverRemoveNodeTitle => 'Удалить этот узел?';
-
-  @override
-  String serverRemoveBodyPublic(String host) {
-    return '$host исчезнет из моего списка. Выберите его в публичном списке, чтобы использовать снова.';
-  }
-
-  @override
-  String serverRemoveBodyCustom(String host) {
-    return '$host исчезнет из моего списка. Введите его снова, чтобы использовать.';
-  }
-
-  @override
-  String get serverRemoveConfirm => 'Удалить';
+      'Используется. Сначала выберите другой сервер.';
 
   @override
   String get serverSupportsNotifications => 'Поддерживает уведомления';
@@ -4749,12 +4738,6 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get serverAddMine => 'Добавить в мои узлы';
-
-  @override
-  String get serverRemoveMine => 'Удалить из моих узлов';
 
   @override
   String get serverNotResponding => 'Не отвечает';
