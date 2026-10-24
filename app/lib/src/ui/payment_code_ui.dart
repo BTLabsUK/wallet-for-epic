@@ -63,23 +63,25 @@ class RequestBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final still = MediaQuery.of(context).disableAnimations;
-    final duration = still ? Duration.zero : requestBannerMotion;
+    final child = open
+        ? Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _card(context),
+          )
+        : const SizedBox(width: double.infinity);
+    // Reduced motion: no AnimatedSize at all. One of zero duration ends its animation inside
+    // its own layout, which Flutter refuses (it asserts when × closes the banner).
+    if (MediaQuery.of(context).disableAnimations) return child;
     return AnimatedSize(
-      duration: duration,
-      reverseDuration: duration,
+      duration: requestBannerMotion,
+      reverseDuration: requestBannerMotion,
       curve: open ? Curves.easeOutCubic : Curves.easeInCubic,
       alignment: AlignmentDirectional.topStart,
       child: AnimatedOpacity(
-        duration: duration,
+        duration: requestBannerMotion,
         curve: open ? Curves.easeOutCubic : Curves.easeInCubic,
         opacity: open ? 1 : 0,
-        child: open
-            ? Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _card(context),
-              )
-            : const SizedBox(width: double.infinity),
+        child: child,
       ),
     );
   }
