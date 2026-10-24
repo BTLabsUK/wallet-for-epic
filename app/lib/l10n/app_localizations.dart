@@ -4240,6 +4240,12 @@ abstract class AppLocalizations {
   /// **'This is not a valid address. It looks like {example}'**
   String contactsAddressInvalid(String example);
 
+  /// Error under an address field that takes an Epicbox, a Direct (http/https) or an onion address, when the text is none of them.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'**
+  String get contactsAddressInvalidAny;
+
   /// Title of the settings screen.
   ///
   /// In en, this message translates to:
@@ -12834,7 +12840,7 @@ abstract class AppLocalizations {
   /// Error under the Address field of the contact form when the text is not an address.
   ///
   /// In en, this message translates to:
-  /// **'Not a recognised address'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'**
   String get deskConErrAddressInvalid;
 
   /// Small button in the contact form: add a picture. Only shown when contact pictures exist.

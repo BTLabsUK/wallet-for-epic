@@ -3018,6 +3018,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес для прямой отправки (https://…) или onion-адрес (….onion).';
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override
@@ -8402,7 +8406,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskConErrAddressEmpty => 'Добавьте адрес.';
 
   @override
-  String get deskConErrAddressInvalid => 'Адрес не распознан';
+  String get deskConErrAddressInvalid =>
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес для прямой отправки (https://…) или onion-адрес (….onion).';
 
   @override
   String get deskConAddPicture => 'Добавить фото';

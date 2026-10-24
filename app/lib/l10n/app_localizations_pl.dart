@@ -3040,6 +3040,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu bezpośredniego (https://…) lub adresu onion (….onion).';
+
+  @override
   String get settingsTitle => 'Ustawienia';
 
   @override
@@ -8430,7 +8434,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskConErrAddressEmpty => 'Dodaj adres.';
 
   @override
-  String get deskConErrAddressInvalid => 'Nierozpoznany adres';
+  String get deskConErrAddressInvalid =>
+      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu bezpośredniego (https://…) lub adresu onion (….onion).';
 
   @override
   String get deskConAddPicture => 'Dodaj zdjęcie';

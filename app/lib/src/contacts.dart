@@ -136,7 +136,7 @@ String? checkRecipient(AppLocalizations l, WalletService service, String text) {
     case RecipientKind.epicbox:
       return service.validateEpicboxAddress(address: recipient.address)
           ? null
-          : l.contactsAddressInvalid('es5x…@epicbox.epiccash.com');
+          : l.contactsAddressInvalidAny;
   }
 }
 

@@ -156,7 +156,7 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
   });
 
-  testWidgets('a contact form has no format hint and one error, "Not a recognised address" (F31)', (tester) async {
+  testWidgets('a contact form has no format hint and one error naming every accepted form (F31)', (tester) async {
     await _pump(tester, const ContactsScreen(arg: ContactsArgs(adding: true)));
     expect(find.textContaining('starts with “es”'), findsNothing);
     expect(find.textContaining('e.g. @epicbox'), findsNothing);
@@ -166,7 +166,7 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('Save contact'));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('Not a recognised address'), findsOneWidget, reason: '"$bad"');
+      expect(find.text('Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'), findsOneWidget, reason: '"$bad"');
     }
   });
 

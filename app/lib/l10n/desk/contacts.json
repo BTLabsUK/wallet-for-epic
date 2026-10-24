@@ -189,7 +189,7 @@
   "@deskConErrAddressEmpty": {
     "description": "Error under the Address field of the contact form when it is empty."
   },
-  "deskConErrAddressInvalid": "Not a recognised address",
+  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).",
   "@deskConErrAddressInvalid": {
     "description": "Error under the Address field of the contact form when the text is not an address."
   },

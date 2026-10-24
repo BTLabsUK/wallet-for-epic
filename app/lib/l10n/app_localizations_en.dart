@@ -2877,6 +2877,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override
@@ -8147,7 +8151,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskConErrAddressEmpty => 'Add an address.';
 
   @override
-  String get deskConErrAddressInvalid => 'Not a recognised address';
+  String get deskConErrAddressInvalid =>
+      'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).';
 
   @override
   String get deskConAddPicture => 'Add picture';

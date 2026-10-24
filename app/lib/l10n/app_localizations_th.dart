@@ -2799,6 +2799,10 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ส่งตรง (https://…) หรือที่อยู่ onion (….onion)';
+
+  @override
   String get settingsTitle => 'การตั้งค่า';
 
   @override
@@ -7988,7 +7992,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskConErrAddressEmpty => 'ใส่ที่อยู่';
 
   @override
-  String get deskConErrAddressInvalid => 'ไม่ใช่ที่อยู่ที่รู้จัก';
+  String get deskConErrAddressInvalid =>
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ส่งตรง (https://…) หรือที่อยู่ onion (….onion)';
 
   @override
   String get deskConAddPicture => 'เพิ่มรูป';
