@@ -2860,6 +2860,12 @@ abstract class AppLocalizations {
   /// **'Allow installs from Epic Cash Mobile, then return.'**
   String get updateAllowInstalls;
 
+  /// Update banner and Settings row after Android's install dialog was closed without installing (Cancel or Back); the banner's and the row's buttons start it again.
+  ///
+  /// In en, this message translates to:
+  /// **'The update was not installed. You can try again.'**
+  String get updateInstallCancelled;
+
   /// Android's installer refused the update. detail is the installer's own message, in English.
   ///
   /// In en, this message translates to:

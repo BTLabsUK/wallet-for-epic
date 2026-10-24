@@ -2095,6 +2095,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Разрешите установку из Epic Cash Mobile, затем вернитесь.';
 
   @override
+  String get updateInstallCancelled =>
+      'Обновление не установлено. Можно попробовать снова.';
+
+  @override
   String updateNotInstalled(String detail) {
     return 'Обновление не установлено: $detail';
   }

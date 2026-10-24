@@ -453,6 +453,7 @@
   "updateTryAgain": "ลองอีกครั้ง",
   "updateDownloadProgressLabel": "ความคืบหน้าการดาวน์โหลด",
   "updateAllowInstalls": "อนุญาตการติดตั้งจาก Epic Cash Mobile แล้วกลับมาที่นี่",
+  "updateInstallCancelled": "ไม่ได้ติดตั้งอัปเดต ลองอีกครั้งได้",
   "updateNotInstalled": "ไม่ได้ติดตั้งอัปเดต: {detail}",
   "updateCannotInstall": "ติดตั้งอัปเดตไม่ได้: {detail}",
   "updateCannotInstallUnknown": "ติดตั้งอัปเดตไม่ได้: ข้อผิดพลาดที่ไม่ทราบสาเหตุ",

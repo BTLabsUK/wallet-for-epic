@@ -1863,6 +1863,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateAllowInstalls => '允许来自 Epic Cash Mobile 的安装，然后返回。';
 
   @override
+  String get updateInstallCancelled => '更新未安装。可以再试一次。';
+
+  @override
   String updateNotInstalled(String detail) {
     return '更新未安装：$detail';
   }

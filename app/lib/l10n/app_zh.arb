@@ -453,6 +453,7 @@
   "updateTryAgain": "重试",
   "updateDownloadProgressLabel": "下载进度",
   "updateAllowInstalls": "允许来自 Epic Cash Mobile 的安装，然后返回。",
+  "updateInstallCancelled": "更新未安装。可以再试一次。",
   "updateNotInstalled": "更新未安装：{detail}",
   "updateCannotInstall": "无法安装更新：{detail}。",
   "updateCannotInstallUnknown": "无法安装更新：未知错误。",

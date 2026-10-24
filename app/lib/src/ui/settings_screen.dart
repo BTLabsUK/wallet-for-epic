@@ -421,7 +421,8 @@ class _UpdateRow extends ConsumerWidget {
         ),
         UpdatePhase.installing => Text(l.updateInstalling(version)),
         UpdatePhase.needsPermission => Text(l.updateAllowInstalls),
-        _ => null,
+        // Why the last try did not install, as the banner says it.
+        _ => state.text == null ? null : Text(state.text!(l)),
       },
       trailing: FilledButton(
         onPressed: busy ? null : ref.read(updateProvider.notifier).install,

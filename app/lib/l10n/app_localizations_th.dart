@@ -1930,6 +1930,9 @@ class AppLocalizationsTh extends AppLocalizations {
       'อนุญาตการติดตั้งจาก Epic Cash Mobile แล้วกลับมาที่นี่';
 
   @override
+  String get updateInstallCancelled => 'ไม่ได้ติดตั้งอัปเดต ลองอีกครั้งได้';
+
+  @override
   String updateNotInstalled(String detail) {
     return 'ไม่ได้ติดตั้งอัปเดต: $detail';
   }
