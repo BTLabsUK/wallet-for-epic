@@ -4054,6 +4054,492 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get scanQrBack;
 
+  /// Button on the accepted payment screen that shows the signed reply as an animated QR code for the sender's phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Show reply as QR'**
+  String get qrShowReplyAsQr;
+
+  /// App bar title of the screen that shows the payment as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment QR'**
+  String get qrShowTitlePayment;
+
+  /// App bar title of the screen that shows the reply as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply QR'**
+  String get qrShowTitleReply;
+
+  /// Line under the amount on the payment QR screen.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} to a phone next to you'**
+  String qrShowSubPayment(String amount);
+
+  /// Line under the amount on the reply QR screen.
+  ///
+  /// In en, this message translates to:
+  /// **'To the sender of {amount}'**
+  String qrShowSubReply(String amount);
+
+  /// Title on the covered QR card before the user shows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden until you show it'**
+  String get qrHiddenTitle;
+
+  /// Body on the covered payment QR card: why it stays hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever scans it first can accept this payment. Show it only to the person you are paying.'**
+  String get qrHiddenBodyPayment;
+
+  /// Body on the covered reply QR card: why it stays hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to the sender\'s phone. Only their wallet can use it.'**
+  String get qrHiddenBodyReply;
+
+  /// Button that starts the countdown and then shows the QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Show QR'**
+  String get qrShow;
+
+  /// Button that shows the QR code again after it hid itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Show again'**
+  String get qrShowAgain;
+
+  /// Button that hides the QR code at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get qrHide;
+
+  /// Spoken label of the 3, 2, 1 numeral before the QR code appears.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing in {seconds}'**
+  String qrCountdownLabel(int seconds);
+
+  /// Which part of the animated QR code is on screen, such as Part 3 of 7.
+  ///
+  /// In en, this message translates to:
+  /// **'Part {part} of {count}'**
+  String qrPartOf(int part, int count);
+
+  /// Seconds left while the QR code shows, beside the part.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s'**
+  String qrSecondsShort(int seconds);
+
+  /// Spoken when 10 seconds are left before the QR code hides.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds, plural, =1{1 second left} other{{seconds} seconds left}}'**
+  String qrSecondsLeft(int seconds);
+
+  /// Hint under the QR code: what the other person does.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the other phone\'s camera to this code.'**
+  String get qrHoldHint;
+
+  /// Small line under the QR code on Android: screenshots are blocked on this screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshots are off on this screen'**
+  String get qrSecureLine;
+
+  /// Title on the covered QR card after the code hid itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden after {seconds} s'**
+  String qrTimedOutTitle(int seconds);
+
+  /// Body on the card after the code hid itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it again when the other phone is ready.'**
+  String get qrTimedOutBody;
+
+  /// Spoken when the QR code hides itself after its time.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden after {seconds} seconds'**
+  String qrTimedOutAnnounce(int seconds);
+
+  /// Title on the covered QR card after the app left the screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden while the app was away'**
+  String get qrAwayTitle;
+
+  /// Body on the card after the app left the screen.
+  ///
+  /// In en, this message translates to:
+  /// **'The code hides whenever the app leaves the screen.'**
+  String get qrAwayBody;
+
+  /// Spoken label of the payment QR card. {state} is Hidden or Showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment QR code, {state}'**
+  String qrSemanticsPayment(String state);
+
+  /// Spoken label of the reply QR card. {state} is Hidden or Showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply QR code, {state}'**
+  String qrSemanticsReply(String state);
+
+  /// State word in the spoken QR card label.
+  ///
+  /// In en, this message translates to:
+  /// **'hidden'**
+  String get qrStateHidden;
+
+  /// State word in the spoken QR card label.
+  ///
+  /// In en, this message translates to:
+  /// **'showing'**
+  String get qrStateShowing;
+
+  /// Title of the camera screen that scans a payment QR, and the Receive button that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan payment QR'**
+  String get qrScanPayment;
+
+  /// Title of the camera screen that scans the reply QR, and the Send button that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan their reply'**
+  String get qrScanReply;
+
+  /// Hint on the camera screen before any part is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the QR code on their phone.'**
+  String get qrScanAimPayment;
+
+  /// Hint on the camera screen before any part of the reply is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the reply on their phone.'**
+  String get qrScanAimReply;
+
+  /// Hint on the camera screen when no new part came for a few seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold steady, or move a little closer.'**
+  String get qrScanSteady;
+
+  /// Shown on the camera screen when every part is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get qrScanGot;
+
+  /// Parts read so far, such as 4 of 7.
+  ///
+  /// In en, this message translates to:
+  /// **'{got} of {count}'**
+  String qrScanCount(int got, int count);
+
+  /// Spoken label of the parts-read count on the camera screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts read'**
+  String get qrScanCountLabel;
+
+  /// Camera screen warning: the code seen is not a payment QR.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a payment QR. Ask them to show the payment code on their phone.'**
+  String get qrScanNotPayment;
+
+  /// Camera screen warning: the code seen is not a reply QR.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a reply QR. Ask them to show the reply on their phone.'**
+  String get qrScanNotReply;
+
+  /// Camera screen warning: parts of two different payments were seen, so reading starts over.
+  ///
+  /// In en, this message translates to:
+  /// **'This code belongs to a different payment. Starting over.'**
+  String get qrScanOtherPayment;
+
+  /// Spoken label of the torch button on the camera screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Torch'**
+  String get qrScanTorch;
+
+  /// Spoken label of the zoom button on the camera screen. {factor} is 1 or 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom {factor}×'**
+  String qrScanZoom(String factor);
+
+  /// Panel on the camera screen when the camera permission is refused.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet may not use the camera. To scan, allow camera access for this app in your phone\'s settings. You can also open the file instead.'**
+  String get qrScanCameraDenied;
+
+  /// Panel on the camera screen when the camera could not start.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera could not start. Try again, or open the file instead.'**
+  String get qrScanCameraFailed;
+
+  /// Button that opens the phone's settings page of this app, to allow the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get qrScanOpenSettings;
+
+  /// Button on the camera refused panel that leaves the camera and opens a payment file instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a file instead'**
+  String get qrScanOpenFileInstead;
+
+  /// Button after a failed scan that opens the camera again.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan again'**
+  String get qrScanAgain;
+
+  /// Error when the scanned reply belongs to another payment than the one being finished.
+  ///
+  /// In en, this message translates to:
+  /// **'This reply is for a different payment. Scan the reply for this send.'**
+  String get slateWrongPaymentQr;
+
+  /// Heading of the payment screen when the payment came from a scanned QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned payment'**
+  String get slateScannedPaymentTitle;
+
+  /// Heading of the screen that finishes a send with a scanned reply QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned reply'**
+  String get slateScannedReplyTitle;
+
+  /// Hint on a scanned incoming payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept it, then show the reply to the sender.'**
+  String get slateIncomingSendHintQr;
+
+  /// Headline after a scanned payment was accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted. Show the reply to the sender.'**
+  String get slateAcceptedHeadlineQr;
+
+  /// Name of the QR payment method, in the method selector and Settings: two phones next to each other, a code on a screen. Keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'QR'**
+  String get methodQr;
+
+  /// Receive tab that scans a payment QR from the phone next to this one. Keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'QR'**
+  String get receiveTabQr;
+
+  /// Caption under the QR method picture; two or three words.
+  ///
+  /// In en, this message translates to:
+  /// **'In person'**
+  String get methodArtCaptionQr;
+
+  /// Spoken description of the QR method picture.
+  ///
+  /// In en, this message translates to:
+  /// **'QR: a code passes from one phone to the phone next to it'**
+  String get methodArtLabelQr;
+
+  /// Bold line of the strip under Send's method selector when QR is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'For a phone next to you.'**
+  String get methodSendQrTitle;
+
+  /// Plain line of the strip under Send's method selector when QR is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Show a code on this screen, then scan their reply with the camera.'**
+  String get methodSendQrLine;
+
+  /// Bold line of the strip on Receive's QR tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan their screen.'**
+  String get methodReceiveQrTitle;
+
+  /// Plain line of the strip on Receive's QR tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the payment, then show your reply the same way.'**
+  String get methodReceiveQrLine;
+
+  /// Title of the QR card on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Standing next to the sender?'**
+  String get receiveQrTitle;
+
+  /// Text of the QR card on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the code on their phone, accept the payment, then show your reply.'**
+  String get receiveQrBody;
+
+  /// Settings › Transactions: one line under the QR switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay or get paid next to each other, with a code on the screen.'**
+  String get txQrLine;
+
+  /// Settings › Transactions: the explanation behind the info icon of the QR switch.
+  ///
+  /// In en, this message translates to:
+  /// **'QR shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR to Send and Receive.'**
+  String get txQrHint;
+
+  /// Advanced page switch name: transaction files (the File payment method).
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction files'**
+  String get advTransactionFiles;
+
+  /// Advanced page: what the Transaction files switch shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds a File switch under Settings › Transactions: pay or get paid with a file you pass on yourself.'**
+  String get advTransactionFilesHint;
+
+  /// Title of Send's QR way.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with a QR code'**
+  String get sendQrTitle;
+
+  /// Button that makes the payment shown as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Make payment QR'**
+  String get sendMakeQr;
+
+  /// Why the PIN is asked before a payment QR is made.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the PIN to make a payment QR for {amount}.'**
+  String sendQrPinReason(String amount);
+
+  /// First step of the QR send, done.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment made'**
+  String get sendQrMade;
+
+  /// Hint on Send once the payment QR is made.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the code to the recipient\'s phone, then scan their reply.'**
+  String get sendQrHint;
+
+  /// Line under the amount on Send's QR way: until when the payment can be cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be cancelled until you scan their reply.'**
+  String get sendCancelRuleQr;
+
+  /// Status line on the payment QR screen while the code is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this to the recipient.'**
+  String get qrStatusSendHidden;
+
+  /// Status line on the payment QR screen while the code shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the recipient to scan. Then scan their reply.'**
+  String get qrStatusSendShowing;
+
+  /// Status line on a QR screen after the code hid itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden. Show again if they did not finish scanning.'**
+  String get qrStatusHiddenAgain;
+
+  /// Status line on the reply QR screen while the code is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this to the sender.'**
+  String get qrStatusReplyHidden;
+
+  /// Status line on the reply QR screen while the code shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the sender to scan.'**
+  String get qrStatusReplyShowing;
+
+  /// Status line on the reply QR screen: the payment is received and waits for the sender to post it.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received. Waiting for the sender to scan and post it.'**
+  String get qrStatusReceivedWaiting;
+
+  /// Status line on the reply QR screen: the sender posted the payment; it collects confirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted. Confirming {got}/{target}'**
+  String qrStatusPosted(int got, int target);
+
+  /// Status line on the reply QR screen: the payment is received.
+  ///
+  /// In en, this message translates to:
+  /// **'Received.'**
+  String get qrStatusReceived;
+
+  /// Dock line of the camera screen while parts are read.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned {got} of {count}. Keep the code in the frame.'**
+  String qrScanProgress(int got, int count);
+
+  /// Dock line of the camera screen when the whole reply is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply scanned.'**
+  String get qrScanReplyScanned;
+
+  /// Dock line of the camera screen while the scanned reply is being posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply scanned. Posting…'**
+  String get qrScanPosting;
+
+  /// Dock line of the camera screen once the payment is posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted.'**
+  String get qrScanPosted;
+
   /// Title of the address book screen.
   ///
   /// In en, this message translates to:
@@ -6061,7 +6547,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for the Send tab; names the two payment methods shown by default.
   ///
   /// In en, this message translates to:
-  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.'**
+  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.'**
   String get tourPhoneSendText;
 
   /// Title of the tour card for the Receive tab (first-unlock tour). Short.

@@ -3251,6 +3251,423 @@
   "@scanQrBack": {
     "description": "Button that leaves the camera screen."
   },
+  "qrShowReplyAsQr": "Show reply as QR",
+  "@qrShowReplyAsQr": {
+    "description": "Button on the accepted payment screen that shows the signed reply as an animated QR code for the sender's phone."
+  },
+  "qrShowTitlePayment": "Payment QR",
+  "@qrShowTitlePayment": {
+    "description": "App bar title of the screen that shows the payment as a QR code."
+  },
+  "qrShowTitleReply": "Reply QR",
+  "@qrShowTitleReply": {
+    "description": "App bar title of the screen that shows the reply as a QR code."
+  },
+  "qrShowSubPayment": "{amount} to a phone next to you",
+  "@qrShowSubPayment": {
+    "description": "Line under the amount on the payment QR screen.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "qrShowSubReply": "To the sender of {amount}",
+  "@qrShowSubReply": {
+    "description": "Line under the amount on the reply QR screen.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "qrHiddenTitle": "Hidden until you show it",
+  "@qrHiddenTitle": {
+    "description": "Title on the covered QR card before the user shows it."
+  },
+  "qrHiddenBodyPayment": "Whoever scans it first can accept this payment. Show it only to the person you are paying.",
+  "@qrHiddenBodyPayment": {
+    "description": "Body on the covered payment QR card: why it stays hidden."
+  },
+  "qrHiddenBodyReply": "Show it to the sender's phone. Only their wallet can use it.",
+  "@qrHiddenBodyReply": {
+    "description": "Body on the covered reply QR card: why it stays hidden."
+  },
+  "qrShow": "Show QR",
+  "@qrShow": {
+    "description": "Button that starts the countdown and then shows the QR code."
+  },
+  "qrShowAgain": "Show again",
+  "@qrShowAgain": {
+    "description": "Button that shows the QR code again after it hid itself."
+  },
+  "qrHide": "Hide",
+  "@qrHide": {
+    "description": "Button that hides the QR code at once."
+  },
+  "qrCountdownLabel": "Showing in {seconds}",
+  "@qrCountdownLabel": {
+    "description": "Spoken label of the 3, 2, 1 numeral before the QR code appears.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "qrPartOf": "Part {part} of {count}",
+  "@qrPartOf": {
+    "description": "Which part of the animated QR code is on screen, such as Part 3 of 7.",
+    "placeholders": {
+      "part": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qrSecondsShort": "{seconds} s",
+  "@qrSecondsShort": {
+    "description": "Seconds left while the QR code shows, beside the part.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "qrSecondsLeft": "{seconds, plural, =1{1 second left} other{{seconds} seconds left}}",
+  "@qrSecondsLeft": {
+    "description": "Spoken when 10 seconds are left before the QR code hides.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "qrHoldHint": "Hold the other phone's camera to this code.",
+  "@qrHoldHint": {
+    "description": "Hint under the QR code: what the other person does."
+  },
+  "qrSecureLine": "Screenshots are off on this screen",
+  "@qrSecureLine": {
+    "description": "Small line under the QR code on Android: screenshots are blocked on this screen."
+  },
+  "qrTimedOutTitle": "Hidden after {seconds} s",
+  "@qrTimedOutTitle": {
+    "description": "Title on the covered QR card after the code hid itself.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "qrTimedOutBody": "Show it again when the other phone is ready.",
+  "@qrTimedOutBody": {
+    "description": "Body on the card after the code hid itself."
+  },
+  "qrTimedOutAnnounce": "Hidden after {seconds} seconds",
+  "@qrTimedOutAnnounce": {
+    "description": "Spoken when the QR code hides itself after its time.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "qrAwayTitle": "Hidden while the app was away",
+  "@qrAwayTitle": {
+    "description": "Title on the covered QR card after the app left the screen."
+  },
+  "qrAwayBody": "The code hides whenever the app leaves the screen.",
+  "@qrAwayBody": {
+    "description": "Body on the card after the app left the screen."
+  },
+  "qrSemanticsPayment": "Payment QR code, {state}",
+  "@qrSemanticsPayment": {
+    "description": "Spoken label of the payment QR card. {state} is Hidden or Showing.",
+    "placeholders": {
+      "state": {
+        "type": "String",
+        "example": "hidden"
+      }
+    }
+  },
+  "qrSemanticsReply": "Reply QR code, {state}",
+  "@qrSemanticsReply": {
+    "description": "Spoken label of the reply QR card. {state} is Hidden or Showing.",
+    "placeholders": {
+      "state": {
+        "type": "String",
+        "example": "hidden"
+      }
+    }
+  },
+  "qrStateHidden": "hidden",
+  "@qrStateHidden": {
+    "description": "State word in the spoken QR card label."
+  },
+  "qrStateShowing": "showing",
+  "@qrStateShowing": {
+    "description": "State word in the spoken QR card label."
+  },
+  "qrScanPayment": "Scan payment QR",
+  "@qrScanPayment": {
+    "description": "Title of the camera screen that scans a payment QR, and the Receive button that opens it."
+  },
+  "qrScanReply": "Scan their reply",
+  "@qrScanReply": {
+    "description": "Title of the camera screen that scans the reply QR, and the Send button that opens it."
+  },
+  "qrScanAimPayment": "Point the camera at the QR code on their phone.",
+  "@qrScanAimPayment": {
+    "description": "Hint on the camera screen before any part is read."
+  },
+  "qrScanAimReply": "Point the camera at the reply on their phone.",
+  "@qrScanAimReply": {
+    "description": "Hint on the camera screen before any part of the reply is read."
+  },
+  "qrScanSteady": "Hold steady, or move a little closer.",
+  "@qrScanSteady": {
+    "description": "Hint on the camera screen when no new part came for a few seconds."
+  },
+  "qrScanGot": "Got it",
+  "@qrScanGot": {
+    "description": "Shown on the camera screen when every part is read."
+  },
+  "qrScanCount": "{got} of {count}",
+  "@qrScanCount": {
+    "description": "Parts read so far, such as 4 of 7.",
+    "placeholders": {
+      "got": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qrScanCountLabel": "Parts read",
+  "@qrScanCountLabel": {
+    "description": "Spoken label of the parts-read count on the camera screen."
+  },
+  "qrScanNotPayment": "That is not a payment QR. Ask them to show the payment code on their phone.",
+  "@qrScanNotPayment": {
+    "description": "Camera screen warning: the code seen is not a payment QR."
+  },
+  "qrScanNotReply": "That is not a reply QR. Ask them to show the reply on their phone.",
+  "@qrScanNotReply": {
+    "description": "Camera screen warning: the code seen is not a reply QR."
+  },
+  "qrScanOtherPayment": "This code belongs to a different payment. Starting over.",
+  "@qrScanOtherPayment": {
+    "description": "Camera screen warning: parts of two different payments were seen, so reading starts over."
+  },
+  "qrScanTorch": "Torch",
+  "@qrScanTorch": {
+    "description": "Spoken label of the torch button on the camera screen."
+  },
+  "qrScanZoom": "Zoom {factor}×",
+  "@qrScanZoom": {
+    "description": "Spoken label of the zoom button on the camera screen. {factor} is 1 or 2.",
+    "placeholders": {
+      "factor": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  },
+  "qrScanCameraDenied": "The wallet may not use the camera. To scan, allow camera access for this app in your phone's settings. You can also open the file instead.",
+  "@qrScanCameraDenied": {
+    "description": "Panel on the camera screen when the camera permission is refused."
+  },
+  "qrScanCameraFailed": "The camera could not start. Try again, or open the file instead.",
+  "@qrScanCameraFailed": {
+    "description": "Panel on the camera screen when the camera could not start."
+  },
+  "qrScanOpenSettings": "Open settings",
+  "@qrScanOpenSettings": {
+    "description": "Button that opens the phone's settings page of this app, to allow the camera."
+  },
+  "qrScanOpenFileInstead": "Open a file instead",
+  "@qrScanOpenFileInstead": {
+    "description": "Button on the camera refused panel that leaves the camera and opens a payment file instead."
+  },
+  "qrScanAgain": "Scan again",
+  "@qrScanAgain": {
+    "description": "Button after a failed scan that opens the camera again."
+  },
+  "slateWrongPaymentQr": "This reply is for a different payment. Scan the reply for this send.",
+  "@slateWrongPaymentQr": {
+    "description": "Error when the scanned reply belongs to another payment than the one being finished."
+  },
+  "slateScannedPaymentTitle": "Scanned payment",
+  "@slateScannedPaymentTitle": {
+    "description": "Heading of the payment screen when the payment came from a scanned QR code."
+  },
+  "slateScannedReplyTitle": "Scanned reply",
+  "@slateScannedReplyTitle": {
+    "description": "Heading of the screen that finishes a send with a scanned reply QR."
+  },
+  "slateIncomingSendHintQr": "Accept it, then show the reply to the sender.",
+  "@slateIncomingSendHintQr": {
+    "description": "Hint on a scanned incoming payment."
+  },
+  "slateAcceptedHeadlineQr": "Accepted. Show the reply to the sender.",
+  "@slateAcceptedHeadlineQr": {
+    "description": "Headline after a scanned payment was accepted."
+  },
+  "methodQr": "QR",
+  "@methodQr": {
+    "description": "Name of the QR payment method, in the method selector and Settings: two phones next to each other, a code on a screen. Keep it short."
+  },
+  "receiveTabQr": "QR",
+  "@receiveTabQr": {
+    "description": "Receive tab that scans a payment QR from the phone next to this one. Keep it short."
+  },
+  "methodArtCaptionQr": "In person",
+  "@methodArtCaptionQr": {
+    "description": "Caption under the QR method picture; two or three words."
+  },
+  "methodArtLabelQr": "QR: a code passes from one phone to the phone next to it",
+  "@methodArtLabelQr": {
+    "description": "Spoken description of the QR method picture."
+  },
+  "methodSendQrTitle": "For a phone next to you.",
+  "@methodSendQrTitle": {
+    "description": "Bold line of the strip under Send's method selector when QR is chosen."
+  },
+  "methodSendQrLine": "Show a code on this screen, then scan their reply with the camera.",
+  "@methodSendQrLine": {
+    "description": "Plain line of the strip under Send's method selector when QR is chosen."
+  },
+  "methodReceiveQrTitle": "Scan their screen.",
+  "@methodReceiveQrTitle": {
+    "description": "Bold line of the strip on Receive's QR tab."
+  },
+  "methodReceiveQrLine": "Accept the payment, then show your reply the same way.",
+  "@methodReceiveQrLine": {
+    "description": "Plain line of the strip on Receive's QR tab."
+  },
+  "receiveQrTitle": "Standing next to the sender?",
+  "@receiveQrTitle": {
+    "description": "Title of the QR card on Receive."
+  },
+  "receiveQrBody": "Scan the code on their phone, accept the payment, then show your reply.",
+  "@receiveQrBody": {
+    "description": "Text of the QR card on Receive."
+  },
+  "txQrLine": "Pay or get paid next to each other, with a code on the screen.",
+  "@txQrLine": {
+    "description": "Settings › Transactions: one line under the QR switch."
+  },
+  "txQrHint": "QR shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR to Send and Receive.",
+  "@txQrHint": {
+    "description": "Settings › Transactions: the explanation behind the info icon of the QR switch."
+  },
+  "advTransactionFiles": "Transaction files",
+  "@advTransactionFiles": {
+    "description": "Advanced page switch name: transaction files (the File payment method)."
+  },
+  "advTransactionFilesHint": "Adds a File switch under Settings › Transactions: pay or get paid with a file you pass on yourself.",
+  "@advTransactionFilesHint": {
+    "description": "Advanced page: what the Transaction files switch shows."
+  },
+  "sendQrTitle": "Pay with a QR code",
+  "@sendQrTitle": {
+    "description": "Title of Send's QR way."
+  },
+  "sendMakeQr": "Make payment QR",
+  "@sendMakeQr": {
+    "description": "Button that makes the payment shown as a QR code."
+  },
+  "sendQrPinReason": "Enter the PIN to make a payment QR for {amount}.",
+  "@sendQrPinReason": {
+    "description": "Why the PIN is asked before a payment QR is made.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "sendQrMade": "Payment made",
+  "@sendQrMade": {
+    "description": "First step of the QR send, done."
+  },
+  "sendQrHint": "Show the code to the recipient's phone, then scan their reply.",
+  "@sendQrHint": {
+    "description": "Hint on Send once the payment QR is made."
+  },
+  "sendCancelRuleQr": "Can be cancelled until you scan their reply.",
+  "@sendCancelRuleQr": {
+    "description": "Line under the amount on Send's QR way: until when the payment can be cancelled."
+  },
+  "qrStatusSendHidden": "Show this to the recipient.",
+  "@qrStatusSendHidden": {
+    "description": "Status line on the payment QR screen while the code is hidden."
+  },
+  "qrStatusSendShowing": "Waiting for the recipient to scan. Then scan their reply.",
+  "@qrStatusSendShowing": {
+    "description": "Status line on the payment QR screen while the code shows."
+  },
+  "qrStatusHiddenAgain": "Hidden. Show again if they did not finish scanning.",
+  "@qrStatusHiddenAgain": {
+    "description": "Status line on a QR screen after the code hid itself."
+  },
+  "qrStatusReplyHidden": "Show this to the sender.",
+  "@qrStatusReplyHidden": {
+    "description": "Status line on the reply QR screen while the code is hidden."
+  },
+  "qrStatusReplyShowing": "Waiting for the sender to scan.",
+  "@qrStatusReplyShowing": {
+    "description": "Status line on the reply QR screen while the code shows."
+  },
+  "qrStatusReceivedWaiting": "Payment received. Waiting for the sender to scan and post it.",
+  "@qrStatusReceivedWaiting": {
+    "description": "Status line on the reply QR screen: the payment is received and waits for the sender to post it."
+  },
+  "qrStatusPosted": "Posted. Confirming {got}/{target}",
+  "@qrStatusPosted": {
+    "description": "Status line on the reply QR screen: the sender posted the payment; it collects confirmations.",
+    "placeholders": {
+      "got": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "qrStatusReceived": "Received.",
+  "@qrStatusReceived": {
+    "description": "Status line on the reply QR screen: the payment is received."
+  },
+  "qrScanProgress": "Scanned {got} of {count}. Keep the code in the frame.",
+  "@qrScanProgress": {
+    "description": "Dock line of the camera screen while parts are read.",
+    "placeholders": {
+      "got": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qrScanReplyScanned": "Reply scanned.",
+  "@qrScanReplyScanned": {
+    "description": "Dock line of the camera screen when the whole reply is read."
+  },
+  "qrScanPosting": "Reply scanned. Posting…",
+  "@qrScanPosting": {
+    "description": "Dock line of the camera screen while the scanned reply is being posted."
+  },
+  "qrScanPosted": "Posted.",
+  "@qrScanPosted": {
+    "description": "Dock line of the camera screen once the payment is posted."
+  },
   "contactsTitle": "Contacts",
   "@contactsTitle": {
     "description": "Title of the address book screen."
@@ -4828,7 +5245,7 @@
   "@tourPhoneSendTitle": {
     "description": "Title of the tour card for the Send tab (first-unlock tour). Short."
   },
-  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.",
+  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.",
   "@tourPhoneSendText": {
     "description": "Text of the tour card for the Send tab; names the two payment methods shown by default."
   },

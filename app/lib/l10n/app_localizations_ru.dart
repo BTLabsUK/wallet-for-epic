@@ -2910,6 +2910,309 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scanQrBack => 'Назад';
 
   @override
+  String get qrShowReplyAsQr => 'Показать ответ как QR';
+
+  @override
+  String get qrShowTitlePayment => 'QR платежа';
+
+  @override
+  String get qrShowTitleReply => 'QR ответа';
+
+  @override
+  String qrShowSubPayment(String amount) {
+    return '$amount на телефон рядом с вами';
+  }
+
+  @override
+  String qrShowSubReply(String amount) {
+    return 'Отправителю $amount';
+  }
+
+  @override
+  String get qrHiddenTitle => 'Скрыт, пока вы его не покажете';
+
+  @override
+  String get qrHiddenBodyPayment =>
+      'Тот, кто отсканирует его первым, сможет принять этот платёж. Показывайте его только тому, кому платите.';
+
+  @override
+  String get qrHiddenBodyReply =>
+      'Покажите его телефону отправителя. Использовать его сможет только его кошелёк.';
+
+  @override
+  String get qrShow => 'Показать QR';
+
+  @override
+  String get qrShowAgain => 'Показать снова';
+
+  @override
+  String get qrHide => 'Скрыть';
+
+  @override
+  String qrCountdownLabel(int seconds) {
+    return 'Показ через $seconds';
+  }
+
+  @override
+  String qrPartOf(int part, int count) {
+    return 'Часть $part из $count';
+  }
+
+  @override
+  String qrSecondsShort(int seconds) {
+    return '$seconds с';
+  }
+
+  @override
+  String qrSecondsLeft(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'Осталось $seconds секунды',
+      many: 'Осталось $seconds секунд',
+      few: 'Осталось $seconds секунды',
+      one: 'Осталась 1 секунда',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qrHoldHint => 'Поднесите камеру другого телефона к этому коду.';
+
+  @override
+  String get qrSecureLine => 'Скриншоты на этом экране отключены';
+
+  @override
+  String qrTimedOutTitle(int seconds) {
+    return 'Скрыт через $seconds с';
+  }
+
+  @override
+  String get qrTimedOutBody =>
+      'Покажите его снова, когда другой телефон будет готов.';
+
+  @override
+  String qrTimedOutAnnounce(int seconds) {
+    return 'Скрыт через $seconds секунд';
+  }
+
+  @override
+  String get qrAwayTitle => 'Скрыт, пока приложение было свёрнуто';
+
+  @override
+  String get qrAwayBody => 'Код скрывается, когда приложение уходит с экрана.';
+
+  @override
+  String qrSemanticsPayment(String state) {
+    return 'QR-код платежа, $state';
+  }
+
+  @override
+  String qrSemanticsReply(String state) {
+    return 'QR-код ответа, $state';
+  }
+
+  @override
+  String get qrStateHidden => 'скрыт';
+
+  @override
+  String get qrStateShowing => 'виден';
+
+  @override
+  String get qrScanPayment => 'Сканировать QR платежа';
+
+  @override
+  String get qrScanReply => 'Сканировать ответ';
+
+  @override
+  String get qrScanAimPayment => 'Наведите камеру на QR-код на их телефоне.';
+
+  @override
+  String get qrScanAimReply => 'Наведите камеру на ответ на их телефоне.';
+
+  @override
+  String get qrScanSteady => 'Держите ровнее или подойдите немного ближе.';
+
+  @override
+  String get qrScanGot => 'Готово';
+
+  @override
+  String qrScanCount(int got, int count) {
+    return '$got из $count';
+  }
+
+  @override
+  String get qrScanCountLabel => 'Прочитанные части';
+
+  @override
+  String get qrScanNotPayment =>
+      'Это не QR платежа. Попросите их показать код платежа на своём телефоне.';
+
+  @override
+  String get qrScanNotReply =>
+      'Это не QR ответа. Попросите их показать ответ на своём телефоне.';
+
+  @override
+  String get qrScanOtherPayment =>
+      'Этот код относится к другому платежу. Начинаем сначала.';
+
+  @override
+  String get qrScanTorch => 'Фонарик';
+
+  @override
+  String qrScanZoom(String factor) {
+    return 'Масштаб $factor×';
+  }
+
+  @override
+  String get qrScanCameraDenied =>
+      'У кошелька нет доступа к камере. Чтобы сканировать, разрешите этому приложению доступ к камере в настройках телефона. Можно также открыть файл.';
+
+  @override
+  String get qrScanCameraFailed =>
+      'Не удалось запустить камеру. Попробуйте ещё раз или откройте файл.';
+
+  @override
+  String get qrScanOpenSettings => 'Открыть настройки';
+
+  @override
+  String get qrScanOpenFileInstead => 'Открыть файл вместо этого';
+
+  @override
+  String get qrScanAgain => 'Сканировать снова';
+
+  @override
+  String get slateWrongPaymentQr =>
+      'Этот ответ относится к другому платежу. Отсканируйте ответ для этой отправки.';
+
+  @override
+  String get slateScannedPaymentTitle => 'Отсканированный платёж';
+
+  @override
+  String get slateScannedReplyTitle => 'Отсканированный ответ';
+
+  @override
+  String get slateIncomingSendHintQr =>
+      'Примите его, затем покажите ответ отправителю.';
+
+  @override
+  String get slateAcceptedHeadlineQr => 'Принято. Покажите ответ отправителю.';
+
+  @override
+  String get methodQr => 'QR';
+
+  @override
+  String get receiveTabQr => 'QR';
+
+  @override
+  String get methodArtCaptionQr => 'Лично';
+
+  @override
+  String get methodArtLabelQr =>
+      'QR: код передаётся с одного телефона на другой, стоящий рядом';
+
+  @override
+  String get methodSendQrTitle => 'Для телефона рядом с вами.';
+
+  @override
+  String get methodSendQrLine =>
+      'Покажите код на этом экране, затем отсканируйте их ответ камерой.';
+
+  @override
+  String get methodReceiveQrTitle => 'Отсканируйте их экран.';
+
+  @override
+  String get methodReceiveQrLine =>
+      'Примите платёж, затем покажите свой ответ так же.';
+
+  @override
+  String get receiveQrTitle => 'Рядом с отправителем?';
+
+  @override
+  String get receiveQrBody =>
+      'Отсканируйте код на телефоне отправителя, примите платёж и покажите свой ответ.';
+
+  @override
+  String get txQrLine =>
+      'Платите или получайте платёж рядом друг с другом, по коду на экране.';
+
+  @override
+  String get txQrHint =>
+      'QR показывает платёж как анимированный код, который другой телефон сканирует камерой, а ответ принимает так же. Работает только между телефонами рядом, не требует связи между двумя кошельками, а код сам скрывается через 40 секунд. Добавляет QR в «Отправить» и «Получить».';
+
+  @override
+  String get advTransactionFiles => 'Файлы транзакций';
+
+  @override
+  String get advTransactionFilesHint =>
+      'Добавляет переключатель «Файл» в Настройки › Транзакции: платите или получайте платежи файлом, который вы передаёте сами.';
+
+  @override
+  String get sendQrTitle => 'Оплата QR-кодом';
+
+  @override
+  String get sendMakeQr => 'Создать QR платежа';
+
+  @override
+  String sendQrPinReason(String amount) {
+    return 'Введите PIN, чтобы создать QR платежа на $amount.';
+  }
+
+  @override
+  String get sendQrMade => 'Платёж создан';
+
+  @override
+  String get sendQrHint =>
+      'Покажите код телефону получателя, затем отсканируйте его ответ.';
+
+  @override
+  String get sendCancelRuleQr =>
+      'Можно отменить, пока вы не отсканировали ответ.';
+
+  @override
+  String get qrStatusSendHidden => 'Покажите это получателю.';
+
+  @override
+  String get qrStatusSendShowing =>
+      'Ждём, пока получатель отсканирует. Затем отсканируйте его ответ.';
+
+  @override
+  String get qrStatusHiddenAgain =>
+      'Скрыт. Покажите снова, если они не успели отсканировать.';
+
+  @override
+  String get qrStatusReplyHidden => 'Покажите это отправителю.';
+
+  @override
+  String get qrStatusReplyShowing => 'Ждём, пока отправитель отсканирует.';
+
+  @override
+  String get qrStatusReceivedWaiting =>
+      'Платёж получен. Ждём, пока отправитель отсканирует и отправит его.';
+
+  @override
+  String qrStatusPosted(int got, int target) {
+    return 'Отправлено. Подтверждение $got/$target';
+  }
+
+  @override
+  String get qrStatusReceived => 'Получено.';
+
+  @override
+  String qrScanProgress(int got, int count) {
+    return 'Отсканировано $got из $count. Держите код в кадре.';
+  }
+
+  @override
+  String get qrScanReplyScanned => 'Ответ отсканирован.';
+
+  @override
+  String get qrScanPosting => 'Ответ отсканирован. Отправляем…';
+
+  @override
+  String get qrScanPosted => 'Отправлено.';
+
+  @override
   String get contactsTitle => 'Контакты';
 
   @override
@@ -4089,7 +4392,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; «Файл» создаёт файл, который нужно передать дальше. Другие способы: Настройки › Транзакции. Сначала — проверка.';
+      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; QR показывает код телефону рядом с вами. Другие способы: Настройки › Транзакции. Сначала — проверка.';
 
   @override
   String get tourPhoneReceiveTitle => 'Получить';

@@ -2598,6 +2598,286 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scanQrBack => '返回';
 
   @override
+  String get qrShowReplyAsQr => '将回复显示为二维码';
+
+  @override
+  String get qrShowTitlePayment => '付款二维码';
+
+  @override
+  String get qrShowTitleReply => '回复二维码';
+
+  @override
+  String qrShowSubPayment(String amount) {
+    return '$amount，给你身边的手机';
+  }
+
+  @override
+  String qrShowSubReply(String amount) {
+    return '发给 $amount 的发送方';
+  }
+
+  @override
+  String get qrHiddenTitle => '点击后才会显示';
+
+  @override
+  String get qrHiddenBodyPayment => '谁先扫到，谁就能接受这笔付款。只给你要付款的那个人看。';
+
+  @override
+  String get qrHiddenBodyReply => '只给发送方的手机看。只有对方的钱包能使用它。';
+
+  @override
+  String get qrShow => '显示二维码';
+
+  @override
+  String get qrShowAgain => '再次显示';
+
+  @override
+  String get qrHide => '隐藏';
+
+  @override
+  String qrCountdownLabel(int seconds) {
+    return '$seconds 秒后显示';
+  }
+
+  @override
+  String qrPartOf(int part, int count) {
+    return '第 $part 段，共 $count 段';
+  }
+
+  @override
+  String qrSecondsShort(int seconds) {
+    return '$seconds 秒';
+  }
+
+  @override
+  String qrSecondsLeft(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '还剩 $seconds 秒',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qrHoldHint => '请把另一部手机的摄像头对准这个码。';
+
+  @override
+  String get qrSecureLine => '此屏幕已禁止截屏';
+
+  @override
+  String qrTimedOutTitle(int seconds) {
+    return '$seconds 秒后已隐藏';
+  }
+
+  @override
+  String get qrTimedOutBody => '另一部手机准备好后再显示。';
+
+  @override
+  String qrTimedOutAnnounce(int seconds) {
+    return '$seconds 秒后已隐藏';
+  }
+
+  @override
+  String get qrAwayTitle => '应用离开期间已隐藏';
+
+  @override
+  String get qrAwayBody => '应用离开屏幕时，二维码会自动隐藏。';
+
+  @override
+  String qrSemanticsPayment(String state) {
+    return '付款二维码，$state';
+  }
+
+  @override
+  String qrSemanticsReply(String state) {
+    return '回复二维码，$state';
+  }
+
+  @override
+  String get qrStateHidden => '已隐藏';
+
+  @override
+  String get qrStateShowing => '显示中';
+
+  @override
+  String get qrScanPayment => '扫描付款二维码';
+
+  @override
+  String get qrScanReply => '扫描对方的回复';
+
+  @override
+  String get qrScanAimPayment => '请把摄像头对准对方手机上的二维码。';
+
+  @override
+  String get qrScanAimReply => '请把摄像头对准对方手机上的回复。';
+
+  @override
+  String get qrScanSteady => '请拿稳，或靠近一点。';
+
+  @override
+  String get qrScanGot => '已读取';
+
+  @override
+  String qrScanCount(int got, int count) {
+    return '$got / $count';
+  }
+
+  @override
+  String get qrScanCountLabel => '已读取的段数';
+
+  @override
+  String get qrScanNotPayment => '这不是付款二维码。请让对方在手机上显示付款二维码。';
+
+  @override
+  String get qrScanNotReply => '这不是回复二维码。请让对方在手机上显示回复。';
+
+  @override
+  String get qrScanOtherPayment => '这个码属于另一笔付款。正在重新开始。';
+
+  @override
+  String get qrScanTorch => '手电筒';
+
+  @override
+  String qrScanZoom(String factor) {
+    return '缩放 $factor×';
+  }
+
+  @override
+  String get qrScanCameraDenied =>
+      '钱包无权使用摄像头。如需扫码，请在手机设置中允许此应用访问摄像头。你也可以改为打开文件。';
+
+  @override
+  String get qrScanCameraFailed => '摄像头无法启动。请重试，或改为打开文件。';
+
+  @override
+  String get qrScanOpenSettings => '打开设置';
+
+  @override
+  String get qrScanOpenFileInstead => '改为打开文件';
+
+  @override
+  String get qrScanAgain => '再次扫描';
+
+  @override
+  String get slateWrongPaymentQr => '此回复属于另一笔付款。请扫描这笔付款的回复。';
+
+  @override
+  String get slateScannedPaymentTitle => '已扫描的付款';
+
+  @override
+  String get slateScannedReplyTitle => '已扫描的回复';
+
+  @override
+  String get slateIncomingSendHintQr => '接受付款，然后把回复展示给发送方。';
+
+  @override
+  String get slateAcceptedHeadlineQr => '已接受。请把回复展示给发送方。';
+
+  @override
+  String get methodQr => '二维码';
+
+  @override
+  String get receiveTabQr => '二维码';
+
+  @override
+  String get methodArtCaptionQr => '当面';
+
+  @override
+  String get methodArtLabelQr => '二维码：一部手机上的码被身边的另一部手机扫描';
+
+  @override
+  String get methodSendQrTitle => '给你身边的手机。';
+
+  @override
+  String get methodSendQrLine => '在这块屏幕上显示二维码，再用摄像头扫描对方的回复。';
+
+  @override
+  String get methodReceiveQrTitle => '扫描对方的屏幕。';
+
+  @override
+  String get methodReceiveQrLine => '接受付款，再用同样的方式显示你的回复。';
+
+  @override
+  String get receiveQrTitle => '就在发送方身边？';
+
+  @override
+  String get receiveQrBody => '扫描发送方手机上的二维码，接受付款，再显示你的回复。';
+
+  @override
+  String get txQrLine => '面对面付款或收款，用屏幕上的二维码。';
+
+  @override
+  String get txQrHint =>
+      '二维码会把付款显示成动态码，由另一部手机用摄像头扫描，回复也用同样方式接收。它只适用于并排的两部手机，两个钱包之间无需连接，二维码会在 40 秒后自动隐藏。会在发送和接收中加入二维码。';
+
+  @override
+  String get advTransactionFiles => '交易文件';
+
+  @override
+  String get advTransactionFilesHint => '在设置 › 交易中加入“文件”开关：用你自己传递的文件付款或收款。';
+
+  @override
+  String get sendQrTitle => '用二维码付款';
+
+  @override
+  String get sendMakeQr => '生成付款二维码';
+
+  @override
+  String sendQrPinReason(String amount) {
+    return '输入 PIN，以生成 $amount 的付款二维码。';
+  }
+
+  @override
+  String get sendQrMade => '付款已生成';
+
+  @override
+  String get sendQrHint => '把二维码给接收方的手机看，然后扫描对方的回复。';
+
+  @override
+  String get sendCancelRuleQr => '在你扫描对方回复之前都可以取消。';
+
+  @override
+  String get qrStatusSendHidden => '把它给接收方看。';
+
+  @override
+  String get qrStatusSendShowing => '等待接收方扫描。然后扫描对方的回复。';
+
+  @override
+  String get qrStatusHiddenAgain => '已隐藏。如果对方没扫完，请再次显示。';
+
+  @override
+  String get qrStatusReplyHidden => '把它给发送方看。';
+
+  @override
+  String get qrStatusReplyShowing => '等待发送方扫描。';
+
+  @override
+  String get qrStatusReceivedWaiting => '已收到付款。等待发送方扫描并发布。';
+
+  @override
+  String qrStatusPosted(int got, int target) {
+    return '已发布。确认中 $got/$target';
+  }
+
+  @override
+  String get qrStatusReceived => '已收到。';
+
+  @override
+  String qrScanProgress(int got, int count) {
+    return '已扫描 $got / $count。请让二维码保持在取景框内。';
+  }
+
+  @override
+  String get qrScanReplyScanned => '已扫描回复。';
+
+  @override
+  String get qrScanPosting => '已扫描回复。正在发布…';
+
+  @override
+  String get qrScanPosted => '已发布。';
+
+  @override
   String get contactsTitle => '联系人';
 
   @override
@@ -3714,7 +3994,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；“文件”生成一个文件，交给对方。更多方式：设置 › 交易。发出前会先确认。';
+      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；二维码把码显示给身边的手机。更多方式：设置 › 交易。发出前会先确认。';
 
   @override
   String get tourPhoneReceiveTitle => '接收';

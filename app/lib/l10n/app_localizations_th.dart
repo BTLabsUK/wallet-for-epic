@@ -2691,6 +2691,299 @@ class AppLocalizationsTh extends AppLocalizations {
   String get scanQrBack => 'กลับ';
 
   @override
+  String get qrShowReplyAsQr => 'แสดงคำตอบเป็น QR';
+
+  @override
+  String get qrShowTitlePayment => 'QR ของรายการ';
+
+  @override
+  String get qrShowTitleReply => 'QR ของคำตอบ';
+
+  @override
+  String qrShowSubPayment(String amount) {
+    return '$amount ถึงโทรศัพท์ที่อยู่ข้างคุณ';
+  }
+
+  @override
+  String qrShowSubReply(String amount) {
+    return 'ถึงผู้ส่ง $amount';
+  }
+
+  @override
+  String get qrHiddenTitle => 'ซ่อนไว้จนกว่าคุณจะแสดง';
+
+  @override
+  String get qrHiddenBodyPayment =>
+      'ใครสแกนก่อนจะรับรายการนี้ได้ แสดงให้เฉพาะคนที่คุณจ่ายให้เท่านั้น';
+
+  @override
+  String get qrHiddenBodyReply =>
+      'แสดงให้โทรศัพท์ของผู้ส่ง เฉพาะกระเป๋าของเขาเท่านั้นที่ใช้ได้';
+
+  @override
+  String get qrShow => 'แสดง QR';
+
+  @override
+  String get qrShowAgain => 'แสดงอีกครั้ง';
+
+  @override
+  String get qrHide => 'ซ่อน';
+
+  @override
+  String qrCountdownLabel(int seconds) {
+    return 'แสดงใน $seconds';
+  }
+
+  @override
+  String qrPartOf(int part, int count) {
+    return 'ส่วนที่ $part จาก $count';
+  }
+
+  @override
+  String qrSecondsShort(int seconds) {
+    return '$seconds วิ';
+  }
+
+  @override
+  String qrSecondsLeft(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'เหลืออีก $seconds วินาที',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qrHoldHint => 'ถือกล้องของโทรศัพท์อีกเครื่องให้ตรงกับโค้ดนี้';
+
+  @override
+  String get qrSecureLine => 'หน้าจอนี้ปิดการจับภาพหน้าจอ';
+
+  @override
+  String qrTimedOutTitle(int seconds) {
+    return 'ซ่อนหลัง $seconds วิ';
+  }
+
+  @override
+  String get qrTimedOutBody => 'แสดงอีกครั้งเมื่อโทรศัพท์อีกเครื่องพร้อม';
+
+  @override
+  String qrTimedOutAnnounce(int seconds) {
+    return 'ซ่อนหลัง $seconds วินาที';
+  }
+
+  @override
+  String get qrAwayTitle => 'ซ่อนไว้ขณะที่แอปไม่ได้อยู่หน้าจอ';
+
+  @override
+  String get qrAwayBody => 'โค้ดจะซ่อนทุกครั้งที่แอปออกจากหน้าจอ';
+
+  @override
+  String qrSemanticsPayment(String state) {
+    return 'QR ของรายการ, $state';
+  }
+
+  @override
+  String qrSemanticsReply(String state) {
+    return 'QR ของคำตอบ, $state';
+  }
+
+  @override
+  String get qrStateHidden => 'ซ่อนอยู่';
+
+  @override
+  String get qrStateShowing => 'แสดงอยู่';
+
+  @override
+  String get qrScanPayment => 'สแกน QR ของรายการ';
+
+  @override
+  String get qrScanReply => 'สแกนคำตอบ';
+
+  @override
+  String get qrScanAimPayment => 'หันกล้องไปที่ QR Code บนโทรศัพท์ของเขา';
+
+  @override
+  String get qrScanAimReply => 'หันกล้องไปที่คำตอบบนโทรศัพท์ของเขา';
+
+  @override
+  String get qrScanSteady => 'ถือให้นิ่ง หรือขยับเข้าไปใกล้อีกนิด';
+
+  @override
+  String get qrScanGot => 'อ่านครบแล้ว';
+
+  @override
+  String qrScanCount(int got, int count) {
+    return '$got จาก $count';
+  }
+
+  @override
+  String get qrScanCountLabel => 'ส่วนที่อ่านแล้ว';
+
+  @override
+  String get qrScanNotPayment =>
+      'นี่ไม่ใช่ QR ของรายการ ให้เขาแสดงโค้ดรายการบนโทรศัพท์ของเขา';
+
+  @override
+  String get qrScanNotReply =>
+      'นี่ไม่ใช่ QR ของคำตอบ ให้เขาแสดงคำตอบบนโทรศัพท์ของเขา';
+
+  @override
+  String get qrScanOtherPayment =>
+      'โค้ดนี้เป็นของอีกรายการหนึ่ง กำลังเริ่มใหม่';
+
+  @override
+  String get qrScanTorch => 'ไฟฉาย';
+
+  @override
+  String qrScanZoom(String factor) {
+    return 'ซูม $factor×';
+  }
+
+  @override
+  String get qrScanCameraDenied =>
+      'กระเป๋าไม่ได้รับอนุญาตให้ใช้กล้อง หากต้องการสแกน ให้อนุญาตการเข้าถึงกล้องของแอปนี้ในการตั้งค่าของโทรศัพท์ หรือจะเปิดไฟล์แทนก็ได้';
+
+  @override
+  String get qrScanCameraFailed =>
+      'เปิดกล้องไม่ได้ ลองอีกครั้ง หรือเปิดไฟล์แทน';
+
+  @override
+  String get qrScanOpenSettings => 'เปิดการตั้งค่า';
+
+  @override
+  String get qrScanOpenFileInstead => 'เปิดไฟล์แทน';
+
+  @override
+  String get qrScanAgain => 'สแกนอีกครั้ง';
+
+  @override
+  String get slateWrongPaymentQr =>
+      'คำตอบนี้เป็นของอีกรายการหนึ่ง สแกนคำตอบของการส่งครั้งนี้';
+
+  @override
+  String get slateScannedPaymentTitle => 'รายการที่สแกน';
+
+  @override
+  String get slateScannedReplyTitle => 'คำตอบที่สแกน';
+
+  @override
+  String get slateIncomingSendHintQr => 'รับรายการ แล้วแสดงคำตอบให้ผู้ส่ง';
+
+  @override
+  String get slateAcceptedHeadlineQr => 'รับแล้ว แสดงคำตอบให้ผู้ส่ง';
+
+  @override
+  String get methodQr => 'QR';
+
+  @override
+  String get receiveTabQr => 'QR';
+
+  @override
+  String get methodArtCaptionQr => 'ต่อหน้า';
+
+  @override
+  String get methodArtLabelQr =>
+      'QR: โค้ดส่งจากโทรศัพท์เครื่องหนึ่งไปยังอีกเครื่องที่อยู่ข้างกัน';
+
+  @override
+  String get methodSendQrTitle => 'สำหรับโทรศัพท์ที่อยู่ข้างคุณ';
+
+  @override
+  String get methodSendQrLine =>
+      'แสดงโค้ดบนหน้าจอนี้ แล้วใช้กล้องสแกนคำตอบของเขา';
+
+  @override
+  String get methodReceiveQrTitle => 'สแกนหน้าจอของเขา';
+
+  @override
+  String get methodReceiveQrLine =>
+      'รับรายการ แล้วแสดงคำตอบของคุณด้วยวิธีเดียวกัน';
+
+  @override
+  String get receiveQrTitle => 'อยู่ข้างผู้ส่งไหม?';
+
+  @override
+  String get receiveQrBody =>
+      'สแกนโค้ดบนโทรศัพท์ของผู้ส่ง รับรายการ แล้วแสดงคำตอบของคุณ';
+
+  @override
+  String get txQrLine => 'จ่ายหรือรับเงินเมื่ออยู่ข้างกัน ด้วยโค้ดบนหน้าจอ';
+
+  @override
+  String get txQrHint =>
+      'QR แสดงรายการเป็นโค้ดเคลื่อนไหวที่โทรศัพท์อีกเครื่องสแกนด้วยกล้อง และรับคำตอบด้วยวิธีเดียวกัน ใช้ได้เฉพาะโทรศัพท์ที่อยู่ข้างกัน ไม่ต้องมีการเชื่อมต่อระหว่างกระเป๋าทั้งสอง และโค้ดจะซ่อนเองหลัง 40 วินาที เพิ่ม QR ในส่งและรับ';
+
+  @override
+  String get advTransactionFiles => 'ไฟล์ธุรกรรม';
+
+  @override
+  String get advTransactionFilesHint =>
+      'เพิ่มสวิตช์ไฟล์ใน ตั้งค่า › ธุรกรรม: จ่ายหรือรับเงินด้วยไฟล์ที่คุณส่งต่อเอง';
+
+  @override
+  String get sendQrTitle => 'ชำระด้วย QR';
+
+  @override
+  String get sendMakeQr => 'สร้าง QR ของรายการ';
+
+  @override
+  String sendQrPinReason(String amount) {
+    return 'ใส่ PIN เพื่อสร้าง QR ของรายการ $amount';
+  }
+
+  @override
+  String get sendQrMade => 'สร้างรายการแล้ว';
+
+  @override
+  String get sendQrHint => 'แสดงโค้ดให้โทรศัพท์ของผู้รับ แล้วสแกนคำตอบของเขา';
+
+  @override
+  String get sendCancelRuleQr => 'ยกเลิกได้จนกว่าคุณจะสแกนคำตอบของเขา';
+
+  @override
+  String get qrStatusSendHidden => 'แสดงสิ่งนี้ให้ผู้รับ';
+
+  @override
+  String get qrStatusSendShowing => 'รอผู้รับสแกน แล้วสแกนคำตอบของเขา';
+
+  @override
+  String get qrStatusHiddenAgain => 'ซ่อนอยู่ แสดงอีกครั้งถ้าเขาสแกนไม่ทัน';
+
+  @override
+  String get qrStatusReplyHidden => 'แสดงสิ่งนี้ให้ผู้ส่ง';
+
+  @override
+  String get qrStatusReplyShowing => 'รอผู้ส่งสแกน';
+
+  @override
+  String get qrStatusReceivedWaiting =>
+      'ได้รับรายการแล้ว รอผู้ส่งสแกนและส่งเข้าเครือข่าย';
+
+  @override
+  String qrStatusPosted(int got, int target) {
+    return 'ส่งแล้ว กำลังยืนยัน $got/$target';
+  }
+
+  @override
+  String get qrStatusReceived => 'ได้รับแล้ว';
+
+  @override
+  String qrScanProgress(int got, int count) {
+    return 'สแกนแล้ว $got จาก $count ให้โค้ดอยู่ในกรอบ';
+  }
+
+  @override
+  String get qrScanReplyScanned => 'สแกนคำตอบแล้ว';
+
+  @override
+  String get qrScanPosting => 'สแกนคำตอบแล้ว กำลังส่ง…';
+
+  @override
+  String get qrScanPosted => 'ส่งแล้ว';
+
+  @override
   String get contactsTitle => 'ผู้ติดต่อ';
 
   @override
@@ -3846,7 +4139,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ ไฟล์สร้างไฟล์ไว้ส่งต่อ วิธีอื่น: การตั้งค่า › ธุรกรรม จะมีการตรวจสอบก่อนเสมอ';
+      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ QR แสดงโค้ดให้โทรศัพท์ที่อยู่ข้างคุณ วิธีอื่น: การตั้งค่า › ธุรกรรม จะมีการตรวจสอบก่อนเสมอ';
 
   @override
   String get tourPhoneReceiveTitle => 'รับ';

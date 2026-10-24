@@ -77,6 +77,18 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.file,
     ),
+    if (phone)
+      const HelpTopic(
+        'start',
+        'Persönlich per QR zahlen',
+        'Zwei Smartphones nebeneinander zahlen mit einem animierten QR-Code, ohne Verbindung zwischen ihnen.',
+        [
+          HelpBlock.p('Die Zahlung reist als animierter QR-Code, den das andere Smartphone mit der Kamera scannt. Nichts ist verschlüsselt, zeigen Sie den Code also nur der Person, die Sie bezahlen.'),
+          HelpBlock.ol(['**Absender:** wählt unter Senden **QR**, gibt den Betrag ein und tippt auf **QR anzeigen**. Der Code bleibt verborgen, bis Sie ihn zeigen, zählt 3, 2, 1 und verbirgt sich nach 40 Sekunden von selbst.', '**Empfänger:** tippt unter [[Empfangen › QR|Receive › QR]] auf **Zahlungs-QR scannen**, nimmt die Zahlung an und zeigt dann die Antwort auf dieselbe Weise.', '**Absender:** tippt auf **Antwort scannen**. Die Wallet sendet die Zahlung, und der Verlauf zeigt den Fortgang.']),
+          HelpBlock.p('Halten Sie den Code im Bild, bis alle Teile gelesen sind: Ring und Zähler zeigen, wie weit es ist. Ein Code, der keine Zahlung ist, wird gemeldet und ignoriert. Auf dem Code-Bildschirm sind Screenshots gesperrt.'),
+        ],
+        id: HelpId.qr,
+      ),
     HelpTopic(
       'start',
       'Zahlungsmethoden und Vorgaben fürs Senden',

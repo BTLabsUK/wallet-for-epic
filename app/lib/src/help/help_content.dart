@@ -117,6 +117,7 @@ abstract final class HelpId {
   static const receive = 'receive';
   static const send = 'send';
   static const file = 'file';
+  static const qr = 'qr';
   static const addresses = 'addresses';
   static const handshake = 'handshake';
   static const confirmations = 'confirmations';
@@ -207,6 +208,18 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       ],
       id: HelpId.file,
     ),
+    if (phone)
+      const HelpTopic(
+        'start',
+        'Pay in person by QR',
+        'Two phones next to each other pay with an animated QR code, no connection between them.',
+        [
+          HelpBlock.p('The payment travels as an animated QR code that the other phone scans with its camera. Nothing is encrypted, so show the code only to the person you pay.'),
+          HelpBlock.ol(['**Sender:** on Send, choose **QR**, enter the amount and tap **Show QR**. The code stays hidden until you show it, counts 3, 2, 1, and hides itself after 40 seconds.', '**Receiver:** on [[Receive › QR]], tap **Scan payment QR**, accept the payment, then show the reply the same way.', '**Sender:** taps **Scan their reply**. The wallet posts the payment and the tracker follows it.']),
+          HelpBlock.p('Keep the code in the frame until every part is read: the ring and the count show how far it got. A code that is not a payment is said so and ignored. Screenshots are blocked on the code screen.'),
+        ],
+        id: HelpId.qr,
+      ),
     HelpTopic(
       'start',
       'Payment methods and send defaults',
