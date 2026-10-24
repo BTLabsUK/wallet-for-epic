@@ -255,7 +255,12 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<String> exportHistoryCsv({DateTime? from, DateTime? to}) => _r('exportHistoryCsv', () => _m.exportHistoryCsv(from: from, to: to));
   @override
-  Future<HistoryImport> importHistory(Uint8List data) => _r('importHistory', () => _m.importHistory(data));
+  Future<HistoryImport> importHistory(Uint8List data, {Map<String, bool>? useBackup}) => _r('importHistory', () => _m.importHistory(data, useBackup: useBackup));
+  @override
+  Future<void> setTxLabel(String key, String? label) => _r('setTxLabel', () => _m.setTxLabel(key, label));
+  @override
+  Future<void> setTxDetails(String key, {String? counterparty, String? transport, String? note}) =>
+      _r('setTxDetails', () => _m.setTxDetails(key, counterparty: counterparty, transport: transport, note: note));
   @override
   Future<void> markHistoryExported(DateTime when) => _r('markHistoryExported', () => _m.markHistoryExported(when));
   @override
