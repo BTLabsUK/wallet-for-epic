@@ -6,6 +6,7 @@ import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/net_mode_view.dart' show deskOfflinePeersProvider;
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -24,15 +25,24 @@ Future<void> _open(
   Object? arg,
   AdvancedPrefs advanced = AdvancedPrefs.none,
   bool tor = false,
+  String? node,
+  int? peers,
 }) async {
   tester.view.physicalSize = const Size(1280, 1000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   _wallet = MockDeskWallet(delay: Duration.zero);
-  _container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_wallet)], retry: (_, _) => null);
+  _container = ProviderContainer(
+    overrides: [deskApiProvider.overrideWithValue(_wallet), deskOfflinePeersProvider.overrideWith((ref) async => peers)],
+    retry: (_, _) => null,
+  );
   addTearDown(_container.dispose);
   await tester.runAsync(() async {
     if (tor) await _wallet.setTor(true);
+    if (node != null) {
+      await _wallet.addNode(NodeServer(url: node, label: 'LAN node', health: ServiceHealth.ok, own: true));
+      await _wallet.useNode(node);
+    }
     final n = _container.read(deskProvider.notifier);
     await n.refresh();
     await n.saveSettings(_container.read(deskProvider).settings.copyWith(advanced: advanced, tor: tor, tourSeen: true));
@@ -138,6 +148,16 @@ void main() {
       expect(find.text('Offline mode is on in Advanced.'), findsWidgets);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
       expect(segment(tester, 'File').enabled, isFalse);
+    });
+
+    testWidgets('Offline with a LAN node: Direct and File run, Epicbox waits; no peers says the payment waits', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://10.0.1.30:3415', amount: '1'), advanced: _offline, node: 'http://10.100.10.20:3413', peers: 0);
+      expect(segment(tester, 'Epicbox').enabled, isFalse);
+      expect(segment(tester, 'Direct').enabled, isTrue);
+      expect(segment(tester, 'File').enabled, isTrue);
+      expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
+      expect(find.byKey(const ValueKey('send-offline-no-peers')), findsOneWidget);
+      expect(find.text('Your node has no peers: the payment waits in its pool until it reconnects.'), findsOneWidget);
     });
 
     testWidgets('Tor only without Tor: the same, with the Tor reason', (tester) async {

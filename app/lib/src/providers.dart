@@ -10,6 +10,7 @@ import 'network.dart';
 import 'phone_tor.dart';
 import 'secret_store.dart';
 import 'advanced.dart' show NetworkMode;
+import 'net/node_peers.dart';
 import 'network_gate.dart';
 import 'settings.dart' show clockProvider, networkModeProvider;
 import 'stall_retry.dart';
@@ -164,6 +165,20 @@ final walletConfigProvider =
       WalletConfigNotifier.new,
     );
 
+/// The node in use is on this phone or the local network (`net/local_address.dart`): Offline
+/// still refreshes against it and lets the File method and Direct sends to local addresses run.
+final localNodeProvider = Provider<bool>(
+  (ref) => isLocalAddressUrl(ref.watch(walletConfigProvider.select((c) => c?.nodeUrl))),
+);
+
+/// The local node's peer count while Offline ([nodePeerCount]); null otherwise or when it does
+/// not say. With 0 a payment waits in the node's pool until it reconnects.
+final offlineNodePeersProvider = FutureProvider.autoDispose<int?>((ref) async {
+  final url = ref.watch(walletConfigProvider.select((c) => c?.nodeUrl));
+  if (ref.watch(networkModeProvider) != NetworkMode.offline || url == null || !isLocalAddressUrl(url)) return null;
+  return nodePeerCount(url);
+});
+
 class WalletConfigNotifier extends Notifier<WalletConfig?> {
   @override
   WalletConfig? build() => null;
@@ -295,8 +310,10 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
   @override
   Future<HomeData> build() async {
     final session = _requireSession(ref);
-    // Offline reads the wallet's own files only; leaving it refreshes against the node again.
-    final offline = ref.watch(networkModeProvider) == NetworkMode.offline;
+    // Offline reads the wallet's own files only, or refreshes against a local node; leaving it
+    // refreshes against the node again.
+    final mode = ref.watch(networkModeProvider);
+    final offline = mode == NetworkMode.offline && !ref.watch(localNodeProvider);
     final shown = state.value;
     if (!offline && shown != null && identical(shown.session, session)) {
       return _refreshed(session);
@@ -310,7 +327,8 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       return HomeData(summary: summary, transactions: transactions, session: session);
     }
     Future<void>.delayed(Duration.zero, () => _syncInBackground(session));
-    unawaited(_retryUndelivered(session, transactions));
+    // Epicbox resends wait for Offline to end.
+    if (mode != NetworkMode.offline) unawaited(_retryUndelivered(session, transactions));
     return HomeData(
       summary: summary,
       transactions: transactions,
@@ -479,7 +497,7 @@ final nodeTipProvider = FutureProvider.autoDispose<NodeTip>((ref) {
   final session = _requireSession(ref);
   final config = ref.watch(walletConfigProvider);
   if (config == null) throw StateError('No network selected');
-  if (ref.watch(networkModeProvider) == NetworkMode.offline) {
+  if (ref.watch(networkModeProvider) == NetworkMode.offline && !isLocalAddressUrl(config.nodeUrl)) {
     throw const NetBlocked(NetworkMode.offline, 'node tip');
   }
   return session.nodeTipFor(config: config);
@@ -493,8 +511,8 @@ Future<NodeTip> askNodeTip(
   WalletSession? session,
   WalletConfig config,
 ) async {
-  // Offline asks no node, also before a wallet is open.
-  NetGate.check('node tip');
+  // Offline asks no node but a local one, also before a wallet is open.
+  NetGate.check('node tip', local: isLocalAddressUrl(config.nodeUrl));
   return session != null
       ? session.nodeTipFor(config: config)
       : service.nodeTip(config: config);
@@ -541,8 +559,8 @@ class ScanNotifier extends Notifier<ScanState> {
   Future<bool> run({BigInt? startHeight}) async {
     final session = ref.read(sessionProvider);
     if (session == null || state.running) return false;
-    // Recheck balance asks the node: Offline refuses it before it starts.
-    if (NetGate.offline) {
+    // Recheck balance asks the node: Offline refuses it before it starts, unless it is local.
+    if (NetGate.offline && !ref.read(localNodeProvider)) {
       state = const ScanState(error: NetBlocked(NetworkMode.offline, 'scan'));
       return false;
     }

@@ -24,8 +24,8 @@ import 'package:epic_wallet/src/ui/method_strip.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
-import 'package:epic_wallet/src/ui/net_block.dart' show netBlockNoteKey;
 import 'package:epic_wallet/src/payment_prefs.dart';
+import 'package:epic_wallet/src/ui/net_block.dart' show netBlockNoteKey, offlineNoPeersKey;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -81,10 +81,15 @@ class _Open extends SessionNotifier {
 }
 
 class _Mainnet extends WalletConfigNotifier {
+  _Mainnet([this.nodeUrl]);
+
+  /// The node in use; null is the preset's public node.
+  final String? nodeUrl;
+
   @override
   WalletConfig? build() => mainnetPreset.config(
     dataDir: '/fake/wallets/mainnet',
-    nodeUrl: mainnetPreset.nodeUrl,
+    nodeUrl: nodeUrl ?? mainnetPreset.nodeUrl,
   );
 }
 
@@ -160,6 +165,8 @@ class _Harness {
     double height = 2340,
     AdvancedPrefs advanced = AdvancedPrefs.none,
     PaymentPrefs payments = PaymentPrefs.defaults,
+    String? node,
+    int? peers,
   }) async {
     tester.view.physicalSize = Size(1080, height);
     tester.view.devicePixelRatio = 3;
@@ -177,7 +184,8 @@ class _Harness {
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: true)),
           priceSourceProvider.overrideWithValue(_NoPrice()),
           sessionProvider.overrideWith(() => _Open(session)),
-          walletConfigProvider.overrideWith(_Mainnet.new),
+          walletConfigProvider.overrideWith(() => _Mainnet(node)),
+          offlineNodePeersProvider.overrideWith((ref) async => peers),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
           demoModeProvider.overrideWithValue(false),
           torBundleFinderProvider.overrideWithValue(() async => _bundle),
@@ -938,6 +946,36 @@ void main() {
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNull);
       expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
+    });
+
+    testWidgets('Offline with a LAN node: File and Direct run; no peers says the payment waits', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, advanced: offline, node: 'http://10.100.10.20:3413', peers: 0);
+      // Epicbox still waits.
+      await _enter(tester, 'To', _bob);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      // Direct to a local address goes on (the adapter refuses a non-local one).
+      await _enter(tester, 'To', 'http://10.0.1.30:3415');
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(find.byKey(netBlockNoteKey), findsNothing);
+      await _tap(tester, _segment('File'));
+      await _enter(tester, 'Amount (EPIC)', '1');
+      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
+      await _tap(tester, makeFile());
+      expect(find.text('Open their reply'), findsOneWidget);
+      expect(find.byKey(offlineNoPeersKey), findsOneWidget);
+      expect(find.text('Your node has no peers: the payment waits in its pool until it reconnects.'), findsOneWidget);
+    });
+
+    testWidgets('Offline with a public node: File waits as before', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, advanced: offline, peers: 0);
+      await _tap(tester, _segment('File'));
+      await _enter(tester, 'Amount (EPIC)', '1');
+      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNull);
+      expect(find.byKey(offlineNoPeersKey), findsNothing);
     });
 
     testWidgets('Tor only without Tor: Waiting for Tor, File still works', (

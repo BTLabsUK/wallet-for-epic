@@ -631,7 +631,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             ),
           );
     final error = Theme.of(context).colorScheme.error;
-    final block = watchNetBlock(context, ref);
+    // Recheck balance asks the node only: Offline lets it run on a local one.
+    final block = watchNetBlock(context, ref, localNode: ref.watch(localNodeProvider));
     return [
       ListTile(
         leading: const Icon(Icons.contacts_outlined),

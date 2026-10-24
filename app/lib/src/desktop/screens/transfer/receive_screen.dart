@@ -121,7 +121,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
 
   Future<void> _toggle(TxMethod m, bool on) async {
     // Offline and Tor only without Tor: no listener starts (Epicbox, HTTP, Tor itself).
-    if (on && ref.read(deskNetBlockProvider) != NetBlock.none) return;
+    if (on && ref.read(m == TxMethod.http ? deskNodeBlockProvider : deskNetBlockProvider) != NetBlock.none) return;
     setState(() => _busy.add(m));
     final n = ref.read(deskProvider.notifier);
     try {
@@ -453,7 +453,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       state: line?.state ?? EState.off,
       switchOn: on,
       busy: _busy.contains(m) || status == null,
-      onSwitch: status == null || deskNetBlock(st) != NetBlock.none ? null : (v) => _toggle(m, v),
+      // Offline: local senders reach it while the node is local.
+      onSwitch: status == null || deskNetBlock(st, nodeOnly: true) != NetBlock.none ? null : (v) => _toggle(m, v),
       grown: on,
       small: line == null ? const SizedBox.shrink() : EStateLine(line, key: const ValueKey('rx-state-http')),
       body: Column(

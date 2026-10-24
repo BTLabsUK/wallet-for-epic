@@ -17,10 +17,15 @@ import 'theme/tokens.dart';
 /// The key of a [NetBlockNote], for tests.
 const Key netBlockNoteKey = ValueKey('net-block-note');
 
-/// What the stored network mode and Tor allow now. Rebuilds when either changes.
-NetBlock watchNetBlock(BuildContext context, WidgetRef ref) => netBlockFor(
+/// The key of the Offline line that the local node has no peers, for tests.
+const Key offlineNoPeersKey = ValueKey('offline-no-peers');
+
+/// What the stored network mode and Tor allow now. Rebuilds when either changes. [localNode]
+/// for an action that reaches only the node in use ([localNodeProvider]), or a Direct send.
+NetBlock watchNetBlock(BuildContext context, WidgetRef ref, {bool localNode = false}) => netBlockFor(
   AdvancedOptions.of(context).networkMode,
   phoneTorState(ref.watch(phoneTorProvider)),
+  localNode: localNode,
 );
 
 /// The one-line reason a network action is off, null when nothing stops it.

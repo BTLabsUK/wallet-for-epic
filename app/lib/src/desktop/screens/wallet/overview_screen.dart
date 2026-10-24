@@ -74,8 +74,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final empty = demo == OverviewDemo.empty || (demo == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
     final starting = demo == OverviewDemo.starting;
     final syncing = demo == OverviewDemo.syncing;
-    // Offline and Tor only: the node is not asked, so its last answer is not news.
-    final netBlock = demo == null ? deskNetBlock(s) : NetBlock.none;
+    // Offline (but with a local node) and Tor only: the node is not asked, so its last answer
+    // is not news.
+    final netBlock = demo == null ? deskNetBlock(s, nodeOnly: true) : NetBlock.none;
     final offline = netBlock == NetBlock.offline;
     final nodeDown = demo == OverviewDemo.nodeDown || (demo == null && netBlock == NetBlock.none && s.status?.nodeHealth == ServiceHealth.down);
     // The wallet's own sync (a refresh or a scan), not the node's.

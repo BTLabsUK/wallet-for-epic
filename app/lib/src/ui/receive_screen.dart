@@ -816,8 +816,9 @@ class _FileCard extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
-    // Opening or pasting a file asks the node: Offline stops it, with the reason.
-    final block = fileBlockFor(AdvancedOptions.of(context).networkMode);
+    // Opening or pasting a file asks the node: Offline stops it, with the reason, unless the
+    // node is local.
+    final block = fileBlockFor(AdvancedOptions.of(context).networkMode, localNode: ref.watch(localNodeProvider));
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(

@@ -79,7 +79,7 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait.",
+  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node's setting.",
   "@deskSetAdvNetworkHint": {
     "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
   },
@@ -103,7 +103,7 @@
   "@deskSetAdvModeOffline": {
     "description": "Network mode: no network."
   },
-  "deskSetAdvModeOfflineText": "No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.",
+  "deskSetAdvModeOfflineText": "Only this computer and your local network. Your node keeps running; its own peers are the node's setting.",
   "@deskSetAdvModeOfflineText": {
     "description": "One-line description of the Offline network mode on the Advanced page."
   },
@@ -111,7 +111,7 @@
   "@deskSetAdvTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "deskSetAdvOfflineNote": "Sending and receiving wait until you switch back, transaction files included.",
+  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.",
   "@deskSetAdvOfflineNote": {
     "description": "Note under the chosen Offline mode on the Advanced page."
   },
@@ -143,6 +143,14 @@
   "deskNetOfflineReason": "Offline mode is on in Advanced.",
   "@deskNetOfflineReason": {
     "description": "Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control."
+  },
+  "deskErrOfflineOnlyLocal": "Offline: only local addresses.",
+  "@deskErrOfflineOnlyLocal": {
+    "description": "Why a Direct send was refused in the Offline network mode: the address is not on this computer or the local network."
+  },
+  "deskNetOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
+  "@deskNetOfflineNoPeers": {
+    "description": "Notice on Send in the Offline mode when the local node in use has no peers."
   },
   "deskNetWaitingTorReason": "Waiting for Tor. Tor only is on in Advanced.",
   "@deskNetWaitingTorReason": {
