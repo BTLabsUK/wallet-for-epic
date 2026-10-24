@@ -11,6 +11,7 @@ import 'dart:convert';
 
 import '../providers.dart' show defaultMinimumConfirmations;
 import '../wallet_service.dart';
+import 'merge.dart' show userFieldName;
 import 'meta_store.dart';
 
 const String historyFormat = 'wfe-history';
@@ -244,8 +245,13 @@ String statusWords(TxEntry tx, BigInt? tip) {
   };
 }
 
+/// The last three columns came later and only ever follow the first ten: `label` the user's
+/// label, `method` the transport (`epicbox`, `http`, `tor`, `file`), `user_fields` which of
+/// `label;counterparty;method;note` the user entered rather than the wallet recorded.
 const String csvHeader =
-    'date,type,status,amount_epic,fee_epic,counterparty,note,slate_id,kernel,block_height';
+    'date,type,status,amount_epic,fee_epic,counterparty,note,slate_id,kernel,block_height,'
+    'label,method,user_fields';
+
 
 /// One row per payment, newest first as given.
 String historyCsv(List<TxEntry> txs, BigInt? tip) {
@@ -264,6 +270,15 @@ String historyCsv(List<TxEntry> txs, BigInt? tip) {
           csvField(tx.slateId ?? '', text: false),
           csvField(tx.kernelExcess ?? '', text: false),
           csvField(tx.blockHeight?.toString() ?? '', text: false),
+          csvField(tx.label ?? '', text: true),
+          csvField(tx.transport ?? '', text: false),
+          csvField(
+            [
+              for (final f in ManualField.values)
+                if (tx.manualFields.contains(f)) userFieldName(f),
+            ].join(';'),
+            text: false,
+          ),
         ].join(','),
       )
       ..write('\n');

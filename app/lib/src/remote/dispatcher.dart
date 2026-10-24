@@ -459,6 +459,22 @@ class WalletDispatcher {
       s.setTxNote(key: p.of('key', stringWire), note: p.of('note', optString)),
       voidWire,
     ),
+    SessionMember.setTxLabel => _once(
+      s.setTxLabel(
+        key: p.of('key', stringWire),
+        label: p.of('label', optString),
+      ),
+      voidWire,
+    ),
+    SessionMember.setTxDetails => _once(
+      s.setTxDetails(
+        key: p.of('key', stringWire),
+        counterparty: p.of('counterparty', optString),
+        transport: p.of('transport', optString),
+        note: p.of('note', optString),
+      ),
+      voidWire,
+    ),
     SessionMember.contacts => _once(s.contacts(), listOf(contactWire)),
     SessionMember.saveContact => _once(
       s.saveContact(contact: p.of('contact', contactWire)),
@@ -471,7 +487,10 @@ class WalletDispatcher {
     SessionMember.exportHistory => _once(s.exportHistory(), bytesWire),
     SessionMember.exportHistoryCsv => _once(s.exportHistoryCsv(), stringWire),
     SessionMember.importHistory => _once(
-      s.importHistory(data: p.of('data', bytesWire)),
+      s.importHistory(
+        data: p.of('data', bytesWire),
+        useBackup: p.of('useBackup', nullable(mapOf(boolWire))),
+      ),
       importReportWire,
     ),
     SessionMember.estimateMax => _once(

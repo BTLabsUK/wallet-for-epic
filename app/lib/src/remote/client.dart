@@ -870,6 +870,23 @@ class RemoteWalletSession implements WalletSession {
       _call(SessionMember.setTxNote, voidWire, {'key': key, 'note': note});
 
   @override
+  Future<void> setTxLabel({required String key, String? label}) =>
+      _call(SessionMember.setTxLabel, voidWire, {'key': key, 'label': label});
+
+  @override
+  Future<void> setTxDetails({
+    required String key,
+    String? counterparty,
+    String? transport,
+    String? note,
+  }) => _call(SessionMember.setTxDetails, voidWire, {
+    'key': key,
+    'counterparty': counterparty,
+    'transport': transport,
+    'note': note,
+  });
+
+  @override
   Future<List<Contact>> contacts() =>
       _call(SessionMember.contacts, listOf(contactWire));
 
@@ -893,11 +910,13 @@ class RemoteWalletSession implements WalletSession {
       _call(SessionMember.exportHistoryCsv, stringWire);
 
   @override
-  Future<ImportReport> importHistory({required Uint8List data}) => _call(
-    SessionMember.importHistory,
-    importReportWire,
-    {'data': bytesWire.encode(data)},
-  );
+  Future<ImportReport> importHistory({
+    required Uint8List data,
+    Map<String, bool>? useBackup,
+  }) => _call(SessionMember.importHistory, importReportWire, {
+    'data': bytesWire.encode(data),
+    'useBackup': nullable(mapOf(boolWire)).encode(useBackup),
+  });
 
   // An old wallet's folder is on the server's disk, which a remote client does not choose.
   @override

@@ -43,6 +43,8 @@ enum SessionMember {
   transactions,
   enrichHistory,
   setTxNote,
+  setTxLabel,
+  setTxDetails,
   contacts,
   saveContact,
   deleteContact,

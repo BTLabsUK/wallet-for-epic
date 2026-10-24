@@ -277,6 +277,62 @@ class Annotation {
   }
 }
 
+/// What the user entered for one transaction beyond its note, keyed by [TxEntry.key] in
+/// [Meta.manual]: a label on any transaction, and on one a scan restored who paid and how.
+/// Notes stay in [Meta.notes]. Never passed to LEPIC, never used for payment proofs.
+class ManualRec {
+  ManualRec({
+    this.label,
+    this.counterparty,
+    this.transport,
+    this.editedAtUnix,
+    Map<String, String>? declined,
+  }) : declined = SplayTreeMap.of(declined ?? const {});
+
+  factory ManualRec.fromJson(Object? json) {
+    final m = asObject(json, 'manual record');
+    return ManualRec(
+      label: _optStr(m['label'], 'manual label'),
+      counterparty: _optStr(m['counterparty'], 'manual counterparty'),
+      transport: _optStr(m['transport'], 'manual transport'),
+      editedAtUnix: _optI64(m['edited_at_unix'], 'manual edited_at_unix'),
+      declined: m['declined'] == null
+          ? null
+          : asObject(m['declined'], 'manual declined')
+                .map((k, v) => MapEntry(k, _str(v, 'manual declined'))),
+    );
+  }
+
+  String? label;
+  String? counterparty;
+
+  /// LEPIC's transport name: `epicbox`, `http`, `tor` or `file`.
+  String? transport;
+
+  /// When the user last changed a field here (unix seconds).
+  int? editedAtUnix;
+
+  /// By field name ([ManualField.name]): SHA-256 (hex) of a history file's value the user
+  /// chose not to take, so importing that file again does not ask again.
+  final SplayTreeMap<String, String> declined;
+
+  bool get isEmpty =>
+      label == null &&
+      counterparty == null &&
+      transport == null &&
+      declined.isEmpty;
+
+  Map<String, Object?> toJson() {
+    final out = <String, Object?>{};
+    _put(out, 'label', label);
+    _put(out, 'counterparty', counterparty);
+    _put(out, 'transport', transport);
+    _put(out, 'edited_at_unix', editedAtUnix);
+    if (declined.isNotEmpty) out['declined'] = {...declined};
+    return out;
+  }
+}
+
 bool _pending(String status) =>
     status == 'AwaitingRecipient' || status == 'AwaitingConfirmation';
 
@@ -307,7 +363,12 @@ class Record {
     this.statusDetail,
     this.cancelReason,
     this.exportedAtUnix,
-  }) : amountCredited = amountCredited ?? BigInt.zero,
+    this.label,
+    this.transport,
+    List<String>? userFields,
+    this.userEditedAtUnix,
+  }) : userFields = userFields ?? [],
+       amountCredited = amountCredited ?? BigInt.zero,
        amountDebited = amountDebited ?? BigInt.zero,
        outputCommits = outputCommits ?? [];
 
@@ -351,6 +412,17 @@ class Record {
       statusDetail: _optStr(m['status_detail'], 'status_detail'),
       cancelReason: _optStr(m['cancel_reason'], 'cancel_reason'),
       exportedAtUnix: _optI64(m['exported_at_unix'], 'exported_at_unix'),
+      label: _optStr(m['label'], 'label'),
+      transport: _optStr(m['transport'], 'transport'),
+      userFields: m['user_fields'] == null
+          ? null
+          : m['user_fields'] is List
+          ? [for (final f in m['user_fields'] as List) _str(f, 'user field')]
+          : _bad('user_fields'),
+      userEditedAtUnix: _optI64(
+        m['user_edited_at_unix'],
+        'user_edited_at_unix',
+      ),
     );
   }
 
@@ -388,6 +460,26 @@ class Record {
   /// `exported_at_unix` of the file this record's status came from. Set on import.
   int? exportedAtUnix;
 
+  /// The user's label, in a history file only: an import moves it to [Meta.manual].
+  String? label;
+
+  /// What carried the slate (`epicbox`, `http`, `tor`, `file`), in a history file only.
+  String? transport;
+
+  /// Which of `label`, `counterparty`, `method` ([transport]) and `note` the user entered, in
+  /// a history file only.
+  List<String> userFields;
+
+  /// When the user last changed those (unix seconds), in a history file only.
+  int? userEditedAtUnix;
+
+  /// This record without what only a history file carries, as the archive keeps it.
+  Record withoutUserFields() => copy()
+    ..label = null
+    ..transport = null
+    ..userFields = []
+    ..userEditedAtUnix = null;
+
   Map<String, Object?> toJson() {
     final out = <String, Object?>{};
     _put(out, 'slate_id', slateId);
@@ -417,6 +509,10 @@ class Record {
     _put(out, 'status_detail', statusDetail);
     _put(out, 'cancel_reason', cancelReason);
     _put(out, 'exported_at_unix', exportedAtUnix);
+    _put(out, 'label', label);
+    _put(out, 'transport', transport);
+    if (userFields.isNotEmpty) out['user_fields'] = [...userFields];
+    _put(out, 'user_edited_at_unix', userEditedAtUnix);
     return out;
   }
 
@@ -489,7 +585,9 @@ class Meta {
     this.invoiceIndex,
     Map<String, PaidInvoiceRec>? paidInvoices,
     Map<String, IssuedInvoiceRec>? issuedInvoices,
-  }) : serviceLabels = SplayTreeMap.of(serviceLabels ?? const {}),
+    Map<String, ManualRec>? manual,
+  }) : manual = SplayTreeMap.of(manual ?? const {}),
+       serviceLabels = SplayTreeMap.of(serviceLabels ?? const {}),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
        issuedInvoices = SplayTreeMap.of(issuedInvoices ?? const {}),
        notes = SplayTreeMap.of(notes ?? const {}),
@@ -546,6 +644,7 @@ class Meta {
           .map((k, v) => MapEntry(k, PaidInvoiceRec.fromJson(v))),
       issuedInvoices: map('issued_invoices')
           .map((k, v) => MapEntry(k, IssuedInvoiceRec.fromJson(v))),
+      manual: map('manual').map((k, v) => MapEntry(k, ManualRec.fromJson(v))),
     );
   }
 
@@ -560,6 +659,10 @@ class Meta {
 
   /// Notes by transaction key (`TxEntry.key`).
   final SplayTreeMap<String, String> notes;
+
+  /// What the user entered beyond notes (labels; sender and method of restored rows), by
+  /// transaction key. Written only when not empty, as [serviceLabels].
+  final SplayTreeMap<String, ManualRec> manual;
   final List<ContactRec> contacts;
 
   /// The old core's annotations by slate id.
@@ -626,6 +729,9 @@ class Meta {
       out['issued_invoices'] = {
         for (final e in issuedInvoices.entries) e.key: e.value.toJson(),
       };
+    }
+    if (manual.isNotEmpty) {
+      out['manual'] = {for (final e in manual.entries) e.key: e.value.toJson()};
     }
     return out;
   }

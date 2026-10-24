@@ -1597,6 +1597,26 @@ class LepicWalletSession implements WalletSession {
       _guard(() async => _history.setNote(await _live(), key, note));
 
   @override
+  Future<void> setTxLabel({required String key, String? label}) =>
+      _guard(() async => _history.setLabel(await _live(), key, label));
+
+  @override
+  Future<void> setTxDetails({
+    required String key,
+    String? counterparty,
+    String? transport,
+    String? note,
+  }) => _guard(
+    () async => _history.setDetails(
+      await _live(),
+      key,
+      counterparty: counterparty,
+      transport: transport,
+      note: note,
+    ),
+  );
+
+  @override
   Future<List<Contact>> contacts() async => _history.contacts();
 
   @override
@@ -1628,14 +1648,18 @@ class LepicWalletSession implements WalletSession {
   });
 
   @override
-  Future<ImportReport> importHistory({required Uint8List data}) =>
-      _guard(() async {
+  Future<ImportReport> importHistory({
+    required Uint8List data,
+    Map<String, bool>? useBackup,
+  }) => _guard(() async {
         final payload = HistoryPayload.decode(await _openHistoryFile(data));
         final report = await _history.importPayload(
           payload,
           await _live(),
           walletFp: walletFingerprint(await _wallet.epicboxAddress()),
+          useBackup: useBackup,
         );
+        if (!report.applied) return report;
         // The file may carry the invoice index from before a restore.
         await restoreInvoiceIndex();
         return report;

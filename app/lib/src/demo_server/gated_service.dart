@@ -434,6 +434,23 @@ class GatedWalletSession implements WalletSession {
       _inner.setTxNote(key: key, note: note);
 
   @override
+  Future<void> setTxLabel({required String key, String? label}) =>
+      _inner.setTxLabel(key: key, label: label);
+
+  @override
+  Future<void> setTxDetails({
+    required String key,
+    String? counterparty,
+    String? transport,
+    String? note,
+  }) => _inner.setTxDetails(
+    key: key,
+    counterparty: counterparty,
+    transport: transport,
+    note: note,
+  );
+
+  @override
   Future<List<Contact>> contacts() => _inner.contacts();
 
   @override
@@ -451,8 +468,10 @@ class GatedWalletSession implements WalletSession {
   Future<String> exportHistoryCsv() => _inner.exportHistoryCsv();
 
   @override
-  Future<ImportReport> importHistory({required Uint8List data}) =>
-      _inner.importHistory(data: data);
+  Future<ImportReport> importHistory({
+    required Uint8List data,
+    Map<String, bool>? useBackup,
+  }) => _inner.importHistory(data: data, useBackup: useBackup);
 
   // The server's disk is not the visitor's to read.
   @override
