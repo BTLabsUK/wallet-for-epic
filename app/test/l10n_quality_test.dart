@@ -11,7 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Keys whose English stays in this language, with why.
 const Map<String, Set<String>> _same = {
-  'de': {},
+  // "online" and "offline" are everyday German; Node and Epicbox are names.
+  'de': {'statusNodeOnline', 'statusNodeOffline', 'statusEpicboxOnline', 'statusEpicboxOffline'},
   'pl': {},
   'ru': {},
   'zh': {},
