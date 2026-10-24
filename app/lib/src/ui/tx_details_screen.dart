@@ -6,6 +6,7 @@ import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
+import '../stall_retry.dart' show invoicePaymentStalled;
 import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
 import 'invoice_request_screen.dart' show IssuedInvoiceBlock;
@@ -107,8 +108,13 @@ String txExplanation(
   final outgoing = txAmount(tx).outgoing;
   final tooLong = now == null ? null : daysWaitingTooLong(tx, now);
   return switch (txPhase(tx, tip, target: target)) {
-    TxPhase.waitingRecipient when tx.undelivered =>
-      l.txDetailsNotDeliveredBody,
+    TxPhase.waitingRecipient when tx.undelivered => switch (tx.transport) {
+      'http' || 'tor' => l.txDetailsNotDeliveredDirectBody,
+      _ => l.txDetailsNotDeliveredBody,
+    },
+    TxPhase.waitingRecipient
+        when now != null && invoicePaymentStalled(tx, now) =>
+      l.txDetailsStalledBody,
     TxPhase.waitingRecipient when tooLong != null => l.txDetailsWaitingTooLong(
       tooLong,
     ),
@@ -117,6 +123,8 @@ String txExplanation(
     TxPhase.waitingRecipient => l.txDetailsWaitingRecipient,
     TxPhase.waitingSender => l.txDetailsWaitingSender,
     TxPhase.waitingPayer => l.txDetailsWaitingPayer,
+    // Finished, but the node refused it (android-17): it is not on the network.
+    TxPhase.confirming when tx.repostable => l.txDetailsStuckBody,
     // Over HTTP or Tor their wallet took it in the exchange itself: only a block is left.
     TxPhase.confirming when outgoing && height == null && _isDirect(tx) =>
       l.sendDeliveredWaitingBlock,
@@ -152,15 +160,10 @@ String txExplanation(
   };
 }
 
-/// How long a posted send may wait for the chain before details offer to broadcast it again.
-const Duration stuckAfter = Duration(minutes: 30);
-
-/// A finalized send that the chain still has not included [stuckAfter] after it was finalized
-/// ([TxEntry.finalizedAtUnix], else [TxEntry.timeUnix]), and that the core can post again.
-bool isStuck(TxEntry tx, DateTime now) =>
-    tx.repostable &&
-    tx.status == TxStatus.awaitingConfirmation &&
-    now.difference(localTime(tx.finalizedAtUnix ?? tx.timeUnix)) >= stuckAfter;
+/// A finished send the node refused ([TxEntry.repostable]): details offer to broadcast it
+/// again at once, and the app tries again by itself (stall_retry.dart).
+bool isStuck(TxEntry tx) =>
+    tx.repostable && tx.status == TxStatus.awaitingConfirmation;
 
 /// After this long an unanswered epicbox send can no longer complete: the epicbox keeps a
 /// payment 7 days, and the answer can wait up to 7 more in ours.
@@ -434,7 +437,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         : approxFiat(l, amount, display);
     final ttl = ttlLine(l, tx, tip);
     final now = ref.watch(clockProvider)();
-    final stuck = isStuck(tx, now);
+    final stuck = isStuck(tx);
     final url = chain == null ? null : explorerUrl(chain, tx);
     final fee = tx.fee;
     final blockTime = tx.blockTimeUnix;
@@ -508,14 +511,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     const SizedBox(height: 8),
                     Text(ttl, style: theme.textTheme.bodySmall),
                   ],
+                  // The explanation above says it is not on the network.
                   if (stuck) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      l.txDetailsNotConfirmedYet,
-                      style: theme.textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(l.txDetailsStuckBody),
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,

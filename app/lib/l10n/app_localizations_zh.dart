@@ -12716,4 +12716,51 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       '一笔发送花掉哪些输出。“最小”花掉最少的小额输出，其余仍可使用；“全部”花掉所有输出，并返回一个输出。可在“发送”页的“高级”中为单次发送更改。';
+
+  @override
+  String get txStatusNotPosted => '不在网络上';
+
+  @override
+  String get txStatusStalled => '已停滞';
+
+  @override
+  String get txDetailsStalledBody => '已停滞，未送达。你的付款还没有进入网络。请重新发送。';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      '这笔付款没有到达收款人的钱包，对方没有收到。在重新发送或取消之前，你的资金会一直锁定。';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service 还没有发布你的付款。';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => '不在网络上';
+
+  @override
+  String get deskTxNowNotPosted => '不在网络上。节点没有接受这笔付款。请重新广播；同一笔付款不会成交两次。';
+
+  @override
+  String get deskTxBroadcastAgain => '重新广播';
+
+  @override
+  String get deskTxBroadcastDone => '已发送到网络';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return '未送达。收款人的钱包没有通过 $method 接收这笔付款，对方没有收到。请重新发送，或取消以释放资金。';
+  }
+
+  @override
+  String get deskInvPayStalled => '已停滞';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return '你给 $service 的付款已停滞';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      '未送达：付款还没有进入网络，资金仍被锁定。“重新发送”会再发送一次，无需再次批准。';
 }

@@ -26,13 +26,18 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       : t.immature
       ? l.deskTxNowImmature(coinbaseMaturity)
       : switch (t.state) {
-          TxState.waitingRecipient when t.undelivered => l.deskTxNowUndelivered,
+          TxState.waitingRecipient when t.undelivered => switch (t.method) {
+            TxMethod.http => l.deskTxNowUndeliveredDirect('HTTP'), // l10n-ok: the method's name
+            TxMethod.tor => l.deskTxNowUndeliveredDirect('Tor'), // l10n-ok: the method's name
+            _ => l.deskTxNowUndelivered,
+          },
           TxState.waitingRecipient =>
             t.incoming
                 ? l.deskTxNowWaitingSender
                 : t.method == TxMethod.file
                 ? l.deskTxNowWaitingResponseFile
                 : l.deskTxNowWaitingRecipient,
+          TxState.posted when t.notPosted => l.deskTxNowNotPosted,
           TxState.posted => l.deskTxNowPosted,
           TxState.confirming => l.deskTxNowConfirming(t.confirmations, t.confirmationsNeeded),
           TxState.confirmed => l.deskTxNowConfirmed(t.confirmations),
@@ -52,6 +57,21 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     if (!mounted) return;
     setState(() => _cancelling = false);
     showEToast(context, context.l10n.deskTxSentAgain, text: context.l10n.deskTxSentAgainText);
+  }
+
+  Future<void> _broadcastAgain() async {
+    setState(() => _cancelling = true);
+    try {
+      await ref.read(deskProvider.notifier).repostTx(widget.tx.id);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _cancelling = false);
+      showEToast(context, context.l10n.deskTxNotSent, text: deskErrorText(e, context.l10n));
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _cancelling = false);
+    showEToast(context, context.l10n.deskTxBroadcastDone);
   }
 
   Future<void> _cancel() async {
@@ -88,6 +108,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed
             : (t.cancellable && t.state == TxState.waitingRecipient) || t.notPosted);
     final finalizable = !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
+    // The node refused it: broadcast it again at once (android-17); the app also does by itself.
+    final repostable = !t.fromBackup && !t.isInvoice && t.notPosted;
     final steps = _steps(l, t);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -219,7 +241,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             (l.deskTxTechType, Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))), // l10n-ok: the core's type names
           ]),
         ),
-        if (cancelable || finalizable || t.undelivered) ...[
+        if (cancelable || finalizable || t.undelivered || repostable) ...[
           SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),
           SizedBox(height: Sp.x4),
@@ -242,6 +264,14 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   size: EBtnSize.sm,
                   busy: _cancelling,
                   onPressed: _sendAgain,
+                ),
+              if (repostable)
+                EButton.primary(
+                  label: l.deskTxBroadcastAgain,
+                  icon: EIcons.refresh,
+                  size: EBtnSize.sm,
+                  busy: _cancelling,
+                  onPressed: _broadcastAgain,
                 ),
               if (finalizable)
                 EButton.primary(
@@ -271,7 +301,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       ];
     }
     final signed = t.state != TxState.waitingRecipient;
-    final posted = t.state == TxState.confirming || t.state == TxState.confirmed || t.state == TxState.posted;
+    final posted = t.state == TxState.confirming || t.state == TxState.confirmed || (t.state == TxState.posted && !t.notPosted);
     final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
     final done = t.state == TxState.confirmed;
     return [

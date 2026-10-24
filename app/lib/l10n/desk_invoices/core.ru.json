@@ -36,5 +36,6 @@
   "deskInvFailed": "Не получилось. Ничего не изменилось; попробуйте ещё раз.",
   "deskInvHowItWorks": "Как работают счета",
   "deskInvAddressHint": "es…@epicbox.epiccash.com",
-  "deskInvEpicboxAddress": "Адрес Epicbox"
+  "deskInvEpicboxAddress": "Адрес Epicbox",
+  "deskInvPayStalled": "Застряло"
 }

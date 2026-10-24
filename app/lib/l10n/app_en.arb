@@ -17657,5 +17657,72 @@
   "deskOutStrategyHint": "Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.",
   "@deskOutStrategyHint": {
     "description": "Hover card behind the info icon of the Strategy for sends row (its title is deskOutStrategyHelpTitle)."
+  },
+  "txStatusNotPosted": "Not on the network",
+  "@txStatusNotPosted": {
+    "description": "Status of a finished payment the node refused: it is not on the network until it is broadcast again."
+  },
+  "txStatusStalled": "Stalled",
+  "@txStatusStalled": {
+    "description": "Status of a paid invoice whose payment has not reached the network a while after paying, though the wallet sent it again by itself."
+  },
+  "txDetailsStalledBody": "Stalled, not delivered. Your payment has not reached the network yet. Send it again.",
+  "@txDetailsStalledBody": {
+    "description": "Explanation under the status of a stalled invoice payment; Send again is a button below."
+  },
+  "txDetailsNotDeliveredDirectBody": "This payment did not reach the recipient's wallet, so they have not received it. Your funds stay locked until it is sent again or cancelled.",
+  "@txDetailsNotDeliveredDirectBody": {
+    "description": "Explanation under the status of an HTTP or Tor payment that was not delivered (the recipient's wallet did not answer)."
+  },
+  "invoiceDetailsStalled": "{service} has not posted your payment yet.",
+  "@invoiceDetailsStalled": {
+    "description": "Paid invoice in the payment's details: the service still has not posted the payment a while after paying. service is the user's label for the service.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskTxStatusNotPosted": "Not on the network",
+  "@deskTxStatusNotPosted": {
+    "description": "Activity row status: a finished send the node refused; it is not on the network until it is broadcast again."
+  },
+  "deskTxNowNotPosted": "Not on the network. The node did not take this payment. Broadcast it again; it cannot go through twice.",
+  "@deskTxNowNotPosted": {
+    "description": "Payment detail, the line under the status of a finished send the node refused. Broadcast again is a button below; the wallet also retries by itself."
+  },
+  "deskTxBroadcastAgain": "Broadcast again",
+  "@deskTxBroadcastAgain": {
+    "description": "Button on the payment detail of a send the node refused: posts it to the node again."
+  },
+  "deskTxBroadcastDone": "Sent to the network",
+  "@deskTxBroadcastDone": {
+    "description": "Toast after Broadcast again worked."
+  },
+  "deskTxNowUndeliveredDirect": "Not delivered. The recipient's wallet did not take the payment over {method}, so they have not received it. Send it again, or cancel it to free the funds.",
+  "@deskTxNowUndeliveredDirect": {
+    "description": "Payment detail, the line under the status of a Direct send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayStalled": "Stalled",
+  "@deskInvPayStalled": {
+    "description": "State of an invoice you paid: the payment has not reached the network a while after paying, though the wallet sent it again by itself."
+  },
+  "deskInvPayerStalledTitle": "Your payment to {service} is stalled",
+  "@deskInvPayerStalledTitle": {
+    "description": "Notice on To pay: a paid invoice whose payment has not reached the network a while after paying. service is the user's label for the service.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerStalledText": "Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.",
+  "@deskInvPayerStalledText": {
+    "description": "Notice text and Invoice block text for a stalled invoice payment. Send again is a button."
   }
 }

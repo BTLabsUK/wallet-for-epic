@@ -1294,35 +1294,43 @@ void main() {
       );
     });
 
-    testWidgets('a send stuck for 30 minutes can be broadcast again', (
-      tester,
-    ) async {
-      TxEntry posted(String key, Duration age) => fakeTx(
-        key: key,
-        id: 9,
-        kind: TxKind.sent,
-        status: TxStatus.awaitingConfirmation,
-        createdAtUnix: _at(_now.subtract(age)),
-        amountCredited: _epic(1),
-        amountDebited: _epic(2.008),
-        fee: _epic(0.008),
-        repostable: true,
-      );
-      final h = _Harness(
-        transactions: [
-          posted('s:old', const Duration(minutes: 45)),
-          posted('s:new', const Duration(minutes: 10)),
-        ],
-      );
-      expect(isStuck(h.session.transactionsValue.last, _now), isFalse);
-      expect(isStuck(h.session.transactionsValue.first, _now), isTrue);
+    testWidgets(
+      'a send the node refused says it is not on the network and can be broadcast again at once (android-17)',
+      (tester) async {
+        final h = _Harness(
+          transactions: [
+            fakeTx(
+              key: 's:refused',
+              id: 9,
+              kind: TxKind.sent,
+              status: TxStatus.awaitingConfirmation,
+              createdAtUnix: _at(_now.subtract(const Duration(minutes: 1))),
+              amountCredited: _epic(1),
+              amountDebited: _epic(2.008),
+              fee: _epic(0.008),
+              kernelExcess: '08abc',
+              repostable: true,
+            ),
+          ],
+        );
+        expect(isStuck(h.session.transactionsValue.single), isTrue);
 
-      await h.pump(tester, const TxDetailsScreen(txKey: 's:old'));
-      expect(find.text('Not confirmed yet'), findsOneWidget);
-      await _tap(tester, find.text('Broadcast again'));
-      expect(h.session.repostedKeys, ['s:old']);
-      expect(find.textContaining('Broadcast again. It should'), findsOneWidget);
-    });
+        await h.pump(tester, const TxDetailsScreen(txKey: 's:refused'));
+        expect(find.text('Not on the network'), findsWidgets);
+        expect(find.textContaining('Published to the network'), findsNothing);
+        expect(find.textContaining('Confirming 0'), findsNothing);
+        expect(
+          find.textContaining('The network has not taken this payment yet'),
+          findsOneWidget,
+        );
+        await _tap(tester, find.text('Broadcast again'));
+        expect(h.session.repostedKeys, contains('s:refused'));
+        expect(
+          find.textContaining('Broadcast again. It should'),
+          findsOneWidget,
+        );
+      },
+    );
   });
 
   group('addresses', () {
@@ -2130,16 +2138,27 @@ void main() {
       }
     });
 
-    test('broadcast again counts from when the send was finished', () {
-      TxEntry posted(Duration finalized) => fakeTx(
+    test('a posted send is not stuck: only one the node refused', () {
+      TxEntry finished({required bool repostable}) => fakeTx(
         kind: TxKind.sent,
         status: TxStatus.awaitingConfirmation,
         createdAtUnix: _at(_now.subtract(const Duration(hours: 2))),
-        finalizedAtUnix: _at(_now.subtract(finalized)),
-        repostable: true,
+        amountCredited: _epic(1),
+        amountDebited: _epic(2.008),
+        fee: _epic(0.008),
+        kernelExcess: '08abc',
+        repostable: repostable,
       );
-      expect(isStuck(posted(const Duration(minutes: 10)), _now), isFalse);
-      expect(isStuck(posted(const Duration(minutes: 45)), _now), isTrue);
+      expect(isStuck(finished(repostable: false)), isFalse);
+      expect(isStuck(finished(repostable: true)), isTrue);
+      expect(
+        txStatusLabel(englishStrings, finished(repostable: true), _tip),
+        'Not on the network',
+      );
+      expect(
+        txExplanation(englishStrings, finished(repostable: false), _tip),
+        startsWith('Published to the network'),
+      );
     });
 
     testWidgets('the pending card says the payment waits for an answer', (

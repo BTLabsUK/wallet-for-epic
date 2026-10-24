@@ -3519,5 +3519,18 @@
   "deskSetPhraseCopyTitle": "复制助记词？",
   "deskSetPhraseCopyText": "任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。",
   "deskOutAdvanced": "高级",
-  "deskOutStrategyHint": "一笔发送花掉哪些输出。“最小”花掉最少的小额输出，其余仍可使用；“全部”花掉所有输出，并返回一个输出。可在“发送”页的“高级”中为单次发送更改。"
+  "deskOutStrategyHint": "一笔发送花掉哪些输出。“最小”花掉最少的小额输出，其余仍可使用；“全部”花掉所有输出，并返回一个输出。可在“发送”页的“高级”中为单次发送更改。",
+  "txStatusNotPosted": "不在网络上",
+  "txStatusStalled": "已停滞",
+  "txDetailsStalledBody": "已停滞，未送达。你的付款还没有进入网络。请重新发送。",
+  "txDetailsNotDeliveredDirectBody": "这笔付款没有到达收款人的钱包，对方没有收到。在重新发送或取消之前，你的资金会一直锁定。",
+  "invoiceDetailsStalled": "{service} 还没有发布你的付款。",
+  "deskTxStatusNotPosted": "不在网络上",
+  "deskTxNowNotPosted": "不在网络上。节点没有接受这笔付款。请重新广播；同一笔付款不会成交两次。",
+  "deskTxBroadcastAgain": "重新广播",
+  "deskTxBroadcastDone": "已发送到网络",
+  "deskTxNowUndeliveredDirect": "未送达。收款人的钱包没有通过 {method} 接收这笔付款，对方没有收到。请重新发送，或取消以释放资金。",
+  "deskInvPayStalled": "已停滞",
+  "deskInvPayerStalledTitle": "你给 {service} 的付款已停滞",
+  "deskInvPayerStalledText": "未送达：付款还没有进入网络，资金仍被锁定。“重新发送”会再发送一次，无需再次批准。"
 }

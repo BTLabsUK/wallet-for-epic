@@ -150,6 +150,10 @@ enum PayState {
   /// The reply reached the relay: the service finalizes and posts it.
   delivered,
 
+  /// Delivered, but the payment is still not on the network a while after paying, though the
+  /// app sent the reply again by itself (windows-05): Send again. Never cancelled by the app.
+  stalled,
+
   /// The service reports it posted the payment (advisory; LEPIC services only).
   posted,
 
@@ -177,13 +181,13 @@ enum PayState {
   withdrawn;
 
   /// Paid: an outgoing transaction exists for it.
-  bool get paid => this == notDelivered || this == delivered || this == posted || this == confirming || this == completed || this == withdrawnAfterPay || this == pastTtl || this == cancelled;
+  bool get paid => this == notDelivered || this == delivered || this == stalled || this == posted || this == confirming || this == completed || this == withdrawnAfterPay || this == pastTtl || this == cancelled;
 
   /// The user should act on the payment (Retry or Cancel payment).
-  bool get needsAction => this == notDelivered || this == withdrawnAfterPay || this == pastTtl;
+  bool get needsAction => this == notDelivered || this == stalled || this == withdrawnAfterPay || this == pastTtl;
 
   /// The coins of the payment are locked by it.
-  bool get locking => this == notDelivered || this == delivered || this == posted || this == withdrawnAfterPay || this == pastTtl;
+  bool get locking => this == notDelivered || this == delivered || this == stalled || this == posted || this == withdrawnAfterPay || this == pastTtl;
 
   /// The payment can still be cancelled by the user.
   bool get cancellable => this == notDelivered || this == withdrawnAfterPay || this == pastTtl;

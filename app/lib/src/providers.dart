@@ -9,6 +9,8 @@ import 'l10n.dart' show englishStrings;
 import 'network.dart';
 import 'phone_tor.dart';
 import 'secret_store.dart';
+import 'settings.dart' show clockProvider;
+import 'stall_retry.dart';
 import 'vault.dart';
 import 'wallet_backend.dart' as backend;
 import 'wallet_service.dart';
@@ -281,6 +283,12 @@ final homeProvider = AsyncNotifierProvider.autoDispose<HomeNotifier, HomeData>(
   HomeNotifier.new,
 );
 
+/// The automatic reposts and resends of the open wallet ([StallRetry]), kept across reloads.
+final stallRetryProvider = Provider<StallRetry>((ref) {
+  ref.watch(sessionProvider);
+  return StallRetry();
+});
+
 class HomeNotifier extends AsyncNotifier<HomeData> {
   bool _enriching = false;
 
@@ -327,6 +335,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     final transactions = await session.transactions(refresh: false);
     // Heights and dates for history rows come afterwards, so they never hold up the balance.
     Future<void>.delayed(Duration.zero, () => _enrich(session));
+    unawaited(_retryStalled(session, transactions));
     return HomeData(
       summary: summary,
       transactions: transactions,
@@ -351,6 +360,25 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       }
     }
     if (retried && ref.mounted) unawaited(reload());
+  }
+
+  /// Posts again a payment the chain has not taken and sends again a paid invoice's answer
+  /// when the shared policy says it is due (stall_retry.dart), then reads the list again.
+  Future<void> _retryStalled(
+    WalletSession session,
+    List<TxEntry> transactions,
+  ) async {
+    try {
+      final retry = ref.read(stallRetryProvider);
+      final sent = await retry.run(
+        session,
+        transactions,
+        ref.read(clockProvider)(),
+      );
+      if (sent && ref.mounted) unawaited(reload());
+    } catch (error) {
+      logWarn('home', 'automatic retry failed: ${error.runtimeType}');
+    }
   }
 
   /// The refresh after a local first load. A failure keeps the local figures and shows the

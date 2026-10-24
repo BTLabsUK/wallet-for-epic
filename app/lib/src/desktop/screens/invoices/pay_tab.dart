@@ -187,6 +187,7 @@ class _NeedsNotice extends ConsumerWidget {
     final i = invoice;
     final (title, text, tone) = switch (i.state) {
       PayState.notDelivered => (l.deskInvPayerNotDeliveredTitle(i.label), l.deskInvPayerNotDeliveredText, ETone.risk),
+      PayState.stalled => (l.deskInvPayerStalledTitle(i.label), l.deskInvPayerStalledText, ETone.risk),
       PayState.withdrawnAfterPay => (l.deskInvPayerWithdrawnTitle(i.label), l.deskInvPayerWithdrawnText, ETone.warn),
       _ => (l.deskInvPayerPastTtlTitle(i.label), l.deskInvPayerPastTtlText, ETone.warn),
     };
@@ -198,7 +199,11 @@ class _NeedsNotice extends ConsumerWidget {
       actions: [
         if (i.state == PayState.notDelivered)
           InvButton(label: l.invoiceRetry, kind: EBtnKind.primary, icon: EIcons.refresh, onPressed: () => retryPayment(context, i)),
-        InvButton(label: l.deskInvPayerCancelPayment, width: InvW.md, onPressed: () => showCancelPaymentDialog(context, i)),
+        if (i.state == PayState.stalled)
+          InvButton(label: l.deskTxSendAgain, kind: EBtnKind.primary, icon: EIcons.refresh, onPressed: () => retryPayment(context, i)),
+        // A stalled payment may still be finished by the service: no cancel until its time passed.
+        if (i.state.cancellable)
+          InvButton(label: l.deskInvPayerCancelPayment, width: InvW.md, onPressed: () => showCancelPaymentDialog(context, i)),
         if (i.txId != null)
           InvButton(label: l.deskInvPayerView, kind: EBtnKind.ghost, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, i.txId)),
       ],

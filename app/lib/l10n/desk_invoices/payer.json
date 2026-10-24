@@ -359,5 +359,18 @@
   "deskInvPayerRelayDownPay": "The Epicbox server is not answering. Nothing was paid.",
   "@deskInvPayerRelayDownPay": {
     "description": "Approve dialog: the Epicbox server could not be reached before anything was signed or stored."
+  },
+  "deskInvPayerStalledTitle": "Your payment to {service} is stalled",
+  "@deskInvPayerStalledTitle": {
+    "description": "Notice on To pay: a paid invoice whose payment has not reached the network a while after paying. service is the user's label for the service.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerStalledText": "Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.",
+  "@deskInvPayerStalledText": {
+    "description": "Notice text and Invoice block text for a stalled invoice payment. Send again is a button."
   }
 }

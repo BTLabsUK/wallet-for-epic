@@ -372,6 +372,12 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(txs: txs);
   }
 
+  Future<void> repostTx(int id) async {
+    await api.repostTx(id);
+    final txs = await api.transactions();
+    state = state.copyWith(txs: txs);
+  }
+
   Future<void> cancelTx(int id) async {
     await api.cancelTx(id);
     final txs = await api.transactions();

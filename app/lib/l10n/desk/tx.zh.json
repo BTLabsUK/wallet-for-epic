@@ -117,5 +117,10 @@
   "deskTxSendAgain": "重新发送",
   "deskTxNotSent": "未发送",
   "deskTxSentAgain": "已重新发送",
-  "deskTxSentAgainText": "收款人的钱包上线后即可完成。"
+  "deskTxSentAgainText": "收款人的钱包上线后即可完成。",
+  "deskTxStatusNotPosted": "不在网络上",
+  "deskTxNowNotPosted": "不在网络上。节点没有接受这笔付款。请重新广播；同一笔付款不会成交两次。",
+  "deskTxBroadcastAgain": "重新广播",
+  "deskTxBroadcastDone": "已发送到网络",
+  "deskTxNowUndeliveredDirect": "未送达。收款人的钱包没有通过 {method} 接收这笔付款，对方没有收到。请重新发送，或取消以释放资金。"
 }

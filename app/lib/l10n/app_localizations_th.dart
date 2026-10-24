@@ -13176,4 +13176,53 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'การส่งจะใช้เอาต์พุตใด เล็กสุด ใช้เอาต์พุตเล็กให้น้อยที่สุดและเหลือส่วนอื่นไว้ใช้ได้ ทั้งหมด ใช้ทุกเอาต์พุตและคืนเป็นเอาต์พุตเดียว หน้า ส่ง เปลี่ยนได้เฉพาะครั้งนั้นใต้ ขั้นสูง';
+
+  @override
+  String get txStatusNotPosted => 'ไม่อยู่ในเครือข่าย';
+
+  @override
+  String get txStatusStalled => 'ค้างอยู่';
+
+  @override
+  String get txDetailsStalledBody =>
+      'ค้างอยู่ ส่งไม่ถึง รายการชำระของคุณยังไม่เข้าสู่เครือข่าย ส่งอีกครั้ง';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      'รายการนี้ไปไม่ถึงกระเป๋าเงินของผู้รับ ผู้รับจึงยังไม่ได้รับ เงินของคุณจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service ยังไม่ได้เผยแพร่รายการชำระของคุณ';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => 'ไม่อยู่ในเครือข่าย';
+
+  @override
+  String get deskTxNowNotPosted =>
+      'ไม่อยู่ในเครือข่าย โหนดไม่รับรายการนี้ กระจายอีกครั้งได้ รายการเดียวกันจะไม่ผ่านซ้ำสองครั้ง';
+
+  @override
+  String get deskTxBroadcastAgain => 'กระจายอีกครั้ง';
+
+  @override
+  String get deskTxBroadcastDone => 'ส่งเข้าเครือข่ายแล้ว';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return 'ส่งไม่ถึง กระเป๋าเงินของผู้รับไม่รับรายการผ่าน $method ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน';
+  }
+
+  @override
+  String get deskInvPayStalled => 'ค้างอยู่';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return 'รายการชำระให้ $service ค้างอยู่';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      'ส่งไม่ถึง รายการยังไม่เข้าสู่เครือข่าย และเงินยังถูกล็อกอยู่ ส่งอีกครั้งจะส่งซ้ำโดยไม่ต้องอนุมัติอีก';
 }

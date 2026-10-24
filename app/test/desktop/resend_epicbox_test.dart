@@ -22,16 +22,21 @@ class _Desk extends MockDeskWallet {
   _Desk() : super(delay: Duration.zero);
 
   final List<int> resent = [];
+  final List<int> reposted = [];
 
   @override
   Future<void> resendTx(int id) async => resent.add(id);
+
+  @override
+  Future<void> repostTx(int id) async => reposted.add(id);
 }
 
-Tx _tx({bool undelivered = false, TxMethod method = TxMethod.epicbox}) => Tx(
+Tx _tx({bool undelivered = false, TxMethod method = TxMethod.epicbox, bool notPosted = false}) => Tx(
   id: 77,
   slateId: 'f0e1d2c3-b4a5-4697-8879-9f3a7c21a0b1',
   direction: TxDirection.sent,
-  state: TxState.waitingRecipient,
+  state: notPosted ? TxState.posted : TxState.waitingRecipient,
+  notPosted: notPosted,
   method: method,
   amount: 250000000,
   fee: 7000000,
@@ -93,9 +98,35 @@ void main() {
       await _pump(tester, tx, desk);
       expect(statusOf(englishStrings, tx).$1, 'Not delivered');
       expect(find.textContaining('Not delivered.'), findsOneWidget);
+      // Its words fit the method (windows-07): no epicbox for an HTTP send.
+      expect(find.textContaining('over HTTP'), findsOneWidget);
+      expect(find.textContaining('did not reach the epicbox'), findsNothing);
       await tester.tap(find.widgetWithText(EButton, 'Send again'));
       await tester.pump();
       expect(desk.resent, [77]);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 30));
+    },
+  );
+
+  testWidgets('a Tor send that was not delivered names Tor', (tester) async {
+    await _pump(tester, _tx(undelivered: true, method: TxMethod.tor), _Desk());
+    expect(find.textContaining('over Tor'), findsOneWidget);
+    expect(find.textContaining('did not reach the epicbox'), findsNothing);
+  });
+
+  testWidgets(
+    'a send the node refused says it is not on the network and offers Broadcast again at once (android-17)',
+    (tester) async {
+      final desk = _Desk();
+      final tx = _tx(notPosted: true);
+      await _pump(tester, tx, desk);
+      expect(statusOf(englishStrings, tx).$1, 'Not on the network');
+      expect(find.textContaining('Not on the network.'), findsOneWidget);
+      expect(find.textContaining('waiting for a block'), findsNothing);
+      await tester.tap(find.widgetWithText(EButton, 'Broadcast again'));
+      await tester.pump();
+      expect(desk.reposted, [77]);
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 30));
     },
