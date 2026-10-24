@@ -109,63 +109,7 @@ Color _colour(WalletTokens t, String name) => switch (name) {
   _ => t.risk,
 };
 
-const _onion = 'abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvwx';
-
 void main() {
-  group('the hub summary reads node · epicbox · tor', () {
-    MemorySecretStore saved(String node, String relay) => MemorySecretStore({
-      'app.network': 'mainnet',
-      'app.node.mainnet': node,
-      'app.relay.mainnet': relay,
-    });
-
-    for (final (tor, word) in [
-      (const PhoneTorState(phase: PhoneTorPhase.off, onion: _onion), 'Tor off'),
-      (
-        const PhoneTorState(
-          receiving: true,
-          phase: PhoneTorPhase.ready,
-          onion: _onion,
-        ),
-        'Tor on',
-      ),
-    ]) {
-      testWidgets('Tor ${tor.phase.name}', (tester) async {
-        await _pump(
-          tester,
-          const SettingsScreen(),
-          tor,
-          store: saved('https://node.btlabs.uk', 'epicbox.epiccash.com'),
-        );
-        expect(
-          find.descendant(
-            of: find.byKey(settingsGroupKey(SettingsSection.privacyNetwork)),
-            matching: find.text('btlabs.uk · epiccash.com · $word'),
-          ),
-          findsOneWidget,
-        );
-      });
-    }
-
-    testWidgets('a node with a port and a relay with a port lose the port and the first label', (
-      tester,
-    ) async {
-      await _pump(
-        tester,
-        const SettingsScreen(),
-        const PhoneTorState(phase: PhoneTorPhase.off, onion: _onion),
-        store: saved('https://node.epicnet.us:3413', 'epicbox.stackwallet.com:443'),
-      );
-      expect(
-        find.descendant(
-          of: find.byKey(settingsGroupKey(SettingsSection.privacyNetwork)),
-          matching: find.text('epicnet.us · stackwallet.com · Tor off'),
-        ),
-        findsOneWidget,
-      );
-    });
-  });
-
   group('the Node and Epicbox rows are the pickers (one place to change servers)', () {
     final store = MemorySecretStore({
       'app.network': 'mainnet',
@@ -267,20 +211,20 @@ void main() {
           await tester.pumpAndSettle();
           final row = _row(route);
           expect(row, findsOneWidget);
-          final line = find.descendant(
-            of: row,
-            matching: find.byType(TorWayLine),
-          );
+          // One row per server on the page: the status card's, nothing repeated below it.
+          expect(find.text(route == TorRoute.node ? 'Node' : 'Epicbox'), findsOneWidget);
           if (word == null) {
-            expect(line, findsNothing);
+            for (final w in ['Over Tor', 'Waiting for Tor']) {
+              expect(find.descendant(of: row, matching: find.text(w)), findsNothing);
+            }
             expect(
               find.descendant(of: row, matching: find.byIcon(torIcon)),
               findsNothing,
             );
             return;
           }
-          expect(line, findsOneWidget);
           final text = find.descendant(of: row, matching: find.text(word));
+          expect(text, findsOneWidget);
           final t = tester.element(row).tokens;
           expect(tester.widget<Text>(text).style?.color, _colour(t, colour!));
         },

@@ -146,9 +146,10 @@ String networkModeName(AppLocalizations l, NetworkMode m) => switch (m) {
 /// The key of the Privacy header on the Privacy & network page, for tests.
 const Key settingsPrivacyKey = ValueKey('settings-privacy');
 
-/// The Node and Epicbox rows of Privacy & network, for tests.
-const Key settingsNodeKey = ValueKey('settings-node');
-const Key settingsEpicboxKey = ValueKey('settings-epicbox');
+/// The Node and Epicbox rows of Privacy & network, for tests: the status card's rows while a
+/// wallet is open, the plain rows otherwise.
+const Key settingsNodeKey = netStatusNodeKey;
+const Key settingsEpicboxKey = netStatusEpicboxKey;
 
 /// The key of the Licences row in About, for tests.
 const Key settingsLicencesKey = ValueKey('settings-licences');
@@ -528,27 +529,17 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final devNetworks = ref.watch(devNetworksProvider);
     final advanced = AdvancedOptions.of(context);
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
+    // One row per thing (the owner, 26.10.11): Node and Epicbox with their host and health, each
+    // opening its picker (the status card's rows, the same pickers as the icons on Home), the
+    // Tor switch, then the other privacy settings. With no wallet open there is no health to
+    // show: plain rows open the same pickers.
     return [
       if (walletOpen)
         const Padding(
           padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
           child: NetworkStatusCard(showTor: false),
-        ),
-      // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
-      // state; it moves nothing the user chose.
-      SettingsHeader(l.settingsSectionPrivacy, key: settingsPrivacyKey),
-      if (walletOpen && torAvailable) const TorSwitchTile(),
-      HintSwitchTile(
-        icon: Icons.travel_explore,
-        title: l.settingsUseStatusSite,
-        hint: l.settingsUseStatusSiteSubtitle,
-        value: s.useStatusSite,
-        onChanged: _settings.setUseStatusSite,
-      ),
-      if (!demo) ...[
-        SettingsHeader(l.settingsSectionNetwork),
-        // The same pickers as the status icons on Home: a tap on a server switches the open
-        // wallet to it live. Under each, the connection over Tor or waiting for it.
+        )
+      else if (!demo) ...[
         ListTile(
           key: settingsNodeKey,
           leading: const Icon(Icons.dns_outlined),
@@ -577,15 +568,26 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           ),
           onTap: () => showEpicboxPicker(context),
         ),
-        // Development builds only: the network itself, each with its own wallet.
-        if (advanced.has(AdvancedFeature.serverDetails) && devNetworks)
-          ListTile(
-            leading: const Icon(Icons.hub),
-            title: Text(l.settingsAboutNetwork),
-            subtitle: Text(chain),
-            onTap: () => showNetworkChooser(context),
-          ),
       ],
+      // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
+      // state; it moves nothing the user chose.
+      SettingsHeader(l.settingsSectionPrivacy, key: settingsPrivacyKey),
+      if (walletOpen && torAvailable) const TorSwitchTile(),
+      HintSwitchTile(
+        icon: Icons.travel_explore,
+        title: l.settingsUseStatusSite,
+        hint: l.settingsUseStatusSiteSubtitle,
+        value: s.useStatusSite,
+        onChanged: _settings.setUseStatusSite,
+      ),
+      // Development builds only: the network itself, each with its own wallet.
+      if (!demo && advanced.has(AdvancedFeature.serverDetails) && devNetworks)
+        ListTile(
+          leading: const Icon(Icons.hub),
+          title: Text(l.settingsAboutNetwork),
+          subtitle: Text(chain),
+          onTap: () => showNetworkChooser(context),
+        ),
     ];
   }
 
