@@ -567,7 +567,7 @@ class _DefaultsBox extends ConsumerWidget {
           ),
           ESetRow(
             title: 'Split change',
-            text: 'When a send would leave fewer than 3 spendable outputs, its change comes back as up to 4 outputs. Costs 0.004 EPIC per extra output.',
+            text: 'When a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC, the change comes back as up to 4 outputs of at least 0.5 EPIC each. Costs 0.004 EPIC per extra output.',
             control: ESwitch(
               value: prefs.smartOutputs,
               semanticLabel: 'Split change',

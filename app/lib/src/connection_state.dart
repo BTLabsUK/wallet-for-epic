@@ -12,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_log.dart';
 import 'net/tor_switch.dart';
 import 'phone_tor.dart';
+import 'tor_phone.dart' show phoneTorState;
+import 'tor_routes.dart';
 import 'providers.dart';
 import 'ui/status.dart';
 
@@ -32,6 +34,11 @@ final rawWalletStatusProvider = Provider<WalletStatus>((ref) {
     percent: syncing ? ref.watch(syncProgressProvider) : null,
     summary: data?.summary,
     listener: ref.watch(listenerProvider),
+    // The phone's Tor controller runs from Home on; the status never starts it itself.
+    waitingForTor:
+        ref.exists(phoneTorProvider) &&
+        torWay(TorRoute.epicbox, phoneTorState(ref.watch(phoneTorProvider))) ==
+            TorWay.wait,
   );
 });
 
