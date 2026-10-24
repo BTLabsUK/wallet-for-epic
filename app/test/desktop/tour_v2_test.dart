@@ -118,6 +118,20 @@ void main() {
     });
   });
 
+  testWidgets('the sidebar runs as the phone: Activity, Outputs, Contacts, Invoices, Send, Receive; each step lights an entry in it', (tester) async {
+    await _open(tester, DeskRoute.overview);
+    await _settle(tester);
+    double top(String id) => tester.getTopLeft(find.byKey(tourKey(id))).dy;
+    final ids = ['nav-overview', 'nav-activity', 'nav-outputs', 'nav-contacts', 'nav-invoices', 'nav-send', 'nav-receive', 'nav-settings'];
+    final tops = [for (final id in ids) top(id)];
+    for (var i = 1; i < tops.length; i++) {
+      expect(tops[i], greaterThan(tops[i - 1]), reason: '${ids[i]} below ${ids[i - 1]}');
+    }
+    for (final step in tourStepsFor(invoices: true)) {
+      expect(find.byKey(tourKey(step.navId)), findsOneWidget, reason: step.title);
+    }
+  });
+
   testWidgets('Next walks every page in order, lights the area and the sidebar entry, and ends on Help', (tester) async {
     final container = await _open(tester, DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
