@@ -13,6 +13,7 @@ import 'help_places.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
+import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'settings_logs.dart';
 
 /// The query's words, lower case, longest first; none under two letters in all.
@@ -245,8 +246,8 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                   ),
                 ),
           ],
-          SizedBox(height: Sp.x2),
-          LogsGroup(key: _logsKey),
+          // Advanced › Logs.
+          if (advancedHas(ref, AdvancedFeature.logs)) ...[SizedBox(height: Sp.x2), LogsGroup(key: _logsKey)],
         ],
       ),
     );

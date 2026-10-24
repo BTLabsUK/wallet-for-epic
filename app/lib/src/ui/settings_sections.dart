@@ -99,7 +99,7 @@ final biometricsProvider =
 
 /// The groups of the Settings hub that open a page of their own. Help & feedback opens Help
 /// and Notifications is a switch on the hub, so neither is here.
-enum SettingsSection { security, privacyNetwork, wallet, display, about }
+enum SettingsSection { security, privacyNetwork, wallet, display, advanced, about }
 
 /// The group's title, on the hub's row and on its page's app bar.
 String settingsSectionTitle(AppLocalizations l, SettingsSection section) =>
@@ -108,6 +108,7 @@ String settingsSectionTitle(AppLocalizations l, SettingsSection section) =>
       SettingsSection.privacyNetwork => l.settingsSectionPrivacyNetwork,
       SettingsSection.wallet => l.settingsSectionWallet,
       SettingsSection.display => l.settingsSectionDisplay,
+      SettingsSection.advanced => l.advTitle,
       SettingsSection.about => l.settingsSectionAbout,
     };
 
@@ -117,7 +118,30 @@ IconData settingsSectionIcon(SettingsSection section) => switch (section) {
   SettingsSection.privacyNetwork => Icons.hub_outlined,
   SettingsSection.wallet => Icons.account_balance_wallet_outlined,
   SettingsSection.display => Icons.tune,
+  SettingsSection.advanced => Icons.terminal,
   SettingsSection.about => Icons.info_outline,
+};
+
+/// A feature's name as the Advanced page shows it (the hub's state line reuses it).
+String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) {
+  AdvancedFeature.outputs => l.advOutputs,
+  AdvancedFeature.technicalDetails => l.advTechnical,
+  AdvancedFeature.sendOptions => l.advSendOptions,
+  AdvancedFeature.transactionFiles => l.advFiles,
+  AdvancedFeature.directReceiving => l.advDirect,
+  AdvancedFeature.serverDetails => l.advServerDetails,
+  AdvancedFeature.recheckFromHeight => l.advRecheckHeight,
+  // Desktop only; never on a phone's list.
+  AdvancedFeature.builtInNode => l.advBuiltInNode,
+  AdvancedFeature.logs => l.advLogs,
+};
+
+/// A network mode's name.
+String networkModeName(AppLocalizations l, NetworkMode m) => switch (m) {
+  NetworkMode.standard => l.advModeStandard,
+  NetworkMode.torFirst => l.advModeTorFirst,
+  NetworkMode.torOnly => l.advModeTorOnly,
+  NetworkMode.offline => l.advModeOffline,
 };
 
 /// The key of the Privacy header on the Privacy & network page, for tests.
@@ -408,6 +432,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       SettingsSection.privacyNetwork => _privacyNetwork(l),
       SettingsSection.wallet => _wallet(l),
       SettingsSection.display => _display(l),
+      SettingsSection.advanced => _advanced(l),
       SettingsSection.about => _about(l),
     };
     return SlotScaffold(
@@ -554,7 +579,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           onTap: () => showEpicboxPicker(context),
         ),
         // Development builds only: the network itself, each with its own wallet.
-        if (advanced && devNetworks)
+        if (advanced.has(AdvancedFeature.serverDetails) && devNetworks)
           ListTile(
             leading: const Icon(Icons.hub),
             title: Text(l.settingsAboutNetwork),
@@ -593,12 +618,16 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         title: Text(l.settingsContacts),
         onTap: () => _push(const ContactsScreen()),
       ),
-      ListTile(
-        leading: const Icon(Icons.grain),
-        title: Text(l.outputsTitle),
-        subtitle: outputsSubtitle,
-        onTap: () => _push(const OutputsScreen()),
-      ),
+      // Advanced › Outputs; a split or consolidation mid-way keeps the row (never hide what is
+      // in use).
+      if (advanced.has(AdvancedFeature.outputs) ||
+          (outputs?.any((o) => outputWord(o) == OutputLabel.confirming) ?? false))
+        ListTile(
+          leading: const Icon(Icons.grain),
+          title: Text(l.outputsTitle),
+          subtitle: outputsSubtitle,
+          onTap: () => _push(const OutputsScreen()),
+        ),
       if (invoices)
         ListTile(
           leading: const Icon(Icons.request_quote_outlined),
@@ -631,7 +660,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
               : () => _run(() => importHistoryBackup(context, ref)),
         ),
       ],
-      if (advanced && !demo)
+      // Recheck balance is the fix for a wrong balance: for everyone. From a height is Advanced.
+      if (!demo)
         ListTile(
           leading: const Icon(Icons.sync),
           title: Text(l.settingsRescan),
@@ -647,6 +677,138 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ),
         enabled: !_busy,
         onTap: demo ? () => _run(() => endDemo(context, ref)) : _deleteWallet,
+      ),
+    ];
+  }
+
+  /// Advanced: the switches that show more of the wallet, each explained in a sheet, and the
+  /// one network mode. Nothing here is a value the simple path needs.
+  List<Widget> _advanced(AppLocalizations l) {
+    final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
+    final adv = s.advanced;
+    final t = context.tokens;
+    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    Widget feature(
+      AdvancedFeature f,
+      IconData icon,
+      String title,
+      String hint,
+    ) => HintSwitchTile(
+      key: ValueKey('adv-${f.name}'),
+      icon: icon,
+      title: title,
+      hint: hint,
+      value: adv.has(f),
+      onChanged: (on) => _settings.setFeature(f, on),
+    );
+    Widget mode(NetworkMode m, String title, String line, {bool enabled = true}) =>
+        RadioListTile<NetworkMode>(
+          key: ValueKey('adv-mode-${m.name}'),
+          value: m,
+          enabled: enabled,
+          title: Text(title),
+          subtitle: Text(line),
+        );
+    final note = switch (adv.networkMode) {
+      NetworkMode.torOnly => l.advTorOnlyNote,
+      NetworkMode.offline => l.advOfflineNote,
+      _ => null,
+    };
+    return [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+        child: Text(
+          l.advIntro,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim),
+        ),
+      ),
+      SettingsHeader(l.advShowsHeader),
+      feature(AdvancedFeature.outputs, Icons.grain, l.advOutputs, l.advOutputsHint),
+      feature(
+        AdvancedFeature.technicalDetails,
+        Icons.data_object,
+        l.advTechnical,
+        l.advTechnicalHint,
+      ),
+      feature(
+        AdvancedFeature.sendOptions,
+        Icons.call_split,
+        l.advSendOptions,
+        l.advSendOptionsHint,
+      ),
+      feature(
+        AdvancedFeature.transactionFiles,
+        Icons.description_outlined,
+        l.advFiles,
+        l.advFilesHint,
+      ),
+      if (torAvailable)
+        feature(AdvancedFeature.directReceiving, Icons.link, l.advDirect, l.advDirectHint),
+      feature(
+        AdvancedFeature.serverDetails,
+        Icons.dns_outlined,
+        l.advServerDetails,
+        l.advServerDetailsHint,
+      ),
+      feature(
+        AdvancedFeature.recheckFromHeight,
+        Icons.sync,
+        l.advRecheckHeight,
+        l.advRecheckHeightHint,
+      ),
+      const SizedBox(height: 8),
+      Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: Row(
+          children: [
+            Expanded(child: SettingsHeader(l.advNetworkHeader)),
+            InfoHint(l.advNetworkHint, title: l.advNetworkHeader, icon: Icons.hub_outlined),
+          ],
+        ),
+      ),
+      RadioGroup<NetworkMode>(
+        groupValue: adv.networkMode,
+        onChanged: (v) {
+          if (v != null) _settings.setNetworkMode(v);
+        },
+        child: Column(
+          children: [
+            mode(NetworkMode.standard, l.advModeStandard, l.advModeStandardLine),
+            mode(
+              NetworkMode.torFirst,
+              l.advModeTorFirst,
+              l.advModeTorFirstLine,
+              enabled: torAvailable,
+            ),
+            mode(
+              NetworkMode.torOnly,
+              l.advModeTorOnly,
+              l.advModeTorOnlyLine,
+              enabled: torAvailable,
+            ),
+            mode(NetworkMode.offline, l.advModeOffline, l.advModeOfflineLine),
+          ],
+        ),
+      ),
+      if (note != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          child: Text(
+            note,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.warn),
+          ),
+        ),
+      const Divider(height: 24),
+      ListTile(
+        key: const ValueKey('adv-reset'),
+        leading: const Icon(Icons.visibility_off_outlined),
+        title: Text(l.advReset),
+        enabled: adv.features.isNotEmpty,
+        onTap: adv.features.isEmpty
+            ? null
+            : () => _settings.setAdvanced(
+                AdvancedPrefs(networkMode: adv.networkMode),
+              ),
       ),
     ];
   }
@@ -688,10 +850,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ];
   }
 
-  /// About: the app, its version and updates, then the rare things: Advanced options,
-  /// Licences and the links.
+  /// About: the app, its version and updates, then the rare things: Licences and the links.
+  /// Advanced is a hub row of its own.
   List<Widget> _about(AppLocalizations l) {
-    final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final version = ref.watch(appVersionProvider);
     final demo = ref.watch(demoModeProvider);
     final updates = !demo && ref.read(updateProvider.notifier).supported;
@@ -717,13 +878,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             _say(l.updateChecking, level: NoticeLevel.info);
           },
         ),
-      HintSwitchTile(
-        icon: Icons.terminal,
-        title: l.settingsAdvancedOptions,
-        hint: l.settingsAdvancedOptionsSubtitle,
-        value: s.advancedOptions,
-        onChanged: _settings.setAdvancedOptions,
-      ),
       // The short Licences screen; the full texts (the packages', the fonts', the word
       // lists' and the bundled tor's) are one tap further.
       ListTile(

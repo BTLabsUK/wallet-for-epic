@@ -11,6 +11,7 @@ import '../screens/onboarding/unlock_screen.dart';
 import '../screens/onboarding/welcome_screen.dart';
 import '../screens/settings/settings_about.dart';
 import '../screens/settings/settings_account.dart';
+import '../screens/settings/settings_advanced.dart';
 import '../screens/settings/settings_appearance.dart';
 import '../screens/settings/settings_help.dart';
 import '../screens/settings/settings_invoices.dart';
@@ -60,6 +61,7 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.settingsWallets => SettingsWalletsScreen(arg: a),
     DeskRoute.settingsPhrase => SettingsPhraseScreen(arg: a),
     DeskRoute.settingsRescan => SettingsRescanScreen(arg: a),
+    DeskRoute.settingsAdvanced => SettingsAdvancedScreen(arg: a),
     DeskRoute.settingsAbout => SettingsAboutScreen(arg: a),
     DeskRoute.settingsHelp => SettingsHelpScreen(arg: a),
   };

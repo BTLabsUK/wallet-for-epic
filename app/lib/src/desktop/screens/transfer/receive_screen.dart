@@ -13,6 +13,7 @@ import '../../widgets/kit.dart';
 import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 enum RxEpicbox { on, off, down }
 
@@ -166,11 +167,14 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
     final epicbox = TourTarget(id: 'receive-epicbox', child: _epicboxPanel(st, status));
+    // Advanced › Direct receiving; Tor receiving on or a running listener keeps its panel.
+    final direct = advancedHas(ref, AdvancedFeature.directReceiving, keep: st.settings.tor || status?.httpListener == ServiceHealth.ok);
     final others = [
-      if (DeskFeatures.tor && st.settings.tor) _torPanel(st, status) else if (DeskFeatures.httpDirect) _httpPanel(st, status),
+      if (DeskFeatures.tor && st.settings.tor) _torPanel(st, status) else if (DeskFeatures.httpDirect && direct) _httpPanel(st, status),
     ];
     final tor = torStateOf(st.settings, status);
-    final files = _filesPanel(nav);
+    // Advanced › Transaction files.
+    final files = advancedHas(ref, AdvancedFeature.transactionFiles) ? _filesPanel(nav) : null;
     final head = ESectionHead(
       l.deskRecvOtherWays,
       top: 0,
@@ -202,7 +206,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                 children: [
                   Expanded(
                     flex: 7,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, files])),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, ?files])),
                   ),
                   if (others.isNotEmpty) ...[
                     SizedBox(width: Sp.x6),
@@ -228,8 +232,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
                   ),
                 ],
-                SizedBox(height: Sp.x3),
-                files,
+                if (files != null) ...[SizedBox(height: Sp.x3), files],
               ],
             );
           },

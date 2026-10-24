@@ -5207,7 +5207,7 @@
   "@outputsConsolidateStarted": {
     "description": "Notice after a consolidation was posted."
   },
-  "outputsAdvanced": "Advanced",
+  "outputsAdvanced": "Manage outputs",
   "@outputsAdvanced": {
     "description": "Outputs screen: head of the section under the table that holds Split, Consolidate, the strategy and Split change."
   },
@@ -6239,7 +6239,7 @@
   "@deskInvSlateId": {
     "description": "Label: the transaction's technical identifier (Advanced)."
   },
-  "deskInvAdvanced": "Advanced",
+  "deskInvAdvanced": "Address and expiry",
   "@deskInvAdvanced": {
     "description": "Title of a fold that holds technical controls (slate ID, rotation, expiry). Desktop has no Advanced switch."
   },
@@ -9226,7 +9226,7 @@
   "@deskSendAdvAllNoSplit": {
     "description": "Subtitle of the Advanced disclosure on Send: strategy All, change not split. Starts with a middle dot."
   },
-  "deskSendAdvanced": "Advanced",
+  "deskSendAdvanced": "Send options",
   "@deskSendAdvanced": {
     "description": "Title of the collapsed Advanced disclosure on Send."
   },
@@ -12028,7 +12028,7 @@
   "@deskOnbWelcomeBack": {
     "description": "Link on the Welcome page (when wallets exist) that returns to the unlock screen."
   },
-  "deskOnbWelcomeAdvanced": "Advanced",
+  "deskOnbWelcomeAdvanced": "Network and folder",
   "@deskOnbWelcomeAdvanced": {
     "description": "Title of the collapsible 'Advanced' section of the Welcome page (network and data folder)."
   },
@@ -17692,7 +17692,7 @@
   "@deskSetPhraseCopyText": {
     "description": "Confirm dialog text before the recovery phrase is copied to the clipboard."
   },
-  "deskOutAdvanced": "Advanced",
+  "deskOutAdvanced": "Manage outputs",
   "@deskOutAdvanced": {
     "description": "Head of the management section under the outputs table: the intro paragraph, Split and Consolidate, the defaults for sends."
   },
@@ -18115,5 +18115,302 @@
   "deskUpdUnfinished": "Update didn't finish. Try again.",
   "@deskUpdUnfinished": {
     "description": "Sidebar notice and Settings › About (Windows): an update was started but Setup did not finish (it was stopped or failed part way); the action runs the update again. The version is on the line under it."
+  },
+  "advTitle": "Advanced",
+  "@advTitle": {
+    "description": "Title of the Advanced page in Settings and its hub row."
+  },
+  "advStateOff": "Off",
+  "@advStateOff": {
+    "description": "State line of the Advanced hub row when nothing is switched on."
+  },
+  "advIntro": "Off by default. Each switch shows one more part of the wallet, where it belongs.",
+  "@advIntro": {
+    "description": "First line of the Advanced page."
+  },
+  "advShowsHeader": "Shows more",
+  "@advShowsHeader": {
+    "description": "Header over the visibility switches on the Advanced page."
+  },
+  "advNetworkHeader": "Network",
+  "@advNetworkHeader": {
+    "description": "Header over the network mode choice on the Advanced page."
+  },
+  "advNetworkHint": "One choice for how the wallet reaches the network. Standard connects directly and leaves Tor to the Privacy & network switch. Tor first starts Tor with the wallet and asks before falling back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all; transaction files still work.",
+  "@advNetworkHint": {
+    "description": "Info sheet behind the Network header on the Advanced page."
+  },
+  "advOutputs": "Outputs",
+  "@advOutputs": {
+    "description": "Advanced switch: the Outputs page."
+  },
+  "advOutputsHint": "The Outputs page under Wallet: the coins the balance is made of, Split and Consolidate, and the defaults a send uses. A split or consolidation in progress stays visible either way.",
+  "@advOutputsHint": {
+    "description": "Info sheet of the Outputs switch."
+  },
+  "advTechnical": "Technical details",
+  "@advTechnical": {
+    "description": "Advanced switch: technical rows on transactions."
+  },
+  "advTechnicalHint": "Kernel, slate ID, commitments and block height on a transaction's details, open by default; the invoice address rotation and dropped count in Invoices.",
+  "@advTechnicalHint": {
+    "description": "Info sheet of the Technical details switch."
+  },
+  "advSendOptions": "Send options",
+  "@advSendOptions": {
+    "description": "Advanced switch: strategy and split change on Send."
+  },
+  "advSendOptionsHint": "Which outputs a send spends (Smallest or All) and whether its change is split, for one send at a time, on Send's review. The defaults stay on Outputs.",
+  "@advSendOptionsHint": {
+    "description": "Info sheet of the Send options switch."
+  },
+  "advFiles": "Transaction files",
+  "@advFiles": {
+    "description": "Advanced switch: the file method on Send and Receive."
+  },
+  "advFilesHint": "The File method on Send and Receive: a payment as a file handed over any way, signed and handed back. For a wallet that uses no relay. A file payment in progress keeps the method visible.",
+  "@advFilesHint": {
+    "description": "Info sheet of the Transaction files switch."
+  },
+  "advDirect": "Direct receiving",
+  "@advDirect": {
+    "description": "Advanced switch: the Direct (Tor) method."
+  },
+  "advDirectHint": "An address of this phone's own, reached over Tor, beside Epicbox. Shows the Direct method on Send and Receive and its state in Privacy & network. While Direct receiving is on, the method stays visible.",
+  "@advDirectHint": {
+    "description": "Info sheet of the Direct receiving switch."
+  },
+  "advServerDetails": "Server details",
+  "@advServerDetails": {
+    "description": "Advanced switch: hosts, latency, version, height."
+  },
+  "advServerDetailsHint": "Hosts, latency, version and block height in the server pickers and on the status card; the relay address under Receive and the invoice address in full.",
+  "@advServerDetailsHint": {
+    "description": "Info sheet of the Server details switch."
+  },
+  "advRecheckHeight": "Recheck from a height",
+  "@advRecheckHeight": {
+    "description": "Advanced switch: recheck balance and restore from a block height or date."
+  },
+  "advRecheckHeightHint": "Recheck balance and Restore can start from a block height or a date instead of the first block. Faster, and the only way to skip early history.",
+  "@advRecheckHeightHint": {
+    "description": "Info sheet of the Recheck from a height switch."
+  },
+  "advModeStandard": "Standard",
+  "@advModeStandard": {
+    "description": "Network mode: direct connections."
+  },
+  "advModeStandardLine": "Connects directly. Tor can be turned on in Privacy & network.",
+  "@advModeStandardLine": {
+    "description": "One line under the Standard network mode."
+  },
+  "advModeTorFirst": "Tor first",
+  "@advModeTorFirst": {
+    "description": "Network mode: Tor starts with the wallet, direct as a fallback."
+  },
+  "advModeTorFirstLine": "Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.",
+  "@advModeTorFirstLine": {
+    "description": "One line under the Tor first network mode."
+  },
+  "advModeTorOnly": "Tor only",
+  "@advModeTorOnly": {
+    "description": "Network mode: Tor or nothing."
+  },
+  "advModeTorOnlyLine": "Every connection goes through Tor. Without Tor the wallet stays offline and says so.",
+  "@advModeTorOnlyLine": {
+    "description": "One line under the Tor only network mode."
+  },
+  "advModeOffline": "Offline",
+  "@advModeOffline": {
+    "description": "Network mode: no network."
+  },
+  "advModeOfflineLine": "No network. The balance stays as last seen; transaction files still work.",
+  "@advModeOfflineLine": {
+    "description": "One line under the Offline network mode."
+  },
+  "advTorOnlyNote": "Tor only pauses notifications: a push registration would show this phone's address.",
+  "@advTorOnlyNote": {
+    "description": "Note under the network choice while Tor only is selected."
+  },
+  "advOfflineNote": "Offline pauses Epicbox, Direct receiving, status checks and notifications until the mode changes.",
+  "@advOfflineNote": {
+    "description": "Note under the network choice while Offline is selected."
+  },
+  "advReset": "Hide everything again",
+  "@advReset": {
+    "description": "Row at the end of the Advanced page: turns every visibility switch off. The network mode stays."
+  },
+  "advHomeOffline": "Offline mode",
+  "@advHomeOffline": {
+    "description": "Home status line while the Offline network mode is on."
+  },
+  "advHomeTorOnlyWaiting": "Tor only · waiting for Tor",
+  "@advHomeTorOnlyWaiting": {
+    "description": "Home status line while Tor only is on and Tor is not connected yet."
+  },
+  "advBuiltInNode": "Built-in node",
+  "@advBuiltInNode": {
+    "description": "Advanced switch (desktop): run a node on this computer."
+  },
+  "advLogs": "Logs",
+  "@advLogs": {
+    "description": "Advanced switch (desktop): logs and diagnostics."
+  },
+  "deskSetFrameAdvanced": "Advanced",
+  "@deskSetFrameAdvanced": {
+    "description": "Settings sidebar entry and page name of the Advanced section. Narrow (about 200 px)."
+  },
+  "deskSetAdvIntro": "Off by default. Each switch shows one more part of the wallet, where it belongs.",
+  "@deskSetAdvIntro": {
+    "description": "First line of Settings › Advanced."
+  },
+  "deskSetAdvShows": "Shows more",
+  "@deskSetAdvShows": {
+    "description": "Title of the group of visibility switches on Settings › Advanced."
+  },
+  "deskSetAdvOutputs": "Outputs",
+  "@deskSetAdvOutputs": {
+    "description": "Advanced switch: the Outputs page in the sidebar."
+  },
+  "deskSetAdvOutputsHint": "The Outputs page in the sidebar: the coins the balance is made of, Split and Consolidate, and the defaults a send uses. A split or consolidation in progress keeps the page either way.",
+  "@deskSetAdvOutputsHint": {
+    "description": "Hover card of the Outputs switch."
+  },
+  "deskSetAdvTechnical": "Technical details",
+  "@deskSetAdvTechnical": {
+    "description": "Advanced switch: technical rows on transactions."
+  },
+  "deskSetAdvTechnicalHint": "The Technical fold on a transaction: slate ID, kernel, block height, the core's status and type, the payment proof; the Advanced folds in Invoices.",
+  "@deskSetAdvTechnicalHint": {
+    "description": "Hover card of the Technical details switch."
+  },
+  "deskSetAdvSendOptions": "Send options",
+  "@deskSetAdvSendOptions": {
+    "description": "Advanced switch: the Advanced fold on Send."
+  },
+  "deskSetAdvSendOptionsHint": "The fold on Send with the strategy (Smallest or All outputs) and Split change for one send. The defaults stay on Outputs.",
+  "@deskSetAdvSendOptionsHint": {
+    "description": "Hover card of the Send options switch."
+  },
+  "deskSetAdvFiles": "Transaction files",
+  "@deskSetAdvFiles": {
+    "description": "Advanced switch: the File method."
+  },
+  "deskSetAdvFilesHint": "The File method on Send and Receive, with Finalize and Import: a payment as a file handed over any way, signed and handed back. For a wallet that uses no relay. A file payment in progress keeps the method visible.",
+  "@deskSetAdvFilesHint": {
+    "description": "Hover card of the Transaction files switch."
+  },
+  "deskSetAdvDirect": "Direct receiving",
+  "@deskSetAdvDirect": {
+    "description": "Advanced switch: HTTP and Tor receiving."
+  },
+  "deskSetAdvDirectHint": "Receiving at this computer's own address over HTTP or Tor, beside Epicbox: the Direct method on Send, the HTTP and Tor addresses on Receive, and their settings under Receiving. A listener that is on keeps its rows.",
+  "@deskSetAdvDirectHint": {
+    "description": "Hover card of the Direct receiving switch."
+  },
+  "deskSetAdvServerDetails": "Server details",
+  "@deskSetAdvServerDetails": {
+    "description": "Advanced switch: hosts, latency, version, height."
+  },
+  "deskSetAdvServerDetailsHint": "Hosts, latency, version and block height in the node and Epicbox lists, on the sidebar's status rows and in the status card.",
+  "@deskSetAdvServerDetailsHint": {
+    "description": "Hover card of the Server details switch."
+  },
+  "deskSetAdvRecheck": "Recheck from a height",
+  "@deskSetAdvRecheck": {
+    "description": "Advanced switch: recheck balance from a height, delete unconfirmed, restore from a height."
+  },
+  "deskSetAdvRecheckHint": "Recheck balance and Restore can start from a block height instead of the first block, and Recheck can drop unconfirmed transactions. Faster, and the only way to skip early history.",
+  "@deskSetAdvRecheckHint": {
+    "description": "Hover card of the Recheck from a height switch."
+  },
+  "deskSetAdvBuiltInNode": "Built-in node",
+  "@deskSetAdvBuiltInNode": {
+    "description": "Advanced switch: the node on this computer."
+  },
+  "deskSetAdvBuiltInNodeHint": "A node on this computer: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes. A node that is running keeps its rows.",
+  "@deskSetAdvBuiltInNodeHint": {
+    "description": "Hover card of the Built-in node switch."
+  },
+  "deskSetAdvLogs": "Logs",
+  "@deskSetAdvLogs": {
+    "description": "Advanced switch: logs and diagnostics."
+  },
+  "deskSetAdvLogsHint": "The Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.",
+  "@deskSetAdvLogsHint": {
+    "description": "Hover card of the Logs switch."
+  },
+  "deskSetAdvNetwork": "Network",
+  "@deskSetAdvNetwork": {
+    "description": "Title of the network mode group on Settings › Advanced."
+  },
+  "deskSetAdvNetworkHint": "One choice for how the wallet reaches the network. Standard connects directly and leaves Tor to the Privacy switch. Tor first starts Tor with the wallet and asks before falling back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all; transaction files still work.",
+  "@deskSetAdvNetworkHint": {
+    "description": "Hover card of the Network group."
+  },
+  "deskSetAdvModeStandard": "Standard",
+  "@deskSetAdvModeStandard": {
+    "description": "Network mode: direct connections."
+  },
+  "deskSetAdvModeStandardText": "Connects directly. Tor can be turned on under Privacy.",
+  "@deskSetAdvModeStandardText": {
+    "description": "Text under the Standard mode."
+  },
+  "deskSetAdvModeTorFirst": "Tor first",
+  "@deskSetAdvModeTorFirst": {
+    "description": "Network mode: Tor at launch, direct as a fallback."
+  },
+  "deskSetAdvModeTorFirstText": "Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.",
+  "@deskSetAdvModeTorFirstText": {
+    "description": "Text under the Tor first mode."
+  },
+  "deskSetAdvModeTorOnly": "Tor only",
+  "@deskSetAdvModeTorOnly": {
+    "description": "Network mode: Tor or nothing."
+  },
+  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Without Tor the wallet stays offline and says so.",
+  "@deskSetAdvModeTorOnlyText": {
+    "description": "Text under the Tor only mode."
+  },
+  "deskSetAdvModeOffline": "Offline",
+  "@deskSetAdvModeOffline": {
+    "description": "Network mode: no network."
+  },
+  "deskSetAdvModeOfflineText": "No network. The balance stays as last seen; transaction files still work.",
+  "@deskSetAdvModeOfflineText": {
+    "description": "Text under the Offline mode."
+  },
+  "deskSetAdvTorOnlyNote": "Tor only turns HTTP receiving off: a plain address would show this computer.",
+  "@deskSetAdvTorOnlyNote": {
+    "description": "Note under the network choice while Tor only is selected."
+  },
+  "deskSetAdvOfflineNote": "Offline pauses Epicbox, Direct receiving, the node and status checks until the mode changes.",
+  "@deskSetAdvOfflineNote": {
+    "description": "Note under the network choice while Offline is selected."
+  },
+  "deskSetAdvNotInBuild": "Not in this build",
+  "@deskSetAdvNotInBuild": {
+    "description": "Tag on a Tor mode when the build has no tor."
+  },
+  "deskSetAdvReset": "Hide everything again",
+  "@deskSetAdvReset": {
+    "description": "Button at the end of Settings › Advanced: turns every visibility switch off. The network mode stays."
+  },
+  "deskSetAdvOn": "{n, plural, =1{1 switch on} other{{n} switches on}}",
+  "@deskSetAdvOn": {
+    "description": "State line of the Advanced page head: how many visibility switches are on.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "deskShellOffline": "Offline mode",
+  "@deskShellOffline": {
+    "description": "Sidebar status row while the Offline network mode is on."
+  },
+  "deskShellTorOnlyWaiting": "Tor only · waiting for Tor",
+  "@deskShellTorOnlyWaiting": {
+    "description": "Sidebar status row while Tor only is on and Tor is not connected yet."
   }
 }

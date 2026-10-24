@@ -13,6 +13,7 @@ import '../transfer/epicbox_notice.dart';
 import 'combo.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
+import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'settings_http.dart';
 
 /// Start states of Settings › Receiving, for the tour.
@@ -272,7 +273,9 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               ),
             ),
           ]),
-          if (DeskFeatures.httpDirect)
+          // Advanced › Direct receiving; a listener that is on keeps its rows.
+          if (DeskFeatures.httpDirect &&
+              advancedHas(ref, AdvancedFeature.directReceiving, keep: status.httpListener != ServiceHealth.off))
             _group(TxMethod.http, SettingsJump.http, l.deskSetRecvHttpTitle, httpLine, _headWord(l, TxMethod.http, status, s, httpLine), [
               _receivingRow(
                 TxMethod.http,

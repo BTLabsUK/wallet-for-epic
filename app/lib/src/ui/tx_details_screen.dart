@@ -741,11 +741,13 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 notice: l.txDetailsLinkCopied,
               ),
             ),
+          // Advanced › Technical details: without it the rows are not here at all (Send
+          // feedback carries the slate id for support either way).
+          if (AdvancedOptions.has(context, AdvancedFeature.technicalDetails))
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
             childrenPadding: EdgeInsets.zero,
-            // Open by itself for people who asked for the technical side.
-            initiallyExpanded: AdvancedOptions.of(context),
+            initiallyExpanded: true,
             title: Text(l.txDetailsTechnical),
             children: [
               if (tx.blockHeight case final height?)

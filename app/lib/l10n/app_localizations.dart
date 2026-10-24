@@ -6492,7 +6492,7 @@ abstract class AppLocalizations {
   /// Outputs screen: head of the section under the table that holds Split, Consolidate, the strategy and Split change.
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
+  /// **'Manage outputs'**
   String get outputsAdvanced;
 
   /// Output table header: the column with each output's state mark, word and note. One word.
@@ -7734,7 +7734,7 @@ abstract class AppLocalizations {
   /// Title of a fold that holds technical controls (slate ID, rotation, expiry). Desktop has no Advanced switch.
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
+  /// **'Address and expiry'**
   String get deskInvAdvanced;
 
   /// Standing warning on the request form, Review and Settings › Invoices: the same wallet on two devices can intercept invoice payments.
@@ -11196,7 +11196,7 @@ abstract class AppLocalizations {
   /// Title of the collapsed Advanced disclosure on Send.
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
+  /// **'Send options'**
   String get deskSendAdvanced;
 
   /// Screen reader label of the group of strategy radio rows on Send.
@@ -14628,7 +14628,7 @@ abstract class AppLocalizations {
   /// Title of the collapsible 'Advanced' section of the Welcome page (network and data folder).
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
+  /// **'Network and folder'**
   String get deskOnbWelcomeAdvanced;
 
   /// Label of the network selector in the Advanced section of the Welcome page, and its screen-reader name.
@@ -21347,7 +21347,7 @@ abstract class AppLocalizations {
   /// Head of the management section under the outputs table: the intro paragraph, Split and Consolidate, the defaults for sends.
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
+  /// **'Manage outputs'**
   String get deskOutAdvanced;
 
   /// Hover card behind the info icon of the Strategy for sends row (its title is deskOutStrategyHelpTitle).
@@ -21823,6 +21823,444 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update didn\'t finish. Try again.'**
   String get deskUpdUnfinished;
+
+  /// Title of the Advanced page in Settings and its hub row.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get advTitle;
+
+  /// State line of the Advanced hub row when nothing is switched on.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get advStateOff;
+
+  /// First line of the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Off by default. Each switch shows one more part of the wallet, where it belongs.'**
+  String get advIntro;
+
+  /// Header over the visibility switches on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows more'**
+  String get advShowsHeader;
+
+  /// Header over the network mode choice on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get advNetworkHeader;
+
+  /// Info sheet behind the Network header on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'One choice for how the wallet reaches the network. Standard connects directly and leaves Tor to the Privacy & network switch. Tor first starts Tor with the wallet and asks before falling back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all; transaction files still work.'**
+  String get advNetworkHint;
+
+  /// Advanced switch: the Outputs page.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs'**
+  String get advOutputs;
+
+  /// Info sheet of the Outputs switch.
+  ///
+  /// In en, this message translates to:
+  /// **'The Outputs page under Wallet: the coins the balance is made of, Split and Consolidate, and the defaults a send uses. A split or consolidation in progress stays visible either way.'**
+  String get advOutputsHint;
+
+  /// Advanced switch: technical rows on transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details'**
+  String get advTechnical;
+
+  /// Info sheet of the Technical details switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Kernel, slate ID, commitments and block height on a transaction\'s details, open by default; the invoice address rotation and dropped count in Invoices.'**
+  String get advTechnicalHint;
+
+  /// Advanced switch: strategy and split change on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send options'**
+  String get advSendOptions;
+
+  /// Info sheet of the Send options switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Which outputs a send spends (Smallest or All) and whether its change is split, for one send at a time, on Send\'s review. The defaults stay on Outputs.'**
+  String get advSendOptionsHint;
+
+  /// Advanced switch: the file method on Send and Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction files'**
+  String get advFiles;
+
+  /// Info sheet of the Transaction files switch.
+  ///
+  /// In en, this message translates to:
+  /// **'The File method on Send and Receive: a payment as a file handed over any way, signed and handed back. For a wallet that uses no relay. A file payment in progress keeps the method visible.'**
+  String get advFilesHint;
+
+  /// Advanced switch: the Direct (Tor) method.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct receiving'**
+  String get advDirect;
+
+  /// Info sheet of the Direct receiving switch.
+  ///
+  /// In en, this message translates to:
+  /// **'An address of this phone\'s own, reached over Tor, beside Epicbox. Shows the Direct method on Send and Receive and its state in Privacy & network. While Direct receiving is on, the method stays visible.'**
+  String get advDirectHint;
+
+  /// Advanced switch: hosts, latency, version, height.
+  ///
+  /// In en, this message translates to:
+  /// **'Server details'**
+  String get advServerDetails;
+
+  /// Info sheet of the Server details switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosts, latency, version and block height in the server pickers and on the status card; the relay address under Receive and the invoice address in full.'**
+  String get advServerDetailsHint;
+
+  /// Advanced switch: recheck balance and restore from a block height or date.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck from a height'**
+  String get advRecheckHeight;
+
+  /// Info sheet of the Recheck from a height switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck balance and Restore can start from a block height or a date instead of the first block. Faster, and the only way to skip early history.'**
+  String get advRecheckHeightHint;
+
+  /// Network mode: direct connections.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get advModeStandard;
+
+  /// One line under the Standard network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Connects directly. Tor can be turned on in Privacy & network.'**
+  String get advModeStandardLine;
+
+  /// Network mode: Tor starts with the wallet, direct as a fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor first'**
+  String get advModeTorFirst;
+
+  /// One line under the Tor first network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.'**
+  String get advModeTorFirstLine;
+
+  /// Network mode: Tor or nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only'**
+  String get advModeTorOnly;
+
+  /// One line under the Tor only network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Every connection goes through Tor. Without Tor the wallet stays offline and says so.'**
+  String get advModeTorOnlyLine;
+
+  /// Network mode: no network.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get advModeOffline;
+
+  /// One line under the Offline network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'No network. The balance stays as last seen; transaction files still work.'**
+  String get advModeOfflineLine;
+
+  /// Note under the network choice while Tor only is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only pauses notifications: a push registration would show this phone\'s address.'**
+  String get advTorOnlyNote;
+
+  /// Note under the network choice while Offline is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline pauses Epicbox, Direct receiving, status checks and notifications until the mode changes.'**
+  String get advOfflineNote;
+
+  /// Row at the end of the Advanced page: turns every visibility switch off. The network mode stays.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide everything again'**
+  String get advReset;
+
+  /// Home status line while the Offline network mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode'**
+  String get advHomeOffline;
+
+  /// Home status line while Tor only is on and Tor is not connected yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only · waiting for Tor'**
+  String get advHomeTorOnlyWaiting;
+
+  /// Advanced switch (desktop): run a node on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in node'**
+  String get advBuiltInNode;
+
+  /// Advanced switch (desktop): logs and diagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get advLogs;
+
+  /// Settings sidebar entry and page name of the Advanced section. Narrow (about 200 px).
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get deskSetFrameAdvanced;
+
+  /// First line of Settings › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Off by default. Each switch shows one more part of the wallet, where it belongs.'**
+  String get deskSetAdvIntro;
+
+  /// Title of the group of visibility switches on Settings › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows more'**
+  String get deskSetAdvShows;
+
+  /// Advanced switch: the Outputs page in the sidebar.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs'**
+  String get deskSetAdvOutputs;
+
+  /// Hover card of the Outputs switch.
+  ///
+  /// In en, this message translates to:
+  /// **'The Outputs page in the sidebar: the coins the balance is made of, Split and Consolidate, and the defaults a send uses. A split or consolidation in progress keeps the page either way.'**
+  String get deskSetAdvOutputsHint;
+
+  /// Advanced switch: technical rows on transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details'**
+  String get deskSetAdvTechnical;
+
+  /// Hover card of the Technical details switch.
+  ///
+  /// In en, this message translates to:
+  /// **'The Technical fold on a transaction: slate ID, kernel, block height, the core\'s status and type, the payment proof; the Advanced folds in Invoices.'**
+  String get deskSetAdvTechnicalHint;
+
+  /// Advanced switch: the Advanced fold on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send options'**
+  String get deskSetAdvSendOptions;
+
+  /// Hover card of the Send options switch.
+  ///
+  /// In en, this message translates to:
+  /// **'The fold on Send with the strategy (Smallest or All outputs) and Split change for one send. The defaults stay on Outputs.'**
+  String get deskSetAdvSendOptionsHint;
+
+  /// Advanced switch: the File method.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction files'**
+  String get deskSetAdvFiles;
+
+  /// Hover card of the Transaction files switch.
+  ///
+  /// In en, this message translates to:
+  /// **'The File method on Send and Receive, with Finalize and Import: a payment as a file handed over any way, signed and handed back. For a wallet that uses no relay. A file payment in progress keeps the method visible.'**
+  String get deskSetAdvFilesHint;
+
+  /// Advanced switch: HTTP and Tor receiving.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct receiving'**
+  String get deskSetAdvDirect;
+
+  /// Hover card of the Direct receiving switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving at this computer\'s own address over HTTP or Tor, beside Epicbox: the Direct method on Send, the HTTP and Tor addresses on Receive, and their settings under Receiving. A listener that is on keeps its rows.'**
+  String get deskSetAdvDirectHint;
+
+  /// Advanced switch: hosts, latency, version, height.
+  ///
+  /// In en, this message translates to:
+  /// **'Server details'**
+  String get deskSetAdvServerDetails;
+
+  /// Hover card of the Server details switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosts, latency, version and block height in the node and Epicbox lists, on the sidebar\'s status rows and in the status card.'**
+  String get deskSetAdvServerDetailsHint;
+
+  /// Advanced switch: recheck balance from a height, delete unconfirmed, restore from a height.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck from a height'**
+  String get deskSetAdvRecheck;
+
+  /// Hover card of the Recheck from a height switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck balance and Restore can start from a block height instead of the first block, and Recheck can drop unconfirmed transactions. Faster, and the only way to skip early history.'**
+  String get deskSetAdvRecheckHint;
+
+  /// Advanced switch: the node on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in node'**
+  String get deskSetAdvBuiltInNode;
+
+  /// Hover card of the Built-in node switch.
+  ///
+  /// In en, this message translates to:
+  /// **'A node on this computer: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes. A node that is running keeps its rows.'**
+  String get deskSetAdvBuiltInNodeHint;
+
+  /// Advanced switch: logs and diagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get deskSetAdvLogs;
+
+  /// Hover card of the Logs switch.
+  ///
+  /// In en, this message translates to:
+  /// **'The Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.'**
+  String get deskSetAdvLogsHint;
+
+  /// Title of the network mode group on Settings › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get deskSetAdvNetwork;
+
+  /// Hover card of the Network group.
+  ///
+  /// In en, this message translates to:
+  /// **'One choice for how the wallet reaches the network. Standard connects directly and leaves Tor to the Privacy switch. Tor first starts Tor with the wallet and asks before falling back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all; transaction files still work.'**
+  String get deskSetAdvNetworkHint;
+
+  /// Network mode: direct connections.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get deskSetAdvModeStandard;
+
+  /// Text under the Standard mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Connects directly. Tor can be turned on under Privacy.'**
+  String get deskSetAdvModeStandardText;
+
+  /// Network mode: Tor at launch, direct as a fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor first'**
+  String get deskSetAdvModeTorFirst;
+
+  /// Text under the Tor first mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.'**
+  String get deskSetAdvModeTorFirstText;
+
+  /// Network mode: Tor or nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only'**
+  String get deskSetAdvModeTorOnly;
+
+  /// Text under the Tor only mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Every connection goes through Tor. Without Tor the wallet stays offline and says so.'**
+  String get deskSetAdvModeTorOnlyText;
+
+  /// Network mode: no network.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get deskSetAdvModeOffline;
+
+  /// Text under the Offline mode.
+  ///
+  /// In en, this message translates to:
+  /// **'No network. The balance stays as last seen; transaction files still work.'**
+  String get deskSetAdvModeOfflineText;
+
+  /// Note under the network choice while Tor only is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only turns HTTP receiving off: a plain address would show this computer.'**
+  String get deskSetAdvTorOnlyNote;
+
+  /// Note under the network choice while Offline is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline pauses Epicbox, Direct receiving, the node and status checks until the mode changes.'**
+  String get deskSetAdvOfflineNote;
+
+  /// Tag on a Tor mode when the build has no tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in this build'**
+  String get deskSetAdvNotInBuild;
+
+  /// Button at the end of Settings › Advanced: turns every visibility switch off. The network mode stays.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide everything again'**
+  String get deskSetAdvReset;
+
+  /// State line of the Advanced page head: how many visibility switches are on.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 switch on} other{{n} switches on}}'**
+  String deskSetAdvOn(int n);
+
+  /// Sidebar status row while the Offline network mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode'**
+  String get deskShellOffline;
+
+  /// Sidebar status row while Tor only is on and Tor is not connected yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only · waiting for Tor'**
+  String get deskShellTorOnlyWaiting;
 }
 
 class _AppLocalizationsDelegate

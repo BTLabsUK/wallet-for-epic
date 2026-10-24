@@ -88,8 +88,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     if (!service.validateMnemonic(phrase: phrase)) {
       problem = l.errorInvalidMnemonic;
     }
-    // Without Advanced options the choice is hidden and the scan covers the whole chain.
-    final advanced = AdvancedOptions.of(context);
+    // Without Recheck from a height (Advanced) the choice is hidden and the scan covers the
+    // whole chain.
+    final advanced = AdvancedOptions.has(context, AdvancedFeature.recheckFromHeight);
     final byDate = _startBy == _StartBy.date && _datesSupported;
     final heightText = byDate || !advanced ? '' : _startHeight.text.trim();
     final date = byDate && advanced ? _startDate : null;
@@ -212,7 +213,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   List<Widget> _form(BuildContext context) {
     final l = context.l10n;
-    final advanced = AdvancedOptions.of(context);
+    final advanced = AdvancedOptions.has(context, AdvancedFeature.recheckFromHeight);
     return [
       TextField(
         controller: _phrase,

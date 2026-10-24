@@ -14185,4 +14185,263 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskUpdUnfinished =>
       'Обновление не завершилось. Повторите попытку.';
+
+  @override
+  String get advTitle => 'Advanced';
+
+  @override
+  String get advStateOff => 'Off';
+
+  @override
+  String get advIntro =>
+      'Off by default. Each switch shows one more part of the wallet, where it belongs.';
+
+  @override
+  String get advShowsHeader => 'Shows more';
+
+  @override
+  String get advNetworkHeader => 'Network';
+
+  @override
+  String get advNetworkHint =>
+      'One choice for how the wallet reaches the network. Standard connects directly and leaves Tor to the Privacy & network switch. Tor first starts Tor with the wallet and asks before falling back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all; transaction files still work.';
+
+  @override
+  String get advOutputs => 'Outputs';
+
+  @override
+  String get advOutputsHint =>
+      'The Outputs page under Wallet: the coins the balance is made of, Split and Consolidate, and the defaults a send uses. A split or consolidation in progress stays visible either way.';
+
+  @override
+  String get advTechnical => 'Technical details';
+
+  @override
+  String get advTechnicalHint =>
+      'Kernel, slate ID, commitments and block height on a transaction\'s details, open by default; the invoice address rotation and dropped count in Invoices.';
+
+  @override
+  String get advSendOptions => 'Send options';
+
+  @override
+  String get advSendOptionsHint =>
+      'Which outputs a send spends (Smallest or All) and whether its change is split, for one send at a time, on Send\'s review. The defaults stay on Outputs.';
+
+  @override
+  String get advFiles => 'Transaction files';
+
+  @override
+  String get advFilesHint =>
+      'The File method on Send and Receive: a payment as a file handed over any way, signed and handed back. For a wallet that uses no relay. A file payment in progress keeps the method visible.';
+
+  @override
+  String get advDirect => 'Direct receiving';
+
+  @override
+  String get advDirectHint =>
+      'An address of this phone\'s own, reached over Tor, beside Epicbox. Shows the Direct method on Send and Receive and its state in Privacy & network. While Direct receiving is on, the method stays visible.';
+
+  @override
+  String get advServerDetails => 'Server details';
+
+  @override
+  String get advServerDetailsHint =>
+      'Hosts, latency, version and block height in the server pickers and on the status card; the relay address under Receive and the invoice address in full.';
+
+  @override
+  String get advRecheckHeight => 'Recheck from a height';
+
+  @override
+  String get advRecheckHeightHint =>
+      'Recheck balance and Restore can start from a block height or a date instead of the first block. Faster, and the only way to skip early history.';
+
+  @override
+  String get advModeStandard => 'Standard';
+
+  @override
+  String get advModeStandardLine =>
+      'Connects directly. Tor can be turned on in Privacy & network.';
+
+  @override
+  String get advModeTorFirst => 'Tor first';
+
+  @override
+  String get advModeTorFirstLine =>
+      'Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.';
+
+  @override
+  String get advModeTorOnly => 'Tor only';
+
+  @override
+  String get advModeTorOnlyLine =>
+      'Every connection goes through Tor. Without Tor the wallet stays offline and says so.';
+
+  @override
+  String get advModeOffline => 'Offline';
+
+  @override
+  String get advModeOfflineLine =>
+      'No network. The balance stays as last seen; transaction files still work.';
+
+  @override
+  String get advTorOnlyNote =>
+      'Tor only pauses notifications: a push registration would show this phone\'s address.';
+
+  @override
+  String get advOfflineNote =>
+      'Offline pauses Epicbox, Direct receiving, status checks and notifications until the mode changes.';
+
+  @override
+  String get advReset => 'Hide everything again';
+
+  @override
+  String get advHomeOffline => 'Offline mode';
+
+  @override
+  String get advHomeTorOnlyWaiting => 'Tor only · waiting for Tor';
+
+  @override
+  String get advBuiltInNode => 'Built-in node';
+
+  @override
+  String get advLogs => 'Logs';
+
+  @override
+  String get deskSetFrameAdvanced => 'Advanced';
+
+  @override
+  String get deskSetAdvIntro =>
+      'Off by default. Each switch shows one more part of the wallet, where it belongs.';
+
+  @override
+  String get deskSetAdvShows => 'Shows more';
+
+  @override
+  String get deskSetAdvOutputs => 'Outputs';
+
+  @override
+  String get deskSetAdvOutputsHint =>
+      'The Outputs page in the sidebar: the coins the balance is made of, Split and Consolidate, and the defaults a send uses. A split or consolidation in progress keeps the page either way.';
+
+  @override
+  String get deskSetAdvTechnical => 'Technical details';
+
+  @override
+  String get deskSetAdvTechnicalHint =>
+      'The Technical fold on a transaction: slate ID, kernel, block height, the core\'s status and type, the payment proof; the Advanced folds in Invoices.';
+
+  @override
+  String get deskSetAdvSendOptions => 'Send options';
+
+  @override
+  String get deskSetAdvSendOptionsHint =>
+      'The fold on Send with the strategy (Smallest or All outputs) and Split change for one send. The defaults stay on Outputs.';
+
+  @override
+  String get deskSetAdvFiles => 'Transaction files';
+
+  @override
+  String get deskSetAdvFilesHint =>
+      'The File method on Send and Receive, with Finalize and Import: a payment as a file handed over any way, signed and handed back. For a wallet that uses no relay. A file payment in progress keeps the method visible.';
+
+  @override
+  String get deskSetAdvDirect => 'Direct receiving';
+
+  @override
+  String get deskSetAdvDirectHint =>
+      'Receiving at this computer\'s own address over HTTP or Tor, beside Epicbox: the Direct method on Send, the HTTP and Tor addresses on Receive, and their settings under Receiving. A listener that is on keeps its rows.';
+
+  @override
+  String get deskSetAdvServerDetails => 'Server details';
+
+  @override
+  String get deskSetAdvServerDetailsHint =>
+      'Hosts, latency, version and block height in the node and Epicbox lists, on the sidebar\'s status rows and in the status card.';
+
+  @override
+  String get deskSetAdvRecheck => 'Recheck from a height';
+
+  @override
+  String get deskSetAdvRecheckHint =>
+      'Recheck balance and Restore can start from a block height instead of the first block, and Recheck can drop unconfirmed transactions. Faster, and the only way to skip early history.';
+
+  @override
+  String get deskSetAdvBuiltInNode => 'Built-in node';
+
+  @override
+  String get deskSetAdvBuiltInNodeHint =>
+      'A node on this computer: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes. A node that is running keeps its rows.';
+
+  @override
+  String get deskSetAdvLogs => 'Logs';
+
+  @override
+  String get deskSetAdvLogsHint =>
+      'The Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.';
+
+  @override
+  String get deskSetAdvNetwork => 'Network';
+
+  @override
+  String get deskSetAdvNetworkHint =>
+      'One choice for how the wallet reaches the network. Standard connects directly and leaves Tor to the Privacy switch. Tor first starts Tor with the wallet and asks before falling back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all; transaction files still work.';
+
+  @override
+  String get deskSetAdvModeStandard => 'Standard';
+
+  @override
+  String get deskSetAdvModeStandardText =>
+      'Connects directly. Tor can be turned on under Privacy.';
+
+  @override
+  String get deskSetAdvModeTorFirst => 'Tor first';
+
+  @override
+  String get deskSetAdvModeTorFirstText =>
+      'Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.';
+
+  @override
+  String get deskSetAdvModeTorOnly => 'Tor only';
+
+  @override
+  String get deskSetAdvModeTorOnlyText =>
+      'Every connection goes through Tor. Without Tor the wallet stays offline and says so.';
+
+  @override
+  String get deskSetAdvModeOffline => 'Offline';
+
+  @override
+  String get deskSetAdvModeOfflineText =>
+      'No network. The balance stays as last seen; transaction files still work.';
+
+  @override
+  String get deskSetAdvTorOnlyNote =>
+      'Tor only turns HTTP receiving off: a plain address would show this computer.';
+
+  @override
+  String get deskSetAdvOfflineNote =>
+      'Offline pauses Epicbox, Direct receiving, the node and status checks until the mode changes.';
+
+  @override
+  String get deskSetAdvNotInBuild => 'Not in this build';
+
+  @override
+  String get deskSetAdvReset => 'Hide everything again';
+
+  @override
+  String deskSetAdvOn(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n switches on',
+      one: '1 switch on',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskShellOffline => 'Offline mode';
+
+  @override
+  String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
 }

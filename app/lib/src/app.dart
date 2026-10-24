@@ -202,7 +202,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         }
         return PhoneFrame(
           child: AdvancedOptions(
-            enabled: settings?.advancedOptions ?? false,
+            prefs: settings?.advanced ?? AdvancedPrefs.none,
             child: child!,
           ),
         );

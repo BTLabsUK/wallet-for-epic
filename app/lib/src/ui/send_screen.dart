@@ -39,6 +39,7 @@ import 'send_tracker.dart';
 import 'slate_file_screen.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart' show TimelineState, TimelineStep;
+import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
 
@@ -1642,24 +1643,25 @@ class _SendViewState extends ConsumerState<SendView> {
         ],
       ),
     );
+    // Advanced › Direct receiving and Transaction files show their methods; the method in
+    // use stays whatever the switches say (a pasted onion picks Direct, a file in progress
+    // keeps File). With Epicbox alone there is nothing to choose: the strip names it.
+    final segments = [
+      segment(TransferMethod.epicbox, Icons.alternate_email, l.methodEpicbox),
+      if (selected == TransferMethod.direct ||
+          AdvancedOptions.has(context, AdvancedFeature.directReceiving))
+        segment(TransferMethod.direct, Icons.link, l.methodDirect),
+      if (selected == TransferMethod.file ||
+          AdvancedOptions.has(context, AdvancedFeature.transactionFiles))
+        segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
+    ];
+    if (segments.length == 1) return const SizedBox.shrink();
     return Semantics(
       label: l.sendMethodLabel,
       container: true,
       child: SegmentedButton<TransferMethod>(
         key: sendMethodsKey,
-        segments: [
-          segment(
-            TransferMethod.epicbox,
-            Icons.alternate_email,
-            l.methodEpicbox,
-          ),
-          segment(TransferMethod.direct, Icons.link, l.methodDirect),
-          segment(
-            TransferMethod.file,
-            Icons.description_outlined,
-            l.methodFile,
-          ),
-        ],
+        segments: segments,
         selected: {selected},
         showSelectedIcon: false,
         expandedInsets: EdgeInsets.zero,

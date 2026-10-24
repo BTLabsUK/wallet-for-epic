@@ -91,9 +91,8 @@ class ReceiveView extends ConsumerWidget {
         onPressed: () => openHelp(context, HelpId.receive),
       ),
     );
-    final tabs = SegmentedButton<ReceiveTab>(
-      key: receiveTabsKey,
-      segments: [
+    // With Epicbox alone there is nothing to choose: the strip names it.
+    final tabSegments = <ButtonSegment<ReceiveTab>>[
         ButtonSegment(
           value: ReceiveTab.epicbox,
           icon: const Icon(Icons.alternate_email),
@@ -102,7 +101,11 @@ class ReceiveView extends ConsumerWidget {
             child: Text(l.receiveTabEpicbox, maxLines: 1),
           ),
         ),
-        if (torAvailable)
+        // Advanced › Direct receiving / Transaction files; Tor receiving on keeps Direct.
+        if (torAvailable &&
+            (tab == ReceiveTab.direct ||
+                torState != TorState.off ||
+                AdvancedOptions.has(context, AdvancedFeature.directReceiving)))
           ButtonSegment(
             value: ReceiveTab.direct,
             icon: const Icon(Icons.link),
@@ -111,24 +114,31 @@ class ReceiveView extends ConsumerWidget {
               child: Text(l.receiveTabDirect, maxLines: 1),
             ),
           ),
-        ButtonSegment(
-          value: ReceiveTab.file,
-          icon: const Icon(Icons.description_outlined),
+        if (tab == ReceiveTab.file ||
+            AdvancedOptions.has(context, AdvancedFeature.transactionFiles))
+          ButtonSegment(
+            value: ReceiveTab.file,
+            icon: const Icon(Icons.description_outlined),
           label: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(l.receiveTabFile, maxLines: 1),
           ),
         ),
-      ],
-      selected: {tab},
-      showSelectedIcon: false,
-      expandedInsets: EdgeInsets.zero,
-      style: const ButtonStyle(
-        minimumSize: WidgetStatePropertyAll(Size(0, 44)),
-      ),
-      onSelectionChanged: (selected) =>
-          ref.read(receiveTabProvider.notifier).choose(selected.first),
-    );
+    ];
+    final Widget tabs = tabSegments.length == 1
+        ? const SizedBox.shrink()
+        : SegmentedButton<ReceiveTab>(
+            key: receiveTabsKey,
+            segments: tabSegments,
+            selected: {tab},
+            showSelectedIcon: false,
+            expandedInsets: EdgeInsets.zero,
+            style: const ButtonStyle(
+              minimumSize: WidgetStatePropertyAll(Size(0, 44)),
+            ),
+            onSelectionChanged: (selected) =>
+                ref.read(receiveTabProvider.notifier).choose(selected.first),
+          );
     Widget column(List<Widget> children) => Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -626,6 +636,7 @@ class _EpicboxLine extends ConsumerWidget {
         ),
         if (config != null)
           Advanced(
+            feature: AdvancedFeature.serverDetails,
             child: Center(
               child: Readout(
                 l.statusRelay('${config.epicboxDomain}:${config.epicboxPort}'),

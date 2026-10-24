@@ -8,6 +8,7 @@ import '../../widgets/kit.dart';
 import '../invoices/tx_invoice_block.dart';
 import 'tx_details_dialog.dart';
 import 'tx_display.dart';
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'tx_label.dart';
 
 /// One transaction: amount and counterparty, where it stands, its progress, details, proof,
@@ -255,6 +256,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ],
           ),
         ],
+        // Advanced › Technical details; Report a problem carries the slate id either way.
+        if (advancedHas(ref, AdvancedFeature.technicalDetails)) ...[
         SizedBox(height: Sp.x5),
         EDetails(
           title: l.deskTxTechTitle,
@@ -280,6 +283,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             (l.deskTxTechType, Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))), // l10n-ok: the core's type names
           ]),
         ),
+        ],
         if (cancelable || finalizable || t.undelivered || repostable) ...[
           SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),

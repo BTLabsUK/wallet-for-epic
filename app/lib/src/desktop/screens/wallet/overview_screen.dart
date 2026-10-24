@@ -10,6 +10,7 @@ import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider;
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'tx_display.dart';
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 /// States the tour can start Overview in.
 enum OverviewDemo { loading, empty, nodeDown, starting, syncing, nodeProblem }
@@ -103,7 +104,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           actionsBelow: true,
           actions: [
             EButton(label: l.deskOvUsePublicNode, icon: EIcons.web, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
-            if (DeskFeatures.builtInNode) EButton(label: l.deskOvUseLocalNode, icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
+            if (DeskFeatures.builtInNode && advancedHas(ref, AdvancedFeature.builtInNode)) EButton(label: l.deskOvUseLocalNode, icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
             EButton(label: l.deskOvHide, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _problemHidden = true)),
           ],
         ),

@@ -8,6 +8,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'advanced.dart';
 import 'app_log.dart';
 import 'l10n.dart' show appLanguages;
 import 'providers.dart';
@@ -115,6 +116,7 @@ class AppSettings {
     this.language,
     this.helpLanguage,
     this.advancedOptions = false,
+    this.advanced = AdvancedPrefs.none,
     this.useStatusSite = true,
     this.sendStrategy = SelectionStrategy.smallest,
     this.splitChange = true,
@@ -130,6 +132,9 @@ class AppSettings {
   /// Show the technical controls: node, relay, block heights, transport, files and logs.
   /// Off by default, so the simple path never mentions them.
   final bool advancedOptions;
+
+  /// The Advanced page: which expert features show and the network mode (`advanced.dart`).
+  final AdvancedPrefs advanced;
 
   /// Which outputs a send spends unless Send overrides it (Outputs).
   final SelectionStrategy sendStrategy;
@@ -199,6 +204,7 @@ class AppSettings {
     String? Function()? language,
     String? Function()? helpLanguage,
     bool? advancedOptions,
+    AdvancedPrefs? advanced,
     bool? useStatusSite,
     SelectionStrategy? sendStrategy,
     bool? splitChange,
@@ -222,6 +228,7 @@ class AppSettings {
     language: language != null ? language() : this.language,
     helpLanguage: helpLanguage != null ? helpLanguage() : this.helpLanguage,
     advancedOptions: advancedOptions ?? this.advancedOptions,
+    advanced: advanced ?? this.advanced,
     useStatusSite: useStatusSite ?? this.useStatusSite,
     sendStrategy: sendStrategy ?? this.sendStrategy,
     splitChange: splitChange ?? this.splitChange,
@@ -254,6 +261,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _languageKey = 'app.language';
   static const String _helpLanguageKey = 'app.helpLanguage';
   static const String _advancedKey = 'app.advanced';
+  static const String _advancedPrefsKey = 'app.advanced_prefs';
   static const String _strategyKey = 'app.send_strategy';
   static const String _splitChangeKey = 'app.split_change';
   static const String statusSiteKey = 'app.status_site';
@@ -281,6 +289,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final language = await store.read(_languageKey);
     final helpLanguage = await store.read(_helpLanguageKey);
     final advanced = await store.read(_advancedKey);
+    final advancedPrefs = await store.read(_advancedPrefsKey);
     final strategy = await store.read(_strategyKey);
     final splitChange = await store.read(_splitChangeKey);
     final tips = await store.read(tipsHiddenKey);
@@ -339,6 +348,18 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       advancedOptions: advanced == null
           ? defaults.advancedOptions
           : advanced == 'true',
+      // A wallet that had the old Advanced options switch on keeps what it showed.
+      advanced: advancedPrefs != null
+          ? AdvancedPrefs.decode(advancedPrefs)
+          : advanced == 'true'
+          ? const AdvancedPrefs(
+              features: {
+                AdvancedFeature.technicalDetails,
+                AdvancedFeature.serverDetails,
+                AdvancedFeature.recheckFromHeight,
+              },
+            )
+          : defaults.advanced,
       useStatusSite: site,
       sendStrategy: SelectionStrategy.values.firstWhere(
         (v) => v.name == strategy,
@@ -403,6 +424,19 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     '$on',
     (await _current()).copyWith(advancedOptions: on),
   );
+
+  /// The Advanced page: one feature switch or the network mode changed.
+  Future<void> setAdvanced(AdvancedPrefs prefs) async => _put(
+    _advancedPrefsKey,
+    prefs.encode(),
+    (await _current()).copyWith(advanced: prefs),
+  );
+
+  Future<void> setFeature(AdvancedFeature f, bool on) async =>
+      setAdvanced((await _current()).advanced.withFeature(f, on));
+
+  Future<void> setNetworkMode(NetworkMode mode) async =>
+      setAdvanced((await _current()).advanced.withMode(mode));
 
   /// Settings › Privacy › Use status.btlabs.uk; applies at once ([statusSite]).
   Future<void> setUseStatusSite(bool on) async {

@@ -1,38 +1,55 @@
 import 'package:flutter/material.dart';
 
+import '../../advanced.dart';
 import 'tokens.dart';
 
-/// Whether Advanced options is on. One sits above the navigator (`MaterialApp.builder`), fed
-/// from `AppSettings.advancedOptions`.
+export '../../advanced.dart';
+
+/// The Advanced page's choices, above the navigator (`MaterialApp.builder`), fed from
+/// `AppSettings.advanced`.
 class AdvancedOptions extends InheritedWidget {
   const AdvancedOptions({
     super.key,
-    required this.enabled,
+    required this.prefs,
     required super.child,
   });
 
-  final bool enabled;
+  final AdvancedPrefs prefs;
 
-  static bool of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<AdvancedOptions>()?.enabled ??
-      false;
+  static AdvancedPrefs of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<AdvancedOptions>()?.prefs ??
+      AdvancedPrefs.none;
+
+  /// Whether [feature] is switched on.
+  static bool has(BuildContext context, AdvancedFeature feature) =>
+      of(context).has(feature);
 
   @override
   bool updateShouldNotify(AdvancedOptions oldWidget) =>
-      oldWidget.enabled != enabled;
+      oldWidget.prefs != prefs;
 }
 
-/// Shows [child] only with Advanced options on. Block heights, node and relay names, transport
+/// Shows [child] only with [feature] on. Block heights, node and relay names, transport
 /// choices, atomic units, transaction files and logs go in one, so the simple path never has to
-/// know they exist.
+/// know they exist. [keep] holds it visible anyway: a feature mid-use (a pending Split, a file
+/// slate in progress) never disappears under the user.
 class Advanced extends StatelessWidget {
-  const Advanced({super.key, required this.child});
+  const Advanced({
+    super.key,
+    required this.feature,
+    required this.child,
+    this.keep = false,
+  });
 
+  final AdvancedFeature feature;
   final Widget child;
+  final bool keep;
 
   @override
   Widget build(BuildContext context) =>
-      AdvancedOptions.of(context) ? child : const SizedBox.shrink();
+      keep || AdvancedOptions.has(context, feature)
+      ? child
+      : const SizedBox.shrink();
 }
 
 /// A technical line in the mono face, for Advanced readouts. Never prose.

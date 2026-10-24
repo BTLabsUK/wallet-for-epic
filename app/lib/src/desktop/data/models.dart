@@ -3,6 +3,7 @@
 /// LEPIC adapter will map `WalletService` and `models.dart` onto them later.
 library;
 
+import '../../advanced.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:intl/intl.dart' show NumberFormat;
@@ -813,6 +814,7 @@ class DeskSettings {
     this.internetGuideSeen = false,
     this.tourSeen = false,
     this.useStatusSite = true,
+    this.advanced = AdvancedPrefs.none,
   });
 
   final ThemeChoice theme;
@@ -870,6 +872,9 @@ class DeskSettings {
   /// Off, only the servers themselves are asked.
   final bool useStatusSite;
 
+  /// The Advanced page: which expert features show and the network mode (`advanced.dart`).
+  final AdvancedPrefs advanced;
+
   DeskSettings copyWith({
     ThemeChoice? theme,
     int? scale,
@@ -891,6 +896,7 @@ class DeskSettings {
     bool? internetGuideSeen,
     bool? tourSeen,
     bool? useStatusSite,
+    AdvancedPrefs? advanced,
   }) => DeskSettings(
     theme: theme ?? this.theme,
     scale: scale ?? this.scale,
@@ -912,6 +918,7 @@ class DeskSettings {
     internetGuideSeen: internetGuideSeen ?? this.internetGuideSeen,
     tourSeen: tourSeen ?? this.tourSeen,
     useStatusSite: useStatusSite ?? this.useStatusSite,
+    advanced: advanced ?? this.advanced,
   );
 }
 

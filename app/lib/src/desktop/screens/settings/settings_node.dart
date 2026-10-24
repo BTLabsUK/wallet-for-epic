@@ -19,6 +19,7 @@ import 'local_node.dart';
 import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import 'prefs.dart';
 import 'settings_frame.dart';
+import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
@@ -360,7 +361,9 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final myRows = serverRows(mine, released: released, starred: true);
     final publicRows = serverRows(public, released: released, starred: false);
     final options = <ComboOption>[
-      if (DeskFeatures.builtInNode) ComboOption(value: builtinNode, host: l.deskSetNodeLocalNode, sub: localNodeRowText(l, local), local: true, group: l.deskSetNodeGroupComputer),
+      // Advanced › Built-in node; the node in use stays listed.
+      if (DeskFeatures.builtInNode && advancedHas(ref, AdvancedFeature.builtInNode, keep: prefs.builtin))
+        ComboOption(value: builtinNode, host: l.deskSetNodeLocalNode, sub: localNodeRowText(l, local), local: true, group: l.deskSetNodeGroupComputer),
       for (final r in myRows)
         ComboOption(
           value: r.value,

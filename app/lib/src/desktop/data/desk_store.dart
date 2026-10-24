@@ -3,6 +3,7 @@
 /// preferences (`settings.dart`), so the app needs no preferences dependency.
 library;
 
+import '../../advanced.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -251,6 +252,7 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'autoLockMinutes': s.autoLockMinutes,
   'publicMode': s.publicMode,
   'httpPort': s.httpPort,
+  'advanced': s.advanced.toJson(),
 };
 
 /// Each value of the wrong type falls back to its default, so bad saved data cannot block
@@ -279,6 +281,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
     tourSeen: tour is bool ? tour : d.tourSeen,
     useStatusSite: site is bool ? site : d.useStatusSite,
     publicMode: public is bool ? public : d.publicMode,
+    advanced: AdvancedPrefs.fromJson(j['advanced']),
     httpPort: port is int && port > 0 && port < 65536 ? port : d.httpPort,
     // A saved null stays null.
     autoLockMinutes: lock is int ? lock : (j.containsKey('autoLockMinutes') && lock == null ? null : d.autoLockMinutes),

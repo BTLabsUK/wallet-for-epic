@@ -8,6 +8,7 @@ import '../../data/api.dart' show DeskWalletApi;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
+import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 /// Start states of Settings › Recheck balance.
 enum RescanDemo { running }
@@ -167,7 +168,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                 ESetRow(
                   text: l.deskSetRescanText,
                   control: ERowControl(child: EButton.primary(label: _end != null || _failure != null ? l.deskSetRescanStartAgain : l.deskSetLnodeStart, icon: EIcons.scan, size: EBtnSize.sm, onPressed: _start)),
-                  below: DeskFeatures.rescanRepair
+                  below: DeskFeatures.rescanRepair && advancedHas(ref, AdvancedFeature.recheckFromHeight)
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

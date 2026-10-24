@@ -4,6 +4,7 @@
 /// changes height.
 library;
 
+import '../../advanced.dart' show AdvancedFeature;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -88,8 +89,9 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
       jump: SettingsJump.epicbox,
     ),
   ];
-  if (DeskFeatures.httpDirect) {
-    final run = httpRun(st);
+  // Advanced › Direct receiving; a listener that is on, starting or failed keeps its row.
+  final run = httpRun(st);
+  if (DeskFeatures.httpDirect && (settings.advanced.has(AdvancedFeature.directReceiving) || run != HttpRun.off)) {
     final public = settings.publicMode;
     items.add(
       RailItem(

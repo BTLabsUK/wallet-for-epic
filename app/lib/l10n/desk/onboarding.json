@@ -39,7 +39,7 @@
   "@deskOnbWelcomeBack": {
     "description": "Link on the Welcome page (when wallets exist) that returns to the unlock screen."
   },
-  "deskOnbWelcomeAdvanced": "Advanced",
+  "deskOnbWelcomeAdvanced": "Network and folder",
   "@deskOnbWelcomeAdvanced": {
     "description": "Title of the collapsible 'Advanced' section of the Welcome page (network and data folder)."
   },

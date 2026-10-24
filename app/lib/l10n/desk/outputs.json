@@ -213,7 +213,7 @@
   "@deskOutDefaultsTitle": {
     "description": "Title of the panel on Outputs with the settings Send uses."
   },
-  "deskOutAdvanced": "Advanced",
+  "deskOutAdvanced": "Manage outputs",
   "@deskOutAdvanced": {
     "description": "Head of the management section under the outputs table: the intro paragraph, Split and Consolidate, the defaults for sends."
   },

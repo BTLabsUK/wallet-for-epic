@@ -23,6 +23,7 @@ import 'contact_picker.dart';
 import 'epicbox_notice.dart';
 import 'file_panels.dart';
 import 'send_advanced.dart';
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'send_summary_rows.dart';
 
 /// Where the Send page is, so the tour reaches every state without taps.
@@ -914,8 +915,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           segments: [
             const ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox), // l10n-ok: product name
             // Direct: http(s) or an onion, the address decides ([TxMethod.tor] is its route).
-            if (DeskFeatures.httpDirect || DeskFeatures.tor) ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http),
-            ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file),
+            // Advanced › Direct receiving and Transaction files; the method in use stays (a pasted
+            // onion picks Direct, a file in progress keeps File).
+            if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
+                advancedHas(ref, AdvancedFeature.directReceiving, keep: _segmentOf(_method) == TxMethod.http))
+              ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http),
+            if (advancedHas(ref, AdvancedFeature.transactionFiles, keep: _method == TxMethod.file))
+              ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file),
           ],
           value: _segmentOf(_method),
           onChanged: (m) => setState(() {
@@ -1047,6 +1053,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             onChanged: (_) => setState(() {}),
           ),
         ),
+        // Advanced › Send options; open when a link brought the user here for it.
+        if (advancedHas(ref, AdvancedFeature.sendOptions, keep: _args.advancedOpen)) ...[
         SizedBox(height: Sp.x5),
         SendAdvanced(
           strategy: _strategy,
@@ -1064,6 +1072,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           },
           onOutputs: () => ref.read(deskNavProvider.notifier).go(DeskRoute.outputs),
         ),
+        ],
         if (DeskFeatures.dandelion && !file) ...[
           SizedBox(height: Sp.x5),
           EDetails(

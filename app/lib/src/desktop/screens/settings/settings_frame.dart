@@ -23,6 +23,8 @@ List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required boo
   (DeskRoute.settingsPhrase, l.deskSetFramePhrase, EIcons.key),
   (DeskRoute.settingsRescan, l.deskSetFrameRescan, EIcons.scan),
   null,
+  (DeskRoute.settingsAdvanced, l.deskSetFrameAdvanced, EIcons.tune),
+  null,
   (DeskRoute.settingsAbout, l.deskSetFrameAbout, EIcons.info),
   (DeskRoute.settingsHelp, l.deskSetFrameHelp, EIcons.help),
 ];
