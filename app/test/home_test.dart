@@ -996,6 +996,67 @@ void main() {
       expect(_figure(tester), '30');
     });
 
+    // A tester's phone stayed on Confirming x/3 after a direct send and after an Epicbox
+    // receive had completed, until a rescan reloaded Home (26.10.0–26.10.2, android-06).
+    for (final (name, kind, slate) in [
+      ('a direct send', TxKind.sent, 'to-desktop'),
+      ('an epicbox receive', TxKind.received, 'from-epic-pay'),
+    ]) {
+      testWidgets('details of $name move from Confirming to completed by themselves', (
+        tester,
+      ) async {
+        TxEntry payment({required TxStatus status}) => fakeTx(
+          id: 9,
+          slateId: slate,
+          kind: kind,
+          status: status,
+          createdAtUnix: _at(DateTime(2026, 9, 30, 11)),
+          blockHeight: _tip,
+          amountCredited: kind == TxKind.sent ? _epic(0.992) : _epic(2),
+          amountDebited: kind == TxKind.sent ? _epic(3) : BigInt.zero,
+          fee: kind == TxKind.sent ? _epic(0.008) : null,
+          transport: kind == TxKind.sent ? 'http' : 'epicbox',
+        );
+        final h = _Harness(
+          transactions: [
+            payment(status: TxStatus.awaitingConfirmation),
+            ..._transactions(),
+          ],
+        );
+        await h.pump(tester);
+        await _tap(tester, find.byKey(ValueKey('tx-s:$slate')));
+        Finder chip(String text) => find.descendant(
+          of: find.byType(TxStatusChip),
+          matching: find.text(text),
+        );
+        expect(chip('Confirming 1/3'), findsOneWidget);
+
+        // The core confirms it and the chain grows two blocks, all while the details are open.
+        h.session
+          ..transactionsValue = [
+            payment(status: TxStatus.confirmed),
+            ..._transactions(),
+          ]
+          ..summaryValue = WalletSummary(
+            lastConfirmedHeight: _tip + BigInt.two,
+            minimumConfirmations: BigInt.from(3),
+            total: _epic(14.5),
+            spendable: _epic(12.5),
+            awaitingConfirmation: BigInt.zero,
+            awaitingFinalization: BigInt.zero,
+            immature: BigInt.zero,
+            locked: _epic(2),
+            validatedWithNode: true,
+          );
+        await tester.pump(autoRefreshInterval);
+        await tester.pumpAndSettle();
+        expect(
+          chip(kind == TxKind.sent ? 'Sent' : 'Received'),
+          findsOneWidget,
+        );
+      });
+    }
+
     testWidgets('scan opens Send with the scanned address', (tester) async {
       // Reduced motion: the pending dot on Send's title would pulse on.
       final h = _Harness(scanSupported: true, still: true);
