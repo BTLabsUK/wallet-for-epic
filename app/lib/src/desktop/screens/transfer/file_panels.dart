@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/files.dart' show deskOpenFolderProvider;
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
 /// A square outlined glyph with a status tone, as the original's `e-glyph-sq`.
@@ -60,16 +61,16 @@ class FileChip extends ConsumerWidget {
           SizedBox(width: Sp.x2),
           if (File(name).existsSync()) ...[
             EButton(
-              label: 'Open folder',
+              label: context.l10n.deskFinOpenFolder,
               icon: EIcons.folderOpen,
               size: EBtnSize.inline,
               onPressed: () async {
-                if (!await ref.read(deskOpenFolderProvider)(File(name).parent.path) && context.mounted) showEToast(context, 'Folder not opened', text: name);
+                if (!await ref.read(deskOpenFolderProvider)(File(name).parent.path) && context.mounted) showEToast(context, context.l10n.deskFinFolderNotOpened, text: name);
               },
             ),
             SizedBox(width: Sp.x2),
           ],
-          ECopyButton(text: name, label: 'Copy', withLabel: true, kind: EBtnKind.secondary),
+          ECopyButton(text: name, label: context.l10n.commonCopy, withLabel: true, kind: EBtnKind.secondary),
         ],
       ),
     );

@@ -5462,7 +5462,7 @@
   },
   "netStatusTorOpenHint": "Opens the privacy settings",
   "@netStatusTorOpenHint": {
-    "description": "Screen reader hint on the Tor status icon: a tap opens Settings \u203a Privacy."
+    "description": "Screen reader hint on the Tor status icon: a tap opens Settings › Privacy."
   },
   "netStatusDirectOpenHint": "Opens the Direct receive address",
   "@netStatusDirectOpenHint": {
@@ -7571,5 +7571,2359 @@
         "type": "int"
       }
     }
+  },
+  "deskErrSomethingWrong": "Something went wrong",
+  "@deskErrSomethingWrong": {
+    "description": "An error message the user reads when nothing more is known (toast, inline error)."
+  },
+  "deskErrWrongPassword": "Wrong password",
+  "@deskErrWrongPassword": {
+    "description": "An error message the user reads when a password is wrong."
+  },
+  "deskErrPhraseInvalid": "Recovery phrase not valid",
+  "@deskErrPhraseInvalid": {
+    "description": "An error message the user reads when the recovery phrase is not a valid phrase."
+  },
+  "deskErrWalletExists": "A wallet exists already",
+  "@deskErrWalletExists": {
+    "description": "An error message the user reads when creating a wallet that already exists."
+  },
+  "deskErrWalletNotFound": "No wallet found",
+  "@deskErrWalletNotFound": {
+    "description": "An error message the user reads when no wallet is found."
+  },
+  "deskErrNodeNotAnswering": "Node not answering",
+  "@deskErrNodeNotAnswering": {
+    "description": "An error message the user reads when the node does not answer."
+  },
+  "deskErrNotEnoughFunds": "Not enough funds",
+  "@deskErrNotEnoughFunds": {
+    "description": "An error message the user reads when the spendable balance is too small."
+  },
+  "deskErrNotTxFile": "Not a transaction file for this wallet",
+  "@deskErrNotTxFile": {
+    "description": "An error message the user reads when a transaction file does not belong to this wallet."
+  },
+  "deskErrEpicboxUnreachable": "Epicbox server not reachable",
+  "@deskErrEpicboxUnreachable": {
+    "description": "An error message the user reads when the Epicbox server cannot be reached."
+  },
+  "deskErrNotHttpAddress": "Not an http(s) address",
+  "@deskErrNotHttpAddress": {
+    "description": "An error message the user reads when an address is not an http or https address."
+  },
+  "deskErrPlainHttp": "Plain HTTP not confirmed",
+  "@deskErrPlainHttp": {
+    "description": "An error message the user reads when a send to a plain http address was not confirmed by the user."
+  },
+  "deskErrNotOnion": "Not an onion address",
+  "@deskErrNotOnion": {
+    "description": "An error message the user reads when an address is not a Tor onion address."
+  },
+  "deskErrTorNotConnected": "Tor is not connected",
+  "@deskErrTorNotConnected": {
+    "description": "An error message the user reads when a Tor send is asked while Tor is not connected."
+  },
+  "deskErrOnionUnreachable": "The recipient’s wallet is not reachable over Tor",
+  "@deskErrOnionUnreachable": {
+    "description": "An error message the user reads when a Tor send finds no wallet at the onion address."
+  },
+  "deskErrWalletBusy": "Wallet busy. Try again in a moment.",
+  "@deskErrWalletBusy": {
+    "description": "An error message the user reads when the wallet is busy with another operation."
+  },
+  "deskErrDbDamaged": "Wallet database damaged, rebuilding",
+  "@deskErrDbDamaged": {
+    "description": "An error message the user reads (also a notice on Overview) when the wallet database is damaged and is being rebuilt."
+  },
+  "deskErrPaymentExpired": "Payment expired",
+  "@deskErrPaymentExpired": {
+    "description": "An error message the user reads when a payment has expired."
+  },
+  "deskErrInvoiceNotFound": "Invoice not found",
+  "@deskErrInvoiceNotFound": {
+    "description": "An error message the user reads when an invoice cannot be found."
+  },
+  "deskErrAmountMismatch": "Amount differs from the invoice",
+  "@deskErrAmountMismatch": {
+    "description": "An error message the user reads when the amount does not match the invoice."
+  },
+  "deskErrInvoicePaid": "Invoice already paid",
+  "@deskErrInvoicePaid": {
+    "description": "An error message the user reads when an invoice is already paid."
+  },
+  "deskErrInvoiceLocked": "Invoice locked until a later block",
+  "@deskErrInvoiceLocked": {
+    "description": "An error message the user reads when an invoice is locked until a later block."
+  },
+  "deskErrInvoiceChanged": "Invoice changed",
+  "@deskErrInvoiceChanged": {
+    "description": "An error message the user reads when an invoice changed since it was read."
+  },
+  "deskErrNotAccepted": "Not accepted",
+  "@deskErrNotAccepted": {
+    "description": "An error message the user reads when the wallet core did not accept an input and gave no detail."
+  },
+  "deskErrNotAcceptedDetail": "Not accepted: {detail}",
+  "@deskErrNotAcceptedDetail": {
+    "description": "An error message the user reads when the wallet core did not accept an input. {detail} is the core's own English sentence.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrDisk": "Disk error",
+  "@deskErrDisk": {
+    "description": "An error message the user reads when the disk failed, no detail."
+  },
+  "deskErrDiskDetail": "Disk error: {detail}",
+  "@deskErrDiskDetail": {
+    "description": "An error message the user reads when the disk failed. {detail} is the system's English text.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrTorMissing": "Tor not included in this build",
+  "@deskErrTorMissing": {
+    "description": "Why Tor is down: this build has no Tor program. Shown on the Tor status line."
+  },
+  "deskErrTorNetwork": "Can’t reach the Tor network",
+  "@deskErrTorNetwork": {
+    "description": "Why Tor is down: the Tor network cannot be reached. Shown on the Tor status line."
+  },
+  "deskErrTorClock": "The computer’s clock is wrong",
+  "@deskErrTorClock": {
+    "description": "Why Tor is down: the computer's clock is wrong. Shown on the Tor status line."
+  },
+  "deskErrOnionNotPublished": "Onion address not published",
+  "@deskErrOnionNotPublished": {
+    "description": "Why Tor receiving does not work: the onion address is not published. Shown on the Tor status line."
+  },
+  "deskErrTorStart": "Tor did not start",
+  "@deskErrTorStart": {
+    "description": "Why Tor is down: the Tor program did not start. Shown on the Tor status line."
+  },
+  "deskErrTorStopped": "Tor stopped",
+  "@deskErrTorStopped": {
+    "description": "Why Tor is down: Tor stopped. Shown on the Tor status line."
+  },
+  "deskErrScanRunning": "A scan is already running.",
+  "@deskErrScanRunning": {
+    "description": "An error message the user reads when a second balance recheck is asked while one runs."
+  },
+  "deskErrCancelRefused": "Not cancelled: the node already has this payment.",
+  "@deskErrCancelRefused": {
+    "description": "An error message the user reads when a cancel was refused because the node already has the payment."
+  },
+  "deskErrWalletLocked": "The wallet is locked",
+  "@deskErrWalletLocked": {
+    "description": "An error message the user reads when an action needs the wallet to be unlocked."
+  },
+  "deskErrWalletLocking": "The wallet is locking",
+  "@deskErrWalletLocking": {
+    "description": "An error message the user reads when an action is asked while the wallet is locking."
+  },
+  "deskErrDbDamagedDetail": "Wallet database damaged. {detail}",
+  "@deskErrDbDamagedDetail": {
+    "description": "An error message the user reads when the damaged wallet database could not be reopened. {detail} is the second error.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrWalletClosed": "Wallet closed: {detail}. Unlock again.",
+  "@deskErrWalletClosed": {
+    "description": "An error message the user reads when a change failed and the wallet had to be closed. {detail} is the reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrNotChanged": "Not changed: {detail}",
+  "@deskErrNotChanged": {
+    "description": "An error message the user reads when a settings change failed. {detail} is the reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrPasswordShort": "{count, plural, one{Use at least {count} character} other{Use at least {count} characters}}",
+  "@deskErrPasswordShort": {
+    "description": "An error message the user reads when a new password is too short. {count} is the minimum length.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrWalletNotListed": "Wallet not in the list",
+  "@deskErrWalletNotListed": {
+    "description": "An error message the user reads when the wallet is not in the wallet list."
+  },
+  "deskErrUpdateApp": "Update the app to change the list",
+  "@deskErrUpdateApp": {
+    "description": "An error message the user reads when the wallet list was written by a newer app version."
+  },
+  "deskErrListNotChanged": "Wallet list not changed",
+  "@deskErrListNotChanged": {
+    "description": "An error message the user reads when the wallet list could not be changed, no detail."
+  },
+  "deskErrOpenToDelete": "Open the wallet to delete it",
+  "@deskErrOpenToDelete": {
+    "description": "An error message the user reads when a wallet is deleted without being open."
+  },
+  "deskErrEnterPassword": "Enter the password",
+  "@deskErrEnterPassword": {
+    "description": "An error message the user reads when a password is needed and empty."
+  },
+  "deskErrFolderNotFound": "Wallet folder not found",
+  "@deskErrFolderNotFound": {
+    "description": "An error message the user reads when a wallet's folder is gone."
+  },
+  "deskErrAlreadyHere": "This wallet is already here: {name}",
+  "@deskErrAlreadyHere": {
+    "description": "An error message the user reads when a recovery phrase belongs to a wallet that is already listed. {name} is the listed wallet's name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrTestNet": "Test network wallet. Only mainnet wallets can be imported.",
+  "@deskErrTestNet": {
+    "description": "Shown in the import wizard for an older wallet on the test network."
+  },
+  "deskErrWalletInApp": "This wallet is in the app already.",
+  "@deskErrWalletInApp": {
+    "description": "Shown in the import wizard when every wallet found is already in the app."
+  },
+  "deskErrWalletNotFoundSearch": "Wallet not found. Search again.",
+  "@deskErrWalletNotFoundSearch": {
+    "description": "An error message the user reads in the import wizard when the chosen old wallet is gone."
+  },
+  "deskErrEnterOldPassword": "Enter the old password",
+  "@deskErrEnterOldPassword": {
+    "description": "An error message the user reads in the import wizard when the old password is empty."
+  },
+  "deskErrOldPasswordShort": "{count, plural, one{The old password is short. Choose a new one of at least {count} character.} other{The old password is short. Choose a new one of at least {count} characters.}}",
+  "@deskErrOldPasswordShort": {
+    "description": "An error message the user reads in the import wizard when the old password is shorter than the app's minimum. {count} is the minimum length.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrSeedUnreadable": "The wallet.seed file could not be read",
+  "@deskErrSeedUnreadable": {
+    "description": "An error message the user reads in the import wizard when wallet.seed cannot be read from disk."
+  },
+  "deskErrNotSeedFile": "Not a wallet.seed file",
+  "@deskErrNotSeedFile": {
+    "description": "An error message the user reads in the import wizard when the chosen file is not a wallet.seed file."
+  },
+  "deskErrAlreadyInApp": "Already in the app as {name}",
+  "@deskErrAlreadyInApp": {
+    "description": "An error message the user reads in the import wizard when the wallet is already in the app. {name} is its name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrWrongOldPassword": "Wrong old password",
+  "@deskErrWrongOldPassword": {
+    "description": "An error message the user reads in the import wizard when the old wallet's password is wrong."
+  },
+  "deskErrListNotSaved": "Wallet list not saved",
+  "@deskErrListNotSaved": {
+    "description": "An error message the user reads in the import wizard when the new wallet could not be listed."
+  },
+  "deskErrProofSeedRead": "Seed read",
+  "@deskErrProofSeedRead": {
+    "description": "A line of the import wizard's result: the old wallet's seed was read."
+  },
+  "deskErrProofWalletCreated": "Wallet created",
+  "@deskErrProofWalletCreated": {
+    "description": "A line of the import wizard's result: the new wallet was created."
+  },
+  "deskErrProofContacts": "{count, plural, one{1 contact added} other{{count} contacts added}}",
+  "@deskErrProofContacts": {
+    "description": "A line of the import wizard's result: contacts taken over from the old app.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrProofNode": "Node {name} added to the node list",
+  "@deskErrProofNode": {
+    "description": "A line of the import wizard's result: the old app's node was added to the node list. {name} is the node's label.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrProofEpicbox": "The older app used the Epicbox server {old}; this app uses {current}",
+  "@deskErrProofEpicbox": {
+    "description": "A line of the import wizard's result: the old app used another Epicbox server than this app. Both are host names.",
+    "placeholders": {
+      "old": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrProofFolderUnchanged": "Old folder unchanged",
+  "@deskErrProofFolderUnchanged": {
+    "description": "A line of the import wizard's result: the old wallet's folder was only read."
+  },
+  "deskErrProofFolderChanged": "Old folder changed by another program",
+  "@deskErrProofFolderChanged": {
+    "description": "A line of the import wizard's result: another program changed the old folder meanwhile."
+  },
+  "deskErrProofHistory": "{count, plural, one{History: 1 transaction} other{History: {count} transactions}}",
+  "@deskErrProofHistory": {
+    "description": "A line of the import wizard's result: the old payment history was imported.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrProofHistoryAlready": "History already imported",
+  "@deskErrProofHistoryAlready": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrProofHistoryNone": "No history in the old folder; the scan restores the balance",
+  "@deskErrProofHistoryNone": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrProofHistoryOld": "History of Epic Wallet 5.3 or older is not readable; the scan restores the balance",
+  "@deskErrProofHistoryOld": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrProofHistoryBusy": "History not imported: the older wallet is running. It is imported at the next unlock",
+  "@deskErrProofHistoryBusy": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrProofHistoryOther": "History not imported: it belongs to another wallet",
+  "@deskErrProofHistoryOther": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrProofHistoryUnreadable": "History not imported: the old database could not be read; the scan restores the balance",
+  "@deskErrProofHistoryUnreadable": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrNodeNoAnswer": "The node did not answer",
+  "@deskErrNodeNoAnswer": {
+    "description": "An error message the user reads when a sync could not reach the node."
+  },
+  "deskErrNotPosted": "Not posted",
+  "@deskErrNotPosted": {
+    "description": "An error message the user reads when a split or consolidation was stored but the node did not take it."
+  },
+  "deskErrNotEpicboxAddress": "Not an Epicbox address",
+  "@deskErrNotEpicboxAddress": {
+    "description": "Why a send failed: the address is not an Epicbox address."
+  },
+  "deskErrFileNotSaved": "File not saved. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrFileNotSaved": {
+    "description": "Why a file send failed: the transaction file could not be saved."
+  },
+  "deskErrTorOffSend": "Tor is off. Turn on Tor to send to an onion address.",
+  "@deskErrTorOffSend": {
+    "description": "Why a send to an onion address failed: Tor is off."
+  },
+  "deskErrTorConnecting": "Tor is still connecting. Try again in a moment.",
+  "@deskErrTorConnecting": {
+    "description": "Why a send to an onion address failed: Tor is still starting."
+  },
+  "deskErrRecipientNoAnswer": "The recipient’s wallet did not answer or refused.",
+  "@deskErrRecipientNoAnswer": {
+    "description": "Why a direct send failed: nothing was sent."
+  },
+  "deskErrRecipientNoAnswerWaits": "The recipient’s wallet did not answer or refused. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrRecipientNoAnswerWaits": {
+    "description": "Why a direct send failed: the payment may exist and waits in Activity."
+  },
+  "deskErrNotDelivered": "Not delivered. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrNotDelivered": {
+    "description": "Why an Epicbox send failed: the payment waits in Activity."
+  },
+  "deskErrInterruptedLock": "Interrupted by the lock. It may have gone out: check Activity after unlocking.",
+  "@deskErrInterruptedLock": {
+    "description": "Why a send ended: the wallet was locked during it."
+  },
+  "deskErrStoredWaits": "{detail}. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrStoredWaits": {
+    "description": "Why a send failed with a reason, when the payment may exist. {detail} is the reason without its final full stop.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrNodeRefused": "Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.",
+  "@deskErrNodeRefused": {
+    "description": "Why a direct send failed: both wallets signed but the node refused the transaction."
+  },
+  "deskErrFileNotReadable": "File not readable",
+  "@deskErrFileNotReadable": {
+    "description": "An error message the user reads when a transaction file cannot be read from disk."
+  },
+  "deskErrNotTxFile2": "Not a transaction file",
+  "@deskErrNotTxFile2": {
+    "description": "An error message the user reads when a chosen file is not a transaction file."
+  },
+  "deskErrResponseNotSaved": "Response file not saved",
+  "@deskErrResponseNotSaved": {
+    "description": "An error message the user reads when the response file could not be written."
+  },
+  "deskErrCannotCancel": "This payment cannot be cancelled",
+  "@deskErrCannotCancel": {
+    "description": "An error message the user reads when a payment cannot be cancelled."
+  },
+  "deskErrNoLocalNode": "No local node in this build",
+  "@deskErrNoLocalNode": {
+    "description": "An error message the user reads when the local node is asked but this build has none."
+  },
+  "deskErrLocalNodeStopped": "Local node stopped",
+  "@deskErrLocalNodeStopped": {
+    "description": "An error message the user reads when the local node was stopped while starting."
+  },
+  "deskErrNotChangedLocked": "Not changed: the wallet was locked",
+  "@deskErrNotChangedLocked": {
+    "description": "An error message the user reads when the wallet was locked during a change."
+  },
+  "deskErrLocalNodeNotStarted": "Local node not started: {detail}",
+  "@deskErrLocalNodeNotStarted": {
+    "description": "Notice on Overview when the local node did not start. {detail} is the reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrUnknown": "unknown error",
+  "@deskErrUnknown": {
+    "description": "Reason after \"Local node not started:\" when nothing more is known. Lowercase."
+  },
+  "deskErrNotServerName": "Not a server name",
+  "@deskErrNotServerName": {
+    "description": "An error message the user reads when the Epicbox server name is not valid."
+  },
+  "deskErrPortInUse": "Port {port} in use",
+  "@deskErrPortInUse": {
+    "description": "Why receiving over HTTP did not start: the port is used by another program.",
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrPortUnavailable": "Port {port} not available",
+  "@deskErrPortUnavailable": {
+    "description": "Why receiving over HTTP did not start: the port cannot be opened.",
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrStoppedWithError": "Stopped with an error",
+  "@deskErrStoppedWithError": {
+    "description": "Why receiving over HTTP stopped, no detail."
+  },
+  "deskErrPasswordNotChanged": "Password not changed. The current password still opens the wallet.",
+  "@deskErrPasswordNotChanged": {
+    "description": "An error message the user reads when changing the password failed."
+  },
+  "deskErrNothingToSpend": "Nothing to spend",
+  "@deskErrNothingToSpend": {
+    "description": "An error message the user reads when there are no coins to spend."
+  },
+  "deskTorLineOff": "Off",
+  "@deskTorLineOff": {
+    "description": "Tor line of the status card and Settings › Receiving when Tor is off. Short."
+  },
+  "deskTorLineReady": "Ready",
+  "@deskTorLineReady": {
+    "description": "Tor line of the status card and Settings › Receiving when Tor is ready. Short."
+  },
+  "deskTorLineSendsWork": "{problem}. Sends work.",
+  "@deskTorLineSendsWork": {
+    "description": "Tor line when the onion address is not published but sending works. {problem} is a short reason such as \"Onion address not published\".",
+    "placeholders": {
+      "problem": {
+        "type": "String"
+      }
+    }
+  },
+  "deskTorLinePublishing": "Publishing the onion address…",
+  "@deskTorLinePublishing": {
+    "description": "Tor line while the onion address is being published."
+  },
+  "deskTorLineConnecting": "Connecting to Tor… {percent} %",
+  "@deskTorLineConnecting": {
+    "description": "Tor line while Tor connects. {percent} is a number from 0 to 100.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrHistOtherWallet": "Another wallet's backup",
+  "@deskErrHistOtherWallet": {
+    "description": "Title of the notice when a history backup file was exported from a different wallet."
+  },
+  "deskErrHistOtherChain": "Wrong network",
+  "@deskErrHistOtherChain": {
+    "description": "Title of the notice when a history backup file is from another network (mainnet or the test network)."
+  },
+  "deskErrHistNotOurs": "Not a history backup",
+  "@deskErrHistNotOurs": {
+    "description": "Title of the notice when a chosen file is not a history backup."
+  },
+  "deskErrHistNewer": "Newer file",
+  "@deskErrHistNewer": {
+    "description": "Title of the notice when a history backup file was made by a newer app version."
+  },
+  "deskErrHistDamaged": "File damaged",
+  "@deskErrHistDamaged": {
+    "description": "Title of the notice when a history backup file is incomplete or changed."
+  },
+  "deskErrOldGui": "Older Epic Wallet",
+  "@deskErrOldGui": {
+    "description": "Group heading in the import wizard's Find step: wallets made by the older Epic Wallet app."
+  },
+  "deskErrOldCli": "The epic program",
+  "@deskErrOldCli": {
+    "description": "Group heading in the import wizard's Find step: wallets made by the epic command-line program."
+  },
+  "deskErrOldPicked": "Chosen folders",
+  "@deskErrOldPicked": {
+    "description": "Group heading in the import wizard's Find step: folders the user picked by hand."
+  },
+  "deskErrHistTooLarge": "The file is too large to be one.",
+  "@deskErrHistTooLarge": {
+    "description": "Why a history backup was refused: the file is far larger than any backup."
+  },
+  "deskErrHistChains": "The file is from {from}; this wallet is on {to}.",
+  "@deskErrHistChains": {
+    "description": "Why a history backup was refused: it is from another network. {from} and {to} are network names such as Mainnet.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrHistOtherWalletText": "The file was exported from a wallet with a different recovery phrase.",
+  "@deskErrHistOtherWalletText": {
+    "description": "Why a history backup was refused: it belongs to another wallet."
+  },
+  "deskErrHistNewerText": "A newer version of the app made this file. Update the app, then import it.",
+  "@deskErrHistNewerText": {
+    "description": "Why a history backup was refused: it was made by a newer app version."
+  },
+  "deskErrHistDamagedText": "The file is incomplete or was changed.",
+  "@deskErrHistDamagedText": {
+    "description": "Why a history backup was refused: the file is damaged."
+  },
+  "deskErrHistNotOursText": "The file was not made by Epic Cash Desktop or Epic Cash Mobile.",
+  "@deskErrHistNotOursText": {
+    "description": "Why a history backup was refused: it is not a backup file of this app."
+  },
+  "deskDataHttpEnter": "Enter the recipient’s address",
+  "@deskDataHttpEnter": {
+    "description": "Hint under the Send address field when it is empty and the Direct method is chosen."
+  },
+  "deskDataHttpScheme": "Start with https:// or http://",
+  "@deskDataHttpScheme": {
+    "description": "Hint under the Send address field: an http address needs its scheme."
+  },
+  "deskDataHttpOnion": "Onion addresses need Tor",
+  "@deskDataHttpOnion": {
+    "description": "Hint under the Send address field: an .onion address was typed where an http(s) address is expected."
+  },
+  "deskDataHttpNot": "Not an http(s) address",
+  "@deskDataHttpNot": {
+    "description": "Hint under the Send address field: the text is not an http or https address."
+  },
+  "deskDataHttpPort": "Port must be 1 to 65535",
+  "@deskDataHttpPort": {
+    "description": "Hint under the Send address field: the port number is out of range."
+  },
+  "deskDataUpdTimeout": "The update server did not answer.",
+  "@deskDataUpdTimeout": {
+    "description": "Update check failed: the server did not answer in time."
+  },
+  "deskDataUpdUnreachable": "The update server could not be reached.",
+  "@deskDataUpdUnreachable": {
+    "description": "Update check failed: the server could not be reached."
+  },
+  "deskDataUpdStatus": "The update server answered {status}.",
+  "@deskDataUpdStatus": {
+    "description": "Update check failed: the server answered with an HTTP error code.",
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "deskDataUpdNone": "No desktop update information is published yet.",
+  "@deskDataUpdNone": {
+    "description": "Update check: the update list has no entry for the desktop app yet."
+  },
+  "deskNodeSynced": "Synced",
+  "@deskNodeSynced": {
+    "description": "Node status word: the node is at the chain tip. Short, in the status rail and node panels."
+  },
+  "deskNodeBehind": "Behind",
+  "@deskNodeBehind": {
+    "description": "Node status word: the node is behind the network. Short."
+  },
+  "deskNodeNotAnswering": "Not answering",
+  "@deskNodeNotAnswering": {
+    "description": "Node status word: the node does not answer. Short."
+  },
+  "deskNodeChecking": "Checking",
+  "@deskNodeChecking": {
+    "description": "Node status word while the first check is running. Short."
+  },
+  "deskNodeStarting": "Starting",
+  "@deskNodeStarting": {
+    "description": "Local node status word: the node program is starting. Short."
+  },
+  "deskNodeSyncing": "Syncing",
+  "@deskNodeSyncing": {
+    "description": "Local node status word: the node is downloading the chain. Short."
+  },
+  "deskNodeStalled": "Stalled",
+  "@deskNodeStalled": {
+    "description": "Local node status word: the sync made no progress. Short."
+  },
+  "deskNodeFailed": "Failed",
+  "@deskNodeFailed": {
+    "description": "Local node status word: the node program failed. Short."
+  },
+  "deskNodeStopped": "Stopped",
+  "@deskNodeStopped": {
+    "description": "Local node status word: the node program is stopped. Short."
+  },
+  "deskNodeMarkerNoAnswer": "no answer",
+  "@deskNodeMarkerNoAnswer": {
+    "description": "Marker after the node host in the rail's second line when the node does not answer. Very short, lowercase."
+  },
+  "deskNodeMarkerBehind": "{count} behind",
+  "@deskNodeMarkerBehind": {
+    "description": "Marker after the node host in the rail when the node is that many blocks behind. Very short. {count} is a number with thousands separators.",
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "12"
+      }
+    }
+  },
+  "deskNodeMarkerStarting": "starting",
+  "@deskNodeMarkerStarting": {
+    "description": "Marker after the host in the rail while the local node starts. Very short, lowercase."
+  },
+  "deskNodeMarkerStalled": "stalled",
+  "@deskNodeMarkerStalled": {
+    "description": "Marker after the host in the rail when the local node's sync stalled. Very short, lowercase."
+  },
+  "deskNodeMarkerFailed": "failed",
+  "@deskNodeMarkerFailed": {
+    "description": "Marker after the host in the rail when the local node failed. Very short, lowercase."
+  },
+  "deskNodeMarkerStopped": "stopped",
+  "@deskNodeMarkerStopped": {
+    "description": "Marker after the host in the rail when the local node is stopped. Very short, lowercase."
+  },
+  "deskNodeHostSince": "{host} · since {time}",
+  "@deskNodeHostSince": {
+    "description": "Tooltip line for a node that stopped answering: the node's host and the time it went down.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      },
+      "time": {
+        "type": "String",
+        "example": "14:05"
+      }
+    }
+  },
+  "deskNodeNotAnsweringLine": "The node is not answering.",
+  "@deskNodeNotAnsweringLine": {
+    "description": "Tooltip line when the node does not answer."
+  },
+  "deskNodeLatency": "{ms} ms",
+  "@deskNodeLatency": {
+    "description": "Tooltip line part: the node's answer time in milliseconds.",
+    "placeholders": {
+      "ms": {
+        "type": "String",
+        "example": "722"
+      }
+    }
+  },
+  "deskNodeLatencyOverTor": "{ms} ms over Tor",
+  "@deskNodeLatencyOverTor": {
+    "description": "Tooltip line part: the node's answer time in milliseconds, measured over Tor.",
+    "placeholders": {
+      "ms": {
+        "type": "String",
+        "example": "722"
+      }
+    }
+  },
+  "deskNodeNewerOut": "{version} is out",
+  "@deskNodeNewerOut": {
+    "description": "Tooltip line part: a newer node version is released.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "4.1.1"
+      }
+    }
+  },
+  "deskNodeBehindLine": "Behind the network; catching up.",
+  "@deskNodeBehindLine": {
+    "description": "Tooltip line when the node is behind the network."
+  },
+  "deskNodeHeightOf": "{height} of {total}",
+  "@deskNodeHeightOf": {
+    "description": "Tooltip line part: the node's block height of the network's height.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,914,414"
+      },
+      "total": {
+        "type": "String",
+        "example": "2,914,500"
+      }
+    }
+  },
+  "deskNodeAtTip": "at tip",
+  "@deskNodeAtTip": {
+    "description": "Tooltip line part: the node is at the chain tip. Short, lowercase."
+  },
+  "deskNodeLocal": "Local node",
+  "@deskNodeLocal": {
+    "description": "Name of the node program that runs on this computer, in the rail and node panels."
+  },
+  "deskNodeConnectingPeers": "Connecting to peers",
+  "@deskNodeConnectingPeers": {
+    "description": "Local node line while it looks for peers."
+  },
+  "deskNodeUsingUntilSynced": "Using {host} until it is synced.",
+  "@deskNodeUsingUntilSynced": {
+    "description": "Local node tooltip line: the wallet reads through this public node until the local node has synced.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      }
+    }
+  },
+  "deskNodeNothingUntilSynced": "Nothing can be sent until it is synced.",
+  "@deskNodeNothingUntilSynced": {
+    "description": "Local node tooltip line while it syncs and no other node is used."
+  },
+  "deskNodePeers": "{count, plural, one{{count} peer} other{{count} peers}}",
+  "@deskNodePeers": {
+    "description": "Local node tooltip line part: how many peers the node is connected to.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeRunning": "running {duration}",
+  "@deskNodeRunning": {
+    "description": "Local node tooltip line part: how long the node program has been running. {duration} is like \"9 h 40 min\".",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "9 h 40 min"
+      }
+    }
+  },
+  "deskNodeStillUsing": "Still using {host}; the local node takes over shortly.",
+  "@deskNodeStillUsing": {
+    "description": "Local node tooltip line once synced while the wallet still reads through a public node.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      }
+    }
+  },
+  "deskNodeNoProgress": "No progress for 5 min. Restarted once already.",
+  "@deskNodeNoProgress": {
+    "description": "Local node tooltip line when the sync stalled."
+  },
+  "deskNodeUsingMeanwhile": "Using {host} meanwhile.",
+  "@deskNodeUsingMeanwhile": {
+    "description": "Local node tooltip line: the wallet reads through this public node while the local node is not working.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      }
+    }
+  },
+  "deskNodeStartIt": "Start it under Settings › Node.",
+  "@deskNodeStartIt": {
+    "description": "Local node tooltip line when the node is stopped."
+  },
+  "deskNodeFailPort": "port 3413 is used by another program",
+  "@deskNodeFailPort": {
+    "description": "Why the local node failed, as a detail after the word \"Failed\". Lowercase fragment."
+  },
+  "deskNodeFailDisk": "not enough disk space",
+  "@deskNodeFailDisk": {
+    "description": "Why the local node failed. Lowercase fragment."
+  },
+  "deskNodeFailMissing": "the node program is missing",
+  "@deskNodeFailMissing": {
+    "description": "Why the local node failed. Lowercase fragment."
+  },
+  "deskNodeFailExited": "the node program stopped",
+  "@deskNodeFailExited": {
+    "description": "Why the local node failed. Lowercase fragment."
+  },
+  "deskNodeFailExitedCode": "the node program stopped (exit code {code})",
+  "@deskNodeFailExitedCode": {
+    "description": "Why the local node failed, with the program's exit code. Lowercase fragment.",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "deskNodeFailDefault": "the node did not start",
+  "@deskNodeFailDefault": {
+    "description": "Why the local node failed when nothing more is known. Lowercase fragment."
+  },
+  "deskNodeStageWaiting": "connecting to peers",
+  "@deskNodeStageWaiting": {
+    "description": "Name of the local node's sync stage, lowercase, used inside a sentence."
+  },
+  "deskNodeStageHeaders": "headers",
+  "@deskNodeStageHeaders": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageChainDownload": "chain state download",
+  "@deskNodeStageChainDownload": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageKernels": "checking kernels",
+  "@deskNodeStageKernels": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageRangeProofs": "checking range proofs",
+  "@deskNodeStageRangeProofs": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageProcessing": "processing the chain state",
+  "@deskNodeStageProcessing": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageBlocks": "blocks",
+  "@deskNodeStageBlocks": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageCompacting": "compacting",
+  "@deskNodeStageCompacting": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageStopping": "stopping",
+  "@deskNodeStageStopping": {
+    "description": "Name of the local node's stage, lowercase."
+  },
+  "deskNodeStageSyncing": "syncing",
+  "@deskNodeStageSyncing": {
+    "description": "Name of the local node's stage, lowercase."
+  },
+  "deskNodeLineWaiting": "Connecting to peers",
+  "@deskNodeLineWaiting": {
+    "description": "Local node stage line while it waits for peers."
+  },
+  "deskNodeLineHeaders": "Headers · {done} of {total}",
+  "@deskNodeLineHeaders": {
+    "description": "Local node stage line: block headers downloaded of the total.",
+    "placeholders": {
+      "done": {
+        "type": "String",
+        "example": "1,480,200"
+      },
+      "total": {
+        "type": "String",
+        "example": "3,764,975"
+      }
+    }
+  },
+  "deskNodeLineHeadersBare": "Headers",
+  "@deskNodeLineHeadersBare": {
+    "description": "Local node stage line: block headers, count unknown."
+  },
+  "deskNodeLineChain": "Chain state · {done} of {total} GB",
+  "@deskNodeLineChain": {
+    "description": "Local node stage line: chain state downloaded of the total, in gigabytes.",
+    "placeholders": {
+      "done": {
+        "type": "String",
+        "example": "1.2"
+      },
+      "total": {
+        "type": "String",
+        "example": "5.2"
+      }
+    }
+  },
+  "deskNodeLineChainBare": "Chain state",
+  "@deskNodeLineChainBare": {
+    "description": "Local node stage line: chain state, size unknown."
+  },
+  "deskNodeLineKernels": "Checking kernels · {done} of {total} million",
+  "@deskNodeLineKernels": {
+    "description": "Local node stage line: kernels checked of the total, in millions.",
+    "placeholders": {
+      "done": {
+        "type": "String",
+        "example": "1.2"
+      },
+      "total": {
+        "type": "String",
+        "example": "5.2"
+      }
+    }
+  },
+  "deskNodeLineKernelsBare": "Checking kernels",
+  "@deskNodeLineKernelsBare": {
+    "description": "Local node stage line: checking kernels."
+  },
+  "deskNodeLineRangeProofs": "Checking range proofs · {done} of {total} million",
+  "@deskNodeLineRangeProofs": {
+    "description": "Local node stage line: range proofs checked of the total, in millions.",
+    "placeholders": {
+      "done": {
+        "type": "String",
+        "example": "1.2"
+      },
+      "total": {
+        "type": "String",
+        "example": "5.2"
+      }
+    }
+  },
+  "deskNodeLineRangeProofsBare": "Checking range proofs",
+  "@deskNodeLineRangeProofsBare": {
+    "description": "Local node stage line: checking range proofs."
+  },
+  "deskNodeLineProcessing": "Processing the chain state",
+  "@deskNodeLineProcessing": {
+    "description": "Local node stage line."
+  },
+  "deskNodeLineBlocks": "Blocks · {done} of {total}",
+  "@deskNodeLineBlocks": {
+    "description": "Local node stage line: blocks downloaded of the total.",
+    "placeholders": {
+      "done": {
+        "type": "String",
+        "example": "1,480,200"
+      },
+      "total": {
+        "type": "String",
+        "example": "3,764,975"
+      }
+    }
+  },
+  "deskNodeLineBlocksBare": "Blocks",
+  "@deskNodeLineBlocksBare": {
+    "description": "Local node stage line: blocks, count unknown."
+  },
+  "deskNodeLineCompacting": "Compacting the chain data",
+  "@deskNodeLineCompacting": {
+    "description": "Local node stage line."
+  },
+  "deskNodeLineStopping": "Stopping…",
+  "@deskNodeLineStopping": {
+    "description": "Local node stage line while the node program shuts down."
+  },
+  "deskNodeLineSyncing": "Syncing",
+  "@deskNodeLineSyncing": {
+    "description": "Local node stage line when the stage is unknown."
+  },
+  "deskNodeNoEstimate": "no estimate; up to an hour",
+  "@deskNodeNoEstimate": {
+    "description": "Time left for the local node's checks, which cannot be estimated. Lowercase."
+  },
+  "deskNodeEstimating": "estimating…",
+  "@deskNodeEstimating": {
+    "description": "Time left for the local node's sync while the estimate is not ready yet. Lowercase."
+  },
+  "deskNodeAboutHours": "about {hours} h left",
+  "@deskNodeAboutHours": {
+    "description": "Time left for the local node's sync, in hours. Lowercase.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeAboutMinutes": "about {minutes} min left",
+  "@deskNodeAboutMinutes": {
+    "description": "Time left for the local node's sync, in minutes. Lowercase.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeDurationHm": "{hours} h {minutes} min",
+  "@deskNodeDurationHm": {
+    "description": "A length of time in hours and minutes, e.g. how long the node has been running.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeDurationM": "{minutes} min",
+  "@deskNodeDurationM": {
+    "description": "A length of time in minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deskTorNetworkLabel": "Tor Network",
+  "@deskTorNetworkLabel": {
+    "description": "Label of the Tor switch in Settings › Privacy and the status rail's Tor row."
+  },
+  "deskTorNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.",
+  "@deskTorNetworkHint": {
+    "description": "Explains what the Tor switch does, in the info hover card behind the Tor switch."
+  },
+  "deskTorOff": "Off",
+  "@deskTorOff": {
+    "description": "Tor state word: the switch is off. Short."
+  },
+  "deskTorStarting": "Starting…",
+  "@deskTorStarting": {
+    "description": "Tor state word: Tor is connecting. Short."
+  },
+  "deskTorOn": "On",
+  "@deskTorOn": {
+    "description": "Tor state word: Tor is connected. Short."
+  },
+  "deskTorNotConnected": "Not connected",
+  "@deskTorNotConnected": {
+    "description": "Tor state word: Tor stopped or could not connect. Short."
+  },
+  "deskTorRoutes": "Epicbox, the node, status, price, updates, support and Tor addresses",
+  "@deskTorRoutes": {
+    "description": "The connections that wait for Tor, as a phrase that starts a sentence: Epicbox, the node, the app's status/price/update/support requests and Tor addresses. It is followed by a verb in the sentences that use it (\"… wait until Tor is up.\")."
+  },
+  "deskTorCoverage": "Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.",
+  "@deskTorCoverage": {
+    "description": "One sentence listing what goes over Tor while the switch is on."
+  },
+  "deskTorNodeOver": "Over Tor",
+  "@deskTorNodeOver": {
+    "description": "Node tooltip line: the node is reached over Tor."
+  },
+  "deskTorNodeNotEncrypted": "Not encrypted past Tor",
+  "@deskTorNodeNotEncrypted": {
+    "description": "Node tooltip line: a plain http node is not encrypted after the Tor exit."
+  },
+  "deskTorNodeWaits": "Waits until Tor is connected.",
+  "@deskTorNodeWaits": {
+    "description": "Node tooltip line: the node connection waits for Tor."
+  },
+  "deskRecvTitle": "Receive",
+  "@deskRecvTitle": {
+    "description": "Page title of Receive."
+  },
+  "deskRecvReceiving": "Receiving",
+  "@deskRecvReceiving": {
+    "description": "Label before the method icons in the Receive page header, and before the on/off switch of each receiving method."
+  },
+  "deskRecvNameFile": "File",
+  "@deskRecvNameFile": {
+    "description": "Name of the file method (transaction files) when read out in a screen reader line such as \"File off\"."
+  },
+  "deskRecvTurnOnFailed": "{method} not turned on",
+  "@deskRecvTurnOnFailed": {
+    "description": "Toast title when turning a receiving method on failed; the reason follows as text. {method} is Epicbox, HTTP, Tor or File.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "deskRecvTurnOffFailed": "{method} not turned off",
+  "@deskRecvTurnOffFailed": {
+    "description": "Toast title when turning a receiving method off failed; the reason follows as text. {method} is Epicbox, HTTP, Tor or File.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "deskRecvOtherWays": "Other ways to receive",
+  "@deskRecvOtherWays": {
+    "description": "Heading above the HTTP or Tor panel on Receive."
+  },
+  "deskRecvSettings": "Settings",
+  "@deskRecvSettings": {
+    "description": "Small button next to the Other ways to receive heading: opens Settings › Receiving."
+  },
+  "deskRecvTorNotConnected": "Tor is not connected.",
+  "@deskRecvTorNotConnected": {
+    "description": "Title of the notice on Receive when Tor failed."
+  },
+  "deskRecvTorStarting": "Tor is starting.",
+  "@deskRecvTorStarting": {
+    "description": "Title of the notice on Receive while Tor connects."
+  },
+  "deskRecvTorDownText": "Nothing arrives over {routes} until it is, or until Tor is turned off.",
+  "@deskRecvTorDownText": {
+    "description": "Text of the notice on Receive when Tor failed. {routes} is a list of the connections that wait for Tor, such as \"Epicbox, the node, status, price, updates, support and Tor addresses\". \"it\" is Tor.",
+    "placeholders": {
+      "routes": {
+        "type": "String"
+      }
+    }
+  },
+  "deskRecvTorStartingText": "Addresses become reachable once it is connected. Nothing goes over the clearnet meanwhile.",
+  "@deskRecvTorStartingText": {
+    "description": "Text of the notice on Receive while Tor connects. \"it\" is Tor."
+  },
+  "deskRecvTurnTorOff": "Turn Tor off",
+  "@deskRecvTurnTorOff": {
+    "description": "Button in the Tor failed notice on Receive: switches Tor off."
+  },
+  "deskRecvTryAgain": "Try again",
+  "@deskRecvTryAgain": {
+    "description": "Retry button on the HTTP panel on Receive when the HTTP listener failed."
+  },
+  "deskRecvStateOn": "on",
+  "@deskRecvStateOn": {
+    "description": "Spoken state of a receiving method for screen readers, lowercase: the method is on."
+  },
+  "deskRecvStateOff": "off",
+  "@deskRecvStateOff": {
+    "description": "Spoken state of a receiving method for screen readers, lowercase: the method is off."
+  },
+  "deskRecvStateChecking": "checking",
+  "@deskRecvStateChecking": {
+    "description": "Spoken state of a receiving method for screen readers, lowercase: still being checked."
+  },
+  "deskRecvSemList": "{method} {state}",
+  "@deskRecvSemList": {
+    "description": "Screen reader text for one receiving method in the page header summary, e.g. \"Epicbox on\". The summary joins these with commas.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      },
+      "state": {
+        "type": "String",
+        "example": "on"
+      }
+    }
+  },
+  "deskRecvSemMethod": "{method}: {state}",
+  "@deskRecvSemMethod": {
+    "description": "Screen reader label of a receiving method's icon button in the page header, e.g. \"Epicbox: on\".",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      },
+      "state": {
+        "type": "String",
+        "example": "on"
+      }
+    }
+  },
+  "deskRecvTipChecking": "{method} · Checking",
+  "@deskRecvTipChecking": {
+    "description": "Tooltip of a receiving method's icon in the page header while it is being checked.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "deskRecvTip": "{method} · {state}",
+  "@deskRecvTip": {
+    "description": "Tooltip of a receiving method's icon in the page header. {state} is the state word such as On or Off.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      },
+      "state": {
+        "type": "String",
+        "example": "On"
+      }
+    }
+  },
+  "deskRecvTipDetail": "{method} · {state}\n{detail}",
+  "@deskRecvTipDetail": {
+    "description": "Tooltip of a receiving method's icon in the page header with a second line of detail.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      },
+      "state": {
+        "type": "String",
+        "example": "On"
+      },
+      "detail": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
+  },
+  "deskRecvTagPaused": "Paused",
+  "@deskRecvTagPaused": {
+    "description": "Small tag on the covered Epicbox QR code while Epicbox receiving is off."
+  },
+  "deskRecvTagStarting": "Starting",
+  "@deskRecvTagStarting": {
+    "description": "Small tag on a QR code while its receiving method starts."
+  },
+  "deskRecvTagNotReachable": "Not reachable",
+  "@deskRecvTagNotReachable": {
+    "description": "Small tag on a QR code when its receiving method does not work."
+  },
+  "deskRecvAddressUnreadable": "The address could not be read. Open Receive again in a moment.",
+  "@deskRecvAddressUnreadable": {
+    "description": "Shown instead of an address when the wallet could not read it."
+  },
+  "deskRecvEpicboxAddress": "Epicbox address",
+  "@deskRecvEpicboxAddress": {
+    "description": "Title of the Epicbox panel and of its QR code on Receive."
+  },
+  "deskRecvCopyEpicbox": "Copy Epicbox address",
+  "@deskRecvCopyEpicbox": {
+    "description": "Screen reader and tooltip label of the copy button next to the Epicbox address."
+  },
+  "deskRecvEpicboxIntro": "Share it to get paid. Works while the wallet is closed: the Epicbox server holds payments until the wallet is back.",
+  "@deskRecvEpicboxIntro": {
+    "description": "Intro text of the Epicbox panel on Receive."
+  },
+  "deskRecvCheckSix": "When reading it out, check the first six and last six characters.",
+  "@deskRecvCheckSix": {
+    "description": "Caption under the Epicbox address on Receive."
+  },
+  "deskRecvHttpAddress": "HTTP address",
+  "@deskRecvHttpAddress": {
+    "description": "Title of the HTTP panel on Receive and of its QR code."
+  },
+  "deskRecvCopyHttp": "Copy HTTP address",
+  "@deskRecvCopyHttp": {
+    "description": "Label of the copy button next to the HTTP address."
+  },
+  "deskRecvHttpPublic": "Your router’s public address. Senders on the internet use it once the router forwards port {port}.",
+  "@deskRecvHttpPublic": {
+    "description": "Caption under the HTTP address when receiving from the internet is on. {port} is the port number.",
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Receiving.",
+  "@deskRecvHttpLocal": {
+    "description": "Caption under the HTTP address when receiving is only for this computer."
+  },
+  "deskRecvHttpIntro": "Straight from another wallet while this one is open. On this computer only unless Settings says otherwise.",
+  "@deskRecvHttpIntro": {
+    "description": "Intro text of the HTTP panel on Receive."
+  },
+  "deskRecvHttpTorHint": "Turn on Tor in Settings › Privacy for a Tor address instead.",
+  "@deskRecvHttpTorHint": {
+    "description": "Caption at the bottom of the HTTP panel on Receive."
+  },
+  "deskRecvDirectTor": "Direct, Tor address",
+  "@deskRecvDirectTor": {
+    "description": "Title of the Tor panel on Receive."
+  },
+  "deskRecvTorIntro": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.",
+  "@deskRecvTorIntro": {
+    "description": "Intro text of the Tor panel on Receive."
+  },
+  "deskRecvTorAddress": "Tor address",
+  "@deskRecvTorAddress": {
+    "description": "Title of the QR code of the Tor address on Receive."
+  },
+  "deskRecvCopyTor": "Copy Tor address",
+  "@deskRecvCopyTor": {
+    "description": "Label of the copy button next to the Tor address."
+  },
+  "deskRecvTorOnion": "Some wallets show the address without .onion; both are the same address.",
+  "@deskRecvTorOnion": {
+    "description": "Caption under the Tor address on Receive."
+  },
+  "deskRecvFiles": "Transaction files",
+  "@deskRecvFiles": {
+    "description": "Heading of the transaction files panel on Receive."
+  },
+  "deskRecvSignTitle": "Sign a transaction file",
+  "@deskRecvSignTitle": {
+    "description": "Row title in the transaction files panel: opens the page that signs a file the sender gave."
+  },
+  "deskRecvSignText": "A sender gave a transaction file. The wallet signs it and saves a response for them.",
+  "@deskRecvSignText": {
+    "description": "Row text under Sign a transaction file."
+  },
+  "deskRecvOpen": "Open",
+  "@deskRecvOpen": {
+    "description": "Button on the rows of the transaction files panel."
+  },
+  "deskRecvFinalizeTitle": "Finalize a response file",
+  "@deskRecvFinalizeTitle": {
+    "description": "Row title in the transaction files panel: opens the page that finalizes a response file."
+  },
+  "deskRecvFinalizeText": "A file send got a response back. Finalizing posts the payment.",
+  "@deskRecvFinalizeText": {
+    "description": "Row text under Finalize a response file."
+  },
+  "deskRecvSwitchLabel": "{title}, receiving",
+  "@deskRecvSwitchLabel": {
+    "description": "Screen reader label of a receiving method's on/off switch. {title} is the panel's title, e.g. Epicbox address.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Epicbox address"
+      }
+    }
+  },
+  "deskSendStrategySmallest": "Smallest",
+  "@deskSendStrategySmallest": {
+    "description": "Name of the output-selection strategy that spends the fewest small outputs. Used as a radio title and inside sentences. Short."
+  },
+  "deskSendStrategyAll": "All",
+  "@deskSendStrategyAll": {
+    "description": "Name of the output-selection strategy that spends every output. Used as a radio title and inside sentences. Short."
+  },
+  "deskSendBalanceAfter": "Balance after",
+  "@deskSendBalanceAfter": {
+    "description": "Summary line on Send: the balance left after this payment."
+  },
+  "deskSendSpendableUntil": "Spendable until change confirms",
+  "@deskSendSpendableUntil": {
+    "description": "Summary line on Send: the amount still spendable while the change confirms."
+  },
+  "deskSendSplitLine": "{outputs, plural, one{Change split into {outputs} output (+{fee} EPIC fee)} other{Change split into {outputs} outputs (+{fee} EPIC fee)}}",
+  "@deskSendSplitLine": {
+    "description": "Summary line on Send when the change comes back as several outputs. {outputs} is the number of change outputs; {fee} the extra network fee, in EPIC.",
+    "placeholders": {
+      "outputs": {
+        "type": "int"
+      },
+      "fee": {
+        "type": "String",
+        "example": "0.012"
+      }
+    }
+  },
+  "deskSendSplitWhy": "{outputs, plural, one{So the next send does not wait for this one to confirm. Change comes back as {outputs} output of about {each} EPIC instead of one.} other{So the next send does not wait for this one to confirm. Change comes back as {outputs} outputs of about {each} EPIC instead of one.}}",
+  "@deskSendSplitWhy": {
+    "description": "Help text behind the info icon of the split-change line. {outputs} is the number of change outputs; {each} the size of each, in EPIC.",
+    "placeholders": {
+      "outputs": {
+        "type": "int"
+      },
+      "each": {
+        "type": "String",
+        "example": "2.4310"
+      }
+    }
+  },
+  "deskSendSplitWhyLabel": "Why the change is split",
+  "@deskSendSplitWhyLabel": {
+    "description": "Screen reader label of the info icon next to the split-change line."
+  },
+  "deskSendLockNoChange": "{count, plural, one{No change: 1 output spent exactly, nothing waits.} other{No change: {count} outputs spent exactly, nothing waits.}}",
+  "@deskSendLockNoChange": {
+    "description": "Caption under \"Spendable until change confirms\" on Send when the payment spends its outputs exactly.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSendLockAll": "{count, plural, one{Everything is locked: 1 output, {amount} EPIC, about 3 blocks.} other{Everything is locked: {count} outputs, {amount} EPIC, about 3 blocks.}}",
+  "@deskSendLockAll": {
+    "description": "Caption under \"Spendable until change confirms\" on Send when every output is locked until the change confirms. {amount} is in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String",
+        "example": "1,284.73215"
+      }
+    }
+  },
+  "deskSendLockSome": "{count, plural, one{1 output locked, {amount} EPIC, about 3 blocks.} other{{count} outputs locked, {amount} EPIC, about 3 blocks.}}",
+  "@deskSendLockSome": {
+    "description": "Caption under \"Spendable until change confirms\" on Send: how much is locked until the change confirms. {amount} is in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String",
+        "example": "34.73215"
+      }
+    }
+  },
+  "deskSendStrategyLine": "{count, plural, one{Strategy for this send: {strategy} · 1 output.} other{Strategy for this send: {strategy} · {count} outputs.}}",
+  "@deskSendStrategyLine": {
+    "description": "Caption on Send when this send uses another output strategy than the default. {strategy} is the strategy's name (Smallest or All).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "strategy": {
+        "type": "String",
+        "example": "Smallest"
+      }
+    }
+  },
+  "deskSendReviewSplit": "{outputs, plural, one{Change split into {outputs} output (+{fee} EPIC).} other{Change split into {outputs} outputs (+{fee} EPIC).}}",
+  "@deskSendReviewSplit": {
+    "description": "Second line of the Network fee in the review dialog when the change is split. {fee} is the extra fee in EPIC.",
+    "placeholders": {
+      "outputs": {
+        "type": "int"
+      },
+      "fee": {
+        "type": "String",
+        "example": "0.012"
+      }
+    }
+  },
+  "deskSendReviewLocksNone": "{count, plural, one{{locked} EPIC in 1 output; no change comes back.} other{{locked} EPIC in {count} outputs; no change comes back.}}",
+  "@deskSendReviewLocksNone": {
+    "description": "Review dialog, fact \"Locks\": the outputs are spent exactly. {locked} is in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "locked": {
+        "type": "String",
+        "example": "25.0080"
+      }
+    }
+  },
+  "deskSendReviewLocksAll": "{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms (3 blocks). Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing stays spendable.}}",
+  "@deskSendReviewLocksAll": {
+    "description": "Review dialog, fact \"Locks\": strategy All locks everything. {locked} is in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "locked": {
+        "type": "String",
+        "example": "1,284.73215"
+      }
+    }
+  },
+  "deskSendReviewLocksEverything": "{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.}}",
+  "@deskSendReviewLocksEverything": {
+    "description": "Review dialog, fact \"Locks\": all outputs are needed. {locked} is in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "locked": {
+        "type": "String",
+        "example": "1,284.73215"
+      }
+    }
+  },
+  "deskSendReviewLocksSome": "{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). {spendable} EPIC stays spendable.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). {spendable} EPIC stays spendable.}}",
+  "@deskSendReviewLocksSome": {
+    "description": "Review dialog, fact \"Locks\": some outputs are locked, the rest stays spendable. Amounts are in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "locked": {
+        "type": "String",
+        "example": "34.73215"
+      },
+      "spendable": {
+        "type": "String",
+        "example": "1,250.0000"
+      }
+    }
+  },
+  "deskSendFactLocks": "Locks",
+  "@deskSendFactLocks": {
+    "description": "Label of a fact in the review dialog: the outputs the payment locks until the change confirms. Short."
+  },
+  "deskSendFactStrategy": "Strategy",
+  "@deskSendFactStrategy": {
+    "description": "Label of a fact in the review dialog: the output strategy of this send. Short."
+  },
+  "deskSendFactStrategyValue": "{strategy} outputs, for this send",
+  "@deskSendFactStrategyValue": {
+    "description": "Value of the Strategy fact in the review dialog. {strategy} is the strategy's name (Smallest or All).",
+    "placeholders": {
+      "strategy": {
+        "type": "String",
+        "example": "All"
+      }
+    }
+  },
+  "deskSendAdvSmallest": "· Smallest outputs",
+  "@deskSendAdvSmallest": {
+    "description": "Subtitle of the Advanced disclosure on Send: strategy Smallest, change split. Starts with a middle dot."
+  },
+  "deskSendAdvSmallestNoSplit": "· Smallest outputs, change not split",
+  "@deskSendAdvSmallestNoSplit": {
+    "description": "Subtitle of the Advanced disclosure on Send: strategy Smallest, change not split. Starts with a middle dot."
+  },
+  "deskSendAdvAll": "· All outputs",
+  "@deskSendAdvAll": {
+    "description": "Subtitle of the Advanced disclosure on Send: strategy All, change split. Starts with a middle dot."
+  },
+  "deskSendAdvAllNoSplit": "· All outputs, change not split",
+  "@deskSendAdvAllNoSplit": {
+    "description": "Subtitle of the Advanced disclosure on Send: strategy All, change not split. Starts with a middle dot."
+  },
+  "deskSendAdvanced": "Advanced",
+  "@deskSendAdvanced": {
+    "description": "Title of the collapsed Advanced disclosure on Send."
+  },
+  "deskSendAdvStrategy": "Strategy for this send",
+  "@deskSendAdvStrategy": {
+    "description": "Screen reader label of the group of strategy radio rows on Send."
+  },
+  "deskSendAdvSmallestText": "Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.",
+  "@deskSendAdvSmallestText": {
+    "description": "Description of the Smallest strategy radio row on Send."
+  },
+  "deskSendAdvAllText": "Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.",
+  "@deskSendAdvAllText": {
+    "description": "Description of the All strategy radio row on Send."
+  },
+  "deskSendDefaultTag": "default",
+  "@deskSendDefaultTag": {
+    "description": "Small tag on the radio row of the strategy that is the default. Lowercase, very short."
+  },
+  "deskSendAdvAllNote": "Sending everything spends every output.",
+  "@deskSendAdvAllNote": {
+    "description": "Note under the strategy rows when the whole balance is sent."
+  },
+  "deskSendAdvSplit": "Split change",
+  "@deskSendAdvSplit": {
+    "description": "Title of the switch (and its screen reader label) that splits the change into several outputs, on Send › Advanced."
+  },
+  "deskSendAdvSplitText": "Returns the change as several outputs when few would be left, so the next send does not wait.",
+  "@deskSendAdvSplitText": {
+    "description": "Description of the Split change switch on Send › Advanced."
+  },
+  "deskSendAdvDefaults": "For this send only. Defaults: ",
+  "@deskSendAdvDefaults": {
+    "description": "Caption under Send › Advanced, followed by a link named \"Outputs\". Ends with a space."
+  },
+  "deskSendAdvOutputsLink": "Outputs",
+  "@deskSendAdvOutputsLink": {
+    "description": "Link at the end of the Advanced caption: opens the Outputs page, where the defaults are set."
+  },
+  "deskSendPickNone": "No contacts yet",
+  "@deskSendPickNone": {
+    "description": "Empty state title of the Choose contact dialog on Send."
+  },
+  "deskSendPickNoneText": "Save the people you pay in Contacts, then choose them here.",
+  "@deskSendPickNoneText": {
+    "description": "Empty state text of the Choose contact dialog on Send."
+  },
+  "deskSendPickOpen": "Open contacts",
+  "@deskSendPickOpen": {
+    "description": "Button (empty state and dialog footer) that opens the Contacts page."
+  },
+  "deskSendPickNoMatch": "No contact matches \"{query}\".",
+  "@deskSendPickNoMatch": {
+    "description": "Shown in the Choose contact dialog when the search finds nothing. {query} is what the user typed.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "ann"
+      }
+    }
+  },
+  "deskSendPickTitle": "Choose contact",
+  "@deskSendPickTitle": {
+    "description": "Title of the dialog that picks a contact as the recipient on Send."
+  },
+  "deskSendPickDesc": "The address fills the recipient field.",
+  "@deskSendPickDesc": {
+    "description": "Subtitle of the Choose contact dialog."
+  },
+  "deskSendPickSearch": "Search contacts",
+  "@deskSendPickSearch": {
+    "description": "Placeholder and screen reader label of the search field in the Choose contact dialog."
+  },
+  "deskSendTitle": "Send",
+  "@deskSendTitle": {
+    "description": "Page title of Send."
+  },
+  "deskSendErrNoAddress": "Add an address to send to.",
+  "@deskSendErrNoAddress": {
+    "description": "Error under the To field on Send when it is empty."
+  },
+  "deskSendErrEpicbox": "This is not a valid Epicbox address.",
+  "@deskSendErrEpicbox": {
+    "description": "Error under the To field on Send when the Epicbox method is chosen and the address is not an Epicbox address."
+  },
+  "deskSendErrNotDirect": "This is not a Direct address.",
+  "@deskSendErrNotDirect": {
+    "description": "Error under the To field on Send when the Direct method is chosen and the address is an Epicbox address."
+  },
+  "deskSendErrOnion": "This is not a valid onion address.",
+  "@deskSendErrOnion": {
+    "description": "Error under the To field on Send when the address looks like a Tor address but is not complete or valid."
+  },
+  "deskSendErrOwn": "This is the wallet's own address.",
+  "@deskSendErrOwn": {
+    "description": "Error under the To field on Send when the recipient is this wallet."
+  },
+  "deskSendNoAnswer": "The recipient did not answer. Nothing was sent.",
+  "@deskSendNoAnswer": {
+    "description": "Demo failure text on Send (used by the guided tour)."
+  },
+  "deskSendTorOnFailed": "Tor not turned on",
+  "@deskSendTorOnFailed": {
+    "description": "Toast title on Send when switching Tor on failed; the reason follows as text."
+  },
+  "deskSendTorOffFailed": "Tor not turned off",
+  "@deskSendTorOffFailed": {
+    "description": "Toast title on Send when switching Tor off failed; the reason follows as text."
+  },
+  "deskSendEpicboxOnFailed": "Epicbox not turned on",
+  "@deskSendEpicboxOnFailed": {
+    "description": "Toast title on Send when switching Epicbox receiving on failed; the reason follows as text."
+  },
+  "deskSendNothingSpendable": "Nothing spendable to send.",
+  "@deskSendNothingSpendable": {
+    "description": "Error under the Amount field on Send when the All button finds nothing to send."
+  },
+  "deskSendAllFailed": "Could not work out how much can be sent. Try again in a moment.",
+  "@deskSendAllFailed": {
+    "description": "Error under the Amount field on Send when the All button could not get the maximum."
+  },
+  "deskSendErrAmountEnter": "Enter an amount.",
+  "@deskSendErrAmountEnter": {
+    "description": "Error under the Amount field on Send when it is empty or not a number."
+  },
+  "deskSendErrAmountDecimals": "EPIC has at most 8 decimals.",
+  "@deskSendErrAmountDecimals": {
+    "description": "Error under the Amount field on Send when the amount has more than eight decimals."
+  },
+  "deskSendErrAmountZero": "The amount must be more than 0.",
+  "@deskSendErrAmountZero": {
+    "description": "Error under the Amount field on Send when the amount is zero or negative."
+  },
+  "deskSendErrAmountMore": "More than the available balance.",
+  "@deskSendErrAmountMore": {
+    "description": "Error under the Amount field on Send when the amount plus the fee is more than the spendable balance."
+  },
+  "deskSendSent": "Sent",
+  "@deskSendSent": {
+    "description": "Toast title and notice title after a send went out."
+  },
+  "deskSendFileReadyTitle": "Transaction file ready",
+  "@deskSendFileReadyTitle": {
+    "description": "Result card title on Send after a file send created the transaction file."
+  },
+  "deskSendFileReadyText": "Give this file to the recipient. The wallet is waiting for the response file; finalize it when it comes back.",
+  "@deskSendFileReadyText": {
+    "description": "Result card text on Send after a file send created the transaction file."
+  },
+  "deskSendFinalize": "Finalize",
+  "@deskSendFinalize": {
+    "description": "Button on the file-ready card on Send: opens the Finalize page."
+  },
+  "deskSendNewSend": "New send",
+  "@deskSendNewSend": {
+    "description": "Button on the file-ready card on Send: starts over."
+  },
+  "deskSendNodeNotSynced": "Node not synced",
+  "@deskSendNodeNotSynced": {
+    "description": "Title of the warning notice on Send while the node has not synced."
+  },
+  "deskSendNodeSyncingPct": "Sending is possible once the node has synced. {percent}% done; the form can be filled in meanwhile.",
+  "@deskSendNodeSyncingPct": {
+    "description": "Text of that notice with the sync progress. {percent} is a whole number from 0 to 100.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSendNodeSyncing": "Sending is possible once the node has synced.",
+  "@deskSendNodeSyncing": {
+    "description": "Text of that notice when the progress is unknown."
+  },
+  "deskSendTorBlocked": "Tor is not connected",
+  "@deskSendTorBlocked": {
+    "description": "Title of the notice on Send when Tor failed and a send needs it."
+  },
+  "deskSendTorBlockedText": "Nothing is sent until it is, or until Tor is turned off.",
+  "@deskSendTorBlockedText": {
+    "description": "Text of that notice."
+  },
+  "deskSendTurnTorOff": "Turn Tor off",
+  "@deskSendTurnTorOff": {
+    "description": "Button in the Tor failed notice on Send: switches Tor off."
+  },
+  "deskSendTorStarting": "Tor is starting",
+  "@deskSendTorStarting": {
+    "description": "Title of the notice on Send while Tor connects."
+  },
+  "deskSendTorStartingText": "Sending waits until it is connected. Nothing goes over the clearnet meanwhile.",
+  "@deskSendTorStartingText": {
+    "description": "Text of the notice on Send while Tor connects."
+  },
+  "deskSendEpicboxOff": "Epicbox not connected",
+  "@deskSendEpicboxOff": {
+    "description": "Title of the warning notice on Send when Epicbox receiving is off."
+  },
+  "deskSendEpicboxOffText": "Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.",
+  "@deskSendEpicboxOffText": {
+    "description": "Text of that notice."
+  },
+  "deskSendEpicboxTurnOn": "Turn on Epicbox receiving",
+  "@deskSendEpicboxTurnOn": {
+    "description": "Button in that notice."
+  },
+  "deskSendDoneViaDirect": "Finalized and posted to the network.",
+  "@deskSendDoneViaDirect": {
+    "description": "Text of the Sent notice after a Direct send."
+  },
+  "deskSendDoneViaEpicbox": "Handed to Epicbox. Completes when the recipient answers.",
+  "@deskSendDoneViaEpicbox": {
+    "description": "Text of the Sent notice after an Epicbox send."
+  },
+  "deskSendViewTx": "View transaction",
+  "@deskSendViewTx": {
+    "description": "Button in the Sent notice: opens the payment in Activity."
+  },
+  "deskSendFailedTitle": "Send failed",
+  "@deskSendFailedTitle": {
+    "description": "Title of the error notice on Send after a send failed; the reason is the text."
+  },
+  "deskSendReviewAgain": "Review again",
+  "@deskSendReviewAgain": {
+    "description": "Button in the Send failed notice: opens the review again."
+  },
+  "deskSendMethodDirect": "Direct",
+  "@deskSendMethodDirect": {
+    "description": "Name of the Direct send method (an http(s) or onion address), in the method selector and in tags. Short."
+  },
+  "deskSendMethodFile": "File",
+  "@deskSendMethodFile": {
+    "description": "Name of the File send method (a transaction file), in the method selector. Short."
+  },
+  "deskSendTo": "To",
+  "@deskSendTo": {
+    "description": "Label of the recipient field on Send."
+  },
+  "deskSendToHelp": "Paste an address, or type a contact’s name.",
+  "@deskSendToHelp": {
+    "description": "Help text under the recipient field on Send."
+  },
+  "deskSendToHint": "Address or contact",
+  "@deskSendToHint": {
+    "description": "Placeholder of the recipient field on Send."
+  },
+  "deskSendToSem": "Recipient",
+  "@deskSendToSem": {
+    "description": "Screen reader label of the recipient field on Send."
+  },
+  "deskSendClearTo": "Clear recipient",
+  "@deskSendClearTo": {
+    "description": "Screen reader label of the clear button in the recipient field."
+  },
+  "deskSendContacts": "Contacts",
+  "@deskSendContacts": {
+    "description": "Small button in the recipient field on Send: opens the contact picker."
+  },
+  "deskSendNeedsTor": "Needs Tor",
+  "@deskSendNeedsTor": {
+    "description": "Title of the warning under the recipient field when an onion address is entered and Tor is off."
+  },
+  "deskSendNeedsTorText": "An onion address can only be reached over Tor.",
+  "@deskSendNeedsTorText": {
+    "description": "Text of that warning."
+  },
+  "deskSendNoTorBuild": "Tor is not in this build.",
+  "@deskSendNoTorBuild": {
+    "description": "Text of that warning when this app build has no Tor."
+  },
+  "deskSendTurnOnTor": "Turn on Tor",
+  "@deskSendTurnOnTor": {
+    "description": "Button in that warning: switches Tor on."
+  },
+  "deskSendHttpClearnet": "Direct to http(s) addresses goes over the clearnet, not Tor.",
+  "@deskSendHttpClearnet": {
+    "description": "Note under the recipient field when Tor is on and the address is http(s)."
+  },
+  "deskSendClear": "Clear",
+  "@deskSendClear": {
+    "description": "Button on the card of the contact picked as recipient: clears the recipient."
+  },
+  "deskSendAmount": "Amount",
+  "@deskSendAmount": {
+    "description": "Label of the amount field on Send and of the summary line."
+  },
+  "deskSendAvailableNone": "Available —",
+  "@deskSendAvailableNone": {
+    "description": "Label next to the amount field while the balance is unknown."
+  },
+  "deskSendAvailable": "Available {amount} EPIC",
+  "@deskSendAvailable": {
+    "description": "Link next to the amount field: the spendable balance; clicking it sends everything. {amount} is a number or hidden dots.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,234.5"
+      }
+    }
+  },
+  "deskSendAmountSem": "Amount in EPIC",
+  "@deskSendAmountSem": {
+    "description": "Screen reader label of the amount field."
+  },
+  "deskSendAllButton": "All",
+  "@deskSendAllButton": {
+    "description": "Small button in the amount field: send the whole spendable balance. Very short."
+  },
+  "deskSendConfirmingHidden": "Part of the balance is still confirming and cannot be sent yet.",
+  "@deskSendConfirmingHidden": {
+    "description": "Note under the amount field when amounts are hidden and some balance is still confirming."
+  },
+  "deskSendConfirming": "{amount} EPIC is still confirming and cannot be sent yet.",
+  "@deskSendConfirming": {
+    "description": "Note under the amount field when some balance is still confirming. {amount} is in EPIC.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
+  "deskSendMessage": "Message",
+  "@deskSendMessage": {
+    "description": "Label and screen reader label of the message field on Send."
+  },
+  "deskSendMessageHelp": "The recipient sees this message.",
+  "@deskSendMessageHelp": {
+    "description": "Help text under the message field."
+  },
+  "deskSendPrivacyOn": "Privacy · Dandelion++ on",
+  "@deskSendPrivacyOn": {
+    "description": "Title of the collapsed privacy disclosure on Send when Dandelion++ is on. Dandelion++ is a protocol name."
+  },
+  "deskSendPrivacyOff": "Privacy · Dandelion++ off",
+  "@deskSendPrivacyOff": {
+    "description": "Title of the collapsed privacy disclosure on Send when Dandelion++ is off."
+  },
+  "deskSendDandelionText": "Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.",
+  "@deskSendDandelionText": {
+    "description": "Description of the Dandelion++ switch on Send."
+  },
+  "deskSendHintSent": "Sent. Enter a new amount and recipient to send again.",
+  "@deskSendHintSent": {
+    "description": "Line under the Review send button after a send went out."
+  },
+  "deskSendHintNode": "Waiting for the node to sync.",
+  "@deskSendHintNode": {
+    "description": "Line under the Review send button while the node syncs."
+  },
+  "deskSendHintEpicbox": "Waiting for Epicbox to connect.",
+  "@deskSendHintEpicbox": {
+    "description": "Line under the Review send button while Epicbox connects."
+  },
+  "deskSendHintTorWait": "Waiting for Tor to connect.",
+  "@deskSendHintTorWait": {
+    "description": "Line under the Review send button while Tor connects."
+  },
+  "deskSendHintTorBlocked": "Retry Tor, or turn it off.",
+  "@deskSendHintTorBlocked": {
+    "description": "Line under the Review send button when Tor failed."
+  },
+  "deskSendHintNeedsTor": "Turn on Tor to send to an onion address.",
+  "@deskSendHintNeedsTor": {
+    "description": "Line under the Review send button when an onion address needs Tor."
+  },
+  "deskSendHintFix": "Fix the fields marked in red.",
+  "@deskSendHintFix": {
+    "description": "Line under the Review send button when the form has errors."
+  },
+  "deskSendHintChecking": "Checking the fee for this amount.",
+  "@deskSendHintChecking": {
+    "description": "Line under the Review send button while the fee is estimated."
+  },
+  "deskSendHintDefault": "Nothing is sent until confirmed.",
+  "@deskSendHintDefault": {
+    "description": "Line under the Review send button when the form is ready."
+  },
+  "deskSendReviewWaitTor": "Waiting for Tor",
+  "@deskSendReviewWaitTor": {
+    "description": "Label of the disabled primary button on Send while Tor connects."
+  },
+  "deskSendReviewTorOff": "Tor not connected",
+  "@deskSendReviewTorOff": {
+    "description": "Label of the disabled primary button on Send when Tor failed."
+  },
+  "deskSendReview": "Review send",
+  "@deskSendReview": {
+    "description": "Label of the primary button on Send: opens the review dialog."
+  },
+  "deskSendSummary": "Summary",
+  "@deskSendSummary": {
+    "description": "Title of the summary panel on Send."
+  },
+  "deskSendNetworkFee": "Network fee",
+  "@deskSendNetworkFee": {
+    "description": "Label of the fee line in the Send summary and in the review dialog."
+  },
+  "deskSendTotal": "Total",
+  "@deskSendTotal": {
+    "description": "Label of the total line in the Send summary and in the review dialog."
+  },
+  "deskSendUpdating": "Balance updating while the wallet scans.",
+  "@deskSendUpdating": {
+    "description": "Caption in the Send summary while the wallet rechecks the balance."
+  },
+  "deskSendEpicboxLine1": "The recipient can be offline.",
+  "@deskSendEpicboxLine1": {
+    "description": "Bold first line under the method selector on Send for the Epicbox method."
+  },
+  "deskSendEpicboxLine2": "The Epicbox server holds the payment until they open their wallet.",
+  "@deskSendEpicboxLine2": {
+    "description": "Second line under the method selector for the Epicbox method."
+  },
+  "deskSendDirectLine1": "Straight to their wallet.",
+  "@deskSendDirectLine1": {
+    "description": "Bold first line under the method selector for the Direct method."
+  },
+  "deskSendDirectLine2": "An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.",
+  "@deskSendDirectLine2": {
+    "description": "Second line under the method selector for the Direct method."
+  },
+  "deskSendFileLine1": "No connection needed.",
+  "@deskSendFileLine1": {
+    "description": "Bold first line under the method selector for the File method."
+  },
+  "deskSendFileLine2": "Hand the file over, get their response file back, then finalize it here.",
+  "@deskSendFileLine2": {
+    "description": "Second line under the method selector for the File method."
+  },
+  "deskSendTagDirect": "Direct",
+  "@deskSendTagDirect": {
+    "description": "Small tag next to the To label after the method switched to Direct by itself. Short."
+  },
+  "deskSendTagFile": "File",
+  "@deskSendTagFile": {
+    "description": "Small tag next to the To label after the method switched to File. Short."
+  },
+  "deskSendTagEpicbox": "Via Epicbox",
+  "@deskSendTagEpicbox": {
+    "description": "Small tag next to the To label after the method switched to Epicbox. Short."
+  },
+  "deskSendSwitchedDirect": "Direct address. Method set to Direct.",
+  "@deskSendSwitchedDirect": {
+    "description": "Screen reader announcement when the method switched to Direct by itself."
+  },
+  "deskSendSwitchedFile": "File address. Method set to File.",
+  "@deskSendSwitchedFile": {
+    "description": "Screen reader announcement when the method switched to File."
+  },
+  "deskSendSwitchedEpicbox": "Epicbox address. Method set to Epicbox.",
+  "@deskSendSwitchedEpicbox": {
+    "description": "Screen reader announcement when the method switched to Epicbox by itself."
+  },
+  "deskSendMatching": "Matching contacts",
+  "@deskSendMatching": {
+    "description": "Screen reader label of the list of contacts that match the recipient text."
+  },
+  "deskSendMatchCount": "{count, plural, one{1 contact matches} other{{count} contacts match}}",
+  "@deskSendMatchCount": {
+    "description": "Caption under the list of contacts that match the recipient text.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSendWrongPassword": "Wrong password.",
+  "@deskSendWrongPassword": {
+    "description": "Error under the password field in the review dialog."
+  },
+  "deskSendNotConfirmed": "Not confirmed. Check Activity before sending again.",
+  "@deskSendNotConfirmed": {
+    "description": "Failure text when a send ended with an unknown error; the payment may exist."
+  },
+  "deskSendViaEpicbox": "Epicbox (the recipient can be offline)",
+  "@deskSendViaEpicbox": {
+    "description": "Value of the Via fact in the review dialog for an Epicbox send."
+  },
+  "deskSendViaDirect": "Direct (their wallet must be open)",
+  "@deskSendViaDirect": {
+    "description": "Value of the Via fact in the review dialog for a Direct send over http(s)."
+  },
+  "deskSendViaTor": "Direct, over Tor (their wallet must be open)",
+  "@deskSendViaTor": {
+    "description": "Value of the Via fact in the review dialog for a Direct send to an onion address."
+  },
+  "deskSendViaFile": "Transaction file",
+  "@deskSendViaFile": {
+    "description": "Value of the Via fact in the review dialog for a file send."
+  },
+  "deskSendUsesAll": "{count, plural, one{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}",
+  "@deskSendUsesAll": {
+    "description": "Second line of the Network fee in the review dialog when strategy All spends every output and one change output comes back.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSendReviewTitle": "Check and send",
+  "@deskSendReviewTitle": {
+    "description": "Title of the review dialog."
+  },
+  "deskSendReviewDesc": "A send cannot be undone once it is posted.",
+  "@deskSendReviewDesc": {
+    "description": "Subtitle of the review dialog."
+  },
+  "deskSendFactTo": "To",
+  "@deskSendFactTo": {
+    "description": "Label of the recipient fact in the review dialog."
+  },
+  "deskSendCheckChars": "Check the highlighted characters against what the recipient gave.",
+  "@deskSendCheckChars": {
+    "description": "Caption under the recipient address in the review dialog."
+  },
+  "deskSendFactVia": "Via",
+  "@deskSendFactVia": {
+    "description": "Label of the fact that says how the payment goes (Epicbox, Direct, file) in the review dialog."
+  },
+  "deskSendFactPrivacy": "Privacy",
+  "@deskSendFactPrivacy": {
+    "description": "Label of the privacy fact in the review dialog."
+  },
+  "deskSendDandelionOn": "Dandelion++ on",
+  "@deskSendDandelionOn": {
+    "description": "Value of the Privacy fact in the review dialog."
+  },
+  "deskSendDandelionOff": "Dandelion++ off",
+  "@deskSendDandelionOff": {
+    "description": "Value of the Privacy fact in the review dialog."
+  },
+  "deskSendFactMessage": "Message",
+  "@deskSendFactMessage": {
+    "description": "Label of the message fact in the review dialog."
+  },
+  "deskSendPassword": "Password",
+  "@deskSendPassword": {
+    "description": "Label of the password field in the review dialog."
+  },
+  "deskSendPasswordHelp": "Opened with the remembered password: this send asks it.",
+  "@deskSendPasswordHelp": {
+    "description": "Help text under the password field in the review dialog."
+  },
+  "deskSendBusyFile": "Creating the file.",
+  "@deskSendBusyFile": {
+    "description": "Status in the review dialog while a file send creates the transaction file."
+  },
+  "deskSendBusyTor": "Reaching their wallet over Tor… This can take a while. Keep the app open.",
+  "@deskSendBusyTor": {
+    "description": "Status in the review dialog while a send to an onion address runs."
+  },
+  "deskSendBusy": "Sending. This can take a few seconds; keep this window open.",
+  "@deskSendBusy": {
+    "description": "Status in the review dialog while a send runs."
+  },
+  "deskSendBack": "Back",
+  "@deskSendBack": {
+    "description": "Button in the review dialog: close it and edit the form."
+  },
+  "deskSendSending": "Sending",
+  "@deskSendSending": {
+    "description": "Label of the primary button in the review dialog while the send runs."
+  },
+  "deskSendConfirm": "Send {amount} EPIC",
+  "@deskSendConfirm": {
+    "description": "Label of the primary button in the review dialog. {amount} is the amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "deskSendPlainTitle": "Not encrypted. Send anyway?",
+  "@deskSendPlainTitle": {
+    "description": "Title of the dialog shown before a send to a plain http address."
+  },
+  "deskSendPlainDesc": "Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.",
+  "@deskSendPlainDesc": {
+    "description": "Text of that dialog."
+  },
+  "deskSendPlainConfirm": "Send anyway",
+  "@deskSendPlainConfirm": {
+    "description": "Button in that dialog: send over plain http."
+  },
+  "deskSendEpicboxSwitched": "Switched to {domain}",
+  "@deskSendEpicboxSwitched": {
+    "description": "Toast after the user switched the Epicbox server from the \"server not answering\" notice. {domain} is the new server's host name.",
+    "placeholders": {
+      "domain": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
+  },
+  "deskSendEpicboxNotSwitched": "Not switched",
+  "@deskSendEpicboxNotSwitched": {
+    "description": "Toast title when switching the Epicbox server failed; the reason follows as the toast text."
+  },
+  "deskSendEpicboxDownTitle": "Epicbox server not answering",
+  "@deskSendEpicboxDownTitle": {
+    "description": "Title of the warning notice on Send and Receive when the Epicbox server does not answer."
+  },
+  "deskSendEpicboxDownWait": "Payments wait until it is back.",
+  "@deskSendEpicboxDownWait": {
+    "description": "Text of that notice when no other server is available."
+  },
+  "deskSendEpicboxSwitchTo": "Switch to {domain}?",
+  "@deskSendEpicboxSwitchTo": {
+    "description": "Text of that notice when another server is healthy. {domain} is its host name.",
+    "placeholders": {
+      "domain": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
+  },
+  "deskSendEpicboxSwitch": "Switch",
+  "@deskSendEpicboxSwitch": {
+    "description": "Button in that notice: switch to the other server. Short."
+  },
+  "deskFinOpenFolder": "Open folder",
+  "@deskFinOpenFolder": {
+    "description": "Button next to a file name: open the folder that holds the file in the system's file manager."
+  },
+  "deskFinFolderNotOpened": "Folder not opened",
+  "@deskFinFolderNotOpened": {
+    "description": "Toast title when the file manager could not be opened; the folder path follows as text."
+  },
+  "deskFinWrongType": "Not a response file",
+  "@deskFinWrongType": {
+    "description": "Title of the error notice on the Finalize page: the chosen file is not a response file."
+  },
+  "deskFinWrongTypeText": "The file is not a response file. Choose the file the recipient sent back.",
+  "@deskFinWrongTypeText": {
+    "description": "Text of that notice."
+  },
+  "deskFinUnreadable": "File not readable",
+  "@deskFinUnreadable": {
+    "description": "Title of the error notice on the Finalize page: the chosen file could not be read."
+  },
+  "deskFinUnreadableText": "The file could not be read. It may be damaged or still being copied.",
+  "@deskFinUnreadableText": {
+    "description": "Text of that notice."
+  },
+  "deskFinFailed": "Finalizing failed",
+  "@deskFinFailed": {
+    "description": "Title of the error notice on the Finalize page: the wallet could not finalize the file."
+  },
+  "deskFinFailedText": "The wallet could not finalize this file. It may belong to another transaction or be finalized already.",
+  "@deskFinFailedText": {
+    "description": "Text of that notice."
+  },
+  "deskFinNotPosted": "Not posted",
+  "@deskFinNotPosted": {
+    "description": "Title of the error notice on the Finalize page: the node did not accept the finalized transaction."
+  },
+  "deskFinNotPostedText": "The transaction was finalized but the node did not accept it. Check the node, then try again.",
+  "@deskFinNotPostedText": {
+    "description": "Text of that notice."
+  },
+  "deskFinPickTitle": "Response file",
+  "@deskFinPickTitle": {
+    "description": "Title of the system file dialog that picks the recipient's response file."
+  },
+  "deskFinPosted": "Transaction posted",
+  "@deskFinPosted": {
+    "description": "Toast and result title after the response file was finalized and posted."
+  },
+  "deskFinTitle": "Finalize a response file",
+  "@deskFinTitle": {
+    "description": "Page title of Finalize."
+  },
+  "deskFinNoticeTitle": "For a transaction created as a file",
+  "@deskFinNoticeTitle": {
+    "description": "Title of the info notice at the top of the Finalize page."
+  },
+  "deskFinNoticeText": "Use the response file the recipient sent back.",
+  "@deskFinNoticeText": {
+    "description": "Text of the info notice at the top of the Finalize page."
+  },
+  "deskFinTryAgain": "Try again",
+  "@deskFinTryAgain": {
+    "description": "Button in the \"Not posted\" notice on Finalize: choose the file again."
+  },
+  "deskFinPostedText": "The payment was finalized and sent to the network. Follow it in Activity.",
+  "@deskFinPostedText": {
+    "description": "Text of the result card after finalizing."
+  },
+  "deskFinAnother": "Finalize another file",
+  "@deskFinAnother": {
+    "description": "Button on the result card after finalizing."
+  },
+  "deskFinViewActivity": "View in Activity",
+  "@deskFinViewActivity": {
+    "description": "Button on the result cards of Finalize and Sign a transaction file: opens the payment in Activity."
+  },
+  "deskFinBusy": "Finalizing and posting",
+  "@deskFinBusy": {
+    "description": "Shown next to a spinner while the wallet finalizes and posts the transaction."
+  },
+  "deskFinChoose": "Choose a response file",
+  "@deskFinChoose": {
+    "description": "Title of the drop zone on Finalize."
+  },
+  "deskFinChooseText": "The wallet completes the transaction and posts it to the network.",
+  "@deskFinChooseText": {
+    "description": "Text of the drop zone on Finalize."
+  },
+  "deskFinChooseFile": "Choose file",
+  "@deskFinChooseFile": {
+    "description": "Button in the drop zones of Finalize and Sign a transaction file: opens the system file dialog."
+  },
+  "deskImpWrongType": "Not a transaction file",
+  "@deskImpWrongType": {
+    "description": "Title of the error notice on the Sign a transaction file page: the chosen file is not a transaction file."
+  },
+  "deskImpWrongTypeText": "The file is not a transaction file. Choose the .slate or .tx file the sender gave.",
+  "@deskImpWrongTypeText": {
+    "description": "Text of that notice."
+  },
+  "deskImpUnreadable": "File not readable",
+  "@deskImpUnreadable": {
+    "description": "Title of the error notice on the Sign a transaction file page: the file could not be read."
+  },
+  "deskImpUnreadableText": "The file could not be read. It may be damaged or still being copied.",
+  "@deskImpUnreadableText": {
+    "description": "Text of that notice."
+  },
+  "deskImpNoPlace": "Nothing signed",
+  "@deskImpNoPlace": {
+    "description": "Title of the error notice: no place was chosen to save the response file."
+  },
+  "deskImpNoPlaceText": "No place was chosen for the response file, so nothing was signed.",
+  "@deskImpNoPlaceText": {
+    "description": "Text of that notice."
+  },
+  "deskImpFailed": "Signing failed",
+  "@deskImpFailed": {
+    "description": "Title of the error notice: the wallet could not sign the file."
+  },
+  "deskImpFailedText": "The wallet could not sign this file. It may be for another wallet or already used.",
+  "@deskImpFailedText": {
+    "description": "Text of that notice."
+  },
+  "deskImpFailedDetail": "The wallet could not sign this file. It may be for another wallet or already used. {detail}.",
+  "@deskImpFailedDetail": {
+    "description": "Text of that notice when the wallet gave its own reason. {detail} is that reason, a short sentence without its final full stop.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskImpPickTitle": "Transaction file",
+  "@deskImpPickTitle": {
+    "description": "Title of the system file dialog that picks the sender's transaction file."
+  },
+  "deskImpTitle": "Sign a transaction file",
+  "@deskImpTitle": {
+    "description": "Page title of Sign a transaction file."
+  },
+  "deskImpNoticeTitle": "Signing does not spend anything",
+  "@deskImpNoticeTitle": {
+    "description": "Title of the info notice at the top of the Sign a transaction file page."
+  },
+  "deskImpNoticeText": "Send the response file back to the sender over the same channel they used.",
+  "@deskImpNoticeText": {
+    "description": "Text of the info notice at the top of the page."
+  },
+  "deskImpSaved": "Response saved",
+  "@deskImpSaved": {
+    "description": "Title of the result card after the response file was saved."
+  },
+  "deskImpSavedText": "Send the response file back to the sender. The EPIC arrives once the sender finalizes it.",
+  "@deskImpSavedText": {
+    "description": "Text of the result card after signing."
+  },
+  "deskImpAmount": "Amount ",
+  "@deskImpAmount": {
+    "description": "Label before the amount on the result card. Ends with a space."
+  },
+  "deskImpAnother": "Sign another file",
+  "@deskImpAnother": {
+    "description": "Button on the result card after signing."
+  },
+  "deskImpBusy": "Signing the file",
+  "@deskImpBusy": {
+    "description": "Shown next to a spinner while the wallet signs the file."
+  },
+  "deskImpChoose": "Choose a transaction file",
+  "@deskImpChoose": {
+    "description": "Title of the drop zone on Sign a transaction file."
+  },
+  "deskImpChooseText": "The wallet signs it and saves a response for the sender.",
+  "@deskImpChooseText": {
+    "description": "Text of the drop zone."
   }
 }

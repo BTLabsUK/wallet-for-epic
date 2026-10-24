@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/files.dart';
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'file_panels.dart';
 
@@ -16,14 +17,24 @@ class FinalizeArgs {
 
 /// Why a response file was not finalized.
 enum FinalizeError {
-  wrongType('Not a response file', 'The file is not a response file. Choose the file the recipient sent back.'),
-  unreadable('File not readable', 'The file could not be read. It may be damaged or still being copied.'),
-  failed('Finalizing failed', 'The wallet could not finalize this file. It may belong to another transaction or be finalized already.'),
-  notPosted('Not posted', 'The transaction was finalized but the node did not accept it. Check the node, then try again.');
+  wrongType,
+  unreadable,
+  failed,
+  notPosted;
 
-  const FinalizeError(this.title, this.text);
-  final String title;
-  final String text;
+  String title(AppLocalizations l) => switch (this) {
+    wrongType => l.deskFinWrongType,
+    unreadable => l.deskFinUnreadable,
+    failed => l.deskFinFailed,
+    notPosted => l.deskFinNotPosted,
+  };
+
+  String text(AppLocalizations l) => switch (this) {
+    wrongType => l.deskFinWrongTypeText,
+    unreadable => l.deskFinUnreadableText,
+    failed => l.deskFinFailedText,
+    notPosted => l.deskFinNotPostedText,
+  };
 }
 
 class FinalizeScreen extends ConsumerStatefulWidget {
@@ -51,7 +62,7 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
 
   Future<void> _pick() async {
     final files = ref.read(deskFilesProvider);
-    final path = files == null ? 'invoice_0042.response.slate' : await files.pickSlate(title: 'Response file');
+    final path = files == null ? 'invoice_0042.response.slate' : await files.pickSlate(title: context.l10n.deskFinPickTitle);
     if (path == null || !mounted) return;
     setState(() {
       _busy = true;
@@ -64,13 +75,13 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
         _txId = tx.id;
         _done = true;
       });
-      showEToast(context, 'Transaction posted');
+      showEToast(context, context.l10n.deskFinPosted);
     } on DeskError catch (e) {
       if (mounted) {
         setState(() => _error = switch (e.message) {
-          'File not readable' => FinalizeError.unreadable,
-          'Not a transaction file' => FinalizeError.wrongType,
-          'Node not answering' => FinalizeError.notPosted,
+          'File not readable' => FinalizeError.unreadable, // l10n-ok: DeskError.message is the English key
+          'Not a transaction file' => FinalizeError.wrongType, // l10n-ok
+          'Node not answering' => FinalizeError.notPosted, // l10n-ok
           _ => FinalizeError.failed,
         });
       }
@@ -85,36 +96,37 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
   Widget build(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
     final ts = context.ts;
+    final l = context.l10n;
     return EPage(
-      title: 'Finalize a response file',
+      title: l.deskFinTitle,
       width: EPageWidth.narrow,
       onBack: () => nav.canBack ? nav.back() : nav.go(DeskRoute.receive),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ENotice(
-            title: 'For a transaction created as a file',
-            text: 'Use the response file the recipient sent back.',
+          ENotice(
+            title: l.deskFinNoticeTitle,
+            text: l.deskFinNoticeText,
             icon: EIcons.info,
           ),
           SizedBox(height: Sp.x5),
           if (_error != null) ...[
             ENotice(
-              title: _error!.title,
-              text: _error!.text,
+              title: _error!.title(l),
+              text: _error!.text(l),
               tone: ETone.risk,
               icon: EIcons.error,
-              actions: [if (_error == FinalizeError.notPosted) EButton(label: 'Try again', icon: EIcons.refresh, size: EBtnSize.inline, onPressed: _busy ? null : _pick)],
+              actions: [if (_error == FinalizeError.notPosted) EButton(label: l.deskFinTryAgain, icon: EIcons.refresh, size: EBtnSize.inline, onPressed: _busy ? null : _pick)],
             ),
             SizedBox(height: Sp.x5),
           ],
           if (_done)
             ResultPanel(
-              title: 'Transaction posted',
-              text: 'The payment was finalized and sent to the network. Follow it in Activity.',
+              title: l.deskFinPosted,
+              text: l.deskFinPostedText,
               actions: [
-                EButton.primary(label: 'Finalize another file', icon: EIcons.fileUp, onPressed: () => setState(() => _done = false)),
-                EButton(label: 'View in Activity', onPressed: () => nav.go(DeskRoute.activity, _txId)),
+                EButton.primary(label: l.deskFinAnother, icon: EIcons.fileUp, onPressed: () => setState(() => _done = false)),
+                EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, _txId)),
               ],
             )
           else if (_busy)
@@ -125,15 +137,15 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
                 children: [
                   ESpinner(size: 20.u),
                   SizedBox(width: Sp.x3),
-                  Text('Finalizing and posting', style: ts.bodyDim),
+                  Text(l.deskFinBusy, style: ts.bodyDim),
                 ],
               ),
             )
           else
             EDropZone(
-              title: 'Choose a response file',
-              text: 'The wallet completes the transaction and posts it to the network.',
-              buttonLabel: 'Choose file',
+              title: l.deskFinChoose,
+              text: l.deskFinChooseText,
+              buttonLabel: l.deskFinChooseFile,
               onPick: _pick,
             ),
         ],

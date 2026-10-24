@@ -160,12 +160,12 @@ List<String> describeLogFiles(List<LogFileInfo> files, int budget) {
   final out = <String>[];
   for (final f in files) {
     if (left <= 0) {
-      out.add('${f.name} (not included)');
+      out.add('${f.name} (not included)'); // l10n-ok: the problem report is English
     } else if (f.bytes <= left) {
-      out.add('${f.name} (all, ${logSize(f.bytes)})');
+      out.add('${f.name} (all, ${logSize(f.bytes)})'); // l10n-ok: the problem report is English
       left -= f.bytes;
     } else {
-      out.add('${f.name} (last ${logSize(left)} of ${logSize(f.bytes)})');
+      out.add('${f.name} (last ${logSize(left)} of ${logSize(f.bytes)})'); // l10n-ok: the problem report is English
       left = 0;
     }
   }

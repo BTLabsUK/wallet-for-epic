@@ -11,6 +11,7 @@ import '../data/desk_node.dart';
 import '../data/node_view.dart';
 import 'kit.dart';
 import 'server_row.dart' show digitsText;
+import '../desk_l10n.dart';
 
 /// "2 min ago", "40 s ago", "3 h ago".
 String ageText(Duration d) {
@@ -79,7 +80,7 @@ class NodeCard extends StatelessWidget {
     final ts = context.ts;
     final i = info;
     // Only the wallet reaching the node counts here; a down of its own shows in the head and the rail.
-    final v = remoteNodeView(url, i, health: health == ServiceHealth.ok ? health : null, downSince: downSince, torOn: torOn);
+    final v = remoteNodeView(context.l10n, url, i, health: health == ServiceHealth.ok ? health : null, downSince: downSince, torOn: torOn);
     final latency = i == null ? null : shownLatency(i, torOn: torOn);
     final where = i == null ? null : latencyWhere(i, torOn: torOn);
     final host = nodeHost(url);

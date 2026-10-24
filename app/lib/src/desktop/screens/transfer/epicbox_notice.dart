@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
 /// The healthiest other public Epicbox server to offer while ours does not answer, or null.
@@ -33,9 +34,9 @@ class _EpicboxDownNoticeState extends ConsumerState<EpicboxDownNotice> {
     setState(() => _busy = true);
     try {
       await ref.read(deskProvider.notifier).useEpicbox(domain);
-      if (mounted) showEToast(context, 'Switched to $domain', tone: ETone.ok);
+      if (mounted) showEToast(context, context.l10n.deskSendEpicboxSwitched(domain), tone: ETone.ok);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Not switched', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, context.l10n.deskSendEpicboxNotSwitched, text: deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -45,14 +46,15 @@ class _EpicboxDownNoticeState extends ConsumerState<EpicboxDownNotice> {
   Widget build(BuildContext context) {
     final st = ref.watch(deskProvider);
     final other = healthiestOtherEpicbox(st);
+    final l = context.l10n;
     return ENotice(
-      title: 'Epicbox server not answering',
-      text: other == null ? 'Payments wait until it is back.' : 'Switch to ${other.domain}?',
+      title: l.deskSendEpicboxDownTitle,
+      text: other == null ? l.deskSendEpicboxDownWait : l.deskSendEpicboxSwitchTo(other.domain),
       tone: ETone.warn,
       icon: EIcons.antenna,
       actions: [
         if (other != null)
-          EButton(label: 'Switch', icon: EIcons.swap, size: EBtnSize.inline, busy: _busy, onPressed: _busy ? null : () => _switch(other.domain)),
+          EButton(label: l.deskSendEpicboxSwitch, icon: EIcons.swap, size: EBtnSize.inline, busy: _busy, onPressed: _busy ? null : () => _switch(other.domain)),
       ],
     );
   }

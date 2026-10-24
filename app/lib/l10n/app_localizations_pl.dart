@@ -6202,4 +6202,1741 @@ class AppLocalizationsPl extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskErrSomethingWrong => 'Something went wrong';
+
+  @override
+  String get deskErrWrongPassword => 'Wrong password';
+
+  @override
+  String get deskErrPhraseInvalid => 'Recovery phrase not valid';
+
+  @override
+  String get deskErrWalletExists => 'A wallet exists already';
+
+  @override
+  String get deskErrWalletNotFound => 'No wallet found';
+
+  @override
+  String get deskErrNodeNotAnswering => 'Node not answering';
+
+  @override
+  String get deskErrNotEnoughFunds => 'Not enough funds';
+
+  @override
+  String get deskErrNotTxFile => 'Not a transaction file for this wallet';
+
+  @override
+  String get deskErrEpicboxUnreachable => 'Epicbox server not reachable';
+
+  @override
+  String get deskErrNotHttpAddress => 'Not an http(s) address';
+
+  @override
+  String get deskErrPlainHttp => 'Plain HTTP not confirmed';
+
+  @override
+  String get deskErrNotOnion => 'Not an onion address';
+
+  @override
+  String get deskErrTorNotConnected => 'Tor is not connected';
+
+  @override
+  String get deskErrOnionUnreachable =>
+      'The recipient’s wallet is not reachable over Tor';
+
+  @override
+  String get deskErrWalletBusy => 'Wallet busy. Try again in a moment.';
+
+  @override
+  String get deskErrDbDamaged => 'Wallet database damaged, rebuilding';
+
+  @override
+  String get deskErrPaymentExpired => 'Payment expired';
+
+  @override
+  String get deskErrInvoiceNotFound => 'Invoice not found';
+
+  @override
+  String get deskErrAmountMismatch => 'Amount differs from the invoice';
+
+  @override
+  String get deskErrInvoicePaid => 'Invoice already paid';
+
+  @override
+  String get deskErrInvoiceLocked => 'Invoice locked until a later block';
+
+  @override
+  String get deskErrInvoiceChanged => 'Invoice changed';
+
+  @override
+  String get deskErrNotAccepted => 'Not accepted';
+
+  @override
+  String deskErrNotAcceptedDetail(String detail) {
+    return 'Not accepted: $detail';
+  }
+
+  @override
+  String get deskErrDisk => 'Disk error';
+
+  @override
+  String deskErrDiskDetail(String detail) {
+    return 'Disk error: $detail';
+  }
+
+  @override
+  String get deskErrTorMissing => 'Tor not included in this build';
+
+  @override
+  String get deskErrTorNetwork => 'Can’t reach the Tor network';
+
+  @override
+  String get deskErrTorClock => 'The computer’s clock is wrong';
+
+  @override
+  String get deskErrOnionNotPublished => 'Onion address not published';
+
+  @override
+  String get deskErrTorStart => 'Tor did not start';
+
+  @override
+  String get deskErrTorStopped => 'Tor stopped';
+
+  @override
+  String get deskErrScanRunning => 'A scan is already running.';
+
+  @override
+  String get deskErrCancelRefused =>
+      'Not cancelled: the node already has this payment.';
+
+  @override
+  String get deskErrWalletLocked => 'The wallet is locked';
+
+  @override
+  String get deskErrWalletLocking => 'The wallet is locking';
+
+  @override
+  String deskErrDbDamagedDetail(String detail) {
+    return 'Wallet database damaged. $detail';
+  }
+
+  @override
+  String deskErrWalletClosed(String detail) {
+    return 'Wallet closed: $detail. Unlock again.';
+  }
+
+  @override
+  String deskErrNotChanged(String detail) {
+    return 'Not changed: $detail';
+  }
+
+  @override
+  String deskErrPasswordShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Use at least $count characters',
+      one: 'Use at least $count character',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrWalletNotListed => 'Wallet not in the list';
+
+  @override
+  String get deskErrUpdateApp => 'Update the app to change the list';
+
+  @override
+  String get deskErrListNotChanged => 'Wallet list not changed';
+
+  @override
+  String get deskErrOpenToDelete => 'Open the wallet to delete it';
+
+  @override
+  String get deskErrEnterPassword => 'Enter the password';
+
+  @override
+  String get deskErrFolderNotFound => 'Wallet folder not found';
+
+  @override
+  String deskErrAlreadyHere(String name) {
+    return 'This wallet is already here: $name';
+  }
+
+  @override
+  String get deskErrTestNet =>
+      'Test network wallet. Only mainnet wallets can be imported.';
+
+  @override
+  String get deskErrWalletInApp => 'This wallet is in the app already.';
+
+  @override
+  String get deskErrWalletNotFoundSearch => 'Wallet not found. Search again.';
+
+  @override
+  String get deskErrEnterOldPassword => 'Enter the old password';
+
+  @override
+  String deskErrOldPasswordShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'The old password is short. Choose a new one of at least $count characters.',
+      one:
+          'The old password is short. Choose a new one of at least $count character.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrSeedUnreadable => 'The wallet.seed file could not be read';
+
+  @override
+  String get deskErrNotSeedFile => 'Not a wallet.seed file';
+
+  @override
+  String deskErrAlreadyInApp(String name) {
+    return 'Already in the app as $name';
+  }
+
+  @override
+  String get deskErrWrongOldPassword => 'Wrong old password';
+
+  @override
+  String get deskErrListNotSaved => 'Wallet list not saved';
+
+  @override
+  String get deskErrProofSeedRead => 'Seed read';
+
+  @override
+  String get deskErrProofWalletCreated => 'Wallet created';
+
+  @override
+  String deskErrProofContacts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count contacts added',
+      one: '1 contact added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofNode(String name) {
+    return 'Node $name added to the node list';
+  }
+
+  @override
+  String deskErrProofEpicbox(String old, String current) {
+    return 'The older app used the Epicbox server $old; this app uses $current';
+  }
+
+  @override
+  String get deskErrProofFolderUnchanged => 'Old folder unchanged';
+
+  @override
+  String get deskErrProofFolderChanged =>
+      'Old folder changed by another program';
+
+  @override
+  String deskErrProofHistory(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'History: $count transactions',
+      one: 'History: 1 transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrProofHistoryAlready => 'History already imported';
+
+  @override
+  String get deskErrProofHistoryNone =>
+      'No history in the old folder; the scan restores the balance';
+
+  @override
+  String get deskErrProofHistoryOld =>
+      'History of Epic Wallet 5.3 or older is not readable; the scan restores the balance';
+
+  @override
+  String get deskErrProofHistoryBusy =>
+      'History not imported: the older wallet is running. It is imported at the next unlock';
+
+  @override
+  String get deskErrProofHistoryOther =>
+      'History not imported: it belongs to another wallet';
+
+  @override
+  String get deskErrProofHistoryUnreadable =>
+      'History not imported: the old database could not be read; the scan restores the balance';
+
+  @override
+  String get deskErrNodeNoAnswer => 'The node did not answer';
+
+  @override
+  String get deskErrNotPosted => 'Not posted';
+
+  @override
+  String get deskErrNotEpicboxAddress => 'Not an Epicbox address';
+
+  @override
+  String get deskErrFileNotSaved =>
+      'File not saved. The payment waits in Activity; cancel it there to unlock the funds.';
+
+  @override
+  String get deskErrTorOffSend =>
+      'Tor is off. Turn on Tor to send to an onion address.';
+
+  @override
+  String get deskErrTorConnecting =>
+      'Tor is still connecting. Try again in a moment.';
+
+  @override
+  String get deskErrRecipientNoAnswer =>
+      'The recipient’s wallet did not answer or refused.';
+
+  @override
+  String get deskErrRecipientNoAnswerWaits =>
+      'The recipient’s wallet did not answer or refused. The payment waits in Activity; cancel it there to unlock the funds.';
+
+  @override
+  String get deskErrNotDelivered =>
+      'Not delivered. The payment waits in Activity; cancel it there to unlock the funds.';
+
+  @override
+  String get deskErrInterruptedLock =>
+      'Interrupted by the lock. It may have gone out: check Activity after unlocking.';
+
+  @override
+  String deskErrStoredWaits(String detail) {
+    return '$detail. The payment waits in Activity; cancel it there to unlock the funds.';
+  }
+
+  @override
+  String get deskErrNodeRefused =>
+      'Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.';
+
+  @override
+  String get deskErrFileNotReadable => 'File not readable';
+
+  @override
+  String get deskErrNotTxFile2 => 'Not a transaction file';
+
+  @override
+  String get deskErrResponseNotSaved => 'Response file not saved';
+
+  @override
+  String get deskErrCannotCancel => 'This payment cannot be cancelled';
+
+  @override
+  String get deskErrNoLocalNode => 'No local node in this build';
+
+  @override
+  String get deskErrLocalNodeStopped => 'Local node stopped';
+
+  @override
+  String get deskErrNotChangedLocked => 'Not changed: the wallet was locked';
+
+  @override
+  String deskErrLocalNodeNotStarted(String detail) {
+    return 'Local node not started: $detail';
+  }
+
+  @override
+  String get deskErrUnknown => 'unknown error';
+
+  @override
+  String get deskErrNotServerName => 'Not a server name';
+
+  @override
+  String deskErrPortInUse(int port) {
+    return 'Port $port in use';
+  }
+
+  @override
+  String deskErrPortUnavailable(int port) {
+    return 'Port $port not available';
+  }
+
+  @override
+  String get deskErrStoppedWithError => 'Stopped with an error';
+
+  @override
+  String get deskErrPasswordNotChanged =>
+      'Password not changed. The current password still opens the wallet.';
+
+  @override
+  String get deskErrNothingToSpend => 'Nothing to spend';
+
+  @override
+  String get deskTorLineOff => 'Off';
+
+  @override
+  String get deskTorLineReady => 'Ready';
+
+  @override
+  String deskTorLineSendsWork(String problem) {
+    return '$problem. Sends work.';
+  }
+
+  @override
+  String get deskTorLinePublishing => 'Publishing the onion address…';
+
+  @override
+  String deskTorLineConnecting(int percent) {
+    return 'Connecting to Tor… $percent %';
+  }
+
+  @override
+  String get deskErrHistOtherWallet => 'Another wallet\'s backup';
+
+  @override
+  String get deskErrHistOtherChain => 'Wrong network';
+
+  @override
+  String get deskErrHistNotOurs => 'Not a history backup';
+
+  @override
+  String get deskErrHistNewer => 'Newer file';
+
+  @override
+  String get deskErrHistDamaged => 'File damaged';
+
+  @override
+  String get deskErrOldGui => 'Older Epic Wallet';
+
+  @override
+  String get deskErrOldCli => 'The epic program';
+
+  @override
+  String get deskErrOldPicked => 'Chosen folders';
+
+  @override
+  String get deskErrHistTooLarge => 'The file is too large to be one.';
+
+  @override
+  String deskErrHistChains(String from, String to) {
+    return 'The file is from $from; this wallet is on $to.';
+  }
+
+  @override
+  String get deskErrHistOtherWalletText =>
+      'The file was exported from a wallet with a different recovery phrase.';
+
+  @override
+  String get deskErrHistNewerText =>
+      'A newer version of the app made this file. Update the app, then import it.';
+
+  @override
+  String get deskErrHistDamagedText => 'The file is incomplete or was changed.';
+
+  @override
+  String get deskErrHistNotOursText =>
+      'The file was not made by Epic Cash Desktop or Epic Cash Mobile.';
+
+  @override
+  String get deskDataHttpEnter => 'Enter the recipient’s address';
+
+  @override
+  String get deskDataHttpScheme => 'Start with https:// or http://';
+
+  @override
+  String get deskDataHttpOnion => 'Onion addresses need Tor';
+
+  @override
+  String get deskDataHttpNot => 'Not an http(s) address';
+
+  @override
+  String get deskDataHttpPort => 'Port must be 1 to 65535';
+
+  @override
+  String get deskDataUpdTimeout => 'The update server did not answer.';
+
+  @override
+  String get deskDataUpdUnreachable =>
+      'The update server could not be reached.';
+
+  @override
+  String deskDataUpdStatus(int status) {
+    return 'The update server answered $status.';
+  }
+
+  @override
+  String get deskDataUpdNone =>
+      'No desktop update information is published yet.';
+
+  @override
+  String get deskNodeSynced => 'Synced';
+
+  @override
+  String get deskNodeBehind => 'Behind';
+
+  @override
+  String get deskNodeNotAnswering => 'Not answering';
+
+  @override
+  String get deskNodeChecking => 'Checking';
+
+  @override
+  String get deskNodeStarting => 'Starting';
+
+  @override
+  String get deskNodeSyncing => 'Syncing';
+
+  @override
+  String get deskNodeStalled => 'Stalled';
+
+  @override
+  String get deskNodeFailed => 'Failed';
+
+  @override
+  String get deskNodeStopped => 'Stopped';
+
+  @override
+  String get deskNodeMarkerNoAnswer => 'no answer';
+
+  @override
+  String deskNodeMarkerBehind(String count) {
+    return '$count behind';
+  }
+
+  @override
+  String get deskNodeMarkerStarting => 'starting';
+
+  @override
+  String get deskNodeMarkerStalled => 'stalled';
+
+  @override
+  String get deskNodeMarkerFailed => 'failed';
+
+  @override
+  String get deskNodeMarkerStopped => 'stopped';
+
+  @override
+  String deskNodeHostSince(String host, String time) {
+    return '$host · since $time';
+  }
+
+  @override
+  String get deskNodeNotAnsweringLine => 'The node is not answering.';
+
+  @override
+  String deskNodeLatency(String ms) {
+    return '$ms ms';
+  }
+
+  @override
+  String deskNodeLatencyOverTor(String ms) {
+    return '$ms ms over Tor';
+  }
+
+  @override
+  String deskNodeNewerOut(String version) {
+    return '$version is out';
+  }
+
+  @override
+  String get deskNodeBehindLine => 'Behind the network; catching up.';
+
+  @override
+  String deskNodeHeightOf(String height, String total) {
+    return '$height of $total';
+  }
+
+  @override
+  String get deskNodeAtTip => 'at tip';
+
+  @override
+  String get deskNodeLocal => 'Local node';
+
+  @override
+  String get deskNodeConnectingPeers => 'Connecting to peers';
+
+  @override
+  String deskNodeUsingUntilSynced(String host) {
+    return 'Using $host until it is synced.';
+  }
+
+  @override
+  String get deskNodeNothingUntilSynced =>
+      'Nothing can be sent until it is synced.';
+
+  @override
+  String deskNodePeers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count peers',
+      one: '$count peer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskNodeRunning(String duration) {
+    return 'running $duration';
+  }
+
+  @override
+  String deskNodeStillUsing(String host) {
+    return 'Still using $host; the local node takes over shortly.';
+  }
+
+  @override
+  String get deskNodeNoProgress =>
+      'No progress for 5 min. Restarted once already.';
+
+  @override
+  String deskNodeUsingMeanwhile(String host) {
+    return 'Using $host meanwhile.';
+  }
+
+  @override
+  String get deskNodeStartIt => 'Start it under Settings › Node.';
+
+  @override
+  String get deskNodeFailPort => 'port 3413 is used by another program';
+
+  @override
+  String get deskNodeFailDisk => 'not enough disk space';
+
+  @override
+  String get deskNodeFailMissing => 'the node program is missing';
+
+  @override
+  String get deskNodeFailExited => 'the node program stopped';
+
+  @override
+  String deskNodeFailExitedCode(String code) {
+    return 'the node program stopped (exit code $code)';
+  }
+
+  @override
+  String get deskNodeFailDefault => 'the node did not start';
+
+  @override
+  String get deskNodeStageWaiting => 'connecting to peers';
+
+  @override
+  String get deskNodeStageHeaders => 'headers';
+
+  @override
+  String get deskNodeStageChainDownload => 'chain state download';
+
+  @override
+  String get deskNodeStageKernels => 'checking kernels';
+
+  @override
+  String get deskNodeStageRangeProofs => 'checking range proofs';
+
+  @override
+  String get deskNodeStageProcessing => 'processing the chain state';
+
+  @override
+  String get deskNodeStageBlocks => 'blocks';
+
+  @override
+  String get deskNodeStageCompacting => 'compacting';
+
+  @override
+  String get deskNodeStageStopping => 'stopping';
+
+  @override
+  String get deskNodeStageSyncing => 'syncing';
+
+  @override
+  String get deskNodeLineWaiting => 'Connecting to peers';
+
+  @override
+  String deskNodeLineHeaders(String done, String total) {
+    return 'Headers · $done of $total';
+  }
+
+  @override
+  String get deskNodeLineHeadersBare => 'Headers';
+
+  @override
+  String deskNodeLineChain(String done, String total) {
+    return 'Chain state · $done of $total GB';
+  }
+
+  @override
+  String get deskNodeLineChainBare => 'Chain state';
+
+  @override
+  String deskNodeLineKernels(String done, String total) {
+    return 'Checking kernels · $done of $total million';
+  }
+
+  @override
+  String get deskNodeLineKernelsBare => 'Checking kernels';
+
+  @override
+  String deskNodeLineRangeProofs(String done, String total) {
+    return 'Checking range proofs · $done of $total million';
+  }
+
+  @override
+  String get deskNodeLineRangeProofsBare => 'Checking range proofs';
+
+  @override
+  String get deskNodeLineProcessing => 'Processing the chain state';
+
+  @override
+  String deskNodeLineBlocks(String done, String total) {
+    return 'Blocks · $done of $total';
+  }
+
+  @override
+  String get deskNodeLineBlocksBare => 'Blocks';
+
+  @override
+  String get deskNodeLineCompacting => 'Compacting the chain data';
+
+  @override
+  String get deskNodeLineStopping => 'Stopping…';
+
+  @override
+  String get deskNodeLineSyncing => 'Syncing';
+
+  @override
+  String get deskNodeNoEstimate => 'no estimate; up to an hour';
+
+  @override
+  String get deskNodeEstimating => 'estimating…';
+
+  @override
+  String deskNodeAboutHours(int hours) {
+    return 'about $hours h left';
+  }
+
+  @override
+  String deskNodeAboutMinutes(int minutes) {
+    return 'about $minutes min left';
+  }
+
+  @override
+  String deskNodeDurationHm(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String deskNodeDurationM(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get deskTorNetworkLabel => 'Tor Network';
+
+  @override
+  String get deskTorNetworkHint =>
+      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.';
+
+  @override
+  String get deskTorOff => 'Off';
+
+  @override
+  String get deskTorStarting => 'Starting…';
+
+  @override
+  String get deskTorOn => 'On';
+
+  @override
+  String get deskTorNotConnected => 'Not connected';
+
+  @override
+  String get deskTorRoutes =>
+      'Epicbox, the node, status, price, updates, support and Tor addresses';
+
+  @override
+  String get deskTorCoverage =>
+      'Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.';
+
+  @override
+  String get deskTorNodeOver => 'Over Tor';
+
+  @override
+  String get deskTorNodeNotEncrypted => 'Not encrypted past Tor';
+
+  @override
+  String get deskTorNodeWaits => 'Waits until Tor is connected.';
+
+  @override
+  String get deskRecvTitle => 'Receive';
+
+  @override
+  String get deskRecvReceiving => 'Receiving';
+
+  @override
+  String get deskRecvNameFile => 'File';
+
+  @override
+  String deskRecvTurnOnFailed(String method) {
+    return '$method not turned on';
+  }
+
+  @override
+  String deskRecvTurnOffFailed(String method) {
+    return '$method not turned off';
+  }
+
+  @override
+  String get deskRecvOtherWays => 'Other ways to receive';
+
+  @override
+  String get deskRecvSettings => 'Settings';
+
+  @override
+  String get deskRecvTorNotConnected => 'Tor is not connected.';
+
+  @override
+  String get deskRecvTorStarting => 'Tor is starting.';
+
+  @override
+  String deskRecvTorDownText(String routes) {
+    return 'Nothing arrives over $routes until it is, or until Tor is turned off.';
+  }
+
+  @override
+  String get deskRecvTorStartingText =>
+      'Addresses become reachable once it is connected. Nothing goes over the clearnet meanwhile.';
+
+  @override
+  String get deskRecvTurnTorOff => 'Turn Tor off';
+
+  @override
+  String get deskRecvTryAgain => 'Try again';
+
+  @override
+  String get deskRecvStateOn => 'on';
+
+  @override
+  String get deskRecvStateOff => 'off';
+
+  @override
+  String get deskRecvStateChecking => 'checking';
+
+  @override
+  String deskRecvSemList(String method, String state) {
+    return '$method $state';
+  }
+
+  @override
+  String deskRecvSemMethod(String method, String state) {
+    return '$method: $state';
+  }
+
+  @override
+  String deskRecvTipChecking(String method) {
+    return '$method · Checking';
+  }
+
+  @override
+  String deskRecvTip(String method, String state) {
+    return '$method · $state';
+  }
+
+  @override
+  String deskRecvTipDetail(String method, String state, String detail) {
+    return '$method · $state\n$detail';
+  }
+
+  @override
+  String get deskRecvTagPaused => 'Paused';
+
+  @override
+  String get deskRecvTagStarting => 'Starting';
+
+  @override
+  String get deskRecvTagNotReachable => 'Not reachable';
+
+  @override
+  String get deskRecvAddressUnreadable =>
+      'The address could not be read. Open Receive again in a moment.';
+
+  @override
+  String get deskRecvEpicboxAddress => 'Epicbox address';
+
+  @override
+  String get deskRecvCopyEpicbox => 'Copy Epicbox address';
+
+  @override
+  String get deskRecvEpicboxIntro =>
+      'Share it to get paid. Works while the wallet is closed: the Epicbox server holds payments until the wallet is back.';
+
+  @override
+  String get deskRecvCheckSix =>
+      'When reading it out, check the first six and last six characters.';
+
+  @override
+  String get deskRecvHttpAddress => 'HTTP address';
+
+  @override
+  String get deskRecvCopyHttp => 'Copy HTTP address';
+
+  @override
+  String deskRecvHttpPublic(int port) {
+    return 'Your router’s public address. Senders on the internet use it once the router forwards port $port.';
+  }
+
+  @override
+  String get deskRecvHttpLocal =>
+      'Programs on this computer can pay this address. For other devices, see Settings › Receiving.';
+
+  @override
+  String get deskRecvHttpIntro =>
+      'Straight from another wallet while this one is open. On this computer only unless Settings says otherwise.';
+
+  @override
+  String get deskRecvHttpTorHint =>
+      'Turn on Tor in Settings › Privacy for a Tor address instead.';
+
+  @override
+  String get deskRecvDirectTor => 'Direct, Tor address';
+
+  @override
+  String get deskRecvTorIntro =>
+      'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.';
+
+  @override
+  String get deskRecvTorAddress => 'Tor address';
+
+  @override
+  String get deskRecvCopyTor => 'Copy Tor address';
+
+  @override
+  String get deskRecvTorOnion =>
+      'Some wallets show the address without .onion; both are the same address.';
+
+  @override
+  String get deskRecvFiles => 'Transaction files';
+
+  @override
+  String get deskRecvSignTitle => 'Sign a transaction file';
+
+  @override
+  String get deskRecvSignText =>
+      'A sender gave a transaction file. The wallet signs it and saves a response for them.';
+
+  @override
+  String get deskRecvOpen => 'Open';
+
+  @override
+  String get deskRecvFinalizeTitle => 'Finalize a response file';
+
+  @override
+  String get deskRecvFinalizeText =>
+      'A file send got a response back. Finalizing posts the payment.';
+
+  @override
+  String deskRecvSwitchLabel(String title) {
+    return '$title, receiving';
+  }
+
+  @override
+  String get deskSendStrategySmallest => 'Smallest';
+
+  @override
+  String get deskSendStrategyAll => 'All';
+
+  @override
+  String get deskSendBalanceAfter => 'Balance after';
+
+  @override
+  String get deskSendSpendableUntil => 'Spendable until change confirms';
+
+  @override
+  String deskSendSplitLine(int outputs, String fee) {
+    String _temp0 = intl.Intl.pluralLogic(
+      outputs,
+      locale: localeName,
+      other: 'Change split into $outputs outputs (+$fee EPIC fee)',
+      one: 'Change split into $outputs output (+$fee EPIC fee)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendSplitWhy(int outputs, String each) {
+    String _temp0 = intl.Intl.pluralLogic(
+      outputs,
+      locale: localeName,
+      other:
+          'So the next send does not wait for this one to confirm. Change comes back as $outputs outputs of about $each EPIC instead of one.',
+      one:
+          'So the next send does not wait for this one to confirm. Change comes back as $outputs output of about $each EPIC instead of one.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSendSplitWhyLabel => 'Why the change is split';
+
+  @override
+  String deskSendLockNoChange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'No change: $count outputs spent exactly, nothing waits.',
+      one: 'No change: 1 output spent exactly, nothing waits.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendLockAll(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Everything is locked: $count outputs, $amount EPIC, about 3 blocks.',
+      one: 'Everything is locked: 1 output, $amount EPIC, about 3 blocks.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendLockSome(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count outputs locked, $amount EPIC, about 3 blocks.',
+      one: '1 output locked, $amount EPIC, about 3 blocks.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendStrategyLine(int count, String strategy) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Strategy for this send: $strategy · $count outputs.',
+      one: 'Strategy for this send: $strategy · 1 output.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewSplit(int outputs, String fee) {
+    String _temp0 = intl.Intl.pluralLogic(
+      outputs,
+      locale: localeName,
+      other: 'Change split into $outputs outputs (+$fee EPIC).',
+      one: 'Change split into $outputs output (+$fee EPIC).',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewLocksNone(int count, String locked) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$locked EPIC in $count outputs; no change comes back.',
+      one: '$locked EPIC in 1 output; no change comes back.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewLocksAll(int count, String locked) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Everything: $locked EPIC in $count outputs until the change confirms (3 blocks). Nothing stays spendable.',
+      one:
+          'Everything: $locked EPIC in 1 output until the change confirms (3 blocks). Nothing stays spendable.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewLocksEverything(int count, String locked) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$locked EPIC in $count outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.',
+      one:
+          '$locked EPIC in 1 output until the change confirms (3 blocks). Nothing else is spendable meanwhile.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewLocksSome(int count, String locked, String spendable) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$locked EPIC in $count outputs until the change confirms (3 blocks). $spendable EPIC stays spendable.',
+      one:
+          '$locked EPIC in 1 output until the change confirms (3 blocks). $spendable EPIC stays spendable.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSendFactLocks => 'Locks';
+
+  @override
+  String get deskSendFactStrategy => 'Strategy';
+
+  @override
+  String deskSendFactStrategyValue(String strategy) {
+    return '$strategy outputs, for this send';
+  }
+
+  @override
+  String get deskSendAdvSmallest => '· Smallest outputs';
+
+  @override
+  String get deskSendAdvSmallestNoSplit =>
+      '· Smallest outputs, change not split';
+
+  @override
+  String get deskSendAdvAll => '· All outputs';
+
+  @override
+  String get deskSendAdvAllNoSplit => '· All outputs, change not split';
+
+  @override
+  String get deskSendAdvanced => 'Advanced';
+
+  @override
+  String get deskSendAdvStrategy => 'Strategy for this send';
+
+  @override
+  String get deskSendAdvSmallestText =>
+      'Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.';
+
+  @override
+  String get deskSendAdvAllText =>
+      'Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.';
+
+  @override
+  String get deskSendDefaultTag => 'default';
+
+  @override
+  String get deskSendAdvAllNote => 'Sending everything spends every output.';
+
+  @override
+  String get deskSendAdvSplit => 'Split change';
+
+  @override
+  String get deskSendAdvSplitText =>
+      'Returns the change as several outputs when few would be left, so the next send does not wait.';
+
+  @override
+  String get deskSendAdvDefaults => 'For this send only. Defaults: ';
+
+  @override
+  String get deskSendAdvOutputsLink => 'Outputs';
+
+  @override
+  String get deskSendPickNone => 'No contacts yet';
+
+  @override
+  String get deskSendPickNoneText =>
+      'Save the people you pay in Contacts, then choose them here.';
+
+  @override
+  String get deskSendPickOpen => 'Open contacts';
+
+  @override
+  String deskSendPickNoMatch(String query) {
+    return 'No contact matches \"$query\".';
+  }
+
+  @override
+  String get deskSendPickTitle => 'Choose contact';
+
+  @override
+  String get deskSendPickDesc => 'The address fills the recipient field.';
+
+  @override
+  String get deskSendPickSearch => 'Search contacts';
+
+  @override
+  String get deskSendTitle => 'Send';
+
+  @override
+  String get deskSendErrNoAddress => 'Add an address to send to.';
+
+  @override
+  String get deskSendErrEpicbox => 'This is not a valid Epicbox address.';
+
+  @override
+  String get deskSendErrNotDirect => 'This is not a Direct address.';
+
+  @override
+  String get deskSendErrOnion => 'This is not a valid onion address.';
+
+  @override
+  String get deskSendErrOwn => 'This is the wallet\'s own address.';
+
+  @override
+  String get deskSendNoAnswer =>
+      'The recipient did not answer. Nothing was sent.';
+
+  @override
+  String get deskSendTorOnFailed => 'Tor not turned on';
+
+  @override
+  String get deskSendTorOffFailed => 'Tor not turned off';
+
+  @override
+  String get deskSendEpicboxOnFailed => 'Epicbox not turned on';
+
+  @override
+  String get deskSendNothingSpendable => 'Nothing spendable to send.';
+
+  @override
+  String get deskSendAllFailed =>
+      'Could not work out how much can be sent. Try again in a moment.';
+
+  @override
+  String get deskSendErrAmountEnter => 'Enter an amount.';
+
+  @override
+  String get deskSendErrAmountDecimals => 'EPIC has at most 8 decimals.';
+
+  @override
+  String get deskSendErrAmountZero => 'The amount must be more than 0.';
+
+  @override
+  String get deskSendErrAmountMore => 'More than the available balance.';
+
+  @override
+  String get deskSendSent => 'Sent';
+
+  @override
+  String get deskSendFileReadyTitle => 'Transaction file ready';
+
+  @override
+  String get deskSendFileReadyText =>
+      'Give this file to the recipient. The wallet is waiting for the response file; finalize it when it comes back.';
+
+  @override
+  String get deskSendFinalize => 'Finalize';
+
+  @override
+  String get deskSendNewSend => 'New send';
+
+  @override
+  String get deskSendNodeNotSynced => 'Node not synced';
+
+  @override
+  String deskSendNodeSyncingPct(int percent) {
+    return 'Sending is possible once the node has synced. $percent% done; the form can be filled in meanwhile.';
+  }
+
+  @override
+  String get deskSendNodeSyncing =>
+      'Sending is possible once the node has synced.';
+
+  @override
+  String get deskSendTorBlocked => 'Tor is not connected';
+
+  @override
+  String get deskSendTorBlockedText =>
+      'Nothing is sent until it is, or until Tor is turned off.';
+
+  @override
+  String get deskSendTurnTorOff => 'Turn Tor off';
+
+  @override
+  String get deskSendTorStarting => 'Tor is starting';
+
+  @override
+  String get deskSendTorStartingText =>
+      'Sending waits until it is connected. Nothing goes over the clearnet meanwhile.';
+
+  @override
+  String get deskSendEpicboxOff => 'Epicbox not connected';
+
+  @override
+  String get deskSendEpicboxOffText =>
+      'Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.';
+
+  @override
+  String get deskSendEpicboxTurnOn => 'Turn on Epicbox receiving';
+
+  @override
+  String get deskSendDoneViaDirect => 'Finalized and posted to the network.';
+
+  @override
+  String get deskSendDoneViaEpicbox =>
+      'Handed to Epicbox. Completes when the recipient answers.';
+
+  @override
+  String get deskSendViewTx => 'View transaction';
+
+  @override
+  String get deskSendFailedTitle => 'Send failed';
+
+  @override
+  String get deskSendReviewAgain => 'Review again';
+
+  @override
+  String get deskSendMethodDirect => 'Direct';
+
+  @override
+  String get deskSendMethodFile => 'File';
+
+  @override
+  String get deskSendTo => 'To';
+
+  @override
+  String get deskSendToHelp => 'Paste an address, or type a contact’s name.';
+
+  @override
+  String get deskSendToHint => 'Address or contact';
+
+  @override
+  String get deskSendToSem => 'Recipient';
+
+  @override
+  String get deskSendClearTo => 'Clear recipient';
+
+  @override
+  String get deskSendContacts => 'Contacts';
+
+  @override
+  String get deskSendNeedsTor => 'Needs Tor';
+
+  @override
+  String get deskSendNeedsTorText =>
+      'An onion address can only be reached over Tor.';
+
+  @override
+  String get deskSendNoTorBuild => 'Tor is not in this build.';
+
+  @override
+  String get deskSendTurnOnTor => 'Turn on Tor';
+
+  @override
+  String get deskSendHttpClearnet =>
+      'Direct to http(s) addresses goes over the clearnet, not Tor.';
+
+  @override
+  String get deskSendClear => 'Clear';
+
+  @override
+  String get deskSendAmount => 'Amount';
+
+  @override
+  String get deskSendAvailableNone => 'Available —';
+
+  @override
+  String deskSendAvailable(String amount) {
+    return 'Available $amount EPIC';
+  }
+
+  @override
+  String get deskSendAmountSem => 'Amount in EPIC';
+
+  @override
+  String get deskSendAllButton => 'All';
+
+  @override
+  String get deskSendConfirmingHidden =>
+      'Part of the balance is still confirming and cannot be sent yet.';
+
+  @override
+  String deskSendConfirming(String amount) {
+    return '$amount EPIC is still confirming and cannot be sent yet.';
+  }
+
+  @override
+  String get deskSendMessage => 'Message';
+
+  @override
+  String get deskSendMessageHelp => 'The recipient sees this message.';
+
+  @override
+  String get deskSendPrivacyOn => 'Privacy · Dandelion++ on';
+
+  @override
+  String get deskSendPrivacyOff => 'Privacy · Dandelion++ off';
+
+  @override
+  String get deskSendDandelionText =>
+      'Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.';
+
+  @override
+  String get deskSendHintSent =>
+      'Sent. Enter a new amount and recipient to send again.';
+
+  @override
+  String get deskSendHintNode => 'Waiting for the node to sync.';
+
+  @override
+  String get deskSendHintEpicbox => 'Waiting for Epicbox to connect.';
+
+  @override
+  String get deskSendHintTorWait => 'Waiting for Tor to connect.';
+
+  @override
+  String get deskSendHintTorBlocked => 'Retry Tor, or turn it off.';
+
+  @override
+  String get deskSendHintNeedsTor => 'Turn on Tor to send to an onion address.';
+
+  @override
+  String get deskSendHintFix => 'Fix the fields marked in red.';
+
+  @override
+  String get deskSendHintChecking => 'Checking the fee for this amount.';
+
+  @override
+  String get deskSendHintDefault => 'Nothing is sent until confirmed.';
+
+  @override
+  String get deskSendReviewWaitTor => 'Waiting for Tor';
+
+  @override
+  String get deskSendReviewTorOff => 'Tor not connected';
+
+  @override
+  String get deskSendReview => 'Review send';
+
+  @override
+  String get deskSendSummary => 'Summary';
+
+  @override
+  String get deskSendNetworkFee => 'Network fee';
+
+  @override
+  String get deskSendTotal => 'Total';
+
+  @override
+  String get deskSendUpdating => 'Balance updating while the wallet scans.';
+
+  @override
+  String get deskSendEpicboxLine1 => 'The recipient can be offline.';
+
+  @override
+  String get deskSendEpicboxLine2 =>
+      'The Epicbox server holds the payment until they open their wallet.';
+
+  @override
+  String get deskSendDirectLine1 => 'Straight to their wallet.';
+
+  @override
+  String get deskSendDirectLine2 =>
+      'An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.';
+
+  @override
+  String get deskSendFileLine1 => 'No connection needed.';
+
+  @override
+  String get deskSendFileLine2 =>
+      'Hand the file over, get their response file back, then finalize it here.';
+
+  @override
+  String get deskSendTagDirect => 'Direct';
+
+  @override
+  String get deskSendTagFile => 'File';
+
+  @override
+  String get deskSendTagEpicbox => 'Via Epicbox';
+
+  @override
+  String get deskSendSwitchedDirect => 'Direct address. Method set to Direct.';
+
+  @override
+  String get deskSendSwitchedFile => 'File address. Method set to File.';
+
+  @override
+  String get deskSendSwitchedEpicbox =>
+      'Epicbox address. Method set to Epicbox.';
+
+  @override
+  String get deskSendMatching => 'Matching contacts';
+
+  @override
+  String deskSendMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count contacts match',
+      one: '1 contact matches',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSendWrongPassword => 'Wrong password.';
+
+  @override
+  String get deskSendNotConfirmed =>
+      'Not confirmed. Check Activity before sending again.';
+
+  @override
+  String get deskSendViaEpicbox => 'Epicbox (the recipient can be offline)';
+
+  @override
+  String get deskSendViaDirect => 'Direct (their wallet must be open)';
+
+  @override
+  String get deskSendViaTor => 'Direct, over Tor (their wallet must be open)';
+
+  @override
+  String get deskSendViaFile => 'Transaction file';
+
+  @override
+  String deskSendUsesAll(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Uses all $count outputs · change 1 output',
+      one: 'Uses its 1 output · change 1 output',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSendReviewTitle => 'Check and send';
+
+  @override
+  String get deskSendReviewDesc => 'A send cannot be undone once it is posted.';
+
+  @override
+  String get deskSendFactTo => 'To';
+
+  @override
+  String get deskSendCheckChars =>
+      'Check the highlighted characters against what the recipient gave.';
+
+  @override
+  String get deskSendFactVia => 'Via';
+
+  @override
+  String get deskSendFactPrivacy => 'Privacy';
+
+  @override
+  String get deskSendDandelionOn => 'Dandelion++ on';
+
+  @override
+  String get deskSendDandelionOff => 'Dandelion++ off';
+
+  @override
+  String get deskSendFactMessage => 'Message';
+
+  @override
+  String get deskSendPassword => 'Password';
+
+  @override
+  String get deskSendPasswordHelp =>
+      'Opened with the remembered password: this send asks it.';
+
+  @override
+  String get deskSendBusyFile => 'Creating the file.';
+
+  @override
+  String get deskSendBusyTor =>
+      'Reaching their wallet over Tor… This can take a while. Keep the app open.';
+
+  @override
+  String get deskSendBusy =>
+      'Sending. This can take a few seconds; keep this window open.';
+
+  @override
+  String get deskSendBack => 'Back';
+
+  @override
+  String get deskSendSending => 'Sending';
+
+  @override
+  String deskSendConfirm(String amount) {
+    return 'Send $amount EPIC';
+  }
+
+  @override
+  String get deskSendPlainTitle => 'Not encrypted. Send anyway?';
+
+  @override
+  String get deskSendPlainDesc =>
+      'Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.';
+
+  @override
+  String get deskSendPlainConfirm => 'Send anyway';
+
+  @override
+  String deskSendEpicboxSwitched(String domain) {
+    return 'Switched to $domain';
+  }
+
+  @override
+  String get deskSendEpicboxNotSwitched => 'Not switched';
+
+  @override
+  String get deskSendEpicboxDownTitle => 'Epicbox server not answering';
+
+  @override
+  String get deskSendEpicboxDownWait => 'Payments wait until it is back.';
+
+  @override
+  String deskSendEpicboxSwitchTo(String domain) {
+    return 'Switch to $domain?';
+  }
+
+  @override
+  String get deskSendEpicboxSwitch => 'Switch';
+
+  @override
+  String get deskFinOpenFolder => 'Open folder';
+
+  @override
+  String get deskFinFolderNotOpened => 'Folder not opened';
+
+  @override
+  String get deskFinWrongType => 'Not a response file';
+
+  @override
+  String get deskFinWrongTypeText =>
+      'The file is not a response file. Choose the file the recipient sent back.';
+
+  @override
+  String get deskFinUnreadable => 'File not readable';
+
+  @override
+  String get deskFinUnreadableText =>
+      'The file could not be read. It may be damaged or still being copied.';
+
+  @override
+  String get deskFinFailed => 'Finalizing failed';
+
+  @override
+  String get deskFinFailedText =>
+      'The wallet could not finalize this file. It may belong to another transaction or be finalized already.';
+
+  @override
+  String get deskFinNotPosted => 'Not posted';
+
+  @override
+  String get deskFinNotPostedText =>
+      'The transaction was finalized but the node did not accept it. Check the node, then try again.';
+
+  @override
+  String get deskFinPickTitle => 'Response file';
+
+  @override
+  String get deskFinPosted => 'Transaction posted';
+
+  @override
+  String get deskFinTitle => 'Finalize a response file';
+
+  @override
+  String get deskFinNoticeTitle => 'For a transaction created as a file';
+
+  @override
+  String get deskFinNoticeText =>
+      'Use the response file the recipient sent back.';
+
+  @override
+  String get deskFinTryAgain => 'Try again';
+
+  @override
+  String get deskFinPostedText =>
+      'The payment was finalized and sent to the network. Follow it in Activity.';
+
+  @override
+  String get deskFinAnother => 'Finalize another file';
+
+  @override
+  String get deskFinViewActivity => 'View in Activity';
+
+  @override
+  String get deskFinBusy => 'Finalizing and posting';
+
+  @override
+  String get deskFinChoose => 'Choose a response file';
+
+  @override
+  String get deskFinChooseText =>
+      'The wallet completes the transaction and posts it to the network.';
+
+  @override
+  String get deskFinChooseFile => 'Choose file';
+
+  @override
+  String get deskImpWrongType => 'Not a transaction file';
+
+  @override
+  String get deskImpWrongTypeText =>
+      'The file is not a transaction file. Choose the .slate or .tx file the sender gave.';
+
+  @override
+  String get deskImpUnreadable => 'File not readable';
+
+  @override
+  String get deskImpUnreadableText =>
+      'The file could not be read. It may be damaged or still being copied.';
+
+  @override
+  String get deskImpNoPlace => 'Nothing signed';
+
+  @override
+  String get deskImpNoPlaceText =>
+      'No place was chosen for the response file, so nothing was signed.';
+
+  @override
+  String get deskImpFailed => 'Signing failed';
+
+  @override
+  String get deskImpFailedText =>
+      'The wallet could not sign this file. It may be for another wallet or already used.';
+
+  @override
+  String deskImpFailedDetail(String detail) {
+    return 'The wallet could not sign this file. It may be for another wallet or already used. $detail.';
+  }
+
+  @override
+  String get deskImpPickTitle => 'Transaction file';
+
+  @override
+  String get deskImpTitle => 'Sign a transaction file';
+
+  @override
+  String get deskImpNoticeTitle => 'Signing does not spend anything';
+
+  @override
+  String get deskImpNoticeText =>
+      'Send the response file back to the sender over the same channel they used.';
+
+  @override
+  String get deskImpSaved => 'Response saved';
+
+  @override
+  String get deskImpSavedText =>
+      'Send the response file back to the sender. The EPIC arrives once the sender finalizes it.';
+
+  @override
+  String get deskImpAmount => 'Amount ';
+
+  @override
+  String get deskImpAnother => 'Sign another file';
+
+  @override
+  String get deskImpBusy => 'Signing the file';
+
+  @override
+  String get deskImpChoose => 'Choose a transaction file';
+
+  @override
+  String get deskImpChooseText =>
+      'The wallet signs it and saves a response for the sender.';
 }

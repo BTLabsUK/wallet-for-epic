@@ -447,14 +447,14 @@ class ServiceStatus {
 }
 
 /// The Tor line of the status card and Settings › Receiving: what tor is doing now.
-String torStatusLine(ServiceStatus s) {
-  if (!s.torIncluded) return 'Tor not included in this build';
+String torStatusLine(AppLocalizations l, ServiceStatus s) {
+  if (!s.torIncluded) return l.deskErrTorMissing;
   return switch (s.tor) {
-    ServiceHealth.off => 'Off',
-    ServiceHealth.ok => 'Ready',
-    ServiceHealth.down => s.torProblem ?? 'Tor stopped',
-    ServiceHealth.slow => '${s.torProblem ?? 'Onion address not published'}. Sends work.',
-    ServiceHealth.checking => s.torCanSend ? 'Publishing the onion address…' : 'Connecting to Tor… ${s.torProgress ?? 0} %',
+    ServiceHealth.off => l.deskTorLineOff,
+    ServiceHealth.ok => l.deskTorLineReady,
+    ServiceHealth.down => s.torProblem ?? l.deskErrTorStopped,
+    ServiceHealth.slow => l.deskTorLineSendsWork(s.torProblem ?? l.deskErrOnionNotPublished),
+    ServiceHealth.checking => s.torCanSend ? l.deskTorLinePublishing : l.deskTorLineConnecting(s.torProgress ?? 0),
   };
 }
 
@@ -532,24 +532,41 @@ class HistoryImport {
 
 /// Why a history backup file was refused.
 enum HistoryFileProblem {
-  otherWallet("Another wallet's backup"),
-  otherChain('Wrong network'),
-  notOurs('Not a history backup'),
-  newer('Newer file'),
-  damaged('File damaged'),
-  tooLarge('Not a history backup');
+  otherWallet("Another wallet's backup"), // l10n-ok: English for tests; screens use [label]
+  otherChain('Wrong network'), // l10n-ok
+  notOurs('Not a history backup'), // l10n-ok
+  newer('Newer file'), // l10n-ok
+  damaged('File damaged'), // l10n-ok
+  tooLarge('Not a history backup'); // l10n-ok
 
   const HistoryFileProblem(this.title);
 
+  /// English, for tests and logs. Screens show [label].
   final String title;
+
+  /// The title in [l]'s language.
+  String label(AppLocalizations l) => switch (this) {
+    otherWallet => l.deskErrHistOtherWallet,
+    otherChain => l.deskErrHistOtherChain,
+    notOurs || tooLarge => l.deskErrHistNotOurs,
+    newer => l.deskErrHistNewer,
+    damaged => l.deskErrHistDamaged,
+  };
 }
 
 /// A refused history backup file: [problem]'s title, and [text] saying why.
 class HistoryFileError implements Exception {
-  const HistoryFileError(this.problem, this.text);
+  const HistoryFileError(this.problem, this.text) : _word = null;
+
+  /// A refusal the user reads in their language: [shown] words it, [text] keeps its English.
+  HistoryFileError.l10n(this.problem, String Function(AppLocalizations l) word) : text = word(englishStrings), _word = word;
 
   final HistoryFileProblem problem;
   final String text;
+  final String Function(AppLocalizations l)? _word;
+
+  /// [text] in [l]'s language.
+  String shown(AppLocalizations l) => _word?.call(l) ?? text;
 
   @override
   String toString() => text;
@@ -777,8 +794,17 @@ final class SendFileReady extends SendResult {
 }
 
 final class SendFailed extends SendResult {
-  const SendFailed(this.message, {this.inActivity = false});
+  const SendFailed(this.message, {this.inActivity = false}) : _word = null;
+
+  /// A failure the user reads in their language: [text] words it, [message] keeps its English.
+  SendFailed.l10n(String Function(AppLocalizations l) word, {this.inActivity = false}) : message = word(englishStrings), _word = word;
+
+  /// English, for logs and tests.
   final String message;
+  final String Function(AppLocalizations l)? _word;
+
+  /// The message in [l]'s language.
+  String text(AppLocalizations l) => _word?.call(l) ?? message;
 
   /// The payment may exist already (waiting in Activity): sending again could pay twice.
   final bool inActivity;
@@ -835,12 +861,21 @@ enum WalletRemoval {
 
 /// Where the import wizard found an old wallet: the groups of its Find step.
 enum OldWalletGroup {
-  gui('Older Epic Wallet'),
-  cli('The epic program'),
-  picked('Chosen folders');
+  gui('Older Epic Wallet'), // l10n-ok: English for tests; screens use [label]
+  cli('The epic program'), // l10n-ok
+  picked('Chosen folders'); // l10n-ok
 
   const OldWalletGroup(this.title);
+
+  /// English, for tests. Screens show [label].
   final String title;
+
+  /// The group's title in [l]'s language.
+  String label(AppLocalizations l) => switch (this) {
+    gui => l.deskErrOldGui,
+    cli => l.deskErrOldCli,
+    picked => l.deskErrOldPicked,
+  };
 }
 
 /// A wallet an older Epic Wallet or the epic program left on this computer. Only read: the
@@ -898,9 +933,18 @@ enum OldWalletUse { free, inUse, unknown }
 /// One line of an import's proof: what was done and whether it held.
 @immutable
 class ImportProof {
-  const ImportProof(this.text, {this.ok = true});
+  const ImportProof(this.text, {this.ok = true}) : _word = null;
+
+  /// A line the user reads in their language: [line] words it, [text] keeps its English.
+  ImportProof.l10n(String Function(AppLocalizations l) word, {this.ok = true}) : text = word(englishStrings), _word = word;
+
+  /// English, for tests and logs.
   final String text;
+  final String Function(AppLocalizations l)? _word;
   final bool ok;
+
+  /// The line in [l]'s language.
+  String line(AppLocalizations l) => _word?.call(l) ?? text;
 }
 
 /// A wallet the import made: listed, selected, its history due from a scan at the first unlock.

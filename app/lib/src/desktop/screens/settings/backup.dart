@@ -14,6 +14,7 @@ import '../../../log.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/history_files.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
 /// The open wallet's backup record; read again when the transactions change.
@@ -466,7 +467,7 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (_refused != null) _notice(_refused!.problem.title, _refused!.text),
+                if (_refused != null) _notice(_refused!.problem.label(context.l10n), _refused!.shown(context.l10n)),
                 if (_failed != null) _notice('Not imported', _failed!),
                 _List([
                   (label: 'Brings back', value: const Text('Who paid what, fees and notes of payments already here; older payments the list lost; contacts'), sub: null),

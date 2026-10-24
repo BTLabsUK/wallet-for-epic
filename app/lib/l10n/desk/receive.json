@@ -1,0 +1,268 @@
+{
+  "deskRecvTitle": "Receive",
+  "@deskRecvTitle": {
+    "description": "Page title of Receive."
+  },
+  "deskRecvReceiving": "Receiving",
+  "@deskRecvReceiving": {
+    "description": "Label before the method icons in the Receive page header, and before the on/off switch of each receiving method."
+  },
+  "deskRecvNameFile": "File",
+  "@deskRecvNameFile": {
+    "description": "Name of the file method (transaction files) when read out in a screen reader line such as \"File off\"."
+  },
+  "deskRecvTurnOnFailed": "{method} not turned on",
+  "@deskRecvTurnOnFailed": {
+    "description": "Toast title when turning a receiving method on failed; the reason follows as text. {method} is Epicbox, HTTP, Tor or File.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "deskRecvTurnOffFailed": "{method} not turned off",
+  "@deskRecvTurnOffFailed": {
+    "description": "Toast title when turning a receiving method off failed; the reason follows as text. {method} is Epicbox, HTTP, Tor or File.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "deskRecvOtherWays": "Other ways to receive",
+  "@deskRecvOtherWays": {
+    "description": "Heading above the HTTP or Tor panel on Receive."
+  },
+  "deskRecvSettings": "Settings",
+  "@deskRecvSettings": {
+    "description": "Small button next to the Other ways to receive heading: opens Settings › Receiving."
+  },
+  "deskRecvTorNotConnected": "Tor is not connected.",
+  "@deskRecvTorNotConnected": {
+    "description": "Title of the notice on Receive when Tor failed."
+  },
+  "deskRecvTorStarting": "Tor is starting.",
+  "@deskRecvTorStarting": {
+    "description": "Title of the notice on Receive while Tor connects."
+  },
+  "deskRecvTorDownText": "Nothing arrives over {routes} until it is, or until Tor is turned off.",
+  "@deskRecvTorDownText": {
+    "description": "Text of the notice on Receive when Tor failed. {routes} is a list of the connections that wait for Tor, such as \"Epicbox, the node, status, price, updates, support and Tor addresses\". \"it\" is Tor.",
+    "placeholders": {
+      "routes": {
+        "type": "String"
+      }
+    }
+  },
+  "deskRecvTorStartingText": "Addresses become reachable once it is connected. Nothing goes over the clearnet meanwhile.",
+  "@deskRecvTorStartingText": {
+    "description": "Text of the notice on Receive while Tor connects. \"it\" is Tor."
+  },
+  "deskRecvTurnTorOff": "Turn Tor off",
+  "@deskRecvTurnTorOff": {
+    "description": "Button in the Tor failed notice on Receive: switches Tor off."
+  },
+  "deskRecvTryAgain": "Try again",
+  "@deskRecvTryAgain": {
+    "description": "Retry button on the HTTP panel on Receive when the HTTP listener failed."
+  },
+  "deskRecvStateOn": "on",
+  "@deskRecvStateOn": {
+    "description": "Spoken state of a receiving method for screen readers, lowercase: the method is on."
+  },
+  "deskRecvStateOff": "off",
+  "@deskRecvStateOff": {
+    "description": "Spoken state of a receiving method for screen readers, lowercase: the method is off."
+  },
+  "deskRecvStateChecking": "checking",
+  "@deskRecvStateChecking": {
+    "description": "Spoken state of a receiving method for screen readers, lowercase: still being checked."
+  },
+  "deskRecvSemList": "{method} {state}",
+  "@deskRecvSemList": {
+    "description": "Screen reader text for one receiving method in the page header summary, e.g. \"Epicbox on\". The summary joins these with commas.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      },
+      "state": {
+        "type": "String",
+        "example": "on"
+      }
+    }
+  },
+  "deskRecvSemMethod": "{method}: {state}",
+  "@deskRecvSemMethod": {
+    "description": "Screen reader label of a receiving method's icon button in the page header, e.g. \"Epicbox: on\".",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      },
+      "state": {
+        "type": "String",
+        "example": "on"
+      }
+    }
+  },
+  "deskRecvTipChecking": "{method} · Checking",
+  "@deskRecvTipChecking": {
+    "description": "Tooltip of a receiving method's icon in the page header while it is being checked.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "deskRecvTip": "{method} · {state}",
+  "@deskRecvTip": {
+    "description": "Tooltip of a receiving method's icon in the page header. {state} is the state word such as On or Off.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      },
+      "state": {
+        "type": "String",
+        "example": "On"
+      }
+    }
+  },
+  "deskRecvTipDetail": "{method} · {state}\n{detail}",
+  "@deskRecvTipDetail": {
+    "description": "Tooltip of a receiving method's icon in the page header with a second line of detail.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Epicbox"
+      },
+      "state": {
+        "type": "String",
+        "example": "On"
+      },
+      "detail": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
+  },
+  "deskRecvTagPaused": "Paused",
+  "@deskRecvTagPaused": {
+    "description": "Small tag on the covered Epicbox QR code while Epicbox receiving is off."
+  },
+  "deskRecvTagStarting": "Starting",
+  "@deskRecvTagStarting": {
+    "description": "Small tag on a QR code while its receiving method starts."
+  },
+  "deskRecvTagNotReachable": "Not reachable",
+  "@deskRecvTagNotReachable": {
+    "description": "Small tag on a QR code when its receiving method does not work."
+  },
+  "deskRecvAddressUnreadable": "The address could not be read. Open Receive again in a moment.",
+  "@deskRecvAddressUnreadable": {
+    "description": "Shown instead of an address when the wallet could not read it."
+  },
+  "deskRecvEpicboxAddress": "Epicbox address",
+  "@deskRecvEpicboxAddress": {
+    "description": "Title of the Epicbox panel and of its QR code on Receive."
+  },
+  "deskRecvCopyEpicbox": "Copy Epicbox address",
+  "@deskRecvCopyEpicbox": {
+    "description": "Screen reader and tooltip label of the copy button next to the Epicbox address."
+  },
+  "deskRecvEpicboxIntro": "Share it to get paid. Works while the wallet is closed: the Epicbox server holds payments until the wallet is back.",
+  "@deskRecvEpicboxIntro": {
+    "description": "Intro text of the Epicbox panel on Receive."
+  },
+  "deskRecvCheckSix": "When reading it out, check the first six and last six characters.",
+  "@deskRecvCheckSix": {
+    "description": "Caption under the Epicbox address on Receive."
+  },
+  "deskRecvHttpAddress": "HTTP address",
+  "@deskRecvHttpAddress": {
+    "description": "Title of the HTTP panel on Receive and of its QR code."
+  },
+  "deskRecvCopyHttp": "Copy HTTP address",
+  "@deskRecvCopyHttp": {
+    "description": "Label of the copy button next to the HTTP address."
+  },
+  "deskRecvHttpPublic": "Your router’s public address. Senders on the internet use it once the router forwards port {port}.",
+  "@deskRecvHttpPublic": {
+    "description": "Caption under the HTTP address when receiving from the internet is on. {port} is the port number.",
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Receiving.",
+  "@deskRecvHttpLocal": {
+    "description": "Caption under the HTTP address when receiving is only for this computer."
+  },
+  "deskRecvHttpIntro": "Straight from another wallet while this one is open. On this computer only unless Settings says otherwise.",
+  "@deskRecvHttpIntro": {
+    "description": "Intro text of the HTTP panel on Receive."
+  },
+  "deskRecvHttpTorHint": "Turn on Tor in Settings › Privacy for a Tor address instead.",
+  "@deskRecvHttpTorHint": {
+    "description": "Caption at the bottom of the HTTP panel on Receive."
+  },
+  "deskRecvDirectTor": "Direct, Tor address",
+  "@deskRecvDirectTor": {
+    "description": "Title of the Tor panel on Receive."
+  },
+  "deskRecvTorIntro": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.",
+  "@deskRecvTorIntro": {
+    "description": "Intro text of the Tor panel on Receive."
+  },
+  "deskRecvTorAddress": "Tor address",
+  "@deskRecvTorAddress": {
+    "description": "Title of the QR code of the Tor address on Receive."
+  },
+  "deskRecvCopyTor": "Copy Tor address",
+  "@deskRecvCopyTor": {
+    "description": "Label of the copy button next to the Tor address."
+  },
+  "deskRecvTorOnion": "Some wallets show the address without .onion; both are the same address.",
+  "@deskRecvTorOnion": {
+    "description": "Caption under the Tor address on Receive."
+  },
+  "deskRecvFiles": "Transaction files",
+  "@deskRecvFiles": {
+    "description": "Heading of the transaction files panel on Receive."
+  },
+  "deskRecvSignTitle": "Sign a transaction file",
+  "@deskRecvSignTitle": {
+    "description": "Row title in the transaction files panel: opens the page that signs a file the sender gave."
+  },
+  "deskRecvSignText": "A sender gave a transaction file. The wallet signs it and saves a response for them.",
+  "@deskRecvSignText": {
+    "description": "Row text under Sign a transaction file."
+  },
+  "deskRecvOpen": "Open",
+  "@deskRecvOpen": {
+    "description": "Button on the rows of the transaction files panel."
+  },
+  "deskRecvFinalizeTitle": "Finalize a response file",
+  "@deskRecvFinalizeTitle": {
+    "description": "Row title in the transaction files panel: opens the page that finalizes a response file."
+  },
+  "deskRecvFinalizeText": "A file send got a response back. Finalizing posts the payment.",
+  "@deskRecvFinalizeText": {
+    "description": "Row text under Finalize a response file."
+  },
+  "deskRecvSwitchLabel": "{title}, receiving",
+  "@deskRecvSwitchLabel": {
+    "description": "Screen reader label of a receiving method's on/off switch. {title} is the panel's title, e.g. Epicbox address.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Epicbox address"
+      }
+    }
+  }
+}
