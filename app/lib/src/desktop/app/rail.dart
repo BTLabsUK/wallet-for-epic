@@ -385,7 +385,8 @@ class _RailRowState extends State<RailRow> {
       child: Semantics(
         button: true,
         label: '${i.open}: ${i.word}',
-        hint: [...i.lines, ?i.note].join('. '),
+        // One line each: '. ' would add full stops in Thai and Chinese.
+        hint: [...i.lines, ?i.note].join('\n'),
         excludeSemantics: true,
         child: InkWell(
           onTap: widget.onTap,
