@@ -534,19 +534,21 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
               alignment: Alignment.topCenter,
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxHeight: math.max(0, (box.maxHeight - foot) * 0.6)),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (line != null)
-                        _FootLine(
-                          line,
-                          action: _lineAction,
-                          actionLabel: l.slUndo,
-                          note: _lineIsNote,
-                        ),
-                      if (_pending != null || _switchError != null)
-                        _ConfirmStrip(
+                // Over the cap only the strip's note scrolls: Cancel and Switch stay in view.
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (line != null)
+                      _FootLine(
+                        line,
+                        action: _lineAction,
+                        actionLabel: l.slUndo,
+                        note: _lineIsNote,
+                      ),
+                    if (_pending != null || _switchError != null)
+                      Flexible(
+                        child: _ConfirmStrip(
                           host: _pending == null ? null : serverHost(_pending!),
                           note: _node ? l.serverNodeSwitchNote : l.serverRelaySwitchNote,
                           warn: !_node,
@@ -558,8 +560,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                             _switchError = null;
                           }),
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -1263,30 +1265,35 @@ class _ConfirmStrip extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Semantics(
-                  liveRegion: true,
-                  child: Text(
-                    error ?? note,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: error != null
-                          ? t.risk
-                          : warn
-                          ? t.warn
-                          : t.dim,
+          Flexible(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        error ?? note,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: error != null
+                              ? t.risk
+                              : warn
+                              ? t.warn
+                              : t.dim,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              TextButton(
-                style: TextButton.styleFrom(minimumSize: const Size(64, 48)),
-                onPressed: busy ? null : onCancel,
-                child: Text(l.commonCancel),
-              ),
-            ],
+                const SizedBox(width: 8),
+                TextButton(
+                  style: TextButton.styleFrom(minimumSize: const Size(64, 48)),
+                  onPressed: busy ? null : onCancel,
+                  child: Text(l.commonCancel),
+                ),
+              ],
+            ),
           ),
           if (host != null) ...[
             const SizedBox(height: 4),

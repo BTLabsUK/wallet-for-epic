@@ -935,15 +935,11 @@ void main() {
               await tester.tap(_row(target));
               await tester.pumpAndSettle();
               final screenHeight = size.height - 16;
-              // The strip scrolls inside its cap: bring Switch and Cancel into view.
-              await tester.ensureVisible(find.byKey(serverListSwitchKey));
-              await tester.pumpAndSettle();
+              // Switch and Cancel are in view at once: over its cap only the strip's note scrolls.
               final button = tester.getRect(find.byKey(serverListSwitchKey));
               expect(button.height, greaterThanOrEqualTo(48));
               expect(button.bottom, lessThanOrEqualTo(screenHeight));
               expect(button.top, greaterThanOrEqualTo(0));
-              await tester.ensureVisible(find.text('Cancel'));
-              await tester.pumpAndSettle();
               expect(tester.getRect(find.text('Cancel')).bottom, lessThanOrEqualTo(screenHeight));
               await tester.tap(find.text('Cancel'));
               await tester.pumpAndSettle();
