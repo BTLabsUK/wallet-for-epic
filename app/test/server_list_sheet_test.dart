@@ -909,18 +909,16 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    final list = find
-        .descendant(of: find.byType(ServerListSheet), matching: find.byType(Scrollable))
-        .first;
+    final list = find.descendant(
+      of: find.byKey(serverListListKey),
+      matching: find.byType(Scrollable),
+    );
 
     for (final size in const [Size(360, 640), Size(412, 915)]) {
       for (final scale in const [1.0, 2.0]) {
         for (final kind in ServerKind.values) {
-          // Known lib bug (see the report): the node's switch strip at ×2 on 360×640 overflows
-          // the sheet's column and Switch lands below the screen.
-          final known = kind == ServerKind.node && size.width == 360 && scale == 2;
           testWidgets(
-            '${known ? 'BUG strip overflows the sheet: ' : ''}${kind.name} sheet at ${size.width.round()}×${size.height.round()}, text ×${scale.toStringAsFixed(0)}: '
+            '${kind.name} sheet at ${size.width.round()}×${size.height.round()}, text ×${scale.toStringAsFixed(0)}: '
             'no overflow; a row below the fold is reachable; the strip is in reach; Add answers',
             (tester) async {
               final env = _Env();
@@ -937,16 +935,22 @@ void main() {
               await tester.tap(_row(target));
               await tester.pumpAndSettle();
               final screenHeight = size.height - 16;
+              // The strip scrolls inside its cap: bring Switch and Cancel into view.
+              await tester.ensureVisible(find.byKey(serverListSwitchKey));
+              await tester.pumpAndSettle();
               final button = tester.getRect(find.byKey(serverListSwitchKey));
               expect(button.height, greaterThanOrEqualTo(48));
               expect(button.bottom, lessThanOrEqualTo(screenHeight));
               expect(button.top, greaterThanOrEqualTo(0));
+              await tester.ensureVisible(find.text('Cancel'));
+              await tester.pumpAndSettle();
               expect(tester.getRect(find.text('Cancel')).bottom, lessThanOrEqualTo(screenHeight));
               await tester.tap(find.text('Cancel'));
               await tester.pumpAndSettle();
 
               // A filter nothing matches: one "No match." and the Add row in reach.
-              await tester.scrollUntilVisible(_field(), -100, scrollable: list);
+              // The field is pinned above the list: always there.
+              expect(_field(), findsOneWidget);
               await tester.enterText(_field(), 'zzzzzz');
               await tester.pumpAndSettle();
               expect(find.text(_noMatch), findsOneWidget);
@@ -961,26 +965,100 @@ void main() {
       }
     }
 
-    testWidgets(
-      'BUG Add row half under the keyboard: with the keyboard open the field and the Add row stay above it',
-      (tester) async {
-        final env = _Env();
-        await open(tester, ServerKind.relay, env, size: const Size(360, 640), scale: 1);
-        await tester.tap(_field());
-        tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
-        tester.view.padding = const FakeViewPadding(top: 24 * 3, bottom: 0);
+    testWidgets('with the keyboard open the field and the Add row stay above it', (tester) async {
+      final env = _Env();
+      await open(tester, ServerKind.relay, env, size: const Size(360, 640), scale: 1);
+      await tester.tap(_field());
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
+      tester.view.padding = const FakeViewPadding(top: 24 * 3, bottom: 0);
+      await tester.pumpAndSettle();
+      await tester.enterText(_field(), 'zzzzzz');
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final add = tester.getRect(find.byKey(serverListAddKey));
+      expect(add.bottom, lessThanOrEqualTo(640 - 300));
+      await tester.tap(find.byKey(serverListAddKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_notAddress), findsOneWidget);
+      await _timers(tester);
+    });
+  });
+
+  group('only the list scrolls', () {
+    // The title, the field and the Current card stay where they are while the rows move.
+    for (final size in const [Size(412, 915), Size(360, 640)]) {
+      testWidgets('node sheet at ${size.width.round()}×${size.height.round()}: dragging the list '
+          'leaves the field and the Current card in place', (tester) async {
+        // Enough servers that the list scrolls on the tall phone too.
+        final env = _Env(
+          store: _store({
+            _listKey(ServerKind.node): ServerList(
+              entries: [
+                ...builtInValues(ServerKind.node, Chain.mainnet),
+                for (var i = 0; i < 12; i++) 'https://node$i.example.org',
+              ],
+            ).encode(),
+          }),
+        );
+        tester.view.physicalSize = size * 3;
+        tester.view.devicePixelRatio = 3;
+        tester.view.padding = const FakeViewPadding(top: 24 * 3, bottom: 16 * 3);
+        tester.view.viewPadding = const FakeViewPadding(top: 24 * 3, bottom: 16 * 3);
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(
+          ProviderScope(
+            retry: (_, _) => null,
+            overrides: env.overrides,
+            child: MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: Scaffold(
+                body: Center(
+                  child: Builder(
+                    builder: (context) => TextButton(
+                      onPressed: () => showNodePicker(context),
+                      child: const Text('open'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
         await tester.pumpAndSettle();
-        await tester.enterText(_field(), 'zzzzzz');
+        await tester.tap(find.text('open'));
         await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-        final add = tester.getRect(find.byKey(serverListAddKey));
-        expect(add.bottom, lessThanOrEqualTo(640 - 300));
-        await tester.tap(find.byKey(serverListAddKey));
+
+        // A drag on the list first lifts the sheet to full height; that is the sheet moving, not
+        // the list. Start from there.
+        final rows = find.descendant(
+          of: find.byKey(serverListListKey),
+          matching: find.byKey(serverListRowKey(_btlabs)),
+        );
+        await tester.drag(rows, const Offset(0, -300));
         await tester.pumpAndSettle();
-        expect(find.text(_notAddress), findsOneWidget);
+
+        final card = find.text('Height');
+        expect(card, findsOneWidget);
+        final title = tester.getTopLeft(find.text('Node'));
+        final field = tester.getTopLeft(_field());
+        final cardAt = tester.getTopLeft(card);
+        final scrollable = tester.state<ScrollableState>(
+          find.descendant(of: find.byKey(serverListListKey), matching: find.byType(Scrollable)),
+        );
+        final scrolled = scrollable.position.pixels;
+
+        expect(rows, findsOneWidget);
+        await tester.drag(find.byKey(serverListListKey), const Offset(0, -150));
+        await tester.pumpAndSettle();
+
+        expect(tester.getTopLeft(find.text('Node')), title);
+        expect(tester.getTopLeft(_field()), field);
+        expect(tester.getTopLeft(card), cardAt);
+        expect(scrollable.position.pixels, greaterThan(scrolled), reason: 'the rows did move');
         await _timers(tester);
-      },
-    );
+      });
+    }
   });
 
   test('serverHost reads the host of a node address', () {
