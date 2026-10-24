@@ -124,6 +124,116 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txRestoredFunds => '恢复的资金';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label，$row';
+  }
+
+  @override
+  String get txLabel => '标签';
+
+  @override
+  String get txLabelAdd => '添加标签';
+
+  @override
+  String get txLabelEdit => '编辑标签';
+
+  @override
+  String get txLabelHint => '添加标签';
+
+  @override
+  String get txLabelAddedNotice => '标签已添加';
+
+  @override
+  String get txLabelSavedNotice => '标签已保存';
+
+  @override
+  String get txLabelRemovedNotice => '标签已移除';
+
+  @override
+  String get txEditAdd => '添加详情';
+
+  @override
+  String get txEditEdit => '编辑详情';
+
+  @override
+  String get txEditFrom => '来自';
+
+  @override
+  String get txEditFromHint => '地址';
+
+  @override
+  String get txEditFromHelper => '未验证。绝不用于付款证明。';
+
+  @override
+  String get txMethodUnknown => '未知';
+
+  @override
+  String get txManualTag => '由你添加';
+
+  @override
+  String txManualTip(String date) {
+    return '你于 $date 添加。并非来自区块链。';
+  }
+
+  @override
+  String get txManualTipNoDate => '由你添加。并非来自区块链。';
+
+  @override
+  String txManualTipFrom(String date) {
+    return '你于 $date 添加。并非来自区块链，未验证。';
+  }
+
+  @override
+  String get txManualTipFromNoDate => '由你添加。并非来自区块链，未验证。';
+
+  @override
+  String get txEditAddedNotice => '详情已添加';
+
+  @override
+  String get txEditSavedNotice => '详情已保存';
+
+  @override
+  String get txEditRemovedNotice => '详情已移除';
+
+  @override
+  String get histConflictTitle => '详情不一致';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '备份中有 $n 笔你已描述的付款带有不同的详情。除非你另行选择，否则保留你的。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => '我的';
+
+  @override
+  String get histConflictBackup => '备份';
+
+  @override
+  String get histConflictKeepAll => '全部保留我的';
+
+  @override
+  String get histConflictImport => '导入';
+
+  @override
+  String get histConflictEmpty => '空';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '已替换 $n 项详情，其余保留为你的内容。',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => '发出的付款';
 
   @override

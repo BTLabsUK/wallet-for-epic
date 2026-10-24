@@ -124,6 +124,119 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txRestoredFunds => 'ยอดที่กู้คืน';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label, $row';
+  }
+
+  @override
+  String get txLabel => 'ป้ายกำกับ';
+
+  @override
+  String get txLabelAdd => 'เพิ่มป้ายกำกับ';
+
+  @override
+  String get txLabelEdit => 'แก้ไขป้ายกำกับ';
+
+  @override
+  String get txLabelHint => 'เพิ่มป้ายกำกับ';
+
+  @override
+  String get txLabelAddedNotice => 'เพิ่มป้ายกำกับแล้ว';
+
+  @override
+  String get txLabelSavedNotice => 'บันทึกป้ายกำกับแล้ว';
+
+  @override
+  String get txLabelRemovedNotice => 'ลบป้ายกำกับแล้ว';
+
+  @override
+  String get txEditAdd => 'เพิ่มรายละเอียด';
+
+  @override
+  String get txEditEdit => 'แก้ไขรายละเอียด';
+
+  @override
+  String get txEditFrom => 'จาก';
+
+  @override
+  String get txEditFromHint => 'ที่อยู่';
+
+  @override
+  String get txEditFromHelper =>
+      'ยังไม่ได้ตรวจสอบ ไม่ใช้เป็นหลักฐานการชำระเงิน';
+
+  @override
+  String get txMethodUnknown => 'ไม่ทราบ';
+
+  @override
+  String get txManualTag => 'คุณเพิ่มเอง';
+
+  @override
+  String txManualTip(String date) {
+    return 'คุณเพิ่มเมื่อ $date ไม่ได้มาจากบล็อกเชน';
+  }
+
+  @override
+  String get txManualTipNoDate => 'คุณเพิ่มเอง ไม่ได้มาจากบล็อกเชน';
+
+  @override
+  String txManualTipFrom(String date) {
+    return 'คุณเพิ่มเมื่อ $date ไม่ได้มาจากบล็อกเชน ยังไม่ได้ตรวจสอบ';
+  }
+
+  @override
+  String get txManualTipFromNoDate =>
+      'คุณเพิ่มเอง ไม่ได้มาจากบล็อกเชน ยังไม่ได้ตรวจสอบ';
+
+  @override
+  String get txEditAddedNotice => 'เพิ่มรายละเอียดแล้ว';
+
+  @override
+  String get txEditSavedNotice => 'บันทึกรายละเอียดแล้ว';
+
+  @override
+  String get txEditRemovedNotice => 'ลบรายละเอียดแล้ว';
+
+  @override
+  String get histConflictTitle => 'รายละเอียดไม่ตรงกัน';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'ข้อมูลสำรองมีรายละเอียดต่างจากที่คุณระบุไว้ใน $n รายการ ระบบจะใช้ของคุณ เว้นแต่คุณเลือกอย่างอื่น',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => 'ของฉัน';
+
+  @override
+  String get histConflictBackup => 'ข้อมูลสำรอง';
+
+  @override
+  String get histConflictKeepAll => 'เก็บของฉันทั้งหมด';
+
+  @override
+  String get histConflictImport => 'นำเข้า';
+
+  @override
+  String get histConflictEmpty => 'ว่าง';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'แทนที่ $n รายละเอียด ส่วนที่เหลือยังเป็นของคุณ',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => 'รายการส่งออก';
 
   @override

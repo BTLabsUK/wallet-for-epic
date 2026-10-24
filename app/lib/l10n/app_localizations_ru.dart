@@ -128,6 +128,128 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txRestoredFunds => 'Восстановленные средства';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label, $row';
+  }
+
+  @override
+  String get txLabel => 'Метка';
+
+  @override
+  String get txLabelAdd => 'Добавить метку';
+
+  @override
+  String get txLabelEdit => 'Изменить метку';
+
+  @override
+  String get txLabelHint => 'Добавить метку';
+
+  @override
+  String get txLabelAddedNotice => 'Метка добавлена';
+
+  @override
+  String get txLabelSavedNotice => 'Метка сохранена';
+
+  @override
+  String get txLabelRemovedNotice => 'Метка удалена';
+
+  @override
+  String get txEditAdd => 'Добавить сведения';
+
+  @override
+  String get txEditEdit => 'Изменить сведения';
+
+  @override
+  String get txEditFrom => 'Отправитель';
+
+  @override
+  String get txEditFromHint => 'Адрес';
+
+  @override
+  String get txEditFromHelper =>
+      'Не проверено. Не используется для подтверждений платежа.';
+
+  @override
+  String get txMethodUnknown => 'Неизвестно';
+
+  @override
+  String get txManualTag => 'Добавлено вами';
+
+  @override
+  String txManualTip(String date) {
+    return 'Добавлено вами $date. Не из блокчейна.';
+  }
+
+  @override
+  String get txManualTipNoDate => 'Добавлено вами. Не из блокчейна.';
+
+  @override
+  String txManualTipFrom(String date) {
+    return 'Добавлено вами $date. Не из блокчейна, не проверено.';
+  }
+
+  @override
+  String get txManualTipFromNoDate =>
+      'Добавлено вами. Не из блокчейна, не проверено.';
+
+  @override
+  String get txEditAddedNotice => 'Сведения добавлены';
+
+  @override
+  String get txEditSavedNotice => 'Сведения сохранены';
+
+  @override
+  String get txEditRemovedNotice => 'Сведения удалены';
+
+  @override
+  String get histConflictTitle => 'Сведения различаются';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+      many:
+          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+      few:
+          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+      one:
+          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => 'Мои';
+
+  @override
+  String get histConflictBackup => 'Копия';
+
+  @override
+  String get histConflictKeepAll => 'Оставить все мои';
+
+  @override
+  String get histConflictImport => 'Импортировать';
+
+  @override
+  String get histConflictEmpty => 'пусто';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Заменено сведений: $n. Остальные остаются вашими.',
+      many: 'Заменено сведений: $n. Остальные остаются вашими.',
+      few: 'Заменено сведений: $n. Остальные остаются вашими.',
+      one: 'Заменено сведений: $n. Остальные остаются вашими.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => 'Исходящий платёж';
 
   @override
