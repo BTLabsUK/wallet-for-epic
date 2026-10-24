@@ -526,7 +526,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                       ),
                     ),
                   ],
-                  if (tx.undelivered) ...[
+                  // HTTP and Tor sends are sent again from the desktop only.
+                  if (tx.undelivered && tx.transport == 'epicbox') ...[
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,

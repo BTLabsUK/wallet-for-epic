@@ -82,6 +82,52 @@ void main() {
     sink.close();
   });
 
+  test('a LEPIC entry writes each field once and keeps the harmless numbers (windows-08)', () async {
+    final sink = open();
+    AppLog.use(sink);
+    logLepicEntry(
+      const lepic.LogEntry(
+        level: lepic.LogLevel.info,
+        target: 'lepic_epicbox::client_inbox',
+        message: 'epicbox disconnected, retrying',
+        spans: ['epicbox_listen', 'epicbox_listen'],
+        fields: [
+          lepic.LogField(name: 'wallet', value: 'default'),
+          lepic.LogField(name: 'transport', value: 'epicbox'),
+          lepic.LogField(name: 'transport', value: 'epicbox'),
+          lepic.LogField(name: 'relay', value: 'epicbox.epiccash.com'),
+          lepic.LogField(name: 'attempt', value: '0'),
+          lepic.LogField(name: 'retry_in_ms', value: '2000'),
+          lepic.LogField(name: 'relay', value: 'epicbox.epiccash.com'),
+          lepic.LogField(name: 'amount', value: '2500000000'),
+        ],
+      ),
+    );
+    logLepicEntry(
+      const lepic.LogEntry(
+        level: lepic.LogLevel.info,
+        target: 'lepic_foreign::server',
+        message: 'foreign api listening',
+        spans: [],
+        fields: [
+          lepic.LogField(name: 'port', value: '3415'),
+          lepic.LogField(name: 'exposure', value: 'local'),
+        ],
+      ),
+    );
+    final written = sink.file.readAsStringSync();
+    expect(
+      written,
+      contains(
+        'epicbox disconnected, retrying in epicbox_listen wallet=default transport=epicbox '
+        'relay=epicbox.epiccash.com attempt=0 retry_in_ms=2000 amount=[redacted]\n',
+      ),
+    );
+    expect(written, contains('foreign api listening port=3415 exposure=local\n'));
+    expect(written, isNot(contains('2500000000')));
+    sink.close();
+  });
+
   test('a LEPIC entry is redacted at the sink: slate, phrase and PIN', () async {
     final sink = open();
     AppLog.use(sink);

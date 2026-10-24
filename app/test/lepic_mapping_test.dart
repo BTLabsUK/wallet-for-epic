@@ -220,7 +220,7 @@ void main() {
     });
   });
 
-  test('an undelivered epicbox send is offered again, but not while it is being sent', () {
+  test('an undelivered epicbox, http or tor send is offered again, but not while it is being sent', () {
     lepic.TransactionDetails send({
       String transport = 'epicbox',
       bool undelivered = true,
@@ -245,8 +245,12 @@ void main() {
     // The first attempt of a send still running is undelivered for LEPIC too.
     expect(lepicTxEntry(send(), sending: true).undelivered, isFalse);
     expect(lepicTxEntry(send(undelivered: false)).undelivered, isFalse);
-    // Only Epicbox has a resend here; a Tor or HTTP send has its own.
-    expect(lepicTxEntry(send(transport: 'http')).undelivered, isFalse);
+    // A Direct send that failed is not delivered either (linux-13, windows-07).
+    expect(lepicTxEntry(send(transport: 'http')).undelivered, isTrue);
+    expect(lepicTxEntry(send(transport: 'tor')).undelivered, isTrue);
+    expect(lepicTxEntry(send(transport: 'http'), sending: true).undelivered, isFalse);
+    // A file send has no delivery to redo.
+    expect(lepicTxEntry(send(transport: 'file')).undelivered, isFalse);
     expect(lepicTxEntry(send(status: lepic.TxStatus.cancelled)).undelivered, isFalse);
   });
 

@@ -363,8 +363,8 @@ class DeskController extends Notifier<DeskState> {
     return result;
   }
 
-  Future<void> resendEpicbox(int id) async {
-    await api.resendEpicbox(id);
+  Future<void> resendTx(int id) async {
+    await api.resendTx(id);
     final txs = await api.transactions();
     state = state.copyWith(txs: txs);
   }

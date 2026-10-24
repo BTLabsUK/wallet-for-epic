@@ -466,6 +466,7 @@
   "updateDownloadIncomplete": "Pobrany plik jest niekompletny.",
   "updateDownloadDamaged": "Pobrany plik jest uszkodzony (niezgodna suma kontrolna).",
   "updateDownloadInterrupted": "Pobieranie zostało przerwane.",
+  "updateNoTorDownload": "Aktualizacji nie można jeszcze pobrać przez Tor. Wyłącz Tor, aby ją pobrać, albo pobierz ją ze strony pobierania.",
   "updateServerUnreachable": "Nie można połączyć się z serwerem aktualizacji.",
   "updateServerHttpStatus": "Serwer aktualizacji zwrócił HTTP {status}.",
   "updateServerTimeout": "Serwer aktualizacji nie odpowiedział na czas.",

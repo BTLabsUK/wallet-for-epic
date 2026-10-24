@@ -32,6 +32,9 @@ class SocksProxy {
 class SocksError implements IOException {
   const SocksError(this.message, {this.reply});
 
+  /// A BT Labs host without an onion, which tor does not reach (by design).
+  static const noBtLabsOnion = 'no onion for this BT Labs server';
+
   final String message;
 
   /// The SOCKS reply code, when tor answered with one.
@@ -327,7 +330,7 @@ Future<ConnectionTask<Socket>> Function(Uri, String?, int?) socksConnectionFacto
       final h = url.host.toLowerCase();
       if (h == 'btlabs.uk' || h.endsWith('.btlabs.uk')) {
         // Tor exits cannot reach BT Labs' own address: its servers only at their onions.
-        throw const SocksError('no onion for this BT Labs server');
+        throw const SocksError(SocksError.noBtLabsOnion);
       }
       if (!secure && !allowPlainExit) {
         throw const SocksError('plain http through a Tor exit is not allowed');

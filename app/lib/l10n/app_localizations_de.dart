@@ -2061,6 +2061,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateDownloadInterrupted => 'Der Download wurde unterbrochen.';
 
   @override
+  String get updateNoTorDownload =>
+      'Das Update lässt sich noch nicht über Tor herunterladen. Schalten Sie Tor aus, um es herunterzuladen, oder laden Sie es von der Download-Seite.';
+
+  @override
   String get updateServerUnreachable =>
       'Der Update-Server ist nicht erreichbar.';
 

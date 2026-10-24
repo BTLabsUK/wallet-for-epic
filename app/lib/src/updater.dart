@@ -27,6 +27,7 @@ import 'btlabs_public.dart';
 import 'net/tor_net.dart';
 import 'l10n.dart';
 import 'net/http.dart';
+import 'net/socks.dart' show SocksError;
 import 'providers.dart' show secretStoreProvider;
 
 /// Where releases publish the signed `update.json`. Override with
@@ -511,6 +512,12 @@ class UpdateNotifier extends Notifier<UpdateState> {
     // A known update stays offered (the Settings row and dot) while the check runs.
     final known = state.update;
     state = UpdateState(UpdatePhase.checking, update: known);
+    // An install that started meanwhile (the resume's download beside this check) owns the
+    // state from then on: its failure stays shown.
+    void settle(UpdateState next) {
+      if (state.phase == UpdatePhase.checking) state = next;
+    }
+
     final url = ref.read(updateManifestUrlProvider);
     try {
       await _readState();
@@ -518,14 +525,16 @@ class UpdateNotifier extends Notifier<UpdateState> {
       // No manifest published at the feed, or one that does not verify: nothing is known
       // about a newer version, which is no error. A known update stays offered.
       void noInformation() {
-        state = known != null
-            ? UpdateState(UpdatePhase.available, update: known)
-            : quiet
-            ? const UpdateState(UpdatePhase.idle)
-            : UpdateState(
-                UpdatePhase.upToDate,
-                text: (l) => l.updateNoInformation,
-              );
+        settle(
+          known != null
+              ? UpdateState(UpdatePhase.available, update: known)
+              : quiet
+              ? const UpdateState(UpdatePhase.idle)
+              : UpdateState(
+                  UpdatePhase.upToDate,
+                  text: (l) => l.updateNoInformation,
+                ),
+        );
       }
 
       // A plain GET: no User-Agent, no cookies, nothing about this wallet.
@@ -583,13 +592,16 @@ class UpdateNotifier extends Notifier<UpdateState> {
                 size: picked.apk.size,
               ),
             );
-      state = update == null
-          ? UpdateState(quiet ? UpdatePhase.idle : UpdatePhase.upToDate)
-          : UpdateState(UpdatePhase.available, update: update);
+      settle(
+        update == null
+            ? UpdateState(quiet ? UpdatePhase.idle : UpdatePhase.upToDate)
+            : UpdateState(UpdatePhase.available, update: update),
+      );
     } catch (error) {
       logInfo('update', 'check failed: $error');
       if (!ref.mounted) return;
-      state = quiet
+      settle(
+        quiet
           ? known == null
                 ? const UpdateState(UpdatePhase.idle)
                 : UpdateState(UpdatePhase.available, update: known)
@@ -598,7 +610,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
               UpdatePhase.failed,
               update: known,
               text: _describe(error),
-            );
+            ),
+      );
     }
   }
 
@@ -731,6 +744,9 @@ class UpdateNotifier extends Notifier<UpdateState> {
   static String Function(AppLocalizations l) _describe(Object error) =>
       switch (error) {
         UpdateError(:final text) => text,
+        // The APK's host has no onion, so it cannot be fetched over Tor (android-16).
+        SocksError(:final message) when message == SocksError.noBtLabsOnion =>
+          (l) => l.updateNoTorDownload,
         SocketException() || NetError() => (l) => l.updateServerUnreachable,
         TimeoutException() => (l) => l.updateServerTimeout,
         HttpException() => (l) => l.updateConnectionFailed,

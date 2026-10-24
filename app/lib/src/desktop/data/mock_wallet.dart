@@ -450,7 +450,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> repostTx(int id) => _wait();
 
   @override
-  Future<void> resendEpicbox(int id) => _wait();
+  Future<void> resendTx(int id) => _wait();
 
   Future<SendEstimate> _selfEstimate(int outputs) async {
     await _wait(0.4);

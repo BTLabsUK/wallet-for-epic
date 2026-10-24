@@ -466,6 +466,7 @@
   "updateDownloadIncomplete": "Der Download ist unvollständig.",
   "updateDownloadDamaged": "Der Download ist beschädigt (Prüfsumme stimmt nicht überein).",
   "updateDownloadInterrupted": "Der Download wurde unterbrochen.",
+  "updateNoTorDownload": "Das Update lässt sich noch nicht über Tor herunterladen. Schalten Sie Tor aus, um es herunterzuladen, oder laden Sie es von der Download-Seite.",
   "updateServerUnreachable": "Der Update-Server ist nicht erreichbar.",
   "updateServerHttpStatus": "Der Update-Server hat mit HTTP {status} geantwortet.",
   "updateServerTimeout": "Der Update-Server hat nicht rechtzeitig geantwortet.",

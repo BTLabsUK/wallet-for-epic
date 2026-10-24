@@ -1978,6 +1978,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get updateDownloadInterrupted => 'การดาวน์โหลดถูกขัดจังหวะ';
 
   @override
+  String get updateNoTorDownload =>
+      'ยังดาวน์โหลดอัปเดตผ่าน Tor ไม่ได้ ปิด Tor เพื่อดาวน์โหลด หรือรับจากหน้าดาวน์โหลด';
+
+  @override
   String get updateServerUnreachable => 'เชื่อมต่อเซิร์ฟเวอร์อัปเดตไม่ได้';
 
   @override

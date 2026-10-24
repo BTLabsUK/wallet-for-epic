@@ -466,6 +466,7 @@
   "updateDownloadIncomplete": "ดาวน์โหลดไม่ครบ",
   "updateDownloadDamaged": "ไฟล์ที่ดาวน์โหลดเสียหาย (checksum ไม่ตรง)",
   "updateDownloadInterrupted": "การดาวน์โหลดถูกขัดจังหวะ",
+  "updateNoTorDownload": "ยังดาวน์โหลดอัปเดตผ่าน Tor ไม่ได้ ปิด Tor เพื่อดาวน์โหลด หรือรับจากหน้าดาวน์โหลด",
   "updateServerUnreachable": "เชื่อมต่อเซิร์ฟเวอร์อัปเดตไม่ได้",
   "updateServerHttpStatus": "เซิร์ฟเวอร์อัปเดตตอบกลับ HTTP {status}",
   "updateServerTimeout": "เซิร์ฟเวอร์อัปเดตไม่ตอบกลับในเวลาที่กำหนด",

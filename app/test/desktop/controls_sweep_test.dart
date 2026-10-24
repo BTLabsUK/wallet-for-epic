@@ -187,7 +187,7 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<void> repostTx(int id) => _r('repostTx', () => _m.repostTx(id));
   @override
-  Future<void> resendEpicbox(int id) => _r('resendEpicbox', () => _m.resendEpicbox(id));
+  Future<void> resendTx(int id) => _r('resendTx', () => _m.resendTx(id));
 
   @override
   Future<SendEstimate> estimateSplit(int outputs) => _r('estimateSplit', () => _m.estimateSplit(outputs));

@@ -466,6 +466,7 @@
   "updateDownloadIncomplete": "下载不完整。",
   "updateDownloadDamaged": "下载的文件已损坏（校验和不匹配）。",
   "updateDownloadInterrupted": "下载已中断。",
+  "updateNoTorDownload": "暂时无法通过 Tor 下载此更新。请关闭 Tor 后下载，或从下载页面获取。",
   "updateServerUnreachable": "无法连接更新服务器。",
   "updateServerHttpStatus": "更新服务器返回 HTTP {status}。",
   "updateServerTimeout": "更新服务器响应超时。",
