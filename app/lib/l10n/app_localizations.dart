@@ -1960,12 +1960,6 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get homeSettingsTooltip;
 
-  /// Tooltip and screen-reader label of the app-bar Settings button while it carries a small dot because a newer app version is available.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings: an update is available'**
-  String get homeSettingsUpdateTooltip;
-
   /// Label of the left tab of the bottom tab bar, where payments are sent. Short.
   ///
   /// In en, this message translates to:
@@ -3160,13 +3154,7 @@ abstract class AppLocalizations {
   /// **'Checking for updates failed.'**
   String get updateCheckFailed;
 
-  /// Title of the node and Epicbox server screen. Never names a network: a release runs on one.
-  ///
-  /// In en, this message translates to:
-  /// **'Node and Epicbox'**
-  String get setupTitle;
-
-  /// Tooltip of the app bar button on first run and unlock that opens the node and Epicbox screen.
+  /// Tooltip of the app bar button on first run and unlock that opens the menu with Node and Epicbox.
   ///
   /// In en, this message translates to:
   /// **'Node and Epicbox'**
@@ -3184,71 +3172,17 @@ abstract class AppLocalizations {
   /// **'Node URL'**
   String get setupNodeUrlLabel;
 
-  /// Error under the node URL field. Keep the example URL as it is.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a full URL such as https://node.example.com'**
-  String get setupNodeUrlInvalid;
-
-  /// Button that checks the node URL works.
-  ///
-  /// In en, this message translates to:
-  /// **'Test connection'**
-  String get setupTestConnection;
-
-  /// Result of a successful connection test. The node is the Epic Cash server the wallet reads the chain from.
-  ///
-  /// In en, this message translates to:
-  /// **'Connected. The node is at block {height}, running version {version}.'**
-  String setupTestConnected(String height, String version);
-
-  /// Result of a failed connection test, followed by the reason as one or more sentences.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not connect. {error}'**
-  String setupTestFailed(String error);
-
-  /// Screen-reader label of the check icon in front of a successful connection test.
-  ///
-  /// In en, this message translates to:
-  /// **'Connected'**
-  String get setupConnectedIconLabel;
-
-  /// Heading above the list of epicbox servers. Epicbox is the relay service that carries payments, a proper name.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox server'**
-  String get setupRelayHeading;
-
-  /// Under the epicbox server heading: the wallet's address ends with the server's host.
-  ///
-  /// In en, this message translates to:
-  /// **'Your address includes this server.'**
-  String get setupRelayHint;
-
   /// Field label for typing an epicbox server that is not in the list. Keep host:port as it is.
   ///
   /// In en, this message translates to:
   /// **'Other epicbox server (host or host:port)'**
   String get setupCustomRelayLabel;
 
-  /// Tooltip of the check button that selects the typed epicbox server.
-  ///
-  /// In en, this message translates to:
-  /// **'Use this server'**
-  String get setupCustomRelayUse;
-
   /// Error under the epicbox server field. Keep the example host as it is.
   ///
   /// In en, this message translates to:
   /// **'Enter a host such as epicbox.example.com'**
   String get setupCustomRelayInvalid;
-
-  /// Warning shown once a different epicbox server is selected.
-  ///
-  /// In en, this message translates to:
-  /// **'Changing the epicbox server changes your address. Give senders the new address. Payments sent to the old one wait on the old server until you switch back.'**
-  String get setupRelayChangeWarning;
 
   /// No description provided for @setupWalletPerNetwork.
   ///
@@ -4264,18 +4198,6 @@ abstract class AppLocalizations {
   /// **'Servers'**
   String get settingsSectionNetwork;
 
-  /// Settings row that opens the node and Epicbox screen; its subtitle is the node host.
-  ///
-  /// In en, this message translates to:
-  /// **'Node and Epicbox'**
-  String get settingsNetworkAndNode;
-
-  /// Under the Network and node row: the network's name and the node's host name.
-  ///
-  /// In en, this message translates to:
-  /// **'{network} · {node}'**
-  String settingsNetworkSubtitle(String network, String node);
-
   /// Section heading in settings.
   ///
   /// In en, this message translates to:
@@ -4804,24 +4726,6 @@ abstract class AppLocalizations {
   /// **'Network'**
   String get settingsAboutNetwork;
 
-  /// Settings row showing the epicbox server's host. epicbox is the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox server'**
-  String get settingsEpicboxServer;
-
-  /// First row of Settings while a newer app version is available; Install is beside it.
-  ///
-  /// In en, this message translates to:
-  /// **'Update to {version}'**
-  String settingsUpdateTo(String version);
-
-  /// Button on the Settings row that offers a newer app version; downloads and installs it.
-  ///
-  /// In en, this message translates to:
-  /// **'Install'**
-  String get settingsUpdateInstall;
-
   /// Settings row.
   ///
   /// In en, this message translates to:
@@ -5152,17 +5056,11 @@ abstract class AppLocalizations {
   /// **'Not backed up yet'**
   String get settingsStateNotBackedUp;
 
-  /// State line under the Security group: the wallet unlocks with the PIN only.
+  /// Settings hub, Security row's second line: one of the things on the page (the recovery phrase backup).
   ///
   /// In en, this message translates to:
-  /// **'PIN'**
-  String get settingsStatePin;
-
-  /// State line under the Security group: the wallet unlocks with the PIN or biometrics.
-  ///
-  /// In en, this message translates to:
-  /// **'PIN and biometrics'**
-  String get settingsStatePinBiometrics;
+  /// **'Backup'**
+  String get settingsHubBackup;
 
   /// Two state words on one line under a Settings group, with a middle dot between them.
   ///
@@ -6956,12 +6854,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get serverMenuDelete;
-
-  /// Tor's part of the state line under Privacy & network on the Settings hub, after the node and Epicbox hosts: the word is lower case.
-  ///
-  /// In en, this message translates to:
-  /// **'Tor {state}'**
-  String settingsStateTor(String state);
 
   /// Screen reader words for the bell icon on the Epicbox relay that can send push notifications.
   ///
@@ -20977,12 +20869,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Updates'**
   String get deskSetAboutUpdates;
-
-  /// Button: open the download page of the newer version.
-  ///
-  /// In en, this message translates to:
-  /// **'Get {version}'**
-  String deskSetAboutGet(String version);
 
   /// Button: check for updates now.
   ///

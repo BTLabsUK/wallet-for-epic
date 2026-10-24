@@ -17,8 +17,8 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   // The words that differ between a computer and a phone.
   final device = phone ? 'diesem Smartphone' : 'diesem Computer';
   final secret = phone ? 'Ihre PIN' : 'das Wallet-Passwort';
-  final nodePlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Node und Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[Einstellungen › Node|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Node und Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[Einstellungen › Empfangen › Epicbox-Empfang|Settings › Receiving › Epicbox receiving]]';
+  final nodePlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Node|Settings › Privacy & network › Node]]' : '[[Einstellungen › Node|Settings › Node]]';
+  final epicboxPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Einstellungen › Empfangen › Epicbox-Empfang|Settings › Receiving › Epicbox receiving]]';
   final torPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Tor-Netzwerk|Settings › Privacy & network › Tor Network]]' : '[[Einstellungen › Datenschutz › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[Aktivität|Activity]] (die Zahlung öffnen, dann „Zahlung stornieren“)'

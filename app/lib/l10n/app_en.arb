@@ -1515,10 +1515,6 @@
   "@homeSettingsTooltip": {
     "description": "Tooltip of the app-bar button that opens settings."
   },
-  "homeSettingsUpdateTooltip": "Settings: an update is available",
-  "@homeSettingsUpdateTooltip": {
-    "description": "Tooltip and screen-reader label of the app-bar Settings button while it carries a small dot because a newer app version is available."
-  },
   "homeSendButton": "Send",
   "@homeSendButton": {
     "description": "Label of the left tab of the bottom tab bar, where payments are sent. Short."
@@ -2537,13 +2533,9 @@
   "@updateCheckFailed": {
     "description": "An update check or install failed for a reason the app does not know."
   },
-  "setupTitle": "Node and Epicbox",
-  "@setupTitle": {
-    "description": "Title of the node and Epicbox server screen. Never names a network: a release runs on one."
-  },
   "setupNetworkSettingsTooltip": "Node and Epicbox",
   "@setupNetworkSettingsTooltip": {
-    "description": "Tooltip of the app bar button on first run and unlock that opens the node and Epicbox screen."
+    "description": "Tooltip of the app bar button on first run and unlock that opens the menu with Node and Epicbox."
   },
   "setupNetworkHeading": "Network",
   "@setupNetworkHeading": {
@@ -2553,65 +2545,13 @@
   "@setupNodeUrlLabel": {
     "description": "Field label: the web address of the node, the Epic Cash server the wallet reads the chain from."
   },
-  "setupNodeUrlInvalid": "Enter a full URL such as https://node.example.com",
-  "@setupNodeUrlInvalid": {
-    "description": "Error under the node URL field. Keep the example URL as it is."
-  },
-  "setupTestConnection": "Test connection",
-  "@setupTestConnection": {
-    "description": "Button that checks the node URL works."
-  },
-  "setupTestConnected": "Connected. The node is at block {height}, running version {version}.",
-  "@setupTestConnected": {
-    "description": "Result of a successful connection test. The node is the Epic Cash server the wallet reads the chain from.",
-    "placeholders": {
-      "height": {
-        "type": "String",
-        "example": "3,712,345"
-      },
-      "version": {
-        "type": "String",
-        "example": "3.6.0"
-      }
-    }
-  },
-  "setupTestFailed": "Could not connect. {error}",
-  "@setupTestFailed": {
-    "description": "Result of a failed connection test, followed by the reason as one or more sentences.",
-    "placeholders": {
-      "error": {
-        "type": "String",
-        "example": "Cannot reach the node. Check the node URL and your connection."
-      }
-    }
-  },
-  "setupConnectedIconLabel": "Connected",
-  "@setupConnectedIconLabel": {
-    "description": "Screen-reader label of the check icon in front of a successful connection test."
-  },
-  "setupRelayHeading": "Epicbox server",
-  "@setupRelayHeading": {
-    "description": "Heading above the list of epicbox servers. Epicbox is the relay service that carries payments, a proper name."
-  },
-  "setupRelayHint": "Your address includes this server.",
-  "@setupRelayHint": {
-    "description": "Under the epicbox server heading: the wallet's address ends with the server's host."
-  },
   "setupCustomRelayLabel": "Other epicbox server (host or host:port)",
   "@setupCustomRelayLabel": {
     "description": "Field label for typing an epicbox server that is not in the list. Keep host:port as it is."
   },
-  "setupCustomRelayUse": "Use this server",
-  "@setupCustomRelayUse": {
-    "description": "Tooltip of the check button that selects the typed epicbox server."
-  },
   "setupCustomRelayInvalid": "Enter a host such as epicbox.example.com",
   "@setupCustomRelayInvalid": {
     "description": "Error under the epicbox server field. Keep the example host as it is."
-  },
-  "setupRelayChangeWarning": "Changing the epicbox server changes your address. Give senders the new address. Payments sent to the old one wait on the old server until you switch back.",
-  "@setupRelayChangeWarning": {
-    "description": "Warning shown once a different epicbox server is selected."
   },
   "setupWalletPerNetwork": "Each network has its own wallet. A network without one gets a new wallet.",
   "setupRelayHealthyIconLabel": "Healthy",
@@ -3424,24 +3364,6 @@
   "@settingsSectionNetwork": {
     "description": "Settings section header above the Node and Epicbox row."
   },
-  "settingsNetworkAndNode": "Node and Epicbox",
-  "@settingsNetworkAndNode": {
-    "description": "Settings row that opens the node and Epicbox screen; its subtitle is the node host."
-  },
-  "settingsNetworkSubtitle": "{network} · {node}",
-  "@settingsNetworkSubtitle": {
-    "description": "Under the Network and node row: the network's name and the node's host name.",
-    "placeholders": {
-      "network": {
-        "type": "String",
-        "example": "Mainnet"
-      },
-      "node": {
-        "type": "String",
-        "example": "node.btlabs.uk"
-      }
-    }
-  },
   "settingsSectionDisplay": "Display",
   "@settingsSectionDisplay": {
     "description": "Section heading in settings."
@@ -3833,24 +3755,6 @@
   "@settingsAboutNetwork": {
     "description": "Settings row in About showing which network the wallet is on (Mainnet, Floonet, Usernet)."
   },
-  "settingsEpicboxServer": "Epicbox server",
-  "@settingsEpicboxServer": {
-    "description": "Settings row showing the epicbox server's host. epicbox is the relay service that carries payments (a proper name)."
-  },
-  "settingsUpdateTo": "Update to {version}",
-  "@settingsUpdateTo": {
-    "description": "First row of Settings while a newer app version is available; Install is beside it.",
-    "placeholders": {
-      "version": {
-        "type": "String",
-        "example": "1.6.1"
-      }
-    }
-  },
-  "settingsUpdateInstall": "Install",
-  "@settingsUpdateInstall": {
-    "description": "Button on the Settings row that offers a newer app version; downloads and installs it."
-  },
   "settingsCheckUpdates": "Check for updates",
   "@settingsCheckUpdates": {
     "description": "Settings row."
@@ -4087,13 +3991,9 @@
   "@settingsStateNotBackedUp": {
     "description": "State line under the Back up recovery phrase row on the Security page while the phrase has not been backed up."
   },
-  "settingsStatePin": "PIN",
-  "@settingsStatePin": {
-    "description": "State line under the Security group: the wallet unlocks with the PIN only."
-  },
-  "settingsStatePinBiometrics": "PIN and biometrics",
-  "@settingsStatePinBiometrics": {
-    "description": "State line under the Security group: the wallet unlocks with the PIN or biometrics."
+  "settingsHubBackup": "Backup",
+  "@settingsHubBackup": {
+    "description": "Settings hub, Security row's second line: one of the things on the page (the recovery phrase backup)."
   },
   "settingsStateJoin": "{a} · {b}",
   "@settingsStateJoin": {
@@ -5626,16 +5526,6 @@
   "serverMenuDelete": "Delete",
   "@serverMenuDelete": {
     "description": "Tooltip of the bin on a typed-in server in the My nodes or My servers list that is not in use, and the one item of the popup it opens: the server is deleted."
-  },
-  "settingsStateTor": "Tor {state}",
-  "@settingsStateTor": {
-    "description": "Tor's part of the state line under Privacy & network on the Settings hub, after the node and Epicbox hosts: the word is lower case.",
-    "placeholders": {
-      "state": {
-        "type": "String",
-        "example": "off"
-      }
-    }
   },
   "serverSupportsNotifications": "Supports notifications",
   "@serverSupportsNotifications": {
@@ -17388,16 +17278,6 @@
   "deskSetAboutUpdates": "Updates",
   "@deskSetAboutUpdates": {
     "description": "Settings › About: group head of the update check."
-  },
-  "deskSetAboutGet": "Get {version}",
-  "@deskSetAboutGet": {
-    "description": "Button: open the download page of the newer version.",
-    "placeholders": {
-      "version": {
-        "type": "String",
-        "example": "26.11.0"
-      }
-    }
   },
   "deskSetAboutCheckNow": "Check now",
   "@deskSetAboutCheckNow": {

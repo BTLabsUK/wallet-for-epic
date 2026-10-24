@@ -17,7 +17,6 @@ import 'demo_screens.dart' show endDemo;
 import 'first_run_screen.dart' show NetworkSettingsButton;
 import 'launch_screen.dart';
 import 'pin.dart';
-import 'setup_screen.dart';
 import 'theme/brand.dart';
 
 /// Opens the wallet with the PIN or biometrics.
@@ -227,15 +226,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         actions: [
           // The web demo is on floonet for good.
           if (!ref.watch(demoModeProvider))
-            NetworkSettingsButton(
-              onPressed: _busy
-                  ? null
-                  : () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const SetupScreen(locked: true),
-                      ),
-                    ),
-            ),
+            NetworkSettingsButton(enabled: !_busy),
         ],
       ),
       body: CenteredBody(

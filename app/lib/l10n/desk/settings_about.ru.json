@@ -14,7 +14,6 @@
   "deskSetAboutAvailable": "Доступно обновление: {version}",
   "deskSetAboutCouldNotCheck": "Не удалось проверить",
   "deskSetAboutUpdates": "Обновления",
-  "deskSetAboutGet": "Скачать {version}",
   "deskSetAboutCheckNow": "Проверить сейчас",
   "deskSetAboutAgoNow": "только что",
   "deskSetAboutAgoMin": "{count} мин назад",

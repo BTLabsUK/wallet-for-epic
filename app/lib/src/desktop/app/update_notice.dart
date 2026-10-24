@@ -2,8 +2,8 @@
 /// Desktop is out (`data/desk_update.dart`): Update available → Downloading 42 % → Restart to
 /// update. A step that fails says so and offers the next way: try the download again, or the
 /// download page. An update that did not finish (Windows) says "Update didn't finish. Try
-/// again." and runs the steps again. Nothing shows otherwise. Settings › About › Updates does
-/// the same steps.
+/// again." and runs the steps again. Nothing shows otherwise. This is the one place in the app
+/// that offers an update: Settings › About › Updates only checks and says what it found.
 library;
 
 import 'dart:async';
@@ -55,7 +55,7 @@ import '../widgets/kit.dart';
   };
 }
 
-/// The notice's click, and About's main button: download, restart, try again, or open the page.
+/// The notice's click: download, restart, try again, or open the page.
 Future<void> deskUpdateAct(BuildContext context, WidgetRef ref) async {
   final u = ref.read(deskUpdateProvider);
   switch (u.phase) {

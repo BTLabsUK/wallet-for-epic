@@ -1406,9 +1406,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeSettingsTooltip => 'Settings';
 
   @override
-  String get homeSettingsUpdateTooltip => 'Settings: an update is available';
-
-  @override
   String get homeSendButton => 'Send';
 
   @override
@@ -2178,9 +2175,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateCheckFailed => 'Checking for updates failed.';
 
   @override
-  String get setupTitle => 'Node and Epicbox';
-
-  @override
   String get setupNetworkSettingsTooltip => 'Node and Epicbox';
 
   @override
@@ -2190,45 +2184,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setupNodeUrlLabel => 'Node URL';
 
   @override
-  String get setupNodeUrlInvalid =>
-      'Enter a full URL such as https://node.example.com';
-
-  @override
-  String get setupTestConnection => 'Test connection';
-
-  @override
-  String setupTestConnected(String height, String version) {
-    return 'Connected. The node is at block $height, running version $version.';
-  }
-
-  @override
-  String setupTestFailed(String error) {
-    return 'Could not connect. $error';
-  }
-
-  @override
-  String get setupConnectedIconLabel => 'Connected';
-
-  @override
-  String get setupRelayHeading => 'Epicbox server';
-
-  @override
-  String get setupRelayHint => 'Your address includes this server.';
-
-  @override
   String get setupCustomRelayLabel =>
       'Other epicbox server (host or host:port)';
 
   @override
-  String get setupCustomRelayUse => 'Use this server';
-
-  @override
   String get setupCustomRelayInvalid =>
       'Enter a host such as epicbox.example.com';
-
-  @override
-  String get setupRelayChangeWarning =>
-      'Changing the epicbox server changes your address. Give senders the new address. Payments sent to the old one wait on the old server until you switch back.';
 
   @override
   String get setupWalletPerNetwork =>
@@ -2890,14 +2851,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionNetwork => 'Servers';
 
   @override
-  String get settingsNetworkAndNode => 'Node and Epicbox';
-
-  @override
-  String settingsNetworkSubtitle(String network, String node) {
-    return '$network · $node';
-  }
-
-  @override
   String get settingsSectionDisplay => 'Display';
 
   @override
@@ -3194,17 +3147,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAboutNetwork => 'Network';
 
   @override
-  String get settingsEpicboxServer => 'Epicbox server';
-
-  @override
-  String settingsUpdateTo(String version) {
-    return 'Update to $version';
-  }
-
-  @override
-  String get settingsUpdateInstall => 'Install';
-
-  @override
   String get settingsCheckUpdates => 'Check for updates';
 
   @override
@@ -3394,10 +3336,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsStateNotBackedUp => 'Not backed up yet';
 
   @override
-  String get settingsStatePin => 'PIN';
-
-  @override
-  String get settingsStatePinBiometrics => 'PIN and biometrics';
+  String get settingsHubBackup => 'Backup';
 
   @override
   String settingsStateJoin(String a, String b) {
@@ -4495,11 +4434,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverMenuDelete => 'Delete';
-
-  @override
-  String settingsStateTor(String state) {
-    return 'Tor $state';
-  }
 
   @override
   String get serverSupportsNotifications => 'Supports notifications';
@@ -13238,11 +13172,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAboutUpdates => 'Updates';
-
-  @override
-  String deskSetAboutGet(String version) {
-    return 'Get $version';
-  }
 
   @override
   String get deskSetAboutCheckNow => 'Check now';

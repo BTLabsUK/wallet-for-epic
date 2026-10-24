@@ -12,9 +12,9 @@ import '../wallet_service.dart' show Chain;
 import 'centered_body.dart';
 import 'common.dart';
 import 'demo_pin.dart';
+import 'network_menu.dart';
 import 'pin.dart';
 import 'restore_screen.dart';
-import 'setup_screen.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
@@ -120,9 +120,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         // to reach floonet or another node before it has a wallet, so this is not Advanced.
         actions: [
           if (!demo && !pinless)
-            NetworkSettingsButton(
-              onPressed: waiting ? null : () => _leave(const SetupScreen()),
-            ),
+            NetworkSettingsButton(enabled: !waiting),
         ],
       ),
       body: CenteredBody(
@@ -161,15 +159,17 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   }
 }
 
-/// The app bar's way to network settings before a wallet is open, on first run and unlock:
-/// the icon and its label in the accent colour, so it reads as a button rather than a
-/// decoration. When the labelled button, measured at the current text scale and in the
-/// current language, would not fit beside a back arrow, it gives way to the icon and its
-/// tooltip, so a long label never overflows the bar.
+/// The app bar's way to the servers before a wallet is open, on first run and unlock: it opens
+/// the small menu ([showNetworkMenu]) with Node and Epicbox. The icon and its label in the
+/// accent colour, so it reads as a button rather than a decoration. When the labelled button,
+/// measured at the current text scale and in the current language, would not fit beside a
+/// back arrow, it gives way to the icon and its tooltip, so a long label never overflows the
+/// bar.
 class NetworkSettingsButton extends StatelessWidget {
-  const NetworkSettingsButton({super.key, required this.onPressed});
+  const NetworkSettingsButton({super.key, this.enabled = true});
 
-  final VoidCallback? onPressed;
+  /// False while the screen is busy (the button is disabled).
+  final bool enabled;
 
   /// The icon in a [TextButton.icon]; it does not grow with the text.
   static const double _iconSize = 18;
@@ -213,6 +213,7 @@ class NetworkSettingsButton extends StatelessWidget {
     final label = context.l10n.setupNetworkSettingsTooltip;
     final colour = context.tokens.accentText;
     const icon = Icon(Icons.settings_ethernet);
+    final onPressed = enabled ? () => showNetworkMenu(context) : null;
     if (!_labelFits(context, label)) {
       return IconButton(
         tooltip: label,

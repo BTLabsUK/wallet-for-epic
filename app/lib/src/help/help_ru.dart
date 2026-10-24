@@ -17,8 +17,8 @@ List<HelpTopic> helpTopicsRu(int confirmations, {required HelpPlatform platform,
   // The words that differ between a computer and a phone.
   final device = phone ? 'этом телефоне' : 'этом компьютере';
   final secret = phone ? 'PIN-код' : 'пароль кошелька';
-  final nodePlace = phone ? '[[Настройки › Приватность и сеть › Узел и Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[Настройки › Узел|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Настройки › Приватность и сеть › Узел и Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[Настройки › Приём › Приём через Epicbox|Settings › Receiving › Epicbox receiving]]';
+  final nodePlace = phone ? '[[Настройки › Приватность и сеть › Узел|Settings › Privacy & network › Node]]' : '[[Настройки › Узел|Settings › Node]]';
+  final epicboxPlace = phone ? '[[Настройки › Приватность и сеть › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Настройки › Приём › Приём через Epicbox|Settings › Receiving › Epicbox receiving]]';
   final torPlace = phone ? '[[Настройки › Приватность и сеть › Сеть Tor|Settings › Privacy & network › Tor Network]]' : '[[Настройки › Приватность › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? 'разделе [[Активность|Activity]] (откройте платёж и нажмите «Отменить платёж»)'
