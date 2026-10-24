@@ -477,7 +477,7 @@
   "updateNoInformation": "Keine Update-Informationen verfügbar.",
   "updateAvailable": "Version {version} ist verfügbar.",
   "updateDownloading": "Version {version} wird heruntergeladen… {percent} %",
-  "updateInstalling": "Version {version} wird installiert…",
+  "updateInstalling": "Epic Cash Mobile schließt sich, um Version {version} zu installieren. Öffnen Sie es danach wieder.",
   "updateFailed": "Das Update ist fehlgeschlagen.",
   "updateInstallButton": "Aktualisieren",
   "updateTryAgain": "Wiederholen",

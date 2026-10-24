@@ -2208,7 +2208,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return 'Instalowanie wersji $version…';
+    return 'Epic Cash Mobile zamknie się, aby zainstalować wersję $version. Potem otwórz go ponownie.';
   }
 
   @override

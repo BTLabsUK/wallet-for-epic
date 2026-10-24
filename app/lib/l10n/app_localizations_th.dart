@@ -2023,7 +2023,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return 'กำลังติดตั้งเวอร์ชัน $version…';
+    return 'Epic Cash Mobile จะปิดเพื่อติดตั้งเวอร์ชัน $version เมื่อเสร็จแล้วให้เปิดอีกครั้ง';
   }
 
   @override

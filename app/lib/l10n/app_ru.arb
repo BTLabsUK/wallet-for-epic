@@ -477,7 +477,7 @@
   "updateNoInformation": "Нет сведений об обновлениях.",
   "updateAvailable": "Доступна версия {version}.",
   "updateDownloading": "Загрузка версии {version}… {percent}%",
-  "updateInstalling": "Установка версии {version}…",
+  "updateInstalling": "Epic Cash Mobile закроется, чтобы установить версию {version}. Затем откройте его снова.",
   "updateFailed": "Не удалось обновить приложение.",
   "updateInstallButton": "Обновить",
   "updateTryAgain": "Повторить",
