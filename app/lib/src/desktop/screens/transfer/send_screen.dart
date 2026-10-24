@@ -953,7 +953,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
                 (st.settings.payments.direct || _segmentOf(_method) == TxMethod.http))
               ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http, enabled: netIdle, tooltip: netWhy),
-            if (st.settings.payments.file || file || _result is SendFileReady || _epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)
+            if (st.settings.payments.file || file || _epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)
               ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file, enabled: fileBlock == NetBlock.none, tooltip: netBlockReason(l, fileBlock)),
           ],
           value: _segmentOf(_method),

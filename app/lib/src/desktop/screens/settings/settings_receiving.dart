@@ -297,6 +297,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               title: l.deskSetTxStart,
               hint: l.deskSetTxStartHint,
               control: ERowControl(
+                wide: true,
                 child: ESegmented<PayMethod>(
                   stretch: true,
                   segments: [for (final m in offered) ESegment(m, _startName(l, m))],

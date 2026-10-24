@@ -267,8 +267,8 @@ void main() {
       expect(_payments.direct, isFalse, reason: 'nothing was switched on');
     });
 
-    testWidgets('a file send in progress keeps File with the switch off', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(step: SendStep.fileReady, amount: '5'), payments: const PaymentPrefs(file: false));
+    testWidgets('a file send being made keeps File with the switch off', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.file), payments: const PaymentPrefs(file: false));
       expect(_segments<TxMethod>(tester), contains('File'));
     });
 
