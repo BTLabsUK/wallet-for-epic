@@ -384,6 +384,20 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(txs: txs);
   }
 
+  /// Names a payment, or removes its name (null or blank); the list shows it at once.
+  Future<void> setTxLabel(String key, String? label) async {
+    await api.setTxLabel(key, label);
+    final txs = await api.transactions();
+    state = state.copyWith(txs: txs);
+  }
+
+  /// Sets the details of a payment a scan found (see [DeskWalletApi.setTxDetails]).
+  Future<void> setTxDetails(String key, {String? counterparty, String? transport, String? note}) async {
+    await api.setTxDetails(key, counterparty: counterparty, transport: transport, note: note);
+    final txs = await api.transactions();
+    state = state.copyWith(txs: txs);
+  }
+
   /// The contact's id as stored.
   Future<String> saveContact(Contact c) async {
     final id = await api.saveContact(c);

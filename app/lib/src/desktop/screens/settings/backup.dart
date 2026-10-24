@@ -17,6 +17,7 @@ import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/history_files.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import 'history_conflicts.dart';
 
 /// The open wallet's backup record; read again when the transactions change.
 final historyBackupProvider = FutureProvider.autoDispose<HistoryBackupState>((ref) {
@@ -377,7 +378,15 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
       final file = await ref.read(deskHistoryFilesProvider).pick(title: context.l10n.deskSetBackupOpenDialogTitle);
       if (file == null || !mounted) return;
       setState(() => _reading = file.name);
-      final result = await ref.read(deskApiProvider).importHistory(file.bytes);
+      final api = ref.read(deskApiProvider);
+      var result = await api.importHistory(file.bytes);
+      if (!result.applied) {
+        // The file disagrees with what was typed here: nothing is written until the user chose.
+        if (!mounted) return;
+        final choices = await showHistoryConflicts(context, result.conflicts);
+        if (choices == null || !mounted) return;
+        result = await api.importHistory(file.bytes, useBackup: choices);
+      }
       if (mounted) setState(() => _done = (name: file.name, result: result));
       ref.invalidate(historyBackupProvider);
       // The archive rows now merge into Activity, and contacts may have come. The import is
@@ -441,6 +450,7 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
               children: [
                 _Done(l.deskSetBackupImported, _mono(context, done.name)),
                 SizedBox(height: Sp.x3),
+                if (r.replaced > 0) ...[Text(l.deskHistImportedReplaced(r.replaced), style: ts.small), SizedBox(height: Sp.x3)],
                 LayoutBuilder(
                   builder: (context, box) {
                     final w = (box.maxWidth - Sp.x3) / 2;

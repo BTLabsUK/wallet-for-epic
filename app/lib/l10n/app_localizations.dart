@@ -21529,6 +21529,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.'**
   String get deskInvPayerStalledText;
+
+  /// Tooltip and screen-reader name of the pen on an Activity row or details title that has no label yet; also the ghost button in the details sub-header.
+  ///
+  /// In en, this message translates to:
+  /// **'Add label'**
+  String get deskTxLabelAdd;
+
+  /// Tooltip and screen-reader name of the pen when the payment has a label; also the ghost button in the details sub-header.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit label'**
+  String get deskTxLabelEdit;
+
+  /// Placeholder of the inline label field while it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add label'**
+  String get deskTxLabelHint;
+
+  /// Screen-reader name of the inline label field, and the name of the field in the Details differ dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get deskTxLabelField;
+
+  /// Tooltip on the label pen: what a label is.
+  ///
+  /// In en, this message translates to:
+  /// **'A name for this payment, for you. Shown in Activity and exports.'**
+  String get deskTxLabelTip;
+
+  /// Toast title after a label was added.
+  ///
+  /// In en, this message translates to:
+  /// **'Label added'**
+  String get deskTxLabelAdded;
+
+  /// Toast title after a label was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Label saved'**
+  String get deskTxLabelSaved;
+
+  /// Toast title after a label was emptied and removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Label removed'**
+  String get deskTxLabelRemoved;
+
+  /// Toast title when saving a label failed; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Label not saved'**
+  String get deskTxLabelNotSaved;
+
+  /// Ghost button in the details sub-header of a payment a scan found: opens the dialog to add what the user knows.
+  ///
+  /// In en, this message translates to:
+  /// **'Add details'**
+  String get deskTxDetailsAdd;
+
+  /// Short ghost button in the details sub-header when details were added already.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get deskTxDetailsEdit;
+
+  /// Title of the dialog where the user adds details to a payment a scan found.
+  ///
+  /// In en, this message translates to:
+  /// **'Add details'**
+  String get deskTxDetailsTitleAdd;
+
+  /// Title of the dialog when details exist already.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get deskTxDetailsTitleEdit;
+
+  /// Description under the details dialog title, and tooltip on the details button: what it is for.
+  ///
+  /// In en, this message translates to:
+  /// **'Only for payments found by a scan. Shown as added by you in Activity, details and exports. Amounts, dates and confirmations do not change.'**
+  String get deskTxDetailsTip;
+
+  /// Field name in the details dialog: who paid.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get deskTxDetailsFrom;
+
+  /// Tooltip on the From field of the details dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Who paid, for your records. Not verified and never used for payment proofs.'**
+  String get deskTxDetailsFromTip;
+
+  /// Placeholder of the From field in the details dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Address of the sender'**
+  String get deskTxDetailsFromHint;
+
+  /// Shown under the From field when the text is not an address the wallet knows.
+  ///
+  /// In en, this message translates to:
+  /// **'Use an Epicbox, http(s) or .onion address.'**
+  String get deskTxDetailsFromBad;
+
+  /// Field name in the details dialog and the details list: the private note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get deskTxDetailsNote;
+
+  /// Toast title after details were added to a payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Details added'**
+  String get deskTxDetailsAdded;
+
+  /// Toast title after details were changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Details saved'**
+  String get deskTxDetailsSaved;
+
+  /// Toast title after every detail was cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Details removed'**
+  String get deskTxDetailsRemoved;
+
+  /// Toast title when saving details failed; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Details not saved'**
+  String get deskTxDetailsNotSaved;
+
+  /// Tag next to a value the user typed (label, sender, method, note).
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you'**
+  String get deskTxManualTag;
+
+  /// Tooltip on the Added by you tag when the time of the change is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you on {date}. Not from the chain.'**
+  String deskTxManualTip(String date);
+
+  /// Tooltip on the Added by you tag when the time of the change is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you. Not from the chain.'**
+  String get deskTxManualTipNoDate;
+
+  /// Tooltip on the Added by you tag of the From value when the time of the change is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you on {date}. Not from the chain, not verified.'**
+  String deskTxManualTipFrom(String date);
+
+  /// Tooltip on the Added by you tag of the From value when the time of the change is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you. Not from the chain, not verified.'**
+  String get deskTxManualTipFromNoDate;
+
+  /// Title of the dialog shown when a history backup disagrees with what the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Details differ'**
+  String get deskHistConflictTitle;
+
+  /// Description of the Details differ dialog; n payments.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{The backup has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  String deskHistConflictLead(int n);
+
+  /// Choice card in the Details differ dialog: the value typed here.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get deskHistConflictMine;
+
+  /// Choice card in the Details differ dialog: the value in the backup file.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get deskHistConflictBackup;
+
+  /// Button in the Details differ dialog: import and keep every value the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep all mine'**
+  String get deskHistConflictKeepAll;
+
+  /// Primary button in the Details differ dialog: import with the choices made.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get deskHistConflictImport;
+
+  /// Placeholder, in italics, where a value in the Details differ dialog is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'empty'**
+  String get deskHistConflictEmpty;
+
+  /// Line on the import result: how many typed details the user replaced with the backup's.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{n} detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}'**
+  String deskHistImportedReplaced(int n);
 }
 
 class _AppLocalizationsDelegate

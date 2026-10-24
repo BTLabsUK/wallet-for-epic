@@ -14009,4 +14009,144 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskInvPayerStalledText =>
       'Nie dostarczono: płatność jeszcze nie dotarła do sieci, a środki pozostają zablokowane. Wyślij ponownie wysyła ją jeszcze raz bez drugiej zgody.';
+
+  @override
+  String get deskTxLabelAdd => 'Dodaj etykietę';
+
+  @override
+  String get deskTxLabelEdit => 'Edytuj etykietę';
+
+  @override
+  String get deskTxLabelHint => 'Dodaj etykietę';
+
+  @override
+  String get deskTxLabelField => 'Etykieta';
+
+  @override
+  String get deskTxLabelTip =>
+      'Nazwa tej płatności, dla Ciebie. Widoczna w Aktywności i w eksportach.';
+
+  @override
+  String get deskTxLabelAdded => 'Dodano etykietę';
+
+  @override
+  String get deskTxLabelSaved => 'Zapisano etykietę';
+
+  @override
+  String get deskTxLabelRemoved => 'Usunięto etykietę';
+
+  @override
+  String get deskTxLabelNotSaved => 'Nie zapisano etykiety';
+
+  @override
+  String get deskTxDetailsAdd => 'Dodaj szczegóły';
+
+  @override
+  String get deskTxDetailsEdit => 'Edytuj';
+
+  @override
+  String get deskTxDetailsTitleAdd => 'Dodaj szczegóły';
+
+  @override
+  String get deskTxDetailsTitleEdit => 'Edytuj szczegóły';
+
+  @override
+  String get deskTxDetailsTip =>
+      'Tylko dla płatności znalezionych przez skanowanie. W Aktywności, szczegółach i eksportach widoczne jako dodane przez Ciebie. Kwoty, daty i potwierdzenia się nie zmieniają.';
+
+  @override
+  String get deskTxDetailsFrom => 'Od';
+
+  @override
+  String get deskTxDetailsFromTip =>
+      'Kto zapłacił, do Twoich zapisów. Niezweryfikowane i nigdy nie używane w potwierdzeniach płatności.';
+
+  @override
+  String get deskTxDetailsFromHint => 'Adres nadawcy';
+
+  @override
+  String get deskTxDetailsFromBad => 'Użyj adresu Epicbox, http(s) lub .onion.';
+
+  @override
+  String get deskTxDetailsNote => 'Notatka';
+
+  @override
+  String get deskTxDetailsAdded => 'Dodano szczegóły';
+
+  @override
+  String get deskTxDetailsSaved => 'Zapisano szczegóły';
+
+  @override
+  String get deskTxDetailsRemoved => 'Usunięto szczegóły';
+
+  @override
+  String get deskTxDetailsNotSaved => 'Nie zapisano szczegółów';
+
+  @override
+  String get deskTxManualTag => 'Dodane przez Ciebie';
+
+  @override
+  String deskTxManualTip(String date) {
+    return 'Dodane przez Ciebie $date. Nie z łańcucha.';
+  }
+
+  @override
+  String get deskTxManualTipNoDate => 'Dodane przez Ciebie. Nie z łańcucha.';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return 'Dodane przez Ciebie $date. Nie z łańcucha, niezweryfikowane.';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate =>
+      'Dodane przez Ciebie. Nie z łańcucha, niezweryfikowane.';
+
+  @override
+  String get deskHistConflictTitle => 'Szczegóły się różnią';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Kopia ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+      many:
+          'Kopia ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+      few:
+          'Kopia ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+      one:
+          'Kopia ma inne szczegóły dla $n płatności, którą opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => 'Moje';
+
+  @override
+  String get deskHistConflictBackup => 'Kopia';
+
+  @override
+  String get deskHistConflictKeepAll => 'Zachowaj wszystkie moje';
+
+  @override
+  String get deskHistConflictImport => 'Importuj';
+
+  @override
+  String get deskHistConflictEmpty => 'puste';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Zastąpiono $n szczegółu, reszta zostaje jak ją wpisano.',
+      many: 'Zastąpiono $n szczegółów, reszta zostaje jak ją wpisano.',
+      few: 'Zastąpiono $n szczegóły, reszta zostaje jak ją wpisano.',
+      one: 'Zastąpiono $n szczegół, reszta zostaje jak ją wpisano.',
+    );
+    return '$_temp0';
+  }
 }
