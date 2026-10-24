@@ -1,0 +1,19 @@
+{
+  "deskSetPrivTorOnFailed": "ไม่ได้เปิด Tor",
+  "deskSetPrivTorOffFailed": "ไม่ได้ปิด Tor",
+  "deskSetPrivTor": "Tor",
+  "deskSetPrivSwitching": "กำลังสลับ Tor",
+  "deskSetPrivTurnOff": "ปิด Tor",
+  "deskSetPrivNotInBuild": "ไม่มีในรุ่นนี้",
+  "deskSetPrivStarting": "กำลังเริ่ม…",
+  "deskSetPrivStartingDetail": "{progress} % {waiting} รอจนกว่า Tor จะพร้อม",
+  "deskSetPrivNotPublished": "ยังไม่ได้เผยแพร่ที่อยู่ Tor การส่งใช้ได้",
+  "deskSetPrivProblemSendsWork": "{problem} การส่งใช้ได้",
+  "deskSetPrivConnected": "เชื่อมต่อแล้ว",
+  "deskSetPrivNotConnected": "ไม่ได้เชื่อมต่อ",
+  "deskSetPrivStoppedDetail": "Tor หยุดแล้ว {waiting} รอ ลองอีกครั้ง หรือปิด Tor",
+  "deskSetPrivProblemDetail": "{problem} {waiting} รอ ลองอีกครั้ง หรือปิด Tor",
+  "deskSetPrivStatusSite": "เว็บสถานะ",
+  "deskSetPrivUseStatus": "ใช้ status.btlabs.uk",
+  "deskSetPrivUseStatusHint": "สถานะเครือข่ายและข้อมูลจาก status.btlabs.uk"
+}
