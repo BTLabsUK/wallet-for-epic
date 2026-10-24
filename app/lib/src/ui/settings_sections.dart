@@ -50,6 +50,7 @@ import 'theme/advanced.dart';
 import 'theme/brand.dart' show BrandLockup, BrandVariant;
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import 'tour/tour_target.dart';
 
 /// The project's source code.
 const String projectRepoUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic';
@@ -536,9 +537,12 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     // show: plain rows open the same pickers.
     return [
       if (walletOpen)
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
-          child: NetworkStatusCard(showTor: false),
+        const PhoneTourTarget(
+          id: 'tour-privacy-servers',
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: NetworkStatusCard(showTor: false),
+          ),
         )
       else if (!demo) ...[
         ListTile(
@@ -573,7 +577,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
       // state; it moves nothing the user chose.
       SettingsHeader(l.settingsSectionPrivacy, key: settingsPrivacyKey),
-      if (walletOpen && torAvailable) const TorSwitchTile(),
+      if (walletOpen && torAvailable)
+        const PhoneTourTarget(id: 'tour-privacy-tor', child: TorSwitchTile()),
       HintSwitchTile(
         icon: Icons.travel_explore,
         title: l.settingsUseStatusSite,
@@ -715,11 +720,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       _ => null,
     };
     return [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-        child: Text(
-          l.advIntro,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim),
+      PhoneTourTarget(
+        id: 'tour-advanced-top',
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Text(
+            l.advIntro,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim),
+          ),
         ),
       ),
       SettingsHeader(l.advShowsHeader),
@@ -760,7 +768,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           ],
         ),
       ),
-      RadioGroup<NetworkMode>(
+      PhoneTourTarget(
+        id: 'tour-advanced-modes',
+        child: RadioGroup<NetworkMode>(
         groupValue: adv.networkMode,
         onChanged: (v) {
           if (v != null) _settings.setNetworkMode(v);
@@ -777,6 +787,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             mode(NetworkMode.offline, l.advModeOffline, l.advModeOfflineLine),
           ],
         ),
+      ),
       ),
       if (note != null)
         Padding(

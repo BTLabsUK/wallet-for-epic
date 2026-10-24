@@ -12,6 +12,7 @@ import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'theme/brand.dart';
+import 'tour/tour_target.dart';
 
 enum HistoryFilter { all, sent, received, pending, cancelled }
 
@@ -314,7 +315,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
-            child: RefreshIndicator(
+            child: PhoneTourTarget(
+              id: 'tour-activity-list',
+              child: RefreshIndicator(
               onRefresh: _refresh,
               child: CustomScrollView(
                 slivers: [
@@ -349,6 +352,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   ),
                 ],
               ),
+            ),
             ),
           ),
         ),

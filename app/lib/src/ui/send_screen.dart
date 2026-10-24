@@ -42,6 +42,7 @@ import 'theme/protocol.dart' show TimelineState, TimelineStep;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import 'tour/tour_target.dart';
 
 export '../utf8_limit.dart';
 
@@ -1549,7 +1550,9 @@ class _SendViewState extends ConsumerState<SendView> {
     return CenteredScroll(
       child: CenteredBody(
         children: [
-          EmptyState(
+          PhoneTourTarget(
+            id: 'tour-send-empty',
+            child: EmptyState(
             icon: const Icon(Icons.north_east),
             message: context.l10n.sendNoCoins,
             // Never a dead end: the next step is the Receive tab.
@@ -1561,6 +1564,7 @@ class _SendViewState extends ConsumerState<SendView> {
                         .go(ShellTab.receive),
                     child: Text(context.l10n.homeReceiveButton),
                   ),
+          ),
           ),
         ],
       ),
@@ -1653,7 +1657,9 @@ class _SendViewState extends ConsumerState<SendView> {
       segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
     ];
     if (segments.length == 1) return const SizedBox.shrink();
-    return Semantics(
+    return PhoneTourTarget(
+      id: 'tour-send-methods',
+      child: Semantics(
       label: l.sendMethodLabel,
       container: true,
       child: SegmentedButton<TransferMethod>(
@@ -1671,6 +1677,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
         onSelectionChanged: (chosen) => _chooseMethod(chosen.first),
       ),
+    ),
     );
   }
 
@@ -1715,7 +1722,9 @@ class _SendViewState extends ConsumerState<SendView> {
     return [
       _header(context, l.sendStepRecipient, step: 1),
       ..._methodHead(context, _method),
-      TextField(
+      PhoneTourTarget(
+        id: 'tour-send-recipient',
+        child: TextField(
         key: sendRecipientFieldKey,
         controller: _recipient,
         focusNode: _recipientFocus,
@@ -1758,6 +1767,7 @@ class _SendViewState extends ConsumerState<SendView> {
               : LiveFieldError(_recipientError!),
           border: const OutlineInputBorder(),
         ),
+      ),
       ),
       if (_tagOn && _switchedTo != null)
         _SwitchAnnouncement(method: _switchedTo!),

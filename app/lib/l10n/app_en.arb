@@ -4786,6 +4786,112 @@
       }
     }
   },
+  "tourPhoneSemantics": "Wallet tour",
+  "@tourPhoneSemantics": {
+    "description": "Names the tour card for screen readers."
+  },
+  "tourPhoneCounter": "{current} of {total}",
+  "@tourPhoneCounter": {
+    "description": "Step counter on the tour card: this step's number of the total.",
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "example": "3"
+      },
+      "total": {
+        "type": "int",
+        "example": "9"
+      }
+    }
+  },
+  "tourPhoneSkip": "Skip",
+  "@tourPhoneSkip": {
+    "description": "Button on the tour card: ends the tour."
+  },
+  "tourPhoneBack": "Back",
+  "@tourPhoneBack": {
+    "description": "Button on the tour card: the previous step."
+  },
+  "tourPhoneNext": "Next",
+  "@tourPhoneNext": {
+    "description": "Button on the tour card: the next step."
+  },
+  "tourPhoneWalletTitle": "Wallet",
+  "@tourPhoneWalletTitle": {
+    "description": "Title of the tour card for the Wallet tab (first-unlock tour). Short."
+  },
+  "tourPhoneWalletText": "Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.",
+  "@tourPhoneWalletText": {
+    "description": "Text of the tour card for the Wallet tab; one or two short sentences. Names the status icons."
+  },
+  "tourPhoneSendTitle": "Send",
+  "@tourPhoneSendTitle": {
+    "description": "Title of the tour card for the Send tab (first-unlock tour). Short."
+  },
+  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a transaction file to pass on. A review comes before anything leaves.",
+  "@tourPhoneSendText": {
+    "description": "Text of the tour card for the Send tab; names the two payment methods shown by default."
+  },
+  "tourPhoneReceiveTitle": "Receive",
+  "@tourPhoneReceiveTitle": {
+    "description": "Title of the tour card for the Receive tab (first-unlock tour). Short."
+  },
+  "tourPhoneReceiveText": "Your Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.",
+  "@tourPhoneReceiveText": {
+    "description": "Text of the tour card for the Receive tab; one or two short sentences."
+  },
+  "tourPhoneActivityTitle": "Activity",
+  "@tourPhoneActivityTitle": {
+    "description": "Title of the tour card for the Activity screen (first-unlock tour). Short."
+  },
+  "tourPhoneActivityText": "Every payment with its progress and details. Tap one to open it.",
+  "@tourPhoneActivityText": {
+    "description": "Text of the tour card for the Activity screen; one or two short sentences."
+  },
+  "tourPhoneContactsTitle": "Contacts",
+  "@tourPhoneContactsTitle": {
+    "description": "Title of the tour card for the Contacts screen (first-unlock tour). Short."
+  },
+  "tourPhoneContactsText": "Saved addresses by name. Send picks from here.",
+  "@tourPhoneContactsText": {
+    "description": "Text of the tour card for the Contacts screen; one or two short sentences."
+  },
+  "tourPhoneInvoicesTitle": "Invoices",
+  "@tourPhoneInvoicesTitle": {
+    "description": "Title of the tour card for the Invoices screen (first-unlock tour). Short."
+  },
+  "tourPhoneInvoicesText": "Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.",
+  "@tourPhoneInvoicesText": {
+    "description": "Text of the tour card for the Invoices screen; one or two short sentences."
+  },
+  "tourPhonePrivacyTitle": "Privacy & network",
+  "@tourPhonePrivacyTitle": {
+    "description": "Title of the tour card for Settings › Privacy & network (first-unlock tour). Short."
+  },
+  "tourPhonePrivacyText": "Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.",
+  "@tourPhonePrivacyText": {
+    "description": "Text of the tour card for Privacy & network; one or two short sentences."
+  },
+  "tourPhoneAdvancedTitle": "Advanced",
+  "@tourPhoneAdvancedTitle": {
+    "description": "Title of the tour card for Settings › Advanced (first-unlock tour). Short."
+  },
+  "tourPhoneAdvancedText": "Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.",
+  "@tourPhoneAdvancedText": {
+    "description": "Text of the tour card for Settings › Advanced; the tour itself switches nothing on."
+  },
+  "tourPhoneHelpTitle": "Help",
+  "@tourPhoneHelpTitle": {
+    "description": "Title of the tour card for the Help screen (first-unlock tour). Short."
+  },
+  "tourPhoneHelpText": "Search the topics or send feedback. “Show the tour again” is at the bottom of the list.",
+  "@tourPhoneHelpText": {
+    "description": "Text of the tour card for the Help screen; names the row that restarts the tour."
+  },
+  "tourPhoneShowAgain": "Show the tour again",
+  "@tourPhoneShowAgain": {
+    "description": "Row at the bottom of Help: starts the first-unlock tour again."
+  },
   "homeDestActivity": "Activity",
   "@homeDestActivity": {
     "description": "Home destination tile: the payment history."
