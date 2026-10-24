@@ -28,7 +28,7 @@ import '../../net/http.dart';
 import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrl, updateStateKey;
 import 'desk_store.dart';
 import 'desk_update_apply.dart';
-import 'state.dart' show deskQuitProvider;
+import 'state.dart' show deskProvider, deskQuitProvider;
 
 /// This build's version, without the build id ([appVersion], pubspec's version); the sidebar,
 /// About and the support report show it with the build id (`shell.dart`).
@@ -187,8 +187,9 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   }
 
   Future<void> check() async {
-    // A download under way or done stays as it is.
-    if (state.phase == DeskUpdatePhase.checking || state.phase == DeskUpdatePhase.downloading || state.phase == DeskUpdatePhase.ready) return;
+    // A download under way or done stays as it is; one whose install failed is looked for again.
+    final p = state.phase;
+    if (p == DeskUpdatePhase.checking || p == DeskUpdatePhase.downloading || (p == DeskUpdatePhase.ready && state.problem == null)) return;
     final last = state.checkedAt;
     state = DeskUpdateState(DeskUpdatePhase.checking, checkedAt: last);
     final url = Uri.parse(updateManifestUrl);
@@ -275,6 +276,11 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
       if (!await deskFileMatches(file, f)) {
         logWarn('update', 'desktop: the download changed since it was checked; offered again');
         state = at(DeskUpdatePhase.available, deskStrings.deskUpdErrDamaged);
+        return false;
+      }
+      // A send may have started during the re-check: never update in the middle of one.
+      if (ref.read(deskProvider.notifier).sending > 0) {
+        logInfo('update', 'desktop: a payment is being sent; the update waits');
         return false;
       }
       await applier.apply(file);

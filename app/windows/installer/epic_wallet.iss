@@ -139,7 +139,7 @@ function RemoveFontResourceEx(Name: String; Flags: DWORD; Reserved: Integer): BO
   external 'RemoveFontResourceExW@gdi32.dll stdcall';
 
 var
-  IsUpdate: Boolean;
+  IsUpdate, InstallDone: Boolean;
   InstalledVersion, HeadFont, FontPath: String;
   BackImages: array of TGraphic;
   { welcome page }
@@ -545,7 +545,20 @@ begin
 end;
 
 procedure DeinitializeSetup;
+var
+  Code: Integer;
 begin
+  { Started by the app, which quit for it: if the files did not go in (Setup failed, or the
+    progress was cancelled), open the app that is still there rather than leave nothing. }
+  if FromApp and not InstallDone then begin
+    Log('Started by the app and not installed; opening the app again');
+    try
+      if not Exec(ExpandConstant('{app}\epic_wallet.exe'), '', ExpandConstant('{app}'), SW_SHOWNORMAL, ewNoWait, Code) then
+        Log('The app did not open: code ' + IntToStr(Code));
+    except
+      Log('The app did not open: ' + GetExceptionMessage);
+    end;
+  end;
   if HeadFont = 'Montserrat SemiBold' then
     RemoveFontResourceEx(FontPath, FR_PRIVATE, 0);
 end;
@@ -653,6 +666,9 @@ procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssInstall then
     Log('Installing to ' + ExpandConstant('{app}') + ' (update: ' + IntToStr(Ord(IsUpdate)) + ')');
+  { The files are in; the [Run] entry opens the app. }
+  if CurStep = ssPostInstall then
+    InstallDone := True;
 end;
 
 { ---------- uninstaller ---------- }

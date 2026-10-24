@@ -14,7 +14,6 @@ import '../data/desk_update.dart';
 import '../data/files.dart' show deskOpenUrlProvider;
 import '../desk_l10n.dart';
 import '../widgets/kit.dart';
-import 'shell.dart' show quitWallet;
 
 /// What the notice says in state [u]: two lines, the hover text, and whether it is a warning.
 /// [act] is false while the download runs (nothing to click).
@@ -83,8 +82,21 @@ Future<void> restartToUpdate(BuildContext context, WidgetRef ref) async {
     showEToast(context, l.deskShellNotQuitTitle, text: l.deskShellNotQuitBody);
     return;
   }
+  // The update is already running once restart() returns true, so the quit does not wait on this
+  // widget (the sidebar may switch to its rail, About may close, during the re-check).
+  final container = ProviderScope.containerOf(context, listen: false);
   if (!await ref.read(deskUpdateProvider.notifier).restart()) return;
-  if (context.mounted) await quitWallet(context, ref);
+  await _quitForUpdate(container);
+}
+
+/// The quit after an update was put in place: lock the wallet and close the app, through the
+/// provider container (as [quitWallet] does through the widget's ref).
+Future<void> _quitForUpdate(ProviderContainer container) async {
+  try {
+    await container.read(deskProvider.notifier).lock();
+  } finally {
+    await container.read(deskQuitProvider)?.call();
+  }
 }
 
 class DeskUpdateNotice extends ConsumerWidget {

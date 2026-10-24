@@ -46,6 +46,9 @@ class _Server {
 
   /// Bytes sent before the connection is dropped, once.
   int? cutAt;
+
+  /// A 206 that starts somewhere else than asked.
+  bool wrongRange = false;
   final ranges = <String?>[];
   late final HttpServer _server;
 
@@ -60,7 +63,8 @@ class _Server {
       final from = range == null ? 0 : int.parse(RegExp(r'bytes=(\d+)-').firstMatch(range)![1]!);
       if (from > 0) {
         res.statusCode = HttpStatus.partialContent;
-        res.headers.set(HttpHeaders.contentRangeHeader, 'bytes $from-${body.length - 1}/${body.length}');
+        final start = wrongRange ? from + 1 : from;
+        res.headers.set(HttpHeaders.contentRangeHeader, 'bytes $start-${body.length - 1}/${body.length}');
       }
       res.contentLength = body.length - from;
       final cut = cutAt;
@@ -229,6 +233,18 @@ Future<void> main(List<String> a) async {
       expect(await f.readAsBytes(), _bytes);
     });
 
+    test('a 206 that starts elsewhere than asked: the partial goes, the next try starts over', () async {
+      server.cutAt = 120000;
+      await expectLater(download(file()), throwsA(isA<DeskDownloadError>()));
+      final part = updates().listSync().whereType<File>().single;
+      expect(part.lengthSync(), 120000);
+      server.wrongRange = true;
+      await expectLater(download(file()), throwsA(isA<DeskDownloadError>().having((e) => e.status, 'status', 206)));
+      expect(updates().listSync(), isEmpty, reason: 'else every retry fails the same way');
+      server.wrongRange = false;
+      expect(await (await download(file())).readAsBytes(), _bytes);
+    });
+
     test('a server that cannot be reached says so', () async {
       final client = HttpClient();
       addTearDown(() => client.close(force: true));
@@ -338,6 +354,22 @@ Future<void> main(List<String> a) async {
       expect(s.page, deskReleasesUrl);
     });
 
+    test('a failed install: a check offers the download again, and Try again fetches it', () async {
+      final c = make(applier: _FakeApplier(fails: true));
+      final n = c.read(deskUpdateProvider.notifier);
+      await n.check();
+      await n.download();
+      expect(await n.restart(), isFalse);
+      expect(c.read(deskUpdateProvider).problem, deskStrings.deskUpdErrInstall);
+      await n.check();
+      var s = c.read(deskUpdateProvider);
+      expect(s.phase, DeskUpdatePhase.available);
+      expect(s.problem, isNull);
+      expect(s.file, isNotNull);
+      await n.download();
+      expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.ready);
+    });
+
     test('the page only, when this copy cannot install the update itself', () async {
       for (final c in [
         make(applier: _FakeApplier(can: false)),
@@ -378,10 +410,20 @@ Future<void> main(List<String> a) async {
       final started = <(String, List<String>)>[];
       final a = WindowsSetupApplier(start: (exe, args, {workingDirectory, environment}) async => started.add((exe, args)));
       expect(a.suffix, '.exe');
-      expect(await a.canApply(), isTrue);
       await a.apply(File('${tmp.path}/$_winName'));
       expect(started.single.$1, '${tmp.path}/$_winName');
       expect(started.single.$2, ['/SILENT', '/NORESTART', '/UPDATEFROMAPP=1']);
+    });
+
+    test('only the installed copy updates itself', () async {
+      const installed = r'C:\Users\tester\Apps\EpicWallet';
+      WindowsSetupApplier at(String exe, {String? registry}) =>
+          WindowsSetupApplier(exe: exe, home: r'C:\Users\tester', installedAt: () async => registry);
+      expect(await at('$installed\\epic_wallet.exe').canApply(), isTrue, reason: 'the default folder');
+      expect(await at(r'c:\users\tester\apps\epicwallet\epic_wallet.exe').canApply(), isTrue, reason: 'case does not matter');
+      expect(await at(r'C:\Users\tester\code\build\runner\Release\epic_wallet.exe').canApply(), isFalse, reason: 'a build elsewhere');
+      expect(await at(r'D:\Wallet\epic_wallet.exe', registry: r'D:\Wallet\').canApply(), isTrue, reason: 'the folder Setup was told');
+      expect(await at('$installed\\epic_wallet.exe', registry: r'D:\Wallet').canApply(), isFalse);
     });
 
     test('the installer script waits for the app and opens it again for that run only', () {
@@ -391,10 +433,25 @@ Future<void> main(List<String> a) async {
       expect(iss, contains("ExpandConstant('{param:UPDATEFROMAPP|0}') = '1'"));
       expect(iss, contains("CheckForMutexes('{#AppMutexName}')"));
       expect(iss, contains('Flags: nowait; Check: FromApp'));
+      expect(iss, contains('if FromApp and not InstallDone'), reason: 'a failed or cancelled install opens the app again');
     });
   });
 
   group('Linux AppImage', () {
+    test('the relaunch script does not start the new copy while the old one still runs', () async {
+      final dir = await Directory.systemTemp.createTemp('relaunch');
+      addTearDown(() => dir.delete(recursive: true));
+      final mark = File('${dir.path}/mark');
+      final app = File('${dir.path}/app.sh')..writeAsStringSync('#!/bin/sh\necho started > "${mark.path}"\n');
+      await Process.run('chmod', ['755', app.path]);
+      // Same text, a short limit: the old process (this test's) is alive throughout.
+      final script = AppImageApplier.relaunch.replaceAll('600', '3');
+      expect(script, isNot(AppImageApplier.relaunch));
+      final run = await Process.run('/bin/sh', ['-c', script, 'x', '$pid', app.path]);
+      expect(run.exitCode, 1);
+      expect(mark.existsSync(), isFalse);
+    });
+
     late Directory apps;
     late File current, downloaded;
     late List<({String exe, List<String> args, String? dir, Map<String, String>? env})> started;

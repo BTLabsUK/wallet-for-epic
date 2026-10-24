@@ -119,7 +119,9 @@ Future<void> _fetchInto(
     final resumes = kept > 0 && code == HttpStatus.partialContent && _rangeStarts(response, kept, f.size);
     if (code != HttpStatus.ok && !resumes) {
       await response.drain<void>();
-      if (code == HttpStatus.requestedRangeNotSatisfiable) await _drop(partial);
+      // A range the server cannot or does not honour (or answers wrongly): what is kept is of no
+      // use, the next try starts over.
+      if (code == HttpStatus.requestedRangeNotSatisfiable || code == HttpStatus.partialContent) await _drop(partial);
       throw DeskDownloadError(DeskDownloadFail.status, status: code);
     }
     if (resumes) {
@@ -183,6 +185,12 @@ bool _rangeStarts(HttpClientResponse response, int kept, int size) {
   return match != null && int.parse(match[1]!) == kept && int.parse(match[3]!) == size;
 }
 
+/// Whether [a] and [b] hold the same bytes (SHA-256 of both).
+Future<bool> _sameBytes(File a, File b) async {
+  Future<String> hash(File x) async => (await sha256.bind(x.openRead()).first).toString();
+  return await hash(a) == await hash(b);
+}
+
 /// Whether [file] is [f]: present, the announced size, the announced SHA-256.
 Future<bool> deskFileMatches(File file, WalletDesktopFile f) async {
   if (!await file.exists() || await file.length() != f.size) return false;
@@ -235,9 +243,30 @@ abstract interface class DeskUpdateApplier {
 
 /// Windows: the Inno Setup installer installs over this app and opens it again.
 class WindowsSetupApplier implements DeskUpdateApplier {
-  const WindowsSetupApplier({this.start = _startDetached});
+  const WindowsSetupApplier({this.start = _startDetached, this.exe, this.installedAt = _registryInstallLocation, this.home});
 
   final DeskStart start;
+
+  /// This app's executable (tests); the running one by default.
+  final String? exe;
+
+  /// The folder Setup installed to, from its uninstall entry; null when there is none.
+  final Future<String?> Function() installedAt;
+
+  /// `%USERPROFILE%` (tests); the process's by default. The default install folder is under it.
+  final String? home;
+
+  /// Setup's uninstall entry (`AppId` in epic_wallet.iss), current user.
+  static const uninstallKey = r'HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\{8810835E-6EE5-4989-AE20-C0D60E23800E}_is1';
+
+  static Future<String?> _registryInstallLocation() async {
+    final r = await Process.run('reg', ['query', uninstallKey, '/v', 'InstallLocation']);
+    if (r.exitCode != 0) return null;
+    final m = RegExp(r'InstallLocation\s+REG_\w+\s+(.+?)\s*$', multiLine: true).firstMatch('${r.stdout}');
+    return m?[1];
+  }
+
+  static String _norm(String p) => p.replaceAll('/', '\\').replaceAll(RegExp(r'\\+$'), '').toLowerCase();
 
   /// Setup's arguments: the progress page only, no restart of Windows, and the app's own run
   /// (`FromApp` in epic_wallet.iss: wait for the app to close, open it again after).
@@ -247,7 +276,21 @@ class WindowsSetupApplier implements DeskUpdateApplier {
   String get suffix => '.exe';
 
   @override
-  Future<bool> canApply() async => true;
+  Future<bool> canApply() async {
+    // Setup installs into the installed folder: only the app running from there may update it,
+    // not a debug build or a copy elsewhere (the download page instead).
+    final path = _norm(exe ?? Platform.resolvedExecutable);
+    final here = path.substring(0, path.lastIndexOf('\\').clamp(0, path.length));
+    String? installed;
+    try {
+      installed = await installedAt();
+    } on Object catch (e) {
+      logInfo('update', 'desktop: install folder not read: ${e.runtimeType}');
+    }
+    if (installed != null && installed.isNotEmpty) return _norm(installed) == here;
+    final userHome = home ?? Platform.environment['USERPROFILE'];
+    return userHome != null && userHome.isNotEmpty && _norm('$userHome\\Apps\\EpicWallet') == here;
+  }
 
   @override
   Future<void> apply(File file) async {
@@ -270,10 +313,13 @@ class AppImageApplier implements DeskUpdateApplier {
   /// What the AppImage runtime sets for the copy it starts; the new copy gets its own.
   static const runtimeVars = {'APPIMAGE', 'APPDIR', 'ARGV0', 'OWD', 'APPIMAGE_UUID'};
 
-  /// Waits up to 60 s for the old process to exit (its single-instance lock goes with it), then
-  /// becomes the new AppImage. `$1` is the pid, `$2` the AppImage.
+  /// Waits up to 120 s for the old process to exit (its single-instance lock goes with it), then
+  /// becomes the new AppImage; if the old one is still running by then it exits without starting
+  /// anything (two copies would fight over the lock). `$1` is the pid, `$2` the AppImage.
   static const relaunch =
-      r'i=0; while kill -0 "$1" 2>/dev/null && [ "$i" -lt 300 ]; do sleep 0.2; i=$((i+1)); done; exec "$2"'; // l10n-ok: a shell script
+      r'i=0; while kill -0 "$1" 2>/dev/null && [ "$i" -lt 600 ]; do sleep 0.2; i=$((i+1)); done; '
+      r'if kill -0 "$1" 2>/dev/null; then echo "epic-cash-desktop-update: $1 is still running; not starting $2" >&2; exit 1; fi; '
+      r'exec "$2"'; // l10n-ok: a shell script
 
   /// The AppImage this app runs from, links resolved; null when it is not one.
   String? get _target {
@@ -314,6 +360,7 @@ class AppImageApplier implements DeskUpdateApplier {
     final next = File('$dir/.${target.split('/').last}.new-$pid');
     try {
       await file.copy(next.path);
+      if (!await _sameBytes(file, next)) throw FileSystemException('the copy differs from the download', next.path); // l10n-ok: log only
       final mode = await Process.run('chmod', ['755', next.path]);
       if (mode.exitCode != 0) throw FileSystemException('chmod failed: ${mode.stderr}', next.path); // l10n-ok: log only
       await next.rename(target);

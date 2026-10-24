@@ -36,6 +36,9 @@ class _Fake extends DeskUpdateController {
   final bool restartOk;
   int downloads = 0, restarts = 0;
 
+  /// Runs inside restart(), while the button's widget may be on its way out.
+  Future<void> Function()? beforeReturn;
+
   @override
   DeskUpdateState build() => initial;
 
@@ -45,6 +48,7 @@ class _Fake extends DeskUpdateController {
   @override
   Future<bool> restart() async {
     restarts++;
+    await beforeReturn?.call();
     return restartOk;
   }
 
@@ -127,6 +131,31 @@ void main() {
     await tester.tap(notice());
     await tester.pump();
     expect(fake.downloads, 1);
+  });
+
+  testWidgets('Restart to update: the app still quits when the button is gone by then', (tester) async {
+    final show = ValueNotifier(true);
+    await pump(
+      tester,
+      _state(DeskUpdatePhase.ready),
+      restartOk: true,
+      home: Scaffold(
+        body: ValueListenableBuilder<bool>(valueListenable: show, builder: (_, on, _) => on ? const DeskUpdateNotice() : const SizedBox()),
+      ),
+    );
+    fake.beforeReturn = () async {
+      show.value = false;
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    };
+    await tester.runAsync(() async {
+      await tester.tap(notice());
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+    });
+    await tester.pump();
+    expect(notice(), findsNothing);
+    expect(fake.restarts, 1);
+    expect(quits, 1);
   });
 
   testWidgets('Restart to update: restarts and quits; one that fails does not quit', (tester) async {
