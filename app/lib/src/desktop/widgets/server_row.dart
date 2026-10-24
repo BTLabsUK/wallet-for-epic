@@ -1,7 +1,7 @@
 /// The one picker row for nodes and Epicbox servers (spec §18): bars, host, operator, the
-/// relay's default tag, the node's tip column, latency, version and the star. Every list
-/// (Settings › Node, Setup, Settings › Receiving) shows servers through [ServerRow], in the
-/// neutral order of [neutralOrder]: nothing pinned, no node row tagged.
+/// relay's default tag, the node's tip column, latency and version: the local node's fallback
+/// picker shows servers through [ServerRow], in the neutral order of [neutralOrder]. The
+/// Node and Epicbox pickers are `server_list_panel.dart`.
 library;
 
 import 'package:flutter/material.dart';
@@ -28,7 +28,6 @@ class ServerInfo {
     this.version,
     this.versionOld = false,
     this.isDefault = false,
-    this.starred,
   });
 
   /// What a pick returns (the URL or domain).
@@ -50,9 +49,6 @@ class ServerInfo {
 
   /// The D-13 Epicbox default: a tag on relay rows only, never on a node row.
   final bool isDefault;
-
-  /// In My nodes (the star is on), not (off), or no star at all (null).
-  final bool? starred;
 
   bool get down => state == EState.risk;
 
@@ -97,7 +93,7 @@ List<T> neutralOrder<T>(List<T> items, {required EState Function(T) state, requi
 const double narrowOperator = 420;
 const double narrowVersion = 480;
 
-/// One list row, 36 u: bars · host · operator · [default] · tip · latency · version · star.
+/// One list row, 36 u: bars · host · operator · [default] · tip · latency · version.
 /// A down row keeps full bars (one, risk) and greys its words; it stays selectable.
 class ServerRow extends StatelessWidget {
   const ServerRow({
@@ -106,7 +102,6 @@ class ServerRow extends StatelessWidget {
     required this.info,
     this.selected = false,
     this.onTap,
-    this.onStar,
     this.semanticsHint,
   });
 
@@ -114,9 +109,6 @@ class ServerRow extends StatelessWidget {
   final ServerInfo info;
   final bool selected;
   final VoidCallback? onTap;
-
-  /// The star's press (the row shows a star only when [ServerInfo.starred] is set).
-  final VoidCallback? onStar;
   final String? semanticsHint;
 
   @override
@@ -140,7 +132,6 @@ class ServerRow extends StatelessWidget {
         ? ('–', c.faint)
         : ('${digitsText(l, i.latencyMs!)} ms', c.faint);
     final version = i.version == null ? ('–', c.faint) : ('v${i.version}', i.versionOld && !grey ? c.warn : c.faint);
-    final star = i.starred;
     return LayoutBuilder(
       builder: (context, box) {
         final w = box.maxWidth;
@@ -189,17 +180,6 @@ class ServerRow extends StatelessWidget {
               SizedBox(
                 width: 46.u,
                 child: Text(version.$1, maxLines: 1, softWrap: false, textAlign: TextAlign.right, style: ts.mono(size: Fs.xs, color: version.$2)),
-              ),
-            ],
-            if (star != null) ...[
-              SizedBox(width: 10.u),
-              EIconButton(
-                icon: star ? EIcons.star : EIcons.starOutline,
-                label: star ? l.deskKitNodeRemove(i.host) : l.deskKitNodeAdd(i.host),
-                size: EBtnSize.inline,
-                selected: star,
-                tabStop: false,
-                onPressed: onStar,
               ),
             ],
           ],

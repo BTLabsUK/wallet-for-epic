@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../log.dart';
 import '../../l10n.dart' show appLanguages;
 import '../../secret_store_api.dart';
+import '../../server_list.dart' show ServerKind, ServerList;
 import 'models.dart';
 
 class DeskStore {
@@ -148,6 +149,14 @@ class DeskStore {
       'httpAutostart': p.autostart,
     });
   }
+
+  /// The Node or Epicbox list ([ServerList]) of [chain], as `ServerList.encode()` writes it;
+  /// null before its first use (the panel seeds it then).
+  static String serverListKey(ServerKind kind, String chain) => 'desk.serverList.${kind.name}.$chain';
+
+  Future<ServerList?> serverList(ServerKind kind, String chain) async => ServerList.decode(await _secrets.read(serverListKey(kind, chain)));
+
+  Future<void> saveServerList(ServerKind kind, String chain, ServerList list) => _secrets.write(serverListKey(kind, chain), list.encode());
 
   Future<Object?> readJson(String key) async {
     final text = await _secrets.read(key);

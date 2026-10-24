@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/combo.dart' show ServiceCombo;
+import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -164,7 +164,7 @@ void main() {
   testWidgets("the node list closes on a click outside without pressing what is under it", (tester) async {
     final container = await _open(tester, _Wallet(), DeskRoute.settingsNode);
     // The closed combo is a button (W6 §18); the search field appears in the open list.
-    await tester.tap(find.descendant(of: find.byType(ServiceCombo), matching: find.byType(InkWell)).first);
+    await tester.tap(find.descendant(of: find.byType(ServerListPanel), matching: find.byType(InkWell)).first);
     await _settle(tester);
     expect(find.byType(ListView), findsWidgets);
     final lists = find.byType(ListView).evaluate().length;

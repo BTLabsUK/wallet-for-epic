@@ -10664,16 +10664,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskKitFromThisComputer => 'from this computer';
 
   @override
-  String deskKitNodeRemove(String host) {
-    return 'Remove $host from my nodes';
-  }
-
-  @override
-  String deskKitNodeAdd(String host) {
-    return 'Add $host to my nodes';
-  }
-
-  @override
   String deskKitNodeUse(String host) {
     return 'Use $host';
   }
@@ -11280,78 +11270,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetBackupNotNow => 'Not now';
 
   @override
-  String get deskSetDlgNodeAddressEmpty => 'Enter the node’s address.';
-
-  @override
-  String get deskSetDlgNodeAddressBad =>
-      'Not a node address. Check the address and the port (usually 3413).';
-
-  @override
-  String get deskSetDlgNodeAddressDuplicate =>
-      'This address is already in My nodes.';
-
-  @override
-  String get deskSetDlgNodeNotAdded => 'Node not added';
-
-  @override
-  String get deskSetDlgNodeSaved => 'Node saved';
-
-  @override
-  String get deskSetDlgNodeAdded => 'Added to my nodes';
-
-  @override
-  String get deskSetDlgNodeSaveAnyway => 'It can be saved anyway.';
-
-  @override
-  String get deskSetDlgNodeEditTitle => 'Edit node';
-
-  @override
-  String get deskSetDlgNodeAddTitle => 'Add to my nodes';
-
-  @override
-  String get deskSetDlgNodeDesc =>
-      'Save a node address to find it again later. It can be saved while it is offline.';
-
-  @override
-  String get deskSetDlgNodeAddress => 'Node address';
-
-  @override
-  String get deskSetDlgNodeLabel => 'Label';
-
-  @override
-  String get deskSetDlgNodeLabelHint => 'e.g. Home node';
-
-  @override
-  String get deskSetDlgDirTitle => 'Node directory';
-
-  @override
-  String get deskSetDlgDirDesc =>
-      'Public nodes, their operators and their state at the last check.';
-
-  @override
-  String get deskSetDlgDirEmpty => 'No nodes to show';
-
-  @override
-  String deskSetDlgDirVersion(String version) {
-    return 'version $version';
-  }
-
-  @override
-  String deskSetDlgDirHeight(String height) {
-    return 'height $height';
-  }
-
-  @override
-  String get deskSetDlgDirInUse => 'In use';
-
-  @override
-  String get deskSetDlgDirUse => 'Use';
-
-  @override
-  String get deskSetDlgDirNote =>
-      'Response times are measured from the status site, not from this computer.';
-
-  @override
   String get deskSetDlgChainTitle => 'Existing blockchain data found';
 
   @override
@@ -11610,9 +11528,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetComboNoAnswer => 'No answer yet';
-
-  @override
-  String get deskSetComboNothing => 'Nothing to show.';
 
   @override
   String deskSetComboUse(String host) {
@@ -12288,11 +12203,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetLogsOpenFolder => 'Open log folder';
 
   @override
-  String deskSetNodeVersionOld(String version) {
-    return 'Version older than $version';
-  }
-
-  @override
   String get deskSetNodePortNote =>
       'Check the address and the port (usually 3413).';
 
@@ -12356,21 +12266,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetNodeGroupComputer => 'This computer';
 
   @override
-  String get deskSetNodeGroupMine => 'My nodes';
-
-  @override
-  String get deskSetNodeGroupPublic => 'Public nodes';
-
-  @override
-  String get deskSetNodeRemovedFromMine => 'Removed from my nodes';
-
-  @override
-  String get deskSetNodeNotAnswering => 'Not answering';
-
-  @override
-  String get deskSetNodeAddToMine => 'Add to my nodes';
-
-  @override
   String get deskSetNodeServer => 'Node server';
 
   @override
@@ -12378,23 +12273,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The node the wallet reads the chain through and sends with.';
 
   @override
-  String get deskSetNodeFindHint => 'Find or type a node address';
-
-  @override
   String get deskSetNodeChecking => 'Checking the node…';
-
-  @override
-  String get deskSetNodeTypedNote =>
-      'Enter uses it. The star keeps it in My nodes.';
-
-  @override
-  String get deskSetNodeNoNodes => 'No nodes to show.';
-
-  @override
-  String get deskSetNodeFooterAdd => 'Add to my nodes…';
-
-  @override
-  String get deskSetNodeFooterDirectory => 'Node directory…';
 
   @override
   String get deskSetNodeBackground => 'Sync in background';
@@ -12574,11 +12453,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetRecvHeadStarting => 'Starting';
 
   @override
-  String deskSetRecvResponseTime(int ms) {
-    return 'Response time $ms ms. Measured from the status site.';
-  }
-
-  @override
   String get deskSetRecvEpicboxTitle => 'Epicbox receiving';
 
   @override
@@ -12593,17 +12467,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Which server holds payments for this address. Both wallets can use different servers.';
 
   @override
-  String get deskSetRecvFindHint => 'Find or type an Epicbox server';
-
-  @override
   String get deskSetRecvSwitchingServer => 'Switching the Epicbox server…';
-
-  @override
-  String get deskSetRecvNotInList => 'not in the public list';
-
-  @override
-  String get deskSetRecvTypedNote =>
-      'Enter uses it. Its status shows once the wallet connects.';
 
   @override
   String get deskSetRecvListNote =>
@@ -13021,25 +12885,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetupNodeServer => 'Node server';
 
   @override
-  String get deskSetupNodeHint => 'Find or type a node address';
-
-  @override
   String get deskSetupCheckingNodes => 'Checking nodes…';
 
   @override
   String get deskSetupPickNode => 'Pick a node';
-
-  @override
-  String get deskSetupPublicNodes => 'Public nodes';
-
-  @override
-  String get deskSetupNotInList => 'not in the public list';
-
-  @override
-  String get deskSetupEnterUses => 'Enter uses it.';
-
-  @override
-  String get deskSetupNoNodes => 'No nodes to show.';
 
   @override
   String get deskSetupRemoteNode => 'Remote node';
@@ -13061,10 +12910,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxServer => 'Epicbox server';
-
-  @override
-  String get deskSetupEpicboxHelp =>
-      'Leave empty to turn receiving through Epicbox off.';
 
   @override
   String get deskSetupChangePrefsSem => 'Change preferences';
@@ -13884,4 +13729,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get slRelayNoAnswer => 'No answer from this server. Nothing added.';
+
+  @override
+  String deskSlRemoveHost(String host) {
+    return 'Remove $host';
+  }
+
+  @override
+  String get deskSlInUse => 'In use';
+
+  @override
+  String get deskSlHealthUnknown => 'Health unknown';
+
+  @override
+  String get deskSlNodeNoAnswer => 'No answer from this node. Nothing added.';
+
+  @override
+  String get deskSlTorWait => 'Tor is not connected yet. Nothing added.';
+
+  @override
+  String deskSlSwitchTo(String host) {
+    return 'Switch to $host';
+  }
+
+  @override
+  String deskSlLatency(String ms) {
+    return '$ms ms';
+  }
+
+  @override
+  String get deskSlDefault => 'Default';
+
+  @override
+  String deskSlTesting(String host) {
+    return 'Testing $host…';
+  }
+
+  @override
+  String get deskSlSetupEpicboxOn => 'Receive through Epicbox';
+
+  @override
+  String get deskSlHelpChoose =>
+      'Pick one, or type to filter the list or add a server.';
 }

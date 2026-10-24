@@ -472,24 +472,6 @@
   "@deskKitFromThisComputer": {
     "description": "Small note under Latency: measured from this computer."
   },
-  "deskKitNodeRemove": "Remove {host} from my nodes",
-  "@deskKitNodeRemove": {
-    "description": "Tooltip and screen-reader label of the filled star on a node row: remove the node from the user's own list. {host} is a host name.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
-  "deskKitNodeAdd": "Add {host} to my nodes",
-  "@deskKitNodeAdd": {
-    "description": "Tooltip and screen-reader label of the empty star on a node row: add the node to the user's own list. {host} is a host name.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
   "deskKitNodeUse": "Use {host}",
   "@deskKitNodeUse": {
     "description": "Screen-reader label of a node row in the node list: pick this node.",

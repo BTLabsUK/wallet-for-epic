@@ -1,5 +1,4 @@
 {
-  "deskSetNodeVersionOld": "Версия старше {version}",
   "deskSetNodePortNote": "Проверьте адрес и порт (обычно 3413).",
   "deskSetNodeListNote": "Состояние по данным status.btlabs.uk, проверяется раз в несколько минут. Задержка измерена с этого компьютера.",
   "deskSetNodeStartTitle": "Запустить локальный узел?",
@@ -18,19 +17,9 @@
   "deskSetNodeLocalInUseText": "Он загружает весь блокчейн. Нужно 5 ГБ свободного места.",
   "deskSetNodeLocalNode": "Локальный узел",
   "deskSetNodeGroupComputer": "Этот компьютер",
-  "deskSetNodeGroupMine": "Мои узлы",
-  "deskSetNodeGroupPublic": "Публичные узлы",
-  "deskSetNodeRemovedFromMine": "Удалено из моих узлов",
-  "deskSetNodeNotAnswering": "Не отвечает",
-  "deskSetNodeAddToMine": "Добавить в мои узлы",
   "deskSetNodeServer": "Сервер узла",
   "deskSetNodeServerHint": "Узел, через который кошелёк читает блокчейн и отправляет платежи.",
-  "deskSetNodeFindHint": "Найдите или введите адрес узла",
   "deskSetNodeChecking": "Проверка узла…",
-  "deskSetNodeTypedNote": "Enter — использовать. Звёздочка сохранит его в «Моих узлах».",
-  "deskSetNodeNoNodes": "Нет узлов.",
-  "deskSetNodeFooterAdd": "Добавить в мои узлы…",
-  "deskSetNodeFooterDirectory": "Каталог узлов…",
   "deskSetNodeBackground": "Синхронизация в фоне",
   "deskSetNodeBackgroundHint": "Продолжает синхронизацию, когда приложение закрыто."
 }

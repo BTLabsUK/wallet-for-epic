@@ -78,8 +78,6 @@
   "deskKitFromStatusSite": "来自 status.btlabs.uk",
   "deskKitOverTor": "经由 Tor",
   "deskKitFromThisComputer": "来自这台电脑",
-  "deskKitNodeRemove": "从我的节点中移除 {host}",
-  "deskKitNodeAdd": "把 {host} 添加到我的节点",
   "deskKitNodeUse": "使用 {host}",
   "deskKitNodeUseOperator": "使用 {host}，{operator}",
   "deskKitNodeUseDown": "使用 {host}，无响应",

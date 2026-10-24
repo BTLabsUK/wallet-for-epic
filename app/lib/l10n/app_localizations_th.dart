@@ -10444,16 +10444,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKitFromThisComputer => 'จากคอมพิวเตอร์นี้';
 
   @override
-  String deskKitNodeRemove(String host) {
-    return 'ลบ $host ออกจากโหนดของฉัน';
-  }
-
-  @override
-  String deskKitNodeAdd(String host) {
-    return 'เพิ่ม $host ในโหนดของฉัน';
-  }
-
-  @override
   String deskKitNodeUse(String host) {
     return 'ใช้ $host';
   }
@@ -11050,78 +11040,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetBackupNotNow => 'ไว้ทีหลัง';
 
   @override
-  String get deskSetDlgNodeAddressEmpty => 'ใส่ที่อยู่ของโหนด';
-
-  @override
-  String get deskSetDlgNodeAddressBad =>
-      'ไม่ใช่ที่อยู่โหนด ตรวจที่อยู่และพอร์ต (ปกติคือ 3413)';
-
-  @override
-  String get deskSetDlgNodeAddressDuplicate =>
-      'ที่อยู่นี้อยู่ใน โหนดของฉัน แล้ว';
-
-  @override
-  String get deskSetDlgNodeNotAdded => 'ไม่ได้เพิ่มโหนด';
-
-  @override
-  String get deskSetDlgNodeSaved => 'บันทึกโหนดแล้ว';
-
-  @override
-  String get deskSetDlgNodeAdded => 'เพิ่มในโหนดของฉันแล้ว';
-
-  @override
-  String get deskSetDlgNodeSaveAnyway => 'ยังบันทึกได้';
-
-  @override
-  String get deskSetDlgNodeEditTitle => 'แก้ไขโหนด';
-
-  @override
-  String get deskSetDlgNodeAddTitle => 'เพิ่มในโหนดของฉัน';
-
-  @override
-  String get deskSetDlgNodeDesc =>
-      'บันทึกที่อยู่โหนดไว้หาเจอทีหลัง บันทึกได้แม้โหนดออฟไลน์อยู่';
-
-  @override
-  String get deskSetDlgNodeAddress => 'ที่อยู่โหนด';
-
-  @override
-  String get deskSetDlgNodeLabel => 'ชื่อ';
-
-  @override
-  String get deskSetDlgNodeLabelHint => 'เช่น โหนดที่บ้าน';
-
-  @override
-  String get deskSetDlgDirTitle => 'รายชื่อโหนด';
-
-  @override
-  String get deskSetDlgDirDesc =>
-      'โหนดสาธารณะ ผู้ดูแล และสถานะตอนตรวจครั้งล่าสุด';
-
-  @override
-  String get deskSetDlgDirEmpty => 'ไม่มีโหนดให้แสดง';
-
-  @override
-  String deskSetDlgDirVersion(String version) {
-    return 'เวอร์ชัน $version';
-  }
-
-  @override
-  String deskSetDlgDirHeight(String height) {
-    return 'บล็อก $height';
-  }
-
-  @override
-  String get deskSetDlgDirInUse => 'ใช้อยู่';
-
-  @override
-  String get deskSetDlgDirUse => 'ใช้';
-
-  @override
-  String get deskSetDlgDirNote =>
-      'เวลาตอบสนองวัดจากเว็บสถานะ ไม่ได้วัดจากคอมพิวเตอร์นี้';
-
-  @override
   String get deskSetDlgChainTitle => 'พบข้อมูลบล็อกเชนที่มีอยู่';
 
   @override
@@ -11376,9 +11294,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetComboNoAnswer => 'ยังไม่ตอบ';
-
-  @override
-  String get deskSetComboNothing => 'ไม่มีอะไรให้แสดง';
 
   @override
   String deskSetComboUse(String host) {
@@ -12048,11 +11963,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetLogsOpenFolder => 'เปิดโฟลเดอร์บันทึก';
 
   @override
-  String deskSetNodeVersionOld(String version) {
-    return 'เวอร์ชันเก่ากว่า $version';
-  }
-
-  @override
   String get deskSetNodePortNote => 'ตรวจที่อยู่และพอร์ต (ปกติคือ 3413)';
 
   @override
@@ -12115,21 +12025,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetNodeGroupComputer => 'คอมพิวเตอร์นี้';
 
   @override
-  String get deskSetNodeGroupMine => 'โหนดของฉัน';
-
-  @override
-  String get deskSetNodeGroupPublic => 'โหนดสาธารณะ';
-
-  @override
-  String get deskSetNodeRemovedFromMine => 'ลบออกจากโหนดของฉันแล้ว';
-
-  @override
-  String get deskSetNodeNotAnswering => 'ไม่ตอบสนอง';
-
-  @override
-  String get deskSetNodeAddToMine => 'เพิ่มในโหนดของฉัน';
-
-  @override
   String get deskSetNodeServer => 'เซิร์ฟเวอร์โหนด';
 
   @override
@@ -12137,22 +12032,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'โหนดที่กระเป๋าเงินใช้อ่านบล็อกเชนและส่งธุรกรรม';
 
   @override
-  String get deskSetNodeFindHint => 'ค้นหาหรือพิมพ์ที่อยู่โหนด';
-
-  @override
   String get deskSetNodeChecking => 'กำลังตรวจโหนด…';
-
-  @override
-  String get deskSetNodeTypedNote => 'Enter เพื่อใช้ ดาวเก็บไว้ในโหนดของฉัน';
-
-  @override
-  String get deskSetNodeNoNodes => 'ไม่มีโหนดให้แสดง';
-
-  @override
-  String get deskSetNodeFooterAdd => 'เพิ่มในโหนดของฉัน…';
-
-  @override
-  String get deskSetNodeFooterDirectory => 'รายชื่อโหนด…';
 
   @override
   String get deskSetNodeBackground => 'ซิงก์เบื้องหลัง';
@@ -12330,11 +12210,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetRecvHeadStarting => 'กำลังเริ่ม';
 
   @override
-  String deskSetRecvResponseTime(int ms) {
-    return 'เวลาตอบสนอง $ms ms วัดจากเว็บสถานะ';
-  }
-
-  @override
   String get deskSetRecvEpicboxTitle => 'รับผ่าน Epicbox';
 
   @override
@@ -12349,17 +12224,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เซิร์ฟเวอร์ที่เก็บรายการของที่อยู่นี้ สองกระเป๋าเงินใช้เซิร์ฟเวอร์ต่างกันได้';
 
   @override
-  String get deskSetRecvFindHint => 'ค้นหาหรือพิมพ์เซิร์ฟเวอร์ Epicbox';
-
-  @override
   String get deskSetRecvSwitchingServer => 'กำลังเปลี่ยนเซิร์ฟเวอร์ Epicbox…';
-
-  @override
-  String get deskSetRecvNotInList => 'ไม่อยู่ในรายการสาธารณะ';
-
-  @override
-  String get deskSetRecvTypedNote =>
-      'Enter เพื่อใช้ สถานะจะแสดงเมื่อกระเป๋าเงินเชื่อมต่อ';
 
   @override
   String get deskSetRecvListNote =>
@@ -12774,25 +12639,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetupNodeServer => 'เซิร์ฟเวอร์โหนด';
 
   @override
-  String get deskSetupNodeHint => 'ค้นหาหรือพิมพ์ที่อยู่โหนด';
-
-  @override
   String get deskSetupCheckingNodes => 'กำลังตรวจโหนด…';
 
   @override
   String get deskSetupPickNode => 'เลือกโหนด';
-
-  @override
-  String get deskSetupPublicNodes => 'โหนดสาธารณะ';
-
-  @override
-  String get deskSetupNotInList => 'ไม่อยู่ในรายการสาธารณะ';
-
-  @override
-  String get deskSetupEnterUses => 'Enter เพื่อใช้';
-
-  @override
-  String get deskSetupNoNodes => 'ไม่มีโหนดให้แสดง';
 
   @override
   String get deskSetupRemoteNode => 'โหนดระยะไกล';
@@ -12814,9 +12664,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxServer => 'เซิร์ฟเวอร์ Epicbox';
-
-  @override
-  String get deskSetupEpicboxHelp => 'เว้นว่างไว้เพื่อปิดการรับผ่าน Epicbox';
 
   @override
   String get deskSetupChangePrefsSem => 'เปลี่ยนการตั้งค่าแอป';
@@ -13617,4 +13464,46 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get slRelayNoAnswer => 'เซิร์ฟเวอร์นี้ไม่ตอบสนอง ไม่ได้เพิ่มอะไร';
+
+  @override
+  String deskSlRemoveHost(String host) {
+    return 'นำ $host ออก';
+  }
+
+  @override
+  String get deskSlInUse => 'ใช้อยู่';
+
+  @override
+  String get deskSlHealthUnknown => 'ไม่ทราบสถานะ';
+
+  @override
+  String get deskSlNodeNoAnswer => 'โหนดนี้ไม่ตอบสนอง ไม่ได้เพิ่มอะไร';
+
+  @override
+  String get deskSlTorWait => 'Tor ยังไม่ได้เชื่อมต่อ ไม่ได้เพิ่มอะไร';
+
+  @override
+  String deskSlSwitchTo(String host) {
+    return 'เปลี่ยนเป็น $host';
+  }
+
+  @override
+  String deskSlLatency(String ms) {
+    return '$ms มิลลิวินาที';
+  }
+
+  @override
+  String get deskSlDefault => 'ค่าเริ่มต้น';
+
+  @override
+  String deskSlTesting(String host) {
+    return 'กำลังทดสอบ $host…';
+  }
+
+  @override
+  String get deskSlSetupEpicboxOn => 'รับผ่าน Epicbox';
+
+  @override
+  String get deskSlHelpChoose =>
+      'เลือกหนึ่งรายการ หรือพิมพ์เพื่อกรองรายการหรือเพิ่มเซิร์ฟเวอร์';
 }
