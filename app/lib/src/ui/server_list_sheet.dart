@@ -48,17 +48,28 @@ Future<void> _show(BuildContext context, ServerKind kind) => showModalBottomShee
   isScrollControlled: true,
   useSafeArea: true,
   showDragHandle: true,
-  builder: (context) => DraggableScrollableSheet(
-    expand: false,
-    initialChildSize: 0.85,
-    minChildSize: 0.5,
-    maxChildSize: 1,
-    builder: (context, scroll) => ServerListSheet(kind: kind, scrollController: scroll),
-  ),
+  builder: (context) {
+    final sheet = DraggableScrollableController();
+    return DraggableScrollableSheet(
+      controller: sheet,
+      expand: false,
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      maxChildSize: 1,
+      builder: (context, scroll) =>
+          ServerListSheet(kind: kind, scrollController: scroll, sheetController: sheet),
+    );
+  },
 );
 
 /// The key of the address field at the top, for tests.
 const Key serverListFieldKey = ValueKey('server-list-field');
+
+/// The key of the pinned part above the list (field, its line, the card in use), for tests.
+const Key serverListPinnedKey = ValueKey('server-list-pinned');
+
+/// The key of the list, the one part of the sheet that scrolls, for tests.
+const Key serverListListKey = ValueKey('server-list-list');
 
 /// The key of the field's clear button, for tests.
 const Key serverListClearKey = ValueKey('server-list-clear');
@@ -122,12 +133,17 @@ class ServerListSheet extends ConsumerStatefulWidget {
     super.key,
     required this.kind,
     this.scrollController,
+    this.sheetController,
     this.afterSave = relaunchAfterSwitch,
     this.liveSwitch = switchServersLive,
   });
 
   final ServerKind kind;
   final ScrollController? scrollController;
+
+  /// The sheet around it: grown to full height while the field has the keyboard, so the
+  /// matches and Add stay above it.
+  final DraggableScrollableController? sheetController;
   final void Function(BuildContext context) afterSave;
   final Future<bool> Function(WidgetRef ref, {required String nodeUrl, required EpicboxRelay relay})
   liveSwitch;
@@ -161,6 +177,24 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   String _filled = '';
 
   bool get _node => widget.kind == ServerKind.node;
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(_growForKeyboard);
+  }
+
+  void _growForKeyboard() {
+    final sheet = widget.sheetController;
+    if (!_focus.hasFocus || sheet == null || !sheet.isAttached || sheet.size >= 1) return;
+    sheet.animateTo(
+      1,
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? const Duration(milliseconds: 1)
+          : const Duration(milliseconds: 220),
+      curve: Curves.easeOut,
+    );
+  }
 
   @override
   void dispose() {
@@ -464,62 +498,74 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final foot = math.max(media.padding.bottom, media.viewInsets.bottom);
     if (choice != null) _fill(choice);
     final line = _line;
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 4, 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: Semantics(
-                  header: true,
-                  child: Text(title, style: theme.textTheme.titleLarge),
-                ),
-              ),
-              HelpButton(_node ? HelpId.node : HelpId.epicbox),
-              IconButton(
-                tooltip: l.commonClose,
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.of(context).maybePop(),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: choice == null
-              ? const Center(child: CircularProgressIndicator())
-              : _body(context, choice),
-        ),
-        if (choice != null)
-          AnimatedSize(
-            duration: MediaQuery.disableAnimationsOf(context)
-                ? Duration.zero
-                : const Duration(milliseconds: 220),
-            curve: Curves.easeOut,
-            alignment: Alignment.topCenter,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LayoutBuilder(
+      builder: (context, box) => Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 4, 4),
+            child: Row(
               children: [
-                if (line != null)
-                  _FootLine(line, action: _lineAction, actionLabel: l.slUndo, note: _lineIsNote),
-                if (_pending != null || _switchError != null)
-                  _ConfirmStrip(
-                    host: _pending == null ? null : serverHost(_pending!),
-                    note: _node ? l.serverNodeSwitchNote : l.serverRelaySwitchNote,
-                    warn: !_node,
-                    error: _switchError,
-                    busy: _busy,
-                    onSwitch: () => _switch(choice),
-                    onCancel: () => setState(() {
-                      _pending = null;
-                      _switchError = null;
-                    }),
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(title, style: theme.textTheme.titleLarge),
                   ),
+                ),
+                HelpButton(_node ? HelpId.node : HelpId.epicbox),
+                IconButton(
+                  tooltip: l.commonClose,
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
               ],
             ),
           ),
-        SizedBox(height: foot),
-      ],
+          Expanded(
+            child: choice == null
+                ? const Center(child: CircularProgressIndicator())
+                : _body(context, choice),
+          ),
+          if (choice != null)
+            AnimatedSize(
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 220),
+              curve: Curves.easeOut,
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: math.max(0, (box.maxHeight - foot) * 0.6)),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (line != null)
+                        _FootLine(
+                          line,
+                          action: _lineAction,
+                          actionLabel: l.slUndo,
+                          note: _lineIsNote,
+                        ),
+                      if (_pending != null || _switchError != null)
+                        _ConfirmStrip(
+                          host: _pending == null ? null : serverHost(_pending!),
+                          note: _node ? l.serverNodeSwitchNote : l.serverRelaySwitchNote,
+                          warn: !_node,
+                          error: _switchError,
+                          busy: _busy,
+                          onSwitch: () => _switch(choice),
+                          onCancel: () => setState(() {
+                            _pending = null;
+                            _switchError = null;
+                          }),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          SizedBox(height: foot),
+        ],
+      ),
     );
   }
 
@@ -579,9 +625,12 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       helper = l.slHelpMatches(shown.length);
     }
 
-    return ListView(
-      controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+    // Only the list scrolls: the field with its line and the card of the server in use stay
+    // put above it. The card folds away while the field filters or the keyboard is up, so the
+    // field and the matches stay in view and the list takes the room left.
+    final folded = filtering || MediaQuery.viewInsetsOf(context).bottom > 0;
+    final pinned = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextField(
           key: serverListFieldKey,
@@ -633,7 +682,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
               : const Duration(milliseconds: 220),
           curve: Curves.easeOut,
           alignment: Alignment.topCenter,
-          child: filtering
+          child: folded
               ? const SizedBox(width: double.infinity)
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -664,29 +713,56 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                 ),
         ),
         const SizedBox(height: 12),
-        if (showAdd)
-          _AddRow(
-            host: addHost,
-            note: _node ? l.slAddTestsNode : l.slAddTestsRelay,
-            busy: _adding,
-            onTap: () => _add(choice),
-          ),
-        for (final e in shown)
-          _ServerRow(
-            key: serverListRowKey(e.value),
-            kind: widget.kind,
-            entry: e,
-            isDefault: !_node && EpicboxRelay.parse(e.value) == choice.preset.defaultRelay,
-            current: _same(e.value, current),
-            selected: _same(e.value, selected),
-            check: _same(e.value, selected) || (_same(e.value, current) && !selectedListed),
-            onTap: () => _pick(e.value, choice),
-            onRemove: () => _remove(e, choice),
-          ),
-        if (restorable.isNotEmpty && !filtering)
-          _RestoreRow(count: restorable.length, onTap: () => _restore(choice, public)),
-        _HealthCaption(status: dirStatus, preset: choice.preset),
       ],
+    );
+    final list = [
+      if (showAdd)
+        _AddRow(
+          host: addHost,
+          note: _node ? l.slAddTestsNode : l.slAddTestsRelay,
+          busy: _adding,
+          onTap: () => _add(choice),
+        ),
+      for (final e in shown)
+        _ServerRow(
+          key: serverListRowKey(e.value),
+          kind: widget.kind,
+          entry: e,
+          isDefault: !_node && EpicboxRelay.parse(e.value) == choice.preset.defaultRelay,
+          current: _same(e.value, current),
+          selected: _same(e.value, selected),
+          check: _same(e.value, selected) || (_same(e.value, current) && !selectedListed),
+          onTap: () => _pick(e.value, choice),
+          onRemove: () => _remove(e, choice),
+        ),
+      if (restorable.isNotEmpty && !filtering)
+        _RestoreRow(count: restorable.length, onTap: () => _restore(choice, public)),
+      _HealthCaption(status: dirStatus, preset: choice.preset),
+    ];
+    return LayoutBuilder(
+      builder: (context, box) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // On a short phone with large text the pinned part could pass the sheet: it then
+          // scrolls itself, within most of the height, and the list keeps the rest.
+          ConstrainedBox(
+            key: serverListPinnedKey,
+            constraints: BoxConstraints(maxHeight: box.maxHeight * 0.7),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: pinned,
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              key: serverListListKey,
+              controller: widget.scrollController,
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              children: list,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
