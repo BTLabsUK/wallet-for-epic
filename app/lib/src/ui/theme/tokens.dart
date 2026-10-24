@@ -9,7 +9,6 @@ import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 
-import '../badge.dart' show BadgeStyle;
 import 'fonts.dart' show thaiFallback;
 
 /// Every value the look may change. One instance per brightness.
@@ -387,7 +386,7 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       );
 
   return base.copyWith(
-    extensions: [t, badgeStyleFor(t)],
+    extensions: [t],
     textTheme: text.copyWith(
       // The balance: Montserrat, tight, tabular.
       displaySmall: head(
@@ -534,19 +533,3 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
   );
 }
 
-/// The badge's colours from the wallet tokens: tone ink on its soft fill, neutral as dim ink on
-/// a translucent dim fill, so it sits on any surface.
-BadgeStyle badgeStyleFor(WalletTokens t) => BadgeStyle(
-  neutral: t.dim,
-  neutralFill: t.dim.withValues(alpha: 0.12),
-  ok: t.ok,
-  okFill: t.okSoft,
-  warn: t.warn,
-  warnFill: t.warnSoft,
-  risk: t.risk,
-  riskFill: t.riskSoft,
-  info: t.info,
-  infoFill: t.infoSoft,
-  gold: t.accentText,
-  goldFill: t.accentSoft,
-);

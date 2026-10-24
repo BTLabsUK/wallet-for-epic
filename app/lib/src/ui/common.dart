@@ -894,8 +894,9 @@ String? contactName(WidgetRef ref, String? address) {
   return contacts == null ? null : contactNameFor(contacts, address);
 }
 
-/// The badge with a transaction's status: info while it waits for the other side or
-/// confirms, neutral once it is over (completed, from a backup, cancelled).
+/// The badge with a transaction's status: warn while it waits for the other side, info while
+/// it confirms (the icon beside it shows the progress, so no spinner), neutral once it is over
+/// (completed, from a backup, cancelled).
 class TxStatusChip extends ConsumerWidget {
   const TxStatusChip({super.key, required this.tx, required this.tip});
 
@@ -905,13 +906,13 @@ class TxStatusChip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final target = confirmationsTargetOf(ref);
-    final (tone, busy) = switch (txPhase(tx, tip, target: target)) {
+    final tone = switch (txPhase(tx, tip, target: target)) {
       TxPhase.waitingRecipient ||
       TxPhase.waitingSender ||
-      TxPhase.waitingPayer => (BadgeTone.warn, false),
-      TxPhase.confirming => (BadgeTone.info, true),
+      TxPhase.waitingPayer => BadgeTone.warn,
+      TxPhase.confirming => BadgeTone.info,
       // Cancelled is over, not wrong: the same neutral badge as a completed payment.
-      TxPhase.completed || TxPhase.fromBackup || TxPhase.cancelled => (BadgeTone.neutral, false),
+      TxPhase.completed || TxPhase.fromBackup || TxPhase.cancelled => BadgeTone.neutral,
     };
     return EBadge(
       txStatusLabel(
@@ -922,7 +923,6 @@ class TxStatusChip extends ConsumerWidget {
         now: ref.watch(clockProvider)(),
       ),
       tone: tone,
-      busy: busy,
     );
   }
 }

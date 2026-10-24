@@ -10,25 +10,28 @@
 ///    working or trusted, [BadgeTone.info] in progress, [BadgeTone.warn] needs attention,
 ///    [BadgeTone.risk] wrong or not connected, [BadgeTone.neutral] a plain fact.
 ///
-/// Colours and the size come from [BadgeStyle], which each theme builds from its own tokens
-/// (`buildWalletTheme`, `buildDeskTheme`), so the badge needs no theme of its own.
+/// Colours and the size come from [BadgeStyle], read from the theme in force: the desktop's
+/// [DeskColors] when the tree is under the desktop theme, the phone's [WalletTokens] otherwise
+/// (Protocol by brightness in a bare theme, like `context.tokens`).
 library;
 
 import 'package:flutter/material.dart';
 
+import '../desktop/theme/tokens.dart' show DeskColors, deskScale;
 import '../l10n.dart';
 import '../recipient.dart' show RecipientKind;
 import '../tor_routes.dart' show TorWay;
 import 'status_icons.dart';
+import 'theme/tokens.dart' show WalletTokens, WalletTokensOf;
 
 /// What a badge says with its colour; the words say it first.
 enum BadgeTone { neutral, ok, warn, risk, info, gold }
 
-/// The badge's colours and scale, one per theme. [scale] is the theme's interface scale
-/// (1 on the phone, the desktop's factor), applied to every size but the text, which the
+/// The badge's colours and scale, from the theme in force. [scale] is the theme's interface
+/// scale (1 on the phone, the desktop's factor), applied to every size but the text, which the
 /// app's `TextScaler` scales.
 @immutable
-class BadgeStyle extends ThemeExtension<BadgeStyle> {
+class BadgeStyle {
   const BadgeStyle({
     required this.neutral,
     required this.neutralFill,
@@ -63,63 +66,43 @@ class BadgeStyle extends ThemeExtension<BadgeStyle> {
     BadgeTone.gold => (gold, goldFill),
   };
 
+  /// Tone ink on its soft fill; neutral is dim ink on a translucent dim fill, so it sits on
+  /// any surface.
+  BadgeStyle.wallet(WalletTokens t)
+    : neutral = t.dim,
+      neutralFill = t.dim.withValues(alpha: 0.12),
+      ok = t.ok,
+      okFill = t.okSoft,
+      warn = t.warn,
+      warnFill = t.warnSoft,
+      risk = t.risk,
+      riskFill = t.riskSoft,
+      info = t.info,
+      infoFill = t.infoSoft,
+      gold = t.accentText,
+      goldFill = t.accentSoft,
+      scale = 1;
+
+  /// The same from the desktop tokens, sized by the interface scale.
+  BadgeStyle.desk(DeskColors c)
+    : neutral = c.dim,
+      neutralFill = c.dim.withValues(alpha: 0.12),
+      ok = c.ok,
+      okFill = c.okSoft,
+      warn = c.warn,
+      warnFill = c.warnSoft,
+      risk = c.risk,
+      riskFill = c.riskSoft,
+      info = c.info,
+      infoFill = c.infoSoft,
+      gold = c.accentText,
+      goldFill = c.accentSoft,
+      scale = deskScale;
+
+  /// The style of the theme in force at [context].
   static BadgeStyle of(BuildContext context) {
-    final s = Theme.of(context).extension<BadgeStyle>();
-    assert(s != null, 'BadgeStyle missing from the theme: buildWalletTheme and buildDeskTheme add it');
-    return s ?? _fallback;
-  }
-
-  static const _fallback = BadgeStyle(
-    neutral: Color(0xFF8A8A8A),
-    neutralFill: Color(0x1A8A8A8A),
-    ok: Color(0xFF3DBE6B),
-    okFill: Color(0x1F3DBE6B),
-    warn: Color(0xFFE0A431),
-    warnFill: Color(0x1FE0A431),
-    risk: Color(0xFFE05A5A),
-    riskFill: Color(0x1FE05A5A),
-    info: Color(0xFF5B9BE0),
-    infoFill: Color(0x1F5B9BE0),
-    gold: Color(0xFFE2B84B),
-    goldFill: Color(0x1FE2B84B),
-  );
-
-  @override
-  BadgeStyle copyWith({double? scale}) => BadgeStyle(
-    neutral: neutral,
-    neutralFill: neutralFill,
-    ok: ok,
-    okFill: okFill,
-    warn: warn,
-    warnFill: warnFill,
-    risk: risk,
-    riskFill: riskFill,
-    info: info,
-    infoFill: infoFill,
-    gold: gold,
-    goldFill: goldFill,
-    scale: scale ?? this.scale,
-  );
-
-  @override
-  BadgeStyle lerp(ThemeExtension<BadgeStyle>? other, double t) {
-    if (other is! BadgeStyle) return this;
-    Color c(Color a, Color b) => Color.lerp(a, b, t)!;
-    return BadgeStyle(
-      neutral: c(neutral, other.neutral),
-      neutralFill: c(neutralFill, other.neutralFill),
-      ok: c(ok, other.ok),
-      okFill: c(okFill, other.okFill),
-      warn: c(warn, other.warn),
-      warnFill: c(warnFill, other.warnFill),
-      risk: c(risk, other.risk),
-      riskFill: c(riskFill, other.riskFill),
-      info: c(info, other.info),
-      infoFill: c(infoFill, other.infoFill),
-      gold: c(gold, other.gold),
-      goldFill: c(goldFill, other.goldFill),
-      scale: t < 0.5 ? scale : other.scale,
-    );
+    final desk = Theme.of(context).extension<DeskColors>();
+    return desk == null ? BadgeStyle.wallet(context.tokens) : BadgeStyle.desk(desk);
   }
 }
 
