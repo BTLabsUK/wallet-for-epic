@@ -291,20 +291,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errorUnexpected => '发生意外错误，请重试。';
 
   @override
-  String get errorHistoryNotOurs => '此文件不是本应用导出的历史备份。';
+  String get errorHistoryNotOurs => '此文件不是本应用导出的交易记录备份。';
 
   @override
-  String get errorHistoryNewer => '此历史备份由更新版本的应用创建。';
+  String get errorHistoryNewer => '此交易记录备份由更新版本的应用创建。';
 
   @override
-  String get errorHistoryDamaged => '此历史备份已损坏。';
+  String get errorHistoryDamaged => '此交易记录备份已损坏。';
 
   @override
-  String get errorHistoryOtherWallet => '此历史备份属于另一个钱包。';
+  String get errorHistoryOtherWallet => '此交易记录备份属于另一个钱包。';
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return '此历史备份来自 $fileNetwork，但当前钱包位于 $walletNetwork。';
+    return '此交易记录备份来自 $fileNetwork，但当前钱包位于 $walletNetwork。';
   }
 
   @override
@@ -411,24 +411,24 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '已等待 $days 天。epicbox 会在 7 天后删除付款，因此这笔付款已无法完成。请取消它以解锁资金，然后重新发送。',
+      other: '已等待 $days 天。Epicbox 会在 7 天后删除付款，因此这笔付款已无法完成。请取消它以解锁资金，然后重新发送。',
     );
     return '$_temp0';
   }
 
   @override
   String get txDetailsWaitingEpicbox =>
-      '已发送到接收方的 epicbox。对方钱包上线后即可完成。在此之前，或在你取消之前，你的资金将保持锁定。';
+      '已发送到接收方的 Epicbox。对方钱包上线后即可完成。在此之前，或在你取消之前，你的资金将保持锁定。';
 
   @override
   String get txDetailsWaitingRecipient =>
       '正在等待接收方回复其交易文件。在此之前，或在你取消之前，你的资金将保持锁定。';
 
   @override
-  String get txDetailsWaitingSender => '你已接受这笔付款。发送方完成并将其发布到网络后，付款即完成。';
+  String get txDetailsWaitingSender => '你已接受这笔付款。发送方完成并将其广播到网络后，付款即完成。';
 
   @override
-  String get txDetailsPublished => '已发布到网络。正在等待第一个确认。';
+  String get txDetailsPublished => '已广播到网络。正在等待第一个确认。';
 
   @override
   String get txDetailsWaitingConfirmation => '正在等待网络确认。';
@@ -529,7 +529,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsFromBackup =>
-      '这笔付款来自历史备份，备份时尚未完成。此钱包自身没有它的记录，因此无法判断它是否已完成。没有锁定任何资金。';
+      '这笔付款来自交易记录备份，备份时尚未完成。此钱包自身没有它的记录，因此无法判断它是否已完成。没有锁定任何资金。';
 
   @override
   String txDetailsCancelsAtBlock(String height) {
@@ -691,7 +691,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsNoteDialogTitle => '备注';
 
   @override
-  String get txDetailsNoteHelper => '仅保存在此设备和你的历史备份中。';
+  String get txDetailsNoteHelper => '仅保存在此设备和你的交易记录备份中。';
 
   @override
   String get txDetailsNoteSaved => '备注已保存';
@@ -764,10 +764,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      '通过扫描区块链找到。发送方和手续费等详情不会保存在链上；导入历史备份即可恢复。';
+      '通过扫描区块链找到。发送方和手续费等详情不会保存在链上；导入交易记录备份即可恢复。';
 
   @override
-  String get txDetailsSourceImported => '从历史备份导入。此钱包自身没有它的记录，因此其状态可能已过时。';
+  String get txDetailsSourceImported => '从交易记录备份导入。此钱包自身没有它的记录，因此其状态可能已过时。';
 
   @override
   String get historyTitle => '交易记录';
@@ -829,7 +829,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get historyBackupSaveDialogTitle => '保存交易记录';
 
   @override
-  String get historyBackupOpenDialogTitle => '打开历史备份';
+  String get historyBackupOpenDialogTitle => '打开交易记录备份';
 
   @override
   String get historyBackupFileTooLarge => '该文件过大，不可能是备份文件。';
@@ -852,27 +852,27 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportTitle => '导出历史备份';
+  String get historyBackupExportTitle => '导出交易记录备份';
 
   @override
-  String get historyBackupExportNote => '历史备份包含截至目前的付款。有新付款后请重新导出。';
+  String get historyBackupExportNote => '交易记录备份包含截至目前的付款。有新付款后请重新导出。';
 
   @override
   String get historyBackupCsvTitle => '导出 CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'CSV 文件未加密。任何拿到它的人都能看到你的金额、日期、地址和备注。它无法再导入；如需可导入的备份，请使用“导出历史备份”。';
+      'CSV 文件未加密。任何拿到它的人都能看到你的金额、日期、地址和备注。它无法再导入；如需可导入的备份，请使用“导出交易记录备份”。';
 
   @override
   String get historyBackupCsvConfirm => '导出 CSV';
 
   @override
-  String get historyBackupImportedTitle => '已导入历史备份';
+  String get historyBackupImportedTitle => '已导入交易记录备份';
 
   @override
   String historyBackupImportFailed(String reason) {
-    return '未能导入历史备份。$reason';
+    return '未能导入交易记录备份。$reason';
   }
 
   @override
@@ -1227,7 +1227,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeScanTooltip => '扫描二维码发送';
 
   @override
-  String get homeRecentActivity => '最近交易';
+  String get homeRecentActivity => '最近活动';
 
   @override
   String get homeSeeAll => '查看全部';
@@ -1239,7 +1239,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoticeView => '查看';
 
   @override
-  String get homePushNotice => '你的 epicbox 中有一笔待接收的付款。应用连接后即可到账。';
+  String get homePushNotice => '你的 Epicbox 中有一笔待接收的付款。应用连接后即可到账。';
 
   @override
   String get homeNoticeReceived => '有一笔付款正在途中。待发送方完成操作后即可到账。';
@@ -1279,7 +1279,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoticeDelayed => '无法连接节点。连接恢复后，付款将自动完成。';
 
   @override
-  String get homeNoticeRelayProblem => 'epicbox 服务器报告了问题，正在重试。';
+  String get homeNoticeRelayProblem => 'Epicbox 服务器报告了问题，正在重试。';
 
   @override
   String get homeNoticePaymentFailed => '有一笔付款未能完成。';
@@ -1298,7 +1298,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '有 $count 笔付款不在历史备份中。用助记词恢复钱包只能找回余额。',
+      other: '有 $count 笔付款不在交易记录备份中。用助记词恢复钱包只能找回余额。',
     );
     return '$_temp0';
   }
@@ -1308,7 +1308,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '自上次历史备份以来，有 $count 笔付款为新增或有变动。用助记词恢复钱包只能找回余额。',
+      other: '自上次交易记录备份以来，有 $count 笔付款为新增或有变动。用助记词恢复钱包只能找回余额。',
     );
     return '$_temp0';
   }
@@ -1317,7 +1317,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeHistoryReminderNotNow => '以后再说';
 
   @override
-  String get homeHistoryExportButton => '导出历史备份';
+  String get homeHistoryExportButton => '导出交易记录备份';
 
   @override
   String get homeBalanceSpendable => '可用余额';
@@ -1414,13 +1414,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statusNodeOffline => '节点离线';
 
   @override
-  String get statusEpicboxOnline => 'epicbox 在线';
+  String get statusEpicboxOnline => 'Epicbox 在线';
 
   @override
-  String get statusEpicboxConnecting => '正在连接 epicbox';
+  String get statusEpicboxConnecting => '正在连接 Epicbox';
 
   @override
-  String get statusEpicboxOffline => 'epicbox 离线';
+  String get statusEpicboxOffline => 'Epicbox 离线';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -1443,10 +1443,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get homeEpicboxOffline => 'epicbox 已离线，正在重新连接。';
+  String get homeEpicboxOffline => 'Epicbox 已离线，正在重新连接。';
 
   @override
-  String get homeEpicboxConnecting => '正在连接 epicbox…';
+  String get homeEpicboxConnecting => '正在连接 Epicbox…';
 
   @override
   String homeSyncedAtBlock(String height) {
@@ -1507,7 +1507,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoicesChecking => '正在检查账单';
 
   @override
-  String get invoicesEmpty => '没有待处理的账单。您信任的服务向您发送账单后，账单会显示在这里。未经您批准，不会支付任何款项。';
+  String get invoicesEmpty => '没有待处理的账单。你信任的服务向你发送账单后，账单会显示在这里。未经你批准，不会支付任何款项。';
 
   @override
   String get invoicesUnnamedService => '未命名的服务';
@@ -1536,14 +1536,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceReviewAsks(String service) {
-    return '$service 请您付款';
+    return '$service 请你付款';
   }
 
   @override
   String get invoiceReviewMessageLabel => '服务的留言';
 
   @override
-  String get invoiceReviewNote => '钱包会加上网络手续费。在您批准之前不会支付任何款项。';
+  String get invoiceReviewNote => '钱包会加上网络手续费。在你批准之前不会支付任何款项。';
 
   @override
   String get invoiceApprove => '批准并付款';
@@ -1559,7 +1559,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceDeclineBody(String service) {
-    return '$service 会收到您拒绝的通知。不会支付任何款项。';
+    return '$service 会收到你拒绝的通知。不会支付任何款项。';
   }
 
   @override
@@ -1575,7 +1575,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceReplyFailedTitle(String service) {
-    return '您的付款尚未送达 $service';
+    return '你的付款尚未送达 $service';
   }
 
   @override
@@ -1595,38 +1595,38 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceDetailsReplied(String service) {
-    return '正在等待 $service 发布这笔付款。';
+    return '正在等待 $service 广播这笔付款。';
   }
 
   @override
   String invoiceDetailsPosted(String service) {
-    return '$service 报告已发布这笔付款。网络确认后即完成。';
+    return '$service 报告已广播这笔付款。网络确认后即完成。';
   }
 
   @override
   String invoiceDetailsReplyFailed(String service) {
-    return '$service 尚未收到您的付款。点“重试”会再次发送，无需再次批准。';
+    return '$service 尚未收到你的付款。点“重试”会再次发送，无需再次批准。';
   }
 
   @override
   String invoiceDetailsWithdrawn(String service) {
-    return '您付款后，$service 撤回了此账单。如果这笔付款未能确认，请取消它以解锁资金。';
+    return '你付款后，$service 撤回了此账单。如果这笔付款未能确认，请取消它以解锁资金。';
   }
 
   @override
-  String get invoiceNoticeReceived => '有一张账单等待您批准。';
+  String get invoiceNoticeReceived => '有一张账单等待你批准。';
 
   @override
-  String get invoiceNoticePosted => '某个服务报告已发布您的付款。';
+  String get invoiceNoticePosted => '某个服务报告已广播你的付款。';
 
   @override
-  String get invoiceNoticeWithdrawnPaid => '某个服务撤回了一张您已支付的账单。';
+  String get invoiceNoticeWithdrawnPaid => '某个服务撤回了一张你已支付的账单。';
 
   @override
-  String get invoiceNoticeWithdrawn => '某个服务在您答复前撤回了一张账单。';
+  String get invoiceNoticeWithdrawn => '某个服务在你答复前撤回了一张账单。';
 
   @override
-  String get invoiceNoticeExpired => '一张账单在您答复前已过期。';
+  String get invoiceNoticeExpired => '一张账单在你答复前已过期。';
 
   @override
   String get receiveRequestTitle => '请求付款';
@@ -1653,13 +1653,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get requestPayerMissing => '粘贴或扫描对方的账单地址。';
 
   @override
-  String get requestPayerOwn => '这是你自己的地址之一。请输入付款人给你的账单地址。';
+  String get requestPayerOwn => '这是你自己的地址之一。请输入付款方给你的账单地址。';
 
   @override
-  String get requestMessageLabel => '给付款人的留言（可选）';
+  String get requestMessageLabel => '给付款方的留言（可选）';
 
   @override
-  String get requestMessageHelper => '付款人会随请求看到这条留言。';
+  String get requestMessageHelper => '付款方会随请求看到这条留言。';
 
   @override
   String get requestButton => '请求';
@@ -1705,19 +1705,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get issuedWithdrawKeep => '保留';
 
   @override
-  String get issuedDetailsSection => '付款请求';
+  String get issuedDetailsSection => '收款请求';
 
   @override
   String get issuedDetailsPayer => '请求对象';
 
   @override
-  String get issuedDetailsWaiting => '正在等待付款人。付款到达后，你的钱包会完成它。';
+  String get issuedDetailsWaiting => '正在等待付款方。付款到达后，你的钱包会完成它。';
 
   @override
   String get issuedDetailsPaid => '已支付。你的钱包已完成这笔付款；网络确认后即完成。';
 
   @override
-  String get issuedDetailsDeclined => '付款人拒绝了这个请求，因此已撤回。没有支付任何款项。';
+  String get issuedDetailsDeclined => '付款方拒绝了这个请求，因此已撤回。没有支付任何款项。';
 
   @override
   String get issuedDetailsWithdrawn => '你撤回了这个请求。没有支付任何款项。';
@@ -1747,14 +1747,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      '付款人的钱包无法支付请求，已将这个请求退回，因此已撤回。没有支付任何款项。请让对方改为直接向你的地址付款，或使用付款文件。';
+      '付款方的钱包无法支付请求，已将这个请求退回，因此已撤回。没有支付任何款项。请让对方改为直接向你的地址付款，或使用付款文件。';
 
   @override
   String get requestPayerNoInvoices =>
       '这个钱包之前退回过请求：它无法支付请求。请让对方改为直接向你的地址付款，或使用付款文件。';
 
   @override
-  String get txStatusWaitingPayer => '等待付款人';
+  String get txStatusWaitingPayer => '等待付款方';
 
   @override
   String get txStepRequested => '已请求';
@@ -1763,7 +1763,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txStepPaid => '已支付';
 
   @override
-  String get txDetailsWaitingPayer => '你请求了这笔付款。目前还没有到账：付款人支付请求后款项才会到达。';
+  String get txDetailsWaitingPayer => '你请求了这笔付款。目前还没有到账：付款方支付请求后款项才会到达。';
 
   @override
   String get txDetailsRequestEnded => '这个请求未付款即已结束。没有任何款项到账。';
@@ -1785,7 +1785,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get receiveEpicboxConnected => 'epicbox 已连接';
+  String get receiveEpicboxConnected => 'Epicbox 已连接';
 
   @override
   String get receiveQrLabel => '你的地址二维码';
@@ -1794,7 +1794,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveAddressLabel => 'Epicbox 地址';
 
   @override
-  String get receiveEpicboxOfflineBody => '发给你的付款现在会在 epicbox 等待，钱包重新连接后到账。';
+  String get receiveEpicboxOfflineBody => '发给你的付款现在会在 Epicbox 等待，钱包重新连接后到账。';
 
   @override
   String get receiveShareCardHeadline => '用 Epic Cash 付款给我';
@@ -1951,13 +1951,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get setupConnectedIconLabel => '已连接';
 
   @override
-  String get setupRelayHeading => 'epicbox 服务器';
+  String get setupRelayHeading => 'Epicbox 服务器';
 
   @override
   String get setupRelayHint => '你的地址包含此服务器。';
 
   @override
-  String get setupCustomRelayLabel => '其他 epicbox 服务器（主机名或 host:port）';
+  String get setupCustomRelayLabel => '其他 Epicbox 服务器（主机名或 host:port）';
 
   @override
   String get setupCustomRelayUse => '使用此服务器';
@@ -1967,7 +1967,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get setupRelayChangeWarning =>
-      '更换 epicbox 服务器会改变你的地址。请把新地址告诉发送方。发送到旧地址的付款会留在旧服务器上，直到你切换回去。';
+      '更换 Epicbox 服务器会改变你的地址。请把新地址告诉发送方。发送到旧地址的付款会留在旧服务器上，直到你切换回去。';
 
   @override
   String get setupWalletPerNetwork => '每个网络都有各自的钱包。尚无钱包的网络会创建一个新钱包。';
@@ -2071,10 +2071,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      '区块链上保存着你的余额，但不包含付款对象、手续费和备注。如果你曾从这个钱包导出历史备份，现在导入即可找回这些信息。它就是你分享或保存到旧手机以外的 .wfeh 文件。';
+      '区块链上保存着你的余额，但不包含付款对象、手续费和备注。如果你曾从这个钱包导出交易记录备份，现在导入即可找回这些信息。它就是你分享或保存到旧手机以外的 .wfeh 文件。';
 
   @override
-  String get restoreImportButton => '导入历史备份';
+  String get restoreImportButton => '导入交易记录备份';
 
   @override
   String get restoreImportNotNow => '以后再说';
@@ -2260,7 +2260,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get unlockStranded =>
-      '无法正常读取此钱包。没有删除任何内容。请重启设备后重试。如果问题仍然存在，可以通过“忘记 PIN 码？”移除钱包，再用恢复短语恢复。';
+      '无法正常读取此钱包。没有删除任何内容。请重启设备后重试。如果问题仍然存在，可以通过“忘记 PIN 码？”移除钱包，再用助记词恢复。';
 
   @override
   String get sendAmountNegative => '金额不能为负数。';
@@ -2286,7 +2286,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendAmountZero => '请输入大于零的金额。';
 
   @override
-  String get sendUrlUnsupported => '不支持向钱包 URL 付款。请向接收方索取其 epicbox 地址。';
+  String get sendUrlUnsupported => '不支持向钱包 URL 付款。请向接收方索取其 Epicbox 地址。';
 
   @override
   String get scanQrTooltip => '扫描二维码';
@@ -2386,7 +2386,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slateWrongPayment => '此回复属于另一笔付款。请打开接收方针对这笔付款返回的文件。';
 
   @override
-  String get slateInvoiceUnsupported => '暂不支持收款请求（发票）。';
+  String get slateInvoiceUnsupported => '暂不支持账单。';
 
   @override
   String get slateNotTransactionFile => '该文件不是交易文件。';
@@ -2429,7 +2429,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String slateRepeatedBody(String amount) {
-    return '您之前已接受这笔付款，因此这是相同的回复，而不是第二笔付款。发送方完成付款并上链后，这笔 $amount 即会到账。';
+    return '你之前已接受这笔付款，因此这是相同的回复，而不是第二笔付款。发送方完成付款并上链后，这笔 $amount 即会到账。';
   }
 
   @override
@@ -2661,13 +2661,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionHistory => '交易记录';
 
   @override
-  String get settingsExportHistory => '导出历史备份';
+  String get settingsExportHistory => '导出交易记录备份';
 
   @override
   String get settingsExportCsv => '导出 CSV';
 
   @override
-  String get settingsImportHistory => '导入历史备份';
+  String get settingsImportHistory => '导入交易记录备份';
 
   @override
   String get settingsSectionWallet => '钱包';
@@ -2682,20 +2682,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsInvoices => '账单地址和受信任的服务';
 
   @override
-  String get settingsInvoicesSubtitle => '允许您信任的服务向您发送账单。每张账单都需要您批准。';
+  String get settingsInvoicesSubtitle => '允许你信任的服务向你发送账单。每张账单都需要你批准。';
 
   @override
   String get invoiceSettingsTitle => '账单';
 
   @override
-  String get invoiceSettingsAddressTitle => '您的账单地址';
+  String get invoiceSettingsAddressTitle => '你的账单地址';
 
   @override
   String get invoiceSettingsAddressBody =>
-      '将此地址提供给您信任的服务，以便它向您发送账单。您的收款地址保持不变。';
+      '将此地址提供给你信任的服务，以便它向你发送账单。你的收款地址保持不变。';
 
   @override
-  String get invoiceSettingsQrLabel => '您的账单地址二维码';
+  String get invoiceSettingsQrLabel => '你的账单地址二维码';
 
   @override
   String get invoiceSettingsAddressCopied => '已复制账单地址。';
@@ -2704,7 +2704,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoiceSettingsServicesTitle => '受信任的服务';
 
   @override
-  String get invoiceSettingsNoServices => '还没有受信任的服务。其他人的账单永远不会到达您这里。';
+  String get invoiceSettingsNoServices => '还没有受信任的服务。其他人的账单永远不会到达你这里。';
 
   @override
   String get invoiceSettingsAddService => '添加服务';
@@ -2720,7 +2720,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get invoiceSettingsRemoveBody => '此服务将无法再向您发送账单。已完成的付款不受影响。';
+  String get invoiceSettingsRemoveBody => '此服务将无法再向你发送账单。已完成的付款不受影响。';
 
   @override
   String get invoiceSettingsKeep => '保留';
@@ -2730,7 +2730,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceSettingsRemoved(String name) {
-    return '$name 无法再向您发送账单。';
+    return '$name 无法再向你发送账单。';
   }
 
   @override
@@ -2743,13 +2743,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoiceSettingsRotateTitle => '获取新的账单地址？';
 
   @override
-  String get invoiceSettingsRotateBody => '您当前的账单地址将永久停止使用。每个向您发送账单的服务都需要新地址。';
+  String get invoiceSettingsRotateBody => '你当前的账单地址将永久停止使用。每个向你发送账单的服务都需要新地址。';
 
   @override
   String get invoiceSettingsRotateConfirm => '获取新地址';
 
   @override
-  String get invoiceSettingsRotated => '新的账单地址已就绪。请把它提供给您的服务。';
+  String get invoiceSettingsRotated => '新的账单地址已就绪。请把它提供给你的服务。';
 
   @override
   String invoiceSettingsDropped(int count) {
@@ -2761,7 +2761,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddExplanation =>
-      '受信任的服务可以向您的账单地址发送账单；其他人的消息会被丢弃。在您用 PIN 或指纹批准每张账单之前，不会支付任何款项。';
+      '受信任的服务可以向你的账单地址发送账单；其他人的消息会被丢弃。在你用 PIN 或指纹批准每张账单之前，不会支付任何款项。';
 
   @override
   String get invoiceSettingsLabelLabel => '名称';
@@ -2770,7 +2770,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoiceSettingsLabelMissing => '请为服务命名。';
 
   @override
-  String get invoiceSettingsServiceAddressLabel => '服务的 epicbox 地址';
+  String get invoiceSettingsServiceAddressLabel => '服务的 Epicbox 地址';
 
   @override
   String get invoiceSettingsAddressMissing => '粘贴或扫描服务显示的地址。';
@@ -2780,7 +2780,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceSettingsAdded(String name) {
-    return '$name 现在可以向您发送账单了。';
+    return '$name 现在可以向你发送账单了。';
   }
 
   @override
@@ -2866,7 +2866,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAboutNetwork => '网络';
 
   @override
-  String get settingsEpicboxServer => 'epicbox 服务器';
+  String get settingsEpicboxServer => 'Epicbox 服务器';
 
   @override
   String settingsUpdateTo(String version) {
@@ -2895,11 +2895,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsLicences => '许可证';
 
   @override
-  String get licencesLead => '本钱包包含的开源软件。每个组件保留各自的许可证；完整文本一键可达。';
+  String get licencesLead => '本钱包包含的开源软件。每个组件保留各自的许可证；点按即可查看完整文本。';
 
   @override
   String get licencesApp =>
-      'Epic Cash Mobile，由 BT Labs 开发：Apache-2.0。代码在 GitHub 上。';
+      'Epic Cash Mobile，BT Labs 出品：Apache-2.0。代码托管在 GitHub 上。';
 
   @override
   String get licencesFlutter => 'Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。';
@@ -3050,7 +3050,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionHelpFeedback => '帮助与反馈';
 
   @override
-  String get settingsStateBackUp => '备份恢复短语';
+  String get settingsStateBackUp => '备份助记词';
 
   @override
   String get settingsStateNotBackedUp => '尚未备份';
@@ -3138,7 +3138,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fileHelpPlay => '播放动画';
 
   @override
-  String get demoPinFilled => '演示 PIN 已为你填好';
+  String get demoPinFilled => '演示 PIN 码已为你填好';
 
   @override
   String get demoPinSkip => '跳过';
@@ -3273,7 +3273,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sendTrackOffline(String amount) {
-    return '对方钱包打开后会完成付款。在此之前 $amount 处于冻结状态。';
+    return '对方钱包打开后会完成付款。在此之前 $amount 处于锁定状态。';
   }
 
   @override
@@ -3296,7 +3296,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sendFileOnHold(String amount) {
-    return '$amount 已冻结';
+    return '$amount 已锁定';
   }
 
   @override
@@ -3324,7 +3324,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeNetwork => '网络';
 
   @override
-  String get handshakePay1 => '你的钱包把付款发到中继。你的币被冻结。';
+  String get handshakePay1 => '你的钱包把付款发到中继。你的币被锁定。';
 
   @override
   String get handshakePay2 => '中继把它转给对方。对方钱包加入自己的部分并签名。';
@@ -3376,7 +3376,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '对方的中继没有接收。在你取消之前，这笔金额处于冻结状态，最长 $days 天。',
+      other: '对方的中继没有接收。在你取消之前，这笔金额处于锁定状态，最长 $days 天。',
     );
     return '$_temp0';
   }
@@ -3410,7 +3410,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String balanceLineOnHold(String amount) {
-    return '$amount 冻结中';
+    return '$amount 锁定中';
   }
 
   @override
@@ -3558,7 +3558,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '未能通过 Tor 联系到对方钱包。在你取消之前，这笔金额处于冻结状态，最长 $days 天。',
+      other: '未能通过 Tor 联系到对方钱包。在你取消之前，这笔金额处于锁定状态，最长 $days 天。',
     );
     return '$_temp0';
   }
@@ -3611,12 +3611,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sendPinReason(String amount) {
-    return '输入 PIN 以发送 $amount。';
+    return '输入 PIN 码以发送 $amount。';
   }
 
   @override
   String sendFilePinReason(String amount) {
-    return '输入 PIN 以生成 $amount 的付款文件。';
+    return '输入 PIN 码以生成 $amount 的付款文件。';
   }
 
   @override
@@ -3732,7 +3732,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String outputsMeanConfirming(int need) {
-    return '需要 $need 次确认后才能花费。';
+    return '需要 $need 个确认后才能花费。';
   }
 
   @override
@@ -3773,13 +3773,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsFactTransaction => '交易';
 
   @override
-  String get outputsFactCommitment => '承诺值';
+  String get outputsFactCommitment => '承诺';
 
   @override
   String get outputsCopy => '复制';
 
   @override
-  String get outputsCopied => '已复制承诺值';
+  String get outputsCopied => '承诺已复制';
 
   @override
   String get outputsEmpty => '暂无输出';
@@ -3826,7 +3826,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsStepperHint => '2 到 10';
 
   @override
-  String get outputsFactFee => '网络费用';
+  String get outputsFactFee => '网络手续费';
 
   @override
   String get outputsFactEach => '每个输出';
@@ -3867,10 +3867,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsConsolidateAction => '合并';
 
   @override
-  String get outputsSplitPin => '输入 PIN 以确认拆分输出';
+  String get outputsSplitPin => '输入 PIN 码以确认拆分输出';
 
   @override
-  String get outputsConsolidatePin => '输入 PIN 以确认合并输出';
+  String get outputsConsolidatePin => '输入 PIN 码以确认合并输出';
 
   @override
   String outputsSplitStarted(int count) {
@@ -3887,7 +3887,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsColState => '状态';
 
   @override
-  String get outputsColValue => '数值';
+  String get outputsColValue => '金额';
 
   @override
   String get outputsColConfirmations => '确认数';
@@ -3963,10 +3963,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get invoicesToPayEmpty => '没有待付发票';
+  String get invoicesToPayEmpty => '没有待付账单';
 
   @override
-  String get invoicesToPayEmptyCaption => '你信任列表中的服务可以向此钱包开具发票。每张发票都在这里等待你批准。';
+  String get invoicesToPayEmptyCaption => '你信任列表中的服务可以向此钱包开具账单。每张账单都在这里等待你批准。';
 
   @override
   String get invoicesSentEmpty => '没有已发送的请求';
@@ -4050,7 +4050,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String netStatusSyncingPercent(int percent) {
-    return '同步中 $percent %';
+    return '同步中 $percent%';
   }
 
   @override
@@ -4087,7 +4087,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String netStatusStarting(int percent) {
-    return '启动中 $percent %';
+    return '启动中 $percent%';
   }
 
   @override
@@ -4137,7 +4137,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netStatusTorOpenHint => '打开隐私设置';
 
   @override
-  String get netStatusDirectOpenHint => '打开直接接收地址';
+  String get netStatusDirectOpenHint => '打开直连接收地址';
 
   @override
   String get netStatusOpenHint => '显示服务器';
@@ -4182,7 +4182,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverHealthUnknown => '无法访问 status.btlabs.uk；状态未知';
 
   @override
-  String get serverAtTip => '已最新';
+  String get serverAtTip => '已是最新';
 
   @override
   String serverBehindShort(String count) {
@@ -4230,7 +4230,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String serverUptime(String percent) {
-    return '$percent % 在线';
+    return '$percent% 在线';
   }
 
   @override
@@ -4242,10 +4242,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverNodeSwitchNote => '钱包将重新连接，并根据新节点重新核对余额。';
 
   @override
-  String get serverRelayWarning => '你的地址包含此服务器。切换会更改你的地址；付款方需要新地址。';
+  String get serverRelayWarning => '你的地址包含此服务器。切换会更改你的地址；发送方需要新地址。';
 
   @override
-  String get serverRelaySwitchNote => '你的地址将改变；付款方需要新地址。';
+  String get serverRelaySwitchNote => '你的地址将改变；发送方需要新地址。';
 
   @override
   String get serverOtherRelay => '其他服务器，host 或 host:port';
@@ -4264,12 +4264,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String serverHeightAtTip(String height) {
-    return '$height · 已最新';
+    return '$height · 已是最新';
   }
 
   @override
   String serverNodesAgree(String height) {
-    return '节点一致于 $height';
+    return '各节点一致：$height';
   }
 
   @override
@@ -4469,7 +4469,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '未能联系到对方钱包。在你取消之前，这笔金额处于冻结状态，最长 $days 天。',
+      other: '未能联系到对方钱包。在你取消之前，这笔金额处于锁定状态，最长 $days 天。',
     );
     return '$_temp0';
   }
@@ -4573,7 +4573,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvReqPaid => '已付款，正在完成';
 
   @override
-  String get deskInvReqPosted => '已发布';
+  String get deskInvReqPosted => '已广播';
 
   @override
   String deskInvConfirming(int count, int total) {
@@ -4584,7 +4584,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvCompleted => '已完成';
 
   @override
-  String get deskInvReqNotPosted => '未发布';
+  String get deskInvReqNotPosted => '未广播';
 
   @override
   String get deskInvDeclined => '已拒绝';
@@ -4608,10 +4608,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayNotDelivered => '未送达';
 
   @override
-  String get deskInvPayDelivered => '等待发布';
+  String get deskInvPayDelivered => '等待广播';
 
   @override
-  String get deskInvPayPosted => '服务已发布';
+  String get deskInvPayPosted => '已由服务广播';
 
   @override
   String get deskInvPayWithdrawnAfterPay => '付款后已撤回';
@@ -4626,7 +4626,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvUnpaid => '未支付';
 
   @override
-  String get deskInvYouPay => '您支付';
+  String get deskInvYouPay => '你支付';
 
   @override
   String deskInvExpiresAt(String time) {
@@ -4681,7 +4681,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvHelpFlowStep4(int confirmations) {
-    return '开单方的钱包完成这笔付款并发布到网络。经过 $confirmations 个确认后即为最终。';
+    return '开单方的钱包完成这笔付款并广播到网络。$confirmations 个确认后即为最终状态。';
   }
 
   @override
@@ -4782,16 +4782,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvHelpDiagramPayAddrSub => '不是账单地址';
 
   @override
-  String get deskInvHelpDiagramFinal => '完成并发布';
+  String get deskInvHelpDiagramFinal => '完成并广播';
 
   @override
   String deskInvHelpDiagramFinalSub(int confirmations) {
-    return '确认数达到 $confirmations 后为最终';
+    return '$confirmations 个确认后即为最终状态';
   }
 
   @override
   String get deskInvHelpDiagramSemantics =>
-      '开单方把账单发到付款方的账单地址，该地址只接受受信任的发送方并丢弃其他；付款方核对并批准；付款发到开单方的收款地址；开单方的钱包完成付款并发布到网络。';
+      '开单方把账单发到付款方的账单地址，该地址只接受受信任的发送方并丢弃其他；付款方核对并批准；付款发到开单方的收款地址；开单方的钱包完成付款并广播到网络。';
 
   @override
   String get deskInvIssuerFormTitle => '开具账单';
@@ -4800,7 +4800,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerFirstTitle => '首次开具账单之前';
 
   @override
-  String get deskInvIssuerYourAddress => '您的收款地址';
+  String get deskInvIssuerYourAddress => '你的收款地址';
 
   @override
   String get deskInvIssuerMethod => '方式';
@@ -4821,7 +4821,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerPayer => '对方的账单地址';
 
   @override
-  String get deskInvIssuerPayerHelp => '对方钱包在 设置 › 账单 中显示。';
+  String get deskInvIssuerPayerHelp => '对方钱包在“设置 › 账单”中显示它。';
 
   @override
   String get deskInvIssuerPayerMissing => '粘贴对方的账单地址。';
@@ -4830,7 +4830,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerPayerInvalid => '这不是有效的 Epicbox 地址。';
 
   @override
-  String get deskInvIssuerPayerOwn => '这是您自己的地址之一。请使用付款方提供的账单地址。';
+  String get deskInvIssuerPayerOwn => '这是你自己的地址之一。请使用付款方提供的账单地址。';
 
   @override
   String get deskInvIssuerPayerHttp =>
@@ -4840,11 +4840,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerContacts => '联系人';
 
   @override
-  String get deskInvIssuerNoContacts => '还没有联系人有账单地址。请在联系人中添加。';
+  String get deskInvIssuerNoContacts => '还没有联系人有账单地址。请在“联系人”中添加。';
 
   @override
   String get deskInvIssuerNoInvoices =>
-      '该钱包曾退回过账单：它无法通过 Epicbox 支付账单。请改为发送账单文件，或请对方直接付款给您。';
+      '该钱包曾退回过账单：它无法通过 Epicbox 支付账单。请改为发送账单文件，或请对方直接付款给你。';
 
   @override
   String get deskInvIssuerUseFile => '使用文件';
@@ -4869,7 +4869,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerAmountCap => '超过 EPIC 的总供应量。';
 
   @override
-  String get deskInvIssuerAmountHelp => '您的钱包不会支出任何资金：付款方支付此金额外加其自己的手续费。';
+  String get deskInvIssuerAmountHelp => '你的钱包不会支出任何资金：付款方支付此金额外加其自己的手续费。';
 
   @override
   String get deskInvIssuerMessage => '给付款方的留言';
@@ -4905,7 +4905,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskInvIssuerEmpty => '还没有开具账单。账单会让联系人或服务向您付款；它不花费任何资金。';
+  String get deskInvIssuerEmpty => '还没有开具账单。账单会让联系人或服务向你付款；它不花费任何资金。';
 
   @override
   String deskInvIssuerTo(String payer) {
@@ -4962,10 +4962,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerWithdrawn => '账单已撤回。';
 
   @override
-  String get deskInvIssuerRepost => '重新发布';
+  String get deskInvIssuerRepost => '重新广播';
 
   @override
-  String get deskInvIssuerReposted => '付款已重新发布。';
+  String get deskInvIssuerReposted => '付款已重新广播。';
 
   @override
   String get deskInvIssuerNodeDown => '节点无响应。请在节点可用时重试。';
@@ -4986,7 +4986,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvIssuerBounced(String payer) {
-    return '$payer 的钱包退回了账单：它无法支付账单。请改为让对方直接付款给您。';
+    return '$payer 的钱包退回了账单：它无法支付账单。请改为让对方直接付款给你。';
   }
 
   @override
@@ -4997,7 +4997,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvIssuerPaidText(String payer) {
-    return '$payer 已付款。您的钱包已完成并发布该付款。';
+    return '$payer 已付款。你的钱包已完成并广播该付款。';
   }
 
   @override
@@ -5012,10 +5012,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerStepsIntro => '对方的钱包必须支持账单。首次开具账单之前：';
 
   @override
-  String get deskInvIssuerStepTrust => '1. 对方把您下面的收款地址加入受信任的发送方。';
+  String get deskInvIssuerStepTrust => '1. 对方把你下面的收款地址加入受信任的发送方。';
 
   @override
-  String get deskInvIssuerStepAddress => '2. 对方把其账单地址提供给您。';
+  String get deskInvIssuerStepAddress => '2. 对方把其账单地址提供给你。';
 
   @override
   String get deskInvIssuerStepIssued => '已开具';
@@ -5027,30 +5027,30 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvNoticeDeclined(String payer) {
-    return '$payer 拒绝了你的发票。';
+    return '$payer 拒绝了你的账单。';
   }
 
   @override
-  String get deskInvNoticeIssuedExpired => '你开具的一张发票已过期未付。';
+  String get deskInvNoticeIssuedExpired => '你开具的一张账单已过期未付。';
 
   @override
   String deskInvNoticeWithdrawn(String service) {
-    return '$service 在你回复前撤回了一张发票。';
+    return '$service 在你回复前撤回了一张账单。';
   }
 
   @override
-  String get deskInvNoticeExpired => '一张发票在你回复前已过期。';
+  String get deskInvNoticeExpired => '一张账单在你回复前已过期。';
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      '收到一笔针对本设备未开具发票的付款，已被拒绝。如果是使用此钱包的另一台设备开具的，请让付款方取消后重新付款。';
+      '收到一笔针对本设备未开具账单的付款，已被拒绝。如果是使用此钱包的另一台设备开具的，请让付款方取消后重新付款。';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
       '收到一条针对本设备未发送付款的回复，已被拒绝。如果是使用此钱包的另一台设备发送的，请在那里取消后重新发送。';
 
   @override
-  String get deskInvPayerWaitingHead => '等待您处理';
+  String get deskInvPayerWaitingHead => '等待你处理';
 
   @override
   String get deskInvPayerNeedsHead => '待处理的付款';
@@ -5081,17 +5081,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerTrustService => '信任服务…';
 
   @override
-  String get deskInvPayerYourInvoiceAddress => '您的账单地址';
+  String get deskInvPayerYourInvoiceAddress => '你的账单地址';
 
   @override
   String get deskInvPayerEmptyTitle => '没有等待中的账单';
 
   @override
-  String get deskInvPayerEmptyText => '当您信任的服务向您开账单时，账单会显示在这里。在您批准之前不会付款。';
+  String get deskInvPayerEmptyText => '当你信任的服务向你开账单时，账单会显示在这里。在你批准之前不会付款。';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
-    return '您给 $service 的付款未送达';
+    return '你给 $service 的付款未送达';
   }
 
   @override
@@ -5100,32 +5100,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvPayerWithdrawnTitle(String service) {
-    return '$service 撤回了一张您已支付的账单';
+    return '$service 撤回了一张你已支付的账单';
   }
 
   @override
-  String get deskInvPayerWithdrawnText => '这笔付款可能永远不会上链。取消它以解锁您的资金。';
+  String get deskInvPayerWithdrawnText => '这笔付款可能永远不会上链。取消它以解锁你的资金。';
 
   @override
   String deskInvPayerPastTtlTitle(String service) {
-    return '您给 $service 的付款不在链上';
+    return '你给 $service 的付款不在链上';
   }
 
   @override
-  String get deskInvPayerPastTtlText => '其期限已过，网络未见到它。取消它以解锁您的资金。';
+  String get deskInvPayerPastTtlText => '其期限已过，网络未见到它。取消它以解锁你的资金。';
 
   @override
   String get deskInvPayerCancelPayment => '取消付款';
 
   @override
-  String get deskInvPayerSafetyTitle => '只支付您预期的账单';
+  String get deskInvPayerSafetyTitle => '只支付你预期的账单';
 
   @override
-  String get deskInvPayerSafetyText => '账单永远不会给您的钱包增加资金。批准它就是向外付款。';
+  String get deskInvPayerSafetyText => '账单永远不会给你的钱包增加资金。批准它就是向外付款。';
 
   @override
   String deskInvPayerSameBillTitle(String service, String ago) {
-    return '您在 $ago 前已向 $service 支付过相同金额';
+    return '你在 $ago 前已向 $service 支付过相同金额';
   }
 
   @override
@@ -5151,7 +5151,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerBalanceAfter => '付款后余额';
 
   @override
-  String get deskInvPayerMessageCaption => '由服务填写。您的钱包不会核实。';
+  String get deskInvPayerMessageCaption => '由服务填写。你的钱包不会核实。';
 
   @override
   String get deskInvPayerPaysTo => '付款给';
@@ -5178,7 +5178,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvPayerShortText(String total, String spendable) {
-    return '您需要 $total EPIC 可用资金；您有 $spendable EPIC。确认中的资金在 3 次确认后计入。';
+    return '你需要 $total EPIC 可用资金；你有 $spendable EPIC。确认中的资金在 3 个确认后计入。';
   }
 
   @override
@@ -5186,13 +5186,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvPayerNodeDownText =>
-      '钱包无法检查您的资金，因此无法付款。节点恢复响应后即可再次批准；您可以在 设置 › 节点 中选择其他节点。';
+      '钱包无法检查你的资金，因此无法付款。节点恢复响应后即可再次批准；你可以在“设置 › 节点”中选择其他节点。';
 
   @override
   String get deskInvPayerPaid => '此账单已支付。不能再为其付款。';
 
   @override
-  String get deskInvPayerDeclinedText => '您已拒绝此账单。未支付任何款项。';
+  String get deskInvPayerDeclinedText => '你已拒绝此账单。未支付任何款项。';
 
   @override
   String get deskInvPayerBack => '返回账单';
@@ -5204,7 +5204,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvPayerApproveText(String total) {
-    return '$total EPIC 将离开您的钱包。输入钱包密码以批准。';
+    return '$total EPIC 将离开你的钱包。输入钱包密码以批准。';
   }
 
   @override
@@ -5239,7 +5239,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvPayerNotDeliveredToastText =>
-      'Epicbox 服务器无响应。请在 账单 › 支付 中重试；无需再次批准。';
+      'Epicbox 服务器无响应。请在“账单 › 支付”中重试；无需再次批准。';
 
   @override
   String get deskInvPayerRetryFailed => '仍未送达';
@@ -5252,7 +5252,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      '取消会在此处解锁您的资金。服务仍持有您签名的付款，因此在这些资金再次花出之前，它仍可能完成。';
+      '取消会在此处解锁你的资金。服务仍持有你签名的付款，因此在这些资金再次花出之前，它仍可能完成。';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5272,7 +5272,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerCancelled => '付款已取消';
 
   @override
-  String get deskInvPayerCancelledText => '您的资金已解锁。';
+  String get deskInvPayerCancelledText => '你的资金已解锁。';
 
   @override
   String get deskInvPayerDeclined => '账单已拒绝。未支付任何款项。';
@@ -5291,7 +5291,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerSpendFailedText => '你的资金已解锁，但转移未成功。取消尚未成为最终结果。';
 
   @override
-  String get deskInvPayerLocked => '此发票无法支付：它被锁定到较晚的区块。未支付任何款项。';
+  String get deskInvPayerLocked => '此账单无法支付：它被锁定到较晚的区块。未支付任何款项。';
 
   @override
   String get deskInvPayerRelayDownPay => 'Epicbox 服务器没有响应。未支付任何款项。';
@@ -5300,19 +5300,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetTitle => '账单';
 
   @override
-  String get deskInvSetIntro => '您信任的服务会向此钱包的账单地址发送账单。在您批准每张账单之前不会付款。';
+  String get deskInvSetIntro => '你信任的服务会向此钱包的账单地址发送账单。在你批准每张账单之前不会付款。';
 
   @override
   String get deskInvSetAddressLabel => '账单地址';
 
   @override
-  String get deskInvSetAddressWarning => '只提供给您信任的服务。此地址不接收付款。';
+  String get deskInvSetAddressWarning => '只提供给你信任的服务。此地址不接收付款。';
 
   @override
   String get deskInvSetCopy => '复制';
 
   @override
-  String get deskInvSetCopied => '已复制账单地址。只提供给您信任的服务；此地址不接收付款。';
+  String get deskInvSetCopied => '已复制账单地址。只提供给你信任的服务；此地址不接收付款。';
 
   @override
   String get deskInvSetQrShow => '显示二维码';
@@ -5321,7 +5321,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetQrHide => '隐藏二维码';
 
   @override
-  String get deskInvSetQrLabel => '您的账单地址二维码';
+  String get deskInvSetQrLabel => '你的账单地址二维码';
 
   @override
   String deskInvSetIndex(int index) {
@@ -5352,12 +5352,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvSetRemoveBody(String name) {
-    return '$name 将无法再向您发送账单。已在等待的账单会保留，直到您处理或它们过期。';
+    return '$name 将无法再向你发送账单。已在等待的账单会保留，直到你处理或它们过期。';
   }
 
   @override
   String deskInvSetRemoved(String name) {
-    return '$name 已无法再向您发送账单。';
+    return '$name 已无法再向你发送账单。';
   }
 
   @override
@@ -5367,7 +5367,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetAdd => '信任发送方';
 
   @override
-  String get deskInvSetAddBody => '受信任的发送方可以向此钱包的账单地址发送账单。在您用钱包密码批准每张账单之前不会付款。';
+  String get deskInvSetAddBody => '受信任的发送方可以向此钱包的账单地址发送账单。在你用钱包密码批准每张账单之前不会付款。';
 
   @override
   String get deskInvSetName => '名称';
@@ -5389,7 +5389,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvSetAdded(String name) {
-    return '$name 现在可以向您发送账单。';
+    return '$name 现在可以向你发送账单。';
   }
 
   @override
@@ -5406,25 +5406,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetRotate => '新的账单地址';
 
   @override
-  String get deskInvSetRotateHint => '持有旧地址的服务将无法再向您发送账单。';
+  String get deskInvSetRotateHint => '持有旧地址的服务将无法再向你发送账单。';
 
   @override
   String get deskInvSetRotateTitle => '生成新的账单地址？';
 
   @override
-  String get deskInvSetRotateBody => '持有旧地址的服务将无法再向您发送账单。请把新地址提供给每个向您开账单的服务。';
+  String get deskInvSetRotateBody => '持有旧地址的服务将无法再向你发送账单。请把新地址提供给每个向你开账单的服务。';
 
   @override
   String get deskInvSetRotateConfirm => '生成新地址';
 
   @override
-  String get deskInvSetRotated => '新的账单地址已就绪。请提供给您的服务。';
+  String get deskInvSetRotated => '新的账单地址已就绪。请提供给你的服务。';
 
   @override
   String get deskInvSetExpiry => '付款期限';
 
   @override
-  String get deskInvSetExpiryHint => '您开具的账单可支付多久，以及收到的账单等待您多久。最长 48 小时。';
+  String get deskInvSetExpiryHint => '你开具的账单可支付多久，以及收到的账单等待你多久。最长 48 小时。';
 
   @override
   String deskInvSetHours(int hours) {
@@ -5447,7 +5447,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetTrustedSwitch => '信任其账单';
 
   @override
-  String get deskInvSetTrustedSwitchHelp => '允许此联系人向您开账单。在您批准账单之前不会付款。';
+  String get deskInvSetTrustedSwitchHelp => '允许此联系人向你开账单。在你批准账单之前不会付款。';
 
   @override
   String get deskInvSetIssueNeeds => '需要对方的账单地址。';
@@ -5456,17 +5456,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetShare => '分享账单地址';
 
   @override
-  String get deskInvSetReceiveHint => '请联系人或服务向您付款。对方的钱包必须支持账单。';
+  String get deskInvSetReceiveHint => '请联系人或服务向你付款。对方的钱包必须支持账单。';
 
   @override
-  String get deskInvSetRestoredHint => '此钱包是用助记词恢复的？请重新把这个发票地址提供给服务方。';
+  String get deskInvSetRestoredHint => '此钱包是用助记词恢复的？请重新把这个账单地址提供给服务方。';
 
   @override
-  String get serverSwitchRelayTitle => '更换 epicbox 服务器？';
+  String get serverSwitchRelayTitle => '更换 Epicbox 服务器？';
 
   @override
   String serverSwitchRelayBody(String relay) {
-    return 'epicbox 地址将变为 …@$relay。发送方需要新地址。发送到旧地址的付款会留在旧服务器上。';
+    return 'Epicbox 地址将变为 …@$relay。发送方需要新地址。发送到旧地址的付款会留在旧服务器上。';
   }
 
   @override
@@ -5597,7 +5597,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveDirectNeedsTor => '直连收款需要 Tor。';
 
   @override
-  String get receiveDirectMeanwhile => '在此期间，付款方使用 Epicbox 地址。';
+  String get receiveDirectMeanwhile => '在此期间，发送方使用 Epicbox 地址。';
 
   @override
   String get netStatusOverTor => '经由 Tor';
@@ -5659,132 +5659,130 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskErrSomethingWrong => 'Something went wrong';
+  String get deskErrSomethingWrong => '出了点问题';
 
   @override
-  String get deskErrWrongPassword => 'Wrong password';
+  String get deskErrWrongPassword => '密码错误';
 
   @override
-  String get deskErrPhraseInvalid => 'Recovery phrase not valid';
+  String get deskErrPhraseInvalid => '助记词无效';
 
   @override
-  String get deskErrWalletExists => 'A wallet exists already';
+  String get deskErrWalletExists => '钱包已存在';
 
   @override
-  String get deskErrWalletNotFound => 'No wallet found';
+  String get deskErrWalletNotFound => '未找到钱包';
 
   @override
-  String get deskErrNodeNotAnswering => 'Node not answering';
+  String get deskErrNodeNotAnswering => '节点无响应';
 
   @override
-  String get deskErrNotEnoughFunds => 'Not enough funds';
+  String get deskErrNotEnoughFunds => '余额不足';
 
   @override
-  String get deskErrNotTxFile => 'Not a transaction file for this wallet';
+  String get deskErrNotTxFile => '不是本钱包的交易文件';
 
   @override
-  String get deskErrEpicboxUnreachable => 'Epicbox server not reachable';
+  String get deskErrEpicboxUnreachable => '无法连接 Epicbox 服务器';
 
   @override
-  String get deskErrNotHttpAddress => 'Not an http(s) address';
+  String get deskErrNotHttpAddress => '不是 http(s) 地址';
 
   @override
-  String get deskErrPlainHttp => 'Plain HTTP not confirmed';
+  String get deskErrPlainHttp => '未确认使用明文 HTTP';
 
   @override
-  String get deskErrNotOnion => 'Not an onion address';
+  String get deskErrNotOnion => '不是 onion 地址';
 
   @override
-  String get deskErrTorNotConnected => 'Tor is not connected';
+  String get deskErrTorNotConnected => 'Tor 未连接';
 
   @override
-  String get deskErrOnionUnreachable =>
-      'The recipient’s wallet is not reachable over Tor';
+  String get deskErrOnionUnreachable => '无法经由 Tor 连接接收方的钱包';
 
   @override
-  String get deskErrWalletBusy => 'Wallet busy. Try again in a moment.';
+  String get deskErrWalletBusy => '钱包正忙。请稍后重试。';
 
   @override
-  String get deskErrDbDamaged => 'Wallet database damaged, rebuilding';
+  String get deskErrDbDamaged => '钱包数据库已损坏，正在重建';
 
   @override
-  String get deskErrPaymentExpired => 'Payment expired';
+  String get deskErrPaymentExpired => '付款已过期';
 
   @override
-  String get deskErrInvoiceNotFound => 'Invoice not found';
+  String get deskErrInvoiceNotFound => '未找到账单';
 
   @override
-  String get deskErrAmountMismatch => 'Amount differs from the invoice';
+  String get deskErrAmountMismatch => '金额与账单不符';
 
   @override
-  String get deskErrInvoicePaid => 'Invoice already paid';
+  String get deskErrInvoicePaid => '账单已支付';
 
   @override
-  String get deskErrInvoiceLocked => 'Invoice locked until a later block';
+  String get deskErrInvoiceLocked => '账单锁定到之后的某个区块';
 
   @override
-  String get deskErrInvoiceChanged => 'Invoice changed';
+  String get deskErrInvoiceChanged => '账单已变更';
 
   @override
-  String get deskErrNotAccepted => 'Not accepted';
+  String get deskErrNotAccepted => '未被接受';
 
   @override
   String deskErrNotAcceptedDetail(String detail) {
-    return 'Not accepted: $detail';
+    return '未被接受：$detail';
   }
 
   @override
-  String get deskErrDisk => 'Disk error';
+  String get deskErrDisk => '磁盘错误';
 
   @override
   String deskErrDiskDetail(String detail) {
-    return 'Disk error: $detail';
+    return '磁盘错误：$detail';
   }
 
   @override
-  String get deskErrTorMissing => 'Tor not included in this build';
+  String get deskErrTorMissing => '此版本不含 Tor';
 
   @override
-  String get deskErrTorNetwork => 'Can’t reach the Tor network';
+  String get deskErrTorNetwork => '无法连接 Tor 网络';
 
   @override
-  String get deskErrTorClock => 'The computer’s clock is wrong';
+  String get deskErrTorClock => '电脑的时钟不正确';
 
   @override
-  String get deskErrOnionNotPublished => 'Onion address not published';
+  String get deskErrOnionNotPublished => 'onion 地址尚未发布';
 
   @override
-  String get deskErrTorStart => 'Tor did not start';
+  String get deskErrTorStart => 'Tor 未能启动';
 
   @override
-  String get deskErrTorStopped => 'Tor stopped';
+  String get deskErrTorStopped => 'Tor 已停止';
 
   @override
-  String get deskErrScanRunning => 'A scan is already running.';
+  String get deskErrScanRunning => '已有一个扫描正在运行。';
 
   @override
-  String get deskErrCancelRefused =>
-      'Not cancelled: the node already has this payment.';
+  String get deskErrCancelRefused => '未取消：节点已收到这笔付款。';
 
   @override
-  String get deskErrWalletLocked => 'The wallet is locked';
+  String get deskErrWalletLocked => '钱包已锁定';
 
   @override
-  String get deskErrWalletLocking => 'The wallet is locking';
+  String get deskErrWalletLocking => '钱包正在锁定';
 
   @override
   String deskErrDbDamagedDetail(String detail) {
-    return 'Wallet database damaged. $detail';
+    return '钱包数据库已损坏。$detail';
   }
 
   @override
   String deskErrWalletClosed(String detail) {
-    return 'Wallet closed: $detail. Unlock again.';
+    return '钱包已关闭：$detail。请重新解锁。';
   }
 
   @override
   String deskErrNotChanged(String detail) {
-    return 'Not changed: $detail';
+    return '未更改：$detail';
   }
 
   @override
@@ -5792,691 +5790,661 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Use at least $count characters',
-      one: 'Use at least $count character',
+      other: '请至少使用 $count 个字符',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskErrWalletNotListed => 'Wallet not in the list';
+  String get deskErrWalletNotListed => '钱包不在列表中';
 
   @override
-  String get deskErrUpdateApp => 'Update the app to change the list';
+  String get deskErrUpdateApp => '请更新应用后再更改列表';
 
   @override
-  String get deskErrListNotChanged => 'Wallet list not changed';
+  String get deskErrListNotChanged => '钱包列表未更改';
 
   @override
-  String get deskErrOpenToDelete => 'Open the wallet to delete it';
+  String get deskErrOpenToDelete => '请先打开钱包再删除';
 
   @override
-  String get deskErrEnterPassword => 'Enter the password';
+  String get deskErrEnterPassword => '请输入密码';
 
   @override
-  String get deskErrFolderNotFound => 'Wallet folder not found';
+  String get deskErrFolderNotFound => '未找到钱包文件夹';
 
   @override
   String deskErrAlreadyHere(String name) {
-    return 'This wallet is already here: $name';
+    return '此钱包已在列表中：$name';
   }
 
   @override
-  String get deskErrTestNet =>
-      'Test network wallet. Only mainnet wallets can be imported.';
+  String get deskErrTestNet => '测试网络钱包。只能导入主网钱包。';
 
   @override
-  String get deskErrWalletInApp => 'This wallet is in the app already.';
+  String get deskErrWalletInApp => '此钱包已在应用中。';
 
   @override
-  String get deskErrWalletNotFoundSearch => 'Wallet not found. Search again.';
+  String get deskErrWalletNotFoundSearch => '未找到钱包。请重新搜索。';
 
   @override
-  String get deskErrEnterOldPassword => 'Enter the old password';
+  String get deskErrEnterOldPassword => '请输入旧密码';
 
   @override
   String deskErrOldPasswordShort(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'The old password is short. Choose a new one of at least $count characters.',
-      one:
-          'The old password is short. Choose a new one of at least $count character.',
+      other: '旧密码太短。请设置一个至少 $count 个字符的新密码。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskErrSeedUnreadable => 'The wallet.seed file could not be read';
+  String get deskErrSeedUnreadable => '无法读取 wallet.seed 文件';
 
   @override
-  String get deskErrNotSeedFile => 'Not a wallet.seed file';
+  String get deskErrNotSeedFile => '不是 wallet.seed 文件';
 
   @override
   String deskErrAlreadyInApp(String name) {
-    return 'Already in the app as $name';
+    return '已在应用中，名称为 $name';
   }
 
   @override
-  String get deskErrWrongOldPassword => 'Wrong old password';
+  String get deskErrWrongOldPassword => '旧密码错误';
 
   @override
-  String get deskErrListNotSaved => 'Wallet list not saved';
+  String get deskErrListNotSaved => '钱包列表未保存';
 
   @override
-  String get deskErrProofSeedRead => 'Seed read';
+  String get deskErrProofSeedRead => '已读取种子';
 
   @override
-  String get deskErrProofWalletCreated => 'Wallet created';
+  String get deskErrProofWalletCreated => '已创建钱包';
 
   @override
   String deskErrProofContacts(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count contacts added',
-      one: '1 contact added',
+      other: '已添加 $count 个联系人',
     );
     return '$_temp0';
   }
 
   @override
   String deskErrProofNode(String name) {
-    return 'Node $name added to the node list';
+    return '已将节点 $name 添加到节点列表';
   }
 
   @override
   String deskErrProofEpicbox(String old, String current) {
-    return 'The older app used the Epicbox server $old; this app uses $current';
+    return '旧应用使用的 Epicbox 服务器是 $old；本应用使用 $current';
   }
 
   @override
-  String get deskErrProofFolderUnchanged => 'Old folder unchanged';
+  String get deskErrProofFolderUnchanged => '旧文件夹未改动';
 
   @override
-  String get deskErrProofFolderChanged =>
-      'Old folder changed by another program';
+  String get deskErrProofFolderChanged => '旧文件夹已被其他程序改动';
 
   @override
   String deskErrProofHistory(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'History: $count transactions',
-      one: 'History: 1 transaction',
+      other: '交易记录：$count 笔交易',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskErrProofHistoryAlready => 'History already imported';
+  String get deskErrProofHistoryAlready => '交易记录已导入';
 
   @override
-  String get deskErrProofHistoryNone =>
-      'No history in the old folder; the scan restores the balance';
+  String get deskErrProofHistoryNone => '旧文件夹中没有交易记录；扫描会恢复余额';
 
   @override
   String get deskErrProofHistoryOld =>
-      'History of Epic Wallet 5.3 or older is not readable; the scan restores the balance';
+      '无法读取 Epic Wallet 5.3 及更早版本的交易记录；扫描会恢复余额';
 
   @override
-  String get deskErrProofHistoryBusy =>
-      'History not imported: the older wallet is running. It is imported at the next unlock';
+  String get deskErrProofHistoryBusy => '交易记录未导入：旧钱包正在运行。下次解锁时会导入';
 
   @override
-  String get deskErrProofHistoryOther =>
-      'History not imported: it belongs to another wallet';
+  String get deskErrProofHistoryOther => '交易记录未导入：它属于另一个钱包';
 
   @override
-  String get deskErrProofHistoryUnreadable =>
-      'History not imported: the old database could not be read; the scan restores the balance';
+  String get deskErrProofHistoryUnreadable => '交易记录未导入：无法读取旧数据库；扫描会恢复余额';
 
   @override
-  String get deskErrNodeNoAnswer => 'The node did not answer';
+  String get deskErrNodeNoAnswer => '节点没有响应';
 
   @override
-  String get deskErrNotPosted => 'Not posted';
+  String get deskErrNotPosted => '未广播';
 
   @override
-  String get deskErrNotEpicboxAddress => 'Not an Epicbox address';
+  String get deskErrNotEpicboxAddress => '不是 Epicbox 地址';
 
   @override
-  String get deskErrFileNotSaved =>
-      'File not saved. The payment waits in Activity; cancel it there to unlock the funds.';
+  String get deskErrFileNotSaved => '文件未保存。这笔付款保留在“活动”中；在那里取消即可解锁资金。';
 
   @override
-  String get deskErrTorOffSend =>
-      'Tor is off. Turn on Tor to send to an onion address.';
+  String get deskErrTorOffSend => 'Tor 已关闭。开启 Tor 才能发送到 onion 地址。';
 
   @override
-  String get deskErrTorConnecting =>
-      'Tor is still connecting. Try again in a moment.';
+  String get deskErrTorConnecting => 'Tor 仍在连接。请稍后重试。';
 
   @override
-  String get deskErrRecipientNoAnswer =>
-      'The recipient’s wallet did not answer or refused.';
+  String get deskErrRecipientNoAnswer => '接收方的钱包没有响应或拒绝了。';
 
   @override
   String get deskErrRecipientNoAnswerWaits =>
-      'The recipient’s wallet did not answer or refused. The payment waits in Activity; cancel it there to unlock the funds.';
+      '接收方的钱包没有响应或拒绝了。这笔付款保留在“活动”中；在那里取消即可解锁资金。';
 
   @override
-  String get deskErrNotDelivered =>
-      'Not delivered. The payment waits in Activity; cancel it there to unlock the funds.';
+  String get deskErrNotDelivered => '未送达。这笔付款保留在“活动”中；在那里取消即可解锁资金。';
 
   @override
-  String get deskErrInterruptedLock =>
-      'Interrupted by the lock. It may have gone out: check Activity after unlocking.';
+  String get deskErrInterruptedLock => '被锁定中断。它可能已经发出：解锁后请查看“活动”。';
 
   @override
   String deskErrStoredWaits(String detail) {
-    return '$detail. The payment waits in Activity; cancel it there to unlock the funds.';
+    return '$detail。这笔付款保留在“活动”中；在那里取消即可解锁资金。';
   }
 
   @override
-  String get deskErrNodeRefused =>
-      'Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.';
+  String get deskErrNodeRefused => '双方钱包都已签名，但节点拒绝了这笔交易。在“活动”中取消它即可解锁资金。';
 
   @override
-  String get deskErrFileNotReadable => 'File not readable';
+  String get deskErrFileNotReadable => '无法读取文件';
 
   @override
-  String get deskErrNotTxFile2 => 'Not a transaction file';
+  String get deskErrNotTxFile2 => '不是交易文件';
 
   @override
-  String get deskErrResponseNotSaved => 'Response file not saved';
+  String get deskErrResponseNotSaved => '回复文件未保存';
 
   @override
-  String get deskErrCannotCancel => 'This payment cannot be cancelled';
+  String get deskErrCannotCancel => '这笔付款无法取消';
 
   @override
-  String get deskErrNoLocalNode => 'No local node in this build';
+  String get deskErrNoLocalNode => '此版本不含本地节点';
 
   @override
-  String get deskErrLocalNodeStopped => 'Local node stopped';
+  String get deskErrLocalNodeStopped => '本地节点已停止';
 
   @override
-  String get deskErrNotChangedLocked => 'Not changed: the wallet was locked';
+  String get deskErrNotChangedLocked => '未更改：钱包已被锁定';
 
   @override
   String deskErrLocalNodeNotStarted(String detail) {
-    return 'Local node not started: $detail';
+    return '本地节点未启动：$detail';
   }
 
   @override
-  String get deskErrUnknown => 'unknown error';
+  String get deskErrUnknown => '未知错误';
 
   @override
-  String get deskErrNotServerName => 'Not a server name';
+  String get deskErrNotServerName => '不是有效的服务器名称';
 
   @override
   String deskErrPortInUse(int port) {
-    return 'Port $port in use';
+    return '端口 $port 被占用';
   }
 
   @override
   String deskErrPortUnavailable(int port) {
-    return 'Port $port not available';
+    return '端口 $port 不可用';
   }
 
   @override
-  String get deskErrStoppedWithError => 'Stopped with an error';
+  String get deskErrStoppedWithError => '因错误而停止';
 
   @override
-  String get deskErrPasswordNotChanged =>
-      'Password not changed. The current password still opens the wallet.';
+  String get deskErrPasswordNotChanged => '密码未更改。当前密码仍可打开钱包。';
 
   @override
-  String get deskErrNothingToSpend => 'Nothing to spend';
+  String get deskErrNothingToSpend => '没有可花费的资金';
 
   @override
-  String get deskTorLineOff => 'Off';
+  String get deskTorLineOff => '关闭';
 
   @override
-  String get deskTorLineReady => 'Ready';
+  String get deskTorLineReady => '就绪';
 
   @override
   String deskTorLineSendsWork(String problem) {
-    return '$problem. Sends work.';
+    return '$problem。发送不受影响。';
   }
 
   @override
-  String get deskTorLinePublishing => 'Publishing the onion address…';
+  String get deskTorLinePublishing => '正在发布 onion 地址…';
 
   @override
   String deskTorLineConnecting(int percent) {
-    return 'Connecting to Tor… $percent %';
+    return '正在连接 Tor… $percent%';
   }
 
   @override
-  String get deskErrHistOtherWallet => 'Another wallet\'s backup';
+  String get deskErrHistOtherWallet => '其他钱包的备份';
 
   @override
-  String get deskErrHistOtherChain => 'Wrong network';
+  String get deskErrHistOtherChain => '网络不符';
 
   @override
-  String get deskErrHistNotOurs => 'Not a history backup';
+  String get deskErrHistNotOurs => '不是交易记录备份';
 
   @override
-  String get deskErrHistNewer => 'Newer file';
+  String get deskErrHistNewer => '文件版本较新';
 
   @override
-  String get deskErrHistDamaged => 'File damaged';
+  String get deskErrHistDamaged => '文件已损坏';
 
   @override
-  String get deskErrOldGui => 'Older Epic Wallet';
+  String get deskErrOldGui => '旧版 Epic Wallet';
 
   @override
-  String get deskErrOldCli => 'The epic program';
+  String get deskErrOldCli => 'epic 命令行程序';
 
   @override
-  String get deskErrOldPicked => 'Chosen folders';
+  String get deskErrOldPicked => '手动选择的文件夹';
 
   @override
-  String get deskErrHistTooLarge => 'The file is too large to be one.';
+  String get deskErrHistTooLarge => '文件太大，不可能是交易记录备份。';
 
   @override
   String deskErrHistChains(String from, String to) {
-    return 'The file is from $from; this wallet is on $to.';
+    return '该文件来自 $from；本钱包在 $to 上。';
   }
 
   @override
-  String get deskErrHistOtherWalletText =>
-      'The file was exported from a wallet with a different recovery phrase.';
+  String get deskErrHistOtherWalletText => '该文件是从一个助记词不同的钱包导出的。';
 
   @override
-  String get deskErrHistNewerText =>
-      'A newer version of the app made this file. Update the app, then import it.';
+  String get deskErrHistNewerText => '该文件由更新版本的应用生成。请先更新应用，然后再导入。';
 
   @override
-  String get deskErrHistDamagedText => 'The file is incomplete or was changed.';
+  String get deskErrHistDamagedText => '该文件不完整或已被改动。';
 
   @override
   String get deskErrHistNotOursText =>
-      'The file was not made by Epic Cash Desktop or Epic Cash Mobile.';
+      '该文件不是由 Epic Cash Desktop 或 Epic Cash Mobile 生成的。';
 
   @override
-  String get deskDataHttpEnter => 'Enter the recipient’s address';
+  String get deskDataHttpEnter => '请输入接收方的地址';
 
   @override
-  String get deskDataHttpScheme => 'Start with https:// or http://';
+  String get deskDataHttpScheme => '以 https:// 或 http:// 开头';
 
   @override
-  String get deskDataHttpOnion => 'Onion addresses need Tor';
+  String get deskDataHttpOnion => 'onion 地址需要 Tor';
 
   @override
-  String get deskDataHttpNot => 'Not an http(s) address';
+  String get deskDataHttpNot => '不是 http(s) 地址';
 
   @override
-  String get deskDataHttpPort => 'Port must be 1 to 65535';
+  String get deskDataHttpPort => '端口必须在 1 到 65535 之间';
 
   @override
-  String get deskDataUpdTimeout => 'The update server did not answer.';
+  String get deskDataUpdTimeout => '更新服务器没有响应。';
 
   @override
-  String get deskDataUpdUnreachable =>
-      'The update server could not be reached.';
+  String get deskDataUpdUnreachable => '无法连接更新服务器。';
 
   @override
   String deskDataUpdStatus(int status) {
-    return 'The update server answered $status.';
+    return '更新服务器返回了 $status。';
   }
 
   @override
-  String get deskDataUpdNone =>
-      'No desktop update information is published yet.';
+  String get deskDataUpdNone => '尚未发布桌面版的更新信息。';
 
   @override
-  String get deskNodeSynced => 'Synced';
+  String get deskNodeSynced => '已同步';
 
   @override
-  String get deskNodeBehind => 'Behind';
+  String get deskNodeBehind => '落后';
 
   @override
-  String get deskNodeNotAnswering => 'Not answering';
+  String get deskNodeNotAnswering => '无响应';
 
   @override
-  String get deskNodeChecking => 'Checking';
+  String get deskNodeChecking => '正在检查';
 
   @override
-  String get deskNodeStarting => 'Starting';
+  String get deskNodeStarting => '正在启动';
 
   @override
-  String get deskNodeSyncing => 'Syncing';
+  String get deskNodeSyncing => '正在同步';
 
   @override
-  String get deskNodeStalled => 'Stalled';
+  String get deskNodeStalled => '停滞';
 
   @override
-  String get deskNodeFailed => 'Failed';
+  String get deskNodeFailed => '失败';
 
   @override
-  String get deskNodeStopped => 'Stopped';
+  String get deskNodeStopped => '已停止';
 
   @override
-  String get deskNodeMarkerNoAnswer => 'no answer';
+  String get deskNodeMarkerNoAnswer => '无响应';
 
   @override
   String deskNodeMarkerBehind(String count) {
-    return '$count behind';
+    return '落后 $count';
   }
 
   @override
-  String get deskNodeMarkerStarting => 'starting';
+  String get deskNodeMarkerStarting => '启动中';
 
   @override
-  String get deskNodeMarkerStalled => 'stalled';
+  String get deskNodeMarkerStalled => '停滞';
 
   @override
-  String get deskNodeMarkerFailed => 'failed';
+  String get deskNodeMarkerFailed => '失败';
 
   @override
-  String get deskNodeMarkerStopped => 'stopped';
+  String get deskNodeMarkerStopped => '已停止';
 
   @override
   String deskNodeHostSince(String host, String time) {
-    return '$host · since $time';
+    return '$host · 自 $time 起';
   }
 
   @override
-  String get deskNodeNotAnsweringLine => 'The node is not answering.';
+  String get deskNodeNotAnsweringLine => '节点无响应。';
 
   @override
   String deskNodeLatency(String ms) {
-    return '$ms ms';
+    return '$ms 毫秒';
   }
 
   @override
   String deskNodeLatencyOverTor(String ms) {
-    return '$ms ms over Tor';
+    return '经由 Tor $ms 毫秒';
   }
 
   @override
   String deskNodeNewerOut(String version) {
-    return '$version is out';
+    return '$version 已发布';
   }
 
   @override
-  String get deskNodeBehindLine => 'Behind the network; catching up.';
+  String get deskNodeBehindLine => '落后于网络，正在追赶。';
 
   @override
   String deskNodeHeightOf(String height, String total) {
-    return '$height of $total';
+    return '$height/$total';
   }
 
   @override
-  String get deskNodeAtTip => 'at tip';
+  String get deskNodeAtTip => '已是最新';
 
   @override
-  String get deskNodeLocal => 'Local node';
+  String get deskNodeLocal => '本地节点';
 
   @override
-  String get deskNodeConnectingPeers => 'Connecting to peers';
+  String get deskNodeConnectingPeers => '正在连接对等节点';
 
   @override
   String deskNodeUsingUntilSynced(String host) {
-    return 'Using $host until it is synced.';
+    return '同步完成前使用 $host。';
   }
 
   @override
-  String get deskNodeNothingUntilSynced =>
-      'Nothing can be sent until it is synced.';
+  String get deskNodeNothingUntilSynced => '同步完成前无法发送。';
 
   @override
   String deskNodePeers(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count peers',
-      one: '$count peer',
+      other: '$count 个对等节点',
     );
     return '$_temp0';
   }
 
   @override
   String deskNodeRunning(String duration) {
-    return 'running $duration';
+    return '已运行 $duration';
   }
 
   @override
   String deskNodeStillUsing(String host) {
-    return 'Still using $host; the local node takes over shortly.';
+    return '仍在使用 $host；本地节点很快会接替。';
   }
 
   @override
-  String get deskNodeNoProgress =>
-      'No progress for 5 min. Restarted once already.';
+  String get deskNodeNoProgress => '5 分钟没有进展，已自动重启过一次。';
 
   @override
   String deskNodeUsingMeanwhile(String host) {
-    return 'Using $host meanwhile.';
+    return '期间使用 $host。';
   }
 
   @override
-  String get deskNodeStartIt => 'Start it under Settings › Node.';
+  String get deskNodeStartIt => '可在“设置 › 节点”中启动。';
 
   @override
-  String get deskNodeFailPort => 'port 3413 is used by another program';
+  String get deskNodeFailPort => '端口 3413 被其他程序占用';
 
   @override
-  String get deskNodeFailDisk => 'not enough disk space';
+  String get deskNodeFailDisk => '磁盘空间不足';
 
   @override
-  String get deskNodeFailMissing => 'the node program is missing';
+  String get deskNodeFailMissing => '缺少节点程序';
 
   @override
-  String get deskNodeFailExited => 'the node program stopped';
+  String get deskNodeFailExited => '节点程序已停止';
 
   @override
   String deskNodeFailExitedCode(String code) {
-    return 'the node program stopped (exit code $code)';
+    return '节点程序已停止（退出代码 $code）';
   }
 
   @override
-  String get deskNodeFailDefault => 'the node did not start';
+  String get deskNodeFailDefault => '节点未能启动';
 
   @override
-  String get deskNodeStageWaiting => 'connecting to peers';
+  String get deskNodeStageWaiting => '连接对等节点';
 
   @override
-  String get deskNodeStageHeaders => 'headers';
+  String get deskNodeStageHeaders => '区块头';
 
   @override
-  String get deskNodeStageChainDownload => 'chain state download';
+  String get deskNodeStageChainDownload => '下载链状态';
 
   @override
-  String get deskNodeStageKernels => 'checking kernels';
+  String get deskNodeStageKernels => '检查内核';
 
   @override
-  String get deskNodeStageRangeProofs => 'checking range proofs';
+  String get deskNodeStageRangeProofs => '检查范围证明';
 
   @override
-  String get deskNodeStageProcessing => 'processing the chain state';
+  String get deskNodeStageProcessing => '处理链状态';
 
   @override
-  String get deskNodeStageBlocks => 'blocks';
+  String get deskNodeStageBlocks => '区块';
 
   @override
-  String get deskNodeStageCompacting => 'compacting';
+  String get deskNodeStageCompacting => '压缩';
 
   @override
-  String get deskNodeStageStopping => 'stopping';
+  String get deskNodeStageStopping => '正在停止';
 
   @override
-  String get deskNodeStageSyncing => 'syncing';
+  String get deskNodeStageSyncing => '同步';
 
   @override
-  String get deskNodeLineWaiting => 'Connecting to peers';
+  String get deskNodeLineWaiting => '正在连接对等节点';
 
   @override
   String deskNodeLineHeaders(String done, String total) {
-    return 'Headers · $done of $total';
+    return '区块头 · $done/$total';
   }
 
   @override
-  String get deskNodeLineHeadersBare => 'Headers';
+  String get deskNodeLineHeadersBare => '区块头';
 
   @override
   String deskNodeLineChain(String done, String total) {
-    return 'Chain state · $done of $total GB';
+    return '链状态 · $done/$total GB';
   }
 
   @override
-  String get deskNodeLineChainBare => 'Chain state';
+  String get deskNodeLineChainBare => '链状态';
 
   @override
   String deskNodeLineKernels(String done, String total) {
-    return 'Checking kernels · $done of $total million';
+    return '检查内核 · $done/$total 百万';
   }
 
   @override
-  String get deskNodeLineKernelsBare => 'Checking kernels';
+  String get deskNodeLineKernelsBare => '检查内核';
 
   @override
   String deskNodeLineRangeProofs(String done, String total) {
-    return 'Checking range proofs · $done of $total million';
+    return '检查范围证明 · $done/$total 百万';
   }
 
   @override
-  String get deskNodeLineRangeProofsBare => 'Checking range proofs';
+  String get deskNodeLineRangeProofsBare => '检查范围证明';
 
   @override
-  String get deskNodeLineProcessing => 'Processing the chain state';
+  String get deskNodeLineProcessing => '正在处理链状态';
 
   @override
   String deskNodeLineBlocks(String done, String total) {
-    return 'Blocks · $done of $total';
+    return '区块 · $done/$total';
   }
 
   @override
-  String get deskNodeLineBlocksBare => 'Blocks';
+  String get deskNodeLineBlocksBare => '区块';
 
   @override
-  String get deskNodeLineCompacting => 'Compacting the chain data';
+  String get deskNodeLineCompacting => '正在压缩链数据';
 
   @override
-  String get deskNodeLineStopping => 'Stopping…';
+  String get deskNodeLineStopping => '正在停止…';
 
   @override
-  String get deskNodeLineSyncing => 'Syncing';
+  String get deskNodeLineSyncing => '正在同步';
 
   @override
-  String get deskNodeNoEstimate => 'no estimate; up to an hour';
+  String get deskNodeNoEstimate => '无法估算；最多一小时';
 
   @override
-  String get deskNodeEstimating => 'estimating…';
+  String get deskNodeEstimating => '正在估算…';
 
   @override
   String deskNodeAboutHours(int hours) {
-    return 'about $hours h left';
+    return '约剩 $hours 小时';
   }
 
   @override
   String deskNodeAboutMinutes(int minutes) {
-    return 'about $minutes min left';
+    return '约剩 $minutes 分钟';
   }
 
   @override
   String deskNodeDurationHm(int hours, int minutes) {
-    return '$hours h $minutes min';
+    return '$hours 小时 $minutes 分钟';
   }
 
   @override
   String deskNodeDurationM(int minutes) {
-    return '$minutes min';
+    return '$minutes 分钟';
   }
 
   @override
-  String get deskTorNetworkLabel => 'Tor Network';
+  String get deskTorNetworkLabel => 'Tor 网络';
 
   @override
   String get deskTorNetworkHint =>
-      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.';
+      '网络活动经由 Tor 网络。Tor 会隐藏钱包的互联网地址：每个连接都经过多个由志愿者运行的中继，因此没有任何服务器知道钱包在哪里。';
 
   @override
-  String get deskTorOff => 'Off';
+  String get deskTorOff => '关闭';
 
   @override
-  String get deskTorStarting => 'Starting…';
+  String get deskTorStarting => '正在启动…';
 
   @override
-  String get deskTorOn => 'On';
+  String get deskTorOn => '开启';
 
   @override
-  String get deskTorNotConnected => 'Not connected';
+  String get deskTorNotConnected => '未连接';
 
   @override
-  String get deskTorRoutes =>
-      'Epicbox, the node, status, price, updates, support and Tor addresses';
+  String get deskTorRoutes => 'Epicbox、节点、状态、价格、更新、支持和 Tor 地址';
 
   @override
-  String get deskTorCoverage =>
-      'Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.';
+  String get deskTorCoverage => '经由 Tor：Epicbox、节点、状态、价格、更新、支持和 Tor 地址。';
 
   @override
-  String get deskTorNodeOver => 'Over Tor';
+  String get deskTorNodeOver => '经由 Tor';
 
   @override
-  String get deskTorNodeNotEncrypted => 'Not encrypted past Tor';
+  String get deskTorNodeNotEncrypted => 'Tor 出口之后未加密';
 
   @override
-  String get deskTorNodeWaits => 'Waits until Tor is connected.';
+  String get deskTorNodeWaits => '等 Tor 连接后再连接。';
 
   @override
-  String get deskRecvTitle => 'Receive';
+  String get deskRecvTitle => '接收';
 
   @override
-  String get deskRecvReceiving => 'Receiving';
+  String get deskRecvReceiving => '接收';
 
   @override
-  String get deskRecvNameFile => 'File';
+  String get deskRecvNameFile => '文件';
 
   @override
   String deskRecvTurnOnFailed(String method) {
-    return '$method not turned on';
+    return '$method 未开启';
   }
 
   @override
   String deskRecvTurnOffFailed(String method) {
-    return '$method not turned off';
+    return '$method 未关闭';
   }
 
   @override
-  String get deskRecvOtherWays => 'Other ways to receive';
+  String get deskRecvOtherWays => '其他接收方式';
 
   @override
-  String get deskRecvSettings => 'Settings';
+  String get deskRecvSettings => '设置';
 
   @override
-  String get deskRecvTorNotConnected => 'Tor is not connected.';
+  String get deskRecvTorNotConnected => 'Tor 未连接。';
 
   @override
-  String get deskRecvTorStarting => 'Tor is starting.';
+  String get deskRecvTorStarting => 'Tor 正在启动。';
 
   @override
   String deskRecvTorDownText(String routes) {
-    return 'Nothing arrives over $routes until it is, or until Tor is turned off.';
+    return '在 Tor 连接成功或被关闭之前，$routes都无法使用。';
   }
 
   @override
-  String get deskRecvTorStartingText =>
-      'Addresses become reachable once it is connected. Nothing goes over the clearnet meanwhile.';
+  String get deskRecvTorStartingText => 'Tor 连接后地址即可访问。在此期间不会经由明网传输任何内容。';
 
   @override
-  String get deskRecvTurnTorOff => 'Turn Tor off';
+  String get deskRecvTurnTorOff => '关闭 Tor';
 
   @override
-  String get deskRecvTryAgain => 'Try again';
+  String get deskRecvTryAgain => '重试';
 
   @override
-  String get deskRecvStateOn => 'on';
+  String get deskRecvStateOn => '开启';
 
   @override
-  String get deskRecvStateOff => 'off';
+  String get deskRecvStateOff => '关闭';
 
   @override
-  String get deskRecvStateChecking => 'checking';
+  String get deskRecvStateChecking => '正在检查';
 
   @override
   String deskRecvSemList(String method, String state) {
@@ -6485,12 +6453,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskRecvSemMethod(String method, String state) {
-    return '$method: $state';
+    return '$method：$state';
   }
 
   @override
   String deskRecvTipChecking(String method) {
-    return '$method · Checking';
+    return '$method · 正在检查';
   }
 
   @override
@@ -6504,116 +6472,106 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskRecvTagPaused => 'Paused';
+  String get deskRecvTagPaused => '已暂停';
 
   @override
-  String get deskRecvTagStarting => 'Starting';
+  String get deskRecvTagStarting => '正在启动';
 
   @override
-  String get deskRecvTagNotReachable => 'Not reachable';
+  String get deskRecvTagNotReachable => '无法访问';
 
   @override
-  String get deskRecvAddressUnreadable =>
-      'The address could not be read. Open Receive again in a moment.';
+  String get deskRecvAddressUnreadable => '无法读取地址。请稍后重新打开“接收”。';
 
   @override
-  String get deskRecvEpicboxAddress => 'Epicbox address';
+  String get deskRecvEpicboxAddress => 'Epicbox 地址';
 
   @override
-  String get deskRecvCopyEpicbox => 'Copy Epicbox address';
+  String get deskRecvCopyEpicbox => '复制 Epicbox 地址';
 
   @override
   String get deskRecvEpicboxIntro =>
-      'Share it to get paid. Works while the wallet is closed: the Epicbox server holds payments until the wallet is back.';
+      '分享此地址即可收款。钱包关闭时也能用：Epicbox 服务器会暂存付款，直到钱包重新打开。';
 
   @override
-  String get deskRecvCheckSix =>
-      'When reading it out, check the first six and last six characters.';
+  String get deskRecvCheckSix => '念给别人核对时，请检查前六位和后六位字符。';
 
   @override
-  String get deskRecvHttpAddress => 'HTTP address';
+  String get deskRecvHttpAddress => 'HTTP 地址';
 
   @override
-  String get deskRecvCopyHttp => 'Copy HTTP address';
+  String get deskRecvCopyHttp => '复制 HTTP 地址';
 
   @override
   String deskRecvHttpPublic(int port) {
-    return 'Your router’s public address. Senders on the internet use it once the router forwards port $port.';
+    return '你的路由器的公网地址。路由器转发端口 $port 后，互联网上的发送方即可使用。';
   }
 
   @override
-  String get deskRecvHttpLocal =>
-      'Programs on this computer can pay this address. For other devices, see Settings › Receiving.';
+  String get deskRecvHttpLocal => '本机上的程序可以向此地址付款。其他设备请见“设置 › 接收”。';
 
   @override
-  String get deskRecvHttpIntro =>
-      'Straight from another wallet while this one is open. On this computer only unless Settings says otherwise.';
+  String get deskRecvHttpIntro => '本钱包打开时，直接从另一个钱包接收。除非设置中另有选择，否则仅限本机。';
 
   @override
-  String get deskRecvHttpTorHint =>
-      'Turn on Tor in Settings › Privacy for a Tor address instead.';
+  String get deskRecvHttpTorHint => '如需 Tor 地址，请在“设置 › 隐私”中开启 Tor。';
 
   @override
-  String get deskRecvDirectTor => 'Direct, Tor address';
+  String get deskRecvDirectTor => '直连，Tor 地址';
 
   @override
-  String get deskRecvTorIntro =>
-      'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.';
+  String get deskRecvTorIntro => '本钱包打开时，经由 Tor 直接从另一个钱包接收。Tor 在“设置 › 隐私”中设置。';
 
   @override
-  String get deskRecvTorAddress => 'Tor address';
+  String get deskRecvTorAddress => 'Tor 地址';
 
   @override
-  String get deskRecvCopyTor => 'Copy Tor address';
+  String get deskRecvCopyTor => '复制 Tor 地址';
 
   @override
-  String get deskRecvTorOnion =>
-      'Some wallets show the address without .onion; both are the same address.';
+  String get deskRecvTorOnion => '有些钱包显示的地址不带 .onion；两者是同一个地址。';
 
   @override
-  String get deskRecvFiles => 'Transaction files';
+  String get deskRecvFiles => '交易文件';
 
   @override
-  String get deskRecvSignTitle => 'Sign a transaction file';
+  String get deskRecvSignTitle => '签署交易文件';
 
   @override
-  String get deskRecvSignText =>
-      'A sender gave a transaction file. The wallet signs it and saves a response for them.';
+  String get deskRecvSignText => '发送方提供了一个交易文件。钱包会签署它，并为对方保存一份回复。';
 
   @override
-  String get deskRecvOpen => 'Open';
+  String get deskRecvOpen => '打开';
 
   @override
-  String get deskRecvFinalizeTitle => 'Finalize a response file';
+  String get deskRecvFinalizeTitle => '完成回复文件';
 
   @override
-  String get deskRecvFinalizeText =>
-      'A file send got a response back. Finalizing posts the payment.';
+  String get deskRecvFinalizeText => '以文件方式发送的付款收到了回复。完成后即会广播这笔付款。';
 
   @override
   String deskRecvSwitchLabel(String title) {
-    return '$title, receiving';
+    return '$title，接收';
   }
 
   @override
-  String get deskSendStrategySmallest => 'Smallest';
+  String get deskSendStrategySmallest => '最小';
 
   @override
-  String get deskSendStrategyAll => 'All';
+  String get deskSendStrategyAll => '全部';
 
   @override
-  String get deskSendBalanceAfter => 'Balance after';
+  String get deskSendBalanceAfter => '发送后余额';
 
   @override
-  String get deskSendSpendableUntil => 'Spendable until change confirms';
+  String get deskSendSpendableUntil => '找零确认前可用';
 
   @override
   String deskSendSplitLine(int outputs, String fee) {
     String _temp0 = intl.Intl.pluralLogic(
       outputs,
       locale: localeName,
-      other: 'Change split into $outputs outputs (+$fee EPIC fee)',
-      one: 'Change split into $outputs output (+$fee EPIC fee)',
+      other: '找零拆分为 $outputs 个输出（+$fee EPIC 手续费）',
     );
     return '$_temp0';
   }
@@ -6623,24 +6581,20 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       outputs,
       locale: localeName,
-      other:
-          'So the next send does not wait for this one to confirm. Change comes back as $outputs outputs of about $each EPIC instead of one.',
-      one:
-          'So the next send does not wait for this one to confirm. Change comes back as $outputs output of about $each EPIC instead of one.',
+      other: '这样下一笔发送不必等这一笔确认。找零会以 $outputs 个约 $each EPIC 的输出返回，而不是一个。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSendSplitWhyLabel => 'Why the change is split';
+  String get deskSendSplitWhyLabel => '为什么拆分找零';
 
   @override
   String deskSendLockNoChange(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'No change: $count outputs spent exactly, nothing waits.',
-      one: 'No change: 1 output spent exactly, nothing waits.',
+      other: '没有找零：正好花掉 $count 个输出，无需等待。',
     );
     return '$_temp0';
   }
@@ -6650,9 +6604,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'Everything is locked: $count outputs, $amount EPIC, about 3 blocks.',
-      one: 'Everything is locked: 1 output, $amount EPIC, about 3 blocks.',
+      other: '全部锁定：$count 个输出，$amount EPIC，约 3 个区块。',
     );
     return '$_temp0';
   }
@@ -6662,8 +6614,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count outputs locked, $amount EPIC, about 3 blocks.',
-      one: '1 output locked, $amount EPIC, about 3 blocks.',
+      other: '$count 个输出被锁定，$amount EPIC，约 3 个区块。',
     );
     return '$_temp0';
   }
@@ -6673,8 +6624,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Strategy for this send: $strategy · $count outputs.',
-      one: 'Strategy for this send: $strategy · 1 output.',
+      other: '本次发送的策略：$strategy · $count 个输出。',
     );
     return '$_temp0';
   }
@@ -6684,8 +6634,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       outputs,
       locale: localeName,
-      other: 'Change split into $outputs outputs (+$fee EPIC).',
-      one: 'Change split into $outputs output (+$fee EPIC).',
+      other: '找零拆分为 $outputs 个输出（+$fee EPIC）。',
     );
     return '$_temp0';
   }
@@ -6695,8 +6644,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$locked EPIC in $count outputs; no change comes back.',
-      one: '$locked EPIC in 1 output; no change comes back.',
+      other: '$count 个输出中的 $locked EPIC；没有找零返回。',
     );
     return '$_temp0';
   }
@@ -6706,10 +6654,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'Everything: $locked EPIC in $count outputs until the change confirms (3 blocks). Nothing stays spendable.',
-      one:
-          'Everything: $locked EPIC in 1 output until the change confirms (3 blocks). Nothing stays spendable.',
+      other: '全部：$count 个输出中的 $locked EPIC 将锁定到找零确认（3 个区块）。期间没有可用余额。',
     );
     return '$_temp0';
   }
@@ -6719,10 +6664,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$locked EPIC in $count outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.',
-      one:
-          '$locked EPIC in 1 output until the change confirms (3 blocks). Nothing else is spendable meanwhile.',
+      other: '$count 个输出中的 $locked EPIC 将锁定到找零确认（3 个区块）。期间没有其他可用余额。',
     );
     return '$_temp0';
   }
@@ -6732,1028 +6674,969 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$locked EPIC in $count outputs until the change confirms (3 blocks). $spendable EPIC stays spendable.',
-      one:
-          '$locked EPIC in 1 output until the change confirms (3 blocks). $spendable EPIC stays spendable.',
+      other: '$count 个输出中的 $locked EPIC 将锁定到找零确认（3 个区块）。$spendable EPIC 仍可使用。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSendFactLocks => 'Locks';
+  String get deskSendFactLocks => '锁定';
 
   @override
-  String get deskSendFactStrategy => 'Strategy';
+  String get deskSendFactStrategy => '策略';
 
   @override
   String deskSendFactStrategyValue(String strategy) {
-    return '$strategy outputs, for this send';
+    return '$strategy输出，仅限本次发送';
   }
 
   @override
-  String get deskSendAdvSmallest => '· Smallest outputs';
+  String get deskSendAdvSmallest => '· 最小输出';
 
   @override
-  String get deskSendAdvSmallestNoSplit =>
-      '· Smallest outputs, change not split';
+  String get deskSendAdvSmallestNoSplit => '· 最小输出，不拆分找零';
 
   @override
-  String get deskSendAdvAll => '· All outputs';
+  String get deskSendAdvAll => '· 全部输出';
 
   @override
-  String get deskSendAdvAllNoSplit => '· All outputs, change not split';
+  String get deskSendAdvAllNoSplit => '· 全部输出，不拆分找零';
 
   @override
-  String get deskSendAdvanced => 'Advanced';
+  String get deskSendAdvanced => '高级';
 
   @override
-  String get deskSendAdvStrategy => 'Strategy for this send';
+  String get deskSendAdvStrategy => '本次发送的策略';
 
   @override
-  String get deskSendAdvSmallestText =>
-      'Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.';
+  String get deskSendAdvSmallestText => '花掉最少的小额输出；找零确认期间，其余余额仍可使用。';
 
   @override
-  String get deskSendAdvAllText =>
-      'Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.';
+  String get deskSendAdvAllText => '花掉所有可用输出，并返回一个找零输出。确认前全部锁定；之后输出更少、更大。';
 
   @override
-  String get deskSendDefaultTag => 'default';
+  String get deskSendDefaultTag => '默认';
 
   @override
-  String get deskSendAdvAllNote => 'Sending everything spends every output.';
+  String get deskSendAdvAllNote => '发送全部余额会花掉所有输出。';
 
   @override
-  String get deskSendAdvSplit => 'Split change';
+  String get deskSendAdvSplit => '拆分找零';
 
   @override
-  String get deskSendAdvSplitText =>
-      'Returns the change as several outputs when few would be left, so the next send does not wait.';
+  String get deskSendAdvSplitText => '剩余输出很少时，把找零拆成多个输出返回，这样下一笔发送不必等待。';
 
   @override
-  String get deskSendAdvDefaults => 'For this send only. Defaults: ';
+  String get deskSendAdvDefaults => '仅限本次发送。默认设置：';
 
   @override
-  String get deskSendAdvOutputsLink => 'Outputs';
+  String get deskSendAdvOutputsLink => '输出';
 
   @override
-  String get deskSendPickNone => 'No contacts yet';
+  String get deskSendPickNone => '暂无联系人';
 
   @override
-  String get deskSendPickNoneText =>
-      'Save the people you pay in Contacts, then choose them here.';
+  String get deskSendPickNoneText => '先在“联系人”中保存你要付款的人，然后在这里选择。';
 
   @override
-  String get deskSendPickOpen => 'Open contacts';
+  String get deskSendPickOpen => '打开联系人';
 
   @override
   String deskSendPickNoMatch(String query) {
-    return 'No contact matches \"$query\".';
+    return '没有与“$query”匹配的联系人。';
   }
 
   @override
-  String get deskSendPickTitle => 'Choose contact';
+  String get deskSendPickTitle => '选择联系人';
 
   @override
-  String get deskSendPickDesc => 'The address fills the recipient field.';
+  String get deskSendPickDesc => '地址会填入接收方字段。';
 
   @override
-  String get deskSendPickSearch => 'Search contacts';
+  String get deskSendPickSearch => '搜索联系人';
 
   @override
-  String get deskSendTitle => 'Send';
+  String get deskSendTitle => '发送';
 
   @override
-  String get deskSendErrNoAddress => 'Add an address to send to.';
+  String get deskSendErrNoAddress => '请填写接收地址。';
 
   @override
-  String get deskSendErrEpicbox => 'This is not a valid Epicbox address.';
+  String get deskSendErrEpicbox => '这不是有效的 Epicbox 地址。';
 
   @override
-  String get deskSendErrNotDirect => 'This is not a Direct address.';
+  String get deskSendErrNotDirect => '这不是直连地址。';
 
   @override
-  String get deskSendErrOnion => 'This is not a valid onion address.';
+  String get deskSendErrOnion => '这不是有效的 onion 地址。';
 
   @override
-  String get deskSendErrOwn => 'This is the wallet\'s own address.';
+  String get deskSendErrOwn => '这是本钱包自己的地址。';
 
   @override
-  String get deskSendNoAnswer =>
-      'The recipient did not answer. Nothing was sent.';
+  String get deskSendNoAnswer => '接收方没有响应。没有发送任何资金。';
 
   @override
-  String get deskSendTorOnFailed => 'Tor not turned on';
+  String get deskSendTorOnFailed => 'Tor 未开启';
 
   @override
-  String get deskSendTorOffFailed => 'Tor not turned off';
+  String get deskSendTorOffFailed => 'Tor 未关闭';
 
   @override
-  String get deskSendEpicboxOnFailed => 'Epicbox not turned on';
+  String get deskSendEpicboxOnFailed => 'Epicbox 未开启';
 
   @override
-  String get deskSendNothingSpendable => 'Nothing spendable to send.';
+  String get deskSendNothingSpendable => '没有可发送的可用余额。';
 
   @override
-  String get deskSendAllFailed =>
-      'Could not work out how much can be sent. Try again in a moment.';
+  String get deskSendAllFailed => '无法计算可发送的金额。请稍后重试。';
 
   @override
-  String get deskSendErrAmountEnter => 'Enter an amount.';
+  String get deskSendErrAmountEnter => '请输入金额。';
 
   @override
-  String get deskSendErrAmountDecimals => 'EPIC has at most 8 decimals.';
+  String get deskSendErrAmountDecimals => 'EPIC 最多有 8 位小数。';
 
   @override
-  String get deskSendErrAmountZero => 'The amount must be more than 0.';
+  String get deskSendErrAmountZero => '金额必须大于 0。';
 
   @override
-  String get deskSendErrAmountMore => 'More than the available balance.';
+  String get deskSendErrAmountMore => '超过可用余额。';
 
   @override
-  String get deskSendSent => 'Sent';
+  String get deskSendSent => '已发送';
 
   @override
-  String get deskSendFileReadyTitle => 'Transaction file ready';
+  String get deskSendFileReadyTitle => '交易文件已就绪';
 
   @override
-  String get deskSendFileReadyText =>
-      'Give this file to the recipient. The wallet is waiting for the response file; finalize it when it comes back.';
+  String get deskSendFileReadyText => '把这个文件交给接收方。钱包正在等待回复文件；收到后请完成交易。';
 
   @override
-  String get deskSendFinalize => 'Finalize';
+  String get deskSendFinalize => '完成交易';
 
   @override
-  String get deskSendNewSend => 'New send';
+  String get deskSendNewSend => '新的发送';
 
   @override
-  String get deskSendNodeNotSynced => 'Node not synced';
+  String get deskSendNodeNotSynced => '节点未同步';
 
   @override
   String deskSendNodeSyncingPct(int percent) {
-    return 'Sending is possible once the node has synced. $percent% done; the form can be filled in meanwhile.';
+    return '节点同步完成后才能发送。已完成 $percent%；期间可以先填写表单。';
   }
 
   @override
-  String get deskSendNodeSyncing =>
-      'Sending is possible once the node has synced.';
+  String get deskSendNodeSyncing => '节点同步完成后才能发送。';
 
   @override
-  String get deskSendTorBlocked => 'Tor is not connected';
+  String get deskSendTorBlocked => 'Tor 未连接';
 
   @override
-  String get deskSendTorBlockedText =>
-      'Nothing is sent until it is, or until Tor is turned off.';
+  String get deskSendTorBlockedText => '在 Tor 连接成功或被关闭之前，不会发送任何内容。';
 
   @override
-  String get deskSendTurnTorOff => 'Turn Tor off';
+  String get deskSendTurnTorOff => '关闭 Tor';
 
   @override
-  String get deskSendTorStarting => 'Tor is starting';
+  String get deskSendTorStarting => 'Tor 正在启动';
 
   @override
-  String get deskSendTorStartingText =>
-      'Sending waits until it is connected. Nothing goes over the clearnet meanwhile.';
+  String get deskSendTorStartingText => '发送会等到 Tor 连接成功。在此期间不会经由明网传输任何内容。';
 
   @override
-  String get deskSendEpicboxOff => 'Epicbox not connected';
+  String get deskSendEpicboxOff => 'Epicbox 未连接';
 
   @override
   String get deskSendEpicboxOffText =>
-      'Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.';
+      '开启 Epicbox 接收后才能通过 Epicbox 发送。在此期间可以用文件发送。';
 
   @override
-  String get deskSendEpicboxTurnOn => 'Turn on Epicbox receiving';
+  String get deskSendEpicboxTurnOn => '开启 Epicbox 接收';
 
   @override
-  String get deskSendDoneViaDirect => 'Finalized and posted to the network.';
+  String get deskSendDoneViaDirect => '已完成并广播到网络。';
 
   @override
-  String get deskSendDoneViaEpicbox =>
-      'Handed to Epicbox. Completes when the recipient answers.';
+  String get deskSendDoneViaEpicbox => '已交给 Epicbox。接收方响应后即完成。';
 
   @override
-  String get deskSendViewTx => 'View transaction';
+  String get deskSendViewTx => '查看交易';
 
   @override
-  String get deskSendFailedTitle => 'Send failed';
+  String get deskSendFailedTitle => '发送失败';
 
   @override
-  String get deskSendReviewAgain => 'Review again';
+  String get deskSendReviewAgain => '重新确认';
 
   @override
-  String get deskSendMethodDirect => 'Direct';
+  String get deskSendMethodDirect => '直连';
 
   @override
-  String get deskSendMethodFile => 'File';
+  String get deskSendMethodFile => '文件';
 
   @override
-  String get deskSendTo => 'To';
+  String get deskSendTo => '接收方';
 
   @override
-  String get deskSendToHelp => 'Paste an address, or type a contact’s name.';
+  String get deskSendToHelp => '粘贴地址，或输入联系人的名称。';
 
   @override
-  String get deskSendToHint => 'Address or contact';
+  String get deskSendToHint => '地址或联系人';
 
   @override
-  String get deskSendToSem => 'Recipient';
+  String get deskSendToSem => '接收方';
 
   @override
-  String get deskSendClearTo => 'Clear recipient';
+  String get deskSendClearTo => '清除接收方';
 
   @override
-  String get deskSendContacts => 'Contacts';
+  String get deskSendContacts => '联系人';
 
   @override
-  String get deskSendNeedsTor => 'Needs Tor';
+  String get deskSendNeedsTor => '需要 Tor';
 
   @override
-  String get deskSendNeedsTorText =>
-      'An onion address can only be reached over Tor.';
+  String get deskSendNeedsTorText => 'onion 地址只能经由 Tor 访问。';
 
   @override
-  String get deskSendNoTorBuild => 'Tor is not in this build.';
+  String get deskSendNoTorBuild => '此版本不含 Tor。';
 
   @override
-  String get deskSendTurnOnTor => 'Turn on Tor';
+  String get deskSendTurnOnTor => '开启 Tor';
 
   @override
-  String get deskSendHttpClearnet =>
-      'Direct to http(s) addresses goes over the clearnet, not Tor.';
+  String get deskSendHttpClearnet => '直连 http(s) 地址经由明网，而不是 Tor。';
 
   @override
-  String get deskSendClear => 'Clear';
+  String get deskSendClear => '清除';
 
   @override
-  String get deskSendAmount => 'Amount';
+  String get deskSendAmount => '金额';
 
   @override
-  String get deskSendAvailableNone => 'Available —';
+  String get deskSendAvailableNone => '可用 —';
 
   @override
   String deskSendAvailable(String amount) {
-    return 'Available $amount EPIC';
+    return '可用 $amount EPIC';
   }
 
   @override
-  String get deskSendAmountSem => 'Amount in EPIC';
+  String get deskSendAmountSem => '金额（EPIC）';
 
   @override
-  String get deskSendAllButton => 'All';
+  String get deskSendAllButton => '全部';
 
   @override
-  String get deskSendConfirmingHidden =>
-      'Part of the balance is still confirming and cannot be sent yet.';
+  String get deskSendConfirmingHidden => '部分余额仍在确认中，暂时无法发送。';
 
   @override
   String deskSendConfirming(String amount) {
-    return '$amount EPIC is still confirming and cannot be sent yet.';
+    return '$amount EPIC 仍在确认中，暂时无法发送。';
   }
 
   @override
-  String get deskSendMessage => 'Message';
+  String get deskSendMessage => '留言';
 
   @override
-  String get deskSendMessageHelp => 'The recipient sees this message.';
+  String get deskSendMessageHelp => '接收方会看到这条留言。';
 
   @override
-  String get deskSendPrivacyOn => 'Privacy · Dandelion++ on';
+  String get deskSendPrivacyOn => '隐私 · Dandelion++ 已开启';
 
   @override
-  String get deskSendPrivacyOff => 'Privacy · Dandelion++ off';
+  String get deskSendPrivacyOff => '隐私 · Dandelion++ 已关闭';
 
   @override
-  String get deskSendDandelionText =>
-      'Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.';
+  String get deskSendDandelionText => '交易在扩散前会先经过几个随机节点，因此网络无法判断它来自哪里。';
 
   @override
-  String get deskSendHintSent =>
-      'Sent. Enter a new amount and recipient to send again.';
+  String get deskSendHintSent => '已发送。如需再次发送，请输入新的金额和接收方。';
 
   @override
-  String get deskSendHintNode => 'Waiting for the node to sync.';
+  String get deskSendHintNode => '等待节点同步。';
 
   @override
-  String get deskSendHintEpicbox => 'Waiting for Epicbox to connect.';
+  String get deskSendHintEpicbox => '等待 Epicbox 连接。';
 
   @override
-  String get deskSendHintTorWait => 'Waiting for Tor to connect.';
+  String get deskSendHintTorWait => '等待 Tor 连接。';
 
   @override
-  String get deskSendHintTorBlocked => 'Retry Tor, or turn it off.';
+  String get deskSendHintTorBlocked => '重试 Tor，或将其关闭。';
 
   @override
-  String get deskSendHintNeedsTor => 'Turn on Tor to send to an onion address.';
+  String get deskSendHintNeedsTor => '开启 Tor 才能发送到 onion 地址。';
 
   @override
-  String get deskSendHintFix => 'Fix the fields marked in red.';
+  String get deskSendHintFix => '请修正标红的字段。';
 
   @override
-  String get deskSendHintChecking => 'Checking the fee for this amount.';
+  String get deskSendHintChecking => '正在计算此金额的手续费。';
 
   @override
-  String get deskSendHintDefault => 'Nothing is sent until confirmed.';
+  String get deskSendHintDefault => '确认之前不会发送任何资金。';
 
   @override
-  String get deskSendReviewWaitTor => 'Waiting for Tor';
+  String get deskSendReviewWaitTor => '等待 Tor';
 
   @override
-  String get deskSendReviewTorOff => 'Tor not connected';
+  String get deskSendReviewTorOff => 'Tor 未连接';
 
   @override
-  String get deskSendReview => 'Review send';
+  String get deskSendReview => '确认发送';
 
   @override
-  String get deskSendSummary => 'Summary';
+  String get deskSendSummary => '摘要';
 
   @override
-  String get deskSendNetworkFee => 'Network fee';
+  String get deskSendNetworkFee => '网络手续费';
 
   @override
-  String get deskSendTotal => 'Total';
+  String get deskSendTotal => '总计';
 
   @override
-  String get deskSendUpdating => 'Balance updating while the wallet scans.';
+  String get deskSendUpdating => '钱包扫描期间余额正在更新。';
 
   @override
-  String get deskSendEpicboxLine1 => 'The recipient can be offline.';
+  String get deskSendEpicboxLine1 => '接收方可以不在线。';
 
   @override
-  String get deskSendEpicboxLine2 =>
-      'The Epicbox server holds the payment until they open their wallet.';
+  String get deskSendEpicboxLine2 => 'Epicbox 服务器会暂存付款，直到对方打开钱包。';
 
   @override
-  String get deskSendDirectLine1 => 'Straight to their wallet.';
+  String get deskSendDirectLine1 => '直达对方钱包。';
 
   @override
   String get deskSendDirectLine2 =>
-      'An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.';
+      'http(s) 或 .onion 地址；onion 地址经由 Tor。对方钱包必须处于打开状态。';
 
   @override
-  String get deskSendFileLine1 => 'No connection needed.';
+  String get deskSendFileLine1 => '无需联网。';
 
   @override
-  String get deskSendFileLine2 =>
-      'Hand the file over, get their response file back, then finalize it here.';
+  String get deskSendFileLine2 => '把文件交给对方，收回对方的回复文件，然后在这里完成交易。';
 
   @override
-  String get deskSendTagDirect => 'Direct';
+  String get deskSendTagDirect => '直连';
 
   @override
-  String get deskSendTagFile => 'File';
+  String get deskSendTagFile => '文件';
 
   @override
-  String get deskSendTagEpicbox => 'Via Epicbox';
+  String get deskSendTagEpicbox => '经由 Epicbox';
 
   @override
-  String get deskSendSwitchedDirect => 'Direct address. Method set to Direct.';
+  String get deskSendSwitchedDirect => '直连地址。方式已设为直连。';
 
   @override
-  String get deskSendSwitchedFile => 'File address. Method set to File.';
+  String get deskSendSwitchedFile => '文件地址。方式已设为文件。';
 
   @override
-  String get deskSendSwitchedEpicbox =>
-      'Epicbox address. Method set to Epicbox.';
+  String get deskSendSwitchedEpicbox => 'Epicbox 地址。方式已设为 Epicbox。';
 
   @override
-  String get deskSendMatching => 'Matching contacts';
+  String get deskSendMatching => '匹配的联系人';
 
   @override
   String deskSendMatchCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count contacts match',
-      one: '1 contact matches',
+      other: '$count 个联系人匹配',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSendWrongPassword => 'Wrong password.';
+  String get deskSendWrongPassword => '密码错误。';
 
   @override
-  String get deskSendNotConfirmed =>
-      'Not confirmed. Check Activity before sending again.';
+  String get deskSendNotConfirmed => '未确认。再次发送前，请先查看“活动”。';
 
   @override
-  String get deskSendViaEpicbox => 'Epicbox (the recipient can be offline)';
+  String get deskSendViaEpicbox => 'Epicbox（接收方可以不在线）';
 
   @override
-  String get deskSendViaDirect => 'Direct (their wallet must be open)';
+  String get deskSendViaDirect => '直连（对方钱包必须处于打开状态）';
 
   @override
-  String get deskSendViaTor => 'Direct, over Tor (their wallet must be open)';
+  String get deskSendViaTor => '直连，经由 Tor（对方钱包必须处于打开状态）';
 
   @override
-  String get deskSendViaFile => 'Transaction file';
+  String get deskSendViaFile => '交易文件';
 
   @override
   String deskSendUsesAll(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Uses all $count outputs · change 1 output',
-      one: 'Uses its 1 output · change 1 output',
+      other: '使用全部 $count 个输出 · 找零 1 个输出',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSendReviewTitle => 'Check and send';
+  String get deskSendReviewTitle => '确认并发送';
 
   @override
-  String get deskSendReviewDesc => 'A send cannot be undone once it is posted.';
+  String get deskSendReviewDesc => '发送一经广播就无法撤销。';
 
   @override
-  String get deskSendFactTo => 'To';
+  String get deskSendFactTo => '接收方';
 
   @override
-  String get deskSendCheckChars =>
-      'Check the highlighted characters against what the recipient gave.';
+  String get deskSendCheckChars => '请将高亮的字符与接收方提供的地址核对。';
 
   @override
-  String get deskSendFactVia => 'Via';
+  String get deskSendFactVia => '方式';
 
   @override
-  String get deskSendFactPrivacy => 'Privacy';
+  String get deskSendFactPrivacy => '隐私';
 
   @override
-  String get deskSendDandelionOn => 'Dandelion++ on';
+  String get deskSendDandelionOn => 'Dandelion++ 已开启';
 
   @override
-  String get deskSendDandelionOff => 'Dandelion++ off';
+  String get deskSendDandelionOff => 'Dandelion++ 已关闭';
 
   @override
-  String get deskSendFactMessage => 'Message';
+  String get deskSendFactMessage => '留言';
 
   @override
-  String get deskSendPassword => 'Password';
+  String get deskSendPassword => '密码';
 
   @override
-  String get deskSendPasswordHelp =>
-      'Opened with the remembered password: this send asks it.';
+  String get deskSendPasswordHelp => '每次发送都需要输入钱包密码。';
 
   @override
-  String get deskSendBusyFile => 'Creating the file.';
+  String get deskSendBusyFile => '正在创建文件。';
 
   @override
-  String get deskSendBusyTor =>
-      'Reaching their wallet over Tor… This can take a while. Keep the app open.';
+  String get deskSendBusyTor => '正在经由 Tor 连接对方钱包…这可能需要一些时间。请保持应用打开。';
 
   @override
-  String get deskSendBusy =>
-      'Sending. This can take a few seconds; keep this window open.';
+  String get deskSendBusy => '正在发送。这可能需要几秒钟；请保持此窗口打开。';
 
   @override
-  String get deskSendBack => 'Back';
+  String get deskSendBack => '返回';
 
   @override
-  String get deskSendSending => 'Sending';
+  String get deskSendSending => '正在发送';
 
   @override
   String deskSendConfirm(String amount) {
-    return 'Send $amount EPIC';
+    return '发送 $amount EPIC';
   }
 
   @override
-  String get deskSendPlainTitle => 'Not encrypted. Send anyway?';
+  String get deskSendPlainTitle => '未加密。仍要发送？';
 
   @override
   String get deskSendPlainDesc =>
-      'Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.';
+      '以明文 HTTP 发送到另一台电脑。途经的任何人都能读取这笔交易。https:// 是加密的。';
 
   @override
-  String get deskSendPlainConfirm => 'Send anyway';
+  String get deskSendPlainConfirm => '仍要发送';
 
   @override
   String deskSendEpicboxSwitched(String domain) {
-    return 'Switched to $domain';
+    return '已切换到 $domain';
   }
 
   @override
-  String get deskSendEpicboxNotSwitched => 'Not switched';
+  String get deskSendEpicboxNotSwitched => '未切换';
 
   @override
-  String get deskSendEpicboxDownTitle => 'Epicbox server not answering';
+  String get deskSendEpicboxDownTitle => 'Epicbox 服务器无响应';
 
   @override
-  String get deskSendEpicboxDownWait => 'Payments wait until it is back.';
+  String get deskSendEpicboxDownWait => '付款会等到服务器恢复。';
 
   @override
   String deskSendEpicboxSwitchTo(String domain) {
-    return 'Switch to $domain?';
+    return '切换到 $domain？';
   }
 
   @override
-  String get deskSendEpicboxSwitch => 'Switch';
+  String get deskSendEpicboxSwitch => '切换';
 
   @override
-  String get deskFinOpenFolder => 'Open folder';
+  String get deskFinOpenFolder => '打开文件夹';
 
   @override
-  String get deskFinFolderNotOpened => 'Folder not opened';
+  String get deskFinFolderNotOpened => '未能打开文件夹';
 
   @override
-  String get deskFinWrongType => 'Not a response file';
+  String get deskFinWrongType => '不是回复文件';
 
   @override
-  String get deskFinWrongTypeText =>
-      'The file is not a response file. Choose the file the recipient sent back.';
+  String get deskFinWrongTypeText => '该文件不是回复文件。请选择接收方发回的文件。';
 
   @override
-  String get deskFinUnreadable => 'File not readable';
+  String get deskFinUnreadable => '无法读取文件';
 
   @override
-  String get deskFinUnreadableText =>
-      'The file could not be read. It may be damaged or still being copied.';
+  String get deskFinUnreadableText => '无法读取该文件。文件可能已损坏，或仍在复制中。';
 
   @override
-  String get deskFinFailed => 'Finalizing failed';
+  String get deskFinFailed => '完成交易失败';
 
   @override
-  String get deskFinFailedText =>
-      'The wallet could not finalize this file. It may belong to another transaction or be finalized already.';
+  String get deskFinFailedText => '钱包无法完成此文件。它可能属于另一笔交易，或已经完成过。';
 
   @override
-  String get deskFinNotPosted => 'Not posted';
+  String get deskFinNotPosted => '未广播';
 
   @override
-  String get deskFinNotPostedText =>
-      'The transaction was finalized but the node did not accept it. Check the node, then try again.';
+  String get deskFinNotPostedText => '交易已完成，但节点没有接受。请检查节点，然后重试。';
 
   @override
-  String get deskFinPickTitle => 'Response file';
+  String get deskFinPickTitle => '回复文件';
 
   @override
-  String get deskFinPosted => 'Transaction posted';
+  String get deskFinPosted => '交易已广播';
 
   @override
-  String get deskFinTitle => 'Finalize a response file';
+  String get deskFinTitle => '完成回复文件';
 
   @override
-  String get deskFinNoticeTitle => 'For a transaction created as a file';
+  String get deskFinNoticeTitle => '用于以文件方式创建的交易';
 
   @override
-  String get deskFinNoticeText =>
-      'Use the response file the recipient sent back.';
+  String get deskFinNoticeText => '使用接收方发回的回复文件。';
 
   @override
-  String get deskFinTryAgain => 'Try again';
+  String get deskFinTryAgain => '重试';
 
   @override
-  String get deskFinPostedText =>
-      'The payment was finalized and sent to the network. Follow it in Activity.';
+  String get deskFinPostedText => '付款已完成并发送到网络。可在“活动”中查看进度。';
 
   @override
-  String get deskFinAnother => 'Finalize another file';
+  String get deskFinAnother => '完成另一个文件';
 
   @override
-  String get deskFinViewActivity => 'View in Activity';
+  String get deskFinViewActivity => '在“活动”中查看';
 
   @override
-  String get deskFinBusy => 'Finalizing and posting';
+  String get deskFinBusy => '正在完成并广播';
 
   @override
-  String get deskFinChoose => 'Choose a response file';
+  String get deskFinChoose => '选择回复文件';
 
   @override
-  String get deskFinChooseText =>
-      'The wallet completes the transaction and posts it to the network.';
+  String get deskFinChooseText => '钱包会完成这笔交易并广播到网络。';
 
   @override
-  String get deskFinChooseFile => 'Choose file';
+  String get deskFinChooseFile => '选择文件';
 
   @override
-  String get deskImpWrongType => 'Not a transaction file';
+  String get deskImpWrongType => '不是交易文件';
 
   @override
-  String get deskImpWrongTypeText =>
-      'The file is not a transaction file. Choose the .slate or .tx file the sender gave.';
+  String get deskImpWrongTypeText => '该文件不是交易文件。请选择发送方提供的 .slate 或 .tx 文件。';
 
   @override
-  String get deskImpUnreadable => 'File not readable';
+  String get deskImpUnreadable => '无法读取文件';
 
   @override
-  String get deskImpUnreadableText =>
-      'The file could not be read. It may be damaged or still being copied.';
+  String get deskImpUnreadableText => '无法读取该文件。文件可能已损坏，或仍在复制中。';
 
   @override
-  String get deskImpNoPlace => 'Nothing signed';
+  String get deskImpNoPlace => '未签名';
 
   @override
-  String get deskImpNoPlaceText =>
-      'No place was chosen for the response file, so nothing was signed.';
+  String get deskImpNoPlaceText => '没有选择回复文件的保存位置，因此未签名。';
 
   @override
-  String get deskImpFailed => 'Signing failed';
+  String get deskImpFailed => '签名失败';
 
   @override
-  String get deskImpFailedText =>
-      'The wallet could not sign this file. It may be for another wallet or already used.';
+  String get deskImpFailedText => '钱包无法签署此文件。它可能属于另一个钱包，或已被使用。';
 
   @override
   String deskImpFailedDetail(String detail) {
-    return 'The wallet could not sign this file. It may be for another wallet or already used. $detail.';
+    return '钱包无法签署此文件。它可能属于另一个钱包，或已被使用。$detail。';
   }
 
   @override
-  String get deskImpPickTitle => 'Transaction file';
+  String get deskImpPickTitle => '交易文件';
 
   @override
-  String get deskImpTitle => 'Sign a transaction file';
+  String get deskImpTitle => '签署交易文件';
 
   @override
-  String get deskImpNoticeTitle => 'Signing does not spend anything';
+  String get deskImpNoticeTitle => '签名不会花费任何资金';
 
   @override
-  String get deskImpNoticeText =>
-      'Send the response file back to the sender over the same channel they used.';
+  String get deskImpNoticeText => '通过发送方使用的同一渠道，把回复文件发回给对方。';
 
   @override
-  String get deskImpSaved => 'Response saved';
+  String get deskImpSaved => '回复已保存';
 
   @override
-  String get deskImpSavedText =>
-      'Send the response file back to the sender. The EPIC arrives once the sender finalizes it.';
+  String get deskImpSavedText => '把回复文件发回给发送方。发送方完成交易后，EPIC 即会到账。';
 
   @override
-  String get deskImpAmount => 'Amount ';
+  String get deskImpAmount => '金额 ';
 
   @override
-  String get deskImpAnother => 'Sign another file';
+  String get deskImpAnother => '签署另一个文件';
 
   @override
-  String get deskImpBusy => 'Signing the file';
+  String get deskImpBusy => '正在签署文件';
 
   @override
-  String get deskImpChoose => 'Choose a transaction file';
+  String get deskImpChoose => '选择交易文件';
 
   @override
-  String get deskImpChooseText =>
-      'The wallet signs it and saves a response for the sender.';
+  String get deskImpChooseText => '钱包会签署它，并为发送方保存一份回复。';
 
   @override
-  String get deskActNotUpdated => 'Not updated';
+  String get deskActNotUpdated => '未更新';
 
   @override
-  String get deskActSearchHint => 'Address or slate id';
+  String get deskActSearchHint => '地址或 Slate ID';
 
   @override
-  String get deskActSearchHintEmpty => 'Nothing to search yet';
+  String get deskActSearchHintEmpty => '暂无可搜索的内容';
 
   @override
-  String get deskActSearchLabel => 'Search transactions';
+  String get deskActSearchLabel => '搜索交易';
 
   @override
-  String get deskActClearSearch => 'Clear search';
+  String get deskActClearSearch => '清除搜索';
 
   @override
-  String get deskActShowAmounts => 'Show amounts';
+  String get deskActShowAmounts => '显示金额';
 
   @override
-  String get deskActHideAmounts => 'Hide amounts';
+  String get deskActHideAmounts => '隐藏金额';
 
   @override
-  String get deskActRefresh => 'Refresh';
+  String get deskActRefresh => '刷新';
 
   @override
-  String get deskActTitle => 'Activity';
+  String get deskActTitle => '活动';
 
   @override
-  String get deskActDetailReceived => 'Received transaction';
+  String get deskActDetailReceived => '收到的交易';
 
   @override
-  String get deskActDetailSent => 'Sent transaction';
+  String get deskActDetailSent => '发出的交易';
 
   @override
-  String get deskActLoading => 'Loading transactions';
+  String get deskActLoading => '正在加载交易';
 
   @override
-  String get deskActWaitingNode => 'Waiting for the node to be synced.';
+  String get deskActWaitingNode => '等待节点完成同步。';
 
   @override
-  String get deskActFilterAll => 'All';
+  String get deskActFilterAll => '全部';
 
   @override
-  String get deskActFilterReceived => 'Received';
+  String get deskActFilterReceived => '已接收';
 
   @override
-  String get deskActFilterSent => 'Sent';
+  String get deskActFilterSent => '已发送';
 
   @override
-  String get deskActNoMatchTitle => 'No transactions match';
+  String get deskActNoMatchTitle => '没有匹配的交易';
 
   @override
-  String get deskActNoMatchText =>
-      'Try another address or slate id, or clear the filter.';
+  String get deskActNoMatchText => '换一个地址或 Slate ID，或清除筛选条件。';
 
   @override
   String deskActPageOf(int page, int pages) {
-    return 'Page $page of $pages';
+    return '第 $page 页，共 $pages 页';
   }
 
   @override
-  String get deskActPrevPage => 'Previous page';
+  String get deskActPrevPage => '上一页';
 
   @override
-  String get deskActNextPage => 'Next page';
+  String get deskActNextPage => '下一页';
 
   @override
-  String get deskActPages => 'Pages';
+  String get deskActPages => '分页';
 
   @override
-  String get deskActColFromTo => 'From / to';
+  String get deskActColFromTo => '来自 / 发往';
 
   @override
-  String get deskActColStatus => 'Status';
+  String get deskActColStatus => '状态';
 
   @override
-  String get deskActColTime => 'Time';
+  String get deskActColTime => '时间';
 
   @override
-  String get deskActColAmount => 'Amount';
+  String get deskActColAmount => '金额';
 
   @override
-  String get deskActEmptyTitle => 'No transactions yet';
+  String get deskActEmptyTitle => '暂无交易';
 
   @override
-  String get deskActEmptyText =>
-      'Every payment sent or received is listed here, newest first, with who it was with and how far along it is.';
+  String get deskActEmptyText => '每笔发送或接收的付款都会列在这里，最新的在前，并显示对方是谁以及进行到哪一步。';
 
   @override
-  String get deskActStageWaiting => 'Waiting';
+  String get deskActStageWaiting => '等待中';
 
   @override
-  String get deskActStageWaitingText =>
-      'Both wallets sign it. Over Epicbox this is automatic.';
+  String get deskActStageWaitingText => '双方钱包都要签名。使用 Epicbox 时会自动完成。';
 
   @override
-  String get deskActStageConfirming => 'Confirming';
+  String get deskActStageConfirming => '确认中';
 
   @override
-  String get deskActStageConfirmingText =>
-      'On the chain. About one block a minute.';
+  String get deskActStageConfirmingText => '已上链。大约每分钟一个区块。';
 
   @override
-  String get deskActStageSpendable => 'Spendable';
+  String get deskActStageSpendable => '可用';
 
   @override
   String deskActStageSpendableText(int needed) {
     String _temp0 = intl.Intl.pluralLogic(
       needed,
       locale: localeName,
-      other: 'After $needed confirmations, about $needed minutes.',
-      one: 'After $needed confirmation, about $needed minute.',
+      other: '$needed 个确认之后，约 $needed 分钟。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskActShowAddress => 'Show address';
+  String get deskActShowAddress => '显示地址';
 
   @override
-  String get deskActReceiveFile => 'Receive a file';
+  String get deskActReceiveFile => '接收文件';
 
   @override
-  String get deskConTitle => 'Contacts';
+  String get deskConTitle => '联系人';
 
   @override
-  String get deskConLoading => 'Loading contacts';
+  String get deskConLoading => '正在加载联系人';
 
   @override
-  String get deskConNewTitle => 'New contact';
+  String get deskConNewTitle => '新建联系人';
 
   @override
-  String get deskConEditTitle => 'Edit contact';
+  String get deskConEditTitle => '编辑联系人';
 
   @override
-  String get deskConDetailsTitle => 'Details';
+  String get deskConDetailsTitle => '详情';
 
   @override
-  String get deskConSearchHint => 'Name or address';
+  String get deskConSearchHint => '名称或地址';
 
   @override
-  String get deskConSearchLabel => 'Search contacts';
+  String get deskConSearchLabel => '搜索联系人';
 
   @override
-  String get deskConClearSearch => 'Clear search';
+  String get deskConClearSearch => '清除搜索';
 
   @override
   String deskConCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count contacts',
-      one: '$count contact',
+      other: '$count 个联系人',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskConNoMatches => 'No matches';
+  String get deskConNoMatches => '无匹配';
 
   @override
   String deskConMatches(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count matches',
-      one: '$count match',
+      other: '$count 个匹配',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskConSortName => 'Name';
+  String get deskConSortName => '名称';
 
   @override
-  String get deskConSortRecent => 'Recent';
+  String get deskConSortRecent => '最近';
 
   @override
-  String get deskConNone => 'No contacts yet.';
+  String get deskConNone => '暂无联系人。';
 
   @override
-  String get deskConNoMatchList => 'No contacts match';
+  String get deskConNoMatchList => '没有匹配的联系人';
 
   @override
-  String get deskConAdd => 'Add contact';
+  String get deskConAdd => '添加联系人';
 
   @override
-  String get deskConIdle =>
-      'Choose a contact to see their details, send to them, edit or delete them.';
+  String get deskConIdle => '选择一个联系人，即可查看详情、向其发送、编辑或删除。';
 
   @override
-  String get deskConEmptyTitle => 'No contacts yet';
+  String get deskConEmptyTitle => '暂无联系人';
 
   @override
-  String get deskConEmptyText =>
-      'Save the people and shops paid often. On Send, pick a name instead of pasting an address.';
+  String get deskConEmptyText => '保存经常付款的人和商家。在“发送”页可以直接选择名称，而不用粘贴地址。';
 
   @override
-  String get deskConEmptyLocal =>
-      'Contacts stay on this computer. They are not part of the recovery phrase.';
+  String get deskConEmptyLocal => '联系人只保存在这台电脑上，不包含在助记词中。';
 
   @override
-  String get deskConSendToAddress => 'Send to address';
+  String get deskConSendToAddress => '发送到地址';
 
   @override
   String deskConLastTx(String when) {
-    return 'Last transaction: $when';
+    return '上一笔交易：$when';
   }
 
   @override
-  String get deskConSend => 'Send';
+  String get deskConSend => '发送';
 
   @override
-  String get deskConEdit => 'Edit';
+  String get deskConEdit => '编辑';
 
   @override
-  String get deskConStar => 'Star';
+  String get deskConStar => '加星标';
 
   @override
-  String get deskConUnstar => 'Unstar';
+  String get deskConUnstar => '取消星标';
 
   @override
-  String get deskConDelete => 'Delete';
+  String get deskConDelete => '删除';
 
   @override
-  String get deskConNotDeleted => 'Not deleted';
+  String get deskConNotDeleted => '未删除';
 
   @override
   String deskConDeleted(String name) {
-    return '$name was deleted';
+    return '已删除 $name';
   }
 
   @override
-  String get deskConAddrEpicbox => 'Epicbox address';
+  String get deskConAddrEpicbox => 'Epicbox 地址';
 
   @override
-  String get deskConAddrTor => 'Tor address';
+  String get deskConAddrTor => 'Tor 地址';
 
   @override
-  String get deskConAddrHttp => 'HTTP address';
+  String get deskConAddrHttp => 'HTTP 地址';
 
   @override
-  String get deskConNote => 'Note';
+  String get deskConNote => '备注';
 
   @override
   String deskConTxWith(String name) {
-    return 'Transactions with $name';
+    return '与 $name 的交易';
   }
 
   @override
-  String get deskConAllTx => 'All transactions';
+  String get deskConAllTx => '全部交易';
 
   @override
-  String get deskConTxNone =>
-      'No transactions with this contact yet. Payments sent to them from Send appear here.';
+  String get deskConTxNone => '与此联系人还没有交易。从“发送”页发给对方的付款会显示在这里。';
 
   @override
-  String get deskConTxReceived => 'Received';
+  String get deskConTxReceived => '已收到';
 
   @override
-  String get deskConTxSent => 'Sent';
+  String get deskConTxSent => '已发送';
 
   @override
-  String get deskConErrName => 'Give the contact a name.';
+  String get deskConErrName => '请为联系人填写名称。';
 
   @override
-  String get deskConErrAddressEmpty => 'Add an address.';
+  String get deskConErrAddressEmpty => '请填写地址。';
 
   @override
-  String get deskConErrAddressInvalid => 'Not a recognised address';
+  String get deskConErrAddressInvalid => '无法识别的地址';
 
   @override
-  String get deskConAddPicture => 'Add picture';
+  String get deskConAddPicture => '添加图片';
 
   @override
-  String get deskConChangePicture => 'Change picture';
+  String get deskConChangePicture => '更换图片';
 
   @override
-  String get deskConRemovePicture => 'Remove';
+  String get deskConRemovePicture => '移除';
 
   @override
   String get deskConPictureHelp =>
-      'PNG, JPEG, WebP or GIF, up to 10 MB. A small copy is kept in this app.';
+      'PNG、JPEG、WebP 或 GIF，最大 10 MB。应用内会保留一份小尺寸副本。';
 
   @override
-  String get deskConFieldName => 'Name';
+  String get deskConFieldName => '名称';
 
   @override
-  String get deskConFieldAddress => 'Address';
+  String get deskConFieldAddress => '地址';
 
   @override
-  String get deskConSaveFailed => 'Contact not saved';
+  String get deskConSaveFailed => '联系人未保存';
 
   @override
-  String get deskConSave => 'Save contact';
+  String get deskConSave => '保存联系人';
 
   @override
   String deskConDeleteTitle(String name) {
-    return 'Delete $name?';
+    return '删除 $name？';
   }
 
   @override
-  String get deskConDeleteBody =>
-      'The contact’s address and note are removed from this wallet. Past transactions stay in Activity. This cannot be undone.';
+  String get deskConDeleteBody => '此联系人的地址和备注将从本钱包中移除。过去的交易仍保留在“活动”中。此操作无法撤销。';
 
   @override
-  String get deskConKeep => 'Keep contact';
+  String get deskConKeep => '保留联系人';
 
   @override
-  String get deskConDeleteAction => 'Delete contact';
+  String get deskConDeleteAction => '删除联系人';
 
   @override
-  String get deskOutNotUpdated => 'Not updated';
+  String get deskOutNotUpdated => '未更新';
 
   @override
-  String get deskOutTitle => 'Outputs';
+  String get deskOutTitle => '输出';
 
   @override
-  String get deskOutShowAmounts => 'Show amounts';
+  String get deskOutShowAmounts => '显示金额';
 
   @override
-  String get deskOutHideAmounts => 'Hide amounts';
+  String get deskOutHideAmounts => '隐藏金额';
 
   @override
-  String get deskOutRefresh => 'Refresh';
+  String get deskOutRefresh => '刷新';
 
   @override
   String get deskOutLockedNote =>
-      'Locked outputs are being spent by a transaction in progress. Their change shows as awaiting finalization and is not in Total until the send is finalized, so Total counts the coins once.';
+      '已锁定的输出正被一笔进行中的交易花费。它们的找零显示为“等待完成”，在发送完成前不计入总额，因此总额中每个币只计算一次。';
 
   @override
   String get deskOutIntro =>
-      'Outputs are the pieces the balance is made of. A send spends whole outputs, pays the recipient and returns the rest as a new output; the spent ones are locked until the send confirms.';
+      '输出是构成余额的一个个部分。一笔发送会花掉整个输出，付给接收方，并把剩余部分作为新的输出返回；被花掉的输出在发送确认前保持锁定。';
 
   @override
   String deskOutCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count outputs',
-      one: '$count output',
+      other: '$count 个输出',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOutCardWait =>
-      'Wait until the send confirms (about 3 blocks).';
+  String get deskOutCardWait => '请等待发送确认（约 3 个区块）。';
 
   @override
-  String get deskOutSplitNothing => 'Nothing to split yet.';
+  String get deskOutSplitNothing => '暂无可拆分的输出。';
 
   @override
   String deskOutSplitSpends(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Spends $count outputs.',
-      one: 'Spends $count output.',
+      other: '花费 $count 个输出。',
     );
     return '$_temp0';
   }
@@ -7763,25 +7646,23 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Spends $count outputs. Fee from $fee EPIC.',
-      one: 'Spends $count output. Fee from $fee EPIC.',
+      other: '花费 $count 个输出。手续费 $fee EPIC 起。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOutConsNothing => 'Nothing to consolidate yet.';
+  String get deskOutConsNothing => '暂无可合并的输出。';
 
   @override
-  String get deskOutConsOne => 'Nothing to consolidate: one spendable output.';
+  String get deskOutConsOne => '无需合并：只有一个可用输出。';
 
   @override
   String deskOutConsInto(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count outputs into 1.',
-      one: '$count output into 1.',
+      other: '$count 个输出合并为 1 个。',
     );
     return '$_temp0';
   }
@@ -7791,215 +7672,206 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count outputs into 1. Fee $fee EPIC.',
-      one: '$count output into 1. Fee $fee EPIC.',
+      other: '$count 个输出合并为 1 个。手续费 $fee EPIC。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOutSplitCardTitle => 'Split';
+  String get deskOutSplitCardTitle => '拆分';
 
   @override
-  String get deskOutSplitCardText =>
-      'Makes more outputs from the spendable balance, so several sends can follow each other without waiting.';
+  String get deskOutSplitCardText => '用可用余额生成更多输出，这样多笔发送可以接连进行，无需等待。';
 
   @override
-  String get deskOutSplitCardButton => 'Split…';
+  String get deskOutSplitCardButton => '拆分…';
 
   @override
-  String get deskOutConsCardTitle => 'Consolidate';
+  String get deskOutConsCardTitle => '合并';
 
   @override
-  String get deskOutConsCardText =>
-      'Merges every spendable output into one. Smaller fees on the next send; everything is locked until it confirms.';
+  String get deskOutConsCardText => '把所有可用输出合并为一个。下一笔发送的手续费更低；确认前全部锁定。';
 
   @override
-  String get deskOutConsCardButton => 'Consolidate…';
+  String get deskOutConsCardButton => '合并…';
 
   @override
-  String get deskOutNotLoadedTitle => 'Outputs not loaded';
+  String get deskOutNotLoadedTitle => '未能加载输出';
 
   @override
-  String get deskOutNotLoadedText => 'Refresh to try again.';
+  String get deskOutNotLoadedText => '刷新以重试。';
 
   @override
-  String get deskOutLoading => 'Loading wallet data';
+  String get deskOutLoading => '正在加载钱包数据';
 
   @override
-  String get deskOutNoneTitle => 'No outputs yet';
+  String get deskOutNoneTitle => '暂无输出';
 
   @override
-  String get deskOutNoneText =>
-      'The first payment received makes one. Split and Consolidate need something to work with.';
+  String get deskOutNoneText => '收到第一笔付款时会生成一个输出。拆分和合并需要有输出才能使用。';
 
   @override
-  String get deskOutFilterAll => 'All';
+  String get deskOutFilterAll => '全部';
 
   @override
-  String get deskOutFilterSpendable => 'Spendable';
+  String get deskOutFilterSpendable => '可用';
 
   @override
-  String get deskOutFilterConfirming => 'Confirming';
+  String get deskOutFilterConfirming => '确认中';
 
   @override
-  String get deskOutFilterLocked => 'Locked';
+  String get deskOutFilterLocked => '已锁定';
 
   @override
-  String get deskOutSearchHint => 'Commitment';
+  String get deskOutSearchHint => '承诺';
 
   @override
-  String get deskOutSearchLabel => 'Search outputs';
+  String get deskOutSearchLabel => '搜索输出';
 
   @override
-  String get deskOutClearSearch => 'Clear search';
+  String get deskOutClearSearch => '清除搜索';
 
   @override
-  String get deskOutShowSpent => 'Show spent';
+  String get deskOutShowSpent => '显示已花费';
 
   @override
-  String get deskOutNoMatchTitle => 'No outputs match';
+  String get deskOutNoMatchTitle => '没有匹配的输出';
 
   @override
-  String get deskOutNoMatchText =>
-      'Try another commitment, or clear the filter.';
+  String get deskOutNoMatchText => '换一个承诺，或清除筛选条件。';
 
   @override
-  String get deskOutClearFilter => 'Clear filter';
+  String get deskOutClearFilter => '清除筛选';
 
   @override
-  String get deskOutTileSpendable => 'Spendable';
+  String get deskOutTileSpendable => '可用';
 
   @override
-  String get deskOutTileConfirming => 'Confirming';
+  String get deskOutTileConfirming => '确认中';
 
   @override
-  String get deskOutTileImmature => 'Immature';
+  String get deskOutTileImmature => '未成熟';
 
   @override
-  String get deskOutTileLocked => 'Locked in sends';
+  String get deskOutTileLocked => '发送中锁定';
 
   @override
-  String get deskOutTileTotal => 'Total';
+  String get deskOutTileTotal => '总额';
 
   @override
-  String get deskOutDefaultsTitle => 'Defaults for sends';
+  String get deskOutDefaultsTitle => '发送的默认设置';
 
   @override
-  String get deskOutStrategyTitle => 'Strategy for sends';
+  String get deskOutStrategyTitle => '发送策略';
 
   @override
-  String get deskOutStrategyText =>
-      'Which outputs a send spends. Send can change it for one send under Advanced.';
+  String get deskOutStrategyText => '一笔发送花掉哪些输出。可在“发送”页的“高级”中为单次发送更改。';
 
   @override
-  String get deskOutStrategySmallest => 'Smallest';
+  String get deskOutStrategySmallest => '最小';
 
   @override
-  String get deskOutStrategyAll => 'All';
+  String get deskOutStrategyAll => '全部';
 
   @override
-  String get deskOutStrategyHelp =>
-      'Smallest spends the fewest small outputs and leaves the rest spendable. All spends everything and returns one output.';
+  String get deskOutStrategyHelp => '“最小”花掉最少的小额输出，其余仍可使用。“全部”花掉所有输出，并返回一个输出。';
 
   @override
-  String get deskOutStrategyHelpTitle => 'Smallest or All';
+  String get deskOutStrategyHelpTitle => '最小还是全部';
 
   @override
-  String get deskOutSplitChangeTitle => 'Split change';
+  String get deskOutSplitChangeTitle => '拆分找零';
 
   @override
   String get deskOutSplitChangeText =>
-      'When a send would leave fewer than 3 spendable outputs, its change comes back as up to 4 outputs. Costs 0.004 EPIC per extra output.';
+      '当一笔发送会使可用输出少于 3 个且找零至少为 1 EPIC 时，找零会以最多 4 个输出返回，每个至少 0.5 EPIC。每多一个输出花费 0.004 EPIC。';
 
   @override
-  String get deskOutColValue => 'Value';
+  String get deskOutColValue => '金额';
 
   @override
-  String get deskOutColStatus => 'Status';
+  String get deskOutColStatus => '状态';
 
   @override
-  String get deskOutColConfirmations => 'Confirmations';
+  String get deskOutColConfirmations => '确认数';
 
   @override
-  String get deskOutColHeight => 'Height';
+  String get deskOutColHeight => '高度';
 
   @override
-  String get deskOutColTransaction => 'Transaction';
+  String get deskOutColTransaction => '交易';
 
   @override
-  String get deskOutColCommitment => 'Commitment';
+  String get deskOutColCommitment => '承诺';
 
   @override
-  String get deskOutStatusSpendable => 'Spendable';
+  String get deskOutStatusSpendable => '可用';
 
   @override
-  String get deskOutStatusConfirming => 'Confirming';
+  String get deskOutStatusConfirming => '确认中';
 
   @override
   String deskOutConfirmations(int count, String number) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$number confirmations',
-      one: '$number confirmation',
+      other: '$number 个确认',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOutStatusAwaiting => 'Awaiting finalization';
+  String get deskOutStatusAwaiting => '等待完成';
 
   @override
-  String get deskOutNoteWaitingSender => 'waiting for the sender';
+  String get deskOutNoteWaitingSender => '等待发送方';
 
   @override
-  String get deskOutStatusUnpaid => 'Unpaid invoice';
+  String get deskOutStatusUnpaid => '未支付的账单';
 
   @override
-  String get deskOutNoteNotInBalance => 'not in the balance';
+  String get deskOutNoteNotInBalance => '不计入余额';
 
   @override
-  String get deskOutStatusImmature => 'Immature';
+  String get deskOutStatusImmature => '未成熟';
 
   @override
   String deskOutNoteBlocksToGo(int count, String number) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$number blocks to go',
-      one: '$number block to go',
+      other: '还需 $number 个区块',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOutStatusMining => 'Mining';
+  String get deskOutStatusMining => '挖矿';
 
   @override
-  String get deskOutStatusLocked => 'Locked';
+  String get deskOutStatusLocked => '已锁定';
 
   @override
   String deskOutNoteBySend(int id) {
-    return 'by send #$id';
+    return '被发送 #$id 锁定';
   }
 
   @override
-  String get deskOutStatusSpent => 'Spent';
+  String get deskOutStatusSpent => '已花费';
 
   @override
   String deskOutTxReceived(String date) {
-    return 'Received $date';
+    return '收到 $date';
   }
 
   @override
   String deskOutTxSent(String date) {
-    return 'Sent $date';
+    return '发出 $date';
   }
 
   @override
   String deskOutCopyCommitment(String short) {
-    return 'Copy commitment $short';
+    return '复制承诺 $short';
   }
 
   @override
@@ -8007,96 +7879,93 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count outputs ($amount EPIC)',
-      one: '$count output ($amount EPIC)',
+      other: '$count 个输出（$amount EPIC）',
     );
     return '$_temp0';
   }
 
   @override
   String deskOutSplitMadePart(int count, String amount) {
-    return '$count outputs of about $amount EPIC';
+    return '$count 个约 $amount EPIC 的输出';
   }
 
   @override
   String deskOutConsMadePart(String amount) {
-    return 'one output of $amount EPIC';
+    return '一个 $amount EPIC 的输出';
   }
 
   @override
   String deskOutSplitDialogText(String spent, String made) {
-    return 'Spends $spent and makes $made each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.';
+    return '花费 $spent，生成 $made。这是一笔发给本钱包的普通网络交易，和任何发送一样在 3 个区块后确认；在此之前，所有可用余额都会锁定。';
   }
 
   @override
   String deskOutConsDialogText(String spent, String made) {
-    return 'Spends $spent and makes $made. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.';
+    return '花费 $spent，生成 $made。这是一笔发给本钱包的普通网络交易，和任何发送一样在 3 个区块后确认；在此之前，所有可用余额都会锁定。下一笔发送只花一个输出，因此手续费最低。';
   }
 
   @override
-  String get deskOutFactFee => 'Network fee';
+  String get deskOutFactFee => '网络手续费';
 
   @override
-  String get deskOutFactEach => 'Each output';
+  String get deskOutFactEach => '每个输出';
 
   @override
   String deskOutFactAbout(String amount) {
-    return 'about $amount EPIC';
+    return '约 $amount EPIC';
   }
 
   @override
-  String get deskOutFactLocked => 'Locked';
+  String get deskOutFactLocked => '锁定';
 
   @override
   String deskOutFactLockedValue(String amount) {
-    return '$amount EPIC, about 3 blocks. Nothing stays spendable.';
+    return '$amount EPIC，约 3 个区块。期间没有可用余额。';
   }
 
   @override
-  String get deskOutMakeLabel => 'Outputs to make';
+  String get deskOutMakeLabel => '生成的输出数';
 
   @override
-  String get deskOutMakeRange => '2 to 10.';
+  String get deskOutMakeRange => '2 到 10 个。';
 
   @override
-  String get deskOutStepperFewer => 'Fewer';
+  String get deskOutStepperFewer => '减少';
 
   @override
-  String get deskOutStepperMore => 'More';
+  String get deskOutStepperMore => '增加';
 
   @override
-  String get deskOutFeeWorking => 'Working out the fee';
+  String get deskOutFeeWorking => '正在计算手续费';
 
   @override
-  String get deskOutNoEstimate => 'No estimate';
+  String get deskOutNoEstimate => '无法估算';
 
   @override
-  String get deskOutEachMin => 'Each output must be at least 0.5 EPIC.';
+  String get deskOutEachMin => '每个输出至少为 0.5 EPIC。';
 
   @override
-  String get deskOutNotEnoughFee => 'Not enough to pay the fee.';
+  String get deskOutNotEnoughFee => '不足以支付手续费。';
 
   @override
   String deskOutSplitInto(int count) {
-    return 'Split into $count';
+    return '拆分为 $count 个';
   }
 
   @override
-  String get deskOutConsolidateButton => 'Consolidate';
+  String get deskOutConsolidateButton => '合并';
 
   @override
-  String get deskOutPostingSplit =>
-      'Building and posting the split. Keep the app open.';
+  String get deskOutPostingSplit => '正在构建并广播拆分交易。请保持应用打开。';
 
   @override
-  String get deskOutPostingCons =>
-      'Building and posting the consolidate. Keep the app open.';
+  String get deskOutPostingCons => '正在构建并广播合并交易。请保持应用打开。';
 
   @override
-  String get deskOutSplitPosted => 'Split posted';
+  String get deskOutSplitPosted => '拆分已广播';
 
   @override
-  String get deskOutConsPosted => 'Consolidate posted';
+  String get deskOutConsPosted => '合并已广播';
 
   @override
   String deskOutSplitDoneText(int count, String amount) {
@@ -8104,275 +7973,264 @@ class AppLocalizationsZh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'The wallet now has $count outputs of about $amount EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.',
-      one:
-          'The wallet now has $count output of about $amount EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.',
+          '钱包现在有 $count 个约 $amount EPIC 的输出，正在确认。确认前（3 个区块）全部锁定。“活动”中会显示两条记录：一笔发送和一笔接收，都是发给本钱包的。',
     );
     return '$_temp0';
   }
 
   @override
   String deskOutConsDoneText(String amount) {
-    return 'One output of $amount EPIC, confirming. Everything is locked until it confirms (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.';
+    return '一个 $amount EPIC 的输出，正在确认。确认前（3 个区块）全部锁定。“活动”中会显示两条记录：一笔发送和一笔接收，都是发给本钱包的。';
   }
 
   @override
-  String get deskOutNotPostedTitle => 'Not posted.';
+  String get deskOutNotPostedTitle => '未广播。';
 
   @override
-  String get deskOutNotPostedSplit =>
-      'The split was built and stored, but the node did not take it. Post it again, or cancel it to unlock the outputs.';
+  String get deskOutNotPostedSplit => '拆分交易已构建并保存，但节点没有接受。请重新广播，或取消它以解锁输出。';
 
   @override
-  String get deskOutNotPostedCons =>
-      'The consolidate was built and stored, but the node did not take it. Post it again, or cancel it to unlock the outputs.';
+  String get deskOutNotPostedCons => '合并交易已构建并保存，但节点没有接受。请重新广播，或取消它以解锁输出。';
 
   @override
-  String get deskOutCancelSplit => 'Cancel the split';
+  String get deskOutCancelSplit => '取消拆分';
 
   @override
-  String get deskOutCancelCons => 'Cancel the consolidate';
+  String get deskOutCancelCons => '取消合并';
 
   @override
-  String get deskOutPostAgain => 'Post again';
+  String get deskOutPostAgain => '重新广播';
 
   @override
-  String get deskOutNotDoneTitle => 'Not done';
+  String get deskOutNotDoneTitle => '未完成';
 
   @override
   String deskOutNotDoneText(String error) {
-    return '$error. The outputs are unchanged.';
+    return '$error。输出没有变化。';
   }
 
   @override
-  String get deskOutSomethingWrong => 'Something went wrong';
+  String get deskOutSomethingWrong => '出了点问题';
 
   @override
-  String get deskOutTryAgain => 'Try again';
+  String get deskOutTryAgain => '重试';
 
   @override
-  String get deskOutToastNotPosted => 'Not posted';
+  String get deskOutToastNotPosted => '未广播';
 
   @override
-  String get deskOutToastNotCancelled => 'Not cancelled';
+  String get deskOutToastNotCancelled => '未取消';
 
   @override
-  String get deskOutSplitDialogTitle => 'Split outputs';
+  String get deskOutSplitDialogTitle => '拆分输出';
 
   @override
-  String get deskOutConsDialogTitle => 'Consolidate outputs';
+  String get deskOutConsDialogTitle => '合并输出';
 
   @override
-  String get deskOutPostingDesc => 'Posting.';
+  String get deskOutPostingDesc => '正在广播。';
 
   @override
-  String get deskOutDoneDesc => 'Done.';
+  String get deskOutDoneDesc => '已完成。';
 
   @override
-  String get deskOutSplitDesc =>
-      'More outputs, so several sends can follow each other.';
+  String get deskOutSplitDesc => '更多输出，这样多笔发送可以接连进行。';
 
   @override
-  String get deskOutConsDesc => 'One output instead of many.';
+  String get deskOutConsDesc => '用一个输出代替多个。';
 
   @override
   String deskOutNothingText(String what) {
-    return 'Nothing to consolidate: the wallet has $what. Consolidate merges several outputs into one.';
+    return '无需合并：钱包只有$what。合并会把多个输出合为一个。';
   }
 
   @override
-  String get deskOutWhatFewer => 'fewer than two spendable outputs';
+  String get deskOutWhatFewer => '不到两个可用输出';
 
   @override
-  String get deskOutWhatOne => 'one spendable output';
+  String get deskOutWhatOne => '一个可用输出';
 
   @override
-  String get deskOvNotUpdated => 'Not updated';
+  String get deskOvNotUpdated => '未更新';
 
   @override
-  String get deskOvNodeNotStarted => 'Node not started';
+  String get deskOvNodeNotStarted => '节点未启动';
 
   @override
-  String get deskOvNodeAddrTitle => 'Node address updated';
+  String get deskOvNodeAddrTitle => '节点地址已更新';
 
   @override
   String get deskOvNodeAddrText =>
-      'Now using node.epiccash.com instead of node.epiccash.com:3413.';
+      '现在使用 node.epiccash.com，而不是 node.epiccash.com:3413。';
 
   @override
-  String get deskOvNodeIncompatTitle =>
-      'This node’s version is not compatible with this wallet';
+  String get deskOvNodeIncompatTitle => '此节点的版本与本钱包不兼容';
 
   @override
   String deskOvNodeUrl(String url) {
-    return 'Node: $url';
+    return '节点：$url';
   }
 
   @override
-  String get deskOvUsePublicNode => 'Use public node';
+  String get deskOvUsePublicNode => '使用公共节点';
 
   @override
-  String get deskOvUseLocalNode => 'Use local node';
+  String get deskOvUseLocalNode => '使用本地节点';
 
   @override
-  String get deskOvHide => 'Hide';
+  String get deskOvHide => '隐藏';
 
   @override
   String deskOvCantReachNode(String url) {
-    return 'Can’t reach the node at $url';
+    return '无法连接节点 $url';
   }
 
   @override
-  String get deskOvCantReachNodeText =>
-      'Check that it is running and reachable. Balances may be out of date and sending is paused.';
+  String get deskOvCantReachNodeText => '请检查它是否正在运行且可以访问。余额可能不是最新的，发送已暂停。';
 
   @override
-  String get deskOvStarting => 'Starting';
+  String get deskOvStarting => '正在启动';
 
   @override
-  String get deskOvStartNode => 'Start node';
+  String get deskOvStartNode => '启动节点';
 
   @override
-  String get deskOvNodeSettings => 'Node settings';
+  String get deskOvNodeSettings => '节点设置';
 
   @override
-  String get deskOvTitle => 'Overview';
+  String get deskOvTitle => '概览';
 
   @override
-  String get deskOvShowAmounts => 'Show amounts';
+  String get deskOvShowAmounts => '显示金额';
 
   @override
-  String get deskOvHideAmounts => 'Hide amounts';
+  String get deskOvHideAmounts => '隐藏金额';
 
   @override
-  String get deskOvRefresh => 'Refresh';
+  String get deskOvRefresh => '刷新';
 
   @override
-  String get deskOvStepDone => 'done';
+  String get deskOvStepDone => '已完成';
 
   @override
-  String get deskOvStepNow => 'in progress';
+  String get deskOvStepNow => '进行中';
 
   @override
-  String get deskOvStepWait => 'pending';
+  String get deskOvStepWait => '等待中';
 
   @override
   String deskOvStepSemantics(String text, String state) {
-    return '$text, $state';
+    return '$text，$state';
   }
 
   @override
-  String get deskOvStartingUp => 'Starting up';
+  String get deskOvStartingUp => '正在启动';
 
   @override
-  String get deskOvStepUnlocked => 'Wallet unlocked';
+  String get deskOvStepUnlocked => '钱包已解锁';
 
   @override
-  String get deskOvStepConnected => 'Connected to node';
+  String get deskOvStepConnected => '已连接节点';
 
   @override
-  String get deskOvStepUpdating => 'Updating balances';
+  String get deskOvStepUpdating => '正在更新余额';
 
   @override
-  String get deskOvStepEpicbox => 'Starting Epicbox receiving';
+  String get deskOvStepEpicbox => '正在启动 Epicbox 接收';
 
   @override
   String deskOvSyncTitle(int percent) {
-    return 'Node syncing: $percent%';
+    return '节点同步中：$percent%';
   }
 
   @override
   String deskOvSyncText(String block) {
-    return 'Downloading blocks. Balances are what the wallet knew at block $block. Sending opens when the node has caught up.';
+    return '正在下载区块。余额是钱包在区块 $block 时所知的数额。节点追上网络后即可发送。';
   }
 
   @override
-  String get deskOvSyncProgress => 'Node sync progress';
+  String get deskOvSyncProgress => '节点同步进度';
 
   @override
   String deskOvSyncOfChain(int percent) {
-    return '$percent% of the chain';
+    return '已完成区块链的 $percent%';
   }
 
   @override
-  String get deskOvReceiveEpic => 'Receive EPIC';
+  String get deskOvReceiveEpic => '接收 EPIC';
 
   @override
-  String get deskOvSend => 'Send';
+  String get deskOvSend => '发送';
 
   @override
-  String get deskOvReceive => 'Receive';
+  String get deskOvReceive => '接收';
 
   @override
-  String get deskOvSendWaits => 'Sending opens when the node is synced.';
+  String get deskOvSendWaits => '节点同步完成后即可发送。';
 
   @override
-  String get deskOvAvailable => 'Available to spend';
+  String get deskOvAvailable => '可用余额';
 
   @override
   String deskOvAsOfBlock(String block) {
-    return 'As of block $block';
+    return '截至区块 $block';
   }
 
   @override
-  String get deskOvEmptyHint =>
-      'Share the Epicbox address to receive the first EPIC.';
+  String get deskOvEmptyHint => '分享 Epicbox 地址，接收你的第一笔 EPIC。';
 
   @override
-  String get deskOvFiatNote => '  whole balance, CoinGecko';
+  String get deskOvFiatNote => '  全部余额，CoinGecko';
 
   @override
-  String get deskOvBreakTotal => 'Total';
+  String get deskOvBreakTotal => '总额';
 
   @override
-  String get deskOvBreakConfirming => 'Confirming';
+  String get deskOvBreakConfirming => '确认中';
 
   @override
-  String get deskOvBreakImmature => 'Immature';
+  String get deskOvBreakImmature => '未成熟';
 
   @override
-  String get deskOvBreakAwaiting => 'Awaiting finalization';
+  String get deskOvBreakAwaiting => '等待完成';
 
   @override
-  String get deskOvBreakLocked => 'Locked in sends';
+  String get deskOvBreakLocked => '发送中锁定';
 
   @override
-  String get deskOvUpdating => 'Updating';
+  String get deskOvUpdating => '正在更新';
 
   @override
-  String get deskOvHiddenAmount => 'Hidden amount';
+  String get deskOvHiddenAmount => '金额已隐藏';
 
   @override
-  String get deskOvLoading => 'Loading transactions';
+  String get deskOvLoading => '正在加载交易';
 
   @override
-  String get deskOvEmptyTitle => 'No transactions yet';
+  String get deskOvEmptyTitle => '暂无交易';
 
   @override
   String deskOvEmptyText(int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
       locale: localeName,
-      other:
-          'Received EPIC shows here first as confirming, then as spendable after $blocks blocks.',
-      one:
-          'Received EPIC shows here first as confirming, then as spendable after $blocks block.',
+      other: '收到的 EPIC 会先在这里显示为确认中，$blocks 个区块后变为可用。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOvShowAddress => 'Show address';
+  String get deskOvShowAddress => '显示地址';
 
   @override
-  String get deskOvReceiveFile => 'Receive a file';
+  String get deskOvReceiveFile => '接收文件';
 
   @override
-  String get deskOvRecent => 'Recent activity';
+  String get deskOvRecent => '最近活动';
 
   @override
   String deskOvViewAll(int count) {
-    return 'View all $count';
+    return '查看全部 $count 笔';
   }
 
   @override
@@ -8380,211 +8238,197 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count file sends open',
-      one: '$count file send open',
+      other: '$count 笔文件发送未完成',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOvPendingText =>
-      'Finalize with the response file from the recipient.';
+  String get deskOvPendingText => '使用接收方发回的回复文件完成交易。';
 
   @override
-  String get deskOvFinalize => 'Finalize';
+  String get deskOvFinalize => '完成交易';
 
   @override
-  String get deskTxMethodFile => 'File';
+  String get deskTxMethodFile => '文件';
 
   @override
-  String get deskTxMiningReward => 'Mining reward';
+  String get deskTxMiningReward => '挖矿奖励';
 
   @override
-  String get deskTxReceived => 'Received';
+  String get deskTxReceived => '已收到';
 
   @override
-  String get deskTxSent => 'Sent';
+  String get deskTxSent => '已发送';
 
   @override
-  String get deskTxUnknownSender => 'Unknown sender';
+  String get deskTxUnknownSender => '未知发送方';
 
   @override
-  String get deskTxUnknownRecipient => 'Unknown recipient';
+  String get deskTxUnknownRecipient => '未知接收方';
 
   @override
-  String get deskTxNoteBlock => 'Block time. The sender is not recorded.';
+  String get deskTxNoteBlock => '区块时间。未记录发送方。';
 
   @override
-  String get deskTxNoteScanTime =>
-      'Time of the scan; the block\'s time could not be read. The sender is not recorded.';
+  String get deskTxNoteScanTime => '扫描时间；无法读取区块时间。未记录发送方。';
 
   @override
-  String get deskTxNoteUnknown => 'The sender is not recorded.';
+  String get deskTxNoteUnknown => '未记录发送方。';
 
   @override
-  String get deskTxFoundRestoredLabel => 'Restored';
+  String get deskTxFoundRestoredLabel => '已恢复';
 
   @override
-  String get deskTxFoundRestoredLine => 'Found while restoring';
+  String get deskTxFoundRestoredLine => '恢复时找到';
 
   @override
-  String get deskTxFoundRestoredStep => 'Found while restoring this wallet';
+  String get deskTxFoundRestoredStep => '恢复此钱包时找到';
 
   @override
-  String get deskTxFoundRestoredTip =>
-      'Found on the chain while restoring this wallet. The sender is not recorded.';
+  String get deskTxFoundRestoredTip => '恢复此钱包时在区块链上找到。未记录发送方。';
 
   @override
-  String get deskTxFoundRescanLabel => 'Found by scan';
+  String get deskTxFoundRescanLabel => '扫描找到';
 
   @override
-  String get deskTxFoundRescanLine => 'Found by a balance recheck';
+  String get deskTxFoundRescanLine => '核对余额时找到';
 
   @override
-  String get deskTxFoundRescanStep => 'Found by a balance recheck';
+  String get deskTxFoundRescanStep => '核对余额时找到';
 
   @override
-  String get deskTxFoundRescanTip =>
-      'Found on the chain by a balance recheck. The sender is not recorded.';
+  String get deskTxFoundRescanTip => '核对余额时在区块链上找到。未记录发送方。';
 
   @override
-  String get deskTxFoundScanLine => 'Found by a scan';
+  String get deskTxFoundScanLine => '扫描时找到';
 
   @override
-  String get deskTxFoundScanStep => 'Found by a scan';
+  String get deskTxFoundScanStep => '扫描时找到';
 
   @override
-  String get deskTxFoundScanTip =>
-      'Found on the chain by a scan. The sender is not recorded.';
+  String get deskTxFoundScanTip => '扫描时在区块链上找到。未记录发送方。';
 
   @override
-  String get deskTxBackupTip => 'Added from a history backup.';
+  String get deskTxBackupTip => '从交易记录备份中添加。';
 
   @override
-  String get deskTxFromBackup => 'From backup';
+  String get deskTxFromBackup => '来自备份';
 
   @override
-  String get deskTxStatusImmature => 'Immature';
+  String get deskTxStatusImmature => '未成熟';
 
   @override
-  String get deskTxStatusWaitingSender => 'Waiting for sender to finalize';
+  String get deskTxStatusWaitingSender => '等待发送方完成';
 
   @override
-  String get deskTxStatusWaitingResponseFile => 'Waiting for the response file';
+  String get deskTxStatusWaitingResponseFile => '等待回复文件';
 
   @override
-  String get deskTxStatusWaitingRecipient => 'Waiting for recipient to sign';
+  String get deskTxStatusWaitingRecipient => '等待接收方签名';
 
   @override
-  String get deskTxStatusWaitingBlock => 'Waiting for a block';
+  String get deskTxStatusWaitingBlock => '等待打包进区块';
 
   @override
   String deskTxStatusConfirming(int confirmations, int needed) {
-    return 'Confirming $confirmations/$needed';
+    return '确认中 $confirmations/$needed';
   }
 
   @override
-  String get deskTxStatusCancelled => 'Cancelled';
+  String get deskTxStatusCancelled => '已取消';
 
   @override
-  String get deskTxToday => 'today';
+  String get deskTxToday => '今天';
 
   @override
-  String get deskTxYesterday => 'yesterday';
+  String get deskTxYesterday => '昨天';
 
   @override
   String deskTxDaysAgo(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count days ago',
-      one: '$count day ago',
+      other: '$count 天前',
     );
     return '$_temp0';
   }
 
   @override
   String deskTxTodayAt(String time) {
-    return 'Today $time';
+    return '今天 $time';
   }
 
   @override
   String deskTxDayToday(String date) {
-    return 'Today · $date';
+    return '今天 · $date';
   }
 
   @override
   String deskTxDayYesterday(String date) {
-    return 'Yesterday · $date';
+    return '昨天 · $date';
   }
 
   @override
   String deskTxFee(String amount) {
-    return 'Fee $amount';
+    return '手续费 $amount';
   }
 
   @override
-  String get deskTxPaymentProof => 'Payment proof';
+  String get deskTxPaymentProof => '付款证明';
 
   @override
-  String get deskTxFinalize => 'Finalize';
+  String get deskTxFinalize => '完成交易';
 
   @override
   String deskTxSemReceived(String amount, String who, String status) {
-    return 'Received $amount, $who, $status';
+    return '已收到 $amount，$who，$status';
   }
 
   @override
   String deskTxSemSent(String amount, String who, String status) {
-    return 'Sent $amount, $who, $status';
+    return '已发送 $amount，$who，$status';
   }
 
   @override
   String deskTxSemKind(String kind, String amount, String who, String status) {
-    return '$kind $amount, $who, $status';
+    return '$kind $amount，$who，$status';
   }
 
   @override
-  String get deskTxHiddenAmount => 'hidden amount';
+  String get deskTxHiddenAmount => '金额已隐藏';
 
   @override
-  String get deskTxNowBackup => 'From backup; the chain was not asked.';
+  String get deskTxNowBackup => '来自备份；未向区块链查询。';
 
   @override
   String deskTxNowImmature(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'Confirmed, but a mining reward is spendable only after $count confirmations.',
-      one:
-          'Confirmed, but a mining reward is spendable only after $count confirmation.',
+      other: '已确认，但挖矿奖励需要 $count 个确认后才能使用。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskTxNowWaitingSender =>
-      'Signed and returned. Waiting for the sender to finalize.';
+  String get deskTxNowWaitingSender => '已签名并发回。等待发送方完成。';
 
   @override
-  String get deskTxNowWaitingResponseFile =>
-      'Waiting for the response file. Finalize when it arrives.';
+  String get deskTxNowWaitingResponseFile => '等待回复文件。文件到达后完成交易。';
 
   @override
-  String get deskTxNowWaitingRecipient =>
-      'Waiting for the recipient to sign. Nothing leaves the wallet until it is finalized.';
+  String get deskTxNowWaitingRecipient => '等待接收方签名。交易完成前，资金不会离开钱包。';
 
   @override
-  String get deskTxNowPosted => 'Posted to the network, waiting for a block.';
+  String get deskTxNowPosted => '已广播到网络，等待打包进区块。';
 
   @override
   String deskTxNowConfirming(int confirmations, int needed) {
     String _temp0 = intl.Intl.pluralLogic(
       needed,
       locale: localeName,
-      other: 'In a block, $confirmations of $needed confirmations.',
-      one: 'In a block, $confirmations of $needed confirmation.',
+      other: '已进入区块，$confirmations/$needed 个确认。',
     );
     return '$_temp0';
   }
@@ -8594,443 +8438,423 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: 'Confirmed, $confirmations confirmations.',
-      one: 'Confirmed, $confirmations confirmation.',
+      other: '已确认，$confirmations 个确认。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskTxNowCancelled => 'Cancelled.';
+  String get deskTxNowCancelled => '已取消。';
 
   @override
-  String get deskTxNotCancelled => 'Not cancelled';
+  String get deskTxNotCancelled => '未取消';
 
   @override
-  String get deskTxCancelled => 'Transaction cancelled';
+  String get deskTxCancelled => '交易已取消';
 
   @override
-  String get deskTxCancelling => 'Cancelling';
+  String get deskTxCancelling => '正在取消';
 
   @override
-  String get deskTxHeadRestored => 'restored';
+  String get deskTxHeadRestored => '恢复时找到';
 
   @override
-  String get deskTxHeadFoundOnChain => 'found on the chain';
+  String get deskTxHeadFoundOnChain => '在区块链上找到';
 
   @override
-  String get deskTxHeadBackup => 'added from a history backup';
+  String get deskTxHeadBackup => '从交易记录备份中添加';
 
   @override
   String deskTxHeadFrom(String who) {
-    return 'from $who';
+    return '来自 $who';
   }
 
   @override
   String deskTxHeadTo(String who) {
-    return 'to $who';
+    return '发往 $who';
   }
 
   @override
-  String get deskTxSubProgress => 'Progress';
+  String get deskTxSubProgress => '进度';
 
   @override
-  String get deskTxSubDetails => 'Details';
+  String get deskTxSubDetails => '详情';
 
   @override
-  String get deskTxFactDate => 'Date';
+  String get deskTxFactDate => '日期';
 
   @override
-  String get deskTxFactFrom => 'From';
+  String get deskTxFactFrom => '来自';
 
   @override
-  String get deskTxFactTo => 'To';
+  String get deskTxFactTo => '发往';
 
   @override
-  String get deskTxCopyAddress => 'Copy address';
+  String get deskTxCopyAddress => '复制地址';
 
   @override
-  String get deskTxFactMethod => 'Method';
+  String get deskTxFactMethod => '方式';
 
   @override
-  String get deskTxFactAmount => 'Amount';
+  String get deskTxFactAmount => '金额';
 
   @override
-  String get deskTxFactFee => 'Fee';
+  String get deskTxFactFee => '手续费';
 
   @override
-  String get deskTxFactTotal => 'Total';
+  String get deskTxFactTotal => '总计';
 
   @override
-  String get deskTxFactMessage => 'Message';
+  String get deskTxFactMessage => '留言';
 
   @override
-  String get deskTxSignedByRecipient => 'Signed by the recipient';
+  String get deskTxSignedByRecipient => '接收方已签名';
 
   @override
-  String get deskTxProofView => 'View';
+  String get deskTxProofView => '查看';
 
   @override
-  String get deskTxTechTitle => 'Technical details';
+  String get deskTxTechTitle => '技术详情';
 
   @override
-  String get deskTxTechId => 'Id';
+  String get deskTxTechId => 'ID';
 
   @override
-  String get deskTxTechSlate => 'Slate id';
+  String get deskTxTechSlate => 'Slate ID';
 
   @override
-  String get deskTxCopySlate => 'Copy slate id';
+  String get deskTxCopySlate => '复制 Slate ID';
 
   @override
-  String get deskTxTechHeight => 'Height';
+  String get deskTxTechHeight => '高度';
 
   @override
-  String get deskTxTechKernel => 'Kernel';
+  String get deskTxTechKernel => '内核';
 
   @override
-  String get deskTxTechConfirmed => 'Confirmed';
+  String get deskTxTechConfirmed => '已确认';
 
   @override
-  String get deskTxTechCredited => 'Credited';
+  String get deskTxTechCredited => '转入';
 
   @override
-  String get deskTxTechDebited => 'Debited';
+  String get deskTxTechDebited => '转出';
 
   @override
-  String get deskTxTechStatus => 'Status';
+  String get deskTxTechStatus => '状态';
 
   @override
-  String get deskTxTechType => 'Type';
+  String get deskTxTechType => '类型';
 
   @override
-  String get deskTxStepMined => 'Mined in a block';
+  String get deskTxStepMined => '已挖出区块';
 
   @override
-  String get deskTxStepSpendable => 'Spendable';
+  String get deskTxStepSpendable => '可用';
 
   @override
   String deskTxStepBlocksToGo(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count blocks to go',
-      one: '$count block to go',
+      other: '还需 $count 个区块',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskTxStepReceivedSlate => 'Received slate';
+  String get deskTxStepReceivedSlate => '已收到 Slate';
 
   @override
-  String get deskTxStepCreated => 'Created and signed';
+  String get deskTxStepCreated => '已创建并签名';
 
   @override
-  String get deskTxStepSignedReturned => 'Signed and returned';
+  String get deskTxStepSignedReturned => '已签名并发回';
 
   @override
-  String get deskTxStepWaitingFile => 'Waiting for the response file';
+  String get deskTxStepWaitingFile => '等待回复文件';
 
   @override
-  String get deskTxStepWaitingRecipient => 'Waiting for the recipient';
+  String get deskTxStepWaitingRecipient => '等待接收方';
 
   @override
-  String get deskTxStepPosted => 'Posted to the network';
+  String get deskTxStepPosted => '已广播到网络';
 
   @override
-  String get deskTxStepConfirming => 'Confirming';
+  String get deskTxStepConfirming => '确认中';
 
   @override
   String deskTxStepProgress(int confirmations, int needed) {
-    return '$confirmations of $needed';
+    return '$confirmations/$needed';
   }
 
   @override
-  String get deskTxCancelIncomingTitle => 'Cancel this payment?';
+  String get deskTxCancelIncomingTitle => '取消这笔付款？';
 
   @override
-  String get deskTxCancelOutgoingTitle => 'Cancel this send?';
+  String get deskTxCancelOutgoingTitle => '取消这笔发送？';
 
   @override
   String deskTxCancelIncomingBody(String amount, String who) {
-    return '$amount EPIC from $who leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.';
+    return '来自 $who 的 $amount EPIC 将从你的余额中移除。钱包会先询问节点；如果这笔付款已在节点的交易池或区块中，则拒绝取消。如果发送方之后广播了它，款项仍可能到账。';
   }
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC to $who. The locked amount returns to the balance. If the recipient already finalized it, it may still confirm.';
+    return '发往 $who 的 $amount EPIC。锁定的金额会退回余额。如果接收方已经完成了这笔交易，它仍可能被确认。';
   }
 
   @override
-  String get deskTxCancelKeep => 'Keep';
+  String get deskTxCancelKeep => '保留';
 
   @override
-  String get deskTxCancelIncomingAction => 'Cancel payment';
+  String get deskTxCancelIncomingAction => '取消付款';
 
   @override
-  String get deskTxCancelOutgoingAction => 'Cancel send';
+  String get deskTxCancelOutgoingAction => '取消发送';
 
   @override
   String deskTxProofIncoming(String amount) {
-    return 'Proves that this wallet received $amount EPIC in this kernel.';
+    return '证明本钱包在此内核中收到了 $amount EPIC。';
   }
 
   @override
   String deskTxProofOutgoing(String amount) {
-    return 'Proves that the recipient received $amount EPIC in this kernel.';
+    return '证明接收方在此内核中收到了 $amount EPIC。';
   }
 
   @override
-  String get deskTxProofSenderAddress => 'Sender address';
+  String get deskTxProofSenderAddress => '发送方地址';
 
   @override
-  String get deskTxProofRecipientAddress => 'Recipient address';
+  String get deskTxProofRecipientAddress => '接收方地址';
 
   @override
-  String get deskTxProofRecipientSignature => 'Recipient signature';
+  String get deskTxProofRecipientSignature => '接收方签名';
 
   @override
-  String get deskTxProofCopyKernel => 'Copy kernel';
+  String get deskTxProofCopyKernel => '复制内核';
 
   @override
-  String get deskTxProofCopySender => 'Copy sender address';
+  String get deskTxProofCopySender => '复制发送方地址';
 
   @override
-  String get deskTxProofCopyRecipient => 'Copy recipient address';
+  String get deskTxProofCopyRecipient => '复制接收方地址';
 
   @override
-  String get deskTxProofCopySignature => 'Copy recipient signature';
+  String get deskTxProofCopySignature => '复制接收方签名';
 
   @override
-  String get deskTxProofExport => 'Export';
+  String get deskTxProofExport => '导出';
 
   @override
-  String get deskTxProofSaved => 'Proof saved';
+  String get deskTxProofSaved => '证明已保存';
 
   @override
-  String get deskOnbWelcomeAdd => 'Add a wallet';
+  String get deskOnbWelcomeAdd => '添加钱包';
 
   @override
-  String get deskOnbWelcomeTagline =>
-      'Keys and coins stay on this computer, locked with a password.';
+  String get deskOnbWelcomeTagline => '密钥和币都保存在这台电脑上，由密码锁定。';
 
   @override
-  String get deskOnbWelcomeCreate => 'Create a new wallet';
+  String get deskOnbWelcomeCreate => '创建新钱包';
 
   @override
-  String get deskOnbWelcomeCreateSub => 'New recovery phrase';
+  String get deskOnbWelcomeCreateSub => '新的助记词';
 
   @override
-  String get deskOnbWelcomeImport => 'Import wallets';
+  String get deskOnbWelcomeImport => '导入钱包';
 
   @override
-  String get deskOnbWelcomeImportSub => 'From an older Epic Wallet or a folder';
+  String get deskOnbWelcomeImportSub => '从旧版 Epic Wallet 或文件夹导入';
 
   @override
-  String get deskOnbWelcomeRestore => 'Restore from a phrase';
+  String get deskOnbWelcomeRestore => '用助记词恢复';
 
   @override
-  String get deskOnbWelcomeRestoreSub => 'From the recovery words';
+  String get deskOnbWelcomeRestoreSub => '使用助记词';
 
   @override
-  String get deskOnbWelcomeTestNote =>
-      'New wallets are made on this test network.';
+  String get deskOnbWelcomeTestNote => '新钱包将创建在此测试网络上。';
 
   @override
-  String get deskOnbWelcomeBack => 'Back to unlock';
+  String get deskOnbWelcomeBack => '返回解锁';
 
   @override
-  String get deskOnbWelcomeAdvanced => 'Advanced';
+  String get deskOnbWelcomeAdvanced => '高级';
 
   @override
-  String get deskOnbWelcomeNetwork => 'Network';
+  String get deskOnbWelcomeNetwork => '网络';
 
   @override
   String get deskOnbWelcomeNetworkHelp =>
-      'Mainnet holds real EPIC. Floonet and Usernet are test networks.';
+      'Mainnet 上是真实的 EPIC。Floonet 和 Usernet 是测试网络。';
 
   @override
-  String get deskOnbWelcomeFolder => 'App data folder';
+  String get deskOnbWelcomeFolder => '应用数据文件夹';
 
   @override
-  String get deskOnbWelcomeHideDetails => 'Hide details';
+  String get deskOnbWelcomeHideDetails => '隐藏详情';
 
   @override
-  String get deskOnbWelcomeMoreAbout => 'More about this';
+  String get deskOnbWelcomeMoreAbout => '了解更多';
 
   @override
-  String get deskOnbWelcomeFolderWhere =>
-      'Where the app keeps wallets and settings.';
+  String get deskOnbWelcomeFolderWhere => '应用保存钱包和设置的位置。';
 
   @override
   String get deskOnbWelcomeFolderDetail =>
-      'With the local node, the blockchain is kept here too. A new folder must be empty: the app makes its folders there and keeps using it.';
+      '使用本地节点时，区块链也保存在这里。新文件夹必须是空的：应用会在其中创建自己的文件夹，并一直使用它。';
 
   @override
   String deskOnbWelcomeUsing(String folder) {
-    return 'Using $folder. The app restarts to use it.';
+    return '正在使用 $folder。应用将重启以使用它。';
   }
 
   @override
-  String get deskOnbWelcomeLocked =>
-      'It can be changed only before the first wallet is added.';
+  String get deskOnbWelcomeLocked => '只能在添加第一个钱包之前更改。';
 
   @override
-  String get deskOnbWelcomeChooseFolder => 'Choose a folder';
+  String get deskOnbWelcomeChooseFolder => '选择文件夹';
 
   @override
-  String get deskOnbWelcomeDefaultFolder => 'Default folder';
+  String get deskOnbWelcomeDefaultFolder => '默认文件夹';
 
   @override
-  String get deskOnbWelcomeFolderNotEmpty =>
-      'That folder is not empty. Choose a new, empty folder.';
+  String get deskOnbWelcomeFolderNotEmpty => '该文件夹不是空的。请选择一个新的空文件夹。';
 
   @override
-  String get deskOnbWelcomeFolderIsWallet =>
-      'That is a wallet folder. Choose a new, empty folder.';
+  String get deskOnbWelcomeFolderIsWallet => '这是一个钱包文件夹。请选择一个新的空文件夹。';
 
   @override
-  String get deskOnbWelcomeChoose => 'Choose';
+  String get deskOnbWelcomeChoose => '选择';
 
   @override
-  String get deskOnbStepPassword => 'Password';
+  String get deskOnbStepPassword => '密码';
 
   @override
-  String get deskOnbStepPhrase => 'Recovery phrase';
+  String get deskOnbStepPhrase => '助记词';
 
   @override
-  String get deskOnbCreateStageCreate =>
-      'Creating the wallet and its recovery phrase';
+  String get deskOnbCreateStageCreate => '正在创建钱包及其助记词';
 
   @override
-  String get deskOnbCreateStageSave => 'Saving the account';
+  String get deskOnbCreateStageSave => '正在保存账户';
 
   @override
-  String get deskOnbCreateNotCreated => 'Wallet not created';
+  String get deskOnbCreateNotCreated => '钱包未创建';
 
   @override
-  String get deskOnbCreateCreating => 'Creating the wallet';
+  String get deskOnbCreateCreating => '正在创建钱包';
 
   @override
   String deskOnbCreateTestLead(String network) {
-    return 'A wallet on $network, a test network.';
+    return '$network 上的钱包，这是一个测试网络。';
   }
 
   @override
-  String get deskOnbCreateFailedTitle => 'The wallet could not be created';
+  String get deskOnbCreateFailedTitle => '无法创建钱包';
 
   @override
-  String get deskOnbCreateDiskFull =>
-      'The account could not be saved: the disk is full.';
+  String get deskOnbCreateDiskFull => '无法保存账户：磁盘已满。';
 
   @override
-  String get deskOnbCreateWait =>
-      'This can take up to a minute. Keep the app open.';
+  String get deskOnbCreateWait => '这最多需要一分钟。请保持应用打开。';
 
   @override
-  String get deskOnbCreateLocking => 'Locking the open wallet';
+  String get deskOnbCreateLocking => '正在锁定已打开的钱包';
 
   @override
-  String get deskOnbCreateSide => 'New wallet';
+  String get deskOnbCreateSide => '新钱包';
 
   @override
-  String get deskOnbCreateTitle => 'Create wallet';
+  String get deskOnbCreateTitle => '创建钱包';
 
   @override
-  String get deskOnbCreateLead =>
-      'The password unlocks this wallet on this computer. It cannot recover coins; the phrase on the next step does.';
+  String get deskOnbCreateLead => '密码用于在这台电脑上解锁此钱包。它不能找回币；下一步的助记词才能。';
 
   @override
-  String get deskOnbCreateTestNote =>
-      'A wallet on a test network, not for real EPIC';
+  String get deskOnbCreateTestNote => '测试网络上的钱包，不用于真实的 EPIC';
 
   @override
-  String get deskOnbCreatePhraseLead =>
-      'These words are the only way to get the coins back if this computer breaks. Write them on paper, in order.';
+  String get deskOnbCreatePhraseLead => '如果这台电脑坏了，这些单词是找回币的唯一方法。请按顺序抄写在纸上。';
 
   @override
-  String get deskOnbCreateRevealFirst => 'Reveal the phrase first';
+  String get deskOnbCreateRevealFirst => '请先显示助记词';
 
   @override
-  String get deskOnbCreateWarn => 'Anyone with these words can take the coins';
+  String get deskOnbCreateWarn => '任何拿到这些单词的人都能拿走你的币';
 
   @override
-  String get deskOnbCreateReveal => 'Reveal phrase';
+  String get deskOnbCreateReveal => '显示助记词';
 
   @override
-  String get deskOnbCreateCheckScreen =>
-      'Check that nobody can see the screen.';
+  String get deskOnbCreateCheckScreen => '请确认没有人能看到屏幕。';
 
   @override
-  String get deskOnbCreateHide => 'Hide';
+  String get deskOnbCreateHide => '隐藏';
 
   @override
-  String get deskOnbCreateShowQr => 'Show QR code';
+  String get deskOnbCreateShowQr => '显示二维码';
 
   @override
-  String get deskOnbCreateHideQr => 'Hide QR code';
+  String get deskOnbCreateHideQr => '隐藏二维码';
 
   @override
-  String get deskOnbCreateQrWarn =>
-      'Anyone who scans this code can take the coins';
+  String get deskOnbCreateQrWarn => '任何扫描此二维码的人都能拿走你的币';
 
   @override
-  String get deskOnbCreateQrWarnText =>
-      'Scan it only into another wallet you trust.';
+  String get deskOnbCreateQrWarnText => '只扫描到你信任的另一个钱包中。';
 
   @override
-  String get deskOnbCreateQrLabel => 'Recovery phrase as a QR code';
+  String get deskOnbCreateQrLabel => '助记词二维码';
 
   @override
   String deskOnbCreateWritten(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count words',
-      one: '$count word',
+      other: '$count 个单词',
     );
-    return 'Written down: all $_temp0 on paper';
+    return '已抄写：全部 $_temp0都写在纸上';
   }
 
   @override
-  String get deskOnbRestoreDone => 'Wallet restored.';
+  String get deskOnbRestoreDone => '钱包已恢复。';
 
   @override
-  String get deskOnbRestoreNotRestored => 'Wallet not restored';
+  String get deskOnbRestoreNotRestored => '钱包未恢复';
 
   @override
-  String get deskOnbRestoreRestoring => 'Restoring the wallet';
+  String get deskOnbRestoreRestoring => '正在恢复钱包';
 
   @override
-  String get deskOnbRestoreFailedTitle => 'The wallet could not be restored';
+  String get deskOnbRestoreFailedTitle => '无法恢复钱包';
 
   @override
   String get deskOnbRestorePermission =>
-      'The wallet files could not be written: permission denied in ~/.config/Epic Cash Desktop.';
+      '无法写入钱包文件：~/.config/Epic Cash Desktop 权限被拒绝。';
 
   @override
-  String get deskOnbRestoreWait =>
-      'This can take up to a minute. The balance appears after the first scan of the chain.';
+  String get deskOnbRestoreWait => '这最多需要一分钟。首次扫描区块链后会显示余额。';
 
   @override
-  String get deskOnbRestoreSide => 'Restore wallet';
+  String get deskOnbRestoreSide => '恢复钱包';
 
   @override
-  String get deskOnbRestoreChoosePassword => 'Choose a password';
+  String get deskOnbRestoreChoosePassword => '设置密码';
 
   @override
   String deskOnbRestorePasswordLead(int count) {
-    return 'The $count-word phrase checks out. Set the password that unlocks this wallet on this computer. The wallet opens when it is restored.';
+    return '这 $count 个单词的助记词有效。请设置在这台电脑上解锁此钱包的密码。恢复完成后钱包会打开。';
   }
 
   @override
-  String get deskOnbRestoreNothingToPaste =>
-      'Nothing to paste: the clipboard holds no words.';
+  String get deskOnbRestoreNothingToPaste => '没有可粘贴的内容：剪贴板中没有单词。';
 
   @override
   String deskOnbRestoreBadWord(int position, String word) {
-    return 'Word $position, \"$word\", is not in the word list.';
+    return '第 $position 个单词“$word”不在词表中。';
   }
 
   @override
@@ -9038,372 +8862,340 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'All $count words check out.',
-      one: 'All $count word checks out.',
+      other: '全部 $count 个单词均有效。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOnbRestoreStaysHere =>
-      'The phrase never leaves this computer.';
+  String get deskOnbRestoreStaysHere => '助记词不会离开这台电脑。';
 
   @override
-  String get deskOnbRestoreChecksumFirm =>
-      'This phrase\'s check number does not match. Compare every word with the paper.';
+  String get deskOnbRestoreChecksumFirm => '此助记词的校验位不匹配。请把每个单词与纸上的逐一核对。';
 
   @override
   String deskOnbRestoreChecksumSoFar(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$count words so far; the check number does not match. Keep typing, or compare every word with the paper.',
-      one:
-          '$count word so far; the check number does not match. Keep typing, or compare every word with the paper.',
+      other: '已输入 $count 个单词；校验位不匹配。请继续输入，或把每个单词与纸上的逐一核对。',
     );
     return '$_temp0';
   }
 
   @override
   String get deskOnbRestoreWordsLead =>
-      'Type the words in order, or paste the whole phrase into any box. Line breaks, commas and numbering are ignored.';
+      '按顺序输入这些单词，或把整段助记词粘贴到任意一个框中。换行、逗号和编号会被忽略。';
 
   @override
-  String get deskOnbRestoreClear => 'Clear';
+  String get deskOnbRestoreClear => '清空';
 
   @override
   String deskOnbRestoreUseWords(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Use $count words',
-      one: 'Use $count word',
+      other: '使用这 $count 个单词',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOnbRestoreWords => 'Words';
+  String get deskOnbRestoreWords => '单词';
 
   @override
   String deskOnbRestoreFilledOf(int filled, int total) {
     String _temp0 = intl.Intl.pluralLogic(
       total,
       locale: localeName,
-      other: '$total words',
-      one: '$total word',
+      other: '$total 个单词',
     );
-    return '$filled of $_temp0';
+    return '$filled/$_temp0';
   }
 
   @override
-  String get deskOnbKillTitle => 'Epic is already running';
+  String get deskOnbKillTitle => 'Epic 已在运行';
 
   @override
-  String get deskOnbKillBody =>
-      'Another wallet or node process is using the wallet files and ports. Close it to unlock here, or cancel and close it yourself.';
+  String get deskOnbKillBody => '另一个钱包或节点进程正在使用钱包文件和端口。关闭它即可在这里解锁，或取消后自己关闭它。';
 
   @override
-  String get deskOnbKillProcesses => 'Running processes';
+  String get deskOnbKillProcesses => '正在运行的进程';
 
   @override
-  String get deskOnbKillRoleWallet => 'wallet service';
+  String get deskOnbKillRoleWallet => '钱包服务';
 
   @override
-  String get deskOnbKillRoleNode => 'node';
+  String get deskOnbKillRoleNode => '节点';
 
   @override
-  String get deskOnbKillNote =>
-      'Closing them stops what they were doing, such as a node sync or receiving payments. They start again from this app after unlock.';
+  String get deskOnbKillNote => '关闭它们会中止它们正在做的事，例如节点同步或接收付款。解锁后它们会由本应用重新启动。';
 
   @override
-  String get deskOnbKillClosing => 'Closing…';
+  String get deskOnbKillClosing => '正在关闭…';
 
   @override
-  String get deskOnbKillClose => 'Close and unlock';
+  String get deskOnbKillClose => '关闭并解锁';
 
   @override
-  String get deskOnbSameTitle => 'This wallet is already here';
+  String get deskOnbSameTitle => '此钱包已在这里';
 
   @override
-  String get deskOnbSameBody =>
-      'The phrase belongs to a wallet in the list. Nothing was added.';
+  String get deskOnbSameBody => '此助记词属于列表中的一个钱包。没有添加任何内容。';
 
   @override
-  String get deskOnbSameWallet => 'Wallet';
+  String get deskOnbSameWallet => '钱包';
 
   @override
-  String get deskOnbSameNote =>
-      'Open it asks for that wallet\'s password. Cancel keeps the phrase on the grid.';
+  String get deskOnbSameNote => '“打开”会要求输入该钱包的密码。“取消”会把助记词保留在输入框中。';
 
   @override
-  String get deskOnbSameOpen => 'Open it';
+  String get deskOnbSameOpen => '打开';
 
   @override
-  String get deskOnbUnlockWhoWindows =>
-      'Anyone using this Windows account can open this wallet.';
+  String get deskOnbUnlockWhoWindows => '使用此 Windows 账户的任何人都能打开此钱包。';
 
   @override
-  String get deskOnbUnlockWho =>
-      'Anyone using this account can open this wallet.';
+  String get deskOnbUnlockWho => '使用此账户的任何人都能打开此钱包。';
 
   @override
-  String get deskOnbUnlockWrong =>
-      'Wrong password. Check Caps Lock and the keyboard layout.';
+  String get deskOnbUnlockWrong => '密码错误。请检查大写锁定键和键盘布局。';
 
   @override
-  String get deskOnbUnlockPortInUse =>
-      'The wallet service did not start: port 3415 is in use by another program.';
+  String get deskOnbUnlockPortInUse => '钱包服务未能启动：端口 3415 被其他程序占用。';
 
   @override
-  String get deskOnbUnlockStageCheck => 'Checking wallet files';
+  String get deskOnbUnlockStageCheck => '正在检查钱包文件';
 
   @override
-  String get deskOnbUnlockStageProcesses =>
-      'Looking for wallet processes still running';
+  String get deskOnbUnlockStageProcesses => '正在查找仍在运行的钱包进程';
 
   @override
-  String get deskOnbUnlockStageClosing => 'Closing the old wallet processes';
+  String get deskOnbUnlockStageClosing => '正在关闭旧的钱包进程';
 
   @override
-  String get deskOnbUnlockStageWallet => 'Starting the wallet service';
+  String get deskOnbUnlockStageWallet => '正在启动钱包服务';
 
   @override
-  String get deskOnbUnlockStageUnlock => 'Unlocking the wallet';
+  String get deskOnbUnlockStageUnlock => '正在解锁钱包';
 
   @override
-  String get deskOnbUnlockEnter => 'Enter the password';
+  String get deskOnbUnlockEnter => '请输入密码';
 
   @override
-  String get deskOnbUnlockCloseOthers =>
-      'Close the other Epic processes, then unlock.';
+  String get deskOnbUnlockCloseOthers => '请关闭其他 Epic 进程，然后解锁。';
 
   @override
-  String get deskOnbUnlockRememberedUnavailable =>
-      'Remembered password unavailable. Enter the password.';
+  String get deskOnbUnlockRememberedUnavailable => '无法使用记住的密码。请输入密码。';
 
   @override
-  String get deskOnbUnlockRememberedForgotten =>
-      'The remembered password was forgotten. Enter the password.';
+  String get deskOnbUnlockRememberedForgotten => '记住的密码已失效。请输入密码。';
 
   @override
-  String get deskOnbUnlockNotRemembered => 'Not remembered';
+  String get deskOnbUnlockNotRemembered => '未记住';
 
   @override
-  String get deskOnbUnlockKeyStore =>
-      'This computer\'s key store is unavailable.';
+  String get deskOnbUnlockKeyStore => '这台电脑的密钥库不可用。';
 
   @override
-  String get deskOnbUnlockThisWallet => 'this wallet';
+  String get deskOnbUnlockThisWallet => '此钱包';
 
   @override
-  String get deskOnbUnlockFailed => 'Unlock failed';
+  String get deskOnbUnlockFailed => '解锁失败';
 
   @override
-  String get deskOnbUnlockFailedLead =>
-      'The wallet did not open. The reason is below.';
+  String get deskOnbUnlockFailedLead => '钱包没有打开。原因见下方。';
 
   @override
-  String get deskOnbUnlockFailedBox => 'The wallet did not open';
+  String get deskOnbUnlockFailedBox => '钱包没有打开';
 
   @override
   String deskOnbUnlockUnlocking(String name) {
-    return 'Unlocking $name';
+    return '正在解锁 $name';
   }
 
   @override
-  String get deskOnbUnlockStepsLead => 'Each step shows as it finishes.';
+  String get deskOnbUnlockStepsLead => '每一步完成后都会显示。';
 
   @override
-  String get deskOnbUnlockNote =>
-      'Then the overview opens and finishes in the background: connecting to the node, updating balances, turning on receiving.';
+  String get deskOnbUnlockNote => '随后会打开概览，并在后台完成其余工作：连接节点、更新余额、开启接收。';
 
   @override
-  String get deskOnbUnlockTitle => 'Unlock wallet';
+  String get deskOnbUnlockTitle => '解锁钱包';
 
   @override
-  String get deskOnbUnlockLead => 'Keys stay on this computer.';
+  String get deskOnbUnlockLead => '密钥只保存在这台电脑上。';
 
   @override
-  String get deskOnbUnlockRemember => 'Remember on this computer';
+  String get deskOnbUnlockRemember => '在这台电脑上记住';
 
   @override
   String deskOnbUnlockRememberFor(String who) {
-    return 'For 30 days. $who';
+    return '保留 30 天。$who';
   }
 
   @override
-  String get deskOnbUnlockMissingTitle => 'This wallet’s folder is missing';
+  String get deskOnbUnlockMissingTitle => '此钱包的文件夹不见了';
 
   @override
   String deskOnbUnlockMissingText(String folder) {
-    return 'It was at $folder';
+    return '原位置：$folder';
   }
 
   @override
-  String get deskOnbUnlockRemove => 'Remove';
+  String get deskOnbUnlockRemove => '移除';
 
   @override
-  String get deskOnbUnlockTryAgain => 'Try again';
+  String get deskOnbUnlockTryAgain => '重试';
 
   @override
-  String get deskOnbUnlockButton => 'Unlock';
+  String get deskOnbUnlockButton => '解锁';
 
   @override
-  String get deskOnbNodeFreeUnknown => 'free space unknown';
+  String get deskOnbNodeFreeUnknown => '可用空间未知';
 
   @override
   String deskOnbNodeFreeHere(String size) {
-    return '$size free here';
+    return '此处可用 $size';
   }
 
   @override
   String deskOnbNodeDiskAbout(String size) {
-    return 'About $size of disk now';
+    return '目前约占用 $size 磁盘空间';
   }
 
   @override
   String deskOnbNodeDisk(String size) {
-    return '$size of disk now';
+    return '目前占用 $size 磁盘空间';
   }
 
   @override
-  String get deskOnbNodeSeparate => 'A separate program.';
+  String get deskOnbNodeSeparate => '独立程序';
 
   @override
-  String get deskOnbNodeSeparateText =>
-      'The wallet starts the Epic node and stops it with the app.';
+  String get deskOnbNodeSeparateText => '钱包会启动 Epic 节点，并在应用关闭时停止它。';
 
   @override
-  String get deskOnbNodeFirewall => 'Windows asks once';
+  String get deskOnbNodeFirewall => 'Windows 会询问一次';
 
   @override
-  String get deskOnbNodeFirewallText =>
-      'to allow it through the firewall. Allow it on private networks.';
+  String get deskOnbNodeFirewallText => '是否允许它通过防火墙。请在专用网络上允许。';
 
   @override
   String deskOnbNodeGrowing(String free) {
-    return 'growing slowly. $free.';
+    return '并缓慢增长。$free。';
   }
 
   @override
-  String get deskOnbNodeHours => 'Hours to sync';
+  String get deskOnbNodeHours => '同步需要数小时';
 
   @override
   String get deskOnbNodeHoursText =>
-      'the first time, 2 to 6 on a typical connection. The wallet shows the progress and can use a public node meanwhile.';
+      '首次同步在一般网络下需要 2 到 6 小时。钱包会显示进度，期间可以使用公共节点。';
 
   @override
-  String get deskOnbNodeDownload => 'About 4 GB downloaded';
+  String get deskOnbNodeDownload => '下载约 4 GB';
 
   @override
-  String get deskOnbNodeDownloadText =>
-      'the first time, then a little every day.';
+  String get deskOnbNodeDownloadText => '首次下载这么多，之后每天下载少量数据。';
 
   @override
-  String get deskOnbNodeFound => 'Found';
+  String get deskOnbNodeFound => '已找到';
 
   @override
   String deskOnbNodeFoundAt(String version, String address) {
-    return 'Epic $version at $address';
+    return 'Epic $version，位于 $address';
   }
 
   @override
   String deskOnbNodeHeight(String height) {
-    return 'height $height';
+    return '高度 $height';
   }
 
   @override
-  String get deskOnbNodeSynced => 'synced';
+  String get deskOnbNodeSynced => '已同步';
 
   @override
-  String get deskOnbNodeNoAnswer => 'No node answers';
+  String get deskOnbNodeNoAnswer => '没有节点响应';
 
   @override
   String deskOnbNodeNoAnswerAt(String address) {
-    return 'at $address. Start it, or check the address and port.';
+    return '地址 $address。请启动节点，或检查地址和端口。';
   }
 
   @override
-  String get deskOnbNodeExisting =>
-      'Use a node already running on this computer';
+  String get deskOnbNodeExisting => '使用这台电脑上已在运行的节点';
 
   @override
-  String get deskOnbNodeExistingText =>
-      'The Epic GUI or CLI node. The wallet connects to it and starts nothing.';
+  String get deskOnbNodeExistingText => 'Epic GUI 或 CLI 节点。钱包会连接到它，不会启动任何程序。';
 
   @override
-  String get deskOnbNodeAddress => 'Address of the node on this computer';
+  String get deskOnbNodeAddress => '本机节点的地址';
 
   @override
-  String get deskOnbNodeCheck => 'Check';
+  String get deskOnbNodeCheck => '检查';
 
   @override
-  String get deskOnbNodeBundled => 'Start the bundled node';
+  String get deskOnbNodeBundled => '启动内置节点';
 
   @override
   String get deskOnbNodeBundledText =>
-      'Downloads and syncs the chain into the wallet’s own folder. Nothing is downloaded before Save on the last step.';
+      '把区块链下载并同步到钱包自己的文件夹中。在最后一步点击“保存”之前不会下载任何内容。';
 
   @override
   String deskOnbNodeFallback(String host) {
-    return 'Use $host until the local node is synced. The local node takes over by itself.';
+    return '本地节点同步完成前使用 $host。之后本地节点会自动接替。';
   }
 
   @override
-  String get deskOnbNodeDialogTitle => 'Local node';
+  String get deskOnbNodeDialogTitle => '本地节点';
 
   @override
-  String get deskOnbNodeDialogBody =>
-      'What running the node here means, and which node to use.';
+  String get deskOnbNodeDialogBody => '在这里运行节点意味着什么，以及使用哪个节点。';
 
   @override
-  String get deskOnbNodeUseThis => 'Use this node';
+  String get deskOnbNodeUseThis => '使用此节点';
 
   @override
-  String get deskOnbNodeStart => 'Start local node';
+  String get deskOnbNodeStart => '启动本地节点';
 
   @override
   String deskOnbRestorePasteCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count words pasted; a phrase has 12, 15, 18, 21 or 24',
-      one: '$count word pasted; a phrase has 12, 15, 18, 21 or 24',
+      other: '已粘贴 $count 个单词；助记词应为 12、15、18、21 或 24 个单词',
     );
     return '$_temp0';
   }
 
   @override
   String deskOnbWordN(int number) {
-    return 'Word $number';
+    return '第 $number 个单词';
   }
 
   @override
-  String get deskOnbImportEnterOld => 'Enter the old password';
+  String get deskOnbImportEnterOld => '请输入旧密码';
 
   @override
   String deskOnbImportNewShort(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count characters',
-      one: '$count character',
+      other: '$count 个字符',
     );
-    return 'New password: at least $_temp0';
+    return '新密码：至少 $_temp0';
   }
 
   @override
-  String get deskOnbImportNewDiffer => 'The new passwords differ';
+  String get deskOnbImportNewDiffer => '两次输入的新密码不一致';
 
   @override
   String deskOnbImportWalletsN(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count wallets',
-      one: '$count wallet',
+      other: '$count 个钱包',
     );
     return '$_temp0';
   }
@@ -9413,177 +9205,170 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count wallets imported.',
-      one: 'Wallet imported.',
+      other: '已导入 $count 个钱包。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOnbImportFindingTitle => 'Finding wallets';
+  String get deskOnbImportFindingTitle => '正在查找钱包';
 
   @override
   String get deskOnbImportFindingLead =>
-      'Searching the folders of older Epic Wallet versions and the epic program. Nothing is changed.';
+      '正在搜索旧版 Epic Wallet 和 epic 程序的文件夹。不会改动任何内容。';
 
   @override
   String deskOnbImportFoundTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count wallets found',
-      one: '$count wallet found',
+      other: '找到 $count 个钱包',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOnbImportFoundLead => 'Old folders are only read.';
+  String get deskOnbImportFoundLead => '旧文件夹只会被读取。';
 
   @override
-  String get deskOnbImportNoneTitle => 'No wallets found';
+  String get deskOnbImportNoneTitle => '未找到钱包';
 
   @override
-  String get deskOnbImportNoneLead =>
-      'Choose the wallet folder, or restore from the recovery phrase.';
+  String get deskOnbImportNoneLead => '请选择钱包文件夹，或用助记词恢复。';
 
   @override
-  String get deskOnbImportChooseTitle => 'Choose wallets';
+  String get deskOnbImportChooseTitle => '选择钱包';
 
   @override
-  String get deskOnbImportChooseLead =>
-      'Ticked wallets are added to the app. History is rebuilt by a scan.';
+  String get deskOnbImportChooseLead => '勾选的钱包会添加到应用中。交易记录会通过扫描重建。';
 
   @override
-  String get deskOnbImportCheckTitle => 'Checking for use';
+  String get deskOnbImportCheckTitle => '检查是否被占用';
 
   @override
-  String get deskOnbImportCheckLead =>
-      'A wallet in use by another program is not imported.';
+  String get deskOnbImportCheckLead => '被其他程序占用的钱包不会导入。';
 
   @override
-  String get deskOnbImportTitle => 'Import';
+  String get deskOnbImportTitle => '导入';
 
   @override
-  String get deskOnbImportLead => 'Each wallet asks for its old password once.';
+  String get deskOnbImportLead => '每个钱包会要求输入一次它的旧密码。';
 
   @override
-  String get deskOnbImportDoneTitle => 'Wallets imported';
+  String get deskOnbImportDoneTitle => '钱包已导入';
 
   @override
-  String get deskOnbImportDoneLead =>
-      'The first unlock of each wallet scans the chain for its history.';
+  String get deskOnbImportDoneLead => '每个钱包首次解锁时会扫描区块链以获取交易记录。';
 
   @override
   String deskOnbImportSelected(int selected, int total) {
-    return '$selected of $total selected';
+    return '已选择 $selected/$total';
   }
 
   @override
-  String get deskOnbImportChecking => 'Checking…';
+  String get deskOnbImportChecking => '正在检查…';
 
   @override
-  String get deskOnbImportCloseOther =>
-      'Close the other program or skip the wallet';
+  String get deskOnbImportCloseOther => '请关闭另一个程序，或跳过此钱包';
 
   @override
   String deskOnbImportImportedOf(int done, int total) {
-    return '$done of $total imported';
+    return '已导入 $done/$total';
   }
 
   @override
-  String get deskOnbImportOpen => 'Open wallet';
+  String get deskOnbImportOpen => '打开钱包';
 
   @override
-  String get deskOnbImportStepFind => 'Find';
+  String get deskOnbImportStepFind => '查找';
 
   @override
-  String get deskOnbImportStepChoose => 'Choose';
+  String get deskOnbImportStepChoose => '选择';
 
   @override
-  String get deskOnbImportStepCheck => 'Check';
+  String get deskOnbImportStepCheck => '检查';
 
   @override
-  String get deskOnbImportBack => 'Back';
+  String get deskOnbImportBack => '返回';
 
   @override
-  String get deskOnbImportSkip => 'Skip';
+  String get deskOnbImportSkip => '跳过';
 
   @override
-  String get deskOnbImportOlder => 'Older Epic Wallet';
+  String get deskOnbImportOlder => '旧版 Epic Wallet';
 
   @override
-  String get deskOnbImportOlderSub => 'Accounts and folders';
+  String get deskOnbImportOlderSub => '账户和文件夹';
 
   @override
-  String get deskOnbImportEpicProgram => 'The epic program';
+  String get deskOnbImportEpicProgram => 'epic 程序';
 
   @override
-  String get deskOnbImportSearching => 'Searching…';
+  String get deskOnbImportSearching => '正在搜索…';
 
   @override
-  String get deskOnbImportRestore => 'Restore from phrase';
+  String get deskOnbImportRestore => '用助记词恢复';
 
   @override
   String deskOnbImportLastUsed(String date) {
-    return 'Last used $date';
+    return '上次使用：$date';
   }
 
   @override
   String deskOnbImportSecondCopy(String reason) {
-    return '$reason. Tick for a second copy.';
+    return '$reason。勾选即可再添加一份副本。';
   }
 
   @override
   String deskOnbImportCannot(String name) {
-    return '$name: cannot be imported';
+    return '$name：无法导入';
   }
 
   @override
-  String get deskOnbImportInApp => 'In the app';
+  String get deskOnbImportInApp => '已在应用中';
 
   @override
-  String get deskOnbImportSameWallet => 'Same wallet';
+  String get deskOnbImportSameWallet => '同一个钱包';
 
   @override
-  String get deskOnbImportNotInUse => 'Not in use';
+  String get deskOnbImportNotInUse => '未被占用';
 
   @override
-  String get deskOnbImportNotChecked => 'Not checked';
+  String get deskOnbImportNotChecked => '未检查';
 
   @override
-  String get deskOnbImportSkipped => 'Skipped';
+  String get deskOnbImportSkipped => '已跳过';
 
   @override
-  String get deskOnbImportInUse => 'In use';
+  String get deskOnbImportInUse => '被占用';
 
   @override
   String get deskOnbImportInUseText =>
-      'In use by another program. Close the older Epic Wallet or the epic program, then check again.';
+      '正被其他程序使用。请关闭旧版 Epic Wallet 或 epic 程序，然后重新检查。';
 
   @override
-  String get deskOnbImportCheckAgain => 'Check again';
+  String get deskOnbImportCheckAgain => '重新检查';
 
   @override
-  String get deskOnbImportImported => 'Imported';
+  String get deskOnbImportImported => '已导入';
 
   @override
-  String get deskOnbImportImporting => 'Importing…';
+  String get deskOnbImportImporting => '正在导入…';
 
   @override
-  String get deskOnbImportWaiting => 'Waiting';
+  String get deskOnbImportWaiting => '等待中';
 
   @override
-  String get deskOnbImportOldPassword => 'Old password';
+  String get deskOnbImportOldPassword => '旧密码';
 
   @override
   String deskOnbImportOldHelp(String name) {
-    return 'The password of $name in the older app.';
+    return '$name 在旧应用中的密码。';
   }
 
   @override
   String deskOnbImportOldOf(String name) {
-    return 'Old password of $name';
+    return '$name 的旧密码';
   }
 
   @override
@@ -9591,445 +9376,426 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count or more characters.',
-      one: '$count or more characters.',
+      other: '至少 $count 个字符。',
     );
-    return 'The old password is short. Choose a new one, $_temp0';
+    return '旧密码太短。请设置一个新密码，$_temp0';
   }
 
   @override
-  String get deskOnbImportNewPassword => 'New password';
+  String get deskOnbImportNewPassword => '新密码';
 
   @override
-  String get deskOnbImportRepeat => 'Repeat';
+  String get deskOnbImportRepeat => '重复';
 
   @override
-  String get deskOnbImportRepeatNew => 'Repeat the new password';
+  String get deskOnbImportRepeatNew => '再次输入新密码';
 
   @override
-  String get deskOnbImportUnchanged =>
-      'Old folders are unchanged. The older app can still open them.';
+  String get deskOnbImportUnchanged => '旧文件夹未改动。旧应用仍可打开它们。';
 
   @override
-  String get deskOnbImportStopTitle => 'Stop the import?';
+  String get deskOnbImportStopTitle => '停止导入？';
 
   @override
-  String get deskOnbImportStopBody =>
-      'Wallets imported so far are removed. Old folders are unchanged.';
+  String get deskOnbImportStopBody => '已导入的钱包会被移除。旧文件夹不会改动。';
 
   @override
-  String get deskOnbImportGoBack => 'Go back';
+  String get deskOnbImportGoBack => '返回';
 
   @override
-  String get deskOnbImportStop => 'Stop import';
+  String get deskOnbImportStop => '停止导入';
 
   @override
-  String get deskRailWaitingTor => 'Waiting for Tor';
+  String get deskRailWaitingTor => '等待 Tor';
 
   @override
-  String get deskRailOn => 'On';
+  String get deskRailOn => '开启';
 
   @override
-  String get deskRailConnecting => 'Connecting';
+  String get deskRailConnecting => '正在连接';
 
   @override
-  String get deskRailSlow => 'Slow';
+  String get deskRailSlow => '较慢';
 
   @override
-  String get deskRailNotAnswering => 'Not answering';
+  String get deskRailNotAnswering => '无响应';
 
   @override
-  String get deskRailOff => 'Off';
+  String get deskRailOff => '关闭';
 
   @override
-  String get deskRailChecking => 'Checking';
+  String get deskRailChecking => '正在检查';
 
   @override
-  String get deskRailOverTor => 'Over Tor';
+  String get deskRailOverTor => '经由 Tor';
 
   @override
-  String get deskRailWaitsForTor => 'Waits until Tor is connected.';
+  String get deskRailWaitsForTor => '等 Tor 连接后再连接。';
 
   @override
-  String get deskRailPaymentsWait => 'Payments wait on the Epicbox server.';
+  String get deskRailPaymentsWait => '付款暂存在 Epicbox 服务器上。';
 
   @override
-  String get deskRailOpenEpicbox => 'Open Epicbox receiving';
+  String get deskRailOpenEpicbox => '打开 Epicbox 接收设置';
 
   @override
-  String get deskRailStarting => 'Starting';
+  String get deskRailStarting => '正在启动';
 
   @override
-  String get deskRailNotReceiving => 'Not receiving';
+  String get deskRailNotReceiving => '无法接收';
 
   @override
-  String get deskRailOnInternet => 'On · internet';
+  String get deskRailOnInternet => '开启 · 互联网';
 
   @override
-  String get deskRailOnLocal => 'On · local';
+  String get deskRailOnLocal => '开启 · 本地';
 
   @override
-  String get deskRailPortInUse => 'Port in use';
+  String get deskRailPortInUse => '端口被占用';
 
   @override
-  String get deskRailStopped => 'Stopped';
+  String get deskRailStopped => '已停止';
 
   @override
   String deskRailPortInternet(String port) {
-    return 'Port $port · from the internet';
+    return '端口 $port · 可从互联网访问';
   }
 
   @override
   String deskRailPortLocal(String port) {
-    return 'Port $port · this computer only';
+    return '端口 $port · 仅限本机';
   }
 
   @override
-  String get deskRailOpenHttp => 'Open HTTP receiving';
+  String get deskRailOpenHttp => '打开 HTTP 接收设置';
 
   @override
-  String get deskRailTorNotInBuild => 'Not in this build';
+  String get deskRailTorNotInBuild => '此版本不含 Tor';
 
   @override
-  String get deskRailStartingDots => 'Starting…';
+  String get deskRailStartingDots => '正在启动…';
 
   @override
   String deskRailTorSlow(String problem) {
-    return '$problem. Sends work.';
+    return '$problem。发送不受影响。';
   }
 
   @override
-  String get deskRailTorNoAddress => 'Tor address not published';
+  String get deskRailTorNoAddress => 'Tor 地址尚未发布';
 
   @override
-  String get deskRailOpenPrivacy => 'Open Privacy settings';
+  String get deskRailOpenPrivacy => '打开隐私设置';
 
   @override
-  String get deskRailNode => 'Node';
+  String get deskRailNode => '节点';
 
   @override
-  String get deskRailOpenNode => 'Open node settings';
+  String get deskRailOpenNode => '打开节点设置';
 
   @override
-  String get deskAppNodeSyncedTitle => 'Local node synced';
+  String get deskAppNodeSyncedTitle => '本地节点已同步';
 
   @override
-  String get deskAppNodeSyncedBody =>
-      'The local node has the whole chain and can be used now. The app restarts to switch to it.';
+  String get deskAppNodeSyncedBody => '本地节点已拥有完整的区块链，现在可以使用。应用将重启以切换到本地节点。';
 
   @override
-  String get deskAppNotNow => 'Not now';
+  String get deskAppNotNow => '以后再说';
 
   @override
-  String get deskAppRestartNow => 'Restart now';
+  String get deskAppRestartNow => '立即重启';
 
   @override
-  String get deskAppFirstScanTitle => 'Wallet first scan';
+  String get deskAppFirstScanTitle => '钱包首次扫描';
 
   @override
-  String get deskAppFirstScanBody =>
-      'The wallet looks through the chain for its outputs. It stays usable; the balance updates when the scan is done.';
+  String get deskAppFirstScanBody => '钱包正在区块链中查找属于它的输出。期间钱包仍可使用；扫描完成后余额会更新。';
 
   @override
-  String get deskAppScanOutput => 'Scan output';
+  String get deskAppScanOutput => '扫描进度';
 
   @override
-  String get deskAppWaitingOutput => 'Waiting for the first output…';
+  String get deskAppWaitingOutput => '等待第一条输出…';
 
   @override
-  String get deskShellNavOverview => 'Overview';
+  String get deskShellNavOverview => '概览';
 
   @override
-  String get deskShellNavActivity => 'Activity';
+  String get deskShellNavActivity => '活动';
 
   @override
-  String get deskShellNavSend => 'Send';
+  String get deskShellNavSend => '发送';
 
   @override
-  String get deskShellNavReceive => 'Receive';
+  String get deskShellNavReceive => '接收';
 
   @override
-  String get deskShellNavOutputs => 'Outputs';
+  String get deskShellNavOutputs => '输出';
 
   @override
-  String get deskShellNavContacts => 'Contacts';
+  String get deskShellNavContacts => '联系人';
 
   @override
-  String get deskShellNavSettings => 'Settings';
+  String get deskShellNavSettings => '设置';
 
   @override
-  String get deskShellTitleImportTx => 'Import transaction';
+  String get deskShellTitleImportTx => '导入交易';
 
   @override
-  String get deskShellTitleFinalizeTx => 'Finalize transaction';
+  String get deskShellTitleFinalizeTx => '完成交易';
 
   @override
-  String get deskShellLocksAfterSend => 'Locks when the payment is sent';
+  String get deskShellLocksAfterSend => '付款发出后锁定';
 
   @override
-  String get deskShellNotQuitTitle => 'Not quit';
+  String get deskShellNotQuitTitle => '未退出';
 
   @override
-  String get deskShellNotQuitBody =>
-      'A send is in progress. Quit again once it finishes.';
+  String get deskShellNotQuitBody => '正在发送一笔付款。发送完成后再退出。';
 
   @override
-  String get deskShellLockedTitle => 'Wallet locked';
+  String get deskShellLockedTitle => '钱包已锁定';
 
   @override
-  String get deskShellLockedBody =>
-      'Quit closes the app once the wallet core is connected.';
+  String get deskShellLockedBody => '连接钱包核心后，“退出”才会关闭应用。';
 
   @override
   String deskShellLockWallet(String keys) {
-    return 'Lock wallet ($keys)';
+    return '锁定钱包（$keys）';
   }
 
   @override
-  String get deskShellMainNav => 'Main navigation';
+  String get deskShellMainNav => '主导航';
 
   @override
   String deskShellVersion(String version) {
-    return 'Version $version';
+    return '版本 $version';
   }
 
   @override
-  String get deskShellOpenWalletSettings => 'Open wallet settings';
+  String get deskShellOpenWalletSettings => '打开钱包设置';
 
   @override
   String deskShellOpenWalletSettingsNamed(String name) {
-    return 'Open wallet settings: $name';
+    return '打开钱包设置：$name';
   }
 
   @override
-  String get deskShellSwitchWallet => 'Switch wallet';
+  String get deskShellSwitchWallet => '切换钱包';
 
   @override
   String deskShellWalletBy(String maker) {
-    return 'Wallet by $maker';
+    return '钱包出品：$maker';
   }
 
   @override
-  String get deskTourOverviewTitle => 'Overview';
+  String get deskTourOverviewTitle => '概览';
 
   @override
-  String get deskTourOverviewText =>
-      'The balance and what is still confirming, then the latest transactions. Everything else is in the sidebar.';
+  String get deskTourOverviewText => '余额和仍在确认中的金额，下面是最近的交易。其他功能都在侧边栏中。';
 
   @override
-  String get deskTourSendTitle => 'Send';
+  String get deskTourSendTitle => '发送';
 
   @override
   String get deskTourSendText =>
-      'Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.';
+      '三种付款方式：Epicbox 地址、直连地址（http(s) 或 Tor）或交易文件。资金发出前都会先让你确认。';
 
   @override
-  String get deskTourReceiveTitle => 'Receive';
+  String get deskTourReceiveTitle => '接收';
 
   @override
   String get deskTourReceiveText =>
-      'This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.';
+      '本钱包的 Epicbox 地址，旁边是 HTTP 和 Tor。需要签名或完成的交易文件在页面底部。';
 
   @override
-  String get deskTourInvoicesTitle => 'Invoices';
+  String get deskTourInvoicesTitle => '账单';
 
   @override
-  String get deskTourInvoicesText =>
-      'Pay an invoice someone sent, or issue one to someone who owes you. The tabs switch between the two.';
+  String get deskTourInvoicesText => '支付别人发来的账单，或向欠你钱的人开具账单。用标签页在两者之间切换。';
 
   @override
-  String get deskTourActivityTitle => 'Activity';
+  String get deskTourActivityTitle => '活动';
 
   @override
-  String get deskTourActivityText =>
-      'Every transaction with its progress and details. A number on this sidebar entry means something waits for an action.';
+  String get deskTourActivityText => '每笔交易的进度和详情。侧边栏此项上的数字表示有事项等待你处理。';
 
   @override
-  String get deskTourContactsTitle => 'Contacts';
+  String get deskTourContactsTitle => '联系人';
 
   @override
-  String get deskTourContactsText =>
-      'Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.';
+  String get deskTourContactsText => '按名称保存的地址：Epicbox、HTTP 或 Tor。发送时可从这里选择。';
 
   @override
-  String get deskTourNodeTitle => 'Settings › Node';
+  String get deskTourNodeTitle => '设置 › 节点';
 
   @override
-  String get deskTourNodeText =>
-      'Which node the wallet reads the chain from: a public one or the local node. The other settings pages are listed on the left.';
+  String get deskTourNodeText => '钱包从哪个节点读取区块链：公共节点或本地节点。其他设置页列在左侧。';
 
   @override
-  String get deskTourHelpTitle => 'Help';
+  String get deskTourHelpTitle => '帮助';
 
   @override
   String get deskTourHelpText =>
-      'Topics by section, Report a problem and the app log. More on every page is here, and this tour can be shown again.';
+      '按分区排列的主题、“报告问题”和应用日志。每个页面的更多说明都在这里，也可以在这里重新查看本导览。';
 
   @override
   String deskTourCounter(int current, int total) {
-    return '$current of $total';
+    return '$current/$total';
   }
 
   @override
-  String get deskTourSemantics => 'Tour of the wallet';
+  String get deskTourSemantics => '钱包导览';
 
   @override
-  String get deskTourSkip => 'Skip tour';
+  String get deskTourSkip => '跳过导览';
 
   @override
-  String get deskTourBack => 'Back';
+  String get deskTourBack => '上一步';
 
   @override
-  String get deskTourNext => 'Next';
+  String get deskTourNext => '下一步';
 
   @override
-  String get deskKitUnknown => 'Unknown';
+  String get deskKitUnknown => '未知';
 
   @override
-  String get deskKitRingCancelled => 'Cancelled';
+  String get deskKitRingCancelled => '已取消';
 
   @override
-  String get deskKitRingConfirmed => 'Confirmed';
+  String get deskKitRingConfirmed => '已确认';
 
   @override
   String deskKitRingProgress(int confirmations, int needed) {
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: '$confirmations of $needed confirmations',
-      one: '$confirmations of $needed confirmation',
+      other: '$confirmations/$needed 个确认',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskKitHiddenAmount => 'Hidden amount';
+  String get deskKitHiddenAmount => '金额已隐藏';
 
   @override
-  String get deskKitChooseFile => 'Choose file';
+  String get deskKitChooseFile => '选择文件';
 
   @override
   String deskKitNeedAction(String label, int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count need action',
-      one: '$count needs action',
+      other: '$count 项待处理',
     );
-    return '$label, $_temp0';
+    return '$label，$_temp0';
   }
 
   @override
-  String get deskKitHealthOn => 'On';
+  String get deskKitHealthOn => '开启';
 
   @override
-  String get deskKitHealthSlow => 'Slow';
+  String get deskKitHealthSlow => '较慢';
 
   @override
-  String get deskKitHealthOffline => 'Offline';
+  String get deskKitHealthOffline => '离线';
 
   @override
-  String get deskKitHealthOff => 'Off';
+  String get deskKitHealthOff => '关闭';
 
   @override
-  String get deskKitHealthChecking => 'Checking';
+  String get deskKitHealthChecking => '正在检查';
 
   @override
-  String get deskKitCloseEsc => 'Close (Esc)';
+  String get deskKitCloseEsc => '关闭（Esc）';
 
   @override
-  String get deskKitOptional => 'Optional';
+  String get deskKitOptional => '可选';
 
   @override
-  String get deskKitBackAlt => 'Back (Alt+Left)';
+  String get deskKitBackAlt => '返回（Alt+左方向键）';
 
   @override
   String deskKitStepOf(int current, int total) {
-    return 'Step $current of $total';
+    return '第 $current 步，共 $total 步';
   }
 
   @override
-  String get deskKitHeroCaptionEpicbox => 'EPICBOX SERVER HOLDS IT';
+  String get deskKitHeroCaptionEpicbox => '由 EPICBOX 服务器暂存';
 
   @override
-  String get deskKitHeroCaptionHttp => 'STRAIGHT TO THEIR WALLET';
+  String get deskKitHeroCaptionHttp => '直达对方钱包';
 
   @override
-  String get deskKitHeroCaptionTor => 'STRAIGHT, THROUGH TOR';
+  String get deskKitHeroCaptionTor => '经由 TOR 直达';
 
   @override
-  String get deskKitHeroCaptionFile => 'FILE OUT, RESPONSE BACK';
+  String get deskKitHeroCaptionFile => '发出文件，收回回复';
 
   @override
   String get deskKitHeroLabelEpicbox =>
-      'Epicbox: the payment goes to the Epicbox server, which holds it until the recipient\'s wallet is back';
+      'Epicbox：付款发送到 Epicbox 服务器，由服务器暂存，直到接收方的钱包重新上线';
 
   @override
-  String get deskKitHeroLabelHttp =>
-      'HTTP: the payment goes straight to the recipient\'s wallet, which must be open';
+  String get deskKitHeroLabelHttp => 'HTTP：付款直接发送到接收方的钱包，对方钱包必须处于打开状态';
 
   @override
-  String get deskKitHeroLabelTor =>
-      'Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network';
+  String get deskKitHeroLabelTor => 'Tor：付款经由 Tor 网络直接发送到接收方的钱包';
 
   @override
-  String get deskKitHeroLabelFile =>
-      'File: a transaction file is handed over, a response file comes back, then the sender finalizes';
+  String get deskKitHeroLabelFile => '文件：交出一个交易文件，收回一个回复文件，然后由发送方完成交易';
 
   @override
-  String get deskKitReachCheck => 'Check';
+  String get deskKitReachCheck => '检查';
 
   @override
-  String get deskKitReachChecking => 'Checking from the internet…';
+  String get deskKitReachChecking => '正在从互联网检查…';
 
   @override
-  String get deskKitReachNoIpTitle => 'Public IP not found';
+  String get deskKitReachNoIpTitle => '未找到公网 IP';
 
   @override
-  String get deskKitReachNoIpText =>
-      'The internet could not be asked for it. Try again later.';
+  String get deskKitReachNoIpText => '无法从互联网获取。请稍后重试。';
 
   @override
   String deskKitReachNoIpTextLan(String address) {
-    return 'The internet could not be asked for it. Try again later. On your network: $address.';
+    return '无法从互联网获取。请稍后重试。在你的局域网中：$address。';
   }
 
   @override
-  String get deskKitReachClosedTitle => 'Not reachable from the internet';
+  String get deskKitReachClosedTitle => '无法从互联网访问';
 
   @override
   String deskKitReachClosedText(String port) {
-    return 'Forward TCP port $port on your router to this computer, then check again.';
+    return '在路由器上把 TCP 端口 $port 转发到这台电脑，然后再检查一次。';
   }
 
   @override
   String deskKitReachClosedTextLan(String port, String address) {
-    return 'Forward TCP port $port on your router to this computer ($address), then check again.';
+    return '在路由器上把 TCP 端口 $port 转发到这台电脑（$address），然后再检查一次。';
   }
 
   @override
-  String get deskKitReachUnknownTitle => 'Reachability unknown';
+  String get deskKitReachUnknownTitle => '无法确定是否可访问';
 
   @override
-  String get deskKitReachUnknownText =>
-      'The port check did not answer. Try again later.';
+  String get deskKitReachUnknownText => '端口检查服务没有响应。请稍后重试。';
 
   @override
   String deskKitReachUnknownTextLan(String address) {
-    return 'The port check did not answer. Try again later. On your network: $address.';
+    return '端口检查服务没有响应。请稍后重试。在你的局域网中：$address。';
   }
 
   @override
-  String get deskKitReachOpenTitle => 'Reachable from the internet';
+  String get deskKitReachOpenTitle => '可从互联网访问';
 
   @override
   String deskKitReachOpenText(String port) {
-    return 'Port $port is forwarded.';
+    return '端口 $port 已转发。';
   }
 
   @override
   String deskKitReachOpenTextLan(String port, String address) {
-    return 'Port $port is forwarded. On your network: $address.';
+    return '端口 $port 已转发。在你的局域网中：$address。';
   }
 
   @override
@@ -10037,8 +9803,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count s ago',
-      one: '$count s ago',
+      other: '$count 秒前',
     );
     return '$_temp0';
   }
@@ -10048,8 +9813,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count min ago',
-      one: '$count min ago',
+      other: '$count 分钟前',
     );
     return '$_temp0';
   }
@@ -10059,8 +9823,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count h ago',
-      one: '$count h ago',
+      other: '$count 小时前',
     );
     return '$_temp0';
   }
@@ -10070,24 +9833,23 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count d ago',
-      one: '$count d ago',
+      other: '$count 天前',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskKitNodeBefore410 => 'node before 4.1.0';
+  String get deskKitNodeBefore410 => '节点版本低于 4.1.0';
 
   @override
-  String get deskKitNodeNoAnswer => 'no answer';
+  String get deskKitNodeNoAnswer => '无响应';
 
   @override
-  String get deskKitNodesDisagree => 'Nodes disagree on the tip';
+  String get deskKitNodesDisagree => '各节点的最新区块不一致';
 
   @override
   String deskKitNodesAgree(String height) {
-    return 'Nodes agree on $height';
+    return '各节点一致：$height';
   }
 
   @override
@@ -10095,8 +9857,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       up,
       locale: localeName,
-      other: '$up of $total nodes up',
-      one: '$up of $total node up',
+      other: '$up/$total 个节点在线',
     );
     return '$_temp0';
   }
@@ -10106,437 +9867,428 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       up,
       locale: localeName,
-      other: '$up of $total Epicbox servers up',
-      one: '$up of $total Epicbox server up',
+      other: '$up/$total 个 Epicbox 服务器在线',
     );
     return '$_temp0';
   }
 
   @override
   String deskKitLastBlock(String age) {
-    return 'last block $age';
+    return '上一个区块 $age';
   }
 
   @override
   String get deskKitLimitedNetwork =>
-      'status.btlabs.uk is not reachable. These facts come from the node itself: no tip to compare with, no uptime, no peer count.';
+      '无法访问 status.btlabs.uk。以下信息来自节点本身：没有可对比的最新区块，没有在线率，也没有对等节点数。';
 
   @override
-  String get deskKitFactHeight => 'Height';
+  String get deskKitFactHeight => '高度';
 
   @override
-  String get deskKitFactVersion => 'Version';
+  String get deskKitFactVersion => '版本';
 
   @override
-  String get deskKitFactAccepts => 'Accepts transactions';
+  String get deskKitFactAccepts => '接受交易';
 
   @override
-  String get deskKitFactYes => 'Yes';
+  String get deskKitFactYes => '是';
 
   @override
-  String get deskKitFactNotYet => 'Not yet';
+  String get deskKitFactNotYet => '尚未';
 
   @override
-  String get deskKitFactUnknown => 'Unknown';
+  String get deskKitFactUnknown => '未知';
 
   @override
-  String get deskKitFactLatency => 'Latency';
+  String get deskKitFactLatency => '延迟';
 
   @override
-  String get deskKitFactUptime => 'Uptime';
+  String get deskKitFactUptime => '在线率';
 
   @override
-  String get deskKitFactPeers => 'Peers';
+  String get deskKitFactPeers => '对等节点';
 
   @override
-  String get deskKitFactOperator => 'Operator';
+  String get deskKitFactOperator => '运营方';
 
   @override
-  String get deskKitAtTip => 'at tip';
+  String get deskKitAtTip => '已是最新';
 
   @override
   String deskKitBehind(int count, String blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$blocks behind',
-      one: '$blocks behind',
+      other: '落后 $blocks 个区块',
     );
     return '$_temp0';
   }
 
   @override
   String deskKitVersionOut(String version) {
-    return '$version is out';
+    return '$version 已发布';
   }
 
   @override
-  String get deskKitVersionLatest => 'latest';
+  String get deskKitVersionLatest => '最新版';
 
   @override
-  String get deskKitUptimeWindow => 'last 24 h';
+  String get deskKitUptimeWindow => '过去 24 小时';
 
   @override
   String deskKitAtTime(String time) {
-    return 'at $time';
+    return '于 $time';
   }
 
   @override
-  String get deskKitListedOfficial => 'listed as official';
+  String get deskKitListedOfficial => '官方列表';
 
   @override
   String deskKitSourceChecked(String time) {
-    return 'status.btlabs.uk, checked $time';
+    return 'status.btlabs.uk，检查于 $time';
   }
 
   @override
   String deskKitLatencyMeasured(String where) {
-    return 'latency measured $where';
+    return '延迟测量：$where';
   }
 
   @override
   String deskKitSiteLastReached(String time) {
-    return 'Status site last reached $time';
+    return '上次访问状态网站：$time';
   }
 
   @override
   String deskKitSince(String time) {
-    return 'since $time';
+    return '自 $time 起';
   }
 
   @override
   String deskKitNodeSemantics(String status, String host) {
-    return 'Node $status: $host';
+    return '节点$status：$host';
   }
 
   @override
-  String get deskKitNodeDownTitle => 'Node not answering.';
+  String get deskKitNodeDownTitle => '节点无响应。';
 
   @override
   String deskKitNodeDownText(String host) {
-    return 'Switch to $host, the healthiest other node?';
+    return '切换到 $host？这是状态最好的其他节点。';
   }
 
   @override
-  String get deskKitSwitch => 'Switch';
+  String get deskKitSwitch => '切换';
 
   @override
-  String get deskKitLimitedInfo => 'Limited info';
+  String get deskKitLimitedInfo => '信息有限';
 
   @override
-  String get deskKitFromStatusSite => 'from status.btlabs.uk';
+  String get deskKitFromStatusSite => '来自 status.btlabs.uk';
 
   @override
-  String get deskKitOverTor => 'over Tor';
+  String get deskKitOverTor => '经由 Tor';
 
   @override
-  String get deskKitFromThisComputer => 'from this computer';
+  String get deskKitFromThisComputer => '来自这台电脑';
 
   @override
   String deskKitNodeRemove(String host) {
-    return 'Remove $host from my nodes';
+    return '从我的节点中移除 $host';
   }
 
   @override
   String deskKitNodeAdd(String host) {
-    return 'Add $host to my nodes';
+    return '把 $host 添加到我的节点';
   }
 
   @override
   String deskKitNodeUse(String host) {
-    return 'Use $host';
+    return '使用 $host';
   }
 
   @override
   String deskKitNodeUseOperator(String host, String operator) {
-    return 'Use $host, $operator';
+    return '使用 $host，$operator';
   }
 
   @override
   String deskKitNodeUseDown(String host) {
-    return 'Use $host, not answering';
+    return '使用 $host，无响应';
   }
 
   @override
   String deskKitNodeUseOperatorDown(String host, String operator) {
-    return 'Use $host, $operator, not answering';
+    return '使用 $host，$operator，无响应';
   }
 
   @override
   String deskKitLocalNodeUse(String state) {
-    return 'Use the local node, $state';
+    return '使用本地节点，$state';
   }
 
   @override
-  String get deskKitLocalNode => 'Local node';
+  String get deskKitLocalNode => '本地节点';
 
   @override
-  String get deskKitMethodWaitingTor => 'Waiting for Tor';
+  String get deskKitMethodWaitingTor => '等待 Tor';
 
   @override
   String deskKitMethodTorNotConnected(String host) {
-    return '$host. Tor is not connected.';
+    return '$host。Tor 未连接。';
   }
 
   @override
-  String get deskKitMethodOn => 'On';
+  String get deskKitMethodOn => '开启';
 
   @override
   String deskKitMethodOverTor(String host) {
-    return '$host, over Tor';
+    return '$host，经由 Tor';
   }
 
   @override
-  String get deskKitMethodOff => 'Off';
+  String get deskKitMethodOff => '关闭';
 
   @override
-  String get deskKitMethodEpicboxOffDetail =>
-      'Payments to this address wait on the Epicbox server.';
+  String get deskKitMethodEpicboxOffDetail => '发往此地址的付款暂存在 Epicbox 服务器上。';
 
   @override
-  String get deskKitMethodConnecting => 'Connecting';
+  String get deskKitMethodConnecting => '正在连接';
 
   @override
-  String get deskKitMethodSlow => 'Slow';
+  String get deskKitMethodSlow => '较慢';
 
   @override
-  String get deskKitMethodNotAnswering => 'Not answering';
+  String get deskKitMethodNotAnswering => '无响应';
 
   @override
   String deskKitMethodEpicboxDown(String host) {
-    return '$host. Payments wait on the Epicbox server.';
+    return '$host。付款暂存在 Epicbox 服务器上。';
   }
 
   @override
-  String get deskKitMethodHttpOffDetail =>
-      'Straight from another wallet while this one is open.';
+  String get deskKitMethodHttpOffDetail => '本钱包打开时，直接从另一个钱包接收。';
 
   @override
-  String get deskKitMethodStarting => 'Starting…';
+  String get deskKitMethodStarting => '正在启动…';
 
   @override
   String deskKitMethodHttpInternet(String port) {
-    return 'from the internet, port $port';
+    return '可从互联网访问，端口 $port';
   }
 
   @override
-  String get deskKitMethodHttpLocal => 'this computer only (127.0.0.1)';
+  String get deskKitMethodHttpLocal => '仅限本机（127.0.0.1）';
 
   @override
-  String get deskKitMethodNotReceiving => 'Not receiving';
+  String get deskKitMethodNotReceiving => '无法接收';
 
   @override
   String deskKitMethodPortInUse(String port) {
-    return 'Port $port is used by another program. Close it or pick another port in Settings.';
+    return '端口 $port 被其他程序占用。请关闭该程序，或在设置中选择其他端口。';
   }
 
   @override
-  String get deskKitMethodNotInBuild => 'Not in this build';
+  String get deskKitMethodNotInBuild => '此版本不含 Tor';
 
   @override
-  String get deskKitMethodTorOffDetail =>
-      'Slower and more private. Blocked or not allowed in some countries.';
+  String get deskKitMethodTorOffDetail => '更慢，但更私密。在部分国家被封锁或不被允许。';
 
   @override
-  String get deskKitMethodTorPublishing => 'Publishing the Tor address…';
+  String get deskKitMethodTorPublishing => '正在发布 Tor 地址…';
 
   @override
-  String get deskKitMethodTorConnecting => 'Connecting to Tor…';
+  String get deskKitMethodTorConnecting => '正在连接 Tor…';
 
   @override
-  String get deskKitMethodTorOnDetail => 'reachable at the Tor address';
+  String get deskKitMethodTorOnDetail => '可通过 Tor 地址访问';
 
   @override
-  String get deskKitMethodTorNotPublished => 'Not published';
+  String get deskKitMethodTorNotPublished => '未发布';
 
   @override
   String deskKitMethodTorSendsWork(String reason) {
-    return '$reason. Sends work.';
+    return '$reason。发送不受影响。';
   }
 
   @override
-  String get deskKitMethodTorNotReachableYet =>
-      'The Tor address is not reachable yet';
+  String get deskKitMethodTorNotReachableYet => 'Tor 地址暂时无法访问';
 
   @override
-  String get deskKitMethodTorStopped => 'Stopped';
+  String get deskKitMethodTorStopped => '已停止';
 
   @override
-  String get deskKitMethodTorStoppedDetail => 'Tor stopped.';
+  String get deskKitMethodTorStoppedDetail => 'Tor 已停止。';
 
   @override
-  String get deskKitMethodFiles => 'Files';
+  String get deskKitMethodFiles => '文件';
 
   @override
-  String get deskKitChipOverTor => 'Over Tor';
+  String get deskKitChipOverTor => '经由 Tor';
 
   @override
-  String get deskKitChipStarting => 'Tor starting';
+  String get deskKitChipStarting => 'Tor 启动中';
 
   @override
-  String get deskKitChipNotConnected => 'Tor not connected';
+  String get deskKitChipNotConnected => 'Tor 未连接';
 
   @override
-  String get deskKitChipNotOverTor => 'Not over Tor';
+  String get deskKitChipNotOverTor => '不经由 Tor';
 
   @override
   String get deskKitPasswordNote =>
-      'Estimated on this device from the length and from common words, names and patterns, for an attacker with fast hardware trying 100,000 guesses a second against this wallet\'s file. A guide, not a guarantee.';
+      '在本设备上根据长度以及常见词语、姓名和模式估算；假设攻击者使用高速硬件，每秒对此钱包文件尝试 100,000 次猜测。仅供参考，不作保证。';
 
   @override
-  String get deskKitPasswordNoteLabel => 'How the time is estimated';
+  String get deskKitPasswordNoteLabel => '时间如何估算';
 
   @override
-  String get deskKitNotCopied => 'Not copied';
+  String get deskKitNotCopied => '未复制';
 
   @override
-  String get deskKitCopied => 'Copied';
+  String get deskKitCopied => '已复制';
 
   @override
   String deskKitQrOf(String title) {
-    return 'QR code of the $title';
+    return '$title的二维码';
   }
 
   @override
   String deskKitQrOfTag(String title, String tag) {
-    return 'QR code of the $title, $tag';
+    return '$title的二维码，$tag';
   }
 
   @override
   String deskKitQrShowOf(String title) {
-    return 'Show QR code of the $title';
+    return '显示$title的二维码';
   }
 
   @override
-  String get deskKitQrShow => 'Show QR';
+  String get deskKitQrShow => '显示二维码';
 
   @override
-  String get deskKitQrHide => 'Hide QR';
+  String get deskKitQrHide => '隐藏二维码';
 
   @override
-  String get deskKitQrHideCode => 'Hide QR code';
+  String get deskKitQrHideCode => '隐藏二维码';
 
   @override
-  String get deskSetAcctNotForgotten => 'Not forgotten';
+  String get deskSetAcctNotForgotten => '未忘记';
 
   @override
-  String get deskSetAcctForgotten => 'Forgotten on this computer';
+  String get deskSetAcctForgotten => '已在这台电脑上忘记';
 
   @override
-  String get deskSetAcctForgottenText => 'The next start asks the password.';
+  String get deskSetAcctForgottenText => '下次启动时会要求输入密码。';
 
   @override
-  String get deskSetAcctLabelNotSaved => 'Label not saved';
+  String get deskSetAcctLabelNotSaved => '名称未保存';
 
   @override
-  String get deskSetAcctEnterLabel => 'Enter a label';
+  String get deskSetAcctEnterLabel => '请输入名称';
 
   @override
-  String get deskSetAcctLabelSaved => 'Label saved';
+  String get deskSetAcctLabelSaved => '名称已保存';
 
   @override
-  String get deskSetAcctLabel => 'Label';
+  String get deskSetAcctLabel => '名称';
 
   @override
-  String get deskSetAcctLabelHint => 'Only shown in this app.';
+  String get deskSetAcctLabelHint => '只在本应用中显示。';
 
   @override
-  String get deskSetAcctSaveLabel => 'Save label';
+  String get deskSetAcctSaveLabel => '保存名称';
 
   @override
-  String get deskSetAcctPhraseHint =>
-      'The words that restore this wallet. Keep them private.';
+  String get deskSetAcctPhraseHint => '用于恢复此钱包的单词。请妥善保密。';
 
   @override
-  String get deskSetAcctShowPhrase => 'Show phrase…';
+  String get deskSetAcctShowPhrase => '显示助记词…';
 
   @override
-  String get deskSetAcctRescanHint =>
-      'Reads the chain again when the balance looks wrong.';
+  String get deskSetAcctRescanHint => '余额看起来不对时，重新读取区块链。';
 
   @override
-  String get deskSetAcctRecheck => 'Recheck…';
+  String get deskSetAcctRecheck => '重新核对…';
 
   @override
-  String get deskSetAcctFiles => 'Files';
+  String get deskSetAcctFiles => '文件';
 
   @override
-  String get deskSetAcctWalletFolder => 'Wallet folder';
+  String get deskSetAcctWalletFolder => '钱包文件夹';
 
   @override
-  String get deskSetAcctAppFiles => 'App files';
+  String get deskSetAcctAppFiles => '应用文件';
 
   @override
-  String get deskSetAcctAppFilesHint => 'Settings and the log.';
+  String get deskSetAcctAppFilesHint => '设置和日志。';
 
   @override
-  String get deskSetAcctNetwork => 'Network';
+  String get deskSetAcctNetwork => '网络';
 
   @override
-  String get deskSetAcctNetworkHint => 'Set when the wallet was created.';
+  String get deskSetAcctNetworkHint => '在创建钱包时设定。';
 
   @override
-  String get deskSetAcctSetup => 'Setup assistant';
+  String get deskSetAcctSetup => '设置向导';
 
   @override
-  String get deskSetAcctSetupHint =>
-      'Walk through node and receiving again. Nothing is lost.';
+  String get deskSetAcctSetupHint => '重新设置节点和接收方式。不会丢失任何内容。';
 
   @override
-  String get deskSetAcctRunSetup => 'Run setup…';
+  String get deskSetAcctRunSetup => '运行设置向导…';
 
   @override
-  String get deskSetAcctSecurity => 'Security';
+  String get deskSetAcctSecurity => '安全';
 
   @override
-  String get deskSetAcctRemembered => 'Remembered on this computer';
+  String get deskSetAcctRemembered => '已在这台电脑上记住';
 
   @override
   String deskSetAcctRememberedHint(String who) {
-    return 'Opens at start without the password, for 30 days from when it was set. Sends still ask the password. $who';
+    return '启动时无需密码即可打开，从设定起保留 30 天。发送时仍会要求输入密码。$who';
   }
 
   @override
-  String get deskSetAcctForget => 'Forget this computer';
+  String get deskSetAcctForget => '忘记这台电脑';
 
   @override
-  String get deskSetAcctPasswordHint => 'Unlocks this wallet.';
+  String get deskSetAcctPasswordHint => '用于解锁此钱包。';
 
   @override
-  String get deskSetAcctChangePassword => 'Change password…';
+  String get deskSetAcctChangePassword => '更改密码…';
 
   @override
-  String get deskSetAcctDeleteHint => 'Deletes its keys and database.';
+  String get deskSetAcctDeleteHint => '删除它的密钥和数据库。';
 
   @override
-  String get deskSetAcctFolderNotFound => 'Folder not found';
+  String get deskSetAcctFolderNotFound => '未找到文件夹';
 
   @override
   String deskSetAcctCopyPath(String title) {
-    return 'Copy path: $title';
+    return '复制路径：$title';
   }
 
   @override
   String deskSetBackupWhenToday(String time) {
-    return 'today, $time';
+    return '今天 $time';
   }
 
   @override
   String deskSetBackupWhenYesterday(String time) {
-    return 'yesterday, $time';
+    return '昨天 $time';
   }
 
   @override
   String deskSetBackupWhenDate(String day, String time) {
-    return '$day, $time';
+    return '$day $time';
   }
 
   @override
-  String get deskSetBackupNeverExported => 'Never exported.';
+  String get deskSetBackupNeverExported => '从未导出。';
 
   @override
   String deskSetBackupLastExportNothingNew(String when) {
-    return 'Last export $when · nothing new since.';
+    return '上次导出：$when · 此后没有新内容。';
   }
 
   @override
@@ -10544,287 +10296,270 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count payments since',
-      one: '1 payment since',
+      other: '新增 $count 笔付款',
     );
-    return 'Last export $when · $_temp0.';
+    return '上次导出：$when · 此后$_temp0。';
   }
 
   @override
   String deskSetBackupWriteFailedHere(String reason) {
-    return 'Could not write to the folder: $reason. Choose another folder.';
+    return '无法写入该文件夹：$reason。请选择其他文件夹。';
   }
 
   @override
   String deskSetBackupWriteFailedIn(String folder, String reason) {
-    return 'Could not write to $folder: $reason. Choose another folder.';
+    return '无法写入 $folder：$reason。请选择其他文件夹。';
   }
 
   @override
-  String get deskSetBackupWriteFailed =>
-      'The file could not be written. Choose another folder.';
+  String get deskSetBackupWriteFailed => '无法写入文件。请选择其他文件夹。';
 
   @override
-  String get deskSetBackupGroup => 'Backup';
+  String get deskSetBackupGroup => '备份';
 
   @override
-  String get deskSetBackupExportTitle => 'Export history backup';
+  String get deskSetBackupExportTitle => '导出交易记录备份';
 
   @override
   String get deskSetBackupExportHint =>
-      'Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not the records.';
+      '包含付款及其详情和联系人，只有使用同一助记词的钱包才能打开此文件。仅凭助记词只能恢复余额，无法恢复这些记录。';
 
   @override
-  String get deskSetBackupExporting => 'Exporting…';
+  String get deskSetBackupExporting => '正在导出…';
 
   @override
-  String get deskSetBackupExportButton => 'Export…';
+  String get deskSetBackupExportButton => '导出…';
 
   @override
-  String get deskSetBackupImportTitle => 'Import history backup';
+  String get deskSetBackupImportTitle => '导入交易记录备份';
 
   @override
   String get deskSetBackupImportHint =>
-      'Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.';
+      '把本钱包的备份合并到“活动”中。不会删除任何内容；同一文件导入两次不会有变化。';
 
   @override
-  String get deskSetBackupImportButton => 'Import…';
+  String get deskSetBackupImportButton => '导入…';
 
   @override
-  String get deskSetBackupCsvTitle => 'Payments as CSV';
+  String get deskSetBackupCsvTitle => '付款导出为 CSV';
 
   @override
-  String get deskSetBackupCsvHint =>
-      'A plain table for spreadsheets. Not encrypted, not importable.';
+  String get deskSetBackupCsvHint => '用于电子表格的普通表格。不加密，不能导入。';
 
   @override
-  String get deskSetBackupCsvButton => 'Export CSV…';
+  String get deskSetBackupCsvButton => '导出 CSV…';
 
   @override
-  String get deskSetBackupSaveDialogTitle => 'Save payment history';
+  String get deskSetBackupSaveDialogTitle => '保存付款记录';
 
   @override
-  String get deskSetBackupNotSaved => 'Not saved';
+  String get deskSetBackupNotSaved => '未保存';
 
   @override
-  String get deskSetBackupInFile => 'In the file';
+  String get deskSetBackupInFile => '文件内容';
 
   @override
   String deskSetBackupInFileCounts(int payments, int contacts) {
     String _temp0 = intl.Intl.pluralLogic(
       payments,
       locale: localeName,
-      other: '$payments payments',
-      one: '1 payment',
+      other: '$payments 笔付款',
     );
     String _temp1 = intl.Intl.pluralLogic(
       contacts,
       locale: localeName,
-      other: '$contacts contacts',
-      one: '1 contact',
+      other: '$contacts 个联系人',
     );
-    return '$_temp0, $_temp1';
+    return '$_temp0，$_temp1';
   }
 
   @override
-  String get deskSetBackupInFileSub => 'Who paid what, fees, notes, slate ids';
+  String get deskSetBackupInFileSub => '谁付了什么、手续费、备注、Slate ID';
 
   @override
-  String get deskSetBackupNotIn => 'Not in it';
+  String get deskSetBackupNotIn => '不包含';
 
   @override
-  String get deskSetBackupNotInValue =>
-      'Keys, the recovery phrase, the password';
+  String get deskSetBackupNotInValue => '密钥、助记词、密码';
 
   @override
-  String get deskSetBackupOpensWith => 'Opens with';
+  String get deskSetBackupOpensWith => '可打开的钱包';
 
   @override
-  String get deskSetBackupOpensWithValue =>
-      'This wallet, or one restored from its phrase';
+  String get deskSetBackupOpensWithValue => '本钱包，或用其助记词恢复的钱包';
 
   @override
-  String get deskSetBackupFile => 'File';
+  String get deskSetBackupFile => '文件';
 
   @override
-  String get deskSetBackupFileNote =>
-      'The file holds payments up to now. Export again after new payments.';
+  String get deskSetBackupFileNote => '文件包含截至目前的付款。有新付款后请再次导出。';
 
   @override
-  String get deskSetBackupExportDesc =>
-      'A file with this wallet’s payments, their details and contacts. Only a wallet with the same recovery phrase opens it.';
+  String get deskSetBackupExportDesc => '包含本钱包的付款、详情和联系人的文件。只有使用同一助记词的钱包才能打开它。';
 
   @override
-  String get deskSetBackupSaved => 'Saved';
+  String get deskSetBackupSaved => '已保存';
 
   @override
   String get deskSetBackupKeepCopy =>
-      'Keep a copy off this computer too: a USB stick, another drive, or cloud storage. Export again after new payments.';
+      '另外在这台电脑之外也保存一份：U 盘、另一块硬盘或云存储。有新付款后请再次导出。';
 
   @override
-  String get deskSetBackupOpenFolder => 'Open folder';
+  String get deskSetBackupOpenFolder => '打开文件夹';
 
   @override
-  String get deskSetBackupSaving => 'Saving…';
+  String get deskSetBackupSaving => '正在保存…';
 
   @override
-  String get deskSetBackupTryAgain => 'Try again';
+  String get deskSetBackupTryAgain => '重试';
 
   @override
-  String get deskSetBackupSaveAs => 'Save as…';
+  String get deskSetBackupSaveAs => '另存为…';
 
   @override
-  String get deskSetBackupOpenDialogTitle => 'Open history backup';
+  String get deskSetBackupOpenDialogTitle => '打开交易记录备份';
 
   @override
-  String get deskSetBackupDetailsRestored => 'Details restored';
+  String get deskSetBackupDetailsRestored => '已恢复详情';
 
   @override
-  String get deskSetBackupDetailsRestoredSub =>
-      'Payments already here got their counterparty, fee or note back';
+  String get deskSetBackupDetailsRestoredSub => '已有的付款找回了对方、手续费或备注';
 
   @override
-  String get deskSetBackupOlderAdded => 'Older payments added';
+  String get deskSetBackupOlderAdded => '已添加较早的付款';
 
   @override
-  String get deskSetBackupOlderAddedSub =>
-      'Not in the list any more; shown as From backup';
+  String get deskSetBackupOlderAddedSub => '已不在列表中；显示为“来自备份”';
 
   @override
-  String get deskSetBackupContactsAdded => 'Contacts added';
+  String get deskSetBackupContactsAdded => '已添加联系人';
 
   @override
-  String get deskSetBackupAlreadyHere => 'Already here';
+  String get deskSetBackupAlreadyHere => '已存在';
 
   @override
-  String get deskSetBackupUnchanged => 'Unchanged';
+  String get deskSetBackupUnchanged => '未改动';
 
   @override
-  String get deskSetBackupNothingNew => 'Nothing new';
+  String get deskSetBackupNothingNew => '没有新内容';
 
   @override
   String deskSetBackupNothingNewBody(String file) {
-    return 'Every record in $file was already here.';
+    return '$file 中的每条记录都已存在。';
   }
 
   @override
-  String get deskSetBackupImported => 'Imported';
+  String get deskSetBackupImported => '已导入';
 
   @override
   String deskSetBackupReading(String file) {
-    return 'Reading $file…';
+    return '正在读取 $file…';
   }
 
   @override
-  String get deskSetBackupNotImported => 'Not imported';
+  String get deskSetBackupNotImported => '未导入';
 
   @override
-  String get deskSetBackupBringsBack => 'Brings back';
+  String get deskSetBackupBringsBack => '可找回';
 
   @override
-  String get deskSetBackupBringsBackValue =>
-      'Who paid what, fees and notes of payments already here; older payments the list lost; contacts';
+  String get deskSetBackupBringsBackValue => '已有付款的付款人、手续费和备注；列表中丢失的较早付款；联系人';
 
   @override
-  String get deskSetBackupNeeds => 'Needs';
+  String get deskSetBackupNeeds => '需要';
 
   @override
   String deskSetBackupNeedsValue(String network) {
-    return 'A file from this wallet (the same recovery phrase), on $network';
+    return '来自本钱包（同一助记词）的文件，网络为 $network';
   }
 
   @override
-  String get deskSetBackupNever => 'Never';
+  String get deskSetBackupNever => '绝不会';
 
   @override
-  String get deskSetBackupNeverValue =>
-      'Removes or changes a payment that is here';
+  String get deskSetBackupNeverValue => '删除或改动已有的付款';
 
   @override
-  String get deskSetBackupChooseFile => 'Choose file…';
+  String get deskSetBackupChooseFile => '选择文件…';
 
   @override
   String get deskSetBackupImportDesc =>
-      'Merges a history backup of this wallet into Activity. Nothing is removed, and the same file twice changes nothing.';
+      '把本钱包的交易记录备份合并到“活动”中。不会删除任何内容，同一文件导入两次也不会有变化。';
 
   @override
-  String get deskSetBackupSaveCsvDialogTitle => 'Save payments as CSV';
+  String get deskSetBackupSaveCsvDialogTitle => '将付款保存为 CSV';
 
   @override
-  String get deskSetBackupCsvDialogTitle => 'Export CSV';
+  String get deskSetBackupCsvDialogTitle => '导出 CSV';
 
   @override
-  String get deskSetBackupCsvDialogDesc =>
-      'A plain table of this wallet’s payments, for spreadsheets.';
+  String get deskSetBackupCsvDialogDesc => '本钱包付款的普通表格，用于电子表格。';
 
   @override
   String deskSetBackupCsvSavedNote(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count payments',
-      one: '1 payment',
+      other: '$count 笔付款',
     );
-    return '$_temp0, newest first. Amounts in EPIC with 8 decimals; dates in UTC.';
+    return '$_temp0，最新的在前。金额以 EPIC 计，保留 8 位小数；日期为 UTC。';
   }
 
   @override
-  String get deskSetBackupDateError => 'Enter a date as 2026-01-31';
+  String get deskSetBackupDateError => '请按 2026-01-31 的格式输入日期';
 
   @override
   String get deskSetBackupDateHint => 'YYYY-MM-DD';
 
   @override
-  String get deskSetBackupRange => 'Range';
+  String get deskSetBackupRange => '范围';
 
   @override
-  String get deskSetBackupRangeAll => 'All payments';
+  String get deskSetBackupRangeAll => '全部付款';
 
   @override
-  String get deskSetBackupRangeThisYear => 'This year';
+  String get deskSetBackupRangeThisYear => '今年';
 
   @override
-  String get deskSetBackupRangeLastYear => 'Last year';
+  String get deskSetBackupRangeLastYear => '去年';
 
   @override
-  String get deskSetBackupRangeCustom => 'Custom';
+  String get deskSetBackupRangeCustom => '自定义';
 
   @override
-  String get deskSetBackupFrom => 'From';
+  String get deskSetBackupFrom => '从';
 
   @override
-  String get deskSetBackupTo => 'To';
+  String get deskSetBackupTo => '到';
 
   @override
   String deskSetBackupCsvInfo(int count, String file) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count payments',
-      one: '1 payment',
+      other: '$count 笔付款',
     );
-    return '$_temp0 · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File $file.';
+    return '$_temp0 · 列：日期、类型、状态、金额、手续费、对方、备注、Slate ID、内核、区块高度。文件 $file。';
   }
 
   @override
   String deskSetBackupCsvInfoNoCount(String file) {
-    return '– · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File $file.';
+    return '– · 列：日期、类型、状态、金额、手续费、对方、备注、Slate ID、内核、区块高度。文件 $file。';
   }
 
   @override
-  String get deskSetBackupNotEncrypted => 'Not encrypted.';
+  String get deskSetBackupNotEncrypted => '未加密。';
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; the history backup is for that.';
+      '任何拿到此文件的人都能看到金额、日期、地址和备注。它不能导入；导入请使用交易记录备份。';
 
   @override
   String deskSetBackupReminderNever(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count payments are not in a history backup.',
-      one: '1 payment is not in a history backup.',
+      other: '$count 笔付款不在交易记录备份中。',
     );
     return '$_temp0';
   }
@@ -10834,320 +10569,305 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$count payments are new or changed since the last history backup.',
-      one: '1 payment is new or changed since the last history backup.',
+      other: '自上次交易记录备份以来，有 $count 笔付款是新的或有改动。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSetBackupReminderBody =>
-      'A restore from the recovery phrase brings back the balance, not who paid what.';
+  String get deskSetBackupReminderBody => '用助记词恢复只能找回余额，无法找回谁付了什么。';
 
   @override
-  String get deskSetBackupNotNow => 'Not now';
+  String get deskSetBackupNotNow => '以后再说';
 
   @override
-  String get deskSetDlgNodeAddressEmpty => 'Enter the node’s address.';
+  String get deskSetDlgNodeAddressEmpty => '请输入节点地址。';
 
   @override
-  String get deskSetDlgNodeAddressBad =>
-      'Not a node address. Check the address and the port (usually 3413).';
+  String get deskSetDlgNodeAddressBad => '不是节点地址。请检查地址和端口（通常是 3413）。';
 
   @override
-  String get deskSetDlgNodeAddressDuplicate =>
-      'This address is already in My nodes.';
+  String get deskSetDlgNodeAddressDuplicate => '此地址已在“我的节点”中。';
 
   @override
-  String get deskSetDlgNodeNotAdded => 'Node not added';
+  String get deskSetDlgNodeNotAdded => '节点未添加';
 
   @override
-  String get deskSetDlgNodeSaved => 'Node saved';
+  String get deskSetDlgNodeSaved => '节点已保存';
 
   @override
-  String get deskSetDlgNodeAdded => 'Added to my nodes';
+  String get deskSetDlgNodeAdded => '已添加到我的节点';
 
   @override
-  String get deskSetDlgNodeSaveAnyway => 'It can be saved anyway.';
+  String get deskSetDlgNodeSaveAnyway => '仍然可以保存。';
 
   @override
-  String get deskSetDlgNodeEditTitle => 'Edit node';
+  String get deskSetDlgNodeEditTitle => '编辑节点';
 
   @override
-  String get deskSetDlgNodeAddTitle => 'Add to my nodes';
+  String get deskSetDlgNodeAddTitle => '添加到我的节点';
 
   @override
-  String get deskSetDlgNodeDesc =>
-      'Save a node address to find it again later. It can be saved while it is offline.';
+  String get deskSetDlgNodeDesc => '保存节点地址，以后可以再找到它。节点离线时也能保存。';
 
   @override
-  String get deskSetDlgNodeAddress => 'Node address';
+  String get deskSetDlgNodeAddress => '节点地址';
 
   @override
-  String get deskSetDlgNodeLabel => 'Label';
+  String get deskSetDlgNodeLabel => '名称';
 
   @override
-  String get deskSetDlgNodeLabelHint => 'e.g. Home node';
+  String get deskSetDlgNodeLabelHint => '例如：家里的节点';
 
   @override
-  String get deskSetDlgDirTitle => 'Node directory';
+  String get deskSetDlgDirTitle => '节点目录';
 
   @override
-  String get deskSetDlgDirDesc =>
-      'Public nodes, their operators and their state at the last check.';
+  String get deskSetDlgDirDesc => '公共节点、它们的运营方以及上次检查时的状态。';
 
   @override
-  String get deskSetDlgDirEmpty => 'No nodes to show';
+  String get deskSetDlgDirEmpty => '没有可显示的节点';
 
   @override
   String deskSetDlgDirVersion(String version) {
-    return 'version $version';
+    return '版本 $version';
   }
 
   @override
   String deskSetDlgDirHeight(String height) {
-    return 'height $height';
+    return '高度 $height';
   }
 
   @override
-  String get deskSetDlgDirInUse => 'In use';
+  String get deskSetDlgDirInUse => '使用中';
 
   @override
-  String get deskSetDlgDirUse => 'Use';
+  String get deskSetDlgDirUse => '使用';
 
   @override
-  String get deskSetDlgDirNote =>
-      'Response times are measured from the status site, not from this computer.';
+  String get deskSetDlgDirNote => '响应时间由状态网站测得，而不是从这台电脑。';
 
   @override
-  String get deskSetDlgChainTitle => 'Existing blockchain data found';
+  String get deskSetDlgChainTitle => '找到已有的区块链数据';
 
   @override
-  String get deskSetDlgChainDesc =>
-      'This computer already has Epic blockchain data that the local node can use.';
+  String get deskSetDlgChainDesc => '这台电脑上已有本地节点可以使用的 Epic 区块链数据。';
 
   @override
-  String get deskSetDlgChainFolder => 'Folder';
+  String get deskSetDlgChainFolder => '文件夹';
 
   @override
-  String get deskSetDlgChainSize => 'Size';
+  String get deskSetDlgChainSize => '大小';
 
   @override
-  String get deskSetDlgChainUpdated => 'Last updated';
+  String get deskSetDlgChainUpdated => '上次更新';
 
   @override
-  String get deskSetDlgChainUpdatedValue => '3 days ago';
+  String get deskSetDlgChainUpdatedValue => '3 天前';
 
   @override
-  String get deskSetDlgChainOthers =>
-      'Other copies were found too (1). This one was updated most recently.';
+  String get deskSetDlgChainOthers => '还找到了其他副本（1 个）。这一份是最近更新的。';
 
   @override
   String get deskSetDlgChainInUse =>
-      'Another Epic program is using this folder. Close it, then pick the local node again to use this data.';
+      '另一个 Epic 程序正在使用此文件夹。请关闭它，然后重新选择本地节点以使用这些数据。';
 
   @override
-  String get deskSetDlgChainUseIt =>
-      'Use it? That saves downloading and syncing the whole blockchain.';
+  String get deskSetDlgChainUseIt => '要使用它吗？这样可以省去下载和同步整个区块链。';
 
   @override
   String get deskSetDlgChainOlderWallet =>
-      'An older Epic Wallet that uses this folder may need to sync again after this. Coins are not affected.';
+      '之后，使用此文件夹的旧版 Epic Wallet 可能需要重新同步。币不受影响。';
 
   @override
-  String get deskSetDlgChainFresh => 'Download fresh';
+  String get deskSetDlgChainFresh => '重新下载';
 
   @override
-  String get deskSetDlgChainUse => 'Use this data';
+  String get deskSetDlgChainUse => '使用这些数据';
 
   @override
-  String get deskSetDlgPwChanged => 'Password changed.';
+  String get deskSetDlgPwChanged => '密码已更改。';
 
   @override
-  String get deskSetDlgPwTitle => 'Change password';
+  String get deskSetDlgPwTitle => '更改密码';
 
   @override
-  String get deskSetDlgPwDesc =>
-      'The new password unlocks this wallet from now on. A remembered password is forgotten.';
+  String get deskSetDlgPwDesc => '从现在起用新密码解锁此钱包。记住的密码会被忘记。';
 
   @override
-  String get deskSetDlgPwCurrent => 'Current password';
+  String get deskSetDlgPwCurrent => '当前密码';
 
   @override
-  String get deskSetDlgPwWrong => 'Wrong password';
+  String get deskSetDlgPwWrong => '密码错误';
 
   @override
-  String get deskSetDlgPwNew => 'New password';
+  String get deskSetDlgPwNew => '新密码';
 
   @override
-  String get deskSetDlgPwRepeat => 'Repeat new password';
+  String get deskSetDlgPwRepeat => '再次输入新密码';
 
   @override
   String deskSetDlgRemoveToastList(String name) {
-    return '$name removed from the list';
+    return '已从列表中移除 $name';
   }
 
   @override
   String deskSetDlgRemoveToastDeleted(String name) {
-    return '$name deleted';
+    return '已删除 $name';
   }
 
   @override
-  String get deskSetDlgRemoveFilesKept => 'Files kept.';
+  String get deskSetDlgRemoveFilesKept => '文件已保留。';
 
   @override
   String deskSetDlgRemoveTitle(String name) {
-    return 'Remove $name?';
+    return '移除 $name？';
   }
 
   @override
-  String get deskSetDlgRemoveDesc => 'Nothing changes until confirmed.';
+  String get deskSetDlgRemoveDesc => '确认之前不会有任何变化。';
 
   @override
-  String get deskSetDlgRemoveWhat => 'What to remove';
+  String get deskSetDlgRemoveWhat => '要移除什么';
 
   @override
-  String get deskSetDlgRemoveFromList => 'Remove from list';
+  String get deskSetDlgRemoveFromList => '从列表中移除';
 
   @override
   String deskSetDlgRemoveFromListHint(String folder) {
-    return 'Files stay in $folder. All wallets can add it back.';
+    return '文件保留在 $folder 中。可在“所有钱包”中重新添加。';
   }
 
   @override
-  String get deskSetDlgDeleteWallet => 'Delete wallet';
+  String get deskSetDlgDeleteWallet => '删除钱包';
 
   @override
   String deskSetDlgRemoveDeleteHint(String folder) {
-    return 'Deletes its keys and database from $folder. Only the recovery phrase restores it; without it the coins are lost.';
+    return '从 $folder 删除它的密钥和数据库。只有助记词能恢复它；没有助记词，币就会丢失。';
   }
 
   @override
   String get deskSetDlgRemoveUnlockHint =>
-      'To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.';
+      '如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 此钱包”中的“删除钱包”。';
 
   @override
-  String get deskSetDlgRemoveUnlock => 'Unlock this wallet';
+  String get deskSetDlgRemoveUnlock => '解锁此钱包';
 
   @override
-  String get deskSetDlgRemoveIrreversible => 'Cannot be undone';
+  String get deskSetDlgRemoveIrreversible => '无法撤销';
 
   @override
-  String get deskSetDlgRemoveIrreversibleBody =>
-      'Only the recovery phrase restores the wallet; without it the coins are lost for good.';
+  String get deskSetDlgRemoveIrreversibleBody => '只有助记词能恢复这个钱包；没有助记词，币就会永久丢失。';
 
   @override
-  String get deskSetDlgRemoveName => 'Wallet name';
+  String get deskSetDlgRemoveName => '钱包名称';
 
   @override
   String deskSetDlgRemoveTypeName(String name) {
-    return 'Type $name to confirm.';
+    return '输入 $name 以确认。';
   }
 
   @override
-  String get deskSetDlgRemoveNameMismatch => 'Name does not match';
+  String get deskSetDlgRemoveNameMismatch => '名称不匹配';
 
   @override
-  String get deskSetDlgPassword => 'Password';
+  String get deskSetDlgPassword => '密码';
 
   @override
-  String get deskSetDlgPhraseWritten => 'The recovery phrase is written down';
+  String get deskSetDlgPhraseWritten => '助记词已抄写下来';
 
   @override
-  String get deskSetDlgRemoving => 'Removing…';
+  String get deskSetDlgRemoving => '正在移除…';
 
   @override
-  String get deskSetDlgWalletLocked => 'The wallet is locked';
+  String get deskSetDlgWalletLocked => '钱包已锁定';
 
   @override
-  String get deskSetDlgDeleteTitle => 'Delete this wallet?';
+  String get deskSetDlgDeleteTitle => '删除此钱包？';
 
   @override
-  String get deskSetDlgDeleteDesc =>
-      'Deletes the wallet and its seed from this computer. Only the recovery phrase restores it; without it the coins are lost.';
+  String get deskSetDlgDeleteDesc => '从这台电脑上删除此钱包及其种子。只有助记词能恢复它；没有助记词，币就会丢失。';
 
   @override
-  String get deskSetFrameTitle => 'Settings';
+  String get deskSetFrameTitle => '设置';
 
   @override
-  String get deskSetFrameSections => 'Settings sections';
+  String get deskSetFrameSections => '设置分区';
 
   @override
-  String get deskSetFrameNode => 'Node';
+  String get deskSetFrameNode => '节点';
 
   @override
-  String get deskSetFrameReceiving => 'Receiving';
+  String get deskSetFrameReceiving => '接收';
 
   @override
-  String get deskSetFramePrivacy => 'Privacy';
+  String get deskSetFramePrivacy => '隐私';
 
   @override
-  String get deskSetFrameAppearance => 'Appearance';
+  String get deskSetFrameAppearance => '外观';
 
   @override
-  String get deskSetFrameThisWallet => 'This wallet';
+  String get deskSetFrameThisWallet => '此钱包';
 
   @override
-  String get deskSetFrameAllWallets => 'All wallets';
+  String get deskSetFrameAllWallets => '所有钱包';
 
   @override
-  String get deskSetFramePhrase => 'Recovery phrase';
+  String get deskSetFramePhrase => '助记词';
 
   @override
-  String get deskSetFrameRescan => 'Recheck balance';
+  String get deskSetFrameRescan => '重新核对余额';
 
   @override
-  String get deskSetFrameAbout => 'About';
+  String get deskSetFrameAbout => '关于';
 
   @override
-  String get deskSetFrameHelp => 'Help';
+  String get deskSetFrameHelp => '帮助';
 
   @override
-  String get deskSetFrameHealthOn => 'On';
+  String get deskSetFrameHealthOn => '开启';
 
   @override
-  String get deskSetFrameHealthSlow => 'Slow';
+  String get deskSetFrameHealthSlow => '较慢';
 
   @override
-  String get deskSetFrameNotResponding => 'Not responding';
+  String get deskSetFrameNotResponding => '无响应';
 
   @override
-  String get deskSetFrameOff => 'Off';
+  String get deskSetFrameOff => '关闭';
 
   @override
-  String get deskSetFrameChecking => 'Checking…';
+  String get deskSetFrameChecking => '正在检查…';
 
   @override
-  String get deskSetFrameNodeSynced => 'Synced';
+  String get deskSetFrameNodeSynced => '已同步';
 
   @override
-  String get deskSetFrameNodeSyncing => 'Syncing';
+  String get deskSetFrameNodeSyncing => '正在同步';
 
   @override
-  String get deskSetFrameConnecting => 'Connecting…';
+  String get deskSetFrameConnecting => '正在连接…';
 
   @override
-  String get deskSetFrameListening => 'Listening';
+  String get deskSetFrameListening => '正在监听';
 
   @override
   String deskSetFrameHealthLatency(String word, int ms) {
-    return '$word · $ms ms';
+    return '$word · $ms 毫秒';
   }
 
   @override
-  String get deskSetFrameNever => 'never';
+  String get deskSetFrameNever => '从未';
 
   @override
-  String get deskSetFrameJustNow => 'just now';
+  String get deskSetFrameJustNow => '刚刚';
 
   @override
   String deskSetFrameMinAgo(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count min ago',
-      one: '$count min ago',
+      other: '$count 分钟前',
     );
     return '$_temp0';
   }
@@ -11157,8 +10877,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count h ago',
-      one: '$count h ago',
+      other: '$count 小时前',
     );
     return '$_temp0';
   }
@@ -11168,231 +10887,223 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count d ago',
-      one: '$count d ago',
+      other: '$count 天前',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSetComboOpens => 'Opens the list';
+  String get deskSetComboOpens => '打开列表';
 
   @override
-  String get deskSetComboNoAnswer => 'No answer yet';
+  String get deskSetComboNoAnswer => '暂无响应';
 
   @override
-  String get deskSetComboNothing => 'Nothing to show.';
+  String get deskSetComboNothing => '没有可显示的内容。';
 
   @override
   String deskSetComboUse(String host) {
-    return 'Use $host';
+    return '使用 $host';
   }
 
   @override
-  String get deskSetLnodeDidNotStart => 'The node did not start';
+  String get deskSetLnodeDidNotStart => '节点未能启动';
 
   @override
-  String get deskSetLnodeDidNotStop => 'The node did not stop';
+  String get deskSetLnodeDidNotStop => '节点未能停止';
 
   @override
-  String get deskSetLnodeDidNotRestart => 'The node did not restart';
+  String get deskSetLnodeDidNotRestart => '节点未能重启';
 
   @override
-  String get deskSetLnodeMoved => 'Chain data moved';
+  String get deskSetLnodeMoved => '链数据已移动';
 
   @override
-  String get deskSetLnodeFolderChanged => 'Data folder changed';
+  String get deskSetLnodeFolderChanged => '数据文件夹已更改';
 
   @override
-  String get deskSetLnodeFolderFailed => 'The folder did not change';
+  String get deskSetLnodeFolderFailed => '文件夹未更改';
 
   @override
-  String get deskSetLnodeStart => 'Start';
+  String get deskSetLnodeStart => '启动';
 
   @override
-  String get deskSetLnodeStop => 'Stop';
+  String get deskSetLnodeStop => '停止';
 
   @override
-  String get deskSetLnodeRestart => 'Restart';
+  String get deskSetLnodeRestart => '重启';
 
   @override
-  String get deskSetLnodeTabStatus => 'Status';
+  String get deskSetLnodeTabStatus => '状态';
 
   @override
-  String get deskSetLnodeTabPeers => 'Peers';
+  String get deskSetLnodeTabPeers => '对等节点';
 
   @override
-  String get deskSetLnodeWhileSyncing => 'While syncing';
+  String get deskSetLnodeWhileSyncing => '同步期间';
 
   @override
   String deskSetLnodeWhileSyncingText(String host) {
-    return 'Use $host until the local node is synced. The local node takes over by itself.';
+    return '本地节点同步完成前使用 $host。之后本地节点会自动接替。';
   }
 
   @override
-  String get deskSetLnodeChange => 'Change…';
+  String get deskSetLnodeChange => '更改…';
 
   @override
   String deskSetLnodeUseWhileSyncing(String host) {
-    return 'Use $host while syncing';
+    return '同步期间使用 $host';
   }
 
   @override
-  String get deskSetLnodeDataFolder => 'Data folder';
+  String get deskSetLnodeDataFolder => '数据文件夹';
 
   @override
   String deskSetLnodeUsed(String size) {
-    return '$size used';
+    return '已用 $size';
   }
 
   @override
-  String get deskSetLnodeFreeUnknown => 'free space unknown';
+  String get deskSetLnodeFreeUnknown => '可用空间未知';
 
   @override
   String deskSetLnodeFree(String size) {
-    return '$size free';
+    return '可用 $size';
   }
 
   @override
-  String get deskSetLnodeOpen => 'Open';
+  String get deskSetLnodeOpen => '打开';
 
   @override
-  String get deskSetLnodeFolderNotOpened => 'Folder not opened';
+  String get deskSetLnodeFolderNotOpened => '未能打开文件夹';
 
   @override
-  String get deskSetLnodeChainData => 'Chain data';
+  String get deskSetLnodeChainData => '链数据';
 
   @override
-  String get deskSetLnodeChainPointed =>
-      'This node reads another program’s folder; delete it there.';
+  String get deskSetLnodeChainPointed => '此节点读取的是另一个程序的文件夹；请在那里删除。';
 
   @override
   String get deskSetLnodeChainText =>
-      'Use chain data another Epic node left on this computer, or delete this node’s data and download the chain again.';
+      '使用另一个 Epic 节点留在这台电脑上的链数据，或删除此节点的数据并重新下载区块链。';
 
   @override
-  String get deskSetLnodeReuse => 'Reuse existing…';
+  String get deskSetLnodeReuse => '使用已有数据…';
 
   @override
-  String get deskSetLnodeDelete => 'Delete…';
+  String get deskSetLnodeDelete => '删除…';
 
   @override
-  String get deskSetLnodeAutostart => 'Start with the app';
+  String get deskSetLnodeAutostart => '随应用启动';
 
   @override
-  String get deskSetLnodeAutostartHint =>
-      'Starts the node at launch and keeps it syncing while the app is open.';
+  String get deskSetLnodeAutostartHint => '启动应用时启动节点，并在应用打开期间持续同步。';
 
   @override
-  String get deskSetLnodeViewLog => 'View node log';
+  String get deskSetLnodeViewLog => '查看节点日志';
 
   @override
-  String get deskSetLnodeChangeFolder => 'Change folder…';
+  String get deskSetLnodeChangeFolder => '更改文件夹…';
 
   @override
   String deskSetLnodeUseMeanwhile(String host) {
-    return 'Use $host meanwhile';
+    return '期间使用 $host';
   }
 
   @override
-  String get deskSetLnodeWaitingPeers => 'waiting for peers';
+  String get deskSetLnodeWaitingPeers => '等待对等节点';
 
   @override
-  String get deskSetLnodeSyncingLower => 'syncing';
+  String get deskSetLnodeSyncingLower => '正在同步';
 
   @override
   String deskSetLnodeStageUsing(String stage, String host) {
-    return '$stage · using $host meanwhile';
+    return '$stage · 期间使用 $host';
   }
 
   @override
-  String get deskSetLnodeNothingUntilSynced =>
-      'Nothing can be sent or received until the local node is synced.';
+  String get deskSetLnodeNothingUntilSynced => '本地节点同步完成前，无法发送或接收。';
 
   @override
-  String get deskSetLnodeAtTip => 'at tip';
+  String get deskSetLnodeAtTip => '已是最新';
 
   @override
-  String get deskSetLnodeStalledDetail =>
-      'no progress for 5 min; restarted once already';
+  String get deskSetLnodeStalledDetail => '5 分钟没有进展；已自动重启过一次';
 
   @override
-  String get deskSetLnodeNoProgress => 'The node makes no progress.';
+  String get deskSetLnodeNoProgress => '节点没有进展。';
 
   @override
-  String get deskSetLnodeNoProgressText =>
-      'Restarting usually helps; if not, the log says why.';
+  String get deskSetLnodeNoProgressText => '重启通常能解决；如果不行，日志会说明原因。';
 
   @override
-  String get deskSetLnodePortInUse => 'Port 3413 is used by another program.';
+  String get deskSetLnodePortInUse => '端口 3413 被其他程序占用。';
 
   @override
   String get deskSetLnodePortInUseText =>
-      'Close it (another Epic node?) or pick the node already running there under Node server.';
+      '关闭那个程序（另一个 Epic 节点？），或在“节点服务器”中选择已在该端口运行的节点。';
 
   @override
-  String get deskSetLnodeDiskLow => 'Less than 2 GB free on this volume.';
+  String get deskSetLnodeDiskLow => '此磁盘的可用空间不足 2 GB。';
 
   @override
-  String get deskSetLnodeDiskLowText => 'Free space or change the data folder.';
+  String get deskSetLnodeDiskLowText => '请释放空间，或更改数据文件夹。';
 
   @override
-  String get deskSetLnodeMissing =>
-      'The node program is missing from this installation.';
+  String get deskSetLnodeMissing => '此安装中缺少节点程序。';
 
   @override
-  String get deskSetLnodeMissingText => 'Reinstall the wallet.';
+  String get deskSetLnodeMissingText => '请重新安装钱包。';
 
   @override
-  String get deskSetLnodeStopped => 'The node stopped by itself.';
+  String get deskSetLnodeStopped => '节点自行停止了。';
 
   @override
-  String get deskSetLnodeStoppedText => 'The last log lines may say why.';
+  String get deskSetLnodeStoppedText => '最后几行日志可能说明了原因。';
 
   @override
   String deskSetLnodeUsesMeanwhile(String host) {
-    return 'the wallet uses $host meanwhile';
+    return '期间钱包使用 $host';
   }
 
   @override
-  String get deskSetLnodeNothingUntilRuns =>
-      'nothing can be sent until it runs';
+  String get deskSetLnodeNothingUntilRuns => '节点运行前无法发送';
 
   @override
-  String get deskSetLnodeTilePeers => 'Peers';
+  String get deskSetLnodeTilePeers => '对等节点';
 
   @override
-  String get deskSetLnodeTileSync => 'Sync';
+  String get deskSetLnodeTileSync => '同步';
 
   @override
-  String get deskSetLnodeTileDownload => 'Download';
+  String get deskSetLnodeTileDownload => '下载';
 
   @override
   String deskSetLnodeSoFar(String size) {
-    return '$size so far';
+    return '目前共 $size';
   }
 
   @override
-  String get deskSetLnodeTileDisk => 'Chain data on disk';
+  String get deskSetLnodeTileDisk => '磁盘上的链数据';
 
   @override
   String deskSetLnodeThisSession(String size) {
-    return '+$size this session';
+    return '本次运行 +$size';
   }
 
   @override
   String deskSetLnodeVersion(String version) {
-    return 'Version $version';
+    return '版本 $version';
   }
 
   @override
   String deskSetLnodeRunning(String duration) {
-    return 'running $duration';
+    return '已运行 $duration';
   }
 
   @override
   String deskSetLnodeStoppedAt(String time) {
-    return 'stopped $time';
+    return '停止于 $time';
   }
 
   @override
@@ -11400,286 +11111,276 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count peers',
-      one: '$count peer',
+      other: '$count 个对等节点',
     );
     return '$_temp0';
   }
 
   @override
   String deskSetLnodeMoving(String done, String total) {
-    return 'Moving the chain data · $done of $total';
+    return '正在移动链数据 · $done/$total';
   }
 
   @override
-  String get deskSetLnodeConnectingPeers => 'Connecting to peers';
+  String get deskSetLnodeConnectingPeers => '正在连接对等节点';
 
   @override
   String deskSetLnodeStartedSecAgo(int seconds) {
-    return 'started $seconds s ago';
+    return '$seconds 秒前启动';
   }
 
   @override
   String deskSetLnodeStartedAgo(String duration) {
-    return 'started $duration ago';
+    return '$duration前启动';
   }
 
   @override
-  String get deskSetLnodeSettingsChanged => 'Settings changed.';
+  String get deskSetLnodeSettingsChanged => '设置已更改。';
 
   @override
-  String get deskSetLnodeSettingsChangedText =>
-      'They apply at the next restart.';
+  String get deskSetLnodeSettingsChangedText => '下次重启时生效。';
 
   @override
-  String get deskSetLnodeRestartNow => 'Restart now';
+  String get deskSetLnodeRestartNow => '立即重启';
 
   @override
-  String get deskSetLnodeSampled =>
-      'Sampled every 30 s while this page is open.';
+  String get deskSetLnodeSampled => '此页面打开期间每 30 秒采样一次。';
 
   @override
   String get deskSetLnodeTomlEdited =>
-      'epic-server.toml was edited by hand; peer and folder settings here do not apply.';
+      'epic-server.toml 被手动编辑过；这里的对等节点和文件夹设置不会生效。';
 
   @override
-  String get deskSetLnodeSyncProgress => 'Sync progress';
+  String get deskSetLnodeSyncProgress => '同步进度';
 
   @override
-  String get deskSetLnodeStepHeaders => 'Headers';
+  String get deskSetLnodeStepHeaders => '区块头';
 
   @override
-  String get deskSetLnodeStepChainState => 'Chain state';
+  String get deskSetLnodeStepChainState => '链状态';
 
   @override
-  String get deskSetLnodeStepBlocks => 'Blocks';
+  String get deskSetLnodeStepBlocks => '区块';
 
   @override
-  String get deskSetLnodeStepsNone => 'Sync steps: none started';
+  String get deskSetLnodeStepsNone => '同步步骤：尚未开始';
 
   @override
   String deskSetLnodeStepOf(int n, String name) {
-    return 'Sync step $n of 4: $name';
+    return '同步第 $n 步，共 4 步：$name';
   }
 
   @override
   String deskSetLndAskTitle(String host) {
-    return 'Use $host until the local node is synced?';
+    return '本地节点同步完成前使用 $host？';
   }
 
   @override
   String deskSetLndAskDesc(String host) {
-    return 'Syncing takes hours. Meanwhile the wallet can read the chain and send through $host, a public node. The local node takes over by itself once it is synced.';
+    return '同步需要数小时。在此期间，钱包可以通过公共节点 $host 读取区块链和发送交易。本地节点同步完成后会自动接替。';
   }
 
   @override
-  String get deskSetLndAskNote =>
-      'Asked once. The node and the choice can be changed under Settings › Node › While syncing.';
+  String get deskSetLndAskNote => '只询问一次。可以在“设置 › 节点 › 同步期间”中更改节点和这个选择。';
 
   @override
-  String get deskSetLndAskWait => 'Wait for the local node';
+  String get deskSetLndAskWait => '等待本地节点';
 
   @override
   String deskSetLndAskUse(String host) {
-    return 'Use $host';
+    return '使用 $host';
   }
 
   @override
-  String get deskSetLndPickTitle => 'Node while syncing';
+  String get deskSetLndPickTitle => '同步期间使用的节点';
 
   @override
-  String get deskSetLndPickDesc =>
-      'The public node the wallet uses until the local node is synced.';
+  String get deskSetLndPickDesc => '本地节点同步完成前钱包使用的公共节点。';
 
   @override
-  String get deskSetLndDeleted => 'Chain data deleted';
+  String get deskSetLndDeleted => '链数据已删除';
 
   @override
   String deskSetLndFreed(String size) {
-    return '$size freed';
+    return '已释放 $size';
   }
 
   @override
-  String get deskSetLndNotDeleted => 'Chain data not deleted';
+  String get deskSetLndNotDeleted => '链数据未删除';
 
   @override
-  String get deskSetLndDeleteTitle => 'Delete chain data';
+  String get deskSetLndDeleteTitle => '删除链数据';
 
   @override
   String deskSetLndDeleteDesc(String size, String path) {
-    return 'Removes $size from $path. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.';
+    return '从 $path 删除 $size。节点会停止，下次启动时会重新下载整个区块链（需要数小时）。钱包密钥和交易记录不受影响。';
   }
 
   @override
   String deskSetLndDeleteDescNoSize(String path) {
-    return 'Removes the chain data from $path. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.';
+    return '从 $path 删除链数据。节点会停止，下次启动时会重新下载整个区块链（需要数小时）。钱包密钥和交易记录不受影响。';
   }
 
   @override
   String deskSetLndTypeToConfirm(String word) {
-    return 'Type $word to confirm.';
+    return '输入 $word 以确认。';
   }
 
   @override
   String deskSetLndTypeToConfirmLabel(String word) {
-    return 'Type $word to confirm';
+    return '输入 $word 以确认';
   }
 
   @override
-  String get deskSetLndSourceCli => 'epic (the command-line node)';
+  String get deskSetLndSourceCli => 'epic（命令行节点）';
 
   @override
   String get deskSetLndSourceGui => 'Epic GUI';
 
   @override
-  String get deskSetLndSourceBundled => 'an earlier Epic Wallet';
+  String get deskSetLndSourceBundled => '旧版 Epic Wallet';
 
   @override
-  String get deskSetLndSourceCustom => 'another folder';
+  String get deskSetLndSourceCustom => '其他文件夹';
 
   @override
-  String get deskSetLndInUse => 'Chain data in use';
+  String get deskSetLndInUse => '正在使用链数据';
 
   @override
-  String get deskSetLndNotInUse => 'The folder is not in use';
+  String get deskSetLndNotInUse => '该文件夹未被使用';
 
   @override
-  String get deskSetLndReuseTitle => 'Chain data found on this computer';
+  String get deskSetLndReuseTitle => '在这台电脑上找到链数据';
 
   @override
   String get deskSetLndReuseDesc =>
-      'Another Epic node left chain data here. The local node can read that folder instead of downloading the chain.';
+      '另一个 Epic 节点在这里留下了链数据。本地节点可以读取那个文件夹，而不用下载区块链。';
 
   @override
-  String get deskSetLndLooking => 'Looking…';
+  String get deskSetLndLooking => '正在查找…';
 
   @override
-  String get deskSetLndUseIt => 'Use it';
+  String get deskSetLndUseIt => '使用它';
 
   @override
   String deskSetLndLastWritten(String date) {
-    return 'last written $date';
+    return '最后写入于 $date';
   }
 
   @override
-  String get deskSetLndLocked => 'In use by another program';
+  String get deskSetLndLocked => '正被其他程序使用';
 
   @override
-  String get deskSetLndNothingCopied =>
-      'Nothing is copied: the node reads that folder, and Delete chain data is off for it.';
+  String get deskSetLndNothingCopied => '不会复制任何内容：节点直接读取那个文件夹，并且对它禁用“删除链数据”。';
 
   @override
-  String get deskSetLndFresh => 'Download fresh';
+  String get deskSetLndFresh => '重新下载';
 
   @override
   String deskSetLndFreshLine(String size) {
-    return 'Into the wallet’s own folder. About $size.';
+    return '下载到钱包自己的文件夹中。约 $size。';
   }
 
   @override
-  String get deskSetLndLogTitle => 'Node log';
+  String get deskSetLndLogTitle => '节点日志';
 
   @override
-  String get deskSetLndReading => 'Reading…';
+  String get deskSetLndReading => '正在读取…';
 
   @override
-  String get deskSetLndLogNote =>
-      'Last 200 lines of epic-server.log in the data folder. Newest at the bottom.';
+  String get deskSetLndLogNote => '数据文件夹中 epic-server.log 的最后 200 行。最新的在底部。';
 
   @override
-  String get deskSetLndCopied => 'Copied';
+  String get deskSetLndCopied => '已复制';
 
   @override
   String deskSetLndLines(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count lines',
-      one: '$count line',
+      other: '$count 行',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSetLndBadFolder => 'That folder does not work';
+  String get deskSetLndBadFolder => '该文件夹不可用';
 
   @override
-  String get deskSetLndChooseAnother => 'Choose another';
+  String get deskSetLndChooseAnother => '选择其他文件夹';
 
   @override
   String deskSetLndMoveTitle(String size, String folder) {
-    return 'Move $size to $folder?';
+    return '把 $size 移动到 $folder？';
   }
 
   @override
   String get deskSetLndMoveDesc =>
-      'The node stops while the data moves, then starts again from the new folder. Start fresh there downloads the chain again into it instead.';
+      '移动数据期间节点会停止，之后从新文件夹重新启动。“在那里重新开始”则会改为把区块链重新下载到新文件夹中。';
 
   @override
-  String get deskSetLndStartFresh => 'Start fresh there';
+  String get deskSetLndStartFresh => '在那里重新开始';
 
   @override
-  String get deskSetLndMove => 'Move';
+  String get deskSetLndMove => '移动';
 
   @override
-  String get deskSetLndProbNotEmpty => 'The folder is not empty.';
+  String get deskSetLndProbNotEmpty => '该文件夹不是空的。';
 
   @override
-  String get deskSetLndProbInsideSource => 'It is inside the current folder.';
+  String get deskSetLndProbInsideSource => '它位于当前文件夹之内。';
 
   @override
-  String get deskSetLndProbSourceInside => 'The current folder is inside it.';
+  String get deskSetLndProbSourceInside => '当前文件夹位于它之内。';
 
   @override
   String deskSetLndProbSpace(String needed, String free) {
-    return 'Not enough space: $needed needed, $free free.';
+    return '空间不足：需要 $needed，可用 $free。';
   }
 
   @override
   String deskSetLndProbSpaceUnknown(String needed) {
-    return 'Not enough space: $needed needed, unknown free.';
+    return '空间不足：需要 $needed，可用空间未知。';
   }
 
   @override
-  String get deskSetLndProbLocked => 'Another program holds it.';
+  String get deskSetLndProbLocked => '它正被另一个程序占用。';
 
   @override
-  String get deskSetLndProbMissing => 'The current chain data is missing.';
+  String get deskSetLndProbMissing => '当前的链数据不见了。';
 
   @override
-  String get deskSetLndProbNotWritable => 'It cannot be written to.';
+  String get deskSetLndProbNotWritable => '无法写入该文件夹。';
 
   @override
-  String get deskSetLndProbIncomplete =>
-      'The current chain data is incomplete.';
+  String get deskSetLndProbIncomplete => '当前的链数据不完整。';
 
   @override
-  String get deskSetLndProbForeign => 'Another program’s chain data is there.';
+  String get deskSetLndProbForeign => '那里有另一个程序的链数据。';
 
   @override
-  String get deskSetPeersBannedToast => 'Peer banned';
+  String get deskSetPeersBannedToast => '已封禁对等节点';
 
   @override
-  String get deskSetPeersUnbannedToast => 'Peer unbanned';
+  String get deskSetPeersUnbannedToast => '已解封对等节点';
 
   @override
-  String get deskSetPeersNotAddress =>
-      'Not an IP address and port, such as 203.0.113.5:3414.';
+  String get deskSetPeersNotAddress => '不是 IP 地址加端口，例如 203.0.113.5:3414。';
 
   @override
-  String get deskSetPeersAlreadyPreferred => 'Already preferred.';
+  String get deskSetPeersAlreadyPreferred => '已在首选列表中。';
 
   @override
   String deskSetPeersMaxRange(int min, int max) {
-    return '$min to $max.';
+    return '$min 到 $max。';
   }
 
   @override
-  String get deskSetPeersReading => 'Reading the peers…';
+  String get deskSetPeersReading => '正在读取对等节点…';
 
   @override
   String deskSetPeersSummary(int connected, int inbound, int outbound) {
-    return '$connected connected · $inbound in · $outbound out';
+    return '已连接 $connected · 入站 $inbound · 出站 $outbound';
   }
 
   @override
@@ -11689,1129 +11390,1080 @@ class AppLocalizationsZh extends AppLocalizations {
     int outbound,
     int banned,
   ) {
-    return '$connected connected · $inbound in · $outbound out · $banned banned';
+    return '已连接 $connected · 入站 $inbound · 出站 $outbound · 已封禁 $banned';
   }
 
   @override
-  String get deskSetPeersIn => 'in';
+  String get deskSetPeersIn => '入站';
 
   @override
-  String get deskSetPeersOut => 'out';
+  String get deskSetPeersOut => '出站';
 
   @override
-  String get deskSetPeersBan => 'Ban';
+  String get deskSetPeersBan => '封禁';
 
   @override
-  String get deskSetPeersColAddress => 'Address';
+  String get deskSetPeersColAddress => '地址';
 
   @override
-  String get deskSetPeersColDirection => 'Direction';
+  String get deskSetPeersColDirection => '方向';
 
   @override
-  String get deskSetPeersColVersion => 'Version';
+  String get deskSetPeersColVersion => '版本';
 
   @override
-  String get deskSetPeersColHeight => 'Height';
+  String get deskSetPeersColHeight => '高度';
 
   @override
-  String get deskSetPeersColFirstSeen => 'First seen';
+  String get deskSetPeersColFirstSeen => '首次出现';
 
   @override
-  String get deskSetPeersNone => 'No peers connected.';
+  String get deskSetPeersNone => '没有已连接的对等节点。';
 
   @override
   String deskSetPeersMore(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count more',
-      one: '$count more',
+      other: '另外 $count 个',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSetPeersRefreshed => 'Refreshed every 10 s';
+  String get deskSetPeersRefreshed => '每 10 秒刷新';
 
   @override
-  String get deskSetPeersBanned => 'Banned';
+  String get deskSetPeersBanned => '已封禁';
 
   @override
   String deskSetPeersBannedAt(String time) {
-    return 'banned $time';
+    return '封禁于 $time';
   }
 
   @override
-  String get deskSetPeersUnban => 'Unban';
+  String get deskSetPeersUnban => '解封';
 
   @override
-  String get deskSetPeersPreferred => 'Preferred peers';
+  String get deskSetPeersPreferred => '首选对等节点';
 
   @override
-  String get deskSetPeersPreferredLabel =>
-      'Preferred peer, IP address and port';
+  String get deskSetPeersPreferredLabel => '首选对等节点，IP 地址和端口';
 
   @override
-  String get deskSetPeersAdd => 'Add';
+  String get deskSetPeersAdd => '添加';
 
   @override
-  String get deskSetPeersMaxIn => 'Max incoming';
+  String get deskSetPeersMaxIn => '最大入站数';
 
   @override
-  String get deskSetPeersMaxInLabel => 'Max incoming peers';
+  String get deskSetPeersMaxInLabel => '最大入站对等节点数';
 
   @override
-  String get deskSetPeersMaxOut => 'Max outgoing';
+  String get deskSetPeersMaxOut => '最大出站数';
 
   @override
-  String get deskSetPeersMaxOutLabel => 'Max outgoing peers';
+  String get deskSetPeersMaxOutLabel => '最大出站对等节点数';
 
   @override
   String deskSetPeersPreferredCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count preferred:',
-      one: '$count preferred:',
+      other: '$count 个首选：',
     );
     return '$_temp0';
   }
 
   @override
   String deskSetPeersForget(String peer) {
-    return 'Forget $peer';
+    return '移除 $peer';
   }
 
   @override
   String deskSetPeersNote(int min, int max, int def) {
-    return 'First seen is when this app first saw the peer connected, this session; the node does not report when a connection began. Ban and unban use the node’s owner API. Enter saves a maximum ($min to $max, $def by default).';
+    return '“首次出现”是本应用在本次运行中首次看到该对等节点连接的时间；节点不会报告连接何时开始。封禁和解封使用节点的 owner API。按 Enter 保存最大值（$min 到 $max，默认 $def）。';
   }
 
   @override
-  String get deskSetLndDeleteQuestion => 'Delete chain data?';
+  String get deskSetLndDeleteQuestion => '删除链数据？';
 
   @override
-  String get deskSetLogsMemoryOnly => 'The log is kept in memory only.';
+  String get deskSetLogsMemoryOnly => '日志只保存在内存中。';
 
   @override
-  String get deskSetLogsClearTitle => 'Clear logs?';
+  String get deskSetLogsClearTitle => '清除日志？';
 
   @override
-  String get deskSetLogsClearDesc =>
-      'Deletes the log files. A report sent later has only what is logged from now on.';
+  String get deskSetLogsClearDesc => '删除日志文件。之后发送的报告只包含从现在开始记录的内容。';
 
   @override
-  String get deskSetLogsKeep => 'Keep logs';
+  String get deskSetLogsKeep => '保留日志';
 
   @override
-  String get deskSetLogsClear => 'Clear logs';
+  String get deskSetLogsClear => '清除日志';
 
   @override
-  String get deskSetLogsCleared => 'Logs cleared';
+  String get deskSetLogsCleared => '日志已清除';
 
   @override
   String deskSetLogsToday(String time) {
-    return 'today $time';
+    return '今天 $time';
   }
 
   @override
   String deskSetLogsTomorrow(String time) {
-    return 'tomorrow $time';
+    return '明天 $time';
   }
 
   @override
-  String get deskSetLogsTitle => 'Logs';
+  String get deskSetLogsTitle => '日志';
 
   @override
-  String get deskSetLogsLevel => 'Log level';
+  String get deskSetLogsLevel => '日志级别';
 
   @override
   String get deskSetLogsLevelNormal =>
-      'Normal. Detailed keeps more lines on disk for 24 hours; addresses may appear in the file, reports leave them out.';
+      '普通。“详细”会在磁盘上保留更多行，持续 24 小时；文件中可能出现地址，报告会去掉它们。';
 
   @override
   String deskSetLogsLevelDetailed(String until) {
-    return 'Detailed until $until, then Normal. Addresses may appear in the file; reports leave them out.';
+    return '详细，直到 $until，之后恢复普通。文件中可能出现地址；报告会去掉它们。';
   }
 
   @override
   String deskSetLogsLevelDetailedCore(String until) {
-    return 'Detailed until $until, then Normal. Addresses may appear in the file; reports leave them out. Wallet core lines get detailed from the next app start.';
+    return '详细，直到 $until，之后恢复普通。文件中可能出现地址；报告会去掉它们。钱包核心的日志从下次启动应用起变为详细。';
   }
 
   @override
-  String get deskSetLogsNormal => 'Normal';
+  String get deskSetLogsNormal => '普通';
 
   @override
-  String get deskSetLogsDetailed => 'Detailed';
+  String get deskSetLogsDetailed => '详细';
 
   @override
-  String get deskSetLogsFiles => 'Log files';
+  String get deskSetLogsFiles => '日志文件';
 
   @override
   String deskSetLogsSize(String size, String max) {
-    return 'Current size $size of $max. Keeps one older file.';
+    return '当前大小 $size，上限 $max。保留一个较旧的文件。';
   }
 
   @override
-  String get deskSetLogsOpenFolder => 'Open log folder';
+  String get deskSetLogsOpenFolder => '打开日志文件夹';
 
   @override
   String deskSetNodeVersionOld(String version) {
-    return 'Version older than $version';
+    return '版本低于 $version';
   }
 
   @override
-  String get deskSetNodePortNote =>
-      'Check the address and the port (usually 3413).';
+  String get deskSetNodePortNote => '请检查地址和端口（通常是 3413）。';
 
   @override
   String get deskSetNodeListNote =>
-      'State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.';
+      '状态来自 status.btlabs.uk，每隔几分钟检查一次。延迟是从这台电脑测得的。';
 
   @override
-  String get deskSetNodeStartTitle => 'Start the local node?';
+  String get deskSetNodeStartTitle => '启动本地节点？';
 
   @override
-  String get deskSetNodeStartDesc =>
-      'A separate program syncs the Epic chain on this computer.';
+  String get deskSetNodeStartDesc => '一个独立的程序会在这台电脑上同步 Epic 区块链。';
 
   @override
-  String get deskSetNodeStartLine1 =>
-      'Downloads the whole chain: several GB of disk space and bandwidth.';
+  String get deskSetNodeStartLine1 => '下载完整的区块链：需要数 GB 的磁盘空间和流量。';
 
   @override
-  String get deskSetNodeStartLine2 =>
-      'The first sync takes hours. Until it is done the node shows Syncing.';
+  String get deskSetNodeStartLine2 => '首次同步需要数小时。完成之前，节点显示为“正在同步”。';
 
   @override
-  String get deskSetNodeStartLine3 =>
-      'The firewall may ask to allow the node program.';
+  String get deskSetNodeStartLine3 => '防火墙可能会询问是否允许节点程序。';
 
   @override
-  String get deskSetNodeStartButton => 'Start local node';
+  String get deskSetNodeStartButton => '启动本地节点';
 
   @override
-  String get deskSetNodeRowNotSetUp => 'Not set up';
+  String get deskSetNodeRowNotSetUp => '未设置';
 
   @override
-  String get deskSetNodeRowStopped => 'Stopped';
+  String get deskSetNodeRowStopped => '已停止';
 
   @override
-  String get deskSetNodeRowStarting => 'Starting';
+  String get deskSetNodeRowStarting => '正在启动';
 
   @override
   String deskSetNodeRowSyncingPct(String percent) {
-    return 'Syncing $percent';
+    return '正在同步 $percent';
   }
 
   @override
-  String get deskSetNodeRowStalled => 'Stalled';
+  String get deskSetNodeRowStalled => '停滞';
 
   @override
-  String get deskSetNodeRowFailed => 'Failed';
+  String get deskSetNodeRowFailed => '失败';
 
   @override
-  String get deskSetNodeLocalInUse => 'Local node in use';
+  String get deskSetNodeLocalInUse => '正在使用本地节点';
 
   @override
-  String get deskSetNodeLocalInUseText =>
-      'It downloads the whole chain. Needs 5 GB free.';
+  String get deskSetNodeLocalInUseText => '它会下载完整的区块链。需要 5 GB 可用空间。';
 
   @override
-  String get deskSetNodeLocalNode => 'Local node';
+  String get deskSetNodeLocalNode => '本地节点';
 
   @override
-  String get deskSetNodeGroupComputer => 'This computer';
+  String get deskSetNodeGroupComputer => '这台电脑';
 
   @override
-  String get deskSetNodeGroupMine => 'My nodes';
+  String get deskSetNodeGroupMine => '我的节点';
 
   @override
-  String get deskSetNodeGroupPublic => 'Public nodes';
+  String get deskSetNodeGroupPublic => '公共节点';
 
   @override
-  String get deskSetNodeRemovedFromMine => 'Removed from my nodes';
+  String get deskSetNodeRemovedFromMine => '已从我的节点中移除';
 
   @override
-  String get deskSetNodeNotAnswering => 'Not answering';
+  String get deskSetNodeNotAnswering => '无响应';
 
   @override
-  String get deskSetNodeAddToMine => 'Add to my nodes';
+  String get deskSetNodeAddToMine => '添加到我的节点';
 
   @override
-  String get deskSetNodeServer => 'Node server';
+  String get deskSetNodeServer => '节点服务器';
 
   @override
-  String get deskSetNodeServerHint =>
-      'The node the wallet reads the chain through and sends with.';
+  String get deskSetNodeServerHint => '钱包通过这个节点读取区块链并发送交易。';
 
   @override
-  String get deskSetNodeFindHint => 'Find or type a node address';
+  String get deskSetNodeFindHint => '查找或输入节点地址';
 
   @override
-  String get deskSetNodeChecking => 'Checking the node…';
+  String get deskSetNodeChecking => '正在检查节点…';
 
   @override
-  String get deskSetNodeTypedNote =>
-      'Enter uses it. The star keeps it in My nodes.';
+  String get deskSetNodeTypedNote => '按 Enter 使用它。点星标可保存到“我的节点”。';
 
   @override
-  String get deskSetNodeNoNodes => 'No nodes to show.';
+  String get deskSetNodeNoNodes => '没有可显示的节点。';
 
   @override
-  String get deskSetNodeFooterAdd => 'Add to my nodes…';
+  String get deskSetNodeFooterAdd => '添加到我的节点…';
 
   @override
-  String get deskSetNodeFooterDirectory => 'Node directory…';
+  String get deskSetNodeFooterDirectory => '节点目录…';
 
   @override
-  String get deskSetNodeBackground => 'Sync in background';
+  String get deskSetNodeBackground => '后台同步';
 
   @override
-  String get deskSetNodeBackgroundHint =>
-      'Keeps syncing while the app is closed.';
+  String get deskSetNodeBackgroundHint => '应用关闭时继续同步。';
 
   @override
-  String get deskSetPhraseNotCopied => 'Not copied';
+  String get deskSetPhraseNotCopied => '未复制';
 
   @override
-  String get deskSetPhraseClipboardRefused => 'The clipboard refused the text.';
+  String get deskSetPhraseClipboardRefused => '剪贴板拒绝了这段文本。';
 
   @override
-  String get deskSetPhraseCopied => 'Phrase copied';
+  String get deskSetPhraseCopied => '助记词已复制';
 
   @override
-  String get deskSetPhraseCleared => 'The clipboard is cleared in 30 s.';
+  String get deskSetPhraseCleared => '剪贴板将在 30 秒后清空。';
 
   @override
-  String get deskSetPhraseEnterPassword => 'Enter the password.';
+  String get deskSetPhraseEnterPassword => '请输入密码。';
 
   @override
-  String get deskSetPhraseWrongPassword => 'Wrong password.';
+  String get deskSetPhraseWrongPassword => '密码错误。';
 
   @override
-  String get deskSetPhraseIntro =>
-      'Write the words on paper, in this order. Never type them into a website or a chat.';
+  String get deskSetPhraseIntro => '请按此顺序把这些单词抄写在纸上。切勿把它们输入任何网站或聊天中。';
 
   @override
-  String get deskSetPhrasePanel => 'Enter the password to show the words';
+  String get deskSetPhrasePanel => '输入密码以显示这些单词';
 
   @override
-  String get deskSetPhraseShowWords => 'Show words';
+  String get deskSetPhraseShowWords => '显示单词';
 
   @override
   String deskSetPhraseWordsLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Recovery phrase, $count words',
-      one: 'Recovery phrase, $count word',
+      other: '助记词，$count 个单词',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSetPhraseHideQr => 'Hide QR code';
+  String get deskSetPhraseHideQr => '隐藏二维码';
 
   @override
-  String get deskSetPhraseShowQr => 'Show QR code';
+  String get deskSetPhraseShowQr => '显示二维码';
 
   @override
-  String get deskSetPhraseHideWords => 'Hide words';
+  String get deskSetPhraseHideWords => '隐藏单词';
 
   @override
   String deskSetPhraseHidesIn(int seconds) {
-    return 'Hides in $seconds s';
+    return '$seconds 秒后隐藏';
   }
 
   @override
-  String get deskSetPhraseQrLabel => 'QR code of the recovery phrase';
+  String get deskSetPhraseQrLabel => '助记词二维码';
 
   @override
-  String get deskSetPhraseBackUp => 'Back up the phrase';
+  String get deskSetPhraseBackUp => '备份助记词';
 
   @override
-  String get deskSetPhraseBackUpText =>
-      'Anyone with these words can take the EPIC. Check that nobody can see the screen.';
+  String get deskSetPhraseBackUpText => '任何拿到这些单词的人都能拿走你的 EPIC。请确认没有人能看到屏幕。';
 
   @override
-  String get deskSetPrivTorOnFailed => 'Tor not turned on';
+  String get deskSetPrivTorOnFailed => 'Tor 未开启';
 
   @override
-  String get deskSetPrivTorOffFailed => 'Tor not turned off';
+  String get deskSetPrivTorOffFailed => 'Tor 未关闭';
 
   @override
   String get deskSetPrivTor => 'Tor';
 
   @override
-  String get deskSetPrivSwitching => 'Switching Tor';
+  String get deskSetPrivSwitching => '正在切换 Tor';
 
   @override
-  String get deskSetPrivTurnOff => 'Turn Tor off';
+  String get deskSetPrivTurnOff => '关闭 Tor';
 
   @override
-  String get deskSetPrivNotInBuild => 'Not in this build';
+  String get deskSetPrivNotInBuild => '此版本不含 Tor';
 
   @override
-  String get deskSetPrivStarting => 'Starting…';
+  String get deskSetPrivStarting => '正在启动…';
 
   @override
   String deskSetPrivStartingDetail(int progress, String waiting) {
-    return '$progress %. $waiting wait until Tor is up.';
+    return '$progress%。$waiting会等到 Tor 连接成功。';
   }
 
   @override
-  String get deskSetPrivNotPublished =>
-      'Tor address not published yet. Sends work.';
+  String get deskSetPrivNotPublished => 'Tor 地址尚未发布。发送不受影响。';
 
   @override
   String deskSetPrivProblemSendsWork(String problem) {
-    return '$problem. Sends work.';
+    return '$problem。发送不受影响。';
   }
 
   @override
-  String get deskSetPrivConnected => 'Connected.';
+  String get deskSetPrivConnected => '已连接。';
 
   @override
-  String get deskSetPrivNotConnected => 'Not connected';
+  String get deskSetPrivNotConnected => '未连接';
 
   @override
   String deskSetPrivStoppedDetail(String waiting) {
-    return 'Tor stopped. $waiting wait for Retry or Tor off.';
+    return 'Tor 已停止。$waiting会等待你点击“重试”或关闭 Tor。';
   }
 
   @override
   String deskSetPrivProblemDetail(String problem, String waiting) {
-    return '$problem. $waiting wait for Retry or Tor off.';
+    return '$problem。$waiting会等待你点击“重试”或关闭 Tor。';
   }
 
   @override
-  String get deskSetPrivStatusSite => 'Status site';
+  String get deskSetPrivStatusSite => '状态网站';
 
   @override
-  String get deskSetPrivUseStatus => 'Use status.btlabs.uk';
+  String get deskSetPrivUseStatus => '使用 status.btlabs.uk';
 
   @override
-  String get deskSetPrivUseStatusHint =>
-      'Network status and information provided by status.btlabs.uk';
+  String get deskSetPrivUseStatusHint => '网络状态和信息由 status.btlabs.uk 提供';
 
   @override
   String deskSetRecvMethodOnFailed(String method) {
-    return '$method not turned on';
+    return '$method 未开启';
   }
 
   @override
   String deskSetRecvMethodOffFailed(String method) {
-    return '$method not turned off';
+    return '$method 未关闭';
   }
 
   @override
-  String get deskSetRecvServerNotChanged => 'Server not changed';
+  String get deskSetRecvServerNotChanged => '服务器未更改';
 
   @override
-  String get deskSetRecvReceiving => 'Receiving';
+  String get deskSetRecvReceiving => '接收';
 
   @override
   String deskSetRecvSwitching(String method) {
-    return 'Switching $method receiving';
+    return '正在切换 $method 接收';
   }
 
   @override
   String deskSetRecvMethodReceiving(String method) {
-    return '$method receiving';
+    return '$method 接收';
   }
 
   @override
-  String get deskSetRecvNotSaved => 'Not saved';
+  String get deskSetRecvNotSaved => '未保存';
 
   @override
-  String get deskSetRecvAutostart => 'Start with the wallet';
+  String get deskSetRecvAutostart => '随钱包启动';
 
   @override
-  String get deskSetRecvAutostartHint => 'Turns on at unlock.';
+  String get deskSetRecvAutostartHint => '解锁时开启。';
 
   @override
   String deskSetRecvMethodAutostart(String method) {
-    return '$method: start with the wallet';
+    return '$method：随钱包启动';
   }
 
   @override
-  String get deskSetRecvHeadStopped => 'Stopped';
+  String get deskSetRecvHeadStopped => '已停止';
 
   @override
-  String get deskSetRecvHeadStarting => 'Starting';
+  String get deskSetRecvHeadStarting => '正在启动';
 
   @override
   String deskSetRecvResponseTime(int ms) {
-    return 'Response time $ms ms. Measured from the status site.';
+    return '响应时间 $ms 毫秒。由状态网站测得。';
   }
 
   @override
-  String get deskSetRecvEpicboxTitle => 'Epicbox receiving';
+  String get deskSetRecvEpicboxTitle => 'Epicbox 接收';
 
   @override
-  String get deskSetRecvEpicboxText =>
-      'Payments arrive via the Epicbox server, also while the wallet is closed.';
+  String get deskSetRecvEpicboxText => '付款经由 Epicbox 服务器到达，钱包关闭时也可以。';
 
   @override
-  String get deskSetRecvEpicboxServer => 'Epicbox server';
+  String get deskSetRecvEpicboxServer => 'Epicbox 服务器';
 
   @override
-  String get deskSetRecvEpicboxServerHint =>
-      'Which server holds payments for this address. Both wallets can use different servers.';
+  String get deskSetRecvEpicboxServerHint => '由哪个服务器为此地址暂存付款。双方钱包可以使用不同的服务器。';
 
   @override
-  String get deskSetRecvFindHint => 'Find or type an Epicbox server';
+  String get deskSetRecvFindHint => '查找或输入 Epicbox 服务器';
 
   @override
-  String get deskSetRecvSwitchingServer => 'Switching the Epicbox server…';
+  String get deskSetRecvSwitchingServer => '正在切换 Epicbox 服务器…';
 
   @override
-  String get deskSetRecvNotInList => 'not in the public list';
+  String get deskSetRecvNotInList => '不在公共列表中';
 
   @override
-  String get deskSetRecvTypedNote =>
-      'Enter uses it. Its status shows once the wallet connects.';
+  String get deskSetRecvTypedNote => '按 Enter 使用它。钱包连接后会显示它的状态。';
 
   @override
-  String get deskSetRecvListNote =>
-      'State from status.btlabs.uk, checked every few minutes.';
+  String get deskSetRecvListNote => '状态来自 status.btlabs.uk，每隔几分钟检查一次。';
 
   @override
-  String get deskSetRecvHttpTitle => 'HTTP receiving';
+  String get deskSetRecvHttpTitle => 'HTTP 接收';
 
   @override
-  String get deskSetRecvHttpText =>
-      'Straight from another wallet while this one is open.';
+  String get deskSetRecvHttpText => '本钱包打开时，直接从另一个钱包接收。';
 
   @override
-  String get deskSetRecvHttpOffTitle => 'Off while Tor is on';
+  String get deskSetRecvHttpOffTitle => 'Tor 开启时关闭';
 
   @override
-  String get deskSetRecvHttpOffText =>
-      'Direct payments arrive at this wallet’s Tor address instead.';
+  String get deskSetRecvHttpOffText => '直连付款会改为发送到本钱包的 Tor 地址。';
 
   @override
-  String get deskSetRecvPrivacySettings => 'Privacy settings';
+  String get deskSetRecvPrivacySettings => '隐私设置';
 
   @override
-  String get deskSetHttpNotChanged => 'Not changed';
+  String get deskSetHttpNotChanged => '未更改';
 
   @override
-  String get deskSetHttpPortError => 'Port must be 1 to 65535';
+  String get deskSetHttpPortError => '端口必须在 1 到 65535 之间';
 
   @override
-  String get deskSetHttpReachable => 'Reachable';
+  String get deskSetHttpReachable => '访问范围';
 
   @override
-  String get deskSetHttpReachableHint => 'Who can pay the HTTP address.';
+  String get deskSetHttpReachableHint => '谁可以向 HTTP 地址付款。';
 
   @override
-  String get deskSetHttpLocalOnly => 'Local only';
+  String get deskSetHttpLocalOnly => '仅限本机';
 
   @override
-  String get deskSetHttpFromInternet => 'From the internet';
+  String get deskSetHttpFromInternet => '来自互联网';
 
   @override
-  String get deskSetHttpGuideHelp => 'Receive from the internet: how it works';
+  String get deskSetHttpGuideHelp => '从互联网接收：如何操作';
 
   @override
   String deskSetHttpPublicNote(String port) {
-    return 'Answers on all interfaces. The router must forward TCP $port to this computer. Senders on the internet use http://<public IP>:$port.';
+    return '在所有网络接口上响应。路由器必须把 TCP $port 转发到这台电脑。互联网上的发送方使用 http://<public IP>:$port。';
   }
 
   @override
-  String get deskSetHttpPort => 'Port';
+  String get deskSetHttpPort => '端口';
 
   @override
-  String get deskSetHttpPortHint => '1 to 65535. Used by the HTTP address.';
+  String get deskSetHttpPortHint => '1 到 65535。供 HTTP 地址使用。';
 
   @override
-  String get deskSetHttpPortLabel => 'HTTP port';
+  String get deskSetHttpPortLabel => 'HTTP 端口';
 
   @override
-  String get deskSetHttpGuideTitle => 'Receive from the internet';
+  String get deskSetHttpGuideTitle => '从互联网接收';
 
   @override
-  String get deskSetHttpGuideNowPublic => 'Now: from the internet.';
+  String get deskSetHttpGuideNowPublic => '当前：来自互联网。';
 
   @override
-  String get deskSetHttpGuideNowLocal =>
-      'Now: local only. Only programs on this computer reach the HTTP address.';
+  String get deskSetHttpGuideNowLocal => '当前：仅限本机。只有这台电脑上的程序能访问 HTTP 地址。';
 
   @override
-  String get deskSetHttpStep1 => 'Listen on all interfaces';
+  String get deskSetHttpStep1 => '在所有网络接口上监听';
 
   @override
   String deskSetHttpStep1Text(String port) {
-    return 'The wallet answers on 0.0.0.0, port $port. Other devices and the internet can then send payments to this wallet. The firewall may ask to allow it.';
+    return '钱包在 0.0.0.0 的端口 $port 上响应。这样其他设备和互联网就能向本钱包付款。防火墙可能会询问是否允许。';
   }
 
   @override
-  String get deskSetHttpStep2 => 'Forward the port';
+  String get deskSetHttpStep2 => '转发端口';
 
   @override
   String deskSetHttpStep2Text(String port) {
-    return 'On the router’s page (often 10.0.1.1), find Port forwarding and forward TCP $port to this computer.';
+    return '在路由器的管理页面（通常是 10.0.1.1）找到“端口转发”，把 TCP $port 转发到这台电脑。';
   }
 
   @override
-  String get deskSetHttpStep3 => 'Share the public address';
+  String get deskSetHttpStep3 => '分享公网地址';
 
   @override
   String deskSetHttpStep3Text(String port) {
-    return 'Senders use http://<public IP>:$port. The public IP can change.';
+    return '发送方使用 http://<public IP>:$port。公网 IP 可能会变化。';
   }
 
   @override
-  String get deskSetHttpNoRouter => 'No router setup?';
+  String get deskSetHttpNoRouter => '不想设置路由器？';
 
   @override
-  String get deskSetHttpNoRouterText =>
-      'Tor works from anywhere with nothing to forward.';
+  String get deskSetHttpNoRouterText => 'Tor 在任何地方都能用，无需转发任何端口。';
 
   @override
-  String get deskSetHttpTurnOnTor => 'Turn on Tor';
+  String get deskSetHttpTurnOnTor => '开启 Tor';
 
   @override
-  String get deskSetHttpExposed =>
-      'Only the receiving API is exposed. Plain HTTP is not encrypted.';
+  String get deskSetHttpExposed => '只开放接收 API。明文 HTTP 不加密。';
 
   @override
-  String get deskSetHttpBackLocal => 'Back to local only';
+  String get deskSetHttpBackLocal => '改回仅限本机';
 
   @override
-  String get deskSetReportNotSent => 'The report was not sent. Try again.';
+  String get deskSetReportNotSent => '报告未发送。请重试。';
 
   @override
-  String get deskSetReportSaveDialog => 'Save the report';
+  String get deskSetReportSaveDialog => '保存报告';
 
   @override
-  String get deskSetReportSaved => 'Saved. Cleaned of secrets, not encrypted.';
+  String get deskSetReportSaved => '已保存。已清除机密信息，但未加密。';
 
   @override
-  String get deskSetReportNotSaved => 'The file was not saved. Try again.';
+  String get deskSetReportNotSaved => '文件未保存。请重试。';
 
   @override
-  String get deskSetReportText => 'Report text';
+  String get deskSetReportText => '报告内容';
 
   @override
   String deskSetReportAppLog(String size) {
-    return 'App log (last $size)';
+    return '应用日志（最近 $size）';
   }
 
   @override
-  String get deskSetReportSent => 'Report sent';
+  String get deskSetReportSent => '报告已发送';
 
   @override
-  String get deskSetReportArrived => 'The report arrived.';
+  String get deskSetReportArrived => '报告已送达。';
 
   @override
   String deskSetReportArrivedRef(String id) {
-    return 'The report arrived. Its reference is $id.';
+    return '报告已送达。编号为 $id。';
   }
 
   @override
-  String get deskSetReportDescribe => 'Describe what happened.';
+  String get deskSetReportDescribe => '请描述发生了什么。';
 
   @override
-  String get deskSetReportTitle => 'Report a problem';
+  String get deskSetReportTitle => '报告问题';
 
   @override
   String get deskSetReportDesc =>
-      'The report is encrypted so only the developer can read it. Nothing is sent before Send. Save to file keeps the same cleaned report, not encrypted.';
+      '报告经过加密，只有开发者能读取。点击“发送”之前不会发送任何内容。“保存到文件”会保存同一份已清理的报告，但不加密。';
 
   @override
-  String get deskSetReportWhat => 'What happened';
+  String get deskSetReportWhat => '发生了什么';
 
   @override
-  String get deskSetReportWhatHint =>
-      'What you did, what you expected, what happened instead';
+  String get deskSetReportWhatHint => '你做了什么，期望发生什么，实际发生了什么';
 
   @override
-  String get deskSetReportContact => 'Contact';
+  String get deskSetReportContact => '联系方式';
 
   @override
-  String get deskSetReportContactHint =>
-      'An email address or other handle, for a reply';
+  String get deskSetReportContactHint => '电子邮件地址或其他账号，用于回复';
 
   @override
-  String get deskSetReportAttach => 'Attach logs (recommended)';
+  String get deskSetReportAttach => '附上日志（建议）';
 
   @override
-  String get deskSetReportAttachHint =>
-      'The newest part of the app log, cleaned of phrases, passwords, addresses, IPs and home folders.';
+  String get deskSetReportAttachHint => '应用日志的最新部分，已清除助记词、密码、地址、IP 和用户主文件夹。';
 
   @override
-  String get deskSetReportSentWhat => 'What is sent';
+  String get deskSetReportSentWhat => '发送的内容';
 
   @override
-  String get deskSetReportNotSentTitle => 'Not sent';
+  String get deskSetReportNotSentTitle => '未发送';
 
   @override
-  String get deskSetReportOff => 'Sending is off in this build';
+  String get deskSetReportOff => '此版本已关闭发送功能';
 
   @override
-  String get deskSetReportSaveToFile => 'Save to file';
+  String get deskSetReportSaveToFile => '保存到文件';
 
   @override
-  String get deskSetReportSend => 'Send';
+  String get deskSetReportSend => '发送';
 
   @override
-  String get deskSetRescanComplete => 'Scan complete';
+  String get deskSetRescanComplete => '扫描完成';
 
   @override
-  String get deskSetRescanStoppedLine => 'Scan stopped';
+  String get deskSetRescanStoppedLine => '扫描已停止';
 
   @override
-  String get deskSetRescanLog => 'Scan log';
+  String get deskSetRescanLog => '扫描日志';
 
   @override
   String get deskSetRescanText =>
-      'Reads the chain again and rebuilds the balance from the outputs found. Use it when the balance looks wrong, after a restore, or when outputs stay locked after a failed send. The wallet stays usable meanwhile.';
+      '重新读取区块链，并根据找到的输出重建余额。在余额看起来不对、恢复钱包之后，或发送失败后输出一直锁定时使用。期间钱包仍可使用。';
 
   @override
-  String get deskSetRescanStartAgain => 'Start again';
+  String get deskSetRescanStartAgain => '重新开始';
 
   @override
-  String get deskSetRescanDeleteUnconfirmed => 'Delete unconfirmed';
+  String get deskSetRescanDeleteUnconfirmed => '删除未确认的交易';
 
   @override
-  String get deskSetRescanDeleteHint =>
-      'Also cancels unconfirmed transactions and unlocks their outputs. A payment already on its way may then fail.';
+  String get deskSetRescanDeleteHint => '同时取消未确认的交易并解锁它们的输出。已在途中的付款可能因此失败。';
 
   @override
-  String get deskSetRescanScanning =>
-      'Scanning the chain. The wallet stays usable; the balance updates when the scan ends.';
+  String get deskSetRescanScanning => '正在扫描区块链。钱包仍可使用；扫描结束后余额会更新。';
 
   @override
-  String get deskSetRescanStopping => 'Stopping…';
+  String get deskSetRescanStopping => '正在停止…';
 
   @override
   String deskSetRescanChecking(int percent) {
-    return 'Checking… $percent %';
+    return '正在检查… $percent%';
   }
 
   @override
-  String get deskSetRescanFailed => 'Scan failed';
+  String get deskSetRescanFailed => '扫描失败';
 
   @override
-  String get deskSetRescanNoneFound => 'No unconfirmed transaction was found.';
+  String get deskSetRescanNoneFound => '没有找到未确认的交易。';
 
   @override
-  String get deskSetRescanCancelled =>
-      'Unconfirmed transactions were cancelled and their outputs unlocked.';
+  String get deskSetRescanCancelled => '未确认的交易已取消，它们的输出已解锁。';
 
   @override
-  String get deskSetRescanNotRead => 'Not read';
+  String get deskSetRescanNotRead => '未读取';
 
   @override
-  String get deskSetRescanFinished => 'Scan finished';
+  String get deskSetRescanFinished => '扫描已完成';
 
   @override
-  String get deskSetRescanUpToDate => 'The balance is up to date.';
+  String get deskSetRescanUpToDate => '余额已是最新。';
 
   @override
-  String get deskSetRescanResumed =>
-      'The scan carried on from where it stopped; the counts cover that part.';
+  String get deskSetRescanResumed => '扫描从上次停止的地方继续；计数只包括这一部分。';
 
   @override
-  String get deskSetRescanStoppedEarly =>
-      'Stopped before the end. The balance was read again; start again to carry on.';
+  String get deskSetRescanStoppedEarly => '在结束前停止了。余额已重新读取；重新开始即可继续。';
 
   @override
-  String get deskSetRescanNotDeleted =>
-      'Unconfirmed transactions were not deleted: that runs only when a scan completes.';
+  String get deskSetRescanNotDeleted => '未确认的交易没有删除：只有扫描完整结束时才会执行。';
 
   @override
-  String get deskSetRescanBefore => 'Balance before';
+  String get deskSetRescanBefore => '之前的余额';
 
   @override
-  String get deskSetRescanAfter => 'Balance after';
+  String get deskSetRescanAfter => '之后的余额';
 
   @override
-  String get deskSetRescanFound => 'Outputs found';
+  String get deskSetRescanFound => '找到的输出';
 
   @override
-  String get deskSetRescanRestored => 'Restored';
+  String get deskSetRescanRestored => '已恢复';
 
   @override
-  String get deskSetRescanRevived => 'Back to unspent';
+  String get deskSetRescanRevived => '恢复为未花费';
 
   @override
-  String get deskSetRescanUnlocked => 'Unlocked';
+  String get deskSetRescanUnlocked => '已解锁';
 
   @override
-  String get deskSetRescanDeleted => 'Deleted';
+  String get deskSetRescanDeleted => '已删除';
 
   @override
   String deskSetWalletsAddedBack(String name) {
-    return '$name added back';
+    return '已重新添加 $name';
   }
 
   @override
-  String get deskSetWalletsNotAddedBack => 'Not added back';
+  String get deskSetWalletsNotAddedBack => '未重新添加';
 
   @override
-  String get deskSetWalletsOpenNow => 'Open now';
+  String get deskSetWalletsOpenNow => '已打开';
 
   @override
-  String get deskSetWalletsFolderMissing => 'Folder missing';
+  String get deskSetWalletsFolderMissing => '文件夹丢失';
 
   @override
   String deskSetWalletsShowFolder(String name) {
-    return 'Show $name in its folder';
+    return '在文件夹中显示 $name';
   }
 
   @override
   String deskSetWalletsRemove(String name) {
-    return 'Remove $name…';
+    return '移除 $name…';
   }
 
   @override
-  String get deskSetWalletsRemovedGroup => 'Removed from list';
+  String get deskSetWalletsRemovedGroup => '已从列表中移除';
 
   @override
-  String get deskSetWalletsAddBack => 'Add back';
+  String get deskSetWalletsAddBack => '重新添加';
 
   @override
-  String get deskSetWalletsAdd => 'Add a wallet';
+  String get deskSetWalletsAdd => '添加钱包';
 
   @override
-  String get deskSetWalletsCreate => 'Create a wallet';
+  String get deskSetWalletsCreate => '创建钱包';
 
   @override
-  String get deskSetWalletsCreateText =>
-      'A new wallet with a new recovery phrase.';
+  String get deskSetWalletsCreateText => '带有新助记词的新钱包。';
 
   @override
-  String get deskSetWalletsImport => 'Import';
+  String get deskSetWalletsImport => '导入';
 
   @override
-  String get deskSetWalletsImportText =>
-      'From an older Epic Wallet or a folder.';
+  String get deskSetWalletsImportText => '从旧版 Epic Wallet 或文件夹导入。';
 
   @override
-  String get deskSetWalletsRestore => 'Restore';
+  String get deskSetWalletsRestore => '恢复';
 
   @override
-  String get deskSetWalletsRestoreText => 'From a recovery phrase.';
+  String get deskSetWalletsRestoreText => '用助记词恢复。';
 
   @override
-  String get deskSetupConfirmPassword => 'Confirm password';
+  String get deskSetupConfirmPassword => '确认密码';
 
   @override
-  String get deskSetupPasswordShort => 'At least 8 characters';
+  String get deskSetupPasswordShort => '至少 8 个字符';
 
   @override
-  String get deskSetupPasswordsDiffer => 'Passwords differ';
+  String get deskSetupPasswordsDiffer => '两次输入的密码不一致';
 
   @override
-  String get deskSetupBack => 'Back';
+  String get deskSetupBack => '返回';
 
   @override
-  String get deskSetupNewWalletAdded => 'New wallet added.';
+  String get deskSetupNewWalletAdded => '已添加新钱包。';
 
   @override
-  String get deskSetupCapsLock => 'Caps Lock is on';
+  String get deskSetupCapsLock => '大写锁定已开启';
 
   @override
   String deskSetupStepSem(int number, int total, String label) {
-    return 'Step $number of $total: $label';
+    return '第 $number 步，共 $total 步：$label';
   }
 
   @override
-  String get deskSetupTryAgain => 'Try again';
+  String get deskSetupTryAgain => '重试';
 
   @override
-  String get deskSetupNotSaved => 'Not saved';
+  String get deskSetupNotSaved => '未保存';
 
   @override
-  String get deskSetupStepPrefs => 'Preferences';
+  String get deskSetupStepPrefs => '偏好设置';
 
   @override
-  String get deskSetupStepNode => 'Node';
+  String get deskSetupStepNode => '节点';
 
   @override
   String get deskSetupStepEpicbox => 'Epicbox';
 
   @override
-  String get deskSetupStepReview => 'Review';
+  String get deskSetupStepReview => '检查';
 
   @override
-  String get deskSetupAgain =>
-      'Running setup again. Nothing changes until Save on the last step.';
+  String get deskSetupAgain => '正在重新运行设置向导。在最后一步点击“保存设置”之前不会有任何更改。';
 
   @override
-  String get deskSetupPrefsLead => 'App language. It can be changed later.';
+  String get deskSetupPrefsLead => '应用语言。之后可以更改。';
 
   @override
-  String get deskSetupNodeTitle => 'Choose a node';
+  String get deskSetupNodeTitle => '选择节点';
 
   @override
-  String get deskSetupNodeLead =>
-      'The wallet reads the chain and sends through an Epic node.';
+  String get deskSetupNodeLead => '钱包通过 Epic 节点读取区块链并发送交易。';
 
   @override
-  String get deskSetupLocalTitle => 'Local node';
+  String get deskSetupLocalTitle => '本地节点';
 
   @override
-  String get deskSetupLocalLead =>
-      'What running the node here means, and which node to use.';
+  String get deskSetupLocalLead => '在这里运行节点意味着什么，以及使用哪个节点。';
 
   @override
-  String get deskSetupEpicboxTitle => 'Receive when offline';
+  String get deskSetupEpicboxTitle => '离线时也能接收';
 
   @override
-  String get deskSetupReviewTitle => 'Check settings';
+  String get deskSetupReviewTitle => '检查设置';
 
   @override
-  String get deskSetupReviewLead =>
-      'Change anything that is not right, then save.';
+  String get deskSetupReviewLead => '修改不正确的地方，然后保存。';
 
   @override
-  String get deskSetupSideTitle => 'Set up';
+  String get deskSetupSideTitle => '设置向导';
 
   @override
-  String get deskSetupBackToWallet => 'Back to wallet';
+  String get deskSetupBackToWallet => '返回钱包';
 
   @override
-  String get deskSetupLaterNote =>
-      'Everything here can be changed later in Settings.';
+  String get deskSetupLaterNote => '这里的所有选项之后都可以在“设置”中更改。';
 
   @override
-  String get deskSetupSave => 'Save settings';
+  String get deskSetupSave => '保存设置';
 
   @override
-  String get deskSetupLanguage => 'Language';
+  String get deskSetupLanguage => '语言';
 
   @override
-  String get deskSetupNodeServer => 'Node server';
+  String get deskSetupNodeServer => '节点服务器';
 
   @override
-  String get deskSetupNodeHint => 'Find or type a node address';
+  String get deskSetupNodeHint => '查找或输入节点地址';
 
   @override
-  String get deskSetupCheckingNodes => 'Checking nodes…';
+  String get deskSetupCheckingNodes => '正在检查节点…';
 
   @override
-  String get deskSetupPickNode => 'Pick a node';
+  String get deskSetupPickNode => '选择一个节点';
 
   @override
-  String get deskSetupPublicNodes => 'Public nodes';
+  String get deskSetupPublicNodes => '公共节点';
 
   @override
-  String get deskSetupNotInList => 'not in the public list';
+  String get deskSetupNotInList => '不在公共列表中';
 
   @override
-  String get deskSetupEnterUses => 'Enter uses it.';
+  String get deskSetupEnterUses => '按 Enter 使用它。';
 
   @override
-  String get deskSetupNoNodes => 'No nodes to show.';
+  String get deskSetupNoNodes => '没有可显示的节点。';
 
   @override
-  String get deskSetupRemoteNode => 'Remote node';
+  String get deskSetupRemoteNode => '远程节点';
 
   @override
-  String get deskSetupRemoteNodeText => 'Any public node. Ready at once.';
+  String get deskSetupRemoteNodeText => '任意公共节点。立即可用。';
 
   @override
   String get deskSetupLocalNodeText =>
-      'Runs the Epic node on this computer. Nothing is shared with an operator. Needs disk space and hours to sync.';
+      '在这台电脑上运行 Epic 节点。不与任何运营方共享信息。需要磁盘空间和数小时同步。';
 
   @override
-  String get deskSetupEpicboxText =>
-      'Epicbox delivers payments to the Epicbox address and holds them until the wallet is online.';
+  String get deskSetupEpicboxText => 'Epicbox 会把付款送到 Epicbox 地址，并暂存到钱包上线为止。';
 
   @override
   String get deskSetupEpicboxPrivacy =>
-      'It does not hide the IP address from the Epicbox server. Use a VPN if that matters.';
+      '它不会对 Epicbox 服务器隐藏你的 IP 地址。如果你在意这一点，请使用 VPN。';
 
   @override
-  String get deskSetupEpicboxServer => 'Epicbox server';
+  String get deskSetupEpicboxServer => 'Epicbox 服务器';
 
   @override
-  String get deskSetupEpicboxHelp =>
-      'Leave empty to turn receiving through Epicbox off.';
+  String get deskSetupEpicboxHelp => '留空即关闭通过 Epicbox 接收。';
 
   @override
-  String get deskSetupChangePrefsSem => 'Change preferences';
+  String get deskSetupChangePrefsSem => '更改偏好设置';
 
   @override
-  String get deskSetupChangeNodeSem => 'Change node';
+  String get deskSetupChangeNodeSem => '更改节点';
 
   @override
-  String get deskSetupChangeEpicboxSem => 'Change epicbox';
+  String get deskSetupChangeEpicboxSem => '更改 Epicbox';
 
   @override
-  String get deskSetupChange => 'Change';
+  String get deskSetupChange => '更改';
 
   @override
-  String get deskSetupType => 'Type';
+  String get deskSetupType => '类型';
 
   @override
-  String get deskSetupAddress => 'Address';
+  String get deskSetupAddress => '地址';
 
   @override
   String deskSetupExistingNode(String host) {
-    return 'Existing node at $host';
+    return '$host 上的现有节点';
   }
 
   @override
-  String get deskSetupBundledNode => 'Local node, bundled';
+  String get deskSetupBundledNode => '本地节点（内置）';
 
   @override
-  String get deskSetupWhileSyncing => 'While syncing';
+  String get deskSetupWhileSyncing => '同步期间';
 
   @override
-  String get deskSetupWait => 'wait';
+  String get deskSetupWait => '等待';
 
   @override
-  String get deskSetupDataFolder => 'Data folder';
+  String get deskSetupDataFolder => '数据文件夹';
 
   @override
   String deskSetupSaveStartsFallback(String node) {
-    return 'Save starts the node. The first sync takes hours; the wallet opens meanwhile and uses $node until then.';
+    return '保存后会启动节点。首次同步需要数小时；期间钱包会打开，并使用 $node。';
   }
 
   @override
-  String get deskSetupSaveStarts =>
-      'Save starts the node. The first sync takes hours; the wallet opens meanwhile.';
+  String get deskSetupSaveStarts => '保存后会启动节点。首次同步需要数小时；期间钱包会打开。';
 
   @override
-  String get deskSetupServer => 'Server';
+  String get deskSetupServer => '服务器';
 
   @override
-  String get deskSetupOff => 'Off';
+  String get deskSetupOff => '关闭';
 
   @override
-  String get deskSetAboutLicencesLead =>
-      'Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.';
+  String get deskSetAboutLicencesLead => '本钱包使用的开源软件。每个组件都保留各自的许可证；点击即可查看全文。';
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.';
+      'Epic Cash Desktop，BT Labs 出品：Apache-2.0。代码托管在 GitHub 上。';
 
   @override
-  String get deskSetAboutBrowserNotOpened => 'Browser not opened';
+  String get deskSetAboutBrowserNotOpened => '未能打开浏览器';
 
   @override
-  String get deskSetAboutOpen => 'Open';
+  String get deskSetAboutOpen => '打开';
 
   @override
   String deskSetAboutVersion(String version) {
-    return 'Version  $version';
+    return '版本  $version';
   }
 
   @override
   String deskSetAboutNode(String version) {
-    return 'Node  $version';
+    return '节点  $version';
   }
 
   @override
-  String get deskSetAboutCommunity => 'Community';
+  String get deskSetAboutCommunity => '社区';
 
   @override
-  String get deskSetAboutLicences => 'Licences';
+  String get deskSetAboutLicences => '许可证';
 
   @override
-  String get deskSetAboutSource => 'Source code';
+  String get deskSetAboutSource => '源代码';
 
   @override
-  String get deskSetAboutView => 'View';
+  String get deskSetAboutView => '查看';
 
   @override
   String deskSetAboutChecked(String ago) {
-    return 'Checked $ago.';
+    return '$ago检查过。';
   }
 
   @override
   String deskSetAboutLatest(String version) {
-    return '$version is the latest';
+    return '$version 已是最新版本';
   }
 
   @override
   String deskSetAboutAvailable(String version) {
-    return 'Update available: $version';
+    return '有可用更新：$version';
   }
 
   @override
-  String get deskSetAboutCouldNotCheck => 'Could not check';
+  String get deskSetAboutCouldNotCheck => '无法检查';
 
   @override
-  String get deskSetAboutUpdates => 'Updates';
+  String get deskSetAboutUpdates => '更新';
 
   @override
   String deskSetAboutGet(String version) {
-    return 'Get $version';
+    return '获取 $version';
   }
 
   @override
-  String get deskSetAboutCheckNow => 'Check now';
+  String get deskSetAboutCheckNow => '立即检查';
 
   @override
-  String get deskSetAboutAgoNow => 'just now';
+  String get deskSetAboutAgoNow => '刚刚';
 
   @override
   String deskSetAboutAgoMin(int count) {
-    return '$count min ago';
+    return '$count 分钟前';
   }
 
   @override
   String deskSetAboutAgoHours(int count) {
-    return '$count h ago';
+    return '$count 小时前';
   }
 
   @override
   String deskSetAboutAgoDays(int count) {
-    return '$count d ago';
+    return '$count 天前';
   }
 
   @override
-  String get deskSetAboutCopyLink => 'Copy link';
+  String get deskSetAboutCopyLink => '复制链接';
 
   @override
-  String get deskSetAboutCopied => 'Copied';
+  String get deskSetAboutCopied => '已复制';
 
   @override
-  String get deskSetAboutNotCopied => 'Not copied';
+  String get deskSetAboutNotCopied => '未复制';
 
   @override
-  String get deskSetAppearTheme => 'Theme';
+  String get deskSetAppearTheme => '主题';
 
   @override
-  String get deskSetAppearThemeHint => 'System follows the computer’s setting.';
+  String get deskSetAppearThemeHint => '“系统”会跟随电脑的设置。';
 
   @override
-  String get deskSetAppearSystem => 'System';
+  String get deskSetAppearSystem => '系统';
 
   @override
-  String get deskSetAppearDark => 'Dark';
+  String get deskSetAppearDark => '深色';
 
   @override
-  String get deskSetAppearLight => 'Light';
+  String get deskSetAppearLight => '浅色';
 
   @override
-  String get deskSetAppearScale => 'Interface scale';
+  String get deskSetAppearScale => '界面缩放';
 
   @override
-  String get deskSetAppearScaleHint =>
-      'Text and controls, larger or smaller. Applies at once.';
+  String get deskSetAppearScaleHint => '放大或缩小文字和控件。立即生效。';
 
   @override
-  String get deskSetAppearLanguage => 'Language';
+  String get deskSetAppearLanguage => '语言';
 
   @override
-  String get deskSetAppearLanguageHint => 'Applies at once.';
+  String get deskSetAppearLanguageHint => '立即生效。';
 
   @override
-  String get deskSetAppearHideHint =>
-      'Shows dots in place of balances and amounts.';
+  String get deskSetAppearHideHint => '用圆点代替余额和金额。';
 
   @override
   String deskSetHelpNoMatchText(String query) {
-    return 'No topic matches “$query”. Try another word.';
+    return '没有与“$query”匹配的主题。换个词试试。';
   }
 
   @override
@@ -12819,122 +12471,130 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Topics found: $count',
-      one: 'Topics found: $count',
+      other: '找到的主题：$count',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSetHelpNoMatch => 'No topic matches';
+  String get deskSetHelpNoMatch => '没有匹配的主题';
 
   @override
   String get deskSetHelpReportText =>
-      'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer. Save to file keeps a copy to send by hand.';
+      '描述出了什么问题。可以附上应用日志，日志会清除机密信息并加密发送给开发者。“保存到文件”会保留一份副本，供你手动发送。';
 
   @override
-  String get deskSetHelpShowLess => 'Show less';
+  String get deskSetHelpShowLess => '收起';
 
   @override
-  String get deskSetHelpReadMore => 'Read more';
+  String get deskSetHelpReadMore => '展开阅读';
 
   @override
-  String get deskSetHelpEb1 =>
-      'The sending wallet passes the payment to Epicbox and locks the outputs.';
+  String get deskSetHelpEb1 => '发送方钱包把付款交给 Epicbox，并锁定相应的输出。';
 
   @override
-  String get deskSetHelpEb2 =>
-      'Epicbox delivers it when the receiving wallet is online. That wallet adds its part and signs.';
+  String get deskSetHelpEb2 => '接收方钱包上线时，Epicbox 把付款送达。该钱包加入自己的部分并签名。';
 
   @override
-  String get deskSetHelpEb3 => 'The receiving wallet sends it back to Epicbox.';
+  String get deskSetHelpEb3 => '接收方钱包把它发回 Epicbox。';
 
   @override
-  String get deskSetHelpEb4 => 'Epicbox passes it back to the sending wallet.';
+  String get deskSetHelpEb4 => 'Epicbox 把它转回发送方钱包。';
 
   @override
-  String get deskSetHelpSigns =>
-      'The sending wallet signs too, finishes the transaction and posts it to the network.';
+  String get deskSetHelpSigns => '发送方钱包也签名，完成交易并广播到网络。';
 
   @override
   String deskSetHelpFinal(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'The network puts it in a block. After $count confirmations it is final.',
-      one:
-          'The network puts it in a block. After $count confirmation it is final.',
+      other: '网络把它打包进区块。$count 个确认之后即为最终状态。',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSetHelpFile1 =>
-      'The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.';
+  String get deskSetHelpFile1 => '发送方钱包保存一个交易文件并锁定相应的输出。文件可以通过任何方式交给接收方。';
 
   @override
-  String get deskSetHelpFile2 =>
-      'The recipient opens it. Their wallet adds its part, signs and saves a response file.';
+  String get deskSetHelpFile2 => '接收方打开文件。对方钱包加入自己的部分、签名，并保存一个回复文件。';
 
   @override
-  String get deskSetHelpFile3 => 'The response file comes back to the sender.';
+  String get deskSetHelpFile3 => '回复文件回到发送方手中。';
 
   @override
-  String get deskSetHelpFile4 =>
-      'The sender opens the response file under Finalize.';
+  String get deskSetHelpFile4 => '发送方在“完成交易”中打开回复文件。';
 
   @override
-  String get deskSetHelpSender => 'Sender';
+  String get deskSetHelpSender => '发送方';
 
   @override
-  String get deskSetHelpFile => 'File';
+  String get deskSetHelpFile => '文件';
 
   @override
-  String get deskSetHelpRecipient => 'Recipient';
+  String get deskSetHelpRecipient => '接收方';
 
   @override
-  String get deskSetHelpNetwork => 'Network';
+  String get deskSetHelpNetwork => '网络';
 
   @override
-  String get deskSetHelpTravels => 'How a transaction travels';
+  String get deskSetHelpTravels => '一笔交易如何传递';
 
   @override
-  String get deskSetHelpOverEpicbox => 'Over Epicbox';
+  String get deskSetHelpOverEpicbox => '经由 Epicbox';
 
   @override
-  String get deskSetHelpWithFile => 'With a file';
+  String get deskSetHelpWithFile => '使用文件';
 
   @override
   String deskSetHelpStep(int number, int total) {
-    return 'Step $number of $total';
+    return '第 $number 步，共 $total 步';
   }
 
   @override
-  String get deskSetHelpSearch => 'Search help';
+  String get deskSetHelpSearch => '搜索帮助';
 
   @override
-  String get deskSetHelpSearchKeys =>
-      'Press / to search. Esc clears the search.';
+  String get deskSetHelpSearchKeys => '按 / 搜索。按 Esc 清除搜索。';
 
   @override
-  String get deskSetHelpSearchHint =>
-      'For example: file, confirmations, phrase';
+  String get deskSetHelpSearchHint => '例如：文件、确认、助记词';
 
   @override
-  String get deskSetHelpClear => 'Clear search';
+  String get deskSetHelpClear => '清除搜索';
 
   @override
-  String get deskSetHelpTourAgain => 'Show the tour again';
+  String get deskSetHelpTourAgain => '重新查看导览';
 
   @override
   String deskSetHelpTopics(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count topics',
-      one: '$count topic',
+      other: '$count 个主题',
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskErrSecretProtect =>
+      'Windows 无法保护钱包的机密（DPAPI 拒绝），因此未保存任何内容。请用你自己的账户和密码登录 Windows，不要通过远程或服务会话，然后重试。';
+
+  @override
+  String get deskKeyringMissingTitle => '未找到密钥环';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，但没有密钥环响应。请安装或启动密钥环（GNOME Keyring 或 KWallet），登录运行密钥环的桌面会话，然后选择重试。';
+
+  @override
+  String get deskKeyringLockedTitle => '密钥环已锁定';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（使用您的登录密码），然后选择重试，或选择立即解锁让系统询问密码。';
+
+  @override
+  String get deskKeyringUnlockNow => '立即解锁';
 }

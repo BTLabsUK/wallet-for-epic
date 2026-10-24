@@ -626,6 +626,19 @@ void main() {
       await node.stop();
     });
 
+    // linux-04: an AppImage mounts at a new /tmp/.mount_* each run, so the node left by the
+    // killed run is the same binary at another path, or one whose mount is gone.
+    for (final exe in ['/tmp/.mount_EarLieR/usr/bin/epic', '/tmp/.mount_EarLieR/usr/bin/epic (deleted)']) {
+      test('our leftover node from an earlier AppImage mount ($exe) is stopped, then a fresh one starts', () async {
+        final node = make();
+        orphan(node, 777, exe: exe);
+        await node.start();
+        expect(inspector.terminated, [777]);
+        expect(spawned, hasLength(1));
+        await node.stop();
+      });
+    }
+
     test(
       'a leftover that ignores the polite stop is killed after a re-check',
       () async {

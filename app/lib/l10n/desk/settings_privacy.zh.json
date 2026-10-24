@@ -1,0 +1,19 @@
+{
+  "deskSetPrivTorOnFailed": "Tor 未开启",
+  "deskSetPrivTorOffFailed": "Tor 未关闭",
+  "deskSetPrivTor": "Tor",
+  "deskSetPrivSwitching": "正在切换 Tor",
+  "deskSetPrivTurnOff": "关闭 Tor",
+  "deskSetPrivNotInBuild": "此版本不含 Tor",
+  "deskSetPrivStarting": "正在启动…",
+  "deskSetPrivStartingDetail": "{progress}%。{waiting}会等到 Tor 连接成功。",
+  "deskSetPrivNotPublished": "Tor 地址尚未发布。发送不受影响。",
+  "deskSetPrivProblemSendsWork": "{problem}。发送不受影响。",
+  "deskSetPrivConnected": "已连接。",
+  "deskSetPrivNotConnected": "未连接",
+  "deskSetPrivStoppedDetail": "Tor 已停止。{waiting}会等待你点击“重试”或关闭 Tor。",
+  "deskSetPrivProblemDetail": "{problem}。{waiting}会等待你点击“重试”或关闭 Tor。",
+  "deskSetPrivStatusSite": "状态网站",
+  "deskSetPrivUseStatus": "使用 status.btlabs.uk",
+  "deskSetPrivUseStatusHint": "网络状态和信息由 status.btlabs.uk 提供"
+}

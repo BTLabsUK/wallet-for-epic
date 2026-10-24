@@ -7648,7 +7648,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendPasswordHelp =>
-      'Mit gespeichertem Passwort geöffnet: Für diese Zahlung wird es abgefragt.';
+      'Jede Zahlung fragt das Wallet-Passwort ab.';
 
   @override
   String get deskSendBusyFile => 'Die Datei wird erstellt.';
@@ -8367,7 +8367,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOutSplitChangeText =>
-      'Blieben nach einer Zahlung weniger als 3 verfügbare Outputs übrig, kommt ihr Wechselgeld als bis zu 4 Outputs zurück. Kostet 0,004 EPIC je zusätzlichem Output.';
+      'Blieben nach einer Zahlung weniger als 3 verfügbare Outputs übrig und beträgt das Wechselgeld mindestens 1 EPIC, kommt es als bis zu 4 Outputs von je mindestens 0,5 EPIC zurück. Kostet 0,004 EPIC je zusätzlichem Output.';
 
   @override
   String get deskOutColValue => 'Wert';
@@ -13434,4 +13434,25 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskErrSecretProtect =>
+      'Windows konnte die Geheimnisse der Wallet nicht schützen (DPAPI hat abgelehnt), daher wurde nichts gespeichert. Melden Sie sich mit Ihrem eigenen Konto und dessen Passwort bei Windows an, nicht über eine Remote- oder Dienstsitzung, und versuchen Sie es erneut.';
+
+  @override
+  String get deskKeyringMissingTitle => 'Kein Schlüsselbund gefunden';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, aber keiner hat geantwortet. Installiere oder starte einen Schlüsselbund (GNOME Keyring oder KWallet), melde dich in einer Desktop-Sitzung an, die einen ausführt, und wähle dann Wiederholen.';
+
+  @override
+  String get deskKeyringLockedTitle => 'Der Schlüsselbund ist gesperrt';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, und der ist gesperrt. Entsperre ihn (er öffnet sich mit deinem Anmeldepasswort) und wähle dann Wiederholen, oder wähle Jetzt entsperren, damit das System danach fragt.';
+
+  @override
+  String get deskKeyringUnlockNow => 'Jetzt entsperren';
 }

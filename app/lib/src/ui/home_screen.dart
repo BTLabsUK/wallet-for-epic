@@ -258,13 +258,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-  /// Refreshes unless another screen covers home, the app is in the background, or a refresh
-  /// or scan is already running.
+  /// Refreshes unless the app is in the background, or a refresh or scan is already running.
+  /// Also under another screen: Outputs and the transaction details show the same figures, and
+  /// they stood still while the header kept saying Synced (android-06).
   void _autoRefresh() {
     if (!mounted) return;
     final life = WidgetsBinding.instance.lifecycleState;
     if (life != null && life != AppLifecycleState.resumed) return;
-    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
     if (_syncing(ref.read(homeProvider)) || ref.read(scanProvider).running) {
       return;
     }

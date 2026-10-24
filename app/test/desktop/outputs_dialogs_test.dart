@@ -300,6 +300,13 @@ void main() {
       expect(wallet.saved, const OutputPrefs(strategy: SelectionStrategy.all, smartOutputs: false));
     });
 
+    testWidgets('linux-07: Split change says which change it splits', (tester) async {
+      await page(tester, [out(1, 10, OutputStatus.unspent)], bal(10));
+      // The rule (smart_outputs.dart): change of at least 1 EPIC, parts of at least 0.5 EPIC.
+      expect(find.textContaining('at least 1 EPIC'), findsOneWidget);
+      expect(find.textContaining('0.5 EPIC'), findsOneWidget);
+    });
+
     testWidgets('spent outputs show only when asked; tiles count outputs', (tester) async {
       await page(tester, [out(1, 10, OutputStatus.unspent), out(2, 5, OutputStatus.spent)], bal(10));
       expect(find.text('Spent'), findsNothing);

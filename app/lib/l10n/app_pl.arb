@@ -2015,7 +2015,7 @@
   "deskOutStrategyHelp": "Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania. Wszystkie wydaje wszystko i zwraca jedno wyjście.",
   "deskOutStrategyHelpTitle": "Najmniejsze czy Wszystkie",
   "deskOutSplitChangeTitle": "Podziel resztę",
-  "deskOutSplitChangeText": "Gdy po wysyłce zostałyby mniej niż 3 wyjścia do wydania, reszta wraca jako maksymalnie 4 wyjścia. Każde dodatkowe wyjście kosztuje 0,004 EPIC.",
+  "deskOutSplitChangeText": "Gdy po wysyłce zostałyby mniej niż 3 wyjścia do wydania, a reszta wynosi co najmniej 1 EPIC, reszta wraca jako maksymalnie 4 wyjścia po co najmniej 0,5 EPIC każde. Każde dodatkowe wyjście kosztuje 0,004 EPIC.",
   "deskOutColValue": "Wartość",
   "deskOutColStatus": "Stan",
   "deskOutColConfirmations": "Potwierdzenia",
@@ -2338,7 +2338,7 @@
   "deskSendDandelionOff": "Dandelion++ wyłączony",
   "deskSendFactMessage": "Wiadomość",
   "deskSendPassword": "Hasło",
-  "deskSendPasswordHelp": "Portfel otwarto zapamiętanym hasłem: ta wysyłka o nie prosi.",
+  "deskSendPasswordHelp": "Każda wysyłka prosi o hasło portfela.",
   "deskSendBusyFile": "Tworzenie pliku.",
   "deskSendBusyTor": "Łączenie z portfelem odbiorcy przez Tor… To może potrwać. Nie zamykaj aplikacji.",
   "deskSendBusy": "Wysyłanie. Może to potrwać kilka sekund; nie zamykaj tego okna.",
@@ -3480,5 +3480,11 @@
   "deskSetupSaveStartsFallback": "Zapisanie uruchomi węzeł. Pierwsza synchronizacja trwa kilka godzin; portfel otworzy się wcześniej i do tego czasu użyje węzła {node}.",
   "deskSetupSaveStarts": "Zapisanie uruchomi węzeł. Pierwsza synchronizacja trwa kilka godzin; portfel otworzy się wcześniej.",
   "deskSetupServer": "Serwer",
-  "deskSetupOff": "Wyłączony"
+  "deskSetupOff": "Wyłączony",
+  "deskErrSecretProtect": "Windows nie mógł zabezpieczyć sekretów portfela (DPAPI odmówiło), więc nic nie zapisano. Zaloguj się do Windows na własne konto i jego hasłem, nie przez sesję zdalną ani usługową, i spróbuj ponownie.",
+  "deskKeyringMissingTitle": "Nie znaleziono pęku kluczy",
+  "deskKeyringMissingText": "Epic Cash przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, ale żaden nie odpowiedział. Zainstaluj lub uruchom pęk kluczy (GNOME Keyring lub KWallet), zaloguj się do sesji pulpitu, która go uruchamia, a potem wybierz Ponów.",
+  "deskKeyringLockedTitle": "Pęk kluczy jest zablokowany",
+  "deskKeyringLockedText": "Epic Cash przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, który jest zablokowany. Odblokuj go (otwiera się hasłem logowania), a potem wybierz Ponów, albo wybierz Odblokuj teraz, aby system o nie poprosił.",
+  "deskKeyringUnlockNow": "Odblokuj teraz"
 }

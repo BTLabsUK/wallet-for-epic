@@ -149,7 +149,7 @@
   "deskSendDandelionOff": "ปิด Dandelion++",
   "deskSendFactMessage": "ข้อความ",
   "deskSendPassword": "รหัสผ่าน",
-  "deskSendPasswordHelp": "เปิดด้วยรหัสผ่านที่จำไว้: การส่งนี้จึงต้องใส่รหัสผ่าน",
+  "deskSendPasswordHelp": "ทุกการส่งต้องใส่รหัสผ่านกระเป๋าเงิน",
   "deskSendBusyFile": "กำลังสร้างไฟล์",
   "deskSendBusyTor": "กำลังติดต่อกระเป๋าเงินของผู้รับผ่าน Tor… อาจใช้เวลาสักพัก เปิดแอปไว้",
   "deskSendBusy": "กำลังส่ง อาจใช้เวลาไม่กี่วินาที เปิดหน้าต่างนี้ไว้",

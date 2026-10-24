@@ -7540,8 +7540,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendPassword => 'Password';
 
   @override
-  String get deskSendPasswordHelp =>
-      'Opened with the remembered password: this send asks it.';
+  String get deskSendPasswordHelp => 'Every send asks the wallet’s password.';
 
   @override
   String get deskSendBusyFile => 'Creating the file.';
@@ -8257,7 +8256,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOutSplitChangeText =>
-      'When a send would leave fewer than 3 spendable outputs, its change comes back as up to 4 outputs. Costs 0.004 EPIC per extra output.';
+      'When a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC, the change comes back as up to 4 outputs of at least 0.5 EPIC each. Costs 0.004 EPIC per extra output.';
 
   @override
   String get deskOutColValue => 'Value';
@@ -13284,4 +13283,25 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskErrSecretProtect =>
+      'Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Sign in to Windows with your own account and its password, not through a remote or service session, then try again.';
+
+  @override
+  String get deskKeyringMissingTitle => 'No keyring found';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash keeps its settings and your wallet\'s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.';
+
+  @override
+  String get deskKeyringLockedTitle => 'The keyring is locked';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash keeps its settings and your wallet\'s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.';
+
+  @override
+  String get deskKeyringUnlockNow => 'Unlock now';
 }

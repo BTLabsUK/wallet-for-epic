@@ -124,5 +124,6 @@
   "deskDataUpdTimeout": "Serwer aktualizacji nie odpowiedział.",
   "deskDataUpdUnreachable": "Nie udało się połączyć z serwerem aktualizacji.",
   "deskDataUpdStatus": "Serwer aktualizacji zwrócił {status}.",
-  "deskDataUpdNone": "Nie opublikowano jeszcze informacji o aktualizacjach wersji desktopowej."
+  "deskDataUpdNone": "Nie opublikowano jeszcze informacji o aktualizacjach wersji desktopowej.",
+  "deskErrSecretProtect": "Windows nie mógł zabezpieczyć sekretów portfela (DPAPI odmówiło), więc nic nie zapisano. Zaloguj się do Windows na własne konto i jego hasłem, nie przez sesję zdalną ani usługową, i spróbuj ponownie."
 }

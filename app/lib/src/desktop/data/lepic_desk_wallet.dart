@@ -90,6 +90,7 @@ const String cancelRefusedText = 'Not cancelled: the node already has this payme
 String deskErrorText(Object error, [AppLocalizations? l]) {
   l ??= englishStrings;
   if (error is DeskError) return error.text(l);
+  if (error is SecretProtectError) return l.deskErrSecretProtect;
   if (error is! core.WalletError) return l.deskErrSomethingWrong;
   final detail = error.message.split('\n').first.trim();
   return switch (error.kind) {
@@ -2599,6 +2600,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (_fallbackSeq != seq) unawaited(_applyFallback(_fallbackSeq));
       return;
     }
+    _dropStartNotice();
     await _nodeLock(() async {
       // Not on yet (a start still pending): only the node stops; the wallet never moved.
       if (!await _builtInOn()) {
@@ -2663,8 +2665,29 @@ class LepicDeskWallet implements DeskWalletApi {
       logWarn('desk', 'built-in node did not start: ${e is NodeStartException ? e.failure.name : e.runtimeType}');
       _notice = deskStrings.deskErrLocalNodeNotStarted(e is NodeStartException ? e.message : deskStrings.deskErrUnknown);
       _changed();
+      // The notice describes that failed start only: it goes when the node is started later
+      // (also an earlier run's node adopted) or stopped, not when the page is left.
+      _startNotice = _notice;
+      _nodeNoticeSub?.cancel();
+      _nodeNoticeSub = _node?.states.listen((s) {
+        if (s.kind != NodeStatusKind.failed) _dropStartNotice();
+      });
     }
   }
+
+  String? _startNotice;
+
+  void _dropStartNotice() {
+    _nodeNoticeSub?.cancel();
+    _nodeNoticeSub = null;
+    if (_startNotice != null && _notice == _startNotice) {
+      _notice = null;
+      _changed();
+    }
+    _startNotice = null;
+  }
+
+  StreamSubscription<BuiltInNodeState>? _nodeNoticeSub;
 
   /// The tip of the node [config] names. With a wallet open it is asked through the wallet
   /// (LEPIC's nodeTipFor), which takes it over Tor while Tor is on. With none open, the core's
@@ -3895,6 +3918,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> dispose() async {
     statusSite.removeListener(_statusSiteChanged);
     await _lock(waitAtMost: closeWait);
+    await _nodeNoticeSub?.cancel();
     await _node?.stop();
     await _changes.close();
     await _invoiceNotices.close();

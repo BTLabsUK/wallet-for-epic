@@ -7388,8 +7388,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendPassword => 'รหัสผ่าน';
 
   @override
-  String get deskSendPasswordHelp =>
-      'เปิดด้วยรหัสผ่านที่จำไว้: การส่งนี้จึงต้องใส่รหัสผ่าน';
+  String get deskSendPasswordHelp => 'ทุกการส่งต้องใส่รหัสผ่านกระเป๋าเงิน';
 
   @override
   String get deskSendBusyFile => 'กำลังสร้างไฟล์';
@@ -8095,7 +8094,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOutSplitChangeText =>
-      'เมื่อการส่งจะเหลือเอาต์พุตที่ใช้ได้น้อยกว่า 3 เงินทอนจะกลับมาเป็นเอาต์พุตได้ถึง 4 ก้อน คิด 0.004 EPIC ต่อเอาต์พุตที่เพิ่ม';
+      'เมื่อการส่งจะเหลือเอาต์พุตที่ใช้ได้น้อยกว่า 3 และเงินทอนมีอย่างน้อย 1 EPIC เงินทอนจะกลับมาเป็นเอาต์พุตได้ถึง 4 ก้อน ก้อนละอย่างน้อย 0.5 EPIC คิด 0.004 EPIC ต่อเอาต์พุตที่เพิ่ม';
 
   @override
   String get deskOutColValue => 'มูลค่า';
@@ -13032,4 +13031,25 @@ class AppLocalizationsTh extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskErrSecretProtect =>
+      'Windows ป้องกันข้อมูลลับของกระเป๋าเงินไม่ได้ (DPAPI ปฏิเสธ) จึงไม่ได้บันทึกอะไร ลงชื่อเข้าใช้ Windows ด้วยบัญชีของคุณเองและรหัสผ่านของบัญชีนั้น ไม่ใช่ผ่านเซสชันระยะไกลหรือเซสชันบริการ แล้วลองอีกครั้ง';
+
+  @override
+  String get deskKeyringMissingTitle => 'ไม่พบพวงกุญแจ';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ แต่ไม่มีพวงกุญแจใดตอบกลับ ติดตั้งหรือเริ่มพวงกุญแจ (GNOME Keyring หรือ KWallet) เข้าสู่ระบบเดสก์ท็อปที่ใช้งานพวงกุญแจ แล้วเลือกลองอีกครั้ง';
+
+  @override
+  String get deskKeyringLockedTitle => 'พวงกุญแจถูกล็อก';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ ซึ่งถูกล็อกอยู่ ปลดล็อกพวงกุญแจ (ใช้รหัสผ่านเข้าสู่ระบบ) แล้วเลือกลองอีกครั้ง หรือเลือกปลดล็อกตอนนี้เพื่อให้ระบบถามรหัสผ่าน';
+
+  @override
+  String get deskKeyringUnlockNow => 'ปลดล็อกตอนนี้';
 }

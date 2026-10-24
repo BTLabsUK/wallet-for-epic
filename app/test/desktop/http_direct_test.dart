@@ -383,6 +383,12 @@ void main() {
       expect(a, '10.0.1.24');
     });
 
+    test('windows-04: a VPN adapter listed first does not beat the Ethernet address', () async {
+      expect(await lanAddress(list: () async => nics({'NordLynx': '10.5.0.2', 'Ethernet': '10.0.0.57'})), '10.0.0.57');
+      expect(await lanAddress(list: () async => nics({'OpenVPN TAP-Windows': '10.8.0.6', 'Wi-Fi': '172.20.1.5'})), '172.20.1.5');
+      expect(await lanAddress(list: () async => nics({'Unknown1': '10.0.0.4', 'Unknown2': '10.0.0.9'})), '10.0.0.9');
+    });
+
     test('a public address only when no private one is left; none with only virtual ones', () async {
       expect(await lanAddress(list: () async => nics({'docker0': '172.17.0.1', 'eth0': '203.0.113.9'})), '203.0.113.9');
       expect(await lanAddress(list: () async => nics({'docker0': '172.17.0.1', 'utun3': '10.0.0.2', 'zt0': '10.1.0.2'})), isNull);

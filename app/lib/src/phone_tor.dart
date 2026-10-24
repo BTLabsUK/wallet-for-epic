@@ -707,6 +707,13 @@ class PhoneTor extends Notifier<PhoneTorState> {
     try {
       await session.refreshTor(networkChanged: renew);
       logInfo('tor', 'refreshed after $why${renew ? ', connections renewed' : ''}');
+      // Renewing turns tor's network off and on, which reopens its SOCKS port elsewhere: the
+      // app's own requests follow it, or they would fail at the old one.
+      final port = (await session.torStatus()).socksPort;
+      if (_current(generation) && _tor == sub && port != null && port != state.socksPort) {
+        logInfo('tor', 'SOCKS port moved');
+        state = state.copyWith(socksPort: port);
+      }
       return;
     } on WalletError catch (e) {
       if (e.kind != WalletErrorKind.torNotRunning) {
