@@ -4515,21 +4515,8 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String serverSwitchTo(String host) {
-    return 'เปลี่ยนเป็น $host';
-  }
-
-  @override
-  String get serverNodeSwitchNote =>
-      'กระเป๋าจะเชื่อมต่อใหม่ และตรวจยอดคงเหลืออีกครั้งกับโหนดใหม่';
-
-  @override
   String get serverRelayWarning =>
       'ที่อยู่ของคุณมีเซิร์ฟเวอร์นี้อยู่ด้วย การเปลี่ยนจะทำให้ที่อยู่เปลี่ยน ผู้ส่งต้องใช้ที่อยู่ใหม่';
-
-  @override
-  String get serverRelaySwitchNote =>
-      'ที่อยู่ของคุณจะเปลี่ยน ผู้ส่งต้องใช้ที่อยู่ใหม่';
 
   @override
   String get serverOtherRelay => 'เซิร์ฟเวอร์อื่น host หรือ host:port';
@@ -13733,12 +13720,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get slRelayField => 'เซิร์ฟเวอร์ Epicbox';
 
   @override
-  String get slHelpIdleNode =>
-      'ใช้อยู่ แก้ไขเพื่อเปลี่ยน หรือพิมพ์เพื่อกรองรายการ';
+  String get slFieldHint => 'Paste or type to filter or add';
 
   @override
-  String get slHelpIdleRelay =>
-      'ใช้อยู่ แก้ไขเพื่อเปลี่ยน หรือพิมพ์เพื่อกรองรายการ';
+  String slSwitchTitle(String host) {
+    return 'Switch to $host?';
+  }
+
+  @override
+  String get slSwitchBody => 'Your Epicbox address changes. Share the new one.';
+
+  @override
+  String get slSwitch => 'Switch';
 
   @override
   String get slHelpAddable => 'ไม่อยู่ในรายการ';
@@ -13830,11 +13823,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSlTorWait => 'Tor ยังไม่ได้เชื่อมต่อ ไม่ได้เพิ่มอะไร';
-
-  @override
-  String deskSlSwitchTo(String host) {
-    return 'เปลี่ยนเป็น $host';
-  }
 
   @override
   String deskSlLatency(String ms) {

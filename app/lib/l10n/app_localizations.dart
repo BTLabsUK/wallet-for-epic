@@ -7155,29 +7155,11 @@ abstract class AppLocalizations {
   /// **'{percent} % up'**
   String serverUptime(String percent);
 
-  /// Confirm strip button: switch to the chosen server.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to {host}'**
-  String serverSwitchTo(String host);
-
-  /// Confirm strip caption: what switching the node does.
-  ///
-  /// In en, this message translates to:
-  /// **'The wallet reconnects. Balances are checked again against the new node.'**
-  String get serverNodeSwitchNote;
-
   /// Epicbox picker warning above the list.
   ///
   /// In en, this message translates to:
   /// **'Your address includes this server. Switching changes your address; senders need the new one.'**
   String get serverRelayWarning;
-
-  /// Epicbox confirm strip caption.
-  ///
-  /// In en, this message translates to:
-  /// **'Your address changes; senders need the new one.'**
-  String get serverRelaySwitchNote;
 
   /// Epicbox picker field at the foot of the list for a relay not in the lists. Beside the Add button.
   ///
@@ -22148,7 +22130,7 @@ abstract class AppLocalizations {
   /// **'The wallet looks for its funds again, from the first block. This can take a long time.'**
   String get settingsRescanBodyPlain;
 
-  /// Label of the one field at the top of the Node sheet: it holds the node in use, filters the list while typed in, and adds an address that is not listed.
+  /// Label of the one field at the top of the Node sheet: it starts empty, filters the list while typed in, and adds an address that is not listed.
   ///
   /// In en, this message translates to:
   /// **'Node address'**
@@ -22160,17 +22142,29 @@ abstract class AppLocalizations {
   /// **'Epicbox server'**
   String get slRelayField;
 
-  /// Under the Node field while it still holds the node in use.
+  /// Placeholder of the Node and Epicbox list field while it is empty: the field filters the list and adds an address that is not listed. The server in use is never shown in it.
   ///
   /// In en, this message translates to:
-  /// **'In use. Edit it to switch, or type to filter the list.'**
-  String get slHelpIdleNode;
+  /// **'Paste or type to filter or add'**
+  String get slFieldHint;
 
-  /// Under the Epicbox field while it still holds the server in use.
+  /// Title of the Epicbox confirm that opens when a server in the list is tapped. {host} is the server.
   ///
   /// In en, this message translates to:
-  /// **'In use. Edit it to switch, or type to filter the list.'**
-  String get slHelpIdleRelay;
+  /// **'Switch to {host}?'**
+  String slSwitchTitle(String host);
+
+  /// One line under that title: switching Epicbox changes the address senders pay to.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Epicbox address changes. Share the new one.'**
+  String get slSwitchBody;
+
+  /// Button that confirms the Epicbox switch, and the action beside the Added foot line of the Node and Epicbox lists. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get slSwitch;
 
   /// Under the field while it holds an address no row has: the Add row is offered above the list.
   ///
@@ -22303,12 +22297,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tor is not connected yet. Nothing added.'**
   String get deskSlTorWait;
-
-  /// The primary button at the foot of the Node or Epicbox list after a row was picked.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to {host}'**
-  String deskSlSwitchTo(String host);
 
   /// A row's response time in milliseconds.
   ///

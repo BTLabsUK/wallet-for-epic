@@ -4374,18 +4374,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String serverSwitchTo(String host) {
-    return '切换到 $host';
-  }
-
-  @override
-  String get serverNodeSwitchNote => '钱包将重新连接，并根据新节点重新核对余额。';
-
-  @override
   String get serverRelayWarning => '你的地址包含此服务器。切换会更改你的地址；发送方需要新地址。';
-
-  @override
-  String get serverRelaySwitchNote => '你的地址将改变；发送方需要新地址。';
 
   @override
   String get serverOtherRelay => '其他服务器，host 或 host:port';
@@ -13278,10 +13267,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slRelayField => 'Epicbox 服务器';
 
   @override
-  String get slHelpIdleNode => '使用中。修改即可切换，或输入文字筛选列表。';
+  String get slFieldHint => 'Paste or type to filter or add';
 
   @override
-  String get slHelpIdleRelay => '使用中。修改即可切换，或输入文字筛选列表。';
+  String slSwitchTitle(String host) {
+    return 'Switch to $host?';
+  }
+
+  @override
+  String get slSwitchBody => 'Your Epicbox address changes. Share the new one.';
+
+  @override
+  String get slSwitch => 'Switch';
 
   @override
   String get slHelpAddable => '不在列表中。';
@@ -13371,11 +13368,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSlTorWait => 'Tor 尚未连接。未添加任何内容。';
-
-  @override
-  String deskSlSwitchTo(String host) {
-    return '切换到 $host';
-  }
 
   @override
   String deskSlLatency(String ms) {

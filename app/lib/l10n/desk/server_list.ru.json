@@ -4,7 +4,6 @@
   "deskSlHealthUnknown": "Состояние неизвестно",
   "deskSlNodeNoAnswer": "Узел не отвечает. Ничего не добавлено.",
   "deskSlTorWait": "Tor ещё не подключён. Ничего не добавлено.",
-  "deskSlSwitchTo": "Переключиться на {host}",
   "deskSlLatency": "{ms} мс",
   "deskSlDefault": "По умолчанию",
   "deskSlTesting": "Проверка {host}…",

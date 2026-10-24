@@ -24,15 +24,6 @@
   "@deskSlTorWait": {
     "description": "Under the Node or Epicbox list's field: the test could not run because Tor is still connecting."
   },
-  "deskSlSwitchTo": "Switch to {host}",
-  "@deskSlSwitchTo": {
-    "description": "The primary button at the foot of the Node or Epicbox list after a row was picked.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
   "deskSlLatency": "{ms} ms",
   "@deskSlLatency": {
     "description": "A row's response time in milliseconds.",

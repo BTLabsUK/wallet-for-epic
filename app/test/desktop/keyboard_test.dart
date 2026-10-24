@@ -514,8 +514,11 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('b.example', findRichText: true));
       await tester.pump();
-      await tester.tap(find.text('Switch to b.example'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Switch to b.example?'), findsOneWidget, reason: 'an Epicbox pick asks first');
+      await tester.tap(find.byKey(const ValueKey('server-list-switch')));
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
       expect(picked, 'b.example');
       expect(closedField(), findsNothing);
     });

@@ -4,7 +4,6 @@
   "deskSlHealthUnknown": "Stan nieznany",
   "deskSlNodeNoAnswer": "Ten węzeł nie odpowiada. Nic nie dodano.",
   "deskSlTorWait": "Tor nie jest jeszcze połączony. Nic nie dodano.",
-  "deskSlSwitchTo": "Przełącz na {host}",
   "deskSlLatency": "{ms} ms",
   "deskSlDefault": "Domyślny",
   "deskSlTesting": "Sprawdzanie {host}…",

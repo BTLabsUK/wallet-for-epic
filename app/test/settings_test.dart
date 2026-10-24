@@ -24,7 +24,12 @@ import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
-    show ServerListSheet, serverListAddKey, serverListFieldKey, serverListSwitchKey;
+    show
+        ServerListSheet,
+        serverListAddKey,
+        serverListFieldKey,
+        serverListFootKey,
+        serverListSwitchKey;
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
@@ -1947,7 +1952,12 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(serverListAddKey));
       await tester.pumpAndSettle();
-      expect(find.text('Your address changes; senders need the new one.'), findsOneWidget);
+      // The foot offers the switch; it asks first, naming the address, not a relay or a mailbox.
+      await tester.tap(
+        find.descendant(of: find.byKey(serverListFootKey), matching: find.text('Switch')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
       expect(find.byKey(serverListSwitchKey), findsOneWidget);
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);

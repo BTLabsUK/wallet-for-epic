@@ -4777,21 +4777,8 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String serverSwitchTo(String host) {
-    return 'Переключиться на $host';
-  }
-
-  @override
-  String get serverNodeSwitchNote =>
-      'Кошелёк переподключится. Балансы будут заново проверены по новому узлу.';
-
-  @override
   String get serverRelayWarning =>
       'Ваш адрес содержит этот сервер. При смене сервера адрес изменится; отправителям нужен новый.';
-
-  @override
-  String get serverRelaySwitchNote =>
-      'Ваш адрес изменится; отправителям нужен новый.';
 
   @override
   String get serverOtherRelay => 'Другой сервер, host или host:port';
@@ -14387,12 +14374,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get slRelayField => 'Сервер Epicbox';
 
   @override
-  String get slHelpIdleNode =>
-      'Используется. Измените адрес, чтобы переключиться, или вводите текст, чтобы отфильтровать список.';
+  String get slFieldHint => 'Paste or type to filter or add';
 
   @override
-  String get slHelpIdleRelay =>
-      'Используется. Измените адрес, чтобы переключиться, или вводите текст, чтобы отфильтровать список.';
+  String slSwitchTitle(String host) {
+    return 'Switch to $host?';
+  }
+
+  @override
+  String get slSwitchBody => 'Your Epicbox address changes. Share the new one.';
+
+  @override
+  String get slSwitch => 'Switch';
 
   @override
   String get slHelpAddable => 'Нет в списке.';
@@ -14492,11 +14485,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSlTorWait => 'Tor ещё не подключён. Ничего не добавлено.';
-
-  @override
-  String deskSlSwitchTo(String host) {
-    return 'Переключиться на $host';
-  }
 
   @override
   String deskSlLatency(String ms) {

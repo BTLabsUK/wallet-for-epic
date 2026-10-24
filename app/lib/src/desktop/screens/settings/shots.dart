@@ -59,7 +59,7 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '22c-node-typed', title: 'Node list, typed address: Add', route: DeskRoute.settingsNode, arg: NodeDemo.typed),
   const DeskShot(id: '22e-node-bad-address', title: 'Node list, not an address', route: DeskRoute.settingsNode, arg: NodeDemo.badAddress),
   const DeskShot(id: '22f-node-removed', title: 'Node list, a row removed: Undo and Restore', route: DeskRoute.settingsNode, arg: NodeDemo.removed),
-  const DeskShot(id: '22g-node-picked', title: 'Node list, a row picked: Switch', route: DeskRoute.settingsNode, arg: NodeDemo.picked),
+  const DeskShot(id: '22g-node-picked', title: 'Node list, a row picked: switched', route: DeskRoute.settingsNode, arg: NodeDemo.picked),
   const DeskShot(id: '22d-node-pick-failed', title: 'Node pick failed', route: DeskRoute.settingsNode, arg: NodeDemo.pickFailed),
   for (final (id, title, state, consent) in [
     ('21-local-starting', 'Local node, starting', mockLocalNode(LocalNodePhase.starting), FallbackConsent.accepted),
@@ -134,7 +134,7 @@ final List<DeskShot> settingsShots = [
     prepare: (c, _) => resetSettingsDemo(c),
   ),
   const DeskShot(id: '23b-epicbox-combobox-open', title: 'Epicbox list open, the address warning', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.comboOpen),
-  const DeskShot(id: '23j-epicbox-picked', title: 'Epicbox list, a row picked: Switch', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.picked),
+  const DeskShot(id: '23j-epicbox-picked', title: 'Epicbox list, a row picked: the confirm', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.picked),
   DeskShot(
     id: '23c-receiving-tor-on',
     title: 'Receiving, Tor on',

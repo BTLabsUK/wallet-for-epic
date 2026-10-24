@@ -1,7 +1,9 @@
 /// The phone's Node and Epicbox pickers: one list per kind ([serverListProvider]), seeded
 /// from the built-in servers and status.btlabs.uk, which the user edits in place. One field at
-/// the top holds the address in use, filters the list while typed in, and offers Add as soon
-/// as nothing matches. Every row has a bin with Undo; the row in use refuses ("In use. Switch
+/// the top starts empty, filters the list while typed in, and offers Add as soon as nothing
+/// matches; the server in use shows only in its row (the check) and the Current card. A tap on
+/// a Node row switches at once and the foot says so; on an Epicbox row it asks first, as the
+/// address changes. Every row has a bin with Undo; the row in use refuses ("In use. Switch
 /// first."); "Restore the public list" shows while a public server is removed. Tiles carry the
 /// operator's icon from the monitor, else initials, and the health as a dot.
 library;
@@ -77,8 +79,11 @@ const Key serverListClearKey = ValueKey('server-list-clear');
 /// The key of the inline Add row, for tests.
 const Key serverListAddKey = ValueKey('server-list-add');
 
-/// The key of the Switch button in the confirm strip, for tests.
+/// The key of the Switch button in the Epicbox confirm, for tests.
 const Key serverListSwitchKey = ValueKey('server-list-switch');
+
+/// The key of the Cancel button in the Epicbox confirm, for tests.
+const Key serverListCancelKey = ValueKey('server-list-cancel');
 
 /// The key of the line at the foot that answers an action, for tests.
 const Key serverListFootKey = ValueKey('server-list-foot');
@@ -156,10 +161,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   final _field = TextEditingController();
   final _focus = FocusNode();
 
-  /// The value tapped but not yet switched to.
-  String? _pending;
   String? _fieldError;
-  String? _switchError;
+
+  /// Whether a switch is running.
   bool _busy = false;
 
   /// Whether the typed server is being tested before it joins the list.
@@ -168,13 +172,11 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   /// What the last action did, at the foot for a few seconds, with Undo when it can be undone.
   String? _line;
   VoidCallback? _lineAction;
+  String? _lineActionLabel;
   Timer? _lineTimer;
 
   /// Whether the foot line answers a refusal ("In use. Switch first.") rather than an action.
   bool _lineIsNote = false;
-
-  /// The address the field was last filled with by the sheet (the one in use).
-  String _filled = '';
 
   bool get _node => widget.kind == ServerKind.node;
 
@@ -204,26 +206,14 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     super.dispose();
   }
 
-  String _label(NetworkChoice choice) => _node ? serverHost(choice.nodeUrl) : choice.relay.label;
-
-  /// Fills the field with the address in use when the sheet opens and after a switch.
-  void _fill(NetworkChoice choice) {
-    final label = _label(choice);
-    if (label == _filled) return;
-    _filled = label;
-    _field.text = label;
-  }
-
   String get _text => _field.text.trim();
 
-  /// Whether the field differs from the address in use: then it filters the list.
-  bool get _dirty => _text != _filled;
-
-  void _say(String text, {VoidCallback? action, bool note = false}) {
+  void _say(String text, {VoidCallback? action, String? actionLabel, bool note = false}) {
     _lineTimer?.cancel();
     setState(() {
       _line = text;
       _lineAction = action;
+      _lineActionLabel = actionLabel;
       _lineIsNote = note;
     });
     _lineTimer = Timer(
@@ -251,32 +241,44 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
 
   String _current(NetworkChoice choice) => _node ? choice.nodeUrl : choice.relay.label;
 
-  void _pick(String value, NetworkChoice choice) {
-    final same = _same(value, _current(choice));
+  /// A tap on a row: the server in use says so; a node is switched to at once; an Epicbox
+  /// server asks first, as the address changes.
+  Future<void> _pick(String value, NetworkChoice choice) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    if (same) {
-      // The server in use: a pending choice is taken back, else the sheet says so and the
-      // field goes back to the address in use.
-      if (_pending == null) {
-        _say(context.l10n.serverAlreadyInUse, note: true);
-        if (_dirty) _field.text = _filled;
-      }
-      setState(() {
-        _pending = null;
-        _switchError = null;
-      });
+    if (_same(value, _current(choice))) {
+      _say(context.l10n.serverAlreadyInUse, note: true);
       return;
     }
-    setState(() {
-      _pending = value;
-      _switchError = null;
-    });
+    if (_busy) return;
+    if (_node) return _switchTo(value, choice);
+    final l = context.l10n;
+    final host = serverHost(value);
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l.slSwitchTitle(host)),
+        content: Text(l.slSwitchBody),
+        actions: [
+          TextButton(
+            key: serverListCancelKey,
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.commonCancel),
+          ),
+          TextButton(
+            key: serverListSwitchKey,
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.slSwitch),
+          ),
+        ],
+      ),
+    );
+    if (sure == true && mounted) await _switchTo(value, choice);
   }
 
   /// Done on the field: a listed address is picked, anything else goes to [_add], which says
   /// when it is no address.
   void _submit(NetworkChoice choice, List<_Entry> all) {
-    if (!_dirty || _text.isEmpty) return;
+    if (_text.isEmpty) return;
     final value = _typedValue();
     final listed = value == null ? null : all.where((e) => _same(e.value, value)).firstOrNull;
     if (listed != null) {
@@ -331,13 +333,13 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     if (!mounted) return;
     await ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier).add(value);
     if (!mounted) return;
-    _field.text = _filled;
-    setState(() {
-      _adding = false;
-      _pending = value;
-      _switchError = null;
-    });
-    _say(l.slAdded(serverHost(value)));
+    _field.clear();
+    setState(() => _adding = false);
+    _say(
+      l.slAdded(serverHost(value)),
+      action: () => _pick(value, choice),
+      actionLabel: l.slSwitch,
+    );
     // The new row is the last: bring it into view once the store has written and the list
     // rebuilt with it (a frame or two later).
     Future<void>.delayed(const Duration(milliseconds: 150), () {
@@ -362,9 +364,6 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final notifier = ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier);
     final at = await notifier.remove(e.value);
     if (!mounted) return;
-    if (_pending != null && _same(_pending!, e.value)) {
-      setState(() => _pending = null);
-    }
     _say(
       l.slRemoved(e.host),
       action: () async {
@@ -379,40 +378,29 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     if (mounted) _say(context.l10n.slRestored);
   }
 
-  Future<void> _switch(NetworkChoice choice) async {
-    final value = _pending;
-    if (value == null) return;
-    setState(() {
-      _busy = true;
-      _switchError = null;
-    });
+  Future<void> _switchTo(String value, NetworkChoice choice) async {
+    setState(() => _busy = true);
     try {
       final nodeUrl = _node ? value : choice.nodeUrl;
       final relay = _node ? choice.relay : EpicboxRelay.parse(value);
-      if (relay == null) return;
+      if (relay == null) {
+        setState(() => _busy = false);
+        return;
+      }
       final live = await widget.liveSwitch(ref, nodeUrl: nodeUrl, relay: relay);
       if (!mounted) return;
       if (live) {
-        final host = _node ? serverHost(nodeUrl) : relay.label;
-        Navigator.of(context).maybePop();
-        ref
-            .read(noticeProvider.notifier)
-            .show(context.l10n.serverSwitched(host), level: NoticeLevel.success);
+        _field.clear();
+        setState(() => _busy = false);
+        _say(context.l10n.serverSwitched(serverHost(value)));
         return;
       }
       widget.afterSave(context);
-      if (mounted) {
-        setState(() {
-          _busy = false;
-          _pending = null;
-        });
-      }
+      if (mounted) setState(() => _busy = false);
     } catch (error) {
       if (mounted) {
-        setState(() {
-          _busy = false;
-          _switchError = describeError(context.l10n, error);
-        });
+        setState(() => _busy = false);
+        _say(describeError(context.l10n, error), note: true);
       }
     }
   }
@@ -496,7 +484,6 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final title = _node ? l.serverNodeTitle : l.serverEpicboxTitle;
     final media = MediaQuery.of(context);
     final foot = math.max(media.padding.bottom, media.viewInsets.bottom);
-    if (choice != null) _fill(choice);
     final line = _line;
     return LayoutBuilder(
       builder: (context, box) => Column(
@@ -525,46 +512,22 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                 ? const Center(child: CircularProgressIndicator())
                 : _body(context, choice),
           ),
-          if (choice != null)
-            AnimatedSize(
-              duration: MediaQuery.disableAnimationsOf(context)
-                  ? Duration.zero
-                  : const Duration(milliseconds: 220),
-              curve: Curves.easeOut,
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: math.max(0, (box.maxHeight - foot) * 0.6)),
-                // Over the cap only the strip's note scrolls: Cancel and Switch stay in view.
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (line != null)
-                      _FootLine(
-                        line,
-                        action: _lineAction,
-                        actionLabel: l.slUndo,
-                        note: _lineIsNote,
-                      ),
-                    if (_pending != null || _switchError != null)
-                      Flexible(
-                        child: _ConfirmStrip(
-                          host: _pending == null ? null : serverHost(_pending!),
-                          note: _node ? l.serverNodeSwitchNote : l.serverRelaySwitchNote,
-                          warn: !_node,
-                          error: _switchError,
-                          busy: _busy,
-                          onSwitch: () => _switch(choice),
-                          onCancel: () => setState(() {
-                            _pending = null;
-                            _switchError = null;
-                          }),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
+          if (_busy) const LinearProgressIndicator(minHeight: 2),
+          AnimatedSize(
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: line == null
+                ? const SizedBox(width: double.infinity)
+                : _FootLine(
+                    line,
+                    action: _lineAction,
+                    actionLabel: _lineActionLabel ?? l.slUndo,
+                    note: _lineIsNote,
+                  ),
+          ),
           SizedBox(height: foot),
         ],
       ),
@@ -578,7 +541,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final listState = ref.watch(serverListProvider((widget.kind, chain))).value;
     final all = listState == null ? const <_Entry>[] : _entries(choice, listState);
     final q = _text;
-    final filtering = _dirty && q.isNotEmpty;
+    final filtering = q.isNotEmpty;
     final shown = filtering
         ? [
             for (final e in all)
@@ -592,8 +555,6 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final showAdd = filtering && !listedTyped && (shown.isEmpty || typed != null || _adding);
     final addHost = typed == null ? q : (_node ? serverHost(typed) : typed);
     final current = _current(choice);
-    final selected = _pending ?? current;
-    final selectedListed = all.any((e) => _same(e.value, selected));
     final public = _publicValues(choice);
     if (listState != null) {
       // Directory servers join the list as they are seen; removed ones stay out. After the
@@ -615,11 +576,11 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final nodeLocal = _node && torSkipsLocalNode && isLoopbackUrl(Uri.parse(choice.nodeUrl));
 
     // The field's helper: what typing does now.
-    final String helper;
+    final String? helper;
     if (_fieldError != null) {
       helper = _fieldError!;
     } else if (!filtering) {
-      helper = _node ? l.slHelpIdleNode : l.slHelpIdleRelay;
+      helper = null;
     } else if (shown.isNotEmpty && showAdd) {
       helper = l.slHelpAddable;
     } else {
@@ -647,6 +608,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           onSubmitted: (_) => _submit(choice, all),
           decoration: InputDecoration(
             labelText: _node ? l.slNodeField : l.slRelayField,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            hintText: l.slFieldHint,
+            hintMaxLines: 1,
             helperText: helper,
             helperMaxLines: 2,
             helperStyle: _fieldError != null ? TextStyle(color: t.risk) : null,
@@ -676,8 +640,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                   ),
           ),
         ),
-        // The server in use, while the field still holds it: the node's facts, or the
-        // relay's address warning. Typing folds them away so the matches sit by the field.
+        // The server in use: the node's facts, or the relay's address warning. Typing folds
+        // them away so the matches sit by the field.
         AnimatedSize(
           duration: MediaQuery.disableAnimationsOf(context)
               ? Duration.zero
@@ -732,8 +696,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           entry: e,
           isDefault: !_node && EpicboxRelay.parse(e.value) == choice.preset.defaultRelay,
           current: _same(e.value, current),
-          selected: _same(e.value, selected),
-          check: _same(e.value, selected) || (_same(e.value, current) && !selectedListed),
+          selected: _same(e.value, current),
+          check: _same(e.value, current),
           onTap: () => _pick(e.value, choice),
           onRemove: () => _remove(e, choice),
         ),
@@ -1223,93 +1187,6 @@ class _FootLine extends StatelessWidget {
               const SizedBox(height: 44),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// The strip at the sheet's foot: what a switch does with Cancel beside it, then
-/// `Switch to host` full width and 48 dp tall.
-class _ConfirmStrip extends StatelessWidget {
-  const _ConfirmStrip({
-    required this.host,
-    required this.note,
-    required this.warn,
-    required this.error,
-    required this.busy,
-    required this.onSwitch,
-    required this.onCancel,
-  });
-
-  final String? host;
-  final String note;
-  final bool warn;
-  final String? error;
-  final bool busy;
-  final VoidCallback onSwitch;
-  final VoidCallback onCancel;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: t.surface,
-        border: Border(top: BorderSide(color: t.line)),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        error ?? note,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: error != null
-                              ? t.risk
-                              : warn
-                              ? t.warn
-                              : t.dim,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                TextButton(
-                  style: TextButton.styleFrom(minimumSize: const Size(64, 48)),
-                  onPressed: busy ? null : onCancel,
-                  child: Text(l.commonCancel),
-                ),
-              ],
-            ),
-          ),
-          if (host != null) ...[
-            const SizedBox(height: 4),
-            FilledButton(
-              key: serverListSwitchKey,
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: busy ? null : onSwitch,
-              child: busy
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l.serverSwitchTo(host!), maxLines: 1, overflow: TextOverflow.ellipsis),
-            ),
-          ],
-        ],
       ),
     );
   }

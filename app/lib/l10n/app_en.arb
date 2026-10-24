@@ -5762,26 +5762,9 @@
       }
     }
   },
-  "serverSwitchTo": "Switch to {host}",
-  "@serverSwitchTo": {
-    "description": "Confirm strip button: switch to the chosen server.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
-  "serverNodeSwitchNote": "The wallet reconnects. Balances are checked again against the new node.",
-  "@serverNodeSwitchNote": {
-    "description": "Confirm strip caption: what switching the node does."
-  },
   "serverRelayWarning": "Your address includes this server. Switching changes your address; senders need the new one.",
   "@serverRelayWarning": {
     "description": "Epicbox picker warning above the list."
-  },
-  "serverRelaySwitchNote": "Your address changes; senders need the new one.",
-  "@serverRelaySwitchNote": {
-    "description": "Epicbox confirm strip caption."
   },
   "serverOtherRelay": "Other server, host or host:port",
   "@serverOtherRelay": {
@@ -18319,19 +18302,32 @@
   },
   "slNodeField": "Node address",
   "@slNodeField": {
-    "description": "Label of the one field at the top of the Node sheet: it holds the node in use, filters the list while typed in, and adds an address that is not listed."
+    "description": "Label of the one field at the top of the Node sheet: it starts empty, filters the list while typed in, and adds an address that is not listed."
   },
   "slRelayField": "Epicbox server",
   "@slRelayField": {
     "description": "Label of the one field at the top of the Epicbox sheet."
   },
-  "slHelpIdleNode": "In use. Edit it to switch, or type to filter the list.",
-  "@slHelpIdleNode": {
-    "description": "Under the Node field while it still holds the node in use."
+  "slFieldHint": "Paste or type to filter or add",
+  "@slFieldHint": {
+    "description": "Placeholder of the Node and Epicbox list field while it is empty: the field filters the list and adds an address that is not listed. The server in use is never shown in it."
   },
-  "slHelpIdleRelay": "In use. Edit it to switch, or type to filter the list.",
-  "@slHelpIdleRelay": {
-    "description": "Under the Epicbox field while it still holds the server in use."
+  "slSwitchTitle": "Switch to {host}?",
+  "@slSwitchTitle": {
+    "description": "Title of the Epicbox confirm that opens when a server in the list is tapped. {host} is the server.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "slSwitchBody": "Your Epicbox address changes. Share the new one.",
+  "@slSwitchBody": {
+    "description": "One line under that title: switching Epicbox changes the address senders pay to."
+  },
+  "slSwitch": "Switch",
+  "@slSwitch": {
+    "description": "Button that confirms the Epicbox switch, and the action beside the Added foot line of the Node and Epicbox lists. Short."
   },
   "slHelpAddable": "Not in the list.",
   "@slHelpAddable": {
@@ -18450,15 +18446,6 @@
   "deskSlTorWait": "Tor is not connected yet. Nothing added.",
   "@deskSlTorWait": {
     "description": "Under the Node or Epicbox list's field: the test could not run because Tor is still connecting."
-  },
-  "deskSlSwitchTo": "Switch to {host}",
-  "@deskSlSwitchTo": {
-    "description": "The primary button at the foot of the Node or Epicbox list after a row was picked.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
   },
   "deskSlLatency": "{ms} ms",
   "@deskSlLatency": {
