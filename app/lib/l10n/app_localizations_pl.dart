@@ -4674,18 +4674,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get serverMyRelays => 'Moje serwery';
 
   @override
-  String get serverMenuRemove => 'Usuń z mojej listy';
-
-  @override
   String get serverMenuDelete => 'Usuń';
 
   @override
   String settingsStateTor(String state) {
     return 'Tor $state';
   }
-
-  @override
-  String get serverRemoveInUse => 'W użyciu. Najpierw wybierz inny serwer.';
 
   @override
   String get serverSupportsNotifications => 'Obsługuje powiadomienia';
@@ -4715,20 +4709,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get serverEpicboxTitle => 'Epicbox';
 
   @override
-  String get serverSearchHint => 'Znajdź lub wpisz adres węzła';
-
-  @override
-  String serverUseAddress(String address) {
-    return 'Użyj $address';
-  }
-
-  @override
-  String get serverTesting => 'Sprawdzanie…';
-
-  @override
-  String serverTestAnswer(String height, String version) {
-    return 'Blok $height · v$version';
-  }
+  String get serverSearchHint => 'Znajdź węzeł';
 
   @override
   String serverTestFailed(String error) {
@@ -4816,6 +4797,39 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get serverOtherRelay => 'Inny serwer, host lub host:port';
+
+  @override
+  String get serverMyListNote => 'Używany teraz i dodane przez ciebie.';
+
+  @override
+  String get serverPublicNote => 'Stuknij, aby przełączyć.';
+
+  @override
+  String get serverOtherNode => 'Inny węzeł, host lub host:port';
+
+  @override
+  String get serverOtherNodeInvalid =>
+      'Wpisz adres węzła, np. node.example.com:3413';
+
+  @override
+  String get serverAdd => 'Dodaj';
+
+  @override
+  String get serverAddedNode => 'Dodano do: Moje węzły.';
+
+  @override
+  String get serverAddedRelay => 'Dodano do: Moje serwery.';
+
+  @override
+  String serverDeleted(String host) {
+    return 'Usunięto $host.';
+  }
+
+  @override
+  String get serverAlreadyInUse => 'Już używany.';
+
+  @override
+  String get serverNoMatch => 'Brak wyników.';
 
   @override
   String get serverFactHeight => 'Wysokość';

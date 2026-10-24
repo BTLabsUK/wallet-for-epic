@@ -4491,18 +4491,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverMyRelays => 'My servers';
 
   @override
-  String get serverMenuRemove => 'Remove from my list';
-
-  @override
   String get serverMenuDelete => 'Delete';
 
   @override
   String settingsStateTor(String state) {
     return 'Tor $state';
   }
-
-  @override
-  String get serverRemoveInUse => 'In use. Pick another server first.';
 
   @override
   String get serverSupportsNotifications => 'Supports notifications';
@@ -4532,20 +4526,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverEpicboxTitle => 'Epicbox';
 
   @override
-  String get serverSearchHint => 'Find or type a node address';
-
-  @override
-  String serverUseAddress(String address) {
-    return 'Use $address';
-  }
-
-  @override
-  String get serverTesting => 'Testing…';
-
-  @override
-  String serverTestAnswer(String height, String version) {
-    return 'Block $height · v$version';
-  }
+  String get serverSearchHint => 'Find a node';
 
   @override
   String serverTestFailed(String error) {
@@ -4631,6 +4612,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverOtherRelay => 'Other server, host or host:port';
+
+  @override
+  String get serverMyListNote => 'The one in use and the ones you added.';
+
+  @override
+  String get serverPublicNote => 'Tap one to switch to it.';
+
+  @override
+  String get serverOtherNode => 'Other node, host or host:port';
+
+  @override
+  String get serverOtherNodeInvalid =>
+      'Enter a node address such as node.example.com:3413';
+
+  @override
+  String get serverAdd => 'Add';
+
+  @override
+  String get serverAddedNode => 'Added to My nodes.';
+
+  @override
+  String get serverAddedRelay => 'Added to My servers.';
+
+  @override
+  String serverDeleted(String host) {
+    return 'Deleted $host.';
+  }
+
+  @override
+  String get serverAlreadyInUse => 'Already in use.';
+
+  @override
+  String get serverNoMatch => 'No match.';
 
   @override
   String get serverFactHeight => 'Height';
