@@ -317,7 +317,7 @@ class AppImageApplier implements DeskUpdateApplier {
   /// becomes the new AppImage; if the old one is still running by then it exits without starting
   /// anything (two copies would fight over the lock). `$1` is the pid, `$2` the AppImage.
   static const relaunch =
-      r'i=0; while kill -0 "$1" 2>/dev/null && [ "$i" -lt 600 ]; do sleep 0.2; i=$((i+1)); done; '
+      r'i=0; while kill -0 "$1" 2>/dev/null && [ "$i" -lt 600 ]; do sleep 0.2; i=$((i+1)); done; ' // l10n-ok: a shell script
       r'if kill -0 "$1" 2>/dev/null; then echo "epic-cash-desktop-update: $1 is still running; not starting $2" >&2; exit 1; fi; ' // l10n-ok: a shell script
       r'exec "$2"'; // l10n-ok: a shell script
 
