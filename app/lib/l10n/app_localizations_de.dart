@@ -1632,13 +1632,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get statusNodeOffline => 'Node offline';
 
   @override
-  String get statusEpicboxOnline => 'Epicbox online';
+  String get statusEpicboxOnline => 'Epicbox verbunden';
 
   @override
   String get statusEpicboxConnecting => 'Epicbox: Verbindung…';
 
   @override
-  String get statusEpicboxOffline => 'Epicbox offline';
+  String get statusEpicboxOffline => 'Epicbox nicht verbunden';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -1662,7 +1662,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get homeEpicboxOffline =>
-      'Verbindung zur Epicbox getrennt, wird wiederhergestellt.';
+      'Ihre Wallet ist nicht mit ihrem Epicbox-Server verbunden und versucht es weiter.';
 
   @override
   String get homeEpicboxConnecting =>
@@ -4555,6 +4555,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get netStatusOff => 'Aus';
+
+  @override
+  String get netStatusConnected => 'Verbunden';
+
+  @override
+  String get netStatusNotConnected => 'Nicht verbunden';
+
+  @override
+  String get serverUpNotConnected => 'Server erreichbar · nicht verbunden';
 
   @override
   String get netStatusOn => 'An';

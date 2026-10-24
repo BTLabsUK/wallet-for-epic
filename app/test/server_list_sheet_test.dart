@@ -5,6 +5,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, walletStatusProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network.dart';
@@ -18,7 +19,9 @@ import 'package:epic_wallet/src/server_switch.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'package:epic_wallet/src/ui/server_tile.dart' show ServerTileView;
-import 'package:epic_wallet/src/ui/status.dart' show serverHost;
+import 'package:epic_wallet/src/ui/status.dart'
+    show EpicboxState, NodeState, WalletStatus, serverHost;
+import 'package:epic_wallet/src/ui/status.dart' as status show NodeStatus;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,6 +55,29 @@ class _Config extends WalletConfigNotifier {
 class _Listener extends ListenerNotifier {
   @override
   ListenerState build() => const ListenerState(connected: true);
+}
+
+/// A listener that lost its relay, and counts Retry's restarts.
+class _LostListener extends ListenerNotifier {
+  int restarts = 0;
+
+  @override
+  ListenerState build() => const ListenerState(lost: true);
+
+  @override
+  Future<void> restart() async => restarts++;
+}
+
+class _OpenSession extends SessionNotifier {
+  @override
+  WalletSession? build() => FakeWalletSession();
+}
+
+/// The shown status with the Epicbox connection down (it lasted the settle time).
+class _NotConnected extends WalletStatusNotifier {
+  @override
+  WalletStatus build() =>
+      (node: const status.NodeStatus(NodeState.online), epicbox: EpicboxState.offline);
 }
 
 /// status.btlabs.uk: the lists when given, else no answer.
@@ -131,13 +157,16 @@ class _Env {
   /// Whether the fake live switch answers that the open wallet moved.
   bool liveAnswer = false;
 
+  /// The Epicbox listener: connected unless a test says otherwise.
+  ListenerNotifier Function() listener = _Listener.new;
+
   List<Override> get overrides => [
     secretStoreProvider.overrideWithValue(store),
     walletServiceProvider.overrideWithValue(service),
     relayDirectoryProvider.overrideWithValue(directory ?? _Directory()),
     relayProbeProvider.overrideWithValue(probe),
     homeProvider.overrideWith(_Home.new),
-    listenerProvider.overrideWith(_Listener.new),
+    listenerProvider.overrideWith(listener),
     walletConfigProvider.overrideWith(_Config.new),
     nodeTipProvider.overrideWith(
       (ref) async => NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0'),
@@ -418,6 +447,60 @@ void main() {
       expect(env.saved, 0);
       expect(_foot('Switched to epicbox.epicnet.us'), findsOneWidget);
       await _timers(tester);
+    });
+
+    testWidgets('epicbox: the server up but this wallet not connected says so, and Retry '
+        'restarts the listener', (tester) async {
+      final env = _Env(
+        directory: _Directory(
+          relayList: const [
+            RelayStatus(relay: EpicboxRelay(host: _stack), healthy: true, verified: true),
+          ],
+        ),
+      );
+      final listener = _LostListener();
+      env.listener = () => listener;
+      await tester.pumpWidget(const SizedBox());
+      _tallView(tester);
+      await tester.pumpWidget(
+        ProviderScope(
+          retry: (_, _) => null,
+          overrides: [
+            ...env.overrides,
+            sessionProvider.overrideWith(_OpenSession.new),
+            walletStatusProvider.overrideWith(_NotConnected.new),
+          ],
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(body: ServerListSheet(kind: ServerKind.relay, afterSave: (_) {})),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final line = find.byKey(serverNotConnectedKey);
+      expect(line, findsOneWidget);
+      expect(
+        find.descendant(of: line, matching: find.text('Server up · not connected')),
+        findsOneWidget,
+      );
+      // Right under the server in use, whose health still reads healthy.
+      expect(tester.getTopLeft(line).dy, greaterThan(tester.getTopLeft(_row(_stack)).dy));
+      await tester.tap(find.descendant(of: line, matching: find.text('Retry')));
+      await tester.pump();
+      expect(listener.restarts, 1);
+    });
+
+    testWidgets('epicbox: connected, or no wallet open, shows no such line', (tester) async {
+      final env = _Env(
+        directory: _Directory(
+          relayList: const [
+            RelayStatus(relay: EpicboxRelay(host: _stack), healthy: true, verified: true),
+          ],
+        ),
+      );
+      await _pump(tester, ServerKind.relay, env);
+      expect(find.byKey(serverNotConnectedKey), findsNothing);
     });
 
     testWidgets('a tap closes the keyboard', (tester) async {

@@ -1570,13 +1570,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get statusNodeOffline => 'โหนดออฟไลน์';
 
   @override
-  String get statusEpicboxOnline => 'Epicbox ออนไลน์';
+  String get statusEpicboxOnline => 'เชื่อมต่อ Epicbox แล้ว';
 
   @override
   String get statusEpicboxConnecting => 'กำลังเชื่อมต่อ Epicbox';
 
   @override
-  String get statusEpicboxOffline => 'Epicbox ออฟไลน์';
+  String get statusEpicboxOffline => 'ไม่ได้เชื่อมต่อ Epicbox';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -1599,7 +1599,8 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get homeEpicboxOffline => 'Epicbox ออฟไลน์ กำลังเชื่อมต่อใหม่';
+  String get homeEpicboxOffline =>
+      'กระเป๋าเงินยังไม่ได้เชื่อมต่อกับเซิร์ฟเวอร์ Epicbox และกำลังลองต่อไป';
 
   @override
   String get homeEpicboxConnecting => 'กำลังเชื่อมต่อ Epicbox…';
@@ -4394,6 +4395,15 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get netStatusOff => 'ปิด';
+
+  @override
+  String get netStatusConnected => 'เชื่อมต่อแล้ว';
+
+  @override
+  String get netStatusNotConnected => 'ไม่ได้เชื่อมต่อ';
+
+  @override
+  String get serverUpNotConnected => 'เซิร์ฟเวอร์ทำงาน · ไม่ได้เชื่อมต่อ';
 
   @override
   String get netStatusOn => 'เปิด';

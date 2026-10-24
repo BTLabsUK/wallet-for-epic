@@ -118,4 +118,74 @@ void main() {
       h.dispose();
     });
   });
+
+  group('self-heal', () {
+    test('a listener not connected for 30 s is restarted once', () {
+      fakeAsync((async) {
+        final h = _Harness();
+        h.open(async);
+        h.event(async, ListenerEventKind.connected);
+        h.event(async, ListenerEventKind.disconnected);
+        async.elapse(listenerHealAfter - const Duration(seconds: 1));
+        expect(h.session.listenerStops, 0, reason: 'LEPIC retries on its own first');
+
+        async.elapse(const Duration(seconds: 2));
+        expect(h.session.listenerStops, 1);
+        h.event(async, ListenerEventKind.stopped);
+        expect(h.session.listenerStarts, 2);
+        h.event(async, ListenerEventKind.connected);
+        async.elapse(const Duration(minutes: 10));
+        expect(h.session.listenerStops, 1, reason: 'connected again: nothing more');
+        h.dispose();
+      });
+    });
+
+    test('a connected listener is never restarted', () {
+      fakeAsync((async) {
+        final h = _Harness();
+        h.open(async);
+        h.event(async, ListenerEventKind.connected);
+        async.elapse(const Duration(minutes: 10));
+        expect(h.session.listenerStops, 0);
+        expect(h.session.listenerStarts, 1);
+        h.dispose();
+      });
+    });
+
+    test('a first connection that never comes, or a stream that ended, is retried with a '
+        'growing wait', () {
+      fakeAsync((async) {
+        final h = _Harness();
+        h.open(async);
+        async.elapse(listenerHealAfter + const Duration(seconds: 1));
+        expect(h.session.listenerStops, 1, reason: 'never connected');
+        // The old listener never says stopped: the new one starts after the stop wait.
+        async.elapse(listenerStopWait);
+        expect(h.session.listenerStarts, 2);
+        // The next try waits twice as long.
+        async.elapse(listenerHealAfter);
+        expect(h.session.listenerStops, 1);
+        async.elapse(listenerHealAfter);
+        expect(h.session.listenerStops, 2);
+        // Never under the floor, never over the cap: at most one restart per listenerHealMax.
+        async.elapse(const Duration(hours: 1));
+        final stops = h.session.listenerStops;
+        expect(stops, lessThanOrEqualTo(2 + 60 ~/ listenerHealMax.inMinutes + 1));
+        expect(stops, greaterThan(2));
+        h.dispose();
+      });
+    });
+
+    test('a listener that stopped on its own is started again', () {
+      fakeAsync((async) {
+        final h = _Harness();
+        h.open(async);
+        h.event(async, ListenerEventKind.stopped);
+        expect(h.state.stopped, isTrue);
+        async.elapse(listenerHealAfter + const Duration(seconds: 1));
+        expect(h.session.listenerStops, 1, reason: 'a stopped listener is expected to run');
+        h.dispose();
+      });
+    });
+  });
 }

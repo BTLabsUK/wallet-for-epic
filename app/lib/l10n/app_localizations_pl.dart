@@ -1734,13 +1734,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get statusNodeOffline => 'Węzeł offline';
 
   @override
-  String get statusEpicboxOnline => 'Epicbox online';
+  String get statusEpicboxOnline => 'Epicbox połączony';
 
   @override
   String get statusEpicboxConnecting => 'Łączenie z Epicbox';
 
   @override
-  String get statusEpicboxOffline => 'Epicbox offline';
+  String get statusEpicboxOffline => 'Epicbox niepołączony';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -1764,7 +1764,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get homeEpicboxOffline =>
-      'Epicbox: brak połączenia, ponowne łączenie.';
+      'Portfel nie jest połączony ze swoim serwerem Epicbox i próbuje dalej.';
 
   @override
   String get homeEpicboxConnecting => 'Łączenie z epicbox…';
@@ -4674,6 +4674,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get netStatusOff => 'Wyłączony';
+
+  @override
+  String get netStatusConnected => 'Połączono';
+
+  @override
+  String get netStatusNotConnected => 'Brak połączenia';
+
+  @override
+  String get serverUpNotConnected => 'Serwer działa · brak połączenia';
 
   @override
   String get netStatusOn => 'Włączony';
