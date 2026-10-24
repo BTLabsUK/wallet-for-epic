@@ -21,6 +21,9 @@ class _Platform implements UpdatePlatform {
 
   final List<String> installs = [];
   int permissionRequests = 0;
+
+  /// Called as [install] starts, before it answers.
+  void Function()? onInstall;
   final _events = StreamController<({String status, String? message})>.broadcast();
 
   @override
@@ -34,6 +37,7 @@ class _Platform implements UpdatePlatform {
 
   @override
   Future<String> install(File apk) async {
+    onInstall?.call();
     installs.add(apk.path);
     return answer;
   }
@@ -136,6 +140,7 @@ void main() {
         updatePlatformProvider.overrideWithValue(platform),
         updateTempDirProvider.overrideWithValue(() async => tmp),
         updateProvider.overrideWith(_Updates.new),
+        updateCloseNoticeProvider.overrideWithValue(const Duration(milliseconds: 300)),
         updateManifestUrlProvider.overrideWithValue(
           Uri.parse('http://127.0.0.1:${server.port}/update.json'),
         ),
@@ -172,6 +177,26 @@ void main() {
     expect(hits, 1);
     expect(platform.installs, [cached().path]);
     expect(state().phase, UpdatePhase.installing);
+  });
+
+  test('the line that the app closes to install shows before the installer takes over', () async {
+    platform.canInstall = true;
+    final phases = <UpdatePhase>[];
+    container.listen(updateProvider, (_, next) => phases.add(next.phase));
+    final watch = Stopwatch()..start();
+    late Duration shownFor;
+    platform.onInstall = () {
+      shownFor = watch.elapsed;
+      expect(state().phase, UpdatePhase.installing);
+    };
+    await notifier().install();
+    expect(platform.installs, [cached().path]);
+    expect(phases.last, UpdatePhase.installing);
+    expect(shownFor, greaterThanOrEqualTo(const Duration(milliseconds: 300)));
+    expect(
+      l.updateInstalling(update.versionName),
+      'Epic Cash Mobile closes to install version 26.10.1. Open it again afterwards.',
+    );
   });
 
   test('on return with the permission the kept download installs, not downloaded again', () async {

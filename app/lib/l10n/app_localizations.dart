@@ -3004,10 +3004,10 @@ abstract class AppLocalizations {
   /// **'Downloading version {version}… {percent}%'**
   String updateDownloading(String version, int percent);
 
-  /// Notice at the top of the screen while Android installs the new version.
+  /// Notice at the top of the screen for a few seconds before Android's installer takes over: it closes the app and does not reopen it.
   ///
   /// In en, this message translates to:
-  /// **'Installing version {version}…'**
+  /// **'Epic Cash Mobile closes to install version {version}. Open it again afterwards.'**
   String updateInstalling(String version);
 
   /// Notice at the top of the screen when an update failed for no known reason.

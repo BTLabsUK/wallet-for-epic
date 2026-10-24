@@ -1954,7 +1954,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return '正在安装版本 $version…';
+    return 'Epic Cash Mobile 将关闭以安装版本 $version。完成后请重新打开。';
   }
 
   @override

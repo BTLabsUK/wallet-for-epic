@@ -477,7 +477,7 @@
   "updateNoInformation": "ไม่มีข้อมูลอัปเดต",
   "updateAvailable": "มีเวอร์ชัน {version} แล้ว",
   "updateDownloading": "กำลังดาวน์โหลดเวอร์ชัน {version}… {percent}%",
-  "updateInstalling": "กำลังติดตั้งเวอร์ชัน {version}…",
+  "updateInstalling": "Epic Cash Mobile จะปิดเพื่อติดตั้งเวอร์ชัน {version} เมื่อเสร็จแล้วให้เปิดอีกครั้ง",
   "updateFailed": "อัปเดตไม่สำเร็จ",
   "updateInstallButton": "อัปเดต",
   "updateTryAgain": "ลองอีกครั้ง",
