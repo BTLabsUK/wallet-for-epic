@@ -86,6 +86,10 @@ const String cancelRefusedText = 'Not cancelled: the node already has this payme
 
 String deskErrorText(Object error) {
   if (error is DeskError) return error.message;
+  if (error is SecretProtectError) {
+    return 'Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. '
+        'Sign in to Windows with your own account and its password, not through a remote or service session, then try again.';
+  }
   if (error is! core.WalletError) return 'Something went wrong';
   final detail = error.message.split('\n').first.trim();
   return switch (error.kind) {

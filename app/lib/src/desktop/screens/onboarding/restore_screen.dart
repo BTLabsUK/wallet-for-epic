@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../../log.dart';
+import '../../../secret_store_api.dart' show SecretProtectError;
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 import 'phrase_grid.dart';
@@ -165,6 +167,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       if (!mounted) return;
       ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(added, second: before.isNotEmpty));
     } catch (e) {
+      // The type, and for a refused DPAPI its code; never the password or the phrase.
+      logWarn('desk', 'wallet not restored: ${e is SecretProtectError ? e : e.runtimeType}');
       if (!mounted) return;
       if (e is DeskError && e.sameWallet != null) {
         await _offerExisting(e.sameWallet!);

@@ -67,4 +67,25 @@ void main() {
     expect(identical(await c.read(builtInNodeProvider(Chain.mainnet).future), builtInNodeFor(where, Chain.mainnet)), isTrue);
     expect(identical(builtInNodeFor(where, Chain.floonet), builtInNodeFor(where, Chain.mainnet)), isFalse);
   });
+
+  test('linux-02: the local node facts read once, with nobody listening, never use a disposed Ref', () async {
+    // As the wizard's Local node step reads them (LepicDeskNode.facts): the provider is
+    // disposed while its first await is out, here a node location that takes a moment.
+    final slow = ProviderContainer(
+      overrides: [
+        secretStoreProvider.overrideWithValue(MemorySecretStore()),
+        relayDirectoryProvider.overrideWithValue(_NoRelays()),
+        builtInNodeSupportedProvider.overrideWithValue(true),
+        builtInNodeLocationProvider.overrideWith((ref) async {
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          return BuiltInNodeLocation(root: '${dir.path}/node', binary: '${dir.path}/epic');
+        }),
+      ],
+    );
+    addTearDown(slow.dispose);
+    final facts = await slow.read(localNodeFactsProvider(Chain.mainnet).future);
+    final node = await slow.read(builtInNodeProvider(Chain.mainnet).future);
+    expect(facts, isNotNull);
+    expect(node.state.isActive, isFalse);
+  });
 }

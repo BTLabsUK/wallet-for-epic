@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart' show deskErrorText;
+import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/windows_secret_store.dart';
 
 /// Stands in for DPAPI: a SHA-256 of the plain text, then the text XORed. Like DPAPI's MAC, a
@@ -37,6 +39,12 @@ class FakeCipher implements SecretCipher {
 /// Bytes as flutter_secure_storage_windows 4.2.2 writes the file: protect(utf8(jsonEncode)).
 Uint8List pluginFile(SecretCipher cipher, Map<String, Object?> map) =>
     cipher.protect(utf8.encode(jsonEncode(map)));
+
+/// DPAPI in a logon without a user master key (key-only SSH, a broken profile).
+class RefusingCipher extends FakeCipher {
+  @override
+  Uint8List protect(Uint8List plain) => throw const OSError('CryptProtectData failed', 0x80070005);
+}
 
 class Crash implements Exception {
   const Crash(this.at);
@@ -415,5 +423,15 @@ void main() {
       await store.write('a', '1');
       expect(file(dat).existsSync(), isTrue);
     });
+  });
+
+  test('windows-01: DPAPI refusing to protect is a SecretProtectError with a message a user can act on', () async {
+    cipher = RefusingCipher();
+    final error = await open().write('k', 'v').then<Object?>((_) => null, onError: (Object e) => e);
+    expect(error, isA<SecretProtectError>());
+    expect(files.disk, isEmpty, reason: 'nothing written');
+    final text = deskErrorText(error!);
+    expect(text, isNot('Something went wrong'));
+    expect(text, contains('DPAPI'));
   });
 }

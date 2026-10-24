@@ -154,8 +154,12 @@ final chainDataCandidatesProvider = FutureProvider.autoDispose.family<List<Chain
 
 /// The facts of the "Local node" explanation step (F24).
 final localNodeFactsProvider = FutureProvider.autoDispose.family<LocalNodeFacts, Chain>((ref, chain) async {
-  final node = await ref.watch(builtInNodeProvider(chain).future);
-  final found = await ref.watch(chainDataCandidatesProvider(chain).future);
+  // Both asked before the first await: read once with nobody listening, this provider is
+  // disposed while it waits, and a watch after that throws.
+  final nodeFuture = ref.watch(builtInNodeProvider(chain).future);
+  final foundFuture = ref.watch(chainDataCandidatesProvider(chain).future);
+  final node = await nodeFuture;
+  final found = await foundFuture;
   return localNodeFacts(chain, folder: node.folder, freeBytes: realFreeBytes, found: found, minFreeBytes: node.minFreeBytes);
 });
 

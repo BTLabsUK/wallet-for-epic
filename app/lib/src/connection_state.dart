@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'net/tor_switch.dart';
 import 'phone_tor.dart';
 import 'providers.dart';
 import 'ui/status.dart';
@@ -163,6 +164,19 @@ const List<Duration> nodeRecheckDelays = [
   Duration(seconds: 10),
 ];
 
+/// [nodeRecheckDelays] while the Tor switch is on: after a network change tor renews its
+/// connections and builds new circuits, which took 20 to 100 s in testing (android-04), so
+/// the node is asked until about two minutes after the network came back.
+const List<Duration> torNodeRecheckDelays = [
+  Duration.zero,
+  Duration(seconds: 3),
+  Duration(seconds: 10),
+  Duration(seconds: 15),
+  Duration(seconds: 15),
+  Duration(seconds: 20),
+  Duration(seconds: 30),
+];
+
 /// Clears a stale node offline after a network change or a resume without waiting for the
 /// next minute's refresh: asks the node's tip ([nodeRecheckDelays]) and, once it answers,
 /// refreshes the balances so the ones the node could not check are checked again. Alive for
@@ -193,7 +207,7 @@ class NodeRecheckNotifier extends Notifier<void> {
     if (ref.read(sessionProvider) == null || !_offline) return;
     final run = ++_run;
     logInfo('status', 'node recheck on $why');
-    for (final delay in nodeRecheckDelays) {
+    for (final delay in TorSwitch.on ? torNodeRecheckDelays : nodeRecheckDelays) {
       if (delay > Duration.zero) await Future<void>.delayed(delay);
       if (!ref.mounted || run != _run) return;
       ref.invalidate(nodeTipProvider);

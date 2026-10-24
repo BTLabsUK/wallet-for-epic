@@ -957,24 +957,25 @@ void main() {
       expect(h.prices.calls, 3);
     });
 
-    testWidgets('refreshes by itself every minute while on screen', (
+    testWidgets('refreshes by itself every minute, also under another screen', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
       h.session.summaryValue = _summary(spendable: _epic(20));
 
-      // Not while another screen covers home.
+      // android-06: a screen over home (Outputs, a transaction) still gets fresh figures.
       await _tap(tester, find.byKey(const ValueKey('tx-s:from-alice')));
       await tester.pump(autoRefreshInterval);
       await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(_figure(tester), '12.5');
+      expect(_figure(tester), '20');
 
+      h.session.summaryValue = _summary(spendable: _epic(30));
       await tester.pump(autoRefreshInterval);
       await tester.pumpAndSettle();
-      expect(_figure(tester), '20');
+      expect(_figure(tester), '30');
     });
 
     testWidgets('scan opens Send with the scanned address', (tester) async {

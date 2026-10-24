@@ -236,6 +236,39 @@ void main() {
     expect(count, lessThan(value));
   });
 
+  testWidgets('android-03: each tile counts the outputs its value adds up', (tester) async {
+    // 2 spendable; 0.5 confirming; 0.6 and 0.4 awaiting finalization; a 0.01 unpaid invoice.
+    // LEPIC's figures: awaiting finalization is in Confirming but not in Total, and an unpaid
+    // invoice is in no figure.
+    final h = _Harness(
+      outputs: [
+        _out(_commit('a'), 2),
+        _out(_commit('b'), 0.5, status: WalletOutputStatus.unconfirmed, category: OutputCategory.awaitingConfirmation, confirmations: 1),
+        _out(_commit('c'), 0.6, status: WalletOutputStatus.unconfirmed, category: OutputCategory.awaitingFinalization, confirmations: 0),
+        _out(_commit('d'), 0.4, status: WalletOutputStatus.unconfirmed, category: OutputCategory.awaitingFinalization, confirmations: 0),
+        _out(_commit('e'), 0.01, status: WalletOutputStatus.unconfirmed, category: OutputCategory.unpaidInvoice, confirmations: 0),
+      ],
+    );
+    h.session.summaryValue = WalletSummary(
+      lastConfirmedHeight: BigInt.from(2500000),
+      minimumConfirmations: BigInt.from(3),
+      total: _epic(2.5),
+      spendable: _epic(2),
+      awaitingConfirmation: _epic(0.5),
+      awaitingFinalization: _epic(1),
+      immature: BigInt.zero,
+      locked: BigInt.zero,
+      validatedWithNode: true,
+    );
+    await h.pump(tester, const OutputsScreen());
+    // Confirming: 0.5 + 0.6 + 0.4, three outputs; the unpaid invoice is in no tile.
+    expect(find.text('1.5 EPIC'), findsOneWidget);
+    expect(find.text('3 outputs'), findsOneWidget);
+    // Total: 2 + 0.5, two outputs; nothing awaiting finalization.
+    expect(find.text('2.5 EPIC'), findsOneWidget);
+    expect(find.text('2 outputs'), findsOneWidget);
+  });
+
   testWidgets('the table sits under the tiles, Advanced below it', (
     tester,
   ) async {
