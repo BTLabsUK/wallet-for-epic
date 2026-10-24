@@ -70,6 +70,9 @@ class AdvancedPrefs {
   /// The defaults: nothing on, standard network.
   static const AdvancedPrefs none = AdvancedPrefs();
 
+  /// Every feature on (tests and the screenshot tour), standard network.
+  static final AdvancedPrefs all = AdvancedPrefs(features: AdvancedFeature.values.toSet());
+
   bool has(AdvancedFeature f) => features.contains(f);
 
   /// Whether anything is on: the hub's state line and the About row read it.
