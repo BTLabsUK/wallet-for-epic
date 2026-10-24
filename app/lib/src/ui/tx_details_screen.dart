@@ -15,6 +15,9 @@ import 'invoice_request_screen.dart' show IssuedInvoiceBlock;
 import 'invoice_review_screen.dart' show PaidInvoiceBlock;
 import 'theme/advanced.dart';
 import 'theme/protocol.dart';
+import 'theme/tokens.dart';
+import 'tx_edit_sheet.dart';
+import 'tx_label.dart';
 
 /// Minutes per Epic block, for rough "about N hours" estimates.
 const int _minutesPerBlock = 1;
@@ -257,6 +260,52 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           describeError(context.l10n, error),
           level: NoticeLevel.error,
         );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Opens the details sheet of a restored row and saves what comes back.
+  Future<void> _editDetails(TxEntry tx) async {
+    final input = await showTxDetailsSheet(context, tx);
+    if (input == null || !mounted) return;
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    final l = context.l10n;
+    const fields = {
+      ManualField.counterparty,
+      ManualField.transport,
+      ManualField.note,
+    };
+    final had = tx.manualFields.intersection(fields).isNotEmpty;
+    final has =
+        input.counterparty != null ||
+        input.transport != null ||
+        input.note != null;
+    setState(() => _busy = true);
+    try {
+      await session.setTxDetails(
+        key: tx.key,
+        counterparty: input.counterparty,
+        transport: input.transport,
+        note: input.note,
+      );
+      await _reload();
+      if (!mounted) return;
+      if (had || has) {
+        _showMessage(
+          !has
+              ? l.txEditRemovedNotice
+              : had
+              ? l.txEditSavedNotice
+              : l.txEditAddedNotice,
+          level: NoticeLevel.info,
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        _showMessage(describeError(l, error), level: NoticeLevel.error);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -600,6 +649,25 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             const SizedBox(height: 8),
             _SourceNote(source: tx.source),
           ],
+          // Only a payment a scan found takes a typed sender, method and note.
+          if (tx.source == TxSource.restored)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                tx.manualFields.any((f) => f != ManualField.label)
+                    ? Icons.edit_outlined
+                    : Icons.add,
+              ),
+              title: Text(
+                tx.manualFields.any((f) => f != ManualField.label)
+                    ? l.txEditEdit
+                    : l.txEditAdd,
+                style: theme.textTheme.labelLarge,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _busy ? null : () => _editDetails(tx),
+            ),
+          _LabelTile(tx: tx),
           const SizedBox(height: 8),
           _DetailRow(
             label: l.txDetailsDate,
@@ -612,6 +680,14 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               label: l.txDetailsCreated,
               value: formatDateTime(l, localTime(tx.createdAtUnix)),
             ),
+          if (tx.source == TxSource.restored && tx.transport != null)
+            _DetailRow(
+              label: l.sendMethodLabel,
+              value: txMethodWord(l, tx.transport),
+              tag: tx.manualFields.contains(ManualField.transport)
+                  ? ManualTag(editedAtUnix: tx.manualEditedAtUnix)
+                  : null,
+            ),
           if (counterparty != null)
             _CounterpartyRow(
               label: outgoing
@@ -622,6 +698,9 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               address: counterparty,
               name: name,
               canSendAgain: outgoing && tx.status == TxStatus.confirmed,
+              tag: tx.manualFields.contains(ManualField.counterparty)
+                  ? ManualTag(editedAtUnix: tx.manualEditedAtUnix, from: true)
+                  : null,
             ),
           if (fee != null && outgoing)
             _DetailRow(
@@ -639,9 +718,11 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             _DetailRow(label: l.txDetailsYourMessage, value: ownMessage),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text(
+            title: _TitleWithTag(
               l.txDetailsPrivateNoteLabel,
-              style: theme.textTheme.labelLarge,
+              tag: tx.manualFields.contains(ManualField.note)
+                  ? ManualTag(editedAtUnix: tx.manualEditedAtUnix)
+                  : null,
             ),
             subtitle: Text(note ?? l.txDetailsNoNote),
             trailing: IconButton(
@@ -802,10 +883,18 @@ class _SourceNote extends StatelessWidget {
 /// A labelled value that can be selected; with [copy], also copied, by the icon or a tap on the
 /// row.
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.label, required this.value, this.copy});
+  const _DetailRow({
+    required this.label,
+    required this.value,
+    this.copy,
+    this.tag,
+  });
 
   final String label;
   final String value;
+
+  /// "Added by you", after the title, for a value the user typed.
+  final Widget? tag;
 
   /// The copy button's tooltip and the notice after copying, for a value worth copying.
   final ({String tooltip, String notice})? copy;
@@ -818,7 +907,7 @@ class _DetailRow extends StatelessWidget {
         : () => copyText(context, value, copy.notice);
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text(label, style: Theme.of(context).textTheme.labelLarge),
+      title: _TitleWithTag(label, tag: tag),
       subtitle: copy == null ? SelectableText(value) : Text(value),
       onTap: doCopy,
       trailing: copy == null
@@ -839,9 +928,13 @@ class _CounterpartyRow extends StatelessWidget {
     required this.address,
     required this.name,
     required this.canSendAgain,
+    this.tag,
   });
 
   final String label;
+
+  /// "Added by you", after the title, for a sender the user typed.
+  final Widget? tag;
   final String address;
   final String? name;
 
@@ -857,7 +950,7 @@ class _CounterpartyRow extends StatelessWidget {
       children: [
         ListTile(
           contentPadding: EdgeInsets.zero,
-          title: Text(label, style: theme.textTheme.labelLarge),
+          title: _TitleWithTag(label, tag: tag),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -897,6 +990,73 @@ class _CounterpartyRow extends StatelessWidget {
             ],
           ),
       ],
+    );
+  }
+}
+
+/// A list tile's title in the label style, with [tag] after it when there is one.
+class _TitleWithTag extends StatelessWidget {
+  const _TitleWithTag(this.text, {this.tag});
+
+  final String text;
+  final Widget? tag;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.labelLarge;
+    final tag = this.tag;
+    if (tag == null) return Text(text, style: style);
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      children: [
+        Text(text, style: style),
+        tag,
+      ],
+    );
+  }
+}
+
+/// "Add label", or "Label" with its value: the field opens in the tile's place.
+class _LabelTile extends StatelessWidget {
+  const _LabelTile({required this.tx});
+
+  final TxEntry tx;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final theme = Theme.of(context);
+    final label = tx.label;
+    const tagIcon = Icon(Icons.sell_outlined);
+    return TxLabelEditor(
+      tx: tx,
+      style: theme.textTheme.bodyLarge,
+      wrap: (field) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            tagIcon,
+            const SizedBox(width: 16),
+            Expanded(child: field),
+          ],
+        ),
+      ),
+      idle: (context, edit) => ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: tagIcon,
+        title: _TitleWithTag(
+          label == null ? l.txLabelAdd : l.txLabel,
+          tag: label == null
+              ? null
+              : ManualTag(editedAtUnix: tx.manualEditedAtUnix),
+        ),
+        subtitle: label == null ? null : Text(label),
+        trailing: ExcludeSemantics(
+          child: Icon(Icons.edit_outlined, size: 20, color: context.tokens.dim),
+        ),
+        onTap: edit,
+      ),
     );
   }
 }

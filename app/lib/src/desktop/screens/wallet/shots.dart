@@ -11,6 +11,8 @@ import 'outputs_dialogs.dart';
 import 'outputs_screen.dart';
 import 'overview_screen.dart';
 import 'tx_detail.dart';
+import 'tx_details_dialog.dart';
+import 'tx_label.dart';
 
 Tx _tx(BuildContext context, int id) {
   final container = ProviderScope.containerOf(context);
@@ -51,6 +53,27 @@ final List<DeskShot> walletShots = [
   const DeskShot(id: '12e-tx-detail-restored', title: 'Transaction detail, restored', route: DeskRoute.activity, arg: 102),
   const DeskShot(id: '12f-tx-detail-found-by-scan', title: 'Transaction detail, found by a balance recheck', route: DeskRoute.activity, arg: 103),
   const DeskShot(id: '12g-tx-detail-from-backup', title: 'Transaction detail, from a history backup', route: DeskRoute.activity, arg: -106),
+  const DeskShot(id: '11g-activity-labels', title: 'Activity, labelled rows', route: DeskRoute.activity, arg: ActivityArgs(), height: 1000),
+  const DeskShot(id: '11h-activity-labels-restored', title: 'Activity, a restored row with details', route: DeskRoute.activity, arg: ActivityArgs(txId: 103, query: 'payout')),
+  DeskShot(
+    id: '11i-activity-label-edit',
+    title: 'Activity, editing a label in place',
+    route: DeskRoute.activity,
+    arg: const ActivityArgs(),
+    height: 1000,
+    prepare: (c, _) async => c.read(txLabelEditingProvider.notifier).open(c.read(deskProvider).txs!.firstWhere((t) => t.id == 35).key, txLabelRowPlace),
+  ),
+  const DeskShot(id: '12h-tx-detail-labelled', title: 'Transaction detail, with a label', route: DeskRoute.activity, arg: 35),
+  DeskShot(
+    id: '12i-tx-detail-label-edit',
+    title: 'Transaction detail, editing the label',
+    route: DeskRoute.activity,
+    arg: 35,
+    prepare: (c, _) async => c.read(txLabelEditingProvider.notifier).open(c.read(deskProvider).txs!.firstWhere((t) => t.id == 35).key, txLabelDetailPlace),
+  ),
+  const DeskShot(id: '12j-tx-detail-restored-details', title: 'Transaction detail, restored with details', route: DeskRoute.activity, arg: 103),
+  DeskShot(id: '35d-dlg-tx-details-add', title: 'Add details to a restored payment', route: DeskRoute.activity, arg: 102, dialog: (c) => showTxDetailsDialog(c, _tx(c, 102))),
+  DeskShot(id: '35e-dlg-tx-details-edit', title: 'Edit details of a restored payment', route: DeskRoute.activity, arg: 103, dialog: (c) => showTxDetailsDialog(c, _tx(c, 103))),
   const DeskShot(id: '12-tx-detail', title: 'Transaction detail', route: DeskRoute.activity, arg: 36),
   const DeskShot(id: '12b-tx-detail-file', title: 'Transaction detail, file send', route: DeskRoute.activity, arg: 38),
   DeskShot(id: '12c-tx-detail-narrow', title: 'Transaction detail, narrow', route: DeskRoute.activity, arg: 39, width: 900, height: 760),

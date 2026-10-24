@@ -48,7 +48,7 @@ bool matchesFilter(TxEntry tx, HistoryFilter filter) => switch (filter) {
   HistoryFilter.cancelled => tx.status == TxStatus.cancelled,
 };
 
-/// Whether [query] appears in the note, counterparty, contact name, amount, slate id or kernel
+/// Whether [query] appears in the label, note, counterparty, contact name, amount, slate id or kernel
 /// of [tx]. Case does not matter; a decimal comma matches a decimal point.
 bool matchesQuery(TxEntry tx, String query, {String? contactName}) {
   final q = query.trim().toLowerCase();
@@ -58,6 +58,7 @@ bool matchesQuery(TxEntry tx, String query, {String? contactName}) {
   // What the row shows, which may have fewer decimals.
   final shown = displayEpic(txAmount(tx).amount);
   final fields = [
+    tx.label,
     tx.note,
     tx.counterparty,
     contactName,

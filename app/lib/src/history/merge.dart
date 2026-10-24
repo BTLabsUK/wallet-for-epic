@@ -2,15 +2,17 @@
 ///
 /// A port of `app/rust/src/core/history.rs`, where the live rows were epic-wallet's log. Here
 /// they arrive as [TxEntry] from `lepicTxEntry`, so status, cancel and repost flags are
-/// LEPIC's, and LEPIC rows carry no output commitments. Everything is pure, so the rules are
-/// tested on synthetic rows.
+/// LEPIC's, and so are the output commitments each row created. Everything is pure, so the
+/// rules are tested on synthetic rows.
 ///
 /// - A live row absorbs an archive record matching by slate id, then kernel, then a created
 ///   commitment. Live status and amounts win, except on rows a scan rebuilt ([TxSource.restored]),
 ///   which only know one output: those take the record's kind, amounts and time.
 /// - Keys are stable across restores: `s:<slate>`, else `k:<kernel>`, else `c:<commit>`, else
 ///   `l:<id>`. The two sides of a self-send share a slate id and get a suffix.
-/// - A note belongs to a row by its key, or by an alias no other row carries.
+/// - A note belongs to a row by its key, or by an alias no other row carries. So does what the
+///   user entered in [Meta.manual]: a label on any row; on a row a scan restored, who paid and
+///   how, shown only where the row itself has nothing.
 library;
 
 import 'dart:convert';
@@ -103,6 +105,9 @@ class MergedTx {
       counterparty = e.counterparty,
       transport = e.transport,
       note = e.note,
+      label = e.label,
+      manualFields = {...e.manualFields},
+      manualEditedAtUnix = e.manualEditedAtUnix,
       messages = e.messages,
       ttlCutoffHeight = e.ttlCutoffHeight,
       cancellable = e.cancellable,
@@ -135,6 +140,9 @@ class MergedTx {
   String? counterparty;
   String? transport;
   String? note;
+  String? label;
+  Set<ManualField> manualFields;
+  int? manualEditedAtUnix;
 
   /// The live row's slate messages, shown in details. Not exported: a backup's `messages` is
   /// [recordMessages].
@@ -181,6 +189,9 @@ class MergedTx {
     counterparty: counterparty,
     transport: transport,
     note: note,
+    label: label,
+    manualFields: Set.unmodifiable(manualFields),
+    manualEditedAtUnix: manualEditedAtUnix,
     messages: messages,
     ttlCutoffHeight: ttlCutoffHeight,
     cancellable: cancellable,
@@ -484,6 +495,7 @@ List<MergedTx> mergeHistory(List<TxEntry> live, Meta meta) {
     }
 
     m.note = meta.notes[m.key] ?? byAlias() ?? recordNoteOf[i];
+    _applyManual(m, manualOf(meta, m, shared));
   }
   result.sort((a, b) {
     final byTime = b.timeUnix.compareTo(a.timeUnix);
@@ -493,6 +505,62 @@ List<MergedTx> mergeHistory(List<TxEntry> live, Meta meta) {
   });
   return result;
 }
+
+/// The manual record of [m]: under its key, else under an alias no other row carries.
+ManualRec? manualOf(Meta meta, MergedTx m, Set<String> shared) {
+  final own = meta.manual[m.key];
+  if (own != null) return own;
+  for (final a in m.aliases) {
+    if (shared.contains(a)) continue;
+    final r = meta.manual[a];
+    if (r != null) return r;
+  }
+  return null;
+}
+
+/// Puts what the user entered on [m]. A label fits any row. Who paid and how fill only what
+/// the row does not know, so a recorded value always shows over a typed one. A note on a row a
+/// scan restored is the user's too.
+void _applyManual(MergedTx m, ManualRec? rec) {
+  final fields = <ManualField>{};
+  final label = _someStr(rec?.label);
+  if (label != null) {
+    m.label = label;
+    fields.add(ManualField.label);
+  }
+  final counterparty = _someStr(rec?.counterparty);
+  if (counterparty != null && _someStr(m.counterparty) == null) {
+    m.counterparty = counterparty;
+    fields.add(ManualField.counterparty);
+  }
+  final transport = _someStr(rec?.transport);
+  if (transport != null && _someStr(m.transport) == null) {
+    m.transport = transport;
+    fields.add(ManualField.transport);
+  }
+  if (m.source == TxSource.restored && _someStr(m.note) != null) {
+    fields.add(ManualField.note);
+  }
+  m.manualFields = fields;
+  m.manualEditedAtUnix = fields.isEmpty ? null : rec?.editedAtUnix;
+}
+
+/// The names a history file's `user_fields` and the CSV give [ManualField]s.
+String userFieldName(ManualField f) => switch (f) {
+  ManualField.label => 'label',
+  ManualField.counterparty => 'counterparty',
+  ManualField.transport => 'method',
+  ManualField.note => 'note',
+};
+
+/// [userFieldName] the other way; null for a name this version does not know.
+ManualField? userFieldFrom(String name) => switch (name) {
+  'label' => ManualField.label,
+  'counterparty' => ManualField.counterparty,
+  'method' => ManualField.transport,
+  'note' => ManualField.note,
+  _ => null,
+};
 
 /// True when the record describes the transaction shown as [tx].
 bool recordMatches(Record r, MergedTx tx) {
@@ -528,5 +596,12 @@ Record toRecord(MergedTx m) => Record(
   cancelReason: m.cancelReason == null
       ? null
       : cancelReasonName(m.cancelReason!),
+  label: m.label,
+  transport: m.transport,
+  userFields: [
+    for (final f in ManualField.values)
+      if (m.manualFields.contains(f)) userFieldName(f),
+  ],
+  userEditedAtUnix: m.manualEditedAtUnix,
   // The file's own `exported_at_unix` stands for every record in it.
 );

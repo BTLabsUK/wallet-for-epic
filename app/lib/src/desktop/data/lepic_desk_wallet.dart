@@ -3370,17 +3370,41 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<HistoryImport> importHistory(Uint8List data) async {
+  Future<HistoryImport> importHistory(Uint8List data, {Map<String, bool>? useBackup}) async {
     if (data.length > maxDeskHistoryBytes) throw HistoryFileError.l10n(HistoryFileProblem.tooLarge, (l) => l.deskErrHistTooLarge);
     try {
-      final r = await _open.importHistory(data: data);
-      logInfo('desk', 'history imported: ${r.merged} merged, ${r.added} added, ${r.contactsAdded} contacts');
+      final r = await _open.importHistory(data: data, useBackup: useBackup);
+      if (!r.applied) {
+        logInfo('desk', 'history import waits for ${r.conflicts.length} choices');
+        return HistoryImport(conflicts: r.conflicts, applied: false);
+      }
+      logInfo('desk', 'history imported: ${r.merged} merged, ${r.added} added, ${r.contactsAdded} contacts, ${r.replaced} replaced');
       await _reload();
-      return HistoryImport(merged: r.merged, added: r.added, skipped: r.skipped, contactsAdded: r.contactsAdded);
+      return HistoryImport(merged: r.merged, added: r.added, skipped: r.skipped, contactsAdded: r.contactsAdded, replaced: r.replaced);
     } on core.WalletError catch (e) {
       logWarn('desk', 'history import refused: ${e.kind.name}');
       throw historyFileError(e);
     }
+  }
+
+  @override
+  Future<void> setTxLabel(String key, String? label) async {
+    try {
+      await _open.setTxLabel(key: key, label: label);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+    await _reload();
+  }
+
+  @override
+  Future<void> setTxDetails(String key, {String? counterparty, String? transport, String? note}) async {
+    try {
+      await _open.setTxDetails(key: key, counterparty: counterparty, transport: transport, note: note);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+    await _reload();
   }
 
   @override
@@ -4070,6 +4094,8 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
   final method = switch (e.transport) {
     'tor' => TxMethod.tor,
     'http' => TxMethod.http,
+    // A restored row has no wallet record of how it came: only the user's words say.
+    'file' when e.source == core.TxSource.restored => TxMethod.file,
     _ when to != null && to.toLowerCase().contains('.onion') => TxMethod.tor,
     _ when to == null => e.source == core.TxSource.wallet && e.kind != core.TxKind.coinbase ? TxMethod.file : TxMethod.epicbox,
     _ when to.startsWith('http') => TxMethod.http,
@@ -4107,6 +4133,12 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     notPosted: e.repostable,
     undelivered: e.undelivered,
     flow: e.flow == core.TxFlow.invoice ? TxFlow.invoice : TxFlow.payment,
+    key: e.key,
+    transport: e.transport,
+    label: e.label,
+    note: e.note,
+    manualFields: e.manualFields,
+    manualEditedAt: e.manualEditedAtUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.manualEditedAtUnix! * 1000),
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,
   );

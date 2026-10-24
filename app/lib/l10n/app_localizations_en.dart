@@ -125,6 +125,120 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txRestoredFunds => 'Restored funds';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label, $row';
+  }
+
+  @override
+  String get txLabel => 'Label';
+
+  @override
+  String get txLabelAdd => 'Add label';
+
+  @override
+  String get txLabelEdit => 'Edit label';
+
+  @override
+  String get txLabelHint => 'Add label';
+
+  @override
+  String get txLabelAddedNotice => 'Label added';
+
+  @override
+  String get txLabelSavedNotice => 'Label saved';
+
+  @override
+  String get txLabelRemovedNotice => 'Label removed';
+
+  @override
+  String get txEditAdd => 'Add details';
+
+  @override
+  String get txEditEdit => 'Edit details';
+
+  @override
+  String get txEditFrom => 'From';
+
+  @override
+  String get txEditFromHint => 'Address';
+
+  @override
+  String get txEditFromHelper => 'Not verified. Never used for payment proofs.';
+
+  @override
+  String get txMethodUnknown => 'Unknown';
+
+  @override
+  String get txManualTag => 'Added by you';
+
+  @override
+  String txManualTip(String date) {
+    return 'Added by you on $date. Not from the chain.';
+  }
+
+  @override
+  String get txManualTipNoDate => 'Added by you. Not from the chain.';
+
+  @override
+  String txManualTipFrom(String date) {
+    return 'Added by you on $date. Not from the chain, not verified.';
+  }
+
+  @override
+  String get txManualTipFromNoDate =>
+      'Added by you. Not from the chain, not verified.';
+
+  @override
+  String get txEditAddedNotice => 'Details added';
+
+  @override
+  String get txEditSavedNotice => 'Details saved';
+
+  @override
+  String get txEditRemovedNotice => 'Details removed';
+
+  @override
+  String get histConflictTitle => 'Details differ';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'The backup has other details for $n payments you described. Yours are kept unless you choose otherwise.',
+      one: 'The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => 'Mine';
+
+  @override
+  String get histConflictBackup => 'Backup';
+
+  @override
+  String get histConflictKeepAll => 'Keep all mine';
+
+  @override
+  String get histConflictImport => 'Import';
+
+  @override
+  String get histConflictEmpty => 'empty';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n details replaced, the rest kept as yours.',
+      one: '1 detail replaced, the rest kept as yours.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => 'Outgoing payment';
 
   @override
@@ -13483,6 +13597,141 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskInvPayerStalledText =>
       'Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.';
+
+  @override
+  String get deskTxLabelAdd => 'Add label';
+
+  @override
+  String get deskTxLabelEdit => 'Edit label';
+
+  @override
+  String get deskTxLabelHint => 'Add label';
+
+  @override
+  String get deskTxLabelField => 'Label';
+
+  @override
+  String get deskTxLabelTip =>
+      'A name for this payment, for you. Shown in Activity and exports.';
+
+  @override
+  String get deskTxLabelAdded => 'Label added';
+
+  @override
+  String get deskTxLabelSaved => 'Label saved';
+
+  @override
+  String get deskTxLabelRemoved => 'Label removed';
+
+  @override
+  String get deskTxLabelNotSaved => 'Label not saved';
+
+  @override
+  String get deskTxDetailsAdd => 'Add details';
+
+  @override
+  String get deskTxDetailsEdit => 'Edit';
+
+  @override
+  String get deskTxDetailsTitleAdd => 'Add details';
+
+  @override
+  String get deskTxDetailsTitleEdit => 'Edit details';
+
+  @override
+  String get deskTxDetailsTip =>
+      'Only for payments found by a scan. Shown as added by you in Activity, details and exports. Amounts, dates and confirmations do not change.';
+
+  @override
+  String get deskTxDetailsFrom => 'From';
+
+  @override
+  String get deskTxDetailsFromTip =>
+      'Who paid, for your records. Not verified and never used for payment proofs.';
+
+  @override
+  String get deskTxDetailsFromHint => 'Address of the sender';
+
+  @override
+  String get deskTxDetailsFromBad =>
+      'Use an Epicbox, http(s) or .onion address.';
+
+  @override
+  String get deskTxDetailsNote => 'Note';
+
+  @override
+  String get deskTxDetailsAdded => 'Details added';
+
+  @override
+  String get deskTxDetailsSaved => 'Details saved';
+
+  @override
+  String get deskTxDetailsRemoved => 'Details removed';
+
+  @override
+  String get deskTxDetailsNotSaved => 'Details not saved';
+
+  @override
+  String get deskTxManualTag => 'Added by you';
+
+  @override
+  String deskTxManualTip(String date) {
+    return 'Added by you on $date. Not from the chain.';
+  }
+
+  @override
+  String get deskTxManualTipNoDate => 'Added by you. Not from the chain.';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return 'Added by you on $date. Not from the chain, not verified.';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate =>
+      'Added by you. Not from the chain, not verified.';
+
+  @override
+  String get deskHistConflictTitle => 'Details differ';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'The backup has other details for $n payments you described. Yours are kept unless you choose otherwise.',
+      one:
+          'The backup has other details for $n payment you described. Yours are kept unless you choose otherwise.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => 'Mine';
+
+  @override
+  String get deskHistConflictBackup => 'Backup';
+
+  @override
+  String get deskHistConflictKeepAll => 'Keep all mine';
+
+  @override
+  String get deskHistConflictImport => 'Import';
+
+  @override
+  String get deskHistConflictEmpty => 'empty';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n details replaced, the rest kept as yours.',
+      one: '$n detail replaced, the rest kept as yours.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String sendRelayUnknown(String relay) {

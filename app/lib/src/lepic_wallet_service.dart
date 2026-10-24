@@ -499,9 +499,11 @@ int lepicTxId(String key) {
 /// The transports whose undelivered sends are sent again: Epicbox, HTTP and Tor.
 const resendTransports = {'epicbox', 'http', 'tor'};
 
-/// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]). Notes, contacts
-/// and imported rows are the app's (H-01), so `note` stays empty here; `messages` are the
-/// slate's, which LEPIC verified.
+/// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]) until the merge
+/// gives the stable one: a row a scan restored is then known by its output's commitment, which
+/// a restore finds again while the id changes. Notes, labels, contacts and imported rows are
+/// the app's (H-01), so `note` and `label` stay empty here; `messages` are the slate's, which
+/// LEPIC verified.
 TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
   final outgoing = d.direction == lepic.TxDirection.outgoing;
   final ended =
@@ -550,7 +552,7 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
     numInputs: imported?.inputCount ?? 0,
     numOutputs: imported?.outputCount ?? 0,
     kernelExcess: d.kernelExcess,
-    outputCommits: const [],
+    outputCommits: d.outputCommits,
     counterparty: d.counterparty,
     transport: d.transport,
     messages: lepicMessages(d.messages),
@@ -1601,6 +1603,26 @@ class LepicWalletSession implements WalletSession {
       _guard(() async => _history.setNote(await _live(), key, note));
 
   @override
+  Future<void> setTxLabel({required String key, String? label}) =>
+      _guard(() async => _history.setLabel(await _live(), key, label));
+
+  @override
+  Future<void> setTxDetails({
+    required String key,
+    String? counterparty,
+    String? transport,
+    String? note,
+  }) => _guard(
+    () async => _history.setDetails(
+      await _live(),
+      key,
+      counterparty: counterparty,
+      transport: transport,
+      note: note,
+    ),
+  );
+
+  @override
   Future<List<Contact>> contacts() async => _history.contacts();
 
   @override
@@ -1632,14 +1654,18 @@ class LepicWalletSession implements WalletSession {
   });
 
   @override
-  Future<ImportReport> importHistory({required Uint8List data}) =>
-      _guard(() async {
+  Future<ImportReport> importHistory({
+    required Uint8List data,
+    Map<String, bool>? useBackup,
+  }) => _guard(() async {
         final payload = HistoryPayload.decode(await _openHistoryFile(data));
         final report = await _history.importPayload(
           payload,
           await _live(),
           walletFp: walletFingerprint(await _wallet.epicboxAddress()),
+          useBackup: useBackup,
         );
+        if (!report.applied) return report;
         // The file may carry the invoice index from before a restore.
         await restoreInvoiceIndex();
         return report;

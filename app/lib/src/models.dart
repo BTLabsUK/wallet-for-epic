@@ -378,11 +378,25 @@ class ImportReport {
   final int skipped;
   final int contactsAdded;
 
+  /// Fields where the file has another value than one the user entered here (label, note, or
+  /// a restored row's sender or method). Not empty only when [applied] is false: nothing was
+  /// written, and the import runs again with the user's choices.
+  final List<ImportConflict> conflicts;
+
+  /// False when [conflicts] stopped the import before anything was written.
+  final bool applied;
+
+  /// Fields the user chose the file's value for.
+  final int replaced;
+
   const ImportReport({
     required this.merged,
     required this.added,
     required this.skipped,
     required this.contactsAdded,
+    this.conflicts = const [],
+    this.applied = true,
+    this.replaced = 0,
   });
 
   @override
@@ -390,7 +404,10 @@ class ImportReport {
       merged.hashCode ^
       added.hashCode ^
       skipped.hashCode ^
-      contactsAdded.hashCode;
+      contactsAdded.hashCode ^
+      Object.hashAll(conflicts) ^
+      applied.hashCode ^
+      replaced.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -400,7 +417,71 @@ class ImportReport {
           merged == other.merged &&
           added == other.added &&
           skipped == other.skipped &&
-          contactsAdded == other.contactsAdded;
+          contactsAdded == other.contactsAdded &&
+          _listEquals(conflicts, other.conflicts) &&
+          applied == other.applied &&
+          replaced == other.replaced;
+}
+
+/// The longest label [WalletSession.setTxLabel] keeps, in characters.
+const int txLabelMaxLength = 60;
+
+/// The transports a user may name for a restored transaction, as LEPIC names them.
+const Set<String> txTransports = {'epicbox', 'http', 'tor', 'file'};
+
+/// A field of a transaction the user entered rather than the chain or the wallet. A label
+/// fits any transaction; the others only one a scan restored ([TxSource.restored]).
+enum ManualField {
+  label,
+
+  /// Who paid, typed by the user. Never verified and never used for payment proofs.
+  counterparty,
+
+  /// How it came, as LEPIC names transports: `epicbox`, `http`, `tor`, `file`.
+  transport,
+  note,
+}
+
+/// A field where a history file disagrees with what the user entered here.
+class ImportConflict {
+  /// [TxEntry.key] of the transaction, as shown before the import.
+  final String key;
+  final ManualField field;
+
+  /// The value here; null when there is none.
+  final String? mine;
+
+  /// The file's value.
+  final String theirs;
+
+  /// The transaction's time and net amount (negative for a send), to show which one it is.
+  final int timeUnix;
+  final BigInt amount;
+
+  const ImportConflict({
+    required this.key,
+    required this.field,
+    this.mine,
+    required this.theirs,
+    required this.timeUnix,
+    required this.amount,
+  });
+
+  /// What `importHistory(useBackup:)` names this conflict by.
+  String get id => '$key|${field.name}';
+
+  @override
+  int get hashCode => Object.hash(key, field, mine, theirs, timeUnix, amount);
+
+  @override
+  bool operator ==(Object other) =>
+      other is ImportConflict &&
+      key == other.key &&
+      field == other.field &&
+      mine == other.mine &&
+      theirs == other.theirs &&
+      timeUnix == other.timeUnix &&
+      amount == other.amount;
 }
 
 class ListenerEvent {
@@ -1120,6 +1201,17 @@ class TxEntry {
   /// The user's private note. It stays on this device and in history backups.
   final String? note;
 
+  /// The user's name for this transaction, shown as its title. Null when there is none.
+  final String? label;
+
+  /// Which fields the user entered: [label] when set, and on a restored row the sender
+  /// ([counterparty]), method ([transport]) and [note] typed in its details. Shown as
+  /// "Added by you"; a manual [counterparty] is never used for payment proofs.
+  final Set<ManualField> manualFields;
+
+  /// When the user last changed [manualFields] (unix seconds); null when none is set.
+  final int? manualEditedAtUnix;
+
   /// The parties' signed slate messages, which both sides see. Empty for a restored or imported
   /// row.
   final List<SlateMessage> messages;
@@ -1185,6 +1277,9 @@ class TxEntry {
     this.counterparty,
     this.transport,
     this.note,
+    this.label,
+    this.manualFields = const {},
+    this.manualEditedAtUnix,
     this.messages = const [],
     this.ttlCutoffHeight,
     required this.cancellable,
@@ -1236,6 +1331,9 @@ class TxEntry {
       counterparty.hashCode ^
       transport.hashCode ^
       note.hashCode ^
+      label.hashCode ^
+      Object.hashAllUnordered(manualFields) ^
+      manualEditedAtUnix.hashCode ^
       Object.hashAll(messages) ^
       ttlCutoffHeight.hashCode ^
       cancellable.hashCode ^
@@ -1275,6 +1373,10 @@ class TxEntry {
           counterparty == other.counterparty &&
           transport == other.transport &&
           note == other.note &&
+          label == other.label &&
+          manualFields.length == other.manualFields.length &&
+          manualFields.containsAll(other.manualFields) &&
+          manualEditedAtUnix == other.manualEditedAtUnix &&
           _listEquals(messages, other.messages) &&
           ttlCutoffHeight == other.ttlCutoffHeight &&
           cancellable == other.cancellable &&

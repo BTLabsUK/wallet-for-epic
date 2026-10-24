@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:epic_wallet/src/desktop/app/screens.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
@@ -423,6 +424,47 @@ void main() {
       final restored = txs[3];
       expect((restored.coinbase, restored.foundByScan, restored.state), (true, true, TxState.cancelled));
       expect(restored.id, isNegative, reason: 'no local id: not cancellable');
+    });
+
+    test('labels and details: the adapter maps them and writes through the core', () async {
+      final s = service.session;
+      s.transactionsValue = [
+        core.fakeTx(id: 1, slateId: 's1', kind: core.TxKind.received, status: core.TxStatus.confirmed, amountCredited: BigInt.from(300), blockHeight: BigInt.from(2400000)),
+        core.fakeTx(key: 'c:aa', kind: core.TxKind.received, source: core.TxSource.restored, status: core.TxStatus.confirmed, amountCredited: BigInt.from(500), blockHeight: BigInt.from(2400001)),
+      ];
+      await wallet.sync();
+      var txs = await wallet.transactions();
+      expect((txs[0].key, txs[0].label), ('s:s1', null));
+      expect(txs[0].manualFields, isEmpty);
+      expect((txs[1].key, txs[1].restored), ('c:aa', true));
+      expect(txs[1].transport, isNull);
+
+      await wallet.setTxLabel('s:s1', '  Rent  ');
+      expect(s.labels, {'s:s1': 'Rent'});
+      await wallet.setTxDetails('c:aa', counterparty: 'esA@epicbox.epiccash.com', transport: 'file', note: 'Pool');
+      txs = await wallet.transactions();
+      expect(txs[0].label, 'Rent');
+      expect(txs[0].manualFields, {ManualField.label});
+      expect(txs[0].manualEditedAt, isNotNull);
+      expect((txs[1].counterparty, txs[1].transport, txs[1].method, txs[1].note), ('esA@epicbox.epiccash.com', 'file', TxMethod.file, 'Pool'));
+      expect(txs[1].manualFields, {ManualField.counterparty, ManualField.transport, ManualField.note});
+
+      // Removing: a blank label, and every detail cleared.
+      await wallet.setTxLabel('s:s1', null);
+      expect(s.labels, isEmpty);
+      // The core refuses details on a row a scan did not find.
+      await expectLater(wallet.setTxDetails('s:s1', note: 'x'), throwsA(isA<DeskError>()));
+    });
+
+    test('a history import that differs from typed details writes nothing until it has the choices', () async {
+      final s = service.session;
+      s.importConflicts = [
+        core.ImportConflict(key: 's:s1', field: core.ManualField.label, mine: 'Rent', theirs: 'Flat', timeUnix: 1790000000, amount: BigInt.from(-300)),
+      ];
+      final first = await wallet.importHistory(Uint8List.fromList(utf8.encode('WFEH')));
+      expect(first.applied, isFalse);
+      expect(first.conflicts.map((c) => c.id), ['s:s1|label']);
+      expect(s.lastUseBackup, isNull);
     });
 
     test('status follows the node, the sync and the listener', () async {

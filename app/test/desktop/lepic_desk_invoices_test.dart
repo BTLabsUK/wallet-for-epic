@@ -52,6 +52,7 @@ lepic.TransactionDetails _tx({
   flow: lepic.TxFlow.invoice,
   origin: lepic.TxOrigin.wallet,
   transport: 'epicbox',
+  outputCommits: const [],
 );
 
 /// LEPIC's wallet in memory: the invoice half, transactions and a summary. Fails any other call.
@@ -318,6 +319,7 @@ void main() {
           flow: lepic.TxFlow.invoice,
           origin: lepic.TxOrigin.wallet,
           transport: 'epicbox',
+          outputCommits: const [],
         ),
       );
       Tx desk(core.TxEntry e) => deskTx(e, tip: 100, minConf: 3, fallbackId: -1);

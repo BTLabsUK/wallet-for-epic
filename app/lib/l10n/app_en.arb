@@ -104,6 +104,156 @@
   "@txRestoredFunds": {
     "description": "Funds the wallet found by scanning the chain after a restore, with no record of who sent them."
   },
+  "txSpokenLabelled": "{label}, {row}",
+  "@txSpokenLabelled": {
+    "description": "Screen-reader sentence of a payment row the user labelled: the label first, then the whole row sentence (what happened, status, date).",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Rent, September"
+      },
+      "row": {
+        "type": "String",
+        "example": "Received 10 EPIC from Alice, completed, Today, 10:01"
+      }
+    }
+  },
+  "txLabel": "Label",
+  "@txLabel": {
+    "description": "Phone: title of the label tile on a payment with a label, and the field name in the history import dialog. A name the user gave the payment."
+  },
+  "txLabelAdd": "Add label",
+  "@txLabelAdd": {
+    "description": "Phone: the tile and the pen button on a payment without a label (screen readers say it for the pen)."
+  },
+  "txLabelEdit": "Edit label",
+  "@txLabelEdit": {
+    "description": "Phone: the pen button on a payment with a label (screen readers say it)."
+  },
+  "txLabelHint": "Add label",
+  "@txLabelHint": {
+    "description": "Phone: placeholder of the one-line label field that opens in place."
+  },
+  "txLabelAddedNotice": "Label added",
+  "@txLabelAddedNotice": {
+    "description": "Notice after a label was added to a payment."
+  },
+  "txLabelSavedNotice": "Label saved",
+  "@txLabelSavedNotice": {
+    "description": "Notice after a label was changed."
+  },
+  "txLabelRemovedNotice": "Label removed",
+  "@txLabelRemovedNotice": {
+    "description": "Notice after a label was emptied and removed."
+  },
+  "txEditAdd": "Add details",
+  "@txEditAdd": {
+    "description": "Phone: tile and sheet title on a payment found by a scan that has no details of the user yet (sender, method, note)."
+  },
+  "txEditEdit": "Edit details",
+  "@txEditEdit": {
+    "description": "Phone: tile and sheet title on a payment found by a scan whose details the user already entered."
+  },
+  "txEditFrom": "From",
+  "@txEditFrom": {
+    "description": "Field of the details sheet and its tile: who paid, typed by the user. Also the field name in the history import dialog."
+  },
+  "txEditFromHint": "Address",
+  "@txEditFromHint": {
+    "description": "Placeholder of the From field: an address the user typed or picked from contacts."
+  },
+  "txEditFromHelper": "Not verified. Never used for payment proofs.",
+  "@txEditFromHelper": {
+    "description": "Helper under the From field. Short."
+  },
+  "txMethodUnknown": "Unknown",
+  "@txMethodUnknown": {
+    "description": "Method choice in the details sheet: how the payment came is not known."
+  },
+  "txManualTag": "Added by you",
+  "@txManualTag": {
+    "description": "Small tag after a value the user typed, not read from the chain or made by the wallet."
+  },
+  "txManualTip": "Added by you on {date}. Not from the chain.",
+  "@txManualTip": {
+    "description": "Tooltip of the tag; date is the day and time the user entered it.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "txManualTipNoDate": "Added by you. Not from the chain.",
+  "@txManualTipNoDate": {
+    "description": "Tooltip of the tag when the time is not known."
+  },
+  "txManualTipFrom": "Added by you on {date}. Not from the chain, not verified.",
+  "@txManualTipFrom": {
+    "description": "Tooltip of the tag on the From value; the sender was typed by the user and is not checked.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "txManualTipFromNoDate": "Added by you. Not from the chain, not verified.",
+  "@txManualTipFromNoDate": {
+    "description": "Tooltip of the tag on the From value when the time is not known."
+  },
+  "txEditAddedNotice": "Details added",
+  "@txEditAddedNotice": {
+    "description": "Notice after details were added to a payment found by a scan."
+  },
+  "txEditSavedNotice": "Details saved",
+  "@txEditSavedNotice": {
+    "description": "Notice after details were changed."
+  },
+  "txEditRemovedNotice": "Details removed",
+  "@txEditRemovedNotice": {
+    "description": "Notice after every detail was emptied."
+  },
+  "histConflictTitle": "Details differ",
+  "@histConflictTitle": {
+    "description": "Title of the sheet shown when a history backup has other values than the ones the user entered."
+  },
+  "histConflictLead": "{n, plural, =1{The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "@histConflictLead": {
+    "description": "Lead of the Details differ sheet; n is the number of payments. The user picks per value, Mine is chosen at first.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "histConflictMine": "Mine",
+  "@histConflictMine": {
+    "description": "Choice card: the value entered on this phone."
+  },
+  "histConflictBackup": "Backup",
+  "@histConflictBackup": {
+    "description": "Choice card: the value in the backup file."
+  },
+  "histConflictKeepAll": "Keep all mine",
+  "@histConflictKeepAll": {
+    "description": "Button: import without replacing anything the user entered."
+  },
+  "histConflictImport": "Import",
+  "@histConflictImport": {
+    "description": "Button: import with the choices made."
+  },
+  "histConflictEmpty": "empty",
+  "@histConflictEmpty": {
+    "description": "Shown in italics on a card whose value is empty."
+  },
+  "histImportedReplaced": "{n, plural, =1{1 detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}",
+  "@histImportedReplaced": {
+    "description": "Line after an import in which the user chose the backup for some values; n is how many.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "txOutgoingPayment": "Outgoing payment",
   "txIncomingPayment": "Incoming payment",
   "txStatusWaitingRecipient": "Waiting for recipient",
@@ -17737,6 +17887,174 @@
   "deskInvPayerStalledText": "Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.",
   "@deskInvPayerStalledText": {
     "description": "Notice text and Invoice block text for a stalled invoice payment. Send again is a button."
+  },
+  "deskTxLabelAdd": "Add label",
+  "@deskTxLabelAdd": {
+    "description": "Tooltip and screen-reader name of the pen on an Activity row or details title that has no label yet; also the ghost button in the details sub-header."
+  },
+  "deskTxLabelEdit": "Edit label",
+  "@deskTxLabelEdit": {
+    "description": "Tooltip and screen-reader name of the pen when the payment has a label; also the ghost button in the details sub-header."
+  },
+  "deskTxLabelHint": "Add label",
+  "@deskTxLabelHint": {
+    "description": "Placeholder of the inline label field while it is empty."
+  },
+  "deskTxLabelField": "Label",
+  "@deskTxLabelField": {
+    "description": "Screen-reader name of the inline label field, and the name of the field in the Details differ dialog."
+  },
+  "deskTxLabelTip": "A name for this payment, for you. Shown in Activity and exports.",
+  "@deskTxLabelTip": {
+    "description": "Tooltip on the label pen: what a label is."
+  },
+  "deskTxLabelAdded": "Label added",
+  "@deskTxLabelAdded": {
+    "description": "Toast title after a label was added."
+  },
+  "deskTxLabelSaved": "Label saved",
+  "@deskTxLabelSaved": {
+    "description": "Toast title after a label was changed."
+  },
+  "deskTxLabelRemoved": "Label removed",
+  "@deskTxLabelRemoved": {
+    "description": "Toast title after a label was emptied and removed."
+  },
+  "deskTxLabelNotSaved": "Label not saved",
+  "@deskTxLabelNotSaved": {
+    "description": "Toast title when saving a label failed; the reason follows as its text."
+  },
+  "deskTxDetailsAdd": "Add details",
+  "@deskTxDetailsAdd": {
+    "description": "Ghost button in the details sub-header of a payment a scan found: opens the dialog to add what the user knows."
+  },
+  "deskTxDetailsEdit": "Edit",
+  "@deskTxDetailsEdit": {
+    "description": "Short ghost button in the details sub-header when details were added already."
+  },
+  "deskTxDetailsTitleAdd": "Add details",
+  "@deskTxDetailsTitleAdd": {
+    "description": "Title of the dialog where the user adds details to a payment a scan found."
+  },
+  "deskTxDetailsTitleEdit": "Edit details",
+  "@deskTxDetailsTitleEdit": {
+    "description": "Title of the dialog when details exist already."
+  },
+  "deskTxDetailsTip": "Only for payments found by a scan. Shown as added by you in Activity, details and exports. Amounts, dates and confirmations do not change.",
+  "@deskTxDetailsTip": {
+    "description": "Description under the details dialog title, and tooltip on the details button: what it is for."
+  },
+  "deskTxDetailsFrom": "From",
+  "@deskTxDetailsFrom": {
+    "description": "Field name in the details dialog: who paid."
+  },
+  "deskTxDetailsFromTip": "Who paid, for your records. Not verified and never used for payment proofs.",
+  "@deskTxDetailsFromTip": {
+    "description": "Tooltip on the From field of the details dialog."
+  },
+  "deskTxDetailsFromHint": "Address of the sender",
+  "@deskTxDetailsFromHint": {
+    "description": "Placeholder of the From field in the details dialog."
+  },
+  "deskTxDetailsFromBad": "Use an Epicbox, http(s) or .onion address.",
+  "@deskTxDetailsFromBad": {
+    "description": "Shown under the From field when the text is not an address the wallet knows."
+  },
+  "deskTxDetailsNote": "Note",
+  "@deskTxDetailsNote": {
+    "description": "Field name in the details dialog and the details list: the private note."
+  },
+  "deskTxDetailsAdded": "Details added",
+  "@deskTxDetailsAdded": {
+    "description": "Toast title after details were added to a payment."
+  },
+  "deskTxDetailsSaved": "Details saved",
+  "@deskTxDetailsSaved": {
+    "description": "Toast title after details were changed."
+  },
+  "deskTxDetailsRemoved": "Details removed",
+  "@deskTxDetailsRemoved": {
+    "description": "Toast title after every detail was cleared."
+  },
+  "deskTxDetailsNotSaved": "Details not saved",
+  "@deskTxDetailsNotSaved": {
+    "description": "Toast title when saving details failed; the reason follows as its text."
+  },
+  "deskTxManualTag": "Added by you",
+  "@deskTxManualTag": {
+    "description": "Tag next to a value the user typed (label, sender, method, note)."
+  },
+  "deskTxManualTip": "Added by you on {date}. Not from the chain.",
+  "@deskTxManualTip": {
+    "description": "Tooltip on the Added by you tag when the time of the change is known.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "17 Oct 2026"
+      }
+    }
+  },
+  "deskTxManualTipNoDate": "Added by you. Not from the chain.",
+  "@deskTxManualTipNoDate": {
+    "description": "Tooltip on the Added by you tag when the time of the change is not known."
+  },
+  "deskTxManualTipFrom": "Added by you on {date}. Not from the chain, not verified.",
+  "@deskTxManualTipFrom": {
+    "description": "Tooltip on the Added by you tag of the From value when the time of the change is known.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "17 Oct 2026"
+      }
+    }
+  },
+  "deskTxManualTipFromNoDate": "Added by you. Not from the chain, not verified.",
+  "@deskTxManualTipFromNoDate": {
+    "description": "Tooltip on the Added by you tag of the From value when the time of the change is not known."
+  },
+  "deskHistConflictTitle": "Details differ",
+  "@deskHistConflictTitle": {
+    "description": "Title of the dialog shown when a history backup disagrees with what the user typed."
+  },
+  "deskHistConflictLead": "{n, plural, one{The backup has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "@deskHistConflictLead": {
+    "description": "Description of the Details differ dialog; n payments.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskHistConflictMine": "Mine",
+  "@deskHistConflictMine": {
+    "description": "Choice card in the Details differ dialog: the value typed here."
+  },
+  "deskHistConflictBackup": "Backup",
+  "@deskHistConflictBackup": {
+    "description": "Choice card in the Details differ dialog: the value in the backup file."
+  },
+  "deskHistConflictKeepAll": "Keep all mine",
+  "@deskHistConflictKeepAll": {
+    "description": "Button in the Details differ dialog: import and keep every value the user typed."
+  },
+  "deskHistConflictImport": "Import",
+  "@deskHistConflictImport": {
+    "description": "Primary button in the Details differ dialog: import with the choices made."
+  },
+  "deskHistConflictEmpty": "empty",
+  "@deskHistConflictEmpty": {
+    "description": "Placeholder, in italics, where a value in the Details differ dialog is empty."
+  },
+  "deskHistImportedReplaced": "{n, plural, one{{n} detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}",
+  "@deskHistImportedReplaced": {
+    "description": "Line on the import result: how many typed details the user replaced with the backup's.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   },
   "sendRelayUnknown": "{relay} isn't a server this app knows. Check the address before you send.",
   "@sendRelayUnknown": {
