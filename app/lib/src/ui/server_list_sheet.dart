@@ -260,7 +260,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final sure = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l.slSwitchTitle(host)),
+        title: _FitTitle(l.slSwitchTitle(host)),
         content: Text(l.slSwitchBody),
         actions: [
           TextButton(
@@ -268,7 +268,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             onPressed: () => Navigator.pop(context, false),
             child: Text(l.commonCancel),
           ),
-          TextButton(
+          FilledButton(
             key: serverListSwitchKey,
             onPressed: () => Navigator.pop(context, true),
             child: Text(l.slSwitch),
@@ -1355,5 +1355,35 @@ class _CurrentNodeFacts extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+/// A dialog title that carries a host: the usual title size when every word fits the line,
+/// else the next size down, so a long host never breaks mid-word on a narrow phone. The line
+/// is measured from the screen (an AlertDialog sizes its title intrinsically, so no
+/// LayoutBuilder): the dialog's inset and its title padding, 24 dp each side.
+class _FitTitle extends StatelessWidget {
+  const _FitTitle(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final usual = theme.dialogTheme.titleTextStyle ?? theme.textTheme.headlineSmall!;
+    final sizes = [usual, theme.textTheme.titleLarge!, theme.textTheme.titleMedium!];
+    final longest = text.split(' ').reduce((a, b) => a.length >= b.length ? a : b);
+    final media = MediaQuery.of(context);
+    final line = math.min(media.size.width, 560.0) - 2 * 40 - 2 * 24;
+    final style = sizes.firstWhere((s) {
+      final painter = TextPainter(
+        text: TextSpan(text: longest, style: s),
+        textDirection: Directionality.of(context),
+        textScaler: media.textScaler,
+        maxLines: 1,
+      )..layout();
+      return painter.width <= line;
+    }, orElse: () => sizes.last);
+    return Text(text, style: style);
   }
 }

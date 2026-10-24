@@ -29,6 +29,7 @@ class EButton extends StatefulWidget {
     this.tooltip,
     this.tabStop = true,
     this.hit44 = false,
+    this.autofocus = false,
   });
 
   const EButton.primary({
@@ -42,6 +43,7 @@ class EButton extends StatefulWidget {
     this.tooltip,
     this.tabStop = true,
     this.hit44 = false,
+    this.autofocus = false,
   }) : kind = EBtnKind.primary;
 
   const EButton.ghost({
@@ -55,6 +57,7 @@ class EButton extends StatefulWidget {
     this.tooltip,
     this.tabStop = true,
     this.hit44 = false,
+    this.autofocus = false,
   }) : kind = EBtnKind.ghost;
 
   final String label;
@@ -76,6 +79,9 @@ class EButton extends StatefulWidget {
   /// Keeps the drawn size and pads the hit area to [Ctl.md] tall (a 28 or 36 px button that is
   /// the only way on, as in the tour card). The layout height grows with it.
   final bool hit44;
+
+  /// Takes the focus when it appears: the default button of a confirm, so Enter presses it.
+  final bool autofocus;
 
   @override
   State<EButton> createState() => _EButtonState();
@@ -154,6 +160,7 @@ class _EButtonState extends State<EButton> {
       onTap: enabled ? widget.onPressed : null,
       child: FocusableActionDetector(
         enabled: enabled,
+        autofocus: widget.autofocus,
         mouseCursor: enabled ? SystemMouseCursors.click : (widget.busy ? SystemMouseCursors.progress : SystemMouseCursors.forbidden),
         onShowHoverHighlight: (v) => setState(() => _hover = v),
         actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed?.call())},

@@ -451,15 +451,18 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
       builder: (context) => EDialog(
         title: l.slSwitchTitle(panelHost(widget.kind, value)),
         description: l.slSwitchBody,
+        icon: EIcons.epicbox,
         actions: [
           EButton(
             key: const ValueKey('server-list-cancel'),
             label: l.commonCancel,
             onPressed: () => Navigator.pop(context, false),
           ),
+          // Enter switches, Esc cancels: the primary button holds the focus on open.
           EButton.primary(
             key: const ValueKey('server-list-switch'),
             label: l.slSwitch,
+            autofocus: true,
             onPressed: () => Navigator.pop(context, true),
           ),
         ],
