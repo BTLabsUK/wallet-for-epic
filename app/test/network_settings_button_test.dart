@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/network_menu.dart';
+import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -126,10 +127,11 @@ Future<void> _opensSheets(WidgetTester tester, Finder button) async {
     expect(find.byKey(networkMenuNetworkKey), findsNothing, reason: 'release builds: no Network');
     await tester.tap(find.byKey(item));
     await tester.pumpAndSettle();
-    final sheet = find.byType(ServerPickerSheet);
+    final sheet = find.byType(ServerListSheet);
     expect(sheet, findsOneWidget);
-    expect(tester.widget<ServerPickerSheet>(sheet).kind, kind);
-    await tester.tap(find.byIcon(Icons.close));
+    expect(tester.widget<ServerListSheet>(sheet).kind, kind);
+    // The header's close comes before the field's clear button, which is a close icon too.
+    await tester.tap(find.byIcon(Icons.close).first);
     await tester.pumpAndSettle();
     expect(sheet, findsNothing);
   }

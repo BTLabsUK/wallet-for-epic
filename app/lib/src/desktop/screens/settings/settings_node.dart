@@ -12,9 +12,10 @@ import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/node_card.dart';
+import '../../widgets/server_list_panel.dart';
+import '../../widgets/server_row.dart';
+import '../../data/server_lists.dart';
 import '../onboarding/local_node_step.dart' show showLocalNodeSetupDialog, LocalNodeHow;
-import 'combo.dart';
-import 'dialogs.dart';
 import 'local_node.dart';
 import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import 'prefs.dart';
@@ -22,7 +23,7 @@ import 'settings_frame.dart';
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
-enum NodeDemo { comboOpen, typed, pickFailed, builtin, peers, behind, old, limited, down }
+enum NodeDemo { comboOpen, typed, badAddress, removed, picked, pickFailed, builtin, peers, behind, old, limited, down }
 
 /// A typed node address as a URL: as typed when it has a scheme; else https, except this
 /// computer and the local network, where nodes answer plain http.
@@ -34,9 +35,6 @@ String nodeUrlOf(String typed) {
 }
 
 String hostOf(String url) => url.replaceFirst(RegExp('^https?://'), '').replaceFirst(RegExp(r'/+$'), '');
-
-/// Something typed that may be an address: a dot or a colon, no spaces.
-final _addressLike = RegExp(r'^[^\s]*[.:][^\s]*$');
 
 /// The oldest node version the wallet works well with.
 const minNodeVersion = '3.6.0';
@@ -116,7 +114,7 @@ String localNodeRowText(AppLocalizations l, LocalNodeState? s) {
 
 /// The picker rows of the wallet's node list ([NodeServer]s), in the neutral order of §18.
 /// [released] is the released node version when known; else the newest in the list counts.
-List<ServerInfo> serverRows(List<NodeServer> nodes, {String? released, bool? starred}) {
+List<ServerInfo> serverRows(List<NodeServer> nodes, {String? released}) {
   final heights = [for (final n in nodes) if (n.height != null && n.health != ServiceHealth.down) n.height!];
   final tip = heights.isEmpty ? null : heights.reduce((a, b) => a > b ? a : b);
   var newest = released;
@@ -147,7 +145,6 @@ List<ServerInfo> serverRows(List<NodeServer> nodes, {String? released, bool? sta
           latencyMs: n.latencyMs,
           version: n.version,
           versionOld: old,
-          starred: starred,
         );
       }(),
   ];
@@ -164,23 +161,15 @@ class SettingsNodeScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
-  final _combo = GlobalKey<ServiceComboState>();
+  final _panel = GlobalKey<ServerListPanelState>();
   bool _saving = false;
   String? _error;
-
-  // The live check of a typed address.
-  String _typed = '';
-  NodeServer? _typedCheck;
-  Timer? _debounce;
-
-  static const _demoTyped = 'http://10.0.0.5:3413';
 
   @override
   void initState() {
     super.initState();
     final arg = widget.arg;
-    if (arg == NodeDemo.typed) _onTyped(_demoTyped);
-        if (arg == NodeDemo.builtin || arg == NodeDemo.peers) {
+    if (arg == NodeDemo.builtin || arg == NodeDemo.peers) {
       Future.microtask(() {
         final p = ref.read(settingsPrefsProvider.notifier);
         p.set(ref.read(settingsPrefsProvider).copyWith(builtin: true, clearTyped: true));
@@ -225,26 +214,14 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     if (before != api.infos[host]) ref.invalidate(deskNodeInfoProvider(url));
   }
 
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
-  }
-
-  void _onTyped(String t) {
-    _debounce?.cancel();
-    setState(() {
-      _typed = t;
-      _typedCheck = null;
-      _error = null;
-    });
-    if (!_addressLike.hasMatch(t)) return;
-    _debounce = Timer(const Duration(milliseconds: 400), () async {
-      final url = nodeUrlOf(t);
-      final r = await ref.read(deskApiProvider).checkNode(url);
-      if (mounted && _typed == t) setState(() => _typedCheck = r);
-    });
-  }
+  /// The tour's panel states.
+  ServerPanelDemo? get _panelDemo => switch (widget.arg) {
+    NodeDemo.typed => const ServerPanelDemo(query: 'node.example.org:3413'), // l10n-ok: a node address
+    NodeDemo.badAddress => const ServerPanelDemo(query: 'my home node', submit: true), // l10n-ok: what a user might type
+    NodeDemo.removed => const ServerPanelDemo(remove: 'https://epic-node.iniaku.my.id'), // l10n-ok: a node address
+    NodeDemo.picked => const ServerPanelDemo(pick: 'https://node.epicnet.us:3413'), // l10n-ok: a node address
+    _ => null,
+  };
 
   Future<void> _pick(String value) async {
     final l = context.l10n;
@@ -284,24 +261,22 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       if (!mounted) return;
       prefs.set(p.copyWith(builtin: true, clearTyped: true));
       setState(() => _saving = false);
-      _combo.currentState?.collapse();
       showEToast(context, l.deskSetNodeLocalInUse, text: l.deskSetNodeLocalInUseText);
       return;
     }
     await _useRemote(value);
   }
 
-  /// "Add to my nodes" with [typed] in the picker's field: the dialog starts from that address
-  /// (scheme added as a pick would) and the label; Cancel puts the typed text back in the field.
-  Future<void> _addTyped(String typed) async {
-    final t = typed.trim();
-    if (!_addressLike.hasMatch(t)) {
-      await showMyNodeDialog(context, adding: true);
-      return;
-    }
-    _combo.currentState?.collapse();
-    final saved = await showMyNodeDialog(context, initial: nodeUrlOf(t), adding: true);
-    if (saved != true && mounted) _combo.currentState?.keepTyped(t);
+  /// Add's test: the node gives its tip, then it is kept as an own node so the wallet checks
+  /// it with the others. Null when it answered, else why not.
+  Future<String?> _test(String url) async {
+    final l = context.l10n;
+    final r = await ref.read(deskApiProvider).checkNode(url);
+    if (r.health == ServiceHealth.down) return l.deskSlNodeNoAnswer;
+    // Over Tor before tor connected: the node was never asked.
+    if (r.health == ServiceHealth.checking) return l.deskSlTorWait;
+    await ref.read(deskProvider.notifier).addNode(NodeServer(url: url, label: r.label, health: r.health, latencyMs: r.latencyMs, height: r.height, version: r.version, own: true));
+    return null;
   }
 
   Future<void> _useRemote(String value) async {
@@ -319,14 +294,12 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         _saving = false;
         _error = l.deskSetNodePortNote;
       });
-      _combo.currentState?.keepTyped(hostOf(url));
       return;
     }
     await ref.read(deskProvider.notifier).useNode(url);
     if (!mounted) return;
     ref.read(settingsPrefsProvider.notifier).set(ref.read(settingsPrefsProvider).copyWith(builtin: false, typedNode: known ? null : r, clearTyped: known));
     setState(() => _saving = false);
-    _combo.currentState?.collapse();
   }
 
   @override
@@ -342,9 +315,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       return const SettingsFrame(route: DeskRoute.settingsNode, child: SettingsLoading());
     }
     final p = ref.read(settingsPrefsProvider.notifier);
-    final visible = nodes.where((n) => !prefs.removedNodes.contains(n.url)).toList();
-    final mine = visible.where((n) => n.own).toList();
-    final public = visible.where((n) => !n.own).toList();
     final current = prefs.typedNode ?? status.node;
     final value = prefs.builtin ? builtinNode : current.url;
     final local = ref.watch(deskLocalNodeProvider).value;
@@ -356,51 +326,9 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       if (was != now && !prefs.builtin) ref.invalidate(deskNodeInfoProvider(current.url));
     });
     final released = info?.releasedVersion ?? info?.network?.releasedNodeVersion;
-
-    final myRows = serverRows(mine, released: released, starred: true);
-    final publicRows = serverRows(public, released: released, starred: false);
-    final options = <ComboOption>[
-      if (DeskFeatures.builtInNode) ComboOption(value: builtinNode, host: l.deskSetNodeLocalNode, sub: localNodeRowText(l, local), local: true, group: l.deskSetNodeGroupComputer),
-      for (final r in myRows)
-        ComboOption(
-          value: r.value,
-          host: r.host,
-          sub: prefs.nodeLabels[r.value],
-          server: r,
-          group: l.deskSetNodeGroupMine,
-          onStar: () {
-            p.forgetNode(r.value);
-            showEToast(context, l.deskSetNodeRemovedFromMine, text: r.host);
-          },
-        ),
-      for (final r in publicRows)
-        ComboOption(
-          value: r.value,
-          host: r.host,
-          sub: r.operator,
-          server: r,
-          group: l.deskSetNodeGroupPublic,
-          onStar: () => showMyNodeDialog(context, initial: r.value, label: r.operator ?? '', adding: true),
-        ),
-    ];
-
-    ComboOption? typedRow(String t) {
-      if (!_addressLike.hasMatch(t)) return null;
-      final r = _typedCheck;
-      final checking = r == null || _typed != t;
-      return ComboOption(
-        value: t,
-        host: hostOf(t),
-        word: checking ? l.deskSetFrameChecking : (r.health == ServiceHealth.down ? l.deskSetNodeNotAnswering : null),
-        sub: !checking && r.health != ServiceHealth.down ? (versionOld(r.version) ? l.deskSetNodeVersionOld(minNodeVersion) : nodeWord(l, r.health)) : null,
-        tone: checking ? ETone.warn : nodeTone(r.health),
-        height: checking ? null : r.height,
-        actions: [
-          if (!mine.any((n) => n.url == t))
-            EIconButton(icon: EIcons.starOutline, label: l.deskSetNodeAddToMine, size: EBtnSize.inline, tabStop: false, onPressed: () => _addTyped(t)),
-        ],
-      );
-    }
+    final all = [...nodes, if (!nodes.any((n) => n.url == current.url)) current];
+    final list = ref.watch(deskServerListProvider(ServerKind.node));
+    final listed = list == null ? all : [for (final n in all) if (list.has(ServerKind.node, n.url)) n];
 
     // The word and state of the head: the same the rail shows. The down demo's mock wallet
     // still reaches its node, which would keep it Synced.
@@ -409,10 +337,10 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         ? localNodeView(context.l10n, local, fallbackUrl: status.node.url)
         : remoteNodeView(context.l10n, current.url, info, health: nodeHealth, torOn: torOn);
     final down = view.state == EState.risk && !prefs.builtin;
-    // The Switch action's target: the healthy node with the lowest latency, My nodes first.
+    // The Switch action's target: the healthy listed node with the lowest latency.
     SwitchTarget? best;
     if (down) {
-      for (final r in [...myRows, ...publicRows]) {
+      for (final r in serverRows(listed, released: released)) {
         if (r.state == EState.ok && r.value != current.url) {
           best = SwitchTarget(host: r.host, url: r.value);
           break;
@@ -450,12 +378,10 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                   title: l.deskSetNodeServer,
                   hint: l.deskSetNodeServerHint,
                   stacked: true,
-                  control: ServiceCombo(
-                    key: _combo,
-                    label: l.deskSetNodeServer,
-                    hint: l.deskSetNodeFindHint,
+                  control: ServerListPanel(
+                    key: _panel,
                     kind: ServerKind.node,
-                    options: options,
+                    label: l.deskSetNodeServer,
                     value: value,
                     fieldText: prefs.builtin ? l.deskSetNodeLocalNode : hostOf(current.url),
                     fieldSub: prefs.builtin ? localNodeRowText(l, local) : (prefs.nodeLabels[current.url] ?? current.operator),
@@ -465,21 +391,17 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       EState.risk => ETone.risk,
                       EState.off => ETone.neutral,
                     },
+                    servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels),
+                    source: nodeSource(nodes, removedNodes: prefs.removedNodes, inUse: prefs.builtin ? null : current.url),
+                    local: DeskFeatures.builtInNode ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
+                    listNote: nodeListNoteText(l),
                     busy: _saving,
                     busyLabel: l.deskSetNodeChecking,
                     error: _error,
                     openInitially: widget.arg == NodeDemo.comboOpen,
-                    initialQuery: widget.arg == NodeDemo.typed || widget.arg == NodeDemo.pickFailed ? (widget.arg == NodeDemo.typed ? _demoTyped : 'bad.example:3413') : null,
-                    onTyped: _onTyped,
-                    typedRow: typedRow,
-                    typedNote: (t) => _typedCheck?.health == ServiceHealth.down && _typed == t ? l.deskSetNodePortNote : l.deskSetNodeTypedNote,
-                    emptyNote: l.deskSetNodeNoNodes,
-                    listNote: nodeListNoteText(l),
-                    onPicked: _pick,
-                    footer: [
-                      (l.deskSetNodeFooterAdd, EIcons.plus, _addTyped),
-                      (l.deskSetNodeFooterDirectory, EIcons.book, (_) => showNodeDirectoryDialog(context)),
-                    ],
+                    demo: _panelDemo,
+                    onChoose: _pick,
+                    onTest: _test,
                   ),
                 ),
                 if (!prefs.builtin)

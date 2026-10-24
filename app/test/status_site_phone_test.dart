@@ -11,7 +11,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/network_menu.dart';
-import 'package:epic_wallet/src/ui/server_picker.dart';
+import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +67,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(networkMenuEpicboxKey));
       await tester.pumpAndSettle();
-      expect(find.byType(ServerPickerSheet), findsOneWidget);
+      expect(find.byType(ServerListSheet), findsOneWidget);
       final host = builtInRelays.first.relay.host;
       final relay = find.textContaining(host);
       if (relay.evaluate().isEmpty) {

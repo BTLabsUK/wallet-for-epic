@@ -4,19 +4,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/method_names.dart';
 import '../../desk_l10n.dart';
-import '../../../network.dart' show defaultEpicboxHost;
+import '../../../net/probe_not_run.dart';
+import '../../../network.dart' show EpicboxRelay, defaultEpicboxHost;
+import '../../../send_preflight.dart' show relayProbeProvider;
 import '../../../tor_routes.dart' show TorRoute, TorWay, torWay;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/tor_view.dart' show torStateOf;
 import '../../widgets/kit.dart';
+import '../../widgets/server_list_panel.dart';
+import '../../data/server_lists.dart';
 import '../transfer/epicbox_notice.dart';
-import 'combo.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_http.dart';
 
 /// Start states of Settings › Receiving, for the tour.
-enum ReceivingDemo { comboOpen, torOn, torStopped, epicboxDown, httpOn, httpFailed, httpPublic }
+enum ReceivingDemo { comboOpen, picked, torOn, torStopped, epicboxDown, httpOn, httpFailed, httpPublic }
 
 ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.ok => ETone.ok,
@@ -108,6 +111,19 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       if (mounted) showEToast(context, l.deskSetRecvServerNotChanged, text: deskErrorText(e, l), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _switching = false);
+    }
+  }
+
+  /// Add's test: a WebSocket handshake with the relay, through Tor while the Tor switch covers
+  /// the app's connections, as the wallet's Epicbox connection goes. Null when it answered.
+  Future<String?> _test(String value) async {
+    final l = context.l10n;
+    final relay = EpicboxRelay.parse(value);
+    if (relay == null) return l.slNotAnAddress;
+    try {
+      return await ref.read(relayProbeProvider).reachable(relay) ? null : l.slRelayNoAnswer;
+    } on ProbeNotRun {
+      return l.deskSlTorWait;
     }
   }
 
@@ -216,7 +232,6 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final status = _status(raw);
     final s = st.settings;
     final box = status.epicbox;
-    String? tip(EpicboxServer b) => b.latencyMs == null ? null : l.deskSetRecvResponseTime(b.latencyMs!);
     final ebLine = methodStateLine(l, TxMethod.epicbox, status, s);
     final httpLine = methodStateLine(l, TxMethod.http, status, s);
 
@@ -238,37 +253,22 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               title: l.deskSetRecvEpicboxServer,
               hint: l.deskSetRecvEpicboxServerHint,
               stacked: true,
-              // TODO(§18): the shared server picker (fb-w6) replaces this combo.
-              control: ServiceCombo(
+              control: ServerListPanel(
+                kind: ServerKind.relay,
                 label: l.deskSetRecvEpicboxServer,
-                hint: l.deskSetRecvFindHint,
-                value: box.domain,
-                fieldText: box.domain,
+                value: relayLabel(box),
+                fieldText: relayLabel(box),
                 fieldSub: box.operator,
                 tone: epicboxTone(status.epicboxHealth),
+                servers: relayPanelRows([...boxes, if (!boxes.any((b) => relayLabel(b) == relayLabel(box))) box], defaultHost: defaultEpicboxHost),
+                source: relaySource(boxes, inUse: relayLabel(box)),
+                listNote: st.settings.useStatusSite ? l.deskSetRecvListNote : null,
                 busy: _switching,
                 busyLabel: l.deskSetRecvSwitchingServer,
                 openInitially: widget.arg == ReceivingDemo.comboOpen,
-                options: [
-                  for (final b in boxes)
-                    ComboOption(
-                      value: b.domain,
-                      host: b.domain,
-                      sub: b.operator,
-                      isDefault: b.domain == defaultEpicboxHost,
-                      tone: epicboxTone(b.health),
-                      word: b.health == ServiceHealth.down ? l.deskSetFrameNotResponding : null,
-                      tip: tip(b),
-                    ),
-                ],
-                typedRow: (t) {
-                  final d = t.toLowerCase().replaceFirst(RegExp('^[a-z]+://'), '').split('/').first;
-                  if (!d.contains('.') || d.contains(' ')) return null;
-                  return ComboOption(value: d, host: d, sub: l.deskSetRecvNotInList, tone: ETone.neutral);
-                },
-                typedNote: (_) => l.deskSetRecvTypedNote,
-                listNote: st.settings.useStatusSite ? l.deskSetRecvListNote : null,
-                onPicked: _switch,
+                demo: widget.arg == ReceivingDemo.picked ? const ServerPanelDemo(pick: 'epicbox.stackwallet.com') : null, // l10n-ok: a relay host
+                onChoose: _switch,
+                onTest: _test,
               ),
             ),
           ]),

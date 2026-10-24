@@ -1,0 +1,13 @@
+{
+  "deskSlRemoveHost": "移除 {host}",
+  "deskSlInUse": "使用中",
+  "deskSlHealthUnknown": "状态未知",
+  "deskSlNodeNoAnswer": "此节点无应答。未添加任何内容。",
+  "deskSlTorWait": "Tor 尚未连接。未添加任何内容。",
+  "deskSlSwitchTo": "切换到 {host}",
+  "deskSlLatency": "{ms} 毫秒",
+  "deskSlDefault": "默认",
+  "deskSlTesting": "正在测试 {host}…",
+  "deskSlSetupEpicboxOn": "通过 Epicbox 接收",
+  "deskSlHelpChoose": "选择一个，或输入以筛选列表或添加服务器。"
+}

@@ -90,6 +90,7 @@ class RelayStatus {
     this.latencyMs,
     this.uptime24h,
     this.protocolVersion,
+    this.icon,
   });
 
   final EpicboxRelay relay;
@@ -106,6 +107,56 @@ class RelayStatus {
   final int? latencyMs;
   final double? uptime24h;
   final String? protocolVersion;
+
+  /// The operator's icon the monitor holds, or null: the tile shows initials.
+  final ServerIcon? icon;
+}
+
+/// An operator's icon on the monitor: square PNGs by pixel size, named by their content hash,
+/// so a URL never changes what it serves.
+@immutable
+class ServerIcon {
+  const ServerIcon({required this.hash, required this.urls});
+
+  final String hash;
+
+  /// Pixel size to URL, smallest first.
+  final Map<int, Uri> urls;
+
+  /// The smallest size of at least [pixels], else the largest.
+  Uri forPixels(double pixels) {
+    for (final MapEntry(:key, :value) in urls.entries) {
+      if (key >= pixels) return value;
+    }
+    return urls.values.last;
+  }
+
+  @override
+  bool operator ==(Object other) => other is ServerIcon && other.hash == hash;
+
+  @override
+  int get hashCode => hash.hashCode;
+}
+
+/// The `icon` field of a monitor entry. Only https URLs on the monitor's own host are taken,
+/// so a listed operator cannot make the app fetch from anywhere else.
+ServerIcon? parseServerIcon(Object? v) {
+  if (v is! Map) return null;
+  final hash = v['hash'];
+  final urls = v['urls'];
+  if (hash is! String || hash.isEmpty || urls is! Map) return null;
+  final site = Uri.parse(relayStatusUrl).host;
+  final out = <int, Uri>{};
+  for (final MapEntry(:key, :value) in urls.entries) {
+    final size = int.tryParse('$key');
+    final u = value is String ? Uri.tryParse(value) : null;
+    if (size == null || size <= 0 || u == null) continue;
+    if (u.scheme != 'https' || u.host != site || u.userInfo.isNotEmpty) continue;
+    out[size] = u;
+  }
+  if (out.isEmpty) return null;
+  final sizes = out.keys.toList()..sort();
+  return ServerIcon(hash: hash, urls: {for (final s in sizes) s: out[s]!});
 }
 
 /// Parses the monitor's `epicbox` list. Entries without a usable `wss://` endpoint are dropped.
@@ -137,6 +188,7 @@ List<RelayStatus> parseRelayStatus(String json) {
         latencyMs: (item['latency_ms'] as num?)?.toInt(),
         uptime24h: uptime is Map ? (uptime['24h'] as num?)?.toDouble() : null,
         protocolVersion: item['protocol_version'] as String?,
+        icon: parseServerIcon(item['icon']),
       ),
     );
   }
@@ -171,6 +223,7 @@ class NodeStatus {
     this.syncStatus,
     this.tipAgrees,
     this.lastCheckedAt,
+    this.icon,
   });
 
   /// `scheme://host[:port]`, as the wallet stores a node address.
@@ -215,6 +268,9 @@ class NodeStatus {
   /// The node's tip matches the network's.
   final bool? tipAgrees;
   final DateTime? lastCheckedAt;
+
+  /// The operator's icon the monitor holds, or null: the tile shows initials.
+  final ServerIcon? icon;
 }
 
 /// The monitor's state of a node.
@@ -370,6 +426,7 @@ List<NodeStatus> parseNodeStatus(String json) {
         syncStatus: nodeStatus is Map ? nodeStatus['sync_status'] as String? : null,
         tipAgrees: nodeStatus is Map ? nodeStatus['tip_agrees'] as bool? : null,
         lastCheckedAt: _time(item['last_checked_at']),
+        icon: parseServerIcon(item['icon']),
       ),
     );
   }

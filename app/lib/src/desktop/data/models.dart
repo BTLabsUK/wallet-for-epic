@@ -12,8 +12,10 @@ import '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, 
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../smart_outputs.dart' show smartOutputsDefault;
 import '../../ui/send_screen.dart' show normalizeAmountText;
+import '../../relay_directory.dart' show ServerIcon;
 
 export '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions, txLabelMaxLength, txTransports;
+export '../../relay_directory.dart' show ServerIcon;
 export '../../send_summary.dart' show SendEstimate, SendSummary;
 
 /// Amounts are kept in nanoepic (1 EPIC = 10^8), as the wallet does.
@@ -472,6 +474,8 @@ class NodeServer {
     this.height,
     this.version,
     this.own = false,
+    this.icon,
+    this.listedAs,
   });
 
   final String url;
@@ -482,20 +486,32 @@ class NodeServer {
   final int? height;
   final String? version;
 
-  /// Added by the user ("My nodes").
+  /// Added by the user (the old "My nodes").
   final bool own;
+
+  /// The operator's icon on status.btlabs.uk, or null: the tile shows initials.
+  final ServerIcon? icon;
+
+  /// The operator's name as status.btlabs.uk lists it (the tile's initials), or null.
+  final String? listedAs;
 }
 
 /// One Epicbox relay.
 @immutable
 class EpicboxServer {
-  const EpicboxServer({required this.domain, this.port = 443, this.operator, this.health = ServiceHealth.ok, this.latencyMs});
+  const EpicboxServer({required this.domain, this.port = 443, this.operator, this.health = ServiceHealth.ok, this.latencyMs, this.icon, this.listedAs});
 
   final String domain;
   final int port;
   final String? operator;
   final ServiceHealth health;
   final int? latencyMs;
+
+  /// The operator's icon on status.btlabs.uk, or null: the tile shows initials.
+  final ServerIcon? icon;
+
+  /// The operator's name as status.btlabs.uk lists it (the tile's initials), or null.
+  final String? listedAs;
 }
 
 /// What the status rows and the Overview's status card show.

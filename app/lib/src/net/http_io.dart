@@ -18,6 +18,16 @@ Future<HttpReply> httpGet(
   int? maxBytes,
 }) => _send('GET', url, headers, null, timeout, maxBytes);
 
+/// [httpGet] for a binary body (an icon): the bytes as they came, never decoded as text.
+Future<HttpBytes> httpGetBytes(
+  Uri url, {
+  Duration timeout = defaultHttpTimeout,
+  required int maxBytes,
+}) async {
+  final reply = await _sendRaw('GET', url, const {}, null, timeout, maxBytes);
+  return HttpBytes(reply.status, reply.bytes);
+}
+
 /// Posts [body] with a declared length, not chunked encoding, which simple receivers cannot
 /// read.
 Future<HttpReply> httpPost(
@@ -36,6 +46,21 @@ Future<HttpReply> httpPost(
 );
 
 Future<HttpReply> _send(
+  String method,
+  Uri url,
+  Map<String, String> headers,
+  List<int>? body,
+  Duration timeout,
+  int? maxBytes,
+) async {
+  final reply = await _sendRaw(method, url, headers, body, timeout, maxBytes);
+  return HttpReply(
+    reply.status,
+    const Utf8Decoder(allowMalformed: true).convert(reply.bytes),
+  );
+}
+
+Future<({int status, Uint8List bytes})> _sendRaw(
   String method,
   Uri url,
   Map<String, String> headers,
@@ -73,9 +98,7 @@ Future<HttpReply> _send(
           throw NetTooLarge(maxBytes);
         }
       }
-      final text = const Utf8Decoder(allowMalformed: true)
-          .convert(bytes.takeBytes());
-      return HttpReply(response.statusCode, text);
+      return (status: response.statusCode, bytes: bytes.takeBytes());
     }().timeout(timeout);
   } on IOException catch (error) {
     throw NetError(error.runtimeType.toString());

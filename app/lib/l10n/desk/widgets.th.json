@@ -78,8 +78,6 @@
   "deskKitFromStatusSite": "จาก status.btlabs.uk",
   "deskKitOverTor": "ผ่าน Tor",
   "deskKitFromThisComputer": "จากคอมพิวเตอร์นี้",
-  "deskKitNodeRemove": "ลบ {host} ออกจากโหนดของฉัน",
-  "deskKitNodeAdd": "เพิ่ม {host} ในโหนดของฉัน",
   "deskKitNodeUse": "ใช้ {host}",
   "deskKitNodeUseOperator": "ใช้ {host}, {operator}",
   "deskKitNodeUseDown": "ใช้ {host}, ไม่ตอบสนอง",

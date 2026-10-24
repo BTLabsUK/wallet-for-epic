@@ -18,7 +18,7 @@ import 'net/ws_probe.dart';
 import 'network.dart';
 import 'providers.dart';
 import 'relay_directory.dart';
-import 'ui/server_picker.dart' show myRelaysProvider;
+import 'server_list_store.dart' show ServerKind, serverListProvider;
 import 'wallet_service.dart';
 
 /// How long the node may take to give its tip before the check fails.
@@ -239,7 +239,7 @@ final sendPreflightProvider = Provider.autoDispose
           relays.requireValue.any((r) => r.relay == relay);
       final mine = config == null
           ? const <String>[]
-          : ref.watch(myRelaysProvider(config.chain)).value ?? const <String>[];
+          : ref.watch(serverListProvider((ServerKind.relay, config.chain))).value?.entries ?? const <String>[];
       return sendPreflight(
         known: [
           if (relays.hasValue && !relays.hasError)

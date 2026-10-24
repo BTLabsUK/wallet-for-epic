@@ -28,6 +28,5 @@
   "deskSetFrameDaysAgo": "{count, plural, other{{count} วันที่แล้ว}}",
   "deskSetComboOpens": "เปิดรายการ",
   "deskSetComboNoAnswer": "ยังไม่ตอบ",
-  "deskSetComboNothing": "ไม่มีอะไรให้แสดง",
   "deskSetComboUse": "ใช้ {host}"
 }

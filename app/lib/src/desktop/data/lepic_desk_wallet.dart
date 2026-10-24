@@ -1879,7 +1879,7 @@ class LepicDeskWallet implements DeskWalletApi {
       final c = _checked[n.url];
       if (c == null) return n;
       final latency = _checkedSameWay(n.url) ? c.latencyMs : null;
-      return NodeServer(url: n.url, label: n.label, operator: n.operator, health: c.health, latencyMs: latency, height: c.height, version: c.version, own: n.own);
+      return NodeServer(url: n.url, label: n.label, operator: n.operator, health: c.health, latencyMs: latency, height: c.height, version: c.version, own: n.own, icon: n.icon, listedAs: n.listedAs);
     }
 
     return [
@@ -1896,7 +1896,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (read) _readNodeDirectory();
     return [
       for (final n in mergePublicNodes(_dirNodes))
-        NodeServer(url: n.url, label: n.operator, operator: n.operator, health: ServiceHealth.checking),
+        NodeServer(url: n.url, label: n.operator, operator: n.operator, health: ServiceHealth.checking, icon: n.status?.icon, listedAs: n.status?.operator),
     ];
   }
 
@@ -1940,6 +1940,8 @@ class LepicDeskWallet implements DeskWalletApi {
             operator: r.operator,
             health: switch (r.status?.healthy) { true => ServiceHealth.ok, false => ServiceHealth.down, null => ServiceHealth.checking },
             latencyMs: r.status?.latencyMs,
+            icon: r.status?.icon,
+            listedAs: r.status?.operator,
           ),
       ];
       _boxesAt = DateTime.now();
@@ -2824,10 +2826,10 @@ class LepicDeskWallet implements DeskWalletApi {
     NodeServer r;
     try {
       final tip = await _nodeTip(await _makeConfig(nodeUrl: url));
-      if (tip == null) return NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.checking, own: base.own);
-      r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.ok, latencyMs: watch.elapsedMilliseconds, height: tip.height.toInt(), version: tip.nodeVersion, own: base.own);
+      if (tip == null) return NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.checking, own: base.own, icon: base.icon, listedAs: base.listedAs);
+      r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.ok, latencyMs: watch.elapsedMilliseconds, height: tip.height.toInt(), version: tip.nodeVersion, own: base.own, icon: base.icon, listedAs: base.listedAs);
     } on Object {
-      r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.down, own: base.own);
+      r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.down, own: base.own, icon: base.icon, listedAs: base.listedAs);
     }
     _checked[url] = r;
     _checkedOverTor[url] = overTor;

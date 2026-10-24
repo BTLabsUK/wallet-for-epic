@@ -27,9 +27,15 @@
   "@deskSetupStepSem": {
     "description": "Screen reader announcement of the step a progress list is on, e.g. 'Step 2 of 4: Scanning the chain'.",
     "placeholders": {
-      "number": {"type": "int"},
-      "total": {"type": "int"},
-      "label": {"type": "String"}
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
     }
   },
   "deskSetupTryAgain": "Try again",
@@ -116,10 +122,6 @@
   "@deskSetupNodeServer": {
     "description": "Label of the field where the user picks or types a public Epic node."
   },
-  "deskSetupNodeHint": "Find or type a node address",
-  "@deskSetupNodeHint": {
-    "description": "Placeholder in the node picker's search field."
-  },
   "deskSetupCheckingNodes": "Checking nodes…",
   "@deskSetupCheckingNodes": {
     "description": "Shown in the node picker while the public node list is being checked."
@@ -127,22 +129,6 @@
   "deskSetupPickNode": "Pick a node",
   "@deskSetupPickNode": {
     "description": "Shown in the node picker's field before a node is chosen."
-  },
-  "deskSetupPublicNodes": "Public nodes",
-  "@deskSetupPublicNodes": {
-    "description": "Group head in the node picker's list: public Epic nodes run by others."
-  },
-  "deskSetupNotInList": "not in the public list",
-  "@deskSetupNotInList": {
-    "description": "Small line under a node address the user typed that is not one of the public nodes. Lower case: it follows the address."
-  },
-  "deskSetupEnterUses": "Enter uses it.",
-  "@deskSetupEnterUses": {
-    "description": "Note under a typed node address in the picker: pressing the Enter key picks it."
-  },
-  "deskSetupNoNodes": "No nodes to show.",
-  "@deskSetupNoNodes": {
-    "description": "The node picker's list is empty."
   },
   "deskSetupRemoteNode": "Remote node",
   "@deskSetupRemoteNode": {
@@ -167,10 +153,6 @@
   "deskSetupEpicboxServer": "Epicbox server",
   "@deskSetupEpicboxServer": {
     "description": "Label of the Epicbox server field on the setup's Epicbox step."
-  },
-  "deskSetupEpicboxHelp": "Leave empty to turn receiving through Epicbox off.",
-  "@deskSetupEpicboxHelp": {
-    "description": "Help under the Epicbox server field."
   },
   "deskSetupChangePrefsSem": "Change preferences",
   "@deskSetupChangePrefsSem": {
@@ -200,7 +182,10 @@
   "@deskSetupExistingNode": {
     "description": "Node type on the setup's summary: an Epic node already running on this computer.",
     "placeholders": {
-      "host": {"type": "String", "example": "127.0.0.1:3413"}
+      "host": {
+        "type": "String",
+        "example": "127.0.0.1:3413"
+      }
     }
   },
   "deskSetupBundledNode": "Local node, bundled",
@@ -223,7 +208,10 @@
   "@deskSetupSaveStartsFallback": {
     "description": "Note under the Node section of the setup's summary when the local node is chosen and a public node is used while it syncs.",
     "placeholders": {
-      "node": {"type": "String", "example": "node.epiccash.com"}
+      "node": {
+        "type": "String",
+        "example": "node.epiccash.com"
+      }
     }
   },
   "deskSetupSaveStarts": "Save starts the node. The first sync takes hours; the wallet opens meanwhile.",
