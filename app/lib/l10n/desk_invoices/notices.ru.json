@@ -1,8 +1,8 @@
 {
-  "deskInvNoticePaid": "{payer} оплатил(а) {amount} EPIC.",
-  "deskInvNoticeDeclined": "{payer} отклонил(а) ваш счёт.",
+  "deskInvNoticePaid": "Оплата от {payer}: {amount} EPIC.",
+  "deskInvNoticeDeclined": "Плательщик {payer} отклонил ваш счёт.",
   "deskInvNoticeIssuedExpired": "Выставленный вами счёт истёк неоплаченным.",
-  "deskInvNoticeWithdrawn": "{service} отозвал(а) счёт до вашего ответа.",
+  "deskInvNoticeWithdrawn": "Сервис {service} отозвал счёт до вашего ответа.",
   "deskInvNoticeExpired": "Счёт истёк до вашего ответа.",
   "deskInvNoticeUnknownPayment": "Пришла оплата счёта, который это устройство не выставляло, и была отклонена. Если его выставило другое устройство с этим кошельком, попросите плательщика отменить и оплатить снова.",
   "deskInvNoticeUnknownAnswer": "Пришёл ответ на платёж, который это устройство не отправляло, и был отклонён. Если его отправило другое устройство с этим кошельком, отмените его там и отправьте снова."
