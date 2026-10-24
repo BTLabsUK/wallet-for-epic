@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/net/tor_net.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -90,6 +91,9 @@ void main() {
         updatePlatformProvider.overrideWithValue(platform),
         updateTempDirProvider.overrideWithValue(() async => tmp),
         updateProvider.overrideWith(_Updates.new),
+        updateManifestUrlProvider.overrideWithValue(
+          Uri.parse('http://127.0.0.1:${server.port}/update.json'),
+        ),
       ],
       retry: (_, _) => null,
     );
@@ -178,5 +182,50 @@ void main() {
     expect(hits, 0);
     expect(platform.installs, isEmpty);
     expect(state().phase, UpdatePhase.available);
+  });
+
+  group('with Tor on, an APK on a BT Labs server without an onion (android-16)', () {
+    setUp(() {
+      TorNet.useTor(const SocksProxy('127.0.0.1', 9));
+      (container.read(updateProvider.notifier) as _Updates).offer(
+        AvailableUpdate(
+          versionName: update.versionName,
+          notes: '',
+          apk: ReleaseApk(
+            abi: 'arm64-v8a',
+            versionCode: 26100100,
+            url: Uri.parse('https://examples.btlabs.uk/epic-cash-wallets/downloads/app.apk'),
+            sha256: update.apk.sha256,
+            size: update.apk.size,
+          ),
+        ),
+      );
+    });
+    tearDown(TorNet.useDirect);
+
+    const overTor =
+        "The update can't be downloaded over Tor yet. Turn Tor off to download it, or get it "
+        'from the download page.';
+
+    test('the download fails with a message that says why and what to do', () async {
+      platform.canInstall = true;
+      await notifier().install();
+      expect(state().phase, UpdatePhase.failed);
+      expect(state().text!(l), overTor);
+      expect(platform.installs, isEmpty);
+    });
+
+    test('on return from the permission screen the failure stays, the check beside it does not '
+        'hide it', () async {
+      await notifier().install();
+      expect(state().phase, UpdatePhase.needsPermission);
+      platform.canInstall = true;
+      // A resume: the update carries on, and the app looks for an update as on every opening.
+      final resumed = notifier().resumed();
+      final checked = notifier().checkOnOpening();
+      await Future.wait([resumed, checked]);
+      expect(state().phase, UpdatePhase.failed);
+      expect(state().text!(l), overTor);
+    });
   });
 }

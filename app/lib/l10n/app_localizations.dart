@@ -2938,6 +2938,12 @@ abstract class AppLocalizations {
   /// **'The download was interrupted.'**
   String get updateDownloadInterrupted;
 
+  /// The in-app update download failed because its server is not reachable over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'The update can\'t be downloaded over Tor yet. Turn Tor off to download it, or get it from the download page.'**
+  String get updateNoTorDownload;
+
   /// No description provided for @updateServerUnreachable.
   ///
   /// In en, this message translates to:

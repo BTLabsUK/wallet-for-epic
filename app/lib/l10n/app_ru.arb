@@ -466,6 +466,7 @@
   "updateDownloadIncomplete": "Файл загружен не полностью.",
   "updateDownloadDamaged": "Загруженный файл повреждён (контрольная сумма не совпадает).",
   "updateDownloadInterrupted": "Загрузка прервана.",
+  "updateNoTorDownload": "Обновление пока нельзя скачать через Tor. Отключите Tor, чтобы скачать его, или скачайте его со страницы загрузки.",
   "updateServerUnreachable": "Не удаётся связаться с сервером обновлений.",
   "updateServerHttpStatus": "Сервер обновлений ответил: HTTP {status}.",
   "updateServerTimeout": "Сервер обновлений не ответил вовремя.",

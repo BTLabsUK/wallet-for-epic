@@ -1909,6 +1909,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateDownloadInterrupted => '下载已中断。';
 
   @override
+  String get updateNoTorDownload => '暂时无法通过 Tor 下载此更新。请关闭 Tor 后下载，或从下载页面获取。';
+
+  @override
   String get updateServerUnreachable => '无法连接更新服务器。';
 
   @override

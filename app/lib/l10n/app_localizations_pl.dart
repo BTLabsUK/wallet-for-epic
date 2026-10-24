@@ -2158,6 +2158,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get updateDownloadInterrupted => 'Pobieranie zostało przerwane.';
 
   @override
+  String get updateNoTorDownload =>
+      'Aktualizacji nie można jeszcze pobrać przez Tor. Wyłącz Tor, aby ją pobrać, albo pobierz ją ze strony pobierania.';
+
+  @override
   String get updateServerUnreachable =>
       'Nie można połączyć się z serwerem aktualizacji.';
 

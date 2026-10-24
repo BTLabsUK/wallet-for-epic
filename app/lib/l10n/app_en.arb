@@ -2363,6 +2363,10 @@
     "description": "The downloaded file's SHA-256 checksum does not match the one announced, so it is not installed."
   },
   "updateDownloadInterrupted": "The download was interrupted.",
+  "updateNoTorDownload": "The update can't be downloaded over Tor yet. Turn Tor off to download it, or get it from the download page.",
+  "@updateNoTorDownload": {
+    "description": "The in-app update download failed because its server is not reachable over Tor."
+  },
   "updateServerUnreachable": "Cannot reach the update server.",
   "updateServerHttpStatus": "The update server answered HTTP {status}.",
   "@updateServerHttpStatus": {

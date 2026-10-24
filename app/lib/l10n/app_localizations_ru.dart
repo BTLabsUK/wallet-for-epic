@@ -2148,6 +2148,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateDownloadInterrupted => 'Загрузка прервана.';
 
   @override
+  String get updateNoTorDownload =>
+      'Обновление пока нельзя скачать через Tor. Отключите Tor, чтобы скачать его, или скачайте его со страницы загрузки.';
+
+  @override
   String get updateServerUnreachable =>
       'Не удаётся связаться с сервером обновлений.';
 

@@ -2038,6 +2038,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateDownloadInterrupted => 'The download was interrupted.';
 
   @override
+  String get updateNoTorDownload =>
+      'The update can\'t be downloaded over Tor yet. Turn Tor off to download it, or get it from the download page.';
+
+  @override
   String get updateServerUnreachable => 'Cannot reach the update server.';
 
   @override
