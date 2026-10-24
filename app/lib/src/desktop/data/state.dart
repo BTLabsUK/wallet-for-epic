@@ -307,8 +307,10 @@ class DeskController extends Notifier<DeskState> {
       }
       rethrow;
     }
+    // The address carries the relay: it changes with the switch.
     final status = await api.status();
-    state = state.copyWith(status: status);
+    final address = await api.epicboxAddress();
+    state = state.copyWith(status: status, epicboxAddress: address);
   }
 
   /// Starts or stops receiving (Receive › Start listener / Stop receiving). Transitional: the

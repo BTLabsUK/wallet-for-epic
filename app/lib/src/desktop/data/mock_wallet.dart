@@ -22,7 +22,7 @@ export 'invoices.dart' show InvoiceError, InvoiceProblem;
 
 part 'mock_invoices.dart';
 
-const _epicboxAddr = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b@epicbox.epiccash.com';
+const _epicboxKey = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b';
 
 DateTime _ago({int days = 0, int hours = 0, int minutes = 0}) =>
     DateTime(2026, 10, 21, 14, 30).subtract(Duration(days: days, hours: hours, minutes: minutes));
@@ -543,7 +543,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<DeskSettings> settings() async => _settings;
 
   @override
-  Future<String> epicboxAddress() async => _epicboxAddr;
+  Future<String> epicboxAddress() async => '$_epicboxKey@$_epicbox';
 
   @override
   Future<String> httpAddress() async => !_http ? '' : 'http://${_settings.publicMode ? '203.0.113.24' : '127.0.0.1'}:${_settings.httpPort}';
