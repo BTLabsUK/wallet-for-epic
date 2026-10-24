@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
+import '../../desk_l10n.dart';
 import '../../../network.dart' show defaultEpicboxHost;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -190,8 +191,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final s = st.settings;
     final box = status.epicbox;
     String? tip(EpicboxServer b) => b.latencyMs == null ? null : 'Response time ${b.latencyMs} ms. Measured from the status site.';
-    final ebLine = methodStateLine(TxMethod.epicbox, status, s);
-    final httpLine = methodStateLine(TxMethod.http, status, s);
+    final ebLine = methodStateLine(context.l10n, TxMethod.epicbox, status, s);
+    final httpLine = methodStateLine(context.l10n, TxMethod.http, status, s);
 
     return SettingsFrame(
       route: DeskRoute.settingsReceiving,

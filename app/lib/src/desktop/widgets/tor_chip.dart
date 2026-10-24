@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../desk_l10n.dart';
 import '../../tor_routes.dart';
 import 'kit.dart';
 
@@ -12,11 +13,11 @@ class TorChip extends StatelessWidget {
   final TorWay? way;
 
   /// The chip's words for [way].
-  static String label(TorWay way) => switch (way) {
-    TorWay.overTor => 'Over Tor',
-    TorWay.wait => 'Tor starting',
-    TorWay.blocked => 'Tor not connected',
-    TorWay.clearnet || TorWay.needsTor || TorWay.off => 'Not over Tor',
+  static String label(AppLocalizations l, TorWay way) => switch (way) {
+    TorWay.overTor => l.deskKitChipOverTor,
+    TorWay.wait => l.deskKitChipStarting,
+    TorWay.blocked => l.deskKitChipNotConnected,
+    TorWay.clearnet || TorWay.needsTor || TorWay.off => l.deskKitChipNotOverTor,
   };
 
   @override
@@ -30,7 +31,7 @@ class TorChip extends StatelessWidget {
       TorWay.blocked => (c.risk, c.riskSoft, c.risk.withValues(alpha: 0.45)),
       _ => (c.faint, Colors.transparent, c.lineStrong),
     };
-    final text = label(w);
+    final text = label(context.l10n, w);
     return Semantics(
       key: const ValueKey('tor-chip'),
       liveRegion: true,

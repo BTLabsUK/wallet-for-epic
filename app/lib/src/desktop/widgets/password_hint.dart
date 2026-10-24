@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../desk_l10n.dart';
 import '../../password_estimate.dart';
 import '../../password_lists.dart';
 import '../theme/icons.dart';
@@ -13,11 +14,6 @@ import '../theme/tokens.dart';
 /// Loading until the lists are ranked (a fraction of a second, in the background).
 final passwordEstimatorProvider = FutureProvider.autoDispose<PasswordEstimator>((ref) => loadPasswordEstimator());
 
-/// How the time is estimated: the tooltip behind the info icon.
-const passwordHintNote =
-    'Estimated on this device from the length and from common words, names and patterns, for an '
-    'attacker with fast hardware trying 100,000 guesses a second against this wallet\'s file. '
-    'A guide, not a guarantee.';
 
 /// The small print under a new password: "14 characters · about 300 years to crack".
 ///
@@ -202,7 +198,7 @@ class _EstimateInfoState extends State<_EstimateInfo> {
                 constraints: BoxConstraints(maxWidth: 320.u),
                 padding: tip.padding ?? EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
                 decoration: tip.decoration,
-                child: Text(passwordHintNote, style: tip.textStyle),
+                child: Text(context.l10n.deskKitPasswordNote, style: tip.textStyle),
               ),
             ),
           ),
@@ -242,8 +238,8 @@ class _EstimateInfoState extends State<_EstimateInfo> {
                 onTap: _toggle,
                 child: Semantics(
                   button: true,
-                  label: 'How the time is estimated',
-                  tooltip: passwordHintNote,
+                  label: context.l10n.deskKitPasswordNoteLabel,
+                  tooltip: context.l10n.deskKitPasswordNote,
                   excludeSemantics: true,
                   onTap: _toggle,
                   child: SizedBox.square(

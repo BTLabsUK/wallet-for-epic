@@ -268,7 +268,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final c = context.dc;
     final l = context.l10n;
     final methods = _methodsFor(st.settings);
-    final lines = {for (final m in methods) m: status == null ? null : methodStateLine(m, status, st.settings)};
+    final lines = {for (final m in methods) m: status == null ? null : methodStateLine(l, m, status, st.settings)};
     String word(TxMethod m) => lines[m] == null ? l.deskRecvStateChecking : (lines[m]!.state == EState.off ? l.deskRecvStateOff : (lines[m]!.state == EState.ok ? l.deskRecvStateOn : lines[m]!.word.toLowerCase()));
     return Semantics(
       liveRegion: true,
@@ -324,7 +324,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final l = context.l10n;
     final addr = st.epicboxAddress;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
     final health = status?.epicboxHealth;
     final tag = !on
         ? l.deskRecvTagPaused
@@ -403,7 +403,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final ts = context.ts;
     final l = context.l10n;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
     final ok = status?.httpListener == ServiceHealth.ok;
     final failed = status?.httpListener == ServiceHealth.down;
     final addr = _http != null && _http!.isNotEmpty ? _http : null;
@@ -461,7 +461,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final ts = context.ts;
     final l = context.l10n;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
     final ready = status?.tor == ServiceHealth.ok;
     final failed = status?.tor == ServiceHealth.down || status?.tor == ServiceHealth.slow;
     final addr = _tor;
