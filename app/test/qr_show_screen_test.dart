@@ -132,6 +132,23 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.textContaining('Part 1 of 3'), findsOneWidget);
     expect(find.textContaining('40 s'), findsOneWidget);
+    // The code itself is painted, and the cover's words are gone from the card.
+    final painters = tester
+        .widgetList<CustomPaint>(
+          find.descendant(
+            of: find.byKey(qrCardKey),
+            matching: find.byType(CustomPaint),
+          ),
+        )
+        .map((p) => p.painter.runtimeType.toString());
+    expect(painters, contains('_QrPainter'));
+    expect(
+      find.descendant(
+        of: find.byKey(qrCardKey),
+        matching: find.text('Hidden until you show it'),
+      ),
+      findsNothing,
+    );
     expect(find.text('Scan their reply'), findsOneWidget);
     expect(find.text('Hold the other phone\'s camera to this code.'), findsOneWidget);
     // The frames cycle at six a second: part 2 after 167 ms.
