@@ -9,6 +9,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'log.dart';
 import 'net/tor_switch.dart';
 import 'net/ws_probe.dart';
 import 'network.dart';
@@ -94,7 +95,11 @@ SendPreflight sendPreflight({
             : CheckOutcome.failed;
       }
     }
-    if (relayOutcome == null && !relays.isLoading && probe != null) {
+    // A probe that could not run (Tor not connected) says nothing about the relay.
+    if (relayOutcome == null &&
+        !relays.isLoading &&
+        probe != null &&
+        !probe.hasError) {
       relayOutcome = probe.isLoading
           ? CheckOutcome.running
           : probe.value == true
@@ -130,7 +135,10 @@ abstract interface class RelayProbe {
 /// `wss://<host>:<port>`, within [probeTimeout], or [torProbeTimeout] while the Tor switch is
 /// on: then the handshake goes through tor as the wallet's Epicbox connection does (BT Labs'
 /// relays at their onions, others through an exit, names resolved by tor), and a slow circuit
-/// is not a relay that does not answer.
+/// is not a relay that does not answer. A try over Tor that fails at once (a circuit that did
+/// not build, an exit that refused) gets one more, on a new circuit; only silence for the
+/// whole timeout, or two failures, say the relay does not answer. Tor not connected in time
+/// throws [ProbeNotRun]: the relay was never asked.
 class WebSocketRelayProbe implements RelayProbe {
   const WebSocketRelayProbe({this.uriFor = relayProbeUri});
 
@@ -138,8 +146,24 @@ class WebSocketRelayProbe implements RelayProbe {
   final Uri Function(EpicboxRelay relay) uriFor;
 
   @override
-  Future<bool> reachable(EpicboxRelay relay) =>
-      probeWebSocket(uriFor(relay), timeout: relayProbeTimeout());
+  Future<bool> reachable(EpicboxRelay relay) async {
+    final url = uriFor(relay);
+    final timeout = relayProbeTimeout();
+    final watch = Stopwatch()..start();
+    var ok = await probeWebSocket(url, timeout: timeout);
+    var tries = 1;
+    if (!ok && TorSwitch.on && watch.elapsed < timeout ~/ 2) {
+      tries = 2;
+      ok = await probeWebSocket(url, timeout: timeout);
+    }
+    logInfo(
+      'send',
+      'relay check ${relay.host}: ${ok ? 'answers' : 'no answer'}'
+      '${TorSwitch.on ? ' over Tor' : ''}, $tries ${tries == 1 ? 'try' : 'tries'}, '
+      '${watch.elapsed.inMilliseconds} ms',
+    );
+    return ok;
+  }
 }
 
 /// How long the relay probe waits now.
