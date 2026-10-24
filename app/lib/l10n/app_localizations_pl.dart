@@ -14193,4 +14193,27 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskInvNoticeReceiveSuperseded =>
       'Twoje drugie urządzenie z tym portfelem przyjęło płatność, którą odbierało też to urządzenie. Użyj „Sprawdź saldo”, aby zobaczyć ją tutaj.';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Historia starego portfela ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+      many:
+          'Historia starego portfela ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+      few:
+          'Historia starego portfela ma inne szczegóły dla $n płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+      one:
+          'Historia starego portfela ma inne szczegóły dla $n płatności, którą opisano. Twoje zostają, chyba że wybierzesz inaczej.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => 'Stary portfel';
+
+  @override
+  String get deskHistConflictApply => 'Zastosuj';
 }

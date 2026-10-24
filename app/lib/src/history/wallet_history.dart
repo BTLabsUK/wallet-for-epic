@@ -452,7 +452,7 @@ class WalletHistory {
         return t == null || t.isEmpty ? null : t;
       }
 
-      String hash(String v) => sha256.convert(utf8.encode(v)).toString();
+      final hash = declinedHash;
 
       /// One field: fill when empty, else a conflict unless equal or declined before.
       void field(
@@ -575,6 +575,92 @@ class WalletHistory {
       applied: useBackup != null || conflicts.isEmpty,
       replaced: replaced,
     );
+  }
+
+  /// Fields where the old wallet's history, now imported, records another sender or method
+  /// than the user typed for the payment while it was a scan-found one. The recorded value
+  /// shows until the user chooses; [ImportConflict.theirs] is the old wallet's. Labels and
+  /// notes never conflict: the old wallet has none.
+  List<ImportConflict> legacyConflicts(List<TxEntry> live) {
+    final rows = merged(live);
+    final shared = sharedAliases(rows);
+    final bare = meta.copy()..manual.clear();
+    final recorded = {for (final t in mergeHistory(live, bare)) t.key: t};
+    final out = <ImportConflict>[];
+    String? clean(String? s) {
+      final t = s?.trim();
+      return t == null || t.isEmpty ? null : t;
+    }
+
+    for (final row in rows) {
+      final rec = manualOf(meta, row, shared);
+      final own = recorded[row.key];
+      if (rec == null || own == null || row.source == TxSource.restored) {
+        continue;
+      }
+      void field(ManualField f, String? mine, String? theirs) {
+        if (mine == null || theirs == null || mine == theirs) return;
+        if (rec.declined[f.name] == declinedHash(theirs)) return;
+        out.add(
+          ImportConflict(
+            key: row.key,
+            field: f,
+            mine: mine,
+            theirs: theirs,
+            timeUnix: row.timeUnix,
+            amount: netAmount(row.tx),
+          ),
+        );
+      }
+
+      field(
+        ManualField.counterparty,
+        clean(rec.counterparty),
+        clean(own.counterparty),
+      );
+      field(ManualField.transport, clean(rec.transport), clean(own.transport));
+    }
+    return out;
+  }
+
+  /// Applies the user's choices for [legacyConflicts] ([ImportConflict.id]; true takes the old
+  /// wallet's value and drops the typed one, anything else keeps the typed one over exactly
+  /// that value). Returns how many fields took the old wallet's value.
+  Future<int> resolveLegacyConflicts(
+    List<TxEntry> live,
+    Map<String, bool> useOldWallet,
+  ) async {
+    final conflicts = legacyConflicts(live);
+    if (conflicts.isEmpty) return 0;
+    final rows = merged(live);
+    final shared = sharedAliases(rows);
+    var replaced = 0;
+    await _store.update((m) {
+      for (final c in conflicts) {
+        final row = rows.firstWhere((t) => t.key == c.key);
+        final aliases = [
+          for (final a in row.aliases)
+            if (a == row.key || !shared.contains(a)) a,
+        ];
+        final rec = _takeManual(m, aliases);
+        if (useOldWallet[c.id] == true) {
+          switch (c.field) {
+            case ManualField.counterparty:
+              rec.counterparty = null;
+            case ManualField.transport:
+              rec.transport = null;
+            case ManualField.label || ManualField.note:
+              break;
+          }
+          rec.declined.remove(c.field.name);
+          replaced++;
+        } else {
+          rec.declined[c.field.name] = declinedHash(c.theirs);
+        }
+        _putManual(m, row.key, rec);
+      }
+    });
+    return replaced;
   }
 
   /// The row [r] describes once merged: by slate id, kernel or commitment, of its own kind

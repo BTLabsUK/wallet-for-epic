@@ -346,16 +346,36 @@ class LegacyHistoryImport {
   /// Records of the old wallet left out.
   final int skipped;
 
+  /// Fields where the old wallet recorded another sender or method than the user typed for the
+  /// payment here. Not empty only when [applied] is false: the user's choices are still to be
+  /// made, and the import runs again with them (`useOldWallet`).
+  final List<ImportConflict> conflicts;
+
+  /// False while [conflicts] wait for the user's choices.
+  final bool applied;
+
+  /// Fields the user chose the old wallet's value for.
+  final int replaced;
+
   const LegacyHistoryImport({
     required this.status,
     this.transactions = 0,
     this.linked = 0,
     this.skipped = 0,
+    this.conflicts = const [],
+    this.applied = true,
+    this.replaced = 0,
   });
 
   @override
   int get hashCode =>
-      status.hashCode ^ transactions.hashCode ^ linked.hashCode ^ skipped.hashCode;
+      status.hashCode ^
+      transactions.hashCode ^
+      linked.hashCode ^
+      skipped.hashCode ^
+      Object.hashAll(conflicts) ^
+      applied.hashCode ^
+      replaced.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -364,7 +384,10 @@ class LegacyHistoryImport {
           status == other.status &&
           transactions == other.transactions &&
           linked == other.linked &&
-          skipped == other.skipped;
+          skipped == other.skipped &&
+          _listEquals(conflicts, other.conflicts) &&
+          applied == other.applied &&
+          replaced == other.replaced;
 }
 
 class ImportReport {

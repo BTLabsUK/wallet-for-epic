@@ -224,6 +224,13 @@ class LepicDeskWallet implements DeskWalletApi {
   /// When [_importHistoryOnce] last read each wallet's old database (by meta key).
   final Map<String, DateTime> _historyTried = {};
 
+  /// What the old wallet's history waits for: the sender or method it records against what the
+  /// user typed, with the wallet's meta key and old folder. Asked once the shell shows it.
+  ({String key, String from, List<ImportConflict> conflicts})? _oldHistoryAsk;
+
+  /// Wallets whose choices the user postponed (Cancel): not asked again until the app restarts.
+  final Set<String> _oldHistoryHeld = {};
+
   /// Public nodes from status.btlabs.uk; null keeps the built-in list.
   final NodeDirectory? nodeDirectory;
   List<NodeStatus>? _dirNodes;
@@ -1631,10 +1638,41 @@ class LepicDeskWallet implements DeskWalletApi {
     // The sync runs at every block; the old database is read at most once an hour.
     final last = _historyTried[key];
     if (last != null && DateTime.now().difference(last) < const Duration(hours: 1)) return;
+    if (_oldHistoryAsk != null || _oldHistoryHeld.contains(key)) return;
     _historyTried[key] = DateTime.now();
     final r = await _importHistory(session, from);
     if (r == null || r.status == core.LegacyHistoryStatus.sourceBusy) return;
+    if (!r.applied) {
+      // Typed details differ from the old wallet's: nothing is recorded as done until the user
+      // chose, so Cancel leaves the import to be asked again.
+      logInfo('desk', 'old history waits for ${r.conflicts.length} choices');
+      _oldHistoryAsk = (key: key, from: from, conflicts: r.conflicts);
+      return;
+    }
     await _setMeta({'historyImport': r.status.name}, key);
+  }
+
+  @override
+  List<ImportConflict> get oldHistoryConflicts => _oldHistoryAsk?.conflicts ?? const [];
+
+  @override
+  Future<void> resolveOldHistory(Map<String, bool>? useOldWallet) async {
+    final ask = _oldHistoryAsk;
+    if (ask == null) return;
+    _oldHistoryAsk = null;
+    if (useOldWallet == null) {
+      _oldHistoryHeld.add(ask.key);
+      return;
+    }
+    try {
+      final r = await _open.importLegacyHistory(sourceDir: ask.from, useOldWallet: useOldWallet);
+      logInfo('desk', 'old history imported: ${r.replaced} replaced');
+      if (r.applied) await _setMeta({'historyImport': r.status.name}, ask.key);
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'old history choices not applied: ${e.kind.name}');
+      throw _deskError(e);
+    }
+    await _reload();
   }
 
   Future<void> _checkTip() async {

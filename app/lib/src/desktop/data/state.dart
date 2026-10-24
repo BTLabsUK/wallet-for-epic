@@ -30,6 +30,7 @@ class DeskState {
     this.settings = const DeskSettings(),
     this.epicboxAddress,
     this.wallets,
+    this.oldHistory = const [],
   });
 
   final WalletAccount? account;
@@ -42,6 +43,9 @@ class DeskState {
   final DeskSettings settings;
   final String? epicboxAddress;
   final List<WalletEntry>? wallets;
+
+  /// What the old wallet's history waits for the user to choose ("Details differ").
+  final List<ImportConflict> oldHistory;
 
   /// File sends waiting for the recipient's response: the Activity badge.
   int get pendingFiles =>
@@ -58,6 +62,7 @@ class DeskState {
     DeskSettings? settings,
     String? epicboxAddress,
     List<WalletEntry>? wallets,
+    List<ImportConflict>? oldHistory,
   }) => DeskState(
     account: account ?? this.account,
     balance: balance ?? this.balance,
@@ -69,6 +74,7 @@ class DeskState {
     settings: settings ?? this.settings,
     epicboxAddress: epicboxAddress ?? this.epicboxAddress,
     wallets: wallets ?? this.wallets,
+    oldHistory: oldHistory ?? this.oldHistory,
   );
 }
 
@@ -147,6 +153,13 @@ class DeskController extends Notifier<DeskState> {
     state = DeskState(settings: state.settings, nodes: state.nodes, epicboxes: state.epicboxes);
   }
 
+  /// Answers "Details differ" for the old wallet's history: the choices, or null to ask later.
+  Future<void> resolveOldHistory(Map<String, bool>? choices) async {
+    state = state.copyWith(oldHistory: const []);
+    await api.resolveOldHistory(choices);
+    if (choices != null) await refresh();
+  }
+
   /// Re-reads the wallet list (Unlock, All wallets).
   Future<List<WalletEntry>> loadWallets() async {
     final wallets = await api.wallets();
@@ -195,7 +208,7 @@ class DeskController extends Notifier<DeskState> {
       final nodes = await a.nodes();
       final boxes = await a.epicboxes();
       final status = await a.status();
-      if (_changes != null) state = state.copyWith(balance: balance, txs: txs, contacts: contacts, nodes: nodes, epicboxes: boxes, status: status);
+      if (_changes != null) state = state.copyWith(balance: balance, txs: txs, contacts: contacts, nodes: nodes, epicboxes: boxes, status: status, oldHistory: a.oldHistoryConflicts);
     } on Object {
       // Locked meanwhile.
     }
@@ -228,6 +241,7 @@ class DeskController extends Notifier<DeskState> {
       settings: _keepTourSeen(settings),
       epicboxAddress: results[7] as String,
       wallets: results[8] as List<WalletEntry>,
+      oldHistory: a.oldHistoryConflicts,
     );
   }
 

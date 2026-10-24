@@ -3607,5 +3607,8 @@
   "deskSendRelayUnknownTitle": "Nieznany serwer Epicbox",
   "deskSendRelayUnknownText": "Aplikacja nie zna serwera {relay}. Sprawdź adres przed wysłaniem. Nadal możesz wysłać.",
   "deskTxNowUndeliveredRelay": "Nie dostarczono. {relay} nie odpowiedział, więc odbiorca nie otrzymał płatności. Wyślij ją ponownie albo anuluj, żeby odblokować środki.",
-  "deskInvNoticeReceiveSuperseded": "Twoje drugie urządzenie z tym portfelem przyjęło płatność, którą odbierało też to urządzenie. Użyj „Sprawdź saldo”, aby zobaczyć ją tutaj."
+  "deskInvNoticeReceiveSuperseded": "Twoje drugie urządzenie z tym portfelem przyjęło płatność, którą odbierało też to urządzenie. Użyj „Sprawdź saldo”, aby zobaczyć ją tutaj.",
+  "deskHistConflictLeadOldWallet": "{n, plural, one{Historia starego portfela ma inne szczegóły dla {n} płatności, którą opisano. Twoje zostają, chyba że wybierzesz inaczej.} few{Historia starego portfela ma inne szczegóły dla {n} płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.} many{Historia starego portfela ma inne szczegóły dla {n} płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.} other{Historia starego portfela ma inne szczegóły dla {n} płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.}}",
+  "deskHistConflictOldWallet": "Stary portfel",
+  "deskHistConflictApply": "Zastosuj"
 }

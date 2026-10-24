@@ -18126,5 +18126,23 @@
   "deskInvNoticeReceiveSuperseded": "Your other device with this wallet took a payment this device was also receiving. Recheck balance to see it here.",
   "@deskInvNoticeReceiveSuperseded": {
     "description": "Notice (desktop and phone): another install on the same recovery phrase answered the same incoming payment and the sender completed that one, so this install's copy of the receive ended. 'Recheck balance' is the name of the rescan action in Settings."
+  },
+  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet's history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet's history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "@deskHistConflictLeadOldWallet": {
+    "description": "Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskHistConflictOldWallet": "Old wallet",
+  "@deskHistConflictOldWallet": {
+    "description": "Choice card in the Details differ dialog: the value in the old wallet's history."
+  },
+  "deskHistConflictApply": "Apply",
+  "@deskHistConflictApply": {
+    "description": "Primary button in the Details differ dialog for the old wallet's history: apply the choices made."
   }
 }

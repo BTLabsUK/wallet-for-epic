@@ -259,6 +259,10 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<HistoryImport> importHistory(Uint8List data, {Map<String, bool>? useBackup}) => _r('importHistory', () => _m.importHistory(data, useBackup: useBackup));
   @override
+  List<ImportConflict> get oldHistoryConflicts => _m.oldHistoryConflicts;
+  @override
+  Future<void> resolveOldHistory(Map<String, bool>? useOldWallet) => _r('resolveOldHistory', () => _m.resolveOldHistory(useOldWallet));
+  @override
   Future<void> setTxLabel(String key, String? label) => _r('setTxLabel', () => _m.setTxLabel(key, label));
   @override
   Future<void> setTxDetails(String key, {String? counterparty, String? transport, String? note}) =>

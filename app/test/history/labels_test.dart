@@ -419,4 +419,101 @@ void main() {
       expect(exported(history, live).txs.single.label, 'Payout');
     });
   });
+
+  group('the old wallet\'s history against typed details', () {
+    /// The old wallet's record of the payment [_found] was: same commitment, now an imported
+    /// row with its own sender and method.
+    TxEntry imported({String? from = 'esOld@epicbox.epiccash.com', String? via = 'http'}) =>
+        fakeTx(
+          key: 's:old',
+          id: 9,
+          slateId: 'old',
+          source: TxSource.imported,
+          kind: TxKind.received,
+          status: TxStatus.confirmed,
+          blockHeight: BigInt.from(100),
+          amountCredited: BigInt.from(50000000),
+          outputCommits: const ['out7'],
+          counterparty: from,
+          transport: via,
+        );
+
+    Future<void> typed() => history.setDetails(
+      [_found()],
+      'c:out7',
+      counterparty: 'esMine@epicbox.epiccash.com',
+      transport: 'epicbox',
+      now: _at,
+    );
+
+    test('differing sender and method are conflicts; the old wallet\'s shows until chosen', () async {
+      await typed();
+      final live = [imported()];
+      final c = history.legacyConflicts(live);
+      expect(
+        [for (final x in c) (x.field, x.mine, x.theirs)],
+        [
+          (ManualField.counterparty, 'esMine@epicbox.epiccash.com', 'esOld@epicbox.epiccash.com'),
+          (ManualField.transport, 'epicbox', 'http'),
+        ],
+      );
+      final shown = row(history, live, 's:old');
+      expect(shown.counterparty, 'esOld@epicbox.epiccash.com');
+      expect(shown.manualFields, isEmpty);
+    });
+
+    test('nothing differs: no conflicts', () async {
+      await typed();
+      // Equal values, or a value the old wallet does not record.
+      expect(
+        history.legacyConflicts([imported(from: 'esMine@epicbox.epiccash.com', via: 'epicbox')]),
+        isEmpty,
+      );
+      expect(history.legacyConflicts([imported(from: null, via: null)]), isEmpty);
+      // No typed details at all.
+      final other = await another();
+      expect(other.legacyConflicts([imported()]), isEmpty);
+      // The row is still a scan find: nothing was recorded for it.
+      expect(history.legacyConflicts([_found()]), isEmpty);
+    });
+
+    test('Mine (the default) keeps the typed values and never asks again', () async {
+      await typed();
+      final live = [imported()];
+      final replaced = await history.resolveLegacyConflicts(live, const {});
+      expect(replaced, 0);
+      final shown = row(history, live, 's:old');
+      expect(shown.counterparty, 'esMine@epicbox.epiccash.com');
+      expect(shown.transport, 'epicbox');
+      expect(shown.manualFields, {ManualField.counterparty, ManualField.transport});
+      expect(history.legacyConflicts(live), isEmpty);
+      // Another value from the old wallet is a new question.
+      expect(history.legacyConflicts([imported(from: 'esOther@epicbox.epiccash.com')]), hasLength(1));
+    });
+
+    test('Theirs for one field takes the old wallet\'s and drops the typed one; the other stays', () async {
+      await typed();
+      final live = [imported()];
+      final id = history.legacyConflicts(live).first.id;
+      expect(id, 's:old|counterparty');
+      final replaced = await history.resolveLegacyConflicts(live, {id: true});
+      expect(replaced, 1);
+      final shown = row(history, live, 's:old');
+      expect(shown.counterparty, 'esOld@epicbox.epiccash.com');
+      expect(shown.transport, 'epicbox');
+      expect(shown.manualFields, {ManualField.transport});
+      expect(history.meta.manual['s:old']!.counterparty, isNull);
+      expect(history.legacyConflicts(live), isEmpty);
+    });
+
+    test('the choice survives a reopened archive', () async {
+      await typed();
+      final live = [imported()];
+      await history.resolveLegacyConflicts(live, const {});
+      final reopened = await WalletHistory.open(dir.path, Chain.mainnet);
+      addTearDown(reopened.close);
+      expect(reopened.legacyConflicts(live), isEmpty);
+      expect(row(reopened, live, 's:old').counterparty, 'esMine@epicbox.epiccash.com');
+    });
+  });
 }

@@ -13929,4 +13929,23 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskInvNoticeReceiveSuperseded =>
       'Ihr anderes Gerät mit dieser Wallet hat eine Zahlung angenommen, die auch dieses Gerät empfangen hat. Tippen Sie auf „Guthaben neu prüfen“, um sie hier zu sehen.';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Der Verlauf des alten Wallets enthält andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+      one:
+          'Der Verlauf des alten Wallets enthält andere Details für $n Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => 'Altes Wallet';
+
+  @override
+  String get deskHistConflictApply => 'Übernehmen';
 }

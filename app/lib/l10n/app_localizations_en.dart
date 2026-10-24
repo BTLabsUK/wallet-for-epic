@@ -13774,4 +13774,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskInvNoticeReceiveSuperseded =>
       'Your other device with this wallet took a payment this device was also receiving. Recheck balance to see it here.';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'The old wallet\'s history has other details for $n payments you described. Yours are kept unless you choose otherwise.',
+      one:
+          'The old wallet\'s history has other details for $n payment you described. Yours are kept unless you choose otherwise.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => 'Old wallet';
+
+  @override
+  String get deskHistConflictApply => 'Apply';
 }

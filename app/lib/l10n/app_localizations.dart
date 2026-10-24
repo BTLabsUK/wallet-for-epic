@@ -21799,6 +21799,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your other device with this wallet took a payment this device was also receiving. Recheck balance to see it here.'**
   String get deskInvNoticeReceiveSuperseded;
+
+  /// Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{The old wallet\'s history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet\'s history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  String deskHistConflictLeadOldWallet(int n);
+
+  /// Choice card in the Details differ dialog: the value in the old wallet's history.
+  ///
+  /// In en, this message translates to:
+  /// **'Old wallet'**
+  String get deskHistConflictOldWallet;
+
+  /// Primary button in the Details differ dialog for the old wallet's history: apply the choices made.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get deskHistConflictApply;
 }
 
 class _AppLocalizationsDelegate

@@ -963,6 +963,21 @@ class MockDeskWallet implements DeskWalletApi {
     return ['date,type,status,amount_epic,fee_epic,counterparty,note,slate_id,kernel,block_height', ...rows].join('\n');
   }
 
+  /// What the old wallet's history waits for; set by a test or a preview.
+  List<ImportConflict> oldHistory = const [];
+
+  /// The choices of the last [resolveOldHistory] call, `null` for a postponed one.
+  Map<String, bool>? lastUseOldWallet;
+
+  @override
+  List<ImportConflict> get oldHistoryConflicts => oldHistory;
+
+  @override
+  Future<void> resolveOldHistory(Map<String, bool>? useOldWallet) async {
+    lastUseOldWallet = useOldWallet;
+    oldHistory = const [];
+  }
+
   @override
   Future<HistoryImport> importHistory(Uint8List data, {Map<String, bool>? useBackup}) async {
     await _wait(2);
