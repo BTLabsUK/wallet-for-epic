@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import '../node_failover_phone.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../tor_phone.dart';
@@ -99,11 +100,14 @@ class StatusIcons extends ConsumerWidget {
       config,
       behind: nodeBehind(ref, status.node, choice?.preset),
     );
+    final failover = ref.watch(nodeFailoverProvider);
     final nodeTor = underTor(
       context,
       dot: node.dot,
       label: '${l.netStatusNode}, ${node.word}',
-      detail: node.detail,
+      detail: failover == null
+          ? node.detail
+          : '${node.detail}\n${l.nodeFailoverInsteadOf(serverHost(failover.chosen))}',
       way: nodeTorWay(nodeUrl, torState),
     );
     final epicbox = epicboxIconFace(context, status.epicbox, config);

@@ -8,6 +8,7 @@ import 'connection_state.dart';
 import 'demo.dart';
 import 'demo_web_connection.dart';
 import 'l10n.dart';
+import 'node_failover_phone.dart';
 import 'providers.dart';
 import 'push_controller.dart';
 import 'secret_store.dart' show PlatformBiometricStore;
@@ -16,6 +17,7 @@ import 'ui/common.dart';
 import 'ui/demo_screens.dart';
 import 'ui/launch_screen.dart';
 import 'ui/phone_frame.dart';
+import 'ui/status.dart' show serverHost;
 import 'ui/theme/advanced.dart';
 import 'ui/theme/tokens.dart';
 import 'updater.dart';
@@ -50,6 +52,18 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // Alive for the app's life: a node that read offline is asked again when the network
     // returns and on resume.
     ref.listenManual(nodeRecheckProvider, (_, _) {});
+    // Alive for the app's life: a node that stops answering is left for the next working one
+    // of the list for this session, and the notice says so wherever the user is.
+    ref.listenManual(nodeFailoverProvider, (before, now) {
+      final context = _navigator.currentContext;
+      if (now == null || now == before || context == null) return;
+      ref
+          .read(noticeProvider.notifier)
+          .show(
+            context.l10n.nodeFailoverSwitched(serverHost(now.inUse)),
+            level: NoticeLevel.info,
+          );
+    });
     // Push notifications follow every unlock and the Tor switch (push_controller.dart); what
     // they tell the user is said here, where the language is known.
     ref.listenManual(pushControllerProvider, (_, _) {});

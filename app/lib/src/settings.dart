@@ -466,6 +466,10 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   Future<void> setNetworkMode(NetworkMode mode) async =>
       setAdvanced((await _current()).advanced.withMode(mode));
 
+  /// Advanced › Node failover (`node_failover.dart`).
+  Future<void> setNodeFailover(bool on) async =>
+      setAdvanced((await _current()).advanced.withNodeFailover(on));
+
   /// Settings › Privacy › Use status.btlabs.uk; applies at once ([statusSite]).
   Future<void> setUseStatusSite(bool on) async {
     statusSite.on = on;

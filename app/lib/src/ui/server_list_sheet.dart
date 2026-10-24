@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
+import '../node_failover_phone.dart';
 import '../providers.dart';
 import '../public_servers.dart';
 import '../push_registration.dart' show PushRegistration;
@@ -249,7 +250,10 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
 
   bool _same(String a, String b) => sameServer(widget.kind, a, b);
 
-  String _current(NetworkChoice choice) => _node ? choice.nodeUrl : choice.relay.label;
+  /// The server in use: for nodes the one node failover moved to, if it did, so picking the
+  /// chosen node again goes back to it.
+  String _current(NetworkChoice choice) =>
+      _node ? (ref.read(nodeFailoverProvider)?.inUse ?? choice.nodeUrl) : choice.relay.label;
 
   void _pick(String value, NetworkChoice choice) {
     final same = _same(value, _current(choice));
@@ -591,6 +595,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final listedTyped = typed != null && all.any((e) => _same(e.value, typed));
     final showAdd = filtering && !listedTyped && (shown.isEmpty || typed != null || _adding);
     final addHost = typed == null ? q : (_node ? serverHost(typed) : typed);
+    if (_node) ref.watch(nodeFailoverProvider);
     final current = _current(choice);
     final selected = _pending ?? current;
     final selectedListed = all.any((e) => _same(e.value, selected));
@@ -1360,7 +1365,8 @@ class _CurrentNodeFacts extends ConsumerWidget {
     final wallet = watchWalletStatus(ref).node;
     final listed = ref.watch(publicNodeStatusProvider(choice.preset)).value;
     final net = ref.watch(networkStatusProvider(choice.preset)).value;
-    final dirNode = nodeStatusFor(listed ?? const [], choice.nodeUrl);
+    final nodeUrl = ref.watch(nodeFailoverProvider)?.inUse ?? choice.nodeUrl;
+    final dirNode = nodeStatusFor(listed ?? const [], nodeUrl);
     final height = wallet.tip?.height.toInt() ?? dirNode?.height;
     final tipHeight = net?.tipHeight;
     final behind = height != null && tipHeight != null
@@ -1406,7 +1412,7 @@ class _CurrentNodeFacts extends ConsumerWidget {
           Semantics(
             container: true,
             liveRegion: true,
-            label: [l.serverCurrent, serverHost(choice.nodeUrl), face.word].join(', '),
+            label: [l.serverCurrent, serverHost(nodeUrl), face.word].join(', '),
             excludeSemantics: true,
             child: Row(
               children: [

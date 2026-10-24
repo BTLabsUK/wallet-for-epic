@@ -104,3 +104,28 @@ Future<bool> confirmRelaySwitch(
   );
   return confirmed == true;
 }
+
+/// Moves the open wallet onto [nodeUrl] for this session only (node failover,
+/// `node_failover_phone.dart`): nothing is saved and the lists stay as they are, so the next
+/// start opens on the chosen node. The relay stays. False when no wallet is open or it was
+/// locked meanwhile; a refused switch throws the [WalletError] and the old node stays.
+Future<bool> switchNodeForSession(Ref ref, String nodeUrl) async {
+  final session = ref.read(sessionProvider);
+  final opened = ref.read(walletConfigProvider);
+  if (session == null || opened == null) return false;
+  final next = WalletConfig(
+    dataDir: opened.dataDir,
+    chain: opened.chain,
+    nodeUrl: nodeUrl,
+    epicboxDomain: opened.epicboxDomain,
+    epicboxPort: opened.epicboxPort,
+    walletId: opened.walletId,
+  );
+  await session.setServers(config: next);
+  if (!ref.mounted || ref.read(sessionProvider) != session) return false;
+  logInfo('network', 'node failover: ${Uri.tryParse(nodeUrl)?.host ?? '?'} for this session');
+  ref.read(walletConfigProvider.notifier).select(next);
+  ref.invalidate(nodeTipProvider);
+  ref.invalidate(homeProvider);
+  return true;
+}
