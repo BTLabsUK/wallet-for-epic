@@ -707,7 +707,9 @@ class ListenerNotifier extends Notifier<ListenerState> {
   /// each restart that did not help, up to [listenerHealMax]) is restarted, with a log line.
   /// Offline mode expects no listener.
   void _heal(ListenerState now) {
-    if (now.connected || now.offline) {
+    // Armed only by a listener that said it is down (lost or stopped): one still making its
+    // first connection is LEPIC's to finish, and says "disconnected" when that attempt fails.
+    if (now.connected || now.offline || !(now.lost || now.stopped)) {
       _healTimer?.cancel();
       _healTimer = null;
       if (now.connected) _heals = 0;
@@ -720,7 +722,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
       _healTimer = null;
       if (!ref.mounted) return;
       final state = this.state;
-      if (state.connected || state.offline) return;
+      if (state.connected || state.offline || !(state.lost || state.stopped)) return;
       // A connection held for Tor while it starts is not down: it waits as long as tor does.
       final torWait =
           ref.exists(phoneTorProvider) &&
