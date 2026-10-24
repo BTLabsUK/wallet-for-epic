@@ -1,5 +1,6 @@
 // The desktop's Node and Epicbox lists (server_list_panel.dart, server_lists.dart): the field
-// at the top holds the server in use and filters; Add shows when nothing matches, says plainly
+// at the top starts empty and filters; a Node row switches at once, an Epicbox row asks in a
+// dialog; Add shows when nothing matches, says plainly
 // when the text is no address, tests the server and offers the switch, and adds nothing when
 // the test fails; the bin with Undo, the refusal on the row in use, Restore only while a public
 // server is removed; the directory's new servers join and removed ones stay out; the first
@@ -102,16 +103,15 @@ void main() {
     await settle(tester);
   }
 
-  testWidgets('the field starts with the node in use, selected; typing filters by host or operator', (tester) async {
+  testWidgets('the field starts empty with its placeholder; typing filters by host or operator', (tester) async {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
     final edit = tester.widget<EditableText>(field);
-    expect(edit.controller.text, 'node.btlabs.uk');
-    expect(edit.controller.selection, const TextSelection(baseOffset: 0, extentOffset: 14), reason: 'typing replaces it');
-    expect(helper(tester), 'In use. Edit it to switch, or type to filter the list.');
+    expect(edit.controller.text, '', reason: 'the node in use shows in its row, never in the field');
+    expect(find.text('Paste or type to filter or add'), findsOneWidget);
+    expect(find.byKey(const ValueKey('server-list-helper')), findsNothing);
     for (final v in [_btlabs, _epicnet, _epiccash, 'http://10.0.1.24:3413']) {
       expect(row(v), findsOneWidget, reason: v);
     }
-    expect(find.byKey(const ValueKey('server-row-local')), findsOneWidget, reason: 'This computer first');
 
     await type(tester, 'cypher');
     expect(row('https://epic.stackwallet.com:3413'), findsOneWidget);
@@ -132,8 +132,8 @@ void main() {
     expect(nodes(), contains('https://node.example.org:3413'));
     expect(row('https://node.example.org:3413'), findsOneWidget);
     expect(find.text('Added node.example.org:3413.'), findsOneWidget);
-    expect(find.text('Switch to node.example.org:3413'), findsOneWidget);
-    await tap(tester, find.byKey(const ValueKey('server-list-switch')));
+    expect(tester.widget<EditableText>(field).controller.text, '');
+    await tap(tester, find.byKey(const ValueKey('server-list-line-switch')));
     await settle(tester, 10);
     expect(container.read(deskProvider).status!.node.url, 'https://node.example.org:3413');
     await end(tester);
@@ -153,6 +153,17 @@ void main() {
     expect(helper(tester), 'No answer from this node. Nothing added.');
     expect(nodes(), before);
     expect(find.byKey(const ValueKey('server-list-switch')), findsNothing);
+    await end(tester);
+  });
+
+  testWidgets('a Node row switches at once, with no dialog; the foot says so and the field stays empty', (tester) async {
+    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
+    await tap(tester, row(_epicnet));
+    await settle(tester, 10);
+    expect(find.byType(Dialog), findsNothing);
+    expect(container.read(deskProvider).status!.node.url, _epicnet);
+    expect(find.text('Switched to node.epicnet.us:3413'), findsOneWidget);
+    expect(tester.widget<EditableText>(field).controller.text, '');
     await end(tester);
   });
 
@@ -200,22 +211,29 @@ void main() {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen), size: const Size(1280, 560));
     final fieldAt = tester.getTopLeft(field);
     final list = find.ancestor(of: row(_btlabs), matching: find.byType(Scrollable)).first;
-    final firstAt = tester.getTopLeft(row(_btlabs));
+    final scrollable = tester.state<ScrollableState>(list);
     await tester.drag(list, const Offset(0, -120));
     await settle(tester, 2);
     expect(tester.getTopLeft(field), fieldAt);
-    expect(tester.getTopLeft(row(_btlabs)).dy, lessThan(firstAt.dy), reason: 'the rows moved');
+    expect(scrollable.position.pixels, greaterThan(0), reason: 'the rows moved');
     await end(tester);
   });
 
-  testWidgets('Epicbox: the address warning, a pick offers the switch with it; a relay that does not answer adds nothing', (tester) async {
+  testWidgets('Epicbox: a pick opens the confirm; Cancel keeps the relay; a relay that does not answer adds nothing; Switch switches', (tester) async {
     await show(tester, const SettingsReceivingScreen(arg: ReceivingDemo.comboOpen));
     const warning = 'Switching changes your address. Senders need the new one.';
     expect(find.text(warning), findsOneWidget);
+    final before = container.read(deskProvider).status!.epicbox.domain;
     await tap(tester, row('epicbox.stackwallet.com'));
-    expect(find.text('Switch to epicbox.stackwallet.com'), findsOneWidget);
-    expect(find.text(warning), findsOneWidget, reason: 'the switch strip carries it');
+    expect(find.byType(EDialog), findsOneWidget);
+    expect(find.text('Switch to epicbox.stackwallet.com?'), findsOneWidget);
+    expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+    await tap(tester, find.byKey(const ValueKey('server-list-cancel')));
+    expect(find.byType(EDialog), findsNothing);
+    expect(container.read(deskProvider).status!.epicbox.domain, before, reason: 'Cancel keeps the relay');
 
+    tester.state<ServerListPanelState>(find.byType(ServerListPanel)).open();
+    await settle(tester);
     probe.answer = false;
     await type(tester, 'relay.example.org');
     await tap(tester, find.byKey(const ValueKey('server-list-add')));
@@ -228,6 +246,8 @@ void main() {
     await tap(tester, find.byKey(const ValueKey('server-list-add')));
     await settle(tester);
     expect(container.read(deskServerListProvider(ServerKind.relay))!.entries, contains('relay.example.org'));
+    await tap(tester, find.byKey(const ValueKey('server-list-line-switch')));
+    expect(find.text('Switch to relay.example.org?'), findsOneWidget);
     await tap(tester, find.byKey(const ValueKey('server-list-switch')));
     await settle(tester, 10);
     expect(container.read(deskProvider).status!.epicbox.domain, 'relay.example.org');

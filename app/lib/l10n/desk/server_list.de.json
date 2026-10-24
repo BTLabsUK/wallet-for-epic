@@ -4,7 +4,6 @@
   "deskSlHealthUnknown": "Zustand unbekannt",
   "deskSlNodeNoAnswer": "Keine Antwort von diesem Node. Nichts hinzugefügt.",
   "deskSlTorWait": "Tor ist noch nicht verbunden. Nichts hinzugefügt.",
-  "deskSlSwitchTo": "Zu {host} wechseln",
   "deskSlLatency": "{ms} ms",
   "deskSlDefault": "Standard",
   "deskSlTesting": "{host} wird getestet…",

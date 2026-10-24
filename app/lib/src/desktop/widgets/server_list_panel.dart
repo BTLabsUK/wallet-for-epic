@@ -2,13 +2,14 @@
 /// Setup): a field-like button with the server in use that opens the kind's list under it
 /// ([deskServerListProvider], shared with the phone's lists).
 ///
-/// The panel's field starts with the server in use, selected, so typing replaces it; typing
-/// filters the rows by host or operator. Add shows as soon as nothing matches, and for a typed
-/// address that is not listed: it says plainly when the text is no address, else tests the
-/// server ([ServerListPanel.onTest]), adds it and offers the switch. Every row has a bin; the row
-/// in use refuses ("In use. Switch first."), others go with Undo. "Restore the public list"
-/// shows while a public server is removed. A picked row is offered as "Switch to host" at the
-/// foot; in Setup ([ServerListPanel.chooseOnly]) a pick simply chooses.
+/// The panel's field starts empty; the server in use shows only in its row (the check) and on
+/// the button. Typing filters the rows by host or operator. Add shows as soon as nothing
+/// matches, and for a typed address that is not listed: it says plainly when the text is no
+/// address, else tests the server ([ServerListPanel.onTest]), adds it and offers the switch at
+/// the foot. Every row has a bin; the row in use refuses ("In use. Switch first."), others go
+/// with Undo. "Restore the public list" shows while a public server is removed. A picked Node
+/// row switches at once and the foot says so; a picked Epicbox row asks first in a dialog, as
+/// the address changes. In Setup ([ServerListPanel.chooseOnly]) a pick simply chooses.
 ///
 /// Keyboard: Click, Space, Enter or ↓ opens; ↓/↑ move between the field and the rows; Enter
 /// picks a row, or on the field picks the only match or adds; Delete removes the focused row;
@@ -255,8 +256,6 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   String _sourceSig = '';
   ServerList? _list;
 
-  /// The value picked but not yet switched to.
-  String? _pending;
   String? _fieldError;
 
   /// The value being tested before it joins.
@@ -265,10 +264,9 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   /// The foot's line: what the last action did, with Undo when it can be undone.
   String? _line;
   VoidCallback? _lineAction;
+  String? _lineActionLabel;
+  Key? _lineActionKey;
   Timer? _lineTimer;
-
-  /// What the field held when the panel opened: the server in use.
-  String _filled = '';
 
   bool get _busy => widget.busy && !_slow;
   bool get _node => widget.kind == ServerKind.node;
@@ -310,14 +308,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     if (!widget.busy && oldWidget.busy) {
       _busyTimer?.cancel();
       _slow = false;
-    }
-    // The server changed while the list is open (Setup's preselection came in): an untouched
-    // field follows it.
-    if (isOpen && widget.value != oldWidget.value && _text.text.trim() == _filled.trim()) {
-      _filled = _inUseText;
-      _text.text = _filled;
-    }
-  }
+    }  }
 
   void _startBusy() {
     _slow = false;
@@ -341,26 +332,17 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
 
   bool _same(String a, String b) => sameServer(widget.kind, a, b);
 
-  String get _inUseText {
-    final v = widget.value;
-    if (v.isEmpty || v == widget.local?.value) return '';
-    return panelHost(widget.kind, v);
-  }
-
-  /// Opens the list with the server in use in the field, selected.
+  /// Opens the list with the field empty.
   void open() {
     if (_busy || _portal.isShowing || !mounted) return;
-    _filled = _inUseText;
-    _text.text = _filled;
+    _text.clear();
     setState(() {
-      _pending = null;
       _fieldError = null;
       _portal.show();
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_portal.isShowing) return;
       _field.requestFocus();
-      _text.selection = TextSelection(baseOffset: 0, extentOffset: _text.text.length);
     });
   }
 
@@ -370,7 +352,6 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     _lineTimer?.cancel();
     setState(() {
       _portal.hide();
-      _pending = null;
       _fieldError = null;
       _line = null;
       _lineAction = null;
@@ -378,11 +359,13 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     _button.requestFocus();
   }
 
-  void _say(String text, {VoidCallback? undo}) {
+  void _say(String text, {VoidCallback? undo, String? actionLabel, Key? actionKey}) {
     _lineTimer?.cancel();
     setState(() {
       _line = text;
       _lineAction = undo;
+      _lineActionLabel = actionLabel;
+      _lineActionKey = actionKey;
     });
     _lineTimer = Timer(Duration(seconds: undo != null ? 8 : 4), () {
       if (mounted) {
@@ -396,8 +379,8 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
 
   String get _typed => _text.text.trim();
 
-  /// The field differs from the server in use: it filters.
-  bool get _filtering => _typed.isNotEmpty && _typed != _filled.trim();
+  /// Something is typed: the field filters.
+  bool get _filtering => _typed.isNotEmpty;
 
   /// The typed text as the list stores it, or null when it is no address. A node typed without
   /// a scheme on this computer or the local network answers plain http.
@@ -438,10 +421,8 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
       unawaited(widget.onChoose(value));
       return;
     }
-    setState(() {
-      _pending = value;
-      _fieldError = null;
-    });
+    setState(() => _fieldError = null);
+    unawaited(_node ? _switchNow(value) : _confirmSwitch(value));
   }
 
   void _pickLocal(PanelLocalRow local) {
@@ -449,19 +430,47 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     if (widget.value != local.value) unawaited(widget.onChoose(local.value));
   }
 
-  Future<void> _switch() async {
-    final v = _pending;
-    if (v == null) return;
+  /// A Node pick: switches at once, the panel stays open and the foot says so once the switch
+  /// took (the wallet's value follows).
+  Future<void> _switchNow(String value) async {
+    await widget.onChoose(value);
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !isOpen || !_same(widget.value, value)) return;
+      _text.clear();
+      _say(context.l10n.serverSwitched(panelHost(widget.kind, value)));
+    });
+  }
+
+  /// An Epicbox pick: the address changes, so a dialog asks first.
+  Future<void> _confirmSwitch(String value) async {
+    final l = context.l10n;
     collapse();
-    await widget.onChoose(v);
+    final sure = await showEDialog<bool>(
+      context,
+      builder: (context) => EDialog(
+        title: l.slSwitchTitle(panelHost(widget.kind, value)),
+        description: l.slSwitchBody,
+        actions: [
+          EButton(
+            key: const ValueKey('server-list-cancel'),
+            label: l.commonCancel,
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          EButton.primary(
+            key: const ValueKey('server-list-switch'),
+            label: l.slSwitch,
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    );
+    if (sure == true && mounted) await widget.onChoose(value);
   }
 
   /// Enter on the field.
   void _submit() {
-    if (!_filtering) {
-      if (_pending != null) unawaited(_switch());
-      return;
-    }
+    if (!_filtering) return;
     final all = _all;
     final value = _typedValue();
     final listed = value == null ? null : all.where((s) => _same(s.value, value)).firstOrNull;
@@ -505,12 +514,14 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
       await widget.onChoose(value);
       return;
     }
-    _text.text = _filled;
-    setState(() {
-      _adding = null;
-      _pending = value;
-    });
-    _say(l.slAdded(panelHost(widget.kind, value)));
+    _text.clear();
+    setState(() => _adding = null);
+    _say(
+      l.slAdded(panelHost(widget.kind, value)),
+      undo: () => _pick(value),
+      actionLabel: l.slSwitch,
+      actionKey: const ValueKey('server-list-line-switch'),
+    );
     _field.requestFocus();
     // The new row is the last: bring it into view once the list rebuilt with it.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -531,7 +542,6 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final n = ref.read(deskServerListProvider(widget.kind).notifier);
     final at = await n.remove(s.value);
     if (!mounted) return;
-    if (_pending != null && _same(_pending!, s.value)) setState(() => _pending = null);
     if (hadFocus) _field.requestFocus();
     _say(
       l.slRemoved(s.host),
@@ -686,15 +696,14 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final local = widget.local;
     final showLocal = local != null && (!filtering || serverMatches(_typed, host: l.deskSetNodeLocalNode, operator: local.stateText));
     final restorable = _list == null ? const <String>[] : _list!.restorable(widget.kind, widget.source.public);
-    final selected = _pending ?? widget.value;
+    final selected = widget.value;
     final known = [for (final s in widget.servers) (operator: s.listedAs ?? s.operator, icon: s.icon)];
 
-    final helper =
-        _fieldError ?? (filtering ? l.slHelpMatches(shown.length) : (widget.chooseOnly ? l.deskSlHelpChoose : (_node ? l.slHelpIdleNode : l.slHelpIdleRelay)));
+    final helper = _fieldError ?? (filtering ? l.slHelpMatches(shown.length) : (widget.chooseOnly ? l.deskSlHelpChoose : null));
 
     final rows = <Widget>[
       if (showLocal)
-        _LocalRow(local: local, selected: widget.value == local.value && _pending == null, onTap: () => _pickLocal(local)),
+        _LocalRow(local: local, selected: widget.value == local.value, onTap: () => _pickLocal(local)),
       if (addable)
         _AddRow(
           host: typedValue == null ? _typed : panelHost(widget.kind, typedValue),
@@ -735,7 +744,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
         ),
     ];
 
-    final relayWarning = !_node && !widget.chooseOnly && !filtering && _pending == null;
+    final relayWarning = !_node && !widget.chooseOnly && !filtering;
     final top = Padding(
       padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x3, Sp.x3, Sp.x2),
       child: Column(
@@ -752,6 +761,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
               mono: true,
               size: EBtnSize.sm,
               invalid: _fieldError != null,
+              hint: l.slFieldHint,
               leading: filtering ? EIcons.search : (_node ? EIcons.node : EIcons.epicbox),
               semanticLabel: _node ? l.slNodeField : l.slRelayField,
               trailing: _adding != null
@@ -774,15 +784,17 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
               onSubmitted: (_) => _submit(),
             ),
           ),
-          SizedBox(height: 6.u),
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              helper,
-              key: const ValueKey('server-list-helper'),
-              style: _fieldError != null ? ts.small.copyWith(color: c.risk) : ts.caption.copyWith(color: c.dim),
+          if (helper != null) ...[
+            SizedBox(height: 6.u),
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                helper,
+                key: const ValueKey('server-list-helper'),
+                style: _fieldError != null ? ts.small.copyWith(color: c.risk) : ts.caption.copyWith(color: c.dim),
+              ),
             ),
-          ),
+          ],
           if (relayWarning) ...[
             SizedBox(height: Sp.x2),
             _WarnStrip(l.slRelayWarning),
@@ -792,7 +804,6 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     );
 
     final line = _line;
-    final pending = _pending;
     final foot = [
       if (line != null)
         Semantics(
@@ -804,8 +815,8 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                 Expanded(child: Text(line, key: const ValueKey('server-list-line'), style: ts.small.copyWith(color: c.text))),
                 if (_lineAction != null)
                   EButton.ghost(
-                    key: const ValueKey('server-list-undo'),
-                    label: l.slUndo,
+                    key: _lineActionKey ?? const ValueKey('server-list-undo'),
+                    label: _lineActionLabel ?? l.slUndo,
                     size: EBtnSize.inline,
                     onPressed: () {
                       final undo = _lineAction;
@@ -815,40 +826,6 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                   ),
               ],
             ),
-          ),
-        ),
-      if (pending != null)
-        Container(
-          padding: EdgeInsets.all(Sp.x3),
-          decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (!_node) ...[_WarnStrip(l.slRelayWarning), SizedBox(height: Sp.x3)],
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  EButton(
-                    key: const ValueKey('server-list-cancel'),
-                    label: l.commonCancel,
-                    size: EBtnSize.sm,
-                    onPressed: () {
-                      setState(() => _pending = null);
-                      _field.requestFocus();
-                    },
-                  ),
-                  SizedBox(width: Sp.x2),
-                  Flexible(
-                    child: EButton.primary(
-                      key: const ValueKey('server-list-switch'),
-                      label: l.deskSlSwitchTo(panelHost(widget.kind, pending)),
-                      size: EBtnSize.sm,
-                      onPressed: _switch,
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ),
         ),
     ];
