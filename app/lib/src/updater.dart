@@ -258,7 +258,22 @@ class AndroidUpdatePlatform implements UpdatePlatform {
 bool isKeyMismatch(String? message) =>
     message != null && message.contains('INSTALL_FAILED_UPDATE_INCOMPATIBLE');
 
+/// The download stopped part way (the connection dropped, or Android cut the app's network
+/// when it went to the background). What arrived is kept beside the target as `.part`, and
+/// the next [downloadApk] carries on from there.
+class UpdateInterrupted extends UpdateError {
+  UpdateInterrupted(super.text, {required this.received});
+
+  /// Bytes kept in the `.part` file.
+  final int received;
+}
+
 /// Downloads [apk] to [target], checking size and SHA-256. Reports progress from 0 to 1.
+///
+/// What arrived before an interruption stays in `<target>.part`, and the next call asks only
+/// for the rest (an HTTP Range request), so leaving the app mid-download never costs what was
+/// already downloaded. A server that ignores the range sends the whole file again. A finished
+/// file that does not match the manifest is dropped and downloaded once more from the start.
 Future<void> downloadApk(
   HttpClient client,
   ReleaseApk apk,
@@ -266,24 +281,78 @@ Future<void> downloadApk(
   void Function(double progress)? onProgress,
 }) async {
   final partial = File('${target.path}.part');
+  var kept = await partial.exists() ? await partial.length() : 0;
+  if (kept > apk.size) {
+    logInfo('update', 'the kept part is larger than announced; downloading from the start');
+    await partial.delete();
+    kept = 0;
+  }
+  if (kept == apk.size) {
+    // All of it arrived before the stop: nothing left to ask for.
+    if (await apkMatches(partial, apk)) {
+      logInfo('update', 'the kept part is the whole file and verified');
+      await partial.rename(target.path);
+      return;
+    }
+    await partial.delete();
+    kept = 0;
+  }
+  try {
+    await _fetchInto(client, apk, partial, kept, onProgress);
+  } on UpdateError catch (e) {
+    // A file pieced together from two downloads that does not match: once more from the start.
+    if (kept == 0 || !identical(e, _damaged)) rethrow;
+    logInfo('update', 'the continued download does not match the manifest; downloading from the start');
+    await _fetchInto(client, apk, partial, 0, onProgress);
+  }
+  await partial.rename(target.path);
+}
+
+final _damaged = UpdateError((l) => l.updateDownloadDamaged);
+
+/// Fetches [apk] into [partial], keeping its first [kept] bytes when the server sends the rest.
+/// An interruption leaves [partial] for the next try ([UpdateInterrupted]); a file that is too
+/// large or does not match the manifest is deleted.
+Future<void> _fetchInto(
+  HttpClient client,
+  ReleaseApk apk,
+  File partial,
+  int kept,
+  void Function(double progress)? onProgress,
+) async {
+  final digestSink = _DigestSink();
+  final hasher = sha256.startChunkedConversion(digestSink);
+  var received = 0;
   try {
     final request = await client.getUrl(apk.url);
+    if (kept > 0) request.headers.set(HttpHeaders.rangeHeader, 'bytes=$kept-');
     final response = await request.close();
     final code = response.statusCode;
-    if (code != HttpStatus.ok) {
+    final resumes =
+        kept > 0 && code == HttpStatus.partialContent && _rangeStarts(response, kept, apk.size);
+    if (code != HttpStatus.ok && !resumes) {
       await response.drain<void>();
+      // A range the server cannot serve: the kept part is no use.
+      if (code == HttpStatus.requestedRangeNotSatisfiable) await _drop(partial);
       throw UpdateError((l) => l.updateDownloadHttpFailed(code));
     }
-    final digestSink = _DigestSink();
-    final hasher = sha256.startChunkedConversion(digestSink);
-    final out = partial.openWrite();
-    var received = 0;
+    if (resumes) {
+      logInfo('update', 'download continues at $kept of ${apk.size} bytes');
+      await for (final chunk in partial.openRead()) {
+        hasher.add(chunk);
+      }
+      received = kept;
+      onProgress?.call(received / apk.size);
+    } else if (kept > 0) {
+      logInfo('update', 'the server sent the whole file, not the rest; downloading from the start');
+    } else {
+      logInfo('update', 'download starts: ${apk.size} bytes, version code ${apk.versionCode}');
+    }
+    final out = partial.openWrite(mode: resumes ? FileMode.append : FileMode.write);
     try {
       await for (final chunk in response) {
         received += chunk.length;
-        if (received > apk.size) {
-          throw UpdateError((l) => l.updateDownloadTooLarge);
-        }
+        if (received > apk.size) break;
         hasher.add(chunk);
         out.add(chunk);
         onProgress?.call(received / apk.size);
@@ -292,20 +361,48 @@ Future<void> downloadApk(
       await out.close();
     }
     hasher.close();
+    if (received > apk.size) {
+      await _drop(partial);
+      throw UpdateError((l) => l.updateDownloadTooLarge);
+    }
     if (received != apk.size) {
-      throw UpdateError((l) => l.updateDownloadIncomplete);
+      throw HttpException('the file ended at $received of ${apk.size} bytes');
     }
     if (digestSink.value.toString() != apk.sha256) {
-      throw UpdateError((l) => l.updateDownloadDamaged);
+      await _drop(partial);
+      throw _damaged;
     }
-    await partial.rename(target.path);
-  } on SocketException {
-    throw UpdateError((l) => l.updateServerUnreachable);
-  } on HttpException {
-    throw UpdateError((l) => l.updateDownloadInterrupted);
-  } finally {
-    if (await partial.exists()) await partial.delete();
+    logInfo('update', 'download complete and verified: sha256 ${apk.sha256.substring(0, 12)}');
+  } on SocketException catch (e) {
+    throw await _stopped(partial, apk, e, (l) => l.updateServerUnreachable);
+  } on HttpException catch (e) {
+    throw await _stopped(partial, apk, e, (l) => l.updateDownloadInterrupted);
+  } on TlsException catch (e) {
+    throw await _stopped(partial, apk, e, (l) => l.updateDownloadInterrupted);
   }
+}
+
+Future<void> _drop(File file) async {
+  if (await file.exists()) await file.delete();
+}
+
+/// The download stopped on [error]: what [partial] holds stays for the next try.
+Future<UpdateError> _stopped(
+  File partial,
+  ReleaseApk apk,
+  Object error,
+  String Function(AppLocalizations l) text,
+) async {
+  final kept = await partial.exists() ? await partial.length() : 0;
+  logInfo('update', 'download stopped at $kept of ${apk.size} bytes, kept for the next try: $error');
+  return kept > 0 ? UpdateInterrupted(text, received: kept) : UpdateError(text);
+}
+
+/// Whether a 206 answer starts at [kept] of the [size]-byte file.
+bool _rangeStarts(HttpClientResponse response, int kept, int size) {
+  final range = response.headers.value(HttpHeaders.contentRangeHeader);
+  final match = RegExp(r'^bytes (\d+)-(\d+)/(\d+)$').firstMatch(range ?? '');
+  return match != null && int.parse(match[1]!) == kept && int.parse(match[3]!) == size;
 }
 
 /// Whether [file] is [apk]: present, the announced size, the announced SHA-256. A download
@@ -432,6 +529,12 @@ final updateProvider = NotifierProvider<UpdateNotifier, UpdateState>(
 
 class UpdateNotifier extends Notifier<UpdateState> {
   StreamSubscription<({String status, String? message})>? _events;
+
+  /// Whether the app is off the screen ([paused] until [resumed]).
+  bool _away = false;
+
+  /// A download stopped while the app was away; [resumed] carries it on.
+  bool _continueOnReturn = false;
 
   /// The last manifest accepted, also in an earlier run ([updateStateKey]); an older one is
   /// refused (FORMAT.md §6).
@@ -667,9 +770,24 @@ class UpdateNotifier extends Notifier<UpdateState> {
     await _downloadAndInstall(platform, update);
   }
 
-  /// The app is back in front. Once the install permission was given, the update that waited
-  /// for it carries on: from the kept download, or a new one if that file is gone.
+  /// The app left the screen ([resumed] is its return).
+  void paused() => _away = true;
+
+  /// The app is back in front. A download that stopped while it was away carries on from what
+  /// arrived. Once the install permission was given, the update that waited for it carries on:
+  /// from the kept download, or a new one if that file is gone.
   Future<void> resumed() async {
+    _away = false;
+    if (_continueOnReturn) {
+      _continueOnReturn = false;
+      final platform = ref.read(updatePlatformProvider);
+      final update = state.update;
+      if (platform != null && update != null && state.phase == UpdatePhase.available) {
+        logInfo('update', 'back in the app: the download carries on');
+        // Before any await, so the check on return finds it busy.
+        return _downloadAndInstall(platform, update);
+      }
+    }
     if (state.phase == UpdatePhase.installing) return _awaitInstallWord(state);
     if (state.phase != UpdatePhase.needsPermission) return;
     final platform = ref.read(updatePlatformProvider);
@@ -751,16 +869,27 @@ class UpdateNotifier extends Notifier<UpdateState> {
       final dir = Directory(
         '${(await ref.read(updateTempDirProvider)()).path}${Platform.pathSeparator}updates',
       );
+      // Named by version and hash, so a part kept from another build is never continued.
       final apk = File(
-        '${dir.path}${Platform.pathSeparator}epic_wallet-${update.apk.versionCode}.apk',
+        '${dir.path}${Platform.pathSeparator}'
+        'epic_wallet-${update.apk.versionCode}-${update.apk.sha256.substring(0, 12)}.apk',
       );
-      // The file from before the permission trip, checked against the signed manifest again,
-      // is installed as it is; anything else there goes.
+      await dir.create(recursive: true);
+      // Older downloads go; this one's file and its part stay.
+      await for (final entry in dir.list()) {
+        if (entry.path != apk.path && entry.path != '${apk.path}.part') {
+          await entry.delete(recursive: true);
+        }
+      }
+      // The verified file from an earlier try installs as it is, checked against the signed
+      // manifest again.
       if (await apkMatches(apk, update.apk)) {
-        logInfo('update', 'installing the download kept from before');
+        logInfo('update', 'installing the verified download kept from before');
       } else {
-        if (await dir.exists()) await dir.delete(recursive: true);
-        await dir.create(recursive: true);
+        if (await apk.exists()) {
+          logInfo('update', 'the kept download does not match the manifest; downloading it again');
+          await apk.delete();
+        }
         await downloadApk(
           client,
           update.apk,
@@ -779,6 +908,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
       if (!ref.mounted) return;
       state = UpdateState(UpdatePhase.installing, update: update);
       final status = await platform.install(apk);
+      logInfo('update', 'handed to Android\'s installer: $status');
       if (!ref.mounted) return;
       if (status == 'keyMismatch') {
         _needsReinstall(update);
@@ -787,6 +917,14 @@ class UpdateNotifier extends Notifier<UpdateState> {
         _waitForPermission(update);
       }
     } catch (error) {
+      if (_away && ref.mounted && _carriesOn(error)) {
+        // Android cuts a background app's network a few seconds after it leaves the screen
+        // (15+): what arrived is kept, and the download carries on at the return ([resumed]).
+        logInfo('update', 'the download stopped while the app was in the background; it carries on at the return');
+        _continueOnReturn = true;
+        state = UpdateState(UpdatePhase.available, update: update, text: _describe(error));
+        return;
+      }
       logWarn('update', 'install failed: $error');
       if (ref.mounted) {
         state = UpdateState(
@@ -813,6 +951,16 @@ class UpdateNotifier extends Notifier<UpdateState> {
       text: (l) => l.updateNeedsReinstall,
     );
   }
+
+  /// Whether [error] is the network going away, which a return to the app can carry on from.
+  static bool _carriesOn(Object error) =>
+      error is UpdateInterrupted ||
+      error is SocketException ||
+      (error is SocksError && error.message != SocksError.noBtLabsOnion) ||
+      error is NetError ||
+      error is TimeoutException ||
+      error is HttpException ||
+      (error is UpdateError && error.message == englishStrings.updateServerUnreachable);
 
   static String Function(AppLocalizations l) _describe(Object error) =>
       switch (error) {

@@ -83,6 +83,8 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     }
     switch (state) {
       case AppLifecycleState.hidden || AppLifecycleState.paused:
+        // A download Android's network cut stops meanwhile carries on at the return.
+        ref.read(updateProvider.notifier).paused();
         if (_leftAt == null &&
             ref.read(sessionProvider) != null &&
             ref.read(autoLockHoldProvider) == 0) {
