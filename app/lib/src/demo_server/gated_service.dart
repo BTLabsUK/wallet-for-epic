@@ -82,6 +82,16 @@ class GatedWalletService implements WalletService {
       _inner.inspectSlate(json: json);
 
   @override
+  Future<List<String>> encodeQrSlate({
+    required String json,
+    required int maxFragmentLen,
+  }) => _inner.encodeQrSlate(json: json, maxFragmentLen: maxFragmentLen);
+
+  @override
+  Future<QrSlateProgress> decodeQrSlate({required List<String> parts}) =>
+      _inner.decodeQrSlate(parts: parts);
+
+  @override
   bool validateEpicboxAddress({required String address}) =>
       _inner.validateEpicboxAddress(address: address);
 

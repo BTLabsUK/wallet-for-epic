@@ -87,6 +87,9 @@ const Set<String> localServiceMembers = {
   'validateMnemonic',
   'validateEpicboxAddress',
   'validateOnionAddress',
+  // The payment QR is for people next to each other; the protocol does not carry it.
+  'encodeQrSlate',
+  'decodeQrSlate',
   // Reads a file on the app's own computer; refused by the client.
   'importWalletSeed',
 };

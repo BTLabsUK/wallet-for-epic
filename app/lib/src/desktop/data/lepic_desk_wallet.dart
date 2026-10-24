@@ -110,7 +110,12 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.walletNotFound => l.deskErrWalletNotFound,
     core.WalletErrorKind.nodeUnreachable => l.deskErrNodeNotAnswering,
     core.WalletErrorKind.notEnoughFunds => l.deskErrNotEnoughFunds,
-    core.WalletErrorKind.invalidSlate => l.deskErrNotTxFile,
+    core.WalletErrorKind.invalidSlate ||
+    core.WalletErrorKind.notQrSlate ||
+    core.WalletErrorKind.foreignQrCode ||
+    core.WalletErrorKind.mixedQrCodes ||
+    core.WalletErrorKind.invalidQrCode ||
+    core.WalletErrorKind.qrCodeTooLarge => l.deskErrNotTxFile,
     core.WalletErrorKind.transportFailed => l.deskErrEpicboxUnreachable,
     core.WalletErrorKind.httpUrlInvalid => l.deskErrNotHttpAddress,
     core.WalletErrorKind.plainHttpNotAllowed => l.deskErrPlainHttp,

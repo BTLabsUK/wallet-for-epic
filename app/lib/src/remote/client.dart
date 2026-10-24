@@ -453,6 +453,24 @@ class RemoteWalletService implements WalletService {
   Future<SlateInfo> inspectSlate({required String json}) =>
       _call(ServiceMember.inspectSlate.name, {'json': json}, slateInfoWire);
 
+  /// The payment QR is for people next to each other, so the remote protocol does not offer
+  /// it.
+  @override
+  Future<List<String>> encodeQrSlate({
+    required String json,
+    required int maxFragmentLen,
+  }) async => throw const WalletError(
+    kind: WalletErrorKind.invalidArgument,
+    message: 'the payment QR is not offered remotely',
+  );
+
+  @override
+  Future<QrSlateProgress> decodeQrSlate({required List<String> parts}) async =>
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'the payment QR is not offered remotely',
+      );
+
   @override
   Future<bool> walletExists({required WalletConfig config}) => _call(
     ServiceMember.walletExists.name,
