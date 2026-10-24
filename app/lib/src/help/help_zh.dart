@@ -68,9 +68,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('文件完成的握手与 Epicbox 相同，只是消息由人工传递，例如通过电子邮件、聊天或 U 盘。它不依赖 Epicbox，也不需要双方钱包同时在线。'),
         if (phone)
-          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并分享文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 文件|Receive › File]]中打开该文件。其钱包签名后分享一个回复文件（文件名以 finalize_ 开头），并把该文件发回。', '**发送方：** 在[[接收 › 文件|Receive › File]]中打开回复文件。钱包完成交易并广播。'])
+          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并分享文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 文件|Receive › File]]中打开该文件。其钱包签名后分享一个回复文件（以 .response 结尾），并把该文件发回。', '**发送方：** 在[[接收 › 文件|Receive › File]]中打开回复文件。钱包完成交易并广播。'])
         else
-          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并保存文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 交易文件 › 签署交易文件|Receive › Transaction files › Sign a transaction file]]中打开该文件。其钱包签名后保存一个回复文件（文件名以 finalize_ 开头），并把该文件发回。', '**发送方：** 在[[接收 › 交易文件 › 完成回复文件|Receive › Transaction files › Finalize a response file]]中打开回复文件。钱包完成交易并广播。']),
+          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并保存文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 交易文件 › 签署交易文件|Receive › Transaction files › Sign a transaction file]]中打开该文件。其钱包签名后保存一个回复文件（以 .response 结尾），并把该文件发回。', '**发送方：** 在[[接收 › 交易文件 › 完成回复文件|Receive › Transaction files › Finalize a response file]]中打开回复文件。钱包完成交易并广播。']),
         const HelpBlock.p('其他 Epic Cash 钱包对这些步骤有各自的叫法。如果一直收不到回复文件，请在“活动”中取消发送以解锁输出。'),
       ],
       id: HelpId.file,
