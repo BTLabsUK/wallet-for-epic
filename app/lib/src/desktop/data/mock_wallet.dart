@@ -581,6 +581,9 @@ class MockDeskWallet implements DeskWalletApi {
   bool isEpicboxAddress(String to) => RegExp(r'^es[0-9A-Za-z]{38,58}(@[\w.-]+(:\d+)?)?$').hasMatch(to.trim());
 
   @override
+  bool epicboxAddressOtherChain(String to) => false;
+
+  @override
   Future<int> estimateFee(int amount) async {
     await _wait(0.4);
     return amount > _epic(500) ? _epic(0.012) : _epic(0.006);

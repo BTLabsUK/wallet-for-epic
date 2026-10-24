@@ -247,10 +247,14 @@ class ENotice extends StatelessWidget {
     this.icon,
     this.actions = const [],
     this.actionsBelow = false,
+    this.textColor,
   });
 
   final String title;
   final String? text;
+
+  /// The text's colour when it is not the usual one (a payment request's dropped parts).
+  final Color? textColor;
   final ETone tone;
   final IconData? icon;
   final List<Widget> actions;
@@ -295,7 +299,7 @@ class ENotice extends StatelessWidget {
                 Text(title, style: ts.strong),
                 if (text != null) ...[
                   const SizedBox(height: 2),
-                  Text(text!, style: ts.small),
+                  Text(text!, style: textColor == null ? ts.small : ts.small.copyWith(color: textColor)),
                 ],
                 if (actionsBelow && actions.isNotEmpty) ...[
                   SizedBox(height: Sp.x3),

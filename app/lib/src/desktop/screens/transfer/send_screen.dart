@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../amount.dart' as shared show formatEpic;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
 import '../../../known_relays.dart';
 import '../../../log.dart';
@@ -28,6 +29,8 @@ import 'file_panels.dart';
 import 'send_advanced.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
 import '../../../payment_prefs.dart' show PayMethod;
+import '../../../scan/scan_router.dart';
+import 'send_code.dart';
 import 'send_summary_rows.dart';
 
 /// Where the Send page is, so the tour reaches every state without taps.
@@ -52,6 +55,8 @@ class SendArgs {
     this.strategy,
     this.smart,
     this.advancedOpen = false,
+    this.code,
+    this.codeOrigin = CodeOrigin.link,
   });
 
   /// The method Send opens on; null is the one chosen in Settings › Transactions.
@@ -78,6 +83,11 @@ class SendArgs {
   final SelectionStrategy? strategy;
   final bool? smart;
   final bool advancedOpen;
+
+  /// A pasted or linked text Send opens with, read as [_SendScreenState.openPaymentText]
+  /// does: the way in for desktop links.
+  final String? code;
+  final CodeOrigin codeOrigin;
 }
 
 /// The summary of a send, shown in the review.
@@ -97,6 +107,7 @@ class _Draft {
     this.defaultStrategy = SelectionStrategy.smallest,
     this.extraFee = 0,
     this.unknownRelay,
+    this.code,
   });
 
   final TxMethod method;
@@ -122,6 +133,9 @@ class _Draft {
 
   /// What splitting the change adds to the fee.
   final int extraFee;
+
+  /// The code the form was filled from (a request, or a link's address); null when typed.
+  final SendCode? code;
 
   int get total => amount + fee;
 }
@@ -208,6 +222,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// The failed payment may exist (waiting in Activity): no Review again.
   bool _failureInActivity = false;
 
+  // The code the form was filled from, whether its banner shows, and the reason a pasted code
+  // stays in To instead (a bad or other-network address, a QR Payment part, a pairing link).
+  SendCode? _code;
+  bool _codeBanner = false;
+  String Function(AppLocalizations l)? _codeError;
+
   @override
   void initState() {
     super.initState();
@@ -230,6 +250,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (args.amount != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_loadFee());
+      });
+    }
+    if (args.code case final code?) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) openPaymentText(code, origin: args.codeOrigin);
       });
     }
     switch (args.step) {
@@ -453,7 +478,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (to) {
         _toEdited = true;
         _suggestOff = false;
+        _codeError = null;
         _autoSwitch(forced: pasted);
+        if (_leaveCode()) amount = true;
       }
       if (_result is SendDone) _result = null;
       _failure = null;
@@ -516,8 +543,140 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final d = await Clipboard.getData(Clipboard.kTextPlain);
     final t = d?.text?.trim();
     if (t == null || t.isEmpty || !mounted) return;
+    if (openPaymentText(t, origin: CodeOrigin.paste)) return;
     setState(() => _to.text = t);
     _changed(to: true, pasted: true);
+  }
+
+  /// To changed by typing or a paste into it: one change of 8 or more characters is a paste,
+  /// and a code in it goes through the router; typing never does (a half-typed `epic:…` would
+  /// fill the form under the cursor).
+  void _toChanged(String text) {
+    if (text.length - _lastTo.length >= 8 && openPaymentText(text, origin: CodeOrigin.paste)) return;
+    _changed(to: true);
+  }
+
+  /// A pasted or linked [text] through the scan router (epic-uri spec §3.2, ui.md §1). A payment
+  /// request fills To, Amount and Message; a link's address fills To. Pasted, a code Send cannot
+  /// take stays in To with the reason under it (a transaction file opens its dialog); from a
+  /// link every such code opens a dialog. Nothing is sent: Review send and the password stay the
+  /// only way. False when a pasted [text] is no code (an address, a name, half an address): the
+  /// caller lets To take it as typed. Desktop links come in here (or by [SendArgs.code]).
+  bool openPaymentText(String text, {required CodeOrigin origin}) {
+    final l = context.l10n;
+    final code = deskClassify(ref.read(deskApiProvider), text);
+    final pasted = origin != CodeOrigin.link;
+    // Pasted: To keeps the text, the reason under it, for reading and editing.
+    void fieldError(String Function(AppLocalizations l) error) => setState(() {
+      _to.text = text.trim();
+      _lastTo = _to.text;
+      _codeError = error;
+      _code = null;
+      _toEdited = false;
+      _suggestOff = true;
+    });
+    void dialog(IconData icon, String title, String body, String shown) =>
+        showCodeDialog(context, icon: icon, title: title, text: body, code: shown);
+    switch (code) {
+      case PaymentRequest():
+        _fillFrom(code, origin);
+      case ScannedAddress(:final recipient) when !pasted:
+        _fillAddress(recipient.address, origin);
+      case ScannedAddress():
+        return false;
+      case SlateText():
+        setState(() => _to.text = _lastTo);
+        showSlateTextDialog(context, onOpen: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx));
+      case SlateFrames() when pasted:
+        fieldError((l) => l.deskSendToQrPayment);
+      case PairingLink() when pasted:
+        fieldError((l) => l.scanPairingUnavailable);
+      case PairingLink(text: final link):
+        openPairingLink(link);
+      case WrongNetwork() when pasted:
+        fieldError((l) => l.scanWrongNetworkBody);
+      case WrongNetwork(:final recipient):
+        dialog(Icons.public_off, l.scanWrongNetworkTitle, l.scanWrongNetworkBody, recipient.address);
+      case UnknownCode(reason: UnknownReason.badAddress) when pasted:
+        fieldError((l) => l.scanBadAddress);
+      case UnknownCode(reason: UnknownReason.badAddress, text: final t):
+        dialog(EIcons.qr, l.scanNotEpicTitle, l.scanBadAddress, t);
+      case UnknownCode() when pasted:
+        return false;
+      // A link never carries a QR Payment part: one is no Epic code there.
+      case UnknownCode(text: final t) || SlateFrames(text: final t):
+        dialog(EIcons.qr, l.scanNotEpicTitle, l.scanNotEpicBody, t);
+    }
+    return true;
+  }
+
+  /// A pairing link: the desktop does not pair yet. The one place to swap for that flow.
+  void openPairingLink(String link) =>
+      showCodeDialog(context, icon: Icons.handshake_outlined, title: context.l10n.scanPairingTitle, text: context.l10n.scanPairingUnavailable, code: link);
+
+  /// To, Amount and Message from [r]; the method follows the address. A field the code leaves
+  /// out keeps what was typed, but a dropped amount empties Amount. The note goes into Message
+  /// only when a slate can carry it (ui.md U-5); it shows in full in the payee block anyway.
+  void _fillFrom(PaymentRequest r, CodeOrigin origin) {
+    final l = context.l10n;
+    final st = ref.read(deskProvider);
+    final directOn = (DeskFeatures.httpDirect || DeskFeatures.tor) && st.settings.payments.direct;
+    final to = r.recipientFor(directAllowed: directOn).address;
+    final atomic = r.amount;
+    final note = r.note;
+    final noteFits = note != null && utf8Length(note) <= slateMessageMaxBytes;
+    final code = SendCode.request(r, origin, address: to, noteFilled: noteFits);
+    _fill(to, code, () {
+      if (atomic != null) {
+        _amount.text = localDecimal(l, shared.formatEpic(atomic));
+      } else if (r.problems.contains(RequestProblem.amountInvalid) || r.problems.contains(RequestProblem.amountTooLarge)) {
+        _amount.clear();
+      }
+      if (noteFits) _message.text = note;
+    });
+  }
+
+  /// A link's bare address: To only, no banner; the review still says where it came from.
+  void _fillAddress(String to, CodeOrigin origin) => _fill(to, SendCode(origin: origin, address: to), () {});
+
+  void _fill(String to, SendCode code, VoidCallback fields) {
+    final m = methodForKind(parseAddress(to, ref.read(deskApiProvider)).kind);
+    setState(() {
+      _to.text = to;
+      _lastTo = to;
+      fields();
+      if (m != null && _offered(m)) {
+        if (_segmentOf(m) != _segmentOf(_method)) _showSwitched(m);
+        _method = m;
+      }
+      _code = code;
+      _codeBanner = code.banner;
+      _codeError = null;
+      _all = false;
+      _allError = null;
+      _submitted = false;
+      _toEdited = false;
+      _amountEdited = false;
+      _suggestOff = true;
+      if (_result is SendDone) _result = null;
+      _failure = null;
+    });
+    unawaited(_loadFee());
+  }
+
+  /// The code while To still holds its address.
+  SendCode? get _codeNow => _code != null && _to.text.trim() == _code!.address ? _code : null;
+
+  /// To moved off the code's address: the code goes, and with it the amount and the note it
+  /// put in that are still untouched (ui.md §2, lifetime). True when Amount was cleared.
+  bool _leaveCode() {
+    final code = _code;
+    if (code == null || _to.text.trim() == code.address) return false;
+    final amount = code.amount != null && _parsed == code.amount;
+    if (amount) _amount.clear();
+    if (code.noteFilled && _message.text == code.note) _message.clear();
+    _code = null;
+    return amount;
   }
 
   void _use(Contact c) {
@@ -636,6 +795,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final st = ref.read(deskProvider);
     final contacts = st.contacts;
     final n = _amountNano;
+    final code = _method == TxMethod.file ? null : _codeNow;
     // The relay in the address, when the app knows no such server: the public list, the
     // monitor's, and the one this wallet is on.
     final addressRelay = _method == TxMethod.epicbox ? recipientRelay(_to.text.trim()) : null;
@@ -668,6 +828,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         defaultStrategy: _prefs.strategy,
         extraFee: plan == null ? 0 : plan.estimate.fee - plan.base.fee,
         unknownRelay: unknownRelay,
+        code: code,
       );
     }
 
@@ -735,6 +896,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _message.clear();
             _fee = null;
             _submitted = false;
+            _code = null;
           }
       }
     });
@@ -743,6 +905,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   void _reset() => setState(() {
     _result = null;
     _failure = null;
+    _code = null;
     _to.clear();
     _amount.clear();
     _message.clear();
@@ -934,7 +1097,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final spendable = st.balance?.spendable;
     final contact = _contactOf(st.contacts);
     final file = _method == TxMethod.file;
-    final toErr = _submitted && !_toEdited ? _toError(st) : null;
+    final code = file ? null : _codeNow;
+    final toErr = _codeError?.call(l) ?? (_submitted && !_toEdited ? _toError(st) : null);
     final amErr = _allError ?? (_submitted && !_amountEdited ? _amountError(spendable) : null);
     final matches = file ? const <Contact>[] : _matches(st);
     // Epicbox and Direct wait for the network mode; File only in Offline.
@@ -994,7 +1158,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               hint: l.deskSendToHint,
               semanticLabel: l.deskSendToSem,
               leading: EIcons.user,
-              onChanged: (_) => _changed(to: true),
+              onChanged: _toChanged,
               // Enter picks the first matching contact, else goes on to Amount.
               onSubmitted: matches.isEmpty ? null : (_) => _use(matches.first),
               trailingTabStop: true,
@@ -1018,6 +1182,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             SizedBox(height: Sp.x2),
             _Suggestions(contacts: matches, onPick: _use),
           ],
+          // A payment request's banner (ui.md §2): it keeps the last code's words while it closes.
+          ExpandFade(
+            open: code != null && code.banner && _codeBanner,
+            child: _code == null
+                ? const SizedBox(width: double.infinity)
+                : Padding(
+                    padding: EdgeInsets.only(top: Sp.x3),
+                    child: CodeBanner(code: _code!, onDismiss: () => setState(() => _codeBanner = false)),
+                  ),
+          ),
           if (_torWay(st) == TorWay.needsTor) ...[
             SizedBox(height: Sp.x3),
             ENotice(
@@ -1045,11 +1219,22 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               },
             ),
           ],
+          // The payee's words; the name not when the contact has it already (ui.md U-4).
+          if (code != null && (code.note != null || EPayeeClaims.labelBeside(code.label, contact?.name) != null)) ...[
+            SizedBox(height: Sp.x2),
+            EPayeeClaims(label: EPayeeClaims.labelBeside(code.label, contact?.name), note: code.note),
+          ],
           SizedBox(height: Sp.x5),
         ],
         EField(
           label: l.deskSendAmount,
           error: amErr,
+          // What the code asked for: "requested by the code" while the field holds it.
+          help: switch (code?.amount) {
+            null => null,
+            final asked when asked == _parsed => l.sendAmountFromCode,
+            final asked => l.sendAmountCodeAsked('${formatEpicL(l, asked)} EPIC'),
+          },
           aside: spendable == null
               ? Text(l.deskSendAvailableNone, style: ts.small)
               : ELink(label: l.deskSendAvailable(st.settings.hideAmounts ? '••••••' : formatEpicL(l, spendable)), dim: st.status?.syncProgress != null, tabStop: false, onPressed: _allBusy ? null : _sendAll),
@@ -1083,7 +1268,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           optional: true,
           // Bytes, as LEPIC counts them: an emoji takes 4.
           aside: Text(l.deskSendMessageBytes(utf8Length(_message.text), slateMessageMaxBytes), style: ts.mono(size: Fs.xs, color: _messageTooLong ? c.risk : c.faint)),
-          help: l.deskSendMessageHelp,
+          help: code != null && code.noteFilled && _message.text == code.note ? l.sendNoteFromCodeHelper : l.deskSendMessageHelp,
           error: _messageTooLong ? l.deskSendMessageTooLong(slateMessageMaxBytes) : null,
           child: EInput(
             controller: _message,
@@ -1531,6 +1716,13 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     if (mounted) Navigator.of(context).pop(r);
   }
 
+  /// A Direct address's host and port (`1.2.3.4:3415`, `<56 characters>.onion`).
+  static String _directHost(String to) {
+    final uri = Uri.tryParse(to.contains('://') ? to : 'http://$to');
+    if (uri == null || uri.host.isEmpty) return to;
+    return uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
+  }
+
   // The same marking as EAddress: the key's first and last six characters, the server dim.
   Widget _address(BuildContext context, String to) {
     final c = context.dc;
@@ -1567,6 +1759,11 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       TxMethod.tor => l.deskSendViaTor,
       TxMethod.file => l.deskSendViaFile,
     };
+    final code = d.code;
+    // The payee's words under the facts; the name not when the contact has it (ui.md U-4).
+    final codeLabel = EPayeeClaims.labelBeside(code?.label, d.contactName);
+    // A Direct payment from a code: the host on its own line, where a look-alike shows (§7.3).
+    final directHost = code != null && d.to != null && (d.method == TxMethod.http || d.method == TxMethod.tor) ? _directHost(d.to!) : null;
     final sum = d.summary;
     final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
     return EDialog(
@@ -1577,6 +1774,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (code != null) ...[
+            Row(children: [ETag(codeOriginText(l, code.origin), key: const ValueKey('send-review-origin'), icon: codeOriginIcon(code.origin))]),
+            SizedBox(height: Sp.x3),
+          ],
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
@@ -1595,13 +1796,25 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (d.contactName != null) Text(d.contactName!, style: ts.strong),
+                    if (directHost != null) SelectableText(directHost, key: const ValueKey('send-review-host'), style: ts.mono(size: Fs.lg, color: c.text)),
                     _address(context, d.to!),
                     SizedBox(height: Sp.x1),
                     Text(l.deskSendCheckChars, style: ts.caption),
                   ],
                 ),
               ),
-            (l.deskSendFactVia, Text(via, style: ts.body)),
+            (
+              l.deskSendFactVia,
+              // Plain HTTP to another computer from a code: said where the method is.
+              code != null && d.method == TxMethod.http && d.to != null && plainHttpNeedsConsent(d.to!)
+                  ? Wrap(
+                      spacing: Sp.x2,
+                      runSpacing: Sp.x1,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [Text(via, style: ts.body), ETag(l.sendPlainHttpRow, key: const ValueKey('send-review-plain-http'), tone: ETone.warn)],
+                    )
+                  : Text(via, style: ts.body),
+            ),
             (
               l.deskSendNetworkFee,
               Column(
@@ -1617,6 +1830,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
             if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
           ], labelWidth: 100.u),
+          if (code != null && (code.note != null || codeLabel != null)) ...[
+            SizedBox(height: Sp.x4),
+            EPayeeClaims(label: codeLabel, note: code.note),
+          ],
           if (d.unknownRelay case final unknown? when !_busy) ...[
             SizedBox(height: Sp.x4),
             ENotice(

@@ -14930,4 +14930,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get linkFinishCurrentFirst =>
       'Schließen Sie zuerst die aktuelle Zahlung ab.';
+
+  @override
+  String get deskSendToQrPayment =>
+      'Ein QR-Zahlungscode. Scannen Sie ihn mit Epic Cash Mobile.';
 }

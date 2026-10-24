@@ -2045,6 +2045,9 @@ class LepicDeskWallet implements DeskWalletApi {
     return _service.validateEpicboxAddress(address: t.contains('@') ? t : '$t@epicbox.stackwallet.com');
   }
 
+  @override
+  bool epicboxAddressOtherChain(String to) => _service.epicboxAddressOtherChain(address: to.trim());
+
   // ---- Acting.
 
   @override

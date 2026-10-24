@@ -3923,5 +3923,6 @@
   "scanCodeTextLabel": "ข้อความที่สแกนได้",
   "scanCopied": "คัดลอกแล้ว",
   "linkWaitingNotice": "ได้รับลิงก์ชำระเงิน",
-  "linkFinishCurrentFirst": "ทำรายการปัจจุบันให้เสร็จก่อน"
+  "linkFinishCurrentFirst": "ทำรายการปัจจุบันให้เสร็จก่อน",
+  "deskSendToQrPayment": "โค้ดชำระด้วย QR ให้สแกนด้วย Epic Cash Mobile"
 }

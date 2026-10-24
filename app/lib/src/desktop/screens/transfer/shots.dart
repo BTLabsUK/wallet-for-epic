@@ -5,10 +5,14 @@ import 'contact_picker.dart';
 import 'finalize_screen.dart';
 import 'import_tx_screen.dart';
 import 'receive_screen.dart';
+import 'send_code.dart' show CodeOrigin;
 import 'send_screen.dart';
 
 const _onion = 'http://wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid.onion';
 const _anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
+// No saved contact has it.
+const _payee = 'esTk4wRm8Nq2Vx7Lc5Bh9Jd3Fg6Hs1Ka8Pz4Yu2Wn7Ec5Rt9Q@epicbox.epiccash.com';
+const _request = 'epic:$_payee?amount=12.5&message=Table%204%2C%20lunch%20for%20two&label=Corner%20Caf%C3%A9';
 
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
@@ -48,6 +52,31 @@ final List<DeskShot> transferShots = [
   const DeskShot(id: '16b-send-sending', title: 'Send, sending', route: DeskRoute.send, arg: SendArgs(step: SendStep.sending, recipient: _anna, amount: '12.5', message: 'Invoice 0042')),
   const DeskShot(id: '16c-send-done', title: 'Send, done', route: DeskRoute.send, arg: SendArgs(step: SendStep.done, recipient: _anna, amount: '12.5')),
   const DeskShot(id: '16d-send-file-ready', title: 'Send, file ready', route: DeskRoute.send, arg: SendArgs(step: SendStep.fileReady, amount: '12.5')),
+  // A pasted `epic:` payment request (epic-uri ui.md §2–§5).
+  const DeskShot(id: '13s-send-code', title: 'Send, pasted payment request', route: DeskRoute.send, arg: SendArgs(code: _request, codeOrigin: CodeOrigin.paste)),
+  const DeskShot(
+    id: '13t-send-code-problems',
+    title: 'Send, payment request with a dropped amount',
+    route: DeskRoute.send,
+    arg: SendArgs(code: 'epic:$_payee?amount=0&message=Table%204%2C%20lunch%20for%20two', codeOrigin: CodeOrigin.paste),
+  ),
+  // The review waits for the estimate: a moment of real time before the shot.
+  DeskShot(
+    id: '16e-send-review-code',
+    title: 'Send, review of a pasted request',
+    route: DeskRoute.send,
+    arg: const SendArgs(step: SendStep.review, code: _request, codeOrigin: CodeOrigin.paste),
+    height: 1000,
+    prepare: (_, _) => Future<void>.delayed(const Duration(milliseconds: 800)),
+  ),
+  DeskShot(
+    id: '16f-send-review-code-direct',
+    title: 'Send, review of a Link Payment request from a link',
+    route: DeskRoute.send,
+    arg: const SendArgs(step: SendStep.review, code: 'epic:https://pay.example.org:3415?amount=5&label=Corner%20Caf%C3%A9'),
+    height: 1000,
+    prepare: (_, _) => Future<void>.delayed(const Duration(milliseconds: 800)),
+  ),
   const DeskShot(id: '16e-send-failed', title: 'Send, failed', route: DeskRoute.send, arg: SendArgs(step: SendStep.failed, recipient: 'esNffxine9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9r@epicbox.offline.example', amount: '3')),
   const DeskShot(id: '17-receive', title: 'Receive', route: DeskRoute.receive, arg: ReceiveArgs()),
   const DeskShot(id: '17b-receive-all-off', title: 'Receive, all off', route: DeskRoute.receive, arg: ReceiveArgs(epicbox: RxEpicbox.off)),

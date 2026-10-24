@@ -3923,5 +3923,6 @@
   "scanCodeTextLabel": "Отсканированный текст",
   "scanCopied": "Скопировано",
   "linkWaitingNotice": "Получена ссылка на оплату",
-  "linkFinishCurrentFirst": "Сначала завершите текущий платёж."
+  "linkFinishCurrentFirst": "Сначала завершите текущий платёж.",
+  "deskSendToQrPayment": "Код «Оплата по QR». Отсканируйте его в Epic Cash Mobile."
 }
