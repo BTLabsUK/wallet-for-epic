@@ -13544,11 +13544,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetAboutUpdates => 'Обновления';
 
   @override
-  String deskSetAboutGet(String version) {
-    return 'Скачать $version';
-  }
-
-  @override
   String get deskSetAboutCheckNow => 'Проверить сейчас';
 
   @override

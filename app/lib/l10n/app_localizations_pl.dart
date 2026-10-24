@@ -13579,11 +13579,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetAboutUpdates => 'Aktualizacje';
 
   @override
-  String deskSetAboutGet(String version) {
-    return 'Pobierz $version';
-  }
-
-  @override
   String get deskSetAboutCheckNow => 'Sprawdź teraz';
 
   @override

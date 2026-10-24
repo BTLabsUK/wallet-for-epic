@@ -20870,12 +20870,6 @@ abstract class AppLocalizations {
   /// **'Updates'**
   String get deskSetAboutUpdates;
 
-  /// Button: open the download page of the newer version.
-  ///
-  /// In en, this message translates to:
-  /// **'Get {version}'**
-  String deskSetAboutGet(String version);
-
   /// Button: check for updates now.
   ///
   /// In en, this message translates to:

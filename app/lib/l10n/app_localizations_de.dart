@@ -13324,11 +13324,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetAboutUpdates => 'Updates';
 
   @override
-  String deskSetAboutGet(String version) {
-    return '$version holen';
-  }
-
-  @override
   String get deskSetAboutCheckNow => 'Jetzt prüfen';
 
   @override
