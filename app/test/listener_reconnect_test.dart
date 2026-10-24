@@ -152,23 +152,33 @@ void main() {
       });
     });
 
-    test('a first connection that never comes, or a stream that ended, is retried with a '
+    test('a first connection that fails, or a stream that ended, is retried with a '
         'growing wait', () {
       fakeAsync((async) {
         final h = _Harness();
         h.open(async);
+        // Still making its first connection: LEPIC's to finish.
+        async.elapse(listenerHealAfter * 2);
+        expect(h.session.listenerStops, 0, reason: 'no word yet');
+        // The first attempt failed.
+        h.event(async, ListenerEventKind.disconnected);
         async.elapse(listenerHealAfter + const Duration(seconds: 1));
         expect(h.session.listenerStops, 1, reason: 'never connected');
         // The old listener never says stopped: the new one starts after the stop wait.
         async.elapse(listenerStopWait);
         expect(h.session.listenerStarts, 2);
-        // The next try waits twice as long.
+        // The new listener fails too: the next try waits twice as long.
+        h.event(async, ListenerEventKind.disconnected);
         async.elapse(listenerHealAfter);
         expect(h.session.listenerStops, 1);
         async.elapse(listenerHealAfter);
         expect(h.session.listenerStops, 2);
         // Never under the floor, never over the cap: at most one restart per listenerHealMax.
-        async.elapse(const Duration(hours: 1));
+        for (var minute = 0; minute < 60; minute++) {
+          async.elapse(listenerStopWait);
+          h.event(async, ListenerEventKind.disconnected);
+          async.elapse(const Duration(minutes: 1) - listenerStopWait);
+        }
         final stops = h.session.listenerStops;
         expect(stops, lessThanOrEqualTo(2 + 60 ~/ listenerHealMax.inMinutes + 1));
         expect(stops, greaterThan(2));
