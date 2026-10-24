@@ -205,7 +205,7 @@ void main() {
     await _pump(tester, _store(), section: SettingsSection.advanced);
     expect(find.byKey(const ValueKey('adv-sendOptions')), findsOneWidget);
     expect(find.byKey(const ValueKey('adv-directReceiving')), findsNothing);
-    expect(find.text(_l.advDirect), findsNothing);
+    expect(find.text('Direct receiving'), findsNothing);
   });
 
   testWidgets('the old Direct receiving switch is taken over as Direct on', (tester) async {
