@@ -390,8 +390,8 @@ void main() {
         'block_height,label,method,user_fields',
       );
       final byKey = {for (final l in lines.skip(1)) l.split(',')[7]: l};
-      expect(byKey['a'], endsWith(",'=Rent,epicbox,label"));
-      expect(byKey[''], endsWith(',,tor,method;note'));
+      expect(byKey['a'], endsWith(",'=Rent,Epicbox,label"));
+      expect(byKey[''], endsWith(',,Direct · Tor,method;note'));
     });
 
     test('a .wfeh carries labels of every row and the archive keeps none in records', () async {

@@ -100,10 +100,7 @@ class _TxDetailsDialogState extends ConsumerState<TxDetailsDialog> {
                 child: ESegmented<String>(
                   segments: [
                     ESegment('', l.deskKitUnknown),
-                    ESegment('epicbox', methodLabel(l, TxMethod.epicbox)),
-                    ESegment('http', l.deskSendMethodDirect),
-                    ESegment('file', l.deskTxMethodFile),
-                    ESegment('tor', methodLabel(l, TxMethod.tor)),
+                    for (final m in TxMethod.values) ESegment(m.name, methodLabel(l, m)),
                   ],
                   value: _via,
                   onChanged: _busy ? (_) {} : (v) => setState(() => _via = v),

@@ -30,6 +30,7 @@ import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'help_screen.dart';
+import 'method_names.dart';
 import 'method_strip.dart';
 import 'pin.dart' show askPin;
 import 'scan_screen.dart';
@@ -2126,13 +2127,11 @@ class _SendViewState extends ConsumerState<SendView> {
         label: l.sendMethodLabel,
         value: switch (to.kind) {
           RecipientKind.epicbox when way == TorWay.overTor =>
-            '${l.methodEpicbox} · ${l.sendOverTor}',
-          RecipientKind.epicbox => l.methodEpicbox,
+            '${recipientMethodWord(l, to.kind)} · ${l.sendOverTor}',
           RecipientKind.http
               when way == TorWay.clearnet && torState != TorState.off =>
-            '${l.methodDirect} · ${l.torNotOverTor}',
-          RecipientKind.http => l.methodDirect,
-          RecipientKind.tor => '${l.methodDirect} · ${l.sendOverTor}',
+            '${recipientMethodWord(l, to.kind)} · ${l.torNotOverTor}',
+          _ => recipientMethodWord(l, to.kind),
         },
         mono: false,
       ),

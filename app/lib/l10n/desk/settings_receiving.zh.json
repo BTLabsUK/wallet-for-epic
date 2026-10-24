@@ -21,7 +21,7 @@
   "deskSetRecvNotInList": "不在公共列表中",
   "deskSetRecvTypedNote": "按 Enter 使用它。钱包连接后会显示它的状态。",
   "deskSetRecvListNote": "状态来自 status.btlabs.uk，每隔几分钟检查一次。",
-  "deskSetRecvHttpTitle": "HTTP 接收",
+  "deskSetRecvHttpTitle": "直连 · HTTP 接收",
   "deskSetRecvHttpText": "本钱包打开时，直接从另一个钱包接收。",
   "deskSetRecvHttpOffTitle": "Tor 开启时关闭",
   "deskSetRecvHttpOffText": "直连付款会改为发送到本钱包的 Tor 地址。",

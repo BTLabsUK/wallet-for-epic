@@ -61,7 +61,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem einen antwortenden Epicbox-Server; eine direkte Adresse (http oder .onion) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.')
         else
-          const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem eingeschalteten Empfang über Epicbox; HTTP- und Tor-Adressen brauchen die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.'),
+          const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem eingeschalteten Empfang über Epicbox; eine Direkt-Adresse (http oder .onion) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.'),
       ],
       id: HelpId.send,
     ),
@@ -100,7 +100,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Epic Cash nutzt Mimblewimble. Statt eine Adresse und einen Betrag in die Blockchain zu schreiben, bauen die beiden Wallets jede Transaktion gemeinsam, wie bei einem Handschlag:'),
         HelpBlock.ol(['Die Wallet des Absenders beginnt und sperrt die Outputs, die gesendet werden.', 'Die Wallet des Empfängers fügt ihren Teil hinzu und signiert.', 'Die Wallet des Absenders signiert ebenfalls, schließt die Transaktion ab und sendet sie ins Netzwerk.']),
-        HelpBlock.p('Etwas muss also die Nachrichten zwischen den beiden Wallets übermitteln. Das übernimmt **Epicbox**: Es hält die Nachricht bereit, solange die andere Wallet offline ist, sodass nicht beide gleichzeitig online sein müssen. **HTTP** und **Tor** gehen direkt zur anderen Wallet, solange sie geöffnet ist. Eine **Transaktionsdatei** ist der manuelle Weg.'),
+        HelpBlock.p('Etwas muss also die Nachrichten zwischen den beiden Wallets übermitteln. Das übernimmt **Epicbox**: Es hält die Nachricht bereit, solange die andere Wallet offline ist, sodass nicht beide gleichzeitig online sein müssen. **Direkt · HTTP** und **Direkt · Tor** gehen direkt zur anderen Wallet, solange sie geöffnet ist. Eine **Transaktionsdatei** ist der manuelle Weg.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -264,7 +264,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
             'Schalten Sie es unter [[Einstellungen › Datenschutz|Settings › Privacy]] ein. Die Tor-Zeile in der Seitenleiste zeigt den Zustand.',
             'Solange Tor startet oder nicht verbunden ist, wartet, was über Tor läuft; nichts geht daran vorbei. Wiederholen oder Tor ausschalten.',
             'Direkte Zahlungen an eine http(s)-Adresse laufen nicht über Tor; Senden weist darauf hin.',
-            'HTTP-Empfang ist aus, solange Tor an ist: Zahlungen direkt von einer anderen Wallet kommen an der Tor-Adresse an.',
+            'Direkt · HTTP-Empfang ist aus, solange Tor an ist: Zahlungen direkt von einer anderen Wallet kommen an der Direkt · Tor-Adresse an.',
             'In manchen Ländern ist Tor blockiert oder nicht erlaubt; dort verbindet es sich nicht.',
           ]),
           HelpBlock.p('Manche Wallets zeigen die Adresse ohne .onion; beides ist dieselbe Adresse.'),
@@ -292,7 +292,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**Tor zeigt „Nicht verbunden“.** Tor konnte sein Netzwerk nicht erreichen. Drücken Sie unter Einstellungen › Datenschutz auf „Wiederholen“ oder schalten Sie Tor aus; in der Zwischenzeit geht nichts hinaus.'),
         if (!phone) ...const [
-          HelpBlock.p('**„Port 3415 wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. Epicbox, Tor und Dateien funktionieren in der Zwischenzeit weiter.'),
+          HelpBlock.p('**„Port 3415 wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für Direkt · HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. Epicbox, Direkt · Tor und Dateien funktionieren in der Zwischenzeit weiter.'),
           HelpBlock.p('**„Ein anderes Epic-Programm nutzt diesen Ordner“.** Eine andere Epic-Wallet oder ein Node hat dieselben Dateien geöffnet. Schließen Sie sie und versuchen Sie es erneut.'),
         ],
         if (phone)

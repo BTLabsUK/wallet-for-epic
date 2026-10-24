@@ -4879,10 +4879,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodHttp => 'HTTP';
+  String get methodDirectHttp => 'Напрямую · HTTP';
 
   @override
-  String get methodTor => 'Tor';
+  String get methodDirectTor => 'Напрямую · Tor';
 
   @override
   String get methodFile => 'Файл';
@@ -7235,7 +7235,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Читая его вслух, сверьте первые шесть и последние шесть символов.';
 
   @override
-  String get deskRecvHttpAddress => 'Адрес HTTP';
+  String get deskRecvHttpAddress => 'Напрямую · адрес HTTP';
 
   @override
   String get deskRecvCopyHttp => 'Копировать адрес HTTP';
@@ -7258,14 +7258,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».';
 
   @override
-  String get deskRecvDirectTor => 'Напрямую, адрес Tor';
+  String get deskRecvDirectTor => 'Напрямую · адрес Tor';
 
   @override
   String get deskRecvTorIntro =>
       'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».';
 
   @override
-  String get deskRecvTorAddress => 'Адрес Tor';
+  String get deskRecvTorAddress => 'Напрямую · адрес Tor';
 
   @override
   String get deskRecvCopyTor => 'Копировать адрес Tor';
@@ -7881,11 +7881,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Напрямую (кошелёк получателя должен быть открыт)';
+      'Напрямую · HTTP (кошелёк получателя должен быть открыт)';
 
   @override
   String get deskSendViaTor =>
-      'Напрямую, через Tor (кошелёк получателя должен быть открыт)';
+      'Напрямую · Tor (кошелёк получателя должен быть открыт)';
 
   @override
   String get deskSendViaFile => 'Файл транзакции';
@@ -8381,10 +8381,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskConAddrEpicbox => 'Адрес Epicbox';
 
   @override
-  String get deskConAddrTor => 'Адрес Tor';
+  String get deskConAddrTor => 'Напрямую · адрес Tor';
 
   @override
-  String get deskConAddrHttp => 'Адрес HTTP';
+  String get deskConAddrHttp => 'Напрямую · адрес HTTP';
 
   @override
   String get deskConNote => 'Заметка';
@@ -10491,7 +10491,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Открыть приём по HTTP';
+  String get deskRailOpenHttp => 'Открыть приём: Напрямую · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'Нет в этой сборке';
@@ -10635,7 +10635,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTourReceiveText =>
-      'Адрес Epicbox этого кошелька, рядом HTTP и Tor. Внизу — файлы транзакций, которые нужно подписать или завершить.';
+      'Адрес Epicbox этого кошелька, рядом Напрямую · HTTP и Напрямую · Tor. Внизу — файлы транзакций, которые нужно подписать или завершить.';
 
   @override
   String get deskTourInvoicesTitle => 'Счета';
@@ -10656,7 +10656,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'Сохранённые адреса с именами: Epicbox, HTTP или Tor. Отсюда их берёт страница «Отправить».';
+      'Сохранённые адреса с именами: Epicbox, Напрямую · HTTP или Напрямую · Tor. Отсюда их берёт страница «Отправить».';
 
   @override
   String get deskTourNodeTitle => 'Настройки › Узел';
@@ -10777,11 +10777,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+      'Напрямую · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
+      'Напрямую · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -13038,7 +13038,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Приём по HTTP';
+  String get deskSetRecvHttpTitle => 'Напрямую · HTTP, приём';
 
   @override
   String get deskSetRecvHttpText =>

@@ -11,6 +11,7 @@ import '../l10n.dart';
 import '../providers.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'method_names.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
@@ -31,12 +32,10 @@ String contactInitials(String name) {
   return words.first.characters.take(2).toString().toUpperCase();
 }
 
-/// How the app reaches [address]: `Epicbox`, or `Direct` for an http(s) or onion address.
-/// Method names, not translated.
-String contactTag(String address) => switch (parseRecipient(address).kind) {
-  RecipientKind.epicbox => 'Epicbox',
-  RecipientKind.tor || RecipientKind.http => 'Direct',
-};
+/// How the app reaches [address]: `Epicbox`, `Direct · HTTP` for an http(s) address, `Direct ·
+/// Tor` for an onion address.
+String contactTag(AppLocalizations l, String address) =>
+    recipientMethodWord(l, parseRecipient(address).kind);
 
 /// [contactInitials] in a [GlyphTile] of [size], in the display face.
 class ContactTile extends StatelessWidget {
@@ -81,7 +80,7 @@ class ContactTag extends StatelessWidget {
         borderRadius: BorderRadius.circular(t.radiusSmall),
       ),
       child: Text(
-        contactTag(address),
+        contactTag(context.l10n, address),
         style: TextStyle(
           fontFamily: t.monoFamily,
           fontSize: 11,

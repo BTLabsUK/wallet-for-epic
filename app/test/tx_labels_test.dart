@@ -388,7 +388,7 @@ void main() {
       expect(find.text('Cancel'), findsOneWidget);
       // The date is a line, not a field.
       expect(find.text('Date'), findsWidgets);
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Tor'));
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Direct · Tor'));
       await tester.pump();
       await tester.enterText(find.widgetWithText(TextField, 'Note'), 'Pool');
       await tester.tap(find.text('Save'));
@@ -402,6 +402,7 @@ void main() {
       expect(find.text('Edit details'), findsOneWidget);
       // The method row and the tag follow.
       expect(find.text('Method'), findsOneWidget);
+      expect(find.text('Direct · Tor'), findsOneWidget);
       expect(find.text('Added by you'), findsWidgets);
     });
 
@@ -475,8 +476,8 @@ void main() {
       expect(find.text('Details differ'), findsOneWidget);
       expect(find.text('Mine note'), findsOneWidget);
       expect(find.text('Backup note'), findsOneWidget);
-      // Tor is shown in its words; an empty value says so.
-      expect(find.text('Tor'), findsOneWidget);
+      // Direct · Tor is shown in its words; an empty value says so.
+      expect(find.text('Direct · Tor'), findsOneWidget);
       expect(find.text('empty'), findsOneWidget);
       final mine = tester.getSemantics(
         find.bySemanticsLabel('Mine: Mine note'),

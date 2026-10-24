@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/method_names.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../wallet/tx_display.dart';
@@ -45,13 +46,7 @@ class _HistoryConflictsDialogState extends State<HistoryConflictsDialog> {
   String? _valueText(AppLocalizations l, ManualField f, String? v) {
     if (v == null || v.trim().isEmpty) return null;
     if (f != ManualField.transport) return v;
-    return switch (v) {
-      'epicbox' => methodLabel(l, TxMethod.epicbox),
-      'http' => l.deskSendMethodDirect,
-      'tor' => methodLabel(l, TxMethod.tor),
-      'file' => l.deskTxMethodFile,
-      _ => v,
-    };
+    return methodLabelOfTransport(l, v);
   }
 
   Widget _card(BuildContext context, ImportConflict c, {required bool backup}) {

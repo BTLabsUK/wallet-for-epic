@@ -1224,7 +1224,7 @@ void main() {
 
     testWidgets('receiving has HTTP receiving; the Tor switch is in Privacy as DeskFeatures.tor says', (tester) async {
       await pump(tester, DeskRoute.settingsReceiving);
-      expect(find.text('HTTP receiving'), findsOneWidget);
+      expect(find.text('Direct · HTTP receiving'), findsOneWidget);
       expect(find.text('Tor receiving'), findsNothing);
       await done(tester);
       await pump(tester, DeskRoute.settingsPrivacy);
@@ -1242,8 +1242,8 @@ void main() {
 
     testWidgets('receive has the HTTP address with Tor off (Direct over Tor shows only with it on)', (tester) async {
       await pump(tester, DeskRoute.receive);
-      expect(find.text('HTTP address'), findsOneWidget);
-      expect(find.text('Direct, Tor address'), findsNothing);
+      expect(find.text('Direct · HTTP address'), findsOneWidget);
+      expect(find.text('Direct · Tor address'), findsNothing);
       await done(tester);
     });
 

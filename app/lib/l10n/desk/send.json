@@ -676,11 +676,11 @@
   "@deskSendViaEpicbox": {
     "description": "Value of the Via fact in the review dialog for an Epicbox send."
   },
-  "deskSendViaDirect": "Direct (their wallet must be open)",
+  "deskSendViaDirect": "Direct · HTTP (their wallet must be open)",
   "@deskSendViaDirect": {
     "description": "Value of the Via fact in the review dialog for a Direct send over http(s)."
   },
-  "deskSendViaTor": "Direct, over Tor (their wallet must be open)",
+  "deskSendViaTor": "Direct · Tor (their wallet must be open)",
   "@deskSendViaTor": {
     "description": "Value of the Via fact in the review dialog for a Direct send to an onion address."
   },

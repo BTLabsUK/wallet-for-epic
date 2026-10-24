@@ -7263,17 +7263,17 @@ abstract class AppLocalizations {
   /// **'Epicbox'**
   String get methodEpicbox;
 
-  /// Method name: straight to the other wallet over HTTP.
+  /// Method name: Direct, with HTTP as its transport. The Direct word, then a middle dot, then HTTP. Shown wherever a payment's method is named.
   ///
   /// In en, this message translates to:
-  /// **'HTTP'**
-  String get methodHttp;
+  /// **'Direct · HTTP'**
+  String get methodDirectHttp;
 
-  /// Method name: straight to the other wallet over Tor.
+  /// Method name: Direct, with Tor as its transport. The Direct word, then a middle dot, then Tor. Shown wherever a payment's method is named.
   ///
   /// In en, this message translates to:
-  /// **'Tor'**
-  String get methodTor;
+  /// **'Direct · Tor'**
+  String get methodDirectTor;
 
   /// Method name: a transaction file handed over by hand.
   ///
@@ -11040,7 +11040,7 @@ abstract class AppLocalizations {
   /// Title of the HTTP panel on Receive and of its QR code.
   ///
   /// In en, this message translates to:
-  /// **'HTTP address'**
+  /// **'Direct · HTTP address'**
   String get deskRecvHttpAddress;
 
   /// Label of the copy button next to the HTTP address.
@@ -11076,7 +11076,7 @@ abstract class AppLocalizations {
   /// Title of the Tor panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Direct, Tor address'**
+  /// **'Direct · Tor address'**
   String get deskRecvDirectTor;
 
   /// Intro text of the Tor panel on Receive.
@@ -11088,7 +11088,7 @@ abstract class AppLocalizations {
   /// Title of the QR code of the Tor address on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Tor address'**
+  /// **'Direct · Tor address'**
   String get deskRecvTorAddress;
 
   /// Label of the copy button next to the Tor address.
@@ -11964,13 +11964,13 @@ abstract class AppLocalizations {
   /// Value of the Via fact in the review dialog for a Direct send over http(s).
   ///
   /// In en, this message translates to:
-  /// **'Direct (their wallet must be open)'**
+  /// **'Direct · HTTP (their wallet must be open)'**
   String get deskSendViaDirect;
 
   /// Value of the Via fact in the review dialog for a Direct send to an onion address.
   ///
   /// In en, this message translates to:
-  /// **'Direct, over Tor (their wallet must be open)'**
+  /// **'Direct · Tor (their wallet must be open)'**
   String get deskSendViaTor;
 
   /// Value of the Via fact in the review dialog for a file send.
@@ -12798,13 +12798,13 @@ abstract class AppLocalizations {
   /// Label above the address in a contact's detail, for a Tor address.
   ///
   /// In en, this message translates to:
-  /// **'Tor address'**
+  /// **'Direct · Tor address'**
   String get deskConAddrTor;
 
   /// Label above the address in a contact's detail, for an HTTP address.
   ///
   /// In en, this message translates to:
-  /// **'HTTP address'**
+  /// **'Direct · HTTP address'**
   String get deskConAddrHttp;
 
   /// Label above the note in a contact's detail; also the label of the note field in the form.
@@ -16020,7 +16020,7 @@ abstract class AppLocalizations {
   /// Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings.
   ///
   /// In en, this message translates to:
-  /// **'Open HTTP receiving'**
+  /// **'Open Direct · HTTP receiving'**
   String get deskRailOpenHttp;
 
   /// Status word on the sidebar's Tor row when this build of the app does not include Tor.
@@ -16272,7 +16272,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.'**
+  /// **'This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.'**
   String get deskTourReceiveText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16308,7 +16308,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.'**
+  /// **'Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.'**
   String get deskTourContactsText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16494,13 +16494,13 @@ abstract class AppLocalizations {
   /// Screen-reader description of the HTTP picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
+  /// **'Direct · HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get deskKitHeroLabelHttp;
 
   /// Screen-reader description of the Tor picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
+  /// **'Direct · Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
   String get deskKitHeroLabelTor;
 
   /// Screen-reader description of the transaction-file picture on the Send page.
@@ -19967,7 +19967,7 @@ abstract class AppLocalizations {
   /// Settings > Receiving: heading of the HTTP group.
   ///
   /// In en, this message translates to:
-  /// **'HTTP receiving'**
+  /// **'Direct · HTTP receiving'**
   String get deskSetRecvHttpTitle;
 
   /// Settings > Receiving: text of the HTTP receiving row.

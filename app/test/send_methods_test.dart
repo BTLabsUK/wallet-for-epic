@@ -598,7 +598,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.toReview(tester, _https);
-      expect(_reviewMethod('Direct'), findsOneWidget);
+      expect(_reviewMethod('Direct · HTTP'), findsOneWidget);
       expect(
         find.text('Cannot be cancelled once their wallet accepts it.'),
         findsOneWidget,
@@ -693,7 +693,7 @@ void main() {
       await h.pump(tester);
       await h.torOn(tester);
       await h.toReview(tester, _onion);
-      expect(_reviewMethod('Direct · Over Tor'), findsOneWidget);
+      expect(_reviewMethod('Direct · Tor'), findsOneWidget);
       expect(
         find.text('Cannot be cancelled once their wallet accepts it.'),
         findsOneWidget,
@@ -786,7 +786,7 @@ void main() {
       // The review says it too.
       await _enter(tester, 'To', _https);
       await h.toReview(tester, _https);
-      expect(_reviewMethod('Direct · Not over Tor'), findsOneWidget);
+      expect(_reviewMethod('Direct · HTTP · Not over Tor'), findsOneWidget);
     });
 
     testWidgets('Tor on: an Epicbox review says Over Tor', (tester) async {

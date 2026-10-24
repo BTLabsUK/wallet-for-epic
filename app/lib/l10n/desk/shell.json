@@ -85,7 +85,7 @@
       }
     }
   },
-  "deskRailOpenHttp": "Open HTTP receiving",
+  "deskRailOpenHttp": "Open Direct · HTTP receiving",
   "@deskRailOpenHttp": {
     "description": "Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings."
   },
@@ -278,7 +278,7 @@
   "@deskTourReceiveTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourReceiveText": "This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.",
+  "deskTourReceiveText": "This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.",
   "@deskTourReceiveText": {
     "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
   },
@@ -302,7 +302,7 @@
   "@deskTourContactsTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourContactsText": "Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.",
+  "deskTourContactsText": "Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.",
   "@deskTourContactsText": {
     "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
   },

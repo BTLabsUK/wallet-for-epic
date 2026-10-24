@@ -5927,13 +5927,13 @@
   "@methodEpicbox": {
     "description": "Method name on Send and Receive segments."
   },
-  "methodHttp": "HTTP",
-  "@methodHttp": {
-    "description": "Method name: straight to the other wallet over HTTP."
+  "methodDirectHttp": "Direct · HTTP",
+  "@methodDirectHttp": {
+    "description": "Method name: Direct, with HTTP as its transport. The Direct word, then a middle dot, then HTTP. Shown wherever a payment's method is named."
   },
-  "methodTor": "Tor",
-  "@methodTor": {
-    "description": "Method name: straight to the other wallet over Tor."
+  "methodDirectTor": "Direct · Tor",
+  "@methodDirectTor": {
+    "description": "Method name: Direct, with Tor as its transport. The Direct word, then a middle dot, then Tor. Shown wherever a payment's method is named."
   },
   "methodFile": "File",
   "@methodFile": {
@@ -9057,7 +9057,7 @@
   "@deskRecvCheckSix": {
     "description": "Caption under the Epicbox address on Receive."
   },
-  "deskRecvHttpAddress": "HTTP address",
+  "deskRecvHttpAddress": "Direct · HTTP address",
   "@deskRecvHttpAddress": {
     "description": "Title of the HTTP panel on Receive and of its QR code."
   },
@@ -9086,7 +9086,7 @@
   "@deskRecvHttpTorHint": {
     "description": "Caption at the bottom of the HTTP panel on Receive."
   },
-  "deskRecvDirectTor": "Direct, Tor address",
+  "deskRecvDirectTor": "Direct · Tor address",
   "@deskRecvDirectTor": {
     "description": "Title of the Tor panel on Receive."
   },
@@ -9094,7 +9094,7 @@
   "@deskRecvTorIntro": {
     "description": "Intro text of the Tor panel on Receive."
   },
-  "deskRecvTorAddress": "Tor address",
+  "deskRecvTorAddress": "Direct · Tor address",
   "@deskRecvTorAddress": {
     "description": "Title of the QR code of the Tor address on Receive."
   },
@@ -9817,11 +9817,11 @@
   "@deskSendViaEpicbox": {
     "description": "Value of the Via fact in the review dialog for an Epicbox send."
   },
-  "deskSendViaDirect": "Direct (their wallet must be open)",
+  "deskSendViaDirect": "Direct · HTTP (their wallet must be open)",
   "@deskSendViaDirect": {
     "description": "Value of the Via fact in the review dialog for a Direct send over http(s)."
   },
-  "deskSendViaTor": "Direct, over Tor (their wallet must be open)",
+  "deskSendViaTor": "Direct · Tor (their wallet must be open)",
   "@deskSendViaTor": {
     "description": "Value of the Via fact in the review dialog for a Direct send to an onion address."
   },
@@ -10441,11 +10441,11 @@
   "@deskConAddrEpicbox": {
     "description": "Label above the address in a contact's detail, for an Epicbox address."
   },
-  "deskConAddrTor": "Tor address",
+  "deskConAddrTor": "Direct · Tor address",
   "@deskConAddrTor": {
     "description": "Label above the address in a contact's detail, for a Tor address."
   },
-  "deskConAddrHttp": "HTTP address",
+  "deskConAddrHttp": "Direct · HTTP address",
   "@deskConAddrHttp": {
     "description": "Label above the address in a contact's detail, for an HTTP address."
   },
@@ -13202,7 +13202,7 @@
       }
     }
   },
-  "deskRailOpenHttp": "Open HTTP receiving",
+  "deskRailOpenHttp": "Open Direct · HTTP receiving",
   "@deskRailOpenHttp": {
     "description": "Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings."
   },
@@ -13395,7 +13395,7 @@
   "@deskTourReceiveTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourReceiveText": "This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.",
+  "deskTourReceiveText": "This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.",
   "@deskTourReceiveText": {
     "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
   },
@@ -13419,7 +13419,7 @@
   "@deskTourContactsTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourContactsText": "Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.",
+  "deskTourContactsText": "Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.",
   "@deskTourContactsText": {
     "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
   },
@@ -13575,11 +13575,11 @@
   "@deskKitHeroLabelEpicbox": {
     "description": "Screen-reader description of the Epicbox picture on the Send page."
   },
-  "deskKitHeroLabelHttp": "HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "deskKitHeroLabelHttp": "Direct · HTTP: the payment goes straight to the recipient's wallet, which must be open",
   "@deskKitHeroLabelHttp": {
     "description": "Screen-reader description of the HTTP picture on the Send page."
   },
-  "deskKitHeroLabelTor": "Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "deskKitHeroLabelTor": "Direct · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
   "@deskKitHeroLabelTor": {
     "description": "Screen-reader description of the Tor picture on the Send page."
   },
@@ -16623,7 +16623,7 @@
   "@deskSetRecvListNote": {
     "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
   },
-  "deskSetRecvHttpTitle": "HTTP receiving",
+  "deskSetRecvHttpTitle": "Direct · HTTP receiving",
   "@deskSetRecvHttpTitle": {
     "description": "Settings > Receiving: heading of the HTTP group."
   },

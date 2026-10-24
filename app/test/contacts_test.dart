@@ -142,10 +142,10 @@ void main() {
   });
 
   test('the tag says how the address is reached', () {
-    expect(contactTag(_alice), 'Epicbox');
-    expect(contactTag(_onion), 'Direct');
-    expect(contactTag('http://${'t' * 55}d.onion'), 'Direct');
-    expect(contactTag(_http), 'Direct');
+    expect(contactTag(_l, _alice), 'Epicbox');
+    expect(contactTag(_l, _onion), 'Direct · Tor');
+    expect(contactTag(_l, 'http://${'t' * 55}d.onion'), 'Direct · Tor');
+    expect(contactTag(_l, _http), 'Direct · HTTP');
   });
 
   group('list', () {
@@ -173,7 +173,7 @@ void main() {
       expect(find.text('BB'), findsOneWidget);
       expect(find.text('AL'), findsOneWidget);
       expect(find.text('Epicbox'), findsNWidgets(2));
-      expect(find.text('Direct'), findsOneWidget);
+      expect(find.text('Direct · Tor'), findsOneWidget);
       expect(
         find.textContaining(
           shortAddress(_bob).split('@').first,
