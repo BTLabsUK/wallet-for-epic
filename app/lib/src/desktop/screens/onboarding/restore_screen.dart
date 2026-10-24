@@ -42,6 +42,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+
+  /// Restore's start height: offered to everyone (a restore happens once), empty = the whole chain.
+  final _fromHeight = TextEditingController();
+  bool _fromOpen = false;
   late final PhraseEntry _entry;
   late RestoreStep _step = widget.arg is RestoreStep ? widget.arg as RestoreStep : RestoreStep.words;
   RestoreSample? get _sampleArg => widget.arg is RestoreSample ? widget.arg as RestoreSample : null;
@@ -90,12 +94,18 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   void dispose() {
     _password.dispose();
     _confirm.dispose();
+    _fromHeight.dispose();
     _entry.removeListener(_onEntry);
     _entry.dispose();
     super.dispose();
   }
 
-  bool get _accountOk => _password.text.length >= 8 && _password.text == _confirm.text;
+  bool get _accountOk => _password.text.length >= 8 && _password.text == _confirm.text && _fromHeightOk;
+
+  /// The typed start height: null when empty or not a number.
+  BigInt? get _startHeight => _fromOpen ? BigInt.tryParse(_fromHeight.text.trim()) : null;
+
+  bool get _fromHeightOk => !_fromOpen || _fromHeight.text.trim().isEmpty || _startHeight != null;
 
   Future<void> _pasteClipboard() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
@@ -158,6 +168,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       await api.restoreWallet(
         password: _password.text,
         phrase: _entry.phrase,
+        startHeight: _startHeight,
       );
       if (!mounted) return;
       if (open) {
@@ -243,6 +254,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 onChanged: () => setState(() {}),
                 onSubmit: _accountOk ? _restore : null,
               ),
+              SizedBox(height: Sp.x4),
+              _startFrom(l),
             ],
           ),
           ),
@@ -251,6 +264,44 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         // Typed words hold Back, so a thumb button never throws them away.
         return DeskStepBack(onBack: _entry.filled > 0 ? () {} : null, child: _wordsStep(context, nav));
     }
+  }
+
+  /// A small link, then the field: the block to start checking from (the whole chain when empty).
+  Widget _startFrom(AppLocalizations l) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: ELink(
+            key: const ValueKey('restore-from-link'),
+            label: _fromOpen ? l.deskOnbRestoreFromHide : l.deskOnbRestoreFromLink,
+            onPressed: () => setState(() => _fromOpen = !_fromOpen),
+          ),
+        ),
+        ExpandFade(
+          open: _fromOpen,
+          child: Padding(
+            padding: EdgeInsets.only(top: Sp.x3),
+            child: EField(
+              label: l.deskOnbRestoreFromLabel,
+              help: _fromHeightOk ? l.deskOnbRestoreFromHelp : null,
+              error: _fromHeightOk ? null : l.deskOnbRestoreFromInvalid,
+              child: EInput(
+                key: const ValueKey('restore-from-height'),
+                controller: _fromHeight,
+                mono: true,
+                invalid: !_fromHeightOk,
+                hint: l.deskOnbRestoreFromHint,
+                semanticLabel: l.deskOnbRestoreFromLabel,
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _wordsStep(BuildContext context, DeskNav nav) {

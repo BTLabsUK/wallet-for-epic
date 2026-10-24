@@ -12,6 +12,8 @@ import '../../../support_report.dart';
 import '../../../ui/feedback_screen.dart' show feedbackCleanContextProvider, feedbackPlatformProvider;
 import '../../app/shell.dart' show deskVersion;
 import '../../data/logs.dart';
+import '../../data/net_mode_view.dart';
+import '../../../network_gate.dart' show NetBlock;
 import '../../widgets/kit.dart';
 
 /// Settings › Help › Report a problem: what happened, an optional contact and the app log,
@@ -195,7 +197,8 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
         actions: [EButton.primary(label: l.commonClose, size: EBtnSize.sm, onPressed: nav.pop)],
       );
     }
-    final canSend = ref.watch(feedbackUrlProvider) != null;
+    final block = ref.watch(deskNetBlockProvider);
+    final canSend = ref.watch(feedbackUrlProvider) != null && block == NetBlock.none;
     final emptyError = _tried && _empty ? l.deskSetReportDescribe : null;
     return CallbackShortcuts(
       // The barrier does not close the dialog (a stray click would lose the text); Esc does.
@@ -270,7 +273,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
             ],
             if (!canSend) ...[
               SizedBox(height: Sp.x3),
-              ENotice(title: l.deskSetReportOff, tone: ETone.warn),
+              ENotice(title: netBlockReason(l, block) ?? l.deskSetReportOff, tone: ETone.warn),
             ],
           ],
         ),

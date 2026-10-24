@@ -13382,17 +13382,17 @@
   "@deskTourSendTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourSendText": "Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.",
+  "deskTourSendText": "Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.",
   "@deskTourSendText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Send step of the first-run tour. Names only what is visible by default."
   },
   "deskTourReceiveTitle": "Receive",
   "@deskTourReceiveTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourReceiveText": "This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.",
+  "deskTourReceiveText": "This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.",
   "@deskTourReceiveText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Receive step of the first-run tour."
   },
   "deskTourInvoicesTitle": "Invoices",
   "@deskTourInvoicesTitle": {
@@ -13414,25 +13414,25 @@
   "@deskTourContactsTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourContactsText": "Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.",
+  "deskTourContactsText": "Saved addresses by name. Send picks from here.",
   "@deskTourContactsText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Contacts step of the first-run tour."
   },
   "deskTourNodeTitle": "Settings › Node",
   "@deskTourNodeTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourNodeText": "Which node the wallet reads the chain from: a public one or the local node. The other settings pages are listed on the left.",
+  "deskTourNodeText": "Which node the wallet reads the chain from. The other settings pages are listed on the left.",
   "@deskTourNodeText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Settings › Node step of the first-run tour."
   },
   "deskTourHelpTitle": "Help",
   "@deskTourHelpTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourHelpText": "Topics by section, Report a problem and the app log. More on every page is here, and this tour can be shown again.",
+  "deskTourHelpText": "Topics by section and Report a problem. More on every page is here, and this tour can be shown again.",
   "@deskTourHelpText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Help step, the last step of the first-run tour."
   },
   "deskTourCounter": "{current} of {total}",
   "@deskTourCounter": {
@@ -18160,9 +18160,9 @@
   "@deskSetAdvTechnical": {
     "description": "Advanced switch: technical rows on transactions."
   },
-  "deskSetAdvTechnicalHint": "Shows the Technical fold on a transaction: slate ID, kernel, block height, the core's status and type, and the payment proof. In Invoices, shows the Advanced folds.",
+  "deskSetAdvTechnicalHint": "Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core's status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.",
   "@deskSetAdvTechnicalHint": {
-    "description": "Hover card of the Technical details switch."
+    "description": "Hover card of the Technical details switch on the Advanced page."
   },
   "deskSetAdvSendOptions": "Send options",
   "@deskSetAdvSendOptions": {
@@ -18192,9 +18192,9 @@
   "@deskSetAdvRecheck": {
     "description": "Advanced switch: recheck balance from a height, delete unconfirmed, restore from a height."
   },
-  "deskSetAdvRecheckHint": "Lets Recheck balance and Restore start from a block height instead of the first block, and lets Recheck drop unconfirmed transactions. Faster, and the only way to skip early history.",
+  "deskSetAdvRecheckHint": "Lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone, whatever this says.",
   "@deskSetAdvRecheckHint": {
-    "description": "Hover card of the Recheck from a height switch."
+    "description": "Hover card of the Recheck from a height switch on the Advanced page."
   },
   "deskSetAdvBuiltInNode": "Built-in node",
   "@deskSetAdvBuiltInNode": {
@@ -18216,9 +18216,9 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor first starts Tor with the wallet and asks before it falls back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all. Transaction files still work.",
+  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait.",
   "@deskSetAdvNetworkHint": {
-    "description": "Hover card of the Network group."
+    "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
   },
   "deskSetAdvModeStandard": "Standard",
   "@deskSetAdvModeStandard": {
@@ -18240,17 +18240,17 @@
   "@deskSetAdvModeOffline": {
     "description": "Network mode: no network."
   },
-  "deskSetAdvModeOfflineText": "No network. The balance stays as last seen. Transaction files still work.",
+  "deskSetAdvModeOfflineText": "No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.",
   "@deskSetAdvModeOfflineText": {
-    "description": "Text under the Offline mode."
+    "description": "One-line description of the Offline network mode on the Advanced page."
   },
   "deskSetAdvTorOnlyNote": "Tor only turns HTTP receiving off: a plain address would reveal this computer.",
   "@deskSetAdvTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "deskSetAdvOfflineNote": "Offline pauses Epicbox, Direct receiving, the node and status checks until the mode changes.",
+  "deskSetAdvOfflineNote": "Sending and receiving wait until you switch back, transaction files included.",
   "@deskSetAdvOfflineNote": {
-    "description": "Note under the network choice while Offline is selected."
+    "description": "Note under the chosen Offline mode on the Advanced page."
   },
   "deskSetAdvNotInBuild": "Not in this build",
   "@deskSetAdvNotInBuild": {
@@ -18489,5 +18489,81 @@
   "deskSlHelpChoose": "Pick one, or type to filter the list or add a server.",
   "@deskSlHelpChoose": {
     "description": "Under the field of Setup's Node or Epicbox list while nothing is typed: before a wallet exists a pick chooses at once."
+  },
+  "deskOnbRestoreFromLink": "Start from a block height",
+  "@deskOnbRestoreFromLink": {
+    "description": "Small link on the Restore password step that opens an optional field for the block the check starts from."
+  },
+  "deskOnbRestoreFromHide": "Check the whole chain",
+  "@deskOnbRestoreFromHide": {
+    "description": "The same link while the field is open: closes it and checks the whole chain again."
+  },
+  "deskOnbRestoreFromLabel": "Start from block",
+  "@deskOnbRestoreFromLabel": {
+    "description": "Label of the optional start block field on Restore."
+  },
+  "deskOnbRestoreFromHint": "Block height",
+  "@deskOnbRestoreFromHint": {
+    "description": "Placeholder of the start block field on Restore."
+  },
+  "deskOnbRestoreFromHelp": "Only if the wallet's first payment came after this block. Leave it empty to check the whole chain.",
+  "@deskOnbRestoreFromHelp": {
+    "description": "Help line under the start block field on Restore."
+  },
+  "deskOnbRestoreFromInvalid": "Use digits only, or leave it empty.",
+  "@deskOnbRestoreFromInvalid": {
+    "description": "Error under the start block field on Restore when the text is not a number."
+  },
+  "deskNetOfflineReason": "Offline mode is on in Advanced.",
+  "@deskNetOfflineReason": {
+    "description": "Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control."
+  },
+  "deskNetWaitingTorReason": "Waiting for Tor. Tor only is on in Advanced.",
+  "@deskNetWaitingTorReason": {
+    "description": "Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line."
+  },
+  "deskNetTorOnlyLine": "Tor only is on in Advanced.",
+  "@deskNetTorOnlyLine": {
+    "description": "Line under the Tor switch in Settings › Privacy while the Tor only network mode keeps the switch on and locked."
+  },
+  "deskNetOpenAdvanced": "Open Advanced",
+  "@deskNetOpenAdvanced": {
+    "description": "Link or small button that opens Settings › Advanced, next to a line that names the network mode."
+  },
+  "deskNetSendFileHint": "A transaction file still works.",
+  "@deskNetSendFileHint": {
+    "description": "Second line of the notice on Send when the network mode holds Epicbox and Direct sends."
+  },
+  "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive until Offline mode is off.",
+  "@deskNetRecvOfflineText": {
+    "description": "Text of the notice on Receive while Offline mode is on."
+  },
+  "deskNetRecvWaitTorText": "Receiving starts when Tor is connected. A transaction file still works.",
+  "@deskNetRecvWaitTorText": {
+    "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
+  },
+  "deskNetCantReceive": "Can't receive offline.",
+  "@deskNetCantReceive": {
+    "description": "Detail of the Epicbox state line on Receive while Offline mode is on."
+  },
+  "deskRailOffline": "Offline",
+  "@deskRailOffline": {
+    "description": "Word on a sidebar status row (Node, Epicbox, Tor) and the mark on the Overview balance while Offline mode is on."
+  },
+  "deskTourAdvancedTitle": "Advanced",
+  "@deskTourAdvancedTitle": {
+    "description": "Title of the Settings › Advanced step of the first-run tour."
+  },
+  "deskTourAdvancedText": "Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.",
+  "@deskTourAdvancedText": {
+    "description": "Text of the Settings › Advanced step of the first-run tour. The tour switches nothing on."
+  },
+  "deskTxMore": "More",
+  "@deskTxMore": {
+    "description": "Small link under a transaction's details that shows the technical rows for this view only."
+  },
+  "deskTxLess": "Less",
+  "@deskTxLess": {
+    "description": "The same link while the technical rows are shown: hides them again."
   }
 }

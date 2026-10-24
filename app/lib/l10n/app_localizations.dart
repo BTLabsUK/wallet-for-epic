@@ -16311,10 +16311,10 @@ abstract class AppLocalizations {
   /// **'Send'**
   String get deskTourSendTitle;
 
-  /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
+  /// Text of the Send step of the first-run tour. Names only what is visible by default.
   ///
   /// In en, this message translates to:
-  /// **'Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.'**
+  /// **'Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.'**
   String get deskTourSendText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16323,10 +16323,10 @@ abstract class AppLocalizations {
   /// **'Receive'**
   String get deskTourReceiveTitle;
 
-  /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
+  /// Text of the Receive step of the first-run tour.
   ///
   /// In en, this message translates to:
-  /// **'This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.'**
+  /// **'This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.'**
   String get deskTourReceiveText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16359,10 +16359,10 @@ abstract class AppLocalizations {
   /// **'Contacts'**
   String get deskTourContactsTitle;
 
-  /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
+  /// Text of the Contacts step of the first-run tour.
   ///
   /// In en, this message translates to:
-  /// **'Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.'**
+  /// **'Saved addresses by name. Send picks from here.'**
   String get deskTourContactsText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16371,10 +16371,10 @@ abstract class AppLocalizations {
   /// **'Settings › Node'**
   String get deskTourNodeTitle;
 
-  /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
+  /// Text of the Settings › Node step of the first-run tour.
   ///
   /// In en, this message translates to:
-  /// **'Which node the wallet reads the chain from: a public one or the local node. The other settings pages are listed on the left.'**
+  /// **'Which node the wallet reads the chain from. The other settings pages are listed on the left.'**
   String get deskTourNodeText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16383,10 +16383,10 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get deskTourHelpTitle;
 
-  /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
+  /// Text of the Help step, the last step of the first-run tour.
   ///
   /// In en, this message translates to:
-  /// **'Topics by section, Report a problem and the app log. More on every page is here, and this tour can be shown again.'**
+  /// **'Topics by section and Report a problem. More on every page is here, and this tour can be shown again.'**
   String get deskTourHelpText;
 
   /// Step counter on the tour card, e.g. '2 of 7'. Narrow: keep it short.
@@ -21920,10 +21920,10 @@ abstract class AppLocalizations {
   /// **'Technical details'**
   String get deskSetAdvTechnical;
 
-  /// Hover card of the Technical details switch.
+  /// Hover card of the Technical details switch on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'Shows the Technical fold on a transaction: slate ID, kernel, block height, the core\'s status and type, and the payment proof. In Invoices, shows the Advanced folds.'**
+  /// **'Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core\'s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.'**
   String get deskSetAdvTechnicalHint;
 
   /// Advanced switch: the Advanced fold on Send.
@@ -21968,10 +21968,10 @@ abstract class AppLocalizations {
   /// **'Recheck from a height'**
   String get deskSetAdvRecheck;
 
-  /// Hover card of the Recheck from a height switch.
+  /// Hover card of the Recheck from a height switch on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'Lets Recheck balance and Restore start from a block height instead of the first block, and lets Recheck drop unconfirmed transactions. Faster, and the only way to skip early history.'**
+  /// **'Lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone, whatever this says.'**
   String get deskSetAdvRecheckHint;
 
   /// Advanced switch: the node on this computer.
@@ -22004,10 +22004,10 @@ abstract class AppLocalizations {
   /// **'Network'**
   String get deskSetAdvNetwork;
 
-  /// Hover card of the Network group.
+  /// Hover card of the Network group on the Advanced page: what the three network modes do.
   ///
   /// In en, this message translates to:
-  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor first starts Tor with the wallet and asks before it falls back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all. Transaction files still work.'**
+  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait.'**
   String get deskSetAdvNetworkHint;
 
   /// Network mode: direct connections.
@@ -22040,10 +22040,10 @@ abstract class AppLocalizations {
   /// **'Offline'**
   String get deskSetAdvModeOffline;
 
-  /// Text under the Offline mode.
+  /// One-line description of the Offline network mode on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'No network. The balance stays as last seen. Transaction files still work.'**
+  /// **'No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.'**
   String get deskSetAdvModeOfflineText;
 
   /// Note under the network choice while Tor only is selected.
@@ -22052,10 +22052,10 @@ abstract class AppLocalizations {
   /// **'Tor only turns HTTP receiving off: a plain address would reveal this computer.'**
   String get deskSetAdvTorOnlyNote;
 
-  /// Note under the network choice while Offline is selected.
+  /// Note under the chosen Offline mode on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'Offline pauses Epicbox, Direct receiving, the node and status checks until the mode changes.'**
+  /// **'Sending and receiving wait until you switch back, transaction files included.'**
   String get deskSetAdvOfflineNote;
 
   /// Tag on a Tor mode when the build has no tor.
@@ -22339,6 +22339,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick one, or type to filter the list or add a server.'**
   String get deskSlHelpChoose;
+
+  /// Small link on the Restore password step that opens an optional field for the block the check starts from.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a block height'**
+  String get deskOnbRestoreFromLink;
+
+  /// The same link while the field is open: closes it and checks the whole chain again.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the whole chain'**
+  String get deskOnbRestoreFromHide;
+
+  /// Label of the optional start block field on Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from block'**
+  String get deskOnbRestoreFromLabel;
+
+  /// Placeholder of the start block field on Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Block height'**
+  String get deskOnbRestoreFromHint;
+
+  /// Help line under the start block field on Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Only if the wallet\'s first payment came after this block. Leave it empty to check the whole chain.'**
+  String get deskOnbRestoreFromHelp;
+
+  /// Error under the start block field on Restore when the text is not a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Use digits only, or leave it empty.'**
+  String get deskOnbRestoreFromInvalid;
+
+  /// Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode is on in Advanced.'**
+  String get deskNetOfflineReason;
+
+  /// Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor. Tor only is on in Advanced.'**
+  String get deskNetWaitingTorReason;
+
+  /// Line under the Tor switch in Settings › Privacy while the Tor only network mode keeps the switch on and locked.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only is on in Advanced.'**
+  String get deskNetTorOnlyLine;
+
+  /// Link or small button that opens Settings › Advanced, next to a line that names the network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Advanced'**
+  String get deskNetOpenAdvanced;
+
+  /// Second line of the notice on Send when the network mode holds Epicbox and Direct sends.
+  ///
+  /// In en, this message translates to:
+  /// **'A transaction file still works.'**
+  String get deskNetSendFileHint;
+
+  /// Text of the notice on Receive while Offline mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address stays the same. Nothing can arrive until Offline mode is off.'**
+  String get deskNetRecvOfflineText;
+
+  /// Text of the notice on Receive in Tor only mode while Tor is not connected yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving starts when Tor is connected. A transaction file still works.'**
+  String get deskNetRecvWaitTorText;
+
+  /// Detail of the Epicbox state line on Receive while Offline mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t receive offline.'**
+  String get deskNetCantReceive;
+
+  /// Word on a sidebar status row (Node, Epicbox, Tor) and the mark on the Overview balance while Offline mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get deskRailOffline;
+
+  /// Title of the Settings › Advanced step of the first-run tour.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get deskTourAdvancedTitle;
+
+  /// Text of the Settings › Advanced step of the first-run tour. The tour switches nothing on.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.'**
+  String get deskTourAdvancedText;
+
+  /// Small link under a transaction's details that shows the technical rows for this view only.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get deskTxMore;
+
+  /// The same link while the technical rows are shown: hides them again.
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get deskTxLess;
 }
 
 class _AppLocalizationsDelegate

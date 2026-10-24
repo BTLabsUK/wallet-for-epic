@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 import 'review_password.dart';
 
 /// The mock wallet, recording each send.
@@ -41,6 +43,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.runAsync(() => advancedOn(container));
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,

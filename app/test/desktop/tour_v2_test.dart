@@ -3,6 +3,7 @@
 // is on, it ends on Help, it opens from Help › Show the tour again and not from Appearance, it
 // opens by itself once (the seen flag survives a restart), and the Invoices step is there
 // exactly when the Invoices page is.
+import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/api.dart';
@@ -14,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'advanced_on.dart';
 
 /// A wallet that does not take invoices (the LEPIC adapter before it is wired).
 class _NoInvoices extends MockDeskWallet {
@@ -68,9 +71,9 @@ void main() {
   tearDown(() => debugTourSteps = null);
 
   group('steps', () {
-    test('without the Invoices page: seven, Overview to Help', () {
+    test('without the Invoices page: eight, Overview to Help, Advanced before Help', () {
       final steps = tourStepsFor(invoices: false);
-      expect(steps.map((s) => s.title), ['Overview', 'Send', 'Receive', 'Activity', 'Contacts', 'Settings › Node', 'Help']);
+      expect(steps.map((s) => s.title), ['Overview', 'Send', 'Receive', 'Activity', 'Contacts', 'Settings › Node', 'Advanced', 'Help']);
       expect(steps.map((s) => s.route), [
         DeskRoute.overview,
         DeskRoute.send,
@@ -78,17 +81,19 @@ void main() {
         DeskRoute.activity,
         DeskRoute.contacts,
         DeskRoute.settingsNode,
+        DeskRoute.settingsAdvanced,
         DeskRoute.settingsHelp,
       ]);
       expect(steps.first.navId, 'nav-overview');
       expect(steps.last.navId, 'nav-settings');
       expect(steps.last.subId, 'subnav-settingsHelp');
       expect(steps[5].subId, 'subnav-settingsNode');
+      expect(steps[6].subId, 'subnav-settingsAdvanced');
     });
 
-    test('with the Invoices page: eight, Invoices after Receive, lighting its tabs and sidebar entry', () {
+    test('with the Invoices page: nine, Invoices after Receive, lighting its tabs and sidebar entry', () {
       final steps = tourStepsFor(invoices: true);
-      expect(steps.length, 8);
+      expect(steps.length, 9);
       expect(steps[3].title, 'Invoices');
       expect(steps[3].targets, ['invoices-tabs']);
       expect(steps[2].title, 'Receive');
@@ -99,7 +104,7 @@ void main() {
     test('this build follows the routes: the step is there exactly when DeskRoute.invoices is', () {
       final has = DeskRoute.values.any((r) => r.name == 'invoices');
       expect(deskInvoicesRoute != null, has);
-      expect(deskTourSteps.length, has ? 8 : 7);
+      expect(deskTourSteps.length, has ? 9 : 8);
       expect(deskTourSteps.any((s) => s.title == 'Invoices'), has);
       if (has) {
         final step = deskTourSteps[3];
@@ -119,7 +124,9 @@ void main() {
   });
 
   testWidgets('the sidebar runs as the phone: Activity, Outputs, Contacts, Invoices, Send, Receive; each step lights an entry in it', (tester) async {
-    await _open(tester, DeskRoute.overview);
+    // Outputs sits in the sidebar once Advanced shows it.
+    final container = await _open(tester, DeskRoute.overview);
+    await tester.runAsync(() => advancedOn(container, only: {AdvancedFeature.outputs}));
     await _settle(tester);
     double top(String id) => tester.getTopLeft(find.byKey(tourKey(id))).dy;
     final ids = ['nav-overview', 'nav-activity', 'nav-outputs', 'nav-contacts', 'nav-invoices', 'nav-send', 'nav-receive', 'nav-settings'];
@@ -256,12 +263,12 @@ void main() {
     expect(_inCard('Receive'), findsOneWidget);
     await tester.tap(_inCard('Next'));
     await _settle(tester);
-    expect(_inCard('4 of 8'), findsOneWidget);
+    expect(_inCard('4 of 9'), findsOneWidget);
     expect(_inCard('Invoices'), findsOneWidget);
     expect(_inCard('Next'), findsOneWidget);
     await tester.tap(_inCard('Next'));
     await _settle(tester);
-    expect(_inCard('5 of 8'), findsOneWidget);
+    expect(_inCard('5 of 9'), findsOneWidget);
     expect(container.read(deskNavProvider).route, DeskRoute.activity);
   });
 

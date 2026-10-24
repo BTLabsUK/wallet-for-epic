@@ -12,7 +12,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../data/desk_node.dart';
+import '../../../network_gate.dart' show NetBlock;
 import '../../data/files.dart' show deskOpenFolderProvider;
+import '../../data/net_mode_view.dart';
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
 import 'local_node_dialogs.dart';
@@ -154,6 +156,8 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
       );
     }
     final running = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;
+    // Offline mode: the node would only sit without a network.
+    final offline = ref.watch(deskNetBlockProvider) == NetBlock.offline;
     final noBinary = s.phase == LocalNodePhase.error && s.failure == NodeFailure.binaryMissing;
     final controls = <Widget>[
       if (!running && !noBinary)
@@ -163,12 +167,12 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
             icon: Icons.play_arrow_rounded,
             size: EBtnSize.sm,
             busy: _busy == 'start',
-            onPressed: _busy == null ? () => _run('start', api.start) : null,
+            onPressed: _busy == null && !offline ? () => _run('start', api.start) : null,
           ),
         ),
       if (running) ...[
         ERowControl(child: EButton(label: l.deskSetLnodeStop, icon: EIcons.stop, size: EBtnSize.sm, busy: _busy == 'stop', onPressed: _busy == null ? () => _run('stop', api.stop) : null)),
-        ERowControl(child: EButton(label: l.deskSetLnodeRestart, icon: EIcons.refresh, size: EBtnSize.sm, busy: _busy == 'restart', onPressed: _busy == null ? () => _run('restart', api.restart) : null)),
+        ERowControl(child: EButton(label: l.deskSetLnodeRestart, icon: EIcons.refresh, size: EBtnSize.sm, busy: _busy == 'restart', onPressed: _busy == null && !offline ? () => _run('restart', api.restart) : null)),
       ],
     ];
 

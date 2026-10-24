@@ -14,6 +14,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 import 'review_password.dart';
 
 core.TxEntry _entry({String? transport, String? counterparty, core.TxStatus status = core.TxStatus.awaitingConfirmation}) => core.TxEntry(
@@ -66,6 +68,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+      await tester.runAsync(() => advancedOn(container));
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
@@ -107,6 +110,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.runAsync(() => advancedOn(container));
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,

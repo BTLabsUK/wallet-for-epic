@@ -11,6 +11,16 @@ import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'tx_label.dart';
 
+/// The screenshot tour presses More on the open transaction.
+final txMoreDemoProvider = NotifierProvider<TxMoreDemo, bool>(TxMoreDemo.new);
+
+class TxMoreDemo extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void open() => state = true;
+}
+
 /// One transaction: amount and counterparty, where it stands, its progress, details, proof,
 /// technical details and the actions it allows (cancel, finalize).
 class TxDetail extends ConsumerStatefulWidget {
@@ -27,6 +37,9 @@ class TxDetail extends ConsumerStatefulWidget {
 
 class _TxDetailState extends ConsumerState<TxDetail> {
   bool _cancelling = false;
+
+  /// The More link is open: the technical rows show for this view only.
+  bool _more = false;
 
   String _now(AppLocalizations l, Tx t) => t.fromBackup
       ? l.deskTxNowBackup
@@ -50,6 +63,30 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.confirmed => l.deskTxNowConfirmed(t.confirmations),
           TxState.cancelled => l.deskTxNowCancelled,
         };
+
+  /// The core's own fields: ids, height, kernel, status and type.
+  Widget _techFacts(Tx t, AppLocalizations l, DeskText ts) =>
+      EFacts(labelWidth: 96.u, [
+            (l.deskTxTechId, Text('${t.id}', style: ts.mono(size: Fs.xs))),
+            (
+              l.deskTxTechSlate,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(t.slateId.isEmpty ? '-' : t.slateId, style: ts.mono(size: Fs.xs)),
+                  ),
+                  if (t.slateId.isNotEmpty) ECopyButton(text: t.slateId, label: l.deskTxCopySlate),
+                ],
+              ),
+            ),
+            (l.deskTxTechHeight, Text(t.height == null ? '-' : '${t.height}', style: ts.mono(size: Fs.xs))),
+            (l.deskTxTechKernel, Text(t.kernel ?? '-', style: ts.mono(size: Fs.xs))),
+            (l.deskTxTechConfirmed, Text(t.confirmedAt == null ? '-' : dateTimeOf(l, t, at: t.confirmedAt))),
+            (l.deskTxTechCredited, EMoney(t.incoming ? t.amount : 0, unit: false)),
+            (l.deskTxTechDebited, EMoney(t.incoming ? 0 : t.amount + t.fee, unit: false)),
+            (l.deskTxTechStatus, Text(t.state.name, style: ts.mono(size: Fs.xs))),
+            (l.deskTxTechType, Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))), // l10n-ok: the core's type names
+          ]);
 
   Future<void> _sendAgain() async {
     setState(() => _cancelling = true);
@@ -104,6 +141,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final ts = context.ts;
     final l = context.l10n;
     final t = widget.tx;
+    ref.listen(txMoreDemoProvider, (_, open) {
+      if (open && !_more) setState(() => _more = true);
+    });
     final total = t.amount + (t.incoming ? 0 : t.fee);
     // A send can be cancelled while it waits for the recipient, or when the node refused its
     // post (its outputs stay locked otherwise). Once posted (a Direct HTTP or Tor send is
@@ -256,33 +296,28 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ],
           ),
         ],
-        // Advanced › Technical details; Report a problem carries the slate id either way.
+        // Advanced › Technical details: the fold, or a small More link that shows the same rows
+        // for this view only (the switch stays off). Report a problem carries the slate id either way.
         if (advancedHas(ref, AdvancedFeature.technicalDetails)) ...[
-        SizedBox(height: Sp.x5),
-        EDetails(
-          title: l.deskTxTechTitle,
-          child: EFacts(labelWidth: 96.u, [
-            (l.deskTxTechId, Text('${t.id}', style: ts.mono(size: Fs.xs))),
-            (
-              l.deskTxTechSlate,
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(t.slateId.isEmpty ? '-' : t.slateId, style: ts.mono(size: Fs.xs)),
-                  ),
-                  if (t.slateId.isNotEmpty) ECopyButton(text: t.slateId, label: l.deskTxCopySlate),
-                ],
-              ),
+          SizedBox(height: Sp.x5),
+          EDetails(title: l.deskTxTechTitle, child: _techFacts(t, l, ts)),
+        ] else ...[
+          SizedBox(height: Sp.x3),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ELink(
+              key: const ValueKey('tx-more'),
+              label: _more ? l.deskTxLess : l.deskTxMore,
+              onPressed: () => setState(() => _more = !_more),
             ),
-            (l.deskTxTechHeight, Text(t.height == null ? '-' : '${t.height}', style: ts.mono(size: Fs.xs))),
-            (l.deskTxTechKernel, Text(t.kernel ?? '-', style: ts.mono(size: Fs.xs))),
-            (l.deskTxTechConfirmed, Text(t.confirmedAt == null ? '-' : dateTimeOf(l, t, at: t.confirmedAt))),
-            (l.deskTxTechCredited, EMoney(t.incoming ? t.amount : 0, unit: false)),
-            (l.deskTxTechDebited, EMoney(t.incoming ? 0 : t.amount + t.fee, unit: false)),
-            (l.deskTxTechStatus, Text(t.state.name, style: ts.mono(size: Fs.xs))),
-            (l.deskTxTechType, Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))), // l10n-ok: the core's type names
-          ]),
-        ),
+          ),
+          ExpandFade(
+            open: _more,
+            child: Padding(
+              padding: EdgeInsets.only(top: Sp.x3),
+              child: _techFacts(t, l, ts),
+            ),
+          ),
         ],
         if (cancelable || finalizable || t.undelivered || repostable) ...[
           SizedBox(height: Sp.x5),

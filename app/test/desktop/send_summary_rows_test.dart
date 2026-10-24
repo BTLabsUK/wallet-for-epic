@@ -99,7 +99,7 @@ void main() {
 
     testWidgets('the default tag follows the default; a radio picks', (tester) async {
       final picked = await advanced(tester, def: SelectionStrategy.all);
-      expect(find.text('Advanced · All outputs', findRichText: true), findsOneWidget);
+      expect(find.text('Send options · All outputs', findRichText: true), findsOneWidget);
       final tag = find.text('default');
       expect(tag, findsOneWidget);
       expect(find.ancestor(of: tag, matching: find.byWidgetPredicate((w) => w is ERadioRow && w.title == 'All')), findsOneWidget);

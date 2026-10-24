@@ -18,6 +18,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
 
@@ -56,6 +58,7 @@ Future<ProviderContainer> _pump(WidgetTester tester, Widget child, {MockDeskWall
   final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api ?? _Wallet())]);
   addTearDown(container.dispose);
   if (refresh) await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() => advancedOn(container));
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,

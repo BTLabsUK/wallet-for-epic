@@ -1252,7 +1252,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight}) async {
     _checkPassword(password);
     final mnemonic = _mnemonicOf(phrase);
     if (!_service.validateMnemonic(phrase: mnemonic)) throw DeskError.l10n((l) => l.deskErrPhraseInvalid);
@@ -1260,7 +1260,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (same != null) throw DeskError.l10n((l) => l.deskErrAlreadyHere(same.name), sameWallet: same);
     try {
       // The scan runs after unlock, in the background, with its progress in the status.
-      await _make(name, const {'scanPending': true}, (config) async {
+      await _make(name, {'scanPending': true, if (startHeight != null) 'scanFrom': startHeight.toInt()}, (config) async {
         final session = await _service.create(config: config, mnemonic: mnemonic, password: password);
         session.dispose();
       }, fingerprintOf: (_) => phraseFingerprint(mnemonic));
@@ -1587,10 +1587,13 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
     try {
       // The scan due since a restore or a rebuilt database; not while Recheck balance scans.
-      if (!_rescanning && (await _meta(key))['scanPending'] == true) {
+      final due = await _meta(key);
+      if (!_rescanning && due['scanPending'] == true) {
         var finished = false;
         try {
-          await for (final p in session.scan()) {
+          // A restore from a block height (Restore's start height) scans from there.
+          final from = due['scanFrom'];
+          await for (final p in session.scan(startHeight: from is int ? BigInt.from(from) : null)) {
             if (_session != session) return;
             finished = finished || p.finished;
             if (p.percent != null) _syncProgress = p.percent! / 200;
@@ -1602,7 +1605,7 @@ class LepicDeskWallet implements DeskWalletApi {
         }
         // A scan stopped before its end stays due.
         if (finished) {
-          await _setMeta({'scanPending': false}, key);
+          await _setMeta({'scanPending': false, 'scanFrom': null}, key);
           _notice = null;
         }
       }

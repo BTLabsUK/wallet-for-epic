@@ -1015,5 +1015,29 @@
   "deskOnbImportStop": "Stop import",
   "@deskOnbImportStop": {
     "description": "Danger button of that dialog."
+  },
+  "deskOnbRestoreFromLink": "Start from a block height",
+  "@deskOnbRestoreFromLink": {
+    "description": "Small link on the Restore password step that opens an optional field for the block the check starts from."
+  },
+  "deskOnbRestoreFromHide": "Check the whole chain",
+  "@deskOnbRestoreFromHide": {
+    "description": "The same link while the field is open: closes it and checks the whole chain again."
+  },
+  "deskOnbRestoreFromLabel": "Start from block",
+  "@deskOnbRestoreFromLabel": {
+    "description": "Label of the optional start block field on Restore."
+  },
+  "deskOnbRestoreFromHint": "Block height",
+  "@deskOnbRestoreFromHint": {
+    "description": "Placeholder of the start block field on Restore."
+  },
+  "deskOnbRestoreFromHelp": "Only if the wallet's first payment came after this block. Leave it empty to check the whole chain.",
+  "@deskOnbRestoreFromHelp": {
+    "description": "Help line under the start block field on Restore."
+  },
+  "deskOnbRestoreFromInvalid": "Use digits only, or leave it empty.",
+  "@deskOnbRestoreFromInvalid": {
+    "description": "Error under the start block field on Restore when the text is not a number."
   }
 }

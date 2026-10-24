@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../network_gate.dart' show NetBlock;
 import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localDigits, localInt;
 import '../../widgets/kit.dart';
@@ -72,7 +74,10 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final empty = demo == OverviewDemo.empty || (demo == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
     final starting = demo == OverviewDemo.starting;
     final syncing = demo == OverviewDemo.syncing;
-    final nodeDown = demo == OverviewDemo.nodeDown || (demo == null && s.status?.nodeHealth == ServiceHealth.down);
+    // Offline and Tor only: the node is not asked, so its last answer is not news.
+    final netBlock = demo == null ? deskNetBlock(s) : NetBlock.none;
+    final offline = netBlock == NetBlock.offline;
+    final nodeDown = demo == OverviewDemo.nodeDown || (demo == null && netBlock == NetBlock.none && s.status?.nodeHealth == ServiceHealth.down);
     // The wallet's own sync (a refresh or a scan), not the node's.
     final walletSync = demo == null && s.status?.syncProgress != null;
     final balance = empty ? const Balance(spendable: 0, awaitingConfirmation: 0, locked: 0, awaitingFinalization: 0) : s.balance;
@@ -144,7 +149,11 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
                 dimension: Ctl.sm,
                 child: Center(child: ESpinner()),
               )
-            : EIconButton(icon: EIcons.refresh, label: l.deskOvRefresh, onPressed: _refresh),
+            : EIconButton(
+                icon: EIcons.refresh,
+                label: netBlockReason(l, netBlock) ?? l.deskOvRefresh,
+                onPressed: netBlock == NetBlock.none ? _refresh : null,
+              ),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -156,7 +165,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               balance: loading ? null : balance,
               empty: empty,
               hidden: hidden,
-              updating: starting || syncing || loading || walletSync,
+              updating: !offline && (starting || syncing || loading || walletSync),
+              offline: offline,
               asOfBlock: syncing ? _walletTip : null,
               sendBlocked: syncing || nodeDown || demo == OverviewDemo.nodeProblem,
             ),
@@ -265,7 +275,7 @@ class _SyncNotice extends StatelessWidget {
 String _group(AppLocalizations l, int n) => localInt(l, n);
 
 class _BalancePanel extends ConsumerWidget {
-  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false});
+  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.offline = false});
 
   final Balance? balance;
   final bool empty;
@@ -277,6 +287,9 @@ class _BalancePanel extends ConsumerWidget {
 
   /// The node is not synced: Send waits, and says why.
   final bool sendBlocked;
+
+  /// Offline mode: the amounts are the last known ones, marked as such.
+  final bool offline;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -330,6 +343,7 @@ class _BalancePanel extends ConsumerWidget {
                         Text(l.deskOvAvailable, style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500)),
                         if (asOfBlock != null) ETag(l.deskOvAsOfBlock(_group(l, asOfBlock!)), tone: ETone.warn),
                         if (updating && asOfBlock == null) const _UpdatingTag(),
+                        if (offline) ETag(l.deskRailOffline, key: const ValueKey('overview-offline')),
                       ],
                     ),
                     SizedBox(height: 6.u),

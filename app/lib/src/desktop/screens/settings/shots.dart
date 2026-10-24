@@ -20,6 +20,8 @@ import 'settings_http.dart' show InternetGuide, InternetGuideChoice;
 import 'settings_receiving.dart';
 import 'settings_help.dart' show HelpDemo;
 import 'settings_rescan.dart';
+import '../wallet/tx_detail.dart' show txMoreDemoProvider;
+import '../../../advanced.dart';
 
 /// A wallet that is not open, for the remove dialog's shots.
 const demoOtherWallet = WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic/main/savings', network: 'mainnet');
@@ -271,7 +273,37 @@ final List<DeskShot> settingsShots = [
     height: 700,
     prepare: (c, _) async => c.read(deskTourProvider.notifier).open(at: 1),
   ),
+  DeskShot(
+    id: '41d-tour-advanced',
+    title: 'Tour, the Advanced step',
+    route: DeskRoute.overview,
+    prepare: (c, _) async => c.read(deskTourProvider.notifier).open(at: deskTourSteps.length - 2),
+  ),
+  // Advanced mode (Settings › Advanced) and what the network modes do to the screens.
+  const DeskShot(id: '43-advanced', title: 'Settings › Advanced, everything off', route: DeskRoute.settingsAdvanced),
+  DeskShot(id: '43b-advanced-tor-only', title: 'Settings › Advanced, Tor only', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
+  DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(id: '43e-overview-waiting-tor', title: 'Overview, Tor only waiting for Tor', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
+  DeskShot(id: '43f-send-offline', title: 'Send, Offline', route: DeskRoute.send, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(id: '43g-receive-offline', title: 'Receive, Offline', route: DeskRoute.receive, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(id: '43h-privacy-tor-only', title: 'Privacy, the Tor switch locked by Tor only', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
+  DeskShot(id: '43i-privacy-offline', title: 'Privacy, the Tor switch disabled by Offline', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(
+    id: '43j-tx-detail-more',
+    title: 'Transaction detail, More opened with Technical details off',
+    route: DeskRoute.activity,
+    arg: 36,
+    prepare: (c, _) async => c.read(txMoreDemoProvider.notifier).open(),
+  ),
 ];
+
+/// Sets the network mode for a shot (the mock starts in Standard with everything else off).
+Future<void> _networkMode(ProviderContainer c, NetworkMode mode) async {
+  final n = c.read(deskProvider.notifier);
+  final s = c.read(deskProvider).settings;
+  await n.saveSettings(s.copyWith(advanced: s.advanced.withMode(mode)));
+}
 
 /// The mock's backup record for a shot.
 void _backup(ProviderContainer c, HistoryBackupState state) {

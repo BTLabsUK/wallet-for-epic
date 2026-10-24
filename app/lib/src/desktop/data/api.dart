@@ -91,7 +91,7 @@ abstract interface class DeskWalletApi {
 
   /// Restores a wallet from [phrase]. A phrase [walletWithPhrase] knows throws a [DeskError]
   /// with [DeskError.sameWallet] set and makes nothing.
-  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase});
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight});
 
   // Import (only when [DeskFeatures.importWizard]). Old folders are only read.
   /// Looks where older Epic Wallets and the epic program kept wallets, and starts a new import

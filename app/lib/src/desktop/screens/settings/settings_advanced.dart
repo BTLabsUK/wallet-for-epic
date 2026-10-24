@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../advanced.dart';
+import '../../app/tour.dart' show TourTarget;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../transfer/send_advanced.dart' show ERadioRow;
@@ -22,6 +23,9 @@ AdvancedPrefs advancedOf(WidgetRef ref) =>
 /// listener that is on, a split in progress) never disappears under the user.
 bool advancedHas(WidgetRef ref, AdvancedFeature feature, {bool keep = false}) =>
     keep || advancedOf(ref).has(feature);
+
+/// Opens Settings › Advanced (a line elsewhere that names it links here).
+void openAdvanced(WidgetRef ref) => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsAdvanced);
 
 /// A feature's name as the Advanced page shows it.
 String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) {
@@ -53,9 +57,18 @@ class SettingsAdvancedScreen extends ConsumerWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(context.l10n.deskSetAdvIntro, style: context.ts.bodyDim),
-        SizedBox(height: Sp.x5),
-        const _ShowsGroup(),
+        // The tour lights the top of the page: the intro and the switches.
+        TourTarget(
+          id: 'advanced-top',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(context.l10n.deskSetAdvIntro, style: context.ts.bodyDim),
+              SizedBox(height: Sp.x5),
+              const _ShowsGroup(),
+            ],
+          ),
+        ),
         SizedBox(height: Sp.x6),
         const _NetworkGroup(),
       ],
