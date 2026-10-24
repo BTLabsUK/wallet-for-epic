@@ -1,0 +1,104 @@
+{
+  "deskSetReportNotSent": "The report was not sent. Try again.",
+  "@deskSetReportNotSent": {
+    "description": "Report a problem dialog: error when sending failed."
+  },
+  "deskSetReportSaveDialog": "Save the report",
+  "@deskSetReportSaveDialog": {
+    "description": "Title of the system Save dialog when saving the report to a file."
+  },
+  "deskSetReportSaved": "Saved. Cleaned of secrets, not encrypted.",
+  "@deskSetReportSaved": {
+    "description": "Report a problem dialog: notice after the report was saved to a file."
+  },
+  "deskSetReportNotSaved": "The file was not saved. Try again.",
+  "@deskSetReportNotSaved": {
+    "description": "Report a problem dialog: error when saving to a file failed."
+  },
+  "deskSetReportText": "Report text",
+  "@deskSetReportText": {
+    "description": "Report a problem dialog: item in the \"What is sent\" list."
+  },
+  "deskSetReportAppLog": "App log (last {size})",
+  "@deskSetReportAppLog": {
+    "description": "Report a problem dialog: item in the \"What is sent\" list. {size} is like \"256 KB\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetReportSent": "Report sent",
+  "@deskSetReportSent": {
+    "description": "Report a problem dialog: title after the report was sent."
+  },
+  "deskSetReportArrived": "The report arrived.",
+  "@deskSetReportArrived": {
+    "description": "Report a problem dialog: description after the report was sent, when there is no reference."
+  },
+  "deskSetReportArrivedRef": "The report arrived. Its reference is {id}.",
+  "@deskSetReportArrivedRef": {
+    "description": "Report a problem dialog: description after the report was sent. {id} is a reference code.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetReportDescribe": "Describe what happened.",
+  "@deskSetReportDescribe": {
+    "description": "Report a problem dialog: error under the description field when empty."
+  },
+  "deskSetReportTitle": "Report a problem",
+  "@deskSetReportTitle": {
+    "description": "Report a problem dialog: title."
+  },
+  "deskSetReportDesc": "The report is encrypted so only the developer can read it. Nothing is sent before Send. Save to file keeps the same cleaned report, not encrypted.",
+  "@deskSetReportDesc": {
+    "description": "Report a problem dialog: description under the title. \"Send\" and \"Save to file\" are button names."
+  },
+  "deskSetReportWhat": "What happened",
+  "@deskSetReportWhat": {
+    "description": "Report a problem dialog: label and screen reader name of the description field."
+  },
+  "deskSetReportWhatHint": "What you did, what you expected, what happened instead",
+  "@deskSetReportWhatHint": {
+    "description": "Report a problem dialog: placeholder of the description field."
+  },
+  "deskSetReportContact": "Contact",
+  "@deskSetReportContact": {
+    "description": "Report a problem dialog: label and screen reader name of the optional contact field."
+  },
+  "deskSetReportContactHint": "An email address or other handle, for a reply",
+  "@deskSetReportContactHint": {
+    "description": "Report a problem dialog: placeholder of the contact field."
+  },
+  "deskSetReportAttach": "Attach logs (recommended)",
+  "@deskSetReportAttach": {
+    "description": "Report a problem dialog: checkbox label."
+  },
+  "deskSetReportAttachHint": "The newest part of the app log, cleaned of phrases, passwords, addresses, IPs and home folders.",
+  "@deskSetReportAttachHint": {
+    "description": "Report a problem dialog: small text under the Attach logs checkbox."
+  },
+  "deskSetReportSentWhat": "What is sent",
+  "@deskSetReportSentWhat": {
+    "description": "Report a problem dialog: title of the collapsible list of what the report holds."
+  },
+  "deskSetReportNotSentTitle": "Not sent",
+  "@deskSetReportNotSentTitle": {
+    "description": "Report a problem dialog: title of the error notice when sending failed."
+  },
+  "deskSetReportOff": "Sending is off in this build",
+  "@deskSetReportOff": {
+    "description": "Report a problem dialog: notice shown when this app build cannot send reports."
+  },
+  "deskSetReportSaveToFile": "Save to file",
+  "@deskSetReportSaveToFile": {
+    "description": "Report a problem dialog: button that saves the report to a file."
+  },
+  "deskSetReportSend": "Send",
+  "@deskSetReportSend": {
+    "description": "Report a problem dialog: primary button that sends the report."
+  }
+}

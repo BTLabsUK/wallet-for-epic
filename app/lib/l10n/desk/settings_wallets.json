@@ -1,0 +1,77 @@
+{
+  "deskSetWalletsAddedBack": "{name} added back",
+  "@deskSetWalletsAddedBack": {
+    "description": "Toast title after a wallet that was removed from the list was added back. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetWalletsNotAddedBack": "Not added back",
+  "@deskSetWalletsNotAddedBack": {
+    "description": "Toast title when adding a wallet back failed."
+  },
+  "deskSetWalletsOpenNow": "Open now",
+  "@deskSetWalletsOpenNow": {
+    "description": "Settings > All wallets: tag on the wallet that is open. Short."
+  },
+  "deskSetWalletsFolderMissing": "Folder missing",
+  "@deskSetWalletsFolderMissing": {
+    "description": "Settings > All wallets: tag on a wallet whose folder is gone. Short."
+  },
+  "deskSetWalletsShowFolder": "Show {name} in its folder",
+  "@deskSetWalletsShowFolder": {
+    "description": "Tooltip and screen reader label of the button that opens a wallet’s folder. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetWalletsRemove": "Remove {name}…",
+  "@deskSetWalletsRemove": {
+    "description": "Tooltip and screen reader label of the button that opens the remove dialog. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetWalletsRemovedGroup": "Removed from list",
+  "@deskSetWalletsRemovedGroup": {
+    "description": "Settings > All wallets: title of the group of wallets removed from the list but whose files still exist."
+  },
+  "deskSetWalletsAddBack": "Add back",
+  "@deskSetWalletsAddBack": {
+    "description": "Settings > All wallets: button that puts a removed wallet back into the list."
+  },
+  "deskSetWalletsAdd": "Add a wallet",
+  "@deskSetWalletsAdd": {
+    "description": "Settings > All wallets: heading above the cards for creating, importing or restoring a wallet."
+  },
+  "deskSetWalletsCreate": "Create a wallet",
+  "@deskSetWalletsCreate": {
+    "description": "Settings > All wallets: card title."
+  },
+  "deskSetWalletsCreateText": "A new wallet with a new recovery phrase.",
+  "@deskSetWalletsCreateText": {
+    "description": "Settings > All wallets: text of the Create a wallet card."
+  },
+  "deskSetWalletsImport": "Import",
+  "@deskSetWalletsImport": {
+    "description": "Settings > All wallets: card title for importing wallets from an older app or a folder."
+  },
+  "deskSetWalletsImportText": "From an older Epic Wallet or a folder.",
+  "@deskSetWalletsImportText": {
+    "description": "Settings > All wallets: text of the Import card."
+  },
+  "deskSetWalletsRestore": "Restore",
+  "@deskSetWalletsRestore": {
+    "description": "Settings > All wallets: card title for restoring a wallet from its recovery phrase."
+  },
+  "deskSetWalletsRestoreText": "From a recovery phrase.",
+  "@deskSetWalletsRestoreText": {
+    "description": "Settings > All wallets: text of the Restore card."
+  }
+}

@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -282,9 +283,9 @@ void main() {
   });
 
   test('statusWords: the table of §19', () {
-    expect(statusWords(mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epiccash.com', accepted: true).detail, 'blocks · using node.epiccash.com meanwhile');
-    expect(statusWords(mockLocalNode(LocalNodePhase.stopped), fallback: 'node.epiccash.com', accepted: true).detail, 'the wallet uses node.epiccash.com meanwhile');
-    expect(statusWords(mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, 'Change folder…');
-    expect(statusWords(mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), fallback: 'x', accepted: true).notice?.action, isNull);
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epiccash.com', accepted: true).detail, 'blocks · using node.epiccash.com meanwhile');
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.stopped), fallback: 'node.epiccash.com', accepted: true).detail, 'the wallet uses node.epiccash.com meanwhile');
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, NodeAct.folder);
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), fallback: 'x', accepted: true).notice?.action, isNull);
   });
 }

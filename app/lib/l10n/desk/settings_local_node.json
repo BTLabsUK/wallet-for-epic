@@ -1,0 +1,867 @@
+{
+  "deskSetLnodeDidNotStart": "The node did not start",
+  "@deskSetLnodeDidNotStart": {
+    "description": "Toast title when starting the local node failed; the error follows as text."
+  },
+  "deskSetLnodeDidNotStop": "The node did not stop",
+  "@deskSetLnodeDidNotStop": {
+    "description": "Toast title when stopping the local node failed; the error follows as text."
+  },
+  "deskSetLnodeDidNotRestart": "The node did not restart",
+  "@deskSetLnodeDidNotRestart": {
+    "description": "Toast title when restarting the local node failed; the error follows as text."
+  },
+  "deskSetLnodeMoved": "Chain data moved",
+  "@deskSetLnodeMoved": {
+    "description": "Toast title after the blockchain data folder was moved. The new path follows as text."
+  },
+  "deskSetLnodeFolderChanged": "Data folder changed",
+  "@deskSetLnodeFolderChanged": {
+    "description": "Toast title after the node data folder was changed without moving data. The new path follows as text."
+  },
+  "deskSetLnodeFolderFailed": "The folder did not change",
+  "@deskSetLnodeFolderFailed": {
+    "description": "Toast title when changing the node data folder failed."
+  },
+  "deskSetLnodeStart": "Start",
+  "@deskSetLnodeStart": {
+    "description": "Local node panel: button that starts the node. Short."
+  },
+  "deskSetLnodeStop": "Stop",
+  "@deskSetLnodeStop": {
+    "description": "Local node panel: button that stops the node. Short."
+  },
+  "deskSetLnodeRestart": "Restart",
+  "@deskSetLnodeRestart": {
+    "description": "Local node panel: button that restarts the node; also the label of a notice button. Short."
+  },
+  "deskSetLnodeTabStatus": "Status",
+  "@deskSetLnodeTabStatus": {
+    "description": "Local node panel: tab showing the node state. Short."
+  },
+  "deskSetLnodeTabPeers": "Peers",
+  "@deskSetLnodeTabPeers": {
+    "description": "Local node panel: tab showing connected peers. Short."
+  },
+  "deskSetLnodeWhileSyncing": "While syncing",
+  "@deskSetLnodeWhileSyncing": {
+    "description": "Local node panel: row title for using another node while the local node syncs."
+  },
+  "deskSetLnodeWhileSyncingText": "Use {host} until the local node is synced. The local node takes over by itself.",
+  "@deskSetLnodeWhileSyncingText": {
+    "description": "Local node panel: text of the While syncing row. {host} is a node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeChange": "Change…",
+  "@deskSetLnodeChange": {
+    "description": "Local node panel: button that opens a dialog to change a setting. Short; the dots mean a dialog follows."
+  },
+  "deskSetLnodeUseWhileSyncing": "Use {host} while syncing",
+  "@deskSetLnodeUseWhileSyncing": {
+    "description": "Screen reader label of the switch that makes the wallet use another node while the local node syncs. {host} is a node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeDataFolder": "Data folder",
+  "@deskSetLnodeDataFolder": {
+    "description": "Local node panel: row title for the folder where the node keeps its data."
+  },
+  "deskSetLnodeUsed": "{size} used",
+  "@deskSetLnodeUsed": {
+    "description": "Local node panel: disk space the chain data uses, e.g. \"4.2 GB used\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeFreeUnknown": "free space unknown",
+  "@deskSetLnodeFreeUnknown": {
+    "description": "Local node panel: shown when the free disk space cannot be read. Lowercase, part of a line."
+  },
+  "deskSetLnodeFree": "{size} free",
+  "@deskSetLnodeFree": {
+    "description": "Local node panel: free disk space, e.g. \"120 GB free\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeOpen": "Open",
+  "@deskSetLnodeOpen": {
+    "description": "Local node panel: button that opens the data folder in the file manager. Short."
+  },
+  "deskSetLnodeFolderNotOpened": "Folder not opened",
+  "@deskSetLnodeFolderNotOpened": {
+    "description": "Toast title when the data folder could not be opened. The path follows as text."
+  },
+  "deskSetLnodeChainData": "Chain data",
+  "@deskSetLnodeChainData": {
+    "description": "Local node panel: row title for the downloaded blockchain."
+  },
+  "deskSetLnodeChainPointed": "This node reads another program’s folder; delete it there.",
+  "@deskSetLnodeChainPointed": {
+    "description": "Local node panel: text of the Chain data row when the node uses another program’s folder."
+  },
+  "deskSetLnodeChainText": "Use chain data another Epic node left on this computer, or delete this node’s data and download the chain again.",
+  "@deskSetLnodeChainText": {
+    "description": "Local node panel: text of the Chain data row."
+  },
+  "deskSetLnodeReuse": "Reuse existing…",
+  "@deskSetLnodeReuse": {
+    "description": "Local node panel: button that offers chain data found on this computer. The dots mean a dialog follows."
+  },
+  "deskSetLnodeDelete": "Delete…",
+  "@deskSetLnodeDelete": {
+    "description": "Local node panel: button that deletes the chain data. The dots mean a dialog follows."
+  },
+  "deskSetLnodeAutostart": "Start with the app",
+  "@deskSetLnodeAutostart": {
+    "description": "Local node panel: switch title and screen reader name for starting the node when the app starts."
+  },
+  "deskSetLnodeAutostartHint": "Starts the node at launch and keeps it syncing while the app is open.",
+  "@deskSetLnodeAutostartHint": {
+    "description": "Local node panel: hint under Start with the app."
+  },
+  "deskSetLnodeViewLog": "View node log",
+  "@deskSetLnodeViewLog": {
+    "description": "Local node panel: button and notice button that open the node log."
+  },
+  "deskSetLnodeChangeFolder": "Change folder…",
+  "@deskSetLnodeChangeFolder": {
+    "description": "Local node panel: notice button that opens the change data folder dialog."
+  },
+  "deskSetLnodeUseMeanwhile": "Use {host} meanwhile",
+  "@deskSetLnodeUseMeanwhile": {
+    "description": "Local node panel: notice button that makes the wallet use another node while the local node syncs. {host} is a node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeWaitingPeers": "waiting for peers",
+  "@deskSetLnodeWaitingPeers": {
+    "description": "Local node panel: detail after the status word while the node starts. Lowercase."
+  },
+  "deskSetLnodeSyncingLower": "syncing",
+  "@deskSetLnodeSyncingLower": {
+    "description": "Local node panel: detail after the status word while syncing, when no stage is known. Lowercase."
+  },
+  "deskSetLnodeStageUsing": "{stage} · using {host} meanwhile",
+  "@deskSetLnodeStageUsing": {
+    "description": "Local node panel: detail after the status word. {stage} is a sync stage word; {host} a node address.",
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeNothingUntilSynced": "Nothing can be sent or received until the local node is synced.",
+  "@deskSetLnodeNothingUntilSynced": {
+    "description": "Local node panel: notice title while the node is syncing."
+  },
+  "deskSetLnodeAtTip": "at tip",
+  "@deskSetLnodeAtTip": {
+    "description": "Local node panel: detail after the block height when the node has the newest block. Lowercase."
+  },
+  "deskSetLnodeStalledDetail": "no progress for 5 min; restarted once already",
+  "@deskSetLnodeStalledDetail": {
+    "description": "Local node panel: detail after the status word when the sync stalled. Lowercase."
+  },
+  "deskSetLnodeNoProgress": "The node makes no progress.",
+  "@deskSetLnodeNoProgress": {
+    "description": "Local node panel: notice title when the sync stalled."
+  },
+  "deskSetLnodeNoProgressText": "Restarting usually helps; if not, the log says why.",
+  "@deskSetLnodeNoProgressText": {
+    "description": "Local node panel: notice text when the sync stalled."
+  },
+  "deskSetLnodePortInUse": "Port 3413 is used by another program.",
+  "@deskSetLnodePortInUse": {
+    "description": "Local node panel: notice title when the node cannot open its port."
+  },
+  "deskSetLnodePortInUseText": "Close it (another Epic node?) or pick the node already running there under Node server.",
+  "@deskSetLnodePortInUseText": {
+    "description": "Local node panel: notice text when the port is in use. \"Node server\" is a row title in Settings > Node."
+  },
+  "deskSetLnodeDiskLow": "Less than 2 GB free on this volume.",
+  "@deskSetLnodeDiskLow": {
+    "description": "Local node panel: notice title when the disk is nearly full."
+  },
+  "deskSetLnodeDiskLowText": "Free space or change the data folder.",
+  "@deskSetLnodeDiskLowText": {
+    "description": "Local node panel: notice text when the disk is nearly full."
+  },
+  "deskSetLnodeMissing": "The node program is missing from this installation.",
+  "@deskSetLnodeMissing": {
+    "description": "Local node panel: notice title when the node program file is gone."
+  },
+  "deskSetLnodeMissingText": "Reinstall the wallet.",
+  "@deskSetLnodeMissingText": {
+    "description": "Local node panel: notice text when the node program file is gone."
+  },
+  "deskSetLnodeStopped": "The node stopped by itself.",
+  "@deskSetLnodeStopped": {
+    "description": "Local node panel: notice title when the node ended unexpectedly."
+  },
+  "deskSetLnodeStoppedText": "The last log lines may say why.",
+  "@deskSetLnodeStoppedText": {
+    "description": "Local node panel: notice text when the node ended unexpectedly."
+  },
+  "deskSetLnodeUsesMeanwhile": "the wallet uses {host} meanwhile",
+  "@deskSetLnodeUsesMeanwhile": {
+    "description": "Local node panel: detail after the status word when the node is stopped and another node is used. Lowercase. {host} is a node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeNothingUntilRuns": "nothing can be sent until it runs",
+  "@deskSetLnodeNothingUntilRuns": {
+    "description": "Local node panel: detail after the status word when the node is stopped. Lowercase."
+  },
+  "deskSetLnodeTilePeers": "Peers",
+  "@deskSetLnodeTilePeers": {
+    "description": "Local node panel: label of the tile showing the number of connected peers."
+  },
+  "deskSetLnodeTileSync": "Sync",
+  "@deskSetLnodeTileSync": {
+    "description": "Local node panel: label of the tile showing sync progress."
+  },
+  "deskSetLnodeTileDownload": "Download",
+  "@deskSetLnodeTileDownload": {
+    "description": "Local node panel: label of the tile showing the download speed."
+  },
+  "deskSetLnodeSoFar": "{size} so far",
+  "@deskSetLnodeSoFar": {
+    "description": "Local node panel: download tile suffix, e.g. \"1.2 GB so far\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeTileDisk": "Chain data on disk",
+  "@deskSetLnodeTileDisk": {
+    "description": "Local node panel: label of the tile showing the disk space used by the chain."
+  },
+  "deskSetLnodeThisSession": "+{size} this session",
+  "@deskSetLnodeThisSession": {
+    "description": "Local node panel: disk tile suffix, e.g. \"+300 MB this session\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeVersion": "Version {version}",
+  "@deskSetLnodeVersion": {
+    "description": "Local node panel: node version in the line under the tiles.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeRunning": "running {duration}",
+  "@deskSetLnodeRunning": {
+    "description": "Local node panel: how long the node has run, e.g. \"running 2 h 5 min\". Lowercase.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeStoppedAt": "stopped {time}",
+  "@deskSetLnodeStoppedAt": {
+    "description": "Local node panel: when the node stopped, e.g. \"stopped 14:02\". Lowercase.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodePeersCount": "{count, plural, one{{count} peer} other{{count} peers}}",
+  "@deskSetLnodePeersCount": {
+    "description": "Local node panel: number of connected peers in the line under the tiles.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetLnodeMoving": "Moving the chain data · {done} of {total}",
+  "@deskSetLnodeMoving": {
+    "description": "Local node panel: progress text while the data folder moves, e.g. \"Moving the chain data · 1 GB of 4 GB\".",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeConnectingPeers": "Connecting to peers",
+  "@deskSetLnodeConnectingPeers": {
+    "description": "Local node panel: line under the progress bar while the node looks for peers."
+  },
+  "deskSetLnodeStartedSecAgo": "started {seconds} s ago",
+  "@deskSetLnodeStartedSecAgo": {
+    "description": "Local node panel: how long ago the node started, in seconds. Lowercase.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetLnodeStartedAgo": "started {duration} ago",
+  "@deskSetLnodeStartedAgo": {
+    "description": "Local node panel: how long ago the node started. {duration} is like \"3 min\". Lowercase.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeSettingsChanged": "Settings changed.",
+  "@deskSetLnodeSettingsChanged": {
+    "description": "Local node panel: notice title when node settings changed while it runs."
+  },
+  "deskSetLnodeSettingsChangedText": "They apply at the next restart.",
+  "@deskSetLnodeSettingsChangedText": {
+    "description": "Local node panel: notice text when node settings changed."
+  },
+  "deskSetLnodeRestartNow": "Restart now",
+  "@deskSetLnodeRestartNow": {
+    "description": "Local node panel: notice button that restarts the node."
+  },
+  "deskSetLnodeSampled": "Sampled every 30 s while this page is open.",
+  "@deskSetLnodeSampled": {
+    "description": "Local node panel: note under the tiles."
+  },
+  "deskSetLnodeTomlEdited": "epic-server.toml was edited by hand; peer and folder settings here do not apply.",
+  "@deskSetLnodeTomlEdited": {
+    "description": "Local node panel: warning when the node config file was edited by hand. epic-server.toml is a file name and stays."
+  },
+  "deskSetLnodeSyncProgress": "Sync progress",
+  "@deskSetLnodeSyncProgress": {
+    "description": "Screen reader label of the sync progress bar."
+  },
+  "deskSetLnodeStepHeaders": "Headers",
+  "@deskSetLnodeStepHeaders": {
+    "description": "Local node panel: first sync step name. Short; shown in a row of four."
+  },
+  "deskSetLnodeStepChainState": "Chain state",
+  "@deskSetLnodeStepChainState": {
+    "description": "Local node panel: second sync step name. Short; shown in a row of four."
+  },
+  "deskSetLnodeStepBlocks": "Blocks",
+  "@deskSetLnodeStepBlocks": {
+    "description": "Local node panel: third sync step name. Short; shown in a row of four."
+  },
+  "deskSetLnodeStepsNone": "Sync steps: none started",
+  "@deskSetLnodeStepsNone": {
+    "description": "Screen reader label of the sync step strip before the first step."
+  },
+  "deskSetLnodeStepOf": "Sync step {n} of 4: {name}",
+  "@deskSetLnodeStepOf": {
+    "description": "Screen reader label of the sync step strip. {n} is the step number, {name} its name.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndAskTitle": "Use {host} until the local node is synced?",
+  "@deskSetLndAskTitle": {
+    "description": "Dialog title asked once when the local node first syncs. {host} is a public node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndAskDesc": "Syncing takes hours. Meanwhile the wallet can read the chain and send through {host}, a public node. The local node takes over by itself once it is synced.",
+  "@deskSetLndAskDesc": {
+    "description": "Fallback question dialog: description. {host} is a public node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndAskNote": "Asked once. The node and the choice can be changed under Settings › Node › While syncing.",
+  "@deskSetLndAskNote": {
+    "description": "Fallback question dialog: small note. \"Settings › Node › While syncing\" is a menu path."
+  },
+  "deskSetLndAskWait": "Wait for the local node",
+  "@deskSetLndAskWait": {
+    "description": "Fallback question dialog: button to wait instead of using a public node."
+  },
+  "deskSetLndAskUse": "Use {host}",
+  "@deskSetLndAskUse": {
+    "description": "Fallback question dialog: primary button. {host} is a public node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndPickTitle": "Node while syncing",
+  "@deskSetLndPickTitle": {
+    "description": "Dialog title for choosing the public node used while the local node syncs."
+  },
+  "deskSetLndPickDesc": "The public node the wallet uses until the local node is synced.",
+  "@deskSetLndPickDesc": {
+    "description": "Node while syncing dialog: description."
+  },
+  "deskSetLndDeleted": "Chain data deleted",
+  "@deskSetLndDeleted": {
+    "description": "Toast title after the chain data was deleted."
+  },
+  "deskSetLndFreed": "{size} freed",
+  "@deskSetLndFreed": {
+    "description": "Toast text after the chain data was deleted, e.g. \"4.2 GB freed\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndNotDeleted": "Chain data not deleted",
+  "@deskSetLndNotDeleted": {
+    "description": "Toast title when deleting the chain data failed."
+  },
+  "deskSetLndDeleteTitle": "Delete chain data",
+  "@deskSetLndDeleteTitle": {
+    "description": "Delete chain data dialog: title and danger button."
+  },
+  "deskSetLndDeleteDesc": "Removes {size} from {path}. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.",
+  "@deskSetLndDeleteDesc": {
+    "description": "Delete chain data dialog: description. {size} is a size like \"4.2 GB\"; {path} a folder path.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndDeleteDescNoSize": "Removes the chain data from {path}. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.",
+  "@deskSetLndDeleteDescNoSize": {
+    "description": "Delete chain data dialog: description when the size is not known. {path} is a folder path.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndTypeToConfirm": "Type {word} to confirm.",
+  "@deskSetLndTypeToConfirm": {
+    "description": "Delete chain data dialog: asks to type a word, which is shown in monospace in place of {word}. The word itself is always the English \"delete\" and is not translated.",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndTypeToConfirmLabel": "Type {word} to confirm",
+  "@deskSetLndTypeToConfirmLabel": {
+    "description": "Screen reader label of the confirmation field in the Delete chain data dialog. {word} is the English word \"delete\".",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndSourceCli": "epic (the command-line node)",
+  "@deskSetLndSourceCli": {
+    "description": "Reuse chain data dialog: where a chain data folder came from. \"epic\" is the program name."
+  },
+  "deskSetLndSourceGui": "Epic GUI",
+  "@deskSetLndSourceGui": {
+    "description": "Reuse chain data dialog: where a chain data folder came from."
+  },
+  "deskSetLndSourceBundled": "an earlier Epic Wallet",
+  "@deskSetLndSourceBundled": {
+    "description": "Reuse chain data dialog: where a chain data folder came from."
+  },
+  "deskSetLndSourceCustom": "another folder",
+  "@deskSetLndSourceCustom": {
+    "description": "Reuse chain data dialog: where a chain data folder came from."
+  },
+  "deskSetLndInUse": "Chain data in use",
+  "@deskSetLndInUse": {
+    "description": "Toast title after the node was pointed at existing chain data. The folder follows as text."
+  },
+  "deskSetLndNotInUse": "The folder is not in use",
+  "@deskSetLndNotInUse": {
+    "description": "Toast title when pointing the node at a chain data folder failed."
+  },
+  "deskSetLndReuseTitle": "Chain data found on this computer",
+  "@deskSetLndReuseTitle": {
+    "description": "Reuse chain data dialog: title."
+  },
+  "deskSetLndReuseDesc": "Another Epic node left chain data here. The local node can read that folder instead of downloading the chain.",
+  "@deskSetLndReuseDesc": {
+    "description": "Reuse chain data dialog: description."
+  },
+  "deskSetLndLooking": "Looking…",
+  "@deskSetLndLooking": {
+    "description": "Reuse chain data dialog: shown while folders are searched."
+  },
+  "deskSetLndUseIt": "Use it",
+  "@deskSetLndUseIt": {
+    "description": "Reuse chain data dialog: choice title for using a found folder."
+  },
+  "deskSetLndLastWritten": "last written {date}",
+  "@deskSetLndLastWritten": {
+    "description": "Reuse chain data dialog: when the folder last changed, e.g. \"last written 2026-10-03\". Lowercase.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndLocked": "In use by another program",
+  "@deskSetLndLocked": {
+    "description": "Reuse chain data dialog: shown on a folder that another program holds."
+  },
+  "deskSetLndNothingCopied": "Nothing is copied: the node reads that folder, and Delete chain data is off for it.",
+  "@deskSetLndNothingCopied": {
+    "description": "Reuse chain data dialog: explains what Use it does. \"Delete chain data\" is a button name."
+  },
+  "deskSetLndFresh": "Download fresh",
+  "@deskSetLndFresh": {
+    "description": "Reuse chain data dialog: choice title for not reusing any folder."
+  },
+  "deskSetLndFreshLine": "Into the wallet’s own folder. About {size}.",
+  "@deskSetLndFreshLine": {
+    "description": "Reuse chain data dialog: Download fresh details. {size} is like \"5 GB\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndLogTitle": "Node log",
+  "@deskSetLndLogTitle": {
+    "description": "Node log dialog: title."
+  },
+  "deskSetLndReading": "Reading…",
+  "@deskSetLndReading": {
+    "description": "Node log dialog: shown while the log is read."
+  },
+  "deskSetLndLogNote": "Last 200 lines of epic-server.log in the data folder. Newest at the bottom.",
+  "@deskSetLndLogNote": {
+    "description": "Node log dialog: note under the log. epic-server.log is a file name and stays."
+  },
+  "deskSetLndCopied": "Copied",
+  "@deskSetLndCopied": {
+    "description": "Toast title after the node log was copied."
+  },
+  "deskSetLndLines": "{count, plural, one{{count} line} other{{count} lines}}",
+  "@deskSetLndLines": {
+    "description": "Toast text after the node log was copied.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetLndBadFolder": "That folder does not work",
+  "@deskSetLndBadFolder": {
+    "description": "Change folder dialog: title when the chosen folder is unusable. The reasons follow."
+  },
+  "deskSetLndChooseAnother": "Choose another",
+  "@deskSetLndChooseAnother": {
+    "description": "Change folder dialog: button to pick another folder."
+  },
+  "deskSetLndMoveTitle": "Move {size} to {folder}?",
+  "@deskSetLndMoveTitle": {
+    "description": "Change folder dialog: title. {size} is like \"4.2 GB\"; {folder} a path.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndMoveDesc": "The node stops while the data moves, then starts again from the new folder. Start fresh there downloads the chain again into it instead.",
+  "@deskSetLndMoveDesc": {
+    "description": "Change folder dialog: description. \"Start fresh there\" is a button name."
+  },
+  "deskSetLndStartFresh": "Start fresh there",
+  "@deskSetLndStartFresh": {
+    "description": "Change folder dialog: button that uses the new folder and downloads the chain again."
+  },
+  "deskSetLndMove": "Move",
+  "@deskSetLndMove": {
+    "description": "Change folder dialog: primary button that moves the data."
+  },
+  "deskSetLndProbNotEmpty": "The folder is not empty.",
+  "@deskSetLndProbNotEmpty": {
+    "description": "Change folder dialog: reason the chosen folder does not work."
+  },
+  "deskSetLndProbInsideSource": "It is inside the current folder.",
+  "@deskSetLndProbInsideSource": {
+    "description": "Change folder dialog: reason; \"It\" is the chosen folder."
+  },
+  "deskSetLndProbSourceInside": "The current folder is inside it.",
+  "@deskSetLndProbSourceInside": {
+    "description": "Change folder dialog: reason; \"it\" is the chosen folder."
+  },
+  "deskSetLndProbSpace": "Not enough space: {needed} needed, {free} free.",
+  "@deskSetLndProbSpace": {
+    "description": "Change folder dialog: reason. Sizes like \"4.2 GB\".",
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      },
+      "free": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndProbSpaceUnknown": "Not enough space: {needed} needed, unknown free.",
+  "@deskSetLndProbSpaceUnknown": {
+    "description": "Change folder dialog: reason when the free space cannot be read. {needed} is a size.",
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndProbLocked": "Another program holds it.",
+  "@deskSetLndProbLocked": {
+    "description": "Change folder dialog: reason; \"it\" is the current folder."
+  },
+  "deskSetLndProbMissing": "The current chain data is missing.",
+  "@deskSetLndProbMissing": {
+    "description": "Change folder dialog: reason."
+  },
+  "deskSetLndProbNotWritable": "It cannot be written to.",
+  "@deskSetLndProbNotWritable": {
+    "description": "Change folder dialog: reason; \"It\" is the chosen folder."
+  },
+  "deskSetLndProbIncomplete": "The current chain data is incomplete.",
+  "@deskSetLndProbIncomplete": {
+    "description": "Change folder dialog: reason."
+  },
+  "deskSetLndProbForeign": "Another program’s chain data is there.",
+  "@deskSetLndProbForeign": {
+    "description": "Change folder dialog: reason."
+  },
+  "deskSetPeersBannedToast": "Peer banned",
+  "@deskSetPeersBannedToast": {
+    "description": "Toast title after a peer was banned. The peer address follows as text."
+  },
+  "deskSetPeersUnbannedToast": "Peer unbanned",
+  "@deskSetPeersUnbannedToast": {
+    "description": "Toast title after a peer was unbanned. The peer address follows as text."
+  },
+  "deskSetPeersNotAddress": "Not an IP address and port, such as 203.0.113.5:3414.",
+  "@deskSetPeersNotAddress": {
+    "description": "Peers tab: error under the preferred peer field."
+  },
+  "deskSetPeersAlreadyPreferred": "Already preferred.",
+  "@deskSetPeersAlreadyPreferred": {
+    "description": "Peers tab: error under the preferred peer field when the address is already in the list."
+  },
+  "deskSetPeersMaxRange": "{min} to {max}.",
+  "@deskSetPeersMaxRange": {
+    "description": "Peers tab: error under the maximum peers fields, e.g. \"8 to 500.\"",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPeersReading": "Reading the peers…",
+  "@deskSetPeersReading": {
+    "description": "Peers tab: summary line while the peers are read."
+  },
+  "deskSetPeersSummary": "{connected} connected · {inbound} in · {outbound} out",
+  "@deskSetPeersSummary": {
+    "description": "Peers tab: summary line. Counts of connected peers, incoming and outgoing connections.",
+    "placeholders": {
+      "connected": {
+        "type": "int"
+      },
+      "inbound": {
+        "type": "int"
+      },
+      "outbound": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPeersSummaryBanned": "{connected} connected · {inbound} in · {outbound} out · {banned} banned",
+  "@deskSetPeersSummaryBanned": {
+    "description": "Peers tab: summary line when some peers are banned.",
+    "placeholders": {
+      "connected": {
+        "type": "int"
+      },
+      "inbound": {
+        "type": "int"
+      },
+      "outbound": {
+        "type": "int"
+      },
+      "banned": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPeersIn": "in",
+  "@deskSetPeersIn": {
+    "description": "Peers tab: direction of a connection that the peer opened. Lowercase, narrow column."
+  },
+  "deskSetPeersOut": "out",
+  "@deskSetPeersOut": {
+    "description": "Peers tab: direction of a connection that this node opened. Lowercase, narrow column."
+  },
+  "deskSetPeersBan": "Ban",
+  "@deskSetPeersBan": {
+    "description": "Peers tab: small button on a peer row that bans the peer."
+  },
+  "deskSetPeersColAddress": "Address",
+  "@deskSetPeersColAddress": {
+    "description": "Peers tab: table header of the peer address column."
+  },
+  "deskSetPeersColDirection": "Direction",
+  "@deskSetPeersColDirection": {
+    "description": "Peers tab: table header of the connection direction column. Narrow (70 px)."
+  },
+  "deskSetPeersColVersion": "Version",
+  "@deskSetPeersColVersion": {
+    "description": "Peers tab: table header of the peer software version column. Narrow (70 px)."
+  },
+  "deskSetPeersColHeight": "Height",
+  "@deskSetPeersColHeight": {
+    "description": "Peers tab: table header of the peer block height column. Narrow (90 px)."
+  },
+  "deskSetPeersColFirstSeen": "First seen",
+  "@deskSetPeersColFirstSeen": {
+    "description": "Peers tab: table header of the column with the time the peer was first seen. Narrow (80 px)."
+  },
+  "deskSetPeersNone": "No peers connected.",
+  "@deskSetPeersNone": {
+    "description": "Peers tab: empty state of the table."
+  },
+  "deskSetPeersMore": "{count, plural, one{{count} more} other{{count} more}}",
+  "@deskSetPeersMore": {
+    "description": "Peers tab: link that shows the remaining peers of the table, e.g. \"12 more\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPeersRefreshed": "Refreshed every 10 s",
+  "@deskSetPeersRefreshed": {
+    "description": "Peers tab: note beside the summary."
+  },
+  "deskSetPeersBanned": "Banned",
+  "@deskSetPeersBanned": {
+    "description": "Peers tab: small heading of the list of banned peers. Shown in capital letters by the app."
+  },
+  "deskSetPeersBannedAt": "banned {time}",
+  "@deskSetPeersBannedAt": {
+    "description": "Peers tab: when a peer was banned, e.g. \"banned 14:02\". Lowercase.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPeersUnban": "Unban",
+  "@deskSetPeersUnban": {
+    "description": "Peers tab: small button that lifts a ban."
+  },
+  "deskSetPeersPreferred": "Preferred peers",
+  "@deskSetPeersPreferred": {
+    "description": "Peers tab: label of the field for adding a preferred peer."
+  },
+  "deskSetPeersPreferredLabel": "Preferred peer, IP address and port",
+  "@deskSetPeersPreferredLabel": {
+    "description": "Screen reader label of the preferred peer field."
+  },
+  "deskSetPeersAdd": "Add",
+  "@deskSetPeersAdd": {
+    "description": "Peers tab: small button that adds the preferred peer."
+  },
+  "deskSetPeersMaxIn": "Max incoming",
+  "@deskSetPeersMaxIn": {
+    "description": "Peers tab: label of the field for the maximum number of incoming connections."
+  },
+  "deskSetPeersMaxInLabel": "Max incoming peers",
+  "@deskSetPeersMaxInLabel": {
+    "description": "Screen reader label of the maximum incoming connections field."
+  },
+  "deskSetPeersMaxOut": "Max outgoing",
+  "@deskSetPeersMaxOut": {
+    "description": "Peers tab: label of the field for the maximum number of outgoing connections."
+  },
+  "deskSetPeersMaxOutLabel": "Max outgoing peers",
+  "@deskSetPeersMaxOutLabel": {
+    "description": "Screen reader label of the maximum outgoing connections field."
+  },
+  "deskSetPeersPreferredCount": "{count, plural, one{{count} preferred:} other{{count} preferred:}}",
+  "@deskSetPeersPreferredCount": {
+    "description": "Peers tab: label before the list of preferred peers, e.g. \"2 preferred:\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPeersForget": "Forget {peer}",
+  "@deskSetPeersForget": {
+    "description": "Tooltip and screen reader label of the small button that removes a preferred peer. {peer} is its address.",
+    "placeholders": {
+      "peer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPeersNote": "First seen is when this app first saw the peer connected, this session; the node does not report when a connection began. Ban and unban use the node’s owner API. Enter saves a maximum ({min} to {max}, {def} by default).",
+  "@deskSetPeersNote": {
+    "description": "Peers tab: explanatory note at the bottom. \"Enter\" is the keyboard key. {min}, {max} and {def} are numbers.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      },
+      "def": {
+        "type": "int"
+      }
+    }
+  }
+}

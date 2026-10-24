@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../../app_log.dart' show LogFileInfo, maxLogFileBytes;
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/logs.dart';
@@ -31,76 +32,75 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
 
   Future<void> _open() async {
     final dir = ref.read(logFilesProvider).folder;
+    final l = context.l10n;
     final ok = dir != null && await ref.read(deskOpenFolderProvider)(dir);
-    if (!ok && mounted) showEToast(context, 'Folder not opened', text: dir ?? 'The log is kept in memory only.', tone: ETone.warn);
+    if (!ok && mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: dir ?? l.deskSetLogsMemoryOnly, tone: ETone.warn);
   }
 
   Future<void> _clear() async {
     final ok = await showEDialog<bool>(
       context,
       builder: (context) => EDialog(
-        title: 'Clear logs?',
+        title: context.l10n.deskSetLogsClearTitle,
         icon: EIcons.trash,
         tone: ETone.warn,
-        description: 'Deletes the log files. A report sent later has only what is logged from now on.',
+        description: context.l10n.deskSetLogsClearDesc,
         actions: [
-          EButton(label: 'Keep logs', size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
-          EButton(label: 'Clear logs', icon: EIcons.trash, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+          EButton(label: context.l10n.deskSetLogsKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
+          EButton(label: context.l10n.deskSetLogsClear, icon: EIcons.trash, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
         ],
       ),
     );
     if (ok != true) return;
     await ref.read(logFilesProvider).clear();
     await _read();
-    if (mounted) showEToast(context, 'Logs cleared');
+    if (mounted) showEToast(context, context.l10n.deskSetLogsCleared);
   }
 
-  String _until(DateTime at) {
+  String _until(AppLocalizations l, DateTime at) {
     final now = ref.read(logsClockProvider)();
     String two(int v) => v.toString().padLeft(2, '0');
     final time = '${two(at.hour)}:${two(at.minute)}';
     final today = at.year == now.year && at.month == now.month && at.day == now.day;
-    return today ? 'today $time' : 'tomorrow $time';
+    return today ? l.deskSetLogsToday(time) : l.deskSetLogsTomorrow(time);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final logs = ref.watch(logsProvider);
     final total = _files?.fold<int>(0, (sum, f) => sum + f.bytes);
     final level = logs.until;
     return ESetGroup(
-      title: 'Logs',
+      title: l.deskSetLogsTitle,
       rows: [
         ESetRow(
-          title: 'Log level',
+          title: l.deskSetLogsLevel,
           text: level == null
-              ? 'Normal. Detailed keeps more lines on disk for 24 hours; addresses may appear in the file, reports leave them out.'
-              : 'Detailed until ${_until(level)}, then Normal. Addresses may appear in the file; reports leave them out.'
-                    '${logs.coreDetailed ? '' : ' Wallet core lines get detailed from the next app start.'}',
+              ? l.deskSetLogsLevelNormal
+              : (logs.coreDetailed ? l.deskSetLogsLevelDetailed(_until(l, level)) : l.deskSetLogsLevelDetailedCore(_until(l, level))),
           control: ERowControl(
             wide: true,
             child: ESegmented<bool>(
               stretch: true,
               value: logs.detailed,
               onChanged: (v) => ref.read(logsProvider.notifier).setDetailed(v),
-              segments: const [ESegment(false, 'Normal'), ESegment(true, 'Detailed')],
+              segments: [ESegment(false, l.deskSetLogsNormal), ESegment(true, l.deskSetLogsDetailed)],
             ),
           ),
         ),
         // Two row buttons: under the text when the card leaves the words too little room.
         LayoutBuilder(
           builder: (context, box) => ESetRow(
-          title: 'Log files',
+          title: l.deskSetLogsFiles,
           stacked: box.maxWidth < 720.u,
-          text: total == null
-              ? 'Reading…'
-              : 'Current size ${logSize(total)} of ${logSize(2 * maxLogFileBytes)}. Keeps one older file.',
+          text: total == null ? l.deskSetLndReading : l.deskSetLogsSize(logSize(total), logSize(2 * maxLogFileBytes)),
           control: Wrap(
             spacing: Sp.x2,
             runSpacing: Sp.x2,
             children: [
-              ERowControl(child: EButton(label: 'Open log folder', icon: EIcons.folder, size: EBtnSize.sm, onPressed: _open)),
-              ERowControl(child: EButton(label: 'Clear logs', icon: EIcons.trash, size: EBtnSize.sm, onPressed: total == 0 ? null : _clear)),
+              ERowControl(child: EButton(label: l.deskSetLogsOpenFolder, icon: EIcons.folder, size: EBtnSize.sm, onPressed: _open)),
+              ERowControl(child: EButton(label: l.deskSetLogsClear, icon: EIcons.trash, size: EBtnSize.sm, onPressed: total == 0 ? null : _clear)),
             ],
           ),
         ),

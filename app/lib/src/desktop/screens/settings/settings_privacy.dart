@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/tor_view.dart';
 import '../../widgets/kit.dart';
@@ -67,7 +68,7 @@ class _TorGroupState extends ConsumerState<TorGroup> {
       httpListener: s.httpListener,
       tor: failed ? ServiceHealth.down : ServiceHealth.checking,
       torProgress: failed ? null : 45,
-      torProblem: failed ? 'Tor could not connect to the network' : null,
+      torProblem: failed ? 'Tor could not connect to the network' : null, // l10n-ok: demo status text
       torIncluded: s.torIncluded,
       syncProgress: s.syncProgress,
       lastUpdate: s.lastUpdate,
@@ -76,11 +77,12 @@ class _TorGroupState extends ConsumerState<TorGroup> {
   }
 
   Future<void> _set(bool on) async {
+    final l = context.l10n;
     setState(() => _busy = true);
     try {
       await ref.read(deskProvider.notifier).setTor(on);
     } on Object catch (e) {
-      if (mounted) showEToast(context, on ? 'Tor not turned on' : 'Tor not turned off', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, on ? l.deskSetPrivTorOnFailed : l.deskSetPrivTorOffFailed, text: deskErrorText(e, l), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -88,15 +90,16 @@ class _TorGroupState extends ConsumerState<TorGroup> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final st = ref.watch(deskProvider);
     final status = _status(st.status);
     final included = status?.torIncluded ?? true;
     final tor = torStateOf(st.settings, status);
-    final line = torStateLine(tor, status, included: included);
+    final line = torStateLine(l, tor, status, included: included);
     return JumpSection(
       section: SettingsJump.tor,
       child: ESetGroup(
-        title: 'Tor',
+        title: l.deskSetPrivTor,
         rows: [
           ESetRow(
             title: torNetworkLabel,
@@ -107,7 +110,7 @@ class _TorGroupState extends ConsumerState<TorGroup> {
               width: 40.u,
               height: 24.u,
               child: _busy
-                  ? Center(child: Semantics(label: 'Switching Tor', child: ESpinner(size: 18.u)))
+                  ? Center(child: Semantics(label: l.deskSetPrivSwitching, child: ESpinner(size: 18.u)))
                   : ESwitch(
                       key: const ValueKey('privacy-tor-switch'),
                       value: st.settings.tor && included,
@@ -125,8 +128,8 @@ class _TorGroupState extends ConsumerState<TorGroup> {
                     spacing: Sp.x2,
                     runSpacing: Sp.x2,
                     children: [
-                      EButton(label: 'Retry', icon: EIcons.refresh, size: EBtnSize.inline, busy: _busy, onPressed: _busy ? null : () => _set(true)),
-                      EButton.ghost(label: 'Turn Tor off', size: EBtnSize.inline, onPressed: _busy ? null : () => _set(false)),
+                      EButton(label: l.commonRetry, icon: EIcons.refresh, size: EBtnSize.inline, busy: _busy, onPressed: _busy ? null : () => _set(true)),
+                      EButton.ghost(label: l.deskSetPrivTurnOff, size: EBtnSize.inline, onPressed: _busy ? null : () => _set(false)),
                     ],
                   ),
                 ],
@@ -140,16 +143,20 @@ class _TorGroupState extends ConsumerState<TorGroup> {
 }
 
 /// The Tor state line of Settings › Privacy and the status card's hover card.
-MethodLine torStateLine(TorState tor, ServiceStatus? status, {bool included = true}) {
-  if (!included) return const MethodLine('Not in this build', EState.off);
+MethodLine torStateLine(AppLocalizations l, TorState tor, ServiceStatus? status, {bool included = true}) {
+  if (!included) return MethodLine(l.deskSetPrivNotInBuild, EState.off);
   final waiting = torWaitingText();
   return switch (tor) {
-    TorState.off => const MethodLine('Off', EState.off),
-    TorState.starting => MethodLine('Starting…', EState.warn, detail: '${status?.torProgress ?? 0} %. $waiting wait until Tor is up.'),
+    TorState.off => MethodLine(l.deskSetFrameOff, EState.off),
+    TorState.starting => MethodLine(l.deskSetPrivStarting, EState.warn, detail: l.deskSetPrivStartingDetail(status?.torProgress ?? 0, waiting)),
     TorState.on when status?.tor == ServiceHealth.slow =>
-      MethodLine('On', EState.ok, detail: '${status?.torProblem ?? 'Tor address not published yet'}. Sends work.'),
-    TorState.on => const MethodLine('On', EState.ok, detail: 'Connected.'),
-    TorState.failed => MethodLine('Not connected', EState.risk, detail: '${status?.torProblem ?? 'Tor stopped'}. $waiting wait for Retry or Tor off.'),
+      MethodLine(l.deskSetFrameHealthOn, EState.ok, detail: status?.torProblem == null ? l.deskSetPrivNotPublished : l.deskSetPrivProblemSendsWork(status!.torProblem!)),
+    TorState.on => MethodLine(l.deskSetFrameHealthOn, EState.ok, detail: l.deskSetPrivConnected),
+    TorState.failed => MethodLine(
+      l.deskSetPrivNotConnected,
+      EState.risk,
+      detail: status?.torProblem == null ? l.deskSetPrivStoppedDetail(waiting) : l.deskSetPrivProblemDetail(status!.torProblem!, waiting),
+    ),
   };
 }
 
@@ -161,16 +168,17 @@ class PrivacyGroup extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(deskProvider.select((s) => s.settings));
+    final l = context.l10n;
     return ESetGroup(
-      title: 'Status site',
+      title: l.deskSetPrivStatusSite,
       rows: [
         ESetRow(
-          title: 'Use status.btlabs.uk',
-          hint: 'Network status and information provided by status.btlabs.uk',
+          title: l.deskSetPrivUseStatus,
+          hint: l.deskSetPrivUseStatusHint,
           control: ESwitch(
 
             value: s.useStatusSite,
-            semanticLabel: 'Use status.btlabs.uk',
+            semanticLabel: l.deskSetPrivUseStatus,
             onChanged: (v) => ref.read(deskProvider.notifier).saveSettings(s.copyWith(useStatusSite: v)),
           ),
         ),

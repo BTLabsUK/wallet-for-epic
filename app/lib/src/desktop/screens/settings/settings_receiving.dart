@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
+import '../../desk_l10n.dart';
 import '../../../network.dart' show defaultEpicboxHost;
+import '../../../tor_routes.dart' show TorRoute, TorWay, torWay;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/tor_view.dart' show torStateOf;
 import '../../widgets/kit.dart';
 import '../transfer/epicbox_notice.dart';
 import 'combo.dart';
@@ -61,9 +64,9 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       epicboxHealth: a == ReceivingDemo.epicboxDown ? ServiceHealth.down : s.epicboxHealth,
       httpListener: a == ReceivingDemo.httpFailed ? ServiceHealth.down : s.httpListener,
       tor: a == ReceivingDemo.torStopped ? ServiceHealth.down : s.tor,
-      httpProblem: a == ReceivingDemo.httpFailed ? 'Port ${ref.read(deskProvider).settings.httpPort} in use' : s.httpProblem,
+      httpProblem: a == ReceivingDemo.httpFailed ? 'Port ${ref.read(deskProvider).settings.httpPort} in use' : s.httpProblem, // l10n-ok: demo status text
       torProgress: s.torProgress,
-      torProblem: a == ReceivingDemo.torStopped ? 'Tor could not connect to the network.' : s.torProblem,
+      torProblem: a == ReceivingDemo.torStopped ? 'Tor could not connect to the network.' : s.torProblem, // l10n-ok: demo status text
       torCanSend: s.torCanSend,
       torIncluded: s.torIncluded,
       syncProgress: s.syncProgress,
@@ -73,6 +76,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   }
 
   Future<void> _toggle(TxMethod m, bool on) async {
+    final l = context.l10n;
     setState(() => _busy.add(m));
     final n = ref.read(deskProvider.notifier);
     try {
@@ -87,25 +91,26 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
           break;
       }
     } on Object catch (e) {
-      if (mounted) showEToast(context, '${_name(m)} not turned ${on ? 'on' : 'off'}', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, on ? l.deskSetRecvMethodOnFailed(_name(m)) : l.deskSetRecvMethodOffFailed(_name(m)), text: deskErrorText(e, l), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _busy.remove(m));
     }
   }
 
   static String _name(TxMethod m) => switch (m) {
-    TxMethod.epicbox => 'Epicbox',
-    TxMethod.http => 'HTTP',
-    TxMethod.tor => 'Tor',
-    TxMethod.file => 'File',
+    TxMethod.epicbox => 'Epicbox', // l10n-ok: product name
+    TxMethod.http => 'HTTP', // l10n-ok: protocol name
+    TxMethod.tor => 'Tor', // l10n-ok: product name
+    TxMethod.file => 'File', // l10n-ok: method name, never shown on this page
   };
 
   Future<void> _switch(String domain) async {
+    final l = context.l10n;
     setState(() => _switching = true);
     try {
       await ref.read(deskProvider.notifier).useEpicbox(domain);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Server not changed', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, l.deskSetRecvServerNotChanged, text: deskErrorText(e, l), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _switching = false);
     }
@@ -113,21 +118,22 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 
   /// The group's first row: the switch (a spinner while it runs) and the state line.
   Widget _receivingRow(TxMethod m, String text, bool on, MethodLine line, {bool enabled = true, Widget? notice}) {
+    final l = context.l10n;
     final busy = _busy.contains(m);
     // In Settings the description sits above: an "Off" line needs no repeat of it.
     final shown = line.state == EState.off && m != TxMethod.epicbox ? MethodLine(line.word, line.state) : line;
     return ESetRow(
-      title: 'Receiving',
+      title: l.deskSetRecvReceiving,
       text: text,
       control: SizedBox(
         width: 40.u,
         height: 24.u,
         child: busy
-            ? Center(child: Semantics(label: 'Switching ${_name(m)} receiving', child: ESpinner(size: 18.u)))
+            ? Center(child: Semantics(label: l.deskSetRecvSwitching(_name(m)), child: ESpinner(size: 18.u)))
             : ESwitch(
                 key: ValueKey('st-switch-${m.name}'),
                 value: on,
-                semanticLabel: '${_name(m)} receiving',
+                semanticLabel: l.deskSetRecvMethodReceiving(_name(m)),
                 onChanged: enabled ? (v) => _toggle(m, v) : null,
               ),
       ),
@@ -139,7 +145,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             key: ValueKey('st-state-${m.name}'),
             trailing: line.retry
                 ? EButton(
-                    label: m == TxMethod.http ? 'Try again' : 'Retry',
+                    label: m == TxMethod.http ? l.deskSetBackupTryAgain : l.commonRetry,
                     icon: EIcons.refresh,
                     size: EBtnSize.inline,
                     busy: busy,
@@ -154,25 +160,50 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   }
 
   Future<void> _saveAutostart(DeskSettings s) async {
+    final l = context.l10n;
     try {
       await ref.read(deskProvider.notifier).saveSettings(s);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Not saved', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, l.deskSetRecvNotSaved, text: deskErrorText(e, l), tone: ETone.risk);
     }
   }
 
-  Widget _autostart(TxMethod m, bool value, ValueChanged<bool>? onChanged) => ESetRow(
-    title: 'Start with the wallet',
-    hint: 'Turns on at unlock.',
-    control: ESwitch(key: ValueKey('st-autostart-${m.name}'), value: value, semanticLabel: '${_name(m)}: start with the wallet', onChanged: onChanged),
-  );
+  Widget _autostart(TxMethod m, bool value, ValueChanged<bool>? onChanged) {
+    final l = context.l10n;
+    return ESetRow(
+      title: l.deskSetRecvAutostart,
+      hint: l.deskSetRecvAutostartHint,
+      control: ESwitch(key: ValueKey('st-autostart-${m.name}'), value: value, semanticLabel: l.deskSetRecvMethodAutostart(_name(m)), onChanged: onChanged),
+    );
+  }
 
-  Widget _group(TxMethod m, SettingsJump jump, String title, MethodLine line, List<Widget> rows) => JumpSection(
+  /// The word at the right of a group's head: Stopped or Starting where the line says why in
+  /// words of its own, else the line's word.
+  String _headWord(AppLocalizations l, TxMethod m, ServiceStatus status, DeskSettings s, MethodLine line) {
+    switch (m) {
+      case TxMethod.epicbox:
+        if (status.epicboxHealth == ServiceHealth.down) {
+          final way = torWay(TorRoute.epicbox, torStateOf(s, status));
+          if (way != TorWay.wait && way != TorWay.blocked) return l.deskSetRecvHeadStopped;
+        }
+      case TxMethod.http:
+        if (status.httpListener == ServiceHealth.down) return l.deskSetRecvHeadStopped;
+        if (status.httpListener == ServiceHealth.checking) return l.deskSetRecvHeadStarting;
+      case TxMethod.tor:
+        if (status.tor == ServiceHealth.checking) return l.deskSetRecvHeadStarting;
+        if (status.tor == ServiceHealth.down) return l.deskSetRecvHeadStopped;
+      case TxMethod.file:
+        break;
+    }
+    return line.word;
+  }
+
+  Widget _group(TxMethod m, SettingsJump jump, String title, MethodLine line, String word, List<Widget> rows) => JumpSection(
     section: jump,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _MethodHead(method: m, title: title, line: line),
+        _MethodHead(method: m, title: title, line: line, word: word),
         ESetGroup(rows: rows),
       ],
     ),
@@ -180,6 +211,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final st = ref.watch(deskProvider);
     final boxes = st.epicboxes;
     final raw = st.status;
@@ -189,7 +221,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final status = _status(raw);
     final s = st.settings;
     final box = status.epicbox;
-    String? tip(EpicboxServer b) => b.latencyMs == null ? null : 'Response time ${b.latencyMs} ms. Measured from the status site.';
+    String? tip(EpicboxServer b) => b.latencyMs == null ? null : l.deskSetRecvResponseTime(b.latencyMs!);
     final ebLine = methodStateLine(TxMethod.epicbox, status, s);
     final httpLine = methodStateLine(TxMethod.http, status, s);
 
@@ -198,29 +230,29 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _group(TxMethod.epicbox, SettingsJump.epicbox, 'Epicbox receiving', ebLine, [
+          _group(TxMethod.epicbox, SettingsJump.epicbox, l.deskSetRecvEpicboxTitle, ebLine, _headWord(l, TxMethod.epicbox, status, s, ebLine), [
             _receivingRow(
               TxMethod.epicbox,
-              'Payments arrive via the Epicbox server, also while the wallet is closed.',
+              l.deskSetRecvEpicboxText,
               status.epicboxHealth != ServiceHealth.off,
               ebLine,
               notice: status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice() : null,
             ),
             _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
             ESetRow(
-              title: 'Epicbox server',
-              hint: 'Which server holds payments for this address. Both wallets can use different servers.',
+              title: l.deskSetRecvEpicboxServer,
+              hint: l.deskSetRecvEpicboxServerHint,
               stacked: true,
               // TODO(§18): the shared server picker (fb-w6) replaces this combo.
               control: ServiceCombo(
-                label: 'Epicbox server',
-                hint: 'Find or type an Epicbox server',
+                label: l.deskSetRecvEpicboxServer,
+                hint: l.deskSetRecvFindHint,
                 value: box.domain,
                 fieldText: box.domain,
                 fieldSub: box.operator,
                 tone: epicboxTone(status.epicboxHealth),
                 busy: _switching,
-                busyLabel: 'Switching the Epicbox server…',
+                busyLabel: l.deskSetRecvSwitchingServer,
                 openInitially: widget.arg == ReceivingDemo.comboOpen,
                 options: [
                   for (final b in boxes)
@@ -230,37 +262,37 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                       sub: b.operator,
                       isDefault: b.domain == defaultEpicboxHost,
                       tone: epicboxTone(b.health),
-                      word: b.health == ServiceHealth.down ? 'Not responding' : null,
+                      word: b.health == ServiceHealth.down ? l.deskSetFrameNotResponding : null,
                       tip: tip(b),
                     ),
                 ],
                 typedRow: (t) {
                   final d = t.toLowerCase().replaceFirst(RegExp('^[a-z]+://'), '').split('/').first;
                   if (!d.contains('.') || d.contains(' ')) return null;
-                  return ComboOption(value: d, host: d, sub: 'not in the public list', tone: ETone.neutral);
+                  return ComboOption(value: d, host: d, sub: l.deskSetRecvNotInList, tone: ETone.neutral);
                 },
-                typedNote: (_) => 'Enter uses it. Its status shows once the wallet connects.',
-                listNote: st.settings.useStatusSite ? 'State from status.btlabs.uk, checked every few minutes.' : null,
+                typedNote: (_) => l.deskSetRecvTypedNote,
+                listNote: st.settings.useStatusSite ? l.deskSetRecvListNote : null,
                 onPicked: _switch,
               ),
             ),
           ]),
           if (DeskFeatures.httpDirect)
-            _group(TxMethod.http, SettingsJump.http, 'HTTP receiving', httpLine, [
+            _group(TxMethod.http, SettingsJump.http, l.deskSetRecvHttpTitle, httpLine, _headWord(l, TxMethod.http, status, s, httpLine), [
               _receivingRow(
                 TxMethod.http,
-                'Straight from another wallet while this one is open.',
+                l.deskSetRecvHttpText,
                 status.httpListener != ServiceHealth.off,
                 httpLine,
                 // Off while Tor is on (tor_routes.dart): Direct payments arrive at the Tor address.
                 enabled: !s.tor,
                 notice: s.tor
                     ? ENotice(
-                        title: 'Off while Tor is on',
-                        text: 'Direct payments arrive at this wallet’s Tor address instead.',
+                        title: l.deskSetRecvHttpOffTitle,
+                        text: l.deskSetRecvHttpOffText,
                         actions: [
                           EButton(
-                            label: 'Privacy settings',
+                            label: l.deskSetRecvPrivacySettings,
                             size: EBtnSize.inline,
                             onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor),
                           ),
@@ -279,21 +311,17 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 
 /// A group's head: the method's icon in its state colour, the title, the state word right.
 class _MethodHead extends StatelessWidget {
-  const _MethodHead({required this.method, required this.title, required this.line});
+  const _MethodHead({required this.method, required this.title, required this.line, required this.word});
 
   final TxMethod method;
   final String title;
   final MethodLine line;
+  final String word;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final word = switch (line.word) {
-      'Not answering' || 'Not receiving' => 'Stopped',
-      'Connecting to Tor…' || 'Publishing the Tor address…' || 'Starting…' => 'Starting',
-      final w => w,
-    };
     return Padding(
       padding: EdgeInsets.only(bottom: Sp.x3),
       child: Row(
