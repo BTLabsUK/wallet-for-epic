@@ -49,7 +49,7 @@ import 'theme/tokens.dart';
 import 'tor_ui.dart';
 
 /// The project's source code.
-const String projectRepoUrl = 'https://github.com/blacktyger/wallet-for-epic';
+const String projectRepoUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic';
 const String epicCashUrl = 'https://epiccash.com';
 
 /// Deletes leftover copies of shared files; uisend's `clearSharedFiles`. Tests replace it.
