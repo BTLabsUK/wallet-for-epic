@@ -14252,4 +14252,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskUpdErrInstall =>
       'Не удалось заменить приложение новой версией.';
+
+  @override
+  String get deskUpdUnfinished =>
+      'Обновление не завершилось. Повторите попытку.';
 }

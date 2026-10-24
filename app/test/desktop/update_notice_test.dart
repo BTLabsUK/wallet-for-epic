@@ -34,7 +34,7 @@ class _Fake extends DeskUpdateController {
 
   final DeskUpdateState initial;
   final bool restartOk;
-  int downloads = 0, restarts = 0;
+  int downloads = 0, restarts = 0, retries = 0;
 
   /// Runs inside restart(), while the button's widget may be on its way out.
   Future<void> Function()? beforeReturn;
@@ -53,7 +53,16 @@ class _Fake extends DeskUpdateController {
   }
 
   @override
+  Future<bool> retry() async {
+    retries++;
+    return restartOk;
+  }
+
+  @override
   Future<void> check() async {}
+
+  @override
+  Future<void> detect() async {}
 }
 
 void main() {
@@ -187,6 +196,26 @@ void main() {
     expect(opened, [deskReleasesUrl]);
   });
 
+  testWidgets("an update that did not finish: Try again runs it again and quits; one that stops does not", (tester) async {
+    await pump(tester, _state(DeskUpdatePhase.unfinished, inApp: false), restartOk: true);
+    expect(find.text("Update didn't finish. Try again."), findsOneWidget);
+    expect(find.text(_v), findsOneWidget);
+    expect(find.byIcon(EIcons.alert), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(notice());
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+    });
+    await tester.pumpAndSettle();
+    expect(fake.retries, 1);
+    expect(quits, 1);
+
+    await pump(tester, _state(DeskUpdatePhase.unfinished, inApp: false));
+    await tester.tap(notice());
+    await tester.pumpAndSettle();
+    expect(fake.retries, 1);
+    expect(quits, 0);
+  });
+
   testWidgets('in the sidebar above the statuses, and an icon in the narrow rail', (tester) async {
     const shell = DeskShell(at: DeskLocation(DeskRoute.overview));
     await pump(tester, _state(DeskUpdatePhase.available), home: shell);
@@ -220,6 +249,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(fake.restarts, 1);
     expect(find.widgetWithText(EButton, 'Check now'), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+
+    await pump(tester, _state(DeskUpdatePhase.unfinished, inApp: false), home: about);
+    expect(find.text("Update didn't finish. Try again."), findsOneWidget);
+    expect(find.widgetWithText(EButton, 'Check now'), findsNothing);
+    await tester.tap(find.widgetWithText(EButton, 'Try again'));
+    await tester.pumpAndSettle();
+    expect(fake.retries, 1);
+    await tester.tap(find.widgetWithText(EButton, 'Get $_v'));
+    await tester.pump();
+    expect(opened, [deskReleasesUrl]);
     await tester.pumpWidget(const SizedBox());
   });
 }

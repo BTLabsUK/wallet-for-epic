@@ -3,9 +3,17 @@
 ; /DAppVersion (pubspec.yaml's YY.MM.patch, https://docs.btlabs.uk/developers/releases/). Per-user
 ; (PrivilegesRequired=lowest): everything goes in the user's profile.
 ;
-; The wallet's data (%APPDATA%\com.blacktyger\EpicWallet) is never touched: there is no
-; [UninstallDelete], [InstallDelete] names only old shortcut files, and Inno removes only the
-; files it installed.
+; The wallet's data (%APPDATA%\com.blacktyger\EpicWallet) is never touched: [UninstallDelete]
+; names only Setup's own mark next to the app, [InstallDelete] only old shortcut files, and Inno
+; removes only the files it installed.
+;
+; Setup copies file by file and cannot undo a file it replaced: stopped part way (killed, or a
+; file it could not replace), it leaves old and new files side by side. So the files that must
+; match each other (the Dart code, data\app.so, and the wallet core, lepic_ffi.dll) are copied
+; last, one after the other, then epic_wallet.exe, after every DLL it loads; and Setup keeps a
+; mark, {app}\update-in-progress (the version it installs), from the first file until the last
+; is in. The app finds the mark at its next start and offers the update again
+; (lib\src\desktop\data\desk_update.dart).
 ;
 ; Look (docs/feedback/designs/installer, the owner's OK of 2026-10-22): one dark wizard page with
 ; the landing-page hero behind it, one Install button, folder and shortcuts behind an "Options"
@@ -90,7 +98,11 @@ Source: "images\sheet-update.png"; Flags: dontcopy
 Source: "..\..\assets\fonts\Montserrat-SemiBold.ttf"; Flags: dontcopy
 ; Montserrat is OFL: its licence goes next to the app (the app itself carries a copy in its assets).
 Source: "..\..\assets\fonts\OFL-Montserrat.txt"; DestDir: "{app}"; DestName: "LICENSE.Montserrat.txt"; Flags: ignoreversion
-Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.lib,*.exp,*.pdb,*.ilk"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.lib,*.exp,*.pdb,*.ilk,\lepic_ffi.dll,\data\app.so,\epic_wallet.exe"; Flags: recursesubdirs createallsubdirs ignoreversion
+; Last, in this order (see the top): the wallet core and the Dart code together, then the exe.
+Source: "{#SourceDir}\lepic_ffi.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\data\app.so"; DestDir: "{app}\data"; Flags: ignoreversion
+Source: "{#SourceDir}\epic_wallet.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 ; One shortcut per place; the runner's --impeller and --skia flags stay for a hand-made one.
@@ -109,6 +121,10 @@ Type: files; Name: "{userdesktop}\Epic Wallet 0.1.lnk"
 Type: files; Name: "{userprograms}\Epic Wallet.lnk"
 Type: files; Name: "{userdesktop}\Epic Wallet.lnk"
 
+[UninstallDelete]
+; Setup's mark of an install that did not finish (CurStepChanged). Only this exact file.
+Type: files; Name: "{app}\update-in-progress"
+
 [Run]
 ; "Open Epic Cash Desktop" on the finish page (the stock Finish button, renamed). The "Close" link
 ; unchecks this entry first. Never in a silent install.
@@ -120,6 +136,8 @@ Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Flags: nowait; Check: Fr
 [Code]
 const
   UninstKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{8810835E-6EE5-4989-AE20-C0D60E23800E}_is1';
+  { The app reads it (deskSetupMarkName in lib\src\desktop\data\desk_update_apply.dart). }
+  MarkFile = 'update-in-progress';
   FontFile = 'Montserrat-SemiBold.ttf';
   FR_PRIVATE = $10;
   BM_CLICK = $F5;
@@ -549,7 +567,8 @@ var
   Code: Integer;
 begin
   { Started by the app, which quit for it: if the files did not go in (Setup failed, or the
-    progress was cancelled), open the app that is still there rather than leave nothing. }
+    progress was cancelled), open the app that is still there rather than leave nothing. If
+    some files were replaced, the mark stays and the app offers the update again. }
   if FromApp and not InstallDone then begin
     Log('Started by the app and not installed; opening the app again');
     try
@@ -663,12 +682,26 @@ begin
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
+var
+  Mark: String;
 begin
-  if CurStep = ssInstall then
+  Mark := ExpandConstant('{app}\' + MarkFile);
+  { Before the first file: the mark of an install in progress (see the top). }
+  if CurStep = ssInstall then begin
     Log('Installing to ' + ExpandConstant('{app}') + ' (update: ' + IntToStr(Ord(IsUpdate)) + ')');
-  { The files are in; the [Run] entry opens the app. }
-  if CurStep = ssPostInstall then
+    if ForceDirectories(ExpandConstant('{app}')) and SaveStringToFile(Mark, '{#AppVersion}', False) then
+      Log('Marked the install as in progress: ' + Mark)
+    else
+      Log('The in-progress mark was not written: ' + Mark);
+  end;
+  { The files are in: the mark goes, and the [Run] entry opens the app. }
+  if CurStep = ssPostInstall then begin
     InstallDone := True;
+    if DeleteFile(Mark) then
+      Log('Install complete; the in-progress mark is removed')
+    else if FileExists(Mark) then
+      Log('The in-progress mark could not be removed: ' + Mark);
+  end;
 end;
 
 { ---------- uninstaller ---------- }

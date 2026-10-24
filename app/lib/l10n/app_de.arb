@@ -3629,5 +3629,6 @@
   "deskUpdOpenPage": "Download-Seite öffnen",
   "deskUpdErrDamaged": "Die Datei passt nicht zu den signierten Update-Angaben.",
   "deskUpdErrStopped": "Der Download wurde unterbrochen.",
-  "deskUpdErrInstall": "Die neue Version konnte nicht eingesetzt werden."
+  "deskUpdErrInstall": "Die neue Version konnte nicht eingesetzt werden.",
+  "deskUpdUnfinished": "Update nicht abgeschlossen. Erneut versuchen."
 }

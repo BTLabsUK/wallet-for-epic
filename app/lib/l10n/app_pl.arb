@@ -3629,5 +3629,6 @@
   "deskUpdOpenPage": "Otwórz stronę pobierania",
   "deskUpdErrDamaged": "Plik nie zgadza się z podpisanymi danymi aktualizacji.",
   "deskUpdErrStopped": "Pobieranie przerwane.",
-  "deskUpdErrInstall": "Nie udało się podmienić aplikacji na nową wersję."
+  "deskUpdErrInstall": "Nie udało się podmienić aplikacji na nową wersję.",
+  "deskUpdUnfinished": "Aktualizacja nie została dokończona. Spróbuj ponownie."
 }

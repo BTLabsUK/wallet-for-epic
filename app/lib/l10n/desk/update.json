@@ -82,5 +82,9 @@
   "deskUpdErrInstall": "The new version could not be put in place.",
   "@deskUpdErrInstall": {
     "description": "Why Restart to update failed: the installer could not be started or the app file could not be replaced."
+  },
+  "deskUpdUnfinished": "Update didn't finish. Try again.",
+  "@deskUpdUnfinished": {
+    "description": "Sidebar notice and Settings › About (Windows): an update was started but Setup did not finish (it was stopped or failed part way); the action runs the update again. The version is on the line under it."
   }
 }

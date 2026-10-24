@@ -21931,6 +21931,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The new version could not be put in place.'**
   String get deskUpdErrInstall;
+
+  /// Sidebar notice and Settings › About (Windows): an update was started but Setup did not finish (it was stopped or failed part way); the action runs the update again. The version is on the line under it.
+  ///
+  /// In en, this message translates to:
+  /// **'Update didn\'t finish. Try again.'**
+  String get deskUpdUnfinished;
 }
 
 class _AppLocalizationsDelegate

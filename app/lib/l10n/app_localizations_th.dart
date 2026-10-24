@@ -13597,4 +13597,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskUpdErrInstall => 'แทนที่ด้วยเวอร์ชันใหม่ไม่ได้';
+
+  @override
+  String get deskUpdUnfinished => 'อัปเดตไม่เสร็จ ลองอีกครั้ง';
 }

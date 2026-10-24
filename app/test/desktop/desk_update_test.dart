@@ -25,17 +25,17 @@ const _winName = 'epic-cash-desktop-$_next-windows-x64-setup.exe';
 final _bytes = List<int>.generate(300000, (i) => (i * 31 + 7) & 0xff);
 final _sha = sha256.convert(_bytes).toString();
 
-Map<String, Object?> _entry(String name, {String? sha, int? size}) => {
-  'version': _next,
+Map<String, Object?> _entry(String name, {String? sha, int? size, String version = _next}) => {
+  'version': version,
   'url': '$walletDesktopDownloads$name',
   'sha256': sha ?? _sha,
   'size': size ?? _bytes.length,
 };
 
 /// The desktop block the release lead writes (tool/desktop_update_entry.sh).
-Map<String, Object?> _desktop({String? sha, int? size}) => {
-  'windows': _entry(_winName, sha: sha, size: size),
-  'linux': _entry(_linuxName, sha: sha, size: size),
+Map<String, Object?> _desktop({String? sha, int? size, String version = _next}) => {
+  'windows': _entry(_winName, sha: sha, size: size, version: version),
+  'linux': _entry(_linuxName, sha: sha, size: size, version: version),
 };
 
 /// Serves one file on the loopback: whole, from a Range, or cut part way.
@@ -262,11 +262,14 @@ Future<void> main(List<String> a) async {
       bool canQuit = true,
       (Duration, Duration)? schedule,
       void Function()? onFetch,
+      DeskUpdateMarks? marks,
+      int status = 200,
     }) {
       final fake = applier ?? _FakeApplier();
       final c = ProviderContainer(overrides: [
         deskManifestFetchProvider.overrideWithValue((_) async {
           onFetch?.call();
+          if (status != 200) return (status, '');
           return (200, await signedUpdate(testUpdatePayload(desktop: desktop ?? _desktop())));
         }),
         deskUpdateClockProvider.overrideWithValue(() => now),
@@ -276,6 +279,7 @@ Future<void> main(List<String> a) async {
         deskUpdateDirProvider.overrideWithValue(() async => updates()),
         deskUpdateDownloaderProvider.overrideWithValue((f, onProgress) => download(f, onProgress: onProgress)),
         if (schedule != null) deskUpdateScheduleProvider.overrideWithValue(schedule),
+        deskUpdateMarksProvider.overrideWithValue(marks == null ? null : () async => marks),
       ]);
       addTearDown(c.dispose);
       return c;
@@ -403,6 +407,112 @@ Future<void> main(List<String> a) async {
       await Future<void>.delayed(const Duration(milliseconds: 200));
       expect(fetches, stopped, reason: 'no checks after the app is gone');
     });
+
+    group('an update that did not finish', () {
+      test("Setup's mark or a recorded version newer than this one; nothing once it runs", () {
+        const running = '26.10.11';
+        expect(unfinishedUpdate(running), isNull, reason: 'no marks');
+        expect(unfinishedUpdate(running, setup: running), running, reason: 'new code over old files');
+        expect(unfinishedUpdate(running, setup: '26.10.12'), '26.10.12', reason: 'old code, killed before the code went in');
+        expect(unfinishedUpdate(running, setup: '', target: '26.10.12'), '26.10.12', reason: 'a mark without a version');
+        expect(unfinishedUpdate(running, setup: ''), running);
+        expect(unfinishedUpdate(running, setup: '26.10.10'), isNull, reason: 'a left-over mark of an older Setup');
+        expect(unfinishedUpdate(running, target: '26.10.12'), '26.10.12', reason: 'Setup stopped before any file');
+        expect(unfinishedUpdate(running, target: running), isNull, reason: 'the update finished');
+        expect(unfinishedUpdate(running, target: '26.10.10'), isNull);
+        expect(unfinishedUpdate(running, setup: running, target: running), running, reason: "Setup's mark wins");
+      });
+
+      DeskUpdateMarks marksIn(Directory dir, {String? setup, String? target}) {
+        final m = DeskUpdateMarks(setup: File('${dir.path}/app/$deskSetupMarkName'), target: File('${dir.path}/cache/update-target'));
+        if (setup != null) (m.setup..parent.createSync(recursive: true)).writeAsStringSync(setup);
+        if (target != null) (m.target..parent.createSync(recursive: true)).writeAsStringSync(target);
+        return m;
+      }
+
+      test('found when the wallet opens; Try again checks, downloads and runs the update once more', () async {
+        final applier = _FakeApplier();
+        final marks = marksIn(tmp, target: _next);
+        final c = make(applier: applier, marks: marks, schedule: (const Duration(hours: 1), const Duration(hours: 2)));
+        final n = c.read(deskUpdateProvider.notifier);
+        n.schedule();
+        await n.detect();
+        var s = c.read(deskUpdateProvider);
+        expect(s.phase, DeskUpdatePhase.unfinished);
+        expect(s.version, _next);
+        expect(s.offered, isTrue);
+        await n.check();
+        expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.unfinished, reason: 'a timed check leaves it for Try again');
+        expect(await n.retry(), isTrue);
+        s = c.read(deskUpdateProvider);
+        expect(s.phase, DeskUpdatePhase.ready);
+        expect(applier.applied.single.path, s.download!.path);
+        expect(marks.target.readAsStringSync(), _next, reason: 'recorded again before Setup started');
+      });
+
+      test('new code over old files: the same version is installed once more', () async {
+        final applier = _FakeApplier();
+        final marks = marksIn(tmp, setup: deskAppVersion);
+        final c = make(applier: applier, marks: marks, desktop: _desktop(version: deskAppVersion));
+        final n = c.read(deskUpdateProvider.notifier);
+        await n.checkOnce();
+        expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.unfinished);
+        expect(c.read(deskUpdateProvider).version, deskAppVersion);
+        expect(await n.retry(), isTrue);
+        expect(applier.applied, hasLength(1));
+        expect(marks.setup.existsSync(), isTrue, reason: 'Setup removes its own mark once its files are in');
+      });
+
+      test('without the marks the same version is the latest', () async {
+        final c = make(desktop: _desktop(version: deskAppVersion), marks: marksIn(tmp));
+        await c.read(deskUpdateProvider.notifier).checkOnce();
+        expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.latest);
+      });
+
+      test('a finished update: its record goes, nothing is shown; an old mark goes too', () async {
+        final marks = marksIn(tmp, setup: '0.1.0', target: deskAppVersion);
+        final c = make(marks: marks);
+        await c.read(deskUpdateProvider.notifier).detect();
+        expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.idle);
+        expect(marks.target.existsSync(), isFalse);
+        expect(marks.setup.existsSync(), isFalse);
+      });
+
+      test('Try again with no answer: still unfinished, with the reason', () async {
+        final c = make(marks: marksIn(tmp, target: _next), status: 503);
+        final n = c.read(deskUpdateProvider.notifier);
+        await n.detect();
+        expect(await n.retry(), isFalse);
+        final s = c.read(deskUpdateProvider);
+        expect(s.phase, DeskUpdatePhase.unfinished);
+        expect(s.version, _next);
+        expect(s.problem, deskStrings.deskDataUpdStatus(503));
+      });
+
+      test('Restart to update records the version first; a Setup that does not start leaves no record', () async {
+        final marks = marksIn(tmp);
+        final c = make(marks: marks);
+        final n = c.read(deskUpdateProvider.notifier);
+        await n.check();
+        await n.download();
+        expect(await n.restart(), isTrue);
+        expect(marks.target.readAsStringSync(), _next);
+
+        marks.target.deleteSync();
+        final failing = make(applier: _FakeApplier(fails: true), marks: marks);
+        final f = failing.read(deskUpdateProvider.notifier);
+        await f.check();
+        await f.download();
+        expect(await f.restart(), isFalse);
+        expect(marks.target.existsSync(), isFalse);
+      });
+
+      test('no marks where nothing can be left half done (Linux)', () async {
+        final c = make();
+        await c.read(deskUpdateProvider.notifier).checkOnce();
+        expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);
+      });
+    });
   });
 
   group('Windows', () {
@@ -434,6 +544,22 @@ Future<void> main(List<String> a) async {
       expect(iss, contains("CheckForMutexes('{#AppMutexName}')"));
       expect(iss, contains('Flags: nowait; Check: FromApp'));
       expect(iss, contains('if FromApp and not InstallDone'), reason: 'a failed or cancelled install opens the app again');
+    });
+
+    test('the installer marks an install in progress and copies the code last, the exe after it', () {
+      final iss = File('windows/installer/epic_wallet.iss').readAsStringSync();
+      expect(iss, contains("MarkFile = '$deskSetupMarkName';"));
+      final steps = iss.substring(iss.indexOf('procedure CurStepChanged'));
+      expect(
+        steps.indexOf('SaveStringToFile(Mark'),
+        allOf(greaterThan(steps.indexOf('CurStep = ssInstall')), lessThan(steps.indexOf('CurStep = ssPostInstall'))),
+      );
+      expect(steps.indexOf('DeleteFile(Mark)'), greaterThan(steps.indexOf('CurStep = ssPostInstall')));
+      expect(iss, contains('Type: files; Name: "{app}\\$deskSetupMarkName"'), reason: 'the uninstaller removes a mark left behind');
+      final files = iss.split('\n').where((l) => l.startsWith('Source: "{#SourceDir}')).toList();
+      expect(files, hasLength(4));
+      expect(files[0], contains(r'Excludes: "*.lib,*.exp,*.pdb,*.ilk,\lepic_ffi.dll,\data\app.so,\epic_wallet.exe"'));
+      expect(files.skip(1).map((l) => l.split('"')[1]), [r'{#SourceDir}\lepic_ffi.dll', r'{#SourceDir}\data\app.so', r'{#SourceDir}\epic_wallet.exe']);
     });
   });
 
