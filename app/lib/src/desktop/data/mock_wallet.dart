@@ -9,6 +9,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 
+import '../../advanced.dart' show NetworkMode;
+import '../../network_gate.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
 import '../../slate_files.dart' show responseFileName, sendFileName;
@@ -680,7 +682,12 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> deleteContact(String id) async => _contacts.removeWhere((c) => c.id == id);
 
   @override
-  Future<void> saveSettings(DeskSettings settings) async => _settings = settings;
+  Future<void> saveSettings(DeskSettings settings) async {
+    // The network mode as the real wallet takes it: Tor only keeps the Tor switch on.
+    final mode = netModeOf(settings.advanced.networkMode);
+    NetGate.set(mode);
+    _settings = mode == NetworkMode.torOnly ? settings.copyWith(torAutostart: true) : settings;
+  }
 
   @override
   Future<void> useNode(String url) async {
