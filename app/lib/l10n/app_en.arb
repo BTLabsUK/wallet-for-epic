@@ -104,6 +104,142 @@
   "@txRestoredFunds": {
     "description": "Funds the wallet found by scanning the chain after a restore, with no record of who sent them."
   },
+  "txLabel": "Label",
+  "@txLabel": {
+    "description": "Phone: title of the label tile on a payment with a label, and the field name in the history import dialog. A name the user gave the payment."
+  },
+  "txLabelAdd": "Add label",
+  "@txLabelAdd": {
+    "description": "Phone: the tile and the pen button on a payment without a label (screen readers say it for the pen)."
+  },
+  "txLabelEdit": "Edit label",
+  "@txLabelEdit": {
+    "description": "Phone: the pen button on a payment with a label (screen readers say it)."
+  },
+  "txLabelHint": "Add label",
+  "@txLabelHint": {
+    "description": "Phone: placeholder of the one-line label field that opens in place."
+  },
+  "txLabelAddedNotice": "Label added",
+  "@txLabelAddedNotice": {
+    "description": "Notice after a label was added to a payment."
+  },
+  "txLabelSavedNotice": "Label saved",
+  "@txLabelSavedNotice": {
+    "description": "Notice after a label was changed."
+  },
+  "txLabelRemovedNotice": "Label removed",
+  "@txLabelRemovedNotice": {
+    "description": "Notice after a label was emptied and removed."
+  },
+  "txEditAdd": "Add details",
+  "@txEditAdd": {
+    "description": "Phone: tile and sheet title on a payment found by a scan that has no details of the user yet (sender, method, note)."
+  },
+  "txEditEdit": "Edit details",
+  "@txEditEdit": {
+    "description": "Phone: tile and sheet title on a payment found by a scan whose details the user already entered."
+  },
+  "txEditFrom": "From",
+  "@txEditFrom": {
+    "description": "Field of the details sheet and its tile: who paid, typed by the user. Also the field name in the history import dialog."
+  },
+  "txEditFromHint": "Address",
+  "@txEditFromHint": {
+    "description": "Placeholder of the From field: an address the user typed or picked from contacts."
+  },
+  "txEditFromHelper": "Not verified. Never used for payment proofs.",
+  "@txEditFromHelper": {
+    "description": "Helper under the From field. Short."
+  },
+  "txMethodUnknown": "Unknown",
+  "@txMethodUnknown": {
+    "description": "Method choice in the details sheet: how the payment came is not known."
+  },
+  "txManualTag": "Added by you",
+  "@txManualTag": {
+    "description": "Small tag after a value the user typed, not read from the chain or made by the wallet."
+  },
+  "txManualTip": "Added by you on {date}. Not from the chain.",
+  "@txManualTip": {
+    "description": "Tooltip of the tag; date is the day and time the user entered it.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "txManualTipNoDate": "Added by you. Not from the chain.",
+  "@txManualTipNoDate": {
+    "description": "Tooltip of the tag when the time is not known."
+  },
+  "txManualTipFrom": "Added by you on {date}. Not from the chain, not verified.",
+  "@txManualTipFrom": {
+    "description": "Tooltip of the tag on the From value; the sender was typed by the user and is not checked.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "txManualTipFromNoDate": "Added by you. Not from the chain, not verified.",
+  "@txManualTipFromNoDate": {
+    "description": "Tooltip of the tag on the From value when the time is not known."
+  },
+  "txEditAddedNotice": "Details added",
+  "@txEditAddedNotice": {
+    "description": "Notice after details were added to a payment found by a scan."
+  },
+  "txEditSavedNotice": "Details saved",
+  "@txEditSavedNotice": {
+    "description": "Notice after details were changed."
+  },
+  "txEditRemovedNotice": "Details removed",
+  "@txEditRemovedNotice": {
+    "description": "Notice after every detail was emptied."
+  },
+  "histConflictTitle": "Details differ",
+  "@histConflictTitle": {
+    "description": "Title of the sheet shown when a history backup has other values than the ones the user entered."
+  },
+  "histConflictLead": "{n, plural, =1{The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "@histConflictLead": {
+    "description": "Lead of the Details differ sheet; n is the number of payments. The user picks per value, Mine is chosen at first.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "histConflictMine": "Mine",
+  "@histConflictMine": {
+    "description": "Choice card: the value entered on this phone."
+  },
+  "histConflictBackup": "Backup",
+  "@histConflictBackup": {
+    "description": "Choice card: the value in the backup file."
+  },
+  "histConflictKeepAll": "Keep all mine",
+  "@histConflictKeepAll": {
+    "description": "Button: import without replacing anything the user entered."
+  },
+  "histConflictImport": "Import",
+  "@histConflictImport": {
+    "description": "Button: import with the choices made."
+  },
+  "histConflictEmpty": "empty",
+  "@histConflictEmpty": {
+    "description": "Shown in italics on a card whose value is empty."
+  },
+  "histImportedReplaced": "{n, plural, =1{1 detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}",
+  "@histImportedReplaced": {
+    "description": "Line after an import in which the user chose the backup for some values; n is how many.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "txOutgoingPayment": "Outgoing payment",
   "txIncomingPayment": "Incoming payment",
   "txStatusWaitingRecipient": "Waiting for recipient",

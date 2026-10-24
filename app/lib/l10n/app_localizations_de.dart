@@ -126,6 +126,117 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txRestoredFunds => 'Wiederhergestelltes Guthaben';
 
   @override
+  String get txLabel => 'Bezeichnung';
+
+  @override
+  String get txLabelAdd => 'Bezeichnung hinzufügen';
+
+  @override
+  String get txLabelEdit => 'Bezeichnung bearbeiten';
+
+  @override
+  String get txLabelHint => 'Bezeichnung hinzufügen';
+
+  @override
+  String get txLabelAddedNotice => 'Bezeichnung hinzugefügt';
+
+  @override
+  String get txLabelSavedNotice => 'Bezeichnung gespeichert';
+
+  @override
+  String get txLabelRemovedNotice => 'Bezeichnung entfernt';
+
+  @override
+  String get txEditAdd => 'Details hinzufügen';
+
+  @override
+  String get txEditEdit => 'Details bearbeiten';
+
+  @override
+  String get txEditFrom => 'Von';
+
+  @override
+  String get txEditFromHint => 'Adresse';
+
+  @override
+  String get txEditFromHelper =>
+      'Nicht geprüft. Wird nie für Zahlungsnachweise verwendet.';
+
+  @override
+  String get txMethodUnknown => 'Unbekannt';
+
+  @override
+  String get txManualTag => 'Von Ihnen hinzugefügt';
+
+  @override
+  String txManualTip(String date) {
+    return 'Von Ihnen am $date hinzugefügt. Nicht aus der Blockchain.';
+  }
+
+  @override
+  String get txManualTipNoDate =>
+      'Von Ihnen hinzugefügt. Nicht aus der Blockchain.';
+
+  @override
+  String txManualTipFrom(String date) {
+    return 'Von Ihnen am $date hinzugefügt. Nicht aus der Blockchain, nicht geprüft.';
+  }
+
+  @override
+  String get txManualTipFromNoDate =>
+      'Von Ihnen hinzugefügt. Nicht aus der Blockchain, nicht geprüft.';
+
+  @override
+  String get txEditAddedNotice => 'Details hinzugefügt';
+
+  @override
+  String get txEditSavedNotice => 'Details gespeichert';
+
+  @override
+  String get txEditRemovedNotice => 'Details entfernt';
+
+  @override
+  String get histConflictTitle => 'Details weichen ab';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Die Sicherung hat andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, wenn Sie nichts anderes wählen.',
+      one: 'Die Sicherung hat andere Details für 1 Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, wenn Sie nichts anderes wählen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => 'Meine';
+
+  @override
+  String get histConflictBackup => 'Sicherung';
+
+  @override
+  String get histConflictKeepAll => 'Alle meine behalten';
+
+  @override
+  String get histConflictImport => 'Importieren';
+
+  @override
+  String get histConflictEmpty => 'leer';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Details ersetzt, der Rest bleibt wie von Ihnen eingegeben.',
+      one: '1 Detail ersetzt, der Rest bleibt wie von Ihnen eingegeben.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => 'Ausgehende Zahlung';
 
   @override

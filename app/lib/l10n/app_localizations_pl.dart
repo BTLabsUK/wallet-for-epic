@@ -127,6 +127,124 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txRestoredFunds => 'Odzyskane środki';
 
   @override
+  String get txLabel => 'Etykieta';
+
+  @override
+  String get txLabelAdd => 'Dodaj etykietę';
+
+  @override
+  String get txLabelEdit => 'Edytuj etykietę';
+
+  @override
+  String get txLabelHint => 'Dodaj etykietę';
+
+  @override
+  String get txLabelAddedNotice => 'Dodano etykietę';
+
+  @override
+  String get txLabelSavedNotice => 'Zapisano etykietę';
+
+  @override
+  String get txLabelRemovedNotice => 'Usunięto etykietę';
+
+  @override
+  String get txEditAdd => 'Dodaj szczegóły';
+
+  @override
+  String get txEditEdit => 'Edytuj szczegóły';
+
+  @override
+  String get txEditFrom => 'Od';
+
+  @override
+  String get txEditFromHint => 'Adres';
+
+  @override
+  String get txEditFromHelper =>
+      'Niezweryfikowane. Nigdy nie służy do dowodów płatności.';
+
+  @override
+  String get txMethodUnknown => 'Nieznana';
+
+  @override
+  String get txManualTag => 'Dodane przez ciebie';
+
+  @override
+  String txManualTip(String date) {
+    return 'Dodane przez ciebie dnia $date. Nie pochodzi z blockchaina.';
+  }
+
+  @override
+  String get txManualTipNoDate =>
+      'Dodane przez ciebie. Nie pochodzi z blockchaina.';
+
+  @override
+  String txManualTipFrom(String date) {
+    return 'Dodane przez ciebie dnia $date. Nie pochodzi z blockchaina, niezweryfikowane.';
+  }
+
+  @override
+  String get txManualTipFromNoDate =>
+      'Dodane przez ciebie. Nie pochodzi z blockchaina, niezweryfikowane.';
+
+  @override
+  String get txEditAddedNotice => 'Dodano szczegóły';
+
+  @override
+  String get txEditSavedNotice => 'Zapisano szczegóły';
+
+  @override
+  String get txEditRemovedNotice => 'Usunięto szczegóły';
+
+  @override
+  String get histConflictTitle => 'Szczegóły się różnią';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Kopia ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+      many:
+          'Kopia ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+      few:
+          'Kopia ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+      one:
+          'Kopia ma inne szczegóły dla płatności opisanych przez ciebie: $n. Twoje zostają, chyba że wybierzesz inaczej.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => 'Moje';
+
+  @override
+  String get histConflictBackup => 'Kopia';
+
+  @override
+  String get histConflictKeepAll => 'Zachowaj wszystkie moje';
+
+  @override
+  String get histConflictImport => 'Importuj';
+
+  @override
+  String get histConflictEmpty => 'puste';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Zastąpiono szczegółów: $n. Pozostałe zostają twoje.',
+      many: 'Zastąpiono szczegółów: $n. Pozostałe zostają twoje.',
+      few: 'Zastąpiono szczegółów: $n. Pozostałe zostają twoje.',
+      one: 'Zastąpiono szczegółów: $n. Pozostałe zostają twoje.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => 'Płatność wychodząca';
 
   @override

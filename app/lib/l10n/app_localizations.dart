@@ -316,6 +316,180 @@ abstract class AppLocalizations {
   /// **'Restored funds'**
   String get txRestoredFunds;
 
+  /// Phone: title of the label tile on a payment with a label, and the field name in the history import dialog. A name the user gave the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get txLabel;
+
+  /// Phone: the tile and the pen button on a payment without a label (screen readers say it for the pen).
+  ///
+  /// In en, this message translates to:
+  /// **'Add label'**
+  String get txLabelAdd;
+
+  /// Phone: the pen button on a payment with a label (screen readers say it).
+  ///
+  /// In en, this message translates to:
+  /// **'Edit label'**
+  String get txLabelEdit;
+
+  /// Phone: placeholder of the one-line label field that opens in place.
+  ///
+  /// In en, this message translates to:
+  /// **'Add label'**
+  String get txLabelHint;
+
+  /// Notice after a label was added to a payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Label added'**
+  String get txLabelAddedNotice;
+
+  /// Notice after a label was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Label saved'**
+  String get txLabelSavedNotice;
+
+  /// Notice after a label was emptied and removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Label removed'**
+  String get txLabelRemovedNotice;
+
+  /// Phone: tile and sheet title on a payment found by a scan that has no details of the user yet (sender, method, note).
+  ///
+  /// In en, this message translates to:
+  /// **'Add details'**
+  String get txEditAdd;
+
+  /// Phone: tile and sheet title on a payment found by a scan whose details the user already entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get txEditEdit;
+
+  /// Field of the details sheet and its tile: who paid, typed by the user. Also the field name in the history import dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get txEditFrom;
+
+  /// Placeholder of the From field: an address the user typed or picked from contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get txEditFromHint;
+
+  /// Helper under the From field. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Not verified. Never used for payment proofs.'**
+  String get txEditFromHelper;
+
+  /// Method choice in the details sheet: how the payment came is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get txMethodUnknown;
+
+  /// Small tag after a value the user typed, not read from the chain or made by the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you'**
+  String get txManualTag;
+
+  /// Tooltip of the tag; date is the day and time the user entered it.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you on {date}. Not from the chain.'**
+  String txManualTip(String date);
+
+  /// Tooltip of the tag when the time is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you. Not from the chain.'**
+  String get txManualTipNoDate;
+
+  /// Tooltip of the tag on the From value; the sender was typed by the user and is not checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you on {date}. Not from the chain, not verified.'**
+  String txManualTipFrom(String date);
+
+  /// Tooltip of the tag on the From value when the time is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you. Not from the chain, not verified.'**
+  String get txManualTipFromNoDate;
+
+  /// Notice after details were added to a payment found by a scan.
+  ///
+  /// In en, this message translates to:
+  /// **'Details added'**
+  String get txEditAddedNotice;
+
+  /// Notice after details were changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Details saved'**
+  String get txEditSavedNotice;
+
+  /// Notice after every detail was emptied.
+  ///
+  /// In en, this message translates to:
+  /// **'Details removed'**
+  String get txEditRemovedNotice;
+
+  /// Title of the sheet shown when a history backup has other values than the ones the user entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Details differ'**
+  String get histConflictTitle;
+
+  /// Lead of the Details differ sheet; n is the number of payments. The user picks per value, Mine is chosen at first.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  String histConflictLead(int n);
+
+  /// Choice card: the value entered on this phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get histConflictMine;
+
+  /// Choice card: the value in the backup file.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get histConflictBackup;
+
+  /// Button: import without replacing anything the user entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep all mine'**
+  String get histConflictKeepAll;
+
+  /// Button: import with the choices made.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get histConflictImport;
+
+  /// Shown in italics on a card whose value is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'empty'**
+  String get histConflictEmpty;
+
+  /// Line after an import in which the user chose the backup for some values; n is how many.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}'**
+  String histImportedReplaced(int n);
+
   /// No description provided for @txOutgoingPayment.
   ///
   /// In en, this message translates to:

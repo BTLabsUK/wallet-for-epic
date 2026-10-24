@@ -125,6 +125,115 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txRestoredFunds => 'Restored funds';
 
   @override
+  String get txLabel => 'Label';
+
+  @override
+  String get txLabelAdd => 'Add label';
+
+  @override
+  String get txLabelEdit => 'Edit label';
+
+  @override
+  String get txLabelHint => 'Add label';
+
+  @override
+  String get txLabelAddedNotice => 'Label added';
+
+  @override
+  String get txLabelSavedNotice => 'Label saved';
+
+  @override
+  String get txLabelRemovedNotice => 'Label removed';
+
+  @override
+  String get txEditAdd => 'Add details';
+
+  @override
+  String get txEditEdit => 'Edit details';
+
+  @override
+  String get txEditFrom => 'From';
+
+  @override
+  String get txEditFromHint => 'Address';
+
+  @override
+  String get txEditFromHelper => 'Not verified. Never used for payment proofs.';
+
+  @override
+  String get txMethodUnknown => 'Unknown';
+
+  @override
+  String get txManualTag => 'Added by you';
+
+  @override
+  String txManualTip(String date) {
+    return 'Added by you on $date. Not from the chain.';
+  }
+
+  @override
+  String get txManualTipNoDate => 'Added by you. Not from the chain.';
+
+  @override
+  String txManualTipFrom(String date) {
+    return 'Added by you on $date. Not from the chain, not verified.';
+  }
+
+  @override
+  String get txManualTipFromNoDate =>
+      'Added by you. Not from the chain, not verified.';
+
+  @override
+  String get txEditAddedNotice => 'Details added';
+
+  @override
+  String get txEditSavedNotice => 'Details saved';
+
+  @override
+  String get txEditRemovedNotice => 'Details removed';
+
+  @override
+  String get histConflictTitle => 'Details differ';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'The backup has other details for $n payments you described. Yours are kept unless you choose otherwise.',
+      one: 'The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => 'Mine';
+
+  @override
+  String get histConflictBackup => 'Backup';
+
+  @override
+  String get histConflictKeepAll => 'Keep all mine';
+
+  @override
+  String get histConflictImport => 'Import';
+
+  @override
+  String get histConflictEmpty => 'empty';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n details replaced, the rest kept as yours.',
+      one: '1 detail replaced, the rest kept as yours.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => 'Outgoing payment';
 
   @override
