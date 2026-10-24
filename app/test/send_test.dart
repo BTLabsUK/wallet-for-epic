@@ -422,12 +422,12 @@ class _NoRelays implements RelayDirectory {
   Future<List<RelayStatus>> relays(String chain) async => const [];
 }
 
-/// The whole app on a funded mainnet wallet with a PIN, auto-lock "Immediately", and a clock
-/// the test moves.
+/// The whole app on a funded mainnet wallet with a PIN, auto-lock after a minute (the
+/// shortest), and a clock the test moves.
 class _AppHarness {
   _AppHarness({bool advanced = false}) {
     store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
-    store.values['app.auto_lock'] = '0';
+    store.values['app.auto_lock'] = '1';
     if (advanced) store.values['app.advanced'] = 'true';
     service = FakeWalletService(
       existingWallets: {'/fake/wallets/mainnet'},
@@ -1602,8 +1602,8 @@ void main() {
       expect(h.container.read(autoLockHoldProvider), 0);
       expect(h.files.sharedImages.single.text, h.session.address);
 
-      // The control: "Immediately" locks an ordinary trip away.
-      await h.awayAndBack(tester, const Duration(seconds: 1));
+      // The control: a minute locks an ordinary trip away.
+      await h.awayAndBack(tester, const Duration(minutes: 1));
       await tester.pumpAndSettle();
       expect(h.locked, isTrue);
     });

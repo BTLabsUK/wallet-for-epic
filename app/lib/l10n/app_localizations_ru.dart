@@ -14416,4 +14416,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
+
+  @override
+  String get deskSetAcctAutoLockHint =>
+      'Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. Если выключить, кошелёк блокируется только кнопкой «Заблокировать кошелёк».';
 }

@@ -298,12 +298,13 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final l = context.l10n;
     // A sentinel, because the dialog returns null when dismissed and null also means never.
     const never = -1;
+    final current = s.autoLockMinutes;
     final minutes = await _choose<int>(
       title: l.settingsAutoLock,
-      current: s.autoLockMinutes ?? never,
+      current: current == null ? never : autoLockChoice(current),
       options: [
-        for (final m in autoLockChoices)
-          (value: m ?? never, label: autoLockLabel(l, m)),
+        for (final m in autoLockChoices) (value: m, label: autoLockLabel(l, m)),
+        (value: never, label: autoLockLabel(l, null)),
       ],
     );
     if (minutes != null) {

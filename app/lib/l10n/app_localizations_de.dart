@@ -14181,4 +14181,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
+
+  @override
+  String get deskSetAcctAutoLockHint =>
+      'Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Ausgeschaltet sperrt nur „Wallet sperren“.';
 }

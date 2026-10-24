@@ -29,5 +29,6 @@
   "deskSetAcctChangePassword": "เปลี่ยนรหัสผ่าน…",
   "deskSetAcctDeleteHint": "ลบคีย์และฐานข้อมูล",
   "deskSetAcctFolderNotFound": "ไม่พบโฟลเดอร์",
-  "deskSetAcctCopyPath": "คัดลอกพาธ: {title}"
+  "deskSetAcctCopyPath": "คัดลอกพาธ: {title}",
+  "deskSetAcctAutoLockHint": "ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าปิดไว้ จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น"
 }

@@ -3676,5 +3676,6 @@
   "deskSetAdvReset": "Hide everything again",
   "deskSetAdvOn": "{n, plural, =1{1 switch on} other{{n} switches on}}",
   "deskShellOffline": "Offline mode",
-  "deskShellTorOnlyWaiting": "Tor only · waiting for Tor"
+  "deskShellTorOnlyWaiting": "Tor only · waiting for Tor",
+  "deskSetAcctAutoLockHint": "在这段时间内没有按键或移动鼠标时锁定钱包。关闭后，只能用“锁定钱包”锁定。"
 }

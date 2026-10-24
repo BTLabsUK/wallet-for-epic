@@ -29,5 +29,6 @@
   "deskSetAcctChangePassword": "Сменить пароль…",
   "deskSetAcctDeleteHint": "Удаляет его ключи и базу данных.",
   "deskSetAcctFolderNotFound": "Папка не найдена",
-  "deskSetAcctCopyPath": "Копировать путь: {title}"
+  "deskSetAcctCopyPath": "Копировать путь: {title}",
+  "deskSetAcctAutoLockHint": "Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. Если выключить, кошелёк блокируется только кнопкой «Заблокировать кошелёк»."
 }
