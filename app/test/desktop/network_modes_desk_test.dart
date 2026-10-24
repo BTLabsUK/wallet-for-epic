@@ -145,4 +145,37 @@ void main() {
     expect(session().torStarts, hasLength(1));
     expect(session().routeLog, contains('expectTor'));
   });
+
+  group('Offline with a local node', () {
+    for (final node in ['http://127.0.0.1:3413', 'http://10.100.10.20:3413']) {
+      test('$node: still synced, rechecked and receiving over HTTP; Epicbox and Tor stay off', () async {
+        await wallet.useNode(node);
+        await pumpEventQueue();
+        await mode(NetworkMode.offline);
+        final tips = session().nodeTipsFor.length;
+        final refreshes = session().refreshCalls;
+        await wallet.syncNow();
+        expect(session().refreshCalls, greaterThan(refreshes));
+        await wallet.rescan().drain<void>();
+        expect(session().scanCalls, greaterThan(0));
+        await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true));
+        await wallet.setHttpListening(true);
+        expect(session().httpListenerStarts, isNotEmpty);
+        await expectLater(wallet.setEpicboxListening(true), throwsA(isA<DeskError>()));
+        await expectLater(wallet.setTor(true), throwsA(isA<DeskError>()));
+        expect(session().nodeTipsFor.length, greaterThanOrEqualTo(tips));
+      });
+    }
+
+    test('a public node: refused as before', () async {
+      await wallet.useNode('https://node.example');
+      await mode(NetworkMode.offline);
+      final refreshes = session().refreshCalls;
+      await wallet.syncNow();
+      expect(session().refreshCalls, refreshes);
+      await expectLater(wallet.rescan().drain<void>(), throwsA(isA<DeskError>()));
+      await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true));
+      await expectLater(wallet.setHttpListening(true), throwsA(isA<DeskError>()));
+    });
+  });
 }

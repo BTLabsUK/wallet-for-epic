@@ -30,7 +30,7 @@ const int maxReplyBytes = 16 * 1024 * 1024;
 
 class NodeApiClient {
   /// [baseUrl] is `http://127.0.0.1:3413` or `https://node.example`: plain http only for a
-  /// local host (loopback or a literal LAN address, `local_address.dart`). A bad one fails each call with [NodeRpcError.invalidArgument]. [secret] is
+  /// loopback host. A bad one fails each call with [NodeRpcError.invalidArgument]. [secret] is
   /// awaited for each owner call, as the file may appear after the node starts.
   NodeApiClient(
     this._baseUrl, {
@@ -109,8 +109,8 @@ class NodeApiClient {
     if (u == null || u.host.isEmpty || u.userInfo.isNotEmpty) {
       throw const NodeRpcException(NodeRpcError.invalidArgument, 'node address is not a URL');
     }
-    final local = isLocalAddressUrl(_baseUrl);
-    if (u.scheme != 'https' && !(u.scheme == 'http' && local)) {
+    final loopback = u.host.toLowerCase() == 'localhost' || (InternetAddress.tryParse(u.host)?.isLoopback ?? false);
+    if (u.scheme != 'https' && !(u.scheme == 'http' && loopback)) {
       throw const NodeRpcException(
         NodeRpcError.invalidArgument,
         'a node that is not on this computer must be reached over https',

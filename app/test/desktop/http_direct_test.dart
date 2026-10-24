@@ -2,9 +2,11 @@
 // sendHttp and startHttpListener call. The password is a throwaway test value.
 import 'dart:io';
 
+import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/data/http_address.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -174,6 +176,23 @@ void main() {
       expect((await wallet.status()).httpListener, ServiceHealth.off);
       await wallet.setListening(true);
       expect(session().httpListenerStarts, hasLength(3));
+    });
+
+    test('Offline with a LAN node: Receive shows the LAN address, the internet is not asked', () async {
+      await wallet.useNode('http://10.100.10.20:3413');
+      await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true, publicMode: true, httpPort: 3420));
+      await wallet.setHttpListening(true);
+      session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3420));
+      await pumpEventQueue();
+      final s = await wallet.settings();
+      await wallet.saveSettings(s.copyWith(advanced: s.advanced.withMode(NetworkMode.offline)));
+      await pumpEventQueue();
+      addTearDown(() => NetGate.set(NetworkMode.standard));
+      final asked = probe.asked;
+      expect((await wallet.status()).httpListener, ServiceHealth.ok, reason: 'kept for local senders');
+      expect(await wallet.httpAddress(), 'http://10.0.1.24:3420');
+      expect((await wallet.httpReach())?.publicAddress, isNull);
+      expect(probe.asked, asked);
     });
 
     test('a port in use becomes the status text; Try again starts it again', () async {
