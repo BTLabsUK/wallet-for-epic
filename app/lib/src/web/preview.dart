@@ -177,7 +177,28 @@ FakeWalletSession _previewSession() {
         amountCredited: _epic(7.5),
         outputCommits: [_commit('out-2')],
       ),
+      fakeTx(
+        key: 'c:restored-2',
+        id: 3,
+        kind: TxKind.received,
+        status: TxStatus.confirmed,
+        source: TxSource.restored,
+        createdAtUnix: ago(const Duration(days: 6)),
+        timeUnix: ago(const Duration(days: 52)),
+        blockHeight: tip - BigInt.from(74880),
+        blockTimeUnix: ago(const Duration(days: 52)),
+        amountCredited: _epic(2),
+        outputCommits: [_commit('out-3')],
+      ),
     ],
+  );
+  // Two labels, and the sender, method and note of one restored payment.
+  session.labels['s:a1b2c3d4-0001-4e5f-8a9b-000000000031'] = 'Pool payout, March';
+  session.labels['s:a1b2c3d4-0001-4e5f-8a9b-000000000032'] = 'Coffee beans';
+  session.details['c:restored-1'] = (
+    counterparty: exchange,
+    transport: 'epicbox',
+    note: 'Withdrawal from the exchange.',
   );
   session.address = _address('me');
   session.contactsValue.addAll([

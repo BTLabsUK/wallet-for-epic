@@ -20,6 +20,7 @@ import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
+import 'tx_label.dart';
 
 export 'notices.dart';
 
@@ -386,33 +387,62 @@ String signedEpic(
 bool _outgoingKind(TxEntry tx) =>
     tx.kind == TxKind.sent || tx.kind == TxKind.sentCancelled;
 
-/// The row title, the same style for every row: the contact's name, else the other side's
-/// short address, else what kind of payment it is. The status is never in the title, only in
-/// the chip.
+/// A payment's label as a title, or null when it has none.
+String? _labelOf(TxEntry tx) {
+  final label = tx.label?.trim();
+  return label == null || label.isEmpty ? null : label;
+}
+
+/// The row title, the same style for every row: the user's label, else the contact's name,
+/// else the other side's short address, else what kind of payment it is. The status is never
+/// in the title, only in the second line.
 String txTitle(
   AppLocalizations l,
   TxEntry tx, {
   String? contactName,
   String? ownServer,
 }) {
-  final special = _specialTitle(l, tx);
-  if (special != null) return special;
+  if (_labelOf(tx) case final label?) return label;
   final counterparty = tx.counterparty;
+  final special = _specialTitle(l, tx, hasCounterparty: counterparty != null);
+  if (special != null) return special;
   return contactName ??
       (counterparty == null
           ? _directionNoun(l, tx)
           : shortAddress(counterparty, ownServer: ownServer));
 }
 
-/// The details title: the contact's name, else what kind of payment it is. The address is in
-/// the "Sent to" / "Received from" row just below, in full.
-String txHeading(AppLocalizations l, TxEntry tx, {String? contactName}) =>
-    _specialTitle(l, tx) ?? contactName ?? _directionNoun(l, tx);
+/// What a labelled row's second line adds after the date, so the name or address the label
+/// replaced is not lost: the contact's name, else the short address; null without a label or
+/// when there is nothing to add.
+String? txTitleAside(TxEntry tx, {String? contactName, String? ownServer}) {
+  if (_labelOf(tx) == null) return null;
+  final counterparty = tx.counterparty;
+  return contactName ??
+      (counterparty == null
+          ? null
+          : shortAddress(counterparty, ownServer: ownServer));
+}
 
-/// Titles that describe where a payment came from rather than who: mining and a chain scan.
-String? _specialTitle(AppLocalizations l, TxEntry tx) {
+/// The details title: the label, else the contact's name, else what kind of payment it is. The
+/// address is in the "Sent to" / "Received from" row just below, in full.
+String txHeading(AppLocalizations l, TxEntry tx, {String? contactName}) =>
+    _labelOf(tx) ??
+    _specialTitle(l, tx, hasCounterparty: false) ??
+    contactName ??
+    _directionNoun(l, tx);
+
+/// Titles that describe where a payment came from rather than who: mining and a chain scan
+/// (which knows no sender, unless the user typed one).
+String? _specialTitle(
+  AppLocalizations l,
+  TxEntry tx, {
+  required bool hasCounterparty,
+}) {
   if (tx.kind == TxKind.coinbase) return l.txMiningReward;
-  if (tx.source == TxSource.restored) return l.txRestoredFunds;
+  if (tx.source == TxSource.restored && !hasCounterparty) {
+    return l.txRestoredFunds;
+  }
   return null;
 }
 
@@ -541,11 +571,15 @@ class TxStatusLine extends ConsumerWidget {
     required this.tx,
     required this.tip,
     required this.date,
+    this.aside,
   });
 
   final TxEntry tx;
   final BigInt? tip;
   final String date;
+
+  /// A name after the date, on a row whose label took the title ([txTitleAside]).
+  final String? aside;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -563,7 +597,8 @@ class TxStatusLine extends ConsumerWidget {
         Icon(icon, size: 14, color: color),
         const SizedBox(width: 5),
         // One text, so the status and the time share the line and shorten as one.
-        Expanded(
+        Flexible(
+          flex: 3,
           child: Text.rich(
             TextSpan(
               children: [
@@ -580,6 +615,8 @@ class TxStatusLine extends ConsumerWidget {
                       : base,
                 ),
                 TextSpan(text: ' \u00B7 $date', style: base),
+                if (aside != null)
+                  TextSpan(text: ' \u00B7 $aside', style: base),
               ],
             ),
             maxLines: 1,
@@ -587,6 +624,10 @@ class TxStatusLine extends ConsumerWidget {
             style: base,
           ),
         ),
+        if (tx.manualFields.isNotEmpty) ...[
+          const SizedBox(width: 6),
+          ManualTag(editedAtUnix: tx.manualEditedAtUnix, compact: true),
+        ],
       ],
     );
   }
@@ -1275,94 +1316,156 @@ class TxTile extends ConsumerWidget {
       MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
     );
     final counterparty = tx.counterparty;
+    final aside = txTitleAside(
+      tx,
+      contactName: name,
+      ownServer: ownEpicboxServer(ref),
+    );
     // One sentence for screen readers instead of the pieces (title, chip, date, amount, fiat),
-    // so the status is said once and in order.
-    return Semantics(
-      key: ValueKey('tx-${tx.key}'),
-      button: true,
-      label: txSpokenLabel(
-        l,
-        tx,
-        who:
-            name ??
-            (counterparty == null
-                ? null
-                : shortAddress(counterparty, ownServer: ownEpicboxServer(ref))),
-        date: date,
-        status: txStatusLabel(
-          l,
-          tx,
-          tip,
-          target: confirmationsTargetOf(ref),
-          now: ref.watch(clockProvider)(),
-        ),
-        hidden: display.hidden,
-      ),
-      onTap: open,
-      excludeSemantics: true,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: open,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TxIcon(tx: tx, tip: tip),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 2),
-                    TxStatusLine(tx: tx, tip: tip, date: date),
-                  ],
-                ),
+    // so the status is said once and in order. It sits under the row, which is on top of it
+    // only where there is something to read: the pen is its own button above it.
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Semantics(
+            key: ValueKey('tx-${tx.key}'),
+            button: true,
+            label: txSpokenLabel(
+              l,
+              tx,
+              who:
+                  name ??
+                  (counterparty == null
+                      ? null
+                      : shortAddress(
+                          counterparty,
+                          ownServer: ownEpicboxServer(ref),
+                        )),
+              date: date,
+              status: txStatusLabel(
+                l,
+                tx,
+                tip,
+                target: confirmationsTargetOf(ref),
+                now: now,
               ),
-              const SizedBox(width: 8),
-              // At most 40 % of the row, so a long title keeps some room.
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.sizeOf(context).width * 0.4,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // Amounts are data, so the mono face.
-                    Text(
-                      signed,
-                      textAlign: TextAlign.end,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontFamily: context.tokens.monoFamily,
-                        fontSize: 14.5,
-                        // Money in reads green, as on the desktop; money out stays plain.
-                        color: !outgoing && tx.status != TxStatus.cancelled
-                            ? context.tokens.ok
-                            : null,
-                        decoration: tx.status == TxStatus.cancelled
-                            ? TextDecoration.lineThrough
-                            : null,
-                      ),
-                    ),
-                    if (fiat != null)
-                      Text(
-                        fiat,
-                        textAlign: TextAlign.end,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                  ],
-                ),
-              ),
-            ],
+              hidden: display.hidden,
+            ),
+            onTap: open,
+            excludeSemantics: true,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: open,
+            ),
           ),
         ),
-      ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IgnorePointer(
+              child: ExcludeSemantics(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: TxIcon(tx: tx, tip: tip),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // The pen's target is 48 dp tall around a 24 dp line; the second line is
+                  // drawn up into the room above and below the title.
+                  SizedBox(
+                    height: 48,
+                    child: TxLabelEditor(
+                      tx: tx,
+                      style: theme.textTheme.bodyLarge,
+                      // Short enough to leave the second line clear.
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      idle: (context, edit) => Row(
+                        children: [
+                          Expanded(
+                            child: IgnorePointer(
+                              child: ExcludeSemantics(
+                                child: Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodyLarge,
+                                ),
+                              ),
+                            ),
+                          ),
+                          LabelPen(hasLabel: tx.label != null, onPressed: edit),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0, -8),
+                    child: IgnorePointer(
+                      child: ExcludeSemantics(
+                        child: TxStatusLine(
+                          tx: tx,
+                          tip: tip,
+                          date: date,
+                          aside: aside,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            // At most 40 % of the row, so a long title keeps some room.
+            IgnorePointer(
+              child: ExcludeSemantics(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.sizeOf(context).width * 0.4,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // Amounts are data, so the mono face.
+                        Text(
+                          signed,
+                          textAlign: TextAlign.end,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontFamily: context.tokens.monoFamily,
+                            fontSize: 14.5,
+                            // Money in reads green, as on the desktop; money out stays plain.
+                            color: !outgoing && tx.status != TxStatus.cancelled
+                                ? context.tokens.ok
+                                : null,
+                            decoration: tx.status == TxStatus.cancelled
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        ),
+                        if (fiat != null)
+                          Text(
+                            fiat,
+                            textAlign: TextAlign.end,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -1416,9 +1519,7 @@ class ErrorText extends StatelessWidget {
               semanticLabel: context.l10n.commonError,
             ),
             const SizedBox(width: 8),
-            Expanded(
-              child: Text(message, style: TextStyle(color: color)),
-            ),
+            Expanded(child: Text(message, style: TextStyle(color: color))),
           ],
         ),
       ),

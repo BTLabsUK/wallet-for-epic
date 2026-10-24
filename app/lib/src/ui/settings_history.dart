@@ -20,6 +20,7 @@ import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'history_conflicts.dart';
 
 /// History backups are small; a file far larger is not one.
 const int maxHistoryFileBytes = 32 << 20;
@@ -371,13 +372,22 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
               .pick(dialogTitle: l.historyBackupOpenDialogTitle),
         );
     if (bytes == null) return false;
-    final report = await session.importHistory(data: bytes);
+    var report = await session.importHistory(data: bytes);
+    if (!report.applied) {
+      // The file disagrees with what the user entered: nothing is written until they choose.
+      if (!context.mounted) return false;
+      final choices = await showImportConflicts(context, report.conflicts);
+      if (choices == null) return false;
+      report = await session.importHistory(data: bytes, useBackup: choices);
+    }
     ref.invalidate(homeProvider);
     if (context.mounted) {
       await _tell(
         context,
         l.historyBackupImportedTitle,
-        describeImport(l, report),
+        report.replaced > 0
+            ? '${describeImport(l, report)} ${l.histImportedReplaced(report.replaced)}'
+            : describeImport(l, report),
       );
     }
     return true;
