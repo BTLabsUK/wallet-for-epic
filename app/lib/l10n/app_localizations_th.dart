@@ -3367,7 +3367,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendNodeDown => 'เชื่อมต่อเครือข่ายไม่ได้ในขณะนี้';
 
   @override
-  String get sendRelayDown => 'เซิร์ฟเวอร์ของผู้รับไม่ตอบสนอง';
+  String sendRelayDown(String relay) {
+    return 'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่ตอบสนอง';
+  }
 
   @override
   String get sendListenerDown => 'ยังไม่ได้เชื่อมต่อ แต่ยังส่งได้';
@@ -3516,19 +3518,30 @@ class AppLocalizationsTh extends AppLocalizations {
   String get handshakeNext => 'ขั้นตอนถัดไป';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'เซิร์ฟเวอร์ของผู้รับไม่รับรายการ จำนวนเงินจะถูกพักไว้จนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
+          'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่รับรายการ จำนวนเงินจะถูกพักไว้จนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'เซิร์ฟเวอร์ของผู้รับไม่รับรายการ ตรวจสอบหน้ากระเป๋าก่อนส่งอีกครั้ง';
+  String sendRelayRefusedLost(String relay) {
+    return 'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่รับรายการ ตรวจสอบหน้ากระเป๋าก่อนส่งอีกครั้ง';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return 'แอปไม่รู้จักเซิร์ฟเวอร์ $relay ตรวจสอบที่อยู่ก่อนส่ง';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay ไม่ตอบสนอง';
+  }
 
   @override
   String get sendCancelAndFile => 'ยกเลิกแล้วชำระด้วยไฟล์';
@@ -13082,6 +13095,11 @@ class AppLocalizationsTh extends AppLocalizations {
       'การชำระเงินนี้ยังไปไม่ถึง epicbox ผู้รับจึงยังไม่ได้รับ เงินของคุณจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก';
 
   @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay ไม่ตอบสนอง ผู้รับจึงยังไม่ได้รับการชำระเงินนี้ เงินของคุณจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก';
+  }
+
+  @override
   String get txDetailsSendAgainDone =>
       'ส่งอีกครั้งแล้ว การชำระเงินจะเสร็จสมบูรณ์เมื่อกระเป๋าของผู้รับออนไลน์';
 
@@ -13175,4 +13193,27 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'การส่งจะใช้เอาต์พุตใด เล็กสุด ใช้เอาต์พุตเล็กให้น้อยที่สุดและเหลือส่วนอื่นไว้ใช้ได้ ทั้งหมด ใช้ทุกเอาต์พุตและคืนเป็นเอาต์พุตเดียว หน้า ส่ง เปลี่ยนได้เฉพาะครั้งนั้นใต้ ขั้นสูง';
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'ส่งไม่ถึง: $relay ไม่ตอบสนอง รายการรออยู่ในประวัติ ยกเลิกที่นั่นเพื่อปลดล็อกยอดเงิน';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay ไม่ตอบสนอง';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'ไม่รู้จักเซิร์ฟเวอร์ Epicbox';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return 'แอปไม่รู้จักเซิร์ฟเวอร์ $relay ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'ส่งไม่ถึง $relay ไม่ตอบสนอง ผู้รับจึงยังไม่ได้รับรายการนี้ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน';
+  }
 }

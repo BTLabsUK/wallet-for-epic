@@ -117,5 +117,6 @@
   "deskTxSendAgain": "Wyślij ponownie",
   "deskTxNotSent": "Nie wysłano",
   "deskTxSentAgain": "Wysłano ponownie",
-  "deskTxSentAgainText": "Zakończy się, gdy portfel odbiorcy będzie online."
+  "deskTxSentAgainText": "Zakończy się, gdy portfel odbiorcy będzie online.",
+  "deskTxNowUndeliveredRelay": "Nie dostarczono. {relay} nie odpowiedział, więc odbiorca nie otrzymał płatności. Wyślij ją ponownie albo anuluj, żeby odblokować środki."
 }

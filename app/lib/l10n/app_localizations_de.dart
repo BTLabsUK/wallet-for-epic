@@ -3501,8 +3501,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendNodeDown => 'Das Netzwerk ist gerade nicht erreichbar.';
 
   @override
-  String get sendRelayDown =>
-      'Der Epicbox-Server der Gegenseite antwortet nicht.';
+  String sendRelayDown(String relay) {
+    return 'Der Epicbox-Server der Gegenseite ($relay) antwortet nicht.';
+  }
 
   @override
   String get sendListenerDown =>
@@ -3655,20 +3656,32 @@ class AppLocalizationsDe extends AppLocalizations {
   String get handshakeNext => 'Nächster Schritt';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'Der Epicbox-Server der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
-      one: 'Der Epicbox-Server der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
+          'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
+      one:
+          'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'Der Epicbox-Server der Gegenseite hat sie nicht angenommen. Prüfen Sie die Wallet, bevor Sie erneut senden.';
+  String sendRelayRefusedLost(String relay) {
+    return 'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Prüfen Sie die Wallet, bevor Sie erneut senden.';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return '$relay ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden.';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay hat nicht geantwortet.';
+  }
 
   @override
   String get sendCancelAndFile => 'Stornieren und mit Datei zahlen';
@@ -13488,6 +13501,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Diese Zahlung hat die Epicbox noch nicht erreicht, deshalb hat der Empfänger sie nicht erhalten. Dein Guthaben bleibt gesperrt, bis sie erneut gesendet oder storniert wird.';
 
   @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay hat nicht geantwortet, deshalb hat der Empfänger diese Zahlung nicht erhalten. Dein Guthaben bleibt gesperrt, bis sie erneut gesendet oder storniert wird.';
+  }
+
+  @override
   String get txDetailsSendAgainDone =>
       'Erneut gesendet. Die Zahlung wird abgeschlossen, sobald die Wallet des Empfängers online ist.';
 
@@ -13583,4 +13601,27 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'Welche Outputs eine Zahlung verbraucht. Kleinste verbraucht möglichst wenige kleine Outputs und lässt den Rest verfügbar; Alle verbraucht alles und gibt einen Output zurück. Unter Senden › Erweitert lässt sich das für eine Zahlung ändern.';
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'Nicht zugestellt: $relay hat nicht geantwortet. Die Zahlung wartet unter Aktivität; stornieren Sie sie dort, um den Betrag freizugeben.';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay hat nicht geantwortet.';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'Unbekannter Epicbox-Server';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return '$relay ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden.';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'Nicht zugestellt. $relay hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.';
+  }
 }

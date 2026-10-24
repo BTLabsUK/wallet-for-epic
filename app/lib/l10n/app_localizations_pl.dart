@@ -3607,7 +3607,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendNodeDown => 'Brak połączenia z siecią.';
 
   @override
-  String get sendRelayDown => 'Przekaźnik odbiorcy nie odpowiada.';
+  String sendRelayDown(String relay) {
+    return 'Przekaźnik odbiorcy ($relay) nie odpowiada.';
+  }
 
   @override
   String get sendListenerDown =>
@@ -3758,25 +3760,36 @@ class AppLocalizationsPl extends AppLocalizations {
   String get handshakeNext => 'Następny krok';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'Przekaźnik odbiorcy jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
+          'Przekaźnik odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
       many:
-          'Przekaźnik odbiorcy jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Przekaźnik odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
       few:
-          'Przekaźnik odbiorcy jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+          'Przekaźnik odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
       one:
-          'Przekaźnik odbiorcy jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
+          'Przekaźnik odbiorcy ($relay) jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'Przekaźnik odbiorcy jej nie przyjął. Sprawdź Portfel przed ponownym wysłaniem.';
+  String sendRelayRefusedLost(String relay) {
+    return 'Przekaźnik odbiorcy ($relay) jej nie przyjął. Sprawdź Portfel przed ponownym wysłaniem.';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return 'Aplikacja nie zna serwera $relay. Sprawdź adres przed wysłaniem.';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay nie odpowiedział.';
+  }
 
   @override
   String get sendCancelAndFile => 'Anuluj i zapłać plikiem';
@@ -13741,6 +13754,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ta płatność nie dotarła jeszcze do epicboxa, więc odbiorca jej nie dostał. Środki pozostają zablokowane, dopóki nie zostanie wysłana ponownie lub anulowana.';
 
   @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay nie odpowiedział, więc odbiorca nie dostał tej płatności. Środki pozostają zablokowane, dopóki nie zostanie wysłana ponownie lub anulowana.';
+  }
+
+  @override
   String get txDetailsSendAgainDone =>
       'Wysłano ponownie. Płatność zakończy się, gdy portfel odbiorcy będzie online.';
 
@@ -13836,4 +13854,27 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'Które wyjścia wydaje wysyłka. Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania; Wszystkie wydaje wszystko i zwraca jedno wyjście. W Wyślij możesz to zmienić dla jednej wysyłki w sekcji Zaawansowane.';
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'Nie dostarczono: $relay nie odpowiedział. Płatność czeka w Aktywności; anuluj ją tam, aby odblokować środki.';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay nie odpowiedział.';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'Nieznany serwer Epicbox';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return 'Aplikacja nie zna serwera $relay. Sprawdź adres przed wysłaniem. Nadal możesz wysłać.';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'Nie dostarczono. $relay nie odpowiedział, więc odbiorca nie otrzymał płatności. Wyślij ją ponownie albo anuluj, żeby odblokować środki.';
+  }
 }

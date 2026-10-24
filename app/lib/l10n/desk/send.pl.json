@@ -162,5 +162,7 @@
   "deskSendFeeChangedTitle": "Opłata się zmieniła",
   "deskSendFeeChangedText": "Wyjścia portfela zmieniły się od tego przeglądu, więc wysyłka kosztuje teraz {fee} EPIC zamiast {was} EPIC opłaty. Sprawdź ją i wyślij ponownie.",
   "deskSendMessageBytes": "{used} / {max} bajtów",
-  "deskSendMessageTooLong": "Wiadomość jest dłuższa niż {max} bajtów. Skróć ją."
+  "deskSendMessageTooLong": "Wiadomość jest dłuższa niż {max} bajtów. Skróć ją.",
+  "deskSendRelayUnknownTitle": "Nieznany serwer Epicbox",
+  "deskSendRelayUnknownText": "Aplikacja nie zna serwera {relay}. Sprawdź adres przed wysłaniem. Nadal możesz wysłać."
 }

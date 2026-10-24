@@ -117,5 +117,6 @@
   "deskTxSendAgain": "ส่งอีกครั้ง",
   "deskTxNotSent": "ส่งไม่สำเร็จ",
   "deskTxSentAgain": "ส่งอีกครั้งแล้ว",
-  "deskTxSentAgainText": "จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์"
+  "deskTxSentAgainText": "จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์",
+  "deskTxNowUndeliveredRelay": "ส่งไม่ถึง {relay} ไม่ตอบสนอง ผู้รับจึงยังไม่ได้รับรายการนี้ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน"
 }

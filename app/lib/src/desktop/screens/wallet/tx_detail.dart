@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../known_relays.dart' show recipientRelay;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -26,7 +27,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       : t.immature
       ? l.deskTxNowImmature(coinbaseMaturity)
       : switch (t.state) {
-          TxState.waitingRecipient when t.undelivered => l.deskTxNowUndelivered,
+          TxState.waitingRecipient when t.undelivered => switch (t.method == TxMethod.epicbox ? recipientRelay(t.counterparty ?? '') : null) {
+            final relay? => l.deskTxNowUndeliveredRelay(relay.label),
+            _ => l.deskTxNowUndelivered,
+          },
           TxState.waitingRecipient =>
             t.incoming
                 ? l.deskTxNowWaitingSender

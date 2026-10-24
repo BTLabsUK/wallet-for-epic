@@ -44,7 +44,7 @@ void main() {
 
   tearDown(() => container.dispose());
 
-  Future<void> review(WidgetTester tester) async {
+  Future<void> review(WidgetTester tester, {String recipient = 'esXyz1234567890abcdefghijk@epicbox.epiccash.com'}) async {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -54,9 +54,9 @@ void main() {
         container: container,
         child: MaterialApp(
           theme: buildDeskTheme(Brightness.dark),
-          home: const Scaffold(
+          home: Scaffold(
             body: SendScreen(
-              arg: SendArgs(step: SendStep.review, recipient: 'esXyz1234567890abcdefghijk@epicbox.epiccash.com', amount: '1', epicboxHealth: ServiceHealth.ok),
+              arg: SendArgs(step: SendStep.review, recipient: recipient, amount: '1', epicboxHealth: ServiceHealth.ok),
             ),
           ),
         ),
@@ -87,6 +87,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('View in Activity'), findsOneWidget);
     expect(find.text('Review again'), findsNothing);
+  });
+
+  testWidgets('linux-14: a server the app does not know is named in a warning, and the send goes on', (tester) async {
+    await review(tester, recipient: 'esXyz1234567890abcdefghijk@epicbox.stackwalle');
+    expect(find.text('Unknown Epicbox server'), findsOneWidget);
+    expect(find.textContaining('epicbox.stackwalle is not a server this app knows'), findsOneWidget);
+    await enterReviewPassword(tester);
+    await tester.tap(find.text('Send 1.0000 EPIC'));
+    await tester.pumpAndSettle();
+    expect(wallet.sends, 1, reason: 'a warning, not a block');
+  });
+
+  testWidgets('a server the app lists raises no warning', (tester) async {
+    await review(tester);
+    expect(find.text('Unknown Epicbox server'), findsNothing);
   });
 
   testWidgets('a plain refusal still offers Review again', (tester) async {

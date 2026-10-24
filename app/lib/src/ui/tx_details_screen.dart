@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
+import '../network.dart' show EpicboxRelay;
+import '../send_preflight.dart' show recipientRelay;
 import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
@@ -64,6 +66,10 @@ bool _expired(TxEntry tx, BigInt? tip) {
   return cutoff != null && tip != null && tip >= cutoff;
 }
 
+/// The relay of an Epicbox send's address, null for any other.
+EpicboxRelay? _epicboxRelayOf(TxEntry tx) =>
+    tx.transport == 'epicbox' ? recipientRelay(tx.counterparty ?? '') : null;
+
 /// Whether [address] is someone's epicbox address rather than a wallet URL.
 bool _isEpicboxAddress(String? address) =>
     address != null &&
@@ -108,7 +114,10 @@ String txExplanation(
   final tooLong = now == null ? null : daysWaitingTooLong(tx, now);
   return switch (txPhase(tx, tip, target: target)) {
     TxPhase.waitingRecipient when tx.undelivered =>
-      l.txDetailsNotDeliveredBody,
+      switch (_epicboxRelayOf(tx)) {
+        final relay? => l.txDetailsNotDeliveredRelayBody(relay.label),
+        _ => l.txDetailsNotDeliveredBody,
+      },
     TxPhase.waitingRecipient when tooLong != null => l.txDetailsWaitingTooLong(
       tooLong,
     ),
@@ -290,8 +299,14 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       );
     } catch (error) {
       if (mounted) {
+        // The relay is named: a mistyped domain never answers, however often it is tried.
+        final relay = _epicboxRelayOf(tx);
         _showMessage(
-          describeError(context.l10n, error),
+          error is WalletError &&
+                  error.kind == WalletErrorKind.transportFailed &&
+                  relay != null
+              ? context.l10n.relayNoAnswer(relay.label)
+              : describeError(context.l10n, error),
           level: NoticeLevel.error,
         );
       }

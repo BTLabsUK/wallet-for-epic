@@ -857,7 +857,7 @@ void main() {
         );
         await _tap(tester, find.text('Send 2 EPIC'));
         expect(
-          find.textContaining("Their relay didn't take it."),
+          find.textContaining("didn't take it."),
           findsOneWidget,
         );
         expect(find.text('Send anyway'), findsNothing);

@@ -1244,6 +1244,30 @@ void main() {
       expect(find.text('Cancel payment'), findsOneWidget);
     });
 
+    testWidgets('linux-14: the relay that did not answer is named, on the row and in the error', (
+      tester,
+    ) async {
+      final h = _Harness(transactions: _undeliveredSend());
+      h.session.resendEpicboxError = const WalletError(
+        kind: WalletErrorKind.transportFailed,
+        message: 'epicbox post failed: relay sent nothing in time',
+      );
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
+      expect(
+        find.textContaining('did not answer, so the recipient has not received this payment'),
+        findsOneWidget,
+      );
+      await _tap(tester, find.widgetWithText(FilledButton, 'Send again'));
+      expect(
+        find.descendant(
+          of: find.byKey(noticeKey),
+          matching: find.textContaining(' did not answer.'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.widgetWithText(FilledButton, 'Send again'), findsOneWidget);
+    });
+
     testWidgets('a send that is not undelivered has no Send again', (
       tester,
     ) async {

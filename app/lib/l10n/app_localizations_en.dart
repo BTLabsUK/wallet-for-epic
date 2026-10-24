@@ -3454,7 +3454,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendNodeDown => 'Can\'t reach the network right now.';
 
   @override
-  String get sendRelayDown => 'Their relay isn\'t answering.';
+  String sendRelayDown(String relay) {
+    return 'Their relay ($relay) isn\'t answering.';
+  }
 
   @override
   String get sendListenerDown => 'Not connected yet. You can still send.';
@@ -3602,20 +3604,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get handshakeNext => 'Next step';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most $days days.',
-      one: 'Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.',
+          'Their relay ($relay) didn\'t take it. The amount is on hold until you cancel it, or for at most $days days.',
+      one:
+          'Their relay ($relay) didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'Their relay didn\'t take it. Check Wallet before you send again.';
+  String sendRelayRefusedLost(String relay) {
+    return 'Their relay ($relay) didn\'t take it. Check Wallet before you send again.';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return '$relay isn\'t a server this app knows. Check the address before you send.';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay did not answer.';
+  }
 
   @override
   String get sendCancelAndFile => 'Cancel and pay with a file';
@@ -13335,6 +13349,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'This payment did not reach the epicbox yet, so the recipient has not received it. Your funds stay locked until it is sent again or cancelled.';
 
   @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay did not answer, so the recipient has not received this payment. Your funds stay locked until it is sent again or cancelled.';
+  }
+
+  @override
   String get txDetailsSendAgainDone =>
       'Sent again. It completes when their wallet comes online.';
 
@@ -13430,4 +13449,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.';
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'Not delivered: $relay did not answer. The payment waits in Activity; cancel it there to unlock the funds.';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay did not answer.';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'Unknown Epicbox server';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return '$relay is not a server this app knows. Check the address before you send. You can still send.';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'Not delivered. $relay did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.';
+  }
 }

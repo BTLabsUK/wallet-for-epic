@@ -117,5 +117,6 @@
   "deskTxSendAgain": "Erneut senden",
   "deskTxNotSent": "Nicht gesendet",
   "deskTxSentAgain": "Erneut gesendet",
-  "deskTxSentAgainText": "Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist."
+  "deskTxSentAgainText": "Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist.",
+  "deskTxNowUndeliveredRelay": "Nicht zugestellt. {relay} hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben."
 }

@@ -131,5 +131,7 @@
   "deskErrOldSeedTooLarge": "Plik wallet.seed jest za duży, by był seedem portfela.",
   "deskErrSendUnbuildable": "Tej płatności nie da się złożyć z dostępnych środków.",
   "deskErrNothingToConsolidate": "Nie ma czego scalać: mniej niż dwa wyjścia do wydania.",
-  "deskErrTxNotFound": "Nie znaleziono transakcji"
+  "deskErrTxNotFound": "Nie znaleziono transakcji",
+  "deskErrNotDeliveredRelay": "Nie dostarczono: {relay} nie odpowiedział. Płatność czeka w Aktywności; anuluj ją tam, aby odblokować środki.",
+  "deskErrRelayNoAnswer": "{relay} nie odpowiedział."
 }
