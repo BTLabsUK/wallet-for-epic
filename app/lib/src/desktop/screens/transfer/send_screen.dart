@@ -15,6 +15,7 @@ import '../../data/tor_view.dart';
 import '../../../models.dart' show slateMessageMaxBytes;
 import '../../../smart_outputs.dart';
 import '../../../utf8_limit.dart';
+import '../../app/shell.dart' show outputsShown;
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -1070,7 +1071,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             setState(() => _smartOverride = v);
             _replan();
           },
-          onOutputs: () => ref.read(deskNavProvider.notifier).go(DeskRoute.outputs),
+          onOutputs: outputsShown(ref) ? () => ref.read(deskNavProvider.notifier).go(DeskRoute.outputs) : null,
         ),
         ],
         if (DeskFeatures.dandelion && !file) ...[

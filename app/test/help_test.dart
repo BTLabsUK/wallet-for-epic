@@ -3,6 +3,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
+import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +15,11 @@ class _Tor extends PhoneTor {
 
 /// Help with no wallet open: three confirmations, Tor available, no invoices.
 class AppHarness {
+  AppHarness({this.advanced = AdvancedPrefs.none});
+
+  /// The Advanced choices the tree runs under (none, as a new wallet).
+  final AdvancedPrefs advanced;
+
   Future<void> pump(WidgetTester tester, Widget screen) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
@@ -28,6 +34,7 @@ class AppHarness {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: screen,
+          builder: (context, child) => AdvancedOptions(prefs: advanced, child: child!),
         ),
       ),
     );
@@ -116,7 +123,7 @@ void main() {
     });
 
     testWidgets('search narrows the list and marks the words; no match says so', (tester) async {
-      final h = AppHarness();
+      final h = AppHarness(advanced: AdvancedPrefs.all);
       await h.pump(tester, const HelpScreen());
       await tester.enterText(find.byKey(helpSearchKey), 'consolidate');
       await tester.pumpAndSettle();
@@ -126,6 +133,16 @@ void main() {
       await tester.enterText(find.byKey(helpSearchKey), 'qwertyu');
       await tester.pumpAndSettle();
       expect(find.text('No help matches "qwertyu"'), findsOneWidget);
+    });
+
+    testWidgets('the Outputs topics are not listed or found while Advanced hides Outputs', (tester) async {
+      final h = AppHarness();
+      await h.pump(tester, const HelpScreen());
+      expect(find.text('Split and consolidate'), findsNothing);
+      expect(find.text('Smallest or All: which outputs a send spends'), findsNothing);
+      await tester.enterText(find.byKey(helpSearchKey), 'consolidate');
+      await tester.pumpAndSettle();
+      expect(find.text('No help matches "consolidate"'), findsOneWidget);
     });
 
     testWidgets('a topic opens as a page with its section, body and the related rows', (tester) async {

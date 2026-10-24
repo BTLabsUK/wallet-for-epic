@@ -14227,7 +14227,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advIntro =>
-      'Off by default. Each switch shows one more part of the wallet, where it belongs.';
+      'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.';
 
   @override
   String get advShowsHeader => 'Shows more';
@@ -14237,56 +14237,56 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'One choice for how the wallet reaches the network. Standard connects directly and leaves Tor to the Privacy & network switch. Tor first starts Tor with the wallet and asks before falling back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all; transaction files still work.';
+      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor first starts Tor with the wallet and asks before it falls back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all. Transaction files still work.';
 
   @override
   String get advOutputs => 'Outputs';
 
   @override
   String get advOutputsHint =>
-      'The Outputs page under Wallet: the coins the balance is made of, Split and Consolidate, and the defaults a send uses. A split or consolidation in progress stays visible either way.';
+      'Shows the Outputs page, under Wallet and on Home. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.';
 
   @override
   String get advTechnical => 'Technical details';
 
   @override
   String get advTechnicalHint =>
-      'Kernel, slate ID, commitments and block height on a transaction\'s details, open by default; the invoice address rotation and dropped count in Invoices.';
+      'Shows the technical rows on a payment\'s details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.';
 
   @override
   String get advSendOptions => 'Send options';
 
   @override
   String get advSendOptionsHint =>
-      'Which outputs a send spends (Smallest or All) and whether its change is split, for one send at a time, on Send\'s review. The defaults stay on Outputs.';
+      'Lets one send choose which outputs it spends, Smallest or All, and whether to split the change. The choice sits on Send\'s review and applies to that send only. The defaults stay on Outputs.';
 
   @override
   String get advFiles => 'Transaction files';
 
   @override
   String get advFilesHint =>
-      'The File method on Send and Receive: a payment as a file handed over any way, signed and handed back. For a wallet that uses no relay. A file payment in progress keeps the method visible.';
+      'Adds the File method to Send and Receive. A payment travels as a file: hand it over any way you like, the other side signs it and hands it back. For wallets that use no relay. A file payment in progress keeps the method visible.';
 
   @override
   String get advDirect => 'Direct receiving';
 
   @override
   String get advDirectHint =>
-      'An address of this phone\'s own, reached over Tor, beside Epicbox. Shows the Direct method on Send and Receive and its state in Privacy & network. While Direct receiving is on, the method stays visible.';
+      'Gives this phone a second address, reached over Tor. Others can pay it directly, without Epicbox. Works only while the app is open. Adds the Direct method to Send and Receive, and its state to Privacy & network. Stays visible while it is on.';
 
   @override
   String get advServerDetails => 'Server details';
 
   @override
   String get advServerDetailsHint =>
-      'Hosts, latency, version and block height in the server pickers and on the status card; the relay address under Receive and the invoice address in full.';
+      'Shows hosts, latency, version and block height in the server pickers and on the status card, the relay address under Receive, and the invoice address in full.';
 
   @override
   String get advRecheckHeight => 'Recheck from a height';
 
   @override
   String get advRecheckHeightHint =>
-      'Recheck balance and Restore can start from a block height or a date instead of the first block. Faster, and the only way to skip early history.';
+      'Lets Recheck balance and Restore start from a block height or a date instead of the first block. Faster, and the only way to skip early history.';
 
   @override
   String get advModeStandard => 'Standard';
@@ -14314,11 +14314,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeOfflineLine =>
-      'No network. The balance stays as last seen; transaction files still work.';
+      'No network. The balance stays as last seen. Transaction files still work.';
 
   @override
   String get advTorOnlyNote =>
-      'Tor only pauses notifications: a push registration would show this phone\'s address.';
+      'Tor only pauses notifications: registering for them would reveal this phone\'s address.';
 
   @override
   String get advOfflineNote =>
@@ -14344,7 +14344,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvIntro =>
-      'Off by default. Each switch shows one more part of the wallet, where it belongs.';
+      'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.';
 
   @override
   String get deskSetAdvShows => 'Shows more';
@@ -14354,70 +14354,70 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvOutputsHint =>
-      'The Outputs page in the sidebar: the coins the balance is made of, Split and Consolidate, and the defaults a send uses. A split or consolidation in progress keeps the page either way.';
+      'Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.';
 
   @override
   String get deskSetAdvTechnical => 'Technical details';
 
   @override
   String get deskSetAdvTechnicalHint =>
-      'The Technical fold on a transaction: slate ID, kernel, block height, the core\'s status and type, the payment proof; the Advanced folds in Invoices.';
+      'Shows the Technical fold on a transaction: slate ID, kernel, block height, the core\'s status and type, and the payment proof. In Invoices, shows the Advanced folds.';
 
   @override
   String get deskSetAdvSendOptions => 'Send options';
 
   @override
   String get deskSetAdvSendOptionsHint =>
-      'The fold on Send with the strategy (Smallest or All outputs) and Split change for one send. The defaults stay on Outputs.';
+      'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.';
 
   @override
   String get deskSetAdvFiles => 'Transaction files';
 
   @override
   String get deskSetAdvFilesHint =>
-      'The File method on Send and Receive, with Finalize and Import: a payment as a file handed over any way, signed and handed back. For a wallet that uses no relay. A file payment in progress keeps the method visible.';
+      'Adds the File method to Send and Receive, with Finalize and Import. A payment travels as a file: hand it over any way you like, the other side signs it and hands it back. For wallets that use no relay. A file payment in progress keeps the method visible.';
 
   @override
   String get deskSetAdvDirect => 'Direct receiving';
 
   @override
   String get deskSetAdvDirectHint =>
-      'Receiving at this computer\'s own address over HTTP or Tor, beside Epicbox: the Direct method on Send, the HTTP and Tor addresses on Receive, and their settings under Receiving. A listener that is on keeps its rows.';
+      'Gives this computer its own address, over HTTP or Tor. Others can pay it directly, without Epicbox. Works only while the wallet is open. Adds the Direct method to Send, the addresses to Receive, and their settings under Receiving. A listener that is on keeps its rows.';
 
   @override
   String get deskSetAdvServerDetails => 'Server details';
 
   @override
   String get deskSetAdvServerDetailsHint =>
-      'Hosts, latency, version and block height in the node and Epicbox lists, on the sidebar\'s status rows and in the status card.';
+      'Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar\'s status rows and in the status card.';
 
   @override
   String get deskSetAdvRecheck => 'Recheck from a height';
 
   @override
   String get deskSetAdvRecheckHint =>
-      'Recheck balance and Restore can start from a block height instead of the first block, and Recheck can drop unconfirmed transactions. Faster, and the only way to skip early history.';
+      'Lets Recheck balance and Restore start from a block height instead of the first block, and lets Recheck drop unconfirmed transactions. Faster, and the only way to skip early history.';
 
   @override
   String get deskSetAdvBuiltInNode => 'Built-in node';
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
-      'A node on this computer: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes. A node that is running keeps its rows.';
+      'Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.';
 
   @override
   String get deskSetAdvLogs => 'Logs';
 
   @override
   String get deskSetAdvLogsHint =>
-      'The Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.';
+      'Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.';
 
   @override
   String get deskSetAdvNetwork => 'Network';
 
   @override
   String get deskSetAdvNetworkHint =>
-      'One choice for how the wallet reaches the network. Standard connects directly and leaves Tor to the Privacy switch. Tor first starts Tor with the wallet and asks before falling back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all; transaction files still work.';
+      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor first starts Tor with the wallet and asks before it falls back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all. Transaction files still work.';
 
   @override
   String get deskSetAdvModeStandard => 'Standard';
@@ -14445,11 +14445,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'No network. The balance stays as last seen; transaction files still work.';
+      'No network. The balance stays as last seen. Transaction files still work.';
 
   @override
   String get deskSetAdvTorOnlyNote =>
-      'Tor only turns HTTP receiving off: a plain address would show this computer.';
+      'Tor only turns HTTP receiving off: a plain address would reveal this computer.';
 
   @override
   String get deskSetAdvOfflineNote =>

@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
+import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/network_status.dart' show NetworkStatusCard;
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
@@ -308,6 +309,7 @@ class _Harness {
     this.still = false,
     this.settle = true,
     this.size,
+    this.advanced = AdvancedPrefs.none,
     FakeWalletSession? session,
   }) : session =
            session ??
@@ -333,6 +335,9 @@ class _Harness {
 
   /// Reduced motion, for the states whose pulses never settle: a sync that does not end.
   final bool still;
+
+  /// The Advanced choices the tree runs under (none, as a new wallet).
+  final AdvancedPrefs advanced;
 
   /// Whether [pump] waits for the screen to settle; false for pulses that run on.
   final bool settle;
@@ -396,12 +401,15 @@ class _Harness {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: home,
-          builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: TextScaler.linear(textScale),
-              disableAnimations: still,
+          builder: (context, child) => AdvancedOptions(
+            prefs: advanced,
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(textScale),
+                disableAnimations: still,
+              ),
+              child: child!,
             ),
-            child: child!,
           ),
         ),
       ),
@@ -3393,7 +3401,7 @@ void main() {
       tester,
     ) async {
       final handle = tester.ensureSemantics();
-      final h = _Harness(price: 0.5, size: const Size(1236, 2340));
+      final h = _Harness(price: 0.5, size: const Size(1236, 2340), advanced: AdvancedPrefs.all);
       await h.pump(tester);
       final area = tester.getRect(find.byKey(walletBalanceKey));
       final figure = tester.getRect(find.byKey(balanceFigureKey));
@@ -3476,7 +3484,7 @@ void main() {
       'a balance tile with a value can be pressed by a screen reader',
       (tester) async {
         final handle = tester.ensureSemantics();
-        final h = _Harness(still: true);
+        final h = _Harness(still: true, advanced: AdvancedPrefs.all);
         await h.pump(tester);
         expect(
           tester.getSemantics(find.byKey(balanceTileKey(BalanceKind.locked))),

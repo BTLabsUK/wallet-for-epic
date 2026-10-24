@@ -25,6 +25,7 @@ import 'history_screen.dart';
 import 'invoices_screen.dart';
 import 'outputs_screen.dart';
 import 'settings_screen.dart';
+import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
 
@@ -40,12 +41,16 @@ const Key helpSearchKey = ValueKey('help-search');
 /// The topics this wallet shows in [lang], the help language: the shared set for the phone, the
 /// invoice topics when the wallet supports invoices, Tor only when the phone has it. A topic
 /// [lang] has no translation of is English.
-List<HelpTopic> phoneHelpTopics(WidgetRef ref, String lang) {
+List<HelpTopic> phoneHelpTopics(BuildContext context, WidgetRef ref, String lang) {
   final confirmations = confirmationsTargetOf(ref);
   final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
   final tor = ref.watch(phoneTorProvider.select(torShown));
   return [
-    ...localizedHelpTopics(lang, confirmations, platform: HelpPlatform.phone, tor: tor),
+    // The topics of a part Advanced hides go with it (Outputs).
+    ...helpTopicsShown(
+      localizedHelpTopics(lang, confirmations, platform: HelpPlatform.phone, tor: tor),
+      AdvancedOptions.of(context),
+    ),
     if (invoices) ...invoiceHelpTopics(helpStrings(lang), confirmations, platform: HelpPlatform.phone),
   ];
 }
@@ -142,7 +147,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     final t = context.tokens;
     final text = Theme.of(context).textTheme;
     final lang = phoneHelpLanguage(ref, context);
-    final topics = phoneHelpTopics(ref, lang);
+    final topics = phoneHelpTopics(context, ref, lang);
     final sections = _sectionsFor(topics, lang);
     if (!_opened && widget.topic != null) {
       // The topic's page goes over the index on arrival, so Back lands on the index.
@@ -522,7 +527,7 @@ class HelpBlockView extends StatelessWidget {
       style: style,
       children: [
         for (final p in helpInline(text))
-          if (p.place && helpPlaceGoes(p.target))
+          if (p.place && helpPlaceGoes(p.target, prefs: AdvancedOptions.of(context)))
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,
@@ -646,8 +651,15 @@ HelpPhonePlace? helpPlaceDestination(String place) {
   return screen.$1;
 }
 
-/// Whether the phone can go to [place] from Help.
-bool helpPlaceGoes(String place) => helpPlaceDestination(place) != null;
+/// Whether the phone can go to [place] from Help: it has the screen, and Advanced ([prefs],
+/// everything when not given) shows it: Outputs needs the Outputs switch. A place of a hidden
+/// part reads as a term instead of a link.
+bool helpPlaceGoes(String place, {AdvancedPrefs? prefs}) {
+  final to = helpPlaceDestination(place);
+  if (to == null) return false;
+  if (prefs == null) return true;
+  return to != HelpPhonePlace.outputs || prefs.has(AdvancedFeature.outputs);
+}
 
 /// Goes to [place]: a shell tab closes Help; a screen or a Settings page opens over it.
 void openHelpPlace(BuildContext context, String place) {

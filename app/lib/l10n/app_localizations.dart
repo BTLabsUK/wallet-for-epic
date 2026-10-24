@@ -21839,7 +21839,7 @@ abstract class AppLocalizations {
   /// First line of the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'Off by default. Each switch shows one more part of the wallet, where it belongs.'**
+  /// **'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.'**
   String get advIntro;
 
   /// Header over the visibility switches on the Advanced page.
@@ -21857,7 +21857,7 @@ abstract class AppLocalizations {
   /// Info sheet behind the Network header on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'One choice for how the wallet reaches the network. Standard connects directly and leaves Tor to the Privacy & network switch. Tor first starts Tor with the wallet and asks before falling back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all; transaction files still work.'**
+  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor first starts Tor with the wallet and asks before it falls back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all. Transaction files still work.'**
   String get advNetworkHint;
 
   /// Advanced switch: the Outputs page.
@@ -21869,7 +21869,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Outputs switch.
   ///
   /// In en, this message translates to:
-  /// **'The Outputs page under Wallet: the coins the balance is made of, Split and Consolidate, and the defaults a send uses. A split or consolidation in progress stays visible either way.'**
+  /// **'Shows the Outputs page, under Wallet and on Home. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.'**
   String get advOutputsHint;
 
   /// Advanced switch: technical rows on transactions.
@@ -21881,7 +21881,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Technical details switch.
   ///
   /// In en, this message translates to:
-  /// **'Kernel, slate ID, commitments and block height on a transaction\'s details, open by default; the invoice address rotation and dropped count in Invoices.'**
+  /// **'Shows the technical rows on a payment\'s details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.'**
   String get advTechnicalHint;
 
   /// Advanced switch: strategy and split change on Send.
@@ -21893,7 +21893,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Send options switch.
   ///
   /// In en, this message translates to:
-  /// **'Which outputs a send spends (Smallest or All) and whether its change is split, for one send at a time, on Send\'s review. The defaults stay on Outputs.'**
+  /// **'Lets one send choose which outputs it spends, Smallest or All, and whether to split the change. The choice sits on Send\'s review and applies to that send only. The defaults stay on Outputs.'**
   String get advSendOptionsHint;
 
   /// Advanced switch: the file method on Send and Receive.
@@ -21905,7 +21905,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Transaction files switch.
   ///
   /// In en, this message translates to:
-  /// **'The File method on Send and Receive: a payment as a file handed over any way, signed and handed back. For a wallet that uses no relay. A file payment in progress keeps the method visible.'**
+  /// **'Adds the File method to Send and Receive. A payment travels as a file: hand it over any way you like, the other side signs it and hands it back. For wallets that use no relay. A file payment in progress keeps the method visible.'**
   String get advFilesHint;
 
   /// Advanced switch: the Direct (Tor) method.
@@ -21917,7 +21917,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Direct receiving switch.
   ///
   /// In en, this message translates to:
-  /// **'An address of this phone\'s own, reached over Tor, beside Epicbox. Shows the Direct method on Send and Receive and its state in Privacy & network. While Direct receiving is on, the method stays visible.'**
+  /// **'Gives this phone a second address, reached over Tor. Others can pay it directly, without Epicbox. Works only while the app is open. Adds the Direct method to Send and Receive, and its state to Privacy & network. Stays visible while it is on.'**
   String get advDirectHint;
 
   /// Advanced switch: hosts, latency, version, height.
@@ -21929,7 +21929,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Server details switch.
   ///
   /// In en, this message translates to:
-  /// **'Hosts, latency, version and block height in the server pickers and on the status card; the relay address under Receive and the invoice address in full.'**
+  /// **'Shows hosts, latency, version and block height in the server pickers and on the status card, the relay address under Receive, and the invoice address in full.'**
   String get advServerDetailsHint;
 
   /// Advanced switch: recheck balance and restore from a block height or date.
@@ -21941,7 +21941,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Recheck from a height switch.
   ///
   /// In en, this message translates to:
-  /// **'Recheck balance and Restore can start from a block height or a date instead of the first block. Faster, and the only way to skip early history.'**
+  /// **'Lets Recheck balance and Restore start from a block height or a date instead of the first block. Faster, and the only way to skip early history.'**
   String get advRecheckHeightHint;
 
   /// Network mode: direct connections.
@@ -21989,13 +21989,13 @@ abstract class AppLocalizations {
   /// One line under the Offline network mode.
   ///
   /// In en, this message translates to:
-  /// **'No network. The balance stays as last seen; transaction files still work.'**
+  /// **'No network. The balance stays as last seen. Transaction files still work.'**
   String get advModeOfflineLine;
 
   /// Note under the network choice while Tor only is selected.
   ///
   /// In en, this message translates to:
-  /// **'Tor only pauses notifications: a push registration would show this phone\'s address.'**
+  /// **'Tor only pauses notifications: registering for them would reveal this phone\'s address.'**
   String get advTorOnlyNote;
 
   /// Note under the network choice while Offline is selected.
@@ -22043,7 +22043,7 @@ abstract class AppLocalizations {
   /// First line of Settings › Advanced.
   ///
   /// In en, this message translates to:
-  /// **'Off by default. Each switch shows one more part of the wallet, where it belongs.'**
+  /// **'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.'**
   String get deskSetAdvIntro;
 
   /// Title of the group of visibility switches on Settings › Advanced.
@@ -22061,7 +22061,7 @@ abstract class AppLocalizations {
   /// Hover card of the Outputs switch.
   ///
   /// In en, this message translates to:
-  /// **'The Outputs page in the sidebar: the coins the balance is made of, Split and Consolidate, and the defaults a send uses. A split or consolidation in progress keeps the page either way.'**
+  /// **'Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.'**
   String get deskSetAdvOutputsHint;
 
   /// Advanced switch: technical rows on transactions.
@@ -22073,7 +22073,7 @@ abstract class AppLocalizations {
   /// Hover card of the Technical details switch.
   ///
   /// In en, this message translates to:
-  /// **'The Technical fold on a transaction: slate ID, kernel, block height, the core\'s status and type, the payment proof; the Advanced folds in Invoices.'**
+  /// **'Shows the Technical fold on a transaction: slate ID, kernel, block height, the core\'s status and type, and the payment proof. In Invoices, shows the Advanced folds.'**
   String get deskSetAdvTechnicalHint;
 
   /// Advanced switch: the Advanced fold on Send.
@@ -22085,7 +22085,7 @@ abstract class AppLocalizations {
   /// Hover card of the Send options switch.
   ///
   /// In en, this message translates to:
-  /// **'The fold on Send with the strategy (Smallest or All outputs) and Split change for one send. The defaults stay on Outputs.'**
+  /// **'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.'**
   String get deskSetAdvSendOptionsHint;
 
   /// Advanced switch: the File method.
@@ -22097,7 +22097,7 @@ abstract class AppLocalizations {
   /// Hover card of the Transaction files switch.
   ///
   /// In en, this message translates to:
-  /// **'The File method on Send and Receive, with Finalize and Import: a payment as a file handed over any way, signed and handed back. For a wallet that uses no relay. A file payment in progress keeps the method visible.'**
+  /// **'Adds the File method to Send and Receive, with Finalize and Import. A payment travels as a file: hand it over any way you like, the other side signs it and hands it back. For wallets that use no relay. A file payment in progress keeps the method visible.'**
   String get deskSetAdvFilesHint;
 
   /// Advanced switch: HTTP and Tor receiving.
@@ -22109,7 +22109,7 @@ abstract class AppLocalizations {
   /// Hover card of the Direct receiving switch.
   ///
   /// In en, this message translates to:
-  /// **'Receiving at this computer\'s own address over HTTP or Tor, beside Epicbox: the Direct method on Send, the HTTP and Tor addresses on Receive, and their settings under Receiving. A listener that is on keeps its rows.'**
+  /// **'Gives this computer its own address, over HTTP or Tor. Others can pay it directly, without Epicbox. Works only while the wallet is open. Adds the Direct method to Send, the addresses to Receive, and their settings under Receiving. A listener that is on keeps its rows.'**
   String get deskSetAdvDirectHint;
 
   /// Advanced switch: hosts, latency, version, height.
@@ -22121,7 +22121,7 @@ abstract class AppLocalizations {
   /// Hover card of the Server details switch.
   ///
   /// In en, this message translates to:
-  /// **'Hosts, latency, version and block height in the node and Epicbox lists, on the sidebar\'s status rows and in the status card.'**
+  /// **'Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar\'s status rows and in the status card.'**
   String get deskSetAdvServerDetailsHint;
 
   /// Advanced switch: recheck balance from a height, delete unconfirmed, restore from a height.
@@ -22133,7 +22133,7 @@ abstract class AppLocalizations {
   /// Hover card of the Recheck from a height switch.
   ///
   /// In en, this message translates to:
-  /// **'Recheck balance and Restore can start from a block height instead of the first block, and Recheck can drop unconfirmed transactions. Faster, and the only way to skip early history.'**
+  /// **'Lets Recheck balance and Restore start from a block height instead of the first block, and lets Recheck drop unconfirmed transactions. Faster, and the only way to skip early history.'**
   String get deskSetAdvRecheckHint;
 
   /// Advanced switch: the node on this computer.
@@ -22145,7 +22145,7 @@ abstract class AppLocalizations {
   /// Hover card of the Built-in node switch.
   ///
   /// In en, this message translates to:
-  /// **'A node on this computer: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes. A node that is running keeps its rows.'**
+  /// **'Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.'**
   String get deskSetAdvBuiltInNodeHint;
 
   /// Advanced switch: logs and diagnostics.
@@ -22157,7 +22157,7 @@ abstract class AppLocalizations {
   /// Hover card of the Logs switch.
   ///
   /// In en, this message translates to:
-  /// **'The Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.'**
+  /// **'Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.'**
   String get deskSetAdvLogsHint;
 
   /// Title of the network mode group on Settings › Advanced.
@@ -22169,7 +22169,7 @@ abstract class AppLocalizations {
   /// Hover card of the Network group.
   ///
   /// In en, this message translates to:
-  /// **'One choice for how the wallet reaches the network. Standard connects directly and leaves Tor to the Privacy switch. Tor first starts Tor with the wallet and asks before falling back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all; transaction files still work.'**
+  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor first starts Tor with the wallet and asks before it falls back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all. Transaction files still work.'**
   String get deskSetAdvNetworkHint;
 
   /// Network mode: direct connections.
@@ -22217,13 +22217,13 @@ abstract class AppLocalizations {
   /// Text under the Offline mode.
   ///
   /// In en, this message translates to:
-  /// **'No network. The balance stays as last seen; transaction files still work.'**
+  /// **'No network. The balance stays as last seen. Transaction files still work.'**
   String get deskSetAdvModeOfflineText;
 
   /// Note under the network choice while Tor only is selected.
   ///
   /// In en, this message translates to:
-  /// **'Tor only turns HTTP receiving off: a plain address would show this computer.'**
+  /// **'Tor only turns HTTP receiving off: a plain address would reveal this computer.'**
   String get deskSetAdvTorOnlyNote;
 
   /// Note under the network choice while Offline is selected.

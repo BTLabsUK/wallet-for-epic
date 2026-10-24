@@ -6,6 +6,7 @@
 library;
 
 import '../../l10n/app_localizations.dart';
+import '../advanced.dart';
 
 /// One block of a topic's body. Inline, `**bold**` marks a term and `[[Settings › Node]]` a
 /// place in the app. A translation writes a place as `[[translated label|Settings › Node]]`: what
@@ -98,6 +99,20 @@ const helpSections = <HelpSection>[
 const invoiceHelpSection = 'invoices';
 
 /// The ids screens open Help by ([HelpTopic.id]).
+/// The topics that explain a part Advanced hides, by id: Help lists and finds them only while
+/// that switch is on, so a search never leads to a page the wallet does not show. Only the
+/// Outputs topics: the File method is everyday use and keeps its topic.
+const Map<String, AdvancedFeature> helpTopicFeature = {
+  HelpId.strategy: AdvancedFeature.outputs,
+  HelpId.split: AdvancedFeature.outputs,
+};
+
+/// [topics] without those of a feature [prefs] keeps hidden.
+List<HelpTopic> helpTopicsShown(List<HelpTopic> topics, AdvancedPrefs prefs) => [
+  for (final t in topics)
+    if (switch (helpTopicFeature[t.id]) { final f? => prefs.has(f), null => true }) t,
+];
+
 abstract final class HelpId {
   static const receive = 'receive';
   static const send = 'send';
@@ -141,7 +156,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   final restorePlace = phone
       ? '**I already have a wallet: restore it** (on the first screen, or after deleting this wallet under [[Settings › Wallet]])'
       : '**Restore from a phrase** (on the first screen, Unlock › Add a wallet, or [[Settings › All wallets]])';
-  final recheckPlace = phone ? '[[Settings › Wallet › Recheck balance]] (shown when Advanced options is on)' : '[[Settings › Recheck balance]]';
+  final recheckPlace = phone ? '[[Settings › Wallet › Recheck balance]]' : '[[Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[Settings › Security › Back up recovery phrase]]' : '[[Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(

@@ -13,7 +13,7 @@ import 'help_places.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
-import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
+import 'settings_advanced.dart' show advancedHas, advancedOf, AdvancedFeature;
 import 'settings_logs.dart';
 
 /// The query's words, lower case, longest first; none under two letters in all.
@@ -150,7 +150,8 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     final invoices = ref.watch(deskApiProvider).supportsInvoices;
     final lang = deskHelpLanguage(ref);
     final lh = helpStrings(lang);
-    final helpTopics = [...helpTopicsFor(confirmations, lang: lang), if (invoices) ...invoiceHelpTopics(lh, confirmations, platform: HelpPlatform.desktop)];
+    // The topics of a part Advanced hides go with it (Outputs).
+    final helpTopics = [...helpTopicsShown(helpTopicsFor(confirmations, lang: lang), advancedOf(ref)), if (invoices) ...invoiceHelpTopics(lh, confirmations, platform: HelpPlatform.desktop)];
     // The invoices section goes before "When something goes wrong".
     final sections = <(HelpSection, Widget)>[
       for (final s in localizedHelpSections(lang)) ...[
@@ -507,7 +508,7 @@ class _Block extends ConsumerWidget {
       style: style,
       children: [
         for (final p in helpInline(text))
-          if (p.place && deskHelpPlace(p.target) != null)
+          if (p.place && deskHelpPlaceShown(ref, p.target))
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,

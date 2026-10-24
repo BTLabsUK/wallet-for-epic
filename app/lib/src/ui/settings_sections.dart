@@ -36,6 +36,7 @@ import 'launch_screen.dart';
 import 'licences_screen.dart';
 import 'network_menu.dart';
 import 'network_status.dart';
+import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart'
@@ -597,7 +598,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final walletOpen = ref.watch(sessionProvider) != null;
     final scan = ref.watch(scanProvider);
     final demo = ref.watch(demoModeProvider);
-    final advanced = AdvancedOptions.of(context);
     // Invoices only on a core that has them (UP-14); until then no entry at all.
     final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
     final outputs = walletOpen ? ref.watch(walletOutputsProvider).value : null;
@@ -620,8 +620,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       ),
       // Advanced › Outputs; a split or consolidation mid-way keeps the row (never hide what is
       // in use).
-      if (advanced.has(AdvancedFeature.outputs) ||
-          (outputs?.any((o) => outputWord(o) == OutputLabel.confirming) ?? false))
+      if (outputsShown(context, ref))
         ListTile(
           leading: const Icon(Icons.grain),
           title: Text(l.outputsTitle),
