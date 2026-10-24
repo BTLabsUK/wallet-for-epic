@@ -427,7 +427,7 @@ Future<bool> _confirmRemove(
 /// user's list holds at most one public server (the one in use after a switch) and any number
 /// of typed-in ones; a server in it shows once, there, with the star (nodes) or the bin
 /// (relays) that takes it out: a public one goes back to the public list, a typed-in one is
-/// gone. Neither works on the [current] one, and public-list rows have neither. The push relay is a public relay with a bell. Each row is one 56 dp target; [selected] has the check, [current]
+/// gone; the [current] one may leave too, the wallet stays on it. Public-list rows have neither. The push relay is a public relay with a bell. Each row is one 56 dp target; [selected] has the check, [current]
 /// says so. Not scrollable itself: the sheet and Settings › Network put it in their scroll.
 ///
 /// [value]s are node URLs or relay labels (`host` or `host:port`). [query] filters the rows
@@ -487,7 +487,8 @@ class ServerList extends ConsumerWidget {
       if (cur != null &&
           publicOf(cur) == null &&
           !mine.any((m) => _sameNode(m, cur)))
-        (url: cur, node: null, mine: true),
+        // The typed-in node in use, out of the list: shown, with no star to take it out.
+        (url: cur, node: null, mine: false),
     ];
     final publicRows = [
       for (final n in public)
@@ -506,22 +507,19 @@ class ServerList extends ConsumerWidget {
         selected: selected != null && _sameNode(selected!, r.url),
         current: inUse,
         onTap: () => onSelected(r.url),
-        // Leaving My nodes asks first; the node in use stays.
-        onStar: inUse
-            ? null
-            : () async {
-                if (!await _confirmRemove(
-                  context,
-                  node: true,
-                  public: r.node != null,
-                  host: serverHost(r.url),
-                )) {
-                  return;
-                }
-                await ref
-                    .read(myNodesProvider(preset.chain).notifier)
-                    .remove(r.url);
-              },
+        // Leaving My nodes asks first. The node in use may leave too: the wallet stays on it,
+        // shown in the public list, or (typed in) on its own until the next switch.
+        onStar: () async {
+          if (!await _confirmRemove(
+            context,
+            node: true,
+            public: r.node != null,
+            host: serverHost(r.url),
+          )) {
+            return;
+          }
+          await ref.read(myNodesProvider(preset.chain).notifier).remove(r.url);
+        },
       );
     }
 
@@ -606,21 +604,18 @@ class ServerList extends ConsumerWidget {
         current: isCurrent,
         removable: r.removable,
         onTap: () => onSelected(label),
-        onRemove: isCurrent
-            ? null
-            : () async {
-                if (!await _confirmRemove(
-                  context,
-                  node: false,
-                  public: r.listed != null,
-                  host: label,
-                )) {
-                  return;
-                }
-                await ref
-                    .read(myRelaysProvider(preset.chain).notifier)
-                    .remove(label);
-              },
+        // As for nodes: the relay in use may leave the list too, the wallet stays on it.
+        onRemove: () async {
+          if (!await _confirmRemove(
+            context,
+            node: false,
+            public: r.listed != null,
+            host: label,
+          )) {
+            return;
+          }
+          await ref.read(myRelaysProvider(preset.chain).notifier).remove(label);
+        },
       );
     }
 
