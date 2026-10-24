@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,11 +11,21 @@ import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'qr_scan_screen.dart';
+import 'qr_show_screen.dart';
+import 'scan_screen.dart' show offersQrScan;
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 
 /// The [SlateFile.name] of payment text pasted on Receive.
 const String pastedSlateName = 'pasted';
+
+/// The [SlateFile.name] of a payment read from an animated QR code.
+const String scannedSlateName = 'scanned';
+
+/// The keys of the QR buttons of the payment file screen, for tests.
+const Key showReplyQrKey = ValueKey('slate-show-reply-qr');
+const Key scanAgainKey = ValueKey('slate-scan-again');
 
 /// One transaction file: shows what it is, then signs it (a send to us) or finalizes it (the
 /// answer to our send). Opened from Receive (a file or pasted text), from Send's second step,
@@ -24,12 +36,17 @@ class SlateFileScreen extends ConsumerStatefulWidget {
     required this.file,
     this.expectedSlateId,
     this.pasted = false,
+    this.scanned = false,
   });
 
   final SlateFile file;
 
   /// The text was pasted, not picked: it has no file name, and the reply can be copied too.
   final bool pasted;
+
+  /// The text was read from an animated QR code (it counts as [pasted], too): the reply can
+  /// be shown as a QR code.
+  final bool scanned;
 
   /// When finalizing our own send, the id the response must carry.
   final String? expectedSlateId;
@@ -39,6 +56,8 @@ class SlateFileScreen extends ConsumerStatefulWidget {
 }
 
 class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
+  /// The text being read: [SlateFileScreen.file], or what Scan again read after it.
+  late SlateFile _file = widget.file;
   SlateInfo? _info;
 
   /// What went wrong, worded when shown: the file is checked from [initState], before the
@@ -66,10 +85,11 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     try {
       info = await ref
           .read(walletServiceProvider)
-          .inspectSlate(json: widget.file.json);
+          .inspectSlate(json: _file.json);
       final expected = widget.expectedSlateId;
       if (expected != null && info.slateId != expected) {
-        error = (l) => l.slateWrongPayment;
+        error = (l) =>
+            widget.scanned ? l.slateWrongPaymentQr : l.slateWrongPayment;
       } else if (info.stage == SlateStage.invoice) {
         error = (l) => l.slateInvoiceUnsupported;
       }
@@ -107,7 +127,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   }
 
   Future<void> _sign() => _run((session) async {
-    final response = await session.receiveSlate(slateJson: widget.file.json);
+    final response = await session.receiveSlate(slateJson: _file.json);
     if (mounted) setState(() => _response = response);
     return !response.repeated;
   });
@@ -116,11 +136,46 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     final hold = ref.read(autoLockHoldProvider.notifier);
     return _run((session) async {
       final tx = await hold.during(
-        () => session.finalizeAndPost(slateJson: widget.file.json),
+        () => session.finalizeAndPost(slateJson: _file.json),
       );
       if (mounted) setState(() => _posted = tx);
       return true;
     });
+  }
+
+  /// The reply as an animated QR for the sender; Done there closes this screen too.
+  Future<void> _showReply(String json, BigInt amount, String slateId) async {
+    final result = await showReplyQr(
+      context,
+      json: json,
+      amount: amount,
+      slateId: slateId,
+    );
+    if (result is QrShowDone && mounted) Navigator.pop(context, true);
+  }
+
+  /// Reads another code in place of the one that failed.
+  Future<void> _scanAgain() async {
+    final reply = widget.expectedSlateId != null;
+    final result = await scanQrSlate(
+      context,
+      reply ? QrScanKind.reply : QrScanKind.payment,
+    );
+    if (!mounted || result is! QrScanned) return;
+    final String decoded;
+    try {
+      decoded = decodeSlateFile(utf8.encode(result.json));
+    } on FormatException {
+      setState(() => _error = (l) => l.slateNotTransactionFile);
+      return;
+    }
+    setState(() {
+      _file = SlateFile(name: scannedSlateName, json: decoded);
+      _reading = true;
+      _info = null;
+      _error = null;
+    });
+    await _read();
   }
 
   @override
@@ -128,6 +183,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     final l = context.l10n;
     final info = _info;
     final theme = Theme.of(context);
+    final showQr = widget.scanned && offersQrScan(ref);
     final List<Widget> body;
     if (_posted case final posted? when posted.repostable) {
       body = [
@@ -159,6 +215,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           icon: Icons.check_circle,
           text: response.repeated
               ? l.slateRepeatedHeadline(name)
+              : widget.scanned
+              ? l.slateAcceptedHeadlineQr
               : l.slateAcceptedHeadline(name),
         ),
         const SizedBox(height: 8),
@@ -168,10 +226,24 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
               : l.slateAcceptedBody(epicExact(l, info.amount)),
         ),
         const SizedBox(height: 24),
+        if (showQr) ...[
+          FilledButton.icon(
+            key: showReplyQrKey,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
+            icon: const Icon(Icons.qr_code_2),
+            label: Text(l.qrShowReplyAsQr),
+            onPressed: () =>
+                _showReply(response.json, info.amount, info.slateId),
+          ),
+          const SizedBox(height: 8),
+        ],
         SlateFileButtons(
           name: name,
           json: response.json,
           copyable: widget.pasted,
+          primary: !showQr,
         ),
         const SizedBox(height: 8),
         TextButton(
@@ -198,7 +270,13 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       );
       body = [
         Text(
-          widget.pasted ? l.slatePastedTitle : widget.file.name,
+          widget.scanned
+              ? (receiving
+                    ? l.slateScannedPaymentTitle
+                    : l.slateScannedReplyTitle)
+              : widget.pasted
+              ? l.slatePastedTitle
+              : _file.name,
           style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
@@ -212,7 +290,13 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           style: theme.textTheme.bodyLarge,
         ),
         const SizedBox(height: 8),
-        Text(receiving ? l.slateIncomingSendHint : l.slateIncomingResponseHint),
+        Text(
+          receiving
+              ? (widget.scanned
+                    ? l.slateIncomingSendHintQr
+                    : l.slateIncomingSendHint)
+              : l.slateIncomingResponseHint,
+        ),
         if (message != null) ...[
           const SizedBox(height: 16),
           Text(
@@ -237,7 +321,33 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     return SlotScaffold(
       appBar: AppBar(title: Text(l.slateFileTitle)),
       body: ScreenBody(
-        children: [...body, if (error != null) ErrorText(error(l))],
+        children: [
+          ...body,
+          if (error != null) ...[
+            ErrorText(error(l)),
+            // A scan that failed is not the end: read the code again.
+            if (widget.scanned && !_busy && _response == null) ...[
+              const SizedBox(height: 8),
+              FilledButton.icon(
+                key: scanAgainKey,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                icon: const Icon(Icons.qr_code_scanner),
+                label: Text(l.qrScanAgain),
+                onPressed: _scanAgain,
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                onPressed: () => Navigator.pop(context),
+                child: Text(l.scanQrBack),
+              ),
+            ],
+          ],
+        ],
       ),
     );
   }
@@ -253,11 +363,15 @@ class SlateFileButtons extends ConsumerWidget {
     required this.name,
     required this.json,
     this.copyable = false,
+    this.primary = true,
   });
 
   final String name;
   final String json;
   final bool copyable;
+
+  /// Whether "Save to device" is the filled button. False when another button above it is.
+  final bool primary;
 
   Future<void> _out(
     BuildContext context,
@@ -284,24 +398,36 @@ class SlateFileButtons extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final files = ref.watch(slateFilesProvider);
+    const icon = Icon(Icons.save_alt);
+    final label = Text(l.slateSaveToDevice);
+    void save() => _out(
+      context,
+      ref,
+      (f) =>
+          f.save(name: name, json: json, dialogTitle: l.slateSaveDialogTitle),
+      done: l.slateSaved(name),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FilledButton.icon(
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          icon: const Icon(Icons.save_alt),
-          label: Text(l.slateSaveToDevice),
-          onPressed: () => _out(
-            context,
-            ref,
-            (f) => f.save(
-              name: name,
-              json: json,
-              dialogTitle: l.slateSaveDialogTitle,
+        if (primary)
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
             ),
-            done: l.slateSaved(name),
+            icon: icon,
+            label: label,
+            onPressed: save,
+          )
+        else
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
+            icon: icon,
+            label: label,
+            onPressed: save,
           ),
-        ),
         if (files.canShare) ...[
           const SizedBox(height: 8),
           OutlinedButton.icon(

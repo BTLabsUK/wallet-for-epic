@@ -12,6 +12,7 @@ import 'method_art.dart';
 TransferMethod transferMethodOf(PayMethod m) => switch (m) {
   PayMethod.epicbox => TransferMethod.epicbox,
   PayMethod.direct => TransferMethod.direct,
+  PayMethod.qr => TransferMethod.qr,
   PayMethod.file => TransferMethod.file,
 };
 

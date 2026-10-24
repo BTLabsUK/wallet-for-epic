@@ -499,7 +499,7 @@ void main() {
 
     testWidgets('only Epicbox offered: no selector', (tester) async {
       final h = _Harness();
-      await h.pump(tester, payments: const PaymentPrefs(file: false));
+      await h.pump(tester, payments: const PaymentPrefs(file: false, qr: false));
       expect(find.byKey(sendMethodsKey), findsNothing);
       expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
     });

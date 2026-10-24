@@ -7,9 +7,10 @@ import 'theme/tokens.dart';
 
 /// The ways a payment travels, on Send and Receive: Epicbox (held by the Epicbox server until
 /// the recipient's wallet is back), Direct (straight to their wallet at an http(s) or onion
-/// address, which must be open), and a transaction file handed over by hand. Tor is not a
-/// method: the one Tor switch changes how Epicbox and Direct connect.
-enum TransferMethod { epicbox, direct, file }
+/// address, which must be open), a code shown on one phone and scanned by the other next to
+/// it (QR), and a transaction file handed over by hand. Tor is not a method: the one Tor switch
+/// changes how Epicbox and Direct connect.
+enum TransferMethod { epicbox, direct, qr, file }
 
 /// The strip's picture of [method] (the desktop's `HeroArt`, ported): the two people dim, the
 /// way the payment goes in the accent, a short caption in Montserrat under it. Drawn on a
@@ -24,12 +25,14 @@ class MethodArt extends StatelessWidget {
   static String caption(AppLocalizations l, TransferMethod m) => switch (m) {
     TransferMethod.epicbox => l.methodArtCaptionEpicbox,
     TransferMethod.direct => l.methodArtCaptionHttp,
+    TransferMethod.qr => l.methodArtCaptionQr,
     TransferMethod.file => l.methodArtCaptionFile,
   };
 
   static String label(AppLocalizations l, TransferMethod m) => switch (m) {
     TransferMethod.epicbox => l.methodArtLabelEpicbox,
     TransferMethod.direct => l.methodArtLabelDirect,
+    TransferMethod.qr => l.methodArtLabelQr,
     TransferMethod.file => l.methodArtLabelFile,
   };
 
@@ -111,6 +114,19 @@ class _MethodPainter extends CustomPainter {
     return p;
   }
 
+  /// A phone standing where a person would: a rounded body with a speaker slot and a screen.
+  void _phone(Canvas canvas, double x, Paint p) {
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(x, 30, 24, 38),
+        const Radius.circular(4),
+      ),
+      p,
+    );
+    canvas.drawPath(_line(x + 9, 34, x + 15, 34), p);
+    canvas.drawPath(_line(x + 9, 63, x + 15, 63), p);
+  }
+
   void _person(Canvas canvas, double dx, Paint p) {
     canvas.drawCircle(Offset(26 + dx, 36), 7, p);
     canvas.drawPath(
@@ -134,8 +150,13 @@ class _MethodPainter extends CustomPainter {
     final w = 1.6 / k.clamp(0.5, 1.0) * 0.85;
     final dim = _stroke(people, w);
     final a = _stroke(accent, w);
-    _person(canvas, 0, dim);
-    _person(canvas, 108, dim);
+    if (method == TransferMethod.qr) {
+      _phone(canvas, 14, dim);
+      _phone(canvas, 122, dim);
+    } else {
+      _person(canvas, 0, dim);
+      _person(canvas, 108, dim);
+    }
     switch (method) {
       case TransferMethod.epicbox:
         canvas.drawPath(_dashed(_line(44, 50, 62, 50), 3, 4), a);
@@ -199,6 +220,38 @@ class _MethodPainter extends CustomPainter {
           a,
         );
         canvas.drawPath(_line(72, 50, 88, 50), a);
+      case TransferMethod.qr:
+        // The code between the two phones: three finder squares and a few modules.
+        for (final o in const [Offset(69, 38), Offset(85, 38), Offset(69, 54)]) {
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(
+              Rect.fromLTWH(o.dx, o.dy, 7, 7),
+              const Radius.circular(1.5),
+            ),
+            a,
+          );
+          canvas.drawRect(
+            Rect.fromLTWH(o.dx + 2.5, o.dy + 2.5, 2, 2),
+            Paint()..color = accent,
+          );
+        }
+        for (final o in const [Offset(85, 55), Offset(90, 55), Offset(87.5, 60)]) {
+          canvas.drawRect(
+            Rect.fromLTWH(o.dx, o.dy, 2.5, 2.5),
+            Paint()..color = accent,
+          );
+        }
+        // It travels from the left phone to the right one.
+        canvas.drawPath(_dashed(_line(42, 50, 62, 50), 3, 4), a);
+        canvas.drawPath(
+          _poly(const [Offset(58, 46), Offset(62, 50), Offset(58, 54)]),
+          a,
+        );
+        canvas.drawPath(_dashed(_line(100, 50, 118, 50), 3, 4), a);
+        canvas.drawPath(
+          _poly(const [Offset(114, 46), Offset(118, 50), Offset(114, 54)]),
+          a,
+        );
       case TransferMethod.file:
         canvas.drawPath(
           _poly(const [
