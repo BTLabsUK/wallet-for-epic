@@ -610,9 +610,9 @@ void main() {
       await Process.run('chmod', ['555', ro.path]);
       addTearDown(() => Process.run('chmod', ['755', ro.path]));
       final r = await wallet.receiveFile(incoming.path);
-      expect(r.response, '${files.path}${Platform.pathSeparator}in.tx.response');
+      expect(r.response, '${files.path}${Platform.pathSeparator}slate-2.response');
       expect(File(r.response).readAsStringSync(), service.session.responseSlate.json);
-      expect(File('${incoming.path}.response').existsSync(), isFalse);
+      expect(File('${ro.path}${Platform.pathSeparator}slate-2.response').existsSync(), isFalse);
     }, skip: Platform.isWindows || Platform.environment['USER'] == 'root' ? 'needs POSIX permissions' : false);
 
     test('file send, receive and finalize go through files on disk', () async {
@@ -622,9 +622,9 @@ void main() {
       expect(File(ready.fileName).readAsStringSync(), service.session.sendSlate.json);
 
       final incoming = File('${files.path}${Platform.pathSeparator}in.tx')..writeAsStringSync('{"id":"in"}');
-      expect((await wallet.receiveFile(incoming.path)).response, '${incoming.path}.response');
+      expect((await wallet.receiveFile(incoming.path)).response, '${files.path}${Platform.pathSeparator}slate-2.response');
       expect(service.session.receivedSlates.single, '{"id":"in"}');
-      expect(File('${incoming.path}.response').readAsStringSync(), service.session.responseSlate.json);
+      expect(File('${files.path}${Platform.pathSeparator}slate-2.response').readAsStringSync(), service.session.responseSlate.json);
 
       final reply = File('${files.path}${Platform.pathSeparator}reply.tx.response')..writeAsStringSync(service.session.responseSlate.json);
       final tx = await wallet.finalizeFile(reply.path);
@@ -634,6 +634,18 @@ void main() {
       final junk = File('${files.path}${Platform.pathSeparator}junk.txt')..writeAsStringSync('hello');
       await expectLater(wallet.finalizeFile(junk.path), throwsA(isA<DeskError>().having((e) => e.message, 'message', 'Not a transaction file')));
       await expectLater(wallet.receiveFile('${files.path}/missing.tx'), throwsA(isA<DeskError>()));
+    });
+
+    test('receive reads any file name and never overwrites an earlier answer', () async {
+      final sep = Platform.pathSeparator;
+      const long = '0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
+      for (final name in ['$long.tx', '$long.tx.response', 'no-suffix', 'odd name (1).slate.json']) {
+        final f = File('${files.path}$sep$name')..writeAsStringSync('{"id":"in"}');
+        expect((await wallet.receiveFile(f.path)).response.contains('slate-2'), isTrue, reason: name);
+      }
+      expect(File('${files.path}${sep}slate-2.response').existsSync(), isTrue);
+      expect(File('${files.path}${sep}slate-2-2.response').existsSync(), isTrue);
+      expect(File('${files.path}${sep}slate-2-4.response').existsSync(), isTrue);
     });
 
     test('remove wallet checks the password, then deletes only its folder', () async {

@@ -330,7 +330,8 @@ class _PinPromptDialogState<T extends Object>
   @override
   void initState() {
     super.initState();
-    if (ref.read(demoModeProvider)) {
+    // The web demo and preview fill in the demo PIN: no PIN is asked.
+    if (ref.read(demoModeProvider) || ref.read(pinlessProvider)) {
       unawaited(_checkDemoPin());
     } else {
       _autoPin = false;

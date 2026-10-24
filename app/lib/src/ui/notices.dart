@@ -72,6 +72,7 @@ class Notice {
     this.progress,
     this.progressLabel,
     this.tag,
+    this.onClose,
   });
 
   /// Distinct per notice, so the card animates when another one takes its place.
@@ -90,6 +91,10 @@ class Notice {
   /// Notices with the same tag are one subject (the update), so a newer one updates it in
   /// place, wherever it is, instead of stacking.
   final String? tag;
+
+  /// Runs when the user closes the notice (its close button or a swipe), not when it times
+  /// out, is replaced or its action is pressed.
+  final VoidCallback? onClose;
 
   /// Has a close button: warnings, errors, persistent notices and any with an action.
   bool get closable =>
@@ -137,6 +142,7 @@ class NoticeNotifier extends Notifier<Notice?> {
     double? progress,
     String? progressLabel,
     String? tag,
+    VoidCallback? onClose,
   }) {
     Notice make(int id) => Notice(
       id,
@@ -147,6 +153,7 @@ class NoticeNotifier extends Notifier<Notice?> {
       progress: progress,
       progressLabel: progressLabel,
       tag: tag,
+      onClose: onClose,
     );
     final visible = state;
     if (visible != null &&
@@ -396,6 +403,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
         v.dy < -500;
     if (away) {
       _notices.dismiss(widget.notice.id);
+      widget.notice.onClose?.call();
     } else {
       setState(() => _drag = Offset.zero);
     }
@@ -427,7 +435,10 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
         ? IconButton(
             tooltip: l.commonClose,
             icon: const Icon(Icons.close),
-            onPressed: () => _notices.dismiss(notice.id),
+            onPressed: () {
+              _notices.dismiss(notice.id);
+              notice.onClose?.call();
+            },
           )
         : null;
     // With large text the action moves under the text, so the text keeps its width.

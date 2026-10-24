@@ -12,9 +12,9 @@ import '../wallet_service.dart' show Chain;
 import 'centered_body.dart';
 import 'common.dart';
 import 'demo_pin.dart';
+import 'network_menu.dart';
 import 'pin.dart';
 import 'restore_screen.dart';
-import 'setup_screen.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
@@ -29,6 +29,17 @@ class FirstRunScreen extends ConsumerStatefulWidget {
 class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   ({String pin, bool biometrics})? _answer;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // The web demo and preview ask for no PIN: the wallet is set up with the demo PIN at once.
+    if (ref.read(pinlessProvider)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _finish(demoPin, false);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -51,7 +62,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         pin: pin,
         useBiometrics: useBiometrics,
       );
-      if (ref.read(demoModeProvider)) await _markDemoPin(config.chain);
+      if (ref.read(demoModeProvider) || ref.read(pinlessProvider)) {
+        await _markDemoPin(config.chain);
+      }
       await ref.read(sessionProvider.notifier).open(result.session);
       _answer = null;
       if (!mounted) return;
@@ -96,6 +109,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     final waiting = _answer != null && _error == null;
     // The web demo is on floonet for good, and never takes a phrase or biometrics.
     final demo = ref.watch(demoModeProvider);
+    final pinless = ref.watch(pinlessProvider);
 
     return SlotScaffold(
       centered: true,
@@ -105,20 +119,20 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         // Mainnet on node.btlabs.uk works without a choice, but a new install must be able
         // to reach floonet or another node before it has a wallet, so this is not Advanced.
         actions: [
-          if (!demo)
-            NetworkSettingsButton(
-              onPressed: waiting ? null : () => _leave(const SetupScreen()),
-            ),
+          if (!demo && !pinless)
+            NetworkSettingsButton(enabled: !waiting),
         ],
       ),
       body: CenteredBody(
         children: [
           // The demo has no PIN to choose and no network to name: it only sets itself up.
           BrandHero(
-            title: demo ? l.demoPinSetUpTitle : '${l.firstRunTitle}$network',
+            title: demo || pinless ? l.demoPinSetUpTitle : '${l.firstRunTitle}$network',
           ),
           const SizedBox(height: 28),
-          if (_answer == null) ...[
+          if (_answer == null && pinless)
+            const Center(child: CircularProgressIndicator())
+          else if (_answer == null) ...[
             if (demo)
               DemoPinFill(onDone: () => _finish(demoPin, false))
             else
@@ -145,15 +159,17 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   }
 }
 
-/// The app bar's way to network settings before a wallet is open, on first run and unlock:
-/// the icon and its label in the accent colour, so it reads as a button rather than a
-/// decoration. When the labelled button, measured at the current text scale and in the
-/// current language, would not fit beside a back arrow, it gives way to the icon and its
-/// tooltip, so a long label never overflows the bar.
+/// The app bar's way to the servers before a wallet is open, on first run and unlock: it opens
+/// the small menu ([showNetworkMenu]) with Node and Epicbox. The icon and its label in the
+/// accent colour, so it reads as a button rather than a decoration. When the labelled button,
+/// measured at the current text scale and in the current language, would not fit beside a
+/// back arrow, it gives way to the icon and its tooltip, so a long label never overflows the
+/// bar.
 class NetworkSettingsButton extends StatelessWidget {
-  const NetworkSettingsButton({super.key, required this.onPressed});
+  const NetworkSettingsButton({super.key, this.enabled = true});
 
-  final VoidCallback? onPressed;
+  /// False while the screen is busy (the button is disabled).
+  final bool enabled;
 
   /// The icon in a [TextButton.icon]; it does not grow with the text.
   static const double _iconSize = 18;
@@ -197,6 +213,7 @@ class NetworkSettingsButton extends StatelessWidget {
     final label = context.l10n.setupNetworkSettingsTooltip;
     final colour = context.tokens.accentText;
     const icon = Icon(Icons.settings_ethernet);
+    final onPressed = enabled ? () => showNetworkMenu(context) : null;
     if (!_labelFits(context, label)) {
       return IconButton(
         tooltip: label,

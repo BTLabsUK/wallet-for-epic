@@ -501,6 +501,9 @@ final updateApkUrlProvider = Provider<Uri Function(Uri url)>(
 /// manifest revoked. The phone keeps it in the secret store, the desktop in its desk store.
 const String updateStateKey = 'app.update_state';
 
+/// The version whose update notice the user closed: it is not offered again by itself.
+const String updateNoticeDismissedKey = 'app.update_notice_dismissed';
+
 /// The version code of the update that sent the user to Android's "allow installs from this
 /// source" screen. Allowing it there can end the app's process (Android 8–11 do), so the
 /// update carries on at the next opening that finds it, not only on [UpdateNotifier.resumed].
@@ -549,6 +552,34 @@ class UpdateNotifier extends Notifier<UpdateState> {
   /// Whether the stored state was read. Until it is, nothing is stored over it: a store that
   /// could not be read is asked again at the next check.
   bool _stateRead = false;
+
+  /// The version whose notice was closed ([updateNoticeDismissedKey]), read with the state.
+  String? _dismissed;
+  bool _dismissedRead = false;
+
+  /// Whether the user closed the notice offering [version].
+  bool noticeDismissed(String version) => _dismissed == version;
+
+  /// The user closed the notice offering [version]: it stays closed for that version, also
+  /// after a restart, until a check from About.
+  Future<void> dismissNotice(String version) async {
+    _dismissed = version;
+    try {
+      await ref.read(secretStoreProvider).write(updateNoticeDismissedKey, version);
+    } on Object catch (e) {
+      logWarn('update', 'closed notice not stored: ${e.runtimeType}');
+    }
+  }
+
+  Future<void> _readDismissed() async {
+    if (_dismissedRead) return;
+    try {
+      _dismissed = await ref.read(secretStoreProvider).read(updateNoticeDismissedKey);
+      _dismissedRead = true;
+    } on Object catch (e) {
+      logWarn('update', 'closed notice not read: ${e.runtimeType}');
+    }
+  }
 
   Future<void> _readState() async {
     if (_stateRead) return;
@@ -649,6 +680,12 @@ class UpdateNotifier extends Notifier<UpdateState> {
     final url = ref.read(updateManifestUrlProvider);
     try {
       await _readState();
+      await _readDismissed();
+      // Asked for (About's Check for updates): a closed notice shows again.
+      if (!quiet && _dismissed != null) {
+        _dismissed = null;
+        await ref.read(secretStoreProvider).delete(updateNoticeDismissedKey);
+      }
       final app = await platform.installedApp();
       // No manifest published at the feed, or one that does not verify: nothing is known
       // about a newer version, which is no error. A known update stays offered.

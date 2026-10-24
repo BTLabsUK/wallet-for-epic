@@ -1359,9 +1359,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeSettingsTooltip => 'การตั้งค่า';
 
   @override
-  String get homeSettingsUpdateTooltip => 'การตั้งค่า: มีอัปเดตใหม่';
-
-  @override
   String get homeSendButton => 'ส่ง';
 
   @override
@@ -2116,9 +2113,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get updateCheckFailed => 'ตรวจหาอัปเดตไม่สำเร็จ';
 
   @override
-  String get setupTitle => 'โหนดและ Epicbox';
-
-  @override
   String get setupNetworkSettingsTooltip => 'โหนดและ Epicbox';
 
   @override
@@ -2128,44 +2122,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get setupNodeUrlLabel => 'URL ของโหนด';
 
   @override
-  String get setupNodeUrlInvalid =>
-      'ใส่ URL เต็ม เช่น https://node.example.com';
-
-  @override
-  String get setupTestConnection => 'ทดสอบการเชื่อมต่อ';
-
-  @override
-  String setupTestConnected(String height, String version) {
-    return 'เชื่อมต่อแล้ว โหนดอยู่ที่บล็อก $height เวอร์ชัน $version';
-  }
-
-  @override
-  String setupTestFailed(String error) {
-    return 'เชื่อมต่อไม่ได้ $error';
-  }
-
-  @override
-  String get setupConnectedIconLabel => 'เชื่อมต่อแล้ว';
-
-  @override
-  String get setupRelayHeading => 'เซิร์ฟเวอร์ Epicbox';
-
-  @override
-  String get setupRelayHint => 'ที่อยู่ของคุณรวมเซิร์ฟเวอร์นี้ไว้ด้วย';
-
-  @override
   String get setupCustomRelayLabel =>
       'เซิร์ฟเวอร์ Epicbox อื่น (host หรือ host:port)';
 
   @override
-  String get setupCustomRelayUse => 'ใช้เซิร์ฟเวอร์นี้';
-
-  @override
   String get setupCustomRelayInvalid => 'ใส่ host เช่น epicbox.example.com';
-
-  @override
-  String get setupRelayChangeWarning =>
-      'การเปลี่ยนเซิร์ฟเวอร์ Epicbox จะเปลี่ยนที่อยู่ของคุณ ให้ที่อยู่ใหม่กับผู้ส่ง รายการที่ส่งไปที่อยู่เดิมจะรออยู่บนเซิร์ฟเวอร์เดิมจนกว่าจะเปลี่ยนกลับ';
 
   @override
   String get setupWalletPerNetwork =>
@@ -2354,6 +2315,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get unlockTitle => 'ปลดล็อกกระเป๋า';
+
+  @override
+  String get pinlessUnlock => 'ปลดล็อก';
 
   @override
   String get pinLabel => 'PIN';
@@ -2809,14 +2773,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsSectionNetwork => 'เซิร์ฟเวอร์';
 
   @override
-  String get settingsNetworkAndNode => 'โหนดและ Epicbox';
-
-  @override
-  String settingsNetworkSubtitle(String network, String node) {
-    return '$network · $node';
-  }
-
-  @override
   String get settingsSectionDisplay => 'การแสดงผล';
 
   @override
@@ -3108,17 +3064,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsAboutNetwork => 'เครือข่าย';
 
   @override
-  String get settingsEpicboxServer => 'เซิร์ฟเวอร์ Epicbox';
-
-  @override
-  String settingsUpdateTo(String version) {
-    return 'อัปเดตเป็น $version';
-  }
-
-  @override
-  String get settingsUpdateInstall => 'ติดตั้ง';
-
-  @override
   String get settingsCheckUpdates => 'ตรวจหาอัปเดต';
 
   @override
@@ -3306,10 +3251,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsStateNotBackedUp => 'ยังไม่ได้สำรอง';
 
   @override
-  String get settingsStatePin => 'PIN';
-
-  @override
-  String get settingsStatePinBiometrics => 'PIN และไบโอเมตริก';
+  String get settingsHubBackup => 'สำรองข้อมูล';
 
   @override
   String settingsStateJoin(String a, String b) {
@@ -4393,18 +4335,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverMyRelays => 'เซิร์ฟเวอร์ของฉัน';
 
   @override
-  String get serverMenuRemove => 'นำออกจากรายการของฉัน';
-
-  @override
   String get serverMenuDelete => 'ลบ';
-
-  @override
-  String settingsStateTor(String state) {
-    return 'Tor $state';
-  }
-
-  @override
-  String get serverRemoveInUse => 'กำลังใช้งานอยู่ เลือกเซิร์ฟเวอร์อื่นก่อน';
 
   @override
   String get serverSupportsNotifications => 'รองรับการแจ้งเตือน';
@@ -4434,20 +4365,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverEpicboxTitle => 'Epicbox';
 
   @override
-  String get serverSearchHint => 'ค้นหาหรือพิมพ์ที่อยู่โหนด';
-
-  @override
-  String serverUseAddress(String address) {
-    return 'ใช้ $address';
-  }
-
-  @override
-  String get serverTesting => 'กำลังทดสอบ…';
-
-  @override
-  String serverTestAnswer(String height, String version) {
-    return 'บล็อก $height · v$version';
-  }
+  String get serverSearchHint => 'ค้นหาโหนด';
 
   @override
   String serverTestFailed(String error) {
@@ -4532,6 +4450,39 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get serverOtherRelay => 'เซิร์ฟเวอร์อื่น host หรือ host:port';
+
+  @override
+  String get serverMyListNote => 'ตัวที่ใช้อยู่และที่เพิ่มเอง';
+
+  @override
+  String get serverPublicNote => 'แตะเพื่อเปลี่ยนไปใช้ตัวนั้น';
+
+  @override
+  String get serverOtherNode => 'โหนดอื่น host หรือ host:port';
+
+  @override
+  String get serverOtherNodeInvalid =>
+      'ใส่ที่อยู่โหนด เช่น node.example.com:3413';
+
+  @override
+  String get serverAdd => 'เพิ่ม';
+
+  @override
+  String get serverAddedNode => 'เพิ่มในโหนดของฉันแล้ว';
+
+  @override
+  String get serverAddedRelay => 'เพิ่มในเซิร์ฟเวอร์ของฉันแล้ว';
+
+  @override
+  String serverDeleted(String host) {
+    return 'ลบ $host แล้ว';
+  }
+
+  @override
+  String get serverAlreadyInUse => 'ใช้อยู่แล้ว';
+
+  @override
+  String get serverNoMatch => 'ไม่พบรายการที่ตรงกัน';
 
   @override
   String get serverFactHeight => 'ความสูงบล็อก';
@@ -12975,11 +12926,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetAboutUpdates => 'อัปเดต';
 
   @override
-  String deskSetAboutGet(String version) {
-    return 'ดาวน์โหลด $version';
-  }
-
-  @override
   String get deskSetAboutCheckNow => 'ตรวจตอนนี้';
 
   @override
@@ -13580,4 +13526,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskUpdErrInstall => 'แทนที่ด้วยเวอร์ชันใหม่ไม่ได้';
+
+  @override
+  String get deskUpdUnfinished => 'อัปเดตไม่เสร็จ ลองอีกครั้ง';
 }

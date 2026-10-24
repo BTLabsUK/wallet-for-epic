@@ -17,7 +17,6 @@ import 'demo_screens.dart' show endDemo;
 import 'first_run_screen.dart' show NetworkSettingsButton;
 import 'launch_screen.dart';
 import 'pin.dart';
-import 'setup_screen.dart';
 import 'theme/brand.dart';
 
 /// Opens the wallet with the PIN or biometrics.
@@ -46,10 +45,14 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   /// field, null until [_prepare] has looked. Outside the demo always false.
   bool? _autoPin;
 
+  /// Web demo and preview ([pinlessProvider]): the wallet opens with one tap, no PIN. On a
+  /// cold start it opens by itself.
+  bool _noPin = false;
+
   @override
   void initState() {
     super.initState();
-    _autoPin = ref.read(demoModeProvider) ? null : false;
+    _autoPin = ref.read(demoModeProvider) || ref.read(pinlessProvider) ? null : false;
     WidgetsBinding.instance.addPostFrameCallback((_) => _prepare());
   }
 
@@ -61,7 +64,9 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   }
 
   Future<void> _prepare() async {
-    if (!ref.read(demoModeProvider)) return _prepareUnlock();
+    if (!ref.read(demoModeProvider) && !ref.read(pinlessProvider)) {
+      return _prepareUnlock();
+    }
     // In the demo the lookup goes to the server; a failure says so and offers Try again.
     try {
       await _prepareUnlock();
@@ -82,6 +87,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   Future<void> _prepareUnlock() async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
+    final coldStart = ref.read(lockReasonProvider) == LockReason.coldStart;
     // Only a cold start or the auto-lock starts biometrics; after Lock wallet the user taps.
     final autoPrompt = ref.read(lockReasonProvider.notifier).takeAutoPrompt();
     final vault = ref.read(vaultProvider);
@@ -90,19 +96,22 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         .read(walletServiceProvider)
         .pinFailures(config: config);
     final biometrics = await vault.biometricsEnabled(config.chain);
-    // A demo wallet made with the demo PIN gets it filled in, unless a try already failed.
-    final autoPin =
-        ref.read(demoModeProvider) &&
-        failures == 0 &&
-        await vault.usesDemoPin(config.chain);
+    // A demo wallet made with the demo PIN gets it filled in, unless a try already failed; in a
+    // build without PINs it opens with a tap instead.
+    final demoPinWallet = failures == 0 && await vault.usesDemoPin(config.chain);
+    final noPin = ref.read(pinlessProvider) && demoPinWallet;
+    final autoPin = !noPin && ref.read(demoModeProvider) && demoPinWallet;
     if (!mounted) return;
     setState(() {
-      _biometrics = biometrics;
+      _biometrics = biometrics && !noPin;
       _autoPin = autoPin;
+      _noPin = noPin;
       if (failures > 0) {
         _pinError = describePinRejection(context.l10n, PinRejected(failures));
       }
     });
+    // Starting the app goes straight into the wallet; after a lock the Unlock button opens it.
+    if (noPin && coldStart) return _unlockWithDemoPin();
     if (biometrics && !autoPin && autoPrompt) await _unlockWithBiometrics();
   }
 
@@ -110,7 +119,12 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   /// field; any other error stays here with Try again.
   Future<void> _unlockWithDemoPin() async {
     await _unlockWithPin(demoPin);
-    if (mounted && _pinError != null) setState(() => _autoPin = false);
+    if (mounted && _pinError != null) {
+      setState(() {
+        _autoPin = false;
+        _noPin = false;
+      });
+    }
   }
 
   Future<void> _unlockWithBiometrics() async {
@@ -212,15 +226,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         actions: [
           // The web demo is on floonet for good.
           if (!ref.watch(demoModeProvider))
-            NetworkSettingsButton(
-              onPressed: _busy
-                  ? null
-                  : () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const SetupScreen(locked: true),
-                      ),
-                    ),
-            ),
+            NetworkSettingsButton(enabled: !_busy),
         ],
       ),
       body: CenteredBody(
@@ -239,18 +245,25 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             ErrorText(l.unlockStranded),
             const SizedBox(height: 16),
           ],
-          switch (_autoPin) {
-            // A frame or two while the demo looks up how its wallet opens.
-            null => const SizedBox(height: 56),
-            true => DemoPinFill(onDone: _unlockWithDemoPin),
-            false => PinField(
-              controller: _pin,
-              label: l.pinLabel,
-              enabled: !_busy,
-              errorText: _pinError,
-              onCompleted: _unlockWithPin,
-            ),
-          },
+          if (_noPin)
+            BusyButton(
+              label: l.pinlessUnlock,
+              busy: _busy,
+              onPressed: _unlockWithDemoPin,
+            )
+          else
+            switch (_autoPin) {
+              // A frame or two while the demo looks up how its wallet opens.
+              null => const SizedBox(height: 56),
+              true => DemoPinFill(onDone: _unlockWithDemoPin),
+              false => PinField(
+                controller: _pin,
+                label: l.pinLabel,
+                enabled: !_busy,
+                errorText: _pinError,
+                onCompleted: _unlockWithPin,
+              ),
+            },
           const SizedBox(height: 16),
           if (_busy) const LinearProgressIndicator(),
           if (_busy && checkAt != null) ...[
@@ -277,7 +290,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           ],
           // Forgot PIN ends a demo; it stays away while the demo PIN fills in, and comes back
           // with an error or the PIN field.
-          if (_autoPin == false || _error != null) ...[
+          if (!_noPin && (_autoPin == false || _error != null)) ...[
             const SizedBox(height: 24),
             TextButton(
               onPressed: _busy ? null : _forgotPin,

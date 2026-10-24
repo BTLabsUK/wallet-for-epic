@@ -374,6 +374,62 @@ class AppImageApplier implements DeskUpdateApplier {
   }
 }
 
+/// The file Setup keeps next to the app while it copies files (`epic_wallet.iss`, from the
+/// start of the copy until every file is in): the version it installs.
+const String deskSetupMarkName = 'update-in-progress';
+
+/// What is left of a Windows update that did not finish. Setup copies file by file and cannot
+/// undo a file it replaced: stopped part way (killed, or a file it could not replace), it leaves
+/// old and new files side by side, and no app running. Two marks say so at the next start
+/// ([unfinishedUpdate]):
+///  - [setup], Setup's own mark ([deskSetupMarkName]), there from the first file it copies until
+///    the last is in;
+///  - [target], the version the app records just before it starts Setup, removed once that
+///    version runs (or Setup could not be started).
+class DeskUpdateMarks {
+  const DeskUpdateMarks({required this.setup, required this.target});
+
+  final File setup;
+  final File target;
+
+  static Future<String?> _read(File f) async {
+    try {
+      return await f.exists() ? (await f.readAsString()).trim() : null;
+    } on FileSystemException {
+      return null;
+    }
+  }
+
+  /// Setup's mark: the version it was installing; '' when it holds none.
+  Future<String?> readSetup() => _read(setup);
+
+  Future<String?> readTarget() async {
+    final v = await _read(target);
+    return v == null || v.isEmpty ? null : v;
+  }
+
+  /// Records [version] as the one being installed, before Setup starts.
+  Future<void> record(String version) async {
+    await target.parent.create(recursive: true);
+    await target.writeAsString(version, flush: true);
+  }
+
+  Future<void> clearTarget() => _drop(target);
+
+  /// Only for a mark older than the running version: Setup removes its own.
+  Future<void> clearSetup() => _drop(setup);
+}
+
+/// The marks on Windows (Setup's next to this app, the record in the cache folder); null
+/// elsewhere: an AppImage is replaced by one rename, there is nothing in between.
+final deskUpdateMarksProvider = Provider<Future<DeskUpdateMarks> Function()?>((ref) {
+  if (kIsWeb || !Platform.isWindows) return null;
+  return () async => DeskUpdateMarks(
+    setup: File('${File(Platform.resolvedExecutable).parent.path}\\$deskSetupMarkName'),
+    target: File('${(await getApplicationCacheDirectory()).path}\\update-target'),
+  );
+});
+
 /// This system's applier; null where the desktop only opens the download page.
 final deskUpdateApplierProvider = Provider<DeskUpdateApplier?>((ref) {
   if (kIsWeb) return null;

@@ -13,7 +13,8 @@ import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
-import 'package:epic_wallet/src/ui/setup_screen.dart';
+import 'package:epic_wallet/src/ui/network_menu.dart';
+import 'package:epic_wallet/src/ui/server_picker.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -114,10 +115,24 @@ Finder _button(String label) {
   return labelled.evaluate().isNotEmpty ? labelled : find.byTooltip(label);
 }
 
-Future<void> _opensSetup(WidgetTester tester, Finder button) async {
-  await tester.tap(button);
-  await tester.pumpAndSettle();
-  expect(find.byType(SetupScreen), findsOneWidget);
+/// The button opens the menu; each of its items opens its picker sheet.
+Future<void> _opensSheets(WidgetTester tester, Finder button) async {
+  for (final (item, kind) in [
+    (networkMenuNodeKey, ServerKind.node),
+    (networkMenuEpicboxKey, ServerKind.relay),
+  ]) {
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(find.byKey(networkMenuNetworkKey), findsNothing, reason: 'release builds: no Network');
+    await tester.tap(find.byKey(item));
+    await tester.pumpAndSettle();
+    final sheet = find.byType(ServerPickerSheet);
+    expect(sheet, findsOneWidget);
+    expect(tester.widget<ServerPickerSheet>(sheet).kind, kind);
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+    expect(sheet, findsNothing);
+  }
 }
 
 void main() {
@@ -125,7 +140,7 @@ void main() {
 
   for (final MapEntry(key: screen, value: make) in _screens.entries) {
     group(screen, () {
-      testWidgets('labels it with Advanced off and opens the setup', (
+      testWidgets('labels it with Advanced off and opens the Node and Epicbox sheets', (
         tester,
       ) async {
         final start = make();
@@ -141,7 +156,7 @@ void main() {
           findsOneWidget,
         );
         expect(tester.getSize(button).height, greaterThanOrEqualTo(48));
-        await _opensSetup(tester, button);
+        await _opensSheets(tester, button);
       });
 
       testWidgets('meets the tap target guidelines', (tester) async {
@@ -188,7 +203,7 @@ void main() {
           );
           final width = tester.getSize(button).width;
           expect(width, lessThanOrEqualTo(physicalSize.width / 3 - 72));
-          await _opensSetup(tester, button);
+          await _opensSheets(tester, button);
         });
       }
     });

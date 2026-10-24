@@ -34,15 +34,17 @@ import 'info_hint.dart';
 import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'licences_screen.dart';
+import 'network_menu.dart';
 import 'network_status.dart';
 import 'outputs_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart'
     show ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
+import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'settings_history.dart';
 import 'settings_invoices.dart';
 import 'settings_pin.dart';
-import 'setup_screen.dart';
+import 'status.dart' show serverHost;
 import 'theme/advanced.dart';
 import 'theme/brand.dart' show BrandLockup, BrandVariant;
 import 'theme/tokens.dart';
@@ -120,6 +122,11 @@ IconData settingsSectionIcon(SettingsSection section) => switch (section) {
 
 /// The key of the Privacy header on the Privacy & network page, for tests.
 const Key settingsPrivacyKey = ValueKey('settings-privacy');
+
+/// The Node and Epicbox rows of Privacy & network, for tests: the status card's rows while a
+/// wallet is open, the plain rows otherwise.
+const Key settingsNodeKey = netStatusNodeKey;
+const Key settingsEpicboxKey = netStatusEpicboxKey;
 
 /// The key of the Licences row in About, for tests.
 const Key settingsLicencesKey = ValueKey('settings-licences');
@@ -498,12 +505,46 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final devNetworks = ref.watch(devNetworksProvider);
     final advanced = AdvancedOptions.of(context);
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
+    // One row per thing (the owner, 26.10.11): Node and Epicbox with their host and health, each
+    // opening its picker (the status card's rows, the same pickers as the icons on Home), the
+    // Tor switch, then the other privacy settings. With no wallet open there is no health to
+    // show: plain rows open the same pickers.
     return [
       if (walletOpen)
         const Padding(
           padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
           child: NetworkStatusCard(showTor: false),
+        )
+      else if (!demo) ...[
+        ListTile(
+          key: settingsNodeKey,
+          leading: const Icon(Icons.dns_outlined),
+          title: Text(l.serverNodeTitle),
+          subtitle: withTorWay(
+            network == null ? null : Text(serverHost(network.nodeUrl)),
+            nodeTorWay(network?.nodeUrl, torState),
+          ),
+          onTap: () => showNodePicker(context),
         ),
+        ListTile(
+          key: settingsEpicboxKey,
+          leading: const Icon(Icons.mail_outline),
+          title: Text(l.serverEpicboxTitle),
+          subtitle: withTorWay(
+            Text(
+              network?.relay.label ??
+                  (config == null
+                      ? l.commonUnknown
+                      : EpicboxRelay(
+                          host: config.epicboxDomain,
+                          port: config.epicboxPort,
+                        ).label),
+            ),
+            torWay(TorRoute.epicbox, torState),
+          ),
+          onTap: () => showEpicboxPicker(context),
+        ),
+      ],
       // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
       // state; it moves nothing the user chose.
       SettingsHeader(l.settingsSectionPrivacy, key: settingsPrivacyKey),
@@ -515,52 +556,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         value: s.useStatusSite,
         onChanged: _settings.setUseStatusSite,
       ),
-      if (!demo) ...[
-        SettingsHeader(l.settingsSectionNetwork),
+      // Development builds only: the network itself, each with its own wallet.
+      if (!demo && advanced && devNetworks)
         ListTile(
-          leading: const Icon(Icons.settings_ethernet),
-          title: Text(l.settingsNetworkAndNode),
-          // The node's host; the network's name only where networks are offered. Under it,
-          // the Epicbox connection over Tor or waiting for it.
-          subtitle: withTorWay(
-            network == null
-                ? (devNetworks ? Text(chain) : null)
-                : Text(
-                    devNetworks
-                        ? l.settingsNetworkSubtitle(
-                            chain,
-                            Uri.tryParse(network.nodeUrl)?.host ??
-                                network.nodeUrl,
-                          )
-                        : Uri.tryParse(network.nodeUrl)?.host ??
-                              network.nodeUrl,
-                  ),
-            torWay(TorRoute.epicbox, torState),
-          ),
-          onTap: () => _push(const SetupScreen()),
+          leading: const Icon(Icons.hub),
+          title: Text(l.settingsAboutNetwork),
+          subtitle: Text(chain),
+          onTap: () => showNetworkChooser(context),
         ),
-        if (advanced) ...[
-          if (devNetworks)
-            ListTile(
-              leading: const Icon(Icons.hub),
-              title: Text(l.settingsAboutNetwork),
-              subtitle: Text(chain),
-            ),
-          ListTile(
-            leading: const Icon(Icons.dns_outlined),
-            title: Text(l.settingsEpicboxServer),
-            subtitle: Text(
-              network?.relay.label ??
-                  (config == null
-                      ? l.commonUnknown
-                      : EpicboxRelay(
-                          host: config.epicboxDomain,
-                          port: config.epicboxPort,
-                        ).label),
-            ),
-          ),
-        ],
-      ],
     ];
   }
 

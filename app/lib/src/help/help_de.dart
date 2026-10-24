@@ -17,8 +17,8 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   // The words that differ between a computer and a phone.
   final device = phone ? 'diesem Smartphone' : 'diesem Computer';
   final secret = phone ? 'Ihre PIN' : 'das Wallet-Passwort';
-  final nodePlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Node und Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[Einstellungen › Node|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Node und Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[Einstellungen › Empfangen › Epicbox-Empfang|Settings › Receiving › Epicbox receiving]]';
+  final nodePlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Node|Settings › Privacy & network › Node]]' : '[[Einstellungen › Node|Settings › Node]]';
+  final epicboxPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Einstellungen › Empfangen › Epicbox-Empfang|Settings › Receiving › Epicbox receiving]]';
   final torPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Tor-Netzwerk|Settings › Privacy & network › Tor Network]]' : '[[Einstellungen › Datenschutz › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[Aktivität|Activity]] (die Zahlung öffnen, dann „Zahlung stornieren“)'
@@ -70,9 +70,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Dateien durchlaufen denselben Handschlag wie Epicbox, nur werden die Nachrichten von Hand übergeben, zum Beispiel per E-Mail, Chat oder USB-Stick. Das funktioniert ohne Epicbox und ohne dass beide Wallets gleichzeitig online sind.'),
         if (phone)
-          const HelpBlock.ol(['**Absender:** wählt unter Senden **Datei**, gibt den Betrag ein und teilt die Datei (sie endet auf .tx). Ab jetzt sind die Outputs gesperrt.', '**Empfänger:** öffnet die Datei unter [[Empfangen › Datei|Receive › File]]. Seine Wallet signiert sie und teilt eine Antwortdatei (ihr Name beginnt mit finalize_). Diese Datei schickt er zurück.', '**Absender:** öffnet die Antwortdatei unter [[Empfangen › Datei|Receive › File]]. Die Wallet schließt die Transaktion ab und sendet sie.'])
+          const HelpBlock.ol(['**Absender:** wählt unter Senden **Datei**, gibt den Betrag ein und teilt die Datei (sie endet auf .tx). Ab jetzt sind die Outputs gesperrt.', '**Empfänger:** öffnet die Datei unter [[Empfangen › Datei|Receive › File]]. Seine Wallet signiert sie und teilt eine Antwortdatei (sie endet auf .response). Diese Datei schickt er zurück.', '**Absender:** öffnet die Antwortdatei unter [[Empfangen › Datei|Receive › File]]. Die Wallet schließt die Transaktion ab und sendet sie.'])
         else
-          const HelpBlock.ol(['**Absender:** wählt unter Senden **Datei**, gibt den Betrag ein und speichert die Datei (sie endet auf .tx). Ab jetzt sind die Outputs gesperrt.', '**Empfänger:** öffnet die Datei unter [[Empfangen › Transaktionsdateien › Transaktionsdatei signieren|Receive › Transaction files › Sign a transaction file]]. Seine Wallet signiert sie und speichert eine Antwortdatei (ihr Name beginnt mit finalize_). Diese Datei schickt er zurück.', '**Absender:** öffnet die Antwortdatei unter [[Empfangen › Transaktionsdateien › Antwortdatei abschließen|Receive › Transaction files › Finalize a response file]]. Die Wallet schließt die Transaktion ab und sendet sie.']),
+          const HelpBlock.ol(['**Absender:** wählt unter Senden **Datei**, gibt den Betrag ein und speichert die Datei (sie endet auf .tx). Ab jetzt sind die Outputs gesperrt.', '**Empfänger:** öffnet die Datei unter [[Empfangen › Transaktionsdateien › Transaktionsdatei signieren|Receive › Transaction files › Sign a transaction file]]. Seine Wallet signiert sie und speichert eine Antwortdatei (sie endet auf .response). Diese Datei schickt er zurück.', '**Absender:** öffnet die Antwortdatei unter [[Empfangen › Transaktionsdateien › Antwortdatei abschließen|Receive › Transaction files › Finalize a response file]]. Die Wallet schließt die Transaktion ab und sendet sie.']),
         const HelpBlock.p('Andere Epic-Cash-Wallets nennen diese Schritte anders. Kommt die Antwortdatei nie, stornieren Sie die Zahlung unter Aktivität, um die Outputs freizugeben.'),
       ],
       id: HelpId.file,

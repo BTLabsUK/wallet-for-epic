@@ -148,9 +148,11 @@ void main() {
       final sub = container.listen(relayStatusProvider(mainnetPreset), (_, _) {});
       addTearDown(sub.close);
       expect(await container.read(relayStatusProvider(mainnetPreset).future), hasLength(4));
+      // Mainnet also asks floonet's list for flooepicbox.btlabs.uk's health.
+      final asked = r.hosts.length;
       statusSite.on = false;
       await expectLater(container.read(relayStatusProvider(mainnetPreset).future), throwsA(isA<NetError>()));
-      expect(r.hosts, hasLength(1));
+      expect(r.hosts, hasLength(asked), reason: 'switched off: no request');
     });
   });
 

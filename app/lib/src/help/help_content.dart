@@ -133,8 +133,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   // The words that differ between a computer and a phone.
   final device = phone ? 'this phone' : 'this computer';
   final secret = phone ? 'your PIN' : 'the wallet password';
-  final nodePlace = phone ? '[[Settings › Privacy & network › Node and Epicbox]]' : '[[Settings › Node]]';
-  final epicboxPlace = phone ? '[[Settings › Privacy & network › Node and Epicbox]]' : '[[Settings › Receiving › Epicbox receiving]]';
+  final nodePlace = phone ? '[[Settings › Privacy & network › Node]]' : '[[Settings › Node]]';
+  final epicboxPlace = phone ? '[[Settings › Privacy & network › Epicbox]]' : '[[Settings › Receiving › Epicbox receiving]]';
   final torPlace = phone ? '[[Settings › Privacy & network › Tor Network]]' : '[[Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone ? '[[Settings › Wallet › Export history backup]]' : '[[Settings › This wallet › Export history backup]]';
@@ -182,9 +182,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('Files do the same handshake as Epicbox, but the messages travel by hand, for example by email, chat or a USB stick. They work without Epicbox and without both wallets being online at the same time.'),
         if (phone)
-          const HelpBlock.ol(['**Sender:** on Send, choose **File**, enter the amount and share the file (it ends in .tx). The outputs are locked from now on.', '**Recipient:** opens the file under [[Receive › File]]. Their wallet signs it and shares a response file (its name starts with finalize_). They send that file back.', '**Sender:** opens the response file under [[Receive › File]]. The wallet finishes the transaction and posts it.'])
+          const HelpBlock.ol(['**Sender:** on Send, choose **File**, enter the amount and share the file (it ends in .tx). The outputs are locked from now on.', '**Recipient:** opens the file under [[Receive › File]]. Their wallet signs it and shares a response file (it ends in .response). They send that file back.', '**Sender:** opens the response file under [[Receive › File]]. The wallet finishes the transaction and posts it.'])
         else
-          const HelpBlock.ol(['**Sender:** on Send, choose **File**, enter the amount and save the file (it ends in .tx). The outputs are locked from now on.', '**Recipient:** opens the file under [[Receive › Transaction files › Sign a transaction file]]. Their wallet signs it and saves a response file (its name starts with finalize_). They send that file back.', '**Sender:** opens the response file under [[Receive › Transaction files › Finalize a response file]]. The wallet finishes the transaction and posts it.']),
+          const HelpBlock.ol(['**Sender:** on Send, choose **File**, enter the amount and save the file (it ends in .tx). The outputs are locked from now on.', '**Recipient:** opens the file under [[Receive › Transaction files › Sign a transaction file]]. Their wallet signs it and saves a response file (it ends in .response). They send that file back.', '**Sender:** opens the response file under [[Receive › Transaction files › Finalize a response file]]. The wallet finishes the transaction and posts it.']),
         const HelpBlock.p('Other Epic Cash wallets have their own names for these steps. If the response file never comes, cancel the send in Activity to unlock the outputs.'),
       ],
       id: HelpId.file,

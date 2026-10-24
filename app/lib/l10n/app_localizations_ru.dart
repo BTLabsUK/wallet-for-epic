@@ -1506,9 +1506,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeSettingsTooltip => 'Настройки';
 
   @override
-  String get homeSettingsUpdateTooltip => 'Настройки: доступно обновление';
-
-  @override
   String get homeSendButton => 'Отправить';
 
   @override
@@ -2297,9 +2294,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateCheckFailed => 'Не удалось проверить обновления.';
 
   @override
-  String get setupTitle => 'Узел и Epicbox';
-
-  @override
   String get setupNetworkSettingsTooltip => 'Узел и Epicbox';
 
   @override
@@ -2309,45 +2303,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get setupNodeUrlLabel => 'URL узла';
 
   @override
-  String get setupNodeUrlInvalid =>
-      'Введите полный URL, например https://node.example.com';
-
-  @override
-  String get setupTestConnection => 'Проверить подключение';
-
-  @override
-  String setupTestConnected(String height, String version) {
-    return 'Подключено. Узел на блоке $height, версия $version.';
-  }
-
-  @override
-  String setupTestFailed(String error) {
-    return 'Не удалось подключиться. $error';
-  }
-
-  @override
-  String get setupConnectedIconLabel => 'Подключено';
-
-  @override
-  String get setupRelayHeading => 'Сервер Epicbox';
-
-  @override
-  String get setupRelayHint => 'Этот сервер входит в ваш адрес.';
-
-  @override
   String get setupCustomRelayLabel =>
       'Другой сервер epicbox (хост или host:port)';
 
   @override
-  String get setupCustomRelayUse => 'Использовать этот сервер';
-
-  @override
   String get setupCustomRelayInvalid =>
       'Введите хост, например epicbox.example.com';
-
-  @override
-  String get setupRelayChangeWarning =>
-      'При смене сервера epicbox меняется ваш адрес. Сообщите отправителям новый адрес. Платежи, отправленные на старый, будут ждать на старом сервере, пока вы не переключитесь обратно.';
 
   @override
   String get setupWalletPerNetwork =>
@@ -2546,6 +2507,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get unlockTitle => 'Разблокировать кошелёк';
+
+  @override
+  String get pinlessUnlock => 'Разблокировать';
 
   @override
   String get pinLabel => 'PIN-код';
@@ -3028,14 +2992,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionNetwork => 'Серверы';
 
   @override
-  String get settingsNetworkAndNode => 'Узел и Epicbox';
-
-  @override
-  String settingsNetworkSubtitle(String network, String node) {
-    return '$network · $node';
-  }
-
-  @override
   String get settingsSectionDisplay => 'Отображение';
 
   @override
@@ -3330,17 +3286,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsAboutNetwork => 'Сеть';
 
   @override
-  String get settingsEpicboxServer => 'Сервер Epicbox';
-
-  @override
-  String settingsUpdateTo(String version) {
-    return 'Обновить до $version';
-  }
-
-  @override
-  String get settingsUpdateInstall => 'Установить';
-
-  @override
   String get settingsCheckUpdates => 'Проверить обновления';
 
   @override
@@ -3533,10 +3478,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsStateNotBackedUp => 'Ещё не сохранена';
 
   @override
-  String get settingsStatePin => 'PIN-код';
-
-  @override
-  String get settingsStatePinBiometrics => 'PIN-код и биометрия';
+  String get settingsHubBackup => 'Резервная копия';
 
   @override
   String settingsStateJoin(String a, String b) {
@@ -4652,19 +4594,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverMyRelays => 'Мои серверы';
 
   @override
-  String get serverMenuRemove => 'Убрать из моего списка';
-
-  @override
   String get serverMenuDelete => 'Удалить';
-
-  @override
-  String settingsStateTor(String state) {
-    return 'Tor $state';
-  }
-
-  @override
-  String get serverRemoveInUse =>
-      'Используется. Сначала выберите другой сервер.';
 
   @override
   String get serverSupportsNotifications => 'Поддерживает уведомления';
@@ -4694,20 +4624,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverEpicboxTitle => 'Epicbox';
 
   @override
-  String get serverSearchHint => 'Найдите или введите адрес узла';
-
-  @override
-  String serverUseAddress(String address) {
-    return 'Использовать $address';
-  }
-
-  @override
-  String get serverTesting => 'Проверка…';
-
-  @override
-  String serverTestAnswer(String height, String version) {
-    return 'Блок $height · v$version';
-  }
+  String get serverSearchHint => 'Найдите узел';
 
   @override
   String serverTestFailed(String error) {
@@ -4795,6 +4712,39 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get serverOtherRelay => 'Другой сервер, host или host:port';
+
+  @override
+  String get serverMyListNote => 'Используемый сейчас и добавленные вами.';
+
+  @override
+  String get serverPublicNote => 'Нажмите, чтобы переключиться.';
+
+  @override
+  String get serverOtherNode => 'Другой узел, host или host:port';
+
+  @override
+  String get serverOtherNodeInvalid =>
+      'Введите адрес узла, например node.example.com:3413';
+
+  @override
+  String get serverAdd => 'Добавить';
+
+  @override
+  String get serverAddedNode => 'Добавлено в «Мои узлы».';
+
+  @override
+  String get serverAddedRelay => 'Добавлено в «Мои серверы».';
+
+  @override
+  String serverDeleted(String host) {
+    return 'Удалено: $host.';
+  }
+
+  @override
+  String get serverAlreadyInUse => 'Уже используется.';
+
+  @override
+  String get serverNoMatch => 'Ничего не найдено.';
 
   @override
   String get serverFactHeight => 'Высота';
@@ -13594,11 +13544,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetAboutUpdates => 'Обновления';
 
   @override
-  String deskSetAboutGet(String version) {
-    return 'Скачать $version';
-  }
-
-  @override
   String get deskSetAboutCheckNow => 'Проверить сейчас';
 
   @override
@@ -14236,4 +14181,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskUpdErrInstall =>
       'Не удалось заменить приложение новой версией.';
+
+  @override
+  String get deskUpdUnfinished =>
+      'Обновление не завершилось. Повторите попытку.';
 }

@@ -7,7 +7,6 @@ import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/update_notice.dart' show deskUpdateAct, deskUpdateWords, openUpdatePage, restartToUpdate;
 import '../../data/desk_update.dart';
 import '../../data/files.dart' show deskOpenUrlProvider;
 import '../../desk_l10n.dart';
@@ -151,8 +150,9 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
 }
 
 /// "0.1.0 is the latest · checked 5 min ago", "Update available: 26.10.1", or "Could not check"
-/// with the reason; Check now. With an update: the same steps as the sidebar's notice
-/// (`app/update_notice.dart`): download it, Restart to update, or the download page.
+/// with the reason; Check now. Plain text only: the sidebar's notice (`app/update_notice.dart`)
+/// is the one place that offers an update, downloads it and restarts for it, so a check here that
+/// finds one shows it there.
 class _Updates extends ConsumerWidget {
   const _Updates();
 
@@ -161,81 +161,35 @@ class _Updates extends ConsumerWidget {
     final u = ref.watch(deskUpdateProvider);
     final now = ref.read(deskUpdateClockProvider)();
     final l = context.l10n;
-    final v = u.version ?? '';
     final checked = u.checkedAt == null ? null : l.deskSetAboutChecked(_ago(l, now.difference(u.checkedAt!)));
     final (title, text) = switch (u.phase) {
       DeskUpdatePhase.idle || DeskUpdatePhase.checking => (l.updateChecking, checked),
       DeskUpdatePhase.latest => (l.deskSetAboutLatest(deskAppVersion), checked),
-      DeskUpdatePhase.available when u.problem != null => (l.deskUpdFailed, u.problem),
-      DeskUpdatePhase.available => (l.deskSetAboutAvailable(v), checked),
-      DeskUpdatePhase.downloading => (deskUpdateWords(l, u).title, v),
-      DeskUpdatePhase.ready when u.problem != null => (l.deskUpdInstallFailed, u.problem),
-      DeskUpdatePhase.ready => (l.deskUpdReady(v), l.deskUpdRestartHint),
       DeskUpdatePhase.failed => (l.deskSetAboutCouldNotCheck, [u.reason, checked].nonNulls.join(' ')),
+      _ => (l.deskSetAboutAvailable(u.version ?? ''), checked),
     };
     final busy = u.phase == DeskUpdatePhase.checking || u.phase == DeskUpdatePhase.idle;
-    final inApp = u.file != null;
-    // The download page: the only way when this copy cannot install updates itself, and the
-    // way out when downloading or installing failed.
-    final pageButton = ERowControl(
-      child: EButton(
-        label: l.deskSetAboutGet(v),
-        icon: EIcons.external,
-        size: EBtnSize.sm,
-        onPressed: () => openUpdatePage(context, ref, u.page ?? deskReleasesUrl),
-      ),
-    );
-    final buttons = <Widget>[
-      if (u.phase == DeskUpdatePhase.available && !inApp)
-        ERowControl(
-          child: EButton.primary(
-            label: l.deskSetAboutGet(v),
-            icon: EIcons.external,
-            size: EBtnSize.sm,
-            onPressed: () => openUpdatePage(context, ref, u.page ?? deskReleasesUrl),
-          ),
-        ),
-      if (u.phase == DeskUpdatePhase.available && inApp) ...[
-        ERowControl(
-          child: EButton.primary(
-            label: u.problem != null ? l.deskUpdTryAgain : l.deskUpdDownload(v),
-            icon: EIcons.download,
-            size: EBtnSize.sm,
-            onPressed: () => deskUpdateAct(context, ref),
-          ),
-        ),
-        if (u.problem != null) pageButton,
-      ],
-      if (u.phase == DeskUpdatePhase.downloading)
-        ERowControl(child: EButton.primary(label: l.deskUpdDownload(v), icon: EIcons.download, size: EBtnSize.sm, busy: true)),
-      if (u.phase == DeskUpdatePhase.ready && u.problem == null)
-        ERowControl(
-          child: EButton.primary(label: l.deskUpdRestart, icon: EIcons.restart, size: EBtnSize.sm, onPressed: () => restartToUpdate(context, ref)),
-        ),
-      if (u.phase == DeskUpdatePhase.ready && u.problem != null) pageButton,
-      if (u.phase != DeskUpdatePhase.downloading && u.phase != DeskUpdatePhase.ready)
-        ERowControl(
-          child: EButton(
-            label: l.deskSetAboutCheckNow,
-            icon: EIcons.refresh,
-            size: EBtnSize.sm,
-            busy: busy,
-            onPressed: busy ? null : () => ref.read(deskUpdateProvider.notifier).check(),
-          ),
-        ),
-    ];
+    // A check changes nothing while the update downloads, waits for its restart or for Try again.
+    final checks = !(u.phase == DeskUpdatePhase.downloading ||
+        u.phase == DeskUpdatePhase.unfinished ||
+        (u.phase == DeskUpdatePhase.ready && u.problem == null));
     return ESetGroup(
       title: l.deskSetAboutUpdates,
       rows: [
-        // Two row buttons (an update to get): under the text when the card is narrow.
-        LayoutBuilder(
-          builder: (context, box) => ESetRow(
-            title: title,
-            text: text,
-            stacked: buttons.length > 1 && box.maxWidth < 720.u,
-            control: Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: buttons),
-            below: u.phase == DeskUpdatePhase.downloading ? EProgress(value: u.progress) : null,
-          ),
+        ESetRow(
+          title: title,
+          text: text,
+          control: checks
+              ? ERowControl(
+                  child: EButton(
+                    label: l.deskSetAboutCheckNow,
+                    icon: EIcons.refresh,
+                    size: EBtnSize.sm,
+                    busy: busy,
+                    onPressed: busy ? null : () => ref.read(deskUpdateProvider.notifier).check(),
+                  ),
+                )
+              : null,
         ),
       ],
     );

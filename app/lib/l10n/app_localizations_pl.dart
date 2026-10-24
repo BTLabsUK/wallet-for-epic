@@ -1510,10 +1510,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeSettingsTooltip => 'Ustawienia';
 
   @override
-  String get homeSettingsUpdateTooltip =>
-      'Ustawienia: dostępna jest aktualizacja';
-
-  @override
   String get homeSendButton => 'Wyślij';
 
   @override
@@ -2309,9 +2305,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get updateCheckFailed => 'Sprawdzanie aktualizacji nie powiodło się.';
 
   @override
-  String get setupTitle => 'Węzeł i Epicbox';
-
-  @override
   String get setupNetworkSettingsTooltip => 'Węzeł i Epicbox';
 
   @override
@@ -2321,44 +2314,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get setupNodeUrlLabel => 'Adres URL węzła';
 
   @override
-  String get setupNodeUrlInvalid =>
-      'Wpisz pełny adres URL, np. https://node.example.com';
-
-  @override
-  String get setupTestConnection => 'Sprawdź połączenie';
-
-  @override
-  String setupTestConnected(String height, String version) {
-    return 'Połączono. Węzeł jest na bloku $height i działa w wersji $version.';
-  }
-
-  @override
-  String setupTestFailed(String error) {
-    return 'Nie udało się połączyć. $error';
-  }
-
-  @override
-  String get setupConnectedIconLabel => 'Połączono';
-
-  @override
-  String get setupRelayHeading => 'Serwer Epicbox';
-
-  @override
-  String get setupRelayHint => 'Ten serwer jest częścią twojego adresu.';
-
-  @override
   String get setupCustomRelayLabel =>
       'Inny serwer epicbox (host lub host:port)';
 
   @override
-  String get setupCustomRelayUse => 'Użyj tego serwera';
-
-  @override
   String get setupCustomRelayInvalid => 'Wpisz host, np. epicbox.example.com';
-
-  @override
-  String get setupRelayChangeWarning =>
-      'Zmiana serwera epicbox zmienia twój adres. Przekaż nadawcom nowy adres. Płatności wysłane na stary adres czekają na starym serwerze, dopóki do niego nie wrócisz.';
 
   @override
   String get setupWalletPerNetwork =>
@@ -2556,6 +2516,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get unlockTitle => 'Odblokuj portfel';
+
+  @override
+  String get pinlessUnlock => 'Odblokuj';
 
   @override
   String get pinLabel => 'PIN';
@@ -3050,14 +3013,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSectionNetwork => 'Serwery';
 
   @override
-  String get settingsNetworkAndNode => 'Węzeł i Epicbox';
-
-  @override
-  String settingsNetworkSubtitle(String network, String node) {
-    return '$network · $node';
-  }
-
-  @override
   String get settingsSectionDisplay => 'Wyświetlanie';
 
   @override
@@ -3353,17 +3308,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsAboutNetwork => 'Sieć';
 
   @override
-  String get settingsEpicboxServer => 'Serwer Epicbox';
-
-  @override
-  String settingsUpdateTo(String version) {
-    return 'Zaktualizuj do $version';
-  }
-
-  @override
-  String get settingsUpdateInstall => 'Zainstaluj';
-
-  @override
   String get settingsCheckUpdates => 'Sprawdź aktualizacje';
 
   @override
@@ -3553,10 +3497,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsStateNotBackedUp => 'Jeszcze nie zapisano';
 
   @override
-  String get settingsStatePin => 'PIN';
-
-  @override
-  String get settingsStatePinBiometrics => 'PIN i biometria';
+  String get settingsHubBackup => 'Kopia zapasowa';
 
   @override
   String settingsStateJoin(String a, String b) {
@@ -4674,18 +4615,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get serverMyRelays => 'Moje serwery';
 
   @override
-  String get serverMenuRemove => 'Usuń z mojej listy';
-
-  @override
   String get serverMenuDelete => 'Usuń';
-
-  @override
-  String settingsStateTor(String state) {
-    return 'Tor $state';
-  }
-
-  @override
-  String get serverRemoveInUse => 'W użyciu. Najpierw wybierz inny serwer.';
 
   @override
   String get serverSupportsNotifications => 'Obsługuje powiadomienia';
@@ -4715,20 +4645,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get serverEpicboxTitle => 'Epicbox';
 
   @override
-  String get serverSearchHint => 'Znajdź lub wpisz adres węzła';
-
-  @override
-  String serverUseAddress(String address) {
-    return 'Użyj $address';
-  }
-
-  @override
-  String get serverTesting => 'Sprawdzanie…';
-
-  @override
-  String serverTestAnswer(String height, String version) {
-    return 'Blok $height · v$version';
-  }
+  String get serverSearchHint => 'Znajdź węzeł';
 
   @override
   String serverTestFailed(String error) {
@@ -4816,6 +4733,39 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get serverOtherRelay => 'Inny serwer, host lub host:port';
+
+  @override
+  String get serverMyListNote => 'Używany teraz i dodane przez ciebie.';
+
+  @override
+  String get serverPublicNote => 'Stuknij, aby przełączyć.';
+
+  @override
+  String get serverOtherNode => 'Inny węzeł, host lub host:port';
+
+  @override
+  String get serverOtherNodeInvalid =>
+      'Wpisz adres węzła, np. node.example.com:3413';
+
+  @override
+  String get serverAdd => 'Dodaj';
+
+  @override
+  String get serverAddedNode => 'Dodano do: Moje węzły.';
+
+  @override
+  String get serverAddedRelay => 'Dodano do: Moje serwery.';
+
+  @override
+  String serverDeleted(String host) {
+    return 'Usunięto $host.';
+  }
+
+  @override
+  String get serverAlreadyInUse => 'Już używany.';
+
+  @override
+  String get serverNoMatch => 'Brak wyników.';
 
   @override
   String get serverFactHeight => 'Wysokość';
@@ -13629,11 +13579,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetAboutUpdates => 'Aktualizacje';
 
   @override
-  String deskSetAboutGet(String version) {
-    return 'Pobierz $version';
-  }
-
-  @override
   String get deskSetAboutCheckNow => 'Sprawdź teraz';
 
   @override
@@ -14269,4 +14214,8 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskUpdErrInstall =>
       'Nie udało się podmienić aplikacji na nową wersję.';
+
+  @override
+  String get deskUpdUnfinished =>
+      'Aktualizacja nie została dokończona. Spróbuj ponownie.';
 }

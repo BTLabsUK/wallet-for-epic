@@ -34,7 +34,7 @@ class _Fake extends DeskUpdateController {
 
   final DeskUpdateState initial;
   final bool restartOk;
-  int downloads = 0, restarts = 0;
+  int downloads = 0, restarts = 0, retries = 0;
 
   /// Runs inside restart(), while the button's widget may be on its way out.
   Future<void> Function()? beforeReturn;
@@ -53,7 +53,16 @@ class _Fake extends DeskUpdateController {
   }
 
   @override
+  Future<bool> retry() async {
+    retries++;
+    return restartOk;
+  }
+
+  @override
   Future<void> check() async {}
+
+  @override
+  Future<void> detect() async {}
 }
 
 void main() {
@@ -187,6 +196,26 @@ void main() {
     expect(opened, [deskReleasesUrl]);
   });
 
+  testWidgets("an update that did not finish: Try again runs it again and quits; one that stops does not", (tester) async {
+    await pump(tester, _state(DeskUpdatePhase.unfinished, inApp: false), restartOk: true);
+    expect(find.text("Update didn't finish. Try again."), findsOneWidget);
+    expect(find.text(_v), findsOneWidget);
+    expect(find.byIcon(EIcons.alert), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(notice());
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+    });
+    await tester.pumpAndSettle();
+    expect(fake.retries, 1);
+    expect(quits, 1);
+
+    await pump(tester, _state(DeskUpdatePhase.unfinished, inApp: false));
+    await tester.tap(notice());
+    await tester.pumpAndSettle();
+    expect(fake.retries, 1);
+    expect(quits, 0);
+  });
+
   testWidgets('in the sidebar above the statuses, and an icon in the narrow rail', (tester) async {
     const shell = DeskShell(at: DeskLocation(DeskRoute.overview));
     await pump(tester, _state(DeskUpdatePhase.available), home: shell);
@@ -205,21 +234,27 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('Settings › About: Download, then Restart to update', (tester) async {
+  testWidgets('Settings › About says what the check found and offers nothing: the notice is the one place', (tester) async {
     const about = Scaffold(body: SettingsAboutScreen());
-    await pump(tester, _state(DeskUpdatePhase.available), home: about);
-    await tester.tap(find.widgetWithText(EButton, 'Download $_v'));
-    await tester.pump();
-    expect(fake.downloads, 1);
-    await tester.pumpWidget(const SizedBox());
-
-    await pump(tester, _state(DeskUpdatePhase.ready), home: about);
-    expect(find.text('$_v is ready'), findsWidgets);
-    expect(find.text('The app closes, installs it and opens again.'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Restart to update'));
-    await tester.pumpAndSettle();
-    expect(fake.restarts, 1);
-    expect(find.widgetWithText(EButton, 'Check now'), findsNothing);
-    await tester.pumpWidget(const SizedBox());
+    for (final (s, checks) in [
+      (_state(DeskUpdatePhase.available), true),
+      (_state(DeskUpdatePhase.available, problem: 'The download stopped.'), true),
+      (_state(DeskUpdatePhase.downloading, progress: 0.42), false),
+      (_state(DeskUpdatePhase.ready), false),
+      (_state(DeskUpdatePhase.ready, problem: 'The new version could not be put in place.'), true),
+      (_state(DeskUpdatePhase.unfinished, inApp: false), false),
+    ]) {
+      final why = '${s.phase} ${s.problem}';
+      await pump(tester, s, home: about);
+      expect(find.text('Update available: $_v'), findsOneWidget, reason: why);
+      expect(find.widgetWithText(EButton, 'Check now'), checks ? findsOneWidget : findsNothing, reason: why);
+      for (final offer in ['Download $_v', 'Restart to update', 'Try again', 'Get $_v', "Update didn't finish. Try again."]) {
+        expect(find.textContaining(offer), findsNothing, reason: '$why: $offer');
+      }
+      expect(find.byType(EProgress), findsNothing, reason: why);
+      await tester.pumpWidget(const SizedBox());
+    }
+    expect(fake.downloads + fake.restarts + fake.retries, 0);
+    expect(opened, isEmpty);
   });
 }

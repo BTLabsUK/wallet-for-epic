@@ -21,8 +21,8 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
   // The words that differ between a computer and a phone.
   final device = phone ? 'โทรศัพท์เครื่องนี้' : 'คอมพิวเตอร์เครื่องนี้';
   final secret = phone ? 'PIN' : 'รหัสผ่านกระเป๋าเงิน';
-  final nodePlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › โหนดและ Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[การตั้งค่า › โหนด|Settings › Node]]';
-  final epicboxPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › โหนดและ Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[การตั้งค่า › การรับเงิน › รับผ่าน Epicbox|Settings › Receiving › Epicbox receiving]]';
+  final nodePlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › โหนด|Settings › Privacy & network › Node]]' : '[[การตั้งค่า › โหนด|Settings › Node]]';
+  final epicboxPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[การตั้งค่า › การรับเงิน › รับผ่าน Epicbox|Settings › Receiving › Epicbox receiving]]';
   final torPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › เครือข่าย Tor|Settings › Privacy & network › Tor Network]]' : '[[การตั้งค่า › ความเป็นส่วนตัว › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[ประวัติ|Activity]] (เปิดรายการ แล้วแตะ ยกเลิกรายการ)'
@@ -74,9 +74,9 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('ไฟล์ทำขั้นตอนเดียวกับ Epicbox แต่ข้อความถูกส่งต่อด้วยมือ เช่น ทางอีเมล แชต หรือ USB ใช้ได้โดยไม่ต้องมี Epicbox และไม่ต้องออนไลน์พร้อมกัน'),
         if (phone)
-          const HelpBlock.ol(['**ผู้ส่ง:** ที่หน้า ส่ง เลือก **ไฟล์** ใส่จำนวน แล้วแชร์ไฟล์ (ลงท้ายด้วย .tx) ตั้งแต่ตอนนี้เอาต์พุตจะถูกล็อก', '**ผู้รับ:** เปิดไฟล์ที่ [[รับ › ไฟล์|Receive › File]] กระเป๋าเงินจะลงนามและแชร์ไฟล์ตอบกลับ (ชื่อขึ้นต้นด้วย finalize_) แล้วส่งไฟล์นั้นคืน', '**ผู้ส่ง:** เปิดไฟล์ตอบกลับที่ [[รับ › ไฟล์|Receive › File]] กระเป๋าเงินจะทำธุรกรรมให้เสร็จและส่งเข้าเครือข่าย'])
+          const HelpBlock.ol(['**ผู้ส่ง:** ที่หน้า ส่ง เลือก **ไฟล์** ใส่จำนวน แล้วแชร์ไฟล์ (ลงท้ายด้วย .tx) ตั้งแต่ตอนนี้เอาต์พุตจะถูกล็อก', '**ผู้รับ:** เปิดไฟล์ที่ [[รับ › ไฟล์|Receive › File]] กระเป๋าเงินจะลงนามและแชร์ไฟล์ตอบกลับ (ลงท้ายด้วย .response) แล้วส่งไฟล์นั้นคืน', '**ผู้ส่ง:** เปิดไฟล์ตอบกลับที่ [[รับ › ไฟล์|Receive › File]] กระเป๋าเงินจะทำธุรกรรมให้เสร็จและส่งเข้าเครือข่าย'])
         else
-          const HelpBlock.ol(['**ผู้ส่ง:** ที่หน้า ส่ง เลือก **ไฟล์** ใส่จำนวน แล้วบันทึกไฟล์ (ลงท้ายด้วย .tx) ตั้งแต่ตอนนี้เอาต์พุตจะถูกล็อก', '**ผู้รับ:** เปิดไฟล์ที่ [[รับ › ไฟล์ธุรกรรม › ลงนามไฟล์ธุรกรรม|Receive › Transaction files › Sign a transaction file]] กระเป๋าเงินจะลงนามและบันทึกไฟล์ตอบกลับ (ชื่อขึ้นต้นด้วย finalize_) แล้วส่งไฟล์นั้นคืน', '**ผู้ส่ง:** เปิดไฟล์ตอบกลับที่ [[รับ › ไฟล์ธุรกรรม › ทำรายการให้เสร็จด้วยไฟล์ตอบกลับ|Receive › Transaction files › Finalize a response file]] กระเป๋าเงินจะทำธุรกรรมให้เสร็จและส่งเข้าเครือข่าย']),
+          const HelpBlock.ol(['**ผู้ส่ง:** ที่หน้า ส่ง เลือก **ไฟล์** ใส่จำนวน แล้วบันทึกไฟล์ (ลงท้ายด้วย .tx) ตั้งแต่ตอนนี้เอาต์พุตจะถูกล็อก', '**ผู้รับ:** เปิดไฟล์ที่ [[รับ › ไฟล์ธุรกรรม › ลงนามไฟล์ธุรกรรม|Receive › Transaction files › Sign a transaction file]] กระเป๋าเงินจะลงนามและบันทึกไฟล์ตอบกลับ (ลงท้ายด้วย .response) แล้วส่งไฟล์นั้นคืน', '**ผู้ส่ง:** เปิดไฟล์ตอบกลับที่ [[รับ › ไฟล์ธุรกรรม › ทำรายการให้เสร็จด้วยไฟล์ตอบกลับ|Receive › Transaction files › Finalize a response file]] กระเป๋าเงินจะทำธุรกรรมให้เสร็จและส่งเข้าเครือข่าย']),
         const HelpBlock.p('กระเป๋าเงิน Epic Cash อื่นอาจเรียกขั้นตอนเหล่านี้ต่างกัน ถ้าไม่ได้รับไฟล์ตอบกลับ ให้ยกเลิกการส่งในประวัติเพื่อปลดล็อกเอาต์พุต'),
       ],
       id: HelpId.file,
