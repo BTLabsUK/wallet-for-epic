@@ -17407,5 +17407,34 @@
         "type": "int"
       }
     }
+  },
+  "deskSetHelpSearch": "Search help",
+  "@deskSetHelpSearch": {
+    "description": "Label and screen reader label of the search field on the Help page."
+  },
+  "deskSetHelpSearchKeys": "Press / to search. Esc clears the search.",
+  "@deskSetHelpSearchKeys": {
+    "description": "Help under the Help page's search field: the / key moves to the search, the Esc key clears it. Keep / and Esc as keys."
+  },
+  "deskSetHelpSearchHint": "For example: file, confirmations, phrase",
+  "@deskSetHelpSearchHint": {
+    "description": "Placeholder in the Help search field: three example words a user might search for (the transaction file, confirmations, the recovery phrase). Use the words the app uses."
+  },
+  "deskSetHelpClear": "Clear search",
+  "@deskSetHelpClear": {
+    "description": "Tooltip and screen reader label of the x button in the Help search field."
+  },
+  "deskSetHelpTourAgain": "Show the tour again",
+  "@deskSetHelpTourAgain": {
+    "description": "Button on the Help page: start the first-run guided tour of the app again."
+  },
+  "deskSetHelpTopics": "{count, plural, one{{count} topic} other{{count} topics}}",
+  "@deskSetHelpTopics": {
+    "description": "Small count at the right of a Help section's head, e.g. '4 topics'.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -21001,6 +21001,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Step {number} of {total}'**
   String deskSetHelpStep(int number, int total);
+
+  /// Label and screen reader label of the search field on the Help page.
+  ///
+  /// In en, this message translates to:
+  /// **'Search help'**
+  String get deskSetHelpSearch;
+
+  /// Help under the Help page's search field: the / key moves to the search, the Esc key clears it. Keep / and Esc as keys.
+  ///
+  /// In en, this message translates to:
+  /// **'Press / to search. Esc clears the search.'**
+  String get deskSetHelpSearchKeys;
+
+  /// Placeholder in the Help search field: three example words a user might search for (the transaction file, confirmations, the recovery phrase). Use the words the app uses.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: file, confirmations, phrase'**
+  String get deskSetHelpSearchHint;
+
+  /// Tooltip and screen reader label of the x button in the Help search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get deskSetHelpClear;
+
+  /// Button on the Help page: start the first-run guided tour of the app again.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the tour again'**
+  String get deskSetHelpTourAgain;
+
+  /// Small count at the right of a Help section's head, e.g. '4 topics'.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} topic} other{{count} topics}}'**
+  String deskSetHelpTopics(int count);
 }
 
 class _AppLocalizationsDelegate

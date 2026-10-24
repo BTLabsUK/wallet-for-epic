@@ -422,6 +422,9 @@ void main() {
       expect(find.text('Choose a node'), findsOneWidget);
       expect(container.read(deskNavProvider).route, DeskRoute.setup);
       await _key(tester, LogicalKeyboardKey.arrowLeft, alt: true);
+      expect(find.text('Preferences'), findsWidgets, reason: 'the language step comes first');
+      expect(container.read(deskNavProvider).route, DeskRoute.setup);
+      await _key(tester, LogicalKeyboardKey.arrowLeft, alt: true);
       expect(container.read(deskNavProvider).route, DeskRoute.overview);
 
       container.read(deskNavProvider.notifier).go(DeskRoute.create, CreateStep.phrase);

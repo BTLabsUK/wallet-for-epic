@@ -52,7 +52,6 @@ const _technicalCalls = <String>{
   'jsonDecode', 'jsonEncode', 'startsWith', 'endsWith', 'contains', 'split', 'replaceAll',
   'getString', 'setString', 'getBool', 'setBool', 'getInt', 'setInt', 'read', 'write', 'delete',
   'debugLabel', 'restorationId', 'Semantics_identifier', 'identifier',
-  'TourTarget', 'tourTarget',
 };
 
 /// Named arguments whose strings are never shown.
