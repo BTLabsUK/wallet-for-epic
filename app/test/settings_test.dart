@@ -504,7 +504,7 @@ void main() {
   });
 
   group('hub', () {
-    testWidgets('shows the seven groups in order, and each opens its page', (
+    testWidgets('shows the groups in order, and each opens its page', (
       tester,
     ) async {
       final h = _Harness();
@@ -516,6 +516,7 @@ void main() {
         settingsGroupKey(SettingsSection.privacyNetwork),
         settingsPushKey,
         settingsGroupKey(SettingsSection.wallet),
+        settingsGroupKey(SettingsSection.transactions),
         settingsGroupKey(SettingsSection.display),
         settingsHelpKey,
         settingsGroupKey(SettingsSection.about),
@@ -528,6 +529,9 @@ void main() {
         last = top;
       }
       for (final section in SettingsSection.values) {
+        // The hub has eight rows now: the last may be below the fold.
+        await tester.ensureVisible(find.byKey(settingsGroupKey(section)));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(settingsGroupKey(section)));
         await tester.pumpAndSettle();
         expect(find.byKey(settingsSectionKey(section)), findsOneWidget);

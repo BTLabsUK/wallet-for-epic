@@ -986,7 +986,7 @@
   "tourPhoneWalletTitle": "Wallet",
   "tourPhoneWalletText": "Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.",
   "tourPhoneSendTitle": "Send",
-  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a transaction file to pass on. A review comes before anything leaves.",
+  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.",
   "tourPhoneReceiveTitle": "Receive",
   "tourPhoneReceiveText": "Your Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.",
   "tourPhoneActivityTitle": "Activity",
@@ -998,7 +998,7 @@
   "tourPhonePrivacyTitle": "Privacy & network",
   "tourPhonePrivacyText": "Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.",
   "tourPhoneAdvancedTitle": "Advanced",
-  "tourPhoneAdvancedText": "Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.",
+  "tourPhoneAdvancedText": "Tor-only mode, outputs and technical details live here. Switch on what you need.",
   "tourPhoneHelpTitle": "Help",
   "tourPhoneHelpText": "Search the topics or send feedback. “Show the tour again” is at the bottom of the list.",
   "tourPhoneShowAgain": "Show the tour again",
@@ -3602,7 +3602,7 @@
   "advTechnical": "Technical details",
   "advTechnicalHint": "Shows the technical rows on a payment's details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.",
   "advSendOptions": "Send options",
-  "advSendOptionsHint": "Shows Strategy for sends and Split change on Outputs: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.",
+  "advSendOptionsHint": "Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.",
   "advDirect": "Direct receiving",
   "advDirectHint": "Gives this phone a second address, reached over Tor. Others can pay it directly, without Epicbox. Works only while the app is open. Adds the Direct method to Send and Receive, and its state to Privacy & network. Stays visible while it is on.",
   "advServerDetails": "Server details",
@@ -3697,5 +3697,65 @@
   "deskSlDefault": "Domyślny",
   "deskSlTesting": "Sprawdzanie {host}…",
   "deskSlSetupEpicboxOn": "Odbieraj przez Epicbox",
-  "deskSlHelpChoose": "Wybierz jeden albo wpisz, aby przefiltrować listę lub dodać serwer."
+  "deskSlHelpChoose": "Wybierz jeden albo wpisz, aby przefiltrować listę lub dodać serwer.",
+  "settingsSectionTransactions": "Transactions",
+  "@settingsSectionTransactions": {
+    "description": "Section heading in settings, and the hub row: how payments are made (the methods, the one Send starts on, the send defaults)."
+  },
+  "settingsHubMethods": "Methods",
+  "@settingsHubMethods": {
+    "description": "Settings hub, state line of the Transactions row: the payment methods."
+  },
+  "settingsHubDefault": "Default",
+  "@settingsHubDefault": {
+    "description": "Settings hub, state line of the Transactions row: the method Send starts on."
+  },
+  "settingsHubSendDefaults": "Send defaults",
+  "@settingsHubSendDefaults": {
+    "description": "Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on."
+  },
+  "txMethodsHeader": "Payment methods",
+  "@txMethodsHeader": {
+    "description": "Header on Settings › Transactions above the three payment methods."
+  },
+  "txAlwaysOn": "Always on",
+  "@txAlwaysOn": {
+    "description": "Second line of the Epicbox row on Settings › Transactions: it has no switch."
+  },
+  "txEpicboxHint": "Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.",
+  "@txEpicboxHint": {
+    "description": "Info sheet text of the Epicbox row on Settings › Transactions."
+  },
+  "txDirectLine": "Pay onion and web addresses; get paid at this phone's Tor address.",
+  "@txDirectLine": {
+    "description": "One line under the Direct switch on Settings › Transactions."
+  },
+  "txDirectHint": "Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.",
+  "@txDirectHint": {
+    "description": "Info sheet text of the Direct switch on Settings › Transactions."
+  },
+  "txFileLine": "Pay or get paid with a file you pass on yourself.",
+  "@txFileLine": {
+    "description": "One line under the File switch on Settings › Transactions."
+  },
+  "txFileHint": "File makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File to Send and Receive.",
+  "@txFileHint": {
+    "description": "Info sheet text of the File switch on Settings › Transactions."
+  },
+  "txStartHeader": "Send starts on",
+  "@txStartHeader": {
+    "description": "Header on Settings › Transactions above the choice of the method Send opens on."
+  },
+  "txStartNote": "You can still pick another method on Send.",
+  "@txStartNote": {
+    "description": "Small line under the choice of the method Send starts on."
+  },
+  "txDefaultsHeader": "Send defaults",
+  "@txDefaultsHeader": {
+    "description": "Header on Settings › Transactions above Strategy and Split change; shown with Advanced › Send options."
+  },
+  "outputsDefaultsMoved": "Send defaults are in Settings › Transactions",
+  "@outputsDefaultsMoved": {
+    "description": "Row on the Outputs page that opens Settings › Transactions, where Strategy for sends and Split change now are."
+  }
 }

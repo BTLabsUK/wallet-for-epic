@@ -6061,7 +6061,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for the Send tab; names the two payment methods shown by default.
   ///
   /// In en, this message translates to:
-  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a transaction file to pass on. A review comes before anything leaves.'**
+  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.'**
   String get tourPhoneSendText;
 
   /// Title of the tour card for the Receive tab (first-unlock tour). Short.
@@ -6133,7 +6133,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for Settings › Advanced; the tour itself switches nothing on.
   ///
   /// In en, this message translates to:
-  /// **'Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.'**
+  /// **'Tor-only mode, outputs and technical details live here. Switch on what you need.'**
   String get tourPhoneAdvancedText;
 
   /// Title of the tour card for the Help screen (first-unlock tour). Short.
@@ -21767,7 +21767,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Send options switch.
   ///
   /// In en, this message translates to:
-  /// **'Shows Strategy for sends and Split change on Outputs: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.'**
+  /// **'Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.'**
   String get advSendOptionsHint;
 
   /// Advanced switch: the Direct (Tor) method.
@@ -22339,6 +22339,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick one, or type to filter the list or add a server.'**
   String get deskSlHelpChoose;
+
+  /// Section heading in settings, and the hub row: how payments are made (the methods, the one Send starts on, the send defaults).
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get settingsSectionTransactions;
+
+  /// Settings hub, state line of the Transactions row: the payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'Methods'**
+  String get settingsHubMethods;
+
+  /// Settings hub, state line of the Transactions row: the method Send starts on.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get settingsHubDefault;
+
+  /// Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Send defaults'**
+  String get settingsHubSendDefaults;
+
+  /// Header on Settings › Transactions above the three payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment methods'**
+  String get txMethodsHeader;
+
+  /// Second line of the Epicbox row on Settings › Transactions: it has no switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Always on'**
+  String get txAlwaysOn;
+
+  /// Info sheet text of the Epicbox row on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.'**
+  String get txEpicboxHint;
+
+  /// One line under the Direct switch on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay onion and web addresses; get paid at this phone\'s Tor address.'**
+  String get txDirectLine;
+
+  /// Info sheet text of the Direct switch on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.'**
+  String get txDirectHint;
+
+  /// One line under the File switch on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay or get paid with a file you pass on yourself.'**
+  String get txFileLine;
+
+  /// Info sheet text of the File switch on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'File makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File to Send and Receive.'**
+  String get txFileHint;
+
+  /// Header on Settings › Transactions above the choice of the method Send opens on.
+  ///
+  /// In en, this message translates to:
+  /// **'Send starts on'**
+  String get txStartHeader;
+
+  /// Small line under the choice of the method Send starts on.
+  ///
+  /// In en, this message translates to:
+  /// **'You can still pick another method on Send.'**
+  String get txStartNote;
+
+  /// Header on Settings › Transactions above Strategy and Split change; shown with Advanced › Send options.
+  ///
+  /// In en, this message translates to:
+  /// **'Send defaults'**
+  String get txDefaultsHeader;
+
+  /// Row on the Outputs page that opens Settings › Transactions, where Strategy for sends and Split change now are.
+  ///
+  /// In en, this message translates to:
+  /// **'Send defaults are in Settings › Transactions'**
+  String get outputsDefaultsMoved;
 }
 
 class _AppLocalizationsDelegate

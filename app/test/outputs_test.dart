@@ -9,7 +9,6 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/secret_store.dart';
-import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/smart_outputs.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/info_hint.dart';
@@ -17,6 +16,7 @@ import 'package:epic_wallet/src/ui/outputs_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
+import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -29,6 +29,8 @@ import 'package:flutter_test/flutter_test.dart';
 const String _pin = '123456';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
+
+const _sendOptions = AdvancedPrefs(features: {AdvancedFeature.sendOptions});
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -143,7 +145,12 @@ class _Harness {
   final bio = MemoryBiometricStore();
   late final service = FakeWalletService(session: session);
 
-  Future<ProviderContainer> pump(WidgetTester tester, Widget home, {double width = 360}) async {
+  Future<ProviderContainer> pump(
+    WidgetTester tester,
+    Widget home, {
+    double width = 360,
+    AdvancedPrefs advanced = AdvancedPrefs.none,
+  }) async {
     tester.view.physicalSize = Size(width * 3, 4000);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -165,6 +172,7 @@ class _Harness {
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) => AdvancedOptions(prefs: advanced, child: child!),
           home: home,
         ),
       ),
@@ -292,7 +300,7 @@ void main() {
     tester,
   ) async {
     final h = _Harness();
-    await h.pump(tester, const OutputsScreen());
+    await h.pump(tester, const OutputsScreen(), advanced: _sendOptions);
     // Filters, then the header, then the rows.
     final filters = tester.getTopLeft(find.text(_l.outputsFilterAll(5))).dy;
     final head = tester.getTopLeft(find.text(_l.outputsColState)).dy;
@@ -311,8 +319,7 @@ void main() {
     for (final label in [
       _l.outputsSplitButton,
       _l.outputsConsolidateButton,
-      _l.outputsStrategy,
-      _l.outputsSplitChange,
+      _l.outputsDefaultsMoved,
     ]) {
       expect(
         tester.getTopLeft(find.text(label)).dy,
@@ -326,41 +333,28 @@ void main() {
     final h = _Harness();
     await h.pump(tester, const OutputsScreen());
     expect(find.textContaining('pieces the balance is made of'), findsNothing);
-    // The Strategy and Split change explanations sit behind info icons, not under the rows.
-    expect(find.text(_l.outputsStrategyHint), findsNothing);
-    expect(find.text(_l.outputsSplitChangeText), findsNothing);
-    expect(find.byType(InfoHint), findsNWidgets(2));
+    // The send defaults moved to Settings › Transactions: nothing of them here without Send
+    // options, and only a line pointing there with it.
+    expect(find.text(_l.outputsStrategy), findsNothing);
+    expect(find.text(_l.outputsSplitChange), findsNothing);
+    expect(find.text(_l.outputsDefaultsMoved), findsNothing);
+    expect(find.byType(InfoHint), findsNothing);
     expect(find.byType(Tooltip), findsNothing);
   });
 
-  testWidgets('android-18: the info icon opens a sheet with the title and the whole text', (
+  testWidgets('Send options on: one line points to Settings › Transactions, nothing duplicated', (
     tester,
   ) async {
     final h = _Harness();
-    await h.pump(tester, const OutputsScreen());
-    await tester.tap(
-      find.byWidgetPredicate((w) => w is InfoHint && w.title == _l.outputsSplitChange),
-    );
+    await h.pump(tester, const OutputsScreen(), advanced: _sendOptions);
+    expect(find.text(_l.outputsStrategy), findsNothing);
+    expect(find.text(_l.outputsSplitChange), findsNothing);
+    await tester.tap(find.byKey(outputsDefaultsLinkKey));
     await tester.pumpAndSettle();
-    final sheet = find.byType(InfoSheet);
-    expect(sheet, findsOneWidget);
-    expect(find.descendant(of: sheet, matching: find.text(_l.outputsSplitChange)), findsOneWidget);
-    expect(find.descendant(of: sheet, matching: find.text(_l.outputsSplitChangeText)), findsOneWidget);
-    // The whole text is drawn, not cut.
-    final text = tester.renderObject<RenderParagraph>(
-      find.descendant(of: sheet, matching: find.text(_l.outputsSplitChangeText)),
+    expect(
+      find.byKey(settingsSectionKey(SettingsSection.transactions)),
+      findsOneWidget,
     );
-    expect(text.didExceedMaxLines, isFalse);
-    expect(text.size.height, greaterThan(text.textSize.height / 2));
-    await tester.tap(find.widgetWithText(TextButton, _l.commonClose));
-    await tester.pumpAndSettle();
-    expect(sheet, findsNothing);
-    // The Strategy row has one too.
-    await tester.tap(
-      find.byWidgetPredicate((w) => w is InfoHint && w.title == _l.outputsStrategy),
-    );
-    await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(InfoSheet), matching: find.text(_l.outputsStrategyHint)), findsOneWidget);
   });
 
   testWidgets('android-19: a row note that does not fit wraps instead of being cut', (
@@ -556,24 +550,6 @@ void main() {
     expect(find.text(_l.outputsWaitLocked), findsOneWidget);
   });
 
-  testWidgets('the strategy is saved and shown in Settings', (tester) async {
-    final h = _Harness();
-    final container = await h.pump(tester, const OutputsScreen());
-    expect(find.text(_l.outputsSmallest), findsOneWidget);
-    await tester.tap(find.text(_l.outputsStrategy));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(_l.outputsAll));
-    await tester.pumpAndSettle();
-    expect(
-      container.read(appSettingsProvider).value?.sendStrategy,
-      SelectionStrategy.all,
-    );
-    expect(h.store.values['app.send_strategy'], 'all');
-    await tester.tap(find.byType(Switch));
-    await tester.pumpAndSettle();
-    expect(container.read(appSettingsProvider).value?.splitChange, isFalse);
-  });
-
   testWidgets('Settings › Wallet lists Outputs with its count and strategy', (
     tester,
   ) async {
@@ -582,6 +558,7 @@ void main() {
     await h.pump(
       tester,
       const SettingsSectionScreen(section: SettingsSection.wallet),
+      advanced: const AdvancedPrefs(features: {AdvancedFeature.outputs}),
     );
     await tester.scrollUntilVisible(
       find.text(_l.outputsTitle),

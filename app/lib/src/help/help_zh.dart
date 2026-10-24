@@ -143,7 +143,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**最小** 按金额对可用输出排序，从最小的开始取，直到覆盖金额和手续费。发送确认期间只锁定这些输出；其余可以立即发送。'),
         HelpBlock.p('**全部** 花掉每一个可用输出，并退回一个找零输出。所有资金锁定 $confirmations 个区块，钱包最终的输出更少、更大，手续费也略高，因为每个输入都有成本。发送全部余额时总是使用“全部”。'),
         if (phone)
-          const HelpBlock.p('默认方式在[[输出 › 高级|Outputs › Manage outputs]]中设置。')
+          const HelpBlock.p('默认方式在[[设置 › Transactions|Settings › Transactions]]中设置。')
         else
           const HelpBlock.p('默认方式在[[输出 › 高级|Outputs › Manage outputs]]中设置；“发送”可在 **高级** 中为单次发送更改。'),
       ],

@@ -23,6 +23,7 @@ import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -208,11 +209,14 @@ class _Host extends ConsumerWidget {
 }
 
 class _Harness {
-  _Harness({this.price, bool scanSupported = true, this.advanced = false})
+  _Harness({this.price, bool scanSupported = true, this.advanced = false, this.direct = false})
     : scanner = FakeQrScanner(supported: scanSupported);
 
   /// Advanced options, as `MaterialApp.builder` in the app would provide it.
   final bool advanced;
+
+  /// Settings › Transactions › Direct on.
+  final bool direct;
 
   final session = _funded();
   late final service = FakeWalletService()
@@ -242,7 +246,10 @@ class _Harness {
         retry: (_, _) => null,
         overrides: [
           walletServiceProvider.overrideWithValue(service),
-          secretStoreProvider.overrideWithValue(sendPinStore()),
+          secretStoreProvider.overrideWithValue(
+            sendPinStore()
+              ..values['app.payment_prefs'] = PaymentPrefs(direct: direct).encode(),
+          ),
           slateFilesProvider.overrideWithValue(files),
           qrScannerProvider.overrideWithValue(scanner),
           priceSourceProvider.overrideWithValue(_FixedPrice(price)),
@@ -2229,7 +2236,7 @@ void main() {
   });
 
   group('advanced options', () {
-    testWidgets('send offers the file always, Direct with its switch', (
+    testWidgets('send offers the file by default, Direct with its switch in Settings › Transactions', (
       tester,
     ) async {
       final off = _Harness();
@@ -2240,7 +2247,7 @@ void main() {
 
       // A fresh tree, so the screen's state starts over.
       await tester.pumpWidget(const SizedBox());
-      final on = _Harness(advanced: true);
+      final on = _Harness(direct: true);
       await on.pump(tester, _sendTab());
       expect(find.text('File'), findsOneWidget);
       expect(find.text('Direct'), findsOneWidget);
