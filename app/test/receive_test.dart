@@ -651,9 +651,9 @@ void main() {
       await _tap(tester, find.text('Accept payment'));
       expect(h.session.receivedSlates, [incoming]);
       await _tap(tester, find.text('Save to device'));
-      expect(h.files.saved.single.name, 'from-bob.tx.response');
+      expect(h.files.saved.single.name, 'incoming.response');
       await _tap(tester, find.text('Share'));
-      expect(h.files.shared.single.name, 'from-bob.tx.response');
+      expect(h.files.shared.single.name, 'incoming.response');
       expect(find.text('Copy reply'), findsNothing);
     });
 
@@ -694,13 +694,13 @@ void main() {
       await _tap(tester, find.text('Accept payment'));
       expect(h.session.receivedSlates, [incoming]);
       expect(
-        find.text('Accepted. Return incoming.tx.response to the sender.'),
+        find.text('Accepted. Return incoming.response to the sender.'),
         findsOneWidget,
       );
       await _tap(tester, find.text('Copy reply'));
       expect(h.copied, [h.session.responseSlate.json]);
       await _tap(tester, find.text('Save to device'));
-      expect(h.files.saved.single.name, 'incoming.tx.response');
+      expect(h.files.saved.single.name, 'incoming.response');
       expect(h.files.saved.single.json, h.session.responseSlate.json);
     });
   });

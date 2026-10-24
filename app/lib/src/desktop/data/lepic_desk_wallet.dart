@@ -47,7 +47,7 @@ import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
 import '../../seed_contacts.dart';
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
-import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName;
+import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName, uniqueFileName;
 import '../../tor_location.dart';
 import '../../updater.dart' show updateStateKey;
 import '../../wallet_registry.dart' as reg;
@@ -2193,7 +2193,7 @@ class LepicDeskWallet implements DeskWalletApi {
           try {
             final dir = await _filesDir();
             await dir.create(recursive: true);
-            file = File('${dir.path}${Platform.pathSeparator}${sendFileName(slate.slateId)}');
+            file = File('${dir.path}${Platform.pathSeparator}${uniqueFileName(sendFileName(slate.slateId), (n) => File('${dir.path}${Platform.pathSeparator}$n').existsSync())}');
             await file.writeAsString(slate.json, flush: true);
           } on FileSystemException catch (e) {
             // The payment exists in the wallet; only its file is missing.
@@ -2309,7 +2309,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   /// Signs the slate in [fileName] (a path) and writes the answer beside it, as
-  /// `<name>.response` (epic-wallet's `receive -i`); in the app's files folder when that folder
+  /// `<first 8 of the slate id>.response`; in the app's files folder when that folder
   /// cannot be written.
   @override
   Future<ReceivedFile> receiveFile(String fileName) => _running(() => _receiveFile(fileName));
@@ -2318,7 +2318,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final json = await _readSlate(fileName);
     try {
       final answer = await _open.receiveSlate(slateJson: json);
-      final response = await _writeResponse(fileName, answer.json);
+      final response = await _writeResponse(fileName, answer.slateId, answer.json);
       await _reload();
       final tx = _txs().where((t) => t.slateId == answer.slateId).firstOrNull ??
           Tx(id: -1, slateId: answer.slateId, direction: TxDirection.received, state: TxState.posted, method: TxMethod.file, amount: 0, fee: 0, created: DateTime.now(), counterparty: fileName);
@@ -2330,8 +2330,11 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Writes the response beside [fileName], or in the app's files folder when that fails.
   /// Returns the path written.
-  Future<String> _writeResponse(String fileName, String json) async {
-    final beside = responseFileName(fileName);
+  Future<String> _writeResponse(String fileName, String slateId, String json) async {
+    final sep = Platform.pathSeparator;
+    final dirOf = File(fileName).parent.path;
+    final name = responseFileName(slateId);
+    final beside = '$dirOf$sep${uniqueFileName(name, (n) => File('$dirOf$sep$n').existsSync())}';
     try {
       await File(beside).writeAsString(json, flush: true);
       return beside;
@@ -2341,7 +2344,7 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       final dir = await _filesDir();
       await dir.create(recursive: true);
-      final path = '${dir.path}${Platform.pathSeparator}${File(beside).uri.pathSegments.last}';
+      final path = '${dir.path}$sep${uniqueFileName(name, (n) => File('${dir.path}$sep$n').existsSync())}';
       await File(path).writeAsString(json, flush: true);
       return path;
     } on FileSystemException {

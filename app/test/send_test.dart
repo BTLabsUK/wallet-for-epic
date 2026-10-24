@@ -2180,14 +2180,14 @@ void main() {
       expect(h.session.transactionsCalls, loads);
       expect(
         find.text(
-          'Already accepted. Return from-bob.tx.response to the sender again.',
+          'Already accepted. Return incoming.response to the sender again.',
         ),
         findsOneWidget,
       );
       expect(find.textContaining('not a second payment'), findsOneWidget);
       expect(find.textContaining('Accepted. Return'), findsNothing);
       await _tap(tester, find.text('Save to device'));
-      expect(h.files.saved.single.name, 'from-bob.tx.response');
+      expect(h.files.saved.single.name, 'incoming.response');
       expect(h.files.saved.single.json, h.session.responseSlate.json);
     });
 
