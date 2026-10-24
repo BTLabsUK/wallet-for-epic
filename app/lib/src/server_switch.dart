@@ -24,6 +24,9 @@ Future<bool> switchServersLive(
   String? nodeApiSecret,
   required EpicboxRelay relay,
 }) async {
+  // The screen that asked may close before the switch ends (it waits for a payment in hand):
+  // the wallet's state is updated through the container, which outlives it.
+  final container = ProviderScope.containerOf(ref.context, listen: false);
   final choice = await ref.read(networkChoiceProvider.future);
   final session = ref.read(sessionProvider);
   final opened = ref.read(walletConfigProvider);
@@ -56,18 +59,19 @@ Future<bool> switchServersLive(
     'switched live: node ${Uri.tryParse(nodeUrl)?.host ?? '?'}, relay ${relay.label}',
   );
   // The session may have been locked while the switch ran; then the next open reads the save.
-  if (!ref.context.mounted || ref.read(sessionProvider) != session) return true;
-  // Own addresses carry the relay: addressProvider and invoiceAddressProvider read again.
-  ref.read(walletConfigProvider.notifier).select(next);
+  if (container.read(sessionProvider) != session) return true;
+  // Own addresses carry the relay (addressProvider and invoiceAddressProvider read again), and
+  // push follows it.
+  container.read(walletConfigProvider.notifier).select(next);
   if (relayChanged) {
     // LEPIC moves a running listener itself; one that had stopped starts on the new relay.
-    final listener = ref.read(listenerProvider);
+    final listener = container.read(listenerProvider);
     if (listener.stopped || listener.lost) {
-      await ref.read(listenerProvider.notifier).restart();
+      await container.read(listenerProvider.notifier).restart();
     }
   }
-  ref.invalidate(nodeTipProvider);
-  ref.invalidate(homeProvider);
+  container.invalidate(nodeTipProvider);
+  container.invalidate(homeProvider);
   return true;
 }
 
