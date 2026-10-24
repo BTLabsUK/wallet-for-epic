@@ -256,11 +256,12 @@ ScannedCode _bare(String text, AddressCheck check) {
   };
 }
 
-/// Strips `mailto:` and an `http(s)://` in front of an Epicbox address (Stack Wallet's
-/// `formatEpicCashAddress`).
+/// Strips `mailto:`, an `http(s)://` in front of an Epicbox address and a `/` after it
+/// (Stack Wallet's `formatEpicCashAddress`).
 String _unwrap(String text) {
   var t = text;
   if (t.toLowerCase().startsWith('mailto:')) t = t.substring(7);
+  if (t.contains('@') && t.endsWith('/')) t = t.substring(0, t.length - 1);
   final m = RegExp(r'^https?://', caseSensitive: false).firstMatch(t);
   if (m != null) {
     final after = t.substring(m.end);
@@ -271,20 +272,30 @@ String _unwrap(String text) {
   return t;
 }
 
-/// [text] as a recipient of the kind its form says, or null when it has no address form or a
-/// host that is not plain ASCII (a look-alike letter could pass for another host).
+/// [text] as a recipient of the kind its form says, or null when it has no address form, a
+/// host that is not plain ASCII (a look-alike letter could pass for another host), whitespace
+/// (an address is taken verbatim, never mended) or, for a URL, not a [_directUrl].
 Recipient? _recipientOf(String text) {
-  if (text.isEmpty || text.contains('%')) return null;
+  if (text.isEmpty || text.contains('%') || RegExp(r'\s').hasMatch(text)) {
+    return null;
+  }
   final to = parseRecipient(text);
   if (!recipientShaped(to)) return null;
   if (!RegExp(r'^[\x21-\x7e]+$').hasMatch(to.address)) return null;
-  if (to.kind == RecipientKind.http && !httpAddressComplete(to.address)) {
-    return null;
-  }
+  if (to.kind == RecipientKind.http && !_directUrl(to.address)) return null;
   if (to.kind == RecipientKind.epicbox && !to.address.contains('@')) {
     return null;
   }
   return to;
+}
+
+/// Whether [url] is a whole Direct URL Send takes, with none of what could hide its host: no
+/// query or fragment, no `@` (a user part, even an empty one), no IPv6 literal (Send takes
+/// none; `[::ffff:1.2.3.4]` would pass its name check) and no empty port (`host:`).
+bool _directUrl(String url) {
+  if (!httpAddressComplete(url) || url.contains(RegExp('[?#@]'))) return false;
+  if (Uri.parse(url).host.contains(':')) return false;
+  return !RegExp(r'^https?://[^/]*:(/|$)', caseSensitive: false).hasMatch(url);
 }
 
 ScannedCode _payment(String text, String rest, AddressCheck check) {
@@ -411,7 +422,15 @@ String? _decodeOnce(String raw) {
       bytes.add(int.parse(pair, radix: 16));
       i += 2;
     } else {
-      bytes.addAll(utf8.encode(String.fromCharCode(c)));
+      // A run at a time, so a character outside the BMP keeps its surrogate pair.
+      var end = i + 1;
+      while (end < raw.length &&
+          raw.codeUnitAt(end) != 0x25 &&
+          raw.codeUnitAt(end) != 0x2b) {
+        end++;
+      }
+      bytes.addAll(utf8.encode(raw.substring(i, end)));
+      i = end - 1;
     }
   }
   try {
@@ -447,18 +466,20 @@ final RegExp _amountShape = RegExp(r'^(0|[1-9][0-9]*)(\.[0-9]{1,8})?$');
 }
 
 /// Characters never shown from an outside text: controls, line and paragraph separators,
-/// zero-width and direction marks, embeddings, overrides, isolates, word joiners and the BOM.
-/// The union of the app's cleaners (relay operators, wallet labels, the public lists).
+/// zero-width and direction marks (the Arabic letter mark too), embeddings, overrides,
+/// isolates, word joiners and the BOM. The union of the app's cleaners (relay operators, wallet
+/// labels, the public lists).
 final RegExp untrustedTextForbidden = RegExp(
-  r'[\p{Cc}\u2028\u2029\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFEFF]',
+  r'[\p{Cc}\u061C\u2028\u2029\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFEFF]',
   unicode: true,
 );
 
-/// [text] from outside (a code's note or name) as plain text safe to show: forbidden
-/// characters removed, whitespace collapsed to single spaces, trimmed; null when nothing is
-/// left.
+/// [text] from outside (a code's note or name) as plain text safe to show: line breaks and
+/// tabs made spaces (so two lines do not run into one word), forbidden characters removed,
+/// whitespace collapsed to single spaces, trimmed; null when nothing is left.
 String? cleanUntrustedText(String text) {
   final clean = text
+      .replaceAll(RegExp('[\t\n\v\f\r\u0085  ]'), ' ')
       .replaceAll(untrustedTextForbidden, '')
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
@@ -477,11 +498,13 @@ abstract final class EpicUri {
     String? direct,
   }) {
     final params = <String>[
-      if (amount != null && amount > BigInt.zero) 'amount=${formatEpic(amount)}',
+      if (amount != null && amount > BigInt.zero)
+        'amount=${formatEpic(amount)}',
       if (note != null && note.isNotEmpty) 'message=${encodeUriValue(note)}',
       if (label != null && label.isNotEmpty) 'label=${encodeUriValue(label)}',
       if (method != null) 'method=${method.name}',
-      if (direct != null && direct.isNotEmpty) 'direct=${encodeUriValue(direct)}',
+      if (direct != null && direct.isNotEmpty)
+        'direct=${encodeUriValue(direct)}',
     ];
     return params.isEmpty
         ? '$epicUriScheme:$address'
