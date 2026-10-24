@@ -1,4 +1,4 @@
-/// Settings › Receiving › HTTP receiving (G01, G03, G04, G06): Reachable (Local only / From the
+/// Settings › Transactions › Direct (HTTP receiving) (G01, G03, G04, G06): Reachable (Local only / From the
 /// internet, with the guide) and the port. HTTP answers from the internet only after the
 /// guide's "Receive from the internet".
 library;

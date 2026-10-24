@@ -42,7 +42,6 @@
   "deskOutTileImmature": "Не созрело",
   "deskOutTileLocked": "Заблокировано в отправках",
   "deskOutTileTotal": "Всего",
-  "deskOutDefaultsTitle": "Настройки отправок по умолчанию",
   "deskOutAdvanced": "Управление выходами",
   "deskOutStrategyTitle": "Стратегия отправок",
   "deskOutStrategyHint": "Какие выходы тратит отправка. «Наименьшие» тратит как можно меньше мелких выходов, остальные остаются доступными; «Все» тратит всё и возвращает один выход. На странице «Отправить» её можно изменить для одной отправки в разделе «Дополнительно».",
@@ -119,5 +118,7 @@
   "deskOutConsDesc": "Один выход вместо многих.",
   "deskOutNothingText": "Нечего объединять: у кошелька {what}. Объединение сливает несколько выходов в один.",
   "deskOutWhatFewer": "меньше двух доступных выходов",
-  "deskOutWhatOne": "один доступный выход"
+  "deskOutWhatOne": "один доступный выход",
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
+  "deskOutDefaultsOpen": "Open Transactions"
 }

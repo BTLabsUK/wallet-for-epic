@@ -32,7 +32,8 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.outputs => l.deskSetAdvOutputs,
   AdvancedFeature.technicalDetails => l.deskSetAdvTechnical,
   AdvancedFeature.sendOptions => l.deskSetAdvSendOptions,
-  AdvancedFeature.directReceiving => l.deskSetAdvDirect,
+  // Direct moved to Settings › Transactions: nothing on the Advanced page switches it.
+  AdvancedFeature.directReceiving => l.deskSendMethodDirect,
   AdvancedFeature.serverDetails => l.deskSetAdvServerDetails,
   AdvancedFeature.recheckFromHeight => l.deskSetAdvRecheck,
   AdvancedFeature.builtInNode => l.deskSetAdvBuiltInNode,
@@ -99,7 +100,8 @@ class _ShowsGroup extends ConsumerWidget {
         onChanged: shown ? (v) => set(f, v) : null,
       ),
     );
-    final on = adv.features.length;
+    // The stored set may still hold directReceiving (before 26.10.13): it counts for nothing here.
+    final on = adv.features.where((f) => f != AdvancedFeature.directReceiving).length;
     return ESetGroup(
       title: l.deskSetAdvShows,
       trailing: Row(
@@ -124,8 +126,6 @@ class _ShowsGroup extends ConsumerWidget {
         if (DeskFeatures.coins) row(AdvancedFeature.outputs, l.deskSetAdvOutputsHint),
         row(AdvancedFeature.technicalDetails, l.deskSetAdvTechnicalHint),
         row(AdvancedFeature.sendOptions, l.deskSetAdvSendOptionsHint),
-        if (DeskFeatures.httpDirect || DeskFeatures.tor)
-          row(AdvancedFeature.directReceiving, l.deskSetAdvDirectHint),
         row(AdvancedFeature.serverDetails, l.deskSetAdvServerDetailsHint),
         row(AdvancedFeature.recheckFromHeight, l.deskSetAdvRecheckHint),
         if (DeskFeatures.builtInNode) row(AdvancedFeature.builtInNode, l.deskSetAdvBuiltInNodeHint),

@@ -18,7 +18,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'diesem Smartphone' : 'diesem Computer';
   final secret = phone ? 'Ihre PIN' : 'das Wallet-Passwort';
   final nodePlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Node|Settings › Privacy & network › Node]]' : '[[Einstellungen › Node|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Einstellungen › Empfangen › Epicbox-Empfang|Settings › Receiving › Epicbox receiving]]';
+  final epicboxPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Einstellungen › Transactions › Epicbox-Empfang|Settings › Transactions › Epicbox receiving]]';
   final torPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Tor-Netzwerk|Settings › Privacy & network › Tor Network]]' : '[[Einstellungen › Datenschutz › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[Aktivität|Activity]] (die Zahlung öffnen, dann „Zahlung stornieren“)'
@@ -341,7 +341,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder tippen Sie im Tab Wallet auf die Epicbox-Zeile und wählen Sie einen anderen Server. In der Zwischenzeit funktioniert eine Datei.')
         else
-          const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder wählen Sie unter [[Einstellungen › Empfangen|Settings › Receiving]] einen anderen Server. In der Zwischenzeit funktioniert eine Datei.'),
+          const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder wählen Sie unter [[Einstellungen › Transactions|Settings › Transactions]] einen anderen Server. In der Zwischenzeit funktioniert eine Datei.'),
         const HelpBlock.p('**Eine Zahlung zeigt „Wartet auf den Empfänger“.** Die Wallet des Empfängers hat noch nicht geantwortet. Bitten Sie ihn, sie zu öffnen. Wird er das nie tun, stornieren Sie die Zahlung unter Aktivität, um die Outputs freizugeben.'),
         if (phone)
           const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie im Tab Wallet, ob der Node synchronisiert und Epicbox online ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.')

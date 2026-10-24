@@ -42,7 +42,6 @@
   "deskOutTileImmature": "未成熟",
   "deskOutTileLocked": "发送中锁定",
   "deskOutTileTotal": "总额",
-  "deskOutDefaultsTitle": "发送的默认设置",
   "deskOutAdvanced": "管理输出",
   "deskOutStrategyTitle": "发送策略",
   "deskOutStrategyHint": "一笔发送花掉哪些输出。“最小”花掉最少的小额输出，其余仍可使用；“全部”花掉所有输出，并返回一个输出。可在“发送”页的“高级”中为单次发送更改。",
@@ -119,5 +118,7 @@
   "deskOutConsDesc": "用一个输出代替多个。",
   "deskOutNothingText": "无需合并：钱包只有{what}。合并会把多个输出合为一个。",
   "deskOutWhatFewer": "不到两个可用输出",
-  "deskOutWhatOne": "一个可用输出"
+  "deskOutWhatOne": "一个可用输出",
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
+  "deskOutDefaultsOpen": "Open Transactions"
 }

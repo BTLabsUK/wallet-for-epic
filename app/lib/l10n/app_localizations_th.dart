@@ -6917,7 +6917,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'โปรแกรมบนคอมพิวเตอร์นี้จ่ายมาที่ที่อยู่นี้ได้ สำหรับอุปกรณ์อื่น ดูที่ การตั้งค่า › การรับเงิน';
+      'Programs on this computer can pay this address. For other devices, see Settings › Transactions.';
 
   @override
   String get deskRecvHttpIntro =>
@@ -8225,9 +8225,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOutTileTotal => 'รวม';
-
-  @override
-  String get deskOutDefaultsTitle => 'ค่าเริ่มต้นสำหรับการส่ง';
 
   @override
   String get deskOutStrategyTitle => 'วิธีเลือกเอาต์พุตตอนส่ง';
@@ -11265,9 +11262,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetFrameNode => 'โหนด';
 
   @override
-  String get deskSetFrameReceiving => 'การรับเงิน';
-
-  @override
   String get deskSetFramePrivacy => 'ความเป็นส่วนตัว';
 
   @override
@@ -13585,13 +13579,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'เพิ่มส่วนที่พับได้ใน ส่ง ซึ่งการส่งครั้งเดียวเลือกได้ว่าจะใช้เอาต์พุตไหน เล็กสุด หรือ ทั้งหมด และจะแยกเงินทอนหรือไม่ ค่าเริ่มต้นยังอยู่ที่ เอาต์พุต';
 
   @override
-  String get deskSetAdvDirect => 'การรับแบบส่งตรง';
-
-  @override
-  String get deskSetAdvDirectHint =>
-      'ให้คอมพิวเตอร์เครื่องนี้มีที่อยู่ของตัวเอง ผ่าน HTTP หรือ Tor คนอื่นจ่ายมาที่นี่ได้โดยตรง ไม่ต้องผ่าน Epicbox ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ เพิ่มวิธีส่งตรงใน ส่ง เพิ่มที่อยู่ใน รับ และเพิ่มการตั้งค่าของมันใน การรับเงิน ตัวรับที่เปิดอยู่จะคงแถวของมันไว้';
-
-  @override
   String get deskSetAdvServerDetails => 'รายละเอียดเซิร์ฟเวอร์';
 
   @override
@@ -14001,4 +13988,42 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskNetOfflineNoPeers =>
       'Your node has no peers: the payment waits in its pool until it reconnects.';
+
+  @override
+  String get deskOutDefaultsMoved =>
+      'The strategy and Split change for sends are set in Settings › Transactions.';
+
+  @override
+  String get deskOutDefaultsOpen => 'Open Transactions';
+
+  @override
+  String get deskSetFrameTransactions => 'Transactions';
+
+  @override
+  String get deskSetTxMethods => 'Payment methods';
+
+  @override
+  String get deskSetTxAlwaysOn => 'Always on';
+
+  @override
+  String get deskSetTxEpicboxHint =>
+      'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.';
+
+  @override
+  String get deskSetTxDirectHint =>
+      'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.';
+
+  @override
+  String get deskSetTxFileHint =>
+      'Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.';
+
+  @override
+  String get deskSetTxSend => 'Send';
+
+  @override
+  String get deskSetTxStart => 'Send starts on';
+
+  @override
+  String get deskSetTxStartHint =>
+      'The method the Send page opens with. You can still change it for one payment on Send.';
 }

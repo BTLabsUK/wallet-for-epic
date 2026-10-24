@@ -602,7 +602,7 @@ String httpProblemText(AppLocalizations l, HttpProblem p, int port) => switch (p
   HttpProblem.stopped => l.deskErrStoppedWithError,
 };
 
-/// The Tor line of the status card and Settings › Receiving: what tor is doing now.
+/// The Tor line of the status card and Settings › Transactions: what tor is doing now.
 String torStatusLine(AppLocalizations l, ServiceStatus s) {
   if (!s.torIncluded) return l.deskErrTorMissing;
   return switch (s.tor) {

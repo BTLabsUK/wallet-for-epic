@@ -9052,7 +9052,7 @@
       }
     }
   },
-  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Receiving.",
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },
@@ -10732,10 +10732,6 @@
   "deskOutTileTotal": "Total",
   "@deskOutTileTotal": {
     "description": "Label of a balance tile on Outputs: the whole balance. Narrow tile."
-  },
-  "deskOutDefaultsTitle": "Defaults for sends",
-  "@deskOutDefaultsTitle": {
-    "description": "Title of the panel on Outputs with the settings Send uses."
   },
   "deskOutStrategyTitle": "Strategy for sends",
   "@deskOutStrategyTitle": {
@@ -14944,10 +14940,6 @@
   "@deskSetFrameNode": {
     "description": "Settings sidebar entry and page name for the node section. Narrow (about 200 px)."
   },
-  "deskSetFrameReceiving": "Receiving",
-  "@deskSetFrameReceiving": {
-    "description": "Settings sidebar entry and page name for how this wallet receives payments. Narrow."
-  },
   "deskSetFramePrivacy": "Privacy",
   "@deskSetFramePrivacy": {
     "description": "Settings sidebar entry and page name for privacy and network routing. Narrow."
@@ -18155,14 +18147,6 @@
   "@deskSetAdvSendOptionsHint": {
     "description": "Hover card of the Send options switch."
   },
-  "deskSetAdvDirect": "Direct receiving",
-  "@deskSetAdvDirect": {
-    "description": "Advanced switch: HTTP and Tor receiving."
-  },
-  "deskSetAdvDirectHint": "Gives this computer its own address, over HTTP or Tor. Others can pay it directly, without Epicbox. Works only while the wallet is open. Adds the Direct method to Send, the addresses to Receive, and their settings under Receiving. A listener that is on keeps its rows.",
-  "@deskSetAdvDirectHint": {
-    "description": "Hover card of the Direct receiving switch."
-  },
   "deskSetAdvServerDetails": "Server details",
   "@deskSetAdvServerDetails": {
     "description": "Advanced switch: hosts, latency, version, height."
@@ -18541,7 +18525,7 @@
   "@deskTourAdvancedTitle": {
     "description": "Title of the Settings › Advanced step of the first-run tour."
   },
-  "deskTourAdvancedText": "Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.",
+  "deskTourAdvancedText": "Tor-only mode, outputs and technical details live here. Switch on what you need.",
   "@deskTourAdvancedText": {
     "description": "Text of the Settings › Advanced step of the first-run tour. The tour switches nothing on."
   },
@@ -18684,5 +18668,49 @@
   "deskNetOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
   "@deskNetOfflineNoPeers": {
     "description": "Notice on Send in the Offline mode when the local node in use has no peers."
+  },
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
+  "deskOutDefaultsOpen": "Open Transactions",
+  "@deskOutDefaultsMoved": {
+    "description": "One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went."
+  },
+  "@deskOutDefaultsOpen": {
+    "description": "Inline button after deskOutDefaultsMoved: opens Settings › Transactions."
+  },
+  "deskSetFrameTransactions": "Transactions",
+  "@deskSetFrameTransactions": {
+    "description": "Settings sidebar entry and page name for how payments are made: the methods, what Send starts on, receiving. Narrow (about 200 px)."
+  },
+  "deskSetTxMethods": "Payment methods",
+  "@deskSetTxMethods": {
+    "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Direct, File)."
+  },
+  "deskSetTxAlwaysOn": "Always on",
+  "@deskSetTxAlwaysOn": {
+    "description": "Tag in place of a switch on the Epicbox row of Settings › Transactions: Epicbox cannot be turned off here. Short."
+  },
+  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.",
+  "@deskSetTxEpicboxHint": {
+    "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
+  },
+  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.",
+  "@deskSetTxDirectHint": {
+    "description": "Hover card behind the info icon of the Direct row (switch) on Settings › Transactions."
+  },
+  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.",
+  "@deskSetTxFileHint": {
+    "description": "Hover card behind the info icon of the File row (switch) on Settings › Transactions."
+  },
+  "deskSetTxSend": "Send",
+  "@deskSetTxSend": {
+    "description": "Title of the group on Settings › Transactions with what the Send page starts on and, with Advanced › Send options on, its defaults."
+  },
+  "deskSetTxStart": "Send starts on",
+  "@deskSetTxStart": {
+    "description": "Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on."
+  },
+  "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send.",
+  "@deskSetTxStartHint": {
+    "description": "Hover card behind the info icon of the Send starts on row."
   }
 }

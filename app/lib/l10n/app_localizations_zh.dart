@@ -6668,7 +6668,8 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskRecvHttpLocal => '本机上的程序可以向此地址付款。其他设备请见“设置 › 接收”。';
+  String get deskRecvHttpLocal =>
+      'Programs on this computer can pay this address. For other devices, see Settings › Transactions.';
 
   @override
   String get deskRecvHttpIntro => '本钱包打开时，直接从另一个钱包接收。除非设置中另有选择，否则仅限本机。';
@@ -7918,9 +7919,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOutTileTotal => '总额';
-
-  @override
-  String get deskOutDefaultsTitle => '发送的默认设置';
 
   @override
   String get deskOutStrategyTitle => '发送策略';
@@ -10874,9 +10872,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetFrameNode => '节点';
 
   @override
-  String get deskSetFrameReceiving => '接收';
-
-  @override
   String get deskSetFramePrivacy => '隐私';
 
   @override
@@ -13119,13 +13114,6 @@ class AppLocalizationsZh extends AppLocalizations {
       '在“发送”中加入一个折叠区，单笔发送可以在其中选择花掉哪些输出（“最小”或“全部”），以及是否拆分找零。默认值仍在“输出”中。';
 
   @override
-  String get deskSetAdvDirect => '直连接收';
-
-  @override
-  String get deskSetAdvDirectHint =>
-      '为这台电脑提供自己的地址，通过 HTTP 或 Tor。别人可以直接向它付款，无需 Epicbox。仅在钱包打开时有效。会在“发送”中加入“直连”方式，在“接收”中加入这些地址，并在“接收”设置中加入它们的选项。已开启的监听会保留它的各行。';
-
-  @override
   String get deskSetAdvServerDetails => '服务器详情';
 
   @override
@@ -13515,4 +13503,42 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskNetOfflineNoPeers =>
       'Your node has no peers: the payment waits in its pool until it reconnects.';
+
+  @override
+  String get deskOutDefaultsMoved =>
+      'The strategy and Split change for sends are set in Settings › Transactions.';
+
+  @override
+  String get deskOutDefaultsOpen => 'Open Transactions';
+
+  @override
+  String get deskSetFrameTransactions => 'Transactions';
+
+  @override
+  String get deskSetTxMethods => 'Payment methods';
+
+  @override
+  String get deskSetTxAlwaysOn => 'Always on';
+
+  @override
+  String get deskSetTxEpicboxHint =>
+      'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.';
+
+  @override
+  String get deskSetTxDirectHint =>
+      'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.';
+
+  @override
+  String get deskSetTxFileHint =>
+      'Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.';
+
+  @override
+  String get deskSetTxSend => 'Send';
+
+  @override
+  String get deskSetTxStart => 'Send starts on';
+
+  @override
+  String get deskSetTxStartHint =>
+      'The method the Send page opens with. You can still change it for one payment on Send.';
 }

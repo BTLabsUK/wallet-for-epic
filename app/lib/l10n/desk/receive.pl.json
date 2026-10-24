@@ -31,7 +31,7 @@
   "deskRecvHttpAddress": "Bezpośrednio · adres HTTP",
   "deskRecvCopyHttp": "Kopiuj adres HTTP",
   "deskRecvHttpPublic": "Publiczny adres twojego routera. Nadawcy z internetu mogą go używać, gdy router przekierowuje port {port}.",
-  "deskRecvHttpLocal": "Na ten adres mogą płacić programy na tym komputerze. Inne urządzenia: zobacz Ustawienia › Odbieranie.",
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
   "deskRecvHttpIntro": "Prosto z innego portfela, gdy ten jest otwarty. Tylko na tym komputerze, chyba że Ustawienia mówią inaczej.",
   "deskRecvHttpTorHint": "Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Prywatność.",
   "deskRecvDirectTor": "Bezpośrednio · adres Tor",

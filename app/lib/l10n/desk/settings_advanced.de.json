@@ -8,8 +8,6 @@
   "deskSetAdvTechnicalHint": "Zeigt den Bereich Technische Details bei jeder Transaktion: Slate-ID, Kernel, Blockhöhe, Status und Typ des Kerns und den Zahlungsnachweis. Ohne den Schalter zeigt ein Link „Mehr“ an einer Transaktion sie einmalig. Bei Rechnungen werden die erweiterten Bereiche gezeigt.",
   "deskSetAdvSendOptions": "Zahlungsoptionen",
   "deskSetAdvSendOptionsHint": "Fügt Senden einen Bereich hinzu, in dem eine Zahlung wählen kann, welche Outputs sie verbraucht, Kleinste oder Alle, und ob das Wechselgeld aufgeteilt wird. Die Vorgaben bleiben unter Outputs.",
-  "deskSetAdvDirect": "Direkter Empfang",
-  "deskSetAdvDirectHint": "Gibt diesem Computer eine eigene Adresse, über HTTP oder Tor. Andere können direkt dorthin zahlen, ohne Epicbox. Funktioniert nur, solange die Wallet geöffnet ist. Fügt die Methode Direkt zu Senden hinzu, die Adressen zu Empfangen und ihre Einstellungen unter Empfang. Ein eingeschalteter Listener behält seine Zeilen.",
   "deskSetAdvServerDetails": "Server-Details",
   "deskSetAdvServerDetailsHint": "Zeigt Hosts, Latenz, Version und Blockhöhe in den Listen für Node und Epicbox, in den Statuszeilen der Seitenleiste und auf der Statuskarte.",
   "deskSetAdvRecheck": "Ab einer Höhe neu prüfen",

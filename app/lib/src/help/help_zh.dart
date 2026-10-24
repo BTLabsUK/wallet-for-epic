@@ -18,7 +18,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final device = phone ? '这部手机' : '这台电脑';
   final secret = phone ? '你的 PIN 码' : '钱包密码';
   final nodePlace = phone ? '[[设置 › 隐私与网络 › 节点|Settings › Privacy & network › Node]]' : '[[设置 › 节点|Settings › Node]]';
-  final epicboxPlace = phone ? '[[设置 › 隐私与网络 › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[设置 › 接收 › Epicbox 接收|Settings › Receiving › Epicbox receiving]]';
+  final epicboxPlace = phone ? '[[设置 › 隐私与网络 › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[设置 › Transactions › Epicbox 接收|Settings › Transactions › Epicbox receiving]]';
   final torPlace = phone ? '[[设置 › 隐私与网络 › Tor 网络|Settings › Privacy & network › Tor Network]]' : '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
@@ -339,7 +339,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或点“钱包”标签页上的 Epicbox 行，选择另一个服务器。在此期间可以使用文件。')
         else
-          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在[[设置 › 接收|Settings › Receiving]]中选择另一个服务器。在此期间可以使用文件。'),
+          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在[[设置 › Transactions|Settings › Transactions]]中选择另一个服务器。在此期间可以使用文件。'),
         const HelpBlock.p('**发送显示“等待接收方”。** 对方钱包尚未回复。请对方打开钱包。如果对方一直不会打开，请在“活动”中取消发送以解锁输出。'),
         if (phone)
           const HelpBlock.p('**付款没有到账。** 在“钱包”标签页上检查节点是否已同步、Epicbox 是否在线。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。')

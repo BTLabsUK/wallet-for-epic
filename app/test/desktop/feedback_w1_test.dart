@@ -52,7 +52,7 @@ class _NodeAtZero extends _Wallet {
 }
 
 Future<ProviderContainer> _pump(WidgetTester tester, Widget child, {MockDeskWallet? api, bool refresh = true}) async {
-  tester.view.physicalSize = const Size(1280, 900);
+  tester.view.physicalSize = const Size(1280, 1500);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api ?? _Wallet())]);
@@ -142,7 +142,7 @@ void main() {
     expect(find.byType(InternetGuide), findsNothing);
   });
 
-  testWidgets('the Receiving page turns Tor on from the guide (F30)', (tester) async {
+  testWidgets('the Transactions page turns Tor on from the guide (F30)', (tester) async {
     final api = _Wallet();
     final container = await _pump(tester, const SettingsReceivingScreen(), api: api);
     await tester.tap(find.byKey(const ValueKey('st-switch-http')));

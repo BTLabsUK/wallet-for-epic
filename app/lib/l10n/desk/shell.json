@@ -354,7 +354,7 @@
   "@deskTourAdvancedTitle": {
     "description": "Title of the Settings › Advanced step of the first-run tour."
   },
-  "deskTourAdvancedText": "Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.",
+  "deskTourAdvancedText": "Tor-only mode, outputs and technical details live here. Switch on what you need.",
   "@deskTourAdvancedText": {
     "description": "Text of the Settings › Advanced step of the first-run tour. The tour switches nothing on."
   }

@@ -35,14 +35,6 @@
   "@deskSetAdvSendOptionsHint": {
     "description": "Hover card of the Send options switch."
   },
-  "deskSetAdvDirect": "Direct receiving",
-  "@deskSetAdvDirect": {
-    "description": "Advanced switch: HTTP and Tor receiving."
-  },
-  "deskSetAdvDirectHint": "Gives this computer its own address, over HTTP or Tor. Others can pay it directly, without Epicbox. Works only while the wallet is open. Adds the Direct method to Send, the addresses to Receive, and their settings under Receiving. A listener that is on keeps its rows.",
-  "@deskSetAdvDirectHint": {
-    "description": "Hover card of the Direct receiving switch."
-  },
   "deskSetAdvServerDetails": "Server details",
   "@deskSetAdvServerDetails": {
     "description": "Advanced switch: hosts, latency, version, height."

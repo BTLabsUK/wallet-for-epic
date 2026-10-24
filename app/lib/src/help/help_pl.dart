@@ -18,7 +18,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'tym telefonie' : 'tym komputerze';
   final secret = phone ? 'swój PIN' : 'hasło portfela';
   final nodePlace = phone ? '[[Ustawienia › Prywatność i sieć › Węzeł|Settings › Privacy & network › Node]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Ustawienia › Prywatność i sieć › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Ustawienia › Odbieranie › Odbieranie przez Epicbox|Settings › Receiving › Epicbox receiving]]';
+  final epicboxPlace = phone ? '[[Ustawienia › Prywatność i sieć › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Ustawienia › Transactions › Odbieranie przez Epicbox|Settings › Transactions › Epicbox receiving]]';
   final torPlace = phone ? '[[Ustawienia › Prywatność i sieć › Sieć Tor|Settings › Privacy & network › Tor Network]]' : '[[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[Aktywność|Activity]] (otwórz płatność, potem „Anuluj płatność”)'
@@ -341,7 +341,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo dotknij wiersza Epicbox na karcie Portfel i wybierz inny serwer. W tym czasie działa plik.')
         else
-          const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo wybierz inny serwer w [[Ustawienia › Odbieranie|Settings › Receiving]]. W tym czasie działa plik.'),
+          const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo wybierz inny serwer w [[Ustawienia › Transactions|Settings › Transactions]]. W tym czasie działa plik.'),
         const HelpBlock.p('**Płatność ma stan „Czeka na odbiorcę”.** Portfel odbiorcy jeszcze nie odpowiedział. Poproś odbiorcę, by go otworzył. Jeśli nigdy tego nie zrobi, anuluj płatność w Aktywności, aby odblokować wyjścia.'),
         if (phone)
           const HelpBlock.p('**Płatność nie dotarła.** Sprawdź na karcie Portfel, czy węzeł jest zsynchronizowany, a Epicbox online. Po zmianie serwera Epicbox nadawca potrzebuje nowego adresu. Portfel nadawcy musi też zakończyć transakcję; potem kilka minut na potwierdzenia.')
