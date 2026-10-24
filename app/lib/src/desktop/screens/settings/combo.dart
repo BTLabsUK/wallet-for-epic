@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/server_row.dart';
 import 'settings_frame.dart';
@@ -91,9 +92,9 @@ class ServiceCombo extends StatefulWidget {
     this.typedNote,
     this.onTyped,
     this.listNote,
-    this.emptyNote = 'Nothing to show.',
+    this.emptyNote,
     this.busy = false,
-    this.busyLabel = 'Checking…',
+    this.busyLabel,
     this.busyTimeout = const Duration(seconds: 20),
     this.error,
     this.footer = const [],
@@ -126,9 +127,9 @@ class ServiceCombo extends StatefulWidget {
   /// Every edit of the search text (the node page checks a typed address live).
   final ValueChanged<String>? onTyped;
   final String? listNote;
-  final String emptyNote;
+  final String? emptyNote;
   final bool busy;
-  final String busyLabel;
+  final String? busyLabel;
   final Duration busyTimeout;
 
   /// Under the field (a failed pick); the list keeps the typed text.
@@ -288,7 +289,7 @@ class ServiceComboState extends State<ServiceCombo> {
           return Semantics(
             button: true,
             label: '${widget.label}: ${widget.fieldText}${widget.fieldSub != null ? ', ${widget.fieldSub}' : ''}',
-            hint: 'Opens the list',
+            hint: context.l10n.deskSetComboOpens,
             expanded: open,
             excludeSemantics: true,
             child: InkWell(
@@ -317,7 +318,7 @@ class ServiceComboState extends State<ServiceCombo> {
                         child: Semantics(
                           liveRegion: true,
                           child: Text(
-                            _slow ? 'No answer yet' : widget.busyLabel,
+                            _slow ? context.l10n.deskSetComboNoAnswer : (widget.busyLabel ?? context.l10n.deskSetFrameChecking),
                             style: ts.small.copyWith(color: _slow ? c.warn : c.dim),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
@@ -402,7 +403,7 @@ class ServiceComboState extends State<ServiceCombo> {
       lastGroup = o.group;
       children.add(_row(context, o));
     }
-    if (typed == null && shown.isEmpty) children.add(_note(context, widget.emptyNote));
+    if (typed == null && shown.isEmpty) children.add(_note(context, widget.emptyNote ?? context.l10n.deskSetComboNothing));
     if (widget.listNote != null) children.add(_note(context, widget.listNote!));
     for (var i = 0; i < widget.footer.length; i++) {
       final (label, icon, run) = widget.footer[i];
@@ -560,7 +561,7 @@ class ServiceComboState extends State<ServiceCombo> {
     return Semantics(
       button: true,
       selected: selected,
-      label: 'Use ${o.host}${o.sub != null ? ', ${o.sub}' : ''}${o.word != null ? ', ${o.word}' : ''}',
+      label: '${context.l10n.deskSetComboUse(o.host)}${o.sub != null ? ', ${o.sub}' : ''}${o.word != null ? ', ${o.word}' : ''}',
       child: o.tip == null ? row : Tooltip(message: o.tip!, waitDuration: const Duration(milliseconds: 500), child: row),
     );
   }

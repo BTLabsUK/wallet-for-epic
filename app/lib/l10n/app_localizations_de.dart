@@ -6079,4 +6079,792 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String deskSetBackupWhenToday(String time) {
+    return 'today, $time';
+  }
+
+  @override
+  String deskSetBackupWhenYesterday(String time) {
+    return 'yesterday, $time';
+  }
+
+  @override
+  String deskSetBackupWhenDate(String day, String time) {
+    return '$day, $time';
+  }
+
+  @override
+  String get deskSetBackupNeverExported => 'Never exported.';
+
+  @override
+  String deskSetBackupLastExportNothingNew(String when) {
+    return 'Last export $when · nothing new since.';
+  }
+
+  @override
+  String deskSetBackupLastExportSince(String when, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments since',
+      one: '1 payment since',
+    );
+    return 'Last export $when · $_temp0.';
+  }
+
+  @override
+  String deskSetBackupWriteFailedHere(String reason) {
+    return 'Could not write to the folder: $reason. Choose another folder.';
+  }
+
+  @override
+  String deskSetBackupWriteFailedIn(String folder, String reason) {
+    return 'Could not write to $folder: $reason. Choose another folder.';
+  }
+
+  @override
+  String get deskSetBackupWriteFailed =>
+      'The file could not be written. Choose another folder.';
+
+  @override
+  String get deskSetBackupGroup => 'Backup';
+
+  @override
+  String get deskSetBackupExportTitle => 'Export history backup';
+
+  @override
+  String get deskSetBackupExportHint =>
+      'Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not the records.';
+
+  @override
+  String get deskSetBackupExporting => 'Exporting…';
+
+  @override
+  String get deskSetBackupExportButton => 'Export…';
+
+  @override
+  String get deskSetBackupImportTitle => 'Import history backup';
+
+  @override
+  String get deskSetBackupImportHint =>
+      'Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.';
+
+  @override
+  String get deskSetBackupImportButton => 'Import…';
+
+  @override
+  String get deskSetBackupCsvTitle => 'Payments as CSV';
+
+  @override
+  String get deskSetBackupCsvHint =>
+      'A plain table for spreadsheets. Not encrypted, not importable.';
+
+  @override
+  String get deskSetBackupCsvButton => 'Export CSV…';
+
+  @override
+  String get deskSetBackupSaveDialogTitle => 'Save payment history';
+
+  @override
+  String get deskSetBackupNotSaved => 'Not saved';
+
+  @override
+  String get deskSetBackupInFile => 'In the file';
+
+  @override
+  String deskSetBackupInFileCounts(int payments, int contacts) {
+    String _temp0 = intl.Intl.pluralLogic(
+      payments,
+      locale: localeName,
+      other: '$payments payments',
+      one: '1 payment',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      contacts,
+      locale: localeName,
+      other: '$contacts contacts',
+      one: '1 contact',
+    );
+    return '$_temp0, $_temp1';
+  }
+
+  @override
+  String get deskSetBackupInFileSub => 'Who paid what, fees, notes, slate ids';
+
+  @override
+  String get deskSetBackupNotIn => 'Not in it';
+
+  @override
+  String get deskSetBackupNotInValue =>
+      'Keys, the recovery phrase, the password';
+
+  @override
+  String get deskSetBackupOpensWith => 'Opens with';
+
+  @override
+  String get deskSetBackupOpensWithValue =>
+      'This wallet, or one restored from its phrase';
+
+  @override
+  String get deskSetBackupFile => 'File';
+
+  @override
+  String get deskSetBackupFileNote =>
+      'The file holds payments up to now. Export again after new payments.';
+
+  @override
+  String get deskSetBackupExportDesc =>
+      'A file with this wallet’s payments, their details and contacts. Only a wallet with the same recovery phrase opens it.';
+
+  @override
+  String get deskSetBackupSaved => 'Saved';
+
+  @override
+  String get deskSetBackupKeepCopy =>
+      'Keep a copy off this computer too: a USB stick, another drive, or cloud storage. Export again after new payments.';
+
+  @override
+  String get deskSetBackupOpenFolder => 'Open folder';
+
+  @override
+  String get deskSetBackupSaving => 'Saving…';
+
+  @override
+  String get deskSetBackupTryAgain => 'Try again';
+
+  @override
+  String get deskSetBackupSaveAs => 'Save as…';
+
+  @override
+  String get deskSetBackupOpenDialogTitle => 'Open history backup';
+
+  @override
+  String get deskSetBackupDetailsRestored => 'Details restored';
+
+  @override
+  String get deskSetBackupDetailsRestoredSub =>
+      'Payments already here got their counterparty, fee or note back';
+
+  @override
+  String get deskSetBackupOlderAdded => 'Older payments added';
+
+  @override
+  String get deskSetBackupOlderAddedSub =>
+      'Not in the list any more; shown as From backup';
+
+  @override
+  String get deskSetBackupContactsAdded => 'Contacts added';
+
+  @override
+  String get deskSetBackupAlreadyHere => 'Already here';
+
+  @override
+  String get deskSetBackupUnchanged => 'Unchanged';
+
+  @override
+  String get deskSetBackupNothingNew => 'Nothing new';
+
+  @override
+  String deskSetBackupNothingNewBody(String file) {
+    return 'Every record in $file was already here.';
+  }
+
+  @override
+  String get deskSetBackupImported => 'Imported';
+
+  @override
+  String deskSetBackupReading(String file) {
+    return 'Reading $file…';
+  }
+
+  @override
+  String get deskSetBackupNotImported => 'Not imported';
+
+  @override
+  String get deskSetBackupBringsBack => 'Brings back';
+
+  @override
+  String get deskSetBackupBringsBackValue =>
+      'Who paid what, fees and notes of payments already here; older payments the list lost; contacts';
+
+  @override
+  String get deskSetBackupNeeds => 'Needs';
+
+  @override
+  String deskSetBackupNeedsValue(String network) {
+    return 'A file from this wallet (the same recovery phrase), on $network';
+  }
+
+  @override
+  String get deskSetBackupNever => 'Never';
+
+  @override
+  String get deskSetBackupNeverValue =>
+      'Removes or changes a payment that is here';
+
+  @override
+  String get deskSetBackupChooseFile => 'Choose file…';
+
+  @override
+  String get deskSetBackupImportDesc =>
+      'Merges a history backup of this wallet into Activity. Nothing is removed, and the same file twice changes nothing.';
+
+  @override
+  String get deskSetBackupSaveCsvDialogTitle => 'Save payments as CSV';
+
+  @override
+  String get deskSetBackupCsvDialogTitle => 'Export CSV';
+
+  @override
+  String get deskSetBackupCsvDialogDesc =>
+      'A plain table of this wallet’s payments, for spreadsheets.';
+
+  @override
+  String deskSetBackupCsvSavedNote(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments',
+      one: '1 payment',
+    );
+    return '$_temp0, newest first. Amounts in EPIC with 8 decimals; dates in UTC.';
+  }
+
+  @override
+  String get deskSetBackupDateError => 'Enter a date as 2026-01-31';
+
+  @override
+  String get deskSetBackupDateHint => 'YYYY-MM-DD';
+
+  @override
+  String get deskSetBackupRange => 'Range';
+
+  @override
+  String get deskSetBackupRangeAll => 'All payments';
+
+  @override
+  String get deskSetBackupRangeThisYear => 'This year';
+
+  @override
+  String get deskSetBackupRangeLastYear => 'Last year';
+
+  @override
+  String get deskSetBackupRangeCustom => 'Custom';
+
+  @override
+  String get deskSetBackupFrom => 'From';
+
+  @override
+  String get deskSetBackupTo => 'To';
+
+  @override
+  String deskSetBackupCsvInfo(int count, String file) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments',
+      one: '1 payment',
+    );
+    return '$_temp0 · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File $file.';
+  }
+
+  @override
+  String deskSetBackupCsvInfoNoCount(String file) {
+    return '– · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File $file.';
+  }
+
+  @override
+  String get deskSetBackupNotEncrypted => 'Not encrypted.';
+
+  @override
+  String get deskSetBackupNotEncryptedBody =>
+      'Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; the history backup is for that.';
+
+  @override
+  String deskSetBackupReminderNever(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments are not in a history backup.',
+      one: '1 payment is not in a history backup.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetBackupReminderChanged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count payments are new or changed since the last history backup.',
+      one: '1 payment is new or changed since the last history backup.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetBackupReminderBody =>
+      'A restore from the recovery phrase brings back the balance, not who paid what.';
+
+  @override
+  String get deskSetBackupNotNow => 'Not now';
+
+  @override
+  String get deskSetDlgNodeAddressEmpty => 'Enter the node’s address.';
+
+  @override
+  String get deskSetDlgNodeAddressBad =>
+      'Not a node address. Check the address and the port (usually 3413).';
+
+  @override
+  String get deskSetDlgNodeAddressDuplicate =>
+      'This address is already in My nodes.';
+
+  @override
+  String get deskSetDlgNodeNotAdded => 'Node not added';
+
+  @override
+  String get deskSetDlgNodeSaved => 'Node saved';
+
+  @override
+  String get deskSetDlgNodeAdded => 'Added to my nodes';
+
+  @override
+  String get deskSetDlgNodeSaveAnyway => 'It can be saved anyway.';
+
+  @override
+  String get deskSetDlgNodeEditTitle => 'Edit node';
+
+  @override
+  String get deskSetDlgNodeAddTitle => 'Add to my nodes';
+
+  @override
+  String get deskSetDlgNodeDesc =>
+      'Save a node address to find it again later. It can be saved while it is offline.';
+
+  @override
+  String get deskSetDlgNodeAddress => 'Node address';
+
+  @override
+  String get deskSetDlgNodeLabel => 'Label';
+
+  @override
+  String get deskSetDlgNodeLabelHint => 'e.g. Home node';
+
+  @override
+  String get deskSetDlgDirTitle => 'Node directory';
+
+  @override
+  String get deskSetDlgDirDesc =>
+      'Public nodes, their operators and their state at the last check.';
+
+  @override
+  String get deskSetDlgDirEmpty => 'No nodes to show';
+
+  @override
+  String deskSetDlgDirVersion(String version) {
+    return 'version $version';
+  }
+
+  @override
+  String deskSetDlgDirHeight(String height) {
+    return 'height $height';
+  }
+
+  @override
+  String get deskSetDlgDirInUse => 'In use';
+
+  @override
+  String get deskSetDlgDirUse => 'Use';
+
+  @override
+  String get deskSetDlgDirNote =>
+      'Response times are measured from the status site, not from this computer.';
+
+  @override
+  String get deskSetDlgChainTitle => 'Existing blockchain data found';
+
+  @override
+  String get deskSetDlgChainDesc =>
+      'This computer already has Epic blockchain data that the local node can use.';
+
+  @override
+  String get deskSetDlgChainFolder => 'Folder';
+
+  @override
+  String get deskSetDlgChainSize => 'Size';
+
+  @override
+  String get deskSetDlgChainUpdated => 'Last updated';
+
+  @override
+  String get deskSetDlgChainUpdatedValue => '3 days ago';
+
+  @override
+  String get deskSetDlgChainOthers =>
+      'Other copies were found too (1). This one was updated most recently.';
+
+  @override
+  String get deskSetDlgChainInUse =>
+      'Another Epic program is using this folder. Close it, then pick the local node again to use this data.';
+
+  @override
+  String get deskSetDlgChainUseIt =>
+      'Use it? That saves downloading and syncing the whole blockchain.';
+
+  @override
+  String get deskSetDlgChainOlderWallet =>
+      'An older Epic Wallet that uses this folder may need to sync again after this. Coins are not affected.';
+
+  @override
+  String get deskSetDlgChainFresh => 'Download fresh';
+
+  @override
+  String get deskSetDlgChainUse => 'Use this data';
+
+  @override
+  String get deskSetDlgPwChanged => 'Password changed.';
+
+  @override
+  String get deskSetDlgPwTitle => 'Change password';
+
+  @override
+  String get deskSetDlgPwDesc =>
+      'The new password unlocks this wallet from now on. A remembered password is forgotten.';
+
+  @override
+  String get deskSetDlgPwCurrent => 'Current password';
+
+  @override
+  String get deskSetDlgPwWrong => 'Wrong password';
+
+  @override
+  String get deskSetDlgPwNew => 'New password';
+
+  @override
+  String get deskSetDlgPwRepeat => 'Repeat new password';
+
+  @override
+  String deskSetDlgRemoveToastList(String name) {
+    return '$name removed from the list';
+  }
+
+  @override
+  String deskSetDlgRemoveToastDeleted(String name) {
+    return '$name deleted';
+  }
+
+  @override
+  String get deskSetDlgRemoveFilesKept => 'Files kept.';
+
+  @override
+  String deskSetDlgRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get deskSetDlgRemoveDesc => 'Nothing changes until confirmed.';
+
+  @override
+  String get deskSetDlgRemoveWhat => 'What to remove';
+
+  @override
+  String get deskSetDlgRemoveFromList => 'Remove from list';
+
+  @override
+  String deskSetDlgRemoveFromListHint(String folder) {
+    return 'Files stay in $folder. All wallets can add it back.';
+  }
+
+  @override
+  String get deskSetDlgDeleteWallet => 'Delete wallet';
+
+  @override
+  String deskSetDlgRemoveDeleteHint(String folder) {
+    return 'Deletes its keys and database from $folder. Only the recovery phrase restores it; without it the coins are lost.';
+  }
+
+  @override
+  String get deskSetDlgRemoveUnlockHint =>
+      'To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.';
+
+  @override
+  String get deskSetDlgRemoveUnlock => 'Unlock this wallet';
+
+  @override
+  String get deskSetDlgRemoveIrreversible => 'Cannot be undone';
+
+  @override
+  String get deskSetDlgRemoveIrreversibleBody =>
+      'Only the recovery phrase restores the wallet; without it the coins are lost for good.';
+
+  @override
+  String get deskSetDlgRemoveName => 'Wallet name';
+
+  @override
+  String deskSetDlgRemoveTypeName(String name) {
+    return 'Type $name to confirm.';
+  }
+
+  @override
+  String get deskSetDlgRemoveNameMismatch => 'Name does not match';
+
+  @override
+  String get deskSetDlgPassword => 'Password';
+
+  @override
+  String get deskSetDlgPhraseWritten => 'The recovery phrase is written down';
+
+  @override
+  String get deskSetDlgRemoving => 'Removing…';
+
+  @override
+  String get deskSetDlgWalletLocked => 'The wallet is locked';
+
+  @override
+  String get deskSetDlgDeleteTitle => 'Delete this wallet?';
+
+  @override
+  String get deskSetDlgDeleteDesc =>
+      'Deletes the wallet and its seed from this computer. Only the recovery phrase restores it; without it the coins are lost.';
+
+  @override
+  String get deskSetFrameTitle => 'Settings';
+
+  @override
+  String get deskSetFrameSections => 'Settings sections';
+
+  @override
+  String get deskSetFrameNode => 'Node';
+
+  @override
+  String get deskSetFrameReceiving => 'Receiving';
+
+  @override
+  String get deskSetFramePrivacy => 'Privacy';
+
+  @override
+  String get deskSetFrameAppearance => 'Appearance';
+
+  @override
+  String get deskSetFrameThisWallet => 'This wallet';
+
+  @override
+  String get deskSetFrameAllWallets => 'All wallets';
+
+  @override
+  String get deskSetFramePhrase => 'Recovery phrase';
+
+  @override
+  String get deskSetFrameRescan => 'Recheck balance';
+
+  @override
+  String get deskSetFrameAbout => 'About';
+
+  @override
+  String get deskSetFrameHelp => 'Help';
+
+  @override
+  String get deskSetFrameHealthOn => 'On';
+
+  @override
+  String get deskSetFrameHealthSlow => 'Slow';
+
+  @override
+  String get deskSetFrameNotResponding => 'Not responding';
+
+  @override
+  String get deskSetFrameOff => 'Off';
+
+  @override
+  String get deskSetFrameChecking => 'Checking…';
+
+  @override
+  String get deskSetFrameNodeSynced => 'Synced';
+
+  @override
+  String get deskSetFrameNodeSyncing => 'Syncing';
+
+  @override
+  String get deskSetFrameConnecting => 'Connecting…';
+
+  @override
+  String get deskSetFrameListening => 'Listening';
+
+  @override
+  String deskSetFrameHealthLatency(String word, int ms) {
+    return '$word · $ms ms';
+  }
+
+  @override
+  String get deskSetFrameNever => 'never';
+
+  @override
+  String get deskSetFrameJustNow => 'just now';
+
+  @override
+  String deskSetFrameMinAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count min ago',
+      one: '$count min ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetFrameHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count h ago',
+      one: '$count h ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetFrameDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count d ago',
+      one: '$count d ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetComboOpens => 'Opens the list';
+
+  @override
+  String get deskSetComboNoAnswer => 'No answer yet';
+
+  @override
+  String get deskSetComboNothing => 'Nothing to show.';
+
+  @override
+  String deskSetComboUse(String host) {
+    return 'Use $host';
+  }
+
+  @override
+  String deskSetNodeVersionOld(String version) {
+    return 'Version older than $version';
+  }
+
+  @override
+  String get deskSetNodePortNote =>
+      'Check the address and the port (usually 3413).';
+
+  @override
+  String get deskSetNodeListNote =>
+      'State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.';
+
+  @override
+  String get deskSetNodeStartTitle => 'Start the local node?';
+
+  @override
+  String get deskSetNodeStartDesc =>
+      'A separate program syncs the Epic chain on this computer.';
+
+  @override
+  String get deskSetNodeStartLine1 =>
+      'Downloads the whole chain: several GB of disk space and bandwidth.';
+
+  @override
+  String get deskSetNodeStartLine2 =>
+      'The first sync takes hours. Until it is done the node shows Syncing.';
+
+  @override
+  String get deskSetNodeStartLine3 =>
+      'The firewall may ask to allow the node program.';
+
+  @override
+  String get deskSetNodeStartButton => 'Start local node';
+
+  @override
+  String get deskSetNodeRowNotSetUp => 'Not set up';
+
+  @override
+  String get deskSetNodeRowStopped => 'Stopped';
+
+  @override
+  String get deskSetNodeRowStarting => 'Starting';
+
+  @override
+  String deskSetNodeRowSyncingPct(String percent) {
+    return 'Syncing $percent';
+  }
+
+  @override
+  String get deskSetNodeRowStalled => 'Stalled';
+
+  @override
+  String get deskSetNodeRowFailed => 'Failed';
+
+  @override
+  String get deskSetNodeLocalInUse => 'Local node in use';
+
+  @override
+  String get deskSetNodeLocalInUseText =>
+      'It downloads the whole chain. Needs 5 GB free.';
+
+  @override
+  String get deskSetNodeLocalNode => 'Local node';
+
+  @override
+  String get deskSetNodeGroupComputer => 'This computer';
+
+  @override
+  String get deskSetNodeGroupMine => 'My nodes';
+
+  @override
+  String get deskSetNodeGroupPublic => 'Public nodes';
+
+  @override
+  String get deskSetNodeRemovedFromMine => 'Removed from my nodes';
+
+  @override
+  String get deskSetNodeNotAnswering => 'Not answering';
+
+  @override
+  String get deskSetNodeAddToMine => 'Add to my nodes';
+
+  @override
+  String get deskSetNodeServer => 'Node server';
+
+  @override
+  String get deskSetNodeServerHint =>
+      'The node the wallet reads the chain through and sends with.';
+
+  @override
+  String get deskSetNodeFindHint => 'Find or type a node address';
+
+  @override
+  String get deskSetNodeChecking => 'Checking the node…';
+
+  @override
+  String get deskSetNodeTypedNote =>
+      'Enter uses it. The star keeps it in My nodes.';
+
+  @override
+  String get deskSetNodeNoNodes => 'No nodes to show.';
+
+  @override
+  String get deskSetNodeFooterAdd => 'Add to my nodes…';
+
+  @override
+  String get deskSetNodeFooterDirectory => 'Node directory…';
+
+  @override
+  String get deskSetNodeBackground => 'Sync in background';
+
+  @override
+  String get deskSetNodeBackgroundHint =>
+      'Keeps syncing while the app is closed.';
 }

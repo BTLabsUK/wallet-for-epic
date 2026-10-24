@@ -1,0 +1,148 @@
+{
+  "deskSetNodeVersionOld": "Version older than {version}",
+  "@deskSetNodeVersionOld": {
+    "description": "Settings > Node: tag or sub-line on a node whose software is older than the minimum version the wallet works well with. {version} is a version number like 3.6.0.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetNodePortNote": "Check the address and the port (usually 3413).",
+  "@deskSetNodePortNote": {
+    "description": "Settings > Node: error under the node picker when the typed node does not answer."
+  },
+  "deskSetNodeListNote": "State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.",
+  "@deskSetNodeListNote": {
+    "description": "Settings > Node: footer under the node list. status.btlabs.uk is a web address and stays as is."
+  },
+  "deskSetNodeStartTitle": "Start the local node?",
+  "@deskSetNodeStartTitle": {
+    "description": "Dialog title before the local node program starts."
+  },
+  "deskSetNodeStartDesc": "A separate program syncs the Epic chain on this computer.",
+  "@deskSetNodeStartDesc": {
+    "description": "Start the local node dialog: description under the title."
+  },
+  "deskSetNodeStartLine1": "Downloads the whole chain: several GB of disk space and bandwidth.",
+  "@deskSetNodeStartLine1": {
+    "description": "Start the local node dialog: first bullet."
+  },
+  "deskSetNodeStartLine2": "The first sync takes hours. Until it is done the node shows Syncing.",
+  "@deskSetNodeStartLine2": {
+    "description": "Start the local node dialog: second bullet. \"Syncing\" is the node status word."
+  },
+  "deskSetNodeStartLine3": "The firewall may ask to allow the node program.",
+  "@deskSetNodeStartLine3": {
+    "description": "Start the local node dialog: third bullet."
+  },
+  "deskSetNodeStartButton": "Start local node",
+  "@deskSetNodeStartButton": {
+    "description": "Start the local node dialog: primary button."
+  },
+  "deskSetNodeRowNotSetUp": "Not set up",
+  "@deskSetNodeRowNotSetUp": {
+    "description": "Status of the local node in the node picker: not installed or never started."
+  },
+  "deskSetNodeRowStopped": "Stopped",
+  "@deskSetNodeRowStopped": {
+    "description": "Status of the local node in the node picker: switched off."
+  },
+  "deskSetNodeRowStarting": "Starting",
+  "@deskSetNodeRowStarting": {
+    "description": "Status of the local node in the node picker: starting up."
+  },
+  "deskSetNodeRowSyncingPct": "Syncing {percent}",
+  "@deskSetNodeRowSyncingPct": {
+    "description": "Status of the local node in the node picker while syncing. {percent} is a number with a percent sign, e.g. \"42%\".",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetNodeRowStalled": "Stalled",
+  "@deskSetNodeRowStalled": {
+    "description": "Status of the local node in the node picker: sync stopped making progress."
+  },
+  "deskSetNodeRowFailed": "Failed",
+  "@deskSetNodeRowFailed": {
+    "description": "Status of the local node in the node picker: could not run."
+  },
+  "deskSetNodeLocalInUse": "Local node in use",
+  "@deskSetNodeLocalInUse": {
+    "description": "Toast title after switching to the local node."
+  },
+  "deskSetNodeLocalInUseText": "It downloads the whole chain. Needs 5 GB free.",
+  "@deskSetNodeLocalInUseText": {
+    "description": "Toast text after switching to the local node."
+  },
+  "deskSetNodeLocalNode": "Local node",
+  "@deskSetNodeLocalNode": {
+    "description": "Name of the node program on this computer, in the node picker and its field."
+  },
+  "deskSetNodeGroupComputer": "This computer",
+  "@deskSetNodeGroupComputer": {
+    "description": "Heading of the node picker group holding the local node."
+  },
+  "deskSetNodeGroupMine": "My nodes",
+  "@deskSetNodeGroupMine": {
+    "description": "Heading of the node picker group of nodes the user saved; also a name used in other texts."
+  },
+  "deskSetNodeGroupPublic": "Public nodes",
+  "@deskSetNodeGroupPublic": {
+    "description": "Heading of the node picker group of public nodes."
+  },
+  "deskSetNodeRemovedFromMine": "Removed from my nodes",
+  "@deskSetNodeRemovedFromMine": {
+    "description": "Toast title after a node was removed from the saved nodes. The node address follows as text."
+  },
+  "deskSetNodeNotAnswering": "Not answering",
+  "@deskSetNodeNotAnswering": {
+    "description": "Node picker: word on a typed address whose node does not answer."
+  },
+  "deskSetNodeAddToMine": "Add to my nodes",
+  "@deskSetNodeAddToMine": {
+    "description": "Node picker: tooltip and screen reader label of the star button on a typed address."
+  },
+  "deskSetNodeServer": "Node server",
+  "@deskSetNodeServer": {
+    "description": "Settings > Node: row title, picker label and screen reader name."
+  },
+  "deskSetNodeServerHint": "The node the wallet reads the chain through and sends with.",
+  "@deskSetNodeServerHint": {
+    "description": "Settings > Node: hint under the Node server row."
+  },
+  "deskSetNodeFindHint": "Find or type a node address",
+  "@deskSetNodeFindHint": {
+    "description": "Settings > Node: placeholder of the node picker search field."
+  },
+  "deskSetNodeChecking": "Checking the node…",
+  "@deskSetNodeChecking": {
+    "description": "Settings > Node: shown while a chosen node is checked."
+  },
+  "deskSetNodeTypedNote": "Enter uses it. The star keeps it in My nodes.",
+  "@deskSetNodeTypedNote": {
+    "description": "Settings > Node: note under a typed address in the picker. \"Enter\" is the keyboard key."
+  },
+  "deskSetNodeNoNodes": "No nodes to show.",
+  "@deskSetNodeNoNodes": {
+    "description": "Settings > Node: empty note of the node picker."
+  },
+  "deskSetNodeFooterAdd": "Add to my nodes…",
+  "@deskSetNodeFooterAdd": {
+    "description": "Node picker footer action that opens the add node dialog."
+  },
+  "deskSetNodeFooterDirectory": "Node directory…",
+  "@deskSetNodeFooterDirectory": {
+    "description": "Node picker footer action that opens the node directory dialog."
+  },
+  "deskSetNodeBackground": "Sync in background",
+  "@deskSetNodeBackground": {
+    "description": "Settings > Node: switch title and screen reader name."
+  },
+  "deskSetNodeBackgroundHint": "Keeps syncing while the app is closed.",
+  "@deskSetNodeBackgroundHint": {
+    "description": "Settings > Node: hint under Sync in background."
+  }
+}

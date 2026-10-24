@@ -5462,7 +5462,7 @@
   },
   "netStatusTorOpenHint": "Opens the privacy settings",
   "@netStatusTorOpenHint": {
-    "description": "Screen reader hint on the Tor status icon: a tap opens Settings \u203a Privacy."
+    "description": "Screen reader hint on the Tor status icon: a tap opens Settings › Privacy."
   },
   "netStatusDirectOpenHint": "Opens the Direct receive address",
   "@netStatusDirectOpenHint": {
@@ -7571,5 +7571,1010 @@
         "type": "int"
       }
     }
+  },
+  "deskSetBackupWhenToday": "today, {time}",
+  "@deskSetBackupWhenToday": {
+    "description": "Settings > Backup: when the last export was, when it was today. {time} is a clock time like 14:02. Part of a longer line; keep lowercase.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWhenYesterday": "yesterday, {time}",
+  "@deskSetBackupWhenYesterday": {
+    "description": "Settings > Backup: when the last export was, when it was yesterday. {time} is a clock time like 09:10. Part of a longer line; keep lowercase.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWhenDate": "{day}, {time}",
+  "@deskSetBackupWhenDate": {
+    "description": "Settings > Backup: date and time of the last export, e.g. \"3 Oct 2026, 14:02\".",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNeverExported": "Never exported.",
+  "@deskSetBackupNeverExported": {
+    "description": "Settings > Backup: line under Export history backup when nothing was ever exported."
+  },
+  "deskSetBackupLastExportNothingNew": "Last export {when} · nothing new since.",
+  "@deskSetBackupLastExportNothingNew": {
+    "description": "Settings > Backup: line under Export history backup. {when} is a date such as \"today, 14:02\".",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupLastExportSince": "Last export {when} · {count, plural, one{1 payment since} other{{count} payments since}}.",
+  "@deskSetBackupLastExportSince": {
+    "description": "Settings > Backup: line under Export history backup. {when} is a date such as \"today, 14:02\"; count is how many payments are not in that backup.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupWriteFailedHere": "Could not write to the folder: {reason}. Choose another folder.",
+  "@deskSetBackupWriteFailedHere": {
+    "description": "Error in the Export dialogs when the file could not be saved and the system did not say where. {reason} is the system message.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWriteFailedIn": "Could not write to {folder}: {reason}. Choose another folder.",
+  "@deskSetBackupWriteFailedIn": {
+    "description": "Error in the Export dialogs when the file could not be saved. {folder} is a path; {reason} is the system message.",
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWriteFailed": "The file could not be written. Choose another folder.",
+  "@deskSetBackupWriteFailed": {
+    "description": "Error in the Export dialogs when the file could not be saved, reason unknown."
+  },
+  "deskSetBackupGroup": "Backup",
+  "@deskSetBackupGroup": {
+    "description": "Settings > This wallet: title of the Backup group of rows."
+  },
+  "deskSetBackupExportTitle": "Export history backup",
+  "@deskSetBackupExportTitle": {
+    "description": "Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file."
+  },
+  "deskSetBackupExportHint": "Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not the records.",
+  "@deskSetBackupExportHint": {
+    "description": "Settings > Backup: hint under the Export history backup row."
+  },
+  "deskSetBackupExporting": "Exporting…",
+  "@deskSetBackupExporting": {
+    "description": "Settings > Backup: button label while the export dialog is open. Short."
+  },
+  "deskSetBackupExportButton": "Export…",
+  "@deskSetBackupExportButton": {
+    "description": "Settings > Backup: button that opens the export dialog. Short; the dots mean a dialog follows."
+  },
+  "deskSetBackupImportTitle": "Import history backup",
+  "@deskSetBackupImportTitle": {
+    "description": "Settings > Backup: row title and dialog title for importing a history backup file."
+  },
+  "deskSetBackupImportHint": "Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.",
+  "@deskSetBackupImportHint": {
+    "description": "Settings > Backup: hint under the Import history backup row."
+  },
+  "deskSetBackupImportButton": "Import…",
+  "@deskSetBackupImportButton": {
+    "description": "Settings > Backup: button that opens the import dialog. Short."
+  },
+  "deskSetBackupCsvTitle": "Payments as CSV",
+  "@deskSetBackupCsvTitle": {
+    "description": "Settings > Backup: row title for exporting payments as a spreadsheet file."
+  },
+  "deskSetBackupCsvHint": "A plain table for spreadsheets. Not encrypted, not importable.",
+  "@deskSetBackupCsvHint": {
+    "description": "Settings > Backup: hint under the Payments as CSV row."
+  },
+  "deskSetBackupCsvButton": "Export CSV…",
+  "@deskSetBackupCsvButton": {
+    "description": "Settings > Backup: button that opens the CSV export dialog. Short."
+  },
+  "deskSetBackupSaveDialogTitle": "Save payment history",
+  "@deskSetBackupSaveDialogTitle": {
+    "description": "Title of the system Save dialog when exporting the history backup."
+  },
+  "deskSetBackupNotSaved": "Not saved",
+  "@deskSetBackupNotSaved": {
+    "description": "Export dialogs: title of the error notice when the file could not be saved."
+  },
+  "deskSetBackupInFile": "In the file",
+  "@deskSetBackupInFile": {
+    "description": "Export history dialog: label of the row listing what the file holds. Narrow label column (about 100 px)."
+  },
+  "deskSetBackupInFileCounts": "{payments, plural, one{1 payment} other{{payments} payments}}, {contacts, plural, one{1 contact} other{{contacts} contacts}}",
+  "@deskSetBackupInFileCounts": {
+    "description": "Export history dialog: what the file holds, e.g. \"12 payments, 3 contacts\".",
+    "placeholders": {
+      "payments": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupInFileSub": "Who paid what, fees, notes, slate ids",
+  "@deskSetBackupInFileSub": {
+    "description": "Export history dialog: small text under the counts of what the file holds."
+  },
+  "deskSetBackupNotIn": "Not in it",
+  "@deskSetBackupNotIn": {
+    "description": "Export history dialog: label of the row listing what the file does not hold. Narrow label column."
+  },
+  "deskSetBackupNotInValue": "Keys, the recovery phrase, the password",
+  "@deskSetBackupNotInValue": {
+    "description": "Export history dialog: what the file does not contain."
+  },
+  "deskSetBackupOpensWith": "Opens with",
+  "@deskSetBackupOpensWith": {
+    "description": "Export history dialog: label of the row saying which wallet can open the file. Narrow label column."
+  },
+  "deskSetBackupOpensWithValue": "This wallet, or one restored from its phrase",
+  "@deskSetBackupOpensWithValue": {
+    "description": "Export history dialog: which wallets can open the file."
+  },
+  "deskSetBackupFile": "File",
+  "@deskSetBackupFile": {
+    "description": "Export dialog: label of the row with the file name. Narrow label column."
+  },
+  "deskSetBackupFileNote": "The file holds payments up to now. Export again after new payments.",
+  "@deskSetBackupFileNote": {
+    "description": "Export history dialog: note under the list."
+  },
+  "deskSetBackupExportDesc": "A file with this wallet’s payments, their details and contacts. Only a wallet with the same recovery phrase opens it.",
+  "@deskSetBackupExportDesc": {
+    "description": "Export history dialog: description under the title."
+  },
+  "deskSetBackupSaved": "Saved",
+  "@deskSetBackupSaved": {
+    "description": "Export dialogs: title of the success block once the file is saved."
+  },
+  "deskSetBackupKeepCopy": "Keep a copy off this computer too: a USB stick, another drive, or cloud storage. Export again after new payments.",
+  "@deskSetBackupKeepCopy": {
+    "description": "Export history dialog: advice shown after saving."
+  },
+  "deskSetBackupOpenFolder": "Open folder",
+  "@deskSetBackupOpenFolder": {
+    "description": "Export dialogs: button that opens the folder of the saved file."
+  },
+  "deskSetBackupSaving": "Saving…",
+  "@deskSetBackupSaving": {
+    "description": "Export dialogs: save button label while saving."
+  },
+  "deskSetBackupTryAgain": "Try again",
+  "@deskSetBackupTryAgain": {
+    "description": "Export dialogs: save button label after a failed save."
+  },
+  "deskSetBackupSaveAs": "Save as…",
+  "@deskSetBackupSaveAs": {
+    "description": "Export dialogs: button that opens the system Save dialog."
+  },
+  "deskSetBackupOpenDialogTitle": "Open history backup",
+  "@deskSetBackupOpenDialogTitle": {
+    "description": "Title of the system Open dialog when importing a history backup."
+  },
+  "deskSetBackupDetailsRestored": "Details restored",
+  "@deskSetBackupDetailsRestored": {
+    "description": "Import result tile title: count of payments that got details back."
+  },
+  "deskSetBackupDetailsRestoredSub": "Payments already here got their counterparty, fee or note back",
+  "@deskSetBackupDetailsRestoredSub": {
+    "description": "Import result tile text under \"Details restored\"."
+  },
+  "deskSetBackupOlderAdded": "Older payments added",
+  "@deskSetBackupOlderAdded": {
+    "description": "Import result tile title: count of payments added from the backup."
+  },
+  "deskSetBackupOlderAddedSub": "Not in the list any more; shown as From backup",
+  "@deskSetBackupOlderAddedSub": {
+    "description": "Import result tile text under \"Older payments added\". \"From backup\" is a label shown in Activity."
+  },
+  "deskSetBackupContactsAdded": "Contacts added",
+  "@deskSetBackupContactsAdded": {
+    "description": "Import result tile title: count of contacts added."
+  },
+  "deskSetBackupAlreadyHere": "Already here",
+  "@deskSetBackupAlreadyHere": {
+    "description": "Import result tile title: count of records that were already in the wallet."
+  },
+  "deskSetBackupUnchanged": "Unchanged",
+  "@deskSetBackupUnchanged": {
+    "description": "Import result tile text under \"Already here\"."
+  },
+  "deskSetBackupNothingNew": "Nothing new",
+  "@deskSetBackupNothingNew": {
+    "description": "Import dialog: title of the success block when the file brought nothing new."
+  },
+  "deskSetBackupNothingNewBody": "Every record in {file} was already here.",
+  "@deskSetBackupNothingNewBody": {
+    "description": "Import dialog: text of the \"Nothing new\" block. {file} is the file name, shown in monospace.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupImported": "Imported",
+  "@deskSetBackupImported": {
+    "description": "Import dialog: title of the success block."
+  },
+  "deskSetBackupReading": "Reading {file}…",
+  "@deskSetBackupReading": {
+    "description": "Import dialog: shown while the chosen file is read. {file} is the file name, shown in monospace.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNotImported": "Not imported",
+  "@deskSetBackupNotImported": {
+    "description": "Import dialog: title of the error notice when the import failed."
+  },
+  "deskSetBackupBringsBack": "Brings back",
+  "@deskSetBackupBringsBack": {
+    "description": "Import dialog: label of the row saying what the import restores. Narrow label column."
+  },
+  "deskSetBackupBringsBackValue": "Who paid what, fees and notes of payments already here; older payments the list lost; contacts",
+  "@deskSetBackupBringsBackValue": {
+    "description": "Import dialog: what the import restores."
+  },
+  "deskSetBackupNeeds": "Needs",
+  "@deskSetBackupNeeds": {
+    "description": "Import dialog: label of the row saying what file is needed. Narrow label column."
+  },
+  "deskSetBackupNeedsValue": "A file from this wallet (the same recovery phrase), on {network}",
+  "@deskSetBackupNeedsValue": {
+    "description": "Import dialog: what file the import needs. {network} is the network name, e.g. \"Mainnet\".",
+    "placeholders": {
+      "network": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNever": "Never",
+  "@deskSetBackupNever": {
+    "description": "Import dialog: label of the row saying what the import never does. Narrow label column."
+  },
+  "deskSetBackupNeverValue": "Removes or changes a payment that is here",
+  "@deskSetBackupNeverValue": {
+    "description": "Import dialog: what the import never does (continues the label \"Never\")."
+  },
+  "deskSetBackupChooseFile": "Choose file…",
+  "@deskSetBackupChooseFile": {
+    "description": "Import dialog: button that opens the system Open dialog."
+  },
+  "deskSetBackupImportDesc": "Merges a history backup of this wallet into Activity. Nothing is removed, and the same file twice changes nothing.",
+  "@deskSetBackupImportDesc": {
+    "description": "Import history dialog: description under the title."
+  },
+  "deskSetBackupSaveCsvDialogTitle": "Save payments as CSV",
+  "@deskSetBackupSaveCsvDialogTitle": {
+    "description": "Title of the system Save dialog when exporting the CSV."
+  },
+  "deskSetBackupCsvDialogTitle": "Export CSV",
+  "@deskSetBackupCsvDialogTitle": {
+    "description": "Export CSV dialog: title."
+  },
+  "deskSetBackupCsvDialogDesc": "A plain table of this wallet’s payments, for spreadsheets.",
+  "@deskSetBackupCsvDialogDesc": {
+    "description": "Export CSV dialog: description under the title."
+  },
+  "deskSetBackupCsvSavedNote": "{count, plural, one{1 payment} other{{count} payments}}, newest first. Amounts in EPIC with 8 decimals; dates in UTC.",
+  "@deskSetBackupCsvSavedNote": {
+    "description": "Export CSV dialog: note after saving.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupDateError": "Enter a date as 2026-01-31",
+  "@deskSetBackupDateError": {
+    "description": "Export CSV dialog: error under a custom date field that is not a valid date. Keep the year-month-day format shown."
+  },
+  "deskSetBackupDateHint": "YYYY-MM-DD",
+  "@deskSetBackupDateHint": {
+    "description": "Export CSV dialog: placeholder of the custom date fields."
+  },
+  "deskSetBackupRange": "Range",
+  "@deskSetBackupRange": {
+    "description": "Export CSV dialog: label of the segmented control choosing which payments to export."
+  },
+  "deskSetBackupRangeAll": "All payments",
+  "@deskSetBackupRangeAll": {
+    "description": "Export CSV dialog: segment, all payments. Four segments share a narrow row; keep short."
+  },
+  "deskSetBackupRangeThisYear": "This year",
+  "@deskSetBackupRangeThisYear": {
+    "description": "Export CSV dialog: segment, payments of this calendar year. Keep short."
+  },
+  "deskSetBackupRangeLastYear": "Last year",
+  "@deskSetBackupRangeLastYear": {
+    "description": "Export CSV dialog: segment, payments of last calendar year. Keep short."
+  },
+  "deskSetBackupRangeCustom": "Custom",
+  "@deskSetBackupRangeCustom": {
+    "description": "Export CSV dialog: segment, choose own dates. Keep short."
+  },
+  "deskSetBackupFrom": "From",
+  "@deskSetBackupFrom": {
+    "description": "Export CSV dialog: label of the first custom date field."
+  },
+  "deskSetBackupTo": "To",
+  "@deskSetBackupTo": {
+    "description": "Export CSV dialog: label of the last custom date field."
+  },
+  "deskSetBackupCsvInfo": "{count, plural, one{1 payment} other{{count} payments}} · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.",
+  "@deskSetBackupCsvInfo": {
+    "description": "Export CSV dialog: summary line. {file} is the file name, shown in monospace. The columns named are in the file, whose headers stay English.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupCsvInfoNoCount": "– · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.",
+  "@deskSetBackupCsvInfoNoCount": {
+    "description": "Export CSV dialog: summary line while the date range is not valid, so there is no count. {file} is the file name.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNotEncrypted": "Not encrypted.",
+  "@deskSetBackupNotEncrypted": {
+    "description": "Export CSV dialog: title of the warning notice."
+  },
+  "deskSetBackupNotEncryptedBody": "Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; the history backup is for that.",
+  "@deskSetBackupNotEncryptedBody": {
+    "description": "Export CSV dialog: text of the warning notice."
+  },
+  "deskSetBackupReminderNever": "{count, plural, one{1 payment is not in a history backup.} other{{count} payments are not in a history backup.}}",
+  "@deskSetBackupReminderNever": {
+    "description": "Reminder on Overview when the history was never backed up. Count is the number of payments.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupReminderChanged": "{count, plural, one{1 payment is new or changed since the last history backup.} other{{count} payments are new or changed since the last history backup.}}",
+  "@deskSetBackupReminderChanged": {
+    "description": "Reminder on Overview when payments changed since the last history backup.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupReminderBody": "A restore from the recovery phrase brings back the balance, not who paid what.",
+  "@deskSetBackupReminderBody": {
+    "description": "Reminder on Overview: text under the title."
+  },
+  "deskSetBackupNotNow": "Not now",
+  "@deskSetBackupNotNow": {
+    "description": "Reminder on Overview: button that dismisses the reminder. Small inline button."
+  },
+  "deskSetDlgNodeAddressEmpty": "Enter the node’s address.",
+  "@deskSetDlgNodeAddressEmpty": {
+    "description": "Add or edit node dialog: error under the address field when it is empty."
+  },
+  "deskSetDlgNodeAddressBad": "Not a node address. Check the address and the port (usually 3413).",
+  "@deskSetDlgNodeAddressBad": {
+    "description": "Add or edit node dialog: error under the address field when the text is not a node address."
+  },
+  "deskSetDlgNodeAddressDuplicate": "This address is already in My nodes.",
+  "@deskSetDlgNodeAddressDuplicate": {
+    "description": "Add or edit node dialog: error when the address is already saved. \"My nodes\" is the list of own nodes in Settings > Node."
+  },
+  "deskSetDlgNodeNotAdded": "Node not added",
+  "@deskSetDlgNodeNotAdded": {
+    "description": "Toast title when saving a node failed; the reason follows as the toast text."
+  },
+  "deskSetDlgNodeSaved": "Node saved",
+  "@deskSetDlgNodeSaved": {
+    "description": "Toast title after an edited node was saved."
+  },
+  "deskSetDlgNodeAdded": "Added to my nodes",
+  "@deskSetDlgNodeAdded": {
+    "description": "Toast title after a node was added to the own-nodes list."
+  },
+  "deskSetDlgNodeSaveAnyway": "It can be saved anyway.",
+  "@deskSetDlgNodeSaveAnyway": {
+    "description": "Add node dialog: shown next to the check result when the node does not respond."
+  },
+  "deskSetDlgNodeEditTitle": "Edit node",
+  "@deskSetDlgNodeEditTitle": {
+    "description": "Title of the dialog for editing a saved node."
+  },
+  "deskSetDlgNodeAddTitle": "Add to my nodes",
+  "@deskSetDlgNodeAddTitle": {
+    "description": "Title of the dialog for adding a node to the own-nodes list; also the matching button."
+  },
+  "deskSetDlgNodeDesc": "Save a node address to find it again later. It can be saved while it is offline.",
+  "@deskSetDlgNodeDesc": {
+    "description": "Add or edit node dialog: description under the title."
+  },
+  "deskSetDlgNodeAddress": "Node address",
+  "@deskSetDlgNodeAddress": {
+    "description": "Add or edit node dialog: label and screen reader name of the address field."
+  },
+  "deskSetDlgNodeLabel": "Label",
+  "@deskSetDlgNodeLabel": {
+    "description": "Add or edit node dialog: label and screen reader name of the optional name field."
+  },
+  "deskSetDlgNodeLabelHint": "e.g. Home node",
+  "@deskSetDlgNodeLabelHint": {
+    "description": "Add or edit node dialog: placeholder of the label field."
+  },
+  "deskSetDlgDirTitle": "Node directory",
+  "@deskSetDlgDirTitle": {
+    "description": "Title of the dialog listing public nodes."
+  },
+  "deskSetDlgDirDesc": "Public nodes, their operators and their state at the last check.",
+  "@deskSetDlgDirDesc": {
+    "description": "Node directory dialog: description under the title."
+  },
+  "deskSetDlgDirEmpty": "No nodes to show",
+  "@deskSetDlgDirEmpty": {
+    "description": "Node directory dialog: empty state."
+  },
+  "deskSetDlgDirVersion": "version {version}",
+  "@deskSetDlgDirVersion": {
+    "description": "Node directory: a node’s software version in a small detail line, e.g. \"version 4.1.0\". Lowercase.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgDirHeight": "height {height}",
+  "@deskSetDlgDirHeight": {
+    "description": "Node directory: a node’s block height in a small detail line, e.g. \"height 2,914,414\". Lowercase.",
+    "placeholders": {
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgDirInUse": "In use",
+  "@deskSetDlgDirInUse": {
+    "description": "Node directory: tag on the node the wallet uses now. Short."
+  },
+  "deskSetDlgDirUse": "Use",
+  "@deskSetDlgDirUse": {
+    "description": "Node directory: button that switches to that node. Short."
+  },
+  "deskSetDlgDirNote": "Response times are measured from the status site, not from this computer.",
+  "@deskSetDlgDirNote": {
+    "description": "Node directory dialog: note under the list."
+  },
+  "deskSetDlgChainTitle": "Existing blockchain data found",
+  "@deskSetDlgChainTitle": {
+    "description": "Title of the dialog offering to reuse blockchain data already on this computer."
+  },
+  "deskSetDlgChainDesc": "This computer already has Epic blockchain data that the local node can use.",
+  "@deskSetDlgChainDesc": {
+    "description": "Existing blockchain data dialog: description under the title."
+  },
+  "deskSetDlgChainFolder": "Folder",
+  "@deskSetDlgChainFolder": {
+    "description": "Existing blockchain data dialog: fact label for the folder. Narrow label column."
+  },
+  "deskSetDlgChainSize": "Size",
+  "@deskSetDlgChainSize": {
+    "description": "Existing blockchain data dialog: fact label for the data size. Narrow label column."
+  },
+  "deskSetDlgChainUpdated": "Last updated",
+  "@deskSetDlgChainUpdated": {
+    "description": "Existing blockchain data dialog: fact label for when the data was last changed. Narrow label column."
+  },
+  "deskSetDlgChainUpdatedValue": "3 days ago",
+  "@deskSetDlgChainUpdatedValue": {
+    "description": "Existing blockchain data dialog: sample value of Last updated."
+  },
+  "deskSetDlgChainOthers": "Other copies were found too (1). This one was updated most recently.",
+  "@deskSetDlgChainOthers": {
+    "description": "Existing blockchain data dialog: note that another copy exists."
+  },
+  "deskSetDlgChainInUse": "Another Epic program is using this folder. Close it, then pick the local node again to use this data.",
+  "@deskSetDlgChainInUse": {
+    "description": "Existing blockchain data dialog: question line when the folder is locked by another program."
+  },
+  "deskSetDlgChainUseIt": "Use it? That saves downloading and syncing the whole blockchain.",
+  "@deskSetDlgChainUseIt": {
+    "description": "Existing blockchain data dialog: question line."
+  },
+  "deskSetDlgChainOlderWallet": "An older Epic Wallet that uses this folder may need to sync again after this. Coins are not affected.",
+  "@deskSetDlgChainOlderWallet": {
+    "description": "Existing blockchain data dialog: small note under the question."
+  },
+  "deskSetDlgChainFresh": "Download fresh",
+  "@deskSetDlgChainFresh": {
+    "description": "Existing blockchain data dialog: button to ignore the old data and download anew."
+  },
+  "deskSetDlgChainUse": "Use this data",
+  "@deskSetDlgChainUse": {
+    "description": "Existing blockchain data dialog: primary button to reuse the data."
+  },
+  "deskSetDlgPwChanged": "Password changed.",
+  "@deskSetDlgPwChanged": {
+    "description": "Toast after the wallet password was changed."
+  },
+  "deskSetDlgPwTitle": "Change password",
+  "@deskSetDlgPwTitle": {
+    "description": "Change password dialog: title and primary button."
+  },
+  "deskSetDlgPwDesc": "The new password unlocks this wallet from now on. A remembered password is forgotten.",
+  "@deskSetDlgPwDesc": {
+    "description": "Change password dialog: description under the title."
+  },
+  "deskSetDlgPwCurrent": "Current password",
+  "@deskSetDlgPwCurrent": {
+    "description": "Change password dialog: label and screen reader name of the field."
+  },
+  "deskSetDlgPwWrong": "Wrong password",
+  "@deskSetDlgPwWrong": {
+    "description": "Change password dialog: error under the current password field."
+  },
+  "deskSetDlgPwNew": "New password",
+  "@deskSetDlgPwNew": {
+    "description": "Change password dialog: label and screen reader name of the field."
+  },
+  "deskSetDlgPwRepeat": "Repeat new password",
+  "@deskSetDlgPwRepeat": {
+    "description": "Change password dialog: label and screen reader name of the field."
+  },
+  "deskSetDlgRemoveToastList": "{name} removed from the list",
+  "@deskSetDlgRemoveToastList": {
+    "description": "Toast title after a wallet was removed from the list. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveToastDeleted": "{name} deleted",
+  "@deskSetDlgRemoveToastDeleted": {
+    "description": "Toast title after a wallet was deleted. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveFilesKept": "Files kept.",
+  "@deskSetDlgRemoveFilesKept": {
+    "description": "Toast text after a wallet was removed from the list only."
+  },
+  "deskSetDlgRemoveTitle": "Remove {name}?",
+  "@deskSetDlgRemoveTitle": {
+    "description": "Remove wallet dialog: title. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveDesc": "Nothing changes until confirmed.",
+  "@deskSetDlgRemoveDesc": {
+    "description": "Remove wallet dialog: description under the title."
+  },
+  "deskSetDlgRemoveWhat": "What to remove",
+  "@deskSetDlgRemoveWhat": {
+    "description": "Remove wallet dialog: screen reader label of the two choices."
+  },
+  "deskSetDlgRemoveFromList": "Remove from list",
+  "@deskSetDlgRemoveFromList": {
+    "description": "Remove wallet dialog: choice title and button label; the wallet’s files stay on the computer."
+  },
+  "deskSetDlgRemoveFromListHint": "Files stay in {folder}. All wallets can add it back.",
+  "@deskSetDlgRemoveFromListHint": {
+    "description": "Remove wallet dialog: explanation of Remove from list. {folder} is a folder path. \"All wallets\" is the Settings page.",
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgDeleteWallet": "Delete wallet",
+  "@deskSetDlgDeleteWallet": {
+    "description": "Remove wallet and Delete wallet dialogs: choice title and danger button label."
+  },
+  "deskSetDlgRemoveDeleteHint": "Deletes its keys and database from {folder}. Only the recovery phrase restores it; without it the coins are lost.",
+  "@deskSetDlgRemoveDeleteHint": {
+    "description": "Remove wallet dialog: explanation of Delete wallet. {folder} is a folder path.",
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveUnlockHint": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.",
+  "@deskSetDlgRemoveUnlockHint": {
+    "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › This wallet\" is a menu path."
+  },
+  "deskSetDlgRemoveUnlock": "Unlock this wallet",
+  "@deskSetDlgRemoveUnlock": {
+    "description": "Remove wallet dialog: link that locks the open wallet and opens Unlock with this wallet selected."
+  },
+  "deskSetDlgRemoveIrreversible": "Cannot be undone",
+  "@deskSetDlgRemoveIrreversible": {
+    "description": "Remove wallet dialog: title of the warning shown for Delete wallet."
+  },
+  "deskSetDlgRemoveIrreversibleBody": "Only the recovery phrase restores the wallet; without it the coins are lost for good.",
+  "@deskSetDlgRemoveIrreversibleBody": {
+    "description": "Remove wallet dialog: text of the warning."
+  },
+  "deskSetDlgRemoveName": "Wallet name",
+  "@deskSetDlgRemoveName": {
+    "description": "Remove wallet dialog: label and screen reader name of the confirmation field."
+  },
+  "deskSetDlgRemoveTypeName": "Type {name} to confirm.",
+  "@deskSetDlgRemoveTypeName": {
+    "description": "Remove wallet dialog: help under the confirmation field. {name} is the wallet name to type.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveNameMismatch": "Name does not match",
+  "@deskSetDlgRemoveNameMismatch": {
+    "description": "Remove wallet dialog: error under the confirmation field."
+  },
+  "deskSetDlgPassword": "Password",
+  "@deskSetDlgPassword": {
+    "description": "Remove and Delete wallet dialogs: label of the password field."
+  },
+  "deskSetDlgPhraseWritten": "The recovery phrase is written down",
+  "@deskSetDlgPhraseWritten": {
+    "description": "Remove and Delete wallet dialogs: checkbox label confirming the recovery phrase is saved."
+  },
+  "deskSetDlgRemoving": "Removing…",
+  "@deskSetDlgRemoving": {
+    "description": "Remove wallet dialog: shown while the wallet is removed."
+  },
+  "deskSetDlgWalletLocked": "The wallet is locked",
+  "@deskSetDlgWalletLocked": {
+    "description": "Error when an action needs the open wallet but it is locked."
+  },
+  "deskSetDlgDeleteTitle": "Delete this wallet?",
+  "@deskSetDlgDeleteTitle": {
+    "description": "Delete wallet dialog: title."
+  },
+  "deskSetDlgDeleteDesc": "Deletes the wallet and its seed from this computer. Only the recovery phrase restores it; without it the coins are lost.",
+  "@deskSetDlgDeleteDesc": {
+    "description": "Delete wallet dialog: description under the title."
+  },
+  "deskSetFrameTitle": "Settings",
+  "@deskSetFrameTitle": {
+    "description": "Title of the Settings page."
+  },
+  "deskSetFrameSections": "Settings sections",
+  "@deskSetFrameSections": {
+    "description": "Accessibility label of the Settings sidebar list."
+  },
+  "deskSetFrameNode": "Node",
+  "@deskSetFrameNode": {
+    "description": "Settings sidebar entry and page name for the node section. Narrow (about 200 px)."
+  },
+  "deskSetFrameReceiving": "Receiving",
+  "@deskSetFrameReceiving": {
+    "description": "Settings sidebar entry and page name for how this wallet receives payments. Narrow."
+  },
+  "deskSetFramePrivacy": "Privacy",
+  "@deskSetFramePrivacy": {
+    "description": "Settings sidebar entry and page name for privacy and network routing. Narrow."
+  },
+  "deskSetFrameAppearance": "Appearance",
+  "@deskSetFrameAppearance": {
+    "description": "Settings sidebar entry and page name for theme, language and display. Narrow."
+  },
+  "deskSetFrameThisWallet": "This wallet",
+  "@deskSetFrameThisWallet": {
+    "description": "Settings sidebar entry and page name for the open wallet (name, password, backup, delete). Narrow."
+  },
+  "deskSetFrameAllWallets": "All wallets",
+  "@deskSetFrameAllWallets": {
+    "description": "Settings sidebar entry and page name for the list of wallets on this computer. Narrow."
+  },
+  "deskSetFramePhrase": "Recovery phrase",
+  "@deskSetFramePhrase": {
+    "description": "Settings sidebar entry and page name for showing the recovery phrase. Narrow."
+  },
+  "deskSetFrameRescan": "Recheck balance",
+  "@deskSetFrameRescan": {
+    "description": "Settings sidebar entry and page name for rescanning the chain to recheck the balance. Narrow."
+  },
+  "deskSetFrameAbout": "About",
+  "@deskSetFrameAbout": {
+    "description": "Settings sidebar entry and page name for the About page. Narrow."
+  },
+  "deskSetFrameHelp": "Help",
+  "@deskSetFrameHelp": {
+    "description": "Settings sidebar entry and page name for the Help page. Narrow."
+  },
+  "deskSetFrameHealthOn": "On",
+  "@deskSetFrameHealthOn": {
+    "description": "Status word of a service that works normally."
+  },
+  "deskSetFrameHealthSlow": "Slow",
+  "@deskSetFrameHealthSlow": {
+    "description": "Status word of a service that answers slowly."
+  },
+  "deskSetFrameNotResponding": "Not responding",
+  "@deskSetFrameNotResponding": {
+    "description": "Status word of a service or node that does not answer."
+  },
+  "deskSetFrameOff": "Off",
+  "@deskSetFrameOff": {
+    "description": "Status word of a service that is switched off."
+  },
+  "deskSetFrameChecking": "Checking…",
+  "@deskSetFrameChecking": {
+    "description": "Status word while a service is being checked."
+  },
+  "deskSetFrameNodeSynced": "Synced",
+  "@deskSetFrameNodeSynced": {
+    "description": "Status word of a node that has the whole blockchain."
+  },
+  "deskSetFrameNodeSyncing": "Syncing",
+  "@deskSetFrameNodeSyncing": {
+    "description": "Status word of a node that is still downloading the blockchain."
+  },
+  "deskSetFrameConnecting": "Connecting…",
+  "@deskSetFrameConnecting": {
+    "description": "Status word while connecting to a node or to Epicbox."
+  },
+  "deskSetFrameListening": "Listening",
+  "@deskSetFrameListening": {
+    "description": "Status word of the Epicbox listener that waits for incoming payments."
+  },
+  "deskSetFrameHealthLatency": "{word} · {ms} ms",
+  "@deskSetFrameHealthLatency": {
+    "description": "Status word with its response time, e.g. \"On · 84 ms\". {word} is a status word, {ms} milliseconds.",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      },
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetFrameNever": "never",
+  "@deskSetFrameNever": {
+    "description": "Time since an event that never happened. Lowercase, part of a line."
+  },
+  "deskSetFrameJustNow": "just now",
+  "@deskSetFrameJustNow": {
+    "description": "Time since an event that happened less than a minute ago. Lowercase."
+  },
+  "deskSetFrameMinAgo": "{count, plural, one{{count} min ago} other{{count} min ago}}",
+  "@deskSetFrameMinAgo": {
+    "description": "Minutes since an event, abbreviated, e.g. \"5 min ago\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetFrameHoursAgo": "{count, plural, one{{count} h ago} other{{count} h ago}}",
+  "@deskSetFrameHoursAgo": {
+    "description": "Hours since an event, abbreviated, e.g. \"3 h ago\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetFrameDaysAgo": "{count, plural, one{{count} d ago} other{{count} d ago}}",
+  "@deskSetFrameDaysAgo": {
+    "description": "Days since an event, abbreviated, e.g. \"2 d ago\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetComboOpens": "Opens the list",
+  "@deskSetComboOpens": {
+    "description": "Screen reader hint of the node and relay picker field."
+  },
+  "deskSetComboNoAnswer": "No answer yet",
+  "@deskSetComboNoAnswer": {
+    "description": "Picker field: shown when a check takes long. Narrow."
+  },
+  "deskSetComboNothing": "Nothing to show.",
+  "@deskSetComboNothing": {
+    "description": "Picker list: empty note."
+  },
+  "deskSetComboUse": "Use {host}",
+  "@deskSetComboUse": {
+    "description": "Screen reader label of a picker row; the node’s details follow after a comma. {host} is a server address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetNodeVersionOld": "Version older than {version}",
+  "@deskSetNodeVersionOld": {
+    "description": "Settings > Node: tag or sub-line on a node whose software is older than the minimum version the wallet works well with. {version} is a version number like 3.6.0.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetNodePortNote": "Check the address and the port (usually 3413).",
+  "@deskSetNodePortNote": {
+    "description": "Settings > Node: error under the node picker when the typed node does not answer."
+  },
+  "deskSetNodeListNote": "State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.",
+  "@deskSetNodeListNote": {
+    "description": "Settings > Node: footer under the node list. status.btlabs.uk is a web address and stays as is."
+  },
+  "deskSetNodeStartTitle": "Start the local node?",
+  "@deskSetNodeStartTitle": {
+    "description": "Dialog title before the local node program starts."
+  },
+  "deskSetNodeStartDesc": "A separate program syncs the Epic chain on this computer.",
+  "@deskSetNodeStartDesc": {
+    "description": "Start the local node dialog: description under the title."
+  },
+  "deskSetNodeStartLine1": "Downloads the whole chain: several GB of disk space and bandwidth.",
+  "@deskSetNodeStartLine1": {
+    "description": "Start the local node dialog: first bullet."
+  },
+  "deskSetNodeStartLine2": "The first sync takes hours. Until it is done the node shows Syncing.",
+  "@deskSetNodeStartLine2": {
+    "description": "Start the local node dialog: second bullet. \"Syncing\" is the node status word."
+  },
+  "deskSetNodeStartLine3": "The firewall may ask to allow the node program.",
+  "@deskSetNodeStartLine3": {
+    "description": "Start the local node dialog: third bullet."
+  },
+  "deskSetNodeStartButton": "Start local node",
+  "@deskSetNodeStartButton": {
+    "description": "Start the local node dialog: primary button."
+  },
+  "deskSetNodeRowNotSetUp": "Not set up",
+  "@deskSetNodeRowNotSetUp": {
+    "description": "Status of the local node in the node picker: not installed or never started."
+  },
+  "deskSetNodeRowStopped": "Stopped",
+  "@deskSetNodeRowStopped": {
+    "description": "Status of the local node in the node picker: switched off."
+  },
+  "deskSetNodeRowStarting": "Starting",
+  "@deskSetNodeRowStarting": {
+    "description": "Status of the local node in the node picker: starting up."
+  },
+  "deskSetNodeRowSyncingPct": "Syncing {percent}",
+  "@deskSetNodeRowSyncingPct": {
+    "description": "Status of the local node in the node picker while syncing. {percent} is a number with a percent sign, e.g. \"42%\".",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetNodeRowStalled": "Stalled",
+  "@deskSetNodeRowStalled": {
+    "description": "Status of the local node in the node picker: sync stopped making progress."
+  },
+  "deskSetNodeRowFailed": "Failed",
+  "@deskSetNodeRowFailed": {
+    "description": "Status of the local node in the node picker: could not run."
+  },
+  "deskSetNodeLocalInUse": "Local node in use",
+  "@deskSetNodeLocalInUse": {
+    "description": "Toast title after switching to the local node."
+  },
+  "deskSetNodeLocalInUseText": "It downloads the whole chain. Needs 5 GB free.",
+  "@deskSetNodeLocalInUseText": {
+    "description": "Toast text after switching to the local node."
+  },
+  "deskSetNodeLocalNode": "Local node",
+  "@deskSetNodeLocalNode": {
+    "description": "Name of the node program on this computer, in the node picker and its field."
+  },
+  "deskSetNodeGroupComputer": "This computer",
+  "@deskSetNodeGroupComputer": {
+    "description": "Heading of the node picker group holding the local node."
+  },
+  "deskSetNodeGroupMine": "My nodes",
+  "@deskSetNodeGroupMine": {
+    "description": "Heading of the node picker group of nodes the user saved; also a name used in other texts."
+  },
+  "deskSetNodeGroupPublic": "Public nodes",
+  "@deskSetNodeGroupPublic": {
+    "description": "Heading of the node picker group of public nodes."
+  },
+  "deskSetNodeRemovedFromMine": "Removed from my nodes",
+  "@deskSetNodeRemovedFromMine": {
+    "description": "Toast title after a node was removed from the saved nodes. The node address follows as text."
+  },
+  "deskSetNodeNotAnswering": "Not answering",
+  "@deskSetNodeNotAnswering": {
+    "description": "Node picker: word on a typed address whose node does not answer."
+  },
+  "deskSetNodeAddToMine": "Add to my nodes",
+  "@deskSetNodeAddToMine": {
+    "description": "Node picker: tooltip and screen reader label of the star button on a typed address."
+  },
+  "deskSetNodeServer": "Node server",
+  "@deskSetNodeServer": {
+    "description": "Settings > Node: row title, picker label and screen reader name."
+  },
+  "deskSetNodeServerHint": "The node the wallet reads the chain through and sends with.",
+  "@deskSetNodeServerHint": {
+    "description": "Settings > Node: hint under the Node server row."
+  },
+  "deskSetNodeFindHint": "Find or type a node address",
+  "@deskSetNodeFindHint": {
+    "description": "Settings > Node: placeholder of the node picker search field."
+  },
+  "deskSetNodeChecking": "Checking the node…",
+  "@deskSetNodeChecking": {
+    "description": "Settings > Node: shown while a chosen node is checked."
+  },
+  "deskSetNodeTypedNote": "Enter uses it. The star keeps it in My nodes.",
+  "@deskSetNodeTypedNote": {
+    "description": "Settings > Node: note under a typed address in the picker. \"Enter\" is the keyboard key."
+  },
+  "deskSetNodeNoNodes": "No nodes to show.",
+  "@deskSetNodeNoNodes": {
+    "description": "Settings > Node: empty note of the node picker."
+  },
+  "deskSetNodeFooterAdd": "Add to my nodes…",
+  "@deskSetNodeFooterAdd": {
+    "description": "Node picker footer action that opens the add node dialog."
+  },
+  "deskSetNodeFooterDirectory": "Node directory…",
+  "@deskSetNodeFooterDirectory": {
+    "description": "Node picker footer action that opens the node directory dialog."
+  },
+  "deskSetNodeBackground": "Sync in background",
+  "@deskSetNodeBackground": {
+    "description": "Settings > Node: switch title and screen reader name."
+  },
+  "deskSetNodeBackgroundHint": "Keeps syncing while the app is closed.",
+  "@deskSetNodeBackgroundHint": {
+    "description": "Settings > Node: hint under Sync in background."
   }
 }

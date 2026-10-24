@@ -9384,6 +9384,1254 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}'**
   String sendUsesAllOutputs(int count);
+
+  /// Settings > Backup: when the last export was, when it was today. {time} is a clock time like 14:02. Part of a longer line; keep lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'today, {time}'**
+  String deskSetBackupWhenToday(String time);
+
+  /// Settings > Backup: when the last export was, when it was yesterday. {time} is a clock time like 09:10. Part of a longer line; keep lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'yesterday, {time}'**
+  String deskSetBackupWhenYesterday(String time);
+
+  /// Settings > Backup: date and time of the last export, e.g. "3 Oct 2026, 14:02".
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {time}'**
+  String deskSetBackupWhenDate(String day, String time);
+
+  /// Settings > Backup: line under Export history backup when nothing was ever exported.
+  ///
+  /// In en, this message translates to:
+  /// **'Never exported.'**
+  String get deskSetBackupNeverExported;
+
+  /// Settings > Backup: line under Export history backup. {when} is a date such as "today, 14:02".
+  ///
+  /// In en, this message translates to:
+  /// **'Last export {when} · nothing new since.'**
+  String deskSetBackupLastExportNothingNew(String when);
+
+  /// Settings > Backup: line under Export history backup. {when} is a date such as "today, 14:02"; count is how many payments are not in that backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Last export {when} · {count, plural, one{1 payment since} other{{count} payments since}}.'**
+  String deskSetBackupLastExportSince(String when, int count);
+
+  /// Error in the Export dialogs when the file could not be saved and the system did not say where. {reason} is the system message.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not write to the folder: {reason}. Choose another folder.'**
+  String deskSetBackupWriteFailedHere(String reason);
+
+  /// Error in the Export dialogs when the file could not be saved. {folder} is a path; {reason} is the system message.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not write to {folder}: {reason}. Choose another folder.'**
+  String deskSetBackupWriteFailedIn(String folder, String reason);
+
+  /// Error in the Export dialogs when the file could not be saved, reason unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be written. Choose another folder.'**
+  String get deskSetBackupWriteFailed;
+
+  /// Settings > This wallet: title of the Backup group of rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get deskSetBackupGroup;
+
+  /// Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file.
+  ///
+  /// In en, this message translates to:
+  /// **'Export history backup'**
+  String get deskSetBackupExportTitle;
+
+  /// Settings > Backup: hint under the Export history backup row.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not the records.'**
+  String get deskSetBackupExportHint;
+
+  /// Settings > Backup: button label while the export dialog is open. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting…'**
+  String get deskSetBackupExporting;
+
+  /// Settings > Backup: button that opens the export dialog. Short; the dots mean a dialog follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Export…'**
+  String get deskSetBackupExportButton;
+
+  /// Settings > Backup: row title and dialog title for importing a history backup file.
+  ///
+  /// In en, this message translates to:
+  /// **'Import history backup'**
+  String get deskSetBackupImportTitle;
+
+  /// Settings > Backup: hint under the Import history backup row.
+  ///
+  /// In en, this message translates to:
+  /// **'Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.'**
+  String get deskSetBackupImportHint;
+
+  /// Settings > Backup: button that opens the import dialog. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Import…'**
+  String get deskSetBackupImportButton;
+
+  /// Settings > Backup: row title for exporting payments as a spreadsheet file.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments as CSV'**
+  String get deskSetBackupCsvTitle;
+
+  /// Settings > Backup: hint under the Payments as CSV row.
+  ///
+  /// In en, this message translates to:
+  /// **'A plain table for spreadsheets. Not encrypted, not importable.'**
+  String get deskSetBackupCsvHint;
+
+  /// Settings > Backup: button that opens the CSV export dialog. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV…'**
+  String get deskSetBackupCsvButton;
+
+  /// Title of the system Save dialog when exporting the history backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Save payment history'**
+  String get deskSetBackupSaveDialogTitle;
+
+  /// Export dialogs: title of the error notice when the file could not be saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved'**
+  String get deskSetBackupNotSaved;
+
+  /// Export history dialog: label of the row listing what the file holds. Narrow label column (about 100 px).
+  ///
+  /// In en, this message translates to:
+  /// **'In the file'**
+  String get deskSetBackupInFile;
+
+  /// Export history dialog: what the file holds, e.g. "12 payments, 3 contacts".
+  ///
+  /// In en, this message translates to:
+  /// **'{payments, plural, one{1 payment} other{{payments} payments}}, {contacts, plural, one{1 contact} other{{contacts} contacts}}'**
+  String deskSetBackupInFileCounts(int payments, int contacts);
+
+  /// Export history dialog: small text under the counts of what the file holds.
+  ///
+  /// In en, this message translates to:
+  /// **'Who paid what, fees, notes, slate ids'**
+  String get deskSetBackupInFileSub;
+
+  /// Export history dialog: label of the row listing what the file does not hold. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in it'**
+  String get deskSetBackupNotIn;
+
+  /// Export history dialog: what the file does not contain.
+  ///
+  /// In en, this message translates to:
+  /// **'Keys, the recovery phrase, the password'**
+  String get deskSetBackupNotInValue;
+
+  /// Export history dialog: label of the row saying which wallet can open the file. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens with'**
+  String get deskSetBackupOpensWith;
+
+  /// Export history dialog: which wallets can open the file.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet, or one restored from its phrase'**
+  String get deskSetBackupOpensWithValue;
+
+  /// Export dialog: label of the row with the file name. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get deskSetBackupFile;
+
+  /// Export history dialog: note under the list.
+  ///
+  /// In en, this message translates to:
+  /// **'The file holds payments up to now. Export again after new payments.'**
+  String get deskSetBackupFileNote;
+
+  /// Export history dialog: description under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'A file with this wallet’s payments, their details and contacts. Only a wallet with the same recovery phrase opens it.'**
+  String get deskSetBackupExportDesc;
+
+  /// Export dialogs: title of the success block once the file is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get deskSetBackupSaved;
+
+  /// Export history dialog: advice shown after saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep a copy off this computer too: a USB stick, another drive, or cloud storage. Export again after new payments.'**
+  String get deskSetBackupKeepCopy;
+
+  /// Export dialogs: button that opens the folder of the saved file.
+  ///
+  /// In en, this message translates to:
+  /// **'Open folder'**
+  String get deskSetBackupOpenFolder;
+
+  /// Export dialogs: save button label while saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get deskSetBackupSaving;
+
+  /// Export dialogs: save button label after a failed save.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskSetBackupTryAgain;
+
+  /// Export dialogs: button that opens the system Save dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as…'**
+  String get deskSetBackupSaveAs;
+
+  /// Title of the system Open dialog when importing a history backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Open history backup'**
+  String get deskSetBackupOpenDialogTitle;
+
+  /// Import result tile title: count of payments that got details back.
+  ///
+  /// In en, this message translates to:
+  /// **'Details restored'**
+  String get deskSetBackupDetailsRestored;
+
+  /// Import result tile text under "Details restored".
+  ///
+  /// In en, this message translates to:
+  /// **'Payments already here got their counterparty, fee or note back'**
+  String get deskSetBackupDetailsRestoredSub;
+
+  /// Import result tile title: count of payments added from the backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Older payments added'**
+  String get deskSetBackupOlderAdded;
+
+  /// Import result tile text under "Older payments added". "From backup" is a label shown in Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the list any more; shown as From backup'**
+  String get deskSetBackupOlderAddedSub;
+
+  /// Import result tile title: count of contacts added.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts added'**
+  String get deskSetBackupContactsAdded;
+
+  /// Import result tile title: count of records that were already in the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Already here'**
+  String get deskSetBackupAlreadyHere;
+
+  /// Import result tile text under "Already here".
+  ///
+  /// In en, this message translates to:
+  /// **'Unchanged'**
+  String get deskSetBackupUnchanged;
+
+  /// Import dialog: title of the success block when the file brought nothing new.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing new'**
+  String get deskSetBackupNothingNew;
+
+  /// Import dialog: text of the "Nothing new" block. {file} is the file name, shown in monospace.
+  ///
+  /// In en, this message translates to:
+  /// **'Every record in {file} was already here.'**
+  String deskSetBackupNothingNewBody(String file);
+
+  /// Import dialog: title of the success block.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported'**
+  String get deskSetBackupImported;
+
+  /// Import dialog: shown while the chosen file is read. {file} is the file name, shown in monospace.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading {file}…'**
+  String deskSetBackupReading(String file);
+
+  /// Import dialog: title of the error notice when the import failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not imported'**
+  String get deskSetBackupNotImported;
+
+  /// Import dialog: label of the row saying what the import restores. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Brings back'**
+  String get deskSetBackupBringsBack;
+
+  /// Import dialog: what the import restores.
+  ///
+  /// In en, this message translates to:
+  /// **'Who paid what, fees and notes of payments already here; older payments the list lost; contacts'**
+  String get deskSetBackupBringsBackValue;
+
+  /// Import dialog: label of the row saying what file is needed. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs'**
+  String get deskSetBackupNeeds;
+
+  /// Import dialog: what file the import needs. {network} is the network name, e.g. "Mainnet".
+  ///
+  /// In en, this message translates to:
+  /// **'A file from this wallet (the same recovery phrase), on {network}'**
+  String deskSetBackupNeedsValue(String network);
+
+  /// Import dialog: label of the row saying what the import never does. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get deskSetBackupNever;
+
+  /// Import dialog: what the import never does (continues the label "Never").
+  ///
+  /// In en, this message translates to:
+  /// **'Removes or changes a payment that is here'**
+  String get deskSetBackupNeverValue;
+
+  /// Import dialog: button that opens the system Open dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file…'**
+  String get deskSetBackupChooseFile;
+
+  /// Import history dialog: description under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Merges a history backup of this wallet into Activity. Nothing is removed, and the same file twice changes nothing.'**
+  String get deskSetBackupImportDesc;
+
+  /// Title of the system Save dialog when exporting the CSV.
+  ///
+  /// In en, this message translates to:
+  /// **'Save payments as CSV'**
+  String get deskSetBackupSaveCsvDialogTitle;
+
+  /// Export CSV dialog: title.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get deskSetBackupCsvDialogTitle;
+
+  /// Export CSV dialog: description under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'A plain table of this wallet’s payments, for spreadsheets.'**
+  String get deskSetBackupCsvDialogDesc;
+
+  /// Export CSV dialog: note after saving.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 payment} other{{count} payments}}, newest first. Amounts in EPIC with 8 decimals; dates in UTC.'**
+  String deskSetBackupCsvSavedNote(int count);
+
+  /// Export CSV dialog: error under a custom date field that is not a valid date. Keep the year-month-day format shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a date as 2026-01-31'**
+  String get deskSetBackupDateError;
+
+  /// Export CSV dialog: placeholder of the custom date fields.
+  ///
+  /// In en, this message translates to:
+  /// **'YYYY-MM-DD'**
+  String get deskSetBackupDateHint;
+
+  /// Export CSV dialog: label of the segmented control choosing which payments to export.
+  ///
+  /// In en, this message translates to:
+  /// **'Range'**
+  String get deskSetBackupRange;
+
+  /// Export CSV dialog: segment, all payments. Four segments share a narrow row; keep short.
+  ///
+  /// In en, this message translates to:
+  /// **'All payments'**
+  String get deskSetBackupRangeAll;
+
+  /// Export CSV dialog: segment, payments of this calendar year. Keep short.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get deskSetBackupRangeThisYear;
+
+  /// Export CSV dialog: segment, payments of last calendar year. Keep short.
+  ///
+  /// In en, this message translates to:
+  /// **'Last year'**
+  String get deskSetBackupRangeLastYear;
+
+  /// Export CSV dialog: segment, choose own dates. Keep short.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get deskSetBackupRangeCustom;
+
+  /// Export CSV dialog: label of the first custom date field.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get deskSetBackupFrom;
+
+  /// Export CSV dialog: label of the last custom date field.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get deskSetBackupTo;
+
+  /// Export CSV dialog: summary line. {file} is the file name, shown in monospace. The columns named are in the file, whose headers stay English.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 payment} other{{count} payments}} · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.'**
+  String deskSetBackupCsvInfo(int count, String file);
+
+  /// Export CSV dialog: summary line while the date range is not valid, so there is no count. {file} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'– · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.'**
+  String deskSetBackupCsvInfoNoCount(String file);
+
+  /// Export CSV dialog: title of the warning notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Not encrypted.'**
+  String get deskSetBackupNotEncrypted;
+
+  /// Export CSV dialog: text of the warning notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; the history backup is for that.'**
+  String get deskSetBackupNotEncryptedBody;
+
+  /// Reminder on Overview when the history was never backed up. Count is the number of payments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 payment is not in a history backup.} other{{count} payments are not in a history backup.}}'**
+  String deskSetBackupReminderNever(int count);
+
+  /// Reminder on Overview when payments changed since the last history backup.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 payment is new or changed since the last history backup.} other{{count} payments are new or changed since the last history backup.}}'**
+  String deskSetBackupReminderChanged(int count);
+
+  /// Reminder on Overview: text under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'A restore from the recovery phrase brings back the balance, not who paid what.'**
+  String get deskSetBackupReminderBody;
+
+  /// Reminder on Overview: button that dismisses the reminder. Small inline button.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get deskSetBackupNotNow;
+
+  /// Add or edit node dialog: error under the address field when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the node’s address.'**
+  String get deskSetDlgNodeAddressEmpty;
+
+  /// Add or edit node dialog: error under the address field when the text is not a node address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a node address. Check the address and the port (usually 3413).'**
+  String get deskSetDlgNodeAddressBad;
+
+  /// Add or edit node dialog: error when the address is already saved. "My nodes" is the list of own nodes in Settings > Node.
+  ///
+  /// In en, this message translates to:
+  /// **'This address is already in My nodes.'**
+  String get deskSetDlgNodeAddressDuplicate;
+
+  /// Toast title when saving a node failed; the reason follows as the toast text.
+  ///
+  /// In en, this message translates to:
+  /// **'Node not added'**
+  String get deskSetDlgNodeNotAdded;
+
+  /// Toast title after an edited node was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Node saved'**
+  String get deskSetDlgNodeSaved;
+
+  /// Toast title after a node was added to the own-nodes list.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to my nodes'**
+  String get deskSetDlgNodeAdded;
+
+  /// Add node dialog: shown next to the check result when the node does not respond.
+  ///
+  /// In en, this message translates to:
+  /// **'It can be saved anyway.'**
+  String get deskSetDlgNodeSaveAnyway;
+
+  /// Title of the dialog for editing a saved node.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit node'**
+  String get deskSetDlgNodeEditTitle;
+
+  /// Title of the dialog for adding a node to the own-nodes list; also the matching button.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my nodes'**
+  String get deskSetDlgNodeAddTitle;
+
+  /// Add or edit node dialog: description under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a node address to find it again later. It can be saved while it is offline.'**
+  String get deskSetDlgNodeDesc;
+
+  /// Add or edit node dialog: label and screen reader name of the address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Node address'**
+  String get deskSetDlgNodeAddress;
+
+  /// Add or edit node dialog: label and screen reader name of the optional name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get deskSetDlgNodeLabel;
+
+  /// Add or edit node dialog: placeholder of the label field.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Home node'**
+  String get deskSetDlgNodeLabelHint;
+
+  /// Title of the dialog listing public nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Node directory'**
+  String get deskSetDlgDirTitle;
+
+  /// Node directory dialog: description under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Public nodes, their operators and their state at the last check.'**
+  String get deskSetDlgDirDesc;
+
+  /// Node directory dialog: empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'No nodes to show'**
+  String get deskSetDlgDirEmpty;
+
+  /// Node directory: a node’s software version in a small detail line, e.g. "version 4.1.0". Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'version {version}'**
+  String deskSetDlgDirVersion(String version);
+
+  /// Node directory: a node’s block height in a small detail line, e.g. "height 2,914,414". Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'height {height}'**
+  String deskSetDlgDirHeight(String height);
+
+  /// Node directory: tag on the node the wallet uses now. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'In use'**
+  String get deskSetDlgDirInUse;
+
+  /// Node directory: button that switches to that node. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get deskSetDlgDirUse;
+
+  /// Node directory dialog: note under the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Response times are measured from the status site, not from this computer.'**
+  String get deskSetDlgDirNote;
+
+  /// Title of the dialog offering to reuse blockchain data already on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing blockchain data found'**
+  String get deskSetDlgChainTitle;
+
+  /// Existing blockchain data dialog: description under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer already has Epic blockchain data that the local node can use.'**
+  String get deskSetDlgChainDesc;
+
+  /// Existing blockchain data dialog: fact label for the folder. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder'**
+  String get deskSetDlgChainFolder;
+
+  /// Existing blockchain data dialog: fact label for the data size. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get deskSetDlgChainSize;
+
+  /// Existing blockchain data dialog: fact label for when the data was last changed. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated'**
+  String get deskSetDlgChainUpdated;
+
+  /// Existing blockchain data dialog: sample value of Last updated.
+  ///
+  /// In en, this message translates to:
+  /// **'3 days ago'**
+  String get deskSetDlgChainUpdatedValue;
+
+  /// Existing blockchain data dialog: note that another copy exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Other copies were found too (1). This one was updated most recently.'**
+  String get deskSetDlgChainOthers;
+
+  /// Existing blockchain data dialog: question line when the folder is locked by another program.
+  ///
+  /// In en, this message translates to:
+  /// **'Another Epic program is using this folder. Close it, then pick the local node again to use this data.'**
+  String get deskSetDlgChainInUse;
+
+  /// Existing blockchain data dialog: question line.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it? That saves downloading and syncing the whole blockchain.'**
+  String get deskSetDlgChainUseIt;
+
+  /// Existing blockchain data dialog: small note under the question.
+  ///
+  /// In en, this message translates to:
+  /// **'An older Epic Wallet that uses this folder may need to sync again after this. Coins are not affected.'**
+  String get deskSetDlgChainOlderWallet;
+
+  /// Existing blockchain data dialog: button to ignore the old data and download anew.
+  ///
+  /// In en, this message translates to:
+  /// **'Download fresh'**
+  String get deskSetDlgChainFresh;
+
+  /// Existing blockchain data dialog: primary button to reuse the data.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this data'**
+  String get deskSetDlgChainUse;
+
+  /// Toast after the wallet password was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed.'**
+  String get deskSetDlgPwChanged;
+
+  /// Change password dialog: title and primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get deskSetDlgPwTitle;
+
+  /// Change password dialog: description under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'The new password unlocks this wallet from now on. A remembered password is forgotten.'**
+  String get deskSetDlgPwDesc;
+
+  /// Change password dialog: label and screen reader name of the field.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get deskSetDlgPwCurrent;
+
+  /// Change password dialog: error under the current password field.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong password'**
+  String get deskSetDlgPwWrong;
+
+  /// Change password dialog: label and screen reader name of the field.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get deskSetDlgPwNew;
+
+  /// Change password dialog: label and screen reader name of the field.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat new password'**
+  String get deskSetDlgPwRepeat;
+
+  /// Toast title after a wallet was removed from the list. {name} is the wallet name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} removed from the list'**
+  String deskSetDlgRemoveToastList(String name);
+
+  /// Toast title after a wallet was deleted. {name} is the wallet name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} deleted'**
+  String deskSetDlgRemoveToastDeleted(String name);
+
+  /// Toast text after a wallet was removed from the list only.
+  ///
+  /// In en, this message translates to:
+  /// **'Files kept.'**
+  String get deskSetDlgRemoveFilesKept;
+
+  /// Remove wallet dialog: title. {name} is the wallet name.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String deskSetDlgRemoveTitle(String name);
+
+  /// Remove wallet dialog: description under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing changes until confirmed.'**
+  String get deskSetDlgRemoveDesc;
+
+  /// Remove wallet dialog: screen reader label of the two choices.
+  ///
+  /// In en, this message translates to:
+  /// **'What to remove'**
+  String get deskSetDlgRemoveWhat;
+
+  /// Remove wallet dialog: choice title and button label; the wallet’s files stay on the computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from list'**
+  String get deskSetDlgRemoveFromList;
+
+  /// Remove wallet dialog: explanation of Remove from list. {folder} is a folder path. "All wallets" is the Settings page.
+  ///
+  /// In en, this message translates to:
+  /// **'Files stay in {folder}. All wallets can add it back.'**
+  String deskSetDlgRemoveFromListHint(String folder);
+
+  /// Remove wallet and Delete wallet dialogs: choice title and danger button label.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete wallet'**
+  String get deskSetDlgDeleteWallet;
+
+  /// Remove wallet dialog: explanation of Delete wallet. {folder} is a folder path.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes its keys and database from {folder}. Only the recovery phrase restores it; without it the coins are lost.'**
+  String deskSetDlgRemoveDeleteHint(String folder);
+
+  /// Remove wallet dialog: shown for a locked wallet. "Settings › This wallet" is a menu path.
+  ///
+  /// In en, this message translates to:
+  /// **'To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.'**
+  String get deskSetDlgRemoveUnlockHint;
+
+  /// Remove wallet dialog: link that locks the open wallet and opens Unlock with this wallet selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock this wallet'**
+  String get deskSetDlgRemoveUnlock;
+
+  /// Remove wallet dialog: title of the warning shown for Delete wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be undone'**
+  String get deskSetDlgRemoveIrreversible;
+
+  /// Remove wallet dialog: text of the warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the recovery phrase restores the wallet; without it the coins are lost for good.'**
+  String get deskSetDlgRemoveIrreversibleBody;
+
+  /// Remove wallet dialog: label and screen reader name of the confirmation field.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name'**
+  String get deskSetDlgRemoveName;
+
+  /// Remove wallet dialog: help under the confirmation field. {name} is the wallet name to type.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {name} to confirm.'**
+  String deskSetDlgRemoveTypeName(String name);
+
+  /// Remove wallet dialog: error under the confirmation field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name does not match'**
+  String get deskSetDlgRemoveNameMismatch;
+
+  /// Remove and Delete wallet dialogs: label of the password field.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get deskSetDlgPassword;
+
+  /// Remove and Delete wallet dialogs: checkbox label confirming the recovery phrase is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'The recovery phrase is written down'**
+  String get deskSetDlgPhraseWritten;
+
+  /// Remove wallet dialog: shown while the wallet is removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Removing…'**
+  String get deskSetDlgRemoving;
+
+  /// Error when an action needs the open wallet but it is locked.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet is locked'**
+  String get deskSetDlgWalletLocked;
+
+  /// Delete wallet dialog: title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this wallet?'**
+  String get deskSetDlgDeleteTitle;
+
+  /// Delete wallet dialog: description under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes the wallet and its seed from this computer. Only the recovery phrase restores it; without it the coins are lost.'**
+  String get deskSetDlgDeleteDesc;
+
+  /// Title of the Settings page.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get deskSetFrameTitle;
+
+  /// Accessibility label of the Settings sidebar list.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings sections'**
+  String get deskSetFrameSections;
+
+  /// Settings sidebar entry and page name for the node section. Narrow (about 200 px).
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get deskSetFrameNode;
+
+  /// Settings sidebar entry and page name for how this wallet receives payments. Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving'**
+  String get deskSetFrameReceiving;
+
+  /// Settings sidebar entry and page name for privacy and network routing. Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get deskSetFramePrivacy;
+
+  /// Settings sidebar entry and page name for theme, language and display. Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get deskSetFrameAppearance;
+
+  /// Settings sidebar entry and page name for the open wallet (name, password, backup, delete). Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet'**
+  String get deskSetFrameThisWallet;
+
+  /// Settings sidebar entry and page name for the list of wallets on this computer. Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'All wallets'**
+  String get deskSetFrameAllWallets;
+
+  /// Settings sidebar entry and page name for showing the recovery phrase. Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery phrase'**
+  String get deskSetFramePhrase;
+
+  /// Settings sidebar entry and page name for rescanning the chain to recheck the balance. Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck balance'**
+  String get deskSetFrameRescan;
+
+  /// Settings sidebar entry and page name for the About page. Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get deskSetFrameAbout;
+
+  /// Settings sidebar entry and page name for the Help page. Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get deskSetFrameHelp;
+
+  /// Status word of a service that works normally.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get deskSetFrameHealthOn;
+
+  /// Status word of a service that answers slowly.
+  ///
+  /// In en, this message translates to:
+  /// **'Slow'**
+  String get deskSetFrameHealthSlow;
+
+  /// Status word of a service or node that does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Not responding'**
+  String get deskSetFrameNotResponding;
+
+  /// Status word of a service that is switched off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get deskSetFrameOff;
+
+  /// Status word while a service is being checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking…'**
+  String get deskSetFrameChecking;
+
+  /// Status word of a node that has the whole blockchain.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get deskSetFrameNodeSynced;
+
+  /// Status word of a node that is still downloading the blockchain.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get deskSetFrameNodeSyncing;
+
+  /// Status word while connecting to a node or to Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get deskSetFrameConnecting;
+
+  /// Status word of the Epicbox listener that waits for incoming payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening'**
+  String get deskSetFrameListening;
+
+  /// Status word with its response time, e.g. "On · 84 ms". {word} is a status word, {ms} milliseconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{word} · {ms} ms'**
+  String deskSetFrameHealthLatency(String word, int ms);
+
+  /// Time since an event that never happened. Lowercase, part of a line.
+  ///
+  /// In en, this message translates to:
+  /// **'never'**
+  String get deskSetFrameNever;
+
+  /// Time since an event that happened less than a minute ago. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get deskSetFrameJustNow;
+
+  /// Minutes since an event, abbreviated, e.g. "5 min ago".
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} min ago} other{{count} min ago}}'**
+  String deskSetFrameMinAgo(int count);
+
+  /// Hours since an event, abbreviated, e.g. "3 h ago".
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} h ago} other{{count} h ago}}'**
+  String deskSetFrameHoursAgo(int count);
+
+  /// Days since an event, abbreviated, e.g. "2 d ago".
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} d ago} other{{count} d ago}}'**
+  String deskSetFrameDaysAgo(int count);
+
+  /// Screen reader hint of the node and relay picker field.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the list'**
+  String get deskSetComboOpens;
+
+  /// Picker field: shown when a check takes long. Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer yet'**
+  String get deskSetComboNoAnswer;
+
+  /// Picker list: empty note.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to show.'**
+  String get deskSetComboNothing;
+
+  /// Screen reader label of a picker row; the node’s details follow after a comma. {host} is a server address.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {host}'**
+  String deskSetComboUse(String host);
+
+  /// Settings > Node: tag or sub-line on a node whose software is older than the minimum version the wallet works well with. {version} is a version number like 3.6.0.
+  ///
+  /// In en, this message translates to:
+  /// **'Version older than {version}'**
+  String deskSetNodeVersionOld(String version);
+
+  /// Settings > Node: error under the node picker when the typed node does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the address and the port (usually 3413).'**
+  String get deskSetNodePortNote;
+
+  /// Settings > Node: footer under the node list. status.btlabs.uk is a web address and stays as is.
+  ///
+  /// In en, this message translates to:
+  /// **'State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.'**
+  String get deskSetNodeListNote;
+
+  /// Dialog title before the local node program starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the local node?'**
+  String get deskSetNodeStartTitle;
+
+  /// Start the local node dialog: description under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'A separate program syncs the Epic chain on this computer.'**
+  String get deskSetNodeStartDesc;
+
+  /// Start the local node dialog: first bullet.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads the whole chain: several GB of disk space and bandwidth.'**
+  String get deskSetNodeStartLine1;
+
+  /// Start the local node dialog: second bullet. "Syncing" is the node status word.
+  ///
+  /// In en, this message translates to:
+  /// **'The first sync takes hours. Until it is done the node shows Syncing.'**
+  String get deskSetNodeStartLine2;
+
+  /// Start the local node dialog: third bullet.
+  ///
+  /// In en, this message translates to:
+  /// **'The firewall may ask to allow the node program.'**
+  String get deskSetNodeStartLine3;
+
+  /// Start the local node dialog: primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'Start local node'**
+  String get deskSetNodeStartButton;
+
+  /// Status of the local node in the node picker: not installed or never started.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up'**
+  String get deskSetNodeRowNotSetUp;
+
+  /// Status of the local node in the node picker: switched off.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get deskSetNodeRowStopped;
+
+  /// Status of the local node in the node picker: starting up.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting'**
+  String get deskSetNodeRowStarting;
+
+  /// Status of the local node in the node picker while syncing. {percent} is a number with a percent sign, e.g. "42%".
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing {percent}'**
+  String deskSetNodeRowSyncingPct(String percent);
+
+  /// Status of the local node in the node picker: sync stopped making progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Stalled'**
+  String get deskSetNodeRowStalled;
+
+  /// Status of the local node in the node picker: could not run.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get deskSetNodeRowFailed;
+
+  /// Toast title after switching to the local node.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node in use'**
+  String get deskSetNodeLocalInUse;
+
+  /// Toast text after switching to the local node.
+  ///
+  /// In en, this message translates to:
+  /// **'It downloads the whole chain. Needs 5 GB free.'**
+  String get deskSetNodeLocalInUseText;
+
+  /// Name of the node program on this computer, in the node picker and its field.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node'**
+  String get deskSetNodeLocalNode;
+
+  /// Heading of the node picker group holding the local node.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer'**
+  String get deskSetNodeGroupComputer;
+
+  /// Heading of the node picker group of nodes the user saved; also a name used in other texts.
+  ///
+  /// In en, this message translates to:
+  /// **'My nodes'**
+  String get deskSetNodeGroupMine;
+
+  /// Heading of the node picker group of public nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Public nodes'**
+  String get deskSetNodeGroupPublic;
+
+  /// Toast title after a node was removed from the saved nodes. The node address follows as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from my nodes'**
+  String get deskSetNodeRemovedFromMine;
+
+  /// Node picker: word on a typed address whose node does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answering'**
+  String get deskSetNodeNotAnswering;
+
+  /// Node picker: tooltip and screen reader label of the star button on a typed address.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my nodes'**
+  String get deskSetNodeAddToMine;
+
+  /// Settings > Node: row title, picker label and screen reader name.
+  ///
+  /// In en, this message translates to:
+  /// **'Node server'**
+  String get deskSetNodeServer;
+
+  /// Settings > Node: hint under the Node server row.
+  ///
+  /// In en, this message translates to:
+  /// **'The node the wallet reads the chain through and sends with.'**
+  String get deskSetNodeServerHint;
+
+  /// Settings > Node: placeholder of the node picker search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Find or type a node address'**
+  String get deskSetNodeFindHint;
+
+  /// Settings > Node: shown while a chosen node is checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the node…'**
+  String get deskSetNodeChecking;
+
+  /// Settings > Node: note under a typed address in the picker. "Enter" is the keyboard key.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter uses it. The star keeps it in My nodes.'**
+  String get deskSetNodeTypedNote;
+
+  /// Settings > Node: empty note of the node picker.
+  ///
+  /// In en, this message translates to:
+  /// **'No nodes to show.'**
+  String get deskSetNodeNoNodes;
+
+  /// Node picker footer action that opens the add node dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my nodes…'**
+  String get deskSetNodeFooterAdd;
+
+  /// Node picker footer action that opens the node directory dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Node directory…'**
+  String get deskSetNodeFooterDirectory;
+
+  /// Settings > Node: switch title and screen reader name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync in background'**
+  String get deskSetNodeBackground;
+
+  /// Settings > Node: hint under Sync in background.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps syncing while the app is closed.'**
+  String get deskSetNodeBackgroundHint;
 }
 
 class _AppLocalizationsDelegate
