@@ -149,7 +149,7 @@
   "deskSendDandelionOff": "Dandelion++ 已关闭",
   "deskSendFactMessage": "留言",
   "deskSendPassword": "密码",
-  "deskSendPasswordHelp": "钱包是用记住的密码打开的：本次发送需要输入密码。",
+  "deskSendPasswordHelp": "每次发送都需要输入钱包密码。",
   "deskSendBusyFile": "正在创建文件。",
   "deskSendBusyTor": "正在经由 Tor 连接对方钱包…这可能需要一些时间。请保持应用打开。",
   "deskSendBusy": "正在发送。这可能需要几秒钟；请保持此窗口打开。",

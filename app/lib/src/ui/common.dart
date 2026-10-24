@@ -149,7 +149,9 @@ class SlotScaffold extends StatelessWidget {
         children: [
           ProgressSlot(idle: idle),
           const NoticeDock(),
-          Expanded(child: centered ? CenteredScroll(child: body) : body),
+          Expanded(
+            child: StillUnderDock(child: centered ? CenteredScroll(child: body) : body),
+          ),
         ],
       ),
     );
@@ -158,6 +160,46 @@ class SlotScaffold extends StatelessWidget {
         ? scaffold
         : ProtocolBackdrop(focus: glow, child: scaffold);
   }
+}
+
+/// Keeps a scrolling [child] still on screen while the [NoticeDock] above it opens or closes:
+/// as the dock moves the body's top edge, the body scrolls by as much, so the row under the
+/// finger stays and a second tap lands where the first did (android-02). Content that cannot
+/// scroll that far moves by the rest, and nothing is ever covered. A change at the bottom (the
+/// keyboard) is left alone.
+class StillUnderDock extends StatefulWidget {
+  const StillUnderDock({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<StillUnderDock> createState() => _StillUnderDockState();
+}
+
+class _StillUnderDockState extends State<StillUnderDock> {
+  double? _top;
+
+  bool _onMetrics(ScrollMetricsNotification n) {
+    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return false;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final before = _top;
+    _top = top;
+    final moved = before == null ? 0.0 : top - before;
+    if (moved.abs() < 0.5) return false;
+    final position = Scrollable.maybeOf(n.context)?.position;
+    if (position == null || !position.hasPixels) return false;
+    final to = (position.pixels + moved).clamp(position.minScrollExtent, position.maxScrollExtent);
+    if (to != position.pixels) position.jumpTo(to);
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) => NotificationListener<ScrollMetricsNotification>(
+    onNotification: _onMetrics,
+    child: widget.child,
+  );
 }
 
 /// [child] in the middle of the space it gets, scrolling when it does not fit. For a short
@@ -1293,6 +1335,33 @@ class TxTile extends ConsumerWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A warning that is not an error yet: an expected consequence the user is told about. Warning
+/// colour and icon, and a screen reader says "Warning", not "Error".
+class WarningText extends StatelessWidget {
+  const WarningText(this.message, {super.key});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, color) = noticeLook(context.tokens, NoticeLevel.warning);
+    return Semantics(
+      liveRegion: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, semanticLabel: noticeLevelLabel(context.l10n, NoticeLevel.warning)),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message, style: TextStyle(color: color))),
+          ],
         ),
       ),
     );

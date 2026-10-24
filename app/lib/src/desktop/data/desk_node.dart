@@ -78,6 +78,13 @@ class DeskFallback extends AsyncNotifier<FallbackChoice> {
   Future<FallbackChoice> build() => ref.watch(deskNodeProvider).fallbackChoice();
 
   Future<void> set(FallbackChoice c) async {
+    // The first read of the stored answer may still be out (the wizard's Save is often the
+    // first to ask): it would land over this answer.
+    try {
+      await future;
+    } on Object {
+      // Unreadable: the answer below replaces it.
+    }
     state = AsyncData(c);
     await ref.read(deskNodeProvider).setFallbackChoice(c);
   }
@@ -186,6 +193,9 @@ class LepicDeskNode implements DeskNodeApi {
   final Future<void> Function(FallbackDecision d)? onDecision;
 
   FallbackChoice? _choice;
+
+  /// Counts [setFallbackChoice] calls, so a read that was out meanwhile keeps the new answer.
+  int _choiceSeq = 0;
   LocalNodeState? _state;
   FallbackDecision? _decision;
   late final FallbackSwitch _switch = FallbackSwitch((d) => unawaited(onDecision?.call(d)), timer: _switchTimer);
@@ -213,7 +223,7 @@ class LepicDeskNode implements DeskNodeApi {
   @override
   Stream<LocalNodeState> states() async* {
     final c = await _c;
-    _choice ??= await _settings.fallbackChoice();
+    if (_choice == null) await fallbackChoice();
     _state = c.state;
     _decide();
     yield c.state;
@@ -234,10 +244,17 @@ class LepicDeskNode implements DeskNodeApi {
   Future<void> restart() async => (await _c).restart();
 
   @override
-  Future<FallbackChoice> fallbackChoice() async => _choice = await _settings.fallbackChoice();
+  Future<FallbackChoice> fallbackChoice() async {
+    final seq = _choiceSeq;
+    final read = await _settings.fallbackChoice();
+    // An answer saved while this read was out is newer than what it read.
+    if (seq != _choiceSeq) return _choice ?? read;
+    return _choice = read;
+  }
 
   @override
   Future<void> setFallbackChoice(FallbackChoice choice) async {
+    _choiceSeq++;
     await _settings.setFallbackChoice(choice);
     _choice = choice;
     _decide();

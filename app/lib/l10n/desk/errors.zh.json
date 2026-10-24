@@ -124,5 +124,6 @@
   "deskDataUpdTimeout": "更新服务器没有响应。",
   "deskDataUpdUnreachable": "无法连接更新服务器。",
   "deskDataUpdStatus": "更新服务器返回了 {status}。",
-  "deskDataUpdNone": "尚未发布桌面版的更新信息。"
+  "deskDataUpdNone": "尚未发布桌面版的更新信息。",
+  "deskErrSecretProtect": "Windows 无法保护钱包的机密（DPAPI 拒绝），因此未保存任何内容。请用你自己的账户和密码登录 Windows，不要通过远程或服务会话，然后重试。"
 }

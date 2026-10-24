@@ -1807,7 +1807,7 @@
   "deskOutStrategyHelp": "Kleinste verbraucht möglichst wenige kleine Outputs und lässt den Rest verfügbar. Alle verbraucht alles und gibt einen Output zurück.",
   "deskOutStrategyHelpTitle": "Kleinste oder Alle",
   "deskOutSplitChangeTitle": "Wechselgeld aufteilen",
-  "deskOutSplitChangeText": "Blieben nach einer Zahlung weniger als 3 verfügbare Outputs übrig, kommt ihr Wechselgeld als bis zu 4 Outputs zurück. Kostet 0,004 EPIC je zusätzlichem Output.",
+  "deskOutSplitChangeText": "Blieben nach einer Zahlung weniger als 3 verfügbare Outputs übrig und beträgt das Wechselgeld mindestens 1 EPIC, kommt es als bis zu 4 Outputs von je mindestens 0,5 EPIC zurück. Kostet 0,004 EPIC je zusätzlichem Output.",
   "deskOutColValue": "Wert",
   "deskOutColStatus": "Status",
   "deskOutColConfirmations": "Bestätigungen",
@@ -2130,7 +2130,7 @@
   "deskSendDandelionOff": "Dandelion++ aus",
   "deskSendFactMessage": "Nachricht",
   "deskSendPassword": "Passwort",
-  "deskSendPasswordHelp": "Mit gespeichertem Passwort geöffnet: Für diese Zahlung wird es abgefragt.",
+  "deskSendPasswordHelp": "Jede Zahlung fragt das Wallet-Passwort ab.",
   "deskSendBusyFile": "Die Datei wird erstellt.",
   "deskSendBusyTor": "Die Wallet des Empfängers wird über Tor erreicht… Das kann dauern. Lassen Sie die App geöffnet.",
   "deskSendBusy": "Wird gesendet. Das kann einige Sekunden dauern; lassen Sie dieses Fenster geöffnet.",
@@ -3480,5 +3480,11 @@
   "deskSetupSaveStartsFallback": "Speichern startet den Node. Die erste Synchronisierung dauert Stunden; die Wallet öffnet sich währenddessen und nutzt bis dahin {node}.",
   "deskSetupSaveStarts": "Speichern startet den Node. Die erste Synchronisierung dauert Stunden; die Wallet öffnet sich währenddessen.",
   "deskSetupServer": "Server",
-  "deskSetupOff": "Aus"
+  "deskSetupOff": "Aus",
+  "deskErrSecretProtect": "Windows konnte die Geheimnisse der Wallet nicht schützen (DPAPI hat abgelehnt), daher wurde nichts gespeichert. Melden Sie sich mit Ihrem eigenen Konto und dessen Passwort bei Windows an, nicht über eine Remote- oder Dienstsitzung, und versuchen Sie es erneut.",
+  "deskKeyringMissingTitle": "Kein Schlüsselbund gefunden",
+  "deskKeyringMissingText": "Epic Cash speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, aber keiner hat geantwortet. Installiere oder starte einen Schlüsselbund (GNOME Keyring oder KWallet), melde dich in einer Desktop-Sitzung an, die einen ausführt, und wähle dann Wiederholen.",
+  "deskKeyringLockedTitle": "Der Schlüsselbund ist gesperrt",
+  "deskKeyringLockedText": "Epic Cash speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, und der ist gesperrt. Entsperre ihn (er öffnet sich mit deinem Anmeldepasswort) und wähle dann Wiederholen, oder wähle Jetzt entsperren, damit das System danach fragt.",
+  "deskKeyringUnlockNow": "Jetzt entsperren"
 }

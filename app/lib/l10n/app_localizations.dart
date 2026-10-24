@@ -11820,7 +11820,7 @@ abstract class AppLocalizations {
   /// Help text under the password field in the review dialog.
   ///
   /// In en, this message translates to:
-  /// **'Opened with the remembered password: this send asks it.'**
+  /// **'Every send asks the wallet’s password.'**
   String get deskSendPasswordHelp;
 
   /// Status in the review dialog while a file send creates the transaction file.
@@ -13014,7 +13014,7 @@ abstract class AppLocalizations {
   /// Setting description under 'Split change'.
   ///
   /// In en, this message translates to:
-  /// **'When a send would leave fewer than 3 spendable outputs, its change comes back as up to 4 outputs. Costs 0.004 EPIC per extra output.'**
+  /// **'When a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC, the change comes back as up to 4 outputs of at least 0.5 EPIC each. Costs 0.004 EPIC per extra output.'**
   String get deskOutSplitChangeText;
 
   /// Column header of the outputs table: the amount. Narrow header, right aligned.
@@ -21037,6 +21037,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{{count} topic} other{{count} topics}}'**
   String deskSetHelpTopics(int count);
+
+  /// Error when Windows (DPAPI) refused to protect the wallet's secrets, e.g. in a remote or service session. DPAPI and Windows are names.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Sign in to Windows with your own account and its password, not through a remote or service session, then try again.'**
+  String get deskErrSecretProtect;
+
+  /// Desktop, Linux, first screen: the system has no usable keyring (Secret Service) to keep the wallet's secrets.
+  ///
+  /// In en, this message translates to:
+  /// **'No keyring found'**
+  String get deskKeyringMissingTitle;
+
+  /// Desktop, Linux: what is missing and what to do. Names the keyring programs; Retry is the commonRetry button.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash keeps its settings and your wallet\'s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.'**
+  String get deskKeyringMissingText;
+
+  /// Desktop, Linux, first screen: the system keyring exists but is locked.
+  ///
+  /// In en, this message translates to:
+  /// **'The keyring is locked'**
+  String get deskKeyringLockedTitle;
+
+  /// Desktop, Linux: the keyring is locked. Retry is commonRetry; 'Unlock now' is deskKeyringUnlockNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash keeps its settings and your wallet\'s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.'**
+  String get deskKeyringLockedText;
+
+  /// Desktop, Linux, locked keyring: go on, and the system asks for the keyring's password.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock now'**
+  String get deskKeyringUnlockNow;
 }
 
 class _AppLocalizationsDelegate

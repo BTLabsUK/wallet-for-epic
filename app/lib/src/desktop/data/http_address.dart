@@ -56,7 +56,8 @@ bool plainHttpNeedsConsent(String text) {
 
 /// Interfaces that are not the local network: containers, bridges, VPNs and tunnels.
 final RegExp _virtualInterface = RegExp(
-  r'^(docker|br-|virbr|veth|tun|wg|tailscale|utun|zt)',
+  r'^(docker|br-|virbr|veth|tun|tap|wg|tailscale|utun|zt|vethernet|vmnet|vboxnet|hamachi)'
+  r'|nordlynx|nordvpn|openvpn|wireguard|proton|mullvad|vpn|tunnel|hyper-v|vmware|virtualbox|loopback',
   caseSensitive: false,
 );
 
@@ -69,8 +70,15 @@ bool isPrivateLanAddress(InternetAddress a) {
       (b[0] == 192 && b[1] == 168);
 }
 
+/// 0 for 192.168/16, 1 for 172.16/12, 2 for 10/8: a home or office network before the 10.x a
+/// VPN client often keeps, whatever order the system lists the interfaces in.
+int _privateRank(InternetAddress a) {
+  final b = a.rawAddress;
+  return b[0] == 192 ? 0 : (b[0] == 172 ? 1 : 2);
+}
+
 /// This computer's address on the local network for Receive: a private (RFC 1918) address of a
-/// real interface when there is one, else any other non-virtual IPv4 address; null with none.
+/// real interface when there is one (192.168 before 172.16 before 10), else any other non-virtual IPv4 address; null with none.
 /// [list] is the interfaces, for tests.
 Future<String?> lanAddress({
   Future<List<({String name, List<InternetAddress> addresses})>> Function()?
@@ -84,9 +92,9 @@ Future<String?> lanAddress({
           for (final a in i.addresses)
             if (a.type == InternetAddressType.IPv4 && !a.isLoopback && !a.isLinkLocal) a,
     ];
-    for (final a in found) {
-      if (isPrivateLanAddress(a)) return a.address;
-    }
+    final private = found.where(isPrivateLanAddress).toList()
+      ..sort((x, y) => _privateRank(x).compareTo(_privateRank(y)));
+    if (private.isNotEmpty) return private.first.address;
     if (found.isNotEmpty) return found.first.address;
   } on Object {
     // No address to show; Receive says so.

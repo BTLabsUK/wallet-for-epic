@@ -149,7 +149,7 @@
   "deskSendDandelionOff": "Dandelion++ aus",
   "deskSendFactMessage": "Nachricht",
   "deskSendPassword": "Passwort",
-  "deskSendPasswordHelp": "Mit gespeichertem Passwort geöffnet: Für diese Zahlung wird es abgefragt.",
+  "deskSendPasswordHelp": "Jede Zahlung fragt das Wallet-Passwort ab.",
   "deskSendBusyFile": "Die Datei wird erstellt.",
   "deskSendBusyTor": "Die Wallet des Empfängers wird über Tor erreicht… Das kann dauern. Lassen Sie die App geöffnet.",
   "deskSendBusy": "Wird gesendet. Das kann einige Sekunden dauern; lassen Sie dieses Fenster geöffnet.",

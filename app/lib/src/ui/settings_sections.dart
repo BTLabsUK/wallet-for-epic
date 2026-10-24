@@ -49,7 +49,7 @@ import 'theme/tokens.dart';
 import 'tor_ui.dart';
 
 /// The project's source code.
-const String projectRepoUrl = 'https://github.com/blacktyger/wallet-for-epic';
+const String projectRepoUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic';
 const String epicCashUrl = 'https://epiccash.com';
 
 /// Deletes leftover copies of shared files; uisend's `clearSharedFiles`. Tests replace it.
@@ -325,7 +325,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     if (start == null || !mounted) return;
     final ok = await ref.read(scanProvider.notifier).run(startHeight: start);
     if (!mounted) return;
-    ref.invalidate(homeProvider);
     if (ok) {
       _say(context.l10n.settingsRescanFinished, level: NoticeLevel.success);
     }

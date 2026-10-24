@@ -80,7 +80,14 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
       setState(() => _capability = null);
       return;
     }
-    final cap = await ref.read(deskInvoicesProvider.notifier).capability(t);
+    PeerCapability? cap;
+    try {
+      cap = await ref.read(deskInvoicesProvider.notifier).capability(t);
+    } on Object {
+      // A well-formed address LEPIC does not accept (no relay on this network): the form
+      // checks the address on Issue; the probe only adds a hint.
+      cap = null;
+    }
     if (mounted && _payer.text.trim() == t) setState(() => _capability = cap);
   }
 

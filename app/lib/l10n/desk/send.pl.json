@@ -149,7 +149,7 @@
   "deskSendDandelionOff": "Dandelion++ wyłączony",
   "deskSendFactMessage": "Wiadomość",
   "deskSendPassword": "Hasło",
-  "deskSendPasswordHelp": "Portfel otwarto zapamiętanym hasłem: ta wysyłka o nie prosi.",
+  "deskSendPasswordHelp": "Każda wysyłka prosi o hasło portfela.",
   "deskSendBusyFile": "Tworzenie pliku.",
   "deskSendBusyTor": "Łączenie z portfelem odbiorcy przez Tor… To może potrwać. Nie zamykaj aplikacji.",
   "deskSendBusy": "Wysyłanie. Może to potrwać kilka sekund; nie zamykaj tego okna.",

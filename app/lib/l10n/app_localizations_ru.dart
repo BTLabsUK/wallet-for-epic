@@ -7781,7 +7781,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendPasswordHelp =>
-      'Кошелёк открыт с запомненным паролем: для этой отправки нужно ввести его.';
+      'Каждая отправка запрашивает пароль кошелька.';
 
   @override
   String get deskSendBusyFile => 'Создаём файл.';
@@ -8514,7 +8514,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOutSplitChangeText =>
-      'Если после отправки осталось бы меньше 3 доступных выходов, сдача вернётся несколькими выходами, до 4. Каждый лишний выход стоит 0,004 EPIC.';
+      'Если после отправки осталось бы меньше 3 доступных выходов, а сдача не меньше 1 EPIC, она вернётся несколькими выходами, до 4, не меньше 0,5 EPIC каждый. Каждый лишний выход стоит 0,004 EPIC.';
 
   @override
   String get deskOutColValue => 'Сумма';
@@ -13656,4 +13656,25 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskErrSecretProtect =>
+      'Windows не смог защитить секреты кошелька (DPAPI отказал), поэтому ничего не сохранено. Войдите в Windows под своей учётной записью с её паролем, а не через удалённый или служебный сеанс, и попробуйте снова.';
+
+  @override
+  String get deskKeyringMissingTitle => 'Связка ключей не найдена';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, но ни одна не ответила. Установите или запустите связку ключей (GNOME Keyring или KWallet), войдите в сеанс рабочего стола, где она работает, затем нажмите «Повторить».';
+
+  @override
+  String get deskKeyringLockedTitle => 'Связка ключей заблокирована';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, а она заблокирована. Разблокируйте её (она открывается паролем входа), затем нажмите «Повторить», или нажмите «Разблокировать сейчас», чтобы система запросила пароль.';
+
+  @override
+  String get deskKeyringUnlockNow => 'Разблокировать сейчас';
 }

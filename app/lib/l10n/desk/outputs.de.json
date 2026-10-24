@@ -50,7 +50,7 @@
   "deskOutStrategyHelp": "Kleinste verbraucht möglichst wenige kleine Outputs und lässt den Rest verfügbar. Alle verbraucht alles und gibt einen Output zurück.",
   "deskOutStrategyHelpTitle": "Kleinste oder Alle",
   "deskOutSplitChangeTitle": "Wechselgeld aufteilen",
-  "deskOutSplitChangeText": "Blieben nach einer Zahlung weniger als 3 verfügbare Outputs übrig, kommt ihr Wechselgeld als bis zu 4 Outputs zurück. Kostet 0,004 EPIC je zusätzlichem Output.",
+  "deskOutSplitChangeText": "Blieben nach einer Zahlung weniger als 3 verfügbare Outputs übrig und beträgt das Wechselgeld mindestens 1 EPIC, kommt es als bis zu 4 Outputs von je mindestens 0,5 EPIC zurück. Kostet 0,004 EPIC je zusätzlichem Output.",
   "deskOutColValue": "Wert",
   "deskOutColStatus": "Status",
   "deskOutColConfirmations": "Bestätigungen",

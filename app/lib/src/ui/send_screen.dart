@@ -496,7 +496,12 @@ class _SendViewState extends ConsumerState<SendView> {
     _tagOn = true;
     _tagTimer?.cancel();
     _tagTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted) setState(() => _tagOn = false);
+      if (!mounted) return;
+      setState(() => _tagOn = false);
+      // Once faded out it leaves the label, or the outline's notch keeps its width (android-08).
+      _tagTimer = Timer(_switchTagFade, () {
+        if (mounted && !_tagOn) setState(() => _switchedTo = null);
+      });
     });
   }
 
@@ -1729,10 +1734,12 @@ class _SendViewState extends ConsumerState<SendView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(l.sendToLabel),
-              const SizedBox(width: 8),
-              Flexible(
-                child: _SwitchTag(method: _switchedTo, shown: _tagOn),
-              ),
+              if (_switchedTo != null) ...[
+                const SizedBox(width: 8),
+                Flexible(
+                  child: _SwitchTag(method: _switchedTo, shown: _tagOn),
+                ),
+              ],
               if (_TorTag.shows(way, _torState)) ...[
                 const SizedBox(width: 8),
                 Flexible(child: _TorTag(way: way)),
@@ -2742,6 +2749,9 @@ class _Pill extends StatelessWidget {
 /// "Direct address" / "Via Epicbox" beside the To label for 3 s after the address moved the
 /// method: fades in over 120 ms and out over 200 ms (at once with reduced motion), and is read
 /// out once as "Direct address. Method set to Direct."
+/// How long the switch tag takes to fade out before it leaves the To label.
+const Duration _switchTagFade = Duration(milliseconds: 200);
+
 class _SwitchTag extends StatelessWidget {
   const _SwitchTag({required this.method, required this.shown});
 
@@ -2765,7 +2775,9 @@ class _SwitchTag extends StatelessWidget {
         opacity: shown ? 1 : 0,
         duration: still
             ? Duration.zero
-            : Duration(milliseconds: shown ? 120 : 200),
+            : shown
+            ? const Duration(milliseconds: 120)
+            : _switchTagFade,
         child: _Pill(icon: icon, text: text),
       ),
     );

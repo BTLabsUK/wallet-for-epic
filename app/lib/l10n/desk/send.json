@@ -737,7 +737,7 @@
   "@deskSendPassword": {
     "description": "Label of the password field in the review dialog."
   },
-  "deskSendPasswordHelp": "Opened with the remembered password: this send asks it.",
+  "deskSendPasswordHelp": "Every send asks the wallet’s password.",
   "@deskSendPasswordHelp": {
     "description": "Help text under the password field in the review dialog."
   },

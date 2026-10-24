@@ -6,6 +6,7 @@ import 'package:epic_wallet/src/app_log.dart';
 import 'dart:async';
 
 import 'package:epic_wallet/src/connection_state.dart';
+import 'package:epic_wallet/src/net/tor_switch.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/log.dart';
 import 'package:epic_wallet/src/phone_tor.dart' show networkChangesProvider, networkEvent;
@@ -327,6 +328,27 @@ void nodeRecheckTests() {
       async.elapse(const Duration(seconds: 2));
       expect(h.session.nodeTipsFor.length, asked + 2);
       expect(h.shown, NodeState.online);
+      h.dispose();
+    });
+  });
+
+  test('android-04: over Tor the node is asked for as long as tor takes to rebuild its circuits', () {
+    fakeAsync((async) {
+      TorSwitch.on = true;
+      addTearDown(() => TorSwitch.on = false);
+      final h = _Node(async);
+      h.down = true;
+      h.container.invalidate(nodeTipProvider);
+      async.elapse(statusSettle + const Duration(seconds: 1));
+      expect(h.shown, NodeState.offline);
+
+      // The network is back; tor renews its connections and the node answers 25 s later.
+      h.network.add(true);
+      async.elapse(const Duration(seconds: 25));
+      expect(h.shown, NodeState.offline);
+      h.down = false;
+      async.elapse(const Duration(seconds: 10));
+      expect(h.shown, NodeState.online, reason: 'asked again, not left to the minute refresh');
       h.dispose();
     });
   });

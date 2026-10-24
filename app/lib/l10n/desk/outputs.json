@@ -241,7 +241,7 @@
   "@deskOutSplitChangeTitle": {
     "description": "Setting title in the Defaults panel (a switch); also its screen reader label."
   },
-  "deskOutSplitChangeText": "When a send would leave fewer than 3 spendable outputs, its change comes back as up to 4 outputs. Costs 0.004 EPIC per extra output.",
+  "deskOutSplitChangeText": "When a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC, the change comes back as up to 4 outputs of at least 0.5 EPIC each. Costs 0.004 EPIC per extra output.",
   "@deskOutSplitChangeText": {
     "description": "Setting description under 'Split change'."
   },

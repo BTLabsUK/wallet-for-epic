@@ -358,6 +358,46 @@ void main() {
     expect(tester.getTopLeft(open).dy, idleTop);
   });
 
+  testWidgets('android-02: a scrolling list stays under the finger while the dock opens and closes', (
+    tester,
+  ) async {
+    final c = await _pump(tester);
+    final taps = <int>[];
+    final nav = tester.state<NavigatorState>(find.byType(Navigator));
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => SlotScaffold(
+          appBar: AppBar(title: const Text('Settings')),
+          body: ListView(
+            children: [
+              for (var i = 0; i < 30; i++)
+                ListTile(key: ValueKey('row$i'), title: Text('Row $i'), onTap: () => taps.add(i)),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final row = find.byKey(const ValueKey('row5'));
+    final before = tester.getCenter(row);
+    await tester.tap(row);
+    c.notices.show('Notifications off', level: NoticeLevel.info);
+    await tester.pump();
+    await tester.pump(noticeDockDuration ~/ 2);
+    await tester.pumpAndSettle();
+    expect(tester.getSize(find.byType(NoticeDock).last).height, greaterThan(0));
+    // The same row under the same spot: a second tap there toggles it again.
+    expect(tester.getCenter(row).dy, moreOrLessEquals(before.dy, epsilon: 1));
+    await tester.tapAt(before);
+    expect(taps, [5, 5]);
+    // The card still covers nothing.
+    expect(tester.getRect(_card).overlaps(tester.getRect(row)), isFalse);
+    // Closing does not move it either.
+    await tester.pump(noticeDuration(NoticeLevel.info));
+    await tester.pumpAndSettle();
+    expect(tester.getCenter(row).dy, moreOrLessEquals(before.dy, epsilon: 1));
+  });
+
   testWidgets('a notice survives a pop, docked on the screen below', (
     tester,
   ) async {

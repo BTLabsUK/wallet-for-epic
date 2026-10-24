@@ -209,6 +209,17 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final nLocked = count((w) => w == OutputLabel.locked);
     final nSpent = count((w) => w == OutputLabel.spent);
     final nAll = list == null ? 0 : list.length - nSpent;
+    // The tiles count the outputs their value adds up, as LEPIC's figures do: an unpaid
+    // invoice's output is in none, one awaiting finalization is in Confirming, not in Total.
+    bool unpaid(WalletOutput o) => o.category == OutputCategory.unpaidInvoice;
+    final nConfirmingTile = list
+            ?.where((o) => !unpaid(o) && const {OutputLabel.confirming, OutputLabel.finalizing}.contains(outputWord(o)))
+            .length ??
+        0;
+    final nTotalTile = list
+            ?.where((o) => !const {OutputLabel.spent, OutputLabel.finalizing}.contains(outputWord(o)))
+            .length ??
+        0;
     final locked = summary?.locked ?? BigInt.zero;
     final spendable = summary?.spendable ?? BigInt.zero;
     final canSplit =
@@ -268,7 +279,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                       ? null
                       : summary.awaitingConfirmation +
                             summary.awaitingFinalization,
-                  list == null ? null : nConfirming,
+                  list == null ? null : nConfirmingTile,
                 ),
               ),
             ],
@@ -290,7 +301,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                 child: tile(
                   l.homeTileTotal,
                   summary?.total,
-                  list == null ? null : nAll,
+                  list == null ? null : nTotalTile,
                 ),
               ),
             ],

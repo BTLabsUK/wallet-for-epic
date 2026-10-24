@@ -50,7 +50,7 @@
   "deskOutStrategyHelp": "Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania. Wszystkie wydaje wszystko i zwraca jedno wyjście.",
   "deskOutStrategyHelpTitle": "Najmniejsze czy Wszystkie",
   "deskOutSplitChangeTitle": "Podziel resztę",
-  "deskOutSplitChangeText": "Gdy po wysyłce zostałyby mniej niż 3 wyjścia do wydania, reszta wraca jako maksymalnie 4 wyjścia. Każde dodatkowe wyjście kosztuje 0,004 EPIC.",
+  "deskOutSplitChangeText": "Gdy po wysyłce zostałyby mniej niż 3 wyjścia do wydania, a reszta wynosi co najmniej 1 EPIC, reszta wraca jako maksymalnie 4 wyjścia po co najmniej 0,5 EPIC każde. Każde dodatkowe wyjście kosztuje 0,004 EPIC.",
   "deskOutColValue": "Wartość",
   "deskOutColStatus": "Stan",
   "deskOutColConfirmations": "Potwierdzenia",

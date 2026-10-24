@@ -613,5 +613,9 @@
   "deskDataUpdNone": "No desktop update information is published yet.",
   "@deskDataUpdNone": {
     "description": "Update check: the update list has no entry for the desktop app yet."
+  },
+  "deskErrSecretProtect": "Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Sign in to Windows with your own account and its password, not through a remote or service session, then try again.",
+  "@deskErrSecretProtect": {
+    "description": "Error when Windows (DPAPI) refused to protect the wallet's secrets, e.g. in a remote or service session. DPAPI and Windows are names."
   }
 }

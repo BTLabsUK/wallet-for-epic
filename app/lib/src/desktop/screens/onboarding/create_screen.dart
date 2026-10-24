@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../../log.dart';
+import '../../../secret_store_api.dart' show SecretProtectError;
 import '../../widgets/kit.dart';
 import '../settings/settings_phrase.dart' show copyPhrase;
 import 'onboarding_parts.dart';
@@ -89,6 +91,8 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
         _step = CreateStep.phrase;
       });
     } catch (e) {
+      // The type, and for a refused DPAPI its code; never the password or the phrase.
+      logWarn('desk', 'wallet not created: ${e is SecretProtectError ? e : e.runtimeType}');
       if (mounted) {
         setState(() {
           _step = CreateStep.failed;

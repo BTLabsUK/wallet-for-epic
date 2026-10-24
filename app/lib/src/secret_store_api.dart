@@ -11,6 +11,17 @@ abstract interface class SecretStore {
   Future<void> delete(String key);
 }
 
+/// The platform refused to protect a secret before it was stored (on Windows, DPAPI); nothing
+/// was written. [code] names the failure, never the content.
+class SecretProtectError implements Exception {
+  const SecretProtectError(this.code);
+
+  final String code;
+
+  @override
+  String toString() => 'SecretProtectError: $code';
+}
+
 class MemorySecretStore implements SecretStore {
   MemorySecretStore([Map<String, String>? values]) : values = values ?? {};
 

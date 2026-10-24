@@ -496,6 +496,8 @@ class ScanNotifier extends Notifier<ScanState> {
       failure = error;
     }
     if (!ref.mounted) return false;
+    // Balances as the scan left them: the restore's Home and Outputs read zero before it.
+    ref.invalidate(homeProvider);
     if (failure != null) {
       logWarn('scan', 'failed: ${describeError(englishStrings, failure)}');
       state = ScanState(error: failure);

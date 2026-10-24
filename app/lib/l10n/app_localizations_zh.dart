@@ -7108,7 +7108,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendPassword => '密码';
 
   @override
-  String get deskSendPasswordHelp => '钱包是用记住的密码打开的：本次发送需要输入密码。';
+  String get deskSendPasswordHelp => '每次发送都需要输入钱包密码。';
 
   @override
   String get deskSendBusyFile => '正在创建文件。';
@@ -7784,7 +7784,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOutSplitChangeText =>
-      '当一笔发送会使可用输出少于 3 个时，它的找零会以最多 4 个输出返回。每多一个输出花费 0.004 EPIC。';
+      '当一笔发送会使可用输出少于 3 个且找零至少为 1 EPIC 时，找零会以最多 4 个输出返回，每个至少 0.5 EPIC。每多一个输出花费 0.004 EPIC。';
 
   @override
   String get deskOutColValue => '金额';
@@ -12576,4 +12576,25 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskErrSecretProtect =>
+      'Windows 无法保护钱包的机密（DPAPI 拒绝），因此未保存任何内容。请用你自己的账户和密码登录 Windows，不要通过远程或服务会话，然后重试。';
+
+  @override
+  String get deskKeyringMissingTitle => '未找到密钥环';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，但没有密钥环响应。请安装或启动密钥环（GNOME Keyring 或 KWallet），登录运行密钥环的桌面会话，然后选择重试。';
+
+  @override
+  String get deskKeyringLockedTitle => '密钥环已锁定';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（使用您的登录密码），然后选择重试，或选择立即解锁让系统询问密码。';
+
+  @override
+  String get deskKeyringUnlockNow => '立即解锁';
 }

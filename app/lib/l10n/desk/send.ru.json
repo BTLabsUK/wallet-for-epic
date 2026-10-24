@@ -149,7 +149,7 @@
   "deskSendDandelionOff": "Dandelion++ выкл.",
   "deskSendFactMessage": "Сообщение",
   "deskSendPassword": "Пароль",
-  "deskSendPasswordHelp": "Кошелёк открыт с запомненным паролем: для этой отправки нужно ввести его.",
+  "deskSendPasswordHelp": "Каждая отправка запрашивает пароль кошелька.",
   "deskSendBusyFile": "Создаём файл.",
   "deskSendBusyTor": "Связываемся с кошельком получателя через Tor… Это может занять время. Не закрывайте приложение.",
   "deskSendBusy": "Отправка. Это может занять несколько секунд; не закрывайте окно.",
