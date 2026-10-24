@@ -12497,11 +12497,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetAboutUpdates => '更新';
 
   @override
-  String deskSetAboutGet(String version) {
-    return '获取 $version';
-  }
-
-  @override
   String get deskSetAboutCheckNow => '立即检查';
 
   @override

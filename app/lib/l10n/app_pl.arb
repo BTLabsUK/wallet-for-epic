@@ -3399,7 +3399,6 @@
   "deskSetAboutAvailable": "Dostępna aktualizacja: {version}",
   "deskSetAboutCouldNotCheck": "Nie udało się sprawdzić",
   "deskSetAboutUpdates": "Aktualizacje",
-  "deskSetAboutGet": "Pobierz {version}",
   "deskSetAboutCheckNow": "Sprawdź teraz",
   "deskSetAboutAgoNow": "przed chwilą",
   "deskSetAboutAgoMin": "{count} min temu",

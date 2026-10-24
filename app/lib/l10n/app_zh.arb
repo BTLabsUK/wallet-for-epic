@@ -2387,7 +2387,6 @@
   "deskSetAboutAvailable": "有可用更新：{version}",
   "deskSetAboutCouldNotCheck": "无法检查",
   "deskSetAboutUpdates": "更新",
-  "deskSetAboutGet": "获取 {version}",
   "deskSetAboutCheckNow": "立即检查",
   "deskSetAboutAgoNow": "刚刚",
   "deskSetAboutAgoMin": "{count} 分钟前",

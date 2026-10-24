@@ -234,32 +234,27 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('Settings › About: Download, then Restart to update', (tester) async {
+  testWidgets('Settings › About says what the check found and offers nothing: the notice is the one place', (tester) async {
     const about = Scaffold(body: SettingsAboutScreen());
-    await pump(tester, _state(DeskUpdatePhase.available), home: about);
-    await tester.tap(find.widgetWithText(EButton, 'Download $_v'));
-    await tester.pump();
-    expect(fake.downloads, 1);
-    await tester.pumpWidget(const SizedBox());
-
-    await pump(tester, _state(DeskUpdatePhase.ready), home: about);
-    expect(find.text('$_v is ready'), findsWidgets);
-    expect(find.text('The app closes, installs it and opens again.'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Restart to update'));
-    await tester.pumpAndSettle();
-    expect(fake.restarts, 1);
-    expect(find.widgetWithText(EButton, 'Check now'), findsNothing);
-    await tester.pumpWidget(const SizedBox());
-
-    await pump(tester, _state(DeskUpdatePhase.unfinished, inApp: false), home: about);
-    expect(find.text("Update didn't finish. Try again."), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Check now'), findsNothing);
-    await tester.tap(find.widgetWithText(EButton, 'Try again'));
-    await tester.pumpAndSettle();
-    expect(fake.retries, 1);
-    await tester.tap(find.widgetWithText(EButton, 'Get $_v'));
-    await tester.pump();
-    expect(opened, [deskReleasesUrl]);
-    await tester.pumpWidget(const SizedBox());
+    for (final (s, checks) in [
+      (_state(DeskUpdatePhase.available), true),
+      (_state(DeskUpdatePhase.available, problem: 'The download stopped.'), true),
+      (_state(DeskUpdatePhase.downloading, progress: 0.42), false),
+      (_state(DeskUpdatePhase.ready), false),
+      (_state(DeskUpdatePhase.ready, problem: 'The new version could not be put in place.'), true),
+      (_state(DeskUpdatePhase.unfinished, inApp: false), false),
+    ]) {
+      final why = '${s.phase} ${s.problem}';
+      await pump(tester, s, home: about);
+      expect(find.text('Update available: $_v'), findsOneWidget, reason: why);
+      expect(find.widgetWithText(EButton, 'Check now'), checks ? findsOneWidget : findsNothing, reason: why);
+      for (final offer in ['Download $_v', 'Restart to update', 'Try again', 'Get $_v', "Update didn't finish. Try again."]) {
+        expect(find.textContaining(offer), findsNothing, reason: '$why: $offer');
+      }
+      expect(find.byType(EProgress), findsNothing, reason: why);
+      await tester.pumpWidget(const SizedBox());
+    }
+    expect(fake.downloads + fake.restarts + fake.retries, 0);
+    expect(opened, isEmpty);
   });
 }

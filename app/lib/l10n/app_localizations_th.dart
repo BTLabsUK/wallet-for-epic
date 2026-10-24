@@ -12937,11 +12937,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetAboutUpdates => 'อัปเดต';
 
   @override
-  String deskSetAboutGet(String version) {
-    return 'ดาวน์โหลด $version';
-  }
-
-  @override
   String get deskSetAboutCheckNow => 'ตรวจตอนนี้';
 
   @override

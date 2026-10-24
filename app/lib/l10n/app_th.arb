@@ -3399,7 +3399,6 @@
   "deskSetAboutAvailable": "มีอัปเดต: {version}",
   "deskSetAboutCouldNotCheck": "ตรวจไม่ได้",
   "deskSetAboutUpdates": "อัปเดต",
-  "deskSetAboutGet": "ดาวน์โหลด {version}",
   "deskSetAboutCheckNow": "ตรวจตอนนี้",
   "deskSetAboutAgoNow": "เมื่อสักครู่",
   "deskSetAboutAgoMin": "{count} นาทีที่แล้ว",

@@ -1,3 +1,4 @@
+import 'package:epic_wallet/src/desktop/app/update_notice.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
@@ -38,7 +39,7 @@ void main() {
     testBuild = await signedUpdate(testUpdatePayload(desktop: {'version': '$next-rc1', 'page': page}));
   });
 
-  Future<(ProviderContainer, List<String>)> pump(WidgetTester tester, ManifestFetch fetch) async {
+  Future<(ProviderContainer, List<String>)> pump(WidgetTester tester, ManifestFetch fetch, {Widget? home}) async {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -56,7 +57,7 @@ void main() {
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
-      child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsAboutScreen())),
+      child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: home ?? const Scaffold(body: SettingsAboutScreen())),
     ));
     await tester.pumpAndSettle();
     return (container, opened);
@@ -131,12 +132,31 @@ void main() {
     expect(calls, 2);
   });
 
-  testWidgets('a newer version offers its page; the same version is the latest', (tester) async {
-    final (container, opened) = await pump(tester, (_) async => (200, newer));
-    expect(find.text('Update available: $next'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Get $next'));
+  testWidgets('a newer version: About says so, the sidebar notice offers it; the same version is the latest', (tester) async {
+    final (container, opened) = await pump(
+      tester,
+      (_) async => (200, newer),
+      home: const Scaffold(
+        body: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(width: 220, child: DeskUpdateNotice()),
+            Expanded(child: SettingsAboutScreen()),
+          ],
+        ),
+      ),
+    );
+    final about = find.byType(SettingsAboutScreen);
+    final notice = find.byType(DeskUpdateNotice);
+    expect(find.descendant(of: about, matching: find.text('Update available: $next')), findsOneWidget);
+    expect(find.descendant(of: about, matching: find.byType(EButton)), findsWidgets);
+    for (final b in tester.widgetList<EButton>(find.descendant(of: about, matching: find.byType(EButton)))) {
+      expect(b.label, isNot(contains(next)), reason: 'no offer in About: ${b.label}');
+    }
+    expect(find.descendant(of: notice, matching: find.text('Update available')), findsOneWidget, reason: 'the one offer');
+    await tester.tap(find.byKey(const ValueKey('update-notice')));
     await tester.pumpAndSettle();
-    expect(opened, [page]);
+    expect(opened, [page], reason: 'this copy installs nothing itself: the notice opens the page');
 
     container.updateOverrides([
       deskManifestFetchProvider.overrideWithValue((_) async => (200, same)),
