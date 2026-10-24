@@ -1,0 +1,20 @@
+{
+  "deskSetLogsMemoryOnly": "Das Protokoll wird nur im Arbeitsspeicher gehalten.",
+  "deskSetLogsClearTitle": "Protokolle löschen?",
+  "deskSetLogsClearDesc": "Löscht die Protokolldateien. Ein später gesendeter Bericht enthält nur, was ab jetzt protokolliert wird.",
+  "deskSetLogsKeep": "Protokolle behalten",
+  "deskSetLogsClear": "Protokolle löschen",
+  "deskSetLogsCleared": "Protokolle gelöscht",
+  "deskSetLogsToday": "heute {time}",
+  "deskSetLogsTomorrow": "morgen {time}",
+  "deskSetLogsTitle": "Protokolle",
+  "deskSetLogsLevel": "Protokollstufe",
+  "deskSetLogsLevelNormal": "Normal. „Ausführlich“ speichert 24 Stunden lang mehr Zeilen; Adressen können in der Datei stehen, Berichte lassen sie weg.",
+  "deskSetLogsLevelDetailed": "Ausführlich bis {until}, dann Normal. Adressen können in der Datei stehen; Berichte lassen sie weg.",
+  "deskSetLogsLevelDetailedCore": "Ausführlich bis {until}, dann Normal. Adressen können in der Datei stehen; Berichte lassen sie weg. Zeilen des Wallet-Kerns werden ab dem nächsten App-Start ausführlich.",
+  "deskSetLogsNormal": "Normal",
+  "deskSetLogsDetailed": "Ausführlich",
+  "deskSetLogsFiles": "Protokolldateien",
+  "deskSetLogsSize": "Aktuelle Größe {size} von {max}. Eine ältere Datei wird behalten.",
+  "deskSetLogsOpenFolder": "Protokollordner öffnen"
+}

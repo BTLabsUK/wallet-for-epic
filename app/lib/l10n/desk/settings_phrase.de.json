@@ -1,0 +1,19 @@
+{
+  "deskSetPhraseNotCopied": "Nicht kopiert",
+  "deskSetPhraseClipboardRefused": "Die Zwischenablage hat den Text abgelehnt.",
+  "deskSetPhraseCopied": "Phrase kopiert",
+  "deskSetPhraseCleared": "Die Zwischenablage wird in 30 s geleert.",
+  "deskSetPhraseEnterPassword": "Geben Sie das Passwort ein.",
+  "deskSetPhraseWrongPassword": "Falsches Passwort.",
+  "deskSetPhraseIntro": "Schreiben Sie die Wörter in dieser Reihenfolge auf Papier. Geben Sie sie nie auf einer Website oder in einem Chat ein.",
+  "deskSetPhrasePanel": "Geben Sie das Passwort ein, um die Wörter anzuzeigen",
+  "deskSetPhraseShowWords": "Wörter anzeigen",
+  "deskSetPhraseWordsLabel": "{count, plural, one{Wiederherstellungsphrase, {count} Wort} other{Wiederherstellungsphrase, {count} Wörter}}",
+  "deskSetPhraseHideQr": "QR-Code ausblenden",
+  "deskSetPhraseShowQr": "QR-Code anzeigen",
+  "deskSetPhraseHideWords": "Wörter verbergen",
+  "deskSetPhraseHidesIn": "Wird in {seconds} s verborgen",
+  "deskSetPhraseQrLabel": "QR-Code der Wiederherstellungsphrase",
+  "deskSetPhraseBackUp": "Phrase sichern",
+  "deskSetPhraseBackUpText": "Wer diese Wörter hat, kann die EPIC nehmen. Achten Sie darauf, dass niemand den Bildschirm sieht."
+}
