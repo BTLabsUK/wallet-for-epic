@@ -1515,10 +1515,6 @@
   "@homeSettingsTooltip": {
     "description": "Tooltip of the app-bar button that opens settings."
   },
-  "homeSettingsUpdateTooltip": "Settings: an update is available",
-  "@homeSettingsUpdateTooltip": {
-    "description": "Tooltip and screen-reader label of the app-bar Settings button while it carries a small dot because a newer app version is available."
-  },
   "homeSendButton": "Send",
   "@homeSendButton": {
     "description": "Label of the left tab of the bottom tab bar, where payments are sent. Short."
@@ -3758,20 +3754,6 @@
   "settingsAboutNetwork": "Network",
   "@settingsAboutNetwork": {
     "description": "Settings row in About showing which network the wallet is on (Mainnet, Floonet, Usernet)."
-  },
-  "settingsUpdateTo": "Update to {version}",
-  "@settingsUpdateTo": {
-    "description": "First row of Settings while a newer app version is available; Install is beside it.",
-    "placeholders": {
-      "version": {
-        "type": "String",
-        "example": "1.6.1"
-      }
-    }
-  },
-  "settingsUpdateInstall": "Install",
-  "@settingsUpdateInstall": {
-    "description": "Button on the Settings row that offers a newer app version; downloads and installs it."
   },
   "settingsCheckUpdates": "Check for updates",
   "@settingsCheckUpdates": {

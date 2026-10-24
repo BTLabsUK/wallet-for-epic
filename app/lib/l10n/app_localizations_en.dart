@@ -1406,9 +1406,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeSettingsTooltip => 'Settings';
 
   @override
-  String get homeSettingsUpdateTooltip => 'Settings: an update is available';
-
-  @override
   String get homeSendButton => 'Send';
 
   @override
@@ -3148,14 +3145,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAboutNetwork => 'Network';
-
-  @override
-  String settingsUpdateTo(String version) {
-    return 'Update to $version';
-  }
-
-  @override
-  String get settingsUpdateInstall => 'Install';
 
   @override
   String get settingsCheckUpdates => 'Check for updates';

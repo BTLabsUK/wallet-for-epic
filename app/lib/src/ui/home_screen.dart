@@ -734,7 +734,7 @@ class _Backdrop extends ConsumerWidget {
   );
 }
 
-/// The app bar's Settings button, with an accent dot while an update is on offer.
+/// The app bar's Settings button.
 class _SettingsButton extends ConsumerWidget {
   const _SettingsButton({required this.onPressed});
 
@@ -742,26 +742,19 @@ class _SettingsButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final update = ref.watch(updateProvider.select((s) => s.update != null));
     final l = context.l10n;
+    // No update dot: the update notice is the one place an update is offered.
     return IconButton(
       key: settingsButtonKey,
-      tooltip: update ? l.homeSettingsUpdateTooltip : l.homeSettingsTooltip,
-      icon: Badge(
-        key: update ? settingsUpdateDotKey : null,
-        isLabelVisible: update,
-        smallSize: 8,
-        backgroundColor: context.tokens.accent,
-        child: const Icon(Icons.settings_outlined),
-      ),
+      tooltip: l.homeSettingsTooltip,
+      icon: const Icon(Icons.settings_outlined),
       onPressed: onPressed,
     );
   }
 }
 
-/// The app bar's Settings button and its update dot, for tests.
+/// The app bar's Settings button, for tests.
 const Key settingsButtonKey = ValueKey('settings-button');
-const Key settingsUpdateDotKey = ValueKey('settings-update-dot');
 
 /// How long a tap on the tab bar takes to move the pages.
 const Duration shellTabDuration = Duration(milliseconds: 250);
@@ -810,6 +803,7 @@ void showUpdateNotice(
     NoticeAction? action,
     bool persistent = false,
     double? progress,
+    VoidCallback? onClose,
   }) => notices.show(
     text,
     level: level,
@@ -818,6 +812,7 @@ void showUpdateNotice(
     progress: progress,
     progressLabel: progress == null ? null : l.updateDownloadProgressLabel,
     tag: updateNoticeTag,
+    onClose: onClose,
   );
   switch (state.phase) {
     case UpdatePhase.idle:
@@ -830,11 +825,17 @@ void showUpdateNotice(
           ? show(l.updateUpToDate, NoticeLevel.success)
           : show(text(l), NoticeLevel.info);
     case UpdatePhase.available:
+      // Offered once per version: closed, it stays closed until About's Check for updates.
+      if (updater.noticeDismissed(version)) {
+        notices.dismissTag(updateNoticeTag);
+        return;
+      }
       show(
         state.text?.call(l) ?? l.updateAvailable(version),
         NoticeLevel.info,
         persistent: true,
         action: NoticeAction(l.updateInstallButton, updater.install),
+        onClose: () => updater.dismissNotice(version),
       );
     case UpdatePhase.needsPermission:
       // Allow, then return: the update carries on by itself; Update asks again.

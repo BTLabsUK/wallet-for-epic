@@ -24,7 +24,6 @@ import '../server_switch.dart';
 import '../settings.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
-import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
@@ -49,7 +48,6 @@ Future<void> openPrivacySettings(BuildContext context) => Navigator.of(context)
 const Key settingsPushKey = ValueKey('settings-push');
 
 /// The Settings row that offers an update, for tests.
-const Key settingsUpdateRowKey = ValueKey('settings-update-row');
 
 /// The key of a hub row, for tests: `settingsGroupKey(SettingsSection.x)`.
 Key settingsGroupKey(SettingsSection section) =>
@@ -154,7 +152,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final scan = ref.watch(scanProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
     final demo = ref.watch(demoModeProvider);
-    final updates = !demo && ref.read(updateProvider.notifier).supported;
     final torState = phoneTorState(ref.watch(phoneTorProvider));
     final backedUp = ref.watch(backedUpProvider).value ?? true;
     final push = ref.watch(pushProvider);
@@ -174,7 +171,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               builder: (context) => ListView(
               padding: DockSlack.pad(context, const EdgeInsets.only(top: 4, bottom: 24)),
               children: [
-                if (updates) const _UpdateRow(),
                 if (!scan.running && scan.error != null)
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -385,38 +381,3 @@ class _GroupSwitch extends StatelessWidget {
   }
 }
 
-/// The first row while an update is on offer: its version, with Install. While it downloads
-/// or installs, the row says how far it got and Install waits.
-class _UpdateRow extends ConsumerWidget {
-  const _UpdateRow();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(updateProvider);
-    final update = state.update;
-    if (update == null) return const SizedBox.shrink();
-    final l = context.l10n;
-    final version = update.versionName;
-    final busy =
-        state.phase == UpdatePhase.downloading ||
-        state.phase == UpdatePhase.installing;
-    return ListTile(
-      key: settingsUpdateRowKey,
-      leading: Icon(Icons.system_update, color: context.tokens.accentText),
-      title: Text(l.settingsUpdateTo(version)),
-      subtitle: switch (state.phase) {
-        UpdatePhase.downloading => Text(
-          l.updateDownloading(version, ((state.progress ?? 0) * 100).floor()),
-        ),
-        UpdatePhase.installing => Text(l.updateInstalling(version)),
-        UpdatePhase.needsPermission => Text(l.updateAllowInstalls),
-        // Why the last try did not install, as the banner says it.
-        _ => state.text == null ? null : Text(state.text!(l)),
-      },
-      trailing: FilledButton(
-        onPressed: busy ? null : ref.read(updateProvider.notifier).install,
-        child: Text(l.settingsUpdateInstall),
-      ),
-    );
-  }
-}

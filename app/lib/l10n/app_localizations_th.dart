@@ -1359,9 +1359,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeSettingsTooltip => 'การตั้งค่า';
 
   @override
-  String get homeSettingsUpdateTooltip => 'การตั้งค่า: มีอัปเดตใหม่';
-
-  @override
   String get homeSendButton => 'ส่ง';
 
   @override
@@ -3065,14 +3062,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsAboutNetwork => 'เครือข่าย';
-
-  @override
-  String settingsUpdateTo(String version) {
-    return 'อัปเดตเป็น $version';
-  }
-
-  @override
-  String get settingsUpdateInstall => 'ติดตั้ง';
 
   @override
   String get settingsCheckUpdates => 'ตรวจหาอัปเดต';

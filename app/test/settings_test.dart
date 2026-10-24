@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
+import 'package:epic_wallet/src/push_controller.dart' show pushRelaySettle;
 import 'package:epic_wallet/src/push_registration.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
@@ -633,17 +634,17 @@ void main() {
     });
 
     testWidgets(
-      'the notice shows once per opening, again after lock and unlock',
+      'the notice offers a version once: closed, it stays closed after reopening and after '
+      'lock and unlock; a newer version shows again',
       (tester) async {
         final h = _Harness()..updates.offer = _update;
         await h.pump(tester);
         await h.unlock(tester);
-        Finder notice() => find.descendant(
+        Finder notice([String version = '1.6.1']) => find.descendant(
           of: find.byKey(noticeKey),
-          matching: find.text('Version 1.6.1 is available.'),
+          matching: find.text('Version $version is available.'),
         );
         expect(notice(), findsOneWidget);
-        // Dismissed, it stays away until the next opening.
         await tester.tap(
           find.descendant(
             of: find.byKey(noticeKey),
@@ -652,29 +653,28 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(notice(), findsNothing);
-        await tester.pump(const Duration(minutes: 10));
-        expect(notice(), findsNothing);
+        expect(h.store.values[updateNoticeDismissedKey], '1.6.1');
 
         await _leave(tester);
         await _return(tester);
-        expect(notice(), findsOneWidget);
-        await tester.tap(
-          find.descendant(
-            of: find.byKey(noticeKey),
-            matching: find.byTooltip('Close'),
-          ),
-        );
-        await tester.pumpAndSettle();
-
+        expect(notice(), findsNothing);
         await tester.tap(find.byTooltip('Lock wallet'));
         await tester.pumpAndSettle();
-        expect(notice(), findsNothing);
         await h.unlock(tester);
-        expect(notice(), findsOneWidget);
+        expect(notice(), findsNothing);
+
+        h.updates.offer = AvailableUpdate(
+          versionName: '1.6.2',
+          notes: '',
+          apk: _update.apk,
+        );
+        await _leave(tester);
+        await _return(tester);
+        expect(notice('1.6.2'), findsOneWidget);
       },
     );
 
-    testWidgets('an update puts a dot on Settings and a row at its top', (
+    testWidgets('an update is offered by the notice only: no dot, no row in Settings', (
       tester,
     ) async {
       final h = _Harness()
@@ -682,37 +682,27 @@ void main() {
         ..updates.offer = _update;
       await h.pump(tester);
       await h.unlock(tester);
-      expect(find.byKey(settingsUpdateDotKey), findsOneWidget);
-      expect(
-        find.byTooltip('Settings: an update is available'),
-        findsOneWidget,
+      Finder notice() => find.descendant(
+        of: find.byKey(noticeKey),
+        matching: find.text('Version 1.6.1 is available.'),
       );
+      expect(notice(), findsOneWidget);
+      expect(find.byType(Badge), findsNothing);
+      expect(find.byTooltip('Settings'), findsOneWidget);
       await tester.tap(find.byKey(settingsButtonKey));
       await tester.pumpAndSettle();
-      final row = find.byKey(settingsUpdateRowKey);
+      // Settings never shows a second offer: the same notice, nothing in the list.
+      expect(notice(), findsOneWidget);
+      expect(find.textContaining('Update to'), findsNothing);
       expect(
-        find.descendant(of: row, matching: find.text('Update to 1.6.1')),
-        findsOneWidget,
+        find.descendant(of: find.byType(ListView), matching: find.text('Install')),
+        findsNothing,
       );
-      // Above every other row.
-      final tiles = find.byType(ListTile);
-      expect(tester.getTopLeft(tiles.first).dy, tester.getTopLeft(row).dy);
       await tester.tap(
-        find.descendant(of: row, matching: find.text('Install')),
+        find.descendant(of: find.byKey(noticeKey), matching: find.text('Update')),
       );
       await tester.pumpAndSettle();
       expect(h.updates.installs, 1);
-
-      // Without an update: no dot, no row.
-      (h.container.read(updateProvider.notifier) as _ScriptedUpdates).set(
-        const UpdateState(UpdatePhase.idle),
-      );
-      await tester.pumpAndSettle();
-      expect(row, findsNothing);
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-      expect(find.byKey(settingsUpdateDotKey), findsNothing);
-      expect(find.byTooltip('Settings'), findsOneWidget);
     });
   });
 
@@ -1149,6 +1139,8 @@ void main() {
               walletId: config.walletId,
             ),
           );
+      // Push follows a relay switch once it settles.
+      await tester.pump(pushRelaySettle);
       await tester.pumpAndSettle();
     }
 
@@ -1397,7 +1389,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await unlockOnRelay(h, tester);
-      await tester.pump(const Duration(seconds: 59));
+      // A minute from the unlock; the relay's settle took part of it.
+      await tester.pump(const Duration(seconds: 59) - pushRelaySettle);
       expect(find.byKey(noticeKey), findsNothing);
       await tester.pump(const Duration(seconds: 2));
       await tester.pumpAndSettle();

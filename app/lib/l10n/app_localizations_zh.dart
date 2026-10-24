@@ -1323,9 +1323,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeSettingsTooltip => '设置';
 
   @override
-  String get homeSettingsUpdateTooltip => '设置：有可用更新';
-
-  @override
   String get homeSendButton => '发送';
 
   @override
@@ -2963,14 +2960,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsAboutNetwork => '网络';
-
-  @override
-  String settingsUpdateTo(String version) {
-    return '更新到 $version';
-  }
-
-  @override
-  String get settingsUpdateInstall => '安装';
 
   @override
   String get settingsCheckUpdates => '检查更新';
