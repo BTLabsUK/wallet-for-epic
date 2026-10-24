@@ -2704,6 +2704,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、直连地址（https://…）或 onion 地址（….onion）。';
+
+  @override
   String get settingsTitle => '设置';
 
   @override
@@ -7689,7 +7693,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskConErrAddressEmpty => '请填写地址。';
 
   @override
-  String get deskConErrAddressInvalid => '无法识别的地址';
+  String get deskConErrAddressInvalid =>
+      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、直连地址（https://…）或 onion 地址（….onion）。';
 
   @override
   String get deskConAddPicture => '添加图片';

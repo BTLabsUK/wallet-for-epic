@@ -39,7 +39,7 @@
   "deskConTxSent": "Отправлено",
   "deskConErrName": "Дайте контакту имя.",
   "deskConErrAddressEmpty": "Добавьте адрес.",
-  "deskConErrAddressInvalid": "Адрес не распознан",
+  "deskConErrAddressInvalid": "Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес для прямой отправки (https://…) или onion-адрес (….onion).",
   "deskConAddPicture": "Добавить фото",
   "deskConChangePicture": "Сменить фото",
   "deskConRemovePicture": "Удалить",
