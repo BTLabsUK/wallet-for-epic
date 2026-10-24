@@ -13600,4 +13600,91 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskUpdUnfinished => 'อัปเดตไม่เสร็จ ลองอีกครั้ง';
+
+  @override
+  String get slNodeField => 'Node address';
+
+  @override
+  String get slRelayField => 'Epicbox server';
+
+  @override
+  String get slHelpIdleNode =>
+      'In use. Edit it to switch, or type to filter the list.';
+
+  @override
+  String get slHelpIdleRelay =>
+      'In use. Edit it to switch, or type to filter the list.';
+
+  @override
+  String get slHelpAddable => 'Not in the list.';
+
+  @override
+  String slHelpMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matches.',
+      one: '$count match.',
+      zero: 'No match.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get slNoMatchHint => 'No match. Type a host or host:port to add it.';
+
+  @override
+  String get slClear => 'Clear';
+
+  @override
+  String slAddRow(String host) {
+    return 'Add $host';
+  }
+
+  @override
+  String get slAddTestsNode => 'Tests the node first, then offers the switch.';
+
+  @override
+  String get slAddTestsRelay =>
+      'Tests the server first, then offers the switch.';
+
+  @override
+  String slAdded(String host) {
+    return 'Added $host.';
+  }
+
+  @override
+  String get slRemove => 'Remove';
+
+  @override
+  String slRemoved(String host) {
+    return 'Removed $host.';
+  }
+
+  @override
+  String get slUndo => 'Undo';
+
+  @override
+  String get slInUseSwitchFirst => 'In use. Switch first.';
+
+  @override
+  String get slRestore => 'Restore the public list';
+
+  @override
+  String slRemovedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count removed',
+      one: '$count removed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get slRestored => 'Restored the public list.';
+
+  @override
+  String get slRelayWarning =>
+      'Switching changes your address. Senders need the new one.';
 }

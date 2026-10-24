@@ -31,6 +31,7 @@ import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
 import 'common.dart' show groupDigits;
 import 'notices.dart';
+import 'server_list_sheet.dart' show showEpicboxListSheet, showNodeListSheet;
 import 'help_screen.dart' show HelpButton, HelpId;
 import 'launch_screen.dart';
 import 'status.dart' hide NodeStatus;
@@ -1136,7 +1137,14 @@ Future<void> showNodePicker(BuildContext context) =>
 Future<void> showEpicboxPicker(BuildContext context) =>
     _showPicker(context, ServerKind.relay);
 
+// Design mockup (branch design/server-list-crud): the status rows open the one-list sheet.
 Future<void> _showPicker(BuildContext context, ServerKind kind) =>
+    kind == ServerKind.node
+    ? showNodeListSheet(context)
+    : showEpicboxListSheet(context);
+
+// ignore: unused_element
+Future<void> _showPickerOld(BuildContext context, ServerKind kind) =>
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
