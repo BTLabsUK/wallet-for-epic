@@ -3623,5 +3623,6 @@
   "deskUpdOpenPage": "เปิดหน้าดาวน์โหลด",
   "deskUpdErrDamaged": "ไฟล์ไม่ตรงกับข้อมูลอัปเดตที่ลงลายเซ็นไว้",
   "deskUpdErrStopped": "การดาวน์โหลดหยุดลง",
-  "deskUpdErrInstall": "แทนที่ด้วยเวอร์ชันใหม่ไม่ได้"
+  "deskUpdErrInstall": "แทนที่ด้วยเวอร์ชันใหม่ไม่ได้",
+  "deskUpdUnfinished": "อัปเดตไม่เสร็จ ลองอีกครั้ง"
 }

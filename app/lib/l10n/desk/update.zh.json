@@ -13,5 +13,6 @@
   "deskUpdOpenPage": "打开下载页面",
   "deskUpdErrDamaged": "文件与已签名的更新信息不符。",
   "deskUpdErrStopped": "下载已中断。",
-  "deskUpdErrInstall": "无法替换为新版本。"
+  "deskUpdErrInstall": "无法替换为新版本。",
+  "deskUpdUnfinished": "更新未完成。请重试。"
 }

@@ -13845,4 +13845,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskUpdErrInstall => 'The new version could not be put in place.';
+
+  @override
+  String get deskUpdUnfinished => 'Update didn\'t finish. Try again.';
 }

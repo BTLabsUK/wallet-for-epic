@@ -13119,4 +13119,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskUpdErrInstall => '无法替换为新版本。';
+
+  @override
+  String get deskUpdUnfinished => '更新未完成。请重试。';
 }

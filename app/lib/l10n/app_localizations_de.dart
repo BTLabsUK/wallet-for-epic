@@ -14001,4 +14001,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskUpdErrInstall =>
       'Die neue Version konnte nicht eingesetzt werden.';
+
+  @override
+  String get deskUpdUnfinished =>
+      'Update nicht abgeschlossen. Erneut versuchen.';
 }

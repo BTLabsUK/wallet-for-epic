@@ -172,6 +172,7 @@ class _Updates extends ConsumerWidget {
       DeskUpdatePhase.ready when u.problem != null => (l.deskUpdInstallFailed, u.problem),
       DeskUpdatePhase.ready => (l.deskUpdReady(v), l.deskUpdRestartHint),
       DeskUpdatePhase.failed => (l.deskSetAboutCouldNotCheck, [u.reason, checked].nonNulls.join(' ')),
+      DeskUpdatePhase.unfinished => (l.deskUpdUnfinished, u.problem ?? l.deskUpdRestartHint),
     };
     final busy = u.phase == DeskUpdatePhase.checking || u.phase == DeskUpdatePhase.idle;
     final inApp = u.file != null;
@@ -213,7 +214,13 @@ class _Updates extends ConsumerWidget {
           child: EButton.primary(label: l.deskUpdRestart, icon: EIcons.restart, size: EBtnSize.sm, onPressed: () => restartToUpdate(context, ref)),
         ),
       if (u.phase == DeskUpdatePhase.ready && u.problem != null) pageButton,
-      if (u.phase != DeskUpdatePhase.downloading && u.phase != DeskUpdatePhase.ready)
+      if (u.phase == DeskUpdatePhase.unfinished) ...[
+        ERowControl(
+          child: EButton.primary(label: l.deskUpdTryAgain, icon: EIcons.restart, size: EBtnSize.sm, onPressed: () => deskUpdateAct(context, ref)),
+        ),
+        pageButton,
+      ],
+      if (u.phase != DeskUpdatePhase.downloading && u.phase != DeskUpdatePhase.ready && u.phase != DeskUpdatePhase.unfinished)
         ERowControl(
           child: EButton(
             label: l.deskSetAboutCheckNow,

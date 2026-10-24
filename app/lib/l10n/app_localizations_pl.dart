@@ -14269,4 +14269,8 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskUpdErrInstall =>
       'Nie udało się podmienić aplikacji na nową wersję.';
+
+  @override
+  String get deskUpdUnfinished =>
+      'Aktualizacja nie została dokończona. Spróbuj ponownie.';
 }

@@ -1,7 +1,9 @@
 /// The update notice at the foot of the sidebar, above the statuses, while a newer Epic Cash
 /// Desktop is out (`data/desk_update.dart`): Update available → Downloading 42 % → Restart to
 /// update. A step that fails says so and offers the next way: try the download again, or the
-/// download page. Nothing shows otherwise. Settings › About › Updates does the same steps.
+/// download page. An update that did not finish (Windows) says "Update didn't finish. Try
+/// again." and runs the steps again. Nothing shows otherwise. Settings › About › Updates does
+/// the same steps.
 library;
 
 import 'dart:async';
@@ -35,6 +37,7 @@ import '../widgets/kit.dart';
       act: true,
     ),
     DeskUpdatePhase.ready => (title: l.deskUpdInstallFailed, second: l.deskUpdOpenPage, tip: u.problem, warn: true, act: true),
+    DeskUpdatePhase.unfinished => (title: l.deskUpdUnfinished, second: v, tip: u.problem ?? l.deskUpdRestartHint, warn: true, act: true),
     _ when u.problem != null => (
       title: l.deskUpdFailed,
       second: u.file != null ? l.deskUpdTryAgain : l.deskUpdOpenPage,
@@ -52,10 +55,12 @@ import '../widgets/kit.dart';
   };
 }
 
-/// The notice's click, and About's main button: download, restart, or open the page.
+/// The notice's click, and About's main button: download, restart, try again, or open the page.
 Future<void> deskUpdateAct(BuildContext context, WidgetRef ref) async {
   final u = ref.read(deskUpdateProvider);
   switch (u.phase) {
+    case DeskUpdatePhase.unfinished:
+      await retryUpdate(context, ref);
     case DeskUpdatePhase.available when u.file != null:
       await ref.read(deskUpdateProvider.notifier).download();
     case DeskUpdatePhase.ready when u.problem == null:
@@ -86,6 +91,20 @@ Future<void> restartToUpdate(BuildContext context, WidgetRef ref) async {
   // widget (the sidebar may switch to its rail, About may close, during the re-check).
   final container = ProviderScope.containerOf(context, listen: false);
   if (!await ref.read(deskUpdateProvider.notifier).restart()) return;
+  await _quitForUpdate(container);
+}
+
+/// "Update didn't finish. Try again.": the update once more, as Restart to update does it (never
+/// in the middle of a send); the app quits once Setup runs. What stops it stays in the notice.
+Future<void> retryUpdate(BuildContext context, WidgetRef ref) async {
+  final l = context.l10n;
+  if (ref.read(deskProvider.notifier).sending > 0) {
+    showEToast(context, l.deskShellNotQuitTitle, text: l.deskShellNotQuitBody);
+    return;
+  }
+  // The notice changes (download, restart) while this runs: the quit goes through the container.
+  final container = ProviderScope.containerOf(context, listen: false);
+  if (!await ref.read(deskUpdateProvider.notifier).retry()) return;
   await _quitForUpdate(container);
 }
 

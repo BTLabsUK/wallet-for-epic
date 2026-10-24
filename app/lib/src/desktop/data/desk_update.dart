@@ -12,6 +12,10 @@
 /// When the entry also names this system's release file (`url`, `sha256`, `size`) and this copy
 /// can install it by itself (`desk_update_apply.dart`), the notice downloads it, checks it, and
 /// offers "Restart to update"; otherwise it opens the page.
+///
+/// On Windows an update that did not finish (Setup killed or failed part way,
+/// [DeskUpdateMarks]) is found when the wallet opens: "Update didn't finish. Try again." runs
+/// the same steps again ([DeskUpdateController.retry]).
 library;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -58,6 +62,9 @@ enum DeskUpdatePhase {
 
   /// The release file is downloaded and checked: "Restart to update".
   ready,
+
+  /// An earlier update to [DeskUpdateState.version] did not finish: "Try again" (Windows).
+  unfinished,
 }
 
 class DeskUpdateState {
@@ -102,7 +109,11 @@ class DeskUpdateState {
   final File? download;
 
   /// Whether the update can be had at all (the notice shows).
-  bool get offered => phase == DeskUpdatePhase.available || phase == DeskUpdatePhase.downloading || phase == DeskUpdatePhase.ready;
+  bool get offered =>
+      phase == DeskUpdatePhase.available ||
+      phase == DeskUpdatePhase.downloading ||
+      phase == DeskUpdatePhase.ready ||
+      phase == DeskUpdatePhase.unfinished;
 }
 
 /// The first check after the wallet opens, and the ones after it while the app runs.
@@ -152,6 +163,25 @@ bool isNewerVersion(String a, String b) {
   return isTestVersion(y);
 }
 
+/// The version an earlier update was installing and did not finish, from its marks
+/// ([DeskUpdateMarks]); null when there is none, or it finished.
+///  - Setup's mark ([setup], the version it installs; '' for none): not every file went in,
+///    whichever version the files now on disk report. A mark older than [running] is left over
+///    and does not count.
+///  - The version recorded before Setup started ([target]), newer than [running]: Setup stopped
+///    before it changed anything (it failed, was cancelled or killed, or never ran).
+String? unfinishedUpdate(String running, {String? setup, String? target}) {
+  if (setup != null) {
+    final v = setup.isEmpty ? (target ?? running) : setup;
+    if (!isNewerVersion(running, v)) return v;
+  }
+  if (target != null && isNewerVersion(target, running)) return target;
+  return null;
+}
+
+/// Whether [a] and [b] are the same version, build suffixes aside.
+bool _sameVersion(String a, String b) => !isNewerVersion(a, b) && !isNewerVersion(b, a) && isTestVersion(a) == isTestVersion(b);
+
 /// Whether [url] is an https page on one of [deskUpdatePageHosts].
 bool isDeskUpdatePage(String url) {
   final u = Uri.tryParse(url);
@@ -172,10 +202,11 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     return const DeskUpdateState(DeskUpdatePhase.idle);
   }
 
-  /// Checks [deskUpdateFirst] from now and every [deskUpdateEvery] after, once per run (the
-  /// shell calls it when the wallet opens).
+  /// Looks for an update that did not finish right away, then checks [deskUpdateFirst] from now
+  /// and every [deskUpdateEvery] after, once per run (the shell calls it when the wallet opens).
   void schedule() {
     if (_every != null) return;
+    unawaited(detect());
     final (first, every) = ref.read(deskUpdateScheduleProvider);
     _first = Timer(first, () => unawaited(check()));
     _every = Timer.periodic(every, (_) => unawaited(check()));
@@ -183,30 +214,110 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
 
   /// Checks once per run, when About first opens.
   Future<void> checkOnce() async {
+    await detect();
     if (state.phase == DeskUpdatePhase.idle) await check();
   }
 
+  /// The version of an update that did not finish, once [detect] found one; until it runs, a
+  /// later check may offer that same version again (Setup puts all its files in once more).
+  String? _unfinished;
+  Future<void>? _detecting;
+  bool _retrying = false;
+
+  /// Reads the marks of an earlier update once per run ([unfinishedUpdate]): one that did not
+  /// finish shows "Update didn't finish. Try again."; one that finished has its record removed.
+  Future<void> detect() => _detecting ??= _detect();
+
+  Future<void> _detect() async {
+    final open = ref.read(deskUpdateMarksProvider);
+    if (open == null) return;
+    try {
+      final marks = await open();
+      final setup = await marks.readSetup();
+      final target = await marks.readTarget();
+      final v = unfinishedUpdate(deskAppVersion, setup: setup, target: target);
+      if (v == null) {
+        if (target != null) {
+          logInfo('update', 'desktop: the update to $target finished');
+          await marks.clearTarget();
+        }
+        if (setup != null) {
+          logInfo('update', 'desktop: a left-over Setup mark (${setup.isEmpty ? '?' : setup}) is removed');
+          await marks.clearSetup();
+        }
+        return;
+      }
+      logWarn('update', 'desktop: the update to $v did not finish (Setup mark: ${setup ?? 'none'}, recorded: ${target ?? 'none'}, running: $deskAppVersion)');
+      _unfinished = v;
+      if (!ref.mounted) return;
+      final p = state.phase;
+      if (p == DeskUpdatePhase.idle || p == DeskUpdatePhase.latest || p == DeskUpdatePhase.failed) {
+        state = DeskUpdateState(DeskUpdatePhase.unfinished, version: v, page: deskReleasesUrl, checkedAt: state.checkedAt);
+      }
+    } on Object catch (e) {
+      logWarn('update', 'desktop: update marks not read: $e');
+    }
+  }
+
+  /// "Update didn't finish. Try again.": the normal steps once more, in one go. The signed
+  /// manifest is read again, a download kept from before is used when it still matches, and
+  /// Setup runs as before ([restart]). True when the app should now quit; otherwise the state
+  /// says what stopped it (a check that fails stays here, with the reason as the problem).
+  Future<bool> retry() async {
+    final s = state;
+    if (s.phase != DeskUpdatePhase.unfinished || _retrying) return false;
+    _retrying = true;
+    try {
+      logInfo('update', 'desktop: trying the update to ${s.version} again');
+      final next = await _fetchAndRead();
+      if (!ref.mounted) return false;
+      final now = ref.read(deskUpdateClockProvider)();
+      if (next.phase != DeskUpdatePhase.available) {
+        state = DeskUpdateState(DeskUpdatePhase.unfinished, version: s.version, page: s.page, checkedAt: now, problem: next.reason ?? deskStrings.deskDataUpdNone);
+        return false;
+      }
+      state = DeskUpdateState(next.phase, version: next.version, page: next.page, checkedAt: now, file: next.file);
+      // Without a file this copy can install, the notice opens the page instead.
+      if (next.file == null) return false;
+      await download();
+      if (!ref.mounted || state.phase != DeskUpdatePhase.ready || state.problem != null) return false;
+      return await restart();
+    } finally {
+      _retrying = false;
+    }
+  }
+
   Future<void> check() async {
-    // A download under way or done stays as it is; one whose install failed is looked for again.
+    // A download under way or done stays as it is; one whose install failed is looked for again;
+    // an update that did not finish waits for its Try again.
     final p = state.phase;
-    if (p == DeskUpdatePhase.checking || p == DeskUpdatePhase.downloading || (p == DeskUpdatePhase.ready && state.problem == null)) return;
+    if (p == DeskUpdatePhase.checking ||
+        p == DeskUpdatePhase.downloading ||
+        p == DeskUpdatePhase.unfinished ||
+        (p == DeskUpdatePhase.ready && state.problem == null)) {
+      return;
+    }
     final last = state.checkedAt;
     state = DeskUpdateState(DeskUpdatePhase.checking, checkedAt: last);
-    final url = Uri.parse(updateManifestUrl);
-    DeskUpdateState next;
-    try {
-      final (status, body) = await ref.read(deskManifestFetchProvider)(url);
-      next = await _read(status, body);
-    } on TimeoutException {
-      next = DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdTimeout);
-    } on Object catch (e) {
-      logInfo('update', 'desktop check failed: ${e.runtimeType}');
-      next = DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdUnreachable);
-    }
+    final next = await _fetchAndRead();
     if (!ref.mounted) return;
     final now = ref.read(deskUpdateClockProvider)();
     state = DeskUpdateState(next.phase, version: next.version, page: next.page, reason: next.reason, checkedAt: now, file: next.file);
     if (next.phase == DeskUpdatePhase.latest) unawaited(_dropDownloads());
+  }
+
+  /// The manifest, fetched and verified: what it offers this copy.
+  Future<DeskUpdateState> _fetchAndRead() async {
+    final url = Uri.parse(updateManifestUrl);
+    try {
+      final (status, body) = await ref.read(deskManifestFetchProvider)(url);
+      return await _read(status, body);
+    } on TimeoutException {
+      return DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdTimeout);
+    } on Object catch (e) {
+      logInfo('update', 'desktop check failed: ${e.runtimeType}');
+      return DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdUnreachable);
+    }
   }
 
   /// This version is the latest: a download kept from before (the installer or AppImage of the
@@ -283,7 +394,16 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
         logInfo('update', 'desktop: a payment is being sent; the update waits');
         return false;
       }
-      await applier.apply(file);
+      // Recorded before Setup starts, so a Setup that stops before its files go in is found at
+      // the next start ([detect]); nothing started, nothing recorded.
+      final marks = await ref.read(deskUpdateMarksProvider)?.call();
+      await marks?.record(s.version!);
+      try {
+        await applier.apply(file);
+      } on Object {
+        await marks?.clearTarget();
+        rethrow;
+      }
       logInfo('update', 'desktop: ${s.version} is being installed; the app quits');
       return true;
     } on Object catch (e) {
@@ -355,7 +475,9 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     if (mine == null) {
       return DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdNone);
     }
-    if (!isNewerVersion(mine.version, deskAppVersion)) return const DeskUpdateState(DeskUpdatePhase.latest);
+    // An update that did not finish takes this same version once more: its files go in again.
+    final again = _unfinished != null && _sameVersion(mine.version, deskAppVersion);
+    if (!isNewerVersion(mine.version, deskAppVersion) && !again) return const DeskUpdateState(DeskUpdatePhase.latest);
     final page = mine.page;
     return _known = DeskUpdateState(
       DeskUpdatePhase.available,
