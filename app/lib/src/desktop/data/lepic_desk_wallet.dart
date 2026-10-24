@@ -365,7 +365,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// The HTTP listener's events while it runs or starts; its health and, when down, why.
   StreamSubscription<core.HttpListenerEvent>? _http;
   ServiceHealth _httpHealth = ServiceHealth.off;
-  String? _httpProblem;
+  HttpProblem? _httpProblem;
 
   /// The port and reach the running HTTP listener started with.
   int? _httpPort;
@@ -1788,6 +1788,7 @@ class LepicDeskWallet implements DeskWalletApi {
       epicboxHealth: _epicboxHealth,
       httpListener: _httpHealth,
       httpProblem: _httpHealth == ServiceHealth.down ? _httpProblem : null,
+      httpProblemPort: _httpHealth == ServiceHealth.down && _httpProblem != null ? _httpPort : null,
       tor: _torHealth,
       torProgress: _torHealth == ServiceHealth.checking && !_torCanSend ? _torProgress : null,
       torProblem: _torHealth == ServiceHealth.down || _torHealth == ServiceHealth.slow ? _torProblem : null,
@@ -2784,7 +2785,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
     logInfo('desk', 'http listener start ${exposure.name}');
     late final StreamSubscription<core.HttpListenerEvent> sub;
-    void ended(ServiceHealth health, String? problem) {
+    void ended(ServiceHealth health, HttpProblem? problem) {
       if (_http != sub) return;
       _http = null;
       _httpHealth = health;
@@ -2799,9 +2800,11 @@ class LepicDeskWallet implements DeskWalletApi {
             _httpHealth = ServiceHealth.ok;
             _httpPort = e.port ?? port;
           case core.HttpListenerEventKind.portInUse:
-            ended(ServiceHealth.down, deskStrings.deskErrPortInUse(e.port ?? port));
+            _httpPort = e.port ?? port;
+            ended(ServiceHealth.down, HttpProblem.portInUse);
           case core.HttpListenerEventKind.bindFailed:
-            ended(ServiceHealth.down, deskStrings.deskErrPortUnavailable(e.port ?? port));
+            _httpPort = e.port ?? port;
+            ended(ServiceHealth.down, HttpProblem.portUnavailable);
           case core.HttpListenerEventKind.received:
             unawaited(_reload());
           case core.HttpListenerEventKind.refused:
@@ -2814,7 +2817,7 @@ class LepicDeskWallet implements DeskWalletApi {
       },
       onError: (Object e) {
         logWarn('desk', 'http listener ended: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
-        ended(ServiceHealth.down, deskStrings.deskErrStoppedWithError);
+        ended(ServiceHealth.down, HttpProblem.stopped);
         _changed();
       },
       onDone: () {

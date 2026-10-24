@@ -64,7 +64,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       epicboxHealth: a == ReceivingDemo.epicboxDown ? ServiceHealth.down : s.epicboxHealth,
       httpListener: a == ReceivingDemo.httpFailed ? ServiceHealth.down : s.httpListener,
       tor: a == ReceivingDemo.torStopped ? ServiceHealth.down : s.tor,
-      httpProblem: a == ReceivingDemo.httpFailed ? 'Port ${ref.read(deskProvider).settings.httpPort} in use' : s.httpProblem, // l10n-ok: demo status text
+      httpProblem: a == ReceivingDemo.httpFailed ? HttpProblem.portInUse : s.httpProblem,
+      httpProblemPort: a == ReceivingDemo.httpFailed ? ref.read(deskProvider).settings.httpPort : s.httpProblemPort,
       torProgress: s.torProgress,
       torProblem: a == ReceivingDemo.torStopped ? 'Tor could not connect to the network.' : s.torProblem, // l10n-ok: demo status text
       torCanSend: s.torCanSend,

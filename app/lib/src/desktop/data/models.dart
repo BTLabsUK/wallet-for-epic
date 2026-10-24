@@ -405,6 +405,7 @@ class ServiceStatus {
     required this.httpListener,
     required this.tor,
     this.httpProblem,
+    this.httpProblemPort,
     this.torProgress,
     this.torProblem,
     this.torCanSend = false,
@@ -426,8 +427,11 @@ class ServiceStatus {
   /// stopped by itself ([ServiceHealth.down], with [httpProblem]).
   final ServiceHealth httpListener;
 
-  /// Why the HTTP listener is down, in a few words ("Port 3415 in use"); null otherwise.
-  final String? httpProblem;
+  /// Why the HTTP listener is down; null otherwise. Worded at display time ([httpProblemText]).
+  final HttpProblem? httpProblem;
+
+  /// The port [httpProblem] is about.
+  final int? httpProblemPort;
 
   /// The wallet's tor: off, connecting ([ServiceHealth.checking], with [torProgress] until
   /// connected, then publishing the onion), ready, running for sends only
@@ -463,6 +467,16 @@ class ServiceStatus {
   /// A one-line state the wallet is in, e.g. a database being rebuilt; null when none.
   final String? notice;
 }
+
+/// Why the HTTP listener is down: kept structured so every language words it ([httpProblemText]).
+enum HttpProblem { portInUse, portUnavailable, stopped }
+
+/// [ServiceStatus.httpProblem] in a few words: "Port 3415 in use".
+String httpProblemText(AppLocalizations l, HttpProblem p, int port) => switch (p) {
+  HttpProblem.portInUse => l.deskErrPortInUse(port),
+  HttpProblem.portUnavailable => l.deskErrPortUnavailable(port),
+  HttpProblem.stopped => l.deskErrStoppedWithError,
+};
 
 /// The Tor line of the status card and Settings › Receiving: what tor is doing now.
 String torStatusLine(AppLocalizations l, ServiceStatus s) {

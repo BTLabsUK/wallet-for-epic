@@ -183,7 +183,8 @@ void main() {
       await pumpEventQueue();
       final st = await wallet.status();
       expect(st.httpListener, ServiceHealth.down);
-      expect(st.httpProblem, 'Port 3415 in use');
+      expect(st.httpProblem, HttpProblem.portInUse);
+      expect(st.httpProblemPort, 3415);
       expect(await wallet.httpAddress(), '');
       await wallet.setHttpListening(true);
       expect(session().httpListenerStarts, hasLength(2));

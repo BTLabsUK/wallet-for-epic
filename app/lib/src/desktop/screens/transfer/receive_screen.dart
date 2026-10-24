@@ -97,7 +97,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       epicboxHealth: epicbox,
       httpListener: http,
       tor: tor,
-      httpProblem: a.http == RxHttp.failed ? 'Port 3415 in use' : s.httpProblem, // l10n-ok: tour demo state
+      httpProblem: a.http == RxHttp.failed ? HttpProblem.portInUse : s.httpProblem,
+      httpProblemPort: a.http == RxHttp.failed ? 3415 : s.httpProblemPort,
       torProgress: a.tor == RxTor.connecting ? 45 : s.torProgress,
       torProblem: a.tor == RxTor.failed ? 'Tor could not connect to the network.' : s.torProblem, // l10n-ok: tour demo state
       torCanSend: a.tor == RxTor.connecting ? false : s.torCanSend,
