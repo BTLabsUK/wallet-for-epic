@@ -14794,7 +14794,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get slInUseSwitchFirst => 'Используется. Сначала переключитесь.';
 
   @override
-  String get slRestore => 'Восстановить публичный список';
+  String get slRestore => 'Восстановить удалённые серверы';
 
   @override
   String slRemovedCount(int count) {
@@ -14810,7 +14810,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get slRestored => 'Публичный список восстановлен.';
+  String get slRestored => 'Удалённые серверы восстановлены.';
 
   @override
   String get slRelayWarning =>
@@ -14940,11 +14940,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txMethodsHeader => 'Способы оплаты';
 
   @override
-  String get txAlwaysOn => 'Всегда включён';
-
-  @override
   String get txEpicboxHint =>
-      'Epicbox платит через релей, поэтому другому кошельку не нужно быть открытым. Всегда включён.';
+      'Epicbox платит через релей, поэтому другому кошельку не нужно быть открытым. Выключен: кошелёк не подключается ни к одному релею, то есть без платежей Epicbox, счетов и уведомлений. Оплата по QR и файлы по-прежнему работают.';
 
   @override
   String get txDirectLine =>
@@ -15018,6 +15015,69 @@ class AppLocalizationsRu extends AppLocalizations {
       'У вашего узла нет пиров: платёж ждёт в его пуле, пока он не подключится снова.';
 
   @override
+  String get netOfflineNodeHint =>
+      'Использует узел для чтения цепочки и отправки. Для наибольшей приватности используйте локальный узел.';
+
+  @override
+  String get netOfflineNodeLine => 'Использует узел';
+
+  @override
+  String get netBlockEpicboxOff =>
+      'Epicbox выключен в разделе Настройки › Транзакции.';
+
+  @override
+  String get txEpicboxLine =>
+      'Платите или получайте платежи через релей. Другой кошелёк может быть закрыт.';
+
+  @override
+  String get txEpicboxOffTitle => 'Выключить Epicbox?';
+
+  @override
+  String txEpicboxOffPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count платежа ждут ответов через Epicbox. Они придут, когда Epicbox снова включён.',
+      many:
+          '$count платежей ждут ответов через Epicbox. Они придут, когда Epicbox снова включён.',
+      few:
+          '$count платежа ждут ответов через Epicbox. Они придут, когда Epicbox снова включён.',
+      one:
+          '$count платёж ждёт ответа через Epicbox. Он придёт, когда Epicbox снова включён.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txEpicboxOffAction => 'Выключить';
+
+  @override
+  String get pushNoticeOffEpicbox => 'Уведомления выключены: им нужен Epicbox.';
+
+  @override
+  String get settingsPushNeedsEpicbox => 'Нужен Epicbox';
+
+  @override
+  String sendContactOnlyEpicbox(String name) {
+    return 'У $name есть только адрес Epicbox.';
+  }
+
+  @override
+  String get receiveEpicboxOffText =>
+      'Платежи отправителей ждут на релее, пока Epicbox снова не включён.';
+
+  @override
+  String get receiveNoMethods => 'Ни один способ приёма не включён';
+
+  @override
+  String get receiveNoMethodsBody =>
+      'Включите один в разделе Настройки › Транзакции.';
+
+  @override
+  String get receiveNoMethodsButton => 'Открыть настройки';
+
+  @override
   String get deskErrOfflineOnlyLocal => 'Офлайн: только локальные адреса.';
 
   @override
@@ -15038,11 +15098,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetTxMethods => 'Способы оплаты';
 
   @override
-  String get deskSetTxAlwaysOn => 'Всегда включён';
-
-  @override
   String get deskSetTxEpicboxHint =>
-      'Платите и получайте платежи через сервер Epicbox. Так идёт большинство платежей, поэтому он включён всегда.';
+      'Платите и получайте платежи через сервер Epicbox. Так идёт большинство платежей. Выключен: кошелёк не подключается ни к одному серверу Epicbox, то есть без платежей Epicbox и счетов. Файлы по-прежнему работают.';
 
   @override
   String get deskSetTxDirectHint =>

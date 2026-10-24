@@ -424,8 +424,10 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       hiddenTips: _tipIds(tips),
       phoneTourSeen: tourSeen == 'true',
     );
-    // The network mode reaches the runtime here (network_gate.dart); main.dart set it at launch.
+    // The network mode and the Epicbox switch reach the runtime here (network_gate.dart);
+    // main.dart set the mode at launch.
     NetGate.set(settings.advanced.networkMode);
+    NetGate.setEpicbox(settings.payments.epicbox);
     return settings;
   }
 
@@ -520,9 +522,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     NetGate.set(prefs.networkMode);
   }
 
-  /// Settings › Transactions changed.
-  Future<void> setPayments(PaymentPrefs prefs) async =>
-      _put(_paymentsKey, prefs.encode(), (await _current()).copyWith(payments: prefs));
+  /// Settings › Transactions changed. The Epicbox switch reaches the gate before anything
+  /// reads the new settings (network_gate.dart).
+  Future<void> setPayments(PaymentPrefs prefs) async {
+    NetGate.setEpicbox(prefs.epicbox);
+    await _put(_paymentsKey, prefs.encode(), (await _current()).copyWith(payments: prefs));
+  }
 
   /// The saved network mode, read at launch before any request (`main.dart`).
   static Future<NetworkMode> savedNetworkMode(SecretStore store) async =>

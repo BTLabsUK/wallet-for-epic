@@ -2,8 +2,10 @@
 /// starts on. One model for the phone (`AppSettings.payments`) and the desktop
 /// (`DeskSettings.payments`), so the page reads the same on both.
 ///
-/// Epicbox is always offered. On the desktop File is offered by default (an everyday method)
-/// and QR never is. On the phone QR is offered by default and File is not (a switch behind
+/// Epicbox is on by default and can be turned off (26.10.16): off, the wallet connects to no
+/// Epicbox relay (no listener, no sends, no invoices, no push), and Receive shows no Epicbox
+/// address. No method is required: QR and File need no connection of their own. On the
+/// desktop File is offered by default (an everyday method) and QR never is. On the phone QR is offered by default and File is not (a switch behind
 /// Advanced; a phone that had File keeps it). Direct is not offered by default (it needs Tor on
 /// the phone, an HTTP listener on the desktop). A method in use is never hidden mid-way: a
 /// pasted onion or http address still picks Direct for that send.
@@ -14,11 +16,16 @@ enum PayMethod { epicbox, direct, qr, file }
 
 class PaymentPrefs {
   const PaymentPrefs({
+    this.epicbox = true,
     this.direct = false,
     this.file = true,
     this.qr = true,
     this.defaultMethod = PayMethod.epicbox,
   });
+
+  /// Epicbox is on: the listener runs, Send and Receive offer it, invoices and push work. Off
+  /// is the one setting behind every Epicbox connection (`network_gate.dart`, [NetGate]).
+  final bool epicbox;
 
   /// Direct is offered on Send and Receive.
   final bool direct;
@@ -39,26 +46,30 @@ class PaymentPrefs {
   static const PaymentPrefs phoneDefaults = PaymentPrefs(file: false);
 
   bool offers(PayMethod m) => switch (m) {
-    PayMethod.epicbox => true,
+    PayMethod.epicbox => epicbox,
     PayMethod.direct => direct,
     PayMethod.qr => qr,
     PayMethod.file => file,
   };
 
-  /// The method Send opens on.
-  PayMethod get startMethod => offers(defaultMethod) ? defaultMethod : PayMethod.epicbox;
+  /// The method Send opens on: the chosen one when it is offered, else the first offered in
+  /// Epicbox, Link, QR, File order; Epicbox when nothing is (Send then says it is off).
+  PayMethod get startMethod =>
+      offers(defaultMethod) ? defaultMethod : PayMethod.values.where(offers).firstOrNull ?? PayMethod.epicbox;
 
-  PaymentPrefs copyWith({bool? direct, bool? file, bool? qr, PayMethod? defaultMethod}) => PaymentPrefs(
+  PaymentPrefs copyWith({bool? epicbox, bool? direct, bool? file, bool? qr, PayMethod? defaultMethod}) => PaymentPrefs(
+    epicbox: epicbox ?? this.epicbox,
     direct: direct ?? this.direct,
     file: file ?? this.file,
     qr: qr ?? this.qr,
     defaultMethod: defaultMethod ?? this.defaultMethod,
   );
 
-  /// `direct,file|epicbox`: the offered methods besides Epicbox, then the default. QR is on
-  /// unless `noqr` stands among them, so a value stored before QR existed reads as on.
+  /// `direct,file|epicbox`: the offered methods besides Epicbox, then the default. QR and
+  /// Epicbox are on unless `noqr` or `noepicbox` stands among them, so a value stored before
+  /// either switch existed reads as on.
   String encode() =>
-      '${[if (direct) 'direct', if (file) 'file', if (!qr) 'noqr'].join(',')}|${defaultMethod.name}';
+      '${[if (direct) 'direct', if (file) 'file', if (!qr) 'noqr', if (!epicbox) 'noepicbox'].join(',')}|${defaultMethod.name}';
 
   /// [raw] as stored; null (never saved) is the defaults ([phoneDefaults] on a [phone]), with
   /// Direct on when [legacyDirect] (the Advanced page's "Direct receiving" switch before
@@ -70,6 +81,7 @@ class PaymentPrefs {
     final parts = raw.split('|');
     final on = parts.first.split(',').toSet();
     return PaymentPrefs(
+      epicbox: !on.contains('noepicbox'),
       direct: on.contains('direct'),
       file: on.contains('file'),
       qr: !on.contains('noqr'),
@@ -79,12 +91,13 @@ class PaymentPrefs {
     );
   }
 
-  Map<String, Object?> toJson() => {'direct': direct, 'file': file, 'qr': qr, 'default': defaultMethod.name};
+  Map<String, Object?> toJson() => {'epicbox': epicbox, 'direct': direct, 'file': file, 'qr': qr, 'default': defaultMethod.name};
 
   static PaymentPrefs fromJson(Object? j, {bool legacyDirect = false}) {
     if (j is! Map) return PaymentPrefs(direct: legacyDirect);
-    final d = j['direct'], f = j['file'], q = j['qr'], m = j['default'];
+    final e = j['epicbox'], d = j['direct'], f = j['file'], q = j['qr'], m = j['default'];
     return PaymentPrefs(
+      epicbox: e is bool ? e : true,
       direct: d is bool ? d : legacyDirect,
       file: f is bool ? f : true,
       qr: q is bool ? q : true,
@@ -95,11 +108,12 @@ class PaymentPrefs {
   @override
   bool operator ==(Object other) =>
       other is PaymentPrefs &&
+      other.epicbox == epicbox &&
       other.direct == direct &&
       other.file == file &&
       other.qr == qr &&
       other.defaultMethod == defaultMethod;
 
   @override
-  int get hashCode => Object.hash(direct, file, qr, defaultMethod);
+  int get hashCode => Object.hash(epicbox, direct, file, qr, defaultMethod);
 }

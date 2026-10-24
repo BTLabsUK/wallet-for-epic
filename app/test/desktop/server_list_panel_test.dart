@@ -174,7 +174,7 @@ void main() {
     await tap(tester, find.byKey(const ValueKey('server-row-remove-$_epiccash')));
     expect(row(_epiccash), findsNothing);
     expect(find.text('Removed node.epiccash.com:3413.'), findsOneWidget);
-    expect(find.text('Restore the public list · 1 removed'), findsOneWidget);
+    expect(find.text('Restore removed servers · 1 removed'), findsOneWidget);
     await tap(tester, find.byKey(const ValueKey('server-list-undo')));
     expect(nodes().indexOf(_epiccash), at, reason: 'back where it was');
     expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
@@ -183,7 +183,7 @@ void main() {
     await tap(tester, find.byKey(const ValueKey('server-list-restore')));
     expect(nodes(), contains(_epiccash));
     expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
-    expect(find.text('Restored the public list.'), findsOneWidget);
+    expect(find.text('Removed servers restored.'), findsOneWidget);
     await end(tester);
   });
 

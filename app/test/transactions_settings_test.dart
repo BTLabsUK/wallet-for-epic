@@ -3,6 +3,7 @@
 // › Send options, the send defaults that used to sit on Outputs. The Advanced page no longer
 // holds a Link switch; an old one is taken over.
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -30,9 +31,25 @@ class _Tor extends PhoneTor {
 }
 
 class _OpenSession extends SessionNotifier {
+  _OpenSession([this.transactions = const []]);
+
+  final List<TxEntry> transactions;
+
   @override
-  WalletSession? build() => FakeWalletSession();
+  WalletSession? build() => FakeWalletSession(transactions: transactions);
 }
+
+/// A send over Epicbox still waiting for the recipient's reply.
+final TxEntry _waitingEpicboxSend = fakeTx(
+  id: 7,
+  slateId: 'waiting-epicbox',
+  kind: TxKind.sent,
+  status: TxStatus.awaitingRecipient,
+  transport: 'epicbox',
+  amountDebited: BigInt.from(100000000),
+  numInputs: 1,
+  numOutputs: 0,
+);
 
 class _NoRelays implements RelayDirectory {
   @override
@@ -47,6 +64,7 @@ Future<ProviderContainer> _pump(
   MemorySecretStore store, {
   SettingsSection section = SettingsSection.transactions,
   bool phone = false,
+  List<TxEntry> transactions = const [],
 }) async {
   tester.view.physicalSize = const Size(1080, 4800);
   tester.view.devicePixelRatio = 3;
@@ -60,7 +78,7 @@ Future<ProviderContainer> _pump(
         phonePaymentsProvider.overrideWithValue(phone),
         updatePlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_NoRelays()),
-        sessionProvider.overrideWith(_OpenSession.new),
+        sessionProvider.overrideWith(() => _OpenSession(transactions)),
         phoneTorProvider.overrideWith(_Tor.new),
         backedUpProvider.overrideWith((ref) async => true),
       ],
@@ -95,12 +113,12 @@ PaymentPrefs _payments(ProviderContainer c) =>
     c.read(appSettingsProvider).value!.payments;
 
 void main() {
-  testWidgets('methods: Epicbox is always on, Link and File are switches', (tester) async {
+  testWidgets('methods: Epicbox, Link and File are switches; Epicbox on by default', (tester) async {
     await _pump(tester, _store());
     expect(find.text(_l.txMethodsHeader), findsOneWidget);
-    // Epicbox: a row with "Always on" and no switch.
-    expect(find.descendant(of: _row('tx-epicbox'), matching: find.text(_l.txAlwaysOn)), findsOneWidget);
-    expect(_switchOf('tx-epicbox'), findsNothing);
+    // Epicbox: a switch, on, with its line.
+    expect(find.descendant(of: _row('tx-epicbox'), matching: find.text(_l.txEpicboxLine)), findsOneWidget);
+    expect(tester.widget<Switch>(_switchOf('tx-epicbox')).value, isTrue);
     // Link is off by default, File on.
     expect(tester.widget<Switch>(_switchOf('tx-direct')).value, isFalse);
     expect(tester.widget<Switch>(_switchOf('tx-file')).value, isTrue);
@@ -127,6 +145,43 @@ void main() {
       await tester.tap(find.widgetWithText(TextButton, _l.commonClose));
       await tester.pumpAndSettle();
     }
+  });
+
+  testWidgets('the Epicbox switch saves, reaches the gate, and comes back on', (tester) async {
+    addTearDown(() => NetGate.setEpicbox(true));
+    final store = _store();
+    final c = await _pump(tester, store);
+    await tester.tap(_row('tx-epicbox'));
+    await tester.pumpAndSettle();
+    expect(_payments(c).epicbox, isFalse);
+    expect(store.values['app.payment_prefs'], 'file,noepicbox|epicbox');
+    expect(NetGate.epicbox, isFalse);
+    // Nothing waited for a reply: no confirm.
+    expect(find.text(_l.txEpicboxOffTitle), findsNothing);
+    // Send starts on: Epicbox is not offered while it is off.
+    expect(find.byKey(const ValueKey('tx-start-epicbox')), findsNothing);
+    await tester.tap(_row('tx-epicbox'));
+    await tester.pumpAndSettle();
+    expect(_payments(c).epicbox, isTrue);
+    expect(NetGate.epicbox, isTrue);
+  });
+
+  testWidgets('Epicbox off while a send waits for its reply over Epicbox asks first', (tester) async {
+    addTearDown(() => NetGate.setEpicbox(true));
+    final store = _store();
+    final c = await _pump(tester, store, transactions: [_waitingEpicboxSend]);
+    await tester.tap(_row('tx-epicbox'));
+    await tester.pumpAndSettle();
+    expect(find.text(_l.txEpicboxOffTitle), findsOneWidget);
+    expect(find.text(_l.txEpicboxOffPending(1)), findsOneWidget);
+    await tester.tap(find.text(_l.commonCancel));
+    await tester.pumpAndSettle();
+    expect(_payments(c).epicbox, isTrue, reason: 'Cancel keeps it on');
+    await tester.tap(_row('tx-epicbox'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(_l.txEpicboxOffAction));
+    await tester.pumpAndSettle();
+    expect(_payments(c).epicbox, isFalse);
   });
 
   testWidgets('the switches save', (tester) async {

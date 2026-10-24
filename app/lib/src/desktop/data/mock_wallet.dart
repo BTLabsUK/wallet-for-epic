@@ -700,6 +700,8 @@ class MockDeskWallet implements DeskWalletApi {
     // The network mode as the real wallet takes it: Tor only keeps the Tor switch on.
     final mode = netModeOf(settings.advanced.networkMode);
     NetGate.set(mode);
+    NetGate.setEpicbox(settings.payments.epicbox);
+    if (!settings.payments.epicbox) _listening = false;
     _settings = mode == NetworkMode.torOnly ? settings.copyWith(torAutostart: true) : settings;
   }
 
@@ -753,12 +755,13 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> setEpicboxListening(bool on) async {
     await _wait(2);
+    if (on && !_settings.payments.epicbox) throw DeskError.l10n((l) => l.netBlockEpicboxOff);
     _listening = on;
   }
 
   @override
   Future<void> startAutostart() async {
-    if (_settings.epicboxAutostart) await setEpicboxListening(true);
+    if (_settings.epicboxAutostart && _settings.payments.epicbox) await setEpicboxListening(true);
     if (_settings.httpAutostart && !_settings.torAutostart) await setHttpListening(true);
     if (_settings.torAutostart) await setTor(true);
   }

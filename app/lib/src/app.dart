@@ -78,6 +78,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
             switch (event.note) {
               PushNote.on => l.pushNoticeOn,
               PushNote.off => l.pushNoticeOff,
+              PushNote.offEpicbox => l.pushNoticeOffEpicbox,
               PushNote.available => l.pushNoticeAvailable,
             },
             level: NoticeLevel.info,

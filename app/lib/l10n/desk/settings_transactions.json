@@ -7,11 +7,7 @@
   "@deskSetTxMethods": {
     "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Link, File)."
   },
-  "deskSetTxAlwaysOn": "Always on",
-  "@deskSetTxAlwaysOn": {
-    "description": "Tag in place of a switch on the Epicbox row of Settings › Transactions: Epicbox cannot be turned off here. Short."
-  },
-  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.",
+  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. Files still work.",
   "@deskSetTxEpicboxHint": {
     "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
   },

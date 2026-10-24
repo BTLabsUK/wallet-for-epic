@@ -3,7 +3,7 @@
 ///
 /// A list is its [ServerList.entries] (values in list order: a node URL or a relay label) and
 /// [ServerList.removed] (keys of public servers the user took out, so a directory update does
-/// not bring them back until "Restore the public list"). Nothing here reads or writes a store
+/// not bring them back until "Restore removed servers"). Nothing here reads or writes a store
 /// or the network: each app keeps its list where it keeps its settings.
 library;
 
@@ -113,7 +113,7 @@ class ServerList {
     return (list: ServerList(entries: [...entries]..removeAt(i), removed: {...removed, k}), at: i);
   }
 
-  /// The [public] servers the user removed: "Restore the public list" shows while any is.
+  /// The [public] servers the user removed: "Restore removed servers" shows while any is.
   List<String> restorable(ServerKind kind, Iterable<String> public) => [
     for (final v in public)
       if (removed.contains(serverKeyOf(kind, v)) && !has(kind, v)) v,

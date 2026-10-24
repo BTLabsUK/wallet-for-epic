@@ -4,7 +4,7 @@
 /// matches; the server in use shows only in its row (the check) and the Current card. A tap on
 /// a Node row switches at once and the foot says so; on an Epicbox row it asks first, as the
 /// address changes. Every row has a bin with Undo; the row in use refuses ("In use. Switch
-/// first."); "Restore the public list" shows while a public server is removed. Tiles carry the
+/// first."); "Restore removed servers" shows while a public server is removed. Tiles carry the
 /// operator's icon from the monitor, else initials, and the health as a dot.
 library;
 
@@ -92,7 +92,7 @@ const Key serverListCancelKey = ValueKey('server-list-cancel');
 /// The key of the line at the foot that answers an action, for tests.
 const Key serverListFootKey = ValueKey('server-list-foot');
 
-/// The key of "Restore the public list", for tests.
+/// The key of "Restore removed servers", for tests.
 const Key serverListRestoreKey = ValueKey('server-list-restore');
 
 /// The key of a row, by its value.
@@ -1019,7 +1019,7 @@ class _AddRow extends StatelessWidget {
   }
 }
 
-/// "Restore the public list" at the end of the list, only while a public server is removed.
+/// "Restore removed servers" at the end of the list, only while a public server is removed.
 class _RestoreRow extends StatelessWidget {
   const _RestoreRow({required this.count, required this.onTap});
 
@@ -1170,7 +1170,7 @@ class NotConnectedLine extends StatelessWidget {
       padding: const EdgeInsetsDirectional.only(start: 8, bottom: 4),
       child: Row(
         children: [
-          Icon(Icons.unsubscribe_outlined, size: 18, color: t.risk),
+          Icon(EpicGlyphs.epicbox, size: 18, color: t.risk),
           const SizedBox(width: 8),
           Expanded(
             child: Semantics(

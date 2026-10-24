@@ -60,6 +60,9 @@ dependencies:
   share_plus: 13.3.0
   # QR scanning on the send screen (Android, iOS). Hidden where unsupported.
   mobile_scanner: 7.4.2
+  # Full brightness while a payment QR code shows (the window's brightness, never the system
+  # setting; lib/src/screen_brightness.dart).
+  screen_brightness: 2.1.11
   firebase_core: 4.15.0
   firebase_messaging: 16.7.0
   # The LEPIC core behind --dart-define=WFE_CORE=lepic: the lepic-flutter binding, a clone pinned

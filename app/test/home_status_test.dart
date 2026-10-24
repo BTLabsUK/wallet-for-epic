@@ -290,7 +290,7 @@ void main() {
         '${_tip_(tester, nodeStatusKey)}\nShows the servers',
       );
       expect(_label(tester, epicboxStatusKey), 'Epicbox, Connected');
-      expect(_icon(tester, epicboxStatusKey), Icons.mark_email_read_outlined);
+      expect(_icon(tester, epicboxStatusKey), EpicGlyphs.epicbox);
       expect(_dot(tester, epicboxStatusKey), t.ok);
       expect(
         _tip_(tester, epicboxStatusKey),
@@ -407,7 +407,7 @@ void main() {
       expect(_dot(tester, nodeStatusKey), t.risk);
       expect(_tip_(tester, nodeStatusKey), startsWith('Node unreachable.'));
       expect(_label(tester, epicboxStatusKey), 'Epicbox, Not connected');
-      expect(_icon(tester, epicboxStatusKey), Icons.unsubscribe_outlined);
+      expect(_icon(tester, epicboxStatusKey), EpicGlyphs.epicbox);
       expect(_dot(tester, epicboxStatusKey), t.risk);
       expect(
         _tip_(tester, epicboxStatusKey),

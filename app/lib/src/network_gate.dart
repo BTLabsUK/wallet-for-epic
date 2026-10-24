@@ -5,12 +5,19 @@
 /// - Standard: today's app; the Tor switch is the user's.
 /// - Tor only: the Tor switch is on and stays on; nothing goes on the clearnet (a node on this
 ///   computer may stay direct). Covered routes wait for tor and never fall back.
-/// - Offline: nothing beyond this computer and the local network (`net/local_address.dart`).
-///   With a local node in use (the built-in one, any loopback or LAN node) the wallet still
-///   talks to it: refresh, transaction files, posting. Direct sends go to local addresses only;
-///   Epicbox, Tor, public nodes and the app's own requests stay off.
+/// - Offline: no Epicbox, no Link Payment beyond local addresses, no Tor, no push, no status
+///   calls, none of the app's own requests. Payments by transaction file and QR Payment stay
+///   available: they need a node to read the chain and post, so they use the node in use, a
+///   public one too (the screens say so, [offlineUsesNode]). With a local node in use (the
+///   built-in one, any loopback or LAN node, `net/local_address.dart`) refresh, Recheck balance
+///   and the HTTP listener run as well.
 ///
 /// Any stored mode other than Tor only and Offline runs as Standard ([netModeOf]).
+///
+/// The Epicbox switch (Settings › Transactions, `PaymentPrefs.epicbox`) is read here too, so
+/// Offline and "Epicbox off" are one gate: [netBlockFor] with `epicbox:` for the screens,
+/// [NetGate.checkEpicbox] for the code that connects. Off: no relay connection, no listener,
+/// no Epicbox sends or invoices, no push; QR Payment and files go on.
 library;
 
 import 'dart:async';
@@ -30,16 +37,21 @@ enum NetBlock {
 
   /// Tor only, and tor is starting or failed: they wait for tor and never go direct.
   waitingForTor,
+
+  /// Epicbox is off in Settings › Transactions: nothing over Epicbox until it is on again.
+  epicboxOff,
 }
 
 /// Why network actions can't run in [mode] with the Tor switch [tor] (`tor_view.dart`'s
 /// `torStateOf` on the desktop, `phoneTorState` on the phone). [localNode]: the action reaches
 /// only the node (Recheck balance, posting) or local addresses (a Direct send, which refuses a
 /// non-local one itself), and the node in use is local ([isLocalAddressUrl]): Offline lets it run.
-NetBlock netBlockFor(NetworkMode mode, TorState tor, {bool localNode = false}) => switch (mode) {
+/// [epicbox]: false for an action over Epicbox while the Epicbox switch is off
+/// ([NetBlock.epicboxOff]); the mode's own answer comes first.
+NetBlock netBlockFor(NetworkMode mode, TorState tor, {bool localNode = false, bool epicbox = true}) => switch (mode) {
   NetworkMode.offline => localNode ? NetBlock.none : NetBlock.offline,
   NetworkMode.torOnly when tor != TorState.on => NetBlock.waitingForTor,
-  _ => NetBlock.none,
+  _ => epicbox ? NetBlock.none : NetBlock.epicboxOff,
 };
 
 /// The mode the runtime follows for a stored one: Tor only and Offline as they are, anything
@@ -50,12 +62,17 @@ NetworkMode netModeOf(NetworkMode? mode) => switch (mode) {
   _ => NetworkMode.standard,
 };
 
-/// The transaction file method in [mode]. LEPIC asks the node for its tip before it creates a
-/// send file, signs a received one or finalizes one (and finalizing also posts), so the whole
-/// file method needs the node: Offline blocks it with [NetBlock.offline] unless the node in use
-/// is [localNode].
-NetBlock fileBlockFor(NetworkMode mode, {bool localNode = false}) =>
-    netModeOf(mode) == NetworkMode.offline && !localNode ? NetBlock.offline : NetBlock.none;
+/// The transaction file and QR Payment methods use the node in use while Offline: LEPIC asks
+/// it for its tip before it creates a send file, signs a received one or finalizes one (and
+/// finalizing also posts). True when the node is not [localNode], so the screen says so (a
+/// warning, never a block); false in the other modes, where the node is used anyway.
+bool offlineUsesNode(NetworkMode mode, {required bool localNode}) =>
+    netModeOf(mode) == NetworkMode.offline && !localNode;
+
+/// What holds a payment that reaches only the node (making, signing, finalizing and posting a
+/// transaction file or a QR Payment): Offline lets it use the node in use, local or not; Tor
+/// only still waits for tor.
+NetBlock paymentBlockFor(NetworkMode mode, TorState tor) => netBlockFor(mode, tor, localNode: true);
 
 /// The Tor switch can't be turned off: Tor only keeps it on.
 bool torSwitchLocked(NetworkMode mode) => netModeOf(mode) == NetworkMode.torOnly;
@@ -63,21 +80,24 @@ bool torSwitchLocked(NetworkMode mode) => netModeOf(mode) == NetworkMode.torOnly
 /// The Tor switch does nothing: Offline starts no tor.
 bool torSwitchDisabled(NetworkMode mode) => netModeOf(mode) == NetworkMode.offline;
 
-/// Push notifications register with a relay over the clearnet: off in Tor only and Offline.
-bool pushAllowed(NetworkMode mode) => netModeOf(mode) == NetworkMode.standard;
+/// Push notifications register with the Epicbox relay over the clearnet: off in Tor only and
+/// Offline, and with the Epicbox switch off ([epicbox]).
+bool pushAllowed(NetworkMode mode, {bool epicbox = true}) => netModeOf(mode) == NetworkMode.standard && epicbox;
 
 /// A network action refused by the mode: [what] is for the log, [mode] says why (Offline, or
 /// Tor only refusing a clearnet connection). [notLocal]: Offline refused a Direct send to an
-/// address that is not local ("Offline: only local addresses.").
+/// address that is not local ("Offline: only local addresses."). [epicboxOff]: the Epicbox
+/// switch refused an Epicbox action (the mode is then whatever it is).
 class NetBlocked implements Exception {
-  const NetBlocked(this.mode, this.what, {this.notLocal = false});
+  const NetBlocked(this.mode, this.what, {this.notLocal = false, this.epicboxOff = false});
 
   final NetworkMode mode;
   final String what;
   final bool notLocal;
+  final bool epicboxOff;
 
   @override
-  String toString() => 'NetBlocked(${mode.name}): $what';
+  String toString() => epicboxOff ? 'NetBlocked(epicbox off): $what' : 'NetBlocked(${mode.name}): $what';
 }
 
 /// The current mode for code without a Riverpod ref (the app's own HTTP, the wallet adapters).
@@ -85,11 +105,21 @@ class NetBlocked implements Exception {
 /// every change; [changes] lets a long-lived owner (the desktop wallet) resume or stop.
 abstract final class NetGate {
   static NetworkMode _mode = NetworkMode.standard;
+  static bool _epicbox = true;
   static final StreamController<NetworkMode> _changes = StreamController.broadcast(sync: true);
 
   static NetworkMode get mode => _mode;
 
   static bool get offline => _mode == NetworkMode.offline;
+
+  /// The Epicbox switch (Settings › Transactions): on by default. The phone's settings and
+  /// the desktop's store set it at launch and on every change, as [set] for the mode.
+  static bool get epicbox => _epicbox;
+
+  static void setEpicbox(bool on) => _epicbox = on;
+
+  /// Nothing over Epicbox now: Offline, or the Epicbox switch is off.
+  static bool get epicboxOff => offline || !_epicbox;
 
   static bool get torOnly => _mode == NetworkMode.torOnly;
 
@@ -107,5 +137,12 @@ abstract final class NetGate {
   /// call reaches only this computer or the local network (a local node), which Offline allows.
   static void check(String what, {bool local = false}) {
     if (offline && !local) throw NetBlocked(NetworkMode.offline, what);
+  }
+
+  /// Throws [NetBlocked] for a call over Epicbox (the listener, a send, an invoice, push):
+  /// in Offline as [check], and with the Epicbox switch off with `epicboxOff`.
+  static void checkEpicbox(String what) {
+    check(what);
+    if (!_epicbox) throw NetBlocked(_mode, what, epicboxOff: true);
   }
 }

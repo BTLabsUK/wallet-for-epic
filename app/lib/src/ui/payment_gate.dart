@@ -16,6 +16,14 @@ TransferMethod transferMethodOf(PayMethod m) => switch (m) {
   PayMethod.file => TransferMethod.file,
 };
 
+/// Sends over Epicbox that still wait for the recipient's reply: Settings warns before Epicbox
+/// is turned off while any is (the reply arrives once it is on again).
+int pendingEpicboxSends(Iterable<TxEntry>? txs) =>
+    txs
+        ?.where((x) => x.kind == TxKind.sent && x.status == TxStatus.awaitingRecipient && x.transport == 'epicbox')
+        .length ??
+    0;
+
 /// A payment made by file that still waits for the other wallet's reply: Finalize happens
 /// from File, so File stays on Receive and Send while one is open.
 bool hasPendingFileSend(Iterable<TxEntry>? txs) =>

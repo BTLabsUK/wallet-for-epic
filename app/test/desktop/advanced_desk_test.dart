@@ -142,12 +142,13 @@ void main() {
     ESegment<TxMethod> segment(WidgetTester tester, String label) =>
         tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).segments.firstWhere((s) => s.label == label);
 
-    testWidgets('Offline: Epicbox and File are disabled with the reason', (tester) async {
+    testWidgets('Offline: Epicbox is disabled with the reason; File runs and its tooltip says the node is used', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', amount: '1'), advanced: _offline);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
       expect(find.text('Offline mode is on in Advanced.'), findsWidgets);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
-      expect(segment(tester, 'File').enabled, isFalse);
+      expect(segment(tester, 'File').enabled, isTrue);
+      expect(segment(tester, 'File').tooltip, 'Uses the node to read the chain and post. For the most privacy, use a local node.');
     });
 
     testWidgets('Offline with a LAN node: Link and File run, Epicbox waits; no peers says the payment waits', (tester) async {
@@ -191,20 +192,29 @@ void main() {
   });
 
   group('Receive', () {
-    testWidgets('Offline: the address stays, a line says it can’t receive, the Files panel waits too', (tester) async {
+    testWidgets('Offline: the address stays, a line says it can’t receive, the Files panel runs and says the node is used', (tester) async {
       await _open(tester, DeskRoute.receive, advanced: _offline);
       expect(find.byKey(const ValueKey('rx-net-blocked')), findsOneWidget);
       expect(find.text('Offline mode is on in Advanced.'), findsWidgets);
       expect(find.text('Epicbox address'), findsWidgets);
       expect(find.textContaining('Can\'t receive offline'), findsWidgets);
       expect(find.byKey(tourKey('receive-files')), findsOneWidget);
-      expect(find.byKey(const ValueKey('rx-files-blocked')), findsOneWidget);
+      expect(find.byKey(const ValueKey('rx-files-offline-node')), findsOneWidget);
+      expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsOneWidget);
+      for (final button in tester.widgetList<EButton>(find.descendant(of: find.byKey(tourKey('receive-files')), matching: find.byType(EButton)))) {
+        expect(button.onPressed, isNotNull, reason: button.label);
+      }
+    });
+
+    testWidgets('Offline with a LAN node: the Files panel runs without the node line', (tester) async {
+      await _open(tester, DeskRoute.receive, advanced: _offline, node: 'http://10.100.10.20:3413');
+      expect(find.byKey(const ValueKey('rx-files-offline-node')), findsNothing);
     });
 
     testWidgets('Tor only without Tor: the Files panel works', (tester) async {
       await _open(tester, DeskRoute.receive, advanced: _torOnly);
       expect(find.byKey(const ValueKey('rx-net-blocked')), findsOneWidget);
-      expect(find.byKey(const ValueKey('rx-files-blocked')), findsNothing);
+      expect(find.byKey(const ValueKey('rx-files-offline-node')), findsNothing);
     });
 
     testWidgets('Standard: no notice', (tester) async {

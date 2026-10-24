@@ -14828,7 +14828,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get slInUseSwitchFirst => 'W użyciu. Najpierw przełącz.';
 
   @override
-  String get slRestore => 'Przywróć listę publiczną';
+  String get slRestore => 'Przywróć usunięte serwery';
 
   @override
   String slRemovedCount(int count) {
@@ -14844,7 +14844,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get slRestored => 'Przywrócono listę publiczną.';
+  String get slRestored => 'Przywrócono usunięte serwery.';
 
   @override
   String get slRelayWarning =>
@@ -14973,11 +14973,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txMethodsHeader => 'Metody płatności';
 
   @override
-  String get txAlwaysOn => 'Zawsze włączone';
-
-  @override
   String get txEpicboxHint =>
-      'Epicbox płaci przez przekaźnik, więc drugi portfel nie musi być otwarty. Jest zawsze włączony.';
+      'Epicbox płaci przez przekaźnik, więc drugi portfel nie musi być otwarty. Wyłączony: portfel nie łączy się z żadnym przekaźnikiem, więc bez płatności Epicbox, faktur i powiadomień. Płatność QR i pliki nadal działają.';
 
   @override
   String get txDirectLine =>
@@ -15051,6 +15048,68 @@ class AppLocalizationsPl extends AppLocalizations {
       'Twój węzeł nie ma peerów: płatność czeka w jego puli, aż się ponownie połączy.';
 
   @override
+  String get netOfflineNodeHint =>
+      'Używa węzła do odczytu łańcucha i wysłania. Dla największej prywatności użyj lokalnego węzła.';
+
+  @override
+  String get netOfflineNodeLine => 'Używa węzła';
+
+  @override
+  String get netBlockEpicboxOff =>
+      'Epicbox jest wyłączony w Ustawienia › Transakcje.';
+
+  @override
+  String get txEpicboxLine =>
+      'Płać lub dostawaj zapłatę przez przekaźnik. Drugi portfel może być zamknięty.';
+
+  @override
+  String get txEpicboxOffTitle => 'Wyłączyć Epicbox?';
+
+  @override
+  String txEpicboxOffPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count płatności czeka na odpowiedzi przez Epicbox. Dotrą, gdy Epicbox znów będzie włączony.',
+      many:
+          '$count płatności czeka na odpowiedzi przez Epicbox. Dotrą, gdy Epicbox znów będzie włączony.',
+      few:
+          '$count płatności czekają na odpowiedzi przez Epicbox. Dotrą, gdy Epicbox znów będzie włączony.',
+      one: 'Jedna płatność czeka na odpowiedź przez Epicbox. Dotrze, gdy Epicbox znów będzie włączony.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txEpicboxOffAction => 'Wyłącz';
+
+  @override
+  String get pushNoticeOffEpicbox =>
+      'Powiadomienia wyłączone: potrzebują Epicbox.';
+
+  @override
+  String get settingsPushNeedsEpicbox => 'Wymaga Epicbox';
+
+  @override
+  String sendContactOnlyEpicbox(String name) {
+    return '$name ma tylko adres Epicbox.';
+  }
+
+  @override
+  String get receiveEpicboxOffText =>
+      'Płatności od nadawców czekają na przekaźniku, aż Epicbox znów będzie włączony.';
+
+  @override
+  String get receiveNoMethods => 'Żadna metoda odbioru nie jest włączona';
+
+  @override
+  String get receiveNoMethodsBody => 'Włącz jedną w Ustawienia › Transakcje.';
+
+  @override
+  String get receiveNoMethodsButton => 'Otwórz ustawienia';
+
+  @override
   String get deskErrOfflineOnlyLocal => 'Offline: tylko adresy lokalne.';
 
   @override
@@ -15071,11 +15130,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetTxMethods => 'Metody płatności';
 
   @override
-  String get deskSetTxAlwaysOn => 'Zawsze włączone';
-
-  @override
   String get deskSetTxEpicboxHint =>
-      'Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności, więc jest zawsze włączone.';
+      'Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności. Wyłączony: portfel nie łączy się z żadnym serwerem Epicbox, więc bez płatności Epicbox i faktur. Pliki nadal działają.';
 
   @override
   String get deskSetTxDirectHint =>

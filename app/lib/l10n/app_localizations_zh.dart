@@ -13631,7 +13631,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slInUseSwitchFirst => '使用中。请先切换。';
 
   @override
-  String get slRestore => '恢复公共列表';
+  String get slRestore => '恢复已移除的服务器';
 
   @override
   String slRemovedCount(int count) {
@@ -13644,7 +13644,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get slRestored => '已恢复公共列表。';
+  String get slRestored => '已恢复已移除的服务器。';
 
   @override
   String get slRelayWarning => '切换会改变你的地址；发送方需要新地址。';
@@ -13764,10 +13764,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txMethodsHeader => '付款方式';
 
   @override
-  String get txAlwaysOn => '始终开启';
-
-  @override
-  String get txEpicboxHint => 'Epicbox 通过中继付款，所以对方的钱包不必打开。始终开启。';
+  String get txEpicboxHint =>
+      'Epicbox 通过中继付款，所以对方的钱包不必打开。关闭后，钱包不连接任何中继：没有 Epicbox 付款、账单或通知。二维码付款和文件仍然可用。';
 
   @override
   String get txDirectLine => '向 onion 和网址付款；通过这部手机的 Tor 地址收款。';
@@ -13834,6 +13832,57 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netOfflineNoPeers => '你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。';
 
   @override
+  String get netOfflineNodeHint => '使用节点读取链并广播。为了最大限度的隐私，请使用本地节点。';
+
+  @override
+  String get netOfflineNodeLine => '使用节点';
+
+  @override
+  String get netBlockEpicboxOff => 'Epicbox 已在 设置 › 交易 中关闭。';
+
+  @override
+  String get txEpicboxLine => '通过中继付款或收款。对方的钱包可以处于关闭状态。';
+
+  @override
+  String get txEpicboxOffTitle => '关闭 Epicbox？';
+
+  @override
+  String txEpicboxOffPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 笔付款正在等待通过 Epicbox 的回复。Epicbox 再次开启后它们才会到达。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txEpicboxOffAction => '关闭';
+
+  @override
+  String get pushNoticeOffEpicbox => '通知已关闭：通知需要 Epicbox。';
+
+  @override
+  String get settingsPushNeedsEpicbox => '需要 Epicbox';
+
+  @override
+  String sendContactOnlyEpicbox(String name) {
+    return '$name 只有 Epicbox 地址。';
+  }
+
+  @override
+  String get receiveEpicboxOffText => '发送方的付款会在中继等待，直到 Epicbox 再次开启。';
+
+  @override
+  String get receiveNoMethods => '没有开启任何收款方式';
+
+  @override
+  String get receiveNoMethodsBody => '请在 设置 › 交易 中开启一种。';
+
+  @override
+  String get receiveNoMethodsButton => '打开设置';
+
+  @override
   String get deskErrOfflineOnlyLocal => '离线：只能用本地地址。';
 
   @override
@@ -13852,10 +13901,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetTxMethods => '付款方式';
 
   @override
-  String get deskSetTxAlwaysOn => '始终开启';
-
-  @override
-  String get deskSetTxEpicboxHint => '通过 Epicbox 服务器付款和收款。大多数付款都走这条路，所以始终开启。';
+  String get deskSetTxEpicboxHint =>
+      '通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。文件仍然可用。';
 
   @override
   String get deskSetTxDirectHint =>

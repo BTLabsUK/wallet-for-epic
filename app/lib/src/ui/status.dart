@@ -194,7 +194,7 @@ _Face _epicboxFace(
     String sentence,
   ) = switch (state) {
     EpicboxState.online => (
-      Icons.mark_email_read_outlined,
+      EpicGlyphs.epicbox,
       l.statusEpicboxOnline,
       t.ok,
       l.receiveEpicboxConnected,
@@ -206,7 +206,7 @@ _Face _epicboxFace(
       l.homeEpicboxConnecting,
     ),
     EpicboxState.offline => (
-      Icons.unsubscribe_outlined,
+      EpicGlyphs.epicbox,
       l.statusEpicboxOffline,
       t.risk,
       l.homeEpicboxOffline,

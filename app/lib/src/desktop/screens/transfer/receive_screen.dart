@@ -146,8 +146,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
 
   /// Direct receiving is the clearnet HTTP listener with Tor off and the Tor address with Tor
   /// on (tor_routes.dart: the listener stops while Tor is on).
+  /// The methods the indicator shows: Epicbox while its switch is on (Settings › Transactions),
+  /// then Tor or HTTP.
   List<TxMethod> _methodsFor(DeskSettings s) => [
-    TxMethod.epicbox,
+    if (s.payments.epicbox) TxMethod.epicbox,
     if (DeskFeatures.tor && s.tor) TxMethod.tor else if (DeskFeatures.httpDirect) TxMethod.http,
   ];
 
@@ -170,7 +172,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     if (DeskFeatures.httpDirect && status?.httpListener == ServiceHealth.ok) unawaited(_readHttp());
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
-    final epicbox = TourTarget(id: 'receive-epicbox', child: _epicboxPanel(st, status));
+    // The Epicbox switch off (Settings › Transactions): no address to hand out; a notice says
+    // where it is turned on and that senders' payments wait at the relay meanwhile.
+    final epicbox = TourTarget(id: 'receive-epicbox', child: st.settings.payments.epicbox ? _epicboxPanel(st, status) : _epicboxOffNotice(nav));
     // Settings › Transactions › Direct; Tor receiving on or a running listener keeps its panel.
     final direct = st.settings.payments.direct || st.settings.tor || status?.httpListener == ServiceHealth.ok;
     final others = [
@@ -180,7 +184,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final net = deskNetBlock(st);
     // Settings › Transactions › File; a file send waiting for its response keeps the panel (Finalize).
     final files = st.settings.payments.file || st.pendingFiles > 0
-        ? TourTarget(id: 'receive-files', child: _filesPanel(nav, deskFileBlock(st)))
+        ? TourTarget(id: 'receive-files', child: _filesPanel(nav, offlineNode: deskOfflineUsesNode(st)))
         : null;
     final head = ESectionHead(
       l.deskRecvOtherWays,
@@ -248,6 +252,18 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  /// Epicbox off in Settings › Transactions: in the address panel's place.
+  Widget _epicboxOffNotice(DeskNav nav) {
+    final l = context.l10n;
+    return ENotice(
+      key: const ValueKey('rx-epicbox-off'),
+      icon: EIcons.epicbox,
+      title: l.netBlockEpicboxOff,
+      text: l.receiveEpicboxOffText,
+      actions: [EButton(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving))],
     );
   }
 
@@ -540,7 +556,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     );
   }
 
-  Widget _filesPanel(DeskNav nav, NetBlock block) {
+  /// [offlineNode]: Offline on a node that is not local; the files still run, through it.
+  Widget _filesPanel(DeskNav nav, {required bool offlineNode}) {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
@@ -562,19 +579,27 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           ESetRow(
             title: l.deskRecvSignTitle,
             text: l.deskRecvSignText,
-            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: block == NetBlock.none ? () => nav.go(DeskRoute.importTx) : null),
+            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
           ),
           Divider(height: 1, thickness: 1, color: c.line),
           ESetRow(
             title: l.deskRecvFinalizeTitle,
             text: l.deskRecvFinalizeText,
-            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: block == NetBlock.none ? () => nav.go(DeskRoute.finalize) : null),
+            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.finalize)),
           ),
-          if (block != NetBlock.none) ...[
+          if (offlineNode) ...[
             Divider(height: 1, thickness: 1, color: c.line),
             Padding(
               padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x3, Sp.x6, Sp.x4),
-              child: Text(netBlockReason(l, block)!, key: const ValueKey('rx-files-blocked'), style: ts.small),
+              child: Row(
+                key: const ValueKey('rx-files-offline-node'),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(EIcons.info, size: 16.u, color: c.info),
+                  SizedBox(width: 8.u),
+                  Expanded(child: Text(l.netOfflineNodeHint, style: ts.small)),
+                ],
+              ),
             ),
           ],
         ],

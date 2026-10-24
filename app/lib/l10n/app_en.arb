@@ -18874,22 +18874,22 @@
   "@slInUseSwitchFirst": {
     "description": "Foot line when the remove button of the server in use is tapped."
   },
-  "slRestore": "Restore the public list",
+  "slRestore": "Restore removed servers",
   "@slRestore": {
     "description": "Button at the end of the list while a public server is removed."
   },
   "slRemovedCount": "{count, plural, one{{count} removed} other{{count} removed}}",
   "@slRemovedCount": {
-    "description": "Beside Restore the public list: how many public servers are removed.",
+    "description": "Beside Restore removed servers: how many public servers are removed.",
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "slRestored": "Restored the public list.",
+  "slRestored": "Removed servers restored.",
   "@slRestored": {
-    "description": "Foot line after Restore the public list."
+    "description": "Foot line after Restore removed servers."
   },
   "slRelayWarning": "Switching changes your address. Senders need the new one.",
   "@slRelayWarning": {
@@ -19054,11 +19054,7 @@
   "@txMethodsHeader": {
     "description": "Header on Settings › Transactions above the three payment methods."
   },
-  "txAlwaysOn": "Always on",
-  "@txAlwaysOn": {
-    "description": "Second line of the Epicbox row on Settings › Transactions: it has no switch."
-  },
-  "txEpicboxHint": "Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.",
+  "txEpicboxHint": "Epicbox pays through a relay, so the other wallet does not have to be open. Off, the wallet connects to no relay: no Epicbox payments, invoices or notifications. QR Payment and files still work.",
   "@txEpicboxHint": {
     "description": "Info sheet text of the Epicbox row on Settings › Transactions."
   },
@@ -19158,6 +19154,72 @@
   "@netOfflineNoPeers": {
     "description": "Line on Send in the Offline mode when the local node in use has no peers."
   },
+  "netOfflineNodeHint": "Uses the node to read the chain and post. For the most privacy, use a local node.",
+  "@netOfflineNodeHint": {
+    "description": "Offline mode, under the transaction file and QR Payment actions, which still run: they ask the node in use (a public one too) to read the chain and post. A warning, never a block. Phone info sheet and desktop notice."
+  },
+  "netOfflineNodeLine": "Uses the node",
+  "@netOfflineNodeLine": {
+    "description": "Phone: the short line beside the info icon that opens netOfflineNodeHint, under a file or QR Payment action while Offline. 1-3 words."
+  },
+  "netBlockEpicboxOff": "Epicbox is off in Settings › Transactions.",
+  "@netBlockEpicboxOff": {
+    "description": "Reason line under a disabled Epicbox action (Send, Receive, the listener, invoices) while the Epicbox switch on Settings › Transactions is off. Phone and desktop."
+  },
+  "txEpicboxLine": "Pay or get paid through a relay. The other wallet can be closed.",
+  "@txEpicboxLine": {
+    "description": "Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences."
+  },
+  "txEpicboxOffTitle": "Turn Epicbox off?",
+  "@txEpicboxOffTitle": {
+    "description": "Title of the confirm shown when Epicbox is turned off while a payment still waits for its reply over Epicbox."
+  },
+  "txEpicboxOffPending": "{count, plural, one{A payment is waiting for its reply over Epicbox. It arrives when Epicbox is on again.} other{{count} payments are waiting for their replies over Epicbox. They arrive when Epicbox is on again.}}",
+  "@txEpicboxOffPending": {
+    "description": "Body of the confirm: how many sends over Epicbox still wait for the recipient's reply; the replies come once Epicbox is on again.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "txEpicboxOffAction": "Turn off",
+  "@txEpicboxOffAction": {
+    "description": "Button of the confirm that turns Epicbox off anyway."
+  },
+  "pushNoticeOffEpicbox": "Notifications off: they need Epicbox.",
+  "@pushNoticeOffEpicbox": {
+    "description": "One notice when turning Epicbox off also turns push notifications off (they stay off when Epicbox is turned on again)."
+  },
+  "settingsPushNeedsEpicbox": "Needs Epicbox",
+  "@settingsPushNeedsEpicbox": {
+    "description": "State line of the disabled Notifications switch while Epicbox is off in Settings › Transactions. Short."
+  },
+  "sendContactOnlyEpicbox": "{name} has only an Epicbox address.",
+  "@sendContactOnlyEpicbox": {
+    "description": "Send, under the Epicbox-off reason, when the recipient is a saved contact: the contact can be paid only over Epicbox. {name} is the contact's name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "receiveEpicboxOffText": "Senders' payments wait at the relay until Epicbox is on again.",
+  "@receiveEpicboxOffText": {
+    "description": "Receive while Epicbox is off: what happens to payments sent to the Epicbox address meanwhile."
+  },
+  "receiveNoMethods": "No receiving method is on",
+  "@receiveNoMethods": {
+    "description": "Receive, empty state title when every method is off in Settings › Transactions."
+  },
+  "receiveNoMethodsBody": "Turn one on in Settings › Transactions.",
+  "@receiveNoMethodsBody": {
+    "description": "Receive, empty state body under receiveNoMethods."
+  },
+  "receiveNoMethodsButton": "Open Settings",
+  "@receiveNoMethodsButton": {
+    "description": "Receive, empty state button that opens Settings › Transactions."
+  },
   "deskErrOfflineOnlyLocal": "Offline: only local addresses.",
   "@deskErrOfflineOnlyLocal": {
     "description": "Why a Link send was refused in the Offline network mode: the address is not on this computer or the local network."
@@ -19182,11 +19244,7 @@
   "@deskSetTxMethods": {
     "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Link, File)."
   },
-  "deskSetTxAlwaysOn": "Always on",
-  "@deskSetTxAlwaysOn": {
-    "description": "Tag in place of a switch on the Epicbox row of Settings › Transactions: Epicbox cannot be turned off here. Short."
-  },
-  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.",
+  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. Files still work.",
   "@deskSetTxEpicboxHint": {
     "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
   },

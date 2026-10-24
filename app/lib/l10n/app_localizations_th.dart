@@ -14122,7 +14122,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get slInUseSwitchFirst => 'ใช้อยู่ ต้องเปลี่ยนก่อน';
 
   @override
-  String get slRestore => 'กู้คืนรายการสาธารณะ';
+  String get slRestore => 'กู้คืนเซิร์ฟเวอร์ที่นำออก';
 
   @override
   String slRemovedCount(int count) {
@@ -14135,7 +14135,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get slRestored => 'กู้คืนรายการสาธารณะแล้ว';
+  String get slRestored => 'กู้คืนเซิร์ฟเวอร์ที่นำออกแล้ว';
 
   @override
   String get slRelayWarning =>
@@ -14263,11 +14263,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txMethodsHeader => 'วิธีชำระเงิน';
 
   @override
-  String get txAlwaysOn => 'เปิดเสมอ';
-
-  @override
   String get txEpicboxHint =>
-      'Epicbox จ่ายผ่านรีเลย์ กระเป๋าเงินอีกฝั่งจึงไม่ต้องเปิดอยู่ เปิดเสมอ';
+      'Epicbox จ่ายผ่านรีเลย์ กระเป๋าเงินอีกฝั่งจึงไม่ต้องเปิดอยู่ เมื่อปิด กระเป๋าเงินจะไม่เชื่อมต่อรีเลย์ใด ไม่มีการจ่ายผ่าน Epicbox ใบแจ้งหนี้ หรือการแจ้งเตือน ชำระด้วย QR และไฟล์ยังใช้ได้';
 
   @override
   String get txDirectLine =>
@@ -14339,6 +14336,62 @@ class AppLocalizationsTh extends AppLocalizations {
       'โหนดของคุณไม่มีเพียร์ รายการจะรออยู่ในพูลของโหนดจนกว่าจะเชื่อมต่อใหม่';
 
   @override
+  String get netOfflineNodeHint =>
+      'ใช้โหนดเพื่ออ่านเชนและส่ง หากต้องการความเป็นส่วนตัวสูงสุด ให้ใช้โหนดในพื้นที่';
+
+  @override
+  String get netOfflineNodeLine => 'ใช้โหนด';
+
+  @override
+  String get netBlockEpicboxOff => 'Epicbox ปิดอยู่ใน การตั้งค่า › ธุรกรรม';
+
+  @override
+  String get txEpicboxLine =>
+      'จ่ายหรือรับเงินผ่านรีเลย์ กระเป๋าเงินอีกฝั่งปิดอยู่ได้';
+
+  @override
+  String get txEpicboxOffTitle => 'ปิด Epicbox หรือไม่';
+
+  @override
+  String txEpicboxOffPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'มี $count รายการกำลังรอการตอบกลับผ่าน Epicbox จะมาถึงเมื่อเปิด Epicbox อีกครั้ง',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txEpicboxOffAction => 'ปิด';
+
+  @override
+  String get pushNoticeOffEpicbox =>
+      'ปิดการแจ้งเตือนแล้ว การแจ้งเตือนต้องใช้ Epicbox';
+
+  @override
+  String get settingsPushNeedsEpicbox => 'ต้องใช้ Epicbox';
+
+  @override
+  String sendContactOnlyEpicbox(String name) {
+    return '$name มีเฉพาะที่อยู่ Epicbox';
+  }
+
+  @override
+  String get receiveEpicboxOffText =>
+      'รายการจากผู้ส่งจะรออยู่ที่รีเลย์จนกว่าจะเปิด Epicbox อีกครั้ง';
+
+  @override
+  String get receiveNoMethods => 'ไม่มีวิธีรับเงินที่เปิดอยู่';
+
+  @override
+  String get receiveNoMethodsBody => 'เปิดสักวิธีใน การตั้งค่า › ธุรกรรม';
+
+  @override
+  String get receiveNoMethodsButton => 'เปิดการตั้งค่า';
+
+  @override
   String get deskErrOfflineOnlyLocal => 'ออฟไลน์: เฉพาะที่อยู่ในพื้นที่';
 
   @override
@@ -14359,11 +14412,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetTxMethods => 'วิธีชำระเงิน';
 
   @override
-  String get deskSetTxAlwaysOn => 'เปิดเสมอ';
-
-  @override
   String get deskSetTxEpicboxHint =>
-      'จ่ายและรับเงินผ่านเซิร์ฟเวอร์ Epicbox การชำระเงินส่วนใหญ่ไปทางนี้ จึงเปิดเสมอ';
+      'จ่ายและรับเงินผ่านเซิร์ฟเวอร์ Epicbox การชำระเงินส่วนใหญ่ใช้ทางนี้ เมื่อปิด กระเป๋าเงินจะไม่เชื่อมต่อเซิร์ฟเวอร์ Epicbox ใด ไม่มีการจ่ายผ่าน Epicbox หรือใบแจ้งหนี้ ไฟล์ยังใช้ได้';
 
   @override
   String get deskSetTxDirectHint =>
