@@ -21,6 +21,7 @@ import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
 import 'advanced.dart' show NetworkMode;
 import 'log.dart';
+import 'net/local_address.dart';
 import 'net/tor_net.dart' show isLoopbackUrl;
 import 'network_gate.dart';
 import 'redact.dart';
@@ -816,7 +817,8 @@ class LepicWalletService implements WalletService {
   );
 
   @override
-  Future<NodeTip> nodeTip({required WalletConfig config}) => _netGuard('node tip', () async {
+  Future<NodeTip> nodeTip({required WalletConfig config}) => _guard(() async {
+    NetGate.check('node tip', local: isLocalAddressUrl(config.nodeUrl));
     // LEPIC asks the node only: no wallet folder is made (the setup screen's test passes an
     // empty one, which made `/lepic` and failed) and the open wallet's chain stays.
     final tip = await lepic.nodeTip(
@@ -891,11 +893,11 @@ class LepicWalletService implements WalletService {
     lepic.EpicWallet wallet,
   ) async {
     try {
-      return await LepicWalletSession.openOn(
+      return (await LepicWalletSession.openOn(
         wallet,
         config.dataDir,
         config.chain,
-      );
+      ))..nodeUrl = config.nodeUrl;
     } catch (_) {
       wallet.lock();
       wallet.dispose();
@@ -977,6 +979,39 @@ class LepicWalletSession implements WalletSession {
   }) : _history = history ?? WalletHistory.memory();
 
   final bool Function(String address)? _validateAddress;
+
+  /// The node the wallet uses (open, then [setServers]). Offline still lets a call that reaches
+  /// only this node run when it is local ([isLocalAddressUrl]); null counts as not local.
+  String? nodeUrl;
+
+  bool get _localNode => isLocalAddressUrl(nodeUrl);
+
+  /// [_netGuard] for a call that reaches only the node: Offline lets it run on a local node.
+  Future<T> _nodeGuard<T>(String what, Future<T> Function() call) async {
+    NetGate.check(what, local: _localNode);
+    return _guard(call);
+  }
+
+  /// [_netStream] for a stream that reaches only the node.
+  Stream<T> _nodeStream<T>(String what, Stream<T> Function() make) => NetGate.offline && !_localNode
+      ? Stream.error(NetBlocked(NetworkMode.offline, what))
+      : _guardStream(make());
+
+  /// The address a Direct send goes to: as given, except in Offline, where only a local one is
+  /// allowed (looked up once, and the address found is what LEPIC connects to) and the node
+  /// must be local too (the send posts there). Tor only refuses one off this computer.
+  Future<String> _directUrl(String url) async {
+    _torOnlyRefusesHttp(url);
+    if (!NetGate.offline) return url;
+    if (!_localNode) throw const NetBlocked(NetworkMode.offline, 'send over HTTP');
+    final local = await localUrl(url, directLookup);
+    if (local == null) throw const NetBlocked(NetworkMode.offline, 'send over HTTP', notLocal: true);
+    return local;
+  }
+
+  /// Looks a Direct send's host up, once, for [_directUrl]. Tests replace it.
+  @visibleForTesting
+  static HostLookup directLookup = (host) async => [for (final a in await InternetAddress.lookup(host)) a.address];
 
   bool _validAddress(String address) =>
       _validateAddress?.call(address) ??
@@ -1091,7 +1126,7 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Future<void> repostTransaction({required String key}) =>
-      _netGuard('repost', () async => _wallet.repostTransaction(txId: await _txIdOf(key)));
+      _nodeGuard('repost', () async => _wallet.repostTransaction(txId: await _txIdOf(key)));
 
   @override
   Future<void> releaseStuckSend({required String key}) =>
@@ -1131,7 +1166,7 @@ class LepicWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
     String? message,
     SendOptions? options,
-  }) => _netGuard('send file', () async {
+  }) => _nodeGuard('send file', () async {
     final slate = await _wallet.createSendSlate(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
@@ -1149,7 +1184,7 @@ class LepicWalletSession implements WalletSession {
     required BigInt amount,
     required BigInt minimumConfirmations,
     SendOptions? options,
-  }) => _netGuard('fee estimate', () async {
+  }) => _nodeGuard('fee estimate', () async {
     final e = await _wallet.estimateFee(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
@@ -1160,7 +1195,7 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations}) =>
-      _netGuard('max estimate', () async {
+      _nodeGuard('max estimate', () async {
         final e = await _wallet.estimateMax(
           minimumConfirmations: minimumConfirmations,
           options: _sendAll,
@@ -1179,7 +1214,7 @@ class LepicWalletSession implements WalletSession {
   Future<FeeEstimate> estimateSplit({
     required int outputs,
     required BigInt minimumConfirmations,
-  }) => _netGuard('split estimate', 
+  }) => _nodeGuard('split estimate', 
     () async => lepicFeeEstimate(
       await _wallet.estimateSplit(
         outputs: outputs,
@@ -1192,7 +1227,7 @@ class LepicWalletSession implements WalletSession {
   Future<SelfSentTx> splitOutputs({
     required int outputs,
     required BigInt minimumConfirmations,
-  }) => _netGuard('split', 
+  }) => _nodeGuard('split', 
     () async => lepicSelfSentTx(
       await _wallet.splitOutputs(
         outputs: outputs,
@@ -1204,7 +1239,7 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<FeeEstimate> estimateConsolidate({
     required BigInt minimumConfirmations,
-  }) => _netGuard('consolidate estimate', 
+  }) => _nodeGuard('consolidate estimate', 
     () async => lepicFeeEstimate(
       await _wallet.estimateConsolidate(
         minimumConfirmations: minimumConfirmations,
@@ -1215,7 +1250,7 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<SelfSentTx> consolidateOutputs({
     required BigInt minimumConfirmations,
-  }) => _netGuard('consolidate', 
+  }) => _nodeGuard('consolidate', 
     () async => lepicSelfSentTx(
       await _wallet.consolidateOutputs(
         minimumConfirmations: minimumConfirmations,
@@ -1224,18 +1259,20 @@ class LepicWalletSession implements WalletSession {
   );
 
   @override
-  Future<void> setServers({required WalletConfig config}) => _guard(
-    () => _wallet.setServers(
+  Future<void> setServers({required WalletConfig config}) => _guard(() async {
+    await _wallet.setServers(
       config: LepicWalletService._lepicConfig(
         config,
         '${config.dataDir}${Platform.pathSeparator}lepic',
       ),
-    ),
-  );
+    );
+    nodeUrl = config.nodeUrl;
+  });
 
   @override
   Future<NodeTip> nodeTipFor({required WalletConfig config}) =>
-      _netGuard('node tip', () async {
+      _guard(() async {
+        NetGate.check('node tip', local: isLocalAddressUrl(config.nodeUrl));
         final tip = await _wallet.nodeTipFor(
           config: LepicWalletService._lepicConfig(config, config.dataDir),
         );
@@ -1250,7 +1287,7 @@ class LepicWalletSession implements WalletSession {
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,
-  }) => _netGuard('spend to self', 
+  }) => _nodeGuard('spend to self', 
     () async => lepicSelfSentTx(
       await _wallet.spendOutputsToSelf(
         commitments: commitments,
@@ -1261,7 +1298,7 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Future<TxEntry> finalizeAndPost({required String slateJson}) =>
-      _netGuard('finalize', () async {
+      _nodeGuard('finalize', () async {
         final tx = await _wallet.finalizeAndPost(slateJson: slateJson);
         return _entry(tx.txId);
       });
@@ -1338,14 +1375,14 @@ class LepicWalletSession implements WalletSession {
     required bool allowPlainHttp,
     String? message,
     SendOptions? options,
-  }) => _netGuard('send over HTTP', () async {
-    _torOnlyRefusesHttp(url);
+  }) => _nodeGuard('send over HTTP', () async {
+    final to = await _directUrl(url);
     final sendOptions = await _optionsFor(amount, minimumConfirmations, options);
     final tx = await _counted(
       () => _wallet.sendHttp(
         amount: amount,
         minimumConfirmations: minimumConfirmations,
-        url: url,
+        url: to,
         allowPlainHttp: allowPlainHttp,
         message: _message(message),
         options: sendOptions,
@@ -1359,12 +1396,12 @@ class LepicWalletSession implements WalletSession {
     required int txId,
     required String url,
     required bool allowPlainHttp,
-  }) => _netGuard('resend over HTTP', () async {
-    _torOnlyRefusesHttp(url);
+  }) => _nodeGuard('resend over HTTP', () async {
+    final to = await _directUrl(url);
     final tx = await _counted(
       () => _wallet.resendHttp(
         txId: txId,
-        url: url,
+        url: to,
         allowPlainHttp: allowPlainHttp,
       ),
     );
@@ -1378,7 +1415,8 @@ class LepicWalletSession implements WalletSession {
   }) => NetGate.torOnly && exposure == HttpExposure.internet
       // Tor only: no clearnet listener; one on 127.0.0.1 behind the onion stays.
       ? Stream.error(const NetBlocked(NetworkMode.torOnly, 'HTTP listener'))
-      : _netStream(
+      // Offline: a slate received is signed with the node's tip, so only with a local node.
+      : _nodeStream(
           'HTTP listener',
           () => _wallet
               .startHttpListener(exposure: _lepicExposure(exposure), port: port)
@@ -1526,7 +1564,7 @@ class LepicWalletSession implements WalletSession {
   }
 
   @override
-  Future<ReceivedSlate> receiveSlate({required String slateJson}) => _netGuard('receive file', 
+  Future<ReceivedSlate> receiveSlate({required String slateJson}) => _nodeGuard('receive file', 
     () async =>
         lepicReceivedSlate(await _wallet.receiveSlate(slateJson: slateJson)),
   );
@@ -1535,7 +1573,7 @@ class LepicWalletSession implements WalletSession {
   Stream<ScanProgress> scan({
     BigInt? startHeight,
     bool deleteUnconfirmed = false,
-  }) => _netStream('scan', () =>
+  }) => _nodeStream('scan', () =>
     _wallet
         .scan(startHeight: startHeight, deleteUnconfirmed: deleteUnconfirmed)
         // cancelScan ends the stream with `cancelled`: a stop, not a failure.
@@ -1577,7 +1615,7 @@ class LepicWalletSession implements WalletSession {
     required bool refresh,
     required BigInt minimumConfirmations,
   }) => _guard(() async {
-    if (refresh) NetGate.check('refresh');
+    if (refresh) NetGate.check('refresh', local: _localNode);
     return _summary(await _wallet.summary(refresh: refresh));
   });
 
@@ -1587,7 +1625,7 @@ class LepicWalletSession implements WalletSession {
   Stream<RefreshProgress> refresh({
     required BigInt minimumConfirmations,
   }) async* {
-    NetGate.check('refresh');
+    NetGate.check('refresh', local: _localNode);
     try {
       // `await for`, not `yield*`: only it raises the stream's error here.
       await for (final p in _guardStream(_wallet.refresh())) {
@@ -1624,7 +1662,7 @@ class LepicWalletSession implements WalletSession {
   Future<List<TxEntry>> transactions({required bool refresh}) =>
       _guard(() async {
         if (refresh) {
-          NetGate.check('refresh');
+          NetGate.check('refresh', local: _localNode);
           await _wallet.summary(refresh: true);
         }
         return _history.transactions(await _live());

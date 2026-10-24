@@ -158,8 +158,8 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
       ),
     );
     final percent = _percent;
-    // Offline, or Tor only without Tor: nothing to recheck against.
-    final block = ref.watch(deskNetBlockProvider);
+    // Offline without a local node, or Tor only without Tor: nothing to recheck against.
+    final block = ref.watch(deskNodeBlockProvider);
     final reason = netBlockReason(l, block);
     return SettingsFrame(
       route: DeskRoute.settingsRescan,

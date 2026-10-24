@@ -107,10 +107,14 @@ abstract final class TorNet {
 
   /// Makes [client] go the current way. Throws [NetError] while Tor is not connected or the
   /// network mode is Offline, before anything is opened. [loopback] clients (a node on this
-  /// computer) always go direct.
-  static void configure(HttpClient client, {bool loopback = false}) {
+  /// computer) always go direct; [local] ones (a literal LAN address, `local_address.dart`) go
+  /// direct in Offline, which allows them.
+  static void configure(HttpClient client, {bool loopback = false, bool local = false}) {
     if (loopback) return;
-    if (NetGate.offline) throw const NetError(offlineError);
+    if (NetGate.offline) {
+      if (local) return;
+      throw const NetError(offlineError);
+    }
     switch (mode) {
       case TorNetMode.direct:
         return;

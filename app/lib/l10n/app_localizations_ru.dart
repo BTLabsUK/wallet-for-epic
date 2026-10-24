@@ -14132,7 +14132,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait until you switch back.';
+      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.';
 
   @override
   String get advOutputs => 'Outputs';
@@ -14195,7 +14195,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advModeOfflineLine =>
-      'No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.';
+      'Only this phone and your local network. A node on your network still works; everything else waits until you switch back.';
 
   @override
   String get advTorOnlyNote =>
@@ -14203,7 +14203,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline pauses Epicbox, Direct receiving, transaction files, status checks and notifications until the mode changes.';
+      'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node\'s own peers are the node\'s setting.';
 
   @override
   String get advReset => 'Hide everything again';
@@ -14291,7 +14291,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait.';
+      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node\'s setting.';
 
   @override
   String get deskSetAdvModeStandard => 'Standard';
@@ -14312,7 +14312,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.';
+      'Only this computer and your local network. Your node keeps running; its own peers are the node\'s setting.';
 
   @override
   String get deskSetAdvTorOnlyNote =>
@@ -14320,7 +14320,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Sending and receiving wait until you switch back, transaction files included.';
+      'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.';
 
   @override
   String get deskSetAdvNotInBuild => 'Not in this build';
@@ -14351,6 +14351,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get netBlockOffline => 'Offline mode is on in Advanced.';
+
+  @override
+  String get netOfflineOnlyLocal => 'Offline: only local addresses.';
+
+  @override
+  String get netOfflineNoPeers =>
+      'Your node has no peers: the payment waits in its pool until it reconnects.';
 
   @override
   String get netBlockTorOnly => 'Tor only is on in Advanced.';
@@ -14579,4 +14586,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxLess => 'Less';
+
+  @override
+  String get deskErrOfflineOnlyLocal => 'Offline: only local addresses.';
+
+  @override
+  String get deskNetOfflineNoPeers =>
+      'Your node has no peers: the payment waits in its pool until it reconnects.';
 }

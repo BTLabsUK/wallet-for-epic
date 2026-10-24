@@ -294,7 +294,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// The network mode holds this send: Epicbox and Direct in Offline and in Tor only without
   /// Tor, a file in Offline only.
-  NetBlock _netBlock(DeskState st) => _method == TxMethod.file ? deskFileBlock(st) : deskNetBlock(st);
+  /// Offline with a local node lets File and Direct to http(s) run (the adapter refuses an
+  /// address that is not local).
+  NetBlock _netBlock(DeskState st) => _method == TxMethod.file ? deskFileBlock(st) : deskNetBlock(st, nodeOnly: _method == TxMethod.http);
 
   /// How this send's connection goes with the Tor switch as it is now; null for File.
   TorWay? _torWay(DeskState st) {
@@ -866,6 +868,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ],
       );
     }
+    // Offline on a local node without peers: the payment waits in its pool.
+    if (_method != TxMethod.epicbox && ref.watch(deskOfflinePeersProvider).value == 0) {
+      return ENotice(key: const ValueKey('send-offline-no-peers'), title: l.deskNetOfflineNoPeers, icon: EIcons.server);
+    }
     return null;
   }
 
@@ -942,7 +948,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             // File is everyday.
             if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
                 advancedHas(ref, AdvancedFeature.directReceiving, keep: _segmentOf(_method) == TxMethod.http))
-              ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http, enabled: netIdle, tooltip: netWhy),
+              ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http, enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
             ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file, enabled: fileBlock == NetBlock.none, tooltip: netBlockReason(l, fileBlock)),
           ],
           value: _segmentOf(_method),

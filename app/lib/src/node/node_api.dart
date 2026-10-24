@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import '../net/local_address.dart';
 import '../net/tor_net.dart';
 import 'node_api_types.dart';
 
@@ -29,7 +30,7 @@ const int maxReplyBytes = 16 * 1024 * 1024;
 
 class NodeApiClient {
   /// [baseUrl] is `http://127.0.0.1:3413` or `https://node.example`: plain http only for a
-  /// loopback host. A bad one fails each call with [NodeRpcError.invalidArgument]. [secret] is
+  /// local host (loopback or a literal LAN address, `local_address.dart`). A bad one fails each call with [NodeRpcError.invalidArgument]. [secret] is
   /// awaited for each owner call, as the file may appear after the node starts.
   NodeApiClient(
     this._baseUrl, {
@@ -108,8 +109,8 @@ class NodeApiClient {
     if (u == null || u.host.isEmpty || u.userInfo.isNotEmpty) {
       throw const NodeRpcException(NodeRpcError.invalidArgument, 'node address is not a URL');
     }
-    final loopback = u.host.toLowerCase() == 'localhost' || (InternetAddress.tryParse(u.host)?.isLoopback ?? false);
-    if (u.scheme != 'https' && !(u.scheme == 'http' && loopback)) {
+    final local = isLocalAddressUrl(_baseUrl);
+    if (u.scheme != 'https' && !(u.scheme == 'http' && local)) {
       throw const NodeRpcException(
         NodeRpcError.invalidArgument,
         'a node that is not on this computer must be reached over https',
@@ -250,7 +251,7 @@ Future<({int status, String body})> _ioTransport(
     ..userAgent = null;
   try {
     // A remote node through tor while the Tor switch covers it; a node on this computer direct.
-    TorNet.configure(client, loopback: isLoopbackUrl(url));
+    TorNet.configure(client, loopback: isLoopbackUrl(url), local: isLocalAddressUrl(url.toString()));
     return await () async {
       final req = body.isEmpty ? await client.getUrl(url) : await client.postUrl(url);
       req.followRedirects = false; // never carry the secret to another address

@@ -60,6 +60,7 @@ String describeError(AppLocalizations l, Object error) {
   if (error is ScanFailed) return _withDetail(l.errorScanFailed, error.detail);
   // The network mode refused it (network_gate.dart). The Advanced page's own lines say why.
   if (error is NetBlocked) {
+    if (error.notLocal) return l.netOfflineOnlyLocal;
     return error.mode == NetworkMode.offline ? l.advHomeOffline : l.advModeTorOnlyLine;
   }
   if (error is LocalizedFormatException) return error.text(l);

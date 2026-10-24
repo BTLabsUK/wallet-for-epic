@@ -1491,13 +1491,22 @@ class _SendViewState extends ConsumerState<SendView> {
   /// wait while it is not [NetBlock.none]; the File route never does.
   NetBlock _block = NetBlock.none;
 
-  /// What it allows the File method: Offline stops making a file too (it asks the node).
+  /// What it allows the File method: Offline stops making a file too (it asks the node),
+  /// unless the node is local.
   NetBlock _fileBlock = NetBlock.none;
+
+  /// What it allows finishing a file (finalize and post, which reach only the node).
+  NetBlock _postBlock = NetBlock.none;
 
   @override
   Widget build(BuildContext context) {
-    _block = watchNetBlock(context, ref);
-    _fileBlock = fileBlockFor(AdvancedOptions.of(context).networkMode);
+    // Offline with a local node: a Direct send (to a local address; LEPIC's adapter refuses
+    // any other) and the File method run.
+    final localNode = ref.watch(localNodeProvider);
+    final direct = _method == TransferMethod.direct && parseRecipient(_recipient.text).kind != RecipientKind.tor;
+    _block = watchNetBlock(context, ref, localNode: localNode && direct);
+    _fileBlock = fileBlockFor(AdvancedOptions.of(context).networkMode, localNode: localNode);
+    _postBlock = watchNetBlock(context, ref, localNode: localNode);
     // An estimate made against the old balance is stale: coins that confirmed may cover it
     // now, or a send elsewhere may have spent them (F-06).
     ref.listen(homeProvider.select((home) => home.value?.summary.spendable), (
@@ -1556,15 +1565,26 @@ class _SendViewState extends ConsumerState<SendView> {
       SendStage.recipient || SendStage.amount => _block,
       SendStage.review when !_sendFailed => _block,
       SendStage.fileAmount => _fileBlock,
-      SendStage.fileMade => _block,
+      SendStage.fileMade => _postBlock,
       _ => NetBlock.none,
     };
+    // Offline on a local node without peers: what is posted waits in its pool.
+    final noPeers =
+        note == NetBlock.none &&
+        (_stage == SendStage.review || _stage == SendStage.fileMade) &&
+        ref.watch(offlineNodePeersProvider).value == 0;
     return ScreenBody(
-      bottom: note != NetBlock.none
+      bottom: note != NetBlock.none || noPeers
           ? Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [NetBlockNote(note), bottom],
+              children: [
+                if (noPeers)
+                  NetBlockNote(NetBlock.none, key: offlineNoPeersKey, line: context.l10n.netOfflineNoPeers)
+                else
+                  NetBlockNote(note),
+                bottom,
+              ],
             )
           : bottom,
       children: [...children, if (_error != null) ErrorText(_error!)],
@@ -2603,7 +2623,7 @@ class _SendViewState extends ConsumerState<SendView> {
           BusyButton(
             label: l.slateFinishPayment,
             busy: _busy,
-            onPressed: _block != NetBlock.none ? null : _finalizePasted,
+            onPressed: _postBlock != NetBlock.none ? null : _finalizePasted,
           ),
           const SizedBox(height: 8),
         ],
@@ -2618,7 +2638,7 @@ class _SendViewState extends ConsumerState<SendView> {
 
   Widget _openReplyAction() => BusyButton(
     label: context.l10n.sendOpenReply,
-    onPressed: _busy || _block != NetBlock.none ? null : _openReply,
+    onPressed: _busy || _postBlock != NetBlock.none ? null : _openReply,
   );
 
   List<Widget> _fileSentStep(BuildContext context) {
