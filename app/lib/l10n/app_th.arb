@@ -3474,5 +3474,11 @@
   "deskSetupSaveStartsFallback": "บันทึก จะเริ่มโหนด การซิงก์ครั้งแรกใช้เวลาหลายชั่วโมง ระหว่างนั้นกระเป๋าเงินจะเปิดและใช้ {node}",
   "deskSetupSaveStarts": "บันทึก จะเริ่มโหนด การซิงก์ครั้งแรกใช้เวลาหลายชั่วโมง ระหว่างนั้นกระเป๋าเงินจะเปิดใช้ได้",
   "deskSetupServer": "เซิร์ฟเวอร์",
-  "deskSetupOff": "ปิด"
+  "deskSetupOff": "ปิด",
+  "deskSetHelpSearch": "ค้นหาความช่วยเหลือ",
+  "deskSetHelpSearchKeys": "กด / เพื่อค้นหา กด Esc เพื่อล้างการค้นหา",
+  "deskSetHelpSearchHint": "เช่น ไฟล์ การยืนยัน วลีกู้คืน",
+  "deskSetHelpClear": "ล้างการค้นหา",
+  "deskSetHelpTourAgain": "แสดงทัวร์แนะนำอีกครั้ง",
+  "deskSetHelpTopics": "{count, plural, other{{count} หัวข้อ}}"
 }
