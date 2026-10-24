@@ -6222,4 +6222,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'Odblokuj teraz';
+
+  @override
+  String get txStatusNotDelivered => 'Nie dostarczono';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      'Ta płatność nie dotarła jeszcze do epicboxa, więc odbiorca jej nie dostał. Środki pozostają zablokowane, dopóki nie zostanie wysłana ponownie lub anulowana.';
+
+  @override
+  String get txDetailsSendAgainDone =>
+      'Wysłano ponownie. Płatność zakończy się, gdy portfel odbiorcy będzie online.';
 }

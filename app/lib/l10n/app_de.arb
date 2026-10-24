@@ -1545,5 +1545,9 @@
   "deskKeyringMissingText": "Epic Cash speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, aber keiner hat geantwortet. Installiere oder starte einen Schlüsselbund (GNOME Keyring oder KWallet), melde dich in einer Desktop-Sitzung an, die einen ausführt, und wähle dann Wiederholen.",
   "deskKeyringLockedTitle": "Der Schlüsselbund ist gesperrt",
   "deskKeyringLockedText": "Epic Cash speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, und der ist gesperrt. Entsperre ihn (er öffnet sich mit deinem Anmeldepasswort) und wähle dann Wiederholen, oder wähle Jetzt entsperren, damit das System danach fragt.",
-  "deskKeyringUnlockNow": "Jetzt entsperren"
+  "deskKeyringUnlockNow": "Jetzt entsperren",
+  "txStatusNotDelivered": "Nicht zugestellt",
+  "txDetailsNotDeliveredBody": "Diese Zahlung hat die Epicbox noch nicht erreicht, deshalb hat der Empfänger sie nicht erhalten. Dein Guthaben bleibt gesperrt, bis sie erneut gesendet oder storniert wird.",
+  "txDetailsSendAgain": "Erneut senden",
+  "txDetailsSendAgainDone": "Erneut gesendet. Die Zahlung wird abgeschlossen, sobald die Wallet des Empfängers online ist."
 }

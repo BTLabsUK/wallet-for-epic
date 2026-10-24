@@ -361,6 +361,13 @@ void main() {
         s.repostTransaction(key: 's:x'),
         throwsKind(WalletErrorKind.invalidArgument),
       );
+      session.transactionsValue.add(fakeTx(id: 8, slateId: 'u', undelivered: true));
+      await s.resendEpicbox(key: 's:u');
+      expect(session.resentEpicboxKeys, ['s:u']);
+      await expectLater(
+        s.resendEpicbox(key: 's:x'),
+        throwsKind(WalletErrorKind.invalidArgument),
+      );
       await s.releaseStuckSend(key: 's:x');
       expect(session.releasedKeys, ['s:x']);
       await expectLater(

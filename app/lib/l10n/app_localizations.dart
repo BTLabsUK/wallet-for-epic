@@ -1117,7 +1117,7 @@ abstract class AppLocalizations {
   /// **'Add to contacts'**
   String get txDetailsAddToContacts;
 
-  /// Button: start a new payment to the same address.
+  /// Button: send the undelivered payment again.
   ///
   /// In en, this message translates to:
   /// **'Send again'**
@@ -9422,6 +9422,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock now'**
   String get deskKeyringUnlockNow;
+
+  /// Status chip of an Epicbox payment no attempt has delivered to the relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered'**
+  String get txStatusNotDelivered;
+
+  /// Explanation under the status of a payment that was not delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment did not reach the epicbox yet, so the recipient has not received it. Your funds stay locked until it is sent again or cancelled.'**
+  String get txDetailsNotDeliveredBody;
+
+  /// Notice after the payment was sent again.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent again. It completes when their wallet comes online.'**
+  String get txDetailsSendAgainDone;
 }
 
 class _AppLocalizationsDelegate

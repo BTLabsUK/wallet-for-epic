@@ -5903,4 +5903,15 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'ปลดล็อกตอนนี้';
+
+  @override
+  String get txStatusNotDelivered => 'ยังไม่ได้ส่งถึง';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      'การชำระเงินนี้ยังไปไม่ถึง epicbox ผู้รับจึงยังไม่ได้รับ เงินของคุณจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก';
+
+  @override
+  String get txDetailsSendAgainDone =>
+      'ส่งอีกครั้งแล้ว การชำระเงินจะเสร็จสมบูรณ์เมื่อกระเป๋าของผู้รับออนไลน์';
 }

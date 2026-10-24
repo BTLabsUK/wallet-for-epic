@@ -1132,6 +1132,11 @@ class TxEntry {
   /// `repost_transaction(key)` can post it to the node again.
   final bool repostable;
 
+  /// True for an Epicbox send no attempt has delivered to the relay yet (every attempt failed,
+  /// or the app was killed before the first): [WalletService.resendEpicbox] sends it again.
+  /// Never true for the send being made right now.
+  final bool undelivered;
+
   /// Why the status is what it is, when that is not obvious, e.g. an imported send that never
   /// reached the chain.
   final String? statusDetail;
@@ -1184,6 +1189,7 @@ class TxEntry {
     this.ttlCutoffHeight,
     required this.cancellable,
     required this.repostable,
+    this.undelivered = false,
     this.statusDetail,
     required this.releasable,
     this.finalizedAtUnix,
@@ -1234,6 +1240,7 @@ class TxEntry {
       ttlCutoffHeight.hashCode ^
       cancellable.hashCode ^
       repostable.hashCode ^
+      undelivered.hashCode ^
       statusDetail.hashCode ^
       releasable.hashCode ^
       finalizedAtUnix.hashCode ^
@@ -1272,6 +1279,7 @@ class TxEntry {
           ttlCutoffHeight == other.ttlCutoffHeight &&
           cancellable == other.cancellable &&
           repostable == other.repostable &&
+          undelivered == other.undelivered &&
           statusDetail == other.statusDetail &&
           releasable == other.releasable &&
           finalizedAtUnix == other.finalizedAtUnix &&

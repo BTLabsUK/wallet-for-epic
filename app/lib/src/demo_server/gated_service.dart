@@ -236,6 +236,10 @@ class GatedWalletSession implements WalletSession {
       _inner.repostTransaction(key: key);
 
   @override
+  Future<void> resendEpicbox({required String key}) =>
+      _inner.resendEpicbox(key: key);
+
+  @override
   Future<void> releaseStuckSend({required String key}) =>
       _inner.releaseStuckSend(key: key);
 

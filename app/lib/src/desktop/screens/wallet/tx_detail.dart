@@ -26,6 +26,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       : t.immature
       ? 'Confirmed, but a mining reward is spendable only after $coinbaseMaturity confirmations.'
       : switch (t.state) {
+          TxState.waitingRecipient when t.undelivered => 'Not delivered. The payment did not reach the epicbox, so the recipient has not received it. Send it again, or cancel it to free the funds.',
           TxState.waitingRecipient =>
             t.incoming
                 ? 'Signed and returned. Waiting for the sender to finalize.'
@@ -37,6 +38,21 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.confirmed => 'Confirmed, ${t.confirmations} confirmations.',
           TxState.cancelled => 'Cancelled.',
         };
+
+  Future<void> _sendAgain() async {
+    setState(() => _cancelling = true);
+    try {
+      await ref.read(deskProvider.notifier).resendEpicbox(widget.tx.id);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _cancelling = false);
+      showEToast(context, 'Not sent', text: deskErrorText(e));
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _cancelling = false);
+    showEToast(context, 'Sent again', text: 'It completes when the recipient’s wallet comes online.');
+  }
 
   Future<void> _cancel() async {
     final ok = await showCancelTxDialog(context, widget.tx);
@@ -198,7 +214,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ('Type', Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))),
           ]),
         ),
-        if (cancelable || finalizable) ...[
+        if (cancelable || finalizable || t.undelivered) ...[
           SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),
           SizedBox(height: Sp.x4),
@@ -214,6 +230,14 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   onPressed: _cancel,
                 ),
               const Spacer(),
+              if (t.undelivered)
+                EButton.primary(
+                  label: 'Send again',
+                  icon: EIcons.refresh,
+                  size: EBtnSize.sm,
+                  busy: _cancelling,
+                  onPressed: _sendAgain,
+                ),
               if (finalizable)
                 EButton.primary(
                   label: 'Finalize',

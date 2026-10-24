@@ -389,6 +389,10 @@ class WalletDispatcher {
       s.repostTransaction(key: p.of('key', stringWire)),
       voidWire,
     ),
+    SessionMember.resendEpicbox => _once(
+      s.resendEpicbox(key: p.of('key', stringWire)),
+      voidWire,
+    ),
     SessionMember.releaseStuckSend => _once(
       s.releaseStuckSend(key: p.of('key', stringWire)),
       voidWire,

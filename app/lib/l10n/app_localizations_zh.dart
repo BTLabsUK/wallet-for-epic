@@ -658,7 +658,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsAddToContacts => '添加到联系人';
 
   @override
-  String get txDetailsSendAgain => '再次发送';
+  String get txDetailsSendAgain => '重新发送';
 
   @override
   String get txDetailsFee => '手续费';
@@ -5674,4 +5674,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => '立即解锁';
+
+  @override
+  String get txStatusNotDelivered => '未送达';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      '此付款尚未到达 epicbox，收款人还没有收到。在重新发送或取消之前，你的资金保持锁定。';
+
+  @override
+  String get txDetailsSendAgainDone => '已重新发送。收款人的钱包上线后即可完成。';
 }
