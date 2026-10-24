@@ -4137,6 +4137,44 @@ class AppLocalizationsPl extends AppLocalizations {
   String get handshakePrevious => 'Poprzedni krok';
 
   @override
+  String get handshakeLink1 =>
+      'Twój portfel wysyła płatność prosto do portfela drugiej strony, przez internet lub Tor. Twoje monety są wstrzymane.';
+
+  @override
+  String get handshakeLink2 =>
+      'Portfel drugiej strony dodaje swoją część, podpisuje i odpowiada w tym samym połączeniu.';
+
+  @override
+  String get handshakeQr1 => 'Pokazujesz swój kod.';
+
+  @override
+  String get handshakeQr2 => 'Druga strona skanuje go swoim portfelem.';
+
+  @override
+  String get handshakeQr3 => 'Jej portfel pokazuje kod odpowiedzi.';
+
+  @override
+  String get handshakeQr4 => 'Skanujesz go.';
+
+  @override
+  String get handshakeQr5 => 'Twój portfel wysyła płatność do sieci.';
+
+  @override
+  String get handshakeQrR1 => 'Druga strona pokazuje swój kod.';
+
+  @override
+  String get handshakeQrR2 => 'Skanujesz go swoim portfelem.';
+
+  @override
+  String get handshakeQrR3 => 'Twój portfel pokazuje kod odpowiedzi.';
+
+  @override
+  String get handshakeQrR4 => 'Druga strona go skanuje.';
+
+  @override
+  String get handshakeQrR5 => 'Jej portfel wysyła płatność do sieci.';
+
+  @override
   String get handshakeNext => 'Następny krok';
 
   @override

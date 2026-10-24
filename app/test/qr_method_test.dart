@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/handshake.dart';
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart';
 import 'package:epic_wallet/src/ui/qr_show_screen.dart';
@@ -175,7 +176,77 @@ Future<void> _tick(WidgetTester tester, int seconds) async {
   }
 }
 
+String _howCaption(WidgetTester tester) =>
+    tester.widget<Text>(find.byKey(handshakeCaptionKey)).data!;
+
+Future<void> _openHow(WidgetTester tester) async {
+  await tester.tap(find.byTooltip(_l.sendHowItWorks));
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  group('How it works opens the explanation of the method', () {
+    testWidgets('QR Payment on Send: the five QR steps, phone to phone, no relay', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, SendView(onDone: () {}));
+      await tester.tap(_segment('QR Code'));
+      await tester.pumpAndSettle();
+      await _openHow(tester);
+      expect(find.byType(HandshakeSheet), findsOneWidget);
+      expect(_howCaption(tester), '1. ${_l.handshakeQr1}');
+      final steps = handshakeSteps(HandshakeFlow.qr);
+      expect(steps, hasLength(5));
+      for (final step in steps) {
+        expect(step.caption(_l).toLowerCase(), isNot(contains('relay')));
+      }
+      expect(find.text(_l.handshakeRelay), findsNothing);
+      expect(find.textContaining('relay'), findsNothing);
+      expect(find.textContaining('Their wallet sends it back'), findsNothing);
+    });
+
+    testWidgets('Epicbox, Link and File each open their own tab on Send', (
+      tester,
+    ) async {
+      final h = _Harness(prefs: 'direct,file|epicbox');
+      await h.pump(tester, SendView(onDone: () {}));
+      await _openHow(tester);
+      expect(_howCaption(tester), '1. ${_l.handshakePay1}');
+      await tester.tap(find.text(_l.commonClose));
+      await tester.pumpAndSettle();
+
+      await tester.tap(_segment('Link'));
+      await tester.pumpAndSettle();
+      await _openHow(tester);
+      expect(_howCaption(tester), '1. ${_l.handshakeLink1}');
+      expect(find.text(_l.handshakeRelay), findsNothing);
+      await tester.tap(find.text(_l.commonClose));
+      await tester.pumpAndSettle();
+
+      await tester.tap(_segment('File'));
+      await tester.pumpAndSettle();
+      await _openHow(tester);
+      expect(_howCaption(tester), '1. ${_l.handshakeFile1}');
+    });
+
+    testWidgets('Receive › QR Code: the receiver side, no relay', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const ReceiveView());
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(receiveTabsKey),
+          matching: find.text('QR Code'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await _openHow(tester);
+      expect(_howCaption(tester), '1. ${_l.handshakeQrR1}');
+      expect(find.textContaining('relay'), findsNothing);
+      expect(find.text(_l.handshakeRelay), findsNothing);
+    });
+  });
+
   group('where it is offered', () {
     testWidgets('Send: Epicbox · QR on a new phone, File and Link not', (
       tester,

@@ -1821,12 +1821,28 @@ class _SendViewState extends ConsumerState<SendView> {
           IconButton(
             tooltip: l.sendHowItWorks,
             icon: const Icon(Icons.info_outline),
-            onPressed: () => showHandshakeSheet(context),
+            onPressed: () => showHandshakeSheet(context, flow: _howFlow),
           ),
         ],
       ),
     );
   }
+
+  /// The "How it works" tab of the way this payment goes: its own method's, never Epicbox's
+  /// by default.
+  HandshakeFlow get _howFlow => switch (_stage) {
+    SendStage.fileAmount ||
+    SendStage.fileMade ||
+    SendStage.fileSent => _viaQr ? HandshakeFlow.qr : HandshakeFlow.file,
+    SendStage.sent =>
+      _sent == null || _sent!.to.kind == RecipientKind.epicbox
+          ? HandshakeFlow.payment
+          : HandshakeFlow.direct,
+    _ =>
+      _method == TransferMethod.direct
+          ? HandshakeFlow.direct
+          : HandshakeFlow.payment,
+  };
 
   String? _contactName(String address) {
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
@@ -2616,7 +2632,7 @@ class _SendViewState extends ConsumerState<SendView> {
         child: IconButton(
           tooltip: l.sendHowItWorks,
           icon: const Icon(Icons.info_outline),
-          onPressed: () => showHandshakeSheet(context),
+          onPressed: () => showHandshakeSheet(context, flow: _howFlow),
         ),
       ),
       Center(

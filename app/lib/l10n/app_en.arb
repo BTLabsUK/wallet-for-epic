@@ -4871,6 +4871,54 @@
   "@handshakePrevious": {
     "description": "How it works sheet: tooltip of the button that shows the step before."
   },
+  "handshakeLink1": "Your wallet sends the payment straight to their wallet, over the internet or Tor. Your coins go on hold.",
+  "@handshakeLink1": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeLink2": "Their wallet adds its part, signs and answers on the same connection.",
+  "@handshakeLink2": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQr1": "You show your code.",
+  "@handshakeQr1": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQr2": "They scan it with their wallet.",
+  "@handshakeQr2": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQr3": "Their wallet shows a reply code.",
+  "@handshakeQr3": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQr4": "You scan it.",
+  "@handshakeQr4": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQr5": "Your wallet sends it to the network.",
+  "@handshakeQr5": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQrR1": "They show their code.",
+  "@handshakeQrR1": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQrR2": "You scan it with your wallet.",
+  "@handshakeQrR2": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQrR3": "Your wallet shows a reply code.",
+  "@handshakeQrR3": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQrR4": "They scan it.",
+  "@handshakeQrR4": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQrR5": "Their wallet sends it to the network.",
+  "@handshakeQrR5": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
   "handshakeNext": "Next step",
   "@handshakeNext": {
     "description": "How it works sheet: tooltip of the button that shows the next step."

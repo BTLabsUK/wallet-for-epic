@@ -3970,6 +3970,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get handshakePrevious => 'Previous step';
 
   @override
+  String get handshakeLink1 =>
+      'Your wallet sends the payment straight to their wallet, over the internet or Tor. Your coins go on hold.';
+
+  @override
+  String get handshakeLink2 =>
+      'Their wallet adds its part, signs and answers on the same connection.';
+
+  @override
+  String get handshakeQr1 => 'You show your code.';
+
+  @override
+  String get handshakeQr2 => 'They scan it with their wallet.';
+
+  @override
+  String get handshakeQr3 => 'Their wallet shows a reply code.';
+
+  @override
+  String get handshakeQr4 => 'You scan it.';
+
+  @override
+  String get handshakeQr5 => 'Your wallet sends it to the network.';
+
+  @override
+  String get handshakeQrR1 => 'They show their code.';
+
+  @override
+  String get handshakeQrR2 => 'You scan it with your wallet.';
+
+  @override
+  String get handshakeQrR3 => 'Your wallet shows a reply code.';
+
+  @override
+  String get handshakeQrR4 => 'They scan it.';
+
+  @override
+  String get handshakeQrR5 => 'Their wallet sends it to the network.';
+
+  @override
   String get handshakeNext => 'Next step';
 
   @override

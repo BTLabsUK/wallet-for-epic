@@ -6130,6 +6130,78 @@ abstract class AppLocalizations {
   /// **'Previous step'**
   String get handshakePrevious;
 
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet sends the payment straight to their wallet, over the internet or Tor. Your coins go on hold.'**
+  String get handshakeLink1;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet adds its part, signs and answers on the same connection.'**
+  String get handshakeLink2;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'You show your code.'**
+  String get handshakeQr1;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'They scan it with their wallet.'**
+  String get handshakeQr2;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet shows a reply code.'**
+  String get handshakeQr3;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'You scan it.'**
+  String get handshakeQr4;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet sends it to the network.'**
+  String get handshakeQr5;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'They show their code.'**
+  String get handshakeQrR1;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'You scan it with your wallet.'**
+  String get handshakeQrR2;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet shows a reply code.'**
+  String get handshakeQrR3;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'They scan it.'**
+  String get handshakeQrR4;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet sends it to the network.'**
+  String get handshakeQrR5;
+
   /// How it works sheet: tooltip of the button that shows the next step.
   ///
   /// In en, this message translates to:

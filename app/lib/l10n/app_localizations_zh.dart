@@ -3741,6 +3741,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakePrevious => '上一步';
 
   @override
+  String get handshakeLink1 => '你的钱包通过互联网或 Tor 把付款直接发到对方的钱包。你的币被锁定。';
+
+  @override
+  String get handshakeLink2 => '对方钱包加入自己的部分、签名，并在同一连接上回复。';
+
+  @override
+  String get handshakeQr1 => '你显示你的二维码。';
+
+  @override
+  String get handshakeQr2 => '对方用钱包扫描它。';
+
+  @override
+  String get handshakeQr3 => '对方的钱包显示回复二维码。';
+
+  @override
+  String get handshakeQr4 => '你扫描它。';
+
+  @override
+  String get handshakeQr5 => '你的钱包把付款发送到网络。';
+
+  @override
+  String get handshakeQrR1 => '对方显示他们的二维码。';
+
+  @override
+  String get handshakeQrR2 => '你用钱包扫描它。';
+
+  @override
+  String get handshakeQrR3 => '你的钱包显示回复二维码。';
+
+  @override
+  String get handshakeQrR4 => '对方扫描它。';
+
+  @override
+  String get handshakeQrR5 => '对方的钱包把付款发送到网络。';
+
+  @override
   String get handshakeNext => '下一步';
 
   @override

@@ -4026,6 +4026,46 @@ class AppLocalizationsDe extends AppLocalizations {
   String get handshakePrevious => 'Vorheriger Schritt';
 
   @override
+  String get handshakeLink1 =>
+      'Ihre Wallet sendet die Zahlung direkt an die Wallet der Gegenseite, über das Internet oder Tor. Ihre Coins werden zurückgehalten.';
+
+  @override
+  String get handshakeLink2 =>
+      'Die Wallet der Gegenseite ergänzt ihren Teil, signiert und antwortet über dieselbe Verbindung.';
+
+  @override
+  String get handshakeQr1 => 'Sie zeigen Ihren Code.';
+
+  @override
+  String get handshakeQr2 => 'Die Gegenseite scannt ihn mit ihrer Wallet.';
+
+  @override
+  String get handshakeQr3 =>
+      'Ihre Gegenseite sieht in ihrer Wallet einen Antwort-Code.';
+
+  @override
+  String get handshakeQr4 => 'Sie scannen ihn.';
+
+  @override
+  String get handshakeQr5 => 'Ihre Wallet sendet die Zahlung an das Netzwerk.';
+
+  @override
+  String get handshakeQrR1 => 'Die Gegenseite zeigt ihren Code.';
+
+  @override
+  String get handshakeQrR2 => 'Sie scannen ihn mit Ihrer Wallet.';
+
+  @override
+  String get handshakeQrR3 => 'Ihre Wallet zeigt einen Antwort-Code.';
+
+  @override
+  String get handshakeQrR4 => 'Die Gegenseite scannt ihn.';
+
+  @override
+  String get handshakeQrR5 =>
+      'Die Wallet der Gegenseite sendet die Zahlung an das Netzwerk.';
+
+  @override
   String get handshakeNext => 'Nächster Schritt';
 
   @override

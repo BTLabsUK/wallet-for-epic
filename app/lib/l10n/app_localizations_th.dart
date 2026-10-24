@@ -3875,6 +3875,44 @@ class AppLocalizationsTh extends AppLocalizations {
   String get handshakePrevious => 'ขั้นตอนก่อนหน้า';
 
   @override
+  String get handshakeLink1 =>
+      'กระเป๋าของคุณส่งรายการตรงไปยังกระเป๋าของอีกฝ่ายผ่านอินเทอร์เน็ตหรือ Tor เหรียญของคุณถูกพักไว้';
+
+  @override
+  String get handshakeLink2 =>
+      'กระเป๋าของอีกฝ่ายเพิ่มส่วนของตน ลงนาม และตอบกลับในการเชื่อมต่อเดียวกัน';
+
+  @override
+  String get handshakeQr1 => 'คุณแสดงโค้ดของคุณ';
+
+  @override
+  String get handshakeQr2 => 'อีกฝ่ายสแกนด้วยกระเป๋าของตน';
+
+  @override
+  String get handshakeQr3 => 'กระเป๋าของอีกฝ่ายแสดงโค้ดตอบกลับ';
+
+  @override
+  String get handshakeQr4 => 'คุณสแกนโค้ดนั้น';
+
+  @override
+  String get handshakeQr5 => 'กระเป๋าของคุณส่งรายการไปยังเครือข่าย';
+
+  @override
+  String get handshakeQrR1 => 'อีกฝ่ายแสดงโค้ดของตน';
+
+  @override
+  String get handshakeQrR2 => 'คุณสแกนด้วยกระเป๋าของคุณ';
+
+  @override
+  String get handshakeQrR3 => 'กระเป๋าของคุณแสดงโค้ดตอบกลับ';
+
+  @override
+  String get handshakeQrR4 => 'อีกฝ่ายสแกนโค้ดนั้น';
+
+  @override
+  String get handshakeQrR5 => 'กระเป๋าของอีกฝ่ายส่งรายการไปยังเครือข่าย';
+
+  @override
   String get handshakeNext => 'ขั้นตอนถัดไป';
 
   @override

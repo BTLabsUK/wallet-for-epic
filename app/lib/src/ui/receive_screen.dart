@@ -25,6 +25,7 @@ import '../wallet_service.dart';
 import 'common.dart';
 import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
+import 'handshake.dart';
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import 'method_strip.dart';
@@ -856,9 +857,26 @@ class _QrCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Semantics(
-              header: true,
-              child: Text(l.receiveQrTitle, style: theme.textTheme.titleSmall),
+            Row(
+              children: [
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      l.receiveQrTitle,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: l.sendHowItWorks,
+                  icon: const Icon(Icons.info_outline),
+                  onPressed: () => showHandshakeSheet(
+                    context,
+                    flow: HandshakeFlow.qrReceive,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 4),
             Text(

@@ -4115,6 +4115,44 @@ class AppLocalizationsRu extends AppLocalizations {
   String get handshakePrevious => 'Предыдущий шаг';
 
   @override
+  String get handshakeLink1 =>
+      'Ваш кошелёк отправляет платёж прямо их кошельку, через интернет или Tor. Ваши монеты блокируются.';
+
+  @override
+  String get handshakeLink2 =>
+      'Их кошелёк добавляет свою часть, подписывает и отвечает по тому же соединению.';
+
+  @override
+  String get handshakeQr1 => 'Вы показываете свой код.';
+
+  @override
+  String get handshakeQr2 => 'Они сканируют его своим кошельком.';
+
+  @override
+  String get handshakeQr3 => 'Их кошелёк показывает код ответа.';
+
+  @override
+  String get handshakeQr4 => 'Вы сканируете его.';
+
+  @override
+  String get handshakeQr5 => 'Ваш кошелёк отправляет платёж в сеть.';
+
+  @override
+  String get handshakeQrR1 => 'Они показывают свой код.';
+
+  @override
+  String get handshakeQrR2 => 'Вы сканируете его своим кошельком.';
+
+  @override
+  String get handshakeQrR3 => 'Ваш кошелёк показывает код ответа.';
+
+  @override
+  String get handshakeQrR4 => 'Они сканируют его.';
+
+  @override
+  String get handshakeQrR5 => 'Их кошелёк отправляет платёж в сеть.';
+
+  @override
   String get handshakeNext => 'Следующий шаг';
 
   @override
