@@ -387,7 +387,7 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
         );
       }
       return StatusWords(
-        detail: failureLine(englishStrings, s),
+        detail: failureLine(l, s),
         notice: switch (s.failure) {
           NodeFailure.portInUse => (
             tone: ETone.risk,
