@@ -2270,6 +2270,7 @@ void main() {
       await on.pump(tester, _sendTab());
       await _toAmount(tester, null);
       expect(find.byKey(sendStrategyKey), findsOneWidget);
+      expect(find.text('Strategy for this send'), findsOneWidget);
       final picker = tester.widget<SegmentedButton<SelectionStrategy>>(
         find.byKey(sendStrategyKey),
       );
@@ -2299,6 +2300,14 @@ void main() {
             )
             .selected,
         {SelectionStrategy.all},
+      );
+      // For this payment only: Settings keeps its default.
+      final container = ProviderScope.containerOf(
+        tester.element(find.byKey(sendStrategyKey)),
+      );
+      expect(
+        container.read(appSettingsProvider).value?.sendStrategy,
+        isNot(SelectionStrategy.all),
       );
     });
   });

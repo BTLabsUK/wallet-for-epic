@@ -754,35 +754,47 @@ class _SendViewState extends ConsumerState<SendView> {
   /// Smallest / All for this payment; only with Send options on.
   Widget _strategyPicker(BuildContext context) {
     final l = context.l10n;
+    final t = context.tokens;
     final current =
         _strategyOverride ??
         ref.watch(appSettingsProvider).value?.sendStrategy ??
         SelectionStrategy.smallest;
     return Padding(
       padding: const EdgeInsets.only(top: 12),
-      child: Semantics(
-        label: l.outputsStrategy,
-        container: true,
-        child: SegmentedButton<SelectionStrategy>(
-          key: sendStrategyKey,
-          segments: [
-            ButtonSegment(
-              value: SelectionStrategy.smallest,
-              label: Text(l.outputsSmallest),
-            ),
-            ButtonSegment(
-              value: SelectionStrategy.all,
-              label: Text(l.outputsAll),
-            ),
-          ],
-          selected: {current},
-          showSelectedIcon: false,
-          expandedInsets: EdgeInsets.zero,
-          style: const ButtonStyle(
-            minimumSize: WidgetStatePropertyAll(Size(0, 44)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Named, so All never reads as "send all".
+          Text(
+            l.deskSendAdvStrategy,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
           ),
-          onSelectionChanged: (chosen) => _chooseStrategy(chosen.first),
-        ),
+          const SizedBox(height: 6),
+          Semantics(
+            label: l.deskSendAdvStrategy,
+            container: true,
+            child: SegmentedButton<SelectionStrategy>(
+              key: sendStrategyKey,
+              segments: [
+                ButtonSegment(
+                  value: SelectionStrategy.smallest,
+                  label: Text(l.outputsSmallest),
+                ),
+                ButtonSegment(
+                  value: SelectionStrategy.all,
+                  label: Text(l.outputsAll),
+                ),
+              ],
+              selected: {current},
+              showSelectedIcon: false,
+              expandedInsets: EdgeInsets.zero,
+              style: const ButtonStyle(
+                minimumSize: WidgetStatePropertyAll(Size(0, 44)),
+              ),
+              onSelectionChanged: (chosen) => _chooseStrategy(chosen.first),
+            ),
+          ),
+        ],
       ),
     );
   }
