@@ -13055,4 +13055,38 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTxThisWallet => 'กระเป๋าเงินนี้';
+
+  @override
+  String get deskErrOldLinks =>
+      'โฟลเดอร์ของกระเป๋าเงินนี้มีลิงก์อยู่ คัดลอกด้วยตนเองหรือกู้คืนจากวลีกู้คืน';
+
+  @override
+  String get deskErrOldIncomplete =>
+      'อ่านโฟลเดอร์ของกระเป๋าเงินนี้ได้ไม่ครบ คัดลอกด้วยตนเองหรือกู้คืนจากวลีกู้คืน';
+
+  @override
+  String get deskErrOldSeedTooLarge =>
+      'ไฟล์ wallet.seed ใหญ่เกินกว่าจะเป็น seed ของกระเป๋าเงิน';
+
+  @override
+  String get deskErrSendUnbuildable => 'สร้างการส่งนี้จากเหรียญที่มีอยู่ไม่ได้';
+
+  @override
+  String get deskErrNothingToConsolidate =>
+      'ไม่มีอะไรให้รวม: มีเอาต์พุตที่ใช้ได้น้อยกว่าสองรายการ';
+
+  @override
+  String deskSetReportFileNone(String name) {
+    return '$name (ไม่ได้แนบ)';
+  }
+
+  @override
+  String deskSetReportFileAll(String name, String size) {
+    return '$name (ทั้งไฟล์ $size)';
+  }
+
+  @override
+  String deskSetReportFilePart(String name, String part, String size) {
+    return '$name ($part สุดท้ายจาก $size)';
+  }
 }

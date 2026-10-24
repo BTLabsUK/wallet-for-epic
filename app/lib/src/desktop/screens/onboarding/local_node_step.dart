@@ -46,7 +46,7 @@ class LocalNodeChoice {
 enum LocalNodeDemo { none, found, notFound }
 
 /// "5 GB", "4.8 GB".
-String _gb(int bytes) => bytesText(bytes);
+String _gb(AppLocalizations l, int bytes) => bytesText(bytes, l);
 
 class LocalNodeStep extends ConsumerStatefulWidget {
   const LocalNodeStep({super.key, required this.onChanged, this.demo = LocalNodeDemo.none, this.compact = false});
@@ -115,8 +115,8 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
     final ts = context.ts;
     final l = context.l10n;
     final f = _facts;
-    final free = f?.freeBytes == null ? l.deskOnbNodeFreeUnknown : l.deskOnbNodeFreeHere(_gb(f!.freeBytes!));
-    final chain = f == null ? l.deskOnbNodeDiskAbout('5 GB') : (f.chainBytesMeasured ? l.deskOnbNodeDisk(_gb(f.chainBytes)) : l.deskOnbNodeDiskAbout(_gb(f.chainBytes)));
+    final free = f?.freeBytes == null ? l.deskOnbNodeFreeUnknown : l.deskOnbNodeFreeHere(_gb(l, f!.freeBytes!));
+    final chain = f == null ? l.deskOnbNodeDiskAbout('5 GB') : (f.chainBytesMeasured ? l.deskOnbNodeDisk(_gb(l, f.chainBytes)) : l.deskOnbNodeDiskAbout(_gb(l, f.chainBytes)));
     final windows = f?.firewallPrompt ?? Platform.isWindows;
     final facts = <(IconData, String, String)>[
       (EIcons.server, l.deskOnbNodeSeparate, l.deskOnbNodeSeparateText),

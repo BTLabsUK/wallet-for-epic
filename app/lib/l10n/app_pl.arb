@@ -3487,5 +3487,13 @@
   "deskKeyringLockedTitle": "Pęk kluczy jest zablokowany",
   "deskKeyringLockedText": "Epic Cash przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, który jest zablokowany. Odblokuj go (otwiera się hasłem logowania), a potem wybierz Ponów, albo wybierz Odblokuj teraz, aby system o nie poprosił.",
   "deskKeyringUnlockNow": "Odblokuj teraz",
-  "deskTxThisWallet": "Ten portfel"
+  "deskTxThisWallet": "Ten portfel",
+  "deskErrOldLinks": "Folder tego portfela zawiera dowiązania; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.",
+  "deskErrOldIncomplete": "Nie udało się odczytać całego folderu tego portfela; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.",
+  "deskErrOldSeedTooLarge": "Plik wallet.seed jest za duży, by był seedem portfela.",
+  "deskErrSendUnbuildable": "Tej płatności nie da się złożyć z dostępnych środków.",
+  "deskErrNothingToConsolidate": "Nie ma czego scalać: mniej niż dwa wyjścia do wydania.",
+  "deskSetReportFileNone": "{name} (niedołączony)",
+  "deskSetReportFileAll": "{name} (cały, {size})",
+  "deskSetReportFilePart": "{name} (ostatnie {part} z {size})"
 }

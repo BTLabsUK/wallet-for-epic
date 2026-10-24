@@ -125,5 +125,10 @@
   "deskDataUpdUnreachable": "无法连接更新服务器。",
   "deskDataUpdStatus": "更新服务器返回了 {status}。",
   "deskDataUpdNone": "尚未发布桌面版的更新信息。",
-  "deskErrSecretProtect": "Windows 无法保护钱包的机密（DPAPI 拒绝），因此未保存任何内容。请用你自己的账户和密码登录 Windows，不要通过远程或服务会话，然后重试。"
+  "deskErrSecretProtect": "Windows 无法保护钱包的机密（DPAPI 拒绝），因此未保存任何内容。请用你自己的账户和密码登录 Windows，不要通过远程或服务会话，然后重试。",
+  "deskErrOldLinks": "此钱包的文件夹中含有链接；请手动复制它，或用助记词恢复。",
+  "deskErrOldIncomplete": "无法完整读取此钱包的文件夹；请手动复制它，或用助记词恢复。",
+  "deskErrOldSeedTooLarge": "wallet.seed 文件太大，不可能是钱包种子文件。",
+  "deskErrSendUnbuildable": "无法用现有的币构建这笔发送。",
+  "deskErrNothingToConsolidate": "无需合并：可用输出少于两个。"
 }

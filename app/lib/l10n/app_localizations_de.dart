@@ -13458,4 +13458,39 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTxThisWallet => 'Diese Wallet';
+
+  @override
+  String get deskErrOldLinks =>
+      'Der Ordner dieser Wallet enthält Verknüpfungen; kopieren Sie ihn von Hand oder stellen Sie die Wallet mit der Wiederherstellungsphrase wieder her.';
+
+  @override
+  String get deskErrOldIncomplete =>
+      'Der Ordner dieser Wallet konnte nicht vollständig gelesen werden; kopieren Sie ihn von Hand oder stellen Sie die Wallet mit der Wiederherstellungsphrase wieder her.';
+
+  @override
+  String get deskErrOldSeedTooLarge =>
+      'Die Datei wallet.seed ist zu groß, um ein Wallet-Seed zu sein.';
+
+  @override
+  String get deskErrSendUnbuildable =>
+      'Diese Zahlung lässt sich aus den verfügbaren Coins nicht zusammenstellen.';
+
+  @override
+  String get deskErrNothingToConsolidate =>
+      'Nichts zum Zusammenführen: weniger als zwei verfügbare Outputs.';
+
+  @override
+  String deskSetReportFileNone(String name) {
+    return '$name (nicht enthalten)';
+  }
+
+  @override
+  String deskSetReportFileAll(String name, String size) {
+    return '$name (vollständig, $size)';
+  }
+
+  @override
+  String deskSetReportFilePart(String name, String part, String size) {
+    return '$name (letzte $part von $size)';
+  }
 }

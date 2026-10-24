@@ -21,5 +21,8 @@
   "deskSetReportNotSentTitle": "未发送",
   "deskSetReportOff": "此版本已关闭发送功能",
   "deskSetReportSaveToFile": "保存到文件",
-  "deskSetReportSend": "发送"
+  "deskSetReportSend": "发送",
+  "deskSetReportFileNone": "{name}（不包含）",
+  "deskSetReportFileAll": "{name}（全部，{size}）",
+  "deskSetReportFilePart": "{name}（{size} 中的最后 {part}）"
 }

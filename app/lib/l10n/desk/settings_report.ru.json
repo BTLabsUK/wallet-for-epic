@@ -21,5 +21,8 @@
   "deskSetReportNotSentTitle": "Не отправлено",
   "deskSetReportOff": "В этой сборке отправка отключена",
   "deskSetReportSaveToFile": "Сохранить в файл",
-  "deskSetReportSend": "Отправить"
+  "deskSetReportSend": "Отправить",
+  "deskSetReportFileNone": "{name} (не включён)",
+  "deskSetReportFileAll": "{name} (целиком, {size})",
+  "deskSetReportFilePart": "{name} (последние {part} из {size})"
 }

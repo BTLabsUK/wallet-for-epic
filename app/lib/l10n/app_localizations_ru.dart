@@ -13680,4 +13680,39 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxThisWallet => 'Этот кошелёк';
+
+  @override
+  String get deskErrOldLinks =>
+      'В папке этого кошелька есть ссылки; скопируйте её вручную или восстановите кошелёк по фразе восстановления.';
+
+  @override
+  String get deskErrOldIncomplete =>
+      'Папку этого кошелька не удалось прочитать полностью; скопируйте её вручную или восстановите кошелёк по фразе восстановления.';
+
+  @override
+  String get deskErrOldSeedTooLarge =>
+      'Файл wallet.seed слишком велик для сида кошелька.';
+
+  @override
+  String get deskErrSendUnbuildable =>
+      'Этот перевод нельзя собрать из доступных монет.';
+
+  @override
+  String get deskErrNothingToConsolidate =>
+      'Нечего объединять: доступно меньше двух выходов.';
+
+  @override
+  String deskSetReportFileNone(String name) {
+    return '$name (не включён)';
+  }
+
+  @override
+  String deskSetReportFileAll(String name, String size) {
+    return '$name (целиком, $size)';
+  }
+
+  @override
+  String deskSetReportFilePart(String name, String part, String size) {
+    return '$name (последние $part из $size)';
+  }
 }

@@ -115,7 +115,7 @@ class _DeleteChainDataDialogState extends State<DeleteChainDataDialog> {
       final freed = await widget.api.deleteChainData();
       if (!mounted) return;
       Navigator.of(context).pop();
-      showEToast(context, l.deskSetLndDeleted, text: l.deskSetLndFreed(bytesText(freed)));
+      showEToast(context, l.deskSetLndDeleted, text: l.deskSetLndFreed(bytesText(freed, l)));
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
@@ -133,7 +133,7 @@ class _DeleteChainDataDialogState extends State<DeleteChainDataDialog> {
       title: l.deskSetLndDeleteQuestion,
       icon: EIcons.trash,
       tone: ETone.risk,
-      description: s.chainDataBytes == null ? l.deskSetLndDeleteDescNoSize(s.chainDataPath) : l.deskSetLndDeleteDesc(bytesText(s.chainDataBytes!), s.chainDataPath),
+      description: s.chainDataBytes == null ? l.deskSetLndDeleteDescNoSize(s.chainDataPath) : l.deskSetLndDeleteDesc(bytesText(s.chainDataBytes!, l), s.chainDataPath),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -243,7 +243,7 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
                   _ReuseCard(
                     title: l.deskSetLndUseIt,
                     path: f.path,
-                    line: [bytesText(f.bytes), if (f.modified != null) l.deskSetLndLastWritten(_date(f.modified!)), _source(l, f)].join(' · '),
+                    line: [bytesText(f.bytes, l), if (f.modified != null) l.deskSetLndLastWritten(_date(f.modified!)), _source(l, f)].join(' · '),
                     sub: f.lock == FolderLock.locked ? l.deskSetLndLocked : l.deskSetLndNothingCopied,
                     selected: _pick == f.path,
                     enabled: f.lock != FolderLock.locked,
@@ -253,7 +253,7 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
                 ],
                 _ReuseCard(
                   title: l.deskSetLndFresh,
-                  line: l.deskSetLndFreshLine(_facts == null ? '5 GB' : bytesText(_facts!.chainBytes)),
+                  line: l.deskSetLndFreshLine(_facts == null ? '5 GB' : bytesText(_facts!.chainBytes, l)),
                   selected: _pick == '',
                   enabled: true,
                   onTap: () => setState(() => _pick = ''),
@@ -452,7 +452,7 @@ Future<(String, FolderChange)?> showChangeFolderDialog(BuildContext context, Des
     final how = await showEDialog<FolderChange>(
       context,
       builder: (context) => EDialog(
-        title: context.l10n.deskSetLndMoveTitle(bytesText(s.chainDataBytes ?? plan.bytesNeeded), folder),
+        title: context.l10n.deskSetLndMoveTitle(bytesText(s.chainDataBytes ?? plan.bytesNeeded, context.l10n), folder),
         icon: EIcons.folder,
         description: context.l10n.deskSetLndMoveDesc,
         actions: [
@@ -470,7 +470,7 @@ String moveProblemText(AppLocalizations l, MoveProblem p, MovePlan plan) => swit
   MoveProblem.targetInsideSource => l.deskSetLndProbInsideSource,
   MoveProblem.sourceInsideTarget => l.deskSetLndProbSourceInside,
   MoveProblem.notEnoughSpace =>
-    plan.freeOnTarget == null ? l.deskSetLndProbSpaceUnknown(bytesText(plan.bytesNeeded)) : l.deskSetLndProbSpace(bytesText(plan.bytesNeeded), bytesText(plan.freeOnTarget!)),
+    plan.freeOnTarget == null ? l.deskSetLndProbSpaceUnknown(bytesText(plan.bytesNeeded, l)) : l.deskSetLndProbSpace(bytesText(plan.bytesNeeded, l), bytesText(plan.freeOnTarget!, l)),
   MoveProblem.sourceLocked => l.deskSetLndProbLocked,
   MoveProblem.sourceMissing => l.deskSetLndProbMissing,
   MoveProblem.targetNotWritable => l.deskSetLndProbNotWritable,

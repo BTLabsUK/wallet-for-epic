@@ -21,5 +21,8 @@
   "deskSetReportNotSentTitle": "ไม่ได้ส่ง",
   "deskSetReportOff": "รุ่นนี้ปิดการส่งรายงาน",
   "deskSetReportSaveToFile": "บันทึกเป็นไฟล์",
-  "deskSetReportSend": "ส่ง"
+  "deskSetReportSend": "ส่ง",
+  "deskSetReportFileNone": "{name} (ไม่ได้แนบ)",
+  "deskSetReportFileAll": "{name} (ทั้งไฟล์ {size})",
+  "deskSetReportFilePart": "{name} ({part} สุดท้ายจาก {size})"
 }

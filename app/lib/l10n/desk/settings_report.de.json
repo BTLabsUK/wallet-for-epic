@@ -21,5 +21,8 @@
   "deskSetReportNotSentTitle": "Nicht gesendet",
   "deskSetReportOff": "Senden ist in dieser Version abgeschaltet",
   "deskSetReportSaveToFile": "In Datei speichern",
-  "deskSetReportSend": "Senden"
+  "deskSetReportSend": "Senden",
+  "deskSetReportFileNone": "{name} (nicht enthalten)",
+  "deskSetReportFileAll": "{name} (vollständig, {size})",
+  "deskSetReportFilePart": "{name} (letzte {part} von {size})"
 }

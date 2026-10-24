@@ -265,7 +265,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                     EMiddleEllipsis(s.dataFolder, style: ts.mono(size: Fs.sm, color: c.text)),
                     SizedBox(height: 2.u),
                     Text(
-                      [if (s.chainDataBytes != null) l.deskSetLnodeUsed(bytesText(s.chainDataBytes!)), s.freeBytes == null ? l.deskSetLnodeFreeUnknown : l.deskSetLnodeFree(bytesText(s.freeBytes!))].join(' · '),
+                      [if (s.chainDataBytes != null) l.deskSetLnodeUsed(bytesText(s.chainDataBytes!, l)), s.freeBytes == null ? l.deskSetLnodeFreeUnknown : l.deskSetLnodeFree(bytesText(s.freeBytes!, l))].join(' · '),
                       style: ts.caption.copyWith(color: c.dim),
                     ),
                   ],
@@ -478,16 +478,16 @@ class _StatusTab extends StatelessWidget {
       if (p?.stage == SyncStage.chainStateDownload)
         _Tile(
           label: l.deskSetLnodeTileDownload,
-          value: s.stageRate == null ? '–' : '${bytesText(s.stageRate!.round())}/s',
-          suffix: p?.done == null ? null : l.deskSetLnodeSoFar(bytesText(p!.done!)),
+          value: s.stageRate == null ? '–' : '${bytesText(s.stageRate!.round(), l)}/s',
+          suffix: p?.done == null ? null : l.deskSetLnodeSoFar(bytesText(p!.done!, l)),
           series: [for (final x in download) x.value],
         )
       else
         _Tile(
           label: l.deskSetLnodeTileDisk,
-          value: s.chainDataBytes == null ? '–' : bytesText(s.chainDataBytes!),
+          value: s.chainDataBytes == null ? '–' : bytesText(s.chainDataBytes!, l),
           suffix: s.chainDataBytes != null && s.chainDataBytesAtStart != null && s.chainDataBytes! > s.chainDataBytesAtStart!
-              ? l.deskSetLnodeThisSession(bytesText(s.chainDataBytes! - s.chainDataBytesAtStart!))
+              ? l.deskSetLnodeThisSession(bytesText(s.chainDataBytes! - s.chainDataBytesAtStart!, l))
               : null,
           series: [for (final x in disk) x.value],
         ),
@@ -526,7 +526,7 @@ class _StatusTab extends StatelessWidget {
           SizedBox(height: Sp.x4),
           _Bar(value: moving!.$2 == 0 ? null : moving!.$1 / moving!.$2),
           SizedBox(height: Sp.x2),
-          Text(l.deskSetLnodeMoving(bytesText(moving!.$1), bytesText(moving!.$2)), style: ts.small),
+          Text(l.deskSetLnodeMoving(bytesText(moving!.$1, l), bytesText(moving!.$2, l)), style: ts.small),
         ] else if (syncing) ...[
           SizedBox(height: Sp.x4),
           _Bar(value: overall),

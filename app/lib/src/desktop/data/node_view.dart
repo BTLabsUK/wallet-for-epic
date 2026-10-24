@@ -4,7 +4,8 @@
 library;
 
 import '../../address_format.dart' show railHost;
-import '../../l10n.dart' show AppLocalizations, localInt;
+import '../../builtin_node.dart' show NodeStartException;
+import '../../l10n.dart' show AppLocalizations, localDigits, localInt;
 import '../widgets/status.dart' show EState;
 import 'desk_node.dart';
 import 'models.dart' show ServiceHealth;
@@ -184,6 +185,16 @@ String failureLine(AppLocalizations l, LocalNodeState s) => switch (s.failure) {
   _ => s.reason ?? l.deskNodeFailDefault,
 };
 
+/// Why a start of the local node failed, as a detail ([failureLine]'s words; the exception's
+/// message is English, for logs).
+String startFailureLine(AppLocalizations l, NodeStartException e) => switch (e.failure) {
+  NodeFailure.portInUse => l.deskNodeFailPort,
+  NodeFailure.diskLow => l.deskNodeFailDisk,
+  NodeFailure.binaryMissing => l.deskNodeFailMissing,
+  NodeFailure.exited => switch (_exitCode(e.message)) { final code? => l.deskNodeFailExitedCode(code), _ => l.deskNodeFailExited },
+  _ => l.deskNodeFailDefault,
+};
+
 String? _exitCode(String? reason) => RegExp(r'(?:exit code|code)\s*(-?\d+)').firstMatch(reason ?? '')?[1];
 
 /// The stage's name for the panel's detail.
@@ -211,7 +222,7 @@ String stageLine(AppLocalizations l, SyncProgress p) {
   return switch (p.stage) {
     SyncStage.waitingForPeers => l.deskNodeLineWaiting,
     SyncStage.headers => known ? l.deskNodeLineHeaders(digits(l, d), digits(l, t)) : l.deskNodeLineHeadersBare,
-    SyncStage.chainStateDownload => known ? l.deskNodeLineChain(_gb(d), _gb(t)) : l.deskNodeLineChainBare,
+    SyncStage.chainStateDownload => known ? l.deskNodeLineChain(localDigits(l, _gb(d)), localDigits(l, _gb(t))) : l.deskNodeLineChainBare,
     SyncStage.chainStateKernels => known ? l.deskNodeLineKernels(_millions(d), _millions(t)) : l.deskNodeLineKernelsBare,
     SyncStage.chainStateRangeProofs => known ? l.deskNodeLineRangeProofs(_millions(d), _millions(t)) : l.deskNodeLineRangeProofsBare,
     SyncStage.chainStateProcessing => l.deskNodeLineProcessing,
@@ -243,7 +254,11 @@ String duration(AppLocalizations l, Duration d) {
 }
 
 /// "5.2 GB", "820 MB".
-String bytesText(int b) => b >= 1e9 ? '${_gb(b)} GB' : '${(b / 1e6).round()} MB';
+/// `1.2 GB` or `640 MB`, in [l]'s decimal separator when given (`1,2 GB`).
+String bytesText(int b, [AppLocalizations? l]) {
+  final gb = _gb(b);
+  return b >= 1e9 ? '${l == null ? gb : localDigits(l, gb)} GB' : '${(b / 1e6).round()} MB';
+}
 
 /// The step of the sync strip a stage belongs to: 0 headers, 1 chain state, 2 blocks, 3 synced;
 /// null while waiting for peers.

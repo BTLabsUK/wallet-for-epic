@@ -3,7 +3,6 @@
 import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/desktop/app/rail.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/desktop/widgets/status.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
