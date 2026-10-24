@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../ui/badge.dart' show BadgeStyle;
 import '../../ui/theme/fonts.dart' show thaiFallback;
 import 'tokens.dart';
 
@@ -36,7 +37,7 @@ ThemeData buildDeskTheme(Brightness brightness) {
     iconTheme: IconThemeData(size: Ctl.iconLg),
     materialTapTargetSize: MaterialTapTargetSize.padded,
     fontFamilyFallback: thaiFallback,
-    extensions: [c],
+    extensions: [c, badgeStyleForDesk(c)],
   );
   return base.copyWith(
     textTheme: base.textTheme.apply(bodyColor: c.text, displayColor: c.text),
@@ -70,3 +71,20 @@ ThemeData buildDeskTheme(Brightness brightness) {
     ),
   );
 }
+
+/// The badge's colours from the desktop tokens, sized by the interface scale.
+BadgeStyle badgeStyleForDesk(DeskColors c) => BadgeStyle(
+  neutral: c.dim,
+  neutralFill: c.dim.withValues(alpha: 0.12),
+  ok: c.ok,
+  okFill: c.okSoft,
+  warn: c.warn,
+  warnFill: c.warnSoft,
+  risk: c.risk,
+  riskFill: c.riskSoft,
+  info: c.info,
+  infoFill: c.infoSoft,
+  gold: c.accentText,
+  goldFill: c.accentSoft,
+  scale: deskScale,
+);

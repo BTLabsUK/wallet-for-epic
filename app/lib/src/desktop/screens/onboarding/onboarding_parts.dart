@@ -201,7 +201,7 @@ class NetNote extends StatelessWidget {
     spacing: Sp.x2,
     runSpacing: Sp.x1,
     children: [
-      ETag(networkName(network), tone: ETone.warn),
+      EBadge(networkName(network), tone: ETone.warn),
       Text(text, style: context.ts.small),
     ],
   );

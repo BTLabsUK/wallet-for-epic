@@ -372,7 +372,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                         w.id,
                         w.name,
                         subtitle: w.folder,
-                        trailing: w.network == 'mainnet' ? null : ETag(networkName(w.network), tone: ETone.warn),
+                        trailing: w.network == 'mainnet' ? null : EBadge(networkName(w.network), tone: ETone.warn),
                       ),
                   ],
                 ),
@@ -386,7 +386,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                   Flexible(child: Text(selected.name, style: ts.strong, overflow: TextOverflow.ellipsis)),
                   if (selected.network != 'mainnet') ...[
                     SizedBox(width: Sp.x2),
-                    ETag(networkName(selected.network), tone: ETone.warn),
+                    EBadge(networkName(selected.network), tone: ETone.warn),
                   ],
                 ],
               ),

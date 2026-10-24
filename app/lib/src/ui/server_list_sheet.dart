@@ -29,6 +29,7 @@ import '../server_list_store.dart';
 import '../server_switch.dart';
 import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
+import 'badge.dart';
 import 'common.dart' show groupDigits;
 import 'help_screen.dart' show HelpButton, HelpId;
 import 'notices.dart';
@@ -883,20 +884,7 @@ class _ServerRow extends StatelessWidget {
                                   ),
                                   if (isDefault) ...[
                                     const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 1,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: t.lineStrong),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        l.serverDefault,
-                                        style: theme.textTheme.labelSmall?.copyWith(color: t.dim),
-                                      ),
-                                    ),
+                                    EBadge(l.serverDefault),
                                   ],
                                   if (push) ...[
                                     const SizedBox(width: 8),

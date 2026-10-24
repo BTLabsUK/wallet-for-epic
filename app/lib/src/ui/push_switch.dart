@@ -22,7 +22,6 @@ import '../tor_routes.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'info_hint.dart';
-import 'theme/tokens.dart';
 
 /// The key of the push notifications switch, for tests.
 const Key settingsPushKey = ValueKey('settings-push');
@@ -109,29 +108,6 @@ Future<void> setPushNotifications(
   await push.turnOn();
 }
 
-/// A small outlined label: not a status, so no status colour.
-class ExperimentalPill extends StatelessWidget {
-  const ExperimentalPill({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: t.line),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-        child: Text(
-          context.l10n.advExperimental,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: t.dim),
-        ),
-      ),
-    );
-  }
-}
-
 /// The Notifications row of Advanced, nothing where the phone cannot push (the demo, a build
 /// without a notification service). Tor on pauses them (a registration would show this
 /// phone's address): turning them off still works, turning them on is not offered.
@@ -156,9 +132,9 @@ class PushNotificationsTile extends ConsumerWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 2),
-            child: ExperimentalPill(),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(children: [EBadge(l.advExperimental)]),
           ),
           if (state != null) Text(state),
         ],

@@ -157,7 +157,7 @@ class ServerRow extends StatelessWidget {
             ],
             if (kind == ServerKind.relay && i.isDefault) ...[
               SizedBox(width: 10.u),
-              const ETag('default'),
+              EBadge(l.deskSlDefault),
             ],
             if (kind == ServerKind.node) ...[
               SizedBox(width: 10.u),

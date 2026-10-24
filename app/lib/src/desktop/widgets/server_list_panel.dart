@@ -1048,7 +1048,7 @@ class _Row extends StatelessWidget {
                                   child: Text(s.host, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.mono(size: Fs.sm, color: down ? c.faint : c.text)),
                                 ),
                               ),
-                              if (s.isDefault) ...[SizedBox(width: Sp.x2), ETag(l.deskSlDefault)],
+                              if (s.isDefault) ...[SizedBox(width: Sp.x2), EBadge(l.deskSlDefault)],
                             ],
                           ),
                           SizedBox(height: 2.u),

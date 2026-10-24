@@ -134,7 +134,7 @@ void _expectRowControls(WidgetTester tester, String what) {
     final row = e.widget as ESetRow;
     if (row.control == null || row.stacked) continue;
     final inRow = find.descendant(of: find.byWidget(row), matching: find.byWidget(row.control!));
-    final ok = [ERowControl, ESwitch, ETag].any((t) => find.descendant(of: inRow, matching: find.byType(t), matchRoot: true).evaluate().isNotEmpty);
+    final ok = [ERowControl, ESwitch, EBadge].any((t) => find.descendant(of: inRow, matching: find.byType(t), matchRoot: true).evaluate().isNotEmpty);
     expect(ok, isTrue, reason: '$what: the control of "${row.title ?? row.text}" is not an ERowControl');
   }
   // One right edge per card.

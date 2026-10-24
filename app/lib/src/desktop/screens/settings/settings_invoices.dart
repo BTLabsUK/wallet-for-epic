@@ -86,7 +86,7 @@ class InvoiceSettingsBlock extends ConsumerWidget {
                   control: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (t.contactId != null && contacts.any((x) => x.id == t.contactId)) ...[ETag(l.deskInvSetContactTag, icon: EIcons.contacts), SizedBox(width: Sp.x3)],
+                      if (t.contactId != null && contacts.any((x) => x.id == t.contactId)) ...[EBadge(l.deskInvSetContactTag, icon: EIcons.contacts), SizedBox(width: Sp.x3)],
                       InvButton(label: l.deskInvSetRemove, kind: EBtnKind.danger, onPressed: () => _remove(context, ref, t)),
                     ],
                   ),

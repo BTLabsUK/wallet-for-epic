@@ -1340,7 +1340,7 @@ class _SwitchTag extends StatelessWidget {
           opacity: shown ? 1 : 0,
           duration: reduce ? Duration.zero : Motion.cross,
           curve: shown ? Motion.easeOut : Motion.easeIn,
-          child: SizedBox(height: 22.u, child: ETag(word, icon: _segmentOf(m) == TxMethod.http ? EIcons.link : methodIcon(_segmentOf(m)))),
+          child: SizedBox(height: 22.u, child: EBadge(word, icon: _segmentOf(m) == TxMethod.http ? EIcons.link : methodIcon(_segmentOf(m)))),
         ),
       ),
     );

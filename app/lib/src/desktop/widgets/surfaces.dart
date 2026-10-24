@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+export '../../ui/badge.dart';
+
 import '../desk_l10n.dart';
 import '../../log.dart' show logWarn;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
+import '../../ui/badge.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'motion.dart';
@@ -157,9 +160,10 @@ class ESectionHead extends StatelessWidget {
   }
 }
 
-/// [ok] green for done and working, [warn] amber, [risk] red, [info] blue for in progress,
-/// [gold] for a brand highlight and the sent direction (DeskColors.txSent), [neutral] for the rest.
-enum ETone { neutral, ok, warn, risk, info, gold }
+/// The badge's tone, used by the dots and notices too: [BadgeTone.ok] green for done and
+/// working, warn amber, risk red, info blue for in progress, gold for a brand highlight and the
+/// sent direction (DeskColors.txSent), neutral for the rest.
+typedef ETone = BadgeTone;
 
 extension on ETone {
   (Color fg, Color bg) colors(DeskColors c) => switch (this) {
@@ -170,47 +174,6 @@ extension on ETone {
     ETone.info => (c.info, c.infoSoft),
     ETone.gold => (c.accentText, c.accentSoft),
   };
-}
-
-/// A 22 px tag: state words in lists and headers.
-class ETag extends StatelessWidget {
-  const ETag(this.label, {super.key, this.tone = ETone.neutral, this.icon, this.mono = false});
-
-  final String label;
-  final ETone tone;
-  final IconData? icon;
-  final bool mono;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final (fg, bg) = tone.colors(c);
-    return Container(
-      height: 22.u,
-      padding: EdgeInsets.symmetric(horizontal: Sp.x2),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(Rad.xs),
-        border: Border.all(color: tone == ETone.neutral ? c.lineStrong : fg.withValues(alpha: 0.45)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[Icon(icon, size: 14.u, color: fg), SizedBox(width: Sp.x1)],
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: mono
-                  ? context.ts.mono(size: Fs.xs, color: fg, weight: FontWeight.w500)
-                  : TextStyle(fontSize: Fs.xs, fontWeight: FontWeight.w600, color: fg),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 /// A status dot: shape and colour, never colour alone (filled ok, ring warn, cross risk).
