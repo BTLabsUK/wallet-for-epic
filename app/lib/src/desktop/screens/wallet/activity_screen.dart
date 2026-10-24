@@ -63,7 +63,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     try {
       await ref.read(deskProvider.notifier).syncNow();
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Not updated', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, context.l10n.deskActNotUpdated, text: deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _refreshing = false);
     }
@@ -71,11 +71,12 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
 
   List<Tx> _filtered(List<Tx> all) {
     final q = _query.text.trim().toLowerCase();
+    final l = context.l10n;
     return [
       for (final t in all)
         if ((_filter == _Filter.all || (_filter == _Filter.requests ? t.isInvoice : !t.isInvoice && (_filter == _Filter.received) == t.incoming)) &&
             (q.isEmpty ||
-                whoOf(t).toLowerCase().contains(q) ||
+                whoOf(l, t).toLowerCase().contains(q) ||
                 (t.counterparty ?? '').toLowerCase().contains(q) ||
                 (t.message ?? '').toLowerCase().contains(q) ||
                 t.slateId.contains(q) ||
@@ -87,14 +88,15 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   /// The search. [full] fills its row (narrow layout).
   Widget _search({required bool full, required bool hasItems}) {
     final width = MediaQuery.sizeOf(context).width;
+    final l = context.l10n;
     final input = EInput(
       controller: _query,
       enabled: hasItems,
-      hint: hasItems ? 'Address or slate id' : 'Nothing to search yet',
+      hint: hasItems ? l.deskActSearchHint : l.deskActSearchHintEmpty,
       leading: EIcons.search,
-      semanticLabel: 'Search transactions',
+      semanticLabel: l.deskActSearchLabel,
       onChanged: (_) => setState(() => _page = 0),
-      trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
+      trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: l.deskActClearSearch, size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
     );
     if (full) return input;
     return SizedBox(width: width >= 1280.u ? 280.u : 200.u, child: input);
@@ -103,6 +105,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   @override
   Widget build(BuildContext context) {
     final s = ref.watch(deskProvider);
+    final l = context.l10n;
     final hidden = s.settings.hideAmounts;
     final width = MediaQuery.sizeOf(context).width;
     final split = width >= Bp.desktop;
@@ -115,7 +118,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       if (roomy) _search(full: false, hasItems: hasItems),
       EIconButton(
         icon: hidden ? EIcons.eyeOff : EIcons.eye,
-        label: hidden ? 'Show amounts' : 'Hide amounts',
+        label: hidden ? l.deskActShowAmounts : l.deskActHideAmounts,
         selected: hidden,
         onPressed: () => ref.read(deskProvider.notifier).saveSettings(s.settings.copyWith(hideAmounts: !hidden)),
       ),
@@ -124,13 +127,13 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
               dimension: Ctl.sm,
               child: Center(child: ESpinner()),
             )
-          : EIconButton(icon: EIcons.refresh, label: 'Refresh', onPressed: _refresh),
+          : EIconButton(icon: EIcons.refresh, label: l.deskActRefresh, onPressed: _refresh),
     ];
 
     // Narrow: the detail replaces the list.
     if (!split && selectedTx != null) {
       return EPage(
-        title: selectedTx.isInvoice ? context.l10n.deskInvActBlock : (selectedTx.incoming ? 'Received transaction' : 'Sent transaction'),
+        title: selectedTx.isInvoice ? l.deskInvActBlock : (selectedTx.incoming ? l.deskActDetailReceived : l.deskActDetailSent),
         width: EPageWidth.narrow,
         onBack: () => setState(() => _selected = null),
         child: TxDetail(tx: selectedTx),
@@ -141,7 +144,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     // bottom, header bands of one height; each scrolls inside itself when the window is short.
     final list = TourTarget(id: 'activity-list', child: _txList(all));
     return EPage(
-      title: 'Activity',
+      title: l.deskActTitle,
       width: EPageWidth.full,
       scroll: false,
       actions: actions,
@@ -190,8 +193,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   Widget _txList(List<Tx>? all) {
     final c = context.dc;
     final ts = context.ts;
-    if (all == null) return _waiting('Loading transactions');
-    if (all.isEmpty) return _args.waitingNode ? _waiting('Waiting for the node to be synced.') : _panel(const _Learn());
+    final l = context.l10n;
+    if (all == null) return _waiting(l.deskActLoading);
+    if (all.isEmpty) return _args.waitingNode ? _waiting(l.deskActWaitingNode) : _panel(const _Learn());
     final shown = _filtered(all);
     final pages = (shown.length / _pageSize).ceil();
     final page = _page.clamp(0, (pages - 1).clamp(0, 999));
@@ -200,7 +204,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final rows = <Widget>[];
     String? day;
     for (final t in slice) {
-      final d = dayLabel(t.created);
+      final d = dayLabel(l, t.created);
       if (d != day) {
         day = d;
         rows.add(
@@ -233,11 +237,11 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       scrollDirection: Axis.horizontal,
       child: ESegmented<_Filter>(
         segments: [
-          ESegment(_Filter.all, 'All', count: counts.$1),
-          ESegment(_Filter.received, 'Received', count: counts.$2),
-          ESegment(_Filter.sent, 'Sent', count: counts.$3),
+          ESegment(_Filter.all, l.deskActFilterAll, count: counts.$1),
+          ESegment(_Filter.received, l.deskActFilterReceived, count: counts.$2),
+          ESegment(_Filter.sent, l.deskActFilterSent, count: counts.$3),
           if (ref.watch(deskApiProvider).supportsInvoices)
-            ESegment(_Filter.requests, context.l10n.deskInvActFilter, icon: EIcons.request, count: all.where((t) => t.isInvoice).length),
+            ESegment(_Filter.requests, l.deskInvActFilter, icon: EIcons.request, count: all.where((t) => t.isInvoice).length),
         ],
         value: _filter,
         onChanged: (v) => setState(() {
@@ -252,11 +256,11 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       shown.isEmpty
           ? EEmpty(
               icon: EIcons.search,
-              title: 'No transactions match',
-              text: 'Try another address or slate id, or clear the filter.',
+              title: l.deskActNoMatchTitle,
+              text: l.deskActNoMatchText,
               actions: [
                 EButton.ghost(
-                  label: 'Clear search',
+                  label: l.deskActClearSearch,
                   onPressed: () => setState(() {
                     _query.clear();
                     _filter = _Filter.all;
@@ -293,20 +297,21 @@ class ListPager extends StatelessWidget {
     if (pages <= 1) return const SizedBox.shrink();
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     Widget num(int i) =>
         EButton(label: '${i + 1}', size: EBtnSize.sm, kind: i == page ? EBtnKind.secondary : EBtnKind.ghost, onPressed: i == page ? null : () => onPage(i));
     final gap = Padding(
       padding: EdgeInsets.symmetric(horizontal: Sp.x1),
       child: Text('…', style: ts.body.copyWith(color: c.faint)),
     );
-    final of = Text('Page ${page + 1} of $pages', style: ts.small.copyWith(color: c.faint));
-    final prev = EIconButton(icon: EIcons.chevronLeft, label: 'Previous page', onPressed: page > 0 ? () => onPage(page - 1) : null);
-    final next = EIconButton(icon: EIcons.chevronRight, label: 'Next page', onPressed: page < pages - 1 ? () => onPage(page + 1) : null);
+    final of = Text(l.deskActPageOf(page + 1, pages), style: ts.small.copyWith(color: c.faint));
+    final prev = EIconButton(icon: EIcons.chevronLeft, label: l.deskActPrevPage, onPressed: page > 0 ? () => onPage(page - 1) : null);
+    final next = EIconButton(icon: EIcons.chevronRight, label: l.deskActNextPage, onPressed: page < pages - 1 ? () => onPage(page + 1) : null);
     return Padding(
       padding: EdgeInsets.only(top: top ?? Sp.x4),
       child: Semantics(
         container: true,
-        label: 'Pages',
+        label: l.deskActPages,
         child: LayoutBuilder(
           builder: (context, box) {
             if (box.maxWidth < 480.u) {
@@ -344,6 +349,7 @@ class ActivityListHead extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final style = context.ts.caption.copyWith(fontWeight: FontWeight.w600);
+    final l = context.l10n;
     return LayoutBuilder(
       builder: (context, box) {
         if (box.maxWidth < txRowFullWidth) return const SizedBox.shrink();
@@ -356,18 +362,18 @@ class ActivityListHead extends StatelessWidget {
           child: Row(
             children: [
               SizedBox(width: 36.u + Sp.x4),
-              Expanded(flex: 16, child: Text('From / to', style: style)),
+              Expanded(flex: 16, child: Text(l.deskActColFromTo, style: style)),
               SizedBox(width: Sp.x4),
-              Expanded(flex: 10, child: Text('Status', style: style)),
+              Expanded(flex: 10, child: Text(l.deskActColStatus, style: style)),
               SizedBox(width: Sp.x4),
               SizedBox(
                 width: txTimeWidth,
-                child: Text('Time', textAlign: TextAlign.right, style: style),
+                child: Text(l.deskActColTime, textAlign: TextAlign.right, style: style),
               ),
               SizedBox(width: Sp.x4),
               SizedBox(
                 width: txAmountWidth,
-                child: Text('Amount', textAlign: TextAlign.right, style: style),
+                child: Text(l.deskActColAmount, textAlign: TextAlign.right, style: style),
               ),
             ],
           ),
@@ -385,6 +391,7 @@ class _Learn extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
     final needed = deskMinConfirmations(ref);
     Widget stage(Widget mark, String title, String text) => Padding(
@@ -415,18 +422,18 @@ class _Learn extends ConsumerWidget {
             children: [
               EEmpty(
                 icon: EIcons.activity,
-                title: 'No transactions yet',
-                text: 'Every payment sent or received is listed here, newest first, with who it was with and how far along it is.',
+                title: l.deskActEmptyTitle,
+                text: l.deskActEmptyText,
               ),
-              stage(Icon(EIcons.sand, size: 20.u, color: c.warn), 'Waiting', 'Both wallets sign it. Over Epicbox this is automatic.'),
-              stage(ERing(confirmations: 1, needed: needed), 'Confirming', 'On the chain. About one block a minute.'),
-              stage(ERing(confirmations: needed, needed: needed), 'Spendable', 'After $needed confirmations, about $needed minutes.'),
+              stage(Icon(EIcons.sand, size: 20.u, color: c.warn), l.deskActStageWaiting, l.deskActStageWaitingText),
+              stage(ERing(confirmations: 1, needed: needed), l.deskActStageConfirming, l.deskActStageConfirmingText),
+              stage(ERing(confirmations: needed, needed: needed), l.deskActStageSpendable, l.deskActStageSpendableText(needed)),
               SizedBox(height: Sp.x5),
               Wrap(
                 spacing: Sp.x2,
                 children: [
-                  EButton.primary(label: 'Show address', icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive)),
-                  EButton.ghost(label: 'Receive a file', size: EBtnSize.md, onPressed: () => nav.go(DeskRoute.importTx)),
+                  EButton.primary(label: l.deskActShowAddress, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive)),
+                  EButton.ghost(label: l.deskActReceiveFile, size: EBtnSize.md, onPressed: () => nav.go(DeskRoute.importTx)),
                 ],
               ),
             ],
@@ -445,6 +452,7 @@ class _DetailPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return EPanel(
       strong: true,
       scroll: true,
@@ -452,9 +460,9 @@ class _DetailPane extends StatelessWidget {
       head: Row(
         children: [
           Expanded(
-            child: Semantics(header: true, child: Text(tx.isInvoice ? context.l10n.deskInvActBlock : (tx.incoming ? 'Received transaction' : 'Sent transaction'), style: context.ts.h3)),
+            child: Semantics(header: true, child: Text(tx.isInvoice ? l.deskInvActBlock : (tx.incoming ? l.deskActDetailReceived : l.deskActDetailSent), style: context.ts.h3)),
           ),
-          EIconButton(icon: EIcons.close, label: 'Close', onPressed: onClose),
+          EIconButton(icon: EIcons.close, label: l.commonClose, onPressed: onClose),
         ],
       ),
       child: TxDetail(tx: tx),

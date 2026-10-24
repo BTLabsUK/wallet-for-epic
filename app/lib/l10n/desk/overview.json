@@ -1,0 +1,290 @@
+{
+  "deskOvNotUpdated": "Not updated",
+  "@deskOvNotUpdated": {
+    "description": "Title of the toast on Overview when the refresh could not ask the node; the reason follows as its text."
+  },
+  "deskOvNodeNotStarted": "Node not started",
+  "@deskOvNodeNotStarted": {
+    "description": "Title of the toast on Overview when the built-in node could not be started; the reason follows as its text."
+  },
+  "deskOvNodeAddrTitle": "Node address updated",
+  "@deskOvNodeAddrTitle": {
+    "description": "Title of a notice on Overview: the saved node address was corrected."
+  },
+  "deskOvNodeAddrText": "Now using node.epiccash.com instead of node.epiccash.com:3413.",
+  "@deskOvNodeAddrText": {
+    "description": "Text of the notice about the corrected node address. The addresses stay as written."
+  },
+  "deskOvNodeIncompatTitle": "This node’s version is not compatible with this wallet",
+  "@deskOvNodeIncompatTitle": {
+    "description": "Title of a red notice on Overview: the node runs a version the wallet cannot use."
+  },
+  "deskOvNodeUrl": "Node: {url}",
+  "@deskOvNodeUrl": {
+    "description": "Text of the incompatible-node notice: the node's address.",
+    "placeholders": {
+      "url": {
+        "type": "String",
+        "example": "node.epiccash.com"
+      }
+    }
+  },
+  "deskOvUsePublicNode": "Use public node",
+  "@deskOvUsePublicNode": {
+    "description": "Button in the incompatible-node notice: switch to the public node. Short."
+  },
+  "deskOvUseLocalNode": "Use local node",
+  "@deskOvUseLocalNode": {
+    "description": "Button in the incompatible-node notice: switch to the node built into the app. Short."
+  },
+  "deskOvHide": "Hide",
+  "@deskOvHide": {
+    "description": "Ghost button in the incompatible-node notice: dismiss it. Short."
+  },
+  "deskOvCantReachNode": "Can’t reach the node at {url}",
+  "@deskOvCantReachNode": {
+    "description": "Title of a red notice on Overview: the node does not answer.",
+    "placeholders": {
+      "url": {
+        "type": "String",
+        "example": "node.epiccash.com"
+      }
+    }
+  },
+  "deskOvCantReachNodeText": "Check that it is running and reachable. Balances may be out of date and sending is paused.",
+  "@deskOvCantReachNodeText": {
+    "description": "Text of the notice that the node does not answer."
+  },
+  "deskOvStarting": "Starting",
+  "@deskOvStarting": {
+    "description": "Label of the Start node button while the node is starting. One word."
+  },
+  "deskOvStartNode": "Start node",
+  "@deskOvStartNode": {
+    "description": "Button in the node-down notice: start the built-in node. Short."
+  },
+  "deskOvNodeSettings": "Node settings",
+  "@deskOvNodeSettings": {
+    "description": "Ghost button in the node-down notice: opens Settings for the node. Short."
+  },
+  "deskOvTitle": "Overview",
+  "@deskOvTitle": {
+    "description": "Title of the Overview page: balance and recent activity."
+  },
+  "deskOvShowAmounts": "Show amounts",
+  "@deskOvShowAmounts": {
+    "description": "Tooltip of the icon button on Overview that shows the hidden amounts."
+  },
+  "deskOvHideAmounts": "Hide amounts",
+  "@deskOvHideAmounts": {
+    "description": "Tooltip of the icon button on Overview that hides amounts."
+  },
+  "deskOvRefresh": "Refresh",
+  "@deskOvRefresh": {
+    "description": "Tooltip of the icon button on Overview that asks the node for new data."
+  },
+  "deskOvStepDone": "done",
+  "@deskOvStepDone": {
+    "description": "Screen reader state of a start-up step that is finished. Lower case, follows the step's text."
+  },
+  "deskOvStepNow": "in progress",
+  "@deskOvStepNow": {
+    "description": "Screen reader state of a start-up step that is running. Lower case, follows the step's text."
+  },
+  "deskOvStepWait": "pending",
+  "@deskOvStepWait": {
+    "description": "Screen reader state of a start-up step that has not started. Lower case, follows the step's text."
+  },
+  "deskOvStepSemantics": "{text}, {state}",
+  "@deskOvStepSemantics": {
+    "description": "Screen reader label of a start-up step: its text and its state.",
+    "placeholders": {
+      "text": {
+        "type": "String",
+        "example": "Updating balances"
+      },
+      "state": {
+        "type": "String",
+        "example": "in progress"
+      }
+    }
+  },
+  "deskOvStartingUp": "Starting up",
+  "@deskOvStartingUp": {
+    "description": "Screen reader label of the group of start-up steps shown after unlocking."
+  },
+  "deskOvStepUnlocked": "Wallet unlocked",
+  "@deskOvStepUnlocked": {
+    "description": "Start-up step shown on Overview after unlocking."
+  },
+  "deskOvStepConnected": "Connected to node",
+  "@deskOvStepConnected": {
+    "description": "Start-up step shown on Overview after unlocking."
+  },
+  "deskOvStepUpdating": "Updating balances",
+  "@deskOvStepUpdating": {
+    "description": "Start-up step shown on Overview after unlocking."
+  },
+  "deskOvStepEpicbox": "Starting Epicbox receiving",
+  "@deskOvStepEpicbox": {
+    "description": "Start-up step shown on Overview after unlocking."
+  },
+  "deskOvSyncTitle": "Node syncing: {percent}%",
+  "@deskOvSyncTitle": {
+    "description": "Title of a notice on Overview while the node catches up with the network.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "62"
+      }
+    }
+  },
+  "deskOvSyncText": "Downloading blocks. Balances are what the wallet knew at block {block}. Sending opens when the node has caught up.",
+  "@deskOvSyncText": {
+    "description": "Text of the node-syncing notice.",
+    "placeholders": {
+      "block": {
+        "type": "String",
+        "example": "2,903,118"
+      }
+    }
+  },
+  "deskOvSyncProgress": "Node sync progress",
+  "@deskOvSyncProgress": {
+    "description": "Screen reader label of the sync progress bar."
+  },
+  "deskOvSyncOfChain": "{percent}% of the chain",
+  "@deskOvSyncOfChain": {
+    "description": "Caption under the sync progress bar.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "62"
+      }
+    }
+  },
+  "deskOvReceiveEpic": "Receive EPIC",
+  "@deskOvReceiveEpic": {
+    "description": "Primary button on Overview of an empty wallet: opens Receive. Short."
+  },
+  "deskOvSend": "Send",
+  "@deskOvSend": {
+    "description": "Primary button on Overview: opens Send. Short."
+  },
+  "deskOvReceive": "Receive",
+  "@deskOvReceive": {
+    "description": "Button on Overview: opens Receive. Short."
+  },
+  "deskOvSendWaits": "Sending opens when the node is synced.",
+  "@deskOvSendWaits": {
+    "description": "Small text under the buttons on Overview while Send is disabled until the node is synced."
+  },
+  "deskOvAvailable": "Available to spend",
+  "@deskOvAvailable": {
+    "description": "Label above the big balance amount on Overview."
+  },
+  "deskOvAsOfBlock": "As of block {block}",
+  "@deskOvAsOfBlock": {
+    "description": "Small tag next to the balance: the balance is as of this block height.",
+    "placeholders": {
+      "block": {
+        "type": "String",
+        "example": "2,903,118"
+      }
+    }
+  },
+  "deskOvEmptyHint": "Share the Epicbox address to receive the first EPIC.",
+  "@deskOvEmptyHint": {
+    "description": "Text under the balance of an empty wallet."
+  },
+  "deskOvFiatNote": "  whole balance, CoinGecko",
+  "@deskOvFiatNote": {
+    "description": "Small grey text after the dollar value of the whole balance on Overview. Starts with two spaces."
+  },
+  "deskOvBreakTotal": "Total",
+  "@deskOvBreakTotal": {
+    "description": "Label of a balance cell under the big amount on Overview: the whole balance. Narrow cell, may wrap to two lines."
+  },
+  "deskOvBreakConfirming": "Confirming",
+  "@deskOvBreakConfirming": {
+    "description": "Label of a balance cell on Overview: money still waiting for confirmations. Narrow cell."
+  },
+  "deskOvBreakImmature": "Immature",
+  "@deskOvBreakImmature": {
+    "description": "Label of a balance cell on Overview: mining rewards not yet spendable. Narrow cell."
+  },
+  "deskOvBreakAwaiting": "Awaiting finalization",
+  "@deskOvBreakAwaiting": {
+    "description": "Label of a balance cell on Overview: money of payments that wait to be finalized. Narrow cell, may wrap to two lines."
+  },
+  "deskOvBreakLocked": "Locked in sends",
+  "@deskOvBreakLocked": {
+    "description": "Label of a balance cell on Overview: money locked in unfinished sends. Narrow cell, may wrap to two lines."
+  },
+  "deskOvUpdating": "Updating",
+  "@deskOvUpdating": {
+    "description": "Tag next to the balance label while the balance is being updated; also its screen reader label. One word."
+  },
+  "deskOvHiddenAmount": "Hidden amount",
+  "@deskOvHiddenAmount": {
+    "description": "Screen reader label of the balance when amounts are hidden."
+  },
+  "deskOvLoading": "Loading transactions",
+  "@deskOvLoading": {
+    "description": "Line with a spinner in the Recent activity panel while the transactions load."
+  },
+  "deskOvEmptyTitle": "No transactions yet",
+  "@deskOvEmptyTitle": {
+    "description": "Title of the empty state of Recent activity."
+  },
+  "deskOvEmptyText": "{blocks, plural, one{Received EPIC shows here first as confirming, then as spendable after {blocks} block.} other{Received EPIC shows here first as confirming, then as spendable after {blocks} blocks.}}",
+  "@deskOvEmptyText": {
+    "description": "Text of the empty state of Recent activity; blocks is the number of confirmations needed.",
+    "placeholders": {
+      "blocks": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskOvShowAddress": "Show address",
+  "@deskOvShowAddress": {
+    "description": "Primary button in the empty state of Recent activity: opens Receive."
+  },
+  "deskOvReceiveFile": "Receive a file",
+  "@deskOvReceiveFile": {
+    "description": "Ghost button in the empty state of Recent activity: opens the page to import a payment file."
+  },
+  "deskOvRecent": "Recent activity",
+  "@deskOvRecent": {
+    "description": "Heading above the last transactions on Overview."
+  },
+  "deskOvViewAll": "View all {count}",
+  "@deskOvViewAll": {
+    "description": "Link next to the Recent activity heading: opens Activity; count is the number of transactions.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "deskOvPendingFiles": "{count, plural, one{{count} file send open} other{{count} file sends open}}",
+  "@deskOvPendingFiles": {
+    "description": "Title of a notice on Overview: file payments waiting for the recipient's response file.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "deskOvPendingText": "Finalize with the response file from the recipient.",
+  "@deskOvPendingText": {
+    "description": "Text of the notice about open file sends."
+  },
+  "deskOvFinalize": "Finalize",
+  "@deskOvFinalize": {
+    "description": "Ghost button in the open-file-sends notice: opens the Finalize page. Short."
+  }
+}

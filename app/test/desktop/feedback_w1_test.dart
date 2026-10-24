@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 
 class _Wallet extends MockDeskWallet {
@@ -102,9 +103,9 @@ void main() {
         created: DateTime(2026),
         foundByScan: true,
       );
-      expect(whoOf(t), 'Found by scan');
-      expect(whoTip(t), 'Found on the chain by a scan. The sender is not recorded.');
-      expect(whoTip(t), isNot(contains('scan found')));
+      expect(whoOf(englishStrings, t), 'Found by scan');
+      expect(whoTip(englishStrings, t), 'Found on the chain by a scan. The sender is not recorded.');
+      expect(whoTip(englishStrings, t), isNot(contains('scan found')));
     });
   });
 

@@ -2,27 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
+import '../../../l10n.dart' show localClock, localDay, localDayMonth;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
 import '../invoices/invoice_parts.dart' show payStateWord, requestStateWord;
 
-String methodLabel(TxMethod m) => switch (m) {
-  TxMethod.epicbox => 'Epicbox',
-  TxMethod.http => 'HTTP',
-  TxMethod.tor => 'Tor',
-  TxMethod.file => 'File',
+String methodLabel(AppLocalizations l, TxMethod m) => switch (m) {
+  TxMethod.epicbox => 'Epicbox', // l10n-ok: product name
+  TxMethod.http => 'HTTP', // l10n-ok: protocol name
+  TxMethod.tor => 'Tor', // l10n-ok: product name
+  TxMethod.file => l.deskTxMethodFile,
 };
 
 /// Who the other side is: the contact's name, else a shortened address or the file name, else
 /// what kind of transaction it was.
-String whoOf(Tx t) {
+String whoOf(AppLocalizations l, Tx t) {
   if (t.contactName != null) return t.contactName!;
-  if (t.coinbase) return 'Mining reward';
-  if (t.foundByScan) return foundTexts(t).label;
+  if (t.coinbase) return l.deskTxMiningReward;
+  if (t.foundByScan) return foundTexts(l, t).label;
   final cp = t.counterparty;
-  if (cp == null && t.fromBackup) return t.incoming ? 'Received' : 'Sent';
-  if (cp == null) return t.incoming ? 'Unknown sender' : 'Unknown recipient';
+  if (cp == null && t.fromBackup) return t.incoming ? l.deskTxReceived : l.deskTxSent;
+  if (cp == null) return t.incoming ? l.deskTxUnknownSender : l.deskTxUnknownRecipient;
   if (t.method == TxMethod.file) return cp;
   // An invoice's other side is an Epicbox address: first six and last six, no host.
   return shortAddress(cp, compact: t.isInvoice);
@@ -32,37 +33,37 @@ String whoOf(Tx t) {
 /// entry stored before the core recorded the scan makes no claim about it.
 typedef FoundTexts = ({String label, String line, String step, String note, String tip});
 
-FoundTexts foundTexts(Tx t) {
-  const unknown = 'The sender is not recorded.';
-  final note = t.datedByBlock ? 'Block time. $unknown' : "Time of the scan; the block's time could not be read. $unknown";
+FoundTexts foundTexts(AppLocalizations l, Tx t) {
+  final unknown = l.deskTxNoteUnknown;
+  final note = t.datedByBlock ? l.deskTxNoteBlock : l.deskTxNoteScanTime;
   return switch (t.foundDuring) {
     FoundDuring.restore => (
-      label: 'Restored',
-      line: 'Found while restoring',
-      step: 'Found while restoring this wallet',
+      label: l.deskTxFoundRestoredLabel,
+      line: l.deskTxFoundRestoredLine,
+      step: l.deskTxFoundRestoredStep,
       note: note,
-      tip: 'Found on the chain while restoring this wallet. $unknown',
+      tip: l.deskTxFoundRestoredTip,
     ),
     FoundDuring.rescan => (
-      label: 'Found by scan',
-      line: 'Found by a balance recheck',
-      step: 'Found by a balance recheck',
+      label: l.deskTxFoundRescanLabel,
+      line: l.deskTxFoundRescanLine,
+      step: l.deskTxFoundRescanStep,
       note: note,
-      tip: 'Found on the chain by a balance recheck. $unknown',
+      tip: l.deskTxFoundRescanTip,
     ),
-    null => (label: 'Found by scan', line: 'Found by a scan', step: 'Found by a scan', note: unknown, tip: 'Found on the chain by a scan. $unknown'),
+    null => (label: l.deskTxFoundRescanLabel, line: l.deskTxFoundScanLine, step: l.deskTxFoundScanStep, note: unknown, tip: l.deskTxFoundScanTip),
   };
 }
 
 /// A line explaining [whoOf] where it needs one.
-String? whoTip(Tx t) =>
-    t.detail ?? (t.foundByScan && t.contactName == null ? foundTexts(t).tip : (t.fromBackup ? 'Added from a history backup.' : null));
+String? whoTip(AppLocalizations l, Tx t) =>
+    t.detail ?? (t.foundByScan && t.contactName == null ? foundTexts(l, t).tip : (t.fromBackup ? l.deskTxBackupTip : null));
 
 /// Whether the name is an address (shown in mono).
 bool whoIsAddress(Tx t) => t.contactName == null && t.counterparty != null && t.method != TxMethod.file;
 
 /// How it travelled, or null when that is not known (mining rewards, scan finds).
-String? methodOf(Tx t) => t.coinbase || t.foundByScan ? null : methodLabel(t.method);
+String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.foundByScan ? null : methodLabel(l, t.method);
 
 IconData iconOf(Tx t) => switch (t.method) {
   TxMethod.file => t.incoming ? EIcons.fileDown : EIcons.fileUp,
@@ -70,30 +71,40 @@ IconData iconOf(Tx t) => switch (t.method) {
 };
 
 /// The state in words, with a tone for its colour.
-(String, ETone) statusOf(Tx t) => t.fromBackup
-    ? ('From backup', ETone.neutral)
+(String, ETone) statusOf(AppLocalizations l, Tx t) => t.fromBackup
+    ? (l.deskTxFromBackup, ETone.neutral)
     : t.immature
-    ? ('Immature', ETone.warn)
+    ? (l.deskTxStatusImmature, ETone.warn)
     : switch (t.state) {
         TxState.waitingRecipient => (
-          t.incoming ? 'Waiting for sender to finalize' : (t.method == TxMethod.file ? 'Waiting for the response file' : 'Waiting for recipient to sign'),
+          t.incoming ? l.deskTxStatusWaitingSender : (t.method == TxMethod.file ? l.deskTxStatusWaitingResponseFile : l.deskTxStatusWaitingRecipient),
           ETone.warn,
         ),
-        TxState.posted => ('Waiting for a block', ETone.neutral),
-        TxState.confirming => ('Confirming ${t.confirmations}/${t.confirmationsNeeded}', ETone.info),
-        TxState.confirmed => (t.incoming ? 'Received' : 'Sent', ETone.ok),
-        TxState.cancelled => ('Cancelled', ETone.neutral),
+        TxState.posted => (l.deskTxStatusWaitingBlock, ETone.neutral),
+        TxState.confirming => (l.deskTxStatusConfirming(t.confirmations, t.confirmationsNeeded), ETone.info),
+        TxState.confirmed => (t.incoming ? l.deskTxReceived : l.deskTxSent, ETone.ok),
+        TxState.cancelled => (l.deskTxStatusCancelled, ETone.neutral),
       };
 
 final _time = DateFormat('HH:mm');
-final _day = DateFormat('d MMM yyyy');
-final _dayMonth = DateFormat('d MMM');
-final _weekday = DateFormat('EEEE d MMMM');
-final _weekdayYear = DateFormat('EEEE d MMMM yyyy');
-final _dayTime = DateFormat('d MMM yyyy, HH:mm');
+// English reads the built-in default locale: a screen pumped on its own has no date data loaded.
+final _dayEn = DateFormat('d MMM yyyy');
+final _dayMonthEn = DateFormat('d MMM');
+
+/// "21 Sep 2026", or the language's own short date.
+String shortDay(AppLocalizations l, DateTime d) => l.localeName == 'en' ? _dayEn.format(d) : localDay(l, d);
+
+/// "21 Sep", or the language's own.
+String shortDayMonth(AppLocalizations l, DateTime d) => l.localeName == 'en' ? _dayMonthEn.format(d) : localDayMonth(l, d);
+
+/// A full weekday and date: "Wednesday 21 October" (English), the language's own order elsewhere.
+String _weekdayDate(AppLocalizations l, DateTime d, {required bool year}) => (l.localeName == 'en'
+        ? DateFormat(year ? 'EEEE d MMMM yyyy' : 'EEEE d MMMM')
+        : (year ? DateFormat.yMMMMEEEEd(l.localeName) : DateFormat.MMMMEEEEd(l.localeName)))
+    .format(d);
 
 String timeOf(Tx t) => _time.format(t.created);
-String dateTimeOf(Tx t, {DateTime? at}) => _dayTime.format(at ?? t.created);
+String dateTimeOf(AppLocalizations l, Tx t, {DateTime? at}) => '${shortDay(l, at ?? t.created)}, ${l.localeName == 'en' ? _time.format(at ?? t.created) : localClock(l, at ?? t.created)}';
 
 /// The first of [sizes] (whole type sizes, largest first) at which [text] in [style] fits
 /// [maxWidth] after the app's text scaler, else the last one (the caller ellipsizes). Text is
@@ -155,33 +166,33 @@ class FitMoney extends ConsumerWidget {
 final DateTime _now = DateTime(2026, 10, 21, 14, 30);
 
 /// Day separators: "Today · Wednesday 21 October", "Yesterday · …", "Monday 19 October".
-String dayLabel(DateTime d, {DateTime? now}) {
+String dayLabel(AppLocalizations l, DateTime d, {DateTime? now}) {
   final n = now ?? _now;
   final a = DateTime(d.year, d.month, d.day);
   final b = DateTime(n.year, n.month, n.day);
   final diff = b.difference(a).inDays;
-  final full = (d.year == n.year ? _weekday : _weekdayYear).format(d);
-  if (diff == 0) return 'Today · $full';
-  if (diff == 1) return 'Yesterday · $full';
+  final full = _weekdayDate(l, d, year: d.year != n.year);
+  if (diff == 0) return l.deskTxDayToday(full);
+  if (diff == 1) return l.deskTxDayYesterday(full);
   return full;
 }
 
 /// Compact rows: "Today 16:58", else "16 Oct 09:15".
-String compactTime(Tx t, {DateTime? now}) {
+String compactTime(AppLocalizations l, Tx t, {DateTime? now}) {
   final n = now ?? _now;
   final d = t.created;
   final today = d.year == n.year && d.month == n.month && d.day == n.day;
-  return '${today ? 'Today' : _dayMonth.format(d)} ${_time.format(d)}';
+  return today ? l.deskTxTodayAt(_time.format(d)) : '${shortDayMonth(l, d)} ${_time.format(d)}';
 }
 
 /// "today", "yesterday", "3 days ago", then "12 Oct" (with the year when it is not this year).
-String whenText(DateTime d, {DateTime? now}) {
+String whenText(AppLocalizations l, DateTime d, {DateTime? now}) {
   final n = now ?? _now;
   final days = DateTime(n.year, n.month, n.day).difference(DateTime(d.year, d.month, d.day)).inDays;
-  if (days == 0) return 'today';
-  if (days == 1) return 'yesterday';
-  if (days > 1 && days < 7) return '$days days ago';
-  return d.year == n.year ? _dayMonth.format(d) : _day.format(d);
+  if (days == 0) return l.deskTxToday;
+  if (days == 1) return l.deskTxYesterday;
+  if (days > 1 && days < 7) return l.deskTxDaysAgo(days);
+  return d.year == n.year ? shortDayMonth(l, d) : shortDay(l, d);
 }
 
 /// The 36 px square with the direction icon: green in, gold out, dashed when cancelled.
@@ -250,7 +261,7 @@ class TxAmount extends StatelessWidget {
     // A request not paid yet is not money: neutral, no sign, "Requested" (flow.md §3.3).
     final asked = txAsked(tx);
     final color = off ? c.faint : (asked ? c.text : (tx.incoming ? c.ok : c.text));
-    final line = asked && tx.state == TxState.waitingRecipient ? context.l10n.deskInvUnpaid : sub ?? (showFee && !tx.incoming && tx.fee > 0 ? 'Fee ${formatEpic(tx.fee)}' : null);
+    final line = asked && tx.state == TxState.waitingRecipient ? context.l10n.deskInvUnpaid : sub ?? (showFee && !tx.incoming && tx.fee > 0 ? context.l10n.deskTxFee(formatEpic(tx.fee)) : null);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
@@ -304,7 +315,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     final c = context.dc;
     final ts = context.ts;
     final t = widget.tx;
-    final (word, tone) = invoiceStatusOf(context, ref, t) ?? statusOf(t);
+    final (word, tone) = invoiceStatusOf(context, ref, t) ?? statusOf(context.l10n, t);
     final toneColor = switch (tone) {
       ETone.ok => c.dim,
       ETone.warn => c.warn,
@@ -313,8 +324,9 @@ class _TxRowState extends ConsumerState<TxRow> {
       _ => c.faint,
     };
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
-    final method = t.foundByScan ? foundTexts(t).line : (t.fromBackup ? 'From backup' : methodOf(t));
-    final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? 'Payment proof' : null);
+    final l = context.l10n;
+    final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : methodOf(l, t));
+    final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? l.deskTxPaymentProof : null);
     final meta = <InlineSpan>[
       if (method != null) TextSpan(text: method),
       if (extra != null) ...[
@@ -331,10 +343,10 @@ class _TxRowState extends ConsumerState<TxRow> {
       mainAxisSize: MainAxisSize.min,
       children: [
         _Tip(
-          message: widget.title == null && (t.foundByScan || t.fromBackup) ? whoTip(t) : null,
+          message: widget.title == null && (t.foundByScan || t.fromBackup) ? whoTip(l, t) : null,
           child: widget.title == null && whoIsAddress(t) && !t.isInvoice
               ? EShortAddress(t.counterparty!, style: ts.mono(size: 12.5, weight: FontWeight.w500), tooltip: false)
-              : Text(widget.title ?? invoiceTitleOf(context, t) ?? whoOf(t), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
+              : Text(widget.title ?? invoiceTitleOf(context, t) ?? whoOf(l, t), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
         ),
         if (compact || meta.isNotEmpty) const SizedBox(height: 2),
         if (compact)
@@ -374,7 +386,7 @@ class _TxRowState extends ConsumerState<TxRow> {
             child: finalizable
                 ? Align(
                     alignment: Alignment.centerLeft,
-                    child: EButton(label: 'Finalize', icon: EIcons.fileDown, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: widget.onFinalize),
+                    child: EButton(label: l.deskTxFinalize, icon: EIcons.fileDown, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: widget.onFinalize),
                   )
                 : Row(
                     children: [
@@ -403,7 +415,7 @@ class _TxRowState extends ConsumerState<TxRow> {
         ],
         SizedBox(width: Sp.x4),
         compact
-            ? TxAmount(t, sub: compactTime(t))
+            ? TxAmount(t, sub: compactTime(l, t))
             : SizedBox(
                 width: txAmountWidth,
                 child: Align(alignment: Alignment.centerRight, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: TxAmount(t))),
@@ -415,7 +427,7 @@ class _TxRowState extends ConsumerState<TxRow> {
       selected: widget.selected,
       // A request is never read out as money received (flow.md §5, fake invoice dressed as income);
       // it reads Unpaid only while it is, then its state word says what became of it.
-      label: '${t.isInvoice ? (txAsked(t) ? context.l10n.deskInvUnpaid : context.l10n.deskInvActBlock) : (t.incoming ? 'Received' : 'Sent')} ${hidden ? 'hidden amount' : '${formatEpic(t.amount)} EPIC'}, ${whoOf(t)}, $word',
+      label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : '${formatEpic(t.amount)} EPIC', word),
       excludeSemantics: true,
       child: InkWell(
         onTap: widget.onTap,
@@ -428,6 +440,14 @@ class _TxRowState extends ConsumerState<TxRow> {
         ),
       ),
     );
+  }
+}
+
+extension on _TxRowState {
+  String _semantics(AppLocalizations l, Tx t, String amount, String status) {
+    final who = whoOf(l, t);
+    if (t.isInvoice) return l.deskTxSemKind(txAsked(t) ? l.deskInvUnpaid : l.deskInvActBlock, amount, who, status);
+    return t.incoming ? l.deskTxSemReceived(amount, who, status) : l.deskTxSemSent(amount, who, status);
   }
 }
 
@@ -461,7 +481,7 @@ class _Tip extends StatelessWidget {
 String? invoiceTitleOf(BuildContext context, Tx t) {
   if (!t.isInvoice) return null;
   final l = context.l10n;
-  return t.incoming ? l.deskInvIssuerTo(whoOf(t)) : l.deskInvActFrom(whoOf(t));
+  return t.incoming ? l.deskInvIssuerTo(whoOf(l, t)) : l.deskInvActFrom(whoOf(l, t));
 }
 
 /// A request this wallet sent that is not paid, waiting or ended: never shown as money received.

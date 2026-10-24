@@ -7939,4 +7939,1417 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskImpChooseText =>
       'The wallet signs it and saves a response for the sender.';
+
+  @override
+  String get deskActNotUpdated => 'Not updated';
+
+  @override
+  String get deskActSearchHint => 'Address or slate id';
+
+  @override
+  String get deskActSearchHintEmpty => 'Nothing to search yet';
+
+  @override
+  String get deskActSearchLabel => 'Search transactions';
+
+  @override
+  String get deskActClearSearch => 'Clear search';
+
+  @override
+  String get deskActShowAmounts => 'Show amounts';
+
+  @override
+  String get deskActHideAmounts => 'Hide amounts';
+
+  @override
+  String get deskActRefresh => 'Refresh';
+
+  @override
+  String get deskActTitle => 'Activity';
+
+  @override
+  String get deskActDetailReceived => 'Received transaction';
+
+  @override
+  String get deskActDetailSent => 'Sent transaction';
+
+  @override
+  String get deskActLoading => 'Loading transactions';
+
+  @override
+  String get deskActWaitingNode => 'Waiting for the node to be synced.';
+
+  @override
+  String get deskActFilterAll => 'All';
+
+  @override
+  String get deskActFilterReceived => 'Received';
+
+  @override
+  String get deskActFilterSent => 'Sent';
+
+  @override
+  String get deskActNoMatchTitle => 'No transactions match';
+
+  @override
+  String get deskActNoMatchText =>
+      'Try another address or slate id, or clear the filter.';
+
+  @override
+  String deskActPageOf(int page, int pages) {
+    return 'Page $page of $pages';
+  }
+
+  @override
+  String get deskActPrevPage => 'Previous page';
+
+  @override
+  String get deskActNextPage => 'Next page';
+
+  @override
+  String get deskActPages => 'Pages';
+
+  @override
+  String get deskActColFromTo => 'From / to';
+
+  @override
+  String get deskActColStatus => 'Status';
+
+  @override
+  String get deskActColTime => 'Time';
+
+  @override
+  String get deskActColAmount => 'Amount';
+
+  @override
+  String get deskActEmptyTitle => 'No transactions yet';
+
+  @override
+  String get deskActEmptyText =>
+      'Every payment sent or received is listed here, newest first, with who it was with and how far along it is.';
+
+  @override
+  String get deskActStageWaiting => 'Waiting';
+
+  @override
+  String get deskActStageWaitingText =>
+      'Both wallets sign it. Over Epicbox this is automatic.';
+
+  @override
+  String get deskActStageConfirming => 'Confirming';
+
+  @override
+  String get deskActStageConfirmingText =>
+      'On the chain. About one block a minute.';
+
+  @override
+  String get deskActStageSpendable => 'Spendable';
+
+  @override
+  String deskActStageSpendableText(int needed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      needed,
+      locale: localeName,
+      other: 'After $needed confirmations, about $needed minutes.',
+      one: 'After $needed confirmation, about $needed minute.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskActShowAddress => 'Show address';
+
+  @override
+  String get deskActReceiveFile => 'Receive a file';
+
+  @override
+  String get deskConTitle => 'Contacts';
+
+  @override
+  String get deskConLoading => 'Loading contacts';
+
+  @override
+  String get deskConNewTitle => 'New contact';
+
+  @override
+  String get deskConEditTitle => 'Edit contact';
+
+  @override
+  String get deskConDetailsTitle => 'Details';
+
+  @override
+  String get deskConSearchHint => 'Name or address';
+
+  @override
+  String get deskConSearchLabel => 'Search contacts';
+
+  @override
+  String get deskConClearSearch => 'Clear search';
+
+  @override
+  String deskConCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count contacts',
+      one: '$count contact',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskConNoMatches => 'No matches';
+
+  @override
+  String deskConMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matches',
+      one: '$count match',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskConSortName => 'Name';
+
+  @override
+  String get deskConSortRecent => 'Recent';
+
+  @override
+  String get deskConNone => 'No contacts yet.';
+
+  @override
+  String get deskConNoMatchList => 'No contacts match';
+
+  @override
+  String get deskConAdd => 'Add contact';
+
+  @override
+  String get deskConIdle =>
+      'Choose a contact to see their details, send to them, edit or delete them.';
+
+  @override
+  String get deskConEmptyTitle => 'No contacts yet';
+
+  @override
+  String get deskConEmptyText =>
+      'Save the people and shops paid often. On Send, pick a name instead of pasting an address.';
+
+  @override
+  String get deskConEmptyLocal =>
+      'Contacts stay on this computer. They are not part of the recovery phrase.';
+
+  @override
+  String get deskConSendToAddress => 'Send to address';
+
+  @override
+  String deskConLastTx(String when) {
+    return 'Last transaction: $when';
+  }
+
+  @override
+  String get deskConSend => 'Send';
+
+  @override
+  String get deskConEdit => 'Edit';
+
+  @override
+  String get deskConStar => 'Star';
+
+  @override
+  String get deskConUnstar => 'Unstar';
+
+  @override
+  String get deskConDelete => 'Delete';
+
+  @override
+  String get deskConNotDeleted => 'Not deleted';
+
+  @override
+  String deskConDeleted(String name) {
+    return '$name was deleted';
+  }
+
+  @override
+  String get deskConAddrEpicbox => 'Epicbox address';
+
+  @override
+  String get deskConAddrTor => 'Tor address';
+
+  @override
+  String get deskConAddrHttp => 'HTTP address';
+
+  @override
+  String get deskConNote => 'Note';
+
+  @override
+  String deskConTxWith(String name) {
+    return 'Transactions with $name';
+  }
+
+  @override
+  String get deskConAllTx => 'All transactions';
+
+  @override
+  String get deskConTxNone =>
+      'No transactions with this contact yet. Payments sent to them from Send appear here.';
+
+  @override
+  String get deskConTxReceived => 'Received';
+
+  @override
+  String get deskConTxSent => 'Sent';
+
+  @override
+  String get deskConErrName => 'Give the contact a name.';
+
+  @override
+  String get deskConErrAddressEmpty => 'Add an address.';
+
+  @override
+  String get deskConErrAddressInvalid => 'Not a recognised address';
+
+  @override
+  String get deskConAddPicture => 'Add picture';
+
+  @override
+  String get deskConChangePicture => 'Change picture';
+
+  @override
+  String get deskConRemovePicture => 'Remove';
+
+  @override
+  String get deskConPictureHelp =>
+      'PNG, JPEG, WebP or GIF, up to 10 MB. A small copy is kept in this app.';
+
+  @override
+  String get deskConFieldName => 'Name';
+
+  @override
+  String get deskConFieldAddress => 'Address';
+
+  @override
+  String get deskConSaveFailed => 'Contact not saved';
+
+  @override
+  String get deskConSave => 'Save contact';
+
+  @override
+  String deskConDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get deskConDeleteBody =>
+      'The contact’s address and note are removed from this wallet. Past transactions stay in Activity. This cannot be undone.';
+
+  @override
+  String get deskConKeep => 'Keep contact';
+
+  @override
+  String get deskConDeleteAction => 'Delete contact';
+
+  @override
+  String get deskOutNotUpdated => 'Not updated';
+
+  @override
+  String get deskOutTitle => 'Outputs';
+
+  @override
+  String get deskOutShowAmounts => 'Show amounts';
+
+  @override
+  String get deskOutHideAmounts => 'Hide amounts';
+
+  @override
+  String get deskOutRefresh => 'Refresh';
+
+  @override
+  String get deskOutLockedNote =>
+      'Locked outputs are being spent by a transaction in progress. Their change shows as awaiting finalization and is not in Total until the send is finalized, so Total counts the coins once.';
+
+  @override
+  String get deskOutIntro =>
+      'Outputs are the pieces the balance is made of. A send spends whole outputs, pays the recipient and returns the rest as a new output; the spent ones are locked until the send confirms.';
+
+  @override
+  String deskOutCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count outputs',
+      one: '$count output',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOutCardWait =>
+      'Wait until the send confirms (about 3 blocks).';
+
+  @override
+  String get deskOutSplitNothing => 'Nothing to split yet.';
+
+  @override
+  String deskOutSplitSpends(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Spends $count outputs.',
+      one: 'Spends $count output.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOutSplitSpendsFee(int count, String fee) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Spends $count outputs. Fee from $fee EPIC.',
+      one: 'Spends $count output. Fee from $fee EPIC.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOutConsNothing => 'Nothing to consolidate yet.';
+
+  @override
+  String get deskOutConsOne => 'Nothing to consolidate: one spendable output.';
+
+  @override
+  String deskOutConsInto(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count outputs into 1.',
+      one: '$count output into 1.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOutConsIntoFee(int count, String fee) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count outputs into 1. Fee $fee EPIC.',
+      one: '$count output into 1. Fee $fee EPIC.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOutSplitCardTitle => 'Split';
+
+  @override
+  String get deskOutSplitCardText =>
+      'Makes more outputs from the spendable balance, so several sends can follow each other without waiting.';
+
+  @override
+  String get deskOutSplitCardButton => 'Split…';
+
+  @override
+  String get deskOutConsCardTitle => 'Consolidate';
+
+  @override
+  String get deskOutConsCardText =>
+      'Merges every spendable output into one. Smaller fees on the next send; everything is locked until it confirms.';
+
+  @override
+  String get deskOutConsCardButton => 'Consolidate…';
+
+  @override
+  String get deskOutNotLoadedTitle => 'Outputs not loaded';
+
+  @override
+  String get deskOutNotLoadedText => 'Refresh to try again.';
+
+  @override
+  String get deskOutLoading => 'Loading wallet data';
+
+  @override
+  String get deskOutNoneTitle => 'No outputs yet';
+
+  @override
+  String get deskOutNoneText =>
+      'The first payment received makes one. Split and Consolidate need something to work with.';
+
+  @override
+  String get deskOutFilterAll => 'All';
+
+  @override
+  String get deskOutFilterSpendable => 'Spendable';
+
+  @override
+  String get deskOutFilterConfirming => 'Confirming';
+
+  @override
+  String get deskOutFilterLocked => 'Locked';
+
+  @override
+  String get deskOutSearchHint => 'Commitment';
+
+  @override
+  String get deskOutSearchLabel => 'Search outputs';
+
+  @override
+  String get deskOutClearSearch => 'Clear search';
+
+  @override
+  String get deskOutShowSpent => 'Show spent';
+
+  @override
+  String get deskOutNoMatchTitle => 'No outputs match';
+
+  @override
+  String get deskOutNoMatchText =>
+      'Try another commitment, or clear the filter.';
+
+  @override
+  String get deskOutClearFilter => 'Clear filter';
+
+  @override
+  String get deskOutTileSpendable => 'Spendable';
+
+  @override
+  String get deskOutTileConfirming => 'Confirming';
+
+  @override
+  String get deskOutTileImmature => 'Immature';
+
+  @override
+  String get deskOutTileLocked => 'Locked in sends';
+
+  @override
+  String get deskOutTileTotal => 'Total';
+
+  @override
+  String get deskOutDefaultsTitle => 'Defaults for sends';
+
+  @override
+  String get deskOutStrategyTitle => 'Strategy for sends';
+
+  @override
+  String get deskOutStrategyText =>
+      'Which outputs a send spends. Send can change it for one send under Advanced.';
+
+  @override
+  String get deskOutStrategySmallest => 'Smallest';
+
+  @override
+  String get deskOutStrategyAll => 'All';
+
+  @override
+  String get deskOutStrategyHelp =>
+      'Smallest spends the fewest small outputs and leaves the rest spendable. All spends everything and returns one output.';
+
+  @override
+  String get deskOutStrategyHelpTitle => 'Smallest or All';
+
+  @override
+  String get deskOutSplitChangeTitle => 'Split change';
+
+  @override
+  String get deskOutSplitChangeText =>
+      'When a send would leave fewer than 3 spendable outputs, its change comes back as up to 4 outputs. Costs 0.004 EPIC per extra output.';
+
+  @override
+  String get deskOutColValue => 'Value';
+
+  @override
+  String get deskOutColStatus => 'Status';
+
+  @override
+  String get deskOutColConfirmations => 'Confirmations';
+
+  @override
+  String get deskOutColHeight => 'Height';
+
+  @override
+  String get deskOutColTransaction => 'Transaction';
+
+  @override
+  String get deskOutColCommitment => 'Commitment';
+
+  @override
+  String get deskOutStatusSpendable => 'Spendable';
+
+  @override
+  String get deskOutStatusConfirming => 'Confirming';
+
+  @override
+  String deskOutConfirmations(int count, String number) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$number confirmations',
+      one: '$number confirmation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOutStatusAwaiting => 'Awaiting finalization';
+
+  @override
+  String get deskOutNoteWaitingSender => 'waiting for the sender';
+
+  @override
+  String get deskOutStatusUnpaid => 'Unpaid invoice';
+
+  @override
+  String get deskOutNoteNotInBalance => 'not in the balance';
+
+  @override
+  String get deskOutStatusImmature => 'Immature';
+
+  @override
+  String deskOutNoteBlocksToGo(int count, String number) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$number blocks to go',
+      one: '$number block to go',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOutStatusMining => 'Mining';
+
+  @override
+  String get deskOutStatusLocked => 'Locked';
+
+  @override
+  String deskOutNoteBySend(int id) {
+    return 'by send #$id';
+  }
+
+  @override
+  String get deskOutStatusSpent => 'Spent';
+
+  @override
+  String deskOutTxReceived(String date) {
+    return 'Received $date';
+  }
+
+  @override
+  String deskOutTxSent(String date) {
+    return 'Sent $date';
+  }
+
+  @override
+  String deskOutCopyCommitment(String short) {
+    return 'Copy commitment $short';
+  }
+
+  @override
+  String deskOutSplitSpentPart(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count outputs ($amount EPIC)',
+      one: '$count output ($amount EPIC)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOutSplitMadePart(int count, String amount) {
+    return '$count outputs of about $amount EPIC';
+  }
+
+  @override
+  String deskOutConsMadePart(String amount) {
+    return 'one output of $amount EPIC';
+  }
+
+  @override
+  String deskOutSplitDialogText(String spent, String made) {
+    return 'Spends $spent and makes $made each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.';
+  }
+
+  @override
+  String deskOutConsDialogText(String spent, String made) {
+    return 'Spends $spent and makes $made. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.';
+  }
+
+  @override
+  String get deskOutFactFee => 'Network fee';
+
+  @override
+  String get deskOutFactEach => 'Each output';
+
+  @override
+  String deskOutFactAbout(String amount) {
+    return 'about $amount EPIC';
+  }
+
+  @override
+  String get deskOutFactLocked => 'Locked';
+
+  @override
+  String deskOutFactLockedValue(String amount) {
+    return '$amount EPIC, about 3 blocks. Nothing stays spendable.';
+  }
+
+  @override
+  String get deskOutMakeLabel => 'Outputs to make';
+
+  @override
+  String get deskOutMakeRange => '2 to 10.';
+
+  @override
+  String get deskOutStepperFewer => 'Fewer';
+
+  @override
+  String get deskOutStepperMore => 'More';
+
+  @override
+  String get deskOutFeeWorking => 'Working out the fee';
+
+  @override
+  String get deskOutNoEstimate => 'No estimate';
+
+  @override
+  String get deskOutEachMin => 'Each output must be at least 0.5 EPIC.';
+
+  @override
+  String get deskOutNotEnoughFee => 'Not enough to pay the fee.';
+
+  @override
+  String deskOutSplitInto(int count) {
+    return 'Split into $count';
+  }
+
+  @override
+  String get deskOutConsolidateButton => 'Consolidate';
+
+  @override
+  String get deskOutPostingSplit =>
+      'Building and posting the split. Keep the app open.';
+
+  @override
+  String get deskOutPostingCons =>
+      'Building and posting the consolidate. Keep the app open.';
+
+  @override
+  String get deskOutSplitPosted => 'Split posted';
+
+  @override
+  String get deskOutConsPosted => 'Consolidate posted';
+
+  @override
+  String deskOutSplitDoneText(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'The wallet now has $count outputs of about $amount EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.',
+      one:
+          'The wallet now has $count output of about $amount EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOutConsDoneText(String amount) {
+    return 'One output of $amount EPIC, confirming. Everything is locked until it confirms (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.';
+  }
+
+  @override
+  String get deskOutNotPostedTitle => 'Not posted.';
+
+  @override
+  String get deskOutNotPostedSplit =>
+      'The split was built and stored, but the node did not take it. Post it again, or cancel it to unlock the outputs.';
+
+  @override
+  String get deskOutNotPostedCons =>
+      'The consolidate was built and stored, but the node did not take it. Post it again, or cancel it to unlock the outputs.';
+
+  @override
+  String get deskOutCancelSplit => 'Cancel the split';
+
+  @override
+  String get deskOutCancelCons => 'Cancel the consolidate';
+
+  @override
+  String get deskOutPostAgain => 'Post again';
+
+  @override
+  String get deskOutNotDoneTitle => 'Not done';
+
+  @override
+  String deskOutNotDoneText(String error) {
+    return '$error. The outputs are unchanged.';
+  }
+
+  @override
+  String get deskOutSomethingWrong => 'Something went wrong';
+
+  @override
+  String get deskOutTryAgain => 'Try again';
+
+  @override
+  String get deskOutToastNotPosted => 'Not posted';
+
+  @override
+  String get deskOutToastNotCancelled => 'Not cancelled';
+
+  @override
+  String get deskOutSplitDialogTitle => 'Split outputs';
+
+  @override
+  String get deskOutConsDialogTitle => 'Consolidate outputs';
+
+  @override
+  String get deskOutPostingDesc => 'Posting.';
+
+  @override
+  String get deskOutDoneDesc => 'Done.';
+
+  @override
+  String get deskOutSplitDesc =>
+      'More outputs, so several sends can follow each other.';
+
+  @override
+  String get deskOutConsDesc => 'One output instead of many.';
+
+  @override
+  String deskOutNothingText(String what) {
+    return 'Nothing to consolidate: the wallet has $what. Consolidate merges several outputs into one.';
+  }
+
+  @override
+  String get deskOutWhatFewer => 'fewer than two spendable outputs';
+
+  @override
+  String get deskOutWhatOne => 'one spendable output';
+
+  @override
+  String get deskOvNotUpdated => 'Not updated';
+
+  @override
+  String get deskOvNodeNotStarted => 'Node not started';
+
+  @override
+  String get deskOvNodeAddrTitle => 'Node address updated';
+
+  @override
+  String get deskOvNodeAddrText =>
+      'Now using node.epiccash.com instead of node.epiccash.com:3413.';
+
+  @override
+  String get deskOvNodeIncompatTitle =>
+      'This node’s version is not compatible with this wallet';
+
+  @override
+  String deskOvNodeUrl(String url) {
+    return 'Node: $url';
+  }
+
+  @override
+  String get deskOvUsePublicNode => 'Use public node';
+
+  @override
+  String get deskOvUseLocalNode => 'Use local node';
+
+  @override
+  String get deskOvHide => 'Hide';
+
+  @override
+  String deskOvCantReachNode(String url) {
+    return 'Can’t reach the node at $url';
+  }
+
+  @override
+  String get deskOvCantReachNodeText =>
+      'Check that it is running and reachable. Balances may be out of date and sending is paused.';
+
+  @override
+  String get deskOvStarting => 'Starting';
+
+  @override
+  String get deskOvStartNode => 'Start node';
+
+  @override
+  String get deskOvNodeSettings => 'Node settings';
+
+  @override
+  String get deskOvTitle => 'Overview';
+
+  @override
+  String get deskOvShowAmounts => 'Show amounts';
+
+  @override
+  String get deskOvHideAmounts => 'Hide amounts';
+
+  @override
+  String get deskOvRefresh => 'Refresh';
+
+  @override
+  String get deskOvStepDone => 'done';
+
+  @override
+  String get deskOvStepNow => 'in progress';
+
+  @override
+  String get deskOvStepWait => 'pending';
+
+  @override
+  String deskOvStepSemantics(String text, String state) {
+    return '$text, $state';
+  }
+
+  @override
+  String get deskOvStartingUp => 'Starting up';
+
+  @override
+  String get deskOvStepUnlocked => 'Wallet unlocked';
+
+  @override
+  String get deskOvStepConnected => 'Connected to node';
+
+  @override
+  String get deskOvStepUpdating => 'Updating balances';
+
+  @override
+  String get deskOvStepEpicbox => 'Starting Epicbox receiving';
+
+  @override
+  String deskOvSyncTitle(int percent) {
+    return 'Node syncing: $percent%';
+  }
+
+  @override
+  String deskOvSyncText(String block) {
+    return 'Downloading blocks. Balances are what the wallet knew at block $block. Sending opens when the node has caught up.';
+  }
+
+  @override
+  String get deskOvSyncProgress => 'Node sync progress';
+
+  @override
+  String deskOvSyncOfChain(int percent) {
+    return '$percent% of the chain';
+  }
+
+  @override
+  String get deskOvReceiveEpic => 'Receive EPIC';
+
+  @override
+  String get deskOvSend => 'Send';
+
+  @override
+  String get deskOvReceive => 'Receive';
+
+  @override
+  String get deskOvSendWaits => 'Sending opens when the node is synced.';
+
+  @override
+  String get deskOvAvailable => 'Available to spend';
+
+  @override
+  String deskOvAsOfBlock(String block) {
+    return 'As of block $block';
+  }
+
+  @override
+  String get deskOvEmptyHint =>
+      'Share the Epicbox address to receive the first EPIC.';
+
+  @override
+  String get deskOvFiatNote => '  whole balance, CoinGecko';
+
+  @override
+  String get deskOvBreakTotal => 'Total';
+
+  @override
+  String get deskOvBreakConfirming => 'Confirming';
+
+  @override
+  String get deskOvBreakImmature => 'Immature';
+
+  @override
+  String get deskOvBreakAwaiting => 'Awaiting finalization';
+
+  @override
+  String get deskOvBreakLocked => 'Locked in sends';
+
+  @override
+  String get deskOvUpdating => 'Updating';
+
+  @override
+  String get deskOvHiddenAmount => 'Hidden amount';
+
+  @override
+  String get deskOvLoading => 'Loading transactions';
+
+  @override
+  String get deskOvEmptyTitle => 'No transactions yet';
+
+  @override
+  String deskOvEmptyText(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other:
+          'Received EPIC shows here first as confirming, then as spendable after $blocks blocks.',
+      one:
+          'Received EPIC shows here first as confirming, then as spendable after $blocks block.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOvShowAddress => 'Show address';
+
+  @override
+  String get deskOvReceiveFile => 'Receive a file';
+
+  @override
+  String get deskOvRecent => 'Recent activity';
+
+  @override
+  String deskOvViewAll(int count) {
+    return 'View all $count';
+  }
+
+  @override
+  String deskOvPendingFiles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count file sends open',
+      one: '$count file send open',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOvPendingText =>
+      'Finalize with the response file from the recipient.';
+
+  @override
+  String get deskOvFinalize => 'Finalize';
+
+  @override
+  String get deskTxMethodFile => 'File';
+
+  @override
+  String get deskTxMiningReward => 'Mining reward';
+
+  @override
+  String get deskTxReceived => 'Received';
+
+  @override
+  String get deskTxSent => 'Sent';
+
+  @override
+  String get deskTxUnknownSender => 'Unknown sender';
+
+  @override
+  String get deskTxUnknownRecipient => 'Unknown recipient';
+
+  @override
+  String get deskTxNoteBlock => 'Block time. The sender is not recorded.';
+
+  @override
+  String get deskTxNoteScanTime =>
+      'Time of the scan; the block\'s time could not be read. The sender is not recorded.';
+
+  @override
+  String get deskTxNoteUnknown => 'The sender is not recorded.';
+
+  @override
+  String get deskTxFoundRestoredLabel => 'Restored';
+
+  @override
+  String get deskTxFoundRestoredLine => 'Found while restoring';
+
+  @override
+  String get deskTxFoundRestoredStep => 'Found while restoring this wallet';
+
+  @override
+  String get deskTxFoundRestoredTip =>
+      'Found on the chain while restoring this wallet. The sender is not recorded.';
+
+  @override
+  String get deskTxFoundRescanLabel => 'Found by scan';
+
+  @override
+  String get deskTxFoundRescanLine => 'Found by a balance recheck';
+
+  @override
+  String get deskTxFoundRescanStep => 'Found by a balance recheck';
+
+  @override
+  String get deskTxFoundRescanTip =>
+      'Found on the chain by a balance recheck. The sender is not recorded.';
+
+  @override
+  String get deskTxFoundScanLine => 'Found by a scan';
+
+  @override
+  String get deskTxFoundScanStep => 'Found by a scan';
+
+  @override
+  String get deskTxFoundScanTip =>
+      'Found on the chain by a scan. The sender is not recorded.';
+
+  @override
+  String get deskTxBackupTip => 'Added from a history backup.';
+
+  @override
+  String get deskTxFromBackup => 'From backup';
+
+  @override
+  String get deskTxStatusImmature => 'Immature';
+
+  @override
+  String get deskTxStatusWaitingSender => 'Waiting for sender to finalize';
+
+  @override
+  String get deskTxStatusWaitingResponseFile => 'Waiting for the response file';
+
+  @override
+  String get deskTxStatusWaitingRecipient => 'Waiting for recipient to sign';
+
+  @override
+  String get deskTxStatusWaitingBlock => 'Waiting for a block';
+
+  @override
+  String deskTxStatusConfirming(int confirmations, int needed) {
+    return 'Confirming $confirmations/$needed';
+  }
+
+  @override
+  String get deskTxStatusCancelled => 'Cancelled';
+
+  @override
+  String get deskTxToday => 'today';
+
+  @override
+  String get deskTxYesterday => 'yesterday';
+
+  @override
+  String deskTxDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '$count day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskTxTodayAt(String time) {
+    return 'Today $time';
+  }
+
+  @override
+  String deskTxDayToday(String date) {
+    return 'Today · $date';
+  }
+
+  @override
+  String deskTxDayYesterday(String date) {
+    return 'Yesterday · $date';
+  }
+
+  @override
+  String deskTxFee(String amount) {
+    return 'Fee $amount';
+  }
+
+  @override
+  String get deskTxPaymentProof => 'Payment proof';
+
+  @override
+  String get deskTxFinalize => 'Finalize';
+
+  @override
+  String deskTxSemReceived(String amount, String who, String status) {
+    return 'Received $amount, $who, $status';
+  }
+
+  @override
+  String deskTxSemSent(String amount, String who, String status) {
+    return 'Sent $amount, $who, $status';
+  }
+
+  @override
+  String deskTxSemKind(String kind, String amount, String who, String status) {
+    return '$kind $amount, $who, $status';
+  }
+
+  @override
+  String get deskTxHiddenAmount => 'hidden amount';
+
+  @override
+  String get deskTxNowBackup => 'From backup; the chain was not asked.';
+
+  @override
+  String deskTxNowImmature(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Confirmed, but a mining reward is spendable only after $count confirmations.',
+      one:
+          'Confirmed, but a mining reward is spendable only after $count confirmation.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskTxNowWaitingSender =>
+      'Signed and returned. Waiting for the sender to finalize.';
+
+  @override
+  String get deskTxNowWaitingResponseFile =>
+      'Waiting for the response file. Finalize when it arrives.';
+
+  @override
+  String get deskTxNowWaitingRecipient =>
+      'Waiting for the recipient to sign. Nothing leaves the wallet until it is finalized.';
+
+  @override
+  String get deskTxNowPosted => 'Posted to the network, waiting for a block.';
+
+  @override
+  String deskTxNowConfirming(int confirmations, int needed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      needed,
+      locale: localeName,
+      other: 'In a block, $confirmations of $needed confirmations.',
+      one: 'In a block, $confirmations of $needed confirmation.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskTxNowConfirmed(int confirmations) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: 'Confirmed, $confirmations confirmations.',
+      one: 'Confirmed, $confirmations confirmation.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskTxNowCancelled => 'Cancelled.';
+
+  @override
+  String get deskTxNotCancelled => 'Not cancelled';
+
+  @override
+  String get deskTxCancelled => 'Transaction cancelled';
+
+  @override
+  String get deskTxCancelling => 'Cancelling';
+
+  @override
+  String get deskTxHeadRestored => 'restored';
+
+  @override
+  String get deskTxHeadFoundOnChain => 'found on the chain';
+
+  @override
+  String get deskTxHeadBackup => 'added from a history backup';
+
+  @override
+  String deskTxHeadFrom(String who) {
+    return 'from $who';
+  }
+
+  @override
+  String deskTxHeadTo(String who) {
+    return 'to $who';
+  }
+
+  @override
+  String get deskTxSubProgress => 'Progress';
+
+  @override
+  String get deskTxSubDetails => 'Details';
+
+  @override
+  String get deskTxFactDate => 'Date';
+
+  @override
+  String get deskTxFactFrom => 'From';
+
+  @override
+  String get deskTxFactTo => 'To';
+
+  @override
+  String get deskTxCopyAddress => 'Copy address';
+
+  @override
+  String get deskTxFactMethod => 'Method';
+
+  @override
+  String get deskTxFactAmount => 'Amount';
+
+  @override
+  String get deskTxFactFee => 'Fee';
+
+  @override
+  String get deskTxFactTotal => 'Total';
+
+  @override
+  String get deskTxFactMessage => 'Message';
+
+  @override
+  String get deskTxSignedByRecipient => 'Signed by the recipient';
+
+  @override
+  String get deskTxProofView => 'View';
+
+  @override
+  String get deskTxTechTitle => 'Technical details';
+
+  @override
+  String get deskTxTechId => 'Id';
+
+  @override
+  String get deskTxTechSlate => 'Slate id';
+
+  @override
+  String get deskTxCopySlate => 'Copy slate id';
+
+  @override
+  String get deskTxTechHeight => 'Height';
+
+  @override
+  String get deskTxTechKernel => 'Kernel';
+
+  @override
+  String get deskTxTechConfirmed => 'Confirmed';
+
+  @override
+  String get deskTxTechCredited => 'Credited';
+
+  @override
+  String get deskTxTechDebited => 'Debited';
+
+  @override
+  String get deskTxTechStatus => 'Status';
+
+  @override
+  String get deskTxTechType => 'Type';
+
+  @override
+  String get deskTxStepMined => 'Mined in a block';
+
+  @override
+  String get deskTxStepSpendable => 'Spendable';
+
+  @override
+  String deskTxStepBlocksToGo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count blocks to go',
+      one: '$count block to go',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskTxStepReceivedSlate => 'Received slate';
+
+  @override
+  String get deskTxStepCreated => 'Created and signed';
+
+  @override
+  String get deskTxStepSignedReturned => 'Signed and returned';
+
+  @override
+  String get deskTxStepWaitingFile => 'Waiting for the response file';
+
+  @override
+  String get deskTxStepWaitingRecipient => 'Waiting for the recipient';
+
+  @override
+  String get deskTxStepPosted => 'Posted to the network';
+
+  @override
+  String get deskTxStepConfirming => 'Confirming';
+
+  @override
+  String deskTxStepProgress(int confirmations, int needed) {
+    return '$confirmations of $needed';
+  }
+
+  @override
+  String get deskTxCancelIncomingTitle => 'Cancel this payment?';
+
+  @override
+  String get deskTxCancelOutgoingTitle => 'Cancel this send?';
+
+  @override
+  String deskTxCancelIncomingBody(String amount, String who) {
+    return '$amount EPIC from $who leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.';
+  }
+
+  @override
+  String deskTxCancelOutgoingBody(String amount, String who) {
+    return '$amount EPIC to $who. The locked amount returns to the balance. If the recipient already finalized it, it may still confirm.';
+  }
+
+  @override
+  String get deskTxCancelKeep => 'Keep';
+
+  @override
+  String get deskTxCancelIncomingAction => 'Cancel payment';
+
+  @override
+  String get deskTxCancelOutgoingAction => 'Cancel send';
+
+  @override
+  String deskTxProofIncoming(String amount) {
+    return 'Proves that this wallet received $amount EPIC in this kernel.';
+  }
+
+  @override
+  String deskTxProofOutgoing(String amount) {
+    return 'Proves that the recipient received $amount EPIC in this kernel.';
+  }
+
+  @override
+  String get deskTxProofSenderAddress => 'Sender address';
+
+  @override
+  String get deskTxProofRecipientAddress => 'Recipient address';
+
+  @override
+  String get deskTxProofRecipientSignature => 'Recipient signature';
+
+  @override
+  String get deskTxProofCopyKernel => 'Copy kernel';
+
+  @override
+  String get deskTxProofCopySender => 'Copy sender address';
+
+  @override
+  String get deskTxProofCopyRecipient => 'Copy recipient address';
+
+  @override
+  String get deskTxProofCopySignature => 'Copy recipient signature';
+
+  @override
+  String get deskTxProofExport => 'Export';
+
+  @override
+  String get deskTxProofSaved => 'Proof saved';
 }

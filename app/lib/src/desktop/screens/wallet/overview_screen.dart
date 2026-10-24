@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider;
@@ -41,7 +42,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     try {
       await ref.read(deskProvider.notifier).syncNow();
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Not updated', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, context.l10n.deskOvNotUpdated, text: deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _refreshing = false);
     }
@@ -53,7 +54,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     try {
       await ref.read(deskProvider.notifier).useBuiltInNode(true);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Node not started', text: deskErrorText(e));
+      if (mounted) showEToast(context, context.l10n.deskOvNodeNotStarted, text: deskErrorText(e, context.l10n));
     }
     if (mounted) setState(() => _restarting = false);
   }
@@ -61,6 +62,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final demo = widget.arg is OverviewDemo ? widget.arg! as OverviewDemo : null;
     final s = ref.watch(deskProvider);
     final hidden = s.settings.hideAmounts;
@@ -87,51 +89,51 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
       if (demo == OverviewDemo.nodeProblem && !_addressNoteHidden)
         ENotice(
           icon: EIcons.info,
-          title: 'Node address updated',
-          text: 'Now using node.epiccash.com instead of node.epiccash.com:3413.',
+          title: l.deskOvNodeAddrTitle,
+          text: l.deskOvNodeAddrText,
           actionsBelow: true,
-          actions: [EButton(label: 'OK', kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _addressNoteHidden = true))],
+          actions: [EButton(label: l.commonOk, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _addressNoteHidden = true))],
         ),
       if (demo == OverviewDemo.nodeProblem && !_problemHidden)
         ENotice(
           tone: ETone.risk,
-          title: 'This node’s version is not compatible with this wallet',
-          text: 'Node: $nodeUrl',
+          title: l.deskOvNodeIncompatTitle,
+          text: l.deskOvNodeUrl(nodeUrl),
           actionsBelow: true,
           actions: [
-            EButton(label: 'Use public node', icon: EIcons.web, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
-            if (DeskFeatures.builtInNode) EButton(label: 'Use local node', icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
-            EButton(label: 'Hide', kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _problemHidden = true)),
+            EButton(label: l.deskOvUsePublicNode, icon: EIcons.web, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
+            if (DeskFeatures.builtInNode) EButton(label: l.deskOvUseLocalNode, icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
+            EButton(label: l.deskOvHide, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _problemHidden = true)),
           ],
         ),
       if (nodeDown)
         ENotice(
           tone: ETone.risk,
-          title: 'Can’t reach the node at $nodeUrl',
-          text: 'Check that it is running and reachable. Balances may be out of date and sending is paused.',
+          title: l.deskOvCantReachNode(nodeUrl),
+          text: l.deskOvCantReachNodeText,
           actionsBelow: true,
           actions: [
             if (DeskFeatures.builtInNode && ref.watch(settingsPrefsProvider).builtin)
             EButton(
-              label: _restarting ? 'Starting' : 'Start node',
+              label: _restarting ? l.deskOvStarting : l.deskOvStartNode,
               icon: EIcons.refresh,
               size: EBtnSize.inline,
               busy: _restarting,
               onPressed: _restarting ? null : _restartNode,
             ),
-            EButton(label: 'Node settings', kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
+            EButton(label: l.deskOvNodeSettings, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
           ],
         ),
       if (syncing) _SyncNotice(part: _syncPart, walletTip: _walletTip),
     ];
 
     return EPage(
-      title: 'Overview',
+      title: l.deskOvTitle,
       width: EPageWidth.full,
       actions: [
         EIconButton(
           icon: hidden ? EIcons.eyeOff : EIcons.eye,
-          label: hidden ? 'Show amounts' : 'Hide amounts',
+          label: hidden ? l.deskOvShowAmounts : l.deskOvHideAmounts,
           selected: hidden,
           onPressed: () => ref.read(deskProvider.notifier).saveSettings(s.settings.copyWith(hideAmounts: !hidden)),
         ),
@@ -140,7 +142,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
                 dimension: Ctl.sm,
                 child: Center(child: ESpinner()),
               )
-            : EIconButton(icon: EIcons.refresh, label: 'Refresh', onPressed: _refresh),
+            : EIconButton(icon: EIcons.refresh, label: l.deskOvRefresh, onPressed: _refresh),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -175,6 +177,7 @@ class _Steps extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     Widget step(_StepState st, String text) {
       final mark = switch (st) {
         _StepState.done => Icon(EIcons.check, size: Ctl.iconSm, color: c.ok),
@@ -182,12 +185,12 @@ class _Steps extends StatelessWidget {
         _StepState.wait => Icon(EIcons.clock, size: Ctl.iconSm, color: c.faint),
       };
       final state = switch (st) {
-        _StepState.done => 'done',
-        _StepState.now => 'in progress',
-        _StepState.wait => 'pending',
+        _StepState.done => l.deskOvStepDone,
+        _StepState.now => l.deskOvStepNow,
+        _StepState.wait => l.deskOvStepWait,
       };
       return Semantics(
-        label: '$text, $state',
+        label: l.deskOvStepSemantics(text, state),
         excludeSemantics: true,
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -207,15 +210,15 @@ class _Steps extends StatelessWidget {
 
     return Semantics(
       container: true,
-      label: 'Starting up',
+      label: l.deskOvStartingUp,
       child: Wrap(
         spacing: Sp.x6,
         runSpacing: Sp.x2,
         children: [
-          step(_StepState.done, 'Wallet unlocked'),
-          step(_StepState.done, 'Connected to node'),
-          step(_StepState.now, 'Updating balances'),
-          step(_StepState.wait, 'Starting Epicbox receiving'),
+          step(_StepState.done, l.deskOvStepUnlocked),
+          step(_StepState.done, l.deskOvStepConnected),
+          step(_StepState.now, l.deskOvStepUpdating),
+          step(_StepState.wait, l.deskOvStepEpicbox),
         ],
       ),
     );
@@ -234,25 +237,24 @@ class _SyncNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ENotice(
           tone: ETone.warn,
           icon: EIcons.server,
-          title: 'Node syncing: ${(part * 100).round()}%',
-          text:
-              'Downloading blocks. Balances are what the wallet knew at block ${_group(walletTip)}. '
-              'Sending opens when the node has caught up.',
+          title: l.deskOvSyncTitle((part * 100).round()),
+          text: l.deskOvSyncText(_group(walletTip)),
         ),
         SizedBox(height: Sp.x2),
         Semantics(
-          label: 'Node sync progress',
+          label: l.deskOvSyncProgress,
           value: '${(part * 100).round()}%',
           child: EProgress(value: part),
         ),
         SizedBox(height: Sp.x1),
-        Text('${(part * 100).round()}% of the chain', style: ts.caption),
+        Text(l.deskOvSyncOfChain((part * 100).round()), style: ts.caption),
       ],
     );
   }
@@ -278,6 +280,7 @@ class _BalancePanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
     final b = balance;
     final amount = b == null
@@ -291,17 +294,17 @@ class _BalancePanel extends ConsumerWidget {
           spacing: Sp.x2,
           runSpacing: Sp.x2,
           children: empty
-              ? [EButton.primary(label: 'Receive EPIC', icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive))]
+              ? [EButton.primary(label: l.deskOvReceiveEpic, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive))]
               : [
-                  EButton.primary(label: 'Send', icon: EIcons.send, onPressed: sendBlocked ? null : () => nav.go(DeskRoute.send)),
-                  EButton(label: 'Receive', icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive)),
+                  EButton.primary(label: l.deskOvSend, icon: EIcons.send, onPressed: sendBlocked ? null : () => nav.go(DeskRoute.send)),
+                  EButton(label: l.deskOvReceive, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive)),
                 ],
         ),
         if (sendBlocked && !empty) ...[
           SizedBox(height: Sp.x2),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 240.u),
-            child: Text('Sending opens when the node is synced.', style: ts.small),
+            child: Text(l.deskOvSendWaits, style: ts.small),
           ),
         ],
       ],
@@ -322,8 +325,8 @@ class _BalancePanel extends ConsumerWidget {
                       runSpacing: Sp.x1,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Text('Available to spend', style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500)),
-                        if (asOfBlock != null) ETag('As of block ${_group(asOfBlock!)}', tone: ETone.warn),
+                        Text(l.deskOvAvailable, style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500)),
+                        if (asOfBlock != null) ETag(l.deskOvAsOfBlock(_group(asOfBlock!)), tone: ETone.warn),
                         if (updating && asOfBlock == null) const _UpdatingTag(),
                       ],
                     ),
@@ -331,14 +334,14 @@ class _BalancePanel extends ConsumerWidget {
                     amount,
                     SizedBox(height: 6.u),
                     if (empty)
-                      Text('Share the Epicbox address to receive the first EPIC.', style: ts.bodyDim)
+                      Text(l.deskOvEmptyHint, style: ts.bodyDim)
                     else if (DeskFeatures.fiatPrice && b != null)
                       Text.rich(
                         TextSpan(
                           children: [
-                            TextSpan(text: hidden ? '≈ \$•••' : '≈ \$${(b.total / nanoPerEpic * _usdPerEpic).toStringAsFixed(2)}'),
+                            TextSpan(text: hidden ? '≈ \$•••' : '≈ \$${(b.total / nanoPerEpic * _usdPerEpic).toStringAsFixed(2)}'), // l10n-ok: the dollar sign and digits
                             TextSpan(
-                              text: '  whole balance, CoinGecko',
+                              text: l.deskOvFiatNote,
                               style: TextStyle(color: c.faint),
                             ),
                           ],
@@ -373,11 +376,11 @@ class _BalancePanel extends ConsumerWidget {
           LayoutBuilder(
             builder: (context, box) {
               final items = <(String, int?, Widget?)>[
-                ('Total', b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
-                ('Confirming', b?.awaitingConfirmation, ERing(confirmations: 1, size: Ctl.iconSm)),
-                if (b == null || b.immature > 0) ('Immature', b?.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
-                ('Awaiting finalization', b?.awaitingFinalization, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
-                ('Locked in sends', b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
+                (l.deskOvBreakTotal, b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
+                (l.deskOvBreakConfirming, b?.awaitingConfirmation, ERing(confirmations: 1, size: Ctl.iconSm)),
+                if (b == null || b.immature > 0) (l.deskOvBreakImmature, b?.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
+                (l.deskOvBreakAwaiting, b?.awaitingFinalization, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
+                (l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
               ];
               // Two columns on a narrow panel, one row otherwise.
               if (box.maxWidth < items.length * 180.u) {
@@ -435,7 +438,7 @@ class _UpdatingTag extends StatelessWidget {
     final c = context.dc;
     return Semantics(
       liveRegion: true,
-      label: 'Updating',
+      label: context.l10n.deskOvUpdating,
       excludeSemantics: true,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 2),
@@ -445,7 +448,7 @@ class _UpdatingTag extends StatelessWidget {
           children: [
             ESpinner(size: 10.u),
             SizedBox(width: 6.u),
-            Text('Updating', style: context.ts.caption),
+            Text(context.l10n.deskOvUpdating, style: context.ts.caption),
           ],
         ),
       ),
@@ -505,7 +508,7 @@ class _BigAmount extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Semantics(
-              label: hidden ? 'Hidden amount' : '$text EPIC',
+              label: hidden ? context.l10n.deskOvHiddenAmount : '$text EPIC',
               excludeSemantics: true,
               child: Row(
                 key: const ValueKey('balance-row'),
@@ -690,6 +693,7 @@ class _Recent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    final l = context.l10n;
     final list = txs;
     Widget body;
     if (list == null) {
@@ -700,7 +704,7 @@ class _Recent extends StatelessWidget {
           children: [
             const ESpinner(),
             SizedBox(width: Sp.x3),
-            Text('Loading transactions', style: context.ts.bodyDim),
+            Text(l.deskOvLoading, style: context.ts.bodyDim),
           ],
         ),
       );
@@ -709,11 +713,11 @@ class _Recent extends StatelessWidget {
         builder: (context) => Consumer(
           builder: (context, ref, _) => EEmpty(
             icon: EIcons.receive,
-            title: 'No transactions yet',
-            text: 'Received EPIC shows here first as confirming, then as spendable after ${deskMinConfirmations(ref)} blocks.',
+            title: l.deskOvEmptyTitle,
+            text: l.deskOvEmptyText(deskMinConfirmations(ref)),
             actions: [
-              EButton.primary(label: 'Show address', onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.receive)),
-              EButton.ghost(label: 'Receive a file', size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx)),
+              EButton.primary(label: l.deskOvShowAddress, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.receive)),
+              EButton.ghost(label: l.deskOvReceiveFile, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx)),
             ],
           ),
         ),
@@ -729,9 +733,9 @@ class _Recent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ESectionHead(
-          'Recent activity',
+          l.deskOvRecent,
           top: Sp.x6,
-          trailing: list == null || list.isEmpty ? null : ELink(label: 'View all ${list.length}', onPressed: onAll),
+          trailing: list == null || list.isEmpty ? null : ELink(label: l.deskOvViewAll(list.length), onPressed: onAll),
         ),
         Container(
           clipBehavior: Clip.antiAlias,
@@ -758,10 +762,10 @@ class _PendingFiles extends ConsumerWidget {
     child: ENotice(
       tone: ETone.info,
       icon: EIcons.file,
-      title: count == 1 ? '1 file send open' : '$count file sends open',
-      text: 'Finalize with the response file from the recipient.',
+      title: context.l10n.deskOvPendingFiles(count),
+      text: context.l10n.deskOvPendingText,
       actions: [
-        EButton(label: 'Finalize', kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.finalize)),
+        EButton(label: context.l10n.deskOvFinalize, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.finalize)),
       ],
     ),
   );

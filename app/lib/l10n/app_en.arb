@@ -9925,5 +9925,1975 @@
   "deskImpChooseText": "The wallet signs it and saves a response for the sender.",
   "@deskImpChooseText": {
     "description": "Text of the drop zone."
+  },
+  "deskActNotUpdated": "Not updated",
+  "@deskActNotUpdated": {
+    "description": "Title of the toast on Activity when the refresh could not ask the node; the reason follows as its text."
+  },
+  "deskActSearchHint": "Address or slate id",
+  "@deskActSearchHint": {
+    "description": "Placeholder of the search field on Activity. Narrow field."
+  },
+  "deskActSearchHintEmpty": "Nothing to search yet",
+  "@deskActSearchHintEmpty": {
+    "description": "Placeholder of the search field on Activity when there are no transactions yet. Narrow field."
+  },
+  "deskActSearchLabel": "Search transactions",
+  "@deskActSearchLabel": {
+    "description": "Screen reader label of the search field on Activity."
+  },
+  "deskActClearSearch": "Clear search",
+  "@deskActClearSearch": {
+    "description": "Tooltip of the button that empties the search field; also the button of the 'no match' state."
+  },
+  "deskActShowAmounts": "Show amounts",
+  "@deskActShowAmounts": {
+    "description": "Tooltip of the icon button on Activity that shows the hidden amounts."
+  },
+  "deskActHideAmounts": "Hide amounts",
+  "@deskActHideAmounts": {
+    "description": "Tooltip of the icon button on Activity that hides amounts."
+  },
+  "deskActRefresh": "Refresh",
+  "@deskActRefresh": {
+    "description": "Tooltip of the icon button on Activity that asks the node for new transactions."
+  },
+  "deskActTitle": "Activity",
+  "@deskActTitle": {
+    "description": "Title of the Activity page: the list of all transactions."
+  },
+  "deskActDetailReceived": "Received transaction",
+  "@deskActDetailReceived": {
+    "description": "Title of the transaction detail for an incoming payment, in the pane beside the list or on its own page."
+  },
+  "deskActDetailSent": "Sent transaction",
+  "@deskActDetailSent": {
+    "description": "Title of the transaction detail for an outgoing payment, in the pane beside the list or on its own page."
+  },
+  "deskActLoading": "Loading transactions",
+  "@deskActLoading": {
+    "description": "Line with a spinner on Activity while the transactions are being read."
+  },
+  "deskActWaitingNode": "Waiting for the node to be synced.",
+  "@deskActWaitingNode": {
+    "description": "Line with a spinner on Activity while the node has not finished syncing, so there is no list yet."
+  },
+  "deskActFilterAll": "All",
+  "@deskActFilterAll": {
+    "description": "Filter tab on Activity: every transaction. Narrow tab; a count follows it."
+  },
+  "deskActFilterReceived": "Received",
+  "@deskActFilterReceived": {
+    "description": "Filter tab on Activity: incoming payments. Narrow tab; a count follows it."
+  },
+  "deskActFilterSent": "Sent",
+  "@deskActFilterSent": {
+    "description": "Filter tab on Activity: outgoing payments. Narrow tab; a count follows it."
+  },
+  "deskActNoMatchTitle": "No transactions match",
+  "@deskActNoMatchTitle": {
+    "description": "Title of the empty state on Activity when the search and filter show nothing."
+  },
+  "deskActNoMatchText": "Try another address or slate id, or clear the filter.",
+  "@deskActNoMatchText": {
+    "description": "Text of the empty state on Activity when the search and filter show nothing."
+  },
+  "deskActPageOf": "Page {page} of {pages}",
+  "@deskActPageOf": {
+    "description": "Pager caption under the Activity list: the current page of all pages.",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "2"
+      },
+      "pages": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "deskActPrevPage": "Previous page",
+  "@deskActPrevPage": {
+    "description": "Tooltip of the pager's previous button."
+  },
+  "deskActNextPage": "Next page",
+  "@deskActNextPage": {
+    "description": "Tooltip of the pager's next button."
+  },
+  "deskActPages": "Pages",
+  "@deskActPages": {
+    "description": "Screen reader label of the pager group."
+  },
+  "deskActColFromTo": "From / to",
+  "@deskActColFromTo": {
+    "description": "Column header of the Activity table: who the other side is. Narrow header."
+  },
+  "deskActColStatus": "Status",
+  "@deskActColStatus": {
+    "description": "Column header of the Activity table. Narrow header."
+  },
+  "deskActColTime": "Time",
+  "@deskActColTime": {
+    "description": "Column header of the Activity table: the clock time. Narrow header, right aligned."
+  },
+  "deskActColAmount": "Amount",
+  "@deskActColAmount": {
+    "description": "Column header of the Activity table. Narrow header, right aligned."
+  },
+  "deskActEmptyTitle": "No transactions yet",
+  "@deskActEmptyTitle": {
+    "description": "Title of the empty state on Activity when the wallet has no transactions."
+  },
+  "deskActEmptyText": "Every payment sent or received is listed here, newest first, with who it was with and how far along it is.",
+  "@deskActEmptyText": {
+    "description": "Text of the empty state on Activity when the wallet has no transactions."
+  },
+  "deskActStageWaiting": "Waiting",
+  "@deskActStageWaiting": {
+    "description": "Title of the first of three stages a payment goes through, in the empty state of Activity."
+  },
+  "deskActStageWaitingText": "Both wallets sign it. Over Epicbox this is automatic.",
+  "@deskActStageWaitingText": {
+    "description": "Text of the first stage in the empty state of Activity."
+  },
+  "deskActStageConfirming": "Confirming",
+  "@deskActStageConfirming": {
+    "description": "Title of the second stage in the empty state of Activity."
+  },
+  "deskActStageConfirmingText": "On the chain. About one block a minute.",
+  "@deskActStageConfirmingText": {
+    "description": "Text of the second stage in the empty state of Activity."
+  },
+  "deskActStageSpendable": "Spendable",
+  "@deskActStageSpendable": {
+    "description": "Title of the third stage in the empty state of Activity."
+  },
+  "deskActStageSpendableText": "{needed, plural, one{After {needed} confirmation, about {needed} minute.} other{After {needed} confirmations, about {needed} minutes.}}",
+  "@deskActStageSpendableText": {
+    "description": "Text of the third stage in the empty state of Activity: the number of confirmations before the money can be spent; the minutes equal the confirmations (one block a minute).",
+    "placeholders": {
+      "needed": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskActShowAddress": "Show address",
+  "@deskActShowAddress": {
+    "description": "Primary button in the empty state of Activity: opens the Receive page."
+  },
+  "deskActReceiveFile": "Receive a file",
+  "@deskActReceiveFile": {
+    "description": "Ghost button in the empty state of Activity: opens the page to import a payment file."
+  },
+  "deskConTitle": "Contacts",
+  "@deskConTitle": {
+    "description": "Title of the Contacts page: saved people and shops with their addresses."
+  },
+  "deskConLoading": "Loading contacts",
+  "@deskConLoading": {
+    "description": "Line with a spinner on Contacts while the list loads."
+  },
+  "deskConNewTitle": "New contact",
+  "@deskConNewTitle": {
+    "description": "Title of the form for a new contact (page title on a narrow window, panel title and form heading)."
+  },
+  "deskConEditTitle": "Edit contact",
+  "@deskConEditTitle": {
+    "description": "Title of the form for editing a contact (page title on a narrow window, panel title and form heading)."
+  },
+  "deskConDetailsTitle": "Details",
+  "@deskConDetailsTitle": {
+    "description": "Title of the panel beside the contact list when a contact is shown."
+  },
+  "deskConSearchHint": "Name or address",
+  "@deskConSearchHint": {
+    "description": "Placeholder of the search field above the contact list."
+  },
+  "deskConSearchLabel": "Search contacts",
+  "@deskConSearchLabel": {
+    "description": "Screen reader label of the search field above the contact list."
+  },
+  "deskConClearSearch": "Clear search",
+  "@deskConClearSearch": {
+    "description": "Tooltip of the button that empties the contact search; also the button of the 'no contacts match' state."
+  },
+  "deskConCount": "{count, plural, one{{count} contact} other{{count} contacts}}",
+  "@deskConCount": {
+    "description": "Number of saved contacts, above a long contact list.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "deskConNoMatches": "No matches",
+  "@deskConNoMatches": {
+    "description": "Count line above the contact list when the search finds nobody."
+  },
+  "deskConMatches": "{count, plural, one{{count} match} other{{count} matches}}",
+  "@deskConMatches": {
+    "description": "Count line above the contact list while searching.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskConSortName": "Name",
+  "@deskConSortName": {
+    "description": "Option of the sort switch above the contact list: sort by name. Narrow segment."
+  },
+  "deskConSortRecent": "Recent",
+  "@deskConSortRecent": {
+    "description": "Option of the sort switch above the contact list: most recently used first. Narrow segment."
+  },
+  "deskConNone": "No contacts yet.",
+  "@deskConNone": {
+    "description": "Line in the contact list when there are no contacts."
+  },
+  "deskConNoMatchList": "No contacts match",
+  "@deskConNoMatchList": {
+    "description": "Line in the contact list when the search finds nobody."
+  },
+  "deskConAdd": "Add contact",
+  "@deskConAdd": {
+    "description": "Button on Contacts that opens the form for a new contact. Short."
+  },
+  "deskConIdle": "Choose a contact to see their details, send to them, edit or delete them.",
+  "@deskConIdle": {
+    "description": "Text in the empty detail panel beside the contact list."
+  },
+  "deskConEmptyTitle": "No contacts yet",
+  "@deskConEmptyTitle": {
+    "description": "Title of the empty state of Contacts."
+  },
+  "deskConEmptyText": "Save the people and shops paid often. On Send, pick a name instead of pasting an address.",
+  "@deskConEmptyText": {
+    "description": "Text of the empty state of Contacts."
+  },
+  "deskConEmptyLocal": "Contacts stay on this computer. They are not part of the recovery phrase.",
+  "@deskConEmptyLocal": {
+    "description": "Small text of the empty state of Contacts."
+  },
+  "deskConSendToAddress": "Send to address",
+  "@deskConSendToAddress": {
+    "description": "Ghost button in the empty state of Contacts: opens Send without a contact."
+  },
+  "deskConLastTx": "Last transaction: {when}",
+  "@deskConLastTx": {
+    "description": "Small line under a contact's name. The placeholder is a time such as 'today', '3 days ago' or '12 Oct'.",
+    "placeholders": {
+      "when": {
+        "type": "String",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "deskConSend": "Send",
+  "@deskConSend": {
+    "description": "Primary button in a contact's detail: send to this contact. Short."
+  },
+  "deskConEdit": "Edit",
+  "@deskConEdit": {
+    "description": "Button in a contact's detail: edit it. Short."
+  },
+  "deskConStar": "Star",
+  "@deskConStar": {
+    "description": "Button in a contact's detail: mark as favourite. Short."
+  },
+  "deskConUnstar": "Unstar",
+  "@deskConUnstar": {
+    "description": "Button in a contact's detail: remove the favourite mark. Short."
+  },
+  "deskConDelete": "Delete",
+  "@deskConDelete": {
+    "description": "Danger button in a contact's detail: delete it. Short."
+  },
+  "deskConNotDeleted": "Not deleted",
+  "@deskConNotDeleted": {
+    "description": "Title of the toast when a contact could not be deleted; the reason follows as its text."
+  },
+  "deskConDeleted": "{name} was deleted",
+  "@deskConDeleted": {
+    "description": "Toast after a contact was deleted.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskConAddrEpicbox": "Epicbox address",
+  "@deskConAddrEpicbox": {
+    "description": "Label above the address in a contact's detail, for an Epicbox address."
+  },
+  "deskConAddrTor": "Tor address",
+  "@deskConAddrTor": {
+    "description": "Label above the address in a contact's detail, for a Tor address."
+  },
+  "deskConAddrHttp": "HTTP address",
+  "@deskConAddrHttp": {
+    "description": "Label above the address in a contact's detail, for an HTTP address."
+  },
+  "deskConNote": "Note",
+  "@deskConNote": {
+    "description": "Label above the note in a contact's detail; also the label of the note field in the form."
+  },
+  "deskConTxWith": "Transactions with {name}",
+  "@deskConTxWith": {
+    "description": "Heading above the list of payments with this contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskConAllTx": "All transactions",
+  "@deskConAllTx": {
+    "description": "Link next to the heading: opens Activity."
+  },
+  "deskConTxNone": "No transactions with this contact yet. Payments sent to them from Send appear here.",
+  "@deskConTxNone": {
+    "description": "Text under the heading when there are no payments with this contact."
+  },
+  "deskConTxReceived": "Received",
+  "@deskConTxReceived": {
+    "description": "Title of a compact row in a contact's payments: an incoming payment. One word."
+  },
+  "deskConTxSent": "Sent",
+  "@deskConTxSent": {
+    "description": "Title of a compact row in a contact's payments: an outgoing payment. One word."
+  },
+  "deskConErrName": "Give the contact a name.",
+  "@deskConErrName": {
+    "description": "Error under the Name field of the contact form when it is empty."
+  },
+  "deskConErrAddressEmpty": "Add an address.",
+  "@deskConErrAddressEmpty": {
+    "description": "Error under the Address field of the contact form when it is empty."
+  },
+  "deskConErrAddressInvalid": "Not a recognised address",
+  "@deskConErrAddressInvalid": {
+    "description": "Error under the Address field of the contact form when the text is not an address."
+  },
+  "deskConAddPicture": "Add picture",
+  "@deskConAddPicture": {
+    "description": "Small button in the contact form: add a picture. Only shown when contact pictures exist."
+  },
+  "deskConChangePicture": "Change picture",
+  "@deskConChangePicture": {
+    "description": "Small button in the contact form: change the picture."
+  },
+  "deskConRemovePicture": "Remove",
+  "@deskConRemovePicture": {
+    "description": "Small button in the contact form: remove the picture."
+  },
+  "deskConPictureHelp": "PNG, JPEG, WebP or GIF, up to 10 MB. A small copy is kept in this app.",
+  "@deskConPictureHelp": {
+    "description": "Small text under the picture buttons in the contact form."
+  },
+  "deskConFieldName": "Name",
+  "@deskConFieldName": {
+    "description": "Label of the Name field in the contact form."
+  },
+  "deskConFieldAddress": "Address",
+  "@deskConFieldAddress": {
+    "description": "Label of the Address field in the contact form."
+  },
+  "deskConSaveFailed": "Contact not saved",
+  "@deskConSaveFailed": {
+    "description": "Title of the red notice in the contact form when saving failed; the reason follows."
+  },
+  "deskConSave": "Save contact",
+  "@deskConSave": {
+    "description": "Primary button of the contact form. Short."
+  },
+  "deskConDeleteTitle": "Delete {name}?",
+  "@deskConDeleteTitle": {
+    "description": "Title of the dialog that asks before deleting a contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskConDeleteBody": "The contact’s address and note are removed from this wallet. Past transactions stay in Activity. This cannot be undone.",
+  "@deskConDeleteBody": {
+    "description": "Body of the dialog that asks before deleting a contact."
+  },
+  "deskConKeep": "Keep contact",
+  "@deskConKeep": {
+    "description": "Button in the delete dialog: do not delete. Short."
+  },
+  "deskConDeleteAction": "Delete contact",
+  "@deskConDeleteAction": {
+    "description": "Danger button in the delete dialog. Short."
+  },
+  "deskOutNotUpdated": "Not updated",
+  "@deskOutNotUpdated": {
+    "description": "Title of the toast on Outputs when the refresh could not ask the node; the reason follows as its text."
+  },
+  "deskOutTitle": "Outputs",
+  "@deskOutTitle": {
+    "description": "Title of the Outputs page; also the screen reader label of the outputs table. Outputs are the coins the balance is made of."
+  },
+  "deskOutShowAmounts": "Show amounts",
+  "@deskOutShowAmounts": {
+    "description": "Tooltip of the icon button on Outputs that shows the hidden amounts."
+  },
+  "deskOutHideAmounts": "Hide amounts",
+  "@deskOutHideAmounts": {
+    "description": "Tooltip of the icon button on Outputs that hides amounts."
+  },
+  "deskOutRefresh": "Refresh",
+  "@deskOutRefresh": {
+    "description": "Tooltip of the icon button on Outputs that asks the node for new data; also the button when the list could not be loaded."
+  },
+  "deskOutLockedNote": "Locked outputs are being spent by a transaction in progress. Their change shows as awaiting finalization and is not in Total until the send is finalized, so Total counts the coins once.",
+  "@deskOutLockedNote": {
+    "description": "Small note under the balance tiles on Outputs, shown while some outputs are locked."
+  },
+  "deskOutIntro": "Outputs are the pieces the balance is made of. A send spends whole outputs, pays the recipient and returns the rest as a new output; the spent ones are locked until the send confirms.",
+  "@deskOutIntro": {
+    "description": "Intro paragraph on the Outputs page."
+  },
+  "deskOutCount": "{count, plural, one{{count} output} other{{count} outputs}}",
+  "@deskOutCount": {
+    "description": "Number of outputs, small caption next to an amount in the balance tiles.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskOutCardWait": "Wait until the send confirms (about 3 blocks).",
+  "@deskOutCardWait": {
+    "description": "Note on the Split and Consolidate cards while a send is still locking outputs."
+  },
+  "deskOutSplitNothing": "Nothing to split yet.",
+  "@deskOutSplitNothing": {
+    "description": "Note on the Split card when there are no spendable outputs."
+  },
+  "deskOutSplitSpends": "{count, plural, one{Spends {count} output.} other{Spends {count} outputs.}}",
+  "@deskOutSplitSpends": {
+    "description": "Note on the Split card: how many outputs a split would spend.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "deskOutSplitSpendsFee": "{count, plural, one{Spends {count} output. Fee from {fee} EPIC.} other{Spends {count} outputs. Fee from {fee} EPIC.}}",
+  "@deskOutSplitSpendsFee": {
+    "description": "Note on the Split card: how many outputs a split would spend and the lowest fee.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      },
+      "fee": {
+        "type": "String",
+        "example": "0.004"
+      }
+    }
+  },
+  "deskOutConsNothing": "Nothing to consolidate yet.",
+  "@deskOutConsNothing": {
+    "description": "Note on the Consolidate card when there are no spendable outputs."
+  },
+  "deskOutConsOne": "Nothing to consolidate: one spendable output.",
+  "@deskOutConsOne": {
+    "description": "Note on the Consolidate card when there is only one spendable output."
+  },
+  "deskOutConsInto": "{count, plural, one{{count} output into 1.} other{{count} outputs into 1.}}",
+  "@deskOutConsInto": {
+    "description": "Note on the Consolidate card: how many outputs a consolidation merges into one.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskOutConsIntoFee": "{count, plural, one{{count} output into 1. Fee {fee} EPIC.} other{{count} outputs into 1. Fee {fee} EPIC.}}",
+  "@deskOutConsIntoFee": {
+    "description": "Note on the Consolidate card: how many outputs a consolidation merges into one, and its fee.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      },
+      "fee": {
+        "type": "String",
+        "example": "0.004"
+      }
+    }
+  },
+  "deskOutSplitCardTitle": "Split",
+  "@deskOutSplitCardTitle": {
+    "description": "Title of the Split card on Outputs."
+  },
+  "deskOutSplitCardText": "Makes more outputs from the spendable balance, so several sends can follow each other without waiting.",
+  "@deskOutSplitCardText": {
+    "description": "Text of the Split card on Outputs."
+  },
+  "deskOutSplitCardButton": "Split…",
+  "@deskOutSplitCardButton": {
+    "description": "Button of the Split card; opens a dialog. Keep the ellipsis. Short."
+  },
+  "deskOutConsCardTitle": "Consolidate",
+  "@deskOutConsCardTitle": {
+    "description": "Title of the Consolidate card on Outputs."
+  },
+  "deskOutConsCardText": "Merges every spendable output into one. Smaller fees on the next send; everything is locked until it confirms.",
+  "@deskOutConsCardText": {
+    "description": "Text of the Consolidate card on Outputs."
+  },
+  "deskOutConsCardButton": "Consolidate…",
+  "@deskOutConsCardButton": {
+    "description": "Button of the Consolidate card; opens a dialog. Keep the ellipsis. Short."
+  },
+  "deskOutNotLoadedTitle": "Outputs not loaded",
+  "@deskOutNotLoadedTitle": {
+    "description": "Title of the empty state on Outputs when the list could not be read."
+  },
+  "deskOutNotLoadedText": "Refresh to try again.",
+  "@deskOutNotLoadedText": {
+    "description": "Text of the empty state on Outputs when the list could not be read."
+  },
+  "deskOutLoading": "Loading wallet data",
+  "@deskOutLoading": {
+    "description": "Line with a spinner on Outputs while the list loads."
+  },
+  "deskOutNoneTitle": "No outputs yet",
+  "@deskOutNoneTitle": {
+    "description": "Title of the empty state on Outputs when the wallet has no outputs."
+  },
+  "deskOutNoneText": "The first payment received makes one. Split and Consolidate need something to work with.",
+  "@deskOutNoneText": {
+    "description": "Text of the empty state on Outputs when the wallet has no outputs."
+  },
+  "deskOutFilterAll": "All",
+  "@deskOutFilterAll": {
+    "description": "Filter chip on Outputs: every output. Narrow chip; a count follows it."
+  },
+  "deskOutFilterSpendable": "Spendable",
+  "@deskOutFilterSpendable": {
+    "description": "Filter chip on Outputs: outputs that can be spent now. Narrow chip; a count follows it."
+  },
+  "deskOutFilterConfirming": "Confirming",
+  "@deskOutFilterConfirming": {
+    "description": "Filter chip on Outputs: outputs waiting for confirmations. Narrow chip; a count follows it."
+  },
+  "deskOutFilterLocked": "Locked",
+  "@deskOutFilterLocked": {
+    "description": "Filter chip on Outputs: outputs locked by a send. Narrow chip; a count follows it."
+  },
+  "deskOutSearchHint": "Commitment",
+  "@deskOutSearchHint": {
+    "description": "Placeholder of the search field on Outputs. A commitment is the output's technical identifier."
+  },
+  "deskOutSearchLabel": "Search outputs",
+  "@deskOutSearchLabel": {
+    "description": "Screen reader label of the search field on Outputs."
+  },
+  "deskOutClearSearch": "Clear search",
+  "@deskOutClearSearch": {
+    "description": "Tooltip of the button that empties the search field on Outputs."
+  },
+  "deskOutShowSpent": "Show spent",
+  "@deskOutShowSpent": {
+    "description": "Checkbox on Outputs: also list outputs that were already spent."
+  },
+  "deskOutNoMatchTitle": "No outputs match",
+  "@deskOutNoMatchTitle": {
+    "description": "Title of the empty state on Outputs when the search and filter show nothing."
+  },
+  "deskOutNoMatchText": "Try another commitment, or clear the filter.",
+  "@deskOutNoMatchText": {
+    "description": "Text of the empty state on Outputs when the search and filter show nothing."
+  },
+  "deskOutClearFilter": "Clear filter",
+  "@deskOutClearFilter": {
+    "description": "Button of the 'no match' state on Outputs: empties the search and resets the filter."
+  },
+  "deskOutTileSpendable": "Spendable",
+  "@deskOutTileSpendable": {
+    "description": "Label of a balance tile on Outputs: money that can be spent now. Narrow tile."
+  },
+  "deskOutTileConfirming": "Confirming",
+  "@deskOutTileConfirming": {
+    "description": "Label of a balance tile on Outputs: money waiting for confirmations. Narrow tile."
+  },
+  "deskOutTileImmature": "Immature",
+  "@deskOutTileImmature": {
+    "description": "Label of a balance tile on Outputs: mining rewards not yet spendable. Narrow tile."
+  },
+  "deskOutTileLocked": "Locked in sends",
+  "@deskOutTileLocked": {
+    "description": "Label of a balance tile on Outputs: money locked in unfinished sends. Narrow tile."
+  },
+  "deskOutTileTotal": "Total",
+  "@deskOutTileTotal": {
+    "description": "Label of a balance tile on Outputs: the whole balance. Narrow tile."
+  },
+  "deskOutDefaultsTitle": "Defaults for sends",
+  "@deskOutDefaultsTitle": {
+    "description": "Title of the panel on Outputs with the settings Send uses."
+  },
+  "deskOutStrategyTitle": "Strategy for sends",
+  "@deskOutStrategyTitle": {
+    "description": "Setting title in the Defaults panel: which outputs a send spends."
+  },
+  "deskOutStrategyText": "Which outputs a send spends. Send can change it for one send under Advanced.",
+  "@deskOutStrategyText": {
+    "description": "Setting description under 'Strategy for sends'. 'Advanced' is a section of the Send page."
+  },
+  "deskOutStrategySmallest": "Smallest",
+  "@deskOutStrategySmallest": {
+    "description": "Option of the strategy switch: spend the smallest outputs. Narrow segment."
+  },
+  "deskOutStrategyAll": "All",
+  "@deskOutStrategyAll": {
+    "description": "Option of the strategy switch: spend all outputs. Narrow segment."
+  },
+  "deskOutStrategyHelp": "Smallest spends the fewest small outputs and leaves the rest spendable. All spends everything and returns one output.",
+  "@deskOutStrategyHelp": {
+    "description": "Help text of the strategy switch, shown as a toast and as the help button's label."
+  },
+  "deskOutStrategyHelpTitle": "Smallest or All",
+  "@deskOutStrategyHelpTitle": {
+    "description": "Title of the toast that shows the strategy help."
+  },
+  "deskOutSplitChangeTitle": "Split change",
+  "@deskOutSplitChangeTitle": {
+    "description": "Setting title in the Defaults panel (a switch); also its screen reader label."
+  },
+  "deskOutSplitChangeText": "When a send would leave fewer than 3 spendable outputs, its change comes back as up to 4 outputs. Costs 0.004 EPIC per extra output.",
+  "@deskOutSplitChangeText": {
+    "description": "Setting description under 'Split change'."
+  },
+  "deskOutColValue": "Value",
+  "@deskOutColValue": {
+    "description": "Column header of the outputs table: the amount. Narrow header, right aligned."
+  },
+  "deskOutColStatus": "Status",
+  "@deskOutColStatus": {
+    "description": "Column header of the outputs table. Narrow header."
+  },
+  "deskOutColConfirmations": "Confirmations",
+  "@deskOutColConfirmations": {
+    "description": "Column header of the outputs table: number of confirmations. Narrow header, right aligned."
+  },
+  "deskOutColHeight": "Height",
+  "@deskOutColHeight": {
+    "description": "Column header of the outputs table: block height. Narrow header."
+  },
+  "deskOutColTransaction": "Transaction",
+  "@deskOutColTransaction": {
+    "description": "Column header of the outputs table: the transaction the output belongs to. Narrow header."
+  },
+  "deskOutColCommitment": "Commitment",
+  "@deskOutColCommitment": {
+    "description": "Column header of the outputs table: the output's technical identifier."
+  },
+  "deskOutStatusSpendable": "Spendable",
+  "@deskOutStatusSpendable": {
+    "description": "Status of an output that can be spent. Narrow status column."
+  },
+  "deskOutStatusConfirming": "Confirming",
+  "@deskOutStatusConfirming": {
+    "description": "Status of an output waiting for confirmations. Narrow status column."
+  },
+  "deskOutConfirmations": "{count, plural, one{{number} confirmation} other{{number} confirmations}}",
+  "@deskOutConfirmations": {
+    "description": "Small grey note after an output's status: how many confirmations it has. number is the count with thousands separators.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      },
+      "number": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "deskOutStatusAwaiting": "Awaiting finalization",
+  "@deskOutStatusAwaiting": {
+    "description": "Status of an output of a payment still waiting to be finalized. Narrow status column."
+  },
+  "deskOutNoteWaitingSender": "waiting for the sender",
+  "@deskOutNoteWaitingSender": {
+    "description": "Small grey note after the status 'Awaiting finalization'. Lower case."
+  },
+  "deskOutStatusUnpaid": "Unpaid invoice",
+  "@deskOutStatusUnpaid": {
+    "description": "Status of an output made for an invoice that is not paid yet. Narrow status column."
+  },
+  "deskOutNoteNotInBalance": "not in the balance",
+  "@deskOutNoteNotInBalance": {
+    "description": "Small grey note after the status 'Unpaid invoice'. Lower case."
+  },
+  "deskOutStatusImmature": "Immature",
+  "@deskOutStatusImmature": {
+    "description": "Status of a mining reward output that cannot be spent yet. Narrow status column."
+  },
+  "deskOutNoteBlocksToGo": "{count, plural, one{{number} block to go} other{{number} blocks to go}}",
+  "@deskOutNoteBlocksToGo": {
+    "description": "Small grey note after the status 'Immature': blocks until it can be spent. number is the count with thousands separators.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "40"
+      },
+      "number": {
+        "type": "String",
+        "example": "40"
+      }
+    }
+  },
+  "deskOutStatusMining": "Mining",
+  "@deskOutStatusMining": {
+    "description": "Status of an output that is a mining reward. Narrow status column."
+  },
+  "deskOutStatusLocked": "Locked",
+  "@deskOutStatusLocked": {
+    "description": "Status of an output locked by a send. Narrow status column."
+  },
+  "deskOutNoteBySend": "by send #{id}",
+  "@deskOutNoteBySend": {
+    "description": "Small grey note after the status 'Locked': which send locked it.",
+    "placeholders": {
+      "id": {
+        "type": "int",
+        "example": "44"
+      }
+    }
+  },
+  "deskOutStatusSpent": "Spent",
+  "@deskOutStatusSpent": {
+    "description": "Status of an output that was spent. Narrow status column."
+  },
+  "deskOutTxReceived": "Received {date}",
+  "@deskOutTxReceived": {
+    "description": "Link in the outputs table to the transaction an output came from: incoming, with a short date.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "8 Oct"
+      }
+    }
+  },
+  "deskOutTxSent": "Sent {date}",
+  "@deskOutTxSent": {
+    "description": "Link in the outputs table to the transaction an output belongs to: outgoing, with a short date.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "8 Oct"
+      }
+    }
+  },
+  "deskOutCopyCommitment": "Copy commitment {short}",
+  "@deskOutCopyCommitment": {
+    "description": "Tooltip of the copy button next to a commitment; short is its shortened form.",
+    "placeholders": {
+      "short": {
+        "type": "String",
+        "example": "08c7a1…b2d4a6"
+      }
+    }
+  },
+  "deskOutSplitSpentPart": "{count, plural, one{{count} output ({amount} EPIC)} other{{count} outputs ({amount} EPIC)}}",
+  "@deskOutSplitSpentPart": {
+    "description": "Bold part of the Split and Consolidate dialog text: how many outputs are spent and what they hold.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      },
+      "amount": {
+        "type": "String",
+        "example": "3.5"
+      }
+    }
+  },
+  "deskOutSplitMadePart": "{count} outputs of about {amount} EPIC",
+  "@deskOutSplitMadePart": {
+    "description": "Bold part of the Split dialog text: how many outputs are made and the size of each.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "4"
+      },
+      "amount": {
+        "type": "String",
+        "example": "0.8750"
+      }
+    }
+  },
+  "deskOutConsMadePart": "one output of {amount} EPIC",
+  "@deskOutConsMadePart": {
+    "description": "Bold part of the Consolidate dialog text: the single output that is made.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "3.5"
+      }
+    }
+  },
+  "deskOutSplitDialogText": "Spends {spent} and makes {made} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.",
+  "@deskOutSplitDialogText": {
+    "description": "Paragraph in the Split dialog. The two placeholders are shown in bold; keep them as whole pieces.",
+    "placeholders": {
+      "spent": {
+        "type": "String",
+        "example": "2 outputs (3.5 EPIC)"
+      },
+      "made": {
+        "type": "String",
+        "example": "4 outputs of about 0.8750 EPIC"
+      }
+    }
+  },
+  "deskOutConsDialogText": "Spends {spent} and makes {made}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
+  "@deskOutConsDialogText": {
+    "description": "Paragraph in the Consolidate dialog. The two placeholders are shown in bold; keep them as whole pieces.",
+    "placeholders": {
+      "spent": {
+        "type": "String",
+        "example": "3 outputs (3.5 EPIC)"
+      },
+      "made": {
+        "type": "String",
+        "example": "one output of 3.4 EPIC"
+      }
+    }
+  },
+  "deskOutFactFee": "Network fee",
+  "@deskOutFactFee": {
+    "description": "Label in the dialog's facts list: the fee of the transaction."
+  },
+  "deskOutFactEach": "Each output",
+  "@deskOutFactEach": {
+    "description": "Label in the Split dialog's facts list: the size of every new output."
+  },
+  "deskOutFactAbout": "about {amount} EPIC",
+  "@deskOutFactAbout": {
+    "description": "Value in the Split dialog's facts list.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "0.8750"
+      }
+    }
+  },
+  "deskOutFactLocked": "Locked",
+  "@deskOutFactLocked": {
+    "description": "Label in the dialog's facts list: the amount locked while the transaction confirms."
+  },
+  "deskOutFactLockedValue": "{amount} EPIC, about 3 blocks. Nothing stays spendable.",
+  "@deskOutFactLockedValue": {
+    "description": "Value in the dialog's facts list: how much is locked and for how long.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "3.5"
+      }
+    }
+  },
+  "deskOutMakeLabel": "Outputs to make",
+  "@deskOutMakeLabel": {
+    "description": "Label of the number stepper in the Split dialog; also its screen reader label."
+  },
+  "deskOutMakeRange": "2 to 10.",
+  "@deskOutMakeRange": {
+    "description": "Small text under 'Outputs to make': the allowed range."
+  },
+  "deskOutStepperFewer": "Fewer",
+  "@deskOutStepperFewer": {
+    "description": "Tooltip of the minus button of the number stepper."
+  },
+  "deskOutStepperMore": "More",
+  "@deskOutStepperMore": {
+    "description": "Tooltip of the plus button of the number stepper."
+  },
+  "deskOutFeeWorking": "Working out the fee",
+  "@deskOutFeeWorking": {
+    "description": "Line with a spinner in the dialog while the fee is estimated."
+  },
+  "deskOutNoEstimate": "No estimate",
+  "@deskOutNoEstimate": {
+    "description": "Title of the red notice in the dialog when the fee could not be estimated; the reason follows."
+  },
+  "deskOutEachMin": "Each output must be at least 0.5 EPIC.",
+  "@deskOutEachMin": {
+    "description": "Warning in the Split dialog when the outputs would be too small."
+  },
+  "deskOutNotEnoughFee": "Not enough to pay the fee.",
+  "@deskOutNotEnoughFee": {
+    "description": "Warning in the Consolidate dialog when the outputs do not cover the fee."
+  },
+  "deskOutSplitInto": "Split into {count}",
+  "@deskOutSplitInto": {
+    "description": "Primary button of the Split dialog: split into this many outputs.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "deskOutConsolidateButton": "Consolidate",
+  "@deskOutConsolidateButton": {
+    "description": "Primary button of the Consolidate dialog."
+  },
+  "deskOutPostingSplit": "Building and posting the split. Keep the app open.",
+  "@deskOutPostingSplit": {
+    "description": "Line with a spinner in the Split dialog while the transaction is built and sent."
+  },
+  "deskOutPostingCons": "Building and posting the consolidate. Keep the app open.",
+  "@deskOutPostingCons": {
+    "description": "Line with a spinner in the Consolidate dialog while the transaction is built and sent."
+  },
+  "deskOutSplitPosted": "Split posted",
+  "@deskOutSplitPosted": {
+    "description": "Title of the green notice in the Split dialog when it worked."
+  },
+  "deskOutConsPosted": "Consolidate posted",
+  "@deskOutConsPosted": {
+    "description": "Title of the green notice in the Consolidate dialog when it worked."
+  },
+  "deskOutSplitDoneText": "{count, plural, one{The wallet now has {count} output of about {amount} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.} other{The wallet now has {count} outputs of about {amount} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.}}",
+  "@deskOutSplitDoneText": {
+    "description": "Text of the green notice in the Split dialog when it worked.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "4"
+      },
+      "amount": {
+        "type": "String",
+        "example": "0.8750"
+      }
+    }
+  },
+  "deskOutConsDoneText": "One output of {amount} EPIC, confirming. Everything is locked until it confirms (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.",
+  "@deskOutConsDoneText": {
+    "description": "Text of the green notice in the Consolidate dialog when it worked.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "3.4"
+      }
+    }
+  },
+  "deskOutNotPostedTitle": "Not posted.",
+  "@deskOutNotPostedTitle": {
+    "description": "Title of the red notice when the node did not take the transaction."
+  },
+  "deskOutNotPostedSplit": "The split was built and stored, but the node did not take it. Post it again, or cancel it to unlock the outputs.",
+  "@deskOutNotPostedSplit": {
+    "description": "Text of the red notice in the Split dialog when the node did not take the transaction."
+  },
+  "deskOutNotPostedCons": "The consolidate was built and stored, but the node did not take it. Post it again, or cancel it to unlock the outputs.",
+  "@deskOutNotPostedCons": {
+    "description": "Text of the red notice in the Consolidate dialog when the node did not take the transaction."
+  },
+  "deskOutCancelSplit": "Cancel the split",
+  "@deskOutCancelSplit": {
+    "description": "Button in the Split dialog: cancel the stored transaction. Short."
+  },
+  "deskOutCancelCons": "Cancel the consolidate",
+  "@deskOutCancelCons": {
+    "description": "Button in the Consolidate dialog: cancel the stored transaction. Short."
+  },
+  "deskOutPostAgain": "Post again",
+  "@deskOutPostAgain": {
+    "description": "Primary button: send the stored transaction to the node again. Short."
+  },
+  "deskOutNotDoneTitle": "Not done",
+  "@deskOutNotDoneTitle": {
+    "description": "Title of the red notice in the dialog when it failed."
+  },
+  "deskOutNotDoneText": "{error}. The outputs are unchanged.",
+  "@deskOutNotDoneText": {
+    "description": "Text of the red notice in the dialog when it failed; error is the reason (a sentence without final full stop).",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Not enough funds"
+      }
+    }
+  },
+  "deskOutSomethingWrong": "Something went wrong",
+  "@deskOutSomethingWrong": {
+    "description": "Reason shown when nothing more is known about why the split or consolidate failed."
+  },
+  "deskOutTryAgain": "Try again",
+  "@deskOutTryAgain": {
+    "description": "Primary button of the failure state in the dialog. Short."
+  },
+  "deskOutToastNotPosted": "Not posted",
+  "@deskOutToastNotPosted": {
+    "description": "Title of the toast when posting again failed; the reason follows as its text."
+  },
+  "deskOutToastNotCancelled": "Not cancelled",
+  "@deskOutToastNotCancelled": {
+    "description": "Title of the toast when cancelling the stored transaction failed; the reason follows as its text."
+  },
+  "deskOutSplitDialogTitle": "Split outputs",
+  "@deskOutSplitDialogTitle": {
+    "description": "Title of the Split dialog."
+  },
+  "deskOutConsDialogTitle": "Consolidate outputs",
+  "@deskOutConsDialogTitle": {
+    "description": "Title of the Consolidate dialog."
+  },
+  "deskOutPostingDesc": "Posting.",
+  "@deskOutPostingDesc": {
+    "description": "Description in the dialog header while posting."
+  },
+  "deskOutDoneDesc": "Done.",
+  "@deskOutDoneDesc": {
+    "description": "Description in the dialog header when it worked."
+  },
+  "deskOutSplitDesc": "More outputs, so several sends can follow each other.",
+  "@deskOutSplitDesc": {
+    "description": "Description in the Split dialog header."
+  },
+  "deskOutConsDesc": "One output instead of many.",
+  "@deskOutConsDesc": {
+    "description": "Description in the Consolidate dialog header."
+  },
+  "deskOutNothingText": "Nothing to consolidate: the wallet has {what}. Consolidate merges several outputs into one.",
+  "@deskOutNothingText": {
+    "description": "Text of the dialog shown when there is nothing to consolidate (the wallet has one spendable output, or the core says fewer than two); the placeholder is shown in bold.",
+    "placeholders": {
+      "what": {
+        "type": "String",
+        "example": "fewer than two spendable outputs"
+      }
+    }
+  },
+  "deskOutWhatFewer": "fewer than two spendable outputs",
+  "@deskOutWhatFewer": {
+    "description": "Bold part of the 'nothing to consolidate' text."
+  },
+  "deskOutWhatOne": "one spendable output",
+  "@deskOutWhatOne": {
+    "description": "Bold part of the 'nothing to consolidate' text."
+  },
+  "deskOvNotUpdated": "Not updated",
+  "@deskOvNotUpdated": {
+    "description": "Title of the toast on Overview when the refresh could not ask the node; the reason follows as its text."
+  },
+  "deskOvNodeNotStarted": "Node not started",
+  "@deskOvNodeNotStarted": {
+    "description": "Title of the toast on Overview when the built-in node could not be started; the reason follows as its text."
+  },
+  "deskOvNodeAddrTitle": "Node address updated",
+  "@deskOvNodeAddrTitle": {
+    "description": "Title of a notice on Overview: the saved node address was corrected."
+  },
+  "deskOvNodeAddrText": "Now using node.epiccash.com instead of node.epiccash.com:3413.",
+  "@deskOvNodeAddrText": {
+    "description": "Text of the notice about the corrected node address. The addresses stay as written."
+  },
+  "deskOvNodeIncompatTitle": "This node’s version is not compatible with this wallet",
+  "@deskOvNodeIncompatTitle": {
+    "description": "Title of a red notice on Overview: the node runs a version the wallet cannot use."
+  },
+  "deskOvNodeUrl": "Node: {url}",
+  "@deskOvNodeUrl": {
+    "description": "Text of the incompatible-node notice: the node's address.",
+    "placeholders": {
+      "url": {
+        "type": "String",
+        "example": "node.epiccash.com"
+      }
+    }
+  },
+  "deskOvUsePublicNode": "Use public node",
+  "@deskOvUsePublicNode": {
+    "description": "Button in the incompatible-node notice: switch to the public node. Short."
+  },
+  "deskOvUseLocalNode": "Use local node",
+  "@deskOvUseLocalNode": {
+    "description": "Button in the incompatible-node notice: switch to the node built into the app. Short."
+  },
+  "deskOvHide": "Hide",
+  "@deskOvHide": {
+    "description": "Ghost button in the incompatible-node notice: dismiss it. Short."
+  },
+  "deskOvCantReachNode": "Can’t reach the node at {url}",
+  "@deskOvCantReachNode": {
+    "description": "Title of a red notice on Overview: the node does not answer.",
+    "placeholders": {
+      "url": {
+        "type": "String",
+        "example": "node.epiccash.com"
+      }
+    }
+  },
+  "deskOvCantReachNodeText": "Check that it is running and reachable. Balances may be out of date and sending is paused.",
+  "@deskOvCantReachNodeText": {
+    "description": "Text of the notice that the node does not answer."
+  },
+  "deskOvStarting": "Starting",
+  "@deskOvStarting": {
+    "description": "Label of the Start node button while the node is starting. One word."
+  },
+  "deskOvStartNode": "Start node",
+  "@deskOvStartNode": {
+    "description": "Button in the node-down notice: start the built-in node. Short."
+  },
+  "deskOvNodeSettings": "Node settings",
+  "@deskOvNodeSettings": {
+    "description": "Ghost button in the node-down notice: opens Settings for the node. Short."
+  },
+  "deskOvTitle": "Overview",
+  "@deskOvTitle": {
+    "description": "Title of the Overview page: balance and recent activity."
+  },
+  "deskOvShowAmounts": "Show amounts",
+  "@deskOvShowAmounts": {
+    "description": "Tooltip of the icon button on Overview that shows the hidden amounts."
+  },
+  "deskOvHideAmounts": "Hide amounts",
+  "@deskOvHideAmounts": {
+    "description": "Tooltip of the icon button on Overview that hides amounts."
+  },
+  "deskOvRefresh": "Refresh",
+  "@deskOvRefresh": {
+    "description": "Tooltip of the icon button on Overview that asks the node for new data."
+  },
+  "deskOvStepDone": "done",
+  "@deskOvStepDone": {
+    "description": "Screen reader state of a start-up step that is finished. Lower case, follows the step's text."
+  },
+  "deskOvStepNow": "in progress",
+  "@deskOvStepNow": {
+    "description": "Screen reader state of a start-up step that is running. Lower case, follows the step's text."
+  },
+  "deskOvStepWait": "pending",
+  "@deskOvStepWait": {
+    "description": "Screen reader state of a start-up step that has not started. Lower case, follows the step's text."
+  },
+  "deskOvStepSemantics": "{text}, {state}",
+  "@deskOvStepSemantics": {
+    "description": "Screen reader label of a start-up step: its text and its state.",
+    "placeholders": {
+      "text": {
+        "type": "String",
+        "example": "Updating balances"
+      },
+      "state": {
+        "type": "String",
+        "example": "in progress"
+      }
+    }
+  },
+  "deskOvStartingUp": "Starting up",
+  "@deskOvStartingUp": {
+    "description": "Screen reader label of the group of start-up steps shown after unlocking."
+  },
+  "deskOvStepUnlocked": "Wallet unlocked",
+  "@deskOvStepUnlocked": {
+    "description": "Start-up step shown on Overview after unlocking."
+  },
+  "deskOvStepConnected": "Connected to node",
+  "@deskOvStepConnected": {
+    "description": "Start-up step shown on Overview after unlocking."
+  },
+  "deskOvStepUpdating": "Updating balances",
+  "@deskOvStepUpdating": {
+    "description": "Start-up step shown on Overview after unlocking."
+  },
+  "deskOvStepEpicbox": "Starting Epicbox receiving",
+  "@deskOvStepEpicbox": {
+    "description": "Start-up step shown on Overview after unlocking."
+  },
+  "deskOvSyncTitle": "Node syncing: {percent}%",
+  "@deskOvSyncTitle": {
+    "description": "Title of a notice on Overview while the node catches up with the network.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "62"
+      }
+    }
+  },
+  "deskOvSyncText": "Downloading blocks. Balances are what the wallet knew at block {block}. Sending opens when the node has caught up.",
+  "@deskOvSyncText": {
+    "description": "Text of the node-syncing notice.",
+    "placeholders": {
+      "block": {
+        "type": "String",
+        "example": "2,903,118"
+      }
+    }
+  },
+  "deskOvSyncProgress": "Node sync progress",
+  "@deskOvSyncProgress": {
+    "description": "Screen reader label of the sync progress bar."
+  },
+  "deskOvSyncOfChain": "{percent}% of the chain",
+  "@deskOvSyncOfChain": {
+    "description": "Caption under the sync progress bar.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "62"
+      }
+    }
+  },
+  "deskOvReceiveEpic": "Receive EPIC",
+  "@deskOvReceiveEpic": {
+    "description": "Primary button on Overview of an empty wallet: opens Receive. Short."
+  },
+  "deskOvSend": "Send",
+  "@deskOvSend": {
+    "description": "Primary button on Overview: opens Send. Short."
+  },
+  "deskOvReceive": "Receive",
+  "@deskOvReceive": {
+    "description": "Button on Overview: opens Receive. Short."
+  },
+  "deskOvSendWaits": "Sending opens when the node is synced.",
+  "@deskOvSendWaits": {
+    "description": "Small text under the buttons on Overview while Send is disabled until the node is synced."
+  },
+  "deskOvAvailable": "Available to spend",
+  "@deskOvAvailable": {
+    "description": "Label above the big balance amount on Overview."
+  },
+  "deskOvAsOfBlock": "As of block {block}",
+  "@deskOvAsOfBlock": {
+    "description": "Small tag next to the balance: the balance is as of this block height.",
+    "placeholders": {
+      "block": {
+        "type": "String",
+        "example": "2,903,118"
+      }
+    }
+  },
+  "deskOvEmptyHint": "Share the Epicbox address to receive the first EPIC.",
+  "@deskOvEmptyHint": {
+    "description": "Text under the balance of an empty wallet."
+  },
+  "deskOvFiatNote": "  whole balance, CoinGecko",
+  "@deskOvFiatNote": {
+    "description": "Small grey text after the dollar value of the whole balance on Overview. Starts with two spaces."
+  },
+  "deskOvBreakTotal": "Total",
+  "@deskOvBreakTotal": {
+    "description": "Label of a balance cell under the big amount on Overview: the whole balance. Narrow cell, may wrap to two lines."
+  },
+  "deskOvBreakConfirming": "Confirming",
+  "@deskOvBreakConfirming": {
+    "description": "Label of a balance cell on Overview: money still waiting for confirmations. Narrow cell."
+  },
+  "deskOvBreakImmature": "Immature",
+  "@deskOvBreakImmature": {
+    "description": "Label of a balance cell on Overview: mining rewards not yet spendable. Narrow cell."
+  },
+  "deskOvBreakAwaiting": "Awaiting finalization",
+  "@deskOvBreakAwaiting": {
+    "description": "Label of a balance cell on Overview: money of payments that wait to be finalized. Narrow cell, may wrap to two lines."
+  },
+  "deskOvBreakLocked": "Locked in sends",
+  "@deskOvBreakLocked": {
+    "description": "Label of a balance cell on Overview: money locked in unfinished sends. Narrow cell, may wrap to two lines."
+  },
+  "deskOvUpdating": "Updating",
+  "@deskOvUpdating": {
+    "description": "Tag next to the balance label while the balance is being updated; also its screen reader label. One word."
+  },
+  "deskOvHiddenAmount": "Hidden amount",
+  "@deskOvHiddenAmount": {
+    "description": "Screen reader label of the balance when amounts are hidden."
+  },
+  "deskOvLoading": "Loading transactions",
+  "@deskOvLoading": {
+    "description": "Line with a spinner in the Recent activity panel while the transactions load."
+  },
+  "deskOvEmptyTitle": "No transactions yet",
+  "@deskOvEmptyTitle": {
+    "description": "Title of the empty state of Recent activity."
+  },
+  "deskOvEmptyText": "{blocks, plural, one{Received EPIC shows here first as confirming, then as spendable after {blocks} block.} other{Received EPIC shows here first as confirming, then as spendable after {blocks} blocks.}}",
+  "@deskOvEmptyText": {
+    "description": "Text of the empty state of Recent activity; blocks is the number of confirmations needed.",
+    "placeholders": {
+      "blocks": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskOvShowAddress": "Show address",
+  "@deskOvShowAddress": {
+    "description": "Primary button in the empty state of Recent activity: opens Receive."
+  },
+  "deskOvReceiveFile": "Receive a file",
+  "@deskOvReceiveFile": {
+    "description": "Ghost button in the empty state of Recent activity: opens the page to import a payment file."
+  },
+  "deskOvRecent": "Recent activity",
+  "@deskOvRecent": {
+    "description": "Heading above the last transactions on Overview."
+  },
+  "deskOvViewAll": "View all {count}",
+  "@deskOvViewAll": {
+    "description": "Link next to the Recent activity heading: opens Activity; count is the number of transactions.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "deskOvPendingFiles": "{count, plural, one{{count} file send open} other{{count} file sends open}}",
+  "@deskOvPendingFiles": {
+    "description": "Title of a notice on Overview: file payments waiting for the recipient's response file.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "deskOvPendingText": "Finalize with the response file from the recipient.",
+  "@deskOvPendingText": {
+    "description": "Text of the notice about open file sends."
+  },
+  "deskOvFinalize": "Finalize",
+  "@deskOvFinalize": {
+    "description": "Ghost button in the open-file-sends notice: opens the Finalize page. Short."
+  },
+  "deskTxMethodFile": "File",
+  "@deskTxMethodFile": {
+    "description": "Transaction method name for a payment made with a file (not Epicbox, HTTP or Tor). Table cell and detail value; one short word."
+  },
+  "deskTxMiningReward": "Mining reward",
+  "@deskTxMiningReward": {
+    "description": "Who the other side of a transaction is when it is a mining reward. Activity table name column; short."
+  },
+  "deskTxReceived": "Received",
+  "@deskTxReceived": {
+    "description": "Name column of an Activity row for a payment restored from a history backup with no sender known (incoming); also the status word of a confirmed incoming payment and the semantics label. One word."
+  },
+  "deskTxSent": "Sent",
+  "@deskTxSent": {
+    "description": "Name column of an Activity row for a payment restored from a history backup with no recipient known (outgoing); also the status word of a confirmed outgoing payment. One word."
+  },
+  "deskTxUnknownSender": "Unknown sender",
+  "@deskTxUnknownSender": {
+    "description": "Name column of an Activity row for an incoming payment whose sender is not recorded."
+  },
+  "deskTxUnknownRecipient": "Unknown recipient",
+  "@deskTxUnknownRecipient": {
+    "description": "Name column of an Activity row for an outgoing payment whose recipient is not recorded."
+  },
+  "deskTxNoteBlock": "Block time. The sender is not recorded.",
+  "@deskTxNoteBlock": {
+    "description": "Small note under the Date step of a payment found by a scan, when the date comes from the block."
+  },
+  "deskTxNoteScanTime": "Time of the scan; the block's time could not be read. The sender is not recorded.",
+  "@deskTxNoteScanTime": {
+    "description": "Small note under the Date step of a payment found by a scan, when the block's time could not be read so the time of the scan is shown."
+  },
+  "deskTxNoteUnknown": "The sender is not recorded.",
+  "@deskTxNoteUnknown": {
+    "description": "Small note under the first step of a payment found by a scan when the scan type is not known."
+  },
+  "deskTxFoundRestoredLabel": "Restored",
+  "@deskTxFoundRestoredLabel": {
+    "description": "Name of a payment found while restoring the wallet. Activity table, narrow; one word."
+  },
+  "deskTxFoundRestoredLine": "Found while restoring",
+  "@deskTxFoundRestoredLine": {
+    "description": "Small line under the name of a payment found while restoring the wallet. Activity table, narrow."
+  },
+  "deskTxFoundRestoredStep": "Found while restoring this wallet",
+  "@deskTxFoundRestoredStep": {
+    "description": "First step on the transaction detail timeline for a payment found while restoring the wallet."
+  },
+  "deskTxFoundRestoredTip": "Found on the chain while restoring this wallet. The sender is not recorded.",
+  "@deskTxFoundRestoredTip": {
+    "description": "Tooltip on a payment found while restoring the wallet."
+  },
+  "deskTxFoundRescanLabel": "Found by scan",
+  "@deskTxFoundRescanLabel": {
+    "description": "Name of a payment found by a scan (balance recheck or any scan). Activity table, narrow."
+  },
+  "deskTxFoundRescanLine": "Found by a balance recheck",
+  "@deskTxFoundRescanLine": {
+    "description": "Small line under the name of a payment found by a balance recheck. Activity table, narrow."
+  },
+  "deskTxFoundRescanStep": "Found by a balance recheck",
+  "@deskTxFoundRescanStep": {
+    "description": "First step on the transaction detail timeline for a payment found by a balance recheck."
+  },
+  "deskTxFoundRescanTip": "Found on the chain by a balance recheck. The sender is not recorded.",
+  "@deskTxFoundRescanTip": {
+    "description": "Tooltip on a payment found by a balance recheck."
+  },
+  "deskTxFoundScanLine": "Found by a scan",
+  "@deskTxFoundScanLine": {
+    "description": "Small line under the name of a payment found by a scan of unknown kind. Activity table, narrow."
+  },
+  "deskTxFoundScanStep": "Found by a scan",
+  "@deskTxFoundScanStep": {
+    "description": "First step on the transaction detail timeline for a payment found by a scan of unknown kind."
+  },
+  "deskTxFoundScanTip": "Found on the chain by a scan. The sender is not recorded.",
+  "@deskTxFoundScanTip": {
+    "description": "Tooltip on a payment found by a scan of unknown kind."
+  },
+  "deskTxBackupTip": "Added from a history backup.",
+  "@deskTxBackupTip": {
+    "description": "Tooltip on a payment that was added from a history backup file."
+  },
+  "deskTxFromBackup": "From backup",
+  "@deskTxFromBackup": {
+    "description": "Status and small line of a payment that came from a history backup. Activity table, narrow."
+  },
+  "deskTxStatusImmature": "Immature",
+  "@deskTxStatusImmature": {
+    "description": "Status of a mining reward not yet spendable. Activity table status column, narrow; one word."
+  },
+  "deskTxStatusWaitingSender": "Waiting for sender to finalize",
+  "@deskTxStatusWaitingSender": {
+    "description": "Status of an incoming payment that waits for the sender to finalize it. Narrow status column."
+  },
+  "deskTxStatusWaitingResponseFile": "Waiting for the response file",
+  "@deskTxStatusWaitingResponseFile": {
+    "description": "Status of an outgoing file payment that waits for the response file from the recipient. Narrow status column."
+  },
+  "deskTxStatusWaitingRecipient": "Waiting for recipient to sign",
+  "@deskTxStatusWaitingRecipient": {
+    "description": "Status of an outgoing payment that waits for the recipient to sign. Narrow status column."
+  },
+  "deskTxStatusWaitingBlock": "Waiting for a block",
+  "@deskTxStatusWaitingBlock": {
+    "description": "Status of a payment that was sent to the network and waits to be put in a block. Narrow status column."
+  },
+  "deskTxStatusConfirming": "Confirming {confirmations}/{needed}",
+  "@deskTxStatusConfirming": {
+    "description": "Status of a payment on the chain: how many confirmations it has of how many are needed. Narrow status column.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int",
+        "example": "1"
+      },
+      "needed": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskTxStatusCancelled": "Cancelled",
+  "@deskTxStatusCancelled": {
+    "description": "Status of a cancelled payment. Narrow status column; one word."
+  },
+  "deskTxToday": "today",
+  "@deskTxToday": {
+    "description": "Lower case, inside a sentence such as 'Last transaction: today'."
+  },
+  "deskTxYesterday": "yesterday",
+  "@deskTxYesterday": {
+    "description": "Lower case, inside a sentence such as 'Last transaction: yesterday'."
+  },
+  "deskTxDaysAgo": "{count, plural, one{{count} day ago} other{{count} days ago}}",
+  "@deskTxDaysAgo": {
+    "description": "How long ago a payment was, from 2 to 6 days. Inside a sentence such as 'Last transaction: 3 days ago'.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskTxTodayAt": "Today {time}",
+  "@deskTxTodayAt": {
+    "description": "Compact row time: today with the clock time.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "16:58"
+      }
+    }
+  },
+  "deskTxDayToday": "Today · {date}",
+  "@deskTxDayToday": {
+    "description": "Day separator above the Activity list for today. The date is a full weekday and date.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Wednesday 21 October"
+      }
+    }
+  },
+  "deskTxDayYesterday": "Yesterday · {date}",
+  "@deskTxDayYesterday": {
+    "description": "Day separator above the Activity list for yesterday. The date is a full weekday and date.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Tuesday 20 October"
+      }
+    }
+  },
+  "deskTxFee": "Fee {amount}",
+  "@deskTxFee": {
+    "description": "Small line under the amount of an outgoing payment: the network fee. The amount is a number without the unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "0.023"
+      }
+    }
+  },
+  "deskTxPaymentProof": "Payment proof",
+  "@deskTxPaymentProof": {
+    "description": "Small line under a payment that has a payment proof."
+  },
+  "deskTxFinalize": "Finalize",
+  "@deskTxFinalize": {
+    "description": "Button in an Activity row of an outgoing file payment: finalize it with the response file. Short."
+  },
+  "deskTxSemReceived": "Received {amount}, {who}, {status}",
+  "@deskTxSemReceived": {
+    "description": "Screen reader label of an Activity row for a payment received.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      },
+      "status": {
+        "type": "String",
+        "example": "Confirming 2/3"
+      }
+    }
+  },
+  "deskTxSemSent": "Sent {amount}, {who}, {status}",
+  "@deskTxSemSent": {
+    "description": "Screen reader label of an Activity row for a payment sent.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      },
+      "status": {
+        "type": "String",
+        "example": "Confirming 2/3"
+      }
+    }
+  },
+  "deskTxSemKind": "{kind} {amount}, {who}, {status}",
+  "@deskTxSemKind": {
+    "description": "Screen reader label of an Activity row for an invoice or request; kind is a word such as Unpaid.",
+    "placeholders": {
+      "kind": {
+        "type": "String",
+        "example": "Unpaid"
+      },
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      },
+      "status": {
+        "type": "String",
+        "example": "Waiting"
+      }
+    }
+  },
+  "deskTxHiddenAmount": "hidden amount",
+  "@deskTxHiddenAmount": {
+    "description": "Screen reader words for an amount hidden by the 'hide amounts' setting."
+  },
+  "deskTxNowBackup": "From backup; the chain was not asked.",
+  "@deskTxNowBackup": {
+    "description": "Status line at the top of the transaction detail for a payment that came from a history backup."
+  },
+  "deskTxNowImmature": "{count, plural, one{Confirmed, but a mining reward is spendable only after {count} confirmation.} other{Confirmed, but a mining reward is spendable only after {count} confirmations.}}",
+  "@deskTxNowImmature": {
+    "description": "Status line at the top of the transaction detail for a mining reward that is not yet spendable.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "100"
+      }
+    }
+  },
+  "deskTxNowWaitingSender": "Signed and returned. Waiting for the sender to finalize.",
+  "@deskTxNowWaitingSender": {
+    "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back."
+  },
+  "deskTxNowWaitingResponseFile": "Waiting for the response file. Finalize when it arrives.",
+  "@deskTxNowWaitingResponseFile": {
+    "description": "Status line on the transaction detail: an outgoing file payment waiting for the recipient's response file."
+  },
+  "deskTxNowWaitingRecipient": "Waiting for the recipient to sign. Nothing leaves the wallet until it is finalized.",
+  "@deskTxNowWaitingRecipient": {
+    "description": "Status line on the transaction detail: an outgoing payment waiting for the recipient to sign."
+  },
+  "deskTxNowPosted": "Posted to the network, waiting for a block.",
+  "@deskTxNowPosted": {
+    "description": "Status line on the transaction detail: a payment was sent to the network and is not in a block yet."
+  },
+  "deskTxNowConfirming": "{needed, plural, one{In a block, {confirmations} of {needed} confirmation.} other{In a block, {confirmations} of {needed} confirmations.}}",
+  "@deskTxNowConfirming": {
+    "description": "Status line on the transaction detail: how many confirmations a payment has of how many it needs.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int",
+        "example": "2"
+      },
+      "needed": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskTxNowConfirmed": "{confirmations, plural, one{Confirmed, {confirmations} confirmation.} other{Confirmed, {confirmations} confirmations.}}",
+  "@deskTxNowConfirmed": {
+    "description": "Status line on the transaction detail for a confirmed payment.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "deskTxNowCancelled": "Cancelled.",
+  "@deskTxNowCancelled": {
+    "description": "Status line on the transaction detail for a cancelled payment."
+  },
+  "deskTxNotCancelled": "Not cancelled",
+  "@deskTxNotCancelled": {
+    "description": "Title of the toast when cancelling a payment failed; the reason follows as its text."
+  },
+  "deskTxCancelled": "Transaction cancelled",
+  "@deskTxCancelled": {
+    "description": "Toast after a payment was cancelled."
+  },
+  "deskTxCancelling": "Cancelling",
+  "@deskTxCancelling": {
+    "description": "Label of the Cancel button on the transaction detail while the cancel is running. One word."
+  },
+  "deskTxHeadRestored": "restored",
+  "@deskTxHeadRestored": {
+    "description": "Small line under the big amount on the transaction detail: the payment was found while restoring the wallet. Lower case."
+  },
+  "deskTxHeadFoundOnChain": "found on the chain",
+  "@deskTxHeadFoundOnChain": {
+    "description": "Small line under the big amount on the transaction detail: the payment was found by a scan. Lower case."
+  },
+  "deskTxHeadBackup": "added from a history backup",
+  "@deskTxHeadBackup": {
+    "description": "Small line under the big amount on the transaction detail: the payment came from a history backup. Lower case."
+  },
+  "deskTxHeadFrom": "from {who}",
+  "@deskTxHeadFrom": {
+    "description": "Small line under the big amount on the transaction detail for an incoming payment. The name is shown in a different style; keep the placeholder as one piece. Lower case.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskTxHeadTo": "to {who}",
+  "@deskTxHeadTo": {
+    "description": "Small line under the big amount on the transaction detail for an outgoing payment. The name is shown in a different style; keep the placeholder as one piece. Lower case.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskTxSubProgress": "Progress",
+  "@deskTxSubProgress": {
+    "description": "Section heading on the transaction detail: the timeline of steps."
+  },
+  "deskTxSubDetails": "Details",
+  "@deskTxSubDetails": {
+    "description": "Section heading on the transaction detail: the facts list."
+  },
+  "deskTxFactDate": "Date",
+  "@deskTxFactDate": {
+    "description": "Label in the facts list on the transaction detail. Narrow label column."
+  },
+  "deskTxFactFrom": "From",
+  "@deskTxFactFrom": {
+    "description": "Label in the facts list on the transaction detail for an incoming payment's sender address. Narrow label column."
+  },
+  "deskTxFactTo": "To",
+  "@deskTxFactTo": {
+    "description": "Label in the facts list on the transaction detail for an outgoing payment's recipient address. Narrow label column."
+  },
+  "deskTxCopyAddress": "Copy address",
+  "@deskTxCopyAddress": {
+    "description": "Tooltip of the copy button next to the address on the transaction detail."
+  },
+  "deskTxFactMethod": "Method",
+  "@deskTxFactMethod": {
+    "description": "Label in the facts list on the transaction detail: how the payment travelled (Epicbox, HTTP, Tor, file). Narrow label column."
+  },
+  "deskTxFactAmount": "Amount",
+  "@deskTxFactAmount": {
+    "description": "Label in the facts list on the transaction detail. Narrow label column."
+  },
+  "deskTxFactFee": "Fee",
+  "@deskTxFactFee": {
+    "description": "Label in the facts list on the transaction detail: the network fee. Narrow label column."
+  },
+  "deskTxFactTotal": "Total",
+  "@deskTxFactTotal": {
+    "description": "Label in the facts list on the transaction detail: amount plus fee. Narrow label column."
+  },
+  "deskTxFactMessage": "Message",
+  "@deskTxFactMessage": {
+    "description": "Label in the facts list on the transaction detail: the note attached to the payment. Narrow label column."
+  },
+  "deskTxSignedByRecipient": "Signed by the recipient",
+  "@deskTxSignedByRecipient": {
+    "description": "Payment proof line on the transaction detail, and a step of the timeline."
+  },
+  "deskTxProofView": "View",
+  "@deskTxProofView": {
+    "description": "Button on the transaction detail that opens the payment proof. Short."
+  },
+  "deskTxTechTitle": "Technical details",
+  "@deskTxTechTitle": {
+    "description": "Collapsible section on the transaction detail with technical identifiers."
+  },
+  "deskTxTechId": "Id",
+  "@deskTxTechId": {
+    "description": "Technical details label: the wallet's internal number of the transaction. Narrow label column."
+  },
+  "deskTxTechSlate": "Slate id",
+  "@deskTxTechSlate": {
+    "description": "Technical details label: the slate id, a unique id of the payment. Narrow label column."
+  },
+  "deskTxCopySlate": "Copy slate id",
+  "@deskTxCopySlate": {
+    "description": "Tooltip of the copy button next to the slate id."
+  },
+  "deskTxTechHeight": "Height",
+  "@deskTxTechHeight": {
+    "description": "Technical details label: the block height. Narrow label column."
+  },
+  "deskTxTechKernel": "Kernel",
+  "@deskTxTechKernel": {
+    "description": "Technical details label: the transaction kernel. Narrow label column."
+  },
+  "deskTxTechConfirmed": "Confirmed",
+  "@deskTxTechConfirmed": {
+    "description": "Technical details label: when the payment was confirmed. Narrow label column."
+  },
+  "deskTxTechCredited": "Credited",
+  "@deskTxTechCredited": {
+    "description": "Technical details label: the amount added to the balance. Narrow label column."
+  },
+  "deskTxTechDebited": "Debited",
+  "@deskTxTechDebited": {
+    "description": "Technical details label: the amount taken from the balance. Narrow label column."
+  },
+  "deskTxTechStatus": "Status",
+  "@deskTxTechStatus": {
+    "description": "Technical details label: the internal state name. Narrow label column."
+  },
+  "deskTxTechType": "Type",
+  "@deskTxTechType": {
+    "description": "Technical details label: the core's transaction type name. Narrow label column."
+  },
+  "deskTxStepMined": "Mined in a block",
+  "@deskTxStepMined": {
+    "description": "Timeline step of a mining reward."
+  },
+  "deskTxStepSpendable": "Spendable",
+  "@deskTxStepSpendable": {
+    "description": "Timeline step: the payment can be spent. Also the status of a payment that has enough confirmations."
+  },
+  "deskTxStepBlocksToGo": "{count, plural, one{{count} block to go} other{{count} blocks to go}}",
+  "@deskTxStepBlocksToGo": {
+    "description": "Small line under the Spendable step of a mining reward.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "40"
+      }
+    }
+  },
+  "deskTxStepReceivedSlate": "Received slate",
+  "@deskTxStepReceivedSlate": {
+    "description": "Timeline step of an incoming payment: the sender's first message arrived."
+  },
+  "deskTxStepCreated": "Created and signed",
+  "@deskTxStepCreated": {
+    "description": "Timeline step of an outgoing payment."
+  },
+  "deskTxStepSignedReturned": "Signed and returned",
+  "@deskTxStepSignedReturned": {
+    "description": "Timeline step of an incoming payment: this wallet signed and sent it back."
+  },
+  "deskTxStepWaitingFile": "Waiting for the response file",
+  "@deskTxStepWaitingFile": {
+    "description": "Small line under a timeline step of an outgoing file payment."
+  },
+  "deskTxStepWaitingRecipient": "Waiting for the recipient",
+  "@deskTxStepWaitingRecipient": {
+    "description": "Small line under a timeline step of an outgoing payment."
+  },
+  "deskTxStepPosted": "Posted to the network",
+  "@deskTxStepPosted": {
+    "description": "Timeline step: the payment was sent to the network."
+  },
+  "deskTxStepConfirming": "Confirming",
+  "@deskTxStepConfirming": {
+    "description": "Timeline step: the payment is in a block and collecting confirmations."
+  },
+  "deskTxStepProgress": "{confirmations} of {needed}",
+  "@deskTxStepProgress": {
+    "description": "Small line under the Confirming step: confirmations so far of how many are needed.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int",
+        "example": "1"
+      },
+      "needed": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskTxCancelIncomingTitle": "Cancel this payment?",
+  "@deskTxCancelIncomingTitle": {
+    "description": "Title of the dialog that asks before cancelling an incoming payment."
+  },
+  "deskTxCancelOutgoingTitle": "Cancel this send?",
+  "@deskTxCancelOutgoingTitle": {
+    "description": "Title of the dialog that asks before cancelling an outgoing payment."
+  },
+  "deskTxCancelIncomingBody": "{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.",
+  "@deskTxCancelIncomingBody": {
+    "description": "Body of the dialog that asks before cancelling an incoming payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The locked amount returns to the balance. If the recipient already finalized it, it may still confirm.",
+  "@deskTxCancelOutgoingBody": {
+    "description": "Body of the dialog that asks before cancelling an outgoing payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskTxCancelKeep": "Keep",
+  "@deskTxCancelKeep": {
+    "description": "Button in the cancel dialog that leaves the payment as it is. Short."
+  },
+  "deskTxCancelIncomingAction": "Cancel payment",
+  "@deskTxCancelIncomingAction": {
+    "description": "Danger button in the cancel dialog for an incoming payment. Short."
+  },
+  "deskTxCancelOutgoingAction": "Cancel send",
+  "@deskTxCancelOutgoingAction": {
+    "description": "Danger button in the cancel dialog for an outgoing payment. Short."
+  },
+  "deskTxProofIncoming": "Proves that this wallet received {amount} EPIC in this kernel.",
+  "@deskTxProofIncoming": {
+    "description": "Description in the payment proof dialog for an incoming payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
+  "deskTxProofOutgoing": "Proves that the recipient received {amount} EPIC in this kernel.",
+  "@deskTxProofOutgoing": {
+    "description": "Description in the payment proof dialog for an outgoing payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
+  "deskTxProofSenderAddress": "Sender address",
+  "@deskTxProofSenderAddress": {
+    "description": "Field label in the payment proof dialog."
+  },
+  "deskTxProofRecipientAddress": "Recipient address",
+  "@deskTxProofRecipientAddress": {
+    "description": "Field label in the payment proof dialog."
+  },
+  "deskTxProofRecipientSignature": "Recipient signature",
+  "@deskTxProofRecipientSignature": {
+    "description": "Field label in the payment proof dialog."
+  },
+  "deskTxProofCopyKernel": "Copy kernel",
+  "@deskTxProofCopyKernel": {
+    "description": "Tooltip of the copy button next to the kernel in the payment proof dialog."
+  },
+  "deskTxProofCopySender": "Copy sender address",
+  "@deskTxProofCopySender": {
+    "description": "Tooltip of the copy button next to the sender address in the payment proof dialog."
+  },
+  "deskTxProofCopyRecipient": "Copy recipient address",
+  "@deskTxProofCopyRecipient": {
+    "description": "Tooltip of the copy button next to the recipient address in the payment proof dialog."
+  },
+  "deskTxProofCopySignature": "Copy recipient signature",
+  "@deskTxProofCopySignature": {
+    "description": "Tooltip of the copy button next to the recipient signature in the payment proof dialog."
+  },
+  "deskTxProofExport": "Export",
+  "@deskTxProofExport": {
+    "description": "Primary button in the payment proof dialog: save the proof as a file. Short."
+  },
+  "deskTxProofSaved": "Proof saved",
+  "@deskTxProofSaved": {
+    "description": "Toast title after the payment proof was saved to a file; the path follows as its text."
   }
 }
