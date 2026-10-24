@@ -1377,6 +1377,7 @@ class LepicWalletSession implements WalletSession {
       progress: s.progress,
       onion: s.onion,
       failure: _torFailure(s.failure),
+      socksPort: s.socksPort,
     );
   }
 

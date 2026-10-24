@@ -381,6 +381,21 @@ void main() {
     expect(h.state.phase, PhoneTorPhase.ready);
   });
 
+  test("a refresh after a network change moves the app's requests to tor's new SOCKS port", () async {
+    // android-01: tor reopens its SOCKS port (auto) when its network is turned off and on; the
+    // app's own requests (update check, price) kept the old port and failed at once.
+    h.store.values[h.key] = 'true';
+    await h.unlock();
+    h.session.torEvents.add(TorEvent(kind: TorEventKind.ready, onion: h.session.onion, socksPort: 40001));
+    await h.until((s) => s.phase == PhoneTorPhase.ready);
+    expect(h.state.socksPort, 40001);
+    h.session.torStatusValue = TorStatus(kind: TorStatusKind.ready, onion: h.session.onion, socksPort: 40002);
+    h.network.add(true);
+    await h.until((s) => s.socksPort == 40002);
+    expect(phoneTorSocks(h.state), const SocksProxy('127.0.0.1', 40002));
+    expect(h.state.phase, PhoneTorPhase.ready);
+  });
+
   test('network regained restarts a failed tor', () async {
     h.store.values[h.key] = 'true';
     await h.unlock();

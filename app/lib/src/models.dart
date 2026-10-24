@@ -803,18 +803,27 @@ class TorStatus {
   /// Why the onion is not published while tor runs for sends: `listener` or `keys`.
   final TorFailure? failure;
 
+  /// tor's SOCKS port on 127.0.0.1 while it can carry requests. It moves when tor's network
+  /// is turned off and on (a refresh after a network change).
+  final int? socksPort;
+
   const TorStatus({
     required this.kind,
     this.progress,
     this.onion,
     this.failure,
+    this.socksPort,
   });
 
   static const off = TorStatus(kind: TorStatusKind.off);
 
   @override
   int get hashCode =>
-      kind.hashCode ^ progress.hashCode ^ onion.hashCode ^ failure.hashCode;
+      kind.hashCode ^
+      progress.hashCode ^
+      onion.hashCode ^
+      failure.hashCode ^
+      socksPort.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -823,7 +832,8 @@ class TorStatus {
           kind == other.kind &&
           progress == other.progress &&
           onion == other.onion &&
-          failure == other.failure;
+          failure == other.failure &&
+          socksPort == other.socksPort;
 }
 
 class NodeTip {
