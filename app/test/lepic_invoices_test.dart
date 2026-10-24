@@ -552,9 +552,10 @@ void main() {
         final resent = await session.resendInvoiceReply(slateId: 'inv-1');
         expect(resent.status, InvoiceStatus.replied);
         expect(wallet.resent, [9, 9]);
-        // Delivered: a further Retry sends nothing.
+        // Delivered but not posted yet: Send again sends the same reply once more (linux-12),
+        // and never pays a second time.
         await session.resendInvoiceReply(slateId: 'inv-1');
-        expect(wallet.resent, [9, 9]);
+        expect(wallet.resent, [9, 9, 9]);
         expect(wallet.payments, hasLength(1));
       },
     );
