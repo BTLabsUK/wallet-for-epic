@@ -516,7 +516,7 @@ void main() {
     });
 
     test('contacts round trip, favourites kept by the app', () async {
-      await wallet.saveContact(const Contact(id: '', name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
+      await wallet.saveContact(Contact(id: '', name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
       final cs = (await wallet.contacts()).where((c) => c.name != 'BT Labs');
       expect(cs.single.name, 'Ann');
       expect(cs.single.favourite, isTrue);
@@ -1064,7 +1064,7 @@ void main() {
       final id = rec.createdConfig!.walletId!;
       await w.selectWallet('legacy-mainnet');
       expect(await w.unlock(_password), isTrue);
-      await w.saveContact(const Contact(id: '', name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
+      await w.saveContact(Contact(id: '', name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
       Future<Contact> ann() async => (await w.contacts()).singleWhere((c) => c.name == 'Ann');
       expect((await ann()).favourite, isTrue);
       expect(await secrets.read('desk.favourites'), isNotNull);

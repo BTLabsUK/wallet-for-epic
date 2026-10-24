@@ -687,7 +687,7 @@ class MockDeskWallet implements DeskWalletApi {
     final id = contact.id.isEmpty ? 'c${DateTime.now().microsecondsSinceEpoch}' : contact.id;
     _contacts.removeWhere((c) => c.id == id);
     _contacts.add(
-      Contact(id: id, name: contact.name, address: contact.address, note: contact.note, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture, invoiceAddress: contact.invoiceAddress),
+      Contact(id: id, name: contact.name, epicbox: contact.epicbox, http: contact.http, tor: contact.tor, note: contact.note, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture, invoiceAddress: contact.invoiceAddress),
     );
     return id;
   }

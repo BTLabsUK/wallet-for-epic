@@ -78,7 +78,7 @@ void main() {
     final history = await WalletHistory.open(dir.path, Chain.mainnet);
     addTearDown(history.close);
     final shop = await history.saveContact(
-      const Contact(id: '', name: 'Shop', address: ' HTTP://x:3415 '),
+      Contact(id: '', name: 'Shop', address: ' HTTP://x:3415 '),
     );
     expect(shop.address, 'HTTP://x:3415');
     expect(history.contacts().single.name, 'Shop');

@@ -1141,7 +1141,7 @@ void main() {
     ) async {
       final h = _Harness();
       h.session.contactsValue.add(
-        const Contact(id: 'c1', name: 'Bob', address: _bob),
+        Contact(id: 'c1', name: 'Bob', address: _bob),
       );
       await h.pump(tester);
       expect(find.text('Bob'), findsOneWidget);
@@ -1245,7 +1245,7 @@ void main() {
     testWidgets('cancels a waiting send after confirmation', (tester) async {
       final h = _Harness();
       h.session.contactsValue.add(
-        const Contact(id: 'c1', name: 'Bob', address: _bob),
+        Contact(id: 'c1', name: 'Bob', address: _bob),
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
 
@@ -1612,7 +1612,7 @@ void main() {
     testWidgets('a completed send names the contact', (tester) async {
       final h = _Harness();
       h.session.contactsValue.add(
-        const Contact(id: 'c1', name: 'Bob', address: _bob),
+        Contact(id: 'c1', name: 'Bob', address: _bob),
       );
       await h.pump(tester);
       h.session.listenerEvents.add(
@@ -2453,7 +2453,7 @@ void main() {
       final handle = tester.ensureSemantics();
       final h = _Harness();
       h.session.contactsValue.add(
-        const Contact(id: 'c1', name: 'Bob', address: _bob),
+        Contact(id: 'c1', name: 'Bob', address: _bob),
       );
       await h.pump(tester);
       expect(

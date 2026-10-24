@@ -1859,10 +1859,12 @@ class LepicDeskWallet implements DeskWalletApi {
         Contact(
           id: c.id,
           name: c.name,
-          address: c.address,
+          epicbox: c.epicbox,
+          http: c.http,
+          tor: c.tor,
           note: c.note,
           favourite: favourites.contains(c.id),
-          lastUsed: lastUsed(c.address),
+          lastUsed: [for (final a in c.addresses) lastUsed(a)].nonNulls.fold<DateTime?>(null, (a, b) => a == null || b.isAfter(a) ? b : a),
           invoiceAddress: c.invoiceAddress,
         ),
     ];
@@ -2437,7 +2439,17 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<String> saveContact(Contact contact) async {
     try {
-      final stored = await _open.saveContact(contact: core.Contact(id: contact.id, name: contact.name, address: contact.address, note: contact.note, invoiceAddress: contact.invoiceAddress));
+      final stored = await _open.saveContact(
+        contact: core.Contact(
+          id: contact.id,
+          name: contact.name,
+          epicbox: contact.epicbox,
+          http: contact.http,
+          tor: contact.tor,
+          note: contact.note,
+          invoiceAddress: contact.invoiceAddress,
+        ),
+      );
       final favourites = await _favourites();
       contact.favourite ? favourites.add(stored.id) : favourites.remove(stored.id);
       await _store.writeJson(_favouritesKey, favourites.toList());

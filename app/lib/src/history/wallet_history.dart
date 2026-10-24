@@ -33,14 +33,20 @@ String _randomHex(int bytes) {
 WalletError _invalid(String message) =>
     WalletError(kind: WalletErrorKind.invalidArgument, message: message);
 
-Contact _contact(ContactRec c) =>
-    Contact(
-      id: c.id,
-      name: c.name,
-      address: c.address,
-      note: c.note,
-      invoiceAddress: c.invoiceAddress,
-    );
+Contact _contact(ContactRec c) => Contact(
+  id: c.id,
+  name: c.name,
+  epicbox: c.epicbox,
+  http: c.http,
+  tor: c.tor,
+  note: c.note,
+  invoiceAddress: c.invoiceAddress,
+);
+
+String? _trimmed(String? s) {
+  final t = s?.trim();
+  return t == null || t.isEmpty ? null : t;
+}
 
 class WalletHistory {
   WalletHistory(this._store, {required this.chain});
@@ -182,23 +188,28 @@ class WalletHistory {
       [for (final c in meta.contacts) _contact(c)]
         ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
-  /// Adds (empty `id`) or replaces a contact.
+  /// Adds (empty `id`) or replaces a contact. It needs a name and at least one address; each
+  /// address is kept in its kind's field ([Contact.epicbox], [Contact.http], [Contact.tor]).
   Future<Contact> saveContact(Contact contact) async {
     final name = contact.name.trim();
-    final address = contact.address.trim();
+    final epicbox = _trimmed(contact.epicbox);
+    final http = _trimmed(contact.http);
+    final tor = _trimmed(contact.tor);
     if (name.isEmpty) throw _invalid('the contact needs a name');
-    if (address.isEmpty) throw _invalid('the contact needs an address');
-    // Which kinds of address a contact may hold is each screen's check: the phone takes
-    // epicbox only (OD-2), the desktop also http(s) and .onion. Nothing here reaches out.
+    if (epicbox == null && http == null && tor == null) {
+      throw _invalid('the contact needs an address');
+    }
+    // Whether an address is valid is each screen's check, with the core's validators. Nothing
+    // here reaches out.
     final isNew = contact.id.trim().isEmpty;
-    final note = contact.note?.trim();
-    final invoice = contact.invoiceAddress?.trim();
     final rec = ContactRec(
       id: isNew ? _randomHex(16) : contact.id.trim(),
       name: name,
-      address: address,
-      note: note == null || note.isEmpty ? null : note,
-      invoiceAddress: invoice == null || invoice.isEmpty ? null : invoice,
+      epicbox: epicbox,
+      http: http,
+      tor: tor,
+      note: _trimmed(contact.note),
+      invoiceAddress: _trimmed(contact.invoiceAddress),
     );
     await _store.update((m) {
       final i = m.contacts.indexWhere((c) => c.id == rec.id);
@@ -548,8 +559,17 @@ class WalletHistory {
     if (index != null && index > (m.invoiceIndex ?? 1)) {
       m.invoiceIndex = index;
     }
+    // A contact comes in unless one here already holds one of its addresses.
     for (final c in payload.contacts) {
-      if (m.contacts.any((e) => e.address.trim() == c.address.trim())) {
+      final theirs = {
+        for (final a in [c.epicbox, c.http, c.tor])
+          if (_trimmed(a) case final t?) t,
+      };
+      if (m.contacts.any(
+        (e) => [e.epicbox, e.http, e.tor].any(
+          (a) => a != null && theirs.contains(a.trim()),
+        ),
+      )) {
         continue;
       }
       final id = c.id.isEmpty || m.contacts.any((e) => e.id == c.id)
@@ -559,7 +579,9 @@ class WalletHistory {
         ContactRec(
           id: id,
           name: c.name,
-          address: c.address,
+          epicbox: c.epicbox,
+          http: c.http,
+          tor: c.tor,
           note: c.note,
           invoiceAddress: c.invoiceAddress,
         ),

@@ -31,11 +31,11 @@ void main() {
 
   test('saving keeps, trims and clears it; the history copy and a Contact compare by it', () async {
     final history = WalletHistory.memory();
-    final saved = await history.saveContact(const Contact(id: '', name: 'Bob', address: 'a', invoiceAddress: ' inv@relay '));
+    final saved = await history.saveContact(Contact(id: '', name: 'Bob', address: 'a', invoiceAddress: ' inv@relay '));
     expect(saved.invoiceAddress, 'inv@relay');
     expect(history.contacts().single.invoiceAddress, 'inv@relay');
     final cleared = await history.saveContact(Contact(id: saved.id, name: 'Bob', address: 'a', invoiceAddress: '  '));
     expect(cleared.invoiceAddress, isNull);
-    expect(const Contact(id: '1', name: 'B', address: 'a', invoiceAddress: 'x'), isNot(const Contact(id: '1', name: 'B', address: 'a')));
+    expect(Contact(id: '1', name: 'B', address: 'a', invoiceAddress: 'x'), isNot(Contact(id: '1', name: 'B', address: 'a')));
   });
 }

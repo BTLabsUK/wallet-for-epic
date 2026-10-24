@@ -8,6 +8,8 @@ import 'dart:convert';
 
 import 'package:characters/characters.dart';
 
+import 'recipient.dart';
+
 /// Why a payment was cancelled.
 enum CancelReason {
   /// The user cancelled it.
@@ -31,32 +33,95 @@ enum CancelReason {
 /// Which Epic chain the wallet talks to. Selects consensus parameters and default ports.
 enum Chain { mainnet, floonet, usernet }
 
-/// An address book entry. An empty `id` in `save_contact` creates a new one.
+/// An address book entry: a name and at most one address of each kind (RFC 0002 17.2): an
+/// Epicbox address, a Link · HTTP address (a wallet URL) and a Link · Tor address (an onion),
+/// never a list. An empty `id` in `save_contact` creates a new one.
+///
+/// [address], given to the constructor, goes into the field of its kind as [parseRecipient]
+/// reads it; an explicit [epicbox], [http] or [tor] wins over it. The address book is the
+/// device's, shared by its wallets: nothing here belongs to one wallet.
 class Contact {
   final String id;
   final String name;
-  final String address;
   final String? note;
+
+  /// `<key>@<relay>`.
+  final String? epicbox;
+
+  /// The wallet URL, `http(s)://host[:port][/path]`.
+  final String? http;
+
+  /// `<56 characters>.onion`.
+  final String? tor;
 
   /// Their invoice address, where requests to them go; null when not known. Optional in the
   /// record, so a file written before it still reads.
   final String? invoiceAddress;
 
-  const Contact({
+  Contact({
     required this.id,
     required this.name,
-    required this.address,
+    String? address,
+    String? epicbox,
+    String? http,
+    String? tor,
     this.note,
     this.invoiceAddress,
-  });
+  }) : epicbox = _blank(epicbox) ?? _ofKind(address, RecipientKind.epicbox),
+       http = _blank(http) ?? _ofKind(address, RecipientKind.http),
+       tor = _blank(tor) ?? _ofKind(address, RecipientKind.tor);
+
+  static String? _blank(String? s) => s == null || s.trim().isEmpty ? null : s;
+
+  static String? _ofKind(String? address, RecipientKind kind) {
+    if (_blank(address) == null) return null;
+    return parseRecipient(address!).kind == kind ? address : null;
+  }
+
+  /// The address Send uses when nothing else says: Epicbox, else Tor, else HTTP; empty when
+  /// the contact has none.
+  String get address => epicbox ?? tor ?? http ?? '';
+
+  /// Every address, in [contactKinds] order.
+  List<String> get addresses => [?epicbox, ?http, ?tor];
+
+  /// The address of [kind], or null.
+  String? addressOf(RecipientKind kind) => switch (kind) {
+    RecipientKind.epicbox => epicbox,
+    RecipientKind.http => http,
+    RecipientKind.tor => tor,
+  };
+
+  /// The kinds this contact has an address of, in [contactKinds] order.
+  List<RecipientKind> get kinds => [
+    for (final k in contactKinds)
+      if (addressOf(k) != null) k,
+  ];
+
+  /// This contact with the address of [kind] set to [value]; null removes it.
+  Contact withAddress(RecipientKind kind, String? value) => Contact(
+    id: id,
+    name: name,
+    note: note,
+    invoiceAddress: invoiceAddress,
+    epicbox: kind == RecipientKind.epicbox ? value : epicbox,
+    http: kind == RecipientKind.http ? value : http,
+    tor: kind == RecipientKind.tor ? value : tor,
+  );
+
+  /// This contact with another id, name or note; [clearNote] removes the note.
+  Contact copyWith({String? id, String? name, String? note, bool clearNote = false}) => Contact(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    note: clearNote ? null : note ?? this.note,
+    epicbox: epicbox,
+    http: http,
+    tor: tor,
+    invoiceAddress: invoiceAddress,
+  );
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      address.hashCode ^
-      note.hashCode ^
-      invoiceAddress.hashCode;
+  int get hashCode => Object.hash(id, name, note, epicbox, http, tor, invoiceAddress);
 
   @override
   bool operator ==(Object other) =>
@@ -65,10 +130,20 @@ class Contact {
           runtimeType == other.runtimeType &&
           id == other.id &&
           name == other.name &&
-          address == other.address &&
           note == other.note &&
+          epicbox == other.epicbox &&
+          http == other.http &&
+          tor == other.tor &&
           invoiceAddress == other.invoiceAddress;
 }
+
+/// The kinds of contact address in the order a contact lists them: Epicbox, Link · HTTP,
+/// Link · Tor.
+const List<RecipientKind> contactKinds = [
+  RecipientKind.epicbox,
+  RecipientKind.http,
+  RecipientKind.tor,
+];
 
 /// `amount` is the amount to send, as requested; `fee` comes on top of it.
 ///

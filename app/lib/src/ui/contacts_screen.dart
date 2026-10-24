@@ -405,13 +405,11 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
       final saved = await ref
           .read(contactsProvider.notifier)
           .save(
-            Contact(
-              id: widget.contact?.id ?? '',
-              name: name,
-              address: recipient.address,
-              note: note.isEmpty ? null : note,
-              invoiceAddress: widget.contact?.invoiceAddress,
-            ),
+            // The field edits the contact's first address; its other ones stay.
+            (widget.contact ?? Contact(id: '', name: name))
+                .withAddress(parseRecipient(widget.contact?.address ?? recipient.address).kind, null)
+                .withAddress(recipient.kind, recipient.address)
+                .copyWith(name: name, note: note, clearNote: note.isEmpty),
           );
       if (mounted) Navigator.pop(context, saved);
     } catch (error) {

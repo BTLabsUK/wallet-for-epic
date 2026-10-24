@@ -17,7 +17,7 @@ class _Wallet extends MockDeskWallet {
   @override
   Future<List<Contact>> contacts() async => [
     ...await super.contacts(),
-    const Contact(id: 'tor1', name: 'Onion Olga', address: '$_onion.onion'),
+    Contact(id: 'tor1', name: 'Onion Olga', address: '$_onion.onion'),
   ];
 }
 
