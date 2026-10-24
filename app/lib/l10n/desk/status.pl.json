@@ -79,5 +79,7 @@
   "deskTorCoverage": "Przez Tor: Epicbox, węzeł, stan, kurs, aktualizacje, wsparcie i adresy Tor.",
   "deskTorNodeOver": "Przez Tor",
   "deskTorNodeNotEncrypted": "Za Torem bez szyfrowania",
-  "deskTorNodeWaits": "Czeka na połączenie z Torem."
+  "deskTorNodeWaits": "Czeka na połączenie z Torem.",
+  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "deskNodeFailoverInsteadOf": "Instead of {host}"
 }

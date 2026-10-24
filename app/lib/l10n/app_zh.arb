@@ -3776,5 +3776,13 @@
   "outputsDefaultsMoved": "Send defaults are in Settings › Transactions",
   "@outputsDefaultsMoved": {
     "description": "Row on the Outputs page that opens Settings › Transactions, where Strategy for sends and Split change now are."
-  }
+  },
+  "advNodeFailover": "Node failover",
+  "advNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "nodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "nodeFailoverInsteadOf": "Instead of {host}",
+  "deskSetAdvNodeFailover": "Node failover",
+  "deskSetAdvNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "deskNodeFailoverInsteadOf": "Instead of {host}"
 }

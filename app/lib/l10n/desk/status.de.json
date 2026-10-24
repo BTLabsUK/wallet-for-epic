@@ -79,5 +79,7 @@
   "deskTorCoverage": "Über Tor: Epicbox, Node, Status, Kurse, Updates, Support und Tor-Adressen.",
   "deskTorNodeOver": "Über Tor",
   "deskTorNodeNotEncrypted": "Nach Tor nicht verschlüsselt",
-  "deskTorNodeWaits": "Wartet, bis Tor verbunden ist."
+  "deskTorNodeWaits": "Wartet, bis Tor verbunden ist.",
+  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "deskNodeFailoverInsteadOf": "Instead of {host}"
 }

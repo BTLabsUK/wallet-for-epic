@@ -79,5 +79,7 @@
   "deskTorCoverage": "ผ่าน Tor: Epicbox, โหนด, สถานะ, ราคา, อัปเดต, ฝ่ายช่วยเหลือ และที่อยู่ Tor",
   "deskTorNodeOver": "ผ่าน Tor",
   "deskTorNodeNotEncrypted": "ไม่เข้ารหัสหลังออกจาก Tor",
-  "deskTorNodeWaits": "รอจนกว่า Tor จะเชื่อมต่อ"
+  "deskTorNodeWaits": "รอจนกว่า Tor จะเชื่อมต่อ",
+  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "deskNodeFailoverInsteadOf": "Instead of {host}"
 }

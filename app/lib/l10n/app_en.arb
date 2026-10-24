@@ -18625,5 +18625,61 @@
   "outputsDefaultsMoved": "Send defaults are in Settings › Transactions",
   "@outputsDefaultsMoved": {
     "description": "Row on the Outputs page that opens Settings › Transactions, where Strategy for sends and Split change now are."
+  },
+  "advNodeFailover": "Node failover",
+  "@advNodeFailover": {
+    "description": "Switch on the Advanced page, under the network modes: on by default."
+  },
+  "advNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "@advNodeFailoverHint": {
+    "description": "Info sheet of the Node failover switch on the Advanced page."
+  },
+  "nodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "@nodeFailoverSwitched": {
+    "description": "Notice when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epic.node.example"
+      }
+    }
+  },
+  "nodeFailoverInsteadOf": "Instead of {host}",
+  "@nodeFailoverInsteadOf": {
+    "description": "Under the node's address on the status card while node failover uses another node: host is the chosen node.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epic.node.example"
+      }
+    }
+  },
+  "deskSetAdvNodeFailover": "Node failover",
+  "@deskSetAdvNodeFailover": {
+    "description": "Switch on Settings › Advanced, under the network modes: on by default."
+  },
+  "deskSetAdvNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "@deskSetAdvNodeFailoverHint": {
+    "description": "Hover card of the Node failover switch on Settings › Advanced."
+  },
+  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "@deskNodeFailoverSwitched": {
+    "description": "Toast when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epic.node.example"
+      }
+    }
+  },
+  "deskNodeFailoverInsteadOf": "Instead of {host}",
+  "@deskNodeFailoverInsteadOf": {
+    "description": "Second line of the sidebar Node status and the Settings › Node head while node failover uses another node: host is the chosen node.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epic.node.example"
+      }
+    }
   }
 }

@@ -41,5 +41,7 @@
   "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive until Offline mode is off.",
   "deskNetRecvWaitTorText": "Receiving starts when Tor is connected. A transaction file still works.",
   "deskNetCantReceive": "Can't receive offline.",
-  "deskRailOffline": "Offline"
+  "deskRailOffline": "Offline",
+  "deskSetAdvNodeFailover": "Node failover",
+  "deskSetAdvNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session."
 }

@@ -1040,7 +1040,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// old ones and the error says so; when even that fails, the wallet locks
   /// ([DeskError.locked]). Locked: only saved. Callers hold [_nodeLock]; [_switching] is set
   /// before the first await: new payments and scans wait for the switch, those running end first.
-  Future<void> _switchTo({required String nodeUrl, required EpicboxRelay relay}) async {
+  Future<void> _switchTo({required String nodeUrl, required EpicboxRelay relay, bool save = true}) async {
     // The mark comes first: no payment or scan starts from now on (the switch is preferred),
     // so a steady stream of them cannot hold it off. Those under way end, then it runs.
     final switching = _switching = Completer<void>();
@@ -1048,15 +1048,17 @@ class LepicDeskWallet implements DeskWalletApi {
       while (_busy > 0) {
         await whenIdle();
       }
-      await _reopenOn(nodeUrl: nodeUrl, relay: relay);
+      await _reopenOn(nodeUrl: nodeUrl, relay: relay, keep: save);
     } finally {
       _switching = null;
       switching.complete();
     }
   }
 
-  Future<void> _reopenOn({required String nodeUrl, required EpicboxRelay relay}) async {
+  /// [keep] false: the move is for this session only (node failover); nothing is saved.
+  Future<void> _reopenOn({required String nodeUrl, required EpicboxRelay relay, bool keep = true}) async {
     Future<void> save() async {
+      if (!keep) return;
       await _secrets.write(_nodeKey, nodeUrl);
       await _secrets.write(_relayKey, relay.label);
     }
@@ -2752,6 +2754,14 @@ class LepicDeskWallet implements DeskWalletApi {
       await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
       await _node?.stop();
     }
+  });
+
+  @override
+  Future<void> useNodeForSession(String url) => _nodeLock(() async {
+    if (_session == null || NetGate.offline || await _builtInOn()) return;
+    if (_config?.nodeUrl == url) return;
+    logInfo('desk', 'node failover: ${Uri.tryParse(url)?.host ?? '?'} for this session');
+    await _switchTo(nodeUrl: url, relay: await _relay(), save: false);
   });
 
   String get _beforeBuiltInKey => 'app.node.$_chain.beforeBuiltIn';

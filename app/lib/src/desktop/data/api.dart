@@ -196,6 +196,11 @@ abstract interface class DeskWalletApi {
   Future<void> saveSettings(DeskSettings settings);
   Future<void> useNode(String url);
 
+  /// Moves the open wallet onto [url] for this session only (node failover,
+  /// `desk_failover.dart`): the chosen node stays saved and the next unlock opens on it.
+  /// Locked: nothing happens. Payments and scans under way end first, as for [useNode].
+  Future<void> useNodeForSession(String url);
+
   /// Turns the built-in node on (starts it and moves the wallet to it) or off (moves the wallet
   /// back to the node used before, then stops it). Only when [DeskFeatures.builtInNode].
   Future<void> useBuiltInNode(bool on);

@@ -709,6 +709,16 @@ class MockDeskWallet implements DeskWalletApi {
     _node = url;
   }
 
+  /// Every [useNodeForSession] call, in order, for tests.
+  final List<String> sessionNodes = [];
+
+  @override
+  Future<void> useNodeForSession(String url) async {
+    await _wait();
+    sessionNodes.add(url);
+    _node = url;
+  }
+
   @override
   Future<void> useBuiltInNode(bool on) async {
     await _wait();

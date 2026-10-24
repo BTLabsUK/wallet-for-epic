@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../desk_l10n.dart';
 import '../data/desk_node.dart';
 import '../data/net_mode_view.dart';
+import 'desk_failover.dart';
 import '../data/node_view.dart';
 import '../data/tor_view.dart' as tor_view;
 import '../data/tor_view.dart' hide isLocalNodeUrl;
@@ -290,7 +291,12 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
         torOn: torState != TorState.off,
       );
       final tor = torNodeLines(context.l10n, url, torState);
-      node = tor.isEmpty ? v : NodeView(word: v.word, state: v.state, host: v.host, marker: v.marker, lines: [...v.lines, ...tor]);
+      // Node failover: the chosen node, under the one standing in for it this session.
+      final failover = ref.watch(deskFailoverProvider);
+      final instead = failover == null ? const <String>[] : [l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))];
+      node = tor.isEmpty && instead.isEmpty
+          ? v
+          : NodeView(word: v.word, state: v.state, host: v.host, marker: v.marker, lines: [...instead, ...v.lines, ...tor]);
     }
     var nodeItem = nodeRailItem(l, node);
     final netMode = settings.advanced.networkMode;

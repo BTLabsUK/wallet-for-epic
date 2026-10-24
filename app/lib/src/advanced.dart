@@ -55,12 +55,18 @@ class AdvancedPrefs {
   const AdvancedPrefs({
     this.features = const {},
     this.networkMode = NetworkMode.standard,
+    this.nodeFailover = true,
   });
 
   final Set<AdvancedFeature> features;
   final NetworkMode networkMode;
 
-  /// The defaults: nothing on, standard network.
+  /// Node failover (`node_failover.dart`): when the node in use stops answering, the wallet
+  /// uses the next working node in the list for this session. On by default; a stored value
+  /// from before it existed reads as on.
+  final bool nodeFailover;
+
+  /// The defaults: nothing on, standard network, node failover on.
   static const AdvancedPrefs none = AdvancedPrefs();
 
   /// Every feature on (tests and the screenshot tour), standard network.
@@ -68,8 +74,9 @@ class AdvancedPrefs {
 
   bool has(AdvancedFeature f) => features.contains(f);
 
-  /// Whether anything is on: the hub's state line and the About row read it.
-  bool get any => features.isNotEmpty || networkMode != NetworkMode.standard;
+  /// Whether anything is on beyond the simple app: the hub's state line and the About row
+  /// read it. Node failover is on by default, so only its being off counts.
+  bool get any => features.isNotEmpty || networkMode != NetworkMode.standard || !nodeFailover;
 
   /// Tor is wanted at launch ([NetworkMode.torOnly]).
   bool get startsWithTor => networkMode == NetworkMode.torOnly;
@@ -81,14 +88,20 @@ class AdvancedPrefs {
   AdvancedPrefs withFeature(AdvancedFeature f, bool on) => AdvancedPrefs(
     features: on ? {...features, f} : features.where((x) => x != f).toSet(),
     networkMode: networkMode,
+    nodeFailover: nodeFailover,
   );
 
   AdvancedPrefs withMode(NetworkMode mode) =>
-      AdvancedPrefs(features: features, networkMode: mode);
+      AdvancedPrefs(features: features, networkMode: mode, nodeFailover: nodeFailover);
 
-  /// `outputs,sendOptions|torOnly`: one string for a key-value store.
+  AdvancedPrefs withNodeFailover(bool on) =>
+      AdvancedPrefs(features: features, networkMode: networkMode, nodeFailover: on);
+
+  /// `outputs,sendOptions|torOnly`, with `|noFailover` when node failover is off: one string
+  /// for a key-value store.
   String encode() =>
-      '${(features.map((f) => f.name).toList()..sort()).join(',')}|${networkMode.name}';
+      '${(features.map((f) => f.name).toList()..sort()).join(',')}|${networkMode.name}'
+      '${nodeFailover ? '' : '|noFailover'}';
 
   /// Unknown names are dropped, so a build without a feature still opens its settings.
   static AdvancedPrefs decode(String? raw) {
@@ -103,12 +116,17 @@ class AdvancedPrefs {
         ? NetworkMode.values.where((m) => m.name == parts[1]).firstOrNull ??
               NetworkMode.standard
         : NetworkMode.standard;
-    return AdvancedPrefs(features: features, networkMode: mode);
+    return AdvancedPrefs(
+      features: features,
+      networkMode: mode,
+      nodeFailover: !parts.skip(2).contains('noFailover'),
+    );
   }
 
   Map<String, Object?> toJson() => {
     'features': (features.map((f) => f.name).toList()..sort()),
     'networkMode': networkMode.name,
+    'nodeFailover': nodeFailover,
   };
 
   static AdvancedPrefs fromJson(Object? j) {
@@ -125,6 +143,7 @@ class AdvancedPrefs {
       networkMode:
           NetworkMode.values.where((m) => m.name == mode).firstOrNull ??
           NetworkMode.standard,
+      nodeFailover: j['nodeFailover'] != false,
     );
   }
 
@@ -132,10 +151,11 @@ class AdvancedPrefs {
   bool operator ==(Object other) =>
       other is AdvancedPrefs &&
       other.networkMode == networkMode &&
+      other.nodeFailover == nodeFailover &&
       other.features.length == features.length &&
       other.features.containsAll(features);
 
   @override
   int get hashCode =>
-      Object.hash(networkMode, Object.hashAllUnordered(features));
+      Object.hash(networkMode, nodeFailover, Object.hashAllUnordered(features));
 }

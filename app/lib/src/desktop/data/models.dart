@@ -817,7 +817,6 @@ class DeskSettings {
     this.language,
     this.helpLanguage,
     this.hideAmounts = false,
-    this.nodeFailover = true,
     this.directHttp = false,
     this.tor = false,
     this.publicMode = false,
@@ -849,9 +848,6 @@ class DeskSettings {
   /// interface ([language]). Chosen with the switch at the top of Help.
   final String? helpLanguage;
   final bool hideAmounts;
-
-  /// Switch to the next healthy node when the current one stops answering.
-  final bool nodeFailover;
 
   /// The HTTP listener switch: on, it runs while receiving is on. Not saved: at unlock it is
   /// what Start with the wallet says.
@@ -906,7 +902,6 @@ class DeskSettings {
     String? Function()? language,
     String? Function()? helpLanguage,
     bool? hideAmounts,
-    bool? nodeFailover,
     bool? directHttp,
     bool? tor,
     bool? publicMode,
@@ -929,7 +924,6 @@ class DeskSettings {
     language: language != null ? language() : this.language,
     helpLanguage: helpLanguage != null ? helpLanguage() : this.helpLanguage,
     hideAmounts: hideAmounts ?? this.hideAmounts,
-    nodeFailover: nodeFailover ?? this.nodeFailover,
     directHttp: directHttp ?? this.directHttp,
     tor: tor ?? this.tor,
     publicMode: publicMode ?? this.publicMode,

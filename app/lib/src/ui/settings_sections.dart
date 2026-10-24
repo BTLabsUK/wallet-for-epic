@@ -157,6 +157,9 @@ const Key settingsPrivacyKey = ValueKey('settings-privacy');
 const Key settingsNodeKey = netStatusNodeKey;
 const Key settingsEpicboxKey = netStatusEpicboxKey;
 
+/// The key of the Node failover switch on the Advanced page, for tests.
+const Key advNodeFailoverKey = ValueKey('adv-nodeFailover');
+
 /// The key of the Licences row in About, for tests.
 const Key settingsLicencesKey = ValueKey('settings-licences');
 
@@ -968,6 +971,15 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.warn),
           ),
         ),
+      // On by default: the one switch here that keeps the simple app working.
+      HintSwitchTile(
+        key: advNodeFailoverKey,
+        icon: Icons.alt_route,
+        title: l.advNodeFailover,
+        hint: l.advNodeFailoverHint,
+        value: adv.nodeFailover,
+        onChanged: _settings.setNodeFailover,
+      ),
       const Divider(height: 24),
       ListTile(
         key: const ValueKey('adv-reset'),
@@ -977,7 +989,10 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         onTap: adv.features.isEmpty
             ? null
             : () => _settings.setAdvanced(
-                AdvancedPrefs(networkMode: adv.networkMode),
+                AdvancedPrefs(
+                  networkMode: adv.networkMode,
+                  nodeFailover: adv.nodeFailover,
+                ),
               ),
       ),
     ];
