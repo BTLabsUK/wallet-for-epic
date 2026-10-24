@@ -140,6 +140,20 @@ void main() {
     expect(wallet.sends, 1);
   });
 
+  testWidgets("a second code replaces the first: its untouched amount and note never ride along", (tester) async {
+    await show(tester);
+    await paste(tester, 'epic:$_e?amount=5&message=Table%204');
+    expect(text(tester, 'Amount'), '5');
+    expect(text(tester, 'Message'), 'Table 4');
+    // Pasted over the first one, To still holding its address.
+    await tester.enterText(field('To'), 'epic:$_annaAddress?label=Bob');
+    await tester.pumpAndSettle();
+    expect(text(tester, 'To'), _annaAddress);
+    expect(text(tester, 'Amount'), isEmpty);
+    expect(text(tester, 'Message'), isEmpty);
+    expect(find.text('Bob'), findsOneWidget);
+  });
+
   testWidgets('a request pasted into To goes the same way; typing "epic:" stays text; × hides the banner only', (tester) async {
     await show(tester);
     await tester.enterText(field('To'), 'epic:$_e?amount=3&label=Bakery');

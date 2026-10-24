@@ -155,32 +155,35 @@ class ScanResultSheet extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 12),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                if (secondary != null)
-                  TextButton(
-                    style: TextButton.styleFrom(minimumSize: target),
-                    onPressed: () =>
-                        Navigator.pop(context, _SheetResult.secondary),
-                    child: Text(secondary!),
-                  )
-                else if (canCopy)
-                  TextButton(
-                    key: scanResultCopyKey,
-                    style: TextButton.styleFrom(minimumSize: target),
-                    onPressed: () => Navigator.pop(context, _SheetResult.copy),
-                    child: Text(l.commonCopy),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  if (secondary != null)
+                    TextButton(
+                      style: TextButton.styleFrom(minimumSize: target),
+                      onPressed: () =>
+                          Navigator.pop(context, _SheetResult.secondary),
+                      child: Text(secondary!),
+                    )
+                  else if (canCopy)
+                    TextButton(
+                      key: scanResultCopyKey,
+                      style: TextButton.styleFrom(minimumSize: target),
+                      onPressed: () => Navigator.pop(context, _SheetResult.copy),
+                      child: Text(l.commonCopy),
+                    ),
+                  FilledButton(
+                    key: scanResultPrimaryKey,
+                    style: FilledButton.styleFrom(minimumSize: target),
+                    onPressed: () => Navigator.pop(context, _SheetResult.primary),
+                    child: Text(primary),
                   ),
-                FilledButton(
-                  key: scanResultPrimaryKey,
-                  style: FilledButton.styleFrom(minimumSize: target),
-                  onPressed: () => Navigator.pop(context, _SheetResult.primary),
-                  child: Text(primary),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

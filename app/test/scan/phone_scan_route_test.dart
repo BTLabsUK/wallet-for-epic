@@ -646,6 +646,41 @@ void main() {
     });
   });
 
+  group('a Send tab kept alive', () {
+    testWidgets('an address scanned after Send was opened keeps its origin', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await _tap(tester, find.text('Send').last);
+      await _tap(tester, find.text('Wallet').last);
+      await h.scan(tester, _e);
+      expect(_tab(tester), ShellTab.send);
+      expect(_field(tester, sendRecipientFieldKey), _e);
+      await _continue(tester);
+      await tester.enterText(find.byKey(sendAmountFieldKey), '1');
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      await _continue(tester);
+      expect(_origin('From a QR code'), findsOneWidget);
+    });
+
+    testWidgets('a second code without an amount drops the first one\'s', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, 'epic:$_e?amount=5&message=Table%204');
+      expect(_field(tester, sendAmountFieldKey), '5');
+      await _tap(tester, find.text('Wallet').last);
+      await h.scan(tester, 'epic:$_e?label=Bob');
+      expect(_onAmount(), isTrue);
+      expect(_field(tester, sendAmountFieldKey), isEmpty);
+      expect(_noteTile('Table 4'), findsNothing);
+      expect(_inPayee('Bob'), findsOneWidget);
+    });
+  });
+
   group('Send field paste', () {
     Future<void> paste(WidgetTester tester, _Harness h, String text) async {
       await _tap(

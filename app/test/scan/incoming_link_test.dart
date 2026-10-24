@@ -90,10 +90,15 @@ void main() {
   test('busy drops the link and counts it', () {
     c.read(linkBusyProvider.notifier).set(true);
     deliver('epic:a');
+    // Rate-limited before the busy check: a burst says "finish the payment" once.
+    deliver('epic:b');
+    expect(c.read(linkDroppedBusyProvider), 1);
+    advance(3);
     deliver('epic:b');
     expect(c.read(incomingLinkProvider), isNull);
     expect(c.read(linkDroppedBusyProvider), 2);
     c.read(linkBusyProvider.notifier).set(false);
+    advance(3);
     deliver('epic:c');
     expect(c.read(incomingLinkProvider)!.text, 'epic:c');
     expect(c.read(linkDroppedBusyProvider), 2);

@@ -2034,9 +2034,18 @@ class _SendViewState extends ConsumerState<SendView> {
 
   Widget _emptyState(BuildContext context) {
     final demo = ref.watch(demoModeProvider);
+    final request = _activeRequest;
     return CenteredScroll(
       child: CenteredBody(
         children: [
+          // A code or link that came in still shows it did; the form takes it once coins arrive.
+          if (request != null)
+            RequestBanner(
+              open: _requestBanner,
+              origin: _origin ?? CodeOrigin.qr,
+              problems: request.problems,
+              onDismiss: () => setState(() => _requestBanner = false),
+            ),
           PhoneTourTarget(
             id: 'tour-send-empty',
             child: EmptyState(
