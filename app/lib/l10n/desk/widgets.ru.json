@@ -78,8 +78,6 @@
   "deskKitFromStatusSite": "с status.btlabs.uk",
   "deskKitOverTor": "через Tor",
   "deskKitFromThisComputer": "с этого компьютера",
-  "deskKitNodeRemove": "Удалить {host} из моих узлов",
-  "deskKitNodeAdd": "Добавить {host} в мои узлы",
   "deskKitNodeUse": "Использовать {host}",
   "deskKitNodeUseOperator": "Использовать {host}, {operator}",
   "deskKitNodeUseDown": "Использовать {host}, не отвечает",

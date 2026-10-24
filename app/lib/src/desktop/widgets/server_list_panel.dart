@@ -1,0 +1,1224 @@
+/// The one Node and Epicbox picker of the desktop (Settings › Node, Settings › Receiving,
+/// Setup): a field-like button with the server in use that opens the kind's list under it
+/// ([deskServerListProvider], shared with the phone's lists).
+///
+/// The panel's field starts with the server in use, selected, so typing replaces it; typing
+/// filters the rows by host or operator. Add shows as soon as nothing matches, and for a typed
+/// address that is not listed: it says plainly when the text is no address, else tests the
+/// server ([ServerListPanel.onTest]), adds it and offers the switch. Every row has a bin; the row
+/// in use refuses ("In use. Switch first."), others go with Undo. "Restore the public list"
+/// shows while a public server is removed. A picked row is offered as "Switch to host" at the
+/// foot; in Setup ([ServerListPanel.chooseOnly]) a pick simply chooses.
+///
+/// Keyboard: Click, Space, Enter or ↓ opens; ↓/↑ move between the field and the rows; Enter
+/// picks a row, or on the field picks the only match or adds; Delete removes the focused row;
+/// Esc closes and focus goes back to the button. While [ServerListPanel.busy] the button says
+/// [ServerListPanel.busyLabel]; after [ServerListPanel.busyTimeout] it says "No answer yet"
+/// and works again.
+library;
+
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../legacy/gui_rules.dart' show isPrivateHost;
+import '../../node/node_info.dart' show compareVersions;
+import '../../relay_directory.dart' show NodeHealthState;
+import '../../ui/server_tile.dart';
+import '../data/desk_node.dart' show nodeHost;
+import '../data/server_lists.dart';
+import '../desk_l10n.dart';
+import 'kit.dart';
+import 'server_row.dart' show digitsText;
+
+/// What a row shows of one server; what the source does not know is null.
+@immutable
+class PanelServer {
+  const PanelServer({
+    required this.value,
+    required this.host,
+    this.operator,
+    this.listedAs,
+    this.icon,
+    this.state,
+    this.checking = false,
+    this.behind,
+    this.latencyMs,
+    this.version,
+    this.versionOld = false,
+    this.isDefault = false,
+  });
+
+  /// A listed server nothing is known about yet.
+  factory PanelServer.bare(ServerKind kind, String value) => PanelServer(value: value, host: panelHost(kind, value));
+
+  /// What the list stores: the node URL or the relay label.
+  final String value;
+
+  /// Shown in mono: without the scheme.
+  final String host;
+
+  /// The row's operator text: the built-in name, else the label of an own node.
+  final String? operator;
+
+  /// The operator as status.btlabs.uk names it: the tile's initials.
+  final String? listedAs;
+  final ServerIcon? icon;
+
+  /// Null when nothing is known: "Health unknown" (or "Checking…" while [checking]).
+  final NodeHealthState? state;
+  final bool checking;
+
+  /// Blocks behind the highest tip of the list; 0 at the tip.
+  final int? behind;
+  final int? latencyMs;
+  final String? version;
+  final bool versionOld;
+
+  /// The Epicbox default: a tag on its row.
+  final bool isDefault;
+
+  bool get down => state == NodeHealthState.down;
+}
+
+/// A value without its scheme and trailing slash: what a row and the field show.
+String panelHost(ServerKind kind, String value) =>
+    kind == ServerKind.node ? value.replaceFirst(RegExp('^[a-z]+://'), '').replaceFirst(RegExp(r'/+$'), '') : value;
+
+/// The rows of the wallet's node list: health from the wallet's own checks, behind from the
+/// highest height, older from [released] (else the newest version listed). [labels] are the old
+/// My nodes' labels, shown as the operator of an own node.
+List<PanelServer> nodePanelRows(List<NodeServer> nodes, {String? released, Map<String, String> labels = const {}}) {
+  final heights = [for (final n in nodes) if (n.height != null && n.health != ServiceHealth.down) n.height!];
+  final tip = heights.isEmpty ? null : heights.reduce(math.max);
+  var newest = released;
+  if (newest == null) {
+    for (final n in nodes) {
+      final v = n.version;
+      if (v != null && (newest == null || (compareVersions(v, newest) ?? 0) > 0)) newest = v;
+    }
+  }
+  return [
+    for (final n in nodes)
+      () {
+        final down = n.health == ServiceHealth.down;
+        final behind = down || tip == null || n.height == null ? null : (tip - n.height!).clamp(0, 1 << 30);
+        final old = n.version != null && newest != null && (compareVersions(n.version!, newest) ?? 0) < 0;
+        final label = labels[n.url]?.trim();
+        return PanelServer(
+          value: n.url,
+          host: panelHost(ServerKind.node, n.url),
+          operator: n.operator ?? (label != null && label.isNotEmpty ? label : (n.label.isEmpty || n.label == nodeHost(n.url) ? null : n.label)),
+          listedAs: n.listedAs,
+          icon: n.icon,
+          state: switch (n.health) {
+            ServiceHealth.down => NodeHealthState.down,
+            ServiceHealth.slow => NodeHealthState.degraded,
+            ServiceHealth.ok => (behind ?? 0) > 0 || old ? NodeHealthState.degraded : NodeHealthState.healthy,
+            ServiceHealth.checking || ServiceHealth.off => null,
+          },
+          checking: n.health == ServiceHealth.checking,
+          behind: behind,
+          latencyMs: down ? null : n.latencyMs,
+          version: n.version,
+          versionOld: old,
+        );
+      }(),
+  ];
+}
+
+/// The rows of the public relays, with the monitor's health; [defaultHost] gets the tag.
+List<PanelServer> relayPanelRows(List<EpicboxServer> boxes, {String? defaultHost}) => [
+  for (final b in boxes)
+    PanelServer(
+      value: relayLabel(b),
+      host: relayLabel(b),
+      operator: b.operator,
+      listedAs: b.listedAs,
+      icon: b.icon,
+      state: switch (b.health) {
+        ServiceHealth.ok => NodeHealthState.healthy,
+        ServiceHealth.slow => NodeHealthState.degraded,
+        ServiceHealth.down => NodeHealthState.down,
+        ServiceHealth.checking || ServiceHealth.off => null,
+      },
+      latencyMs: b.health == ServiceHealth.down ? null : b.latencyMs,
+      isDefault: b.domain == defaultHost && b.port == 443,
+    ),
+];
+
+/// The This computer row of the node list: first, never removed.
+@immutable
+class PanelLocalRow {
+  const PanelLocalRow({required this.value, required this.stateText});
+
+  final String value;
+
+  /// `Not set up` / `Syncing 12 %` / `Synced` / `Stopped`.
+  final String stateText;
+}
+
+/// A state the tour opens the panel in: [query] typed, [submit] pressed, [remove] binned.
+@immutable
+class ServerPanelDemo {
+  const ServerPanelDemo({this.query, this.submit = false, this.remove, this.pick});
+
+  final String? query;
+  final bool submit;
+  final String? remove;
+  final String? pick;
+}
+
+class ServerListPanel extends ConsumerStatefulWidget {
+  const ServerListPanel({
+    super.key,
+    required this.kind,
+    required this.label,
+    required this.value,
+    required this.fieldText,
+    required this.servers,
+    required this.source,
+    required this.onChoose,
+    required this.onTest,
+    this.fieldSub,
+    this.tone = ETone.ok,
+    this.chooseOnly = false,
+    this.local,
+    this.listNote,
+    this.busy = false,
+    this.busyLabel,
+    this.busyTimeout = const Duration(seconds: 20),
+    this.error,
+    this.openInitially = false,
+    this.demo,
+  });
+
+  final ServerKind kind;
+
+  /// The button's and the panel's name ("Node server").
+  final String label;
+
+  /// The value in use ('' none chosen yet).
+  final String value;
+
+  /// The button's text: the host in use; [fieldSub] muted after it.
+  final String fieldText;
+  final String? fieldSub;
+  final ETone tone;
+
+  /// What the wallet knows of each server, in any order; the list's order is the store's.
+  final List<PanelServer> servers;
+
+  /// What the list is seeded with and kept in step with ([DeskServerListController.sync]).
+  final DeskServerSource source;
+
+  /// Switch (Settings) or choose (Setup). The panel has closed when it runs.
+  final Future<void> Function(String value) onChoose;
+
+  /// Tests a typed server before it joins: null when it answered, else why not.
+  final Future<String?> Function(String value) onTest;
+
+  /// Setup before a wallet exists: a pick chooses, Add tests then chooses; no Switch step.
+  final bool chooseOnly;
+  final PanelLocalRow? local;
+
+  /// Under the rows: where the health comes from.
+  final String? listNote;
+  final bool busy;
+  final String? busyLabel;
+  final Duration busyTimeout;
+
+  /// Under the button (a failed switch).
+  final String? error;
+  final bool openInitially;
+  final ServerPanelDemo? demo;
+
+  @override
+  ConsumerState<ServerListPanel> createState() => ServerListPanelState();
+}
+
+class ServerListPanelState extends ConsumerState<ServerListPanel> {
+  final _portal = OverlayPortalController();
+  final _link = LayerLink();
+  final _button = FocusNode(debugLabel: 'server list button');
+  final _field = FocusNode(debugLabel: 'server list field');
+  final _listScope = FocusScopeNode(debugLabel: 'server list rows');
+  final _group = Object();
+  final _text = TextEditingController();
+  double _width = 480;
+  Timer? _busyTimer;
+  bool _slow = false;
+  String _sourceSig = '';
+  ServerList? _list;
+
+  /// The value picked but not yet switched to.
+  String? _pending;
+  String? _fieldError;
+
+  /// The value being tested before it joins.
+  String? _adding;
+
+  /// The foot's line: what the last action did, with Undo when it can be undone.
+  String? _line;
+  VoidCallback? _lineAction;
+  Timer? _lineTimer;
+
+  /// What the field held when the panel opened: the server in use.
+  String _filled = '';
+
+  bool get _busy => widget.busy && !_slow;
+  bool get _node => widget.kind == ServerKind.node;
+
+  /// The list is open.
+  bool get isOpen => _portal.isShowing;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.busy) _startBusy();
+    if (widget.openInitially || widget.demo != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        open();
+        final d = widget.demo;
+        if (d == null) return;
+        if (d.query != null) {
+          _text.text = d.query!;
+          setState(() {});
+        }
+        if (d.submit) _submit();
+        if (d.pick != null) _pick(d.pick!);
+        if (d.remove != null) {
+          // The list is read from the store first.
+          for (var i = 0; i < 20 && (_list == null || !_list!.has(widget.kind, d.remove!)); i++) {
+            await Future<void>.delayed(const Duration(milliseconds: 20));
+          }
+          if (mounted) await _remove(_row(d.remove!));
+        }
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(ServerListPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.busy && !oldWidget.busy) _startBusy();
+    if (!widget.busy && oldWidget.busy) {
+      _busyTimer?.cancel();
+      _slow = false;
+    }
+  }
+
+  void _startBusy() {
+    _slow = false;
+    _busyTimer?.cancel();
+    _busyTimer = Timer(widget.busyTimeout, () {
+      if (mounted) setState(() => _slow = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _busyTimer?.cancel();
+    _lineTimer?.cancel();
+    _button.dispose();
+    _field.dispose();
+    _listScope.dispose();
+    _text.dispose();
+    super.dispose();
+  }
+
+  bool _same(String a, String b) => sameServer(widget.kind, a, b);
+
+  String get _inUseText {
+    final v = widget.value;
+    if (v.isEmpty || v == widget.local?.value) return '';
+    return panelHost(widget.kind, v);
+  }
+
+  /// Opens the list with the server in use in the field, selected.
+  void open() {
+    if (_busy || _portal.isShowing || !mounted) return;
+    _filled = _inUseText;
+    _text.text = _filled;
+    setState(() {
+      _pending = null;
+      _fieldError = null;
+      _portal.show();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_portal.isShowing) return;
+      _field.requestFocus();
+      _text.selection = TextSelection(baseOffset: 0, extentOffset: _text.text.length);
+    });
+  }
+
+  /// Back to the closed button.
+  void collapse() {
+    if (!mounted) return;
+    _lineTimer?.cancel();
+    setState(() {
+      _portal.hide();
+      _pending = null;
+      _fieldError = null;
+      _line = null;
+      _lineAction = null;
+    });
+    _button.requestFocus();
+  }
+
+  void _say(String text, {VoidCallback? undo}) {
+    _lineTimer?.cancel();
+    setState(() {
+      _line = text;
+      _lineAction = undo;
+    });
+    _lineTimer = Timer(Duration(seconds: undo != null ? 8 : 4), () {
+      if (mounted) {
+        setState(() {
+          _line = null;
+          _lineAction = null;
+        });
+      }
+    });
+  }
+
+  String get _typed => _text.text.trim();
+
+  /// The field differs from the server in use: it filters.
+  bool get _filtering => _typed.isNotEmpty && _typed != _filled.trim();
+
+  /// The typed text as the list stores it, or null when it is no address. A node typed without
+  /// a scheme on this computer or the local network answers plain http.
+  String? _typedValue() {
+    final v = typedServerValue(widget.kind, _typed);
+    if (v == null || !_node || _typed.contains('://')) return v;
+    final host = Uri.tryParse(v)?.host ?? '';
+    return isPrivateHost(host) ? v.replaceFirst('https://', 'http://') : v;
+  }
+
+  PanelServer _row(String value) {
+    final k = serverKeyOf(widget.kind, value);
+    for (final s in widget.servers) {
+      if (serverKeyOf(widget.kind, s.value) == k) return s;
+    }
+    return PanelServer.bare(widget.kind, value);
+  }
+
+  /// Every listed server in the list's order; the source's while the store is read.
+  List<PanelServer> get _all => [for (final v in _list?.entries ?? widget.source.public) _row(v)];
+
+  List<PanelServer> _shown(List<PanelServer> all) {
+    if (!_filtering) return all;
+    return [
+      for (final s in all)
+        if (serverMatches(_typed, host: s.host, operator: s.operator)) s,
+    ];
+  }
+
+  void _pick(String value) {
+    if (_busy) return;
+    if (widget.value.isNotEmpty && _same(value, widget.value)) {
+      collapse();
+      return;
+    }
+    if (widget.chooseOnly) {
+      collapse();
+      unawaited(widget.onChoose(value));
+      return;
+    }
+    setState(() {
+      _pending = value;
+      _fieldError = null;
+    });
+  }
+
+  void _pickLocal(PanelLocalRow local) {
+    collapse();
+    if (widget.value != local.value) unawaited(widget.onChoose(local.value));
+  }
+
+  Future<void> _switch() async {
+    final v = _pending;
+    if (v == null) return;
+    collapse();
+    await widget.onChoose(v);
+  }
+
+  /// Enter on the field.
+  void _submit() {
+    if (!_filtering) {
+      if (_pending != null) unawaited(_switch());
+      return;
+    }
+    final all = _all;
+    final value = _typedValue();
+    final listed = value == null ? null : all.where((s) => _same(s.value, value)).firstOrNull;
+    if (listed != null) return _pick(listed.value);
+    final shown = _shown(all);
+    if (value == null && shown.length == 1) return _pick(shown.first.value);
+    unawaited(_add());
+  }
+
+  Future<void> _add() async {
+    final l = context.l10n;
+    final value = _typedValue();
+    if (value == null) {
+      setState(() => _fieldError = l.slNotAnAddress);
+      return;
+    }
+    if (_all.any((s) => _same(s.value, value))) return _pick(value);
+    setState(() {
+      _adding = value;
+      _fieldError = null;
+    });
+    String? why;
+    try {
+      why = await widget.onTest(value);
+    } on Object {
+      why = _node ? l.deskSlNodeNoAnswer : l.slRelayNoAnswer;
+    }
+    if (!mounted) return;
+    if (why != null) {
+      setState(() {
+        _adding = null;
+        _fieldError = why;
+      });
+      return;
+    }
+    await ref.read(deskServerListProvider(widget.kind).notifier).add(value);
+    if (!mounted) return;
+    if (widget.chooseOnly) {
+      setState(() => _adding = null);
+      collapse();
+      await widget.onChoose(value);
+      return;
+    }
+    _text.text = _filled;
+    setState(() {
+      _adding = null;
+      _pending = value;
+    });
+    _say(l.slAdded(panelHost(widget.kind, value)));
+    _field.requestFocus();
+  }
+
+  Future<void> _remove(PanelServer s) async {
+    final l = context.l10n;
+    if (widget.value.isNotEmpty && _same(s.value, widget.value)) {
+      _say(l.slInUseSwitchFirst);
+      return;
+    }
+    final hadFocus = _listScope.hasFocus;
+    final n = ref.read(deskServerListProvider(widget.kind).notifier);
+    final at = await n.remove(s.value);
+    if (!mounted) return;
+    if (_pending != null && _same(_pending!, s.value)) setState(() => _pending = null);
+    if (hadFocus) _field.requestFocus();
+    _say(
+      l.slRemoved(s.host),
+      undo: () async {
+        await n.add(s.value, at: at);
+        if (mounted) _say(l.slAdded(s.host));
+      },
+    );
+  }
+
+  Future<void> _restore() async {
+    await ref.read(deskServerListProvider(widget.kind).notifier).restore(widget.source.public);
+    if (mounted) _say(context.l10n.slRestored);
+  }
+
+  /// Seeds the list and keeps it in step with the directory, after the frame.
+  void _sync() {
+    final s = widget.source;
+    final sig = '${s.public.join(' ')}|${s.carried.join(' ')}|${s.removed.join(' ')}|${s.inUse}';
+    if (sig == _sourceSig) return;
+    _sourceSig = sig;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(ref.read(deskServerListProvider(widget.kind).notifier).sync(s));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    _list = ref.watch(deskServerListProvider(widget.kind));
+    _sync();
+    final open = _portal.isShowing;
+    final field = FocusableActionDetector(
+      focusNode: _button,
+      enabled: !_busy,
+      mouseCursor: SystemMouseCursors.click,
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.arrowDown): ActivateIntent(),
+        SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+      },
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            this.open();
+            return null;
+          },
+        ),
+      },
+      child: Builder(
+        builder: (context) {
+          final focused = _button.hasFocus;
+          return Semantics(
+            button: true,
+            label: '${widget.label}: ${widget.fieldText}${widget.fieldSub != null ? ', ${widget.fieldSub}' : ''}',
+            hint: l.deskSetComboOpens,
+            expanded: open,
+            excludeSemantics: true,
+            child: InkWell(
+              onTap: open ? collapse : this.open,
+              borderRadius: BorderRadius.circular(Rad.sm),
+              child: Container(
+                height: Ctl.sm,
+                padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
+                decoration: BoxDecoration(
+                  color: c.s2,
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                  border: Border.all(color: widget.error != null ? c.risk : (open || focused ? c.accent : c.lineField)),
+                ),
+                child: Row(
+                  children: [
+                    EStatusDot(widget.tone, size: 8.u),
+                    SizedBox(width: Sp.x3),
+                    Flexible(
+                      flex: 2,
+                      child: Text(widget.fieldText, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.mono(size: 13.u, color: c.text)),
+                    ),
+                    if (widget.busy) ...[
+                      SizedBox(width: Sp.x2),
+                      Flexible(
+                        child: Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            _slow ? l.deskSetComboNoAnswer : (widget.busyLabel ?? l.deskSetFrameChecking),
+                            style: ts.small.copyWith(color: _slow ? c.warn : c.dim),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
+                    ] else if (widget.fieldSub != null) ...[
+                      SizedBox(width: Sp.x2),
+                      Flexible(
+                        child: Text(widget.fieldSub!, style: ts.caption.copyWith(color: c.dim), overflow: TextOverflow.ellipsis, maxLines: 1),
+                      ),
+                    ],
+                    const Spacer(),
+                    SizedBox(width: Sp.x2),
+                    Icon(EIcons.chevronDown, size: 16.u, color: c.dim),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    return TapRegion(
+      groupId: _group,
+      // A click outside only closes the list: it does not also press what is under it.
+      consumeOutsideTaps: open,
+      onTapOutside: (_) {
+        if (_portal.isShowing) collapse();
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LayoutBuilder(
+            builder: (context, box) {
+              _width = box.maxWidth;
+              return CompositedTransformTarget(
+                link: _link,
+                child: OverlayPortal(controller: _portal, overlayChildBuilder: _panel, child: field),
+              );
+            },
+          ),
+          if (widget.error != null) ...[
+            SizedBox(height: 6.u),
+            _ErrorLine(widget.error!),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _panel(BuildContext overlayContext) {
+    final context = this.context;
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final all = _all;
+    final filtering = _filtering;
+    final shown = _shown(all);
+    final typedValue = filtering ? _typedValue() : null;
+    final listed = typedValue != null && all.any((s) => _same(s.value, typedValue));
+    final addable = filtering && (shown.isEmpty || (typedValue != null && !listed));
+    final local = widget.local;
+    final showLocal = local != null && (!filtering || serverMatches(_typed, host: l.deskSetNodeLocalNode, operator: local.stateText));
+    final restorable = _list == null ? const <String>[] : _list!.restorable(widget.kind, widget.source.public);
+    final selected = _pending ?? widget.value;
+    final known = [for (final s in widget.servers) (operator: s.listedAs ?? s.operator, icon: s.icon)];
+
+    final helper = _fieldError ?? (!filtering ? (_node ? l.slHelpIdleNode : l.slHelpIdleRelay) : l.slHelpMatches(shown.length));
+
+    final rows = <Widget>[
+      if (showLocal)
+        _LocalRow(local: local, selected: widget.value == local.value && _pending == null, onTap: () => _pickLocal(local)),
+      if (addable)
+        _AddRow(
+          host: typedValue == null ? _typed : panelHost(widget.kind, typedValue),
+          note: _node ? l.slAddTestsNode : l.slAddTestsRelay,
+          busy: _adding != null,
+          onTap: _add,
+        ),
+      for (final s in shown)
+        _Row(
+          key: ValueKey('server-row-${s.value}'),
+          kind: widget.kind,
+          server: s,
+          // Its own icon, else the one the monitor holds for the same operator.
+          icon: serverIconFor(s.icon, s.listedAs ?? s.operator, known),
+          inUse: widget.value.isNotEmpty && _same(s.value, widget.value),
+          selected: selected.isNotEmpty && _same(s.value, selected),
+          onTap: () => _pick(s.value),
+          onRemove: () => _remove(s),
+        ),
+      if (restorable.isNotEmpty && !filtering)
+        Padding(
+          padding: EdgeInsets.only(top: Sp.x1),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: EButton.ghost(
+              key: const ValueKey('server-list-restore'),
+              label: '${l.slRestore} · ${l.slRemovedCount(restorable.length)}',
+              icon: EIcons.history,
+              onPressed: _restore,
+            ),
+          ),
+        ),
+      if (widget.listNote != null && !filtering)
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+          child: Text(widget.listNote!, style: ts.caption),
+        ),
+    ];
+
+    final relayWarning = !_node && !widget.chooseOnly && !filtering && _pending == null;
+    final top = Padding(
+      padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x3, Sp.x3, Sp.x2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          CallbackShortcuts(
+            bindings: {
+              const SingleActivator(LogicalKeyboardKey.arrowDown): () => _listScope.nextFocus(),
+            },
+            child: EInput(
+              key: const ValueKey('server-list-field'),
+              controller: _text,
+              focusNode: _field,
+              mono: true,
+              size: EBtnSize.sm,
+              invalid: _fieldError != null,
+              leading: filtering ? EIcons.search : (_node ? EIcons.node : EIcons.epicbox),
+              semanticLabel: _node ? l.slNodeField : l.slRelayField,
+              trailing: _adding != null
+                  ? Padding(padding: EdgeInsets.all(Sp.x2), child: ESpinner(size: 14.u))
+                  : _text.text.isEmpty
+                  ? null
+                  : EIconButton(
+                      key: const ValueKey('server-list-clear'),
+                      icon: EIcons.close,
+                      label: l.slClear,
+                      size: EBtnSize.inline,
+                      tabStop: false,
+                      onPressed: () {
+                        _text.clear();
+                        setState(() => _fieldError = null);
+                        _field.requestFocus();
+                      },
+                    ),
+              onChanged: (_) => setState(() => _fieldError = null),
+              onSubmitted: (_) => _submit(),
+            ),
+          ),
+          SizedBox(height: 6.u),
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              helper,
+              key: const ValueKey('server-list-helper'),
+              style: _fieldError != null ? ts.small.copyWith(color: c.risk) : ts.caption.copyWith(color: c.dim),
+            ),
+          ),
+          if (relayWarning) ...[
+            SizedBox(height: Sp.x2),
+            _WarnStrip(l.slRelayWarning),
+          ],
+        ],
+      ),
+    );
+
+    final line = _line;
+    final pending = _pending;
+    final foot = [
+      if (line != null)
+        Semantics(
+          liveRegion: true,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x2, Sp.x2),
+            child: Row(
+              children: [
+                Expanded(child: Text(line, key: const ValueKey('server-list-line'), style: ts.small.copyWith(color: c.text))),
+                if (_lineAction != null)
+                  EButton.ghost(
+                    key: const ValueKey('server-list-undo'),
+                    label: l.slUndo,
+                    size: EBtnSize.inline,
+                    onPressed: () {
+                      final undo = _lineAction;
+                      setState(() => _lineAction = null);
+                      undo?.call();
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ),
+      if (pending != null)
+        Container(
+          padding: EdgeInsets.all(Sp.x3),
+          decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (!_node) ...[_WarnStrip(l.slRelayWarning), SizedBox(height: Sp.x3)],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  EButton(
+                    key: const ValueKey('server-list-cancel'),
+                    label: l.commonCancel,
+                    size: EBtnSize.sm,
+                    onPressed: () {
+                      setState(() => _pending = null);
+                      _field.requestFocus();
+                    },
+                  ),
+                  SizedBox(width: Sp.x2),
+                  Flexible(
+                    child: EButton.primary(
+                      key: const ValueKey('server-list-switch'),
+                      label: l.deskSlSwitchTo(panelHost(widget.kind, pending)),
+                      size: EBtnSize.sm,
+                      onPressed: _switch,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+    ];
+
+    // As tall as the window below the button allows.
+    final box = context.findRenderObject() as RenderBox?;
+    final below = box == null || !box.hasSize ? 480.u : MediaQuery.sizeOf(context).height - box.localToGlobal(Offset.zero).dy - Ctl.sm - Sp.x4;
+    final maxHeight = below.clamp(260.u, 520.u);
+
+    return CompositedTransformFollower(
+      link: _link,
+      targetAnchor: Alignment.bottomLeft,
+      offset: Offset(0, Sp.x1),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: TapRegion(
+          groupId: _group,
+          child: CallbackShortcuts(
+            bindings: {const SingleActivator(LogicalKeyboardKey.escape): collapse},
+            child: Material(
+              color: c.s4,
+              elevation: 8,
+              shadowColor: c.scrim,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
+              clipBehavior: Clip.antiAlias,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minWidth: _width, maxWidth: _width, maxHeight: maxHeight),
+                child: Semantics(
+                  label: widget.label,
+                  explicitChildNodes: true,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      top,
+                      Flexible(
+                        child: CallbackShortcuts(
+                          bindings: {
+                            const SingleActivator(LogicalKeyboardKey.arrowDown): () => _listScope.nextFocus(),
+                            const SingleActivator(LogicalKeyboardKey.arrowUp): () => _listScope.previousFocus(),
+                          },
+                          child: FocusScope(
+                            node: _listScope,
+                            child: ListView(
+                              padding: EdgeInsets.fromLTRB(Sp.x2, 0, Sp.x2, Sp.x2),
+                              shrinkWrap: true,
+                              children: rows,
+                            ),
+                          ),
+                        ),
+                      ),
+                      ...foot,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorLine extends StatelessWidget {
+  const _ErrorLine(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Semantics(
+      liveRegion: true,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(padding: const EdgeInsets.only(top: 2), child: Icon(EIcons.error, size: Ctl.iconSm, color: c.risk)),
+          SizedBox(width: 6.u),
+          Expanded(child: Text(text, style: context.ts.small.copyWith(color: c.risk))),
+        ],
+      ),
+    );
+  }
+}
+
+/// The address-change warning of the Epicbox list.
+class _WarnStrip extends StatelessWidget {
+  const _WarnStrip(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+      decoration: BoxDecoration(
+        color: c.warnSoft,
+        borderRadius: BorderRadius.circular(Rad.sm),
+        border: Border(left: BorderSide(color: c.warn, width: 2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(padding: const EdgeInsets.only(top: 1), child: Icon(EIcons.alert, size: Ctl.iconSm, color: c.warn)),
+          SizedBox(width: Sp.x2),
+          Expanded(child: Text(text, style: context.ts.small.copyWith(color: c.text))),
+        ],
+      ),
+    );
+  }
+}
+
+ServerTileColors _tileColors(DeskColors c) => ServerTileColors(
+  surface: c.s2,
+  line: c.line,
+  initials: c.dim,
+  tints: [c.accent.withValues(alpha: 0.14), c.info.withValues(alpha: 0.16), c.text.withValues(alpha: 0.08)],
+  ok: c.ok,
+  warn: c.warn,
+  risk: c.risk,
+  unknown: c.faint,
+  ring: c.s4,
+);
+
+/// One server: tile, host in mono, the facts under it; the check on the selected row and the bin.
+class _Row extends StatelessWidget {
+  const _Row({
+    super.key,
+    required this.kind,
+    required this.server,
+    required this.icon,
+    required this.inUse,
+    required this.selected,
+    required this.onTap,
+    required this.onRemove,
+  });
+
+  final ServerKind kind;
+  final PanelServer server;
+  final ServerIcon? icon;
+  final bool inUse;
+  final bool selected;
+  final VoidCallback onTap;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final s = server;
+    final down = s.down;
+    final dim = down ? c.faint : c.dim;
+    // (text, colour, bold)
+    final facts = <(String, Color, bool)>[
+      if (inUse) (l.deskSlInUse, c.text, true),
+      if (kind == ServerKind.node && !down && s.behind != null)
+        s.behind! <= 0 ? (l.deskKitAtTip, c.ok, false) : (l.deskKitBehind(s.behind!, digitsText(l, s.behind!)), c.warn, false),
+      if (s.state == NodeHealthState.degraded && (s.behind ?? 0) <= 0 && !s.versionOld) (l.deskSetFrameHealthSlow, c.warn, false),
+      if (down) (l.deskSetFrameNotResponding, c.risk, false),
+      if (s.state == null) (s.checking ? l.deskSetFrameChecking : l.deskSlHealthUnknown, c.dim, false),
+      if (s.operator != null && s.operator!.isNotEmpty) (s.operator!, dim, false),
+      if (s.latencyMs != null) (l.deskSlLatency(digitsText(l, s.latencyMs!)), dim, false),
+      if (kind == ServerKind.node && !down && s.version != null) (s.version!, s.versionOld ? c.warn : dim, false),
+    ];
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: [l.deskSetComboUse(s.host), if (s.isDefault) l.deskSlDefault, for (final f in facts) f.$1].join(', '),
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.delete): onRemove,
+          const SingleActivator(LogicalKeyboardKey.backspace): onRemove,
+        },
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(Rad.sm),
+          focusColor: c.s3,
+          hoverColor: c.s3,
+          child: Container(
+            constraints: BoxConstraints(minHeight: 52.u),
+            padding: EdgeInsets.only(left: Sp.x2, right: Sp.x1),
+            decoration: BoxDecoration(
+              color: selected ? c.s3 : null,
+              borderRadius: BorderRadius.circular(Rad.sm),
+              border: Border.all(color: selected ? c.lineStrong : Colors.transparent),
+            ),
+            child: Row(
+              children: [
+                ServerTileView(
+                  operator: s.listedAs ?? s.operator,
+                  host: s.host,
+                  icon: icon,
+                  state: s.state,
+                  colors: _tileColors(c),
+                  dimmed: down,
+                  fontFamily: ts.mono().fontFamily,
+                ),
+                SizedBox(width: Sp.x3),
+                Expanded(
+                  child: ExcludeSemantics(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 6.u),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Tooltip(
+                                  message: s.value,
+                                  waitDuration: const Duration(milliseconds: 600),
+                                  child: Text(s.host, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.mono(size: Fs.sm, color: down ? c.faint : c.text)),
+                                ),
+                              ),
+                              if (s.isDefault) ...[SizedBox(width: Sp.x2), ETag(l.deskSlDefault)],
+                            ],
+                          ),
+                          SizedBox(height: 2.u),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                for (var i = 0; i < facts.length; i++) ...[
+                                  if (i > 0) TextSpan(text: ' · ', style: TextStyle(color: c.faint)),
+                                  TextSpan(
+                                    text: facts[i].$1,
+                                    style: TextStyle(color: facts[i].$2, fontWeight: facts[i].$3 ? FontWeight.w600 : null),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: ts.caption,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 20.u,
+                  child: selected ? Icon(EIcons.check, size: 16.u, color: s.state == NodeHealthState.healthy ? c.ok : c.dim) : null,
+                ),
+                EIconButton(
+                  key: ValueKey('server-row-remove-${s.value}'),
+                  icon: EIcons.trash,
+                  label: l.deskSlRemoveHost(s.host),
+                  size: EBtnSize.inline,
+                  tabStop: false,
+                  onPressed: onRemove,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The This computer row: the monitor, "Local node" and its state.
+class _LocalRow extends StatelessWidget {
+  const _LocalRow({required this.local, required this.selected, required this.onTap});
+
+  final PanelLocalRow local;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: l.deskKitLocalNodeUse(local.stateText),
+      child: InkWell(
+        key: const ValueKey('server-row-local'),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(Rad.sm),
+        focusColor: c.s3,
+        hoverColor: c.s3,
+        child: Container(
+          constraints: BoxConstraints(minHeight: 52.u),
+          padding: EdgeInsets.symmetric(horizontal: Sp.x2),
+          decoration: BoxDecoration(
+            color: selected ? c.s3 : null,
+            borderRadius: BorderRadius.circular(Rad.sm),
+            border: Border.all(color: selected ? c.lineStrong : Colors.transparent),
+          ),
+          child: ExcludeSemantics(
+            child: Row(
+              children: [
+                Container(
+                  width: 36.u,
+                  height: 36.u,
+                  decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(6)),
+                  child: Icon(EIcons.monitor, size: 18.u, color: c.dim),
+                ),
+                SizedBox(width: Sp.x3),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l.deskSetNodeLocalNode, style: ts.body.copyWith(color: c.text, height: 1.3)),
+                      Text(
+                        [l.deskSetNodeGroupComputer, local.stateText].join(' · '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: ts.caption.copyWith(color: c.dim),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 20.u, child: selected ? Icon(EIcons.check, size: 16.u, color: c.dim) : null),
+                SizedBox(width: Ctl.inline),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Add: the first row while nothing matches or the typed address is not listed.
+class _AddRow extends StatelessWidget {
+  const _AddRow({required this.host, required this.note, required this.busy, required this.onTap});
+
+  final String host;
+  final String note;
+  final bool busy;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    return Padding(
+      padding: EdgeInsets.only(bottom: Sp.x1),
+      child: Semantics(
+        button: true,
+        label: l.slAddRow(host),
+        child: InkWell(
+          key: const ValueKey('server-list-add'),
+          onTap: busy ? null : onTap,
+          borderRadius: BorderRadius.circular(Rad.sm),
+          focusColor: c.s3,
+          hoverColor: c.s3,
+          child: Container(
+            constraints: BoxConstraints(minHeight: 52.u),
+            padding: EdgeInsets.symmetric(horizontal: Sp.x2),
+            decoration: BoxDecoration(border: Border.all(color: c.lineStrong), borderRadius: BorderRadius.circular(Rad.sm)),
+            child: ExcludeSemantics(
+              child: Row(
+                children: [
+                  SizedBox.square(
+                    dimension: 36.u,
+                    child: Center(child: busy ? ESpinner(size: 16.u) : Icon(EIcons.plus, size: 18.u, color: c.accentText)),
+                  ),
+                  SizedBox(width: Sp.x3),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          busy ? l.deskSlTesting(host) : l.slAddRow(host),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: ts.body.copyWith(color: c.text, fontWeight: FontWeight.w600, height: 1.3),
+                        ),
+                        Text(note, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: c.dim)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

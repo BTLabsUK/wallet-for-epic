@@ -56,8 +56,11 @@ class SettingsPrefs {
   /// A remote node used by address that is in no list (the mock's status knows only listed ones).
   final NodeServer? typedNode;
 
-  /// My nodes: address → label (empty = none).
+  /// The old My nodes' labels: address → label (empty = none), shown as an own node's operator.
   final Map<String, String> nodeLabels;
+
+  /// Nodes the old Settings › Node took out: they start removed in the node list
+  /// (`server_lists.dart`), which keeps removals itself from then on.
   final Set<String> removedNodes;
   final String? walletLabel;
 
@@ -132,12 +135,6 @@ class SettingsPrefsController extends Notifier<SettingsPrefs> {
   }
 
   void set(SettingsPrefs p) => state = p;
-
-  void label(String address, String label) => state = state.copyWith(nodeLabels: {...state.nodeLabels, address: label});
-
-  void forgetNode(String address) => state = state.copyWith(removedNodes: {...state.removedNodes, address});
-
-  void restoreNode(String address) => state = state.copyWith(removedNodes: {...state.removedNodes}..remove(address));
 
   void removeWallet(String folder) => state = state.copyWith(removedWallets: {...state.removedWallets, folder});
 

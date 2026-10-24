@@ -1,5 +1,4 @@
 {
-  "deskSetNodeVersionOld": "เวอร์ชันเก่ากว่า {version}",
   "deskSetNodePortNote": "ตรวจที่อยู่และพอร์ต (ปกติคือ 3413)",
   "deskSetNodeListNote": "สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที เวลาตอบสนองวัดจากคอมพิวเตอร์นี้",
   "deskSetNodeStartTitle": "เริ่มโหนดในเครื่องไหม?",
@@ -18,19 +17,9 @@
   "deskSetNodeLocalInUseText": "จะดาวน์โหลดบล็อกเชนทั้งหมด ต้องมีพื้นที่ว่าง 5 GB",
   "deskSetNodeLocalNode": "โหนดในเครื่อง",
   "deskSetNodeGroupComputer": "คอมพิวเตอร์นี้",
-  "deskSetNodeGroupMine": "โหนดของฉัน",
-  "deskSetNodeGroupPublic": "โหนดสาธารณะ",
-  "deskSetNodeRemovedFromMine": "ลบออกจากโหนดของฉันแล้ว",
-  "deskSetNodeNotAnswering": "ไม่ตอบสนอง",
-  "deskSetNodeAddToMine": "เพิ่มในโหนดของฉัน",
   "deskSetNodeServer": "เซิร์ฟเวอร์โหนด",
   "deskSetNodeServerHint": "โหนดที่กระเป๋าเงินใช้อ่านบล็อกเชนและส่งธุรกรรม",
-  "deskSetNodeFindHint": "ค้นหาหรือพิมพ์ที่อยู่โหนด",
   "deskSetNodeChecking": "กำลังตรวจโหนด…",
-  "deskSetNodeTypedNote": "Enter เพื่อใช้ ดาวเก็บไว้ในโหนดของฉัน",
-  "deskSetNodeNoNodes": "ไม่มีโหนดให้แสดง",
-  "deskSetNodeFooterAdd": "เพิ่มในโหนดของฉัน…",
-  "deskSetNodeFooterDirectory": "รายชื่อโหนด…",
   "deskSetNodeBackground": "ซิงก์เบื้องหลัง",
   "deskSetNodeBackgroundHint": "ซิงก์ต่อขณะแอปปิดอยู่"
 }

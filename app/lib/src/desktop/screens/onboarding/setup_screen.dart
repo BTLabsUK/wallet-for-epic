@@ -3,15 +3,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../network.dart' show defaultEpicboxHost;
+import '../../../network.dart' show EpicboxRelay, defaultEpicboxHost;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import '../settings/combo.dart';
 import '../settings/local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/settings_node.dart' show hostOf, nodeUrlOf, serverRows, nodeListNoteText;
+import '../../widgets/server_list_panel.dart';
+import '../../data/server_lists.dart';
+import '../../../net/probe_not_run.dart';
+import '../../../send_preflight.dart' show relayProbeProvider;
 import 'local_node_step.dart';
 import 'onboarding_parts.dart';
 
@@ -54,7 +57,9 @@ class SetupScreen extends ConsumerStatefulWidget {
 }
 
 class _SetupScreenState extends ConsumerState<SetupScreen> {
-  final _domain = TextEditingController(text: defaultEpicboxHost);
+  /// The Epicbox server chosen (its label), and whether the wallet receives through Epicbox.
+  String _relay = defaultEpicboxHost;
+  bool _epicboxOn = true;
   SetupFirstRun? get _first => widget.arg is SetupFirstRun ? widget.arg! as SetupFirstRun : null;
   late final List<SetupStep> _steps = [if (DeskFeatures.languages && _first == null) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
 
@@ -96,7 +101,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     super.initState();
     final st = ref.read(deskProvider);
     final api0 = ref.read(deskApiProvider);
-    _domain.text = st.status?.epicbox.domain ?? _domain.text;
+    if (st.status?.epicbox case final b?) _relay = relayLabel(b);
     _rerun = ref.read(deskNavProvider.notifier).canBack;
     _wasBuiltin = ref.read(settingsPrefsProvider).builtin;
     final first = _first;
@@ -108,7 +113,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         if (!mounted) return;
         _currentNode = x.node.url;
         if (!_wasBuiltin && _nodeUrl == null) setState(() => _nodeUrl = x.node.url);
-        if (_domain.text == defaultEpicboxHost) setState(() => _domain.text = x.epicbox.domain);
+        if (_relay == defaultEpicboxHost) setState(() => _relay = relayLabel(x.epicbox));
       });
     }
     if (_rerun) {
@@ -148,7 +153,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   void dispose() {
     _changes?.cancel();
     _refetch?.cancel();
-    _domain.dispose();
     super.dispose();
   }
 
@@ -177,7 +181,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       fallbackAskedThisSession = true;
     }
     setState(() => _busy = true);
-    final domain = _domain.text.trim();
+    final domain = _epicboxOn ? _relay : '';
     prefs.set(ref.read(settingsPrefsProvider).copyWith(epicboxOnStart: domain.isNotEmpty));
     if (_steps.contains(SetupStep.prefs)) await c.saveSettings(ref.read(deskProvider).settings.copyWith(language: () => _language)); // read now: the dialogs above may have saved settings
     try {
@@ -190,7 +194,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         if (url != null && (_wasBuiltin || url != (st.status?.node.url ?? _currentNode))) await c.useNode(url);
         prefs.set(ref.read(settingsPrefsProvider).copyWith(builtin: false));
       }
-      if (domain.isNotEmpty && domain != st.status?.epicbox.domain) await c.useEpicbox(domain);
+      if (domain.isNotEmpty && (st.status == null || domain != relayLabel(st.status!.epicbox))) await c.useEpicbox(domain);
       // A first run's wallet is locked: it listens once Unlock opens it (the epicboxOnStart choice).
       if (_first == null) {
         await c.setListening(domain.isNotEmpty);
@@ -310,30 +314,31 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Widget _node(BuildContext context) {
     final nodes = _nodes;
     final l = context.l10n;
-    final rows = nodes == null ? const <ServerInfo>[] : serverRows(nodes.where((n) => !n.own).toList());
-    final current = rows.where((r) => r.value == _nodeUrl).firstOrNull;
-    final picker = ServiceCombo(
-      label: l.deskSetupNodeServer,
-      hint: l.deskSetupNodeHint,
+    final st = ref.watch(deskProvider);
+    final current = nodes?.where((n) => n.url == _nodeUrl).firstOrNull;
+    final rows = nodes == null ? const <PanelServer>[] : nodePanelRows(nodes);
+    final row = rows.where((r) => r.value == _nodeUrl).firstOrNull;
+    final picker = ServerListPanel(
       kind: ServerKind.node,
+      label: l.deskSetupNodeServer,
       value: _nodeUrl ?? '',
-      fieldText: nodes == null ? l.deskSetupCheckingNodes : (current?.host ?? (_nodeUrl == null ? l.deskSetupPickNode : hostOf(_nodeUrl!))),
-      fieldSub: current?.operator,
-      tone: switch (current?.state) {
-        null || EState.off => ETone.neutral,
-        EState.ok => ETone.ok,
-        EState.risk => ETone.risk,
-        EState.warn => ETone.warn,
+      fieldText: nodes == null ? l.deskSetupCheckingNodes : (row?.host ?? (_nodeUrl == null ? l.deskSetupPickNode : hostOf(_nodeUrl!))),
+      fieldSub: row?.operator,
+      tone: switch (current?.health) {
+        null || ServiceHealth.checking || ServiceHealth.off => ETone.neutral,
+        ServiceHealth.ok => (row?.state == NodeHealthState.healthy ? ETone.ok : ETone.warn),
+        ServiceHealth.slow => ETone.warn,
+        ServiceHealth.down => ETone.risk,
       },
-      options: [for (final r in rows) ComboOption(value: r.value, host: r.host, sub: r.operator, server: r, group: l.deskSetupPublicNodes)],
-      typedRow: (t) => RegExp(r'^[^\s]*[.:][^\s]*$').hasMatch(t) ? ComboOption(value: t, host: hostOf(t), sub: l.deskSetupNotInList, tone: ETone.neutral) : null,
-      typedNote: (_) => l.deskSetupEnterUses,
+      servers: rows,
+      source: nodeSource(nodes ?? const [], removedNodes: ref.watch(settingsPrefsProvider).removedNodes, inUse: st.status?.node.url ?? _currentNode),
       listNote: nodeListNoteText(l),
-      emptyNote: nodes == null ? l.deskSetupCheckingNodes : l.deskSetupNoNodes,
-      onPicked: (v) => setState(() {
+      chooseOnly: true,
+      onChoose: (v) async => setState(() {
         _picked = true;
         _nodeUrl = nodeUrlOf(v);
       }),
+      onTest: _testNode,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -363,45 +368,81 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     );
   }
 
+  /// Add's test on the node step: the node gives its tip, then it is kept with the wallet's
+  /// nodes. Null when it answered, else why not.
+  Future<String?> _testNode(String url) async {
+    final l = context.l10n;
+    final api = ref.read(deskApiProvider);
+    final r = await api.checkNode(url);
+    if (r.health == ServiceHealth.down) return l.deskSlNodeNoAnswer;
+    if (r.health == ServiceHealth.checking) return l.deskSlTorWait;
+    await api.addNode(NodeServer(url: url, label: r.label, health: r.health, latencyMs: r.latencyMs, height: r.height, version: r.version, own: true));
+    return null;
+  }
+
+  /// Add's test on the Epicbox step: a WebSocket handshake with the relay.
+  Future<String?> _testRelay(String value) async {
+    final l = context.l10n;
+    final relay = EpicboxRelay.parse(value);
+    if (relay == null) return l.slNotAnAddress;
+    try {
+      return await ref.read(relayProbeProvider).reachable(relay) ? null : l.slRelayNoAnswer;
+    } on ProbeNotRun {
+      return l.deskSlTorWait;
+    }
+  }
+
   Widget _epicbox(BuildContext context) {
     final ts = context.ts;
     final boxes = _boxes;
     final l = context.l10n;
-    return Column(
+    final rows = relayPanelRows(boxes ?? const [], defaultHost: defaultEpicboxHost);
+    final row = rows.where((r) => r.value == _relay).firstOrNull;
+    // Ctrl+Enter is Continue; Enter on the server opens its list.
+    return EForm(
+      onSubmit: _continue,
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(l.deskSetupEpicboxText, style: ts.body),
         SizedBox(height: Sp.x2),
         Text(l.deskSetupEpicboxPrivacy, style: ts.bodyDim),
         SizedBox(height: Sp.x6),
-        EField(
-          label: l.deskSetupEpicboxServer,
-          help: l.deskSetupEpicboxHelp,
-          // Enter is Continue.
-          child: EForm(
-            onSubmit: _continue,
-            child: EInput(controller: _domain, mono: true, semanticLabel: l.deskSetupEpicboxServer, onChanged: (_) => setState(() {})),
+        ESwitch(
+          value: _epicboxOn,
+          label: l.deskSlSetupEpicboxOn,
+          semanticLabel: l.deskSlSetupEpicboxOn,
+          onChanged: (v) => setState(() => _epicboxOn = v),
+        ),
+        ExpandFade(
+          open: _epicboxOn,
+          child: Padding(
+            padding: EdgeInsets.only(top: Sp.x4),
+            child: EField(
+              label: l.deskSetupEpicboxServer,
+              child: ServerListPanel(
+                kind: ServerKind.relay,
+                label: l.deskSetupEpicboxServer,
+                value: _relay,
+                fieldText: _relay,
+                fieldSub: row?.operator,
+                tone: switch (row?.state) {
+                  NodeHealthState.healthy => ETone.ok,
+                  NodeHealthState.degraded => ETone.warn,
+                  NodeHealthState.down => ETone.risk,
+                  _ => ETone.neutral,
+                },
+                servers: [...rows, if (row == null) PanelServer.bare(ServerKind.relay, _relay)],
+                source: relaySource(boxes ?? const [], inUse: _relay),
+                chooseOnly: true,
+                onChoose: (v) async => setState(() => _relay = v),
+                onTest: _testRelay,
+              ),
+            ),
           ),
         ),
-        SizedBox(height: Sp.x3),
-        if (boxes == null)
-          const Align(alignment: Alignment.centerLeft, child: ESpinner())
-        else
-          Wrap(
-            spacing: Sp.x2,
-            runSpacing: Sp.x2,
-            children: [
-              for (final b in boxes)
-                EButton(
-                  label: b.domain,
-                  icon: _domain.text.trim() == b.domain ? EIcons.check : null,
-                  size: EBtnSize.inline,
-                  tabStop: false,
-                  onPressed: () => setState(() => _domain.text = b.domain),
-                ),
-            ],
-          ),
       ],
+      ),
     );
   }
 
@@ -437,7 +478,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   Widget _review(BuildContext context) {
     final ts = context.ts;
-    final domain = _domain.text.trim();
+    final domain = _epicboxOn ? _relay : '';
     final local = _local ? _localChoice : null;
     final bundled = local == null ? _local : local.how == LocalNodeHow.bundled;
     final fallback = nodeHost(defaultFallbackNodeUrl);

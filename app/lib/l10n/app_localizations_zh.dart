@@ -10081,16 +10081,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitFromThisComputer => '来自这台电脑';
 
   @override
-  String deskKitNodeRemove(String host) {
-    return '从我的节点中移除 $host';
-  }
-
-  @override
-  String deskKitNodeAdd(String host) {
-    return '把 $host 添加到我的节点';
-  }
-
-  @override
   String deskKitNodeUse(String host) {
     return '使用 $host';
   }
@@ -10670,73 +10660,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetBackupNotNow => '以后再说';
 
   @override
-  String get deskSetDlgNodeAddressEmpty => '请输入节点地址。';
-
-  @override
-  String get deskSetDlgNodeAddressBad => '不是节点地址。请检查地址和端口（通常是 3413）。';
-
-  @override
-  String get deskSetDlgNodeAddressDuplicate => '此地址已在“我的节点”中。';
-
-  @override
-  String get deskSetDlgNodeNotAdded => '节点未添加';
-
-  @override
-  String get deskSetDlgNodeSaved => '节点已保存';
-
-  @override
-  String get deskSetDlgNodeAdded => '已添加到我的节点';
-
-  @override
-  String get deskSetDlgNodeSaveAnyway => '仍然可以保存。';
-
-  @override
-  String get deskSetDlgNodeEditTitle => '编辑节点';
-
-  @override
-  String get deskSetDlgNodeAddTitle => '添加到我的节点';
-
-  @override
-  String get deskSetDlgNodeDesc => '保存节点地址，以后可以再找到它。节点离线时也能保存。';
-
-  @override
-  String get deskSetDlgNodeAddress => '节点地址';
-
-  @override
-  String get deskSetDlgNodeLabel => '名称';
-
-  @override
-  String get deskSetDlgNodeLabelHint => '例如：家里的节点';
-
-  @override
-  String get deskSetDlgDirTitle => '节点目录';
-
-  @override
-  String get deskSetDlgDirDesc => '公共节点、它们的运营方以及上次检查时的状态。';
-
-  @override
-  String get deskSetDlgDirEmpty => '没有可显示的节点';
-
-  @override
-  String deskSetDlgDirVersion(String version) {
-    return '版本 $version';
-  }
-
-  @override
-  String deskSetDlgDirHeight(String height) {
-    return '高度 $height';
-  }
-
-  @override
-  String get deskSetDlgDirInUse => '使用中';
-
-  @override
-  String get deskSetDlgDirUse => '使用';
-
-  @override
-  String get deskSetDlgDirNote => '响应时间由状态网站测得，而不是从这台电脑。';
-
-  @override
   String get deskSetDlgChainTitle => '找到已有的区块链数据';
 
   @override
@@ -10986,9 +10909,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetComboNoAnswer => '暂无响应';
-
-  @override
-  String get deskSetComboNothing => '没有可显示的内容。';
 
   @override
   String deskSetComboUse(String host) {
@@ -11643,11 +11563,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetLogsOpenFolder => '打开日志文件夹';
 
   @override
-  String deskSetNodeVersionOld(String version) {
-    return '版本低于 $version';
-  }
-
-  @override
   String get deskSetNodePortNote => '请检查地址和端口（通常是 3413）。';
 
   @override
@@ -11705,43 +11620,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetNodeGroupComputer => '这台电脑';
 
   @override
-  String get deskSetNodeGroupMine => '我的节点';
-
-  @override
-  String get deskSetNodeGroupPublic => '公共节点';
-
-  @override
-  String get deskSetNodeRemovedFromMine => '已从我的节点中移除';
-
-  @override
-  String get deskSetNodeNotAnswering => '无响应';
-
-  @override
-  String get deskSetNodeAddToMine => '添加到我的节点';
-
-  @override
   String get deskSetNodeServer => '节点服务器';
 
   @override
   String get deskSetNodeServerHint => '钱包通过这个节点读取区块链并发送交易。';
 
   @override
-  String get deskSetNodeFindHint => '查找或输入节点地址';
-
-  @override
   String get deskSetNodeChecking => '正在检查节点…';
-
-  @override
-  String get deskSetNodeTypedNote => '按 Enter 使用它。点星标可保存到“我的节点”。';
-
-  @override
-  String get deskSetNodeNoNodes => '没有可显示的节点。';
-
-  @override
-  String get deskSetNodeFooterAdd => '添加到我的节点…';
-
-  @override
-  String get deskSetNodeFooterDirectory => '节点目录…';
 
   @override
   String get deskSetNodeBackground => '后台同步';
@@ -11915,11 +11800,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRecvHeadStarting => '正在启动';
 
   @override
-  String deskSetRecvResponseTime(int ms) {
-    return '响应时间 $ms 毫秒。由状态网站测得。';
-  }
-
-  @override
   String get deskSetRecvEpicboxTitle => 'Epicbox 接收';
 
   @override
@@ -11932,16 +11812,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRecvEpicboxServerHint => '由哪个服务器为此地址暂存付款。双方钱包可以使用不同的服务器。';
 
   @override
-  String get deskSetRecvFindHint => '查找或输入 Epicbox 服务器';
-
-  @override
   String get deskSetRecvSwitchingServer => '正在切换 Epicbox 服务器…';
-
-  @override
-  String get deskSetRecvNotInList => '不在公共列表中';
-
-  @override
-  String get deskSetRecvTypedNote => '按 Enter 使用它。钱包连接后会显示它的状态。';
 
   @override
   String get deskSetRecvListNote => '状态来自 status.btlabs.uk，每隔几分钟检查一次。';
@@ -12337,25 +12208,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetupNodeServer => '节点服务器';
 
   @override
-  String get deskSetupNodeHint => '查找或输入节点地址';
-
-  @override
   String get deskSetupCheckingNodes => '正在检查节点…';
 
   @override
   String get deskSetupPickNode => '选择一个节点';
-
-  @override
-  String get deskSetupPublicNodes => '公共节点';
-
-  @override
-  String get deskSetupNotInList => '不在公共列表中';
-
-  @override
-  String get deskSetupEnterUses => '按 Enter 使用它。';
-
-  @override
-  String get deskSetupNoNodes => '没有可显示的节点。';
 
   @override
   String get deskSetupRemoteNode => '远程节点';
@@ -12376,9 +12232,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxServer => 'Epicbox 服务器';
-
-  @override
-  String get deskSetupEpicboxHelp => '留空即关闭通过 Epicbox 接收。';
 
   @override
   String get deskSetupChangePrefsSem => '更改偏好设置';
@@ -13152,4 +13005,42 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get slRelayNoAnswer => '此服务器无应答。未添加任何内容。';
+
+  @override
+  String deskSlRemoveHost(String host) {
+    return '移除 $host';
+  }
+
+  @override
+  String get deskSlInUse => '使用中';
+
+  @override
+  String get deskSlHealthUnknown => '状态未知';
+
+  @override
+  String get deskSlNodeNoAnswer => '此节点无应答。未添加任何内容。';
+
+  @override
+  String get deskSlTorWait => 'Tor 尚未连接。未添加任何内容。';
+
+  @override
+  String deskSlSwitchTo(String host) {
+    return '切换到 $host';
+  }
+
+  @override
+  String deskSlLatency(String ms) {
+    return '$ms 毫秒';
+  }
+
+  @override
+  String get deskSlDefault => '默认';
+
+  @override
+  String deskSlTesting(String host) {
+    return '正在测试 $host…';
+  }
+
+  @override
+  String get deskSlSetupEpicboxOn => '通过 Epicbox 接收';
 }

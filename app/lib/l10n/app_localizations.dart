@@ -16749,18 +16749,6 @@ abstract class AppLocalizations {
   /// **'from this computer'**
   String get deskKitFromThisComputer;
 
-  /// Tooltip and screen-reader label of the filled star on a node row: remove the node from the user's own list. {host} is a host name.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove {host} from my nodes'**
-  String deskKitNodeRemove(String host);
-
-  /// Tooltip and screen-reader label of the empty star on a node row: add the node to the user's own list. {host} is a host name.
-  ///
-  /// In en, this message translates to:
-  /// **'Add {host} to my nodes'**
-  String deskKitNodeAdd(String host);
-
   /// Screen-reader label of a node row in the node list: pick this node.
   ///
   /// In en, this message translates to:
@@ -17709,132 +17697,6 @@ abstract class AppLocalizations {
   /// **'Not now'**
   String get deskSetBackupNotNow;
 
-  /// Add or edit node dialog: error under the address field when it is empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter the node’s address.'**
-  String get deskSetDlgNodeAddressEmpty;
-
-  /// Add or edit node dialog: error under the address field when the text is not a node address.
-  ///
-  /// In en, this message translates to:
-  /// **'Not a node address. Check the address and the port (usually 3413).'**
-  String get deskSetDlgNodeAddressBad;
-
-  /// Add or edit node dialog: error when the address is already saved. "My nodes" is the list of own nodes in Settings > Node.
-  ///
-  /// In en, this message translates to:
-  /// **'This address is already in My nodes.'**
-  String get deskSetDlgNodeAddressDuplicate;
-
-  /// Toast title when saving a node failed; the reason follows as the toast text.
-  ///
-  /// In en, this message translates to:
-  /// **'Node not added'**
-  String get deskSetDlgNodeNotAdded;
-
-  /// Toast title after an edited node was saved.
-  ///
-  /// In en, this message translates to:
-  /// **'Node saved'**
-  String get deskSetDlgNodeSaved;
-
-  /// Toast title after a node was added to the own-nodes list.
-  ///
-  /// In en, this message translates to:
-  /// **'Added to my nodes'**
-  String get deskSetDlgNodeAdded;
-
-  /// Add node dialog: shown next to the check result when the node does not respond.
-  ///
-  /// In en, this message translates to:
-  /// **'It can be saved anyway.'**
-  String get deskSetDlgNodeSaveAnyway;
-
-  /// Title of the dialog for editing a saved node.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit node'**
-  String get deskSetDlgNodeEditTitle;
-
-  /// Title of the dialog for adding a node to the own-nodes list; also the matching button.
-  ///
-  /// In en, this message translates to:
-  /// **'Add to my nodes'**
-  String get deskSetDlgNodeAddTitle;
-
-  /// Add or edit node dialog: description under the title.
-  ///
-  /// In en, this message translates to:
-  /// **'Save a node address to find it again later. It can be saved while it is offline.'**
-  String get deskSetDlgNodeDesc;
-
-  /// Add or edit node dialog: label and screen reader name of the address field.
-  ///
-  /// In en, this message translates to:
-  /// **'Node address'**
-  String get deskSetDlgNodeAddress;
-
-  /// Add or edit node dialog: label and screen reader name of the optional name field.
-  ///
-  /// In en, this message translates to:
-  /// **'Label'**
-  String get deskSetDlgNodeLabel;
-
-  /// Add or edit node dialog: placeholder of the label field.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. Home node'**
-  String get deskSetDlgNodeLabelHint;
-
-  /// Title of the dialog listing public nodes.
-  ///
-  /// In en, this message translates to:
-  /// **'Node directory'**
-  String get deskSetDlgDirTitle;
-
-  /// Node directory dialog: description under the title.
-  ///
-  /// In en, this message translates to:
-  /// **'Public nodes, their operators and their state at the last check.'**
-  String get deskSetDlgDirDesc;
-
-  /// Node directory dialog: empty state.
-  ///
-  /// In en, this message translates to:
-  /// **'No nodes to show'**
-  String get deskSetDlgDirEmpty;
-
-  /// Node directory: a node’s software version in a small detail line, e.g. "version 4.1.0". Lowercase.
-  ///
-  /// In en, this message translates to:
-  /// **'version {version}'**
-  String deskSetDlgDirVersion(String version);
-
-  /// Node directory: a node’s block height in a small detail line, e.g. "height 2,914,414". Lowercase.
-  ///
-  /// In en, this message translates to:
-  /// **'height {height}'**
-  String deskSetDlgDirHeight(String height);
-
-  /// Node directory: tag on the node the wallet uses now. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'In use'**
-  String get deskSetDlgDirInUse;
-
-  /// Node directory: button that switches to that node. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Use'**
-  String get deskSetDlgDirUse;
-
-  /// Node directory dialog: note under the list.
-  ///
-  /// In en, this message translates to:
-  /// **'Response times are measured from the status site, not from this computer.'**
-  String get deskSetDlgDirNote;
-
   /// Title of the dialog offering to reuse blockchain data already on this computer.
   ///
   /// In en, this message translates to:
@@ -18260,12 +18122,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No answer yet'**
   String get deskSetComboNoAnswer;
-
-  /// Picker list: empty note.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing to show.'**
-  String get deskSetComboNothing;
 
   /// Screen reader label of a picker row; the node’s details follow after a comma. {host} is a server address.
   ///
@@ -19334,12 +19190,6 @@ abstract class AppLocalizations {
   /// **'Open log folder'**
   String get deskSetLogsOpenFolder;
 
-  /// Settings > Node: tag or sub-line on a node whose software is older than the minimum version the wallet works well with. {version} is a version number like 3.6.0.
-  ///
-  /// In en, this message translates to:
-  /// **'Version older than {version}'**
-  String deskSetNodeVersionOld(String version);
-
   /// Settings > Node: error under the node picker when the typed node does not answer.
   ///
   /// In en, this message translates to:
@@ -19448,36 +19298,6 @@ abstract class AppLocalizations {
   /// **'This computer'**
   String get deskSetNodeGroupComputer;
 
-  /// Heading of the node picker group of nodes the user saved; also a name used in other texts.
-  ///
-  /// In en, this message translates to:
-  /// **'My nodes'**
-  String get deskSetNodeGroupMine;
-
-  /// Heading of the node picker group of public nodes.
-  ///
-  /// In en, this message translates to:
-  /// **'Public nodes'**
-  String get deskSetNodeGroupPublic;
-
-  /// Toast title after a node was removed from the saved nodes. The node address follows as text.
-  ///
-  /// In en, this message translates to:
-  /// **'Removed from my nodes'**
-  String get deskSetNodeRemovedFromMine;
-
-  /// Node picker: word on a typed address whose node does not answer.
-  ///
-  /// In en, this message translates to:
-  /// **'Not answering'**
-  String get deskSetNodeNotAnswering;
-
-  /// Node picker: tooltip and screen reader label of the star button on a typed address.
-  ///
-  /// In en, this message translates to:
-  /// **'Add to my nodes'**
-  String get deskSetNodeAddToMine;
-
   /// Settings > Node: row title, picker label and screen reader name.
   ///
   /// In en, this message translates to:
@@ -19490,41 +19310,11 @@ abstract class AppLocalizations {
   /// **'The node the wallet reads the chain through and sends with.'**
   String get deskSetNodeServerHint;
 
-  /// Settings > Node: placeholder of the node picker search field.
-  ///
-  /// In en, this message translates to:
-  /// **'Find or type a node address'**
-  String get deskSetNodeFindHint;
-
   /// Settings > Node: shown while a chosen node is checked.
   ///
   /// In en, this message translates to:
   /// **'Checking the node…'**
   String get deskSetNodeChecking;
-
-  /// Settings > Node: note under a typed address in the picker. "Enter" is the keyboard key.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter uses it. The star keeps it in My nodes.'**
-  String get deskSetNodeTypedNote;
-
-  /// Settings > Node: empty note of the node picker.
-  ///
-  /// In en, this message translates to:
-  /// **'No nodes to show.'**
-  String get deskSetNodeNoNodes;
-
-  /// Node picker footer action that opens the add node dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Add to my nodes…'**
-  String get deskSetNodeFooterAdd;
-
-  /// Node picker footer action that opens the node directory dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Node directory…'**
-  String get deskSetNodeFooterDirectory;
 
   /// Settings > Node: switch title and screen reader name.
   ///
@@ -19814,12 +19604,6 @@ abstract class AppLocalizations {
   /// **'Starting'**
   String get deskSetRecvHeadStarting;
 
-  /// Tooltip on an Epicbox server in the picker. {ms} is milliseconds.
-  ///
-  /// In en, this message translates to:
-  /// **'Response time {ms} ms. Measured from the status site.'**
-  String deskSetRecvResponseTime(int ms);
-
   /// Settings > Receiving: heading of the Epicbox group.
   ///
   /// In en, this message translates to:
@@ -19844,29 +19628,11 @@ abstract class AppLocalizations {
   /// **'Which server holds payments for this address. Both wallets can use different servers.'**
   String get deskSetRecvEpicboxServerHint;
 
-  /// Settings > Receiving: placeholder of the Epicbox server picker search field.
-  ///
-  /// In en, this message translates to:
-  /// **'Find or type an Epicbox server'**
-  String get deskSetRecvFindHint;
-
   /// Settings > Receiving: shown while the Epicbox server is switched.
   ///
   /// In en, this message translates to:
   /// **'Switching the Epicbox server…'**
   String get deskSetRecvSwitchingServer;
-
-  /// Epicbox server picker: note on a typed server that is not in the public list. Lowercase.
-  ///
-  /// In en, this message translates to:
-  /// **'not in the public list'**
-  String get deskSetRecvNotInList;
-
-  /// Epicbox server picker: note under a typed server. "Enter" is the keyboard key.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter uses it. Its status shows once the wallet connects.'**
-  String get deskSetRecvTypedNote;
 
   /// Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays.
   ///
@@ -20606,12 +20372,6 @@ abstract class AppLocalizations {
   /// **'Node server'**
   String get deskSetupNodeServer;
 
-  /// Placeholder in the node picker's search field.
-  ///
-  /// In en, this message translates to:
-  /// **'Find or type a node address'**
-  String get deskSetupNodeHint;
-
   /// Shown in the node picker while the public node list is being checked.
   ///
   /// In en, this message translates to:
@@ -20623,30 +20383,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick a node'**
   String get deskSetupPickNode;
-
-  /// Group head in the node picker's list: public Epic nodes run by others.
-  ///
-  /// In en, this message translates to:
-  /// **'Public nodes'**
-  String get deskSetupPublicNodes;
-
-  /// Small line under a node address the user typed that is not one of the public nodes. Lower case: it follows the address.
-  ///
-  /// In en, this message translates to:
-  /// **'not in the public list'**
-  String get deskSetupNotInList;
-
-  /// Note under a typed node address in the picker: pressing the Enter key picks it.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter uses it.'**
-  String get deskSetupEnterUses;
-
-  /// The node picker's list is empty.
-  ///
-  /// In en, this message translates to:
-  /// **'No nodes to show.'**
-  String get deskSetupNoNodes;
 
   /// Choice card on the setup's node step: use a public node on the internet. Also the node type on the summary step.
   ///
@@ -20683,12 +20419,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Epicbox server'**
   String get deskSetupEpicboxServer;
-
-  /// Help under the Epicbox server field.
-  ///
-  /// In en, this message translates to:
-  /// **'Leave empty to turn receiving through Epicbox off.'**
-  String get deskSetupEpicboxHelp;
 
   /// Screen reader label of the Change link next to the Preferences section on the setup's summary.
   ///
@@ -21949,6 +21679,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No answer from this server. Nothing added.'**
   String get slRelayNoAnswer;
+
+  /// The bin button of a row in the Node or Epicbox list (tooltip and screen reader name).
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {host}'**
+  String deskSlRemoveHost(String host);
+
+  /// First fact of the row of the server in use, in the Node or Epicbox list.
+  ///
+  /// In en, this message translates to:
+  /// **'In use'**
+  String get deskSlInUse;
+
+  /// A row's health when status.btlabs.uk has nothing on the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Health unknown'**
+  String get deskSlHealthUnknown;
+
+  /// Under the Node list's field: the typed node did not answer its test, so it was not added.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer from this node. Nothing added.'**
+  String get deskSlNodeNoAnswer;
+
+  /// Under the Node or Epicbox list's field: the test could not run because Tor is still connecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not connected yet. Nothing added.'**
+  String get deskSlTorWait;
+
+  /// The primary button at the foot of the Node or Epicbox list after a row was picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {host}'**
+  String deskSlSwitchTo(String host);
+
+  /// A row's response time in milliseconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms} ms'**
+  String deskSlLatency(String ms);
+
+  /// Tag on the default Epicbox server's row.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get deskSlDefault;
+
+  /// The Add row while the typed server is tested before it joins the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Testing {host}…'**
+  String deskSlTesting(String host);
+
+  /// Setup's Epicbox step: the switch that turns Epicbox receiving on or off for this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive through Epicbox'**
+  String get deskSlSetupEpicboxOn;
 }
 
 class _AppLocalizationsDelegate

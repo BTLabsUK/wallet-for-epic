@@ -13829,24 +13829,6 @@
   "@deskKitFromThisComputer": {
     "description": "Small note under Latency: measured from this computer."
   },
-  "deskKitNodeRemove": "Remove {host} from my nodes",
-  "@deskKitNodeRemove": {
-    "description": "Tooltip and screen-reader label of the filled star on a node row: remove the node from the user's own list. {host} is a host name.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
-  "deskKitNodeAdd": "Add {host} to my nodes",
-  "@deskKitNodeAdd": {
-    "description": "Tooltip and screen-reader label of the empty star on a node row: add the node to the user's own list. {host} is a host name.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
   "deskKitNodeUse": "Use {host}",
   "@deskKitNodeUse": {
     "description": "Screen-reader label of a node row in the node list: pick this node.",
@@ -14663,100 +14645,6 @@
   "@deskSetBackupNotNow": {
     "description": "Reminder on Overview: button that dismisses the reminder. Small inline button."
   },
-  "deskSetDlgNodeAddressEmpty": "Enter the node’s address.",
-  "@deskSetDlgNodeAddressEmpty": {
-    "description": "Add or edit node dialog: error under the address field when it is empty."
-  },
-  "deskSetDlgNodeAddressBad": "Not a node address. Check the address and the port (usually 3413).",
-  "@deskSetDlgNodeAddressBad": {
-    "description": "Add or edit node dialog: error under the address field when the text is not a node address."
-  },
-  "deskSetDlgNodeAddressDuplicate": "This address is already in My nodes.",
-  "@deskSetDlgNodeAddressDuplicate": {
-    "description": "Add or edit node dialog: error when the address is already saved. \"My nodes\" is the list of own nodes in Settings > Node."
-  },
-  "deskSetDlgNodeNotAdded": "Node not added",
-  "@deskSetDlgNodeNotAdded": {
-    "description": "Toast title when saving a node failed; the reason follows as the toast text."
-  },
-  "deskSetDlgNodeSaved": "Node saved",
-  "@deskSetDlgNodeSaved": {
-    "description": "Toast title after an edited node was saved."
-  },
-  "deskSetDlgNodeAdded": "Added to my nodes",
-  "@deskSetDlgNodeAdded": {
-    "description": "Toast title after a node was added to the own-nodes list."
-  },
-  "deskSetDlgNodeSaveAnyway": "It can be saved anyway.",
-  "@deskSetDlgNodeSaveAnyway": {
-    "description": "Add node dialog: shown next to the check result when the node does not respond."
-  },
-  "deskSetDlgNodeEditTitle": "Edit node",
-  "@deskSetDlgNodeEditTitle": {
-    "description": "Title of the dialog for editing a saved node."
-  },
-  "deskSetDlgNodeAddTitle": "Add to my nodes",
-  "@deskSetDlgNodeAddTitle": {
-    "description": "Title of the dialog for adding a node to the own-nodes list; also the matching button."
-  },
-  "deskSetDlgNodeDesc": "Save a node address to find it again later. It can be saved while it is offline.",
-  "@deskSetDlgNodeDesc": {
-    "description": "Add or edit node dialog: description under the title."
-  },
-  "deskSetDlgNodeAddress": "Node address",
-  "@deskSetDlgNodeAddress": {
-    "description": "Add or edit node dialog: label and screen reader name of the address field."
-  },
-  "deskSetDlgNodeLabel": "Label",
-  "@deskSetDlgNodeLabel": {
-    "description": "Add or edit node dialog: label and screen reader name of the optional name field."
-  },
-  "deskSetDlgNodeLabelHint": "e.g. Home node",
-  "@deskSetDlgNodeLabelHint": {
-    "description": "Add or edit node dialog: placeholder of the label field."
-  },
-  "deskSetDlgDirTitle": "Node directory",
-  "@deskSetDlgDirTitle": {
-    "description": "Title of the dialog listing public nodes."
-  },
-  "deskSetDlgDirDesc": "Public nodes, their operators and their state at the last check.",
-  "@deskSetDlgDirDesc": {
-    "description": "Node directory dialog: description under the title."
-  },
-  "deskSetDlgDirEmpty": "No nodes to show",
-  "@deskSetDlgDirEmpty": {
-    "description": "Node directory dialog: empty state."
-  },
-  "deskSetDlgDirVersion": "version {version}",
-  "@deskSetDlgDirVersion": {
-    "description": "Node directory: a node’s software version in a small detail line, e.g. \"version 4.1.0\". Lowercase.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "deskSetDlgDirHeight": "height {height}",
-  "@deskSetDlgDirHeight": {
-    "description": "Node directory: a node’s block height in a small detail line, e.g. \"height 2,914,414\". Lowercase.",
-    "placeholders": {
-      "height": {
-        "type": "String"
-      }
-    }
-  },
-  "deskSetDlgDirInUse": "In use",
-  "@deskSetDlgDirInUse": {
-    "description": "Node directory: tag on the node the wallet uses now. Short."
-  },
-  "deskSetDlgDirUse": "Use",
-  "@deskSetDlgDirUse": {
-    "description": "Node directory: button that switches to that node. Short."
-  },
-  "deskSetDlgDirNote": "Response times are measured from the status site, not from this computer.",
-  "@deskSetDlgDirNote": {
-    "description": "Node directory dialog: note under the list."
-  },
   "deskSetDlgChainTitle": "Existing blockchain data found",
   "@deskSetDlgChainTitle": {
     "description": "Title of the dialog offering to reuse blockchain data already on this computer."
@@ -15093,10 +14981,6 @@
   "deskSetComboNoAnswer": "No answer yet",
   "@deskSetComboNoAnswer": {
     "description": "Picker field: shown when a check takes long. Narrow."
-  },
-  "deskSetComboNothing": "Nothing to show.",
-  "@deskSetComboNothing": {
-    "description": "Picker list: empty note."
   },
   "deskSetComboUse": "Use {host}",
   "@deskSetComboUse": {
@@ -16076,15 +15960,6 @@
   "@deskSetLogsOpenFolder": {
     "description": "Settings > Help > Logs: button that opens the log folder."
   },
-  "deskSetNodeVersionOld": "Version older than {version}",
-  "@deskSetNodeVersionOld": {
-    "description": "Settings > Node: tag or sub-line on a node whose software is older than the minimum version the wallet works well with. {version} is a version number like 3.6.0.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "deskSetNodePortNote": "Check the address and the port (usually 3413).",
   "@deskSetNodePortNote": {
     "description": "Settings > Node: error under the node picker when the typed node does not answer."
@@ -16162,26 +16037,6 @@
   "@deskSetNodeGroupComputer": {
     "description": "Heading of the node picker group holding the local node."
   },
-  "deskSetNodeGroupMine": "My nodes",
-  "@deskSetNodeGroupMine": {
-    "description": "Heading of the node picker group of nodes the user saved; also a name used in other texts."
-  },
-  "deskSetNodeGroupPublic": "Public nodes",
-  "@deskSetNodeGroupPublic": {
-    "description": "Heading of the node picker group of public nodes."
-  },
-  "deskSetNodeRemovedFromMine": "Removed from my nodes",
-  "@deskSetNodeRemovedFromMine": {
-    "description": "Toast title after a node was removed from the saved nodes. The node address follows as text."
-  },
-  "deskSetNodeNotAnswering": "Not answering",
-  "@deskSetNodeNotAnswering": {
-    "description": "Node picker: word on a typed address whose node does not answer."
-  },
-  "deskSetNodeAddToMine": "Add to my nodes",
-  "@deskSetNodeAddToMine": {
-    "description": "Node picker: tooltip and screen reader label of the star button on a typed address."
-  },
   "deskSetNodeServer": "Node server",
   "@deskSetNodeServer": {
     "description": "Settings > Node: row title, picker label and screen reader name."
@@ -16190,29 +16045,9 @@
   "@deskSetNodeServerHint": {
     "description": "Settings > Node: hint under the Node server row."
   },
-  "deskSetNodeFindHint": "Find or type a node address",
-  "@deskSetNodeFindHint": {
-    "description": "Settings > Node: placeholder of the node picker search field."
-  },
   "deskSetNodeChecking": "Checking the node…",
   "@deskSetNodeChecking": {
     "description": "Settings > Node: shown while a chosen node is checked."
-  },
-  "deskSetNodeTypedNote": "Enter uses it. The star keeps it in My nodes.",
-  "@deskSetNodeTypedNote": {
-    "description": "Settings > Node: note under a typed address in the picker. \"Enter\" is the keyboard key."
-  },
-  "deskSetNodeNoNodes": "No nodes to show.",
-  "@deskSetNodeNoNodes": {
-    "description": "Settings > Node: empty note of the node picker."
-  },
-  "deskSetNodeFooterAdd": "Add to my nodes…",
-  "@deskSetNodeFooterAdd": {
-    "description": "Node picker footer action that opens the add node dialog."
-  },
-  "deskSetNodeFooterDirectory": "Node directory…",
-  "@deskSetNodeFooterDirectory": {
-    "description": "Node picker footer action that opens the node directory dialog."
   },
   "deskSetNodeBackground": "Sync in background",
   "@deskSetNodeBackground": {
@@ -16467,15 +16302,6 @@
   "@deskSetRecvHeadStarting": {
     "description": "Settings > Receiving: state word at the right of a method group head while the method starts. Short."
   },
-  "deskSetRecvResponseTime": "Response time {ms} ms. Measured from the status site.",
-  "@deskSetRecvResponseTime": {
-    "description": "Tooltip on an Epicbox server in the picker. {ms} is milliseconds.",
-    "placeholders": {
-      "ms": {
-        "type": "int"
-      }
-    }
-  },
   "deskSetRecvEpicboxTitle": "Epicbox receiving",
   "@deskSetRecvEpicboxTitle": {
     "description": "Settings > Receiving: heading of the Epicbox group."
@@ -16492,21 +16318,9 @@
   "@deskSetRecvEpicboxServerHint": {
     "description": "Settings > Receiving: hint under the Epicbox server row."
   },
-  "deskSetRecvFindHint": "Find or type an Epicbox server",
-  "@deskSetRecvFindHint": {
-    "description": "Settings > Receiving: placeholder of the Epicbox server picker search field."
-  },
   "deskSetRecvSwitchingServer": "Switching the Epicbox server…",
   "@deskSetRecvSwitchingServer": {
     "description": "Settings > Receiving: shown while the Epicbox server is switched."
-  },
-  "deskSetRecvNotInList": "not in the public list",
-  "@deskSetRecvNotInList": {
-    "description": "Epicbox server picker: note on a typed server that is not in the public list. Lowercase."
-  },
-  "deskSetRecvTypedNote": "Enter uses it. Its status shows once the wallet connects.",
-  "@deskSetRecvTypedNote": {
-    "description": "Epicbox server picker: note under a typed server. \"Enter\" is the keyboard key."
   },
   "deskSetRecvListNote": "State from status.btlabs.uk, checked every few minutes.",
   "@deskSetRecvListNote": {
@@ -17061,10 +16875,6 @@
   "@deskSetupNodeServer": {
     "description": "Label of the field where the user picks or types a public Epic node."
   },
-  "deskSetupNodeHint": "Find or type a node address",
-  "@deskSetupNodeHint": {
-    "description": "Placeholder in the node picker's search field."
-  },
   "deskSetupCheckingNodes": "Checking nodes…",
   "@deskSetupCheckingNodes": {
     "description": "Shown in the node picker while the public node list is being checked."
@@ -17072,22 +16882,6 @@
   "deskSetupPickNode": "Pick a node",
   "@deskSetupPickNode": {
     "description": "Shown in the node picker's field before a node is chosen."
-  },
-  "deskSetupPublicNodes": "Public nodes",
-  "@deskSetupPublicNodes": {
-    "description": "Group head in the node picker's list: public Epic nodes run by others."
-  },
-  "deskSetupNotInList": "not in the public list",
-  "@deskSetupNotInList": {
-    "description": "Small line under a node address the user typed that is not one of the public nodes. Lower case: it follows the address."
-  },
-  "deskSetupEnterUses": "Enter uses it.",
-  "@deskSetupEnterUses": {
-    "description": "Note under a typed node address in the picker: pressing the Enter key picks it."
-  },
-  "deskSetupNoNodes": "No nodes to show.",
-  "@deskSetupNoNodes": {
-    "description": "The node picker's list is empty."
   },
   "deskSetupRemoteNode": "Remote node",
   "@deskSetupRemoteNode": {
@@ -17112,10 +16906,6 @@
   "deskSetupEpicboxServer": "Epicbox server",
   "@deskSetupEpicboxServer": {
     "description": "Label of the Epicbox server field on the setup's Epicbox step."
-  },
-  "deskSetupEpicboxHelp": "Leave empty to turn receiving through Epicbox off.",
-  "@deskSetupEpicboxHelp": {
-    "description": "Help under the Epicbox server field."
   },
   "deskSetupChangePrefsSem": "Change preferences",
   "@deskSetupChangePrefsSem": {
@@ -18224,5 +18014,65 @@
   "slRelayNoAnswer": "No answer from this server. Nothing added.",
   "@slRelayNoAnswer": {
     "description": "Under the field when the Epicbox server being added did not answer the test; it was not added."
+  },
+  "deskSlRemoveHost": "Remove {host}",
+  "@deskSlRemoveHost": {
+    "description": "The bin button of a row in the Node or Epicbox list (tooltip and screen reader name).",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSlInUse": "In use",
+  "@deskSlInUse": {
+    "description": "First fact of the row of the server in use, in the Node or Epicbox list."
+  },
+  "deskSlHealthUnknown": "Health unknown",
+  "@deskSlHealthUnknown": {
+    "description": "A row's health when status.btlabs.uk has nothing on the server."
+  },
+  "deskSlNodeNoAnswer": "No answer from this node. Nothing added.",
+  "@deskSlNodeNoAnswer": {
+    "description": "Under the Node list's field: the typed node did not answer its test, so it was not added."
+  },
+  "deskSlTorWait": "Tor is not connected yet. Nothing added.",
+  "@deskSlTorWait": {
+    "description": "Under the Node or Epicbox list's field: the test could not run because Tor is still connecting."
+  },
+  "deskSlSwitchTo": "Switch to {host}",
+  "@deskSlSwitchTo": {
+    "description": "The primary button at the foot of the Node or Epicbox list after a row was picked.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSlLatency": "{ms} ms",
+  "@deskSlLatency": {
+    "description": "A row's response time in milliseconds.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSlDefault": "Default",
+  "@deskSlDefault": {
+    "description": "Tag on the default Epicbox server's row."
+  },
+  "deskSlTesting": "Testing {host}…",
+  "@deskSlTesting": {
+    "description": "The Add row while the typed server is tested before it joins the list.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSlSetupEpicboxOn": "Receive through Epicbox",
+  "@deskSlSetupEpicboxOn": {
+    "description": "Setup's Epicbox step: the switch that turns Epicbox receiving on or off for this wallet."
   }
 }
