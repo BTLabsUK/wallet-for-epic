@@ -13629,29 +13629,30 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskSetHelpSearch => 'Search help';
+  String get deskSetHelpSearch => 'Поиск по справке';
 
   @override
   String get deskSetHelpSearchKeys =>
-      'Press / to search. Esc clears the search.';
+      'Нажмите /, чтобы искать. Esc очищает поиск.';
 
   @override
-  String get deskSetHelpSearchHint =>
-      'For example: file, confirmations, phrase';
+  String get deskSetHelpSearchHint => 'Например: файл, подтверждения, фраза';
 
   @override
-  String get deskSetHelpClear => 'Clear search';
+  String get deskSetHelpClear => 'Очистить поиск';
 
   @override
-  String get deskSetHelpTourAgain => 'Show the tour again';
+  String get deskSetHelpTourAgain => 'Показать тур снова';
 
   @override
   String deskSetHelpTopics(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count topics',
-      one: '$count topic',
+      other: '$count темы',
+      many: '$count тем',
+      few: '$count темы',
+      one: '$count тема',
     );
     return '$_temp0';
   }

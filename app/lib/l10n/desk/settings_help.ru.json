@@ -22,5 +22,11 @@
   "deskSetHelpTravels": "Путь транзакции",
   "deskSetHelpOverEpicbox": "Через Epicbox",
   "deskSetHelpWithFile": "Файлом",
-  "deskSetHelpStep": "Шаг {number} из {total}"
+  "deskSetHelpStep": "Шаг {number} из {total}",
+  "deskSetHelpSearch": "Поиск по справке",
+  "deskSetHelpSearchKeys": "Нажмите /, чтобы искать. Esc очищает поиск.",
+  "deskSetHelpSearchHint": "Например: файл, подтверждения, фраза",
+  "deskSetHelpClear": "Очистить поиск",
+  "deskSetHelpTourAgain": "Показать тур снова",
+  "deskSetHelpTopics": "{count, plural, one{{count} тема} few{{count} темы} many{{count} тем} other{{count} темы}}"
 }

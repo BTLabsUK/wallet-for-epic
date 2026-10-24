@@ -3474,5 +3474,11 @@
   "deskSetupSaveStartsFallback": "Сохранение запустит узел. Первая синхронизация занимает часы; кошелёк тем временем откроется и до её конца будет использовать {node}.",
   "deskSetupSaveStarts": "Сохранение запустит узел. Первая синхронизация занимает часы; кошелёк тем временем откроется.",
   "deskSetupServer": "Сервер",
-  "deskSetupOff": "Выкл."
+  "deskSetupOff": "Выкл.",
+  "deskSetHelpSearch": "Поиск по справке",
+  "deskSetHelpSearchKeys": "Нажмите /, чтобы искать. Esc очищает поиск.",
+  "deskSetHelpSearchHint": "Например: файл, подтверждения, фраза",
+  "deskSetHelpClear": "Очистить поиск",
+  "deskSetHelpTourAgain": "Показать тур снова",
+  "deskSetHelpTopics": "{count, plural, one{{count} тема} few{{count} темы} many{{count} тем} other{{count} темы}}"
 }
