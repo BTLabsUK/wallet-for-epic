@@ -1538,8 +1538,8 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             SizedBox(height: Sp.x4),
             ENotice(
               tone: ETone.warn,
-              title: 'The fee changed',
-              text: 'The wallet\'s outputs changed since this review, so the send now pays ${formatEpic(d.fee)} EPIC instead of ${formatEpic(_feeWas!)} EPIC. Check it and send again.',
+              title: l.deskSendFeeChangedTitle,
+              text: l.deskSendFeeChangedText(formatEpicL(l, d.fee), formatEpicL(l, _feeWas!)),
             ),
           ],
           if (_asks && !_busy) ...[

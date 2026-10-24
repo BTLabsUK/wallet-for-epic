@@ -13122,4 +13122,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTxSentAgainText => 'จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์';
+
+  @override
+  String get deskSendFeeChangedTitle => 'ค่าธรรมเนียมเปลี่ยนไป';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return 'เอาต์พุตของกระเป๋าเงินเปลี่ยนไปหลังการตรวจสอบนี้ การส่งครั้งนี้จึงเสียค่าธรรมเนียม $fee EPIC แทน $was EPIC โปรดตรวจสอบแล้วส่งอีกครั้ง';
+  }
 }

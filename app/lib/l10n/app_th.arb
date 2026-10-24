@@ -3505,5 +3505,7 @@
   "deskTxSendAgain": "ส่งอีกครั้ง",
   "deskTxNotSent": "ส่งไม่สำเร็จ",
   "deskTxSentAgain": "ส่งอีกครั้งแล้ว",
-  "deskTxSentAgainText": "จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์"
+  "deskTxSentAgainText": "จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์",
+  "deskSendFeeChangedTitle": "ค่าธรรมเนียมเปลี่ยนไป",
+  "deskSendFeeChangedText": "เอาต์พุตของกระเป๋าเงินเปลี่ยนไปหลังการตรวจสอบนี้ การส่งครั้งนี้จึงเสียค่าธรรมเนียม {fee} EPIC แทน {was} EPIC โปรดตรวจสอบแล้วส่งอีกครั้ง"
 }

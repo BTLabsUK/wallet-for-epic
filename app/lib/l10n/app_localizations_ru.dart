@@ -13749,4 +13749,12 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskTxSentAgainText =>
       'Платёж завершится, когда кошелёк получателя появится в сети.';
+
+  @override
+  String get deskSendFeeChangedTitle => 'Комиссия изменилась';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return 'Выходы кошелька изменились после этой проверки, поэтому комиссия перевода теперь $fee EPIC вместо $was EPIC. Проверьте её и отправьте снова.';
+  }
 }

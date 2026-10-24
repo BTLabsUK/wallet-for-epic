@@ -3505,5 +3505,7 @@
   "deskTxSendAgain": "Wyślij ponownie",
   "deskTxNotSent": "Nie wysłano",
   "deskTxSentAgain": "Wysłano ponownie",
-  "deskTxSentAgainText": "Zakończy się, gdy portfel odbiorcy będzie online."
+  "deskTxSentAgainText": "Zakończy się, gdy portfel odbiorcy będzie online.",
+  "deskSendFeeChangedTitle": "Opłata się zmieniła",
+  "deskSendFeeChangedText": "Wyjścia portfela zmieniły się od tego przeglądu, więc wysyłka kosztuje teraz {fee} EPIC zamiast {was} EPIC opłaty. Sprawdź ją i wyślij ponownie."
 }

@@ -13376,4 +13376,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskTxSentAgainText =>
       'It completes when the recipient’s wallet comes online.';
+
+  @override
+  String get deskSendFeeChangedTitle => 'The fee changed';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return 'The wallet\'s outputs changed since this review, so the send now pays $fee EPIC instead of $was EPIC. Check it and send again.';
+  }
 }

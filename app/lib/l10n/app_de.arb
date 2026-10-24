@@ -3505,5 +3505,7 @@
   "deskTxSendAgain": "Erneut senden",
   "deskTxNotSent": "Nicht gesendet",
   "deskTxSentAgain": "Erneut gesendet",
-  "deskTxSentAgainText": "Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist."
+  "deskTxSentAgainText": "Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist.",
+  "deskSendFeeChangedTitle": "Die Gebühr hat sich geändert",
+  "deskSendFeeChangedText": "Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt {fee} EPIC statt {was} EPIC Gebühr. Prüfe sie und sende erneut."
 }

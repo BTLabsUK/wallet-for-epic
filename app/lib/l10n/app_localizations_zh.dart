@@ -12662,4 +12662,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskTxSentAgainText => '收款人的钱包上线后即可完成。';
+
+  @override
+  String get deskSendFeeChangedTitle => '手续费已变化';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return '自本次核对以来钱包的输出已变化，此次发送的手续费现在是 $fee EPIC，而不是 $was EPIC。请核对后再次发送。';
+  }
 }

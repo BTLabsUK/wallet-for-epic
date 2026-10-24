@@ -3505,5 +3505,7 @@
   "deskTxSendAgain": "重新发送",
   "deskTxNotSent": "未发送",
   "deskTxSentAgain": "已重新发送",
-  "deskTxSentAgainText": "收款人的钱包上线后即可完成。"
+  "deskTxSentAgainText": "收款人的钱包上线后即可完成。",
+  "deskSendFeeChangedTitle": "手续费已变化",
+  "deskSendFeeChangedText": "自本次核对以来钱包的输出已变化，此次发送的手续费现在是 {fee} EPIC，而不是 {was} EPIC。请核对后再次发送。"
 }

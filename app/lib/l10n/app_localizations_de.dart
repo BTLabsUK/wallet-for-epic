@@ -13527,4 +13527,12 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskTxSentAgainText =>
       'Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist.';
+
+  @override
+  String get deskSendFeeChangedTitle => 'Die Gebühr hat sich geändert';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return 'Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt $fee EPIC statt $was EPIC Gebühr. Prüfe sie und sende erneut.';
+  }
 }

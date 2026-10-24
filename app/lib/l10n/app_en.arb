@@ -17566,5 +17566,23 @@
   "deskTxSentAgainText": "It completes when the recipient’s wallet comes online.",
   "@deskTxSentAgainText": {
     "description": "Toast text after Send again worked."
+  },
+  "deskSendFeeChangedTitle": "The fee changed",
+  "@deskSendFeeChangedTitle": {
+    "description": "Title of the notice in the Check and send dialog when the fee moved after the review was opened (an output finished confirming or was locked)."
+  },
+  "deskSendFeeChangedText": "The wallet's outputs changed since this review, so the send now pays {fee} EPIC instead of {was} EPIC. Check it and send again.",
+  "@deskSendFeeChangedText": {
+    "description": "Text of that notice. {fee} is the new network fee, {was} the fee the dialog showed before, both in EPIC.",
+    "placeholders": {
+      "fee": {
+        "type": "String",
+        "example": "0.0110"
+      },
+      "was": {
+        "type": "String",
+        "example": "0.0120"
+      }
+    }
   }
 }

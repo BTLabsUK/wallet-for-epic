@@ -13781,4 +13781,12 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskTxSentAgainText =>
       'Zakończy się, gdy portfel odbiorcy będzie online.';
+
+  @override
+  String get deskSendFeeChangedTitle => 'Opłata się zmieniła';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return 'Wyjścia portfela zmieniły się od tego przeglądu, więc wysyłka kosztuje teraz $fee EPIC zamiast $was EPIC opłaty. Sprawdź ją i wyślij ponownie.';
+  }
 }

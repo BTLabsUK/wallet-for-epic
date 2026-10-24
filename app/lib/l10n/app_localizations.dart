@@ -21187,6 +21187,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It completes when the recipient’s wallet comes online.'**
   String get deskTxSentAgainText;
+
+  /// Title of the notice in the Check and send dialog when the fee moved after the review was opened (an output finished confirming or was locked).
+  ///
+  /// In en, this message translates to:
+  /// **'The fee changed'**
+  String get deskSendFeeChangedTitle;
+
+  /// Text of that notice. {fee} is the new network fee, {was} the fee the dialog showed before, both in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet\'s outputs changed since this review, so the send now pays {fee} EPIC instead of {was} EPIC. Check it and send again.'**
+  String deskSendFeeChangedText(String fee, String was);
 }
 
 class _AppLocalizationsDelegate
