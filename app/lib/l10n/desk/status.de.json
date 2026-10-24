@@ -80,6 +80,6 @@
   "deskTorNodeOver": "Über Tor",
   "deskTorNodeNotEncrypted": "Nach Tor nicht verschlüsselt",
   "deskTorNodeWaits": "Wartet, bis Tor verbunden ist.",
-  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
-  "deskNodeFailoverInsteadOf": "Instead of {host}"
+  "deskNodeFailoverSwitched": "Node antwortet nicht. Gewechselt zu {host}.",
+  "deskNodeFailoverInsteadOf": "Statt {host}"
 }

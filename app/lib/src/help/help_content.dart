@@ -130,6 +130,9 @@ abstract final class HelpId {
   static const node = 'node';
   static const epicbox = 'epicbox';
   static const tor = 'tor';
+  static const advanced = 'advanced';
+  static const modes = 'modes';
+  static const methods = 'methods';
   static const trouble = 'trouble';
   static const invoices = 'invoices';
   static const trusted = 'trusted';
@@ -203,6 +206,22 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.p('Other Epic Cash wallets have their own names for these steps. If the response file never comes, cancel the send in Activity to unlock the outputs.'),
       ],
       id: HelpId.file,
+    ),
+    HelpTopic(
+      'start',
+      'Payment methods and send defaults',
+      'Epicbox is always on. Direct and File are switches. Send starts on the method you choose.',
+      [
+        phone
+            ? const HelpBlock.p('The Transactions page in [[Settings › Transactions]] holds three things.')
+            : const HelpBlock.p('The **Transactions** page in Settings holds three things.'),
+        HelpBlock.ul([
+          '**Payment methods.** Epicbox is always on. **Direct** (to .onion and web addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and **File** are switches: a method that is off does not appear on Send and Receive.',
+          '**Send starts on.** The method the Send screen opens with. You can still pick another on Send.',
+          '**Send defaults.** Which outputs a send spends, Smallest or All, and whether its change is split. They show only while **Send options** is on in Advanced.',
+        ]),
+      ],
+      id: HelpId.methods,
     ),
     if (phone)
       const HelpTopic(
@@ -373,6 +392,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
             'Push notifications are off while Tor is on.',
             'Slower than Epicbox without Tor. Tor is blocked in some countries; there it does not connect.',
             'Receiving at the .onion address works while the app is open; Epicbox keeps working beside it.',
+            'With Tor only in Advanced the switch stays on and cannot be turned off.',
           ]),
           const HelpBlock.p('**Starting…** means Tor is connecting; the covered connections wait and never fall back. **Not connected** means it failed: Retry, or turn Tor off. Some wallets show a Tor address without .onion; both are the same address.'),
         ],
@@ -391,11 +411,54 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
             'Direct sends to an http(s) address do not go over Tor; Send says so.',
             'Direct · HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Direct · Tor address.',
             'Tor is blocked or not allowed in some countries; there it does not connect.',
+            'With Tor only in Advanced the switch stays on and cannot be turned off.',
           ]),
           HelpBlock.p('Some wallets show the address without .onion; both are the same address.'),
         ],
         id: HelpId.tor,
       ),
+    HelpTopic(
+      'network',
+      'Network modes',
+      'Standard connects directly. Tor only never does. Offline uses nothing beyond $device and the local network.',
+      [
+        const HelpBlock.p('How the wallet reaches the network is one choice on the **Advanced** page in Settings, under Network.'),
+        HelpBlock.ul([
+          '**Standard**: connects directly. Tor is the switch under $torPlace.',
+          '**Tor only**: Tor is always on and its switch is locked. Nothing goes over the open internet. While Tor starts or has failed, the wallet says **Waiting for Tor** and whatever needs the network waits, with the reason on the disabled action. ${phone ? 'Notifications are off, because signing up for them would reveal this phone.' : 'HTTP receiving is off, because a plain address would reveal this computer.'}',
+          '**Offline**: nothing beyond $device and the local network. The balance and history stay as last seen. With a node on ${phone ? 'the local network' : 'this computer or the local network'}, the wallet can still make, sign, finalize and post payments, and send Direct to local addresses. Without one, sending and receiving wait.',
+        ]),
+        if (!phone) const HelpBlock.p('The built-in node\'s own peers are the node\'s setting, not the mode\'s.'),
+        HelpBlock.p('${phone ? 'Home' : 'The sidebar'} says when the wallet is offline or waiting for Tor. Setting the mode back to **Standard** brings everything back.'),
+      ],
+      id: HelpId.modes,
+    ),
+    HelpTopic(
+      'network',
+      'Advanced',
+      'Off to begin with. Each switch adds one more part of the wallet, in the place it belongs.',
+      [
+        const HelpBlock.p('**Advanced** is a page in Settings for the parts most people never need. Everything on it is off to begin with, so the wallet stays simple. A switch adds its part where it belongs, and **Hide everything again** switches them all off.'),
+        HelpBlock.ul([
+          '**Outputs**: the Outputs page, with the coins the balance is made of and what you can do with them.',
+          '**Technical details**: slate ID, kernel, commitments and block height on a ${phone ? 'payment\'s details' : 'transaction'}. Without it, the **More** link on a transaction shows them once.',
+          if (phone)
+            '**Send options**: Strategy and Split change, in [[Settings › Transactions]]: which outputs a send spends, and whether its change is split.'
+          else
+            '**Send options**: a fold on Send where one send chooses Smallest or All, and whether to split the change.',
+          '**Server details**: hosts, latency, version and block height in the node and Epicbox lists and on the status card.',
+          if (phone)
+            '**Recheck from a height**: lets Recheck balance start from a block height or a date instead of the first block. Restore always offers the choice.'
+          else
+            '**Recheck from a height**: lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone.',
+          if (!phone) '**Built-in node**: lets this computer run its own node: the This computer option under Node, and Start node on Overview.',
+          if (!phone) '**Logs**: the Logs group in Help, to open the log folder or clear the logs. Report a problem attaches the log either way.',
+        ]),
+        HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Offline mode${phone ? '' : ' or away from a node on this computer'}, and with Tor only it moves only to a node reachable over Tor.'),
+        const HelpBlock.p('The same page sets the network mode: see "Network modes".'),
+      ],
+      id: HelpId.advanced,
+    ),
     HelpTopic(
       'trouble',
       'Troubleshooting',
@@ -424,6 +487,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           const HelpBlock.p('**Forgotten PIN.** Delete the wallet on the unlock screen and restore it from its recovery phrase with a new PIN. Without the phrase the EPIC cannot be recovered.')
         else
           const HelpBlock.p('**"Wrong password".** Check Caps Lock and the keyboard layout. A forgotten password: restore the wallet from its recovery phrase and choose a new one.'),
+        const HelpBlock.p('**An action is greyed out and says "Offline mode" or "Waiting for Tor".** Offline or Tor only is on in Advanced. Set the mode back to Standard there, or wait for Tor to connect.'),
         HelpBlock.p('**The balance looks wrong.** Run $recheckPlace.'),
       ],
       id: HelpId.trouble,

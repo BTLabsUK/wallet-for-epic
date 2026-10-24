@@ -43,7 +43,7 @@
   "deskOutTileLocked": "发送中锁定",
   "deskOutTileTotal": "总额",
   "deskOutDefaultsTitle": "发送的默认设置",
-  "deskOutAdvanced": "高级",
+  "deskOutAdvanced": "管理输出",
   "deskOutStrategyTitle": "发送策略",
   "deskOutStrategyHint": "一笔发送花掉哪些输出。“最小”花掉最少的小额输出，其余仍可使用；“全部”花掉所有输出，并返回一个输出。可在“发送”页的“高级”中为单次发送更改。",
   "deskOutStrategySmallest": "最小",

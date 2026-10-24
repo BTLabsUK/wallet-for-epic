@@ -207,10 +207,10 @@
   "deskOnbImportStopBody": "Zaimportowane do tej pory portfele zostaną usunięte. Stare foldery są bez zmian.",
   "deskOnbImportGoBack": "Wróć",
   "deskOnbImportStop": "Przerwij import",
-  "deskOnbRestoreFromLink": "Start from a block height",
-  "deskOnbRestoreFromHide": "Check the whole chain",
-  "deskOnbRestoreFromLabel": "Start from block",
-  "deskOnbRestoreFromHint": "Block height",
-  "deskOnbRestoreFromHelp": "Only if the wallet's first payment came after this block. Leave it empty to check the whole chain.",
-  "deskOnbRestoreFromInvalid": "Use digits only, or leave it empty."
+  "deskOnbRestoreFromLink": "Zacznij od wysokości bloku",
+  "deskOnbRestoreFromHide": "Sprawdź cały łańcuch",
+  "deskOnbRestoreFromLabel": "Zacznij od bloku",
+  "deskOnbRestoreFromHint": "Wysokość bloku",
+  "deskOnbRestoreFromHelp": "Tylko jeśli pierwsza płatność portfela przyszła po tym bloku. Zostaw puste, aby sprawdzić cały łańcuch.",
+  "deskOnbRestoreFromInvalid": "Użyj samych cyfr albo zostaw puste."
 }

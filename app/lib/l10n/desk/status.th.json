@@ -80,6 +80,6 @@
   "deskTorNodeOver": "ผ่าน Tor",
   "deskTorNodeNotEncrypted": "ไม่เข้ารหัสหลังออกจาก Tor",
   "deskTorNodeWaits": "รอจนกว่า Tor จะเชื่อมต่อ",
-  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
-  "deskNodeFailoverInsteadOf": "Instead of {host}"
+  "deskNodeFailoverSwitched": "โหนดไม่ตอบสนอง สลับไปที่ {host} แล้ว",
+  "deskNodeFailoverInsteadOf": "แทน {host}"
 }

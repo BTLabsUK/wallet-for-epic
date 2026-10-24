@@ -29,7 +29,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   final restorePlace = phone
       ? '**Ich habe bereits eine Wallet: wiederherstellen** (auf dem ersten Bildschirm oder nach dem Löschen dieser Wallet unter [[Einstellungen › Wallet|Settings › Wallet]])'
       : '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm, unter Entsperren › Wallet hinzufügen oder unter [[Einstellungen › Alle Wallets|Settings › All wallets]])';
-  final recheckPlace = phone ? '[[Einstellungen › Wallet › Guthaben neu prüfen|Settings › Wallet › Recheck balance]] (erscheint, wenn „Erweiterte Optionen“ an ist)' : '[[Einstellungen › Guthaben neu prüfen|Settings › Recheck balance]]';
+  final recheckPlace = phone ? '[[Einstellungen › Wallet › Guthaben neu prüfen|Settings › Wallet › Recheck balance]]' : '[[Einstellungen › Guthaben neu prüfen|Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[Einstellungen › Sicherheit › Wiederherstellungsphrase sichern|Settings › Security › Back up recovery phrase]]' : '[[Einstellungen › Wiederherstellungsphrase|Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -76,6 +76,22 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('Andere Epic-Cash-Wallets nennen diese Schritte anders. Kommt die Antwortdatei nie, stornieren Sie die Zahlung unter Aktivität, um die Outputs freizugeben.'),
       ],
       id: HelpId.file,
+    ),
+    HelpTopic(
+      'start',
+      'Zahlungsmethoden und Vorgaben fürs Senden',
+      'Epicbox ist immer an. Direkt und Datei sind Schalter. Senden beginnt mit der Methode, die Sie wählen.',
+      [
+        phone
+            ? const HelpBlock.p('Die Seite Transaktionen unter [[Einstellungen › Transaktionen|Settings › Transactions]] enthält drei Dinge.')
+            : const HelpBlock.p('Die Seite **Transaktionen** in den Einstellungen enthält drei Dinge.'),
+        HelpBlock.ul([
+          '**Zahlungsmethoden.** Epicbox ist immer an. **Direkt** (an .onion- und Web-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und **Datei** sind Schalter: Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.',
+          '**Senden beginnt mit.** Die Methode, mit der der Bildschirm Senden sich öffnet. Auf Senden können Sie trotzdem eine andere wählen.',
+          '**Vorgaben fürs Senden.** Welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen nur, solange **Zahlungsoptionen** unter Erweitert an ist.',
+        ]),
+      ],
+      id: HelpId.methods,
     ),
     if (phone)
       const HelpTopic(
@@ -145,9 +161,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**Kleinste** sortiert die verfügbaren Outputs nach Wert und nimmt die kleinsten, bis Betrag und Gebühr gedeckt sind. Nur diese sind gesperrt, solange die Zahlung bestätigt wird; der Rest kann sofort gesendet werden.'),
         HelpBlock.p('**Alle** gibt jeden verfügbaren Output aus und gibt einen einzigen Wechselgeld-Output zurück. Alles ist bis zur $confirmations. Bestätigung gesperrt, die Wallet hat danach weniger, größere Outputs, und die Gebühr ist etwas höher, weil jeder Input kostet. Wird das ganze Guthaben gesendet, gilt immer Alle.'),
         if (phone)
-          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Einstellungen › Transactions|Settings › Transactions]] fest.')
+          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Einstellungen › Transaktionen|Settings › Transactions]] fest, mit eingeschalteten Zahlungsoptionen unter Erweitert.')
         else
-          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Outputs › Erweitert|Outputs › Manage outputs]] fest; Senden kann sie für eine einzelne Zahlung unter **Erweitert** ändern.'),
+          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Outputs › Outputs verwalten|Outputs › Manage outputs]] fest; Senden kann sie für eine einzelne Zahlung unter **Zahlungsoptionen** ändern.'),
       ],
       id: HelpId.strategy,
     ),
@@ -158,7 +174,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Beides sind normale Netzwerktransaktionen dieser Wallet an sich selbst, ab der $confirmations. Bestätigung endgültig wie jede Zahlung, und beide sperren bis dahin jeden verfügbaren Output.'),
         const HelpBlock.ul(['**Aufteilen** nimmt das verfügbare Guthaben und erzeugt 2 bis 10 Outputs mit fast gleichem Wert.', '**Zusammenführen** nimmt jeden verfügbaren Output und erzeugt einen.', '**Wechselgeld aufteilen** (standardmäßig an) tut dasselbe innerhalb einer gewöhnlichen Zahlung, wenn nur wenige Outputs übrig blieben, für 0,004 EPIC pro zusätzlichem Output.']),
-        const HelpBlock.p('Aktivität zeigt beides als zwei Einträge, eine gesendete und eine empfangene Zahlung, beide mit dieser Wallet. Beides finden Sie unter [[Outputs › Erweitert|Outputs › Manage outputs]].'),
+        const HelpBlock.p('Aktivität zeigt beides als zwei Einträge, eine gesendete und eine empfangene Zahlung, beide mit dieser Wallet. Beides finden Sie unter [[Outputs › Outputs verwalten|Outputs › Manage outputs]].'),
       ],
       id: HelpId.split,
     ),
@@ -246,6 +262,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
             'Push-Benachrichtigungen sind aus, solange Tor an ist.',
             'Langsamer als Epicbox ohne Tor. In manchen Ländern ist Tor blockiert; dort verbindet es sich nicht.',
             'Empfangen an der .onion-Adresse funktioniert, solange die App geöffnet ist; Epicbox arbeitet daneben weiter.',
+            'Mit „Nur Tor“ unter Erweitert bleibt der Schalter an und lässt sich nicht ausschalten.',
           ]),
           const HelpBlock.p('**Startet…** heißt, Tor verbindet sich; die abgedeckten Verbindungen warten und weichen nie aus. **Nicht verbunden** heißt, es ist fehlgeschlagen: Wiederholen oder Tor ausschalten. Manche Wallets zeigen eine Tor-Adresse ohne .onion; beides ist dieselbe Adresse.'),
         ],
@@ -264,11 +281,54 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
             'Direkte Zahlungen an eine http(s)-Adresse laufen nicht über Tor; Senden weist darauf hin.',
             'Direkt · HTTP-Empfang ist aus, solange Tor an ist: Zahlungen direkt von einer anderen Wallet kommen an der Direkt · Tor-Adresse an.',
             'In manchen Ländern ist Tor blockiert oder nicht erlaubt; dort verbindet es sich nicht.',
+            'Mit „Nur Tor“ unter Erweitert bleibt der Schalter an und lässt sich nicht ausschalten.',
           ]),
           HelpBlock.p('Manche Wallets zeigen die Adresse ohne .onion; beides ist dieselbe Adresse.'),
         ],
         id: HelpId.tor,
       ),
+    HelpTopic(
+      'network',
+      'Netzwerkmodi',
+      'Standard verbindet direkt. Nur Tor nie. Offline nutzt nichts außer ${phone ? 'diesem Smartphone' : 'diesem Computer'} und dem lokalen Netzwerk.',
+      [
+        const HelpBlock.p('Wie die Wallet das Netzwerk erreicht, ist eine einzige Wahl auf der Seite **Erweitert** in den Einstellungen, unter Netzwerk.'),
+        HelpBlock.ul([
+          '**Standard**: verbindet direkt. Tor ist der Schalter unter $torPlace.',
+          '**Nur Tor**: Tor ist immer an, und sein Schalter ist gesperrt. Nichts läuft über das offene Internet. Solange Tor startet oder fehlgeschlagen ist, sagt die Wallet **Wartet auf Tor**, und alles, was das Netzwerk braucht, wartet; den Grund nennt die ausgegraute Aktion. ${phone ? 'Benachrichtigungen sind aus, weil die Anmeldung dafür dieses Smartphone verraten würde.' : 'Der HTTP-Empfang ist aus, weil eine einfache Adresse diesen Computer verraten würde.'}',
+          '**Offline**: nichts außer ${phone ? 'diesem Smartphone' : 'diesem Computer'} und dem lokalen Netzwerk. Guthaben und Verlauf bleiben, wie zuletzt gesehen. Mit einem Node ${phone ? 'im lokalen Netzwerk' : 'auf diesem Computer oder im lokalen Netzwerk'} kann die Wallet weiterhin Zahlungen erstellen, signieren, abschließen und senden und direkt an lokale Adressen zahlen. Ohne einen warten Senden und Empfangen.',
+        ]),
+        if (!phone) const HelpBlock.p('Die Peers des integrierten Nodes sind eine Einstellung des Nodes, nicht des Modus.'),
+        HelpBlock.p('${phone ? 'Der Startbildschirm' : 'Die Seitenleiste'} zeigt, wenn die Wallet offline ist oder auf Tor wartet. Mit dem Modus **Standard** ist wieder alles da.'),
+      ],
+      id: HelpId.modes,
+    ),
+    HelpTopic(
+      'network',
+      'Erweitert',
+      'Zunächst alles aus. Jeder Schalter blendet einen weiteren Teil der Wallet an der passenden Stelle ein.',
+      [
+        const HelpBlock.p('**Erweitert** ist eine Seite in den Einstellungen für Teile, die die meisten nie brauchen. Alles darauf ist zunächst aus, damit die Wallet einfach bleibt. Ein Schalter blendet seinen Teil dort ein, wo er hingehört, und **Alles wieder ausblenden** schaltet alle aus.'),
+        HelpBlock.ul([
+          '**Outputs**: die Seite Outputs mit den Coins, aus denen das Guthaben besteht, und was Sie damit tun können.',
+          '**Technische Details**: Slate-ID, Kernel, Commitments und Blockhöhe bei ${phone ? 'den Details einer Zahlung' : 'einer Transaktion'}. Ohne den Schalter zeigt der Link **Mehr** an einer Transaktion sie einmalig.',
+          if (phone)
+            '**Zahlungsoptionen**: Strategie und Wechselgeld aufteilen, unter [[Einstellungen › Transaktionen|Settings › Transactions]]: welche Outputs eine Zahlung ausgibt und ob ihr Wechselgeld aufgeteilt wird.'
+          else
+            '**Zahlungsoptionen**: ein Bereich auf Senden, in dem eine einzelne Zahlung Kleinste oder Alle wählt und ob das Wechselgeld aufgeteilt wird.',
+          '**Server-Details**: Hosts, Latenz, Version und Blockhöhe in den Listen für Node und Epicbox und auf der Statuskarte.',
+          if (phone)
+            '**Ab einer Höhe neu prüfen**: lässt „Guthaben neu prüfen“ bei einer Blockhöhe oder einem Datum beginnen statt beim ersten Block. Beim Wiederherstellen steht die Wahl immer offen.'
+          else
+            '**Ab einer Höhe neu prüfen**: lässt „Guthaben neu prüfen“ auch unbestätigte Transaktionen verwerfen. Beim Wiederherstellen steht allen ein Startblock zur Wahl.',
+          if (!phone) '**Integrierter Node**: lässt diesen Computer einen eigenen Node betreiben: die Option Dieser Computer unter Node und Node starten auf der Übersicht.',
+          if (!phone) '**Protokolle**: die Gruppe Protokolle unter Hilfe, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
+        ]),
+        HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Im Offline-Modus wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist.'),
+        const HelpBlock.p('Dieselbe Seite legt den Netzwerkmodus fest: siehe „Netzwerkmodi“.'),
+      ],
+      id: HelpId.advanced,
+    ),
     HelpTopic(
       'trouble',
       'Fehlerbehebung',
@@ -298,6 +358,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('**„Falsches Passwort“.** Prüfen Sie die Feststelltaste und das Tastaturlayout. Passwort vergessen: Stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her und wählen Sie ein neues.'),
         HelpBlock.p('**Das Guthaben sieht falsch aus.** Starten Sie $recheckPlace.'),
+        const HelpBlock.p('**Eine Aktion ist ausgegraut und nennt „Offline-Modus“ oder „Wartet auf Tor“.** Offline oder Nur Tor ist unter Erweitert an. Stellen Sie dort den Modus auf Standard zurück oder warten Sie, bis Tor verbunden ist.'),
       ],
       id: HelpId.trouble,
     ),

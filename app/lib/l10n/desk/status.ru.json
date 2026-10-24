@@ -80,6 +80,6 @@
   "deskTorNodeOver": "Через Tor",
   "deskTorNodeNotEncrypted": "После Tor без шифрования",
   "deskTorNodeWaits": "Ждёт подключения Tor.",
-  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
-  "deskNodeFailoverInsteadOf": "Instead of {host}"
+  "deskNodeFailoverSwitched": "Узел не отвечает. Переключено на {host}.",
+  "deskNodeFailoverInsteadOf": "Вместо {host}"
 }

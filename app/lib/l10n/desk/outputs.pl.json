@@ -43,7 +43,7 @@
   "deskOutTileLocked": "Zablokowane w wysyłkach",
   "deskOutTileTotal": "Razem",
   "deskOutDefaultsTitle": "Domyślne dla wysyłek",
-  "deskOutAdvanced": "Zaawansowane",
+  "deskOutAdvanced": "Zarządzaj wyjściami",
   "deskOutStrategyTitle": "Strategia wysyłek",
   "deskOutStrategyHint": "Które wyjścia wydaje wysyłka. Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania; Wszystkie wydaje wszystko i zwraca jedno wyjście. W Wyślij możesz to zmienić dla jednej wysyłki w sekcji Zaawansowane.",
   "deskOutStrategySmallest": "Najmniejsze",

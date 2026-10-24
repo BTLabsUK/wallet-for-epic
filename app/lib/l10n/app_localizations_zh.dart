@@ -3686,87 +3686,82 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get tourPhoneSemantics => 'Wallet tour';
+  String get tourPhoneSemantics => '钱包导览';
 
   @override
   String tourPhoneCounter(int current, int total) {
-    return '$current of $total';
+    return '$current/$total';
   }
 
   @override
-  String get tourPhoneSkip => 'Skip';
+  String get tourPhoneSkip => '跳过';
 
   @override
-  String get tourPhoneBack => 'Back';
+  String get tourPhoneBack => '上一步';
 
   @override
-  String get tourPhoneNext => 'Next';
+  String get tourPhoneNext => '下一步';
 
   @override
-  String get tourPhoneWalletTitle => 'Wallet';
+  String get tourPhoneWalletTitle => '钱包';
 
   @override
   String get tourPhoneWalletText =>
-      'Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.';
+      '你的余额，下面是节点、Epicbox 和 Tor 的图标。仍在确认中的金额在下方的卡片里。';
 
   @override
-  String get tourPhoneSendTitle => 'Send';
+  String get tourPhoneSendTitle => '发送';
 
   @override
   String get tourPhoneSendText =>
-      'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.';
+      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；“文件”生成一个文件，交给对方。更多方式：设置 › 交易。发出前会先确认。';
 
   @override
-  String get tourPhoneReceiveTitle => 'Receive';
+  String get tourPhoneReceiveTitle => '接收';
 
   @override
   String get tourPhoneReceiveText =>
-      'Your Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.';
+      '你的 Epicbox 地址。分享它即可收款。“文件”标签页用于需要签名或完成的交易文件。';
 
   @override
-  String get tourPhoneActivityTitle => 'Activity';
+  String get tourPhoneActivityTitle => '活动';
 
   @override
-  String get tourPhoneActivityText =>
-      'Every payment with its progress and details. Tap one to open it.';
+  String get tourPhoneActivityText => '每笔付款的进度和详情。点一笔即可打开。';
 
   @override
-  String get tourPhoneContactsTitle => 'Contacts';
+  String get tourPhoneContactsTitle => '联系人';
 
   @override
-  String get tourPhoneContactsText =>
-      'Saved addresses by name. Send picks from here.';
+  String get tourPhoneContactsText => '按名称保存的地址。“发送”从这里选择。';
 
   @override
-  String get tourPhoneInvoicesTitle => 'Invoices';
+  String get tourPhoneInvoicesTitle => '账单';
 
   @override
-  String get tourPhoneInvoicesText =>
-      'Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.';
+  String get tourPhoneInvoicesText => '支付别人发来的账单，或向别人请求付款。用标签页在两者之间切换。';
 
   @override
-  String get tourPhonePrivacyTitle => 'Privacy & network';
+  String get tourPhonePrivacyTitle => '隐私与网络';
 
   @override
   String get tourPhonePrivacyText =>
-      'Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.';
+      '钱包使用哪个节点和 Epicbox 服务器，以及 Tor 开关。点一个服务器即可更改。';
 
   @override
-  String get tourPhoneAdvancedTitle => 'Advanced';
+  String get tourPhoneAdvancedTitle => '高级';
 
   @override
-  String get tourPhoneAdvancedText =>
-      'Tor-only mode, outputs and technical details live here. Switch on what you need.';
+  String get tourPhoneAdvancedText => '仅 Tor 模式、输出和技术详情都在这里。需要什么就开启什么。';
 
   @override
-  String get tourPhoneHelpTitle => 'Help';
+  String get tourPhoneHelpTitle => '帮助';
 
   @override
-  String get tourPhoneHelpText =>
-      'Search the topics or send feedback. “Show the tour again” is at the bottom of the list.';
+  String get tourPhoneHelpText => '搜索主题或发送反馈。“再次查看导览”在列表底部。';
 
   @override
-  String get tourPhoneShowAgain => 'Show the tour again';
+  String get tourPhoneShowAgain => '再次查看导览';
 
   @override
   String get homeDestActivity => '活动';
@@ -4057,7 +4052,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsConsolidateStarted => '合并已开始：一个输出，约 3 个区块后确认';
 
   @override
-  String get outputsAdvanced => '高级';
+  String get outputsAdvanced => '管理输出';
 
   @override
   String get outputsColState => '状态';
@@ -6868,7 +6863,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendAdvAllNoSplit => '· 全部输出，不拆分找零';
 
   @override
-  String get deskSendAdvanced => '高级';
+  String get deskSendAdvanced => '发送选项';
 
   @override
   String get deskSendAdvStrategy => '本次发送的策略';
@@ -9757,15 +9752,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTourSendTitle => '发送';
 
   @override
-  String get deskTourSendText =>
-      'Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.';
+  String get deskTourSendText => '向 Epicbox 地址付款，或生成交易文件让对方签名。发出前会先确认。';
 
   @override
   String get deskTourReceiveTitle => '接收';
 
   @override
   String get deskTourReceiveText =>
-      'This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.';
+      '这个钱包的 Epicbox 地址：分享它即可收款。需要签名或完成的交易文件在它下方。';
 
   @override
   String get deskTourInvoicesTitle => '账单';
@@ -9783,22 +9777,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTourContactsTitle => '联系人';
 
   @override
-  String get deskTourContactsText =>
-      'Saved addresses by name. Send picks from here.';
+  String get deskTourContactsText => '按名称保存的地址。“发送”从这里选择。';
 
   @override
   String get deskTourNodeTitle => '设置 › 节点';
 
   @override
-  String get deskTourNodeText =>
-      'Which node the wallet reads the chain from. The other settings pages are listed on the left.';
+  String get deskTourNodeText => '钱包从哪个节点读取区块链。其余设置页面列在左侧。';
 
   @override
   String get deskTourHelpTitle => '帮助';
 
   @override
-  String get deskTourHelpText =>
-      'Topics by section and Report a problem. More on every page is here, and this tour can be shown again.';
+  String get deskTourHelpText => '按分区查看主题，还有“报告问题”。每个页面的更多说明都在这里，导览也可以再次查看。';
 
   @override
   String deskTourCounter(int current, int total) {
@@ -12698,7 +12689,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPhraseCopyText => '任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。';
 
   @override
-  String get deskOutAdvanced => '高级';
+  String get deskOutAdvanced => '管理输出';
 
   @override
   String get deskOutStrategyHint =>
@@ -12996,269 +12987,256 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskUpdUnfinished => '更新未完成。请重试。';
 
   @override
-  String get advTitle => 'Advanced';
+  String get advTitle => '高级';
 
   @override
-  String get advStateOff => 'Off';
+  String get advStateOff => '关闭';
 
   @override
-  String get advIntro =>
-      'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.';
+  String get advIntro => '一开始全部关闭。每个开关会把钱包的一个部分加到它所属的位置。';
 
   @override
-  String get advShowsHeader => 'Shows more';
+  String get advShowsHeader => '显示更多';
 
   @override
-  String get advNetworkHeader => 'Network';
+  String get advNetworkHeader => '网络';
 
   @override
   String get advNetworkHint =>
       'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.';
 
   @override
-  String get advOutputs => 'Outputs';
+  String get advOutputs => '输出';
 
   @override
   String get advOutputsHint =>
-      'Shows the Outputs page, under Wallet and on Home. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.';
+      '在“钱包”下和主页上显示“输出”页面。它列出组成余额的币，可以拆分或合并，并设置发送使用的默认值。正在进行的拆分或合并会让该页面保持可见。';
 
   @override
-  String get advTechnical => 'Technical details';
+  String get advTechnical => '技术详情';
 
   @override
   String get advTechnicalHint =>
-      'Shows the technical rows on a payment\'s details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.';
+      '在付款详情中显示技术信息行：内核、slate ID、承诺和区块高度。在“账单”中显示地址轮换和被丢弃消息的数量。';
 
   @override
-  String get advSendOptions => 'Send options';
+  String get advSendOptions => '发送选项';
 
   @override
   String get advSendOptionsHint =>
-      'Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.';
+      '在“设置 › 交易”中显示发送的“策略”和“拆分找零”：一笔发送花掉哪些输出，以及找零是否拆分。只要其中一项不是默认值，就保持可见。';
 
   @override
-  String get advDirect => 'Direct receiving';
+  String get advDirect => '直连接收';
 
   @override
   String get advDirectHint =>
-      'Gives this phone a second address, reached over Tor. Others can pay it directly, without Epicbox. Works only while the app is open. Adds the Direct method to Send and Receive, and its state to Privacy & network. Stays visible while it is on.';
+      '为这部手机提供第二个地址，通过 Tor 访问。别人可以直接向它付款，无需 Epicbox。仅在钱包打开时有效。会在“发送”和“接收”中加入“直连”方式，并在“隐私与网络”中显示其状态。开启期间保持可见。';
 
   @override
-  String get advServerDetails => 'Server details';
+  String get advServerDetails => '服务器详情';
 
   @override
   String get advServerDetailsHint =>
-      'Shows hosts, latency, version and block height in the server pickers and on the status card, the relay address under Receive, and the invoice address in full.';
+      '在服务器列表和状态卡片中显示主机、延迟、版本和区块高度，在“接收”中显示中继地址，并完整显示账单地址。';
 
   @override
-  String get advRecheckHeight => 'Recheck from a height';
+  String get advRecheckHeight => '从某个高度重新核对';
 
   @override
   String get advRecheckHeightHint =>
-      'Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.';
+      '让“重新核对余额”可以从某个区块高度或日期开始，而不是从第一个区块开始。更快，也是跳过早期记录的唯一办法。恢复钱包时始终可以选择。';
 
   @override
-  String get advModeStandard => 'Standard';
+  String get advModeStandard => '标准';
 
   @override
-  String get advModeStandardLine =>
-      'Connects directly. Tor can be turned on in Privacy & network.';
+  String get advModeStandardLine => '直接连接。可在“隐私与网络”中开启 Tor。';
 
   @override
-  String get advModeTorOnly => 'Tor only';
+  String get advModeTorOnly => '仅 Tor';
 
   @override
-  String get advModeTorOnlyLine =>
-      'Every connection goes through Tor. Without Tor the wallet stays offline and says so.';
+  String get advModeTorOnlyLine => '所有连接都经过 Tor。没有 Tor 时，钱包保持离线并会提示。';
 
   @override
-  String get advModeOffline => 'Offline';
+  String get advModeOffline => '离线';
 
   @override
   String get advModeOfflineLine =>
       'Only this phone and your local network. A node on your network still works; everything else waits until you switch back.';
 
   @override
-  String get advTorOnlyNote =>
-      'Tor only pauses notifications: registering for them would reveal this phone\'s address.';
+  String get advTorOnlyNote => '“仅 Tor”会暂停通知：注册通知会暴露这部手机的地址。';
 
   @override
   String get advOfflineNote =>
       'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node\'s own peers are the node\'s setting.';
 
   @override
-  String get advReset => 'Hide everything again';
+  String get advReset => '再次全部隐藏';
 
   @override
-  String get advHomeOffline => 'Offline mode';
+  String get advHomeOffline => '离线模式';
 
   @override
-  String get advHomeTorOnlyWaiting => 'Tor only · waiting for Tor';
+  String get advHomeTorOnlyWaiting => '仅 Tor · 等待 Tor';
 
   @override
-  String get advBuiltInNode => 'Built-in node';
+  String get advBuiltInNode => '内置节点';
 
   @override
-  String get advLogs => 'Logs';
+  String get advLogs => '日志';
 
   @override
-  String get deskSetFrameAdvanced => 'Advanced';
+  String get deskSetFrameAdvanced => '高级';
 
   @override
-  String get deskSetAdvIntro =>
-      'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.';
+  String get deskSetAdvIntro => '一开始全部关闭。每个开关会把钱包的一个部分加到它所属的位置。';
 
   @override
-  String get deskSetAdvShows => 'Shows more';
+  String get deskSetAdvShows => '显示更多';
 
   @override
-  String get deskSetAdvOutputs => 'Outputs';
+  String get deskSetAdvOutputs => '输出';
 
   @override
   String get deskSetAdvOutputsHint =>
-      'Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.';
+      '在侧边栏显示“输出”页面。它列出组成余额的币，可以拆分或合并，并设置发送使用的默认值。正在进行的拆分或合并会让该页面保持可见。';
 
   @override
-  String get deskSetAdvTechnical => 'Technical details';
+  String get deskSetAdvTechnical => '技术详情';
 
   @override
   String get deskSetAdvTechnicalHint =>
-      'Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core\'s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.';
+      '在每笔交易上显示“技术详情”折叠区：slate ID、内核、区块高度、核心的状态和类型，以及付款证明。不开启时，交易上的“更多”链接可以一次性显示它们。在“账单”中显示高级折叠区。';
 
   @override
-  String get deskSetAdvSendOptions => 'Send options';
+  String get deskSetAdvSendOptions => '发送选项';
 
   @override
   String get deskSetAdvSendOptionsHint =>
-      'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.';
+      '在“发送”中加入一个折叠区，单笔发送可以在其中选择花掉哪些输出（“最小”或“全部”），以及是否拆分找零。默认值仍在“输出”中。';
 
   @override
-  String get deskSetAdvDirect => 'Direct receiving';
+  String get deskSetAdvDirect => '直连接收';
 
   @override
   String get deskSetAdvDirectHint =>
-      'Gives this computer its own address, over HTTP or Tor. Others can pay it directly, without Epicbox. Works only while the wallet is open. Adds the Direct method to Send, the addresses to Receive, and their settings under Receiving. A listener that is on keeps its rows.';
+      '为这台电脑提供自己的地址，通过 HTTP 或 Tor。别人可以直接向它付款，无需 Epicbox。仅在钱包打开时有效。会在“发送”中加入“直连”方式，在“接收”中加入这些地址，并在“接收”设置中加入它们的选项。已开启的监听会保留它的各行。';
 
   @override
-  String get deskSetAdvServerDetails => 'Server details';
+  String get deskSetAdvServerDetails => '服务器详情';
 
   @override
   String get deskSetAdvServerDetailsHint =>
-      'Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar\'s status rows and in the status card.';
+      '在节点和 Epicbox 列表、侧边栏的状态行以及状态卡片中显示主机、延迟、版本和区块高度。';
 
   @override
-  String get deskSetAdvRecheck => 'Recheck from a height';
+  String get deskSetAdvRecheck => '从某个高度重新核对';
 
   @override
   String get deskSetAdvRecheckHint =>
-      'Lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone, whatever this says.';
+      '让“重新核对余额”同时丢弃未确认的交易。无论此项如何设置，恢复钱包时都会向所有人提供起始区块。';
 
   @override
-  String get deskSetAdvBuiltInNode => 'Built-in node';
+  String get deskSetAdvBuiltInNode => '内置节点';
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
-      'Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.';
+      '让这台电脑运行自己的节点：“节点”下的“这台电脑”选项、它的同步面板，以及概览中的“启动节点”。同步整条链需要数小时和数 GB 磁盘空间。已在运行的节点会保留它的各行。';
 
   @override
-  String get deskSetAdvLogs => 'Logs';
+  String get deskSetAdvLogs => '日志';
 
   @override
   String get deskSetAdvLogsHint =>
-      'Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.';
+      '在“帮助”下显示“日志”分组：打开日志文件夹、清除日志。无论是否开启，“报告问题”都会附上日志。';
 
   @override
-  String get deskSetAdvNetwork => 'Network';
+  String get deskSetAdvNetwork => '网络';
 
   @override
   String get deskSetAdvNetworkHint =>
       'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node\'s setting.';
 
   @override
-  String get deskSetAdvModeStandard => 'Standard';
+  String get deskSetAdvModeStandard => '标准';
 
   @override
-  String get deskSetAdvModeStandardText =>
-      'Connects directly. Tor can be turned on under Privacy.';
+  String get deskSetAdvModeStandardText => '直接连接。可在“隐私”中开启 Tor。';
 
   @override
-  String get deskSetAdvModeTorOnly => 'Tor only';
+  String get deskSetAdvModeTorOnly => '仅 Tor';
 
   @override
-  String get deskSetAdvModeTorOnlyText =>
-      'Every connection goes through Tor. Without Tor the wallet stays offline and says so.';
+  String get deskSetAdvModeTorOnlyText => '所有连接都经过 Tor。没有 Tor 时，钱包保持离线并会提示。';
 
   @override
-  String get deskSetAdvModeOffline => 'Offline';
+  String get deskSetAdvModeOffline => '离线';
 
   @override
   String get deskSetAdvModeOfflineText =>
       'Only this computer and your local network. Your node keeps running; its own peers are the node\'s setting.';
 
   @override
-  String get deskSetAdvTorOnlyNote =>
-      'Tor only turns HTTP receiving off: a plain address would reveal this computer.';
+  String get deskSetAdvTorOnlyNote => '“仅 Tor”会关闭 HTTP 接收：普通地址会暴露这台电脑。';
 
   @override
   String get deskSetAdvOfflineNote =>
       'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.';
 
   @override
-  String get deskSetAdvNotInBuild => 'Not in this build';
+  String get deskSetAdvNotInBuild => '此版本不含';
 
   @override
-  String get deskSetAdvReset => 'Hide everything again';
+  String get deskSetAdvReset => '再次全部隐藏';
 
   @override
   String deskSetAdvOn(int n) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n switches on',
-      one: '1 switch on',
+      other: '已开启 $n 个开关',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskShellOffline => 'Offline mode';
+  String get deskShellOffline => '离线模式';
 
   @override
-  String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
+  String get deskShellTorOnlyWaiting => '仅 Tor · 等待 Tor';
 
   @override
   String get deskSetAcctAutoLockHint => '在这段时间内没有按键或移动鼠标时锁定钱包。关闭后，只能用“锁定钱包”锁定。';
 
   @override
-  String get netBlockOffline => 'Offline mode is on in Advanced.';
+  String get netBlockOffline => '“高级”中已开启离线模式。';
 
   @override
-  String get netBlockTorOnly => 'Tor only is on in Advanced.';
+  String get netBlockTorOnly => '“高级”中已开启“仅 Tor”。';
 
   @override
-  String get netBlockWaitingForTor => 'Waiting for Tor.';
+  String get netBlockWaitingForTor => '等待 Tor。';
 
   @override
-  String get receiveOfflineLine =>
-      'Can\'t receive this way while Offline mode is on.';
+  String get receiveOfflineLine => '离线模式开启时，无法用这种方式接收。';
 
   @override
-  String get txDetailsMore => 'More';
+  String get txDetailsMore => '更多';
 
   @override
-  String get restoreStartFromLink => 'Start from a date or height';
+  String get restoreStartFromLink => '从某个日期或高度开始';
 
   @override
-  String get homeOfflineDetail =>
-      'Offline mode is on in Advanced. The balance is the last one seen.';
+  String get homeOfflineDetail => '“高级”中已开启离线模式。余额是上次看到的。';
 
   @override
-  String get homeWaitingTorDetail =>
-      'Tor only is on in Advanced. Waiting for Tor to connect.';
+  String get homeWaitingTorDetail => '“高级”中已开启“仅 Tor”。正在等待 Tor 连接。';
 
   @override
-  String get settingsRescanBodyPlain =>
-      'The wallet looks for its funds again, from the first block. This can take a long time.';
+  String get settingsRescanBodyPlain => '钱包从第一个区块开始，重新查找它的资金。这可能需要很长时间。';
 
   @override
   String get slNodeField => '节点地址';
@@ -13389,149 +13367,139 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSlHelpChoose => '选择一个，或输入以筛选列表或添加服务器。';
 
   @override
-  String get deskOnbRestoreFromLink => 'Start from a block height';
+  String get deskOnbRestoreFromLink => '从某个区块高度开始';
 
   @override
-  String get deskOnbRestoreFromHide => 'Check the whole chain';
+  String get deskOnbRestoreFromHide => '检查整条链';
 
   @override
-  String get deskOnbRestoreFromLabel => 'Start from block';
+  String get deskOnbRestoreFromLabel => '从区块开始';
 
   @override
-  String get deskOnbRestoreFromHint => 'Block height';
+  String get deskOnbRestoreFromHint => '区块高度';
 
   @override
-  String get deskOnbRestoreFromHelp =>
-      'Only if the wallet\'s first payment came after this block. Leave it empty to check the whole chain.';
+  String get deskOnbRestoreFromHelp => '仅当钱包的第一笔付款发生在此区块之后才使用。留空则检查整条链。';
 
   @override
-  String get deskOnbRestoreFromInvalid => 'Use digits only, or leave it empty.';
+  String get deskOnbRestoreFromInvalid => '只能输入数字，或留空。';
 
   @override
-  String get deskNetOfflineReason => 'Offline mode is on in Advanced.';
+  String get deskNetOfflineReason => '“高级”中已开启离线模式。';
 
   @override
-  String get deskNetWaitingTorReason =>
-      'Waiting for Tor. Tor only is on in Advanced.';
+  String get deskNetWaitingTorReason => '等待 Tor。“高级”中已开启“仅 Tor”。';
 
   @override
-  String get deskNetTorOnlyLine => 'Tor only is on in Advanced.';
+  String get deskNetTorOnlyLine => '“高级”中已开启“仅 Tor”。';
 
   @override
-  String get deskNetOpenAdvanced => 'Open Advanced';
+  String get deskNetOpenAdvanced => '打开“高级”';
 
   @override
-  String get deskNetSendFileHint => 'A transaction file still works.';
+  String get deskNetSendFileHint => '交易文件仍然可用。';
 
   @override
-  String get deskNetRecvOfflineText =>
-      'Your address stays the same. Nothing can arrive until Offline mode is off.';
+  String get deskNetRecvOfflineText => '你的地址保持不变。离线模式关闭之前，什么都收不到。';
 
   @override
-  String get deskNetRecvWaitTorText =>
-      'Receiving starts when Tor is connected. A transaction file still works.';
+  String get deskNetRecvWaitTorText => 'Tor 连接后才开始接收。交易文件仍然可用。';
 
   @override
-  String get deskNetCantReceive => 'Can\'t receive offline.';
+  String get deskNetCantReceive => '离线时无法接收。';
 
   @override
-  String get deskRailOffline => 'Offline';
+  String get deskRailOffline => '离线';
 
   @override
-  String get deskTourAdvancedTitle => 'Advanced';
+  String get deskTourAdvancedTitle => '高级';
 
   @override
-  String get deskTourAdvancedText =>
-      'Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.';
+  String get deskTourAdvancedText => '直连付款、仅 Tor 模式、输出和技术详情都在这里。需要什么就开启什么。';
 
   @override
-  String get deskTxMore => 'More';
+  String get deskTxMore => '更多';
 
   @override
-  String get deskTxLess => 'Less';
+  String get deskTxLess => '收起';
 
   @override
-  String get settingsSectionTransactions => 'Transactions';
+  String get settingsSectionTransactions => '交易';
 
   @override
-  String get settingsHubMethods => 'Methods';
+  String get settingsHubMethods => '方式';
 
   @override
-  String get settingsHubDefault => 'Default';
+  String get settingsHubDefault => '默认';
 
   @override
-  String get settingsHubSendDefaults => 'Send defaults';
+  String get settingsHubSendDefaults => '发送默认设置';
 
   @override
-  String get txMethodsHeader => 'Payment methods';
+  String get txMethodsHeader => '付款方式';
 
   @override
-  String get txAlwaysOn => 'Always on';
+  String get txAlwaysOn => '始终开启';
 
   @override
-  String get txEpicboxHint =>
-      'Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.';
+  String get txEpicboxHint => 'Epicbox 通过中继付款，所以对方的钱包不必打开。始终开启。';
 
   @override
-  String get txDirectLine =>
-      'Pay onion and web addresses; get paid at this phone\'s Tor address.';
+  String get txDirectLine => '向 onion 和网址付款；通过这部手机的 Tor 地址收款。';
 
   @override
   String get txDirectHint =>
-      'Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.';
+      '“直连”通过 onion 或网址直接发送给对方钱包，并为这部手机提供一个可收款的 Tor 地址。对方的钱包必须打开，这边也一样。需要 Tor。会在“发送”和“接收”中加入“直连”。';
 
   @override
-  String get txFileLine => 'Pay or get paid with a file you pass on yourself.';
+  String get txFileLine => '用你自己传递的文件付款或收款。';
 
   @override
   String get txFileHint =>
-      'File makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File to Send and Receive.';
+      '“文件”生成一个交易文件，你用任何方式（消息、邮件、数据线）交给对方，对方再回传一个。两个钱包之间不需要连接。会在“发送”和“接收”中加入“文件”。';
 
   @override
-  String get txStartHeader => 'Send starts on';
+  String get txStartHeader => '发送默认方式';
 
   @override
-  String get txStartNote => 'You can still pick another method on Send.';
+  String get txStartNote => '在“发送”中仍可选择其他方式。';
 
   @override
-  String get txDefaultsHeader => 'Send defaults';
+  String get txDefaultsHeader => '发送默认设置';
 
   @override
-  String get outputsDefaultsMoved =>
-      'Send defaults are in Settings › Transactions';
+  String get outputsDefaultsMoved => '发送默认设置已移到“设置 › 交易”';
 
   @override
-  String get advNodeFailover => 'Node failover';
+  String get advNodeFailover => '节点故障切换';
 
   @override
-  String get advNodeFailoverHint =>
-      'When your node stops answering, the wallet uses the next working node in your list for this session.';
+  String get advNodeFailoverHint => '当你的节点不再响应时，钱包在本次会话中改用列表里下一个可用的节点。';
 
   @override
   String nodeFailoverSwitched(String host) {
-    return 'Node not answering. Switched to $host.';
+    return '节点无响应。已切换到 $host。';
   }
 
   @override
   String nodeFailoverInsteadOf(String host) {
-    return 'Instead of $host';
+    return '代替 $host';
   }
 
   @override
-  String get deskSetAdvNodeFailover => 'Node failover';
+  String get deskSetAdvNodeFailover => '节点故障切换';
 
   @override
-  String get deskSetAdvNodeFailoverHint =>
-      'When your node stops answering, the wallet uses the next working node in your list for this session.';
+  String get deskSetAdvNodeFailoverHint => '当你的节点不再响应时，钱包在本次会话中改用列表里下一个可用的节点。';
 
   @override
   String deskNodeFailoverSwitched(String host) {
-    return 'Node not answering. Switched to $host.';
+    return '节点无响应。已切换到 $host。';
   }
 
   @override
   String deskNodeFailoverInsteadOf(String host) {
-    return 'Instead of $host';
+    return '代替 $host';
   }
 
   @override

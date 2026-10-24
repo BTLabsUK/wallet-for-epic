@@ -22,7 +22,7 @@
   "deskSendAdvSmallestNoSplit": "· 最小输出，不拆分找零",
   "deskSendAdvAll": "· 全部输出",
   "deskSendAdvAllNoSplit": "· 全部输出，不拆分找零",
-  "deskSendAdvanced": "高级",
+  "deskSendAdvanced": "发送选项",
   "deskSendAdvStrategy": "本次发送的策略",
   "deskSendAdvSmallestText": "花掉最少的小额输出；找零确认期间，其余余额仍可使用。",
   "deskSendAdvAllText": "花掉所有可用输出，并返回一个找零输出。确认前全部锁定；之后输出更少、更大。",

@@ -29,7 +29,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
   final restorePlace = phone
       ? '**Mam już portfel: przywróć go** (na pierwszym ekranie lub po usunięciu tego portfela w [[Ustawienia › Portfel|Settings › Wallet]])'
       : '**Przywróć z frazy** (na pierwszym ekranie, w Odblokuj › Dodaj portfel lub w [[Ustawienia › Wszystkie portfele|Settings › All wallets]])';
-  final recheckPlace = phone ? '[[Ustawienia › Portfel › Sprawdź saldo|Settings › Wallet › Recheck balance]] (widoczne, gdy włączone są „Opcje zaawansowane”)' : '[[Ustawienia › Sprawdź saldo|Settings › Recheck balance]]';
+  final recheckPlace = phone ? '[[Ustawienia › Portfel › Sprawdź saldo|Settings › Wallet › Recheck balance]]' : '[[Ustawienia › Sprawdź saldo|Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[Ustawienia › Bezpieczeństwo › Zabezpiecz frazę odzyskiwania|Settings › Security › Back up recovery phrase]]' : '[[Ustawienia › Fraza odzyskiwania|Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -76,6 +76,22 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('Inne portfele Epic Cash nazywają te kroki po swojemu. Jeśli plik odpowiedzi nigdy nie przyjdzie, anuluj płatność w Aktywności, aby odblokować wyjścia.'),
       ],
       id: HelpId.file,
+    ),
+    HelpTopic(
+      'start',
+      'Metody płatności i zasady wysyłki',
+      'Epicbox jest zawsze włączony. Bezpośrednio i Plik to przełączniki. Wysyłanie zaczyna od wybranej metody.',
+      [
+        phone
+            ? const HelpBlock.p('Strona Transakcje w [[Ustawienia › Transakcje|Settings › Transactions]] zawiera trzy rzeczy.')
+            : const HelpBlock.p('Strona **Transakcje** w ustawieniach zawiera trzy rzeczy.'),
+        HelpBlock.ul([
+          '**Metody płatności.** Epicbox jest zawsze włączony. **Bezpośrednio** (na adresy .onion i internetowe${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i **Plik** to przełączniki: wyłączona metoda nie pojawia się w Wyślij i Odbierz.',
+          '**Wysyłanie zaczyna od.** Metoda, z którą otwiera się ekran Wyślij. Na ekranie Wyślij nadal możesz wybrać inną.',
+          '**Zasady wysyłki.** Które wyjścia wydaje wysyłka, Najmniejsze czy Wszystkie, i czy jej reszta jest dzielona. Widać je tylko wtedy, gdy w Zaawansowanych włączone są **Opcje wysyłki**.',
+        ]),
+      ],
+      id: HelpId.methods,
     ),
     if (phone)
       const HelpTopic(
@@ -145,9 +161,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**Najmniejsze** sortuje wyjścia do wydania według wartości i bierze najmniejsze, aż pokryją kwotę i opłatę. Tylko one są zablokowane, dopóki płatność się potwierdza; resztę można od razu wysłać.'),
         HelpBlock.p('**Wszystkie** wydaje każde wyjście do wydania i zwraca jedno wyjście reszty. Wszystko jest zablokowane do osiągnięcia wymaganej liczby potwierdzeń ($confirmations), portfel ma potem mniej, ale większych wyjść, a opłata jest nieco wyższa, bo każde wejście kosztuje. Wysłanie całego salda zawsze używa Wszystkie.'),
         if (phone)
-          const HelpBlock.p('Domyślny sposób ustawisz w [[Ustawienia › Transactions|Settings › Transactions]].')
+          const HelpBlock.p('Domyślny sposób ustawisz w [[Ustawienia › Transakcje|Settings › Transactions]], gdy w Zaawansowanych włączone są Opcje wysyłki.')
         else
-          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zaawansowane|Outputs › Manage outputs]]; w Wyślij możesz go zmienić dla jednej płatności w sekcji **Zaawansowane**.'),
+          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zarządzaj wyjściami|Outputs › Manage outputs]]; w Wyślij możesz go zmienić dla jednej płatności w sekcji **Opcje wysyłki**.'),
       ],
       id: HelpId.strategy,
     ),
@@ -158,7 +174,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Oba to zwykłe transakcje sieciowe z tego portfela do niego samego, ostateczne po osiągnięciu wymaganej liczby potwierdzeń ($confirmations) jak każda płatność, i oba do tego czasu blokują każde wyjście do wydania.'),
         const HelpBlock.ul(['**Podziel** bierze saldo do wydania i tworzy od 2 do 10 wyjść o prawie równej wartości.', '**Scal** bierze każde wyjście do wydania i tworzy jedno.', '**Podziel resztę** (domyślnie włączone) robi to samo w zwykłej płatności, gdy zostałoby mało wyjść, za 0,004 EPIC za każde dodatkowe wyjście.']),
-        const HelpBlock.p('Aktywność pokazuje każde z nich jako dwa wpisy, wysłanie i odbiór, oba z tym portfelem. Oba znajdziesz w [[Wyjścia › Zaawansowane|Outputs › Manage outputs]].'),
+        const HelpBlock.p('Aktywność pokazuje każde z nich jako dwa wpisy, wysłanie i odbiór, oba z tym portfelem. Oba znajdziesz w [[Wyjścia › Zarządzaj wyjściami|Outputs › Manage outputs]].'),
       ],
       id: HelpId.split,
     ),
@@ -246,6 +262,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
             'Powiadomienia push są wyłączone, gdy Tor jest włączony.',
             'Wolniej niż Epicbox bez Tora. W niektórych krajach Tor jest blokowany; tam się nie połączy.',
             'Odbieranie na adres .onion działa, gdy aplikacja jest otwarta; Epicbox działa obok.',
+            'Przy Tylko Tor w Zaawansowanych przełącznik zostaje włączony i nie da się go wyłączyć.',
           ]),
           const HelpBlock.p('**Uruchamianie…** oznacza, że Tor się łączy; objęte nim połączenia czekają i nigdy nie idą inną drogą. **Brak połączenia** oznacza niepowodzenie: Ponów lub wyłącz Tor. Niektóre portfele pokazują adres Tor bez .onion; to ten sam adres.'),
         ],
@@ -264,11 +281,54 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
             'Płatności bezpośrednie na adres http(s) nie idą przez Tor; Wyślij o tym informuje.',
             'Odbieranie Bezpośrednio · HTTP jest wyłączone, gdy Tor jest włączony: płatności prosto z innego portfela docierają na adres Bezpośrednio · Tor.',
             'W niektórych krajach Tor jest blokowany lub niedozwolony; tam się nie połączy.',
+            'Przy Tylko Tor w Zaawansowanych przełącznik zostaje włączony i nie da się go wyłączyć.',
           ]),
           HelpBlock.p('Niektóre portfele pokazują adres bez .onion; to ten sam adres.'),
         ],
         id: HelpId.tor,
       ),
+    HelpTopic(
+      'network',
+      'Tryby sieci',
+      'Standardowy łączy się bezpośrednio. Tylko Tor nigdy. Offline nie używa niczego poza ${phone ? 'tym telefonem' : 'tym komputerem'} i siecią lokalną.',
+      [
+        const HelpBlock.p('Sposób, w jaki portfel łączy się z siecią, to jeden wybór na stronie **Zaawansowane** w ustawieniach, w sekcji Sieć.'),
+        HelpBlock.ul([
+          '**Standardowy**: łączy się bezpośrednio. Tor to przełącznik w $torPlace.',
+          '**Tylko Tor**: Tor jest zawsze włączony, a jego przełącznik zablokowany. Nic nie idzie przez otwarty internet. Gdy Tor się uruchamia lub zawiódł, portfel mówi **Czeka na Tor**, a wszystko, co wymaga sieci, czeka; powód podaje wyszarzona akcja. ${phone ? 'Powiadomienia są wyłączone, bo zapisanie się na nie ujawniłoby ten telefon.' : 'Odbieranie przez HTTP jest wyłączone, bo zwykły adres ujawniłby ten komputer.'}',
+          '**Offline**: nic poza ${phone ? 'tym telefonem' : 'tym komputerem'} i siecią lokalną. Saldo i historia zostają takie, jakie widziano ostatnio. Z węzłem ${phone ? 'w sieci lokalnej' : 'na tym komputerze lub w sieci lokalnej'} portfel nadal może tworzyć, podpisywać, finalizować i wysyłać płatności oraz płacić bezpośrednio na adresy lokalne. Bez niego wysyłanie i odbieranie czekają.',
+        ]),
+        if (!phone) const HelpBlock.p('Peery wbudowanego węzła to ustawienie samego węzła, nie trybu.'),
+        HelpBlock.p('${phone ? 'Ekran główny' : 'Pasek boczny'} pokazuje, gdy portfel jest offline albo czeka na Tor. Po wróceniu do trybu **Standardowy** wszystko znów działa.'),
+      ],
+      id: HelpId.modes,
+    ),
+    HelpTopic(
+      'network',
+      'Zaawansowane',
+      'Na początku wyłączone. Każdy przełącznik dodaje jedną część portfela w miejscu, do którego należy.',
+      [
+        const HelpBlock.p('**Zaawansowane** to strona w ustawieniach z częściami, których większość osób nigdy nie potrzebuje. Wszystko na niej jest na początku wyłączone, żeby portfel pozostał prosty. Przełącznik dodaje swoją część tam, gdzie jej miejsce, a **Ukryj wszystko ponownie** wyłącza je wszystkie.'),
+        HelpBlock.ul([
+          '**Wyjścia**: strona Wyjścia z monetami, z których składa się saldo, i to, co można z nimi zrobić.',
+          '**Szczegóły techniczne**: ID slate, kernel, commitmenty i wysokość bloku w ${phone ? 'szczegółach płatności' : 'transakcji'}. Bez tego link **Więcej** przy transakcji pokazuje je jednorazowo.',
+          if (phone)
+            '**Opcje wysyłki**: Strategia i Podziel resztę, w [[Ustawienia › Transakcje|Settings › Transactions]]: które wyjścia wydaje wysyłka i czy jej reszta jest dzielona.'
+          else
+            '**Opcje wysyłki**: sekcja w Wyślij, w której jedna wysyłka wybiera Najmniejsze lub Wszystkie i czy dzielić resztę.',
+          '**Szczegóły serwerów**: hosty, opóźnienie, wersja i wysokość bloku na listach węzłów i Epicbox oraz na karcie stanu.',
+          if (phone)
+            '**Sprawdź od wysokości**: pozwala Sprawdź saldo zacząć od wysokości bloku lub daty zamiast od pierwszego bloku. Przywracanie zawsze daje taki wybór.'
+          else
+            '**Sprawdź od wysokości**: pozwala Sprawdź saldo odrzucić także niepotwierdzone transakcje. Przywracanie każdemu daje wybór bloku początkowego.',
+          if (!phone) '**Wbudowany węzeł**: pozwala temu komputerowi uruchomić własny węzeł: opcja Ten komputer w Węźle i Uruchom węzeł na Przeglądzie.',
+          if (!phone) '**Logi**: grupa Logi w Pomocy, by otworzyć folder logów lub wyczyścić logi. Zgłoszenie problemu i tak dołącza log.',
+        ]),
+        HelpBlock.p('**Automatyczna zmiana węzła** jest domyślnie włączona. Gdy twój węzeł nie odpowiada przez 30 sekund, portfel przechodzi na następny działający węzeł z twojej listy, tylko na czas tej sesji: twój własny węzeł zostaje zapisany, a portfel wraca na niego przy następnym uruchomieniu albo gdy sam wybierzesz węzeł. Nigdy nie zmienia węzła w trybie offline${phone ? '' : ' ani nie odchodzi od węzła na tym komputerze'}, a przy Tylko Tor przechodzi tylko na węzeł osiągalny przez Tor.'),
+        const HelpBlock.p('Ta sama strona ustawia tryb sieci: zobacz „Tryby sieci”.'),
+      ],
+      id: HelpId.advanced,
+    ),
     HelpTopic(
       'trouble',
       'Rozwiązywanie problemów',
@@ -298,6 +358,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('**„Nieprawidłowe hasło”.** Sprawdź Caps Lock i układ klawiatury. Zapomniane hasło: przywróć portfel z frazy odzyskiwania i wybierz nowe.'),
         HelpBlock.p('**Saldo wygląda na błędne.** Uruchom $recheckPlace.'),
+        const HelpBlock.p('**Akcja jest wyszarzona i mówi „Tryb offline” albo „Czeka na Tor”.** W Zaawansowanych włączono Offline lub Tylko Tor. Przywróć tam tryb Standardowy albo poczekaj, aż Tor się połączy.'),
       ],
       id: HelpId.trouble,
     ),

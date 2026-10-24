@@ -3817,87 +3817,87 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get tourPhoneSemantics => 'Wallet tour';
+  String get tourPhoneSemantics => 'ทัวร์กระเป๋าเงิน';
 
   @override
   String tourPhoneCounter(int current, int total) {
-    return '$current of $total';
+    return '$current จาก $total';
   }
 
   @override
-  String get tourPhoneSkip => 'Skip';
+  String get tourPhoneSkip => 'ข้าม';
 
   @override
-  String get tourPhoneBack => 'Back';
+  String get tourPhoneBack => 'ย้อนกลับ';
 
   @override
-  String get tourPhoneNext => 'Next';
+  String get tourPhoneNext => 'ถัดไป';
 
   @override
-  String get tourPhoneWalletTitle => 'Wallet';
+  String get tourPhoneWalletTitle => 'กระเป๋าเงิน';
 
   @override
   String get tourPhoneWalletText =>
-      'Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.';
+      'ยอดคงเหลือของคุณ และใต้ลงไปคือไอคอนโหนด Epicbox และ Tor สิ่งที่ยังอยู่ระหว่างยืนยันอยู่ในช่องด้านล่าง';
 
   @override
-  String get tourPhoneSendTitle => 'Send';
+  String get tourPhoneSendTitle => 'ส่ง';
 
   @override
   String get tourPhoneSendText =>
-      'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.';
+      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ ไฟล์สร้างไฟล์ไว้ส่งต่อ วิธีอื่น: การตั้งค่า › ธุรกรรม จะมีการตรวจสอบก่อนเสมอ';
 
   @override
-  String get tourPhoneReceiveTitle => 'Receive';
+  String get tourPhoneReceiveTitle => 'รับ';
 
   @override
   String get tourPhoneReceiveText =>
-      'Your Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.';
+      'ที่อยู่ Epicbox ของคุณ แชร์เพื่อรับเงิน แท็บไฟล์ใช้กับไฟล์ธุรกรรมที่ต้องเซ็นหรือทำให้เสร็จ';
 
   @override
-  String get tourPhoneActivityTitle => 'Activity';
+  String get tourPhoneActivityTitle => 'ประวัติ';
 
   @override
   String get tourPhoneActivityText =>
-      'Every payment with its progress and details. Tap one to open it.';
+      'ทุกรายการพร้อมความคืบหน้าและรายละเอียด แตะรายการเพื่อเปิด';
 
   @override
-  String get tourPhoneContactsTitle => 'Contacts';
+  String get tourPhoneContactsTitle => 'ผู้ติดต่อ';
 
   @override
   String get tourPhoneContactsText =>
-      'Saved addresses by name. Send picks from here.';
+      'ที่อยู่ที่บันทึกไว้ตามชื่อ หน้าส่งเลือกจากที่นี่';
 
   @override
-  String get tourPhoneInvoicesTitle => 'Invoices';
+  String get tourPhoneInvoicesTitle => 'ใบแจ้งหนี้';
 
   @override
   String get tourPhoneInvoicesText =>
-      'Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.';
+      'ชำระใบแจ้งหนี้ที่มีคนส่งมา หรือขอให้ใครจ่ายเงิน แท็บใช้สลับระหว่างสองอย่างนี้';
 
   @override
-  String get tourPhonePrivacyTitle => 'Privacy & network';
+  String get tourPhonePrivacyTitle => 'ความเป็นส่วนตัวและเครือข่าย';
 
   @override
   String get tourPhonePrivacyText =>
-      'Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.';
+      'โหนดและเซิร์ฟเวอร์ Epicbox ที่กระเป๋าเงินใช้ และสวิตช์ Tor แตะเซิร์ฟเวอร์เพื่อเปลี่ยน';
 
   @override
-  String get tourPhoneAdvancedTitle => 'Advanced';
+  String get tourPhoneAdvancedTitle => 'ขั้นสูง';
 
   @override
   String get tourPhoneAdvancedText =>
-      'Tor-only mode, outputs and technical details live here. Switch on what you need.';
+      'โหมด Tor เท่านั้น เอาต์พุต และรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ';
 
   @override
-  String get tourPhoneHelpTitle => 'Help';
+  String get tourPhoneHelpTitle => 'ช่วยเหลือ';
 
   @override
   String get tourPhoneHelpText =>
-      'Search the topics or send feedback. “Show the tour again” is at the bottom of the list.';
+      'ค้นหาหัวข้อหรือส่งความคิดเห็น “แสดงทัวร์แนะนำอีกครั้ง” อยู่ท้ายรายการ';
 
   @override
-  String get tourPhoneShowAgain => 'Show the tour again';
+  String get tourPhoneShowAgain => 'แสดงทัวร์แนะนำอีกครั้ง';
 
   @override
   String get homeDestActivity => 'ประวัติ';
@@ -4194,7 +4194,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เริ่มรวมแล้ว: 1 เอาต์พุต ยืนยันในประมาณ 3 บล็อก';
 
   @override
-  String get outputsAdvanced => 'ขั้นสูง';
+  String get outputsAdvanced => 'จัดการเอาต์พุต';
 
   @override
   String get outputsColState => 'สถานะ';
@@ -7122,7 +7122,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendAdvAllNoSplit => '· เอาต์พุตทั้งหมด ไม่แยกเงินทอน';
 
   @override
-  String get deskSendAdvanced => 'ขั้นสูง';
+  String get deskSendAdvanced => 'ตัวเลือกการส่ง';
 
   @override
   String get deskSendAdvStrategy => 'วิธีเลือกเอาต์พุตของการส่งนี้';
@@ -10111,14 +10111,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTourSendText =>
-      'Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.';
+      'จ่ายไปที่อยู่ Epicbox หรือสร้างไฟล์ธุรกรรมให้อีกฝ่ายเซ็น จะมีการตรวจสอบก่อนส่งทุกครั้ง';
 
   @override
   String get deskTourReceiveTitle => 'รับ';
 
   @override
   String get deskTourReceiveText =>
-      'This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.';
+      'ที่อยู่ Epicbox ของกระเป๋าเงินนี้ แชร์เพื่อรับเงิน ไฟล์ธุรกรรมที่ต้องเซ็นหรือทำให้เสร็จอยู่ใต้ลงไป';
 
   @override
   String get deskTourInvoicesTitle => 'ใบแจ้งหนี้';
@@ -10139,21 +10139,21 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'Saved addresses by name. Send picks from here.';
+      'ที่อยู่ที่บันทึกไว้ตามชื่อ หน้าส่งเลือกจากที่นี่';
 
   @override
   String get deskTourNodeTitle => 'การตั้งค่า › โหนด';
 
   @override
   String get deskTourNodeText =>
-      'Which node the wallet reads the chain from. The other settings pages are listed on the left.';
+      'โหนดที่กระเป๋าเงินใช้อ่านเชน หน้าการตั้งค่าอื่นๆ อยู่ทางซ้าย';
 
   @override
   String get deskTourHelpTitle => 'ช่วยเหลือ';
 
   @override
   String get deskTourHelpText =>
-      'Topics by section and Report a problem. More on every page is here, and this tour can be shown again.';
+      'หัวข้อแยกตามหมวดและรายงานปัญหา คำอธิบายเพิ่มเติมของทุกหน้าอยู่ที่นี่ และแสดงทัวร์นี้ซ้ำได้';
 
   @override
   String deskTourCounter(int current, int total) {
@@ -13143,7 +13143,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ใครมีคำเหล่านี้ก็นำเงินของคุณไปได้ เก็บสำเนาไว้ในที่ปลอดภัย';
 
   @override
-  String get deskOutAdvanced => 'ขั้นสูง';
+  String get deskOutAdvanced => 'จัดการเอาต์พุต';
 
   @override
   String get deskOutStrategyHint =>
@@ -13448,83 +13448,83 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskUpdUnfinished => 'อัปเดตไม่เสร็จ ลองอีกครั้ง';
 
   @override
-  String get advTitle => 'Advanced';
+  String get advTitle => 'ขั้นสูง';
 
   @override
-  String get advStateOff => 'Off';
+  String get advStateOff => 'ปิด';
 
   @override
   String get advIntro =>
-      'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.';
+      'ทุกอย่างปิดอยู่ตอนแรก แต่ละสวิตช์เพิ่มส่วนของกระเป๋าเงินอีกส่วนหนึ่งในที่ที่มันอยู่';
 
   @override
-  String get advShowsHeader => 'Shows more';
+  String get advShowsHeader => 'แสดงเพิ่ม';
 
   @override
-  String get advNetworkHeader => 'Network';
+  String get advNetworkHeader => 'เครือข่าย';
 
   @override
   String get advNetworkHint =>
       'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.';
 
   @override
-  String get advOutputs => 'Outputs';
+  String get advOutputs => 'เอาต์พุต';
 
   @override
   String get advOutputsHint =>
-      'Shows the Outputs page, under Wallet and on Home. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.';
+      'แสดงหน้าเอาต์พุตใต้ กระเป๋าเงิน และที่หน้าแรก แสดงเหรียญที่ประกอบเป็นยอดคงเหลือ ให้คุณแยกหรือรวมเหรียญ และตั้งค่าเริ่มต้นที่การส่งใช้ หากกำลังแยกหรือรวมอยู่ หน้านี้จะแสดงต่อไป';
 
   @override
-  String get advTechnical => 'Technical details';
+  String get advTechnical => 'รายละเอียดทางเทคนิค';
 
   @override
   String get advTechnicalHint =>
-      'Shows the technical rows on a payment\'s details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.';
+      'แสดงแถวทางเทคนิคในรายละเอียดของรายการ ได้แก่ kernel, slate ID, commitment และความสูงบล็อก ใน ใบแจ้งหนี้ จะแสดงการหมุนเวียนที่อยู่และจำนวนข้อความที่ถูกทิ้ง';
 
   @override
-  String get advSendOptions => 'Send options';
+  String get advSendOptions => 'ตัวเลือกการส่ง';
 
   @override
   String get advSendOptionsHint =>
-      'Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.';
+      'แสดงวิธีเลือกของการส่งและแยกเงินทอนใน การตั้งค่า › ธุรกรรม คือการส่งใช้เอาต์พุตไหน และแยกเงินทอนหรือไม่ แสดงอยู่ตลอดตราบใดที่ตัวใดตัวหนึ่งไม่ใช่ค่าเริ่มต้น';
 
   @override
-  String get advDirect => 'Direct receiving';
+  String get advDirect => 'การรับแบบส่งตรง';
 
   @override
   String get advDirectHint =>
-      'Gives this phone a second address, reached over Tor. Others can pay it directly, without Epicbox. Works only while the app is open. Adds the Direct method to Send and Receive, and its state to Privacy & network. Stays visible while it is on.';
+      'ให้โทรศัพท์เครื่องนี้มีที่อยู่ที่สอง เข้าถึงได้ผ่าน Tor คนอื่นจ่ายมาที่นี่ได้โดยตรง ไม่ต้องผ่าน Epicbox ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ เพิ่มวิธีส่งตรงใน ส่ง และ รับ และเพิ่มสถานะใน ความเป็นส่วนตัวและเครือข่าย แสดงอยู่ตลอดเมื่อเปิดไว้';
 
   @override
-  String get advServerDetails => 'Server details';
+  String get advServerDetails => 'รายละเอียดเซิร์ฟเวอร์';
 
   @override
   String get advServerDetailsHint =>
-      'Shows hosts, latency, version and block height in the server pickers and on the status card, the relay address under Receive, and the invoice address in full.';
+      'แสดงโฮสต์ เวลาตอบสนอง เวอร์ชัน และความสูงบล็อกในรายการเซิร์ฟเวอร์และการ์ดสถานะ แสดงที่อยู่รีเลย์ใน รับ และแสดงที่อยู่ใบแจ้งหนี้แบบเต็ม';
 
   @override
-  String get advRecheckHeight => 'Recheck from a height';
+  String get advRecheckHeight => 'ตรวจยอดใหม่จากบล็อกที่กำหนด';
 
   @override
   String get advRecheckHeightHint =>
-      'Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.';
+      'ให้ ตรวจยอดใหม่ เริ่มจากความสูงบล็อกหรือวันที่แทนการเริ่มจากบล็อกแรก เร็วกว่า และเป็นวิธีเดียวที่ข้ามประวัติช่วงแรกได้ ตอนกู้คืนมีตัวเลือกนี้เสมอ';
 
   @override
-  String get advModeStandard => 'Standard';
+  String get advModeStandard => 'มาตรฐาน';
 
   @override
   String get advModeStandardLine =>
-      'Connects directly. Tor can be turned on in Privacy & network.';
+      'เชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัวและเครือข่าย';
 
   @override
-  String get advModeTorOnly => 'Tor only';
+  String get advModeTorOnly => 'Tor เท่านั้น';
 
   @override
   String get advModeTorOnlyLine =>
-      'Every connection goes through Tor. Without Tor the wallet stays offline and says so.';
+      'ทุกการเชื่อมต่อผ่าน Tor ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์และบอกให้ทราบ';
 
   @override
-  String get advModeOffline => 'Offline';
+  String get advModeOffline => 'ออฟไลน์';
 
   @override
   String get advModeOfflineLine =>
@@ -13532,116 +13532,116 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advTorOnlyNote =>
-      'Tor only pauses notifications: registering for them would reveal this phone\'s address.';
+      'Tor เท่านั้นจะหยุดการแจ้งเตือน เพราะการลงทะเบียนรับแจ้งเตือนจะเปิดเผยที่อยู่ของโทรศัพท์เครื่องนี้';
 
   @override
   String get advOfflineNote =>
       'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node\'s own peers are the node\'s setting.';
 
   @override
-  String get advReset => 'Hide everything again';
+  String get advReset => 'ซ่อนทั้งหมดอีกครั้ง';
 
   @override
-  String get advHomeOffline => 'Offline mode';
+  String get advHomeOffline => 'โหมดออฟไลน์';
 
   @override
-  String get advHomeTorOnlyWaiting => 'Tor only · waiting for Tor';
+  String get advHomeTorOnlyWaiting => 'Tor เท่านั้น · รอ Tor';
 
   @override
-  String get advBuiltInNode => 'Built-in node';
+  String get advBuiltInNode => 'โหนดในตัว';
 
   @override
-  String get advLogs => 'Logs';
+  String get advLogs => 'บันทึก';
 
   @override
-  String get deskSetFrameAdvanced => 'Advanced';
+  String get deskSetFrameAdvanced => 'ขั้นสูง';
 
   @override
   String get deskSetAdvIntro =>
-      'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.';
+      'ทุกอย่างปิดอยู่ตอนแรก แต่ละสวิตช์เพิ่มส่วนของกระเป๋าเงินอีกส่วนหนึ่งในที่ที่มันอยู่';
 
   @override
-  String get deskSetAdvShows => 'Shows more';
+  String get deskSetAdvShows => 'แสดงเพิ่ม';
 
   @override
-  String get deskSetAdvOutputs => 'Outputs';
+  String get deskSetAdvOutputs => 'เอาต์พุต';
 
   @override
   String get deskSetAdvOutputsHint =>
-      'Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.';
+      'แสดงหน้าเอาต์พุตในแถบด้านข้าง แสดงเหรียญที่ประกอบเป็นยอดคงเหลือ ให้คุณแยกหรือรวมเหรียญ และตั้งค่าเริ่มต้นที่การส่งใช้ หากกำลังแยกหรือรวมอยู่ หน้านี้จะแสดงต่อไป';
 
   @override
-  String get deskSetAdvTechnical => 'Technical details';
+  String get deskSetAdvTechnical => 'รายละเอียดทางเทคนิค';
 
   @override
   String get deskSetAdvTechnicalHint =>
-      'Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core\'s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.';
+      'แสดงส่วนรายละเอียดทางเทคนิคในทุกธุรกรรม ได้แก่ slate ID, kernel, ความสูงบล็อก, สถานะและชนิดของแกนหลัก และหลักฐานการชำระเงิน ถ้าไม่เปิด ลิงก์ เพิ่มเติม ที่ธุรกรรมจะแสดงให้ดูครั้งเดียว ใน ใบแจ้งหนี้ จะแสดงส่วนขั้นสูง';
 
   @override
-  String get deskSetAdvSendOptions => 'Send options';
+  String get deskSetAdvSendOptions => 'ตัวเลือกการส่ง';
 
   @override
   String get deskSetAdvSendOptionsHint =>
-      'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.';
+      'เพิ่มส่วนที่พับได้ใน ส่ง ซึ่งการส่งครั้งเดียวเลือกได้ว่าจะใช้เอาต์พุตไหน เล็กสุด หรือ ทั้งหมด และจะแยกเงินทอนหรือไม่ ค่าเริ่มต้นยังอยู่ที่ เอาต์พุต';
 
   @override
-  String get deskSetAdvDirect => 'Direct receiving';
+  String get deskSetAdvDirect => 'การรับแบบส่งตรง';
 
   @override
   String get deskSetAdvDirectHint =>
-      'Gives this computer its own address, over HTTP or Tor. Others can pay it directly, without Epicbox. Works only while the wallet is open. Adds the Direct method to Send, the addresses to Receive, and their settings under Receiving. A listener that is on keeps its rows.';
+      'ให้คอมพิวเตอร์เครื่องนี้มีที่อยู่ของตัวเอง ผ่าน HTTP หรือ Tor คนอื่นจ่ายมาที่นี่ได้โดยตรง ไม่ต้องผ่าน Epicbox ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ เพิ่มวิธีส่งตรงใน ส่ง เพิ่มที่อยู่ใน รับ และเพิ่มการตั้งค่าของมันใน การรับเงิน ตัวรับที่เปิดอยู่จะคงแถวของมันไว้';
 
   @override
-  String get deskSetAdvServerDetails => 'Server details';
+  String get deskSetAdvServerDetails => 'รายละเอียดเซิร์ฟเวอร์';
 
   @override
   String get deskSetAdvServerDetailsHint =>
-      'Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar\'s status rows and in the status card.';
+      'แสดงโฮสต์ เวลาตอบสนอง เวอร์ชัน และความสูงบล็อกในรายการโหนดและ Epicbox แถวสถานะในแถบด้านข้าง และการ์ดสถานะ';
 
   @override
-  String get deskSetAdvRecheck => 'Recheck from a height';
+  String get deskSetAdvRecheck => 'ตรวจยอดใหม่จากบล็อกที่กำหนด';
 
   @override
   String get deskSetAdvRecheckHint =>
-      'Lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone, whatever this says.';
+      'ให้ ตรวจยอดใหม่ ทิ้งธุรกรรมที่ยังไม่ยืนยันด้วย ส่วนการกู้คืนเสนอบล็อกเริ่มต้นให้ทุกคน ไม่ว่าจะตั้งตัวเลือกนี้อย่างไร';
 
   @override
-  String get deskSetAdvBuiltInNode => 'Built-in node';
+  String get deskSetAdvBuiltInNode => 'โหนดในตัว';
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
-      'Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.';
+      'ให้คอมพิวเตอร์เครื่องนี้รันโหนดของตัวเอง ได้แก่ตัวเลือก คอมพิวเตอร์เครื่องนี้ ใต้ โหนด แผงซิงก์ และ เริ่มโหนด ในภาพรวม การซิงก์เชนใช้เวลาหลายชั่วโมงและพื้นที่ดิสก์หลายกิกะไบต์ โหนดที่กำลังทำงานอยู่จะคงแถวของมันไว้';
 
   @override
-  String get deskSetAdvLogs => 'Logs';
+  String get deskSetAdvLogs => 'บันทึก';
 
   @override
   String get deskSetAdvLogsHint =>
-      'Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.';
+      'แสดงกลุ่มบันทึกใต้ ช่วยเหลือ ได้แก่เปิดโฟลเดอร์บันทึกและล้างบันทึก รายงานปัญหาจะแนบบันทึกไม่ว่าจะเปิดไว้หรือไม่';
 
   @override
-  String get deskSetAdvNetwork => 'Network';
+  String get deskSetAdvNetwork => 'เครือข่าย';
 
   @override
   String get deskSetAdvNetworkHint =>
       'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node\'s setting.';
 
   @override
-  String get deskSetAdvModeStandard => 'Standard';
+  String get deskSetAdvModeStandard => 'มาตรฐาน';
 
   @override
   String get deskSetAdvModeStandardText =>
-      'Connects directly. Tor can be turned on under Privacy.';
+      'เชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัว';
 
   @override
-  String get deskSetAdvModeTorOnly => 'Tor only';
+  String get deskSetAdvModeTorOnly => 'Tor เท่านั้น';
 
   @override
   String get deskSetAdvModeTorOnlyText =>
-      'Every connection goes through Tor. Without Tor the wallet stays offline and says so.';
+      'ทุกการเชื่อมต่อผ่าน Tor ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์และบอกให้ทราบ';
 
   @override
-  String get deskSetAdvModeOffline => 'Offline';
+  String get deskSetAdvModeOffline => 'ออฟไลน์';
 
   @override
   String get deskSetAdvModeOfflineText =>
@@ -13649,69 +13649,67 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvTorOnlyNote =>
-      'Tor only turns HTTP receiving off: a plain address would reveal this computer.';
+      'Tor เท่านั้นจะปิดการรับผ่าน HTTP เพราะที่อยู่ธรรมดาจะเปิดเผยคอมพิวเตอร์เครื่องนี้';
 
   @override
   String get deskSetAdvOfflineNote =>
       'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.';
 
   @override
-  String get deskSetAdvNotInBuild => 'Not in this build';
+  String get deskSetAdvNotInBuild => 'ไม่มีในรุ่นนี้';
 
   @override
-  String get deskSetAdvReset => 'Hide everything again';
+  String get deskSetAdvReset => 'ซ่อนทั้งหมดอีกครั้ง';
 
   @override
   String deskSetAdvOn(int n) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n switches on',
-      one: '1 switch on',
+      other: 'เปิดอยู่ $n สวิตช์',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskShellOffline => 'Offline mode';
+  String get deskShellOffline => 'โหมดออฟไลน์';
 
   @override
-  String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
+  String get deskShellTorOnlyWaiting => 'Tor เท่านั้น · รอ Tor';
 
   @override
   String get deskSetAcctAutoLockHint =>
       'ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าปิดไว้ จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น';
 
   @override
-  String get netBlockOffline => 'Offline mode is on in Advanced.';
+  String get netBlockOffline => 'โหมดออฟไลน์เปิดอยู่ใน ขั้นสูง';
 
   @override
-  String get netBlockTorOnly => 'Tor only is on in Advanced.';
+  String get netBlockTorOnly => 'โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง';
 
   @override
-  String get netBlockWaitingForTor => 'Waiting for Tor.';
+  String get netBlockWaitingForTor => 'รอ Tor';
 
   @override
-  String get receiveOfflineLine =>
-      'Can\'t receive this way while Offline mode is on.';
+  String get receiveOfflineLine => 'รับด้วยวิธีนี้ไม่ได้ขณะอยู่ในโหมดออฟไลน์';
 
   @override
-  String get txDetailsMore => 'More';
+  String get txDetailsMore => 'เพิ่มเติม';
 
   @override
-  String get restoreStartFromLink => 'Start from a date or height';
+  String get restoreStartFromLink => 'เริ่มจากวันที่หรือความสูงบล็อก';
 
   @override
   String get homeOfflineDetail =>
-      'Offline mode is on in Advanced. The balance is the last one seen.';
+      'โหมดออฟไลน์เปิดอยู่ใน ขั้นสูง ยอดคงเหลือเป็นยอดที่เห็นล่าสุด';
 
   @override
   String get homeWaitingTorDetail =>
-      'Tor only is on in Advanced. Waiting for Tor to connect.';
+      'โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง กำลังรอ Tor เชื่อมต่อ';
 
   @override
   String get settingsRescanBodyPlain =>
-      'The wallet looks for its funds again, from the first block. This can take a long time.';
+      'กระเป๋าเงินจะค้นหาเงินของตัวเองอีกครั้ง ตั้งแต่บล็อกแรก อาจใช้เวลานาน';
 
   @override
   String get slNodeField => 'ที่อยู่โหนด';
@@ -13845,149 +13843,149 @@ class AppLocalizationsTh extends AppLocalizations {
       'เลือกหนึ่งรายการ หรือพิมพ์เพื่อกรองรายการหรือเพิ่มเซิร์ฟเวอร์';
 
   @override
-  String get deskOnbRestoreFromLink => 'Start from a block height';
+  String get deskOnbRestoreFromLink => 'เริ่มจากความสูงบล็อก';
 
   @override
-  String get deskOnbRestoreFromHide => 'Check the whole chain';
+  String get deskOnbRestoreFromHide => 'ตรวจทั้งบล็อกเชน';
 
   @override
-  String get deskOnbRestoreFromLabel => 'Start from block';
+  String get deskOnbRestoreFromLabel => 'เริ่มจากบล็อก';
 
   @override
-  String get deskOnbRestoreFromHint => 'Block height';
+  String get deskOnbRestoreFromHint => 'ความสูงบล็อก';
 
   @override
   String get deskOnbRestoreFromHelp =>
-      'Only if the wallet\'s first payment came after this block. Leave it empty to check the whole chain.';
+      'ใช้เมื่อรายการแรกของกระเป๋าเงินเกิดหลังบล็อกนี้เท่านั้น เว้นว่างไว้เพื่อตรวจทั้งบล็อกเชน';
 
   @override
-  String get deskOnbRestoreFromInvalid => 'Use digits only, or leave it empty.';
+  String get deskOnbRestoreFromInvalid => 'ใช้ตัวเลขเท่านั้น หรือเว้นว่างไว้';
 
   @override
-  String get deskNetOfflineReason => 'Offline mode is on in Advanced.';
+  String get deskNetOfflineReason => 'โหมดออฟไลน์เปิดอยู่ใน ขั้นสูง';
 
   @override
   String get deskNetWaitingTorReason =>
-      'Waiting for Tor. Tor only is on in Advanced.';
+      'รอ Tor โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง';
 
   @override
-  String get deskNetTorOnlyLine => 'Tor only is on in Advanced.';
+  String get deskNetTorOnlyLine => 'Tor เท่านั้นเปิดอยู่ใน ขั้นสูง';
 
   @override
-  String get deskNetOpenAdvanced => 'Open Advanced';
+  String get deskNetOpenAdvanced => 'เปิดขั้นสูง';
 
   @override
-  String get deskNetSendFileHint => 'A transaction file still works.';
+  String get deskNetSendFileHint => 'ไฟล์ธุรกรรมยังใช้ได้';
 
   @override
   String get deskNetRecvOfflineText =>
-      'Your address stays the same. Nothing can arrive until Offline mode is off.';
+      'ที่อยู่ของคุณเหมือนเดิม จะไม่มีอะไรเข้ามาจนกว่าจะปิดโหมดออฟไลน์';
 
   @override
   String get deskNetRecvWaitTorText =>
-      'Receiving starts when Tor is connected. A transaction file still works.';
+      'การรับจะเริ่มเมื่อ Tor เชื่อมต่อ ไฟล์ธุรกรรมยังใช้ได้';
 
   @override
-  String get deskNetCantReceive => 'Can\'t receive offline.';
+  String get deskNetCantReceive => 'รับไม่ได้ตอนออฟไลน์';
 
   @override
-  String get deskRailOffline => 'Offline';
+  String get deskRailOffline => 'ออฟไลน์';
 
   @override
-  String get deskTourAdvancedTitle => 'Advanced';
+  String get deskTourAdvancedTitle => 'ขั้นสูง';
 
   @override
   String get deskTourAdvancedText =>
-      'Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.';
+      'การจ่ายแบบส่งตรง โหมด Tor เท่านั้น เอาต์พุต และรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ';
 
   @override
-  String get deskTxMore => 'More';
+  String get deskTxMore => 'เพิ่มเติม';
 
   @override
-  String get deskTxLess => 'Less';
+  String get deskTxLess => 'ย่อ';
 
   @override
-  String get settingsSectionTransactions => 'Transactions';
+  String get settingsSectionTransactions => 'ธุรกรรม';
 
   @override
-  String get settingsHubMethods => 'Methods';
+  String get settingsHubMethods => 'วิธี';
 
   @override
-  String get settingsHubDefault => 'Default';
+  String get settingsHubDefault => 'ค่าเริ่มต้น';
 
   @override
-  String get settingsHubSendDefaults => 'Send defaults';
+  String get settingsHubSendDefaults => 'ค่าเริ่มต้นการส่ง';
 
   @override
-  String get txMethodsHeader => 'Payment methods';
+  String get txMethodsHeader => 'วิธีชำระเงิน';
 
   @override
-  String get txAlwaysOn => 'Always on';
+  String get txAlwaysOn => 'เปิดเสมอ';
 
   @override
   String get txEpicboxHint =>
-      'Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.';
+      'Epicbox จ่ายผ่านรีเลย์ กระเป๋าเงินอีกฝั่งจึงไม่ต้องเปิดอยู่ เปิดเสมอ';
 
   @override
   String get txDirectLine =>
-      'Pay onion and web addresses; get paid at this phone\'s Tor address.';
+      'จ่ายไปที่อยู่ onion และเว็บ รับเงินที่ที่อยู่ Tor ของโทรศัพท์เครื่องนี้';
 
   @override
   String get txDirectHint =>
-      'Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.';
+      'ส่งตรงส่งไปยังกระเป๋าเงินอีกฝั่งโดยตรงที่ที่อยู่ onion หรือเว็บ และให้โทรศัพท์เครื่องนี้มีที่อยู่ Tor สำหรับรับเงิน กระเป๋าเงินอีกฝั่งต้องเปิดอยู่ และเครื่องนี้ก็เช่นกัน ต้องใช้ Tor เพิ่มส่งตรงใน ส่ง และ รับ';
 
   @override
-  String get txFileLine => 'Pay or get paid with a file you pass on yourself.';
+  String get txFileLine => 'จ่ายหรือรับเงินด้วยไฟล์ที่คุณส่งต่อเอง';
 
   @override
   String get txFileHint =>
-      'File makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File to Send and Receive.';
+      'ไฟล์สร้างไฟล์ธุรกรรมที่คุณส่งให้อีกฝ่ายด้วยวิธีใดก็ได้ (ข้อความ อีเมล สายเคเบิล) แล้วเขาส่งกลับมาหนึ่งไฟล์ ไม่ต้องมีการเชื่อมต่อระหว่างสองกระเป๋าเงิน เพิ่มไฟล์ใน ส่ง และ รับ';
 
   @override
-  String get txStartHeader => 'Send starts on';
+  String get txStartHeader => 'การส่งเริ่มด้วย';
 
   @override
-  String get txStartNote => 'You can still pick another method on Send.';
+  String get txStartNote => 'ใน ส่ง ยังเลือกวิธีอื่นได้';
 
   @override
-  String get txDefaultsHeader => 'Send defaults';
+  String get txDefaultsHeader => 'ค่าเริ่มต้นการส่ง';
 
   @override
   String get outputsDefaultsMoved =>
-      'Send defaults are in Settings › Transactions';
+      'ค่าเริ่มต้นการส่งอยู่ที่ การตั้งค่า › ธุรกรรม';
 
   @override
-  String get advNodeFailover => 'Node failover';
+  String get advNodeFailover => 'สลับโหนดอัตโนมัติ';
 
   @override
   String get advNodeFailoverHint =>
-      'When your node stops answering, the wallet uses the next working node in your list for this session.';
+      'เมื่อโหนดของคุณไม่ตอบสนอง กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้';
 
   @override
   String nodeFailoverSwitched(String host) {
-    return 'Node not answering. Switched to $host.';
+    return 'โหนดไม่ตอบสนอง สลับไปที่ $host แล้ว';
   }
 
   @override
   String nodeFailoverInsteadOf(String host) {
-    return 'Instead of $host';
+    return 'แทน $host';
   }
 
   @override
-  String get deskSetAdvNodeFailover => 'Node failover';
+  String get deskSetAdvNodeFailover => 'สลับโหนดอัตโนมัติ';
 
   @override
   String get deskSetAdvNodeFailoverHint =>
-      'When your node stops answering, the wallet uses the next working node in your list for this session.';
+      'เมื่อโหนดของคุณไม่ตอบสนอง กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้';
 
   @override
   String deskNodeFailoverSwitched(String host) {
-    return 'Node not answering. Switched to $host.';
+    return 'โหนดไม่ตอบสนอง สลับไปที่ $host แล้ว';
   }
 
   @override
   String deskNodeFailoverInsteadOf(String host) {
-    return 'Instead of $host';
+    return 'แทน $host';
   }
 
   @override

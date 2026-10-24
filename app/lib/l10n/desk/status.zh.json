@@ -80,6 +80,6 @@
   "deskTorNodeOver": "经由 Tor",
   "deskTorNodeNotEncrypted": "Tor 出口之后未加密",
   "deskTorNodeWaits": "等 Tor 连接后再连接。",
-  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
-  "deskNodeFailoverInsteadOf": "Instead of {host}"
+  "deskNodeFailoverSwitched": "节点无响应。已切换到 {host}。",
+  "deskNodeFailoverInsteadOf": "代替 {host}"
 }

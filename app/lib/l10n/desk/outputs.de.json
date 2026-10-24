@@ -43,7 +43,7 @@
   "deskOutTileLocked": "In Zahlungen gesperrt",
   "deskOutTileTotal": "Gesamt",
   "deskOutDefaultsTitle": "Standards für Zahlungen",
-  "deskOutAdvanced": "Erweitert",
+  "deskOutAdvanced": "Outputs verwalten",
   "deskOutStrategyTitle": "Strategie für Zahlungen",
   "deskOutStrategyHint": "Welche Outputs eine Zahlung verbraucht. Kleinste verbraucht möglichst wenige kleine Outputs und lässt den Rest verfügbar; Alle verbraucht alles und gibt einen Output zurück. Unter Senden › Erweitert lässt sich das für eine Zahlung ändern.",
   "deskOutStrategySmallest": "Kleinste",
