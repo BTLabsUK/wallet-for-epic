@@ -62,9 +62,6 @@ ETone nodeTone(ServiceHealth h) => switch (h) {
 /// The picker's footer under the node list.
 String nodeListNoteText(AppLocalizations l) => l.deskSetNodeListNote;
 
-/// English text of [nodeListNoteText], for the first-run Setup picker until it reads the key.
-const nodeListNote = 'State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.'; // l10n-ok: onboarding still uses it
-
 /// Before the local node starts: what that means for this computer. True to go on.
 Future<bool> confirmLocalNode(BuildContext context) async {
   final yes = await showEDialog<bool>(

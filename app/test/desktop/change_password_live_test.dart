@@ -3,7 +3,7 @@
 // a fresh app over the same folders, and its remembered password is forgotten. A PIN wallet
 // refuses a password change. Needs the Linux library:
 //
-//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic/bindings/flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
+//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
 //   flutter test test/desktop/change_password_live_test.dart
 //
 // Without it it is skipped.

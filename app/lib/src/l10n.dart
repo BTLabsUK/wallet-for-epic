@@ -29,6 +29,7 @@ const List<AppLanguage> appLanguages = [
   (code: 'pl', name: 'Polski'),
   (code: 'ru', name: 'Русский'),
   (code: 'zh', name: '简体中文'),
+  (code: 'th', name: 'ไทย'),
 ];
 
 /// English strings, for tests and for code that must not depend on the user's language.

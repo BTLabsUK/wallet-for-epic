@@ -211,7 +211,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           ),
         );
       case RestoreStep.account:
-        final (pe, ce) = accountErrors(_password.text, _confirm.text);
+        final (pe, ce) = accountErrors(context.l10n, _password.text, _confirm.text);
         // Back goes to the phrase, which stays filled in.
         return DeskStepBack(
           onBack: () => setState(() => _step = RestoreStep.words),

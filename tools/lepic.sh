@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# Pins and builds LEPIC for the app. LEPIC is a separate project: this script only clones
-# LEPIC ($LEPIC_REPO, default GitHub) into the git-ignored app/third_party/lepic at the commit in tools/lepic.rev and
-# builds there, so LEPIC's own repository gets no new worktree, branch or build output.
+# Pins and builds LEPIC for the app. The app depends on package:lepic, the Flutter binding, which
+# lives in its own repository and pins its LEPIC commit. This script clones lepic-flutter ($LEPIC_FLUTTER_REPO, default GitHub)
+# into the git-ignored app/third_party/lepic-flutter at the commit in tools/lepic-flutter.rev,
+# and LEPIC ($LEPIC_REPO, default GitHub) into app/third_party/lepic at the commit in tools/lepic.rev, which must be
+# the binding's own pin. The binding's tool/lepic.sh then builds the libraries from that LEPIC
+# clone, so neither source repository gets a new worktree, branch or build output.
 #
 # Usage:
-#   tools/lepic.sh sync              clone or move the clone to the pinned commit
+#   tools/lepic.sh sync              clone or move both clones to their pinned commits
 #   tools/lepic.sh build linux       liblepic_ffi.so for this host, bundled by the hook on Linux
-#   tools/lepic.sh build android     the three Android ABIs into bindings/flutter/native/
+#   tools/lepic.sh build android     the three Android ABIs into the binding's native/
 #   tools/lepic.sh build all         both
 #   tools/lepic.sh lib               print the path of the Linux library
 set -euo pipefail
@@ -14,47 +17,75 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 . "$(git rev-parse --show-toplevel)/tools/env.sh"
 source_repo=${LEPIC_REPO:-https://github.com/BTLabs-EPIC/lepic.git}
+binding_repo=${LEPIC_FLUTTER_REPO:-https://github.com/BTLabs-EPIC/lepic-flutter.git}
 clone="$root/app/third_party/lepic"
+binding="$root/app/third_party/lepic-flutter"
 rev="$(tr -d '[:space:]' < "$root/tools/lepic.rev")"
+binding_rev="$(tr -d '[:space:]' < "$root/tools/lepic-flutter.rev")"
 # One target directory per clone: a shared one bakes the wrong paths into xtask.
 unset CARGO_TARGET_DIR
 
+# Moves (or first makes) the clone $1 of repository $2 to commit $3.
+sync_clone() {
+  if [ ! -d "$1/.git" ]; then
+    mkdir -p "$(dirname "$1")"
+    git clone --quiet --no-checkout "$2" "$1"
+  fi
+  git -C "$1" fetch --quiet origin
+  git -C "$1" checkout --quiet --detach "$3"
+}
+
+# Fails unless the clone $1 exists, is at commit $2 and has no local changes.
 check_clone() {
-  [ -d "$clone/.git" ] || { echo "no LEPIC clone: run tools/lepic.sh sync" >&2; exit 1; }
-  [ "$(git -C "$clone" rev-parse HEAD)" = "$rev" ] \
-    || { echo "LEPIC clone is not at the pin $rev: run tools/lepic.sh sync" >&2; exit 1; }
-  [ -z "$(git -C "$clone" status --porcelain --untracked-files=no)" ] \
-    || { echo "LEPIC clone has local changes; it must match the pin exactly" >&2; exit 1; }
+  [ -d "$1/.git" ] || { echo "no clone at $1: run tools/lepic.sh sync" >&2; exit 1; }
+  [ "$(git -C "$1" rev-parse HEAD)" = "$2" ] \
+    || { echo "$1 is not at the pin $2: run tools/lepic.sh sync" >&2; exit 1; }
+  [ -z "$(git -C "$1" status --porcelain --untracked-files=no)" ] \
+    || { echo "$1 has local changes; it must match the pin exactly" >&2; exit 1; }
+}
+
+# The binding builds and tests against its own LEPIC pin; the app's must be the same commit.
+check_pins_agree() {
+  local binding_pin
+  binding_pin="$(tr -d '[:space:]' < "$binding/lepic.rev")"
+  [ "$binding_pin" = "$rev" ] || {
+    echo "tools/lepic.rev ($rev) differs from the LEPIC pin of lepic-flutter $binding_rev" \
+      "($binding_pin): set tools/lepic.rev to the binding's lepic.rev" >&2
+    exit 1
+  }
 }
 
 case "${1:-}" in
   sync)
-    if [ ! -d "$clone/.git" ]; then
-      mkdir -p "$(dirname "$clone")"
-      git clone --quiet --no-checkout "$source_repo" "$clone"
-    fi
-    git -C "$clone" fetch --quiet origin
-    git -C "$clone" checkout --quiet --detach "$rev"
+    sync_clone "$binding" "$binding_repo" "$binding_rev"
+    echo "lepic-flutter at $(git -C "$binding" log --oneline -1)"
+    check_pins_agree
+    sync_clone "$clone" "$source_repo" "$rev"
     echo "LEPIC at $(git -C "$clone" log --oneline -1)"
     ;;
   build)
-    check_clone
+    check_clone "$binding" "$binding_rev"
+    check_clone "$clone" "$rev"
+    check_pins_agree
     what="${2:-all}"
+    case "$what" in
+      linux|android|all) ;;
+      *) sed -n '9,15p' "$0" >&2; exit 2 ;;
+    esac
     if [ "$what" = linux ] || [ "$what" = all ]; then
-      (cd "$clone" && cargo xtask mobile --package --target x86_64-unknown-linux-gnu)
-      echo "linux: $clone/bindings/flutter/native/x86_64-unknown-linux-gnu/"
+      LEPIC_DIR="$clone" "$binding/tool/lepic.sh" build linux
+      echo "linux: $binding/native/x86_64-unknown-linux-gnu/"
     fi
     if [ "$what" = android ] || [ "$what" = all ]; then
-      (cd "$clone" && cargo xtask mobile --package --target aarch64-linux-android \
-        --target armv7-linux-androideabi --target x86_64-linux-android)
-      echo "android: $clone/bindings/flutter/native/"
+      LEPIC_DIR="$clone" "$binding/tool/lepic.sh" build android
+      echo "android: $binding/native/"
     fi
     ;;
   lib)
-    echo "$clone/bindings/flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so"
+    echo "$binding/native/x86_64-unknown-linux-gnu/liblepic_ffi.so"
     ;;
   *)
-    sed -n '6,12p' "$0" >&2
+    sed -n '9,15p' "$0" >&2
     exit 2
     ;;
 esac

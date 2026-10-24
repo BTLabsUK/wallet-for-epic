@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../onboarding/onboarding_parts.dart' show deskLanguageItems, deskSystemLanguage;
 import 'settings_frame.dart';
 
 class SettingsAppearanceScreen extends ConsumerWidget {
@@ -13,22 +15,23 @@ class SettingsAppearanceScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(deskProvider.select((s) => s.settings));
     final n = ref.read(deskProvider.notifier);
+    final l = context.l10n;
     return SettingsFrame(
       route: DeskRoute.settingsAppearance,
       child: ESetGroup(
-        title: 'Appearance',
+        title: l.deskSetFrameAppearance,
         rows: [
           ESetRow(
-            title: 'Theme',
-            hint: 'System follows the computer’s setting.',
+            title: l.deskSetAppearTheme,
+            hint: l.deskSetAppearThemeHint,
             control: ERowControl(
               wide: true,
               child: ESegmented<ThemeChoice>(
               stretch: true,
-              segments: const [
-                ESegment(ThemeChoice.system, 'System', icon: EIcons.themeSystem),
-                ESegment(ThemeChoice.dark, 'Dark', icon: EIcons.moon),
-                ESegment(ThemeChoice.light, 'Light', icon: EIcons.sun),
+              segments: [
+                ESegment(ThemeChoice.system, l.deskSetAppearSystem, icon: EIcons.themeSystem),
+                ESegment(ThemeChoice.dark, l.deskSetAppearDark, icon: EIcons.moon),
+                ESegment(ThemeChoice.light, l.deskSetAppearLight, icon: EIcons.sun),
               ],
               value: s.theme,
               onChanged: (v) => n.saveSettings(s.copyWith(theme: v)),
@@ -36,12 +39,12 @@ class SettingsAppearanceScreen extends ConsumerWidget {
             ),
           ),
           ESetRow(
-            title: 'Interface scale',
-            hint: 'Text and controls, larger or smaller. Applies at once.',
+            title: l.deskSetAppearScale,
+            hint: l.deskSetAppearScaleHint,
             control: ERowControl(
               child: ESelect<int>(
                 size: EBtnSize.sm,
-                semanticLabel: 'Interface scale',
+                semanticLabel: l.deskSetAppearScale,
                 value: s.scale,
                 items: [for (final v in deskScales) ESelectItem(v, '$v%')],
                 onChanged: (v) => n.saveSettings(s.copyWith(scale: v)),
@@ -50,29 +53,23 @@ class SettingsAppearanceScreen extends ConsumerWidget {
           ),
           if (DeskFeatures.languages)
           ESetRow(
-            title: 'Language',
-            hint: 'Applies at once.',
+            title: l.deskSetAppearLanguage,
+            hint: l.deskSetAppearLanguageHint,
             control: ERowControl(
               child: ESelect<String>(
                 size: EBtnSize.sm,
-                semanticLabel: 'Language',
-                value: s.language,
+                semanticLabel: l.deskSetAppearLanguage,
+                value: s.language ?? deskSystemLanguage,
                 // The app's own translations (lib/l10n), as on Setup.
-                items: const [
-                  ESelectItem('English', 'English'),
-                  ESelectItem('Deutsch', 'Deutsch'),
-                  ESelectItem('Polski', 'Polski'),
-                  ESelectItem('Русский', 'Русский'),
-                  ESelectItem('中文', '中文'),
-                ],
-                onChanged: (v) => n.saveSettings(s.copyWith(language: v)),
+                items: deskLanguageItems(l),
+                onChanged: (v) => n.saveSettings(s.copyWith(language: () => v == deskSystemLanguage ? null : v)),
               ),
             ),
           ),
           ESetRow(
-            title: 'Hide amounts',
-            hint: 'Shows dots in place of balances and amounts.',
-            control: ESwitch(value: s.hideAmounts, semanticLabel: 'Hide amounts', onChanged: (v) => n.saveSettings(s.copyWith(hideAmounts: v))),
+            title: l.deskOvHideAmounts,
+            hint: l.deskSetAppearHideHint,
+            control: ESwitch(value: s.hideAmounts, semanticLabel: l.deskOvHideAmounts, onChanged: (v) => n.saveSettings(s.copyWith(hideAmounts: v))),
           ),
         ],
       ),

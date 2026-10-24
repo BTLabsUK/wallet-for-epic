@@ -64,7 +64,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
   }
 
   bool get _accountOk {
-    final (p, c) = accountErrors(_password.text, _confirm.text);
+    final (p, c) = accountErrors(context.l10n, _password.text, _confirm.text);
     return _password.text.length >= 8 && _confirm.text == _password.text && p == null && c == null;
   }
 
@@ -143,7 +143,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
           current: 'lock',
         );
       case CreateStep.account:
-        final (pe, ce) = accountErrors(_password.text, _confirm.text);
+        final (pe, ce) = accountErrors(context.l10n, _password.text, _confirm.text);
         // Typed passwords hold Back (mouse, Alt+Left).
         return DeskStepBack(
           onBack: _password.text.isNotEmpty || _confirm.text.isNotEmpty ? () {} : null,

@@ -20,6 +20,7 @@ const _skipped = <String>{
   'data/mock_wallet.dart',
   'data/mock_invoices.dart',
   'screens/debug/',
+  'screens/invoices/proto_panel.dart', // the mock wallet's prototype panel: never ships
   'app/shots.dart',
   'screens/invoices/shots.dart',
   'screens/invoices/shots_core.dart',
@@ -37,31 +38,6 @@ const _skipped = <String>{
 /// that has nothing left, so this list only shrinks.
 const _pending = <String>{
   // PENDING-START
-  'app/desk_app.dart',
-  'data/models.dart',
-  'screens/invoices/proto_panel.dart',
-  'screens/onboarding/onboarding_parts.dart',
-  'screens/onboarding/setup_screen.dart',
-  'screens/settings/backup.dart',
-  'screens/settings/combo.dart',
-  'screens/settings/dialogs.dart',
-  'screens/settings/local_node.dart',
-  'screens/settings/local_node_dialogs.dart',
-  'screens/settings/local_node_peers.dart',
-  'screens/settings/report_problem.dart',
-  'screens/settings/settings_about.dart',
-  'screens/settings/settings_account.dart',
-  'screens/settings/settings_appearance.dart',
-  'screens/settings/settings_frame.dart',
-  'screens/settings/settings_help.dart',
-  'screens/settings/settings_http.dart',
-  'screens/settings/settings_logs.dart',
-  'screens/settings/settings_node.dart',
-  'screens/settings/settings_phrase.dart',
-  'screens/settings/settings_privacy.dart',
-  'screens/settings/settings_receiving.dart',
-  'screens/settings/settings_rescan.dart',
-  'screens/settings/settings_wallets.dart',
   // PENDING-END
 };
 

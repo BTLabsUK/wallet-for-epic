@@ -1,0 +1,17 @@
+{
+  "deskSetWalletsAddedBack": "เพิ่ม {name} กลับแล้ว",
+  "deskSetWalletsNotAddedBack": "ไม่ได้เพิ่มกลับ",
+  "deskSetWalletsOpenNow": "เปิดอยู่",
+  "deskSetWalletsFolderMissing": "ไม่พบโฟลเดอร์",
+  "deskSetWalletsShowFolder": "แสดง {name} ในโฟลเดอร์",
+  "deskSetWalletsRemove": "นำ {name} ออก…",
+  "deskSetWalletsRemovedGroup": "นำออกจากรายการแล้ว",
+  "deskSetWalletsAddBack": "เพิ่มกลับ",
+  "deskSetWalletsAdd": "เพิ่มกระเป๋าเงิน",
+  "deskSetWalletsCreate": "สร้างกระเป๋าเงิน",
+  "deskSetWalletsCreateText": "กระเป๋าเงินใหม่พร้อมวลีกู้คืนใหม่",
+  "deskSetWalletsImport": "นำเข้า",
+  "deskSetWalletsImportText": "จาก Epic Wallet รุ่นเก่าหรือโฟลเดอร์",
+  "deskSetWalletsRestore": "กู้คืน",
+  "deskSetWalletsRestoreText": "จากวลีกู้คืน"
+}

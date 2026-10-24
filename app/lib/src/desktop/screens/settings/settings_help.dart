@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/tour.dart';
+import '../../../l10n.dart' show appLanguages;
+import '../../../ui/language_flag.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
@@ -132,7 +134,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   /// The topic open at the start for the screenshots.
   bool _openAtStart(HelpTopic t, int index) => switch (widget.arg) {
     HelpDemo.open => t.handshake,
-    HelpDemo.bottom => t.title == 'Tor',
+    HelpDemo.bottom => t.id == HelpId.tor,
     HelpAt(:final section, :final topic) => t.section == section && index == topic,
     _ => false,
   };
@@ -144,13 +146,14 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     final searching = words.isNotEmpty;
     final confirmations = deskMinConfirmations(ref);
     final invoices = ref.watch(deskApiProvider).supportsInvoices;
-    final l = context.l10n;
-    final helpTopics = [...helpTopicsFor(confirmations), if (invoices) ...invoiceHelpTopics(l, confirmations)];
+    final lang = deskHelpLanguage(ref);
+    final lh = helpStrings(lang);
+    final helpTopics = [...helpTopicsFor(confirmations, lang: lang), if (invoices) ...invoiceHelpTopics(lh, confirmations)];
     // The invoices section goes before "When something goes wrong".
     final sections = <(HelpSection, Widget)>[
-      for (final s in helpSections) ...[
+      for (final s in localizedHelpSections(lang)) ...[
         if (s.id == 'trouble' && invoices)
-          ((id: invoiceHelpSection, title: invoiceHelpTitle(l), lede: invoiceHelpLede(l), art: ''), InvoiceHelpMark(width: 120.u)),
+          ((id: invoiceHelpSection, title: invoiceHelpTitle(lh), lede: invoiceHelpLede(lh), art: ''), InvoiceHelpMark(width: 120.u)),
         (s, HelpArt(s.art, width: 120.u)),
       ],
     ];
@@ -168,21 +171,31 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
               children: [
                 const _SupportBar(),
                 SizedBox(height: Sp.x5),
-                EField(
-                  label: 'Search help',
-                  help: 'Press / to search. Esc clears the search.',
-                  child: CallbackShortcuts(
-                    bindings: {const SingleActivator(LogicalKeyboardKey.escape): _clear},
-                    child: EInput(
-                      controller: _query,
-                      focusNode: _focus,
-                      hint: 'For example: file, confirmations, phrase',
-                      leading: EIcons.search,
-                      semanticLabel: 'Search help',
-                      onChanged: (_) => setState(() {}),
-                      trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', onPressed: _clear),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: EField(
+                        label: 'Search help',
+                        help: 'Press / to search. Esc clears the search.',
+                        child: CallbackShortcuts(
+                          bindings: {const SingleActivator(LogicalKeyboardKey.escape): _clear},
+                          child: EInput(
+                            controller: _query,
+                            focusNode: _focus,
+                            hint: 'For example: file, confirmations, phrase',
+                            leading: EIcons.search,
+                            semanticLabel: 'Search help',
+                            onChanged: (_) => setState(() {}),
+                            trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', onPressed: _clear),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    SizedBox(width: Sp.x3),
+                    // Level with the field, above its one-line hint.
+                    Padding(padding: EdgeInsets.only(bottom: 24.u), child: _HelpLanguageSwitch(current: lang)),
+                  ],
                 ),
                 if (!searching) ...[
                   SizedBox(height: Sp.x3),
@@ -204,11 +217,11 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
             SizedBox(height: Sp.x5),
             Semantics(
               liveRegion: true,
-              child: Text(hits.isEmpty ? 'No topic matches “${_query.text.trim()}”. Try another word.' : 'Topics found: ${hits.length}', style: ts.small),
+              child: Text(hits.isEmpty ? context.l10n.deskSetHelpNoMatchText(_query.text.trim()) : context.l10n.deskSetHelpFound(hits.length), style: ts.small),
             ),
             SizedBox(height: Sp.x3),
             if (hits.isEmpty)
-              const EEmpty(icon: EIcons.search, title: 'No topic matches')
+              EEmpty(icon: EIcons.search, title: context.l10n.deskSetHelpNoMatch)
             else
               _Box(
                 children: [
@@ -239,6 +252,29 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   }
 }
 
+/// The help language: its flag and own name, and a menu of the app's languages. It changes only
+/// the language of the topics, and is remembered.
+class _HelpLanguageSwitch extends ConsumerWidget {
+  const _HelpLanguageSwitch({required this.current});
+
+  final String current;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => SizedBox(
+    width: 168.u,
+    child: ESelect<String>(
+      size: EBtnSize.sm,
+      semanticLabel: context.l10n.helpLanguageLabel,
+      value: current,
+      items: [for (final a in appLanguages) ESelectItem(a.code, a.name, leading: LanguageFlag(a.code, height: 14))],
+      onChanged: (code) {
+        final n = ref.read(deskProvider.notifier);
+        n.saveSettings(ref.read(deskProvider).settings.copyWith(helpLanguage: () => code));
+      },
+    ),
+  );
+}
+
 /// Report a problem, first on the page.
 class _SupportBar extends StatelessWidget {
   const _SupportBar();
@@ -258,18 +294,14 @@ class _SupportBar extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Semantics(header: true, child: Text('Report a problem', style: ts.strong)),
+                Semantics(header: true, child: Text(context.l10n.deskSetReportTitle, style: ts.strong)),
                 SizedBox(height: 2.u),
-                Text(
-                  'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer. '
-                  'Save to file keeps a copy to send by hand.',
-                  style: ts.small,
-                ),
+                Text(context.l10n.deskSetHelpReportText, style: ts.small),
               ],
             ),
           ),
           SizedBox(width: Sp.x5),
-          EButton(label: 'Report a problem', icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context)),
+          EButton(label: context.l10n.deskSetReportTitle, icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context)),
         ],
       ),
     );
@@ -422,7 +454,7 @@ class _TopicState extends ConsumerState<_Topic> {
                           child: Icon(EIcons.chevronRight, size: 14.u, color: c.accentText),
                         ),
                         SizedBox(width: Sp.x1),
-                        Text(_open ? 'Show less' : 'Read more', style: TextStyle(fontSize: 12.5.u, fontWeight: FontWeight.w500, color: c.accentText)),
+                        Text(_open ? context.l10n.deskSetHelpShowLess : context.l10n.deskSetHelpReadMore, style: TextStyle(fontSize: 12.5.u, fontWeight: FontWeight.w500, color: c.accentText)),
                       ],
                     ),
                   ),
@@ -510,22 +542,22 @@ class _Block extends StatelessWidget {
   }
 }
 
-List<String> _epicboxSteps(int confirmations) => [
-  'The sending wallet passes the payment to Epicbox and locks the outputs.',
-  'Epicbox delivers it when the receiving wallet is online. That wallet adds its part and signs.',
-  'The receiving wallet sends it back to Epicbox.',
-  'Epicbox passes it back to the sending wallet.',
-  'The sending wallet signs too, finishes the transaction and posts it to the network.',
-  'The network puts it in a block. After $confirmations confirmations it is final.',
+List<String> _epicboxSteps(AppLocalizations l, int confirmations) => [
+  l.deskSetHelpEb1,
+  l.deskSetHelpEb2,
+  l.deskSetHelpEb3,
+  l.deskSetHelpEb4,
+  l.deskSetHelpSigns,
+  l.deskSetHelpFinal(confirmations),
 ];
 
-List<String> _fileSteps(int confirmations) => [
-  'The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.',
-  'The recipient opens it. Their wallet adds its part, signs and saves a response file.',
-  'The response file comes back to the sender.',
-  'The sender opens the response file under Finalize.',
-  'The sending wallet signs too, finishes the transaction and posts it to the network.',
-  'The network puts it in a block. After $confirmations confirmations it is final.',
+List<String> _fileSteps(AppLocalizations l, int confirmations) => [
+  l.deskSetHelpFile1,
+  l.deskSetHelpFile2,
+  l.deskSetHelpFile3,
+  l.deskSetHelpFile4,
+  l.deskSetHelpSigns,
+  l.deskSetHelpFinal(confirmations),
 ];
 
 /// "How a transaction travels": the steps over Epicbox or with a file, one at a time.
@@ -545,10 +577,11 @@ class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
     final c = context.dc;
     final ts = context.ts;
     final confirmations = deskMinConfirmations(ref);
-    final steps = _file ? _fileSteps(confirmations) : _epicboxSteps(confirmations);
+    final l = context.l10n;
+    final steps = _file ? _fileSteps(l, confirmations) : _epicboxSteps(l, confirmations);
     // Who holds the slate at each step: 0 sender, 1 middle (Epicbox / file), 2 recipient, 3 network.
     const at = [1, 2, 1, 0, 3, 3];
-    final names = ['Sender', _file ? 'File' : 'Epicbox', 'Recipient', 'Network'];
+    final names = [l.deskSetHelpSender, _file ? l.deskSetHelpFile : 'Epicbox', l.deskSetHelpRecipient, l.deskSetHelpNetwork]; // l10n-ok: Epicbox is a name
     return Container(
       padding: EdgeInsets.all(Sp.x4),
       decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
@@ -560,9 +593,9 @@ class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
             runSpacing: Sp.x2,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text('How a transaction travels', style: ts.label),
+              Text(l.deskSetHelpTravels, style: ts.label),
               ESegmented<bool>(
-                segments: const [ESegment(false, 'Over Epicbox'), ESegment(true, 'With a file')],
+                segments: [ESegment(false, l.deskSetHelpOverEpicbox), ESegment(true, l.deskSetHelpWithFile)],
                 value: _file,
                 onChanged: (v) => setState(() {
                   _file = v;
@@ -585,11 +618,11 @@ class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
           SizedBox(height: Sp.x3),
           Row(
             children: [
-              Text('Step ${_i + 1} of ${steps.length}', style: ts.mono(size: Fs.xs, color: c.faint)),
+              Text(l.deskSetHelpStep(_i + 1, steps.length), style: ts.mono(size: Fs.xs, color: c.faint)),
               const Spacer(),
-              EIconButton(icon: EIcons.chevronLeft, label: 'Previous step', size: EBtnSize.inline, onPressed: _i == 0 ? null : () => setState(() => _i--)),
+              EIconButton(icon: EIcons.chevronLeft, label: l.handshakePrevious, size: EBtnSize.inline, onPressed: _i == 0 ? null : () => setState(() => _i--)),
               SizedBox(width: Sp.x1),
-              EIconButton(icon: EIcons.chevronRight, label: 'Next step', size: EBtnSize.inline, onPressed: _i == steps.length - 1 ? null : () => setState(() => _i++)),
+              EIconButton(icon: EIcons.chevronRight, label: l.handshakeNext, size: EBtnSize.inline, onPressed: _i == steps.length - 1 ? null : () => setState(() => _i++)),
             ],
           ),
         ],

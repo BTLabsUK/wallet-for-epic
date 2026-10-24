@@ -2,15 +2,19 @@
 #
 # Needs: Flutter 3.47.5 (default C:\Users\<you>\flutter), rustup (LEPIC's rust-toolchain.toml
 # picks the Rust version), Visual Studio 2022 Build Tools with the C++ workload, CMake and Git.
-# -Lepic is a LEPIC repository holding the commit in ..\tools\lepic.rev. As tools/lepic.sh does on
-# Linux, the script clones it into app\third_party\lepic at that commit and builds lepic_ffi.dll
-# there with `cargo xtask mobile --package --target x86_64-pc-windows-msvc`; package:lepic's build
-# hook then bundles the DLL next to epic_wallet.exe.
+# -Lepic is a LEPIC repository holding the commit in ..\tools\lepic.rev, -LepicFlutter the
+# lepic-flutter repository (package:lepic) holding the commit in ..\tools\lepic-flutter.rev, whose
+# own lepic.rev must equal tools\lepic.rev. As tools/lepic.sh does on Linux, the script clones them
+# into app\third_party\lepic and app\third_party\lepic-flutter at those commits and builds
+# lepic_ffi.dll from the first into the second's native\ with
+# `cargo xtask mobile --package --target x86_64-pc-windows-msvc --out <binding>\native`;
+# package:lepic's build hook then bundles the DLL next to epic_wallet.exe.
 #
 # Output: build\epic_wallet-windows-x64-<version>.zip, a portable folder with epic_wallet.exe.
 param(
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
-    [string]$Lepic = (Join-Path $PSScriptRoot '..\..\..\lepic')
+    [string]$Lepic = (Join-Path $PSScriptRoot '..\..\..\lepic'),
+    [string]$LepicFlutter = (Join-Path $PSScriptRoot '..\..\..\lepic-flutter')
 )
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
@@ -36,11 +40,31 @@ if (git -C $clone status --porcelain --untracked-files=no) {
 }
 Write-Output "LEPIC at $(git -C $clone log --oneline -1)"
 
+$bindingRev = (Get-Content ..\tools\lepic-flutter.rev -Raw).Trim()
+$binding = 'third_party\lepic-flutter'
+if (-not (Test-Path "$binding\.git")) {
+    git clone --quiet --no-checkout $LepicFlutter $binding
+    if ($LASTEXITCODE) { throw "could not clone lepic-flutter from $LepicFlutter" }
+}
+git -C $binding fetch --quiet $LepicFlutter '+refs/heads/*:refs/remotes/source/*'
+if ($LASTEXITCODE) { throw "could not fetch lepic-flutter from $LepicFlutter" }
+git -C $binding checkout --quiet --detach $bindingRev
+if ($LASTEXITCODE) { throw "lepic-flutter $bindingRev is not in $LepicFlutter" }
+if (git -C $binding status --porcelain --untracked-files=no) {
+    throw "$binding has local changes; it must match the pin exactly"
+}
+$bindingPin = (Get-Content "$binding\lepic.rev" -Raw).Trim()
+if ($bindingPin -ne $rev) {
+    throw "tools\lepic.rev ($rev) differs from the LEPIC pin of lepic-flutter $bindingRev ($bindingPin)"
+}
+Write-Output "lepic-flutter at $(git -C $binding log --oneline -1)"
+
 # One target directory per clone: a shared one bakes the wrong paths into xtask.
 Remove-Item Env:CARGO_TARGET_DIR -ErrorAction SilentlyContinue
+$native = Join-Path (Resolve-Path $binding).Path 'native'
 Push-Location $clone
 try {
-    cargo xtask mobile --package --target x86_64-pc-windows-msvc
+    cargo xtask mobile --package --target x86_64-pc-windows-msvc --out $native
     if ($LASTEXITCODE) { throw 'LEPIC build failed' }
 } finally {
     Pop-Location

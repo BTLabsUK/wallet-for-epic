@@ -1,0 +1,13 @@
+{
+  "deskInvActFrom": "ใบแจ้งหนี้จาก {label}",
+  "deskInvActFilter": "ใบแจ้งหนี้",
+  "deskInvActBlock": "ใบแจ้งหนี้",
+  "deskInvActOpen": "เปิดในใบแจ้งหนี้",
+  "deskInvActBilledBy": "เรียกเก็บโดย",
+  "deskInvActOverviewTitle": "ใบแจ้งหนี้",
+  "deskInvActOverviewToPay": "{count, plural, =0{ไม่มีรายการที่ต้องชำระ} other{มีใบแจ้งหนี้ที่ต้องชำระ {count} ใบ}}",
+  "deskInvActOverviewWaiting": "{count, plural, =0{ไม่มีใบแจ้งหนี้ที่ออกแล้วรออยู่} other{ใบแจ้งหนี้ที่ออกแล้ว {count} ใบรอผู้ชำระ}}",
+  "deskInvActOverviewAttention": "{count, plural, other{มี {count} รายการที่ต้องจัดการ: ลองใหม่หรือยกเลิก}}",
+  "deskInvActReview": "ตรวจสอบ",
+  "deskInvActOpenInvoices": "เปิดใบแจ้งหนี้"
+}

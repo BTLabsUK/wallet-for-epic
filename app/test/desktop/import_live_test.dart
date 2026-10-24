@@ -3,7 +3,7 @@
 // with HOME there, the app's folder and key store are temp, the node is unreachable. The
 // phrase is compared in memory and never printed. Needs the Linux library and the program:
 //
-//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic/bindings/flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
+//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
 //   WFE_IMPORT_LIVE_BIN=/path/to/a/copy/of/epic-wallet \
 //   flutter test test/desktop/import_live_test.dart
 //

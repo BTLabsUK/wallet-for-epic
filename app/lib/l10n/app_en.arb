@@ -3703,7 +3703,7 @@
   "@licencesTor": {
     "description": "Licences screen: one line for Tor; the English source note with the version and URLs follows it."
   },
-  "licencesFonts": "Fonts Montserrat and JetBrains Mono: SIL Open Font License 1.1.",
+  "licencesFonts": "Fonts Montserrat, JetBrains Mono and Noto Sans Thai: SIL Open Font License 1.1.",
   "@licencesFonts": {
     "description": "Licences screen: one line for the bundled fonts. Keep the font names as they are."
   },
@@ -7346,6 +7346,10 @@
   "helpEnglishOnly": "Help is in English for now.",
   "@helpEnglishOnly": {
     "description": "Caption at the top of Help in every language but English: the topics are not translated yet."
+  },
+  "helpLanguageLabel": "Help language",
+  "@helpLanguageLabel": {
+    "description": "Label and tooltip of the switch at the top of Help that picks the language of the help topics only, not the app's (e.g. 'Help language: Deutsch'). Short."
   },
   "helpNoMatch": "No help matches \"{query}\"",
   "@helpNoMatch": {
@@ -16845,5 +16849,563 @@
   "deskSetWalletsRestoreText": "From a recovery phrase.",
   "@deskSetWalletsRestoreText": {
     "description": "Settings > All wallets: text of the Restore card."
+  },
+  "deskSetupConfirmPassword": "Confirm password",
+  "@deskSetupConfirmPassword": {
+    "description": "Field label and screen reader label on the password step of creating or restoring a wallet: type the password again."
+  },
+  "deskSetupPasswordShort": "At least 8 characters",
+  "@deskSetupPasswordShort": {
+    "description": "Error under the password field when the new password is shorter than 8 characters."
+  },
+  "deskSetupPasswordsDiffer": "Passwords differ",
+  "@deskSetupPasswordsDiffer": {
+    "description": "Error under the confirm field when the two passwords are not the same."
+  },
+  "deskSetupBack": "Back",
+  "@deskSetupBack": {
+    "description": "Button in the foot of the first-run and setup screens: one step back."
+  },
+  "deskSetupNewWalletAdded": "New wallet added.",
+  "@deskSetupNewWalletAdded": {
+    "description": "Notice on the Unlock screen after a new wallet was created; the wallet is selected below it."
+  },
+  "deskSetupCapsLock": "Caps Lock is on",
+  "@deskSetupCapsLock": {
+    "description": "Warning under a password field while Caps Lock is on. Caps Lock is the key's name as printed on keyboards."
+  },
+  "deskSetupStepSem": "Step {number} of {total}: {label}",
+  "@deskSetupStepSem": {
+    "description": "Screen reader announcement of the step a progress list is on, e.g. 'Step 2 of 4: Scanning the chain'.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetupTryAgain": "Try again",
+  "@deskSetupTryAgain": {
+    "description": "Button after a step of creating or restoring a wallet failed: run it again."
+  },
+  "deskSetupNotSaved": "Not saved",
+  "@deskSetupNotSaved": {
+    "description": "Toast title when the setup's settings could not be saved; the reason follows."
+  },
+  "deskSetupStepPrefs": "Preferences",
+  "@deskSetupStepPrefs": {
+    "description": "Setup step and its title: app preferences (the language). Also a section head on the setup's last step. Short: it is in the step list of a narrow side panel."
+  },
+  "deskSetupStepNode": "Node",
+  "@deskSetupStepNode": {
+    "description": "Setup step in the side panel's step list (choose the Epic node), and a section head on the last step. One word."
+  },
+  "deskSetupStepEpicbox": "Epicbox",
+  "@deskSetupStepEpicbox": {
+    "description": "Setup step in the side panel's step list (the Epicbox server for receiving), and a section head on the last step. Epicbox is a product name: keep it."
+  },
+  "deskSetupStepReview": "Review",
+  "@deskSetupStepReview": {
+    "description": "Setup's last step in the side panel's step list: check everything, then save. One word."
+  },
+  "deskSetupAgain": "Running setup again. Nothing changes until Save on the last step.",
+  "@deskSetupAgain": {
+    "description": "Lead under each step's title when setup is opened again from Settings. 'Save' is the button on the last step (deskSetupSave)."
+  },
+  "deskSetupPrefsLead": "App language. It can be changed later.",
+  "@deskSetupPrefsLead": {
+    "description": "Lead under the title of the setup's Preferences step, which has the language picker."
+  },
+  "deskSetupNodeTitle": "Choose a node",
+  "@deskSetupNodeTitle": {
+    "description": "Title of the setup step where the user picks the Epic node the wallet uses."
+  },
+  "deskSetupNodeLead": "The wallet reads the chain and sends through an Epic node.",
+  "@deskSetupNodeLead": {
+    "description": "Lead under the title of the setup's node step."
+  },
+  "deskSetupLocalTitle": "Local node",
+  "@deskSetupLocalTitle": {
+    "description": "Title of the setup step about running the Epic node on this computer."
+  },
+  "deskSetupLocalLead": "What running the node here means, and which node to use.",
+  "@deskSetupLocalLead": {
+    "description": "Lead under the title of the setup's local node step."
+  },
+  "deskSetupEpicboxTitle": "Receive when offline",
+  "@deskSetupEpicboxTitle": {
+    "description": "Title of the setup step about the Epicbox server, which holds payments while this wallet is closed."
+  },
+  "deskSetupReviewTitle": "Check settings",
+  "@deskSetupReviewTitle": {
+    "description": "Title of the setup's last step: a summary of the choices."
+  },
+  "deskSetupReviewLead": "Change anything that is not right, then save.",
+  "@deskSetupReviewLead": {
+    "description": "Lead under the title of the setup's last step."
+  },
+  "deskSetupSideTitle": "Set up",
+  "@deskSetupSideTitle": {
+    "description": "Title of the setup's side panel, above its step list. Short."
+  },
+  "deskSetupBackToWallet": "Back to wallet",
+  "@deskSetupBackToWallet": {
+    "description": "Button in the setup's side panel when setup was opened again from Settings: leave it without changes."
+  },
+  "deskSetupLaterNote": "Everything here can be changed later in Settings.",
+  "@deskSetupLaterNote": {
+    "description": "Small note at the foot of the setup's side panel on the first run."
+  },
+  "deskSetupSave": "Save settings",
+  "@deskSetupSave": {
+    "description": "Main button on the setup's last step: save every choice."
+  },
+  "deskSetupLanguage": "Language",
+  "@deskSetupLanguage": {
+    "description": "Label of the language picker on the setup's Preferences step, and the row in its summary. The language names in the list stay in their own language."
+  },
+  "deskSetupNodeServer": "Node server",
+  "@deskSetupNodeServer": {
+    "description": "Label of the field where the user picks or types a public Epic node."
+  },
+  "deskSetupNodeHint": "Find or type a node address",
+  "@deskSetupNodeHint": {
+    "description": "Placeholder in the node picker's search field."
+  },
+  "deskSetupCheckingNodes": "Checking nodes…",
+  "@deskSetupCheckingNodes": {
+    "description": "Shown in the node picker while the public node list is being checked."
+  },
+  "deskSetupPickNode": "Pick a node",
+  "@deskSetupPickNode": {
+    "description": "Shown in the node picker's field before a node is chosen."
+  },
+  "deskSetupPublicNodes": "Public nodes",
+  "@deskSetupPublicNodes": {
+    "description": "Group head in the node picker's list: public Epic nodes run by others."
+  },
+  "deskSetupNotInList": "not in the public list",
+  "@deskSetupNotInList": {
+    "description": "Small line under a node address the user typed that is not one of the public nodes. Lower case: it follows the address."
+  },
+  "deskSetupEnterUses": "Enter uses it.",
+  "@deskSetupEnterUses": {
+    "description": "Note under a typed node address in the picker: pressing the Enter key picks it."
+  },
+  "deskSetupNoNodes": "No nodes to show.",
+  "@deskSetupNoNodes": {
+    "description": "The node picker's list is empty."
+  },
+  "deskSetupRemoteNode": "Remote node",
+  "@deskSetupRemoteNode": {
+    "description": "Choice card on the setup's node step: use a public node on the internet. Also the node type on the summary step."
+  },
+  "deskSetupRemoteNodeText": "Any public node. Ready at once.",
+  "@deskSetupRemoteNodeText": {
+    "description": "Text on the Remote node choice card."
+  },
+  "deskSetupLocalNodeText": "Runs the Epic node on this computer. Nothing is shared with an operator. Needs disk space and hours to sync.",
+  "@deskSetupLocalNodeText": {
+    "description": "Text on the Local node choice card of the setup's node step."
+  },
+  "deskSetupEpicboxText": "Epicbox delivers payments to the Epicbox address and holds them until the wallet is online.",
+  "@deskSetupEpicboxText": {
+    "description": "First paragraph of the setup's Epicbox step."
+  },
+  "deskSetupEpicboxPrivacy": "It does not hide the IP address from the Epicbox server. Use a VPN if that matters.",
+  "@deskSetupEpicboxPrivacy": {
+    "description": "Second paragraph of the setup's Epicbox step: a privacy note."
+  },
+  "deskSetupEpicboxServer": "Epicbox server",
+  "@deskSetupEpicboxServer": {
+    "description": "Label of the Epicbox server field on the setup's Epicbox step."
+  },
+  "deskSetupEpicboxHelp": "Leave empty to turn receiving through Epicbox off.",
+  "@deskSetupEpicboxHelp": {
+    "description": "Help under the Epicbox server field."
+  },
+  "deskSetupChangePrefsSem": "Change preferences",
+  "@deskSetupChangePrefsSem": {
+    "description": "Screen reader label of the Change link next to the Preferences section on the setup's summary."
+  },
+  "deskSetupChangeNodeSem": "Change node",
+  "@deskSetupChangeNodeSem": {
+    "description": "Screen reader label of the Change link next to the Node section on the setup's summary."
+  },
+  "deskSetupChangeEpicboxSem": "Change epicbox",
+  "@deskSetupChangeEpicboxSem": {
+    "description": "Screen reader label of the Change link next to the Epicbox section on the setup's summary."
+  },
+  "deskSetupChange": "Change",
+  "@deskSetupChange": {
+    "description": "Link next to a section on the setup's summary: go back to that step."
+  },
+  "deskSetupType": "Type",
+  "@deskSetupType": {
+    "description": "Row label on the setup's summary: what kind of node. Narrow label column."
+  },
+  "deskSetupAddress": "Address",
+  "@deskSetupAddress": {
+    "description": "Row label on the setup's summary: the node's address. Narrow label column."
+  },
+  "deskSetupExistingNode": "Existing node at {host}",
+  "@deskSetupExistingNode": {
+    "description": "Node type on the setup's summary: an Epic node already running on this computer.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "127.0.0.1:3413"
+      }
+    }
+  },
+  "deskSetupBundledNode": "Local node, bundled",
+  "@deskSetupBundledNode": {
+    "description": "Node type on the setup's summary: the Epic node that comes with the app, run on this computer."
+  },
+  "deskSetupWhileSyncing": "While syncing",
+  "@deskSetupWhileSyncing": {
+    "description": "Row label on the setup's summary: which node the wallet uses while the local node syncs. Narrow label column."
+  },
+  "deskSetupWait": "wait",
+  "@deskSetupWait": {
+    "description": "Value of the While syncing row when the wallet waits for the local node instead of using a public one. Lower case, one word."
+  },
+  "deskSetupDataFolder": "Data folder",
+  "@deskSetupDataFolder": {
+    "description": "Row label on the setup's summary: where the local node keeps the chain. Narrow label column."
+  },
+  "deskSetupSaveStartsFallback": "Save starts the node. The first sync takes hours; the wallet opens meanwhile and uses {node} until then.",
+  "@deskSetupSaveStartsFallback": {
+    "description": "Note under the Node section of the setup's summary when the local node is chosen and a public node is used while it syncs.",
+    "placeholders": {
+      "node": {
+        "type": "String",
+        "example": "node.epiccash.com"
+      }
+    }
+  },
+  "deskSetupSaveStarts": "Save starts the node. The first sync takes hours; the wallet opens meanwhile.",
+  "@deskSetupSaveStarts": {
+    "description": "Note under the Node section of the setup's summary when the local node is chosen and the wallet waits for it."
+  },
+  "deskSetupServer": "Server",
+  "@deskSetupServer": {
+    "description": "Row label on the setup's summary: the Epicbox server. Narrow label column."
+  },
+  "deskSetupOff": "Off",
+  "@deskSetupOff": {
+    "description": "Value of the Epicbox server row when no server is set: receiving through Epicbox is off."
+  },
+  "deskSetAboutLicencesLead": "Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.",
+  "@deskSetAboutLicencesLead": {
+    "description": "Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead)."
+  },
+  "deskSetAboutLicenceApp": "Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.",
+  "@deskSetAboutLicenceApp": {
+    "description": "Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them."
+  },
+  "deskSetAboutBrowserNotOpened": "Browser not opened",
+  "@deskSetAboutBrowserNotOpened": {
+    "description": "Toast title when a link could not be opened in the web browser; the link follows."
+  },
+  "deskSetAboutOpen": "Open",
+  "@deskSetAboutOpen": {
+    "description": "Small button on a link row of Settings › About: open the link in the browser."
+  },
+  "deskSetAboutVersion": "Version  {version}",
+  "@deskSetAboutVersion": {
+    "description": "Settings › About: the app's version, e.g. 'Version  26.10.2 · core 0.1.0'. Two spaces before the value, as in the English.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.10.2 · core 0.1.0"
+      }
+    }
+  },
+  "deskSetAboutNode": "Node  {version}",
+  "@deskSetAboutNode": {
+    "description": "Settings › About: the version of the Epic node the wallet uses, or '-'. Two spaces before the value, as in the English.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "3.6.0"
+      }
+    }
+  },
+  "deskSetAboutCommunity": "Community",
+  "@deskSetAboutCommunity": {
+    "description": "Settings › About: group head of the Epic Cash community links (Telegram, epiccash.com)."
+  },
+  "deskSetAboutLicences": "Licences",
+  "@deskSetAboutLicences": {
+    "description": "Settings › About: group head of the open-source licences."
+  },
+  "deskSetAboutSource": "Source code",
+  "@deskSetAboutSource": {
+    "description": "Settings › About › Licences: row with the link to the app's source code."
+  },
+  "deskSetAboutView": "View",
+  "@deskSetAboutView": {
+    "description": "Small button on the All licence texts row: open the page with every licence text."
+  },
+  "deskSetAboutChecked": "Checked {ago}.",
+  "@deskSetAboutChecked": {
+    "description": "Settings › About › Updates: when the app last asked for updates, e.g. 'Checked 5 min ago.' or 'Checked just now.' The {ago} part comes from deskSetAboutAgo*.",
+    "placeholders": {
+      "ago": {
+        "type": "String",
+        "example": "5 min ago"
+      }
+    }
+  },
+  "deskSetAboutLatest": "{version} is the latest",
+  "@deskSetAboutLatest": {
+    "description": "Settings › About › Updates: this version is the newest.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.10.2"
+      }
+    }
+  },
+  "deskSetAboutAvailable": "Update available: {version}",
+  "@deskSetAboutAvailable": {
+    "description": "Settings › About › Updates: a newer version exists.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.11.0"
+      }
+    }
+  },
+  "deskSetAboutCouldNotCheck": "Could not check",
+  "@deskSetAboutCouldNotCheck": {
+    "description": "Settings › About › Updates: the update check failed; the reason follows."
+  },
+  "deskSetAboutUpdates": "Updates",
+  "@deskSetAboutUpdates": {
+    "description": "Settings › About: group head of the update check."
+  },
+  "deskSetAboutGet": "Get {version}",
+  "@deskSetAboutGet": {
+    "description": "Button: open the download page of the newer version.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.11.0"
+      }
+    }
+  },
+  "deskSetAboutCheckNow": "Check now",
+  "@deskSetAboutCheckNow": {
+    "description": "Button: check for updates now."
+  },
+  "deskSetAboutAgoNow": "just now",
+  "@deskSetAboutAgoNow": {
+    "description": "Fills {ago} in deskSetAboutChecked: less than a minute ago. Lower case."
+  },
+  "deskSetAboutAgoMin": "{count} min ago",
+  "@deskSetAboutAgoMin": {
+    "description": "Fills {ago} in deskSetAboutChecked: minutes ago (1 to 59). Lower case; 'min' is the short unit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetAboutAgoHours": "{count} h ago",
+  "@deskSetAboutAgoHours": {
+    "description": "Fills {ago} in deskSetAboutChecked: hours ago (1 to 23). Lower case; 'h' is the short unit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetAboutAgoDays": "{count} d ago",
+  "@deskSetAboutAgoDays": {
+    "description": "Fills {ago} in deskSetAboutChecked: days ago. Lower case; 'd' is the short unit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetAboutCopyLink": "Copy link",
+  "@deskSetAboutCopyLink": {
+    "description": "Tooltip and screen reader label of the small copy icon beside a link."
+  },
+  "deskSetAboutCopied": "Copied",
+  "@deskSetAboutCopied": {
+    "description": "Shown in place of Copy link for a moment after the link was copied."
+  },
+  "deskSetAboutNotCopied": "Not copied",
+  "@deskSetAboutNotCopied": {
+    "description": "Shown in place of Copy link for a moment when copying failed."
+  },
+  "deskSetAppearTheme": "Theme",
+  "@deskSetAppearTheme": {
+    "description": "Settings › Appearance row: light or dark colours."
+  },
+  "deskSetAppearThemeHint": "System follows the computer’s setting.",
+  "@deskSetAppearThemeHint": {
+    "description": "Hint under the Theme row. 'System' is the first choice (deskSetAppearSystem)."
+  },
+  "deskSetAppearSystem": "System",
+  "@deskSetAppearSystem": {
+    "description": "Theme choice: follow the computer's light or dark setting. One short word: a segment of a three-part switch."
+  },
+  "deskSetAppearDark": "Dark",
+  "@deskSetAppearDark": {
+    "description": "Theme choice: dark colours. One short word: a segment of a three-part switch."
+  },
+  "deskSetAppearLight": "Light",
+  "@deskSetAppearLight": {
+    "description": "Theme choice: light colours. One short word: a segment of a three-part switch."
+  },
+  "deskSetAppearScale": "Interface scale",
+  "@deskSetAppearScale": {
+    "description": "Settings › Appearance row: make text and controls larger or smaller (90 % to 150 %)."
+  },
+  "deskSetAppearScaleHint": "Text and controls, larger or smaller. Applies at once.",
+  "@deskSetAppearScaleHint": {
+    "description": "Hint under the Interface scale row."
+  },
+  "deskSetAppearLanguage": "Language",
+  "@deskSetAppearLanguage": {
+    "description": "Settings › Appearance row: the language of the app. The language names in its list stay in their own language."
+  },
+  "deskSetAppearLanguageHint": "Applies at once.",
+  "@deskSetAppearLanguageHint": {
+    "description": "Hint under the Language row: no restart needed."
+  },
+  "deskSetAppearHideHint": "Shows dots in place of balances and amounts.",
+  "@deskSetAppearHideHint": {
+    "description": "Hint under the Hide amounts row (the row's title is deskOvHideAmounts)."
+  },
+  "deskSetHelpNoMatchText": "No topic matches “{query}”. Try another word.",
+  "@deskSetHelpNoMatchText": {
+    "description": "Help search: nothing matches what the user typed. Use the language's own quotation marks around {query}.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "fee"
+      }
+    }
+  },
+  "deskSetHelpFound": "{count, plural, one{Topics found: {count}} other{Topics found: {count}}}",
+  "@deskSetHelpFound": {
+    "description": "Help search: how many topics match, read out by screen readers too, e.g. 'Topics found: 3'.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetHelpNoMatch": "No topic matches",
+  "@deskSetHelpNoMatch": {
+    "description": "Title of the empty state of the Help search."
+  },
+  "deskSetHelpReportText": "Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer. Save to file keeps a copy to send by hand.",
+  "@deskSetHelpReportText": {
+    "description": "Help page, the Report a problem card: what the report does. 'Save to file' is a button in the report dialog."
+  },
+  "deskSetHelpShowLess": "Show less",
+  "@deskSetHelpShowLess": {
+    "description": "Link under an opened Help topic: fold it again."
+  },
+  "deskSetHelpReadMore": "Read more",
+  "@deskSetHelpReadMore": {
+    "description": "Link under a Help topic's first lines: open the rest."
+  },
+  "deskSetHelpEb1": "The sending wallet passes the payment to Epicbox and locks the outputs.",
+  "@deskSetHelpEb1": {
+    "description": "Help, 'How a transaction travels' over Epicbox, step 1 of 6."
+  },
+  "deskSetHelpEb2": "Epicbox delivers it when the receiving wallet is online. That wallet adds its part and signs.",
+  "@deskSetHelpEb2": {
+    "description": "Help, 'How a transaction travels' over Epicbox, step 2 of 6."
+  },
+  "deskSetHelpEb3": "The receiving wallet sends it back to Epicbox.",
+  "@deskSetHelpEb3": {
+    "description": "Help, 'How a transaction travels' over Epicbox, step 3 of 6."
+  },
+  "deskSetHelpEb4": "Epicbox passes it back to the sending wallet.",
+  "@deskSetHelpEb4": {
+    "description": "Help, 'How a transaction travels' over Epicbox, step 4 of 6."
+  },
+  "deskSetHelpSigns": "The sending wallet signs too, finishes the transaction and posts it to the network.",
+  "@deskSetHelpSigns": {
+    "description": "Help, 'How a transaction travels', step 5 of 6 (over Epicbox and with a file)."
+  },
+  "deskSetHelpFinal": "{count, plural, one{The network puts it in a block. After {count} confirmation it is final.} other{The network puts it in a block. After {count} confirmations it is final.}}",
+  "@deskSetHelpFinal": {
+    "description": "Help, 'How a transaction travels', the last step: how many confirmations the wallet waits for.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetHelpFile1": "The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.",
+  "@deskSetHelpFile1": {
+    "description": "Help, 'How a transaction travels' with a file, step 1 of 6."
+  },
+  "deskSetHelpFile2": "The recipient opens it. Their wallet adds its part, signs and saves a response file.",
+  "@deskSetHelpFile2": {
+    "description": "Help, 'How a transaction travels' with a file, step 2 of 6."
+  },
+  "deskSetHelpFile3": "The response file comes back to the sender.",
+  "@deskSetHelpFile3": {
+    "description": "Help, 'How a transaction travels' with a file, step 3 of 6."
+  },
+  "deskSetHelpFile4": "The sender opens the response file under Finalize.",
+  "@deskSetHelpFile4": {
+    "description": "Help, 'How a transaction travels' with a file, step 4 of 6. 'Finalize' is the name of the page in the sidebar: use its translation."
+  },
+  "deskSetHelpSender": "Sender",
+  "@deskSetHelpSender": {
+    "description": "Tag in the 'How a transaction travels' diagram: the sending wallet. One short word."
+  },
+  "deskSetHelpFile": "File",
+  "@deskSetHelpFile": {
+    "description": "Tag in the 'How a transaction travels' diagram: the transaction file in between. One short word."
+  },
+  "deskSetHelpRecipient": "Recipient",
+  "@deskSetHelpRecipient": {
+    "description": "Tag in the 'How a transaction travels' diagram: the receiving wallet. One short word."
+  },
+  "deskSetHelpNetwork": "Network",
+  "@deskSetHelpNetwork": {
+    "description": "Tag in the 'How a transaction travels' diagram: the Epic Cash network. One short word."
+  },
+  "deskSetHelpTravels": "How a transaction travels",
+  "@deskSetHelpTravels": {
+    "description": "Title of the step-by-step diagram on the Help page."
+  },
+  "deskSetHelpOverEpicbox": "Over Epicbox",
+  "@deskSetHelpOverEpicbox": {
+    "description": "Switch segment of the diagram: the way through the Epicbox server. Short."
+  },
+  "deskSetHelpWithFile": "With a file",
+  "@deskSetHelpWithFile": {
+    "description": "Switch segment of the diagram: the way with a transaction file. Short."
+  },
+  "deskSetHelpStep": "Step {number} of {total}",
+  "@deskSetHelpStep": {
+    "description": "Under the diagram: which step is shown, e.g. 'Step 2 of 6'.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   }
 }

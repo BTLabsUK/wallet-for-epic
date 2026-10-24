@@ -385,7 +385,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final (nextError, repeatError) = accountErrors(_next.text, _repeat.text);
+    final (nextError, repeatError) = accountErrors(context.l10n, _next.text, _repeat.text);
     return PopScope(
       canPop: !_busy,
       child: EDialog(

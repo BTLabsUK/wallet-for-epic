@@ -19,6 +19,7 @@ const Map<String, Set<String>> _pluralCategories = {
   'pl': {'one', 'few', 'many', 'other'},
   'ru': {'one', 'few', 'many', 'other'},
   'zh': {'other'},
+  'th': {'other'},
 };
 
 /// The forms a plural must have: all of its language's, except `one` where the English has
@@ -225,6 +226,8 @@ void main() {
       expect(localDecimal(l('de'), '0.5'), '0,5');
       expect(localDecimal(l('zh'), '0.5'), '0.5');
       expect(localInt(l('de'), 2500000), '2.500.000');
+      expect(localDigits(l('th'), '1,234.5'), '1,234.5');
+      expect(localDecimal(l('th'), '0.5'), '0.5');
     });
 
     test('dates are day first in English and CLDR elsewhere', () {
@@ -234,6 +237,40 @@ void main() {
       expect(localClock(l('en'), t), '14:05');
       expect(localDay(l('zh'), t), '2026年9月21日');
       expect(localClock(l('de'), t), '14:05');
+      // Thai: Gregorian year and Arabic digits, as Thai exchanges and wallets show them.
+      expect(localDay(l('th'), t), '21 ก.ย. 2026');
+      expect(localClock(l('th'), t), '14:05 น.');
+    });
+  });
+
+  group('Thai', () {
+    final thai = _messages(File('lib/l10n/app_th.arb'));
+    // ICU syntax and placeholders, so only the words a reader sees are left.
+    String words(String message) => message
+        .replaceAll(RegExp(r'\{\w+, (plural|select),'), ' ')
+        .replaceAll(RegExp(r'\b(=\d+|zero|one|two|few|many|other)\{'), ' ')
+        .replaceAll(RegExp(r'\{\w+\}'), ' ');
+
+    test('every sentence is in Thai: no English left behind', () {
+      final english = _messages(File('lib/l10n/app_en.arb'));
+      final left = [
+        for (final MapEntry(:key, :value) in thai.entries)
+          // A lower-case English word marks prose; names (Epic Cash, Mainnet, Slate ID) are capitalised.
+          // One token without a space is an example address or host, not prose.
+          if (english[key]!.contains(' ') &&
+              RegExp(r'\b[a-z]{3,}\b').hasMatch(words(english[key]!)) &&
+              !RegExp('[\u0E00-\u0E7F]').hasMatch(value))
+            key,
+      ];
+      expect(left, isEmpty);
+    });
+
+    test('no polite particles and no full stops after Thai, as UI text', () {
+      final bad = [
+        for (final MapEntry(:key, :value) in thai.entries)
+          if (RegExp('ครับ|ค่ะ|[\u0E00-\u0E7F][.](\\s|\$)').hasMatch(value)) key,
+      ];
+      expect(bad, isEmpty);
     });
   });
 

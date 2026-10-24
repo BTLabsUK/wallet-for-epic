@@ -267,6 +267,7 @@ void main() {
       expect(appLanguageForGui('de'), 'de');
       expect(appLanguageForGui(' PL '), 'pl');
       expect(appLanguageForGui('ru'), 'ru');
+      expect(appLanguageForGui('th'), 'th');
       expect(appLanguageForGui('cz'), isNull);
       expect(appLanguageForGui('bg'), isNull);
       expect(appLanguageForGui(null), isNull);

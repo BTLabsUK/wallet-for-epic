@@ -9,6 +9,7 @@ import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_pl.dart';
 import 'app_localizations_ru.dart';
+import 'app_localizations_th.dart';
 import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
@@ -101,6 +102,7 @@ abstract class AppLocalizations {
     Locale('de'),
     Locale('pl'),
     Locale('ru'),
+    Locale('th'),
     Locale('zh'),
   ];
 
@@ -4655,7 +4657,7 @@ abstract class AppLocalizations {
   /// Licences screen: one line for the bundled fonts. Keep the font names as they are.
   ///
   /// In en, this message translates to:
-  /// **'Fonts Montserrat and JetBrains Mono: SIL Open Font License 1.1.'**
+  /// **'Fonts Montserrat, JetBrains Mono and Noto Sans Thai: SIL Open Font License 1.1.'**
   String get licencesFonts;
 
   /// Licences screen button that opens the full texts of every licence (Flutter’s licence page).
@@ -9084,6 +9086,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Help is in English for now.'**
   String get helpEnglishOnly;
+
+  /// Label and tooltip of the switch at the top of Help that picks the language of the help topics only, not the app's (e.g. 'Help language: Deutsch'). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Help language'**
+  String get helpLanguageLabel;
 
   /// Help search with no result. {query} is what was typed.
   ///
@@ -20303,6 +20311,696 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From a recovery phrase.'**
   String get deskSetWalletsRestoreText;
+
+  /// Field label and screen reader label on the password step of creating or restoring a wallet: type the password again.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get deskSetupConfirmPassword;
+
+  /// Error under the password field when the new password is shorter than 8 characters.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters'**
+  String get deskSetupPasswordShort;
+
+  /// Error under the confirm field when the two passwords are not the same.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords differ'**
+  String get deskSetupPasswordsDiffer;
+
+  /// Button in the foot of the first-run and setup screens: one step back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get deskSetupBack;
+
+  /// Notice on the Unlock screen after a new wallet was created; the wallet is selected below it.
+  ///
+  /// In en, this message translates to:
+  /// **'New wallet added.'**
+  String get deskSetupNewWalletAdded;
+
+  /// Warning under a password field while Caps Lock is on. Caps Lock is the key's name as printed on keyboards.
+  ///
+  /// In en, this message translates to:
+  /// **'Caps Lock is on'**
+  String get deskSetupCapsLock;
+
+  /// Screen reader announcement of the step a progress list is on, e.g. 'Step 2 of 4: Scanning the chain'.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {number} of {total}: {label}'**
+  String deskSetupStepSem(int number, int total, String label);
+
+  /// Button after a step of creating or restoring a wallet failed: run it again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskSetupTryAgain;
+
+  /// Toast title when the setup's settings could not be saved; the reason follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved'**
+  String get deskSetupNotSaved;
+
+  /// Setup step and its title: app preferences (the language). Also a section head on the setup's last step. Short: it is in the step list of a narrow side panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get deskSetupStepPrefs;
+
+  /// Setup step in the side panel's step list (choose the Epic node), and a section head on the last step. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get deskSetupStepNode;
+
+  /// Setup step in the side panel's step list (the Epicbox server for receiving), and a section head on the last step. Epicbox is a product name: keep it.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get deskSetupStepEpicbox;
+
+  /// Setup's last step in the side panel's step list: check everything, then save. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get deskSetupStepReview;
+
+  /// Lead under each step's title when setup is opened again from Settings. 'Save' is the button on the last step (deskSetupSave).
+  ///
+  /// In en, this message translates to:
+  /// **'Running setup again. Nothing changes until Save on the last step.'**
+  String get deskSetupAgain;
+
+  /// Lead under the title of the setup's Preferences step, which has the language picker.
+  ///
+  /// In en, this message translates to:
+  /// **'App language. It can be changed later.'**
+  String get deskSetupPrefsLead;
+
+  /// Title of the setup step where the user picks the Epic node the wallet uses.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a node'**
+  String get deskSetupNodeTitle;
+
+  /// Lead under the title of the setup's node step.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet reads the chain and sends through an Epic node.'**
+  String get deskSetupNodeLead;
+
+  /// Title of the setup step about running the Epic node on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node'**
+  String get deskSetupLocalTitle;
+
+  /// Lead under the title of the setup's local node step.
+  ///
+  /// In en, this message translates to:
+  /// **'What running the node here means, and which node to use.'**
+  String get deskSetupLocalLead;
+
+  /// Title of the setup step about the Epicbox server, which holds payments while this wallet is closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive when offline'**
+  String get deskSetupEpicboxTitle;
+
+  /// Title of the setup's last step: a summary of the choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Check settings'**
+  String get deskSetupReviewTitle;
+
+  /// Lead under the title of the setup's last step.
+  ///
+  /// In en, this message translates to:
+  /// **'Change anything that is not right, then save.'**
+  String get deskSetupReviewLead;
+
+  /// Title of the setup's side panel, above its step list. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up'**
+  String get deskSetupSideTitle;
+
+  /// Button in the setup's side panel when setup was opened again from Settings: leave it without changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to wallet'**
+  String get deskSetupBackToWallet;
+
+  /// Small note at the foot of the setup's side panel on the first run.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything here can be changed later in Settings.'**
+  String get deskSetupLaterNote;
+
+  /// Main button on the setup's last step: save every choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Save settings'**
+  String get deskSetupSave;
+
+  /// Label of the language picker on the setup's Preferences step, and the row in its summary. The language names in the list stay in their own language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get deskSetupLanguage;
+
+  /// Label of the field where the user picks or types a public Epic node.
+  ///
+  /// In en, this message translates to:
+  /// **'Node server'**
+  String get deskSetupNodeServer;
+
+  /// Placeholder in the node picker's search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Find or type a node address'**
+  String get deskSetupNodeHint;
+
+  /// Shown in the node picker while the public node list is being checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking nodes…'**
+  String get deskSetupCheckingNodes;
+
+  /// Shown in the node picker's field before a node is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a node'**
+  String get deskSetupPickNode;
+
+  /// Group head in the node picker's list: public Epic nodes run by others.
+  ///
+  /// In en, this message translates to:
+  /// **'Public nodes'**
+  String get deskSetupPublicNodes;
+
+  /// Small line under a node address the user typed that is not one of the public nodes. Lower case: it follows the address.
+  ///
+  /// In en, this message translates to:
+  /// **'not in the public list'**
+  String get deskSetupNotInList;
+
+  /// Note under a typed node address in the picker: pressing the Enter key picks it.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter uses it.'**
+  String get deskSetupEnterUses;
+
+  /// The node picker's list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No nodes to show.'**
+  String get deskSetupNoNodes;
+
+  /// Choice card on the setup's node step: use a public node on the internet. Also the node type on the summary step.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote node'**
+  String get deskSetupRemoteNode;
+
+  /// Text on the Remote node choice card.
+  ///
+  /// In en, this message translates to:
+  /// **'Any public node. Ready at once.'**
+  String get deskSetupRemoteNodeText;
+
+  /// Text on the Local node choice card of the setup's node step.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs the Epic node on this computer. Nothing is shared with an operator. Needs disk space and hours to sync.'**
+  String get deskSetupLocalNodeText;
+
+  /// First paragraph of the setup's Epicbox step.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox delivers payments to the Epicbox address and holds them until the wallet is online.'**
+  String get deskSetupEpicboxText;
+
+  /// Second paragraph of the setup's Epicbox step: a privacy note.
+  ///
+  /// In en, this message translates to:
+  /// **'It does not hide the IP address from the Epicbox server. Use a VPN if that matters.'**
+  String get deskSetupEpicboxPrivacy;
+
+  /// Label of the Epicbox server field on the setup's Epicbox step.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server'**
+  String get deskSetupEpicboxServer;
+
+  /// Help under the Epicbox server field.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to turn receiving through Epicbox off.'**
+  String get deskSetupEpicboxHelp;
+
+  /// Screen reader label of the Change link next to the Preferences section on the setup's summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Change preferences'**
+  String get deskSetupChangePrefsSem;
+
+  /// Screen reader label of the Change link next to the Node section on the setup's summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Change node'**
+  String get deskSetupChangeNodeSem;
+
+  /// Screen reader label of the Change link next to the Epicbox section on the setup's summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Change epicbox'**
+  String get deskSetupChangeEpicboxSem;
+
+  /// Link next to a section on the setup's summary: go back to that step.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get deskSetupChange;
+
+  /// Row label on the setup's summary: what kind of node. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get deskSetupType;
+
+  /// Row label on the setup's summary: the node's address. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get deskSetupAddress;
+
+  /// Node type on the setup's summary: an Epic node already running on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing node at {host}'**
+  String deskSetupExistingNode(String host);
+
+  /// Node type on the setup's summary: the Epic node that comes with the app, run on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node, bundled'**
+  String get deskSetupBundledNode;
+
+  /// Row label on the setup's summary: which node the wallet uses while the local node syncs. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'While syncing'**
+  String get deskSetupWhileSyncing;
+
+  /// Value of the While syncing row when the wallet waits for the local node instead of using a public one. Lower case, one word.
+  ///
+  /// In en, this message translates to:
+  /// **'wait'**
+  String get deskSetupWait;
+
+  /// Row label on the setup's summary: where the local node keeps the chain. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Data folder'**
+  String get deskSetupDataFolder;
+
+  /// Note under the Node section of the setup's summary when the local node is chosen and a public node is used while it syncs.
+  ///
+  /// In en, this message translates to:
+  /// **'Save starts the node. The first sync takes hours; the wallet opens meanwhile and uses {node} until then.'**
+  String deskSetupSaveStartsFallback(String node);
+
+  /// Note under the Node section of the setup's summary when the local node is chosen and the wallet waits for it.
+  ///
+  /// In en, this message translates to:
+  /// **'Save starts the node. The first sync takes hours; the wallet opens meanwhile.'**
+  String get deskSetupSaveStarts;
+
+  /// Row label on the setup's summary: the Epicbox server. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get deskSetupServer;
+
+  /// Value of the Epicbox server row when no server is set: receiving through Epicbox is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get deskSetupOff;
+
+  /// Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead).
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.'**
+  String get deskSetAboutLicencesLead;
+
+  /// Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.'**
+  String get deskSetAboutLicenceApp;
+
+  /// Toast title when a link could not be opened in the web browser; the link follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Browser not opened'**
+  String get deskSetAboutBrowserNotOpened;
+
+  /// Small button on a link row of Settings › About: open the link in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get deskSetAboutOpen;
+
+  /// Settings › About: the app's version, e.g. 'Version  26.10.2 · core 0.1.0'. Two spaces before the value, as in the English.
+  ///
+  /// In en, this message translates to:
+  /// **'Version  {version}'**
+  String deskSetAboutVersion(String version);
+
+  /// Settings › About: the version of the Epic node the wallet uses, or '-'. Two spaces before the value, as in the English.
+  ///
+  /// In en, this message translates to:
+  /// **'Node  {version}'**
+  String deskSetAboutNode(String version);
+
+  /// Settings › About: group head of the Epic Cash community links (Telegram, epiccash.com).
+  ///
+  /// In en, this message translates to:
+  /// **'Community'**
+  String get deskSetAboutCommunity;
+
+  /// Settings › About: group head of the open-source licences.
+  ///
+  /// In en, this message translates to:
+  /// **'Licences'**
+  String get deskSetAboutLicences;
+
+  /// Settings › About › Licences: row with the link to the app's source code.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code'**
+  String get deskSetAboutSource;
+
+  /// Small button on the All licence texts row: open the page with every licence text.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get deskSetAboutView;
+
+  /// Settings › About › Updates: when the app last asked for updates, e.g. 'Checked 5 min ago.' or 'Checked just now.' The {ago} part comes from deskSetAboutAgo*.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked {ago}.'**
+  String deskSetAboutChecked(String ago);
+
+  /// Settings › About › Updates: this version is the newest.
+  ///
+  /// In en, this message translates to:
+  /// **'{version} is the latest'**
+  String deskSetAboutLatest(String version);
+
+  /// Settings › About › Updates: a newer version exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available: {version}'**
+  String deskSetAboutAvailable(String version);
+
+  /// Settings › About › Updates: the update check failed; the reason follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check'**
+  String get deskSetAboutCouldNotCheck;
+
+  /// Settings › About: group head of the update check.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates'**
+  String get deskSetAboutUpdates;
+
+  /// Button: open the download page of the newer version.
+  ///
+  /// In en, this message translates to:
+  /// **'Get {version}'**
+  String deskSetAboutGet(String version);
+
+  /// Button: check for updates now.
+  ///
+  /// In en, this message translates to:
+  /// **'Check now'**
+  String get deskSetAboutCheckNow;
+
+  /// Fills {ago} in deskSetAboutChecked: less than a minute ago. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get deskSetAboutAgoNow;
+
+  /// Fills {ago} in deskSetAboutChecked: minutes ago (1 to 59). Lower case; 'min' is the short unit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min ago'**
+  String deskSetAboutAgoMin(int count);
+
+  /// Fills {ago} in deskSetAboutChecked: hours ago (1 to 23). Lower case; 'h' is the short unit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h ago'**
+  String deskSetAboutAgoHours(int count);
+
+  /// Fills {ago} in deskSetAboutChecked: days ago. Lower case; 'd' is the short unit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} d ago'**
+  String deskSetAboutAgoDays(int count);
+
+  /// Tooltip and screen reader label of the small copy icon beside a link.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get deskSetAboutCopyLink;
+
+  /// Shown in place of Copy link for a moment after the link was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get deskSetAboutCopied;
+
+  /// Shown in place of Copy link for a moment when copying failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not copied'**
+  String get deskSetAboutNotCopied;
+
+  /// Settings › Appearance row: light or dark colours.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get deskSetAppearTheme;
+
+  /// Hint under the Theme row. 'System' is the first choice (deskSetAppearSystem).
+  ///
+  /// In en, this message translates to:
+  /// **'System follows the computer’s setting.'**
+  String get deskSetAppearThemeHint;
+
+  /// Theme choice: follow the computer's light or dark setting. One short word: a segment of a three-part switch.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get deskSetAppearSystem;
+
+  /// Theme choice: dark colours. One short word: a segment of a three-part switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get deskSetAppearDark;
+
+  /// Theme choice: light colours. One short word: a segment of a three-part switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get deskSetAppearLight;
+
+  /// Settings › Appearance row: make text and controls larger or smaller (90 % to 150 %).
+  ///
+  /// In en, this message translates to:
+  /// **'Interface scale'**
+  String get deskSetAppearScale;
+
+  /// Hint under the Interface scale row.
+  ///
+  /// In en, this message translates to:
+  /// **'Text and controls, larger or smaller. Applies at once.'**
+  String get deskSetAppearScaleHint;
+
+  /// Settings › Appearance row: the language of the app. The language names in its list stay in their own language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get deskSetAppearLanguage;
+
+  /// Hint under the Language row: no restart needed.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies at once.'**
+  String get deskSetAppearLanguageHint;
+
+  /// Hint under the Hide amounts row (the row's title is deskOvHideAmounts).
+  ///
+  /// In en, this message translates to:
+  /// **'Shows dots in place of balances and amounts.'**
+  String get deskSetAppearHideHint;
+
+  /// Help search: nothing matches what the user typed. Use the language's own quotation marks around {query}.
+  ///
+  /// In en, this message translates to:
+  /// **'No topic matches “{query}”. Try another word.'**
+  String deskSetHelpNoMatchText(String query);
+
+  /// Help search: how many topics match, read out by screen readers too, e.g. 'Topics found: 3'.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Topics found: {count}} other{Topics found: {count}}}'**
+  String deskSetHelpFound(int count);
+
+  /// Title of the empty state of the Help search.
+  ///
+  /// In en, this message translates to:
+  /// **'No topic matches'**
+  String get deskSetHelpNoMatch;
+
+  /// Help page, the Report a problem card: what the report does. 'Save to file' is a button in the report dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer. Save to file keeps a copy to send by hand.'**
+  String get deskSetHelpReportText;
+
+  /// Link under an opened Help topic: fold it again.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get deskSetHelpShowLess;
+
+  /// Link under a Help topic's first lines: open the rest.
+  ///
+  /// In en, this message translates to:
+  /// **'Read more'**
+  String get deskSetHelpReadMore;
+
+  /// Help, 'How a transaction travels' over Epicbox, step 1 of 6.
+  ///
+  /// In en, this message translates to:
+  /// **'The sending wallet passes the payment to Epicbox and locks the outputs.'**
+  String get deskSetHelpEb1;
+
+  /// Help, 'How a transaction travels' over Epicbox, step 2 of 6.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox delivers it when the receiving wallet is online. That wallet adds its part and signs.'**
+  String get deskSetHelpEb2;
+
+  /// Help, 'How a transaction travels' over Epicbox, step 3 of 6.
+  ///
+  /// In en, this message translates to:
+  /// **'The receiving wallet sends it back to Epicbox.'**
+  String get deskSetHelpEb3;
+
+  /// Help, 'How a transaction travels' over Epicbox, step 4 of 6.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox passes it back to the sending wallet.'**
+  String get deskSetHelpEb4;
+
+  /// Help, 'How a transaction travels', step 5 of 6 (over Epicbox and with a file).
+  ///
+  /// In en, this message translates to:
+  /// **'The sending wallet signs too, finishes the transaction and posts it to the network.'**
+  String get deskSetHelpSigns;
+
+  /// Help, 'How a transaction travels', the last step: how many confirmations the wallet waits for.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{The network puts it in a block. After {count} confirmation it is final.} other{The network puts it in a block. After {count} confirmations it is final.}}'**
+  String deskSetHelpFinal(int count);
+
+  /// Help, 'How a transaction travels' with a file, step 1 of 6.
+  ///
+  /// In en, this message translates to:
+  /// **'The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.'**
+  String get deskSetHelpFile1;
+
+  /// Help, 'How a transaction travels' with a file, step 2 of 6.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient opens it. Their wallet adds its part, signs and saves a response file.'**
+  String get deskSetHelpFile2;
+
+  /// Help, 'How a transaction travels' with a file, step 3 of 6.
+  ///
+  /// In en, this message translates to:
+  /// **'The response file comes back to the sender.'**
+  String get deskSetHelpFile3;
+
+  /// Help, 'How a transaction travels' with a file, step 4 of 6. 'Finalize' is the name of the page in the sidebar: use its translation.
+  ///
+  /// In en, this message translates to:
+  /// **'The sender opens the response file under Finalize.'**
+  String get deskSetHelpFile4;
+
+  /// Tag in the 'How a transaction travels' diagram: the sending wallet. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender'**
+  String get deskSetHelpSender;
+
+  /// Tag in the 'How a transaction travels' diagram: the transaction file in between. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get deskSetHelpFile;
+
+  /// Tag in the 'How a transaction travels' diagram: the receiving wallet. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get deskSetHelpRecipient;
+
+  /// Tag in the 'How a transaction travels' diagram: the Epic Cash network. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get deskSetHelpNetwork;
+
+  /// Title of the step-by-step diagram on the Help page.
+  ///
+  /// In en, this message translates to:
+  /// **'How a transaction travels'**
+  String get deskSetHelpTravels;
+
+  /// Switch segment of the diagram: the way through the Epicbox server. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Over Epicbox'**
+  String get deskSetHelpOverEpicbox;
+
+  /// Switch segment of the diagram: the way with a transaction file. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'With a file'**
+  String get deskSetHelpWithFile;
+
+  /// Under the diagram: which step is shown, e.g. 'Step 2 of 6'.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {number} of {total}'**
+  String deskSetHelpStep(int number, int total);
 }
 
 class _AppLocalizationsDelegate
@@ -20315,8 +21013,14 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['de', 'en', 'pl', 'ru', 'zh'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+    'de',
+    'en',
+    'pl',
+    'ru',
+    'th',
+    'zh',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -20333,6 +21037,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsPl();
     case 'ru':
       return AppLocalizationsRu();
+    case 'th':
+      return AppLocalizationsTh();
     case 'zh':
       return AppLocalizationsZh();
   }
