@@ -3676,5 +3676,6 @@
   "deskSetAdvReset": "Hide everything again",
   "deskSetAdvOn": "{n, plural, =1{1 switch on} other{{n} switches on}}",
   "deskShellOffline": "Offline mode",
-  "deskShellTorOnlyWaiting": "Tor only · waiting for Tor"
+  "deskShellTorOnlyWaiting": "Tor only · waiting for Tor",
+  "deskSetAcctAutoLockHint": "Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. Если выключить, кошелёк блокируется только кнопкой «Заблокировать кошелёк»."
 }

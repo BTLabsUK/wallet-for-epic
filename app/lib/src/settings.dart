@@ -74,8 +74,16 @@ class HistoryExportSnapshot {
   }
 }
 
-/// Auto-lock choices offered in settings, in minutes. Null means never.
-const List<int?> autoLockChoices = [0, 1, 5, 15, null];
+/// Auto-lock choices in minutes, the same on the phone and the desktop (1 to 60).
+const List<int> autoLockChoices = [1, 2, 5, 10, 15, 30, 45, 60];
+
+/// The auto-lock a new wallet starts with, in minutes, on both.
+const int autoLockDefault = 15;
+
+/// [minutes] as one of [autoLockChoices]: the nearest at or above it, 60 at most (an old
+/// "immediately", 0, becomes 1).
+int autoLockChoice(int minutes) =>
+    autoLockChoices.firstWhere((m) => m >= minutes, orElse: () => autoLockChoices.last);
 
 /// The wall clock. Tests override it to move time.
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
@@ -107,7 +115,7 @@ class AppSettings {
     this.fiatCurrency = 'usd',
     this.showFiat = true,
     this.hideBalances = false,
-    this.autoLockMinutes = 5,
+    this.autoLockMinutes = autoLockDefault,
     this.pushNotifications = false,
     this.historyExportedAt = const {},
     this.historyReminderDismissedAt = const {},
@@ -331,7 +339,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       autoLockMinutes: switch (autoLock) {
         null => defaults.autoLockMinutes,
         _never => null,
-        final m => int.tryParse(m) ?? defaults.autoLockMinutes,
+        final m => int.tryParse(m) == null ? defaults.autoLockMinutes : autoLockChoice(int.parse(m)),
       },
       pushNotifications: push == null
           ? defaults.pushNotifications

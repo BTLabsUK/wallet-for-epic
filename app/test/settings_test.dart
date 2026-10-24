@@ -337,7 +337,7 @@ void main() {
       expect(defaults.fiatCurrency, 'usd');
       expect(defaults.showFiat, isTrue);
       expect(defaults.hideBalances, isFalse);
-      expect(defaults.autoLockMinutes, 5);
+      expect(defaults.autoLockMinutes, 15);
 
       final n = first.read(appSettingsProvider.notifier);
       await n.setThemeMode(ThemeMode.dark);
@@ -357,9 +357,14 @@ void main() {
       await second.read(appSettingsProvider.notifier).setAutoLockMinutes(0);
       second.dispose();
 
+      // An old "immediately" reads as the shortest choice, a minute; more than an hour as 60.
       final third = make();
-      expect((await third.read(appSettingsProvider.future)).autoLockMinutes, 0);
+      expect((await third.read(appSettingsProvider.future)).autoLockMinutes, 1);
+      await third.read(appSettingsProvider.notifier).setAutoLockMinutes(90);
       third.dispose();
+      final fourth = make();
+      expect((await fourth.read(appSettingsProvider.future)).autoLockMinutes, 60);
+      fourth.dispose();
     });
   });
 
@@ -625,7 +630,7 @@ void main() {
 
       // Away past the timeout: it locks, and the unlock checks once.
       await _leave(tester);
-      h.now = h.now.add(const Duration(minutes: 5));
+      h.now = h.now.add(const Duration(minutes: 15));
       await _return(tester);
       expect(h.container.read(sessionProvider), isNull);
       expect(h.updates.checks, 2);
@@ -712,19 +717,20 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
 
+      // The default is 15 minutes away.
       await _leave(tester);
-      h.now = h.now.add(const Duration(minutes: 4));
+      h.now = h.now.add(const Duration(minutes: 14));
       await _return(tester);
       expect(h.container.read(sessionProvider), isNotNull);
 
       await _leave(tester);
-      h.now = h.now.add(const Duration(minutes: 5));
+      h.now = h.now.add(const Duration(minutes: 15));
       await _return(tester);
       expect(h.container.read(sessionProvider), isNull);
       expect(find.text('Unlock wallet'), findsOneWidget);
     });
 
-    testWidgets('never and immediately', (tester) async {
+    testWidgets('never, and the shortest choice (a minute)', (tester) async {
       final h = _Harness();
       h.store.values['app.auto_lock'] = 'never';
       await h.pump(tester);
@@ -736,8 +742,13 @@ void main() {
 
       await h.container
           .read(appSettingsProvider.notifier)
-          .setAutoLockMinutes(0);
+          .setAutoLockMinutes(1);
       await _leave(tester);
+      h.now = h.now.add(const Duration(seconds: 59));
+      await _return(tester);
+      expect(h.container.read(sessionProvider), isNotNull);
+      await _leave(tester);
+      h.now = h.now.add(const Duration(minutes: 1));
       await _return(tester);
       expect(h.container.read(sessionProvider), isNull);
     });
@@ -752,7 +763,7 @@ void main() {
       expect(h.container.read(scanProvider).running, isTrue);
 
       await _leave(tester, settle: false);
-      h.now = h.now.add(const Duration(minutes: 10));
+      h.now = h.now.add(const Duration(minutes: 20));
       await _return(tester, settle: false);
       expect(h.container.read(sessionProvider), isNotNull);
 
@@ -767,7 +778,7 @@ void main() {
 
     testWidgets('a trip to the file picker does not count', (tester) async {
       final h = _Harness();
-      h.store.values['app.auto_lock'] = '0';
+      h.store.values['app.auto_lock'] = '1';
       await h.pump(tester);
       await h.unlock(tester);
       final hold = Completer<void>();
@@ -777,6 +788,7 @@ void main() {
             .during(() => hold.future),
       );
       await _leave(tester);
+      h.now = h.now.add(const Duration(minutes: 10));
       await _return(tester);
       hold.complete();
       await tester.pumpAndSettle();
@@ -843,7 +855,7 @@ void main() {
       expect(h.bio.prompts, 1);
 
       await _leave(tester);
-      h.now = h.now.add(const Duration(minutes: 5));
+      h.now = h.now.add(const Duration(minutes: 15));
       await _return(tester);
       expect(h.bio.prompts, 2);
       expect(h.container.read(sessionProvider), isNotNull);

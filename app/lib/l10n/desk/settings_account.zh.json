@@ -29,5 +29,6 @@
   "deskSetAcctChangePassword": "更改密码…",
   "deskSetAcctDeleteHint": "删除它的密钥和数据库。",
   "deskSetAcctFolderNotFound": "未找到文件夹",
-  "deskSetAcctCopyPath": "复制路径：{title}"
+  "deskSetAcctCopyPath": "复制路径：{title}",
+  "deskSetAcctAutoLockHint": "在这段时间内没有按键或移动鼠标时锁定钱包。关闭后，只能用“锁定钱包”锁定。"
 }

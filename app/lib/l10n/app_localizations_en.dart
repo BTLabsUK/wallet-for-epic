@@ -14025,4 +14025,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
+
+  @override
+  String get deskSetAcctAutoLockHint =>
+      'Locks the wallet after this long without a key press or mouse movement. Turn it off to lock only with Lock wallet.';
 }

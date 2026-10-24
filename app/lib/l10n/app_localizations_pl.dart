@@ -14449,4 +14449,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
+
+  @override
+  String get deskSetAcctAutoLockHint =>
+      'Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Wyłączona: portfel blokuje tylko „Zablokuj portfel”.';
 }

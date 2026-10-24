@@ -22213,6 +22213,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tor only · waiting for Tor'**
   String get deskShellTorOnlyWaiting;
+
+  /// Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch).
+  ///
+  /// In en, this message translates to:
+  /// **'Locks the wallet after this long without a key press or mouse movement. Turn it off to lock only with Lock wallet.'**
+  String get deskSetAcctAutoLockHint;
 }
 
 class _AppLocalizationsDelegate

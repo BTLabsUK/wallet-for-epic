@@ -11,6 +11,7 @@ import 'package:intl/intl.dart' show NumberFormat;
 import '../../l10n.dart' show AppLocalizations, englishStrings, localDigits;
 import '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions;
 import '../../providers.dart' show defaultMinimumConfirmations;
+import '../../settings.dart' show autoLockDefault;
 import '../../smart_outputs.dart' show smartOutputsDefault;
 import '../../ui/send_screen.dart' show normalizeAmountText;
 
@@ -800,7 +801,6 @@ class DeskSettings {
     this.helpLanguage,
     this.hideAmounts = false,
     this.nodeFailover = true,
-    this.epicboxFailover = true,
     this.directHttp = false,
     this.tor = false,
     this.publicMode = false,
@@ -808,7 +808,8 @@ class DeskSettings {
     this.httpAutostart = false,
     this.epicboxAutostart = true,
     this.torAutostart = false,
-    this.autoLockMinutes = 15,
+    this.autoLockMinutes = autoLockDefault,
+    this.autoLockOn = true,
     this.fiat = 'USD',
     this.newLookSeen = false,
     this.internetGuideSeen = false,
@@ -833,7 +834,6 @@ class DeskSettings {
 
   /// Switch to the next healthy node when the current one stops answering.
   final bool nodeFailover;
-  final bool epicboxFailover;
 
   /// The HTTP listener switch: on, it runs while receiving is on. Not saved: at unlock it is
   /// what Start with the wallet says.
@@ -856,7 +856,11 @@ class DeskSettings {
 
   /// Tor starts at unlock. The open wallet's own; [tor] alone is the now-state.
   final bool torAutostart;
-  final int? autoLockMinutes;
+  /// Auto-lock after this many minutes without a key or the mouse, one of `autoLockChoices`.
+  final int autoLockMinutes;
+
+  /// Auto-lock is on; off, the wallet locks only by Lock wallet or quitting.
+  final bool autoLockOn;
   final String fiat;
 
   /// The one-time "new look" notice on Overview was closed.
@@ -882,7 +886,6 @@ class DeskSettings {
     String? Function()? helpLanguage,
     bool? hideAmounts,
     bool? nodeFailover,
-    bool? epicboxFailover,
     bool? directHttp,
     bool? tor,
     bool? publicMode,
@@ -891,6 +894,7 @@ class DeskSettings {
     bool? epicboxAutostart,
     bool? torAutostart,
     int? autoLockMinutes,
+    bool? autoLockOn,
     String? fiat,
     bool? newLookSeen,
     bool? internetGuideSeen,
@@ -904,7 +908,6 @@ class DeskSettings {
     helpLanguage: helpLanguage != null ? helpLanguage() : this.helpLanguage,
     hideAmounts: hideAmounts ?? this.hideAmounts,
     nodeFailover: nodeFailover ?? this.nodeFailover,
-    epicboxFailover: epicboxFailover ?? this.epicboxFailover,
     directHttp: directHttp ?? this.directHttp,
     tor: tor ?? this.tor,
     publicMode: publicMode ?? this.publicMode,
@@ -913,6 +916,7 @@ class DeskSettings {
     epicboxAutostart: epicboxAutostart ?? this.epicboxAutostart,
     torAutostart: torAutostart ?? this.torAutostart,
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
+    autoLockOn: autoLockOn ?? this.autoLockOn,
     fiat: fiat ?? this.fiat,
     newLookSeen: newLookSeen ?? this.newLookSeen,
     internetGuideSeen: internetGuideSeen ?? this.internetGuideSeen,

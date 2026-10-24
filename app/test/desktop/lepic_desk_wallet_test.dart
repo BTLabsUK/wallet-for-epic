@@ -759,8 +759,15 @@ void main() {
       final s = await DeskStore(secrets).settings();
       const d = DeskSettings();
       expect((s.theme, s.scale, s.hideAmounts, s.newLookSeen, s.autoLockMinutes), (ThemeChoice.light, d.scale, d.hideAmounts, d.newLookSeen, d.autoLockMinutes));
-      expect(deskSettingsFromJson({'autoLockMinutes': null}).autoLockMinutes, isNull);
-      expect(deskSettingsFromJson({'autoLockMinutes': 30}).autoLockMinutes, 30);
+      // Auto-lock: 15 minutes and on by default; 1 to 60; the pre-26.10.13 key is not read.
+      expect((d.autoLockMinutes, d.autoLockOn), (15, true));
+      expect(deskSettingsFromJson({'autoLockMinutes': 30}).autoLockMinutes, 15);
+      expect(deskSettingsFromJson({'autoLock': 30}).autoLockMinutes, 30);
+      expect(deskSettingsFromJson({'autoLock': 0}).autoLockMinutes, 1);
+      expect(deskSettingsFromJson({'autoLock': 600}).autoLockMinutes, 60);
+      expect(deskSettingsFromJson({'autoLockOn': false}).autoLockOn, isFalse);
+      final back = deskSettingsFromJson(deskSettingsToJson(d.copyWith(autoLockMinutes: 1, autoLockOn: false)));
+      expect((back.autoLockMinutes, back.autoLockOn), (1, false));
     });
   });
 
