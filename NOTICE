@@ -1,0 +1,18 @@
+Epic Wallet
+Copyright The Epic Wallet Developers
+
+This product includes material ported from the Epic Cash desktop wallet
+(https://github.com/EpicCash/epic-gui-wallet), licensed under the Apache
+License, Version 2.0: the help topics, the rules that find and import wallets
+and settings of earlier Epic Cash wallets, the node address rules, the built-in
+node's epic-server.toml, the support report and log redaction rules, and the
+desktop icons and colours. Source comments name the files each port follows.
+
+The BIP-39 English word list (app/lib/src/bip39_words.dart) is copied from
+the Epic Cash node's keychain (https://github.com/EpicCash/epic), licensed
+under the Apache License, Version 2.0.
+
+The wallet engine is LEPIC (https://github.com/BTLabs-EPIC/lepic), licensed
+under the Apache License, Version 2.0, with its own NOTICE.
+
+Bundled fonts and password lists carry their own licences in app/assets/.

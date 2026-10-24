@@ -12,3 +12,86 @@
 
 # Tor binaries packed as jniLibs, created by tools/fetch-tor.sh android
 /app/android/app/src/main/tor-jniLibs/
+
+# Rust build output
+target/
+**/target/
+
+# Flutter, Dart, Android, iOS, desktop build output
+build/
+/build-windows/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.gradle/
+local.properties
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/.last_build_id
+DerivedData/
+*.xcuserstate
+xcuserdata/
+coverage/
+
+# Installers and packages
+*.apk
+*.aab
+*.ipa
+*.AppImage
+*.deb
+*.rpm
+*.exe
+*.msi
+*.msix
+*.dmg
+
+# Secrets and signing
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+key.properties
+*.p12
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Logs
+*.log
+!app/test/fixtures/**/*.log
+
+# Local tool settings
+.claude/
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+.cursor/
+.cursorrules
+.codex/
+.aider*
+.windsurf/
+.continue/
+.github/copilot-instructions.md
+
+# Editors and OS
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
