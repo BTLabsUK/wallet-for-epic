@@ -14376,4 +14376,101 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendMethodHeader => 'วิธีชำระเงิน';
+
+  @override
+  String get sendRequestTitle => 'คำขอชำระเงิน';
+
+  @override
+  String get sendRequestCheck => 'ตรวจสอบจำนวนแล้วดำเนินการต่อ';
+
+  @override
+  String get sendRequestDismiss => 'ปิด';
+
+  @override
+  String get sendAmountFromCode => 'จำนวนตามโค้ด';
+
+  @override
+  String sendAmountCodeAsked(String amount) {
+    return 'โค้ดขอจำนวน $amount';
+  }
+
+  @override
+  String get sendCodeAmountInvalid => 'จำนวนในโค้ดนี้ไม่ถูกต้องและถูกข้ามไป';
+
+  @override
+  String get sendCodeAmountTooLarge => 'จำนวนในโค้ดนี้มากเกินไปและถูกข้ามไป';
+
+  @override
+  String get sendCodeTooLong => 'บางส่วนของโค้ดนี้ยาวเกินไปและถูกข้ามไป';
+
+  @override
+  String get payeeNameLabel => 'ชื่อที่ผู้รับเงินระบุ (ยังไม่ยืนยัน)';
+
+  @override
+  String get payeeNoteLabel => 'บันทึกจากผู้รับเงิน (ยังไม่ยืนยัน)';
+
+  @override
+  String get payeeUnverifiedTitle => 'ยังไม่ยืนยัน';
+
+  @override
+  String get payeeUnverifiedHint =>
+      'ชื่อและบันทึกถูกเขียนลงในโค้ดโดยผู้สร้างโค้ด ไม่มีใครตรวจสอบ ให้ตรวจสอบที่อยู่และจำนวน ไม่ใช่ชื่อ';
+
+  @override
+  String get sendNoteFromCodeHelper => 'มาจากโค้ด ผู้รับเห็นบันทึกนี้ด้วย';
+
+  @override
+  String get sendOriginQr => 'จาก QR Code';
+
+  @override
+  String get sendOriginLink => 'จากลิงก์';
+
+  @override
+  String get sendOriginPasted => 'วางมา';
+
+  @override
+  String get sendDirectHost => 'โฮสต์';
+
+  @override
+  String get sendPlainHttpRow => 'ไม่ได้เข้ารหัส (HTTP ธรรมดา)';
+
+  @override
+  String get scanNotEpicTitle => 'ไม่ใช่โค้ด Epic';
+
+  @override
+  String get scanNotEpicBody => 'นี่ไม่ใช่ที่อยู่ Epic หรือโค้ดชำระเงิน';
+
+  @override
+  String get scanBadAddress => 'ที่อยู่ในโค้ดนี้ไม่ถูกต้อง';
+
+  @override
+  String get scanWrongNetworkTitle => 'เครือข่ายอื่น';
+
+  @override
+  String get scanWrongNetworkBody =>
+      'ที่อยู่นี้เป็นของเครือข่าย Epic อื่น กระเป๋าเงินนี้จ่ายให้ไม่ได้';
+
+  @override
+  String get scanSlateTextBody => 'นี่คือข้อความของไฟล์ธุรกรรม ไม่ใช่ที่อยู่';
+
+  @override
+  String get commonOpen => 'เปิด';
+
+  @override
+  String get scanPairingTitle => 'ลิงก์จับคู่';
+
+  @override
+  String get scanPairingUnavailable => 'เวอร์ชันนี้ยังไม่รองรับการจับคู่';
+
+  @override
+  String get scanCodeTextLabel => 'ข้อความที่สแกนได้';
+
+  @override
+  String get scanCopied => 'คัดลอกแล้ว';
+
+  @override
+  String get linkWaitingNotice => 'ได้รับลิงก์ชำระเงิน';
+
+  @override
+  String get linkFinishCurrentFirst => 'ทำรายการปัจจุบันให้เสร็จก่อน';
 }
