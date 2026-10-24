@@ -34,7 +34,11 @@ const _png = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 Future<Uint8List?> fetchServerIcon(Uri url) async {
   try {
     if (!await statusSite.allowed()) return null;
-    final reply = await httpGetBytes(url, timeout: const Duration(seconds: 10), maxBytes: serverIconMaxBytes);
+    final reply = await httpGetBytes(
+      url,
+      timeout: const Duration(seconds: 10),
+      maxBytes: serverIconMaxBytes,
+    );
     final b = reply.bytes;
     if (reply.status != 200 || b.length < _png.length) return null;
     for (var i = 0; i < _png.length; i++) {

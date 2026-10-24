@@ -1,33 +1,26 @@
-/// The phone's Node and Epicbox pickers as one list per kind (design mockup, branch
-/// `design/server-list-crud`): one stored list seeded from the built-in servers and
-/// status.btlabs.uk, which the user edits in place; one field at the top that holds the
-/// address in use, filters the list while typed in, and adds what matches nothing.
-///
-/// Store: [serverListProvider], one JSON object per kind and chain under
-/// `app.serverList.<kind>.<chain>`: `entries` (values in list order) and `removed` (keys of
-/// public servers the user took out, so a directory update does not bring them back).
-/// Directory servers not yet in the list are absorbed as they are seen ([ServerListNotifier.absorb]);
-/// "Restore the public list" forgets `removed` and puts the public ones back.
+/// The phone's Node and Epicbox pickers: one list per kind ([serverListProvider]), seeded
+/// from the built-in servers and status.btlabs.uk, which the user edits in place. One field at
+/// the top holds the address in use, filters the list while typed in, and offers Add as soon
+/// as nothing matches. Every row has a bin with Undo; the row in use refuses ("In use. Switch
+/// first."); "Restore the public list" shows while a public server is removed. Tiles carry the
+/// operator's icon from the monitor, else initials, and the health as a dot.
 library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart' show listEquals, setEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../errors.dart';
 import '../l10n.dart';
-import '../models.dart' show Chain;
 import '../network.dart';
 import '../providers.dart';
 import '../public_servers.dart';
 import '../push_registration.dart' show PushRegistration;
 import '../relay_directory.dart';
-import '../secret_store_api.dart' show SecretStore;
+import '../send_preflight.dart' show relayProbeProvider;
+import '../server_list_store.dart';
 import '../server_switch.dart';
 import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
@@ -35,218 +28,34 @@ import 'common.dart' show groupDigits;
 import 'help_screen.dart' show HelpButton, HelpId;
 import 'notices.dart';
 import 'server_picker.dart'
-    show
-        ServerKind,
-        builtInNodesFor,
-        builtInRelaysFor,
-        myNodesKey,
-        myRelaysKey,
-        networkStatusProvider,
-        publicNodeStatusProvider,
-        relaunchAfterSwitch,
-        typedNodeUrl;
+    show networkStatusProvider, publicNodeStatusProvider, relaunchAfterSwitch;
+import 'server_tile.dart';
 import 'status.dart' hide NodeStatus;
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart' show TorWayLine;
 
-// The store.
-
-/// The secret-store key of a kind's list on a chain.
-String serverListKey(ServerKind kind, Chain chain) =>
-    'app.serverList.${kind.name}.${chain.name}';
-
-/// What makes two values the same server: `host:port` for nodes, the label for relays.
-String serverKeyOf(ServerKind kind, String value) => kind == ServerKind.node
-    ? (nodeKey(value) ?? value)
-    : (EpicboxRelay.parse(value)?.label ?? value);
-
-/// One kind's list: the values in their order, and the keys of public servers the user removed.
-class ServerListState {
-  const ServerListState({required this.entries, required this.removed});
-
-  final List<String> entries;
-  final Set<String> removed;
-
-  bool has(ServerKind kind, String value) {
-    final key = serverKeyOf(kind, value);
-    return entries.any((e) => serverKeyOf(kind, e) == key);
-  }
-}
-
-/// The user's list of a kind on a chain, seeded once from the built-in servers (and the old
-/// "My nodes" / "My servers" lists), then grown from the directory by [absorb].
-final serverListProvider = AsyncNotifierProvider.family<
-  ServerListNotifier,
-  ServerListState,
-  (ServerKind, Chain)
->(ServerListNotifier.new);
-
-class ServerListNotifier extends AsyncNotifier<ServerListState> {
-  ServerListNotifier(this.arg);
-
-  final (ServerKind, Chain) arg;
-
-  ServerKind get kind => arg.$1;
-  Chain get chain => arg.$2;
-
-  String _key(String value) => serverKeyOf(kind, value);
-
-  List<String> get _builtIn {
-    final preset = networkPresets.firstWhere((p) => p.chain == chain);
-    return kind == ServerKind.node
-        ? [for (final n in builtInNodesFor(preset)) n.url]
-        : [for (final r in builtInRelaysFor(preset)) r.relay.label];
-  }
-
-  @override
-  Future<ServerListState> build() async {
-    final store = ref.watch(secretStoreProvider);
-    final raw = await store.read(serverListKey(kind, chain));
-    if (raw != null) {
-      try {
-        final decoded = jsonDecode(raw);
-        if (decoded is Map) {
-          return ServerListState(
-            entries: [
-              if (decoded['entries'] is List)
-                for (final e in decoded['entries'] as List)
-                  if (e is String && e.isNotEmpty) e,
-            ],
-            removed: {
-              if (decoded['removed'] is List)
-                for (final e in decoded['removed'] as List)
-                  if (e is String && e.isNotEmpty) e,
-            },
-          );
-        }
-      } on FormatException {
-        // A broken record seeds again.
-      }
-    }
-    // First use: the built-in servers, then what the old "My" list held by hand.
-    final seed = [..._builtIn];
-    final old = await store.read(
-      kind == ServerKind.node ? myNodesKey(chain) : myRelaysKey(chain),
-    );
-    if (old != null) {
-      try {
-        final decoded = jsonDecode(old);
-        if (decoded is List) {
-          for (final e in decoded) {
-            if (e is String && e.isNotEmpty && !seed.any((s) => _key(s) == _key(e))) {
-              seed.add(e);
-            }
-          }
-        }
-      } on FormatException {
-        // Nothing to carry over.
-      }
-    }
-    final state = ServerListState(entries: seed, removed: const {});
-    await _write(store, state);
-    return state;
-  }
-
-  Future<void> _write(SecretStore store, ServerListState s) async {
-    state = AsyncData(s);
-    await store.write(
-      serverListKey(kind, chain),
-      jsonEncode({'entries': s.entries, 'removed': [...s.removed]}),
-    );
-  }
-
-  /// Directory servers seen now: those neither listed nor removed join the end of the list.
-  Future<void> absorb(Iterable<String> values) async {
-    final now = await future;
-    final entries = [...now.entries];
-    for (final v in values) {
-      final k = _key(v);
-      if (now.removed.contains(k)) continue;
-      if (entries.any((e) => _key(e) == k)) continue;
-      entries.add(v);
-    }
-    if (listEquals(entries, now.entries)) return;
-    await _write(
-      ref.read(secretStoreProvider),
-      ServerListState(entries: entries, removed: now.removed),
-    );
-  }
-
-  /// Adds [value] (at [at], else last). Its key leaves `removed`, so it stays.
-  Future<void> add(String value, {int? at}) async {
-    final now = await future;
-    final k = _key(value);
-    if (now.entries.any((e) => _key(e) == k)) return;
-    final entries = [...now.entries];
-    entries.insert(at == null ? entries.length : at.clamp(0, entries.length), value);
-    await _write(
-      ref.read(secretStoreProvider),
-      ServerListState(entries: entries, removed: {...now.removed}..remove(k)),
-    );
-  }
-
-  /// Takes [value] out; its key is remembered as removed, so a directory update does not
-  /// bring it back. Returns where it was, for Undo.
-  Future<int?> remove(String value) async {
-    final now = await future;
-    final k = _key(value);
-    final i = now.entries.indexWhere((e) => _key(e) == k);
-    if (i < 0) return null;
-    await _write(
-      ref.read(secretStoreProvider),
-      ServerListState(
-        entries: [...now.entries]..removeAt(i),
-        removed: {...now.removed, k},
-      ),
-    );
-    return i;
-  }
-
-  /// Forgets every removal and puts the public servers ([values], built-in first) back at
-  /// the end of the list, in their order.
-  Future<void> restore(Iterable<String> values) async {
-    final now = await future;
-    final entries = [...now.entries];
-    for (final v in values) {
-      final k = _key(v);
-      if (!entries.any((e) => _key(e) == k)) entries.add(v);
-    }
-    if (listEquals(entries, now.entries) && setEquals(now.removed, const {})) {
-      return;
-    }
-    await _write(
-      ref.read(secretStoreProvider),
-      ServerListState(entries: entries, removed: const {}),
-    );
-  }
-}
-
 // The sheet.
 
 /// Opens the node list over the current screen.
-Future<void> showNodeListSheet(BuildContext context) =>
-    _show(context, ServerKind.node);
+Future<void> showNodeListSheet(BuildContext context) => _show(context, ServerKind.node);
 
 /// Opens the Epicbox list over the current screen.
-Future<void> showEpicboxListSheet(BuildContext context) =>
-    _show(context, ServerKind.relay);
+Future<void> showEpicboxListSheet(BuildContext context) => _show(context, ServerKind.relay);
 
-Future<void> _show(BuildContext context, ServerKind kind) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      showDragHandle: true,
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.85,
-        minChildSize: 0.5,
-        maxChildSize: 1,
-        builder: (context, scroll) =>
-            ServerListSheet(kind: kind, scrollController: scroll),
-      ),
-    );
+Future<void> _show(BuildContext context, ServerKind kind) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  useSafeArea: true,
+  showDragHandle: true,
+  builder: (context) => DraggableScrollableSheet(
+    expand: false,
+    initialChildSize: 0.85,
+    minChildSize: 0.5,
+    maxChildSize: 1,
+    builder: (context, scroll) => ServerListSheet(kind: kind, scrollController: scroll),
+  ),
+);
 
 /// The key of the address field at the top, for tests.
 const Key serverListFieldKey = ValueKey('server-list-field');
@@ -280,6 +89,7 @@ class _Entry {
     required this.operator,
     this.node,
     this.relay,
+    this.icon,
     required this.directoryAnswered,
   });
 
@@ -288,6 +98,9 @@ class _Entry {
   final String? operator;
   final NodeStatus? node;
   final RelayStatus? relay;
+
+  /// The operator's icon from the monitor ([serverIconFor]), or null for initials.
+  final ServerIcon? icon;
 
   /// Whether the directory answered at all: a row it did not list says "Health unknown".
   final bool directoryAnswered;
@@ -311,11 +124,7 @@ class ServerListSheet extends ConsumerStatefulWidget {
   final ServerKind kind;
   final ScrollController? scrollController;
   final void Function(BuildContext context) afterSave;
-  final Future<bool> Function(
-    WidgetRef ref, {
-    required String nodeUrl,
-    required EpicboxRelay relay,
-  })
+  final Future<bool> Function(WidgetRef ref, {required String nodeUrl, required EpicboxRelay relay})
   liveSwitch;
 
   @override
@@ -356,8 +165,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     super.dispose();
   }
 
-  String _label(NetworkChoice choice) =>
-      _node ? serverHost(choice.nodeUrl) : choice.relay.label;
+  String _label(NetworkChoice choice) => _node ? serverHost(choice.nodeUrl) : choice.relay.label;
 
   /// Fills the field with the address in use when the sheet opens and after a switch.
   void _fill(NetworkChoice choice) {
@@ -398,15 +206,11 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   }
 
   /// The value the field holds, as the list stores it, or null when it is not an address.
-  String? _typedValue() => _node
-      ? typedNodeUrl(_text)
-      : EpicboxRelay.parse(_text)?.label;
+  String? _typedValue() => typedServerValue(widget.kind, _text);
 
-  bool _same(String a, String b) =>
-      serverKeyOf(widget.kind, a) == serverKeyOf(widget.kind, b);
+  bool _same(String a, String b) => sameServer(widget.kind, a, b);
 
-  String _current(NetworkChoice choice) =>
-      _node ? choice.nodeUrl : choice.relay.label;
+  String _current(NetworkChoice choice) => _node ? choice.nodeUrl : choice.relay.label;
 
   void _pick(String value, NetworkChoice choice) {
     final same = _same(value, _current(choice));
@@ -430,28 +234,29 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     });
   }
 
-  /// Done on the field: a listed address is picked, an unlisted one added, anything else
-  /// answered under the field.
+  /// Done on the field: a listed address is picked, anything else goes to [_add], which says
+  /// when it is no address.
   void _submit(NetworkChoice choice, List<_Entry> all) {
+    if (!_dirty || _text.isEmpty) return;
     final value = _typedValue();
-    if (value == null) {
-      setState(() {
-        _fieldError = _node
-            ? context.l10n.serverOtherNodeInvalid
-            : context.l10n.setupCustomRelayInvalid;
-      });
-      return;
-    }
-    final listed = all.where((e) => _same(e.value, value)).firstOrNull;
+    final listed = value == null ? null : all.where((e) => _same(e.value, value)).firstOrNull;
     if (listed != null) {
       _pick(listed.value, choice);
       return;
     }
-    _add(value, choice);
+    _add(choice);
   }
 
-  Future<void> _add(String value, NetworkChoice choice) async {
+  /// Add: a typed text that is no address is answered under the field; an address is tested
+  /// (the node gives its tip, the relay answers a handshake), then added and selected, so the
+  /// Switch strip offers it. A failed test adds nothing.
+  Future<void> _add(NetworkChoice choice) async {
     final l = context.l10n;
+    final value = _typedValue();
+    if (value == null) {
+      setState(() => _fieldError = l.slNotAnAddress);
+      return;
+    }
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _adding = true;
@@ -466,8 +271,15 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           choice.preset.config(dataDir: '', nodeUrl: value),
         );
       } else {
-        // A relay handshake check is a LEPIC request (E-16); the mockup takes a moment.
-        await Future<void>.delayed(const Duration(milliseconds: 700));
+        final relay = EpicboxRelay.parse(value)!;
+        if (!await ref.read(relayProbeProvider).reachable(relay)) {
+          if (!mounted) return;
+          setState(() {
+            _adding = false;
+            _fieldError = l.slRelayNoAnswer;
+          });
+          return;
+        }
       }
     } catch (error) {
       if (!mounted) return;
@@ -478,9 +290,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       return;
     }
     if (!mounted) return;
-    await ref
-        .read(serverListProvider((widget.kind, choice.preset.chain)).notifier)
-        .add(value);
+    await ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier).add(value);
     if (!mounted) return;
     _field.text = _filled;
     setState(() {
@@ -510,9 +320,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       _say(l.slInUseSwitchFirst, note: true);
       return;
     }
-    final notifier = ref.read(
-      serverListProvider((widget.kind, choice.preset.chain)).notifier,
-    );
+    final notifier = ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier);
     final at = await notifier.remove(e.value);
     if (!mounted) return;
     if (_pending != null && _same(_pending!, e.value)) {
@@ -528,9 +336,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   }
 
   Future<void> _restore(NetworkChoice choice, List<String> public) async {
-    await ref
-        .read(serverListProvider((widget.kind, choice.preset.chain)).notifier)
-        .restore(public);
+    await ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier).restore(public);
     if (mounted) _say(context.l10n.slRestored);
   }
 
@@ -575,42 +381,49 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   // Rows.
 
   /// Every row of the list in its order, with what the directory knows of each.
-  List<_Entry> _entries(NetworkChoice choice, ServerListState list) {
+  List<_Entry> _entries(NetworkChoice choice, ServerList list) {
     final preset = choice.preset;
+    final nodes = ref.watch(publicNodeStatusProvider(preset));
+    final relays = ref.watch(relayStatusProvider(preset));
+    // Every icon the monitor holds, by operator: a server without one shows its operator's.
+    final known = [
+      for (final n in nodes.value ?? const <NodeStatus>[]) (operator: n.operator, icon: n.icon),
+      for (final r in relays.value ?? const <RelayStatus>[]) (operator: r.operator, icon: r.icon),
+    ];
     if (_node) {
-      final status = ref.watch(publicNodeStatusProvider(preset));
-      final public = mergePublicNodes(status.value, builtIn: builtInNodesFor(preset));
+      final public = mergePublicNodes(nodes.value, builtIn: builtInNodesFor(preset));
       return [
         for (final v in list.entries)
           () {
             final p = public.where((n) => _same(n.url, v)).firstOrNull;
-            final s = p?.status ?? nodeStatusFor(status.value ?? const [], v);
+            final s = p?.status ?? nodeStatusFor(nodes.value ?? const [], v);
+            final operator = p?.operator ?? s?.operator;
             return _Entry(
               value: v,
               host: serverHost(v),
-              operator: p?.operator ?? s?.operator,
+              operator: operator,
               node: s,
-              directoryAnswered: status is AsyncData,
+              icon: serverIconFor(s?.icon, operator, known),
+              directoryAnswered: nodes is AsyncData,
             );
           }(),
       ];
     }
-    final status = ref.watch(relayStatusProvider(preset));
-    final public = mergePublicRelays(status.value, builtIn: builtInRelaysFor(preset));
+    final public = mergePublicRelays(relays.value, builtIn: builtInRelaysFor(preset));
     return [
       for (final v in list.entries)
         () {
           final relay = EpicboxRelay.parse(v);
-          final p = relay == null
-              ? null
-              : public.where((r) => r.relay == relay).firstOrNull;
+          final p = relay == null ? null : public.where((r) => r.relay == relay).firstOrNull;
           final op = p?.operator ?? '';
+          final operator = op.isEmpty ? p?.status?.operator : op;
           return _Entry(
             value: v,
             host: v,
-            operator: op.isEmpty ? p?.status?.operator : op,
+            operator: operator,
             relay: p?.status,
-            directoryAnswered: status is AsyncData,
+            icon: serverIconFor(p?.status?.icon, operator, known),
+            directoryAnswered: relays is AsyncData,
           );
         }(),
     ];
@@ -622,8 +435,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     if (_node) {
       final status = ref.read(publicNodeStatusProvider(preset));
       return [
-        for (final n in mergePublicNodes(status.value, builtIn: builtInNodesFor(preset)))
-          n.url,
+        for (final n in mergePublicNodes(status.value, builtIn: builtInNodesFor(preset))) n.url,
       ];
     }
     final status = ref.read(relayStatusProvider(preset));
@@ -633,11 +445,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     ];
   }
 
-  bool _matches(_Entry e, String q) {
-    final needle = q.contains('://') ? serverHost(q) : q;
-    return e.host.toLowerCase().contains(needle.toLowerCase()) ||
-        (e.operator ?? '').toLowerCase().contains(q.toLowerCase());
-  }
+  bool _matches(_Entry e, String q) => serverMatches(q, host: e.host, operator: e.operator);
 
   @override
   Widget build(BuildContext context) {
@@ -686,12 +494,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (line != null)
-                  _FootLine(
-                    line,
-                    action: _lineAction,
-                    actionLabel: l.slUndo,
-                    note: _lineIsNote,
-                  ),
+                  _FootLine(line, action: _lineAction, actionLabel: l.slUndo, note: _lineIsNote),
                 if (_pending != null || _switchError != null)
                   _ConfirmStrip(
                     host: _pending == null ? null : serverHost(_pending!),
@@ -716,22 +519,23 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   Widget _body(BuildContext context, NetworkChoice choice) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final chain = choice.preset.chain;
     final listState = ref.watch(serverListProvider((widget.kind, chain))).value;
-    final all = listState == null
-        ? const <_Entry>[]
-        : _entries(choice, listState);
+    final all = listState == null ? const <_Entry>[] : _entries(choice, listState);
     final q = _text;
     final filtering = _dirty && q.isNotEmpty;
-    final shown = filtering ? [for (final e in all) if (_matches(e, q)) e] : all;
+    final shown = filtering
+        ? [
+            for (final e in all)
+              if (_matches(e, q)) e,
+          ]
+        : all;
     final typed = filtering ? _typedValue() : null;
-    final addable =
-        typed != null && !all.any((e) => _same(e.value, typed)) && !_adding
-        ? typed
-        : _adding
-        ? typed
-        : null;
+    // Add shows as soon as nothing matches, whatever is typed (a tap says when it is no
+    // address), and for an address no row has even while some rows match its text.
+    final listedTyped = typed != null && all.any((e) => _same(e.value, typed));
+    final showAdd = filtering && !listedTyped && (shown.isEmpty || typed != null || _adding);
+    final addHost = typed == null ? q : (_node ? serverHost(typed) : typed);
     final current = _current(choice);
     final selected = _pending ?? current;
     final selectedListed = all.any((e) => _same(e.value, selected));
@@ -739,33 +543,21 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     if (listState != null) {
       // Directory servers join the list as they are seen; removed ones stay out. After the
       // frame, as the store is written and the list rebuilt.
-      final missing = [
-        for (final v in public)
-          if (!listState.has(widget.kind, v) &&
-              !listState.removed.contains(serverKeyOf(widget.kind, v)))
-            v,
-      ];
+      final missing = listState.missing(widget.kind, public);
       if (missing.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          ref
-              .read(serverListProvider((widget.kind, chain)).notifier)
-              .absorb(missing);
+          ref.read(serverListProvider((widget.kind, chain)).notifier).absorb(missing);
         });
       }
     }
     final restorable = listState == null
         ? const <String>[]
-        : [
-            for (final v in public)
-              if (listState.removed.contains(serverKeyOf(widget.kind, v))) v,
-          ];
+        : listState.restorable(widget.kind, public);
     final dirStatus = _node
         ? ref.watch(publicNodeStatusProvider(choice.preset))
         : ref.watch(relayStatusProvider(choice.preset));
-    final nodeLocal =
-        _node && torSkipsLocalNode && isLoopbackUrl(Uri.parse(choice.nodeUrl));
-    final small = theme.textTheme.bodySmall?.copyWith(color: t.dim);
+    final nodeLocal = _node && torSkipsLocalNode && isLoopbackUrl(Uri.parse(choice.nodeUrl));
 
     // The field's helper: what typing does now.
     final String helper;
@@ -773,9 +565,10 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       helper = _fieldError!;
     } else if (!filtering) {
       helper = _node ? l.slHelpIdleNode : l.slHelpIdleRelay;
-    } else if (addable != null) {
+    } else if (shown.isNotEmpty && showAdd) {
       helper = l.slHelpAddable;
     } else {
+      // The one "No match." when nothing matches; the Add row sits under it.
       helper = l.slHelpMatches(shown.length);
     }
 
@@ -798,9 +591,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             labelText: _node ? l.slNodeField : l.slRelayField,
             helperText: helper,
             helperMaxLines: 2,
-            helperStyle: _fieldError != null
-                ? TextStyle(color: t.risk)
-                : null,
+            helperStyle: _fieldError != null ? TextStyle(color: t.risk) : null,
             border: const OutlineInputBorder(),
             prefixIcon: Icon(
               filtering ? Icons.search : (_node ? Icons.dns_outlined : Icons.mail_outline),
@@ -866,37 +657,27 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                 ),
         ),
         const SizedBox(height: 12),
-        if (addable != null)
+        if (showAdd)
           _AddRow(
-            host: _node ? serverHost(addable) : addable,
+            host: addHost,
             note: _node ? l.slAddTestsNode : l.slAddTestsRelay,
             busy: _adding,
-            onTap: () => _add(addable, choice),
+            onTap: () => _add(choice),
           ),
         for (final e in shown)
           _ServerRow(
             key: serverListRowKey(e.value),
             kind: widget.kind,
             entry: e,
-            isDefault: !_node &&
-                EpicboxRelay.parse(e.value) == choice.preset.defaultRelay,
+            isDefault: !_node && EpicboxRelay.parse(e.value) == choice.preset.defaultRelay,
             current: _same(e.value, current),
             selected: _same(e.value, selected),
-            check: _same(e.value, selected) ||
-                (_same(e.value, current) && !selectedListed),
+            check: _same(e.value, selected) || (_same(e.value, current) && !selectedListed),
             onTap: () => _pick(e.value, choice),
             onRemove: () => _remove(e, choice),
           ),
-        if (shown.isEmpty && addable == null && filtering)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(l.slNoMatchHint, style: small),
-          ),
         if (restorable.isNotEmpty && !filtering)
-          _RestoreRow(
-            count: restorable.length,
-            onTap: () => _restore(choice, public),
-          ),
+          _RestoreRow(count: restorable.length, onTap: () => _restore(choice, public)),
         _HealthCaption(status: dirStatus, preset: choice.preset),
       ],
     );
@@ -995,9 +776,7 @@ class _ServerRow extends StatelessWidget {
           child: Ink(
             decoration: BoxDecoration(
               color: selected ? t.selected : null,
-              border: Border.all(
-                color: selected ? t.selectedLine : Colors.transparent,
-              ),
+              border: Border.all(color: selected ? t.selectedLine : Colors.transparent),
               borderRadius: BorderRadius.circular(t.radiusSmall),
             ),
             child: ConstrainedBox(
@@ -1009,8 +788,8 @@ class _ServerRow extends StatelessWidget {
                     ServerTile(
                       operator: e.operator,
                       host: e.host,
+                      icon: e.icon,
                       state: state,
-                      known: state != null,
                       dimmed: down,
                     ),
                     const SizedBox(width: 12),
@@ -1049,8 +828,7 @@ class _ServerRow extends StatelessWidget {
                                       ),
                                       child: Text(
                                         l.serverDefault,
-                                        style: theme.textTheme.labelSmall
-                                            ?.copyWith(color: t.dim),
+                                        style: theme.textTheme.labelSmall?.copyWith(color: t.dim),
                                       ),
                                     ),
                                   ],
@@ -1103,12 +881,7 @@ class _ServerRow extends StatelessWidget {
 /// The inline Add: the first row while the field holds an address that is not listed.
 /// Tapping it tests the server, adds it and selects it for the switch.
 class _AddRow extends StatelessWidget {
-  const _AddRow({
-    required this.host,
-    required this.note,
-    required this.busy,
-    required this.onTap,
-  });
+  const _AddRow({required this.host, required this.note, required this.busy, required this.onTap});
 
   final String host;
   final String note;
@@ -1176,10 +949,7 @@ class _AddRow extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 2),
-                            Text(
-                              note,
-                              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-                            ),
+                            Text(note, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
                           ],
                         ),
                       ),
@@ -1212,10 +982,7 @@ class _RestoreRow extends StatelessWidget {
         alignment: AlignmentDirectional.centerStart,
         child: TextButton.icon(
           key: serverListRestoreKey,
-          style: TextButton.styleFrom(
-            foregroundColor: t.dim,
-            minimumSize: const Size(48, 44),
-          ),
+          style: TextButton.styleFrom(foregroundColor: t.dim, minimumSize: const Size(48, 44)),
           onPressed: onTap,
           icon: const Icon(Icons.restore, size: 18),
           label: Text('${l.slRestore} · ${l.slRemovedCount(count)}'),
@@ -1268,167 +1035,56 @@ class _Facts extends StatelessWidget {
 
 // The tile.
 
-/// Operators whose mark the app carries.
-const String _btLabs = 'BT Labs';
-
-/// The initials a tile shows for an operator, else for a host: two letters from the first
-/// two words (a camel-cased name splits), or the first two of a one-word name; a host gives
-/// the first two of its first label past `node.` or `epicbox.`.
-String serverInitials(String? operator, String host) {
-  final name = (operator ?? '').trim();
-  if (name.isNotEmpty) {
-    final words = name
-        .replaceAllMapped(RegExp(r'(?<=[a-z])(?=[A-Z])'), (_) => ' ')
-        .split(RegExp(r'[\s\-_.]+'))
-        .where((w) => w.isNotEmpty)
-        .toList();
-    if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-    if (words.length == 1) {
-      final w = words[0];
-      return (w.length >= 2 ? w.substring(0, 2) : w).toUpperCase();
-    }
-  }
-  final labels = host
-      .split(':')
-      .first
-      .split('.')
-      .where((p) => p.isNotEmpty && !const {'node', 'epicbox', 'www'}.contains(p))
-      .toList();
-  if (labels.isEmpty) return '?';
-  final w = labels.first;
-  return (w.length >= 2 ? w.substring(0, 2) : w).toUpperCase();
-}
-
-/// A server's tile: 36 dp in the surface colour with the hairline and the small radius, the
-/// operator's mark (BT Labs) or its initials on a muted tint, and the health dot in the
-/// corner: green, amber or red, hollow when the directory has nothing on the server.
+/// A server's tile in the phone's colours ([ServerTileView]): 36 dp, the operator's icon or
+/// initials on a muted tint, the health dot green, amber or red, hollow when the monitor has
+/// nothing on the server.
 class ServerTile extends StatelessWidget {
   const ServerTile({
     super.key,
     required this.operator,
     required this.host,
+    required this.icon,
     required this.state,
-    required this.known,
     this.dimmed = false,
     this.size = 36,
   });
 
   final String? operator;
   final String host;
+  final ServerIcon? icon;
   final NodeHealthState? state;
-
-  /// Whether the directory has the server's health: false draws the dot hollow.
-  final bool known;
   final bool dimmed;
   final double size;
-
-  bool get _logo => operator == _btLabs || host.endsWith('btlabs.uk');
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final dot = switch (state) {
-      NodeHealthState.healthy => t.ok,
-      NodeHealthState.degraded => t.warn,
-      NodeHealthState.down => t.risk,
-      _ => t.faint,
-    };
-    // A muted tint per operator, from the palette: the accent, the info blue or the text
-    // colour at a low alpha, picked by the name so one operator keeps its tint everywhere.
-    final seed = (operator ?? host).toLowerCase().codeUnits.fold<int>(
-      17,
-      (a, c) => (a * 31 + c) & 0x7fffffff,
-    );
-    final tint = switch (seed % 3) {
-      0 => t.accent.withValues(alpha: 0.14),
-      1 => t.info.withValues(alpha: 0.16),
-      _ => t.text.withValues(alpha: 0.08),
-    };
-    return ExcludeSemantics(
-      child: Opacity(
-        opacity: dimmed ? 0.55 : 1,
-        child: SizedBox.square(
-          dimension: size,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: size,
-                height: size,
-                decoration: BoxDecoration(
-                  color: _logo ? t.surface : Color.alphaBlend(tint, t.surface),
-                  border: Border.all(color: t.line),
-                  borderRadius: BorderRadius.circular(t.radiusSmall),
-                ),
-                alignment: Alignment.center,
-                child: _logo
-                    ? Padding(
-                        padding: EdgeInsets.all(size * 0.14),
-                        child: SvgPicture(
-                          SvgAssetLoader(
-                            'assets/brand/btlabs-lion.svg',
-                            colorMapper: _LionColors(gold: t.accent, silver: t.dim),
-                          ),
-                        ),
-                      )
-                    : Text(
-                        serverInitials(operator, host),
-                        style: TextStyle(
-                          fontFamily: montserrat,
-                          fontWeight: FontWeight.w600,
-                          fontSize: size * 0.33,
-                          letterSpacing: 0.5,
-                          color: t.dim,
-                          height: 1,
-                        ),
-                      ),
-              ),
-              Positioned(
-                right: -2,
-                bottom: -2,
-                child: Container(
-                  width: 11,
-                  height: 11,
-                  decoration: BoxDecoration(
-                    color: known ? dot : t.surface,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: known ? Theme.of(context).colorScheme.surface : t.faint,
-                      width: known ? 2 : 1.5,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+    return ServerTileView(
+      operator: operator,
+      host: host,
+      icon: icon,
+      state: state,
+      dimmed: dimmed,
+      size: size,
+      radius: t.radiusSmall,
+      fontFamily: montserrat,
+      colors: ServerTileColors(
+        surface: t.surface,
+        line: t.line,
+        initials: t.dim,
+        tints: [
+          t.accent.withValues(alpha: 0.14),
+          t.info.withValues(alpha: 0.16),
+          t.text.withValues(alpha: 0.08),
+        ],
+        ok: t.ok,
+        warn: t.warn,
+        risk: t.risk,
+        unknown: t.faint,
+        ring: Theme.of(context).colorScheme.surface,
       ),
     );
   }
-}
-
-/// The lion's two flat colours to the theme's: the gold to the accent, the silver to dim.
-class _LionColors extends ColorMapper {
-  const _LionColors({required this.gold, required this.silver});
-
-  final Color gold, silver;
-
-  static const _gold = Color(0xFFC9A24A), _silver = Color(0xFFC4C6CC);
-
-  @override
-  Color substitute(String? id, String elementName, String attributeName, Color color) =>
-      switch (color) {
-        _gold => gold,
-        _silver => silver,
-        _ => color,
-      };
-
-  @override
-  bool operator ==(Object other) =>
-      other is _LionColors && other.gold == gold && other.silver == silver;
-
-  @override
-  int get hashCode => Object.hash(gold, silver);
 }
 
 // The foot.
@@ -1436,12 +1092,7 @@ class _LionColors extends ColorMapper {
 /// One line at the sheet's foot that says what the last action did, with a check before it
 /// and, when the action can be undone, Undo at its end; read out as it appears.
 class _FootLine extends StatelessWidget {
-  const _FootLine(
-    this.text, {
-    this.action,
-    required this.actionLabel,
-    this.note = false,
-  });
+  const _FootLine(this.text, {this.action, required this.actionLabel, this.note = false});
 
   final String text;
   final VoidCallback? action;
@@ -1565,11 +1216,7 @@ class _ConfirmStrip extends StatelessWidget {
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(
-                      l.serverSwitchTo(host!),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  : Text(l.serverSwitchTo(host!), maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
           ],
         ],
@@ -1644,10 +1291,7 @@ class _CurrentNodeFacts extends ConsumerWidget {
       if (version != null && version.isNotEmpty) (l.serverFactVersion, version),
       if (dirNode?.peers != null) (l.serverFactPeers, groupDigits(l, dirNode!.peers!)),
       if (dirNode?.uptime24h != null)
-        (
-          l.serverFactUptime,
-          '${localDigits(l, (dirNode!.uptime24h! * 100).toStringAsFixed(1))} %',
-        ),
+        (l.serverFactUptime, '${localDigits(l, (dirNode!.uptime24h! * 100).toStringAsFixed(1))} %'),
     ];
     final age = net?.tipAgeSeconds;
     final network = [

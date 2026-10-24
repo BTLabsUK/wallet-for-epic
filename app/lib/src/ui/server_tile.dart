@@ -84,8 +84,13 @@ class ServerTileView extends ConsumerWidget {
     final url = icon?.forPixels(size * dpr);
     final bytes = url == null ? null : ref.watch(serverIconProvider(url)).value;
     // One operator keeps its tint everywhere: picked by the name.
-    final seed = (operator ?? host).toLowerCase().codeUnits.fold<int>(17, (a, ch) => (a * 31 + ch) & 0x7fffffff);
-    final tint = c.tints.isEmpty ? c.surface : Color.alphaBlend(c.tints[seed % c.tints.length], c.surface);
+    final seed = (operator ?? host).toLowerCase().codeUnits.fold<int>(
+      17,
+      (a, ch) => (a * 31 + ch) & 0x7fffffff,
+    );
+    final tint = c.tints.isEmpty
+        ? c.surface
+        : Color.alphaBlend(c.tints[seed % c.tints.length], c.surface);
     final initials = Center(
       child: Text(
         serverInitials(operator, host),

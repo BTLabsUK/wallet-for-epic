@@ -21860,12 +21860,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{No match.} one{{count} match.} other{{count} matches.}}'**
   String slHelpMatches(int count);
 
-  /// In the list when the typed text matches no row and is no address.
-  ///
-  /// In en, this message translates to:
-  /// **'No match. Type a host or host:port to add it.'**
-  String get slNoMatchHint;
-
   /// Tooltip of the field's clear button.
   ///
   /// In en, this message translates to:
@@ -21943,6 +21937,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Switching changes your address. Senders need the new one.'**
   String get slRelayWarning;
+
+  /// Under the field when Add is tapped on text that is no server address. "host" and "host:port" are literal forms; keep them as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a server address. Use host or host:port.'**
+  String get slNotAnAddress;
+
+  /// Under the field when the Epicbox server being added did not answer the test; it was not added.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer from this server. Nothing added.'**
+  String get slRelayNoAnswer;
 }
 
 class _AppLocalizationsDelegate

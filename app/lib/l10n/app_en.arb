@@ -18145,10 +18145,6 @@
       }
     }
   },
-  "slNoMatchHint": "No match. Type a host or host:port to add it.",
-  "@slNoMatchHint": {
-    "description": "In the list when the typed text matches no row and is no address."
-  },
   "slClear": "Clear",
   "@slClear": {
     "description": "Tooltip of the field's clear button."
@@ -18220,5 +18216,13 @@
   "slRelayWarning": "Switching changes your address. Senders need the new one.",
   "@slRelayWarning": {
     "description": "Warning card under the Epicbox field."
+  },
+  "slNotAnAddress": "Not a server address. Use host or host:port.",
+  "@slNotAnAddress": {
+    "description": "Under the field when Add is tapped on text that is no server address. \"host\" and \"host:port\" are literal forms; keep them as they are."
+  },
+  "slRelayNoAnswer": "No answer from this server. Nothing added.",
+  "@slRelayNoAnswer": {
+    "description": "Under the field when the Epicbox server being added did not answer the test; it was not added."
   }
 }

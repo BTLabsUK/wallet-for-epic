@@ -66,7 +66,10 @@ class ServerList {
     }
   }
 
-  String encode() => jsonEncode({'entries': entries, 'removed': [...removed]});
+  String encode() => jsonEncode({
+    'entries': entries,
+    'removed': [...removed],
+  });
 
   bool has(ServerKind kind, String value) {
     final k = serverKeyOf(kind, value);
@@ -107,10 +110,7 @@ class ServerList {
     final k = serverKeyOf(kind, value);
     final i = entries.indexWhere((e) => serverKeyOf(kind, e) == k);
     if (i < 0) return (list: this, at: null);
-    return (
-      list: ServerList(entries: [...entries]..removeAt(i), removed: {...removed, k}),
-      at: i,
-    );
+    return (list: ServerList(entries: [...entries]..removeAt(i), removed: {...removed, k}), at: i);
   }
 
   /// The [public] servers the user removed: "Restore the public list" shows while any is.
@@ -128,10 +128,13 @@ class ServerList {
 
   @override
   bool operator ==(Object other) =>
-      other is ServerList && listEquals(other.entries, entries) && setEquals(other.removed, removed);
+      other is ServerList &&
+      listEquals(other.entries, entries) &&
+      setEquals(other.removed, removed);
 
   @override
-  int get hashCode => Object.hash(Object.hashAll(entries), Object.hashAll(removed.toList()..sort()));
+  int get hashCode =>
+      Object.hash(Object.hashAll(entries), Object.hashAll(removed.toList()..sort()));
 }
 
 /// What the field at the top holds when Add is tapped: the value as the list stores it, or

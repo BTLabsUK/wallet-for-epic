@@ -13099,9 +13099,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get slNoMatchHint => 'No match. Type a host or host:port to add it.';
-
-  @override
   String get slClear => 'Clear';
 
   @override
@@ -13155,4 +13152,10 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get slRelayWarning =>
       'Switching changes your address. Senders need the new one.';
+
+  @override
+  String get slNotAnAddress => 'Not a server address. Use host or host:port.';
+
+  @override
+  String get slRelayNoAnswer => 'No answer from this server. Nothing added.';
 }

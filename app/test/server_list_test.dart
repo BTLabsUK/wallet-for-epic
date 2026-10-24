@@ -13,7 +13,11 @@ void main() {
         ['https://node.btlabs.uk', 'https://node.epicnet.us:3413'],
         carried: ['https://NODE.btlabs.uk:443', 'https://mine.example:3413'],
       );
-      expect(l.entries, ['https://node.btlabs.uk', 'https://node.epicnet.us:3413', 'https://mine.example:3413']);
+      expect(l.entries, [
+        'https://node.btlabs.uk',
+        'https://node.epicnet.us:3413',
+        'https://mine.example:3413',
+      ]);
       expect(l.removed, isEmpty);
     });
 
@@ -48,7 +52,10 @@ void main() {
 
     test('restore shows only while a public server is removed, and puts them back in order', () {
       const public = ['a.example', 'b.example', 'c.example'];
-      final l = const ServerList(entries: ['a.example', 'mine.example'], removed: {'c.example', 'b.example'});
+      final l = const ServerList(
+        entries: ['a.example', 'mine.example'],
+        removed: {'c.example', 'b.example'},
+      );
       expect(l.restorable(relay, public), ['b.example', 'c.example']);
       final out = l.restore(relay, public);
       expect(out.entries, ['a.example', 'mine.example', 'b.example', 'c.example']);
@@ -74,7 +81,15 @@ void main() {
       expect(typedServerValue(node, ' Node.Example:3413 '), 'https://node.example:3413');
       expect(typedServerValue(node, 'http://10.0.0.2:3413'), 'http://10.0.0.2:3413');
       expect(typedServerValue(node, 'localhost:3413'), 'https://localhost:3413');
-      for (final bad in ['', 'node', 'two words.example', 'node.example/path', 'ftp://x.example', 'u@node.example', 'node.example?q=1']) {
+      for (final bad in [
+        '',
+        'node',
+        'two words.example',
+        'node.example/path',
+        'ftp://x.example',
+        'u@node.example',
+        'node.example?q=1',
+      ]) {
         expect(typedServerValue(node, bad), isNull, reason: bad);
       }
     });
@@ -83,7 +98,15 @@ void main() {
       expect(typedServerValue(relay, 'epicbox.example'), 'epicbox.example');
       expect(typedServerValue(relay, 'wss://EPICBOX.example:443/'), 'epicbox.example');
       expect(typedServerValue(relay, 'epicbox.example:8443'), 'epicbox.example:8443');
-      for (final bad in ['', 'epicbox', 'a b.example', 'x..example', '.example', 'epicbox.example:0', 'epicbox.example/path']) {
+      for (final bad in [
+        '',
+        'epicbox',
+        'a b.example',
+        'x..example',
+        '.example',
+        'epicbox.example:0',
+        'epicbox.example/path',
+      ]) {
         expect(typedServerValue(relay, bad), isNull, reason: bad);
       }
     });
@@ -91,7 +114,10 @@ void main() {
     test('the filter matches host or operator and ignores a typed scheme', () {
       expect(serverMatches('btlabs', host: 'node.btlabs.uk'), isTrue);
       expect(serverMatches('https://node.btl', host: 'node.btlabs.uk'), isTrue);
-      expect(serverMatches('cypher', host: 'epic.stackwallet.com:3413', operator: 'Cypher Stack'), isTrue);
+      expect(
+        serverMatches('cypher', host: 'epic.stackwallet.com:3413', operator: 'Cypher Stack'),
+        isTrue,
+      );
       expect(serverMatches('zzz', host: 'node.btlabs.uk', operator: 'btlabs'), isFalse);
       expect(serverMatches('  ', host: 'node.btlabs.uk'), isTrue);
     });
@@ -133,11 +159,18 @@ void main() {
       expect(icon.forPixels(36 * 4).path, endsWith('-256.png'));
       expect(icon.forPixels(999).path, endsWith('-256.png'));
       expect(parseServerIcon(null), isNull);
-      expect(parseServerIcon({'hash': 'x', 'urls': {'64': 'https://evil.example/x.png'}}), isNull);
+      expect(
+        parseServerIcon({
+          'hash': 'x',
+          'urls': {'64': 'https://evil.example/x.png'},
+        }),
+        isNull,
+      );
     });
 
     test('the status list carries each entry icon', () {
-      const json = '''{"nodes":[{"kind":"node","endpoint":"https://node.btlabs.uk","state":"healthy",
+      const json =
+          '''{"nodes":[{"kind":"node","endpoint":"https://node.btlabs.uk","state":"healthy",
         "icon":{"hash":"h","urls":{"128":"https://status.btlabs.uk/api/v1/icons/h-128.png"}}}],
         "epicbox":[{"endpoint":"wss://epicbox.example:443/","state":"healthy","icon":null}]}''';
       expect(parseNodeStatus(json).single.icon?.hash, 'h');
