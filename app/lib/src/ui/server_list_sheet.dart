@@ -489,8 +489,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       _switchError = null;
     });
     _say(l.slAdded(serverHost(value)));
-    // The new row is the last: bring it into view once it is laid out.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // The new row is the last: bring it into view once the store has written and the list
+    // rebuilt with it (a frame or two later).
+    Future<void>.delayed(const Duration(milliseconds: 150), () {
       final scroll = widget.scrollController;
       if (!mounted || scroll == null || !scroll.hasClients) return;
       scroll.animateTo(
