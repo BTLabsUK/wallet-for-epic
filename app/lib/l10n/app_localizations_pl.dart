@@ -5279,6 +5279,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodFile => 'Plik';
 
   @override
+  String get methodShortHttp => 'HTTP';
+
+  @override
+  String get methodShortTor => 'Tor';
+
+  @override
+  String get methodShortQr => 'QR';
+
+  @override
   String get methodArtCaptionEpicbox => 'Serwer Epicbox ją trzyma';
 
   @override

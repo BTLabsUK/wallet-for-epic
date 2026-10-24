@@ -7905,6 +7905,24 @@ abstract class AppLocalizations {
   /// **'File'**
   String get methodFile;
 
+  /// Short method name where space is short (badges, segments): Link · HTTP as just HTTP. Keep the Latin letters.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP'**
+  String get methodShortHttp;
+
+  /// Short method name where space is short (badges, segments): Link · Tor as just Tor. Keep the Latin letters; Tor is a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor'**
+  String get methodShortTor;
+
+  /// Short method name where space is short (badges, segments): QR Payment as just QR. Keep the Latin letters.
+  ///
+  /// In en, this message translates to:
+  /// **'QR'**
+  String get methodShortQr;
+
   /// Caption under the Epicbox picture, a few words, shown in capitals.
   ///
   /// In en, this message translates to:

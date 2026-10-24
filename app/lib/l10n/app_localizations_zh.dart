@@ -4812,6 +4812,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodFile => '文件';
 
   @override
+  String get methodShortHttp => 'HTTP';
+
+  @override
+  String get methodShortTor => 'Tor';
+
+  @override
+  String get methodShortQr => 'QR';
+
+  @override
   String get methodArtCaptionEpicbox => 'Epicbox 服务器暂存';
 
   @override

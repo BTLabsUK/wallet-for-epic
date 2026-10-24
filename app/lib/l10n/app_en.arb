@@ -6402,6 +6402,18 @@
   "@methodFile": {
     "description": "Method name: a transaction file handed over by hand."
   },
+  "methodShortHttp": "HTTP",
+  "@methodShortHttp": {
+    "description": "Short method name where space is short (badges, segments): Link · HTTP as just HTTP. Keep the Latin letters."
+  },
+  "methodShortTor": "Tor",
+  "@methodShortTor": {
+    "description": "Short method name where space is short (badges, segments): Link · Tor as just Tor. Keep the Latin letters; Tor is a name."
+  },
+  "methodShortQr": "QR",
+  "@methodShortQr": {
+    "description": "Short method name where space is short (badges, segments): QR Payment as just QR. Keep the Latin letters."
+  },
   "methodArtCaptionEpicbox": "Epicbox server holds it",
   "@methodArtCaptionEpicbox": {
     "description": "Caption under the Epicbox picture, a few words, shown in capitals."

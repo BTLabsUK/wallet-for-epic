@@ -1417,7 +1417,7 @@ class _Suggestions extends StatelessWidget {
                         SizedBox(width: Sp.x3),
                         Expanded(child: Text(x.name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
                         SizedBox(width: Sp.x2),
-                        EKindTag(addressKindOf(x.address)),
+                        EKindTag(addressKindOf(x.address), compact: true),
                         SizedBox(width: Sp.x3),
                         Flexible(child: EShortAddress(x.address, tooltip: false)),
                       ],

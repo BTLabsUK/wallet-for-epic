@@ -5257,6 +5257,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodFile => 'Файл';
 
   @override
+  String get methodShortHttp => 'HTTP';
+
+  @override
+  String get methodShortTor => 'Tor';
+
+  @override
+  String get methodShortQr => 'QR';
+
+  @override
   String get methodArtCaptionEpicbox => 'Её хранит сервер Epicbox';
 
   @override

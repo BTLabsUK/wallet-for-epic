@@ -293,7 +293,7 @@ class _ContactRow extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        ContactTag(contact.address),
+                        ContactTag(contact.address, compact: true),
                       ],
                     ),
                     const SizedBox(height: 2),

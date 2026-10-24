@@ -5157,6 +5157,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodFile => 'Datei';
 
   @override
+  String get methodShortHttp => 'HTTP';
+
+  @override
+  String get methodShortTor => 'Tor';
+
+  @override
+  String get methodShortQr => 'QR';
+
+  @override
   String get methodArtCaptionEpicbox => 'Epicbox-Server hält sie';
 
   @override

@@ -4976,6 +4976,15 @@ class AppLocalizationsTh extends AppLocalizations {
   String get methodFile => 'ไฟล์';
 
   @override
+  String get methodShortHttp => 'HTTP';
+
+  @override
+  String get methodShortTor => 'Tor';
+
+  @override
+  String get methodShortQr => 'QR';
+
+  @override
   String get methodArtCaptionEpicbox => 'เซิร์ฟเวอร์ Epicbox เก็บไว้ให้';
 
   @override
