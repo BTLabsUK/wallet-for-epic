@@ -244,8 +244,8 @@ Timer? _clipboardTimer;
 /// Copies the recovery phrase and clears the clipboard 30 s later if the phrase is still there
 /// (as the desktop does). One timer for the app, outliving the screen. False when the clipboard
 /// refused the text. Android 10+ lets an app read the clipboard only while it is in the
-/// foreground: if the app is in the background after 30 s, the read finds nothing and the
-/// phrase stays until something else is copied.
+/// foreground: when the read finds nothing (the app is in the background), the clipboard is
+/// cleared anyway, as the phrase may still be on it.
 Future<bool> copyRecoveryPhrase(String phrase) async {
   try {
     await Clipboard.setData(ClipboardData(text: phrase));
@@ -256,7 +256,7 @@ Future<bool> copyRecoveryPhrase(String phrase) async {
   _clipboardTimer = Timer(const Duration(seconds: 30), () async {
     try {
       final now = await Clipboard.getData(Clipboard.kTextPlain);
-      if (now?.text == phrase) {
+      if (now?.text == null || now!.text == phrase) {
         await Clipboard.setData(const ClipboardData(text: ''));
       }
     } on Object {

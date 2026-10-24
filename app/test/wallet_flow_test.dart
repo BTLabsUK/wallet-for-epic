@@ -839,6 +839,41 @@ void main() {
         await tester.pump();
         expect(clip, '');
       });
+
+      testWidgets('in the background (the clipboard reads as empty) it is cleared too', (
+        tester,
+      ) async {
+        await openPhrase(tester);
+        String? clip;
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (call) async {
+            if (call.method == 'Clipboard.setData') {
+              clip = (call.arguments as Map)['text'] as String?;
+            }
+            // Android 10+ gives a background app nothing on a read.
+            return null;
+          },
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            SystemChannels.platform,
+            null,
+          ),
+        );
+        await _tapText(tester, 'Copy');
+        await tester.tap(
+          find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.text('Copy'),
+          ),
+        );
+        await _pumpFrames(tester);
+        expect(clip, isNotEmpty);
+        await tester.pump(const Duration(seconds: 31));
+        await tester.pump();
+        expect(clip, '');
+      });
     });
 
     testWidgets('biometric unlock can be turned on from settings', (
