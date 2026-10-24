@@ -9270,228 +9270,231 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskTxProofSaved => 'Nachweis gespeichert';
 
   @override
-  String get deskOnbWelcomeAdd => 'Add a wallet';
+  String get deskOnbWelcomeAdd => 'Wallet hinzufügen';
 
   @override
   String get deskOnbWelcomeTagline =>
-      'Keys and coins stay on this computer, locked with a password.';
+      'Schlüssel und Coins bleiben auf diesem Computer, mit einem Passwort gesperrt.';
 
   @override
-  String get deskOnbWelcomeCreate => 'Create a new wallet';
+  String get deskOnbWelcomeCreate => 'Neue Wallet erstellen';
 
   @override
-  String get deskOnbWelcomeCreateSub => 'New recovery phrase';
+  String get deskOnbWelcomeCreateSub => 'Neue Wiederherstellungsphrase';
 
   @override
-  String get deskOnbWelcomeImport => 'Import wallets';
+  String get deskOnbWelcomeImport => 'Wallets importieren';
 
   @override
-  String get deskOnbWelcomeImportSub => 'From an older Epic Wallet or a folder';
+  String get deskOnbWelcomeImportSub =>
+      'Aus einer älteren Epic Wallet oder einem Ordner';
 
   @override
-  String get deskOnbWelcomeRestore => 'Restore from a phrase';
+  String get deskOnbWelcomeRestore => 'Mit Phrase wiederherstellen';
 
   @override
-  String get deskOnbWelcomeRestoreSub => 'From the recovery words';
+  String get deskOnbWelcomeRestoreSub => 'Aus den Wiederherstellungswörtern';
 
   @override
   String get deskOnbWelcomeTestNote =>
-      'New wallets are made on this test network.';
+      'Neue Wallets werden in diesem Testnetzwerk erstellt.';
 
   @override
-  String get deskOnbWelcomeBack => 'Back to unlock';
+  String get deskOnbWelcomeBack => 'Zurück zum Entsperren';
 
   @override
-  String get deskOnbWelcomeAdvanced => 'Advanced';
+  String get deskOnbWelcomeAdvanced => 'Erweitert';
 
   @override
-  String get deskOnbWelcomeNetwork => 'Network';
+  String get deskOnbWelcomeNetwork => 'Netzwerk';
 
   @override
   String get deskOnbWelcomeNetworkHelp =>
-      'Mainnet holds real EPIC. Floonet and Usernet are test networks.';
+      'Im Mainnet liegen echte EPIC. Floonet und Usernet sind Testnetzwerke.';
 
   @override
-  String get deskOnbWelcomeFolder => 'App data folder';
+  String get deskOnbWelcomeFolder => 'Datenordner der App';
 
   @override
-  String get deskOnbWelcomeHideDetails => 'Hide details';
+  String get deskOnbWelcomeHideDetails => 'Details ausblenden';
 
   @override
-  String get deskOnbWelcomeMoreAbout => 'More about this';
+  String get deskOnbWelcomeMoreAbout => 'Mehr dazu';
 
   @override
   String get deskOnbWelcomeFolderWhere =>
-      'Where the app keeps wallets and settings.';
+      'Hier speichert die App Wallets und Einstellungen.';
 
   @override
   String get deskOnbWelcomeFolderDetail =>
-      'With the local node, the blockchain is kept here too. A new folder must be empty: the app makes its folders there and keeps using it.';
+      'Mit dem lokalen Node liegt auch die Blockchain hier. Ein neuer Ordner muss leer sein: Die App legt dort ihre Ordner an und nutzt ihn weiter.';
 
   @override
   String deskOnbWelcomeUsing(String folder) {
-    return 'Using $folder. The app restarts to use it.';
+    return '$folder wird genutzt. Die App startet dafür neu.';
   }
 
   @override
   String get deskOnbWelcomeLocked =>
-      'It can be changed only before the first wallet is added.';
+      'Er lässt sich nur ändern, bevor die erste Wallet hinzugefügt wird.';
 
   @override
-  String get deskOnbWelcomeChooseFolder => 'Choose a folder';
+  String get deskOnbWelcomeChooseFolder => 'Ordner wählen';
 
   @override
-  String get deskOnbWelcomeDefaultFolder => 'Default folder';
+  String get deskOnbWelcomeDefaultFolder => 'Standardordner';
 
   @override
   String get deskOnbWelcomeFolderNotEmpty =>
-      'That folder is not empty. Choose a new, empty folder.';
+      'Dieser Ordner ist nicht leer. Wählen Sie einen neuen, leeren Ordner.';
 
   @override
   String get deskOnbWelcomeFolderIsWallet =>
-      'That is a wallet folder. Choose a new, empty folder.';
+      'Das ist ein Wallet-Ordner. Wählen Sie einen neuen, leeren Ordner.';
 
   @override
-  String get deskOnbWelcomeChoose => 'Choose';
+  String get deskOnbWelcomeChoose => 'Wählen';
 
   @override
-  String get deskOnbStepPassword => 'Password';
+  String get deskOnbStepPassword => 'Passwort';
 
   @override
-  String get deskOnbStepPhrase => 'Recovery phrase';
+  String get deskOnbStepPhrase => 'Wiederherstellungsphrase';
 
   @override
   String get deskOnbCreateStageCreate =>
-      'Creating the wallet and its recovery phrase';
+      'Wallet und Wiederherstellungsphrase werden erstellt';
 
   @override
-  String get deskOnbCreateStageSave => 'Saving the account';
+  String get deskOnbCreateStageSave => 'Konto wird gespeichert';
 
   @override
-  String get deskOnbCreateNotCreated => 'Wallet not created';
+  String get deskOnbCreateNotCreated => 'Wallet nicht erstellt';
 
   @override
-  String get deskOnbCreateCreating => 'Creating the wallet';
+  String get deskOnbCreateCreating => 'Wallet wird erstellt';
 
   @override
   String deskOnbCreateTestLead(String network) {
-    return 'A wallet on $network, a test network.';
+    return 'Eine Wallet im $network, einem Testnetzwerk.';
   }
 
   @override
-  String get deskOnbCreateFailedTitle => 'The wallet could not be created';
+  String get deskOnbCreateFailedTitle =>
+      'Die Wallet konnte nicht erstellt werden';
 
   @override
   String get deskOnbCreateDiskFull =>
-      'The account could not be saved: the disk is full.';
+      'Das Konto konnte nicht gespeichert werden: Der Datenträger ist voll.';
 
   @override
   String get deskOnbCreateWait =>
-      'This can take up to a minute. Keep the app open.';
+      'Das kann bis zu einer Minute dauern. Lassen Sie die App geöffnet.';
 
   @override
-  String get deskOnbCreateLocking => 'Locking the open wallet';
+  String get deskOnbCreateLocking => 'Die geöffnete Wallet wird gesperrt';
 
   @override
-  String get deskOnbCreateSide => 'New wallet';
+  String get deskOnbCreateSide => 'Neue Wallet';
 
   @override
-  String get deskOnbCreateTitle => 'Create wallet';
+  String get deskOnbCreateTitle => 'Wallet erstellen';
 
   @override
   String get deskOnbCreateLead =>
-      'The password unlocks this wallet on this computer. It cannot recover coins; the phrase on the next step does.';
+      'Das Passwort entsperrt diese Wallet auf diesem Computer. Coins zurückholen kann es nicht; das kann die Phrase im nächsten Schritt.';
 
   @override
   String get deskOnbCreateTestNote =>
-      'A wallet on a test network, not for real EPIC';
+      'Eine Wallet in einem Testnetzwerk, nicht für echte EPIC';
 
   @override
   String get deskOnbCreatePhraseLead =>
-      'These words are the only way to get the coins back if this computer breaks. Write them on paper, in order.';
+      'Nur mit diesen Wörtern bekommen Sie die Coins zurück, wenn dieser Computer kaputtgeht. Schreiben Sie sie der Reihe nach auf Papier.';
 
   @override
-  String get deskOnbCreateRevealFirst => 'Reveal the phrase first';
+  String get deskOnbCreateRevealFirst => 'Zuerst die Phrase aufdecken';
 
   @override
-  String get deskOnbCreateWarn => 'Anyone with these words can take the coins';
+  String get deskOnbCreateWarn => 'Wer diese Wörter hat, kann die Coins nehmen';
 
   @override
-  String get deskOnbCreateReveal => 'Reveal phrase';
+  String get deskOnbCreateReveal => 'Phrase aufdecken';
 
   @override
   String get deskOnbCreateCheckScreen =>
-      'Check that nobody can see the screen.';
+      'Achten Sie darauf, dass niemand den Bildschirm sieht.';
 
   @override
-  String get deskOnbCreateHide => 'Hide';
+  String get deskOnbCreateHide => 'Verbergen';
 
   @override
-  String get deskOnbCreateShowQr => 'Show QR code';
+  String get deskOnbCreateShowQr => 'QR-Code anzeigen';
 
   @override
-  String get deskOnbCreateHideQr => 'Hide QR code';
+  String get deskOnbCreateHideQr => 'QR-Code ausblenden';
 
   @override
   String get deskOnbCreateQrWarn =>
-      'Anyone who scans this code can take the coins';
+      'Wer diesen Code scannt, kann die Coins nehmen';
 
   @override
   String get deskOnbCreateQrWarnText =>
-      'Scan it only into another wallet you trust.';
+      'Scannen Sie ihn nur in eine andere Wallet, der Sie vertrauen.';
 
   @override
-  String get deskOnbCreateQrLabel => 'Recovery phrase as a QR code';
+  String get deskOnbCreateQrLabel => 'Wiederherstellungsphrase als QR-Code';
 
   @override
   String deskOnbCreateWritten(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count words',
-      one: '$count word',
+      other: '$count Wörter',
+      one: '$count Wort',
     );
-    return 'Written down: all $_temp0 on paper';
+    return 'Aufgeschrieben: alle $_temp0 auf Papier';
   }
 
   @override
-  String get deskOnbRestoreDone => 'Wallet restored.';
+  String get deskOnbRestoreDone => 'Wallet wiederhergestellt.';
 
   @override
-  String get deskOnbRestoreNotRestored => 'Wallet not restored';
+  String get deskOnbRestoreNotRestored => 'Wallet nicht wiederhergestellt';
 
   @override
-  String get deskOnbRestoreRestoring => 'Restoring the wallet';
+  String get deskOnbRestoreRestoring => 'Wallet wird wiederhergestellt';
 
   @override
-  String get deskOnbRestoreFailedTitle => 'The wallet could not be restored';
+  String get deskOnbRestoreFailedTitle =>
+      'Die Wallet konnte nicht wiederhergestellt werden';
 
   @override
   String get deskOnbRestorePermission =>
-      'The wallet files could not be written: permission denied in ~/.config/Epic Cash Desktop.';
+      'Die Wallet-Dateien konnten nicht geschrieben werden: Zugriff verweigert in ~/.config/Epic Cash Desktop.';
 
   @override
   String get deskOnbRestoreWait =>
-      'This can take up to a minute. The balance appears after the first scan of the chain.';
+      'Das kann bis zu einer Minute dauern. Das Guthaben erscheint nach dem ersten Scan der Blockchain.';
 
   @override
-  String get deskOnbRestoreSide => 'Restore wallet';
+  String get deskOnbRestoreSide => 'Wallet wiederherstellen';
 
   @override
-  String get deskOnbRestoreChoosePassword => 'Choose a password';
+  String get deskOnbRestoreChoosePassword => 'Passwort wählen';
 
   @override
   String deskOnbRestorePasswordLead(int count) {
-    return 'The $count-word phrase checks out. Set the password that unlocks this wallet on this computer. The wallet opens when it is restored.';
+    return 'Die Phrase mit $count Wörtern ist gültig. Legen Sie das Passwort fest, das diese Wallet auf diesem Computer entsperrt. Die Wallet öffnet sich nach der Wiederherstellung.';
   }
 
   @override
   String get deskOnbRestoreNothingToPaste =>
-      'Nothing to paste: the clipboard holds no words.';
+      'Nichts einzufügen: Die Zwischenablage enthält keine Wörter.';
 
   @override
   String deskOnbRestoreBadWord(int position, String word) {
-    return 'Word $position, \"$word\", is not in the word list.';
+    return 'Wort $position, „$word“, steht nicht in der Wortliste.';
   }
 
   @override
@@ -9499,19 +9502,19 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'All $count words check out.',
-      one: 'All $count word checks out.',
+      other: 'Alle $count Wörter sind gültig.',
+      one: '$count Wort ist gültig.',
     );
     return '$_temp0';
   }
 
   @override
   String get deskOnbRestoreStaysHere =>
-      'The phrase never leaves this computer.';
+      'Die Phrase verlässt diesen Computer nie.';
 
   @override
   String get deskOnbRestoreChecksumFirm =>
-      'This phrase\'s check number does not match. Compare every word with the paper.';
+      'Die Prüfsumme dieser Phrase stimmt nicht. Vergleichen Sie jedes Wort mit dem Papier.';
 
   @override
   String deskOnbRestoreChecksumSoFar(int count) {
@@ -9519,352 +9522,355 @@ class AppLocalizationsDe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count words so far; the check number does not match. Keep typing, or compare every word with the paper.',
+          'Bisher $count Wörter; die Prüfsumme stimmt nicht. Tippen Sie weiter oder vergleichen Sie jedes Wort mit dem Papier.',
       one:
-          '$count word so far; the check number does not match. Keep typing, or compare every word with the paper.',
+          'Bisher $count Wort; die Prüfsumme stimmt nicht. Tippen Sie weiter oder vergleichen Sie jedes Wort mit dem Papier.',
     );
     return '$_temp0';
   }
 
   @override
   String get deskOnbRestoreWordsLead =>
-      'Type the words in order, or paste the whole phrase into any box. Line breaks, commas and numbering are ignored.';
+      'Tippen Sie die Wörter der Reihe nach ein oder fügen Sie die ganze Phrase in ein beliebiges Feld ein. Zeilenumbrüche, Kommas und Nummern werden ignoriert.';
 
   @override
-  String get deskOnbRestoreClear => 'Clear';
+  String get deskOnbRestoreClear => 'Leeren';
 
   @override
   String deskOnbRestoreUseWords(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Use $count words',
-      one: 'Use $count word',
+      other: '$count Wörter verwenden',
+      one: '$count Wort verwenden',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOnbRestoreWords => 'Words';
+  String get deskOnbRestoreWords => 'Wörter';
 
   @override
   String deskOnbRestoreFilledOf(int filled, int total) {
     String _temp0 = intl.Intl.pluralLogic(
       total,
       locale: localeName,
-      other: '$total words',
-      one: '$total word',
+      other: '$total Wörtern',
+      one: '$total Wort',
     );
-    return '$filled of $_temp0';
+    return '$filled von $_temp0';
   }
 
   @override
-  String get deskOnbKillTitle => 'Epic is already running';
+  String get deskOnbKillTitle => 'Epic läuft bereits';
 
   @override
   String get deskOnbKillBody =>
-      'Another wallet or node process is using the wallet files and ports. Close it to unlock here, or cancel and close it yourself.';
+      'Ein anderer Wallet- oder Node-Prozess nutzt die Wallet-Dateien und Ports. Schließen Sie ihn, um hier zu entsperren, oder brechen Sie ab und schließen Sie ihn selbst.';
 
   @override
-  String get deskOnbKillProcesses => 'Running processes';
+  String get deskOnbKillProcesses => 'Laufende Prozesse';
 
   @override
-  String get deskOnbKillRoleWallet => 'wallet service';
+  String get deskOnbKillRoleWallet => 'Wallet-Dienst';
 
   @override
-  String get deskOnbKillRoleNode => 'node';
+  String get deskOnbKillRoleNode => 'Node';
 
   @override
   String get deskOnbKillNote =>
-      'Closing them stops what they were doing, such as a node sync or receiving payments. They start again from this app after unlock.';
+      'Das Schließen beendet, was sie gerade tun, etwa eine Node-Synchronisierung oder den Empfang von Zahlungen. Nach dem Entsperren startet diese App sie wieder.';
 
   @override
-  String get deskOnbKillClosing => 'Closing…';
+  String get deskOnbKillClosing => 'Wird geschlossen…';
 
   @override
-  String get deskOnbKillClose => 'Close and unlock';
+  String get deskOnbKillClose => 'Schließen und entsperren';
 
   @override
-  String get deskOnbSameTitle => 'This wallet is already here';
+  String get deskOnbSameTitle => 'Diese Wallet ist schon vorhanden';
 
   @override
   String get deskOnbSameBody =>
-      'The phrase belongs to a wallet in the list. Nothing was added.';
+      'Die Phrase gehört zu einer Wallet in der Liste. Es wurde nichts hinzugefügt.';
 
   @override
   String get deskOnbSameWallet => 'Wallet';
 
   @override
   String get deskOnbSameNote =>
-      'Open it asks for that wallet\'s password. Cancel keeps the phrase on the grid.';
+      '„Öffnen“ fragt nach dem Passwort dieser Wallet. „Abbrechen“ lässt die Phrase im Raster.';
 
   @override
-  String get deskOnbSameOpen => 'Open it';
+  String get deskOnbSameOpen => 'Öffnen';
 
   @override
   String get deskOnbUnlockWhoWindows =>
-      'Anyone using this Windows account can open this wallet.';
+      'Jeder, der dieses Windows-Konto nutzt, kann diese Wallet öffnen.';
 
   @override
   String get deskOnbUnlockWho =>
-      'Anyone using this account can open this wallet.';
+      'Jeder, der dieses Benutzerkonto nutzt, kann diese Wallet öffnen.';
 
   @override
   String get deskOnbUnlockWrong =>
-      'Wrong password. Check Caps Lock and the keyboard layout.';
+      'Falsches Passwort. Prüfen Sie die Feststelltaste und das Tastaturlayout.';
 
   @override
   String get deskOnbUnlockPortInUse =>
-      'The wallet service did not start: port 3415 is in use by another program.';
+      'Der Wallet-Dienst ist nicht gestartet: Port 3415 wird von einem anderen Programm genutzt.';
 
   @override
-  String get deskOnbUnlockStageCheck => 'Checking wallet files';
+  String get deskOnbUnlockStageCheck => 'Wallet-Dateien werden geprüft';
 
   @override
   String get deskOnbUnlockStageProcesses =>
-      'Looking for wallet processes still running';
+      'Suche nach noch laufenden Wallet-Prozessen';
 
   @override
-  String get deskOnbUnlockStageClosing => 'Closing the old wallet processes';
+  String get deskOnbUnlockStageClosing =>
+      'Alte Wallet-Prozesse werden geschlossen';
 
   @override
-  String get deskOnbUnlockStageWallet => 'Starting the wallet service';
+  String get deskOnbUnlockStageWallet => 'Wallet-Dienst wird gestartet';
 
   @override
-  String get deskOnbUnlockStageUnlock => 'Unlocking the wallet';
+  String get deskOnbUnlockStageUnlock => 'Wallet wird entsperrt';
 
   @override
-  String get deskOnbUnlockEnter => 'Enter the password';
+  String get deskOnbUnlockEnter => 'Geben Sie das Passwort ein';
 
   @override
   String get deskOnbUnlockCloseOthers =>
-      'Close the other Epic processes, then unlock.';
+      'Schließen Sie die anderen Epic-Prozesse und entsperren Sie dann.';
 
   @override
   String get deskOnbUnlockRememberedUnavailable =>
-      'Remembered password unavailable. Enter the password.';
+      'Gespeichertes Passwort nicht verfügbar. Geben Sie das Passwort ein.';
 
   @override
   String get deskOnbUnlockRememberedForgotten =>
-      'The remembered password was forgotten. Enter the password.';
+      'Das gespeicherte Passwort wurde vergessen. Geben Sie das Passwort ein.';
 
   @override
-  String get deskOnbUnlockNotRemembered => 'Not remembered';
+  String get deskOnbUnlockNotRemembered => 'Nicht gespeichert';
 
   @override
   String get deskOnbUnlockKeyStore =>
-      'This computer\'s key store is unavailable.';
+      'Der Schlüsselspeicher dieses Computers ist nicht verfügbar.';
 
   @override
-  String get deskOnbUnlockThisWallet => 'this wallet';
+  String get deskOnbUnlockThisWallet => 'diese Wallet';
 
   @override
-  String get deskOnbUnlockFailed => 'Unlock failed';
+  String get deskOnbUnlockFailed => 'Entsperren fehlgeschlagen';
 
   @override
   String get deskOnbUnlockFailedLead =>
-      'The wallet did not open. The reason is below.';
+      'Die Wallet wurde nicht geöffnet. Den Grund sehen Sie unten.';
 
   @override
-  String get deskOnbUnlockFailedBox => 'The wallet did not open';
+  String get deskOnbUnlockFailedBox => 'Die Wallet wurde nicht geöffnet';
 
   @override
   String deskOnbUnlockUnlocking(String name) {
-    return 'Unlocking $name';
+    return '$name wird entsperrt';
   }
 
   @override
-  String get deskOnbUnlockStepsLead => 'Each step shows as it finishes.';
+  String get deskOnbUnlockStepsLead =>
+      'Jeder Schritt erscheint, sobald er fertig ist.';
 
   @override
   String get deskOnbUnlockNote =>
-      'Then the overview opens and finishes in the background: connecting to the node, updating balances, turning on receiving.';
+      'Dann öffnet sich die Übersicht und erledigt den Rest im Hintergrund: Verbindung zum Node, Guthaben aktualisieren, Empfang einschalten.';
 
   @override
-  String get deskOnbUnlockTitle => 'Unlock wallet';
+  String get deskOnbUnlockTitle => 'Wallet entsperren';
 
   @override
-  String get deskOnbUnlockLead => 'Keys stay on this computer.';
+  String get deskOnbUnlockLead => 'Die Schlüssel bleiben auf diesem Computer.';
 
   @override
-  String get deskOnbUnlockRemember => 'Remember on this computer';
+  String get deskOnbUnlockRemember => 'Auf diesem Computer merken';
 
   @override
   String deskOnbUnlockRememberFor(String who) {
-    return 'For 30 days. $who';
+    return 'Für 30 Tage. $who';
   }
 
   @override
-  String get deskOnbUnlockMissingTitle => 'This wallet’s folder is missing';
+  String get deskOnbUnlockMissingTitle => 'Der Ordner dieser Wallet fehlt';
 
   @override
   String deskOnbUnlockMissingText(String folder) {
-    return 'It was at $folder';
+    return 'Er lag unter $folder';
   }
 
   @override
-  String get deskOnbUnlockRemove => 'Remove';
+  String get deskOnbUnlockRemove => 'Entfernen';
 
   @override
-  String get deskOnbUnlockTryAgain => 'Try again';
+  String get deskOnbUnlockTryAgain => 'Erneut versuchen';
 
   @override
-  String get deskOnbUnlockButton => 'Unlock';
+  String get deskOnbUnlockButton => 'Entsperren';
 
   @override
-  String get deskOnbNodeFreeUnknown => 'free space unknown';
+  String get deskOnbNodeFreeUnknown => 'freier Speicher unbekannt';
 
   @override
   String deskOnbNodeFreeHere(String size) {
-    return '$size free here';
+    return '$size frei hier';
   }
 
   @override
   String deskOnbNodeDiskAbout(String size) {
-    return 'About $size of disk now';
+    return 'Derzeit etwa $size Speicher';
   }
 
   @override
   String deskOnbNodeDisk(String size) {
-    return '$size of disk now';
+    return 'Derzeit $size Speicher';
   }
 
   @override
-  String get deskOnbNodeSeparate => 'A separate program.';
+  String get deskOnbNodeSeparate => 'Ein eigenes Programm.';
 
   @override
   String get deskOnbNodeSeparateText =>
-      'The wallet starts the Epic node and stops it with the app.';
+      'Die Wallet startet den Epic-Node und beendet ihn mit der App.';
 
   @override
-  String get deskOnbNodeFirewall => 'Windows asks once';
+  String get deskOnbNodeFirewall => 'Windows fragt einmal,';
 
   @override
   String get deskOnbNodeFirewallText =>
-      'to allow it through the firewall. Allow it on private networks.';
+      'ob es durch die Firewall darf. Erlauben Sie es für private Netzwerke.';
 
   @override
   String deskOnbNodeGrowing(String free) {
-    return 'growing slowly. $free.';
+    return 'wächst langsam. $free.';
   }
 
   @override
-  String get deskOnbNodeHours => 'Hours to sync';
+  String get deskOnbNodeHours => 'Stunden zum Synchronisieren';
 
   @override
   String get deskOnbNodeHoursText =>
-      'the first time, 2 to 6 on a typical connection. The wallet shows the progress and can use a public node meanwhile.';
+      'beim ersten Mal, 2 bis 6 bei einer üblichen Verbindung. Die Wallet zeigt den Fortschritt und kann solange einen öffentlichen Node nutzen.';
 
   @override
-  String get deskOnbNodeDownload => 'About 4 GB downloaded';
+  String get deskOnbNodeDownload => 'Etwa 4 GB Download';
 
   @override
   String get deskOnbNodeDownloadText =>
-      'the first time, then a little every day.';
+      'beim ersten Mal, danach jeden Tag ein wenig.';
 
   @override
-  String get deskOnbNodeFound => 'Found';
+  String get deskOnbNodeFound => 'Gefunden';
 
   @override
   String deskOnbNodeFoundAt(String version, String address) {
-    return 'Epic $version at $address';
+    return 'Epic $version unter $address';
   }
 
   @override
   String deskOnbNodeHeight(String height) {
-    return 'height $height';
+    return 'Höhe $height';
   }
 
   @override
-  String get deskOnbNodeSynced => 'synced';
+  String get deskOnbNodeSynced => 'synchronisiert';
 
   @override
-  String get deskOnbNodeNoAnswer => 'No node answers';
+  String get deskOnbNodeNoAnswer => 'Kein Node antwortet';
 
   @override
   String deskOnbNodeNoAnswerAt(String address) {
-    return 'at $address. Start it, or check the address and port.';
+    return 'unter $address. Starten Sie ihn oder prüfen Sie Adresse und Port.';
   }
 
   @override
   String get deskOnbNodeExisting =>
-      'Use a node already running on this computer';
+      'Einen Node nutzen, der schon auf diesem Computer läuft';
 
   @override
   String get deskOnbNodeExistingText =>
-      'The Epic GUI or CLI node. The wallet connects to it and starts nothing.';
+      'Der Node der Epic GUI oder CLI. Die Wallet verbindet sich mit ihm und startet nichts.';
 
   @override
-  String get deskOnbNodeAddress => 'Address of the node on this computer';
+  String get deskOnbNodeAddress => 'Adresse des Nodes auf diesem Computer';
 
   @override
-  String get deskOnbNodeCheck => 'Check';
+  String get deskOnbNodeCheck => 'Prüfen';
 
   @override
-  String get deskOnbNodeBundled => 'Start the bundled node';
+  String get deskOnbNodeBundled => 'Mitgelieferten Node starten';
 
   @override
   String get deskOnbNodeBundledText =>
-      'Downloads and syncs the chain into the wallet’s own folder. Nothing is downloaded before Save on the last step.';
+      'Lädt die Blockchain in den eigenen Ordner der Wallet und synchronisiert sie. Vor „Speichern“ im letzten Schritt wird nichts heruntergeladen.';
 
   @override
   String deskOnbNodeFallback(String host) {
-    return 'Use $host until the local node is synced. The local node takes over by itself.';
+    return '$host nutzen, bis der lokale Node synchronisiert ist. Der lokale Node übernimmt von selbst.';
   }
 
   @override
-  String get deskOnbNodeDialogTitle => 'Local node';
+  String get deskOnbNodeDialogTitle => 'Lokaler Node';
 
   @override
   String get deskOnbNodeDialogBody =>
-      'What running the node here means, and which node to use.';
+      'Was es bedeutet, den Node hier zu betreiben, und welcher Node genutzt wird.';
 
   @override
-  String get deskOnbNodeUseThis => 'Use this node';
+  String get deskOnbNodeUseThis => 'Diesen Node nutzen';
 
   @override
-  String get deskOnbNodeStart => 'Start local node';
+  String get deskOnbNodeStart => 'Lokalen Node starten';
 
   @override
   String deskOnbRestorePasteCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count words pasted; a phrase has 12, 15, 18, 21 or 24',
-      one: '$count word pasted; a phrase has 12, 15, 18, 21 or 24',
+      other: '$count Wörter eingefügt; eine Phrase hat 12, 15, 18, 21 oder 24',
+      one: '$count Wort eingefügt; eine Phrase hat 12, 15, 18, 21 oder 24',
     );
     return '$_temp0';
   }
 
   @override
   String deskOnbWordN(int number) {
-    return 'Word $number';
+    return 'Wort $number';
   }
 
   @override
-  String get deskOnbImportEnterOld => 'Enter the old password';
+  String get deskOnbImportEnterOld => 'Geben Sie das alte Passwort ein';
 
   @override
   String deskOnbImportNewShort(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count characters',
-      one: '$count character',
+      other: '$count Zeichen',
+      one: '$count Zeichen',
     );
-    return 'New password: at least $_temp0';
+    return 'Neues Passwort: mindestens $_temp0';
   }
 
   @override
-  String get deskOnbImportNewDiffer => 'The new passwords differ';
+  String get deskOnbImportNewDiffer =>
+      'Die neuen Passwörter stimmen nicht überein';
 
   @override
   String deskOnbImportWalletsN(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count wallets',
-      one: '$count wallet',
+      other: '$count Wallets',
+      one: '$count Wallet',
     );
     return '$_temp0';
   }
@@ -9874,177 +9880,178 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count wallets imported.',
-      one: 'Wallet imported.',
+      other: '$count Wallets importiert.',
+      one: 'Wallet importiert.',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOnbImportFindingTitle => 'Finding wallets';
+  String get deskOnbImportFindingTitle => 'Wallets werden gesucht';
 
   @override
   String get deskOnbImportFindingLead =>
-      'Searching the folders of older Epic Wallet versions and the epic program. Nothing is changed.';
+      'Die Ordner älterer Epic-Wallet-Versionen und des Programms epic werden durchsucht. Es wird nichts geändert.';
 
   @override
   String deskOnbImportFoundTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count wallets found',
-      one: '$count wallet found',
+      other: '$count Wallets gefunden',
+      one: '$count Wallet gefunden',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOnbImportFoundLead => 'Old folders are only read.';
+  String get deskOnbImportFoundLead => 'Alte Ordner werden nur gelesen.';
 
   @override
-  String get deskOnbImportNoneTitle => 'No wallets found';
+  String get deskOnbImportNoneTitle => 'Keine Wallets gefunden';
 
   @override
   String get deskOnbImportNoneLead =>
-      'Choose the wallet folder, or restore from the recovery phrase.';
+      'Wählen Sie den Wallet-Ordner oder stellen Sie mit der Wiederherstellungsphrase wieder her.';
 
   @override
-  String get deskOnbImportChooseTitle => 'Choose wallets';
+  String get deskOnbImportChooseTitle => 'Wallets wählen';
 
   @override
   String get deskOnbImportChooseLead =>
-      'Ticked wallets are added to the app. History is rebuilt by a scan.';
+      'Markierte Wallets werden der App hinzugefügt. Der Verlauf wird per Scan neu aufgebaut.';
 
   @override
-  String get deskOnbImportCheckTitle => 'Checking for use';
+  String get deskOnbImportCheckTitle => 'Nutzung wird geprüft';
 
   @override
   String get deskOnbImportCheckLead =>
-      'A wallet in use by another program is not imported.';
+      'Eine Wallet, die ein anderes Programm nutzt, wird nicht importiert.';
 
   @override
-  String get deskOnbImportTitle => 'Import';
+  String get deskOnbImportTitle => 'Importieren';
 
   @override
-  String get deskOnbImportLead => 'Each wallet asks for its old password once.';
+  String get deskOnbImportLead =>
+      'Jede Wallet fragt einmal nach ihrem alten Passwort.';
 
   @override
-  String get deskOnbImportDoneTitle => 'Wallets imported';
+  String get deskOnbImportDoneTitle => 'Wallets importiert';
 
   @override
   String get deskOnbImportDoneLead =>
-      'The first unlock of each wallet scans the chain for its history.';
+      'Beim ersten Entsperren durchsucht jede Wallet die Blockchain nach ihrem Verlauf.';
 
   @override
   String deskOnbImportSelected(int selected, int total) {
-    return '$selected of $total selected';
+    return '$selected von $total ausgewählt';
   }
 
   @override
-  String get deskOnbImportChecking => 'Checking…';
+  String get deskOnbImportChecking => 'Wird geprüft…';
 
   @override
   String get deskOnbImportCloseOther =>
-      'Close the other program or skip the wallet';
+      'Schließen Sie das andere Programm oder überspringen Sie die Wallet';
 
   @override
   String deskOnbImportImportedOf(int done, int total) {
-    return '$done of $total imported';
+    return '$done von $total importiert';
   }
 
   @override
-  String get deskOnbImportOpen => 'Open wallet';
+  String get deskOnbImportOpen => 'Wallet öffnen';
 
   @override
-  String get deskOnbImportStepFind => 'Find';
+  String get deskOnbImportStepFind => 'Suchen';
 
   @override
-  String get deskOnbImportStepChoose => 'Choose';
+  String get deskOnbImportStepChoose => 'Wählen';
 
   @override
-  String get deskOnbImportStepCheck => 'Check';
+  String get deskOnbImportStepCheck => 'Prüfen';
 
   @override
-  String get deskOnbImportBack => 'Back';
+  String get deskOnbImportBack => 'Zurück';
 
   @override
-  String get deskOnbImportSkip => 'Skip';
+  String get deskOnbImportSkip => 'Überspringen';
 
   @override
-  String get deskOnbImportOlder => 'Older Epic Wallet';
+  String get deskOnbImportOlder => 'Ältere Epic Wallet';
 
   @override
-  String get deskOnbImportOlderSub => 'Accounts and folders';
+  String get deskOnbImportOlderSub => 'Konten und Ordner';
 
   @override
-  String get deskOnbImportEpicProgram => 'The epic program';
+  String get deskOnbImportEpicProgram => 'Das Programm epic';
 
   @override
-  String get deskOnbImportSearching => 'Searching…';
+  String get deskOnbImportSearching => 'Wird gesucht…';
 
   @override
-  String get deskOnbImportRestore => 'Restore from phrase';
+  String get deskOnbImportRestore => 'Mit Phrase wiederherstellen';
 
   @override
   String deskOnbImportLastUsed(String date) {
-    return 'Last used $date';
+    return 'Zuletzt genutzt $date';
   }
 
   @override
   String deskOnbImportSecondCopy(String reason) {
-    return '$reason. Tick for a second copy.';
+    return '$reason. Markieren für eine zweite Kopie.';
   }
 
   @override
   String deskOnbImportCannot(String name) {
-    return '$name: cannot be imported';
+    return '$name: kann nicht importiert werden';
   }
 
   @override
-  String get deskOnbImportInApp => 'In the app';
+  String get deskOnbImportInApp => 'In der App';
 
   @override
-  String get deskOnbImportSameWallet => 'Same wallet';
+  String get deskOnbImportSameWallet => 'Gleiche Wallet';
 
   @override
-  String get deskOnbImportNotInUse => 'Not in use';
+  String get deskOnbImportNotInUse => 'Nicht in Nutzung';
 
   @override
-  String get deskOnbImportNotChecked => 'Not checked';
+  String get deskOnbImportNotChecked => 'Nicht geprüft';
 
   @override
-  String get deskOnbImportSkipped => 'Skipped';
+  String get deskOnbImportSkipped => 'Übersprungen';
 
   @override
-  String get deskOnbImportInUse => 'In use';
+  String get deskOnbImportInUse => 'In Nutzung';
 
   @override
   String get deskOnbImportInUseText =>
-      'In use by another program. Close the older Epic Wallet or the epic program, then check again.';
+      'Wird von einem anderen Programm genutzt. Schließen Sie die ältere Epic Wallet oder das Programm epic und prüfen Sie dann erneut.';
 
   @override
-  String get deskOnbImportCheckAgain => 'Check again';
+  String get deskOnbImportCheckAgain => 'Erneut prüfen';
 
   @override
-  String get deskOnbImportImported => 'Imported';
+  String get deskOnbImportImported => 'Importiert';
 
   @override
-  String get deskOnbImportImporting => 'Importing…';
+  String get deskOnbImportImporting => 'Wird importiert…';
 
   @override
-  String get deskOnbImportWaiting => 'Waiting';
+  String get deskOnbImportWaiting => 'Wartet';
 
   @override
-  String get deskOnbImportOldPassword => 'Old password';
+  String get deskOnbImportOldPassword => 'Altes Passwort';
 
   @override
   String deskOnbImportOldHelp(String name) {
-    return 'The password of $name in the older app.';
+    return 'Das Passwort von $name in der älteren App.';
   }
 
   @override
   String deskOnbImportOldOf(String name) {
-    return 'Old password of $name';
+    return 'Altes Passwort von $name';
   }
 
   @override
@@ -10052,202 +10059,203 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count or more characters.',
-      one: '$count or more characters.',
+      other: '$count oder mehr Zeichen.',
+      one: '$count oder mehr Zeichen.',
     );
-    return 'The old password is short. Choose a new one, $_temp0';
+    return 'Das alte Passwort ist zu kurz. Wählen Sie ein neues mit $_temp0';
   }
 
   @override
-  String get deskOnbImportNewPassword => 'New password';
+  String get deskOnbImportNewPassword => 'Neues Passwort';
 
   @override
-  String get deskOnbImportRepeat => 'Repeat';
+  String get deskOnbImportRepeat => 'Wiederholen';
 
   @override
-  String get deskOnbImportRepeatNew => 'Repeat the new password';
+  String get deskOnbImportRepeatNew => 'Neues Passwort wiederholen';
 
   @override
   String get deskOnbImportUnchanged =>
-      'Old folders are unchanged. The older app can still open them.';
+      'Alte Ordner sind unverändert. Die ältere App kann sie weiterhin öffnen.';
 
   @override
-  String get deskOnbImportStopTitle => 'Stop the import?';
+  String get deskOnbImportStopTitle => 'Import abbrechen?';
 
   @override
   String get deskOnbImportStopBody =>
-      'Wallets imported so far are removed. Old folders are unchanged.';
+      'Bisher importierte Wallets werden entfernt. Alte Ordner bleiben unverändert.';
 
   @override
-  String get deskOnbImportGoBack => 'Go back';
+  String get deskOnbImportGoBack => 'Weiter importieren';
 
   @override
-  String get deskOnbImportStop => 'Stop import';
+  String get deskOnbImportStop => 'Import abbrechen';
 
   @override
-  String get deskRailWaitingTor => 'Waiting for Tor';
+  String get deskRailWaitingTor => 'Wartet auf Tor';
 
   @override
-  String get deskRailOn => 'On';
+  String get deskRailOn => 'An';
 
   @override
-  String get deskRailConnecting => 'Connecting';
+  String get deskRailConnecting => 'Verbindung…';
 
   @override
-  String get deskRailSlow => 'Slow';
+  String get deskRailSlow => 'Langsam';
 
   @override
-  String get deskRailNotAnswering => 'Not answering';
+  String get deskRailNotAnswering => 'Antwortet nicht';
 
   @override
-  String get deskRailOff => 'Off';
+  String get deskRailOff => 'Aus';
 
   @override
-  String get deskRailChecking => 'Checking';
+  String get deskRailChecking => 'Wird geprüft';
 
   @override
-  String get deskRailOverTor => 'Over Tor';
+  String get deskRailOverTor => 'Über Tor';
 
   @override
-  String get deskRailWaitsForTor => 'Waits until Tor is connected.';
+  String get deskRailWaitsForTor => 'Wartet, bis Tor verbunden ist.';
 
   @override
-  String get deskRailPaymentsWait => 'Payments wait on the Epicbox server.';
+  String get deskRailPaymentsWait => 'Zahlungen warten auf dem Epicbox-Server.';
 
   @override
-  String get deskRailOpenEpicbox => 'Open Epicbox receiving';
+  String get deskRailOpenEpicbox => 'Epicbox-Empfang öffnen';
 
   @override
-  String get deskRailStarting => 'Starting';
+  String get deskRailStarting => 'Startet';
 
   @override
-  String get deskRailNotReceiving => 'Not receiving';
+  String get deskRailNotReceiving => 'Kein Empfang';
 
   @override
-  String get deskRailOnInternet => 'On · internet';
+  String get deskRailOnInternet => 'An · Internet';
 
   @override
-  String get deskRailOnLocal => 'On · local';
+  String get deskRailOnLocal => 'An · lokal';
 
   @override
-  String get deskRailPortInUse => 'Port in use';
+  String get deskRailPortInUse => 'Port belegt';
 
   @override
-  String get deskRailStopped => 'Stopped';
+  String get deskRailStopped => 'Gestoppt';
 
   @override
   String deskRailPortInternet(String port) {
-    return 'Port $port · from the internet';
+    return 'Port $port · aus dem Internet';
   }
 
   @override
   String deskRailPortLocal(String port) {
-    return 'Port $port · this computer only';
+    return 'Port $port · nur dieser Computer';
   }
 
   @override
-  String get deskRailOpenHttp => 'Open HTTP receiving';
+  String get deskRailOpenHttp => 'HTTP-Empfang öffnen';
 
   @override
-  String get deskRailTorNotInBuild => 'Not in this build';
+  String get deskRailTorNotInBuild => 'Nicht in dieser Version';
 
   @override
-  String get deskRailStartingDots => 'Starting…';
+  String get deskRailStartingDots => 'Startet…';
 
   @override
   String deskRailTorSlow(String problem) {
-    return '$problem. Sends work.';
+    return '$problem. Senden funktioniert.';
   }
 
   @override
-  String get deskRailTorNoAddress => 'Tor address not published';
+  String get deskRailTorNoAddress => 'Tor-Adresse nicht veröffentlicht';
 
   @override
-  String get deskRailOpenPrivacy => 'Open Privacy settings';
+  String get deskRailOpenPrivacy => 'Datenschutz-Einstellungen öffnen';
 
   @override
   String get deskRailNode => 'Node';
 
   @override
-  String get deskRailOpenNode => 'Open node settings';
+  String get deskRailOpenNode => 'Node-Einstellungen öffnen';
 
   @override
-  String get deskAppNodeSyncedTitle => 'Local node synced';
+  String get deskAppNodeSyncedTitle => 'Lokaler Node synchronisiert';
 
   @override
   String get deskAppNodeSyncedBody =>
-      'The local node has the whole chain and can be used now. The app restarts to switch to it.';
+      'Der lokale Node hat die ganze Blockchain und kann jetzt genutzt werden. Die App startet neu, um zu ihm zu wechseln.';
 
   @override
-  String get deskAppNotNow => 'Not now';
+  String get deskAppNotNow => 'Nicht jetzt';
 
   @override
-  String get deskAppRestartNow => 'Restart now';
+  String get deskAppRestartNow => 'Jetzt neu starten';
 
   @override
-  String get deskAppFirstScanTitle => 'Wallet first scan';
+  String get deskAppFirstScanTitle => 'Erster Scan der Wallet';
 
   @override
   String get deskAppFirstScanBody =>
-      'The wallet looks through the chain for its outputs. It stays usable; the balance updates when the scan is done.';
+      'Die Wallet durchsucht die Blockchain nach ihren Outputs. Sie bleibt nutzbar; das Guthaben wird aktualisiert, sobald der Scan fertig ist.';
 
   @override
-  String get deskAppScanOutput => 'Scan output';
+  String get deskAppScanOutput => 'Scan-Ausgabe';
 
   @override
-  String get deskAppWaitingOutput => 'Waiting for the first output…';
+  String get deskAppWaitingOutput => 'Warten auf die erste Ausgabe…';
 
   @override
-  String get deskShellNavOverview => 'Overview';
+  String get deskShellNavOverview => 'Übersicht';
 
   @override
-  String get deskShellNavActivity => 'Activity';
+  String get deskShellNavActivity => 'Aktivität';
 
   @override
-  String get deskShellNavSend => 'Send';
+  String get deskShellNavSend => 'Senden';
 
   @override
-  String get deskShellNavReceive => 'Receive';
+  String get deskShellNavReceive => 'Empfangen';
 
   @override
   String get deskShellNavOutputs => 'Outputs';
 
   @override
-  String get deskShellNavContacts => 'Contacts';
+  String get deskShellNavContacts => 'Kontakte';
 
   @override
-  String get deskShellNavSettings => 'Settings';
+  String get deskShellNavSettings => 'Einstellungen';
 
   @override
-  String get deskShellTitleImportTx => 'Import transaction';
+  String get deskShellTitleImportTx => 'Transaktion importieren';
 
   @override
-  String get deskShellTitleFinalizeTx => 'Finalize transaction';
+  String get deskShellTitleFinalizeTx => 'Transaktion abschließen';
 
   @override
-  String get deskShellLocksAfterSend => 'Locks when the payment is sent';
+  String get deskShellLocksAfterSend =>
+      'Wird gesperrt, sobald die Zahlung gesendet ist';
 
   @override
-  String get deskShellNotQuitTitle => 'Not quit';
+  String get deskShellNotQuitTitle => 'Nicht beendet';
 
   @override
   String get deskShellNotQuitBody =>
-      'A send is in progress. Quit again once it finishes.';
+      'Eine Zahlung wird gerade gesendet. Beenden Sie erneut, sobald sie fertig ist.';
 
   @override
-  String get deskShellLockedTitle => 'Wallet locked';
+  String get deskShellLockedTitle => 'Wallet gesperrt';
 
   @override
   String get deskShellLockedBody =>
-      'Quit closes the app once the wallet core is connected.';
+      'Beenden schließt die App, sobald der Wallet-Kern verbunden ist.';
 
   @override
   String deskShellLockWallet(String keys) {
-    return 'Lock wallet ($keys)';
+    return 'Wallet sperren ($keys)';
   }
 
   @override
-  String get deskShellMainNav => 'Main navigation';
+  String get deskShellMainNav => 'Hauptnavigation';
 
   @override
   String deskShellVersion(String version) {
@@ -10255,242 +10263,242 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskShellOpenWalletSettings => 'Open wallet settings';
+  String get deskShellOpenWalletSettings => 'Wallet-Einstellungen öffnen';
 
   @override
   String deskShellOpenWalletSettingsNamed(String name) {
-    return 'Open wallet settings: $name';
+    return 'Wallet-Einstellungen öffnen: $name';
   }
 
   @override
-  String get deskShellSwitchWallet => 'Switch wallet';
+  String get deskShellSwitchWallet => 'Wallet wechseln';
 
   @override
   String deskShellWalletBy(String maker) {
-    return 'Wallet by $maker';
+    return 'Wallet von $maker';
   }
 
   @override
-  String get deskTourOverviewTitle => 'Overview';
+  String get deskTourOverviewTitle => 'Übersicht';
 
   @override
   String get deskTourOverviewText =>
-      'The balance and what is still confirming, then the latest transactions. Everything else is in the sidebar.';
+      'Das Guthaben und was noch bestätigt wird, darunter die letzten Transaktionen. Alles andere finden Sie in der Seitenleiste.';
 
   @override
-  String get deskTourSendTitle => 'Send';
+  String get deskTourSendTitle => 'Senden';
 
   @override
   String get deskTourSendText =>
-      'Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.';
+      'Drei Wege zu zahlen: eine Epicbox-Adresse, eine Direkt-Adresse (http(s) oder Tor) oder eine Transaktionsdatei. Vor dem Senden prüfen Sie alles noch einmal.';
 
   @override
-  String get deskTourReceiveTitle => 'Receive';
+  String get deskTourReceiveTitle => 'Empfangen';
 
   @override
   String get deskTourReceiveText =>
-      'This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.';
+      'Die Epicbox-Adresse dieser Wallet, daneben HTTP und Tor. Transaktionsdateien zum Signieren oder Abschließen stehen unten.';
 
   @override
-  String get deskTourInvoicesTitle => 'Invoices';
+  String get deskTourInvoicesTitle => 'Rechnungen';
 
   @override
   String get deskTourInvoicesText =>
-      'Pay an invoice someone sent, or issue one to someone who owes you. The tabs switch between the two.';
+      'Bezahlen Sie eine Rechnung, die Ihnen jemand geschickt hat, oder stellen Sie jemandem eine aus, der Ihnen etwas schuldet. Die Tabs wechseln zwischen beidem.';
 
   @override
-  String get deskTourActivityTitle => 'Activity';
+  String get deskTourActivityTitle => 'Aktivität';
 
   @override
   String get deskTourActivityText =>
-      'Every transaction with its progress and details. A number on this sidebar entry means something waits for an action.';
+      'Jede Transaktion mit Stand und Details. Eine Zahl an diesem Eintrag der Seitenleiste heißt: Etwas wartet auf Sie.';
 
   @override
-  String get deskTourContactsTitle => 'Contacts';
+  String get deskTourContactsTitle => 'Kontakte';
 
   @override
   String get deskTourContactsText =>
-      'Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.';
+      'Gespeicherte Adressen mit Namen: Epicbox, HTTP oder Tor. Senden wählt von hier.';
 
   @override
-  String get deskTourNodeTitle => 'Settings › Node';
+  String get deskTourNodeTitle => 'Einstellungen › Node';
 
   @override
   String get deskTourNodeText =>
-      'Which node the wallet reads the chain from: a public one or the local node. The other settings pages are listed on the left.';
+      'Von welchem Node die Wallet die Blockchain liest: einem öffentlichen oder dem lokalen Node. Die anderen Einstellungsseiten stehen links.';
 
   @override
-  String get deskTourHelpTitle => 'Help';
+  String get deskTourHelpTitle => 'Hilfe';
 
   @override
   String get deskTourHelpText =>
-      'Topics by section, Report a problem and the app log. More on every page is here, and this tour can be shown again.';
+      'Themen nach Abschnitt, Problem melden und das App-Protokoll. Mehr zu jeder Seite steht hier, und diese Tour lässt sich erneut zeigen.';
 
   @override
   String deskTourCounter(int current, int total) {
-    return '$current of $total';
+    return '$current von $total';
   }
 
   @override
-  String get deskTourSemantics => 'Tour of the wallet';
+  String get deskTourSemantics => 'Tour durch die Wallet';
 
   @override
-  String get deskTourSkip => 'Skip tour';
+  String get deskTourSkip => 'Tour überspringen';
 
   @override
-  String get deskTourBack => 'Back';
+  String get deskTourBack => 'Zurück';
 
   @override
-  String get deskTourNext => 'Next';
+  String get deskTourNext => 'Weiter';
 
   @override
-  String get deskKitUnknown => 'Unknown';
+  String get deskKitUnknown => 'Unbekannt';
 
   @override
-  String get deskKitRingCancelled => 'Cancelled';
+  String get deskKitRingCancelled => 'Storniert';
 
   @override
-  String get deskKitRingConfirmed => 'Confirmed';
+  String get deskKitRingConfirmed => 'Bestätigt';
 
   @override
   String deskKitRingProgress(int confirmations, int needed) {
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: '$confirmations of $needed confirmations',
-      one: '$confirmations of $needed confirmation',
+      other: '$confirmations von $needed Bestätigungen',
+      one: '$confirmations von $needed Bestätigung',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskKitHiddenAmount => 'Hidden amount';
+  String get deskKitHiddenAmount => 'Betrag verborgen';
 
   @override
-  String get deskKitChooseFile => 'Choose file';
+  String get deskKitChooseFile => 'Datei wählen';
 
   @override
   String deskKitNeedAction(String label, int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count need action',
-      one: '$count needs action',
+      other: '$count warten auf Sie',
+      one: '$count wartet auf Sie',
     );
     return '$label, $_temp0';
   }
 
   @override
-  String get deskKitHealthOn => 'On';
+  String get deskKitHealthOn => 'An';
 
   @override
-  String get deskKitHealthSlow => 'Slow';
+  String get deskKitHealthSlow => 'Langsam';
 
   @override
   String get deskKitHealthOffline => 'Offline';
 
   @override
-  String get deskKitHealthOff => 'Off';
+  String get deskKitHealthOff => 'Aus';
 
   @override
-  String get deskKitHealthChecking => 'Checking';
+  String get deskKitHealthChecking => 'Wird geprüft';
 
   @override
-  String get deskKitCloseEsc => 'Close (Esc)';
+  String get deskKitCloseEsc => 'Schließen (Esc)';
 
   @override
   String get deskKitOptional => 'Optional';
 
   @override
-  String get deskKitBackAlt => 'Back (Alt+Left)';
+  String get deskKitBackAlt => 'Zurück (Alt+Links)';
 
   @override
   String deskKitStepOf(int current, int total) {
-    return 'Step $current of $total';
+    return 'Schritt $current von $total';
   }
 
   @override
-  String get deskKitHeroCaptionEpicbox => 'EPICBOX SERVER HOLDS IT';
+  String get deskKitHeroCaptionEpicbox => 'EPICBOX-SERVER HÄLT SIE';
 
   @override
-  String get deskKitHeroCaptionHttp => 'STRAIGHT TO THEIR WALLET';
+  String get deskKitHeroCaptionHttp => 'DIREKT ZUR WALLET';
 
   @override
-  String get deskKitHeroCaptionTor => 'STRAIGHT, THROUGH TOR';
+  String get deskKitHeroCaptionTor => 'DIREKT, ÜBER TOR';
 
   @override
-  String get deskKitHeroCaptionFile => 'FILE OUT, RESPONSE BACK';
+  String get deskKitHeroCaptionFile => 'DATEI HIN, ANTWORT ZURÜCK';
 
   @override
   String get deskKitHeroLabelEpicbox =>
-      'Epicbox: the payment goes to the Epicbox server, which holds it until the recipient\'s wallet is back';
+      'Epicbox: Die Zahlung geht an den Epicbox-Server, der sie hält, bis die Wallet des Empfängers wieder da ist';
 
   @override
   String get deskKitHeroLabelHttp =>
-      'HTTP: the payment goes straight to the recipient\'s wallet, which must be open';
+      'HTTP: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network';
+      'Tor: Die Zahlung geht direkt an die Wallet des Empfängers, über das Tor-Netzwerk';
 
   @override
   String get deskKitHeroLabelFile =>
-      'File: a transaction file is handed over, a response file comes back, then the sender finalizes';
+      'Datei: Eine Transaktionsdatei wird übergeben, eine Antwortdatei kommt zurück, dann schließt der Absender ab';
 
   @override
-  String get deskKitReachCheck => 'Check';
+  String get deskKitReachCheck => 'Prüfen';
 
   @override
-  String get deskKitReachChecking => 'Checking from the internet…';
+  String get deskKitReachChecking => 'Wird aus dem Internet geprüft…';
 
   @override
-  String get deskKitReachNoIpTitle => 'Public IP not found';
+  String get deskKitReachNoIpTitle => 'Öffentliche IP nicht gefunden';
 
   @override
   String get deskKitReachNoIpText =>
-      'The internet could not be asked for it. Try again later.';
+      'Das Internet konnte nicht danach gefragt werden. Versuchen Sie es später erneut.';
 
   @override
   String deskKitReachNoIpTextLan(String address) {
-    return 'The internet could not be asked for it. Try again later. On your network: $address.';
+    return 'Das Internet konnte nicht danach gefragt werden. Versuchen Sie es später erneut. In Ihrem Netzwerk: $address.';
   }
 
   @override
-  String get deskKitReachClosedTitle => 'Not reachable from the internet';
+  String get deskKitReachClosedTitle => 'Aus dem Internet nicht erreichbar';
 
   @override
   String deskKitReachClosedText(String port) {
-    return 'Forward TCP port $port on your router to this computer, then check again.';
+    return 'Leiten Sie am Router den TCP-Port $port an diesen Computer weiter und prüfen Sie dann erneut.';
   }
 
   @override
   String deskKitReachClosedTextLan(String port, String address) {
-    return 'Forward TCP port $port on your router to this computer ($address), then check again.';
+    return 'Leiten Sie am Router den TCP-Port $port an diesen Computer ($address) weiter und prüfen Sie dann erneut.';
   }
 
   @override
-  String get deskKitReachUnknownTitle => 'Reachability unknown';
+  String get deskKitReachUnknownTitle => 'Erreichbarkeit unbekannt';
 
   @override
   String get deskKitReachUnknownText =>
-      'The port check did not answer. Try again later.';
+      'Die Portprüfung hat nicht geantwortet. Versuchen Sie es später erneut.';
 
   @override
   String deskKitReachUnknownTextLan(String address) {
-    return 'The port check did not answer. Try again later. On your network: $address.';
+    return 'Die Portprüfung hat nicht geantwortet. Versuchen Sie es später erneut. In Ihrem Netzwerk: $address.';
   }
 
   @override
-  String get deskKitReachOpenTitle => 'Reachable from the internet';
+  String get deskKitReachOpenTitle => 'Aus dem Internet erreichbar';
 
   @override
   String deskKitReachOpenText(String port) {
-    return 'Port $port is forwarded.';
+    return 'Port $port ist weitergeleitet.';
   }
 
   @override
   String deskKitReachOpenTextLan(String port, String address) {
-    return 'Port $port is forwarded. On your network: $address.';
+    return 'Port $port ist weitergeleitet. In Ihrem Netzwerk: $address.';
   }
 
   @override
@@ -10498,8 +10506,8 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count s ago',
-      one: '$count s ago',
+      other: 'vor $count s',
+      one: 'vor $count s',
     );
     return '$_temp0';
   }
@@ -10509,8 +10517,8 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count min ago',
-      one: '$count min ago',
+      other: 'vor $count Min.',
+      one: 'vor $count Min.',
     );
     return '$_temp0';
   }
@@ -10520,8 +10528,8 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count h ago',
-      one: '$count h ago',
+      other: 'vor $count h',
+      one: 'vor $count h',
     );
     return '$_temp0';
   }
@@ -10531,24 +10539,24 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count d ago',
-      one: '$count d ago',
+      other: 'vor $count Tagen',
+      one: 'vor $count Tag',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskKitNodeBefore410 => 'node before 4.1.0';
+  String get deskKitNodeBefore410 => 'Node vor 4.1.0';
 
   @override
-  String get deskKitNodeNoAnswer => 'no answer';
+  String get deskKitNodeNoAnswer => 'keine Antwort';
 
   @override
-  String get deskKitNodesDisagree => 'Nodes disagree on the tip';
+  String get deskKitNodesDisagree => 'Nodes uneinig über den letzten Block';
 
   @override
   String deskKitNodesAgree(String height) {
-    return 'Nodes agree on $height';
+    return 'Nodes einig bei $height';
   }
 
   @override
@@ -10556,8 +10564,8 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       up,
       locale: localeName,
-      other: '$up of $total nodes up',
-      one: '$up of $total node up',
+      other: '$up von $total Nodes erreichbar',
+      one: '$up von $total Node erreichbar',
     );
     return '$_temp0';
   }
@@ -10567,102 +10575,102 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       up,
       locale: localeName,
-      other: '$up of $total Epicbox servers up',
-      one: '$up of $total Epicbox server up',
+      other: '$up von $total Epicbox-Servern erreichbar',
+      one: '$up von $total Epicbox-Server erreichbar',
     );
     return '$_temp0';
   }
 
   @override
   String deskKitLastBlock(String age) {
-    return 'last block $age';
+    return 'letzter Block $age';
   }
 
   @override
   String get deskKitLimitedNetwork =>
-      'status.btlabs.uk is not reachable. These facts come from the node itself: no tip to compare with, no uptime, no peer count.';
+      'status.btlabs.uk ist nicht erreichbar. Diese Angaben stammen vom Node selbst: kein Vergleich mit dem letzten Block, keine Verfügbarkeit, keine Peer-Anzahl.';
 
   @override
-  String get deskKitFactHeight => 'Height';
+  String get deskKitFactHeight => 'Höhe';
 
   @override
   String get deskKitFactVersion => 'Version';
 
   @override
-  String get deskKitFactAccepts => 'Accepts transactions';
+  String get deskKitFactAccepts => 'Nimmt Transaktionen an';
 
   @override
-  String get deskKitFactYes => 'Yes';
+  String get deskKitFactYes => 'Ja';
 
   @override
-  String get deskKitFactNotYet => 'Not yet';
+  String get deskKitFactNotYet => 'Noch nicht';
 
   @override
-  String get deskKitFactUnknown => 'Unknown';
+  String get deskKitFactUnknown => 'Unbekannt';
 
   @override
-  String get deskKitFactLatency => 'Latency';
+  String get deskKitFactLatency => 'Latenz';
 
   @override
-  String get deskKitFactUptime => 'Uptime';
+  String get deskKitFactUptime => 'Verfügbarkeit';
 
   @override
   String get deskKitFactPeers => 'Peers';
 
   @override
-  String get deskKitFactOperator => 'Operator';
+  String get deskKitFactOperator => 'Betreiber';
 
   @override
-  String get deskKitAtTip => 'at tip';
+  String get deskKitAtTip => 'aktuell';
 
   @override
   String deskKitBehind(int count, String blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$blocks behind',
-      one: '$blocks behind',
+      other: '$blocks zurück',
+      one: '$blocks zurück',
     );
     return '$_temp0';
   }
 
   @override
   String deskKitVersionOut(String version) {
-    return '$version is out';
+    return '$version ist erschienen';
   }
 
   @override
-  String get deskKitVersionLatest => 'latest';
+  String get deskKitVersionLatest => 'aktuell';
 
   @override
-  String get deskKitUptimeWindow => 'last 24 h';
+  String get deskKitUptimeWindow => 'letzte 24 h';
 
   @override
   String deskKitAtTime(String time) {
-    return 'at $time';
+    return 'um $time';
   }
 
   @override
-  String get deskKitListedOfficial => 'listed as official';
+  String get deskKitListedOfficial => 'als offiziell gelistet';
 
   @override
   String deskKitSourceChecked(String time) {
-    return 'status.btlabs.uk, checked $time';
+    return 'status.btlabs.uk, geprüft $time';
   }
 
   @override
   String deskKitLatencyMeasured(String where) {
-    return 'latency measured $where';
+    return 'Latenz gemessen $where';
   }
 
   @override
   String deskKitSiteLastReached(String time) {
-    return 'Status site last reached $time';
+    return 'Status-Website zuletzt erreicht $time';
   }
 
   @override
   String deskKitSince(String time) {
-    return 'since $time';
+    return 'seit $time';
   }
 
   @override
@@ -10671,209 +10679,209 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskKitNodeDownTitle => 'Node not answering.';
+  String get deskKitNodeDownTitle => 'Node antwortet nicht.';
 
   @override
   String deskKitNodeDownText(String host) {
-    return 'Switch to $host, the healthiest other node?';
+    return 'Zu $host wechseln, dem besten anderen Node?';
   }
 
   @override
-  String get deskKitSwitch => 'Switch';
+  String get deskKitSwitch => 'Wechseln';
 
   @override
-  String get deskKitLimitedInfo => 'Limited info';
+  String get deskKitLimitedInfo => 'Wenige Angaben';
 
   @override
-  String get deskKitFromStatusSite => 'from status.btlabs.uk';
+  String get deskKitFromStatusSite => 'von status.btlabs.uk';
 
   @override
-  String get deskKitOverTor => 'over Tor';
+  String get deskKitOverTor => 'über Tor';
 
   @override
-  String get deskKitFromThisComputer => 'from this computer';
+  String get deskKitFromThisComputer => 'von diesem Computer';
 
   @override
   String deskKitNodeRemove(String host) {
-    return 'Remove $host from my nodes';
+    return '$host aus meinen Nodes entfernen';
   }
 
   @override
   String deskKitNodeAdd(String host) {
-    return 'Add $host to my nodes';
+    return '$host zu meinen Nodes hinzufügen';
   }
 
   @override
   String deskKitNodeUse(String host) {
-    return 'Use $host';
+    return '$host nutzen';
   }
 
   @override
   String deskKitNodeUseOperator(String host, String operator) {
-    return 'Use $host, $operator';
+    return '$host nutzen, $operator';
   }
 
   @override
   String deskKitNodeUseDown(String host) {
-    return 'Use $host, not answering';
+    return '$host nutzen, antwortet nicht';
   }
 
   @override
   String deskKitNodeUseOperatorDown(String host, String operator) {
-    return 'Use $host, $operator, not answering';
+    return '$host nutzen, $operator, antwortet nicht';
   }
 
   @override
   String deskKitLocalNodeUse(String state) {
-    return 'Use the local node, $state';
+    return 'Lokalen Node nutzen, $state';
   }
 
   @override
-  String get deskKitLocalNode => 'Local node';
+  String get deskKitLocalNode => 'Lokaler Node';
 
   @override
-  String get deskKitMethodWaitingTor => 'Waiting for Tor';
+  String get deskKitMethodWaitingTor => 'Wartet auf Tor';
 
   @override
   String deskKitMethodTorNotConnected(String host) {
-    return '$host. Tor is not connected.';
+    return '$host. Tor ist nicht verbunden.';
   }
 
   @override
-  String get deskKitMethodOn => 'On';
+  String get deskKitMethodOn => 'An';
 
   @override
   String deskKitMethodOverTor(String host) {
-    return '$host, over Tor';
+    return '$host, über Tor';
   }
 
   @override
-  String get deskKitMethodOff => 'Off';
+  String get deskKitMethodOff => 'Aus';
 
   @override
   String get deskKitMethodEpicboxOffDetail =>
-      'Payments to this address wait on the Epicbox server.';
+      'Zahlungen an diese Adresse warten auf dem Epicbox-Server.';
 
   @override
-  String get deskKitMethodConnecting => 'Connecting';
+  String get deskKitMethodConnecting => 'Verbindung…';
 
   @override
-  String get deskKitMethodSlow => 'Slow';
+  String get deskKitMethodSlow => 'Langsam';
 
   @override
-  String get deskKitMethodNotAnswering => 'Not answering';
+  String get deskKitMethodNotAnswering => 'Antwortet nicht';
 
   @override
   String deskKitMethodEpicboxDown(String host) {
-    return '$host. Payments wait on the Epicbox server.';
+    return '$host. Zahlungen warten auf dem Epicbox-Server.';
   }
 
   @override
   String get deskKitMethodHttpOffDetail =>
-      'Straight from another wallet while this one is open.';
+      'Direkt von einer anderen Wallet, solange diese geöffnet ist.';
 
   @override
-  String get deskKitMethodStarting => 'Starting…';
+  String get deskKitMethodStarting => 'Startet…';
 
   @override
   String deskKitMethodHttpInternet(String port) {
-    return 'from the internet, port $port';
+    return 'aus dem Internet, Port $port';
   }
 
   @override
-  String get deskKitMethodHttpLocal => 'this computer only (127.0.0.1)';
+  String get deskKitMethodHttpLocal => 'nur dieser Computer (127.0.0.1)';
 
   @override
-  String get deskKitMethodNotReceiving => 'Not receiving';
+  String get deskKitMethodNotReceiving => 'Kein Empfang';
 
   @override
   String deskKitMethodPortInUse(String port) {
-    return 'Port $port is used by another program. Close it or pick another port in Settings.';
+    return 'Port $port wird von einem anderen Programm genutzt. Schließen Sie es oder wählen Sie in den Einstellungen einen anderen Port.';
   }
 
   @override
-  String get deskKitMethodNotInBuild => 'Not in this build';
+  String get deskKitMethodNotInBuild => 'Nicht in dieser Version';
 
   @override
   String get deskKitMethodTorOffDetail =>
-      'Slower and more private. Blocked or not allowed in some countries.';
+      'Langsamer und privater. In manchen Ländern blockiert oder nicht erlaubt.';
 
   @override
-  String get deskKitMethodTorPublishing => 'Publishing the Tor address…';
+  String get deskKitMethodTorPublishing => 'Tor-Adresse wird veröffentlicht…';
 
   @override
-  String get deskKitMethodTorConnecting => 'Connecting to Tor…';
+  String get deskKitMethodTorConnecting => 'Verbindung mit Tor…';
 
   @override
-  String get deskKitMethodTorOnDetail => 'reachable at the Tor address';
+  String get deskKitMethodTorOnDetail => 'unter der Tor-Adresse erreichbar';
 
   @override
-  String get deskKitMethodTorNotPublished => 'Not published';
+  String get deskKitMethodTorNotPublished => 'Nicht veröffentlicht';
 
   @override
   String deskKitMethodTorSendsWork(String reason) {
-    return '$reason. Sends work.';
+    return '$reason. Senden funktioniert.';
   }
 
   @override
   String get deskKitMethodTorNotReachableYet =>
-      'The Tor address is not reachable yet';
+      'Die Tor-Adresse ist noch nicht erreichbar';
 
   @override
-  String get deskKitMethodTorStopped => 'Stopped';
+  String get deskKitMethodTorStopped => 'Gestoppt';
 
   @override
-  String get deskKitMethodTorStoppedDetail => 'Tor stopped.';
+  String get deskKitMethodTorStoppedDetail => 'Tor wurde beendet.';
 
   @override
-  String get deskKitMethodFiles => 'Files';
+  String get deskKitMethodFiles => 'Dateien';
 
   @override
-  String get deskKitChipOverTor => 'Over Tor';
+  String get deskKitChipOverTor => 'Über Tor';
 
   @override
-  String get deskKitChipStarting => 'Tor starting';
+  String get deskKitChipStarting => 'Tor startet';
 
   @override
-  String get deskKitChipNotConnected => 'Tor not connected';
+  String get deskKitChipNotConnected => 'Tor nicht verbunden';
 
   @override
-  String get deskKitChipNotOverTor => 'Not over Tor';
+  String get deskKitChipNotOverTor => 'Nicht über Tor';
 
   @override
   String get deskKitPasswordNote =>
-      'Estimated on this device from the length and from common words, names and patterns, for an attacker with fast hardware trying 100,000 guesses a second against this wallet\'s file. A guide, not a guarantee.';
+      'Auf diesem Gerät geschätzt, aus der Länge und aus gängigen Wörtern, Namen und Mustern, für einen Angreifer mit schneller Hardware, der 100.000 Versuche pro Sekunde gegen die Datei dieser Wallet probiert. Ein Richtwert, keine Garantie.';
 
   @override
-  String get deskKitPasswordNoteLabel => 'How the time is estimated';
+  String get deskKitPasswordNoteLabel => 'So wird die Zeit geschätzt';
 
   @override
-  String get deskKitNotCopied => 'Not copied';
+  String get deskKitNotCopied => 'Nicht kopiert';
 
   @override
-  String get deskKitCopied => 'Copied';
+  String get deskKitCopied => 'Kopiert';
 
   @override
   String deskKitQrOf(String title) {
-    return 'QR code of the $title';
+    return 'QR-Code: $title';
   }
 
   @override
   String deskKitQrOfTag(String title, String tag) {
-    return 'QR code of the $title, $tag';
+    return 'QR-Code: $title, $tag';
   }
 
   @override
   String deskKitQrShowOf(String title) {
-    return 'Show QR code of the $title';
+    return 'QR-Code anzeigen: $title';
   }
 
   @override
-  String get deskKitQrShow => 'Show QR';
+  String get deskKitQrShow => 'QR zeigen';
 
   @override
-  String get deskKitQrHide => 'Hide QR';
+  String get deskKitQrHide => 'QR ausblenden';
 
   @override
-  String get deskKitQrHideCode => 'Hide QR code';
+  String get deskKitQrHideCode => 'QR-Code ausblenden';
 }
