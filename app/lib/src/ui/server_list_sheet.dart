@@ -87,6 +87,7 @@ class _Entry {
     required this.value,
     required this.host,
     required this.operator,
+    this.tileName,
     this.node,
     this.relay,
     this.icon,
@@ -96,6 +97,10 @@ class _Entry {
   final String value;
   final String host;
   final String? operator;
+
+  /// The name a tile takes its initials from: the monitor's, as status.btlabs.uk shows it
+  /// ("epicnet.us" → EU), else [operator].
+  final String? tileName;
   final NodeStatus? node;
   final RelayStatus? relay;
 
@@ -402,8 +407,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
               value: v,
               host: serverHost(v),
               operator: operator,
+              tileName: s?.operator ?? operator,
               node: s,
-              icon: serverIconFor(s?.icon, operator, known),
+              icon: serverIconFor(s?.icon, s?.operator ?? operator, known),
               directoryAnswered: nodes is AsyncData,
             );
           }(),
@@ -421,8 +427,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             value: v,
             host: v,
             operator: operator,
+            tileName: p?.status?.operator ?? operator,
             relay: p?.status,
-            icon: serverIconFor(p?.status?.icon, operator, known),
+            icon: serverIconFor(p?.status?.icon, p?.status?.operator ?? operator, known),
             directoryAnswered: relays is AsyncData,
           );
         }(),
@@ -786,7 +793,7 @@ class _ServerRow extends StatelessWidget {
                 child: Row(
                   children: [
                     ServerTile(
-                      operator: e.operator,
+                      operator: e.tileName,
                       host: e.host,
                       icon: e.icon,
                       state: state,

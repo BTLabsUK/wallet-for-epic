@@ -43,6 +43,15 @@ class PreviewWalletService extends FakeWalletService {
 /// status.btlabs.uk as the preview sees it: the built-in servers with one of each health,
 /// one node and one relay only the directory lists (one down), and the chain at the fake
 /// wallet's tip. Answers after a moment, so the lists' loading bar shows.
+/// An operator's icon on status.btlabs.uk, as its status list names it.
+ServerIcon _icon(String hash) => ServerIcon(
+  hash: hash,
+  urls: {
+    for (final px in const [128, 256])
+      px: Uri.parse('https://status.btlabs.uk/api/v1/icons/$hash-$px.png'),
+  },
+);
+
 class PreviewDirectory implements RelayDirectory, NodeDirectory, NetworkDirectory {
   const PreviewDirectory();
 
@@ -55,11 +64,11 @@ class PreviewDirectory implements RelayDirectory, NodeDirectory, NetworkDirector
     final checked = DateTime.now().subtract(const Duration(minutes: 2));
     final tip = _tip.toInt();
     return [
-      NodeStatus(url: 'https://node.btlabs.uk', healthy: true, verified: true, operator: 'BT Labs', height: tip, latencyMs: 20, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 61, uptime24h: 0.999, lastCheckedAt: checked),
-      NodeStatus(url: 'https://node.epicnet.us:3413', healthy: true, verified: true, operator: 'EpicNet', height: tip, latencyMs: 766, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 61, uptime24h: 0.998, lastCheckedAt: checked),
-      NodeStatus(url: 'https://node.epiccash.com:3413', healthy: true, verified: true, operator: 'Epic Cash', height: tip, latencyMs: 733, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 54, uptime24h: 0.997, lastCheckedAt: checked),
-      NodeStatus(url: 'https://epic.stackwallet.com:3413', healthy: true, verified: true, operator: 'Cypher Stack', height: tip - 12, latencyMs: 1127, state: NodeHealthState.degraded, reason: 'behind', nodeVersion: '4.1.0', tipLag: 12, peers: 61, uptime24h: 0.98, lastCheckedAt: checked),
-      NodeStatus(url: 'https://epic-node.iniaku.my.id', healthy: true, verified: true, operator: 'Iniaku pool', height: tip, latencyMs: 370, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 22, uptime24h: 0.995, lastCheckedAt: checked),
+      NodeStatus(url: 'https://node.btlabs.uk', healthy: true, verified: true, operator: 'btlabs', icon: _icon('7f31acd64c95a28ca70a'), height: tip, latencyMs: 20, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 61, uptime24h: 0.999, lastCheckedAt: checked),
+      NodeStatus(url: 'https://node.epicnet.us:3413', healthy: true, verified: true, operator: 'epicnet.us', height: tip, latencyMs: 766, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 61, uptime24h: 0.998, lastCheckedAt: checked),
+      NodeStatus(url: 'https://node.epiccash.com:3413', healthy: true, verified: true, operator: 'Epic Cash', icon: _icon('41bec7e038f3b806b2db'), height: tip, latencyMs: 733, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 54, uptime24h: 0.997, lastCheckedAt: checked),
+      NodeStatus(url: 'https://epic.stackwallet.com:3413', healthy: true, verified: true, operator: 'Cypher Stack', icon: _icon('9a573fcde155e6753f68'), height: tip - 12, latencyMs: 1127, state: NodeHealthState.degraded, reason: 'behind', nodeVersion: '4.1.0', tipLag: 12, peers: 61, uptime24h: 0.98, lastCheckedAt: checked),
+      NodeStatus(url: 'https://epic-node.iniaku.my.id', healthy: true, verified: true, operator: 'Iniaku pool', icon: _icon('73de63f69b0165b85c44'), height: tip, latencyMs: 370, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 22, uptime24h: 0.995, lastCheckedAt: checked),
       NodeStatus(url: 'https://node.epic.example:3413', healthy: false, verified: false, operator: 'Example pool', state: NodeHealthState.down, reason: 'timeout', lastCheckedAt: checked),
     ];
   }
@@ -68,12 +77,12 @@ class PreviewDirectory implements RelayDirectory, NodeDirectory, NetworkDirector
   Future<List<RelayStatus>> relays(String chain) async {
     await Future<void>.delayed(_delay);
     if (chain != 'mainnet') return const [];
-    return const [
-      RelayStatus(relay: EpicboxRelay(host: 'epicbox.epiccash.com'), healthy: true, verified: true, label: 'Default relay', operator: 'Epic Cash', latencyMs: 766, uptime24h: 0.9966),
-      RelayStatus(relay: EpicboxRelay(host: 'epicbox.stackwallet.com'), healthy: true, verified: true, label: 'Stack Wallet', operator: 'Cypher Stack', latencyMs: 488, uptime24h: 1.0),
-      RelayStatus(relay: EpicboxRelay(host: 'epicbox.epicnet.us'), healthy: true, verified: true, operator: 'EpicNet', latencyMs: 766, uptime24h: 0.9779),
-      RelayStatus(relay: EpicboxRelay(host: 'epicbox.iniaku.my.id'), healthy: true, verified: true, operator: 'Iniaku pool', latencyMs: 360, uptime24h: 0.9997),
-      RelayStatus(relay: EpicboxRelay(host: 'flooepicbox.btlabs.uk'), healthy: true, verified: true, operator: 'BT Labs', latencyMs: 45, uptime24h: 0.9999),
+    return [
+      RelayStatus(relay: EpicboxRelay(host: 'epicbox.epiccash.com'), healthy: true, verified: true, label: 'Default relay', operator: 'Epic Cash', icon: _icon('41bec7e038f3b806b2db'), latencyMs: 766, uptime24h: 0.9966),
+      RelayStatus(relay: EpicboxRelay(host: 'epicbox.stackwallet.com'), healthy: true, verified: true, label: 'Stack Wallet', operator: 'Cypher Stack', icon: _icon('9a573fcde155e6753f68'), latencyMs: 488, uptime24h: 1.0),
+      RelayStatus(relay: EpicboxRelay(host: 'epicbox.epicnet.us'), healthy: true, verified: true, operator: 'epicnet.us', latencyMs: 766, uptime24h: 0.9779),
+      RelayStatus(relay: EpicboxRelay(host: 'epicbox.iniaku.my.id'), healthy: true, verified: true, operator: 'Iniaku pool', icon: _icon('73de63f69b0165b85c44'), latencyMs: 360, uptime24h: 0.9997),
+      RelayStatus(relay: EpicboxRelay(host: 'flooepicbox.btlabs.uk'), healthy: true, verified: true, operator: 'btlabs', icon: _icon('7f31acd64c95a28ca70a'), latencyMs: 45, uptime24h: 0.9999),
       RelayStatus(relay: EpicboxRelay(host: 'epicbox.epic.example'), healthy: false, verified: false, operator: 'Example pool', uptime24h: 0.41),
     ];
   }

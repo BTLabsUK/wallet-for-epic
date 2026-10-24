@@ -135,8 +135,10 @@ Future<void> rememberServers(
   EpicboxRelay? relay,
 }) async {
   final chain = preset.chain;
-  if (nodeUrl != null)
+  if (nodeUrl != null) {
     await ref.read(serverListProvider((ServerKind.node, chain)).notifier).add(nodeUrl);
-  if (relay != null)
+  }
+  if (relay != null) {
     await ref.read(serverListProvider((ServerKind.relay, chain)).notifier).add(relay.label);
+  }
 }
