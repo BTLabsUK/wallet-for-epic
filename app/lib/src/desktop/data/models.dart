@@ -5,10 +5,13 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import 'package:intl/intl.dart' show NumberFormat;
+
 import '../../l10n.dart' show AppLocalizations, englishStrings, localDigits;
 import '../../models.dart' show SelectionStrategy, SendOptions;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../smart_outputs.dart' show smartOutputsDefault;
+import '../../ui/send_screen.dart' show normalizeAmountText;
 
 export '../../models.dart' show SelectionStrategy, SendOptions;
 export '../../send_summary.dart' show SendEstimate, SendSummary;
@@ -48,6 +51,16 @@ int? parseEpic(String raw) {
   if (frac.length > 8) return epicTooLong;
   return (int.tryParse(m.group(1)!.isEmpty ? '0' : m.group(1)!) ?? 0) * nanoPerEpic + (int.tryParse(frac.padRight(8, '0')) ?? 0);
 }
+
+/// An amount field's text in [l]'s language to nanoepic, as [parseEpic] answers: cleaned by
+/// [normalizeAmountText] first, so "1.000" in German, where the app shows 1000 so, is refused as
+/// unclear instead of read as 1, and "1,5" is 1.5 everywhere.
+///
+/// Throws a [LocalizedFormatException] (its `text(l)` is the field error) for an unclear or
+/// negative amount.
+int? parseEpicIn(AppLocalizations l, String raw) => parseEpic(
+  normalizeAmountText(raw, unit: 'EPIC', groupSeparator: NumberFormat.decimalPattern(l.localeName).symbols.GROUP_SEP),
+);
 
 @immutable
 class Balance {
