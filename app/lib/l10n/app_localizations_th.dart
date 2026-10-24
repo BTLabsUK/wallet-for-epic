@@ -4265,8 +4265,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverRemoveNodeTitle => 'ลบโหนดนี้ไหม?';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host จะถูกลบออกจากรายการ หากต้องการใช้ภายหลังให้พิมพ์ใหม่';
+  String serverRemoveBodyPublic(String host) {
+    return '$host จะถูกลบออกจากรายการของฉัน เลือกจากรายการสาธารณะเพื่อใช้อีกครั้ง';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host จะถูกลบออกจากรายการของฉัน หากต้องการใช้ ให้พิมพ์ใหม่';
   }
 
   @override

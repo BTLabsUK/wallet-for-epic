@@ -4533,8 +4533,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get serverRemoveNodeTitle => 'Usunąć ten węzeł?';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host zniknie z tej listy. Wpisz go ponownie, aby użyć go później.';
+  String serverRemoveBodyPublic(String host) {
+    return '$host zniknie z mojej listy. Wybierz go z listy publicznej, aby znów go użyć.';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host zniknie z mojej listy. Wpisz go ponownie, aby go użyć.';
   }
 
   @override
