@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../desk_l10n.dart';
 import '../../../bip39_words.dart';
 import '../../data/phrase_check.dart' show bip39List;
 import '../../widgets/kit.dart';
@@ -27,8 +28,8 @@ class PhraseEntry extends ChangeNotifier {
   /// The word count a paste set; null while the typed words decide.
   int? count;
 
-  /// "13 words pasted; a phrase has 12, 15, 18, 21 or 24", until the next change.
-  String? pasteError;
+  /// How many words a paste had when that is not a phrase length (12, 15, 18, 21 or 24), until the next change.
+  int? pasteError;
 
   /// Fields holding a word that is not in the list (checked on blur or commit).
   final Set<int> invalid = {};
@@ -156,7 +157,7 @@ class PhraseEntry extends ChangeNotifier {
       pasteError = null;
     } else {
       count = null;
-      pasteError = '${ws.length} words pasted; a phrase has 12, 15, 18, 21 or 24';
+      pasteError = ws.length;
     }
     _notify();
     return ws;
@@ -474,7 +475,7 @@ class _Cell extends StatelessWidget {
     final suggestion = focused ? entry.suggestion(index) : null;
     final reduce = MediaQuery.of(context).disableAnimations;
     return Semantics(
-      label: 'Word ${index + 1}',
+      label: context.l10n.deskOnbWordN(index + 1),
       child: Opacity(
         opacity: unused && !focused ? 0.45 : 1,
         child: AnimatedContainer(

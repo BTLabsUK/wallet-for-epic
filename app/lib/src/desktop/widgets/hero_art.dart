@@ -2,6 +2,7 @@ import 'dart:ui' show PathMetric;
 
 import 'package:flutter/material.dart';
 
+import '../desk_l10n.dart';
 import '../data/models.dart';
 import '../theme/tokens.dart';
 
@@ -12,18 +13,18 @@ class HeroArt extends StatelessWidget {
 
   final TxMethod method;
 
-  static String caption(TxMethod m) => switch (m) {
-    TxMethod.epicbox => 'EPICBOX SERVER HOLDS IT',
-    TxMethod.http => 'STRAIGHT TO THEIR WALLET',
-    TxMethod.tor => 'STRAIGHT, THROUGH TOR',
-    TxMethod.file => 'FILE OUT, RESPONSE BACK',
+  static String caption(AppLocalizations l, TxMethod m) => switch (m) {
+    TxMethod.epicbox => l.deskKitHeroCaptionEpicbox,
+    TxMethod.http => l.deskKitHeroCaptionHttp,
+    TxMethod.tor => l.deskKitHeroCaptionTor,
+    TxMethod.file => l.deskKitHeroCaptionFile,
   };
 
-  static String label(TxMethod m) => switch (m) {
-    TxMethod.epicbox => "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient's wallet is back",
-    TxMethod.http => "HTTP: the payment goes straight to the recipient's wallet, which must be open",
-    TxMethod.tor => "Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
-    TxMethod.file => 'File: a transaction file is handed over, a response file comes back, then the sender finalizes',
+  static String label(AppLocalizations l, TxMethod m) => switch (m) {
+    TxMethod.epicbox => l.deskKitHeroLabelEpicbox,
+    TxMethod.http => l.deskKitHeroLabelHttp,
+    TxMethod.tor => l.deskKitHeroLabelTor,
+    TxMethod.file => l.deskKitHeroLabelFile,
   };
 
   @override
@@ -32,12 +33,13 @@ class HeroArt extends StatelessWidget {
     final ts = context.ts;
     return Semantics(
       image: true,
-      label: label(method),
+      label: label(context.l10n, method),
       excludeSemantics: true,
       child: CustomPaint(
         size: Size(160.u, 96.u),
         painter: _HeroPainter(
           method,
+          captionText: caption(context.l10n, method),
           accent: c.accent,
           people: c.dim,
           fill: c.s1,
@@ -49,9 +51,10 @@ class HeroArt extends StatelessWidget {
 }
 
 class _HeroPainter extends CustomPainter {
-  _HeroPainter(this.method, {required this.accent, required this.people, required this.fill, required this.caption});
+  _HeroPainter(this.method, {required this.captionText, required this.accent, required this.people, required this.fill, required this.caption});
 
   final TxMethod method;
+  final String captionText;
   final Color accent, people, fill;
   final TextStyle caption;
 
@@ -160,7 +163,7 @@ class _HeroPainter extends CustomPainter {
     }
     canvas.restore();
     final tp = TextPainter(
-      text: TextSpan(text: HeroArt.caption(method), style: caption),
+      text: TextSpan(text: captionText, style: caption),
       textDirection: TextDirection.ltr,
       maxLines: 1,
     )..layout();
@@ -171,5 +174,5 @@ class _HeroPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_HeroPainter old) => old.method != method || old.accent != accent || old.people != people || old.fill != fill || old.caption != caption;
+  bool shouldRepaint(_HeroPainter old) => old.method != method || old.captionText != captionText || old.accent != accent || old.people != people || old.fill != fill || old.caption != caption;
 }

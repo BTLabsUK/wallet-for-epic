@@ -1,0 +1,353 @@
+{
+  "deskRailWaitingTor": "Waiting for Tor",
+  "@deskRailWaitingTor": {
+    "description": "Status word on the sidebar's Epicbox row while the app waits for Tor to connect first. Narrow: one short phrase."
+  },
+  "deskRailOn": "On",
+  "@deskRailOn": {
+    "description": "Status word on a sidebar service row (Epicbox, HTTP): the service is running. One short word."
+  },
+  "deskRailConnecting": "Connecting",
+  "@deskRailConnecting": {
+    "description": "Status word on the sidebar's Epicbox row: connecting to the Epicbox server. One short word."
+  },
+  "deskRailSlow": "Slow",
+  "@deskRailSlow": {
+    "description": "Status word on the sidebar's Epicbox row: the server answers slowly. One short word."
+  },
+  "deskRailNotAnswering": "Not answering",
+  "@deskRailNotAnswering": {
+    "description": "Status word on the sidebar's Epicbox row: the server does not answer. Short phrase."
+  },
+  "deskRailOff": "Off",
+  "@deskRailOff": {
+    "description": "Status word on a sidebar service row (Epicbox, HTTP): the service is turned off. One short word."
+  },
+  "deskRailChecking": "Checking",
+  "@deskRailChecking": {
+    "description": "Status word on a sidebar row (Node, Epicbox) while its state is not known yet. One short word."
+  },
+  "deskRailOverTor": "Over Tor",
+  "@deskRailOverTor": {
+    "description": "Line in the sidebar Epicbox hover card: the connection goes through Tor."
+  },
+  "deskRailWaitsForTor": "Waits until Tor is connected.",
+  "@deskRailWaitsForTor": {
+    "description": "Line in the sidebar Epicbox hover card: Epicbox will connect once Tor is up."
+  },
+  "deskRailPaymentsWait": "Payments wait on the Epicbox server.",
+  "@deskRailPaymentsWait": {
+    "description": "Line in the sidebar Epicbox hover card when the Epicbox server does not answer: incoming payments are held until it is back."
+  },
+  "deskRailOpenEpicbox": "Open Epicbox receiving",
+  "@deskRailOpenEpicbox": {
+    "description": "Last line of the sidebar Epicbox hover card: a click opens the Epicbox receiving settings."
+  },
+  "deskRailStarting": "Starting",
+  "@deskRailStarting": {
+    "description": "Status word on a sidebar row (HTTP): the service is starting. One short word."
+  },
+  "deskRailNotReceiving": "Not receiving",
+  "@deskRailNotReceiving": {
+    "description": "Status word on the sidebar's HTTP row: the HTTP listener failed and nothing can be received that way. Short phrase."
+  },
+  "deskRailOnInternet": "On · internet",
+  "@deskRailOnInternet": {
+    "description": "Second line of the sidebar's HTTP row: running and reachable from the internet. Narrow: keep the · separator."
+  },
+  "deskRailOnLocal": "On · local",
+  "@deskRailOnLocal": {
+    "description": "Second line of the sidebar's HTTP row: running and reachable on this computer's network only. Narrow: keep the · separator."
+  },
+  "deskRailPortInUse": "Port in use",
+  "@deskRailPortInUse": {
+    "description": "Second line of the sidebar's HTTP row: the chosen port is taken by another program. Narrow."
+  },
+  "deskRailStopped": "Stopped",
+  "@deskRailStopped": {
+    "description": "Second line of the sidebar's HTTP row: the HTTP listener stopped. Narrow."
+  },
+  "deskRailPortInternet": "Port {port} · from the internet",
+  "@deskRailPortInternet": {
+    "description": "Line in the sidebar HTTP hover card: the listening port, reachable from the internet.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskRailPortLocal": "Port {port} · this computer only",
+  "@deskRailPortLocal": {
+    "description": "Line in the sidebar HTTP hover card: the listening port, reachable from this computer only.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskRailOpenHttp": "Open HTTP receiving",
+  "@deskRailOpenHttp": {
+    "description": "Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings."
+  },
+  "deskRailTorNotInBuild": "Not in this build",
+  "@deskRailTorNotInBuild": {
+    "description": "Status word on the sidebar's Tor row when this build of the app does not include Tor."
+  },
+  "deskRailStartingDots": "Starting…",
+  "@deskRailStartingDots": {
+    "description": "Second line of the sidebar's Tor row while Tor starts. Narrow."
+  },
+  "deskRailTorSlow": "{problem}. Sends work.",
+  "@deskRailTorSlow": {
+    "description": "Line in the sidebar Tor hover card when Tor runs but the app's own Tor address is not published; sending still works. {problem} is a short reason, e.g. 'Tor address not published'.",
+    "placeholders": {
+      "problem": {
+        "type": "String"
+      }
+    }
+  },
+  "deskRailTorNoAddress": "Tor address not published",
+  "@deskRailTorNoAddress": {
+    "description": "Short reason shown in the sidebar Tor hover card when Tor runs but the receiving address is not published yet."
+  },
+  "deskRailOpenPrivacy": "Open Privacy settings",
+  "@deskRailOpenPrivacy": {
+    "description": "Last line of the sidebar Tor hover card: a click opens the Privacy settings."
+  },
+  "deskRailNode": "Node",
+  "@deskRailNode": {
+    "description": "Name of the sidebar's first row: the node the wallet reads the chain from. Very short."
+  },
+  "deskRailOpenNode": "Open node settings",
+  "@deskRailOpenNode": {
+    "description": "Last line of the sidebar Node hover card: a click opens the node settings."
+  },
+  "deskAppNodeSyncedTitle": "Local node synced",
+  "@deskAppNodeSyncedTitle": {
+    "description": "Title of the dialog shown when the built-in node has finished syncing."
+  },
+  "deskAppNodeSyncedBody": "The local node has the whole chain and can be used now. The app restarts to switch to it.",
+  "@deskAppNodeSyncedBody": {
+    "description": "Body of the dialog shown when the built-in node has finished syncing."
+  },
+  "deskAppNotNow": "Not now",
+  "@deskAppNotNow": {
+    "description": "Button of the local-node-synced dialog: postpone the restart. Short."
+  },
+  "deskAppRestartNow": "Restart now",
+  "@deskAppRestartNow": {
+    "description": "Button of the local-node-synced dialog: restart the app and switch to the local node. Short."
+  },
+  "deskAppFirstScanTitle": "Wallet first scan",
+  "@deskAppFirstScanTitle": {
+    "description": "Title of the dialog that shows the first scan of a new wallet."
+  },
+  "deskAppFirstScanBody": "The wallet looks through the chain for its outputs. It stays usable; the balance updates when the scan is done.",
+  "@deskAppFirstScanBody": {
+    "description": "Body of the first-scan dialog."
+  },
+  "deskAppScanOutput": "Scan output",
+  "@deskAppScanOutput": {
+    "description": "Screen-reader label of the box listing the scan's progress lines."
+  },
+  "deskAppWaitingOutput": "Waiting for the first output…",
+  "@deskAppWaitingOutput": {
+    "description": "Placeholder in the first-scan dialog before the scan has printed anything."
+  },
+  "deskShellNavOverview": "Overview",
+  "@deskShellNavOverview": {
+    "description": "Sidebar entry and window title: the Overview page (balance and latest transactions). One word where possible."
+  },
+  "deskShellNavActivity": "Activity",
+  "@deskShellNavActivity": {
+    "description": "Sidebar entry and window title: the list of all transactions. One word where possible."
+  },
+  "deskShellNavSend": "Send",
+  "@deskShellNavSend": {
+    "description": "Sidebar entry and window title: the Send page. One word."
+  },
+  "deskShellNavReceive": "Receive",
+  "@deskShellNavReceive": {
+    "description": "Sidebar entry and window title: the Receive page. One word."
+  },
+  "deskShellNavOutputs": "Outputs",
+  "@deskShellNavOutputs": {
+    "description": "Sidebar entry and window title: the page listing the wallet's outputs (coins). One word where possible."
+  },
+  "deskShellNavContacts": "Contacts",
+  "@deskShellNavContacts": {
+    "description": "Sidebar entry and window title: the address book. One word where possible."
+  },
+  "deskShellNavSettings": "Settings",
+  "@deskShellNavSettings": {
+    "description": "Sidebar entry, phone top-bar button label and window title: the Settings pages. One word where possible."
+  },
+  "deskShellTitleImportTx": "Import transaction",
+  "@deskShellTitleImportTx": {
+    "description": "Window title of the page where a transaction file is imported."
+  },
+  "deskShellTitleFinalizeTx": "Finalize transaction",
+  "@deskShellTitleFinalizeTx": {
+    "description": "Window title of the page where a received transaction file is finalized."
+  },
+  "deskShellLocksAfterSend": "Locks when the payment is sent",
+  "@deskShellLocksAfterSend": {
+    "description": "Toast when the user locks the wallet while a payment is still being sent: the lock happens afterwards."
+  },
+  "deskShellNotQuitTitle": "Not quit",
+  "@deskShellNotQuitTitle": {
+    "description": "Toast title when Quit is pressed while a send is in progress."
+  },
+  "deskShellNotQuitBody": "A send is in progress. Quit again once it finishes.",
+  "@deskShellNotQuitBody": {
+    "description": "Toast body when Quit is pressed while a send is in progress."
+  },
+  "deskShellLockedTitle": "Wallet locked",
+  "@deskShellLockedTitle": {
+    "description": "Toast title after Quit in a build that cannot close the app (demo): the wallet was only locked."
+  },
+  "deskShellLockedBody": "Quit closes the app once the wallet core is connected.",
+  "@deskShellLockedBody": {
+    "description": "Toast body after Quit in a build that cannot close the app (demo)."
+  },
+  "deskShellLockWallet": "Lock wallet ({keys})",
+  "@deskShellLockWallet": {
+    "description": "Tooltip and screen-reader label of the lock button in the sidebar. {keys} is the shortcut, e.g. Ctrl+L or ⌘L.",
+    "placeholders": {
+      "keys": {
+        "type": "String"
+      }
+    }
+  },
+  "deskShellMainNav": "Main navigation",
+  "@deskShellMainNav": {
+    "description": "Screen-reader label of the sidebar that holds the main places."
+  },
+  "deskShellVersion": "Version {version}",
+  "@deskShellVersion": {
+    "description": "Tooltip of the logo and screen-reader label of the version under the compact sidebar. {version} is the app version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deskShellOpenWalletSettings": "Open wallet settings",
+  "@deskShellOpenWalletSettings": {
+    "description": "Tooltip of the account row at the bottom of the sidebar: a click opens the wallet's settings."
+  },
+  "deskShellOpenWalletSettingsNamed": "Open wallet settings: {name}",
+  "@deskShellOpenWalletSettingsNamed": {
+    "description": "Screen-reader label of the account row at the bottom of the sidebar. {name} is the wallet's name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskShellSwitchWallet": "Switch wallet",
+  "@deskShellSwitchWallet": {
+    "description": "Tooltip of the button next to the account row that locks the wallet so another wallet can be picked."
+  },
+  "deskShellWalletBy": "Wallet by {maker}",
+  "@deskShellWalletBy": {
+    "description": "Small credit line at the bottom of the sidebar. {maker} is the company's name (BT Labs); the app draws it dimmer.",
+    "placeholders": {
+      "maker": {
+        "type": "String"
+      }
+    }
+  },
+  "deskTourOverviewTitle": "Overview",
+  "@deskTourOverviewTitle": {
+    "description": "Title of the tour card for this page (first-unlock tour). Short."
+  },
+  "deskTourOverviewText": "The balance and what is still confirming, then the latest transactions. Everything else is in the sidebar.",
+  "@deskTourOverviewText": {
+    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+  },
+  "deskTourSendTitle": "Send",
+  "@deskTourSendTitle": {
+    "description": "Title of the tour card for this page (first-unlock tour). Short."
+  },
+  "deskTourSendText": "Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.",
+  "@deskTourSendText": {
+    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+  },
+  "deskTourReceiveTitle": "Receive",
+  "@deskTourReceiveTitle": {
+    "description": "Title of the tour card for this page (first-unlock tour). Short."
+  },
+  "deskTourReceiveText": "This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.",
+  "@deskTourReceiveText": {
+    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+  },
+  "deskTourInvoicesTitle": "Invoices",
+  "@deskTourInvoicesTitle": {
+    "description": "Title of the tour card for this page (first-unlock tour). Short."
+  },
+  "deskTourInvoicesText": "Pay an invoice someone sent, or issue one to someone who owes you. The tabs switch between the two.",
+  "@deskTourInvoicesText": {
+    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+  },
+  "deskTourActivityTitle": "Activity",
+  "@deskTourActivityTitle": {
+    "description": "Title of the tour card for this page (first-unlock tour). Short."
+  },
+  "deskTourActivityText": "Every transaction with its progress and details. A number on this sidebar entry means something waits for an action.",
+  "@deskTourActivityText": {
+    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+  },
+  "deskTourContactsTitle": "Contacts",
+  "@deskTourContactsTitle": {
+    "description": "Title of the tour card for this page (first-unlock tour). Short."
+  },
+  "deskTourContactsText": "Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.",
+  "@deskTourContactsText": {
+    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+  },
+  "deskTourNodeTitle": "Settings › Node",
+  "@deskTourNodeTitle": {
+    "description": "Title of the tour card for this page (first-unlock tour). Short."
+  },
+  "deskTourNodeText": "Which node the wallet reads the chain from: a public one or the local node. The other settings pages are listed on the left.",
+  "@deskTourNodeText": {
+    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+  },
+  "deskTourHelpTitle": "Help",
+  "@deskTourHelpTitle": {
+    "description": "Title of the tour card for this page (first-unlock tour). Short."
+  },
+  "deskTourHelpText": "Topics by section, Report a problem and the app log. More on every page is here, and this tour can be shown again.",
+  "@deskTourHelpText": {
+    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+  },
+  "deskTourCounter": "{current} of {total}",
+  "@deskTourCounter": {
+    "description": "Step counter on the tour card, e.g. '2 of 7'. Narrow: keep it short.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "deskTourSemantics": "Tour of the wallet",
+  "@deskTourSemantics": {
+    "description": "Screen-reader name of the tour card dialog."
+  },
+  "deskTourSkip": "Skip tour",
+  "@deskTourSkip": {
+    "description": "Button on the tour card: close the tour. Short."
+  },
+  "deskTourBack": "Back",
+  "@deskTourBack": {
+    "description": "Button on the tour card: previous step. One word."
+  },
+  "deskTourNext": "Next",
+  "@deskTourNext": {
+    "description": "Button on the tour card: next step. One word."
+  }
+}
