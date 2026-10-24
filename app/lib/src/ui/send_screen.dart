@@ -3396,47 +3396,6 @@ class AddressEnds extends StatelessWidget {
   }
 }
 
-/// A small rounded tag in the accent: [icon] and a short [text], cut short when the row is
-/// narrow.
-class _Pill extends StatelessWidget {
-  const _Pill({required this.icon, required this.text, this.muted = false});
-
-  final IconData icon;
-  final String text;
-
-  /// Dim instead of the accent: a fact, not something the user gains.
-  final bool muted;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final ink = muted ? t.dim : t.accentText;
-    return Container(
-      padding: const EdgeInsetsDirectional.fromSTEB(6, 2, 8, 2),
-      decoration: BoxDecoration(
-        color: muted ? t.surfaceHi : t.accentSoft,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: ink),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall
-                  ?.copyWith(color: ink),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// "Direct address" / "Via Epicbox" beside the To label for 3 s after the address moved the
 /// method: fades in over 120 ms and out over 200 ms (at once with reduced motion), and is read
 /// out once as "Direct address. Method set to Direct."
@@ -3469,7 +3428,7 @@ class _SwitchTag extends StatelessWidget {
             : shown
             ? const Duration(milliseconds: 120)
             : _switchTagFade,
-        child: _Pill(icon: icon, text: text),
+        child: EBadge(text, icon: icon, tone: BadgeTone.gold),
       ),
     );
   }
@@ -3515,16 +3474,13 @@ class _TorTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final (text, muted) = switch (way) {
-      TorWay.overTor => (l.sendOverTor, false),
-      TorWay.wait => (l.torWaiting, true),
-      _ => (l.torNotOverTor, true),
+    final text = switch (way) {
+      TorWay.overTor => l.sendOverTor,
+      TorWay.wait => l.torWaiting,
+      _ => l.torNotOverTor,
     };
     // Read with the field's label: "To, Over Tor".
-    return KeyedSubtree(
-      key: sendTorTagKey,
-      child: _Pill(icon: torIcon, text: text, muted: muted),
-    );
+    return KeyedSubtree(key: sendTorTagKey, child: EBadge.tor(text, way: way));
   }
 }
 
@@ -3612,7 +3568,7 @@ class _TorPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      _Pill(icon: torIcon, text: context.l10n.sendOverTor);
+      EBadge.tor(context.l10n.sendOverTor, way: TorWay.overTor);
 }
 
 /// A round tile with the contact's initial, or a person for a new recipient.

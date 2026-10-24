@@ -532,3 +532,4 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     ),
   );
 }
+

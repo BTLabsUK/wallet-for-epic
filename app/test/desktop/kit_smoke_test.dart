@@ -17,7 +17,7 @@ void main() {
                 EButton.primary(label: 'Send', icon: EIcons.send, onPressed: () {}),
                 EIconButton(icon: EIcons.copy, label: 'Copy', onPressed: () {}),
                 const ESwitch(value: true),
-                const ETag('Ok', tone: ETone.ok),
+                const EBadge('Ok', tone: ETone.ok),
               ],
             ),
           ),

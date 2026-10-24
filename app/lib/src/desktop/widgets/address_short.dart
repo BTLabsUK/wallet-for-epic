@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../recipient.dart' show RecipientKind;
+
 import '../desk_l10n.dart';
 import '../../address_format.dart';
 import '../data/addresses.dart';
-import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'surfaces.dart';
 
@@ -58,19 +59,23 @@ double shortAddressWidth(BuildContext context, String address, TextStyle style) 
   return w.ceilToDouble() + 1;
 }
 
-/// The kind tag of an address row: Epicbox (gold), Direct · HTTP or Direct · Tor.
+/// The kind badge of an address row: Epicbox, Link Payment · HTTP or Link Payment · Tor, each
+/// with its glyph.
 class EKindTag extends StatelessWidget {
   const EKindTag(this.kind, {super.key});
 
   final AddressKind kind;
 
   @override
-  Widget build(BuildContext context) => switch (kind) {
-    AddressKind.epicbox => ETag(context.l10n.methodEpicbox, tone: ETone.gold, icon: EIcons.epicbox),
-    AddressKind.http => ETag(context.l10n.methodDirectHttp, icon: EIcons.http),
-    AddressKind.tor => ETag(context.l10n.methodDirectTor, icon: EIcons.tor),
-    AddressKind.none => ETag(context.l10n.deskKitUnknown),
-  };
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return switch (kind) {
+      AddressKind.epicbox => EBadge.kind(RecipientKind.epicbox, l: l),
+      AddressKind.http => EBadge.kind(RecipientKind.http, l: l),
+      AddressKind.tor => EBadge.kind(RecipientKind.tor, l: l),
+      AddressKind.none => EBadge(l.deskKitUnknown),
+    };
+  }
 }
 
 /// The two text lines of a row that carries an address (spec 7.1): name, [nameTrailing] and

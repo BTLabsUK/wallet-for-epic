@@ -231,7 +231,7 @@ class ManualTag extends StatelessWidget {
         : (from ? l.deskTxManualTipFrom(shortDay(l, at)) : l.deskTxManualTip(shortDay(l, at)));
     return Tooltip(
       message: tip,
-      child: Semantics(label: '${l.deskTxManualTag}. $tip', excludeSemantics: true, child: ETag(l.deskTxManualTag, icon: EIcons.pencil)),
+      child: Semantics(label: '${l.deskTxManualTag}. $tip', excludeSemantics: true, child: EBadge(l.deskTxManualTag, icon: EIcons.pencil)),
     );
   }
 }

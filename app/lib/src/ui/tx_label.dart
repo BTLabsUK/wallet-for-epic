@@ -253,7 +253,6 @@ class ManualTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
     final at = editedAtUnix;
     final date = at == null ? null : formatDateTime(l, localTime(at));
     final tip = switch ((date, from)) {
@@ -262,31 +261,12 @@ class ManualTag extends StatelessWidget {
       (final d?, false) => l.txManualTip(d),
       (final d?, true) => l.txManualTipFrom(d),
     };
-    if (compact) {
-      return Semantics(
-        label: l.txManualTag,
-        child: Icon(Icons.edit_outlined, size: 12, color: t.accentText),
-      );
-    }
-    return Tooltip(
-      message: tip,
-      triggerMode: TooltipTriggerMode.tap,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.edit_outlined, size: 12, color: t.accentText),
-          const SizedBox(width: 3),
-          Flexible(
-            child: Text(
-              l.txManualTag,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: t.accentText),
-            ),
-          ),
-        ],
-      ),
+    return EBadge(
+      compact ? null : l.txManualTag,
+      icon: Icons.edit_outlined,
+      tone: BadgeTone.gold,
+      semanticsLabel: compact ? l.txManualTag : null,
+      tooltip: tip,
     );
   }
 }

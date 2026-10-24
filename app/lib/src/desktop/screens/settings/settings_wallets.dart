@@ -106,9 +106,9 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                                     crossAxisAlignment: WrapCrossAlignment.center,
                                     children: [
                                       Text(w.name, style: ts.strong, overflow: TextOverflow.ellipsis),
-                                      if (w.network != 'mainnet') ETag(w.network, tone: ETone.warn),
-                                      if (w.current) ETag(l.deskSetWalletsOpenNow, tone: ETone.ok),
-                                      if (w.missing) ETag(l.deskSetWalletsFolderMissing, tone: ETone.risk),
+                                      if (w.network != 'mainnet') EBadge(w.network, tone: ETone.warn),
+                                      if (w.current) EBadge(l.deskSetWalletsOpenNow, tone: ETone.ok),
+                                      if (w.missing) EBadge(l.deskSetWalletsFolderMissing, tone: ETone.risk),
                                     ],
                                   ),
                                   Tooltip(

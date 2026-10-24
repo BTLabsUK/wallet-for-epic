@@ -206,21 +206,12 @@ class NodeCard extends StatelessWidget {
   }
 }
 
-/// A 20 u outlined warn tag.
+/// "Limited info" in the warn tone.
 class _LimitedTag extends StatelessWidget {
   const _LimitedTag();
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return Container(
-      height: 20.u,
-      padding: EdgeInsets.symmetric(horizontal: Sp.x2),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(Rad.xs), border: Border.all(color: c.warn.withValues(alpha: 0.6))),
-      child: Text(context.l10n.deskKitLimitedInfo, style: context.ts.caption.copyWith(color: c.warn, fontWeight: FontWeight.w600)),
-    );
-  }
+  Widget build(BuildContext context) => EBadge(context.l10n.deskKitLimitedInfo, tone: BadgeTone.warn);
 }
 
 /// Label / value / sub, a fixed two-line body so a late value never moves the others.

@@ -165,7 +165,7 @@ class _ERadioRowState extends State<ERadioRow> {
                             Row(
                               children: [
                                 Flexible(child: Text(widget.title, style: ts.strong)),
-                                if (widget.tag != null) ...[SizedBox(width: Sp.x2), ETag(widget.tag!)],
+                                if (widget.tag != null) ...[SizedBox(width: Sp.x2), EBadge(widget.tag!)],
                               ],
                             ),
                             Text(widget.text, style: ts.small),

@@ -70,3 +70,4 @@ ThemeData buildDeskTheme(Brightness brightness) {
     ),
   );
 }
+

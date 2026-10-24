@@ -17,12 +17,14 @@ import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
 import 'notices.dart';
+import 'badge.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 import 'tx_label.dart';
 
+export 'badge.dart';
 export 'notices.dart';
 
 /// Replaces the whole navigation stack with the shell of the open wallet, on its Wallet tab.
@@ -892,7 +894,9 @@ String? contactName(WidgetRef ref, String? address) {
   return contacts == null ? null : contactNameFor(contacts, address);
 }
 
-/// The small rounded label with a transaction's status.
+/// The badge with a transaction's status: warn while it waits for the other side, info while
+/// it confirms (the icon beside it shows the progress, so no spinner), neutral once it is over
+/// (completed, from a backup, cancelled).
 class TxStatusChip extends ConsumerWidget {
   const TxStatusChip({super.key, required this.tx, required this.tip});
 
@@ -901,51 +905,24 @@ class TxStatusChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = Theme.of(context).colorScheme;
     final target = confirmationsTargetOf(ref);
-    final (Color bg, Color fg) = switch (txPhase(tx, tip, target: target)) {
+    final tone = switch (txPhase(tx, tip, target: target)) {
       TxPhase.waitingRecipient ||
       TxPhase.waitingSender ||
-      TxPhase.waitingPayer => (
-        colors.tertiaryContainer,
-        colors.onTertiaryContainer,
-      ),
-      TxPhase.confirming => (
-        colors.secondaryContainer,
-        colors.onSecondaryContainer,
-      ),
-      TxPhase.completed || TxPhase.fromBackup => (
-        colors.surfaceContainerHighest,
-        colors.onSurfaceVariant,
-      ),
-      // Cancelled is over, not wrong: the same neutral chip as a completed payment.
-      TxPhase.cancelled => (
-        colors.surfaceContainerHighest,
-        colors.onSurfaceVariant,
-      ),
+      TxPhase.waitingPayer => BadgeTone.warn,
+      TxPhase.confirming => BadgeTone.info,
+      // Cancelled is over, not wrong: the same neutral badge as a completed payment.
+      TxPhase.completed || TxPhase.fromBackup || TxPhase.cancelled => BadgeTone.neutral,
     };
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(8),
+    return EBadge(
+      txStatusLabel(
+        context.l10n,
+        tx,
+        tip,
+        target: target,
+        now: ref.watch(clockProvider)(),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        child: Text(
-          txStatusLabel(
-            context.l10n,
-            tx,
-            tip,
-            target: target,
-            now: ref.watch(clockProvider)(),
-          ),
-          // Tabular digits, so the chip keeps its width while confirmations come in.
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: fg,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
-        ),
-      ),
+      tone: tone,
     );
   }
 }

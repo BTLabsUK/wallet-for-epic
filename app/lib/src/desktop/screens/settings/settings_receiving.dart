@@ -250,7 +250,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       hint: hint,
       hintTitle: name,
       control: m == PayMethod.epicbox
-          ? ETag(l.deskSetTxAlwaysOn, tone: ETone.ok)
+          ? EBadge(l.deskSetTxAlwaysOn, tone: ETone.ok)
           : ESwitch(
               key: ValueKey('st-offer-${m.name}'),
               value: p.offers(m),

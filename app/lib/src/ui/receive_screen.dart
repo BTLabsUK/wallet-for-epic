@@ -1284,24 +1284,7 @@ class ShareCard extends StatelessWidget {
                 ),
                 if (network != null) ...[
                   const SizedBox(height: 14),
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: t.accentSoft,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        network,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: t.accentText,
-                        ),
-                      ),
-                    ),
-                  ),
+                  Center(child: EBadge(network, tone: BadgeTone.warn)),
                 ],
               ],
             ),

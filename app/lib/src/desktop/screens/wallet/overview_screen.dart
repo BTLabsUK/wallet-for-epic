@@ -342,9 +342,9 @@ class _BalancePanel extends ConsumerWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(l.deskOvAvailable, style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500)),
-                        if (asOfBlock != null) ETag(l.deskOvAsOfBlock(_group(l, asOfBlock!)), tone: ETone.warn),
+                        if (asOfBlock != null) EBadge(l.deskOvAsOfBlock(_group(l, asOfBlock!)), tone: ETone.warn),
                         if (updating && asOfBlock == null) const _UpdatingTag(),
-                        if (offline) ETag(l.deskRailOffline, key: const ValueKey('overview-offline')),
+                        if (offline) EBadge(l.deskRailOffline, key: const ValueKey('overview-offline')),
                       ],
                     ),
                     SizedBox(height: 6.u),
@@ -451,26 +451,7 @@ class _UpdatingTag extends StatelessWidget {
   const _UpdatingTag();
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return Semantics(
-      liveRegion: true,
-      label: context.l10n.deskOvUpdating,
-      excludeSemantics: true,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 2),
-        decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(Rad.xs)),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ESpinner(size: 10.u),
-            SizedBox(width: 6.u),
-            Text(context.l10n.deskOvUpdating, style: context.ts.caption),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => EBadge(context.l10n.deskOvUpdating, busy: true, liveRegion: true);
 }
 
 /// The balance in Montserrat 44: whole part bright, fraction dim, unit in mono.

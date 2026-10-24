@@ -684,7 +684,7 @@ class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
             runSpacing: Sp.x2,
             children: [
               for (var k = 0; k < names.length; k++)
-                ETag(names[k], icon: at[_i] == held[k] ? EIcons.chevronRight : null),
+                EBadge(names[k], icon: at[_i] == held[k] ? EIcons.chevronRight : null),
             ],
           ),
           SizedBox(height: Sp.x3),

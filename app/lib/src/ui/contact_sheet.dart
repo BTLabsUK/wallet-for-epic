@@ -62,34 +62,14 @@ class ContactTile extends StatelessWidget {
   }
 }
 
-/// [contactTag] in a small outlined chip, 20 dp tall.
+/// The kind of [address] as a badge: Epicbox, Link Payment · HTTP or Link Payment · Tor.
 class ContactTag extends StatelessWidget {
   const ContactTag(this.address, {super.key});
 
   final String address;
 
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      height: 20,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        border: Border.all(color: t.lineStrong),
-        borderRadius: BorderRadius.circular(t.radiusSmall),
-      ),
-      child: Text(
-        contactTag(context.l10n, address),
-        style: TextStyle(
-          fontFamily: t.monoFamily,
-          fontSize: 11,
-          height: 1,
-          color: t.dim,
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => EBadge.kind(parseRecipient(address).kind, l: context.l10n);
 }
 
 /// Opens [contact]'s sheet over [context], the contacts screen.

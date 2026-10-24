@@ -330,19 +330,5 @@ class _Tag extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x1),
-      decoration: BoxDecoration(
-        color: c.s1,
-        borderRadius: BorderRadius.circular(Rad.sm),
-        border: Border.all(color: c.lineStrong),
-      ),
-      child: Text(
-        text,
-        style: context.ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => EBadge(text, tone: BadgeTone.gold);
 }

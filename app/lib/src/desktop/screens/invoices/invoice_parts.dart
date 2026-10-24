@@ -99,7 +99,7 @@ class RequestStateTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (word, tone) = requestStateWord(context, request);
-    return ETag(word, tone: tone);
+    return EBadge(word, tone: tone);
   }
 }
 
@@ -112,7 +112,7 @@ class PayStateTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (word, tone) = payStateWord(context, invoice);
-    return ETag(word, tone: tone);
+    return EBadge(word, tone: tone);
   }
 }
 
