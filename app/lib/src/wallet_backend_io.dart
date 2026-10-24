@@ -4,7 +4,7 @@ library;
 
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
+import 'data_folder_io.dart' show appDataDirectory;
 
 import 'lepic_wallet_service.dart';
 import 'secret_store.dart';
@@ -25,14 +25,14 @@ SecretStore createSecretStore() =>
     Platform.isWindows ? _windowsSecrets : const PlatformSecretStore();
 
 final SecretStore _windowsSecrets = WindowsSecretStore(
-  directory: () async => (await getApplicationSupportDirectory()).path,
+  directory: () async => (await appDataDirectory()).path,
   cipher: const DpapiCipher(),
   files: const Win32StoreFiles(),
 );
 
 /// `<application support>/wallets/<chain>`. One wallet per chain.
 Future<String> defaultWalletDir(Chain chain) async {
-  final support = await getApplicationSupportDirectory();
+  final support = await appDataDirectory();
   final sep = Platform.pathSeparator;
   final dir = Directory('${support.path}${sep}wallets$sep${chain.name}');
   await dir.create(recursive: true);

@@ -10,7 +10,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
+import 'src/data_folder_io.dart' show appDataDirectory;
 
 import 'src/builtin_node_provider.dart';
 import 'src/desktop/screens/debug/node_debug.dart';
@@ -27,7 +27,7 @@ void main() {
       overrides: [
         secretStoreProvider.overrideWithValue(MemorySecretStore()),
         builtInNodeLocationProvider.overrideWith((ref) async {
-          final support = await getApplicationSupportDirectory();
+          final support = await appDataDirectory();
           final sep = Platform.pathSeparator;
           final binary = Platform.environment['WFE_NODE_BIN'] ??
               '${File(Platform.resolvedExecutable).parent.path}${sep}bin${sep}epic';
