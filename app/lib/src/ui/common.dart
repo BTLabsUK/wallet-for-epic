@@ -129,6 +129,7 @@ class SlotScaffold extends StatefulWidget {
     this.centered = false,
     this.idle,
     this.glow,
+    this.breathing = false,
     this.floatingActionButton,
     this.bottomNavigationBar,
   });
@@ -138,6 +139,9 @@ class SlotScaffold extends StatefulWidget {
   final bool centered;
   final Widget? idle;
   final Alignment? glow;
+
+  /// With [glow]: the light swells and fades slowly ([ProtocolBackdrop.breathing]).
+  final bool breathing;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
 
@@ -172,7 +176,11 @@ class _SlotScaffoldState extends State<SlotScaffold> {
     final glow = widget.glow;
     return glow == null
         ? scaffold
-        : ProtocolBackdrop(focus: glow, child: scaffold);
+        : ProtocolBackdrop(
+            focus: glow,
+            breathing: widget.breathing,
+            child: scaffold,
+          );
   }
 }
 
