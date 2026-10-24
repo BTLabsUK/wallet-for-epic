@@ -3102,13 +3102,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsRescan => 'Rescan the chain';
+  String get settingsRescan => 'Recheck balance';
 
   @override
   String get settingsRescanFinished => 'Rescan finished';
 
   @override
-  String get settingsRescanTitle => 'Rescan the chain';
+  String get settingsRescanTitle => 'Recheck balance';
 
   @override
   String get settingsRescanBody =>

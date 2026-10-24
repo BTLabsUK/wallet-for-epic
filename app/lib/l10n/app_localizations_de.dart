@@ -3146,13 +3146,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get settingsRescan => 'Blockchain neu scannen';
+  String get settingsRescan => 'Guthaben neu prüfen';
 
   @override
   String get settingsRescanFinished => 'Neuer Scan abgeschlossen';
 
   @override
-  String get settingsRescanTitle => 'Blockchain neu scannen';
+  String get settingsRescanTitle => 'Guthaben neu prüfen';
 
   @override
   String get settingsRescanBody =>
@@ -5155,7 +5155,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowStep2 =>
-      'Der Zahler öffnet sie unter [[Rechnungen › Bezahlen]], prüft Absender, Betrag und Nachricht und wählt **Zustimmen und bezahlen** mit dem Wallet-Passwort.';
+      'Der Zahler öffnet sie unter [[Rechnungen › Bezahlen|Invoices › Pay]], prüft Absender, Betrag und Nachricht und wählt **Zustimmen und bezahlen** mit dem Wallet-Passwort.';
 
   @override
   String get deskInvHelpFlowStep3 =>
@@ -5172,7 +5172,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowIssued =>
-      'Rechnungen, die diese Wallet ausgestellt hat, stehen unter [[Rechnungen › Ausstellen]].';
+      'Rechnungen, die diese Wallet ausgestellt hat, stehen unter [[Rechnungen › Ausstellen|Invoices › Issue]].';
 
   @override
   String get deskInvHelpTrustTitle => 'Warum nur vertrauenswürdige Absender';
@@ -5183,7 +5183,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustP1 =>
-      'Die Wallet nimmt eine Rechnung nur an ihrer Rechnungsadresse an und nur von einem Absender auf der Vertrauensliste, erkannt an seiner Adresse. Alles andere wird ungelesen verworfen, bevor es geöffnet wird, und erscheint nie unter [[Rechnungen › Bezahlen]].';
+      'Die Wallet nimmt eine Rechnung nur an ihrer Rechnungsadresse an und nur von einem Absender auf der Vertrauensliste, erkannt an seiner Adresse. Alles andere wird ungelesen verworfen, bevor es geöffnet wird, und erscheint nie unter [[Rechnungen › Bezahlen|Invoices › Pay]].';
 
   @override
   String get deskInvHelpTrustP2 =>
@@ -5195,11 +5195,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustWhere1 =>
-      'Einem Absender vertrauen unter [[Einstellungen › Rechnungen]].';
+      'Einem Absender vertrauen unter [[Einstellungen › Rechnungen|Settings › Invoices]].';
 
   @override
   String get deskInvHelpTrustWhere2 =>
-      'Oder bei einem Kontakt unter [[Kontakte]] **Vertrauenswürdig für Rechnungen** einschalten.';
+      'Oder bei einem Kontakt unter [[Kontakte|Contacts]] **Vertrauenswürdig für Rechnungen** einschalten.';
 
   @override
   String get deskInvHelpTrustWhere3 =>
@@ -5214,7 +5214,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrP1 =>
-      'Die Wallet hat zwei Epicbox-Adressen. Die **Zahlungsadresse** unter [[Empfangen]] empfängt Zahlungen. Die **Rechnungsadresse** empfängt nur Rechnungen.';
+      'Die Wallet hat zwei Epicbox-Adressen. Die **Zahlungsadresse** unter [[Empfangen|Receive]] empfängt Zahlungen. Die **Rechnungsadresse** empfängt nur Rechnungen.';
 
   @override
   String get deskInvHelpAddrP2 =>
@@ -5226,7 +5226,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrWhere1 =>
-      'Die Rechnungsadresse finden, kopieren oder als QR-Code zeigen unter [[Einstellungen › Rechnungen]].';
+      'Die Rechnungsadresse finden, kopieren oder als QR-Code zeigen unter [[Einstellungen › Rechnungen|Settings › Invoices]].';
 
   @override
   String get deskInvHelpAddrWhere2 =>

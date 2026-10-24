@@ -17,18 +17,20 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
   // The words that differ between a computer and a phone.
   final device = phone ? 'tym telefonie' : 'tym komputerze';
   final secret = phone ? 'swój PIN' : 'hasło portfela';
-  final nodePlace = phone ? '[[Węzeł|Node]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Epicbox|Epicbox]]' : '[[Ustawienia › Odbieranie › Odbieranie przez Epicbox|Settings › Receiving › Epicbox receiving]]';
-  final torPlace = phone ? '[[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]' : '[[Ustawienia › Prywatność|Settings › Privacy]]';
+  final nodePlace = phone ? '[[Ustawienia › Prywatność i sieć › Węzeł i Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
+  final epicboxPlace = phone ? '[[Ustawienia › Prywatność i sieć › Węzeł i Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[Ustawienia › Odbieranie › Odbieranie przez Epicbox|Settings › Receiving › Epicbox receiving]]';
+  final torPlace = phone ? '[[Ustawienia › Prywatność i sieć › Sieć Tor|Settings › Privacy & network › Tor Network]]' : '[[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[Aktywność|Activity]] (otwórz płatność, potem „Anuluj płatność”)'
       : '[[Aktywność › transakcja › Anuluj|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
-      ? '[[Ustawienia › Historia płatności › Eksportuj kopię historii|Settings › Payment history › Export history backup]]'
+      ? '[[Ustawienia › Portfel › Eksportuj kopię historii|Settings › Wallet › Export history backup]]'
       : '[[Ustawienia › Ten portfel › Eksportuj kopię historii|Settings › This wallet › Export history backup]]';
   final restorePlace = phone
-      ? '[[Mam już portfel: przywróć go|Restore from a recovery phrase]] (na pierwszym ekranie lub po usunięciu tego portfela w Ustawieniach)'
-      : '[[Przywróć z frazy|Restore from a recovery phrase]] (na pierwszym ekranie, w Odblokuj › Dodaj portfel lub w Ustawienia › Wszystkie portfele)';
+      ? '**Mam już portfel: przywróć go** (na pierwszym ekranie lub po usunięciu tego portfela w [[Ustawienia › Portfel|Settings › Wallet]])'
+      : '**Przywróć z frazy** (na pierwszym ekranie, w Odblokuj › Dodaj portfel lub w [[Ustawienia › Wszystkie portfele|Settings › All wallets]])';
+  final recheckPlace = phone ? '[[Ustawienia › Portfel › Sprawdź saldo|Settings › Wallet › Recheck balance]] (widoczne, gdy włączone są „Opcje zaawansowane”)' : '[[Ustawienia › Sprawdź saldo|Settings › Recheck balance]]';
+  final phrasePlace = phone ? '[[Ustawienia › Bezpieczeństwo › Zabezpiecz frazę odzyskiwania|Settings › Security › Back up recovery phrase]]' : '[[Ustawienia › Fraza odzyskiwania|Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
       'start',
@@ -143,9 +145,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**Najmniejsze** sortuje wyjścia do wydania według wartości i bierze najmniejsze, aż pokryją kwotę i opłatę. Tylko one są zablokowane, dopóki płatność się potwierdza; resztę można od razu wysłać.'),
         HelpBlock.p('**Wszystkie** wydaje każde wyjście do wydania i zwraca jedno wyjście reszty. Wszystko jest zablokowane do osiągnięcia wymaganej liczby potwierdzeń ($confirmations), portfel ma potem mniej, ale większych wyjść, a opłata jest nieco wyższa, bo każde wejście kosztuje. Wysłanie całego salda zawsze używa Wszystkie.'),
         if (phone)
-          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjściach|Outputs]].')
+          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zaawansowane|Outputs › Advanced]].')
         else
-          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjściach|Outputs]]; w Wyślij możesz go zmienić dla jednej płatności w sekcji **Zaawansowane**.'),
+          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zaawansowane|Outputs › Advanced]]; w Wyślij możesz go zmienić dla jednej płatności w sekcji **Zaawansowane**.'),
       ],
       id: HelpId.strategy,
     ),
@@ -156,7 +158,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Oba to zwykłe transakcje sieciowe z tego portfela do niego samego, ostateczne po osiągnięciu wymaganej liczby potwierdzeń ($confirmations) jak każda płatność, i oba do tego czasu blokują każde wyjście do wydania.'),
         const HelpBlock.ul(['**Podziel** bierze saldo do wydania i tworzy od 2 do 10 wyjść o prawie równej wartości.', '**Scal** bierze każde wyjście do wydania i tworzy jedno.', '**Podziel resztę** (domyślnie włączone) robi to samo w zwykłej płatności, gdy zostałoby mało wyjść, za 0,004 EPIC za każde dodatkowe wyjście.']),
-        const HelpBlock.p('Aktywność pokazuje każde z nich jako dwa wpisy, wysłanie i odbiór, oba z tym portfelem. Oba znajdziesz w [[Wyjściach|Outputs]].'),
+        const HelpBlock.p('Aktywność pokazuje każde z nich jako dwa wpisy, wysłanie i odbiór, oba z tym portfelem. Oba znajdziesz w [[Wyjścia › Zaawansowane|Outputs › Advanced]].'),
       ],
       id: HelpId.split,
     ),
@@ -178,9 +180,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('Fraza odzyskiwania (24 słowa w nowym portfelu) to klucz do pieniędzy. Dzięki niej portfel można przywrócić na dowolnym ${phone ? 'telefonie lub komputerze' : 'komputerze'}, a każdy inny, kto ją ma, może zabrać EPIC.'),
         const HelpBlock.ul(['Zapisz słowa na papierze w tej kolejności i przechowuj go w bezpiecznym miejscu, offline.', 'Nigdy nie przechowuj ich jako zdjęcia, zrzutu ekranu ani pliku. Nigdy nie wpisuj ich na stronie internetowej ani na czacie.', 'Nikt z Epic Cash ani z tego portfela nigdy o nie nie poprosi.']),
         if (phone)
-          HelpBlock.p('Aby znów zobaczyć słowa, otwórz [[Ustawienia › Fraza odzyskiwania|Settings › Recovery phrase]] i wpisz $secret. Aplikacja nigdzie ich nie wysyła. Lepiej ich nie kopiować: po skopiowaniu portfel czyści schowek po 60 sekundach oraz gdy portfel się zablokuje lub zamknie.')
+          HelpBlock.p('Aby znów zobaczyć słowa, otwórz $phrasePlace i wpisz $secret. Aplikacja nigdzie ich nie wysyła. Lepiej ich nie kopiować: po skopiowaniu portfel czyści schowek po 60 sekundach oraz gdy portfel się zablokuje lub zamknie.')
         else
-          HelpBlock.p('Aby znów zobaczyć słowa, otwórz [[Ustawienia › Fraza odzyskiwania|Settings › Recovery phrase]] i wpisz $secret. Lepiej ich nie kopiować: po skopiowaniu portfel czyści schowek po 60 sekundach oraz gdy portfel się zablokuje lub zamknie.'),
+          HelpBlock.p('Aby znów zobaczyć słowa, otwórz $phrasePlace i wpisz $secret. Lepiej ich nie kopiować: po skopiowaniu portfel czyści schowek po 60 sekundach oraz gdy portfel się zablokuje lub zamknie.'),
       ],
       id: HelpId.phrase,
     ),
@@ -192,7 +194,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('Fraza odzyskiwania przywraca wszystko, co jest w łańcuchu bloków, czyli saldo.'),
         HelpBlock.p('**Aby przywrócić** portfel na nowym ${phone ? 'telefonie' : 'komputerze'} lub po utracie: otwórz $restorePlace, wpisz słowa i wybierz ${phone ? 'PIN' : 'hasło'}. Po otwarciu portfel skanuje łańcuch bloków w poszukiwaniu swoich wyjść. Saldo pojawi się po tym pierwszym skanowaniu; znalezione płatności są oznaczone jako **Odzyskane środki**.'),
         HelpBlock.p('**Czego przywracanie nie odtworzy:** tego, czego nigdy nie było w łańcuchu bloków, np. kto komu zapłacił, wiadomości transakcji, kontaktów i nazw portfeli. Kopia historii zachowuje szczegóły płatności i kontakty: $historyBackupPlace.${phone ? ' Trzymaj plik kopii poza telefonem, na przykład w e-mailu lub w chmurze.' : ''}'),
-        HelpBlock.p('**Saldo wygląda na błędne?** Uruchom [[Ustawienia › ${phone ? 'Skanuj łańcuch ponownie' : 'Sprawdź saldo'}|Settings › Recheck balance]]. Portfel jeszcze raz przeszukuje cały łańcuch bloków w poszukiwaniu swoich wyjść.'),
+        HelpBlock.p('**Saldo wygląda na błędne?** Uruchom $recheckPlace. Portfel jeszcze raz przeszukuje cały łańcuch bloków w poszukiwaniu swoich wyjść.'),
         if (!phone)
           const HelpBlock.p('**Pliki portfela** są w [[Ustawienia › Ten portfel › Folder portfela|Settings › This wallet › Wallet folder]]. Zachowaj frazę odzyskiwania nawet przy ich kopii: zadziała, gdy pliki zginą.'),
       ],
@@ -257,7 +259,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         [
           HelpBlock.p('Z włączonym Torem połączenie z serwerem Epicbox idzie przez Tor, a portfel ma adres Tor (kończy się na .onion), na który inne portfele mogą płacić bezpośrednio, z dowolnego miejsca, bez przekierowywania czegokolwiek na routerze. Adresy, które udostępniasz, się nie zmieniają.'),
           HelpBlock.ul([
-            'Włącz go w [[Ustawienia › Prywatność|Settings › Privacy]]. Wiersz Tor na pasku bocznym pokazuje jego stan.',
+            'Włącz go w [[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]. Wiersz Tor na pasku bocznym pokazuje jego stan.',
             'Gdy Tor się uruchamia lub nie jest połączony, to, co idzie przez Tor, czeka; nic nie idzie obok. Ponów lub wyłącz Tor.',
             'Płatności bezpośrednie na adres http(s) nie idą przez Tor; Wyślij o tym informuje.',
             'Odbieranie Bezpośrednio · HTTP jest wyłączone, gdy Tor jest włączony: płatności prosto z innego portfela docierają na adres Bezpośrednio · Tor.',
@@ -275,18 +277,18 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**„Węzeł niezsynchronizowany”: nie można wysłać.** Wysyłanie będzie możliwe, gdy węzeł nadrobi zaległości. Poczekaj chwilę albo dotknij wiersza Węzeł na karcie Portfel i wybierz inny węzeł.')
         else
-          const HelpBlock.p('**„Węzeł niezsynchronizowany”: nie można wysłać.** Wysyłanie będzie możliwe, gdy węzeł nadrobi zaległości. Poczekaj chwilę albo wybierz inny węzeł w Ustawienia › Węzeł.'),
+          const HelpBlock.p('**„Węzeł niezsynchronizowany”: nie można wysłać.** Wysyłanie będzie możliwe, gdy węzeł nadrobi zaległości. Poczekaj chwilę albo wybierz inny węzeł w [[Ustawienia › Węzeł|Settings › Node]].'),
         if (phone)
           const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo dotknij wiersza Epicbox na karcie Portfel i wybierz inny serwer. W tym czasie działa plik.')
         else
-          const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo wybierz inny serwer w Ustawienia › Odbieranie. W tym czasie działa plik.'),
+          const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo wybierz inny serwer w [[Ustawienia › Odbieranie|Settings › Receiving]]. W tym czasie działa plik.'),
         const HelpBlock.p('**Płatność ma stan „Czeka na odbiorcę”.** Portfel odbiorcy jeszcze nie odpowiedział. Poproś odbiorcę, by go otworzył. Jeśli nigdy tego nie zrobi, anuluj płatność w Aktywności, aby odblokować wyjścia.'),
         if (phone)
           const HelpBlock.p('**Płatność nie dotarła.** Sprawdź na karcie Portfel, czy węzeł jest zsynchronizowany, a Epicbox online. Po zmianie serwera Epicbox nadawca potrzebuje nowego adresu. Portfel nadawcy musi też zakończyć transakcję; potem kilka minut na potwierdzenia.')
         else
           const HelpBlock.p('**Płatność nie dotarła.** Sprawdź w Odbierz, czy odbieranie jest włączone, a węzeł zsynchronizowany. Po zmianie serwera Epicbox nadawca potrzebuje nowego adresu. Portfel nadawcy musi też zakończyć transakcję; potem kilka minut na potwierdzenia.'),
         if (phone)
-          const HelpBlock.p('**Tor pokazuje „Brak połączenia”.** Tor nie mógł połączyć się ze swoją siecią. Naciśnij Ponów w Ustawienia › Prywatność albo wyłącz Tor; w tym czasie nic nie wychodzi.'),
+          const HelpBlock.p('**Tor pokazuje „Brak połączenia”.** Tor nie mógł połączyć się ze swoją siecią. Naciśnij Ponów w [[Ustawienia › Prywatność i sieć|Settings › Privacy & network]] albo wyłącz Tor; w tym czasie nic nie wychodzi.'),
         if (!phone) ...const [
           HelpBlock.p('**„Port 3415 jest używany przez inny program”.** Inny program, często inny portfel Epic, używa tego portu do płatności Bezpośrednio · HTTP. Zamknij go, potem naciśnij Spróbuj ponownie w Odbierz. Epicbox, Bezpośrednio · Tor i pliki działają w tym czasie dalej.'),
           HelpBlock.p('**„Inny program Epic używa tego folderu”.** Inny portfel lub węzeł Epic ma otwarte te same pliki. Zamknij go i spróbuj ponownie.'),
@@ -295,7 +297,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           const HelpBlock.p('**Zapomniany PIN.** Usuń portfel na ekranie odblokowania i przywróć go z frazy odzyskiwania z nowym PIN-em. Bez frazy EPIC nie da się odzyskać.')
         else
           const HelpBlock.p('**„Nieprawidłowe hasło”.** Sprawdź Caps Lock i układ klawiatury. Zapomniane hasło: przywróć portfel z frazy odzyskiwania i wybierz nowe.'),
-        HelpBlock.p('**Saldo wygląda na błędne.** Uruchom Ustawienia › ${phone ? 'Skanuj łańcuch ponownie' : 'Sprawdź saldo'}.'),
+        HelpBlock.p('**Saldo wygląda na błędne.** Uruchom $recheckPlace.'),
       ],
       id: HelpId.trouble,
     ),

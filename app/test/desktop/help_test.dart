@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<void> _pump(WidgetTester tester, {Object? arg}) async {
+Future<ProviderContainer> _pump(WidgetTester tester, {Object? arg}) async {
   tester.view.physicalSize = const Size(1280, 1000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -24,6 +24,7 @@ Future<void> _pump(WidgetTester tester, {Object? arg}) async {
     ),
   );
   await tester.pumpAndSettle();
+  return container;
 }
 
 void main() {
@@ -118,6 +119,15 @@ void main() {
     await tester.tap(find.text('When something goes wrong').first);
     await tester.pumpAndSettle();
     expect(tester.getTopLeft(head).dy, lessThan(1000));
+  });
+
+  testWidgets('a place in a topic is a link to its page', (tester) async {
+    final container = await _pump(tester, arg: 'words again');
+    final link = find.text('Settings › Recovery phrase', findRichText: true);
+    expect(link, findsOneWidget);
+    await tester.tap(link);
+    await tester.pumpAndSettle();
+    expect(container.read(deskNavProvider).route, DeskRoute.settingsPhrase);
   });
 
   testWidgets('the demo states open their topic', (tester) async {
