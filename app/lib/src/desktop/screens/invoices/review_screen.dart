@@ -12,6 +12,7 @@ import '../../widgets/kit.dart';
 import 'invoice_parts.dart';
 import 'pay_dialogs.dart';
 import 'pay_tab.dart' show PayAmount;
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 class InvoiceReviewScreen extends ConsumerWidget {
   const InvoiceReviewScreen({super.key, this.arg});
@@ -276,7 +277,8 @@ class _Review extends ConsumerWidget {
         SizedBox(height: Sp.x5),
         messagePanel,
         SizedBox(height: Sp.x3),
-        advanced,
+        // Advanced › Technical details: the raw ids.
+        if (advancedHas(ref, AdvancedFeature.technicalDetails)) advanced,
         SizedBox(height: Sp.x6),
         Wrap(
           alignment: WrapAlignment.end,

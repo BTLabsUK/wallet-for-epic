@@ -11,6 +11,7 @@ import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
 import 'invoice_parts.dart';
 import 'issuer_actions.dart';
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 class IssueTab extends ConsumerStatefulWidget {
   const IssueTab({super.key, required this.book, this.selected});
@@ -263,6 +264,7 @@ class RequestDetail extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final r = request;
+    final technical = advancedHas(ref, AdvancedFeature.technicalDetails);
     final who = payerOf(r);
     final (text, tone) = switch (r.state) {
       RequestState.waiting => (l.deskInvIssuerWaitingText(who), ETone.neutral),
@@ -336,12 +338,15 @@ class RequestDetail extends ConsumerWidget {
             if (r.state == RequestState.bounced) InvButton(label: l.deskInvIssuerSendFile, width: InvW.md, tooltip: l.deskInvIssuerSoon, onPressed: null),
           ],
         ),
+        // Advanced › Technical details shows the slate id; Cancel payment, a recovery, always shows.
+        if (technical || r.state == RequestState.notPosted) ...[
         SizedBox(height: Sp.x4),
         EDetails(
           title: l.deskInvAdvanced,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (technical)
               EFacts([
                 (
                   l.deskInvSlateId,
@@ -349,7 +354,7 @@ class RequestDetail extends ConsumerWidget {
                 ),
               ]),
               if (r.state == RequestState.notPosted) ...[
-                SizedBox(height: Sp.x3),
+                if (technical) SizedBox(height: Sp.x3),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: InvButton(label: l.deskInvIssuerCancel, kind: EBtnKind.danger, width: InvW.md, onPressed: () => showCancelRequestPayment(context, ref, r)),
@@ -358,6 +363,7 @@ class RequestDetail extends ConsumerWidget {
             ],
           ),
         ),
+        ],
       ],
     );
   }

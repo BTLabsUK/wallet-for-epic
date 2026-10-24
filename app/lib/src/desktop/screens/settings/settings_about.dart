@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/desk_update.dart';
 import '../../data/files.dart' show deskOpenUrlProvider;
+import '../../data/net_mode_view.dart';
+import '../../../network_gate.dart' show NetBlock;
 import '../../desk_l10n.dart';
 import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
@@ -169,6 +171,7 @@ class _Updates extends ConsumerWidget {
       _ => (l.deskSetAboutAvailable(u.version ?? ''), checked),
     };
     final busy = u.phase == DeskUpdatePhase.checking || u.phase == DeskUpdatePhase.idle;
+    final block = ref.watch(deskNetBlockProvider);
     // A check changes nothing while the update downloads, waits for its restart or for Try again.
     final checks = !(u.phase == DeskUpdatePhase.downloading ||
         u.phase == DeskUpdatePhase.unfinished ||
@@ -178,7 +181,7 @@ class _Updates extends ConsumerWidget {
       rows: [
         ESetRow(
           title: title,
-          text: text,
+          text: block == NetBlock.none ? text : netBlockReason(l, block),
           control: checks
               ? ERowControl(
                   child: EButton(
@@ -186,7 +189,7 @@ class _Updates extends ConsumerWidget {
                     icon: EIcons.refresh,
                     size: EBtnSize.sm,
                     busy: busy,
-                    onPressed: busy ? null : () => ref.read(deskUpdateProvider.notifier).check(),
+                    onPressed: busy || block != NetBlock.none ? null : () => ref.read(deskUpdateProvider.notifier).check(),
                   ),
                 )
               : null,

@@ -206,5 +206,11 @@
   "deskOnbImportStopTitle": "Import abbrechen?",
   "deskOnbImportStopBody": "Bisher importierte Wallets werden entfernt. Alte Ordner bleiben unverändert.",
   "deskOnbImportGoBack": "Weiter importieren",
-  "deskOnbImportStop": "Import abbrechen"
+  "deskOnbImportStop": "Import abbrechen",
+  "deskOnbRestoreFromLink": "Start from a block height",
+  "deskOnbRestoreFromHide": "Check the whole chain",
+  "deskOnbRestoreFromLabel": "Start from block",
+  "deskOnbRestoreFromHint": "Block height",
+  "deskOnbRestoreFromHelp": "Only if the wallet's first payment came after this block. Leave it empty to check the whole chain.",
+  "deskOnbRestoreFromInvalid": "Use digits only, or leave it empty."
 }

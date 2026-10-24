@@ -186,7 +186,8 @@ class EDropZone extends StatefulWidget {
   final String? text;
   /// The pick button's label; "Choose file" when null.
   final String? buttonLabel;
-  final VoidCallback onPick;
+  /// Null: the pick button is disabled.
+  final VoidCallback? onPick;
 
   @override
   State<EDropZone> createState() => _EDropZoneState();

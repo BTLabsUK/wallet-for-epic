@@ -270,17 +270,17 @@
   "@deskTourSendTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourSendText": "Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.",
+  "deskTourSendText": "Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.",
   "@deskTourSendText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Send step of the first-run tour. Names only what is visible by default."
   },
   "deskTourReceiveTitle": "Receive",
   "@deskTourReceiveTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourReceiveText": "This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.",
+  "deskTourReceiveText": "This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.",
   "@deskTourReceiveText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Receive step of the first-run tour."
   },
   "deskTourInvoicesTitle": "Invoices",
   "@deskTourInvoicesTitle": {
@@ -302,25 +302,25 @@
   "@deskTourContactsTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourContactsText": "Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.",
+  "deskTourContactsText": "Saved addresses by name. Send picks from here.",
   "@deskTourContactsText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Contacts step of the first-run tour."
   },
   "deskTourNodeTitle": "Settings › Node",
   "@deskTourNodeTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourNodeText": "Which node the wallet reads the chain from: a public one or the local node. The other settings pages are listed on the left.",
+  "deskTourNodeText": "Which node the wallet reads the chain from. The other settings pages are listed on the left.",
   "@deskTourNodeText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Settings › Node step of the first-run tour."
   },
   "deskTourHelpTitle": "Help",
   "@deskTourHelpTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourHelpText": "Topics by section, Report a problem and the app log. More on every page is here, and this tour can be shown again.",
+  "deskTourHelpText": "Topics by section and Report a problem. More on every page is here, and this tour can be shown again.",
   "@deskTourHelpText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Help step, the last step of the first-run tour."
   },
   "deskTourCounter": "{current} of {total}",
   "@deskTourCounter": {
@@ -349,5 +349,13 @@
   "deskTourNext": "Next",
   "@deskTourNext": {
     "description": "Button on the tour card: next step. One word."
+  },
+  "deskTourAdvancedTitle": "Advanced",
+  "@deskTourAdvancedTitle": {
+    "description": "Title of the Settings › Advanced step of the first-run tour."
+  },
+  "deskTourAdvancedText": "Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.",
+  "@deskTourAdvancedText": {
+    "description": "Text of the Settings › Advanced step of the first-run tour. The tour switches nothing on."
   }
 }

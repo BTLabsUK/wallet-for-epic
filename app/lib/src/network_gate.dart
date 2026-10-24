@@ -18,6 +18,10 @@ enum NetBlock {
   waitingForTor,
 }
 
+/// The transaction file method in [mode]: LEPIC asks the node for its tip before it makes a
+/// send file, signs a received one or finalizes one, so Offline holds it too.
+NetBlock fileBlockFor(NetworkMode mode) => mode == NetworkMode.offline ? NetBlock.offline : NetBlock.none;
+
 /// What [mode] and the Tor [tor] state allow now.
 NetBlock netBlockFor(NetworkMode mode, TorState tor) => switch (mode) {
   NetworkMode.offline => NetBlock.offline,

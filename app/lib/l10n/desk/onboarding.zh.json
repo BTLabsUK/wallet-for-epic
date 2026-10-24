@@ -206,5 +206,11 @@
   "deskOnbImportStopTitle": "停止导入？",
   "deskOnbImportStopBody": "已导入的钱包会被移除。旧文件夹不会改动。",
   "deskOnbImportGoBack": "返回",
-  "deskOnbImportStop": "停止导入"
+  "deskOnbImportStop": "停止导入",
+  "deskOnbRestoreFromLink": "Start from a block height",
+  "deskOnbRestoreFromHide": "Check the whole chain",
+  "deskOnbRestoreFromLabel": "Start from block",
+  "deskOnbRestoreFromHint": "Block height",
+  "deskOnbRestoreFromHelp": "Only if the wallet's first payment came after this block. Leave it empty to check the whole chain.",
+  "deskOnbRestoreFromInvalid": "Use digits only, or leave it empty."
 }

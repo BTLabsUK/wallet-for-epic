@@ -11,8 +11,10 @@ import '../../../network.dart' show EpicboxRelay;
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../../models.dart' show slateMessageMaxBytes;
+import '../../../network_gate.dart' show NetBlock;
 import '../../../smart_outputs.dart';
 import '../../../utf8_limit.dart';
 import '../../app/shell.dart' show outputsShown;
@@ -24,7 +26,7 @@ import 'contact_picker.dart';
 import 'epicbox_notice.dart';
 import 'file_panels.dart';
 import 'send_advanced.dart';
-import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
 import 'send_summary_rows.dart';
 
 /// Where the Send page is, so the tour reaches every state without taps.
@@ -288,7 +290,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return h == ServiceHealth.off || h == ServiceHealth.checking;
   }
 
-  TorState _torState(DeskState st) => _args.tor ?? deskTorState(st);
+  TorState _torState(DeskState st) => _args.tor ?? deskNetTor(st);
+
+  /// The network mode holds this send: Epicbox and Direct in Offline and in Tor only without
+  /// Tor, a file in Offline only.
+  NetBlock _netBlock(DeskState st) => _method == TxMethod.file ? deskFileBlock(st) : deskNetBlock(st);
 
   /// How this send's connection goes with the Tor switch as it is now; null for File.
   TorWay? _torWay(DeskState st) {
@@ -307,7 +313,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return way != null && !torGoes(way);
   }
 
-  bool _canSend(DeskState st) => _nodeBlock(st) == null && !_epicboxBlocked(st) && !_torHeld(st) && _result is! SendDone;
+  bool _canSend(DeskState st) => _netBlock(st) == NetBlock.none && _nodeBlock(st) == null && !_epicboxBlocked(st) && !_torHeld(st) && _result is! SendDone;
 
   OutputPrefs get _prefs => ref.read(deskOutputPrefsProvider).value ?? const OutputPrefs();
 
@@ -747,7 +753,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
       child: EPage(
       title: context.l10n.deskSendTitle,
-      titleTrailing: res is SendFileReady ? null : TorChip(_torWay(st)),
+      titleTrailing: res is SendFileReady || _netBlock(st) == NetBlock.offline ? null : TorChip(_torWay(st)),
       width: EPageWidth.mid,
       child: res is SendFileReady
           ? _fileReady(res, nav)
@@ -804,6 +810,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// The one notice about what keeps a send from going out, most blocking first.
   Widget? _blockNotice(DeskState st) {
     final l = context.l10n;
+    final net = _netBlock(st);
+    if (net != NetBlock.none) {
+      return ENotice(
+        key: const ValueKey('send-net-blocked'),
+        title: netBlockReason(l, net)!,
+        text: net == NetBlock.waitingForTor ? l.deskNetSendFileHint : null,
+        tone: ETone.warn,
+        icon: net == NetBlock.offline ? EIcons.lanOff : EIcons.tor,
+        actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
+      );
+    }
     final node = _nodeBlock(st);
     if (st.status != null && node != null) {
       return ENotice(
@@ -905,6 +922,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final toErr = _submitted && !_toEdited ? _toError(st) : null;
     final amErr = _allError ?? (_submitted && !_amountEdited ? _amountError(spendable) : null);
     final matches = file ? const <Contact>[] : _matches(st);
+    // Epicbox and Direct wait for the network mode; File only in Offline.
+    final net = deskNetBlock(st);
+    final netIdle = net == NetBlock.none;
+    final netWhy = netBlockReason(l, net);
+    final fileBlock = deskFileBlock(st);
     return EPanel(
       padding: EdgeInsets.zero,
       head: Padding(
@@ -914,14 +936,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           child: ESegmented<TxMethod>(
           stretch: true,
           segments: [
-            const ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox), // l10n-ok: product name
+            ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox, enabled: netIdle, tooltip: netWhy), // l10n-ok: product name
             // Direct: http(s) or an onion, the address decides ([TxMethod.tor] is its route).
             // Advanced › Direct receiving; the method in use stays (a pasted onion picks Direct).
             // File is everyday.
             if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
                 advancedHas(ref, AdvancedFeature.directReceiving, keep: _segmentOf(_method) == TxMethod.http))
-              ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http),
-            ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file),
+              ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http, enabled: netIdle, tooltip: netWhy),
+            ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file, enabled: fileBlock == NetBlock.none, tooltip: netBlockReason(l, fileBlock)),
           ],
           value: _segmentOf(_method),
           onChanged: (m) => setState(() {

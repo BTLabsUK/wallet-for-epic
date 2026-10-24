@@ -10379,14 +10379,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTourSendText =>
-      'Drei Wege zu zahlen: eine Epicbox-Adresse, eine Direkt-Adresse (http(s) oder Tor) oder eine Transaktionsdatei. Vor dem Senden prüfen Sie alles noch einmal.';
+      'Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.';
 
   @override
   String get deskTourReceiveTitle => 'Empfangen';
 
   @override
   String get deskTourReceiveText =>
-      'Die Epicbox-Adresse dieser Wallet, daneben Direkt · HTTP und Direkt · Tor. Transaktionsdateien zum Signieren oder Abschließen stehen unten.';
+      'This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.';
 
   @override
   String get deskTourInvoicesTitle => 'Rechnungen';
@@ -10407,21 +10407,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'Gespeicherte Adressen mit Namen: Epicbox, Direkt · HTTP oder Direkt · Tor. Senden wählt von hier.';
+      'Saved addresses by name. Send picks from here.';
 
   @override
   String get deskTourNodeTitle => 'Einstellungen › Node';
 
   @override
   String get deskTourNodeText =>
-      'Von welchem Node die Wallet die Blockchain liest: einem öffentlichen oder dem lokalen Node. Die anderen Einstellungsseiten stehen links.';
+      'Which node the wallet reads the chain from. The other settings pages are listed on the left.';
 
   @override
   String get deskTourHelpTitle => 'Hilfe';
 
   @override
   String get deskTourHelpText =>
-      'Themen nach Abschnitt, Problem melden und das App-Protokoll. Mehr zu jeder Seite steht hier, und diese Tour lässt sich erneut zeigen.';
+      'Topics by section and Report a problem. More on every page is here, and this tour can be shown again.';
 
   @override
   String deskTourCounter(int current, int total) {
@@ -14079,7 +14079,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvTechnicalHint =>
-      'Shows the Technical fold on a transaction: slate ID, kernel, block height, the core\'s status and type, and the payment proof. In Invoices, shows the Advanced folds.';
+      'Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core\'s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.';
 
   @override
   String get deskSetAdvSendOptions => 'Send options';
@@ -14107,7 +14107,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvRecheckHint =>
-      'Lets Recheck balance and Restore start from a block height instead of the first block, and lets Recheck drop unconfirmed transactions. Faster, and the only way to skip early history.';
+      'Lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone, whatever this says.';
 
   @override
   String get deskSetAdvBuiltInNode => 'Built-in node';
@@ -14128,7 +14128,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor first starts Tor with the wallet and asks before it falls back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all. Transaction files still work.';
+      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait.';
 
   @override
   String get deskSetAdvModeStandard => 'Standard';
@@ -14149,7 +14149,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'No network. The balance stays as last seen. Transaction files still work.';
+      'No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.';
 
   @override
   String get deskSetAdvTorOnlyNote =>
@@ -14157,7 +14157,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Offline pauses Epicbox, Direct receiving, the node and status checks until the mode changes.';
+      'Sending and receiving wait until you switch back, transaction files included.';
 
   @override
   String get deskSetAdvNotInBuild => 'Not in this build';
@@ -14181,4 +14181,66 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
+
+  @override
+  String get deskOnbRestoreFromLink => 'Start from a block height';
+
+  @override
+  String get deskOnbRestoreFromHide => 'Check the whole chain';
+
+  @override
+  String get deskOnbRestoreFromLabel => 'Start from block';
+
+  @override
+  String get deskOnbRestoreFromHint => 'Block height';
+
+  @override
+  String get deskOnbRestoreFromHelp =>
+      'Only if the wallet\'s first payment came after this block. Leave it empty to check the whole chain.';
+
+  @override
+  String get deskOnbRestoreFromInvalid => 'Use digits only, or leave it empty.';
+
+  @override
+  String get deskNetOfflineReason => 'Offline mode is on in Advanced.';
+
+  @override
+  String get deskNetWaitingTorReason =>
+      'Waiting for Tor. Tor only is on in Advanced.';
+
+  @override
+  String get deskNetTorOnlyLine => 'Tor only is on in Advanced.';
+
+  @override
+  String get deskNetOpenAdvanced => 'Open Advanced';
+
+  @override
+  String get deskNetSendFileHint => 'A transaction file still works.';
+
+  @override
+  String get deskNetRecvOfflineText =>
+      'Your address stays the same. Nothing can arrive until Offline mode is off.';
+
+  @override
+  String get deskNetRecvWaitTorText =>
+      'Receiving starts when Tor is connected. A transaction file still works.';
+
+  @override
+  String get deskNetCantReceive => 'Can\'t receive offline.';
+
+  @override
+  String get deskRailOffline => 'Offline';
+
+  @override
+  String get deskTourAdvancedTitle => 'Advanced';
+
+  @override
+  String get deskTourAdvancedText =>
+      'Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.';
+
+  @override
+  String get deskTxMore => 'More';
+
+  @override
+  String get deskTxLess => 'Less';
 }

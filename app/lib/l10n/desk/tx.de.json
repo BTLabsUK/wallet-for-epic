@@ -124,5 +124,7 @@
   "deskTxBroadcastAgain": "Erneut übertragen",
   "deskTxBroadcastDone": "An das Netzwerk gesendet",
   "deskTxNowUndeliveredDirect": "Nicht zugestellt. Die Wallet des Empfängers hat die Zahlung ({method}) nicht angenommen, er hat sie also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.",
-  "deskTxNowUndeliveredRelay": "Nicht zugestellt. {relay} hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben."
+  "deskTxNowUndeliveredRelay": "Nicht zugestellt. {relay} hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.",
+  "deskTxMore": "More",
+  "deskTxLess": "Less"
 }
