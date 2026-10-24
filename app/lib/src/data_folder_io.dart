@@ -3,29 +3,35 @@ library;
 
 import 'dart:io';
 
-/// The Linux application ID (`linux/CMakeLists.txt`, APPLICATION_ID).
-const String linuxAppId = 'com.blacktyger.epicwallet';
+import 'package:path_provider/path_provider.dart';
 
-/// On Linux, creates `<XDG data home>/<app ID>` when it is missing. path_provider_linux uses
-/// that folder only when it exists; otherwise it falls back to an existing folder named after
-/// the executable (`epic_wallet`), which another program may own. Call before anything reads
-/// the application support directory (logs, wallets). Other platforms: nothing.
+/// The folder Epic Cash Desktop keeps on Linux, under the home folder.
+const String linuxDataFolderName = '.epic_cash_desktop';
+
+/// Where the app keeps its data (wallets, logs, built-in node, settings): the one place every
+/// caller asks. On Linux `$HOME/.epic_cash_desktop`, whatever the app ID; elsewhere the platform's
+/// application support directory.
+Future<Directory> appDataDirectory({Map<String, String>? environment}) async {
+  if (Platform.isLinux) {
+    final dir = linuxDataFolder(environment ?? Platform.environment);
+    if (dir != null) return Directory(dir);
+  }
+  return getApplicationSupportDirectory();
+}
+
+/// Creates the Linux data folder at start, so it exists before anything reads it. Other
+/// platforms: nothing.
 Future<void> settleDataFolder({Map<String, String>? environment}) async {
   if (!Platform.isLinux) return;
-  final dir = linuxDataFolder(environment ?? Platform.environment);
-  if (dir == null) return;
   try {
-    await Directory(dir).create(recursive: true);
+    await (await appDataDirectory(environment: environment)).create(recursive: true);
   } on FileSystemException {
-    // path_provider picks a folder as before.
+    // The first write reports it.
   }
 }
 
-/// `${XDG_DATA_HOME:-$HOME/.local/share}/<app ID>`, as xdg_directories reads it; null
-/// without either variable.
+/// `$HOME/.epic_cash_desktop`; null without HOME.
 String? linuxDataFolder(Map<String, String> environment) {
-  final xdg = environment['XDG_DATA_HOME'];
   final home = environment['HOME'];
-  final base = xdg != null && xdg.isNotEmpty ? xdg : (home == null || home.isEmpty ? null : '$home/.local/share');
-  return base == null ? null : '$base/$linuxAppId';
+  return home == null || home.isEmpty ? null : '$home/$linuxDataFolderName';
 }

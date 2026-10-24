@@ -529,7 +529,7 @@ class MockDeskNode implements DeskNodeApi {
 
 const int _gb = 1000 * 1000 * 1000;
 
-const String mockDataFolder = '~/.local/share/com.blacktyger.epicwallet/node/main';
+const String mockDataFolder = '~/.epic_cash_desktop/node/main';
 
 /// The mock's network tip.
 const int mockTip = 3764975;

@@ -22,7 +22,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:path_provider/path_provider.dart';
+import '../../data_folder_io.dart' show appDataDirectory;
 
 import '../../address_format.dart' show shortAddress;
 import '../../advanced.dart' show NetworkMode;
@@ -200,7 +200,7 @@ class LepicDeskWallet implements DeskWalletApi {
        _registryGiven = registry,
        _remember = RememberedPasswords(
          secrets: _secrets,
-         dir: rememberDir ?? () async => Directory('${(await getApplicationSupportDirectory()).path}${Platform.pathSeparator}remember'),
+         dir: rememberDir ?? () async => Directory('${(await appDataDirectory()).path}${Platform.pathSeparator}remember'),
          now: now,
        ) {
     statusSite.addListener(_statusSiteChanged);
