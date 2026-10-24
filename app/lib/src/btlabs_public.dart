@@ -514,13 +514,35 @@ class WalletApk {
 /// A desktop release entry.
 class WalletDesktopEntry {
   /// Creates an entry.
-  const WalletDesktopEntry({required this.version, this.page});
+  const WalletDesktopEntry({required this.version, this.page, this.file});
 
   /// `major.minor.patch`.
   final String version;
 
   /// Release page on a trusted GitHub host, if given.
   final String? page;
+
+  /// The system's release file, if given (a per-system entry only).
+  final WalletDesktopFile? file;
+}
+
+/// Where a desktop release file may be: BT Labs' download folder, a plain file name after it.
+const String walletDesktopDownloads = 'https://examples.btlabs.uk/epic-cash-wallets/downloads/';
+
+/// A desktop release file the app may download and install by itself: the Windows setup or
+/// the Linux AppImage. Clients before 26.10.9 ignore it.
+class WalletDesktopFile {
+  /// Creates the entry.
+  const WalletDesktopFile({required this.url, required this.sha256, required this.size});
+
+  /// https, under [walletDesktopDownloads].
+  final Uri url;
+
+  /// 64 lowercase hex characters. The client still checks it after download.
+  final String sha256;
+
+  /// Size in bytes, 1 to 2^32. The client still checks it after download.
+  final int size;
 }
 
 /// Desktop versions: one for every system, or per system.
@@ -1121,6 +1143,7 @@ final _packageRe = RegExp(r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$');
 final _versionRe = RegExp(r'^[0-9]+\.[0-9]+\.[0-9]+$');
 final _sha256Re = RegExp(r'^[0-9a-f]{64}$');
 final _pageRe = RegExp(r'^https://github\.com/(BTLabs-EPIC|blacktyger)/');
+final _desktopFileRe = RegExp(r'^https://examples\.btlabs\.uk/epic-cash-wallets/downloads/[A-Za-z0-9][A-Za-z0-9._-]*$');
 const _abis = ['arm64-v8a', 'armeabi-v7a', 'x86_64', 'universal'];
 const _systems = ['windows', 'linux', 'macos'];
 
@@ -1152,10 +1175,12 @@ _Parsed<WalletUpdate> _parseWalletUpdate(List<int> bytes) {
   if (root.containsKey('desktop')) {
     final d = _obj(root['desktop']);
     if (d.containsKey('version')) {
-      desktop = WalletDesktop(all: _desktopEntry(d));
+      desktop = WalletDesktop(all: _desktopEntry(d, perSystem: false));
     } else {
       if (d.isEmpty || d.keys.any((k) => !_systems.contains(k))) throw const _Bad();
-      desktop = WalletDesktop(bySystem: Map.unmodifiable({for (final e in d.entries) e.key: _desktopEntry(e.value)}));
+      desktop = WalletDesktop(
+        bySystem: Map.unmodifiable({for (final e in d.entries) e.key: _desktopEntry(e.value, perSystem: true)}),
+      );
     }
   }
 
@@ -1182,14 +1207,26 @@ _Parsed<WalletUpdate> _parseWalletUpdate(List<int> bytes) {
 
 String _version(Object? v) => v is String && _versionRe.hasMatch(v) ? v : throw const _Bad();
 
-WalletDesktopEntry _desktopEntry(Object? v) {
+WalletDesktopEntry _desktopEntry(Object? v, {required bool perSystem}) {
   final o = _obj(v);
   String? page;
   if (o.containsKey('page')) {
     page = _url(o['page']);
     if (!_pageRe.hasMatch(page)) throw const _Bad();
   }
-  return WalletDesktopEntry(version: _version(o['version']), page: page);
+  // The release file: `url`, `sha256` and `size` together or none, in a per-system entry only
+  // (one file cannot fit every system).
+  WalletDesktopFile? file;
+  final given = const ['url', 'sha256', 'size'].where(o.containsKey).length;
+  if (given != 0) {
+    if (given != 3 || !perSystem) throw const _Bad();
+    final url = _url(o['url']);
+    if (!_desktopFileRe.hasMatch(url)) throw const _Bad();
+    final sha = o['sha256'];
+    if (sha is! String || !_sha256Re.hasMatch(sha)) throw const _Bad();
+    file = WalletDesktopFile(url: Uri.parse(url), sha256: sha, size: _int(o['size'], 1, 4294967296));
+  }
+  return WalletDesktopEntry(version: _version(o['version']), page: page, file: file);
 }
 
 /// The text rule of section 3, but line feeds are allowed inside; at most 2000 code points.

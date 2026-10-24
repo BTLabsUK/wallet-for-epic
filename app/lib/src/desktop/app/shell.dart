@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../demo.dart' show devNetworksProvider;
 import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, EpicMark;
 import '../desk_l10n.dart';
-import '../data/desk_update.dart' show deskAppVersion;
+import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -21,6 +21,7 @@ import 'desk_app.dart' show deskNavigatorKey;
 import 'rail.dart';
 import 'screens.dart';
 import 'tour.dart';
+import 'update_notice.dart';
 
 export 'rail.dart' show ServiceRows;
 
@@ -67,6 +68,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKey);
     _maybeTour();
+    // Update checks from the first unlock on, for the rest of the run (once).
+    if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
   }
 
   /// Ctrl+L / ⌘L locks, Ctrl+Q / ⌘Q quits, wherever the focus is (6.1.6 app menu).
@@ -428,6 +431,7 @@ class _Sidebar extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  DeskUpdateNotice(compact: compact),
                   ServiceRows(compact: compact),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: Sp.x2),

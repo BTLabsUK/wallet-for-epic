@@ -13522,4 +13522,57 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTxProofNone => 'การชำระเงินนี้ไม่มีหลักฐานการชำระเงิน';
+
+  @override
+  String get deskUpdAvailable => 'มีอัปเดต';
+
+  @override
+  String deskUpdNotice(String version) {
+    return 'มีอัปเดต · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return 'ดาวน์โหลด $version';
+  }
+
+  @override
+  String get deskUpdOpensPage => 'เปิดหน้าดาวน์โหลด';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return 'กำลังดาวน์โหลด $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => 'รีสตาร์ทเพื่ออัปเดต';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version พร้อมแล้ว';
+  }
+
+  @override
+  String get deskUpdRestartHint => 'แอปจะปิด ติดตั้งอัปเดต แล้วเปิดใหม่';
+
+  @override
+  String get deskUpdFailed => 'ดาวน์โหลดอัปเดตไม่ได้';
+
+  @override
+  String get deskUpdTryAgain => 'ลองอีกครั้ง';
+
+  @override
+  String get deskUpdInstallFailed => 'ติดตั้งอัปเดตไม่ได้';
+
+  @override
+  String get deskUpdOpenPage => 'เปิดหน้าดาวน์โหลด';
+
+  @override
+  String get deskUpdErrDamaged => 'ไฟล์ไม่ตรงกับข้อมูลอัปเดตที่ลงลายเซ็นไว้';
+
+  @override
+  String get deskUpdErrStopped => 'การดาวน์โหลดหยุดลง';
+
+  @override
+  String get deskUpdErrInstall => 'แทนที่ด้วยเวอร์ชันใหม่ไม่ได้';
 }

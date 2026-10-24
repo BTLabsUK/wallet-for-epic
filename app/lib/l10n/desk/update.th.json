@@ -1,0 +1,17 @@
+{
+  "deskUpdAvailable": "มีอัปเดต",
+  "deskUpdNotice": "มีอัปเดต · {version}",
+  "deskUpdDownload": "ดาวน์โหลด {version}",
+  "deskUpdOpensPage": "เปิดหน้าดาวน์โหลด",
+  "deskUpdDownloading": "กำลังดาวน์โหลด {percent} %",
+  "deskUpdRestart": "รีสตาร์ทเพื่ออัปเดต",
+  "deskUpdReady": "{version} พร้อมแล้ว",
+  "deskUpdRestartHint": "แอปจะปิด ติดตั้งอัปเดต แล้วเปิดใหม่",
+  "deskUpdFailed": "ดาวน์โหลดอัปเดตไม่ได้",
+  "deskUpdTryAgain": "ลองอีกครั้ง",
+  "deskUpdInstallFailed": "ติดตั้งอัปเดตไม่ได้",
+  "deskUpdOpenPage": "เปิดหน้าดาวน์โหลด",
+  "deskUpdErrDamaged": "ไฟล์ไม่ตรงกับข้อมูลอัปเดตที่ลงลายเซ็นไว้",
+  "deskUpdErrStopped": "การดาวน์โหลดหยุดลง",
+  "deskUpdErrInstall": "แทนที่ด้วยเวอร์ชันใหม่ไม่ได้"
+}

@@ -13058,4 +13058,57 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskTxProofNone => '这笔付款没有付款证明。';
+
+  @override
+  String get deskUpdAvailable => '有可用更新';
+
+  @override
+  String deskUpdNotice(String version) {
+    return '有可用更新 · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return '下载 $version';
+  }
+
+  @override
+  String get deskUpdOpensPage => '打开下载页面';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return '正在下载 $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => '重启以更新';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version 已就绪';
+  }
+
+  @override
+  String get deskUpdRestartHint => '应用会关闭、安装更新，然后重新打开。';
+
+  @override
+  String get deskUpdFailed => '无法下载更新';
+
+  @override
+  String get deskUpdTryAgain => '重试';
+
+  @override
+  String get deskUpdInstallFailed => '无法安装更新';
+
+  @override
+  String get deskUpdOpenPage => '打开下载页面';
+
+  @override
+  String get deskUpdErrDamaged => '文件与已签名的更新信息不符。';
+
+  @override
+  String get deskUpdErrStopped => '下载已中断。';
+
+  @override
+  String get deskUpdErrInstall => '无法替换为新版本。';
 }

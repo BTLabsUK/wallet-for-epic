@@ -1,0 +1,17 @@
+{
+  "deskUpdAvailable": "Dostępna aktualizacja",
+  "deskUpdNotice": "Dostępna aktualizacja · {version}",
+  "deskUpdDownload": "Pobierz {version}",
+  "deskUpdOpensPage": "Otwiera stronę pobierania",
+  "deskUpdDownloading": "Pobieranie: {percent} %",
+  "deskUpdRestart": "Uruchom ponownie i zaktualizuj",
+  "deskUpdReady": "{version} jest gotowa",
+  "deskUpdRestartHint": "Aplikacja zamknie się, zainstaluje aktualizację i otworzy ponownie.",
+  "deskUpdFailed": "Nie udało się pobrać aktualizacji",
+  "deskUpdTryAgain": "Spróbuj ponownie",
+  "deskUpdInstallFailed": "Nie udało się zainstalować aktualizacji",
+  "deskUpdOpenPage": "Otwórz stronę pobierania",
+  "deskUpdErrDamaged": "Plik nie zgadza się z podpisanymi danymi aktualizacji.",
+  "deskUpdErrStopped": "Pobieranie przerwane.",
+  "deskUpdErrInstall": "Nie udało się podmienić aplikacji na nową wersję."
+}

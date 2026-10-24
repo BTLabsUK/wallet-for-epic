@@ -13785,4 +13785,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTxProofNone => 'No payment proof for this payment.';
+
+  @override
+  String get deskUpdAvailable => 'Update available';
+
+  @override
+  String deskUpdNotice(String version) {
+    return 'Update available · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return 'Download $version';
+  }
+
+  @override
+  String get deskUpdOpensPage => 'Opens the download page';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return 'Downloading $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => 'Restart to update';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version is ready';
+  }
+
+  @override
+  String get deskUpdRestartHint =>
+      'The app closes, installs it and opens again.';
+
+  @override
+  String get deskUpdFailed => 'Couldn\'t download the update';
+
+  @override
+  String get deskUpdTryAgain => 'Try again';
+
+  @override
+  String get deskUpdInstallFailed => 'Couldn\'t install the update';
+
+  @override
+  String get deskUpdOpenPage => 'Open the download page';
+
+  @override
+  String get deskUpdErrDamaged =>
+      'The file did not match the signed update information.';
+
+  @override
+  String get deskUpdErrStopped => 'The download stopped.';
+
+  @override
+  String get deskUpdErrInstall => 'The new version could not be put in place.';
 }

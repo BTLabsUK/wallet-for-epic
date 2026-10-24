@@ -14208,4 +14208,60 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTxProofNone => 'Brak dowodu płatności dla tej płatności.';
+
+  @override
+  String get deskUpdAvailable => 'Dostępna aktualizacja';
+
+  @override
+  String deskUpdNotice(String version) {
+    return 'Dostępna aktualizacja · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return 'Pobierz $version';
+  }
+
+  @override
+  String get deskUpdOpensPage => 'Otwiera stronę pobierania';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return 'Pobieranie: $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => 'Uruchom ponownie i zaktualizuj';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version jest gotowa';
+  }
+
+  @override
+  String get deskUpdRestartHint =>
+      'Aplikacja zamknie się, zainstaluje aktualizację i otworzy ponownie.';
+
+  @override
+  String get deskUpdFailed => 'Nie udało się pobrać aktualizacji';
+
+  @override
+  String get deskUpdTryAgain => 'Spróbuj ponownie';
+
+  @override
+  String get deskUpdInstallFailed => 'Nie udało się zainstalować aktualizacji';
+
+  @override
+  String get deskUpdOpenPage => 'Otwórz stronę pobierania';
+
+  @override
+  String get deskUpdErrDamaged =>
+      'Plik nie zgadza się z podpisanymi danymi aktualizacji.';
+
+  @override
+  String get deskUpdErrStopped => 'Pobieranie przerwane.';
+
+  @override
+  String get deskUpdErrInstall =>
+      'Nie udało się podmienić aplikacji na nową wersję.';
 }
