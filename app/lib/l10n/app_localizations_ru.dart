@@ -3135,7 +3135,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'Доверенные сервисы могут выставлять вам счета. Каждый счёт вы подтверждаете сами.';
+      'Второй адрес, только для счетов, на который доверенные сервисы могут их выставлять. Сообщения от всех остальных отбрасываются, и ничего не оплачивается, пока вы не подтвердите каждый счёт PIN-кодом. Ваш адрес для платежей остаётся прежним.';
 
   @override
   String get invoiceSettingsTitle => 'Счета';
@@ -3347,7 +3347,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsSendFeedbackHint =>
-      'Сообщите о проблеме или предложите идею';
+      'Сообщите о проблеме или предложите разработчикам идею. Журналы отправляются, только если вы их приложите; фраза восстановления, PIN-код и другие секретные данные удаляются заранее.';
 
   @override
   String get settingsSourceCode => 'Исходный код';
@@ -3511,7 +3511,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsAdvancedOptionsSubtitle =>
-      'Технические детали, файлы и журналы';
+      'Показывает техническую сторону: сведения об узле и сервере Epicbox, высоты блоков, файлы транзакций и журналы. Если выключено, приложение ограничивается тем, что нужно каждый день.';
 
   @override
   String get settingsSectionPrivacy => 'Приватность';
@@ -3544,7 +3544,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Состояние сети и информация предоставляются status.btlabs.uk';
+      'Читает со status.btlabs.uk, монитора BT Labs, какие узлы и серверы Epicbox в сети, их высоту блока и время ответа, и показывает это в списках серверов и на карточке состояния. Если выключено, status.btlabs.uk не опрашивается, а списки серверов не показывают состояние.';
 
   @override
   String get txStepStarted => 'Платёж начат';
@@ -4185,6 +4185,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsStrategy => 'Стратегия отправок';
 
   @override
+  String get outputsStrategyHint =>
+      'Какие выходы тратит отправка. «Наименьшие» тратит как можно меньше мелких выходов, и остальное остаётся доступным, пока сдача подтверждается. «Все» тратит все доступные выходы и возвращает один выход сдачи: всё заблокировано до подтверждения, а потом выходов меньше и они крупнее.';
+
+  @override
   String get outputsSmallest => 'Наименьшие';
 
   @override
@@ -4202,7 +4206,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsSplitChange => 'Делить сдачу';
 
   @override
-  String get outputsSplitChangeText => 'Когда осталось бы мало выходов';
+  String get outputsSplitChangeText =>
+      'Если после отправки осталось бы меньше 3 доступных выходов, а сдача не меньше 1 EPIC, она вернётся несколькими выходами, до 4, и следующие отправки не будут ждать подтверждений. Каждый лишний выход стоит 0,004 EPIC.';
 
   @override
   String outputsFilterAll(int count) {
@@ -4345,7 +4350,7 @@ class AppLocalizationsRu extends AppLocalizations {
     String made,
     String spent,
   ) {
-    return 'Тратит $spent ($amount) и создаёт $made по $each. Обычная сетевая транзакция на этот кошелёк, подтверждается через 3 блока, как любая отправка; всё доступное блокируется до этого момента.';
+    return 'Тратит $spent ($amount) и создаёт $made по $each. Обычная сетевая транзакция на этот кошелёк, подтверждается через 3 блока, как любая отправка; всё доступное блокируется до этого момента. Несколько выходов позволяют следующим отправкам уходить, не дожидаясь сдачи друг друга.';
   }
 
   @override
@@ -6273,7 +6278,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Использует сервис уведомлений Google. Конфиденциальные данные не передаются.';
+      'Сообщает, когда приходит платёж или счёт, пока приложение закрыто. Использует Epicbox BT Labs и сервис уведомлений Google; сообщение лишь будит приложение и не содержит ни суммы, ни отправителя, ни адреса. Выключено, пока включён Tor: регистрация раскрыла бы адрес телефона.';
 
   @override
   String get settingsPushPaused => 'Приостановлено, пока включён Tor';

@@ -4456,10 +4456,10 @@ abstract class AppLocalizations {
   /// **'Invoice address and trusted services'**
   String get settingsInvoices;
 
-  /// Tooltip of the Invoice address and trusted services row (its info icon).
+  /// Info sheet behind the Invoice address row: a second address, the allowlist, approval with the PIN.
   ///
   /// In en, this message translates to:
-  /// **'Let services you trust bill you. You approve every invoice.'**
+  /// **'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. Your address for payments stays the same.'**
   String get settingsInvoicesSubtitle;
 
   /// Title of the invoice settings screen.
@@ -4828,10 +4828,10 @@ abstract class AppLocalizations {
   /// **'Send feedback'**
   String get settingsSendFeedback;
 
-  /// Tooltip of the Send feedback row (its info icon).
+  /// Info sheet behind Send feedback: where it goes, what logs carry.
   ///
   /// In en, this message translates to:
-  /// **'Report a problem or suggest an idea'**
+  /// **'Report a problem or suggest an idea to the developers. Logs go along only if you attach them, with the recovery phrase, PIN and other secrets removed first.'**
   String get settingsSendFeedbackHint;
 
   /// Settings row with the link to the app's source code.
@@ -5104,10 +5104,10 @@ abstract class AppLocalizations {
   /// **'Advanced options'**
   String get settingsAdvancedOptions;
 
-  /// Tooltip of the Advanced options switch (its info icon).
+  /// Info sheet behind the Advanced options switch: what it shows.
   ///
   /// In en, this message translates to:
-  /// **'Technical details, files and logs'**
+  /// **'Shows the technical side: node and Epicbox server details, block heights, transaction files and logs. Off, the app keeps to what everyday use needs.'**
   String get settingsAdvancedOptionsSubtitle;
 
   /// Settings section header above the status.btlabs.uk switch.
@@ -5164,10 +5164,10 @@ abstract class AppLocalizations {
   /// **'Use status.btlabs.uk'**
   String get settingsUseStatusSite;
 
-  /// Tooltip of the Use status.btlabs.uk switch (its info icon). Keep status.btlabs.uk as it is.
+  /// Info sheet behind the status site switch: what it reads and shows, and what is lost when off. status.btlabs.uk is a web address and stays; BT Labs is a name.
   ///
   /// In en, this message translates to:
-  /// **'Network status and information provided by status.btlabs.uk'**
+  /// **'Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. Off, status.btlabs.uk is never asked and the server lists show no state.'**
   String get settingsUseStatusSiteSubtitle;
 
   /// Payment details timeline, first step of a send: we created it and set the funds aside.
@@ -6208,6 +6208,12 @@ abstract class AppLocalizations {
   /// **'Strategy for sends'**
   String get outputsStrategy;
 
+  /// Info sheet behind the Strategy for sends row: what each strategy does.
+  ///
+  /// In en, this message translates to:
+  /// **'Which outputs a send spends. Smallest spends the fewest small outputs, so the rest stays spendable while the change confirms. All spends every spendable output and returns one change output: everything is locked until it confirms, and fewer, larger outputs remain.'**
+  String get outputsStrategyHint;
+
   /// Strategy name.
   ///
   /// In en, this message translates to:
@@ -6238,10 +6244,10 @@ abstract class AppLocalizations {
   /// **'Split change'**
   String get outputsSplitChange;
 
-  /// Caption under the Split change switch.
+  /// Info sheet behind the Split change switch: the full explanation (the rule, why, the cost).
   ///
   /// In en, this message translates to:
-  /// **'When few outputs would be left'**
+  /// **'When a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC, the change comes back as up to 4 outputs, so the next sends do not wait for confirmations. Each extra output costs 0.004 EPIC.'**
   String get outputsSplitChangeText;
 
   /// Filter segment with a count.
@@ -6463,7 +6469,7 @@ abstract class AppLocalizations {
   /// Split sheet paragraph. {spent} and {made} are counts such as "3 outputs".
   ///
   /// In en, this message translates to:
-  /// **'Spends {spent} ({amount}) and makes {made} of about {each} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.'**
+  /// **'Spends {spent} ({amount}) and makes {made} of about {each} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. More outputs let the next sends go out without waiting for each other’s change.'**
   String outputsSplitText(
     String amount,
     String each,
@@ -9501,10 +9507,10 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get settingsNotifications;
 
-  /// Tooltip (info icon) of the Notifications switch.
+  /// Info sheet behind the Notifications switch: what a notification tells, what the message carries, why Tor turns it off. BT Labs is a name.
   ///
   /// In en, this message translates to:
-  /// **'Uses Google’s notification service. No sensitive data is shared.'**
+  /// **'Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.'**
   String get settingsNotificationsHint;
 
   /// State line under the Notifications switch while it is on and Tor is on.

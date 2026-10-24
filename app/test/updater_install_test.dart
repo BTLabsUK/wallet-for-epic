@@ -1,6 +1,7 @@
 // The install permission trip never costs the download: the permission is asked before any
 // download, the downloaded file is kept and checked against the manifest, and on return with
-// the permission the update installs from that file.
+// the permission the update installs from that file. Leaving the app mid-download (Android 15+
+// cuts a background app's network) keeps what arrived: the return carries on from there.
 import 'dart:async';
 import 'dart:io';
 
@@ -54,25 +55,69 @@ void main() {
   late Directory tmp;
   late HttpServer server;
   late int hits;
+
+  /// The Range header of each request, null when it had none.
+  late List<String?> ranges;
+
+  /// Bytes served in all, over every request.
+  late int served;
+
+  /// When set, the next answer stops after this many bytes of its body, as Android's network
+  /// cut stops it.
+  int? cutAfter;
+
+  /// Whether the server answers a Range request with the rest (206) or the whole file (200).
+  late bool honoursRange;
   late _Platform platform;
   late ProviderContainer container;
   final bytes = List<int>.generate(70000, (i) => (i * 7 + 3) & 0xff);
   final l = lookupAppLocalizations(const Locale('en'));
   late AvailableUpdate update;
 
-  File cached() => File('${tmp.path}/updates/epic_wallet-26100100.apk');
+  File cached() => File(
+    '${tmp.path}/updates/epic_wallet-26100100-${sha256.convert(bytes).toString().substring(0, 12)}.apk',
+  );
+  File part() => File('${cached().path}.part');
 
   setUp(() async {
     tmp = await Directory.systemTemp.createTemp('wfe-update-');
     hits = 0;
     server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
-    server.listen((request) {
+    ranges = [];
+    served = 0;
+    cutAfter = null;
+    honoursRange = true;
+    server.listen((request) async {
       hits++;
-      request.response
-        ..statusCode = HttpStatus.ok
-        ..contentLength = bytes.length
-        ..add(bytes);
-      request.response.close();
+      final range = request.headers.value(HttpHeaders.rangeHeader);
+      ranges.add(range);
+      final from = honoursRange && range != null
+          ? int.parse(RegExp(r'^bytes=(\d+)-$').firstMatch(range)![1]!)
+          : 0;
+      final body = bytes.sublist(from);
+      final response = request.response
+        ..statusCode = from > 0 ? HttpStatus.partialContent : HttpStatus.ok
+        ..contentLength = body.length;
+      if (from > 0) {
+        response.headers.set(
+          HttpHeaders.contentRangeHeader,
+          'bytes $from-${bytes.length - 1}/${bytes.length}',
+        );
+      }
+      final cut = cutAfter;
+      cutAfter = null;
+      if (cut == null) {
+        served += body.length;
+        response.add(body);
+        await response.close();
+        return;
+      }
+      // Part of the body, then the connection drops.
+      served += cut;
+      final socket = await response.detachSocket();
+      socket.add(body.sublist(0, cut));
+      await socket.flush();
+      socket.destroy();
     });
     update = AvailableUpdate(
       versionName: '26.10.1',
@@ -182,6 +227,82 @@ void main() {
     expect(hits, 0);
     expect(platform.installs, isEmpty);
     expect(state().phase, UpdatePhase.available);
+  });
+
+  group('leaving the app mid-download (Android 15+ cuts its network)', () {
+    setUp(() => platform.canInstall = true);
+
+    test('the return carries on from what arrived, never from the start', () async {
+      cutAfter = 30000;
+      notifier().paused();
+      await notifier().install();
+      expect(platform.installs, isEmpty);
+      expect(state().phase, UpdatePhase.available, reason: 'no failure while away');
+      expect(await part().length(), 30000);
+      // The return: the download carries on by itself, asking only for the rest.
+      final back = notifier().resumed();
+      expect(state().phase, UpdatePhase.downloading, reason: 'busy before the check on return');
+      await back;
+      expect(ranges, [null, 'bytes=30000-']);
+      expect(served, bytes.length, reason: 'nothing downloaded twice');
+      expect(platform.installs, [cached().path]);
+      expect(await cached().readAsBytes(), bytes);
+      expect(await part().exists(), isFalse);
+      expect(state().phase, UpdatePhase.installing);
+    });
+
+    test('the check on return does not take the update over', () async {
+      cutAfter = 30000;
+      notifier().paused();
+      await notifier().install();
+      await Future.wait([notifier().resumed(), notifier().checkOnOpening()]);
+      expect(ranges.first, isNull);
+      expect(ranges, contains('bytes=30000-'));
+      expect(platform.installs, [cached().path]);
+    });
+
+    test('a stop in front says so; Update carries on from what arrived', () async {
+      cutAfter = 50000;
+      await notifier().install();
+      expect(state().phase, UpdatePhase.failed);
+      expect(state().text!(l), 'The download was interrupted.');
+      await notifier().resumed();
+      expect(hits, 1, reason: 'a return after a failure in front does not download by itself');
+      await notifier().install();
+      expect(ranges, [null, 'bytes=50000-']);
+      expect(served, bytes.length);
+      expect(platform.installs, [cached().path]);
+    });
+
+    test('a server that ignores the range sends it all again, and it still installs', () async {
+      honoursRange = false;
+      cutAfter = 30000;
+      await notifier().install();
+      await notifier().install();
+      expect(ranges, [null, 'bytes=30000-']);
+      expect(served, 30000 + bytes.length);
+      expect(await cached().readAsBytes(), bytes);
+      expect(platform.installs, [cached().path]);
+    });
+
+    test('a kept part that does not fit the rest is downloaded again from the start, once', () async {
+      await part().create(recursive: true);
+      await part().writeAsBytes(List.filled(30000, 1));
+      await notifier().install();
+      expect(ranges, ['bytes=30000-', null]);
+      expect(await cached().readAsBytes(), bytes);
+      expect(platform.installs, [cached().path]);
+    });
+
+    test('a part from another build is not continued', () async {
+      final other = File('${tmp.path}/updates/epic_wallet-26100100-000000000000.apk.part');
+      await other.create(recursive: true);
+      await other.writeAsBytes(bytes.sublist(0, 30000));
+      await notifier().install();
+      expect(ranges, [null]);
+      expect(await other.exists(), isFalse);
+      expect(platform.installs, [cached().path]);
+    });
   });
 
   group('with Tor on, an APK on examples.btlabs.uk (android-16)', () {

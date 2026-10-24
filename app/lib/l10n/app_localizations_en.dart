@@ -2994,7 +2994,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'Let services you trust bill you. You approve every invoice.';
+      'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. Your address for payments stays the same.';
 
   @override
   String get invoiceSettingsTitle => 'Invoices';
@@ -3207,7 +3207,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSendFeedback => 'Send feedback';
 
   @override
-  String get settingsSendFeedbackHint => 'Report a problem or suggest an idea';
+  String get settingsSendFeedbackHint =>
+      'Report a problem or suggest an idea to the developers. Logs go along only if you attach them, with the recovery phrase, PIN and other secrets removed first.';
 
   @override
   String get settingsSourceCode => 'Source code';
@@ -3368,7 +3369,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAdvancedOptionsSubtitle =>
-      'Technical details, files and logs';
+      'Shows the technical side: node and Epicbox server details, block heights, transaction files and logs. Off, the app keeps to what everyday use needs.';
 
   @override
   String get settingsSectionPrivacy => 'Privacy';
@@ -3401,7 +3402,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Network status and information provided by status.btlabs.uk';
+      'Reads which nodes and Epicbox servers are online, their block height and their response time from status.btlabs.uk, the BT Labs monitor, and shows them in the server lists and the status card. Off, status.btlabs.uk is never asked and the server lists show no state.';
 
   @override
   String get txStepStarted => 'Payment started';
@@ -4029,6 +4030,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get outputsStrategy => 'Strategy for sends';
 
   @override
+  String get outputsStrategyHint =>
+      'Which outputs a send spends. Smallest spends the fewest small outputs, so the rest stays spendable while the change confirms. All spends every spendable output and returns one change output: everything is locked until it confirms, and fewer, larger outputs remain.';
+
+  @override
   String get outputsSmallest => 'Smallest';
 
   @override
@@ -4046,7 +4051,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get outputsSplitChange => 'Split change';
 
   @override
-  String get outputsSplitChangeText => 'When few outputs would be left';
+  String get outputsSplitChangeText =>
+      'When a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC, the change comes back as up to 4 outputs, so the next sends do not wait for confirmations. Each extra output costs 0.004 EPIC.';
 
   @override
   String outputsFilterAll(int count) {
@@ -4188,7 +4194,7 @@ class AppLocalizationsEn extends AppLocalizations {
     String made,
     String spent,
   ) {
-    return 'Spends $spent ($amount) and makes $made of about $each each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.';
+    return 'Spends $spent ($amount) and makes $made of about $each each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. More outputs let the next sends go out without waiting for each other’s change.';
   }
 
   @override
@@ -6080,7 +6086,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Uses Google’s notification service. No sensitive data is shared.';
+      'Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.';
 
   @override
   String get settingsPushPaused => 'Paused while Tor is on';

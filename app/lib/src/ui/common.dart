@@ -176,13 +176,16 @@ class _SlotScaffoldState extends State<SlotScaffold> {
   }
 }
 
-/// Keeps a scrolling [child] still on screen while the [NoticeDock] above it opens or closes:
-/// as the dock moves the body's top edge, the body scrolls by as much in the same layout pass,
-/// so the row under the finger stays and a second tap lands where the first did (android-02).
-/// A list too short to scroll that far has no room to do it, so while the dock is open
-/// [DockSlack] gives the lists that read it ([ScreenBody], Settings) empty room below their
-/// last row; nothing is ever covered. A change at the bottom (the keyboard) is left alone.
-/// [meter] reads the [NoticeDock]'s height, so the slack lasts exactly as long as it is open.
+/// Keeps a scrolling [child] still on screen while the [NoticeDock] above it opens or closes
+/// for a passing notice: as the dock moves the body's top edge, the body scrolls by as much in
+/// the same layout pass, so the row under the finger stays and a second tap lands where the
+/// first did (android-02). A list too short to scroll that far has no room to do it, so while
+/// the dock is open [DockSlack] gives the lists that read it ([ScreenBody], Settings) empty
+/// room below their last row. The rows that slide under the card come back when it leaves a
+/// few seconds later. A persistent notice (the update banner, there for minutes) instead
+/// pushes the content down and takes its own space, with no slack, so nothing sits under it
+/// (android-18). A change at the bottom (the keyboard) is left alone. [meter] reads the
+/// [NoticeDock]'s height, so the slack lasts exactly as long as it is open.
 class StillUnderDock extends ConsumerStatefulWidget {
   const StillUnderDock({super.key, required this.child, this.meter});
 
@@ -198,6 +201,10 @@ class _StillUnderDockState extends ConsumerState<StillUnderDock> {
   ScrollPosition? _position;
   double? _dockBefore;
   bool _slack = false;
+
+  /// Whether the dock's last change came from a persistent notice: opening for one, or
+  /// closing after one. Then the content moves with the dock instead of staying put.
+  bool _persistent = false;
 
   double get _dockHeight => widget.meter?.height ?? 0;
 
@@ -222,7 +229,7 @@ class _StillUnderDockState extends ConsumerState<StillUnderDock> {
     final position = _position;
     if (before == null || position == null || !position.hasPixels) return;
     final moved = height - before;
-    if (moved.abs() < 0.01) return;
+    if (moved.abs() < 0.01 || _persistent) return;
     var to = math.max(position.pixels + moved, position.minScrollExtent);
     // Without slack to scroll into, the content moves by the rest.
     if (!_use.used) to = math.min(to, math.max(position.maxScrollExtent, position.pixels));
@@ -231,9 +238,17 @@ class _StillUnderDockState extends ConsumerState<StillUnderDock> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<Notice?>(noticeProvider, (previous, notice) {
+      _persistent = (notice ?? previous)?.persistent ?? false;
+    });
     // Slack from the moment a notice arrives, before the dock has moved anything, and until
-    // the dock is shut.
-    if (ref.watch(noticeProvider) != null || _dockHeight >= 0.5) _slack = true;
+    // the dock is shut; none for a persistent notice, which pushes the content instead.
+    final notice = ref.watch(noticeProvider);
+    if (notice != null && notice.persistent) {
+      _persistent = true;
+    } else if (notice != null || _dockHeight >= 0.5) {
+      _slack = true;
+    }
     return NotificationListener<ScrollMetricsNotification>(
       onNotification: _onMetrics,
       child: DockSlack(
@@ -462,6 +477,16 @@ int daysAgo(DateTime t, DateTime now) => DateTime(
   now.month,
   now.day,
 ).difference(DateTime(t.year, t.month, t.day)).inDays;
+
+/// A short day with no clock, for a narrow cell: `Today`, `Yesterday`, `21 Sep`, and with the
+/// year once it is another year's.
+String shortDay(AppLocalizations l, DateTime t, DateTime now) =>
+    switch (daysAgo(t, now)) {
+      0 => l.dateToday,
+      1 => l.dateYesterday,
+      _ when t.year == now.year => localDayMonth(l, t),
+      _ => localDay(l, t),
+    };
 
 /// A day heading: `Today`, `Yesterday`, else `21 Sep 2026`.
 String dayLabel(AppLocalizations l, DateTime t, DateTime now) =>

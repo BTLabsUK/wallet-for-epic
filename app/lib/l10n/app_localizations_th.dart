@@ -2915,7 +2915,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'ให้บริการที่เชื่อถือส่งใบแจ้งหนี้ได้ ทุกใบต้องได้รับการอนุมัติก่อน';
+      'ที่อยู่ที่สองสำหรับใบแจ้งหนี้โดยเฉพาะ ให้บริการที่เชื่อถือส่งใบแจ้งหนี้มาได้ ข้อความจากคนอื่นจะถูกทิ้ง และจะไม่จ่ายอะไรจนกว่าคุณจะอนุมัติใบแจ้งหนี้แต่ละใบด้วย PIN ที่อยู่สำหรับรับชำระเงินของคุณยังเหมือนเดิม';
 
   @override
   String get invoiceSettingsTitle => 'ใบแจ้งหนี้';
@@ -3124,7 +3124,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsSendFeedback => 'ส่งความคิดเห็น';
 
   @override
-  String get settingsSendFeedbackHint => 'แจ้งปัญหาหรือเสนอไอเดีย';
+  String get settingsSendFeedbackHint =>
+      'แจ้งปัญหาหรือเสนอไอเดียให้ผู้พัฒนา ล็อกจะส่งไปเฉพาะเมื่อคุณแนบ โดยลบวลีกู้คืน PIN และข้อมูลลับอื่นๆ ออกก่อน';
 
   @override
   String get settingsSourceCode => 'ซอร์สโค้ด';
@@ -3283,7 +3284,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsAdvancedOptionsSubtitle =>
-      'รายละเอียดทางเทคนิค ไฟล์ และล็อก';
+      'แสดงด้านเทคนิค รายละเอียดโหนดและเซิร์ฟเวอร์ Epicbox ความสูงบล็อก ไฟล์ธุรกรรม และล็อก เมื่อปิด แอปจะแสดงเฉพาะสิ่งที่ใช้ในชีวิตประจำวัน';
 
   @override
   String get settingsSectionPrivacy => 'ความเป็นส่วนตัว';
@@ -3316,7 +3317,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'สถานะและข้อมูลเครือข่ายจาก status.btlabs.uk';
+      'อ่านจาก status.btlabs.uk ระบบติดตามของ BT Labs ว่าโหนดและเซิร์ฟเวอร์ Epicbox ใดออนไลน์ ความสูงบล็อกและเวลาตอบสนอง แล้วแสดงในรายการเซิร์ฟเวอร์และการ์ดสถานะ เมื่อปิด จะไม่ถาม status.btlabs.uk เลย และรายการเซิร์ฟเวอร์จะไม่แสดงสถานะ';
 
   @override
   String get txStepStarted => 'เริ่มรายการแล้ว';
@@ -3937,6 +3938,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get outputsStrategy => 'วิธีเลือกเอาต์พุตตอนส่ง';
 
   @override
+  String get outputsStrategyHint =>
+      'การส่งจะใช้เอาต์พุตใด เล็กสุด ใช้เอาต์พุตเล็กให้น้อยที่สุด ยอดที่เหลือจึงยังใช้ได้ระหว่างที่เงินทอนรอการยืนยัน ทั้งหมด ใช้ทุกเอาต์พุตที่ใช้ได้และคืนเงินทอนเป็นเอาต์พุตเดียว ทุกอย่างถูกล็อกจนกว่าจะยืนยัน หลังจากนั้นจะมีเอาต์พุตน้อยลงแต่ใหญ่ขึ้น';
+
+  @override
   String get outputsSmallest => 'เล็กที่สุด';
 
   @override
@@ -3954,7 +3959,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get outputsSplitChange => 'แยกเงินทอน';
 
   @override
-  String get outputsSplitChangeText => 'เมื่อจะเหลือเอาต์พุตน้อย';
+  String get outputsSplitChangeText =>
+      'เมื่อการส่งจะเหลือเอาต์พุตที่ใช้ได้น้อยกว่า 3 และเงินทอนมีอย่างน้อย 1 EPIC เงินทอนจะกลับมาเป็นเอาต์พุตได้ถึง 4 ก้อน การส่งครั้งถัดไปจึงไม่ต้องรอการยืนยัน คิด 0.004 EPIC ต่อเอาต์พุตที่เพิ่ม';
 
   @override
   String outputsFilterAll(int count) {
@@ -4093,7 +4099,7 @@ class AppLocalizationsTh extends AppLocalizations {
     String made,
     String spent,
   ) {
-    return 'ใช้ $spent ($amount) และสร้าง $made ประมาณ $each ต่อเอาต์พุต เป็นธุรกรรมปกติบนเครือข่ายที่ส่งเข้ากระเป๋านี้ ยืนยันหลัง 3 บล็อกเหมือนการส่งทั่วไป ยอดที่ใช้ได้ทั้งหมดจะถูกล็อกจนกว่าจะยืนยัน';
+    return 'ใช้ $spent ($amount) และสร้าง $made ประมาณ $each ต่อเอาต์พุต เป็นธุรกรรมปกติบนเครือข่ายที่ส่งเข้ากระเป๋านี้ ยืนยันหลัง 3 บล็อกเหมือนการส่งทั่วไป ยอดที่ใช้ได้ทั้งหมดจะถูกล็อกจนกว่าจะยืนยัน เอาต์พุตที่มากขึ้นช่วยให้การส่งครั้งถัดไปหลายรายการออกไปได้โดยไม่ต้องรอเงินทอนของกันและกัน';
   }
 
   @override
@@ -5959,7 +5965,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'ใช้บริการแจ้งเตือนของ Google ไม่มีการแชร์ข้อมูลที่ละเอียดอ่อน';
+      'แจ้งเมื่อมีการชำระเงินหรือใบแจ้งหนี้เข้ามาขณะที่แอปปิดอยู่ ใช้ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google ข้อความใช้เพียงปลุกแอป ไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่ ปิดขณะเปิด Tor เพราะการลงทะเบียนจะเปิดเผยที่อยู่ของโทรศัพท์';
 
   @override
   String get settingsPushPaused => 'หยุดชั่วคราวขณะเปิด Tor';

@@ -3037,7 +3037,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'Vertrauenswürdige Dienste dürfen Ihnen Rechnungen schicken. Sie bestätigen jede Rechnung.';
+      'Eine zweite Adresse nur für Rechnungen, an die vertrauenswürdige Dienste Rechnungen schicken dürfen. Nachrichten von allen anderen werden verworfen, und nichts wird bezahlt, bis Sie jede Rechnung mit Ihrer PIN bestätigen. Ihre Adresse für Zahlungen bleibt dieselbe.';
 
   @override
   String get invoiceSettingsTitle => 'Rechnungen';
@@ -3253,7 +3253,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsSendFeedbackHint =>
-      'Ein Problem melden oder eine Idee vorschlagen';
+      'Ein Problem melden oder den Entwicklern eine Idee vorschlagen. Protokolle gehen nur mit, wenn Sie sie anhängen; Wiederherstellungsphrase, PIN und andere Geheimnisse werden vorher entfernt.';
 
   @override
   String get settingsSourceCode => 'Quellcode';
@@ -3417,7 +3417,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsAdvancedOptionsSubtitle =>
-      'Technische Details, Dateien und Protokolle';
+      'Zeigt die technische Seite: Details zu Node und Epicbox-Server, Blockhöhen, Transaktionsdateien und Protokolle. Aus bleibt die App bei dem, was der Alltag braucht.';
 
   @override
   String get settingsSectionPrivacy => 'Datenschutz';
@@ -3450,7 +3450,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Netzwerkstatus und Informationen von status.btlabs.uk';
+      'Liest von status.btlabs.uk, dem Monitor von BT Labs, welche Nodes und Epicbox-Server online sind, ihre Blockhöhe und ihre Antwortzeit, und zeigt sie in den Serverlisten und auf der Statuskarte. Aus: status.btlabs.uk wird nie gefragt, und die Serverlisten zeigen keinen Zustand.';
 
   @override
   String get txStepStarted => 'Zahlung gestartet';
@@ -4088,6 +4088,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get outputsStrategy => 'Strategie für Zahlungen';
 
   @override
+  String get outputsStrategyHint =>
+      'Welche Outputs eine Zahlung verbraucht. Kleinste verbraucht möglichst wenige kleine Outputs, sodass der Rest verfügbar bleibt, während das Wechselgeld bestätigt wird. Alle verbraucht jeden verfügbaren Output und gibt einen Wechselgeld-Output zurück: Alles ist gesperrt, bis er bestätigt ist, und danach bleiben weniger, größere Outputs.';
+
+  @override
   String get outputsSmallest => 'Kleinste';
 
   @override
@@ -4105,7 +4109,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get outputsSplitChange => 'Wechselgeld teilen';
 
   @override
-  String get outputsSplitChangeText => 'Wenn nur wenige Outputs übrig blieben';
+  String get outputsSplitChangeText =>
+      'Blieben nach einer Zahlung weniger als 3 verfügbare Outputs übrig und beträgt das Wechselgeld mindestens 1 EPIC, kommt es als bis zu 4 Outputs zurück, sodass die nächsten Zahlungen nicht auf Bestätigungen warten. Jeder zusätzliche Output kostet 0,004 EPIC.';
 
   @override
   String outputsFilterAll(int count) {
@@ -4249,7 +4254,7 @@ class AppLocalizationsDe extends AppLocalizations {
     String made,
     String spent,
   ) {
-    return 'Verbraucht $spent ($amount) und erzeugt $made zu je etwa $each. Eine normale Netzwerktransaktion an diese Wallet, nach 3 Blöcken bestätigt wie jede Zahlung; alles Verfügbare ist bis dahin gesperrt.';
+    return 'Verbraucht $spent ($amount) und erzeugt $made zu je etwa $each. Eine normale Netzwerktransaktion an diese Wallet, nach 3 Blöcken bestätigt wie jede Zahlung; alles Verfügbare ist bis dahin gesperrt. Mit mehreren Outputs können die nächsten Zahlungen hinausgehen, ohne auf das Wechselgeld der anderen zu warten.';
   }
 
   @override
@@ -6164,7 +6169,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Nutzt den Benachrichtigungsdienst von Google. Es werden keine sensiblen Daten geteilt.';
+      'Meldet, wenn eine Zahlung oder eine Rechnung ankommt, während die App geschlossen ist. Nutzt die Epicbox von BT Labs und den Benachrichtigungsdienst von Google; die Nachricht weckt nur die App und enthält weder Betrag noch Absender noch Adresse. Aus, solange Tor an ist, weil die Anmeldung die Adresse des Telefons verraten würde.';
 
   @override
   String get settingsPushPaused => 'Pausiert, solange Tor an ist';

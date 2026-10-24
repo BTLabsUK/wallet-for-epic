@@ -393,7 +393,7 @@ class _GroupSwitch extends StatelessWidget {
     return ListTile(
       minVerticalPadding: 12,
       leading: _GroupGlyph(icon),
-      title: TitleWithHint(title, hint: hint),
+      title: TitleWithHint(title, hint: hint, icon: icon),
       subtitle: state == null ? null : Text(state),
       trailing: Switch(value: value, onChanged: onChanged),
       enabled: onChanged != null,

@@ -25,6 +25,7 @@ import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
 import 'package:epic_wallet/src/ui/licences_screen.dart';
+import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -1180,8 +1181,8 @@ void main() {
       expect(
         find.descendant(
           of: row(),
-          matching: find.byTooltip(
-            'Uses Google’s notification service. No sensitive data is shared.',
+          matching: find.byWidgetPredicate(
+            (w) => w is InfoHint && w.title == 'Notifications',
           ),
         ),
         findsOneWidget,
