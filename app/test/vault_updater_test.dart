@@ -768,7 +768,6 @@ void main() {
             updateClockProvider.overrideWithValue(() => DateTime.utc(2026, 11, 1)),
             updateApkUrlProvider.overrideWithValue((url) => Uri.parse('http://127.0.0.1:${server.port}/app.apk')),
             updateInstallGraceProvider.overrideWithValue(const Duration(milliseconds: 50)),
-            updateCloseNoticeProvider.overrideWithValue(Duration.zero),
           ],
         );
         addTearDown(c.dispose);

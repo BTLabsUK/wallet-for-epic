@@ -2419,9 +2419,9 @@
       }
     }
   },
-  "updateInstalling": "Epic Cash Mobile closes to install version {version}. Open it again afterwards.",
+  "updateInstalling": "Installing version {version}…",
   "@updateInstalling": {
-    "description": "Notice at the top of the screen for a few seconds before Android's installer takes over: it closes the app and does not reopen it.",
+    "description": "Notice at the top of the screen while Android's installer opens and installs the update.",
     "placeholders": {
       "version": {
         "type": "String",
