@@ -9,7 +9,6 @@ library;
 
 import 'dart:convert';
 
-import '../providers.dart' show defaultMinimumConfirmations;
 import '../wallet_service.dart';
 import 'merge.dart' show userFieldName;
 import 'meta_store.dart';

@@ -10,7 +10,6 @@ import 'dart:typed_data';
 
 import 'history/wallet_history.dart';
 import 'models.dart';
-import 'providers.dart' show defaultMinimumConfirmations;
 
 export 'models.dart';
 

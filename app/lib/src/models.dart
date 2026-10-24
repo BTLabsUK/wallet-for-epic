@@ -2201,3 +2201,10 @@ class WalletSummary {
           locked == other.locked &&
           validatedWithNode == other.validatedWithNode;
 }
+
+/// Confirmations before an output counts as spendable, until a balance says otherwise: the
+/// count LEPIC's balance uses (3, as the GUI 6.1.6). The app never counts with its own number
+/// once a balance is there; see `countedConfirmationsProvider` in providers.dart. It lives
+/// here, in plain Dart, so the wallet core (lepic_wallet_service.dart and what it imports)
+/// builds without Flutter.
+const int defaultMinimumConfirmations = 3;

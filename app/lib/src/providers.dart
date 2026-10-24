@@ -14,12 +14,10 @@ import 'stall_retry.dart';
 import 'vault.dart';
 import 'wallet_backend.dart' as backend;
 import 'wallet_service.dart';
+
+export 'models.dart' show defaultMinimumConfirmations;
 import 'phrase_clipboard.dart';
 
-/// Confirmations before an output counts as spendable, until a balance says otherwise: the
-/// count LEPIC's balance uses (3, as the GUI 6.1.6). The app never counts with its own number
-/// once a balance is there; see [countedConfirmationsProvider].
-const int defaultMinimumConfirmations = 3;
 final BigInt minimumConfirmations = BigInt.from(defaultMinimumConfirmations);
 
 /// The fallback the app counts with before the first balance: [minimumConfirmations], and 1 in
