@@ -32,6 +32,7 @@ import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
 import '../../l10n.dart' show AppLocalizations, englishStrings;
+import '../desk_l10n.dart' show deskStrings;
 import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
 import '../../network.dart';
@@ -848,7 +849,7 @@ class LepicDeskWallet implements DeskWalletApi {
       // LEPIC set the damaged database aside; opening again rebuilds it from the vault, and a
       // scan brings the funds back.
       logWarn('desk', 'wallet database damaged; rebuilding');
-      _notice = englishStrings.deskErrDbDamaged; // stored in English: ServiceStatus.notice is a plain string
+      _notice = deskStrings.deskErrDbDamaged;
       await _setMeta({'scanPending': true}, metaKey);
       try {
         session = await _service.open(config: config, password: password);
@@ -1260,7 +1261,7 @@ class LepicDeskWallet implements DeskWalletApi {
       sizeBytes: w.sizeBytes,
       sameAs: s?.text,
       inApp: s?.inApp ?? false,
-      blocked: w.refusal?.text ?? (w.network == legacy.LegacyNetwork.main ? null : _testNetText(englishStrings)),
+      blocked: w.refusal?.text ?? (w.network == legacy.LegacyNetwork.main ? null : _testNetText(deskStrings)),
     );
   }
 
@@ -1310,7 +1311,7 @@ class LepicDeskWallet implements DeskWalletApi {
     return FolderFind(
       folder: found.picked,
       wallets: wallets,
-      message: found.wallets.isNotEmpty && wallets.isEmpty ? englishStrings.deskErrWalletInApp : found.message,
+      message: found.wallets.isNotEmpty && wallets.isEmpty ? deskStrings.deskErrWalletInApp : found.message,
     );
   }
 
@@ -2659,7 +2660,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await (await _theNode()).start();
     } on Object catch (e) {
       logWarn('desk', 'built-in node did not start: ${e is NodeStartException ? e.failure.name : e.runtimeType}');
-      _notice = englishStrings.deskErrLocalNodeNotStarted(e is NodeStartException ? e.message : englishStrings.deskErrUnknown); // stored in English: ServiceStatus.notice is a plain string
+      _notice = deskStrings.deskErrLocalNodeNotStarted(e is NodeStartException ? e.message : deskStrings.deskErrUnknown);
       _changed();
     }
   }
@@ -2798,9 +2799,9 @@ class LepicDeskWallet implements DeskWalletApi {
             _httpHealth = ServiceHealth.ok;
             _httpPort = e.port ?? port;
           case core.HttpListenerEventKind.portInUse:
-            ended(ServiceHealth.down, englishStrings.deskErrPortInUse(e.port ?? port));
+            ended(ServiceHealth.down, deskStrings.deskErrPortInUse(e.port ?? port));
           case core.HttpListenerEventKind.bindFailed:
-            ended(ServiceHealth.down, englishStrings.deskErrPortUnavailable(e.port ?? port));
+            ended(ServiceHealth.down, deskStrings.deskErrPortUnavailable(e.port ?? port));
           case core.HttpListenerEventKind.received:
             unawaited(_reload());
           case core.HttpListenerEventKind.refused:
@@ -2813,7 +2814,7 @@ class LepicDeskWallet implements DeskWalletApi {
       },
       onError: (Object e) {
         logWarn('desk', 'http listener ended: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
-        ended(ServiceHealth.down, englishStrings.deskErrStoppedWithError);
+        ended(ServiceHealth.down, deskStrings.deskErrStoppedWithError);
         _changed();
       },
       onDone: () {
@@ -2910,7 +2911,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _torProgress = null;
     if (bundle == null) {
       _torHealth = ServiceHealth.down;
-      _torProblem = torFailureText(englishStrings, core.TorFailure.missing);
+      _torProblem = torFailureText(deskStrings, core.TorFailure.missing);
       _changed();
       return;
     }
@@ -2930,7 +2931,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (_torHealth != ServiceHealth.down && _torRestartLater(session, sub, 'tor ended')) return; // l10n-ok: log reason
       _tor = null;
       _torHealth = ServiceHealth.down;
-      _torProblem = problem ?? englishStrings.deskErrTorStopped;
+      _torProblem = problem ?? deskStrings.deskErrTorStopped;
       _torCanSend = false;
       _torProgress = null;
       _torStartedAt = null;
@@ -2973,7 +2974,7 @@ class LepicDeskWallet implements DeskWalletApi {
             // Listener and keys leave tor running for sends; any other failure stops it.
             final forSends = e.failure == core.TorFailure.listener || e.failure == core.TorFailure.keys;
             _torHealth = forSends ? ServiceHealth.slow : ServiceHealth.down;
-            _torProblem = torFailureText(englishStrings, e.failure);
+            _torProblem = torFailureText(deskStrings, e.failure);
             if (!forSends) {
               _torCanSend = false;
               _torConnectedAt = null;

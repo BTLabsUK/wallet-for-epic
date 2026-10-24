@@ -9,6 +9,12 @@ import '../l10n.dart' show AppLocalizations, englishStrings;
 
 export '../l10n.dart' show AppLocalizations, englishStrings;
 
+/// The strings of the language the window shows, for text the data layer keeps to show later
+/// (a notice, a failure reason, the Tor problem) where no BuildContext is at hand. DeskApp sets
+/// it each time it builds; tests that pump no DeskApp read English. Text stored before a
+/// language switch stays in the old language until it is made again.
+AppLocalizations deskStrings = englishStrings;
+
 extension DeskL10n on BuildContext {
   AppLocalizations get l10n => Localizations.of<AppLocalizations>(this, AppLocalizations) ?? englishStrings;
 }
