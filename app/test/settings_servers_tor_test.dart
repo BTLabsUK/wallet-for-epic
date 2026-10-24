@@ -211,20 +211,20 @@ void main() {
           await tester.pumpAndSettle();
           final row = _row(route);
           expect(row, findsOneWidget);
-          final line = find.descendant(
-            of: row,
-            matching: find.byType(TorWayLine),
-          );
+          // One row per server on the page: the status card's, nothing repeated below it.
+          expect(find.text(route == TorRoute.node ? 'Node' : 'Epicbox'), findsOneWidget);
           if (word == null) {
-            expect(line, findsNothing);
+            for (final w in ['Over Tor', 'Waiting for Tor']) {
+              expect(find.descendant(of: row, matching: find.text(w)), findsNothing);
+            }
             expect(
               find.descendant(of: row, matching: find.byIcon(torIcon)),
               findsNothing,
             );
             return;
           }
-          expect(line, findsOneWidget);
           final text = find.descendant(of: row, matching: find.text(word));
+          expect(text, findsOneWidget);
           final t = tester.element(row).tokens;
           expect(tester.widget<Text>(text).style?.color, _colour(t, colour!));
         },

@@ -1943,7 +1943,6 @@ void main() {
       for (final kept in [
         'Node',
         'Epicbox',
-        'Servers',
         'Export history backup',
         'Export CSV',
         'Import history backup',
@@ -1954,7 +1953,7 @@ void main() {
       await _tapText(tester, 'Advanced options');
       expect(h.store.values['app.advanced'], 'true');
       final on = await texts();
-      for (final shown in ['Node', 'Epicbox', 'Recheck balance', 'Servers']) {
+      for (final shown in ['Node', 'Epicbox', 'Recheck balance']) {
         expect(on, contains(shown), reason: shown);
       }
 
