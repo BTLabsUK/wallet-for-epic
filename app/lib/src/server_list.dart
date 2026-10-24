@@ -218,7 +218,7 @@ String serverInitials(String? operator, String host) {
 }
 
 /// The icon for a row: the server's own from the monitor, else one the monitor holds for
-/// another server of the same operator (Iniaku's relay shows its node's icon), else null.
+/// another server of the same operator (spaces, dots and case aside), else null.
 /// [known] is every (operator, icon) the monitor listed, nodes and relays alike.
 ServerIcon? serverIconFor(
   ServerIcon? own,
@@ -226,10 +226,15 @@ ServerIcon? serverIconFor(
   Iterable<({String? operator, ServerIcon? icon})> known,
 ) {
   if (own != null) return own;
-  final name = operator?.trim().toLowerCase();
-  if (name == null || name.isEmpty) return null;
+  final name = _operatorKey(operator);
+  if (name.isEmpty) return null;
   for (final k in known) {
-    if (k.icon != null && k.operator?.trim().toLowerCase() == name) return k.icon;
+    if (k.icon != null && _operatorKey(k.operator) == name) return k.icon;
   }
   return null;
 }
+
+/// An operator's name for matching: letters and digits only, lower case, so the app's "BT Labs"
+/// is the monitor's "btlabs".
+String _operatorKey(String? name) =>
+    (name ?? '').toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');

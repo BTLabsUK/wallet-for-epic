@@ -140,6 +140,7 @@ void main() {
       const own = ServerIcon(hash: 'own', urls: {});
       expect(serverIconFor(own, 'Iniaku pool', known), own);
       expect(serverIconFor(null, 'iniaku pool ', known), btl);
+      expect(serverIconFor(null, 'Iniaku-Pool', known), btl);
       expect(serverIconFor(null, 'Other', known), isNull);
       expect(serverIconFor(null, null, known), isNull);
     });
