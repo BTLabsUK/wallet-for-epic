@@ -479,7 +479,7 @@ final RegExp untrustedTextForbidden = RegExp(
 /// whitespace collapsed to single spaces, trimmed; null when nothing is left.
 String? cleanUntrustedText(String text) {
   final clean = text
-      .replaceAll(RegExp('[\t\n\v\f\r\u0085  ]'), ' ')
+      .replaceAll(RegExp('[\t\n\v\f\r\u0085\u2028\u2029]'), ' ')
       .replaceAll(untrustedTextForbidden, '')
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();

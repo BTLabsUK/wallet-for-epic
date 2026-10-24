@@ -940,8 +940,9 @@ class SendRecipientNotifier extends Notifier<RecipientHandoff?> {
     return null;
   }
 
-  void hand(String text) =>
-      state = (id: _next++, text: text, request: null, origin: null);
+  /// Hands over [text] as the recipient; [origin] when it came from a scan, paste or link.
+  void hand(String text, {CodeOrigin? origin}) =>
+      state = (id: _next++, text: text, request: null, origin: origin);
 
   /// Hands over a payment code: Send fills the address, the amount and the note.
   void handRequest(PaymentRequest request, CodeOrigin origin) => state = (

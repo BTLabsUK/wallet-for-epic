@@ -352,7 +352,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       unawaited(openScannedText(context, ref, link.text, origin: CodeOrigin.link));
       return;
     }
-    showLinkWaiting(context, () {
+    showLinkWaiting(ref, context.l10n, () {
       if (mounted) {
         unawaited(
           openScannedText(context, ref, link.text, origin: CodeOrigin.link),
@@ -491,7 +491,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.listen(incomingLinkProvider, (_, link) {
       if (link != null) _openLink();
     });
-    ref.listen(linkDroppedBusyProvider, (_, _) => showLinkBusy(context));
+    ref.listen(
+      linkDroppedBusyProvider,
+      (_, _) => showLinkBusy(ref, context.l10n),
+    );
     ref.listen(listenerProvider.select((s) => s.last), (_, event) {
       if (event != null) _notify(event);
     });
