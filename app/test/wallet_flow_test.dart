@@ -9,12 +9,14 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/network_menu.dart' show networkMenuEpicboxKey, networkMenuNetworkKey;
-import 'package:epic_wallet/src/ui/server_picker.dart' show serverAddKey, serverRowKey, serverSwitchKey;
+import 'package:epic_wallet/src/ui/server_list_sheet.dart'
+    show serverListAddKey, serverListFieldKey, serverListRowKey, serverListSwitchKey;
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -110,6 +112,7 @@ Future<void> _pumpApp(
         updatePlatformProvider.overrideWithValue(null),
         pushPlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_FakeRelays()),
+        relayProbeProvider.overrideWithValue(FakeRelayProbe()),
         slateFilesProvider.overrideWithValue(device.files),
         priceSourceProvider.overrideWithValue(const _NoPrice()),
       ],
@@ -435,26 +438,30 @@ void main() {
     await _tap(tester, find.bySemanticsLabel('Node and Epicbox'));
     await _tap(tester, find.byKey(networkMenuEpicboxKey));
 
-    final row = find.byKey(serverRowKey('epicbox.epicnet.us'));
+    final row = find.byKey(serverListRowKey('epicbox.epicnet.us'));
     await _reveal(tester, row);
     expect(row, findsOneWidget);
     expect(
-      find.textContaining('EpicNet · 100.0 % up', findRichText: true),
-      findsOneWidget,
+      find.textContaining('epicnet.us', findRichText: true),
+      findsWidgets,
     );
     expect(find.text('Your address changes; senders need the new one.'), findsNothing);
     await _tap(tester, row);
     expect(find.text('Your address changes; senders need the new one.'), findsOneWidget);
 
-    await _enter(tester, 'Other server, host or host:port', 'not a host!');
-    await _tap(tester, find.byKey(serverAddKey));
-    expect(find.textContaining('Enter a host'), findsOneWidget);
-    await _enter(tester, 'Other server, host or host:port', 'relay.example.org:8443');
-    await _tap(tester, find.byKey(serverAddKey));
-    expect(find.byKey(serverRowKey('relay.example.org:8443')), findsOneWidget);
+    // Text that is no address: the Add row says so under the field, and adds nothing.
+    await tester.enterText(find.byKey(serverListFieldKey), 'not a host!');
+    await tester.pumpAndSettle();
+    await _tap(tester, find.byKey(serverListAddKey));
+    expect(find.text('Not a server address. Use host or host:port.'), findsOneWidget);
+    await tester.enterText(find.byKey(serverListFieldKey), 'relay.example.org:8443');
+    await tester.pumpAndSettle();
+    await _tap(tester, find.byKey(serverListAddKey));
+    await _reveal(tester, find.byKey(serverListRowKey('relay.example.org:8443')));
+    expect(find.byKey(serverListRowKey('relay.example.org:8443')), findsOneWidget);
 
     await _tap(tester, row);
-    await _tap(tester, find.byKey(serverSwitchKey));
+    await _tap(tester, find.byKey(serverListSwitchKey));
     expect(device.store.values['app.relay.mainnet'], 'epicbox.epicnet.us');
     await _enter(tester, 'PIN', _pin);
     await _enter(tester, 'Repeat PIN', _pin);
