@@ -5074,17 +5074,11 @@ abstract class AppLocalizations {
   /// **'Not backed up yet'**
   String get settingsStateNotBackedUp;
 
-  /// State line under the Security group: the wallet unlocks with the PIN only.
+  /// Settings hub, Security row's second line: one of the things on the page (the recovery phrase backup).
   ///
   /// In en, this message translates to:
-  /// **'PIN'**
-  String get settingsStatePin;
-
-  /// State line under the Security group: the wallet unlocks with the PIN or biometrics.
-  ///
-  /// In en, this message translates to:
-  /// **'PIN and biometrics'**
-  String get settingsStatePinBiometrics;
+  /// **'Backup'**
+  String get settingsHubBackup;
 
   /// Two state words on one line under a Settings group, with a middle dot between them.
   ///
@@ -6878,12 +6872,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get serverMenuDelete;
-
-  /// Tor's part of the state line under Privacy & network on the Settings hub, after the node and Epicbox hosts: the word is lower case.
-  ///
-  /// In en, this message translates to:
-  /// **'Tor {state}'**
-  String settingsStateTor(String state);
 
   /// Screen reader words for the bell icon on the Epicbox relay that can send push notifications.
   ///

@@ -3489,10 +3489,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsStateNotBackedUp => 'Ещё не сохранена';
 
   @override
-  String get settingsStatePin => 'PIN-код';
-
-  @override
-  String get settingsStatePinBiometrics => 'PIN-код и биометрия';
+  String get settingsHubBackup => 'Резервная копия';
 
   @override
   String settingsStateJoin(String a, String b) {
@@ -4609,11 +4606,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get serverMenuDelete => 'Удалить';
-
-  @override
-  String settingsStateTor(String state) {
-    return 'Tor $state';
-  }
 
   @override
   String get serverSupportsNotifications => 'Поддерживает уведомления';

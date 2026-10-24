@@ -4009,13 +4009,9 @@
   "@settingsStateNotBackedUp": {
     "description": "State line under the Back up recovery phrase row on the Security page while the phrase has not been backed up."
   },
-  "settingsStatePin": "PIN",
-  "@settingsStatePin": {
-    "description": "State line under the Security group: the wallet unlocks with the PIN only."
-  },
-  "settingsStatePinBiometrics": "PIN and biometrics",
-  "@settingsStatePinBiometrics": {
-    "description": "State line under the Security group: the wallet unlocks with the PIN or biometrics."
+  "settingsHubBackup": "Backup",
+  "@settingsHubBackup": {
+    "description": "Settings hub, Security row's second line: one of the things on the page (the recovery phrase backup)."
   },
   "settingsStateJoin": "{a} · {b}",
   "@settingsStateJoin": {
@@ -5548,16 +5544,6 @@
   "serverMenuDelete": "Delete",
   "@serverMenuDelete": {
     "description": "Tooltip of the bin on a typed-in server in the My nodes or My servers list that is not in use, and the one item of the popup it opens: the server is deleted."
-  },
-  "settingsStateTor": "Tor {state}",
-  "@settingsStateTor": {
-    "description": "Tor's part of the state line under Privacy & network on the Settings hub, after the node and Epicbox hosts: the word is lower case.",
-    "placeholders": {
-      "state": {
-        "type": "String",
-        "example": "off"
-      }
-    }
   },
   "serverSupportsNotifications": "Supports notifications",
   "@serverSupportsNotifications": {

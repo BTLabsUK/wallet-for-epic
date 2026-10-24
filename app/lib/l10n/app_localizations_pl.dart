@@ -3509,10 +3509,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsStateNotBackedUp => 'Jeszcze nie zapisano';
 
   @override
-  String get settingsStatePin => 'PIN';
-
-  @override
-  String get settingsStatePinBiometrics => 'PIN i biometria';
+  String get settingsHubBackup => 'Kopia zapasowa';
 
   @override
   String settingsStateJoin(String a, String b) {
@@ -4631,11 +4628,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get serverMenuDelete => 'Usuń';
-
-  @override
-  String settingsStateTor(String state) {
-    return 'Tor $state';
-  }
 
   @override
   String get serverSupportsNotifications => 'Obsługuje powiadomienia';

@@ -3262,10 +3262,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsStateNotBackedUp => 'ยังไม่ได้สำรอง';
 
   @override
-  String get settingsStatePin => 'PIN';
-
-  @override
-  String get settingsStatePinBiometrics => 'PIN และไบโอเมตริก';
+  String get settingsHubBackup => 'สำรองข้อมูล';
 
   @override
   String settingsStateJoin(String a, String b) {
@@ -4350,11 +4347,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get serverMenuDelete => 'ลบ';
-
-  @override
-  String settingsStateTor(String state) {
-    return 'Tor $state';
-  }
 
   @override
   String get serverSupportsNotifications => 'รองรับการแจ้งเตือน';

@@ -188,9 +188,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     // (the owner, 26.10.11); Security warns instead while the recovery phrase
                     // is not backed up.
                     state: demo
+                        // The demo's Security page holds none of these.
                         ? null
                         : backedUp
-                        ? [l.backupTitle, l.pinLabel, l.settingsAutoLock].reduce(l.settingsStateJoin)
+                        ? [
+                            l.settingsHubBackup,
+                            l.pinLabel,
+                            l.pinBiometricsIconLabel,
+                          ].reduce(l.settingsStateJoin)
                         : l.settingsStateBackUp,
                     stateColor: demo || backedUp ? null : t.warn,
                   ),

@@ -3153,10 +3153,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsStateNotBackedUp => '尚未备份';
 
   @override
-  String get settingsStatePin => 'PIN 码';
-
-  @override
-  String get settingsStatePinBiometrics => 'PIN 码和生物识别';
+  String get settingsHubBackup => '备份';
 
   @override
   String settingsStateJoin(String a, String b) {
@@ -4210,11 +4207,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get serverMenuDelete => '删除';
-
-  @override
-  String settingsStateTor(String state) {
-    return 'Tor $state';
-  }
 
   @override
   String get serverSupportsNotifications => '支持通知';
