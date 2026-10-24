@@ -89,7 +89,6 @@ class _IssuerWallet implements lepic.EpicWallet {
     lepic.TxFlow flow = lepic.TxFlow.payment,
     List<lepic.SlateMessage> messages = const [],
   }) => stored[txId] = lepic.TransactionDetails(
-    outputCommits: const [],
     txId: txId,
     direction: lepic.TxDirection.incoming,
     status: status,

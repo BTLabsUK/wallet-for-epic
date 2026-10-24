@@ -186,7 +186,6 @@ class _InvoiceWallet implements lepic.EpicWallet {
     waiting.remove(invoice);
     stored.add(
       lepic.TransactionDetails(
-        outputCommits: const [],
         txId: 9,
         direction: lepic.TxDirection.outgoing,
         status: lepic.TxStatus.received,
