@@ -69,6 +69,9 @@ class PhoneTourController extends Notifier<PhoneTourState> {
   @override
   PhoneTourState build() => const PhoneTourState();
 
+  /// False once the container is gone (a test ends, the app exits).
+  bool get mounted => ref.mounted;
+
   /// Opens it now (Help › Show the tour again, the screenshots); saved as seen.
   void open({int at = 0}) {
     state = PhoneTourState(open: true, start: at);
@@ -170,7 +173,7 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
       _hide();
       // Home went away (locked, replaced): the tour is over with it.
       Future.microtask(() {
-        if (_tour.ref.mounted) _tour.close();
+        if (_tour.mounted) _tour.close();
       });
     }
     super.dispose();
@@ -612,7 +615,6 @@ class _TourCard extends StatelessWidget {
     final l = context.l10n;
     final theme = Theme.of(context);
     const tap = Size(48, 48);
-    Widget label(String s) => Text(s, maxLines: 1, overflow: TextOverflow.ellipsis);
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: maxHeight),
       child: Material(
@@ -662,32 +664,35 @@ class _TourCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Flexible(
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        minimumSize: tap,
-                        foregroundColor: t.dim,
-                      ),
-                      onPressed: onSkip,
-                      child: label(l.tourPhoneSkip),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      minimumSize: tap,
+                      foregroundColor: t.dim,
                     ),
+                    onPressed: onSkip,
+                    child: Text(l.tourPhoneSkip),
                   ),
-                  const Spacer(),
-                  if (!first)
-                    Flexible(
-                      child: TextButton(
-                        style: TextButton.styleFrom(minimumSize: tap),
-                        onPressed: onBack,
-                        child: label(l.tourPhoneBack),
-                      ),
-                    ),
                   const SizedBox(width: 8),
-                  Flexible(
-                    child: FilledButton(
-                      focusNode: nextFocus,
-                      style: FilledButton.styleFrom(minimumSize: tap),
-                      onPressed: onNext,
-                      child: label(last ? l.commonDone : l.tourPhoneNext),
+                  // Back and Next wrap under each other rather than overflow at a large font.
+                  Expanded(
+                    child: Wrap(
+                      alignment: WrapAlignment.end,
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        if (!first)
+                          TextButton(
+                            style: TextButton.styleFrom(minimumSize: tap),
+                            onPressed: onBack,
+                            child: Text(l.tourPhoneBack),
+                          ),
+                        FilledButton(
+                          focusNode: nextFocus,
+                          style: FilledButton.styleFrom(minimumSize: tap),
+                          onPressed: onNext,
+                          child: Text(last ? l.commonDone : l.tourPhoneNext),
+                        ),
+                      ],
                     ),
                   ),
                 ],

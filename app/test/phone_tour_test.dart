@@ -4,8 +4,6 @@
 // nothing on, and the card fits at 360×800 and 412×915 dp without covering what it lights.
 import 'dart:async';
 
-import 'package:epic_wallet/src/advanced.dart';
-import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/l10n/app_localizations_en.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
@@ -25,7 +23,6 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_sections.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
-import 'package:epic_wallet/src/ui/theme/protocol.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/ui/tour/phone_tour.dart';
 import 'package:epic_wallet/src/updater.dart';
