@@ -1832,6 +1832,20 @@ void main() {
       );
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);
+      // android-05: an expected consequence is a warning for a screen reader, not an error.
+      final warning = find.ancestor(
+        of: find.textContaining('Changing the epicbox server changes your address'),
+        matching: find.byType(WarningText),
+      );
+      expect(warning, findsOneWidget);
+      expect(
+        find.descendant(
+          of: warning,
+          matching: find.byWidgetPredicate((w) => w is Icon && w.semanticLabel == 'Warning'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(ErrorText), findsNothing);
     });
   });
 

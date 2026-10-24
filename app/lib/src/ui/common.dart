@@ -1341,6 +1341,33 @@ class TxTile extends ConsumerWidget {
   }
 }
 
+/// A warning that is not an error yet: an expected consequence the user is told about. Warning
+/// colour and icon, and a screen reader says "Warning", not "Error".
+class WarningText extends StatelessWidget {
+  const WarningText(this.message, {super.key});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, color) = noticeLook(context.tokens, NoticeLevel.warning);
+    return Semantics(
+      liveRegion: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, semanticLabel: noticeLevelLabel(context.l10n, NoticeLevel.warning)),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message, style: TextStyle(color: color))),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// An error sentence, announced to screen readers when it appears.
 class ErrorText extends StatelessWidget {
   const ErrorText(this.message, {super.key});
