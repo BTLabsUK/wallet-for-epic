@@ -476,7 +476,7 @@
   "updateNoInformation": "没有可用的更新信息。",
   "updateAvailable": "版本 {version} 已可用。",
   "updateDownloading": "正在下载版本 {version}… {percent}%",
-  "updateInstalling": "Epic Cash Mobile 将关闭以安装版本 {version}。完成后请重新打开。",
+  "updateInstalling": "正在安装版本 {version}…",
   "updateFailed": "更新失败。",
   "updateInstallButton": "更新",
   "updateTryAgain": "重试",

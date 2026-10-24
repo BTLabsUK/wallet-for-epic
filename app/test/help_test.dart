@@ -1,4 +1,5 @@
 import 'package:epic_wallet/src/help/help_content.dart';
+import 'package:epic_wallet/src/help/help_i18n.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -89,6 +90,17 @@ void main() {
       expect(tor.bodyText, isNot(contains('Not over Tor')));
       expect(tor.bodyText, contains('same address'));
       expect(helpTopics(3, platform: HelpPlatform.phone, tor: false).where((t) => t.id == HelpId.tor), isEmpty);
+    });
+
+    test('Offline names the node by its IP address, on both platforms, in every language', () {
+      for (final platform in HelpPlatform.values) {
+        final modes = helpTopics(3, platform: platform).firstWhere((t) => t.id == HelpId.modes);
+        expect(modes.bodyText, contains('In Offline, give the node by its IP address, for example  10.100.10.20:3413 . Names are not looked up.'));
+        for (final lang in ['de', 'pl', 'ru', 'zh', 'th']) {
+          final local = localizedHelpTopics(lang, 3, platform: platform).firstWhere((t) => t.id == HelpId.modes);
+          expect(local.bodyText, contains('10.100.10.20:3413'), reason: '$lang ${platform.name}');
+        }
+      }
     });
 
     test('search matches every word, in any field', () {

@@ -2256,5 +2256,59 @@ void main() {
       expect(find.text('2 of 3'), findsOneWidget);
       expect(on.session.epicboxSends, isEmpty);
     });
+
+    testWidgets('Smallest / All for one payment shows only with Send options', (
+      tester,
+    ) async {
+      final off = _Harness();
+      await off.pump(tester, _sendTab());
+      await _toAmount(tester, null);
+      expect(find.byKey(sendStrategyKey), findsNothing);
+
+      await tester.pumpWidget(const SizedBox());
+      final on = _Harness(advanced: true);
+      await on.pump(tester, _sendTab());
+      await _toAmount(tester, null);
+      expect(find.byKey(sendStrategyKey), findsOneWidget);
+      expect(find.text('Strategy for this send'), findsOneWidget);
+      final picker = tester.widget<SegmentedButton<SelectionStrategy>>(
+        find.byKey(sendStrategyKey),
+      );
+      expect(picker.selected, {SelectionStrategy.smallest});
+
+      await _enter(tester, 'Amount (EPIC)', '1');
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(
+        on.session.estimateOptions.last?.strategy,
+        isNot(SelectionStrategy.all),
+      );
+      await _tap(
+        tester,
+        find.descendant(
+          of: find.byKey(sendStrategyKey),
+          matching: find.text('All'),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(on.session.estimateOptions.last?.strategy, SelectionStrategy.all);
+      expect(
+        tester
+            .widget<SegmentedButton<SelectionStrategy>>(
+              find.byKey(sendStrategyKey),
+            )
+            .selected,
+        {SelectionStrategy.all},
+      );
+      // For this payment only: Settings keeps its default.
+      final container = ProviderScope.containerOf(
+        tester.element(find.byKey(sendStrategyKey)),
+      );
+      expect(
+        container.read(appSettingsProvider).value?.sendStrategy,
+        isNot(SelectionStrategy.all),
+      );
+    });
   });
 }

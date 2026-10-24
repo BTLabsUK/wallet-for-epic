@@ -1803,9 +1803,7 @@ void main() {
       updates.set(UpdateState(UpdatePhase.installing, update: update));
       await tester.pumpAndSettle();
       expect(
-        find.text(
-          'Epic Cash Mobile closes to install version 1.4.0. Open it again afterwards.',
-        ),
+        find.text('Installing version 1.4.0…'),
         findsOneWidget,
       );
 

@@ -426,6 +426,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           '**Tor only**: Tor is always on and its switch is locked. Nothing goes over the open internet. While Tor starts or has failed, the wallet says **Waiting for Tor** and whatever needs the network waits, with the reason on the disabled action. ${phone ? 'Notifications are off, because signing up for them would reveal this phone.' : 'HTTP receiving is off, because a plain address would reveal this computer.'}',
           '**Offline**: nothing beyond $device and the local network. The balance and history stay as last seen. With a node on ${phone ? 'the local network' : 'this computer or the local network'}, the wallet can still make, sign, finalize and post payments, and send Direct to local addresses.${phone ? '' : ' Receiving over the local network needs HTTP receiving set to **From the internet**.'} Without one, sending and receiving wait.',
         ]),
+        const HelpBlock.p('In Offline, give the node by its IP address, for example **10.100.10.20:3413**. Names are not looked up.'),
         if (!phone) const HelpBlock.p('The built-in node\'s own peers are the node\'s setting, not the mode\'s.'),
         HelpBlock.p('${phone ? 'Home' : 'The sidebar'} says when the wallet is offline or waiting for Tor. Setting the mode back to **Standard** brings everything back.'),
       ],

@@ -140,7 +140,6 @@ void main() {
         updatePlatformProvider.overrideWithValue(platform),
         updateTempDirProvider.overrideWithValue(() async => tmp),
         updateProvider.overrideWith(_Updates.new),
-        updateCloseNoticeProvider.overrideWithValue(const Duration(milliseconds: 300)),
         updateManifestUrlProvider.overrideWithValue(
           Uri.parse('http://127.0.0.1:${server.port}/update.json'),
         ),
@@ -179,24 +178,24 @@ void main() {
     expect(state().phase, UpdatePhase.installing);
   });
 
-  test('the line that the app closes to install shows before the installer takes over', () async {
+  test('"Installing version X…" shows as the installer opens, nothing about closing', () async {
     platform.canInstall = true;
     final phases = <UpdatePhase>[];
     container.listen(updateProvider, (_, next) => phases.add(next.phase));
-    final watch = Stopwatch()..start();
-    late Duration shownFor;
-    platform.onInstall = () {
-      shownFor = watch.elapsed;
-      expect(state().phase, UpdatePhase.installing);
-    };
+    platform.onInstall = () => expect(state().phase, UpdatePhase.installing);
     await notifier().install();
     expect(platform.installs, [cached().path]);
     expect(phases.last, UpdatePhase.installing);
-    expect(shownFor, greaterThanOrEqualTo(const Duration(milliseconds: 300)));
-    expect(
-      l.updateInstalling(update.versionName),
-      'Epic Cash Mobile closes to install version 26.10.1. Open it again afterwards.',
-    );
+    expect(l.updateInstalling(update.versionName), 'Installing version 26.10.1…');
+  });
+
+  test('an install that cannot start says so plainly, nothing about installing', () async {
+    platform.canInstall = true;
+    platform.onInstall = () => throw UpdateError((l) => l.updateCannotInstall('the download is not a valid APK'));
+    await notifier().install();
+    expect(state().phase, UpdatePhase.failed);
+    expect(state().text!(l), 'Cannot install the update: the download is not a valid APK.');
+    expect(state().update, update, reason: 'Try again installs it');
   });
 
   test('on return with the permission the kept download installs, not downloaded again', () async {
