@@ -3290,7 +3290,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес для прямой отправки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес ссылки (https://…) или onion-адрес (….onion).';
 
   @override
   String get settingsTitle => 'Настройки';
@@ -4237,7 +4237,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveTabFile => 'Файл';
 
   @override
-  String get receiveTorAddressLabel => 'Адрес Tor';
+  String get receiveTorAddressLabel => 'Ваша ссылка';
 
   @override
   String get receiveTorQrLabel => 'QR-код вашего адреса Tor';
@@ -5011,7 +5011,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netStatusTorOpenHint => 'Открывает настройки приватности';
 
   @override
-  String get netStatusDirectOpenHint => 'Открывает прямой адрес для приёма';
+  String get netStatusDirectOpenHint => 'Открывает адрес для приёма по ссылке';
 
   @override
   String get netStatusOpenHint => 'Показывает серверы';
@@ -5207,10 +5207,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => 'Напрямую · HTTP';
+  String get methodDirectHttp => 'Платёж по ссылке · HTTP';
 
   @override
-  String get methodDirectTor => 'Напрямую · Tor';
+  String get methodDirectTor => 'Платёж по ссылке · Tor';
 
   @override
   String get methodFile => 'Файл';
@@ -5758,7 +5758,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvIssuerFile => 'Файл';
 
   @override
-  String get deskInvIssuerDirect => 'Напрямую';
+  String get deskInvIssuerDirect => 'Ссылка';
 
   @override
   String get deskInvIssuerSoon => 'Скоро';
@@ -6529,7 +6529,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get methodDirect => 'Напрямую';
+  String get methodDirect => 'Ссылка';
+
+  @override
+  String get methodLinkPayment => 'Платёж по ссылке';
 
   @override
   String get methodDirectShape => 'http://host:3415 или xxxx….onion';
@@ -6540,7 +6543,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get methodArtLabelDirect =>
-      'Напрямую: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+      'Платёж по ссылке: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
 
   @override
   String get methodReceiveEpicboxShort => 'Работает при закрытом кошельке.';
@@ -6557,14 +6560,14 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get sendSwitchedDirect => 'Прямой адрес';
+  String get sendSwitchedDirect => 'Адрес ссылки';
 
   @override
-  String get sendSwitchedDirectAnnounce => 'Прямой адрес. Способ: Напрямую.';
+  String get sendSwitchedDirectAnnounce => 'Адрес ссылки. Способ: Ссылка.';
 
   @override
   String get sendDirectAddressShape =>
-      'Прямой адрес начинается с http:// или https:// либо заканчивается на .onion.';
+      'Адрес ссылки начинается с http:// или https:// либо заканчивается на .onion.';
 
   @override
   String get torNotOverTor => 'Не через Tor';
@@ -6601,10 +6604,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сетевая активность идёт через сеть Tor. Tor скрывает интернет-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк. Уведомления выключены, пока включён Tor.';
 
   @override
-  String get receiveTabDirect => 'Напрямую';
+  String get receiveTabDirect => 'Ссылка';
 
   @override
-  String get receiveDirectNeedsTor => 'Для прямого приёма нужен Tor.';
+  String get receiveDirectNeedsTor => 'Для приёма по ссылке нужен Tor.';
 
   @override
   String get receiveDirectMeanwhile =>
@@ -7563,7 +7566,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Читая его вслух, сверьте первые шесть и последние шесть символов.';
 
   @override
-  String get deskRecvHttpAddress => 'Напрямую · адрес HTTP';
+  String get deskRecvHttpAddress => 'Ссылка · адрес HTTP';
 
   @override
   String get deskRecvCopyHttp => 'Копировать адрес HTTP';
@@ -7586,14 +7589,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».';
 
   @override
-  String get deskRecvDirectTor => 'Напрямую · адрес Tor';
+  String get deskRecvDirectTor => 'Ссылка · адрес Tor';
 
   @override
   String get deskRecvTorIntro =>
       'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».';
 
   @override
-  String get deskRecvTorAddress => 'Напрямую · адрес Tor';
+  String get deskRecvTorAddress => 'Ссылка · адрес Tor';
 
   @override
   String get deskRecvCopyTor => 'Копировать адрес Tor';
@@ -7894,7 +7897,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendErrEpicbox => 'Это недействительный адрес Epicbox.';
 
   @override
-  String get deskSendErrNotDirect => 'Это не прямой адрес.';
+  String get deskSendErrNotDirect => 'Это не адрес ссылки.';
 
   @override
   String get deskSendErrOnion => 'Это недействительный адрес .onion.';
@@ -8006,7 +8009,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendReviewAgain => 'Проверить снова';
 
   @override
-  String get deskSendMethodDirect => 'Напрямую';
+  String get deskSendMethodDirect => 'Ссылка';
 
   @override
   String get deskSendMethodFile => 'Файл';
@@ -8163,7 +8166,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Передайте файл, получите файл ответа и завершите платёж здесь.';
 
   @override
-  String get deskSendTagDirect => 'Напрямую';
+  String get deskSendTagDirect => 'Ссылка';
 
   @override
   String get deskSendTagFile => 'Файл';
@@ -8172,8 +8175,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendTagEpicbox => 'Через Epicbox';
 
   @override
-  String get deskSendSwitchedDirect =>
-      'Прямой адрес. Выбран способ «Напрямую».';
+  String get deskSendSwitchedDirect => 'Адрес ссылки. Выбран способ «Ссылка».';
 
   @override
   String get deskSendSwitchedFile => 'Адрес файла. Выбран способ «Файл».';
@@ -8209,11 +8211,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Напрямую · HTTP (кошелёк получателя должен быть открыт)';
+      'Платёж по ссылке · HTTP (кошелёк получателя должен быть открыт)';
 
   @override
   String get deskSendViaTor =>
-      'Напрямую · Tor (кошелёк получателя должен быть открыт)';
+      'Платёж по ссылке · Tor (кошелёк получателя должен быть открыт)';
 
   @override
   String get deskSendViaFile => 'Файл транзакции';
@@ -8709,10 +8711,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskConAddrEpicbox => 'Адрес Epicbox';
 
   @override
-  String get deskConAddrTor => 'Напрямую · адрес Tor';
+  String get deskConAddrTor => 'Ссылка · адрес Tor';
 
   @override
-  String get deskConAddrHttp => 'Напрямую · адрес HTTP';
+  String get deskConAddrHttp => 'Ссылка · адрес HTTP';
 
   @override
   String get deskConNote => 'Заметка';
@@ -8743,7 +8745,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес для прямой отправки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес ссылки (https://…) или onion-адрес (….onion).';
 
   @override
   String get deskConAddPicture => 'Добавить фото';
@@ -10817,7 +10819,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Открыть приём: Напрямую · HTTP';
+  String get deskRailOpenHttp => 'Открыть приём: Платёж по ссылке · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'Нет в этой сборке';
@@ -11103,11 +11105,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'Напрямую · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+      'Платёж по ссылке · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Напрямую · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
+      'Платёж по ссылке · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -13225,7 +13227,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Напрямую · HTTP, приём';
+  String get deskSetRecvHttpTitle => 'Платёж по ссылке · HTTP, приём';
 
   @override
   String get deskSetRecvHttpText =>
@@ -13236,7 +13238,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetRecvHttpOffText =>
-      'Прямые платежи вместо этого приходят на адрес Tor этого кошелька.';
+      'Платежи по ссылке вместо этого приходят на адрес Tor этого кошелька.';
 
   @override
   String get deskSetRecvPrivacySettings => 'Настройки приватности';
@@ -14603,7 +14605,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor и проверки состояния приостановлены. С узлом на этом компьютере или в вашей сети по-прежнему работают «Сверка баланса», файлы и «Напрямую» на локальные адреса.';
+      'Epicbox, Tor и проверки состояния приостановлены. С узлом на этом компьютере или в вашей сети по-прежнему работают «Сверка баланса», файлы и «Платёж по ссылке» на локальные адреса.';
 
   @override
   String get deskSetAdvNotInBuild => 'Нет в этой сборке';
@@ -14896,7 +14898,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDirectHint =>
-      '«Напрямую» отправляет прямо в другой кошелёк на адрес onion или веб-адрес и даёт этому телефону адрес Tor, на который ему можно платить. Кошелёк на другой стороне должен быть открыт, и этот тоже. Нужен Tor. Добавляет «Напрямую» в «Отправить» и «Получить».';
+      '«Платёж по ссылке» отправляет прямо в другой кошелёк на адрес onion или веб-адрес и даёт этому телефону адрес Tor, на который ему можно платить. Кошелёк на другой стороне должен быть открыт, и этот тоже. Нужен Tor. Добавляет «Платёж по ссылке» в «Отправить» и «Получить».';
 
   @override
   String get txFileLine =>
@@ -14990,7 +14992,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetTxDirectHint =>
-      'Платите и получайте платежи напрямую от кошелька к кошельку, по HTTP или через Tor, без сервера посередине. Работает, только пока кошелёк открыт. Добавляет «Напрямую» в «Отправить», а его адрес — в «Получить».';
+      'Платите и получайте платежи напрямую от кошелька к кошельку, по HTTP или через Tor, без сервера посередине. Работает, только пока кошелёк открыт. Добавляет «Платёж по ссылке» в «Отправить», а его адрес — в «Получить».';
 
   @override
   String get deskSetTxFileHint =>

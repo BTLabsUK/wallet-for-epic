@@ -247,7 +247,7 @@ void main() {
     // The first attempt of a send still running is undelivered for LEPIC too.
     expect(lepicTxEntry(send(), sending: true).undelivered, isFalse);
     expect(lepicTxEntry(send(undelivered: false)).undelivered, isFalse);
-    // A Direct send that failed is not delivered either (linux-13, windows-07).
+    // A Link send that failed is not delivered either (linux-13, windows-07).
     expect(lepicTxEntry(send(transport: 'http')).undelivered, isTrue);
     expect(lepicTxEntry(send(transport: 'tor')).undelivered, isTrue);
     expect(lepicTxEntry(send(transport: 'http'), sending: true).undelivered, isFalse);

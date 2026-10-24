@@ -1,4 +1,4 @@
-// Direct HTTP on the mock wallet: Send › Direct asks before plain HTTP leaves this computer, and
+// Link HTTP on the mock wallet: Send › Link asks before plain HTTP leaves this computer, and
 // Settings › Receiving turns the HTTP listener on and makes it reachable only from the guide.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_http.dart';
@@ -59,7 +59,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  group('Send › Direct HTTP', () {
+  group('Send › Link HTTP', () {
     testWidgets('plain http to another computer asks first, then sends with consent', (tester) async {
       await sendTo(tester, 'http://203.0.113.5:3415');
       expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);

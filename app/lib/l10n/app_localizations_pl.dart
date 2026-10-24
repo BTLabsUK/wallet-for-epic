@@ -3312,7 +3312,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu bezpośredniego (https://…) lub adresu onion (….onion).';
+      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu Link (https://…) lub adresu onion (….onion).';
 
   @override
   String get settingsTitle => 'Ustawienia';
@@ -4258,7 +4258,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiveTabFile => 'Plik';
 
   @override
-  String get receiveTorAddressLabel => 'Adres Tor';
+  String get receiveTorAddressLabel => 'Twój link';
 
   @override
   String get receiveTorQrLabel => 'Kod QR twojego adresu Tor';
@@ -5033,7 +5033,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get netStatusTorOpenHint => 'Otwiera ustawienia prywatności';
 
   @override
-  String get netStatusDirectOpenHint => 'Otwiera adres odbioru bezpośredniego';
+  String get netStatusDirectOpenHint => 'Otwiera adres odbioru Link';
 
   @override
   String get netStatusOpenHint => 'Pokazuje serwery';
@@ -5229,10 +5229,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => 'Bezpośrednio · HTTP';
+  String get methodDirectHttp => 'Płatność linkiem · HTTP';
 
   @override
-  String get methodDirectTor => 'Bezpośrednio · Tor';
+  String get methodDirectTor => 'Płatność linkiem · Tor';
 
   @override
   String get methodFile => 'Plik';
@@ -6553,6 +6553,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodDirect => 'Bezpośrednio';
 
   @override
+  String get methodLinkPayment => 'Płatność linkiem';
+
+  @override
   String get methodDirectShape => 'http://host:3415 lub xxxx….onion';
 
   @override
@@ -6561,7 +6564,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get methodArtLabelDirect =>
-      'Bezpośrednio: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
+      'Płatność linkiem: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
 
   @override
   String get methodReceiveEpicboxShort => 'Działa przy zamkniętym portfelu.';
@@ -6578,15 +6581,15 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get sendSwitchedDirect => 'Adres bezpośredni';
+  String get sendSwitchedDirect => 'Adres Link';
 
   @override
   String get sendSwitchedDirectAnnounce =>
-      'Adres bezpośredni. Metoda ustawiona na Bezpośrednio.';
+      'Adres Link. Metoda ustawiona na Link.';
 
   @override
   String get sendDirectAddressShape =>
-      'Adres bezpośredni zaczyna się od http:// lub https:// albo kończy na .onion.';
+      'Adres Link zaczyna się od http:// lub https:// albo kończy na .onion.';
 
   @override
   String get torNotOverTor => 'Nie przez Tor';
@@ -6626,7 +6629,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiveTabDirect => 'Bezpośrednio';
 
   @override
-  String get receiveDirectNeedsTor => 'Odbiór bezpośredni wymaga Tora.';
+  String get receiveDirectNeedsTor => 'Odbieranie przez Link wymaga Tora.';
 
   @override
   String get receiveDirectMeanwhile =>
@@ -7589,7 +7592,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.';
 
   @override
-  String get deskRecvHttpAddress => 'Bezpośrednio · adres HTTP';
+  String get deskRecvHttpAddress => 'Link · adres HTTP';
 
   @override
   String get deskRecvCopyHttp => 'Kopiuj adres HTTP';
@@ -7612,14 +7615,14 @@ class AppLocalizationsPl extends AppLocalizations {
       'Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Prywatność.';
 
   @override
-  String get deskRecvDirectTor => 'Bezpośrednio · adres Tor';
+  String get deskRecvDirectTor => 'Link · adres Tor';
 
   @override
   String get deskRecvTorIntro =>
       'Prosto z innego portfela przez Tor, gdy ten jest otwarty. Tor ustawisz w Ustawienia › Prywatność.';
 
   @override
-  String get deskRecvTorAddress => 'Bezpośrednio · adres Tor';
+  String get deskRecvTorAddress => 'Link · adres Tor';
 
   @override
   String get deskRecvCopyTor => 'Kopiuj adres Tor';
@@ -7923,7 +7926,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendErrEpicbox => 'To nie jest prawidłowy adres Epicbox.';
 
   @override
-  String get deskSendErrNotDirect => 'To nie jest adres bezpośredni.';
+  String get deskSendErrNotDirect => 'To nie jest adres Link.';
 
   @override
   String get deskSendErrOnion => 'To nie jest prawidłowy adres onion.';
@@ -8036,7 +8039,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendReviewAgain => 'Sprawdź ponownie';
 
   @override
-  String get deskSendMethodDirect => 'Bezpośrednio';
+  String get deskSendMethodDirect => 'Link';
 
   @override
   String get deskSendMethodFile => 'Plik';
@@ -8074,7 +8077,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendHttpClearnet =>
-      'Wysyłka bezpośrednia na adresy http(s) idzie przez zwykły internet, nie przez Tor.';
+      'Wysyłka przez Link na adresy http(s) idzie przez zwykły internet, nie przez Tor.';
 
   @override
   String get deskSendClear => 'Wyczyść';
@@ -8203,8 +8206,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendTagEpicbox => 'Przez Epicbox';
 
   @override
-  String get deskSendSwitchedDirect =>
-      'Adres bezpośredni. Ustawiono metodę Bezpośrednio.';
+  String get deskSendSwitchedDirect => 'Adres Link. Ustawiono metodę Link.';
 
   @override
   String get deskSendSwitchedFile => 'Adres plikowy. Ustawiono metodę Plik.';
@@ -8241,11 +8243,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Bezpośrednio · HTTP (portfel odbiorcy musi być otwarty)';
+      'Płatność linkiem · HTTP (portfel odbiorcy musi być otwarty)';
 
   @override
   String get deskSendViaTor =>
-      'Bezpośrednio · Tor (portfel odbiorcy musi być otwarty)';
+      'Płatność linkiem · Tor (portfel odbiorcy musi być otwarty)';
 
   @override
   String get deskSendViaFile => 'Plik transakcji';
@@ -8738,10 +8740,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskConAddrEpicbox => 'Adres Epicbox';
 
   @override
-  String get deskConAddrTor => 'Bezpośrednio · adres Tor';
+  String get deskConAddrTor => 'Link · adres Tor';
 
   @override
-  String get deskConAddrHttp => 'Bezpośrednio · adres HTTP';
+  String get deskConAddrHttp => 'Link · adres HTTP';
 
   @override
   String get deskConNote => 'Notatka';
@@ -8772,7 +8774,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu bezpośredniego (https://…) lub adresu onion (….onion).';
+      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu Link (https://…) lub adresu onion (….onion).';
 
   @override
   String get deskConAddPicture => 'Dodaj zdjęcie';
@@ -10848,7 +10850,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Otwórz odbieranie: Bezpośrednio · HTTP';
+  String get deskRailOpenHttp => 'Otwórz odbieranie: Płatność linkiem · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'Brak w tej wersji';
@@ -11133,11 +11135,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'Bezpośrednio · HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
+      'Płatność linkiem · HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Bezpośrednio · Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
+      'Płatność linkiem · Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -13257,7 +13259,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Stan z status.btlabs.uk, sprawdzany co kilka minut.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Bezpośrednio · HTTP, odbieranie';
+  String get deskSetRecvHttpTitle => 'Płatność linkiem · HTTP, odbieranie';
 
   @override
   String get deskSetRecvHttpText =>
@@ -13268,7 +13270,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetRecvHttpOffText =>
-      'Płatności bezpośrednie docierają wtedy na adres Tor tego portfela.';
+      'Płatności przez Link docierają wtedy na adres Tor tego portfela.';
 
   @override
   String get deskSetRecvPrivacySettings => 'Ustawienia prywatności';
@@ -14527,7 +14529,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Z węzłem w twojej sieci lokalnej nadal działają Sprawdź saldo, pliki i wysyłki bezpośrednie na adresy lokalne. Peery węzła to ustawienie samego węzła.';
+      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Z węzłem w twojej sieci lokalnej nadal działają Sprawdź saldo, pliki i wysyłki przez Płatność linkiem na adresy lokalne. Peery węzła to ustawienie samego węzła.';
 
   @override
   String get advReset => 'Ukryj wszystko ponownie';
@@ -14637,7 +14639,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, pliki i Bezpośrednio na adresy lokalne.';
+      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, pliki i Płatność linkiem na adresy lokalne.';
 
   @override
   String get deskSetAdvNotInBuild => 'Brak w tej wersji';
@@ -14929,7 +14931,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDirectHint =>
-      'Bezpośrednio wysyła prosto do drugiego portfela na adres onion lub internetowy i daje temu telefonowi adres Tor, na który można mu płacić. Portfel po drugiej stronie musi być otwarty, ten też. Wymaga Tora. Dodaje Bezpośrednio do Wyślij i Odbierz.';
+      'Płatność linkiem wysyła prosto do drugiego portfela na adres onion lub internetowy i daje temu telefonowi adres Tor, na który można mu płacić. Portfel po drugiej stronie musi być otwarty, ten też. Wymaga Tora. Dodaje Płatność linkiem do Wyślij i Odbierz.';
 
   @override
   String get txFileLine =>
@@ -15023,7 +15025,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetTxDirectHint =>
-      'Płać i dostawaj zapłatę prosto z portfela do portfela, przez HTTP lub Tor, bez serwera pośrodku. Działa tylko, gdy portfel jest otwarty. Dodaje Bezpośrednio do Wyślij, a jego adres do Odbierz.';
+      'Płać i dostawaj zapłatę prosto z portfela do portfela, przez HTTP lub Tor, bez serwera pośrodku. Działa tylko, gdy portfel jest otwarty. Dodaje Płatność linkiem do Wyślij, a jego adres do Odbierz.';
 
   @override
   String get deskSetTxFileHint =>

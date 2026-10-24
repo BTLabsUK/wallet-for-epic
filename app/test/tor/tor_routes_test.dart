@@ -28,7 +28,7 @@ void main() {
       expect(torWay(TorRoute.onionDirect, TorState.on), TorWay.overTor);
     });
 
-    test('Direct to http(s) stays on the clearnet in every state', () {
+    test('Link to http(s) stays on the clearnet in every state', () {
       for (final s in TorState.values) {
         expect(torWay(TorRoute.httpDirect, s), TorWay.clearnet, reason: s.name);
       }

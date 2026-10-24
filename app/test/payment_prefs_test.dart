@@ -1,18 +1,18 @@
 // Settings › Transactions' model: defaults, the stored forms, Send's first method, and the old
-// Advanced "Direct receiving" switch taken over.
+// Advanced "Link receiving" switch taken over.
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('defaults: Epicbox and File offered, Direct not, Send starts on Epicbox', () {
+  test('defaults: Epicbox and File offered, Link not, Send starts on Epicbox', () {
     const p = PaymentPrefs.defaults;
     expect([for (final m in PayMethod.values) p.offers(m)], [true, false, true, true]);
     expect(p.startMethod, PayMethod.epicbox);
   });
 
-  test('a new phone: Epicbox and QR offered, File and Direct not', () {
+  test('a new phone: Epicbox and QR offered, File and Link not', () {
     const p = PaymentPrefs.phoneDefaults;
     expect([for (final m in PayMethod.values) p.offers(m)], [true, false, true, false]);
     expect(PaymentPrefs.decode(null, phone: true), p);
@@ -37,7 +37,7 @@ void main() {
     expect(const PaymentPrefs(file: false, defaultMethod: PayMethod.file).startMethod, PayMethod.epicbox);
   });
 
-  test('encode and decode, and the old Direct receiving switch', () {
+  test('encode and decode, and the old Link receiving switch', () {
     const p = PaymentPrefs(direct: true, file: false, defaultMethod: PayMethod.direct);
     expect(PaymentPrefs.decode(p.encode()), p);
     expect(PaymentPrefs.decode(PaymentPrefs.defaults.encode()), PaymentPrefs.defaults);

@@ -3773,9 +3773,9 @@
       }
     }
   },
-  "contactsAddressInvalidAny": "Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).",
+  "contactsAddressInvalidAny": "Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).",
   "@contactsAddressInvalidAny": {
-    "description": "Error under an address field that takes an Epicbox, a Direct (http/https) or an onion address, when the text is none of them."
+    "description": "Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them."
   },
   "settingsTitle": "Settings",
   "@settingsTitle": {
@@ -5045,7 +5045,7 @@
   "@receiveTabFile": {
     "description": "Receive, last tab: accepting a payment file. Short: three tabs share one row on a phone."
   },
-  "receiveTorAddressLabel": "Tor address",
+  "receiveTorAddressLabel": "Your link",
   "@receiveTorAddressLabel": {
     "description": "Caption above the wallet's full Tor address (the onion address) on the Receive tab; a tap on the card copies it."
   },
@@ -6072,23 +6072,23 @@
   },
   "netStatusReachable": "Reachable",
   "@netStatusReachable": {
-    "description": "Direct receive status icon state word: the wallet's Tor address is published and reachable."
+    "description": "Link receive status icon state word: the wallet's Tor address is published and reachable."
   },
   "netStatusPublishing": "Publishing…",
   "@netStatusPublishing": {
-    "description": "Direct receive status icon state word: Tor is connected and the address is being published."
+    "description": "Link receive status icon state word: Tor is connected and the address is being published."
   },
   "netStatusNotReachable": "Not reachable",
   "@netStatusNotReachable": {
-    "description": "Direct receive status icon state word: the Tor address could not be published."
+    "description": "Link receive status icon state word: the Tor address could not be published."
   },
   "netStatusTorOpenHint": "Opens the privacy settings",
   "@netStatusTorOpenHint": {
     "description": "Screen reader hint on the Tor status icon: a tap opens Settings › Privacy."
   },
-  "netStatusDirectOpenHint": "Opens the Direct receive address",
+  "netStatusDirectOpenHint": "Opens the Link receive address",
   "@netStatusDirectOpenHint": {
-    "description": "Screen reader hint on the Direct receive status icon: a tap opens the Receive tab's Direct address."
+    "description": "Screen reader hint on the Link receive status icon: a tap opens the Receive tab's Link address."
   },
   "netStatusOpenHint": "Shows the servers",
   "@netStatusOpenHint": {
@@ -6338,13 +6338,13 @@
   "@methodEpicbox": {
     "description": "Method name on Send and Receive segments."
   },
-  "methodDirectHttp": "Direct · HTTP",
+  "methodDirectHttp": "Link Payment · HTTP",
   "@methodDirectHttp": {
-    "description": "Method name: Direct, with HTTP as its transport. The Direct word, then a middle dot, then HTTP. Shown wherever a payment's method is named."
+    "description": "Method name: Link, with HTTP as its transport. The Link word, then a middle dot, then HTTP. Shown wherever a payment's method is named."
   },
-  "methodDirectTor": "Direct · Tor",
+  "methodDirectTor": "Link Payment · Tor",
   "@methodDirectTor": {
-    "description": "Method name: Direct, with Tor as its transport. The Direct word, then a middle dot, then Tor. Shown wherever a payment's method is named."
+    "description": "Method name: Link, with Tor as its transport. The Link word, then a middle dot, then Tor. Shown wherever a payment's method is named."
   },
   "methodFile": "File",
   "@methodFile": {
@@ -6981,7 +6981,7 @@
   },
   "deskInvIssuerMethod": "Method",
   "@deskInvIssuerMethod": {
-    "description": "Label of the choice how the request travels: Epicbox, File, Direct."
+    "description": "Label of the choice how the request travels: Epicbox, File, Link."
   },
   "deskInvIssuerEpicbox": "Epicbox",
   "@deskInvIssuerEpicbox": {
@@ -6991,7 +6991,7 @@
   "@deskInvIssuerFile": {
     "description": "Method: the request is saved as a file to hand over."
   },
-  "deskInvIssuerDirect": "Direct",
+  "deskInvIssuerDirect": "Link",
   "@deskInvIssuerDirect": {
     "description": "Method: the payment comes straight to this wallet over HTTP or Tor."
   },
@@ -8016,21 +8016,25 @@
       }
     }
   },
-  "methodDirect": "Direct",
+  "methodDirect": "Link",
   "@methodDirect": {
     "description": "Send and Receive method: straight to the other wallet, at an http(s) or onion address."
   },
+  "methodLinkPayment": "Link Payment",
+  "@methodLinkPayment": {
+    "description": "Full name of the Link Payment method (Settings › Transactions, labels). The short chip name is methodDirect."
+  },
   "methodDirectShape": "http://host:3415 or xxxx….onion",
   "@methodDirectShape": {
-    "description": "Under Send's empty To field on Direct: the two shapes a Direct address takes. Keep the addresses as they are."
+    "description": "Under Send's empty To field on Link: the two shapes a Link address takes. Keep the addresses as they are."
   },
   "methodSendDirectLine": "Their wallet must be open. An onion address goes over Tor.",
   "@methodSendDirectLine": {
-    "description": "Send's strip line for Direct."
+    "description": "Send's strip line for Link."
   },
-  "methodArtLabelDirect": "Direct: the payment goes straight to the recipient's wallet, which must be open",
+  "methodArtLabelDirect": "Link Payment: the payment goes straight to the recipient's wallet, which must be open",
   "@methodArtLabelDirect": {
-    "description": "Screen reader label of the Direct picture."
+    "description": "Screen reader label of the Link picture."
   },
   "methodReceiveEpicboxShort": "Works with the wallet closed.",
   "@methodReceiveEpicboxShort": {
@@ -8038,11 +8042,11 @@
   },
   "methodReceiveDirectTitle": "Straight to this wallet.",
   "@methodReceiveDirectTitle": {
-    "description": "Receive's Direct strip title."
+    "description": "Receive's Link strip title."
   },
   "methodReceiveDirectLine": "Works while the app is open.",
   "@methodReceiveDirectLine": {
-    "description": "Receive's Direct strip line: the onion address answers only while the app runs."
+    "description": "Receive's Link strip line: the onion address answers only while the app runs."
   },
   "methodLineOverTor": "{line} Over Tor.",
   "@methodLineOverTor": {
@@ -8053,17 +8057,17 @@
       }
     }
   },
-  "sendSwitchedDirect": "Direct address",
+  "sendSwitchedDirect": "Link address",
   "@sendSwitchedDirect": {
-    "description": "Tag beside Send's To label for 3 s after the address moved the method to Direct."
+    "description": "Tag beside Send's To label for 3 s after the address moved the method to Link."
   },
-  "sendSwitchedDirectAnnounce": "Direct address. Method set to Direct.",
+  "sendSwitchedDirectAnnounce": "Link address. Method set to Link.",
   "@sendSwitchedDirectAnnounce": {
-    "description": "Read out once when the address moved Send's method to Direct."
+    "description": "Read out once when the address moved Send's method to Link."
   },
-  "sendDirectAddressShape": "A Direct address starts with http:// or https://, or ends in .onion.",
+  "sendDirectAddressShape": "A Link address starts with http:// or https://, or ends in .onion.",
   "@sendDirectAddressShape": {
-    "description": "Error under To when Direct is chosen and the text is not an http(s) or onion address."
+    "description": "Error under To when Link is chosen and the text is not an http(s) or onion address."
   },
   "torNotOverTor": "Not over Tor",
   "@torNotOverTor": {
@@ -8099,7 +8103,7 @@
   },
   "torSettingsLink": "Tor settings",
   "@torSettingsLink": {
-    "description": "Text link on Receive's Direct tab to Settings › Privacy."
+    "description": "Text link on Receive's Link tab to Settings › Privacy."
   },
   "torNetworkLabel": "Tor Network",
   "@torNetworkLabel": {
@@ -8109,17 +8113,17 @@
   "@torNetworkHint": {
     "description": "Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor."
   },
-  "receiveTabDirect": "Direct",
+  "receiveTabDirect": "Link",
   "@receiveTabDirect": {
     "description": "Receive tab: receiving straight to this wallet at its onion address."
   },
-  "receiveDirectNeedsTor": "Direct receiving needs Tor.",
+  "receiveDirectNeedsTor": "Link receiving needs Tor.",
   "@receiveDirectNeedsTor": {
-    "description": "Receive's Direct tab while Tor is off."
+    "description": "Receive's Link tab while Tor is off."
   },
   "receiveDirectMeanwhile": "Senders use the Epicbox address meanwhile.",
   "@receiveDirectMeanwhile": {
-    "description": "Caption under 'Direct receiving needs Tor.'"
+    "description": "Caption under 'Link receiving needs Tor.'"
   },
   "netStatusOverTor": "over Tor",
   "@netStatusOverTor": {
@@ -8770,7 +8774,7 @@
   },
   "deskDataHttpEnter": "Enter the recipient’s address",
   "@deskDataHttpEnter": {
-    "description": "Hint under the Send address field when it is empty and the Direct method is chosen."
+    "description": "Hint under the Send address field when it is empty and the Link method is chosen."
   },
   "deskDataHttpScheme": "Start with https:// or http://",
   "@deskDataHttpScheme": {
@@ -9468,7 +9472,7 @@
   "@deskRecvCheckSix": {
     "description": "Caption under the Epicbox address on Receive."
   },
-  "deskRecvHttpAddress": "Direct · HTTP address",
+  "deskRecvHttpAddress": "Link Payment · HTTP address",
   "@deskRecvHttpAddress": {
     "description": "Title of the HTTP panel on Receive and of its QR code."
   },
@@ -9497,7 +9501,7 @@
   "@deskRecvHttpTorHint": {
     "description": "Caption at the bottom of the HTTP panel on Receive."
   },
-  "deskRecvDirectTor": "Direct · Tor address",
+  "deskRecvDirectTor": "Link Payment · Tor address",
   "@deskRecvDirectTor": {
     "description": "Title of the Tor panel on Receive."
   },
@@ -9505,7 +9509,7 @@
   "@deskRecvTorIntro": {
     "description": "Intro text of the Tor panel on Receive."
   },
-  "deskRecvTorAddress": "Direct · Tor address",
+  "deskRecvTorAddress": "Link Payment · Tor address",
   "@deskRecvTorAddress": {
     "description": "Title of the QR code of the Tor address on Receive."
   },
@@ -9834,9 +9838,9 @@
   "@deskSendErrEpicbox": {
     "description": "Error under the To field on Send when the Epicbox method is chosen and the address is not an Epicbox address."
   },
-  "deskSendErrNotDirect": "This is not a Direct address.",
+  "deskSendErrNotDirect": "This is not a Link address.",
   "@deskSendErrNotDirect": {
-    "description": "Error under the To field on Send when the Direct method is chosen and the address is an Epicbox address."
+    "description": "Error under the To field on Send when the Link method is chosen and the address is an Epicbox address."
   },
   "deskSendErrOnion": "This is not a valid onion address.",
   "@deskSendErrOnion": {
@@ -9957,7 +9961,7 @@
   },
   "deskSendDoneViaDirect": "Finalized and posted to the network.",
   "@deskSendDoneViaDirect": {
-    "description": "Text of the Sent notice after a Direct send."
+    "description": "Text of the Sent notice after a Link send."
   },
   "deskSendDoneViaEpicbox": "Handed to Epicbox. Completes when the recipient answers.",
   "@deskSendDoneViaEpicbox": {
@@ -9975,9 +9979,9 @@
   "@deskSendReviewAgain": {
     "description": "Button in the Send failed notice: opens the review again."
   },
-  "deskSendMethodDirect": "Direct",
+  "deskSendMethodDirect": "Link",
   "@deskSendMethodDirect": {
-    "description": "Name of the Direct send method (an http(s) or onion address), in the method selector and in tags. Short."
+    "description": "Name of the Link send method (an http(s) or onion address), in the method selector and in tags. Short."
   },
   "deskSendMethodFile": "File",
   "@deskSendMethodFile": {
@@ -10023,7 +10027,7 @@
   "@deskSendTurnOnTor": {
     "description": "Button in that warning: switches Tor on."
   },
-  "deskSendHttpClearnet": "Direct to http(s) addresses goes over the clearnet, not Tor.",
+  "deskSendHttpClearnet": "Link to http(s) addresses goes over the clearnet, not Tor.",
   "@deskSendHttpClearnet": {
     "description": "Note under the recipient field when Tor is on and the address is http(s)."
   },
@@ -10165,11 +10169,11 @@
   },
   "deskSendDirectLine1": "Straight to their wallet.",
   "@deskSendDirectLine1": {
-    "description": "Bold first line under the method selector for the Direct method."
+    "description": "Bold first line under the method selector for the Link method."
   },
   "deskSendDirectLine2": "An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.",
   "@deskSendDirectLine2": {
-    "description": "Second line under the method selector for the Direct method."
+    "description": "Second line under the method selector for the Link method."
   },
   "deskSendFileLine1": "No connection needed.",
   "@deskSendFileLine1": {
@@ -10179,9 +10183,9 @@
   "@deskSendFileLine2": {
     "description": "Second line under the method selector for the File method."
   },
-  "deskSendTagDirect": "Direct",
+  "deskSendTagDirect": "Link",
   "@deskSendTagDirect": {
-    "description": "Small tag next to the To label after the method switched to Direct by itself. Short."
+    "description": "Small tag next to the To label after the method switched to Link by itself. Short."
   },
   "deskSendTagFile": "File",
   "@deskSendTagFile": {
@@ -10191,9 +10195,9 @@
   "@deskSendTagEpicbox": {
     "description": "Small tag next to the To label after the method switched to Epicbox. Short."
   },
-  "deskSendSwitchedDirect": "Direct address. Method set to Direct.",
+  "deskSendSwitchedDirect": "Link address. Method set to Link.",
   "@deskSendSwitchedDirect": {
-    "description": "Screen reader announcement when the method switched to Direct by itself."
+    "description": "Screen reader announcement when the method switched to Link by itself."
   },
   "deskSendSwitchedFile": "File address. Method set to File.",
   "@deskSendSwitchedFile": {
@@ -10228,13 +10232,13 @@
   "@deskSendViaEpicbox": {
     "description": "Value of the Via fact in the review dialog for an Epicbox send."
   },
-  "deskSendViaDirect": "Direct · HTTP (their wallet must be open)",
+  "deskSendViaDirect": "Link Payment · HTTP (their wallet must be open)",
   "@deskSendViaDirect": {
-    "description": "Value of the Via fact in the review dialog for a Direct send over http(s)."
+    "description": "Value of the Via fact in the review dialog for a Link send over http(s)."
   },
-  "deskSendViaTor": "Direct · Tor (their wallet must be open)",
+  "deskSendViaTor": "Link Payment · Tor (their wallet must be open)",
   "@deskSendViaTor": {
-    "description": "Value of the Via fact in the review dialog for a Direct send to an onion address."
+    "description": "Value of the Via fact in the review dialog for a Link send to an onion address."
   },
   "deskSendViaFile": "Transaction file",
   "@deskSendViaFile": {
@@ -10267,7 +10271,7 @@
   },
   "deskSendFactVia": "Via",
   "@deskSendFactVia": {
-    "description": "Label of the fact that says how the payment goes (Epicbox, Direct, file) in the review dialog."
+    "description": "Label of the fact that says how the payment goes (Epicbox, Link, file) in the review dialog."
   },
   "deskSendFactPrivacy": "Privacy",
   "@deskSendFactPrivacy": {
@@ -10852,11 +10856,11 @@
   "@deskConAddrEpicbox": {
     "description": "Label above the address in a contact's detail, for an Epicbox address."
   },
-  "deskConAddrTor": "Direct · Tor address",
+  "deskConAddrTor": "Link Payment · Tor address",
   "@deskConAddrTor": {
     "description": "Label above the address in a contact's detail, for a Tor address."
   },
-  "deskConAddrHttp": "Direct · HTTP address",
+  "deskConAddrHttp": "Link Payment · HTTP address",
   "@deskConAddrHttp": {
     "description": "Label above the address in a contact's detail, for an HTTP address."
   },
@@ -10898,7 +10902,7 @@
   "@deskConErrAddressEmpty": {
     "description": "Error under the Address field of the contact form when it is empty."
   },
-  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).",
+  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).",
   "@deskConErrAddressInvalid": {
     "description": "Error under the Address field of the contact form when the text is not an address."
   },
@@ -13609,7 +13613,7 @@
       }
     }
   },
-  "deskRailOpenHttp": "Open Direct · HTTP receiving",
+  "deskRailOpenHttp": "Open Link Payment · HTTP receiving",
   "@deskRailOpenHttp": {
     "description": "Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings."
   },
@@ -13982,11 +13986,11 @@
   "@deskKitHeroLabelEpicbox": {
     "description": "Screen-reader description of the Epicbox picture on the Send page."
   },
-  "deskKitHeroLabelHttp": "Direct · HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "deskKitHeroLabelHttp": "Link Payment · HTTP: the payment goes straight to the recipient's wallet, which must be open",
   "@deskKitHeroLabelHttp": {
     "description": "Screen-reader description of the HTTP picture on the Send page."
   },
-  "deskKitHeroLabelTor": "Direct · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "deskKitHeroLabelTor": "Link Payment · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
   "@deskKitHeroLabelTor": {
     "description": "Screen-reader description of the Tor picture on the Send page."
   },
@@ -16840,7 +16844,7 @@
   "@deskSetRecvListNote": {
     "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
   },
-  "deskSetRecvHttpTitle": "Direct · HTTP receiving",
+  "deskSetRecvHttpTitle": "Link Payment · HTTP receiving",
   "@deskSetRecvHttpTitle": {
     "description": "Settings > Receiving: heading of the HTTP group."
   },
@@ -16852,7 +16856,7 @@
   "@deskSetRecvHttpOffTitle": {
     "description": "Settings > Receiving: notice title in the HTTP group when Tor is on."
   },
-  "deskSetRecvHttpOffText": "Direct payments arrive at this wallet’s Tor address instead.",
+  "deskSetRecvHttpOffText": "Link payments arrive at this wallet’s Tor address instead.",
   "@deskSetRecvHttpOffText": {
     "description": "Settings > Receiving: notice text in the HTTP group when Tor is on."
   },
@@ -18047,7 +18051,7 @@
   },
   "deskTxNowUndeliveredDirect": "Not delivered. The recipient's wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the funds.",
   "@deskTxNowUndeliveredDirect": {
-    "description": "Payment detail, the line under the status of a Direct send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
+    "description": "Payment detail, the line under the status of a Link send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
     "placeholders": {
       "method": {
         "type": "String"
@@ -18512,7 +18516,7 @@
   "@advTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node's own peers are the node's setting.",
+  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Link Payment sends to local addresses still work. The node's own peers are the node's setting.",
   "@advOfflineNote": {
     "description": "Note under the network choice while Offline is selected."
   },
@@ -18608,7 +18612,7 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node's setting.",
+  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use files; the built-in node keeps running, as its own peers are the node's setting.",
   "@deskSetAdvNetworkHint": {
     "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
   },
@@ -18640,7 +18644,7 @@
   "@deskSetAdvTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.",
+  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Link Payment to local addresses still work.",
   "@deskSetAdvOfflineNote": {
     "description": "Note under the chosen Offline mode on the Advanced page."
   },
@@ -18687,7 +18691,7 @@
   },
   "receiveOfflineLine": "Can't receive this way while Offline mode is on.",
   "@receiveOfflineLine": {
-    "description": "Line on Receive's Epicbox and Direct tabs while the Offline network mode is on; the address is still shown to hand out."
+    "description": "Line on Receive's Epicbox and Link tabs while the Offline network mode is on; the address is still shown to hand out."
   },
   "txDetailsMore": "More",
   "@txDetailsMore": {
@@ -18928,7 +18932,7 @@
   },
   "deskNetSendFileHint": "A transaction file still works.",
   "@deskNetSendFileHint": {
-    "description": "Second line of the notice on Send when the network mode holds Epicbox and Direct sends."
+    "description": "Second line of the notice on Send when the network mode holds Epicbox and Link sends."
   },
   "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive until Offline mode is off.",
   "@deskNetRecvOfflineText": {
@@ -18992,11 +18996,11 @@
   },
   "txDirectLine": "Pay onion and web addresses; get paid at this phone's Tor address.",
   "@txDirectLine": {
-    "description": "One line under the Direct switch on Settings › Transactions."
+    "description": "One line under the Link switch on Settings › Transactions."
   },
-  "txDirectHint": "Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.",
+  "txDirectHint": "Link Payment sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Link Payment to Send and Receive.",
   "@txDirectHint": {
-    "description": "Info sheet text of the Direct switch on Settings › Transactions."
+    "description": "Info sheet text of the Link switch on Settings › Transactions."
   },
   "txFileLine": "Pay or get paid with a file you pass on yourself.",
   "@txFileLine": {
@@ -19080,7 +19084,7 @@
   },
   "netOfflineOnlyLocal": "Offline: only local addresses.",
   "@netOfflineOnlyLocal": {
-    "description": "Why a Direct send was refused in the Offline network mode: the address is not on this device or the local network."
+    "description": "Why a Link send was refused in the Offline network mode: the address is not on this device or the local network."
   },
   "netOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
   "@netOfflineNoPeers": {
@@ -19088,7 +19092,7 @@
   },
   "deskErrOfflineOnlyLocal": "Offline: only local addresses.",
   "@deskErrOfflineOnlyLocal": {
-    "description": "Why a Direct send was refused in the Offline network mode: the address is not on this computer or the local network."
+    "description": "Why a Link send was refused in the Offline network mode: the address is not on this computer or the local network."
   },
   "deskNetOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
   "@deskNetOfflineNoPeers": {
@@ -19108,7 +19112,7 @@
   },
   "deskSetTxMethods": "Payment methods",
   "@deskSetTxMethods": {
-    "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Direct, File)."
+    "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Link, File)."
   },
   "deskSetTxAlwaysOn": "Always on",
   "@deskSetTxAlwaysOn": {
@@ -19118,9 +19122,9 @@
   "@deskSetTxEpicboxHint": {
     "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
   },
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.",
+  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Link Payment to Send and its address to Receive.",
   "@deskSetTxDirectHint": {
-    "description": "Hover card behind the info icon of the Direct row (switch) on Settings › Transactions."
+    "description": "Hover card behind the info icon of the Link row (switch) on Settings › Transactions."
   },
   "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.",
   "@deskSetTxFileHint": {

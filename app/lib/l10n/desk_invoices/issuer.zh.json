@@ -5,7 +5,7 @@
   "deskInvIssuerMethod": "方式",
   "deskInvIssuerEpicbox": "Epicbox",
   "deskInvIssuerFile": "文件",
-  "deskInvIssuerDirect": "直连",
+  "deskInvIssuerDirect": "链接",
   "deskInvIssuerSoon": "即将推出",
   "deskInvIssuerPayer": "对方的账单地址",
   "deskInvIssuerPayerHelp": "对方钱包在“设置 › 账单”中显示它。",

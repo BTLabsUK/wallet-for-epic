@@ -575,7 +575,7 @@
   },
   "deskDataHttpEnter": "Enter the recipient’s address",
   "@deskDataHttpEnter": {
-    "description": "Hint under the Send address field when it is empty and the Direct method is chosen."
+    "description": "Hint under the Send address field when it is empty and the Link method is chosen."
   },
   "deskDataHttpScheme": "Start with https:// or http://",
   "@deskDataHttpScheme": {

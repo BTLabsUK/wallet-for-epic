@@ -1,7 +1,7 @@
-// Settings › Transactions on the phone: the payment methods (Epicbox always on, Direct and File
+// Settings › Transactions on the phone: the payment methods (Epicbox always on, Link and File
 // as switches), the method Send starts on (only among the methods offered), and, with Advanced
 // › Send options, the send defaults that used to sit on Outputs. The Advanced page no longer
-// holds a Direct switch; an old one is taken over.
+// holds a Link switch; an old one is taken over.
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -95,13 +95,13 @@ PaymentPrefs _payments(ProviderContainer c) =>
     c.read(appSettingsProvider).value!.payments;
 
 void main() {
-  testWidgets('methods: Epicbox is always on, Direct and File are switches', (tester) async {
+  testWidgets('methods: Epicbox is always on, Link and File are switches', (tester) async {
     await _pump(tester, _store());
     expect(find.text(_l.txMethodsHeader), findsOneWidget);
     // Epicbox: a row with "Always on" and no switch.
     expect(find.descendant(of: _row('tx-epicbox'), matching: find.text(_l.txAlwaysOn)), findsOneWidget);
     expect(_switchOf('tx-epicbox'), findsNothing);
-    // Direct is off by default, File on.
+    // Link is off by default, File on.
     expect(tester.widget<Switch>(_switchOf('tx-direct')).value, isFalse);
     expect(tester.widget<Switch>(_switchOf('tx-file')).value, isTrue);
     expect(find.text(_l.txDirectLine), findsOneWidget);
@@ -112,7 +112,7 @@ void main() {
     await _pump(tester, _store());
     for (final (title, text) in [
       (_l.methodEpicbox, _l.txEpicboxHint),
-      (_l.methodDirect, _l.txDirectHint),
+      (_l.methodLinkPayment, _l.txDirectHint),
       (_l.methodFile, _l.txFileHint),
     ]) {
       await tester.tap(
@@ -151,7 +151,7 @@ void main() {
     await tester.tap(_row('tx-start-file'));
     await tester.pumpAndSettle();
     expect(_payments(c).defaultMethod, PayMethod.file);
-    // Direct on adds its choice.
+    // Link on adds its choice.
     await tester.tap(_row('tx-direct'));
     await tester.pumpAndSettle();
     expect(_row('tx-start-direct'), findsOneWidget);
@@ -159,7 +159,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_payments(c).defaultMethod, PayMethod.direct);
     expect(_payments(c).startMethod, PayMethod.direct);
-    // Direct off again: the choice is no longer offered and Send starts on Epicbox.
+    // Link off again: the choice is no longer offered and Send starts on Epicbox.
     await tester.tap(_row('tx-direct'));
     await tester.pumpAndSettle();
     expect(_row('tx-start-direct'), findsNothing);
@@ -243,14 +243,14 @@ void main() {
     }
   });
 
-  testWidgets('Advanced no longer holds a Direct switch', (tester) async {
+  testWidgets('Advanced no longer holds a Link switch', (tester) async {
     await _pump(tester, _store(), section: SettingsSection.advanced);
     expect(find.byKey(const ValueKey('adv-sendOptions')), findsOneWidget);
     expect(find.byKey(const ValueKey('adv-directReceiving')), findsNothing);
-    expect(find.text('Direct receiving'), findsNothing);
+    expect(find.text('Link receiving'), findsNothing);
   });
 
-  testWidgets('the old Direct receiving switch is taken over as Direct on', (tester) async {
+  testWidgets('the old Link receiving switch is taken over as Link on', (tester) async {
     final store = _store({'app.advanced_prefs': 'directReceiving|standard'});
     final c = await _pump(tester, store);
     expect(_payments(c).direct, isTrue);

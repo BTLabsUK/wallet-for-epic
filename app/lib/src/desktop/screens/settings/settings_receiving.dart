@@ -234,7 +234,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final l = context.l10n;
     final name = switch (m) {
       PayMethod.epicbox => 'Epicbox', // l10n-ok: product name
-      PayMethod.direct => l.deskSendMethodDirect,
+      PayMethod.direct => l.methodLinkPayment,
       PayMethod.qr => 'QR', // l10n-ok: the phone's method, never listed here
       PayMethod.file => l.deskSendMethodFile,
     };
@@ -262,7 +262,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 
   String _startName(AppLocalizations l, PayMethod m) => switch (m) {
     PayMethod.epicbox => 'Epicbox', // l10n-ok: product name
-    PayMethod.direct => l.deskSendMethodDirect,
+    PayMethod.direct => l.methodLinkPayment,
     PayMethod.qr => 'QR', // l10n-ok: the phone's method, never listed here
     PayMethod.file => l.deskSendMethodFile,
   };

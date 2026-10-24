@@ -1,6 +1,6 @@
 // Advanced on the desktop: the More link on a transaction, the locked and the disabled Tor
 // switch, the sidebar and Overview in Offline and Tor only, Send and Receive held by the network
-// mode (File goes on), a pasted onion with Direct off, Restore's start height for everyone, and
+// mode (File goes on), a pasted onion with Link off, Restore's start height for everyone, and
 // the tour's Advanced step.
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
@@ -150,10 +150,10 @@ void main() {
       expect(segment(tester, 'File').enabled, isFalse);
     });
 
-    testWidgets('Offline with a LAN node: Direct and File run, Epicbox waits; no peers says the payment waits', (tester) async {
+    testWidgets('Offline with a LAN node: Link and File run, Epicbox waits; no peers says the payment waits', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://10.0.1.30:3415', amount: '1'), advanced: _offline, node: 'http://10.100.10.20:3413', peers: 0);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
-      expect(segment(tester, 'Direct').enabled, isTrue);
+      expect(segment(tester, 'Link').enabled, isTrue);
       expect(segment(tester, 'File').enabled, isTrue);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
       expect(find.byKey(const ValueKey('send-offline-no-peers')), findsOneWidget);
@@ -178,13 +178,13 @@ void main() {
       expect(segment(tester, 'Epicbox').enabled, isTrue);
     });
 
-    testWidgets('Direct receiving off: a pasted onion brings the Direct segment for this send', (tester) async {
+    testWidgets('Link receiving off: a pasted onion brings the Link segment for this send', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(), tor: true);
       List<String> labels() => tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).segments.map((s) => s.label).toList();
       expect(labels(), ['Epicbox', 'File']);
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
-      expect(labels(), ['Epicbox', 'Direct', 'File']);
+      expect(labels(), ['Epicbox', 'Link', 'File']);
       expect(tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value, TxMethod.http);
       expect(_container.read(deskProvider).settings.payments.direct, isFalse, reason: 'nothing was switched on');
     });
@@ -259,7 +259,7 @@ void main() {
     });
 
     test('no step names a hidden part', () {
-      final hidden = RegExp('Direct|Outputs|Technical|Logs|local node|kernel', caseSensitive: false);
+      final hidden = RegExp('Link|Outputs|Technical|Logs|local node|kernel', caseSensitive: false);
       for (final s in tourStepsFor(invoices: true)) {
         if (s.title == 'Advanced') continue;
         expect(hidden.hasMatch(s.text), isFalse, reason: '${s.title}: ${s.text}');

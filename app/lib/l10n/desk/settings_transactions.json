@@ -5,7 +5,7 @@
   },
   "deskSetTxMethods": "Payment methods",
   "@deskSetTxMethods": {
-    "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Direct, File)."
+    "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Link, File)."
   },
   "deskSetTxAlwaysOn": "Always on",
   "@deskSetTxAlwaysOn": {
@@ -15,9 +15,9 @@
   "@deskSetTxEpicboxHint": {
     "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
   },
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.",
+  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Link Payment to Send and its address to Receive.",
   "@deskSetTxDirectHint": {
-    "description": "Hover card behind the info icon of the Direct row (switch) on Settings › Transactions."
+    "description": "Hover card behind the info icon of the Link row (switch) on Settings › Transactions."
   },
   "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.",
   "@deskSetTxFileHint": {

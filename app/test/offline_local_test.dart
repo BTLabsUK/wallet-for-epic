@@ -1,6 +1,6 @@
 // Offline = nothing beyond this computer and the local network (net/local_address.dart): the
 // classifier at every range edge, the gate's local-node input, and the LEPIC adapter letting a
-// local node and Direct sends to local addresses through while refusing the rest. No native
+// local node and Link sends to local addresses through while refusing the rest. No native
 // library is loaded and no lookup reaches a resolver: [LepicWalletSession.directLookup] is
 // replaced.
 import 'dart:convert';
@@ -20,7 +20,7 @@ import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
-/// Fails any native call but the two it stands in for, recording where a Direct send went.
+/// Fails any native call but the two it stands in for, recording where a Link send went.
 class _Wallet implements lepic.EpicWallet {
   final List<String> sentTo = [];
   int slates = 0;
@@ -173,7 +173,7 @@ void main() {
       expect(() => TorNet.configure(client), throwsA(isA<NetError>()));
     });
 
-    test('the refusal of a non-local Direct address says so, phone and desktop', () {
+    test('the refusal of a non-local Link address says so, phone and desktop', () {
       const e = NetBlocked(NetworkMode.offline, 'send over HTTP', notLocal: true);
       expect(describeError(englishStrings, e), 'Offline: only local addresses.');
       expect(deskErrorText(e), 'Offline: only local addresses.');
@@ -203,7 +203,7 @@ void main() {
       return wallet.sentTo.last;
     }
 
-    test('a public node: files and Direct are refused before LEPIC, as before', () async {
+    test('a public node: files and Link are refused before LEPIC, as before', () async {
       session.nodeUrl = 'https://node.btlabs.uk';
       await expectLater(session.createSendSlate(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3)), throwsA(isA<NetBlocked>()));
       await expectLater(send('http://10.0.1.30:3415'), throwsA(isA<NetBlocked>().having((e) => e.notLocal, 'notLocal', isFalse)));
@@ -213,7 +213,7 @@ void main() {
     });
 
     for (final node in ['http://127.0.0.1:3413', 'http://10.100.10.20:3413']) {
-      test('a local node ($node): a file is made, Direct goes to a local address only', () async {
+      test('a local node ($node): a file is made, Link goes to a local address only', () async {
         session.nodeUrl = node;
         await session.createSendSlate(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3));
         expect(wallet.slates, 1);
@@ -238,7 +238,7 @@ void main() {
       await expectLater(session.startTor(torBinary: '/x').drain<void>(), throwsA(isA<NetBlocked>()));
     });
 
-    test('Standard leaves a Direct address as given', () async {
+    test('Standard leaves a Link address as given', () async {
       NetGate.set(NetworkMode.standard);
       session.nodeUrl = 'https://node.btlabs.uk';
       expect(await send('https://wallet.example.org'), 'https://wallet.example.org');

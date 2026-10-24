@@ -381,23 +381,23 @@ void _clipboard(WidgetTester tester, String? Function() text) {
   );
 }
 
-/// Settings › Transactions › Direct on, as the Direct segment and tab need it.
+/// Settings › Transactions › Link on, as the Link segment and tab need it.
 const _directOn = PaymentPrefs(direct: true);
 
 void main() {
   group('selector and strip', () {
-    testWidgets('Epicbox and File by default; Direct on adds Direct', (
+    testWidgets('Epicbox and File by default; Link on adds Link', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
       expect(_segment('Epicbox'), findsOneWidget);
       expect(_segment('File'), findsOneWidget);
-      expect(_segment('Direct'), findsNothing);
+      expect(_segment('Link'), findsNothing);
       await tester.pumpWidget(const SizedBox());
       final on = _Harness();
       await on.pump(tester, payments: _directOn);
-      expect(_segment('Direct'), findsOneWidget);
+      expect(_segment('Link'), findsOneWidget);
     });
 
     testWidgets('three segments, Epicbox first; each with its strip and shape', (
@@ -405,14 +405,14 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, payments: _directOn);
-      for (final label in ['Epicbox', 'Direct', 'File']) {
+      for (final label in ['Epicbox', 'Link', 'File']) {
         expect(_segment(label), findsOneWidget, reason: label);
       }
       // Tor is not a method: the one switch in Settings changes how they connect.
       expect(_segment('Tor'), findsNothing);
       expect(_segment('HTTP'), findsNothing);
       final xs = [
-        for (final label in ['Epicbox', 'Direct', 'File'])
+        for (final label in ['Epicbox', 'Link', 'File'])
           tester.getCenter(_segment(label)).dx,
       ];
       expect(xs, orderedEquals([...xs]..sort()));
@@ -432,7 +432,7 @@ void main() {
       expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
       expect(find.text('Address or contact'), findsOneWidget);
 
-      await _tap(tester, _segment('Direct'));
+      await _tap(tester, _segment('Link'));
       expect(_method(tester), TransferMethod.direct);
       expect(find.text('Straight to their wallet.'), findsOneWidget);
       expect(
@@ -489,11 +489,11 @@ void main() {
   });
 
   group('Settings › Transactions', () {
-    testWidgets('File off: the File segment goes, Epicbox and Direct stay', (tester) async {
+    testWidgets('File off: the File segment goes, Epicbox and Link stay', (tester) async {
       final h = _Harness();
       await h.pump(tester, payments: const PaymentPrefs(direct: true, file: false));
       expect(_segment('Epicbox'), findsOneWidget);
-      expect(_segment('Direct'), findsOneWidget);
+      expect(_segment('Link'), findsOneWidget);
       expect(_segment('File'), findsNothing);
     });
 
@@ -504,13 +504,13 @@ void main() {
       expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
     });
 
-    testWidgets('a pasted onion keeps Direct for that send with Direct off', (tester) async {
+    testWidgets('a pasted onion keeps Link for that send with Link off', (tester) async {
       String? clip = _onion;
       _clipboard(tester, () => clip);
       final h = _Harness();
       await h.pump(tester, payments: const PaymentPrefs(file: false));
       await _tap(tester, find.text('Paste'));
-      expect(_segment('Direct'), findsOneWidget);
+      expect(_segment('Link'), findsOneWidget);
       expect(_method(tester), TransferMethod.direct);
     });
 
@@ -521,7 +521,7 @@ void main() {
         payments: const PaymentPrefs(direct: true, defaultMethod: PayMethod.direct),
       );
       expect(_method(tester), TransferMethod.direct);
-      expect(find.text('Direct address'), findsNothing);
+      expect(find.text('Link address'), findsNothing);
     });
 
     testWidgets('a default that is not offered falls back to Epicbox', (tester) async {
@@ -548,14 +548,14 @@ void main() {
     });
 
     testWidgets(
-      'a whole Epicbox address pasted under Direct moves it to Epicbox',
+      'a whole Epicbox address pasted under Link moves it to Epicbox',
       (tester) async {
         String? clip;
         _clipboard(tester, () => clip);
         final semantics = tester.ensureSemantics();
         final h = _Harness();
         await h.pump(tester, payments: _directOn);
-        await _tap(tester, _segment('Direct'));
+        await _tap(tester, _segment('Link'));
         expect(_method(tester), TransferMethod.direct);
         clip = _bob;
         await _tap(tester, find.text('Paste'));
@@ -578,7 +578,7 @@ void main() {
     );
 
     testWidgets(
-      'a bare onion typed by hand moves it to Direct once, at the 56th character',
+      'a bare onion typed by hand moves it to Link once, at the 56th character',
       (tester) async {
         final semantics = tester.ensureSemantics();
         final h = _Harness();
@@ -589,12 +589,12 @@ void main() {
         expect(
           find.descendant(
             of: find.byKey(sendSwitchedTagKey),
-            matching: find.text('Direct address'),
+            matching: find.text('Link address'),
           ),
           findsOneWidget,
         );
         expect(
-          find.bySemanticsLabel('Direct address. Method set to Direct.'),
+          find.bySemanticsLabel('Link address. Method set to Link.'),
           findsOneWidget,
         );
         semantics.dispose();
@@ -614,13 +614,13 @@ void main() {
         expect(find.ancestor(of: label, matching: find.byType(Row)).evaluate(), isNotEmpty);
         expect(tester.getSize(find.ancestor(of: label, matching: find.byType(Row)).first).width,
             moreOrLessEquals(tester.getSize(label).width, epsilon: 1));
-        // Never back: one more character breaks the onion, Direct stays.
+        // Never back: one more character breaks the onion, Link stays.
         final more = await _type(tester, '${_name}x');
         expect(more.last, TransferMethod.direct);
       },
     );
 
-    testWidgets('http://10.0.1.24 typed moves it to Direct once the host is '
+    testWidgets('http://10.0.1.24 typed moves it to Link once the host is '
         'whole', (tester) async {
       final h = _Harness();
       await h.pump(tester);
@@ -633,10 +633,10 @@ void main() {
         seen[url.indexOf('192.168.') + '192.168.'.length - 1],
         TransferMethod.epicbox,
       );
-      expect(find.text('Direct address'), findsOneWidget);
+      expect(find.text('Link address'), findsOneWidget);
     });
 
-    testWidgets('an onion contact picked moves it to Direct', (tester) async {
+    testWidgets('an onion contact picked moves it to Link', (tester) async {
       final h = _Harness();
       await h.session.saveContact(
         contact: Contact(id: '', name: 'Tor Tom', address: _onion, note: null),
@@ -645,11 +645,11 @@ void main() {
       await _tap(tester, find.text('Contacts'));
       await _tap(tester, find.text('Tor Tom'));
       expect(_method(tester), TransferMethod.direct);
-      expect(find.text('Direct address'), findsOneWidget);
+      expect(find.text('Link address'), findsOneWidget);
     });
 
     testWidgets(
-      'Direct off: a pasted onion or http address is accepted, with Direct shown',
+      'Link off: a pasted onion or http address is accepted, with Link shown',
       (tester) async {
         String? clip;
         _clipboard(tester, () => clip);
@@ -658,20 +658,20 @@ void main() {
           await tester.pumpWidget(const SizedBox());
           final h = _Harness();
           await h.pump(tester);
-          // Direct is off: the selector has Epicbox and File only.
-          expect(_segment('Direct'), findsNothing);
+          // Link is off: the selector has Epicbox and File only.
+          expect(_segment('Link'), findsNothing);
           clip = address;
           await _tap(tester, find.text('Paste'));
-          // The method follows the address and Direct shows for this send.
-          expect(_segment('Direct'), findsOneWidget, reason: address);
+          // The method follows the address and Link shows for this send.
+          expect(_segment('Link'), findsOneWidget, reason: address);
           expect(_method(tester), TransferMethod.direct, reason: address);
-          expect(find.text('Direct address'), findsOneWidget);
+          expect(find.text('Link address'), findsOneWidget);
           // Never refused: Continue goes on to the amount.
           await _tap(tester, _continue);
           expect(find.text('2 of 3'), findsOneWidget, reason: address);
           expect(
             find.text(
-              'A Direct address starts with http:// or https://, or ends in .onion.',
+              'A Link address starts with http:// or https://, or ends in .onion.',
             ),
             findsNothing,
           );
@@ -685,7 +685,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, payments: _directOn);
       await _enter(tester, 'To', _bob);
-      await _tap(tester, _segment('Direct'));
+      await _tap(tester, _segment('Link'));
       expect(
         tester
             .widget<TextField>(find.widgetWithText(TextField, 'To'))
@@ -696,7 +696,7 @@ void main() {
       await _tap(tester, _continue);
       expect(
         find.text(
-          'A Direct address starts with http:// or https://, or ends in .onion.',
+          'A Link address starts with http:// or https://, or ends in .onion.',
         ),
         findsOneWidget,
       );
@@ -710,7 +710,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.toReview(tester, _https);
-      expect(_reviewMethod('Direct · HTTP'), findsOneWidget);
+      expect(_reviewMethod('Link Payment · HTTP'), findsOneWidget);
       expect(
         find.text('Cannot be cancelled once their wallet accepts it.'),
         findsOneWidget,
@@ -798,14 +798,14 @@ void main() {
       );
     });
 
-    testWidgets('the method row and the cancel rule: Direct to an onion', (
+    testWidgets('the method row and the cancel rule: Link to an onion', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
       await h.torOn(tester);
       await h.toReview(tester, _onion);
-      expect(_reviewMethod('Direct · Tor'), findsOneWidget);
+      expect(_reviewMethod('Link Payment · Tor'), findsOneWidget);
       expect(
         find.text('Cannot be cancelled once their wallet accepts it.'),
         findsOneWidget,
@@ -898,7 +898,7 @@ void main() {
       // The review says it too.
       await _enter(tester, 'To', _https);
       await h.toReview(tester, _https);
-      expect(_reviewMethod('Direct · HTTP · Not over Tor'), findsOneWidget);
+      expect(_reviewMethod('Link Payment · HTTP · Not over Tor'), findsOneWidget);
     });
 
     testWidgets('Tor on: an Epicbox review says Over Tor', (tester) async {
@@ -948,7 +948,7 @@ void main() {
       expect(h.session.epicboxSends, isEmpty);
     });
 
-    testWidgets('Offline with a LAN node: File and Direct run; no peers says the payment waits', (
+    testWidgets('Offline with a LAN node: File and Link run; no peers says the payment waits', (
       tester,
     ) async {
       final h = _Harness();
@@ -956,7 +956,7 @@ void main() {
       // Epicbox still waits.
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      // Direct to a local address goes on (the adapter refuses a non-local one).
+      // Link to a local address goes on (the adapter refuses a non-local one).
       await _enter(tester, 'To', 'http://10.0.1.30:3415');
       expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
       expect(find.byKey(netBlockNoteKey), findsNothing);
@@ -1034,7 +1034,7 @@ void main() {
   });
 
   group('receive', () {
-    testWidgets('a strip per tab; Direct needs Tor, then the onion', (
+    testWidgets('a strip per tab; Link needs Tor, then the onion', (
       tester,
     ) async {
       final h = _Harness();
@@ -1053,7 +1053,7 @@ void main() {
         ),
         findsNothing,
       );
-      for (final label in ['Epicbox', 'Direct', 'File']) {
+      for (final label in ['Epicbox', 'Link', 'File']) {
         expect(
           find.descendant(
             of: find.byKey(receiveTabsKey),
@@ -1066,10 +1066,10 @@ void main() {
       expect(find.text('HTTP'), findsNothing);
       expect(find.text('Tor'), findsNothing);
 
-      await _tap(tester, find.text('Direct'));
+      await _tap(tester, find.text('Link'));
       expect(find.text('Straight to this wallet.'), findsOneWidget);
       expect(find.text('Works while the app is open.'), findsOneWidget);
-      expect(find.text('Direct receiving needs Tor.'), findsOneWidget);
+      expect(find.text('Link receiving needs Tor.'), findsOneWidget);
       expect(
         find.text('Senders use the Epicbox address meanwhile.'),
         findsOneWidget,

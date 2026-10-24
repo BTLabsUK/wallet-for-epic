@@ -1,10 +1,10 @@
 // Tests of a part that Advanced hides by default (Outputs, Send options...) switch it on first,
-// the way a user does in Settings › Advanced; Direct is Settings › Transactions' switch.
+// the way a user does in Settings › Advanced; Link is Settings › Transactions' switch.
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Turns every Advanced switch on (the network stays Standard) and Direct in Transactions.
+/// Turns every Advanced switch on (the network stays Standard) and Link in Transactions.
 Future<void> advancedOn(ProviderContainer c, {Set<AdvancedFeature>? only}) async {
   final s = c.read(deskProvider).settings;
   final prefs = only == null ? AdvancedPrefs.all : AdvancedPrefs(features: only);

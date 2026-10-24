@@ -177,7 +177,7 @@ Future<void> _tick(WidgetTester tester, int seconds) async {
 
 void main() {
   group('where it is offered', () {
-    testWidgets('Send: Epicbox · QR on a new phone, File and Direct not', (
+    testWidgets('Send: Epicbox · QR on a new phone, File and Link not', (
       tester,
     ) async {
       final h = _Harness();
@@ -185,13 +185,13 @@ void main() {
       expect(_segment('Epicbox'), findsOneWidget);
       expect(_segment('QR Payment'), findsOneWidget);
       expect(_segment('File'), findsNothing);
-      expect(_segment('Direct'), findsNothing);
+      expect(_segment('Link'), findsNothing);
     });
 
-    testWidgets('Send: the order is Epicbox · Direct · QR · File', (tester) async {
+    testWidgets('Send: the order is Epicbox · Link · QR · File', (tester) async {
       final h = _Harness(prefs: 'direct,file|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
-      final names = ['Epicbox', 'Direct', 'QR Payment', 'File'];
+      final names = ['Epicbox', 'Link', 'QR Payment', 'File'];
       final xs = [
         for (final n in names) tester.getTopLeft(_segment(n)).dx,
       ];

@@ -740,7 +740,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ];
     String methodName(PayMethod m) => switch (m) {
       PayMethod.epicbox => l.methodEpicbox,
-      PayMethod.direct => l.methodDirect,
+      PayMethod.direct => l.methodLinkPayment,
       PayMethod.qr => l.methodQr,
       PayMethod.file => l.methodFile,
     };
@@ -763,7 +763,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         HintSwitchTile(
           key: const ValueKey('tx-direct'),
           icon: Icons.link,
-          title: l.methodDirect,
+          title: l.methodLinkPayment,
           hint: l.txDirectHint,
           subtitle: Text(l.txDirectLine),
           value: payments.direct,

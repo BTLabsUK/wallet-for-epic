@@ -4672,10 +4672,10 @@ abstract class AppLocalizations {
   /// **'This is not a valid address. It looks like {example}'**
   String contactsAddressInvalid(String example);
 
-  /// Error under an address field that takes an Epicbox, a Direct (http/https) or an onion address, when the text is none of them.
+  /// Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'**
   String get contactsAddressInvalidAny;
 
   /// Title of the settings screen.
@@ -6301,7 +6301,7 @@ abstract class AppLocalizations {
   /// Caption above the wallet's full Tor address (the onion address) on the Receive tab; a tap on the card copies it.
   ///
   /// In en, this message translates to:
-  /// **'Tor address'**
+  /// **'Your link'**
   String get receiveTorAddressLabel;
 
   /// Screen reader label of the QR code of the wallet's Tor address.
@@ -7515,19 +7515,19 @@ abstract class AppLocalizations {
   /// **'Supports notifications'**
   String get serverSupportsNotifications;
 
-  /// Direct receive status icon state word: the wallet's Tor address is published and reachable.
+  /// Link receive status icon state word: the wallet's Tor address is published and reachable.
   ///
   /// In en, this message translates to:
   /// **'Reachable'**
   String get netStatusReachable;
 
-  /// Direct receive status icon state word: Tor is connected and the address is being published.
+  /// Link receive status icon state word: Tor is connected and the address is being published.
   ///
   /// In en, this message translates to:
   /// **'Publishing…'**
   String get netStatusPublishing;
 
-  /// Direct receive status icon state word: the Tor address could not be published.
+  /// Link receive status icon state word: the Tor address could not be published.
   ///
   /// In en, this message translates to:
   /// **'Not reachable'**
@@ -7539,10 +7539,10 @@ abstract class AppLocalizations {
   /// **'Opens the privacy settings'**
   String get netStatusTorOpenHint;
 
-  /// Screen reader hint on the Direct receive status icon: a tap opens the Receive tab's Direct address.
+  /// Screen reader hint on the Link receive status icon: a tap opens the Receive tab's Link address.
   ///
   /// In en, this message translates to:
-  /// **'Opens the Direct receive address'**
+  /// **'Opens the Link receive address'**
   String get netStatusDirectOpenHint;
 
   /// Screen reader hint on a status card row.
@@ -7809,16 +7809,16 @@ abstract class AppLocalizations {
   /// **'Epicbox'**
   String get methodEpicbox;
 
-  /// Method name: Direct, with HTTP as its transport. The Direct word, then a middle dot, then HTTP. Shown wherever a payment's method is named.
+  /// Method name: Link, with HTTP as its transport. The Link word, then a middle dot, then HTTP. Shown wherever a payment's method is named.
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP'**
+  /// **'Link Payment · HTTP'**
   String get methodDirectHttp;
 
-  /// Method name: Direct, with Tor as its transport. The Direct word, then a middle dot, then Tor. Shown wherever a payment's method is named.
+  /// Method name: Link, with Tor as its transport. The Link word, then a middle dot, then Tor. Shown wherever a payment's method is named.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor'**
+  /// **'Link Payment · Tor'**
   String get methodDirectTor;
 
   /// Method name: a transaction file handed over by hand.
@@ -8679,7 +8679,7 @@ abstract class AppLocalizations {
   /// **'Your payments address'**
   String get deskInvIssuerYourAddress;
 
-  /// Label of the choice how the request travels: Epicbox, File, Direct.
+  /// Label of the choice how the request travels: Epicbox, File, Link.
   ///
   /// In en, this message translates to:
   /// **'Method'**
@@ -8700,7 +8700,7 @@ abstract class AppLocalizations {
   /// Method: the payment comes straight to this wallet over HTTP or Tor.
   ///
   /// In en, this message translates to:
-  /// **'Direct'**
+  /// **'Link'**
   String get deskInvIssuerDirect;
 
   /// Why a method or button is disabled: not built yet.
@@ -9918,25 +9918,31 @@ abstract class AppLocalizations {
   /// Send and Receive method: straight to the other wallet, at an http(s) or onion address.
   ///
   /// In en, this message translates to:
-  /// **'Direct'**
+  /// **'Link'**
   String get methodDirect;
 
-  /// Under Send's empty To field on Direct: the two shapes a Direct address takes. Keep the addresses as they are.
+  /// Full name of the Link Payment method (Settings › Transactions, labels). The short chip name is methodDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Payment'**
+  String get methodLinkPayment;
+
+  /// Under Send's empty To field on Link: the two shapes a Link address takes. Keep the addresses as they are.
   ///
   /// In en, this message translates to:
   /// **'http://host:3415 or xxxx….onion'**
   String get methodDirectShape;
 
-  /// Send's strip line for Direct.
+  /// Send's strip line for Link.
   ///
   /// In en, this message translates to:
   /// **'Their wallet must be open. An onion address goes over Tor.'**
   String get methodSendDirectLine;
 
-  /// Screen reader label of the Direct picture.
+  /// Screen reader label of the Link picture.
   ///
   /// In en, this message translates to:
-  /// **'Direct: the payment goes straight to the recipient\'s wallet, which must be open'**
+  /// **'Link Payment: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get methodArtLabelDirect;
 
   /// Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No "app": the web demo shows it too.
@@ -9945,13 +9951,13 @@ abstract class AppLocalizations {
   /// **'Works with the wallet closed.'**
   String get methodReceiveEpicboxShort;
 
-  /// Receive's Direct strip title.
+  /// Receive's Link strip title.
   ///
   /// In en, this message translates to:
   /// **'Straight to this wallet.'**
   String get methodReceiveDirectTitle;
 
-  /// Receive's Direct strip line: the onion address answers only while the app runs.
+  /// Receive's Link strip line: the onion address answers only while the app runs.
   ///
   /// In en, this message translates to:
   /// **'Works while the app is open.'**
@@ -9963,22 +9969,22 @@ abstract class AppLocalizations {
   /// **'{line} Over Tor.'**
   String methodLineOverTor(String line);
 
-  /// Tag beside Send's To label for 3 s after the address moved the method to Direct.
+  /// Tag beside Send's To label for 3 s after the address moved the method to Link.
   ///
   /// In en, this message translates to:
-  /// **'Direct address'**
+  /// **'Link address'**
   String get sendSwitchedDirect;
 
-  /// Read out once when the address moved Send's method to Direct.
+  /// Read out once when the address moved Send's method to Link.
   ///
   /// In en, this message translates to:
-  /// **'Direct address. Method set to Direct.'**
+  /// **'Link address. Method set to Link.'**
   String get sendSwitchedDirectAnnounce;
 
-  /// Error under To when Direct is chosen and the text is not an http(s) or onion address.
+  /// Error under To when Link is chosen and the text is not an http(s) or onion address.
   ///
   /// In en, this message translates to:
-  /// **'A Direct address starts with http:// or https://, or ends in .onion.'**
+  /// **'A Link address starts with http:// or https://, or ends in .onion.'**
   String get sendDirectAddressShape;
 
   /// Tag on Send and Review: this connection stays on the clearnet although Tor is on.
@@ -10029,7 +10035,7 @@ abstract class AppLocalizations {
   /// **'Not connected'**
   String get torWordNotConnected;
 
-  /// Text link on Receive's Direct tab to Settings › Privacy.
+  /// Text link on Receive's Link tab to Settings › Privacy.
   ///
   /// In en, this message translates to:
   /// **'Tor settings'**
@@ -10050,16 +10056,16 @@ abstract class AppLocalizations {
   /// Receive tab: receiving straight to this wallet at its onion address.
   ///
   /// In en, this message translates to:
-  /// **'Direct'**
+  /// **'Link'**
   String get receiveTabDirect;
 
-  /// Receive's Direct tab while Tor is off.
+  /// Receive's Link tab while Tor is off.
   ///
   /// In en, this message translates to:
-  /// **'Direct receiving needs Tor.'**
+  /// **'Link receiving needs Tor.'**
   String get receiveDirectNeedsTor;
 
-  /// Caption under 'Direct receiving needs Tor.'
+  /// Caption under 'Link receiving needs Tor.'
   ///
   /// In en, this message translates to:
   /// **'Senders use the Epicbox address meanwhile.'**
@@ -10869,7 +10875,7 @@ abstract class AppLocalizations {
   /// **'The file was not made by Epic Cash Desktop or Epic Cash Mobile.'**
   String get deskErrHistNotOursText;
 
-  /// Hint under the Send address field when it is empty and the Direct method is chosen.
+  /// Hint under the Send address field when it is empty and the Link method is chosen.
   ///
   /// In en, this message translates to:
   /// **'Enter the recipient’s address'**
@@ -11586,7 +11592,7 @@ abstract class AppLocalizations {
   /// Title of the HTTP panel on Receive and of its QR code.
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP address'**
+  /// **'Link Payment · HTTP address'**
   String get deskRecvHttpAddress;
 
   /// Label of the copy button next to the HTTP address.
@@ -11622,7 +11628,7 @@ abstract class AppLocalizations {
   /// Title of the Tor panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor address'**
+  /// **'Link Payment · Tor address'**
   String get deskRecvDirectTor;
 
   /// Intro text of the Tor panel on Receive.
@@ -11634,7 +11640,7 @@ abstract class AppLocalizations {
   /// Title of the QR code of the Tor address on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor address'**
+  /// **'Link Payment · Tor address'**
   String get deskRecvTorAddress;
 
   /// Label of the copy button next to the Tor address.
@@ -11949,10 +11955,10 @@ abstract class AppLocalizations {
   /// **'This is not a valid Epicbox address.'**
   String get deskSendErrEpicbox;
 
-  /// Error under the To field on Send when the Direct method is chosen and the address is an Epicbox address.
+  /// Error under the To field on Send when the Link method is chosen and the address is an Epicbox address.
   ///
   /// In en, this message translates to:
-  /// **'This is not a Direct address.'**
+  /// **'This is not a Link address.'**
   String get deskSendErrNotDirect;
 
   /// Error under the To field on Send when the address looks like a Tor address but is not complete or valid.
@@ -12123,7 +12129,7 @@ abstract class AppLocalizations {
   /// **'Turn on Epicbox receiving'**
   String get deskSendEpicboxTurnOn;
 
-  /// Text of the Sent notice after a Direct send.
+  /// Text of the Sent notice after a Link send.
   ///
   /// In en, this message translates to:
   /// **'Finalized and posted to the network.'**
@@ -12153,10 +12159,10 @@ abstract class AppLocalizations {
   /// **'Review again'**
   String get deskSendReviewAgain;
 
-  /// Name of the Direct send method (an http(s) or onion address), in the method selector and in tags. Short.
+  /// Name of the Link send method (an http(s) or onion address), in the method selector and in tags. Short.
   ///
   /// In en, this message translates to:
-  /// **'Direct'**
+  /// **'Link'**
   String get deskSendMethodDirect;
 
   /// Name of the File send method (a transaction file), in the method selector. Short.
@@ -12228,7 +12234,7 @@ abstract class AppLocalizations {
   /// Note under the recipient field when Tor is on and the address is http(s).
   ///
   /// In en, this message translates to:
-  /// **'Direct to http(s) addresses goes over the clearnet, not Tor.'**
+  /// **'Link to http(s) addresses goes over the clearnet, not Tor.'**
   String get deskSendHttpClearnet;
 
   /// Button on the card of the contact picked as recipient: clears the recipient.
@@ -12417,13 +12423,13 @@ abstract class AppLocalizations {
   /// **'The Epicbox server holds the payment until they open their wallet.'**
   String get deskSendEpicboxLine2;
 
-  /// Bold first line under the method selector for the Direct method.
+  /// Bold first line under the method selector for the Link method.
   ///
   /// In en, this message translates to:
   /// **'Straight to their wallet.'**
   String get deskSendDirectLine1;
 
-  /// Second line under the method selector for the Direct method.
+  /// Second line under the method selector for the Link method.
   ///
   /// In en, this message translates to:
   /// **'An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.'**
@@ -12441,10 +12447,10 @@ abstract class AppLocalizations {
   /// **'Hand the file over, get their response file back, then finalize it here.'**
   String get deskSendFileLine2;
 
-  /// Small tag next to the To label after the method switched to Direct by itself. Short.
+  /// Small tag next to the To label after the method switched to Link by itself. Short.
   ///
   /// In en, this message translates to:
-  /// **'Direct'**
+  /// **'Link'**
   String get deskSendTagDirect;
 
   /// Small tag next to the To label after the method switched to File. Short.
@@ -12459,10 +12465,10 @@ abstract class AppLocalizations {
   /// **'Via Epicbox'**
   String get deskSendTagEpicbox;
 
-  /// Screen reader announcement when the method switched to Direct by itself.
+  /// Screen reader announcement when the method switched to Link by itself.
   ///
   /// In en, this message translates to:
-  /// **'Direct address. Method set to Direct.'**
+  /// **'Link address. Method set to Link.'**
   String get deskSendSwitchedDirect;
 
   /// Screen reader announcement when the method switched to File.
@@ -12507,16 +12513,16 @@ abstract class AppLocalizations {
   /// **'Epicbox (the recipient can be offline)'**
   String get deskSendViaEpicbox;
 
-  /// Value of the Via fact in the review dialog for a Direct send over http(s).
+  /// Value of the Via fact in the review dialog for a Link send over http(s).
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP (their wallet must be open)'**
+  /// **'Link Payment · HTTP (their wallet must be open)'**
   String get deskSendViaDirect;
 
-  /// Value of the Via fact in the review dialog for a Direct send to an onion address.
+  /// Value of the Via fact in the review dialog for a Link send to an onion address.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor (their wallet must be open)'**
+  /// **'Link Payment · Tor (their wallet must be open)'**
   String get deskSendViaTor;
 
   /// Value of the Via fact in the review dialog for a file send.
@@ -12555,7 +12561,7 @@ abstract class AppLocalizations {
   /// **'Check the highlighted characters against what the recipient gave.'**
   String get deskSendCheckChars;
 
-  /// Label of the fact that says how the payment goes (Epicbox, Direct, file) in the review dialog.
+  /// Label of the fact that says how the payment goes (Epicbox, Link, file) in the review dialog.
   ///
   /// In en, this message translates to:
   /// **'Via'**
@@ -13344,13 +13350,13 @@ abstract class AppLocalizations {
   /// Label above the address in a contact's detail, for a Tor address.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor address'**
+  /// **'Link Payment · Tor address'**
   String get deskConAddrTor;
 
   /// Label above the address in a contact's detail, for an HTTP address.
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP address'**
+  /// **'Link Payment · HTTP address'**
   String get deskConAddrHttp;
 
   /// Label above the note in a contact's detail; also the label of the note field in the form.
@@ -13404,7 +13410,7 @@ abstract class AppLocalizations {
   /// Error under the Address field of the contact form when the text is not an address.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'**
   String get deskConErrAddressInvalid;
 
   /// Small button in the contact form: add a picture. Only shown when contact pictures exist.
@@ -16560,7 +16566,7 @@ abstract class AppLocalizations {
   /// Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings.
   ///
   /// In en, this message translates to:
-  /// **'Open Direct · HTTP receiving'**
+  /// **'Open Link Payment · HTTP receiving'**
   String get deskRailOpenHttp;
 
   /// Status word on the sidebar's Tor row when this build of the app does not include Tor.
@@ -17034,13 +17040,13 @@ abstract class AppLocalizations {
   /// Screen-reader description of the HTTP picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
+  /// **'Link Payment · HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get deskKitHeroLabelHttp;
 
   /// Screen-reader description of the Tor picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
+  /// **'Link Payment · Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
   String get deskKitHeroLabelTor;
 
   /// Screen-reader description of the transaction-file picture on the Send page.
@@ -20267,7 +20273,7 @@ abstract class AppLocalizations {
   /// Settings > Receiving: heading of the HTTP group.
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP receiving'**
+  /// **'Link Payment · HTTP receiving'**
   String get deskSetRecvHttpTitle;
 
   /// Settings > Receiving: text of the HTTP receiving row.
@@ -20285,7 +20291,7 @@ abstract class AppLocalizations {
   /// Settings > Receiving: notice text in the HTTP group when Tor is on.
   ///
   /// In en, this message translates to:
-  /// **'Direct payments arrive at this wallet’s Tor address instead.'**
+  /// **'Link payments arrive at this wallet’s Tor address instead.'**
   String get deskSetRecvHttpOffText;
 
   /// Settings > Receiving: notice button that jumps to the Tor switch in Settings > Privacy.
@@ -21764,7 +21770,7 @@ abstract class AppLocalizations {
   /// **'Sent to the network'**
   String get deskTxBroadcastDone;
 
-  /// Payment detail, the line under the status of a Direct send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.
+  /// Payment detail, the line under the status of a Link send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.
   ///
   /// In en, this message translates to:
   /// **'Not delivered. The recipient\'s wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the funds.'**
@@ -22319,7 +22325,7 @@ abstract class AppLocalizations {
   /// Note under the network choice while Offline is selected.
   ///
   /// In en, this message translates to:
-  /// **'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node\'s own peers are the node\'s setting.'**
+  /// **'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Link Payment sends to local addresses still work. The node\'s own peers are the node\'s setting.'**
   String get advOfflineNote;
 
   /// Row at the end of the Advanced page: turns every visibility switch off. The network mode stays.
@@ -22463,7 +22469,7 @@ abstract class AppLocalizations {
   /// Hover card of the Network group on the Advanced page: what the three network modes do.
   ///
   /// In en, this message translates to:
-  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node\'s setting.'**
+  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use files; the built-in node keeps running, as its own peers are the node\'s setting.'**
   String get deskSetAdvNetworkHint;
 
   /// Network mode: direct connections.
@@ -22511,7 +22517,7 @@ abstract class AppLocalizations {
   /// Note under the chosen Offline mode on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.'**
+  /// **'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Link Payment to local addresses still work.'**
   String get deskSetAdvOfflineNote;
 
   /// Tag on a Tor mode when the build has no tor.
@@ -22568,7 +22574,7 @@ abstract class AppLocalizations {
   /// **'Waiting for Tor.'**
   String get netBlockWaitingForTor;
 
-  /// Line on Receive's Epicbox and Direct tabs while the Offline network mode is on; the address is still shown to hand out.
+  /// Line on Receive's Epicbox and Link tabs while the Offline network mode is on; the address is still shown to hand out.
   ///
   /// In en, this message translates to:
   /// **'Can\'t receive this way while Offline mode is on.'**
@@ -22862,7 +22868,7 @@ abstract class AppLocalizations {
   /// **'Open Advanced'**
   String get deskNetOpenAdvanced;
 
-  /// Second line of the notice on Send when the network mode holds Epicbox and Direct sends.
+  /// Second line of the notice on Send when the network mode holds Epicbox and Link sends.
   ///
   /// In en, this message translates to:
   /// **'A transaction file still works.'**
@@ -22958,16 +22964,16 @@ abstract class AppLocalizations {
   /// **'Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.'**
   String get txEpicboxHint;
 
-  /// One line under the Direct switch on Settings › Transactions.
+  /// One line under the Link switch on Settings › Transactions.
   ///
   /// In en, this message translates to:
   /// **'Pay onion and web addresses; get paid at this phone\'s Tor address.'**
   String get txDirectLine;
 
-  /// Info sheet text of the Direct switch on Settings › Transactions.
+  /// Info sheet text of the Link switch on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.'**
+  /// **'Link Payment sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Link Payment to Send and Receive.'**
   String get txDirectHint;
 
   /// One line under the File switch on Settings › Transactions.
@@ -23054,7 +23060,7 @@ abstract class AppLocalizations {
   /// **'Instead of {host}'**
   String deskNodeFailoverInsteadOf(String host);
 
-  /// Why a Direct send was refused in the Offline network mode: the address is not on this device or the local network.
+  /// Why a Link send was refused in the Offline network mode: the address is not on this device or the local network.
   ///
   /// In en, this message translates to:
   /// **'Offline: only local addresses.'**
@@ -23066,7 +23072,7 @@ abstract class AppLocalizations {
   /// **'Your node has no peers: the payment waits in its pool until it reconnects.'**
   String get netOfflineNoPeers;
 
-  /// Why a Direct send was refused in the Offline network mode: the address is not on this computer or the local network.
+  /// Why a Link send was refused in the Offline network mode: the address is not on this computer or the local network.
   ///
   /// In en, this message translates to:
   /// **'Offline: only local addresses.'**
@@ -23096,7 +23102,7 @@ abstract class AppLocalizations {
   /// **'Transactions'**
   String get deskSetFrameTransactions;
 
-  /// Title of the group on Settings › Transactions with one row per payment method (Epicbox, Direct, File).
+  /// Title of the group on Settings › Transactions with one row per payment method (Epicbox, Link, File).
   ///
   /// In en, this message translates to:
   /// **'Payment methods'**
@@ -23114,10 +23120,10 @@ abstract class AppLocalizations {
   /// **'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.'**
   String get deskSetTxEpicboxHint;
 
-  /// Hover card behind the info icon of the Direct row (switch) on Settings › Transactions.
+  /// Hover card behind the info icon of the Link row (switch) on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.'**
+  /// **'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Link Payment to Send and its address to Receive.'**
   String get deskSetTxDirectHint;
 
   /// Hover card behind the info icon of the File row (switch) on Settings › Transactions.

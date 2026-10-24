@@ -1,8 +1,8 @@
 import '../l10n.dart';
 import '../recipient.dart';
 
-/// The one place the phone names a payment method: Epicbox, Direct · HTTP, Direct · Tor or File.
-/// Direct is the method; HTTP and Tor are its transport, so neither stands alone as a method.
+/// The one place the phone names a payment method: Epicbox, Link Payment · HTTP, Link Payment · Tor or File.
+/// Link is the method; HTTP and Tor are its transport, so neither stands alone as a method.
 
 /// The name of a method as LEPIC names its transport (`epicbox`, `http`, `tor`, `file`), or
 /// "Unknown".

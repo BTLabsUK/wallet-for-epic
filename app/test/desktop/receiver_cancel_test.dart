@@ -95,7 +95,7 @@ void main() {
       expect(_cancelButton, findsNothing);
     });
 
-    // A Direct send (HTTP or Tor) is finalized and posted in one step: once out, it is a sent
+    // A Link send (HTTP or Tor) is finalized and posted in one step: once out, it is a sent
     // payment like any other, never cancelled in the wallet while the recipient has the coins.
     testWidgets('a send the node refused stays cancellable', (tester) async {
       await _pump(tester, _tx(incoming: false, method: TxMethod.tor, cancellable: false, notPosted: true), _Desk());
