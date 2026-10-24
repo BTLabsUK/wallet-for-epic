@@ -30,6 +30,21 @@ const ListenerState _stopped = ListenerState(stopped: true);
 
 void main() {
   group('walletStatus', () {
+    test('android-09: a connection lost while Tor starts is connecting, not offline', () {
+      final s = walletStatus(
+        tip: AsyncData(_tip),
+        syncing: false,
+        summary: _summary(),
+        listener: _lost,
+        waitingForTor: true,
+      );
+      expect(s.epicbox, EpicboxState.connecting);
+      expect(
+        walletStatus(tip: AsyncData(_tip), syncing: false, summary: _summary(), listener: _lost).epicbox,
+        EpicboxState.offline,
+      );
+    });
+
     test('a running refresh is syncing, with its percent', () {
       final s = walletStatus(
         tip: AsyncData(_tip),
