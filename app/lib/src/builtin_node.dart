@@ -988,7 +988,10 @@ class BuiltInNode {
 
   Future<bool> _isOurs(int pid) async {
     final exe = await _inspector.executable(pid);
-    if (exe == null || !_sameFile(exe, binary)) return false;
+    // The same binary, or one of the same name: an AppImage mounts at a new /tmp/.mount_*
+    // each run, so the node an earlier run left is the same program at another path. The
+    // command line below, naming this node's own toml, is what makes it ours.
+    if (exe == null || !(_sameFile(exe, binary) || _sameName(exe, binary))) return false;
     final cmd = await _inspector.commandLine(pid);
     if (cmd == null) return false;
     final tokens = cmd.expand((a) => a.split(RegExp(r'\s+'))).toSet();
@@ -1011,6 +1014,17 @@ class BuiltInNode {
     }
 
     return a == b || norm(a) == norm(b);
+  }
+
+  bool _sameName(String a, String b) {
+    String name(String p) {
+      var s = p.replaceAll(r'\', '/');
+      if (s.endsWith(' (deleted)')) s = s.substring(0, s.length - ' (deleted)'.length);
+      s = s.substring(s.lastIndexOf('/') + 1);
+      return _windows ? s.toLowerCase() : s;
+    }
+
+    return name(a) == name(b);
   }
 
   static Future<void> _deleteQuietly(File f) async {
@@ -1428,8 +1442,9 @@ class _RealInspector implements ProcessInspector {
     try {
       if (_windows) return (await _win(pid))?.first.trim();
       if (Platform.isLinux) {
+        // A binary whose file or mount is gone (an earlier AppImage run) keeps its path.
         final t = await Link('/proc/$pid/exe').target();
-        return t.endsWith(' (deleted)') ? null : t;
+        return t.endsWith(' (deleted)') ? t.substring(0, t.length - ' (deleted)'.length) : t;
       }
       final r = await Process.run('ps', ['-o', 'comm=', '-p', '$pid']);
       final out = (r.stdout as String).trim();
