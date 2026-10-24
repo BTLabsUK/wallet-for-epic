@@ -236,6 +236,7 @@ class Tx {
     this.fromBackup = false,
     this.cancellable = false,
     this.notPosted = false,
+    this.undelivered = false,
     this.confirmedAt,
     this.detail,
     this.flow = TxFlow.payment,
@@ -284,6 +285,10 @@ class Tx {
   /// Our send, finalized but refused by the node (or never answered): stored for a repost, its
   /// outputs locked. It can still be cancelled; the core asks the node first.
   final bool notPosted;
+
+  /// An Epicbox send no attempt has delivered to the relay: [DeskWalletApi.resendEpicbox] sends
+  /// it again. Never set for the send being made right now.
+  final bool undelivered;
   final DateTime? confirmedAt;
 
   /// Why the state is what it is, when that is not obvious: where an imported transaction came

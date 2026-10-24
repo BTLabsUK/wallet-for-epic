@@ -6021,4 +6021,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'Unlock now';
+
+  @override
+  String get txStatusNotDelivered => 'Not delivered';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      'This payment did not reach the epicbox yet, so the recipient has not received it. Your funds stay locked until it is sent again or cancelled.';
+
+  @override
+  String get txDetailsSendAgainDone =>
+      'Sent again. It completes when their wallet comes online.';
 }

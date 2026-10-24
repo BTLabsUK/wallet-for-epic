@@ -716,7 +716,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsAddToContacts => 'Добавить в контакты';
 
   @override
-  String get txDetailsSendAgain => 'Отправить ещё раз';
+  String get txDetailsSendAgain => 'Отправить снова';
 
   @override
   String get txDetailsFee => 'Комиссия';
@@ -6207,4 +6207,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'Разблокировать сейчас';
+
+  @override
+  String get txStatusNotDelivered => 'Не доставлено';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      'Этот платёж ещё не дошёл до epicbox, поэтому получатель его не получил. Средства остаются заблокированными, пока платёж не отправят повторно или не отменят.';
+
+  @override
+  String get txDetailsSendAgainDone =>
+      'Отправлено снова. Платёж завершится, когда кошелёк получателя выйдет в сеть.';
 }

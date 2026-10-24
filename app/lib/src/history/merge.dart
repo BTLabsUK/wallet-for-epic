@@ -107,6 +107,7 @@ class MergedTx {
       ttlCutoffHeight = e.ttlCutoffHeight,
       cancellable = e.cancellable,
       repostable = e.repostable,
+      undelivered = e.undelivered,
       statusDetail = e.statusDetail,
       releasable = e.releasable,
       finalizedAtUnix = e.finalizedAtUnix,
@@ -141,6 +142,7 @@ class MergedTx {
   BigInt? ttlCutoffHeight;
   bool cancellable;
   bool repostable;
+  bool undelivered;
   String? statusDetail;
   bool releasable;
   int? finalizedAtUnix;
@@ -183,6 +185,7 @@ class MergedTx {
     ttlCutoffHeight: ttlCutoffHeight,
     cancellable: cancellable,
     repostable: repostable,
+    undelivered: undelivered,
     statusDetail: statusDetail,
     releasable: releasable,
     finalizedAtUnix: finalizedAtUnix,

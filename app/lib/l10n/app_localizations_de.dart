@@ -6099,4 +6099,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'Jetzt entsperren';
+
+  @override
+  String get txStatusNotDelivered => 'Nicht zugestellt';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      'Diese Zahlung hat die Epicbox noch nicht erreicht, deshalb hat der Empfänger sie nicht erhalten. Dein Guthaben bleibt gesperrt, bis sie erneut gesendet oder storniert wird.';
+
+  @override
+  String get txDetailsSendAgainDone =>
+      'Erneut gesendet. Die Zahlung wird abgeschlossen, sobald die Wallet des Empfängers online ist.';
 }

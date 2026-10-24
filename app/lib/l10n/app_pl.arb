@@ -1545,5 +1545,9 @@
   "deskKeyringMissingText": "Epic Cash przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, ale żaden nie odpowiedział. Zainstaluj lub uruchom pęk kluczy (GNOME Keyring lub KWallet), zaloguj się do sesji pulpitu, która go uruchamia, a potem wybierz Ponów.",
   "deskKeyringLockedTitle": "Pęk kluczy jest zablokowany",
   "deskKeyringLockedText": "Epic Cash przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, który jest zablokowany. Odblokuj go (otwiera się hasłem logowania), a potem wybierz Ponów, albo wybierz Odblokuj teraz, aby system o nie poprosił.",
-  "deskKeyringUnlockNow": "Odblokuj teraz"
+  "deskKeyringUnlockNow": "Odblokuj teraz",
+  "txStatusNotDelivered": "Nie dostarczono",
+  "txDetailsNotDeliveredBody": "Ta płatność nie dotarła jeszcze do epicboxa, więc odbiorca jej nie dostał. Środki pozostają zablokowane, dopóki nie zostanie wysłana ponownie lub anulowana.",
+  "txDetailsSendAgain": "Wyślij ponownie",
+  "txDetailsSendAgainDone": "Wysłano ponownie. Płatność zakończy się, gdy portfel odbiorcy będzie online."
 }

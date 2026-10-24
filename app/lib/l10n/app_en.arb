@@ -7595,5 +7595,21 @@
   "deskKeyringUnlockNow": "Unlock now",
   "@deskKeyringUnlockNow": {
     "description": "Desktop, Linux, locked keyring: go on, and the system asks for the keyring's password."
+  },
+  "txStatusNotDelivered": "Not delivered",
+  "@txStatusNotDelivered": {
+    "description": "Status chip of an Epicbox payment no attempt has delivered to the relay."
+  },
+  "txDetailsNotDeliveredBody": "This payment did not reach the epicbox yet, so the recipient has not received it. Your funds stay locked until it is sent again or cancelled.",
+  "@txDetailsNotDeliveredBody": {
+    "description": "Explanation under the status of a payment that was not delivered."
+  },
+  "txDetailsSendAgain": "Send again",
+  "@txDetailsSendAgain": {
+    "description": "Button: send the undelivered payment again."
+  },
+  "txDetailsSendAgainDone": "Sent again. It completes when their wallet comes online.",
+  "@txDetailsSendAgainDone": {
+    "description": "Notice after the payment was sent again."
   }
 }
