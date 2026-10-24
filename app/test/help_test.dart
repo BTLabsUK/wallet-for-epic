@@ -161,6 +161,8 @@ void main() {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
       await tester.scrollUntilVisible(find.text('Fees'), 300, scrollable: _list);
+      await tester.ensureVisible(find.text('Fees'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Fees'));
       await tester.pumpAndSettle();
       expect(find.byType(HelpTopicScreen), findsOneWidget);

@@ -420,7 +420,7 @@ class _RailRowState extends State<RailRow> {
                 Row(
                   children: [
                     Flexible(child: Text(i.second, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: secondStyle)),
-                    if (i.marker != null) Text(' · ${i.marker}', maxLines: 1, softWrap: false, style: ts.caption.copyWith(color: c.dim, height: 15 / Fs.xs)),
+                    if (i.marker != null) Flexible(child: Text(' · ${i.marker}', maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.caption.copyWith(color: c.dim, height: 15 / Fs.xs))),
                   ],
                 ),
               ],
