@@ -24,7 +24,7 @@ import 'tor_routes.dart';
 import 'wallet_service.dart';
 
 /// What the user is told, in the app's words (`app.dart` shows it, where the language is known).
-enum PushNote { on, off, available }
+enum PushNote { on, off, offEpicbox, available }
 
 /// One thing to tell the user; every event is a new object, so the same note again shows again.
 class PushNoteEvent {
@@ -134,6 +134,15 @@ class PushController extends Notifier<bool> {
       if (before == after || session == null || !pushAllowed(after)) return;
       unawaited(_sync(session, why: 'network mode'));
     });
+    // Epicbox turned off (Settings › Transactions): notifications go off with it, and stay
+    // off when it comes back (the switch is the user's), with one notice.
+    ref.listen(appSettingsProvider.select((s) => s.value?.payments.epicbox), (before, after) {
+      if (before != true || after != false) return;
+      unawaited(_exclusive(() async {
+        if (!(await ref.read(appSettingsProvider.future)).pushNotifications) return;
+        await _turnOff(note: PushNote.offEpicbox);
+      }));
+    });
     // A new token from Firebase: register it.
     ref.listen(pushProvider.select((s) => s.token), (_, token) {
       if (token != null) unawaited(_serial(() => _registerToken(token)));
@@ -167,8 +176,11 @@ class PushController extends Notifier<bool> {
     return await ref.read(pushConfiguredProvider.future);
   }
 
-  Future<bool> _wanted() async =>
-      (await ref.read(appSettingsProvider.future)).pushNotifications;
+  /// Notifications are on, and so is Epicbox (they ride on it: Settings › Transactions).
+  Future<bool> _wanted() async {
+    final s = await ref.read(appSettingsProvider.future);
+    return s.pushNotifications && s.payments.epicbox;
+  }
 
   Future<void> _setWanted(bool on) =>
       ref.read(appSettingsProvider.notifier).setPushNotifications(on);
@@ -302,14 +314,14 @@ class PushController extends Notifier<bool> {
   /// off (with Tor on there is nothing registered and nothing is sent).
   Future<void> turnOff() => _exclusive(_turnOff);
 
-  Future<void> _turnOff() async {
+  Future<void> _turnOff({PushNote note = PushNote.off}) async {
     final session = ref.read(sessionProvider);
     final token = ref.read(pushProvider).token;
     final torOff = await _clearnet();
     await _setWanted(false);
     _registered = null;
     state = false;
-    ref.read(pushNoteProvider.notifier).say(PushNote.off);
+    ref.read(pushNoteProvider.notifier).say(note);
     if (torOff) {
       if (session != null && token != null) {
         await _registration.unregister(session, token);

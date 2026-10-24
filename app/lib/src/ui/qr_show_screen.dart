@@ -1,7 +1,8 @@
 /// Shows a payment file, or the reply to one, as an animated QR code for a phone next to this
 /// one. The code stays hidden until the user shows it, then counts 3, 2, 1, shows for
 /// [qrShowSeconds] with a time line, and hides again; it also hides the moment the app leaves
-/// the screen. The whole route blocks screenshots where the phone can.
+/// the screen. While the code shows, the screen is at full brightness ([QrBrightness]). The
+/// whole route blocks screenshots where the phone can.
 library;
 
 import 'dart:async';
@@ -16,6 +17,7 @@ import '../l10n.dart';
 import '../models.dart' show TxEntry;
 import '../providers.dart';
 import '../qr_slate.dart';
+import '../screen_brightness.dart';
 import '../secure_screen.dart';
 import 'common.dart';
 import 'qr_common.dart';
@@ -322,6 +324,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     _revealCurve.dispose();
     _reveal.dispose();
     _frame.dispose();
+    unawaited(QrBrightness.releaseBrightness());
     unawaited(setSecureScreen(false));
     PortraitLock.release();
     super.dispose();
@@ -369,6 +372,8 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
 
   void _show() {
     unawaited(tap(HapticFeedback.selectionClick));
+    // Full brightness while the code shows, for the camera; back when it hides.
+    unawaited(QrBrightness.holdFullBrightness());
     _frame.value = 0;
     setState(() {
       _phase = QrShowPhase.showing;
@@ -395,6 +400,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
 
   /// Hides the code and shows the cover for [phase].
   void _cover(QrShowPhase phase) {
+    unawaited(QrBrightness.releaseBrightness());
     _stopTimers();
     _time.stop();
     _draw.reset();

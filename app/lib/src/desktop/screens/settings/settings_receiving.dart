@@ -31,8 +31,8 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.off => ETone.neutral,
 };
 
-/// Settings › Transactions (spec 6.1, 26.10.13): how payments are made. Payment methods (Epicbox
-/// always on, Direct and File switches), what Send starts on and, with Advanced › Send options,
+/// Settings › Transactions (spec 6.1, 26.10.13): how payments are made. Payment methods (one
+/// switch each: Epicbox on by default, Direct and File), what Send starts on and, with Advanced › Send options,
 /// its defaults; then one group per receiving method, each the same three parts: Receiving
 /// (switch and state line), Start with the wallet, then the method's options. Direct's group
 /// shows while Direct is on or its listener runs.
@@ -229,7 +229,37 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     await _saveAutostart(s.copyWith(payments: change(s.payments)));
   }
 
-  /// A method's row in Payment methods: its name, one hint, and a switch or the Always on tag.
+  /// Epicbox off while sends still wait for their replies over Epicbox: "Turn Epicbox off?".
+  Future<bool> _confirmEpicboxOff(int waiting) async {
+    final yes = await showEDialog<bool>(
+      context,
+      builder: (context) {
+        final l = context.l10n;
+        return EDialog(
+          title: l.txEpicboxOffTitle,
+          description: l.txEpicboxOffPending(waiting),
+          icon: EIcons.epicbox,
+          actions: [
+            EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop(false)),
+            EButton.primary(label: l.txEpicboxOffAction, onPressed: () => Navigator.of(context).pop(true)),
+          ],
+        );
+      },
+    );
+    return yes == true;
+  }
+
+  Future<void> _setEpicbox(bool on) async {
+    if (!on) {
+      final waiting = (ref.read(deskProvider).txs ?? const <Tx>[])
+          .where((t) => t.method == TxMethod.epicbox && t.state == TxState.waitingRecipient && !t.incoming)
+          .length;
+      if (waiting > 0 && !await _confirmEpicboxOff(waiting)) return;
+    }
+    await _savePayments((x) => x.copyWith(epicbox: on));
+  }
+
+  /// A method's row in Payment methods: its name, one hint, and its switch.
   Widget _methodRow(PayMethod m, PaymentPrefs p) {
     final l = context.l10n;
     final name = switch (m) {
@@ -249,14 +279,16 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       title: name,
       hint: hint,
       hintTitle: name,
-      control: m == PayMethod.epicbox
-          ? EBadge(l.deskSetTxAlwaysOn, tone: ETone.ok)
-          : ESwitch(
-              key: ValueKey('st-offer-${m.name}'),
-              value: p.offers(m),
-              semanticLabel: name,
-              onChanged: (v) => _savePayments((x) => m == PayMethod.direct ? x.copyWith(direct: v) : x.copyWith(file: v)),
-            ),
+      control: ESwitch(
+        key: ValueKey('st-offer-${m.name}'),
+        value: p.offers(m),
+        semanticLabel: name,
+        onChanged: (v) => switch (m) {
+          PayMethod.epicbox => _setEpicbox(v),
+          PayMethod.direct => _savePayments((x) => x.copyWith(direct: v)),
+          _ => _savePayments((x) => x.copyWith(file: v)),
+        },
+      ),
     );
   }
 
@@ -363,7 +395,11 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final status = _status(raw);
     final s = st.settings;
     final box = status.epicbox;
-    final ebLine = methodStateLine(l, TxMethod.epicbox, status, s);
+    // The Epicbox switch off: the group reads Off with the reason, its Receiving switch waits.
+    final ebOff = !s.payments.epicbox;
+    final ebLine = ebOff
+        ? MethodLine(l.deskKitMethodOff, EState.off, detail: l.netBlockEpicboxOff)
+        : methodStateLine(l, TxMethod.epicbox, status, s);
     final httpLine = methodStateLine(l, TxMethod.http, status, s);
 
     return SettingsFrame(
@@ -377,9 +413,10 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             _receivingRow(
               TxMethod.epicbox,
               l.deskSetRecvEpicboxText,
-              status.epicboxHealth != ServiceHealth.off,
+              !ebOff && status.epicboxHealth != ServiceHealth.off,
               ebLine,
-              notice: status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice() : null,
+              enabled: !ebOff,
+              notice: !ebOff && status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice() : null,
             ),
             _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
             ESetRow(

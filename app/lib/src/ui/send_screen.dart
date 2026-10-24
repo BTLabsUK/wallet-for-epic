@@ -1657,10 +1657,23 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// What it allows the File method: Offline stops making a file too (it asks the node),
   /// unless the node is local.
-  NetBlock _fileBlock = NetBlock.none;
-
-  /// What it allows finishing a file (finalize and post, which reach only the node).
+  /// What the network mode allows finishing and posting a file or QR Payment, which reach
+  /// only the node: Tor only waits for tor; Offline lets them use the node in use. Making a
+  /// file waits for nothing (LEPIC asks the node for its tip, which Offline allows too).
   NetBlock _postBlock = NetBlock.none;
+
+  /// Offline on a node that is not local: the file steps carry [OfflineNodeNote].
+  bool _offlineNode = false;
+
+  /// Epicbox off, and the recipient is a saved contact: the reason, then that the contact can
+  /// be paid only over Epicbox. Null leaves the standard reason.
+  String? _epicboxOffLine(NetBlock note) {
+    if (note != NetBlock.epicboxOff) return null;
+    final name = _contactName(parseRecipient(_recipient.text).address);
+    if (name == null) return null;
+    final l = context.l10n;
+    return '${l.netBlockEpicboxOff} ${l.sendContactOnlyEpicbox(name)}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1668,9 +1681,11 @@ class _SendViewState extends ConsumerState<SendView> {
     // any other) and the File method run.
     final localNode = ref.watch(localNodeProvider);
     final direct = _method == TransferMethod.direct && parseRecipient(_recipient.text).kind != RecipientKind.tor;
-    _block = watchNetBlock(context, ref, localNode: localNode && direct);
-    _fileBlock = fileBlockFor(AdvancedOptions.of(context).networkMode, localNode: localNode);
-    _postBlock = watchNetBlock(context, ref, localNode: localNode);
+    _block = watchNetBlock(context, ref, localNode: localNode && direct, epicbox: _method == TransferMethod.epicbox);
+    // A file or QR Payment is made, finalized and posted through the node in use, which
+    // Offline allows on any node (the note under the button says so).
+    _postBlock = watchNetBlock(context, ref, localNode: true);
+    _offlineNode = watchOfflineUsesNode(context, ref);
     // An estimate made against the old balance is stale: coins that confirmed may cover it
     // now, or a send elsewhere may have spent them (F-06).
     ref.listen(homeProvider.select((home) => home.value?.summary.spendable), (
@@ -1728,7 +1743,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final note = switch (_stage) {
       SendStage.recipient || SendStage.amount => _block,
       SendStage.review when !_sendFailed => _block,
-      SendStage.fileAmount => _fileBlock,
+      // Making a file needs no connection of its own (Tor only without tor makes it too).
       SendStage.fileMade => _postBlock,
       _ => NetBlock.none,
     };
@@ -1737,16 +1752,20 @@ class _SendViewState extends ConsumerState<SendView> {
         note == NetBlock.none &&
         (_stage == SendStage.review || _stage == SendStage.fileMade) &&
         ref.watch(offlineNodePeersProvider).value == 0;
+    // Offline on a node that is not local: the file steps say the node is used.
+    final offlineNode = _offlineNode && note == NetBlock.none && (_stage == SendStage.fileAmount || _stage == SendStage.fileMade);
     return ScreenBody(
-      bottom: note != NetBlock.none || noPeers
+      bottom: note != NetBlock.none || noPeers || offlineNode
           ? Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (noPeers)
                   NetBlockNote(NetBlock.none, key: offlineNoPeersKey, line: context.l10n.netOfflineNoPeers)
+                else if (offlineNode)
+                  const OfflineNodeNote()
                 else
-                  NetBlockNote(note),
+                  NetBlockNote(note, line: _epicboxOffLine(note)),
                 bottom,
               ],
             )
@@ -1885,7 +1904,10 @@ class _SendViewState extends ConsumerState<SendView> {
       ref.watch(homeProvider.select((h) => h.value?.transactions)),
     );
     final segments = [
-      segment(TransferMethod.epicbox, EpicGlyphs.epicbox, l.methodEpicbox),
+      // Epicbox off (Settings › Transactions) hides it too; a pasted Epicbox address brings it
+      // back for this send, where the note says it is off.
+      if (selected == TransferMethod.epicbox || payments.epicbox)
+        segment(TransferMethod.epicbox, EpicGlyphs.epicbox, l.methodEpicbox),
       if (selected == TransferMethod.direct || payments.direct)
         segment(TransferMethod.direct, EpicGlyphs.link, l.methodDirect),
       if (selected == TransferMethod.qr || (payments.qr && offersQrPayment(ref)))
@@ -2759,7 +2781,7 @@ class _SendViewState extends ConsumerState<SendView> {
   Widget _fileAmountAction() => BusyButton(
     label: _viaQr ? context.l10n.sendMakeQr : context.l10n.sendMakeFile,
     busy: _busy,
-    onPressed: _amountReady && _fileBlock == NetBlock.none ? _createFile : null,
+    onPressed: _amountReady ? _createFile : null,
   );
 
   /// The file route's three steps, [at] the current one (3 when all are done).

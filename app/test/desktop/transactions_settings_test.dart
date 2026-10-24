@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,14 +21,21 @@ const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.
 /// The mock wallet; [pendingFile] false drops its file send that waits for a response, so a
 /// test sees the page with no file in flight.
 class _Wallet extends MockDeskWallet {
-  _Wallet({this.pendingFile = true}) : super(delay: Duration.zero);
+  _Wallet({this.pendingFile = true, this.pendingEpicbox = false}) : super(delay: Duration.zero);
 
   final bool pendingFile;
+
+  /// Adds a send over Epicbox that still waits for the recipient's reply.
+  final bool pendingEpicbox;
 
   @override
   Future<List<Tx>> transactions() async {
     final all = await super.transactions();
-    return pendingFile ? all : all.where((t) => !(t.method == TxMethod.file && t.state == TxState.waitingRecipient && !t.incoming)).toList();
+    return [
+      if (pendingEpicbox)
+        Tx(id: 990, slateId: 'waiting-epicbox', direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.epicbox, amount: 100000000, fee: 7000000, cancellable: true, created: DateTime(2026, 10, 24), counterparty: 'Anna Kowalska'),
+      ...pendingFile ? all : all.where((t) => !(t.method == TxMethod.file && t.state == TxState.waitingRecipient && !t.incoming)),
+    ];
   }
 }
 
@@ -40,11 +48,13 @@ Future<void> _open(
   PaymentPrefs payments = PaymentPrefs.defaults,
   AdvancedPrefs advanced = AdvancedPrefs.none,
   bool pendingFile = true,
+  bool pendingEpicbox = false,
 }) async {
   tester.view.physicalSize = const Size(1280, 1600);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  _container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_Wallet(pendingFile: pendingFile))], retry: (_, _) => null);
+  addTearDown(() => NetGate.setEpicbox(true));
+  _container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_Wallet(pendingFile: pendingFile, pendingEpicbox: pendingEpicbox))], retry: (_, _) => null);
   addTearDown(_container.dispose);
   await tester.runAsync(() async {
     final n = _container.read(deskProvider.notifier);
@@ -75,12 +85,12 @@ Finder _offer(String m) => find.byKey(ValueKey('st-offer-$m'));
 
 void main() {
   group('the page', () {
-    testWidgets('Receiving became Transactions: the entry, the groups, Epicbox always on', (tester) async {
+    testWidgets('Receiving became Transactions: the entry, the groups, Epicbox a switch that is on', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       expect(find.text('Transactions'), findsWidgets);
       expect(find.text('Payment methods'), findsOneWidget);
-      expect(find.text('Always on'), findsOneWidget);
-      expect(find.byKey(const ValueKey('st-offer-epicbox')), findsNothing, reason: 'Epicbox has no switch');
+      expect(find.text('Always on'), findsNothing);
+      expect(tester.widget<ESwitch>(_offer('epicbox')).value, isTrue);
       expect(_offer('direct'), findsOneWidget);
       expect(_offer('file'), findsOneWidget);
       // The existing Epicbox receiving group is on the same page, nothing is duplicated.
@@ -106,6 +116,43 @@ void main() {
       await _settle(tester);
       expect(_payments.direct, isFalse);
       expect(find.byKey(const ValueKey('st-switch-http')), findsNothing);
+    });
+
+    testWidgets('the Epicbox switch saves, stops the listener, the group reads Off with the reason, and comes back on', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving);
+      expect(_container.read(deskProvider).status?.epicboxHealth, isNot(ServiceHealth.off));
+      await tester.tap(_offer('epicbox'));
+      await _settle(tester);
+      expect(_payments.epicbox, isFalse);
+      expect(NetGate.epicbox, isFalse);
+      expect(_container.read(deskProvider).status?.epicboxHealth, ServiceHealth.off);
+      expect(find.textContaining('Epicbox is off in Settings › Transactions.', findRichText: true), findsWidgets);
+      final receiving = tester.widget<ESwitch>(find.byKey(const ValueKey('st-switch-epicbox')));
+      expect(receiving.value, isFalse);
+      expect(receiving.onChanged, isNull, reason: 'nothing to turn on while the method is off');
+      // No confirm: nothing waited for a reply.
+      expect(find.text('Turn Epicbox off?'), findsNothing);
+      await tester.tap(_offer('epicbox'));
+      await _settle(tester);
+      expect(_payments.epicbox, isTrue);
+      expect(NetGate.epicbox, isTrue);
+      expect(tester.widget<ESwitch>(find.byKey(const ValueKey('st-switch-epicbox'))).onChanged, isNotNull);
+    });
+
+    testWidgets('Epicbox off while a send waits for its reply over Epicbox asks first', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving, pendingEpicbox: true);
+      await tester.tap(_offer('epicbox'));
+      await _settle(tester);
+      expect(find.text('Turn Epicbox off?'), findsOneWidget);
+      expect(find.text('A payment is waiting for its reply over Epicbox. It arrives when Epicbox is on again.'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await _settle(tester);
+      expect(_payments.epicbox, isTrue);
+      await tester.tap(_offer('epicbox'));
+      await _settle(tester);
+      await tester.tap(find.text('Turn off'));
+      await _settle(tester);
+      expect(_payments.epicbox, isFalse);
     });
 
     testWidgets('the File switch saves', (tester) async {
@@ -280,6 +327,15 @@ void main() {
       expect(_segments<TxMethod>(tester), contains('File'));
     });
 
+    testWidgets('Epicbox off: the segment is disabled with the reason, the notice names a contact with only that address', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', amount: '1'), payments: const PaymentPrefs(epicbox: false));
+      final epicbox = tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>).first).segments.firstWhere((s) => s.label == 'Epicbox');
+      expect(epicbox.enabled, isFalse);
+      expect(epicbox.tooltip, 'Epicbox is off in Settings › Transactions.');
+      expect(find.byKey(const ValueKey('send-epicbox-off')), findsOneWidget);
+      expect(find.text('Anna Kowalska has only an Epicbox address.'), findsOneWidget);
+    });
+
     testWidgets('Epicbox not connected keeps the file fallback with the switch off', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.down), payments: const PaymentPrefs(file: false));
       expect(_segments<TxMethod>(tester), contains('File'));
@@ -306,6 +362,13 @@ void main() {
       expect(_payments.direct, isFalse);
       expect(find.text('Link Payment · HTTP address'), findsWidgets);
       expect(_railHttp, findsOneWidget);
+    });
+
+    testWidgets('Epicbox off: the notice stands in the address panel\'s place', (tester) async {
+      await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(epicbox: false));
+      expect(find.byKey(const ValueKey('rx-epicbox-off')), findsOneWidget);
+      expect(find.text('Epicbox is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Epicbox address'), findsNothing);
     });
 
     testWidgets('File off: the Files panel is gone', (tester) async {

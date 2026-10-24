@@ -114,14 +114,16 @@ class ReceiveView extends ConsumerWidget {
     );
     // With Epicbox alone there is nothing to choose: the strip names it.
     final tabSegments = <ButtonSegment<ReceiveTab>>[
-        ButtonSegment(
-          value: ReceiveTab.epicbox,
-          icon: const Icon(EpicGlyphs.epicbox),
-          label: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(l.receiveTabEpicbox, maxLines: 1),
+        // Epicbox off (Settings › Transactions): no address to hand out, no tab.
+        if (payments.epicbox)
+          ButtonSegment(
+            value: ReceiveTab.epicbox,
+            icon: const Icon(EpicGlyphs.epicbox),
+            label: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(l.receiveTabEpicbox, maxLines: 1),
+            ),
           ),
-        ),
         // Settings › Transactions says which are offered; Tor receiving on (or starting, or
         // failed) keeps Direct, and so does the tab in use.
         if (torAvailable &&
@@ -157,6 +159,22 @@ class ReceiveView extends ConsumerWidget {
           ),
         ),
     ];
+    // Every method off: nothing to show but the way to Settings.
+    if (tabSegments.isEmpty) {
+      return CenteredScroll(
+        child: EmptyState(
+          key: receiveNoMethodsKey,
+          icon: const Icon(Icons.call_received),
+          message: '${l.receiveNoMethods}. ${l.receiveNoMethodsBody}',
+          action: FilledButton.tonal(
+            onPressed: () => openSettingsSection(context, SettingsSection.transactions),
+            child: Text(l.receiveNoMethodsButton),
+          ),
+        ),
+      );
+    }
+    // The tab in use went off: the first that is on.
+    if (!tabSegments.any((s) => s.value == tab)) tab = tabSegments.first.value;
     final Widget tabs = tabSegments.length == 1
         ? const SizedBox.shrink()
         : SegmentedButton<ReceiveTab>(
@@ -656,9 +674,9 @@ class _EpicboxLine extends ConsumerWidget {
     final offline = epicbox == null || epicbox == EpicboxState.offline;
     final (IconData icon, String word, Color color) =
         epicbox == EpicboxState.online
-        ? (Icons.mark_email_read_outlined, l.statusEpicboxOnline, t.ok)
+        ? (EpicGlyphs.epicbox, l.statusEpicboxOnline, t.ok)
         : offline
-        ? (Icons.unsubscribe_outlined, l.statusEpicboxOffline, t.risk)
+        ? (EpicGlyphs.epicbox, l.statusEpicboxOffline, t.risk)
         : (EpicGlyphs.epicbox, l.statusEpicboxConnecting, t.dim);
     final config = ref.watch(walletConfigProvider);
     return Column(
@@ -844,12 +862,9 @@ class _QrCard extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
-    // Scanning a payment asks the node to sign, like opening a file: Offline stops it, with
-    // the reason, unless the node is local.
-    final block = fileBlockFor(
-      AdvancedOptions.of(context).networkMode,
-      localNode: ref.watch(localNodeProvider),
-    );
+    // Scanning a payment asks the node to sign, like opening a file: Offline lets it use the
+    // node in use, and says so when that node is not local.
+    final offlineNode = watchOfflineUsesNode(context, ref);
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -891,14 +906,12 @@ class _QrCard extends ConsumerWidget {
               ),
               icon: const Icon(Icons.qr_code_scanner),
               label: Text(l.qrScanPayment),
-              onPressed: block != NetBlock.none
-                  ? null
-                  : () => scanSlateQr(context, ref),
+              onPressed: () => scanSlateQr(context, ref),
             ),
-            if (block != NetBlock.none)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: NetBlockNote(block),
+            if (offlineNode)
+              const Padding(
+                padding: EdgeInsets.only(top: 4),
+                child: OfflineNodeNote(),
               ),
           ],
         ),
@@ -916,9 +929,9 @@ class _FileCard extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
-    // Opening or pasting a file asks the node: Offline stops it, with the reason, unless the
-    // node is local.
-    final block = fileBlockFor(AdvancedOptions.of(context).networkMode, localNode: ref.watch(localNodeProvider));
+    // Opening or pasting a file asks the node: Offline lets it use the node in use, and says
+    // so when that node is not local.
+    final offlineNode = watchOfflineUsesNode(context, ref);
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -966,9 +979,7 @@ class _FileCard extends ConsumerWidget {
                       ),
                       icon: const Icon(Icons.file_open_outlined),
                       label: Text(l.receiveFileOpen),
-                      onPressed: block != NetBlock.none
-                          ? null
-                          : () => openSlateFile(context, ref),
+                      onPressed: () => openSlateFile(context, ref),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -979,18 +990,16 @@ class _FileCard extends ConsumerWidget {
                       ),
                       icon: const Icon(Icons.content_paste),
                       label: Text(l.commonPaste),
-                      onPressed: block != NetBlock.none
-                          ? null
-                          : () => pasteSlate(context, ref),
+                      onPressed: () => pasteSlate(context, ref),
                     ),
                   ),
                 ],
               ),
             ),
-            if (block != NetBlock.none)
-              Padding(
-                padding: const EdgeInsets.only(top: 8, right: 12),
-                child: NetBlockNote(block),
+            if (offlineNode)
+              const Padding(
+                padding: EdgeInsets.only(top: 4, right: 12),
+                child: OfflineNodeNote(),
               ),
           ],
         ),
@@ -1001,6 +1010,9 @@ class _FileCard extends ConsumerWidget {
 
 /// The key of the Scan payment QR button of Receive's file card, for tests.
 const Key receiveScanQrKey = ValueKey('receive-scan-qr');
+
+/// The key of Receive's empty state when every method is off, for tests.
+const Key receiveNoMethodsKey = ValueKey('receive-no-methods');
 
 /// The key of Receive's request button, for tests.
 const Key receiveRequestKey = ValueKey('receive-request');

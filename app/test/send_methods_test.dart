@@ -24,8 +24,9 @@ import 'package:epic_wallet/src/ui/method_strip.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
+import 'package:epic_wallet/src/contacts.dart' show contactsProvider;
 import 'package:epic_wallet/src/payment_prefs.dart';
-import 'package:epic_wallet/src/ui/net_block.dart' show netBlockNoteKey, offlineNoPeersKey;
+import 'package:epic_wallet/src/ui/net_block.dart' show netBlockNoteKey, offlineNoPeersKey, offlineNodeNoteKey;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -932,7 +933,7 @@ void main() {
       expect(find.byKey(netBlockNoteKey), findsNothing);
     });
 
-    testWidgets('Offline: Epicbox and File are disabled with the reason', (
+    testWidgets('Offline: Epicbox is disabled with the reason; File runs and says the node is used', (
       tester,
     ) async {
       final h = _Harness();
@@ -940,11 +941,15 @@ void main() {
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
       expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
-      // File asks the node too, so it waits with the same reason.
+      // File asks the node in use, a public one too: it runs, with the note (a warning).
       await _tap(tester, _segment('File'));
       await _enter(tester, 'Amount (EPIC)', '1');
-      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNull);
-      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
+      expect(find.text('Offline mode is on in Advanced.'), findsNothing);
+      expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
+      expect(find.text('Uses the node'), findsOneWidget);
+      await _tap(tester, find.byKey(offlineNodeNoteKey));
+      expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
     });
 
@@ -969,12 +974,13 @@ void main() {
       expect(find.text('Your node has no peers: the payment waits in its pool until it reconnects.'), findsOneWidget);
     });
 
-    testWidgets('Offline with a public node: File waits as before', (tester) async {
+    testWidgets('Offline with a public node: File runs with the node note; no peers line (that is the local node\'s)', (tester) async {
       final h = _Harness();
       await h.pump(tester, advanced: offline, peers: 0);
       await _tap(tester, _segment('File'));
       await _enter(tester, 'Amount (EPIC)', '1');
-      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNull);
+      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
+      expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
       expect(find.byKey(offlineNoPeersKey), findsNothing);
     });
 
@@ -990,6 +996,34 @@ void main() {
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
       expect(find.text('Waiting for Tor.'), findsNothing);
+    });
+
+    testWidgets('Epicbox off: Continue waits with the reason; a saved contact is named as Epicbox-only', (tester) async {
+      final h = _Harness();
+      // Every method off: Send opens on Epicbox and says it is off.
+      await h.pump(tester, payments: const PaymentPrefs(epicbox: false, file: false, qr: false));
+      expect(find.byKey(sendMethodsKey), findsNothing);
+      await _enter(tester, 'To', _bob);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(find.text('Epicbox is off in Settings › Transactions.'), findsOneWidget);
+      await h.session.saveContact(contact: Contact(id: '', name: 'Alice', address: _bob, note: null));
+      h.container.invalidate(contactsProvider);
+      await tester.pumpAndSettle();
+      expect(find.text('Epicbox is off in Settings › Transactions. Alice has only an Epicbox address.'), findsOneWidget);
+      expect(h.session.epicboxSends, isEmpty);
+    });
+
+    testWidgets('Epicbox off with File on: Send opens on File, without the Epicbox segment', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: const PaymentPrefs(epicbox: false));
+      // QR and File remain: a selector without Epicbox, on the file amount step.
+      expect(find.descendant(of: find.byKey(sendMethodsKey), matching: find.text('Epicbox')), findsNothing);
+      expect(find.descendant(of: find.byKey(sendMethodsKey), matching: find.text('File')), findsOneWidget);
+      // QR comes first in the order, so Send opened on it: over to File.
+      await _tap(tester, _segment('File'));
+      await _enter(tester, 'Amount (EPIC)', '1');
+      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
+      expect(find.byKey(netBlockNoteKey), findsNothing);
     });
 
     testWidgets('Tor only with Tor connected: nothing waits', (tester) async {

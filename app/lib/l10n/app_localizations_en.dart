@@ -14388,7 +14388,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get slInUseSwitchFirst => 'In use. Switch first.';
 
   @override
-  String get slRestore => 'Restore the public list';
+  String get slRestore => 'Restore removed servers';
 
   @override
   String slRemovedCount(int count) {
@@ -14402,7 +14402,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get slRestored => 'Restored the public list.';
+  String get slRestored => 'Removed servers restored.';
 
   @override
   String get slRelayWarning =>
@@ -14529,11 +14529,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txMethodsHeader => 'Payment methods';
 
   @override
-  String get txAlwaysOn => 'Always on';
-
-  @override
   String get txEpicboxHint =>
-      'Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.';
+      'Epicbox pays through a relay, so the other wallet does not have to be open. Off, the wallet connects to no relay: no Epicbox payments, invoices or notifications. QR Payment and files still work.';
 
   @override
   String get txDirectLine =>
@@ -14605,6 +14602,62 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your node has no peers: the payment waits in its pool until it reconnects.';
 
   @override
+  String get netOfflineNodeHint =>
+      'Uses the node to read the chain and post. For the most privacy, use a local node.';
+
+  @override
+  String get netOfflineNodeLine => 'Uses the node';
+
+  @override
+  String get netBlockEpicboxOff => 'Epicbox is off in Settings › Transactions.';
+
+  @override
+  String get txEpicboxLine =>
+      'Pay or get paid through a relay. The other wallet can be closed.';
+
+  @override
+  String get txEpicboxOffTitle => 'Turn Epicbox off?';
+
+  @override
+  String txEpicboxOffPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count payments are waiting for their replies over Epicbox. They arrive when Epicbox is on again.',
+      one: 'A payment is waiting for its reply over Epicbox. It arrives when Epicbox is on again.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txEpicboxOffAction => 'Turn off';
+
+  @override
+  String get pushNoticeOffEpicbox => 'Notifications off: they need Epicbox.';
+
+  @override
+  String get settingsPushNeedsEpicbox => 'Needs Epicbox';
+
+  @override
+  String sendContactOnlyEpicbox(String name) {
+    return '$name has only an Epicbox address.';
+  }
+
+  @override
+  String get receiveEpicboxOffText =>
+      'Senders\' payments wait at the relay until Epicbox is on again.';
+
+  @override
+  String get receiveNoMethods => 'No receiving method is on';
+
+  @override
+  String get receiveNoMethodsBody => 'Turn one on in Settings › Transactions.';
+
+  @override
+  String get receiveNoMethodsButton => 'Open Settings';
+
+  @override
   String get deskErrOfflineOnlyLocal => 'Offline: only local addresses.';
 
   @override
@@ -14625,11 +14678,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetTxMethods => 'Payment methods';
 
   @override
-  String get deskSetTxAlwaysOn => 'Always on';
-
-  @override
   String get deskSetTxEpicboxHint =>
-      'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.';
+      'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. Files still work.';
 
   @override
   String get deskSetTxDirectHint =>

@@ -158,8 +158,8 @@ void main() {
         expect(netBlockFor(NetworkMode.offline, t, localNode: true), NetBlock.none);
         expect(netBlockFor(NetworkMode.offline, t), NetBlock.offline);
       }
-      expect(fileBlockFor(NetworkMode.offline, localNode: true), NetBlock.none);
-      expect(fileBlockFor(NetworkMode.offline), NetBlock.offline);
+      expect(offlineUsesNode(NetworkMode.offline, localNode: true), isFalse);
+      expect(offlineUsesNode(NetworkMode.offline, localNode: false), isTrue);
       expect(netBlockFor(NetworkMode.torOnly, TorState.starting, localNode: true), NetBlock.waitingForTor);
     });
 
@@ -203,13 +203,15 @@ void main() {
       return wallet.sentTo.last;
     }
 
-    test('a public node: files and Link are refused before LEPIC, as before', () async {
+    test('a public node: a file is made and Link goes to a local address (both post through that node); a refresh is refused', () async {
       session.nodeUrl = 'https://node.btlabs.uk';
-      await expectLater(session.createSendSlate(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3)), throwsA(isA<NetBlocked>()));
-      await expectLater(send('http://10.0.1.30:3415'), throwsA(isA<NetBlocked>().having((e) => e.notLocal, 'notLocal', isFalse)));
+      await session.createSendSlate(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3));
+      expect(wallet.slates, 1);
+      expect(await send('http://10.0.1.30:3415'), 'http://10.0.1.30:3415');
+      await expectLater(send('https://203.0.113.5:3415'), throwsA(isA<NetBlocked>().having((e) => e.notLocal, 'notLocal', isTrue)));
       await expectLater(session.summary(refresh: true, minimumConfirmations: BigInt.from(3)), throwsA(isA<NetBlocked>()));
-      expect(wallet.slates, 0);
-      expect(wallet.sentTo, isEmpty);
+      await expectLater(session.scan().drain<void>(), throwsA(isA<NetBlocked>()));
+      expect(wallet.sentTo, hasLength(1));
     });
 
     for (final node in ['http://127.0.0.1:3413', 'http://10.100.10.20:3413']) {
@@ -243,6 +245,21 @@ void main() {
       session.nodeUrl = 'https://node.btlabs.uk';
       expect(await send('https://wallet.example.org'), 'https://wallet.example.org');
       expect(lookups, isEmpty);
+    });
+
+    test('the Epicbox switch off, in Standard: Epicbox sends and the listener are refused before LEPIC; files and Link go on', () async {
+      addTearDown(() => NetGate.setEpicbox(true));
+      NetGate.set(NetworkMode.standard);
+      NetGate.setEpicbox(false);
+      session.nodeUrl = 'https://node.btlabs.uk';
+      await expectLater(
+        session.sendEpicbox(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3), address: 'esX@epicbox.epiccash.com'),
+        throwsA(isA<NetBlocked>().having((e) => e.epicboxOff, 'epicboxOff', isTrue)),
+      );
+      await expectLater(session.startListener().drain<void>(), throwsA(isA<NetBlocked>().having((e) => e.epicboxOff, 'epicboxOff', isTrue)));
+      await session.createSendSlate(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3));
+      expect(wallet.slates, 1);
+      expect(await send('https://wallet.example.org'), 'https://wallet.example.org');
     });
   });
 

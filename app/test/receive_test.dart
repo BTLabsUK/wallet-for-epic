@@ -508,7 +508,7 @@ void main() {
 
       await h.listener(tester, ListenerEventKind.connected);
       expect(find.text('Epicbox connected'), findsOneWidget);
-      expect(find.byIcon(Icons.mark_email_read_outlined), findsOneWidget);
+      expect(find.byIcon(EpicGlyphs.epicbox), findsWidgets);
       expect(find.text('Retry'), findsNothing);
 
       await h.listener(tester, ListenerEventKind.disconnected);
