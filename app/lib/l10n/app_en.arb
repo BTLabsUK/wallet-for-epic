@@ -17584,5 +17584,26 @@
         "example": "0.0120"
       }
     }
+  },
+  "deskSendMessageBytes": "{used} / {max} bytes",
+  "@deskSendMessageBytes": {
+    "description": "Counter next to the Message label on Send: the message length in UTF-8 bytes (an emoji takes 4) and the limit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSendMessageTooLong": "The message is longer than {max} bytes. Shorten it.",
+  "@deskSendMessageTooLong": {
+    "description": "Error under the Message field on Send when the message is over the limit, in UTF-8 bytes.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
   }
 }

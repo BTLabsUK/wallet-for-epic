@@ -3507,5 +3507,7 @@
   "deskTxSentAgain": "Erneut gesendet",
   "deskTxSentAgainText": "Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist.",
   "deskSendFeeChangedTitle": "Die Gebühr hat sich geändert",
-  "deskSendFeeChangedText": "Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt {fee} EPIC statt {was} EPIC Gebühr. Prüfe sie und sende erneut."
+  "deskSendFeeChangedText": "Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt {fee} EPIC statt {was} EPIC Gebühr. Prüfe sie und sende erneut.",
+  "deskSendMessageBytes": "{used} / {max} Byte",
+  "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie."
 }

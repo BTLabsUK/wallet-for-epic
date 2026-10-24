@@ -10,7 +10,9 @@ import '../../data/api.dart' show DeskWalletApi;
 import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/tor_view.dart';
+import '../../../models.dart' show slateMessageMaxBytes;
 import '../../../smart_outputs.dart';
+import '../../../utf8_limit.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -561,6 +563,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   String? _toError(DeskState st) => _ownAddressError(st) ?? _recipientError(context.l10n, _method, _to.text, ref.read(deskApiProvider));
 
+  /// LEPIC signs at most [slateMessageMaxBytes] UTF-8 bytes of a message and cuts the rest
+  /// (linux-09): longer text is refused here instead of being cut without a word.
+  bool get _messageTooLong => utf8Length(_message.text.trim()) > slateMessageMaxBytes;
+
   Future<void> _review() async {
     final st = ref.read(deskProvider);
     if (!_canSend(st) || _reviewing) return;
@@ -576,7 +582,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (mounted) setState(() => _reviewing = false);
     }
     if (!mounted) return;
-    if (_toError(st) != null || _amountError(st.balance?.spendable) != null) return;
+    if (_toError(st) != null || _amountError(st.balance?.spendable) != null || _messageTooLong) return;
     await _openReview();
   }
 
@@ -1004,13 +1010,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         EField(
           label: l.deskSendMessage,
           optional: true,
-          aside: Text('${_message.text.length} / 256', style: ts.mono(size: Fs.xs, color: c.faint)),
+          // Bytes, as LEPIC counts them: an emoji takes 4.
+          aside: Text(l.deskSendMessageBytes(utf8Length(_message.text), slateMessageMaxBytes), style: ts.mono(size: Fs.xs, color: _messageTooLong ? c.risk : c.faint)),
           help: l.deskSendMessageHelp,
+          error: _messageTooLong ? l.deskSendMessageTooLong(slateMessageMaxBytes) : null,
           child: EInput(
             controller: _message,
             maxLines: 3,
             semanticLabel: l.deskSendMessage,
-            inputFormatters: [LengthLimitingTextInputFormatter(256)],
+            inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
             onChanged: (_) => setState(() {}),
           ),
         ),
@@ -1067,6 +1075,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when _torWay(st) == TorWay.needsTor => l.deskSendHintNeedsTor,
       _ when _submitted && !_toEdited && _toError(st) != null => l.deskSendHintFix,
       _ when _submitted && !_amountEdited && _amountError(spendable) != null => l.deskSendHintFix,
+      _ when _messageTooLong => l.deskSendHintFix,
       _ when _reviewing => l.deskSendHintChecking,
       _ => l.deskSendHintDefault,
     };

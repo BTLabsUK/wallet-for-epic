@@ -21199,6 +21199,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The wallet\'s outputs changed since this review, so the send now pays {fee} EPIC instead of {was} EPIC. Check it and send again.'**
   String deskSendFeeChangedText(String fee, String was);
+
+  /// Counter next to the Message label on Send: the message length in UTF-8 bytes (an emoji takes 4) and the limit.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} / {max} bytes'**
+  String deskSendMessageBytes(int used, int max);
+
+  /// Error under the Message field on Send when the message is over the limit, in UTF-8 bytes.
+  ///
+  /// In en, this message translates to:
+  /// **'The message is longer than {max} bytes. Shorten it.'**
+  String deskSendMessageTooLong(int max);
 }
 
 class _AppLocalizationsDelegate

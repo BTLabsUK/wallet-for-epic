@@ -13757,4 +13757,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSendFeeChangedText(String fee, String was) {
     return 'Выходы кошелька изменились после этой проверки, поэтому комиссия перевода теперь $fee EPIC вместо $was EPIC. Проверьте её и отправьте снова.';
   }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max байт';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return 'Сообщение длиннее $max байт. Сократите его.';
+  }
 }

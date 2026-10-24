@@ -13789,4 +13789,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSendFeeChangedText(String fee, String was) {
     return 'Wyjścia portfela zmieniły się od tego przeglądu, więc wysyłka kosztuje teraz $fee EPIC zamiast $was EPIC opłaty. Sprawdź ją i wyślij ponownie.';
   }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max bajtów';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return 'Wiadomość jest dłuższa niż $max bajtów. Skróć ją.';
+  }
 }

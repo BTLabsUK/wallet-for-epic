@@ -13130,4 +13130,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSendFeeChangedText(String fee, String was) {
     return 'เอาต์พุตของกระเป๋าเงินเปลี่ยนไปหลังการตรวจสอบนี้ การส่งครั้งนี้จึงเสียค่าธรรมเนียม $fee EPIC แทน $was EPIC โปรดตรวจสอบแล้วส่งอีกครั้ง';
   }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max ไบต์';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return 'ข้อความยาวเกิน $max ไบต์ โปรดทำให้สั้นลง';
+  }
 }

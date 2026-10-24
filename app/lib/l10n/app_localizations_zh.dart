@@ -12670,4 +12670,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSendFeeChangedText(String fee, String was) {
     return '自本次核对以来钱包的输出已变化，此次发送的手续费现在是 $fee EPIC，而不是 $was EPIC。请核对后再次发送。';
   }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max 字节';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return '消息超过 $max 字节，请缩短。';
+  }
 }

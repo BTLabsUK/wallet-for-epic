@@ -13384,4 +13384,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSendFeeChangedText(String fee, String was) {
     return 'The wallet\'s outputs changed since this review, so the send now pays $fee EPIC instead of $was EPIC. Check it and send again.';
   }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max bytes';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return 'The message is longer than $max bytes. Shorten it.';
+  }
 }

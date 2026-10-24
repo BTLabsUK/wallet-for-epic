@@ -3507,5 +3507,7 @@
   "deskTxSentAgain": "Отправлено снова",
   "deskTxSentAgainText": "Платёж завершится, когда кошелёк получателя появится в сети.",
   "deskSendFeeChangedTitle": "Комиссия изменилась",
-  "deskSendFeeChangedText": "Выходы кошелька изменились после этой проверки, поэтому комиссия перевода теперь {fee} EPIC вместо {was} EPIC. Проверьте её и отправьте снова."
+  "deskSendFeeChangedText": "Выходы кошелька изменились после этой проверки, поэтому комиссия перевода теперь {fee} EPIC вместо {was} EPIC. Проверьте её и отправьте снова.",
+  "deskSendMessageBytes": "{used} / {max} байт",
+  "deskSendMessageTooLong": "Сообщение длиннее {max} байт. Сократите его."
 }

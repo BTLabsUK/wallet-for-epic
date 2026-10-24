@@ -3507,5 +3507,7 @@
   "deskTxSentAgain": "Wysłano ponownie",
   "deskTxSentAgainText": "Zakończy się, gdy portfel odbiorcy będzie online.",
   "deskSendFeeChangedTitle": "Opłata się zmieniła",
-  "deskSendFeeChangedText": "Wyjścia portfela zmieniły się od tego przeglądu, więc wysyłka kosztuje teraz {fee} EPIC zamiast {was} EPIC opłaty. Sprawdź ją i wyślij ponownie."
+  "deskSendFeeChangedText": "Wyjścia portfela zmieniły się od tego przeglądu, więc wysyłka kosztuje teraz {fee} EPIC zamiast {was} EPIC opłaty. Sprawdź ją i wyślij ponownie.",
+  "deskSendMessageBytes": "{used} / {max} bajtów",
+  "deskSendMessageTooLong": "Wiadomość jest dłuższa niż {max} bajtów. Skróć ją."
 }
