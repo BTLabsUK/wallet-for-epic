@@ -126,6 +126,19 @@ Future<void> _pump(
 
 final Finder _list = find.byType(Scrollable).first;
 
+/// Opens a My-list row's popup (the down arrow or the bin) and taps its one item.
+Future<void> _menu(WidgetTester tester, String value) async {
+  await tester.ensureVisible(find.byKey(serverMenuKey(value)));
+  await tester.tap(find.byKey(serverMenuKey(value)));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(serverMenuItemKey(value)));
+  await tester.pumpAndSettle();
+}
+
+/// Whether a row's popup button is there and enabled.
+bool _menuEnabled(WidgetTester tester, String value) =>
+    tester.widget<PopupMenuButton<bool>>(find.byKey(serverMenuKey(value))).enabled;
+
 /// Opens the real sheet ([showNodePicker] or [showEpicboxPicker]) over a screen on a phone of
 /// [size] dp with a 24 dp status bar and a [bottom] dp gesture or navigation bar.
 Future<void> _pumpPhone(
@@ -301,21 +314,26 @@ void main() {
       );
     });
 
-    testWidgets('a node in My nodes survives a rebuild with its star; public rows have none', (
+    testWidgets('a node in My nodes survives a rebuild with a down arrow; public rows have none', (
       tester,
     ) async {
       const url = 'https://node.epicnet.us:3413';
       final store = _store()..values['app.myNodes.mainnet'] = jsonEncode([url]);
       await _pump(tester, ServerKind.node, store: store);
       expect(find.text('MY NODES'), findsOneWidget);
+      expect(find.byKey(serverMenuKey(url)), findsOneWidget);
       expect(
-        tester.widget<IconButton>(find.byKey(serverStarKey(url))).isSelected,
-        isTrue,
+        find.descendant(
+          of: find.byKey(serverMenuKey(url)),
+          matching: find.byIcon(Icons.arrow_downward),
+        ),
+        findsOneWidget,
       );
-      // In My nodes only, not twice; the public rows have no star.
+      // In My nodes only, not twice; the public rows have no button, and nothing is a star.
       expect(_row(url), findsOneWidget);
-      expect(find.byKey(serverStarKey('https://node.btlabs.uk')), findsNothing);
+      expect(find.byKey(serverMenuKey('https://node.btlabs.uk')), findsNothing);
       expect(find.byIcon(Icons.star_border), findsNothing);
+      expect(find.byIcon(Icons.star), findsNothing);
     });
 
     testWidgets('a typed address is tested, then offered', (tester) async {
@@ -555,7 +573,7 @@ void main() {
       ]);
     });
 
-    testWidgets('removing asks first', (
+    testWidgets('the bin deletes a typed-in relay from a popup, no dialog', (
       tester,
     ) async {
       final store = _store()
@@ -564,23 +582,19 @@ void main() {
           'epicbox.stackwallet.com',
         ]);
       await _pump(tester, ServerKind.relay, store: store);
-      final remove = find.byKey(serverRemoveKey('relay.example.org'));
-      expect(tester.getSize(remove).height, greaterThanOrEqualTo(48));
-      expect(find.byTooltip('Remove from my servers'), findsNWidgets(2));
-      await tester.tap(remove);
+      final bin = find.byKey(serverMenuKey('relay.example.org'));
+      expect(tester.getSize(bin).height, greaterThanOrEqualTo(48));
+      expect(find.byTooltip('Delete'), findsOneWidget);
+      await tester.tap(bin);
       await tester.pumpAndSettle();
-      expect(find.text('Remove this server?'), findsOneWidget);
-      expect(
-        find.text('relay.example.org leaves my list. Type it in again to use it.'),
-        findsOneWidget,
-      );
-      await tester.tap(find.text('Cancel'));
+      expect(find.byKey(serverMenuItemKey('relay.example.org')), findsOneWidget);
+      expect(find.widgetWithText(PopupMenuItem<bool>, 'Delete'), findsOneWidget);
+      // Dismissing the popup keeps the relay.
+      await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
       expect(jsonDecode(store.values['app.myRelays.mainnet']!), hasLength(2));
-      await tester.tap(remove);
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
-      await tester.pumpAndSettle();
+      await _menu(tester, 'relay.example.org');
+      expect(find.byType(AlertDialog), findsNothing);
       expect(jsonDecode(store.values['app.myRelays.mainnet']!), [
         'epicbox.stackwallet.com',
       ]);
@@ -614,7 +628,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('nodes: a picked node is remembered; unstar asks', (
+    testWidgets('nodes: a picked node is remembered; the bin deletes a typed-in one', (
       tester,
     ) async {
       final store = _store();
@@ -633,11 +647,7 @@ void main() {
       ]);
       await tester.pumpWidget(const SizedBox());
       await _pump(tester, ServerKind.node, store: store);
-      await tester.tap(find.byKey(serverStarKey('https://my.node.example:3413')));
-      await tester.pumpAndSettle();
-      expect(find.text('Remove this node?'), findsOneWidget);
-      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
-      await tester.pumpAndSettle();
+      await _menu(tester, 'https://my.node.example:3413');
       expect(jsonDecode(store.values['app.myNodes.mainnet']!), [url]);
     });
 
@@ -698,10 +708,10 @@ void main() {
       await _pump(tester, ServerKind.node, store: store);
       await tall(tester);
       // Neither public node is in use: the last added stays, with both typed-in ones.
-      expect(find.byKey(serverStarKey(pubA)), findsNothing);
-      expect(find.byKey(serverStarKey(pubB)), findsOneWidget);
-      expect(find.byKey(serverStarKey(custom)), findsOneWidget);
-      expect(find.byKey(serverStarKey(custom2)), findsOneWidget);
+      expect(find.byKey(serverMenuKey(pubA)), findsNothing);
+      expect(find.byKey(serverMenuKey(pubB)), findsOneWidget);
+      expect(find.byKey(serverMenuKey(custom)), findsOneWidget);
+      expect(find.byKey(serverMenuKey(custom2)), findsOneWidget);
       expect(
         tester.getTopLeft(_row(pubB)).dy,
         lessThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
@@ -718,9 +728,9 @@ void main() {
       final store = seeded('app.myRelays.mainnet', [relA, relCustom, relB]);
       await _pump(tester, ServerKind.relay, store: store);
       await tall(tester);
-      expect(find.byKey(serverRemoveKey(relA)), findsNothing);
-      expect(find.byKey(serverRemoveKey(relB)), findsOneWidget);
-      expect(find.byKey(serverRemoveKey(relCustom)), findsOneWidget);
+      expect(find.byKey(serverMenuKey(relA)), findsNothing);
+      expect(find.byKey(serverMenuKey(relB)), findsOneWidget);
+      expect(find.byKey(serverMenuKey(relCustom)), findsOneWidget);
       expect(
         tester.getTopLeft(_row(relA)).dy,
         greaterThan(tester.getTopLeft(find.text('PUBLIC SERVERS')).dy),
@@ -734,8 +744,8 @@ void main() {
         ..values['app.node.mainnet'] = pubA;
       await _pump(tester, ServerKind.node, store: store);
       await tall(tester);
-      expect(find.byKey(serverStarKey(pubA)), findsOneWidget);
-      expect(find.byKey(serverStarKey(pubB)), findsNothing);
+      expect(find.byKey(serverMenuKey(pubA)), findsOneWidget);
+      expect(find.byKey(serverMenuKey(pubB)), findsNothing);
     });
 
     // Rule 2: a switch to a public server moves it into the list and the old one out.
@@ -754,8 +764,8 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await _pump(tester, ServerKind.node, store: store);
       await tall(tester);
-      expect(find.byKey(serverStarKey(pubA)), findsOneWidget);
-      expect(find.byKey(serverStarKey(pubB)), findsNothing);
+      expect(find.byKey(serverMenuKey(pubA)), findsOneWidget);
+      expect(find.byKey(serverMenuKey(pubB)), findsNothing);
       expect(
         tester.getTopLeft(_row(pubB)).dy,
         greaterThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
@@ -790,162 +800,98 @@ void main() {
       expect(store.values['app.relay.mainnet'], relA);
     });
 
-    // Rule 3 and 5: removing a public server sends it back, a typed-in one is gone; the
-    // dialog says which.
-    testWidgets('rules 3 and 5: nodes — unstar a public node, then a typed-in one', (
+    // Rules 3 and 5: the down arrow sends a public server back to the public list, the bin
+    // deletes a typed-in one; each is a popup, with no dialog after it.
+    testWidgets('rules 3 and 5: nodes — the down arrow on a public node, then the bin on a typed-in one', (
       tester,
     ) async {
       final store = seeded('app.myNodes.mainnet', [pubA, custom]);
       await _pump(tester, ServerKind.node, store: store);
       await tall(tester);
-      await tester.tap(find.byKey(serverStarKey(pubA)));
+      expect(find.byTooltip('Remove from my list'), findsOneWidget);
+      expect(find.byTooltip('Delete'), findsOneWidget);
+      await tester.tap(find.byKey(serverMenuKey(pubA)));
       await tester.pumpAndSettle();
       expect(
-        find.text(
-          'node.epicnet.us:3413 leaves my list. Select it from the public list to use it again.',
-        ),
+        find.widgetWithText(PopupMenuItem<bool>, 'Remove from my list'),
         findsOneWidget,
       );
-      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.tap(find.byKey(serverMenuItemKey(pubA)));
       await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
       expect(saved(store, 'app.myNodes.mainnet'), [custom]);
-      // Back in the public list, without a star.
-      expect(find.byKey(serverStarKey(pubA)), findsNothing);
+      // Back in the public list, without a button.
+      expect(find.byKey(serverMenuKey(pubA)), findsNothing);
       expect(
         tester.getTopLeft(_row(pubA)).dy,
         greaterThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
       );
-      await tester.tap(find.byKey(serverStarKey(custom)));
+      await tester.tap(find.byKey(serverMenuKey(custom)));
       await tester.pumpAndSettle();
-      expect(
-        find.text('my.node.example:3413 leaves my list. Type it in again to use it.'),
-        findsOneWidget,
-      );
-      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      expect(find.widgetWithText(PopupMenuItem<bool>, 'Delete'), findsOneWidget);
+      await tester.tap(find.byKey(serverMenuItemKey(custom)));
       await tester.pumpAndSettle();
       expect(saved(store, 'app.myNodes.mainnet'), isEmpty);
       expect(_row(custom), findsNothing);
-      expect(find.textContaining('leaves this list'), findsNothing);
+      // The public node was not switched to by any of it.
+      expect(store.values['app.node.mainnet'], 'https://node.btlabs.uk');
+      expect(find.byKey(serverSwitchKey), findsNothing);
     });
 
-    testWidgets('rules 3 and 5: relays — the bin on a public relay, then a typed-in one', (
+    testWidgets('rules 3 and 5: relays — the down arrow on a public relay, then the bin on a typed-in one', (
       tester,
     ) async {
       final store = seeded('app.myRelays.mainnet', [relA, relCustom]);
       await _pump(tester, ServerKind.relay, store: store);
       await tall(tester);
-      await tester.tap(find.byKey(serverRemoveKey(relA)));
-      await tester.pumpAndSettle();
-      expect(
-        find.text(
-          '$relA leaves my list. Select it from the public list to use it again.',
-        ),
-        findsOneWidget,
-      );
-      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
-      await tester.pumpAndSettle();
+      await _menu(tester, relA);
       expect(saved(store, 'app.myRelays.mainnet'), [relCustom]);
       expect(
         tester.getTopLeft(_row(relA)).dy,
         greaterThan(tester.getTopLeft(find.text('PUBLIC SERVERS')).dy),
       );
-      await tester.tap(find.byKey(serverRemoveKey(relCustom)));
-      await tester.pumpAndSettle();
-      expect(
-        find.text('$relCustom leaves my list. Type it in again to use it.'),
-        findsOneWidget,
-      );
-      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
-      await tester.pumpAndSettle();
+      await _menu(tester, relCustom);
       expect(saved(store, 'app.myRelays.mainnet'), isEmpty);
       expect(_row(relCustom), findsNothing);
     });
 
-    // Un-starring (the owner: the star on the node in use did nothing): the star always answers,
-    // the row moves at once, and the wallet stays on a server it is using.
-    testWidgets('un-star: a public node leaves my list at once, back to the public list', (
-      tester,
-    ) async {
-      final store = seeded('app.myNodes.mainnet', [pubA, custom]);
-      await _pump(tester, ServerKind.node, store: store);
-      await tall(tester);
-      await tester.tap(find.byKey(serverStarKey(pubA)));
-      await tester.pumpAndSettle();
-      expect(find.text('Remove this node?'), findsOneWidget);
-      expect(
-        find.text('node.epicnet.us:3413 leaves my list. Select it from the public list to use it again.'),
-        findsOneWidget,
-      );
-      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
-      await tester.pump();
-      expect(find.byKey(serverStarKey(pubA)), findsNothing);
-      expect(
-        tester.getTopLeft(_row(pubA)).dy,
-        greaterThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
-      );
-      expect(saved(store, 'app.myNodes.mainnet'), [custom]);
-    });
-
-    testWidgets('un-star: the public node in use leaves my list; still in use, in the public list', (
+    // The server in use stays in the list: its arrow or bin is disabled, with the reason as
+    // its tooltip, and nothing moves.
+    testWidgets('in use: the public node in use has a disabled down arrow', (
       tester,
     ) async {
       final store = seeded('app.myNodes.mainnet', [pubA, custom])
         ..values['app.node.mainnet'] = pubA;
       await _pump(tester, ServerKind.node, store: store);
       await tall(tester);
-      final star = tester.widget<IconButton>(find.byKey(serverStarKey(pubA)));
-      expect(star.onPressed, isNotNull);
-      expect(star.tooltip, 'Remove from my nodes');
-      await tester.tap(find.byKey(serverStarKey(pubA)));
+      expect(_menuEnabled(tester, pubA), isFalse);
+      expect(find.byTooltip('In use. Pick another server first.'), findsOneWidget);
+      expect(_menuEnabled(tester, custom), isTrue);
+      await tester.tap(find.byKey(serverMenuKey(pubA)), warnIfMissed: false);
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
-      await tester.pump();
-      expect(find.byKey(serverStarKey(pubA)), findsNothing);
-      expect(
-        tester.getTopLeft(_row(pubA)).dy,
-        greaterThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
-      );
+      expect(find.byKey(serverMenuItemKey(pubA)), findsNothing);
+      expect(saved(store, 'app.myNodes.mainnet'), [pubA, custom]);
       expect(_inRow(pubA, 'Current'), findsOneWidget);
-      expect(saved(store, 'app.myNodes.mainnet'), [custom]);
-      expect(store.values['app.node.mainnet'], pubA, reason: 'no switch');
-      expect(find.byKey(serverSwitchKey), findsNothing);
     });
 
-    testWidgets('un-star: a typed-in node in use leaves my list with the type-it-again line', (
-      tester,
-    ) async {
-      final store = seeded('app.myNodes.mainnet', [custom])
+    testWidgets('in use: a typed-in node in use has a disabled bin', (tester) async {
+      final store = seeded('app.myNodes.mainnet', [custom, pubA])
         ..values['app.node.mainnet'] = custom;
       await _pump(tester, ServerKind.node, store: store);
       await tall(tester);
-      await tester.tap(find.byKey(serverStarKey(custom)));
-      await tester.pumpAndSettle();
+      expect(_menuEnabled(tester, custom), isFalse);
       expect(
-        find.text('my.node.example:3413 leaves my list. Type it in again to use it.'),
+        find.descendant(
+          of: find.byKey(serverMenuKey(custom)),
+          matching: find.byIcon(Icons.delete_outline),
+        ),
         findsOneWidget,
       );
-      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
-      await tester.pump();
-      // The wallet is still on it: the row stays, with no star.
-      expect(_row(custom), findsOneWidget);
-      expect(find.byKey(serverStarKey(custom)), findsNothing);
-      expect(saved(store, 'app.myNodes.mainnet'), isEmpty);
-      expect(store.values['app.node.mainnet'], custom);
+      expect(_menuEnabled(tester, pubA), isTrue);
+      expect(saved(store, 'app.myNodes.mainnet'), [custom, pubA]);
     });
 
-    testWidgets('un-star: Cancel keeps the star', (tester) async {
-      final store = seeded('app.myNodes.mainnet', [pubA]);
-      await _pump(tester, ServerKind.node, store: store);
-      await tall(tester);
-      await tester.tap(find.byKey(serverStarKey(pubA)));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(find.byKey(serverStarKey(pubA)), findsOneWidget);
-      expect(saved(store, 'app.myNodes.mainnet'), [pubA]);
-    });
-
-    testWidgets('the relay in use can leave my list too; the wallet stays on it', (
+    testWidgets('in use: the relay in use, public or typed in, has the arrow or bin disabled', (
       tester,
     ) async {
       final store = seeded('app.myRelays.mainnet', [
@@ -954,27 +900,110 @@ void main() {
       ]);
       await _pump(tester, ServerKind.relay, store: store);
       await tall(tester);
-      await tester.tap(find.byKey(serverRemoveKey('epicbox.stackwallet.com')));
-      await tester.pumpAndSettle();
-      expect(
-        find.text(
-          'epicbox.stackwallet.com leaves my list. Select it from the public list to use it again.',
-        ),
-        findsOneWidget,
-      );
-      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
-      await tester.pump();
-      expect(find.byKey(serverRemoveKey('epicbox.stackwallet.com')), findsNothing);
-      expect(
-        tester.getTopLeft(_row('epicbox.stackwallet.com')).dy,
-        greaterThan(tester.getTopLeft(find.text('PUBLIC SERVERS')).dy),
-      );
-      expect(saved(store, 'app.myRelays.mainnet'), [relCustom]);
-      expect(store.values['app.relay.mainnet'], 'epicbox.stackwallet.com');
+      expect(_menuEnabled(tester, 'epicbox.stackwallet.com'), isFalse);
+      expect(_menuEnabled(tester, relCustom), isTrue);
+      expect(find.byTooltip('In use. Pick another server first.'), findsOneWidget);
+      // A typed-in relay in use: the bin, disabled.
+      store.values['app.relay.mainnet'] = relCustom;
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, ServerKind.relay, store: store);
+      await tall(tester);
+      expect(_menuEnabled(tester, relCustom), isFalse);
+      expect(_menuEnabled(tester, 'epicbox.stackwallet.com'), isTrue);
+      expect(saved(store, 'app.myRelays.mainnet'), [relCustom, 'epicbox.stackwallet.com']);
     });
 
-    // Rule 4: the star and the bin only where they mean something.
-    testWidgets('rule 4: no star on public rows, a filled one on My nodes rows', (
+    // A tap on a My-list entry, public or typed in, selects it: the check moves to it and
+    // the strip offers the switch.
+    testWidgets('a tap on a My-list entry moves the check to it, and Switch makes it current', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubA, custom]);
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      Finder check(String url) =>
+          find.descendant(of: _row(url), matching: find.byIcon(Icons.check));
+      expect(check('https://node.btlabs.uk'), findsOneWidget);
+      for (final url in [custom, pubA]) {
+        await tester.tap(_row(url));
+        await tester.pumpAndSettle();
+        expect(check(url), findsOneWidget);
+        expect(check('https://node.btlabs.uk'), findsNothing);
+        expect(find.text('Switch to ${url.replaceFirst('https://', '')}'), findsOneWidget);
+      }
+      await tester.tap(find.byKey(serverSwitchKey));
+      await tester.pumpAndSettle();
+      expect(store.values['app.node.mainnet'], pubA);
+      // The list is as it was: the public entry stays, the typed-in one too.
+      expect(saved(store, 'app.myNodes.mainnet'), [pubA, custom]);
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      expect(check(pubA), findsOneWidget);
+      expect(check(custom), findsNothing);
+      expect(_menuEnabled(tester, pubA), isFalse);
+      expect(_menuEnabled(tester, custom), isTrue);
+    });
+
+    testWidgets('relays — a tap on a typed-in My-list entry moves the check to it', (
+      tester,
+    ) async {
+      final store = seeded('app.myRelays.mainnet', [relCustom, 'epicbox.stackwallet.com']);
+      await _pump(tester, ServerKind.relay, store: store);
+      await tall(tester);
+      Finder check(String v) =>
+          find.descendant(of: _row(v), matching: find.byIcon(Icons.check));
+      expect(check('epicbox.stackwallet.com'), findsOneWidget);
+      await tester.tap(_row(relCustom));
+      await tester.pumpAndSettle();
+      expect(check(relCustom), findsOneWidget);
+      expect(check('epicbox.stackwallet.com'), findsNothing);
+      await tester.tap(find.byKey(serverSwitchKey));
+      await tester.pumpAndSettle();
+      expect(store.values['app.relay.mainnet'], relCustom);
+      expect(saved(store, 'app.myRelays.mainnet'), [relCustom, 'epicbox.stackwallet.com']);
+    });
+
+    // A tap on a Public-list entry, then Switch: it moves up into the list as the current
+    // one, with the check, and the public entry the list had goes back to Public.
+    testWidgets('a switch from the Public list swaps it with the public entry in My list', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubB, custom])
+        ..values['app.node.mainnet'] = pubB;
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      final publicHead = tester.getTopLeft(find.text('PUBLIC NODES')).dy;
+      expect(tester.getTopLeft(_row(pubB)).dy, lessThan(publicHead));
+      expect(tester.getTopLeft(_row(pubA)).dy, greaterThan(publicHead));
+      await tester.tap(_row(pubA));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverSwitchKey));
+      await tester.pumpAndSettle();
+      expect(store.values['app.node.mainnet'], pubA);
+      expect(saved(store, 'app.myNodes.mainnet'), [custom, pubA]);
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      final head = tester.getTopLeft(find.text('PUBLIC NODES')).dy;
+      expect(tester.getTopLeft(_row(pubA)).dy, lessThan(head));
+      expect(tester.getTopLeft(_row(pubB)).dy, greaterThan(head));
+      expect(
+        find.descendant(of: _row(pubA), matching: find.byIcon(Icons.check)),
+        findsOneWidget,
+      );
+      expect(_menuEnabled(tester, pubA), isFalse);
+      // The old public entry is in Public: no button, no check.
+      expect(find.byKey(serverMenuKey(pubB)), findsNothing);
+      expect(
+        find.descendant(of: _row(pubB), matching: find.byIcon(Icons.check)),
+        findsNothing,
+      );
+    });
+
+    // Rule 4: a button only where it means something; a down arrow on a public entry, a bin
+    // on a typed-in one, a star nowhere.
+    testWidgets('rule 4: no button on public rows, a down arrow or a bin on My nodes rows', (
       tester,
     ) async {
       final store = seeded('app.myNodes.mainnet', [pubA, custom]);
@@ -987,26 +1016,30 @@ void main() {
         'https://epic-node.iniaku.my.id',
       ]) {
         expect(_row(url), findsOneWidget);
-        expect(find.byKey(serverStarKey(url)), findsNothing);
+        expect(find.byKey(serverMenuKey(url)), findsNothing);
       }
-      for (final url in [pubA, custom]) {
-        expect(
-          tester.widget<IconButton>(find.byKey(serverStarKey(url))).isSelected,
-          isTrue,
-        );
-      }
+      Finder icon(String url, IconData data) => find.descendant(
+        of: find.byKey(serverMenuKey(url)),
+        matching: find.byIcon(data),
+      );
+      expect(icon(pubA, Icons.arrow_downward), findsOneWidget);
+      expect(icon(custom, Icons.delete_outline), findsOneWidget);
       expect(find.byIcon(Icons.star_border), findsNothing);
+      expect(find.byIcon(Icons.star), findsNothing);
     });
 
-    testWidgets('rule 4: no bin on public relay rows', (tester) async {
+    testWidgets('rule 4: no button on public relay rows, no star anywhere', (tester) async {
       final store = seeded('app.myRelays.mainnet', [relA, relCustom]);
       await _pump(tester, ServerKind.relay, store: store);
       await tall(tester);
-      expect(find.byKey(serverRemoveKey(relB)), findsNothing);
-      expect(find.byKey(serverRemoveKey('flooepicbox.btlabs.uk')), findsNothing);
-      expect(find.byKey(serverRemoveKey(relA)), findsOneWidget);
-      expect(find.byKey(serverRemoveKey(relCustom)), findsOneWidget);
-      expect(find.byIcon(Icons.delete_outline), findsNWidgets(2));
+      expect(find.byKey(serverMenuKey(relB)), findsNothing);
+      expect(find.byKey(serverMenuKey('flooepicbox.btlabs.uk')), findsNothing);
+      expect(find.byKey(serverMenuKey(relA)), findsOneWidget);
+      expect(find.byKey(serverMenuKey(relCustom)), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_downward), findsOneWidget);
+      expect(find.byIcon(Icons.delete_outline), findsOneWidget);
+      expect(find.byIcon(Icons.star_border), findsNothing);
+      expect(find.byIcon(Icons.star), findsNothing);
     });
 
     // Rule 6: with several servers in the list a tap still asks first.

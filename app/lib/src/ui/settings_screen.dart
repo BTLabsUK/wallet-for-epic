@@ -2,7 +2,7 @@
 /// reach for them. Security, Privacy & network, Wallet, Display and About open a page each
 /// (`settings_sections.dart`); Notifications is its one switch, right on the hub; Help &
 /// feedback opens Help, which starts with Send feedback. A group's row shows its state on a
-/// second line ("Tor · Off · epicbox.epiccash.com"), so the state is visible without opening
+/// second line ("btlabs.uk · epiccash.com · Tor off"), so the state is visible without opening
 /// the page. No search: the hub is scanned at a glance, and Help has its own search for
 /// questions.
 library;
@@ -10,6 +10,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../address_format.dart' show shortHost;
 import '../app_log.dart';
 import '../demo.dart';
 import '../errors.dart';
@@ -168,13 +169,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         !demo && (ref.watch(pushConfiguredProvider).value ?? false);
     final t = context.tokens;
 
-    // The relay's host, from the open wallet, else from the saved choice.
+    // The node's and the relay's host, from the open wallet, else from the saved choice.
+    final node = config != null ? config.nodeUrl : network?.nodeUrl;
     final relay = config != null
         ? config.epicboxDomain
         : network?.relay.host;
     final privacyState = [
-      if (torAvailable) l.settingsStateJoin(l.netStatusTor, torWord(l, torState)),
-      ?relay,
+      if (node != null && node.isNotEmpty) shortHost(node),
+      if (relay != null && relay.isNotEmpty) shortHost(relay),
+      if (torAvailable)
+        l.settingsStateTor(torWord(l, torState).toLowerCase()),
     ];
     final securityState = !backedUp
         ? (text: l.settingsStateBackUp, color: t.warn)

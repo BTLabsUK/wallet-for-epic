@@ -4239,29 +4239,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverMyRelays => '我的服务器';
 
   @override
-  String get serverRemoveRelay => '从我的服务器移除';
+  String get serverMenuRemove => '从我的列表移除';
 
   @override
-  String get serverRemoveInUse => '正在使用。请先切换到其他服务器。';
+  String get serverMenuDelete => '删除';
 
   @override
-  String get serverRemoveRelayTitle => '移除此服务器？';
-
-  @override
-  String get serverRemoveNodeTitle => '移除此节点？';
-
-  @override
-  String serverRemoveBodyPublic(String host) {
-    return '$host 将从我的列表中移除。要再次使用，请从公共列表中选择。';
+  String settingsStateTor(String state) {
+    return 'Tor $state';
   }
 
   @override
-  String serverRemoveBodyCustom(String host) {
-    return '$host 将从我的列表中移除。要使用，请重新输入。';
-  }
-
-  @override
-  String get serverRemoveConfirm => '移除';
+  String get serverRemoveInUse => '正在使用。请先选择其他服务器。';
 
   @override
   String get serverSupportsNotifications => '支持通知';
@@ -4340,12 +4329,6 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get serverAddMine => '添加到我的节点';
-
-  @override
-  String get serverRemoveMine => '从我的节点移除';
 
   @override
   String get serverNotResponding => '无响应';

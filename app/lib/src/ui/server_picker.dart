@@ -67,7 +67,7 @@ String myNodesKey(Chain chain) => 'app.myNodes.${chain.name}';
 /// The secret-store key of a chain's "my relays": a JSON list of relay labels.
 String myRelaysKey(Chain chain) => 'app.myRelays.${chain.name}';
 
-/// The user's nodes of a chain: starred public nodes, addresses they typed and nodes the
+/// The user's nodes of a chain: public nodes they moved onto, addresses they typed and nodes the
 /// wallet connected to that no list has, in the order they were added.
 final myNodesProvider =
     AsyncNotifierProvider.family<MyNodesNotifier, List<String>, Chain>(
@@ -356,43 +356,52 @@ enum ServerKind { node, relay }
 /// The key of a server row, by its value (the node URL or the relay label), for tests.
 Key serverRowKey(String value) => ValueKey('server-row-$value');
 
-/// The key of a node row's star, for tests.
-Key serverStarKey(String value) => ValueKey('server-star-$value');
+/// The key of a My-list row's menu button (the down arrow of a public server, the bin of a
+/// typed-in one), for tests.
+Key serverMenuKey(String value) => ValueKey('server-menu-$value');
 
-/// The key of a My relays row's remove button, for tests.
-Key serverRemoveKey(String value) => ValueKey('server-remove-$value');
+/// The key of the one item in a My-list row's popup, for tests.
+Key serverMenuItemKey(String value) => ValueKey('server-menu-item-$value');
 
-/// Asks before [host] leaves My nodes ([node]) or My relays: a [public] server goes back to
-/// the public list, a typed-in one is gone. True to remove.
-Future<bool> _confirmRemove(
-  BuildContext context, {
-  required bool node,
-  required bool public,
-  required String host,
-}) async {
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) {
-      final l = context.l10n;
-      return AlertDialog(
-        title: Text(node ? l.serverRemoveNodeTitle : l.serverRemoveRelayTitle),
-        content: Text(
-          public ? l.serverRemoveBodyPublic(host) : l.serverRemoveBodyCustom(host),
+/// The button at the end of a My-list row. A [public] server has a down arrow whose popup
+/// "Remove from my list" sends it back to the public list; a typed-in one has a bin whose popup
+/// "Delete" deletes it. Disabled, with the reason as its tooltip, on the server in use.
+class _RowMenu extends StatelessWidget {
+  const _RowMenu({
+    required this.value,
+    required this.public,
+    required this.inUse,
+    required this.onChosen,
+  });
+
+  final String value;
+  final bool public;
+  final bool inUse;
+  final VoidCallback onChosen;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final label = public ? l.serverMenuRemove : l.serverMenuDelete;
+    return PopupMenuButton<bool>(
+      key: serverMenuKey(value),
+      enabled: !inUse,
+      tooltip: inUse ? l.serverRemoveInUse : label,
+      icon: Icon(
+        public ? Icons.arrow_downward : Icons.delete_outline,
+        color: inUse ? t.faint : t.dim,
+      ),
+      onSelected: (_) => onChosen(),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          key: serverMenuItemKey(value),
+          value: true,
+          child: Text(label),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.commonCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.serverRemoveConfirm),
-          ),
-        ],
-      );
-    },
-  );
-  return confirmed == true;
+      ],
+    );
+  }
 }
 
 /// The health of a listed server: its bars, their colour, and the words for a screen reader.
@@ -425,10 +434,12 @@ Future<bool> _confirmRemove(
 /// The node or Epicbox rows of [preset]'s network: a "My nodes" or "My servers" section (the
 /// user's list, and the [current] server when no list has it) and the public servers. The
 /// user's list holds at most one public server (the one in use after a switch) and any number
-/// of typed-in ones; a server in it shows once, there, with the star (nodes) or the bin
-/// (relays) that takes it out: a public one goes back to the public list, a typed-in one is
-/// gone; the [current] one may leave too, the wallet stays on it. Public-list rows have neither. The push relay is a public relay with a bell. Each row is one 56 dp target; [selected] has the check, [current]
-/// says so. Not scrollable itself: the sheet and Settings › Network put it in their scroll.
+/// of typed-in ones; a server in it shows once, there, with a [_RowMenu]: a public one has a
+/// down arrow that sends it back to the public list, a typed-in one a bin that deletes it; the
+/// [current] one has it disabled. Public-list rows have none; tapping one selects it, and a
+/// switch moves it up into the user's list in place of the public one it had. The push relay
+/// is a public relay with a bell. Each row is one 56 dp target; [selected] has the check,
+/// [current] says so. Not scrollable itself: the sheet and Settings › Network put it in their scroll.
 ///
 /// [value]s are node URLs or relay labels (`host` or `host:port`). [query] filters the rows
 /// by host or operator.
@@ -487,39 +498,37 @@ class ServerList extends ConsumerWidget {
       if (cur != null &&
           publicOf(cur) == null &&
           !mine.any((m) => _sameNode(m, cur)))
-        // The typed-in node in use, out of the list: shown, with no star to take it out.
-        (url: cur, node: null, mine: false),
+        // The typed-in node in use, out of the list: shown, with its bin disabled.
+        (url: cur, node: null, mine: true),
     ];
     final publicRows = [
       for (final n in public)
         if (!mine.any((m) => _sameNode(m, n.url)))
           (url: n.url, node: n, mine: false),
     ];
+    // The check follows the selection; the server in use keeps it while the selection (a
+    // typed address, say) is in neither list.
+    final selectedListed =
+        selected != null &&
+        [...mineRows, ...publicRows].any((r) => _sameNode(selected!, r.url));
     Widget row(({String url, PublicNode? node, bool mine}) r) {
       final s = r.node?.status ?? nodeStatusFor(listed ?? const [], r.url);
       final inUse = cur != null && _sameNode(cur, r.url);
+      final isSelected = selected != null && _sameNode(selected!, r.url);
       return _NodeRow(
         key: serverRowKey(r.url),
         url: r.url,
         operator: r.node?.operator ?? s?.operator,
         status: s,
         inMine: r.mine,
-        selected: selected != null && _sameNode(selected!, r.url),
+        public: r.node != null,
+        selected: isSelected,
+        check: isSelected || (inUse && !selectedListed),
         current: inUse,
         onTap: () => onSelected(r.url),
-        // Leaving My nodes asks first. The node in use may leave too: the wallet stays on it,
-        // shown in the public list, or (typed in) on its own until the next switch.
-        onStar: () async {
-          if (!await _confirmRemove(
-            context,
-            node: true,
-            public: r.node != null,
-            host: serverHost(r.url),
-          )) {
-            return;
-          }
-          await ref.read(myNodesProvider(preset.chain).notifier).remove(r.url);
-        },
+        // The popup is the confirmation; the node in use cannot leave the list.
+        onRemove: () =>
+            ref.read(myNodesProvider(preset.chain).notifier).remove(r.url),
       );
     }
 
@@ -581,13 +590,19 @@ class ServerList extends ConsumerWidget {
     }.where((r) => !kept.contains(r) && publicOf(r) == null);
     final mineRows = [
       for (final r in kept) (relay: r, listed: publicOf(r), removable: true),
-      for (final r in extra) (relay: r, listed: null, removable: false),
+      // A relay typed in and not saved yet, or the one in use out of the list: the bin shows
+      // (disabled) only on the one in use.
+      for (final r in extra)
+        (relay: r, listed: null, removable: r.label == current),
     ];
     final publicRows = [
       for (final p in public)
         if (!kept.contains(p.relay))
           (relay: p.relay, listed: p, removable: false),
     ];
+    final selectedListed = [...mineRows, ...publicRows].any(
+      (r) => r.relay.label == selected,
+    );
     Widget row(
       ({EpicboxRelay relay, PublicRelay? listed, bool removable}) r,
     ) {
@@ -601,21 +616,13 @@ class ServerList extends ConsumerWidget {
         status: r.listed?.status,
         isDefault: r.relay == preset.defaultRelay,
         selected: selected == label,
+        check: selected == label || (isCurrent && !selectedListed),
         current: isCurrent,
+        public: r.listed != null,
         removable: r.removable,
         onTap: () => onSelected(label),
-        // As for nodes: the relay in use may leave the list too, the wallet stays on it.
-        onRemove: () async {
-          if (!await _confirmRemove(
-            context,
-            node: false,
-            public: r.listed != null,
-            host: label,
-          )) {
-            return;
-          }
-          await ref.read(myRelaysProvider(preset.chain).notifier).remove(label);
-        },
+        onRemove: () =>
+            ref.read(myRelaysProvider(preset.chain).notifier).remove(label),
       );
     }
 
@@ -777,8 +784,8 @@ class _RowFrame extends StatelessWidget {
 }
 
 /// One node: bars in the monitor's health colour, host in mono and its lag (`at tip`, `−12`),
-/// under it operator · latency · version, or "Not responding" greyed; the star on a My nodes
-/// row, which takes it out of the list (disabled on the node in use).
+/// under it operator · latency · version, or "Not responding" greyed; the [_RowMenu] on a My
+/// nodes row, which takes it out of the list (disabled on the node in use).
 class _NodeRow extends StatelessWidget {
   const _NodeRow({
     super.key,
@@ -786,22 +793,31 @@ class _NodeRow extends StatelessWidget {
     required this.operator,
     required this.status,
     required this.inMine,
+    required this.public,
     required this.selected,
+    required this.check,
     required this.current,
     required this.onTap,
-    required this.onStar,
+    required this.onRemove,
   });
 
   final String url;
   final String? operator;
   final NodeStatus? status;
   final bool inMine;
+
+  /// Whether the public list has the node (the down arrow), else it was typed in (the bin).
+  final bool public;
   final bool selected;
+
+  /// Whether the check shows: on the selected row, and on the one in use while the selection
+  /// is not in the list.
+  final bool check;
   final bool current;
   final VoidCallback onTap;
 
-  /// Takes the node out of My nodes; null on the node in use, which stays.
-  final VoidCallback? onStar;
+  /// Takes the node out of My nodes (not offered on the node in use, which stays).
+  final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -901,25 +917,21 @@ class _NodeRow extends StatelessWidget {
         children: [
           // The check is green only while the chosen server is up (the bars' word); on a
           // server that is down or unknown it is dim. Never the accent, which reads as a
-          // warning beside the health colours; the favourite star keeps the brand gold.
-          if (selected || current)
+          // warning beside the health colours.
+          if (check)
             Icon(
               Icons.check,
               size: 20,
               color: s?.state == NodeHealthState.healthy ? t.ok : t.dim,
             ),
-          // Only a node in My nodes has the star: a public one joins the list by being
-          // switched to, so a star on it would have nothing to do.
+          // Only a node in My nodes has the menu: a public one joins the list by being
+          // switched to, so a button on it would have nothing to do.
           if (inMine)
-            IconButton(
-              key: serverStarKey(url),
-              tooltip: onStar == null
-                  ? l.serverRemoveInUse
-                  : l.serverRemoveMine,
-              isSelected: true,
-              onPressed: onStar,
-              icon: Icon(Icons.star_border, color: t.dim),
-              selectedIcon: Icon(Icons.star, color: t.accent),
+            _RowMenu(
+              value: url,
+              public: public,
+              inUse: current,
+              onChosen: onRemove,
             ),
         ],
       ),
@@ -928,8 +940,8 @@ class _NodeRow extends StatelessWidget {
 }
 
 /// One Epicbox relay: bars, host in mono with the `Default` tag and, on the push relay, a bell;
-/// under it operator · uptime · latency. A [removable] row (My relays) has a remove button,
-/// disabled with the reason as its tooltip when [onRemove] is null (the relay in use).
+/// under it operator · uptime · latency. A [removable] row (My servers) has a [_RowMenu],
+/// disabled with the reason as its tooltip on the relay in use.
 class _RelayRow extends StatelessWidget {
   const _RelayRow({
     super.key,
@@ -938,8 +950,10 @@ class _RelayRow extends StatelessWidget {
     required this.status,
     required this.isDefault,
     required this.selected,
+    required this.check,
     required this.current,
     required this.onTap,
+    this.public = false,
     this.removable = false,
     this.onRemove,
   });
@@ -949,8 +963,14 @@ class _RelayRow extends StatelessWidget {
   final RelayStatus? status;
   final bool isDefault;
   final bool selected;
+
+  /// Whether the check shows, as for [_NodeRow].
+  final bool check;
   final bool current;
   final VoidCallback onTap;
+
+  /// Whether the public list has the relay (the down arrow), else it was typed in (the bin).
+  final bool public;
   final bool removable;
   final VoidCallback? onRemove;
 
@@ -1060,7 +1080,7 @@ class _RelayRow extends StatelessWidget {
         children: [
           SizedBox(
             width: removable ? 20 : 44,
-            child: selected || current
+            child: check
                 ? Icon(
                     Icons.check,
                     size: 20,
@@ -1069,13 +1089,11 @@ class _RelayRow extends StatelessWidget {
                 : null,
           ),
           if (removable)
-            IconButton(
-              key: serverRemoveKey(relay.label),
-              tooltip: onRemove == null
-                  ? l.serverRemoveInUse
-                  : l.serverRemoveRelay,
-              onPressed: onRemove,
-              icon: Icon(Icons.delete_outline, color: t.dim),
+            _RowMenu(
+              value: relay.label,
+              public: public,
+              inUse: current,
+              onChosen: onRemove!,
             ),
         ],
       ),
