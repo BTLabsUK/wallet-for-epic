@@ -298,7 +298,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           semanticLabel: 'Language',
           value: _language,
           onChanged: (v) => setState(() => _language = v),
-          items: [for (final l in deskLanguages) ESelectItem(l, l)],
+          items: deskLanguageItems(),
         ),
       ),
     ],

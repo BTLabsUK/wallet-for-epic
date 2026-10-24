@@ -3703,7 +3703,7 @@
   "@licencesTor": {
     "description": "Licences screen: one line for Tor; the English source note with the version and URLs follows it."
   },
-  "licencesFonts": "Fonts Montserrat and JetBrains Mono: SIL Open Font License 1.1.",
+  "licencesFonts": "Fonts Montserrat, JetBrains Mono and Noto Sans Thai: SIL Open Font License 1.1.",
   "@licencesFonts": {
     "description": "Licences screen: one line for the bundled fonts. Keep the font names as they are."
   },
@@ -7346,6 +7346,10 @@
   "helpEnglishOnly": "Help is in English for now.",
   "@helpEnglishOnly": {
     "description": "Caption at the top of Help in every language but English: the topics are not translated yet."
+  },
+  "helpLanguageLabel": "Help language",
+  "@helpLanguageLabel": {
+    "description": "Label and tooltip of the switch at the top of Help that picks the language of the help topics only, not the app's (e.g. 'Help language: Deutsch'). Short."
   },
   "helpNoMatch": "No help matches \"{query}\"",
   "@helpNoMatch": {

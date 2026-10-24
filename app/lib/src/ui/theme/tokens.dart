@@ -9,6 +9,8 @@ import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 
+import 'fonts.dart' show thaiFallback;
+
 /// Every value the look may change. One instance per brightness.
 @immutable
 class WalletTokens extends ThemeExtension<WalletTokens> {
@@ -333,6 +335,7 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     colorScheme: scheme,
     scaffoldBackgroundColor: t.bg,
     canvasColor: t.bg,
+    fontFamilyFallback: thaiFallback,
   );
   final text = base.textTheme.apply(bodyColor: t.text, displayColor: t.text);
   const tabular = [FontFeature.tabularFigures()];

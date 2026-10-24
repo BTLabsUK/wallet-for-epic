@@ -2912,7 +2912,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get licencesTor => 'Tor：GNU 通用公共许可证第 3 版。其源代码见下文。';
 
   @override
-  String get licencesFonts => '字体 Montserrat 和 JetBrains Mono：SIL 开放字体许可证 1.1。';
+  String get licencesFonts =>
+      '字体 Montserrat、JetBrains Mono 和 Noto Sans Thai：SIL 开放字体许可证 1.1。';
 
   @override
   String get licencesFull => '全部许可证文本';
@@ -5479,6 +5480,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpEnglishOnly => '帮助目前仅提供英文。';
+
+  @override
+  String get helpLanguageLabel => '帮助语言';
 
   @override
   String helpNoMatch(String query) {

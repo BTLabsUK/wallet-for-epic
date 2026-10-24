@@ -5,7 +5,7 @@ The strings of the desktop invoice screens live in fragments, one per part of th
 several people can add strings at once without editing the ARB files together:
 
   lib/l10n/desk_invoices/<part>.json        English: "key": "text" and "@key": {description...}
-  lib/l10n/desk_invoices/<part>.<locale>.json   de, pl, ru, zh: "key": "text" only
+  lib/l10n/desk_invoices/<part>.<locale>.json   de, pl, ru, zh, th: "key": "text" only
 
 Every key starts with `deskInv`. The script drops every `deskInv*` key from app_<locale>.arb
 and appends the fragments' keys again, sorted by part then as written, so it can run any number
@@ -24,7 +24,7 @@ import sys
 APP = pathlib.Path(__file__).resolve().parent.parent
 L10N = APP / "lib" / "l10n"
 FRAGMENTS = L10N / "desk_invoices"
-LOCALES = ["en", "de", "pl", "ru", "zh"]
+LOCALES = ["en", "de", "pl", "ru", "zh", "th"]
 PREFIX = "deskInv"
 
 

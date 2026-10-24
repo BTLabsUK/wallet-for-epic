@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_licence.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
+import 'package:epic_wallet/src/ui/language_flag.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -439,10 +440,54 @@ void main() {
       for (final language in appLanguages) {
         expect(find.text(language.name), findsOneWidget);
       }
+      // A flag by each language's name; the system row has a globe instead.
+      expect(find.byType(LanguageFlag), findsNWidgets(appLanguages.length));
       await _tapText(tester, 'Deutsch');
       expect(h.store.values['app.language'], 'de');
       expect(h.container.read(appSettingsProvider).value?.language, 'de');
       expect(app().locale, const Locale('de'));
+    });
+  });
+
+  group('language on first run', () {
+    // The language the app's screens speak after the first frame, with [system] as the phone's
+    // languages and [saved] as the stored choice.
+    Future<String> uiLanguage(
+      WidgetTester tester,
+      List<Locale> system, {
+      String? saved,
+    }) async {
+      tester.platformDispatcher.localesTestValue = system;
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+      final h = _Harness();
+      if (saved != null) h.store.values['app.language'] = saved;
+      await h.pump(tester);
+      return AppLocalizations.of(tester.element(find.byType(Navigator).first))
+          .localeName;
+    }
+
+    testWidgets('a system language the app has is the language', (tester) async {
+      expect(await uiLanguage(tester, [const Locale('de', 'DE')]), 'de');
+    });
+
+    testWidgets('the first of the system languages the app has wins', (
+      tester,
+    ) async {
+      expect(
+        await uiLanguage(tester, [const Locale('ja'), const Locale('th')]),
+        'th',
+      );
+    });
+
+    testWidgets('a system language the app lacks gives English', (tester) async {
+      expect(await uiLanguage(tester, [const Locale('ja')]), 'en');
+    });
+
+    testWidgets('an explicit choice beats the system', (tester) async {
+      expect(
+        await uiLanguage(tester, [const Locale('de')], saved: 'pl'),
+        'pl',
+      );
     });
   });
 

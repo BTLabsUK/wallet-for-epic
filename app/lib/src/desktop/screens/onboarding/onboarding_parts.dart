@@ -1,4 +1,5 @@
 import '../../../app_info.dart';
+import '../../../ui/language_flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,8 +99,22 @@ List<ERailStep> railOf(List<String> labels, int current) => [
 Widget backButton(VoidCallback onTap, {String label = 'Back'}) =>
     EButton.ghost(label: label, icon: EIcons.arrowLeft, tabStop: false, onPressed: onTap);
 
-/// The languages the app has: Setup › Preferences.
-const deskLanguages = ['English', 'Deutsch', 'Polski', 'Русский', '中文'];
+/// The languages the app has: Setup › Preferences, Settings › Appearance. Each is stored by its
+/// own name (`DeskSettings.language`); the code picks its flag.
+const deskLanguageCodes = {
+  'English': 'en',
+  'Deutsch': 'de',
+  'Polski': 'pl',
+  'Русский': 'ru',
+  '中文': 'zh',
+  'ไทย': 'th',
+};
+
+/// The language options of a select: the flag and the language's own name.
+List<ESelectItem<String>> deskLanguageItems() => [
+  for (final MapEntry(key: name, value: code) in deskLanguageCodes.entries)
+    ESelectItem(name, name, leading: LanguageFlag(code, height: 14)),
+];
 
 /// Unlock's argument after a flow added a wallet: [id] is chosen and "{name} added." shows.
 class UnlockAdded {

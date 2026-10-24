@@ -126,11 +126,12 @@ class DeskTextScaler extends TextScaler {
 }
 
 /// The locale of Settings › Appearance › Language (its names: English, Deutsch, Polski,
-/// Русский, 中文); English for anything else.
+/// Русский, 中文, ไทย); English for anything else.
 Locale deskLocaleOf(String language) => switch (language) {
   'Deutsch' => const Locale('de'),
   'Polski' => const Locale('pl'),
   'Русский' => const Locale('ru'),
   '中文' || '简体中文' => const Locale('zh'),
+  'ไทย' => const Locale('th'),
   _ => const Locale('en'),
 };

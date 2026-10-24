@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../demo.dart';
 import '../help/help_content.dart';
+import '../help/help_i18n.dart';
 import '../l10n.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
@@ -17,6 +18,7 @@ import '../settings.dart';
 import 'common.dart';
 import 'feedback_screen.dart';
 import 'handshake.dart';
+import 'help_language_switch.dart';
 import 'info_hint.dart';
 import 'history_screen.dart';
 import 'outputs_screen.dart';
@@ -34,24 +36,26 @@ const int sendTtlDays = 14;
 /// The key of the search field, for tests.
 const Key helpSearchKey = ValueKey('help-search');
 
-/// The topics this wallet shows: the shared set for the phone, the invoice topics when the
-/// wallet supports invoices, Tor only when the phone has it.
-List<HelpTopic> phoneHelpTopics(WidgetRef ref, AppLocalizations l) {
+/// The topics this wallet shows in [lang], the help language: the shared set for the phone, the
+/// invoice topics when the wallet supports invoices, Tor only when the phone has it. A topic
+/// [lang] has no translation of is English.
+List<HelpTopic> phoneHelpTopics(WidgetRef ref, String lang) {
   final confirmations = confirmationsTargetOf(ref);
   final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
   final tor = ref.watch(phoneTorProvider.select(torShown));
   return [
-    ...helpTopics(confirmations, platform: HelpPlatform.phone, tor: tor),
-    if (invoices) ...invoiceHelpTopics(l, confirmations),
+    ...localizedHelpTopics(lang, confirmations, platform: HelpPlatform.phone, tor: tor),
+    if (invoices) ...invoiceHelpTopics(helpStrings(lang), confirmations),
   ];
 }
 
-/// The sections in the order the index shows them: Invoices before "When something goes
-/// wrong", and only when a topic uses it.
-List<HelpSection> _sectionsFor(List<HelpTopic> topics, AppLocalizations l) {
+/// The sections in [lang], in the order the index shows them: Invoices before "When something
+/// goes wrong", and only when a topic uses it.
+List<HelpSection> _sectionsFor(List<HelpTopic> topics, String lang) {
+  final l = helpStrings(lang);
   final used = topics.map((t) => t.section).toSet();
   final out = <HelpSection>[];
-  for (final s in helpSections) {
+  for (final s in localizedHelpSections(lang)) {
     if (s.id == 'trouble' && used.contains(invoiceHelpSection)) {
       out.add((id: invoiceHelpSection, title: l.deskInvHelpTitle, lede: l.deskInvHelpLede, art: ''));
     }
@@ -119,12 +123,12 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     super.dispose();
   }
 
-  void _openTopic(HelpTopic topic, List<HelpTopic> all) {
+  void _openTopic(HelpTopic topic, List<HelpTopic> all, String lang) {
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (_) => HelpTopicScreen(
           topic: topic,
-          section: _sectionsFor(all, context.l10n).firstWhere((s) => s.id == topic.section),
+          section: _sectionsFor(all, lang).firstWhere((s) => s.id == topic.section),
           related: [for (final t in all) if (t.section == topic.section && t != topic) t],
         ),
       ),
@@ -136,32 +140,40 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     final l = context.l10n;
     final t = context.tokens;
     final text = Theme.of(context).textTheme;
-    final topics = phoneHelpTopics(ref, l);
-    final sections = _sectionsFor(topics, l);
+    final lang = phoneHelpLanguage(ref, context);
+    final topics = phoneHelpTopics(ref, lang);
+    final sections = _sectionsFor(topics, lang);
     if (!_opened && widget.topic != null) {
       // The topic's page goes over the index on arrival, so Back lands on the index.
       _opened = true;
       final t = topics.where((t) => t.id == widget.topic).firstOrNull;
       if (t != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _openTopic(t, topics);
+          if (mounted) _openTopic(t, topics, lang);
         });
       }
     }
     final words = helpQueryWords(_query.text);
     final searching = words.isNotEmpty;
     final hits = searching ? [for (final x in topics) if (helpMatches(x, words)) x] : topics;
-    final english = Localizations.localeOf(context).languageCode != 'en';
+    // Nobody has written the help in this language yet: it shows in English.
+    final english = !helpTranslated(lang);
 
     Widget row(HelpTopic topic, {bool section = false}) => _TopicRow(
       topic: topic,
       words: words,
       overline: section ? sections.firstWhere((s) => s.id == topic.section).title : null,
-      onTap: () => _openTopic(topic, topics),
+      onTap: () => _openTopic(topic, topics, lang),
     );
 
     return SlotScaffold(
-      appBar: AppBar(title: Text(l.helpTitle)),
+      appBar: AppBar(
+        title: Text(l.helpTitle),
+        actions: [
+          HelpLanguageSwitch(current: lang),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -505,11 +517,11 @@ class HelpBlockView extends StatelessWidget {
       style: style,
       children: [
         for (final p in helpInline(text))
-          if (p.place && helpPlaceGoes(p.text))
+          if (p.place && helpPlaceGoes(p.target))
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,
-              child: _PlaceLink(text: p.text, style: style),
+              child: _PlaceLink(text: p.text, target: p.target, style: style),
             )
           else
             TextSpan(
@@ -556,9 +568,11 @@ class HelpBlockView extends StatelessWidget {
 }
 
 class _PlaceLink extends StatelessWidget {
-  const _PlaceLink({required this.text, required this.style});
+  const _PlaceLink({required this.text, required this.target, required this.style});
 
+  /// What the link says, and the English place it goes to.
   final String text;
+  final String target;
   final TextStyle style;
 
   @override
@@ -568,7 +582,7 @@ class _PlaceLink extends StatelessWidget {
       button: true,
       link: true,
       child: InkWell(
-        onTap: () => openHelpPlace(context, text),
+        onTap: () => openHelpPlace(context, target),
         borderRadius: BorderRadius.circular(4),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),

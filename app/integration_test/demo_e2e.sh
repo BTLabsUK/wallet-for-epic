@@ -13,7 +13,7 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP="$(cd "$HERE/.." && pwd)"
-LIB="${WFE_DEMO_LEPIC_LIB:-$APP/third_party/lepic/bindings/flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so}"
+LIB="${WFE_DEMO_LEPIC_LIB:-$APP/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so}"
 LOGS=/tmp/epic-build/wfe-app-logs
 LOG="$LOGS/demo-e2e-$(date -u +%Y%m%dT%H%M%SZ).log"
 mkdir -p "$LOGS"

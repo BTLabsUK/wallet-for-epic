@@ -31,6 +31,7 @@ import 'common.dart';
 import 'contacts_screen.dart';
 import 'demo_screens.dart' show endDemo;
 import 'info_hint.dart';
+import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'licences_screen.dart';
 import 'network_status.dart';
@@ -168,6 +169,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     required String title,
     required List<({T value, String label})> options,
     required T current,
+    Widget? Function(T value)? leadingOf,
   }) {
     return showDialog<T>(
       context: context,
@@ -184,6 +186,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                   RadioListTile<T>(
                     value: option.value,
                     title: Text(option.label),
+                    secondary: leadingOf?.call(option.value),
                   ),
               ],
             ),
@@ -230,6 +233,17 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         (value: system, label: context.l10n.languageSystem),
         for (final a in appLanguages) (value: a.code, label: a.name),
       ],
+      // The system row gets a neutral globe, as wide as a flag, so the names line up.
+      leadingOf: (code) => code == system
+          ? SizedBox(
+              width: 16 * 4 / 3,
+              child: Icon(
+                Icons.language,
+                size: 16,
+                color: context.tokens.dim,
+              ),
+            )
+          : LanguageFlag(code),
     );
     if (code != null) {
       await _settings.setLanguage(code == system ? null : code);
