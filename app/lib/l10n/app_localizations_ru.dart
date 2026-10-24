@@ -14184,4 +14184,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskHistConflictApply => 'Применить';
+
+  @override
+  String get deskTxProofNone => 'Для этого платежа нет подтверждения платежа.';
 }

@@ -248,6 +248,8 @@ class Tx {
     this.height,
     this.kernel,
     this.hasProof = false,
+    this.proofSender,
+    this.proofSignature,
     this.coinbase = false,
     this.foundByScan = false,
     this.foundDuring,
@@ -313,6 +315,11 @@ class Tx {
   final int? height;
   final String? kernel;
   final bool hasProof;
+
+  /// The payment proof's sender address and the recipient's signature over it, as the core
+  /// reports them; null where it has none. The proof dialog shows only what is here.
+  final String? proofSender;
+  final String? proofSignature;
 
   /// A mining reward: spendable only after [coinbaseMaturity] confirmations.
   final bool coinbase;
@@ -391,6 +398,8 @@ class Tx {
       height: height,
       kernel: kernel,
       hasProof: hasProof,
+      proofSender: proofSender,
+      proofSignature: proofSignature,
       coinbase: coinbase,
       foundByScan: foundByScan,
       foundDuring: foundDuring,

@@ -13530,4 +13530,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskHistConflictApply => 'ใช้';
+
+  @override
+  String get deskTxProofNone => 'การชำระเงินนี้ไม่มีหลักฐานการชำระเงิน';
 }

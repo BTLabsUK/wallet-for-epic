@@ -13948,4 +13948,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskHistConflictApply => 'Übernehmen';
+
+  @override
+  String get deskTxProofNone =>
+      'Für diese Zahlung gibt es keinen Zahlungsnachweis.';
 }

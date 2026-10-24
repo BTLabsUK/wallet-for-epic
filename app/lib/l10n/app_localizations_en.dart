@@ -13793,4 +13793,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskHistConflictApply => 'Apply';
+
+  @override
+  String get deskTxProofNone => 'No payment proof for this payment.';
 }

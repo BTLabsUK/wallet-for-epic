@@ -18144,5 +18144,9 @@
   "deskHistConflictApply": "Apply",
   "@deskHistConflictApply": {
     "description": "Primary button in the Details differ dialog for the old wallet's history: apply the choices made."
+  },
+  "deskTxProofNone": "No payment proof for this payment.",
+  "@deskTxProofNone": {
+    "description": "Body of the payment proof dialog when the payment has no proof to show."
   }
 }

@@ -13061,4 +13061,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskHistConflictApply => '应用';
+
+  @override
+  String get deskTxProofNone => '这笔付款没有付款证明。';
 }

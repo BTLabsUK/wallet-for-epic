@@ -14216,4 +14216,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskHistConflictApply => 'Zastosuj';
+
+  @override
+  String get deskTxProofNone => 'Brak dowodu płatności dla tej płatności.';
 }

@@ -71,6 +71,7 @@
   "deskTxFactMessage": "Сообщение",
   "deskTxSignedByRecipient": "Подписано получателем",
   "deskTxProofView": "Открыть",
+  "deskTxProofNone": "Для этого платежа нет подтверждения платежа.",
   "deskTxTechTitle": "Технические сведения",
   "deskTxTechId": "ID",
   "deskTxTechSlate": "ID слейта",

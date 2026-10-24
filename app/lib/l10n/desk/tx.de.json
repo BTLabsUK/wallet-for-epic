@@ -71,6 +71,7 @@
   "deskTxFactMessage": "Nachricht",
   "deskTxSignedByRecipient": "Vom Empfänger signiert",
   "deskTxProofView": "Anzeigen",
+  "deskTxProofNone": "Für diese Zahlung gibt es keinen Zahlungsnachweis.",
   "deskTxTechTitle": "Technische Details",
   "deskTxTechId": "ID",
   "deskTxTechSlate": "Slate-ID",

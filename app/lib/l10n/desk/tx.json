@@ -407,6 +407,10 @@
   "@deskTxProofView": {
     "description": "Button on the transaction detail that opens the payment proof. Short."
   },
+  "deskTxProofNone": "No payment proof for this payment.",
+  "@deskTxProofNone": {
+    "description": "Body of the payment proof dialog when the payment has no proof to show."
+  },
   "deskTxTechTitle": "Technical details",
   "@deskTxTechTitle": {
     "description": "Collapsible section on the transaction detail with technical identifiers."

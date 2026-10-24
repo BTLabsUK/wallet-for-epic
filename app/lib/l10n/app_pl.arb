@@ -3610,5 +3610,6 @@
   "deskInvNoticeReceiveSuperseded": "Twoje drugie urządzenie z tym portfelem przyjęło płatność, którą odbierało też to urządzenie. Użyj „Sprawdź saldo”, aby zobaczyć ją tutaj.",
   "deskHistConflictLeadOldWallet": "{n, plural, one{Historia starego portfela ma inne szczegóły dla {n} płatności, którą opisano. Twoje zostają, chyba że wybierzesz inaczej.} few{Historia starego portfela ma inne szczegóły dla {n} płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.} many{Historia starego portfela ma inne szczegóły dla {n} płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.} other{Historia starego portfela ma inne szczegóły dla {n} płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.}}",
   "deskHistConflictOldWallet": "Stary portfel",
-  "deskHistConflictApply": "Zastosuj"
+  "deskHistConflictApply": "Zastosuj",
+  "deskTxProofNone": "Brak dowodu płatności dla tej płatności."
 }

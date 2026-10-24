@@ -21817,6 +21817,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Apply'**
   String get deskHistConflictApply;
+
+  /// Body of the payment proof dialog when the payment has no proof to show.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment proof for this payment.'**
+  String get deskTxProofNone;
 }
 
 class _AppLocalizationsDelegate
