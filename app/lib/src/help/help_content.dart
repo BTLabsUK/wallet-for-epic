@@ -369,7 +369,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         'Tor',
         'Slower and more private: one switch routes the wallet\'s connections through Tor, with no ports to open. Off by default.',
         [
-          HelpBlock.p('With Tor on, the connection to the Epicbox server goes through Tor, and the wallet has a Tor address (it ends in .onion) that other wallets can pay straight to, from anywhere, with nothing to forward on the router. The addresses you share stay the same.'),
+          HelpBlock.p('With Tor on, the connection to the Epicbox server goes through Tor, and the wallet has a Tor address (it ends in .onion) that other wallets can pay straight to, from anywhere, with nothing to forward on the router. Turning Tor on does not change the addresses you share.'),
           HelpBlock.ul([
             'Turn it on under [[Settings › Privacy › Tor]]. The Tor row in the sidebar shows its state.',
             'While Tor starts or is not connected, what goes over Tor waits; nothing goes around it. Retry, or turn Tor off.',

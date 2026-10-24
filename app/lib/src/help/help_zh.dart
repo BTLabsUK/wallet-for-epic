@@ -255,7 +255,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         'Tor',
         '更慢，但更私密：一个开关即可让钱包的连接经由 Tor，无需开放端口。默认关闭。',
         [
-          HelpBlock.p('开启 Tor 后，与 Epicbox 服务器的连接经由 Tor，钱包还会拥有一个 Tor 地址（以 .onion 结尾），其他钱包可以从任何地方直接向它付款，无需在路由器上做端口转发。你分享的地址保持不变。'),
+          HelpBlock.p('开启 Tor 后，与 Epicbox 服务器的连接经由 Tor，钱包还会拥有一个 Tor 地址（以 .onion 结尾），其他钱包可以从任何地方直接向它付款，无需在路由器上做端口转发。开启 Tor 不会改变你分享的地址。'),
           HelpBlock.ul([
             '在[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]中开启。侧边栏中的 Tor 行显示其状态。',
             'Tor 启动中或未连接时，经由 Tor 的内容会等待；不会绕过它。点“重试”，或关闭 Tor。',

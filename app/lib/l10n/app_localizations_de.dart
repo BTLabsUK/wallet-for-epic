@@ -3037,7 +3037,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'Eine zweite Adresse nur für Rechnungen, an die vertrauenswürdige Dienste Rechnungen schicken dürfen. Nachrichten von allen anderen werden verworfen, und nichts wird bezahlt, bis Sie jede Rechnung mit Ihrer PIN bestätigen. Ihre Adresse für Zahlungen bleibt dieselbe.';
+      'Eine zweite Adresse nur für Rechnungen, an die vertrauenswürdige Dienste Rechnungen schicken dürfen. Nachrichten von allen anderen werden verworfen, und nichts wird bezahlt, bis Sie jede Rechnung mit Ihrer PIN bestätigen. Sie ist von Ihrer Adresse für Zahlungen getrennt.';
 
   @override
   String get invoiceSettingsTitle => 'Rechnungen';
@@ -3047,7 +3047,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddressBody =>
-      'Geben Sie diese Adresse einem Dienst, dem Sie vertrauen, damit er Ihnen Rechnungen schicken kann. Ihre Adresse für Zahlungen bleibt dieselbe.';
+      'Geben Sie diese Adresse einem Dienst, dem Sie vertrauen, damit er Ihnen Rechnungen schicken kann. Sie ist von Ihrer Adresse für Zahlungen getrennt.';
 
   @override
   String get invoiceSettingsQrLabel => 'QR-Code Ihrer Rechnungsadresse';

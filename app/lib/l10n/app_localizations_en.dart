@@ -2994,7 +2994,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. Your address for payments stays the same.';
+      'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. It is separate from your payment address.';
 
   @override
   String get invoiceSettingsTitle => 'Invoices';
@@ -3004,7 +3004,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddressBody =>
-      'Give this address to a service you trust, so it can send you invoices. Your address for payments stays the same.';
+      'Give this address to a service you trust, so it can send you invoices. It is separate from your payment address.';
 
   @override
   String get invoiceSettingsQrLabel => 'QR code of your invoice address';

@@ -3572,7 +3572,7 @@
   "@settingsInvoices": {
     "description": "Settings row that opens the invoice settings."
   },
-  "settingsInvoicesSubtitle": "A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. Your address for payments stays the same.",
+  "settingsInvoicesSubtitle": "A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. It is separate from your payment address.",
   "@settingsInvoicesSubtitle": {
     "description": "Info sheet behind the Invoice address row: a second address, the allowlist, approval with the PIN."
   },
@@ -3584,7 +3584,7 @@
   "@invoiceSettingsAddressTitle": {
     "description": "Heading above the invoice address and its QR code."
   },
-  "invoiceSettingsAddressBody": "Give this address to a service you trust, so it can send you invoices. Your address for payments stays the same.",
+  "invoiceSettingsAddressBody": "Give this address to a service you trust, so it can send you invoices. It is separate from your payment address.",
   "@invoiceSettingsAddressBody": {
     "description": "Explains the invoice address, which is separate from the receive address."
   },

@@ -2817,7 +2817,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      '第二个地址，只用于账单，你信任的服务可以向它发送账单。其他人的消息一律丢弃；在你用 PIN 批准每张账单之前，不会支付任何款项。你的付款地址保持不变。';
+      '第二个地址，只用于账单，你信任的服务可以向它发送账单。其他人的消息一律丢弃；在你用 PIN 批准每张账单之前，不会支付任何款项。它与你的收款地址分开。';
 
   @override
   String get invoiceSettingsTitle => '账单';
@@ -2827,7 +2827,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddressBody =>
-      '将此地址提供给你信任的服务，以便它向你发送账单。你的收款地址保持不变。';
+      '将此地址提供给你信任的服务，以便它向你发送账单。它与你的收款地址分开。';
 
   @override
   String get invoiceSettingsQrLabel => '你的账单地址二维码';

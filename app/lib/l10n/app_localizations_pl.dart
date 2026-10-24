@@ -3158,7 +3158,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'Drugi adres, tylko do faktur, na który zaufane serwisy mogą je wystawiać. Wiadomości od kogokolwiek innego są odrzucane, a nic nie jest płacone, dopóki nie zatwierdzisz każdej faktury PIN-em. Twój adres do płatności zostaje bez zmian.';
+      'Drugi adres, tylko do faktur, na który zaufane serwisy mogą je wystawiać. Wiadomości od kogokolwiek innego są odrzucane, a nic nie jest płacone, dopóki nie zatwierdzisz każdej faktury PIN-em. Jest oddzielny od twojego adresu do płatności.';
 
   @override
   String get invoiceSettingsTitle => 'Faktury';
@@ -3168,7 +3168,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddressBody =>
-      'Podaj ten adres serwisowi, któremu ufasz, aby mógł wysyłać ci faktury. Twój adres do płatności się nie zmienia.';
+      'Podaj ten adres serwisowi, któremu ufasz, aby mógł wysyłać ci faktury. Jest oddzielny od twojego adresu do płatności.';
 
   @override
   String get invoiceSettingsQrLabel => 'Kod QR twojego adresu do faktur';

@@ -257,7 +257,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         'Tor',
         'Langsamer und privater: Ein Schalter leitet die Verbindungen der Wallet über Tor, ohne Ports zu öffnen. Standardmäßig aus.',
         [
-          HelpBlock.p('Mit Tor läuft die Verbindung zum Epicbox-Server über Tor, und die Wallet hat eine Tor-Adresse (sie endet auf .onion), an die andere Wallets direkt zahlen können, von überall, ohne Weiterleitung am Router. Die Adressen, die Sie weitergeben, bleiben dieselben.'),
+          HelpBlock.p('Mit Tor läuft die Verbindung zum Epicbox-Server über Tor, und die Wallet hat eine Tor-Adresse (sie endet auf .onion), an die andere Wallets direkt zahlen können, von überall, ohne Weiterleitung am Router. Tor ändert die Adressen nicht, die Sie weitergeben.'),
           HelpBlock.ul([
             'Schalten Sie es unter [[Einstellungen › Datenschutz › Tor|Settings › Privacy › Tor]] ein. Die Tor-Zeile in der Seitenleiste zeigt den Zustand.',
             'Solange Tor startet oder nicht verbunden ist, wartet, was über Tor läuft; nichts geht daran vorbei. Wiederholen oder Tor ausschalten.',

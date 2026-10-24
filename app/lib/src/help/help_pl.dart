@@ -257,7 +257,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         'Tor',
         'Wolniej i bardziej prywatnie: jeden przełącznik kieruje połączenia portfela przez Tor, bez otwierania portów. Domyślnie wyłączony.',
         [
-          HelpBlock.p('Z włączonym Torem połączenie z serwerem Epicbox idzie przez Tor, a portfel ma adres Tor (kończy się na .onion), na który inne portfele mogą płacić bezpośrednio, z dowolnego miejsca, bez przekierowywania czegokolwiek na routerze. Adresy, które udostępniasz, się nie zmieniają.'),
+          HelpBlock.p('Z włączonym Torem połączenie z serwerem Epicbox idzie przez Tor, a portfel ma adres Tor (kończy się na .onion), na który inne portfele mogą płacić bezpośrednio, z dowolnego miejsca, bez przekierowywania czegokolwiek na routerze. Włączenie Tora nie zmienia adresów, które udostępniasz.'),
           HelpBlock.ul([
             'Włącz go w [[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]. Wiersz Tor na pasku bocznym pokazuje jego stan.',
             'Gdy Tor się uruchamia lub nie jest połączony, to, co idzie przez Tor, czeka; nic nie idzie obok. Ponów lub wyłącz Tor.',

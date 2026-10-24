@@ -4459,7 +4459,7 @@ abstract class AppLocalizations {
   /// Info sheet behind the Invoice address row: a second address, the allowlist, approval with the PIN.
   ///
   /// In en, this message translates to:
-  /// **'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. Your address for payments stays the same.'**
+  /// **'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. It is separate from your payment address.'**
   String get settingsInvoicesSubtitle;
 
   /// Title of the invoice settings screen.
@@ -4477,7 +4477,7 @@ abstract class AppLocalizations {
   /// Explains the invoice address, which is separate from the receive address.
   ///
   /// In en, this message translates to:
-  /// **'Give this address to a service you trust, so it can send you invoices. Your address for payments stays the same.'**
+  /// **'Give this address to a service you trust, so it can send you invoices. It is separate from your payment address.'**
   String get invoiceSettingsAddressBody;
 
   /// Screen reader label of the invoice address QR code.
