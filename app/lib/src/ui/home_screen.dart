@@ -44,6 +44,11 @@ import 'tx_details_screen.dart';
 /// How often home refreshes against the node while it is on screen and the app is in front.
 const Duration autoRefreshInterval = Duration(seconds: 60);
 
+/// How often home asks the node for its tip between refreshes; a new block refreshes at once,
+/// as the desktop does. Epic's blocks come in bursts (three in a minute is common), so a
+/// refresh each minute alone could go from Confirming 0/3 to completed with nothing between.
+const Duration tipCheckInterval = Duration(seconds: 15);
+
 /// Transactions shown under "Recent activity".
 const int recentActivityCount = 5;
 
@@ -202,6 +207,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     onResume: _autoRefresh,
   );
   Timer? _timer;
+  Timer? _tipTimer;
+  bool _tipBusy = false;
 
   /// Payments whose "could not reach the node" notice was already shown.
   final Set<String> _delayedShown = {};
@@ -230,6 +237,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
     _lifecycle;
     _timer = Timer.periodic(autoRefreshInterval, (_) => _autoRefresh());
+    _tipTimer = Timer.periodic(tipCheckInterval, (_) => _checkTip());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Home opens at start and on every unlock: each is an opening. A resume that needs no
       // unlock checks from `WalletApp`.
@@ -244,6 +252,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _tipTimer?.cancel();
     _lifecycle.dispose();
     _pages.dispose();
     super.dispose();
@@ -269,6 +278,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return;
     }
     _refresh();
+  }
+
+  /// Asks the node for its tip and refreshes when it is past the height home counts
+  /// confirmations at: each block moves a payment's Confirming n/3. Skipped when a refresh
+  /// would be ([_autoRefresh]); a failed ask waits for the next one.
+  Future<void> _checkTip() async {
+    if (!mounted || _tipBusy) return;
+    final life = WidgetsBinding.instance.lifecycleState;
+    if (life != null && life != AppLifecycleState.resumed) return;
+    final home = ref.read(homeProvider);
+    final shown = home.value?.summary.lastConfirmedHeight;
+    if (shown == null || shown == BigInt.zero || _syncing(home) || ref.read(scanProvider).running) {
+      return;
+    }
+    _tipBusy = true;
+    try {
+      final tip = await ref.refresh(nodeTipProvider.future);
+      if (mounted && tip.height > shown) _autoRefresh();
+    } catch (_) {
+      // The status line shows a node that does not answer; the minute's refresh still runs.
+    } finally {
+      _tipBusy = false;
+    }
   }
 
   /// Opens a transaction file another app handed over, once a wallet is open to handle it.
