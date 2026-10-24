@@ -1,9 +1,9 @@
 /// Node failover on the desktop (`node_failover.dart` has the rules): once the wallet's node has
 /// read down ([ServiceStatus.nodeHealth], what the rail shows) for [nodeFailoverAfter], the
 /// open wallet moves to the next working node of the user's list for this session
-/// ([DeskWalletApi.useNodeForSession]). The state is the move, or null while the wallet is on
-/// the chosen node; the shell says it in a toast and the rail and Settings › Node name the
-/// chosen node under the one in use.
+/// ([DeskWalletApi.useNodeForSession]). [deskFailoverProvider] holds the move, or null while the
+/// wallet is on the chosen node; the shell says it in a toast and the rail and Settings › Node
+/// name the chosen node under the one in use.
 library;
 
 import 'dart:async';
@@ -25,28 +25,42 @@ export '../../node_failover.dart' show NodeFailover;
 /// stays down.
 const Duration deskFailoverRetry = Duration(seconds: 30);
 
-final deskFailoverProvider = NotifierProvider<DeskFailoverController, NodeFailover?>(DeskFailoverController.new);
+/// The move node failover made for this session, or null on the chosen node. Screens watch
+/// this; [deskFailoverWatchProvider] makes the moves.
+final deskFailoverProvider = NotifierProvider<DeskFailoverState, NodeFailover?>(DeskFailoverState.new);
 
-class DeskFailoverController extends Notifier<NodeFailover?> {
+class DeskFailoverState extends Notifier<NodeFailover?> {
+  @override
+  NodeFailover? build() {
+    // Another wallet, or the next unlock, opens on the chosen node.
+    ref.watch(deskProvider.select((s) => s.account?.id));
+    // A node the user picks is the chosen one from then on.
+    ref.listen(deskProvider.select((s) => s.status?.node.url), (_, url) {
+      final moved = state;
+      if (moved != null && url != null && !sameServer(ServerKind.node, url, moved.inUse)) state = null;
+    });
+    return null;
+  }
+
+  void moved(NodeFailover to) => state = to;
+}
+
+/// The watcher: alive while the shell shows (`shell.dart`), it times the node's silence and moves.
+final deskFailoverWatchProvider = NotifierProvider<DeskFailoverWatch, void>(DeskFailoverWatch.new);
+
+class DeskFailoverWatch extends Notifier<void> {
   Timer? _timer;
   bool _moving = false;
 
   @override
-  NodeFailover? build() {
-    // Another wallet, or the next unlock, opens on the chosen node.
+  void build() {
     ref.watch(deskProvider.select((s) => s.account?.id));
     ref.onDispose(() {
       _timer?.cancel();
       _timer = null;
     });
     ref.listen(deskProvider.select((s) => s.status?.nodeHealth), (_, h) => _follow(h));
-    // A node the user picks is the chosen one from then on.
-    ref.listen(deskProvider.select((s) => s.status?.node.url), (_, url) {
-      final moved = state;
-      if (moved != null && url != null && !sameServer(ServerKind.node, url, moved.inUse)) state = null;
-    });
     _follow(ref.read(deskProvider).status?.nodeHealth);
-    return null;
   }
 
   bool get _down => ref.read(deskProvider).status?.nodeHealth == ServiceHealth.down;
@@ -90,7 +104,7 @@ class DeskFailoverController extends Notifier<NodeFailover?> {
     }
     _moving = true;
     try {
-      final chosen = state?.chosen ?? current;
+      final chosen = ref.read(deskFailoverProvider)?.chosen ?? current;
       final nodes = st.nodes ?? const <NodeServer>[];
       final entries = ref.read(deskServerListProvider(ServerKind.node))?.entries ?? [for (final n in nodes) n.url];
       final candidates = failoverCandidates(
@@ -124,7 +138,7 @@ class DeskFailoverController extends Notifier<NodeFailover?> {
         if (!ref.mounted) return false;
         final now = ref.read(deskProvider).status?.node.url;
         if (now == null || !sameServer(ServerKind.node, now, url)) return false;
-        state = NodeFailover(chosen: chosen, inUse: url);
+        ref.read(deskFailoverProvider.notifier).moved(NodeFailover(chosen: chosen, inUse: url));
         return false;
       }
       logInfo('desk', 'node failover: no other node answers; staying');

@@ -1,9 +1,9 @@
 /// Node failover on the phone (`node_failover.dart` has the rules): watches the node status
 /// Home shows ([walletStatusProvider]) and, once the node in use has not answered for
 /// [nodeFailoverAfter], moves the open wallet to the next working node of the user's list for
-/// this session ([switchNodeForSession]). The state is the move, or null while the wallet is on
-/// the chosen node; the app says it in a notice (`app.dart`) and the status card names the
-/// chosen node beside the one in use.
+/// this session ([switchNodeForSession]). [nodeFailoverProvider] holds the move, or null while
+/// the wallet is on the chosen node; the app says it in a notice (`app.dart`) and the status
+/// card names the chosen node beside the one in use.
 library;
 
 import 'dart:async';
@@ -36,25 +36,17 @@ Duration get _afterShown => nodeFailoverAfter - statusSettle;
 /// node still does not answer.
 const Duration nodeFailoverRetry = Duration(seconds: 30);
 
-final nodeFailoverProvider = NotifierProvider<NodeFailoverNotifier, NodeFailover?>(
-  NodeFailoverNotifier.new,
+/// The move node failover made for this session, or null on the chosen node. Screens watch
+/// this; [nodeFailoverWatchProvider] makes the moves.
+final nodeFailoverProvider = NotifierProvider<NodeFailoverState, NodeFailover?>(
+  NodeFailoverState.new,
 );
 
-class NodeFailoverNotifier extends Notifier<NodeFailover?> {
-  Timer? _timer;
-
-  /// A move is running: a second one waits for the next offline.
-  bool _moving = false;
-
+class NodeFailoverState extends Notifier<NodeFailover?> {
   @override
   NodeFailover? build() {
     // A new wallet (an unlock, the next start) opens on the chosen node.
     ref.watch(sessionProvider);
-    ref.onDispose(() {
-      _timer?.cancel();
-      _timer = null;
-    });
-    ref.listen(walletStatusProvider.select((s) => s.node.state), (_, node) => _follow(node));
     // A node the user picks is the chosen one from then on.
     ref.listen(walletConfigProvider, (_, config) {
       final moved = state;
@@ -68,6 +60,31 @@ class NodeFailoverNotifier extends Notifier<NodeFailover?> {
       if (moved != null && url != null && !sameServer(ServerKind.node, url, moved.chosen)) state = null;
     });
     return null;
+  }
+
+  void moved(NodeFailover to) => state = to;
+}
+
+/// The watcher: alive for the app's life (`app.dart`), it times the node's silence and moves.
+final nodeFailoverWatchProvider = NotifierProvider<NodeFailoverWatch, void>(
+  NodeFailoverWatch.new,
+);
+
+class NodeFailoverWatch extends Notifier<void> {
+  Timer? _timer;
+
+  /// A move is running: a second one waits for the next offline.
+  bool _moving = false;
+
+  @override
+  void build() {
+    // A new wallet starts over.
+    ref.watch(sessionProvider);
+    ref.onDispose(() {
+      _timer?.cancel();
+      _timer = null;
+    });
+    ref.listen(walletStatusProvider.select((s) => s.node.state), (_, node) => _follow(node));
   }
 
   void _follow(NodeState node) {
@@ -113,7 +130,7 @@ class NodeFailoverNotifier extends Notifier<NodeFailover?> {
     try {
       final choice = await ref.read(networkChoiceProvider.future);
       if (!ref.mounted) return false;
-      final chosen = state?.chosen ?? choice.nodeUrl;
+      final chosen = ref.read(nodeFailoverProvider)?.chosen ?? choice.nodeUrl;
       final list = await ref.read(serverListProvider((ServerKind.node, config.chain)).future);
       final listed = await _monitor(choice.preset);
       if (!ref.mounted) return false;
@@ -143,7 +160,7 @@ class NodeFailoverNotifier extends Notifier<NodeFailover?> {
           logWarn('network', 'node failover refused: ${e.runtimeType}');
           continue;
         }
-        state = NodeFailover(chosen: chosen, inUse: url);
+        ref.read(nodeFailoverProvider.notifier).moved(NodeFailover(chosen: chosen, inUse: url));
         return false;
       }
       logInfo('network', 'node failover: no other node answers; staying');

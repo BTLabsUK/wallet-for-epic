@@ -72,6 +72,7 @@ class _Harness {
   _Harness(this._async, {String inUse = _a, Set<String> dead = const {_a}, AdvancedPrefs? prefs, bool tor = false})
     : wallet = _Wallet(inUse: inUse, dead: dead) {
     container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)]);
+    container.listen(deskFailoverWatchProvider, (_, _) {}, fireImmediately: true);
     container.listen(deskFailoverProvider, (_, _) {}, fireImmediately: true);
     final n = container.read(deskProvider.notifier);
     unawaited(n.refresh());

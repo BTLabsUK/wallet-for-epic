@@ -54,6 +54,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     ref.listenManual(nodeRecheckProvider, (_, _) {});
     // Alive for the app's life: a node that stops answering is left for the next working one
     // of the list for this session, and the notice says so wherever the user is.
+    ref.listenManual(nodeFailoverWatchProvider, (_, _) {});
     ref.listenManual(nodeFailoverProvider, (before, now) {
       final context = _navigator.currentContext;
       if (now == null || now == before || context == null) return;

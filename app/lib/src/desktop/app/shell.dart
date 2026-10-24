@@ -143,6 +143,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     });
     // Node failover moved the wallet to another node for this session: said wherever the
     // user is, never asked.
+    ref.listen(deskFailoverWatchProvider, (_, _) {});
     ref.listen(deskFailoverProvider, (before, now) {
       if (now != null && now != before && mounted) {
         showEToast(context, context.l10n.deskNodeFailoverSwitched(nodeHost(now.inUse)), tone: ETone.info);

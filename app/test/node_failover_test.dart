@@ -320,6 +320,7 @@ class _Harness {
     container.read(sessionProvider.notifier).unlocked(session);
     if (tor) container.read(phoneTorProvider);
     container.listen(walletStatusProvider, (_, _) {}, fireImmediately: true);
+    container.listen(nodeFailoverWatchProvider, (_, _) {}, fireImmediately: true);
     container.listen(nodeFailoverProvider, (_, _) {}, fireImmediately: true);
     // Settings and the list read; online settled.
     unawaited(container.read(appSettingsProvider.future));
