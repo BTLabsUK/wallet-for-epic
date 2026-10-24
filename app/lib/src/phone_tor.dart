@@ -151,6 +151,18 @@ final epicboxWaitingForTorProvider = Provider<bool>((ref) {
   return !listener.connected && !listener.stopped;
 });
 
+/// Counts the times tor renewed its connections after a network change or a long time away
+/// ([PhoneTor] through LEPIC's `refreshTor`): what goes over tor asks again on the new circuits
+/// at once ([nodeRecheckProvider]), as a question asked before died with the old connections.
+final torRenewalsProvider = NotifierProvider<TorRenewals, int>(TorRenewals.new);
+
+class TorRenewals extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void renewed() => state++;
+}
+
 /// Finds the tor binary: `findTorBundle()` (on Android the app's `libtor.so`), null on the
 /// web. Tests override it.
 final torBundleFinderProvider = Provider<Future<TorBundle?> Function()>(
@@ -723,6 +735,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
     try {
       await session.refreshTor(networkChanged: renew);
       logInfo('tor', 'refreshed after $why${renew ? ', connections renewed' : ''}');
+      if (renew && _current(generation)) ref.read(torRenewalsProvider.notifier).renewed();
       // Renewing turns tor's network off and on, which reopens its SOCKS port elsewhere: the
       // app's own requests follow it, or they would fail at the old one.
       final port = (await session.torStatus()).socksPort;

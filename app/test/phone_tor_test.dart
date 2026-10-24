@@ -347,6 +347,7 @@ void main() {
     expect(h.session.torStarts, hasLength(1));
     expect(h.state.phase, PhoneTorPhase.ready);
     expect(h.session.torRefreshes, [false]);
+    expect(h.container.read(torRenewalsProvider), 0, reason: 'nothing renewed');
   });
 
   test('back after a long time away renews the tor connections', () async {
@@ -375,11 +376,14 @@ void main() {
       kind: TorStatusKind.ready,
       onion: h.session.onion,
     );
+    expect(h.container.read(torRenewalsProvider), 0);
     h.network.add(true);
     await h.settle(100);
     expect(h.session.torRefreshes, [true]);
     expect(h.session.torStarts, hasLength(1));
     expect(h.state.phase, PhoneTorPhase.ready);
+    // android-04: the node is asked again on the new circuits.
+    expect(h.container.read(torRenewalsProvider), 1);
   });
 
   test("a refresh after a network change moves the app's requests to tor's new SOCKS port", () async {
