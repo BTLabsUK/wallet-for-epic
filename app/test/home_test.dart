@@ -1318,7 +1318,7 @@ void main() {
         await h.pump(tester, const TxDetailsScreen(txKey: 's:refused'));
         expect(find.text('Not on the network'), findsWidgets);
         expect(find.textContaining('Published to the network'), findsNothing);
-        expect(find.textContaining('Confirming'), findsNothing);
+        expect(find.textContaining('Confirming 0'), findsNothing);
         expect(
           find.textContaining('The network has not taken this payment yet'),
           findsOneWidget,
@@ -2143,6 +2143,9 @@ void main() {
         kind: TxKind.sent,
         status: TxStatus.awaitingConfirmation,
         createdAtUnix: _at(_now.subtract(const Duration(hours: 2))),
+        amountCredited: _epic(1),
+        amountDebited: _epic(2.008),
+        fee: _epic(0.008),
         kernelExcess: '08abc',
         repostable: repostable,
       );

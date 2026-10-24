@@ -100,7 +100,7 @@ void main() {
       expect(find.textContaining('Not delivered.'), findsOneWidget);
       // Its words fit the method (windows-07): no epicbox for an HTTP send.
       expect(find.textContaining('over HTTP'), findsOneWidget);
-      expect(find.textContaining('epicbox'), findsNothing);
+      expect(find.textContaining('did not reach the epicbox'), findsNothing);
       await tester.tap(find.widgetWithText(EButton, 'Send again'));
       await tester.pump();
       expect(desk.resent, [77]);
@@ -112,7 +112,7 @@ void main() {
   testWidgets('a Tor send that was not delivered names Tor', (tester) async {
     await _pump(tester, _tx(undelivered: true, method: TxMethod.tor), _Desk());
     expect(find.textContaining('over Tor'), findsOneWidget);
-    expect(find.textContaining('epicbox'), findsNothing);
+    expect(find.textContaining('did not reach the epicbox'), findsNothing);
   });
 
   testWidgets(
