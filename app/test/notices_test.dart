@@ -398,6 +398,58 @@ void main() {
     expect(tester.getCenter(row).dy, moreOrLessEquals(before.dy, epsilon: 1));
   });
 
+  testWidgets('android-18: a persistent notice pushes the content down and covers nothing', (
+    tester,
+  ) async {
+    final c = await _pump(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator));
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => SlotScaffold(
+          appBar: AppBar(title: const Text('Outputs')),
+          body: ListView(
+            children: [
+              for (var i = 0; i < 30; i++)
+                ListTile(key: ValueKey('row$i'), title: Text('Row $i')),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final first = find.byKey(const ValueKey('row0'));
+    final before = tester.getTopLeft(first).dy;
+    c.notices.show(
+      'Downloading version 26.10.9… 58%',
+      level: NoticeLevel.info,
+      persistent: true,
+      progress: 0.58,
+      progressLabel: 'Download',
+      tag: 'update',
+    );
+    await tester.pumpAndSettle();
+    final dock = tester.getSize(find.byType(NoticeDock).last).height;
+    expect(dock, greaterThan(0));
+    // The first row moved down by the dock, so it sits whole under the card.
+    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before + dock, epsilon: 1));
+    expect(tester.getRect(_card).overlaps(tester.getRect(first)), isFalse);
+    // Progress updates keep it there.
+    c.notices.show(
+      'Downloading version 26.10.9… 70%',
+      level: NoticeLevel.info,
+      persistent: true,
+      progress: 0.7,
+      progressLabel: 'Download',
+      tag: 'update',
+    );
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before + dock, epsilon: 1));
+    // Closing it gives the space back.
+    c.notices.dismissTag('update');
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before, epsilon: 1));
+  });
+
   testWidgets('a notice survives a pop, docked on the screen below', (
     tester,
   ) async {

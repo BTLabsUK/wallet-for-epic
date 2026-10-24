@@ -597,6 +597,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           title: TitleWithHint(
             l.settingsInvoices,
             hint: l.settingsInvoicesSubtitle,
+            icon: Icons.request_quote_outlined,
           ),
           onTap: () => _push(const InvoiceSettingsScreen()),
         ),

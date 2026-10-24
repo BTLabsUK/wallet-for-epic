@@ -2706,7 +2706,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsInvoices => '账单地址和受信任的服务';
 
   @override
-  String get settingsInvoicesSubtitle => '允许你信任的服务向你发送账单。每张账单都需要你批准。';
+  String get settingsInvoicesSubtitle =>
+      '第二个地址，只用于账单，你信任的服务可以向它发送账单。其他人的消息一律丢弃；在你用 PIN 批准每张账单之前，不会支付任何款项。你的付款地址保持不变。';
 
   @override
   String get invoiceSettingsTitle => '账单';
@@ -2910,7 +2911,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSendFeedback => '发送反馈';
 
   @override
-  String get settingsSendFeedbackHint => '报告问题或提出建议';
+  String get settingsSendFeedbackHint =>
+      '向开发者报告问题或提出建议。只有你选择附上时才会发送日志，且会先移除助记词、PIN 码和其他机密信息。';
 
   @override
   String get settingsSourceCode => '源代码';
@@ -3062,7 +3064,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAdvancedOptions => '高级选项';
 
   @override
-  String get settingsAdvancedOptionsSubtitle => '技术细节、文件和日志';
+  String get settingsAdvancedOptionsSubtitle =>
+      '显示技术细节：节点和 Epicbox 服务器的详情、区块高度、交易文件和日志。关闭后，应用只保留日常使用所需。';
 
   @override
   String get settingsSectionPrivacy => '隐私';
@@ -3094,7 +3097,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsUseStatusSite => '使用 status.btlabs.uk';
 
   @override
-  String get settingsUseStatusSiteSubtitle => '网络状态和信息由 status.btlabs.uk 提供';
+  String get settingsUseStatusSiteSubtitle =>
+      '从 BT Labs 的监测站 status.btlabs.uk 读取哪些节点和 Epicbox 服务器在线、它们的区块高度和响应时间，并显示在服务器列表和状态卡上。关闭后不再询问 status.btlabs.uk，服务器列表也不显示状态。';
 
   @override
   String get txStepStarted => '付款已发起';
@@ -3687,6 +3691,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsStrategy => '发送策略';
 
   @override
+  String get outputsStrategyHint =>
+      '一笔发送花掉哪些输出。“最小”只花最少的小额输出，找零确认期间其余余额仍可使用。“全部”花掉所有可用输出并返回一个找零输出：确认前全部锁定，之后输出更少、更大。';
+
+  @override
   String get outputsSmallest => '最小';
 
   @override
@@ -3702,7 +3710,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsSplitChange => '拆分找零';
 
   @override
-  String get outputsSplitChangeText => '当剩余输出很少时';
+  String get outputsSplitChangeText =>
+      '当一笔发送会使可用输出少于 3 个且找零至少为 1 EPIC 时，找零会以最多 4 个输出返回，这样接下来的发送不必等待确认。每多一个输出花费 0.004 EPIC。';
 
   @override
   String outputsFilterAll(int count) {
@@ -3840,7 +3849,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String made,
     String spent,
   ) {
-    return '花掉 $spent（$amount），生成 $made，每个约 $each。这是发往本钱包的普通网络交易，与任何发送一样在 3 个区块后确认；在此之前所有可用余额都被锁定。';
+    return '花掉 $spent（$amount），生成 $made，每个约 $each。这是发往本钱包的普通网络交易，与任何发送一样在 3 个区块后确认；在此之前所有可用余额都被锁定。输出多了，接下来的几笔发送就不必互相等待找零。';
   }
 
   @override
@@ -5635,7 +5644,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsNotifications => '通知';
 
   @override
-  String get settingsNotificationsHint => '使用 Google 的通知服务。不会共享任何敏感数据。';
+  String get settingsNotificationsHint =>
+      '在应用关闭时，有付款或账单到达会通知你。使用 BT Labs 的 Epicbox 和 Google 的通知服务；消息只用来唤醒应用，不含金额、发送方或地址。Tor 开启时关闭，因为注册会暴露手机的地址。';
 
   @override
   String get settingsPushPaused => 'Tor 开启时已暂停';

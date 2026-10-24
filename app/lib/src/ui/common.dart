@@ -162,22 +162,28 @@ class SlotScaffold extends StatelessWidget {
   }
 }
 
-/// Keeps a scrolling [child] still on screen while the [NoticeDock] above it opens or closes:
-/// as the dock moves the body's top edge, the body scrolls by as much, so the row under the
-/// finger stays and a second tap lands where the first did (android-02). Content that cannot
-/// scroll that far moves by the rest, and nothing is ever covered. A change at the bottom (the
-/// keyboard) is left alone.
-class StillUnderDock extends StatefulWidget {
+/// Keeps a scrolling [child] still on screen while the [NoticeDock] above it opens or closes
+/// for a passing notice: as the dock moves the body's top edge, the body scrolls by as much,
+/// so the row under the finger stays and a second tap lands where the first did (android-02).
+/// The rows that slide under the card come back when it leaves a few seconds later. A
+/// persistent notice (the update banner, there for minutes) instead pushes the content down
+/// and takes its own space, so nothing sits under it (android-18). Content that cannot scroll
+/// that far moves by the rest. A change at the bottom (the keyboard) is left alone.
+class StillUnderDock extends ConsumerStatefulWidget {
   const StillUnderDock({super.key, required this.child});
 
   final Widget child;
 
   @override
-  State<StillUnderDock> createState() => _StillUnderDockState();
+  ConsumerState<StillUnderDock> createState() => _StillUnderDockState();
 }
 
-class _StillUnderDockState extends State<StillUnderDock> {
+class _StillUnderDockState extends ConsumerState<StillUnderDock> {
   double? _top;
+
+  /// Whether the dock's last change came from a persistent notice: opening for one, or
+  /// closing after one.
+  bool _persistent = false;
 
   bool _onMetrics(ScrollMetricsNotification n) {
     if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
@@ -188,6 +194,7 @@ class _StillUnderDockState extends State<StillUnderDock> {
     _top = top;
     final moved = before == null ? 0.0 : top - before;
     if (moved.abs() < 0.5) return false;
+    if (_persistent) return false;
     final position = Scrollable.maybeOf(n.context)?.position;
     if (position == null || !position.hasPixels) return false;
     final to = (position.pixels + moved).clamp(position.minScrollExtent, position.maxScrollExtent);
@@ -196,10 +203,15 @@ class _StillUnderDockState extends State<StillUnderDock> {
   }
 
   @override
-  Widget build(BuildContext context) => NotificationListener<ScrollMetricsNotification>(
-    onNotification: _onMetrics,
-    child: widget.child,
-  );
+  Widget build(BuildContext context) {
+    ref.listen<Notice?>(noticeProvider, (previous, notice) {
+      _persistent = (notice ?? previous)?.persistent ?? false;
+    });
+    return NotificationListener<ScrollMetricsNotification>(
+      onNotification: _onMetrics,
+      child: widget.child,
+    );
+  }
 }
 
 /// [child] in the middle of the space it gets, scrolling when it does not fit. For a short
@@ -337,6 +349,16 @@ int daysAgo(DateTime t, DateTime now) => DateTime(
   now.month,
   now.day,
 ).difference(DateTime(t.year, t.month, t.day)).inDays;
+
+/// A short day with no clock, for a narrow cell: `Today`, `Yesterday`, `21 Sep`, and with the
+/// year once it is another year's.
+String shortDay(AppLocalizations l, DateTime t, DateTime now) =>
+    switch (daysAgo(t, now)) {
+      0 => l.dateToday,
+      1 => l.dateYesterday,
+      _ when t.year == now.year => localDayMonth(l, t),
+      _ => localDay(l, t),
+    };
 
 /// A day heading: `Today`, `Yesterday`, else `21 Sep 2026`.
 String dayLabel(AppLocalizations l, DateTime t, DateTime now) =>

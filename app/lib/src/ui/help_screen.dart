@@ -266,7 +266,11 @@ class _FeedbackRow extends ConsumerWidget {
       child: ListTile(
         key: helpFeedbackKey,
         leading: Icon(Icons.feedback_outlined, color: t.accentText),
-        title: TitleWithHint(l.settingsSendFeedback, hint: l.settingsSendFeedbackHint),
+        title: TitleWithHint(
+          l.settingsSendFeedback,
+          hint: l.settingsSendFeedbackHint,
+          icon: Icons.feedback_outlined,
+        ),
         trailing: Icon(Icons.chevron_right, color: t.dim),
         onTap: () => openFeedback(context),
       ),

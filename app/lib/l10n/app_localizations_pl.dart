@@ -3035,7 +3035,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'Zaufane serwisy mogą wystawiać ci faktury. Każdą fakturę zatwierdzasz osobiście.';
+      'Drugi adres, tylko do faktur, na który zaufane serwisy mogą je wystawiać. Wiadomości od kogokolwiek innego są odrzucane, a nic nie jest płacone, dopóki nie zatwierdzisz każdej faktury PIN-em. Twój adres do płatności zostaje bez zmian.';
 
   @override
   String get invoiceSettingsTitle => 'Faktury';
@@ -3246,7 +3246,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSendFeedback => 'Wyślij opinię';
 
   @override
-  String get settingsSendFeedbackHint => 'Zgłoś problem lub zaproponuj pomysł';
+  String get settingsSendFeedbackHint =>
+      'Zgłoś problem lub zaproponuj twórcom pomysł. Logi idą tylko wtedy, gdy je dołączysz; fraza odzyskiwania, PIN i inne poufne dane są wcześniej usuwane.';
 
   @override
   String get settingsSourceCode => 'Kod źródłowy';
@@ -3408,7 +3409,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsAdvancedOptionsSubtitle =>
-      'Szczegóły techniczne, pliki i logi';
+      'Pokazuje stronę techniczną: szczegóły węzła i serwera Epicbox, wysokości bloków, pliki transakcji i logi. Gdy wyłączone, aplikacja trzyma się tego, czego potrzeba na co dzień.';
 
   @override
   String get settingsSectionPrivacy => 'Prywatność';
@@ -3441,7 +3442,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Stan sieci i informacje dostarczane przez status.btlabs.uk';
+      'Odczytuje ze status.btlabs.uk, monitora BT Labs, które węzły i serwery Epicbox są online, ich wysokość bloku i czas odpowiedzi, i pokazuje je na listach serwerów oraz na karcie stanu. Gdy wyłączone, status.btlabs.uk nie jest pytany, a listy serwerów nie pokazują stanu.';
 
   @override
   String get txStepStarted => 'Rozpoczęto płatność';
@@ -4081,6 +4082,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get outputsStrategy => 'Strategia wysyłek';
 
   @override
+  String get outputsStrategyHint =>
+      'Które wyjścia wydaje wysyłka. Najmniejsze wydaje jak najmniej małych wyjść, więc pozostała część salda zostaje do wydania, gdy reszta się potwierdza. Wszystkie wydaje wszystkie wyjścia do wydania i zwraca jedno wyjście reszty: wszystko jest zablokowane do potwierdzenia, a potem zostaje mniej, ale większych wyjść.';
+
+  @override
   String get outputsSmallest => 'Najmniejsze';
 
   @override
@@ -4098,7 +4103,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get outputsSplitChange => 'Podziel resztę';
 
   @override
-  String get outputsSplitChangeText => 'Gdy zostałoby mało wyjść';
+  String get outputsSplitChangeText =>
+      'Gdy po wysyłce zostałyby mniej niż 3 wyjścia do wydania, a reszta wynosi co najmniej 1 EPIC, reszta wraca jako maksymalnie 4 wyjścia, więc następne wysyłki nie czekają na potwierdzenia. Każde dodatkowe wyjście kosztuje 0,004 EPIC.';
 
   @override
   String outputsFilterAll(int count) {
@@ -4242,7 +4248,7 @@ class AppLocalizationsPl extends AppLocalizations {
     String made,
     String spent,
   ) {
-    return 'Wydaje $spent ($amount) i tworzy $made po około $each. Zwykła transakcja sieciowa do tego portfela, potwierdzona po 3 blokach jak każda wysyłka; wszystko do wydania jest do tego czasu zablokowane.';
+    return 'Wydaje $spent ($amount) i tworzy $made po około $each. Zwykła transakcja sieciowa do tego portfela, potwierdzona po 3 blokach jak każda wysyłka; wszystko do wydania jest do tego czasu zablokowane. Więcej wyjść pozwala następnym wysyłkom wyjść bez czekania na resztę z poprzednich.';
   }
 
   @override
@@ -6185,7 +6191,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Korzysta z usługi powiadomień Google. Żadne wrażliwe dane nie są udostępniane.';
+      'Informuje, gdy przychodzi płatność lub faktura, kiedy aplikacja jest zamknięta. Korzysta z Epicboxa BT Labs i usługi powiadomień Google; wiadomość tylko budzi aplikację i nie zawiera kwoty, nadawcy ani adresu. Wyłączone, gdy Tor jest włączony, bo rejestracja zdradziłaby adres telefonu.';
 
   @override
   String get settingsPushPaused => 'Wstrzymane, gdy Tor jest włączony';

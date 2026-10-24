@@ -70,8 +70,8 @@ String _meaning(AppLocalizations l, OutputLabel w, int need) => switch (w) {
 String _strategyName(AppLocalizations l, SelectionStrategy s) =>
     s == SelectionStrategy.smallest ? l.outputsSmallest : l.outputsAll;
 
-/// The note under a row's state word: when it came, which send holds it. Confirmations have a
-/// column of their own.
+/// The note under a row's state word: the day it came (no clock: the cell is narrow, and the
+/// sheet has the transaction), which send holds it. Confirmations have a column of their own.
 String? _rowNote(
   AppLocalizations l,
   WalletOutput o,
@@ -81,7 +81,7 @@ String? _rowNote(
 }) {
   final when = tx == null
       ? null
-      : shortDate(
+      : shortDay(
           l,
           DateTime.fromMillisecondsSinceEpoch(tx.timeUnix * 1000),
           now,
@@ -459,7 +459,11 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
           const SizedBox(height: 8),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text(l.outputsStrategy),
+            title: TitleWithHint(
+              l.outputsStrategy,
+              hint: l.outputsStrategyHint,
+              icon: Icons.tune,
+            ),
             subtitle: Text(_strategyName(l, strategy)),
             trailing: const Icon(Icons.chevron_right),
             onTap: _pickStrategy,
@@ -469,6 +473,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
             title: TitleWithHint(
               l.outputsSplitChange,
               hint: l.outputsSplitChangeText,
+              icon: Icons.call_split,
             ),
             value: settings?.splitChange ?? true,
             onChanged: settings == null
@@ -676,17 +681,18 @@ class _OutputRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // The word wraps ("Awaiting finalization") rather than being cut;
-                        // the note is one line.
+                        // The word wraps ("Awaiting finalization") rather than being cut.
                         Text(
                           word,
                           maxLines: 2,
                           style: theme.textTheme.bodyMedium,
                         ),
+                        // The note wraps to a second line on a narrow phone ("Received
+                        // Yesterday, 11:08" at 360 dp) instead of being cut (android-19).
                         if (note != null)
                           Text(
                             note!,
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: t.dim,

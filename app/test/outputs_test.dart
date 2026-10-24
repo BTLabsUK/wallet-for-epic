@@ -1,6 +1,9 @@
 // The phone Outputs screen (design spec phone §4): tiles from the balance, filters, rows,
 // the output sheet, Split and Consolidate behind the PIN, and the strategy pref.
 
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -19,6 +22,8 @@ import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -139,8 +144,8 @@ class _Harness {
   final bio = MemoryBiometricStore();
   late final service = FakeWalletService(session: session);
 
-  Future<ProviderContainer> pump(WidgetTester tester, Widget home) async {
-    tester.view.physicalSize = const Size(1080, 4000);
+  Future<ProviderContainer> pump(WidgetTester tester, Widget home, {double width = 360}) async {
+    tester.view.physicalSize = Size(width * 3, 4000);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
@@ -170,6 +175,21 @@ class _Harness {
       tester.element(find.byType(Navigator).first),
     );
   }
+}
+
+/// Roboto (the body face) and Montserrat, as a phone draws them.
+Future<void> _loadFonts() async {
+  final dir =
+      '${Platform.environment['FLUTTER_ROOT'] ?? '${Platform.environment['HOME']}/flutter'}'
+      '/bin/cache/artifacts/material_fonts';
+  Future<ByteData> read(String path) async =>
+      ByteData.sublistView(Uint8List.fromList(await File(path).readAsBytes()));
+  final roboto = FontLoader('Roboto');
+  for (final face in ['Roboto-Regular.ttf', 'Roboto-Medium.ttf', 'Roboto-Bold.ttf']) {
+    roboto.addFont(read('$dir/$face'));
+  }
+  await roboto.load();
+  await (FontLoader('Montserrat')..addFont(read('assets/fonts/Montserrat-SemiBold.ttf'))).load();
 }
 
 void main() {
@@ -307,16 +327,67 @@ void main() {
     final h = _Harness();
     await h.pump(tester, const OutputsScreen());
     expect(find.textContaining('pieces the balance is made of'), findsNothing);
-    // The Split change explanation sits behind the info icon, not under the switch.
+    // The Strategy and Split change explanations sit behind info icons, not under the rows.
+    expect(find.text(_l.outputsStrategyHint), findsNothing);
     expect(find.text(_l.outputsSplitChangeText), findsNothing);
-    final hint = find.byType(InfoHint);
-    expect(hint, findsOneWidget);
-    expect(
-      tester.widget<Tooltip>(
-        find.descendant(of: hint, matching: find.byType(Tooltip)),
-      ).message,
-      _l.outputsSplitChangeText,
+    expect(find.byType(InfoHint), findsNWidgets(2));
+    expect(find.byType(Tooltip), findsNothing);
+  });
+
+  testWidgets('android-18: the info icon opens a sheet with the title and the whole text', (
+    tester,
+  ) async {
+    final h = _Harness();
+    await h.pump(tester, const OutputsScreen());
+    await tester.tap(
+      find.byWidgetPredicate((w) => w is InfoHint && w.title == _l.outputsSplitChange),
     );
+    await tester.pumpAndSettle();
+    final sheet = find.byType(InfoSheet);
+    expect(sheet, findsOneWidget);
+    expect(find.descendant(of: sheet, matching: find.text(_l.outputsSplitChange)), findsOneWidget);
+    expect(find.descendant(of: sheet, matching: find.text(_l.outputsSplitChangeText)), findsOneWidget);
+    // The whole text is drawn, not cut.
+    final text = tester.renderObject<RenderParagraph>(
+      find.descendant(of: sheet, matching: find.text(_l.outputsSplitChangeText)),
+    );
+    expect(text.didExceedMaxLines, isFalse);
+    expect(text.size.height, greaterThan(text.textSize.height / 2));
+    await tester.tap(find.widgetWithText(TextButton, _l.commonClose));
+    await tester.pumpAndSettle();
+    expect(sheet, findsNothing);
+    // The Strategy row has one too.
+    await tester.tap(
+      find.byWidgetPredicate((w) => w is InfoHint && w.title == _l.outputsStrategy),
+    );
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: find.byType(InfoSheet), matching: find.text(_l.outputsStrategyHint)), findsOneWidget);
+  });
+
+  testWidgets('android-19: a row note that does not fit wraps instead of being cut', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final yesterday = now.subtract(const Duration(days: 1));
+    final h = _Harness(outputs: [_out(_commit('a'), 0.1, txId: 3)]);
+    h.session.transactionsValue = [
+      fakeTx(
+        id: 3,
+        kind: TxKind.received,
+        timeUnix: yesterday.millisecondsSinceEpoch ~/ 1000,
+        amountCredited: _epic(0.1),
+      ),
+    ];
+    // Real faces: the test font's square glyphs are twice as wide as any real text.
+    await tester.runAsync(_loadFonts);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await h.pump(tester, const OutputsScreen(), width: 360);
+    final note = find.textContaining(_l.dateYesterday);
+    expect(note, findsOneWidget);
+    final paragraph = tester.renderObject<RenderParagraph>(note);
+    expect(paragraph.didExceedMaxLines, isFalse);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('a row with no height on chain shows a dash', (tester) async {
