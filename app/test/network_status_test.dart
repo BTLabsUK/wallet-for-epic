@@ -198,9 +198,14 @@ void main() {
       expect(_in(netStatusNodeKey, 'Syncing 42 %'), findsOneWidget);
     });
 
-    testWidgets('syncing without a percent', (tester) async {
-      await _pump(tester, syncing: true);
+    testWidgets('syncing without a percent, while the wallet is behind the tip', (tester) async {
+      await _pump(tester, syncing: true, tip: AsyncData(NodeTip(height: BigInt.from(2500020), nodeVersion: '3.6.0')));
       expect(_in(netStatusNodeKey, 'Syncing'), findsOneWidget);
+    });
+
+    testWidgets('android-04: a refresh at the tip reads synced, not syncing', (tester) async {
+      await _pump(tester, syncing: true);
+      expect(_in(netStatusNodeKey, 'Syncing'), findsNothing);
     });
 
     testWidgets('connecting while the node has not answered', (tester) async {
