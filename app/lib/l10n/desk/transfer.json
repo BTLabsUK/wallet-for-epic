@@ -1,0 +1,215 @@
+{
+  "deskSendEpicboxSwitched": "Switched to {domain}",
+  "@deskSendEpicboxSwitched": {
+    "description": "Toast after the user switched the Epicbox server from the \"server not answering\" notice. {domain} is the new server's host name.",
+    "placeholders": {
+      "domain": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
+  },
+  "deskSendEpicboxNotSwitched": "Not switched",
+  "@deskSendEpicboxNotSwitched": {
+    "description": "Toast title when switching the Epicbox server failed; the reason follows as the toast text."
+  },
+  "deskSendEpicboxDownTitle": "Epicbox server not answering",
+  "@deskSendEpicboxDownTitle": {
+    "description": "Title of the warning notice on Send and Receive when the Epicbox server does not answer."
+  },
+  "deskSendEpicboxDownWait": "Payments wait until it is back.",
+  "@deskSendEpicboxDownWait": {
+    "description": "Text of that notice when no other server is available."
+  },
+  "deskSendEpicboxSwitchTo": "Switch to {domain}?",
+  "@deskSendEpicboxSwitchTo": {
+    "description": "Text of that notice when another server is healthy. {domain} is its host name.",
+    "placeholders": {
+      "domain": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
+  },
+  "deskSendEpicboxSwitch": "Switch",
+  "@deskSendEpicboxSwitch": {
+    "description": "Button in that notice: switch to the other server. Short."
+  },
+  "deskFinOpenFolder": "Open folder",
+  "@deskFinOpenFolder": {
+    "description": "Button next to a file name: open the folder that holds the file in the system's file manager."
+  },
+  "deskFinFolderNotOpened": "Folder not opened",
+  "@deskFinFolderNotOpened": {
+    "description": "Toast title when the file manager could not be opened; the folder path follows as text."
+  },
+  "deskFinWrongType": "Not a response file",
+  "@deskFinWrongType": {
+    "description": "Title of the error notice on the Finalize page: the chosen file is not a response file."
+  },
+  "deskFinWrongTypeText": "The file is not a response file. Choose the file the recipient sent back.",
+  "@deskFinWrongTypeText": {
+    "description": "Text of that notice."
+  },
+  "deskFinUnreadable": "File not readable",
+  "@deskFinUnreadable": {
+    "description": "Title of the error notice on the Finalize page: the chosen file could not be read."
+  },
+  "deskFinUnreadableText": "The file could not be read. It may be damaged or still being copied.",
+  "@deskFinUnreadableText": {
+    "description": "Text of that notice."
+  },
+  "deskFinFailed": "Finalizing failed",
+  "@deskFinFailed": {
+    "description": "Title of the error notice on the Finalize page: the wallet could not finalize the file."
+  },
+  "deskFinFailedText": "The wallet could not finalize this file. It may belong to another transaction or be finalized already.",
+  "@deskFinFailedText": {
+    "description": "Text of that notice."
+  },
+  "deskFinNotPosted": "Not posted",
+  "@deskFinNotPosted": {
+    "description": "Title of the error notice on the Finalize page: the node did not accept the finalized transaction."
+  },
+  "deskFinNotPostedText": "The transaction was finalized but the node did not accept it. Check the node, then try again.",
+  "@deskFinNotPostedText": {
+    "description": "Text of that notice."
+  },
+  "deskFinPickTitle": "Response file",
+  "@deskFinPickTitle": {
+    "description": "Title of the system file dialog that picks the recipient's response file."
+  },
+  "deskFinPosted": "Transaction posted",
+  "@deskFinPosted": {
+    "description": "Toast and result title after the response file was finalized and posted."
+  },
+  "deskFinTitle": "Finalize a response file",
+  "@deskFinTitle": {
+    "description": "Page title of Finalize."
+  },
+  "deskFinNoticeTitle": "For a transaction created as a file",
+  "@deskFinNoticeTitle": {
+    "description": "Title of the info notice at the top of the Finalize page."
+  },
+  "deskFinNoticeText": "Use the response file the recipient sent back.",
+  "@deskFinNoticeText": {
+    "description": "Text of the info notice at the top of the Finalize page."
+  },
+  "deskFinTryAgain": "Try again",
+  "@deskFinTryAgain": {
+    "description": "Button in the \"Not posted\" notice on Finalize: choose the file again."
+  },
+  "deskFinPostedText": "The payment was finalized and sent to the network. Follow it in Activity.",
+  "@deskFinPostedText": {
+    "description": "Text of the result card after finalizing."
+  },
+  "deskFinAnother": "Finalize another file",
+  "@deskFinAnother": {
+    "description": "Button on the result card after finalizing."
+  },
+  "deskFinViewActivity": "View in Activity",
+  "@deskFinViewActivity": {
+    "description": "Button on the result cards of Finalize and Sign a transaction file: opens the payment in Activity."
+  },
+  "deskFinBusy": "Finalizing and posting",
+  "@deskFinBusy": {
+    "description": "Shown next to a spinner while the wallet finalizes and posts the transaction."
+  },
+  "deskFinChoose": "Choose a response file",
+  "@deskFinChoose": {
+    "description": "Title of the drop zone on Finalize."
+  },
+  "deskFinChooseText": "The wallet completes the transaction and posts it to the network.",
+  "@deskFinChooseText": {
+    "description": "Text of the drop zone on Finalize."
+  },
+  "deskFinChooseFile": "Choose file",
+  "@deskFinChooseFile": {
+    "description": "Button in the drop zones of Finalize and Sign a transaction file: opens the system file dialog."
+  },
+  "deskImpWrongType": "Not a transaction file",
+  "@deskImpWrongType": {
+    "description": "Title of the error notice on the Sign a transaction file page: the chosen file is not a transaction file."
+  },
+  "deskImpWrongTypeText": "The file is not a transaction file. Choose the .slate or .tx file the sender gave.",
+  "@deskImpWrongTypeText": {
+    "description": "Text of that notice."
+  },
+  "deskImpUnreadable": "File not readable",
+  "@deskImpUnreadable": {
+    "description": "Title of the error notice on the Sign a transaction file page: the file could not be read."
+  },
+  "deskImpUnreadableText": "The file could not be read. It may be damaged or still being copied.",
+  "@deskImpUnreadableText": {
+    "description": "Text of that notice."
+  },
+  "deskImpNoPlace": "Nothing signed",
+  "@deskImpNoPlace": {
+    "description": "Title of the error notice: no place was chosen to save the response file."
+  },
+  "deskImpNoPlaceText": "No place was chosen for the response file, so nothing was signed.",
+  "@deskImpNoPlaceText": {
+    "description": "Text of that notice."
+  },
+  "deskImpFailed": "Signing failed",
+  "@deskImpFailed": {
+    "description": "Title of the error notice: the wallet could not sign the file."
+  },
+  "deskImpFailedText": "The wallet could not sign this file. It may be for another wallet or already used.",
+  "@deskImpFailedText": {
+    "description": "Text of that notice."
+  },
+  "deskImpFailedDetail": "The wallet could not sign this file. It may be for another wallet or already used. {detail}.",
+  "@deskImpFailedDetail": {
+    "description": "Text of that notice when the wallet gave its own reason. {detail} is that reason, a short sentence without its final full stop.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskImpPickTitle": "Transaction file",
+  "@deskImpPickTitle": {
+    "description": "Title of the system file dialog that picks the sender's transaction file."
+  },
+  "deskImpTitle": "Sign a transaction file",
+  "@deskImpTitle": {
+    "description": "Page title of Sign a transaction file."
+  },
+  "deskImpNoticeTitle": "Signing does not spend anything",
+  "@deskImpNoticeTitle": {
+    "description": "Title of the info notice at the top of the Sign a transaction file page."
+  },
+  "deskImpNoticeText": "Send the response file back to the sender over the same channel they used.",
+  "@deskImpNoticeText": {
+    "description": "Text of the info notice at the top of the page."
+  },
+  "deskImpSaved": "Response saved",
+  "@deskImpSaved": {
+    "description": "Title of the result card after the response file was saved."
+  },
+  "deskImpSavedText": "Send the response file back to the sender. The EPIC arrives once the sender finalizes it.",
+  "@deskImpSavedText": {
+    "description": "Text of the result card after signing."
+  },
+  "deskImpAmount": "Amount ",
+  "@deskImpAmount": {
+    "description": "Label before the amount on the result card. Ends with a space."
+  },
+  "deskImpAnother": "Sign another file",
+  "@deskImpAnother": {
+    "description": "Button on the result card after signing."
+  },
+  "deskImpBusy": "Signing the file",
+  "@deskImpBusy": {
+    "description": "Shown next to a spinner while the wallet signs the file."
+  },
+  "deskImpChoose": "Choose a transaction file",
+  "@deskImpChoose": {
+    "description": "Title of the drop zone on Sign a transaction file."
+  },
+  "deskImpChooseText": "The wallet signs it and saves a response for the sender.",
+  "@deskImpChooseText": {
+    "description": "Text of the drop zone."
+  }
+}

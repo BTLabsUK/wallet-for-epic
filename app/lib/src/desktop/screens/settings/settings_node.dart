@@ -18,6 +18,7 @@ import 'local_node.dart';
 import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import 'prefs.dart';
 import 'settings_frame.dart';
+import '../../desk_l10n.dart';
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
@@ -393,8 +394,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     // still reaches its node, which would keep it Synced.
     final nodeHealth = widget.arg == NodeDemo.down ? ServiceHealth.down : status.nodeHealth;
     final NodeView view = prefs.builtin
-        ? localNodeView(local, fallbackUrl: status.node.url)
-        : remoteNodeView(current.url, info, health: nodeHealth, torOn: torOn);
+        ? localNodeView(context.l10n, local, fallbackUrl: status.node.url)
+        : remoteNodeView(context.l10n, current.url, info, health: nodeHealth, torOn: torOn);
     final down = view.state == EState.risk && !prefs.builtin;
     // The Switch action's target: the healthy node with the lowest latency, My nodes first.
     SwitchTarget? best;

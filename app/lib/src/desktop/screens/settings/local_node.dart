@@ -16,6 +16,7 @@ import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
 import 'local_node_dialogs.dart';
 import 'local_node_peers.dart';
+import '../../desk_l10n.dart';
 
 enum LocalTab { status, peers }
 
@@ -351,7 +352,7 @@ StatusWords statusWords(LocalNodeState s, {required String fallback, required bo
     case LocalNodePhase.starting:
       return const StatusWords(detail: 'waiting for peers');
     case LocalNodePhase.syncing:
-      final stage = s.progress == null ? 'syncing' : stageName(s.progress!.stage);
+      final stage = s.progress == null ? 'syncing' : stageName(englishStrings, s.progress!.stage);
       if (accepted) return StatusWords(detail: '$stage · using $fallback meanwhile');
       return StatusWords(
         detail: stage,
@@ -367,7 +368,7 @@ StatusWords statusWords(LocalNodeState s, {required String fallback, required bo
         );
       }
       return StatusWords(
-        detail: failureLine(s),
+        detail: failureLine(englishStrings, s),
         notice: switch (s.failure) {
           NodeFailure.portInUse => (
             tone: ETone.risk,
@@ -422,14 +423,14 @@ class _StatusTab extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final s = state;
-    final v = localNodeView(s);
+    final v = localNodeView(context.l10n, s);
     final words = statusWords(s, fallback: fallback, accepted: accepted);
     final p = s.progress;
     final syncing = s.phase == LocalNodePhase.syncing || s.phase == LocalNodePhase.starting;
     final live = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;
     final overall = p?.overall;
     final pct = overall == null ? null : percent(overall);
-    final left = p == null ? null : timeLeft(p.stage, s.eta);
+    final left = p == null ? null : timeLeft(context.l10n, p.stage, s.eta);
     final startedAgo = s.startedAt == null ? null : now.difference(s.startedAt!);
 
     VoidCallback? actionOf(String? label) => switch (label) {
@@ -474,7 +475,7 @@ class _StatusTab extends StatelessWidget {
 
     final meta = [
       if (s.version != null) 'Version ${s.version}',
-      if (live && s.uptime != null) 'running ${duration(s.uptime!)}',
+      if (live && s.uptime != null) 'running ${duration(context.l10n, s.uptime!)}',
       if (!live) 'stopped ${hhmm(s.at)}',
       if (live && s.peers != null) '${s.peers} peers',
     ].join(' · ');
@@ -512,11 +513,11 @@ class _StatusTab extends StatelessWidget {
           SizedBox(height: Sp.x2),
           Row(
             children: [
-              Expanded(child: Text(p == null ? 'Connecting to peers' : stageLine(p), style: ts.small)),
+              Expanded(child: Text(p == null ? 'Connecting to peers' : stageLine(context.l10n, p), style: ts.small)),
               SizedBox(width: Sp.x3),
               Text(
                 p?.stage == SyncStage.waitingForPeers || p == null
-                    ? (startedAgo == null ? '' : 'started ${startedAgo.inSeconds < 90 ? '${startedAgo.inSeconds} s' : duration(startedAgo)} ago')
+                    ? (startedAgo == null ? '' : 'started ${startedAgo.inSeconds < 90 ? '${startedAgo.inSeconds} s' : duration(context.l10n, startedAgo)} ago')
                     : [?pct, ?left].join(' · '),
                 style: ts.small.copyWith(color: c.dim),
               ),

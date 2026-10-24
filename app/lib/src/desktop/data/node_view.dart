@@ -4,6 +4,7 @@
 library;
 
 import '../../address_format.dart' show railHost;
+import '../../l10n.dart' show AppLocalizations;
 import '../widgets/status.dart' show EState;
 import 'desk_node.dart';
 import 'models.dart' show ServiceHealth;
@@ -51,49 +52,49 @@ int? shownLatency(NodeInfo i, {bool torOn = false}) =>
 /// view when the info has not come in. A node the wallet itself reaches ([health] ok: its tip
 /// check or a sync answered) is never "Not answering" because the info probe failed, as one
 /// over Tor can while the wallet syncs through it.
-NodeView remoteNodeView(String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false}) {
+NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false}) {
   final full = nodeHost(url);
-  final host = railHost('Node', full);
+  final host = railHost('Node', full); // l10n-ok: railHost's kind key
   final probeFailed = info?.state == NodeHealthState.down || info?.source == NodeInfoSource.none;
-  if (probeFailed && health == ServiceHealth.ok) return NodeView(word: 'Synced', state: EState.ok, host: host, lines: [full]);
+  if (probeFailed && health == ServiceHealth.ok) return NodeView(word: l.deskNodeSynced, state: EState.ok, host: host, lines: [full]);
   final down = health == ServiceHealth.down || probeFailed;
   if (down) {
     return NodeView(
-      word: 'Not answering',
+      word: l.deskNodeNotAnswering,
       state: EState.risk,
       host: host,
-      marker: 'no answer',
-      lines: [downSince == null ? full : '$full · since ${hhmm(downSince)}', 'The node is not answering.'],
+      marker: l.deskNodeMarkerNoAnswer,
+      lines: [downSince == null ? full : l.deskNodeHostSince(full, hhmm(downSince)), l.deskNodeNotAnsweringLine],
     );
   }
-  if (info == null) return NodeView(word: 'Checking', state: EState.off, host: host, lines: [full]);
+  if (info == null) return NodeView(word: l.deskNodeChecking, state: EState.off, host: host, lines: [full]);
   final behind = info.blocksBehind;
   final h = info.height;
   final old = info.updateAvailable == true;
   final latency = shownLatency(info, torOn: torOn);
   final second = [
-    if (latency != null) '${digits(latency)} ms${info.latencyOverTor ? ' over Tor' : ''}',
+    if (latency != null) info.latencyOverTor ? l.deskNodeLatencyOverTor(digits(latency)) : l.deskNodeLatency(digits(latency)),
     if (info.version != null) 'v${info.version}',
-    if (old && info.releasedVersion != null) '${info.releasedVersion} is out',
+    if (old && info.releasedVersion != null) l.deskNodeNewerOut(info.releasedVersion!),
   ].join(' · ');
   if (behind != null && behind > syncedWithinBlocks) {
     return NodeView(
-      word: 'Behind',
+      word: l.deskNodeBehind,
       state: EState.warn,
       host: host,
-      marker: '${digits(behind)} behind',
+      marker: l.deskNodeMarkerBehind(digits(behind)),
       lines: [
-        [full, if (h != null && info.networkHeight != null) '${digits(h)} of ${digits(info.networkHeight!)}'].join(' · '),
-        'Behind the network; catching up.',
+        [full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(h), digits(info.networkHeight!))].join(' · '),
+        l.deskNodeBehindLine,
       ],
     );
   }
   return NodeView(
-    word: 'Synced',
+    word: l.deskNodeSynced,
     state: old ? EState.warn : EState.ok,
     host: host,
     lines: [
-      [full, if (h != null) digits(h), if (behind != null) 'at tip'].join(' · '),
+      [full, if (h != null) digits(h), if (behind != null) l.deskNodeAtTip].join(' · '),
       if (second.isNotEmpty) second,
     ],
   );
@@ -108,98 +109,95 @@ bool isLocalNodeUrl(String url) {
 /// The local node (§16). [fallbackUrl] is the public node the wallet actually reads through
 /// meanwhile (the wallet's own node URL when it is not the local one): the second line then
 /// names that node, whatever the local node's phase, and the tooltip says which is which.
-NodeView localNodeView(LocalNodeState? s, {String? fallbackUrl}) {
-  const name = 'Local node';
+NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackUrl}) {
+  final name = l.deskNodeLocal;
   final fallback = fallbackUrl == null || isLocalNodeUrl(fallbackUrl) ? null : nodeHost(fallbackUrl);
-  final host = fallback != null ? railHost('Node', fallback) : name;
-  if (s == null) return NodeView(word: 'Checking', state: EState.off, host: host, lines: const [name]);
+  final host = fallback != null ? railHost('Node', fallback) : name; // l10n-ok: railHost's row key
+  if (s == null) return NodeView(word: l.deskNodeChecking, state: EState.off, host: host, lines: [name]);
   final p = s.progress;
   switch (s.phase) {
     case LocalNodePhase.starting:
       return NodeView(
-        word: 'Starting',
+        word: l.deskNodeStarting,
         state: EState.warn,
         host: host,
-        marker: 'starting',
-        lines: [name, 'Connecting to peers', if (fallback != null) 'Using $fallback until it is synced.'],
+        marker: l.deskNodeMarkerStarting,
+        lines: [name, l.deskNodeConnectingPeers, if (fallback != null) l.deskNodeUsingUntilSynced(fallback)],
       );
     case LocalNodePhase.syncing:
       final pct = p?.overall == null ? null : percent(p!.overall!);
-      final left = p == null ? null : timeLeft(p.stage, s.eta);
+      final left = p == null ? null : timeLeft(l, p.stage, s.eta);
       return NodeView(
-        word: 'Syncing',
+        word: l.deskNodeSyncing,
         state: EState.warn,
         host: host,
         marker: pct,
         lines: [
           [name, ?pct, ?left].join(' · '),
-          [if (p != null) stageLine(p), if (s.peers != null) '${s.peers} peers'].join(' · '),
-          fallback != null ? 'Using $fallback until it is synced.' : 'Nothing can be sent until it is synced.',
-        ].where((l) => l.isNotEmpty).toList(),
+          [if (p != null) stageLine(l, p), if (s.peers != null) l.deskNodePeers(s.peers!)].join(' · '),
+          fallback != null ? l.deskNodeUsingUntilSynced(fallback) : l.deskNodeNothingUntilSynced,
+        ].where((line) => line.isNotEmpty).toList(),
       );
     case LocalNodePhase.synced:
       return NodeView(
-        word: 'Synced',
+        word: l.deskNodeSynced,
         state: EState.ok,
         host: host,
         lines: [
-          [name, if (s.height != null) digits(s.height!), 'at tip'].join(' · '),
-          [if (s.peers != null) '${s.peers} peers', if (s.version != null) 'v${s.version}', if (s.uptime != null) 'running ${duration(s.uptime!)}'].join(' · '),
-          if (fallback != null) 'Still using $fallback; the local node takes over shortly.',
+          [name, if (s.height != null) digits(s.height!), l.deskNodeAtTip].join(' · '),
+          [if (s.peers != null) l.deskNodePeers(s.peers!), if (s.version != null) 'v${s.version}', if (s.uptime != null) l.deskNodeRunning(duration(l, s.uptime!))].join(' · '),
+          if (fallback != null) l.deskNodeStillUsing(fallback),
         ],
       );
     case LocalNodePhase.error:
       if (s.stalled) {
         return NodeView(
-          word: 'Stalled',
+          word: l.deskNodeStalled,
           state: EState.risk,
           host: host,
-          marker: 'stalled',
+          marker: l.deskNodeMarkerStalled,
           lines: [
             [name, if (s.height != null) digits(s.height!)].join(' · '),
-            'No progress for 5 min. Restarted once already.',
-            if (fallback != null) 'Using $fallback meanwhile.',
+            l.deskNodeNoProgress,
+            if (fallback != null) l.deskNodeUsingMeanwhile(fallback),
           ],
         );
       }
-      return NodeView(word: 'Failed', state: EState.risk, host: host, marker: 'failed', lines: [name, failureLine(s), if (fallback != null) 'Using $fallback meanwhile.']);
+      return NodeView(word: l.deskNodeFailed, state: EState.risk, host: host, marker: l.deskNodeMarkerFailed, lines: [name, failureLine(l, s), if (fallback != null) l.deskNodeUsingMeanwhile(fallback)]);
     case LocalNodePhase.stopped:
       return NodeView(
-        word: 'Stopped',
+        word: l.deskNodeStopped,
         state: EState.off,
         host: host,
-        marker: 'stopped',
-        lines: [name, 'Start it under Settings › Node.', if (fallback != null) 'Using $fallback meanwhile.'],
+        marker: l.deskNodeMarkerStopped,
+        lines: [name, l.deskNodeStartIt, if (fallback != null) l.deskNodeUsingMeanwhile(fallback)],
       );
   }
 }
 
 /// Why the local node failed, as a detail after the word (§19).
-String failureLine(LocalNodeState s) => switch (s.failure) {
-  NodeFailure.portInUse => 'port 3413 is used by another program',
-  NodeFailure.diskLow => 'not enough disk space',
-  NodeFailure.binaryMissing => 'the node program is missing',
-  NodeFailure.exited => 'the node program stopped${_exitCode(s.reason)}',
-  _ => s.reason ?? 'the node did not start',
+String failureLine(AppLocalizations l, LocalNodeState s) => switch (s.failure) {
+  NodeFailure.portInUse => l.deskNodeFailPort,
+  NodeFailure.diskLow => l.deskNodeFailDisk,
+  NodeFailure.binaryMissing => l.deskNodeFailMissing,
+  NodeFailure.exited => switch (_exitCode(s.reason)) { final code? => l.deskNodeFailExitedCode(code), _ => l.deskNodeFailExited },
+  _ => s.reason ?? l.deskNodeFailDefault,
 };
 
-String _exitCode(String? reason) {
-  final m = RegExp(r'(?:exit code|code)\s*(-?\d+)').firstMatch(reason ?? '');
-  return m == null ? '' : ' (exit code ${m[1]})';
-}
+String? _exitCode(String? reason) => RegExp(r'(?:exit code|code)\s*(-?\d+)').firstMatch(reason ?? '')?[1];
 
 /// The stage's name for the panel's detail.
-String stageName(SyncStage s) => switch (s) {
-  SyncStage.waitingForPeers => 'connecting to peers',
-  SyncStage.headers => 'headers',
-  SyncStage.chainStateDownload => 'chain state download',
-  SyncStage.chainStateKernels => 'checking kernels',
-  SyncStage.chainStateRangeProofs => 'checking range proofs',
-  SyncStage.chainStateProcessing => 'processing the chain state',
-  SyncStage.blocks => 'blocks',
-  SyncStage.compacting => 'compacting',
-  SyncStage.shuttingDown => 'stopping',
-  SyncStage.synced || SyncStage.unknown => 'syncing',
+String stageName(AppLocalizations l, SyncStage s) => switch (s) {
+  SyncStage.waitingForPeers => l.deskNodeStageWaiting,
+  SyncStage.headers => l.deskNodeStageHeaders,
+  SyncStage.chainStateDownload => l.deskNodeStageChainDownload,
+  SyncStage.chainStateKernels => l.deskNodeStageKernels,
+  SyncStage.chainStateRangeProofs => l.deskNodeStageRangeProofs,
+  SyncStage.chainStateProcessing => l.deskNodeStageProcessing,
+  SyncStage.blocks => l.deskNodeStageBlocks,
+  SyncStage.compacting => l.deskNodeStageCompacting,
+  SyncStage.shuttingDown => l.deskNodeStageStopping,
+  SyncStage.synced || SyncStage.unknown => l.deskNodeStageSyncing,
 };
 
 String _gb(int bytes) => (bytes / 1e9).toStringAsFixed(1);
@@ -207,41 +205,41 @@ String _gb(int bytes) => (bytes / 1e9).toStringAsFixed(1);
 String _millions(int n) => (n / 1e6).toStringAsFixed(1);
 
 /// The stage line: the stage in its own units, never a second percentage (§15.2).
-String stageLine(SyncProgress p) {
+String stageLine(AppLocalizations l, SyncProgress p) {
   final d = p.done, t = p.total;
   final known = d != null && t != null && t > 0;
   return switch (p.stage) {
-    SyncStage.waitingForPeers => 'Connecting to peers',
-    SyncStage.headers => known ? 'Headers · ${digits(d)} of ${digits(t)}' : 'Headers',
-    SyncStage.chainStateDownload => known ? 'Chain state · ${_gb(d)} of ${_gb(t)} GB' : 'Chain state',
-    SyncStage.chainStateKernels => known ? 'Checking kernels · ${_millions(d)} of ${_millions(t)} million' : 'Checking kernels',
-    SyncStage.chainStateRangeProofs => known ? 'Checking range proofs · ${_millions(d)} of ${_millions(t)} million' : 'Checking range proofs',
-    SyncStage.chainStateProcessing => 'Processing the chain state',
-    SyncStage.blocks => known ? 'Blocks · ${digits(d)} of ${digits(t)}' : 'Blocks',
-    SyncStage.compacting => 'Compacting the chain data',
-    SyncStage.shuttingDown => 'Stopping…',
-    SyncStage.synced || SyncStage.unknown => 'Syncing',
+    SyncStage.waitingForPeers => l.deskNodeLineWaiting,
+    SyncStage.headers => known ? l.deskNodeLineHeaders(digits(d), digits(t)) : l.deskNodeLineHeadersBare,
+    SyncStage.chainStateDownload => known ? l.deskNodeLineChain(_gb(d), _gb(t)) : l.deskNodeLineChainBare,
+    SyncStage.chainStateKernels => known ? l.deskNodeLineKernels(_millions(d), _millions(t)) : l.deskNodeLineKernelsBare,
+    SyncStage.chainStateRangeProofs => known ? l.deskNodeLineRangeProofs(_millions(d), _millions(t)) : l.deskNodeLineRangeProofsBare,
+    SyncStage.chainStateProcessing => l.deskNodeLineProcessing,
+    SyncStage.blocks => known ? l.deskNodeLineBlocks(digits(d), digits(t)) : l.deskNodeLineBlocksBare,
+    SyncStage.compacting => l.deskNodeLineCompacting,
+    SyncStage.shuttingDown => l.deskNodeLineStopping,
+    SyncStage.synced || SyncStage.unknown => l.deskNodeLineSyncing,
   };
 }
 
 /// "about 3 h left", "about 12 min left", "estimating…", or the fixed text of the checks.
-String? timeLeft(SyncStage stage, Duration? eta) {
+String? timeLeft(AppLocalizations l, SyncStage stage, Duration? eta) {
   switch (stage) {
     case SyncStage.chainStateKernels || SyncStage.chainStateRangeProofs || SyncStage.chainStateProcessing:
-      return 'no estimate; up to an hour';
+      return l.deskNodeNoEstimate;
     case SyncStage.headers || SyncStage.chainStateDownload || SyncStage.blocks:
-      if (eta == null) return 'estimating…';
+      if (eta == null) return l.deskNodeEstimating;
       final min = (eta.inSeconds / 60).ceil();
-      return min > 90 ? 'about ${(min / 60).round()} h left' : 'about ${min < 1 ? 1 : min} min left';
+      return min > 90 ? l.deskNodeAboutHours((min / 60).round()) : l.deskNodeAboutMinutes(min < 1 ? 1 : min);
     default:
       return null;
   }
 }
 
 /// "9 h 40 min", "2 min".
-String duration(Duration d) {
+String duration(AppLocalizations l, Duration d) {
   final h = d.inHours, m = d.inMinutes % 60;
-  return h > 0 ? '$h h $m min' : '${d.inMinutes} min';
+  return h > 0 ? l.deskNodeDurationHm(h, m) : l.deskNodeDurationM(d.inMinutes);
 }
 
 /// "5.2 GB", "820 MB".

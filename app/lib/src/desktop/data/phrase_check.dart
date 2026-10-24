@@ -37,5 +37,5 @@ bool bip39PhraseValid(List<String> words) {
 /// phrase itself is never kept or logged.
 String phraseFingerprint(String mnemonic) {
   final normal = mnemonic.trim().toLowerCase().split(RegExp(r'\s+')).join(' ');
-  return sha256.convert(utf8.encode('epic-wallet phrase fingerprint v1\n$normal')).toString();
+  return sha256.convert(utf8.encode('epic-wallet phrase fingerprint v1\n$normal')).toString(); // l10n-ok: hash input
 }

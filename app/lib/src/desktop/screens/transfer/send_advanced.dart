@@ -5,11 +5,13 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
 /// The disclosure's subtitle: "· Smallest outputs", with ", change not split" when off.
-String advancedSubtitle(SelectionStrategy strategy, {required bool split}) =>
-    '· ${strategy == SelectionStrategy.all ? 'All' : 'Smallest'} outputs${split ? '' : ', change not split'}';
+String advancedSubtitle(AppLocalizations l, SelectionStrategy strategy, {required bool split}) => strategy == SelectionStrategy.all
+    ? (split ? l.deskSendAdvAll : l.deskSendAdvAllNoSplit)
+    : (split ? l.deskSendAdvSmallest : l.deskSendAdvSmallestNoSplit);
 
 class SendAdvanced extends StatelessWidget {
   const SendAdvanced({
@@ -42,43 +44,44 @@ class SendAdvanced extends StatelessWidget {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     Widget radio(SelectionStrategy s, String title, String text) => ERadioRow(
       selected: (sendAll ? SelectionStrategy.all : strategy) == s,
       title: title,
-      tag: s == defaultStrategy ? 'default' : null,
+      tag: s == defaultStrategy ? l.deskSendDefaultTag : null,
       text: text,
       onSelected: sendAll ? null : () => onStrategy(s),
     );
     return EDetails(
-      title: 'Advanced',
-      subtitle: advancedSubtitle(sendAll ? SelectionStrategy.all : strategy, split: split),
+      title: l.deskSendAdvanced,
+      subtitle: advancedSubtitle(l, sendAll ? SelectionStrategy.all : strategy, split: split),
       initiallyOpen: initiallyOpen,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Semantics(
             container: true,
-            label: 'Strategy for this send',
+            label: l.deskSendAdvStrategy,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                radio(SelectionStrategy.smallest, 'Smallest', 'Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.'),
-                radio(SelectionStrategy.all, 'All', 'Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.'),
+                radio(SelectionStrategy.smallest, l.deskSendStrategySmallest, l.deskSendAdvSmallestText),
+                radio(SelectionStrategy.all, l.deskSendStrategyAll, l.deskSendAdvAllText),
               ],
             ),
           ),
-          if (sendAll) Padding(padding: EdgeInsets.only(left: 30.u, bottom: Sp.x2), child: Text('Sending everything spends every output.', style: ts.caption)),
+          if (sendAll) Padding(padding: EdgeInsets.only(left: 30.u, bottom: Sp.x2), child: Text(l.deskSendAdvAllNote, style: ts.caption)),
           ESetRow(
-            title: 'Split change',
-            text: 'Returns the change as several outputs when few would be left, so the next send does not wait.',
-            control: ESwitch(value: split, semanticLabel: 'Split change', onChanged: onSplit),
+            title: l.deskSendAdvSplit,
+            text: l.deskSendAdvSplitText,
+            control: ESwitch(value: split, semanticLabel: l.deskSendAdvSplit, onChanged: onSplit),
           ),
           SizedBox(height: Sp.x2),
           Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text('For this send only. Defaults: ', style: ts.caption.copyWith(color: c.dim)),
-              ELink(label: 'Outputs', onPressed: onOutputs),
+              Text(l.deskSendAdvDefaults, style: ts.caption.copyWith(color: c.dim)),
+              ELink(label: l.deskSendAdvOutputsLink, onPressed: onOutputs),
             ],
           ),
         ],

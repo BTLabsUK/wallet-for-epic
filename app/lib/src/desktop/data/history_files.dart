@@ -40,7 +40,7 @@ class SystemDeskHistoryFiles implements DeskHistoryFiles {
   }
 }
 
-const tooLargeHistoryFile = HistoryFileError(HistoryFileProblem.tooLarge, 'The file is too large to be one.');
+final tooLargeHistoryFile = HistoryFileError.l10n(HistoryFileProblem.tooLarge, (l) => l.deskErrHistTooLarge);
 
 /// The mock's dialogs: a save lands in ~/Documents, a pick gives a fixed file; tests queue
 /// their own answers.

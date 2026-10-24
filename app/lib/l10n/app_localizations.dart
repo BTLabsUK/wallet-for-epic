@@ -9384,6 +9384,2784 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}'**
   String sendUsesAllOutputs(int count);
+
+  /// An error message the user reads when nothing more is known (toast, inline error).
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get deskErrSomethingWrong;
+
+  /// An error message the user reads when a password is wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong password'**
+  String get deskErrWrongPassword;
+
+  /// An error message the user reads when the recovery phrase is not a valid phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery phrase not valid'**
+  String get deskErrPhraseInvalid;
+
+  /// An error message the user reads when creating a wallet that already exists.
+  ///
+  /// In en, this message translates to:
+  /// **'A wallet exists already'**
+  String get deskErrWalletExists;
+
+  /// An error message the user reads when no wallet is found.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallet found'**
+  String get deskErrWalletNotFound;
+
+  /// An error message the user reads when the node does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Node not answering'**
+  String get deskErrNodeNotAnswering;
+
+  /// An error message the user reads when the spendable balance is too small.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough funds'**
+  String get deskErrNotEnoughFunds;
+
+  /// An error message the user reads when a transaction file does not belong to this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a transaction file for this wallet'**
+  String get deskErrNotTxFile;
+
+  /// An error message the user reads when the Epicbox server cannot be reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server not reachable'**
+  String get deskErrEpicboxUnreachable;
+
+  /// An error message the user reads when an address is not an http or https address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not an http(s) address'**
+  String get deskErrNotHttpAddress;
+
+  /// An error message the user reads when a send to a plain http address was not confirmed by the user.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain HTTP not confirmed'**
+  String get deskErrPlainHttp;
+
+  /// An error message the user reads when an address is not a Tor onion address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not an onion address'**
+  String get deskErrNotOnion;
+
+  /// An error message the user reads when a Tor send is asked while Tor is not connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not connected'**
+  String get deskErrTorNotConnected;
+
+  /// An error message the user reads when a Tor send finds no wallet at the onion address.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient’s wallet is not reachable over Tor'**
+  String get deskErrOnionUnreachable;
+
+  /// An error message the user reads when the wallet is busy with another operation.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet busy. Try again in a moment.'**
+  String get deskErrWalletBusy;
+
+  /// An error message the user reads (also a notice on Overview) when the wallet database is damaged and is being rebuilt.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet database damaged, rebuilding'**
+  String get deskErrDbDamaged;
+
+  /// An error message the user reads when a payment has expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment expired'**
+  String get deskErrPaymentExpired;
+
+  /// An error message the user reads when an invoice cannot be found.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice not found'**
+  String get deskErrInvoiceNotFound;
+
+  /// An error message the user reads when the amount does not match the invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount differs from the invoice'**
+  String get deskErrAmountMismatch;
+
+  /// An error message the user reads when an invoice is already paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice already paid'**
+  String get deskErrInvoicePaid;
+
+  /// An error message the user reads when an invoice is locked until a later block.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice locked until a later block'**
+  String get deskErrInvoiceLocked;
+
+  /// An error message the user reads when an invoice changed since it was read.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice changed'**
+  String get deskErrInvoiceChanged;
+
+  /// An error message the user reads when the wallet core did not accept an input and gave no detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Not accepted'**
+  String get deskErrNotAccepted;
+
+  /// An error message the user reads when the wallet core did not accept an input. {detail} is the core's own English sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Not accepted: {detail}'**
+  String deskErrNotAcceptedDetail(String detail);
+
+  /// An error message the user reads when the disk failed, no detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Disk error'**
+  String get deskErrDisk;
+
+  /// An error message the user reads when the disk failed. {detail} is the system's English text.
+  ///
+  /// In en, this message translates to:
+  /// **'Disk error: {detail}'**
+  String deskErrDiskDetail(String detail);
+
+  /// Why Tor is down: this build has no Tor program. Shown on the Tor status line.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor not included in this build'**
+  String get deskErrTorMissing;
+
+  /// Why Tor is down: the Tor network cannot be reached. Shown on the Tor status line.
+  ///
+  /// In en, this message translates to:
+  /// **'Can’t reach the Tor network'**
+  String get deskErrTorNetwork;
+
+  /// Why Tor is down: the computer's clock is wrong. Shown on the Tor status line.
+  ///
+  /// In en, this message translates to:
+  /// **'The computer’s clock is wrong'**
+  String get deskErrTorClock;
+
+  /// Why Tor receiving does not work: the onion address is not published. Shown on the Tor status line.
+  ///
+  /// In en, this message translates to:
+  /// **'Onion address not published'**
+  String get deskErrOnionNotPublished;
+
+  /// Why Tor is down: the Tor program did not start. Shown on the Tor status line.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor did not start'**
+  String get deskErrTorStart;
+
+  /// Why Tor is down: Tor stopped. Shown on the Tor status line.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor stopped'**
+  String get deskErrTorStopped;
+
+  /// An error message the user reads when a second balance recheck is asked while one runs.
+  ///
+  /// In en, this message translates to:
+  /// **'A scan is already running.'**
+  String get deskErrScanRunning;
+
+  /// An error message the user reads when a cancel was refused because the node already has the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Not cancelled: the node already has this payment.'**
+  String get deskErrCancelRefused;
+
+  /// An error message the user reads when an action needs the wallet to be unlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet is locked'**
+  String get deskErrWalletLocked;
+
+  /// An error message the user reads when an action is asked while the wallet is locking.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet is locking'**
+  String get deskErrWalletLocking;
+
+  /// An error message the user reads when the damaged wallet database could not be reopened. {detail} is the second error.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet database damaged. {detail}'**
+  String deskErrDbDamagedDetail(String detail);
+
+  /// An error message the user reads when a change failed and the wallet had to be closed. {detail} is the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet closed: {detail}. Unlock again.'**
+  String deskErrWalletClosed(String detail);
+
+  /// An error message the user reads when a settings change failed. {detail} is the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Not changed: {detail}'**
+  String deskErrNotChanged(String detail);
+
+  /// An error message the user reads when a new password is too short. {count} is the minimum length.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Use at least {count} character} other{Use at least {count} characters}}'**
+  String deskErrPasswordShort(int count);
+
+  /// An error message the user reads when the wallet is not in the wallet list.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet not in the list'**
+  String get deskErrWalletNotListed;
+
+  /// An error message the user reads when the wallet list was written by a newer app version.
+  ///
+  /// In en, this message translates to:
+  /// **'Update the app to change the list'**
+  String get deskErrUpdateApp;
+
+  /// An error message the user reads when the wallet list could not be changed, no detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet list not changed'**
+  String get deskErrListNotChanged;
+
+  /// An error message the user reads when a wallet is deleted without being open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the wallet to delete it'**
+  String get deskErrOpenToDelete;
+
+  /// An error message the user reads when a password is needed and empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the password'**
+  String get deskErrEnterPassword;
+
+  /// An error message the user reads when a wallet's folder is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet folder not found'**
+  String get deskErrFolderNotFound;
+
+  /// An error message the user reads when a recovery phrase belongs to a wallet that is already listed. {name} is the listed wallet's name.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet is already here: {name}'**
+  String deskErrAlreadyHere(String name);
+
+  /// Shown in the import wizard for an older wallet on the test network.
+  ///
+  /// In en, this message translates to:
+  /// **'Test network wallet. Only mainnet wallets can be imported.'**
+  String get deskErrTestNet;
+
+  /// Shown in the import wizard when every wallet found is already in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet is in the app already.'**
+  String get deskErrWalletInApp;
+
+  /// An error message the user reads in the import wizard when the chosen old wallet is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet not found. Search again.'**
+  String get deskErrWalletNotFoundSearch;
+
+  /// An error message the user reads in the import wizard when the old password is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the old password'**
+  String get deskErrEnterOldPassword;
+
+  /// An error message the user reads in the import wizard when the old password is shorter than the app's minimum. {count} is the minimum length.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{The old password is short. Choose a new one of at least {count} character.} other{The old password is short. Choose a new one of at least {count} characters.}}'**
+  String deskErrOldPasswordShort(int count);
+
+  /// An error message the user reads in the import wizard when wallet.seed cannot be read from disk.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet.seed file could not be read'**
+  String get deskErrSeedUnreadable;
+
+  /// An error message the user reads in the import wizard when the chosen file is not a wallet.seed file.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a wallet.seed file'**
+  String get deskErrNotSeedFile;
+
+  /// An error message the user reads in the import wizard when the wallet is already in the app. {name} is its name.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in the app as {name}'**
+  String deskErrAlreadyInApp(String name);
+
+  /// An error message the user reads in the import wizard when the old wallet's password is wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong old password'**
+  String get deskErrWrongOldPassword;
+
+  /// An error message the user reads in the import wizard when the new wallet could not be listed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet list not saved'**
+  String get deskErrListNotSaved;
+
+  /// A line of the import wizard's result: the old wallet's seed was read.
+  ///
+  /// In en, this message translates to:
+  /// **'Seed read'**
+  String get deskErrProofSeedRead;
+
+  /// A line of the import wizard's result: the new wallet was created.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet created'**
+  String get deskErrProofWalletCreated;
+
+  /// A line of the import wizard's result: contacts taken over from the old app.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 contact added} other{{count} contacts added}}'**
+  String deskErrProofContacts(int count);
+
+  /// A line of the import wizard's result: the old app's node was added to the node list. {name} is the node's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Node {name} added to the node list'**
+  String deskErrProofNode(String name);
+
+  /// A line of the import wizard's result: the old app used another Epicbox server than this app. Both are host names.
+  ///
+  /// In en, this message translates to:
+  /// **'The older app used the Epicbox server {old}; this app uses {current}'**
+  String deskErrProofEpicbox(String old, String current);
+
+  /// A line of the import wizard's result: the old wallet's folder was only read.
+  ///
+  /// In en, this message translates to:
+  /// **'Old folder unchanged'**
+  String get deskErrProofFolderUnchanged;
+
+  /// A line of the import wizard's result: another program changed the old folder meanwhile.
+  ///
+  /// In en, this message translates to:
+  /// **'Old folder changed by another program'**
+  String get deskErrProofFolderChanged;
+
+  /// A line of the import wizard's result: the old payment history was imported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{History: 1 transaction} other{History: {count} transactions}}'**
+  String deskErrProofHistory(int count);
+
+  /// A line of the import wizard's result.
+  ///
+  /// In en, this message translates to:
+  /// **'History already imported'**
+  String get deskErrProofHistoryAlready;
+
+  /// A line of the import wizard's result.
+  ///
+  /// In en, this message translates to:
+  /// **'No history in the old folder; the scan restores the balance'**
+  String get deskErrProofHistoryNone;
+
+  /// A line of the import wizard's result.
+  ///
+  /// In en, this message translates to:
+  /// **'History of Epic Wallet 5.3 or older is not readable; the scan restores the balance'**
+  String get deskErrProofHistoryOld;
+
+  /// A line of the import wizard's result.
+  ///
+  /// In en, this message translates to:
+  /// **'History not imported: the older wallet is running. It is imported at the next unlock'**
+  String get deskErrProofHistoryBusy;
+
+  /// A line of the import wizard's result.
+  ///
+  /// In en, this message translates to:
+  /// **'History not imported: it belongs to another wallet'**
+  String get deskErrProofHistoryOther;
+
+  /// A line of the import wizard's result.
+  ///
+  /// In en, this message translates to:
+  /// **'History not imported: the old database could not be read; the scan restores the balance'**
+  String get deskErrProofHistoryUnreadable;
+
+  /// An error message the user reads when a sync could not reach the node.
+  ///
+  /// In en, this message translates to:
+  /// **'The node did not answer'**
+  String get deskErrNodeNoAnswer;
+
+  /// An error message the user reads when a split or consolidation was stored but the node did not take it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not posted'**
+  String get deskErrNotPosted;
+
+  /// Why a send failed: the address is not an Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not an Epicbox address'**
+  String get deskErrNotEpicboxAddress;
+
+  /// Why a file send failed: the transaction file could not be saved.
+  ///
+  /// In en, this message translates to:
+  /// **'File not saved. The payment waits in Activity; cancel it there to unlock the funds.'**
+  String get deskErrFileNotSaved;
+
+  /// Why a send to an onion address failed: Tor is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is off. Turn on Tor to send to an onion address.'**
+  String get deskErrTorOffSend;
+
+  /// Why a send to an onion address failed: Tor is still starting.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is still connecting. Try again in a moment.'**
+  String get deskErrTorConnecting;
+
+  /// Why a direct send failed: nothing was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient’s wallet did not answer or refused.'**
+  String get deskErrRecipientNoAnswer;
+
+  /// Why a direct send failed: the payment may exist and waits in Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient’s wallet did not answer or refused. The payment waits in Activity; cancel it there to unlock the funds.'**
+  String get deskErrRecipientNoAnswerWaits;
+
+  /// Why an Epicbox send failed: the payment waits in Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered. The payment waits in Activity; cancel it there to unlock the funds.'**
+  String get deskErrNotDelivered;
+
+  /// Why a send ended: the wallet was locked during it.
+  ///
+  /// In en, this message translates to:
+  /// **'Interrupted by the lock. It may have gone out: check Activity after unlocking.'**
+  String get deskErrInterruptedLock;
+
+  /// Why a send failed with a reason, when the payment may exist. {detail} is the reason without its final full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{detail}. The payment waits in Activity; cancel it there to unlock the funds.'**
+  String deskErrStoredWaits(String detail);
+
+  /// Why a direct send failed: both wallets signed but the node refused the transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.'**
+  String get deskErrNodeRefused;
+
+  /// An error message the user reads when a transaction file cannot be read from disk.
+  ///
+  /// In en, this message translates to:
+  /// **'File not readable'**
+  String get deskErrFileNotReadable;
+
+  /// An error message the user reads when a chosen file is not a transaction file.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a transaction file'**
+  String get deskErrNotTxFile2;
+
+  /// An error message the user reads when the response file could not be written.
+  ///
+  /// In en, this message translates to:
+  /// **'Response file not saved'**
+  String get deskErrResponseNotSaved;
+
+  /// An error message the user reads when a payment cannot be cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment cannot be cancelled'**
+  String get deskErrCannotCancel;
+
+  /// An error message the user reads when the local node is asked but this build has none.
+  ///
+  /// In en, this message translates to:
+  /// **'No local node in this build'**
+  String get deskErrNoLocalNode;
+
+  /// An error message the user reads when the local node was stopped while starting.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node stopped'**
+  String get deskErrLocalNodeStopped;
+
+  /// An error message the user reads when the wallet was locked during a change.
+  ///
+  /// In en, this message translates to:
+  /// **'Not changed: the wallet was locked'**
+  String get deskErrNotChangedLocked;
+
+  /// Notice on Overview when the local node did not start. {detail} is the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node not started: {detail}'**
+  String deskErrLocalNodeNotStarted(String detail);
+
+  /// Reason after "Local node not started:" when nothing more is known. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'unknown error'**
+  String get deskErrUnknown;
+
+  /// An error message the user reads when the Epicbox server name is not valid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a server name'**
+  String get deskErrNotServerName;
+
+  /// Why receiving over HTTP did not start: the port is used by another program.
+  ///
+  /// In en, this message translates to:
+  /// **'Port {port} in use'**
+  String deskErrPortInUse(int port);
+
+  /// Why receiving over HTTP did not start: the port cannot be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Port {port} not available'**
+  String deskErrPortUnavailable(int port);
+
+  /// Why receiving over HTTP stopped, no detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped with an error'**
+  String get deskErrStoppedWithError;
+
+  /// An error message the user reads when changing the password failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Password not changed. The current password still opens the wallet.'**
+  String get deskErrPasswordNotChanged;
+
+  /// An error message the user reads when there are no coins to spend.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to spend'**
+  String get deskErrNothingToSpend;
+
+  /// Tor line of the status card and Settings › Receiving when Tor is off. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get deskTorLineOff;
+
+  /// Tor line of the status card and Settings › Receiving when Tor is ready. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get deskTorLineReady;
+
+  /// Tor line when the onion address is not published but sending works. {problem} is a short reason such as "Onion address not published".
+  ///
+  /// In en, this message translates to:
+  /// **'{problem}. Sends work.'**
+  String deskTorLineSendsWork(String problem);
+
+  /// Tor line while the onion address is being published.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing the onion address…'**
+  String get deskTorLinePublishing;
+
+  /// Tor line while Tor connects. {percent} is a number from 0 to 100.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to Tor… {percent} %'**
+  String deskTorLineConnecting(int percent);
+
+  /// Title of the notice when a history backup file was exported from a different wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Another wallet\'s backup'**
+  String get deskErrHistOtherWallet;
+
+  /// Title of the notice when a history backup file is from another network (mainnet or the test network).
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong network'**
+  String get deskErrHistOtherChain;
+
+  /// Title of the notice when a chosen file is not a history backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a history backup'**
+  String get deskErrHistNotOurs;
+
+  /// Title of the notice when a history backup file was made by a newer app version.
+  ///
+  /// In en, this message translates to:
+  /// **'Newer file'**
+  String get deskErrHistNewer;
+
+  /// Title of the notice when a history backup file is incomplete or changed.
+  ///
+  /// In en, this message translates to:
+  /// **'File damaged'**
+  String get deskErrHistDamaged;
+
+  /// Group heading in the import wizard's Find step: wallets made by the older Epic Wallet app.
+  ///
+  /// In en, this message translates to:
+  /// **'Older Epic Wallet'**
+  String get deskErrOldGui;
+
+  /// Group heading in the import wizard's Find step: wallets made by the epic command-line program.
+  ///
+  /// In en, this message translates to:
+  /// **'The epic program'**
+  String get deskErrOldCli;
+
+  /// Group heading in the import wizard's Find step: folders the user picked by hand.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen folders'**
+  String get deskErrOldPicked;
+
+  /// Why a history backup was refused: the file is far larger than any backup.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is too large to be one.'**
+  String get deskErrHistTooLarge;
+
+  /// Why a history backup was refused: it is from another network. {from} and {to} are network names such as Mainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is from {from}; this wallet is on {to}.'**
+  String deskErrHistChains(String from, String to);
+
+  /// Why a history backup was refused: it belongs to another wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'The file was exported from a wallet with a different recovery phrase.'**
+  String get deskErrHistOtherWalletText;
+
+  /// Why a history backup was refused: it was made by a newer app version.
+  ///
+  /// In en, this message translates to:
+  /// **'A newer version of the app made this file. Update the app, then import it.'**
+  String get deskErrHistNewerText;
+
+  /// Why a history backup was refused: the file is damaged.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is incomplete or was changed.'**
+  String get deskErrHistDamagedText;
+
+  /// Why a history backup was refused: it is not a backup file of this app.
+  ///
+  /// In en, this message translates to:
+  /// **'The file was not made by Epic Cash Desktop or Epic Cash Mobile.'**
+  String get deskErrHistNotOursText;
+
+  /// Hint under the Send address field when it is empty and the Direct method is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the recipient’s address'**
+  String get deskDataHttpEnter;
+
+  /// Hint under the Send address field: an http address needs its scheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with https:// or http://'**
+  String get deskDataHttpScheme;
+
+  /// Hint under the Send address field: an .onion address was typed where an http(s) address is expected.
+  ///
+  /// In en, this message translates to:
+  /// **'Onion addresses need Tor'**
+  String get deskDataHttpOnion;
+
+  /// Hint under the Send address field: the text is not an http or https address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not an http(s) address'**
+  String get deskDataHttpNot;
+
+  /// Hint under the Send address field: the port number is out of range.
+  ///
+  /// In en, this message translates to:
+  /// **'Port must be 1 to 65535'**
+  String get deskDataHttpPort;
+
+  /// Update check failed: the server did not answer in time.
+  ///
+  /// In en, this message translates to:
+  /// **'The update server did not answer.'**
+  String get deskDataUpdTimeout;
+
+  /// Update check failed: the server could not be reached.
+  ///
+  /// In en, this message translates to:
+  /// **'The update server could not be reached.'**
+  String get deskDataUpdUnreachable;
+
+  /// Update check failed: the server answered with an HTTP error code.
+  ///
+  /// In en, this message translates to:
+  /// **'The update server answered {status}.'**
+  String deskDataUpdStatus(int status);
+
+  /// Update check: the update list has no entry for the desktop app yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No desktop update information is published yet.'**
+  String get deskDataUpdNone;
+
+  /// Node status word: the node is at the chain tip. Short, in the status rail and node panels.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get deskNodeSynced;
+
+  /// Node status word: the node is behind the network. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind'**
+  String get deskNodeBehind;
+
+  /// Node status word: the node does not answer. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answering'**
+  String get deskNodeNotAnswering;
+
+  /// Node status word while the first check is running. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking'**
+  String get deskNodeChecking;
+
+  /// Local node status word: the node program is starting. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting'**
+  String get deskNodeStarting;
+
+  /// Local node status word: the node is downloading the chain. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get deskNodeSyncing;
+
+  /// Local node status word: the sync made no progress. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Stalled'**
+  String get deskNodeStalled;
+
+  /// Local node status word: the node program failed. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get deskNodeFailed;
+
+  /// Local node status word: the node program is stopped. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get deskNodeStopped;
+
+  /// Marker after the node host in the rail's second line when the node does not answer. Very short, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'no answer'**
+  String get deskNodeMarkerNoAnswer;
+
+  /// Marker after the node host in the rail when the node is that many blocks behind. Very short. {count} is a number with thousands separators.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} behind'**
+  String deskNodeMarkerBehind(String count);
+
+  /// Marker after the host in the rail while the local node starts. Very short, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'starting'**
+  String get deskNodeMarkerStarting;
+
+  /// Marker after the host in the rail when the local node's sync stalled. Very short, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'stalled'**
+  String get deskNodeMarkerStalled;
+
+  /// Marker after the host in the rail when the local node failed. Very short, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'failed'**
+  String get deskNodeMarkerFailed;
+
+  /// Marker after the host in the rail when the local node is stopped. Very short, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'stopped'**
+  String get deskNodeMarkerStopped;
+
+  /// Tooltip line for a node that stopped answering: the node's host and the time it went down.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} · since {time}'**
+  String deskNodeHostSince(String host, String time);
+
+  /// Tooltip line when the node does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'The node is not answering.'**
+  String get deskNodeNotAnsweringLine;
+
+  /// Tooltip line part: the node's answer time in milliseconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms} ms'**
+  String deskNodeLatency(String ms);
+
+  /// Tooltip line part: the node's answer time in milliseconds, measured over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms} ms over Tor'**
+  String deskNodeLatencyOverTor(String ms);
+
+  /// Tooltip line part: a newer node version is released.
+  ///
+  /// In en, this message translates to:
+  /// **'{version} is out'**
+  String deskNodeNewerOut(String version);
+
+  /// Tooltip line when the node is behind the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind the network; catching up.'**
+  String get deskNodeBehindLine;
+
+  /// Tooltip line part: the node's block height of the network's height.
+  ///
+  /// In en, this message translates to:
+  /// **'{height} of {total}'**
+  String deskNodeHeightOf(String height, String total);
+
+  /// Tooltip line part: the node is at the chain tip. Short, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'at tip'**
+  String get deskNodeAtTip;
+
+  /// Name of the node program that runs on this computer, in the rail and node panels.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node'**
+  String get deskNodeLocal;
+
+  /// Local node line while it looks for peers.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to peers'**
+  String get deskNodeConnectingPeers;
+
+  /// Local node tooltip line: the wallet reads through this public node until the local node has synced.
+  ///
+  /// In en, this message translates to:
+  /// **'Using {host} until it is synced.'**
+  String deskNodeUsingUntilSynced(String host);
+
+  /// Local node tooltip line while it syncs and no other node is used.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing can be sent until it is synced.'**
+  String get deskNodeNothingUntilSynced;
+
+  /// Local node tooltip line part: how many peers the node is connected to.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} peer} other{{count} peers}}'**
+  String deskNodePeers(int count);
+
+  /// Local node tooltip line part: how long the node program has been running. {duration} is like "9 h 40 min".
+  ///
+  /// In en, this message translates to:
+  /// **'running {duration}'**
+  String deskNodeRunning(String duration);
+
+  /// Local node tooltip line once synced while the wallet still reads through a public node.
+  ///
+  /// In en, this message translates to:
+  /// **'Still using {host}; the local node takes over shortly.'**
+  String deskNodeStillUsing(String host);
+
+  /// Local node tooltip line when the sync stalled.
+  ///
+  /// In en, this message translates to:
+  /// **'No progress for 5 min. Restarted once already.'**
+  String get deskNodeNoProgress;
+
+  /// Local node tooltip line: the wallet reads through this public node while the local node is not working.
+  ///
+  /// In en, this message translates to:
+  /// **'Using {host} meanwhile.'**
+  String deskNodeUsingMeanwhile(String host);
+
+  /// Local node tooltip line when the node is stopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Start it under Settings › Node.'**
+  String get deskNodeStartIt;
+
+  /// Why the local node failed, as a detail after the word "Failed". Lowercase fragment.
+  ///
+  /// In en, this message translates to:
+  /// **'port 3413 is used by another program'**
+  String get deskNodeFailPort;
+
+  /// Why the local node failed. Lowercase fragment.
+  ///
+  /// In en, this message translates to:
+  /// **'not enough disk space'**
+  String get deskNodeFailDisk;
+
+  /// Why the local node failed. Lowercase fragment.
+  ///
+  /// In en, this message translates to:
+  /// **'the node program is missing'**
+  String get deskNodeFailMissing;
+
+  /// Why the local node failed. Lowercase fragment.
+  ///
+  /// In en, this message translates to:
+  /// **'the node program stopped'**
+  String get deskNodeFailExited;
+
+  /// Why the local node failed, with the program's exit code. Lowercase fragment.
+  ///
+  /// In en, this message translates to:
+  /// **'the node program stopped (exit code {code})'**
+  String deskNodeFailExitedCode(String code);
+
+  /// Why the local node failed when nothing more is known. Lowercase fragment.
+  ///
+  /// In en, this message translates to:
+  /// **'the node did not start'**
+  String get deskNodeFailDefault;
+
+  /// Name of the local node's sync stage, lowercase, used inside a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'connecting to peers'**
+  String get deskNodeStageWaiting;
+
+  /// Name of the local node's sync stage, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'headers'**
+  String get deskNodeStageHeaders;
+
+  /// Name of the local node's sync stage, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'chain state download'**
+  String get deskNodeStageChainDownload;
+
+  /// Name of the local node's sync stage, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'checking kernels'**
+  String get deskNodeStageKernels;
+
+  /// Name of the local node's sync stage, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'checking range proofs'**
+  String get deskNodeStageRangeProofs;
+
+  /// Name of the local node's sync stage, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'processing the chain state'**
+  String get deskNodeStageProcessing;
+
+  /// Name of the local node's sync stage, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'blocks'**
+  String get deskNodeStageBlocks;
+
+  /// Name of the local node's sync stage, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'compacting'**
+  String get deskNodeStageCompacting;
+
+  /// Name of the local node's stage, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'stopping'**
+  String get deskNodeStageStopping;
+
+  /// Name of the local node's stage, lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'syncing'**
+  String get deskNodeStageSyncing;
+
+  /// Local node stage line while it waits for peers.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to peers'**
+  String get deskNodeLineWaiting;
+
+  /// Local node stage line: block headers downloaded of the total.
+  ///
+  /// In en, this message translates to:
+  /// **'Headers · {done} of {total}'**
+  String deskNodeLineHeaders(String done, String total);
+
+  /// Local node stage line: block headers, count unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Headers'**
+  String get deskNodeLineHeadersBare;
+
+  /// Local node stage line: chain state downloaded of the total, in gigabytes.
+  ///
+  /// In en, this message translates to:
+  /// **'Chain state · {done} of {total} GB'**
+  String deskNodeLineChain(String done, String total);
+
+  /// Local node stage line: chain state, size unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Chain state'**
+  String get deskNodeLineChainBare;
+
+  /// Local node stage line: kernels checked of the total, in millions.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking kernels · {done} of {total} million'**
+  String deskNodeLineKernels(String done, String total);
+
+  /// Local node stage line: checking kernels.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking kernels'**
+  String get deskNodeLineKernelsBare;
+
+  /// Local node stage line: range proofs checked of the total, in millions.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking range proofs · {done} of {total} million'**
+  String deskNodeLineRangeProofs(String done, String total);
+
+  /// Local node stage line: checking range proofs.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking range proofs'**
+  String get deskNodeLineRangeProofsBare;
+
+  /// Local node stage line.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing the chain state'**
+  String get deskNodeLineProcessing;
+
+  /// Local node stage line: blocks downloaded of the total.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocks · {done} of {total}'**
+  String deskNodeLineBlocks(String done, String total);
+
+  /// Local node stage line: blocks, count unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocks'**
+  String get deskNodeLineBlocksBare;
+
+  /// Local node stage line.
+  ///
+  /// In en, this message translates to:
+  /// **'Compacting the chain data'**
+  String get deskNodeLineCompacting;
+
+  /// Local node stage line while the node program shuts down.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopping…'**
+  String get deskNodeLineStopping;
+
+  /// Local node stage line when the stage is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get deskNodeLineSyncing;
+
+  /// Time left for the local node's checks, which cannot be estimated. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'no estimate; up to an hour'**
+  String get deskNodeNoEstimate;
+
+  /// Time left for the local node's sync while the estimate is not ready yet. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'estimating…'**
+  String get deskNodeEstimating;
+
+  /// Time left for the local node's sync, in hours. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'about {hours} h left'**
+  String deskNodeAboutHours(int hours);
+
+  /// Time left for the local node's sync, in minutes. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'about {minutes} min left'**
+  String deskNodeAboutMinutes(int minutes);
+
+  /// A length of time in hours and minutes, e.g. how long the node has been running.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String deskNodeDurationHm(int hours, int minutes);
+
+  /// A length of time in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String deskNodeDurationM(int minutes);
+
+  /// Label of the Tor switch in Settings › Privacy and the status rail's Tor row.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor Network'**
+  String get deskTorNetworkLabel;
+
+  /// Explains what the Tor switch does, in the info hover card behind the Tor switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.'**
+  String get deskTorNetworkHint;
+
+  /// Tor state word: the switch is off. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get deskTorOff;
+
+  /// Tor state word: Tor is connecting. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting…'**
+  String get deskTorStarting;
+
+  /// Tor state word: Tor is connected. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get deskTorOn;
+
+  /// Tor state word: Tor stopped or could not connect. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get deskTorNotConnected;
+
+  /// The connections that wait for Tor, as a phrase that starts a sentence: Epicbox, the node, the app's status/price/update/support requests and Tor addresses. It is followed by a verb in the sentences that use it ("… wait until Tor is up.").
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox, the node, status, price, updates, support and Tor addresses'**
+  String get deskTorRoutes;
+
+  /// One sentence listing what goes over Tor while the switch is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.'**
+  String get deskTorCoverage;
+
+  /// Node tooltip line: the node is reached over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Over Tor'**
+  String get deskTorNodeOver;
+
+  /// Node tooltip line: a plain http node is not encrypted after the Tor exit.
+  ///
+  /// In en, this message translates to:
+  /// **'Not encrypted past Tor'**
+  String get deskTorNodeNotEncrypted;
+
+  /// Node tooltip line: the node connection waits for Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Waits until Tor is connected.'**
+  String get deskTorNodeWaits;
+
+  /// Page title of Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get deskRecvTitle;
+
+  /// Label before the method icons in the Receive page header, and before the on/off switch of each receiving method.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving'**
+  String get deskRecvReceiving;
+
+  /// Name of the file method (transaction files) when read out in a screen reader line such as "File off".
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get deskRecvNameFile;
+
+  /// Toast title when turning a receiving method on failed; the reason follows as text. {method} is Epicbox, HTTP, Tor or File.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} not turned on'**
+  String deskRecvTurnOnFailed(String method);
+
+  /// Toast title when turning a receiving method off failed; the reason follows as text. {method} is Epicbox, HTTP, Tor or File.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} not turned off'**
+  String deskRecvTurnOffFailed(String method);
+
+  /// Heading above the HTTP or Tor panel on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Other ways to receive'**
+  String get deskRecvOtherWays;
+
+  /// Small button next to the Other ways to receive heading: opens Settings › Receiving.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get deskRecvSettings;
+
+  /// Title of the notice on Receive when Tor failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not connected.'**
+  String get deskRecvTorNotConnected;
+
+  /// Title of the notice on Receive while Tor connects.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is starting.'**
+  String get deskRecvTorStarting;
+
+  /// Text of the notice on Receive when Tor failed. {routes} is a list of the connections that wait for Tor, such as "Epicbox, the node, status, price, updates, support and Tor addresses". "it" is Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing arrives over {routes} until it is, or until Tor is turned off.'**
+  String deskRecvTorDownText(String routes);
+
+  /// Text of the notice on Receive while Tor connects. "it" is Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Addresses become reachable once it is connected. Nothing goes over the clearnet meanwhile.'**
+  String get deskRecvTorStartingText;
+
+  /// Button in the Tor failed notice on Receive: switches Tor off.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Tor off'**
+  String get deskRecvTurnTorOff;
+
+  /// Retry button on the HTTP panel on Receive when the HTTP listener failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskRecvTryAgain;
+
+  /// Spoken state of a receiving method for screen readers, lowercase: the method is on.
+  ///
+  /// In en, this message translates to:
+  /// **'on'**
+  String get deskRecvStateOn;
+
+  /// Spoken state of a receiving method for screen readers, lowercase: the method is off.
+  ///
+  /// In en, this message translates to:
+  /// **'off'**
+  String get deskRecvStateOff;
+
+  /// Spoken state of a receiving method for screen readers, lowercase: still being checked.
+  ///
+  /// In en, this message translates to:
+  /// **'checking'**
+  String get deskRecvStateChecking;
+
+  /// Screen reader text for one receiving method in the page header summary, e.g. "Epicbox on". The summary joins these with commas.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} {state}'**
+  String deskRecvSemList(String method, String state);
+
+  /// Screen reader label of a receiving method's icon button in the page header, e.g. "Epicbox: on".
+  ///
+  /// In en, this message translates to:
+  /// **'{method}: {state}'**
+  String deskRecvSemMethod(String method, String state);
+
+  /// Tooltip of a receiving method's icon in the page header while it is being checked.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} · Checking'**
+  String deskRecvTipChecking(String method);
+
+  /// Tooltip of a receiving method's icon in the page header. {state} is the state word such as On or Off.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} · {state}'**
+  String deskRecvTip(String method, String state);
+
+  /// Tooltip of a receiving method's icon in the page header with a second line of detail.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} · {state}\n{detail}'**
+  String deskRecvTipDetail(String method, String state, String detail);
+
+  /// Small tag on the covered Epicbox QR code while Epicbox receiving is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get deskRecvTagPaused;
+
+  /// Small tag on a QR code while its receiving method starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting'**
+  String get deskRecvTagStarting;
+
+  /// Small tag on a QR code when its receiving method does not work.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable'**
+  String get deskRecvTagNotReachable;
+
+  /// Shown instead of an address when the wallet could not read it.
+  ///
+  /// In en, this message translates to:
+  /// **'The address could not be read. Open Receive again in a moment.'**
+  String get deskRecvAddressUnreadable;
+
+  /// Title of the Epicbox panel and of its QR code on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox address'**
+  String get deskRecvEpicboxAddress;
+
+  /// Screen reader and tooltip label of the copy button next to the Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Epicbox address'**
+  String get deskRecvCopyEpicbox;
+
+  /// Intro text of the Epicbox panel on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Share it to get paid. Works while the wallet is closed: the Epicbox server holds payments until the wallet is back.'**
+  String get deskRecvEpicboxIntro;
+
+  /// Caption under the Epicbox address on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'When reading it out, check the first six and last six characters.'**
+  String get deskRecvCheckSix;
+
+  /// Title of the HTTP panel on Receive and of its QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP address'**
+  String get deskRecvHttpAddress;
+
+  /// Label of the copy button next to the HTTP address.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy HTTP address'**
+  String get deskRecvCopyHttp;
+
+  /// Caption under the HTTP address when receiving from the internet is on. {port} is the port number.
+  ///
+  /// In en, this message translates to:
+  /// **'Your router’s public address. Senders on the internet use it once the router forwards port {port}.'**
+  String deskRecvHttpPublic(int port);
+
+  /// Caption under the HTTP address when receiving is only for this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Programs on this computer can pay this address. For other devices, see Settings › Receiving.'**
+  String get deskRecvHttpLocal;
+
+  /// Intro text of the HTTP panel on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight from another wallet while this one is open. On this computer only unless Settings says otherwise.'**
+  String get deskRecvHttpIntro;
+
+  /// Caption at the bottom of the HTTP panel on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Tor in Settings › Privacy for a Tor address instead.'**
+  String get deskRecvHttpTorHint;
+
+  /// Title of the Tor panel on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct, Tor address'**
+  String get deskRecvDirectTor;
+
+  /// Intro text of the Tor panel on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.'**
+  String get deskRecvTorIntro;
+
+  /// Title of the QR code of the Tor address on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor address'**
+  String get deskRecvTorAddress;
+
+  /// Label of the copy button next to the Tor address.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Tor address'**
+  String get deskRecvCopyTor;
+
+  /// Caption under the Tor address on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Some wallets show the address without .onion; both are the same address.'**
+  String get deskRecvTorOnion;
+
+  /// Heading of the transaction files panel on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction files'**
+  String get deskRecvFiles;
+
+  /// Row title in the transaction files panel: opens the page that signs a file the sender gave.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign a transaction file'**
+  String get deskRecvSignTitle;
+
+  /// Row text under Sign a transaction file.
+  ///
+  /// In en, this message translates to:
+  /// **'A sender gave a transaction file. The wallet signs it and saves a response for them.'**
+  String get deskRecvSignText;
+
+  /// Button on the rows of the transaction files panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get deskRecvOpen;
+
+  /// Row title in the transaction files panel: opens the page that finalizes a response file.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalize a response file'**
+  String get deskRecvFinalizeTitle;
+
+  /// Row text under Finalize a response file.
+  ///
+  /// In en, this message translates to:
+  /// **'A file send got a response back. Finalizing posts the payment.'**
+  String get deskRecvFinalizeText;
+
+  /// Screen reader label of a receiving method's on/off switch. {title} is the panel's title, e.g. Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, receiving'**
+  String deskRecvSwitchLabel(String title);
+
+  /// Name of the output-selection strategy that spends the fewest small outputs. Used as a radio title and inside sentences. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest'**
+  String get deskSendStrategySmallest;
+
+  /// Name of the output-selection strategy that spends every output. Used as a radio title and inside sentences. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get deskSendStrategyAll;
+
+  /// Summary line on Send: the balance left after this payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance after'**
+  String get deskSendBalanceAfter;
+
+  /// Summary line on Send: the amount still spendable while the change confirms.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable until change confirms'**
+  String get deskSendSpendableUntil;
+
+  /// Summary line on Send when the change comes back as several outputs. {outputs} is the number of change outputs; {fee} the extra network fee, in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{outputs, plural, one{Change split into {outputs} output (+{fee} EPIC fee)} other{Change split into {outputs} outputs (+{fee} EPIC fee)}}'**
+  String deskSendSplitLine(int outputs, String fee);
+
+  /// Help text behind the info icon of the split-change line. {outputs} is the number of change outputs; {each} the size of each, in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{outputs, plural, one{So the next send does not wait for this one to confirm. Change comes back as {outputs} output of about {each} EPIC instead of one.} other{So the next send does not wait for this one to confirm. Change comes back as {outputs} outputs of about {each} EPIC instead of one.}}'**
+  String deskSendSplitWhy(int outputs, String each);
+
+  /// Screen reader label of the info icon next to the split-change line.
+  ///
+  /// In en, this message translates to:
+  /// **'Why the change is split'**
+  String get deskSendSplitWhyLabel;
+
+  /// Caption under "Spendable until change confirms" on Send when the payment spends its outputs exactly.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{No change: 1 output spent exactly, nothing waits.} other{No change: {count} outputs spent exactly, nothing waits.}}'**
+  String deskSendLockNoChange(int count);
+
+  /// Caption under "Spendable until change confirms" on Send when every output is locked until the change confirms. {amount} is in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Everything is locked: 1 output, {amount} EPIC, about 3 blocks.} other{Everything is locked: {count} outputs, {amount} EPIC, about 3 blocks.}}'**
+  String deskSendLockAll(int count, String amount);
+
+  /// Caption under "Spendable until change confirms" on Send: how much is locked until the change confirms. {amount} is in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 output locked, {amount} EPIC, about 3 blocks.} other{{count} outputs locked, {amount} EPIC, about 3 blocks.}}'**
+  String deskSendLockSome(int count, String amount);
+
+  /// Caption on Send when this send uses another output strategy than the default. {strategy} is the strategy's name (Smallest or All).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Strategy for this send: {strategy} · 1 output.} other{Strategy for this send: {strategy} · {count} outputs.}}'**
+  String deskSendStrategyLine(int count, String strategy);
+
+  /// Second line of the Network fee in the review dialog when the change is split. {fee} is the extra fee in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{outputs, plural, one{Change split into {outputs} output (+{fee} EPIC).} other{Change split into {outputs} outputs (+{fee} EPIC).}}'**
+  String deskSendReviewSplit(int outputs, String fee);
+
+  /// Review dialog, fact "Locks": the outputs are spent exactly. {locked} is in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{locked} EPIC in 1 output; no change comes back.} other{{locked} EPIC in {count} outputs; no change comes back.}}'**
+  String deskSendReviewLocksNone(int count, String locked);
+
+  /// Review dialog, fact "Locks": strategy All locks everything. {locked} is in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms (3 blocks). Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing stays spendable.}}'**
+  String deskSendReviewLocksAll(int count, String locked);
+
+  /// Review dialog, fact "Locks": all outputs are needed. {locked} is in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.}}'**
+  String deskSendReviewLocksEverything(int count, String locked);
+
+  /// Review dialog, fact "Locks": some outputs are locked, the rest stays spendable. Amounts are in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). {spendable} EPIC stays spendable.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). {spendable} EPIC stays spendable.}}'**
+  String deskSendReviewLocksSome(int count, String locked, String spendable);
+
+  /// Label of a fact in the review dialog: the outputs the payment locks until the change confirms. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Locks'**
+  String get deskSendFactLocks;
+
+  /// Label of a fact in the review dialog: the output strategy of this send. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy'**
+  String get deskSendFactStrategy;
+
+  /// Value of the Strategy fact in the review dialog. {strategy} is the strategy's name (Smallest or All).
+  ///
+  /// In en, this message translates to:
+  /// **'{strategy} outputs, for this send'**
+  String deskSendFactStrategyValue(String strategy);
+
+  /// Subtitle of the Advanced disclosure on Send: strategy Smallest, change split. Starts with a middle dot.
+  ///
+  /// In en, this message translates to:
+  /// **'· Smallest outputs'**
+  String get deskSendAdvSmallest;
+
+  /// Subtitle of the Advanced disclosure on Send: strategy Smallest, change not split. Starts with a middle dot.
+  ///
+  /// In en, this message translates to:
+  /// **'· Smallest outputs, change not split'**
+  String get deskSendAdvSmallestNoSplit;
+
+  /// Subtitle of the Advanced disclosure on Send: strategy All, change split. Starts with a middle dot.
+  ///
+  /// In en, this message translates to:
+  /// **'· All outputs'**
+  String get deskSendAdvAll;
+
+  /// Subtitle of the Advanced disclosure on Send: strategy All, change not split. Starts with a middle dot.
+  ///
+  /// In en, this message translates to:
+  /// **'· All outputs, change not split'**
+  String get deskSendAdvAllNoSplit;
+
+  /// Title of the collapsed Advanced disclosure on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get deskSendAdvanced;
+
+  /// Screen reader label of the group of strategy radio rows on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy for this send'**
+  String get deskSendAdvStrategy;
+
+  /// Description of the Smallest strategy radio row on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.'**
+  String get deskSendAdvSmallestText;
+
+  /// Description of the All strategy radio row on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.'**
+  String get deskSendAdvAllText;
+
+  /// Small tag on the radio row of the strategy that is the default. Lowercase, very short.
+  ///
+  /// In en, this message translates to:
+  /// **'default'**
+  String get deskSendDefaultTag;
+
+  /// Note under the strategy rows when the whole balance is sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending everything spends every output.'**
+  String get deskSendAdvAllNote;
+
+  /// Title of the switch (and its screen reader label) that splits the change into several outputs, on Send › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Split change'**
+  String get deskSendAdvSplit;
+
+  /// Description of the Split change switch on Send › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Returns the change as several outputs when few would be left, so the next send does not wait.'**
+  String get deskSendAdvSplitText;
+
+  /// Caption under Send › Advanced, followed by a link named "Outputs". Ends with a space.
+  ///
+  /// In en, this message translates to:
+  /// **'For this send only. Defaults: '**
+  String get deskSendAdvDefaults;
+
+  /// Link at the end of the Advanced caption: opens the Outputs page, where the defaults are set.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs'**
+  String get deskSendAdvOutputsLink;
+
+  /// Empty state title of the Choose contact dialog on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'No contacts yet'**
+  String get deskSendPickNone;
+
+  /// Empty state text of the Choose contact dialog on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the people you pay in Contacts, then choose them here.'**
+  String get deskSendPickNoneText;
+
+  /// Button (empty state and dialog footer) that opens the Contacts page.
+  ///
+  /// In en, this message translates to:
+  /// **'Open contacts'**
+  String get deskSendPickOpen;
+
+  /// Shown in the Choose contact dialog when the search finds nothing. {query} is what the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No contact matches \"{query}\".'**
+  String deskSendPickNoMatch(String query);
+
+  /// Title of the dialog that picks a contact as the recipient on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose contact'**
+  String get deskSendPickTitle;
+
+  /// Subtitle of the Choose contact dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'The address fills the recipient field.'**
+  String get deskSendPickDesc;
+
+  /// Placeholder and screen reader label of the search field in the Choose contact dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Search contacts'**
+  String get deskSendPickSearch;
+
+  /// Page title of Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deskSendTitle;
+
+  /// Error under the To field on Send when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an address to send to.'**
+  String get deskSendErrNoAddress;
+
+  /// Error under the To field on Send when the Epicbox method is chosen and the address is not an Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a valid Epicbox address.'**
+  String get deskSendErrEpicbox;
+
+  /// Error under the To field on Send when the Direct method is chosen and the address is an Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a Direct address.'**
+  String get deskSendErrNotDirect;
+
+  /// Error under the To field on Send when the address looks like a Tor address but is not complete or valid.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a valid onion address.'**
+  String get deskSendErrOnion;
+
+  /// Error under the To field on Send when the recipient is this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the wallet\'s own address.'**
+  String get deskSendErrOwn;
+
+  /// Demo failure text on Send (used by the guided tour).
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient did not answer. Nothing was sent.'**
+  String get deskSendNoAnswer;
+
+  /// Toast title on Send when switching Tor on failed; the reason follows as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor not turned on'**
+  String get deskSendTorOnFailed;
+
+  /// Toast title on Send when switching Tor off failed; the reason follows as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor not turned off'**
+  String get deskSendTorOffFailed;
+
+  /// Toast title on Send when switching Epicbox receiving on failed; the reason follows as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox not turned on'**
+  String get deskSendEpicboxOnFailed;
+
+  /// Error under the Amount field on Send when the All button finds nothing to send.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing spendable to send.'**
+  String get deskSendNothingSpendable;
+
+  /// Error under the Amount field on Send when the All button could not get the maximum.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not work out how much can be sent. Try again in a moment.'**
+  String get deskSendAllFailed;
+
+  /// Error under the Amount field on Send when it is empty or not a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount.'**
+  String get deskSendErrAmountEnter;
+
+  /// Error under the Amount field on Send when the amount has more than eight decimals.
+  ///
+  /// In en, this message translates to:
+  /// **'EPIC has at most 8 decimals.'**
+  String get deskSendErrAmountDecimals;
+
+  /// Error under the Amount field on Send when the amount is zero or negative.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount must be more than 0.'**
+  String get deskSendErrAmountZero;
+
+  /// Error under the Amount field on Send when the amount plus the fee is more than the spendable balance.
+  ///
+  /// In en, this message translates to:
+  /// **'More than the available balance.'**
+  String get deskSendErrAmountMore;
+
+  /// Toast title and notice title after a send went out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get deskSendSent;
+
+  /// Result card title on Send after a file send created the transaction file.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction file ready'**
+  String get deskSendFileReadyTitle;
+
+  /// Result card text on Send after a file send created the transaction file.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this file to the recipient. The wallet is waiting for the response file; finalize it when it comes back.'**
+  String get deskSendFileReadyText;
+
+  /// Button on the file-ready card on Send: opens the Finalize page.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalize'**
+  String get deskSendFinalize;
+
+  /// Button on the file-ready card on Send: starts over.
+  ///
+  /// In en, this message translates to:
+  /// **'New send'**
+  String get deskSendNewSend;
+
+  /// Title of the warning notice on Send while the node has not synced.
+  ///
+  /// In en, this message translates to:
+  /// **'Node not synced'**
+  String get deskSendNodeNotSynced;
+
+  /// Text of that notice with the sync progress. {percent} is a whole number from 0 to 100.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending is possible once the node has synced. {percent}% done; the form can be filled in meanwhile.'**
+  String deskSendNodeSyncingPct(int percent);
+
+  /// Text of that notice when the progress is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending is possible once the node has synced.'**
+  String get deskSendNodeSyncing;
+
+  /// Title of the notice on Send when Tor failed and a send needs it.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not connected'**
+  String get deskSendTorBlocked;
+
+  /// Text of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is sent until it is, or until Tor is turned off.'**
+  String get deskSendTorBlockedText;
+
+  /// Button in the Tor failed notice on Send: switches Tor off.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Tor off'**
+  String get deskSendTurnTorOff;
+
+  /// Title of the notice on Send while Tor connects.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is starting'**
+  String get deskSendTorStarting;
+
+  /// Text of the notice on Send while Tor connects.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending waits until it is connected. Nothing goes over the clearnet meanwhile.'**
+  String get deskSendTorStartingText;
+
+  /// Title of the warning notice on Send when Epicbox receiving is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox not connected'**
+  String get deskSendEpicboxOff;
+
+  /// Text of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.'**
+  String get deskSendEpicboxOffText;
+
+  /// Button in that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Epicbox receiving'**
+  String get deskSendEpicboxTurnOn;
+
+  /// Text of the Sent notice after a Direct send.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalized and posted to the network.'**
+  String get deskSendDoneViaDirect;
+
+  /// Text of the Sent notice after an Epicbox send.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed to Epicbox. Completes when the recipient answers.'**
+  String get deskSendDoneViaEpicbox;
+
+  /// Button in the Sent notice: opens the payment in Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'View transaction'**
+  String get deskSendViewTx;
+
+  /// Title of the error notice on Send after a send failed; the reason is the text.
+  ///
+  /// In en, this message translates to:
+  /// **'Send failed'**
+  String get deskSendFailedTitle;
+
+  /// Button in the Send failed notice: opens the review again.
+  ///
+  /// In en, this message translates to:
+  /// **'Review again'**
+  String get deskSendReviewAgain;
+
+  /// Name of the Direct send method (an http(s) or onion address), in the method selector and in tags. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get deskSendMethodDirect;
+
+  /// Name of the File send method (a transaction file), in the method selector. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get deskSendMethodFile;
+
+  /// Label of the recipient field on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get deskSendTo;
+
+  /// Help text under the recipient field on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste an address, or type a contact’s name.'**
+  String get deskSendToHelp;
+
+  /// Placeholder of the recipient field on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Address or contact'**
+  String get deskSendToHint;
+
+  /// Screen reader label of the recipient field on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get deskSendToSem;
+
+  /// Screen reader label of the clear button in the recipient field.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear recipient'**
+  String get deskSendClearTo;
+
+  /// Small button in the recipient field on Send: opens the contact picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get deskSendContacts;
+
+  /// Title of the warning under the recipient field when an onion address is entered and Tor is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Tor'**
+  String get deskSendNeedsTor;
+
+  /// Text of that warning.
+  ///
+  /// In en, this message translates to:
+  /// **'An onion address can only be reached over Tor.'**
+  String get deskSendNeedsTorText;
+
+  /// Text of that warning when this app build has no Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not in this build.'**
+  String get deskSendNoTorBuild;
+
+  /// Button in that warning: switches Tor on.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Tor'**
+  String get deskSendTurnOnTor;
+
+  /// Note under the recipient field when Tor is on and the address is http(s).
+  ///
+  /// In en, this message translates to:
+  /// **'Direct to http(s) addresses goes over the clearnet, not Tor.'**
+  String get deskSendHttpClearnet;
+
+  /// Button on the card of the contact picked as recipient: clears the recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get deskSendClear;
+
+  /// Label of the amount field on Send and of the summary line.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get deskSendAmount;
+
+  /// Label next to the amount field while the balance is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Available —'**
+  String get deskSendAvailableNone;
+
+  /// Link next to the amount field: the spendable balance; clicking it sends everything. {amount} is a number or hidden dots.
+  ///
+  /// In en, this message translates to:
+  /// **'Available {amount} EPIC'**
+  String deskSendAvailable(String amount);
+
+  /// Screen reader label of the amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount in EPIC'**
+  String get deskSendAmountSem;
+
+  /// Small button in the amount field: send the whole spendable balance. Very short.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get deskSendAllButton;
+
+  /// Note under the amount field when amounts are hidden and some balance is still confirming.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of the balance is still confirming and cannot be sent yet.'**
+  String get deskSendConfirmingHidden;
+
+  /// Note under the amount field when some balance is still confirming. {amount} is in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC is still confirming and cannot be sent yet.'**
+  String deskSendConfirming(String amount);
+
+  /// Label and screen reader label of the message field on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get deskSendMessage;
+
+  /// Help text under the message field.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient sees this message.'**
+  String get deskSendMessageHelp;
+
+  /// Title of the collapsed privacy disclosure on Send when Dandelion++ is on. Dandelion++ is a protocol name.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy · Dandelion++ on'**
+  String get deskSendPrivacyOn;
+
+  /// Title of the collapsed privacy disclosure on Send when Dandelion++ is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy · Dandelion++ off'**
+  String get deskSendPrivacyOff;
+
+  /// Description of the Dandelion++ switch on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.'**
+  String get deskSendDandelionText;
+
+  /// Line under the Review send button after a send went out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. Enter a new amount and recipient to send again.'**
+  String get deskSendHintSent;
+
+  /// Line under the Review send button while the node syncs.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the node to sync.'**
+  String get deskSendHintNode;
+
+  /// Line under the Review send button while Epicbox connects.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Epicbox to connect.'**
+  String get deskSendHintEpicbox;
+
+  /// Line under the Review send button while Tor connects.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor to connect.'**
+  String get deskSendHintTorWait;
+
+  /// Line under the Review send button when Tor failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry Tor, or turn it off.'**
+  String get deskSendHintTorBlocked;
+
+  /// Line under the Review send button when an onion address needs Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Tor to send to an onion address.'**
+  String get deskSendHintNeedsTor;
+
+  /// Line under the Review send button when the form has errors.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix the fields marked in red.'**
+  String get deskSendHintFix;
+
+  /// Line under the Review send button while the fee is estimated.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the fee for this amount.'**
+  String get deskSendHintChecking;
+
+  /// Line under the Review send button when the form is ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is sent until confirmed.'**
+  String get deskSendHintDefault;
+
+  /// Label of the disabled primary button on Send while Tor connects.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor'**
+  String get deskSendReviewWaitTor;
+
+  /// Label of the disabled primary button on Send when Tor failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor not connected'**
+  String get deskSendReviewTorOff;
+
+  /// Label of the primary button on Send: opens the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Review send'**
+  String get deskSendReview;
+
+  /// Title of the summary panel on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get deskSendSummary;
+
+  /// Label of the fee line in the Send summary and in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Network fee'**
+  String get deskSendNetworkFee;
+
+  /// Label of the total line in the Send summary and in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get deskSendTotal;
+
+  /// Caption in the Send summary while the wallet rechecks the balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance updating while the wallet scans.'**
+  String get deskSendUpdating;
+
+  /// Bold first line under the method selector on Send for the Epicbox method.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient can be offline.'**
+  String get deskSendEpicboxLine1;
+
+  /// Second line under the method selector for the Epicbox method.
+  ///
+  /// In en, this message translates to:
+  /// **'The Epicbox server holds the payment until they open their wallet.'**
+  String get deskSendEpicboxLine2;
+
+  /// Bold first line under the method selector for the Direct method.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to their wallet.'**
+  String get deskSendDirectLine1;
+
+  /// Second line under the method selector for the Direct method.
+  ///
+  /// In en, this message translates to:
+  /// **'An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.'**
+  String get deskSendDirectLine2;
+
+  /// Bold first line under the method selector for the File method.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection needed.'**
+  String get deskSendFileLine1;
+
+  /// Second line under the method selector for the File method.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand the file over, get their response file back, then finalize it here.'**
+  String get deskSendFileLine2;
+
+  /// Small tag next to the To label after the method switched to Direct by itself. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get deskSendTagDirect;
+
+  /// Small tag next to the To label after the method switched to File. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get deskSendTagFile;
+
+  /// Small tag next to the To label after the method switched to Epicbox. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Via Epicbox'**
+  String get deskSendTagEpicbox;
+
+  /// Screen reader announcement when the method switched to Direct by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct address. Method set to Direct.'**
+  String get deskSendSwitchedDirect;
+
+  /// Screen reader announcement when the method switched to File.
+  ///
+  /// In en, this message translates to:
+  /// **'File address. Method set to File.'**
+  String get deskSendSwitchedFile;
+
+  /// Screen reader announcement when the method switched to Epicbox by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox address. Method set to Epicbox.'**
+  String get deskSendSwitchedEpicbox;
+
+  /// Screen reader label of the list of contacts that match the recipient text.
+  ///
+  /// In en, this message translates to:
+  /// **'Matching contacts'**
+  String get deskSendMatching;
+
+  /// Caption under the list of contacts that match the recipient text.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 contact matches} other{{count} contacts match}}'**
+  String deskSendMatchCount(int count);
+
+  /// Error under the password field in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong password.'**
+  String get deskSendWrongPassword;
+
+  /// Failure text when a send ended with an unknown error; the payment may exist.
+  ///
+  /// In en, this message translates to:
+  /// **'Not confirmed. Check Activity before sending again.'**
+  String get deskSendNotConfirmed;
+
+  /// Value of the Via fact in the review dialog for an Epicbox send.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox (the recipient can be offline)'**
+  String get deskSendViaEpicbox;
+
+  /// Value of the Via fact in the review dialog for a Direct send over http(s).
+  ///
+  /// In en, this message translates to:
+  /// **'Direct (their wallet must be open)'**
+  String get deskSendViaDirect;
+
+  /// Value of the Via fact in the review dialog for a Direct send to an onion address.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct, over Tor (their wallet must be open)'**
+  String get deskSendViaTor;
+
+  /// Value of the Via fact in the review dialog for a file send.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction file'**
+  String get deskSendViaFile;
+
+  /// Second line of the Network fee in the review dialog when strategy All spends every output and one change output comes back.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}'**
+  String deskSendUsesAll(int count);
+
+  /// Title of the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Check and send'**
+  String get deskSendReviewTitle;
+
+  /// Subtitle of the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'A send cannot be undone once it is posted.'**
+  String get deskSendReviewDesc;
+
+  /// Label of the recipient fact in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get deskSendFactTo;
+
+  /// Caption under the recipient address in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the highlighted characters against what the recipient gave.'**
+  String get deskSendCheckChars;
+
+  /// Label of the fact that says how the payment goes (Epicbox, Direct, file) in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Via'**
+  String get deskSendFactVia;
+
+  /// Label of the privacy fact in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get deskSendFactPrivacy;
+
+  /// Value of the Privacy fact in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Dandelion++ on'**
+  String get deskSendDandelionOn;
+
+  /// Value of the Privacy fact in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Dandelion++ off'**
+  String get deskSendDandelionOff;
+
+  /// Label of the message fact in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get deskSendFactMessage;
+
+  /// Label of the password field in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get deskSendPassword;
+
+  /// Help text under the password field in the review dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened with the remembered password: this send asks it.'**
+  String get deskSendPasswordHelp;
+
+  /// Status in the review dialog while a file send creates the transaction file.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating the file.'**
+  String get deskSendBusyFile;
+
+  /// Status in the review dialog while a send to an onion address runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Reaching their wallet over Tor… This can take a while. Keep the app open.'**
+  String get deskSendBusyTor;
+
+  /// Status in the review dialog while a send runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending. This can take a few seconds; keep this window open.'**
+  String get deskSendBusy;
+
+  /// Button in the review dialog: close it and edit the form.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get deskSendBack;
+
+  /// Label of the primary button in the review dialog while the send runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending'**
+  String get deskSendSending;
+
+  /// Label of the primary button in the review dialog. {amount} is the amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Send {amount} EPIC'**
+  String deskSendConfirm(String amount);
+
+  /// Title of the dialog shown before a send to a plain http address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not encrypted. Send anyway?'**
+  String get deskSendPlainTitle;
+
+  /// Text of that dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.'**
+  String get deskSendPlainDesc;
+
+  /// Button in that dialog: send over plain http.
+  ///
+  /// In en, this message translates to:
+  /// **'Send anyway'**
+  String get deskSendPlainConfirm;
+
+  /// Toast after the user switched the Epicbox server from the "server not answering" notice. {domain} is the new server's host name.
+  ///
+  /// In en, this message translates to:
+  /// **'Switched to {domain}'**
+  String deskSendEpicboxSwitched(String domain);
+
+  /// Toast title when switching the Epicbox server failed; the reason follows as the toast text.
+  ///
+  /// In en, this message translates to:
+  /// **'Not switched'**
+  String get deskSendEpicboxNotSwitched;
+
+  /// Title of the warning notice on Send and Receive when the Epicbox server does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server not answering'**
+  String get deskSendEpicboxDownTitle;
+
+  /// Text of that notice when no other server is available.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments wait until it is back.'**
+  String get deskSendEpicboxDownWait;
+
+  /// Text of that notice when another server is healthy. {domain} is its host name.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {domain}?'**
+  String deskSendEpicboxSwitchTo(String domain);
+
+  /// Button in that notice: switch to the other server. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get deskSendEpicboxSwitch;
+
+  /// Button next to a file name: open the folder that holds the file in the system's file manager.
+  ///
+  /// In en, this message translates to:
+  /// **'Open folder'**
+  String get deskFinOpenFolder;
+
+  /// Toast title when the file manager could not be opened; the folder path follows as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder not opened'**
+  String get deskFinFolderNotOpened;
+
+  /// Title of the error notice on the Finalize page: the chosen file is not a response file.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a response file'**
+  String get deskFinWrongType;
+
+  /// Text of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is not a response file. Choose the file the recipient sent back.'**
+  String get deskFinWrongTypeText;
+
+  /// Title of the error notice on the Finalize page: the chosen file could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'File not readable'**
+  String get deskFinUnreadable;
+
+  /// Text of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be read. It may be damaged or still being copied.'**
+  String get deskFinUnreadableText;
+
+  /// Title of the error notice on the Finalize page: the wallet could not finalize the file.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalizing failed'**
+  String get deskFinFailed;
+
+  /// Text of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet could not finalize this file. It may belong to another transaction or be finalized already.'**
+  String get deskFinFailedText;
+
+  /// Title of the error notice on the Finalize page: the node did not accept the finalized transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Not posted'**
+  String get deskFinNotPosted;
+
+  /// Text of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'The transaction was finalized but the node did not accept it. Check the node, then try again.'**
+  String get deskFinNotPostedText;
+
+  /// Title of the system file dialog that picks the recipient's response file.
+  ///
+  /// In en, this message translates to:
+  /// **'Response file'**
+  String get deskFinPickTitle;
+
+  /// Toast and result title after the response file was finalized and posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction posted'**
+  String get deskFinPosted;
+
+  /// Page title of Finalize.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalize a response file'**
+  String get deskFinTitle;
+
+  /// Title of the info notice at the top of the Finalize page.
+  ///
+  /// In en, this message translates to:
+  /// **'For a transaction created as a file'**
+  String get deskFinNoticeTitle;
+
+  /// Text of the info notice at the top of the Finalize page.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the response file the recipient sent back.'**
+  String get deskFinNoticeText;
+
+  /// Button in the "Not posted" notice on Finalize: choose the file again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskFinTryAgain;
+
+  /// Text of the result card after finalizing.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment was finalized and sent to the network. Follow it in Activity.'**
+  String get deskFinPostedText;
+
+  /// Button on the result card after finalizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalize another file'**
+  String get deskFinAnother;
+
+  /// Button on the result cards of Finalize and Sign a transaction file: opens the payment in Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'View in Activity'**
+  String get deskFinViewActivity;
+
+  /// Shown next to a spinner while the wallet finalizes and posts the transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalizing and posting'**
+  String get deskFinBusy;
+
+  /// Title of the drop zone on Finalize.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a response file'**
+  String get deskFinChoose;
+
+  /// Text of the drop zone on Finalize.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet completes the transaction and posts it to the network.'**
+  String get deskFinChooseText;
+
+  /// Button in the drop zones of Finalize and Sign a transaction file: opens the system file dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file'**
+  String get deskFinChooseFile;
+
+  /// Title of the error notice on the Sign a transaction file page: the chosen file is not a transaction file.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a transaction file'**
+  String get deskImpWrongType;
+
+  /// Text of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is not a transaction file. Choose the .slate or .tx file the sender gave.'**
+  String get deskImpWrongTypeText;
+
+  /// Title of the error notice on the Sign a transaction file page: the file could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'File not readable'**
+  String get deskImpUnreadable;
+
+  /// Text of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be read. It may be damaged or still being copied.'**
+  String get deskImpUnreadableText;
+
+  /// Title of the error notice: no place was chosen to save the response file.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing signed'**
+  String get deskImpNoPlace;
+
+  /// Text of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'No place was chosen for the response file, so nothing was signed.'**
+  String get deskImpNoPlaceText;
+
+  /// Title of the error notice: the wallet could not sign the file.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing failed'**
+  String get deskImpFailed;
+
+  /// Text of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet could not sign this file. It may be for another wallet or already used.'**
+  String get deskImpFailedText;
+
+  /// Text of that notice when the wallet gave its own reason. {detail} is that reason, a short sentence without its final full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet could not sign this file. It may be for another wallet or already used. {detail}.'**
+  String deskImpFailedDetail(String detail);
+
+  /// Title of the system file dialog that picks the sender's transaction file.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction file'**
+  String get deskImpPickTitle;
+
+  /// Page title of Sign a transaction file.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign a transaction file'**
+  String get deskImpTitle;
+
+  /// Title of the info notice at the top of the Sign a transaction file page.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing does not spend anything'**
+  String get deskImpNoticeTitle;
+
+  /// Text of the info notice at the top of the page.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the response file back to the sender over the same channel they used.'**
+  String get deskImpNoticeText;
+
+  /// Title of the result card after the response file was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Response saved'**
+  String get deskImpSaved;
+
+  /// Text of the result card after signing.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the response file back to the sender. The EPIC arrives once the sender finalizes it.'**
+  String get deskImpSavedText;
+
+  /// Label before the amount on the result card. Ends with a space.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount '**
+  String get deskImpAmount;
+
+  /// Button on the result card after signing.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign another file'**
+  String get deskImpAnother;
+
+  /// Shown next to a spinner while the wallet signs the file.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing the file'**
+  String get deskImpBusy;
+
+  /// Title of the drop zone on Sign a transaction file.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a transaction file'**
+  String get deskImpChoose;
+
+  /// Text of the drop zone.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet signs it and saves a response for the sender.'**
+  String get deskImpChooseText;
 }
 
 class _AppLocalizationsDelegate

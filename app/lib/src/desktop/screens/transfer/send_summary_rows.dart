@@ -7,13 +7,13 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
-String _outputs(int n) => n == 1 ? '1 output' : '$n outputs';
-
-String _strategyWord(SelectionStrategy s) => switch (s) {
-  SelectionStrategy.smallest => 'Smallest',
-  SelectionStrategy.all => 'All',
+/// The strategy's name as a word, in Send's radio rows and inside sentences.
+String strategyWord(AppLocalizations l, SelectionStrategy s) => switch (s) {
+  SelectionStrategy.smallest => l.deskSendStrategySmallest,
+  SelectionStrategy.all => l.deskSendStrategyAll,
 };
 
 /// One summary line: the label, and the amount on the right ("—" while unknown).
@@ -66,21 +66,21 @@ class SendSplitLine extends StatelessWidget {
   final int change;
 
   /// The help icon's text.
-  static String why(int outputs, int change) =>
-      'So the next send does not wait for this one to confirm. Change comes back as $outputs outputs of about ${formatEpic(change ~/ outputs, decimals: 4)} EPIC instead of one.';
+  static String why(AppLocalizations l, int outputs, int change) => l.deskSendSplitWhy(outputs, formatEpic(change ~/ outputs, decimals: 4));
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     return Padding(
       padding: EdgeInsets.only(bottom: Sp.x1),
       child: Row(
         children: [
           Icon(EIcons.split, size: 14.u, color: c.accentText),
           SizedBox(width: Sp.x2),
-          Expanded(child: Text('Change split into $outputs outputs (+${formatEpic(extraFee, minDecimals: 3)} EPIC fee)', style: ts.small)),
-          HelpTip(text: why(outputs, change), label: 'Why the change is split'),
+          Expanded(child: Text(l.deskSendSplitLine(outputs, formatEpic(extraFee, minDecimals: 3)), style: ts.small)),
+          HelpTip(text: why(l, outputs, change), label: l.deskSendSplitWhyLabel),
         ],
       ),
     );
@@ -142,11 +142,11 @@ class _HelpTipState extends State<HelpTip> {
 
 /// The caption under "Spendable until change confirms" and whether it warns (nothing stays
 /// spendable).
-(String, bool) lockCaption(SendSummary s) {
-  final n = _outputs(s.lockedOutputs);
-  if (s.noChange) return ('No change: $n spent exactly, nothing waits.', false);
-  if (s.locksAll) return ('Everything is locked: $n, ${formatEpic(s.locked)} EPIC, about 3 blocks.', true);
-  return ('$n locked, ${formatEpic(s.locked)} EPIC, about 3 blocks.', false);
+(String, bool) lockCaption(AppLocalizations l, SendSummary s) {
+  final n = s.lockedOutputs;
+  if (s.noChange) return (l.deskSendLockNoChange(n), false);
+  if (s.locksAll) return (l.deskSendLockAll(n, formatEpic(s.locked)), true);
+  return (l.deskSendLockSome(n, formatEpic(s.locked)), false);
 }
 
 /// Under Total: Balance after, Spendable until change confirms with the lock caption, and
@@ -163,15 +163,16 @@ class SendLockRows extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final s = summary;
-    final caption = s == null ? null : lockCaption(s);
+    final caption = s == null ? null : lockCaption(l, s);
     final warn = caption?.$2 ?? false;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        SummaryLine(label: 'Balance after', value: s?.balanceAfter, dim: true),
-        SummaryLine(label: 'Spendable until change confirms', value: s?.spendableMeanwhile, warn: warn, top: true),
+        SummaryLine(label: l.deskSendBalanceAfter, value: s?.balanceAfter, dim: true),
+        SummaryLine(label: l.deskSendSpendableUntil, value: s?.spendableMeanwhile, warn: warn, top: true),
         ExpandFade(
           open: caption != null,
           child: Semantics(
@@ -183,7 +184,7 @@ class SendLockRows extends StatelessWidget {
           open: s != null && strategy != defaultStrategy,
           child: Padding(
             padding: EdgeInsets.only(top: Sp.x1),
-            child: Text('Strategy for this send: ${_strategyWord(strategy)} · ${_outputs(s?.lockedOutputs ?? 0)}.', style: ts.caption),
+            child: Text(l.deskSendStrategyLine(s?.lockedOutputs ?? 0, strategyWord(l, strategy)), style: ts.caption),
           ),
         ),
       ],
@@ -192,13 +193,13 @@ class SendLockRows extends StatelessWidget {
 }
 
 /// The review dialog's Locks fact (§4.5).
-String reviewLocks(SendSummary s, SelectionStrategy strategy) {
-  final n = _outputs(s.lockedOutputs);
+String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy) {
+  final n = s.lockedOutputs;
   final locked = formatEpic(s.locked);
-  if (s.noChange) return '$locked EPIC in $n; no change comes back.';
-  if (strategy == SelectionStrategy.all && s.locksAll) return 'Everything: $locked EPIC in $n until the change confirms (3 blocks). Nothing stays spendable.';
-  if (s.locksAll) return '$locked EPIC in $n until the change confirms (3 blocks). Nothing else is spendable meanwhile.';
-  return '$locked EPIC in $n until the change confirms (3 blocks). ${formatEpic(s.spendableMeanwhile)} EPIC stays spendable.';
+  if (s.noChange) return l.deskSendReviewLocksNone(n, locked);
+  if (strategy == SelectionStrategy.all && s.locksAll) return l.deskSendReviewLocksAll(n, locked);
+  if (s.locksAll) return l.deskSendReviewLocksEverything(n, locked);
+  return l.deskSendReviewLocksSome(n, locked, formatEpic(s.spendableMeanwhile));
 }
 
 /// The review dialog's lines for the outputs: the second line of Network fee when the change
@@ -207,6 +208,7 @@ String reviewLocks(SendSummary s, SelectionStrategy strategy) {
 /// Strategy when not the default. The dialog puts [feeSecondLine] under its fee and adds
 /// [facts] after Total.
 ({String? feeSecondLine, List<(String, Widget)> facts}) reviewOutputLines(
+  AppLocalizations l,
   SendSummary s, {
   required SelectionStrategy strategy,
   required SelectionStrategy defaultStrategy,
@@ -216,10 +218,10 @@ String reviewLocks(SendSummary s, SelectionStrategy strategy) {
   feeSecondLine: strategy == SelectionStrategy.all && s.change > 0 && usesAll != null
       ? usesAll(s.lockedOutputs)
       : s.changeOutputs > 1
-      ? 'Change split into ${s.changeOutputs} outputs (+${formatEpic(extraFee, minDecimals: 3)} EPIC).'
+      ? l.deskSendReviewSplit(s.changeOutputs, formatEpic(extraFee, minDecimals: 3))
       : null,
   facts: [
-    ('Locks', Text(reviewLocks(s, strategy))),
-    if (strategy != defaultStrategy) ('Strategy', Text('${_strategyWord(strategy)} outputs, for this send')),
+    (l.deskSendFactLocks, Text(reviewLocks(l, s, strategy))),
+    if (strategy != defaultStrategy) (l.deskSendFactStrategy, Text(l.deskSendFactStrategyValue(strategyWord(l, strategy)))),
   ],
 );

@@ -72,10 +72,10 @@ void main() {
   testWidgets('the split line and why', (tester) async {
     await host(tester, SendSplitLine(outputs: 4, extraFee: _nano(0.012), change: _nano(9.72415)));
     expect(find.text('Change split into 4 outputs (+0.012 EPIC fee)'), findsOneWidget);
-    expect(SendSplitLine.why(4, _nano(9.72415)), 'So the next send does not wait for this one to confirm. Change comes back as 4 outputs of about 2.4310 EPIC instead of one.');
+    expect(SendSplitLine.why(englishStrings, 4, _nano(9.72415)), 'So the next send does not wait for this one to confirm. Change comes back as 4 outputs of about 2.4310 EPIC instead of one.');
     await tester.tap(find.byType(HelpTip));
     await tester.pumpAndSettle();
-    expect(find.text(SendSplitLine.why(4, _nano(9.72415))), findsOneWidget);
+    expect(find.text(SendSplitLine.why(englishStrings, 4, _nano(9.72415))), findsOneWidget);
   });
 
   group('Advanced', () {
@@ -115,28 +115,28 @@ void main() {
     });
 
     test('subtitle says when the change is not split', () {
-      expect(advancedSubtitle(SelectionStrategy.smallest, split: false), '· Smallest outputs, change not split');
+      expect(advancedSubtitle(englishStrings, SelectionStrategy.smallest, split: false), '· Smallest outputs, change not split');
     });
   });
 
   test('review lines', () {
-    final normal = reviewOutputLines(_summary(), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest);
+    final normal = reviewOutputLines(englishStrings, _summary(), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest);
     expect(normal.feeSecondLine, isNull);
     expect(normal.facts.map((f) => f.$1), ['Locks']);
-    expect(reviewLocks(_summary(), SelectionStrategy.smallest), '34.73215 EPIC in 1 output until the change confirms (3 blocks). 1,250.0000 EPIC stays spendable.');
+    expect(reviewLocks(englishStrings, _summary(), SelectionStrategy.smallest), '34.73215 EPIC in 1 output until the change confirms (3 blocks). 1,250.0000 EPIC stays spendable.');
 
     final all = _summary(inputs: 5, locked: 1284.73215, change: 1259.72415);
-    expect(reviewLocks(all, SelectionStrategy.all), 'Everything: 1,284.73215 EPIC in 5 outputs until the change confirms (3 blocks). Nothing stays spendable.');
-    expect(reviewLocks(all, SelectionStrategy.smallest), '1,284.73215 EPIC in 5 outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.');
-    expect(reviewLocks(_summary(inputs: 2, locked: 25.008, change: 0, changeOutputs: 0), SelectionStrategy.smallest), '25.0080 EPIC in 2 outputs; no change comes back.');
+    expect(reviewLocks(englishStrings, all, SelectionStrategy.all), 'Everything: 1,284.73215 EPIC in 5 outputs until the change confirms (3 blocks). Nothing stays spendable.');
+    expect(reviewLocks(englishStrings, all, SelectionStrategy.smallest), '1,284.73215 EPIC in 5 outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.');
+    expect(reviewLocks(englishStrings, _summary(inputs: 2, locked: 25.008, change: 0, changeOutputs: 0), SelectionStrategy.smallest), '25.0080 EPIC in 2 outputs; no change comes back.');
 
-    final split = reviewOutputLines(_summary(changeOutputs: 4), strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, extraFee: _nano(0.012));
+    final split = reviewOutputLines(englishStrings, _summary(changeOutputs: 4), strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, extraFee: _nano(0.012));
     expect(split.feeSecondLine, 'Change split into 4 outputs (+0.012 EPIC).');
     expect(split.facts.map((f) => f.$1), ['Locks', 'Strategy']);
 
     // Strategy All consolidates: with the line given it says one change output, never a split.
     final l = lookupAppLocalizations(const Locale('en'));
-    final allLine = reviewOutputLines(all, strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, usesAll: l.sendUsesAllOutputs);
+    final allLine = reviewOutputLines(englishStrings, all, strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, usesAll: l.sendUsesAllOutputs);
     expect(allLine.feeSecondLine, 'Uses all 5 outputs · change 1 output');
   });
 }

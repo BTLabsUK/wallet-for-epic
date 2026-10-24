@@ -1,5 +1,6 @@
 // The one Tor switch on the desktop (Settings › Privacy): its state everywhere it shows, the
 // clearnet HTTP listener off while it is on, and Epicbox waiting for it, never going around it.
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/app/rail.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/tor_view.dart';
@@ -91,7 +92,7 @@ void main() {
     }, skip: _skip);
 
     test('the coverage text names only what goes over Tor', () {
-      final text = torCoverageText();
+      final text = torCoverageText(englishStrings);
       expect(text, 'Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.');
       expect(text, isNot(contains('Not over Tor')));
       expect(text, isNot(contains('Direct to http(s)')));

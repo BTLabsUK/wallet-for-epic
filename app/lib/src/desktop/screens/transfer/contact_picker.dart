@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
 /// The way a contact's address is sent to (by its kind, spec 7).
@@ -52,6 +53,7 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
     final c = context.dc;
     final ts = context.ts;
     final contacts = ref.watch(deskProvider.select((s) => s.contacts));
+    final l = context.l10n;
     final q = _q.text.trim().toLowerCase();
     final shown = contacts == null
         ? const <Contact>[]
@@ -66,14 +68,14 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
     } else if (contacts.isEmpty) {
       list = EEmpty(
         icon: EIcons.contacts,
-        title: 'No contacts yet',
-        text: 'Save the people you pay in Contacts, then choose them here.',
-        actions: [EButton.primary(label: 'Open contacts', icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _openContacts)],
+        title: l.deskSendPickNone,
+        text: l.deskSendPickNoneText,
+        actions: [EButton.primary(label: l.deskSendPickOpen, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _openContacts)],
       );
     } else if (shown.isEmpty) {
       list = Padding(
         padding: EdgeInsets.symmetric(vertical: Sp.x6),
-        child: Center(child: Text('No contact matches "${_q.text.trim()}".', style: ts.small)),
+        child: Center(child: Text(l.deskSendPickNoMatch(_q.text.trim()), style: ts.small)),
       );
     } else {
       list = ConstrainedBox(
@@ -87,8 +89,8 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
       );
     }
     return EDialog(
-      title: 'Choose contact',
-      description: 'The address fills the recipient field.',
+      title: l.deskSendPickTitle,
+      description: l.deskSendPickDesc,
       body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -107,10 +109,10 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
               },
               child: EInput(
                 controller: _q,
-                hint: 'Search contacts',
+                hint: l.deskSendPickSearch,
                 leading: EIcons.search,
                 autofocus: true,
-                semanticLabel: 'Search contacts',
+                semanticLabel: l.deskSendPickSearch,
                 onChanged: (_) => setState(() {}),
                 onSubmitted: (_) {
                   if (shown.isNotEmpty) Navigator.of(context).pop(shown.first);
@@ -123,8 +125,8 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
         ],
       ),
       actions: [
-        if (contacts != null && contacts.isNotEmpty) EButton.ghost(label: 'Open contacts', onPressed: _openContacts),
-        EButton(label: 'Cancel', kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+        if (contacts != null && contacts.isNotEmpty) EButton.ghost(label: l.deskSendPickOpen, onPressed: _openContacts),
+        EButton(label: l.commonCancel, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
       ],
     );
   }

@@ -80,60 +80,60 @@ final List<EpicboxServer> deskEpicboxes = [
 
 /// A short sentence for a wallet error.
 /// A second scan asked while one runs.
-const String scanRunning = 'A scan is already running.';
+const String scanRunning = 'A scan is already running.'; // l10n-ok: the English the tests compare; the throws word deskErrScanRunning
 
 /// Why a cancel was refused: LEPIC reports a payment in the pool or on chain as invalid input.
-const String cancelRefusedText = 'Not cancelled: the node already has this payment.';
+const String cancelRefusedText = 'Not cancelled: the node already has this payment.'; // l10n-ok: the English the tests compare; the throws word deskErrCancelRefused
 
 /// [error] in [l]'s language; English without [l] (logs, and callers not yet localised).
 String deskErrorText(Object error, [AppLocalizations? l]) {
   l ??= englishStrings;
   if (error is DeskError) return error.text(l);
-  if (error is! core.WalletError) return 'Something went wrong';
+  if (error is! core.WalletError) return l.deskErrSomethingWrong;
   final detail = error.message.split('\n').first.trim();
   return switch (error.kind) {
-    core.WalletErrorKind.wrongPassword => 'Wrong password',
-    core.WalletErrorKind.invalidMnemonic => 'Recovery phrase not valid',
-    core.WalletErrorKind.walletAlreadyExists => 'A wallet exists already',
-    core.WalletErrorKind.walletNotFound => 'No wallet found',
-    core.WalletErrorKind.nodeUnreachable => 'Node not answering',
-    core.WalletErrorKind.notEnoughFunds => 'Not enough funds',
-    core.WalletErrorKind.invalidSlate => 'Not a transaction file for this wallet',
-    core.WalletErrorKind.transportFailed => 'Epicbox server not reachable',
-    core.WalletErrorKind.httpUrlInvalid => 'Not an http(s) address',
-    core.WalletErrorKind.plainHttpNotAllowed => 'Plain HTTP not confirmed',
-    core.WalletErrorKind.onionAddressInvalid => 'Not an onion address',
-    core.WalletErrorKind.torNotRunning => 'Tor is not connected',
-    core.WalletErrorKind.onionUnreachable => 'The recipient’s wallet is not reachable over Tor',
-    core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => 'Wallet busy. Try again in a moment.',
-    core.WalletErrorKind.damagedDatabase => 'Wallet database damaged, rebuilding',
-    core.WalletErrorKind.paymentExpired => detail.isEmpty ? 'Payment expired' : detail,
-    core.WalletErrorKind.invoiceNotFound => 'Invoice not found',
-    core.WalletErrorKind.amountMismatch => 'Amount differs from the invoice',
-    core.WalletErrorKind.invoiceAlreadyPaid => 'Invoice already paid',
-    core.WalletErrorKind.invoiceLockedAboveTip => 'Invoice locked until a later block',
-    core.WalletErrorKind.invoiceChanged => 'Invoice changed',
-    core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable || detail == core.nothingToConsolidate ? detail : detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
-    core.WalletErrorKind.io => detail.isEmpty ? 'Disk error' : 'Disk error: $detail',
-    core.WalletErrorKind.other => detail.isEmpty ? 'Something went wrong' : detail,
+    core.WalletErrorKind.wrongPassword => l.deskErrWrongPassword,
+    core.WalletErrorKind.invalidMnemonic => l.deskErrPhraseInvalid,
+    core.WalletErrorKind.walletAlreadyExists => l.deskErrWalletExists,
+    core.WalletErrorKind.walletNotFound => l.deskErrWalletNotFound,
+    core.WalletErrorKind.nodeUnreachable => l.deskErrNodeNotAnswering,
+    core.WalletErrorKind.notEnoughFunds => l.deskErrNotEnoughFunds,
+    core.WalletErrorKind.invalidSlate => l.deskErrNotTxFile,
+    core.WalletErrorKind.transportFailed => l.deskErrEpicboxUnreachable,
+    core.WalletErrorKind.httpUrlInvalid => l.deskErrNotHttpAddress,
+    core.WalletErrorKind.plainHttpNotAllowed => l.deskErrPlainHttp,
+    core.WalletErrorKind.onionAddressInvalid => l.deskErrNotOnion,
+    core.WalletErrorKind.torNotRunning => l.deskErrTorNotConnected,
+    core.WalletErrorKind.onionUnreachable => l.deskErrOnionUnreachable,
+    core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => l.deskErrWalletBusy,
+    core.WalletErrorKind.damagedDatabase => l.deskErrDbDamaged,
+    core.WalletErrorKind.paymentExpired => detail.isEmpty ? l.deskErrPaymentExpired : detail,
+    core.WalletErrorKind.invoiceNotFound => l.deskErrInvoiceNotFound,
+    core.WalletErrorKind.amountMismatch => l.deskErrAmountMismatch,
+    core.WalletErrorKind.invoiceAlreadyPaid => l.deskErrInvoicePaid,
+    core.WalletErrorKind.invoiceLockedAboveTip => l.deskErrInvoiceLocked,
+    core.WalletErrorKind.invoiceChanged => l.deskErrInvoiceChanged,
+    core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable || detail == core.nothingToConsolidate ? detail : detail.isEmpty ? l.deskErrNotAccepted : l.deskErrNotAcceptedDetail(detail),
+    core.WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
+    core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
   };
 }
 
 /// Why tor is down or the onion is not published, for the Tor line.
-String torFailureText(core.TorFailure? f) => switch (f) {
-  core.TorFailure.missing => 'Tor not included in this build',
-  core.TorFailure.network => 'Can’t reach the Tor network',
-  core.TorFailure.clock => 'The computer’s clock is wrong',
-  core.TorFailure.publish || core.TorFailure.keys || core.TorFailure.listener => 'Onion address not published',
-  core.TorFailure.start => 'Tor did not start',
-  core.TorFailure.stopped || null => 'Tor stopped',
+String torFailureText(AppLocalizations l, core.TorFailure? f) => switch (f) {
+  core.TorFailure.missing => l.deskErrTorMissing,
+  core.TorFailure.network => l.deskErrTorNetwork,
+  core.TorFailure.clock => l.deskErrTorClock,
+  core.TorFailure.publish || core.TorFailure.keys || core.TorFailure.listener => l.deskErrOnionNotPublished,
+  core.TorFailure.start => l.deskErrTorStart,
+  core.TorFailure.stopped || null => l.deskErrTorStopped,
 };
 
 /// A call LEPIC ended at a lock ("… was cancelled"); its effect may still be stored.
 bool lepicCancelled(Object error) => error is core.WalletError && error.kind == core.WalletErrorKind.other && error.message.endsWith('was cancelled');
 
-DeskError _deskError(Object error) => DeskError(
-  deskErrorText(error),
+DeskError _deskError(Object error) => DeskError.l10n(
+  (l) => deskErrorText(error, l),
   wrongPassword: error is core.WalletError && error.kind == core.WalletErrorKind.wrongPassword,
   unbuildable: error is core.WalletError && error.kind == core.WalletErrorKind.invalidArgument && error.message == core.sendUnbuildable,
 );
@@ -400,7 +400,7 @@ class LepicDeskWallet implements DeskWalletApi {
   String get _nodeKey => 'app.node.$_chain';
   String get _relayKey => 'app.relay.$_chain';
 
-  core.WalletSession get _open => _session ?? (throw const DeskError('The wallet is locked'));
+  core.WalletSession get _open => _session ?? (throw DeskError.l10n((l) => l.deskErrWalletLocked));
 
   void _changed() {
     _followTor();
@@ -562,7 +562,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// The first wallet as an entry that is not in the file.
   Future<reg.WalletEntry> _firstEntry(core.WalletConfig config) async => reg.WalletEntry(
     id: '${reg.WalletRegistry.legacyPrefix}$_chain',
-    label: ((await _meta(_metaKey(null)))['name'] as String?) ?? 'Main wallet',
+    label: ((await _meta(_metaKey(null)))['name'] as String?) ?? 'Main wallet', // l10n-ok: the default name is stored with the wallet
     chain: preset.chain,
     dataDir: config.dataDir,
     createdAt: DateTime.now(),
@@ -619,13 +619,13 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<String?> _lastUsed() async => _registry == null ? null : (await _registry!).lastUsedId;
 
   Future<reg.WalletEntry> _entry(String id) async =>
-      (await _wallets()).where((e) => e.id == id).firstOrNull ?? (throw const DeskError('Wallet not in the list'));
+      (await _wallets()).where((e) => e.id == id).firstOrNull ?? (throw DeskError.l10n((l) => l.deskErrWalletNotListed));
 
   DeskError _listError(reg.WalletRegistryException e) => e is reg.WalletRegistryVersionException
-      ? const DeskError('Update the app to change the list')
+      ? DeskError.l10n((l) => l.deskErrUpdateApp)
       : e is reg.WalletNotListedException
-      ? const DeskError('Wallet not in the list')
-      : DeskError(e.message.isEmpty ? 'Wallet list not changed' : '${e.message[0].toUpperCase()}${e.message.substring(1)}');
+      ? DeskError.l10n((l) => l.deskErrWalletNotListed)
+      : e.message.isEmpty ? DeskError.l10n((l) => l.deskErrListNotChanged) : DeskError('${e.message[0].toUpperCase()}${e.message.substring(1)}');
 
   @override
   Future<List<WalletEntry>> wallets() async {
@@ -688,13 +688,13 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) async {
     final r = await registry();
     final entry = r.byId(id);
-    if (entry == null || entry.chain != preset.chain) throw const DeskError('Wallet not in the list');
+    if (entry == null || entry.chain != preset.chain) throw DeskError.l10n((l) => l.deskErrWalletNotListed);
     final open = _session != null && _openEntry?.id == id;
     // Deleting asks for the wallet's password, so only the open wallet can be deleted.
-    if (mode == WalletRemoval.delete && !open) throw const DeskError('Open the wallet to delete it');
+    if (mode == WalletRemoval.delete && !open) throw DeskError.l10n((l) => l.deskErrOpenToDelete);
     if (open) {
       if (mode == WalletRemoval.delete) {
-        if (password == null || password.isEmpty) throw const DeskError('Enter the password');
+        if (password == null || password.isEmpty) throw DeskError.l10n((l) => l.deskErrEnterPassword);
         try {
           await _open.mnemonic(password: password);
         } on core.WalletError catch (e) {
@@ -740,7 +740,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (r.byId('${reg.WalletRegistry.legacyPrefix}$_chain') == null && await _service.walletExists(config: first))
         WalletEntry(
           id: '${reg.WalletRegistry.legacyPrefix}$_chain',
-          name: ((await _meta(_metaKey(null)))['name'] as String?) ?? 'Wallet 1',
+          name: ((await _meta(_metaKey(null)))['name'] as String?) ?? 'Wallet 1', // l10n-ok: the default name is stored with the wallet
           folder: first.dataDir,
           network: _chain,
         ),
@@ -760,7 +760,7 @@ class LepicDeskWallet implements DeskWalletApi {
         return;
       }
       final found = (await r.rescan()).where((e) => e.id == id).firstOrNull;
-      if (found == null) throw const DeskError('Wallet folder not found');
+      if (found == null) throw DeskError.l10n((l) => l.deskErrFolderNotFound);
       final added = await r.restore(found);
       final name = (await _meta(_metaKey(added.walletId)))['name'];
       if (name is String) await r.rename(added.id, name);
@@ -819,7 +819,7 @@ class LepicDeskWallet implements DeskWalletApi {
     await lock();
     final all = await _wallets();
     final entry = _pick(all, await _lastUsed());
-    if (entry == null) throw const DeskError('No wallet found');
+    if (entry == null) throw DeskError.l10n((l) => l.deskErrWalletNotFound);
     final ok = await _openEntryWith(entry, password);
     _notRemembered = false;
     _openedRemembered = false;
@@ -848,13 +848,13 @@ class LepicDeskWallet implements DeskWalletApi {
       // LEPIC set the damaged database aside; opening again rebuilds it from the vault, and a
       // scan brings the funds back.
       logWarn('desk', 'wallet database damaged; rebuilding');
-      _notice = 'Wallet database damaged, rebuilding';
+      _notice = englishStrings.deskErrDbDamaged; // stored in English: ServiceStatus.notice is a plain string
       await _setMeta({'scanPending': true}, metaKey);
       try {
         session = await _service.open(config: config, password: password);
       } on core.WalletError catch (e2) {
         if (e2.kind == core.WalletErrorKind.wrongPassword) return false;
-        throw DeskError('Wallet database damaged. ${deskErrorText(e2)}');
+        throw DeskError.l10n((l) => l.deskErrDbDamagedDetail(deskErrorText(e2, l)));
       }
     }
     _session = session;
@@ -1069,10 +1069,10 @@ class LepicDeskWallet implements DeskWalletApi {
       } on Object catch (e2) {
         logWarn('desk', 'reopen on the old server failed: ${e2 is core.WalletError ? e2.kind.name : e2.runtimeType}');
         await lock();
-        throw DeskError('Wallet closed: ${deskErrorText(e2)}. Unlock again.', locked: true);
+        throw DeskError.l10n((l) => l.deskErrWalletClosed(deskErrorText(e2, l)), locked: true);
       }
       await _afterReopen(listening, http, tor);
-      throw DeskError('Not changed: ${deskErrorText(e)}');
+      throw DeskError.l10n((l) => l.deskErrNotChanged(deskErrorText(e, l)));
     }
     await save();
     await _afterReopen(listening, http, tor);
@@ -1098,7 +1098,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   void _checkPassword(String password) {
     if (password.length < minPasswordLength) {
-      throw const DeskError('Use at least $minPasswordLength characters');
+      throw DeskError.l10n((l) => l.deskErrPasswordShort(minPasswordLength));
     }
   }
 
@@ -1147,7 +1147,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     }
     _selectedId = listed?.id;
-    await writeWalletTxt(config.dataDir, label: listed?.label ?? label ?? 'Main wallet', network: _chain, created: DateTime.now());
+    await writeWalletTxt(config.dataDir, label: listed?.label ?? label ?? 'Main wallet', network: _chain, created: DateTime.now()); // l10n-ok: default wallet name, stored
     if (listed != null) {
       try {
         final r = await registry();
@@ -1226,9 +1226,9 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
     _checkPassword(password);
     final mnemonic = _mnemonicOf(phrase);
-    if (!_service.validateMnemonic(phrase: mnemonic)) throw const DeskError('Recovery phrase not valid');
+    if (!_service.validateMnemonic(phrase: mnemonic)) throw DeskError.l10n((l) => l.deskErrPhraseInvalid);
     final same = await _sameWallet(mnemonic);
-    if (same != null) throw DeskError('This wallet is already here: ${same.name}', sameWallet: same);
+    if (same != null) throw DeskError.l10n((l) => l.deskErrAlreadyHere(same.name), sameWallet: same);
     try {
       // The scan runs after unlock, in the background, with its progress in the status.
       await _make(name, const {'scanPending': true}, (config) async {
@@ -1242,7 +1242,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   // ---- Import (B01–B32 as LEPIC takes them: wallet.seed only, history from a scan).
 
-  static const _testNetText = 'Test network wallet. Only mainnet wallets can be imported.';
+  static String _testNetText(AppLocalizations l) => l.deskErrTestNet;
 
   OldWallet _oldOf(legacy.LegacyWallet w, Map<String, legacy.SameWallet> same) {
     final s = same[w.path];
@@ -1260,7 +1260,7 @@ class LepicDeskWallet implements DeskWalletApi {
       sizeBytes: w.sizeBytes,
       sameAs: s?.text,
       inApp: s?.inApp ?? false,
-      blocked: w.refusal?.text ?? (w.network == legacy.LegacyNetwork.main ? null : _testNetText),
+      blocked: w.refusal?.text ?? (w.network == legacy.LegacyNetwork.main ? null : _testNetText(englishStrings)),
     );
   }
 
@@ -1310,11 +1310,11 @@ class LepicDeskWallet implements DeskWalletApi {
     return FolderFind(
       folder: found.picked,
       wallets: wallets,
-      message: found.wallets.isNotEmpty && wallets.isEmpty ? 'This wallet is in the app already.' : found.message,
+      message: found.wallets.isNotEmpty && wallets.isEmpty ? englishStrings.deskErrWalletInApp : found.message,
     );
   }
 
-  legacy.LegacyWallet _oldWallet(String id) => _old[id] ?? (throw const DeskError('Wallet not found. Search again.'));
+  legacy.LegacyWallet _oldWallet(String id) => _old[id] ?? (throw DeskError.l10n((l) => l.deskErrWalletNotFoundSearch));
 
   @override
   Future<OldWalletUse> checkOldWallet(String id) async =>
@@ -1329,12 +1329,12 @@ class LepicDeskWallet implements DeskWalletApi {
     final w = _oldWallet(id);
     final refusal = w.refusal;
     if (refusal != null) throw DeskError(refusal.text);
-    if (w.network != legacy.LegacyNetwork.main) throw const DeskError(_testNetText);
-    if (oldPassword.isEmpty) throw const DeskError('Enter the old password');
+    if (w.network != legacy.LegacyNetwork.main) throw DeskError.l10n(_testNetText);
+    if (oldPassword.isEmpty) throw DeskError.l10n((l) => l.deskErrEnterOldPassword);
     final next = newPassword ?? oldPassword;
     if (next.length < minPasswordLength) {
-      throw DeskError(
-        newPassword == null ? 'The old password is short. Choose a new one of at least $minPasswordLength characters.' : 'Use at least $minPasswordLength characters',
+      throw DeskError.l10n(
+        (l) => newPassword == null ? l.deskErrOldPasswordShort(minPasswordLength) : l.deskErrPasswordShort(minPasswordLength),
         newPasswordNeeded: true,
       );
     }
@@ -1345,19 +1345,19 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       bytes = await File(w.seedPath).readAsBytes();
     } on FileSystemException {
-      throw const DeskError('The wallet.seed file could not be read');
+      throw DeskError.l10n((l) => l.deskErrSeedUnreadable);
     }
     if (bytes.isEmpty || bytes.length > legacy.maxSeedBytes) throw const DeskError(legacy.seedTooLargeText);
     final String seed;
     try {
       seed = utf8.decode(bytes);
     } on FormatException {
-      throw const DeskError('Not a wallet.seed file');
+      throw DeskError.l10n((l) => l.deskErrNotSeedFile);
     }
     final name = _importName(w.displayLabel);
     final fingerprint = sha256.convert(bytes).toString();
     final held = (await _inAppSeeds())[fingerprint];
-    if (held != null) throw DeskError('Already in the app as $held');
+    if (held != null) throw DeskError.l10n((l) => l.deskErrAlreadyInApp(held));
     // What the older app kept beside the wallet: contacts, node, Epicbox server. Read only.
     final profile = await gui.readGuiImport(_legacyRoots(), w);
     final global = await gui.readGuiGlobal(_legacyRoots());
@@ -1378,10 +1378,10 @@ class LepicDeskWallet implements DeskWalletApi {
       }, ownEntry: true);
       made = (await registry()).byId(_selectedId ?? '');
     } on core.WalletError catch (e) {
-      if (e.kind == core.WalletErrorKind.wrongPassword) throw const DeskError('Wrong old password', wrongPassword: true);
+      if (e.kind == core.WalletErrorKind.wrongPassword) throw DeskError.l10n((l) => l.deskErrWrongOldPassword, wrongPassword: true);
       throw _deskError(e);
     }
-    if (made == null) throw const DeskError('Wallet list not saved');
+    if (made == null) throw DeskError.l10n((l) => l.deskErrListNotSaved);
     _imported.add(made.id);
     final done = history;
     // A busy source is not recorded, so the sync tries again, as the proof line says.
@@ -1398,13 +1398,13 @@ class LepicDeskWallet implements DeskWalletApi {
       id: made.id,
       name: made.label,
       proof: [
-        const ImportProof('Seed read'),
-        const ImportProof('Wallet created'),
+        ImportProof.l10n((l) => l.deskErrProofSeedRead),
+        ImportProof.l10n((l) => l.deskErrProofWalletCreated),
         _historyProof(done),
-        if (contactsAdded > 0) ImportProof(contactsAdded == 1 ? '1 contact added' : '$contactsAdded contacts added'),
-        for (final n in nodes) ImportProof('Node ${n.label} added to the node list'),
-        if (box != null && box != relay.host) ImportProof('The older app used the Epicbox server $box; this app uses ${relay.host}'),
-        unchanged ? const ImportProof('Old folder unchanged') : const ImportProof('Old folder changed by another program', ok: false),
+        if (contactsAdded > 0) ImportProof.l10n((l) => l.deskErrProofContacts(contactsAdded)),
+        for (final n in nodes) ImportProof.l10n((l) => l.deskErrProofNode(n.label)),
+        if (box != null && box != relay.host) ImportProof.l10n((l) => l.deskErrProofEpicbox(box, relay.host)),
+        unchanged ? ImportProof.l10n((l) => l.deskErrProofFolderUnchanged) : ImportProof.l10n((l) => l.deskErrProofFolderChanged, ok: false),
       ],
     );
   }
@@ -1422,22 +1422,22 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   static ImportProof _historyProof(core.LegacyHistoryImport? r) => switch (r?.status) {
-    core.LegacyHistoryStatus.imported => ImportProof(
-      r!.transactions == 1 ? 'History: 1 transaction' : 'History: ${r.transactions} transactions',
+    core.LegacyHistoryStatus.imported => ImportProof.l10n(
+      (l) => l.deskErrProofHistory(r!.transactions),
     ),
-    core.LegacyHistoryStatus.alreadyImported => const ImportProof('History already imported'),
-    core.LegacyHistoryStatus.noHistory => const ImportProof('No history in the old folder; the scan restores the balance'),
+    core.LegacyHistoryStatus.alreadyImported => ImportProof.l10n((l) => l.deskErrProofHistoryAlready),
+    core.LegacyHistoryStatus.noHistory => ImportProof.l10n((l) => l.deskErrProofHistoryNone),
     core.LegacyHistoryStatus.oldFormat =>
-      const ImportProof('History of Epic Wallet 5.3 or older is not readable; the scan restores the balance', ok: false),
+      ImportProof.l10n((l) => l.deskErrProofHistoryOld, ok: false),
     core.LegacyHistoryStatus.sourceBusy =>
-      const ImportProof('History not imported: the older wallet is running. It is imported at the next unlock', ok: false),
+      ImportProof.l10n((l) => l.deskErrProofHistoryBusy, ok: false),
     core.LegacyHistoryStatus.otherWallet ||
     core.LegacyHistoryStatus.otherHistory =>
-      const ImportProof('History not imported: it belongs to another wallet', ok: false),
+      ImportProof.l10n((l) => l.deskErrProofHistoryOther, ok: false),
     core.LegacyHistoryStatus.unreadable ||
     core.LegacyHistoryStatus.tooLarge ||
     null =>
-      const ImportProof('History not imported: the old database could not be read; the scan restores the balance', ok: false),
+      ImportProof.l10n((l) => l.deskErrProofHistoryUnreadable, ok: false),
   };
 
   /// Adds the older app's contacts of this wallet that the address book lacks. Returns how many.
@@ -1589,7 +1589,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await _importHistoryOnce(session, key);
       _entries = await session.transactions(refresh: false);
       _lastUpdate = DateTime.now();
-      _syncError = _nodeHealth == ServiceHealth.down ? const DeskError('The node did not answer') : null;
+      _syncError = _nodeHealth == ServiceHealth.down ? DeskError.l10n((l) => l.deskErrNodeNoAnswer) : null;
     } on core.WalletError catch (e) {
       logWarn('desk', 'sync: ${e.kind.name}');
       if (e.kind == core.WalletErrorKind.nodeUnreachable) _nodeHealth = ServiceHealth.down;
@@ -1602,7 +1602,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> syncNow() async {
-    if (_session == null) throw const DeskError('The wallet is locked');
+    if (_session == null) throw DeskError.l10n((l) => l.deskErrWalletLocked);
     await sync();
     final e = _syncError;
     if (e != null) throw e;
@@ -1700,7 +1700,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final folder = _config?.dataDir ?? (await _makeConfig()).dataDir;
     return WalletAccount(
       id: _openEntry?.id,
-      name: _openEntry?.label ?? (meta['name'] as String?) ?? 'Main wallet',
+      name: _openEntry?.label ?? (meta['name'] as String?) ?? 'Main wallet', // l10n-ok
       network: _chain,
       folder: folder,
       created: _time(meta['created']) ?? DateTime.now(),
@@ -2009,14 +2009,14 @@ class LepicDeskWallet implements DeskWalletApi {
       final stored = before == null
           ? null
           : (await session.transactions(refresh: false)).where((x) => !before!.contains(x.id) && x.id != null).map((x) => x.id!).fold<int?>(null, (a, b) => a == null || b < a ? b : a);
-      if (stored != null) throw DeskError('Not posted', notPostedTx: stored);
+      if (stored != null) throw DeskError.l10n((l) => l.deskErrNotPosted, notPostedTx: stored);
       throw _deskError(e);
     }
   });
 
   @override
   Future<void> repostTx(int id) => _running(() async {
-    if (!await _repost(_open, id)) throw const DeskError('Node not answering');
+    if (!await _repost(_open, id)) throw DeskError.l10n((l) => l.deskErrNodeNotAnswering);
   });
 
   /// Calls that change the wallet (send, receive and finalize a file, split, consolidate,
@@ -2037,10 +2037,10 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Runs [call] on the session once no switch is under way; counted while it runs. The check
   /// and the count follow each other with no await, so a switch or a lock never overtakes it.
   Future<T> _running<T>(Future<T> Function() call) async {
-    if (_locking) throw const DeskError('The wallet is locking', locked: true);
+    if (_locking) throw DeskError.l10n((l) => l.deskErrWalletLocking, locked: true);
     while (_switching != null) {
       await _switching!.future;
-      if (_locking) throw const DeskError('The wallet is locking', locked: true);
+      if (_locking) throw DeskError.l10n((l) => l.deskErrWalletLocking, locked: true);
     }
     _busy++;
     try {
@@ -2076,7 +2076,7 @@ class LepicDeskWallet implements DeskWalletApi {
       switch (method) {
         case TxMethod.epicbox:
           final to = (r.to ?? '').trim();
-          if (!_service.validateEpicboxAddress(address: to)) return const SendFailed('Not an Epicbox address');
+          if (!_service.validateEpicboxAddress(address: to)) return SendFailed.l10n((l) => l.deskErrNotEpicboxAddress);
           final e = await session.sendEpicbox(amount: BigInt.from(amount), minimumConfirmations: _minConf, address: to, message: message, options: r.options);
           await _reload();
           return SendDone(_txFor(e));
@@ -2092,7 +2092,7 @@ class LepicDeskWallet implements DeskWalletApi {
             // The payment exists in the wallet; only its file is missing.
             logWarn('desk', 'slate file not written: ${e.osError?.errorCode ?? '?'}');
             await _reload();
-            return const SendFailed('File not saved. The payment waits in Activity; cancel it there to unlock the funds.', inActivity: true);
+            return SendFailed.l10n((l) => l.deskErrFileNotSaved, inActivity: true);
           }
           await _reload();
           final tx = _txs().where((t) => t.slateId == slate.slateId).firstOrNull ??
@@ -2103,7 +2103,7 @@ class LepicDeskWallet implements DeskWalletApi {
           final problem = httpAddressProblem(to);
           if (problem != null) return SendFailed(problem);
           // Send asks before plain HTTP leaves this computer; LEPIC refuses it otherwise.
-          if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return const SendFailed('Plain HTTP not confirmed');
+          if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return SendFailed.l10n((l) => l.deskErrPlainHttp);
           before = {for (final e in await session.transactions(refresh: false)) e.id};
           final sent = await session.sendHttp(
             amount: BigInt.from(amount),
@@ -2116,9 +2116,9 @@ class LepicDeskWallet implements DeskWalletApi {
           return await _directDone(session, sent, method, amount, to);
         case TxMethod.tor:
           final to = (r.to ?? '').trim();
-          if (!isOnionAddress(to)) return const SendFailed('Not an onion address');
-          if (!_settings.tor) return const SendFailed('Tor is off. Turn on Tor to send to an onion address.');
-          if (!_torCanSend) return const SendFailed('Tor is still connecting. Try again in a moment.');
+          if (!isOnionAddress(to)) return SendFailed.l10n((l) => l.deskErrNotOnion);
+          if (!_settings.tor) return SendFailed.l10n((l) => l.deskErrTorOffSend);
+          if (!_torCanSend) return SendFailed.l10n((l) => l.deskErrTorConnecting);
           before = {for (final e in await session.transactions(refresh: false)) e.id};
           final sent = await session.sendTor(amount: BigInt.from(amount), minimumConfirmations: _minConf, onion: to, message: message, options: r.options);
           return await _directDone(session, sent, method, amount, to);
@@ -2137,20 +2137,19 @@ class LepicDeskWallet implements DeskWalletApi {
           stored = true;
         }
       }
-      const waits = 'The payment waits in Activity; cancel it there to unlock the funds.';
       if (e.kind == core.WalletErrorKind.transportFailed) {
         if (method == TxMethod.http || method == TxMethod.tor) {
           return stored
-              ? const SendFailed('The recipient’s wallet did not answer or refused. $waits', inActivity: true)
-              : const SendFailed('The recipient’s wallet did not answer or refused.');
+              ? SendFailed.l10n((l) => l.deskErrRecipientNoAnswerWaits, inActivity: true)
+              : SendFailed.l10n((l) => l.deskErrRecipientNoAnswer);
         }
-        return const SendFailed('Not delivered. $waits', inActivity: true);
+        return SendFailed.l10n((l) => l.deskErrNotDelivered, inActivity: true);
       }
       // Ended by a lock (the app's own lock waits; the wallet can still close under it): the
       // send may have been stored as sent, so the next unlock's Activity tells.
-      if (lepicCancelled(e)) return const SendFailed('Interrupted by the lock. It may have gone out: check Activity after unlocking.', inActivity: true);
-      if (stored) return SendFailed('${deskErrorText(e).replaceFirst(RegExp(r'\.$'), '')}. $waits', inActivity: true);
-      return SendFailed(deskErrorText(e));
+      if (lepicCancelled(e)) return SendFailed.l10n((l) => l.deskErrInterruptedLock, inActivity: true);
+      if (stored) return SendFailed.l10n((l) => l.deskErrStoredWaits(deskErrorText(e, l).replaceFirst(RegExp(r'\.$'), '')), inActivity: true);
+      return SendFailed.l10n((l) => deskErrorText(e, l));
     }
   }
 
@@ -2162,7 +2161,7 @@ class LepicDeskWallet implements DeskWalletApi {
         Tx(id: sent.txId, slateId: sent.slateId, direction: TxDirection.sent, state: TxState.posted, method: method, amount: amount, fee: 0, created: DateTime.now(), counterparty: to);
     if (!sent.posted) {
       if (!await _repost(session, sent.txId)) {
-        return const SendFailed('Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.', inActivity: true);
+        return SendFailed.l10n((l) => l.deskErrNodeRefused, inActivity: true);
       }
       return SendDone(_txs().where((t) => t.id == sent.txId).firstOrNull ?? tx);
     }
@@ -2193,9 +2192,9 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       return decodeSlateFile(await File(path).readAsBytes());
     } on FileSystemException {
-      throw const DeskError('File not readable');
+      throw DeskError.l10n((l) => l.deskErrFileNotReadable);
     } on FormatException {
-      throw const DeskError('Not a transaction file');
+      throw DeskError.l10n((l) => l.deskErrNotTxFile2);
     }
   }
 
@@ -2236,7 +2235,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await File(path).writeAsString(json, flush: true);
       return path;
     } on FileSystemException {
-      throw const DeskError('Response file not saved');
+      throw DeskError.l10n((l) => l.deskErrResponseNotSaved);
     }
   }
 
@@ -2254,12 +2253,12 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> cancelTx(int id) => _running(() async {
-    if (id < 0) throw const DeskError('This payment cannot be cancelled');
+    if (id < 0) throw DeskError.l10n((l) => l.deskErrCannotCancel);
     try {
       await _open.cancelTransaction(txId: id);
     } on core.WalletError catch (e) {
       // The core asks the node first and refuses a payment it already has (in its pool or a block).
-      if (e.kind == core.WalletErrorKind.invalidArgument) throw const DeskError(cancelRefusedText);
+      if (e.kind == core.WalletErrorKind.invalidArgument) throw DeskError.l10n((l) => l.deskErrCancelRefused);
       throw _deskError(e);
     }
     await _reload();
@@ -2548,7 +2547,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<BuiltInNode> _theNode() async {
     final make = _builtInNode;
-    if (make == null) throw const DeskError('No local node in this build');
+    if (make == null) throw DeskError.l10n((l) => l.deskErrNoLocalNode);
     final node = _node ??= await make(preset.chain);
     // The user's node settings (data folder, peers) apply to every start, also at launch.
     node.options = await NodeSettings(_secrets, preset.chain).toOptions();
@@ -2571,7 +2570,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       await _nodeLock(() async {
         // A stop that came in while it was starting wins.
-        if (!node.wantsRunning) throw const DeskError('Local node stopped');
+        if (!node.wantsRunning) throw DeskError.l10n((l) => l.deskErrLocalNodeStopped);
         final current = await _nodeUrl();
         // While it syncs, the public node the user agreed to (D-7).
         final target = await nodeWhileSyncing?.call() ?? node.url;
@@ -2583,10 +2582,10 @@ class LepicDeskWallet implements DeskWalletApi {
             rethrow;
           }
           // A lock while reopening returns without moving; a stop while moving undoes it.
-          if (await _nodeUrl() != target) throw const DeskError('Not changed: the wallet was locked');
+          if (await _nodeUrl() != target) throw DeskError.l10n((l) => l.deskErrNotChangedLocked);
           if (!node.wantsRunning) {
             await _switchTo(nodeUrl: current, relay: await _relay());
-            throw const DeskError('Local node stopped');
+            throw DeskError.l10n((l) => l.deskErrLocalNodeStopped);
           }
           await _secrets.write(_beforeBuiltInKey, current);
         }
@@ -2660,7 +2659,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await (await _theNode()).start();
     } on Object catch (e) {
       logWarn('desk', 'built-in node did not start: ${e is NodeStartException ? e.failure.name : e.runtimeType}');
-      _notice = 'Local node not started: ${e is NodeStartException ? e.message : 'unknown error'}';
+      _notice = englishStrings.deskErrLocalNodeNotStarted(e is NodeStartException ? e.message : englishStrings.deskErrUnknown); // stored in English: ServiceStatus.notice is a plain string
       _changed();
     }
   }
@@ -2717,7 +2716,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> useEpicbox(String domain) async {
     final relay = EpicboxRelay.parse(domain);
-    if (relay == null) throw const DeskError('Not a server name');
+    if (relay == null) throw DeskError.l10n((l) => l.deskErrNotServerName);
     logInfo('desk', 'epicbox ${relay.label}');
     await _stopScanForUser();
     await _nodeLock(() async => _switchTo(nodeUrl: await _nodeUrl(), relay: relay));
@@ -2799,9 +2798,9 @@ class LepicDeskWallet implements DeskWalletApi {
             _httpHealth = ServiceHealth.ok;
             _httpPort = e.port ?? port;
           case core.HttpListenerEventKind.portInUse:
-            ended(ServiceHealth.down, 'Port ${e.port ?? port} in use');
+            ended(ServiceHealth.down, englishStrings.deskErrPortInUse(e.port ?? port));
           case core.HttpListenerEventKind.bindFailed:
-            ended(ServiceHealth.down, 'Port ${e.port ?? port} not available');
+            ended(ServiceHealth.down, englishStrings.deskErrPortUnavailable(e.port ?? port));
           case core.HttpListenerEventKind.received:
             unawaited(_reload());
           case core.HttpListenerEventKind.refused:
@@ -2814,7 +2813,7 @@ class LepicDeskWallet implements DeskWalletApi {
       },
       onError: (Object e) {
         logWarn('desk', 'http listener ended: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
-        ended(ServiceHealth.down, 'Stopped with an error');
+        ended(ServiceHealth.down, englishStrings.deskErrStoppedWithError);
         _changed();
       },
       onDone: () {
@@ -2911,7 +2910,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _torProgress = null;
     if (bundle == null) {
       _torHealth = ServiceHealth.down;
-      _torProblem = torFailureText(core.TorFailure.missing);
+      _torProblem = torFailureText(englishStrings, core.TorFailure.missing);
       _changed();
       return;
     }
@@ -2928,10 +2927,10 @@ class LepicDeskWallet implements DeskWalletApi {
     void ended(String? problem) {
       if (_tor != sub) return;
       // Ended by itself, not after a failure that shows: started again after a pause.
-      if (_torHealth != ServiceHealth.down && _torRestartLater(session, sub, 'tor ended')) return;
+      if (_torHealth != ServiceHealth.down && _torRestartLater(session, sub, 'tor ended')) return; // l10n-ok: log reason
       _tor = null;
       _torHealth = ServiceHealth.down;
-      _torProblem = problem ?? 'Tor stopped';
+      _torProblem = problem ?? englishStrings.deskErrTorStopped;
       _torCanSend = false;
       _torProgress = null;
       _torStartedAt = null;
@@ -2969,12 +2968,12 @@ class LepicDeskWallet implements DeskWalletApi {
               core.TorFailure.start || core.TorFailure.network || core.TorFailure.stopped || null => true,
               _ => false,
             };
-            if (restartable && _torRestartLater(session, sub, 'tor failed')) return;
+            if (restartable && _torRestartLater(session, sub, 'tor failed')) return; // l10n-ok: log reason
             _torStartedAt = null;
             // Listener and keys leave tor running for sends; any other failure stops it.
             final forSends = e.failure == core.TorFailure.listener || e.failure == core.TorFailure.keys;
             _torHealth = forSends ? ServiceHealth.slow : ServiceHealth.down;
-            _torProblem = torFailureText(e.failure);
+            _torProblem = torFailureText(englishStrings, e.failure);
             if (!forSends) {
               _torCanSend = false;
               _torConnectedAt = null;
@@ -3109,7 +3108,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // Admitted like [_running]: the checks and the count follow each other with no await.
     var waitedForStop = false;
     while (true) {
-      if (_locking) throw const DeskError('The wallet is locking', locked: true);
+      if (_locking) throw DeskError.l10n((l) => l.deskErrWalletLocking, locked: true);
       if (_switching != null) {
         await _switching!.future;
         continue;
@@ -3123,7 +3122,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       break;
     }
-    if (_rescanning) throw const DeskError(scanRunning);
+    if (_rescanning) throw DeskError.l10n((l) => l.deskErrScanRunning);
     final session = _open;
     final key = _metaKey(_openEntry?.walletId);
     _rescanning = true;
@@ -3147,7 +3146,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     } on core.WalletError catch (e) {
       // LEPIC refuses a second scan of the same wallet (the due scan of a sync, say).
-      if (e.kind == core.WalletErrorKind.walletBusy) throw const DeskError(scanRunning);
+      if (e.kind == core.WalletErrorKind.walletBusy) throw DeskError.l10n((l) => l.deskErrScanRunning);
       throw _deskError(e);
     } finally {
       _rescanning = false;
@@ -3204,9 +3203,9 @@ class LepicDeskWallet implements DeskWalletApi {
       logWarn('desk', 'password change: ${e.kind.name}');
       throw switch (e.kind) {
         core.WalletErrorKind.wrongPassword => _deskError(e),
-        core.WalletErrorKind.invalidArgument => const DeskError('Use at least $minPasswordLength characters'),
+        core.WalletErrorKind.invalidArgument => DeskError.l10n((l) => l.deskErrPasswordShort(minPasswordLength)),
         core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => _deskError(e),
-        _ => const DeskError('Password not changed. The current password still opens the wallet.'),
+        _ => DeskError.l10n((l) => l.deskErrPasswordNotChanged),
       };
     }
     logInfo('desk', 'password changed');
@@ -3276,7 +3275,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<HistoryImport> importHistory(Uint8List data) async {
-    if (data.length > maxDeskHistoryBytes) throw const HistoryFileError(HistoryFileProblem.tooLarge, 'The file is too large to be one.');
+    if (data.length > maxDeskHistoryBytes) throw HistoryFileError.l10n(HistoryFileProblem.tooLarge, (l) => l.deskErrHistTooLarge);
     try {
       final r = await _open.importHistory(data: data);
       logInfo('desk', 'history imported: ${r.merged} merged, ${r.added} added, ${r.contactsAdded} contacts');
@@ -3683,7 +3682,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> repostRequest(String slateId) async {
     final txId = (_entries ?? await _open.transactions(refresh: false)).where((e) => e.slateId == slateId && e.isRequest).firstOrNull?.id;
-    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice');
+    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice'); // l10n-ok: InvoiceError.message is for logs; screens word the problem
     try {
       await repostTx(txId);
     } on DeskError catch (e) {
@@ -3697,7 +3696,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> cancelRequestPayment(String slateId) async {
     final entries = _entries ?? await _open.transactions(refresh: false);
     final txId = entries.where((e) => e.slateId == slateId && e.isRequest).firstOrNull?.id;
-    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice');
+    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice'); // l10n-ok
     try {
       await _running(() => _open.cancelTransaction(txId: txId));
     } on core.WalletError catch (e) {
@@ -3708,8 +3707,8 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// A refused cancel in the screens' terms: the node has it, or the node cannot be asked.
   static InvoiceError _cancelError(core.WalletError e) => switch (e.kind) {
-    core.WalletErrorKind.invalidArgument => const InvoiceError(InvoiceProblem.onItsWay, 'Already on its way: it cannot be cancelled.'),
-    core.WalletErrorKind.nodeUnreachable => const InvoiceError(InvoiceProblem.cannotCheck, 'Cannot check the network now.'),
+    core.WalletErrorKind.invalidArgument => const InvoiceError(InvoiceProblem.onItsWay, 'Already on its way: it cannot be cancelled.'), // l10n-ok
+    core.WalletErrorKind.nodeUnreachable => const InvoiceError(InvoiceProblem.cannotCheck, 'Cannot check the network now.'), // l10n-ok
     _ => invoiceError(e),
   };
 
@@ -3718,7 +3717,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<IncomingInvoice> payInvoice(String slateId, {required int amount, required String password}) => _running(() async {
     final session = _open;
-    if (!await checkPassword(password)) throw const InvoiceError(InvoiceProblem.wrongPassword, 'Wrong password');
+    if (!await checkPassword(password)) throw const InvoiceError(InvoiceProblem.wrongPassword, 'Wrong password'); // l10n-ok
     final waiting = _waitingSeen[slateId];
     final core.PaidInvoice paid;
     try {
@@ -3759,7 +3758,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     await _reload();
     final book = await invoices();
-    return book.invoice(slateId) ?? (throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice'));
+    return book.invoice(slateId) ?? (throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice')); // l10n-ok
   }
 
   @override
@@ -3783,7 +3782,7 @@ class LepicDeskWallet implements DeskWalletApi {
         .where((e) => e.slateId == slateId && e.flow == core.TxFlow.invoice && (e.kind == core.TxKind.sent || e.kind == core.TxKind.sentCancelled))
         .firstOrNull
         ?.id;
-    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such payment');
+    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such payment'); // l10n-ok
     // The coins it locks, read first: after the cancel they are this wallet's again, and
     // "Spend them to myself now" spends exactly these (D-2).
     var inputs = const <String>[];
@@ -3810,7 +3809,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<SelfSend> spendCancelledToSelf(String slateId) async {
     final commitments = _cancelledInputs[slateId];
-    if (commitments == null || commitments.isEmpty) throw const DeskError('Nothing to spend');
+    if (commitments == null || commitments.isEmpty) throw DeskError.l10n((l) => l.deskErrNothingToSpend);
     final sent = await _selfSend(() => _open.spendOutputsToSelf(commitments: commitments, minimumConfirmations: _minConf));
     _cancelledInputs.remove(slateId);
     return sent;
@@ -3970,7 +3969,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     confirmationsNeeded: minConf,
     counterparty: to,
     // A split or consolidate: both sides are this wallet (F13).
-    contactName: e.transport == 'self' ? 'This wallet' : contactName,
+    contactName: e.transport == 'self' ? 'This wallet' : contactName, // l10n-ok: stored in the history row; contact column of the tx list
     message: core.messageBy(e.messages, core.SlateRole.sender) ?? core.messageBy(e.messages, core.SlateRole.receiver),
     height: height,
     kernel: e.kernelExcess,
@@ -4058,12 +4057,12 @@ Object historyFileError(core.WalletError e) {
   if (e.kind != core.WalletErrorKind.invalidArgument) return _deskError(e);
   final m = e.message;
   final chains = RegExp(r'^This history file is from (\w+), but this wallet is on (\w+)').firstMatch(m);
-  if (chains != null) return HistoryFileError(HistoryFileProblem.otherChain, 'The file is from ${chains[1]}; this wallet is on ${chains[2]}.');
+  if (chains != null) return HistoryFileError.l10n(HistoryFileProblem.otherChain, (l) => l.deskErrHistChains(chains[1]!, chains[2]!));
   return switch (m) {
-    historyOtherWallet => const HistoryFileError(HistoryFileProblem.otherWallet, 'The file was exported from a wallet with a different recovery phrase.'),
-    historyNewer => const HistoryFileError(HistoryFileProblem.newer, 'A newer version of the app made this file. Update the app, then import it.'),
-    historyDamaged => const HistoryFileError(HistoryFileProblem.damaged, 'The file is incomplete or was changed.'),
-    _ => const HistoryFileError(HistoryFileProblem.notOurs, 'The file was not made by Epic Cash Desktop or Epic Cash Mobile.'),
+    historyOtherWallet => HistoryFileError.l10n(HistoryFileProblem.otherWallet, (l) => l.deskErrHistOtherWalletText),
+    historyNewer => HistoryFileError.l10n(HistoryFileProblem.newer, (l) => l.deskErrHistNewerText),
+    historyDamaged => HistoryFileError.l10n(HistoryFileProblem.damaged, (l) => l.deskErrHistDamagedText),
+    _ => HistoryFileError.l10n(HistoryFileProblem.notOurs, (l) => l.deskErrHistNotOursText),
   };
 }
 
@@ -4073,18 +4072,18 @@ Future<void> writeWalletTxt(String dir, {required String label, required String 
   String two(int v) => v.toString().padLeft(2, '0');
   final day = '${created.year}-${two(created.month)}-${two(created.day)}';
   final text = [
-    'Epic Cash Desktop (BT Labs) wallet folder',
-    'Label:     $label',
-    'Network:   $network',
-    'Created:   $day',
-    'App:       $deskAppVersion',
+    'Epic Cash Desktop (BT Labs) wallet folder', // l10n-ok: WALLET.txt is a file in the wallet folder, English
+    'Label:     $label', // l10n-ok
+    'Network:   $network', // l10n-ok
+    'Created:   $day', // l10n-ok
+    'App:       $deskAppVersion', // l10n-ok
     '',
-    'wallet.vault    the seed, encrypted with the wallet password (Argon2id)',
-    'wallet.sqlite3  outputs and payment history',
+    'wallet.vault    the seed, encrypted with the wallet password (Argon2id)', // l10n-ok
+    'wallet.sqlite3  outputs and payment history', // l10n-ok
     '',
-    'This folder is not a backup. Restore with the recovery phrase.',
-    'A copy of this folder is only as safe as the password.',
-    'Payment details and contacts: Settings > This wallet > Export history backup.',
+    'This folder is not a backup. Restore with the recovery phrase.', // l10n-ok
+    'A copy of this folder is only as safe as the password.', // l10n-ok
+    'Payment details and contacts: Settings > This wallet > Export history backup.', // l10n-ok
     '',
   ].join('\n');
   try {

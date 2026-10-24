@@ -15,6 +15,7 @@ import '../data/tor_view.dart';
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_http.dart' show httpRun;
 import '../widgets/kit.dart';
+import '../desk_l10n.dart';
 
 /// One row's content, whatever the service.
 class RailItem {
@@ -125,7 +126,7 @@ List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
     // The one Tor switch, always shown: Off, Starting…, On, Not connected. A click opens
     // Settings › Privacy, where the switch is.
     final included = st?.torIncluded ?? true;
-    final word = included ? torWord(tor) : 'Not in this build';
+    final word = included ? torWord(englishStrings, tor) : 'Not in this build';
     items.add(
       RailItem(
         icon: EIcons.tor,
@@ -141,7 +142,7 @@ List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
               },
         second: tor == TorState.starting ? 'Starting…' : word,
         marker: tor == TorState.starting ? '${st?.torProgress ?? 0} %' : null,
-        note: included ? torNetworkHint : null,
+        note: included ? torNetworkHint(englishStrings) : null,
         lines: [
           if (tor == TorState.failed && st?.torProblem != null) st!.torProblem!,
           if (tor == TorState.on && st?.tor == ServiceHealth.slow) '${st?.torProblem ?? 'Tor address not published'}. Sends work.',
@@ -245,7 +246,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       _url = null;
       // The node the wallet actually reads through: the public fallback until the local node
       // takes over (D-7), whatever the local node's phase.
-      node = localNodeView(ref.watch(deskLocalNodeProvider).value, fallbackUrl: status?.node.url);
+      node = localNodeView(context.l10n, ref.watch(deskLocalNodeProvider).value, fallbackUrl: status?.node.url);
     } else if (status == null) {
       _url = null;
       node = const NodeView(word: 'Checking', state: EState.off, host: '–');
@@ -255,13 +256,14 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       final health = _settledHealth(status.nodeHealth);
       final torState = torStateOf(settings, status);
       final v = remoteNodeView(
+        context.l10n,
         url,
         ref.watch(deskNodeInfoProvider(url)).value,
         health: health,
         downSince: health == ServiceHealth.down ? _downSince : null,
         torOn: torState != TorState.off,
       );
-      final tor = torNodeLines(url, torState);
+      final tor = torNodeLines(context.l10n, url, torState);
       node = tor.isEmpty ? v : NodeView(word: v.word, state: v.state, host: v.host, marker: v.marker, lines: [...v.lines, ...tor]);
     }
     final items = [nodeRailItem(node), ...receivingRailItems(status, settings)];

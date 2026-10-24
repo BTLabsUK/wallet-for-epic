@@ -6,6 +6,7 @@ import '../../data/tor_view.dart';
 import '../../widgets/kit.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
+import '../../desk_l10n.dart';
 
 /// The tour's Tor states: on, starting, not connected (laid over the mock's status).
 enum PrivacyDemo { torOn, torStarting, torFailed }
@@ -99,9 +100,9 @@ class _TorGroupState extends ConsumerState<TorGroup> {
         title: 'Tor',
         rows: [
           ESetRow(
-            title: torNetworkLabel,
-            hint: torNetworkHint,
-            hintTitle: torNetworkLabel,
+            title: torNetworkLabel(context.l10n),
+            hint: torNetworkHint(context.l10n),
+            hintTitle: torNetworkLabel(context.l10n),
             hintIcon: EIcons.tor,
             control: SizedBox(
               width: 40.u,
@@ -111,7 +112,7 @@ class _TorGroupState extends ConsumerState<TorGroup> {
                   : ESwitch(
                       key: const ValueKey('privacy-tor-switch'),
                       value: st.settings.tor && included,
-                      semanticLabel: torNetworkLabel,
+                      semanticLabel: torNetworkLabel(context.l10n),
                       onChanged: included ? _set : null,
                     ),
             ),
@@ -142,7 +143,7 @@ class _TorGroupState extends ConsumerState<TorGroup> {
 /// The Tor state line of Settings › Privacy and the status card's hover card.
 MethodLine torStateLine(TorState tor, ServiceStatus? status, {bool included = true}) {
   if (!included) return const MethodLine('Not in this build', EState.off);
-  final waiting = torWaitingText();
+  final waiting = torWaitingText(englishStrings);
   return switch (tor) {
     TorState.off => const MethodLine('Off', EState.off),
     TorState.starting => MethodLine('Starting…', EState.warn, detail: '${status?.torProgress ?? 0} %. $waiting wait until Tor is up.'),

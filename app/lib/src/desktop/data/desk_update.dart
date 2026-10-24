@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_log.dart';
 import '../../app_version.dart';
+import '../../l10n.dart' show englishStrings;
 import '../../btlabs_public.dart';
 import '../../net/http.dart';
 import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrl, updateStateKey;
@@ -122,10 +123,10 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
       final (status, body) = await ref.read(deskManifestFetchProvider)(url);
       next = await _read(status, body);
     } on TimeoutException {
-      next = const DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update server did not answer.');
+      next = DeskUpdateState(DeskUpdatePhase.failed, reason: englishStrings.deskDataUpdTimeout);
     } on Object catch (e) {
       logInfo('update', 'desktop check failed: ${e.runtimeType}');
-      next = const DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update server could not be reached.');
+      next = DeskUpdateState(DeskUpdatePhase.failed, reason: englishStrings.deskDataUpdUnreachable);
     }
     if (!ref.mounted) return;
     final now = ref.read(deskUpdateClockProvider)();
@@ -172,7 +173,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     // No manifest published: nothing newer is known, which is no error.
     if (status == 404) return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
     if (status == deskManifestTooLarge) return _notVerified(RejectReason.tooLarge);
-    if (status != 200) return DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update server answered $status.');
+    if (status != 200) return DeskUpdateState(DeskUpdatePhase.failed, reason: englishStrings.deskDataUpdStatus(status));
     await _readState();
     final result = await verifyWalletUpdate(
       body,
@@ -185,7 +186,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     _known = null;
     final mine = result.manifest.desktop?.forSystem(_system);
     if (mine == null) {
-      return const DeskUpdateState(DeskUpdatePhase.failed, reason: 'No desktop update information is published yet.');
+      return DeskUpdateState(DeskUpdatePhase.failed, reason: englishStrings.deskDataUpdNone);
     }
     if (!isNewerVersion(mine.version, deskAppVersion)) return const DeskUpdateState(DeskUpdatePhase.latest);
     final page = mine.page;

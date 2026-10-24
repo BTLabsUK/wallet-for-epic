@@ -1,6 +1,7 @@
 // The sidebar rail (spec §5, §16): Node, a divider, Epicbox, HTTP, Tor; every row 40 u in
 // every state, so the rail never changes height; the Node row's twelve states; no address,
 // URL or port on a row.
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/app/rail.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -178,13 +179,13 @@ void main() {
     const public = 'https://node.epiccash.com:3413';
     test('starting, stopped and failed name the node in use; the local address does not', () {
       for (final phase in [LocalNodePhase.starting, LocalNodePhase.stopped, LocalNodePhase.error]) {
-        final v = localNodeView(mockLocalNode(phase, failure: phase == LocalNodePhase.error ? NodeFailure.exited : null), fallbackUrl: public);
+        final v = localNodeView(englishStrings, mockLocalNode(phase, failure: phase == LocalNodePhase.error ? NodeFailure.exited : null), fallbackUrl: public);
         expect(v.host, 'epiccash.com', reason: phase.name);
         expect(v.marker, isNotNull, reason: phase.name);
         expect(v.lines.last, anyOf('Using node.epiccash.com until it is synced.', 'Using node.epiccash.com meanwhile.'), reason: phase.name);
-        expect(localNodeView(mockLocalNode(phase), fallbackUrl: 'http://127.0.0.1:3413').host, 'Local node', reason: phase.name);
+        expect(localNodeView(englishStrings, mockLocalNode(phase), fallbackUrl: 'http://127.0.0.1:3413').host, 'Local node', reason: phase.name);
       }
-      expect(localNodeView(mockLocalNode(LocalNodePhase.synced), fallbackUrl: 'http://127.0.0.1:3413').lines.length, 2);
+      expect(localNodeView(englishStrings, mockLocalNode(LocalNodePhase.synced), fallbackUrl: 'http://127.0.0.1:3413').lines.length, 2);
     });
 
     testWidgets('the rail reads the wallet’s actual node URL from the status', (tester) async {
@@ -205,14 +206,14 @@ void main() {
     const url = 'https://node.epiccash.com:3413';
     final since = DateTime(2026, 10, 22, 14, 2);
     final fixtures = <String, (NodeView, String, EState, String?)>{
-      'remote at tip, version current': (remoteNodeView(url, mockNodeInfo(url, latencyMs: 722)), 'Synced', EState.ok, null),
-      'remote older version': (remoteNodeView(url, mockNodeInfo(url, version: '4.1.0')), 'Synced', EState.warn, null),
-      'remote behind': (remoteNodeView(url, mockNodeInfo(url, behind: 12)), 'Behind', EState.warn, '12 behind'),
-      'remote no answer': (remoteNodeView(url, mockNodeInfo(url, state: NodeHealthState.down), downSince: since), 'Not answering', EState.risk, 'no answer'),
-      'nothing known': (remoteNodeView(url, null), 'Checking', EState.off, null),
-      'local starting': (localNodeView(mockLocalNode(LocalNodePhase.starting)), 'Starting', EState.warn, 'starting'),
+      'remote at tip, version current': (remoteNodeView(englishStrings, url, mockNodeInfo(url, latencyMs: 722)), 'Synced', EState.ok, null),
+      'remote older version': (remoteNodeView(englishStrings, url, mockNodeInfo(url, version: '4.1.0')), 'Synced', EState.warn, null),
+      'remote behind': (remoteNodeView(englishStrings, url, mockNodeInfo(url, behind: 12)), 'Behind', EState.warn, '12 behind'),
+      'remote no answer': (remoteNodeView(englishStrings, url, mockNodeInfo(url, state: NodeHealthState.down), downSince: since), 'Not answering', EState.risk, 'no answer'),
+      'nothing known': (remoteNodeView(englishStrings, url, null), 'Checking', EState.off, null),
+      'local starting': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.starting)), 'Starting', EState.warn, 'starting'),
       'local syncing, fallback': (
-        localNodeView(
+        localNodeView(englishStrings, 
           mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975, eta: const Duration(hours: 3)),
           fallbackUrl: defaultFallbackNodeUrl,
         ),
@@ -220,11 +221,11 @@ void main() {
         EState.warn,
         '12 %',
       ),
-      'local syncing, no fallback': (localNodeView(mockLocalNode(LocalNodePhase.syncing, overall: 0.12)), 'Syncing', EState.warn, '12 %'),
-      'local synced': (localNodeView(mockLocalNode(LocalNodePhase.synced)), 'Synced', EState.ok, null),
-      'local stalled': (localNodeView(mockLocalNode(LocalNodePhase.error, stalled: true)), 'Stalled', EState.risk, 'stalled'),
-      'local failed': (localNodeView(mockLocalNode(LocalNodePhase.error, failure: NodeFailure.portInUse)), 'Failed', EState.risk, 'failed'),
-      'local stopped': (localNodeView(mockLocalNode(LocalNodePhase.stopped)), 'Stopped', EState.off, 'stopped'),
+      'local syncing, no fallback': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.syncing, overall: 0.12)), 'Syncing', EState.warn, '12 %'),
+      'local synced': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.synced)), 'Synced', EState.ok, null),
+      'local stalled': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.error, stalled: true)), 'Stalled', EState.risk, 'stalled'),
+      'local failed': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.portInUse)), 'Failed', EState.risk, 'failed'),
+      'local stopped': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.stopped)), 'Stopped', EState.off, 'stopped'),
     };
 
     test('words, states and markers', () {
@@ -281,7 +282,7 @@ void main() {
       tester.view.physicalSize = const Size(1280, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      final v = remoteNodeView('https://a-very-long-node-host-name.example-network.org', mockNodeInfo('x', behind: 1234));
+      final v = remoteNodeView(englishStrings, 'https://a-very-long-node-host-name.example-network.org', mockNodeInfo('x', behind: 1234));
       await tester.pumpWidget(
         MaterialApp(
           theme: buildDeskTheme(Brightness.dark),

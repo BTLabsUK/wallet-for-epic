@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/api.dart';
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 
@@ -531,7 +532,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                 children: [
                   Icon(_groupIcons[g], size: Ctl.iconSm, color: c.dim),
                   SizedBox(width: Sp.x2),
-                  Text(g.title, style: ts.label),
+                  Text(g.label(context.l10n), style: ts.label),
                 ],
               ),
             ),
@@ -644,7 +645,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
               child: Row(
                 children: [
                   SizedBox(width: 20.u, child: Icon(p.ok ? EIcons.check : EIcons.alert, size: Ctl.iconSm, color: p.ok ? c.ok : c.warn)),
-                  Flexible(child: Text(p.text, style: ts.small)),
+                  Flexible(child: Text(p.line(context.l10n), style: ts.small)),
                 ],
               ),
             ),
