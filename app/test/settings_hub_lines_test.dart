@@ -68,7 +68,7 @@ Future<void> _pump(WidgetTester tester, {bool backedUp = true}) async {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) =>
-            AdvancedOptions(enabled: false, child: child!),
+            AdvancedOptions(prefs: AdvancedPrefs.none, child: child!),
         home: const SettingsScreen(),
       ),
     ),

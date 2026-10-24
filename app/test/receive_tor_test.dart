@@ -89,7 +89,7 @@ class _Harness {
           builder: (context, child) => MediaQuery.withClampedTextScaling(
             minScaleFactor: textScale,
             maxScaleFactor: textScale,
-            child: AdvancedOptions(enabled: false, child: child!),
+            child: AdvancedOptions(prefs: AdvancedPrefs.none, child: child!),
           ),
           home: const SlotScaffold(body: ReceiveView()),
         ),

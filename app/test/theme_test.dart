@@ -113,8 +113,7 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             theme: buildWalletTheme(t, b),
-            home: AdvancedOptions(
-              enabled: true,
+            home: AdvancedOptions(prefs: AdvancedPrefs.all,
               child: Scaffold(
                 body: ListView(
                   children: const [
@@ -131,7 +130,7 @@ void main() {
                         TimelineStep('Sent to the network', TimelineState.todo),
                       ],
                     ),
-                    Advanced(child: Text('technical')),
+                    Advanced(feature: AdvancedFeature.technicalDetails, child: Text('technical')),
                   ],
                 ),
               ),
@@ -156,9 +155,8 @@ void main() {
     tester,
   ) async {
     Widget app(bool on) => MaterialApp(
-      home: AdvancedOptions(
-        enabled: on,
-        child: const Scaffold(body: Advanced(child: Text('technical'))),
+      home: AdvancedOptions(prefs: on ? AdvancedPrefs.all : AdvancedPrefs.none,
+        child: const Scaffold(body: Advanced(feature: AdvancedFeature.technicalDetails, child: Text('technical'))),
       ),
     );
     await tester.pumpWidget(app(false));
@@ -167,7 +165,7 @@ void main() {
     expect(find.text('technical'), findsOneWidget);
     // Outside any AdvancedOptions it counts as off.
     await tester.pumpWidget(
-      const MaterialApp(home: Advanced(child: Text('technical'))),
+      const MaterialApp(home: Advanced(feature: AdvancedFeature.technicalDetails, child: Text('technical'))),
     );
     expect(find.text('technical'), findsNothing);
   });

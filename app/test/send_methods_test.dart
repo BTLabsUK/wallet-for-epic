@@ -189,7 +189,7 @@ class _Harness {
           builder: (context, child) => MediaQuery(
             // Spinners never settle; a still icon stands in for them.
             data: MediaQuery.of(context).copyWith(disableAnimations: true),
-            child: AdvancedOptions(enabled: false, child: child!),
+            child: AdvancedOptions(prefs: AdvancedPrefs.none, child: child!),
           ),
           home: SlotScaffold(
             appBar: AppBar(),

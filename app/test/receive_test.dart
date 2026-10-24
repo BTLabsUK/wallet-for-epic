@@ -104,7 +104,7 @@ class _Harness {
           builder: (context, child) => MediaQuery.withClampedTextScaling(
             minScaleFactor: textScale,
             maxScaleFactor: textScale,
-            child: AdvancedOptions(enabled: advanced, child: child!),
+            child: AdvancedOptions(prefs: advanced ? AdvancedPrefs.all : AdvancedPrefs.none, child: child!),
           ),
           home: screen,
         ),
