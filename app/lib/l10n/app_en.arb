@@ -17460,5 +17460,9 @@
   "deskKeyringUnlockNow": "Unlock now",
   "@deskKeyringUnlockNow": {
     "description": "Desktop, Linux, locked keyring: go on, and the system asks for the keyring's password."
+  },
+  "deskTxThisWallet": "This wallet",
+  "@deskTxThisWallet": {
+    "description": "Activity and payment detail: who the other side is for a split or consolidation, where both sides are this wallet. Short, it sits in the name column."
   }
 }

@@ -110,5 +110,6 @@
   "deskTxProofCopyRecipient": "Empfängeradresse kopieren",
   "deskTxProofCopySignature": "Signatur des Empfängers kopieren",
   "deskTxProofExport": "Exportieren",
-  "deskTxProofSaved": "Nachweis gespeichert"
+  "deskTxProofSaved": "Nachweis gespeichert",
+  "deskTxThisWallet": "Diese Wallet"
 }

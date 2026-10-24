@@ -110,5 +110,6 @@
   "deskTxProofCopyRecipient": "คัดลอกที่อยู่ผู้รับ",
   "deskTxProofCopySignature": "คัดลอกลายเซ็นผู้รับ",
   "deskTxProofExport": "ส่งออก",
-  "deskTxProofSaved": "บันทึกหลักฐานแล้ว"
+  "deskTxProofSaved": "บันทึกหลักฐานแล้ว",
+  "deskTxThisWallet": "กระเป๋าเงินนี้"
 }

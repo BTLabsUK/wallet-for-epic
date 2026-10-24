@@ -3997,7 +3997,8 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     confirmationsNeeded: minConf,
     counterparty: to,
     // A split or consolidate: both sides are this wallet (F13).
-    contactName: e.transport == 'self' ? 'This wallet' : contactName, // l10n-ok: stored in the history row; contact column of the tx list
+    contactName: e.transport == 'self' ? null : contactName,
+    toSelf: e.transport == 'self',
     message: core.messageBy(e.messages, core.SlateRole.sender) ?? core.messageBy(e.messages, core.SlateRole.receiver),
     height: height,
     kernel: e.kernelExcess,

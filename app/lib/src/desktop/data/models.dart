@@ -258,6 +258,7 @@ class Tx {
     this.confirmedAt,
     this.detail,
     this.flow = TxFlow.payment,
+    this.toSelf = false,
   });
 
   final int id;
@@ -276,6 +277,9 @@ class Tx {
   /// Address, URL or file name of the other side.
   final String? counterparty;
   final String? contactName;
+
+  /// A split or consolidation: both sides are this wallet (F13).
+  final bool toSelf;
   final String? message;
   final int? height;
   final String? kernel;

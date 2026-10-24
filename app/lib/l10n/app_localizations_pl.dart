@@ -13709,4 +13709,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'Odblokuj teraz';
+
+  @override
+  String get deskTxThisWallet => 'Ten portfel';
 }

@@ -13304,4 +13304,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'Unlock now';
+
+  @override
+  String get deskTxThisWallet => 'This wallet';
 }

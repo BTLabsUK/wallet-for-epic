@@ -13677,4 +13677,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'Разблокировать сейчас';
+
+  @override
+  String get deskTxThisWallet => 'Этот кошелёк';
 }

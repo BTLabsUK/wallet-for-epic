@@ -110,5 +110,6 @@
   "deskTxProofCopyRecipient": "Kopiuj adres odbiorcy",
   "deskTxProofCopySignature": "Kopiuj podpis odbiorcy",
   "deskTxProofExport": "Eksportuj",
-  "deskTxProofSaved": "Zapisano dowód"
+  "deskTxProofSaved": "Zapisano dowód",
+  "deskTxThisWallet": "Ten portfel"
 }

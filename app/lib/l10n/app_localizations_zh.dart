@@ -12597,4 +12597,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => '立即解锁';
+
+  @override
+  String get deskTxThisWallet => '此钱包';
 }

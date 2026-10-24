@@ -13052,4 +13052,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'ปลดล็อกตอนนี้';
+
+  @override
+  String get deskTxThisWallet => 'กระเป๋าเงินนี้';
 }

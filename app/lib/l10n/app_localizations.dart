@@ -21073,6 +21073,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock now'**
   String get deskKeyringUnlockNow;
+
+  /// Activity and payment detail: who the other side is for a split or consolidation, where both sides are this wallet. Short, it sits in the name column.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet'**
+  String get deskTxThisWallet;
 }
 
 class _AppLocalizationsDelegate
