@@ -21,6 +21,7 @@ import '../providers.dart';
 import '../scan/incoming_link.dart' show linkBusyProvider;
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
+import '../scan/scan_text.dart' show directHostOf;
 import '../send_preflight.dart';
 import '../settings.dart';
 import '../smart_outputs.dart' show planSessionSend;
@@ -396,6 +397,9 @@ class _SendViewState extends ConsumerState<SendView> {
   /// A recipient handed over while the tracker or a file screen shows, for the next form.
   String? _laterRecipient;
 
+  /// Where [_laterRecipient] came from (a scan or link), for the next form's review.
+  CodeOrigin? _laterOrigin;
+
   /// A payment code handed over meanwhile, for the next form.
   ({PaymentRequest request, CodeOrigin origin})? _laterRequest;
 
@@ -758,16 +762,16 @@ class _SendViewState extends ConsumerState<SendView> {
         (ref.read(phonePaymentsProvider)
             ? PaymentPrefs.phoneDefaults
             : PaymentPrefs.defaults);
-    return request.recipientFor(directAllowed: payments.direct);
+    return request.recipientFor(
+      directAllowed: payments.direct,
+      epicboxAllowed: payments.epicbox,
+    );
   }
 
   /// Fills the form from a payment code: the address, the amount and the note. Nothing is
   /// sent; every field stays editable and the review and PIN still come first.
   void _applyRequest(PaymentRequest request, CodeOrigin origin) {
-    if (_stage == SendStage.sent ||
-        _stage == SendStage.fileMade ||
-        _stage == SendStage.fileSent ||
-        _sendFailed) {
+    if (_holdsPayment) {
       _laterRequest = (request: request, origin: origin);
       _laterRecipient = null;
       return;
@@ -779,14 +783,31 @@ class _SendViewState extends ConsumerState<SendView> {
     _setRecipient(_requestRecipient(request).address);
     setState(() => _fillFromRequest(request, origin));
     if (_amount.text.isNotEmpty) _onAmountChanged(_amount.text);
-    // The router checked the address; the amount is the one thing left to check.
-    if (_recipientError == null && _block == NetBlock.none) {
-      _toAmount(focus: false);
-    }
+    // The router checked the address; the amount is the one thing left to check. After the
+    // next build, which works out what the network mode allows for the method the code set.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _request != request) return;
+      if (_stage == SendStage.recipient &&
+          _recipientError == null &&
+          _block == NetBlock.none) {
+        _toAmount(focus: false);
+      }
+    });
   }
+
+  /// A payment is under way or held here: a send runs, waits for its tracker or a file, or
+  /// a refused send keeps its payment. A new recipient waits for the next form.
+  bool get _holdsPayment =>
+      _busy ||
+      _stage == SendStage.sent ||
+      _stage == SendStage.fileMade ||
+      _stage == SendStage.fileSent ||
+      _sendFailed;
 
   /// The amount and note fields from [request]. Call inside setState or initState.
   void _fillFromRequest(PaymentRequest request, CodeOrigin? origin) {
+    final previousNote = _request?.note;
+    if (previousNote != null && _note.text == previousNote) _note.clear();
     _request = request;
     _origin = origin;
     _requestAddress = parseRecipient(_requestRecipient(request).address).address;
@@ -819,13 +840,12 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// Fills the recipient and checks it at once, as after a paste.
   void _setRecipient(String text, {CodeOrigin? origin}) {
-    if (_stage == SendStage.sent ||
-        _stage == SendStage.fileMade ||
-        _stage == SendStage.fileSent ||
-        _sendFailed) {
+    if (_holdsPayment) {
       // Not over a payment in progress, or one a refused send holds: the next form takes
       // it, so Send again cannot make a second payment meanwhile.
       _laterRecipient = text;
+      _laterOrigin = origin;
+      _laterRequest = null;
       return;
     }
     _recipient.text = parseRecipient(text).address;
@@ -1211,6 +1231,8 @@ class _SendViewState extends ConsumerState<SendView> {
   /// Sends the reviewed payment. A payment link that comes meanwhile is dropped, so it cannot
   /// change what the user is confirming.
   Future<void> _send() async {
+    // A second tap while the first one's dialogs show: that send holds the flag.
+    if (_asking) return;
     final busy = ref.read(linkBusyProvider.notifier);
     busy.set(true);
     try {
@@ -1864,6 +1886,7 @@ class _SendViewState extends ConsumerState<SendView> {
   void _done() {
     ref.read(trackedSendProvider.notifier).track(null);
     final later = _laterRecipient;
+    final laterOrigin = _laterOrigin;
     final laterRequest = _laterRequest;
     // The shell clears the handoff for a fresh form; one that came meanwhile goes to it.
     final handoff = ref.read(sendRecipientProvider.notifier);
@@ -1874,7 +1897,8 @@ class _SendViewState extends ConsumerState<SendView> {
       handoff.handRequest(laterRequest.request, laterRequest.origin);
     } else if (later != null) {
       _laterRecipient = null;
-      handoff.hand(later);
+      _laterOrigin = null;
+      handoff.hand(later, origin: laterOrigin);
     }
   }
 
@@ -1941,7 +1965,7 @@ class _SendViewState extends ConsumerState<SendView> {
       if (request != null) {
         _applyRequest(request, handoff.origin ?? CodeOrigin.qr);
       } else {
-        _setRecipient(handoff.text);
+        _setRecipient(handoff.text, origin: handoff.origin);
       }
     });
 
@@ -2688,7 +2712,7 @@ class _SendViewState extends ConsumerState<SendView> {
         address: to.address,
         name: _contactName(to.address),
         host: _activeOrigin != null && to.kind != RecipientKind.epicbox
-            ? directHost(to)
+            ? directHostOf(to.address)
             : null,
       ),
       ..._payeeClaims(gapBefore: 12),
@@ -3364,14 +3388,6 @@ class RecipientCard extends StatelessWidget {
       ),
     );
   }
-}
-
-/// The host of a Direct recipient, with its port: `1.2.3.4:3415`, `<56 characters>.onion`.
-String directHost(Recipient to) {
-  if (to.kind == RecipientKind.tor) return to.address;
-  final uri = Uri.tryParse(to.address);
-  if (uri == null || uri.host.isEmpty) return to.address;
-  return uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
 }
 
 /// The address is an onion address, `<56 characters>.onion`, as [parseRecipient] gives it.

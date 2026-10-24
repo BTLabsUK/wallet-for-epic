@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../l10n.dart';
 import '../scan/scan_checks.dart' show CodeOrigin;
 import '../scan/scan_router.dart' show RequestProblem;
+import '../scan/scan_text.dart';
 import 'badge.dart';
 import 'info_hint.dart';
 import 'theme/tokens.dart';
@@ -26,24 +27,6 @@ IconData originIcon(CodeOrigin origin) => switch (origin) {
   CodeOrigin.link => Icons.link,
   CodeOrigin.paste => Icons.content_paste,
 };
-
-/// "From a QR code", "From a link", "Pasted".
-String originText(AppLocalizations l, CodeOrigin origin) => switch (origin) {
-  CodeOrigin.qr => l.sendOriginQr,
-  CodeOrigin.link => l.sendOriginLink,
-  CodeOrigin.paste => l.sendOriginPasted,
-};
-
-/// The banner's line for each part of the code that was dropped, amount first.
-List<String> requestProblemLines(
-  AppLocalizations l,
-  Set<RequestProblem> problems,
-) => [
-  if (problems.contains(RequestProblem.amountInvalid)) l.sendCodeAmountInvalid,
-  if (problems.contains(RequestProblem.amountTooLarge))
-    l.sendCodeAmountTooLarge,
-  if (problems.contains(RequestProblem.tooLong)) l.sendCodeTooLong,
-];
 
 /// "Payment request" over the amount step: check the amount, or what was dropped from the
 /// code. × folds it away; a new code opens it again.

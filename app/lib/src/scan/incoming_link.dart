@@ -108,14 +108,15 @@ class IncomingLinkNotifier extends Notifier<IncomingLink?> {
     if (raw.length > maxLinkChars) return;
     final text = raw.trim();
     if (text.isEmpty) return;
+    final now = ref.read(linkClockProvider)();
+    _handled.removeWhere((h) => now.difference(h.at) >= const Duration(seconds: 30));
+    // Rate-limited first, so a flood while busy says "finish the payment" once, not per link.
+    if (linkRateLimited(text: text, now: now, handled: _handled)) return;
+    _handled.add((text: text, at: now));
     if (ref.read(linkBusyProvider)) {
       ref.read(linkDroppedBusyProvider.notifier).bump();
       return;
     }
-    final now = ref.read(linkClockProvider)();
-    _handled.removeWhere((h) => now.difference(h.at) >= const Duration(seconds: 30));
-    if (linkRateLimited(text: text, now: now, handled: _handled)) return;
-    _handled.add((text: text, at: now));
     state = IncomingLink(text: text, at: now);
   }
 

@@ -148,13 +148,16 @@ final class PaymentRequest extends ScannedCode {
 
   final Set<RequestProblem> problems;
 
-  /// The address Send should use: the code's own, or its Direct one when the code asks for
-  /// Direct and [directAllowed] (the method is on and allowed).
-  Recipient recipientFor({required bool directAllowed}) {
+  /// The address Send should use: the code's own, or its Direct one when Link Payment is
+  /// on ([directAllowed]) and the code asks for Direct, or Epicbox is off ([epicboxAllowed]).
+  Recipient recipientFor({
+    required bool directAllowed,
+    bool epicboxAllowed = true,
+  }) {
     final second = direct;
     if (second != null &&
-        method == MethodHint.direct &&
         directAllowed &&
+        (method == MethodHint.direct || !epicboxAllowed) &&
         recipient.kind == RecipientKind.epicbox) {
       return second;
     }

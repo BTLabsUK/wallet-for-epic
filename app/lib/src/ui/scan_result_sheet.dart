@@ -7,23 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import '../scan/scan_router.dart' show untrustedTextForbidden;
+import '../scan/scan_text.dart';
 import 'notices.dart';
 import 'theme/tokens.dart';
 
 const Key scanResultSheetKey = Key('scan-result-sheet');
 const Key scanResultCopyKey = Key('scan-result-copy');
 const Key scanResultPrimaryKey = Key('scan-result-primary');
-
-/// Code points of the scanned text the preview shows.
-const int scanPreviewLength = 80;
-
-/// The first [scanPreviewLength] characters of [text], with "…" when it was longer.
-String scanPreview(String text) {
-  final runes = text.runes.toList();
-  return runes.length <= scanPreviewLength
-      ? text
-      : '${String.fromCharCodes(runes.take(scanPreviewLength))}…';
-}
 
 /// Shows the sheet; true when the primary button closed it.
 Future<bool> showScanResultSheet(
@@ -102,7 +93,7 @@ class ScanResultSheet extends StatelessWidget {
     final shown = preview == null
         ? null
         : previewWhole
-        ? preview
+        ? preview.replaceAll(untrustedTextForbidden, '')
         : scanPreview(preview);
     const target = Size(64, 44);
     return SafeArea(

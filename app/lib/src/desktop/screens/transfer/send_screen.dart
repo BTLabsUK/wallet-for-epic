@@ -30,6 +30,7 @@ import 'send_advanced.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
 import '../../../payment_prefs.dart' show PayMethod;
 import '../../../scan/scan_router.dart';
+import '../../../scan/scan_text.dart';
 import 'send_code.dart';
 import 'send_summary_rows.dart';
 
@@ -623,7 +624,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final l = context.l10n;
     final st = ref.read(deskProvider);
     final directOn = (DeskFeatures.httpDirect || DeskFeatures.tor) && st.settings.payments.direct;
-    final to = r.recipientFor(directAllowed: directOn).address;
+    final to = r.recipientFor(directAllowed: directOn, epicboxAllowed: st.settings.payments.epicbox).address;
     final atomic = r.amount;
     final note = r.note;
     final noteFits = note != null && utf8Length(note) <= slateMessageMaxBytes;
@@ -644,6 +645,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   void _fill(String to, SendCode code, VoidCallback fields) {
     final m = methodForKind(parseAddress(to, ref.read(deskApiProvider)).kind);
     setState(() {
+      // A new code replaces the old one: what the old one put in and is still untouched goes,
+      // so its amount and note never ride along to another payee.
+      final old = _code;
+      if (old != null) {
+        if (old.amount != null && _parsed == old.amount) _amount.clear();
+        if (old.noteFilled && _message.text == old.note) _message.clear();
+      }
       _to.text = to;
       _lastTo = to;
       fields();
@@ -1733,12 +1741,6 @@ class _ReviewDialogState extends State<_ReviewDialog> {
   }
 
   /// A Direct address's host and port (`1.2.3.4:3415`, `<56 characters>.onion`).
-  static String _directHost(String to) {
-    final uri = Uri.tryParse(to.contains('://') ? to : 'http://$to');
-    if (uri == null || uri.host.isEmpty) return to;
-    return uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
-  }
-
   // The same marking as EAddress: the key's first and last six characters, the server dim.
   Widget _address(BuildContext context, String to) {
     final c = context.dc;
@@ -1779,7 +1781,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     // The payee's words under the facts; the name not when the contact has it (ui.md U-4).
     final codeLabel = EPayeeClaims.labelBeside(code?.label, d.contactName);
     // A Direct payment from a code: the host on its own line, where a look-alike shows (§7.3).
-    final directHost = code != null && d.to != null && (d.method == TxMethod.http || d.method == TxMethod.tor) ? _directHost(d.to!) : null;
+    final directHost = code != null && d.to != null && (d.method == TxMethod.http || d.method == TxMethod.tor) ? directHostOf(d.to!) : null;
     final sum = d.summary;
     final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
     return EDialog(
@@ -1791,7 +1793,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (code != null) ...[
-            Row(children: [EBadge(codeOriginText(l, code.origin), key: const ValueKey('send-review-origin'), icon: codeOriginIcon(code.origin))]),
+            Row(children: [EBadge(originText(l, code.origin), key: const ValueKey('send-review-origin'), icon: codeOriginIcon(code.origin))]),
             SizedBox(height: Sp.x3),
           ],
           Row(

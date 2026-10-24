@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 
 import '../../../scan/scan_checks.dart' show CodeOrigin;
 import '../../../scan/scan_router.dart';
+import '../../../scan/scan_text.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
@@ -58,12 +59,6 @@ class SendCode {
 }
 
 /// The review's origin tag.
-String codeOriginText(AppLocalizations l, CodeOrigin o) => switch (o) {
-  CodeOrigin.qr => l.sendOriginQr,
-  CodeOrigin.link => l.sendOriginLink,
-  CodeOrigin.paste => l.sendOriginPasted,
-};
-
 IconData codeOriginIcon(CodeOrigin o) => switch (o) {
   CodeOrigin.qr => EIcons.qr,
   CodeOrigin.link => EIcons.link,
@@ -71,14 +66,6 @@ IconData codeOriginIcon(CodeOrigin o) => switch (o) {
 };
 
 /// The parts of a code that were dropped, one line each, the amount first (ui.md U-2).
-List<String> codeProblemLines(AppLocalizations l, Set<RequestProblem> problems) => [
-  if (problems.contains(RequestProblem.amountTooLarge))
-    l.sendCodeAmountTooLarge
-  else if (problems.contains(RequestProblem.amountInvalid))
-    l.sendCodeAmountInvalid,
-  if (problems.contains(RequestProblem.tooLong)) l.sendCodeTooLong,
-];
-
 /// The banner under To while a payment request fills the form: "check the amount", or what was
 /// dropped from the code, in the warning colour (ui.md §2).
 class CodeBanner extends StatelessWidget {
@@ -90,7 +77,7 @@ class CodeBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final problems = codeProblemLines(l, code.problems);
+    final problems = requestProblemLines(l, code.problems);
     return Semantics(
       container: true,
       liveRegion: true,
@@ -191,7 +178,7 @@ void showSlateTextDialog(BuildContext context, {required VoidCallback onOpen}) =
 /// A link Send cannot take (ui.md §6): what it is, the start of the text, Copy (the whole text)
 /// and OK. Pairing comes here too until the desktop pairs: the one place to swap for that flow.
 void showCodeDialog(BuildContext context, {required IconData icon, required String title, required String text, required String code}) {
-  final shown = code.runes.length > 80 ? '${String.fromCharCodes(code.runes.take(80))}…' : code;
+  final shown = scanPreview(code);
   unawaited(
     showEDialog<void>(
       context,

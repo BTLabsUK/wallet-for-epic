@@ -80,7 +80,3 @@ AddressCheck deskScanCheck(DeskWalletApi api) => (to) => switch (to.kind) {
 
 /// What a pasted or linked [text] is, checked against [api].
 ScannedCode deskClassify(DeskWalletApi api, String text) => classifyScan(text, check: deskScanCheck(api));
-
-/// Whether [text] starts with the `epic:` or `epiccash:` scheme, in any case: a code that never
-/// lands in a field as it is.
-bool hasEpicScheme(String text) => RegExp(r'^\s*(epic|epiccash):', caseSensitive: false).hasMatch(text);

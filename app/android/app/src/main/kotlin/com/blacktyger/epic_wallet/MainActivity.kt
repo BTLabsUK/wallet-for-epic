@@ -29,6 +29,14 @@ class MainActivity : FlutterFragmentActivity() {
     /** An epic: / epiccash: payment link another app opened, before Dart asked for it. */
     private var pendingLink: String? = null
 
+    /** The activity was recreated from saved state: its intent was handled before. */
+    private var restored = false
+
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        restored = savedInstanceState != null
+        super.onCreate(savedInstanceState)
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         createNotificationChannel()
@@ -84,7 +92,14 @@ class MainActivity : FlutterFragmentActivity() {
                 }
             }
         }
-        readLink(intent)?.let { pendingLink = it }
+        // Once only: a launch from Recents or a restored activity carries the old intent again,
+        // and a link the user already followed (and maybe paid) must not open a second time.
+        if (!restored && intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY == 0) {
+            readLink(intent)?.let {
+                pendingLink = it
+                intent = Intent(intent).setData(null)
+            }
+        }
         // The google-services Gradle plugin writes google_app_id only when google-services.json
         // was present at build time. Dart hides the notifications switch without it.
         MethodChannel(messenger, "epic_wallet/push")
