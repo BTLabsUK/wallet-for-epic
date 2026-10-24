@@ -62,17 +62,20 @@ double shortAddressWidth(BuildContext context, String address, TextStyle style) 
 /// The kind badge of an address row: Epicbox, Link Payment · HTTP or Link Payment · Tor, each
 /// with its glyph.
 class EKindTag extends StatelessWidget {
-  const EKindTag(this.kind, {super.key});
+  const EKindTag(this.kind, {super.key, this.compact = false});
 
   final AddressKind kind;
+
+  /// The glyph alone, its name in the tooltip: list rows.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     return switch (kind) {
-      AddressKind.epicbox => EBadge.kind(RecipientKind.epicbox, l: l),
-      AddressKind.http => EBadge.kind(RecipientKind.http, l: l),
-      AddressKind.tor => EBadge.kind(RecipientKind.tor, l: l),
+      AddressKind.epicbox => EBadge.kind(RecipientKind.epicbox, l: l, compact: compact),
+      AddressKind.http => EBadge.kind(RecipientKind.http, l: l, compact: compact),
+      AddressKind.tor => EBadge.kind(RecipientKind.tor, l: l, compact: compact),
       AddressKind.none => EBadge(l.deskKitUnknown),
     };
   }
@@ -107,7 +110,7 @@ class EAddressLines extends StatelessWidget {
             Flexible(child: Text(name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ?nameTrailing,
             SizedBox(width: Sp.x2),
-            Flexible(child: EKindTag(addressKindOf(address))),
+            EKindTag(addressKindOf(address), compact: true),
           ],
         ),
         const SizedBox(height: 2),

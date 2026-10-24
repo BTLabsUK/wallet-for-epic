@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contact_sheet.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
+import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:epic_wallet/src/ui/theme/brand.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -172,8 +173,11 @@ void main() {
       expect(find.byTooltip(_l.contactsAdd), findsOneWidget);
       expect(find.text('BB'), findsOneWidget);
       expect(find.text('AL'), findsOneWidget);
-      expect(find.text('Epicbox'), findsNWidgets(2));
-      expect(find.text('Link Payment · Tor'), findsOneWidget);
+      // List rows show the method glyph alone; its name is the tooltip and the semantics.
+      expect(find.byIcon(EpicGlyphs.epicbox), findsNWidgets(2));
+      expect(find.byIcon(EpicGlyphs.tor), findsOneWidget);
+      expect(find.byTooltip('Link Payment · Tor'), findsOneWidget);
+      expect(find.text('Epicbox'), findsNothing);
       expect(
         find.textContaining(
           shortAddress(_bob).split('@').first,

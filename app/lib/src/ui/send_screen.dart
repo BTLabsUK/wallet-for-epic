@@ -18,6 +18,10 @@ import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
+import '../scan/incoming_link.dart' show linkBusyProvider;
+import '../scan/scan_checks.dart';
+import '../scan/scan_router.dart';
+import '../scan/scan_text.dart' show directHostOf;
 import '../send_preflight.dart';
 import '../settings.dart';
 import '../smart_outputs.dart' show planSessionSend;
@@ -40,7 +44,9 @@ import 'net_block.dart';
 import 'payment_gate.dart';
 import 'pin.dart' show askPin;
 import 'qr_scan_screen.dart';
+import 'payment_code_ui.dart';
 import 'qr_show_screen.dart';
+import 'scan_route.dart';
 import 'scan_screen.dart';
 import 'shell_header.dart' show comingIn;
 import 'send_tracker.dart';
@@ -391,6 +397,64 @@ class _SendViewState extends ConsumerState<SendView> {
   /// A recipient handed over while the tracker or a file screen shows, for the next form.
   String? _laterRecipient;
 
+  /// Where [_laterRecipient] came from (a scan or link), for the next form's review.
+  CodeOrigin? _laterOrigin;
+
+  /// A payment code handed over meanwhile, for the next form.
+  ({PaymentRequest request, CodeOrigin origin})? _laterRequest;
+
+  /// The payment code that filled this form, and where it came from. Its note and name are
+  /// the payee's claims; they show only while the To field still holds the code's address.
+  PaymentRequest? _request;
+  CodeOrigin? _origin;
+
+  /// The code's banner is open; × closes it for this code.
+  bool _requestBanner = false;
+
+  /// [_request] while the To field still holds its address, else null.
+  PaymentRequest? get _activeRequest {
+    final request = _request;
+    if (request == null) return null;
+    return parseRecipient(_recipient.text).address == _requestAddress
+        ? request
+        : null;
+  }
+
+  /// The address the code filled in (the code's own, or its Direct one), or a scanned, pasted
+  /// or linked address alone; [_origin] says where from while the To field still holds it.
+  String? _requestAddress;
+
+  /// Where the address in the To field came from, while it is still that address.
+  CodeOrigin? get _activeOrigin =>
+      _requestAddress != null &&
+          parseRecipient(_recipient.text).address == _requestAddress
+      ? _origin
+      : null;
+
+  /// The To field moved off the code's address: the code's amount and note go too, unless
+  /// the user changed them, and so do its banner and payee block.
+  void _leaveRequest() {
+    final address = _requestAddress;
+    if (address == null ||
+        parseRecipient(_recipient.text).address == address) {
+      return;
+    }
+    final request = _request;
+    if (request != null) {
+      final amount = request.amount;
+      if (amount != null && _parsedAmount == amount && !_fiatEntry) {
+        _amount.clear();
+        _parsedAmount = null;
+        _estimate = null;
+      }
+      if (request.note != null && _note.text == request.note) _note.clear();
+    }
+    _request = null;
+    _origin = null;
+    _requestAddress = null;
+    _requestBanner = false;
+  }
+
   Slate? _slate;
   _Sent? _sent;
 
@@ -409,10 +473,25 @@ class _SendViewState extends ConsumerState<SendView> {
     final handoff = ref.read(sendRecipientProvider);
     if (handoff != null) {
       _handoff = handoff.id;
-      final to = parseRecipient(handoff.text);
+      final request = handoff.request;
+      final to = parseRecipient(
+        request == null
+            ? handoff.text
+            : _requestRecipient(request).address,
+      );
       _recipient.text = to.address;
       _lastTo = to.address;
       if (recipientShaped(to)) _method = methodForRecipient(to.kind);
+      if (request != null) {
+        // The amount is written in the user's number format, which needs the locale.
+        final origin = handoff.origin ?? CodeOrigin.qr;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _applyRequest(request, origin);
+        });
+      } else {
+        _origin = handoff.origin;
+        _requestAddress = handoff.origin == null ? null : to.address;
+      }
     }
     // Settings › Transactions: the method Send starts on. A recipient handed over wins; the
     // settings load on their own, so a form still untouched takes them when they arrive.
@@ -519,7 +598,60 @@ class _SendViewState extends ConsumerState<SendView> {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     final text = data?.text?.trim();
     if (text == null || text.isEmpty || !mounted) return;
+    _openText(text, CodeOrigin.paste);
+  }
+
+  /// A scanned or pasted text: a payment code fills the form, an address the To field, and
+  /// anything the router knows elsewhere goes there. Plain text that is none of these (a name,
+  /// half an address) lands in the To field as before, where its own check speaks.
+  /// [typedOver] is the To text before the code was typed or pasted into the field: a code
+  /// that opens a sheet puts it back, so the field never keeps the code behind the sheet.
+  void _openText(String text, CodeOrigin origin, {String? typedOver}) {
+    final l = context.l10n;
+    final code = classifyFor(ref.read(walletServiceProvider), text);
+    switch (code) {
+      case PaymentRequest() when requestCarriesMore(code):
+        _applyRequest(code, origin);
+      case PaymentRequest(:final recipient) || ScannedAddress(:final recipient):
+        _setRecipient(recipient.address, origin: origin);
+      case UnknownCode(reason: UnknownReason.notEpic)
+          when origin == CodeOrigin.paste && !looksLikeCode(text):
+        _setRecipient(text);
+      // A pasted code that is no payment: the text stays in the field, to be read and edited.
+      case WrongNetwork() when origin == CodeOrigin.paste:
+        _pastedWithError(text, l.scanWrongNetworkBody);
+      case UnknownCode(:final reason)
+          when origin == CodeOrigin.paste:
+        _pastedWithError(
+          text,
+          reason == UnknownReason.badAddress
+              ? l.scanBadAddress
+              : l.scanNotEpicBody,
+        );
+      default:
+        if (typedOver != null) {
+          setState(() {
+            _recipient.text = typedOver;
+            _lastTo = typedOver;
+            _recipientError = null;
+          });
+        }
+        unawaited(
+          openScannedCode(
+            context,
+            ref,
+            code,
+            origin: origin,
+            scanAgain: origin == CodeOrigin.qr ? _scan : null,
+          ),
+        );
+    }
+  }
+
+  /// Puts a pasted [text] that cannot be paid in the To field, with [problem] under it.
+  void _pastedWithError(String text, String problem) {
     _setRecipient(text);
+    setState(() => _recipientError = problem);
   }
 
   /// Whether the wallet can pay [to] as it is: the checksum, chain and host hold.
@@ -550,6 +682,25 @@ class _SendViewState extends ConsumerState<SendView> {
   /// no route.
   TorWay _wayOf(TorRoute? route, [TorState? state]) =>
       route == null ? TorWay.clearnet : torWay(route, state ?? _torState);
+
+  /// The code's name and note, unverified, after a [gapBefore] gap; nothing without a code.
+  /// The name is left out when a saved contact for the address has that name already.
+  List<Widget> _payeeClaims({required double gapBefore}) {
+    final request = _activeRequest;
+    if (request == null || (request.label == null && request.note == null)) {
+      return const [];
+    }
+    final contact = _contactName(parseRecipient(_recipient.text).address);
+    final label = request.label;
+    final sameName =
+        label != null &&
+        contact != null &&
+        contact.trim().toLowerCase() == label.trim().toLowerCase();
+    return [
+      SizedBox(height: gapBefore),
+      PayeeClaims(name: sameName ? null : label, note: request.note),
+    ];
+  }
 
   /// The method follows the address (desktop spec 8.4): a whole address of another kind, or
   /// any address that was pasted, scanned or picked ([forced], or one change adding 8 or more
@@ -600,7 +751,82 @@ class _SendViewState extends ConsumerState<SendView> {
 
   Future<void> _scan() async {
     final text = await ref.read(qrScannerProvider).scan(context);
-    if (text != null && mounted) _setRecipient(text);
+    if (text != null && mounted) _openText(text, CodeOrigin.qr);
+  }
+
+  /// The address a payment code fills in: its Direct one when it asks for Direct and Link
+  /// Payment is offered, else its own.
+  Recipient _requestRecipient(PaymentRequest request) {
+    final payments =
+        ref.read(appSettingsProvider).value?.payments ??
+        (ref.read(phonePaymentsProvider)
+            ? PaymentPrefs.phoneDefaults
+            : PaymentPrefs.defaults);
+    return request.recipientFor(
+      directAllowed: payments.direct,
+      epicboxAllowed: payments.epicbox,
+    );
+  }
+
+  /// Fills the form from a payment code: the address, the amount and the note. Nothing is
+  /// sent; every field stays editable and the review and PIN still come first.
+  void _applyRequest(PaymentRequest request, CodeOrigin origin) {
+    if (_holdsPayment) {
+      _laterRequest = (request: request, origin: origin);
+      _laterRecipient = null;
+      return;
+    }
+    if (_stage == SendStage.fileAmount) {
+      _viaQr = false;
+      _stage = SendStage.recipient;
+    }
+    _setRecipient(_requestRecipient(request).address);
+    setState(() => _fillFromRequest(request, origin));
+    if (_amount.text.isNotEmpty) _onAmountChanged(_amount.text);
+    // The router checked the address; the amount is the one thing left to check. After the
+    // next build, which works out what the network mode allows for the method the code set.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _request != request) return;
+      if (_stage == SendStage.recipient &&
+          _recipientError == null &&
+          _block == NetBlock.none) {
+        _toAmount(focus: false);
+      }
+    });
+  }
+
+  /// A payment is under way or held here: a send runs, waits for its tracker or a file, or
+  /// a refused send keeps its payment. A new recipient waits for the next form.
+  bool get _holdsPayment =>
+      _busy ||
+      _stage == SendStage.sent ||
+      _stage == SendStage.fileMade ||
+      _stage == SendStage.fileSent ||
+      _sendFailed;
+
+  /// The amount and note fields from [request]. Call inside setState or initState.
+  void _fillFromRequest(PaymentRequest request, CodeOrigin? origin) {
+    final previousNote = _request?.note;
+    if (previousNote != null && _note.text == previousNote) _note.clear();
+    _request = request;
+    _origin = origin;
+    _requestAddress = parseRecipient(_requestRecipient(request).address).address;
+    _requestBanner = true;
+    _fiatEntry = false;
+    _maxUsed = false;
+    final amount = request.amount;
+    _amount.text = amount == null
+        ? ''
+        : localDecimal(context.l10n, formatEpic(amount));
+    _parsedAmount = amount;
+    _amountError = null;
+    _estimate = null;
+    final note = request.note;
+    // The note travels in the payment, signed, up to its byte limit; a longer one shows only
+    // in the payee block, never cut. Prefilled, its tile stays folded and shows it.
+    if (note != null && utf8Length(note) <= slateMessageMaxBytes) {
+      _note.text = note;
+    }
   }
 
   Future<void> _pickContact() async {
@@ -613,14 +839,13 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   /// Fills the recipient and checks it at once, as after a paste.
-  void _setRecipient(String text) {
-    if (_stage == SendStage.sent ||
-        _stage == SendStage.fileMade ||
-        _stage == SendStage.fileSent ||
-        _sendFailed) {
+  void _setRecipient(String text, {CodeOrigin? origin}) {
+    if (_holdsPayment) {
       // Not over a payment in progress, or one a refused send holds: the next form takes
       // it, so Send again cannot make a second payment meanwhile.
       _laterRecipient = text;
+      _laterOrigin = origin;
+      _laterRequest = null;
       return;
     }
     _recipient.text = parseRecipient(text).address;
@@ -630,6 +855,11 @@ class _SendViewState extends ConsumerState<SendView> {
       _stage = SendStage.recipient;
     }
     setState(() {
+      _leaveRequest();
+      if (origin != null) {
+        _origin = origin;
+        _requestAddress = _recipient.text;
+      }
       _followAddress(_recipient.text, forced: true);
       _recipientError = _recipientProblem(_recipient.text);
       _error = null;
@@ -642,14 +872,16 @@ class _SendViewState extends ConsumerState<SendView> {
     ),
   );
 
-  void _toAmount() {
+  /// On to the amount; [focus] puts the cursor there (not for a code, whose amount is read
+  /// first, with the keyboard down).
+  void _toAmount({bool focus = true}) {
     final problem = _recipientProblem(_recipient.text, required: true);
     setState(() {
       _recipientError = problem;
       _error = null;
       if (problem == null) _stage = SendStage.amount;
     });
-    if (problem == null) _amountFocus.requestFocus();
+    if (problem == null && focus) _amountFocus.requestFocus();
   }
 
   void _toRecipient() {
@@ -996,7 +1228,21 @@ class _SendViewState extends ConsumerState<SendView> {
     return ok == true && mounted;
   }
 
+  /// Sends the reviewed payment. A payment link that comes meanwhile is dropped, so it cannot
+  /// change what the user is confirming.
   Future<void> _send() async {
+    // A second tap while the first one's dialogs show: that send holds the flag.
+    if (_asking) return;
+    final busy = ref.read(linkBusyProvider.notifier);
+    busy.set(true);
+    try {
+      await _sendReviewed();
+    } finally {
+      busy.set(false);
+    }
+  }
+
+  Future<void> _sendReviewed() async {
     final reviewed = _estimate;
     // A second tap can land on the old button after the first send already finished.
     if (reviewed == null || _stage != SendStage.review) return;
@@ -1640,12 +1886,19 @@ class _SendViewState extends ConsumerState<SendView> {
   void _done() {
     ref.read(trackedSendProvider.notifier).track(null);
     final later = _laterRecipient;
+    final laterOrigin = _laterOrigin;
+    final laterRequest = _laterRequest;
     // The shell clears the handoff for a fresh form; one that came meanwhile goes to it.
     final handoff = ref.read(sendRecipientProvider.notifier);
     widget.onDone();
-    if (later != null) {
+    if (laterRequest != null) {
+      _laterRequest = null;
       _laterRecipient = null;
-      handoff.hand(later);
+      handoff.handRequest(laterRequest.request, laterRequest.origin);
+    } else if (later != null) {
+      _laterRecipient = null;
+      _laterOrigin = null;
+      handoff.hand(later, origin: laterOrigin);
     }
   }
 
@@ -1708,7 +1961,12 @@ class _SendViewState extends ConsumerState<SendView> {
     ref.listen(sendRecipientProvider, (_, handoff) {
       if (handoff == null || handoff.id == _handoff) return;
       _handoff = handoff.id;
-      _setRecipient(handoff.text);
+      final request = handoff.request;
+      if (request != null) {
+        _applyRequest(request, handoff.origin ?? CodeOrigin.qr);
+      } else {
+        _setRecipient(handoff.text, origin: handoff.origin);
+      }
     });
 
     // Keeps the listener running while Send shows, as home does, so the review's check sees
@@ -1776,9 +2034,18 @@ class _SendViewState extends ConsumerState<SendView> {
 
   Widget _emptyState(BuildContext context) {
     final demo = ref.watch(demoModeProvider);
+    final request = _activeRequest;
     return CenteredScroll(
       child: CenteredBody(
         children: [
+          // A code or link that came in still shows it did; the form takes it once coins arrive.
+          if (request != null)
+            RequestBanner(
+              open: _requestBanner,
+              origin: _origin ?? CodeOrigin.qr,
+              problems: request.problems,
+              onDismiss: () => setState(() => _requestBanner = false),
+            ),
           PhoneTourTarget(
             id: 'tour-send-empty',
             child: EmptyState(
@@ -1996,12 +2263,21 @@ class _SendViewState extends ConsumerState<SendView> {
         textInputAction: TextInputAction.next,
         onEditingComplete: _toAmount,
         style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily),
-        onChanged: (text) => setState(() {
-          _followAddress(text);
-          _recipientError = null;
-          _error = null;
-          _plainHttpOk = false;
-        }),
+        onChanged: (text) {
+          if (text.length - _lastTo.length >= 8 && looksLikeCode(text)) {
+            final before = _lastTo;
+            _lastTo = text;
+            _openText(text.trim(), CodeOrigin.paste, typedOver: before);
+            return;
+          }
+          setState(() {
+            _followAddress(text);
+            _recipientError = null;
+            _error = null;
+            _plainHttpOk = false;
+            _leaveRequest();
+          });
+        },
         decoration: InputDecoration(
           label: Row(
             mainAxisSize: MainAxisSize.min,
@@ -2093,6 +2369,7 @@ class _SendViewState extends ConsumerState<SendView> {
               ? () => _saveContact(to.address)
               : null,
         ),
+        ..._payeeClaims(gapBefore: 8),
       ],
       if (matches.isNotEmpty) ...[
         const SizedBox(height: 8),
@@ -2152,6 +2429,16 @@ class _SendViewState extends ConsumerState<SendView> {
           ? '≈ ${epicExact(l, amount)}'
           : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
     }
+    // A code's amount: "Requested by the code" while the field holds it, what it asked for
+    // once changed.
+    final asked = file ? null : _activeRequest?.amount;
+    final fromCode = asked != null && amount == asked;
+    if (asked != null) {
+      final marker = fromCode
+          ? l.sendAmountFromCode
+          : l.sendAmountCodeAsked(epicExact(l, asked));
+      amountHelper = amountHelper == null ? marker : '$marker · $amountHelper';
+    }
     // Why nothing is available yet, in the header's words.
     final held = [
       if (summary != null && summary.spendable == BigInt.zero) ...[
@@ -2189,6 +2476,10 @@ class _SendViewState extends ConsumerState<SendView> {
           floatingLabelAlignment: FloatingLabelAlignment.center,
           hintText: '0',
           helperText: amountHelper,
+          helperStyle: fromCode
+              ? theme.textTheme.bodySmall?.copyWith(color: t.info)
+              : null,
+          helperMaxLines: 2,
           error: _amountError == null ? null : LiveFieldError(_amountError!),
         ),
       ),
@@ -2247,7 +2538,24 @@ class _SendViewState extends ConsumerState<SendView> {
         _strategyPicker(context),
       const SizedBox(height: 12),
       Divider(color: t.line, height: 1),
-      if (!_noteOpen)
+      if (!_noteOpen && _note.text.isNotEmpty)
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          minTileHeight: 56,
+          title: Text(l.sendNoteLabel, style: theme.textTheme.bodyMedium),
+          subtitle: Text(
+            _note.text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+          ),
+          trailing: Icon(Icons.edit_outlined, color: t.dim),
+          onTap: () {
+            setState(() => _noteOpen = true);
+            _noteFocus.requestFocus();
+          },
+        )
+      else if (!_noteOpen)
         ListTile(
           contentPadding: EdgeInsets.zero,
           minTileHeight: 56,
@@ -2285,7 +2593,11 @@ class _SendViewState extends ConsumerState<SendView> {
             onSubmitted: (_) => _submitAmount(file: file),
             decoration: InputDecoration(
               labelText: l.sendNoteLabel,
-              helperText: l.sendNoteHelper,
+              helperText:
+                  _activeRequest?.note != null &&
+                      _note.text == _activeRequest?.note
+                  ? l.sendNoteFromCodeHelper
+                  : l.sendNoteHelper,
               border: const OutlineInputBorder(),
             ),
           ),
@@ -2311,13 +2623,22 @@ class _SendViewState extends ConsumerState<SendView> {
   List<Widget> _amountStep(BuildContext context) {
     final l = context.l10n;
     final address = parseRecipient(_recipient.text).address;
+    final request = _activeRequest;
     return [
       _header(context, l.sendStepAmount, step: 2, onBack: _toRecipient),
+      if (request != null)
+        RequestBanner(
+          open: _requestBanner,
+          origin: _origin ?? CodeOrigin.qr,
+          problems: request.problems,
+          onDismiss: () => setState(() => _requestBanner = false),
+        ),
       Align(
         alignment: AlignmentDirectional.centerStart,
         child: _ToChip(address: address, name: _contactName(address)),
       ),
       _TorNotice(way: _wayOf(sendRoute(parseRecipient(_recipient.text)))),
+      ..._payeeClaims(gapBefore: 12),
       const SizedBox(height: 20),
       ..._amountFields(context, file: false),
     ];
@@ -2388,7 +2709,22 @@ class _SendViewState extends ConsumerState<SendView> {
         step: 3,
         onBack: _sendFailed ? null : _backToAmount,
       ),
-      RecipientCard(address: to.address, name: _contactName(to.address)),
+      if (_activeOrigin case final origin?) ...[
+        const SizedBox(height: 8),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: OriginPill(origin: origin),
+        ),
+        const SizedBox(height: 12),
+      ],
+      RecipientCard(
+        address: to.address,
+        name: _contactName(to.address),
+        host: _activeOrigin != null && to.kind != RecipientKind.epicbox
+            ? directHostOf(to.address)
+            : null,
+      ),
+      ..._payeeClaims(gapBefore: 12),
       const SizedBox(height: 20),
       Text(
         epicExact(l, estimate.amount),
@@ -2410,6 +2746,18 @@ class _SendViewState extends ConsumerState<SendView> {
         },
         mono: false,
       ),
+      if (to.kind == RecipientKind.http && plainHttpToOtherDevice(to.address))
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.warning_amber, size: 18, color: t.warn),
+              const SizedBox(width: 8),
+              Expanded(child: Text(l.sendPlainHttpRow)),
+            ],
+          ),
+        ),
       _Row(label: l.sendNetworkFee, value: epicExact(l, estimate.fee)),
       // Strategy All is a consolidating send: its change is one output, never split.
       if (_sendOptions?.strategy == SelectionStrategy.all &&
@@ -2959,11 +3307,16 @@ class RecipientCard extends StatelessWidget {
     required this.address,
     this.name,
     this.onSave,
+    this.host,
   });
 
   final String address;
   final String? name;
   final VoidCallback? onSave;
+
+  /// The host of a Direct address that came from a code, on its own line above the address,
+  /// so the place the payment goes is plain to see.
+  final String? host;
 
   @override
   Widget build(BuildContext context) {
@@ -3007,6 +3360,22 @@ class RecipientCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 4),
+                    if (host case final host?) ...[
+                      Text(
+                        l.sendDirectHost,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: t.dim,
+                        ),
+                      ),
+                      Text(
+                        host,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontFamily: t.monoFamily,
+                          color: t.text,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
                     AddressEnds(address: address),
                   ],
                 ),

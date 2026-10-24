@@ -22,6 +22,7 @@ import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
+import '../scan/scan_checks.dart' show addressOfScan;
 import 'common.dart';
 import 'contacts_screen.dart';
 import 'file_exchange_help.dart';
@@ -228,7 +229,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
 
   Future<void> _scan() async {
     final text = await ref.read(qrScannerProvider).scan(context);
-    if (text != null && mounted) _setPayer(text);
+    if (text != null && mounted) {
+      _setPayer(addressOfScan(ref.read(walletServiceProvider), text));
+    }
   }
 
   Future<void> _pickContact() async {

@@ -18,7 +18,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+import 'data_folder_io.dart' show appDataDirectory;
 
 import 'log.dart';
 import 'redact.dart';
@@ -246,7 +246,7 @@ final class _Logcat {
 /// failure keeps lines in memory, and is itself logged.
 Future<void> startLogging() async {
   try {
-    final support = await getApplicationSupportDirectory();
+    final support = await appDataDirectory();
     AppLog.use(
       FileLogSink.open(
         Directory('${support.path}${Platform.pathSeparator}logs'),

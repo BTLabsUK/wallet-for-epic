@@ -32,12 +32,12 @@ int stateBars(EState s) => switch (s) {
 };
 
 /// The one glyph per method, shared with the phone.
-IconData methodIcon(TxMethod m) => switch (m) {
-  TxMethod.epicbox => EIcons.epicbox,
-  TxMethod.http => EIcons.http,
-  TxMethod.tor => EIcons.tor,
-  TxMethod.file => EIcons.file,
-};
+IconData methodIcon(TxMethod m) => MethodIcons.of(switch (m) {
+  TxMethod.epicbox => MethodKind.epicbox,
+  TxMethod.http => MethodKind.linkHttp,
+  TxMethod.tor => MethodKind.linkTor,
+  TxMethod.file => MethodKind.directFile,
+});
 
 /// Three rising bars, 16 × 14 u, lit by [state]. Bars light upwards and dim downwards,
 /// 120 ms each, 40 ms apart; with reduced motion they swap. The row supplies the semantics.

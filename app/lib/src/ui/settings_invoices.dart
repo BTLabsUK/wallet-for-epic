@@ -9,6 +9,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../models.dart';
 import '../providers.dart';
+import '../scan/scan_checks.dart' show addressOfScan;
 import 'common.dart';
 import 'contacts_screen.dart' show LiveFieldError;
 import 'scan_screen.dart';
@@ -322,7 +323,9 @@ class _TrustedServiceAddScreenState
   Future<void> _scan() async {
     final text = await ref.read(qrScannerProvider).scan(context);
     if (text == null || !mounted) return;
-    _address.text = parseRecipient(text).address;
+    _address.text = parseRecipient(
+      addressOfScan(ref.read(walletServiceProvider), text),
+    ).address;
     setState(() => _addressError = null);
   }
 
