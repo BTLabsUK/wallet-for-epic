@@ -1,5 +1,5 @@
 // Tor on the mock wallet: Settings › Receiving turns it on per wallet and shows its state and
-// onion; Send routes an onion (a Direct send) to Tor and offers Turn on Tor while it is off. Every screen spot
+// onion; Send routes an onion (a Link send) to Tor and offers Turn on Tor while it is off. Every screen spot
 // is behind DeskFeatures.tor, so these run once the flag is on.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
@@ -77,7 +77,7 @@ void main() {
   group('Send to an onion', () {
     testWidgets('Tor off: Turn on Tor, then the send goes over Tor', (tester) async {
       await show(tester, const SendScreen(arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '1')));
-      // Under Direct, an onion needs Tor.
+      // Under Link, an onion needs Tor.
       expect(find.text('Needs Tor'), findsOneWidget);
       expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Review send')).onPressed, isNull);
       await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
@@ -85,7 +85,7 @@ void main() {
       expect(find.text('Needs Tor'), findsNothing);
       await tester.tap(find.text('Review send'));
       await tester.pumpAndSettle();
-      expect(find.text('Direct · Tor (their wallet must be open)'), findsOneWidget);
+      expect(find.text('Link Payment · Tor (their wallet must be open)'), findsOneWidget);
       await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0000 EPIC'));
       await tester.pumpAndSettle();
@@ -93,7 +93,7 @@ void main() {
       expect(wallet.sent.single.to, _onion);
     }, skip: _skip);
 
-    testWidgets('an onion pasted under Epicbox switches to Direct', (tester) async {
+    testWidgets('an onion pasted under Epicbox switches to Link', (tester) async {
       await show(tester, const SendScreen(arg: SendArgs(amount: '1')));
       await tester.enterText(find.byType(EditableText).first, _onion);
       await tester.pumpAndSettle();

@@ -3,7 +3,7 @@
   "deskSetTxMethods": "Metody płatności",
   "deskSetTxAlwaysOn": "Zawsze włączone",
   "deskSetTxEpicboxHint": "Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności, więc jest zawsze włączone.",
-  "deskSetTxDirectHint": "Płać i dostawaj zapłatę prosto z portfela do portfela, przez HTTP lub Tor, bez serwera pośrodku. Działa tylko, gdy portfel jest otwarty. Dodaje Bezpośrednio do Wyślij, a jego adres do Odbierz.",
+  "deskSetTxDirectHint": "Płać i dostawaj zapłatę prosto z portfela do portfela, przez HTTP lub Tor, bez serwera pośrodku. Działa tylko, gdy portfel jest otwarty. Dodaje Płatność linkiem do Wyślij, a jego adres do Odbierz.",
   "deskSetTxFileHint": "Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Plik do Wyślij, a kroki z plikami do Odbierz.",
   "deskSetTxSend": "Wyślij",
   "deskSetTxStart": "Wysyłanie zaczyna od",

@@ -139,6 +139,7 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   // Desktop only; never on a phone's list.
   AdvancedFeature.builtInNode => l.advBuiltInNode,
   AdvancedFeature.logs => l.advLogs,
+  AdvancedFeature.transactionFiles => l.advTransactionFiles,
 };
 
 /// A network mode's name.
@@ -192,6 +193,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   /// because it was changed (Split change back on, Direct off without Tor).
   bool _txDefaultsShown = false;
   bool _txDirectShown = false;
+  bool _txFileShown = false;
 
   void _say(String message, {required NoticeLevel level}) {
     ref.read(noticeProvider.notifier).show(message, level: level);
@@ -724,13 +726,22 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         s.sendStrategy != SelectionStrategy.smallest ||
         !s.splitChange;
     final showDirect = _txDirectShown |= torAvailable || payments.direct;
+    // The phone's methods: QR for everyone, File behind Advanced › Transaction files (a phone
+    // that has File on keeps the row, so it can still be turned off).
+    final phone = ref.watch(phonePaymentsProvider);
+    final loaded = ref.watch(appSettingsProvider).value != null;
+    final showFile = !phone ||
+        (_txFileShown |= loaded &&
+            (payments.file ||
+                s.advanced.has(AdvancedFeature.transactionFiles)));
     final offered = [
       for (final m in PayMethod.values)
-        if (payments.offers(m)) m,
+        if (payments.offers(m) && (phone || m != PayMethod.qr)) m,
     ];
     String methodName(PayMethod m) => switch (m) {
       PayMethod.epicbox => l.methodEpicbox,
-      PayMethod.direct => l.methodDirect,
+      PayMethod.direct => l.methodLinkPayment,
+      PayMethod.qr => l.methodQr,
       PayMethod.file => l.methodFile,
     };
     Future<void> save(PaymentPrefs next) => _settings.setPayments(next);
@@ -752,21 +763,32 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         HintSwitchTile(
           key: const ValueKey('tx-direct'),
           icon: Icons.link,
-          title: l.methodDirect,
+          title: l.methodLinkPayment,
           hint: l.txDirectHint,
           subtitle: Text(l.txDirectLine),
           value: payments.direct,
           onChanged: (on) => save(payments.copyWith(direct: on)),
         ),
-      HintSwitchTile(
-        key: const ValueKey('tx-file'),
-        icon: Icons.description_outlined,
-        title: l.methodFile,
-        hint: l.txFileHint,
-        subtitle: Text(l.txFileLine),
-        value: payments.file,
-        onChanged: (on) => save(payments.copyWith(file: on)),
-      ),
+      if (phone)
+        HintSwitchTile(
+          key: const ValueKey('tx-qr'),
+          icon: Icons.qr_code_2,
+          title: l.methodQr,
+          hint: l.txQrHint,
+          subtitle: Text(l.txQrLine),
+          value: payments.qr,
+          onChanged: (on) => save(payments.copyWith(qr: on)),
+        ),
+      if (showFile)
+        HintSwitchTile(
+          key: const ValueKey('tx-file'),
+          icon: Icons.description_outlined,
+          title: l.methodFile,
+          hint: l.txFileHint,
+          subtitle: Text(l.txFileLine),
+          value: payments.file,
+          onChanged: (on) => save(payments.copyWith(file: on)),
+        ),
       // Only a choice when there is one: Epicbox alone is what Send opens on.
       if (offered.length > 1) ...[
         SettingsHeader(l.txStartHeader),
@@ -937,6 +959,12 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         Icons.sync,
         l.advRecheckHeight,
         l.advRecheckHeightHint,
+      ),
+      feature(
+        AdvancedFeature.transactionFiles,
+        Icons.description_outlined,
+        l.advTransactionFiles,
+        l.advTransactionFilesHint,
       ),
       const SizedBox(height: 8),
       Padding(

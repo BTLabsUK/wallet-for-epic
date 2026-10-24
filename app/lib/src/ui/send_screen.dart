@@ -38,6 +38,8 @@ import 'method_strip.dart';
 import 'net_block.dart';
 import 'payment_gate.dart';
 import 'pin.dart' show askPin;
+import 'qr_scan_screen.dart';
+import 'qr_show_screen.dart';
 import 'scan_screen.dart';
 import 'shell_header.dart' show comingIn;
 import 'send_tracker.dart';
@@ -151,6 +153,11 @@ const Key sendUsesAllOutputsKey = ValueKey('send-uses-all-outputs');
 const Key sendFileNoteFieldKey = ValueKey('send-file-note-field');
 const Key sendReplyFieldKey = ValueKey('send-reply-field');
 
+/// The keys of the QR buttons of the file made step, for tests.
+const Key sendShowQrKey = ValueKey('send-show-qr');
+const Key sendScanReplyKey = ValueKey('send-scan-reply');
+const Key sendOpenReplyKey = ValueKey('send-open-reply');
+
 /// Try again and Cancel payment on the review after a failed Tor send, for tests.
 const Key sendTryAgainKey = ValueKey('send-try-again');
 
@@ -174,7 +181,7 @@ String? sendAddressShape(AppLocalizations l, TransferMethod method) =>
     switch (method) {
       TransferMethod.epicbox => 'esXXXX…XXXX@epicbox.epiccash.com',
       TransferMethod.direct => l.methodDirectShape,
-      TransferMethod.file => null,
+      TransferMethod.qr || TransferMethod.file => null,
     };
 
 /// The method a recipient of [kind] is paid by: an http(s) or onion address is Direct.
@@ -357,9 +364,14 @@ class _SendViewState extends ConsumerState<SendView> {
   bool get _overHttp =>
       parseRecipient(_recipient.text).kind == RecipientKind.http;
 
-  /// The method the selector shows for the address way. File is its own route
-  /// ([SendStage.fileAmount] and after), so this is never [TransferMethod.file].
+  /// The method the selector shows for the address way. File and QR are their own route
+  /// ([SendStage.fileAmount] and after), so this is never [TransferMethod.file] or
+  /// [TransferMethod.qr].
   TransferMethod _method = TransferMethod.epicbox;
+
+  /// The file route is the QR way: the payment is shown as an animated code to the phone next
+  /// to this one, and the reply is scanned.
+  bool _viaQr = false;
 
   /// The To text at the last change, to tell a paste (8 or more characters at once).
   String _lastTo = '';
@@ -433,6 +445,9 @@ class _SendViewState extends ConsumerState<SendView> {
         _method = TransferMethod.direct;
       case PayMethod.file:
         _stage = SendStage.fileAmount;
+      case PayMethod.qr:
+        _stage = SendStage.fileAmount;
+        _viaQr = true;
       case PayMethod.epicbox:
         break;
     }
@@ -565,13 +580,14 @@ class _SendViewState extends ConsumerState<SendView> {
   /// The selector: an address method keeps the To text; File opens the file route.
   void _chooseMethod(TransferMethod method) {
     if (_busy || _estimating) return;
-    if (method == TransferMethod.file) {
-      _toFileRoute();
+    if (method == TransferMethod.file || method == TransferMethod.qr) {
+      _toFileRoute(qr: method == TransferMethod.qr);
       return;
     }
     _tagTimer?.cancel();
     setState(() {
       _method = method;
+      _viaQr = false;
       _tagOn = false;
       _stage = SendStage.recipient;
       _error = null;
@@ -645,9 +661,10 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// The file route, from the recipient step or from a relay that does not answer. The
   /// amount and the note stay.
-  void _toFileRoute() {
+  void _toFileRoute({bool qr = false}) {
     _closeChecks();
     setState(() {
+      _viaQr = qr;
       _stage = SendStage.fileAmount;
       _error = null;
       _sendFailed = false;
@@ -1490,7 +1507,10 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = _parsedAmount;
     if (amount == null) return;
     final l = context.l10n;
-    if (!await _pinGate(l.sendFilePinReason(epicExact(l, amount)))) return;
+    final reason = _viaQr
+        ? l.sendQrPinReason(epicExact(l, amount))
+        : l.sendFilePinReason(epicExact(l, amount));
+    if (!await _pinGate(reason)) return;
     if (!mounted) return;
     final container = ProviderScope.containerOf(context, listen: false);
     final options = _sendOptions;
@@ -1520,6 +1540,8 @@ class _SendViewState extends ConsumerState<SendView> {
           _slate = slate;
           _stage = SendStage.fileMade;
         });
+        // The QR way goes on to the code at once; the step under it waits for the reply.
+        if (_viaQr) Future.microtask(() => _showQr(slate));
       }
     });
   }
@@ -1541,10 +1563,43 @@ class _SendViewState extends ConsumerState<SendView> {
       setState(() => _error = context.l10n.sendPasteResponseMissing);
       return;
     }
+    await _finalizeText(json);
+  }
+
+  /// Shows the payment as an animated QR code. Scanning the reply from there finishes and posts
+  /// the payment ([_finalizeText]); what comes back says how it went.
+  Future<void> _showQr(Slate slate) async {
+    final result = await showPaymentQr(
+      context,
+      json: slate.json,
+      amount: _parsedAmount ?? BigInt.zero,
+      slateId: slate.slateId,
+      scanEnabled: _postBlock == NetBlock.none,
+      finish: (json) => _finalizeText(json, scanned: true),
+    );
+    if (!mounted) return;
+    if (result is QrShowOpenFile) await _openReply();
+  }
+
+  /// Reads the reply with the camera, from the step under the code.
+  Future<void> _scanReply() async {
+    final result = await scanQrSlate(
+      context,
+      QrScanKind.reply,
+      finish: (json) => _finalizeText(json, scanned: true),
+    );
+    if (!mounted) return;
+    if (result is QrScanOpenFile) await _openReply();
+  }
+
+  /// Finishes the send with the reply [json]: pasted, or read from a QR code ([scanned]). True
+  /// once it is posted; the reason it is not shows under the step.
+  Future<bool> _finalizeText(String json, {bool scanned = false}) async {
     final slate = _slate;
     final container = ProviderScope.containerOf(context, listen: false);
     final hold = ref.read(autoLockHoldProvider.notifier);
     final service = ref.read(walletServiceProvider);
+    var posted = false;
     await _run((session) async {
       // Only the answer to this file, as opening a reply file checks.
       final SlateInfo info;
@@ -1557,13 +1612,20 @@ class _SendViewState extends ConsumerState<SendView> {
         return;
       }
       if (slate != null && info.slateId != slate.slateId) {
-        if (mounted) setState(() => _error = context.l10n.slateWrongPayment);
+        if (mounted) {
+          setState(
+            () => _error = scanned
+                ? context.l10n.slateWrongPaymentQr
+                : context.l10n.slateWrongPayment,
+          );
+        }
         return;
       }
       final tx = await hold.during(
         () => session.finalizeAndPost(slateJson: json),
       );
       container.invalidate(homeProvider);
+      posted = true;
       if (mounted) {
         setState(() {
           _filePosted = tx;
@@ -1571,6 +1633,7 @@ class _SendViewState extends ConsumerState<SendView> {
         });
       }
     });
+    return posted;
   }
 
   void _done() {
@@ -1798,7 +1861,9 @@ class _SendViewState extends ConsumerState<SendView> {
     // file fallback and a file waiting for its reply keep File).
     final payments =
         ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
-        PaymentPrefs.defaults;
+        (ref.watch(phonePaymentsProvider)
+            ? PaymentPrefs.phoneDefaults
+            : PaymentPrefs.defaults);
     final filePending = hasPendingFileSend(
       ref.watch(homeProvider.select((h) => h.value?.transactions)),
     );
@@ -1806,6 +1871,8 @@ class _SendViewState extends ConsumerState<SendView> {
       segment(TransferMethod.epicbox, Icons.alternate_email, l.methodEpicbox),
       if (selected == TransferMethod.direct || payments.direct)
         segment(TransferMethod.direct, Icons.link, l.methodDirect),
+      if (selected == TransferMethod.qr || (payments.qr && offersQrScan(ref)))
+        segment(TransferMethod.qr, Icons.qr_code_2, l.methodQr),
       if (selected == TransferMethod.file || payments.file || filePending)
         segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
     ];
@@ -2649,39 +2716,63 @@ class _SendViewState extends ConsumerState<SendView> {
     return [
       _header(
         context,
-        l.sendFileTitle,
+        _viaQr ? l.sendQrTitle : l.sendFileTitle,
         onBack: _toRecipient,
-        extra: IconButton(
-          tooltip: l.sendFileHelpTooltip,
-          icon: const Icon(Icons.help_outline),
-          onPressed: () =>
-              showFileExchangeHelp(context, role: FileExchangeRole.sender),
-        ),
+        extra: _viaQr
+            ? null
+            : IconButton(
+                tooltip: l.sendFileHelpTooltip,
+                icon: const Icon(Icons.help_outline),
+                onPressed: () => showFileExchangeHelp(
+                  context,
+                  role: FileExchangeRole.sender,
+                ),
+              ),
       ),
-      ..._methodHead(context, TransferMethod.file),
+      ..._methodHead(context, _viaQr ? TransferMethod.qr : TransferMethod.file),
       ..._amountFields(context, file: true),
       const SizedBox(height: 12),
       Text(
-        l.sendCancelRuleFile,
+        _viaQr ? l.sendCancelRuleQr : l.sendCancelRuleFile,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
       ),
     ];
   }
 
   Widget _fileAmountAction() => BusyButton(
-    label: context.l10n.sendMakeFile,
+    label: _viaQr ? context.l10n.sendMakeQr : context.l10n.sendMakeFile,
     busy: _busy,
     onPressed: _amountReady && _fileBlock == NetBlock.none ? _createFile : null,
   );
 
   /// The file route's three steps, [at] the current one (3 when all are done).
-  Widget _fileSteps(BuildContext context, int at, BigInt amount) {
+  ///
+  /// The QR way, once [posted], adds the confirmations the payment collects, as the tracker of
+  /// an Epicbox send does.
+  Widget _fileSteps(
+    BuildContext context,
+    int at,
+    BigInt amount, {
+    TxEntry? posted,
+  }) {
     final l = context.l10n;
+    final made = _viaQr ? l.sendQrMade : l.sendFileMade;
     final labels = [
-      (l.sendFileMade, l.sendFileMade),
+      (made, made),
       (l.sendTrackSigned, l.sendFileWaitingReply),
       (l.sendTrackOnNetwork, l.sendTrackOnNetwork),
     ];
+    if (_viaQr && at == 3 && posted != null) {
+      final target = confirmationsTargetOf(ref);
+      final tip = tipHeight(ref);
+      labels.add((
+        l.sendTrackConfirmed,
+        l.txStatusConfirming(txConfirmations(posted, tip) ?? 0, target),
+      ));
+      if (sendTrackerAt(posted, tip, target: target) == SendTrack.completed) {
+        at = 4;
+      }
+    }
     return RoundSteps(
       steps: [
         for (final (i, (done, now)) in labels.indexed)
@@ -2705,6 +2796,36 @@ class _SendViewState extends ConsumerState<SendView> {
     final theme = Theme.of(context);
     final t = context.tokens;
     final name = sendFileName(slate.slateId);
+    if (_viaQr) {
+      // The code has its own screen; this step is where the send waits for the reply.
+      return [
+        _header(context, l.sendQrTitle),
+        _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
+        Semantics(
+          liveRegion: true,
+          child: Text(
+            l.sendQrHint,
+            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+          ),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          key: sendShowQrKey,
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+          ),
+          icon: const Icon(Icons.qr_code_2),
+          label: Text(l.qrShow),
+          onPressed: _busy ? null : () => _showQr(slate),
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: _done,
+          child: Text(l.commonDone),
+        ),
+      ];
+    }
     return [
       _header(context, l.sendFileTitle),
       _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
@@ -2745,30 +2866,47 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
   }
 
-  Widget _openReplyAction() => BusyButton(
-    label: context.l10n.sendOpenReply,
-    onPressed: _busy || _postBlock != NetBlock.none ? null : _openReply,
-  );
+  Widget _openReplyAction() {
+    final l = context.l10n;
+    final off = _busy || _postBlock != NetBlock.none;
+    if (_viaQr) {
+      return FilledButton.icon(
+        key: sendScanReplyKey,
+        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        icon: const Icon(Icons.qr_code_scanner),
+        label: Text(l.qrScanReply),
+        onPressed: off || !offersQrScan(ref) ? null : _scanReply,
+      );
+    }
+    return BusyButton(
+      key: sendOpenReplyKey,
+      label: l.sendOpenReply,
+      onPressed: off ? null : _openReply,
+    );
+  }
 
   List<Widget> _fileSentStep(BuildContext context) {
     final l = context.l10n;
     final slate = _slate;
-    final posted =
-        _filePosted ??
-        (slate == null
-            ? null
-            : ref
-                  .watch(homeProvider)
-                  .value
-                  ?.transactions
-                  .where((tx) => tx.key == 's:${slate.slateId}')
-                  .firstOrNull);
+    final inHistory = slate == null
+        ? null
+        : ref
+              .watch(homeProvider)
+              .value
+              ?.transactions
+              .where((tx) => tx.key == 's:${slate.slateId}')
+              .firstOrNull;
+    // The wallet's own row follows the payment as it confirms; what the send returned is the
+    // first look at it.
+    final posted = _viaQr
+        ? (inHistory ?? _filePosted)
+        : (_filePosted ?? inHistory);
     if (posted != null && posted.repostable) {
       return [NotPostedNotice(tx: posted)];
     }
     return [
-      _header(context, l.sendFileTitle),
-      _fileSteps(context, 3, _parsedAmount ?? BigInt.zero),
+      _header(context, _viaQr ? l.sendQrTitle : l.sendFileTitle),
+      _fileSteps(context, 3, _parsedAmount ?? BigInt.zero, posted: posted),
     ];
   }
 }

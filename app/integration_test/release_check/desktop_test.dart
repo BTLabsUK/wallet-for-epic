@@ -184,7 +184,7 @@ void main() {
 RegExp _hidden(List<String> extra) {
   final terms = [
     if (!DeskFeatures.tor) ...[r'\bTor\b', 'onion'],
-    if (!DeskFeatures.httpDirect) ...['HTTP', 'Direct'],
+    if (!DeskFeatures.httpDirect) ...['HTTP', 'Link'],
     if (!DeskFeatures.importWizard) 'Import',
     if (!DeskFeatures.multiWallet) ...['Switch wallet', 'Add a wallet', 'All wallets'],
     if (!DeskFeatures.builtInNode) ...['Built-in', ...extra.where((e) => e == 'This computer')],

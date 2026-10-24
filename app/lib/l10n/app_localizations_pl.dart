@@ -2818,6 +2818,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get slateReading => 'Odczytywanie pliku';
 
   @override
+  String get slateReadingQr => 'Odczytuję płatność';
+
+  @override
   String get slateFileTooLarge =>
       'Ten plik jest za duży, aby mógł być plikiem transakcji.';
 
@@ -2930,6 +2933,311 @@ class AppLocalizationsPl extends AppLocalizations {
   String get scanQrBack => 'Wstecz';
 
   @override
+  String get qrShowReplyAsQr => 'Pokaż odpowiedź jako QR';
+
+  @override
+  String get qrShowTitlePayment => 'Kod QR płatności';
+
+  @override
+  String get qrShowTitleReply => 'Kod QR odpowiedzi';
+
+  @override
+  String qrShowSubPayment(String amount) {
+    return '$amount dla telefonu obok ciebie';
+  }
+
+  @override
+  String qrShowSubReply(String amount) {
+    return 'Dla nadawcy $amount';
+  }
+
+  @override
+  String get qrHiddenTitle => 'Ukryty, dopóki go nie pokażesz';
+
+  @override
+  String get qrHiddenBodyPayment =>
+      'Kto zeskanuje go pierwszy, może przyjąć tę płatność. Pokaż go tylko osobie, której płacisz.';
+
+  @override
+  String get qrHiddenBodyReply =>
+      'Pokaż go telefonowi nadawcy. Tylko jego portfel może go użyć.';
+
+  @override
+  String get qrShow => 'Pokaż QR';
+
+  @override
+  String get qrShowAgain => 'Pokaż ponownie';
+
+  @override
+  String get qrHide => 'Ukryj';
+
+  @override
+  String qrCountdownLabel(int seconds) {
+    return 'Pokażę za $seconds';
+  }
+
+  @override
+  String qrPartOf(int part, int count) {
+    return 'Część $part z $count';
+  }
+
+  @override
+  String qrSecondsShort(int seconds) {
+    return '$seconds s';
+  }
+
+  @override
+  String qrSecondsLeft(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'Zostało $seconds sekundy',
+      many: 'Zostało $seconds sekund',
+      few: 'Zostały $seconds sekundy',
+      one: 'Została 1 sekunda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qrHoldHint => 'Przyłóż aparat drugiego telefonu do tego kodu.';
+
+  @override
+  String get qrSecureLine => 'Zrzuty ekranu są wyłączone na tym ekranie';
+
+  @override
+  String qrTimedOutTitle(int seconds) {
+    return 'Ukryty po $seconds s';
+  }
+
+  @override
+  String get qrTimedOutBody =>
+      'Pokaż go ponownie, gdy drugi telefon będzie gotowy.';
+
+  @override
+  String qrTimedOutAnnounce(int seconds) {
+    return 'Ukryty po $seconds sekundach';
+  }
+
+  @override
+  String get qrAwayTitle => 'Ukryty, gdy aplikacji nie było na ekranie';
+
+  @override
+  String get qrAwayBody => 'Kod ukrywa się, gdy aplikacja opuści ekran.';
+
+  @override
+  String qrSemanticsPayment(String state) {
+    return 'Kod QR płatności, $state';
+  }
+
+  @override
+  String qrSemanticsReply(String state) {
+    return 'Kod QR odpowiedzi, $state';
+  }
+
+  @override
+  String get qrStateHidden => 'ukryty';
+
+  @override
+  String get qrStateShowing => 'widoczny';
+
+  @override
+  String get qrScanPayment => 'Skanuj kod QR płatności';
+
+  @override
+  String get qrScanReply => 'Skanuj odpowiedź';
+
+  @override
+  String get qrScanAimPayment =>
+      'Skieruj aparat na kod QR na telefonie drugiej osoby.';
+
+  @override
+  String get qrScanAimReply =>
+      'Skieruj aparat na odpowiedź na telefonie drugiej osoby.';
+
+  @override
+  String get qrScanSteady => 'Trzymaj stabilnie albo podejdź trochę bliżej.';
+
+  @override
+  String get qrScanGot => 'Mam to';
+
+  @override
+  String qrScanCount(int got, int count) {
+    return '$got z $count';
+  }
+
+  @override
+  String get qrScanCountLabel => 'Odczytane części';
+
+  @override
+  String get qrScanNotPayment =>
+      'To nie jest kod QR płatności. Poproś drugą osobę, by pokazała kod płatności na swoim telefonie.';
+
+  @override
+  String get qrScanNotReply =>
+      'To nie jest kod QR odpowiedzi. Poproś drugą osobę, by pokazała odpowiedź na swoim telefonie.';
+
+  @override
+  String get qrScanOtherPayment =>
+      'Ten kod należy do innej płatności. Zaczynam od nowa.';
+
+  @override
+  String get qrScanTorch => 'Latarka';
+
+  @override
+  String qrScanZoom(String factor) {
+    return 'Zoom $factor×';
+  }
+
+  @override
+  String get qrScanCameraDenied =>
+      'Portfel nie ma dostępu do aparatu. Aby skanować, zezwól tej aplikacji na dostęp do aparatu w ustawieniach telefonu. Możesz też zamiast tego otworzyć plik.';
+
+  @override
+  String get qrScanCameraFailed =>
+      'Nie udało się uruchomić aparatu. Spróbuj ponownie albo otwórz plik.';
+
+  @override
+  String get qrScanOpenSettings => 'Otwórz ustawienia';
+
+  @override
+  String get qrScanOpenFileInstead => 'Zamiast tego otwórz plik';
+
+  @override
+  String get qrScanAgain => 'Skanuj ponownie';
+
+  @override
+  String get slateWrongPaymentQr =>
+      'Ta odpowiedź dotyczy innej płatności. Zeskanuj odpowiedź dla tej wysyłki.';
+
+  @override
+  String get slateScannedPaymentTitle => 'Zeskanowana płatność';
+
+  @override
+  String get slateScannedReplyTitle => 'Zeskanowana odpowiedź';
+
+  @override
+  String get slateIncomingSendHintQr =>
+      'Przyjmij ją, a potem pokaż odpowiedź nadawcy.';
+
+  @override
+  String get slateAcceptedHeadlineQr => 'Przyjęto. Pokaż odpowiedź nadawcy.';
+
+  @override
+  String get methodQr => 'Płatność QR';
+
+  @override
+  String get receiveTabQr => 'Płatność QR';
+
+  @override
+  String get methodArtCaptionQr => 'Osobiście';
+
+  @override
+  String get methodArtLabelQr =>
+      'Płatność QR: kod przechodzi z jednego telefonu na drugi, obok';
+
+  @override
+  String get methodSendQrTitle => 'Dla telefonu obok ciebie.';
+
+  @override
+  String get methodSendQrLine =>
+      'Pokaż kod na tym ekranie, potem zeskanuj odpowiedź aparatem.';
+
+  @override
+  String get methodReceiveQrTitle => 'Zeskanuj ich ekran.';
+
+  @override
+  String get methodReceiveQrLine =>
+      'Przyjmij płatność, potem pokaż swoją odpowiedź w ten sam sposób.';
+
+  @override
+  String get receiveQrTitle => 'Stoisz obok nadawcy?';
+
+  @override
+  String get receiveQrBody =>
+      'Zeskanuj kod na telefonie nadawcy, przyjmij płatność i pokaż swoją odpowiedź.';
+
+  @override
+  String get txQrLine =>
+      'Płać lub odbieraj płatność obok siebie, z kodem na ekranie.';
+
+  @override
+  String get txQrHint =>
+      'Płatność QR pokazuje płatność jako animowany kod, który drugi telefon skanuje aparatem, a odpowiedź przyjmuje w ten sam sposób. Działa tylko między telefonami obok siebie, nie wymaga połączenia między portfelami, a kod sam się ukrywa po 40 sekundach. Dodaje Płatność QR do Wyślij i Odbierz.';
+
+  @override
+  String get advTransactionFiles => 'Pliki transakcji';
+
+  @override
+  String get advTransactionFilesHint =>
+      'Dodaje przełącznik Plik w Ustawienia › Transakcje: płać lub dostawaj zapłatę plikiem, który przekazujesz sam.';
+
+  @override
+  String get sendQrTitle => 'Płatność QR';
+
+  @override
+  String get sendMakeQr => 'Utwórz kod QR płatności';
+
+  @override
+  String sendQrPinReason(String amount) {
+    return 'Wpisz PIN, aby utworzyć kod QR płatności na $amount.';
+  }
+
+  @override
+  String get sendQrMade => 'Płatność utworzona';
+
+  @override
+  String get sendQrHint =>
+      'Pokaż kod telefonowi odbiorcy, potem zeskanuj jego odpowiedź.';
+
+  @override
+  String get sendCancelRuleQr =>
+      'Można anulować, dopóki nie zeskanujesz odpowiedzi.';
+
+  @override
+  String get qrStatusSendHidden => 'Pokaż to odbiorcy.';
+
+  @override
+  String get qrStatusSendShowing =>
+      'Czekam, aż odbiorca zeskanuje. Potem zeskanuj jego odpowiedź.';
+
+  @override
+  String get qrStatusHiddenAgain =>
+      'Ukryty. Pokaż ponownie, jeśli nie skończyli skanować.';
+
+  @override
+  String get qrStatusReplyHidden => 'Pokaż to nadawcy.';
+
+  @override
+  String get qrStatusReplyShowing => 'Czekam, aż nadawca zeskanuje.';
+
+  @override
+  String get qrStatusReceivedWaiting =>
+      'Płatność odebrana. Czekam, aż nadawca zeskanuje i wyśle.';
+
+  @override
+  String qrStatusPosted(int got, int target) {
+    return 'Wysłano. Potwierdzanie $got/$target';
+  }
+
+  @override
+  String get qrStatusReceived => 'Odebrano.';
+
+  @override
+  String qrScanProgress(int got, int count) {
+    return 'Zeskanowano $got z $count. Trzymaj kod w kadrze.';
+  }
+
+  @override
+  String get qrScanReplyScanned => 'Odpowiedź zeskanowana.';
+
+  @override
+  String get qrScanPosting => 'Odpowiedź zeskanowana. Wysyłam…';
+
+  @override
+  String get qrScanPosted => 'Wysłano.';
+
+  @override
   String get contactsTitle => 'Kontakty';
 
   @override
@@ -3004,7 +3312,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu bezpośredniego (https://…) lub adresu onion (….onion).';
+      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu Link (https://…) lub adresu onion (….onion).';
 
   @override
   String get settingsTitle => 'Ustawienia';
@@ -3950,7 +4258,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiveTabFile => 'Plik';
 
   @override
-  String get receiveTorAddressLabel => 'Adres Tor';
+  String get receiveTorAddressLabel => 'Twój link';
 
   @override
   String get receiveTorQrLabel => 'Kod QR twojego adresu Tor';
@@ -4109,7 +4417,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      'Wklej lub zeskanuj adres albo wybierz kontakt. Epicbox płaci na adres; Plik tworzy plik do przekazania dalej. Więcej metod: Ustawienia › Transakcje. Najpierw jest podgląd.';
+      'Wklej lub zeskanuj adres albo wybierz kontakt. Epicbox płaci na adres; QR pokazuje kod telefonowi obok ciebie. Więcej metod: Ustawienia › Transakcje. Najpierw jest podgląd.';
 
   @override
   String get tourPhoneReceiveTitle => 'Odbierz';
@@ -4725,7 +5033,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get netStatusTorOpenHint => 'Otwiera ustawienia prywatności';
 
   @override
-  String get netStatusDirectOpenHint => 'Otwiera adres odbioru bezpośredniego';
+  String get netStatusDirectOpenHint => 'Otwiera adres odbioru Link';
 
   @override
   String get netStatusOpenHint => 'Pokazuje serwery';
@@ -4921,10 +5229,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => 'Bezpośrednio · HTTP';
+  String get methodDirectHttp => 'Płatność linkiem · HTTP';
 
   @override
-  String get methodDirectTor => 'Bezpośrednio · Tor';
+  String get methodDirectTor => 'Płatność linkiem · Tor';
 
   @override
   String get methodFile => 'Plik';
@@ -5471,7 +5779,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvIssuerFile => 'Plik';
 
   @override
-  String get deskInvIssuerDirect => 'Bezpośrednio';
+  String get deskInvIssuerDirect => 'Link';
 
   @override
   String get deskInvIssuerSoon => 'Wkrótce';
@@ -6242,7 +6550,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get methodDirect => 'Bezpośrednio';
+  String get methodDirect => 'Link';
+
+  @override
+  String get methodLinkPayment => 'Płatność linkiem';
 
   @override
   String get methodDirectShape => 'http://host:3415 lub xxxx….onion';
@@ -6253,7 +6564,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get methodArtLabelDirect =>
-      'Bezpośrednio: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
+      'Płatność linkiem: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
 
   @override
   String get methodReceiveEpicboxShort => 'Działa przy zamkniętym portfelu.';
@@ -6270,15 +6581,15 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get sendSwitchedDirect => 'Adres bezpośredni';
+  String get sendSwitchedDirect => 'Adres Link';
 
   @override
   String get sendSwitchedDirectAnnounce =>
-      'Adres bezpośredni. Metoda ustawiona na Bezpośrednio.';
+      'Adres Link. Metoda ustawiona na Link.';
 
   @override
   String get sendDirectAddressShape =>
-      'Adres bezpośredni zaczyna się od http:// lub https:// albo kończy na .onion.';
+      'Adres Link zaczyna się od http:// lub https:// albo kończy na .onion.';
 
   @override
   String get torNotOverTor => 'Nie przez Tor';
@@ -6315,10 +6626,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony.';
 
   @override
-  String get receiveTabDirect => 'Bezpośrednio';
+  String get receiveTabDirect => 'Link';
 
   @override
-  String get receiveDirectNeedsTor => 'Odbiór bezpośredni wymaga Tora.';
+  String get receiveDirectNeedsTor => 'Odbieranie przez Link wymaga Tora.';
 
   @override
   String get receiveDirectMeanwhile =>
@@ -7281,7 +7592,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.';
 
   @override
-  String get deskRecvHttpAddress => 'Bezpośrednio · adres HTTP';
+  String get deskRecvHttpAddress => 'Link · adres HTTP';
 
   @override
   String get deskRecvCopyHttp => 'Kopiuj adres HTTP';
@@ -7304,14 +7615,14 @@ class AppLocalizationsPl extends AppLocalizations {
       'Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Prywatność.';
 
   @override
-  String get deskRecvDirectTor => 'Bezpośrednio · adres Tor';
+  String get deskRecvDirectTor => 'Link · adres Tor';
 
   @override
   String get deskRecvTorIntro =>
       'Prosto z innego portfela przez Tor, gdy ten jest otwarty. Tor ustawisz w Ustawienia › Prywatność.';
 
   @override
-  String get deskRecvTorAddress => 'Bezpośrednio · adres Tor';
+  String get deskRecvTorAddress => 'Link · adres Tor';
 
   @override
   String get deskRecvCopyTor => 'Kopiuj adres Tor';
@@ -7615,7 +7926,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendErrEpicbox => 'To nie jest prawidłowy adres Epicbox.';
 
   @override
-  String get deskSendErrNotDirect => 'To nie jest adres bezpośredni.';
+  String get deskSendErrNotDirect => 'To nie jest adres Link.';
 
   @override
   String get deskSendErrOnion => 'To nie jest prawidłowy adres onion.';
@@ -7728,7 +8039,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendReviewAgain => 'Sprawdź ponownie';
 
   @override
-  String get deskSendMethodDirect => 'Bezpośrednio';
+  String get deskSendMethodDirect => 'Link';
 
   @override
   String get deskSendMethodFile => 'Plik';
@@ -7766,7 +8077,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendHttpClearnet =>
-      'Wysyłka bezpośrednia na adresy http(s) idzie przez zwykły internet, nie przez Tor.';
+      'Wysyłka przez Link na adresy http(s) idzie przez zwykły internet, nie przez Tor.';
 
   @override
   String get deskSendClear => 'Wyczyść';
@@ -7886,7 +8197,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Przekaż plik, odbierz plik odpowiedzi, potem sfinalizuj go tutaj.';
 
   @override
-  String get deskSendTagDirect => 'Bezpośrednio';
+  String get deskSendTagDirect => 'Link';
 
   @override
   String get deskSendTagFile => 'Plik';
@@ -7895,8 +8206,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendTagEpicbox => 'Przez Epicbox';
 
   @override
-  String get deskSendSwitchedDirect =>
-      'Adres bezpośredni. Ustawiono metodę Bezpośrednio.';
+  String get deskSendSwitchedDirect => 'Adres Link. Ustawiono metodę Link.';
 
   @override
   String get deskSendSwitchedFile => 'Adres plikowy. Ustawiono metodę Plik.';
@@ -7933,11 +8243,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Bezpośrednio · HTTP (portfel odbiorcy musi być otwarty)';
+      'Płatność linkiem · HTTP (portfel odbiorcy musi być otwarty)';
 
   @override
   String get deskSendViaTor =>
-      'Bezpośrednio · Tor (portfel odbiorcy musi być otwarty)';
+      'Płatność linkiem · Tor (portfel odbiorcy musi być otwarty)';
 
   @override
   String get deskSendViaFile => 'Plik transakcji';
@@ -8430,10 +8740,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskConAddrEpicbox => 'Adres Epicbox';
 
   @override
-  String get deskConAddrTor => 'Bezpośrednio · adres Tor';
+  String get deskConAddrTor => 'Link · adres Tor';
 
   @override
-  String get deskConAddrHttp => 'Bezpośrednio · adres HTTP';
+  String get deskConAddrHttp => 'Link · adres HTTP';
 
   @override
   String get deskConNote => 'Notatka';
@@ -8464,7 +8774,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu bezpośredniego (https://…) lub adresu onion (….onion).';
+      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu Link (https://…) lub adresu onion (….onion).';
 
   @override
   String get deskConAddPicture => 'Dodaj zdjęcie';
@@ -10540,7 +10850,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Otwórz odbieranie: Bezpośrednio · HTTP';
+  String get deskRailOpenHttp => 'Otwórz odbieranie: Płatność linkiem · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'Brak w tej wersji';
@@ -10825,11 +11135,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'Bezpośrednio · HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
+      'Płatność linkiem · HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Bezpośrednio · Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
+      'Płatność linkiem · Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -12949,7 +13259,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Stan z status.btlabs.uk, sprawdzany co kilka minut.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Bezpośrednio · HTTP, odbieranie';
+  String get deskSetRecvHttpTitle => 'Płatność linkiem · HTTP, odbieranie';
 
   @override
   String get deskSetRecvHttpText =>
@@ -12960,7 +13270,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetRecvHttpOffText =>
-      'Płatności bezpośrednie docierają wtedy na adres Tor tego portfela.';
+      'Płatności przez Link docierają wtedy na adres Tor tego portfela.';
 
   @override
   String get deskSetRecvPrivacySettings => 'Ustawienia prywatności';
@@ -14219,7 +14529,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Z węzłem w twojej sieci lokalnej nadal działają Sprawdź saldo, pliki i wysyłki bezpośrednie na adresy lokalne. Peery węzła to ustawienie samego węzła.';
+      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Z węzłem w twojej sieci lokalnej nadal działają Sprawdź saldo, pliki i wysyłki przez Płatność linkiem na adresy lokalne. Peery węzła to ustawienie samego węzła.';
 
   @override
   String get advReset => 'Ukryj wszystko ponownie';
@@ -14329,7 +14639,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, pliki i Bezpośrednio na adresy lokalne.';
+      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, pliki i Płatność linkiem na adresy lokalne.';
 
   @override
   String get deskSetAdvNotInBuild => 'Brak w tej wersji';
@@ -14621,7 +14931,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDirectHint =>
-      'Bezpośrednio wysyła prosto do drugiego portfela na adres onion lub internetowy i daje temu telefonowi adres Tor, na który można mu płacić. Portfel po drugiej stronie musi być otwarty, ten też. Wymaga Tora. Dodaje Bezpośrednio do Wyślij i Odbierz.';
+      'Płatność linkiem wysyła prosto do drugiego portfela na adres onion lub internetowy i daje temu telefonowi adres Tor, na który można mu płacić. Portfel po drugiej stronie musi być otwarty, ten też. Wymaga Tora. Dodaje Płatność linkiem do Wyślij i Odbierz.';
 
   @override
   String get txFileLine =>
@@ -14715,7 +15025,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetTxDirectHint =>
-      'Płać i dostawaj zapłatę prosto z portfela do portfela, przez HTTP lub Tor, bez serwera pośrodku. Działa tylko, gdy portfel jest otwarty. Dodaje Bezpośrednio do Wyślij, a jego adres do Odbierz.';
+      'Płać i dostawaj zapłatę prosto z portfela do portfela, przez HTTP lub Tor, bez serwera pośrodku. Działa tylko, gdy portfel jest otwarty. Dodaje Płatność linkiem do Wyślij, a jego adres do Odbierz.';
 
   @override
   String get deskSetTxFileHint =>

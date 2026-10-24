@@ -59,7 +59,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też odpowiadającego serwera Epicbox; adres bezpośredni (http lub .onion) wymaga, by portfel odbiorcy był w tej chwili otwarty i osiągalny.')
         else
-          const HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też włączonego odbierania przez Epicbox; adres Bezpośrednio (http lub .onion) wymaga, by portfel odbiorcy był w tej chwili otwarty i osiągalny.'),
+          const HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też włączonego odbierania przez Epicbox; adres Link (http lub .onion) wymaga, by portfel odbiorcy był w tej chwili otwarty i osiągalny.'),
       ],
       id: HelpId.send,
     ),
@@ -77,14 +77,26 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.file,
     ),
+    if (phone)
+      const HelpTopic(
+        'start',
+        'Płatność osobiście: Płatność QR',
+        'Dwa telefony obok siebie płacą animowanym kodem QR, bez połączenia między nimi.',
+        [
+          HelpBlock.p('Płatność wędruje jako animowany kod QR, który drugi telefon skanuje aparatem. Nic nie jest szyfrowane, więc pokazuj kod tylko osobie, której płacisz.'),
+          HelpBlock.ol(['**Nadawca:** w Wyślij wybiera **Płatność QR**, wpisuje kwotę i dotyka **Pokaż QR**. Kod pozostaje ukryty, dopóki go nie pokażesz, odlicza 3, 2, 1 i sam znika po 40 sekundach.', '**Odbiorca:** w [[Odbierz › Płatność QR|Receive › QR Payment]] dotyka **Skanuj kod QR płatności**, przyjmuje płatność i pokazuje odpowiedź w ten sam sposób.', '**Nadawca:** dotyka **Skanuj odpowiedź**. Portfel wysyła płatność, a śledzenie pokazuje jej postęp.']),
+          HelpBlock.p('Trzymaj kod w kadrze, aż wszystkie części zostaną odczytane: pierścień i licznik pokazują postęp. Kod, który nie jest płatnością, jest zgłaszany i pomijany. Na ekranie z kodem zrzuty ekranu są zablokowane.'),
+        ],
+        id: HelpId.qr,
+      ),
     HelpTopic(
       'start',
       'Metody płatności i zasady wysyłki',
-      'Epicbox jest zawsze włączony. Bezpośrednio i Plik to przełączniki. Wysyłanie zaczyna od wybranej metody.',
+      'Epicbox jest zawsze włączony. Płatność linkiem i Plik to przełączniki. Wysyłanie zaczyna od wybranej metody.',
       [
         const HelpBlock.p('Strona Transakcje w [[Ustawienia › Transakcje|Settings › Transactions]] zawiera trzy rzeczy.'),
         HelpBlock.ul([
-          '**Metody płatności.** Epicbox jest zawsze włączony. **Bezpośrednio** (na adresy .onion i internetowe${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i **Plik** to przełączniki: wyłączona metoda nie pojawia się w Wyślij i Odbierz.',
+          '**Metody płatności.** Epicbox jest zawsze włączony. **Płatność linkiem** (na adresy .onion i internetowe${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i **Plik** to przełączniki: wyłączona metoda nie pojawia się w Wyślij i Odbierz.',
           '**Wysyłanie zaczyna od.** Metoda, z którą otwiera się ekran Wyślij. Na ekranie Wyślij nadal możesz wybrać inną.',
           '**Zasady wysyłki.** Które wyjścia wydaje wysyłka, Najmniejsze czy Wszystkie, i czy jej reszta jest dzielona. Widać je tylko wtedy, gdy w Zaawansowanych włączone są **Opcje wysyłki**.',
         ]),
@@ -99,7 +111,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         [
           HelpBlock.ul([
             '**Epicbox**: około 52 znaków zaczynających się od **es**, potem **@** i serwer, na przykład **esXXXX…XXXX@epicbox.epiccash.com**. Domyślny sposób; odbiorca może być offline.',
-            '**Bezpośrednio**: własny portfel odbiorcy, otwarty w tej chwili. Albo adres internetowy, np. **http://host:3415**, albo adres Tor z 56 znaków kończący się na **.onion**, który działa przez Tor.',
+            '**Płatność linkiem**: własny portfel odbiorcy, otwarty w tej chwili. Albo adres internetowy, np. **http://host:3415**, albo adres Tor z 56 znaków kończący się na **.onion**, który działa przez Tor.',
           ]),
           HelpBlock.p('Wyślij wybiera sposób na podstawie adresu wklejonego w pole Do. Gdy odczytujesz adres na głos, porównaj pierwsze sześć i ostatnie sześć znaków.'),
         ],
@@ -112,7 +124,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Epic Cash używa Mimblewimble. Zamiast zapisywać w łańcuchu bloków adres i kwotę, oba portfele budują każdą transakcję razem, jak w uścisku dłoni:'),
         HelpBlock.ol(['Portfel nadawcy ją rozpoczyna i blokuje wysyłane wyjścia.', 'Portfel odbiorcy dodaje swoją część i podpisuje.', 'Portfel nadawcy też podpisuje, kończy transakcję i wysyła ją do sieci.']),
-        HelpBlock.p('Coś musi więc przenosić wiadomości między portfelami. Robi to **Epicbox**: przechowuje wiadomość, gdy drugi portfel jest offline, więc oba nie muszą być online w tej samej chwili. **Bezpośrednio · HTTP** i **Bezpośrednio · Tor** trafiają prosto do drugiego portfela, gdy jest otwarty. **Plik transakcji** to sposób ręczny.'),
+        HelpBlock.p('Coś musi więc przenosić wiadomości między portfelami. Robi to **Epicbox**: przechowuje wiadomość, gdy drugi portfel jest offline, więc oba nie muszą być online w tej samej chwili. **Płatność linkiem · HTTP** i **Płatność linkiem · Tor** trafiają prosto do drugiego portfela, gdy jest otwarty. **Plik transakcji** to sposób ręczny.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -277,7 +289,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
             'Włącz go w [[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]. Wiersz Tor na pasku bocznym pokazuje jego stan.',
             'Gdy Tor się uruchamia lub nie jest połączony, to, co idzie przez Tor, czeka; nic nie idzie obok. Ponów lub wyłącz Tor.',
             'Płatności bezpośrednie na adres http(s) nie idą przez Tor; Wyślij o tym informuje.',
-            'Odbieranie Bezpośrednio · HTTP jest wyłączone, gdy Tor jest włączony: płatności prosto z innego portfela docierają na adres Bezpośrednio · Tor.',
+            'Odbieranie Płatność linkiem · HTTP jest wyłączone, gdy Tor jest włączony: płatności prosto z innego portfela docierają na adres Płatność linkiem · Tor.',
             'W niektórych krajach Tor jest blokowany lub niedozwolony; tam się nie połączy.',
             'Przy Tylko Tor w Zaawansowanych przełącznik zostaje włączony i nie da się go wyłączyć.',
           ]),
@@ -349,7 +361,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**Tor pokazuje „Brak połączenia”.** Tor nie mógł połączyć się ze swoją siecią. Naciśnij Ponów w [[Ustawienia › Prywatność i sieć|Settings › Privacy & network]] albo wyłącz Tor; w tym czasie nic nie wychodzi.'),
         if (!phone) ...const [
-          HelpBlock.p('**„Port 3415 jest używany przez inny program”.** Inny program, często inny portfel Epic, używa tego portu do płatności Bezpośrednio · HTTP. Zamknij go, potem naciśnij Spróbuj ponownie w Odbierz. Epicbox, Bezpośrednio · Tor i pliki działają w tym czasie dalej.'),
+          HelpBlock.p('**„Port 3415 jest używany przez inny program”.** Inny program, często inny portfel Epic, używa tego portu do płatności Płatność linkiem · HTTP. Zamknij go, potem naciśnij Spróbuj ponownie w Odbierz. Epicbox, Płatność linkiem · Tor i pliki działają w tym czasie dalej.'),
           HelpBlock.p('**„Inny program Epic używa tego folderu”.** Inny portfel lub węzeł Epic ma otwarte te same pliki. Zamknij go i spróbuj ponownie.'),
         ],
         if (phone)

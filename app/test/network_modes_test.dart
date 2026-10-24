@@ -124,7 +124,7 @@ void main() {
   });
 
   group('torWayIn', () {
-    test('Tor only: nothing ever on the clearnet; Direct http(s) refused', () {
+    test('Tor only: nothing ever on the clearnet; Link http(s) refused', () {
       for (final route in TorRoute.values) {
         for (final t in TorState.values) {
           expect(torWayIn(route, t, NetworkMode.torOnly), isNot(TorWay.clearnet), reason: '${route.name} ${t.name}');

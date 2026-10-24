@@ -22,6 +22,23 @@ abstract interface class WalletService {
   /// the chain of the last wallet config it saw.
   Future<SlateInfo> inspectSlate({required String json});
 
+  /// The payment text [json] as the QR texts of an animated code: show them in a loop, in
+  /// order, all with the same fragment size. [maxFragmentLen] is the bytes one part carries.
+  /// Nothing is encrypted. Throws [WalletError] with [WalletErrorKind.invalidSlate] for text
+  /// that is not JSON and [WalletErrorKind.qrCodeTooLarge] for a payment past the limits.
+  Future<List<String>> encodeQrSlate({
+    required String json,
+    required int maxFragmentLen,
+  });
+
+  /// Reads the distinct texts scanned so far (any order and case; pass all of them each
+  /// time). Throws [WalletError] with [WalletErrorKind.notQrSlate] or
+  /// [WalletErrorKind.foreignQrCode] when a text is not a payment QR (leave it out and keep the
+  /// others), [WalletErrorKind.mixedQrCodes] for parts of two payments (start over with the
+  /// newest text), [WalletErrorKind.invalidQrCode] for a damaged code and
+  /// [WalletErrorKind.qrCodeTooLarge] for one past the limits.
+  Future<QrSlateProgress> decodeQrSlate({required List<String> parts});
+
   /// True for `<address>@<relay>[:port]` valid on the chain of the open wallet.
   bool validateEpicboxAddress({required String address});
 
@@ -646,6 +663,82 @@ class FakeWalletService implements WalletService {
       );
     }
     return info;
+  }
+
+  /// The fake's QR text of a payment: `UR:EPIC-SLATE/<part>-<count>/<digest>/<hex>`. Parts
+  /// past `count` repeat the plain ones, like the extra parts of the real code.
+  @override
+  Future<List<String>> encodeQrSlate({
+    required String json,
+    required int maxFragmentLen,
+  }) async {
+    if (json.trim().isEmpty || !json.trimLeft().startsWith('{')) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidSlate,
+        message: 'not a slate',
+      );
+    }
+    final bytes = utf8.encode(json);
+    final count = (bytes.length / maxFragmentLen).ceil();
+    final digest = bytes.fold<int>(7, (h, b) => (h * 31 + b) & 0xffffffff);
+    final tag = digest.toRadixString(16).padLeft(8, '0');
+    String part(int index) {
+      final from = (index % count) * maxFragmentLen;
+      final chunk = bytes.sublist(
+        from,
+        from + maxFragmentLen > bytes.length ? bytes.length : from + maxFragmentLen,
+      );
+      final hex = chunk.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+      return 'UR:EPIC-SLATE/${index + 1}-$count/$tag/$hex'.toUpperCase();
+    }
+
+    return [for (var i = 0; i < count + (count > 1 ? 2 : 0); i++) part(i)];
+  }
+
+  @override
+  Future<QrSlateProgress> decodeQrSlate({required List<String> parts}) async {
+    final byIndex = <int, List<int>>{};
+    int? count;
+    String? tag;
+    for (final raw in parts) {
+      final text = raw.trim().toUpperCase();
+      final m = RegExp(
+        r'^UR:EPIC-SLATE/(\d+)-(\d+)/([0-9A-F]{8})/([0-9A-F]*)$',
+      ).firstMatch(text);
+      if (m == null) {
+        throw WalletError(
+          kind: text.startsWith('UR:')
+              ? WalletErrorKind.foreignQrCode
+              : WalletErrorKind.notQrSlate,
+          message: 'not a payment QR',
+        );
+      }
+      if (count != null && (count != int.parse(m[2]!) || tag != m[3])) {
+        throw const WalletError(
+          kind: WalletErrorKind.mixedQrCodes,
+          message: 'two payments',
+        );
+      }
+      count = int.parse(m[2]!);
+      tag = m[3];
+      final hex = m[4]!;
+      byIndex[(int.parse(m[1]!) - 1) % count] = [
+        for (var i = 0; i < hex.length; i += 2)
+          int.parse(hex.substring(i, i + 2), radix: 16),
+      ];
+    }
+    if (count == null) {
+      return const QrSlateProgress(complete: false, received: 0, count: 0);
+    }
+    final complete = byIndex.length == count;
+    return QrSlateProgress(
+      complete: complete,
+      received: byIndex.length,
+      count: count,
+      json: complete
+          ? utf8.decode([for (var i = 0; i < count; i++) ...byIndex[i]!])
+          : null,
+    );
   }
 
   @override

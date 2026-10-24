@@ -215,7 +215,7 @@ class _Harness {
   /// Advanced options, as `MaterialApp.builder` in the app would provide it.
   final bool advanced;
 
-  /// Settings › Transactions › Direct on.
+  /// Settings › Transactions › Link on.
   final bool direct;
 
   final session = _funded();
@@ -2236,13 +2236,13 @@ void main() {
   });
 
   group('advanced options', () {
-    testWidgets('send offers the file by default, Direct with its switch in Settings › Transactions', (
+    testWidgets('send offers the file by default, Link with its switch in Settings › Transactions', (
       tester,
     ) async {
       final off = _Harness();
       await off.pump(tester, _sendTab());
       expect(find.text('File'), findsOneWidget);
-      expect(find.text('Direct'), findsNothing);
+      expect(find.text('Link'), findsNothing);
       expect(find.text('Other ways to send'), findsNothing);
 
       // A fresh tree, so the screen's state starts over.
@@ -2250,7 +2250,7 @@ void main() {
       final on = _Harness(direct: true);
       await on.pump(tester, _sendTab());
       expect(find.text('File'), findsOneWidget);
-      expect(find.text('Direct'), findsOneWidget);
+      expect(find.text('Link'), findsOneWidget);
       await _enter(tester, _address, 'http://203.0.113.5:3415');
       await _tap(tester, _continue);
       expect(find.text('2 of 3'), findsOneWidget);

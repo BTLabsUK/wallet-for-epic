@@ -17,7 +17,12 @@ import 'providers.dart';
 import 'relay_directory.dart' show statusSite;
 import 'models.dart' show SelectionStrategy;
 import 'secret_store.dart';
+import 'wallet_backend.dart' show hostIsPhone;
 import 'wallet_service.dart' show Chain, TxEntry, TxSource, TxStatus;
+
+/// Whether the payment methods are the phone's (QR on, File off by default). Tests override it:
+/// the app under test runs on a computer.
+final phonePaymentsProvider = Provider<bool>((ref) => hostIsPhone);
 
 /// What a history backup export held, beyond its time: the payments still pending then, and a
 /// short hash of every note. The home reminder compares it with today's list to find payments
@@ -293,6 +298,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _advancedKey = 'app.advanced';
   static const String _advancedPrefsKey = 'app.advanced_prefs';
   static const String _paymentsKey = 'app.payment_prefs';
+  static const String _qrMethodKey = 'app.qr_method_seen';
   static const String _strategyKey = 'app.send_strategy';
   static const String _splitChangeKey = 'app.split_change';
   static const String statusSiteKey = 'app.status_site';
@@ -322,7 +328,10 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final helpLanguage = await store.read(_helpLanguageKey);
     final advanced = await store.read(_advancedKey);
     final advancedPrefs = await store.read(_advancedPrefsKey);
-    final payments = await store.read(_paymentsKey);
+    final legacyDirect = (advancedPrefs ?? '').split('|').first.split(',').contains('directReceiving');
+    final phone = ref.watch(phonePaymentsProvider);
+    var payments = await store.read(_paymentsKey);
+    if (phone) payments = await _migrateQrMethod(store, payments, legacyDirect);
     final strategy = await store.read(_strategyKey);
     final splitChange = await store.read(_splitChangeKey);
     final tips = await store.read(tipsHiddenKey);
@@ -395,10 +404,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
             )
           : defaults.advanced,
       // Direct was the Advanced page's "Direct receiving" switch before 26.10.13.
-      payments: PaymentPrefs.decode(
-        payments,
-        legacyDirect: (advancedPrefs ?? '').split('|').first.split(',').contains('directReceiving'),
-      ),
+      payments: PaymentPrefs.decode(payments, legacyDirect: legacyDirect, phone: phone),
       useStatusSite: site,
       sendStrategy: SelectionStrategy.values.firstWhere(
         (v) => v.name == strategy,
@@ -413,6 +419,33 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     // The network mode reaches the runtime here (network_gate.dart); main.dart set it at launch.
     NetGate.set(settings.advanced.networkMode);
     return settings;
+  }
+
+  /// The first start of the version that made QR a phone method and File an Advanced one: a
+  /// phone that already has a wallet keeps File (saved on explicitly when it was on or never
+  /// chosen), a new install does not get it. Runs once; returns the stored payments value.
+  static Future<String?> _migrateQrMethod(
+    SecretStore store,
+    String? payments,
+    bool legacyDirect,
+  ) async {
+    if (await store.read(_qrMethodKey) != null) return payments;
+    var hadWallet = false;
+    for (final chain in Chain.values) {
+      hadWallet |=
+          await store.read('wallet.${chain.name}.pinSealed') != null ||
+          await store.read('wallet.${chain.name}.backedUp') != null;
+    }
+    if (hadWallet) {
+      // As the version before read it: nothing stored means File on.
+      final before = PaymentPrefs.decode(payments, legacyDirect: legacyDirect);
+      if (before.file) {
+        payments = before.encode();
+        await store.write(_paymentsKey, payments);
+      }
+    }
+    await store.write(_qrMethodKey, '1');
+    return payments;
   }
 
   /// The ids saved under [tipsHiddenKey], a JSON list; anything else counts as none hidden.

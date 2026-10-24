@@ -1,6 +1,6 @@
 // The one Tor switch on desktop Send: every gate and chip comes from torWay. Starting and
 // not connected hold covered sends (Epicbox, an onion); nothing falls back to the clearnet;
-// Direct to http(s) goes on the clearnet even with Tor on; an onion with Tor off needs Tor.
+// Link to http(s) goes on the clearnet even with Tor on; an onion with Tor off needs Tor.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -102,7 +102,7 @@ void main() {
       wallet.canSend = false;
     });
 
-    for (final (name, to) in [('Epicbox', _epicbox), ('a Direct onion', _onion)]) {
+    for (final (name, to) in [('Epicbox', _epicbox), ('a Link onion', _onion)]) {
       testWidgets('$name waits: Review disabled, "Waiting for Tor", nothing sent', (tester) async {
         await show(tester, SendArgs(recipient: to, amount: '1'));
         expect(chip('Tor starting'), findsOneWidget);
@@ -153,14 +153,14 @@ void main() {
     });
   });
 
-  testWidgets('Direct http(s) with Tor on: sendable, "Not over Tor", sent over http', (tester) async {
+  testWidgets('Link http(s) with Tor on: sendable, "Not over Tor", sent over http', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _https, amount: '5'));
     expect(chip('Not over Tor'), findsOneWidget);
-    expect(find.text('Direct to http(s) addresses goes over the clearnet, not Tor.'), findsOneWidget);
+    expect(find.text('Link to http(s) addresses goes over the clearnet, not Tor.'), findsOneWidget);
     expect(review(tester).label, 'Review send');
     await tester.tap(find.text('Review send'));
     await tester.pumpAndSettle();
-    expect(find.text('Direct · HTTP (their wallet must be open)'), findsOneWidget);
+    expect(find.text('Link Payment · HTTP (their wallet must be open)'), findsOneWidget);
     await enterReviewPassword(tester);
     await tester.tap(find.textContaining('Send 5'));
     await tester.pumpAndSettle();
@@ -168,10 +168,10 @@ void main() {
     expect(wallet.sent.single.to, _https);
   });
 
-  testWidgets('Direct onion with Tor on: "Over Tor", sent over Tor', (tester) async {
+  testWidgets('Link onion with Tor on: "Over Tor", sent over Tor', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'));
     expect(chip('Over Tor'), findsOneWidget);
-    expect(find.text('Direct to http(s) addresses goes over the clearnet, not Tor.'), findsNothing);
+    expect(find.text('Link to http(s) addresses goes over the clearnet, not Tor.'), findsNothing);
     expect(review(tester).onPressed, isNotNull);
   });
 
@@ -180,7 +180,7 @@ void main() {
     expect(find.text('Needs Tor'), findsOneWidget);
     expect(chip('Not over Tor'), findsOneWidget);
     expect(review(tester).onPressed, isNull);
-    expect(find.text('Direct to http(s) addresses goes over the clearnet, not Tor.'), findsNothing);
+    expect(find.text('Link to http(s) addresses goes over the clearnet, not Tor.'), findsNothing);
     await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
     await tester.pumpAndSettle();
     expect(wallet.torCalls, [true]);

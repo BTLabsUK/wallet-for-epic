@@ -105,6 +105,11 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.chainBusy => WalletErrorKind.chainBusy,
     lepic.WalletErrorKind.walletBusy => WalletErrorKind.walletBusy,
     lepic.WalletErrorKind.paymentExpired => WalletErrorKind.paymentExpired,
+    lepic.WalletErrorKind.notUrCode => WalletErrorKind.notQrSlate,
+    lepic.WalletErrorKind.foreignUrCode => WalletErrorKind.foreignQrCode,
+    lepic.WalletErrorKind.mixedUrCodes => WalletErrorKind.mixedQrCodes,
+    lepic.WalletErrorKind.invalidUrCode => WalletErrorKind.invalidQrCode,
+    lepic.WalletErrorKind.urCodeTooLarge => WalletErrorKind.qrCodeTooLarge,
     lepic.WalletErrorKind.io => WalletErrorKind.io,
     lepic.WalletErrorKind.damagedDatabase => WalletErrorKind.damagedDatabase,
     lepic.WalletErrorKind.httpUrlInvalid => WalletErrorKind.httpUrlInvalid,
@@ -800,6 +805,27 @@ class LepicWalletService implements WalletService {
     () async => lepicSlateInfo(
       await lepic.inspectSlate(json: json, chain: _lepicChain(_chain)),
     ),
+  );
+
+  @override
+  Future<List<String>> encodeQrSlate({
+    required String json,
+    required int maxFragmentLen,
+  }) => _guard(
+    () => lepic.encodeUrSlate(json: json, maxFragmentLen: maxFragmentLen),
+  );
+
+  @override
+  Future<QrSlateProgress> decodeQrSlate({required List<String> parts}) => _guard(
+    () async {
+      final p = await lepic.decodeUrSlate(parts: parts);
+      return QrSlateProgress(
+        complete: p.complete,
+        received: p.receivedFragments,
+        count: p.fragmentCount,
+        json: p.json,
+      );
+    },
   );
 
   @override

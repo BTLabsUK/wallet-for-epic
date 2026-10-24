@@ -143,9 +143,9 @@ void main() {
 
   test('the tag says how the address is reached', () {
     expect(contactTag(_l, _alice), 'Epicbox');
-    expect(contactTag(_l, _onion), 'Direct · Tor');
-    expect(contactTag(_l, 'http://${'t' * 55}d.onion'), 'Direct · Tor');
-    expect(contactTag(_l, _http), 'Direct · HTTP');
+    expect(contactTag(_l, _onion), 'Link Payment · Tor');
+    expect(contactTag(_l, 'http://${'t' * 55}d.onion'), 'Link Payment · Tor');
+    expect(contactTag(_l, _http), 'Link Payment · HTTP');
   });
 
   group('list', () {
@@ -173,7 +173,7 @@ void main() {
       expect(find.text('BB'), findsOneWidget);
       expect(find.text('AL'), findsOneWidget);
       expect(find.text('Epicbox'), findsNWidgets(2));
-      expect(find.text('Direct · Tor'), findsOneWidget);
+      expect(find.text('Link Payment · Tor'), findsOneWidget);
       expect(
         find.textContaining(
           shortAddress(_bob).split('@').first,
@@ -311,7 +311,7 @@ void main() {
     });
 
     for (final (name, address) in [('http', _http), ('onion', _onion)]) {
-      testWidgets('the edit screen saves a Direct $name address', (tester) async {
+      testWidgets('the edit screen saves a Link $name address', (tester) async {
         final h = _Harness();
         await h.pump(tester, const ContactEditScreen());
         await tester.enterText(find.widgetWithText(TextField, _l.contactsNameLabel), 'Dan');

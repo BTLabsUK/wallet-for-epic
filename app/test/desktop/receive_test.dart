@@ -140,13 +140,13 @@ void main() {
   });
 
   testWidgets("a header icon scrolls to its method's panel", (tester) async {
-    // With Tor on, Direct is the one panel beside Epicbox: a short window puts it below the fold.
+    // With Tor on, Link is the one panel beside Epicbox: a short window puts it below the fold.
     await _pump(tester, const ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1200, height: 600);
     final panel = find.byKey(const ValueKey('rx-panel-tor'));
     final view = tester.getRect(find.byType(Scrollable).first);
     final before = tester.getRect(panel).top;
     expect(view.contains(tester.getRect(panel).bottomLeft), isFalse, reason: 'below the fold in one column');
-    await tester.tap(find.bySemanticsLabel(RegExp(r'^Direct · Tor: ')));
+    await tester.tap(find.bySemanticsLabel(RegExp(r'^Link Payment · Tor: ')));
     await tester.pumpAndSettle();
     expect(tester.getRect(panel).top, lessThan(before));
     expect(view.contains(tester.getRect(panel).topLeft), isTrue);
@@ -155,7 +155,7 @@ void main() {
   testWidgets('the header says each method in words for screen readers', (tester) async {
     final handle = tester.ensureSemantics();
     await _pump(tester, const ReceiveArgs(http: RxHttp.on));
-    expect(find.bySemanticsLabel(RegExp(r'^Epicbox on, Direct · HTTP on')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^Epicbox on, Link Payment · HTTP on')), findsOneWidget);
     handle.dispose();
   });
 

@@ -1,8 +1,8 @@
-// Settings › Transactions on the desktop (26.10.13): the renamed page and its groups, the Direct
+// Settings › Transactions on the desktop (26.10.13): the renamed page and its groups, the Link
 // and File switches, the method Send starts on (limited to the methods that are on), Send's
 // defaults only with Advanced › Send options, and what follows from the switches on Send,
 // Receive and the sidebar, with the keep rules (a pasted onion, a pending file send, a running
-// listener). Outputs holds one line instead of the defaults; Advanced no longer has Direct.
+// listener). Outputs holds one line instead of the defaults; Advanced no longer has Link.
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
@@ -68,8 +68,8 @@ List<String> _segments<T>(WidgetTester tester) => tester.widget<ESegmented<T>>(f
 
 T _selected<T>(WidgetTester tester) => tester.widget<ESegmented<T>>(find.byType(ESegmented<T>).first).value;
 
-/// The sidebar's Direct · HTTP row.
-final _railHttp = find.descendant(of: find.byKey(const ValueKey('rail')), matching: find.text('Direct · HTTP'));
+/// The sidebar's Link Payment · HTTP row.
+final _railHttp = find.descendant(of: find.byKey(const ValueKey('rail')), matching: find.text('Link Payment · HTTP'));
 
 Finder _offer(String m) => find.byKey(ValueKey('st-offer-$m'));
 
@@ -88,14 +88,14 @@ void main() {
       expect(find.text('Send starts on'), findsOneWidget);
     });
 
-    testWidgets('by default File is on, Direct off, and Direct’s receiving rows are not shown', (tester) async {
+    testWidgets('by default File is on, Link off, and Link’s receiving rows are not shown', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       expect(tester.widget<ESwitch>(_offer('file')).value, isTrue);
       expect(tester.widget<ESwitch>(_offer('direct')).value, isFalse);
       expect(find.byKey(const ValueKey('st-switch-http')), findsNothing);
     });
 
-    testWidgets('the Direct switch saves and shows the HTTP receiving rows under the methods', (tester) async {
+    testWidgets('the Link switch saves and shows the HTTP receiving rows under the methods', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       await tester.tap(_offer('direct'));
       await _settle(tester);
@@ -118,7 +118,7 @@ void main() {
       expect(_payments.file, isTrue);
     });
 
-    testWidgets('a running listener keeps the HTTP rows although Direct is off', (tester) async {
+    testWidgets('a running listener keeps the HTTP rows although Link is off', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       await tester.runAsync(() => _container.read(deskProvider.notifier).setHttp(true));
       await _settle(tester);
@@ -137,7 +137,7 @@ void main() {
       expect(_payments.defaultMethod, PayMethod.file);
       await tester.tap(_offer('direct'));
       await _settle(tester);
-      expect(tester.widget<ESegmented<PayMethod>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct', 'File']);
+      expect(tester.widget<ESegmented<PayMethod>>(start).segments.map((s) => s.label), ['Epicbox', 'Link Payment', 'File']);
     });
 
     testWidgets('a default that is switched off falls back to Epicbox and is not offered', (tester) async {
@@ -161,7 +161,7 @@ void main() {
       expect(_selected<TxMethod>(tester), TxMethod.file);
     });
 
-    testWidgets('Send opens on Direct when that is the choice and Direct is on', (tester) async {
+    testWidgets('Send opens on Link when that is the choice and Link is on', (tester) async {
       await _open(tester, DeskRoute.send, payments: const PaymentPrefs(direct: true, defaultMethod: PayMethod.direct));
       expect(_selected<TxMethod>(tester), TxMethod.http);
     });
@@ -224,15 +224,15 @@ void main() {
   });
 
   group('Advanced', () {
-    testWidgets('no Direct switch; the others and the network modes stay', (tester) async {
+    testWidgets('no Link switch; the others and the network modes stay', (tester) async {
       await _open(tester, DeskRoute.settingsAdvanced);
       expect(find.byKey(const ValueKey('adv-directReceiving')), findsNothing);
-      expect(find.text('Direct receiving'), findsNothing);
+      expect(find.text('Link receiving'), findsNothing);
       expect(find.byKey(const ValueKey('adv-sendOptions')), findsOneWidget);
       expect(find.byKey(const ValueKey('adv-mode-offline')), findsOneWidget);
     });
 
-    test('the old Direct receiving switch is taken over as Direct on', () {
+    test('the old Link receiving switch is taken over as Link on', () {
       final s = deskSettingsFromJson({
         'advanced': {'features': ['directReceiving', 'outputs'], 'networkMode': 'standard'},
       });
@@ -256,9 +256,9 @@ void main() {
       expect(_segments<TxMethod>(tester), ['Epicbox', 'File']);
     });
 
-    testWidgets('Direct appears with its switch', (tester) async {
+    testWidgets('Link appears with its switch', (tester) async {
       await _open(tester, DeskRoute.send, payments: const PaymentPrefs(direct: true));
-      expect(_segments<TxMethod>(tester), ['Epicbox', 'Direct', 'File']);
+      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'File']);
     });
 
     testWidgets('File off: the segment is gone', (tester) async {
@@ -266,11 +266,11 @@ void main() {
       expect(_segments<TxMethod>(tester), ['Epicbox']);
     });
 
-    testWidgets('a pasted onion with Direct off brings Direct for this send, never a refusal', (tester) async {
+    testWidgets('a pasted onion with Link off brings Link for this send, never a refusal', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs());
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
-      expect(_segments<TxMethod>(tester), ['Epicbox', 'Direct', 'File']);
+      expect(_segments<TxMethod>(tester), ['Epicbox', 'Link', 'File']);
       expect(_selected<TxMethod>(tester), TxMethod.http);
       expect(_payments.direct, isFalse, reason: 'nothing was switched on');
     });
@@ -287,24 +287,24 @@ void main() {
   });
 
   group('Receive and the sidebar follow the switches', () {
-    testWidgets('Direct off: no HTTP card and no HTTP row', (tester) async {
+    testWidgets('Link off: no HTTP card and no HTTP row', (tester) async {
       await _open(tester, DeskRoute.receive);
-      expect(find.text('Direct · HTTP address'), findsNothing);
+      expect(find.text('Link Payment · HTTP address'), findsNothing);
       expect(_railHttp, findsNothing);
     });
 
-    testWidgets('Direct on: the HTTP card and the HTTP row', (tester) async {
+    testWidgets('Link on: the HTTP card and the HTTP row', (tester) async {
       await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(direct: true));
-      expect(find.text('Direct · HTTP address'), findsWidgets);
+      expect(find.text('Link Payment · HTTP address'), findsWidgets);
       expect(_railHttp, findsOneWidget);
     });
 
-    testWidgets('a running listener keeps the card and the sidebar row with Direct off', (tester) async {
+    testWidgets('a running listener keeps the card and the sidebar row with Link off', (tester) async {
       await _open(tester, DeskRoute.receive);
       await tester.runAsync(() => _container.read(deskProvider.notifier).setHttp(true));
       await _settle(tester);
       expect(_payments.direct, isFalse);
-      expect(find.text('Direct · HTTP address'), findsWidgets);
+      expect(find.text('Link Payment · HTTP address'), findsWidgets);
       expect(_railHttp, findsOneWidget);
     });
 

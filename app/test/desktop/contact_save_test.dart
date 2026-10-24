@@ -77,7 +77,7 @@ void main() {
     await _open(tester, api);
     await _fill(tester, 'lol', 'http://');
     expect(api.saved, isEmpty);
-    expect(find.text('Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'), findsOneWidget);
+    expect(find.text('Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'), findsOneWidget);
     expect(find.byType(ESpinner), findsNothing);
   });
 }

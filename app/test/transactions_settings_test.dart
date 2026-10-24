@@ -1,7 +1,7 @@
-// Settings › Transactions on the phone: the payment methods (Epicbox always on, Direct and File
+// Settings › Transactions on the phone: the payment methods (Epicbox always on, Link and File
 // as switches), the method Send starts on (only among the methods offered), and, with Advanced
 // › Send options, the send defaults that used to sit on Outputs. The Advanced page no longer
-// holds a Direct switch; an old one is taken over.
+// holds a Link switch; an old one is taken over.
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -46,6 +46,7 @@ Future<ProviderContainer> _pump(
   WidgetTester tester,
   MemorySecretStore store, {
   SettingsSection section = SettingsSection.transactions,
+  bool phone = false,
 }) async {
   tester.view.physicalSize = const Size(1080, 4800);
   tester.view.devicePixelRatio = 3;
@@ -56,6 +57,7 @@ Future<ProviderContainer> _pump(
       overrides: [
         walletServiceProvider.overrideWithValue(FakeWalletService()),
         secretStoreProvider.overrideWithValue(store),
+        phonePaymentsProvider.overrideWithValue(phone),
         updatePlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_NoRelays()),
         sessionProvider.overrideWith(_OpenSession.new),
@@ -93,13 +95,13 @@ PaymentPrefs _payments(ProviderContainer c) =>
     c.read(appSettingsProvider).value!.payments;
 
 void main() {
-  testWidgets('methods: Epicbox is always on, Direct and File are switches', (tester) async {
+  testWidgets('methods: Epicbox is always on, Link and File are switches', (tester) async {
     await _pump(tester, _store());
     expect(find.text(_l.txMethodsHeader), findsOneWidget);
     // Epicbox: a row with "Always on" and no switch.
     expect(find.descendant(of: _row('tx-epicbox'), matching: find.text(_l.txAlwaysOn)), findsOneWidget);
     expect(_switchOf('tx-epicbox'), findsNothing);
-    // Direct is off by default, File on.
+    // Link is off by default, File on.
     expect(tester.widget<Switch>(_switchOf('tx-direct')).value, isFalse);
     expect(tester.widget<Switch>(_switchOf('tx-file')).value, isTrue);
     expect(find.text(_l.txDirectLine), findsOneWidget);
@@ -110,7 +112,7 @@ void main() {
     await _pump(tester, _store());
     for (final (title, text) in [
       (_l.methodEpicbox, _l.txEpicboxHint),
-      (_l.methodDirect, _l.txDirectHint),
+      (_l.methodLinkPayment, _l.txDirectHint),
       (_l.methodFile, _l.txFileHint),
     ]) {
       await tester.tap(
@@ -149,7 +151,7 @@ void main() {
     await tester.tap(_row('tx-start-file'));
     await tester.pumpAndSettle();
     expect(_payments(c).defaultMethod, PayMethod.file);
-    // Direct on adds its choice.
+    // Link on adds its choice.
     await tester.tap(_row('tx-direct'));
     await tester.pumpAndSettle();
     expect(_row('tx-start-direct'), findsOneWidget);
@@ -157,7 +159,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_payments(c).defaultMethod, PayMethod.direct);
     expect(_payments(c).startMethod, PayMethod.direct);
-    // Direct off again: the choice is no longer offered and Send starts on Epicbox.
+    // Link off again: the choice is no longer offered and Send starts on Epicbox.
     await tester.tap(_row('tx-direct'));
     await tester.pumpAndSettle();
     expect(_row('tx-start-direct'), findsNothing);
@@ -241,17 +243,99 @@ void main() {
     }
   });
 
-  testWidgets('Advanced no longer holds a Direct switch', (tester) async {
+  testWidgets('Advanced no longer holds a Link switch', (tester) async {
     await _pump(tester, _store(), section: SettingsSection.advanced);
     expect(find.byKey(const ValueKey('adv-sendOptions')), findsOneWidget);
     expect(find.byKey(const ValueKey('adv-directReceiving')), findsNothing);
-    expect(find.text('Direct receiving'), findsNothing);
+    expect(find.text('Link receiving'), findsNothing);
   });
 
-  testWidgets('the old Direct receiving switch is taken over as Direct on', (tester) async {
+  testWidgets('the old Link receiving switch is taken over as Link on', (tester) async {
     final store = _store({'app.advanced_prefs': 'directReceiving|standard'});
     final c = await _pump(tester, store);
     expect(_payments(c).direct, isTrue);
     expect(tester.widget<Switch>(_switchOf('tx-direct')).value, isTrue);
+  });
+
+  group('on a phone: QR for everyone, File behind Advanced', () {
+    const files = AdvancedPrefs(features: {AdvancedFeature.transactionFiles});
+
+    testWidgets('a new phone: QR is on, there is no File row', (tester) async {
+      await _pump(tester, _store(), phone: true);
+      expect(tester.widget<Switch>(_switchOf('tx-qr')).value, isTrue);
+      expect(find.text(_l.txQrLine), findsOneWidget);
+      expect(_row('tx-file'), findsNothing);
+      expect(_row('tx-start-qr'), findsOneWidget);
+      expect(_row('tx-start-file'), findsNothing);
+    });
+
+    testWidgets('Advanced › Transaction files brings the File switch, off', (tester) async {
+      final store = _store({'app.advanced_prefs': files.encode()});
+      final c = await _pump(tester, store, phone: true);
+      expect(tester.widget<Switch>(_switchOf('tx-file')).value, isFalse);
+      await tester.tap(_row('tx-file'));
+      await tester.pumpAndSettle();
+      expect(_payments(c).file, isTrue);
+      expect(_row('tx-start-file'), findsOneWidget);
+    });
+
+    testWidgets('a phone that has File on keeps the row, so it can switch it off', (
+      tester,
+    ) async {
+      final c = await _pump(
+        tester,
+        _store({'app.payment_prefs': 'file|epicbox'}),
+        phone: true,
+      );
+      expect(tester.widget<Switch>(_switchOf('tx-file')).value, isTrue);
+      await tester.tap(_row('tx-file'));
+      await tester.pumpAndSettle();
+      expect(_payments(c).file, isFalse);
+      // It stays on the page, so a changed setting does not vanish under the finger.
+      expect(_row('tx-file'), findsOneWidget);
+    });
+
+    testWidgets('the QR switch saves, and Send starts on QR when chosen', (tester) async {
+      final store = _store();
+      final c = await _pump(tester, store, phone: true);
+      await tester.tap(_row('tx-start-qr'));
+      await tester.pumpAndSettle();
+      expect(_payments(c).startMethod, PayMethod.qr);
+      await tester.tap(_row('tx-qr'));
+      await tester.pumpAndSettle();
+      expect(_payments(c).qr, isFalse);
+      expect(store.values['app.payment_prefs'], contains('noqr'));
+      // Off: it is no longer a choice and Send starts on Epicbox.
+      expect(_row('tx-start-qr'), findsNothing);
+      expect(_payments(c).startMethod, PayMethod.epicbox);
+    });
+
+    testWidgets('the QR switch has an info sheet', (tester) async {
+      await _pump(tester, _store(), phone: true);
+      await tester.tap(
+        find.byWidgetPredicate((w) => w is InfoHint && w.title == _l.methodQr),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(of: find.byType(InfoSheet), matching: find.text(_l.txQrHint)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('the Advanced page has the Transaction files switch', (tester) async {
+      final c = await _pump(
+        tester,
+        _store(),
+        section: SettingsSection.advanced,
+        phone: true,
+      );
+      expect(_row('adv-transactionFiles'), findsOneWidget);
+      await tester.tap(_row('adv-transactionFiles'));
+      await tester.pumpAndSettle();
+      expect(
+        c.read(appSettingsProvider).value!.advanced.has(AdvancedFeature.transactionFiles),
+        isTrue,
+      );
+    });
   });
 }

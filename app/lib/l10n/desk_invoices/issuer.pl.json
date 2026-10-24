@@ -5,7 +5,7 @@
   "deskInvIssuerMethod": "Metoda",
   "deskInvIssuerEpicbox": "Epicbox",
   "deskInvIssuerFile": "Plik",
-  "deskInvIssuerDirect": "Bezpośrednio",
+  "deskInvIssuerDirect": "Link",
   "deskInvIssuerSoon": "Wkrótce",
   "deskInvIssuerPayer": "Adres do faktur płacącego",
   "deskInvIssuerPayerHelp": "Jego portfel pokazuje go w Ustawienia › Faktury.",

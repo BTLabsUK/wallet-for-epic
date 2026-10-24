@@ -25,7 +25,7 @@
   "deskSetAdvModeOffline": "Offline",
   "deskSetAdvModeOfflineText": "Tylko ten komputer i twoja sieć lokalna. Twój węzeł działa dalej; jego peery to ustawienie samego węzła.",
   "deskSetAdvTorOnlyNote": "Tylko Tor wyłącza odbieranie przez HTTP: zwykły adres ujawniłby ten komputer.",
-  "deskSetAdvOfflineNote": "Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, pliki i Bezpośrednio na adresy lokalne.",
+  "deskSetAdvOfflineNote": "Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, pliki i Płatność linkiem na adresy lokalne.",
   "deskSetAdvNotInBuild": "Brak w tej wersji",
   "deskSetAdvReset": "Ukryj wszystko ponownie",
   "deskSetAdvOn": "{n, plural, one{1 przełącznik włączony} few{{n} przełączniki włączone} many{{n} przełączników włączonych} other{{n} przełącznika włączonego}}",

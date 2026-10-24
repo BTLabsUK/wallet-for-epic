@@ -38,6 +38,14 @@ final class SecureScreen: NSObject, FlutterPlugin {
   }
 
   func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    if call.method == "openAppSettings" {
+      guard let url = URL(string: UIApplication.openSettingsURLString) else {
+        result(false)
+        return
+      }
+      UIApplication.shared.open(url, options: [:]) { opened in result(opened) }
+      return
+    }
     guard call.method == "setSecure" else {
       result(FlutterMethodNotImplemented)
       return

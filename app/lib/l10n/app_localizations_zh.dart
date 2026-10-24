@@ -2494,6 +2494,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slateReading => '正在读取文件';
 
   @override
+  String get slateReadingQr => '正在读取付款';
+
+  @override
   String get slateFileTooLarge => '该文件过大，不可能是交易文件。';
 
   @override
@@ -2598,6 +2601,286 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scanQrBack => '返回';
 
   @override
+  String get qrShowReplyAsQr => '将回复显示为二维码';
+
+  @override
+  String get qrShowTitlePayment => '付款二维码';
+
+  @override
+  String get qrShowTitleReply => '回复二维码';
+
+  @override
+  String qrShowSubPayment(String amount) {
+    return '$amount，给你身边的手机';
+  }
+
+  @override
+  String qrShowSubReply(String amount) {
+    return '发给 $amount 的发送方';
+  }
+
+  @override
+  String get qrHiddenTitle => '点击后才会显示';
+
+  @override
+  String get qrHiddenBodyPayment => '谁先扫到，谁就能接受这笔付款。只给你要付款的那个人看。';
+
+  @override
+  String get qrHiddenBodyReply => '只给发送方的手机看。只有对方的钱包能使用它。';
+
+  @override
+  String get qrShow => '显示二维码';
+
+  @override
+  String get qrShowAgain => '再次显示';
+
+  @override
+  String get qrHide => '隐藏';
+
+  @override
+  String qrCountdownLabel(int seconds) {
+    return '$seconds 秒后显示';
+  }
+
+  @override
+  String qrPartOf(int part, int count) {
+    return '第 $part 段，共 $count 段';
+  }
+
+  @override
+  String qrSecondsShort(int seconds) {
+    return '$seconds 秒';
+  }
+
+  @override
+  String qrSecondsLeft(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '还剩 $seconds 秒',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qrHoldHint => '请把另一部手机的摄像头对准这个码。';
+
+  @override
+  String get qrSecureLine => '此屏幕已禁止截屏';
+
+  @override
+  String qrTimedOutTitle(int seconds) {
+    return '$seconds 秒后已隐藏';
+  }
+
+  @override
+  String get qrTimedOutBody => '另一部手机准备好后再显示。';
+
+  @override
+  String qrTimedOutAnnounce(int seconds) {
+    return '$seconds 秒后已隐藏';
+  }
+
+  @override
+  String get qrAwayTitle => '应用离开期间已隐藏';
+
+  @override
+  String get qrAwayBody => '应用离开屏幕时，二维码会自动隐藏。';
+
+  @override
+  String qrSemanticsPayment(String state) {
+    return '付款二维码，$state';
+  }
+
+  @override
+  String qrSemanticsReply(String state) {
+    return '回复二维码，$state';
+  }
+
+  @override
+  String get qrStateHidden => '已隐藏';
+
+  @override
+  String get qrStateShowing => '显示中';
+
+  @override
+  String get qrScanPayment => '扫描付款二维码';
+
+  @override
+  String get qrScanReply => '扫描对方的回复';
+
+  @override
+  String get qrScanAimPayment => '请把摄像头对准对方手机上的二维码。';
+
+  @override
+  String get qrScanAimReply => '请把摄像头对准对方手机上的回复。';
+
+  @override
+  String get qrScanSteady => '请拿稳，或靠近一点。';
+
+  @override
+  String get qrScanGot => '已读取';
+
+  @override
+  String qrScanCount(int got, int count) {
+    return '$got / $count';
+  }
+
+  @override
+  String get qrScanCountLabel => '已读取的段数';
+
+  @override
+  String get qrScanNotPayment => '这不是付款二维码。请让对方在手机上显示付款二维码。';
+
+  @override
+  String get qrScanNotReply => '这不是回复二维码。请让对方在手机上显示回复。';
+
+  @override
+  String get qrScanOtherPayment => '这个码属于另一笔付款。正在重新开始。';
+
+  @override
+  String get qrScanTorch => '手电筒';
+
+  @override
+  String qrScanZoom(String factor) {
+    return '缩放 $factor×';
+  }
+
+  @override
+  String get qrScanCameraDenied =>
+      '钱包无权使用摄像头。如需扫码，请在手机设置中允许此应用访问摄像头。你也可以改为打开文件。';
+
+  @override
+  String get qrScanCameraFailed => '摄像头无法启动。请重试，或改为打开文件。';
+
+  @override
+  String get qrScanOpenSettings => '打开设置';
+
+  @override
+  String get qrScanOpenFileInstead => '改为打开文件';
+
+  @override
+  String get qrScanAgain => '再次扫描';
+
+  @override
+  String get slateWrongPaymentQr => '此回复属于另一笔付款。请扫描这笔付款的回复。';
+
+  @override
+  String get slateScannedPaymentTitle => '已扫描的付款';
+
+  @override
+  String get slateScannedReplyTitle => '已扫描的回复';
+
+  @override
+  String get slateIncomingSendHintQr => '接受付款，然后把回复展示给发送方。';
+
+  @override
+  String get slateAcceptedHeadlineQr => '已接受。请把回复展示给发送方。';
+
+  @override
+  String get methodQr => '二维码付款';
+
+  @override
+  String get receiveTabQr => '二维码付款';
+
+  @override
+  String get methodArtCaptionQr => '当面';
+
+  @override
+  String get methodArtLabelQr => '二维码付款：一部手机上的码被身边的另一部手机扫描';
+
+  @override
+  String get methodSendQrTitle => '给你身边的手机。';
+
+  @override
+  String get methodSendQrLine => '在这块屏幕上显示二维码，再用摄像头扫描对方的回复。';
+
+  @override
+  String get methodReceiveQrTitle => '扫描对方的屏幕。';
+
+  @override
+  String get methodReceiveQrLine => '接受付款，再用同样的方式显示你的回复。';
+
+  @override
+  String get receiveQrTitle => '就在发送方身边？';
+
+  @override
+  String get receiveQrBody => '扫描发送方手机上的二维码，接受付款，再显示你的回复。';
+
+  @override
+  String get txQrLine => '面对面付款或收款，用屏幕上的二维码。';
+
+  @override
+  String get txQrHint =>
+      '二维码付款会把付款显示成动态码，由另一部手机用摄像头扫描，回复也用同样方式接收。它只适用于并排的两部手机，两个钱包之间无需连接，二维码会在 40 秒后自动隐藏。会在发送和接收中加入二维码付款。';
+
+  @override
+  String get advTransactionFiles => '交易文件';
+
+  @override
+  String get advTransactionFilesHint => '在设置 › 交易中加入“文件”开关：用你自己传递的文件付款或收款。';
+
+  @override
+  String get sendQrTitle => '二维码付款';
+
+  @override
+  String get sendMakeQr => '生成付款二维码';
+
+  @override
+  String sendQrPinReason(String amount) {
+    return '输入 PIN，以生成 $amount 的付款二维码。';
+  }
+
+  @override
+  String get sendQrMade => '付款已生成';
+
+  @override
+  String get sendQrHint => '把二维码给接收方的手机看，然后扫描对方的回复。';
+
+  @override
+  String get sendCancelRuleQr => '在你扫描对方回复之前都可以取消。';
+
+  @override
+  String get qrStatusSendHidden => '把它给接收方看。';
+
+  @override
+  String get qrStatusSendShowing => '等待接收方扫描。然后扫描对方的回复。';
+
+  @override
+  String get qrStatusHiddenAgain => '已隐藏。如果对方没扫完，请再次显示。';
+
+  @override
+  String get qrStatusReplyHidden => '把它给发送方看。';
+
+  @override
+  String get qrStatusReplyShowing => '等待发送方扫描。';
+
+  @override
+  String get qrStatusReceivedWaiting => '已收到付款。等待发送方扫描并发布。';
+
+  @override
+  String qrStatusPosted(int got, int target) {
+    return '已发布。确认中 $got/$target';
+  }
+
+  @override
+  String get qrStatusReceived => '已收到。';
+
+  @override
+  String qrScanProgress(int got, int count) {
+    return '已扫描 $got / $count。请让二维码保持在取景框内。';
+  }
+
+  @override
+  String get qrScanReplyScanned => '已扫描回复。';
+
+  @override
+  String get qrScanPosting => '已扫描回复。正在发布…';
+
+  @override
+  String get qrScanPosted => '已发布。';
+
+  @override
   String get contactsTitle => '联系人';
 
   @override
@@ -2670,7 +2953,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、直连地址（https://…）或 onion 地址（….onion）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、链接地址（https://…）或 onion 地址（….onion）。';
 
   @override
   String get settingsTitle => '设置';
@@ -3569,7 +3852,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveTabFile => '文件';
 
   @override
-  String get receiveTorAddressLabel => 'Tor 地址';
+  String get receiveTorAddressLabel => '你的链接';
 
   @override
   String get receiveTorQrLabel => '你的 Tor 地址二维码';
@@ -3714,7 +3997,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；“文件”生成一个文件，交给对方。更多方式：设置 › 交易。发出前会先确认。';
+      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；二维码把码显示给身边的手机。更多方式：设置 › 交易。发出前会先确认。';
 
   @override
   String get tourPhoneReceiveTitle => '接收';
@@ -4300,7 +4583,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netStatusTorOpenHint => '打开隐私设置';
 
   @override
-  String get netStatusDirectOpenHint => '打开直连接收地址';
+  String get netStatusDirectOpenHint => '打开链接接收地址';
 
   @override
   String get netStatusOpenHint => '显示服务器';
@@ -4481,10 +4764,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => '直连 · HTTP';
+  String get methodDirectHttp => '链接付款 · HTTP';
 
   @override
-  String get methodDirectTor => '直连 · Tor';
+  String get methodDirectTor => '链接付款 · Tor';
 
   @override
   String get methodFile => '文件';
@@ -4980,7 +5263,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerFile => '文件';
 
   @override
-  String get deskInvIssuerDirect => '直连';
+  String get deskInvIssuerDirect => '链接';
 
   @override
   String get deskInvIssuerSoon => '即将推出';
@@ -5689,7 +5972,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get methodDirect => '直连';
+  String get methodDirect => '链接';
+
+  @override
+  String get methodLinkPayment => '链接付款';
 
   @override
   String get methodDirectShape => 'http://host:3415 或 xxxx….onion';
@@ -5698,7 +5984,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodSendDirectLine => '对方钱包必须处于打开状态。onion 地址经由 Tor。';
 
   @override
-  String get methodArtLabelDirect => '直连：付款直接发送到收款人的钱包，该钱包必须处于打开状态';
+  String get methodArtLabelDirect => '链接付款：付款直接发送到收款人的钱包，该钱包必须处于打开状态';
 
   @override
   String get methodReceiveEpicboxShort => '钱包关闭时也可收款。';
@@ -5715,14 +6001,14 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get sendSwitchedDirect => '直连地址';
+  String get sendSwitchedDirect => '链接地址';
 
   @override
-  String get sendSwitchedDirectAnnounce => '直连地址。方式已设为直连。';
+  String get sendSwitchedDirectAnnounce => '链接地址。方式已设为链接。';
 
   @override
   String get sendDirectAddressShape =>
-      '直连地址以 http:// 或 https:// 开头，或以 .onion 结尾。';
+      '链接地址以 http:// 或 https:// 开头，或以 .onion 结尾。';
 
   @override
   String get torNotOverTor => '不经由 Tor';
@@ -5759,10 +6045,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。通知在 Tor 开启时关闭。';
 
   @override
-  String get receiveTabDirect => '直连';
+  String get receiveTabDirect => '链接';
 
   @override
-  String get receiveDirectNeedsTor => '直连收款需要 Tor。';
+  String get receiveDirectNeedsTor => '链接收款需要 Tor。';
 
   @override
   String get receiveDirectMeanwhile => '在此期间，发送方使用 Epicbox 地址。';
@@ -6666,7 +6952,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRecvCheckSix => '念给别人核对时，请检查前六位和后六位字符。';
 
   @override
-  String get deskRecvHttpAddress => '直连 · HTTP 地址';
+  String get deskRecvHttpAddress => '链接付款 · HTTP 地址';
 
   @override
   String get deskRecvCopyHttp => '复制 HTTP 地址';
@@ -6686,13 +6972,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRecvHttpTorHint => '如需 Tor 地址，请在“设置 › 隐私”中开启 Tor。';
 
   @override
-  String get deskRecvDirectTor => '直连 · Tor 地址';
+  String get deskRecvDirectTor => '链接付款 · Tor 地址';
 
   @override
   String get deskRecvTorIntro => '本钱包打开时，经由 Tor 直接从另一个钱包接收。Tor 在“设置 › 隐私”中设置。';
 
   @override
-  String get deskRecvTorAddress => '直连 · Tor 地址';
+  String get deskRecvTorAddress => '链接付款 · Tor 地址';
 
   @override
   String get deskRecvCopyTor => '复制 Tor 地址';
@@ -6934,7 +7220,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendErrEpicbox => '这不是有效的 Epicbox 地址。';
 
   @override
-  String get deskSendErrNotDirect => '这不是直连地址。';
+  String get deskSendErrNotDirect => '这不是链接地址。';
 
   @override
   String get deskSendErrOnion => '这不是有效的 onion 地址。';
@@ -7039,7 +7325,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendReviewAgain => '重新确认';
 
   @override
-  String get deskSendMethodDirect => '直连';
+  String get deskSendMethodDirect => '链接';
 
   @override
   String get deskSendMethodFile => '文件';
@@ -7075,7 +7361,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendTurnOnTor => '开启 Tor';
 
   @override
-  String get deskSendHttpClearnet => '直连 http(s) 地址经由明网，而不是 Tor。';
+  String get deskSendHttpClearnet => '通过链接发送到 http(s) 地址时经由明网，而不是 Tor。';
 
   @override
   String get deskSendClear => '清除';
@@ -7188,7 +7474,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendFileLine2 => '把文件交给对方，收回对方的回复文件，然后在这里完成交易。';
 
   @override
-  String get deskSendTagDirect => '直连';
+  String get deskSendTagDirect => '链接';
 
   @override
   String get deskSendTagFile => '文件';
@@ -7197,7 +7483,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendTagEpicbox => '经由 Epicbox';
 
   @override
-  String get deskSendSwitchedDirect => '直连地址。方式已设为直连。';
+  String get deskSendSwitchedDirect => '链接地址。方式已设为链接。';
 
   @override
   String get deskSendSwitchedFile => '文件地址。方式已设为文件。';
@@ -7228,10 +7514,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendViaEpicbox => 'Epicbox（接收方可以不在线）';
 
   @override
-  String get deskSendViaDirect => '直连 · HTTP（对方钱包必须处于打开状态）';
+  String get deskSendViaDirect => '链接付款 · HTTP（对方钱包必须处于打开状态）';
 
   @override
-  String get deskSendViaTor => '直连 · Tor（对方钱包必须处于打开状态）';
+  String get deskSendViaTor => '链接付款 · Tor（对方钱包必须处于打开状态）';
 
   @override
   String get deskSendViaFile => '交易文件';
@@ -7688,10 +7974,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskConAddrEpicbox => 'Epicbox 地址';
 
   @override
-  String get deskConAddrTor => '直连 · Tor 地址';
+  String get deskConAddrTor => '链接付款 · Tor 地址';
 
   @override
-  String get deskConAddrHttp => '直连 · HTTP 地址';
+  String get deskConAddrHttp => '链接付款 · HTTP 地址';
 
   @override
   String get deskConNote => '备注';
@@ -7721,7 +8007,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、直连地址（https://…）或 onion 地址（….onion）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、链接地址（https://…）或 onion 地址（….onion）。';
 
   @override
   String get deskConAddPicture => '添加图片';
@@ -9628,7 +9914,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => '打开 直连 · HTTP 接收设置';
+  String get deskRailOpenHttp => '打开链接 · HTTP 接收设置';
 
   @override
   String get deskRailTorNotInBuild => '此版本不含 Tor';
@@ -9895,10 +10181,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'Epicbox：付款发送到 Epicbox 服务器，由服务器暂存，直到接收方的钱包重新上线';
 
   @override
-  String get deskKitHeroLabelHttp => '直连 · HTTP：付款直接发送到接收方的钱包，对方钱包必须处于打开状态';
+  String get deskKitHeroLabelHttp => '链接付款 · HTTP：付款直接发送到接收方的钱包，对方钱包必须处于打开状态';
 
   @override
-  String get deskKitHeroLabelTor => '直连 · Tor：付款经由 Tor 网络直接发送到接收方的钱包';
+  String get deskKitHeroLabelTor => '链接付款 · Tor：付款经由 Tor 网络直接发送到接收方的钱包';
 
   @override
   String get deskKitHeroLabelFile => '文件：交出一个交易文件，收回一个回复文件，然后由发送方完成交易';
@@ -11885,7 +12171,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRecvListNote => '状态来自 status.btlabs.uk，每隔几分钟检查一次。';
 
   @override
-  String get deskSetRecvHttpTitle => '直连 · HTTP 接收';
+  String get deskSetRecvHttpTitle => '链接付款 · HTTP 接收';
 
   @override
   String get deskSetRecvHttpText => '本钱包打开时，直接从另一个钱包接收。';
@@ -11894,7 +12180,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRecvHttpOffTitle => 'Tor 开启时关闭';
 
   @override
-  String get deskSetRecvHttpOffText => '直连付款会改为发送到本钱包的 Tor 地址。';
+  String get deskSetRecvHttpOffText => '链接付款会改为发送到本钱包的 Tor 地址。';
 
   @override
   String get deskSetRecvPrivacySettings => '隐私设置';
@@ -13066,7 +13352,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      '离线会暂停 Epicbox、Tor、状态检查和通知。如果你的本地网络中有节点，“重新核对余额”、文件以及向本地地址的直连发送仍可使用。节点自己的对等节点是节点本身的设置。';
+      '离线会暂停 Epicbox、Tor、状态检查和通知。如果你的本地网络中有节点，“重新核对余额”、文件以及向本地地址的链接发送仍可使用。节点自己的对等节点是节点本身的设置。';
 
   @override
   String get advReset => '再次全部隐藏';
@@ -13146,7 +13432,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在侧边栏中提示。“离线”只限这台电脑和你的本地网络：如果这里或你的网络中有节点，仍可向本地地址发送、通过“直连”接收并使用文件；内置节点会继续运行，它的对等节点是节点本身的设置。';
+      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在侧边栏中提示。“离线”只限这台电脑和你的本地网络：如果这里或你的网络中有节点，仍可向本地地址发送、通过“链接”接收并使用文件；内置节点会继续运行，它的对等节点是节点本身的设置。';
 
   @override
   String get deskSetAdvModeStandard => '标准';
@@ -13172,7 +13458,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox、Tor 和状态检查会暂停。如果这台电脑上或你的网络中有节点，“重新核对余额”、文件以及向本地地址的“直连”仍可使用。';
+      'Epicbox、Tor 和状态检查会暂停。如果这台电脑上或你的网络中有节点，“重新核对余额”、文件以及向本地地址的“链接付款”仍可使用。';
 
   @override
   String get deskSetAdvNotInBuild => '此版本不含';
@@ -13437,7 +13723,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDirectHint =>
-      '“直连”通过 onion 或网址直接发送给对方钱包，并为这部手机提供一个可收款的 Tor 地址。对方的钱包必须打开，这边也一样。需要 Tor。会在“发送”和“接收”中加入“直连”。';
+      '“链接付款”通过 onion 或网址直接发送给对方钱包，并为这部手机提供一个可收款的 Tor 地址。对方的钱包必须打开，这边也一样。需要 Tor。会在“发送”和“接收”中加入“链接付款”。';
 
   @override
   String get txFileLine => '用你自己传递的文件付款或收款。';
@@ -13522,7 +13808,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetTxDirectHint =>
-      '钱包对钱包直接付款和收款，通过 HTTP 或 Tor，中间没有服务器。仅在钱包打开时有效。会在“发送”中加入“直连”，并在“接收”中加入它的地址。';
+      '钱包对钱包直接付款和收款，通过 HTTP 或 Tor，中间没有服务器。仅在钱包打开时有效。会在“发送”中加入“链接付款”，并在“接收”中加入它的地址。';
 
   @override
   String get deskSetTxFileHint =>

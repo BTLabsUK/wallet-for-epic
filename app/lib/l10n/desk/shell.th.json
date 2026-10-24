@@ -18,7 +18,7 @@
   "deskRailStopped": "หยุดอยู่",
   "deskRailPortInternet": "พอร์ต {port} · จากอินเทอร์เน็ต",
   "deskRailPortLocal": "พอร์ต {port} · คอมพิวเตอร์นี้เท่านั้น",
-  "deskRailOpenHttp": "เปิดการรับ: ส่งตรง · HTTP",
+  "deskRailOpenHttp": "เปิดการรับ: จ่ายผ่านลิงก์ · HTTP",
   "deskRailTorNotInBuild": "ไม่มีในรุ่นนี้",
   "deskRailStartingDots": "กำลังเริ่ม…",
   "deskRailTorSlow": "{problem} การส่งใช้ได้",

@@ -665,7 +665,7 @@
   },
   "deskTxNowUndeliveredDirect": "Not delivered. The recipient's wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the funds.",
   "@deskTxNowUndeliveredDirect": {
-    "description": "Payment detail, the line under the status of a Direct send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
+    "description": "Payment detail, the line under the status of a Link send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
     "placeholders": {
       "method": {
         "type": "String"

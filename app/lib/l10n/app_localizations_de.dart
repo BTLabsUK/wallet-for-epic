@@ -2696,6 +2696,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get slateReading => 'Datei wird gelesen';
 
   @override
+  String get slateReadingQr => 'Zahlung wird gelesen';
+
+  @override
   String get slateFileTooLarge =>
       'Diese Datei ist zu groß für eine Transaktionsdatei.';
 
@@ -2808,6 +2811,312 @@ class AppLocalizationsDe extends AppLocalizations {
   String get scanQrBack => 'Zurück';
 
   @override
+  String get qrShowReplyAsQr => 'Antwort als QR anzeigen';
+
+  @override
+  String get qrShowTitlePayment => 'Zahlungs-QR';
+
+  @override
+  String get qrShowTitleReply => 'Antwort-QR';
+
+  @override
+  String qrShowSubPayment(String amount) {
+    return '$amount an ein Smartphone neben Ihnen';
+  }
+
+  @override
+  String qrShowSubReply(String amount) {
+    return 'An den Absender von $amount';
+  }
+
+  @override
+  String get qrHiddenTitle => 'Verborgen, bis Sie ihn zeigen';
+
+  @override
+  String get qrHiddenBodyPayment =>
+      'Wer ihn zuerst scannt, kann diese Zahlung annehmen. Zeigen Sie ihn nur der Person, die Sie bezahlen.';
+
+  @override
+  String get qrHiddenBodyReply =>
+      'Zeigen Sie ihn dem Smartphone des Absenders. Nur dessen Wallet kann ihn verwenden.';
+
+  @override
+  String get qrShow => 'QR anzeigen';
+
+  @override
+  String get qrShowAgain => 'Erneut anzeigen';
+
+  @override
+  String get qrHide => 'Verbergen';
+
+  @override
+  String qrCountdownLabel(int seconds) {
+    return 'Anzeige in $seconds';
+  }
+
+  @override
+  String qrPartOf(int part, int count) {
+    return 'Teil $part von $count';
+  }
+
+  @override
+  String qrSecondsShort(int seconds) {
+    return '$seconds s';
+  }
+
+  @override
+  String qrSecondsLeft(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'Noch $seconds Sekunden',
+      one: 'Noch 1 Sekunde',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qrHoldHint =>
+      'Halten Sie die Kamera des anderen Smartphones auf diesen Code.';
+
+  @override
+  String get qrSecureLine => 'Screenshots sind auf diesem Bildschirm aus';
+
+  @override
+  String qrTimedOutTitle(int seconds) {
+    return 'Nach $seconds s verborgen';
+  }
+
+  @override
+  String get qrTimedOutBody =>
+      'Zeigen Sie ihn erneut, wenn das andere Smartphone bereit ist.';
+
+  @override
+  String qrTimedOutAnnounce(int seconds) {
+    return 'Nach $seconds Sekunden verborgen';
+  }
+
+  @override
+  String get qrAwayTitle => 'Verborgen, während die App weg war';
+
+  @override
+  String get qrAwayBody =>
+      'Der Code wird verborgen, sobald die App den Bildschirm verlässt.';
+
+  @override
+  String qrSemanticsPayment(String state) {
+    return 'Zahlungs-QR-Code, $state';
+  }
+
+  @override
+  String qrSemanticsReply(String state) {
+    return 'Antwort-QR-Code, $state';
+  }
+
+  @override
+  String get qrStateHidden => 'verborgen';
+
+  @override
+  String get qrStateShowing => 'sichtbar';
+
+  @override
+  String get qrScanPayment => 'Zahlungs-QR scannen';
+
+  @override
+  String get qrScanReply => 'Antwort scannen';
+
+  @override
+  String get qrScanAimPayment =>
+      'Richten Sie die Kamera auf den QR-Code auf dem anderen Smartphone.';
+
+  @override
+  String get qrScanAimReply =>
+      'Richten Sie die Kamera auf die Antwort auf dem anderen Smartphone.';
+
+  @override
+  String get qrScanSteady => 'Ruhig halten oder etwas näher herangehen.';
+
+  @override
+  String get qrScanGot => 'Gelesen';
+
+  @override
+  String qrScanCount(int got, int count) {
+    return '$got von $count';
+  }
+
+  @override
+  String get qrScanCountLabel => 'Gelesene Teile';
+
+  @override
+  String get qrScanNotPayment =>
+      'Das ist kein Zahlungs-QR. Bitten Sie die Gegenseite, den Zahlungscode auf ihrem Smartphone anzuzeigen.';
+
+  @override
+  String get qrScanNotReply =>
+      'Das ist kein Antwort-QR. Bitten Sie die Gegenseite, die Antwort auf ihrem Smartphone anzuzeigen.';
+
+  @override
+  String get qrScanOtherPayment =>
+      'Dieser Code gehört zu einer anderen Zahlung. Es geht von vorn los.';
+
+  @override
+  String get qrScanTorch => 'Taschenlampe';
+
+  @override
+  String qrScanZoom(String factor) {
+    return 'Zoom $factor×';
+  }
+
+  @override
+  String get qrScanCameraDenied =>
+      'Die Wallet darf die Kamera nicht verwenden. Erlauben Sie dieser App zum Scannen den Kamerazugriff in den Einstellungen Ihres Smartphones. Sie können auch stattdessen die Datei öffnen.';
+
+  @override
+  String get qrScanCameraFailed =>
+      'Die Kamera ließ sich nicht starten. Versuchen Sie es erneut oder öffnen Sie stattdessen die Datei.';
+
+  @override
+  String get qrScanOpenSettings => 'Einstellungen öffnen';
+
+  @override
+  String get qrScanOpenFileInstead => 'Stattdessen Datei öffnen';
+
+  @override
+  String get qrScanAgain => 'Erneut scannen';
+
+  @override
+  String get slateWrongPaymentQr =>
+      'Diese Antwort gehört zu einer anderen Zahlung. Scannen Sie die Antwort für diese Zahlung.';
+
+  @override
+  String get slateScannedPaymentTitle => 'Gescannte Zahlung';
+
+  @override
+  String get slateScannedReplyTitle => 'Gescannte Antwort';
+
+  @override
+  String get slateIncomingSendHintQr =>
+      'Nehmen Sie sie an und zeigen Sie dann dem Absender die Antwort.';
+
+  @override
+  String get slateAcceptedHeadlineQr =>
+      'Angenommen. Zeigen Sie dem Absender die Antwort.';
+
+  @override
+  String get methodQr => 'QR-Zahlung';
+
+  @override
+  String get receiveTabQr => 'QR-Zahlung';
+
+  @override
+  String get methodArtCaptionQr => 'Persönlich';
+
+  @override
+  String get methodArtLabelQr =>
+      'QR-Zahlung: Ein Code wandert von einem Smartphone zum Smartphone daneben';
+
+  @override
+  String get methodSendQrTitle => 'Für ein Smartphone neben Ihnen.';
+
+  @override
+  String get methodSendQrLine =>
+      'Zeigen Sie einen Code auf diesem Bildschirm und scannen Sie dann die Antwort mit der Kamera.';
+
+  @override
+  String get methodReceiveQrTitle => 'Scannen Sie deren Bildschirm.';
+
+  @override
+  String get methodReceiveQrLine =>
+      'Nehmen Sie die Zahlung an und zeigen Sie dann Ihre Antwort auf dieselbe Weise.';
+
+  @override
+  String get receiveQrTitle => 'Neben dem Absender?';
+
+  @override
+  String get receiveQrBody =>
+      'Scannen Sie den Code auf dem Smartphone des Absenders, nehmen Sie die Zahlung an und zeigen Sie dann Ihre Antwort.';
+
+  @override
+  String get txQrLine =>
+      'Direkt nebeneinander zahlen oder bezahlt werden, mit einem Code auf dem Bildschirm.';
+
+  @override
+  String get txQrHint =>
+      'QR-Zahlung zeigt die Zahlung als animierten Code, den das andere Smartphone mit der Kamera scannt, und nimmt die Antwort auf dieselbe Weise entgegen. Das geht nur zwischen Smartphones nebeneinander, braucht keine Verbindung zwischen den beiden Wallets, und der Code verbirgt sich nach 40 Sekunden. Fügt QR-Zahlung zu Senden und Empfangen hinzu.';
+
+  @override
+  String get advTransactionFiles => 'Transaktionsdateien';
+
+  @override
+  String get advTransactionFilesHint =>
+      'Fügt unter Einstellungen › Transaktionen einen Schalter Datei hinzu: mit einer Datei zahlen oder bezahlt werden, die Sie selbst weitergeben.';
+
+  @override
+  String get sendQrTitle => 'QR-Zahlung';
+
+  @override
+  String get sendMakeQr => 'Zahlungs-QR erstellen';
+
+  @override
+  String sendQrPinReason(String amount) {
+    return 'Geben Sie die PIN ein, um einen Zahlungs-QR über $amount zu erstellen.';
+  }
+
+  @override
+  String get sendQrMade => 'Zahlung erstellt';
+
+  @override
+  String get sendQrHint =>
+      'Zeigen Sie den Code dem Smartphone des Empfängers und scannen Sie dann dessen Antwort.';
+
+  @override
+  String get sendCancelRuleQr =>
+      'Kann storniert werden, bis Sie die Antwort scannen.';
+
+  @override
+  String get qrStatusSendHidden => 'Zeigen Sie dies dem Empfänger.';
+
+  @override
+  String get qrStatusSendShowing =>
+      'Warten, bis der Empfänger scannt. Scannen Sie dann dessen Antwort.';
+
+  @override
+  String get qrStatusHiddenAgain =>
+      'Verborgen. Zeigen Sie ihn erneut, falls das Scannen nicht fertig wurde.';
+
+  @override
+  String get qrStatusReplyHidden => 'Zeigen Sie dies dem Absender.';
+
+  @override
+  String get qrStatusReplyShowing => 'Warten, bis der Absender scannt.';
+
+  @override
+  String get qrStatusReceivedWaiting =>
+      'Zahlung empfangen. Warten, bis der Absender scannt und sie sendet.';
+
+  @override
+  String qrStatusPosted(int got, int target) {
+    return 'Gesendet. Bestätigung $got/$target';
+  }
+
+  @override
+  String get qrStatusReceived => 'Empfangen.';
+
+  @override
+  String qrScanProgress(int got, int count) {
+    return '$got von $count gescannt. Halten Sie den Code im Bild.';
+  }
+
+  @override
+  String get qrScanReplyScanned => 'Antwort gescannt.';
+
+  @override
+  String get qrScanPosting => 'Antwort gescannt. Wird gesendet …';
+
+  @override
+  String get qrScanPosted => 'Gesendet.';
+
+  @override
   String get contactsTitle => 'Kontakte';
 
   @override
@@ -2882,7 +3191,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@epicbox.epiccash.com), eine Direkt-Adresse (https://…) oder eine Onion-Adresse (….onion).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@epicbox.epiccash.com), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).';
 
   @override
   String get settingsTitle => 'Einstellungen';
@@ -3836,7 +4145,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get receiveTabFile => 'Datei';
 
   @override
-  String get receiveTorAddressLabel => 'Tor-Adresse';
+  String get receiveTorAddressLabel => 'Ihr Link';
 
   @override
   String get receiveTorQrLabel => 'QR-Code Ihrer Tor-Adresse';
@@ -3992,7 +4301,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      'Fügen Sie eine Adresse ein oder scannen Sie sie, oder wählen Sie einen Kontakt. Epicbox zahlt an eine Adresse; Datei erstellt eine Datei zum Weitergeben. Weitere Wege: Einstellungen › Transaktionen. Zuerst kommt eine Prüfung.';
+      'Fügen Sie eine Adresse ein oder scannen Sie sie, oder wählen Sie einen Kontakt. Epicbox zahlt an eine Adresse; QR zeigt einem Smartphone neben Ihnen einen Code. Weitere Wege: Einstellungen › Transaktionen. Zuerst kommt eine Prüfung.';
 
   @override
   String get tourPhoneReceiveTitle => 'Empfangen';
@@ -4607,7 +4916,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get netStatusDirectOpenHint =>
-      'Öffnet die Adresse für den Direkt-Empfang';
+      'Öffnet die Adresse für den Link-Empfang';
 
   @override
   String get netStatusOpenHint => 'Zeigt die Server';
@@ -4796,10 +5105,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => 'Direkt · HTTP';
+  String get methodDirectHttp => 'Link-Zahlung · HTTP';
 
   @override
-  String get methodDirectTor => 'Direkt · Tor';
+  String get methodDirectTor => 'Link-Zahlung · Tor';
 
   @override
   String get methodFile => 'Datei';
@@ -5338,7 +5647,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskInvIssuerFile => 'Datei';
 
   @override
-  String get deskInvIssuerDirect => 'Direkt';
+  String get deskInvIssuerDirect => 'Link';
 
   @override
   String get deskInvIssuerSoon => 'Demnächst';
@@ -6110,7 +6419,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get methodDirect => 'Direkt';
+  String get methodDirect => 'Link';
+
+  @override
+  String get methodLinkPayment => 'Link-Zahlung';
 
   @override
   String get methodDirectShape => 'http://host:3415 oder xxxx….onion';
@@ -6121,7 +6433,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get methodArtLabelDirect =>
-      'Direkt: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
+      'Link-Zahlung: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
 
   @override
   String get methodReceiveEpicboxShort =>
@@ -6140,15 +6452,15 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get sendSwitchedDirect => 'Direkte Adresse';
+  String get sendSwitchedDirect => 'Link-Adresse';
 
   @override
   String get sendSwitchedDirectAnnounce =>
-      'Direkte Adresse. Methode auf Direkt gesetzt.';
+      'Link-Adresse. Methode auf Link gesetzt.';
 
   @override
   String get sendDirectAddressShape =>
-      'Eine direkte Adresse beginnt mit http:// oder https:// oder endet auf .onion.';
+      'Eine Link-Adresse beginnt mit http:// oder https:// oder endet auf .onion.';
 
   @override
   String get torNotOverTor => 'Nicht über Tor';
@@ -6185,10 +6497,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist.';
 
   @override
-  String get receiveTabDirect => 'Direkt';
+  String get receiveTabDirect => 'Link';
 
   @override
-  String get receiveDirectNeedsTor => 'Direkter Empfang benötigt Tor.';
+  String get receiveDirectNeedsTor => 'Link-Empfang benötigt Tor.';
 
   @override
   String get receiveDirectMeanwhile =>
@@ -7141,7 +7453,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.';
 
   @override
-  String get deskRecvHttpAddress => 'Direkt · HTTP-Adresse';
+  String get deskRecvHttpAddress => 'Link-Zahlung · HTTP-Adresse';
 
   @override
   String get deskRecvCopyHttp => 'HTTP-Adresse kopieren';
@@ -7164,14 +7476,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Schalten Sie Tor unter Einstellungen › Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.';
 
   @override
-  String get deskRecvDirectTor => 'Direkt · Tor-Adresse';
+  String get deskRecvDirectTor => 'Link-Zahlung · Tor-Adresse';
 
   @override
   String get deskRecvTorIntro =>
       'Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Datenschutz eingestellt.';
 
   @override
-  String get deskRecvTorAddress => 'Direkt · Tor-Adresse';
+  String get deskRecvTorAddress => 'Link-Zahlung · Tor-Adresse';
 
   @override
   String get deskRecvCopyTor => 'Tor-Adresse kopieren';
@@ -7445,7 +7757,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSendErrEpicbox => 'Das ist keine gültige Epicbox-Adresse.';
 
   @override
-  String get deskSendErrNotDirect => 'Das ist keine Direkt-Adresse.';
+  String get deskSendErrNotDirect => 'Das ist keine Link-Adresse.';
 
   @override
   String get deskSendErrOnion => 'Das ist keine gültige Onion-Adresse.';
@@ -7559,7 +7871,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSendReviewAgain => 'Erneut prüfen';
 
   @override
-  String get deskSendMethodDirect => 'Direkt';
+  String get deskSendMethodDirect => 'Link';
 
   @override
   String get deskSendMethodFile => 'Datei';
@@ -7720,7 +8032,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Datei übergeben, Antwortdatei zurückbekommen, dann hier abschließen.';
 
   @override
-  String get deskSendTagDirect => 'Direkt';
+  String get deskSendTagDirect => 'Link';
 
   @override
   String get deskSendTagFile => 'Datei';
@@ -7730,7 +8042,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendSwitchedDirect =>
-      'Direkt-Adresse. Methode auf Direkt gestellt.';
+      'Link-Adresse. Methode auf Link gestellt.';
 
   @override
   String get deskSendSwitchedFile =>
@@ -7766,11 +8078,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Direkt · HTTP (die Wallet des Empfängers muss geöffnet sein)';
+      'Link-Zahlung · HTTP (die Wallet des Empfängers muss geöffnet sein)';
 
   @override
   String get deskSendViaTor =>
-      'Direkt · Tor (die Wallet des Empfängers muss geöffnet sein)';
+      'Link-Zahlung · Tor (die Wallet des Empfängers muss geöffnet sein)';
 
   @override
   String get deskSendViaFile => 'Transaktionsdatei';
@@ -8258,10 +8570,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskConAddrEpicbox => 'Epicbox-Adresse';
 
   @override
-  String get deskConAddrTor => 'Direkt · Tor-Adresse';
+  String get deskConAddrTor => 'Link-Zahlung · Tor-Adresse';
 
   @override
-  String get deskConAddrHttp => 'Direkt · HTTP-Adresse';
+  String get deskConAddrHttp => 'Link-Zahlung · HTTP-Adresse';
 
   @override
   String get deskConNote => 'Notiz';
@@ -8292,7 +8604,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@epicbox.epiccash.com), eine Direkt-Adresse (https://…) oder eine Onion-Adresse (….onion).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@epicbox.epiccash.com), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).';
 
   @override
   String get deskConAddPicture => 'Bild hinzufügen';
@@ -10318,7 +10630,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Direkt · HTTP-Empfang öffnen';
+  String get deskRailOpenHttp => 'Link-Zahlung · HTTP-Empfang öffnen';
 
   @override
   String get deskRailTorNotInBuild => 'Nicht in dieser Version';
@@ -10600,11 +10912,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'Direkt · HTTP: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
+      'Link-Zahlung · HTTP: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Direkt · Tor: Die Zahlung geht direkt an die Wallet des Empfängers, über das Tor-Netzwerk';
+      'Link-Zahlung · Tor: Die Zahlung geht direkt an die Wallet des Empfängers, über das Tor-Netzwerk';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -12688,7 +13000,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zustand von status.btlabs.uk, alle paar Minuten geprüft.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Direkt · HTTP-Empfang';
+  String get deskSetRecvHttpTitle => 'Link-Zahlung · HTTP-Empfang';
 
   @override
   String get deskSetRecvHttpText =>
@@ -12699,7 +13011,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetRecvHttpOffText =>
-      'Direkte Zahlungen kommen stattdessen an der Tor-Adresse dieser Wallet an.';
+      'Link-Zahlungen kommen stattdessen an der Tor-Adresse dieser Wallet an.';
 
   @override
   String get deskSetRecvPrivacySettings => 'Datenschutz-Einstellungen';
@@ -13950,7 +14262,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren „Guthaben neu prüfen“, Dateien und direkte Zahlungen an lokale Adressen weiter. Die Peers des Nodes sind eine Einstellung des Nodes.';
+      'Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren „Guthaben neu prüfen“, Dateien und Link-Zahlungen an lokale Adressen weiter. Die Peers des Nodes sind eine Einstellung des Nodes.';
 
   @override
   String get advReset => 'Alles wieder ausblenden';
@@ -14060,7 +14372,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor und Statusprüfungen pausieren. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren „Guthaben neu prüfen“, Dateien und Direkt an lokale Adressen weiter.';
+      'Epicbox, Tor und Statusprüfungen pausieren. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren „Guthaben neu prüfen“, Dateien und Link-Zahlung an lokale Adressen weiter.';
 
   @override
   String get deskSetAdvNotInBuild => 'Nicht in dieser Version';
@@ -14354,7 +14666,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDirectHint =>
-      'Direkt sendet unmittelbar an die andere Wallet unter einer Onion- oder Web-Adresse und gibt diesem Telefon eine Tor-Adresse, unter der es bezahlt werden kann. Die Wallet auf der Gegenseite muss geöffnet sein, diese ebenfalls. Braucht Tor. Fügt Direkt zu Senden und Empfangen hinzu.';
+      'Link-Zahlung sendet unmittelbar an die andere Wallet unter einer Onion- oder Web-Adresse und gibt diesem Telefon eine Tor-Adresse, unter der es bezahlt werden kann. Die Wallet auf der Gegenseite muss geöffnet sein, diese ebenfalls. Braucht Tor. Fügt Link-Zahlung zu Senden und Empfangen hinzu.';
 
   @override
   String get txFileLine =>
@@ -14448,7 +14760,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetTxDirectHint =>
-      'Zahlen und bezahlt werden direkt von Wallet zu Wallet, über HTTP oder Tor, ohne Server dazwischen. Funktioniert nur, solange die Wallet geöffnet ist. Fügt Direkt zu Senden und seine Adresse zu Empfangen hinzu.';
+      'Zahlen und bezahlt werden direkt von Wallet zu Wallet, über HTTP oder Tor, ohne Server dazwischen. Funktioniert nur, solange die Wallet geöffnet ist. Fügt Link-Zahlung zu Senden und seine Adresse zu Empfangen hinzu.';
 
   @override
   String get deskSetTxFileHint =>

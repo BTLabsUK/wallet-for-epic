@@ -1,5 +1,5 @@
-/// The one place the desktop names a payment method: Epicbox, Direct · HTTP, Direct · Tor or
-/// File. Direct is the method; HTTP and Tor are its transport, so neither stands alone as a
+/// The one place the desktop names a payment method: Epicbox, Link Payment · HTTP, Link Payment · Tor or
+/// File. Link is the method; HTTP and Tor are its transport, so neither stands alone as a
 /// method. (Tor as the privacy switch is not a method and is worded where the switch is.)
 library;
 

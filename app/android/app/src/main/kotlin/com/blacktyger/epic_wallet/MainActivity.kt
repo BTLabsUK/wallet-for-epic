@@ -28,7 +28,8 @@ class MainActivity : FlutterFragmentActivity() {
         createNotificationChannel()
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         // Lets Dart block screenshots, screen recording and the recent-apps preview
-        // (FLAG_SECURE) while a recovery phrase is on screen.
+        // (FLAG_SECURE) while a recovery phrase or a payment QR is on screen, and opens the
+        // app's settings page.
         MethodChannel(messenger, "epic_wallet/secure_screen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "setSecure") {
@@ -38,6 +39,18 @@ class MainActivity : FlutterFragmentActivity() {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     }
                     result.success(null)
+                } else if (call.method == "openAppSettings") {
+                    // The camera was refused: the page where the user can allow it again.
+                    val settings = Intent(
+                        android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", packageName, null),
+                    )
+                    try {
+                        startActivity(settings)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.success(false)
+                    }
                 } else {
                     result.notImplemented()
                 }
