@@ -1,0 +1,12 @@
+{
+  "deskSetAppearTheme": "ธีม",
+  "deskSetAppearThemeHint": "ระบบ ใช้ค่าของคอมพิวเตอร์",
+  "deskSetAppearSystem": "ระบบ",
+  "deskSetAppearDark": "มืด",
+  "deskSetAppearLight": "สว่าง",
+  "deskSetAppearScale": "ขนาดอินเทอร์เฟซ",
+  "deskSetAppearScaleHint": "ปรับขนาดข้อความและปุ่มให้ใหญ่หรือเล็กลง มีผลทันที",
+  "deskSetAppearLanguage": "ภาษา",
+  "deskSetAppearLanguageHint": "มีผลทันที",
+  "deskSetAppearHideHint": "แสดงจุดแทนยอดคงเหลือและจำนวน"
+}
