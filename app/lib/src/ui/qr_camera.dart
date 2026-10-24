@@ -237,3 +237,83 @@ class FakeQrCamera extends ChangeNotifier implements QrCamera {
     super.dispose();
   }
 }
+
+/// The camera of the web preview (`WFE_WEB_FAKE`): no picture, only a placeholder, and the
+/// texts of [source] handed out in a loop at the speed the show screen cycles them, one every
+/// [interval]. That is what the phone next to this one would show, so "Scanned n of N" counts
+/// up and finishes.
+class SimulatedQrCamera extends ChangeNotifier implements QrCamera {
+  SimulatedQrCamera({
+    required this.source,
+    this.warmUp = const Duration(milliseconds: 900),
+    this.interval = const Duration(milliseconds: 1000 ~/ 6),
+  });
+
+  /// The texts the other phone shows, in the order it cycles them.
+  final Future<List<String>> Function() source;
+
+  /// How long the camera takes to see a code once it started.
+  final Duration warmUp;
+  final Duration interval;
+
+  final StreamController<String> _codes = StreamController<String>.broadcast();
+  QrCameraState _state = const QrCameraState();
+  Timer? _timer;
+  bool _disposed = false;
+
+  @override
+  QrCameraState get value => _state;
+
+  @override
+  Stream<String> get codes => _codes.stream;
+
+  @override
+  Future<void> start() async {
+    final texts = await source();
+    if (_disposed || texts.isEmpty) return;
+    var next = 0;
+    _timer?.cancel();
+    _timer = Timer(warmUp, () {
+      _timer = Timer.periodic(interval, (_) {
+        if (_codes.isClosed) return;
+        _codes.add(texts[next++ % texts.length]);
+      });
+    });
+  }
+
+  @override
+  Future<void> toggleTorch() async {}
+
+  @override
+  Future<void> setZoom({required bool twice}) async {
+    _state = _state.copyWith(zoomed: twice);
+    notifyListeners();
+  }
+
+  @override
+  Widget preview(BuildContext context) => const ColoredBox(
+    color: Color(0xFF14181C),
+    child: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.videocam_outlined, size: 48, color: Colors.white38),
+          SizedBox(height: 8),
+          Text(
+            'Simulated camera', // l10n-ok: the web preview only
+            style: TextStyle(color: Colors.white54),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  @override
+  Future<void> close() async {
+    if (_disposed) return;
+    _disposed = true;
+    _timer?.cancel();
+    await _codes.close();
+    super.dispose();
+  }
+}
