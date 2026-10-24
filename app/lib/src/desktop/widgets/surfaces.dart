@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../desk_l10n.dart';
 import '../../log.dart' show logWarn;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
@@ -359,7 +360,7 @@ class EMonoText extends StatelessWidget {
 
 /// An address to read and copy: the first and last six characters in the accent.
 class EAddress extends StatelessWidget {
-  const EAddress(this.address, {super.key, this.large = false, this.onCopied, this.copyLabel = 'Copy', this.copy = true, this.extra});
+  const EAddress(this.address, {super.key, this.large = false, this.onCopied, this.copyLabel, this.copy = true, this.extra});
 
   final String address;
   final bool large;
@@ -369,7 +370,8 @@ class EAddress extends StatelessWidget {
   final bool copy;
 
   /// The copy button's tooltip and screen-reader label.
-  final String copyLabel;
+  /// The copy button's name; "Copy" when null.
+  final String? copyLabel;
   final VoidCallback? onCopied;
 
   /// A small control before the copy icon (Receive's QR button).
@@ -406,7 +408,7 @@ class EAddress extends StatelessWidget {
         children: [
           Expanded(child: SelectableText.rich(TextSpan(style: base, children: spans))),
           if (extra != null) ...[SizedBox(width: Sp.x2), extra!],
-          if (copy) ...[SizedBox(width: Sp.x2), ECopyButton(text: address, label: copyLabel, onCopied: onCopied)],
+          if (copy) ...[SizedBox(width: Sp.x2), ECopyButton(text: address, label: copyLabel ?? context.l10n.commonCopy, onCopied: onCopied)],
         ],
       ),
     );
@@ -420,7 +422,7 @@ class ECopyButton extends StatefulWidget {
   const ECopyButton({
     super.key,
     required this.text,
-    this.label = 'Copy',
+    this.label,
     this.onCopied,
     this.withLabel = false,
     this.kind = EBtnKind.ghost,
@@ -429,7 +431,8 @@ class ECopyButton extends StatefulWidget {
   });
 
   final String text;
-  final String label;
+  /// The button's name; "Copy" when null.
+  final String? label;
   final VoidCallback? onCopied;
 
   /// A button with [label] in words, in [kind] and [size]; otherwise an icon.
@@ -475,7 +478,7 @@ class _ECopyButtonState extends State<ECopyButton> {
 
   @override
   Widget build(BuildContext context) {
-    final label = !_done ? widget.label : (_failed ? 'Not copied' : 'Copied');
+    final label = !_done ? (widget.label ?? context.l10n.commonCopy) : (_failed ? context.l10n.deskKitNotCopied : context.l10n.deskKitCopied);
     final icon = !_done ? EIcons.copy : (_failed ? EIcons.alert : EIcons.check);
     final Widget button = widget.withLabel
         ? EButton(label: label, icon: icon, size: widget.size, kind: widget.kind, tabStop: widget.tabStop ?? true, onPressed: _copy)

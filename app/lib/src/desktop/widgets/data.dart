@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../desk_l10n.dart';
 import '../../ui/theme/brand.dart' show MarkedQr;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../data/models.dart';
@@ -66,7 +67,7 @@ class ERing extends StatelessWidget {
     final c = context.dc;
     final done = confirmations >= needed;
     return Semantics(
-      label: off ? 'Cancelled' : (done ? 'Confirmed' : '$confirmations of $needed confirmations'),
+      label: off ? context.l10n.deskKitRingCancelled : (done ? context.l10n.deskKitRingConfirmed : context.l10n.deskKitRingProgress(confirmations, needed)),
       child: SizedBox.square(
         dimension: size,
         child: CustomPaint(
@@ -145,7 +146,7 @@ class EMoney extends ConsumerWidget {
       maxLines: 1,
       softWrap: false,
     );
-    return Semantics(label: hidden ? 'Hidden amount' : '$text EPIC', excludeSemantics: true, child: row);
+    return Semantics(label: hidden ? context.l10n.deskKitHiddenAmount : '$text EPIC', excludeSemantics: true, child: row);
   }
 }
 
@@ -179,11 +180,12 @@ class EQr extends StatelessWidget {
 
 /// A file drop zone with a pick button: dashed edge, icon, title, one line.
 class EDropZone extends StatefulWidget {
-  const EDropZone({super.key, required this.title, this.text, this.buttonLabel = 'Choose file', required this.onPick});
+  const EDropZone({super.key, required this.title, this.text, this.buttonLabel, required this.onPick});
 
   final String title;
   final String? text;
-  final String buttonLabel;
+  /// The pick button's label; "Choose file" when null.
+  final String? buttonLabel;
   final VoidCallback onPick;
 
   @override
@@ -221,7 +223,7 @@ class _EDropZoneState extends State<EDropZone> {
                 Text(widget.text!, style: ts.small, textAlign: TextAlign.center),
               ],
               SizedBox(height: Sp.x3),
-              EButton(label: widget.buttonLabel, icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: widget.onPick),
+              EButton(label: widget.buttonLabel ?? context.l10n.deskKitChooseFile, icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: widget.onPick),
             ],
           ),
         ),
@@ -550,7 +552,7 @@ class _ENavItemState extends State<ENavItem> {
     return Semantics(
       button: true,
       selected: sel,
-      label: count > 0 ? '${widget.label}, $count need action' : widget.label,
+      label: count > 0 ? context.l10n.deskKitNeedAction(widget.label, count) : widget.label,
       excludeSemantics: true,
       child: FocusableActionDetector(
         mouseCursor: SystemMouseCursors.click,
@@ -585,12 +587,12 @@ class EKbd extends StatelessWidget {
 }
 
 /// Words for a health state, used by status rows, comboboxes and the status card.
-String healthWord(ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => 'On',
-  ServiceHealth.slow => 'Slow',
-  ServiceHealth.down => 'Offline',
-  ServiceHealth.off => 'Off',
-  ServiceHealth.checking => 'Checking',
+String healthWord(AppLocalizations l, ServiceHealth h) => switch (h) {
+  ServiceHealth.ok => l.deskKitHealthOn,
+  ServiceHealth.slow => l.deskKitHealthSlow,
+  ServiceHealth.down => l.deskKitHealthOffline,
+  ServiceHealth.off => l.deskKitHealthOff,
+  ServiceHealth.checking => l.deskKitHealthChecking,
 };
 
 /// Tone for a health state: ok filled, slow ring, down cross, off neutral.

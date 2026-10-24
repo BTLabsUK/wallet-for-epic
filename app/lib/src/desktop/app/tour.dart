@@ -19,18 +19,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../log.dart';
 import '../data/desk_store.dart';
+import '../desk_l10n.dart';
+import '../../l10n.dart' show englishStrings;
 import '../widgets/kit.dart';
 
 /// One step: the page it opens, the [TourTarget] ids it lights (their union when several are on
 /// screen; the card sits in the middle when none is), the sidebar entry and, on a Settings page,
 /// the entry in the Settings list.
 class TourStep {
-  const TourStep({required this.route, required this.targets, required this.title, required this.text, this.section, this.sub});
+  const TourStep({required this.route, required this.targets, required this.titleOf, required this.textOf, this.section, this.sub});
 
   final DeskRoute route;
   final List<String> targets;
-  final String title;
-  final String text;
+
+  /// The card's title and text in the reader's language.
+  final String Function(AppLocalizations l) titleOf;
+  final String Function(AppLocalizations l) textOf;
+
+  /// The English title and text (tests, logs).
+  String get title => titleOf(englishStrings);
+  String get text => textOf(englishStrings);
 
   /// The sidebar entry lit with the page; the route's section when null.
   final DeskSection? section;
@@ -48,56 +56,56 @@ final DeskRoute? deskInvoicesRoute = DeskRoute.values.where((r) => r.name == 'in
 
 /// The steps, in order; the Invoices step after Receive when [invoices] (the page exists).
 List<TourStep> tourStepsFor({required bool invoices}) => [
-  const TourStep(
+  TourStep(
     route: DeskRoute.overview,
     targets: ['balance'],
-    title: 'Overview',
-    text: 'The balance and what is still confirming, then the latest transactions. Everything else is in the sidebar.',
+    titleOf: (l) => l.deskTourOverviewTitle,
+    textOf: (l) => l.deskTourOverviewText,
   ),
-  const TourStep(
+  TourStep(
     route: DeskRoute.send,
     targets: ['send-methods'],
-    title: 'Send',
-    text: 'Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.',
+    titleOf: (l) => l.deskTourSendTitle,
+    textOf: (l) => l.deskTourSendText,
   ),
-  const TourStep(
+  TourStep(
     route: DeskRoute.receive,
     targets: ['receive-epicbox', 'receive-others'],
-    title: 'Receive',
-    text: 'This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.',
+    titleOf: (l) => l.deskTourReceiveTitle,
+    textOf: (l) => l.deskTourReceiveText,
   ),
   if (invoices)
     TourStep(
       route: deskInvoicesRoute ?? DeskRoute.overview,
       targets: const ['invoices-tabs'],
-      title: 'Invoices',
-      text: 'Pay an invoice someone sent, or issue one to someone who owes you. The tabs switch between the two.',
+      titleOf: (l) => l.deskTourInvoicesTitle,
+      textOf: (l) => l.deskTourInvoicesText,
     ),
-  const TourStep(
+  TourStep(
     route: DeskRoute.activity,
     targets: ['activity-list'],
-    title: 'Activity',
-    text: 'Every transaction with its progress and details. A number on this sidebar entry means something waits for an action.',
+    titleOf: (l) => l.deskTourActivityTitle,
+    textOf: (l) => l.deskTourActivityText,
   ),
-  const TourStep(
+  TourStep(
     route: DeskRoute.contacts,
     targets: ['contacts-list'],
-    title: 'Contacts',
-    text: 'Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.',
+    titleOf: (l) => l.deskTourContactsTitle,
+    textOf: (l) => l.deskTourContactsText,
   ),
-  const TourStep(
+  TourStep(
     route: DeskRoute.settingsNode,
     targets: ['node-server'],
     sub: DeskRoute.settingsNode,
-    title: 'Settings › Node',
-    text: 'Which node the wallet reads the chain from: a public one or the local node. The other settings pages are listed on the left.',
+    titleOf: (l) => l.deskTourNodeTitle,
+    textOf: (l) => l.deskTourNodeText,
   ),
-  const TourStep(
+  TourStep(
     route: DeskRoute.settingsHelp,
     targets: ['help-top'],
     sub: DeskRoute.settingsHelp,
-    title: 'Help',
-    text: 'Topics by section, Report a problem and the app log. More on every page is here, and this tour can be shown again.',
+    titleOf: (l) => l.deskTourHelpTitle,
+    textOf: (l) => l.deskTourHelpText,
   ),
 ];
 
@@ -363,6 +371,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final steps = _steps;
     final step = steps[_i];
     final last = _i == steps.length - 1;
@@ -426,7 +435,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
                       scopesRoute: true,
                       namesRoute: true,
                       explicitChildNodes: true,
-                      label: 'Tour of the wallet',
+                      label: l.deskTourSemantics,
                       child: Container(
                         padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x3),
                         decoration: BoxDecoration(
@@ -451,7 +460,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
                                   Row(
                                     children: [
                                       Text(
-                                        '${_i + 1} of ${steps.length}',
+                                        l.deskTourCounter(_i + 1, steps.length),
                                         style: ts.mono(size: Fs.xs, color: c.accentText),
                                       ),
                                       const Spacer(),
@@ -461,27 +470,27 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
                                     ],
                                   ),
                                   SizedBox(height: Sp.x1),
-                                  Semantics(header: true, child: Text(step.title, style: ts.h3)),
+                                  Semantics(header: true, child: Text(step.titleOf(l), style: ts.h3)),
                                   SizedBox(height: 6.u),
-                                  Semantics(liveRegion: true, child: Text(step.text, style: ts.bodyDim)),
+                                  Semantics(liveRegion: true, child: Text(step.textOf(l), style: ts.bodyDim)),
                                 ],
                               ),
                             ),
                             SizedBox(height: Sp.x4),
                             Row(
                               children: [
-                                EButton(label: 'Skip tour', size: EBtnSize.sm, kind: EBtnKind.ghost, hit44: true, onPressed: _end),
+                                EButton(label: l.deskTourSkip, size: EBtnSize.sm, kind: EBtnKind.ghost, hit44: true, onPressed: _end),
                                 SizedBox(width: Sp.x2),
                                 Text(
-                                  'Esc',
+                                  'Esc', // l10n-ok: key name
                                   style: ts.mono(size: Fs.xs, color: c.faint),
                                 ),
                                 const Spacer(),
-                                if (back != null) ...[EButton(label: 'Back', size: EBtnSize.sm, hit44: true, onPressed: back), SizedBox(width: Sp.x2)],
+                                if (back != null) ...[EButton(label: l.deskTourBack, size: EBtnSize.sm, hit44: true, onPressed: back), SizedBox(width: Sp.x2)],
                                 Focus(
                                   focusNode: _next,
                                   skipTraversal: true,
-                                  child: EButton.primary(label: last ? 'Done' : 'Next', size: EBtnSize.sm, hit44: true, onPressed: forward),
+                                  child: EButton.primary(label: last ? l.commonDone : l.deskTourNext, size: EBtnSize.sm, hit44: true, onPressed: forward),
                                 ),
                               ],
                             ),

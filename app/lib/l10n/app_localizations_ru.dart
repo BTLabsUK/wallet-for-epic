@@ -6187,4 +6187,797 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskRailWaitingTor => 'Waiting for Tor';
+
+  @override
+  String get deskRailOn => 'On';
+
+  @override
+  String get deskRailConnecting => 'Connecting';
+
+  @override
+  String get deskRailSlow => 'Slow';
+
+  @override
+  String get deskRailNotAnswering => 'Not answering';
+
+  @override
+  String get deskRailOff => 'Off';
+
+  @override
+  String get deskRailChecking => 'Checking';
+
+  @override
+  String get deskRailOverTor => 'Over Tor';
+
+  @override
+  String get deskRailWaitsForTor => 'Waits until Tor is connected.';
+
+  @override
+  String get deskRailPaymentsWait => 'Payments wait on the Epicbox server.';
+
+  @override
+  String get deskRailOpenEpicbox => 'Open Epicbox receiving';
+
+  @override
+  String get deskRailStarting => 'Starting';
+
+  @override
+  String get deskRailNotReceiving => 'Not receiving';
+
+  @override
+  String get deskRailOnInternet => 'On · internet';
+
+  @override
+  String get deskRailOnLocal => 'On · local';
+
+  @override
+  String get deskRailPortInUse => 'Port in use';
+
+  @override
+  String get deskRailStopped => 'Stopped';
+
+  @override
+  String deskRailPortInternet(String port) {
+    return 'Port $port · from the internet';
+  }
+
+  @override
+  String deskRailPortLocal(String port) {
+    return 'Port $port · this computer only';
+  }
+
+  @override
+  String get deskRailOpenHttp => 'Open HTTP receiving';
+
+  @override
+  String get deskRailTorNotInBuild => 'Not in this build';
+
+  @override
+  String get deskRailStartingDots => 'Starting…';
+
+  @override
+  String deskRailTorSlow(String problem) {
+    return '$problem. Sends work.';
+  }
+
+  @override
+  String get deskRailTorNoAddress => 'Tor address not published';
+
+  @override
+  String get deskRailOpenPrivacy => 'Open Privacy settings';
+
+  @override
+  String get deskRailNode => 'Node';
+
+  @override
+  String get deskRailOpenNode => 'Open node settings';
+
+  @override
+  String get deskAppNodeSyncedTitle => 'Local node synced';
+
+  @override
+  String get deskAppNodeSyncedBody =>
+      'The local node has the whole chain and can be used now. The app restarts to switch to it.';
+
+  @override
+  String get deskAppNotNow => 'Not now';
+
+  @override
+  String get deskAppRestartNow => 'Restart now';
+
+  @override
+  String get deskAppFirstScanTitle => 'Wallet first scan';
+
+  @override
+  String get deskAppFirstScanBody =>
+      'The wallet looks through the chain for its outputs. It stays usable; the balance updates when the scan is done.';
+
+  @override
+  String get deskAppScanOutput => 'Scan output';
+
+  @override
+  String get deskAppWaitingOutput => 'Waiting for the first output…';
+
+  @override
+  String get deskShellNavOverview => 'Overview';
+
+  @override
+  String get deskShellNavActivity => 'Activity';
+
+  @override
+  String get deskShellNavSend => 'Send';
+
+  @override
+  String get deskShellNavReceive => 'Receive';
+
+  @override
+  String get deskShellNavOutputs => 'Outputs';
+
+  @override
+  String get deskShellNavContacts => 'Contacts';
+
+  @override
+  String get deskShellNavSettings => 'Settings';
+
+  @override
+  String get deskShellTitleImportTx => 'Import transaction';
+
+  @override
+  String get deskShellTitleFinalizeTx => 'Finalize transaction';
+
+  @override
+  String get deskShellLocksAfterSend => 'Locks when the payment is sent';
+
+  @override
+  String get deskShellNotQuitTitle => 'Not quit';
+
+  @override
+  String get deskShellNotQuitBody =>
+      'A send is in progress. Quit again once it finishes.';
+
+  @override
+  String get deskShellLockedTitle => 'Wallet locked';
+
+  @override
+  String get deskShellLockedBody =>
+      'Quit closes the app once the wallet core is connected.';
+
+  @override
+  String deskShellLockWallet(String keys) {
+    return 'Lock wallet ($keys)';
+  }
+
+  @override
+  String get deskShellMainNav => 'Main navigation';
+
+  @override
+  String deskShellVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get deskShellOpenWalletSettings => 'Open wallet settings';
+
+  @override
+  String deskShellOpenWalletSettingsNamed(String name) {
+    return 'Open wallet settings: $name';
+  }
+
+  @override
+  String get deskShellSwitchWallet => 'Switch wallet';
+
+  @override
+  String deskShellWalletBy(String maker) {
+    return 'Wallet by $maker';
+  }
+
+  @override
+  String get deskTourOverviewTitle => 'Overview';
+
+  @override
+  String get deskTourOverviewText =>
+      'The balance and what is still confirming, then the latest transactions. Everything else is in the sidebar.';
+
+  @override
+  String get deskTourSendTitle => 'Send';
+
+  @override
+  String get deskTourSendText =>
+      'Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.';
+
+  @override
+  String get deskTourReceiveTitle => 'Receive';
+
+  @override
+  String get deskTourReceiveText =>
+      'This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.';
+
+  @override
+  String get deskTourInvoicesTitle => 'Invoices';
+
+  @override
+  String get deskTourInvoicesText =>
+      'Pay an invoice someone sent, or issue one to someone who owes you. The tabs switch between the two.';
+
+  @override
+  String get deskTourActivityTitle => 'Activity';
+
+  @override
+  String get deskTourActivityText =>
+      'Every transaction with its progress and details. A number on this sidebar entry means something waits for an action.';
+
+  @override
+  String get deskTourContactsTitle => 'Contacts';
+
+  @override
+  String get deskTourContactsText =>
+      'Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.';
+
+  @override
+  String get deskTourNodeTitle => 'Settings › Node';
+
+  @override
+  String get deskTourNodeText =>
+      'Which node the wallet reads the chain from: a public one or the local node. The other settings pages are listed on the left.';
+
+  @override
+  String get deskTourHelpTitle => 'Help';
+
+  @override
+  String get deskTourHelpText =>
+      'Topics by section, Report a problem and the app log. More on every page is here, and this tour can be shown again.';
+
+  @override
+  String deskTourCounter(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String get deskTourSemantics => 'Tour of the wallet';
+
+  @override
+  String get deskTourSkip => 'Skip tour';
+
+  @override
+  String get deskTourBack => 'Back';
+
+  @override
+  String get deskTourNext => 'Next';
+
+  @override
+  String get deskKitUnknown => 'Unknown';
+
+  @override
+  String get deskKitRingCancelled => 'Cancelled';
+
+  @override
+  String get deskKitRingConfirmed => 'Confirmed';
+
+  @override
+  String deskKitRingProgress(int confirmations, int needed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: '$confirmations of $needed confirmations',
+      one: '$confirmations of $needed confirmation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskKitHiddenAmount => 'Hidden amount';
+
+  @override
+  String get deskKitChooseFile => 'Choose file';
+
+  @override
+  String deskKitNeedAction(String label, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count need action',
+      one: '$count needs action',
+    );
+    return '$label, $_temp0';
+  }
+
+  @override
+  String get deskKitHealthOn => 'On';
+
+  @override
+  String get deskKitHealthSlow => 'Slow';
+
+  @override
+  String get deskKitHealthOffline => 'Offline';
+
+  @override
+  String get deskKitHealthOff => 'Off';
+
+  @override
+  String get deskKitHealthChecking => 'Checking';
+
+  @override
+  String get deskKitCloseEsc => 'Close (Esc)';
+
+  @override
+  String get deskKitOptional => 'Optional';
+
+  @override
+  String get deskKitBackAlt => 'Back (Alt+Left)';
+
+  @override
+  String deskKitStepOf(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get deskKitHeroCaptionEpicbox => 'EPICBOX SERVER HOLDS IT';
+
+  @override
+  String get deskKitHeroCaptionHttp => 'STRAIGHT TO THEIR WALLET';
+
+  @override
+  String get deskKitHeroCaptionTor => 'STRAIGHT, THROUGH TOR';
+
+  @override
+  String get deskKitHeroCaptionFile => 'FILE OUT, RESPONSE BACK';
+
+  @override
+  String get deskKitHeroLabelEpicbox =>
+      'Epicbox: the payment goes to the Epicbox server, which holds it until the recipient\'s wallet is back';
+
+  @override
+  String get deskKitHeroLabelHttp =>
+      'HTTP: the payment goes straight to the recipient\'s wallet, which must be open';
+
+  @override
+  String get deskKitHeroLabelTor =>
+      'Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network';
+
+  @override
+  String get deskKitHeroLabelFile =>
+      'File: a transaction file is handed over, a response file comes back, then the sender finalizes';
+
+  @override
+  String get deskKitReachCheck => 'Check';
+
+  @override
+  String get deskKitReachChecking => 'Checking from the internet…';
+
+  @override
+  String get deskKitReachNoIpTitle => 'Public IP not found';
+
+  @override
+  String get deskKitReachNoIpText =>
+      'The internet could not be asked for it. Try again later.';
+
+  @override
+  String deskKitReachNoIpTextLan(String address) {
+    return 'The internet could not be asked for it. Try again later. On your network: $address.';
+  }
+
+  @override
+  String get deskKitReachClosedTitle => 'Not reachable from the internet';
+
+  @override
+  String deskKitReachClosedText(String port) {
+    return 'Forward TCP port $port on your router to this computer, then check again.';
+  }
+
+  @override
+  String deskKitReachClosedTextLan(String port, String address) {
+    return 'Forward TCP port $port on your router to this computer ($address), then check again.';
+  }
+
+  @override
+  String get deskKitReachUnknownTitle => 'Reachability unknown';
+
+  @override
+  String get deskKitReachUnknownText =>
+      'The port check did not answer. Try again later.';
+
+  @override
+  String deskKitReachUnknownTextLan(String address) {
+    return 'The port check did not answer. Try again later. On your network: $address.';
+  }
+
+  @override
+  String get deskKitReachOpenTitle => 'Reachable from the internet';
+
+  @override
+  String deskKitReachOpenText(String port) {
+    return 'Port $port is forwarded.';
+  }
+
+  @override
+  String deskKitReachOpenTextLan(String port, String address) {
+    return 'Port $port is forwarded. On your network: $address.';
+  }
+
+  @override
+  String deskKitAgeSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count s ago',
+      one: '$count s ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitAgeMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count min ago',
+      one: '$count min ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitAgeHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count h ago',
+      one: '$count h ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitAgeDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count d ago',
+      one: '$count d ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskKitNodeBefore410 => 'node before 4.1.0';
+
+  @override
+  String get deskKitNodeNoAnswer => 'no answer';
+
+  @override
+  String get deskKitNodesDisagree => 'Nodes disagree on the tip';
+
+  @override
+  String deskKitNodesAgree(String height) {
+    return 'Nodes agree on $height';
+  }
+
+  @override
+  String deskKitNodesUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      up,
+      locale: localeName,
+      other: '$up of $total nodes up',
+      one: '$up of $total node up',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitEpicboxUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      up,
+      locale: localeName,
+      other: '$up of $total Epicbox servers up',
+      one: '$up of $total Epicbox server up',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitLastBlock(String age) {
+    return 'last block $age';
+  }
+
+  @override
+  String get deskKitLimitedNetwork =>
+      'status.btlabs.uk is not reachable. These facts come from the node itself: no tip to compare with, no uptime, no peer count.';
+
+  @override
+  String get deskKitFactHeight => 'Height';
+
+  @override
+  String get deskKitFactVersion => 'Version';
+
+  @override
+  String get deskKitFactAccepts => 'Accepts transactions';
+
+  @override
+  String get deskKitFactYes => 'Yes';
+
+  @override
+  String get deskKitFactNotYet => 'Not yet';
+
+  @override
+  String get deskKitFactUnknown => 'Unknown';
+
+  @override
+  String get deskKitFactLatency => 'Latency';
+
+  @override
+  String get deskKitFactUptime => 'Uptime';
+
+  @override
+  String get deskKitFactPeers => 'Peers';
+
+  @override
+  String get deskKitFactOperator => 'Operator';
+
+  @override
+  String get deskKitAtTip => 'at tip';
+
+  @override
+  String deskKitBehind(int count, String blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$blocks behind',
+      one: '$blocks behind',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitVersionOut(String version) {
+    return '$version is out';
+  }
+
+  @override
+  String get deskKitVersionLatest => 'latest';
+
+  @override
+  String get deskKitUptimeWindow => 'last 24 h';
+
+  @override
+  String deskKitAtTime(String time) {
+    return 'at $time';
+  }
+
+  @override
+  String get deskKitListedOfficial => 'listed as official';
+
+  @override
+  String deskKitSourceChecked(String time) {
+    return 'status.btlabs.uk, checked $time';
+  }
+
+  @override
+  String deskKitLatencyMeasured(String where) {
+    return 'latency measured $where';
+  }
+
+  @override
+  String deskKitSiteLastReached(String time) {
+    return 'Status site last reached $time';
+  }
+
+  @override
+  String deskKitSince(String time) {
+    return 'since $time';
+  }
+
+  @override
+  String deskKitNodeSemantics(String status, String host) {
+    return 'Node $status: $host';
+  }
+
+  @override
+  String get deskKitNodeDownTitle => 'Node not answering.';
+
+  @override
+  String deskKitNodeDownText(String host) {
+    return 'Switch to $host, the healthiest other node?';
+  }
+
+  @override
+  String get deskKitSwitch => 'Switch';
+
+  @override
+  String get deskKitLimitedInfo => 'Limited info';
+
+  @override
+  String get deskKitFromStatusSite => 'from status.btlabs.uk';
+
+  @override
+  String get deskKitOverTor => 'over Tor';
+
+  @override
+  String get deskKitFromThisComputer => 'from this computer';
+
+  @override
+  String deskKitNodeRemove(String host) {
+    return 'Remove $host from my nodes';
+  }
+
+  @override
+  String deskKitNodeAdd(String host) {
+    return 'Add $host to my nodes';
+  }
+
+  @override
+  String deskKitNodeUse(String host) {
+    return 'Use $host';
+  }
+
+  @override
+  String deskKitNodeUseOperator(String host, String operator) {
+    return 'Use $host, $operator';
+  }
+
+  @override
+  String deskKitNodeUseDown(String host) {
+    return 'Use $host, not answering';
+  }
+
+  @override
+  String deskKitNodeUseOperatorDown(String host, String operator) {
+    return 'Use $host, $operator, not answering';
+  }
+
+  @override
+  String deskKitLocalNodeUse(String state) {
+    return 'Use the local node, $state';
+  }
+
+  @override
+  String get deskKitLocalNode => 'Local node';
+
+  @override
+  String get deskKitMethodWaitingTor => 'Waiting for Tor';
+
+  @override
+  String deskKitMethodTorNotConnected(String host) {
+    return '$host. Tor is not connected.';
+  }
+
+  @override
+  String get deskKitMethodOn => 'On';
+
+  @override
+  String deskKitMethodOverTor(String host) {
+    return '$host, over Tor';
+  }
+
+  @override
+  String get deskKitMethodOff => 'Off';
+
+  @override
+  String get deskKitMethodEpicboxOffDetail =>
+      'Payments to this address wait on the Epicbox server.';
+
+  @override
+  String get deskKitMethodConnecting => 'Connecting';
+
+  @override
+  String get deskKitMethodSlow => 'Slow';
+
+  @override
+  String get deskKitMethodNotAnswering => 'Not answering';
+
+  @override
+  String deskKitMethodEpicboxDown(String host) {
+    return '$host. Payments wait on the Epicbox server.';
+  }
+
+  @override
+  String get deskKitMethodHttpOffDetail =>
+      'Straight from another wallet while this one is open.';
+
+  @override
+  String get deskKitMethodStarting => 'Starting…';
+
+  @override
+  String deskKitMethodHttpInternet(String port) {
+    return 'from the internet, port $port';
+  }
+
+  @override
+  String get deskKitMethodHttpLocal => 'this computer only (127.0.0.1)';
+
+  @override
+  String get deskKitMethodNotReceiving => 'Not receiving';
+
+  @override
+  String deskKitMethodPortInUse(String port) {
+    return 'Port $port is used by another program. Close it or pick another port in Settings.';
+  }
+
+  @override
+  String get deskKitMethodNotInBuild => 'Not in this build';
+
+  @override
+  String get deskKitMethodTorOffDetail =>
+      'Slower and more private. Blocked or not allowed in some countries.';
+
+  @override
+  String get deskKitMethodTorPublishing => 'Publishing the Tor address…';
+
+  @override
+  String get deskKitMethodTorConnecting => 'Connecting to Tor…';
+
+  @override
+  String get deskKitMethodTorOnDetail => 'reachable at the Tor address';
+
+  @override
+  String get deskKitMethodTorNotPublished => 'Not published';
+
+  @override
+  String deskKitMethodTorSendsWork(String reason) {
+    return '$reason. Sends work.';
+  }
+
+  @override
+  String get deskKitMethodTorNotReachableYet =>
+      'The Tor address is not reachable yet';
+
+  @override
+  String get deskKitMethodTorStopped => 'Stopped';
+
+  @override
+  String get deskKitMethodTorStoppedDetail => 'Tor stopped.';
+
+  @override
+  String get deskKitMethodFiles => 'Files';
+
+  @override
+  String get deskKitChipOverTor => 'Over Tor';
+
+  @override
+  String get deskKitChipStarting => 'Tor starting';
+
+  @override
+  String get deskKitChipNotConnected => 'Tor not connected';
+
+  @override
+  String get deskKitChipNotOverTor => 'Not over Tor';
+
+  @override
+  String get deskKitPasswordNote =>
+      'Estimated on this device from the length and from common words, names and patterns, for an attacker with fast hardware trying 100,000 guesses a second against this wallet\'s file. A guide, not a guarantee.';
+
+  @override
+  String get deskKitPasswordNoteLabel => 'How the time is estimated';
+
+  @override
+  String get deskKitNotCopied => 'Not copied';
+
+  @override
+  String get deskKitCopied => 'Copied';
+
+  @override
+  String deskKitQrOf(String title) {
+    return 'QR code of the $title';
+  }
+
+  @override
+  String deskKitQrOfTag(String title, String tag) {
+    return 'QR code of the $title, $tag';
+  }
+
+  @override
+  String deskKitQrShowOf(String title) {
+    return 'Show QR code of the $title';
+  }
+
+  @override
+  String get deskKitQrShow => 'Show QR';
+
+  @override
+  String get deskKitQrHide => 'Hide QR';
+
+  @override
+  String get deskKitQrHideCode => 'Hide QR code';
 }

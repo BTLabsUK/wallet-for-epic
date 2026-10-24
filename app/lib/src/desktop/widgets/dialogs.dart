@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../desk_l10n.dart';
 import '../app/routes.dart' show deskNavProvider, DeskLocation;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
@@ -22,7 +23,7 @@ Future<T?> showEDialog<T>(BuildContext context, {required WidgetBuilder builder,
 Future<T?> showEDrawer<T>(BuildContext context, {required WidgetBuilder builder}) => showGeneralDialog<T>(
   context: context,
   barrierDismissible: true,
-  barrierLabel: 'Close',
+  barrierLabel: context.l10n.commonClose,
   barrierColor: context.dc.scrim,
   transitionDuration: Dur.slow,
   pageBuilder: (context, _, _) => Align(alignment: Alignment.centerRight, child: builder(context)),
@@ -120,7 +121,7 @@ class EDialog extends StatelessWidget {
                     if (dismissible)
                       EIconButton(
                         icon: EIcons.close,
-                        label: 'Close (Esc)',
+                        label: context.l10n.deskKitCloseEsc,
                         tabStop: false,
                         onPressed: () => Navigator.of(context).maybePop(),
                       ),
@@ -235,7 +236,7 @@ class EDrawer extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(child: Semantics(header: true, child: Text(title, style: context.ts.h3))),
-                  EIconButton(icon: EIcons.close, label: 'Close (Esc)', tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
+                  EIconButton(icon: EIcons.close, label: context.l10n.deskKitCloseEsc, tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
                 ],
               ),
             ),

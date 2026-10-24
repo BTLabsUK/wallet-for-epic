@@ -267,7 +267,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final ts = context.ts;
     final c = context.dc;
     final methods = _methodsFor(st.settings);
-    final lines = {for (final m in methods) m: status == null ? null : methodStateLine(m, status, st.settings)};
+    final lines = {for (final m in methods) m: status == null ? null : methodStateLine(context.l10n, m, status, st.settings)};
     String word(TxMethod m) => lines[m] == null ? 'checking' : (lines[m]!.state == EState.off ? 'off' : (lines[m]!.word == 'On' ? 'on' : lines[m]!.word.toLowerCase()));
     return Semantics(
       liveRegion: true,
@@ -318,7 +318,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final ts = context.ts;
     final addr = st.epicboxAddress;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
     final health = status?.epicboxHealth;
     final tag = !on
         ? 'Paused'
@@ -396,7 +396,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     const m = TxMethod.http;
     final ts = context.ts;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
     final ok = status?.httpListener == ServiceHealth.ok;
     final failed = status?.httpListener == ServiceHealth.down;
     final addr = _http != null && _http!.isNotEmpty ? _http : null;
@@ -453,7 +453,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     const m = TxMethod.tor;
     final ts = context.ts;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
     final ready = status?.tor == ServiceHealth.ok;
     final failed = status?.tor == ServiceHealth.down || status?.tor == ServiceHealth.slow;
     final addr = _tor;

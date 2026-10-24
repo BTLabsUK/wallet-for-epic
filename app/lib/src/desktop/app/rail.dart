@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../desk_l10n.dart';
 import '../data/desk_node.dart';
 import '../data/node_view.dart';
 import '../data/tor_view.dart';
@@ -52,53 +53,53 @@ class RailItem {
 }
 
 /// The Epicbox, HTTP and Tor rows of a status (null: nothing known yet).
-List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
+List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSettings settings) {
   final eb = st?.epicboxHealth ?? ServiceHealth.checking;
   final ebHost = st?.epicbox.domain;
   final tor = torStateOf(settings, st);
   final ebWay = torWay(TorRoute.epicbox, tor);
   final ebWaits = eb != ServiceHealth.off && (ebWay == TorWay.wait || ebWay == TorWay.blocked);
   final ebWord = switch (eb) {
-    _ when ebWaits => 'Waiting for Tor',
-    ServiceHealth.ok => 'On',
-    ServiceHealth.checking => 'Connecting',
-    ServiceHealth.slow => 'Slow',
-    ServiceHealth.down => 'Not answering',
-    ServiceHealth.off => 'Off',
+    _ when ebWaits => l.deskRailWaitingTor,
+    ServiceHealth.ok => l.deskRailOn,
+    ServiceHealth.checking => l.deskRailConnecting,
+    ServiceHealth.slow => l.deskRailSlow,
+    ServiceHealth.down => l.deskRailNotAnswering,
+    ServiceHealth.off => l.deskRailOff,
   };
   final items = [
     RailItem(
       icon: EIcons.epicbox,
-      name: 'Epicbox',
-      word: st == null ? 'Checking' : ebWord,
+      name: 'Epicbox', // l10n-ok: product name
+      word: st == null ? l.deskRailChecking : ebWord,
       state: st == null
           ? EState.off
           : ebWaits
           ? (ebWay == TorWay.blocked ? EState.risk : EState.warn)
           : stateOf(eb),
-      second: eb == ServiceHealth.off || ebHost == null ? '–' : railHost('Epicbox', ebHost),
+      second: eb == ServiceHealth.off || ebHost == null ? '–' : railHost('Epicbox', ebHost), // l10n-ok: product name
       lines: [
         if (eb != ServiceHealth.off && ebHost != null) ebHost,
-        if (eb != ServiceHealth.off && ebWay == TorWay.overTor) 'Over Tor',
-        if (ebWaits) 'Waits until Tor is connected.',
-        if (eb == ServiceHealth.down && !ebWaits) 'Payments wait on the Epicbox server.',
+        if (eb != ServiceHealth.off && ebWay == TorWay.overTor) l.deskRailOverTor,
+        if (ebWaits) l.deskRailWaitsForTor,
+        if (eb == ServiceHealth.down && !ebWaits) l.deskRailPaymentsWait,
       ],
-      open: 'Open Epicbox receiving',
+      open: l.deskRailOpenEpicbox,
       jump: SettingsJump.epicbox,
     ),
   ];
   if (DeskFeatures.httpDirect) {
     final run = httpRun(st);
-    final where = settings.publicMode ? 'internet' : 'local';
+    final public = settings.publicMode;
     items.add(
       RailItem(
         icon: EIcons.http,
         name: 'HTTP',
         word: switch (run) {
-          HttpRun.on => 'On',
-          HttpRun.busy => 'Starting',
-          HttpRun.failed => 'Not receiving',
-          HttpRun.off => 'Off',
+          HttpRun.on => l.deskRailOn,
+          HttpRun.busy => l.deskRailStarting,
+          HttpRun.failed => l.deskRailNotReceiving,
+          HttpRun.off => l.deskRailOff,
         },
         state: switch (run) {
           HttpRun.on => EState.ok,
@@ -107,16 +108,16 @@ List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
           HttpRun.off => EState.off,
         },
         second: switch (run) {
-          HttpRun.on => 'On · $where',
-          HttpRun.busy => 'Starting',
-          HttpRun.failed => (st?.httpProblem ?? '').toLowerCase().contains('port') ? 'Port in use' : 'Stopped',
+          HttpRun.on => public ? l.deskRailOnInternet : l.deskRailOnLocal,
+          HttpRun.busy => l.deskRailStarting,
+          HttpRun.failed => (st?.httpProblem ?? '').toLowerCase().contains('port') ? l.deskRailPortInUse : l.deskRailStopped,
           HttpRun.off => '–',
         },
         lines: [
-          if (run != HttpRun.off) 'Port ${settings.httpPort} · ${settings.publicMode ? 'from the internet' : 'this computer only'}',
+          if (run != HttpRun.off) public ? l.deskRailPortInternet('${settings.httpPort}') : l.deskRailPortLocal('${settings.httpPort}'),
           if (run == HttpRun.failed && st?.httpProblem != null) st!.httpProblem!,
         ],
-        open: 'Open HTTP receiving',
+        open: l.deskRailOpenHttp,
         jump: SettingsJump.http,
       ),
     );
@@ -125,11 +126,11 @@ List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
     // The one Tor switch, always shown: Off, Starting…, On, Not connected. A click opens
     // Settings › Privacy, where the switch is.
     final included = st?.torIncluded ?? true;
-    final word = included ? torWord(tor) : 'Not in this build';
+    final word = included ? torWord(tor) : l.deskRailTorNotInBuild;
     items.add(
       RailItem(
         icon: EIcons.tor,
-        name: 'Tor',
+        name: 'Tor', // l10n-ok: product name
         word: word,
         state: !included
             ? EState.off
@@ -139,14 +140,14 @@ List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
                 TorState.on => EState.ok,
                 TorState.failed => EState.risk,
               },
-        second: tor == TorState.starting ? 'Starting…' : word,
+        second: tor == TorState.starting ? l.deskRailStartingDots : word,
         marker: tor == TorState.starting ? '${st?.torProgress ?? 0} %' : null,
         note: included ? torNetworkHint : null,
         lines: [
           if (tor == TorState.failed && st?.torProblem != null) st!.torProblem!,
-          if (tor == TorState.on && st?.tor == ServiceHealth.slow) '${st?.torProblem ?? 'Tor address not published'}. Sends work.',
+          if (tor == TorState.on && st?.tor == ServiceHealth.slow) l.deskRailTorSlow(st?.torProblem ?? l.deskRailTorNoAddress),
         ],
-        open: 'Open Privacy settings',
+        open: l.deskRailOpenPrivacy,
         jump: SettingsJump.tor,
       ),
     );
@@ -155,15 +156,15 @@ List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
 }
 
 /// The Node row from a [NodeView].
-RailItem nodeRailItem(NodeView v) => RailItem(
+RailItem nodeRailItem(AppLocalizations l, NodeView v) => RailItem(
   icon: EIcons.node,
-  name: 'Node',
+  name: l.deskRailNode,
   word: v.word,
   state: v.state,
   second: v.host,
   marker: v.marker,
   lines: v.lines,
-  open: 'Open node settings',
+  open: l.deskRailOpenNode,
   jump: SettingsJump.node,
 );
 
@@ -236,6 +237,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final status = ref.watch(deskProvider.select((s) => s.status));
     final settings = ref.watch(deskProvider.select((s) => s.settings));
     final prefs = ref.watch(settingsPrefsProvider);
@@ -248,7 +250,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       node = localNodeView(ref.watch(deskLocalNodeProvider).value, fallbackUrl: status?.node.url);
     } else if (status == null) {
       _url = null;
-      node = const NodeView(word: 'Checking', state: EState.off, host: '–');
+      node = NodeView(word: l.deskRailChecking, state: EState.off, host: '–');
     } else {
       final url = (prefs.typedNode ?? status.node).url;
       _url = url;
@@ -264,7 +266,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       final tor = torNodeLines(url, torState);
       node = tor.isEmpty ? v : NodeView(word: v.word, state: v.state, host: v.host, marker: v.marker, lines: [...v.lines, ...tor]);
     }
-    final items = [nodeRailItem(node), ...receivingRailItems(status, settings)];
+    final items = [nodeRailItem(l, node), ...receivingRailItems(l, status, settings)];
     Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.jump));
     if (widget.horizontal) {
       return Row(mainAxisSize: MainAxisSize.min, children: [for (final i in items) SizedBox(width: Ctl.md, child: row(i))]);
@@ -308,7 +310,7 @@ class _RailRowState extends State<RailRow> {
     final i = widget.item;
     final off = i.second == '–';
     // A host is mono; a status word is in the interface face.
-    final mono = i.name == 'Node' || i.name == 'Epicbox';
+    final mono = i.icon == EIcons.node || i.icon == EIcons.epicbox;
     final secondStyle = off
         ? ts.small.copyWith(color: c.faint, height: 15 / 12)
         : (mono && !off ? ts.mono(size: Fs.xs, color: c.dim) : ts.caption.copyWith(color: c.dim)).copyWith(height: 15 / Fs.xs);

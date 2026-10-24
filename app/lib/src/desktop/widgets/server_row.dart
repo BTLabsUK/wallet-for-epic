@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'kit.dart';
+import '../desk_l10n.dart';
 
 enum ServerKind { node, relay }
 
@@ -119,18 +120,19 @@ class ServerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final i = info;
     final grey = i.down;
     final words = grey ? c.faint : c.text;
     final dim = grey ? c.faint : c.dim;
     final tip = switch (i.behind) {
       null => ('–', c.faint),
-      0 => ('at tip', dim),
-      final n when n < 0 => ('at tip', dim),
-      final n => ('${digitsText(n)} behind', grey ? c.faint : c.warn),
+      0 => (l.deskKitAtTip, dim),
+      final n when n < 0 => (l.deskKitAtTip, dim),
+      final n => (l.deskKitBehind(n, digitsText(n)), grey ? c.faint : c.warn),
     };
     final latency = i.down
-        ? ('no answer', c.risk)
+        ? (l.deskKitNodeNoAnswer, c.risk)
         : i.latencyMs == null
         ? ('–', c.faint)
         : ('${digitsText(i.latencyMs!)} ms', c.faint);
@@ -190,7 +192,7 @@ class ServerRow extends StatelessWidget {
               SizedBox(width: 10.u),
               EIconButton(
                 icon: star ? EIcons.star : EIcons.starOutline,
-                label: star ? 'Remove ${i.host} from my nodes' : 'Add ${i.host} to my nodes',
+                label: star ? l.deskKitNodeRemove(i.host) : l.deskKitNodeAdd(i.host),
                 size: EBtnSize.inline,
                 selected: star,
                 tabStop: false,
@@ -202,7 +204,12 @@ class ServerRow extends StatelessWidget {
         return Semantics(
           button: onTap != null,
           selected: selected,
-          label: 'Use ${i.host}${i.operator != null ? ', ${i.operator}' : ''}${i.down ? ', not answering' : ''}',
+          label: switch ((i.operator, i.down)) {
+            (final op?, true) => l.deskKitNodeUseOperatorDown(i.host, op),
+            (final op?, false) => l.deskKitNodeUseOperator(i.host, op),
+            (null, true) => l.deskKitNodeUseDown(i.host),
+            (null, false) => l.deskKitNodeUse(i.host),
+          },
           hint: semanticsHint,
           child: InkWell(
             onTap: onTap,
@@ -238,7 +245,7 @@ class LocalNodeRow extends StatelessWidget {
     return Semantics(
       button: onTap != null,
       selected: selected,
-      label: 'Use the local node, $stateText',
+      label: context.l10n.deskKitLocalNodeUse(stateText),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(Rad.sm),
@@ -252,7 +259,7 @@ class LocalNodeRow extends StatelessWidget {
             children: [
               SizedBox(width: 16.u, child: Icon(EIcons.monitor, size: 16.u, color: c.dim)),
               SizedBox(width: 10.u),
-              Text('Local node', style: ts.body.copyWith(color: c.text)),
+              Text(context.l10n.deskKitLocalNode, style: ts.body.copyWith(color: c.text)),
               SizedBox(width: 10.u),
               Expanded(child: Text(stateText, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: c.dim))),
             ],

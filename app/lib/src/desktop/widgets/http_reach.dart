@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../desk_l10n.dart';
 import '../data/http_address.dart' show HttpReach;
 import 'kit.dart';
 
@@ -62,30 +63,42 @@ class _HttpReachNoticeState extends ConsumerState<HttpReachNotice> {
     ref.listen(deskProvider.select((s) => (s.settings.httpPort, s.status?.httpListener)), (a, b) {
       if (a != b) unawaited(_read());
     });
+    final l = context.l10n;
     final r = _reach;
     final check = EButton(
       key: const ValueKey('http-reach-check'),
-      label: 'Check',
+      label: l.deskKitReachCheck,
       size: EBtnSize.inline,
       busy: _checking,
       onPressed: _checking ? null : () => unawaited(_read(recheck: true)),
     );
     if (r == null) {
       return _checking
-          ? const ENotice(key: ValueKey('http-reach'), title: 'Checking from the internet…')
+          ? ENotice(key: const ValueKey('http-reach'), title: l.deskKitReachChecking)
           : const SizedBox.shrink();
     }
     final lan = r.lanAddress;
-    final local = lan == null ? '' : ' On your network: $lan.';
     final (tone, title, text) = switch ((r.publicIp, r.reachable)) {
-      (null, _) => (ETone.warn, 'Public IP not found', 'The internet could not be asked for it. Try again later.$local'),
+      (null, _) => (
+        ETone.warn,
+        l.deskKitReachNoIpTitle,
+        lan == null ? l.deskKitReachNoIpText : l.deskKitReachNoIpTextLan(lan),
+      ),
       (_, false) => (
         ETone.warn,
-        'Not reachable from the internet',
-        'Forward TCP port ${r.port} on your router to this computer${r.lan == null ? '' : ' (${r.lan})'}, then check again.',
+        l.deskKitReachClosedTitle,
+        r.lan == null ? l.deskKitReachClosedText('${r.port}') : l.deskKitReachClosedTextLan('${r.port}', '${r.lan}'),
       ),
-      (_, null) => (ETone.warn, 'Reachability unknown', 'The port check did not answer. Try again later.$local'),
-      (_, true) => (ETone.ok, 'Reachable from the internet', 'Port ${r.port} is forwarded.$local'),
+      (_, null) => (
+        ETone.warn,
+        l.deskKitReachUnknownTitle,
+        lan == null ? l.deskKitReachUnknownText : l.deskKitReachUnknownTextLan(lan),
+      ),
+      (_, true) => (
+        ETone.ok,
+        l.deskKitReachOpenTitle,
+        lan == null ? l.deskKitReachOpenText('${r.port}') : l.deskKitReachOpenTextLan('${r.port}', lan),
+      ),
     };
     return ENotice(key: const ValueKey('http-reach'), tone: tone, title: title, text: text, actions: [check]);
   }

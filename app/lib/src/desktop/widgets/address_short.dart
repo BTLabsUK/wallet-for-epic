@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../desk_l10n.dart';
 import '../../address_format.dart';
 import '../data/addresses.dart';
 import '../theme/icons.dart';
@@ -65,10 +66,10 @@ class EKindTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => switch (kind) {
-    AddressKind.epicbox => const ETag('Epicbox', tone: ETone.gold, icon: EIcons.epicbox),
+    AddressKind.epicbox => const ETag('Epicbox', tone: ETone.gold, icon: EIcons.epicbox), // l10n-ok: product name
     AddressKind.http => const ETag('HTTP', icon: EIcons.http),
-    AddressKind.tor => const ETag('Tor', icon: EIcons.tor),
-    AddressKind.none => const ETag('Unknown'),
+    AddressKind.tor => const ETag('Tor', icon: EIcons.tor), // l10n-ok: product name
+    AddressKind.none => ETag(context.l10n.deskKitUnknown),
   };
 }
 

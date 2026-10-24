@@ -1,6 +1,7 @@
 // The sidebar rail (spec §5, §16): Node, a divider, Epicbox, HTTP, Tor; every row 40 u in
 // every state, so the rail never changes height; the Node row's twelve states; no address,
 // URL or port on a row.
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/app/rail.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -257,7 +258,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       for (final e in fixtures.entries) {
-        final item = nodeRailItem(e.value.$1);
+        final item = nodeRailItem(englishStrings, e.value.$1);
         await tester.pumpWidget(
           MaterialApp(
             theme: buildDeskTheme(Brightness.dark),
@@ -285,7 +286,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: buildDeskTheme(Brightness.dark),
-          home: Scaffold(body: Align(alignment: Alignment.topLeft, child: SizedBox(width: 360, child: RailRow(item: nodeRailItem(v), onTap: () {})))),
+          home: Scaffold(body: Align(alignment: Alignment.topLeft, child: SizedBox(width: 360, child: RailRow(item: nodeRailItem(englishStrings, v), onTap: () {})))),
         ),
       );
       await tester.pump();
