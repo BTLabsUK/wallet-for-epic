@@ -13,7 +13,8 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
-import 'package:epic_wallet/src/ui/server_picker.dart' show serverRowKey;
+import 'package:epic_wallet/src/ui/network_menu.dart' show networkMenuEpicboxKey, networkMenuNetworkKey;
+import 'package:epic_wallet/src/ui/server_picker.dart' show serverAddKey, serverRowKey, serverSwitchKey;
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -410,18 +411,17 @@ void main() {
       final service = FakeWalletService();
       await _pumpApp(tester, service, _Device());
       await _tap(tester, find.bySemanticsLabel('Node and Epicbox'));
+      // Development builds only: the menu's Network item, then the network.
+      await _tap(tester, find.byKey(networkMenuNetworkKey));
       await _tapText(tester, 'Usernet');
-      final urlField = tester.widget<TextField>(
-        find.widgetWithText(TextField, 'Node URL'),
-      );
-      expect(urlField.controller!.text, 'http://127.0.0.1:23413');
-      await _tapText(tester, 'Save');
+      await tester.pumpAndSettle();
 
       expect(find.text('Welcome (Usernet, test coins)'), findsOneWidget);
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
       expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(service.createdConfig?.chain, Chain.usernet);
+      expect(service.createdConfig?.nodeUrl, 'http://127.0.0.1:23413');
       expect(service.createdConfig?.epicboxPort, 3423);
     });
   });
@@ -433,35 +433,28 @@ void main() {
     final device = _Device();
     await _pumpApp(tester, service, device);
     await _tap(tester, find.bySemanticsLabel('Node and Epicbox'));
+    await _tap(tester, find.byKey(networkMenuEpicboxKey));
 
-    await _reveal(tester, find.text('epicbox.epicnet.us'));
-    expect(find.text('epicbox.epicnet.us'), findsOneWidget);
+    final row = find.byKey(serverRowKey('epicbox.epicnet.us'));
+    await _reveal(tester, row);
+    expect(row, findsOneWidget);
     expect(
       find.textContaining('EpicNet · 100.0 % up', findRichText: true),
       findsOneWidget,
     );
-    expect(find.textContaining('server changes your address'), findsNothing);
-    await _tapText(tester, 'epicbox.epicnet.us');
-    expect(find.textContaining('server changes your address'), findsOneWidget);
+    expect(find.text('Your address changes; senders need the new one.'), findsNothing);
+    await _tap(tester, row);
+    expect(find.text('Your address changes; senders need the new one.'), findsOneWidget);
 
-    await _enter(
-      tester,
-      'Other epicbox server (host or host:port)',
-      'not a host!',
-    );
-    await _tap(tester, find.byTooltip('Use this server'));
+    await _enter(tester, 'Other server, host or host:port', 'not a host!');
+    await _tap(tester, find.byKey(serverAddKey));
     expect(find.textContaining('Enter a host'), findsOneWidget);
-    await _enter(
-      tester,
-      'Other epicbox server (host or host:port)',
-      'relay.example.org:8443',
-    );
-    await _tap(tester, find.byTooltip('Use this server'));
-    expect(find.text('relay.example.org:8443'), findsOneWidget);
+    await _enter(tester, 'Other server, host or host:port', 'relay.example.org:8443');
+    await _tap(tester, find.byKey(serverAddKey));
     expect(find.byKey(serverRowKey('relay.example.org:8443')), findsOneWidget);
 
-    await _tapText(tester, 'epicbox.epicnet.us');
-    await _tapText(tester, 'Save');
+    await _tap(tester, row);
+    await _tap(tester, find.byKey(serverSwitchKey));
     expect(device.store.values['app.relay.mainnet'], 'epicbox.epicnet.us');
     await _enter(tester, 'PIN', _pin);
     await _enter(tester, 'Repeat PIN', _pin);

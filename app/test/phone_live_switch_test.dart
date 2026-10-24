@@ -1,6 +1,7 @@
-// Settings › Network on the phone switches the node or the epicbox relay of the open wallet
+// The server pickers on the phone (Home's status icons, Settings › Privacy & network, the
+// first-run and lock-screen button) switch the node or the epicbox relay of the open wallet
 // live: no LaunchScreen, no PIN, the session stays open and the listener keeps running and
-// receives on the new relay. Another network still restarts the app flow.
+// receives on the new relay. Another network (development builds) still restarts the app flow.
 import 'dart:async';
 import 'dart:io';
 
@@ -13,8 +14,9 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart' show NetworkSettingsButton;
 import 'package:epic_wallet/src/ui/launch_screen.dart';
+import 'package:epic_wallet/src/ui/network_menu.dart';
 import 'package:epic_wallet/src/ui/pin_unlock_screen.dart';
-import 'package:epic_wallet/src/ui/setup_screen.dart';
+import 'package:epic_wallet/src/ui/server_picker.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,9 +38,12 @@ typedef _World = ({
   FakeWalletSession session,
 });
 
-/// An unlocked mainnet wallet on the default servers, its listener running, and Settings ›
-/// Network open over a home page.
-Future<_World> _open(WidgetTester tester) async {
+/// An unlocked mainnet wallet on the default servers, its listener running, and a picker sheet
+/// of [open] over a home page.
+Future<_World> _open(
+  WidgetTester tester, {
+  Future<void> Function(BuildContext context) open = showEpicboxPicker,
+}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -49,7 +54,7 @@ Future<_World> _open(WidgetTester tester) async {
       walletServiceProvider.overrideWithValue(service),
       secretStoreProvider.overrideWithValue(MemorySecretStore()),
       relayDirectoryProvider.overrideWithValue(_NoRelays()),
-      // The network picker is for development builds; this test switches networks.
+      // The network chooser is for development builds; one test switches networks.
       devNetworksProvider.overrideWithValue(true),
     ],
   );
@@ -71,9 +76,7 @@ Future<_World> _open(WidgetTester tester) async {
         home: Builder(
           builder: (context) => Scaffold(
             body: TextButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const SetupScreen()),
-              ),
+              onPressed: () => open(context),
               child: const Text('home'),
             ),
           ),
@@ -83,39 +86,52 @@ Future<_World> _open(WidgetTester tester) async {
   );
   await tester.tap(find.text('home'));
   await tester.pumpAndSettle();
-  expect(find.byType(SetupScreen), findsOneWidget);
   return (container: container, service: service, session: session);
 }
 
-Future<void> _useRelay(WidgetTester tester, String relay) async {
-  final field = find.widgetWithText(TextField, _l.setupCustomRelayLabel);
+/// Types [text] into the Other server field and taps Add: the server is offered for a switch.
+Future<void> _offer(WidgetTester tester, String text) async {
+  final field = find.byKey(serverAddFieldKey);
   await tester.scrollUntilVisible(
     field,
     200,
-    scrollable: find.byType(Scrollable).first,
+    scrollable: find
+        .descendant(of: find.byType(ServerPickerSheet), matching: find.byType(Scrollable))
+        .first,
   );
-  await tester.enterText(field, relay);
-  await tester.testTextInput.receiveAction(TextInputAction.done);
+  await tester.enterText(field, text);
+  await tester.tap(find.byKey(serverAddKey));
   await tester.pumpAndSettle();
 }
 
-Future<void> _save(WidgetTester tester, {bool settle = true}) async {
-  await tester.ensureVisible(find.text(_l.commonSave));
-  await tester.tap(find.text(_l.commonSave));
+Future<void> _switch(WidgetTester tester, {bool settle = true}) async {
+  await tester.tap(find.byKey(serverSwitchKey));
   if (settle) {
     await tester.pumpAndSettle();
+    // The success notice's timer runs on after the switch.
+    await tester.pump(const Duration(seconds: 10));
   } else {
     // The launch screen's spinner never settles.
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 20; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
   }
 }
 
+/// The app flow started again: the launch screen, or the lock screen it routes to.
+void _relaunched() {
+  expect(find.byType(ServerPickerSheet), findsNothing);
+  expect(
+    find.byType(LaunchScreen).evaluate().isNotEmpty ||
+        find.byType(PinUnlockScreen).evaluate().isNotEmpty,
+    isTrue,
+  );
+}
+
 /// The open wallet, on the same session, not locked and not handed to the PIN screen.
 void _stillOpen(_World w) {
   expect(find.byType(LaunchScreen), findsNothing);
-  expect(find.byType(SetupScreen), findsNothing);
+  expect(find.byType(ServerPickerSheet), findsNothing);
   expect(find.text('home'), findsOneWidget);
   expect(w.container.read(sessionProvider), same(w.session));
   expect(w.session.disposeCalls, 0);
@@ -131,10 +147,8 @@ void main() {
     ]);
     w.session.routeLog.clear();
 
-    await _useRelay(tester, 'relay.example.org');
-    await _save(tester);
-    await tester.tap(find.text(_l.serverSwitchRelayConfirm));
-    await tester.pumpAndSettle();
+    await _offer(tester, 'relay.example.org');
+    await _switch(tester);
 
     _stillOpen(w);
     expect(w.session.serverSwitches.single.epicboxDomain, 'relay.example.org');
@@ -144,17 +158,16 @@ void main() {
     expect(w.session.onionRoutes, hasLength(1));
   });
 
-  testWidgets('a new relay is confirmed with the new address, switched live, and the listener '
-      'receives on it', (tester) async {
+  testWidgets('a new relay is switched live after the strip says the address changes, and the '
+      'listener receives on it', (tester) async {
     final w = await _open(tester);
     expect(w.session.listenerStarts, 1);
 
-    await _useRelay(tester, 'relay.example.org');
-    await _save(tester);
-    expect(find.text(_l.serverSwitchRelayTitle), findsOneWidget);
-    expect(find.textContaining('…@relay.example.org'), findsOneWidget);
-    await tester.tap(find.text(_l.serverSwitchRelayConfirm));
-    await tester.pumpAndSettle();
+    await _offer(tester, 'relay.example.org');
+    // The strip's Switch, with its caption, is the confirmation.
+    expect(find.text(_l.serverRelaySwitchNote), findsOneWidget);
+    expect(find.byKey(serverSwitchKey), findsOneWidget);
+    await _switch(tester);
 
     _stillOpen(w);
     final switched = w.session.serverSwitches.single;
@@ -188,10 +201,8 @@ void main() {
     expect(await w.container.read(invoiceAddressProvider.future), endsWith('@epicbox.epiccash.com'));
     expect(await w.container.read(addressProvider.future), endsWith('@epicbox.epiccash.com'));
 
-    await _useRelay(tester, 'relay.example.org');
-    await _save(tester);
-    await tester.tap(find.text(_l.serverSwitchRelayConfirm));
-    await tester.pumpAndSettle();
+    await _offer(tester, 'relay.example.org');
+    await _switch(tester);
 
     _stillOpen(w);
     expect(await w.container.read(invoiceAddressProvider.future), endsWith('@relay.example.org'));
@@ -200,18 +211,17 @@ void main() {
     receive.close();
   });
 
-  testWidgets('a relay switch that finishes after its screen was closed still moves the wallet '
+  testWidgets('a relay switch that finishes after its sheet was closed still moves the wallet '
       'onto the new relay: the config, the shown address and push follow it', (tester) async {
     final w = await _open(tester);
     final gate = w.session.serverSwitchGate = Completer<void>();
-    await _useRelay(tester, 'relay.example.org');
-    await _save(tester);
-    await tester.tap(find.text(_l.serverSwitchRelayConfirm));
+    await _offer(tester, 'relay.example.org');
+    await tester.tap(find.byKey(serverSwitchKey));
     await tester.pump();
-    // Back out of the screen while the switch waits for a payment in hand.
+    // Back out of the sheet while the switch waits for a payment in hand.
     tester.state<NavigatorState>(find.byType(Navigator)).pop();
     await tester.pumpAndSettle();
-    expect(find.byType(SetupScreen), findsNothing);
+    expect(find.byType(ServerPickerSheet), findsNothing);
     gate.complete();
     await tester.pumpAndSettle();
 
@@ -221,9 +231,13 @@ void main() {
     expect(await w.container.read(addressProvider.future), endsWith('@relay.example.org'));
   });
 
-  group('android-15: the lock screen\'s Node and Epicbox link', () {
-    /// A locked wallet on the default servers, with the lock screen's link pressed.
-    Future<ProviderContainer> openFromLockScreen(WidgetTester tester) async {
+  group('first run and the lock screen: the button\'s menu opens the same sheets', () {
+    /// A locked wallet on the default servers, with the lock screen's button pressed and
+    /// [entry] ([networkMenuNodeKey] or [networkMenuEpicboxKey]) chosen from its menu.
+    Future<ProviderContainer> openFromLockScreen(
+      WidgetTester tester,
+      Key entry,
+    ) async {
       tester.view.physicalSize = const Size(1080, 2340);
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
@@ -252,66 +266,65 @@ void main() {
       expect(container.read(sessionProvider), isNull);
       await tester.tap(find.byType(NetworkSettingsButton));
       await tester.pumpAndSettle();
-      expect(find.byType(SetupScreen), findsOneWidget);
+      await tester.tap(find.byKey(entry));
+      await tester.pumpAndSettle();
+      expect(find.byType(ServerPickerSheet), findsOneWidget);
       return container;
     }
 
-    testWidgets('a new relay asks first, and Cancel saves nothing', (tester) async {
-      final container = await openFromLockScreen(tester);
-      await _useRelay(tester, 'relay.example.org');
-      await _save(tester);
-      expect(find.text(_l.serverSwitchRelayTitle), findsOneWidget);
-      expect(find.textContaining('…@relay.example.org'), findsOneWidget);
+    testWidgets('a new relay asks first (the strip), and Cancel saves nothing', (tester) async {
+      final container = await openFromLockScreen(tester, networkMenuEpicboxKey);
+      await _offer(tester, 'relay.example.org');
+      expect(find.text(_l.serverRelaySwitchNote), findsOneWidget);
       await tester.tap(find.text(_l.commonCancel));
       await tester.pumpAndSettle();
 
-      expect(find.byType(SetupScreen), findsOneWidget);
+      expect(find.byKey(serverSwitchKey), findsNothing);
+      expect(find.byType(ServerPickerSheet), findsOneWidget);
       expect(
         (await container.read(networkChoiceProvider.future)).relay,
         mainnetPreset.defaultRelay,
       );
     });
 
-    testWidgets('Switch saves the relay and returns to the lock screen', (tester) async {
-      final container = await openFromLockScreen(tester);
-      await _useRelay(tester, 'relay.example.org');
-      await _save(tester);
-      await tester.tap(find.text(_l.serverSwitchRelayConfirm));
-      for (var i = 0; i < 10; i++) {
-        await tester.pump(const Duration(milliseconds: 100));
-      }
+    testWidgets('Switch saves the relay and starts the app again on it', (tester) async {
+      final container = await openFromLockScreen(tester, networkMenuEpicboxKey);
+      await _offer(tester, 'relay.example.org');
+      await _switch(tester, settle: false);
 
-      expect(find.byType(SetupScreen), findsNothing);
+      expect(find.byType(ServerPickerSheet), findsNothing);
       expect(
         (await container.read(networkChoiceProvider.future)).relay.host,
         'relay.example.org',
       );
+      // The launch flow lands on the lock screen again (a wallet exists).
+      _relaunched();
     });
 
-    testWidgets('a new node needs no confirm', (tester) async {
-      final container = await openFromLockScreen(tester);
-      await tester.enterText(
-        find.widgetWithText(TextField, _l.setupNodeUrlLabel),
-        'https://node.example.org',
-      );
-      await _save(tester, settle: false);
+    testWidgets('a new node needs no confirm beyond the strip', (tester) async {
+      final container = await openFromLockScreen(tester, networkMenuNodeKey);
+      await _offer(tester, 'https://node.example.org');
+      expect(find.text(_l.serverRelaySwitchNote), findsNothing);
+      await _switch(tester, settle: false);
 
-      expect(find.text(_l.serverSwitchRelayTitle), findsNothing);
       expect(
         (await container.read(networkChoiceProvider.future)).nodeUrl,
         'https://node.example.org',
       );
+      _relaunched();
+      // The node's tip check and the foot line end their timers.
+      await tester.pump(const Duration(seconds: 10));
     });
   });
 
-  testWidgets('cancelling the relay confirm switches nothing', (tester) async {
+  testWidgets('cancelling the strip switches nothing', (tester) async {
     final w = await _open(tester);
-    await _useRelay(tester, 'relay.example.org');
-    await _save(tester);
+    await _offer(tester, 'relay.example.org');
     await tester.tap(find.text(_l.commonCancel));
     await tester.pumpAndSettle();
 
-    expect(find.byType(SetupScreen), findsOneWidget);
+    expect(find.byType(ServerPickerSheet), findsOneWidget);
+    expect(find.byKey(serverSwitchKey), findsNothing);
     expect(w.session.serverSwitches, isEmpty);
     expect(
       (await w.container.read(networkChoiceProvider.future)).relay,
@@ -319,15 +332,12 @@ void main() {
     );
   });
 
-  testWidgets('a new node switches live without a confirm', (tester) async {
-    final w = await _open(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, _l.setupNodeUrlLabel),
-      'https://node.example.org',
-    );
-    await _save(tester);
+  testWidgets('a new node switches live without a relay note', (tester) async {
+    final w = await _open(tester, open: showNodePicker);
+    await _offer(tester, 'https://node.example.org');
+    expect(find.text(_l.serverRelaySwitchNote), findsNothing);
+    await _switch(tester);
 
-    expect(find.text(_l.serverSwitchRelayTitle), findsNothing);
     _stillOpen(w);
     expect(w.session.serverSwitches.single.nodeUrl, 'https://node.example.org');
     expect(
@@ -340,19 +350,16 @@ void main() {
     );
   });
 
-  testWidgets('a refused switch keeps the wallet, the screen and the saved servers', (tester) async {
-    final w = await _open(tester);
+  testWidgets('a refused switch keeps the wallet, the sheet and the saved servers', (tester) async {
+    final w = await _open(tester, open: showNodePicker);
     w.session.openedConfig = mainnetPreset.config(
       dataDir: '/elsewhere',
       nodeUrl: mainnetPreset.nodeUrl,
     );
-    await tester.enterText(
-      find.widgetWithText(TextField, _l.setupNodeUrlLabel),
-      'https://node.example.org',
-    );
-    await _save(tester);
+    await _offer(tester, 'https://node.example.org');
+    await _switch(tester);
 
-    expect(find.byType(SetupScreen), findsOneWidget);
+    expect(find.byType(ServerPickerSheet), findsOneWidget);
     expect(w.container.read(sessionProvider), same(w.session));
     expect(
       (await w.container.read(networkChoiceProvider.future)).nodeUrl,
@@ -360,14 +367,20 @@ void main() {
     );
   });
 
-  testWidgets('another network still restarts the app flow', (tester) async {
-    final w = await _open(tester);
+  testWidgets('another network (development builds) still restarts the app flow', (tester) async {
+    final w = await _open(tester, open: showNetworkChooser);
     await tester.tap(find.text(_l.networkFloonet));
-    await tester.pumpAndSettle();
-    await _save(tester, settle: false);
+    await tester.pump();
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     expect(w.session.serverSwitches, isEmpty);
     expect(w.container.read(sessionProvider), isNull);
+    expect(
+      (await w.container.read(networkChoiceProvider.future)).preset,
+      floonetPreset,
+    );
   });
 
   test('the LEPIC adapter hands the new servers to the open wallet', () async {

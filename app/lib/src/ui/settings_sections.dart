@@ -34,15 +34,17 @@ import 'info_hint.dart';
 import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'licences_screen.dart';
+import 'network_menu.dart';
 import 'network_status.dart';
 import 'outputs_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart'
     show ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
+import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'settings_history.dart';
 import 'settings_invoices.dart';
 import 'settings_pin.dart';
-import 'setup_screen.dart';
+import 'status.dart' show serverHost;
 import 'theme/advanced.dart';
 import 'theme/brand.dart' show BrandLockup, BrandVariant;
 import 'theme/tokens.dart';
@@ -120,6 +122,10 @@ IconData settingsSectionIcon(SettingsSection section) => switch (section) {
 
 /// The key of the Privacy header on the Privacy & network page, for tests.
 const Key settingsPrivacyKey = ValueKey('settings-privacy');
+
+/// The Node and Epicbox rows of Privacy & network, for tests.
+const Key settingsNodeKey = ValueKey('settings-node');
+const Key settingsEpicboxKey = ValueKey('settings-epicbox');
 
 /// The key of the Licences row in About, for tests.
 const Key settingsLicencesKey = ValueKey('settings-licences');
@@ -517,39 +523,24 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       ),
       if (!demo) ...[
         SettingsHeader(l.settingsSectionNetwork),
+        // The same pickers as the status icons on Home: a tap on a server switches the open
+        // wallet to it live. Under each, the connection over Tor or waiting for it.
         ListTile(
-          leading: const Icon(Icons.settings_ethernet),
-          title: Text(l.settingsNetworkAndNode),
-          // The node's host; the network's name only where networks are offered. Under it,
-          // the Epicbox connection over Tor or waiting for it.
+          key: settingsNodeKey,
+          leading: const Icon(Icons.dns_outlined),
+          title: Text(l.serverNodeTitle),
           subtitle: withTorWay(
-            network == null
-                ? (devNetworks ? Text(chain) : null)
-                : Text(
-                    devNetworks
-                        ? l.settingsNetworkSubtitle(
-                            chain,
-                            Uri.tryParse(network.nodeUrl)?.host ??
-                                network.nodeUrl,
-                          )
-                        : Uri.tryParse(network.nodeUrl)?.host ??
-                              network.nodeUrl,
-                  ),
-            torWay(TorRoute.epicbox, torState),
+            network == null ? null : Text(serverHost(network.nodeUrl)),
+            nodeTorWay(network?.nodeUrl, torState),
           ),
-          onTap: () => _push(const SetupScreen()),
+          onTap: () => showNodePicker(context),
         ),
-        if (advanced) ...[
-          if (devNetworks)
-            ListTile(
-              leading: const Icon(Icons.hub),
-              title: Text(l.settingsAboutNetwork),
-              subtitle: Text(chain),
-            ),
-          ListTile(
-            leading: const Icon(Icons.dns_outlined),
-            title: Text(l.settingsEpicboxServer),
-            subtitle: Text(
+        ListTile(
+          key: settingsEpicboxKey,
+          leading: const Icon(Icons.mail_outline),
+          title: Text(l.serverEpicboxTitle),
+          subtitle: withTorWay(
+            Text(
               network?.relay.label ??
                   (config == null
                       ? l.commonUnknown
@@ -558,8 +549,18 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                           port: config.epicboxPort,
                         ).label),
             ),
+            torWay(TorRoute.epicbox, torState),
           ),
-        ],
+          onTap: () => showEpicboxPicker(context),
+        ),
+        // Development builds only: the network itself, each with its own wallet.
+        if (advanced && devNetworks)
+          ListTile(
+            leading: const Icon(Icons.hub),
+            title: Text(l.settingsAboutNetwork),
+            subtitle: Text(chain),
+            onTap: () => showNetworkChooser(context),
+          ),
       ],
     ];
   }

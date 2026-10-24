@@ -3160,13 +3160,7 @@ abstract class AppLocalizations {
   /// **'Checking for updates failed.'**
   String get updateCheckFailed;
 
-  /// Title of the node and Epicbox server screen. Never names a network: a release runs on one.
-  ///
-  /// In en, this message translates to:
-  /// **'Node and Epicbox'**
-  String get setupTitle;
-
-  /// Tooltip of the app bar button on first run and unlock that opens the node and Epicbox screen.
+  /// Tooltip of the app bar button on first run and unlock that opens the menu with Node and Epicbox.
   ///
   /// In en, this message translates to:
   /// **'Node and Epicbox'**
@@ -3184,71 +3178,17 @@ abstract class AppLocalizations {
   /// **'Node URL'**
   String get setupNodeUrlLabel;
 
-  /// Error under the node URL field. Keep the example URL as it is.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a full URL such as https://node.example.com'**
-  String get setupNodeUrlInvalid;
-
-  /// Button that checks the node URL works.
-  ///
-  /// In en, this message translates to:
-  /// **'Test connection'**
-  String get setupTestConnection;
-
-  /// Result of a successful connection test. The node is the Epic Cash server the wallet reads the chain from.
-  ///
-  /// In en, this message translates to:
-  /// **'Connected. The node is at block {height}, running version {version}.'**
-  String setupTestConnected(String height, String version);
-
-  /// Result of a failed connection test, followed by the reason as one or more sentences.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not connect. {error}'**
-  String setupTestFailed(String error);
-
-  /// Screen-reader label of the check icon in front of a successful connection test.
-  ///
-  /// In en, this message translates to:
-  /// **'Connected'**
-  String get setupConnectedIconLabel;
-
-  /// Heading above the list of epicbox servers. Epicbox is the relay service that carries payments, a proper name.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox server'**
-  String get setupRelayHeading;
-
-  /// Under the epicbox server heading: the wallet's address ends with the server's host.
-  ///
-  /// In en, this message translates to:
-  /// **'Your address includes this server.'**
-  String get setupRelayHint;
-
   /// Field label for typing an epicbox server that is not in the list. Keep host:port as it is.
   ///
   /// In en, this message translates to:
   /// **'Other epicbox server (host or host:port)'**
   String get setupCustomRelayLabel;
 
-  /// Tooltip of the check button that selects the typed epicbox server.
-  ///
-  /// In en, this message translates to:
-  /// **'Use this server'**
-  String get setupCustomRelayUse;
-
   /// Error under the epicbox server field. Keep the example host as it is.
   ///
   /// In en, this message translates to:
   /// **'Enter a host such as epicbox.example.com'**
   String get setupCustomRelayInvalid;
-
-  /// Warning shown once a different epicbox server is selected.
-  ///
-  /// In en, this message translates to:
-  /// **'Changing the epicbox server changes your address. Give senders the new address. Payments sent to the old one wait on the old server until you switch back.'**
-  String get setupRelayChangeWarning;
 
   /// No description provided for @setupWalletPerNetwork.
   ///
@@ -4264,18 +4204,6 @@ abstract class AppLocalizations {
   /// **'Servers'**
   String get settingsSectionNetwork;
 
-  /// Settings row that opens the node and Epicbox screen; its subtitle is the node host.
-  ///
-  /// In en, this message translates to:
-  /// **'Node and Epicbox'**
-  String get settingsNetworkAndNode;
-
-  /// Under the Network and node row: the network's name and the node's host name.
-  ///
-  /// In en, this message translates to:
-  /// **'{network} · {node}'**
-  String settingsNetworkSubtitle(String network, String node);
-
   /// Section heading in settings.
   ///
   /// In en, this message translates to:
@@ -4803,12 +4731,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Network'**
   String get settingsAboutNetwork;
-
-  /// Settings row showing the epicbox server's host. epicbox is the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox server'**
-  String get settingsEpicboxServer;
 
   /// First row of Settings while a newer app version is available; Install is beside it.
   ///

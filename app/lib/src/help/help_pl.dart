@@ -17,8 +17,8 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
   // The words that differ between a computer and a phone.
   final device = phone ? 'tym telefonie' : 'tym komputerze';
   final secret = phone ? 'swój PIN' : 'hasło portfela';
-  final nodePlace = phone ? '[[Ustawienia › Prywatność i sieć › Węzeł i Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Ustawienia › Prywatność i sieć › Węzeł i Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[Ustawienia › Odbieranie › Odbieranie przez Epicbox|Settings › Receiving › Epicbox receiving]]';
+  final nodePlace = phone ? '[[Ustawienia › Prywatność i sieć › Węzeł|Settings › Privacy & network › Node]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
+  final epicboxPlace = phone ? '[[Ustawienia › Prywatność i sieć › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Ustawienia › Odbieranie › Odbieranie przez Epicbox|Settings › Receiving › Epicbox receiving]]';
   final torPlace = phone ? '[[Ustawienia › Prywatność i sieć › Sieć Tor|Settings › Privacy & network › Tor Network]]' : '[[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[Aktywność|Activity]] (otwórz płatność, potem „Anuluj płatność”)'

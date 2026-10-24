@@ -2309,9 +2309,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get updateCheckFailed => 'Sprawdzanie aktualizacji nie powiodło się.';
 
   @override
-  String get setupTitle => 'Węzeł i Epicbox';
-
-  @override
   String get setupNetworkSettingsTooltip => 'Węzeł i Epicbox';
 
   @override
@@ -2321,44 +2318,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get setupNodeUrlLabel => 'Adres URL węzła';
 
   @override
-  String get setupNodeUrlInvalid =>
-      'Wpisz pełny adres URL, np. https://node.example.com';
-
-  @override
-  String get setupTestConnection => 'Sprawdź połączenie';
-
-  @override
-  String setupTestConnected(String height, String version) {
-    return 'Połączono. Węzeł jest na bloku $height i działa w wersji $version.';
-  }
-
-  @override
-  String setupTestFailed(String error) {
-    return 'Nie udało się połączyć. $error';
-  }
-
-  @override
-  String get setupConnectedIconLabel => 'Połączono';
-
-  @override
-  String get setupRelayHeading => 'Serwer Epicbox';
-
-  @override
-  String get setupRelayHint => 'Ten serwer jest częścią twojego adresu.';
-
-  @override
   String get setupCustomRelayLabel =>
       'Inny serwer epicbox (host lub host:port)';
 
   @override
-  String get setupCustomRelayUse => 'Użyj tego serwera';
-
-  @override
   String get setupCustomRelayInvalid => 'Wpisz host, np. epicbox.example.com';
-
-  @override
-  String get setupRelayChangeWarning =>
-      'Zmiana serwera epicbox zmienia twój adres. Przekaż nadawcom nowy adres. Płatności wysłane na stary adres czekają na starym serwerze, dopóki do niego nie wrócisz.';
 
   @override
   String get setupWalletPerNetwork =>
@@ -3053,14 +3017,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSectionNetwork => 'Serwery';
 
   @override
-  String get settingsNetworkAndNode => 'Węzeł i Epicbox';
-
-  @override
-  String settingsNetworkSubtitle(String network, String node) {
-    return '$network · $node';
-  }
-
-  @override
   String get settingsSectionDisplay => 'Wyświetlanie';
 
   @override
@@ -3354,9 +3310,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsAboutNetwork => 'Sieć';
-
-  @override
-  String get settingsEpicboxServer => 'Serwer Epicbox';
 
   @override
   String settingsUpdateTo(String version) {

@@ -2297,9 +2297,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateCheckFailed => 'Не удалось проверить обновления.';
 
   @override
-  String get setupTitle => 'Узел и Epicbox';
-
-  @override
   String get setupNetworkSettingsTooltip => 'Узел и Epicbox';
 
   @override
@@ -2309,45 +2306,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get setupNodeUrlLabel => 'URL узла';
 
   @override
-  String get setupNodeUrlInvalid =>
-      'Введите полный URL, например https://node.example.com';
-
-  @override
-  String get setupTestConnection => 'Проверить подключение';
-
-  @override
-  String setupTestConnected(String height, String version) {
-    return 'Подключено. Узел на блоке $height, версия $version.';
-  }
-
-  @override
-  String setupTestFailed(String error) {
-    return 'Не удалось подключиться. $error';
-  }
-
-  @override
-  String get setupConnectedIconLabel => 'Подключено';
-
-  @override
-  String get setupRelayHeading => 'Сервер Epicbox';
-
-  @override
-  String get setupRelayHint => 'Этот сервер входит в ваш адрес.';
-
-  @override
   String get setupCustomRelayLabel =>
       'Другой сервер epicbox (хост или host:port)';
 
   @override
-  String get setupCustomRelayUse => 'Использовать этот сервер';
-
-  @override
   String get setupCustomRelayInvalid =>
       'Введите хост, например epicbox.example.com';
-
-  @override
-  String get setupRelayChangeWarning =>
-      'При смене сервера epicbox меняется ваш адрес. Сообщите отправителям новый адрес. Платежи, отправленные на старый, будут ждать на старом сервере, пока вы не переключитесь обратно.';
 
   @override
   String get setupWalletPerNetwork =>
@@ -3031,14 +2995,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionNetwork => 'Серверы';
 
   @override
-  String get settingsNetworkAndNode => 'Узел и Epicbox';
-
-  @override
-  String settingsNetworkSubtitle(String network, String node) {
-    return '$network · $node';
-  }
-
-  @override
   String get settingsSectionDisplay => 'Отображение';
 
   @override
@@ -3331,9 +3287,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsAboutNetwork => 'Сеть';
-
-  @override
-  String get settingsEpicboxServer => 'Сервер Epicbox';
 
   @override
   String settingsUpdateTo(String version) {
