@@ -20,9 +20,10 @@ import 'feedback_screen.dart';
 import 'handshake.dart';
 import 'help_language_switch.dart';
 import 'info_hint.dart';
+import 'contacts_screen.dart';
 import 'history_screen.dart';
+import 'invoices_screen.dart';
 import 'outputs_screen.dart';
-import 'server_picker.dart';
 import 'settings_screen.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
@@ -45,7 +46,7 @@ List<HelpTopic> phoneHelpTopics(WidgetRef ref, String lang) {
   final tor = ref.watch(phoneTorProvider.select(torShown));
   return [
     ...localizedHelpTopics(lang, confirmations, platform: HelpPlatform.phone, tor: tor),
-    if (invoices) ...invoiceHelpTopics(helpStrings(lang), confirmations),
+    if (invoices) ...invoiceHelpTopics(helpStrings(lang), confirmations, platform: HelpPlatform.phone),
   ];
 }
 
@@ -605,32 +606,78 @@ class _PlaceLink extends StatelessWidget {
   }
 }
 
-/// The screen a place's first word names: `Receive`, `Send`, `Activity`, `Outputs`,
-/// `Settings`, `Node`, `Epicbox`.
-String _placeRoot(String place) => place.split('›').first.trim();
+/// Where a place in Help goes on the phone.
+enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, settings, security, privacyNetwork, wallet, display, about }
+
+/// The rows of each Settings page that Help names: `Settings › Wallet › Recheck balance`.
+const _settingsPlaces = <String, (HelpPhonePlace, Set<String>)>{
+  'Security': (HelpPhonePlace.security, {'Back up recovery phrase'}),
+  'Privacy & network': (HelpPhonePlace.privacyNetwork, {'Tor Network', 'Node and Epicbox'}),
+  'Wallet': (HelpPhonePlace.wallet, {'Export history backup', 'Recheck balance', 'Invoice address and trusted services'}),
+  'Display': (HelpPhonePlace.display, <String>{}),
+  'About': (HelpPhonePlace.about, <String>{}),
+};
+
+/// The sub-places of the screens Help names, under their first word.
+const _screenPlaces = <String, (HelpPhonePlace, Set<String>)>{
+  'Receive': (HelpPhonePlace.receive, {'File'}),
+  'Send': (HelpPhonePlace.send, <String>{}),
+  'Activity': (HelpPhonePlace.activity, <String>{}),
+  'Outputs': (HelpPhonePlace.outputs, {'Advanced'}),
+  'Contacts': (HelpPhonePlace.contacts, <String>{}),
+  'Invoices': (HelpPhonePlace.invoices, {'To pay', 'Requests you sent'}),
+};
+
+/// The screen the phone shows for [place] (the English place a help link carries), or null when
+/// it has none: such a place must not be written as a link.
+HelpPhonePlace? helpPlaceDestination(String place) {
+  final parts = [for (final p in place.split('›')) p.trim()];
+  final root = parts.first;
+  if (root == 'Settings') {
+    if (parts.length == 1) return HelpPhonePlace.settings;
+    final page = _settingsPlaces[parts[1]];
+    if (page == null || parts.length > 3) return null;
+    if (parts.length == 3 && !page.$2.contains(parts[2])) return null;
+    return page.$1;
+  }
+  final screen = _screenPlaces[root];
+  if (screen == null || parts.length > 2) return null;
+  if (parts.length == 2 && !screen.$2.contains(parts[1])) return null;
+  return screen.$1;
+}
 
 /// Whether the phone can go to [place] from Help.
-bool helpPlaceGoes(String place) => const {
-  'Receive', 'Send', 'Activity', 'Outputs', 'Settings', 'Node', 'Epicbox',
-}.contains(_placeRoot(place));
+bool helpPlaceGoes(String place) => helpPlaceDestination(place) != null;
 
-/// Goes to [place]: a shell tab closes Help; a screen opens over it; the node and Epicbox
-/// pickers open as sheets.
+/// Goes to [place]: a shell tab closes Help; a screen or a Settings page opens over it.
 void openHelpPlace(BuildContext context, String place) {
-  switch (_placeRoot(place)) {
-    case 'Receive':
+  final navigator = Navigator.of(context);
+  switch (helpPlaceDestination(place)) {
+    case null:
+      return;
+    case HelpPhonePlace.receive:
       showShellTab(context, ShellTab.receive);
-    case 'Send':
+    case HelpPhonePlace.send:
       showShellTab(context, ShellTab.send);
-    case 'Activity':
-      Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const HistoryScreen()));
-    case 'Outputs':
-      Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const OutputsScreen()));
-    case 'Settings':
-      Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const SettingsScreen()));
-    case 'Node':
-      showNodePicker(context);
-    case 'Epicbox':
-      showEpicboxPicker(context);
+    case HelpPhonePlace.activity:
+      navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const HistoryScreen()));
+    case HelpPhonePlace.outputs:
+      navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const OutputsScreen()));
+    case HelpPhonePlace.contacts:
+      navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const ContactsScreen()));
+    case HelpPhonePlace.invoices:
+      navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const InvoicesScreen()));
+    case HelpPhonePlace.settings:
+      navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const SettingsScreen()));
+    case HelpPhonePlace.security:
+      openSettingsSection(context, SettingsSection.security);
+    case HelpPhonePlace.privacyNetwork:
+      openSettingsSection(context, SettingsSection.privacyNetwork);
+    case HelpPhonePlace.wallet:
+      openSettingsSection(context, SettingsSection.wallet);
+    case HelpPhonePlace.display:
+      openSettingsSection(context, SettingsSection.display);
+    case HelpPhonePlace.about:
+      openSettingsSection(context, SettingsSection.about);
   }
 }

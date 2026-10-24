@@ -39,6 +39,10 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
     ref.onDispose(_stop);
     if (!api.supportsInvoices || !open) return null;
     _changes = api.changes().listen((_) => unawaited(load()));
+    // The invoice address carries the relay: a switch moves the payments address, read again.
+    ref.listen(deskProvider.select((s) => s.epicboxAddress), (before, now) {
+      if (before != null && before != now) unawaited(load());
+    });
     if (_timers) {
       // Countdowns read the book's clock; a fresh book every 20 s keeps them moving.
       _clock = Timer.periodic(const Duration(seconds: 20), (_) => _tick());

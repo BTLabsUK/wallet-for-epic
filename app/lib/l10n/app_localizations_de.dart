@@ -2104,7 +2104,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return 'Version $version wird installiert…';
+    return 'Epic Cash Mobile schließt sich, um Version $version zu installieren. Öffnen Sie es danach wieder.';
   }
 
   @override
@@ -2918,6 +2918,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@epicbox.epiccash.com), eine Direkt-Adresse (https://…) oder eine Onion-Adresse (….onion).';
+
+  @override
   String get settingsTitle => 'Einstellungen';
 
   @override
@@ -3037,7 +3041,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'Eine zweite Adresse nur für Rechnungen, an die vertrauenswürdige Dienste Rechnungen schicken dürfen. Nachrichten von allen anderen werden verworfen, und nichts wird bezahlt, bis Sie jede Rechnung mit Ihrer PIN bestätigen. Ihre Adresse für Zahlungen bleibt dieselbe.';
+      'Eine zweite Adresse nur für Rechnungen, an die vertrauenswürdige Dienste Rechnungen schicken dürfen. Nachrichten von allen anderen werden verworfen, und nichts wird bezahlt, bis Sie jede Rechnung mit Ihrer PIN bestätigen. Sie ist von Ihrer Adresse für Zahlungen getrennt.';
 
   @override
   String get invoiceSettingsTitle => 'Rechnungen';
@@ -3047,7 +3051,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddressBody =>
-      'Geben Sie diese Adresse einem Dienst, dem Sie vertrauen, damit er Ihnen Rechnungen schicken kann. Ihre Adresse für Zahlungen bleibt dieselbe.';
+      'Geben Sie diese Adresse einem Dienst, dem Sie vertrauen, damit er Ihnen Rechnungen schicken kann. Sie ist von Ihrer Adresse für Zahlungen getrennt.';
 
   @override
   String get invoiceSettingsQrLabel => 'QR-Code Ihrer Rechnungsadresse';
@@ -3146,13 +3150,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get settingsRescan => 'Blockchain neu scannen';
+  String get settingsRescan => 'Guthaben neu prüfen';
 
   @override
   String get settingsRescanFinished => 'Neuer Scan abgeschlossen';
 
   @override
-  String get settingsRescanTitle => 'Blockchain neu scannen';
+  String get settingsRescanTitle => 'Guthaben neu prüfen';
 
   @override
   String get settingsRescanBody =>
@@ -5169,7 +5173,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowStep2 =>
-      'Der Zahler öffnet sie unter [[Rechnungen › Bezahlen]], prüft Absender, Betrag und Nachricht und wählt **Zustimmen und bezahlen** mit dem Wallet-Passwort.';
+      'Der Zahler öffnet sie unter [[Rechnungen › Bezahlen|Invoices › Pay]], prüft Absender, Betrag und Nachricht und wählt **Zustimmen und bezahlen** mit dem Wallet-Passwort.';
 
   @override
   String get deskInvHelpFlowStep3 =>
@@ -5186,7 +5190,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowIssued =>
-      'Rechnungen, die diese Wallet ausgestellt hat, stehen unter [[Rechnungen › Ausstellen]].';
+      'Rechnungen, die diese Wallet ausgestellt hat, stehen unter [[Rechnungen › Ausstellen|Invoices › Issue]].';
 
   @override
   String get deskInvHelpTrustTitle => 'Warum nur vertrauenswürdige Absender';
@@ -5197,7 +5201,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustP1 =>
-      'Die Wallet nimmt eine Rechnung nur an ihrer Rechnungsadresse an und nur von einem Absender auf der Vertrauensliste, erkannt an seiner Adresse. Alles andere wird ungelesen verworfen, bevor es geöffnet wird, und erscheint nie unter [[Rechnungen › Bezahlen]].';
+      'Die Wallet nimmt eine Rechnung nur an ihrer Rechnungsadresse an und nur von einem Absender auf der Vertrauensliste, erkannt an seiner Adresse. Alles andere wird ungelesen verworfen, bevor es geöffnet wird, und erscheint nie unter [[Rechnungen › Bezahlen|Invoices › Pay]].';
 
   @override
   String get deskInvHelpTrustP2 =>
@@ -5209,11 +5213,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustWhere1 =>
-      'Einem Absender vertrauen unter [[Einstellungen › Rechnungen]].';
+      'Einem Absender vertrauen unter [[Einstellungen › Rechnungen|Settings › Invoices]].';
 
   @override
   String get deskInvHelpTrustWhere2 =>
-      'Oder bei einem Kontakt unter [[Kontakte]] **Vertrauenswürdig für Rechnungen** einschalten.';
+      'Oder bei einem Kontakt unter [[Kontakte|Contacts]] **Vertrauenswürdig für Rechnungen** einschalten.';
 
   @override
   String get deskInvHelpTrustWhere3 =>
@@ -5228,7 +5232,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrP1 =>
-      'Die Wallet hat zwei Epicbox-Adressen. Die **Zahlungsadresse** unter [[Empfangen]] empfängt Zahlungen. Die **Rechnungsadresse** empfängt nur Rechnungen.';
+      'Die Wallet hat zwei Epicbox-Adressen. Die **Zahlungsadresse** unter [[Empfangen|Receive]] empfängt Zahlungen. Die **Rechnungsadresse** empfängt nur Rechnungen.';
 
   @override
   String get deskInvHelpAddrP2 =>
@@ -5240,7 +5244,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrWhere1 =>
-      'Die Rechnungsadresse finden, kopieren oder als QR-Code zeigen unter [[Einstellungen › Rechnungen]].';
+      'Die Rechnungsadresse finden, kopieren oder als QR-Code zeigen unter [[Einstellungen › Rechnungen|Settings › Invoices]].';
 
   @override
   String get deskInvHelpAddrWhere2 =>
@@ -8272,7 +8276,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskConErrAddressEmpty => 'Geben Sie eine Adresse ein.';
 
   @override
-  String get deskConErrAddressInvalid => 'Keine erkannte Adresse';
+  String get deskConErrAddressInvalid =>
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@epicbox.epiccash.com), eine Direkt-Adresse (https://…) oder eine Onion-Adresse (….onion).';
 
   @override
   String get deskConAddPicture => 'Bild hinzufügen';
@@ -13954,4 +13959,60 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskTxProofNone =>
       'Für diese Zahlung gibt es keinen Zahlungsnachweis.';
+
+  @override
+  String get deskUpdAvailable => 'Update verfügbar';
+
+  @override
+  String deskUpdNotice(String version) {
+    return 'Update verfügbar · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return '$version herunterladen';
+  }
+
+  @override
+  String get deskUpdOpensPage => 'Öffnet die Download-Seite';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return 'Wird heruntergeladen: $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => 'Neu starten und aktualisieren';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version ist bereit';
+  }
+
+  @override
+  String get deskUpdRestartHint =>
+      'Die App schließt sich, installiert das Update und öffnet sich wieder.';
+
+  @override
+  String get deskUpdFailed => 'Update nicht heruntergeladen';
+
+  @override
+  String get deskUpdTryAgain => 'Erneut versuchen';
+
+  @override
+  String get deskUpdInstallFailed => 'Update nicht installiert';
+
+  @override
+  String get deskUpdOpenPage => 'Download-Seite öffnen';
+
+  @override
+  String get deskUpdErrDamaged =>
+      'Die Datei passt nicht zu den signierten Update-Angaben.';
+
+  @override
+  String get deskUpdErrStopped => 'Der Download wurde unterbrochen.';
+
+  @override
+  String get deskUpdErrInstall =>
+      'Die neue Version konnte nicht eingesetzt werden.';
 }

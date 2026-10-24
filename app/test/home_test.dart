@@ -1057,6 +1057,59 @@ void main() {
       });
     }
 
+    // Bob Stone's phone sent over HTTP and went from Confirming to completed with no 1/3 or
+    // 2/3 between: home refreshed once a minute and Epic's blocks come in bursts. A new block
+    // now refreshes within [tipCheckInterval], each confirmation on screen.
+    testWidgets('a send counts each new block within seconds, not at the minute', (
+      tester,
+    ) async {
+      TxEntry sent() => fakeTx(
+        id: 9,
+        slateId: 'to-desktop',
+        kind: TxKind.sent,
+        status: TxStatus.confirmed,
+        createdAtUnix: _at(DateTime(2026, 9, 30, 11)),
+        blockHeight: _tip,
+        amountCredited: _epic(0.992),
+        amountDebited: _epic(3),
+        fee: _epic(0.008),
+        transport: 'http',
+      );
+      WalletSummary at(BigInt height) => WalletSummary(
+        lastConfirmedHeight: height,
+        minimumConfirmations: BigInt.from(3),
+        total: _epic(14.5),
+        spendable: _epic(12.5),
+        awaitingConfirmation: _epic(0.992),
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: BigInt.zero,
+        validatedWithNode: true,
+      );
+      final h = _Harness(transactions: [sent(), ..._transactions()]);
+      await h.pump(tester);
+      Finder row(String text) => find.descendant(
+        of: find.byType(TxStatusLine),
+        matching: find.textContaining(text),
+      );
+      expect(row('Confirming 1/3'), findsOneWidget);
+
+      for (final (blocks, word) in [(1, 'Confirming 2/3'), (2, 'Sent')]) {
+        final height = _tip + BigInt.from(blocks);
+        h.service.nodeTipValue = NodeTip(height: height, nodeVersion: '3.6.0');
+        h.session.summaryValue = at(height);
+        await tester.pump(tipCheckInterval);
+        await tester.pumpAndSettle();
+        expect(row(word), findsOneWidget, reason: 'at ${blocks + 1} confirmations');
+      }
+
+      // No new block: the tip checks refresh nothing.
+      final refreshes = h.session.refreshCalls;
+      await tester.pump(tipCheckInterval);
+      await tester.pumpAndSettle();
+      expect(h.session.refreshCalls, refreshes);
+    });
+
     testWidgets('scan opens Send with the scanned address', (tester) async {
       // Reduced motion: the pending dot on Send's title would pulse on.
       final h = _Harness(scanSupported: true, still: true);
@@ -1741,7 +1794,12 @@ void main() {
 
       updates.set(UpdateState(UpdatePhase.installing, update: update));
       await tester.pumpAndSettle();
-      expect(find.text('Installing version 1.4.0…'), findsOneWidget);
+      expect(
+        find.text(
+          'Epic Cash Mobile closes to install version 1.4.0. Open it again afterwards.',
+        ),
+        findsOneWidget,
+      );
 
       updates.set(UpdateState(UpdatePhase.failed, update: update));
       await tester.pumpAndSettle();

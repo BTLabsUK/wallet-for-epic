@@ -24,6 +24,7 @@ import 'src/data_folder.dart';
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/app/shell.dart' show deskVersion;
 import 'src/desktop/data/desk_node.dart';
+import 'src/desktop/data/desk_update.dart' show deskUpdateAutoProvider;
 import 'src/desktop/keyring_check.dart';
 import 'src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
 import 'src/desktop/data/desk_store.dart';
@@ -175,6 +176,7 @@ Future<List<Override>> deskOverrides() async {
     deskBootProvider.overrideWithValue(boot),
     deskFilesProvider.overrideWithValue(const SystemDeskFiles()),
     deskHistoryFilesProvider.overrideWithValue(const SystemDeskHistoryFiles()),
+    deskUpdateAutoProvider.overrideWithValue(true),
     deskQuitProvider.overrideWithValue(() async {
       await wallet.dispose();
       await stopAllBuiltInNodes();

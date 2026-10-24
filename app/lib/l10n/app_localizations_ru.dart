@@ -2197,7 +2197,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return 'Установка версии $version…';
+    return 'Epic Cash Mobile закроется, чтобы установить версию $version. Затем откройте его снова.';
   }
 
   @override
@@ -3018,6 +3018,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес для прямой отправки (https://…) или onion-адрес (….onion).';
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override
@@ -3135,7 +3139,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'Второй адрес, только для счетов, на который доверенные сервисы могут их выставлять. Сообщения от всех остальных отбрасываются, и ничего не оплачивается, пока вы не подтвердите каждый счёт PIN-кодом. Ваш адрес для платежей остаётся прежним.';
+      'Второй адрес, только для счетов, на который доверенные сервисы могут их выставлять. Сообщения от всех остальных отбрасываются, и ничего не оплачивается, пока вы не подтвердите каждый счёт PIN-кодом. Он отделён от вашего адреса для платежей.';
 
   @override
   String get invoiceSettingsTitle => 'Счета';
@@ -3145,7 +3149,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddressBody =>
-      'Передайте этот адрес сервису, которому доверяете, чтобы он мог присылать вам счета. Ваш адрес для платежей не меняется.';
+      'Передайте этот адрес сервису, которому доверяете, чтобы он мог присылать вам счета. Он отделён от вашего адреса для платежей.';
 
   @override
   String get invoiceSettingsQrLabel => 'QR-код вашего адреса для счетов';
@@ -3242,13 +3246,13 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get settingsRescan => 'Пересканировать блокчейн';
+  String get settingsRescan => 'Сверка баланса';
 
   @override
   String get settingsRescanFinished => 'Повторное сканирование завершено';
 
   @override
-  String get settingsRescanTitle => 'Пересканировать блокчейн';
+  String get settingsRescanTitle => 'Сверка баланса';
 
   @override
   String get settingsRescanBody =>
@@ -5281,7 +5285,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowStep2 =>
-      'Плательщик открывает его в [[Счета › Оплатить]], проверяет отправителя, сумму и сообщение и выбирает **Одобрить и оплатить**, вводя пароль кошелька.';
+      'Плательщик открывает его в [[Счета › Оплатить|Invoices › Pay]], проверяет отправителя, сумму и сообщение и выбирает **Одобрить и оплатить**, вводя пароль кошелька.';
 
   @override
   String get deskInvHelpFlowStep3 =>
@@ -5298,7 +5302,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowIssued =>
-      'Счета, выставленные этим кошельком, — в [[Счета › Выставить]].';
+      'Счета, выставленные этим кошельком, — в [[Счета › Выставить|Invoices › Issue]].';
 
   @override
   String get deskInvHelpTrustTitle => 'Почему только доверенные отправители';
@@ -5309,7 +5313,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustP1 =>
-      'Кошелёк принимает счёт только на свой адрес для счетов и только от отправителя из списка доверенных, которого узнаёт по адресу. Всё остальное отбрасывается непрочитанным, до открытия, и никогда не появляется в [[Счета › Оплатить]].';
+      'Кошелёк принимает счёт только на свой адрес для счетов и только от отправителя из списка доверенных, которого узнаёт по адресу. Всё остальное отбрасывается непрочитанным, до открытия, и никогда не появляется в [[Счета › Оплатить|Invoices › Pay]].';
 
   @override
   String get deskInvHelpTrustP2 =>
@@ -5321,11 +5325,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustWhere1 =>
-      'Добавить доверенного отправителя можно в [[Настройки › Счета]].';
+      'Добавить доверенного отправителя можно в [[Настройки › Счета|Settings › Invoices]].';
 
   @override
   String get deskInvHelpTrustWhere2 =>
-      'Или включите **Доверенный для счетов** у контакта в [[Контакты]].';
+      'Или включите **Доверенный для счетов** у контакта в [[Контакты|Contacts]].';
 
   @override
   String get deskInvHelpTrustWhere3 =>
@@ -5340,7 +5344,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrP1 =>
-      'У кошелька два адреса Epicbox. **Адрес для платежей** в [[Получить]] принимает платежи. **Адрес для счетов** принимает только счета.';
+      'У кошелька два адреса Epicbox. **Адрес для платежей** в [[Получить|Receive]] принимает платежи. **Адрес для счетов** принимает только счета.';
 
   @override
   String get deskInvHelpAddrP2 =>
@@ -5352,7 +5356,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrWhere1 =>
-      'Найти, скопировать или показать адрес для счетов QR-кодом можно в [[Настройки › Счета]].';
+      'Найти, скопировать или показать адрес для счетов QR-кодом можно в [[Настройки › Счета|Settings › Invoices]].';
 
   @override
   String get deskInvHelpAddrWhere2 =>
@@ -8415,7 +8419,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskConErrAddressEmpty => 'Добавьте адрес.';
 
   @override
-  String get deskConErrAddressInvalid => 'Адрес не распознан';
+  String get deskConErrAddressInvalid =>
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес для прямой отправки (https://…) или onion-адрес (….onion).';
 
   @override
   String get deskConAddPicture => 'Добавить фото';
@@ -14188,4 +14193,60 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxProofNone => 'Для этого платежа нет подтверждения платежа.';
+
+  @override
+  String get deskUpdAvailable => 'Доступно обновление';
+
+  @override
+  String deskUpdNotice(String version) {
+    return 'Доступно обновление · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return 'Скачать $version';
+  }
+
+  @override
+  String get deskUpdOpensPage => 'Открывает страницу загрузки';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return 'Загрузка: $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => 'Перезапустить и обновить';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version готова';
+  }
+
+  @override
+  String get deskUpdRestartHint =>
+      'Приложение закроется, установит обновление и откроется снова.';
+
+  @override
+  String get deskUpdFailed => 'Не удалось скачать обновление';
+
+  @override
+  String get deskUpdTryAgain => 'Повторить';
+
+  @override
+  String get deskUpdInstallFailed => 'Не удалось установить обновление';
+
+  @override
+  String get deskUpdOpenPage => 'Открыть страницу загрузки';
+
+  @override
+  String get deskUpdErrDamaged =>
+      'Файл не совпадает с подписанными данными обновления.';
+
+  @override
+  String get deskUpdErrStopped => 'Загрузка прервалась.';
+
+  @override
+  String get deskUpdErrInstall =>
+      'Не удалось заменить приложение новой версией.';
 }

@@ -2208,7 +2208,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return 'Instalowanie wersji $version…';
+    return 'Epic Cash Mobile zamknie się, aby zainstalować wersję $version. Potem otwórz go ponownie.';
   }
 
   @override
@@ -3040,6 +3040,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu bezpośredniego (https://…) lub adresu onion (….onion).';
+
+  @override
   String get settingsTitle => 'Ustawienia';
 
   @override
@@ -3158,7 +3162,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'Drugi adres, tylko do faktur, na który zaufane serwisy mogą je wystawiać. Wiadomości od kogokolwiek innego są odrzucane, a nic nie jest płacone, dopóki nie zatwierdzisz każdej faktury PIN-em. Twój adres do płatności zostaje bez zmian.';
+      'Drugi adres, tylko do faktur, na który zaufane serwisy mogą je wystawiać. Wiadomości od kogokolwiek innego są odrzucane, a nic nie jest płacone, dopóki nie zatwierdzisz każdej faktury PIN-em. Jest oddzielny od twojego adresu do płatności.';
 
   @override
   String get invoiceSettingsTitle => 'Faktury';
@@ -3168,7 +3172,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddressBody =>
-      'Podaj ten adres serwisowi, któremu ufasz, aby mógł wysyłać ci faktury. Twój adres do płatności się nie zmienia.';
+      'Podaj ten adres serwisowi, któremu ufasz, aby mógł wysyłać ci faktury. Jest oddzielny od twojego adresu do płatności.';
 
   @override
   String get invoiceSettingsQrLabel => 'Kod QR twojego adresu do faktur';
@@ -3265,13 +3269,13 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get settingsRescan => 'Skanuj łańcuch ponownie';
+  String get settingsRescan => 'Sprawdź saldo';
 
   @override
   String get settingsRescanFinished => 'Ponowne skanowanie zakończone';
 
   @override
-  String get settingsRescanTitle => 'Skanuj łańcuch ponownie';
+  String get settingsRescanTitle => 'Sprawdź saldo';
 
   @override
   String get settingsRescanBody =>
@@ -5302,7 +5306,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowStep2 =>
-      'Płacący otwiera ją w [[Faktury › Zapłać]], sprawdza nadawcę, kwotę i wiadomość, i wybiera **Zatwierdź i zapłać**, podając hasło portfela.';
+      'Płacący otwiera ją w [[Faktury › Zapłać|Invoices › Pay]], sprawdza nadawcę, kwotę i wiadomość, i wybiera **Zatwierdź i zapłać**, podając hasło portfela.';
 
   @override
   String get deskInvHelpFlowStep3 =>
@@ -5319,7 +5323,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowIssued =>
-      'Faktury wystawione przez ten portfel są w [[Faktury › Wystaw]].';
+      'Faktury wystawione przez ten portfel są w [[Faktury › Wystaw|Invoices › Issue]].';
 
   @override
   String get deskInvHelpTrustTitle => 'Dlaczego tylko zaufani nadawcy';
@@ -5330,7 +5334,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustP1 =>
-      'Portfel przyjmuje fakturę tylko na swój adres do faktur i tylko od nadawcy z listy zaufanych, rozpoznanego po adresie. Wszystko inne jest odrzucane bez czytania, zanim zostanie otwarte, i nigdy nie pojawia się w [[Faktury › Zapłać]].';
+      'Portfel przyjmuje fakturę tylko na swój adres do faktur i tylko od nadawcy z listy zaufanych, rozpoznanego po adresie. Wszystko inne jest odrzucane bez czytania, zanim zostanie otwarte, i nigdy nie pojawia się w [[Faktury › Zapłać|Invoices › Pay]].';
 
   @override
   String get deskInvHelpTrustP2 =>
@@ -5342,11 +5346,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustWhere1 =>
-      'Zaufaj nadawcy w [[Ustawienia › Faktury]].';
+      'Zaufaj nadawcy w [[Ustawienia › Faktury|Settings › Invoices]].';
 
   @override
   String get deskInvHelpTrustWhere2 =>
-      'Albo włącz **Zaufany dla faktur** przy kontakcie w [[Kontakty]].';
+      'Albo włącz **Zaufany dla faktur** przy kontakcie w [[Kontakty|Contacts]].';
 
   @override
   String get deskInvHelpTrustWhere3 =>
@@ -5361,7 +5365,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrP1 =>
-      'Portfel ma dwa adresy Epicbox. **Adres do płatności**, w [[Odbierz]], przyjmuje płatności. **Adres do faktur** przyjmuje tylko faktury.';
+      'Portfel ma dwa adresy Epicbox. **Adres do płatności**, w [[Odbierz|Receive]], przyjmuje płatności. **Adres do faktur** przyjmuje tylko faktury.';
 
   @override
   String get deskInvHelpAddrP2 =>
@@ -5373,7 +5377,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrWhere1 =>
-      'Adres do faktur można znaleźć, skopiować lub pokazać jako kod QR w [[Ustawienia › Faktury]].';
+      'Adres do faktur można znaleźć, skopiować lub pokazać jako kod QR w [[Ustawienia › Faktury|Settings › Invoices]].';
 
   @override
   String get deskInvHelpAddrWhere2 =>
@@ -8444,7 +8448,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskConErrAddressEmpty => 'Dodaj adres.';
 
   @override
-  String get deskConErrAddressInvalid => 'Nierozpoznany adres';
+  String get deskConErrAddressInvalid =>
+      'To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu bezpośredniego (https://…) lub adresu onion (….onion).';
 
   @override
   String get deskConAddPicture => 'Dodaj zdjęcie';
@@ -14222,4 +14227,60 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTxProofNone => 'Brak dowodu płatności dla tej płatności.';
+
+  @override
+  String get deskUpdAvailable => 'Dostępna aktualizacja';
+
+  @override
+  String deskUpdNotice(String version) {
+    return 'Dostępna aktualizacja · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return 'Pobierz $version';
+  }
+
+  @override
+  String get deskUpdOpensPage => 'Otwiera stronę pobierania';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return 'Pobieranie: $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => 'Uruchom ponownie i zaktualizuj';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version jest gotowa';
+  }
+
+  @override
+  String get deskUpdRestartHint =>
+      'Aplikacja zamknie się, zainstaluje aktualizację i otworzy ponownie.';
+
+  @override
+  String get deskUpdFailed => 'Nie udało się pobrać aktualizacji';
+
+  @override
+  String get deskUpdTryAgain => 'Spróbuj ponownie';
+
+  @override
+  String get deskUpdInstallFailed => 'Nie udało się zainstalować aktualizacji';
+
+  @override
+  String get deskUpdOpenPage => 'Otwórz stronę pobierania';
+
+  @override
+  String get deskUpdErrDamaged =>
+      'Plik nie zgadza się z podpisanymi danymi aktualizacji.';
+
+  @override
+  String get deskUpdErrStopped => 'Pobieranie przerwane.';
+
+  @override
+  String get deskUpdErrInstall =>
+      'Nie udało się podmienić aplikacji na nową wersję.';
 }

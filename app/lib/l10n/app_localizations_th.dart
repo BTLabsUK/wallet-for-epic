@@ -2023,7 +2023,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return 'กำลังติดตั้งเวอร์ชัน $version…';
+    return 'Epic Cash Mobile จะปิดเพื่อติดตั้งเวอร์ชัน $version เมื่อเสร็จแล้วให้เปิดอีกครั้ง';
   }
 
   @override
@@ -2799,6 +2799,10 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ส่งตรง (https://…) หรือที่อยู่ onion (….onion)';
+
+  @override
   String get settingsTitle => 'การตั้งค่า';
 
   @override
@@ -2915,7 +2919,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'ที่อยู่ที่สองสำหรับใบแจ้งหนี้โดยเฉพาะ ให้บริการที่เชื่อถือส่งใบแจ้งหนี้มาได้ ข้อความจากคนอื่นจะถูกทิ้ง และจะไม่จ่ายอะไรจนกว่าคุณจะอนุมัติใบแจ้งหนี้แต่ละใบด้วย PIN ที่อยู่สำหรับรับชำระเงินของคุณยังเหมือนเดิม';
+      'ที่อยู่ที่สองสำหรับใบแจ้งหนี้โดยเฉพาะ ให้บริการที่เชื่อถือส่งใบแจ้งหนี้มาได้ ข้อความจากคนอื่นจะถูกทิ้ง และจะไม่จ่ายอะไรจนกว่าคุณจะอนุมัติใบแจ้งหนี้แต่ละใบด้วย PIN ที่อยู่นี้แยกจากที่อยู่สำหรับรับชำระเงินของคุณ';
 
   @override
   String get invoiceSettingsTitle => 'ใบแจ้งหนี้';
@@ -2925,7 +2929,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddressBody =>
-      'ให้ที่อยู่นี้กับบริการที่เชื่อถือ เพื่อให้ส่งใบแจ้งหนี้ได้ ที่อยู่สำหรับรับเงินยังคงเดิม';
+      'ให้ที่อยู่นี้กับบริการที่เชื่อถือ เพื่อให้ส่งใบแจ้งหนี้ได้ ที่อยู่นี้แยกจากที่อยู่สำหรับรับชำระเงินของคุณ';
 
   @override
   String get invoiceSettingsQrLabel => 'QR Code ของที่อยู่สำหรับใบแจ้งหนี้';
@@ -4989,7 +4993,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowStep2 =>
-      'ผู้ชำระเปิดใบแจ้งหนี้ใน [[ใบแจ้งหนี้ › ชำระ]] ตรวจผู้ส่ง จำนวน และข้อความ แล้วเลือก **อนุมัติและชำระ** ด้วยรหัสผ่านกระเป๋า';
+      'ผู้ชำระเปิดใบแจ้งหนี้ใน [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]] ตรวจผู้ส่ง จำนวน และข้อความ แล้วเลือก **อนุมัติและชำระ** ด้วยรหัสผ่านกระเป๋า';
 
   @override
   String get deskInvHelpFlowStep3 =>
@@ -5006,7 +5010,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowIssued =>
-      'ใบแจ้งหนี้ที่กระเป๋านี้ออกอยู่ใน [[ใบแจ้งหนี้ › ออก]]';
+      'ใบแจ้งหนี้ที่กระเป๋านี้ออกอยู่ใน [[ใบแจ้งหนี้ › ออก|Invoices › Issue]]';
 
   @override
   String get deskInvHelpTrustTitle => 'ทำไมรับเฉพาะผู้ส่งที่เชื่อถือ';
@@ -5017,7 +5021,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustP1 =>
-      'กระเป๋ารับใบแจ้งหนี้เฉพาะที่ที่อยู่สำหรับใบแจ้งหนี้ และเฉพาะจากผู้ส่งในรายการที่เชื่อถือ โดยจับคู่จากที่อยู่ของผู้ส่ง สิ่งอื่นจะถูกทิ้งโดยไม่เปิดอ่าน และไม่แสดงใน [[ใบแจ้งหนี้ › ชำระ]]';
+      'กระเป๋ารับใบแจ้งหนี้เฉพาะที่ที่อยู่สำหรับใบแจ้งหนี้ และเฉพาะจากผู้ส่งในรายการที่เชื่อถือ โดยจับคู่จากที่อยู่ของผู้ส่ง สิ่งอื่นจะถูกทิ้งโดยไม่เปิดอ่าน และไม่แสดงใน [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]]';
 
   @override
   String get deskInvHelpTrustP2 =>
@@ -5029,11 +5033,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustWhere1 =>
-      'เพิ่มผู้ส่งที่เชื่อถือได้ใน [[การตั้งค่า › ใบแจ้งหนี้]]';
+      'เพิ่มผู้ส่งที่เชื่อถือได้ใน [[การตั้งค่า › ใบแจ้งหนี้|Settings › Invoices]]';
 
   @override
   String get deskInvHelpTrustWhere2 =>
-      'หรือเปิด **เชื่อถือสำหรับใบแจ้งหนี้** ที่ผู้ติดต่อใน [[ผู้ติดต่อ]]';
+      'หรือเปิด **เชื่อถือสำหรับใบแจ้งหนี้** ที่ผู้ติดต่อใน [[ผู้ติดต่อ|Contacts]]';
 
   @override
   String get deskInvHelpTrustWhere3 =>
@@ -5048,7 +5052,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrP1 =>
-      'กระเป๋ามีที่อยู่ Epicbox สองที่อยู่ **ที่อยู่รับเงิน** ใน [[รับ]] ใช้รับเงิน **ที่อยู่สำหรับใบแจ้งหนี้** รับเฉพาะใบแจ้งหนี้';
+      'กระเป๋ามีที่อยู่ Epicbox สองที่อยู่ **ที่อยู่รับเงิน** ใน [[รับ|Receive]] ใช้รับเงิน **ที่อยู่สำหรับใบแจ้งหนี้** รับเฉพาะใบแจ้งหนี้';
 
   @override
   String get deskInvHelpAddrP2 =>
@@ -5060,7 +5064,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrWhere1 =>
-      'ดู คัดลอก หรือแสดงที่อยู่สำหรับใบแจ้งหนี้เป็น QR Code ได้ใน [[การตั้งค่า › ใบแจ้งหนี้]]';
+      'ดู คัดลอก หรือแสดงที่อยู่สำหรับใบแจ้งหนี้เป็น QR Code ได้ใน [[การตั้งค่า › ใบแจ้งหนี้|Settings › Invoices]]';
 
   @override
   String get deskInvHelpAddrWhere2 =>
@@ -8002,7 +8006,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskConErrAddressEmpty => 'ใส่ที่อยู่';
 
   @override
-  String get deskConErrAddressInvalid => 'ไม่ใช่ที่อยู่ที่รู้จัก';
+  String get deskConErrAddressInvalid =>
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ส่งตรง (https://…) หรือที่อยู่ onion (….onion)';
 
   @override
   String get deskConAddPicture => 'เพิ่มรูป';
@@ -13536,4 +13541,57 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTxProofNone => 'การชำระเงินนี้ไม่มีหลักฐานการชำระเงิน';
+
+  @override
+  String get deskUpdAvailable => 'มีอัปเดต';
+
+  @override
+  String deskUpdNotice(String version) {
+    return 'มีอัปเดต · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return 'ดาวน์โหลด $version';
+  }
+
+  @override
+  String get deskUpdOpensPage => 'เปิดหน้าดาวน์โหลด';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return 'กำลังดาวน์โหลด $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => 'รีสตาร์ทเพื่ออัปเดต';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version พร้อมแล้ว';
+  }
+
+  @override
+  String get deskUpdRestartHint => 'แอปจะปิด ติดตั้งอัปเดต แล้วเปิดใหม่';
+
+  @override
+  String get deskUpdFailed => 'ดาวน์โหลดอัปเดตไม่ได้';
+
+  @override
+  String get deskUpdTryAgain => 'ลองอีกครั้ง';
+
+  @override
+  String get deskUpdInstallFailed => 'ติดตั้งอัปเดตไม่ได้';
+
+  @override
+  String get deskUpdOpenPage => 'เปิดหน้าดาวน์โหลด';
+
+  @override
+  String get deskUpdErrDamaged => 'ไฟล์ไม่ตรงกับข้อมูลอัปเดตที่ลงลายเซ็นไว้';
+
+  @override
+  String get deskUpdErrStopped => 'การดาวน์โหลดหยุดลง';
+
+  @override
+  String get deskUpdErrInstall => 'แทนที่ด้วยเวอร์ชันใหม่ไม่ได้';
 }

@@ -3004,10 +3004,10 @@ abstract class AppLocalizations {
   /// **'Downloading version {version}… {percent}%'**
   String updateDownloading(String version, int percent);
 
-  /// Notice at the top of the screen while Android installs the new version.
+  /// Notice at the top of the screen for a few seconds before Android's installer takes over: it closes the app and does not reopen it.
   ///
   /// In en, this message translates to:
-  /// **'Installing version {version}…'**
+  /// **'Epic Cash Mobile closes to install version {version}. Open it again afterwards.'**
   String updateInstalling(String version);
 
   /// Notice at the top of the screen when an update failed for no known reason.
@@ -4240,6 +4240,12 @@ abstract class AppLocalizations {
   /// **'This is not a valid address. It looks like {example}'**
   String contactsAddressInvalid(String example);
 
+  /// Error under an address field that takes an Epicbox, a Direct (http/https) or an onion address, when the text is none of them.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'**
+  String get contactsAddressInvalidAny;
+
   /// Title of the settings screen.
   ///
   /// In en, this message translates to:
@@ -4459,7 +4465,7 @@ abstract class AppLocalizations {
   /// Info sheet behind the Invoice address row: a second address, the allowlist, approval with the PIN.
   ///
   /// In en, this message translates to:
-  /// **'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. Your address for payments stays the same.'**
+  /// **'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. It is separate from your payment address.'**
   String get settingsInvoicesSubtitle;
 
   /// Title of the invoice settings screen.
@@ -4477,7 +4483,7 @@ abstract class AppLocalizations {
   /// Explains the invoice address, which is separate from the receive address.
   ///
   /// In en, this message translates to:
-  /// **'Give this address to a service you trust, so it can send you invoices. Your address for payments stays the same.'**
+  /// **'Give this address to a service you trust, so it can send you invoices. It is separate from your payment address.'**
   String get invoiceSettingsAddressBody;
 
   /// Screen reader label of the invoice address QR code.
@@ -4639,7 +4645,7 @@ abstract class AppLocalizations {
   /// Settings row: search the blockchain for the wallet's funds again.
   ///
   /// In en, this message translates to:
-  /// **'Rescan the chain'**
+  /// **'Recheck balance'**
   String get settingsRescan;
 
   /// Short notice.
@@ -4651,7 +4657,7 @@ abstract class AppLocalizations {
   /// Title of the dialog that starts a new search of the blockchain for the wallet's funds.
   ///
   /// In en, this message translates to:
-  /// **'Rescan the chain'**
+  /// **'Recheck balance'**
   String get settingsRescanTitle;
 
   /// No description provided for @settingsRescanBody.
@@ -12864,7 +12870,7 @@ abstract class AppLocalizations {
   /// Error under the Address field of the contact form when the text is not an address.
   ///
   /// In en, this message translates to:
-  /// **'Not a recognised address'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'**
   String get deskConErrAddressInvalid;
 
   /// Small button in the contact form: add a picture. Only shown when contact pictures exist.
@@ -21829,6 +21835,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No payment proof for this payment.'**
   String get deskTxProofNone;
+
+  /// Sidebar notice, first line: a newer Epic Cash Desktop is out (the version is on the line under it).
+  ///
+  /// In en, this message translates to:
+  /// **'Update available'**
+  String get deskUpdAvailable;
+
+  /// Narrow sidebar: tooltip and screen-reader name of the update icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available · {version}'**
+  String deskUpdNotice(String version);
+
+  /// Button and tooltip: download the newer version inside the app (it is installed after a restart).
+  ///
+  /// In en, this message translates to:
+  /// **'Download {version}'**
+  String deskUpdDownload(String version);
+
+  /// Tooltip of the update notice when the app cannot install the update itself: a click opens the download page in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the download page'**
+  String get deskUpdOpensPage;
+
+  /// Sidebar notice and Settings › About while the update downloads. {percent} is a whole number from 0 to 100.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading {percent} %'**
+  String deskUpdDownloading(String percent);
+
+  /// Button: close the app, install the downloaded update and open the app again.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart to update'**
+  String get deskUpdRestart;
+
+  /// The update is downloaded and checked; it is installed by Restart to update.
+  ///
+  /// In en, this message translates to:
+  /// **'{version} is ready'**
+  String deskUpdReady(String version);
+
+  /// Settings › About, under '{version} is ready': what Restart to update does.
+  ///
+  /// In en, this message translates to:
+  /// **'The app closes, installs it and opens again.'**
+  String get deskUpdRestartHint;
+
+  /// Sidebar notice and Settings › About: the download failed (the reason is in the tooltip or under it).
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t download the update'**
+  String get deskUpdFailed;
+
+  /// Second line of the notice and button: download the update again; it carries on from what already arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskUpdTryAgain;
+
+  /// The downloaded update could not be started; the download page is offered instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t install the update'**
+  String get deskUpdInstallFailed;
+
+  /// Second line of the notice after a failed install: a click opens the download page in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the download page'**
+  String get deskUpdOpenPage;
+
+  /// Why the download failed: wrong size or SHA-256. The file was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'The file did not match the signed update information.'**
+  String get deskUpdErrDamaged;
+
+  /// Why the download failed: the connection dropped. Trying again carries on from what arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'The download stopped.'**
+  String get deskUpdErrStopped;
+
+  /// Why Restart to update failed: the installer could not be started or the app file could not be replaced.
+  ///
+  /// In en, this message translates to:
+  /// **'The new version could not be put in place.'**
+  String get deskUpdErrInstall;
 }
 
 class _AppLocalizationsDelegate

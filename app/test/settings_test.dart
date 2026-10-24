@@ -1076,7 +1076,7 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
 
-      await _tapText(tester, 'Rescan the chain');
+      await _tapText(tester, 'Recheck balance');
       await _tapText(tester, 'From a block height');
       await _tapText(tester, 'Rescan');
       expect(find.text('Enter a block height of 1 or more.'), findsOneWidget);
@@ -1084,7 +1084,7 @@ void main() {
       await _tapText(tester, 'Rescan');
       expect(h.session.lastStart, BigInt.from(3000000));
 
-      await _tapText(tester, 'Rescan the chain');
+      await _tapText(tester, 'Recheck balance');
       await _tapText(tester, 'The whole chain');
       await _tapText(tester, 'Rescan');
       expect(h.session.lastStart, BigInt.one);
@@ -1866,7 +1866,7 @@ void main() {
         'Export CSV',
         'Import history backup',
         'Contacts',
-        'Rescan the chain',
+        'Recheck balance',
         'Delete this wallet',
       ]);
       // Node and Epicbox and Epicbox server show their server as a state line, so only
@@ -1989,7 +1989,7 @@ void main() {
       }
 
       final off = await texts();
-      for (final hidden in ['Rescan the chain', 'Epicbox server']) {
+      for (final hidden in ['Recheck balance', 'Epicbox server']) {
         expect(off, isNot(contains(hidden)), reason: hidden);
       }
       // Kept: the connection is for everyone (the status card on Home opens the same
@@ -2009,7 +2009,7 @@ void main() {
       final on = await texts();
       for (final shown in [
         'Node and Epicbox',
-        'Rescan the chain',
+        'Recheck balance',
         'Servers',
         'Epicbox server',
       ]) {
@@ -2018,7 +2018,7 @@ void main() {
 
       await _tapText(tester, 'Advanced options');
       expect(h.store.values['app.advanced'], 'false');
-      expect(await texts(), isNot(contains('Rescan the chain')));
+      expect(await texts(), isNot(contains('Recheck balance')));
     });
 
     testWidgets(
