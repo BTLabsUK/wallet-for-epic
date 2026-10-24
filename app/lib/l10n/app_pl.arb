@@ -3598,8 +3598,6 @@
   "advTechnicalHint": "Pokazuje wiersze techniczne w szczegółach płatności: kernel, ID slate, commitmenty i wysokość bloku. W Fakturach pokazuje rotację adresów i liczbę odrzuconych wiadomości.",
   "advSendOptions": "Opcje wysyłki",
   "advSendOptionsHint": "Pokazuje Strategię wysyłki i Podziel resztę w Ustawienia › Transakcje: które wyjścia wydaje wysyłka i czy jej reszta jest dzielona. Pozostaje widoczne, dopóki któraś z nich nie jest domyślna.",
-  "advDirect": "Odbieranie bezpośrednie",
-  "advDirectHint": "Daje temu telefonowi drugi adres, dostępny przez Tor. Inni mogą płacić na niego bezpośrednio, bez Epicbox. Działa tylko, gdy portfel jest otwarty. Dodaje metodę Bezpośrednio do Wyślij i Odbierz, a jej stan do Prywatność i sieć. Pozostaje widoczne, dopóki jest włączone.",
   "advServerDetails": "Szczegóły serwerów",
   "advServerDetailsHint": "Pokazuje hosty, opóźnienie, wersję i wysokość bloku na listach serwerów i na karcie stanu, adres przekaźnika w Odbierz oraz pełny adres faktur.",
   "advRecheckHeight": "Sprawdź od wysokości",

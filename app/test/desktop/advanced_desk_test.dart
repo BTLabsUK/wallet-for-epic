@@ -186,7 +186,7 @@ void main() {
       await _settle(tester);
       expect(labels(), ['Epicbox', 'Direct', 'File']);
       expect(tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value, TxMethod.http);
-      expect(_advanced.has(AdvancedFeature.directReceiving), isFalse, reason: 'nothing was switched on');
+      expect(_container.read(deskProvider).settings.payments.direct, isFalse, reason: 'nothing was switched on');
     });
   });
 

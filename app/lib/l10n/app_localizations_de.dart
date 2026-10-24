@@ -13901,13 +13901,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zeigt Strategie für Zahlungen und Wechselgeld aufteilen unter Einstellungen › Transaktionen: welche Outputs eine Zahlung verbraucht und ob ihr Wechselgeld aufgeteilt wird. Bleibt sichtbar, solange einer der Werte nicht der Vorgabe entspricht.';
 
   @override
-  String get advDirect => 'Direkter Empfang';
-
-  @override
-  String get advDirectHint =>
-      'Gibt diesem Telefon eine zweite Adresse, erreichbar über Tor. Andere können direkt dorthin zahlen, ohne Epicbox. Funktioniert nur, solange die Wallet geöffnet ist. Fügt die Methode Direkt zu Senden und Empfangen hinzu und ihren Zustand zu Datenschutz & Netzwerk. Bleibt sichtbar, solange der Schalter an ist.';
-
-  @override
   String get advServerDetails => 'Server-Details';
 
   @override

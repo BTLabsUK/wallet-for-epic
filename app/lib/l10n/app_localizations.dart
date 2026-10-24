@@ -21740,18 +21740,6 @@ abstract class AppLocalizations {
   /// **'Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.'**
   String get advSendOptionsHint;
 
-  /// Advanced switch: the Direct (Tor) method.
-  ///
-  /// In en, this message translates to:
-  /// **'Direct receiving'**
-  String get advDirect;
-
-  /// Info sheet of the Direct receiving switch.
-  ///
-  /// In en, this message translates to:
-  /// **'Gives this phone a second address, reached over Tor. Others can pay it directly, without Epicbox. Works only while the app is open. Adds the Direct method to Send and Receive, and its state to Privacy & network. Stays visible while it is on.'**
-  String get advDirectHint;
-
   /// Advanced switch: hosts, latency, version, height.
   ///
   /// In en, this message translates to:

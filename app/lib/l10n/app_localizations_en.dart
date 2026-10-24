@@ -13746,13 +13746,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.';
 
   @override
-  String get advDirect => 'Direct receiving';
-
-  @override
-  String get advDirectHint =>
-      'Gives this phone a second address, reached over Tor. Others can pay it directly, without Epicbox. Works only while the app is open. Adds the Direct method to Send and Receive, and its state to Privacy & network. Stays visible while it is on.';
-
-  @override
   String get advServerDetails => 'Server details';
 
   @override

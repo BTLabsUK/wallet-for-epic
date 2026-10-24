@@ -33,7 +33,6 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.technicalDetails => l.deskSetAdvTechnical,
   AdvancedFeature.sendOptions => l.deskSetAdvSendOptions,
   // Direct moved to Settings › Transactions: nothing on the Advanced page switches it.
-  AdvancedFeature.directReceiving => l.deskSendMethodDirect,
   AdvancedFeature.serverDetails => l.deskSetAdvServerDetails,
   AdvancedFeature.recheckFromHeight => l.deskSetAdvRecheck,
   AdvancedFeature.builtInNode => l.deskSetAdvBuiltInNode,
@@ -100,8 +99,7 @@ class _ShowsGroup extends ConsumerWidget {
         onChanged: shown ? (v) => set(f, v) : null,
       ),
     );
-    // The stored set may still hold directReceiving (before 26.10.13): it counts for nothing here.
-    final on = adv.features.where((f) => f != AdvancedFeature.directReceiving).length;
+    final on = adv.features.length;
     return ESetGroup(
       title: l.deskSetAdvShows,
       trailing: Row(

@@ -134,7 +134,6 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.outputs => l.advOutputs,
   AdvancedFeature.technicalDetails => l.advTechnical,
   AdvancedFeature.sendOptions => l.advSendOptions,
-  AdvancedFeature.directReceiving => l.advDirect,
   AdvancedFeature.serverDetails => l.advServerDetails,
   AdvancedFeature.recheckFromHeight => l.advRecheckHeight,
   // Desktop only; never on a phone's list.

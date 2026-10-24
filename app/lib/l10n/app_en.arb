@@ -18035,14 +18035,6 @@
   "@advSendOptionsHint": {
     "description": "Info sheet of the Send options switch."
   },
-  "advDirect": "Direct receiving",
-  "@advDirect": {
-    "description": "Advanced switch: the Direct (Tor) method."
-  },
-  "advDirectHint": "Gives this phone a second address, reached over Tor. Others can pay it directly, without Epicbox. Works only while the app is open. Adds the Direct method to Send and Receive, and its state to Privacy & network. Stays visible while it is on.",
-  "@advDirectHint": {
-    "description": "Info sheet of the Direct receiving switch."
-  },
   "advServerDetails": "Server details",
   "@advServerDetails": {
     "description": "Advanced switch: hosts, latency, version, height."

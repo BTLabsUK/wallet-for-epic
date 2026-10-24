@@ -14170,13 +14170,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Pokazuje Strategię wysyłki i Podziel resztę w Ustawienia › Transakcje: które wyjścia wydaje wysyłka i czy jej reszta jest dzielona. Pozostaje widoczne, dopóki któraś z nich nie jest domyślna.';
 
   @override
-  String get advDirect => 'Odbieranie bezpośrednie';
-
-  @override
-  String get advDirectHint =>
-      'Daje temu telefonowi drugi adres, dostępny przez Tor. Inni mogą płacić na niego bezpośrednio, bez Epicbox. Działa tylko, gdy portfel jest otwarty. Dodaje metodę Bezpośrednio do Wyślij i Odbierz, a jej stan do Prywatność i sieć. Pozostaje widoczne, dopóki jest włączone.';
-
-  @override
   String get advServerDetails => 'Szczegóły serwerów';
 
   @override

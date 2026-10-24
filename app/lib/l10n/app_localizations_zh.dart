@@ -13022,13 +13022,6 @@ class AppLocalizationsZh extends AppLocalizations {
       '在“设置 › 交易”中显示发送的“策略”和“拆分找零”：一笔发送花掉哪些输出，以及找零是否拆分。只要其中一项不是默认值，就保持可见。';
 
   @override
-  String get advDirect => '直连接收';
-
-  @override
-  String get advDirectHint =>
-      '为这部手机提供第二个地址，通过 Tor 访问。别人可以直接向它付款，无需 Epicbox。仅在钱包打开时有效。会在“发送”和“接收”中加入“直连”方式，并在“隐私与网络”中显示其状态。开启期间保持可见。';
-
-  @override
   String get advServerDetails => '服务器详情';
 
   @override

@@ -19,9 +19,6 @@ enum AdvancedFeature {
   /// Send › strategy (Smallest / All) and Split change for one send.
   sendOptions,
 
-  /// Direct receiving: HTTP and Tor addresses, the listener settings, the Direct method on Send.
-  directReceiving,
-
   /// Server details: hosts, latency, version and height in the pickers and status cards.
   serverDetails,
 
