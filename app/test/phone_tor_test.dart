@@ -513,6 +513,33 @@ void main() {
     expect(h.state.phase, PhoneTorPhase.off);
   });
 
+  test('android-04: network lost turns a running tor\'s network off; its return refreshes it', () async {
+    h.store.values[h.key] = 'true';
+    await h.unlock();
+    h.emit(TorEventKind.ready);
+    await h.until((s) => s.phase == PhoneTorPhase.ready);
+    h.session.torStatusValue = TorStatus(
+      kind: TorStatusKind.ready,
+      onion: h.session.onion,
+    );
+    h.network.add(false);
+    await h.settle(10);
+    expect(h.session.torNetworkLosses, 1, reason: 'at once, not after the settle time');
+    expect(h.session.torRefreshes, isEmpty);
+    h.network.add(true);
+    await h.settle(100);
+    expect(h.session.torRefreshes, [true]);
+    expect(h.session.torNetworkLosses, 1);
+    expect(h.state.phase, PhoneTorPhase.ready);
+  });
+
+  test('network lost with Tor off asks nothing of tor', () async {
+    await h.unlock();
+    h.network.add(false);
+    await h.settle(10);
+    expect(h.session.torNetworkLosses, 0);
+  });
+
   test('a network flap refreshes tor once', () async {
     h.store.values[h.key] = 'true';
     await h.unlock();
