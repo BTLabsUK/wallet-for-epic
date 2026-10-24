@@ -1,0 +1,19 @@
+{
+  "deskSetPhraseNotCopied": "ไม่ได้คัดลอก",
+  "deskSetPhraseClipboardRefused": "คลิปบอร์ดไม่รับข้อความ",
+  "deskSetPhraseCopied": "คัดลอกวลีแล้ว",
+  "deskSetPhraseCleared": "คลิปบอร์ดจะถูกล้างใน 30 วินาที",
+  "deskSetPhraseEnterPassword": "ใส่รหัสผ่าน",
+  "deskSetPhraseWrongPassword": "รหัสผ่านไม่ถูกต้อง",
+  "deskSetPhraseIntro": "จดคำลงกระดาษตามลำดับนี้ ห้ามพิมพ์ลงในเว็บไซต์หรือแชต",
+  "deskSetPhrasePanel": "ใส่รหัสผ่านเพื่อแสดงคำ",
+  "deskSetPhraseShowWords": "แสดงคำ",
+  "deskSetPhraseWordsLabel": "{count, plural, other{วลีกู้คืน {count} คำ}}",
+  "deskSetPhraseHideQr": "ซ่อน QR Code",
+  "deskSetPhraseShowQr": "แสดง QR Code",
+  "deskSetPhraseHideWords": "ซ่อนคำ",
+  "deskSetPhraseHidesIn": "ซ่อนใน {seconds} วินาที",
+  "deskSetPhraseQrLabel": "QR Code ของวลีกู้คืน",
+  "deskSetPhraseBackUp": "สำรองวลี",
+  "deskSetPhraseBackUpText": "ใครมีคำเหล่านี้ก็เอา EPIC ไปได้ ตรวจดูว่าไม่มีใครเห็นหน้าจอ"
+}
