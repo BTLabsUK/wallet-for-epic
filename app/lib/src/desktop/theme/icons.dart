@@ -42,6 +42,7 @@ abstract final class EIcons {
   static const epicbox = EpicGlyphs.epicbox;
   static const http = EpicGlyphs.http;
   static const tor = EpicGlyphs.tor;
+  static const link = EpicGlyphs.link;
   static const refresh = Icons.refresh;
   static const info = Icons.info_outline;
   static const alert = Icons.warning_amber_outlined;

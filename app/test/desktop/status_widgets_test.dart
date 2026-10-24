@@ -19,6 +19,7 @@ Future<void> _loadFonts() async {
   }
   await roboto.load();
   await (FontLoader('MaterialIcons')..addFont(read('$dir/MaterialIcons-Regular.otf'))).load();
+  await (FontLoader('EpicStatusIcons')..addFont(read('assets/fonts/EpicStatusIcons.ttf'))).load();
 }
 
 Widget _app(Widget child, {bool reduce = false}) => MaterialApp(

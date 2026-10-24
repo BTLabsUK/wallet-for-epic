@@ -16,7 +16,7 @@ from fontTools.pens.recordingPen import RecordingPen
 from fontTools.svgLib.path import parse_path
 import pathops
 
-ICONS = ['tor', 'epicbox', 'http', 'node']  # code points 0xE000 + index
+ICONS = ['tor', 'epicbox', 'http', 'node', 'link']  # code points 0xE000 + index
 UPM = 1024
 S = UPM / 24.0
 
@@ -68,7 +68,10 @@ def glyph(name, svg):
     return tt.glyph()
 
 def main():
-    glyphs = {'.notdef': TTGlyphPen(None).glyph()}
+    nd = TTGlyphPen(None)  # a visible .notdef box, as every font has
+    for pts in ([(64, 0), (64, 800), (576, 800), (576, 0)], [(128, 64), (512, 64), (512, 736), (128, 736)]):
+        nd.moveTo(pts[0]); [nd.lineTo(q) for q in pts[1:]]; nd.closePath()
+    glyphs = {'.notdef': nd.glyph()}
     cmap, order = {}, ['.notdef']
     for i, n in enumerate(ICONS):
         gname = f'icon_{n}'
@@ -79,9 +82,9 @@ def main():
     fb.setupGlyphOrder(order)
     fb.setupCharacterMap(cmap)
     fb.setupGlyf(glyphs)
-    fb.setupHorizontalMetrics({g: (UPM, 0) for g in order})
+    fb.setupHorizontalMetrics({g: (UPM, getattr(glyphs[g], 'xMin', 0)) for g in order})
     fb.setupHorizontalHeader(ascent=UPM, descent=0)
-    fb.setupNameTable({'familyName': 'EpicStatusIcons', 'styleName': 'Regular'})
+    fb.setupNameTable({'familyName': 'EpicStatusIcons', 'styleName': 'Regular', 'uniqueFontIdentifier': 'EpicStatusIcons-Regular', 'fullName': 'EpicStatusIcons Regular', 'psName': 'EpicStatusIcons-Regular', 'version': 'Version 1.000'})
     fb.setupOS2(sTypoAscender=UPM, sTypoDescender=0, usWinAscent=UPM, usWinDescent=0)
     fb.setupPost()
     fb.save('app/assets/fonts/EpicStatusIcons.ttf')
