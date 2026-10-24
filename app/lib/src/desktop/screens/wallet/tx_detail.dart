@@ -5,14 +5,19 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../invoices/tx_invoice_block.dart';
+import 'tx_details_dialog.dart';
 import 'tx_display.dart';
+import 'tx_label.dart';
 
 /// One transaction: amount and counterparty, where it stands, its progress, details, proof,
 /// technical details and the actions it allows (cancel, finalize).
 class TxDetail extends ConsumerStatefulWidget {
-  const TxDetail({super.key, required this.tx});
+  const TxDetail({super.key, required this.tx, this.showTitle = false});
 
   final Tx tx;
+
+  /// Starts with the title (the label's field), for a layout whose page title is a plain string.
+  final bool showTitle;
 
   @override
   ConsumerState<TxDetail> createState() => _TxDetailState();
@@ -114,6 +119,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (widget.showTitle) ...[
+          TxPanelTitle(tx: t, fallback: t.isInvoice ? l.deskInvActBlock : (t.incoming ? l.deskActDetailReceived : l.deskActDetailSent)),
+          SizedBox(height: Sp.x4),
+        ],
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -180,30 +189,59 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
         if (t.isInvoice) TxInvoiceBlock(tx: t),
         if (t.state != TxState.cancelled && !t.fromBackup && !t.isInvoice) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
-        _Sub(l.deskTxSubDetails),
+        _SubBar(
+          l.deskTxSubDetails,
+          [
+            if (t.restored)
+              EButton(
+                label: _typed(t) ? l.deskTxDetailsEdit : l.deskTxDetailsAdd,
+                icon: _typed(t) ? EIcons.pencil : EIcons.plus,
+                kind: EBtnKind.ghost,
+                size: EBtnSize.inline,
+                onPressed: () => showTxDetailsDialog(context, t),
+              ),
+            EButton(
+              label: t.labelText == null ? l.deskTxLabelAdd : l.deskTxLabelEdit,
+              icon: EIcons.pencil,
+              kind: EBtnKind.ghost,
+              size: EBtnSize.inline,
+              onPressed: () => ref.read(txLabelEditingProvider.notifier).open(t.key, txLabelDetailPlace),
+            ),
+          ],
+        ),
         EFacts(labelWidth: 96.u, [
           (l.deskTxFactDate, Text(dateTimeOf(l, t))),
           if (t.counterparty != null)
             (
               t.incoming ? l.deskTxFactFrom : l.deskTxFactTo,
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.counterparty!,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: ts.mono(size: Fs.xs),
+              _withTag(
+                t,
+                ManualField.counterparty,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        t.counterparty!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: ts.mono(size: Fs.xs),
+                      ),
                     ),
-                  ),
-                  ECopyButton(text: t.counterparty!, label: l.deskTxCopyAddress),
-                ],
+                    ECopyButton(text: t.counterparty!, label: l.deskTxCopyAddress),
+                  ],
+                ),
               ),
             ),
-          (l.deskTxFactMethod, Text(t.foundByScan ? '–' : methodLabel(l, t.method))),
+          (
+            l.deskTxFactMethod,
+            t.foundByScan
+                ? _withTag(t, ManualField.transport, Text(restoredMethodOf(l, t) ?? '–'))
+                : Text(methodLabel(l, t.method)),
+          ),
           (l.deskTxFactAmount, EMoney(t.amount)),
           if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600))],
           if (t.message != null) (l.deskTxFactMessage, Text(t.message!)),
+          if (t.note != null && t.note!.trim().isNotEmpty) (l.deskTxDetailsNote, _withTag(t, ManualField.note, Text(t.note!))),
         ]),
         if (DeskFeatures.paymentProofs && t.hasProof) ...[
           _Sub(l.deskTxPaymentProof),
@@ -286,6 +324,21 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       ],
     );
   }
+
+  /// Whether the user has typed a sender, method or note on this scan find.
+  bool _typed(Tx t) => t.manualFields.any((f) => f != ManualField.label);
+
+  /// [value] with "Added by you" under it when the user typed [field].
+  Widget _withTag(Tx t, ManualField field, Widget value) => t.manualFields.contains(field)
+      ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            value,
+            SizedBox(height: Sp.x1),
+            ManualTag(t, field),
+          ],
+        )
+      : value;
 
   List<_Step> _steps(AppLocalizations l, Tx t) {
     final at = t.created;
@@ -414,6 +467,25 @@ class _TimelineStep extends StatelessWidget {
   }
 }
 
+/// A sub-header with ghost buttons at its end.
+class _SubBar extends StatelessWidget {
+  const _SubBar(this.title, this.actions);
+
+  final String title;
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(top: Sp.x6, bottom: Sp.x2),
+    child: Row(
+      children: [
+        Expanded(child: Semantics(header: true, child: Text(title, style: context.ts.label))),
+        Wrap(spacing: Sp.x1, children: actions),
+      ],
+    ),
+  );
+}
+
 class _Sub extends StatelessWidget {
   const _Sub(this.title);
 
@@ -487,7 +559,8 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
           children: [
             field(l.deskTxTechKernel, l.deskTxProofCopyKernel, t.kernel ?? '-'),
             field(l.deskTxProofSenderAddress, l.deskTxProofCopySender, 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b'),
-            field(l.deskTxProofRecipientAddress, l.deskTxProofCopyRecipient, (t.counterparty ?? '').split('@').first),
+            // An address the user typed is not what the payment's proof is about: never shown here.
+            field(l.deskTxProofRecipientAddress, l.deskTxProofCopyRecipient, t.manualFields.contains(ManualField.counterparty) ? '-' : (t.counterparty ?? '').split('@').first),
             field(l.deskTxProofRecipientSignature, l.deskTxProofCopySignature, '3045022100c7a1e9f0b2d4a6c8e0f2b4d6a8c0e2f4b6d8a0c2e4f6b8d0a2c4e6f8b0d2a4c602205f'),
           ],
         ),

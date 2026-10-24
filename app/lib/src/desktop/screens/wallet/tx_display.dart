@@ -7,6 +7,7 @@ import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
 import '../invoices/invoice_parts.dart' show payStateWord, requestStateWord;
+import 'tx_label.dart';
 
 String methodLabel(AppLocalizations l, TxMethod m) => switch (m) {
   TxMethod.epicbox => 'Epicbox', // l10n-ok: product name
@@ -21,7 +22,8 @@ String whoOf(AppLocalizations l, Tx t) {
   if (t.contactName != null) return t.contactName!;
   if (t.toSelf) return l.deskTxThisWallet;
   if (t.coinbase) return l.deskTxMiningReward;
-  if (t.foundByScan) return foundTexts(l, t).label;
+  // A scan find names no one until the user types a sender (then the address, as for any row).
+  if (t.foundByScan && t.counterparty == null) return foundTexts(l, t).label;
   final cp = t.counterparty;
   if (cp == null && t.fromBackup) return t.incoming ? l.deskTxReceived : l.deskTxSent;
   if (cp == null) return t.incoming ? l.deskTxUnknownSender : l.deskTxUnknownRecipient;
@@ -56,15 +58,29 @@ FoundTexts foundTexts(AppLocalizations l, Tx t) {
   };
 }
 
+/// What a row is called: the user's label, else [whoOf].
+String titleOf(AppLocalizations l, Tx t) => t.labelText ?? whoOf(l, t);
+
+/// Whether [whoOf] names someone or something (a contact, an address, a file), which joins the
+/// second line when a label takes the title.
+bool whoNamesSomeone(Tx t) => !t.toSelf && !t.coinbase && (t.contactName != null || t.counterparty != null);
+
 /// A line explaining [whoOf] where it needs one.
 String? whoTip(AppLocalizations l, Tx t) =>
-    t.detail ?? (t.foundByScan && t.contactName == null ? foundTexts(l, t).tip : (t.fromBackup ? l.deskTxBackupTip : null));
+    t.detail ?? (t.foundByScan && t.contactName == null && t.counterparty == null ? foundTexts(l, t).tip : (t.fromBackup ? l.deskTxBackupTip : null));
 
 /// Whether the name is an address (shown in mono).
 bool whoIsAddress(Tx t) => t.contactName == null && !t.toSelf && t.counterparty != null && t.method != TxMethod.file;
 
 /// How it travelled, or null when that is not known (mining rewards, scan finds).
 String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.foundByScan ? null : methodLabel(l, t.method);
+
+/// How a scan find came, in the words of the details dialog (Direct for http); null until the
+/// user says.
+String? restoredMethodOf(AppLocalizations l, Tx t) {
+  if (!t.foundByScan || t.transport == null) return null;
+  return t.method == TxMethod.http ? l.deskSendMethodDirect : methodLabel(l, t.method);
+}
 
 IconData iconOf(Tx t) => switch (t.method) {
   TxMethod.file => t.incoming ? EIcons.fileDown : EIcons.fileUp,
@@ -290,7 +306,7 @@ double get txRowFullWidth => 560.u;
 /// One transaction row. [compact] (Overview) puts the state under the name and the time
 /// under the amount; the full row (Activity) has state, time and amount columns.
 class TxRow extends ConsumerStatefulWidget {
-  const TxRow({super.key, required this.tx, required this.onTap, this.compact = false, this.selected = false, this.onFinalize, this.title});
+  const TxRow({super.key, required this.tx, required this.onTap, this.compact = false, this.selected = false, this.onFinalize, this.title, this.labelEditable = false});
 
   final Tx tx;
   final VoidCallback onTap;
@@ -301,6 +317,9 @@ class TxRow extends ConsumerStatefulWidget {
   /// Replaces the name (a contact's own history says Sent / Received).
   final String? title;
 
+  /// Shows the pen that edits the label in place (Activity).
+  final bool labelEditable;
+
   @override
   ConsumerState<TxRow> createState() => _TxRowState();
 }
@@ -308,11 +327,29 @@ class TxRow extends ConsumerStatefulWidget {
 class _TxRowState extends ConsumerState<TxRow> {
   bool _hover = false;
 
+  /// Something in the row has the focus (the row itself or its pen): the pen shows.
+  bool _within = false;
+  final FocusNode _pen = FocusNode();
+
+  @override
+  void dispose() {
+    _pen.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     // A narrow list gets the compact row: no room for the status and time columns.
     builder: (context, box) => _row(context, widget.compact || box.maxWidth < txRowFullWidth),
   );
+
+  TxLabelSite get _site => (key: widget.tx.key, place: txLabelRowPlace);
+
+  void _closeLabel({required bool byKey}) {
+    ref.read(txLabelEditingProvider.notifier).close(widget.tx.key, txLabelRowPlace);
+    // Enter and Esc leave the focus where the pen is; a click elsewhere keeps it there.
+    if (byKey) WidgetsBinding.instance.addPostFrameCallback((_) => mounted ? _pen.requestFocus() : null);
+  }
 
   Widget _row(BuildContext context, bool compact) {
     final c = context.dc;
@@ -328,118 +365,187 @@ class _TxRowState extends ConsumerState<TxRow> {
     };
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final l = context.l10n;
+    final editing = widget.labelEditable && ref.watch(txLabelEditingProvider) == _site;
+    final labelled = t.labelText != null && widget.title == null;
+    final restoredMethod = restoredMethodOf(l, t);
     final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : methodOf(l, t));
     final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? l.deskTxPaymentProof : null);
+    // A label takes the title; who it replaced moves to the second line so nothing is lost.
+    final replaced = labelled && whoNamesSomeone(t) ? (t.contactName ?? shortAddress(t.counterparty!, compact: t.method != TxMethod.file)) : null;
+    final parts = <String>[?method, ?restoredMethod, ?replaced, ?extra];
     final meta = <InlineSpan>[
-      if (method != null) TextSpan(text: method),
-      if (extra != null) ...[
-        if (method != null)
+      for (final (i, p) in parts.indexed) ...[
+        if (i > 0)
           TextSpan(
             text: '  ·  ',
             style: TextStyle(color: c.lineField),
           ),
-        TextSpan(text: extra),
+        TextSpan(text: p),
       ],
     ];
+    // The sender, method or note the user typed on a scan find carries the tag.
+    final typed = t.manualFields.any((f) => f != ManualField.label);
+    final TextStyle titleStyle = ts.strong;
+    final Widget name;
+    if (labelled) {
+      name = Text(t.labelText!, maxLines: 1, overflow: TextOverflow.ellipsis, style: titleStyle);
+    } else if (widget.title == null && whoIsAddress(t) && !t.isInvoice) {
+      name = EShortAddress(t.counterparty!, style: ts.mono(size: 12.5, weight: FontWeight.w500));
+    } else {
+      name = Text(widget.title ?? invoiceTitleOf(context, t) ?? whoOf(l, t), maxLines: 1, overflow: TextOverflow.ellipsis, style: titleStyle);
+    }
+    final titleLine = editing
+        ? TxLabelField(
+            site: _site,
+            initial: t.labelText ?? '',
+            style: titleStyle,
+            onSave: (text) => saveTxLabel(context, ref, t, text),
+            onClose: _closeLabel,
+          )
+        : Row(
+            children: [
+              Flexible(
+                child: ExcludeSemantics(
+                  child: _Tip(message: widget.title == null && !labelled && (t.foundByScan || t.fromBackup) ? whoTip(l, t) : null, child: name),
+                ),
+              ),
+              if (widget.labelEditable) ...[
+                SizedBox(width: Sp.x1),
+                TxPen(
+                  tx: t,
+                  focusNode: _pen,
+                  visible: _hover || _within || widget.selected,
+                  onPressed: () => ref.read(txLabelEditingProvider.notifier).open(t.key, txLabelRowPlace),
+                ),
+              ],
+            ],
+          );
     final who = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _Tip(
-          message: widget.title == null && (t.foundByScan || t.fromBackup) ? whoTip(l, t) : null,
-          child: widget.title == null && whoIsAddress(t) && !t.isInvoice
-              ? EShortAddress(t.counterparty!, style: ts.mono(size: 12.5, weight: FontWeight.w500), tooltip: false)
-              : Text(widget.title ?? invoiceTitleOf(context, t) ?? whoOf(l, t), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
-        ),
+        titleLine,
         if (compact || meta.isNotEmpty) const SizedBox(height: 2),
         if (compact)
-          Row(
-            children: [
-              TxStateMark(t, size: 15.u),
-              SizedBox(width: 6.u),
-              Flexible(
-                child: Text(
-                  word,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: ts.small.copyWith(color: toneColor),
+          ExcludeSemantics(
+            child: Row(
+              children: [
+                TxStateMark(t, size: 15.u),
+                SizedBox(width: 6.u),
+                Flexible(
+                  child: Text.rich(
+                    TextSpan(
+                      text: word,
+                      children: [
+                        if (replaced != null)
+                          TextSpan(
+                            text: '  ·  $replaced',
+                            style: TextStyle(color: c.faint),
+                          ),
+                      ],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: ts.small.copyWith(color: toneColor),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           )
-        else if (meta.isNotEmpty)
-          Text.rich(
-            TextSpan(children: meta),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: ts.small.copyWith(color: c.faint),
+        else if (meta.isNotEmpty || typed)
+          ExcludeSemantics(
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text.rich(
+                    TextSpan(children: meta),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: ts.small.copyWith(color: c.faint),
+                  ),
+                ),
+                if (typed) ...[SizedBox(width: Sp.x2), ManualTag(t, t.manualFields.firstWhere((f) => f != ManualField.label))],
+              ],
+            ),
           ),
       ],
     );
     final finalizable = !compact && !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
     final row = Row(
       children: [
-        TxIcon(t),
+        ExcludeSemantics(child: TxIcon(t)),
         SizedBox(width: Sp.x4),
         Expanded(flex: 16, child: who),
         if (!compact) ...[
           SizedBox(width: Sp.x4),
           Expanded(
             flex: 10,
-            child: finalizable
-                ? Align(
-                    alignment: Alignment.centerLeft,
-                    child: EButton(label: l.deskTxFinalize, icon: EIcons.fileDown, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: widget.onFinalize),
-                  )
-                : Row(
-                    children: [
-                      TxStateMark(t),
-                      SizedBox(width: Sp.x2),
-                      Flexible(
-                        child: Text(
-                          word,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: ts.small.copyWith(color: toneColor),
+            child: ExcludeSemantics(
+              child: finalizable
+                  ? Align(
+                      alignment: Alignment.centerLeft,
+                      child: EButton(label: l.deskTxFinalize, icon: EIcons.fileDown, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: widget.onFinalize),
+                    )
+                  : Row(
+                      children: [
+                        TxStateMark(t),
+                        SizedBox(width: Sp.x2),
+                        Flexible(
+                          child: Text(
+                            word,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: ts.small.copyWith(color: toneColor),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+            ),
           ),
           SizedBox(width: Sp.x4),
           SizedBox(
             width: txTimeWidth,
-            child: Text(
-              timeOf(t),
-              textAlign: TextAlign.right,
-              style: ts.mono(size: Fs.xs, color: c.faint),
+            child: ExcludeSemantics(
+              child: Text(
+                timeOf(t),
+                textAlign: TextAlign.right,
+                style: ts.mono(size: Fs.xs, color: c.faint),
+              ),
             ),
           ),
         ],
         SizedBox(width: Sp.x4),
-        compact
-            ? TxAmount(t, sub: compactTime(l, t))
-            : SizedBox(
-                width: txAmountWidth,
-                child: Align(alignment: Alignment.centerRight, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: TxAmount(t))),
-              ),
+        ExcludeSemantics(
+          child: compact
+              ? TxAmount(t, sub: compactTime(l, t))
+              : SizedBox(
+                  width: txAmountWidth,
+                  child: Align(alignment: Alignment.centerRight, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: TxAmount(t))),
+                ),
+        ),
       ],
     );
     return Semantics(
       button: true,
       selected: widget.selected,
+      onTap: widget.onTap,
       // A request is never read out as money received (flow.md §5, fake invoice dressed as income);
-      // it reads Unpaid only while it is, then its state word says what became of it.
+      // it reads Unpaid only while it is, then its state word says what became of it. The pen
+      // keeps its own node.
       label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : '${formatEpicL(l, t.amount)} EPIC', word),
-      excludeSemantics: true,
-      child: InkWell(
-        onTap: widget.onTap,
-        onHover: (v) => setState(() => _hover = v),
-        child: Container(
-          constraints: BoxConstraints(minHeight: 60.u),
-          padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
-          color: widget.selected ? c.s3 : (_hover ? c.hover : null),
-          child: row,
+      child: Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        onFocusChange: (v) => setState(() => _within = v),
+        child: InkWell(
+          onTap: widget.onTap,
+          onHover: (v) => setState(() => _hover = v),
+          child: Container(
+            constraints: BoxConstraints(minHeight: 60.u),
+            padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
+            color: widget.selected ? c.s3 : (_hover ? c.hover : null),
+            child: row,
+          ),
         ),
       ),
     );
@@ -448,7 +554,7 @@ class _TxRowState extends ConsumerState<TxRow> {
 
 extension on _TxRowState {
   String _semantics(AppLocalizations l, Tx t, String amount, String status) {
-    final who = whoOf(l, t);
+    final who = titleOf(l, t);
     if (t.isInvoice) return l.deskTxSemKind(txAsked(t) ? l.deskInvUnpaid : l.deskInvActBlock, amount, who, status);
     return t.incoming ? l.deskTxSemReceived(amount, who, status) : l.deskTxSemSent(amount, who, status);
   }

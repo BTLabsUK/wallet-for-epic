@@ -12763,4 +12763,131 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskInvPayerStalledText =>
       '未送达：付款还没有进入网络，资金仍被锁定。“重新发送”会再发送一次，无需再次批准。';
+
+  @override
+  String get deskTxLabelAdd => '添加标签';
+
+  @override
+  String get deskTxLabelEdit => '编辑标签';
+
+  @override
+  String get deskTxLabelHint => '添加标签';
+
+  @override
+  String get deskTxLabelField => '标签';
+
+  @override
+  String get deskTxLabelTip => '这笔付款的名称，只给你自己看。显示在“活动”和导出文件中。';
+
+  @override
+  String get deskTxLabelAdded => '已添加标签';
+
+  @override
+  String get deskTxLabelSaved => '已保存标签';
+
+  @override
+  String get deskTxLabelRemoved => '已删除标签';
+
+  @override
+  String get deskTxLabelNotSaved => '标签未保存';
+
+  @override
+  String get deskTxDetailsAdd => '添加详情';
+
+  @override
+  String get deskTxDetailsEdit => '编辑';
+
+  @override
+  String get deskTxDetailsTitleAdd => '添加详情';
+
+  @override
+  String get deskTxDetailsTitleEdit => '编辑详情';
+
+  @override
+  String get deskTxDetailsTip =>
+      '仅适用于扫描找到的付款。在“活动”、详情和导出文件中会标为你添加的内容。金额、日期和确认数不会改变。';
+
+  @override
+  String get deskTxDetailsFrom => '来自';
+
+  @override
+  String get deskTxDetailsFromTip => '付款人，仅供你记录。未经验证，也不会用于付款证明。';
+
+  @override
+  String get deskTxDetailsFromHint => '发送方地址';
+
+  @override
+  String get deskTxDetailsFromBad => '请使用 Epicbox、http(s) 或 .onion 地址。';
+
+  @override
+  String get deskTxDetailsNote => '备注';
+
+  @override
+  String get deskTxDetailsAdded => '已添加详情';
+
+  @override
+  String get deskTxDetailsSaved => '已保存详情';
+
+  @override
+  String get deskTxDetailsRemoved => '已删除详情';
+
+  @override
+  String get deskTxDetailsNotSaved => '详情未保存';
+
+  @override
+  String get deskTxManualTag => '你添加的';
+
+  @override
+  String deskTxManualTip(String date) {
+    return '你于 $date 添加。不来自区块链。';
+  }
+
+  @override
+  String get deskTxManualTipNoDate => '你添加的。不来自区块链。';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return '你于 $date 添加。不来自区块链，未经验证。';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate => '你添加的。不来自区块链，未经验证。';
+
+  @override
+  String get deskHistConflictTitle => '详情不一致';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '备份中有 $n 笔你描述过的付款带有不同的详情。除非你另行选择，否则保留你的内容。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => '我的';
+
+  @override
+  String get deskHistConflictBackup => '备份';
+
+  @override
+  String get deskHistConflictKeepAll => '全部保留我的';
+
+  @override
+  String get deskHistConflictImport => '导入';
+
+  @override
+  String get deskHistConflictEmpty => '空';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '已替换 $n 项详情，其余保留你的内容。',
+    );
+    return '$_temp0';
+  }
 }

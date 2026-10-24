@@ -13225,4 +13225,135 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskInvPayerStalledText =>
       'ส่งไม่ถึง รายการยังไม่เข้าสู่เครือข่าย และเงินยังถูกล็อกอยู่ ส่งอีกครั้งจะส่งซ้ำโดยไม่ต้องอนุมัติอีก';
+
+  @override
+  String get deskTxLabelAdd => 'เพิ่มป้ายกำกับ';
+
+  @override
+  String get deskTxLabelEdit => 'แก้ไขป้ายกำกับ';
+
+  @override
+  String get deskTxLabelHint => 'เพิ่มป้ายกำกับ';
+
+  @override
+  String get deskTxLabelField => 'ป้ายกำกับ';
+
+  @override
+  String get deskTxLabelTip =>
+      'ชื่อของรายการนี้ไว้ให้คุณเอง แสดงในกิจกรรมและในไฟล์ที่ส่งออก';
+
+  @override
+  String get deskTxLabelAdded => 'เพิ่มป้ายกำกับแล้ว';
+
+  @override
+  String get deskTxLabelSaved => 'บันทึกป้ายกำกับแล้ว';
+
+  @override
+  String get deskTxLabelRemoved => 'ลบป้ายกำกับแล้ว';
+
+  @override
+  String get deskTxLabelNotSaved => 'ไม่ได้บันทึกป้ายกำกับ';
+
+  @override
+  String get deskTxDetailsAdd => 'เพิ่มรายละเอียด';
+
+  @override
+  String get deskTxDetailsEdit => 'แก้ไข';
+
+  @override
+  String get deskTxDetailsTitleAdd => 'เพิ่มรายละเอียด';
+
+  @override
+  String get deskTxDetailsTitleEdit => 'แก้ไขรายละเอียด';
+
+  @override
+  String get deskTxDetailsTip =>
+      'ใช้ได้เฉพาะรายการที่พบจากการสแกน จะแสดงว่าคุณเพิ่มเองในกิจกรรม รายละเอียด และไฟล์ที่ส่งออก ยอดเงิน วันที่ และการยืนยันจะไม่เปลี่ยน';
+
+  @override
+  String get deskTxDetailsFrom => 'จาก';
+
+  @override
+  String get deskTxDetailsFromTip =>
+      'ผู้จ่ายเงิน ไว้เป็นบันทึกของคุณ ไม่ได้ตรวจสอบ และไม่ใช้ในหลักฐานการชำระเงิน';
+
+  @override
+  String get deskTxDetailsFromHint => 'ที่อยู่ของผู้ส่ง';
+
+  @override
+  String get deskTxDetailsFromBad => 'ใช้ที่อยู่ Epicbox, http(s) หรือ .onion';
+
+  @override
+  String get deskTxDetailsNote => 'บันทึก';
+
+  @override
+  String get deskTxDetailsAdded => 'เพิ่มรายละเอียดแล้ว';
+
+  @override
+  String get deskTxDetailsSaved => 'บันทึกรายละเอียดแล้ว';
+
+  @override
+  String get deskTxDetailsRemoved => 'ลบรายละเอียดแล้ว';
+
+  @override
+  String get deskTxDetailsNotSaved => 'ไม่ได้บันทึกรายละเอียด';
+
+  @override
+  String get deskTxManualTag => 'คุณเพิ่มเอง';
+
+  @override
+  String deskTxManualTip(String date) {
+    return 'คุณเพิ่มเมื่อ $date ไม่ได้มาจากบล็อกเชน';
+  }
+
+  @override
+  String get deskTxManualTipNoDate => 'คุณเพิ่มเอง ไม่ได้มาจากบล็อกเชน';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return 'คุณเพิ่มเมื่อ $date ไม่ได้มาจากบล็อกเชน และไม่ได้ตรวจสอบ';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate =>
+      'คุณเพิ่มเอง ไม่ได้มาจากบล็อกเชน และไม่ได้ตรวจสอบ';
+
+  @override
+  String get deskHistConflictTitle => 'รายละเอียดไม่ตรงกัน';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'ข้อมูลสำรองมีรายละเอียดต่างจากที่คุณใส่ไว้ใน $n รายการ จะใช้ของคุณต่อไป เว้นแต่คุณเลือกอย่างอื่น',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => 'ของฉัน';
+
+  @override
+  String get deskHistConflictBackup => 'ข้อมูลสำรอง';
+
+  @override
+  String get deskHistConflictKeepAll => 'เก็บของฉันทั้งหมด';
+
+  @override
+  String get deskHistConflictImport => 'นำเข้า';
+
+  @override
+  String get deskHistConflictEmpty => 'ว่าง';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'แทนที่รายละเอียด $n รายการ ที่เหลือใช้ของคุณเหมือนเดิม',
+    );
+    return '$_temp0';
+  }
 }

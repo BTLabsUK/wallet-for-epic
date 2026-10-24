@@ -13633,4 +13633,140 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskInvPayerStalledText =>
       'Nicht zugestellt: Sie hat das Netzwerk noch nicht erreicht, und das Guthaben bleibt gesperrt. Erneut senden schickt sie noch einmal, ohne zweite Freigabe.';
+
+  @override
+  String get deskTxLabelAdd => 'Bezeichnung hinzufügen';
+
+  @override
+  String get deskTxLabelEdit => 'Bezeichnung ändern';
+
+  @override
+  String get deskTxLabelHint => 'Bezeichnung hinzufügen';
+
+  @override
+  String get deskTxLabelField => 'Bezeichnung';
+
+  @override
+  String get deskTxLabelTip =>
+      'Ein Name für diese Zahlung, nur für Sie. Wird in der Aktivität und in Exporten angezeigt.';
+
+  @override
+  String get deskTxLabelAdded => 'Bezeichnung hinzugefügt';
+
+  @override
+  String get deskTxLabelSaved => 'Bezeichnung gespeichert';
+
+  @override
+  String get deskTxLabelRemoved => 'Bezeichnung entfernt';
+
+  @override
+  String get deskTxLabelNotSaved => 'Bezeichnung nicht gespeichert';
+
+  @override
+  String get deskTxDetailsAdd => 'Details hinzufügen';
+
+  @override
+  String get deskTxDetailsEdit => 'Ändern';
+
+  @override
+  String get deskTxDetailsTitleAdd => 'Details hinzufügen';
+
+  @override
+  String get deskTxDetailsTitleEdit => 'Details ändern';
+
+  @override
+  String get deskTxDetailsTip =>
+      'Nur für Zahlungen, die ein Scan gefunden hat. Wird in der Aktivität, in den Details und in Exporten als von Ihnen hinzugefügt angezeigt. Beträge, Daten und Bestätigungen ändern sich nicht.';
+
+  @override
+  String get deskTxDetailsFrom => 'Von';
+
+  @override
+  String get deskTxDetailsFromTip =>
+      'Wer bezahlt hat, für Ihre Unterlagen. Nicht geprüft und nie für Zahlungsnachweise verwendet.';
+
+  @override
+  String get deskTxDetailsFromHint => 'Adresse des Absenders';
+
+  @override
+  String get deskTxDetailsFromBad =>
+      'Verwenden Sie eine Epicbox-, http(s)- oder .onion-Adresse.';
+
+  @override
+  String get deskTxDetailsNote => 'Notiz';
+
+  @override
+  String get deskTxDetailsAdded => 'Details hinzugefügt';
+
+  @override
+  String get deskTxDetailsSaved => 'Details gespeichert';
+
+  @override
+  String get deskTxDetailsRemoved => 'Details entfernt';
+
+  @override
+  String get deskTxDetailsNotSaved => 'Details nicht gespeichert';
+
+  @override
+  String get deskTxManualTag => 'Von Ihnen hinzugefügt';
+
+  @override
+  String deskTxManualTip(String date) {
+    return 'Am $date von Ihnen hinzugefügt. Nicht aus der Blockchain.';
+  }
+
+  @override
+  String get deskTxManualTipNoDate =>
+      'Von Ihnen hinzugefügt. Nicht aus der Blockchain.';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return 'Am $date von Ihnen hinzugefügt. Nicht aus der Blockchain, nicht geprüft.';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate =>
+      'Von Ihnen hinzugefügt. Nicht aus der Blockchain, nicht geprüft.';
+
+  @override
+  String get deskHistConflictTitle => 'Details weichen ab';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Die Sicherung enthält andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+      one:
+          'Die Sicherung enthält andere Details für $n Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => 'Meine';
+
+  @override
+  String get deskHistConflictBackup => 'Sicherung';
+
+  @override
+  String get deskHistConflictKeepAll => 'Alle meine behalten';
+
+  @override
+  String get deskHistConflictImport => 'Importieren';
+
+  @override
+  String get deskHistConflictEmpty => 'leer';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Details ersetzt, der Rest bleibt wie von Ihnen.',
+      one: '$n Detail ersetzt, der Rest bleibt wie von Ihnen.',
+    );
+    return '$_temp0';
+  }
 }

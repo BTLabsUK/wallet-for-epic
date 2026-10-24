@@ -13854,4 +13854,145 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskInvPayerStalledText =>
       'Не доставлено: платёж ещё не попал в сеть, средства остаются заблокированными. «Отправить снова» отправит его ещё раз без повторного подтверждения.';
+
+  @override
+  String get deskTxLabelAdd => 'Добавить метку';
+
+  @override
+  String get deskTxLabelEdit => 'Изменить метку';
+
+  @override
+  String get deskTxLabelHint => 'Добавить метку';
+
+  @override
+  String get deskTxLabelField => 'Метка';
+
+  @override
+  String get deskTxLabelTip =>
+      'Название этого платежа, для вас. Показывается в «Активности» и в экспорте.';
+
+  @override
+  String get deskTxLabelAdded => 'Метка добавлена';
+
+  @override
+  String get deskTxLabelSaved => 'Метка сохранена';
+
+  @override
+  String get deskTxLabelRemoved => 'Метка удалена';
+
+  @override
+  String get deskTxLabelNotSaved => 'Метка не сохранена';
+
+  @override
+  String get deskTxDetailsAdd => 'Добавить подробности';
+
+  @override
+  String get deskTxDetailsEdit => 'Изменить';
+
+  @override
+  String get deskTxDetailsTitleAdd => 'Добавить подробности';
+
+  @override
+  String get deskTxDetailsTitleEdit => 'Изменить подробности';
+
+  @override
+  String get deskTxDetailsTip =>
+      'Только для платежей, найденных при сканировании. В «Активности», подробностях и экспорте они помечены как добавленные вами. Суммы, даты и подтверждения не меняются.';
+
+  @override
+  String get deskTxDetailsFrom => 'От';
+
+  @override
+  String get deskTxDetailsFromTip =>
+      'Кто заплатил, для ваших записей. Не проверяется и не используется в подтверждениях платежа.';
+
+  @override
+  String get deskTxDetailsFromHint => 'Адрес отправителя';
+
+  @override
+  String get deskTxDetailsFromBad =>
+      'Укажите адрес Epicbox, http(s) или .onion.';
+
+  @override
+  String get deskTxDetailsNote => 'Заметка';
+
+  @override
+  String get deskTxDetailsAdded => 'Подробности добавлены';
+
+  @override
+  String get deskTxDetailsSaved => 'Подробности сохранены';
+
+  @override
+  String get deskTxDetailsRemoved => 'Подробности удалены';
+
+  @override
+  String get deskTxDetailsNotSaved => 'Подробности не сохранены';
+
+  @override
+  String get deskTxManualTag => 'Добавлено вами';
+
+  @override
+  String deskTxManualTip(String date) {
+    return 'Добавлено вами $date. Не из блокчейна.';
+  }
+
+  @override
+  String get deskTxManualTipNoDate => 'Добавлено вами. Не из блокчейна.';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return 'Добавлено вами $date. Не из блокчейна, не проверено.';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate =>
+      'Добавлено вами. Не из блокчейна, не проверено.';
+
+  @override
+  String get deskHistConflictTitle => 'Подробности различаются';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'В резервной копии другие подробности для $n платежа, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      many:
+          'В резервной копии другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      few:
+          'В резервной копии другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      one:
+          'В резервной копии другие подробности для $n платежа, который вы описали. Ваши сохраняются, если вы не выберете иначе.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => 'Мои';
+
+  @override
+  String get deskHistConflictBackup => 'Резервная копия';
+
+  @override
+  String get deskHistConflictKeepAll => 'Оставить все мои';
+
+  @override
+  String get deskHistConflictImport => 'Импортировать';
+
+  @override
+  String get deskHistConflictEmpty => 'пусто';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Заменено $n подробности, остальные оставлены как у вас.',
+      many: 'Заменено $n подробностей, остальные оставлены как у вас.',
+      few: 'Заменены $n подробности, остальные оставлены как у вас.',
+      one: 'Заменена $n подробность, остальные оставлены как у вас.',
+    );
+    return '$_temp0';
+  }
 }
