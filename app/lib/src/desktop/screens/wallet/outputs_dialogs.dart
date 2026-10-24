@@ -211,7 +211,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
     }
   }
 
-  String _e4(int nano) => formatEpic(nano, decimals: 4);
+  String _e4(int nano) => formatEpicL(context.l10n, nano, decimals: 4);
 
   @override
   Widget build(BuildContext context) {
@@ -227,8 +227,8 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
         : Text.rich(
             TextSpan(
               children: _split
-                  ? _marked(l.deskOutSplitDialogText('\u0001', '\u0002'), [l.deskOutSplitSpentPart(e.inputCount, formatEpic(e.locked)), l.deskOutSplitMadePart(_n, _e4(each!))], bold)
-                  : _marked(l.deskOutConsDialogText('\u0001', '\u0002'), [l.deskOutSplitSpentPart(e.inputCount, formatEpic(e.locked)), l.deskOutConsMadePart(formatEpic(e.locked - e.fee))], bold),
+                  ? _marked(l.deskOutSplitDialogText('\u0001', '\u0002'), [l.deskOutSplitSpentPart(e.inputCount, formatEpicL(l, e.locked)), l.deskOutSplitMadePart(_n, _e4(each!))], bold)
+                  : _marked(l.deskOutConsDialogText('\u0001', '\u0002'), [l.deskOutSplitSpentPart(e.inputCount, formatEpicL(l, e.locked)), l.deskOutConsMadePart(formatEpicL(l, e.locked - e.fee))], bold),
             ),
             style: ts.bodyDim,
           );
@@ -236,9 +236,9 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
     final facts = e == null
         ? null
         : EFacts([
-            (l.deskOutFactFee, Text('${formatEpic(e.fee, minDecimals: 3)} EPIC')),
+            (l.deskOutFactFee, Text('${formatEpicL(l, e.fee, minDecimals: 3)} EPIC')),
             if (_split) (l.deskOutFactEach, Text(l.deskOutFactAbout(_e4(each!)))),
-            (l.deskOutFactLocked, Text(l.deskOutFactLockedValue(formatEpic(e.locked)))),
+            (l.deskOutFactLocked, Text(l.deskOutFactLockedValue(formatEpicL(l, e.locked)))),
           ]);
 
     final List<Widget> body;
@@ -312,7 +312,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
             tone: ETone.ok,
             icon: EIcons.okCircle,
             title: _split ? l.deskOutSplitPosted : l.deskOutConsPosted,
-            text: _split ? l.deskOutSplitDoneText(n, _e4(perOne)) : l.deskOutConsDoneText(formatEpic(perOne)),
+            text: _split ? l.deskOutSplitDoneText(n, _e4(perOne)) : l.deskOutConsDoneText(formatEpicL(l, perOne)),
           ),
         ];
         actions = [EButton.primary(label: l.commonDone, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())];

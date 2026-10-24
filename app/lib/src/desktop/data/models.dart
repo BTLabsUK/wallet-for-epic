@@ -5,7 +5,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 
-import '../../l10n.dart' show AppLocalizations, englishStrings;
+import '../../l10n.dart' show AppLocalizations, englishStrings, localDigits;
 import '../../models.dart' show SelectionStrategy, SendOptions;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../smart_outputs.dart' show smartOutputsDefault;
@@ -28,6 +28,11 @@ String formatEpic(int nano, {int decimals = 8, bool trim = true, int minDecimals
   final w = whole.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
   return '${neg ? '-' : ''}$w${frac.isEmpty ? '' : '.$frac'}';
 }
+
+/// [formatEpic] in [l]'s separators (`1.281,52615` in German): for text shown, never for a field,
+/// the clipboard or a file.
+String formatEpicL(AppLocalizations l, int nano, {int decimals = 8, bool trim = true, int minDecimals = 4}) =>
+    localDigits(l, formatEpic(nano, decimals: decimals, trim: trim, minDecimals: minDecimals));
 
 /// [parseEpic]'s answer for more than 8 decimals.
 const int epicTooLong = -1;

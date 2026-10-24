@@ -18,17 +18,21 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'diesem Smartphone' : 'diesem Computer';
   final secret = phone ? 'Ihre PIN' : 'das Wallet-Passwort';
   final nodePlace = phone ? '[[Node|Node]]' : '[[Einstellungen › Node|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Epicbox|Epicbox]]' : '[[Einstellungen › Empfangen › Empfang über Epicbox|Settings › Receiving › Epicbox receiving]]';
+  final epicboxPlace = phone ? '[[Epicbox|Epicbox]]' : '[[Einstellungen › Empfangen › Epicbox-Empfang|Settings › Receiving › Epicbox receiving]]';
   final torPlace = phone ? '[[Einstellungen › Datenschutz › Tor|Settings › Privacy › Tor]]' : '[[Einstellungen › Datenschutz|Settings › Privacy]]';
   final cancelPlace = phone
-      ? '[[Aktivität|Activity]] (die Zahlung öffnen, dann „Zahlung abbrechen“)'
-      : '[[Aktivität › die Transaktion › Abbrechen|Activity › the transaction › Cancel]]';
+      ? '[[Aktivität|Activity]] (die Zahlung öffnen, dann „Zahlung stornieren“)'
+      : '[[Aktivität › die Transaktion › Zahlung stornieren|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
       ? '[[Einstellungen › Zahlungsverlauf › Verlaufssicherung exportieren|Settings › Payment history › Export history backup]]'
       : '[[Einstellungen › Diese Wallet › Verlaufssicherung exportieren|Settings › This wallet › Export history backup]]';
   final restorePlace = phone
-      ? '[[Aus Wiederherstellungsphrase wiederherstellen|Restore from a recovery phrase]] (auf dem ersten Bildschirm oder nach dem Löschen dieser Wallet unter Einstellungen)'
-      : '[[Aus Wiederherstellungsphrase wiederherstellen|Restore from a recovery phrase]] (auf dem ersten Bildschirm, unter Entsperren › Wallet hinzufügen oder unter Einstellungen › Alle Wallets)';
+      ? '[[Wallet wiederherstellen|Restore from a recovery phrase]] (auf dem ersten Bildschirm oder nach dem Löschen dieser Wallet unter Einstellungen)'
+      : '[[Mit Phrase wiederherstellen|Restore from a recovery phrase]] (auf dem ersten Bildschirm, unter Entsperren › Wallet hinzufügen oder unter Einstellungen › Alle Wallets)';
+  final rescanPlace = phone
+      ? '[[Einstellungen › Blockchain neu scannen|Settings › Recheck balance]]'
+      : '[[Einstellungen › Guthaben neu prüfen|Settings › Recheck balance]]';
+  final rescanName = phone ? 'Einstellungen › Blockchain neu scannen' : 'Einstellungen › Guthaben neu prüfen';
   return <HelpTopic>[
     HelpTopic(
       'start',
@@ -36,11 +40,11 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'Öffnen Sie Empfangen, kopieren Sie die Epicbox-Adresse und geben Sie sie dem Absender. Die Zahlung kommt von selbst an.',
       [
         const HelpBlock.p('Die Epicbox-Adresse ist ein langer Code, der auf **@** und den Namen des Epicbox-Servers endet, zum Beispiel **…@epicbox.epiccash.com**. Sie kann gefahrlos weitergegeben werden: Andere brauchen sie zum Bezahlen, und niemand kann damit etwas wegnehmen.'),
-        const HelpBlock.ol(['Öffnen Sie [[Empfangen|Receive]].', 'Kopieren Sie die Adresse (oder zeigen Sie ihren QR-Code) und senden Sie sie der Person, die bezahlt.', 'Die Zahlung erscheint von selbst unter Aktivität. Sie müssen nichts drücken.']),
+        const HelpBlock.ol(['Öffnen Sie [[Empfangen|Receive]].', 'Kopieren Sie die Adresse (oder zeigen Sie ihren QR-Code) und senden Sie sie der Person, die bezahlt.', 'Die Zahlung erscheint von selbst unter Aktivität. Sie müssen nichts tun.']),
         if (phone)
-          const HelpBlock.p('Empfangen funktioniert, solange die App geöffnet und der Node synchron ist. Eine Zahlung, die bei geschlossener App gesendet wird, wartet etwa eine Woche auf dem Epicbox-Server und kommt beim nächsten Entsperren an.')
+          const HelpBlock.p('Empfangen funktioniert, solange die App geöffnet und der Node synchronisiert ist. Eine Zahlung, die bei geschlossener App gesendet wird, wartet etwa eine Woche auf dem Epicbox-Server und kommt beim nächsten Entsperren an.')
         else
-          const HelpBlock.p('Der Empfang startet nach dem Entsperren von selbst, sobald der Node synchron ist. Ist die Wallet beim Bezahlen geschlossen, hält Epicbox die Zahlung bereit, und die Wallet holt sie beim nächsten Entsperren ab.'),
+          const HelpBlock.p('Der Empfang startet nach dem Entsperren von selbst, sobald der Node synchronisiert ist. Ist die Wallet beim Bezahlen geschlossen, hält Epicbox die Zahlung bereit, und die Wallet holt sie beim nächsten Entsperren ab.'),
         HelpBlock.p('Eine neue Zahlung wartet zuerst darauf, dass die Wallet des Absenders sie abschließt, und wird dann als „Wird bestätigt“ angezeigt. Ab der $confirmations. Bestätigung (nach etwa $confirmations Min.) ist sie verfügbar.'),
       ],
       id: HelpId.receive,
@@ -50,14 +54,14 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'An jemanden senden',
       'Öffnen Sie Senden, fügen Sie die Epicbox-Adresse ein, geben Sie den Betrag ein, prüfen Sie die Gebühr und senden Sie.',
       [
-        const HelpBlock.ol(['Öffnen Sie [[Senden|Send]] und fügen Sie die Adresse des Empfängers ein oder wählen Sie einen Kontakt.', 'Geben Sie den Betrag ein. Die Gebühr wird vor dem Senden angezeigt.', 'Drücken Sie **Prüfen**, kontrollieren Sie alles und drücken Sie dann **… EPIC senden**.']),
+        const HelpBlock.ol(['Öffnen Sie [[Senden|Send]] und fügen Sie die Adresse des Empfängers ein oder wählen Sie einen Kontakt.', 'Geben Sie den Betrag ein. Die Gebühr wird vor dem Senden angezeigt.', 'Drücken Sie **Zahlung prüfen**, kontrollieren Sie alles und drücken Sie dann **… EPIC senden**.']),
         const HelpBlock.p('Jetzt muss die Wallet des Empfängers antworten (siehe „Warum braucht eine Transaktion beide Seiten?“). Über Epicbox muss der Empfänger nicht gerade online sein: Die Zahlung wartet, bis seine Wallet geöffnet wird. Bis dahin sind die verwendeten Outputs gesperrt, damit sie nicht doppelt ausgegeben werden.'),
         HelpBlock.p('Kommt die Antwort zurück, schließt die Wallet die Transaktion ab und sendet sie von selbst ins Netzwerk. Ab der $confirmations. Bestätigung ist sie endgültig.'),
         HelpBlock.p('**Keine Antwort?** Nach einigen Minuten zeigt der Status „Wartet auf den Empfänger“. Bitten Sie den Empfänger, seine Wallet zu öffnen. Kommt die Antwort nie, stornieren Sie die Zahlung unter $cancelPlace, um die Outputs freizugeben. Eine Zahlung wird nie von selbst storniert.'),
         if (phone)
-          const HelpBlock.p('Zum Senden braucht es einen synchronen Node. Eine Epicbox-Adresse braucht außerdem einen antwortenden Epicbox-Server; eine direkte Adresse (http oder .onion) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.')
+          const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem einen antwortenden Epicbox-Server; eine direkte Adresse (http oder .onion) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.')
         else
-          const HelpBlock.p('Zum Senden braucht es einen synchronen Node. Eine Epicbox-Adresse braucht außerdem eingeschalteten Empfang über Epicbox; HTTP- und Tor-Adressen brauchen die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.'),
+          const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem eingeschalteten Empfang über Epicbox; HTTP- und Tor-Adressen brauchen die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.'),
       ],
       id: HelpId.send,
     ),
@@ -108,7 +112,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Nimmt das Netzwerk eine Transaktion an, legt ein Miner sie in einen Block. Etwa jede Minute kommt ein neuer Block. Der Block mit der Transaktion ist die erste Bestätigung; jeder weitere Block fügt eine hinzu und macht die Transaktion schwerer rückgängig zu machen.'),
         HelpBlock.p('Diese Wallet betrachtet eine Transaktion ab der **$confirmations. Bestätigung** als endgültig. Bis dahin wird sie als **Wird bestätigt** angezeigt, und empfangene Outputs sind noch nicht verfügbar. Die Zahl ist fest.'),
-        const HelpBlock.p('Dauert es länger als üblich? Die Wallet sieht neue Blöcke nur über ihren Node: Prüfen Sie, ob der Node synchron ist.'),
+        const HelpBlock.p('Dauert es länger als üblich? Die Wallet sieht neue Blöcke nur über ihren Node: Prüfen Sie, ob der Node synchronisiert ist.'),
       ],
       id: HelpId.confirmations,
     ),
@@ -151,11 +155,11 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
     ),
     HelpTopic(
       'how',
-      'Teilen und zusammenführen',
-      'Teilen erzeugt mehr Outputs, damit Zahlungen direkt aufeinander folgen können; Zusammenführen vereint sie zu einem.',
+      'Aufteilen und zusammenführen',
+      'Aufteilen erzeugt mehr Outputs, damit Zahlungen direkt aufeinander folgen können; Zusammenführen vereint sie zu einem.',
       [
         HelpBlock.p('Beides sind normale Netzwerktransaktionen dieser Wallet an sich selbst, ab der $confirmations. Bestätigung endgültig wie jede Zahlung, und beide sperren bis dahin jeden verfügbaren Output.'),
-        const HelpBlock.ul(['**Teilen** nimmt das verfügbare Guthaben und erzeugt 2 bis 10 Outputs mit fast gleichem Wert.', '**Zusammenführen** nimmt jeden verfügbaren Output und erzeugt einen.', '**Wechselgeld teilen** (standardmäßig an) tut dasselbe innerhalb einer gewöhnlichen Zahlung, wenn nur wenige Outputs übrig blieben, für 0,004 EPIC pro zusätzlichem Output.']),
+        const HelpBlock.ul(['**Aufteilen** nimmt das verfügbare Guthaben und erzeugt 2 bis 10 Outputs mit fast gleichem Wert.', '**Zusammenführen** nimmt jeden verfügbaren Output und erzeugt einen.', '**Wechselgeld aufteilen** (standardmäßig an) tut dasselbe innerhalb einer gewöhnlichen Zahlung, wenn nur wenige Outputs übrig blieben, für 0,004 EPIC pro zusätzlichem Output.']),
         const HelpBlock.p('Aktivität zeigt beides als zwei Einträge, eine gesendete und eine empfangene Zahlung, beide mit dieser Wallet. Beides finden Sie unter [[Outputs|Outputs]].'),
       ],
       id: HelpId.split,
@@ -166,7 +170,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'Jede Transaktion zahlt eine kleine Netzwerkgebühr, die vor dem Senden angezeigt wird. Sie geht an die Miner.',
       [
         HelpBlock.p('Die Gebühr hängt davon ab, wie viele Outputs die Transaktion ausgibt und erzeugt, nicht vom Betrag. Meist ist sie ein kleiner Bruchteil eines EPIC.'),
-        HelpBlock.p('Sie wird vor dem Senden als **Netzwerkgebühr** angezeigt. **Alle** neben dem Betrag trägt das ganze verfügbare Guthaben abzüglich der genauen Gebühr ein, sodass kein Wechselgeld übrig bleibt.'),
+        HelpBlock.p('Sie wird vor dem Senden als **Netzwerkgebühr** angezeigt. **Alles** neben dem Betrag trägt das ganze verfügbare Guthaben abzüglich der genauen Gebühr ein, sodass kein Wechselgeld übrig bleibt.'),
       ],
       id: HelpId.fees,
     ),
@@ -187,12 +191,12 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'safety',
       'Sicherungen und Wiederherstellen',
-      'Die Wiederherstellungsphrase ist die Sicherung. Um eine Wallet wiederherzustellen, geben Sie ihre Wörter unter „Aus Wiederherstellungsphrase wiederherstellen“ ein.',
+      'Die Wiederherstellungsphrase ist die Sicherung. Um eine Wallet wiederherzustellen, geben Sie beim Wiederherstellen ihre Wörter ein.',
       [
         const HelpBlock.p('Die Wiederherstellungsphrase holt alles zurück, was auf der Blockchain steht, also das Guthaben.'),
         HelpBlock.p('**Zum Wiederherstellen** auf einem neuen ${phone ? 'Smartphone' : 'Computer'} oder nach einem Verlust: Öffnen Sie $restorePlace, geben Sie die Wörter ein und wählen Sie ${phone ? 'eine PIN' : 'ein Passwort'}. Wenn die Wallet geöffnet wird, durchsucht sie die Blockchain nach ihren Outputs. Das Guthaben erscheint nach diesem ersten Scan; die gefundenen Zahlungen sind als **Wiederhergestelltes Guthaben** gekennzeichnet.'),
         HelpBlock.p('**Was eine Wiederherstellung nicht zurückholt:** was nie auf der Blockchain stand, etwa wer was bezahlt hat, Transaktionsnachrichten, Kontakte und Wallet-Namen. Eine Verlaufssicherung bewahrt die Zahlungsdetails und Kontakte: $historyBackupPlace.${phone ? ' Bewahren Sie die Sicherungsdatei außerhalb des Smartphones auf, zum Beispiel in einer E-Mail oder einem Cloud-Speicher.' : ''}'),
-        const HelpBlock.p('**Guthaben sieht falsch aus?** Starten Sie [[Einstellungen › Blockchain neu scannen|Settings › Recheck balance]]. Dabei wird die ganze Blockchain erneut nach den Outputs dieser Wallet durchsucht.'),
+        HelpBlock.p('**Guthaben sieht falsch aus?** Starten Sie $rescanPlace. Dabei wird die ganze Blockchain erneut nach den Outputs dieser Wallet durchsucht.'),
         if (!phone)
           const HelpBlock.p('**Die Dateien der Wallet** liegen unter [[Einstellungen › Diese Wallet › Wallet-Ordner|Settings › This wallet › Wallet folder]]. Bewahren Sie die Wiederherstellungsphrase auch mit einer Kopie davon auf: Sie hilft, wenn die Dateien verloren gehen.'),
       ],
@@ -211,9 +215,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.ul(['**Öffentlicher Node** (Standard): einer der öffentlichen Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt.', '**Lokaler Node**: läuft auf diesem Computer. Er lädt zuerst die ganze Blockchain herunter, was eine Weile dauert und Speicherplatz braucht, und gehört dann Ihnen. Während er synchronisiert, nutzt die Wallet einen öffentlichen Node.']),
         if (phone)
-          HelpBlock.p('Ändern Sie ihn mit einem Tippen auf die Node-Zeile im Tab Wallet oder unter $nodePlace: Die öffentlichen Nodes sind mit ihrem Zustand aufgelistet, oder Sie geben die Adresse eines Nodes ein. Zum Senden braucht es einen synchronen Node; **zurück** oder **Antwortet nicht** heißt: einen anderen wählen.')
+          HelpBlock.p('Ändern Sie ihn mit einem Tipp auf die Node-Zeile im Tab Wallet oder unter $nodePlace: Die öffentlichen Nodes sind mit ihrem Zustand aufgelistet, oder Sie geben die Adresse eines Nodes ein. Zum Senden braucht es einen synchronisierten Node; **zurück** oder **Antwortet nicht** heißt: einen anderen wählen.')
         else
-          HelpBlock.p('Ändern Sie ihn unter $nodePlace: Wählen Sie einen der öffentlichen Nodes, die mit ihrem Zustand aufgelistet sind, oder geben Sie die Adresse eines Nodes ein. Zum Senden braucht es einen synchronen Node; fällt der Node zurück, bietet die Wallet einen anderen an.'),
+          HelpBlock.p('Ändern Sie ihn unter $nodePlace: Wählen Sie einen der öffentlichen Nodes, die mit ihrem Zustand aufgelistet sind, oder geben Sie die Adresse eines Nodes ein. Zum Senden braucht es einen synchronisierten Node; fällt der Node zurück, bietet die Wallet einen anderen an.'),
       ],
       id: HelpId.node,
     ),
@@ -225,7 +229,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('Beide Wallets wirken an jeder Transaktion mit, daher brauchen ihre Nachrichten einen Treffpunkt. Ein Epicbox-Server ist dieser Treffpunkt: Er hält eine an diese Wallet gesendete Zahlung bereit, bis die Wallet online kommt, und bringt die Antwort der Wallet zurück. Die Nachrichten sind verschlüsselt, und Epicbox kann die Münzen nicht ausgeben.'),
         const HelpBlock.p('Die Epicbox-Adresse ist der öffentliche Schlüssel der Wallet, dann **@** und der Name ihres Epicbox-Servers.'),
         if (phone)
-          HelpBlock.p('Den Server legen Sie mit einem Tippen auf die Epicbox-Zeile im Tab Wallet fest oder unter $epicboxPlace: Wählen Sie einen der öffentlichen Server, die mit ihrem Zustand aufgelistet sind, oder geben Sie einen ein. Ein anderer Server ändert den Teil nach @, geben Sie die neue Adresse also den Personen, die bezahlen. Andere Epic-Cash-Wallets nutzen ebenfalls Epicbox; zwei Wallets können verschiedene Server nutzen.')
+          HelpBlock.p('Den Server legen Sie mit einem Tipp auf die Epicbox-Zeile im Tab Wallet fest oder unter $epicboxPlace: Wählen Sie einen der öffentlichen Server, die mit ihrem Zustand aufgelistet sind, oder geben Sie einen ein. Ein anderer Server ändert den Teil nach @, geben Sie die neue Adresse also den Personen, die bezahlen. Andere Epic-Cash-Wallets nutzen ebenfalls Epicbox; zwei Wallets können verschiedene Server nutzen.')
         else
           HelpBlock.p('Den Server legen Sie unter $epicboxPlace fest: Wählen Sie einen der öffentlichen Server, die mit ihrem Zustand aufgelistet sind, oder geben Sie einen ein. Ein anderer Server ändert den Teil nach @, geben Sie die neue Adresse also den Personen, die bezahlen. Andere Epic-Cash-Wallets nutzen ebenfalls Epicbox; zwei Wallets können verschiedene Server nutzen.'),
       ],
@@ -270,32 +274,32 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'trouble',
       'Fehlerbehebung',
-      'Meist ist ein Node noch nicht synchron, ein Empfänger hat noch nicht geantwortet, oder ein Port ist belegt.',
+      'Meist ist ein Node noch nicht synchronisiert, ein Empfänger hat noch nicht geantwortet, oder ein Port ist belegt.',
       [
         if (phone)
-          const HelpBlock.p('**„Node nicht synchron“: Senden nicht möglich.** Senden ist möglich, sobald der Node aufgeholt hat. Warten Sie kurz oder tippen Sie im Tab Wallet auf die Node-Zeile und wählen Sie einen anderen Node.')
+          const HelpBlock.p('**„Node nicht synchronisiert“: Senden nicht möglich.** Senden ist möglich, sobald der Node aufgeholt hat. Warten Sie kurz oder tippen Sie im Tab Wallet auf die Node-Zeile und wählen Sie einen anderen Node.')
         else
-          const HelpBlock.p('**„Node nicht synchron“: Senden nicht möglich.** Senden ist möglich, sobald der Node aufgeholt hat. Warten Sie kurz oder wählen Sie unter Einstellungen › Node einen anderen Node.'),
+          const HelpBlock.p('**„Node nicht synchronisiert“: Senden nicht möglich.** Senden ist möglich, sobald der Node aufgeholt hat. Warten Sie kurz oder wählen Sie unter Einstellungen › Node einen anderen Node.'),
         if (phone)
           const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder tippen Sie im Tab Wallet auf die Epicbox-Zeile und wählen Sie einen anderen Server. In der Zwischenzeit funktioniert eine Datei.')
         else
           const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder wählen Sie unter Einstellungen › Empfangen einen anderen Server. In der Zwischenzeit funktioniert eine Datei.'),
         const HelpBlock.p('**Eine Zahlung zeigt „Wartet auf den Empfänger“.** Die Wallet des Empfängers hat noch nicht geantwortet. Bitten Sie ihn, sie zu öffnen. Wird er das nie tun, stornieren Sie die Zahlung unter Aktivität, um die Outputs freizugeben.'),
         if (phone)
-          const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie im Tab Wallet, ob der Node synchron und Epicbox online ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.')
+          const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie im Tab Wallet, ob der Node synchronisiert und Epicbox online ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.')
         else
-          const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie unter Empfangen, ob der Empfang eingeschaltet und der Node synchron ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.'),
+          const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie unter Empfangen, ob der Empfang eingeschaltet und der Node synchronisiert ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.'),
         if (phone)
-          const HelpBlock.p('**Tor zeigt „Nicht verbunden“.** Tor konnte sein Netzwerk nicht erreichen. Drücken Sie unter Einstellungen › Datenschutz auf Wiederholen oder schalten Sie Tor aus; in der Zwischenzeit geht nichts hinaus.'),
+          const HelpBlock.p('**Tor zeigt „Nicht verbunden“.** Tor konnte sein Netzwerk nicht erreichen. Drücken Sie unter Einstellungen › Datenschutz auf „Wiederholen“ oder schalten Sie Tor aus; in der Zwischenzeit geht nichts hinaus.'),
         if (!phone) ...const [
-          HelpBlock.p('**„Port 3415 wird von einem anderen Programm verwendet“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf Erneut versuchen. Epicbox, Tor und Dateien funktionieren in der Zwischenzeit weiter.'),
-          HelpBlock.p('**„Ein anderes Epic-Programm verwendet diesen Ordner“.** Eine andere Epic-Wallet oder ein Node hat dieselben Dateien geöffnet. Schließen Sie sie und versuchen Sie es erneut.'),
+          HelpBlock.p('**„Port 3415 wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. Epicbox, Tor und Dateien funktionieren in der Zwischenzeit weiter.'),
+          HelpBlock.p('**„Ein anderes Epic-Programm nutzt diesen Ordner“.** Eine andere Epic-Wallet oder ein Node hat dieselben Dateien geöffnet. Schließen Sie sie und versuchen Sie es erneut.'),
         ],
         if (phone)
           const HelpBlock.p('**PIN vergessen.** Löschen Sie die Wallet auf dem Entsperrbildschirm und stellen Sie sie mit ihrer Wiederherstellungsphrase und einer neuen PIN wieder her. Ohne die Phrase lassen sich die EPIC nicht zurückholen.')
         else
           const HelpBlock.p('**„Falsches Passwort“.** Prüfen Sie die Feststelltaste und das Tastaturlayout. Passwort vergessen: Stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her und wählen Sie ein neues.'),
-        const HelpBlock.p('**Das Guthaben sieht falsch aus.** Starten Sie Einstellungen › Blockchain neu scannen.'),
+        HelpBlock.p('**Das Guthaben sieht falsch aus.** Starten Sie $rescanName.'),
       ],
       id: HelpId.trouble,
     ),

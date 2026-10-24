@@ -139,7 +139,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
                   text: [
                     '',
                     l.deskOnbNodeFoundAt(p.version ?? '?', '${nodeHost(p.url)}:${Uri.parse(p.url).port}'),
-                    if (p.height != null) l.deskOnbNodeHeight(digits(p.height!)),
+                    if (p.height != null) l.deskOnbNodeHeight(digits(context.l10n, p.height!)),
                     if (p.readyForTxs == true) l.deskOnbNodeSynced,
                   ].join(' · '),
                   style: ts.small.copyWith(color: c.dim),

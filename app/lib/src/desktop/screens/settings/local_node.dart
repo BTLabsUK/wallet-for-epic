@@ -378,7 +378,7 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
         notice: (tone: ETone.neutral, title: l.deskSetLnodeNothingUntilSynced, text: null, action: NodeAct.fallback),
       );
     case LocalNodePhase.synced:
-      return StatusWords(detail: [if (s.height != null) digits(s.height!), l.deskSetLnodeAtTip].join(' · '));
+      return StatusWords(detail: [if (s.height != null) digits(l, s.height!), l.deskSetLnodeAtTip].join(' · '));
     case LocalNodePhase.error:
       if (s.stalled) {
         return StatusWords(

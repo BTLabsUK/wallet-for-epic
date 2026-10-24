@@ -33,7 +33,7 @@ String _unknownReadiness(AppLocalizations l, String? version) {
 (String, bool) networkLine(AppLocalizations l, NetworkStatus n) {
   final forked = n.forked == true;
   final parts = [
-    if (forked) l.deskKitNodesDisagree else if (n.tipHeight != null) l.deskKitNodesAgree(digitsText(n.tipHeight!)),
+    if (forked) l.deskKitNodesDisagree else if (n.tipHeight != null) l.deskKitNodesAgree(digitsText(l, n.tipHeight!)),
     if (n.nodesHealthy != null && n.nodesTotal != null) l.deskKitNodesUp(n.nodesHealthy!, n.nodesTotal!),
     if (n.epicboxHealthy != null && n.epicboxTotal != null) l.deskKitEpicboxUp(n.epicboxHealthy!, n.epicboxTotal!),
     if (n.tipAgeSeconds != null) l.deskKitLastBlock(ageText(l, Duration(seconds: n.tipAgeSeconds!))),
@@ -93,7 +93,7 @@ class NodeCard extends StatelessWidget {
     if (limited) {
       final tipAge = i.tipTime == null ? null : at.difference(i.tipTime!);
       facts.addAll([
-        _Fact(l.deskKitFactHeight, i.height == null ? '–' : digitsText(i.height!), tipAge == null ? null : l.deskKitLastBlock(ageText(l, tipAge))),
+        _Fact(l.deskKitFactHeight, i.height == null ? '–' : digitsText(l, i.height!), tipAge == null ? null : l.deskKitLastBlock(ageText(l, tipAge))),
         _Fact(l.deskKitFactVersion, i.version == null ? '–' : i.version!, null),
         _Fact(
           l.deskKitFactAccepts,
@@ -105,7 +105,7 @@ class NodeCard extends StatelessWidget {
           i.readyForTxs == null ? _unknownReadiness(l, i.version) : null,
           tone: i.readyForTxs == false ? EState.warn : null,
         ),
-        _Fact(l.deskKitFactLatency, latency == null ? '–' : '${digitsText(latency)} ms', where),
+        _Fact(l.deskKitFactLatency, latency == null ? '–' : '${digitsText(l, latency)} ms', where),
       ]);
     } else {
       final behind = i?.blocksBehind;
@@ -113,8 +113,8 @@ class NodeCard extends StatelessWidget {
       facts.addAll([
         _Fact(
           l.deskKitFactHeight,
-          i?.height == null || down ? '–' : digitsText(i!.height!),
-          down ? l.deskKitNodeNoAnswer : (behind == null ? null : (behind <= 0 ? l.deskKitAtTip : l.deskKitBehind(behind, digitsText(behind)))),
+          i?.height == null || down ? '–' : digitsText(l, i!.height!),
+          down ? l.deskKitNodeNoAnswer : (behind == null ? null : (behind <= 0 ? l.deskKitAtTip : l.deskKitBehind(behind, digitsText(l, behind)))),
           tone: down ? EState.risk : (behind == null ? null : (behind <= 0 ? EState.ok : EState.warn)),
         ),
         _Fact(
@@ -123,7 +123,7 @@ class NodeCard extends StatelessWidget {
           i?.version == null ? null : (old ? l.deskKitVersionOut('${i!.releasedVersion}') : (i!.releasedVersion == null ? null : l.deskKitVersionLatest)),
           tone: old ? EState.warn : null,
         ),
-        _Fact(l.deskKitFactLatency, latency == null ? '–' : '${digitsText(latency)} ms', where),
+        _Fact(l.deskKitFactLatency, latency == null ? '–' : '${digitsText(l, latency)} ms', where),
         _Fact(l.deskKitFactUptime, i?.uptime24h == null ? '–' : '${(i!.uptime24h! * 100).toStringAsFixed(1)} %', l.deskKitUptimeWindow),
         _Fact(l.deskKitFactPeers, i?.peers == null ? '–' : '${i!.peers}', down && i?.at != null ? l.deskKitAtTime(hhmm(i!.at)) : null),
         _Fact(l.deskKitFactOperator, i?.operator == null ? '–' : i!.operator!, i?.listing == 'official' ? l.deskKitListedOfficial : null),

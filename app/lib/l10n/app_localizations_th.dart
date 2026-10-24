@@ -13008,29 +13008,27 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSetHelpSearch => 'Search help';
+  String get deskSetHelpSearch => 'ค้นหาความช่วยเหลือ';
 
   @override
   String get deskSetHelpSearchKeys =>
-      'Press / to search. Esc clears the search.';
+      'กด / เพื่อค้นหา กด Esc เพื่อล้างการค้นหา';
 
   @override
-  String get deskSetHelpSearchHint =>
-      'For example: file, confirmations, phrase';
+  String get deskSetHelpSearchHint => 'เช่น ไฟล์ การยืนยัน วลีกู้คืน';
 
   @override
-  String get deskSetHelpClear => 'Clear search';
+  String get deskSetHelpClear => 'ล้างการค้นหา';
 
   @override
-  String get deskSetHelpTourAgain => 'Show the tour again';
+  String get deskSetHelpTourAgain => 'แสดงทัวร์แนะนำอีกครั้ง';
 
   @override
   String deskSetHelpTopics(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count topics',
-      one: '$count topic',
+      other: '$count หัวข้อ',
     );
     return '$_temp0';
   }

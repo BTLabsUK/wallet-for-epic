@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'kit.dart';
 import '../desk_l10n.dart';
+import '../../l10n.dart' show localInt;
 
 enum ServerKind { node, relay }
 
@@ -129,13 +130,13 @@ class ServerRow extends StatelessWidget {
       null => ('–', c.faint),
       0 => (l.deskKitAtTip, dim),
       final n when n < 0 => (l.deskKitAtTip, dim),
-      final n => (l.deskKitBehind(n, digitsText(n)), grey ? c.faint : c.warn),
+      final n => (l.deskKitBehind(n, digitsText(l, n)), grey ? c.faint : c.warn),
     };
     final latency = i.down
         ? (l.deskKitNodeNoAnswer, c.risk)
         : i.latencyMs == null
         ? ('–', c.faint)
-        : ('${digitsText(i.latencyMs!)} ms', c.faint);
+        : ('${digitsText(l, i.latencyMs!)} ms', c.faint);
     final version = i.version == null ? ('–', c.faint) : ('v${i.version}', i.versionOld && !grey ? c.warn : c.faint);
     final star = i.starred;
     return LayoutBuilder(
@@ -286,4 +287,4 @@ class ListGroupHead extends StatelessWidget {
 }
 
 /// 2914414 → "2,914,414".
-String digitsText(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
+String digitsText(AppLocalizations l, int n) => localInt(l, n);

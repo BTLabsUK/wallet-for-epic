@@ -4,7 +4,7 @@
 library;
 
 import '../../address_format.dart' show railHost;
-import '../../l10n.dart' show AppLocalizations;
+import '../../l10n.dart' show AppLocalizations, localInt;
 import '../widgets/status.dart' show EState;
 import 'desk_node.dart';
 import 'models.dart' show ServiceHealth;
@@ -35,8 +35,8 @@ class NodeView {
   String get second => marker == null ? host : '$host · $marker';
 }
 
-/// 2914414 → "2,914,414".
-String digits(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
+/// 2914414 → "2,914,414" (`2.914.414` in German), for text shown.
+String digits(AppLocalizations l, int n) => localInt(l, n);
 
 String hhmm(DateTime t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
@@ -73,7 +73,7 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   final old = info.updateAvailable == true;
   final latency = shownLatency(info, torOn: torOn);
   final second = [
-    if (latency != null) info.latencyOverTor ? l.deskNodeLatencyOverTor(digits(latency)) : l.deskNodeLatency(digits(latency)),
+    if (latency != null) info.latencyOverTor ? l.deskNodeLatencyOverTor(digits(l, latency)) : l.deskNodeLatency(digits(l, latency)),
     if (info.version != null) 'v${info.version}',
     if (old && info.releasedVersion != null) l.deskNodeNewerOut(info.releasedVersion!),
   ].join(' · ');
@@ -82,9 +82,9 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
       word: l.deskNodeBehind,
       state: EState.warn,
       host: host,
-      marker: l.deskNodeMarkerBehind(digits(behind)),
+      marker: l.deskNodeMarkerBehind(digits(l, behind)),
       lines: [
-        [full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(h), digits(info.networkHeight!))].join(' · '),
+        [full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))].join(' · '),
         l.deskNodeBehindLine,
       ],
     );
@@ -94,7 +94,7 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
     state: old ? EState.warn : EState.ok,
     host: host,
     lines: [
-      [full, if (h != null) digits(h), if (behind != null) l.deskNodeAtTip].join(' · '),
+      [full, if (h != null) digits(l, h), if (behind != null) l.deskNodeAtTip].join(' · '),
       if (second.isNotEmpty) second,
     ],
   );
@@ -144,7 +144,7 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
         state: EState.ok,
         host: host,
         lines: [
-          [name, if (s.height != null) digits(s.height!), l.deskNodeAtTip].join(' · '),
+          [name, if (s.height != null) digits(l, s.height!), l.deskNodeAtTip].join(' · '),
           [if (s.peers != null) l.deskNodePeers(s.peers!), if (s.version != null) 'v${s.version}', if (s.uptime != null) l.deskNodeRunning(duration(l, s.uptime!))].join(' · '),
           if (fallback != null) l.deskNodeStillUsing(fallback),
         ],
@@ -157,7 +157,7 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
           host: host,
           marker: l.deskNodeMarkerStalled,
           lines: [
-            [name, if (s.height != null) digits(s.height!)].join(' · '),
+            [name, if (s.height != null) digits(l, s.height!)].join(' · '),
             l.deskNodeNoProgress,
             if (fallback != null) l.deskNodeUsingMeanwhile(fallback),
           ],
@@ -210,12 +210,12 @@ String stageLine(AppLocalizations l, SyncProgress p) {
   final known = d != null && t != null && t > 0;
   return switch (p.stage) {
     SyncStage.waitingForPeers => l.deskNodeLineWaiting,
-    SyncStage.headers => known ? l.deskNodeLineHeaders(digits(d), digits(t)) : l.deskNodeLineHeadersBare,
+    SyncStage.headers => known ? l.deskNodeLineHeaders(digits(l, d), digits(l, t)) : l.deskNodeLineHeadersBare,
     SyncStage.chainStateDownload => known ? l.deskNodeLineChain(_gb(d), _gb(t)) : l.deskNodeLineChainBare,
     SyncStage.chainStateKernels => known ? l.deskNodeLineKernels(_millions(d), _millions(t)) : l.deskNodeLineKernelsBare,
     SyncStage.chainStateRangeProofs => known ? l.deskNodeLineRangeProofs(_millions(d), _millions(t)) : l.deskNodeLineRangeProofsBare,
     SyncStage.chainStateProcessing => l.deskNodeLineProcessing,
-    SyncStage.blocks => known ? l.deskNodeLineBlocks(digits(d), digits(t)) : l.deskNodeLineBlocksBare,
+    SyncStage.blocks => known ? l.deskNodeLineBlocks(digits(l, d), digits(l, t)) : l.deskNodeLineBlocksBare,
     SyncStage.compacting => l.deskNodeLineCompacting,
     SyncStage.shuttingDown => l.deskNodeLineStopping,
     SyncStage.synced || SyncStage.unknown => l.deskNodeLineSyncing,

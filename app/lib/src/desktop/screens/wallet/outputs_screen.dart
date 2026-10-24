@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
+import '../../../l10n.dart' show localInt;
 import '../../widgets/kit.dart';
 import 'activity_screen.dart' show ListPager;
 import 'outputs_dialogs.dart';
@@ -33,7 +34,7 @@ const int _pageSize = 20;
 /// "08c7a1…b2d4a6": both ends of a commitment, the whole on hover and when copied.
 String shortCommitment(String s) => s.length <= 13 ? s : '${s.substring(0, 6)}…${s.substring(s.length - 6)}';
 
-String _group(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
+String _group(AppLocalizations l, int n) => localInt(l, n);
 
 /// How many outputs of each part of the balance: spendable; confirming and awaiting
 /// finalization; immature and mining; locked.
@@ -224,7 +225,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
         ? l.deskOutSplitNothing
         : _split == null
         ? l.deskOutSplitSpends(counts.spendable)
-        : l.deskOutSplitSpendsFee(counts.spendable, formatEpic(_split!.fee, minDecimals: 3));
+        : l.deskOutSplitSpendsFee(counts.spendable, formatEpicL(l, _split!.fee, minDecimals: 3));
     final consOn = loaded && !locked && counts.spendable >= 2;
     final consNote = !loaded
         ? ''
@@ -236,7 +237,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
         ? l.deskOutConsOne
         : _consolidate == null
         ? l.deskOutConsInto(counts.spendable)
-        : l.deskOutConsIntoFee(counts.spendable, formatEpic(_consolidate!.fee, minDecimals: 3));
+        : l.deskOutConsIntoFee(counts.spendable, formatEpicL(l, _consolidate!.fee, minDecimals: 3));
     final split = _ActionCard(
       icon: EIcons.split,
       title: l.deskOutSplitCardTitle,
@@ -634,10 +635,10 @@ class _OutputRow extends StatelessWidget {
     final o = output;
     return switch (o.word) {
       OutputWord.spendable => (l.deskOutStatusSpendable, null, c.ok),
-      OutputWord.confirming => (l.deskOutStatusConfirming, l.deskOutConfirmations(o.confirmations, _group(o.confirmations)), c.warn),
+      OutputWord.confirming => (l.deskOutStatusConfirming, l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)), c.warn),
       OutputWord.finalizing => (l.deskOutStatusAwaiting, l.deskOutNoteWaitingSender, c.dim),
       OutputWord.unpaidInvoice => (l.deskOutStatusUnpaid, l.deskOutNoteNotInBalance, c.dim),
-      OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, _group(o.lockHeight! - tip)) : null, c.warn),
+      OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, _group(l, o.lockHeight! - tip)) : null, c.warn),
       OutputWord.mining => (l.deskOutStatusMining, null, c.warn),
       OutputWord.locked => (l.deskOutStatusLocked, o.txId == null ? null : l.deskOutNoteBySend(o.txId!), c.dim),
       OutputWord.spent => (l.deskOutStatusSpent, null, c.faint),
@@ -699,7 +700,7 @@ class _OutputRow extends StatelessWidget {
     final txCell = t == null
         ? Text(o.txId == null ? '–' : '#${o.txId}', style: ts.small.copyWith(color: c.faint))
         : Align(alignment: Alignment.centerLeft, child: ELink(label: _txText(l, t), onPressed: onTx));
-    final conf = o.word == OutputWord.spendable ? l.deskOutConfirmations(o.confirmations, _group(o.confirmations)) : null;
+    final conf = o.word == OutputWord.spendable ? l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)) : null;
     return Opacity(
       opacity: spent ? 0.6 : 1,
       child: ConstrainedBox(
@@ -718,12 +719,12 @@ class _OutputRow extends StatelessWidget {
                     if (wide) ...[
                       SizedBox(
                         width: 104.u,
-                        child: Text(_group(o.confirmations), textAlign: TextAlign.right, style: ts.mono(size: Fs.xs, color: c.dim)),
+                        child: Text(_group(l, o.confirmations), textAlign: TextAlign.right, style: ts.mono(size: Fs.xs, color: c.dim)),
                       ),
                       SizedBox(width: Sp.x5),
                       SizedBox(
                         width: 88.u,
-                        child: Text((o.height ?? 0) == 0 ? '–' : _group(o.height!), style: ts.mono(size: Fs.xs, color: c.faint)),
+                        child: Text((o.height ?? 0) == 0 ? '–' : _group(l, o.height!), style: ts.mono(size: Fs.xs, color: c.faint)),
                       ),
                     ],
                     SizedBox(width: 140.u, child: txCell),
