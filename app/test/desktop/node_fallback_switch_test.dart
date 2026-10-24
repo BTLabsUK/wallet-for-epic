@@ -80,6 +80,20 @@ class _Controller implements LocalNodeController {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// A store whose first reads wait for [release], as libsecret answering slowly.
+class _SlowStore extends MemorySecretStore {
+  final _gate = Completer<void>();
+
+  void release() => _gate.complete();
+
+  @override
+  Future<String?> read(String key) async {
+    final before = values[key];
+    await _gate.future;
+    return before;
+  }
+}
+
 void main() {
   group('FallbackSwitch', () {
     late _Clock clock;
@@ -222,6 +236,31 @@ void main() {
       expect(await node.nodeWhileSyncing(), _public);
       await NodeSettings(secrets, Chain.mainnet).setFallbackChoice(_declined);
       expect(await node.nodeWhileSyncing(), isNull);
+    });
+  });
+  group('the wizard\'s answer while the stored one is still being read (linux-03)', () {
+    test('Save\'s answer stays: a read that started before it does not bring back the old one', () async {
+      final store = _SlowStore();
+      final controller = _Controller(_syncing);
+      final container = ProviderContainer(
+        overrides: [
+          secretStoreProvider.overrideWithValue(store),
+          localNodeControllerProvider(Chain.mainnet).overrideWith((ref) async => controller),
+          deskNodeProvider.overrideWith((ref) => LepicDeskNode(ref, chain: Chain.mainnet)),
+        ],
+      );
+      addTearDown(container.dispose);
+      final sub = container.listen(deskFallbackProvider, (_, _) {});
+      addTearDown(sub.close);
+      // The wizard's Save is the first to ask: the provider's read of the store is still out.
+      final saved = container.read(deskFallbackProvider.notifier).set(_accepted);
+      await pumpEventQueue();
+      store.release();
+      await saved;
+      await pumpEventQueue();
+      expect(container.read(deskFallbackProvider).value?.consent, FallbackConsent.accepted);
+      expect((await container.read(deskNodeProvider).fallbackChoice()).consent, FallbackConsent.accepted);
+      expect(await NodeSettings(store, Chain.mainnet).fallbackChoice(), _accepted);
     });
   });
 }
