@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../l10n.dart';
 import '../scan/scan_checks.dart' show CodeOrigin;
 import '../scan/scan_router.dart' show RequestProblem;
+import 'badge.dart';
 import 'info_hint.dart';
 import 'theme/tokens.dart';
 
@@ -232,39 +233,16 @@ class PayeeClaims extends StatelessWidget {
   }
 }
 
-/// Where the payment details came from, as a quiet pill under the review's header.
+/// Where the payment details came from, as a neutral badge under the review's header.
 class OriginPill extends StatelessWidget {
   const OriginPill({super.key, required this.origin});
 
   final CodeOrigin origin;
 
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      key: sendOriginPillKey,
-      padding: const EdgeInsetsDirectional.fromSTEB(6, 2, 8, 2),
-      decoration: BoxDecoration(
-        color: t.surfaceHi,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(originIcon(origin), size: 14, color: t.dim),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              originText(context.l10n, origin),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(
-                context,
-              ).textTheme.labelMedium?.copyWith(color: t.dim),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => EBadge(
+    originText(context.l10n, origin),
+    key: sendOriginPillKey,
+    icon: originIcon(origin),
+  );
 }

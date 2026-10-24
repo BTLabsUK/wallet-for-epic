@@ -1775,7 +1775,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (code != null) ...[
-            Row(children: [ETag(codeOriginText(l, code.origin), key: const ValueKey('send-review-origin'), icon: codeOriginIcon(code.origin))]),
+            Row(children: [EBadge(codeOriginText(l, code.origin), key: const ValueKey('send-review-origin'), icon: codeOriginIcon(code.origin))]),
             SizedBox(height: Sp.x3),
           ],
           Row(
@@ -1811,7 +1811,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                       spacing: Sp.x2,
                       runSpacing: Sp.x1,
                       crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [Text(via, style: ts.body), ETag(l.sendPlainHttpRow, key: const ValueKey('send-review-plain-http'), tone: ETone.warn)],
+                      children: [Text(via, style: ts.body), EBadge(l.sendPlainHttpRow, key: const ValueKey('send-review-plain-http'), tone: ETone.warn)],
                     )
                   : Text(via, style: ts.body),
             ),
