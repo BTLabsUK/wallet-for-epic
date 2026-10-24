@@ -6980,4 +6980,819 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitQrHideCode => 'Hide QR code';
+
+  @override
+  String get deskOnbWelcomeAdd => 'Add a wallet';
+
+  @override
+  String get deskOnbWelcomeTagline =>
+      'Keys and coins stay on this computer, locked with a password.';
+
+  @override
+  String get deskOnbWelcomeCreate => 'Create a new wallet';
+
+  @override
+  String get deskOnbWelcomeCreateSub => 'New recovery phrase';
+
+  @override
+  String get deskOnbWelcomeImport => 'Import wallets';
+
+  @override
+  String get deskOnbWelcomeImportSub => 'From an older Epic Wallet or a folder';
+
+  @override
+  String get deskOnbWelcomeRestore => 'Restore from a phrase';
+
+  @override
+  String get deskOnbWelcomeRestoreSub => 'From the recovery words';
+
+  @override
+  String get deskOnbWelcomeTestNote =>
+      'New wallets are made on this test network.';
+
+  @override
+  String get deskOnbWelcomeBack => 'Back to unlock';
+
+  @override
+  String get deskOnbWelcomeAdvanced => 'Advanced';
+
+  @override
+  String get deskOnbWelcomeNetwork => 'Network';
+
+  @override
+  String get deskOnbWelcomeNetworkHelp =>
+      'Mainnet holds real EPIC. Floonet and Usernet are test networks.';
+
+  @override
+  String get deskOnbWelcomeFolder => 'App data folder';
+
+  @override
+  String get deskOnbWelcomeHideDetails => 'Hide details';
+
+  @override
+  String get deskOnbWelcomeMoreAbout => 'More about this';
+
+  @override
+  String get deskOnbWelcomeFolderWhere =>
+      'Where the app keeps wallets and settings.';
+
+  @override
+  String get deskOnbWelcomeFolderDetail =>
+      'With the local node, the blockchain is kept here too. A new folder must be empty: the app makes its folders there and keeps using it.';
+
+  @override
+  String deskOnbWelcomeUsing(String folder) {
+    return 'Using $folder. The app restarts to use it.';
+  }
+
+  @override
+  String get deskOnbWelcomeLocked =>
+      'It can be changed only before the first wallet is added.';
+
+  @override
+  String get deskOnbWelcomeChooseFolder => 'Choose a folder';
+
+  @override
+  String get deskOnbWelcomeDefaultFolder => 'Default folder';
+
+  @override
+  String get deskOnbWelcomeFolderNotEmpty =>
+      'That folder is not empty. Choose a new, empty folder.';
+
+  @override
+  String get deskOnbWelcomeFolderIsWallet =>
+      'That is a wallet folder. Choose a new, empty folder.';
+
+  @override
+  String get deskOnbWelcomeChoose => 'Choose';
+
+  @override
+  String get deskOnbStepPassword => 'Password';
+
+  @override
+  String get deskOnbStepPhrase => 'Recovery phrase';
+
+  @override
+  String get deskOnbCreateStageCreate =>
+      'Creating the wallet and its recovery phrase';
+
+  @override
+  String get deskOnbCreateStageSave => 'Saving the account';
+
+  @override
+  String get deskOnbCreateNotCreated => 'Wallet not created';
+
+  @override
+  String get deskOnbCreateCreating => 'Creating the wallet';
+
+  @override
+  String deskOnbCreateTestLead(String network) {
+    return 'A wallet on $network, a test network.';
+  }
+
+  @override
+  String get deskOnbCreateFailedTitle => 'The wallet could not be created';
+
+  @override
+  String get deskOnbCreateDiskFull =>
+      'The account could not be saved: the disk is full.';
+
+  @override
+  String get deskOnbCreateWait =>
+      'This can take up to a minute. Keep the app open.';
+
+  @override
+  String get deskOnbCreateLocking => 'Locking the open wallet';
+
+  @override
+  String get deskOnbCreateSide => 'New wallet';
+
+  @override
+  String get deskOnbCreateTitle => 'Create wallet';
+
+  @override
+  String get deskOnbCreateLead =>
+      'The password unlocks this wallet on this computer. It cannot recover coins; the phrase on the next step does.';
+
+  @override
+  String get deskOnbCreateTestNote =>
+      'A wallet on a test network, not for real EPIC';
+
+  @override
+  String get deskOnbCreatePhraseLead =>
+      'These words are the only way to get the coins back if this computer breaks. Write them on paper, in order.';
+
+  @override
+  String get deskOnbCreateRevealFirst => 'Reveal the phrase first';
+
+  @override
+  String get deskOnbCreateWarn => 'Anyone with these words can take the coins';
+
+  @override
+  String get deskOnbCreateReveal => 'Reveal phrase';
+
+  @override
+  String get deskOnbCreateCheckScreen =>
+      'Check that nobody can see the screen.';
+
+  @override
+  String get deskOnbCreateHide => 'Hide';
+
+  @override
+  String get deskOnbCreateShowQr => 'Show QR code';
+
+  @override
+  String get deskOnbCreateHideQr => 'Hide QR code';
+
+  @override
+  String get deskOnbCreateQrWarn =>
+      'Anyone who scans this code can take the coins';
+
+  @override
+  String get deskOnbCreateQrWarnText =>
+      'Scan it only into another wallet you trust.';
+
+  @override
+  String get deskOnbCreateQrLabel => 'Recovery phrase as a QR code';
+
+  @override
+  String deskOnbCreateWritten(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count words',
+      one: '$count word',
+    );
+    return 'Written down: all $_temp0 on paper';
+  }
+
+  @override
+  String get deskOnbRestoreDone => 'Wallet restored.';
+
+  @override
+  String get deskOnbRestoreNotRestored => 'Wallet not restored';
+
+  @override
+  String get deskOnbRestoreRestoring => 'Restoring the wallet';
+
+  @override
+  String get deskOnbRestoreFailedTitle => 'The wallet could not be restored';
+
+  @override
+  String get deskOnbRestorePermission =>
+      'The wallet files could not be written: permission denied in ~/.config/Epic Cash Desktop.';
+
+  @override
+  String get deskOnbRestoreWait =>
+      'This can take up to a minute. The balance appears after the first scan of the chain.';
+
+  @override
+  String get deskOnbRestoreSide => 'Restore wallet';
+
+  @override
+  String get deskOnbRestoreChoosePassword => 'Choose a password';
+
+  @override
+  String deskOnbRestorePasswordLead(int count) {
+    return 'The $count-word phrase checks out. Set the password that unlocks this wallet on this computer. The wallet opens when it is restored.';
+  }
+
+  @override
+  String get deskOnbRestoreNothingToPaste =>
+      'Nothing to paste: the clipboard holds no words.';
+
+  @override
+  String deskOnbRestoreBadWord(int position, String word) {
+    return 'Word $position, \"$word\", is not in the word list.';
+  }
+
+  @override
+  String deskOnbRestoreAllOk(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All $count words check out.',
+      one: 'All $count word checks out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOnbRestoreStaysHere =>
+      'The phrase never leaves this computer.';
+
+  @override
+  String get deskOnbRestoreChecksumFirm =>
+      'This phrase\'s check number does not match. Compare every word with the paper.';
+
+  @override
+  String deskOnbRestoreChecksumSoFar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count words so far; the check number does not match. Keep typing, or compare every word with the paper.',
+      one:
+          '$count word so far; the check number does not match. Keep typing, or compare every word with the paper.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOnbRestoreWordsLead =>
+      'Type the words in order, or paste the whole phrase into any box. Line breaks, commas and numbering are ignored.';
+
+  @override
+  String get deskOnbRestoreClear => 'Clear';
+
+  @override
+  String deskOnbRestoreUseWords(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Use $count words',
+      one: 'Use $count word',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOnbRestoreWords => 'Words';
+
+  @override
+  String deskOnbRestoreFilledOf(int filled, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total words',
+      one: '$total word',
+    );
+    return '$filled of $_temp0';
+  }
+
+  @override
+  String get deskOnbKillTitle => 'Epic is already running';
+
+  @override
+  String get deskOnbKillBody =>
+      'Another wallet or node process is using the wallet files and ports. Close it to unlock here, or cancel and close it yourself.';
+
+  @override
+  String get deskOnbKillProcesses => 'Running processes';
+
+  @override
+  String get deskOnbKillRoleWallet => 'wallet service';
+
+  @override
+  String get deskOnbKillRoleNode => 'node';
+
+  @override
+  String get deskOnbKillNote =>
+      'Closing them stops what they were doing, such as a node sync or receiving payments. They start again from this app after unlock.';
+
+  @override
+  String get deskOnbKillClosing => 'Closing…';
+
+  @override
+  String get deskOnbKillClose => 'Close and unlock';
+
+  @override
+  String get deskOnbSameTitle => 'This wallet is already here';
+
+  @override
+  String get deskOnbSameBody =>
+      'The phrase belongs to a wallet in the list. Nothing was added.';
+
+  @override
+  String get deskOnbSameWallet => 'Wallet';
+
+  @override
+  String get deskOnbSameNote =>
+      'Open it asks for that wallet\'s password. Cancel keeps the phrase on the grid.';
+
+  @override
+  String get deskOnbSameOpen => 'Open it';
+
+  @override
+  String get deskOnbUnlockWhoWindows =>
+      'Anyone using this Windows account can open this wallet.';
+
+  @override
+  String get deskOnbUnlockWho =>
+      'Anyone using this account can open this wallet.';
+
+  @override
+  String get deskOnbUnlockWrong =>
+      'Wrong password. Check Caps Lock and the keyboard layout.';
+
+  @override
+  String get deskOnbUnlockPortInUse =>
+      'The wallet service did not start: port 3415 is in use by another program.';
+
+  @override
+  String get deskOnbUnlockStageCheck => 'Checking wallet files';
+
+  @override
+  String get deskOnbUnlockStageProcesses =>
+      'Looking for wallet processes still running';
+
+  @override
+  String get deskOnbUnlockStageClosing => 'Closing the old wallet processes';
+
+  @override
+  String get deskOnbUnlockStageWallet => 'Starting the wallet service';
+
+  @override
+  String get deskOnbUnlockStageUnlock => 'Unlocking the wallet';
+
+  @override
+  String get deskOnbUnlockEnter => 'Enter the password';
+
+  @override
+  String get deskOnbUnlockCloseOthers =>
+      'Close the other Epic processes, then unlock.';
+
+  @override
+  String get deskOnbUnlockRememberedUnavailable =>
+      'Remembered password unavailable. Enter the password.';
+
+  @override
+  String get deskOnbUnlockRememberedForgotten =>
+      'The remembered password was forgotten. Enter the password.';
+
+  @override
+  String get deskOnbUnlockNotRemembered => 'Not remembered';
+
+  @override
+  String get deskOnbUnlockKeyStore =>
+      'This computer\'s key store is unavailable.';
+
+  @override
+  String get deskOnbUnlockThisWallet => 'this wallet';
+
+  @override
+  String get deskOnbUnlockFailed => 'Unlock failed';
+
+  @override
+  String get deskOnbUnlockFailedLead =>
+      'The wallet did not open. The reason is below.';
+
+  @override
+  String get deskOnbUnlockFailedBox => 'The wallet did not open';
+
+  @override
+  String deskOnbUnlockUnlocking(String name) {
+    return 'Unlocking $name';
+  }
+
+  @override
+  String get deskOnbUnlockStepsLead => 'Each step shows as it finishes.';
+
+  @override
+  String get deskOnbUnlockNote =>
+      'Then the overview opens and finishes in the background: connecting to the node, updating balances, turning on receiving.';
+
+  @override
+  String get deskOnbUnlockTitle => 'Unlock wallet';
+
+  @override
+  String get deskOnbUnlockLead => 'Keys stay on this computer.';
+
+  @override
+  String get deskOnbUnlockRemember => 'Remember on this computer';
+
+  @override
+  String deskOnbUnlockRememberFor(String who) {
+    return 'For 30 days. $who';
+  }
+
+  @override
+  String get deskOnbUnlockMissingTitle => 'This wallet’s folder is missing';
+
+  @override
+  String deskOnbUnlockMissingText(String folder) {
+    return 'It was at $folder';
+  }
+
+  @override
+  String get deskOnbUnlockRemove => 'Remove';
+
+  @override
+  String get deskOnbUnlockTryAgain => 'Try again';
+
+  @override
+  String get deskOnbUnlockButton => 'Unlock';
+
+  @override
+  String get deskOnbNodeFreeUnknown => 'free space unknown';
+
+  @override
+  String deskOnbNodeFreeHere(String size) {
+    return '$size free here';
+  }
+
+  @override
+  String deskOnbNodeDiskAbout(String size) {
+    return 'About $size of disk now';
+  }
+
+  @override
+  String deskOnbNodeDisk(String size) {
+    return '$size of disk now';
+  }
+
+  @override
+  String get deskOnbNodeSeparate => 'A separate program.';
+
+  @override
+  String get deskOnbNodeSeparateText =>
+      'The wallet starts the Epic node and stops it with the app.';
+
+  @override
+  String get deskOnbNodeFirewall => 'Windows asks once';
+
+  @override
+  String get deskOnbNodeFirewallText =>
+      'to allow it through the firewall. Allow it on private networks.';
+
+  @override
+  String deskOnbNodeGrowing(String free) {
+    return 'growing slowly. $free.';
+  }
+
+  @override
+  String get deskOnbNodeHours => 'Hours to sync';
+
+  @override
+  String get deskOnbNodeHoursText =>
+      'the first time, 2 to 6 on a typical connection. The wallet shows the progress and can use a public node meanwhile.';
+
+  @override
+  String get deskOnbNodeDownload => 'About 4 GB downloaded';
+
+  @override
+  String get deskOnbNodeDownloadText =>
+      'the first time, then a little every day.';
+
+  @override
+  String get deskOnbNodeFound => 'Found';
+
+  @override
+  String deskOnbNodeFoundAt(String version, String address) {
+    return 'Epic $version at $address';
+  }
+
+  @override
+  String deskOnbNodeHeight(String height) {
+    return 'height $height';
+  }
+
+  @override
+  String get deskOnbNodeSynced => 'synced';
+
+  @override
+  String get deskOnbNodeNoAnswer => 'No node answers';
+
+  @override
+  String deskOnbNodeNoAnswerAt(String address) {
+    return 'at $address. Start it, or check the address and port.';
+  }
+
+  @override
+  String get deskOnbNodeExisting =>
+      'Use a node already running on this computer';
+
+  @override
+  String get deskOnbNodeExistingText =>
+      'The Epic GUI or CLI node. The wallet connects to it and starts nothing.';
+
+  @override
+  String get deskOnbNodeAddress => 'Address of the node on this computer';
+
+  @override
+  String get deskOnbNodeCheck => 'Check';
+
+  @override
+  String get deskOnbNodeBundled => 'Start the bundled node';
+
+  @override
+  String get deskOnbNodeBundledText =>
+      'Downloads and syncs the chain into the wallet’s own folder. Nothing is downloaded before Save on the last step.';
+
+  @override
+  String deskOnbNodeFallback(String host) {
+    return 'Use $host until the local node is synced. The local node takes over by itself.';
+  }
+
+  @override
+  String get deskOnbNodeDialogTitle => 'Local node';
+
+  @override
+  String get deskOnbNodeDialogBody =>
+      'What running the node here means, and which node to use.';
+
+  @override
+  String get deskOnbNodeUseThis => 'Use this node';
+
+  @override
+  String get deskOnbNodeStart => 'Start local node';
+
+  @override
+  String deskOnbRestorePasteCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count words pasted; a phrase has 12, 15, 18, 21 or 24',
+      one: '$count word pasted; a phrase has 12, 15, 18, 21 or 24',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOnbWordN(int number) {
+    return 'Word $number';
+  }
+
+  @override
+  String get deskOnbImportEnterOld => 'Enter the old password';
+
+  @override
+  String deskOnbImportNewShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count characters',
+      one: '$count character',
+    );
+    return 'New password: at least $_temp0';
+  }
+
+  @override
+  String get deskOnbImportNewDiffer => 'The new passwords differ';
+
+  @override
+  String deskOnbImportWalletsN(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wallets',
+      one: '$count wallet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOnbImportDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wallets imported.',
+      one: 'Wallet imported.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOnbImportFindingTitle => 'Finding wallets';
+
+  @override
+  String get deskOnbImportFindingLead =>
+      'Searching the folders of older Epic Wallet versions and the epic program. Nothing is changed.';
+
+  @override
+  String deskOnbImportFoundTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wallets found',
+      one: '$count wallet found',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOnbImportFoundLead => 'Old folders are only read.';
+
+  @override
+  String get deskOnbImportNoneTitle => 'No wallets found';
+
+  @override
+  String get deskOnbImportNoneLead =>
+      'Choose the wallet folder, or restore from the recovery phrase.';
+
+  @override
+  String get deskOnbImportChooseTitle => 'Choose wallets';
+
+  @override
+  String get deskOnbImportChooseLead =>
+      'Ticked wallets are added to the app. History is rebuilt by a scan.';
+
+  @override
+  String get deskOnbImportCheckTitle => 'Checking for use';
+
+  @override
+  String get deskOnbImportCheckLead =>
+      'A wallet in use by another program is not imported.';
+
+  @override
+  String get deskOnbImportTitle => 'Import';
+
+  @override
+  String get deskOnbImportLead => 'Each wallet asks for its old password once.';
+
+  @override
+  String get deskOnbImportDoneTitle => 'Wallets imported';
+
+  @override
+  String get deskOnbImportDoneLead =>
+      'The first unlock of each wallet scans the chain for its history.';
+
+  @override
+  String deskOnbImportSelected(int selected, int total) {
+    return '$selected of $total selected';
+  }
+
+  @override
+  String get deskOnbImportChecking => 'Checking…';
+
+  @override
+  String get deskOnbImportCloseOther =>
+      'Close the other program or skip the wallet';
+
+  @override
+  String deskOnbImportImportedOf(int done, int total) {
+    return '$done of $total imported';
+  }
+
+  @override
+  String get deskOnbImportOpen => 'Open wallet';
+
+  @override
+  String get deskOnbImportStepFind => 'Find';
+
+  @override
+  String get deskOnbImportStepChoose => 'Choose';
+
+  @override
+  String get deskOnbImportStepCheck => 'Check';
+
+  @override
+  String get deskOnbImportBack => 'Back';
+
+  @override
+  String get deskOnbImportSkip => 'Skip';
+
+  @override
+  String get deskOnbImportOlder => 'Older Epic Wallet';
+
+  @override
+  String get deskOnbImportOlderSub => 'Accounts and folders';
+
+  @override
+  String get deskOnbImportEpicProgram => 'The epic program';
+
+  @override
+  String get deskOnbImportSearching => 'Searching…';
+
+  @override
+  String get deskOnbImportRestore => 'Restore from phrase';
+
+  @override
+  String deskOnbImportLastUsed(String date) {
+    return 'Last used $date';
+  }
+
+  @override
+  String deskOnbImportSecondCopy(String reason) {
+    return '$reason. Tick for a second copy.';
+  }
+
+  @override
+  String deskOnbImportCannot(String name) {
+    return '$name: cannot be imported';
+  }
+
+  @override
+  String get deskOnbImportInApp => 'In the app';
+
+  @override
+  String get deskOnbImportSameWallet => 'Same wallet';
+
+  @override
+  String get deskOnbImportNotInUse => 'Not in use';
+
+  @override
+  String get deskOnbImportNotChecked => 'Not checked';
+
+  @override
+  String get deskOnbImportSkipped => 'Skipped';
+
+  @override
+  String get deskOnbImportInUse => 'In use';
+
+  @override
+  String get deskOnbImportInUseText =>
+      'In use by another program. Close the older Epic Wallet or the epic program, then check again.';
+
+  @override
+  String get deskOnbImportCheckAgain => 'Check again';
+
+  @override
+  String get deskOnbImportImported => 'Imported';
+
+  @override
+  String get deskOnbImportImporting => 'Importing…';
+
+  @override
+  String get deskOnbImportWaiting => 'Waiting';
+
+  @override
+  String get deskOnbImportOldPassword => 'Old password';
+
+  @override
+  String deskOnbImportOldHelp(String name) {
+    return 'The password of $name in the older app.';
+  }
+
+  @override
+  String deskOnbImportOldOf(String name) {
+    return 'Old password of $name';
+  }
+
+  @override
+  String deskOnbImportOldShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count or more characters.',
+      one: '$count or more characters.',
+    );
+    return 'The old password is short. Choose a new one, $_temp0';
+  }
+
+  @override
+  String get deskOnbImportNewPassword => 'New password';
+
+  @override
+  String get deskOnbImportRepeat => 'Repeat';
+
+  @override
+  String get deskOnbImportRepeatNew => 'Repeat the new password';
+
+  @override
+  String get deskOnbImportUnchanged =>
+      'Old folders are unchanged. The older app can still open them.';
+
+  @override
+  String get deskOnbImportStopTitle => 'Stop the import?';
+
+  @override
+  String get deskOnbImportStopBody =>
+      'Wallets imported so far are removed. Old folders are unchanged.';
+
+  @override
+  String get deskOnbImportGoBack => 'Go back';
+
+  @override
+  String get deskOnbImportStop => 'Stop import';
 }

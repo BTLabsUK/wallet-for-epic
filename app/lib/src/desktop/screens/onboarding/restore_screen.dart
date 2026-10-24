@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
@@ -35,7 +36,7 @@ class RestoreScreen extends ConsumerStatefulWidget {
 
 class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   static const _sample =
-      'orbit hazard velvet cabin sudden meadow brick gesture lunar invest pledge saddle timber crisp wander echo faculty notable ripple garlic stamp dwarf enjoy h4rbor';
+      'orbit hazard velvet cabin sudden meadow brick gesture lunar invest pledge saddle timber crisp wander echo faculty notable ripple garlic stamp dwarf enjoy h4rbor'; // l10n-ok: sample recovery words
 
   final _password = TextEditingController();
   final _confirm = TextEditingController();
@@ -44,6 +45,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   RestoreSample? get _sampleArg => widget.arg is RestoreSample ? widget.arg as RestoreSample : null;
   bool _locking = false;
   String? _failure;
+
+  /// The shots' failed step: the permission failure, worded in build (initState has no l10n).
+  bool _permissionDenied = false;
 
   /// The phrase is being looked up in the wallet list (Use N words pressed).
   bool _checking = false;
@@ -69,7 +73,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       case RestoreStep.wordsFilled:
         _entry.paste(_sample);
       case RestoreStep.failed:
-        _failure = 'The wallet files could not be written: permission denied in ~/.config/Epic Cash Desktop.';
+        _permissionDenied = true;
       case RestoreStep.words || RestoreStep.account || RestoreStep.restoring:
         break;
     }
@@ -159,7 +163,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         await ref.read(deskProvider.notifier).lock();
         if (!mounted) return;
       }
-      final added = await addedWallet(api, before, 'Restored wallet', notice: 'Wallet restored.');
+      final added = await addedWallet(api, before, 'Restored wallet', notice: context.l10n.deskOnbRestoreDone); // l10n-ok: the wallet's stored default name
       if (!mounted) return;
       await markSetupPending(api, added.id);
       if (!mounted) return;
@@ -172,7 +176,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       }
       setState(() {
         _step = RestoreStep.failed;
-        _failure = deskErrorText(e);
+        _failure = deskErrorText(e, context.l10n);
+        _permissionDenied = false;
       });
     }
   }
@@ -181,22 +186,23 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   Widget build(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
     final flow = ref.watch(onbFlowProvider);
+    final l = context.l10n;
     switch (_step) {
       case RestoreStep.restoring || RestoreStep.failed:
         // Back (mouse, Alt+Left) never leaves a restore that is running or has failed.
         return DeskStepBack(
           onBack: () {},
           child: ProgressView(
-          title: _failure != null ? 'Wallet not restored' : 'Restoring the wallet',
-          failureTitle: 'The wallet could not be restored',
+          title: _failure != null || _permissionDenied ? l.deskOnbRestoreNotRestored : l.deskOnbRestoreRestoring,
+          failureTitle: l.deskOnbRestoreFailedTitle,
           stages: [
-            const Stage('restore', 'Restoring the wallet'),
-            if (_locking) const Stage('lock', 'Locking the open wallet'),
+            Stage('restore', l.deskOnbRestoreRestoring),
+            if (_locking) Stage('lock', l.deskOnbCreateLocking),
           ],
           current: 'restore',
           failed: 'restore',
-          failure: _failure,
-          wait: 'This can take up to a minute. The balance appears after the first scan of the chain.',
+          failure: _permissionDenied ? l.deskOnbRestorePermission : _failure,
+          wait: l.deskOnbRestoreWait,
           onBack: () => setState(() {
             _step = RestoreStep.account;
             _failure = null;
@@ -210,19 +216,19 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         return DeskStepBack(
           onBack: () => setState(() => _step = RestoreStep.words),
           child: EOnbFrame(
-          sideTitle: 'Restore wallet',
-          steps: railOf(['Recovery phrase', 'Password'], 1),
-          title: 'Choose a password',
-          lead: 'The ${_entry.length}-word phrase checks out. Set the password that unlocks this wallet on this computer. The wallet opens when it is restored.',
+          sideTitle: l.deskOnbRestoreSide,
+          steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
+          title: l.deskOnbRestoreChoosePassword,
+          lead: l.deskOnbRestorePasswordLead(_entry.length),
           actions: [
             backButton(() => setState(() => _step = RestoreStep.words)),
-            EButton.primary(label: 'Restore wallet', onPressed: _accountOk ? _restore : null),
+            EButton.primary(label: l.deskOnbRestoreSide, onPressed: _accountOk ? _restore : null),
           ],
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (flow.testNet) ...[
-                NetNote(flow.network, 'A wallet on a test network, not for real EPIC'),
+                NetNote(flow.network, l.deskOnbCreateTestNote),
                 SizedBox(height: Sp.x5),
               ],
               AccountForm(
@@ -246,6 +252,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   Widget _wordsStep(BuildContext context, DeskNav nav) {
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     final e = _entry;
     final filled = e.filled;
     final length = e.length;
@@ -253,34 +260,28 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final complete = e.complete;
     final narrow = MediaQuery.sizeOf(context).width < 760.u;
     final (String status, Color? tone) = switch (e) {
-      _ when _clipboardEmpty => ('Nothing to paste: the clipboard holds no words.', c.warn),
-      _ when e.pasteError != null => (e.pasteError!, c.risk),
-      _ when bad != null => ('Word ${bad + 1}, "${e.words[bad]}", is not in the word list.', c.risk),
-      _ when complete => ('All $length words check out.', c.ok),
-      _ when e.checksumOk == false && e.typingLast => ('The phrase never leaves this computer.', null),
-      _ when e.checksumOk == false && e.checksumFirm => (
-        "This phrase's check number does not match. Compare every word with the paper.",
-        c.risk,
-      ),
-      _ when e.checksumOk == false => (
-        "${e.span} words so far; the check number does not match. Keep typing, or compare every word with the paper.",
-        c.warn,
-      ),
-      _ => ('The phrase never leaves this computer.', null),
+      _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
+      _ when e.pasteError != null => (l.deskOnbRestorePasteCount(e.pasteError!), c.risk),
+      _ when bad != null => (l.deskOnbRestoreBadWord(bad + 1, e.words[bad]), c.risk),
+      _ when complete => (l.deskOnbRestoreAllOk(length), c.ok),
+      _ when e.checksumOk == false && e.typingLast => (l.deskOnbRestoreStaysHere, null),
+      _ when e.checksumOk == false && e.checksumFirm => (l.deskOnbRestoreChecksumFirm, c.risk),
+      _ when e.checksumOk == false => (l.deskOnbRestoreChecksumSoFar(e.span), c.warn),
+      _ => (l.deskOnbRestoreStaysHere, null),
     };
     return EOnbFrame(
-      sideTitle: 'Restore wallet',
-      steps: railOf(['Recovery phrase', 'Password'], 0),
-      title: 'Recovery phrase',
-      lead: 'Type the words in order, or paste the whole phrase into any box. Line breaks, commas and numbering are ignored.',
+      sideTitle: l.deskOnbRestoreSide,
+      steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 0),
+      title: l.deskOnbStepPhrase,
+      lead: l.deskOnbRestoreWordsLead,
       actions: [
         backButton(() => nav.back()),
         // Words only on a narrow window, so the row fits "Use 24 words".
-        EButton.ghost(label: 'Paste', icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
-        EButton.ghost(label: 'Clear', icon: narrow ? null : EIcons.trash, onPressed: filled == 0 ? null : e.clear),
+        EButton.ghost(label: l.commonPaste, icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
+        EButton.ghost(label: l.deskOnbRestoreClear, icon: narrow ? null : EIcons.trash, onPressed: filled == 0 ? null : e.clear),
         // Names the length, so a typed 12-word phrase is never taken for 24 by mistake.
         EButton.primary(
-          label: complete ? 'Use $length words' : 'Continue',
+          label: complete ? l.deskOnbRestoreUseWords(length) : l.commonContinue,
           busy: _checking,
           onPressed: complete && !_checking ? _toAccount : null,
         ),
@@ -291,9 +292,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Expanded(child: Semantics(header: true, child: Text('Words', style: ts.label))),
+              Expanded(child: Semantics(header: true, child: Text(l.deskOnbRestoreWords, style: ts.label))),
               Text(
-                '$filled of $length words',
+                l.deskOnbRestoreFilledOf(filled, length),
                 style: ts.caption.copyWith(color: complete ? c.ok : null),
               ),
             ],

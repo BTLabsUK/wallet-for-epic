@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
 /// "This wallet is already here" (O1): the restore phrase belongs to [wallet], which is in the
@@ -16,15 +17,16 @@ class SameWalletDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     return EDialog(
-      title: 'This wallet is already here',
-      description: 'The phrase belongs to a wallet in the list. Nothing was added.',
+      title: l.deskOnbSameTitle,
+      description: l.deskOnbSameBody,
       icon: EIcons.wallet,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Semantics(
-            label: 'Wallet',
+            label: l.deskOnbSameWallet,
             container: true,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x3),
@@ -55,12 +57,12 @@ class SameWalletDialog extends StatelessWidget {
             ),
           ),
           SizedBox(height: Sp.x3),
-          Text('Open it asks for that wallet\'s password. Cancel keeps the phrase on the grid.', style: ts.small),
+          Text(l.deskOnbSameNote, style: ts.small),
         ],
       ),
       actions: [
-        EButton.ghost(label: 'Cancel', onPressed: () => Navigator.pop(context, false)),
-        EButton.primary(label: 'Open it', onPressed: () => Navigator.pop(context, true)),
+        EButton.ghost(label: l.commonCancel, onPressed: () => Navigator.pop(context, false)),
+        EButton.primary(label: l.deskOnbSameOpen, onPressed: () => Navigator.pop(context, true)),
       ],
     );
   }

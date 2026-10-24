@@ -180,15 +180,15 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
       final way = torWay(TorRoute.epicbox, torStateOf(settings, s));
       if (s.epicboxHealth != ServiceHealth.off) {
         if (way == TorWay.wait) return MethodLine(l.deskKitMethodWaitingTor, EState.warn, detail: host);
-        if (way == TorWay.blocked) return MethodLine(l.deskKitMethodWaitingTor, EState.risk, detail: l.deskKitMethodTorNotConnected('$host'));
-        if (way == TorWay.overTor && s.epicboxHealth == ServiceHealth.ok) return MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodOverTor('$host'));
+        if (way == TorWay.blocked) return MethodLine(l.deskKitMethodWaitingTor, EState.risk, detail: l.deskKitMethodTorNotConnected(host));
+        if (way == TorWay.overTor && s.epicboxHealth == ServiceHealth.ok) return MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodOverTor(host));
       }
       return switch (s.epicboxHealth) {
         ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodEpicboxOffDetail),
         ServiceHealth.checking => MethodLine(l.deskKitMethodConnecting, EState.warn, detail: host),
         ServiceHealth.ok => MethodLine(l.deskKitMethodOn, EState.ok, detail: host),
         ServiceHealth.slow => MethodLine(l.deskKitMethodSlow, EState.warn, detail: host),
-        ServiceHealth.down => MethodLine(l.deskKitMethodNotAnswering, EState.risk, detail: l.deskKitMethodEpicboxDown('$host')),
+        ServiceHealth.down => MethodLine(l.deskKitMethodNotAnswering, EState.risk, detail: l.deskKitMethodEpicboxDown(host)),
       };
     case TxMethod.http:
       final port = settings.httpPort;

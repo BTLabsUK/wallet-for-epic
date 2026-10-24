@@ -10614,6 +10614,1254 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide QR code'**
   String get deskKitQrHideCode;
+
+  /// Title of the Welcome page when the app already has wallets and the user adds another.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a wallet'**
+  String get deskOnbWelcomeAdd;
+
+  /// Line under the app name on the first-run Welcome page.
+  ///
+  /// In en, this message translates to:
+  /// **'Keys and coins stay on this computer, locked with a password.'**
+  String get deskOnbWelcomeTagline;
+
+  /// Title of a choice card on the Welcome page: make a brand new wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new wallet'**
+  String get deskOnbWelcomeCreate;
+
+  /// One-line description under 'Create a new wallet': a new wallet gets new recovery words.
+  ///
+  /// In en, this message translates to:
+  /// **'New recovery phrase'**
+  String get deskOnbWelcomeCreateSub;
+
+  /// Title of a choice card on the Welcome page: bring in wallets from an older Epic Wallet or from a folder.
+  ///
+  /// In en, this message translates to:
+  /// **'Import wallets'**
+  String get deskOnbWelcomeImport;
+
+  /// One-line description under 'Import wallets'.
+  ///
+  /// In en, this message translates to:
+  /// **'From an older Epic Wallet or a folder'**
+  String get deskOnbWelcomeImportSub;
+
+  /// Title of a choice card on the Welcome page: restore a wallet from its recovery words.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a phrase'**
+  String get deskOnbWelcomeRestore;
+
+  /// One-line description under 'Restore from a phrase'.
+  ///
+  /// In en, this message translates to:
+  /// **'From the recovery words'**
+  String get deskOnbWelcomeRestoreSub;
+
+  /// Note on the Welcome page when a test network is selected; the network's name is shown beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'New wallets are made on this test network.'**
+  String get deskOnbWelcomeTestNote;
+
+  /// Link on the Welcome page (when wallets exist) that returns to the unlock screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to unlock'**
+  String get deskOnbWelcomeBack;
+
+  /// Title of the collapsible 'Advanced' section of the Welcome page (network and data folder).
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get deskOnbWelcomeAdvanced;
+
+  /// Label of the network selector in the Advanced section of the Welcome page, and its screen-reader name.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get deskOnbWelcomeNetwork;
+
+  /// Help text under the network selector. Mainnet, Floonet and Usernet are network names and stay as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'Mainnet holds real EPIC. Floonet and Usernet are test networks.'**
+  String get deskOnbWelcomeNetworkHelp;
+
+  /// Label of the data-folder setting in the Advanced section of the Welcome page.
+  ///
+  /// In en, this message translates to:
+  /// **'App data folder'**
+  String get deskOnbWelcomeFolder;
+
+  /// Tooltip of the info button beside 'App data folder' when the details are shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide details'**
+  String get deskOnbWelcomeHideDetails;
+
+  /// Tooltip of the info button beside 'App data folder' when the details are hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'More about this'**
+  String get deskOnbWelcomeMoreAbout;
+
+  /// Short explanation under 'App data folder'.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the app keeps wallets and settings.'**
+  String get deskOnbWelcomeFolderWhere;
+
+  /// Longer explanation shown when the info button is pressed.
+  ///
+  /// In en, this message translates to:
+  /// **'With the local node, the blockchain is kept here too. A new folder must be empty: the app makes its folders there and keeps using it.'**
+  String get deskOnbWelcomeFolderDetail;
+
+  /// Confirmation after the user picked a data folder. {folder} is a path.
+  ///
+  /// In en, this message translates to:
+  /// **'Using {folder}. The app restarts to use it.'**
+  String deskOnbWelcomeUsing(String folder);
+
+  /// Note instead of the folder button once a wallet exists.
+  ///
+  /// In en, this message translates to:
+  /// **'It can be changed only before the first wallet is added.'**
+  String get deskOnbWelcomeLocked;
+
+  /// Button and dialog title: pick the app data folder.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a folder'**
+  String get deskOnbWelcomeChooseFolder;
+
+  /// Link that goes back to the default data folder.
+  ///
+  /// In en, this message translates to:
+  /// **'Default folder'**
+  String get deskOnbWelcomeDefaultFolder;
+
+  /// Error under the data-folder setting: the chosen folder has files in it.
+  ///
+  /// In en, this message translates to:
+  /// **'That folder is not empty. Choose a new, empty folder.'**
+  String get deskOnbWelcomeFolderNotEmpty;
+
+  /// Error under the data-folder setting: the chosen folder already holds a wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'That is a wallet folder. Choose a new, empty folder.'**
+  String get deskOnbWelcomeFolderIsWallet;
+
+  /// Button of the folder dialog: confirm the selected folder. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get deskOnbWelcomeChoose;
+
+  /// Name of the first step in the left rail of the new-wallet and restore pages. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get deskOnbStepPassword;
+
+  /// Name of a step in the left rail of the new-wallet and restore pages, and the title of the page that shows the recovery words. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery phrase'**
+  String get deskOnbStepPhrase;
+
+  /// Progress step while the new wallet is made.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating the wallet and its recovery phrase'**
+  String get deskOnbCreateStageCreate;
+
+  /// Progress step after the wallet is made: its account is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving the account'**
+  String get deskOnbCreateStageSave;
+
+  /// Title of the new-wallet progress page after a failure.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet not created'**
+  String get deskOnbCreateNotCreated;
+
+  /// Title of the new-wallet progress page while it works.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating the wallet'**
+  String get deskOnbCreateCreating;
+
+  /// Line under the progress title when a test network is selected. {network} is the network's name, e.g. Floonet.
+  ///
+  /// In en, this message translates to:
+  /// **'A wallet on {network}, a test network.'**
+  String deskOnbCreateTestLead(String network);
+
+  /// Heading of the failure box on the new-wallet progress page.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet could not be created'**
+  String get deskOnbCreateFailedTitle;
+
+  /// Failure text on the new-wallet progress page when the disk is full.
+  ///
+  /// In en, this message translates to:
+  /// **'The account could not be saved: the disk is full.'**
+  String get deskOnbCreateDiskFull;
+
+  /// Hint on the new-wallet progress page.
+  ///
+  /// In en, this message translates to:
+  /// **'This can take up to a minute. Keep the app open.'**
+  String get deskOnbCreateWait;
+
+  /// Title and progress step while a wallet that is open gets locked before the new one is used.
+  ///
+  /// In en, this message translates to:
+  /// **'Locking the open wallet'**
+  String get deskOnbCreateLocking;
+
+  /// Title above the step rail on the left of the new-wallet pages.
+  ///
+  /// In en, this message translates to:
+  /// **'New wallet'**
+  String get deskOnbCreateSide;
+
+  /// Title of the password page of the new-wallet flow and label of its primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'Create wallet'**
+  String get deskOnbCreateTitle;
+
+  /// Text under the title of the password page of the new-wallet flow.
+  ///
+  /// In en, this message translates to:
+  /// **'The password unlocks this wallet on this computer. It cannot recover coins; the phrase on the next step does.'**
+  String get deskOnbCreateLead;
+
+  /// Note on the password page when a test network is selected; the network's name is shown beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'A wallet on a test network, not for real EPIC'**
+  String get deskOnbCreateTestNote;
+
+  /// Text under the title of the recovery phrase page.
+  ///
+  /// In en, this message translates to:
+  /// **'These words are the only way to get the coins back if this computer breaks. Write them on paper, in order.'**
+  String get deskOnbCreatePhraseLead;
+
+  /// Small hint beside the disabled Continue button until the phrase is revealed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal the phrase first'**
+  String get deskOnbCreateRevealFirst;
+
+  /// Warning box above the recovery words.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with these words can take the coins'**
+  String get deskOnbCreateWarn;
+
+  /// Button over the hidden recovery words.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal phrase'**
+  String get deskOnbCreateReveal;
+
+  /// Hint under the Reveal phrase button.
+  ///
+  /// In en, this message translates to:
+  /// **'Check that nobody can see the screen.'**
+  String get deskOnbCreateCheckScreen;
+
+  /// Button that hides the revealed recovery words again. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get deskOnbCreateHide;
+
+  /// Button that shows the recovery phrase as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Show QR code'**
+  String get deskOnbCreateShowQr;
+
+  /// Button that hides the recovery phrase QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide QR code'**
+  String get deskOnbCreateHideQr;
+
+  /// Warning title above the recovery phrase QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone who scans this code can take the coins'**
+  String get deskOnbCreateQrWarn;
+
+  /// Warning text above the recovery phrase QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan it only into another wallet you trust.'**
+  String get deskOnbCreateQrWarnText;
+
+  /// Screen-reader label of the recovery phrase QR code image.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery phrase as a QR code'**
+  String get deskOnbCreateQrLabel;
+
+  /// Checkbox label the user ticks after writing the recovery phrase down. {count} is the number of words (12 or 24).
+  ///
+  /// In en, this message translates to:
+  /// **'Written down: all {count, plural, one{{count} word} other{{count} words}} on paper'**
+  String deskOnbCreateWritten(int count);
+
+  /// Toast shown after a wallet was restored from its recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet restored.'**
+  String get deskOnbRestoreDone;
+
+  /// Title of the restore progress page after a failure.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet not restored'**
+  String get deskOnbRestoreNotRestored;
+
+  /// Title of the restore progress page and its progress step.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring the wallet'**
+  String get deskOnbRestoreRestoring;
+
+  /// Heading of the failure box on the restore progress page.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet could not be restored'**
+  String get deskOnbRestoreFailedTitle;
+
+  /// Sample failure text on the restore progress page (permission denied). The folder path stays as written.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet files could not be written: permission denied in ~/.config/Epic Cash Desktop.'**
+  String get deskOnbRestorePermission;
+
+  /// Hint on the restore progress page.
+  ///
+  /// In en, this message translates to:
+  /// **'This can take up to a minute. The balance appears after the first scan of the chain.'**
+  String get deskOnbRestoreWait;
+
+  /// Title above the step rail on the left of the restore pages and label of the primary button of the password step.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore wallet'**
+  String get deskOnbRestoreSide;
+
+  /// Title of the password step of the restore flow.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a password'**
+  String get deskOnbRestoreChoosePassword;
+
+  /// Text under the title of the password step of the restore flow. {count} is the number of words (12 or 24).
+  ///
+  /// In en, this message translates to:
+  /// **'The {count}-word phrase checks out. Set the password that unlocks this wallet on this computer. The wallet opens when it is restored.'**
+  String deskOnbRestorePasswordLead(int count);
+
+  /// Status line under the phrase grid when Paste found no words on the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to paste: the clipboard holds no words.'**
+  String get deskOnbRestoreNothingToPaste;
+
+  /// Status line under the phrase grid: a typed word is not a valid recovery word. {position} is its number in the phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Word {position}, \"{word}\", is not in the word list.'**
+  String deskOnbRestoreBadWord(int position, String word);
+
+  /// Status line under the phrase grid when the whole phrase is valid. {count} is 12 or 24.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{All {count} word checks out.} other{All {count} words check out.}}'**
+  String deskOnbRestoreAllOk(int count);
+
+  /// Default status line under the phrase grid.
+  ///
+  /// In en, this message translates to:
+  /// **'The phrase never leaves this computer.'**
+  String get deskOnbRestoreStaysHere;
+
+  /// Status line under the phrase grid: all words are valid but the checksum is wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'This phrase\'s check number does not match. Compare every word with the paper.'**
+  String get deskOnbRestoreChecksumFirm;
+
+  /// Status line under the phrase grid while typing: the words so far do not give a valid check number. {count} is how many words are filled.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} word so far; the check number does not match. Keep typing, or compare every word with the paper.} other{{count} words so far; the check number does not match. Keep typing, or compare every word with the paper.}}'**
+  String deskOnbRestoreChecksumSoFar(int count);
+
+  /// Text under the title of the recovery phrase step of the restore flow.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the words in order, or paste the whole phrase into any box. Line breaks, commas and numbering are ignored.'**
+  String get deskOnbRestoreWordsLead;
+
+  /// Button on the restore phrase step: empty the phrase grid. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get deskOnbRestoreClear;
+
+  /// Primary button of the restore phrase step once the phrase is complete. Narrow: short. {count} is 12 or 24.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Use {count} word} other{Use {count} words}}'**
+  String deskOnbRestoreUseWords(int count);
+
+  /// Label above the phrase grid.
+  ///
+  /// In en, this message translates to:
+  /// **'Words'**
+  String get deskOnbRestoreWords;
+
+  /// Counter above the phrase grid, e.g. '12 of 24 words'.
+  ///
+  /// In en, this message translates to:
+  /// **'{filled} of {total, plural, one{{total} word} other{{total} words}}'**
+  String deskOnbRestoreFilledOf(int filled, int total);
+
+  /// Title of the dialog shown on unlock when an older wallet or node process is still running.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic is already running'**
+  String get deskOnbKillTitle;
+
+  /// Body of the 'Epic is already running' dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Another wallet or node process is using the wallet files and ports. Close it to unlock here, or cancel and close it yourself.'**
+  String get deskOnbKillBody;
+
+  /// Screen-reader name of the list of running processes in that dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Running processes'**
+  String get deskOnbKillProcesses;
+
+  /// Small grey note beside a process in the list: it is the wallet service. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'wallet service'**
+  String get deskOnbKillRoleWallet;
+
+  /// Small grey note beside a process in the list: it is a node. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'node'**
+  String get deskOnbKillRoleNode;
+
+  /// Note under the process list.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing them stops what they were doing, such as a node sync or receiving payments. They start again from this app after unlock.'**
+  String get deskOnbKillNote;
+
+  /// Danger button of the 'Epic is already running' dialog while the processes are being closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing…'**
+  String get deskOnbKillClosing;
+
+  /// Danger button of the 'Epic is already running' dialog: close the processes and unlock the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Close and unlock'**
+  String get deskOnbKillClose;
+
+  /// Title of the dialog shown when the typed recovery phrase belongs to a wallet that is already in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet is already here'**
+  String get deskOnbSameTitle;
+
+  /// Body of that dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'The phrase belongs to a wallet in the list. Nothing was added.'**
+  String get deskOnbSameBody;
+
+  /// Screen-reader name of the box that shows the existing wallet's name and folder.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get deskOnbSameWallet;
+
+  /// Note in that dialog. 'Open it' and 'Cancel' are the two buttons below.
+  ///
+  /// In en, this message translates to:
+  /// **'Open it asks for that wallet\'s password. Cancel keeps the phrase on the grid.'**
+  String get deskOnbSameNote;
+
+  /// Primary button of that dialog: go to the existing wallet's unlock. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Open it'**
+  String get deskOnbSameOpen;
+
+  /// Tooltip of the 'Remember on this computer' checkbox on Windows, and part of the Remembered row in Settings: who can open a remembered wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone using this Windows account can open this wallet.'**
+  String get deskOnbUnlockWhoWindows;
+
+  /// Same as the previous message on macOS and Linux (the computer account).
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone using this account can open this wallet.'**
+  String get deskOnbUnlockWho;
+
+  /// Error under the password field after a wrong password.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong password. Check Caps Lock and the keyboard layout.'**
+  String get deskOnbUnlockWrong;
+
+  /// Failure text when the wallet service cannot start because its port is taken. Keep the number 3415.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet service did not start: port 3415 is in use by another program.'**
+  String get deskOnbUnlockPortInUse;
+
+  /// Progress step while unlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking wallet files'**
+  String get deskOnbUnlockStageCheck;
+
+  /// Progress step while unlocking: looking for older wallet processes.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for wallet processes still running'**
+  String get deskOnbUnlockStageProcesses;
+
+  /// Progress step while unlocking: closing older wallet processes.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing the old wallet processes'**
+  String get deskOnbUnlockStageClosing;
+
+  /// Progress step while unlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting the wallet service'**
+  String get deskOnbUnlockStageWallet;
+
+  /// Progress step while unlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocking the wallet'**
+  String get deskOnbUnlockStageUnlock;
+
+  /// Error under the password field when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the password'**
+  String get deskOnbUnlockEnter;
+
+  /// Error under the password field when the user cancelled the 'Epic is already running' dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the other Epic processes, then unlock.'**
+  String get deskOnbUnlockCloseOthers;
+
+  /// Error under the password field when the remembered password could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Remembered password unavailable. Enter the password.'**
+  String get deskOnbUnlockRememberedUnavailable;
+
+  /// Error under the password field when the remembered password no longer works.
+  ///
+  /// In en, this message translates to:
+  /// **'The remembered password was forgotten. Enter the password.'**
+  String get deskOnbUnlockRememberedForgotten;
+
+  /// Toast title after unlocking with 'Remember on this computer' ticked when the password could not be stored.
+  ///
+  /// In en, this message translates to:
+  /// **'Not remembered'**
+  String get deskOnbUnlockNotRemembered;
+
+  /// Toast text for the previous message.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer\'s key store is unavailable.'**
+  String get deskOnbUnlockKeyStore;
+
+  /// Fallback name in 'Unlocking {name}' when the wallet's name is not known. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'this wallet'**
+  String get deskOnbUnlockThisWallet;
+
+  /// Title of the unlock progress page after a failure.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock failed'**
+  String get deskOnbUnlockFailed;
+
+  /// Line under the title of a failed unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet did not open. The reason is below.'**
+  String get deskOnbUnlockFailedLead;
+
+  /// Heading of the failure box of a failed unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet did not open'**
+  String get deskOnbUnlockFailedBox;
+
+  /// Title of the unlock progress page. {name} is the wallet's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocking {name}'**
+  String deskOnbUnlockUnlocking(String name);
+
+  /// Line under the title of the unlock progress page.
+  ///
+  /// In en, this message translates to:
+  /// **'Each step shows as it finishes.'**
+  String get deskOnbUnlockStepsLead;
+
+  /// Note under the unlock progress list.
+  ///
+  /// In en, this message translates to:
+  /// **'Then the overview opens and finishes in the background: connecting to the node, updating balances, turning on receiving.'**
+  String get deskOnbUnlockNote;
+
+  /// Title of the unlock page.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock wallet'**
+  String get deskOnbUnlockTitle;
+
+  /// Line under the title of the unlock page.
+  ///
+  /// In en, this message translates to:
+  /// **'Keys stay on this computer.'**
+  String get deskOnbUnlockLead;
+
+  /// Checkbox on the unlock page: store the password in this computer's key store.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember on this computer'**
+  String get deskOnbUnlockRemember;
+
+  /// Note under the 'Remember on this computer' checkbox. {who} is the sentence about who can open the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'For 30 days. {who}'**
+  String deskOnbUnlockRememberFor(String who);
+
+  /// Warning title on the unlock page when the wallet's folder no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet’s folder is missing'**
+  String get deskOnbUnlockMissingTitle;
+
+  /// Warning text under the previous title. {folder} is a path.
+  ///
+  /// In en, this message translates to:
+  /// **'It was at {folder}'**
+  String deskOnbUnlockMissingText(String folder);
+
+  /// Button of the missing-folder warning: remove the wallet from the list. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get deskOnbUnlockRemove;
+
+  /// Button of the missing-folder warning: look for the folder again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskOnbUnlockTryAgain;
+
+  /// Primary button of the unlock page. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get deskOnbUnlockButton;
+
+  /// End of the 'growing slowly' line on the local node step when the free disk space is not known. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'free space unknown'**
+  String get deskOnbNodeFreeUnknown;
+
+  /// End of the 'growing slowly' line on the local node step. {size} is e.g. '120 GB'.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} free here'**
+  String deskOnbNodeFreeHere(String size);
+
+  /// Bold start of a line on the local node step: the chain takes about this much disk space now. {size} is e.g. '5 GB'.
+  ///
+  /// In en, this message translates to:
+  /// **'About {size} of disk now'**
+  String deskOnbNodeDiskAbout(String size);
+
+  /// Bold start of a line on the local node step: the chain takes this much disk space now (measured).
+  ///
+  /// In en, this message translates to:
+  /// **'{size} of disk now'**
+  String deskOnbNodeDisk(String size);
+
+  /// Bold start of the first fact of the local node step, read together with the next message.
+  ///
+  /// In en, this message translates to:
+  /// **'A separate program.'**
+  String get deskOnbNodeSeparate;
+
+  /// Rest of the first fact of the local node step.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet starts the Epic node and stops it with the app.'**
+  String get deskOnbNodeSeparateText;
+
+  /// Bold start of a fact shown on Windows only, read together with the next message.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows asks once'**
+  String get deskOnbNodeFirewall;
+
+  /// Rest of the Windows firewall fact. Continues the previous sentence start, in lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'to allow it through the firewall. Allow it on private networks.'**
+  String get deskOnbNodeFirewallText;
+
+  /// Rest of the disk-space fact, continues 'About 5 GB of disk now'. {free} is the free-space phrase, e.g. '120 GB free here'.
+  ///
+  /// In en, this message translates to:
+  /// **'growing slowly. {free}.'**
+  String deskOnbNodeGrowing(String free);
+
+  /// Bold start of a fact on the local node step, read together with the next message.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours to sync'**
+  String get deskOnbNodeHours;
+
+  /// Rest of the 'Hours to sync' fact. Continues the bold start in lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'the first time, 2 to 6 on a typical connection. The wallet shows the progress and can use a public node meanwhile.'**
+  String get deskOnbNodeHoursText;
+
+  /// Bold start of a fact on the local node step, read together with the next message.
+  ///
+  /// In en, this message translates to:
+  /// **'About 4 GB downloaded'**
+  String get deskOnbNodeDownload;
+
+  /// Rest of the download fact. Continues the bold start in lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'the first time, then a little every day.'**
+  String get deskOnbNodeDownloadText;
+
+  /// Bold green word on the local node step: a node is running on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Found'**
+  String get deskOnbNodeFound;
+
+  /// Part of the 'Found' line: the node's version and address, e.g. 'Epic 4.1.1 at 127.0.0.1:3413'.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic {version} at {address}'**
+  String deskOnbNodeFoundAt(String version, String address);
+
+  /// Part of the 'Found' line: the node's block height.
+  ///
+  /// In en, this message translates to:
+  /// **'height {height}'**
+  String deskOnbNodeHeight(String height);
+
+  /// Part of the 'Found' line: the node is fully synced.
+  ///
+  /// In en, this message translates to:
+  /// **'synced'**
+  String get deskOnbNodeSynced;
+
+  /// Bold red words on the local node step: nothing answers at the address.
+  ///
+  /// In en, this message translates to:
+  /// **'No node answers'**
+  String get deskOnbNodeNoAnswer;
+
+  /// Rest of the 'No node answers' line. {address} is host:port.
+  ///
+  /// In en, this message translates to:
+  /// **'at {address}. Start it, or check the address and port.'**
+  String deskOnbNodeNoAnswerAt(String address);
+
+  /// Title of a choice card on the local node step.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a node already running on this computer'**
+  String get deskOnbNodeExisting;
+
+  /// Description of that choice card.
+  ///
+  /// In en, this message translates to:
+  /// **'The Epic GUI or CLI node. The wallet connects to it and starts nothing.'**
+  String get deskOnbNodeExistingText;
+
+  /// Screen-reader name of the node address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Address of the node on this computer'**
+  String get deskOnbNodeAddress;
+
+  /// Button next to the node address field: test the address. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get deskOnbNodeCheck;
+
+  /// Title of a choice card on the local node step.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the bundled node'**
+  String get deskOnbNodeBundled;
+
+  /// Description of that choice card. 'Save' is the button of the last setup step.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads and syncs the chain into the wallet’s own folder. Nothing is downloaded before Save on the last step.'**
+  String get deskOnbNodeBundledText;
+
+  /// Checkbox label under the bundled node choice. {host} is a public node's host name.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {host} until the local node is synced. The local node takes over by itself.'**
+  String deskOnbNodeFallback(String host);
+
+  /// Title of the local node setup dialog opened from Settings › Node.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node'**
+  String get deskOnbNodeDialogTitle;
+
+  /// Description in that dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'What running the node here means, and which node to use.'**
+  String get deskOnbNodeDialogBody;
+
+  /// Primary button of that dialog when 'already running' is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this node'**
+  String get deskOnbNodeUseThis;
+
+  /// Primary button of that dialog when the bundled node is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Start local node'**
+  String get deskOnbNodeStart;
+
+  /// Status line under the phrase grid after pasting text whose number of words is not a valid phrase length. {count} is the number of pasted words.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} word pasted; a phrase has 12, 15, 18, 21 or 24} other{{count} words pasted; a phrase has 12, 15, 18, 21 or 24}}'**
+  String deskOnbRestorePasteCount(int count);
+
+  /// Screen-reader name of one box of the recovery phrase grid. {number} is its position, from 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Word {number}'**
+  String deskOnbWordN(int number);
+
+  /// Error under the old-password field of the import wizard when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the old password'**
+  String get deskOnbImportEnterOld;
+
+  /// Error when the new password the import wizard asks for is too short.
+  ///
+  /// In en, this message translates to:
+  /// **'New password: at least {count, plural, one{{count} character} other{{count} characters}}'**
+  String deskOnbImportNewShort(int count);
+
+  /// Error when the two new passwords typed in the import wizard are not the same.
+  ///
+  /// In en, this message translates to:
+  /// **'The new passwords differ'**
+  String get deskOnbImportNewDiffer;
+
+  /// Name shown for the wallets just imported when more than one, e.g. '3 wallets'.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} wallet} other{{count} wallets}}'**
+  String deskOnbImportWalletsN(int count);
+
+  /// Notice on the unlock page after the import wizard finished.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Wallet imported.} other{{count} wallets imported.}}'**
+  String deskOnbImportDone(int count);
+
+  /// Title of the first step of the import wizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding wallets'**
+  String get deskOnbImportFindingTitle;
+
+  /// Line under the title of the first step of the import wizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching the folders of older Epic Wallet versions and the epic program. Nothing is changed.'**
+  String get deskOnbImportFindingLead;
+
+  /// Title of the import wizard once wallets were found.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} wallet found} other{{count} wallets found}}'**
+  String deskOnbImportFoundTitle(int count);
+
+  /// Line under the 'wallets found' title.
+  ///
+  /// In en, this message translates to:
+  /// **'Old folders are only read.'**
+  String get deskOnbImportFoundLead;
+
+  /// Title of the import wizard when nothing was found.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallets found'**
+  String get deskOnbImportNoneTitle;
+
+  /// Line under the 'No wallets found' title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the wallet folder, or restore from the recovery phrase.'**
+  String get deskOnbImportNoneLead;
+
+  /// Title of the choose step of the import wizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose wallets'**
+  String get deskOnbImportChooseTitle;
+
+  /// Line under the 'Choose wallets' title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticked wallets are added to the app. History is rebuilt by a scan.'**
+  String get deskOnbImportChooseLead;
+
+  /// Title of the check step of the import wizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for use'**
+  String get deskOnbImportCheckTitle;
+
+  /// Line under the 'Checking for use' title.
+  ///
+  /// In en, this message translates to:
+  /// **'A wallet in use by another program is not imported.'**
+  String get deskOnbImportCheckLead;
+
+  /// Title of the import step of the import wizard, its primary button and a step name in the left rail. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get deskOnbImportTitle;
+
+  /// Line under the 'Import' title.
+  ///
+  /// In en, this message translates to:
+  /// **'Each wallet asks for its old password once.'**
+  String get deskOnbImportLead;
+
+  /// Title of the last step of the import wizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets imported'**
+  String get deskOnbImportDoneTitle;
+
+  /// Line under the 'Wallets imported' title.
+  ///
+  /// In en, this message translates to:
+  /// **'The first unlock of each wallet scans the chain for its history.'**
+  String get deskOnbImportDoneLead;
+
+  /// Counter at the bottom of the choose step. Both are numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'{selected} of {total} selected'**
+  String deskOnbImportSelected(int selected, int total);
+
+  /// Status word while a wallet folder is checked, and counter text at the bottom of the check step.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking…'**
+  String get deskOnbImportChecking;
+
+  /// Hint at the bottom of the check step when a wallet is in use by another program.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the other program or skip the wallet'**
+  String get deskOnbImportCloseOther;
+
+  /// Counter at the bottom of the import step. Both are numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} imported'**
+  String deskOnbImportImportedOf(int done, int total);
+
+  /// Primary button of the last step of the import wizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Open wallet'**
+  String get deskOnbImportOpen;
+
+  /// Step name in the left rail of the import wizard. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Find'**
+  String get deskOnbImportStepFind;
+
+  /// Step name in the left rail of the import wizard. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get deskOnbImportStepChoose;
+
+  /// Step name in the left rail of the import wizard. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get deskOnbImportStepCheck;
+
+  /// Back button of the import wizard. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get deskOnbImportBack;
+
+  /// Button in the import wizard: leave this wallet out. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get deskOnbImportSkip;
+
+  /// Name of a place being searched on the first step of the import wizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Older Epic Wallet'**
+  String get deskOnbImportOlder;
+
+  /// Small text under 'Older Epic Wallet' on the first step.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts and folders'**
+  String get deskOnbImportOlderSub;
+
+  /// Name of a place being searched on the first step of the import wizard (the command-line program called epic).
+  ///
+  /// In en, this message translates to:
+  /// **'The epic program'**
+  String get deskOnbImportEpicProgram;
+
+  /// Status word beside a place being searched.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching…'**
+  String get deskOnbImportSearching;
+
+  /// Link in the import wizard when nothing was found: restore from the recovery words instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from phrase'**
+  String get deskOnbImportRestore;
+
+  /// Small line under a found wallet. {date} is a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Last used {date}'**
+  String deskOnbImportLastUsed(String date);
+
+  /// Small note under a found wallet that is already in the app. {reason} is a sentence from the app about why.
+  ///
+  /// In en, this message translates to:
+  /// **'{reason}. Tick for a second copy.'**
+  String deskOnbImportSecondCopy(String reason);
+
+  /// Screen-reader label of the cross shown for a wallet that cannot be imported. {name} is the wallet's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: cannot be imported'**
+  String deskOnbImportCannot(String name);
+
+  /// Small tag on a found wallet that is already in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'In the app'**
+  String get deskOnbImportInApp;
+
+  /// Small tag on a found wallet that is the same as another found one.
+  ///
+  /// In en, this message translates to:
+  /// **'Same wallet'**
+  String get deskOnbImportSameWallet;
+
+  /// Status word of the check step: the wallet can be imported.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in use'**
+  String get deskOnbImportNotInUse;
+
+  /// Status word of the check step: it could not be checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not checked'**
+  String get deskOnbImportNotChecked;
+
+  /// Status word of a wallet that was left out.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get deskOnbImportSkipped;
+
+  /// Status word of the check step: another program uses this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'In use'**
+  String get deskOnbImportInUse;
+
+  /// Text under a wallet that is in use by another program.
+  ///
+  /// In en, this message translates to:
+  /// **'In use by another program. Close the older Epic Wallet or the epic program, then check again.'**
+  String get deskOnbImportInUseText;
+
+  /// Button under a wallet that is in use: check once more.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get deskOnbImportCheckAgain;
+
+  /// Status word of a wallet that was imported.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported'**
+  String get deskOnbImportImported;
+
+  /// Status word of the wallet being imported now.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing…'**
+  String get deskOnbImportImporting;
+
+  /// Status word of a wallet that waits for its turn.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get deskOnbImportWaiting;
+
+  /// Label of the old-password field of the import step.
+  ///
+  /// In en, this message translates to:
+  /// **'Old password'**
+  String get deskOnbImportOldPassword;
+
+  /// Help text under the old-password field. {name} is the wallet's name.
+  ///
+  /// In en, this message translates to:
+  /// **'The password of {name} in the older app.'**
+  String deskOnbImportOldHelp(String name);
+
+  /// Screen-reader name of the old-password field. {name} is the wallet's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Old password of {name}'**
+  String deskOnbImportOldOf(String name);
+
+  /// Text shown when the old password is shorter than the app requires. {count} is the minimum length.
+  ///
+  /// In en, this message translates to:
+  /// **'The old password is short. Choose a new one, {count, plural, one{{count} or more characters.} other{{count} or more characters.}}'**
+  String deskOnbImportOldShort(int count);
+
+  /// Label and screen-reader name of the new-password field of the import step.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get deskOnbImportNewPassword;
+
+  /// Label of the repeat-password field of the import step. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get deskOnbImportRepeat;
+
+  /// Screen-reader name of the repeat-password field of the import step.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat the new password'**
+  String get deskOnbImportRepeatNew;
+
+  /// Note under the list on the last step of the import wizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Old folders are unchanged. The older app can still open them.'**
+  String get deskOnbImportUnchanged;
+
+  /// Title of the dialog asking whether to stop the import half-way.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the import?'**
+  String get deskOnbImportStopTitle;
+
+  /// Body of that dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets imported so far are removed. Old folders are unchanged.'**
+  String get deskOnbImportStopBody;
+
+  /// Button of that dialog: carry on with the import.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back'**
+  String get deskOnbImportGoBack;
+
+  /// Danger button of that dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop import'**
+  String get deskOnbImportStop;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../settings/settings_phrase.dart' show copyPhrase;
@@ -20,7 +21,7 @@ class CreateScreen extends ConsumerStatefulWidget {
   ConsumerState<CreateScreen> createState() => _CreateScreenState();
 }
 
-const _createStages = [Stage('create', 'Creating the wallet and its recovery phrase'), Stage('save', 'Saving the account')];
+List<Stage> _createStages(AppLocalizations l) => [Stage('create', l.deskOnbCreateStageCreate), Stage('save', l.deskOnbCreateStageSave)];
 
 class _CreateScreenState extends ConsumerState<CreateScreen> {
   final _password = TextEditingController();
@@ -29,6 +30,9 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
   List<String>? _phrase;
   String _stage = 'create';
   String? _failure;
+
+  /// The shots' failed step: the disk-full failure, worded in build (initState has no l10n).
+  bool _diskFull = false;
   bool _revealed = false;
   bool _written = false;
   bool _qr = false;
@@ -45,7 +49,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
         ref.read(deskApiProvider).newPhrase().then((p) => mounted ? setState(() => _phrase = p) : null);
       case CreateStep.failed:
         _stage = 'save';
-        _failure = 'The account could not be saved: the disk is full.';
+        _diskFull = true;
       case CreateStep.creating || CreateStep.locking || CreateStep.account:
         break;
     }
@@ -73,6 +77,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
       _step = CreateStep.creating;
       _stage = 'create';
       _failure = null;
+      _diskFull = false;
     });
     try {
       _before = {for (final w in await api.wallets()) w.id};
@@ -87,7 +92,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
       if (mounted) {
         setState(() {
           _step = CreateStep.failed;
-          _failure = deskErrorText(e);
+          _failure = deskErrorText(e, context.l10n);
         });
       }
     }
@@ -101,7 +106,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
       await ref.read(deskProvider.notifier).lock();
       if (!mounted) return;
     }
-    final added = await addedWallet(ref.read(deskApiProvider), _before, 'New wallet');
+    final added = await addedWallet(ref.read(deskApiProvider), _before, 'New wallet'); // l10n-ok: the wallet's stored default name
     if (!mounted) return;
     await markSetupPending(ref.read(deskApiProvider), added.id);
     if (!mounted) return;
@@ -112,28 +117,29 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
   Widget build(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
     final flow = ref.watch(onbFlowProvider);
-    final rail = railOf(['Password', 'Recovery phrase'], switch (_step) {
+    final l = context.l10n;
+    final rail = railOf([l.deskOnbStepPassword, l.deskOnbStepPhrase], switch (_step) {
       CreateStep.phrase || CreateStep.locking => 1,
       _ => 0,
     });
     switch (_step) {
       case CreateStep.creating || CreateStep.failed:
         return ProgressView(
-          title: _failure != null ? 'Wallet not created' : 'Creating the wallet',
-          lead: flow.testNet ? 'A wallet on ${networkName(flow.network)}, a test network.' : null,
-          failureTitle: 'The wallet could not be created',
-          stages: _createStages,
+          title: _failure != null || _diskFull ? l.deskOnbCreateNotCreated : l.deskOnbCreateCreating,
+          lead: flow.testNet ? l.deskOnbCreateTestLead(networkName(flow.network)) : null,
+          failureTitle: l.deskOnbCreateFailedTitle,
+          stages: _createStages(l),
           current: _stage,
           failed: _stage,
-          failure: _failure,
-          wait: 'This can take up to a minute. Keep the app open.',
+          failure: _diskFull ? l.deskOnbCreateDiskFull : _failure,
+          wait: l.deskOnbCreateWait,
           onBack: () => _to(CreateStep.account),
           onRetry: _create,
         );
       case CreateStep.locking:
-        return const ProgressView(
-          title: 'Locking the open wallet',
-          stages: [Stage('lock', 'Locking the open wallet')],
+        return ProgressView(
+          title: l.deskOnbCreateLocking,
+          stages: [Stage('lock', l.deskOnbCreateLocking)],
           current: 'lock',
         );
       case CreateStep.account:
@@ -142,19 +148,19 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
         return DeskStepBack(
           onBack: _password.text.isNotEmpty || _confirm.text.isNotEmpty ? () {} : null,
           child: EOnbFrame(
-          sideTitle: 'New wallet',
+          sideTitle: l.deskOnbCreateSide,
           steps: rail,
-          title: 'Create wallet',
-          lead: 'The password unlocks this wallet on this computer. It cannot recover coins; the phrase on the next step does.',
+          title: l.deskOnbCreateTitle,
+          lead: l.deskOnbCreateLead,
           actions: [
             backButton(() => nav.back()),
-            EButton.primary(label: 'Create wallet', onPressed: _accountOk ? _create : null),
+            EButton.primary(label: l.deskOnbCreateTitle, onPressed: _accountOk ? _create : null),
           ],
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (flow.testNet) ...[
-                NetNote(flow.network, 'A wallet on a test network, not for real EPIC'),
+                NetNote(flow.network, l.deskOnbCreateTestNote),
                 SizedBox(height: Sp.x5),
               ],
               AccountForm(
@@ -177,23 +183,24 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
   Widget _phraseStep(BuildContext context, List<ERailStep> rail) {
     final phrase = _phrase;
     final ts = context.ts;
+    final l = context.l10n;
     // The wallet exists now: Back (mouse, Alt+Left) must not leave its phrase unseen.
     return DeskStepBack(
       onBack: () {},
       child: EOnbFrame(
-      sideTitle: 'New wallet',
+      sideTitle: l.deskOnbCreateSide,
       steps: rail,
-      title: 'Recovery phrase',
-      lead: 'These words are the only way to get the coins back if this computer breaks. Write them on paper, in order.',
+      title: l.deskOnbStepPhrase,
+      lead: l.deskOnbCreatePhraseLead,
       actions: [
-        if (!_revealed) Flexible(child: Text('Reveal the phrase first', style: ts.caption, textAlign: TextAlign.right)),
-        EButton.primary(label: 'Continue', busy: _busy, onPressed: _revealed && _written ? _finish : null),
+        if (!_revealed) Flexible(child: Text(l.deskOnbCreateRevealFirst, style: ts.caption, textAlign: TextAlign.right)),
+        EButton.primary(label: l.commonContinue, busy: _busy, onPressed: _revealed && _written ? _finish : null),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ENotice(
-            title: 'Anyone with these words can take the coins',
+          ENotice(
+            title: l.deskOnbCreateWarn,
             tone: ETone.warn,
             icon: EIcons.shield,
           ),
@@ -209,9 +216,9 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      EButton.primary(label: 'Reveal phrase', icon: EIcons.eye, onPressed: () => setState(() => _revealed = true)),
+                      EButton.primary(label: l.deskOnbCreateReveal, icon: EIcons.eye, onPressed: () => setState(() => _revealed = true)),
                       SizedBox(height: Sp.x2),
-                      Text('Check that nobody can see the screen.', style: ts.small),
+                      Text(l.deskOnbCreateCheckScreen, style: ts.small),
                     ],
                   ),
               ],
@@ -223,7 +230,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
               runSpacing: Sp.x2,
               children: [
                 EButton.ghost(
-                  label: 'Hide',
+                  label: l.deskOnbCreateHide,
                   icon: EIcons.eyeOff,
                   onPressed: () => setState(() {
                     _revealed = false;
@@ -232,12 +239,12 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                   }),
                 ),
                 EButton.ghost(
-                  label: 'Copy',
+                  label: l.commonCopy,
                   icon: EIcons.copy,
                   onPressed: () => copyPhrase(context, phrase.join(' ')),
                 ),
                 EButton.ghost(
-                  label: _qr ? 'Hide QR code' : 'Show QR code',
+                  label: _qr ? l.deskOnbCreateHideQr : l.deskOnbCreateShowQr,
                   icon: EIcons.qr,
                   onPressed: () => setState(() => _qr = !_qr),
                 ),
@@ -246,15 +253,15 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
             if (_qr) ...[
               SizedBox(height: Sp.x4),
               ENotice(
-                title: 'Anyone who scans this code can take the coins',
-                text: 'Scan it only into another wallet you trust.',
+                title: l.deskOnbCreateQrWarn,
+                text: l.deskOnbCreateQrWarnText,
                 tone: ETone.risk,
                 icon: EIcons.alert,
               ),
               SizedBox(height: Sp.x4),
               Center(
                 child: Semantics(
-                  label: 'Recovery phrase as a QR code',
+                  label: l.deskOnbCreateQrLabel,
                   image: true,
                   child: EQr(phrase.join(' '), size: 216.u),
                 ),
@@ -264,7 +271,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
             ECheckbox(
               value: _written,
               onChanged: (v) => setState(() => _written = v),
-              label: 'Written down: all ${phrase.length} words on paper',
+              label: l.deskOnbCreateWritten(phrase.length),
             ),
           ],
         ],

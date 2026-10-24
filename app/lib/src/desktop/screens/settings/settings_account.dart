@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -156,7 +157,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               if (_remembered)
                 ESetRow(
                   title: 'Remembered on this computer',
-                  hint: 'Opens at start without the password, for 30 days from when it was set. Sends still ask the password. $rememberWho',
+                  hint: 'Opens at start without the password, for 30 days from when it was set. Sends still ask the password. ${rememberWho(context.l10n)}',
                   control: ERowControl(child: EButton(label: 'Forget this computer', icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget)),
                 ),
               if (DeskFeatures.changePassword)

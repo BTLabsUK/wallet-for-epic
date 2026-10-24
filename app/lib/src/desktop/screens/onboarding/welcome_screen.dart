@@ -1,3 +1,4 @@
+import '../../desk_l10n.dart';
 import '../../../app_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,13 +7,16 @@ import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 
-const _defaultFolder = '~/.config/Epic Cash Desktop';
+const _defaultFolder = '~/.config/Epic Cash Desktop'; // l10n-ok: a path
+
+/// Why the mock folder picker refuses a folder.
+enum _FolderIssue { notEmpty, walletFolder }
 
 /// The mock folder picker's choices and what each answers: null when the folder can be used.
 const _folders = {
-  '~/EpicData': null,
-  '~/Documents': 'That folder is not empty. Choose a new, empty folder.',
-  '~/.epic/main': 'That is a wallet folder. Choose a new, empty folder.',
+  '~/EpicData': null, // l10n-ok: a path
+  '~/Documents': _FolderIssue.notEmpty, // l10n-ok: a path
+  '~/.epic/main': _FolderIssue.walletFolder, // l10n-ok: a path
 };
 
 /// First run, and "add a wallet" later: create, add an existing one, or restore. [arg] `'add'`
@@ -28,7 +32,7 @@ class WelcomeScreen extends ConsumerStatefulWidget {
 
 class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   bool _tip = false;
-  String? _folderError;
+  _FolderIssue? _folderError;
 
   Future<void> _pickFolder() async {
     final picked = await showEDialog<String>(context, builder: (_) => const _FolderDialog());
@@ -43,6 +47,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final flow = ref.watch(onbFlowProvider);
     final ts = context.ts;
+    final l = context.l10n;
     final hasWallets = widget.arg == 'add' || nav.canBack;
     return EHeroScreen(
       footer: const AuthFoot(),
@@ -57,7 +62,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             if (hasWallets)
               Semantics(
                 header: true,
-                child: Text('Add a wallet', style: ts.h1, textAlign: TextAlign.center),
+                child: Text(l.deskOnbWelcomeAdd, style: ts.h1, textAlign: TextAlign.center),
               )
             else
               Semantics(
@@ -66,12 +71,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               ),
             if (!hasWallets) ...[
               SizedBox(height: Sp.x2),
-              Text('Keys and coins stay on this computer, locked with a password.', style: ts.bodyDim, textAlign: TextAlign.center),
+              Text(l.deskOnbWelcomeTagline, style: ts.bodyDim, textAlign: TextAlign.center),
             ],
             SizedBox(height: Sp.x8),
             EChoiceCard(
-              title: 'Create a new wallet',
-              description: 'New recovery phrase',
+              title: l.deskOnbWelcomeCreate,
+              description: l.deskOnbWelcomeCreateSub,
               icon: EIcons.plus,
               selected: false,
               onTap: () => nav.go(DeskRoute.create),
@@ -79,8 +84,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             if (DeskFeatures.importWizard) ...[
               SizedBox(height: Sp.x3),
               EChoiceCard(
-                title: 'Import wallets',
-                description: 'From an older Epic Wallet or a folder',
+                title: l.deskOnbWelcomeImport,
+                description: l.deskOnbWelcomeImportSub,
                 icon: EIcons.folderOpen,
                 selected: false,
                 onTap: () => nav.go(DeskRoute.importWallets),
@@ -88,21 +93,21 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             ],
             SizedBox(height: Sp.x3),
             EChoiceCard(
-              title: 'Restore from a phrase',
-              description: 'From the recovery words',
+              title: l.deskOnbWelcomeRestore,
+              description: l.deskOnbWelcomeRestoreSub,
               icon: EIcons.key,
               selected: false,
               onTap: () => nav.go(DeskRoute.restore),
             ),
             if (flow.testNet) ...[
               SizedBox(height: Sp.x4),
-              NetNote(flow.network, 'New wallets are made on this test network.', center: true),
+              NetNote(flow.network, l.deskOnbWelcomeTestNote, center: true),
             ],
             if (hasWallets) ...[
               SizedBox(height: Sp.x5),
               Center(
                 child: ELink(
-                  label: 'Back to unlock',
+                  label: l.deskOnbWelcomeBack,
                   onPressed: () => nav.canBack ? nav.back() : nav.reset(DeskRoute.unlock),
                 ),
               ),
@@ -110,7 +115,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             if (DeskFeatures.testNetworks || DeskFeatures.dataFolder) ...[
               SizedBox(height: Sp.x6),
               EDetails(
-                title: 'Advanced',
+                title: l.deskOnbWelcomeAdvanced,
                 initiallyOpen: widget.arg == 'advanced' || flow.dataFolder != null,
                 child: _advanced(context, flow, hasWallets),
               ),
@@ -124,21 +129,22 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   Widget _advanced(BuildContext context, OnbFlow flow, bool locked) {
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (DeskFeatures.testNetworks) ...[
         EField(
-          label: 'Network',
-          help: 'Mainnet holds real EPIC. Floonet and Usernet are test networks.',
+          label: l.deskOnbWelcomeNetwork,
+          help: l.deskOnbWelcomeNetworkHelp,
           child: ESelect<String>(
-            semanticLabel: 'Network',
+            semanticLabel: l.deskOnbWelcomeNetwork,
             value: flow.network,
             onChanged: ref.read(onbFlowProvider.notifier).setNetwork,
             items: const [
-              ESelectItem('mainnet', 'Mainnet'),
-              ESelectItem('floonet', 'Floonet'),
-              ESelectItem('usernet', 'Usernet'),
+              ESelectItem('mainnet', 'Mainnet'), // l10n-ok: network names
+              ESelectItem('floonet', 'Floonet'), // l10n-ok
+              ESelectItem('usernet', 'Usernet'), // l10n-ok
             ],
           ),
         ),
@@ -147,10 +153,10 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
         if (DeskFeatures.dataFolder) ...[
         Row(
           children: [
-            Expanded(child: Text('App data folder', style: ts.label)),
+            Expanded(child: Text(l.deskOnbWelcomeFolder, style: ts.label)),
             EIconButton(
               icon: EIcons.info,
-              label: _tip ? 'Hide details' : 'More about this',
+              label: _tip ? l.deskOnbWelcomeHideDetails : l.deskOnbWelcomeMoreAbout,
               size: EBtnSize.inline,
               selected: _tip,
               onPressed: () => setState(() => _tip = !_tip),
@@ -158,15 +164,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           ],
         ),
         SizedBox(height: Sp.x1),
-        Text('Where the app keeps wallets and settings.', style: ts.small),
+        Text(l.deskOnbWelcomeFolderWhere, style: ts.small),
         if (_tip) ...[
           SizedBox(height: Sp.x1),
           Semantics(
             liveRegion: true,
-            child: Text(
-              'With the local node, the blockchain is kept here too. A new folder must be empty: the app makes its folders there and keeps using it.',
-              style: ts.small,
-            ),
+            child: Text(l.deskOnbWelcomeFolderDetail, style: ts.small),
           ),
         ],
         SizedBox(height: Sp.x2),
@@ -177,7 +180,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               children: [
                 Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok),
                 SizedBox(width: Sp.x2),
-                Flexible(child: Text('Using ${flow.dataFolder}. The app restarts to use it.', style: ts.small)),
+                Flexible(child: Text(l.deskOnbWelcomeUsing('${flow.dataFolder}'), style: ts.small)),
               ],
             ),
           )
@@ -185,17 +188,17 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           Text(_defaultFolder, style: ts.mono()),
         SizedBox(height: Sp.x3),
         if (locked)
-          Text('It can be changed only before the first wallet is added.', style: ts.small)
+          Text(l.deskOnbWelcomeLocked, style: ts.small)
         else
           Wrap(
             spacing: Sp.x3,
             runSpacing: Sp.x2,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              EButton(label: 'Choose a folder', icon: EIcons.folder, size: EBtnSize.sm, onPressed: _pickFolder),
+              EButton(label: l.deskOnbWelcomeChooseFolder, icon: EIcons.folder, size: EBtnSize.sm, onPressed: _pickFolder),
               if (flow.dataFolder != null)
                 ELink(
-                  label: 'Default folder',
+                  label: l.deskOnbWelcomeDefaultFolder,
                   onPressed: () => setState(() {
                     _folderError = null;
                     ref.read(onbFlowProvider.notifier).setFolder(null);
@@ -212,7 +215,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               children: [
                 Icon(EIcons.error, size: Ctl.iconSm, color: c.risk),
                 SizedBox(width: Sp.x2),
-                Expanded(child: Text(_folderError!, style: ts.small.copyWith(color: c.risk))),
+                Expanded(child: Text(switch (_folderError!) { _FolderIssue.notEmpty => l.deskOnbWelcomeFolderNotEmpty, _FolderIssue.walletFolder => l.deskOnbWelcomeFolderIsWallet }, style: ts.small.copyWith(color: c.risk))),
               ],
             ),
           ),
@@ -236,7 +239,7 @@ class _FolderDialogState extends State<_FolderDialog> {
 
   @override
   Widget build(BuildContext context) => EDialog(
-    title: 'Choose a folder',
+    title: context.l10n.deskOnbWelcomeChooseFolder,
     body: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -247,8 +250,8 @@ class _FolderDialogState extends State<_FolderDialog> {
       ],
     ),
     actions: [
-      EButton(label: 'Cancel', onPressed: () => Navigator.pop(context)),
-      EButton.primary(label: 'Choose', onPressed: _sel == null ? null : () => Navigator.pop(context, _sel)),
+      EButton(label: context.l10n.commonCancel, onPressed: () => Navigator.pop(context)),
+      EButton.primary(label: context.l10n.deskOnbWelcomeChoose, onPressed: _sel == null ? null : () => Navigator.pop(context, _sel)),
     ],
   );
 }

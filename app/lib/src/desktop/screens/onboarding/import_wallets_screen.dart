@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../../l10n.dart' show localDay;
+import '../../desk_l10n.dart';
 import '../../data/api.dart';
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
@@ -23,12 +26,14 @@ String _size(int bytes) {
   return mb < 1 ? '< 1 MB' : '${mb.round()} MB';
 }
 
-String _date(DateTime d) {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/// `21 Sep 2026`; English is written here so a screen pumped without date data still reads.
+String _date(AppLocalizations l, DateTime d) {
+  if (l.localeName != 'en') return localDay(l, d);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; // l10n-ok: English only; other languages use localDay
   return '${d.day} ${months[d.month - 1]} ${d.year}';
 }
 
-String _message(Object e) => e is DeskError ? e.message : 'Something went wrong';
+String _message(AppLocalizations l, Object e) => deskErrorText(e, l);
 
 /// Import wallets from older folders: find, choose, check for use, import, done. Old folders
 /// are only read: each wallet's wallet.seed opens once with its old password and becomes a new
@@ -127,7 +132,8 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       _done[f.id] = ImportedWallet(
         id: f.id,
         name: f.name,
-        proof: const [ImportProof('Seed read'), ImportProof('Wallet created'), ImportProof('Old folder unchanged')],
+        // l10n-ok: the tour's sample proof lines (the real ones come from the wallet service)
+        proof: const [ImportProof('Seed read'), ImportProof('Wallet created'), ImportProof('Old folder unchanged')], // l10n-ok
       );
     }
   }
@@ -167,10 +173,11 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     final w = _current;
     if (w == null || _busy) return;
     final needNew = _shortOld;
-    if (_old.text.isEmpty) return setState(() => _error = 'Enter the old password');
+    final l = context.l10n;
+    if (_old.text.isEmpty) return setState(() => _error = l.deskOnbImportEnterOld);
     if (needNew) {
-      if (_new.text.length < minPasswordLength) return setState(() => _error = 'New password: at least $minPasswordLength characters');
-      if (_new.text != _repeat.text) return setState(() => _error = 'The new passwords differ');
+      if (_new.text.length < minPasswordLength) return setState(() => _error = l.deskOnbImportNewShort(minPasswordLength));
+      if (_new.text != _repeat.text) return setState(() => _error = l.deskOnbImportNewDiffer);
     }
     setState(() {
       _busy = true;
@@ -187,7 +194,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       if (!mounted) return;
       setState(() {
         if (e is DeskError && e.newPasswordNeeded) _needNew = true;
-        _error = _message(e);
+        _error = _message(context.l10n, e);
       });
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -214,6 +221,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   Future<void> _openWallet() async {
     final done = _done.values.toList();
     final nav = ref.read(deskNavProvider.notifier);
+    final l = context.l10n;
     final last = done.last;
     try {
       await _api.selectWallet(last.id);
@@ -223,9 +231,9 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     nav.reset(
       DeskRoute.unlock,
       UnlockAdded(
-        done.length == 1 ? last.name : '${done.length} wallets',
+        done.length == 1 ? last.name : l.deskOnbImportWalletsN(done.length),
         id: last.id,
-        notice: done.length == 1 ? 'Wallet imported.' : '${done.length} wallets imported.',
+        notice: l.deskOnbImportDone(done.length),
       ),
     );
   }
@@ -282,12 +290,13 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       _picking = true;
       _pickNote = null;
     });
+    final l = context.l10n;
     FolderFind? pick;
     String? note;
     try {
       pick = await _api.pickFolder();
     } on Object catch (e) {
-      note = _message(e);
+      note = _message(l, e);
     }
     if (!mounted) return;
     setState(() {
@@ -299,14 +308,14 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     });
   }
 
-  ({String title, String? lead}) get _head => switch (_step) {
-    ImportStep.find => (title: 'Finding wallets', lead: 'Searching the folders of older Epic Wallet versions and the epic program. Nothing is changed.'),
-    ImportStep.found => (title: '${_found.length} wallet${_found.length == 1 ? '' : 's'} found', lead: 'Old folders are only read.'),
-    ImportStep.none => (title: 'No wallets found', lead: 'Choose the wallet folder, or restore from the recovery phrase.'),
-    ImportStep.choose => (title: 'Choose wallets', lead: 'Ticked wallets are added to the app. History is rebuilt by a scan.'),
-    ImportStep.check => (title: 'Checking for use', lead: 'A wallet in use by another program is not imported.'),
-    ImportStep.import => (title: 'Import', lead: 'Each wallet asks for its old password once.'),
-    ImportStep.done => (title: 'Wallets imported', lead: 'The first unlock of each wallet scans the chain for its history.'),
+  ({String title, String? lead}) _head(AppLocalizations l) => switch (_step) {
+    ImportStep.find => (title: l.deskOnbImportFindingTitle, lead: l.deskOnbImportFindingLead),
+    ImportStep.found => (title: l.deskOnbImportFoundTitle(_found.length), lead: l.deskOnbImportFoundLead),
+    ImportStep.none => (title: l.deskOnbImportNoneTitle, lead: l.deskOnbImportNoneLead),
+    ImportStep.choose => (title: l.deskOnbImportChooseTitle, lead: l.deskOnbImportChooseLead),
+    ImportStep.check => (title: l.deskOnbImportCheckTitle, lead: l.deskOnbImportCheckLead),
+    ImportStep.import => (title: l.deskOnbImportTitle, lead: l.deskOnbImportLead),
+    ImportStep.done => (title: l.deskOnbImportDoneTitle, lead: l.deskOnbImportDoneLead),
   };
 
   int get _railIndex => switch (_step) {
@@ -320,28 +329,29 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
-    final h = _head;
+    final l = context.l10n;
+    final h = _head(l);
     final chosen = _chosen;
     final todo = _toImport;
     final busyCheck = chosen.any((f) => _use[f.id] == null || _use[f.id] == _Use.checking);
     final pending = chosen.any((f) => _use[f.id] == _Use.inUse);
     final current = _current;
     final (label, enabled, stat) = switch (_step) {
-      ImportStep.find => ('Continue', false, null),
-      ImportStep.found => ('Continue', true, null),
-      ImportStep.none => ('Continue', false, null),
-      ImportStep.choose => ('Continue', chosen.isNotEmpty, '${chosen.length} of ${_found.length} selected'),
+      ImportStep.find => (l.commonContinue, false, null),
+      ImportStep.found => (l.commonContinue, true, null),
+      ImportStep.none => (l.commonContinue, false, null),
+      ImportStep.choose => (l.commonContinue, chosen.isNotEmpty, l.deskOnbImportSelected(chosen.length, _found.length)),
       ImportStep.check => (
-        'Continue',
+        l.commonContinue,
         !busyCheck && !pending && todo.isNotEmpty,
-        busyCheck ? 'Checking…' : (pending ? 'Close the other program or skip the wallet' : null),
+        busyCheck ? l.deskOnbImportChecking : (pending ? l.deskOnbImportCloseOther : null),
       ),
       ImportStep.import => (
-        current == null ? 'Continue' : 'Import',
+        current == null ? l.commonContinue : l.deskOnbImportTitle,
         current != null ? !_busy : _done.isNotEmpty,
-        '${_done.length} of ${todo.length} imported',
+        l.deskOnbImportImportedOf(_done.length, todo.length),
       ),
-      ImportStep.done => ('Open wallet', true, null),
+      ImportStep.done => (l.deskOnbImportOpen, true, null),
     };
     final canBack = _step == ImportStep.choose || _step == ImportStep.check || (_step == ImportStep.import && _done.isEmpty && !_busy);
     final leaveSafe = _step == ImportStep.find || _step == ImportStep.found || _step == ImportStep.none;
@@ -349,19 +359,19 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     return DeskStepBack(
       onBack: canBack ? _back : (leaveSafe && !_busy ? null : () {}),
       child: EOnbFrame(
-      sideTitle: 'Import wallets',
-      steps: railOf(['Find', 'Choose', 'Check', 'Import', 'Done'], _railIndex),
+      sideTitle: l.deskOnbWelcomeImport,
+      steps: railOf([l.deskOnbImportStepFind, l.deskOnbImportStepChoose, l.deskOnbImportStepCheck, l.deskOnbImportTitle, l.commonDone], _railIndex),
       title: h.title,
       lead: h.lead,
       sideFoot: _step == ImportStep.done
           ? null
           : Align(
               alignment: Alignment.centerLeft,
-              child: EButton.ghost(label: 'Cancel', icon: EIcons.close, tabStop: false, onPressed: _busy ? null : _cancel),
+              child: EButton.ghost(label: l.commonCancel, icon: EIcons.close, tabStop: false, onPressed: _busy ? null : _cancel),
             ),
       actions: [
         if (stat != null) Expanded(child: Text(stat, style: ts.small)) else const SizedBox.shrink(),
-        if (canBack) Padding(padding: EdgeInsets.only(right: Sp.x3), child: EButton(label: 'Back', tabStop: false, onPressed: _back)),
+        if (canBack) Padding(padding: EdgeInsets.only(right: Sp.x3), child: EButton(label: l.deskOnbImportBack, tabStop: false, onPressed: _back)),
         if (_step == ImportStep.import && current != null)
           // Tab: Import, then Skip (Skip sits left of the main button).
           FocusTraversalGroup(
@@ -371,7 +381,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
               children: [
                 FocusTraversalOrder(
                   order: const NumericFocusOrder(2),
-                  child: EButton.ghost(label: 'Skip', size: EBtnSize.inline, onPressed: _busy ? null : _skipCurrent),
+                  child: EButton.ghost(label: l.deskOnbImportSkip, size: EBtnSize.inline, onPressed: _busy ? null : _skipCurrent),
                 ),
                 SizedBox(width: Sp.x3),
                 FocusTraversalOrder(
@@ -456,9 +466,10 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   }
 
   Widget _finding(BuildContext context) {
-    const rows = [
-      ('Older Epic Wallet', EIcons.wallet, 'Accounts and folders'),
-      ('The epic program', EIcons.node, '~/.epic'),
+    final l = context.l10n;
+    final rows = [
+      (l.deskOnbImportOlder, EIcons.wallet, l.deskOnbImportOlderSub),
+      (l.deskOnbImportEpicProgram, EIcons.node, '~/.epic'), // l10n-ok: a path
     ];
     final ts = context.ts;
     final c = context.dc;
@@ -479,7 +490,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                       children: [Text(r.$1, style: ts.label), Text(r.$3, style: ts.small)],
                     ),
                   ),
-                  _status(context, null, 'Searching…', spin: true),
+                  _status(context, null, l.deskOnbImportSearching, spin: true),
                 ],
               ),
             ),
@@ -494,7 +505,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       EButton(
-        label: 'Choose a folder',
+        label: context.l10n.deskOnbWelcomeChooseFolder,
         icon: EIcons.folderOpen,
         size: small ? EBtnSize.sm : EBtnSize.md,
         busy: _picking,
@@ -513,7 +524,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     children: [
       _pickButton(),
       SizedBox(height: Sp.x4),
-      ELink(label: 'Restore from phrase', onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.restore)),
+      ELink(label: context.l10n.deskOnbImportRestore, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.restore)),
     ],
   );
 
@@ -546,10 +557,11 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   Widget _foundRow(BuildContext context, OldWallet f, bool selectable) {
     final ts = context.ts;
     final c = context.dc;
-    final meta = [if (f.lastUsed != null) 'Last used ${_date(f.lastUsed!)}', _size(f.sizeBytes)].join(' · ');
+    final l = context.l10n;
+    final meta = [if (f.lastUsed != null) l.deskOnbImportLastUsed(_date(l, f.lastUsed!)), _size(f.sizeBytes)].join(' · ');
     final notes = [
       if (f.blocked != null) f.blocked!,
-      if (f.importable && f.sameAs != null) '${f.sameAs}. Tick for a second copy.',
+      if (f.importable && f.sameAs != null) l.deskOnbImportSecondCopy('${f.sameAs}'),
     ];
     return Padding(
       padding: EdgeInsets.all(Sp.x4),
@@ -562,7 +574,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                 ? Icon(EIcons.wallet, size: Ctl.icon, color: c.dim)
                 : f.importable
                 ? ECheckbox(value: _sel[f.id] == true, label: f.name, onChanged: (v) => setState(() => _sel[f.id] = v))
-                : Semantics(label: '${f.name}: cannot be imported', child: Icon(EIcons.cancel, size: Ctl.icon, color: c.faint)),
+                : Semantics(label: l.deskOnbImportCannot(f.name), child: Icon(EIcons.cancel, size: Ctl.icon, color: c.faint)),
           ),
           Expanded(
             child: Column(
@@ -583,7 +595,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
             spacing: Sp.x2,
             children: [
               if (f.network != 'mainnet') ETag('${f.network[0].toUpperCase()}${f.network.substring(1)}'),
-              if (f.sameAs != null) ETag(f.inApp ? 'In the app' : 'Same wallet', tone: ETone.warn, icon: EIcons.alert),
+              if (f.sameAs != null) ETag(f.inApp ? l.deskOnbImportInApp : l.deskOnbImportSameWallet, tone: ETone.warn, icon: EIcons.alert),
             ],
           ),
         ],
@@ -594,6 +606,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   Widget _checkList(BuildContext context) {
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     return _wlist(context, [
       for (final f in _chosen)
         Padding(
@@ -605,22 +618,22 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                 context,
                 f,
                 switch (_use[f.id]) {
-                  null || _Use.checking => _status(context, null, 'Checking…', spin: true),
-                  _Use.free => _status(context, EIcons.okCircle, 'Not in use', color: c.ok),
-                  _Use.unknown => _status(context, EIcons.info, 'Not checked', color: c.faint),
-                  _Use.skipped => _status(context, EIcons.cancel, 'Skipped', color: c.faint),
-                  _Use.inUse => _status(context, EIcons.error, 'In use', color: c.risk),
+                  null || _Use.checking => _status(context, null, l.deskOnbImportChecking, spin: true),
+                  _Use.free => _status(context, EIcons.okCircle, l.deskOnbImportNotInUse, color: c.ok),
+                  _Use.unknown => _status(context, EIcons.info, l.deskOnbImportNotChecked, color: c.faint),
+                  _Use.skipped => _status(context, EIcons.cancel, l.deskOnbImportSkipped, color: c.faint),
+                  _Use.inUse => _status(context, EIcons.error, l.deskOnbImportInUse, color: c.risk),
                 },
               ),
               if (_use[f.id] == _Use.inUse) ...[
                 SizedBox(height: Sp.x3),
-                Text('In use by another program. Close the older Epic Wallet or the epic program, then check again.', style: ts.small),
+                Text(l.deskOnbImportInUseText, style: ts.small),
                 SizedBox(height: Sp.x3),
                 Row(
                   children: [
-                    EButton(label: 'Check again', size: EBtnSize.inline, onPressed: () => _checkOne(f.id)),
+                    EButton(label: l.deskOnbImportCheckAgain, size: EBtnSize.inline, onPressed: () => _checkOne(f.id)),
                     SizedBox(width: Sp.x2),
-                    EButton.ghost(label: 'Skip', size: EBtnSize.inline, onPressed: () => setState(() => _use[f.id] = _Use.skipped)),
+                    EButton.ghost(label: l.deskOnbImportSkip, size: EBtnSize.inline, onPressed: () => setState(() => _use[f.id] = _Use.skipped)),
                   ],
                 ),
               ],
@@ -655,6 +668,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
 
   Widget _importList(BuildContext context) {
     final c = context.dc;
+    final l = context.l10n;
     final current = _current;
     return _wlist(context, [
       for (final f in _toImport)
@@ -667,12 +681,12 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                 context,
                 f,
                 _done.containsKey(f.id)
-                    ? _status(context, EIcons.okCircle, 'Imported', color: c.ok)
+                    ? _status(context, EIcons.okCircle, l.deskOnbImportImported, color: c.ok)
                     : _skipped.contains(f.id)
-                    ? _status(context, EIcons.cancel, 'Skipped', color: c.faint)
+                    ? _status(context, EIcons.cancel, l.deskOnbImportSkipped, color: c.faint)
                     : f.id == current?.id
-                    ? (_busy ? _status(context, null, 'Importing…', spin: true) : const SizedBox.shrink())
-                    : _status(context, null, 'Waiting'),
+                    ? (_busy ? _status(context, null, l.deskOnbImportImporting, spin: true) : const SizedBox.shrink())
+                    : _status(context, null, l.deskOnbImportWaiting),
               ),
               if (_done[f.id] != null) _proof(context, _done[f.id]!),
               if (f.id == current?.id) _passwordForm(context, f),
@@ -684,6 +698,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
 
   Widget _passwordForm(BuildContext context, OldWallet f) {
     final ts = context.ts;
+    final l = context.l10n;
     final short = _shortOld;
     // Enter: Old → New → Repeat, then Import.
     return Padding(
@@ -694,28 +709,28 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
-            label: 'Old password',
-            help: 'The password of ${f.name} in the older app.',
+            label: l.deskOnbImportOldPassword,
+            help: l.deskOnbImportOldHelp(f.name),
             error: short ? null : _error,
             child: EPasswordInput(
               key: ValueKey('old-${f.id}'),
               controller: _old,
               autofocus: true,
               invalid: _error != null && !short,
-              semanticLabel: 'Old password of ${f.name}',
+              semanticLabel: l.deskOnbImportOldOf(f.name),
               onChanged: (_) => setState(() => _error = null),
             ),
           ),
           if (short) ...[
             SizedBox(height: Sp.x3),
-            Text('The old password is short. Choose a new one, $minPasswordLength or more characters.', style: ts.small),
+            Text(l.deskOnbImportOldShort(minPasswordLength), style: ts.small),
             SizedBox(height: Sp.x3),
             EField(
-              label: 'New password',
+              label: l.deskOnbImportNewPassword,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  EPasswordInput(controller: _new, semanticLabel: 'New password', onChanged: (_) => setState(() => _error = null)),
+                  EPasswordInput(controller: _new, semanticLabel: l.deskOnbImportNewPassword, onChanged: (_) => setState(() => _error = null)),
                   SizedBox(height: Sp.x2),
                   ExcludeFocusTraversal(child: PasswordHint(controller: _new)),
                 ],
@@ -723,11 +738,11 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
             ),
             SizedBox(height: Sp.x3),
             EField(
-              label: 'Repeat',
+              label: l.deskOnbImportRepeat,
               error: _error,
               child: EPasswordInput(
                 controller: _repeat,
-                semanticLabel: 'Repeat the new password',
+                semanticLabel: l.deskOnbImportRepeatNew,
                 invalid: _error != null,
                 onChanged: (_) => setState(() => _error = null),
               ),
@@ -742,6 +757,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   Widget _doneList(BuildContext context) {
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -757,7 +773,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                       Icon(EIcons.okCircle, size: Ctl.icon, color: c.ok),
                       SizedBox(width: Sp.x3),
                       Expanded(child: Text(r.name, style: ts.label)),
-                      Text('Imported', style: ts.small),
+                      Text(l.deskOnbImportImported, style: ts.small),
                     ],
                   ),
                   _proof(context, r),
@@ -766,7 +782,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
             ),
         ]),
         SizedBox(height: Sp.x4),
-        Text('Old folders are unchanged. The older app can still open them.', style: ts.bodyDim),
+        Text(l.deskOnbImportUnchanged, style: ts.bodyDim),
       ],
     );
   }
@@ -778,14 +794,14 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
 Future<bool?> showImportStopDialog(BuildContext context) => showEDialog<bool>(
   context,
   builder: (ctx) => EDialog(
-    title: 'Stop the import?',
-    description: 'Wallets imported so far are removed. Old folders are unchanged.',
+    title: ctx.l10n.deskOnbImportStopTitle,
+    description: ctx.l10n.deskOnbImportStopBody,
     icon: EIcons.stop,
     tone: ETone.warn,
     width: 420.u,
     actions: [
-      EButton(label: 'Go back', onPressed: () => Navigator.pop(ctx, false)),
-      EButton(label: 'Stop import', kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
+      EButton(label: ctx.l10n.deskOnbImportGoBack, onPressed: () => Navigator.pop(ctx, false)),
+      EButton(label: ctx.l10n.deskOnbImportStop, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
     ],
   ),
 );
