@@ -11137,7 +11137,7 @@ abstract class AppLocalizations {
   /// **'Chain data not deleted'**
   String get deskSetLndNotDeleted;
 
-  /// Delete chain data dialog: title and danger button.
+  /// Delete chain data dialog: danger button label.
   ///
   /// In en, this message translates to:
   /// **'Delete chain data'**
@@ -12773,6 +12773,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From a recovery phrase.'**
   String get deskSetWalletsRestoreText;
+
+  /// Delete chain data dialog: title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete chain data?'**
+  String get deskSetLndDeleteQuestion;
 }
 
 class _AppLocalizationsDelegate

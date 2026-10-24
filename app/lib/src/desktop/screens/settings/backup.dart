@@ -27,14 +27,19 @@ final historyBackupProvider = FutureProvider.autoDispose<HistoryBackupState>((re
 /// Start states of the Backup group for the screenshots.
 enum BackupDemo { busy }
 
+// English reads the formats without locale data (widget tests pump screens on their own).
+String _clock(AppLocalizations l, DateTime d) => l.localeName == 'en' ? DateFormat('HH:mm').format(d) : localClock(l, d);
+
+String _dayOf(AppLocalizations l, DateTime d) => l.localeName == 'en' ? DateFormat('d MMM yyyy').format(d) : localDay(l, d);
+
 /// "3 Oct 2026, 14:02", "today, 14:02", "yesterday, 09:10".
 String backupWhen(AppLocalizations l, DateTime d, {DateTime? now}) {
   final n = now ?? DateTime.now();
   final days = DateTime(n.year, n.month, n.day).difference(DateTime(d.year, d.month, d.day)).inDays;
   return switch (days) {
-    0 => l.deskSetBackupWhenToday(localClock(l, d)),
-    1 => l.deskSetBackupWhenYesterday(localClock(l, d)),
-    _ => l.deskSetBackupWhenDate(localDay(l, d), localClock(l, d)),
+    0 => l.deskSetBackupWhenToday(_clock(l, d)),
+    1 => l.deskSetBackupWhenYesterday(_clock(l, d)),
+    _ => l.deskSetBackupWhenDate(_dayOf(l, d), _clock(l, d)),
   };
 }
 

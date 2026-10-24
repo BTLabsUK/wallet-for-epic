@@ -130,7 +130,7 @@ class _DeleteChainDataDialogState extends State<DeleteChainDataDialog> {
     final s = widget.state;
     final l = context.l10n;
     return EDialog(
-      title: l.deskSetLndDeleteTitle,
+      title: l.deskSetLndDeleteQuestion,
       icon: EIcons.trash,
       tone: ETone.risk,
       description: s.chainDataBytes == null ? l.deskSetLndDeleteDescNoSize(s.chainDataPath) : l.deskSetLndDeleteDesc(bytesText(s.chainDataBytes!), s.chainDataPath),

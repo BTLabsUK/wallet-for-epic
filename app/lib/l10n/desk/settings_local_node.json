@@ -451,7 +451,7 @@
   },
   "deskSetLndDeleteTitle": "Delete chain data",
   "@deskSetLndDeleteTitle": {
-    "description": "Delete chain data dialog: title and danger button."
+    "description": "Delete chain data dialog: danger button label."
   },
   "deskSetLndDeleteDesc": "Removes {size} from {path}. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.",
   "@deskSetLndDeleteDesc": {
@@ -863,5 +863,9 @@
         "type": "int"
       }
     }
+  },
+  "deskSetLndDeleteQuestion": "Delete chain data?",
+  "@deskSetLndDeleteQuestion": {
+    "description": "Delete chain data dialog: title."
   }
 }

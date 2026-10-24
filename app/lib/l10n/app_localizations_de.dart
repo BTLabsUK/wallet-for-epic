@@ -8158,4 +8158,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetWalletsRestoreText => 'From a recovery phrase.';
+
+  @override
+  String get deskSetLndDeleteQuestion => 'Delete chain data?';
 }
