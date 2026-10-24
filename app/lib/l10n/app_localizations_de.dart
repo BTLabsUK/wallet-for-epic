@@ -2696,6 +2696,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get slateReading => 'Datei wird gelesen';
 
   @override
+  String get slateReadingQr => 'Zahlung wird gelesen';
+
+  @override
   String get slateFileTooLarge =>
       'Diese Datei ist zu groß für eine Transaktionsdatei.';
 
@@ -3000,17 +3003,17 @@ class AppLocalizationsDe extends AppLocalizations {
       'Angenommen. Zeigen Sie dem Absender die Antwort.';
 
   @override
-  String get methodQr => 'QR';
+  String get methodQr => 'QR-Zahlung';
 
   @override
-  String get receiveTabQr => 'QR';
+  String get receiveTabQr => 'QR-Zahlung';
 
   @override
   String get methodArtCaptionQr => 'Persönlich';
 
   @override
   String get methodArtLabelQr =>
-      'QR: Ein Code wandert von einem Smartphone zum Smartphone daneben';
+      'QR-Zahlung: Ein Code wandert von einem Smartphone zum Smartphone daneben';
 
   @override
   String get methodSendQrTitle => 'Für ein Smartphone neben Ihnen.';
@@ -3039,7 +3042,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txQrHint =>
-      'QR zeigt die Zahlung als animierten Code, den das andere Smartphone mit der Kamera scannt, und nimmt die Antwort auf dieselbe Weise entgegen. Das geht nur zwischen Smartphones nebeneinander, braucht keine Verbindung zwischen den beiden Wallets, und der Code verbirgt sich nach 40 Sekunden. Fügt QR zu Senden und Empfangen hinzu.';
+      'QR-Zahlung zeigt die Zahlung als animierten Code, den das andere Smartphone mit der Kamera scannt, und nimmt die Antwort auf dieselbe Weise entgegen. Das geht nur zwischen Smartphones nebeneinander, braucht keine Verbindung zwischen den beiden Wallets, und der Code verbirgt sich nach 40 Sekunden. Fügt QR-Zahlung zu Senden und Empfangen hinzu.';
 
   @override
   String get advTransactionFiles => 'Transaktionsdateien';
@@ -3049,7 +3052,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Fügt unter Einstellungen › Transaktionen einen Schalter Datei hinzu: mit einer Datei zahlen oder bezahlt werden, die Sie selbst weitergeben.';
 
   @override
-  String get sendQrTitle => 'Mit QR-Code zahlen';
+  String get sendQrTitle => 'QR-Zahlung';
 
   @override
   String get sendMakeQr => 'Zahlungs-QR erstellen';

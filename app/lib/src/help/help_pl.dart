@@ -80,11 +80,11 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
     if (phone)
       const HelpTopic(
         'start',
-        'Płatność osobiście przez QR',
+        'Płatność osobiście: Płatność QR',
         'Dwa telefony obok siebie płacą animowanym kodem QR, bez połączenia między nimi.',
         [
           HelpBlock.p('Płatność wędruje jako animowany kod QR, który drugi telefon skanuje aparatem. Nic nie jest szyfrowane, więc pokazuj kod tylko osobie, której płacisz.'),
-          HelpBlock.ol(['**Nadawca:** w Wyślij wybiera **QR**, wpisuje kwotę i dotyka **Pokaż QR**. Kod pozostaje ukryty, dopóki go nie pokażesz, odlicza 3, 2, 1 i sam znika po 40 sekundach.', '**Odbiorca:** w [[Odbierz › QR|Receive › QR]] dotyka **Skanuj kod QR płatności**, przyjmuje płatność i pokazuje odpowiedź w ten sam sposób.', '**Nadawca:** dotyka **Skanuj odpowiedź**. Portfel wysyła płatność, a śledzenie pokazuje jej postęp.']),
+          HelpBlock.ol(['**Nadawca:** w Wyślij wybiera **Płatność QR**, wpisuje kwotę i dotyka **Pokaż QR**. Kod pozostaje ukryty, dopóki go nie pokażesz, odlicza 3, 2, 1 i sam znika po 40 sekundach.', '**Odbiorca:** w [[Odbierz › Płatność QR|Receive › QR Payment]] dotyka **Skanuj kod QR płatności**, przyjmuje płatność i pokazuje odpowiedź w ten sam sposób.', '**Nadawca:** dotyka **Skanuj odpowiedź**. Portfel wysyła płatność, a śledzenie pokazuje jej postęp.']),
           HelpBlock.p('Trzymaj kod w kadrze, aż wszystkie części zostaną odczytane: pierścień i licznik pokazują postęp. Kod, który nie jest płatnością, jest zgłaszany i pomijany. Na ekranie z kodem zrzuty ekranu są zablokowane.'),
         ],
         id: HelpId.qr,

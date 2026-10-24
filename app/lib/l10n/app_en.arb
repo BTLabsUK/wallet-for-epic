@@ -3101,6 +3101,10 @@
   "slateInvoiceUnsupported": "Payment requests (invoices) are not supported yet.",
   "slateNotTransactionFile": "That file is not a transaction file.",
   "slateReading": "Reading the file",
+  "slateReadingQr": "Reading the payment",
+  "@slateReadingQr": {
+    "description": "Spoken label while the scanned payment is read."
+  },
   "@slateReading": {
     "description": "Screen reader label of the spinner while a transaction file is being read."
   },
@@ -3518,11 +3522,11 @@
   "@slateAcceptedHeadlineQr": {
     "description": "Headline after a scanned payment was accepted."
   },
-  "methodQr": "QR",
+  "methodQr": "QR Payment",
   "@methodQr": {
     "description": "Name of the QR payment method, in the method selector and Settings: two phones next to each other, a code on a screen. Keep it short."
   },
-  "receiveTabQr": "QR",
+  "receiveTabQr": "QR Payment",
   "@receiveTabQr": {
     "description": "Receive tab that scans a payment QR from the phone next to this one. Keep it short."
   },
@@ -3530,7 +3534,7 @@
   "@methodArtCaptionQr": {
     "description": "Caption under the QR method picture; two or three words."
   },
-  "methodArtLabelQr": "QR: a code passes from one phone to the phone next to it",
+  "methodArtLabelQr": "QR Payment: a code passes from one phone to the phone next to it",
   "@methodArtLabelQr": {
     "description": "Spoken description of the QR method picture."
   },
@@ -3562,7 +3566,7 @@
   "@txQrLine": {
     "description": "Settings › Transactions: one line under the QR switch."
   },
-  "txQrHint": "QR shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR to Send and Receive.",
+  "txQrHint": "QR Payment shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR Payment to Send and Receive.",
   "@txQrHint": {
     "description": "Settings › Transactions: the explanation behind the info icon of the QR switch."
   },
@@ -3574,7 +3578,7 @@
   "@advTransactionFilesHint": {
     "description": "Advanced page: what the Transaction files switch shows."
   },
-  "sendQrTitle": "Pay with a QR code",
+  "sendQrTitle": "QR Payment",
   "@sendQrTitle": {
     "description": "Title of Send's QR way."
   },

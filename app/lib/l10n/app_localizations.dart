@@ -3898,6 +3898,12 @@ abstract class AppLocalizations {
   /// **'Reading the file'**
   String get slateReading;
 
+  /// Spoken label while the scanned payment is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the payment'**
+  String get slateReadingQr;
+
   /// No description provided for @slateFileTooLarge.
   ///
   /// In en, this message translates to:
@@ -4351,13 +4357,13 @@ abstract class AppLocalizations {
   /// Name of the QR payment method, in the method selector and Settings: two phones next to each other, a code on a screen. Keep it short.
   ///
   /// In en, this message translates to:
-  /// **'QR'**
+  /// **'QR Payment'**
   String get methodQr;
 
   /// Receive tab that scans a payment QR from the phone next to this one. Keep it short.
   ///
   /// In en, this message translates to:
-  /// **'QR'**
+  /// **'QR Payment'**
   String get receiveTabQr;
 
   /// Caption under the QR method picture; two or three words.
@@ -4369,7 +4375,7 @@ abstract class AppLocalizations {
   /// Spoken description of the QR method picture.
   ///
   /// In en, this message translates to:
-  /// **'QR: a code passes from one phone to the phone next to it'**
+  /// **'QR Payment: a code passes from one phone to the phone next to it'**
   String get methodArtLabelQr;
 
   /// Bold line of the strip under Send's method selector when QR is chosen.
@@ -4417,7 +4423,7 @@ abstract class AppLocalizations {
   /// Settings › Transactions: the explanation behind the info icon of the QR switch.
   ///
   /// In en, this message translates to:
-  /// **'QR shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR to Send and Receive.'**
+  /// **'QR Payment shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR Payment to Send and Receive.'**
   String get txQrHint;
 
   /// Advanced page switch name: transaction files (the File payment method).
@@ -4435,7 +4441,7 @@ abstract class AppLocalizations {
   /// Title of Send's QR way.
   ///
   /// In en, this message translates to:
-  /// **'Pay with a QR code'**
+  /// **'QR Payment'**
   String get sendQrTitle;
 
   /// Button that makes the payment shown as a QR code.

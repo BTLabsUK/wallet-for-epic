@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../payment_prefs.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
@@ -26,6 +27,11 @@ const String scannedSlateName = 'scanned';
 /// The keys of the QR buttons of the payment file screen, for tests.
 const Key showReplyQrKey = ValueKey('slate-show-reply-qr');
 const Key scanAgainKey = ValueKey('slate-scan-again');
+
+/// How many payment screens of a scanned QR code are open. Home then keeps its "on the way"
+/// notice to itself: the screen already says the payment is accepted, and the notice would
+/// cover its headline. A plain counter: a provider cannot change in a widget's life cycle.
+int qrPaymentScreensOpen = 0;
 
 /// One transaction file: shows what it is, then signs it (a send to us) or finalizes it (the
 /// answer to our send). Opened from Receive (a file or pasted text), from Send's second step,
@@ -76,7 +82,14 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.scanned) qrPaymentScreensOpen++;
     _read();
+  }
+
+  @override
+  void dispose() {
+    if (widget.scanned) qrPaymentScreensOpen--;
+    super.dispose();
   }
 
   Future<void> _read() async {
@@ -95,7 +108,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       }
     } catch (e) {
       error = e is WalletError
-          ? (l) => l.slateNotTransactionFile
+          ? (l) =>
+                widget.scanned ? l.qrScanNotPayment : l.slateNotTransactionFile
           : (l) => describeError(l, e);
     }
     if (!mounted) return;
@@ -166,7 +180,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     try {
       decoded = decodeSlateFile(utf8.encode(result.json));
     } on FormatException {
-      setState(() => _error = (l) => l.slateNotTransactionFile);
+      setState(() => _error = (l) => l.qrScanNotPayment);
       return;
     }
     setState(() {
@@ -184,6 +198,13 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     final info = _info;
     final theme = Theme.of(context);
     final showQr = widget.scanned && offersQrScan(ref);
+    // The reply goes by QR on a phone with File off; the file buttons need File on.
+    final fileOn =
+        (ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
+                (ref.watch(phonePaymentsProvider)
+                    ? PaymentPrefs.phoneDefaults
+                    : PaymentPrefs.defaults))
+            .file;
     final List<Widget> body;
     if (_posted case final posted? when posted.repostable) {
       body = [
@@ -213,10 +234,10 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body = [
         _Headline(
           icon: Icons.check_circle,
-          text: response.repeated
-              ? l.slateRepeatedHeadline(name)
-              : widget.scanned
+          text: widget.scanned
               ? l.slateAcceptedHeadlineQr
+              : response.repeated
+              ? l.slateRepeatedHeadline(name)
               : l.slateAcceptedHeadline(name),
         ),
         const SizedBox(height: 8),
@@ -239,13 +260,14 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           ),
           const SizedBox(height: 8),
         ],
-        SlateFileButtons(
-          name: name,
-          json: response.json,
-          copyable: widget.pasted,
-          primary: !showQr,
-        ),
-        const SizedBox(height: 8),
+        if (!showQr || fileOn)
+          SlateFileButtons(
+            name: name,
+            json: response.json,
+            copyable: widget.pasted,
+            primary: !showQr,
+          ),
+        if (!showQr || fileOn) const SizedBox(height: 8),
         TextButton(
           style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           onPressed: () => Navigator.pop(context, true),
@@ -255,7 +277,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     } else if (_reading) {
       body = [
         Semantics(
-          label: l.slateReading,
+          label: widget.scanned ? l.slateReadingQr : l.slateReading,
           child: const Center(child: CircularProgressIndicator()),
         ),
       ];
@@ -319,7 +341,9 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     }
     final error = _error;
     return SlotScaffold(
-      appBar: AppBar(title: Text(l.slateFileTitle)),
+      appBar: AppBar(
+        title: Text(widget.scanned ? l.methodQr : l.slateFileTitle),
+      ),
       body: ScreenBody(
         children: [
           ...body,

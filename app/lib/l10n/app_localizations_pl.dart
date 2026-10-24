@@ -2818,6 +2818,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get slateReading => 'Odczytywanie pliku';
 
   @override
+  String get slateReadingQr => 'Odczytuję płatność';
+
+  @override
   String get slateFileTooLarge =>
       'Ten plik jest za duży, aby mógł być plikiem transakcji.';
 
@@ -3121,17 +3124,17 @@ class AppLocalizationsPl extends AppLocalizations {
   String get slateAcceptedHeadlineQr => 'Przyjęto. Pokaż odpowiedź nadawcy.';
 
   @override
-  String get methodQr => 'QR';
+  String get methodQr => 'Płatność QR';
 
   @override
-  String get receiveTabQr => 'QR';
+  String get receiveTabQr => 'Płatność QR';
 
   @override
   String get methodArtCaptionQr => 'Osobiście';
 
   @override
   String get methodArtLabelQr =>
-      'QR: kod przechodzi z jednego telefonu na drugi, obok';
+      'Płatność QR: kod przechodzi z jednego telefonu na drugi, obok';
 
   @override
   String get methodSendQrTitle => 'Dla telefonu obok ciebie.';
@@ -3160,7 +3163,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txQrHint =>
-      'QR pokazuje płatność jako animowany kod, który drugi telefon skanuje aparatem, a odpowiedź przyjmuje w ten sam sposób. Działa tylko między telefonami obok siebie, nie wymaga połączenia między portfelami, a kod sam się ukrywa po 40 sekundach. Dodaje QR do Wyślij i Odbierz.';
+      'Płatność QR pokazuje płatność jako animowany kod, który drugi telefon skanuje aparatem, a odpowiedź przyjmuje w ten sam sposób. Działa tylko między telefonami obok siebie, nie wymaga połączenia między portfelami, a kod sam się ukrywa po 40 sekundach. Dodaje Płatność QR do Wyślij i Odbierz.';
 
   @override
   String get advTransactionFiles => 'Pliki transakcji';
@@ -3170,7 +3173,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Dodaje przełącznik Plik w Ustawienia › Transakcje: płać lub dostawaj zapłatę plikiem, który przekazujesz sam.';
 
   @override
-  String get sendQrTitle => 'Płatność kodem QR';
+  String get sendQrTitle => 'Płatność QR';
 
   @override
   String get sendMakeQr => 'Utwórz kod QR płatności';

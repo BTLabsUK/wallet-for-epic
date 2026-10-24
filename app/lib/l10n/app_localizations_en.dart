@@ -2659,6 +2659,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get slateReading => 'Reading the file';
 
   @override
+  String get slateReadingQr => 'Reading the payment';
+
+  @override
   String get slateFileTooLarge =>
       'That file is too large to be a transaction file.';
 
@@ -2957,17 +2960,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Accepted. Show the reply to the sender.';
 
   @override
-  String get methodQr => 'QR';
+  String get methodQr => 'QR Payment';
 
   @override
-  String get receiveTabQr => 'QR';
+  String get receiveTabQr => 'QR Payment';
 
   @override
   String get methodArtCaptionQr => 'In person';
 
   @override
   String get methodArtLabelQr =>
-      'QR: a code passes from one phone to the phone next to it';
+      'QR Payment: a code passes from one phone to the phone next to it';
 
   @override
   String get methodSendQrTitle => 'For a phone next to you.';
@@ -2996,7 +2999,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txQrHint =>
-      'QR shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR to Send and Receive.';
+      'QR Payment shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR Payment to Send and Receive.';
 
   @override
   String get advTransactionFiles => 'Transaction files';
@@ -3006,7 +3009,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Adds a File switch under Settings › Transactions: pay or get paid with a file you pass on yourself.';
 
   @override
-  String get sendQrTitle => 'Pay with a QR code';
+  String get sendQrTitle => 'QR Payment';
 
   @override
   String get sendMakeQr => 'Make payment QR';

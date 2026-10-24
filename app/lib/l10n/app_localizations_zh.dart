@@ -2494,6 +2494,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slateReading => '正在读取文件';
 
   @override
+  String get slateReadingQr => '正在读取付款';
+
+  @override
   String get slateFileTooLarge => '该文件过大，不可能是交易文件。';
 
   @override
@@ -2775,16 +2778,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slateAcceptedHeadlineQr => '已接受。请把回复展示给发送方。';
 
   @override
-  String get methodQr => '二维码';
+  String get methodQr => '二维码付款';
 
   @override
-  String get receiveTabQr => '二维码';
+  String get receiveTabQr => '二维码付款';
 
   @override
   String get methodArtCaptionQr => '当面';
 
   @override
-  String get methodArtLabelQr => '二维码：一部手机上的码被身边的另一部手机扫描';
+  String get methodArtLabelQr => '二维码付款：一部手机上的码被身边的另一部手机扫描';
 
   @override
   String get methodSendQrTitle => '给你身边的手机。';
@@ -2809,7 +2812,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txQrHint =>
-      '二维码会把付款显示成动态码，由另一部手机用摄像头扫描，回复也用同样方式接收。它只适用于并排的两部手机，两个钱包之间无需连接，二维码会在 40 秒后自动隐藏。会在发送和接收中加入二维码。';
+      '二维码付款会把付款显示成动态码，由另一部手机用摄像头扫描，回复也用同样方式接收。它只适用于并排的两部手机，两个钱包之间无需连接，二维码会在 40 秒后自动隐藏。会在发送和接收中加入二维码付款。';
 
   @override
   String get advTransactionFiles => '交易文件';
@@ -2818,7 +2821,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advTransactionFilesHint => '在设置 › 交易中加入“文件”开关：用你自己传递的文件付款或收款。';
 
   @override
-  String get sendQrTitle => '用二维码付款';
+  String get sendQrTitle => '二维码付款';
 
   @override
   String get sendMakeQr => '生成付款二维码';

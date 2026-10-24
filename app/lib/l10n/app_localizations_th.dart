@@ -2584,6 +2584,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get slateReading => 'กำลังอ่านไฟล์';
 
   @override
+  String get slateReadingQr => 'กำลังอ่านรายการ';
+
+  @override
   String get slateFileTooLarge => 'ไฟล์นี้ใหญ่เกินกว่าจะเป็นไฟล์ธุรกรรม';
 
   @override
@@ -2875,17 +2878,17 @@ class AppLocalizationsTh extends AppLocalizations {
   String get slateAcceptedHeadlineQr => 'รับแล้ว แสดงคำตอบให้ผู้ส่ง';
 
   @override
-  String get methodQr => 'QR';
+  String get methodQr => 'ชำระด้วย QR';
 
   @override
-  String get receiveTabQr => 'QR';
+  String get receiveTabQr => 'ชำระด้วย QR';
 
   @override
   String get methodArtCaptionQr => 'ต่อหน้า';
 
   @override
   String get methodArtLabelQr =>
-      'QR: โค้ดส่งจากโทรศัพท์เครื่องหนึ่งไปยังอีกเครื่องที่อยู่ข้างกัน';
+      'ชำระด้วย QR: โค้ดส่งจากโทรศัพท์เครื่องหนึ่งไปยังอีกเครื่องที่อยู่ข้างกัน';
 
   @override
   String get methodSendQrTitle => 'สำหรับโทรศัพท์ที่อยู่ข้างคุณ';
@@ -2913,7 +2916,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txQrHint =>
-      'QR แสดงรายการเป็นโค้ดเคลื่อนไหวที่โทรศัพท์อีกเครื่องสแกนด้วยกล้อง และรับคำตอบด้วยวิธีเดียวกัน ใช้ได้เฉพาะโทรศัพท์ที่อยู่ข้างกัน ไม่ต้องมีการเชื่อมต่อระหว่างกระเป๋าทั้งสอง และโค้ดจะซ่อนเองหลัง 40 วินาที เพิ่ม QR ในส่งและรับ';
+      'ชำระด้วย QR แสดงรายการเป็นโค้ดเคลื่อนไหวที่โทรศัพท์อีกเครื่องสแกนด้วยกล้อง และรับคำตอบด้วยวิธีเดียวกัน ใช้ได้เฉพาะโทรศัพท์ที่อยู่ข้างกัน ไม่ต้องมีการเชื่อมต่อระหว่างกระเป๋าทั้งสอง และโค้ดจะซ่อนเองหลัง 40 วินาที เพิ่ม ชำระด้วย QR ในส่งและรับ';
 
   @override
   String get advTransactionFiles => 'ไฟล์ธุรกรรม';
