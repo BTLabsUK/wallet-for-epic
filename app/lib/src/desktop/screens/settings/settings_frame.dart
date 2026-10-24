@@ -10,20 +10,20 @@ import 'prefs.dart';
 
 /// The sections; [invoices] adds Invoices below Receiving (wallets that take invoices), its label
 /// in the app's language.
-List<(DeskRoute, String, IconData)?> _itemsFor({required bool invoices, required String invoicesLabel}) => [
-  (DeskRoute.settingsNode, 'Node', EIcons.node),
-  (DeskRoute.settingsReceiving, 'Receiving', EIcons.antenna),
-  (DeskRoute.settingsPrivacy, 'Privacy', EIcons.shield),
-  if (invoices) (DeskRoute.settingsInvoices, invoicesLabel, EIcons.invoice),
-  (DeskRoute.settingsAppearance, 'Appearance', EIcons.palette),
+List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices}) => [
+  (DeskRoute.settingsNode, l.deskSetFrameNode, EIcons.node),
+  (DeskRoute.settingsReceiving, l.deskSetFrameReceiving, EIcons.antenna),
+  (DeskRoute.settingsPrivacy, l.deskSetFramePrivacy, EIcons.shield),
+  if (invoices) (DeskRoute.settingsInvoices, l.deskInvSetTitle, EIcons.invoice),
+  (DeskRoute.settingsAppearance, l.deskSetFrameAppearance, EIcons.palette),
   null,
-  (DeskRoute.settingsAccount, 'This wallet', EIcons.wallet),
-  if (DeskFeatures.multiWallet) (DeskRoute.settingsWallets, 'All wallets', EIcons.coins),
-  (DeskRoute.settingsPhrase, 'Recovery phrase', EIcons.key),
-  (DeskRoute.settingsRescan, 'Recheck balance', EIcons.scan),
+  (DeskRoute.settingsAccount, l.deskSetFrameThisWallet, EIcons.wallet),
+  if (DeskFeatures.multiWallet) (DeskRoute.settingsWallets, l.deskSetFrameAllWallets, EIcons.coins),
+  (DeskRoute.settingsPhrase, l.deskSetFramePhrase, EIcons.key),
+  (DeskRoute.settingsRescan, l.deskSetFrameRescan, EIcons.scan),
   null,
-  (DeskRoute.settingsAbout, 'About', EIcons.info),
-  (DeskRoute.settingsHelp, 'Help', EIcons.help),
+  (DeskRoute.settingsAbout, l.deskSetFrameAbout, EIcons.info),
+  (DeskRoute.settingsHelp, l.deskSetFrameHelp, EIcons.help),
 ];
 
 /// The Settings page: title, sub-navigation on the left (a scrolling strip below 1000 px)
@@ -38,10 +38,11 @@ class SettingsFrame extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final nav = ref.read(deskNavProvider.notifier);
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
-    final items = _itemsFor(invoices: ref.watch(deskApiProvider).supportsInvoices, invoicesLabel: context.l10n.deskInvSetTitle);
+    final l = context.l10n;
+    final items = _itemsFor(l, invoices: ref.watch(deskApiProvider).supportsInvoices);
     final content = ConstrainedBox(constraints: BoxConstraints(maxWidth: Ctl.narrow), child: child);
     return EPage(
-      title: 'Settings',
+      title: l.deskSetFrameTitle,
       width: EPageWidth.full,
       child: wide
           ? Row(
@@ -50,7 +51,7 @@ class SettingsFrame extends ConsumerWidget {
                 SizedBox(
                   width: 200.u,
                   child: Semantics(
-                    label: 'Settings sections',
+                    label: l.deskSetFrameSections,
                     child: ESubnav(
                       items: items,
                       current: route,
@@ -86,29 +87,29 @@ class SettingsFrame extends ConsumerWidget {
   }
 }
 
-String healthWord(ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => 'On',
-  ServiceHealth.slow => 'Slow',
-  ServiceHealth.down => 'Not responding',
-  ServiceHealth.off => 'Off',
-  ServiceHealth.checking => 'Checking…',
+String healthWord(AppLocalizations l, ServiceHealth h) => switch (h) {
+  ServiceHealth.ok => l.deskSetFrameHealthOn,
+  ServiceHealth.slow => l.deskSetFrameHealthSlow,
+  ServiceHealth.down => l.deskSetFrameNotResponding,
+  ServiceHealth.off => l.deskSetFrameOff,
+  ServiceHealth.checking => l.deskSetFrameChecking,
 };
 
 /// The node's state word (6.1.6 nodeBadge; O2: a synced node says Synced, never Online).
-String nodeWord(ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => 'Synced',
-  ServiceHealth.slow => 'Syncing',
-  ServiceHealth.down => 'Not responding',
-  ServiceHealth.off => 'Off',
-  ServiceHealth.checking => 'Connecting…',
+String nodeWord(AppLocalizations l, ServiceHealth h) => switch (h) {
+  ServiceHealth.ok => l.deskSetFrameNodeSynced,
+  ServiceHealth.slow => l.deskSetFrameNodeSyncing,
+  ServiceHealth.down => l.deskSetFrameNotResponding,
+  ServiceHealth.off => l.deskSetFrameOff,
+  ServiceHealth.checking => l.deskSetFrameConnecting,
 };
 
 /// The Epicbox listener's state word.
-String epicboxWord(ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => 'Listening',
-  ServiceHealth.slow || ServiceHealth.checking => 'Connecting…',
-  ServiceHealth.down => 'Not responding',
-  ServiceHealth.off => 'Off',
+String epicboxWord(AppLocalizations l, ServiceHealth h) => switch (h) {
+  ServiceHealth.ok => l.deskSetFrameListening,
+  ServiceHealth.slow || ServiceHealth.checking => l.deskSetFrameConnecting,
+  ServiceHealth.down => l.deskSetFrameNotResponding,
+  ServiceHealth.off => l.deskSetFrameOff,
 };
 
 /// 2914414 → "2,914,414".
@@ -194,12 +195,13 @@ class HealthLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
+    final l = context.l10n;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         EStatusDot(healthTone(health)),
         SizedBox(width: 6.u),
-        Text(latencyMs == null ? healthWord(health) : '${healthWord(health)} · $latencyMs ms', style: ts.small),
+        Text(latencyMs == null ? healthWord(l, health) : l.deskSetFrameHealthLatency(healthWord(l, health), latencyMs!), style: ts.small),
       ],
     );
   }
@@ -219,13 +221,13 @@ class SettingsLoading extends StatelessWidget {
 /// The mock's clock (its times are anchored here).
 final _mockNow = DateTime(2026, 10, 21, 14, 30);
 
-String ago(DateTime? t) {
-  if (t == null) return 'never';
+String ago(AppLocalizations l, DateTime? t) {
+  if (t == null) return l.deskSetFrameNever;
   final d = _mockNow.difference(t);
-  if (d.inMinutes < 1) return 'just now';
-  if (d.inMinutes < 60) return '${d.inMinutes} min ago';
-  if (d.inHours < 24) return '${d.inHours} h ago';
-  return '${d.inDays} d ago';
+  if (d.inMinutes < 1) return l.deskSetFrameJustNow;
+  if (d.inMinutes < 60) return l.deskSetFrameMinAgo(d.inMinutes);
+  if (d.inHours < 24) return l.deskSetFrameHoursAgo(d.inHours);
+  return l.deskSetFrameDaysAgo(d.inDays);
 }
 
 /// Copies [url]; false when the clipboard refused it twice. On Windows another program can

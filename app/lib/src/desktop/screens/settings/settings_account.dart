@@ -52,15 +52,16 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
   }
 
   Future<void> _forget() async {
+    final l = context.l10n;
     try {
       await ref.read(deskApiProvider).forgetRemembered(_walletId);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Not forgotten', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, l.deskSetAcctNotForgotten, text: deskErrorText(e, l), tone: ETone.risk);
       return;
     }
     if (!mounted) return;
     setState(() => _remembered = false);
-    showEToast(context, 'Forgotten on this computer', text: 'The next start asks the password.');
+    showEToast(context, l.deskSetAcctForgotten, text: l.deskSetAcctForgottenText);
   }
 
   @override
@@ -70,17 +71,18 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
   }
 
   Future<void> _save() async {
+    final l = context.l10n;
     final t = _label.text.trim();
     final id = ref.read(deskProvider).account?.id;
     if (t.isEmpty) {
-      showEToast(context, 'Label not saved', text: 'Enter a label');
+      showEToast(context, l.deskSetAcctLabelNotSaved, text: l.deskSetAcctEnterLabel);
       return;
     }
     if (id != null) {
       try {
         await ref.read(deskProvider.notifier).renameWallet(id, t);
       } on Object catch (e) {
-        if (mounted) showEToast(context, 'Label not saved', text: deskErrorText(e));
+        if (mounted) showEToast(context, l.deskSetAcctLabelNotSaved, text: deskErrorText(e, l));
         return;
       }
     }
@@ -88,11 +90,12 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
     // The wallet's own name wins; the old app-wide label stays empty.
     final p = ref.read(settingsPrefsProvider.notifier);
     p.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: id == null ? t : ''));
-    showEToast(context, 'Label saved', text: t);
+    showEToast(context, l.deskSetAcctLabelSaved, text: t);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final a = ref.watch(deskProvider.select((s) => s.account));
     final label = ref.watch(settingsPrefsProvider.select((p) => p.walletLabel));
     if (a == null) return const SettingsFrame(route: DeskRoute.settingsAccount, child: SettingsLoading());
@@ -107,69 +110,69 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ESetGroup(
-            title: 'This wallet',
+            title: l.deskSetFrameThisWallet,
             rows: [
               ESetRow(
-                title: 'Label',
-                hint: 'Only shown in this app.',
+                title: l.deskSetAcctLabel,
+                hint: l.deskSetAcctLabelHint,
                 control: ERowControl(
                   child: EInput(
                     size: EBtnSize.sm,
                     controller: _label,
                     hint: a.name,
-                    semanticLabel: 'Label',
+                    semanticLabel: l.deskSetAcctLabel,
                     inputFormatters: [LengthLimitingTextInputFormatter(32)],
                     onSubmitted: (_) => _save(),
-                    trailing: EIconButton(icon: EIcons.check, label: 'Save label', size: EBtnSize.inline, onPressed: _save),
+                    trailing: EIconButton(icon: EIcons.check, label: l.deskSetAcctSaveLabel, size: EBtnSize.inline, onPressed: _save),
                   ),
                 ),
               ),
               ESetRow(
-                title: 'Recovery phrase',
-                hint: 'The words that restore this wallet. Keep them private.',
-                control: ERowControl(child: EButton(label: 'Show phrase…', icon: EIcons.key, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsPhrase))),
+                title: l.deskSetFramePhrase,
+                hint: l.deskSetAcctPhraseHint,
+                control: ERowControl(child: EButton(label: l.deskSetAcctShowPhrase, icon: EIcons.key, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsPhrase))),
               ),
               ESetRow(
-                title: 'Recheck balance',
-                hint: 'Reads the chain again when the balance looks wrong.',
-                control: ERowControl(child: EButton(label: 'Recheck…', icon: EIcons.scan, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan))),
+                title: l.deskSetFrameRescan,
+                hint: l.deskSetAcctRescanHint,
+                control: ERowControl(child: EButton(label: l.deskSetAcctRecheck, icon: EIcons.scan, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan))),
               ),
             ],
           ),
           BackupGroup(demo: widget.arg is BackupDemo ? widget.arg as BackupDemo : null),
           ESetGroup(
-            title: 'Files',
+            title: l.deskSetAcctFiles,
             rows: [
-              _FolderRow(title: 'Wallet folder', path: a.folder),
-              _FolderRow(title: 'App files', hint: 'Settings and the log.', path: a.appFolder ?? appFilesDir),
+              _FolderRow(title: l.deskSetAcctWalletFolder, path: a.folder),
+              _FolderRow(title: l.deskSetAcctAppFiles, hint: l.deskSetAcctAppFilesHint, path: a.appFolder ?? appFilesDir),
               if (a.network != 'mainnet')
-                ESetRow(title: 'Network', hint: 'Set when the wallet was created.', control: ETag(a.network, tone: ETone.warn)),
+                ESetRow(title: l.deskSetAcctNetwork, hint: l.deskSetAcctNetworkHint, control: ETag(a.network, tone: ETone.warn)),
               ESetRow(
-                title: 'Setup assistant',
-                hint: 'Walk through node and receiving again. Nothing is lost.',
-                control: ERowControl(child: EButton(label: 'Run setup…', size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.setup))),
+                title: l.deskSetAcctSetup,
+                hint: l.deskSetAcctSetupHint,
+                control: ERowControl(child: EButton(label: l.deskSetAcctRunSetup, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.setup))),
               ),
             ],
           ),
           ESetGroup(
-            title: 'Security',
+            title: l.deskSetAcctSecurity,
             rows: [
               if (_remembered)
                 ESetRow(
-                  title: 'Remembered on this computer',
-                  hint: 'Opens at start without the password, for 30 days from when it was set. Sends still ask the password. ${rememberWho(context.l10n)}',
-                  control: ERowControl(child: EButton(label: 'Forget this computer', icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget)),
+                  title: l.deskSetAcctRemembered,
+                  hint: l.deskSetAcctRememberedHint(rememberWho(l)),
+                  control: ERowControl(child: EButton(label: l.deskSetAcctForget, icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget)),
                 ),
               if (DeskFeatures.changePassword)
                 ESetRow(
-                  title: 'Password',
-                  hint: 'Unlocks this wallet.',
-                  control: ERowControl(child: EButton(label: 'Change password…', size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context))),
+                  title: l.deskSetDlgPassword,
+                  hint: l.deskSetAcctPasswordHint,
+                  control: ERowControl(child: EButton(label: l.deskSetAcctChangePassword, size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context))),
                 ),
               ESetRow(
-                  title: 'Delete wallet',
-                  hint: 'Deletes its keys and database.',
-                  control: ERowControl(child: EButton(label: 'Delete…', size: EBtnSize.sm, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => showDeleteWalletDialog(context))),
+                  title: l.deskSetDlgDeleteWallet,
+                  hint: l.deskSetAcctDeleteHint,
+                  control: ERowControl(child: EButton(label: l.deskSetLnodeDelete, size: EBtnSize.sm, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => showDeleteWalletDialog(context))),
                 ),
             ],
           ),
@@ -189,28 +192,30 @@ class _FolderRow extends ConsumerWidget {
 
   /// Opens [path] in the system's file manager; a path that is not on disk (the mock) toasts.
   Future<void> _open(BuildContext context, WidgetRef ref) async {
+    final l = context.l10n;
     if (!Directory(path).existsSync()) {
-      showEToast(context, 'Folder not found', text: path);
+      showEToast(context, l.deskSetAcctFolderNotFound, text: path);
       return;
     }
-    if (!await ref.read(deskOpenFolderProvider)(path) && context.mounted) showEToast(context, 'Folder not opened', text: path);
+    if (!await ref.read(deskOpenFolderProvider)(path) && context.mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: path);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     return ESetRow(
       title: title,
       hint: hint,
-      control: ERowControl(child: EButton(label: 'Open folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: () => _open(context, ref))),
+      control: ERowControl(child: EButton(label: l.deskSetBackupOpenFolder, icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: () => _open(context, ref))),
       below: Row(
         children: [
           Flexible(
             child: Tooltip(message: path, child: Text(path, style: ts.mono(size: Fs.sm, color: c.dim), overflow: TextOverflow.ellipsis)),
           ),
           SizedBox(width: Sp.x1),
-          ECopyButton(text: path, label: 'Copy path: $title'),
+          ECopyButton(text: path, label: l.deskSetAcctCopyPath(title)),
         ],
       ),
     );

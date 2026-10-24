@@ -1,0 +1,417 @@
+{
+  "deskSetBackupWhenToday": "today, {time}",
+  "@deskSetBackupWhenToday": {
+    "description": "Settings > Backup: when the last export was, when it was today. {time} is a clock time like 14:02. Part of a longer line; keep lowercase.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWhenYesterday": "yesterday, {time}",
+  "@deskSetBackupWhenYesterday": {
+    "description": "Settings > Backup: when the last export was, when it was yesterday. {time} is a clock time like 09:10. Part of a longer line; keep lowercase.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWhenDate": "{day}, {time}",
+  "@deskSetBackupWhenDate": {
+    "description": "Settings > Backup: date and time of the last export, e.g. \"3 Oct 2026, 14:02\".",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNeverExported": "Never exported.",
+  "@deskSetBackupNeverExported": {
+    "description": "Settings > Backup: line under Export history backup when nothing was ever exported."
+  },
+  "deskSetBackupLastExportNothingNew": "Last export {when} · nothing new since.",
+  "@deskSetBackupLastExportNothingNew": {
+    "description": "Settings > Backup: line under Export history backup. {when} is a date such as \"today, 14:02\".",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupLastExportSince": "Last export {when} · {count, plural, one{1 payment since} other{{count} payments since}}.",
+  "@deskSetBackupLastExportSince": {
+    "description": "Settings > Backup: line under Export history backup. {when} is a date such as \"today, 14:02\"; count is how many payments are not in that backup.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupWriteFailedHere": "Could not write to the folder: {reason}. Choose another folder.",
+  "@deskSetBackupWriteFailedHere": {
+    "description": "Error in the Export dialogs when the file could not be saved and the system did not say where. {reason} is the system message.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWriteFailedIn": "Could not write to {folder}: {reason}. Choose another folder.",
+  "@deskSetBackupWriteFailedIn": {
+    "description": "Error in the Export dialogs when the file could not be saved. {folder} is a path; {reason} is the system message.",
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWriteFailed": "The file could not be written. Choose another folder.",
+  "@deskSetBackupWriteFailed": {
+    "description": "Error in the Export dialogs when the file could not be saved, reason unknown."
+  },
+  "deskSetBackupGroup": "Backup",
+  "@deskSetBackupGroup": {
+    "description": "Settings > This wallet: title of the Backup group of rows."
+  },
+  "deskSetBackupExportTitle": "Export history backup",
+  "@deskSetBackupExportTitle": {
+    "description": "Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file."
+  },
+  "deskSetBackupExportHint": "Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not the records.",
+  "@deskSetBackupExportHint": {
+    "description": "Settings > Backup: hint under the Export history backup row."
+  },
+  "deskSetBackupExporting": "Exporting…",
+  "@deskSetBackupExporting": {
+    "description": "Settings > Backup: button label while the export dialog is open. Short."
+  },
+  "deskSetBackupExportButton": "Export…",
+  "@deskSetBackupExportButton": {
+    "description": "Settings > Backup: button that opens the export dialog. Short; the dots mean a dialog follows."
+  },
+  "deskSetBackupImportTitle": "Import history backup",
+  "@deskSetBackupImportTitle": {
+    "description": "Settings > Backup: row title and dialog title for importing a history backup file."
+  },
+  "deskSetBackupImportHint": "Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.",
+  "@deskSetBackupImportHint": {
+    "description": "Settings > Backup: hint under the Import history backup row."
+  },
+  "deskSetBackupImportButton": "Import…",
+  "@deskSetBackupImportButton": {
+    "description": "Settings > Backup: button that opens the import dialog. Short."
+  },
+  "deskSetBackupCsvTitle": "Payments as CSV",
+  "@deskSetBackupCsvTitle": {
+    "description": "Settings > Backup: row title for exporting payments as a spreadsheet file."
+  },
+  "deskSetBackupCsvHint": "A plain table for spreadsheets. Not encrypted, not importable.",
+  "@deskSetBackupCsvHint": {
+    "description": "Settings > Backup: hint under the Payments as CSV row."
+  },
+  "deskSetBackupCsvButton": "Export CSV…",
+  "@deskSetBackupCsvButton": {
+    "description": "Settings > Backup: button that opens the CSV export dialog. Short."
+  },
+  "deskSetBackupSaveDialogTitle": "Save payment history",
+  "@deskSetBackupSaveDialogTitle": {
+    "description": "Title of the system Save dialog when exporting the history backup."
+  },
+  "deskSetBackupNotSaved": "Not saved",
+  "@deskSetBackupNotSaved": {
+    "description": "Export dialogs: title of the error notice when the file could not be saved."
+  },
+  "deskSetBackupInFile": "In the file",
+  "@deskSetBackupInFile": {
+    "description": "Export history dialog: label of the row listing what the file holds. Narrow label column (about 100 px)."
+  },
+  "deskSetBackupInFileCounts": "{payments, plural, one{1 payment} other{{payments} payments}}, {contacts, plural, one{1 contact} other{{contacts} contacts}}",
+  "@deskSetBackupInFileCounts": {
+    "description": "Export history dialog: what the file holds, e.g. \"12 payments, 3 contacts\".",
+    "placeholders": {
+      "payments": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupInFileSub": "Who paid what, fees, notes, slate ids",
+  "@deskSetBackupInFileSub": {
+    "description": "Export history dialog: small text under the counts of what the file holds."
+  },
+  "deskSetBackupNotIn": "Not in it",
+  "@deskSetBackupNotIn": {
+    "description": "Export history dialog: label of the row listing what the file does not hold. Narrow label column."
+  },
+  "deskSetBackupNotInValue": "Keys, the recovery phrase, the password",
+  "@deskSetBackupNotInValue": {
+    "description": "Export history dialog: what the file does not contain."
+  },
+  "deskSetBackupOpensWith": "Opens with",
+  "@deskSetBackupOpensWith": {
+    "description": "Export history dialog: label of the row saying which wallet can open the file. Narrow label column."
+  },
+  "deskSetBackupOpensWithValue": "This wallet, or one restored from its phrase",
+  "@deskSetBackupOpensWithValue": {
+    "description": "Export history dialog: which wallets can open the file."
+  },
+  "deskSetBackupFile": "File",
+  "@deskSetBackupFile": {
+    "description": "Export dialog: label of the row with the file name. Narrow label column."
+  },
+  "deskSetBackupFileNote": "The file holds payments up to now. Export again after new payments.",
+  "@deskSetBackupFileNote": {
+    "description": "Export history dialog: note under the list."
+  },
+  "deskSetBackupExportDesc": "A file with this wallet’s payments, their details and contacts. Only a wallet with the same recovery phrase opens it.",
+  "@deskSetBackupExportDesc": {
+    "description": "Export history dialog: description under the title."
+  },
+  "deskSetBackupSaved": "Saved",
+  "@deskSetBackupSaved": {
+    "description": "Export dialogs: title of the success block once the file is saved."
+  },
+  "deskSetBackupKeepCopy": "Keep a copy off this computer too: a USB stick, another drive, or cloud storage. Export again after new payments.",
+  "@deskSetBackupKeepCopy": {
+    "description": "Export history dialog: advice shown after saving."
+  },
+  "deskSetBackupOpenFolder": "Open folder",
+  "@deskSetBackupOpenFolder": {
+    "description": "Export dialogs: button that opens the folder of the saved file."
+  },
+  "deskSetBackupSaving": "Saving…",
+  "@deskSetBackupSaving": {
+    "description": "Export dialogs: save button label while saving."
+  },
+  "deskSetBackupTryAgain": "Try again",
+  "@deskSetBackupTryAgain": {
+    "description": "Export dialogs: save button label after a failed save."
+  },
+  "deskSetBackupSaveAs": "Save as…",
+  "@deskSetBackupSaveAs": {
+    "description": "Export dialogs: button that opens the system Save dialog."
+  },
+  "deskSetBackupOpenDialogTitle": "Open history backup",
+  "@deskSetBackupOpenDialogTitle": {
+    "description": "Title of the system Open dialog when importing a history backup."
+  },
+  "deskSetBackupDetailsRestored": "Details restored",
+  "@deskSetBackupDetailsRestored": {
+    "description": "Import result tile title: count of payments that got details back."
+  },
+  "deskSetBackupDetailsRestoredSub": "Payments already here got their counterparty, fee or note back",
+  "@deskSetBackupDetailsRestoredSub": {
+    "description": "Import result tile text under \"Details restored\"."
+  },
+  "deskSetBackupOlderAdded": "Older payments added",
+  "@deskSetBackupOlderAdded": {
+    "description": "Import result tile title: count of payments added from the backup."
+  },
+  "deskSetBackupOlderAddedSub": "Not in the list any more; shown as From backup",
+  "@deskSetBackupOlderAddedSub": {
+    "description": "Import result tile text under \"Older payments added\". \"From backup\" is a label shown in Activity."
+  },
+  "deskSetBackupContactsAdded": "Contacts added",
+  "@deskSetBackupContactsAdded": {
+    "description": "Import result tile title: count of contacts added."
+  },
+  "deskSetBackupAlreadyHere": "Already here",
+  "@deskSetBackupAlreadyHere": {
+    "description": "Import result tile title: count of records that were already in the wallet."
+  },
+  "deskSetBackupUnchanged": "Unchanged",
+  "@deskSetBackupUnchanged": {
+    "description": "Import result tile text under \"Already here\"."
+  },
+  "deskSetBackupNothingNew": "Nothing new",
+  "@deskSetBackupNothingNew": {
+    "description": "Import dialog: title of the success block when the file brought nothing new."
+  },
+  "deskSetBackupNothingNewBody": "Every record in {file} was already here.",
+  "@deskSetBackupNothingNewBody": {
+    "description": "Import dialog: text of the \"Nothing new\" block. {file} is the file name, shown in monospace.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupImported": "Imported",
+  "@deskSetBackupImported": {
+    "description": "Import dialog: title of the success block."
+  },
+  "deskSetBackupReading": "Reading {file}…",
+  "@deskSetBackupReading": {
+    "description": "Import dialog: shown while the chosen file is read. {file} is the file name, shown in monospace.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNotImported": "Not imported",
+  "@deskSetBackupNotImported": {
+    "description": "Import dialog: title of the error notice when the import failed."
+  },
+  "deskSetBackupBringsBack": "Brings back",
+  "@deskSetBackupBringsBack": {
+    "description": "Import dialog: label of the row saying what the import restores. Narrow label column."
+  },
+  "deskSetBackupBringsBackValue": "Who paid what, fees and notes of payments already here; older payments the list lost; contacts",
+  "@deskSetBackupBringsBackValue": {
+    "description": "Import dialog: what the import restores."
+  },
+  "deskSetBackupNeeds": "Needs",
+  "@deskSetBackupNeeds": {
+    "description": "Import dialog: label of the row saying what file is needed. Narrow label column."
+  },
+  "deskSetBackupNeedsValue": "A file from this wallet (the same recovery phrase), on {network}",
+  "@deskSetBackupNeedsValue": {
+    "description": "Import dialog: what file the import needs. {network} is the network name, e.g. \"Mainnet\".",
+    "placeholders": {
+      "network": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNever": "Never",
+  "@deskSetBackupNever": {
+    "description": "Import dialog: label of the row saying what the import never does. Narrow label column."
+  },
+  "deskSetBackupNeverValue": "Removes or changes a payment that is here",
+  "@deskSetBackupNeverValue": {
+    "description": "Import dialog: what the import never does (continues the label \"Never\")."
+  },
+  "deskSetBackupChooseFile": "Choose file…",
+  "@deskSetBackupChooseFile": {
+    "description": "Import dialog: button that opens the system Open dialog."
+  },
+  "deskSetBackupImportDesc": "Merges a history backup of this wallet into Activity. Nothing is removed, and the same file twice changes nothing.",
+  "@deskSetBackupImportDesc": {
+    "description": "Import history dialog: description under the title."
+  },
+  "deskSetBackupSaveCsvDialogTitle": "Save payments as CSV",
+  "@deskSetBackupSaveCsvDialogTitle": {
+    "description": "Title of the system Save dialog when exporting the CSV."
+  },
+  "deskSetBackupCsvDialogTitle": "Export CSV",
+  "@deskSetBackupCsvDialogTitle": {
+    "description": "Export CSV dialog: title."
+  },
+  "deskSetBackupCsvDialogDesc": "A plain table of this wallet’s payments, for spreadsheets.",
+  "@deskSetBackupCsvDialogDesc": {
+    "description": "Export CSV dialog: description under the title."
+  },
+  "deskSetBackupCsvSavedNote": "{count, plural, one{1 payment} other{{count} payments}}, newest first. Amounts in EPIC with 8 decimals; dates in UTC.",
+  "@deskSetBackupCsvSavedNote": {
+    "description": "Export CSV dialog: note after saving.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupDateError": "Enter a date as 2026-01-31",
+  "@deskSetBackupDateError": {
+    "description": "Export CSV dialog: error under a custom date field that is not a valid date. Keep the year-month-day format shown."
+  },
+  "deskSetBackupDateHint": "YYYY-MM-DD",
+  "@deskSetBackupDateHint": {
+    "description": "Export CSV dialog: placeholder of the custom date fields."
+  },
+  "deskSetBackupRange": "Range",
+  "@deskSetBackupRange": {
+    "description": "Export CSV dialog: label of the segmented control choosing which payments to export."
+  },
+  "deskSetBackupRangeAll": "All payments",
+  "@deskSetBackupRangeAll": {
+    "description": "Export CSV dialog: segment, all payments. Four segments share a narrow row; keep short."
+  },
+  "deskSetBackupRangeThisYear": "This year",
+  "@deskSetBackupRangeThisYear": {
+    "description": "Export CSV dialog: segment, payments of this calendar year. Keep short."
+  },
+  "deskSetBackupRangeLastYear": "Last year",
+  "@deskSetBackupRangeLastYear": {
+    "description": "Export CSV dialog: segment, payments of last calendar year. Keep short."
+  },
+  "deskSetBackupRangeCustom": "Custom",
+  "@deskSetBackupRangeCustom": {
+    "description": "Export CSV dialog: segment, choose own dates. Keep short."
+  },
+  "deskSetBackupFrom": "From",
+  "@deskSetBackupFrom": {
+    "description": "Export CSV dialog: label of the first custom date field."
+  },
+  "deskSetBackupTo": "To",
+  "@deskSetBackupTo": {
+    "description": "Export CSV dialog: label of the last custom date field."
+  },
+  "deskSetBackupCsvInfo": "{count, plural, one{1 payment} other{{count} payments}} · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.",
+  "@deskSetBackupCsvInfo": {
+    "description": "Export CSV dialog: summary line. {file} is the file name, shown in monospace. The columns named are in the file, whose headers stay English.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupCsvInfoNoCount": "– · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.",
+  "@deskSetBackupCsvInfoNoCount": {
+    "description": "Export CSV dialog: summary line while the date range is not valid, so there is no count. {file} is the file name.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNotEncrypted": "Not encrypted.",
+  "@deskSetBackupNotEncrypted": {
+    "description": "Export CSV dialog: title of the warning notice."
+  },
+  "deskSetBackupNotEncryptedBody": "Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; the history backup is for that.",
+  "@deskSetBackupNotEncryptedBody": {
+    "description": "Export CSV dialog: text of the warning notice."
+  },
+  "deskSetBackupReminderNever": "{count, plural, one{1 payment is not in a history backup.} other{{count} payments are not in a history backup.}}",
+  "@deskSetBackupReminderNever": {
+    "description": "Reminder on Overview when the history was never backed up. Count is the number of payments.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupReminderChanged": "{count, plural, one{1 payment is new or changed since the last history backup.} other{{count} payments are new or changed since the last history backup.}}",
+  "@deskSetBackupReminderChanged": {
+    "description": "Reminder on Overview when payments changed since the last history backup.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupReminderBody": "A restore from the recovery phrase brings back the balance, not who paid what.",
+  "@deskSetBackupReminderBody": {
+    "description": "Reminder on Overview: text under the title."
+  },
+  "deskSetBackupNotNow": "Not now",
+  "@deskSetBackupNotNow": {
+    "description": "Reminder on Overview: button that dismisses the reminder. Small inline button."
+  }
+}

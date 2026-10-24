@@ -1,0 +1,136 @@
+{
+  "deskSetAcctNotForgotten": "Not forgotten",
+  "@deskSetAcctNotForgotten": {
+    "description": "Toast title when forgetting the remembered password failed."
+  },
+  "deskSetAcctForgotten": "Forgotten on this computer",
+  "@deskSetAcctForgotten": {
+    "description": "Toast title after the remembered password was forgotten."
+  },
+  "deskSetAcctForgottenText": "The next start asks the password.",
+  "@deskSetAcctForgottenText": {
+    "description": "Toast text after the remembered password was forgotten."
+  },
+  "deskSetAcctLabelNotSaved": "Label not saved",
+  "@deskSetAcctLabelNotSaved": {
+    "description": "Toast title when the wallet label could not be saved."
+  },
+  "deskSetAcctEnterLabel": "Enter a label",
+  "@deskSetAcctEnterLabel": {
+    "description": "Toast text when the wallet label is empty."
+  },
+  "deskSetAcctLabelSaved": "Label saved",
+  "@deskSetAcctLabelSaved": {
+    "description": "Toast title after the wallet label was saved. The label follows as text."
+  },
+  "deskSetAcctLabel": "Label",
+  "@deskSetAcctLabel": {
+    "description": "Settings > This wallet: row title and screen reader name of the wallet label field."
+  },
+  "deskSetAcctLabelHint": "Only shown in this app.",
+  "@deskSetAcctLabelHint": {
+    "description": "Settings > This wallet: hint under the Label row."
+  },
+  "deskSetAcctSaveLabel": "Save label",
+  "@deskSetAcctSaveLabel": {
+    "description": "Tooltip and screen reader label of the check button in the label field."
+  },
+  "deskSetAcctPhraseHint": "The words that restore this wallet. Keep them private.",
+  "@deskSetAcctPhraseHint": {
+    "description": "Settings > This wallet: hint under the Recovery phrase row."
+  },
+  "deskSetAcctShowPhrase": "Show phrase…",
+  "@deskSetAcctShowPhrase": {
+    "description": "Settings > This wallet: button that opens the recovery phrase page."
+  },
+  "deskSetAcctRescanHint": "Reads the chain again when the balance looks wrong.",
+  "@deskSetAcctRescanHint": {
+    "description": "Settings > This wallet: hint under the Recheck balance row."
+  },
+  "deskSetAcctRecheck": "Recheck…",
+  "@deskSetAcctRecheck": {
+    "description": "Settings > This wallet: button that opens the Recheck balance page."
+  },
+  "deskSetAcctFiles": "Files",
+  "@deskSetAcctFiles": {
+    "description": "Settings > This wallet: title of the group of folder rows."
+  },
+  "deskSetAcctWalletFolder": "Wallet folder",
+  "@deskSetAcctWalletFolder": {
+    "description": "Settings > This wallet: row title for the folder holding this wallet’s files."
+  },
+  "deskSetAcctAppFiles": "App files",
+  "@deskSetAcctAppFiles": {
+    "description": "Settings > This wallet: row title for the folder holding the app’s files."
+  },
+  "deskSetAcctAppFilesHint": "Settings and the log.",
+  "@deskSetAcctAppFilesHint": {
+    "description": "Settings > This wallet: hint under the App files row."
+  },
+  "deskSetAcctNetwork": "Network",
+  "@deskSetAcctNetwork": {
+    "description": "Settings > This wallet: row title showing which network (e.g. Floonet) the wallet belongs to. Shown only when it is not Mainnet."
+  },
+  "deskSetAcctNetworkHint": "Set when the wallet was created.",
+  "@deskSetAcctNetworkHint": {
+    "description": "Settings > This wallet: hint under the Network row."
+  },
+  "deskSetAcctSetup": "Setup assistant",
+  "@deskSetAcctSetup": {
+    "description": "Settings > This wallet: row title for the first-run setup assistant."
+  },
+  "deskSetAcctSetupHint": "Walk through node and receiving again. Nothing is lost.",
+  "@deskSetAcctSetupHint": {
+    "description": "Settings > This wallet: hint under the Setup assistant row."
+  },
+  "deskSetAcctRunSetup": "Run setup…",
+  "@deskSetAcctRunSetup": {
+    "description": "Settings > This wallet: button that opens the setup assistant."
+  },
+  "deskSetAcctSecurity": "Security",
+  "@deskSetAcctSecurity": {
+    "description": "Settings > This wallet: title of the group with password and delete rows."
+  },
+  "deskSetAcctRemembered": "Remembered on this computer",
+  "@deskSetAcctRemembered": {
+    "description": "Settings > This wallet: row title shown when the wallet opens without a password."
+  },
+  "deskSetAcctRememberedHint": "Opens at start without the password, for 30 days from when it was set. Sends still ask the password. {who}",
+  "@deskSetAcctRememberedHint": {
+    "description": "Settings > This wallet: hint under the Remembered row. {who} is another sentence about who can open the wallet, supplied by the app in English.",
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetAcctForget": "Forget this computer",
+  "@deskSetAcctForget": {
+    "description": "Settings > This wallet: button that forgets the remembered password."
+  },
+  "deskSetAcctPasswordHint": "Unlocks this wallet.",
+  "@deskSetAcctPasswordHint": {
+    "description": "Settings > This wallet: hint under the Password row."
+  },
+  "deskSetAcctChangePassword": "Change password…",
+  "@deskSetAcctChangePassword": {
+    "description": "Settings > This wallet: button that opens the change password dialog."
+  },
+  "deskSetAcctDeleteHint": "Deletes its keys and database.",
+  "@deskSetAcctDeleteHint": {
+    "description": "Settings > This wallet: hint under the Delete wallet row."
+  },
+  "deskSetAcctFolderNotFound": "Folder not found",
+  "@deskSetAcctFolderNotFound": {
+    "description": "Toast title when a folder does not exist on disk. The path follows as text."
+  },
+  "deskSetAcctCopyPath": "Copy path: {title}",
+  "@deskSetAcctCopyPath": {
+    "description": "Tooltip and screen reader label of the copy button of a folder row. {title} is the row title, e.g. \"Wallet folder\".",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  }
+}

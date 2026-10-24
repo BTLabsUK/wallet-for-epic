@@ -3,6 +3,7 @@ import '../../l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../desk_l10n.dart' show deskStrings;
 import '../theme/theme.dart';
 import '../widgets/kit.dart';
 import 'screens.dart';
@@ -44,6 +45,7 @@ class DeskApp extends ConsumerWidget {
       // Interface scale: text through the text scaler, layout through the tokens. The key
       // rebuilds every page and dialog with the new sizes.
       builder: (context, child) {
+        deskStrings = context.l10n;
         final mq = MediaQuery.of(context);
         return MediaQuery(
           data: mq.copyWith(textScaler: DeskTextScaler(mq.textScaler, deskScale)),

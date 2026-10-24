@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../../builtin_node.dart' show isPeerAddress;
 import '../../data/desk_node.dart';
 import '../../data/node_view.dart' show hhmm, digits;
@@ -64,26 +65,29 @@ class _PeersTabState extends ConsumerState<PeersTab> {
   }
 
   Future<void> _ban(String addr) async {
+    final l = context.l10n;
     await ref.read(deskNodeProvider).ban(addr);
     ref.invalidate(deskPeersProvider);
-    if (mounted) showEToast(context, 'Peer banned', text: addr);
+    if (mounted) showEToast(context, l.deskSetPeersBannedToast, text: addr);
   }
 
   Future<void> _unban(String addr) async {
+    final l = context.l10n;
     await ref.read(deskNodeProvider).unban(addr);
     ref.invalidate(deskPeersProvider);
-    if (mounted) showEToast(context, 'Peer unbanned', text: addr);
+    if (mounted) showEToast(context, l.deskSetPeersUnbannedToast, text: addr);
   }
 
   Future<void> _addPreferred(NodeTomlOptions o) async {
+    final l = context.l10n;
     final t = _preferred.text.trim();
     // The node's peers_preferred takes socket addresses only, no host names.
     if (!isPeerAddress(t)) {
-      setState(() => _preferredError = 'Not an IP address and port, such as 203.0.113.5:3414.');
+      setState(() => _preferredError = l.deskSetPeersNotAddress);
       return;
     }
     if (o.preferredPeers.contains(t)) {
-      setState(() => _preferredError = 'Already preferred.');
+      setState(() => _preferredError = l.deskSetPeersAlreadyPreferred);
       return;
     }
     await ref.read(deskNodeProvider).setPeerOptions(preferred: [...o.preferredPeers, t]);
@@ -101,10 +105,11 @@ class _PeersTabState extends ConsumerState<PeersTab> {
   }
 
   Future<void> _setMax(NodeTomlOptions o, {required bool inbound}) async {
+    final l = context.l10n;
     final t = (inbound ? _maxIn : _maxOut).text.trim();
     final n = int.tryParse(t);
     if (n == null || n < peerMaxMin || n > peerMaxMax) {
-      setState(() => _maxError = '$peerMaxMin to $peerMaxMax.');
+      setState(() => _maxError = l.deskSetPeersMaxRange(peerMaxMin, peerMaxMax));
       return;
     }
     if (n == (inbound ? _sentIn ?? o.maxInbound : _sentOut ?? o.maxOutbound)) return;
@@ -131,6 +136,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final snap = ref.watch(deskPeersProvider).value;
     final options = ref.watch(localNodeOptionsProvider).value;
     if (options != null && !_filled) {
@@ -147,8 +153,10 @@ class _PeersTabState extends ConsumerState<PeersTab> {
     final more = _all ? 0 : rest.length;
 
     final summary = snap == null
-        ? 'Reading the peers…'
-        : '${connected.length} connected · $inbound in · $outbound out${banned.isNotEmpty ? ' · ${banned.length} banned' : ''}';
+        ? l.deskSetPeersReading
+        : banned.isNotEmpty
+        ? l.deskSetPeersSummaryBanned(connected.length, inbound, outbound, banned.length)
+        : l.deskSetPeersSummary(connected.length, inbound, outbound);
 
     Widget cell(String text, double width, {bool mono = false, TextAlign align = TextAlign.left, Color? color}) => SizedBox(
       width: width,
@@ -177,8 +185,8 @@ class _PeersTabState extends ConsumerState<PeersTab> {
                 Expanded(child: Text(addr, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.mono(size: Fs.sm, color: c.text))),
                 SizedBox(width: Sp.x2),
                 cell(switch (p.peer.direction) {
-                  PeerDirection.inbound => 'in',
-                  PeerDirection.outbound => 'out',
+                  PeerDirection.inbound => l.deskSetPeersIn,
+                  PeerDirection.outbound => l.deskSetPeersOut,
                   PeerDirection.unknown => '–',
                 }, 70.u),
                 cell(peerVersion(p.peer.userAgent), 70.u, mono: true),
@@ -191,7 +199,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
                     alignment: Alignment.centerRight,
                     child: Opacity(
                       opacity: active ? 1 : 0,
-                      child: EButton.ghost(label: 'Ban', icon: EIcons.cancel, size: EBtnSize.inline, onPressed: () => _ban(addr)),
+                      child: EButton.ghost(label: l.deskSetPeersBan, icon: EIcons.cancel, size: EBtnSize.inline, onPressed: () => _ban(addr)),
                     ),
                   ),
                 ),
@@ -209,20 +217,20 @@ class _PeersTabState extends ConsumerState<PeersTab> {
           padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: Sp.x1),
           child: Row(
             children: [
-              Expanded(child: head('Address', double.infinity)),
+              Expanded(child: head(l.deskSetPeersColAddress, double.infinity)),
               SizedBox(width: Sp.x2),
-              head('Direction', 70.u),
-              head('Version', 70.u),
-              head('Height', 90.u, align: TextAlign.right),
+              head(l.deskSetPeersColDirection, 70.u),
+              head(l.deskSetPeersColVersion, 70.u),
+              head(l.deskSetPeersColHeight, 90.u, align: TextAlign.right),
               SizedBox(width: Sp.x3),
-              head('First seen', 80.u),
+              head(l.deskSetPeersColFirstSeen, 80.u),
               SizedBox(width: 70.u),
             ],
           ),
         ),
         Divider(height: 1, thickness: 1, color: c.line),
         if (snap != null && connected.isEmpty)
-          Padding(padding: EdgeInsets.all(Sp.x3), child: Text('No peers connected.', style: ts.small.copyWith(color: c.dim))),
+          Padding(padding: EdgeInsets.all(Sp.x3), child: Text(l.deskSetPeersNone, style: ts.small.copyWith(color: c.dim))),
         for (final p in shown) row(p),
         // The rest expands in place.
         ExpandFade(open: _all, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [for (final p in rest) row(p)])),
@@ -232,7 +240,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
             borderRadius: BorderRadius.circular(Rad.xs),
             child: SizedBox(
               height: 28.u,
-              child: Center(child: Text('$more more', style: ts.caption.copyWith(color: c.accentText))),
+              child: Center(child: Text(l.deskSetPeersMore(more), style: ts.caption.copyWith(color: c.accentText))),
             ),
           ),
       ],
@@ -244,7 +252,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
         Row(
           children: [
             Expanded(child: Text(summary, style: ts.small.copyWith(color: c.dim))),
-            Text('Refreshed every 10 s', style: ts.caption.copyWith(color: c.faint)),
+            Text(l.deskSetPeersRefreshed, style: ts.caption.copyWith(color: c.faint)),
           ],
         ),
         ExpandFade(
@@ -253,9 +261,9 @@ class _PeersTabState extends ConsumerState<PeersTab> {
             padding: EdgeInsets.only(top: Sp.x3),
             child: ENotice(
               tone: ETone.warn,
-              title: 'Settings changed.',
-              text: 'They apply at the next restart.',
-              actions: [EButton(label: 'Restart now', size: EBtnSize.inline, onPressed: widget.onRestart)],
+              title: l.deskSetLnodeSettingsChanged,
+              text: l.deskSetLnodeSettingsChangedText,
+              actions: [EButton(label: l.deskSetLnodeRestartNow, size: EBtnSize.inline, onPressed: widget.onRestart)],
             ),
           ),
         ),
@@ -267,7 +275,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
         ),
         if (banned.isNotEmpty) ...[
           SizedBox(height: Sp.x4),
-          Text('BANNED', style: ts.caption.copyWith(fontSize: 11.u, letterSpacing: 0.6, fontWeight: FontWeight.w600, color: c.faint)),
+          Text(l.deskSetPeersBanned.toUpperCase(), style: ts.caption.copyWith(fontSize: 11.u, letterSpacing: 0.6, fontWeight: FontWeight.w600, color: c.faint)),
           SizedBox(height: Sp.x1),
           for (final b in banned)
             SizedBox(
@@ -279,12 +287,12 @@ class _PeersTabState extends ConsumerState<PeersTab> {
                   SizedBox(width: Sp.x3),
                   Expanded(
                     child: Text(
-                      [if (b.lastBanned != null) 'banned ${hhmm(b.lastBanned!)}', if (b.banReason.isNotEmpty) banReasonText(b.banReason)].join(' · '),
+                      [if (b.lastBanned != null) l.deskSetPeersBannedAt(hhmm(b.lastBanned!)), if (b.banReason.isNotEmpty) banReasonText(b.banReason)].join(' · '),
                       style: ts.caption.copyWith(color: c.dim),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  EButton.ghost(label: 'Unban', size: EBtnSize.inline, onPressed: () => _unban(b.addr)),
+                  EButton.ghost(label: l.deskSetPeersUnban, size: EBtnSize.inline, onPressed: () => _unban(b.addr)),
                 ],
               ),
             ),
@@ -297,21 +305,21 @@ class _PeersTabState extends ConsumerState<PeersTab> {
           runSpacing: Sp.x3,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Text('Preferred peers', style: ts.small),
+            Text(l.deskSetPeersPreferred, style: ts.small),
             SizedBox(
               width: 220.u,
               child: EInput(
                 controller: _preferred,
-                hint: 'ip:port',
+                hint: 'ip:port', // l10n-ok: address format
                 mono: true,
                 invalid: _preferredError != null,
-                semanticLabel: 'Preferred peer, IP address and port',
+                semanticLabel: l.deskSetPeersPreferredLabel,
                 onChanged: (_) => _preferredError == null ? null : setState(() => _preferredError = null),
                 onSubmitted: (_) => options == null ? null : _addPreferred(options),
               ),
             ),
-            EButton(label: 'Add', size: EBtnSize.inline, onPressed: options == null ? null : () => _addPreferred(options)),
-            Text('Max incoming', style: ts.small),
+            EButton(label: l.deskSetPeersAdd, size: EBtnSize.inline, onPressed: options == null ? null : () => _addPreferred(options)),
+            Text(l.deskSetPeersMaxIn, style: ts.small),
             SizedBox(
               width: 64.u,
               // Saved on Enter and when the field loses focus.
@@ -323,13 +331,13 @@ class _PeersTabState extends ConsumerState<PeersTab> {
                   controller: _maxIn,
                   mono: true,
                   invalid: _maxError != null,
-                  semanticLabel: 'Max incoming peers',
+                  semanticLabel: l.deskSetPeersMaxInLabel,
                   keyboardType: TextInputType.number,
                   onSubmitted: (_) => options == null ? null : _setMax(options, inbound: true),
                 ),
               ),
             ),
-            Text('Max outgoing', style: ts.small),
+            Text(l.deskSetPeersMaxOut, style: ts.small),
             SizedBox(
               width: 64.u,
               // Saved on Enter and when the field loses focus.
@@ -341,7 +349,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
                   controller: _maxOut,
                   mono: true,
                   invalid: _maxError != null,
-                  semanticLabel: 'Max outgoing peers',
+                  semanticLabel: l.deskSetPeersMaxOutLabel,
                   keyboardType: TextInputType.number,
                   onSubmitted: (_) => options == null ? null : _setMax(options, inbound: false),
                 ),
@@ -360,13 +368,13 @@ class _PeersTabState extends ConsumerState<PeersTab> {
             runSpacing: Sp.x1,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text('${options.preferredPeers.length} preferred:', style: ts.caption),
+              Text(l.deskSetPeersPreferredCount(options.preferredPeers.length), style: ts.caption),
               for (final p in options.preferredPeers)
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(p, style: ts.mono(size: Fs.xs, color: c.dim)),
-                    EIconButton(icon: EIcons.close, label: 'Forget $p', size: EBtnSize.inline, tabStop: false, onPressed: () => _removePreferred(options, p)),
+                    EIconButton(icon: EIcons.close, label: l.deskSetPeersForget(p), size: EBtnSize.inline, tabStop: false, onPressed: () => _removePreferred(options, p)),
                   ],
                 ),
             ],
@@ -374,7 +382,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
         ],
         SizedBox(height: Sp.x3),
         Text(
-          'First seen is when this app first saw the peer connected, this session; the node does not report when a connection began. Ban and unban use the node’s owner API. Enter saves a maximum ($peerMaxMin to $peerMaxMax, $peerMaxDefault by default).',
+          l.deskSetPeersNote(peerMaxMin, peerMaxMax, peerMaxDefault),
           style: ts.caption.copyWith(color: c.faint),
         ),
       ],
