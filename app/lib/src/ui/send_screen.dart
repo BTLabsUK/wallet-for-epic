@@ -600,7 +600,9 @@ class _SendViewState extends ConsumerState<SendView> {
   /// A scanned or pasted text: a payment code fills the form, an address the To field, and
   /// anything the router knows elsewhere goes there. Plain text that is none of these (a name,
   /// half an address) lands in the To field as before, where its own check speaks.
-  void _openText(String text, CodeOrigin origin) {
+  /// [typedOver] is the To text before the code was typed or pasted into the field: a code
+  /// that opens a sheet puts it back, so the field never keeps the code behind the sheet.
+  void _openText(String text, CodeOrigin origin, {String? typedOver}) {
     final l = context.l10n;
     final code = classifyFor(ref.read(walletServiceProvider), text);
     switch (code) {
@@ -623,6 +625,13 @@ class _SendViewState extends ConsumerState<SendView> {
               : l.scanNotEpicBody,
         );
       default:
+        if (typedOver != null) {
+          setState(() {
+            _recipient.text = typedOver;
+            _lastTo = typedOver;
+            _recipientError = null;
+          });
+        }
         unawaited(
           openScannedCode(
             context,
@@ -2201,8 +2210,9 @@ class _SendViewState extends ConsumerState<SendView> {
         style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily),
         onChanged: (text) {
           if (text.length - _lastTo.length >= 8 && looksLikeCode(text)) {
+            final before = _lastTo;
             _lastTo = text;
-            _openText(text.trim(), CodeOrigin.paste);
+            _openText(text.trim(), CodeOrigin.paste, typedOver: before);
             return;
           }
           setState(() {
