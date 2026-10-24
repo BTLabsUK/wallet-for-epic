@@ -377,6 +377,54 @@ void main() {
       expect((report.added, report.skipped), (0, 1));
     });
 
+    test('a note on a scan-rebuilt row comes back by kind, block and amounts', () async {
+      TxEntry scanRow(int id, int block, int amount) => fakeTx(
+        key: 'l:$id',
+        id: id,
+        source: TxSource.restored,
+        status: TxStatus.confirmed,
+        blockHeight: BigInt.from(block),
+        amountCredited: BigInt.from(amount),
+      );
+      final scan = [
+        scanRow(7, 100, 50000000),
+        scanRow(8, 101, 30000000),
+        scanRow(9, 102, 20000000),
+        scanRow(10, 102, 20000000),
+      ];
+      Record note(int block, int amount, String text) => Record(
+        kind: 'Received',
+        status: 'Confirmed',
+        blockHeight: BigInt.from(block),
+        amountCredited: BigInt.from(amount),
+        note: text,
+      );
+      final payload = HistoryPayload(
+        chain: 'Mainnet',
+        walletFp: 'fp',
+        exportedAtUnix: 1,
+        appVersion: 't',
+        txs: [
+          note(100, 50000000, 'rent'),
+          // Two scan rows look alike: no way to tell which one, so none gets the note.
+          note(102, 20000000, 'twin'),
+          note(500, 1, 'no such row'),
+        ],
+      );
+      final first = await history.importPayload(payload, scan, walletFp: 'fp');
+      expect((first.merged, first.added, first.skipped), (1, 0, 2));
+      final rows = history.transactions(scan);
+      String? noteOf(int id) => rows.firstWhere((t) => t.id == id).note;
+      expect(noteOf(7), 'rent');
+      expect([noteOf(8), noteOf(9), noteOf(10)], [null, null, null]);
+
+      // A note typed since wins over the file's.
+      await history.setNote(scan, 'l:7', 'mine');
+      final again = await history.importPayload(payload, scan, walletFp: 'fp');
+      expect((again.merged, again.skipped), (0, 3));
+      expect(history.transactions(scan).firstWhere((t) => t.id == 7).note, 'mine');
+    });
+
     test('an export leaves out rows a scan rebuilt that have no note', () {
       final scan = [
         fakeTx(key: 'l:7', id: 7, source: TxSource.restored),

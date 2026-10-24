@@ -10,6 +10,7 @@ library;
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -80,7 +81,33 @@ final myRelaysProvider =
       MyRelaysNotifier.new,
     );
 
-/// A list of server values kept in the secret store under [storeKey], one per [sameKey].
+/// [list] with at most one public entry: [inUse] when it is one of them, else the last. Custom
+/// entries (those [isPublic] says no to) all stay, in their order.
+List<String> keepOnePublic(
+  List<String> list, {
+  required String Function(String) sameKey,
+  required bool Function(String) isPublic,
+  String? inUse,
+}) {
+  final publics = [
+    for (var i = 0; i < list.length; i++)
+      if (isPublic(list[i])) i,
+  ];
+  if (publics.length < 2) return list;
+  final inUseKey = inUse == null ? null : sameKey(inUse);
+  final keep = publics.firstWhere(
+    (i) => sameKey(list[i]) == inUseKey,
+    orElse: () => publics.last,
+  );
+  return [
+    for (var i = 0; i < list.length; i++)
+      if (i == keep || !publics.contains(i)) list[i],
+  ];
+}
+
+/// A list of server values kept in the secret store under [storeKey], one per [sameKey]. It
+/// holds at most one public server (the one in use after a switch) and any number of custom
+/// ones; what is public is told by the caller, as the public list comes from the monitor.
 abstract class MyServersNotifier extends AsyncNotifier<List<String>> {
   MyServersNotifier(this.chain);
 
@@ -91,30 +118,66 @@ abstract class MyServersNotifier extends AsyncNotifier<List<String>> {
   /// What makes two values the same server.
   String sameKey(String value);
 
+  /// Whether [value] is in the built-in public list of this chain (the monitor's extra servers
+  /// are only known to the pickers).
+  bool isBuiltInPublic(String value);
+
+  /// The server of this chain the wallet is on, if the saved choice is for this chain.
+  String? inUseOf(NetworkChoice choice);
+
   @override
   Future<List<String>> build() async {
     final raw = await ref.watch(secretStoreProvider).read(storeKey);
     if (raw == null) return const [];
+    List<String> list;
     try {
-      final list = jsonDecode(raw);
-      return [
-        if (list is List)
-          for (final e in list)
+      final decoded = jsonDecode(raw);
+      list = [
+        if (decoded is List)
+          for (final e in decoded)
             if (e is String && e.isNotEmpty) e,
       ];
     } on FormatException {
       return const [];
     }
+    // Older lists may hold several public servers: only the one in use stays among them.
+    String? inUse;
+    try {
+      final choice = await ref.read(networkChoiceProvider.future);
+      if (choice.preset.chain == chain) inUse = inUseOf(choice);
+    } catch (_) {}
+    return keepOnePublic(
+      list,
+      sameKey: sameKey,
+      isPublic: isBuiltInPublic,
+      inUse: inUse,
+    );
   }
 
   /// Whether [value] is in the list.
   bool has(String value) => _index(state.value ?? const [], value) >= 0;
 
-  Future<void> add(String value, {String? inUse}) async {
+  /// Adds [value] last. When it is public ([isPublic], told by the caller), the public
+  /// server that was in the list leaves it: a switch moves the old one back to the public
+  /// list.
+  Future<void> add(
+    String value, {
+    String? inUse,
+    bool Function(String)? isPublic,
+  }) async {
     final now = await future;
-    if (_index(now, value) >= 0) return;
-    await _write([...now, value]);
+    var list = [...now];
+    if (isPublic != null && isPublic(value)) {
+      final key = sameKey(value);
+      list.removeWhere((e) => sameKey(e) != key && isPublic(e));
+    }
+    if (_index(list, value) < 0) list = _capped([...list, value], value, inUse);
+    if (listEquals(list, now)) return;
+    await _write(list);
   }
+
+  /// [list] with [value] just added, cut to the most the list may hold.
+  List<String> _capped(List<String> list, String value, String? inUse) => list;
 
   Future<void> remove(String value) async {
     final now = await future;
@@ -122,9 +185,6 @@ abstract class MyServersNotifier extends AsyncNotifier<List<String>> {
     if (i < 0) return;
     await _write([...now]..removeAt(i));
   }
-
-  Future<void> toggle(String value) async =>
-      has(value) ? remove(value) : add(value);
 
   Future<void> _write(List<String> list) async {
     state = AsyncData(List.unmodifiable(list));
@@ -145,6 +205,15 @@ class MyNodesNotifier extends MyServersNotifier {
 
   @override
   String sameKey(String value) => nodeKey(value) ?? value;
+
+  @override
+  bool isBuiltInPublic(String value) {
+    final preset = networkPresets.firstWhere((p) => p.chain == chain);
+    return builtInNodesFor(preset).any((n) => _sameNode(n.url, value));
+  }
+
+  @override
+  String? inUseOf(NetworkChoice choice) => choice.nodeUrl;
 }
 
 class MyRelaysNotifier extends MyServersNotifier {
@@ -153,14 +222,12 @@ class MyRelaysNotifier extends MyServersNotifier {
   /// The most relays kept: past it the oldest go, never the one just added or [inUse].
   static const int cap = 6;
 
-  /// Adds [value] (a relay label) last; over [cap] the oldest others are dropped, except
-  /// [inUse] (the relay the wallet is on, when it is not [value]).
+  /// Over [cap] the oldest others are dropped, except [value] and [inUse] (the relay the
+  /// wallet is on, when it is not [value]).
   @override
-  Future<void> add(String value, {String? inUse}) async {
-    final now = await future;
-    if (_index(now, value) >= 0) return;
-    final list = [...now, value];
+  List<String> _capped(List<String> list, String value, String? inUse) {
     final keep = {sameKey(value), if (inUse != null) sameKey(inUse)};
+    list = [...list];
     for (var i = 0; list.length > cap && i < list.length;) {
       if (keep.contains(sameKey(list[i]))) {
         i++;
@@ -168,7 +235,7 @@ class MyRelaysNotifier extends MyServersNotifier {
         list.removeAt(i);
       }
     }
-    await _write(list);
+    return list;
   }
 
   @override
@@ -176,21 +243,57 @@ class MyRelaysNotifier extends MyServersNotifier {
 
   @override
   String sameKey(String value) => EpicboxRelay.parse(value)?.label ?? value;
+
+  @override
+  bool isBuiltInPublic(String value) {
+    final preset = networkPresets.firstWhere((p) => p.chain == chain);
+    final relay = EpicboxRelay.parse(value);
+    return relay != null &&
+        builtInRelaysFor(preset).any((r) => r.relay == relay);
+  }
+
+  @override
+  String? inUseOf(NetworkChoice choice) => choice.relay.label;
 }
 
 /// Keeps the servers the wallet just moved onto: [nodeUrl] joins My nodes and [relay] My
-/// relays, listed or not, so every server the wallet connected to can be found again.
+/// relays, listed or not, so every server the wallet connected to can be found again. A
+/// public server takes the place of the public one the list had, which goes back to the
+/// public list.
 Future<void> rememberServers(
   WidgetRef ref,
-  Chain chain, {
+  NetworkPreset preset, {
   String? nodeUrl,
   EpicboxRelay? relay,
 }) async {
+  final chain = preset.chain;
   if (nodeUrl != null) {
-    await ref.read(myNodesProvider(chain).notifier).add(nodeUrl);
+    final public = mergePublicNodes(
+      ref.read(publicNodeStatusProvider(preset)).value,
+      builtIn: builtInNodesFor(preset),
+    );
+    await ref
+        .read(myNodesProvider(chain).notifier)
+        .add(
+          nodeUrl,
+          isPublic: (u) => public.any((n) => _sameNode(n.url, u)),
+        );
   }
   if (relay != null) {
-    await ref.read(myRelaysProvider(chain).notifier).add(relay.label);
+    final public = mergePublicRelays(
+      ref.read(relayStatusProvider(preset)).value,
+      builtIn: builtInRelaysFor(preset),
+    );
+    await ref
+        .read(myRelaysProvider(chain).notifier)
+        .add(
+          relay.label,
+          inUse: relay.label,
+          isPublic: (v) {
+            final r = EpicboxRelay.parse(v);
+            return r != null && public.any((p) => p.relay == r);
+          },
+        );
   }
 }
 
@@ -259,10 +362,12 @@ Key serverStarKey(String value) => ValueKey('server-star-$value');
 /// The key of a My relays row's remove button, for tests.
 Key serverRemoveKey(String value) => ValueKey('server-remove-$value');
 
-/// Asks before [host] leaves My nodes ([node]) or My relays. True to remove.
+/// Asks before [host] leaves My nodes ([node]) or My relays: a [public] server goes back to
+/// the public list, a typed-in one is gone. True to remove.
 Future<bool> _confirmRemove(
   BuildContext context, {
   required bool node,
+  required bool public,
   required String host,
 }) async {
   final confirmed = await showDialog<bool>(
@@ -271,7 +376,9 @@ Future<bool> _confirmRemove(
       final l = context.l10n;
       return AlertDialog(
         title: Text(node ? l.serverRemoveNodeTitle : l.serverRemoveRelayTitle),
-        content: Text(l.serverRemoveBody(host)),
+        content: Text(
+          public ? l.serverRemoveBodyPublic(host) : l.serverRemoveBodyCustom(host),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -316,9 +423,11 @@ Future<bool> _confirmRemove(
 }
 
 /// The node or Epicbox rows of [preset]'s network: a "My nodes" or "My servers" section (the
-/// user's list, and the [current] server when no list has it) and the public servers. A
-/// server in the user's list shows once, there, where it can be removed (never the [current]
-/// one). The push relay is a public relay with a bell. Each row is one 56 dp target; [selected] has the check, [current]
+/// user's list, and the [current] server when no list has it) and the public servers. The
+/// user's list holds at most one public server (the one in use after a switch) and any number
+/// of typed-in ones; a server in it shows once, there, with the star (nodes) or the bin
+/// (relays) that takes it out: a public one goes back to the public list, a typed-in one is
+/// gone; the [current] one may leave too, the wallet stays on it. Public-list rows have neither. The push relay is a public relay with a bell. Each row is one 56 dp target; [selected] has the check, [current]
 /// says so. Not scrollable itself: the sheet and Settings › Network put it in their scroll.
 ///
 /// [value]s are node URLs or relay labels (`host` or `host:port`). [query] filters the rows
@@ -357,7 +466,6 @@ class ServerList extends ConsumerWidget {
     final l = context.l10n;
     final status = ref.watch(publicNodeStatusProvider(preset));
     final listed = status.value;
-    final mine = ref.watch(myNodesProvider(preset.chain)).value ?? const [];
     final public = mergePublicNodes(listed, builtIn: builtInNodesFor(preset));
     PublicNode? publicOf(String url) {
       for (final n in public) {
@@ -367,45 +475,51 @@ class ServerList extends ConsumerWidget {
     }
 
     final cur = current;
+    // At most one public node in the list, whatever an older list held.
+    final mine = keepOnePublic(
+      ref.watch(myNodesProvider(preset.chain)).value ?? const [],
+      sameKey: (u) => nodeKey(u) ?? u,
+      isPublic: (u) => publicOf(u) != null,
+      inUse: cur,
+    );
     final mineRows = [
-      for (final url in mine) (url: url, node: publicOf(url), starred: true),
+      for (final url in mine) (url: url, node: publicOf(url), mine: true),
       if (cur != null &&
           publicOf(cur) == null &&
           !mine.any((m) => _sameNode(m, cur)))
-        (url: cur, node: null, starred: false),
+        // The typed-in node in use, out of the list: shown, with no star to take it out.
+        (url: cur, node: null, mine: false),
     ];
     final publicRows = [
       for (final n in public)
         if (!mine.any((m) => _sameNode(m, n.url)))
-          (url: n.url, node: n, starred: false),
+          (url: n.url, node: n, mine: false),
     ];
-    Widget row(({String url, PublicNode? node, bool starred}) r) {
+    Widget row(({String url, PublicNode? node, bool mine}) r) {
       final s = r.node?.status ?? nodeStatusFor(listed ?? const [], r.url);
+      final inUse = cur != null && _sameNode(cur, r.url);
       return _NodeRow(
         key: serverRowKey(r.url),
         url: r.url,
         operator: r.node?.operator ?? s?.operator,
         status: s,
-        starred: r.starred,
+        inMine: r.mine,
         selected: selected != null && _sameNode(selected!, r.url),
-        current: cur != null && _sameNode(cur, r.url),
+        current: inUse,
         onTap: () => onSelected(r.url),
-        // Leaving My nodes asks first; the node in use stays.
-        onStar: r.starred && cur != null && _sameNode(cur, r.url)
-            ? null
-            : () async {
-                if (r.starred &&
-                    !await _confirmRemove(
-                      context,
-                      node: true,
-                      host: serverHost(r.url),
-                    )) {
-                  return;
-                }
-                await ref
-                    .read(myNodesProvider(preset.chain).notifier)
-                    .toggle(r.url);
-              },
+        // Leaving My nodes asks first. The node in use may leave too: the wallet stays on it,
+        // shown in the public list, or (typed in) on its own until the next switch.
+        onStar: () async {
+          if (!await _confirmRemove(
+            context,
+            node: true,
+            public: r.node != null,
+            host: serverHost(r.url),
+          )) {
+            return;
+          }
+          await ref.read(myNodesProvider(preset.chain).notifier).remove(r.url);
+        },
       );
     }
 
@@ -437,7 +551,6 @@ class ServerList extends ConsumerWidget {
   Widget _relays(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final status = ref.watch(relayStatusProvider(preset));
-    final mine = ref.watch(myRelaysProvider(preset.chain)).value ?? const [];
     final public = mergePublicRelays(
       status.value,
       builtIn: builtInRelaysFor(preset),
@@ -449,6 +562,16 @@ class ServerList extends ConsumerWidget {
       return null;
     }
 
+    // At most one public relay in the list, whatever an older list held.
+    final mine = keepOnePublic(
+      ref.watch(myRelaysProvider(preset.chain)).value ?? const [],
+      sameKey: (v) => EpicboxRelay.parse(v)?.label ?? v,
+      isPublic: (v) {
+        final r = EpicboxRelay.parse(v);
+        return r != null && publicOf(r) != null;
+      },
+      inUse: current,
+    );
     final kept = <EpicboxRelay>{
       for (final m in mine) ?EpicboxRelay.parse(m),
     };
@@ -481,16 +604,18 @@ class ServerList extends ConsumerWidget {
         current: isCurrent,
         removable: r.removable,
         onTap: () => onSelected(label),
-        onRemove: isCurrent
-            ? null
-            : () async {
-                if (!await _confirmRemove(context, node: false, host: label)) {
-                  return;
-                }
-                await ref
-                    .read(myRelaysProvider(preset.chain).notifier)
-                    .remove(label);
-              },
+        // As for nodes: the relay in use may leave the list too, the wallet stays on it.
+        onRemove: () async {
+          if (!await _confirmRemove(
+            context,
+            node: false,
+            public: r.listed != null,
+            host: label,
+          )) {
+            return;
+          }
+          await ref.read(myRelaysProvider(preset.chain).notifier).remove(label);
+        },
       );
     }
 
@@ -652,14 +777,15 @@ class _RowFrame extends StatelessWidget {
 }
 
 /// One node: bars in the monitor's health colour, host in mono and its lag (`at tip`, `−12`),
-/// under it operator · latency · version, or "Not responding" greyed; the star.
+/// under it operator · latency · version, or "Not responding" greyed; the star on a My nodes
+/// row, which takes it out of the list (disabled on the node in use).
 class _NodeRow extends StatelessWidget {
   const _NodeRow({
     super.key,
     required this.url,
     required this.operator,
     required this.status,
-    required this.starred,
+    required this.inMine,
     required this.selected,
     required this.current,
     required this.onTap,
@@ -669,12 +795,12 @@ class _NodeRow extends StatelessWidget {
   final String url;
   final String? operator;
   final NodeStatus? status;
-  final bool starred;
+  final bool inMine;
   final bool selected;
   final bool current;
   final VoidCallback onTap;
 
-  /// Adds to or removes from My nodes; null on the node in use, which stays.
+  /// Takes the node out of My nodes; null on the node in use, which stays.
   final VoidCallback? onStar;
 
   @override
@@ -782,18 +908,19 @@ class _NodeRow extends StatelessWidget {
               size: 20,
               color: s?.state == NodeHealthState.healthy ? t.ok : t.dim,
             ),
-          IconButton(
-            key: serverStarKey(url),
-            tooltip: onStar == null
-                ? l.serverRemoveInUse
-                : starred
-                ? l.serverRemoveMine
-                : l.serverAddMine,
-            isSelected: starred,
-            onPressed: onStar,
-            icon: Icon(Icons.star_border, color: t.dim),
-            selectedIcon: Icon(Icons.star, color: t.accent),
-          ),
+          // Only a node in My nodes has the star: a public one joins the list by being
+          // switched to, so a star on it would have nothing to do.
+          if (inMine)
+            IconButton(
+              key: serverStarKey(url),
+              tooltip: onStar == null
+                  ? l.serverRemoveInUse
+                  : l.serverRemoveMine,
+              isSelected: true,
+              onPressed: onStar,
+              icon: Icon(Icons.star_border, color: t.dim),
+              selectedIcon: Icon(Icons.star, color: t.accent),
+            ),
         ],
       ),
     );
@@ -1116,7 +1243,7 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
       // (a live switch already did; with no wallet open it is the server the app starts on).
       await rememberServers(
         ref,
-        choice.preset.chain,
+        choice.preset,
         nodeUrl: _node ? nodeUrl : null,
         relay: _node ? null : relay,
       );

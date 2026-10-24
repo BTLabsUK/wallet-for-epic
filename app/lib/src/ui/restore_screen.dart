@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
-import '../secure_screen.dart';
 import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
@@ -72,14 +71,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   bool _busy = false;
 
   @override
-  void initState() {
-    super.initState();
-    setSecureScreen(true);
-  }
-
-  @override
   void dispose() {
-    setSecureScreen(false);
     // Drop the phrase from the controller and the state, so they no longer point at it.
     _phrase.clear();
     _validPhrase = '';
@@ -151,7 +143,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       await ref.read(sessionProvider.notifier).open(session);
       if (!mounted) return;
       setState(() => _step = _RestoreStep.scan);
-      unawaited(setSecureScreen(false));
       final scanned = await ref
           .read(scanProvider.notifier)
           .run(startHeight: _height);

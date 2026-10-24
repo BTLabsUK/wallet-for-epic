@@ -2303,6 +2303,10 @@
   "@updateAllowInstalls": {
     "description": "Settings' update row while Android's screen for allowing installs from this app is open or was just opened; the update carries on by itself once the user allows and comes back. 'Epic Cash Mobile' is the app's name, never translated."
   },
+  "updateInstallCancelled": "The update was not installed. You can try again.",
+  "@updateInstallCancelled": {
+    "description": "Update banner and Settings row after Android's install dialog was closed without installing (Cancel or Back); the banner's and the row's buttons start it again."
+  },
   "updateNotInstalled": "The update was not installed: {detail}",
   "@updateNotInstalled": {
     "description": "Android's installer refused the update. detail is the installer's own message, in English.",
@@ -2659,6 +2663,22 @@
         "example": "apple"
       }
     }
+  },
+  "backupCopyTitle": "Copy the recovery phrase?",
+  "@backupCopyTitle": {
+    "description": "Title of the confirm dialog before the recovery phrase is copied to the clipboard."
+  },
+  "backupCopyBody": "Anyone with these words can take your funds. Store the copy somewhere safe.",
+  "@backupCopyBody": {
+    "description": "Text of the confirm dialog before the recovery phrase is copied."
+  },
+  "backupCopied": "Copied. The clipboard is cleared in 60 seconds.",
+  "@backupCopied": {
+    "description": "Notice after the recovery phrase was copied: the clipboard is cleared after 60 seconds, and when the wallet locks."
+  },
+  "backupNotCopied": "Not copied. The clipboard refused the text.",
+  "@backupNotCopied": {
+    "description": "Notice when the clipboard refused the recovery phrase."
   },
   "unlockTitle": "Unlock wallet",
   "@unlockTitle": {
@@ -5444,9 +5464,19 @@
   "@serverRemoveNodeTitle": {
     "description": "Title of the dialog that confirms removing a node from My nodes (the star of a My nodes row)."
   },
-  "serverRemoveBody": "{host} leaves this list. Type it in again to use it later.",
-  "@serverRemoveBody": {
-    "description": "Body of the dialogs that confirm removing a node or an Epicbox relay from the user's own list.",
+  "serverRemoveBodyPublic": "{host} leaves my list. Select it from the public list to use it again.",
+  "@serverRemoveBodyPublic": {
+    "description": "Body of the dialog that confirms removing a public node or Epicbox relay from the user's own list: it goes back to the public list.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "relay.example.org"
+      }
+    }
+  },
+  "serverRemoveBodyCustom": "{host} leaves my list. Type it in again to use it.",
+  "@serverRemoveBodyCustom": {
+    "description": "Body of the dialog that confirms removing a node or Epicbox relay the user typed in (not in the public list) from their own list: it is gone.",
     "placeholders": {
       "host": {
         "type": "String",
@@ -16160,7 +16190,7 @@
   "@deskSetPhraseCopied": {
     "description": "Toast title after the recovery phrase was copied."
   },
-  "deskSetPhraseCleared": "The clipboard is cleared in 30 s.",
+  "deskSetPhraseCleared": "The clipboard is cleared in 60 s.",
   "@deskSetPhraseCleared": {
     "description": "Toast text after the recovery phrase was copied."
   },
@@ -17619,5 +17649,13 @@
         "type": "int"
       }
     }
+  },
+  "deskSetPhraseCopyTitle": "Copy the recovery phrase?",
+  "@deskSetPhraseCopyTitle": {
+    "description": "Confirm dialog title before the recovery phrase is copied to the clipboard."
+  },
+  "deskSetPhraseCopyText": "Anyone with these words can take your funds. Store the copy somewhere safe.",
+  "@deskSetPhraseCopyText": {
+    "description": "Confirm dialog text before the recovery phrase is copied to the clipboard."
   }
 }

@@ -2105,6 +2105,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zezwól na instalacje z Epic Cash Mobile, a potem wróć.';
 
   @override
+  String get updateInstallCancelled =>
+      'Aktualizacja nie została zainstalowana. Możesz spróbować ponownie.';
+
+  @override
   String updateNotInstalled(String detail) {
     return 'Aktualizacja nie została zainstalowana: $detail';
   }
@@ -2412,6 +2416,20 @@ class AppLocalizationsPl extends AppLocalizations {
   String backupWordSpoken(int number, String word) {
     return 'Słowo $number: $word';
   }
+
+  @override
+  String get backupCopyTitle => 'Skopiować frazę odzyskiwania?';
+
+  @override
+  String get backupCopyBody =>
+      'Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu.';
+
+  @override
+  String get backupCopied =>
+      'Skopiowano. Schowek zostanie wyczyszczony za 60 sekund.';
+
+  @override
+  String get backupNotCopied => 'Nie skopiowano. Schowek odrzucił tekst.';
 
   @override
   String get unlockTitle => 'Odblokuj portfel';
@@ -4533,8 +4551,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get serverRemoveNodeTitle => 'Usunąć ten węzeł?';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host zniknie z tej listy. Wpisz go ponownie, aby użyć go później.';
+  String serverRemoveBodyPublic(String host) {
+    return '$host zniknie z mojej listy. Wybierz go z listy publicznej, aby znów go użyć.';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host zniknie z mojej listy. Wpisz go ponownie, aby go użyć.';
   }
 
   @override
@@ -12729,7 +12752,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetPhraseCopied => 'Skopiowano frazę';
 
   @override
-  String get deskSetPhraseCleared => 'Schowek zostanie wyczyszczony za 30 s.';
+  String get deskSetPhraseCleared => 'Schowek zostanie wyczyszczony za 60 s.';
 
   @override
   String get deskSetPhraseEnterPassword => 'Wpisz hasło.';
@@ -13808,4 +13831,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return 'Wiadomość jest dłuższa niż $max bajtów. Skróć ją.';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => 'Skopiować frazę odzyskiwania?';
+
+  @override
+  String get deskSetPhraseCopyText =>
+      'Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu.';
 }

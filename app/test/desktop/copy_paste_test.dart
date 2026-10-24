@@ -132,9 +132,26 @@ void phraseCopyOnboarding() {
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.text('Copy'));
     await tester.pump(const Duration(milliseconds: 300));
+    // The warning comes first; nothing is copied until it is confirmed.
+    expect(find.text('Copy the recovery phrase?'), findsOneWidget);
+    expect(find.text('Anyone with these words can take your funds. Store the copy somewhere safe.'), findsOneWidget);
+    expect(_clip, isNull);
+    await tester.tap(find.descendant(of: find.byType(EDialog), matching: find.text('Cancel')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Copy the recovery phrase?'), findsNothing);
+    expect(_clip, isNull);
+    expect(find.text('Phrase copied'), findsNothing);
+    await tester.tap(find.text('Copy'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.descendant(of: find.byType(EDialog), matching: find.text('Copy')));
+    await tester.pump(const Duration(milliseconds: 300));
     expect(_clip, isNotNull);
     expect(find.text('Phrase copied'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    // Cleared after 60 s, not at 31.
     await tester.pump(const Duration(seconds: 31));
+    expect(_clip, isNotEmpty);
+    await tester.pump(const Duration(seconds: 30));
+    expect(_clip, '');
   });
 }

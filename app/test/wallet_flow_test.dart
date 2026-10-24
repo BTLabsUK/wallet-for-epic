@@ -18,7 +18,9 @@ import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -720,6 +722,162 @@ void main() {
         expect(device.store.values['wallet.mainnet.backedUp'], '1');
       },
     );
+
+    group('recovery phrase screen', () {
+      /// Opens Back up, agrees, enters the PIN. Returns the phrase.
+      Future<String> openPhrase(WidgetTester tester) async {
+        final service = _existing();
+        await _pumpApp(tester, service, _Device(sealedMainnet: true));
+        await _unlockToHome(tester);
+        await tester.tap(find.text('Back up'));
+        await _pumpFrames(tester);
+        await tester.tap(
+          find.text('I will keep any copy of the phrase private'),
+        );
+        await tester.pump();
+        await tester.tap(find.widgetWithText(FilledButton, 'Show recovery phrase'));
+        await _pumpFrames(tester);
+        await tester.enterText(
+          find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.byType(TextField),
+          ),
+          _pin,
+        );
+        await tester.pumpAndSettle();
+        return service.phrase;
+      }
+
+      testWidgets('does not block screenshots', (tester) async {
+        final calls = <MethodCall>[];
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          const MethodChannel('epic_wallet/secure_screen'),
+          (call) async {
+            calls.add(call);
+            return null;
+          },
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            const MethodChannel('epic_wallet/secure_screen'),
+            null,
+          ),
+        );
+        // setSecureScreen only calls the platform on Android and iOS.
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        try {
+          final phrase = await openPhrase(tester);
+          expect(find.text('1. ${phrase.split(' ').first}'), findsOneWidget);
+          expect(calls, isEmpty);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+
+      testWidgets('Copy warns first; Cancel copies nothing', (tester) async {
+        final phrase = await openPhrase(tester);
+        var set = 0;
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (call) async {
+            if (call.method == 'Clipboard.setData') set++;
+            return null;
+          },
+        );
+        await _tapText(tester, 'Copy');
+        expect(find.text('Copy the recovery phrase?'), findsOneWidget);
+        expect(
+          find.text(
+            'Anyone with these words can take your funds. Store the copy somewhere safe.',
+          ),
+          findsOneWidget,
+        );
+        expect(set, 0);
+        await _tapText(tester, 'Cancel');
+        expect(find.text('Copy the recovery phrase?'), findsNothing);
+        expect(set, 0);
+        expect(find.text('1. ${phrase.split(' ').first}'), findsOneWidget);
+        expect(find.textContaining('Copied.'), findsNothing);
+      });
+
+      testWidgets('Copy puts the words on the clipboard, then clears it after 60 s', (
+        tester,
+      ) async {
+        final phrase = await openPhrase(tester);
+        String? clip;
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (call) async {
+            if (call.method == 'Clipboard.setData') {
+              clip = (call.arguments as Map)['text'] as String?;
+            } else if (call.method == 'Clipboard.getData') {
+              return clip == null ? null : <String, dynamic>{'text': clip};
+            }
+            return null;
+          },
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            SystemChannels.platform,
+            null,
+          ),
+        );
+        await _tapText(tester, 'Copy');
+        await tester.tap(
+          find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.text('Copy'),
+          ),
+        );
+        await _pumpFrames(tester);
+        expect(clip, phrase);
+        expect(
+          find.text('Copied. The clipboard is cleared in 60 seconds.'),
+          findsOneWidget,
+        );
+        await tester.pump(const Duration(seconds: 31));
+        await tester.pump();
+        expect(clip, phrase, reason: 'still there after 31 s');
+        await tester.pump(const Duration(seconds: 30));
+        await tester.pump();
+        expect(clip, '');
+      });
+
+      testWidgets('in the background (the clipboard reads as empty) it is cleared too', (
+        tester,
+      ) async {
+        await openPhrase(tester);
+        String? clip;
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (call) async {
+            if (call.method == 'Clipboard.setData') {
+              clip = (call.arguments as Map)['text'] as String?;
+            }
+            // Android 10+ gives a background app nothing on a read.
+            return null;
+          },
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            SystemChannels.platform,
+            null,
+          ),
+        );
+        await _tapText(tester, 'Copy');
+        await tester.tap(
+          find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.text('Copy'),
+          ),
+        );
+        await _pumpFrames(tester);
+        expect(clip, isNotEmpty);
+        await tester.pump(const Duration(seconds: 61));
+        await tester.pump();
+        expect(clip, '');
+      });
+    });
 
     testWidgets('biometric unlock can be turned on from settings', (
       tester,

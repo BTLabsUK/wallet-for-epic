@@ -2860,6 +2860,12 @@ abstract class AppLocalizations {
   /// **'Allow installs from Epic Cash Mobile, then return.'**
   String get updateAllowInstalls;
 
+  /// Update banner and Settings row after Android's install dialog was closed without installing (Cancel or Back); the banner's and the row's buttons start it again.
+  ///
+  /// In en, this message translates to:
+  /// **'The update was not installed. You can try again.'**
+  String get updateInstallCancelled;
+
   /// Android's installer refused the update. detail is the installer's own message, in English.
   ///
   /// In en, this message translates to:
@@ -3357,6 +3363,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Word {number}: {word}'**
   String backupWordSpoken(int number, String word);
+
+  /// Title of the confirm dialog before the recovery phrase is copied to the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the recovery phrase?'**
+  String get backupCopyTitle;
+
+  /// Text of the confirm dialog before the recovery phrase is copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with these words can take your funds. Store the copy somewhere safe.'**
+  String get backupCopyBody;
+
+  /// Notice after the recovery phrase was copied: the clipboard is cleared after 60 seconds, and when the wallet locks.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied. The clipboard is cleared in 60 seconds.'**
+  String get backupCopied;
+
+  /// Notice when the clipboard refused the recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Not copied. The clipboard refused the text.'**
+  String get backupNotCopied;
 
   /// Title of the screen that opens the wallet with the PIN or biometrics.
   ///
@@ -6747,11 +6777,17 @@ abstract class AppLocalizations {
   /// **'Remove this node?'**
   String get serverRemoveNodeTitle;
 
-  /// Body of the dialogs that confirm removing a node or an Epicbox relay from the user's own list.
+  /// Body of the dialog that confirms removing a public node or Epicbox relay from the user's own list: it goes back to the public list.
   ///
   /// In en, this message translates to:
-  /// **'{host} leaves this list. Type it in again to use it later.'**
-  String serverRemoveBody(String host);
+  /// **'{host} leaves my list. Select it from the public list to use it again.'**
+  String serverRemoveBodyPublic(String host);
+
+  /// Body of the dialog that confirms removing a node or Epicbox relay the user typed in (not in the public list) from their own list: it is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} leaves my list. Type it in again to use it.'**
+  String serverRemoveBodyCustom(String host);
 
   /// Confirm button of the remove dialogs.
   ///
@@ -19445,7 +19481,7 @@ abstract class AppLocalizations {
   /// Toast text after the recovery phrase was copied.
   ///
   /// In en, this message translates to:
-  /// **'The clipboard is cleared in 30 s.'**
+  /// **'The clipboard is cleared in 60 s.'**
   String get deskSetPhraseCleared;
 
   /// Settings > Recovery phrase: error under the password field when it is empty.
@@ -21223,6 +21259,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The message is longer than {max} bytes. Shorten it.'**
   String deskSendMessageTooLong(int max);
+
+  /// Confirm dialog title before the recovery phrase is copied to the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the recovery phrase?'**
+  String get deskSetPhraseCopyTitle;
+
+  /// Confirm dialog text before the recovery phrase is copied to the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with these words can take your funds. Store the copy somewhere safe.'**
+  String get deskSetPhraseCopyText;
 }
 
 class _AppLocalizationsDelegate

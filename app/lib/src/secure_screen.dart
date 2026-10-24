@@ -7,6 +7,9 @@ const MethodChannel _channel = MethodChannel('epic_wallet/secure_screen');
 /// preview (FLAG_SECURE, every API level); on iOS, covers the window whenever the app is
 /// inactive, so the app switcher's snapshot shows nothing (iOS cannot block screenshots).
 ///
+/// Unused since 26.10.6: the recovery phrase screens allow screenshots and Copy. Kept for a
+/// screen that must stay private.
+///
 /// A no-op elsewhere. Failures are ignored: the phrase must still be shown.
 Future<void> setSecureScreen(bool secure) => _call('setSecure', secure);
 

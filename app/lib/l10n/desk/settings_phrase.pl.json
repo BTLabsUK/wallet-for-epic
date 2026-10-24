@@ -2,7 +2,7 @@
   "deskSetPhraseNotCopied": "Nie skopiowano",
   "deskSetPhraseClipboardRefused": "Schowek odrzucił tekst.",
   "deskSetPhraseCopied": "Skopiowano frazę",
-  "deskSetPhraseCleared": "Schowek zostanie wyczyszczony za 30 s.",
+  "deskSetPhraseCleared": "Schowek zostanie wyczyszczony za 60 s.",
   "deskSetPhraseEnterPassword": "Wpisz hasło.",
   "deskSetPhraseWrongPassword": "Nieprawidłowe hasło.",
   "deskSetPhraseIntro": "Zapisz słowa na papierze w tej kolejności. Nigdy nie wpisuj ich na stronie internetowej ani na czacie.",
@@ -15,5 +15,7 @@
   "deskSetPhraseHidesIn": "Ukryje się za {seconds} s",
   "deskSetPhraseQrLabel": "Kod QR frazy odzyskiwania",
   "deskSetPhraseBackUp": "Zabezpiecz frazę",
-  "deskSetPhraseBackUpText": "Każdy, kto zna te słowa, może zabrać EPIC. Upewnij się, że nikt nie widzi ekranu."
+  "deskSetPhraseBackUpText": "Każdy, kto zna te słowa, może zabrać EPIC. Upewnij się, że nikt nie widzi ekranu.",
+  "deskSetPhraseCopyTitle": "Skopiować frazę odzyskiwania?",
+  "deskSetPhraseCopyText": "Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu."
 }

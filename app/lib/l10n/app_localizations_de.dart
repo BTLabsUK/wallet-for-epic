@@ -2008,6 +2008,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Erlauben Sie Installationen von Epic Cash Mobile und kehren Sie dann zurück.';
 
   @override
+  String get updateInstallCancelled =>
+      'Das Update wurde nicht installiert. Sie können es erneut versuchen.';
+
+  @override
   String updateNotInstalled(String detail) {
     return 'Das Update wurde nicht installiert: $detail';
   }
@@ -2314,6 +2318,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String backupWordSpoken(int number, String word) {
     return 'Wort $number: $word';
   }
+
+  @override
+  String get backupCopyTitle => 'Wiederherstellungsphrase kopieren?';
+
+  @override
+  String get backupCopyBody =>
+      'Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf.';
+
+  @override
+  String get backupCopied =>
+      'Kopiert. Die Zwischenablage wird in 60 Sekunden geleert.';
+
+  @override
+  String get backupNotCopied =>
+      'Nicht kopiert. Die Zwischenablage hat den Text abgelehnt.';
 
   @override
   String get unlockTitle => 'Wallet entsperren';
@@ -4422,8 +4441,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get serverRemoveNodeTitle => 'Diesen Node entfernen?';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host verschwindet aus dieser Liste. Geben Sie ihn erneut ein, um ihn später zu nutzen.';
+  String serverRemoveBodyPublic(String host) {
+    return '$host verschwindet aus meiner Liste. Wählen Sie ihn aus der öffentlichen Liste, um ihn wieder zu nutzen.';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host verschwindet aus meiner Liste. Geben Sie ihn erneut ein, um ihn zu nutzen.';
   }
 
   @override
@@ -12477,7 +12501,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetPhraseCopied => 'Phrase kopiert';
 
   @override
-  String get deskSetPhraseCleared => 'Die Zwischenablage wird in 30 s geleert.';
+  String get deskSetPhraseCleared => 'Die Zwischenablage wird in 60 s geleert.';
 
   @override
   String get deskSetPhraseEnterPassword => 'Geben Sie das Passwort ein.';
@@ -13554,4 +13578,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return 'Die Nachricht ist länger als $max Byte. Kürze sie.';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => 'Wiederherstellungsphrase kopieren?';
+
+  @override
+  String get deskSetPhraseCopyText =>
+      'Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf.';
 }

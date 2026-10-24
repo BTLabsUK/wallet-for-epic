@@ -1863,6 +1863,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateAllowInstalls => '允许来自 Epic Cash Mobile 的安装，然后返回。';
 
   @override
+  String get updateInstallCancelled => '更新未安装。可以再试一次。';
+
+  @override
   String updateNotInstalled(String detail) {
     return '更新未安装：$detail';
   }
@@ -2142,6 +2145,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String backupWordSpoken(int number, String word) {
     return '第 $number 个单词：$word';
   }
+
+  @override
+  String get backupCopyTitle => '复制助记词？';
+
+  @override
+  String get backupCopyBody => '任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。';
+
+  @override
+  String get backupCopied => '已复制。剪贴板将在 60 秒后清空。';
+
+  @override
+  String get backupNotCopied => '未复制。剪贴板拒绝了该文本。';
 
   @override
   String get unlockTitle => '解锁钱包';
@@ -4123,8 +4138,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverRemoveNodeTitle => '移除此节点？';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host 将从此列表中移除。以后要使用，请重新输入。';
+  String serverRemoveBodyPublic(String host) {
+    return '$host 将从我的列表中移除。要再次使用，请从公共列表中选择。';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host 将从我的列表中移除。要使用，请重新输入。';
   }
 
   @override
@@ -11679,7 +11699,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPhraseCopied => '助记词已复制';
 
   @override
-  String get deskSetPhraseCleared => '剪贴板将在 30 秒后清空。';
+  String get deskSetPhraseCleared => '剪贴板将在 60 秒后清空。';
 
   @override
   String get deskSetPhraseEnterPassword => '请输入密码。';
@@ -12689,4 +12709,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return '消息超过 $max 字节，请缩短。';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => '复制助记词？';
+
+  @override
+  String get deskSetPhraseCopyText => '任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。';
 }

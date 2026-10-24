@@ -301,37 +301,21 @@ void main() {
       );
     });
 
-    testWidgets('the star adds to My nodes and survives a rebuild', (
+    testWidgets('a node in My nodes survives a rebuild with its star; public rows have none', (
       tester,
     ) async {
-      final store = _store();
       const url = 'https://node.epicnet.us:3413';
-      await _pump(tester, ServerKind.node, store: store);
-      await tester.scrollUntilVisible(
-        find.byKey(serverStarKey(url)),
-        200,
-        scrollable: _list,
-      );
-      expect(find.byTooltip('Add to my nodes'), findsWidgets);
-      await tester.tap(find.byKey(serverStarKey(url)));
-      await tester.pumpAndSettle();
-      expect(jsonDecode(store.values['app.myNodes.mainnet']!), [url]);
-      await tester.scrollUntilVisible(
-        find.text('MY NODES'),
-        -200,
-        scrollable: _list,
-      );
-      expect(find.text('MY NODES'), findsOneWidget);
-      // A new app: the store is all that is left.
-      await tester.pumpWidget(const SizedBox());
+      final store = _store()..values['app.myNodes.mainnet'] = jsonEncode([url]);
       await _pump(tester, ServerKind.node, store: store);
       expect(find.text('MY NODES'), findsOneWidget);
       expect(
         tester.widget<IconButton>(find.byKey(serverStarKey(url))).isSelected,
         isTrue,
       );
-      // In My nodes only, not twice.
+      // In My nodes only, not twice; the public rows have no star.
       expect(_row(url), findsOneWidget);
+      expect(find.byKey(serverStarKey('https://node.btlabs.uk')), findsNothing);
+      expect(find.byIcon(Icons.star_border), findsNothing);
     });
 
     testWidgets('a typed address is tested, then offered', (tester) async {
@@ -571,7 +555,7 @@ void main() {
       ]);
     });
 
-    testWidgets('removing asks first; the relay in use cannot be removed', (
+    testWidgets('removing asks first', (
       tester,
     ) async {
       final store = _store()
@@ -580,17 +564,16 @@ void main() {
           'epicbox.stackwallet.com',
         ]);
       await _pump(tester, ServerKind.relay, store: store);
-      final inUse = tester.widget<IconButton>(
-        find.byKey(serverRemoveKey('epicbox.stackwallet.com')),
-      );
-      expect(inUse.onPressed, isNull);
-      expect(inUse.tooltip, 'In use. Switch to another server first.');
       final remove = find.byKey(serverRemoveKey('relay.example.org'));
       expect(tester.getSize(remove).height, greaterThanOrEqualTo(48));
-      expect(find.byTooltip('Remove from my servers'), findsOneWidget);
+      expect(find.byTooltip('Remove from my servers'), findsNWidgets(2));
       await tester.tap(remove);
       await tester.pumpAndSettle();
       expect(find.text('Remove this server?'), findsOneWidget);
+      expect(
+        find.text('relay.example.org leaves my list. Type it in again to use it.'),
+        findsOneWidget,
+      );
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       expect(jsonDecode(store.values['app.myRelays.mainnet']!), hasLength(2));
@@ -631,7 +614,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('nodes: a picked node is remembered; the one in use stays; unstar asks', (
+    testWidgets('nodes: a picked node is remembered; unstar asks', (
       tester,
     ) async {
       final store = _store();
@@ -643,19 +626,14 @@ void main() {
       await tester.tap(find.byKey(serverSwitchKey));
       await tester.pumpAndSettle();
       expect(jsonDecode(store.values['app.myNodes.mainnet']!), [url]);
-      // Now on that node, with node.btlabs.uk starred as well.
+      // Now on that node, with a typed-in node in the list as well.
       store.values['app.myNodes.mainnet'] = jsonEncode([
         url,
-        'https://node.btlabs.uk',
+        'https://my.node.example:3413',
       ]);
       await tester.pumpWidget(const SizedBox());
       await _pump(tester, ServerKind.node, store: store);
-      final current = tester.widget<IconButton>(
-        find.byKey(serverStarKey(url)),
-      );
-      expect(current.onPressed, isNull);
-      expect(current.tooltip, 'In use. Switch to another server first.');
-      await tester.tap(find.byKey(serverStarKey('https://node.btlabs.uk')));
+      await tester.tap(find.byKey(serverStarKey('https://my.node.example:3413')));
       await tester.pumpAndSettle();
       expect(find.text('Remove this node?'), findsOneWidget);
       await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
@@ -684,6 +662,459 @@ void main() {
       ]);
       // Already there: nothing moves.
       await mine.add('r3.example.org:443');
+      expect(container.read(myRelaysProvider(Chain.mainnet)).value, hasLength(6));
+    });
+  });
+
+  // The model of My nodes and My relays: at most one public server, any number of typed-in
+  // ones. The node in use is btlabs and the relay in use stackwallet (see [_store]).
+  group('my list holds one public server', () {
+    const pubA = 'https://node.epicnet.us:3413';
+    const pubB = 'https://node.epiccash.com:3413';
+    const custom = 'https://my.node.example:3413';
+    const custom2 = 'https://other.node.example';
+    const relA = 'epicbox.epicnet.us';
+    const relB = 'epicbox.iniaku.my.id';
+    const relCustom = 'relay.example.org';
+    const relCustom2 = 'relay.other.org:4443';
+
+    // The whole list in view, so every row is built.
+    Future<void> tall(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 7000);
+      await tester.pumpAndSettle();
+    }
+
+    MemorySecretStore seeded(String key, List<String> list) =>
+        _store()..values[key] = jsonEncode(list);
+
+    List<Object?> saved(MemorySecretStore store, String key) =>
+        jsonDecode(store.values[key]!) as List<Object?>;
+
+    // Rule 1: one public server at most, however many typed-in ones.
+    testWidgets('rule 1: nodes — an older list with two public ones shows one', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubA, custom, pubB, custom2]);
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      // Neither public node is in use: the last added stays, with both typed-in ones.
+      expect(find.byKey(serverStarKey(pubA)), findsNothing);
+      expect(find.byKey(serverStarKey(pubB)), findsOneWidget);
+      expect(find.byKey(serverStarKey(custom)), findsOneWidget);
+      expect(find.byKey(serverStarKey(custom2)), findsOneWidget);
+      expect(
+        tester.getTopLeft(_row(pubB)).dy,
+        lessThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
+      );
+      expect(
+        tester.getTopLeft(_row(pubA)).dy,
+        greaterThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
+      );
+    });
+
+    testWidgets('rule 1: relays — an older list with two public ones shows one', (
+      tester,
+    ) async {
+      final store = seeded('app.myRelays.mainnet', [relA, relCustom, relB]);
+      await _pump(tester, ServerKind.relay, store: store);
+      await tall(tester);
+      expect(find.byKey(serverRemoveKey(relA)), findsNothing);
+      expect(find.byKey(serverRemoveKey(relB)), findsOneWidget);
+      expect(find.byKey(serverRemoveKey(relCustom)), findsOneWidget);
+      expect(
+        tester.getTopLeft(_row(relA)).dy,
+        greaterThan(tester.getTopLeft(find.text('PUBLIC SERVERS')).dy),
+      );
+    });
+
+    testWidgets('rule 1: the public node in use is the one that stays', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubA, pubB])
+        ..values['app.node.mainnet'] = pubA;
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      expect(find.byKey(serverStarKey(pubA)), findsOneWidget);
+      expect(find.byKey(serverStarKey(pubB)), findsNothing);
+    });
+
+    // Rule 2: a switch to a public server moves it into the list and the old one out.
+    testWidgets('rule 2: nodes — switching to a public node replaces the public one', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubB, custom]);
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      await tester.tap(_row(pubA));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverSwitchKey));
+      await tester.pumpAndSettle();
+      expect(saved(store, 'app.myNodes.mainnet'), [custom, pubA]);
+      expect(store.values['app.node.mainnet'], pubA);
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      expect(find.byKey(serverStarKey(pubA)), findsOneWidget);
+      expect(find.byKey(serverStarKey(pubB)), findsNothing);
+      expect(
+        tester.getTopLeft(_row(pubB)).dy,
+        greaterThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
+      );
+    });
+
+    testWidgets('rule 2: a typed-in node leaves the public one in the list', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubB]);
+      await _pump(tester, ServerKind.node, store: store);
+      await tester.enterText(find.byType(TextField), 'my.node.example:3413');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverUseTypedKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverSwitchKey));
+      await tester.pumpAndSettle();
+      expect(saved(store, 'app.myNodes.mainnet'), [pubB, custom]);
+    });
+
+    testWidgets('rule 2: relays — switching to a public relay replaces the public one', (
+      tester,
+    ) async {
+      final store = seeded('app.myRelays.mainnet', [relB, relCustom]);
+      await _pump(tester, ServerKind.relay, store: store);
+      await tall(tester);
+      await tester.tap(_row(relA));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverSwitchKey));
+      await tester.pumpAndSettle();
+      expect(saved(store, 'app.myRelays.mainnet'), [relCustom, relA]);
+      expect(store.values['app.relay.mainnet'], relA);
+    });
+
+    // Rule 3 and 5: removing a public server sends it back, a typed-in one is gone; the
+    // dialog says which.
+    testWidgets('rules 3 and 5: nodes — unstar a public node, then a typed-in one', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubA, custom]);
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      await tester.tap(find.byKey(serverStarKey(pubA)));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'node.epicnet.us:3413 leaves my list. Select it from the public list to use it again.',
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.pumpAndSettle();
+      expect(saved(store, 'app.myNodes.mainnet'), [custom]);
+      // Back in the public list, without a star.
+      expect(find.byKey(serverStarKey(pubA)), findsNothing);
+      expect(
+        tester.getTopLeft(_row(pubA)).dy,
+        greaterThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
+      );
+      await tester.tap(find.byKey(serverStarKey(custom)));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('my.node.example:3413 leaves my list. Type it in again to use it.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.pumpAndSettle();
+      expect(saved(store, 'app.myNodes.mainnet'), isEmpty);
+      expect(_row(custom), findsNothing);
+      expect(find.textContaining('leaves this list'), findsNothing);
+    });
+
+    testWidgets('rules 3 and 5: relays — the bin on a public relay, then a typed-in one', (
+      tester,
+    ) async {
+      final store = seeded('app.myRelays.mainnet', [relA, relCustom]);
+      await _pump(tester, ServerKind.relay, store: store);
+      await tall(tester);
+      await tester.tap(find.byKey(serverRemoveKey(relA)));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          '$relA leaves my list. Select it from the public list to use it again.',
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.pumpAndSettle();
+      expect(saved(store, 'app.myRelays.mainnet'), [relCustom]);
+      expect(
+        tester.getTopLeft(_row(relA)).dy,
+        greaterThan(tester.getTopLeft(find.text('PUBLIC SERVERS')).dy),
+      );
+      await tester.tap(find.byKey(serverRemoveKey(relCustom)));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('$relCustom leaves my list. Type it in again to use it.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.pumpAndSettle();
+      expect(saved(store, 'app.myRelays.mainnet'), isEmpty);
+      expect(_row(relCustom), findsNothing);
+    });
+
+    // Un-starring (the owner: the star on the node in use did nothing): the star always answers,
+    // the row moves at once, and the wallet stays on a server it is using.
+    testWidgets('un-star: a public node leaves my list at once, back to the public list', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubA, custom]);
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      await tester.tap(find.byKey(serverStarKey(pubA)));
+      await tester.pumpAndSettle();
+      expect(find.text('Remove this node?'), findsOneWidget);
+      expect(
+        find.text('node.epicnet.us:3413 leaves my list. Select it from the public list to use it again.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.pump();
+      expect(find.byKey(serverStarKey(pubA)), findsNothing);
+      expect(
+        tester.getTopLeft(_row(pubA)).dy,
+        greaterThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
+      );
+      expect(saved(store, 'app.myNodes.mainnet'), [custom]);
+    });
+
+    testWidgets('un-star: the public node in use leaves my list; still in use, in the public list', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubA, custom])
+        ..values['app.node.mainnet'] = pubA;
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      final star = tester.widget<IconButton>(find.byKey(serverStarKey(pubA)));
+      expect(star.onPressed, isNotNull);
+      expect(star.tooltip, 'Remove from my nodes');
+      await tester.tap(find.byKey(serverStarKey(pubA)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.pump();
+      expect(find.byKey(serverStarKey(pubA)), findsNothing);
+      expect(
+        tester.getTopLeft(_row(pubA)).dy,
+        greaterThan(tester.getTopLeft(find.text('PUBLIC NODES')).dy),
+      );
+      expect(_inRow(pubA, 'Current'), findsOneWidget);
+      expect(saved(store, 'app.myNodes.mainnet'), [custom]);
+      expect(store.values['app.node.mainnet'], pubA, reason: 'no switch');
+      expect(find.byKey(serverSwitchKey), findsNothing);
+    });
+
+    testWidgets('un-star: a typed-in node in use leaves my list with the type-it-again line', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [custom])
+        ..values['app.node.mainnet'] = custom;
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      await tester.tap(find.byKey(serverStarKey(custom)));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('my.node.example:3413 leaves my list. Type it in again to use it.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.pump();
+      // The wallet is still on it: the row stays, with no star.
+      expect(_row(custom), findsOneWidget);
+      expect(find.byKey(serverStarKey(custom)), findsNothing);
+      expect(saved(store, 'app.myNodes.mainnet'), isEmpty);
+      expect(store.values['app.node.mainnet'], custom);
+    });
+
+    testWidgets('un-star: Cancel keeps the star', (tester) async {
+      final store = seeded('app.myNodes.mainnet', [pubA]);
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      await tester.tap(find.byKey(serverStarKey(pubA)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(serverStarKey(pubA)), findsOneWidget);
+      expect(saved(store, 'app.myNodes.mainnet'), [pubA]);
+    });
+
+    testWidgets('the relay in use can leave my list too; the wallet stays on it', (
+      tester,
+    ) async {
+      final store = seeded('app.myRelays.mainnet', [
+        relCustom,
+        'epicbox.stackwallet.com',
+      ]);
+      await _pump(tester, ServerKind.relay, store: store);
+      await tall(tester);
+      await tester.tap(find.byKey(serverRemoveKey('epicbox.stackwallet.com')));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'epicbox.stackwallet.com leaves my list. Select it from the public list to use it again.',
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.pump();
+      expect(find.byKey(serverRemoveKey('epicbox.stackwallet.com')), findsNothing);
+      expect(
+        tester.getTopLeft(_row('epicbox.stackwallet.com')).dy,
+        greaterThan(tester.getTopLeft(find.text('PUBLIC SERVERS')).dy),
+      );
+      expect(saved(store, 'app.myRelays.mainnet'), [relCustom]);
+      expect(store.values['app.relay.mainnet'], 'epicbox.stackwallet.com');
+    });
+
+    // Rule 4: the star and the bin only where they mean something.
+    testWidgets('rule 4: no star on public rows, a filled one on My nodes rows', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubA, custom]);
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      for (final url in [
+        'https://node.btlabs.uk',
+        pubB,
+        'https://epic.stackwallet.com:3413',
+        'https://epic-node.iniaku.my.id',
+      ]) {
+        expect(_row(url), findsOneWidget);
+        expect(find.byKey(serverStarKey(url)), findsNothing);
+      }
+      for (final url in [pubA, custom]) {
+        expect(
+          tester.widget<IconButton>(find.byKey(serverStarKey(url))).isSelected,
+          isTrue,
+        );
+      }
+      expect(find.byIcon(Icons.star_border), findsNothing);
+    });
+
+    testWidgets('rule 4: no bin on public relay rows', (tester) async {
+      final store = seeded('app.myRelays.mainnet', [relA, relCustom]);
+      await _pump(tester, ServerKind.relay, store: store);
+      await tall(tester);
+      expect(find.byKey(serverRemoveKey(relB)), findsNothing);
+      expect(find.byKey(serverRemoveKey('flooepicbox.btlabs.uk')), findsNothing);
+      expect(find.byKey(serverRemoveKey(relA)), findsOneWidget);
+      expect(find.byKey(serverRemoveKey(relCustom)), findsOneWidget);
+      expect(find.byIcon(Icons.delete_outline), findsNWidgets(2));
+    });
+
+    // Rule 6: with several servers in the list a tap still asks first.
+    testWidgets('rule 6: a tap on a server in the list asks to switch', (
+      tester,
+    ) async {
+      final store = seeded('app.myNodes.mainnet', [pubA, custom, custom2]);
+      await _pump(tester, ServerKind.node, store: store);
+      await tall(tester);
+      await tester.tap(_row(custom));
+      await tester.pumpAndSettle();
+      expect(find.text('Switch to my.node.example:3413'), findsOneWidget);
+      expect(store.values['app.node.mainnet'], 'https://node.btlabs.uk');
+      await tester.tap(_row(pubA));
+      await tester.pumpAndSettle();
+      expect(find.text('Switch to node.epicnet.us:3413'), findsOneWidget);
+      expect(store.values['app.node.mainnet'], 'https://node.btlabs.uk');
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(serverSwitchKey), findsNothing);
+      expect(saved(store, 'app.myNodes.mainnet'), [pubA, custom, custom2]);
+    });
+
+    testWidgets('rule 6: relays — a tap on a server in the list asks to switch', (
+      tester,
+    ) async {
+      final store = seeded('app.myRelays.mainnet', [relA, relCustom, relCustom2]);
+      await _pump(tester, ServerKind.relay, store: store);
+      await tall(tester);
+      await tester.tap(_row(relCustom2));
+      await tester.pumpAndSettle();
+      expect(find.text('Switch to $relCustom2'), findsOneWidget);
+      // The address-change line stays on the Epicbox switch.
+      expect(find.text(AppLocalizations.of(tester.element(find.byType(ServerPickerSheet))).serverRelaySwitchNote), findsOneWidget);
+      expect(store.values['app.relay.mainnet'], 'epicbox.stackwallet.com');
+    });
+
+    // Migration: the notifiers read an older list down to one public server.
+    for (final (name, key, list, inUseKey, inUse, expected, provider) in [
+      (
+        'nodes, the one in use stays',
+        'app.myNodes.mainnet',
+        [pubA, custom, pubB],
+        'app.node.mainnet',
+        pubA,
+        [pubA, custom],
+        myNodesProvider(Chain.mainnet),
+      ),
+      (
+        'nodes, none in use: the last added stays',
+        'app.myNodes.mainnet',
+        [pubA, custom, pubB],
+        'app.node.mainnet',
+        'https://node.btlabs.uk',
+        [custom, pubB],
+        myNodesProvider(Chain.mainnet),
+      ),
+      (
+        'relays, the one in use stays',
+        'app.myRelays.mainnet',
+        [relA, relCustom, relB],
+        'app.relay.mainnet',
+        relA,
+        [relA, relCustom],
+        myRelaysProvider(Chain.mainnet),
+      ),
+      (
+        'relays, none in use: the last added stays',
+        'app.myRelays.mainnet',
+        [relA, relCustom, relB],
+        'app.relay.mainnet',
+        'epicbox.stackwallet.com',
+        [relCustom, relB],
+        myRelaysProvider(Chain.mainnet),
+      ),
+    ]) {
+      test('migration: $name', () async {
+        final store = seeded(key, list)..values[inUseKey] = inUse;
+        final container = ProviderContainer(
+          overrides: [secretStoreProvider.overrideWithValue(store)],
+        );
+        addTearDown(container.dispose);
+        expect(await container.read(provider.future), expected);
+      });
+    }
+
+    test('adding a public server drops the public one; the cap still holds', () async {
+      final store = MemorySecretStore({});
+      final container = ProviderContainer(
+        overrides: [secretStoreProvider.overrideWithValue(store)],
+      );
+      addTearDown(container.dispose);
+      final mine = container.read(myRelaysProvider(Chain.mainnet).notifier);
+      bool isPublic(String v) => v == relA || v == relB;
+      for (var i = 0; i < 5; i++) {
+        await mine.add('r$i.example.org', isPublic: isPublic);
+      }
+      await mine.add(relA, isPublic: isPublic);
+      await mine.add(relB, isPublic: isPublic);
+      expect(container.read(myRelaysProvider(Chain.mainnet)).value, [
+        'r0.example.org',
+        'r1.example.org',
+        'r2.example.org',
+        'r3.example.org',
+        'r4.example.org',
+        relB,
+      ]);
+      await mine.add('r5.example.org', isPublic: isPublic);
       expect(container.read(myRelaysProvider(Chain.mainnet)).value, hasLength(6));
     });
   });

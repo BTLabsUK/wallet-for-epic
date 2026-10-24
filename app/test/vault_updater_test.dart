@@ -746,6 +746,131 @@ void main() {
       expect(container.read(updateProvider).update, isNull);
     });
 
+    group('the install permission (Android 8–11 end the app when it is allowed)', () {
+      late MemorySecretStore store;
+      late Directory temp;
+
+      setUp(() async {
+        store = MemorySecretStore();
+        temp = await Directory.systemTemp.createTemp('wfe_update_perm');
+        addTearDown(() => temp.delete(recursive: true));
+      });
+
+      // One app run on the shared store.
+      ProviderContainer run(_FakeUpdatePlatform platform) {
+        final c = ProviderContainer(
+          overrides: [
+            updatePlatformProvider.overrideWithValue(platform),
+            secretStoreProvider.overrideWithValue(store),
+            updateTempDirProvider.overrideWithValue(() async => temp),
+            updateManifestUrlProvider.overrideWithValue(Uri.parse('http://127.0.0.1:${server.port}/update.json')),
+            updateKeyringProvider.overrideWithValue(testUpdateKeyring),
+            updateClockProvider.overrideWithValue(() => DateTime.utc(2026, 11, 1)),
+            updateApkUrlProvider.overrideWithValue((url) => Uri.parse('http://127.0.0.1:${server.port}/app.apk')),
+            updateInstallGraceProvider.overrideWithValue(const Duration(milliseconds: 50)),
+          ],
+        );
+        addTearDown(c.dispose);
+        c.listen(updateProvider, (_, _) {});
+        return c;
+      }
+
+      test('allowed while the app was ended: the next opening downloads and installs it', () async {
+        final first = _FakeUpdatePlatform()..canInstall = false;
+        final a = run(first);
+        await a.read(updateProvider.notifier).checkOnOpening();
+        await a.read(updateProvider.notifier).install();
+        expect(a.read(updateProvider).phase, UpdatePhase.needsPermission);
+        await pumpEventQueue();
+        expect(store.values[updatePermissionKey], '2002');
+        a.dispose();
+
+        // Android started the app again with the permission; the unlock opens Home.
+        final second = _FakeUpdatePlatform();
+        final b = run(second);
+        await b.read(updateProvider.notifier).checkOnOpening();
+        expect(second.installs, 1);
+        expect(b.read(updateProvider).phase, UpdatePhase.installing);
+        await pumpEventQueue();
+        expect(store.values.containsKey(updatePermissionKey), isFalse);
+      });
+
+      test('an opening still without the permission installs nothing and keeps the note', () async {
+        store.values[updatePermissionKey] = '2002';
+        final platform = _FakeUpdatePlatform()..canInstall = false;
+        final c = run(platform);
+        await c.read(updateProvider.notifier).checkOnOpening();
+        expect(platform.installs, 0);
+        expect(c.read(updateProvider).phase, UpdatePhase.available);
+        expect(store.values[updatePermissionKey], '2002');
+      });
+
+      test('a note for another version is dropped, nothing installs', () async {
+        store.values[updatePermissionKey] = '1999';
+        final platform = _FakeUpdatePlatform();
+        final c = run(platform);
+        await c.read(updateProvider.notifier).checkOnOpening();
+        expect(platform.installs, 0);
+        expect(store.values.containsKey(updatePermissionKey), isFalse);
+      });
+
+      test('back from the screen without allowing: the check on return keeps "Allow installs"', () async {
+        final platform = _FakeUpdatePlatform()..canInstall = false;
+        final c = run(platform);
+        final updates = c.read(updateProvider.notifier);
+        await updates.checkOnOpening();
+        await updates.install();
+        await Future.wait([updates.resumed(), updates.checkOnOpening()]);
+        final state = c.read(updateProvider);
+        expect(state.phase, UpdatePhase.needsPermission);
+        expect(state.text!(englishStrings), 'Allow installs from Epic Cash Mobile, then return.');
+      });
+
+      test('back from the home screen while the install dialog was up: offered again, not stuck', () async {
+        final platform = _FakeUpdatePlatform();
+        final c = run(platform);
+        final updates = c.read(updateProvider.notifier);
+        await updates.checkOnOpening();
+        await updates.install();
+        expect(c.read(updateProvider).phase, UpdatePhase.installing);
+        // Android closed its dialog and sent nothing.
+        await updates.resumed();
+        final state = c.read(updateProvider);
+        expect(state.phase, UpdatePhase.available);
+        expect(state.text!(englishStrings), 'The update was not installed. You can try again.');
+        await updates.install();
+        expect(platform.installs, 2);
+      });
+
+      test('a word from the installer during the wait wins', () async {
+        final platform = _FakeUpdatePlatform();
+        final c = run(platform);
+        final updates = c.read(updateProvider.notifier);
+        await updates.checkOnOpening();
+        await updates.install();
+        final waiting = updates.resumed();
+        platform.events.add((status: 'failed', message: 'INSTALL_FAILED_INSUFFICIENT_STORAGE'));
+        await waiting;
+        expect(c.read(updateProvider).phase, UpdatePhase.failed);
+      });
+
+      test("Android's install dialog closed without installing says so; Install tries again", () async {
+        final platform = _FakeUpdatePlatform();
+        final c = run(platform);
+        final updates = c.read(updateProvider.notifier);
+        await updates.checkOnOpening();
+        await updates.install();
+        expect(c.read(updateProvider).phase, UpdatePhase.installing);
+        platform.events.add((status: 'cancelled', message: null));
+        await pumpEventQueue();
+        final state = c.read(updateProvider);
+        expect(state.phase, UpdatePhase.available);
+        expect(state.text!(englishStrings), 'The update was not installed. You can try again.');
+        await updates.install();
+        expect(platform.installs, 2);
+      });
+    });
+
     test('the manifest request carries no User-Agent and no cookie', () async {
       await container.read(updateProvider.notifier).check();
       expect(headers!.value(HttpHeaders.userAgentHeader), isNull);
@@ -1040,15 +1165,17 @@ class _ThrowingStore implements SecretStore {
 class _FakeUpdatePlatform implements UpdatePlatform {
   String installStatus = 'started';
   int installs = 0;
+  bool canInstall = true;
   final events =
       StreamController<({String status, String? message})>.broadcast();
 
   @override
-  Future<InstalledApp> installedApp() async => const InstalledApp(
+  Future<InstalledApp> installedApp() async => InstalledApp(
     packageName: 'com.blacktyger.epic_wallet',
     versionCode: 2001,
     versionName: '1.0.0',
-    abis: ['arm64-v8a'],
+    abis: const ['arm64-v8a'],
+    canInstall: canInstall,
   );
 
   @override

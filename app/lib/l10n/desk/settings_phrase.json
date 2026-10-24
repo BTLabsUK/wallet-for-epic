@@ -11,7 +11,7 @@
   "@deskSetPhraseCopied": {
     "description": "Toast title after the recovery phrase was copied."
   },
-  "deskSetPhraseCleared": "The clipboard is cleared in 30 s.",
+  "deskSetPhraseCleared": "The clipboard is cleared in 60 s.",
   "@deskSetPhraseCleared": {
     "description": "Toast text after the recovery phrase was copied."
   },
@@ -76,5 +76,13 @@
   "deskSetPhraseBackUpText": "Anyone with these words can take the EPIC. Check that nobody can see the screen.",
   "@deskSetPhraseBackUpText": {
     "description": "Settings > Recovery phrase: text of the warning under the words."
+  },
+  "deskSetPhraseCopyTitle": "Copy the recovery phrase?",
+  "@deskSetPhraseCopyTitle": {
+    "description": "Confirm dialog title before the recovery phrase is copied to the clipboard."
+  },
+  "deskSetPhraseCopyText": "Anyone with these words can take your funds. Store the copy somewhere safe.",
+  "@deskSetPhraseCopyText": {
+    "description": "Confirm dialog text before the recovery phrase is copied to the clipboard."
   }
 }

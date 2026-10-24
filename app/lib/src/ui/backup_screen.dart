@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
 import '../providers.dart';
-import '../secure_screen.dart';
 import 'common.dart';
 import 'pin.dart';
+import '../phrase_clipboard.dart';
 
 /// Whether the open wallet's recovery phrase has been written down.
 final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
@@ -15,9 +17,9 @@ final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
 });
 
 /// Shows the recovery phrase once the user has agreed to keep any copy private and entered the
-/// PIN. Screenshots, screen recording and the app-switcher preview are blocked while it is open
-/// ([setSecureScreen]); a screenshot often ends up in a cloud photo library. "Done" marks it
-/// backed up and pops true.
+/// PIN. Screenshots and Copy are allowed, since a phrase people cannot copy is a phrase they do
+/// not back up; Copy warns first and clears the clipboard after 60 s and on lock ([copyRecoveryPhrase]).
+/// "Done" marks it backed up and pops true.
 class BackupScreen extends ConsumerStatefulWidget {
   const BackupScreen({super.key});
 
@@ -31,14 +33,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   bool _asked = false;
 
   @override
-  void initState() {
-    super.initState();
-    setSecureScreen(true);
-  }
-
-  @override
   void dispose() {
-    setSecureScreen(false);
     _words = const [];
     super.dispose();
   }
@@ -70,6 +65,38 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     }
     ref.invalidate(backedUpProvider);
     if (mounted) Navigator.pop(context, true);
+  }
+
+  /// Asks before copying (anyone with the words can take the funds), then copies and says that
+  /// the clipboard is cleared soon.
+  Future<void> _copy() async {
+    final l = context.l10n;
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l.backupCopyTitle),
+        content: Text(l.backupCopyBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.commonCopy),
+          ),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
+    final copied = await copyRecoveryPhrase(_words.join(' '));
+    if (!mounted) return;
+    ref
+        .read(noticeProvider.notifier)
+        .show(
+          copied ? l.backupCopied : l.backupNotCopied,
+          level: copied ? NoticeLevel.success : NoticeLevel.error,
+        );
   }
 
   @override
@@ -199,8 +226,19 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           );
         },
       ),
-      const SizedBox(height: 24),
+      const SizedBox(height: 16),
+      OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        onPressed: _copy,
+        icon: const Icon(Icons.copy),
+        label: Text(l.commonCopy),
+      ),
+      const SizedBox(height: 16),
       BusyButton(label: l.commonDone, onPressed: _done),
     ];
   }
 }
+
+/// Copies the recovery phrase, cleared after [phraseClipboardLifetime] and on lock, as on the
+/// desktop. False when the clipboard refused the text.
+Future<bool> copyRecoveryPhrase(String phrase) => copyPhraseToClipboard(phrase);

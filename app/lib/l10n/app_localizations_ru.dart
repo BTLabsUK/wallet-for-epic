@@ -2095,6 +2095,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Разрешите установку из Epic Cash Mobile, затем вернитесь.';
 
   @override
+  String get updateInstallCancelled =>
+      'Обновление не установлено. Можно попробовать снова.';
+
+  @override
   String updateNotInstalled(String detail) {
     return 'Обновление не установлено: $detail';
   }
@@ -2403,6 +2407,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String backupWordSpoken(int number, String word) {
     return 'Слово $number: $word';
   }
+
+  @override
+  String get backupCopyTitle => 'Скопировать фразу восстановления?';
+
+  @override
+  String get backupCopyBody =>
+      'Любой, у кого есть эти слова, может забрать ваши средства. Храните копию в надёжном месте.';
+
+  @override
+  String get backupCopied =>
+      'Скопировано. Буфер обмена будет очищен через 60 секунд.';
+
+  @override
+  String get backupNotCopied => 'Не скопировано. Буфер обмена отклонил текст.';
 
   @override
   String get unlockTitle => 'Разблокировать кошелёк';
@@ -4514,8 +4532,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverRemoveNodeTitle => 'Удалить этот узел?';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host исчезнет из этого списка. Введите его снова, чтобы использовать позже.';
+  String serverRemoveBodyPublic(String host) {
+    return '$host исчезнет из моего списка. Выберите его в публичном списке, чтобы использовать снова.';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host исчезнет из моего списка. Введите его снова, чтобы использовать.';
   }
 
   @override
@@ -12700,7 +12723,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetPhraseCopied => 'Фраза скопирована';
 
   @override
-  String get deskSetPhraseCleared => 'Буфер обмена очистится через 30 с.';
+  String get deskSetPhraseCleared => 'Буфер обмена очистится через 60 с.';
 
   @override
   String get deskSetPhraseEnterPassword => 'Введите пароль.';
@@ -13776,4 +13799,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return 'Сообщение длиннее $max байт. Сократите его.';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => 'Скопировать фразу восстановления?';
+
+  @override
+  String get deskSetPhraseCopyText =>
+      'Любой, у кого есть эти слова, может забрать ваши средства. Храните копию в надёжном месте.';
 }

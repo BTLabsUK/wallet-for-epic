@@ -254,7 +254,19 @@ class WalletHistory {
             r.kernelExcess != null ||
             r.outputCommits.isNotEmpty;
         if (!identified) {
-          skipped++;
+          // A note on a row a scan rebuilt has no slate, kernel or commitment to match by: it
+          // goes to the one scan row of the same kind, block and amounts.
+          final key = _scanRowFor(r, shown);
+          final note = r.note?.trim();
+          if (key != null &&
+              note != null &&
+              note.isNotEmpty &&
+              !m.notes.containsKey(key)) {
+            m.notes[key] = note;
+            merged++;
+          } else {
+            skipped++;
+          }
           continue;
         }
         r.exportedAtUnix = payload.exportedAtUnix;
@@ -313,6 +325,23 @@ class WalletHistory {
         contactsAdded: contactsAdded,
       );
     });
+  }
+
+  /// The key of the only scan-rebuilt row [r] describes, by kind, block and amounts; null when
+  /// there is none or more than one.
+  String? _scanRowFor(Record r, List<MergedTx> shown) {
+    final height = r.blockHeight;
+    if (height == null) return null;
+    final rows = [
+      for (final t in shown)
+        if (t.source == TxSource.restored &&
+            t.kind == kindFrom(r.kind) &&
+            t.blockHeight == height &&
+            t.amountCredited == r.amountCredited &&
+            t.amountDebited == r.amountDebited)
+          t,
+    ];
+    return rows.length == 1 ? rows.single.key : null;
   }
 
   /// The transaction list as CSV, with [tip] the wallet's last confirmed height.

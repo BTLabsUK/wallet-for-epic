@@ -2,7 +2,7 @@
   "deskSetPhraseNotCopied": "Не скопировано",
   "deskSetPhraseClipboardRefused": "Буфер обмена не принял текст.",
   "deskSetPhraseCopied": "Фраза скопирована",
-  "deskSetPhraseCleared": "Буфер обмена очистится через 30 с.",
+  "deskSetPhraseCleared": "Буфер обмена очистится через 60 с.",
   "deskSetPhraseEnterPassword": "Введите пароль.",
   "deskSetPhraseWrongPassword": "Неверный пароль.",
   "deskSetPhraseIntro": "Запишите слова на бумаге в этом порядке. Никогда не вводите их на сайтах и в чатах.",
@@ -15,5 +15,7 @@
   "deskSetPhraseHidesIn": "Скроется через {seconds} с",
   "deskSetPhraseQrLabel": "QR-код фразы восстановления",
   "deskSetPhraseBackUp": "Сохраните фразу",
-  "deskSetPhraseBackUpText": "Любой, у кого есть эти слова, может забрать EPIC. Убедитесь, что никто не видит экран."
+  "deskSetPhraseBackUpText": "Любой, у кого есть эти слова, может забрать EPIC. Убедитесь, что никто не видит экран.",
+  "deskSetPhraseCopyTitle": "Скопировать фразу восстановления?",
+  "deskSetPhraseCopyText": "Любой, у кого есть эти слова, может забрать ваши средства. Храните копию в надёжном месте."
 }

@@ -1930,6 +1930,9 @@ class AppLocalizationsTh extends AppLocalizations {
       'อนุญาตการติดตั้งจาก Epic Cash Mobile แล้วกลับมาที่นี่';
 
   @override
+  String get updateInstallCancelled => 'ไม่ได้ติดตั้งอัปเดต ลองอีกครั้งได้';
+
+  @override
   String updateNotInstalled(String detail) {
     return 'ไม่ได้ติดตั้งอัปเดต: $detail';
   }
@@ -2222,6 +2225,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String backupWordSpoken(int number, String word) {
     return 'คำที่ $number: $word';
   }
+
+  @override
+  String get backupCopyTitle => 'คัดลอกวลีกู้คืน?';
+
+  @override
+  String get backupCopyBody =>
+      'ใครมีคำเหล่านี้ก็นำเงินของคุณไปได้ เก็บสำเนาไว้ในที่ปลอดภัย';
+
+  @override
+  String get backupCopied => 'คัดลอกแล้ว คลิปบอร์ดจะถูกล้างใน 60 วินาที';
+
+  @override
+  String get backupNotCopied => 'ไม่ได้คัดลอก คลิปบอร์ดปฏิเสธข้อความ';
 
   @override
   String get unlockTitle => 'ปลดล็อกกระเป๋า';
@@ -4265,8 +4281,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverRemoveNodeTitle => 'ลบโหนดนี้ไหม?';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host จะถูกลบออกจากรายการ หากต้องการใช้ภายหลังให้พิมพ์ใหม่';
+  String serverRemoveBodyPublic(String host) {
+    return '$host จะถูกลบออกจากรายการของฉัน เลือกจากรายการสาธารณะเพื่อใช้อีกครั้ง';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host จะถูกลบออกจากรายการของฉัน หากต้องการใช้ ให้พิมพ์ใหม่';
   }
 
   @override
@@ -12097,7 +12118,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetPhraseCopied => 'คัดลอกวลีแล้ว';
 
   @override
-  String get deskSetPhraseCleared => 'คลิปบอร์ดจะถูกล้างใน 30 วินาที';
+  String get deskSetPhraseCleared => 'คลิปบอร์ดจะถูกล้างใน 60 วินาที';
 
   @override
   String get deskSetPhraseEnterPassword => 'ใส่รหัสผ่าน';
@@ -13149,4 +13170,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return 'ข้อความยาวเกิน $max ไบต์ โปรดทำให้สั้นลง';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => 'คัดลอกวลีกู้คืน?';
+
+  @override
+  String get deskSetPhraseCopyText =>
+      'ใครมีคำเหล่านี้ก็นำเงินของคุณไปได้ เก็บสำเนาไว้ในที่ปลอดภัย';
 }

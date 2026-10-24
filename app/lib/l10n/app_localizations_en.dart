@@ -1987,6 +1987,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Allow installs from Epic Cash Mobile, then return.';
 
   @override
+  String get updateInstallCancelled =>
+      'The update was not installed. You can try again.';
+
+  @override
   String updateNotInstalled(String detail) {
     return 'The update was not installed: $detail';
   }
@@ -2286,6 +2290,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String backupWordSpoken(int number, String word) {
     return 'Word $number: $word';
   }
+
+  @override
+  String get backupCopyTitle => 'Copy the recovery phrase?';
+
+  @override
+  String get backupCopyBody =>
+      'Anyone with these words can take your funds. Store the copy somewhere safe.';
+
+  @override
+  String get backupCopied => 'Copied. The clipboard is cleared in 60 seconds.';
+
+  @override
+  String get backupNotCopied => 'Not copied. The clipboard refused the text.';
 
   @override
   String get unlockTitle => 'Unlock wallet';
@@ -4359,8 +4376,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverRemoveNodeTitle => 'Remove this node?';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host leaves this list. Type it in again to use it later.';
+  String serverRemoveBodyPublic(String host) {
+    return '$host leaves my list. Select it from the public list to use it again.';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host leaves my list. Type it in again to use it.';
   }
 
   @override
@@ -12337,7 +12359,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetPhraseCopied => 'Phrase copied';
 
   @override
-  String get deskSetPhraseCleared => 'The clipboard is cleared in 30 s.';
+  String get deskSetPhraseCleared => 'The clipboard is cleared in 60 s.';
 
   @override
   String get deskSetPhraseEnterPassword => 'Enter the password.';
@@ -13403,4 +13425,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return 'The message is longer than $max bytes. Shorten it.';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => 'Copy the recovery phrase?';
+
+  @override
+  String get deskSetPhraseCopyText =>
+      'Anyone with these words can take your funds. Store the copy somewhere safe.';
 }
