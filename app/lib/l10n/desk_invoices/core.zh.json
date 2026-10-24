@@ -28,7 +28,7 @@
   "deskInvPayPastTtl": "不在链上",
   "deskInvPayCancelled": "已取消",
   "deskInvUnpaid": "未支付",
-  "deskInvYouPay": "您支付",
+  "deskInvYouPay": "你支付",
   "deskInvExpiresAt": "{time} 过期",
   "deskInvSlateId": "Slate ID",
   "deskInvAdvanced": "高级",
