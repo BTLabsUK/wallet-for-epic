@@ -1,0 +1,19 @@
+{
+  "deskSetPhraseNotCopied": "Nie skopiowano",
+  "deskSetPhraseClipboardRefused": "Schowek odrzucił tekst.",
+  "deskSetPhraseCopied": "Skopiowano frazę",
+  "deskSetPhraseCleared": "Schowek zostanie wyczyszczony za 30 s.",
+  "deskSetPhraseEnterPassword": "Wpisz hasło.",
+  "deskSetPhraseWrongPassword": "Nieprawidłowe hasło.",
+  "deskSetPhraseIntro": "Zapisz słowa na papierze w tej kolejności. Nigdy nie wpisuj ich na stronie internetowej ani na czacie.",
+  "deskSetPhrasePanel": "Wpisz hasło, aby pokazać słowa",
+  "deskSetPhraseShowWords": "Pokaż słowa",
+  "deskSetPhraseWordsLabel": "{count, plural, one{Fraza odzyskiwania, {count} słowo} few{Fraza odzyskiwania, {count} słowa} many{Fraza odzyskiwania, {count} słów} other{Fraza odzyskiwania, {count} słowa}}",
+  "deskSetPhraseHideQr": "Ukryj kod QR",
+  "deskSetPhraseShowQr": "Pokaż kod QR",
+  "deskSetPhraseHideWords": "Ukryj słowa",
+  "deskSetPhraseHidesIn": "Ukryje się za {seconds} s",
+  "deskSetPhraseQrLabel": "Kod QR frazy odzyskiwania",
+  "deskSetPhraseBackUp": "Zabezpiecz frazę",
+  "deskSetPhraseBackUpText": "Każdy, kto zna te słowa, może zabrać EPIC. Upewnij się, że nikt nie widzi ekranu."
+}

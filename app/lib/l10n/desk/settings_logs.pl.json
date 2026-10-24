@@ -1,0 +1,20 @@
+{
+  "deskSetLogsMemoryOnly": "Log jest przechowywany tylko w pamięci.",
+  "deskSetLogsClearTitle": "Wyczyścić logi?",
+  "deskSetLogsClearDesc": "Usuwa pliki logów. Raport wysłany później będzie zawierał tylko to, co zostanie zapisane od teraz.",
+  "deskSetLogsKeep": "Zachowaj logi",
+  "deskSetLogsClear": "Wyczyść logi",
+  "deskSetLogsCleared": "Wyczyszczono logi",
+  "deskSetLogsToday": "dzisiaj o {time}",
+  "deskSetLogsTomorrow": "jutro o {time}",
+  "deskSetLogsTitle": "Logi",
+  "deskSetLogsLevel": "Poziom logowania",
+  "deskSetLogsLevelNormal": "Normalny. Szczegółowy zapisuje na dysku więcej wierszy przez 24 godziny; w pliku mogą się pojawić adresy, raporty je pomijają.",
+  "deskSetLogsLevelDetailed": "Szczegółowy do {until}, potem Normalny. W pliku mogą się pojawić adresy; raporty je pomijają.",
+  "deskSetLogsLevelDetailedCore": "Szczegółowy do {until}, potem Normalny. W pliku mogą się pojawić adresy; raporty je pomijają. Wiersze rdzenia portfela będą szczegółowe od następnego uruchomienia aplikacji.",
+  "deskSetLogsNormal": "Normalny",
+  "deskSetLogsDetailed": "Szczegółowy",
+  "deskSetLogsFiles": "Pliki logów",
+  "deskSetLogsSize": "Obecny rozmiar {size} z {max}. Zachowuje jeden starszy plik.",
+  "deskSetLogsOpenFolder": "Otwórz folder logów"
+}

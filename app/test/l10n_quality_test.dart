@@ -12,7 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// Keys whose English stays in this language, with why.
 const Map<String, Set<String>> _same = {
   'de': {},
-  'pl': {},
+  // Polish UIs write online/offline as loanwords; Epicbox is a name.
+  'pl': {'statusEpicboxOnline', 'statusEpicboxOffline'},
   'ru': {},
   'zh': {},
   'th': {},
