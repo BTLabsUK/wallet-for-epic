@@ -70,7 +70,7 @@ void main() {
     });
 
     test('the status card shows the Tor row in every state and opens Privacy', () {
-      RailItem torRow(DeskSettings s, ServiceStatus st) => receivingRailItems(st, s).singleWhere((i) => i.name == 'Tor');
+      RailItem torRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Tor');
       expect(torRow(const DeskSettings(), _status()).word, 'Off');
       expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.checking)).word, 'Starting…');
       expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.ok, canSend: true)).word, 'On');
@@ -81,13 +81,13 @@ void main() {
     }, skip: _skip);
 
     test('Epicbox waits for Tor while it starts or failed, and says over Tor once on', () {
-      RailItem ebRow(DeskSettings s, ServiceStatus st) => receivingRailItems(st, s).singleWhere((i) => i.name == 'Epicbox');
+      RailItem ebRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Epicbox');
       const on = DeskSettings(tor: true);
       expect(ebRow(on, _status(tor: ServiceHealth.checking, epicbox: ServiceHealth.checking)).word, 'Waiting for Tor');
       expect(ebRow(on, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down)).word, 'Waiting for Tor');
       expect(ebRow(on, _status(tor: ServiceHealth.ok, canSend: true)).lines, contains('Over Tor'));
       expect(ebRow(const DeskSettings(), _status()).lines, isNot(contains('Over Tor')));
-      final line = methodStateLine(TxMethod.epicbox, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down), on);
+      final line = methodStateLine(englishStrings, TxMethod.epicbox, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down), on);
       expect(line.word, 'Waiting for Tor');
     }, skip: _skip);
 

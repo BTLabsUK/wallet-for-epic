@@ -1,0 +1,760 @@
+{
+  "deskKitUnknown": "Unknown",
+  "@deskKitUnknown": {
+    "description": "Tag on an address row when the address type is not recognised. One short word."
+  },
+  "deskKitRingCancelled": "Cancelled",
+  "@deskKitRingCancelled": {
+    "description": "Screen-reader label of the progress ring on a cancelled transaction."
+  },
+  "deskKitRingConfirmed": "Confirmed",
+  "@deskKitRingConfirmed": {
+    "description": "Screen-reader label of the progress ring on a fully confirmed transaction."
+  },
+  "deskKitRingProgress": "{confirmations, plural, one{{confirmations} of {needed} confirmation} other{{confirmations} of {needed} confirmations}}",
+  "@deskKitRingProgress": {
+    "description": "Screen-reader label of the progress ring on a transaction still confirming, e.g. '2 of 3 confirmations'. {needed} is the number of confirmations the wallet waits for.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int"
+      },
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "deskKitHiddenAmount": "Hidden amount",
+  "@deskKitHiddenAmount": {
+    "description": "Screen-reader label of an amount that is hidden behind dots (privacy mode)."
+  },
+  "deskKitChooseFile": "Choose file",
+  "@deskKitChooseFile": {
+    "description": "Button of a file drop zone: opens a file picker. Short."
+  },
+  "deskKitNeedAction": "{label}, {count, plural, one{{count} needs action} other{{count} need action}}",
+  "@deskKitNeedAction": {
+    "description": "Screen-reader label of a sidebar entry with a badge, e.g. 'Activity, 2 need action'. {label} is the entry's name.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskKitHealthOn": "On",
+  "@deskKitHealthOn": {
+    "description": "Status word of a service row (On / Slow / Offline / Off / Checking). One short word."
+  },
+  "deskKitHealthSlow": "Slow",
+  "@deskKitHealthSlow": {
+    "description": "Status word of a service that answers slowly. One short word."
+  },
+  "deskKitHealthOffline": "Offline",
+  "@deskKitHealthOffline": {
+    "description": "Status word of a service that does not answer. One short word."
+  },
+  "deskKitHealthOff": "Off",
+  "@deskKitHealthOff": {
+    "description": "Status word of a service that is turned off. One short word."
+  },
+  "deskKitHealthChecking": "Checking",
+  "@deskKitHealthChecking": {
+    "description": "Status word of a service whose state is being checked. One short word."
+  },
+  "deskKitCloseEsc": "Close (Esc)",
+  "@deskKitCloseEsc": {
+    "description": "Tooltip and screen-reader label of the close (X) button of a dialog or drawer; Esc is the keyboard key that does the same."
+  },
+  "deskKitOptional": "Optional",
+  "@deskKitOptional": {
+    "description": "Small grey note beside a form field's label: the field may stay empty. One short word."
+  },
+  "deskKitBackAlt": "Back (Alt+Left)",
+  "@deskKitBackAlt": {
+    "description": "Tooltip of the back arrow at the top of a page; Alt+Left is the keyboard shortcut."
+  },
+  "deskKitStepOf": "Step {current} of {total}",
+  "@deskKitStepOf": {
+    "description": "Small step counter above the title of an onboarding page on a narrow window, e.g. 'Step 2 of 4'.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "deskKitHeroCaptionEpicbox": "EPICBOX SERVER HOLDS IT",
+  "@deskKitHeroCaptionEpicbox": {
+    "description": "Caption under the Epicbox picture on the Send page. Written in capitals; at most about 24 characters, it sits in a 160 px wide picture."
+  },
+  "deskKitHeroCaptionHttp": "STRAIGHT TO THEIR WALLET",
+  "@deskKitHeroCaptionHttp": {
+    "description": "Caption under the HTTP picture on the Send page. Capitals; at most about 24 characters."
+  },
+  "deskKitHeroCaptionTor": "STRAIGHT, THROUGH TOR",
+  "@deskKitHeroCaptionTor": {
+    "description": "Caption under the Tor picture on the Send page. Capitals; at most about 24 characters."
+  },
+  "deskKitHeroCaptionFile": "FILE OUT, RESPONSE BACK",
+  "@deskKitHeroCaptionFile": {
+    "description": "Caption under the transaction-file picture on the Send page. Capitals; at most about 24 characters."
+  },
+  "deskKitHeroLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient's wallet is back",
+  "@deskKitHeroLabelEpicbox": {
+    "description": "Screen-reader description of the Epicbox picture on the Send page."
+  },
+  "deskKitHeroLabelHttp": "HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "@deskKitHeroLabelHttp": {
+    "description": "Screen-reader description of the HTTP picture on the Send page."
+  },
+  "deskKitHeroLabelTor": "Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "@deskKitHeroLabelTor": {
+    "description": "Screen-reader description of the Tor picture on the Send page."
+  },
+  "deskKitHeroLabelFile": "File: a transaction file is handed over, a response file comes back, then the sender finalizes",
+  "@deskKitHeroLabelFile": {
+    "description": "Screen-reader description of the transaction-file picture on the Send page."
+  },
+  "deskKitReachCheck": "Check",
+  "@deskKitReachCheck": {
+    "description": "Small button of the internet-reachability notice in the HTTP receiving settings: check again. One word."
+  },
+  "deskKitReachChecking": "Checking from the internet…",
+  "@deskKitReachChecking": {
+    "description": "Notice title while the app asks an outside service whether the HTTP port is reachable."
+  },
+  "deskKitReachNoIpTitle": "Public IP not found",
+  "@deskKitReachNoIpTitle": {
+    "description": "Notice title when the app could not learn the computer's public IP address."
+  },
+  "deskKitReachNoIpText": "The internet could not be asked for it. Try again later.",
+  "@deskKitReachNoIpText": {
+    "description": "Notice text under 'Public IP not found'."
+  },
+  "deskKitReachNoIpTextLan": "The internet could not be asked for it. Try again later. On your network: {address}.",
+  "@deskKitReachNoIpTextLan": {
+    "description": "Same as the previous message, plus the computer's address on the local network.",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitReachClosedTitle": "Not reachable from the internet",
+  "@deskKitReachClosedTitle": {
+    "description": "Notice title when the HTTP port is not reachable from outside."
+  },
+  "deskKitReachClosedText": "Forward TCP port {port} on your router to this computer, then check again.",
+  "@deskKitReachClosedText": {
+    "description": "Notice text: the user must forward the port on their router.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitReachClosedTextLan": "Forward TCP port {port} on your router to this computer ({address}), then check again.",
+  "@deskKitReachClosedTextLan": {
+    "description": "Same, with the computer's address on the local network in brackets.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitReachUnknownTitle": "Reachability unknown",
+  "@deskKitReachUnknownTitle": {
+    "description": "Notice title when the port check service did not answer."
+  },
+  "deskKitReachUnknownText": "The port check did not answer. Try again later.",
+  "@deskKitReachUnknownText": {
+    "description": "Notice text under 'Reachability unknown'."
+  },
+  "deskKitReachUnknownTextLan": "The port check did not answer. Try again later. On your network: {address}.",
+  "@deskKitReachUnknownTextLan": {
+    "description": "Same, plus the computer's address on the local network.",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitReachOpenTitle": "Reachable from the internet",
+  "@deskKitReachOpenTitle": {
+    "description": "Notice title when the HTTP port is reachable from outside."
+  },
+  "deskKitReachOpenText": "Port {port} is forwarded.",
+  "@deskKitReachOpenText": {
+    "description": "Notice text under 'Reachable from the internet'.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitReachOpenTextLan": "Port {port} is forwarded. On your network: {address}.",
+  "@deskKitReachOpenTextLan": {
+    "description": "Same, plus the computer's address on the local network.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitAgeSeconds": "{count, plural, one{{count} s ago} other{{count} s ago}}",
+  "@deskKitAgeSeconds": {
+    "description": "How long ago something happened, in seconds, e.g. '40 s ago'. Abbreviate the unit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskKitAgeMinutes": "{count, plural, one{{count} min ago} other{{count} min ago}}",
+  "@deskKitAgeMinutes": {
+    "description": "How long ago something happened, in minutes, e.g. '2 min ago'. Abbreviate the unit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskKitAgeHours": "{count, plural, one{{count} h ago} other{{count} h ago}}",
+  "@deskKitAgeHours": {
+    "description": "How long ago something happened, in hours, e.g. '3 h ago'. Abbreviate the unit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskKitAgeDays": "{count, plural, one{{count} d ago} other{{count} d ago}}",
+  "@deskKitAgeDays": {
+    "description": "How long ago something happened, in days, e.g. '2 d ago'. Abbreviate the unit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskKitNodeBefore410": "node before 4.1.0",
+  "@deskKitNodeBefore410": {
+    "description": "Small note under 'Accepts transactions' when the node runs a version older than 4.1.0 that cannot tell. Lowercase, short."
+  },
+  "deskKitNodeNoAnswer": "no answer",
+  "@deskKitNodeNoAnswer": {
+    "description": "Small note under a node fact when the node did not answer. Lowercase, short."
+  },
+  "deskKitNodesDisagree": "Nodes disagree on the tip",
+  "@deskKitNodesDisagree": {
+    "description": "Part of the network line of the node card: the public nodes report different latest blocks."
+  },
+  "deskKitNodesAgree": "Nodes agree on {height}",
+  "@deskKitNodesAgree": {
+    "description": "Part of the network line of the node card: all nodes agree on this block height. {height} is a number with thousands separators.",
+    "placeholders": {
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitNodesUp": "{up, plural, one{{up} of {total} node up} other{{up} of {total} nodes up}}",
+  "@deskKitNodesUp": {
+    "description": "Part of the network line of the node card, e.g. '5 of 6 nodes up'.",
+    "placeholders": {
+      "up": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "deskKitEpicboxUp": "{up, plural, one{{up} of {total} Epicbox server up} other{{up} of {total} Epicbox servers up}}",
+  "@deskKitEpicboxUp": {
+    "description": "Part of the network line of the node card, e.g. '3 of 4 Epicbox servers up'.",
+    "placeholders": {
+      "up": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "deskKitLastBlock": "last block {age}",
+  "@deskKitLastBlock": {
+    "description": "Part of the network line of the node card and a note under Height: how long ago the last block was found. {age} is e.g. '2 min ago'.",
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitLimitedNetwork": "status.btlabs.uk is not reachable. These facts come from the node itself: no tip to compare with, no uptime, no peer count.",
+  "@deskKitLimitedNetwork": {
+    "description": "Line on the node card when the status website cannot be reached and only the node itself answered."
+  },
+  "deskKitFactHeight": "Height",
+  "@deskKitFactHeight": {
+    "description": "Label of a fact on the node card: the node's block height. One short word."
+  },
+  "deskKitFactVersion": "Version",
+  "@deskKitFactVersion": {
+    "description": "Label of a fact on the node card: the node's software version. One short word."
+  },
+  "deskKitFactAccepts": "Accepts transactions",
+  "@deskKitFactAccepts": {
+    "description": "Label of a fact on the node card: whether the node is ready to take new transactions. Narrow: at most about 22 characters."
+  },
+  "deskKitFactYes": "Yes",
+  "@deskKitFactYes": {
+    "description": "Value of the 'Accepts transactions' fact. One short word."
+  },
+  "deskKitFactNotYet": "Not yet",
+  "@deskKitFactNotYet": {
+    "description": "Value of the 'Accepts transactions' fact: the node is not ready yet. Short."
+  },
+  "deskKitFactUnknown": "Unknown",
+  "@deskKitFactUnknown": {
+    "description": "Value of the 'Accepts transactions' fact when it could not be learned. One short word."
+  },
+  "deskKitFactLatency": "Latency",
+  "@deskKitFactLatency": {
+    "description": "Label of a fact on the node card: the time the node takes to answer. One short word."
+  },
+  "deskKitFactUptime": "Uptime",
+  "@deskKitFactUptime": {
+    "description": "Label of a fact on the node card: how much of the time the node was up. One short word."
+  },
+  "deskKitFactPeers": "Peers",
+  "@deskKitFactPeers": {
+    "description": "Label of a fact on the node card: the number of other nodes it is connected to. One short word."
+  },
+  "deskKitFactOperator": "Operator",
+  "@deskKitFactOperator": {
+    "description": "Label of a fact on the node card: who runs the node. One short word."
+  },
+  "deskKitAtTip": "at tip",
+  "@deskKitAtTip": {
+    "description": "Small note under Height: the node is on the latest block. Lowercase, short."
+  },
+  "deskKitBehind": "{count, plural, one{{blocks} behind} other{{blocks} behind}}",
+  "@deskKitBehind": {
+    "description": "Small note under Height: the node is this many blocks behind. {blocks} is the number with thousands separators; {count} is the same number for grammar.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "blocks": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitVersionOut": "{version} is out",
+  "@deskKitVersionOut": {
+    "description": "Small note under Version: a newer version is released. {version} is the version number.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitVersionLatest": "latest",
+  "@deskKitVersionLatest": {
+    "description": "Small note under Version: the node runs the newest version. Lowercase, short."
+  },
+  "deskKitUptimeWindow": "last 24 h",
+  "@deskKitUptimeWindow": {
+    "description": "Small note under Uptime: the figure covers the last 24 hours. Short."
+  },
+  "deskKitAtTime": "at {time}",
+  "@deskKitAtTime": {
+    "description": "Small note under Peers on a down node: the time it was last seen, e.g. 'at 14:05'.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitListedOfficial": "listed as official",
+  "@deskKitListedOfficial": {
+    "description": "Small note under Operator: the node is on the official list. Lowercase, short."
+  },
+  "deskKitSourceChecked": "status.btlabs.uk, checked {time}",
+  "@deskKitSourceChecked": {
+    "description": "Source line of the node card: the status site and when it was last asked. {time} is e.g. 14:05.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitLatencyMeasured": "latency measured {where}",
+  "@deskKitLatencyMeasured": {
+    "description": "Source line of the node card. {where} is 'from this computer', 'over Tor' or 'from status.btlabs.uk'.",
+    "placeholders": {
+      "where": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitSiteLastReached": "Status site last reached {time}",
+  "@deskKitSiteLastReached": {
+    "description": "Source line of the node card when the status site is not reachable now. {time} is e.g. 14:05.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitSince": "since {time}",
+  "@deskKitSince": {
+    "description": "Part of the node card's header when the node is down: since when, e.g. 'since 14:05'.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitNodeSemantics": "Node {status}: {host}",
+  "@deskKitNodeSemantics": {
+    "description": "Screen-reader label of the node card. {status} is a status word such as Synced.",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitNodeDownTitle": "Node not answering.",
+  "@deskKitNodeDownTitle": {
+    "description": "Title of the notice on the node card when the node does not answer."
+  },
+  "deskKitNodeDownText": "Switch to {host}, the healthiest other node?",
+  "@deskKitNodeDownText": {
+    "description": "Text of the notice on the node card offering to use another node. {host} is a host name.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitSwitch": "Switch",
+  "@deskKitSwitch": {
+    "description": "Button of the node-down notice: switch to the suggested node. One word."
+  },
+  "deskKitLimitedInfo": "Limited info",
+  "@deskKitLimitedInfo": {
+    "description": "Small warning tag on the node card: only some facts are known."
+  },
+  "deskKitFromStatusSite": "from status.btlabs.uk",
+  "@deskKitFromStatusSite": {
+    "description": "Small note under Latency: measured by the status website."
+  },
+  "deskKitOverTor": "over Tor",
+  "@deskKitOverTor": {
+    "description": "Small note under Latency: measured through Tor."
+  },
+  "deskKitFromThisComputer": "from this computer",
+  "@deskKitFromThisComputer": {
+    "description": "Small note under Latency: measured from this computer."
+  },
+  "deskKitNodeRemove": "Remove {host} from my nodes",
+  "@deskKitNodeRemove": {
+    "description": "Tooltip and screen-reader label of the filled star on a node row: remove the node from the user's own list. {host} is a host name.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitNodeAdd": "Add {host} to my nodes",
+  "@deskKitNodeAdd": {
+    "description": "Tooltip and screen-reader label of the empty star on a node row: add the node to the user's own list. {host} is a host name.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitNodeUse": "Use {host}",
+  "@deskKitNodeUse": {
+    "description": "Screen-reader label of a node row in the node list: pick this node.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitNodeUseOperator": "Use {host}, {operator}",
+  "@deskKitNodeUseOperator": {
+    "description": "Screen-reader label of a node row: pick this node; {operator} is who runs it.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "operator": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitNodeUseDown": "Use {host}, not answering",
+  "@deskKitNodeUseDown": {
+    "description": "Screen-reader label of a node row whose node does not answer.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitNodeUseOperatorDown": "Use {host}, {operator}, not answering",
+  "@deskKitNodeUseOperatorDown": {
+    "description": "Screen-reader label of a node row whose node does not answer; {operator} is who runs it.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "operator": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitLocalNodeUse": "Use the local node, {state}",
+  "@deskKitLocalNodeUse": {
+    "description": "Screen-reader label of the 'Local node' row of the node list. {state} is its state, e.g. Synced.",
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitLocalNode": "Local node",
+  "@deskKitLocalNode": {
+    "description": "Name of the row in the node list that stands for the node running on this computer."
+  },
+  "deskKitMethodWaitingTor": "Waiting for Tor",
+  "@deskKitMethodWaitingTor": {
+    "description": "Bold status word of the Epicbox line (Receive, Settings › Receiving): waits until Tor is connected."
+  },
+  "deskKitMethodTorNotConnected": "{host}. Tor is not connected.",
+  "@deskKitMethodTorNotConnected": {
+    "description": "Detail of the Epicbox status line when Epicbox must go through Tor but Tor is not connected. {host} is the Epicbox server.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitMethodOn": "On",
+  "@deskKitMethodOn": {
+    "description": "Bold status word of a receiving method line: working. One short word."
+  },
+  "deskKitMethodOverTor": "{host}, over Tor",
+  "@deskKitMethodOverTor": {
+    "description": "Detail of the Epicbox status line: the connection goes through Tor. {host} is the Epicbox server.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitMethodOff": "Off",
+  "@deskKitMethodOff": {
+    "description": "Bold status word of a receiving method line: turned off. One short word."
+  },
+  "deskKitMethodEpicboxOffDetail": "Payments to this address wait on the Epicbox server.",
+  "@deskKitMethodEpicboxOffDetail": {
+    "description": "Detail of the Epicbox status line when Epicbox is off."
+  },
+  "deskKitMethodConnecting": "Connecting",
+  "@deskKitMethodConnecting": {
+    "description": "Bold status word of the Epicbox status line: connecting."
+  },
+  "deskKitMethodSlow": "Slow",
+  "@deskKitMethodSlow": {
+    "description": "Bold status word of the Epicbox status line: the server answers slowly."
+  },
+  "deskKitMethodNotAnswering": "Not answering",
+  "@deskKitMethodNotAnswering": {
+    "description": "Bold status word of the Epicbox status line: the server does not answer."
+  },
+  "deskKitMethodEpicboxDown": "{host}. Payments wait on the Epicbox server.",
+  "@deskKitMethodEpicboxDown": {
+    "description": "Detail of the Epicbox status line when the server does not answer. {host} is the Epicbox server.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitMethodHttpOffDetail": "Straight from another wallet while this one is open.",
+  "@deskKitMethodHttpOffDetail": {
+    "description": "Detail of the HTTP status line when HTTP is off: how HTTP payments work."
+  },
+  "deskKitMethodStarting": "Starting…",
+  "@deskKitMethodStarting": {
+    "description": "Bold status word of the HTTP status line: the listener is starting."
+  },
+  "deskKitMethodHttpInternet": "from the internet, port {port}",
+  "@deskKitMethodHttpInternet": {
+    "description": "Detail of the HTTP status line: reachable from the internet on this port.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitMethodHttpLocal": "this computer only (127.0.0.1)",
+  "@deskKitMethodHttpLocal": {
+    "description": "Detail of the HTTP status line: reachable from this computer only. Keep the address 127.0.0.1."
+  },
+  "deskKitMethodNotReceiving": "Not receiving",
+  "@deskKitMethodNotReceiving": {
+    "description": "Bold status word of the HTTP status line: the listener failed."
+  },
+  "deskKitMethodPortInUse": "Port {port} is used by another program. Close it or pick another port in Settings.",
+  "@deskKitMethodPortInUse": {
+    "description": "Detail of the HTTP status line when the port is taken.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitMethodNotInBuild": "Not in this build",
+  "@deskKitMethodNotInBuild": {
+    "description": "Bold status word of the Tor status line when this build has no Tor."
+  },
+  "deskKitMethodTorOffDetail": "Slower and more private. Blocked or not allowed in some countries.",
+  "@deskKitMethodTorOffDetail": {
+    "description": "Detail of the Tor status line when Tor is off: what Tor means for the user."
+  },
+  "deskKitMethodTorPublishing": "Publishing the Tor address…",
+  "@deskKitMethodTorPublishing": {
+    "description": "Bold status word of the Tor status line: Tor is up and the address is being published."
+  },
+  "deskKitMethodTorConnecting": "Connecting to Tor…",
+  "@deskKitMethodTorConnecting": {
+    "description": "Bold status word of the Tor status line while Tor connects; the detail is a percentage."
+  },
+  "deskKitMethodTorOnDetail": "reachable at the Tor address",
+  "@deskKitMethodTorOnDetail": {
+    "description": "Detail of the Tor status line when Tor works."
+  },
+  "deskKitMethodTorNotPublished": "Not published",
+  "@deskKitMethodTorNotPublished": {
+    "description": "Bold status word of the Tor status line: Tor runs but the receiving address is not published yet."
+  },
+  "deskKitMethodTorSendsWork": "{reason}. Sends work.",
+  "@deskKitMethodTorSendsWork": {
+    "description": "Detail of the Tor status line: {reason} is a short reason; sending still works.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitMethodTorNotReachableYet": "The Tor address is not reachable yet",
+  "@deskKitMethodTorNotReachableYet": {
+    "description": "Default reason inside the Tor status line when the core gave none."
+  },
+  "deskKitMethodTorStopped": "Stopped",
+  "@deskKitMethodTorStopped": {
+    "description": "Bold status word of the Tor status line: Tor stopped."
+  },
+  "deskKitMethodTorStoppedDetail": "Tor stopped.",
+  "@deskKitMethodTorStoppedDetail": {
+    "description": "Detail of the Tor status line when Tor stopped and the core gave no reason."
+  },
+  "deskKitMethodFiles": "Files",
+  "@deskKitMethodFiles": {
+    "description": "Bold status word of the transaction-file method line (no state)."
+  },
+  "deskKitChipOverTor": "Over Tor",
+  "@deskKitChipOverTor": {
+    "description": "Small chip on the Send and Receive pages: this method goes through Tor. Narrow chip: 2 short words."
+  },
+  "deskKitChipStarting": "Tor starting",
+  "@deskKitChipStarting": {
+    "description": "Small chip: Tor is still starting. Narrow chip."
+  },
+  "deskKitChipNotConnected": "Tor not connected",
+  "@deskKitChipNotConnected": {
+    "description": "Small chip: Tor should be used but is not connected. Narrow chip."
+  },
+  "deskKitChipNotOverTor": "Not over Tor",
+  "@deskKitChipNotOverTor": {
+    "description": "Small chip: this method does not go through Tor. Narrow chip."
+  },
+  "deskKitPasswordNote": "Estimated on this device from the length and from common words, names and patterns, for an attacker with fast hardware trying 100,000 guesses a second against this wallet's file. A guide, not a guarantee.",
+  "@deskKitPasswordNote": {
+    "description": "Tooltip behind the info icon under a new-password field: how the 'time to crack' is estimated."
+  },
+  "deskKitPasswordNoteLabel": "How the time is estimated",
+  "@deskKitPasswordNoteLabel": {
+    "description": "Screen-reader name of the info icon under a new-password field."
+  },
+  "deskKitNotCopied": "Not copied",
+  "@deskKitNotCopied": {
+    "description": "Brief label of a copy button when the clipboard refused the text. Short."
+  },
+  "deskKitCopied": "Copied",
+  "@deskKitCopied": {
+    "description": "Brief label of a copy button for 1.5 seconds after a successful copy. Short."
+  },
+  "deskKitQrOf": "QR code of the {title}",
+  "@deskKitQrOf": {
+    "description": "Caption and screen-reader label of a QR code. {title} is the name of what it holds, e.g. 'Epicbox address' (lowercase in the sentence).",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitQrOfTag": "QR code of the {title}, {tag}",
+  "@deskKitQrOfTag": {
+    "description": "Screen-reader label of a QR code with a note. {title} is the name of what it holds; {tag} a short lowercase note.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitQrShowOf": "Show QR code of the {title}",
+  "@deskKitQrShowOf": {
+    "description": "Screen-reader label of the button that reveals a QR code. {title} is what it holds.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitQrShow": "Show QR",
+  "@deskKitQrShow": {
+    "description": "Button and tooltip: reveal the hidden QR code. Short."
+  },
+  "deskKitQrHide": "Hide QR",
+  "@deskKitQrHide": {
+    "description": "Button and tooltip: hide the QR code again. Short."
+  },
+  "deskKitQrHideCode": "Hide QR code",
+  "@deskKitQrHideCode": {
+    "description": "Screen-reader label of the button that hides the QR code."
+  }
+}

@@ -258,7 +258,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       for (final e in fixtures.entries) {
-        final item = nodeRailItem(e.value.$1);
+        final item = nodeRailItem(englishStrings, e.value.$1);
         await tester.pumpWidget(
           MaterialApp(
             theme: buildDeskTheme(Brightness.dark),
@@ -286,7 +286,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: buildDeskTheme(Brightness.dark),
-          home: Scaffold(body: Align(alignment: Alignment.topLeft, child: SizedBox(width: 360, child: RailRow(item: nodeRailItem(v), onTap: () {})))),
+          home: Scaffold(body: Align(alignment: Alignment.topLeft, child: SizedBox(width: 360, child: RailRow(item: nodeRailItem(englishStrings, v), onTap: () {})))),
         ),
       );
       await tester.pump();

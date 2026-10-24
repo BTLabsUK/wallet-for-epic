@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
 /// A wallet or node process left from an earlier run.
@@ -12,18 +13,20 @@ class EpicProcess {
 
   bool get isWallet => cmd.contains('epic-wallet');
 
-  /// What the process is, from its command line; '' when unknown.
-  String get role {
-    if (isWallet && RegExp('owner_api|listen|scan').hasMatch(cmd)) return 'wallet service';
-    if (cmd.contains('server')) return 'node';
-    return '';
+  /// What the process is, from its command line; null when unknown.
+  EpicProcessRole? get role {
+    if (isWallet && RegExp('owner_api|listen|scan').hasMatch(cmd)) return EpicProcessRole.walletService;
+    if (cmd.contains('server')) return EpicProcessRole.node;
+    return null;
   }
 }
 
+enum EpicProcessRole { walletService, node }
+
 /// The processes the mock finds when the unlock password is `busy`.
 const mockEpicProcesses = [
-  EpicProcess(48213, 'epic-wallet', 'epic-wallet --floonet owner_api'),
-  EpicProcess(48190, 'epic', 'epic server run'),
+  EpicProcess(48213, 'epic-wallet', 'epic-wallet --floonet owner_api'), // l10n-ok: a command line
+  EpicProcess(48190, 'epic', 'epic server run'), // l10n-ok: a command line
 ];
 
 /// "Epic is already running": the wallet or node processes from an earlier run, and closing
@@ -63,12 +66,12 @@ class _KillProcessDialogState extends State<_KillProcessDialog> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     return PopScope(
       canPop: !_closing,
       child: EDialog(
-        title: 'Epic is already running',
-        description:
-            'Another wallet or node process is using the wallet files and ports. Close it to unlock here, or cancel and close it yourself.',
+        title: l.deskOnbKillTitle,
+        description: l.deskOnbKillBody,
         icon: EIcons.alert,
         tone: ETone.warn,
         dismissible: !_closing,
@@ -76,7 +79,7 @@ class _KillProcessDialogState extends State<_KillProcessDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Semantics(
-              label: 'Running processes',
+              label: l.deskOnbKillProcesses,
               container: true,
               child: Container(
                 decoration: BoxDecoration(
@@ -100,7 +103,14 @@ class _KillProcessDialogState extends State<_KillProcessDialog> {
                                 TextSpan(
                                   children: [
                                     TextSpan(text: p.name, style: ts.mono()),
-                                    if (p.role.isNotEmpty) TextSpan(text: '  ${p.role}', style: ts.caption),
+                                    if (p.role != null)
+                                      TextSpan(
+                                        text: '  ${switch (p.role!) {
+                                          EpicProcessRole.walletService => l.deskOnbKillRoleWallet,
+                                          EpicProcessRole.node => l.deskOnbKillRoleNode,
+                                        }}',
+                                        style: ts.caption,
+                                      ),
                                   ],
                                 ),
                               ),
@@ -114,16 +124,13 @@ class _KillProcessDialogState extends State<_KillProcessDialog> {
               ),
             ),
             SizedBox(height: Sp.x3),
-            Text(
-              'Closing them stops what they were doing, such as a node sync or receiving payments. They start again from this app after unlock.',
-              style: ts.small,
-            ),
+            Text(l.deskOnbKillNote, style: ts.small),
           ],
         ),
         actions: [
-          EButton.ghost(label: 'Cancel', onPressed: _closing ? null : () => Navigator.pop(context, false)),
+          EButton.ghost(label: l.commonCancel, onPressed: _closing ? null : () => Navigator.pop(context, false)),
           EButton(
-            label: _closing ? 'Closing…' : 'Close and unlock',
+            label: _closing ? l.deskOnbKillClosing : l.deskOnbKillClose,
             kind: EBtnKind.danger,
             busy: _closing,
             onPressed: _close,

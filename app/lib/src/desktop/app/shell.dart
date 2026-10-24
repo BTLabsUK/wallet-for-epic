@@ -30,20 +30,14 @@ final String deskVersion = withBuildId(deskAppVersion);
 String deskKeys(String key) => defaultTargetPlatform == TargetPlatform.macOS ? '⌘$key' : 'Ctrl+$key';
 
 /// The window title of each in-app place: `<page> · Epic Cash Desktop`.
-String deskPageTitle(DeskRoute r) {
+String deskPageTitle(AppLocalizations l, DeskRoute r) {
   final page = switch (r.section) {
-    DeskSection.overview => 'Overview',
-    DeskSection.activity => 'Activity',
-    DeskSection.send => 'Send',
     DeskSection.receive => switch (r) {
-      DeskRoute.importTx => 'Import transaction',
-      DeskRoute.finalize => 'Finalize transaction',
-      _ => 'Receive',
+      DeskRoute.importTx => l.deskShellTitleImportTx,
+      DeskRoute.finalize => l.deskShellTitleFinalizeTx,
+      _ => l.deskShellNavReceive,
     },
-    DeskSection.invoices => 'Invoices',
-    DeskSection.outputs => 'Outputs',
-    DeskSection.contacts => 'Contacts',
-    DeskSection.settings => 'Settings',
+    final s? => deskNavLabel(l, s),
     null => '',
   };
   return page.isEmpty ? appName : '$page · $appName';
@@ -149,7 +143,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       );
     }
     return Title(
-      title: deskPageTitle(at.route),
+      title: deskPageTitle(context.l10n, at.route),
       color: c.accent,
       child: Stack(
         children: [
@@ -276,7 +270,7 @@ Future<void> lockWallet(WidgetRef ref) async {
   ref.read(deskLockingProvider.notifier).set(true);
   // A payment under way is never ended by the lock: the lock waits for it.
   final shown = deskNavigatorKey.currentContext;
-  if (ref.read(deskApiProvider).busy && shown != null) showEToast(shown, 'Locks when the payment is sent', tone: ETone.neutral);
+  if (ref.read(deskApiProvider).busy && shown != null) showEToast(shown, shown.l10n.deskShellLocksAfterSend, tone: ETone.neutral);
   try {
     await ref.read(deskProvider.notifier).lock();
   } finally {
@@ -293,10 +287,10 @@ Future<void> quitWallet(BuildContext context, WidgetRef ref) async {
   final quit = ref.read(deskQuitProvider);
   // Quitting mid-send would leave the payment's outcome unknown.
   if (ref.read(deskProvider.notifier).sending > 0) {
-    showEToast(context, 'Not quit', text: 'A send is in progress. Quit again once it finishes.');
+    showEToast(context, context.l10n.deskShellNotQuitTitle, text: context.l10n.deskShellNotQuitBody);
     return;
   }
-  if (quit == null) showEToast(context, 'Wallet locked', text: 'Quit closes the app once the wallet core is connected.');
+  if (quit == null) showEToast(context, context.l10n.deskShellLockedTitle, text: context.l10n.deskShellLockedBody);
   await lockWallet(ref);
   await quit?.call();
 }
@@ -324,13 +318,14 @@ class _Sidebar extends ConsumerWidget {
     final locking = ref.watch(deskLockingProvider);
     final canSwitch = DeskFeatures.multiWallet && (wallets ?? const []).length > 1;
     final name = account?.id != null || (label ?? '').isEmpty ? (account?.name ?? '') : label!;
-    final lockLabel = 'Lock wallet (${deskKeys('L')})';
+    final l = context.l10n;
+    final lockLabel = l.deskShellLockWallet(deskKeys('L'));
     final lockButton = locking
         ? SizedBox.square(dimension: Ctl.inline, child: Center(child: ESpinner(size: Ctl.iconSm)))
         : EIconButton(icon: EIcons.lock, label: lockLabel, size: compact ? EBtnSize.sm : EBtnSize.inline, onPressed: () => lockWallet(ref));
     return Semantics(
       container: true,
-      label: 'Main navigation',
+      label: l.deskShellMainNav,
       child: Container(
         width: compact ? Ctl.rail : Ctl.sidebar,
         decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.line))),
@@ -350,7 +345,7 @@ class _Sidebar extends ConsumerWidget {
                     else
                       Flexible(
                         child: Tooltip(
-                          message: 'Version $deskVersion',
+                          message: l.deskShellVersion(deskVersion),
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
                             alignment: AlignmentDirectional.centerStart,
@@ -368,13 +363,13 @@ class _Sidebar extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    for (final (s, route, label, icon) in deskNav)
+                    for (final (s, route, icon) in deskNav)
                       if (s != DeskSection.invoices || invoices)
                       TourTarget(
                         id: 'nav-${s.name}',
                         child: ENavItem(
                           icon: icon,
-                          label: s == DeskSection.invoices ? context.l10n.deskInvNav : label,
+                          label: deskNavLabel(l, s),
                           selected: section == s,
                           compact: compact,
                           count: switch (s) {
@@ -393,7 +388,7 @@ class _Sidebar extends ConsumerWidget {
                       id: 'nav-settings',
                       child: ENavItem(
                         icon: EIcons.settings,
-                        label: 'Settings',
+                        label: l.deskShellNavSettings,
                         selected: section == DeskSection.settings,
                         compact: compact,
                         onTap: () => nav.go(DeskRoute.settingsNode),
@@ -423,10 +418,10 @@ class _Sidebar extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Tooltip(
-                            message: 'Open wallet settings',
+                            message: l.deskShellOpenWalletSettings,
                             child: Semantics(
                               button: true,
-                              label: 'Open wallet settings: $name',
+                              label: l.deskShellOpenWalletSettingsNamed(name),
                               excludeSemantics: true,
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(Rad.sm),
@@ -456,7 +451,7 @@ class _Sidebar extends ConsumerWidget {
                         if (canSwitch)
                           EIconButton(
                             icon: EIcons.swap,
-                            label: 'Switch wallet',
+                            label: l.deskShellSwitchWallet,
                             size: EBtnSize.inline,
                             onPressed: locking ? null : () => switchWallet(ref),
                           ),
@@ -472,8 +467,11 @@ class _Sidebar extends ConsumerWidget {
                     Text.rich(
                       TextSpan(
                         children: [
-                          const TextSpan(text: 'Wallet by '),
-                          TextSpan(text: 'BT Labs', style: TextStyle(color: c.dim)),
+                          // "Wallet by {maker}": the maker's name is dimmer, wherever the language puts it.
+                          for (final (i, part) in l.deskShellWalletBy('\u0000').split('\u0000').indexed) ...[
+                            if (i > 0) TextSpan(text: 'BT Labs', style: TextStyle(color: c.dim)), // l10n-ok: company name
+                            TextSpan(text: part),
+                          ],
                         ],
                       ),
                       style: ts.caption,
@@ -517,14 +515,14 @@ class _PhoneTopBar extends ConsumerWidget {
             id: 'nav-settings',
             child: EIconButton(
               icon: EIcons.settings,
-              label: 'Settings',
+              label: context.l10n.deskShellNavSettings,
               color: section == DeskSection.settings ? c.accentText : null,
               onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsNode),
             ),
           ),
           locking
               ? SizedBox.square(dimension: Ctl.sm, child: Center(child: ESpinner(size: Ctl.iconSm)))
-              : EIconButton(icon: EIcons.lock, label: 'Lock wallet (${deskKeys('L')})', onPressed: () => lockWallet(ref)),
+              : EIconButton(icon: EIcons.lock, label: context.l10n.deskShellLockWallet(deskKeys('L')), onPressed: () => lockWallet(ref)),
         ],
       ),
     );
@@ -556,8 +554,8 @@ class _PhoneNav extends ConsumerWidget {
         selectedIndex: index < 0 ? 0 : index,
         onDestinationSelected: (i) => ref.read(deskNavProvider.notifier).go(items[i].$2),
         destinations: [
-          for (final (s, _, label, icon) in items)
-            NavigationDestination(icon: Icon(icon), label: s == DeskSection.invoices ? context.l10n.deskInvNav : label),
+          for (final (s, _, icon) in items)
+            NavigationDestination(icon: Icon(icon), label: deskNavLabel(context.l10n, s)),
         ],
       ),
     );
@@ -573,7 +571,7 @@ class _RailVersion extends StatelessWidget {
     final style = context.ts.caption.copyWith(fontSize: 10.u, height: 1.2);
     return Semantics(
       container: true,
-      label: 'Version $deskVersion',
+      label: context.l10n.deskShellVersion(deskVersion),
       excludeSemantics: true,
       child: Column(
         children: [

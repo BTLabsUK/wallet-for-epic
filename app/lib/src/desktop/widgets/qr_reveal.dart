@@ -3,6 +3,7 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../desk_l10n.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
@@ -93,14 +94,15 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
 
   Key? _key(String prefix) => widget.method == null ? null : ValueKey('$prefix-${widget.method}');
 
-  String get _imageLabel => 'QR code of the ${widget.title}${widget.tag == null ? '' : ', ${widget.tag!.toLowerCase()}'}';
+  String _imageLabel(AppLocalizations l) =>
+      widget.tag == null ? l.deskKitQrOf(widget.title) : l.deskKitQrOfTag(widget.title, widget.tag!.toLowerCase());
 
   Widget _code(double size) {
     final tag = widget.tag;
     return Semantics(
       key: _key('rx-qr-image'),
       image: true,
-      label: _imageLabel,
+      label: _imageLabel(context.l10n),
       excludeSemantics: true,
       child: Stack(
         alignment: Alignment.center,
@@ -187,14 +189,14 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
                               key: _key('rx-qr'),
                               button: true,
                               toggled: false,
-                              label: 'Show QR code of the ${widget.title}',
+                              label: context.l10n.deskKitQrShowOf(widget.title),
                               excludeSemantics: true,
                               onTap: () => _set(true),
                               child: ExcludeFocus(
                                 excluding: _shown,
                                 child: Tooltip(
-                                  message: 'Show QR',
-                                  child: EButton(label: 'Show QR', icon: EIcons.qr, size: EBtnSize.sm, onPressed: () => _set(true)),
+                                  message: context.l10n.deskKitQrShow,
+                                  child: EButton(label: context.l10n.deskKitQrShow, icon: EIcons.qr, size: EBtnSize.sm, onPressed: () => _set(true)),
                                 ),
                               ),
                             ),
@@ -215,15 +217,15 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
                   ? Semantics(
                       button: true,
                       toggled: true,
-                      label: 'Hide QR code',
+                      label: context.l10n.deskKitQrHideCode,
                       excludeSemantics: true,
                       onTap: () => _set(false),
                       child: Tooltip(
-                        message: 'Hide QR',
-                        child: EButton.ghost(label: 'Hide QR', icon: Icons.expand_less, size: EBtnSize.inline, onPressed: () => _set(false)),
+                        message: context.l10n.deskKitQrHide,
+                        child: EButton.ghost(label: context.l10n.deskKitQrHide, icon: Icons.expand_less, size: EBtnSize.inline, onPressed: () => _set(false)),
                       ),
                     )
-                  : Text('QR code of the ${widget.title}', style: ts.caption, maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+                  : Text(context.l10n.deskKitQrOf(widget.title), style: ts.caption, maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
             ),
           ),
         ],
@@ -240,7 +242,7 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
       children: [
         Opacity(
           opacity: widget.addressOpacity,
-          child: EAddress(widget.address, large: true, copyLabel: widget.copyLabel ?? 'Copy', extra: button),
+          child: EAddress(widget.address, large: true, copyLabel: widget.copyLabel, extra: button),
         ),
         ExpandFade(
           open: _shown,
@@ -252,7 +254,7 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
               children: [
                 _code(184.u),
                 SizedBox(height: Sp.x2),
-                Text('QR code of the ${widget.title}', style: ts.caption, textAlign: TextAlign.center),
+                Text(context.l10n.deskKitQrOf(widget.title), style: ts.caption, textAlign: TextAlign.center),
               ],
             ),
           ),
@@ -283,11 +285,11 @@ class _QrToggleState extends State<_QrToggle> {
     final c = context.dc;
     final fg = widget.shown ? c.accentText : (_hover ? c.text : c.dim);
     return Tooltip(
-      message: widget.shown ? 'Hide QR' : 'Show QR',
+      message: widget.shown ? context.l10n.deskKitQrHide : context.l10n.deskKitQrShow,
       child: Semantics(
         button: true,
         toggled: widget.shown,
-        label: widget.shown ? 'Hide QR code' : 'Show QR code of the ${widget.title}',
+        label: widget.shown ? context.l10n.deskKitQrHideCode : context.l10n.deskKitQrShowOf(widget.title),
         excludeSemantics: true,
         onTap: widget.onPressed,
         child: FocusableActionDetector(
