@@ -325,7 +325,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     if (start == null || !mounted) return;
     final ok = await ref.read(scanProvider.notifier).run(startHeight: start);
     if (!mounted) return;
-    ref.invalidate(homeProvider);
     if (ok) {
       _say(context.l10n.settingsRescanFinished, level: NoticeLevel.success);
     }
