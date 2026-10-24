@@ -34,7 +34,17 @@ Future<T?> showEDrawer<T>(BuildContext context, {required WidgetBuilder builder}
 /// A modal dialog: optional glyph, title and description, body, and buttons at the foot
 /// (right-aligned, primary last). 480 wide unless [width] says otherwise.
 class EDialog extends StatelessWidget {
-  const EDialog({super.key, required this.title, this.description, this.icon, this.tone = ETone.neutral, this.body, this.actions = const [], this._width, this.dismissible = true});
+  const EDialog({
+    super.key,
+    required this.title,
+    this.description,
+    this.icon,
+    this.tone = ETone.neutral,
+    this.body,
+    this.actions = const [],
+    this._width,
+    this.dismissible = true,
+  });
 
   final String title;
   final String? description;
@@ -67,46 +77,60 @@ class EDialog extends StatelessWidget {
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: width),
-        // The title and the buttons stay in view; a body taller than the window scrolls between
-        // them (linux-09: a long message pushed Send off the screen).
+        // The buttons stay in view; the title, description and body scroll above them when the
+        // window is too short (linux-09: a long message pushed Send off the screen; a short
+        // window at a large scale must not overflow either).
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x6, Sp.x4, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (icon != null) ...[
-                    Container(
-                      width: 40.u,
-                      height: 40.u,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(Rad.sm),
-                        border: Border.all(color: c.lineStrong),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x6, Sp.x4, 0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (icon != null) ...[
+                            Container(
+                              width: 40.u,
+                              height: 40.u,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(Rad.sm),
+                                border: Border.all(color: c.lineStrong),
+                              ),
+                              child: Icon(icon, size: Ctl.icon, color: iconColor),
+                            ),
+                            SizedBox(width: Sp.x3),
+                          ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Semantics(header: true, child: Text(title, style: ts.h3)),
+                                if (description != null) ...[SizedBox(height: 6.u), Text(description!, style: ts.bodyDim)],
+                              ],
+                            ),
+                          ),
+                          if (dismissible)
+                            EIconButton(
+                              icon: EIcons.close,
+                              label: context.l10n.deskKitCloseEsc,
+                              tabStop: false,
+                              onPressed: () => Navigator.of(context).maybePop(),
+                            ),
+                        ],
                       ),
-                      child: Icon(icon, size: Ctl.icon, color: iconColor),
                     ),
-                    SizedBox(width: Sp.x3),
+                    if (body != null) Padding(padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x5, Sp.x6, 0), child: body),
                   ],
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Semantics(header: true, child: Text(title, style: ts.h3)),
-                        if (description != null) ...[SizedBox(height: 6.u), Text(description!, style: ts.bodyDim)],
-                      ],
-                    ),
-                  ),
-                  if (dismissible) EIconButton(icon: EIcons.close, label: context.l10n.deskKitCloseEsc, tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
-                ],
+                ),
               ),
             ),
-            if (body != null)
-              Flexible(
-                child: SingleChildScrollView(padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x5, Sp.x6, 0), child: body),
-              ),
             Padding(
               padding: EdgeInsets.all(Sp.x6),
               child: actions.isEmpty ? const SizedBox.shrink() : Wrap(alignment: WrapAlignment.end, spacing: Sp.x3, runSpacing: Sp.x2, children: actions),
