@@ -498,6 +498,7 @@ String txStatusLabel(
   BigInt? tip, {
   int? target,
 }) => switch (txPhase(tx, tip, target: target)) {
+  TxPhase.waitingRecipient when tx.undelivered => l.txStatusNotDelivered,
   TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
   TxPhase.waitingSender => l.txStatusWaitingSender,
   TxPhase.waitingPayer => l.txStatusWaitingPayer,

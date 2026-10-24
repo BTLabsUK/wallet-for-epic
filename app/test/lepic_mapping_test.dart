@@ -33,6 +33,7 @@ class _SendingWallet extends _NoNativeWallet {
     fee: BigInt.one,
     createdAtMs: 1790000000000,
     releasable: false,
+    undelivered: false,
     flow: lepic.TxFlow.payment,
     messages: [
       for (final m in messages)
@@ -217,6 +218,36 @@ void main() {
         expect(mapLepicError(error(kind)).kind, WalletErrorKind.other);
       }
     });
+  });
+
+  test('an undelivered epicbox send is offered again, but not while it is being sent', () {
+    lepic.TransactionDetails send({
+      String transport = 'epicbox',
+      bool undelivered = true,
+      lepic.TxStatus status = lepic.TxStatus.sent,
+    }) => lepic.TransactionDetails(
+      txId: 7,
+      direction: lepic.TxDirection.outgoing,
+      status: status,
+      slateId: 'undelivered-1',
+      transport: transport,
+      amountCredited: BigInt.zero,
+      amountDebited: BigInt.from(11),
+      fee: BigInt.one,
+      createdAtMs: 1790000000000,
+      releasable: false,
+      undelivered: undelivered,
+      flow: lepic.TxFlow.payment,
+      messages: const [],
+      origin: lepic.TxOrigin.wallet,
+    );
+    expect(lepicTxEntry(send()).undelivered, isTrue);
+    // The first attempt of a send still running is undelivered for LEPIC too.
+    expect(lepicTxEntry(send(), sending: true).undelivered, isFalse);
+    expect(lepicTxEntry(send(undelivered: false)).undelivered, isFalse);
+    // Only Epicbox has a resend here; a Tor or HTTP send has its own.
+    expect(lepicTxEntry(send(transport: 'http')).undelivered, isFalse);
+    expect(lepicTxEntry(send(status: lepic.TxStatus.cancelled)).undelivered, isFalse);
   });
 
   test('history keys carry the LEPIC transaction id', () {
@@ -606,6 +637,7 @@ void main() {
       counterparty: 'key@relay',
       ttlCutoffHeight: BigInt.from(99),
       releasable: releasable,
+      undelivered: false,
       messages: messages,
       flow: flow,
       origin: origin,

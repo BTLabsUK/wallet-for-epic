@@ -13711,6 +13711,17 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskKeyringUnlockNow => 'Odblokuj teraz';
 
   @override
+  String get txStatusNotDelivered => 'Nie dostarczono';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      'Ta płatność nie dotarła jeszcze do epicboxa, więc odbiorca jej nie dostał. Środki pozostają zablokowane, dopóki nie zostanie wysłana ponownie lub anulowana.';
+
+  @override
+  String get txDetailsSendAgainDone =>
+      'Wysłano ponownie. Płatność zakończy się, gdy portfel odbiorcy będzie online.';
+
+  @override
   String get deskTxThisWallet => 'Ten portfel';
 
   @override
@@ -13747,4 +13758,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSetReportFilePart(String name, String part, String size) {
     return '$name (ostatnie $part z $size)';
   }
+
+  @override
+  String get deskErrTxNotFound => 'Nie znaleziono transakcji';
+
+  @override
+  String get deskTxNowUndelivered =>
+      'Nie dostarczono. Płatność nie dotarła do serwera Epicbox, więc odbiorca jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.';
+
+  @override
+  String get deskTxStatusUndelivered => 'Nie dostarczono';
+
+  @override
+  String get deskTxSendAgain => 'Wyślij ponownie';
+
+  @override
+  String get deskTxNotSent => 'Nie wysłano';
+
+  @override
+  String get deskTxSentAgain => 'Wysłano ponownie';
+
+  @override
+  String get deskTxSentAgainText =>
+      'Zakończy się, gdy portfel odbiorcy będzie online.';
 }

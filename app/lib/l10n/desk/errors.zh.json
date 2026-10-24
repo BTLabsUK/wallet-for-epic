@@ -130,5 +130,6 @@
   "deskErrOldIncomplete": "无法完整读取此钱包的文件夹；请手动复制它，或用助记词恢复。",
   "deskErrOldSeedTooLarge": "wallet.seed 文件太大，不可能是钱包种子文件。",
   "deskErrSendUnbuildable": "无法用现有的币构建这笔发送。",
-  "deskErrNothingToConsolidate": "无需合并：可用输出少于两个。"
+  "deskErrNothingToConsolidate": "无需合并：可用输出少于两个。",
+  "deskErrTxNotFound": "找不到该交易"
 }

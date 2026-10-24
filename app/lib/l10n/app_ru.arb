@@ -166,7 +166,7 @@
   "txDetailsCopyAddress": "Копировать адрес",
   "txDetailsAddressCopied": "Адрес скопирован",
   "txDetailsAddToContacts": "Добавить в контакты",
-  "txDetailsSendAgain": "Отправить ещё раз",
+  "txDetailsSendAgain": "Отправить снова",
   "txDetailsFee": "Комиссия",
   "txDetailsNoteLabel": "Заметка",
   "txDetailsPrivateNoteLabel": "Личная заметка, только на этом устройстве",
@@ -3487,6 +3487,9 @@
   "deskKeyringLockedTitle": "Связка ключей заблокирована",
   "deskKeyringLockedText": "Epic Cash хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, а она заблокирована. Разблокируйте её (она открывается паролем входа), затем нажмите «Повторить», или нажмите «Разблокировать сейчас», чтобы система запросила пароль.",
   "deskKeyringUnlockNow": "Разблокировать сейчас",
+  "txStatusNotDelivered": "Не доставлено",
+  "txDetailsNotDeliveredBody": "Этот платёж ещё не дошёл до epicbox, поэтому получатель его не получил. Средства остаются заблокированными, пока платёж не отправят повторно или не отменят.",
+  "txDetailsSendAgainDone": "Отправлено снова. Платёж завершится, когда кошелёк получателя выйдет в сеть.",
   "deskTxThisWallet": "Этот кошелёк",
   "deskErrOldLinks": "В папке этого кошелька есть ссылки; скопируйте её вручную или восстановите кошелёк по фразе восстановления.",
   "deskErrOldIncomplete": "Папку этого кошелька не удалось прочитать полностью; скопируйте её вручную или восстановите кошелёк по фразе восстановления.",
@@ -3495,5 +3498,12 @@
   "deskErrNothingToConsolidate": "Нечего объединять: доступно меньше двух выходов.",
   "deskSetReportFileNone": "{name} (не включён)",
   "deskSetReportFileAll": "{name} (целиком, {size})",
-  "deskSetReportFilePart": "{name} (последние {part} из {size})"
+  "deskSetReportFilePart": "{name} (последние {part} из {size})",
+  "deskErrTxNotFound": "Транзакция не найдена",
+  "deskTxNowUndelivered": "Не доставлено. Платёж не дошёл до сервера Epicbox, поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить средства.",
+  "deskTxStatusUndelivered": "Не доставлено",
+  "deskTxSendAgain": "Отправить снова",
+  "deskTxNotSent": "Не отправлено",
+  "deskTxSentAgain": "Отправлено снова",
+  "deskTxSentAgainText": "Платёж завершится, когда кошелёк получателя появится в сети."
 }

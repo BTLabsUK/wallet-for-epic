@@ -166,7 +166,7 @@
   "txDetailsCopyAddress": "复制地址",
   "txDetailsAddressCopied": "地址已复制",
   "txDetailsAddToContacts": "添加到联系人",
-  "txDetailsSendAgain": "再次发送",
+  "txDetailsSendAgain": "重新发送",
   "txDetailsFee": "手续费",
   "txDetailsNoteLabel": "备注",
   "txDetailsPrivateNoteLabel": "私人备注，仅保存在本设备",
@@ -3487,6 +3487,9 @@
   "deskKeyringLockedTitle": "密钥环已锁定",
   "deskKeyringLockedText": "Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（使用您的登录密码），然后选择重试，或选择立即解锁让系统询问密码。",
   "deskKeyringUnlockNow": "立即解锁",
+  "txStatusNotDelivered": "未送达",
+  "txDetailsNotDeliveredBody": "此付款尚未到达 epicbox，收款人还没有收到。在重新发送或取消之前，你的资金保持锁定。",
+  "txDetailsSendAgainDone": "已重新发送。收款人的钱包上线后即可完成。",
   "deskTxThisWallet": "此钱包",
   "deskErrOldLinks": "此钱包的文件夹中含有链接；请手动复制它，或用助记词恢复。",
   "deskErrOldIncomplete": "无法完整读取此钱包的文件夹；请手动复制它，或用助记词恢复。",
@@ -3495,5 +3498,12 @@
   "deskErrNothingToConsolidate": "无需合并：可用输出少于两个。",
   "deskSetReportFileNone": "{name}（不包含）",
   "deskSetReportFileAll": "{name}（全部，{size}）",
-  "deskSetReportFilePart": "{name}（{size} 中的最后 {part}）"
+  "deskSetReportFilePart": "{name}（{size} 中的最后 {part}）",
+  "deskErrTxNotFound": "找不到该交易",
+  "deskTxNowUndelivered": "未送达。这笔付款没有到达 Epicbox 服务器，收款人没有收到。请重新发送，或取消以释放资金。",
+  "deskTxStatusUndelivered": "未送达",
+  "deskTxSendAgain": "重新发送",
+  "deskTxNotSent": "未发送",
+  "deskTxSentAgain": "已重新发送",
+  "deskTxSentAgainText": "收款人的钱包上线后即可完成。"
 }

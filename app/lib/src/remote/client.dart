@@ -617,6 +617,10 @@ class RemoteWalletSession implements WalletSession {
       _call(SessionMember.repostTransaction, voidWire, {'key': key});
 
   @override
+  Future<void> resendEpicbox({required String key}) =>
+      _call(SessionMember.resendEpicbox, voidWire, {'key': key});
+
+  @override
   Future<void> releaseStuckSend({required String key}) =>
       _call(SessionMember.releaseStuckSend, voidWire, {'key': key});
 

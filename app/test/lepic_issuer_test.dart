@@ -99,6 +99,7 @@ class _IssuerWallet implements lepic.EpicWallet {
     amountDebited: BigInt.zero,
     createdAtMs: 1790000000000,
     releasable: false,
+    undelivered: false,
     messages: messages,
     flow: flow,
     origin: lepic.TxOrigin.wallet,

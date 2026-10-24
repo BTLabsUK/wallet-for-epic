@@ -13054,6 +13054,17 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKeyringUnlockNow => 'ปลดล็อกตอนนี้';
 
   @override
+  String get txStatusNotDelivered => 'ยังไม่ได้ส่งถึง';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      'การชำระเงินนี้ยังไปไม่ถึง epicbox ผู้รับจึงยังไม่ได้รับ เงินของคุณจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก';
+
+  @override
+  String get txDetailsSendAgainDone =>
+      'ส่งอีกครั้งแล้ว การชำระเงินจะเสร็จสมบูรณ์เมื่อกระเป๋าของผู้รับออนไลน์';
+
+  @override
   String get deskTxThisWallet => 'กระเป๋าเงินนี้';
 
   @override
@@ -13089,4 +13100,26 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSetReportFilePart(String name, String part, String size) {
     return '$name ($part สุดท้ายจาก $size)';
   }
+
+  @override
+  String get deskErrTxNotFound => 'ไม่พบธุรกรรม';
+
+  @override
+  String get deskTxNowUndelivered =>
+      'ส่งไม่ถึง รายการนี้ไปไม่ถึง Epicbox ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน';
+
+  @override
+  String get deskTxStatusUndelivered => 'ส่งไม่ถึง';
+
+  @override
+  String get deskTxSendAgain => 'ส่งอีกครั้ง';
+
+  @override
+  String get deskTxNotSent => 'ส่งไม่สำเร็จ';
+
+  @override
+  String get deskTxSentAgain => 'ส่งอีกครั้งแล้ว';
+
+  @override
+  String get deskTxSentAgainText => 'จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์';
 }

@@ -27,6 +27,7 @@ enum SessionMember {
   confirmPinChange,
   cancelTransaction,
   repostTransaction,
+  resendEpicbox,
   releaseStuckSend,
   createSendSlate,
   epicboxAddress,

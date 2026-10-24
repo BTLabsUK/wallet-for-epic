@@ -77,6 +77,7 @@ IconData iconOf(Tx t) => switch (t.method) {
     : t.immature
     ? (l.deskTxStatusImmature, ETone.warn)
     : switch (t.state) {
+        TxState.waitingRecipient when t.undelivered => (l.deskTxStatusUndelivered, ETone.warn),
         TxState.waitingRecipient => (
           t.incoming ? l.deskTxStatusWaitingSender : (t.method == TxMethod.file ? l.deskTxStatusWaitingResponseFile : l.deskTxStatusWaitingRecipient),
           ETone.warn,

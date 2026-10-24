@@ -111,5 +111,11 @@
   "deskTxProofCopySignature": "Kopiuj podpis odbiorcy",
   "deskTxProofExport": "Eksportuj",
   "deskTxProofSaved": "Zapisano dowód",
-  "deskTxThisWallet": "Ten portfel"
+  "deskTxThisWallet": "Ten portfel",
+  "deskTxNowUndelivered": "Nie dostarczono. Płatność nie dotarła do serwera Epicbox, więc odbiorca jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.",
+  "deskTxStatusUndelivered": "Nie dostarczono",
+  "deskTxSendAgain": "Wyślij ponownie",
+  "deskTxNotSent": "Nie wysłano",
+  "deskTxSentAgain": "Wysłano ponownie",
+  "deskTxSentAgainText": "Zakończy się, gdy portfel odbiorcy będzie online."
 }

@@ -111,5 +111,11 @@
   "deskTxProofCopySignature": "คัดลอกลายเซ็นผู้รับ",
   "deskTxProofExport": "ส่งออก",
   "deskTxProofSaved": "บันทึกหลักฐานแล้ว",
-  "deskTxThisWallet": "กระเป๋าเงินนี้"
+  "deskTxThisWallet": "กระเป๋าเงินนี้",
+  "deskTxNowUndelivered": "ส่งไม่ถึง รายการนี้ไปไม่ถึง Epicbox ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน",
+  "deskTxStatusUndelivered": "ส่งไม่ถึง",
+  "deskTxSendAgain": "ส่งอีกครั้ง",
+  "deskTxNotSent": "ส่งไม่สำเร็จ",
+  "deskTxSentAgain": "ส่งอีกครั้งแล้ว",
+  "deskTxSentAgainText": "จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์"
 }

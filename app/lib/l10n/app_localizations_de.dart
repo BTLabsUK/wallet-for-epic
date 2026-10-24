@@ -13457,6 +13457,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskKeyringUnlockNow => 'Jetzt entsperren';
 
   @override
+  String get txStatusNotDelivered => 'Nicht zugestellt';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      'Diese Zahlung hat die Epicbox noch nicht erreicht, deshalb hat der Empfänger sie nicht erhalten. Dein Guthaben bleibt gesperrt, bis sie erneut gesendet oder storniert wird.';
+
+  @override
+  String get txDetailsSendAgainDone =>
+      'Erneut gesendet. Die Zahlung wird abgeschlossen, sobald die Wallet des Empfängers online ist.';
+
+  @override
   String get deskTxThisWallet => 'Diese Wallet';
 
   @override
@@ -13493,4 +13504,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskSetReportFilePart(String name, String part, String size) {
     return '$name (letzte $part von $size)';
   }
+
+  @override
+  String get deskErrTxNotFound => 'Transaktion nicht gefunden';
+
+  @override
+  String get deskTxNowUndelivered =>
+      'Nicht zugestellt. Die Zahlung hat den Epicbox-Server nicht erreicht, der Empfänger hat sie also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.';
+
+  @override
+  String get deskTxStatusUndelivered => 'Nicht zugestellt';
+
+  @override
+  String get deskTxSendAgain => 'Erneut senden';
+
+  @override
+  String get deskTxNotSent => 'Nicht gesendet';
+
+  @override
+  String get deskTxSentAgain => 'Erneut gesendet';
+
+  @override
+  String get deskTxSentAgainText =>
+      'Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist.';
 }

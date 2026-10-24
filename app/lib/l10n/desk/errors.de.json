@@ -130,5 +130,6 @@
   "deskErrOldIncomplete": "Der Ordner dieser Wallet konnte nicht vollständig gelesen werden; kopieren Sie ihn von Hand oder stellen Sie die Wallet mit der Wiederherstellungsphrase wieder her.",
   "deskErrOldSeedTooLarge": "Die Datei wallet.seed ist zu groß, um ein Wallet-Seed zu sein.",
   "deskErrSendUnbuildable": "Diese Zahlung lässt sich aus den verfügbaren Coins nicht zusammenstellen.",
-  "deskErrNothingToConsolidate": "Nichts zum Zusammenführen: weniger als zwei verfügbare Outputs."
+  "deskErrNothingToConsolidate": "Nichts zum Zusammenführen: weniger als zwei verfügbare Outputs.",
+  "deskErrTxNotFound": "Transaktion nicht gefunden"
 }

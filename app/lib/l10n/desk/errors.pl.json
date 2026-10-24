@@ -130,5 +130,6 @@
   "deskErrOldIncomplete": "Nie udało się odczytać całego folderu tego portfela; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.",
   "deskErrOldSeedTooLarge": "Plik wallet.seed jest za duży, by był seedem portfela.",
   "deskErrSendUnbuildable": "Tej płatności nie da się złożyć z dostępnych środków.",
-  "deskErrNothingToConsolidate": "Nie ma czego scalać: mniej niż dwa wyjścia do wydania."
+  "deskErrNothingToConsolidate": "Nie ma czego scalać: mniej niż dwa wyjścia do wydania.",
+  "deskErrTxNotFound": "Nie znaleziono transakcji"
 }

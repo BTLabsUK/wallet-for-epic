@@ -155,6 +155,11 @@ abstract interface class WalletSession {
   /// inputs stay locked until it confirms.
   Future<void> repostTransaction({required String key});
 
+  /// Delivers the slate of the Epicbox send [key] again, to the address it was sent to
+  /// ([TxEntry.undelivered]). `invalidArgument` for a send that is not an Epicbox send waiting
+  /// for its answer; `transportFailed` when the relay refuses again.
+  Future<void> resendEpicbox({required String key});
+
   /// Unlocks the funds of a finished payment the network refused and that has not reached it
   /// for a day of blocks ([TxEntry.releasable]). Refuses with [WalletErrorKind.invalidArgument]
   /// when the node shows the payment on chain or in its pool.
@@ -993,6 +998,29 @@ class FakeWalletSession implements WalletSession {
       );
     }
     repostedKeys.add(key);
+  }
+
+  /// Keys passed to [resendEpicbox].
+  final List<String> resentEpicboxKeys = [];
+
+  /// When set, [resendEpicbox] throws it.
+  WalletError? resendEpicboxError;
+
+  @override
+  Future<void> resendEpicbox({required String key}) async {
+    if (resendEpicboxError != null) throw resendEpicboxError!;
+    final tx = transactionsValue.where((t) => t.key == key).firstOrNull;
+    if (tx == null || !(tx.undelivered || _undelivered.contains(tx.id))) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'not an epicbox send waiting for its answer',
+      );
+    }
+    resentEpicboxKeys.add(key);
+    _undelivered.remove(tx.id);
+    transactionsValue
+      ..remove(tx)
+      ..add(copyTx(tx, note: tx.note, undelivered: false));
   }
 
   /// Keys passed to [releaseStuckSend].
@@ -2610,6 +2638,7 @@ TxEntry fakeTx({
   BigInt? ttlCutoffHeight,
   bool cancellable = false,
   bool repostable = false,
+  bool undelivered = false,
   String? statusDetail,
   bool releasable = false,
   int? finalizedAtUnix,
@@ -2653,6 +2682,7 @@ TxEntry fakeTx({
     ttlCutoffHeight: ttlCutoffHeight,
     cancellable: cancellable,
     repostable: repostable,
+    undelivered: undelivered,
     statusDetail: statusDetail,
     releasable: releasable,
     finalizedAtUnix: finalizedAtUnix,
@@ -2661,8 +2691,8 @@ TxEntry fakeTx({
   );
 }
 
-/// [tx] with [note] replaced.
-TxEntry copyTx(TxEntry tx, {String? note}) => TxEntry(
+/// [tx] with [note] replaced, and [undelivered] when given.
+TxEntry copyTx(TxEntry tx, {String? note, bool? undelivered}) => TxEntry(
   key: tx.key,
   id: tx.id,
   slateId: tx.slateId,
@@ -2688,6 +2718,7 @@ TxEntry copyTx(TxEntry tx, {String? note}) => TxEntry(
   ttlCutoffHeight: tx.ttlCutoffHeight,
   cancellable: tx.cancellable,
   repostable: tx.repostable,
+  undelivered: undelivered ?? tx.undelivered,
   statusDetail: tx.statusDetail,
   releasable: tx.releasable,
   finalizedAtUnix: tx.finalizedAtUnix,

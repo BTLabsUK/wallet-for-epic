@@ -3487,6 +3487,9 @@
   "deskKeyringLockedTitle": "Pęk kluczy jest zablokowany",
   "deskKeyringLockedText": "Epic Cash przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, który jest zablokowany. Odblokuj go (otwiera się hasłem logowania), a potem wybierz Ponów, albo wybierz Odblokuj teraz, aby system o nie poprosił.",
   "deskKeyringUnlockNow": "Odblokuj teraz",
+  "txStatusNotDelivered": "Nie dostarczono",
+  "txDetailsNotDeliveredBody": "Ta płatność nie dotarła jeszcze do epicboxa, więc odbiorca jej nie dostał. Środki pozostają zablokowane, dopóki nie zostanie wysłana ponownie lub anulowana.",
+  "txDetailsSendAgainDone": "Wysłano ponownie. Płatność zakończy się, gdy portfel odbiorcy będzie online.",
   "deskTxThisWallet": "Ten portfel",
   "deskErrOldLinks": "Folder tego portfela zawiera dowiązania; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.",
   "deskErrOldIncomplete": "Nie udało się odczytać całego folderu tego portfela; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.",
@@ -3495,5 +3498,12 @@
   "deskErrNothingToConsolidate": "Nie ma czego scalać: mniej niż dwa wyjścia do wydania.",
   "deskSetReportFileNone": "{name} (niedołączony)",
   "deskSetReportFileAll": "{name} (cały, {size})",
-  "deskSetReportFilePart": "{name} (ostatnie {part} z {size})"
+  "deskSetReportFilePart": "{name} (ostatnie {part} z {size})",
+  "deskErrTxNotFound": "Nie znaleziono transakcji",
+  "deskTxNowUndelivered": "Nie dostarczono. Płatność nie dotarła do serwera Epicbox, więc odbiorca jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.",
+  "deskTxStatusUndelivered": "Nie dostarczono",
+  "deskTxSendAgain": "Wyślij ponownie",
+  "deskTxNotSent": "Nie wysłano",
+  "deskTxSentAgain": "Wysłano ponownie",
+  "deskTxSentAgainText": "Zakończy się, gdy portfel odbiorcy będzie online."
 }

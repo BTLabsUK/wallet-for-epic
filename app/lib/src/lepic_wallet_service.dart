@@ -87,7 +87,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     // A split that cannot be built from the coins at hand; one short error for both.
     lepic.WalletErrorKind.changeTooSmall ||
     lepic.WalletErrorKind.tooHeavy ||
-    lepic.WalletErrorKind.nothingToConsolidate => WalletErrorKind.invalidArgument,
+    lepic.WalletErrorKind.nothingToConsolidate =>
+      WalletErrorKind.invalidArgument,
     lepic.WalletErrorKind.transportFailed => WalletErrorKind.transportFailed,
     lepic.WalletErrorKind.chainBusy => WalletErrorKind.chainBusy,
     lepic.WalletErrorKind.walletBusy => WalletErrorKind.walletBusy,
@@ -112,7 +113,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.damagedAppData => WalletErrorKind.invalidArgument,
     lepic.WalletErrorKind.invoiceNotFound => WalletErrorKind.invoiceNotFound,
     lepic.WalletErrorKind.amountMismatch => WalletErrorKind.amountMismatch,
-    lepic.WalletErrorKind.invoiceAlreadyPaid => WalletErrorKind.invoiceAlreadyPaid,
+    lepic.WalletErrorKind.invoiceAlreadyPaid =>
+      WalletErrorKind.invoiceAlreadyPaid,
     lepic.WalletErrorKind.invoiceLockedAboveTip =>
       WalletErrorKind.invoiceLockedAboveTip,
     lepic.WalletErrorKind.invoiceChanged => WalletErrorKind.invoiceChanged,
@@ -191,7 +193,9 @@ lepic.HttpExposure _lepicExposure(HttpExposure e) => switch (e) {
 };
 
 /// LEPIC's HTTP listener event as the app's.
-HttpListenerEvent lepicHttpEvent(lepic.HttpListenerEvent e) => HttpListenerEvent(
+HttpListenerEvent lepicHttpEvent(
+  lepic.HttpListenerEvent e,
+) => HttpListenerEvent(
   kind: switch (e.kind) {
     lepic.HttpListenerEventKind.started => HttpListenerEventKind.started,
     lepic.HttpListenerEventKind.portInUse => HttpListenerEventKind.portInUse,
@@ -486,7 +490,7 @@ int lepicTxId(String key) {
 /// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]). Notes, contacts
 /// and imported rows are the app's (H-01), so `note` stays empty here; `messages` are the
 /// slate's, which LEPIC verified.
-TxEntry lepicTxEntry(lepic.TransactionDetails d) {
+TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
   final outgoing = d.direction == lepic.TxDirection.outgoing;
   final ended =
       d.status == lepic.TxStatus.cancelled ||
@@ -543,6 +547,13 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d) {
         d.status == lepic.TxStatus.sent || d.status == lepic.TxStatus.received,
     // Finalized but refused by the node: LEPIC stores it for a repost.
     repostable: d.status == lepic.TxStatus.finalized,
+    // LEPIC also says undelivered during the first attempt of a send still running: not then.
+    undelivered:
+        d.undelivered &&
+        !sending &&
+        outgoing &&
+        d.status == lepic.TxStatus.sent &&
+        d.transport == 'epicbox',
     releasable: d.releasable,
     cancelReason: d.status == lepic.TxStatus.expired
         ? CancelReason.expiry
@@ -569,15 +580,15 @@ String importedDetail(lepic.TransactionDetails d, lepic.ImportedTx imported) {
       d.status == lepic.TxStatus.finalized ||
       d.status == lepic.TxStatus.posted;
   return switch (imported.check) {
-    lepic.ChainCheck.cancelledButOnChain =>
-      'The older wallet had cancelled this, but the blockchain has it, so the funds count.',
+    lepic.ChainCheck.cancelledButOnChain => 'The older wallet had cancelled this, but the blockchain has it, so the funds count.',
     lepic.ChainCheck.unspentNotOnChain =>
       'The older wallet showed these funds as unspent, but the blockchain does not have them, '
           'so they are not in the balance.',
     _ when open =>
       'Started in the older wallet and not finished there. Finish or cancel it in the older '
           'wallet; cancelling it here only hides it.',
-    _ => 'Imported from the older wallet, where it was transaction ${imported.sourceId}.',
+    _ =>
+      'Imported from the older wallet, where it was transaction ${imported.sourceId}.',
   };
 }
 
@@ -654,14 +665,14 @@ class LepicWalletService implements WalletService {
   }
 
   static lepic.WalletConfig _lepicConfig(WalletConfig config, String dataDir) =>
-    lepic.WalletConfig(
-      dataDir: dataDir,
-      chain: _lepicChain(config.chain),
-      nodeUrl: config.nodeUrl,
-      nodeApiSecret: config.nodeApiSecret,
-      epicboxDomain: config.epicboxDomain,
-      epicboxPort: config.epicboxPort,
-    );
+      lepic.WalletConfig(
+        dataDir: dataDir,
+        chain: _lepicChain(config.chain),
+        nodeUrl: config.nodeUrl,
+        nodeApiSecret: config.nodeApiSecret,
+        epicboxDomain: config.epicboxDomain,
+        epicboxPort: config.epicboxPort,
+      );
 
   /// `<anything>/wallets/<32 hex>/<chain>`, the folder of a registry wallet.
   static final RegExp _registryFolder = RegExp(
@@ -967,7 +978,8 @@ class LepicWalletSession implements WalletSession {
 
   /// LEPIC's rows, before the archive is merged in.
   Future<List<TxEntry>> _live() async => [
-    for (final d in await _wallet.transactions()) lepicTxEntry(d),
+    for (final d in await _wallet.transactions())
+      lepicTxEntry(d, sending: _epicboxSending > 0),
   ];
 
   /// The stored row of [txId], as the history shows it.
@@ -977,7 +989,11 @@ class LepicWalletSession implements WalletSession {
         .transactions(live)
         .where((t) => t.id == txId)
         .firstOrNull;
-    return shown ?? lepicTxEntry(await _wallet.transaction(txId: txId));
+    return shown ??
+        lepicTxEntry(
+          await _wallet.transaction(txId: txId),
+          sending: _epicboxSending > 0,
+        );
   }
 
   /// The LEPIC id behind a history key: `l:<id>`, or the row shown under [key].
@@ -1180,16 +1196,17 @@ class LepicWalletSession implements WalletSession {
   );
 
   @override
-  Future<NodeTip> nodeTipFor({required WalletConfig config}) => _guard(() async {
-    final tip = await _wallet.nodeTipFor(
-      config: LepicWalletService._lepicConfig(config, config.dataDir),
-    );
-    return NodeTip(
-      height: tip.height,
-      nodeVersion: tip.nodeVersion,
-      readyForTxs: tip.readyForTxs,
-    );
-  });
+  Future<NodeTip> nodeTipFor({required WalletConfig config}) =>
+      _guard(() async {
+        final tip = await _wallet.nodeTipFor(
+          config: LepicWalletService._lepicConfig(config, config.dataDir),
+        );
+        return NodeTip(
+          height: tip.height,
+          nodeVersion: tip.nodeVersion,
+          readyForTxs: tip.readyForTxs,
+        );
+      });
 
   @override
   Future<SelfSentTx> spendOutputsToSelf({
@@ -1219,14 +1236,35 @@ class LepicWalletSession implements WalletSession {
     String? message,
     SendOptions? options,
   }) => _guard(() async {
-    final tx = await _wallet.sendEpicbox(
-      amount: amount,
-      minimumConfirmations: minimumConfirmations,
-      address: address,
-      message: _message(message),
-      options: await _optionsFor(amount, minimumConfirmations, options),
-    );
+    _epicboxSending++;
+    final lepic.SentTx tx;
+    try {
+      tx = await _wallet.sendEpicbox(
+        amount: amount,
+        minimumConfirmations: minimumConfirmations,
+        address: address,
+        message: _message(message),
+        options: await _optionsFor(amount, minimumConfirmations, options),
+      );
+    } finally {
+      _epicboxSending--;
+    }
     return _entry(tx.txId);
+  });
+
+  /// Epicbox sends and resends under way: LEPIC calls a send undelivered until its first
+  /// attempt ends, so none of the rows shows "Not delivered" meanwhile.
+  int _epicboxSending = 0;
+
+  @override
+  Future<void> resendEpicbox({required String key}) => _guard(() async {
+    final txId = await _txIdOf(key);
+    _epicboxSending++;
+    try {
+      await _wallet.resendEpicbox(txId: txId);
+    } finally {
+      _epicboxSending--;
+    }
   });
 
   @override
@@ -1358,9 +1396,8 @@ class LepicWalletSession implements WalletSession {
   }
 
   @override
-  Future<void> refreshTor({required bool networkChanged}) => _guard(
-    () => _wallet.refreshTor(networkChanged: networkChanged),
-  );
+  Future<void> refreshTor({required bool networkChanged}) =>
+      _guard(() => _wallet.refreshTor(networkChanged: networkChanged));
 
   @override
   Future<TorStatus> torStatus() async {
@@ -1573,28 +1610,29 @@ class LepicWalletSession implements WalletSession {
       });
 
   @override
-  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir}) =>
-      _guard(() async {
-        final r = await _wallet.importLegacyHistory(sourceDir: sourceDir);
-        return LegacyHistoryImport(
-          status: switch (r.status) {
-            lepic.LegacyImportStatus.imported => LegacyHistoryStatus.imported,
-            lepic.LegacyImportStatus.alreadyImported =>
-              LegacyHistoryStatus.alreadyImported,
-            lepic.LegacyImportStatus.noHistory => LegacyHistoryStatus.noHistory,
-            lepic.LegacyImportStatus.oldFormat => LegacyHistoryStatus.oldFormat,
-            lepic.LegacyImportStatus.unreadable => LegacyHistoryStatus.unreadable,
-            lepic.LegacyImportStatus.sourceBusy => LegacyHistoryStatus.sourceBusy,
-            lepic.LegacyImportStatus.tooLarge => LegacyHistoryStatus.tooLarge,
-            lepic.LegacyImportStatus.otherWallet => LegacyHistoryStatus.otherWallet,
-            lepic.LegacyImportStatus.otherHistory =>
-              LegacyHistoryStatus.otherHistory,
-          },
-          transactions: r.transactions,
-          linked: r.linked,
-          skipped: r.skipped,
-        );
-      });
+  Future<LegacyHistoryImport> importLegacyHistory({
+    required String sourceDir,
+  }) => _guard(() async {
+    final r = await _wallet.importLegacyHistory(sourceDir: sourceDir);
+    return LegacyHistoryImport(
+      status: switch (r.status) {
+        lepic.LegacyImportStatus.imported => LegacyHistoryStatus.imported,
+        lepic.LegacyImportStatus.alreadyImported =>
+          LegacyHistoryStatus.alreadyImported,
+        lepic.LegacyImportStatus.noHistory => LegacyHistoryStatus.noHistory,
+        lepic.LegacyImportStatus.oldFormat => LegacyHistoryStatus.oldFormat,
+        lepic.LegacyImportStatus.unreadable => LegacyHistoryStatus.unreadable,
+        lepic.LegacyImportStatus.sourceBusy => LegacyHistoryStatus.sourceBusy,
+        lepic.LegacyImportStatus.tooLarge => LegacyHistoryStatus.tooLarge,
+        lepic.LegacyImportStatus.otherWallet => LegacyHistoryStatus.otherWallet,
+        lepic.LegacyImportStatus.otherHistory =>
+          LegacyHistoryStatus.otherHistory,
+      },
+      transactions: r.transactions,
+      linked: r.linked,
+      skipped: r.skipped,
+    );
+  });
 
   /// LEPIC's answer for a history file, in the old core's sentences the UI translates.
   Future<Uint8List> _openHistoryFile(Uint8List data) async {
@@ -1963,7 +2001,7 @@ class LepicWalletSession implements WalletSession {
     for (final d in await _wallet.transactions()) {
       if (d.slateId != slateId) continue;
       final paid = paidInvoiceOf(
-        lepicTxEntry(d),
+        lepicTxEntry(d, sending: _epicboxSending > 0),
         status: record?.status,
         kernelExcess: record?.kernelExcess,
       );
@@ -1985,7 +2023,8 @@ class LepicWalletSession implements WalletSession {
 
   /// The requests in LEPIC's store, newest first, with the states the archive recorded.
   Future<List<IssuedInvoice>> _requests() async => requestsOf([
-    for (final d in await _wallet.transactions()) lepicTxEntry(d),
+    for (final d in await _wallet.transactions())
+      lepicTxEntry(d, sending: _epicboxSending > 0),
   ], _history.issuedInvoiceState);
 
   Future<IssuedInvoice?> _request(String slateId) async =>

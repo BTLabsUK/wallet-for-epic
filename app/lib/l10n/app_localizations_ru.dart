@@ -716,7 +716,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsAddToContacts => 'Добавить в контакты';
 
   @override
-  String get txDetailsSendAgain => 'Отправить ещё раз';
+  String get txDetailsSendAgain => 'Отправить снова';
 
   @override
   String get txDetailsFee => 'Комиссия';
@@ -13679,6 +13679,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKeyringUnlockNow => 'Разблокировать сейчас';
 
   @override
+  String get txStatusNotDelivered => 'Не доставлено';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      'Этот платёж ещё не дошёл до epicbox, поэтому получатель его не получил. Средства остаются заблокированными, пока платёж не отправят повторно или не отменят.';
+
+  @override
+  String get txDetailsSendAgainDone =>
+      'Отправлено снова. Платёж завершится, когда кошелёк получателя выйдет в сеть.';
+
+  @override
   String get deskTxThisWallet => 'Этот кошелёк';
 
   @override
@@ -13715,4 +13726,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSetReportFilePart(String name, String part, String size) {
     return '$name (последние $part из $size)';
   }
+
+  @override
+  String get deskErrTxNotFound => 'Транзакция не найдена';
+
+  @override
+  String get deskTxNowUndelivered =>
+      'Не доставлено. Платёж не дошёл до сервера Epicbox, поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить средства.';
+
+  @override
+  String get deskTxStatusUndelivered => 'Не доставлено';
+
+  @override
+  String get deskTxSendAgain => 'Отправить снова';
+
+  @override
+  String get deskTxNotSent => 'Не отправлено';
+
+  @override
+  String get deskTxSentAgain => 'Отправлено снова';
+
+  @override
+  String get deskTxSentAgainText =>
+      'Платёж завершится, когда кошелёк получателя появится в сети.';
 }

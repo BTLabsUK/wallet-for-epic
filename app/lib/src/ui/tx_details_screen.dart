@@ -107,6 +107,8 @@ String txExplanation(
   final outgoing = txAmount(tx).outgoing;
   final tooLong = now == null ? null : daysWaitingTooLong(tx, now);
   return switch (txPhase(tx, tip, target: target)) {
+    TxPhase.waitingRecipient when tx.undelivered =>
+      l.txDetailsNotDeliveredBody,
     TxPhase.waitingRecipient when tooLong != null => l.txDetailsWaitingTooLong(
       tooLong,
     ),
@@ -273,6 +275,30 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _sendAgain(TxEntry tx) async {
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    setState(() => _busy = true);
+    try {
+      await session.resendEpicbox(key: tx.key);
+      if (!mounted) return;
+      _showMessage(
+        context.l10n.txDetailsSendAgainDone,
+        level: NoticeLevel.success,
+      );
+    } catch (error) {
+      if (mounted) {
+        _showMessage(
+          describeError(context.l10n, error),
+          level: NoticeLevel.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+    await _reload();
   }
 
   /// Unlocks the inputs of a send the network never took, after the user confirms the risk.
@@ -497,6 +523,17 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                         icon: const Icon(Icons.cell_tower),
                         label: Text(l.txDetailsBroadcastAgain),
                         onPressed: _busy ? null : () => _repost(tx),
+                      ),
+                    ),
+                  ],
+                  if (tx.undelivered) ...[
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: FilledButton.tonalIcon(
+                        icon: const Icon(Icons.send),
+                        label: Text(l.txDetailsSendAgain),
+                        onPressed: _busy ? null : () => _sendAgain(tx),
                       ),
                     ),
                   ],

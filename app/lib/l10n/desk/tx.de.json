@@ -111,5 +111,11 @@
   "deskTxProofCopySignature": "Signatur des Empfängers kopieren",
   "deskTxProofExport": "Exportieren",
   "deskTxProofSaved": "Nachweis gespeichert",
-  "deskTxThisWallet": "Diese Wallet"
+  "deskTxThisWallet": "Diese Wallet",
+  "deskTxNowUndelivered": "Nicht zugestellt. Die Zahlung hat den Epicbox-Server nicht erreicht, der Empfänger hat sie also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.",
+  "deskTxStatusUndelivered": "Nicht zugestellt",
+  "deskTxSendAgain": "Erneut senden",
+  "deskTxNotSent": "Nicht gesendet",
+  "deskTxSentAgain": "Erneut gesendet",
+  "deskTxSentAgainText": "Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist."
 }

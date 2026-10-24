@@ -637,5 +637,9 @@
   "deskErrNothingToConsolidate": "Nothing to consolidate: fewer than two spendable outputs.",
   "@deskErrNothingToConsolidate": {
     "description": "Error when Consolidate is asked with fewer than two spendable outputs. Nothing was changed."
+  },
+  "deskErrTxNotFound": "Transaction not found",
+  "@deskErrTxNotFound": {
+    "description": "Error when the wallet cannot find the transaction it was asked to send again."
   }
 }

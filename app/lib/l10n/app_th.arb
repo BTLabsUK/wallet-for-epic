@@ -3487,6 +3487,9 @@
   "deskKeyringLockedTitle": "พวงกุญแจถูกล็อก",
   "deskKeyringLockedText": "Epic Cash เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ ซึ่งถูกล็อกอยู่ ปลดล็อกพวงกุญแจ (ใช้รหัสผ่านเข้าสู่ระบบ) แล้วเลือกลองอีกครั้ง หรือเลือกปลดล็อกตอนนี้เพื่อให้ระบบถามรหัสผ่าน",
   "deskKeyringUnlockNow": "ปลดล็อกตอนนี้",
+  "txStatusNotDelivered": "ยังไม่ได้ส่งถึง",
+  "txDetailsNotDeliveredBody": "การชำระเงินนี้ยังไปไม่ถึง epicbox ผู้รับจึงยังไม่ได้รับ เงินของคุณจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก",
+  "txDetailsSendAgainDone": "ส่งอีกครั้งแล้ว การชำระเงินจะเสร็จสมบูรณ์เมื่อกระเป๋าของผู้รับออนไลน์",
   "deskTxThisWallet": "กระเป๋าเงินนี้",
   "deskErrOldLinks": "โฟลเดอร์ของกระเป๋าเงินนี้มีลิงก์อยู่ คัดลอกด้วยตนเองหรือกู้คืนจากวลีกู้คืน",
   "deskErrOldIncomplete": "อ่านโฟลเดอร์ของกระเป๋าเงินนี้ได้ไม่ครบ คัดลอกด้วยตนเองหรือกู้คืนจากวลีกู้คืน",
@@ -3495,5 +3498,12 @@
   "deskErrNothingToConsolidate": "ไม่มีอะไรให้รวม: มีเอาต์พุตที่ใช้ได้น้อยกว่าสองรายการ",
   "deskSetReportFileNone": "{name} (ไม่ได้แนบ)",
   "deskSetReportFileAll": "{name} (ทั้งไฟล์ {size})",
-  "deskSetReportFilePart": "{name} ({part} สุดท้ายจาก {size})"
+  "deskSetReportFilePart": "{name} ({part} สุดท้ายจาก {size})",
+  "deskErrTxNotFound": "ไม่พบธุรกรรม",
+  "deskTxNowUndelivered": "ส่งไม่ถึง รายการนี้ไปไม่ถึง Epicbox ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน",
+  "deskTxStatusUndelivered": "ส่งไม่ถึง",
+  "deskTxSendAgain": "ส่งอีกครั้ง",
+  "deskTxNotSent": "ส่งไม่สำเร็จ",
+  "deskTxSentAgain": "ส่งอีกครั้งแล้ว",
+  "deskTxSentAgainText": "จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์"
 }

@@ -658,7 +658,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsAddToContacts => '添加到联系人';
 
   @override
-  String get txDetailsSendAgain => '再次发送';
+  String get txDetailsSendAgain => '重新发送';
 
   @override
   String get txDetailsFee => '手续费';
@@ -12599,6 +12599,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKeyringUnlockNow => '立即解锁';
 
   @override
+  String get txStatusNotDelivered => '未送达';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      '此付款尚未到达 epicbox，收款人还没有收到。在重新发送或取消之前，你的资金保持锁定。';
+
+  @override
+  String get txDetailsSendAgainDone => '已重新发送。收款人的钱包上线后即可完成。';
+
+  @override
   String get deskTxThisWallet => '此钱包';
 
   @override
@@ -12630,4 +12640,26 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSetReportFilePart(String name, String part, String size) {
     return '$name（$size 中的最后 $part）';
   }
+
+  @override
+  String get deskErrTxNotFound => '找不到该交易';
+
+  @override
+  String get deskTxNowUndelivered =>
+      '未送达。这笔付款没有到达 Epicbox 服务器，收款人没有收到。请重新发送，或取消以释放资金。';
+
+  @override
+  String get deskTxStatusUndelivered => '未送达';
+
+  @override
+  String get deskTxSendAgain => '重新发送';
+
+  @override
+  String get deskTxNotSent => '未发送';
+
+  @override
+  String get deskTxSentAgain => '已重新发送';
+
+  @override
+  String get deskTxSentAgainText => '收款人的钱包上线后即可完成。';
 }

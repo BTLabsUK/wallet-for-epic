@@ -116,6 +116,24 @@ void _reminderDue(_Harness h) {
       '${_at(_now.subtract(const Duration(days: 40)))}';
 }
 
+/// Only the pending send to Bob, which no attempt has delivered.
+List<TxEntry> _undeliveredSend() => [
+  fakeTx(
+    id: 4,
+    slateId: 'send-bob',
+    kind: TxKind.sent,
+    status: TxStatus.awaitingRecipient,
+    createdAtUnix: _at(DateTime(2026, 9, 30, 9)),
+    amountCredited: _epic(0.992),
+    amountDebited: _epic(3),
+    fee: _epic(0.008),
+    counterparty: _bob,
+    transport: 'epicbox',
+    cancellable: true,
+    undelivered: true,
+  ),
+];
+
 /// A pending epicbox send to Bob, today; a confirmed receive yesterday; a cancelled send and a
 /// restored output earlier.
 List<TxEntry> _transactions() => [
@@ -1138,6 +1156,49 @@ void main() {
       await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
       expect(h.session.cancelledTxIds, [4]);
       expect(find.text('Payment cancelled'), findsOneWidget);
+    });
+
+    testWidgets('an undelivered epicbox send says so and sends again', (
+      tester,
+    ) async {
+      final h = _Harness(transactions: _undeliveredSend());
+      // The retry at start fails (the relay is still down), so the row stays undelivered.
+      h.session.resendEpicboxError = const WalletError(
+        kind: WalletErrorKind.transportFailed,
+        message: 'relay down',
+      );
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
+      expect(h.session.resentEpicboxKeys, isEmpty);
+      h.session.resendEpicboxError = null;
+      expect(
+        find.descendant(
+          of: find.byType(TxStatusChip),
+          matching: find.text('Not delivered'),
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, find.widgetWithText(FilledButton, 'Send again'));
+      expect(h.session.resentEpicboxKeys, ['s:send-bob']);
+      expect(find.widgetWithText(FilledButton, 'Send again'), findsNothing);
+      expect(find.text('Cancel payment'), findsOneWidget);
+    });
+
+    testWidgets('a send that is not undelivered has no Send again', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
+      expect(find.text('Send again'), findsNothing);
+      expect(find.text('Waiting for recipient'), findsWidgets);
+    });
+
+    testWidgets('opening the wallet sends an undelivered epicbox send again, once', (
+      tester,
+    ) async {
+      final h = _Harness(transactions: _undeliveredSend());
+      await h.pump(tester);
+      await _reload(tester);
+      expect(h.session.resentEpicboxKeys, ['s:send-bob']);
     });
 
     testWidgets('restored funds explain what the chain does not keep', (

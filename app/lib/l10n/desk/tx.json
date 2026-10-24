@@ -618,5 +618,29 @@
   "deskTxThisWallet": "This wallet",
   "@deskTxThisWallet": {
     "description": "Activity and payment detail: who the other side is for a split or consolidation, where both sides are this wallet. Short, it sits in the name column."
+  },
+  "deskTxNowUndelivered": "Not delivered. The payment did not reach the epicbox, so the recipient has not received it. Send it again, or cancel it to free the funds.",
+  "@deskTxNowUndelivered": {
+    "description": "Payment detail, the line under the status of a send that never reached the Epicbox server (\"epicbox\" here means that server). Send again and Cancel are buttons below it."
+  },
+  "deskTxStatusUndelivered": "Not delivered",
+  "@deskTxStatusUndelivered": {
+    "description": "Status of a send that never reached the Epicbox server, in the Activity list and payment detail. Short: a table cell."
+  },
+  "deskTxSendAgain": "Send again",
+  "@deskTxSendAgain": {
+    "description": "Button in the payment detail of an undelivered send: send it to the Epicbox server again."
+  },
+  "deskTxNotSent": "Not sent",
+  "@deskTxNotSent": {
+    "description": "Toast title when Send again failed; the reason follows."
+  },
+  "deskTxSentAgain": "Sent again",
+  "@deskTxSentAgain": {
+    "description": "Toast title after Send again worked."
+  },
+  "deskTxSentAgainText": "It completes when the recipient’s wallet comes online.",
+  "@deskTxSentAgainText": {
+    "description": "Toast text after Send again worked."
   }
 }

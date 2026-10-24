@@ -862,6 +862,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     _session = session;
     await _routeEpicbox(session);
+    unawaited(_resendUndelivered(session));
     _config = config;
     _password = password;
     _openEntry = entry;
@@ -2028,6 +2029,40 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> repostTx(int id) => _running(() async {
     if (!await _repost(_open, id)) throw DeskError.l10n((l) => l.deskErrNodeNotAnswering);
+  });
+
+  /// At unlock: sends each undelivered Epicbox send again once (the app was killed before the
+  /// first attempt, or the relay refused it). A failure leaves it for the user's Send again.
+  Future<void> _resendUndelivered(core.WalletSession session) async {
+    try {
+      var sent = false;
+      for (final e in (await session.transactions(refresh: false)).where((t) => t.undelivered)) {
+        if (_session != session) return;
+        try {
+          await session.resendEpicbox(key: e.key);
+          sent = true;
+        } on core.WalletError catch (err) {
+          logWarn('desk', 'resend at unlock: ${err.kind.name}');
+        }
+      }
+      if (sent && _session == session) await _reload();
+    } on Object catch (err) {
+      logWarn('desk', 'resend at unlock: ${err is core.WalletError ? err.kind.name : err.runtimeType}');
+    }
+  }
+
+  @override
+  Future<void> resendEpicbox(int id) => _running(() async {
+    final session = _open;
+    try {
+      final key = (await session.transactions(refresh: false)).where((t) => t.id == id).firstOrNull?.key;
+      if (key == null) throw DeskError.l10n((l) => l.deskErrTxNotFound);
+      await session.resendEpicbox(key: key);
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'resend epicbox: ${e.kind.name}');
+      throw _deskError(e);
+    }
+    await _reload();
   });
 
   /// Calls that change the wallet (send, receive and finalize a file, split, consolidate,
@@ -4020,6 +4055,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     fromBackup: e.source == core.TxSource.imported,
     cancellable: e.cancellable && !e.isRequest,
     notPosted: e.repostable,
+    undelivered: e.undelivered,
     flow: e.flow == core.TxFlow.invoice ? TxFlow.invoice : TxFlow.payment,
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,

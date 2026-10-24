@@ -111,5 +111,11 @@
   "deskTxProofCopySignature": "Копировать подпись получателя",
   "deskTxProofExport": "Экспорт",
   "deskTxProofSaved": "Подтверждение сохранено",
-  "deskTxThisWallet": "Этот кошелёк"
+  "deskTxThisWallet": "Этот кошелёк",
+  "deskTxNowUndelivered": "Не доставлено. Платёж не дошёл до сервера Epicbox, поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить средства.",
+  "deskTxStatusUndelivered": "Не доставлено",
+  "deskTxSendAgain": "Отправить снова",
+  "deskTxNotSent": "Не отправлено",
+  "deskTxSentAgain": "Отправлено снова",
+  "deskTxSentAgainText": "Платёж завершится, когда кошелёк получателя появится в сети."
 }

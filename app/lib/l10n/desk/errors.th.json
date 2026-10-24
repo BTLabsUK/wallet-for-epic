@@ -130,5 +130,6 @@
   "deskErrOldIncomplete": "อ่านโฟลเดอร์ของกระเป๋าเงินนี้ได้ไม่ครบ คัดลอกด้วยตนเองหรือกู้คืนจากวลีกู้คืน",
   "deskErrOldSeedTooLarge": "ไฟล์ wallet.seed ใหญ่เกินกว่าจะเป็น seed ของกระเป๋าเงิน",
   "deskErrSendUnbuildable": "สร้างการส่งนี้จากเหรียญที่มีอยู่ไม่ได้",
-  "deskErrNothingToConsolidate": "ไม่มีอะไรให้รวม: มีเอาต์พุตที่ใช้ได้น้อยกว่าสองรายการ"
+  "deskErrNothingToConsolidate": "ไม่มีอะไรให้รวม: มีเอาต์พุตที่ใช้ได้น้อยกว่าสองรายการ",
+  "deskErrTxNotFound": "ไม่พบธุรกรรม"
 }

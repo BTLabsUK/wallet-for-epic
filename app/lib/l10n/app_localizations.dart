@@ -1117,7 +1117,7 @@ abstract class AppLocalizations {
   /// **'Add to contacts'**
   String get txDetailsAddToContacts;
 
-  /// Button: start a new payment to the same address.
+  /// Button: send the undelivered payment again.
   ///
   /// In en, this message translates to:
   /// **'Send again'**
@@ -21074,6 +21074,24 @@ abstract class AppLocalizations {
   /// **'Unlock now'**
   String get deskKeyringUnlockNow;
 
+  /// Status chip of an Epicbox payment no attempt has delivered to the relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered'**
+  String get txStatusNotDelivered;
+
+  /// Explanation under the status of a payment that was not delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment did not reach the epicbox yet, so the recipient has not received it. Your funds stay locked until it is sent again or cancelled.'**
+  String get txDetailsNotDeliveredBody;
+
+  /// Notice after the payment was sent again.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent again. It completes when their wallet comes online.'**
+  String get txDetailsSendAgainDone;
+
   /// Activity and payment detail: who the other side is for a split or consolidation, where both sides are this wallet. Short, it sits in the name column.
   ///
   /// In en, this message translates to:
@@ -21127,6 +21145,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} (last {part} of {size})'**
   String deskSetReportFilePart(String name, String part, String size);
+
+  /// Error when the wallet cannot find the transaction it was asked to send again.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction not found'**
+  String get deskErrTxNotFound;
+
+  /// Payment detail, the line under the status of a send that never reached the Epicbox server ("epicbox" here means that server). Send again and Cancel are buttons below it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered. The payment did not reach the epicbox, so the recipient has not received it. Send it again, or cancel it to free the funds.'**
+  String get deskTxNowUndelivered;
+
+  /// Status of a send that never reached the Epicbox server, in the Activity list and payment detail. Short: a table cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered'**
+  String get deskTxStatusUndelivered;
+
+  /// Button in the payment detail of an undelivered send: send it to the Epicbox server again.
+  ///
+  /// In en, this message translates to:
+  /// **'Send again'**
+  String get deskTxSendAgain;
+
+  /// Toast title when Send again failed; the reason follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent'**
+  String get deskTxNotSent;
+
+  /// Toast title after Send again worked.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent again'**
+  String get deskTxSentAgain;
+
+  /// Toast text after Send again worked.
+  ///
+  /// In en, this message translates to:
+  /// **'It completes when the recipient’s wallet comes online.'**
+  String get deskTxSentAgainText;
 }
 
 class _AppLocalizationsDelegate

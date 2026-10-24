@@ -294,6 +294,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     );
     final transactions = await session.transactions(refresh: false);
     Future<void>.delayed(Duration.zero, () => _syncInBackground(session));
+    unawaited(_retryUndelivered(session, transactions));
     return HomeData(
       summary: summary,
       transactions: transactions,
@@ -328,6 +329,24 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       transactions: transactions,
       session: session,
     );
+  }
+
+  /// Once per opened wallet: sends an undelivered Epicbox payment again (a kill before the
+  /// first attempt, or a relay that refused), so it does not wait for the user to notice.
+  Future<void> _retryUndelivered(
+    WalletSession session,
+    List<TxEntry> transactions,
+  ) async {
+    var retried = false;
+    for (final tx in transactions.where((t) => t.undelivered)) {
+      try {
+        await session.resendEpicbox(key: tx.key);
+        retried = true;
+      } catch (error) {
+        logWarn('home', 'resend at start failed: ${error.runtimeType}');
+      }
+    }
+    if (retried && ref.mounted) unawaited(reload());
   }
 
   /// The refresh after a local first load. A failure keeps the local figures and shows the

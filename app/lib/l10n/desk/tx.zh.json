@@ -111,5 +111,11 @@
   "deskTxProofCopySignature": "复制接收方签名",
   "deskTxProofExport": "导出",
   "deskTxProofSaved": "证明已保存",
-  "deskTxThisWallet": "此钱包"
+  "deskTxThisWallet": "此钱包",
+  "deskTxNowUndelivered": "未送达。这笔付款没有到达 Epicbox 服务器，收款人没有收到。请重新发送，或取消以释放资金。",
+  "deskTxStatusUndelivered": "未送达",
+  "deskTxSendAgain": "重新发送",
+  "deskTxNotSent": "未发送",
+  "deskTxSentAgain": "已重新发送",
+  "deskTxSentAgainText": "收款人的钱包上线后即可完成。"
 }

@@ -13306,6 +13306,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskKeyringUnlockNow => 'Unlock now';
 
   @override
+  String get txStatusNotDelivered => 'Not delivered';
+
+  @override
+  String get txDetailsNotDeliveredBody =>
+      'This payment did not reach the epicbox yet, so the recipient has not received it. Your funds stay locked until it is sent again or cancelled.';
+
+  @override
+  String get txDetailsSendAgainDone =>
+      'Sent again. It completes when their wallet comes online.';
+
+  @override
   String get deskTxThisWallet => 'This wallet';
 
   @override
@@ -13342,4 +13353,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSetReportFilePart(String name, String part, String size) {
     return '$name (last $part of $size)';
   }
+
+  @override
+  String get deskErrTxNotFound => 'Transaction not found';
+
+  @override
+  String get deskTxNowUndelivered =>
+      'Not delivered. The payment did not reach the epicbox, so the recipient has not received it. Send it again, or cancel it to free the funds.';
+
+  @override
+  String get deskTxStatusUndelivered => 'Not delivered';
+
+  @override
+  String get deskTxSendAgain => 'Send again';
+
+  @override
+  String get deskTxNotSent => 'Not sent';
+
+  @override
+  String get deskTxSentAgain => 'Sent again';
+
+  @override
+  String get deskTxSentAgainText =>
+      'It completes when the recipient’s wallet comes online.';
 }

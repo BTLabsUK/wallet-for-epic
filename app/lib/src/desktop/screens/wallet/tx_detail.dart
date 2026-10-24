@@ -26,6 +26,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       : t.immature
       ? l.deskTxNowImmature(coinbaseMaturity)
       : switch (t.state) {
+          TxState.waitingRecipient when t.undelivered => l.deskTxNowUndelivered,
           TxState.waitingRecipient =>
             t.incoming
                 ? l.deskTxNowWaitingSender
@@ -37,6 +38,21 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.confirmed => l.deskTxNowConfirmed(t.confirmations),
           TxState.cancelled => l.deskTxNowCancelled,
         };
+
+  Future<void> _sendAgain() async {
+    setState(() => _cancelling = true);
+    try {
+      await ref.read(deskProvider.notifier).resendEpicbox(widget.tx.id);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _cancelling = false);
+      showEToast(context, context.l10n.deskTxNotSent, text: deskErrorText(e, context.l10n));
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _cancelling = false);
+    showEToast(context, context.l10n.deskTxSentAgain, text: context.l10n.deskTxSentAgainText);
+  }
 
   Future<void> _cancel() async {
     final ok = await showCancelTxDialog(context, widget.tx);
@@ -203,7 +219,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             (l.deskTxTechType, Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))), // l10n-ok: the core's type names
           ]),
         ),
-        if (cancelable || finalizable) ...[
+        if (cancelable || finalizable || t.undelivered) ...[
           SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),
           SizedBox(height: Sp.x4),
@@ -219,6 +235,14 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   onPressed: _cancel,
                 ),
               const Spacer(),
+              if (t.undelivered)
+                EButton.primary(
+                  label: context.l10n.deskTxSendAgain,
+                  icon: EIcons.refresh,
+                  size: EBtnSize.sm,
+                  busy: _cancelling,
+                  onPressed: _sendAgain,
+                ),
               if (finalizable)
                 EButton.primary(
                   label: l.deskTxFinalize,
