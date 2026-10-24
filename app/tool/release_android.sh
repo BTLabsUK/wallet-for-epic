@@ -16,9 +16,11 @@
 #
 # WFE_DESKTOP_RELEASE=1 adds the `desktop` entry the desktop update check reads
 # (lib/src/desktop/data/desk_update.dart): set it only when this release also ships desktop
-# builds, else the desktop would offer a release that has none. Its page is WFE_DESKTOP_PAGE
-# (e.g. https://examples.btlabs.uk/epic-cash-wallets/), else the release's tag page derived from
-# download-base-url; the desktop opens only pages on deskUpdatePageHosts (desk_update.dart).
+# builds, else the desktop would offer a release that has none. Its page is WFE_DESKTOP_PAGE,
+# else the release's tag page derived from download-base-url. The manifest only takes a page on
+# the project's GitHub accounts (FORMAT.md section 6): any other page makes every client, phone
+# included, reject the whole file. The desktop's own downloads (since 26.10.9) are per system:
+# tool/desktop_update_entry.sh prints that block from the published setup and AppImage.
 #
 # Set the release's version first (`tools/version.sh set`, https://docs.btlabs.uk/developers/releases/): Android installs
 # an update only when its version code is higher, and only when it is signed with the same key as

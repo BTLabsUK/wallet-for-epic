@@ -14175,4 +14175,60 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxProofNone => 'Для этого платежа нет подтверждения платежа.';
+
+  @override
+  String get deskUpdAvailable => 'Доступно обновление';
+
+  @override
+  String deskUpdNotice(String version) {
+    return 'Доступно обновление · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return 'Скачать $version';
+  }
+
+  @override
+  String get deskUpdOpensPage => 'Открывает страницу загрузки';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return 'Загрузка: $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => 'Перезапустить и обновить';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version готова';
+  }
+
+  @override
+  String get deskUpdRestartHint =>
+      'Приложение закроется, установит обновление и откроется снова.';
+
+  @override
+  String get deskUpdFailed => 'Не удалось скачать обновление';
+
+  @override
+  String get deskUpdTryAgain => 'Повторить';
+
+  @override
+  String get deskUpdInstallFailed => 'Не удалось установить обновление';
+
+  @override
+  String get deskUpdOpenPage => 'Открыть страницу загрузки';
+
+  @override
+  String get deskUpdErrDamaged =>
+      'Файл не совпадает с подписанными данными обновления.';
+
+  @override
+  String get deskUpdErrStopped => 'Загрузка прервалась.';
+
+  @override
+  String get deskUpdErrInstall =>
+      'Не удалось заменить приложение новой версией.';
 }

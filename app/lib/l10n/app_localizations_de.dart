@@ -13940,4 +13940,60 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskTxProofNone =>
       'Für diese Zahlung gibt es keinen Zahlungsnachweis.';
+
+  @override
+  String get deskUpdAvailable => 'Update verfügbar';
+
+  @override
+  String deskUpdNotice(String version) {
+    return 'Update verfügbar · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return '$version herunterladen';
+  }
+
+  @override
+  String get deskUpdOpensPage => 'Öffnet die Download-Seite';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return 'Wird heruntergeladen: $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => 'Neu starten und aktualisieren';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version ist bereit';
+  }
+
+  @override
+  String get deskUpdRestartHint =>
+      'Die App schließt sich, installiert das Update und öffnet sich wieder.';
+
+  @override
+  String get deskUpdFailed => 'Update nicht heruntergeladen';
+
+  @override
+  String get deskUpdTryAgain => 'Erneut versuchen';
+
+  @override
+  String get deskUpdInstallFailed => 'Update nicht installiert';
+
+  @override
+  String get deskUpdOpenPage => 'Download-Seite öffnen';
+
+  @override
+  String get deskUpdErrDamaged =>
+      'Die Datei passt nicht zu den signierten Update-Angaben.';
+
+  @override
+  String get deskUpdErrStopped => 'Der Download wurde unterbrochen.';
+
+  @override
+  String get deskUpdErrInstall =>
+      'Die neue Version konnte nicht eingesetzt werden.';
 }

@@ -3607,5 +3607,20 @@
   "deskHistConflictLeadOldWallet": "{n, plural, other{ประวัติของกระเป๋าเงินเก่ามีรายละเอียดต่างจากที่คุณใส่ไว้ใน {n} รายการ ระบบจะเก็บของคุณไว้ เว้นแต่คุณเลือกอย่างอื่น}}",
   "deskHistConflictOldWallet": "กระเป๋าเงินเก่า",
   "deskHistConflictApply": "ใช้",
-  "deskTxProofNone": "การชำระเงินนี้ไม่มีหลักฐานการชำระเงิน"
+  "deskTxProofNone": "การชำระเงินนี้ไม่มีหลักฐานการชำระเงิน",
+  "deskUpdAvailable": "มีอัปเดต",
+  "deskUpdNotice": "มีอัปเดต · {version}",
+  "deskUpdDownload": "ดาวน์โหลด {version}",
+  "deskUpdOpensPage": "เปิดหน้าดาวน์โหลด",
+  "deskUpdDownloading": "กำลังดาวน์โหลด {percent} %",
+  "deskUpdRestart": "รีสตาร์ทเพื่ออัปเดต",
+  "deskUpdReady": "{version} พร้อมแล้ว",
+  "deskUpdRestartHint": "แอปจะปิด ติดตั้งอัปเดต แล้วเปิดใหม่",
+  "deskUpdFailed": "ดาวน์โหลดอัปเดตไม่ได้",
+  "deskUpdTryAgain": "ลองอีกครั้ง",
+  "deskUpdInstallFailed": "ติดตั้งอัปเดตไม่ได้",
+  "deskUpdOpenPage": "เปิดหน้าดาวน์โหลด",
+  "deskUpdErrDamaged": "ไฟล์ไม่ตรงกับข้อมูลอัปเดตที่ลงลายเซ็นไว้",
+  "deskUpdErrStopped": "การดาวน์โหลดหยุดลง",
+  "deskUpdErrInstall": "แทนที่ด้วยเวอร์ชันใหม่ไม่ได้"
 }

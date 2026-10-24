@@ -3607,5 +3607,20 @@
   "deskHistConflictLeadOldWallet": "{n, plural, other{旧钱包的历史中有 {n} 笔你描述过的付款带有不同的详情。除非你另行选择，否则保留你的内容。}}",
   "deskHistConflictOldWallet": "旧钱包",
   "deskHistConflictApply": "应用",
-  "deskTxProofNone": "这笔付款没有付款证明。"
+  "deskTxProofNone": "这笔付款没有付款证明。",
+  "deskUpdAvailable": "有可用更新",
+  "deskUpdNotice": "有可用更新 · {version}",
+  "deskUpdDownload": "下载 {version}",
+  "deskUpdOpensPage": "打开下载页面",
+  "deskUpdDownloading": "正在下载 {percent} %",
+  "deskUpdRestart": "重启以更新",
+  "deskUpdReady": "{version} 已就绪",
+  "deskUpdRestartHint": "应用会关闭、安装更新，然后重新打开。",
+  "deskUpdFailed": "无法下载更新",
+  "deskUpdTryAgain": "重试",
+  "deskUpdInstallFailed": "无法安装更新",
+  "deskUpdOpenPage": "打开下载页面",
+  "deskUpdErrDamaged": "文件与已签名的更新信息不符。",
+  "deskUpdErrStopped": "下载已中断。",
+  "deskUpdErrInstall": "无法替换为新版本。"
 }

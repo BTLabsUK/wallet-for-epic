@@ -3607,5 +3607,20 @@
   "deskHistConflictLeadOldWallet": "{n, plural, one{Historia starego portfela ma inne szczegóły dla {n} płatności, którą opisano. Twoje zostają, chyba że wybierzesz inaczej.} few{Historia starego portfela ma inne szczegóły dla {n} płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.} many{Historia starego portfela ma inne szczegóły dla {n} płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.} other{Historia starego portfela ma inne szczegóły dla {n} płatności, które opisano. Twoje zostają, chyba że wybierzesz inaczej.}}",
   "deskHistConflictOldWallet": "Stary portfel",
   "deskHistConflictApply": "Zastosuj",
-  "deskTxProofNone": "Brak dowodu płatności dla tej płatności."
+  "deskTxProofNone": "Brak dowodu płatności dla tej płatności.",
+  "deskUpdAvailable": "Dostępna aktualizacja",
+  "deskUpdNotice": "Dostępna aktualizacja · {version}",
+  "deskUpdDownload": "Pobierz {version}",
+  "deskUpdOpensPage": "Otwiera stronę pobierania",
+  "deskUpdDownloading": "Pobieranie: {percent} %",
+  "deskUpdRestart": "Uruchom ponownie i zaktualizuj",
+  "deskUpdReady": "{version} jest gotowa",
+  "deskUpdRestartHint": "Aplikacja zamknie się, zainstaluje aktualizację i otworzy ponownie.",
+  "deskUpdFailed": "Nie udało się pobrać aktualizacji",
+  "deskUpdTryAgain": "Spróbuj ponownie",
+  "deskUpdInstallFailed": "Nie udało się zainstalować aktualizacji",
+  "deskUpdOpenPage": "Otwórz stronę pobierania",
+  "deskUpdErrDamaged": "Plik nie zgadza się z podpisanymi danymi aktualizacji.",
+  "deskUpdErrStopped": "Pobieranie przerwane.",
+  "deskUpdErrInstall": "Nie udało się podmienić aplikacji na nową wersję."
 }
