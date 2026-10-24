@@ -767,6 +767,7 @@ void main() {
             updateKeyringProvider.overrideWithValue(testUpdateKeyring),
             updateClockProvider.overrideWithValue(() => DateTime.utc(2026, 11, 1)),
             updateApkUrlProvider.overrideWithValue((url) => Uri.parse('http://127.0.0.1:${server.port}/app.apk')),
+            updateInstallGraceProvider.overrideWithValue(const Duration(milliseconds: 50)),
           ],
         );
         addTearDown(c.dispose);
@@ -823,6 +824,34 @@ void main() {
         final state = c.read(updateProvider);
         expect(state.phase, UpdatePhase.needsPermission);
         expect(state.text!(englishStrings), 'Allow installs from Epic Cash Mobile, then return.');
+      });
+
+      test('back from the home screen while the install dialog was up: offered again, not stuck', () async {
+        final platform = _FakeUpdatePlatform();
+        final c = run(platform);
+        final updates = c.read(updateProvider.notifier);
+        await updates.checkOnOpening();
+        await updates.install();
+        expect(c.read(updateProvider).phase, UpdatePhase.installing);
+        // Android closed its dialog and sent nothing.
+        await updates.resumed();
+        final state = c.read(updateProvider);
+        expect(state.phase, UpdatePhase.available);
+        expect(state.text!(englishStrings), 'The update was not installed. You can try again.');
+        await updates.install();
+        expect(platform.installs, 2);
+      });
+
+      test('a word from the installer during the wait wins', () async {
+        final platform = _FakeUpdatePlatform();
+        final c = run(platform);
+        final updates = c.read(updateProvider.notifier);
+        await updates.checkOnOpening();
+        await updates.install();
+        final waiting = updates.resumed();
+        platform.events.add((status: 'failed', message: 'INSTALL_FAILED_INSUFFICIENT_STORAGE'));
+        await waiting;
+        expect(c.read(updateProvider).phase, UpdatePhase.failed);
       });
 
       test("Android's install dialog closed without installing says so; Install tries again", () async {

@@ -379,6 +379,13 @@ final updateClockProvider = Provider<DateTime Function()>(
   (ref) => DateTime.now,
 );
 
+/// How long a return to the app waits for Android's word on an install it started. Leaving
+/// Android's install dialog for the home screen closes it without any word, so after this the
+/// update is offered again.
+final updateInstallGraceProvider = Provider<Duration>(
+  (ref) => const Duration(seconds: 10),
+);
+
 /// Where an APK named by the verified manifest is downloaded from: the manifest's own https
 /// URL. Tests point it at a local server.
 final updateApkUrlProvider = Provider<Uri Function(Uri url)>(
@@ -663,6 +670,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
   /// The app is back in front. Once the install permission was given, the update that waited
   /// for it carries on: from the kept download, or a new one if that file is gone.
   Future<void> resumed() async {
+    if (state.phase == UpdatePhase.installing) return _awaitInstallWord(state);
     if (state.phase != UpdatePhase.needsPermission) return;
     final platform = ref.read(updatePlatformProvider);
     final update = state.update;
@@ -674,6 +682,19 @@ class UpdateNotifier extends Notifier<UpdateState> {
       return;
     }
     if (ref.mounted) await _downloadAndInstall(platform, update);
+  }
+
+  /// Back in the app while Android's installer has said nothing: an install the user confirmed
+  /// ends this process soon; one whose dialog was closed (the home screen) never says so.
+  Future<void> _awaitInstallWord(UpdateState installing) async {
+    await Future<void>.delayed(ref.read(updateInstallGraceProvider));
+    if (!ref.mounted || !identical(state, installing)) return;
+    logInfo('update', 'no word from the installer; offering the update again');
+    state = UpdateState(
+      UpdatePhase.available,
+      update: installing.update,
+      text: (l) => l.updateInstallCancelled,
+    );
   }
 
   void _waitForPermission(AvailableUpdate update) {
