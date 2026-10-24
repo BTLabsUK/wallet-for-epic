@@ -1,6 +1,7 @@
 // Settings › Network on the phone switches the node or the epicbox relay of the open wallet
 // live: no LaunchScreen, no PIN, the session stays open and the listener keeps running and
 // receives on the new relay. Another network still restarts the app flow.
+import 'dart:async';
 import 'dart:io';
 
 import 'package:epic_wallet/l10n/app_localizations.dart';
@@ -197,6 +198,27 @@ void main() {
     expect(await w.container.read(addressProvider.future), endsWith('@relay.example.org'));
     invoice.close();
     receive.close();
+  });
+
+  testWidgets('a relay switch that finishes after its screen was closed still moves the wallet '
+      'onto the new relay: the config, the shown address and push follow it', (tester) async {
+    final w = await _open(tester);
+    final gate = w.session.serverSwitchGate = Completer<void>();
+    await _useRelay(tester, 'relay.example.org');
+    await _save(tester);
+    await tester.tap(find.text(_l.serverSwitchRelayConfirm));
+    await tester.pump();
+    // Back out of the screen while the switch waits for a payment in hand.
+    tester.state<NavigatorState>(find.byType(Navigator)).pop();
+    await tester.pumpAndSettle();
+    expect(find.byType(SetupScreen), findsNothing);
+    gate.complete();
+    await tester.pumpAndSettle();
+
+    _stillOpen(w);
+    expect(w.session.serverSwitches.single.epicboxDomain, 'relay.example.org');
+    expect(w.container.read(walletConfigProvider)?.epicboxDomain, 'relay.example.org');
+    expect(await w.container.read(addressProvider.future), endsWith('@relay.example.org'));
   });
 
   group('android-15: the lock screen\'s Node and Epicbox link', () {

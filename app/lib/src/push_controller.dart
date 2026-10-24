@@ -49,6 +49,10 @@ const String pushHintShownKey = 'app.push_hint_shown';
 /// How long after the first unlock of a run the reminder waits.
 const Duration pushHintDelay = Duration(seconds: 60);
 
+/// How long the Epicbox relay must stay put before push follows it: a run of quick switches
+/// counts once, by the relay the wallet ends on.
+const Duration pushRelaySettle = Duration(seconds: 2);
+
 /// The most the Tor switch waits for the unregister and the token deletion before tor starts.
 const Duration pushTorOnCap = Duration(seconds: 5);
 
@@ -68,6 +72,9 @@ class PushController extends Notifier<bool> {
   Timer? _hint;
   bool _hintScheduled = false;
 
+  /// Waits [pushRelaySettle] after the last relay switch before push follows it.
+  Timer? _relaySettle;
+
   /// The token the relay accepted in this session.
   String? _registered;
 
@@ -86,10 +93,15 @@ class PushController extends Notifier<bool> {
 
   @override
   bool build() {
-    ref.onDispose(() => _hint?.cancel());
+    ref.onDispose(() {
+      _hint?.cancel();
+      _relaySettle?.cancel();
+    });
     ref.listen(sessionProvider, (previous, session) {
       _registered = null;
       state = false;
+      _relaySettle?.cancel();
+      _relaySettle = null;
       if (session == null) {
         _hint?.cancel();
         _hint = null;
@@ -103,10 +115,17 @@ class PushController extends Notifier<bool> {
     // The relay switched live (Settings › Node and Epicbox): registered on the BT Labs relay,
     // unregistered when the wallet leaves it (pushes from there would announce slates this
     // listener no longer collects). The device token stays: only Tor and the switch delete it.
+    // Quick switches count once: push follows the relay the wallet is on once it stays put.
     ref.listen(walletConfigProvider.select((c) => c?.epicboxDomain), (before, after) {
       final session = ref.read(sessionProvider);
       if (before == after || session == null) return;
-      unawaited(_relayMoved(session, after));
+      _relaySettle?.cancel();
+      _relaySettle = Timer(pushRelaySettle, () {
+        _relaySettle = null;
+        if (identical(ref.read(sessionProvider), session)) {
+          unawaited(_followRelay(session));
+        }
+      });
     });
     // A new token from Firebase: register it.
     ref.listen(pushProvider.select((s) => s.token), (_, token) {
@@ -160,11 +179,17 @@ class PushController extends Notifier<bool> {
 
   // The relay.
 
-  Future<void> _relayMoved(WalletSession session, String? relay) async {
-    if (relay == PushRegistration.relayHost) {
-      return _sync(session, why: 'relay switched');
-    }
+  /// The open wallet's Epicbox relay is the BT Labs one, the only one that pushes.
+  bool _onPushRelay() =>
+      ref.read(walletConfigProvider)?.epicboxDomain == PushRegistration.relayHost;
+
+  /// Brings the registration in line with the relay the wallet is on now: registered on the
+  /// BT Labs relay (when notifications are in effect), unregistered on any other.
+  Future<void> _followRelay(WalletSession session) async {
+    if (_onPushRelay()) return _sync(session, why: 'relay switched');
     await _serial(() async {
+      // Back on the BT Labs relay by now: that move has its own turn.
+      if (_onPushRelay()) return;
       final token = _registered;
       if (token == null) {
         logInfo('push', 'relay switched: nothing registered, nothing to take back');
@@ -228,6 +253,12 @@ class PushController extends Notifier<bool> {
     }
     if (_registered == token) return PushOutcome.sent;
     if (!await _available() || !await _wanted() || !await _clearnet()) {
+      return PushOutcome.skipped;
+    }
+    // The wallet left the BT Labs relay while this waited its turn (the request checks the
+    // address too).
+    final relay = ref.read(walletConfigProvider)?.epicboxDomain;
+    if (relay != null && relay != PushRegistration.relayHost) {
       return PushOutcome.skipped;
     }
     final outcome = await _registration.register(open, token);

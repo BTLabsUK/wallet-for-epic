@@ -269,6 +269,21 @@ class _Harness {
     await tester.pumpAndSettle();
   }
 
+  /// The wallet switched live to [relay] (null: the BT Labs one), as `switchServersLive` leaves
+  /// it: the session's address and the selected config carry the new relay.
+  void switchTo(String? relay) {
+    session.address = 'esPushKey@${relay ?? PushRegistration.relayHost}';
+    container
+        .read(walletConfigProvider.notifier)
+        .select(relay == null ? _config : relayConfig(relay));
+  }
+
+  /// Long enough for push to follow the relay ([pushRelaySettle]), then the work it started.
+  Future<void> relaySettled(WidgetTester tester) async {
+    await tester.pump(pushRelaySettle);
+    await settle(tester);
+  }
+
   /// The notes said so far.
   final notes = <PushNote>[];
 
@@ -543,11 +558,8 @@ void main() {
         final h = _Harness(wanted: true, relay: 'epicbox.epiccash.com');
         await h.pump(tester);
         expect(h.posts, isEmpty, reason: 'another relay cannot push');
-        h.session.address = _relayAddress;
-        h.container
-            .read(walletConfigProvider.notifier)
-            .select(_Harness._config);
-        await h.settle(tester);
+        h.switchTo(null);
+        await h.relaySettled(tester);
         expect(h.postActions, ['register']);
         expect(h.posts.single.body['address'], _relayAddress);
       },
@@ -560,23 +572,105 @@ void main() {
         final h = _Harness(wanted: true);
         await h.pump(tester);
         h.posts.clear();
-        h.session.address = 'esPushKey@epicbox.iniaku.my.id';
-        h.container
-            .read(walletConfigProvider.notifier)
-            .select(_Harness.relayConfig('epicbox.iniaku.my.id'));
-        await h.settle(tester);
+        h.switchTo('epicbox.iniaku.my.id');
+        await h.relaySettled(tester);
         expect(h.postActions, ['unregister']);
         expect(h.posts.single.body['address'], 'esPushKey', reason: 'the bare key');
         expect(h.container.read(pushControllerProvider), isFalse);
-        h.session.address = _relayAddress;
-        h.container.read(walletConfigProvider.notifier).select(_Harness._config);
-        await h.settle(tester);
+        h.switchTo(null);
+        await h.relaySettled(tester);
         expect(h.postActions, ['unregister', 'register']);
         expect(h.posts.last.body['token'], 'tok-1');
         expect(h.order, isNot(contains('deleteToken')));
         expect(h.container.read(pushControllerProvider), isTrue);
       },
     );
+
+    // The owner's switches from his log of 23 Oct: floo → iniaku → floo → epiccash → floo.
+    const sequence = <String?>['epicbox.iniaku.my.id', null, 'epicbox.epiccash.com', null];
+
+    testWidgets(
+      'switches one after the other (floo → iniaku → floo → epiccash → floo): every move off '
+      'unregisters, every move back registers, always the same token',
+      (tester) async {
+        final h = _Harness(wanted: true);
+        await h.pump(tester);
+        expect(h.postActions, ['register']);
+        h.posts.clear();
+        for (final relay in sequence) {
+          h.switchTo(relay);
+          await h.relaySettled(tester);
+          expect(
+            h.container.read(pushControllerProvider),
+            relay == null,
+            reason: 'registered exactly while on the BT Labs relay',
+          );
+        }
+        expect(h.postActions, ['unregister', 'register', 'unregister', 'register']);
+        expect({for (final p in h.posts) p.body['token']}, {'tok-1'});
+        expect(h.order, isNot(contains('deleteToken')));
+      },
+    );
+
+    testWidgets('the same switches in quick succession: push follows the relay the wallet ends on', (
+      tester,
+    ) async {
+      final h = _Harness(wanted: true);
+      await h.pump(tester);
+      h.posts.clear();
+      for (final relay in sequence) {
+        h.switchTo(relay);
+        await tester.pump(const Duration(milliseconds: 300));
+        await h.settle(tester);
+      }
+      await h.relaySettled(tester);
+      expect(h.posts, isEmpty, reason: 'it ended where it started, registered');
+      expect(h.container.read(pushControllerProvider), isTrue);
+
+      // Quickly off again, ending on another relay: one unregister, the token kept.
+      h.switchTo('epicbox.iniaku.my.id');
+      await tester.pump(const Duration(milliseconds: 300));
+      h.switchTo(null);
+      await tester.pump(const Duration(milliseconds: 300));
+      h.switchTo('epicbox.epiccash.com');
+      await h.relaySettled(tester);
+      expect(h.postActions, ['unregister']);
+      expect(h.container.read(pushControllerProvider), isFalse);
+      expect(h.order, isNot(contains('deleteToken')));
+    });
+
+    testWidgets('a registration still on its way when the wallet leaves: unregistered once it lands', (
+      tester,
+    ) async {
+      final h = _Harness(wanted: true, relay: 'epicbox.epiccash.com');
+      await h.pump(tester);
+      final slow = Completer<int>();
+      h.answer = (_) => slow.future;
+      h.switchTo(null);
+      await h.relaySettled(tester);
+      expect(h.postActions, ['register']);
+      h.answer = null;
+      h.switchTo('epicbox.iniaku.my.id');
+      await h.relaySettled(tester);
+      expect(h.postActions, ['register'], reason: 'waits for the registration');
+      slow.complete(204);
+      await h.settle(tester);
+      expect(h.postActions, ['register', 'unregister']);
+      expect(h.container.read(pushControllerProvider), isFalse);
+    });
+
+    testWidgets('turned off while a move back waits: nothing registers, the token goes', (
+      tester,
+    ) async {
+      final h = _Harness(wanted: true, relay: 'epicbox.epiccash.com');
+      await h.pump(tester);
+      h.switchTo(null);
+      await h.controller.turnOff();
+      await h.relaySettled(tester);
+      expect(h.postActions, isNot(contains('register')));
+      expect(h.order, contains('deleteToken'));
+      expect(h.container.read(pushControllerProvider), isFalse);
+    });
 
     testWidgets('Tor already on at the unlock: no start, no request', (
       tester,
