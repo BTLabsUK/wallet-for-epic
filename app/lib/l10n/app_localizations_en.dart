@@ -13431,4 +13431,53 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.';
+
+  @override
+  String get txStatusNotPosted => 'Not on the network';
+
+  @override
+  String get txStatusStalled => 'Stalled';
+
+  @override
+  String get txDetailsStalledBody =>
+      'Stalled, not delivered. Your payment has not reached the network yet. Send it again.';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      'This payment did not reach the recipient\'s wallet, so they have not received it. Your funds stay locked until it is sent again or cancelled.';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service has not posted your payment yet.';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => 'Not on the network';
+
+  @override
+  String get deskTxNowNotPosted =>
+      'Not on the network. The node did not take this payment. Broadcast it again; it cannot go through twice.';
+
+  @override
+  String get deskTxBroadcastAgain => 'Broadcast again';
+
+  @override
+  String get deskTxBroadcastDone => 'Sent to the network';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return 'Not delivered. The recipient\'s wallet did not take the payment over $method, so they have not received it. Send it again, or cancel it to free the funds.';
+  }
+
+  @override
+  String get deskInvPayStalled => 'Stalled';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return 'Your payment to $service is stalled';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      'Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.';
 }

@@ -13837,4 +13837,53 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'Które wyjścia wydaje wysyłka. Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania; Wszystkie wydaje wszystko i zwraca jedno wyjście. W Wyślij możesz to zmienić dla jednej wysyłki w sekcji Zaawansowane.';
+
+  @override
+  String get txStatusNotPosted => 'Nie ma w sieci';
+
+  @override
+  String get txStatusStalled => 'Utknęło';
+
+  @override
+  String get txDetailsStalledBody =>
+      'Utknęło, nie dostarczono. Twoja płatność jeszcze nie dotarła do sieci. Wyślij ją ponownie.';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      'Ta płatność nie dotarła do portfela odbiorcy, więc jej nie otrzymał. Twoje środki pozostaną zablokowane, dopóki nie wyślesz jej ponownie lub jej nie anulujesz.';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service jeszcze nie opublikował Twojej płatności.';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => 'Nie ma w sieci';
+
+  @override
+  String get deskTxNowNotPosted =>
+      'Nie ma w sieci. Węzeł nie przyjął tej płatności. Roześlij ją ponownie; nie może przejść dwa razy.';
+
+  @override
+  String get deskTxBroadcastAgain => 'Roześlij ponownie';
+
+  @override
+  String get deskTxBroadcastDone => 'Wysłano do sieci';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return 'Nie dostarczono. Portfel odbiorcy nie przyjął płatności przez $method, więc jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.';
+  }
+
+  @override
+  String get deskInvPayStalled => 'Utknęło';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return 'Twoja płatność dla $service utknęła';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      'Nie dostarczono: płatność jeszcze nie dotarła do sieci, a środki pozostają zablokowane. Wyślij ponownie wysyła ją jeszcze raz bez drugiej zgody.';
 }

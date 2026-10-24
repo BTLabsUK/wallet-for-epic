@@ -990,7 +990,13 @@ class FakeWalletSession implements WalletSession {
       );
     }
     final tx = transactionsValue.where((t) => t.key == key).firstOrNull;
-    if (tx == null || !tx.repostable) {
+    // As LEPIC: a finalized one the node refused, or a posted one not in a block yet.
+    final posted =
+        tx != null &&
+        tx.kernelExcess != null &&
+        tx.status == TxStatus.awaitingConfirmation &&
+        tx.blockHeight == null;
+    if (tx == null || !(tx.repostable || posted)) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message:

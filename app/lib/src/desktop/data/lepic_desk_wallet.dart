@@ -45,6 +45,7 @@ import '../../tor_routes.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
 import '../../seed_contacts.dart';
+import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName;
 import '../../tor_location.dart';
 import '../../updater.dart' show updateStateKey;
@@ -1005,6 +1006,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _config = null;
     _summary = null;
     _entries = null;
+    _stall = StallRetry();
     _syncProgress = null;
     _epicboxHealth = ServiceHealth.off;
     session?.dispose();
@@ -1661,6 +1663,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       // A new block: confirmations move, payments may have landed.
       if (grew && _summary != null) unawaited(sync());
+      unawaited(_retryStalled());
     } on Object catch (e) {
       final why = e is core.WalletError ? e.kind.name : e.runtimeType;
       if (overTor && _torGrace()) {
@@ -3949,6 +3952,22 @@ class LepicDeskWallet implements DeskWalletApi {
 
   // ---- Helpers.
 
+  /// The open wallet's automatic reposts and resends; a new one per unlock.
+  StallRetry _stall = StallRetry();
+
+  /// Posts again a payment the chain has not taken and sends again a paid invoice's answer, when
+  /// the shared policy says it is due (stall_retry.dart). Runs with each node check.
+  Future<void> _retryStalled() async {
+    final session = _session;
+    final entries = _entries;
+    if (session == null || entries == null) return;
+    try {
+      if (await _stall.run(session, entries, DateTime.now()) && _session == session) await _reload();
+    } on Object catch (e) {
+      logWarn('desk', 'automatic retry: ${e.runtimeType}');
+    }
+  }
+
   Future<void> _reload() async {
     final session = _session;
     if (session == null) return;
@@ -4025,6 +4044,9 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
   final state = switch (e.status) {
     core.TxStatus.cancelled => TxState.cancelled,
     core.TxStatus.awaitingRecipient => TxState.waitingRecipient,
+    // A request nobody paid yet is not on its way to the chain: it waits for the payer, as the
+    // mock keeps it (windows-05 read "posted" in its technical details).
+    core.TxStatus.awaitingConfirmation when e.awaitingPayer => TxState.waitingRecipient,
     core.TxStatus.awaitingConfirmation => height == null ? TxState.posted : TxState.confirming,
     core.TxStatus.confirmed => confirmations > 0 && confirmations < minConf ? TxState.confirming : TxState.confirmed,
   };
@@ -4090,6 +4112,8 @@ PayState payState(core.TxEntry e, core.InvoiceStatus status, {required int tip, 
   if (e.releasable || (ttl != null && tip > ttl)) return PayState.pastTtl;
   if (status == core.InvoiceStatus.posted) return PayState.posted;
   if (overdueAt != null && !(now ?? DateTime.now()).isBefore(overdueAt)) return PayState.pastTtl;
+  // Not on the network a while after paying, though sent again by itself (stall_retry.dart).
+  if (now != null && invoicePaymentStalled(e, now)) return PayState.stalled;
   return PayState.delivered;
 }
 

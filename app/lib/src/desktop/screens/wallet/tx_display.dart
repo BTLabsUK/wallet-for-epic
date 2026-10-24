@@ -82,6 +82,7 @@ IconData iconOf(Tx t) => switch (t.method) {
           t.incoming ? l.deskTxStatusWaitingSender : (t.method == TxMethod.file ? l.deskTxStatusWaitingResponseFile : l.deskTxStatusWaitingRecipient),
           ETone.warn,
         ),
+        TxState.posted when t.notPosted => (l.deskTxStatusNotPosted, ETone.warn),
         TxState.posted => (l.deskTxStatusWaitingBlock, ETone.neutral),
         TxState.confirming => (l.deskTxStatusConfirming(t.confirmations, t.confirmationsNeeded), ETone.info),
         TxState.confirmed => (t.incoming ? l.deskTxReceived : l.deskTxSent, ETone.ok),

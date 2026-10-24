@@ -13584,4 +13584,53 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'Welche Outputs eine Zahlung verbraucht. Kleinste verbraucht möglichst wenige kleine Outputs und lässt den Rest verfügbar; Alle verbraucht alles und gibt einen Output zurück. Unter Senden › Erweitert lässt sich das für eine Zahlung ändern.';
+
+  @override
+  String get txStatusNotPosted => 'Nicht im Netzwerk';
+
+  @override
+  String get txStatusStalled => 'Hängt fest';
+
+  @override
+  String get txDetailsStalledBody =>
+      'Hängt fest, nicht zugestellt. Deine Zahlung hat das Netzwerk noch nicht erreicht. Sende sie erneut.';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      'Diese Zahlung hat die Wallet des Empfängers nicht erreicht, deshalb hat er sie nicht erhalten. Dein Guthaben bleibt gesperrt, bis sie erneut gesendet oder storniert wird.';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service hat deine Zahlung noch nicht veröffentlicht.';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => 'Nicht im Netzwerk';
+
+  @override
+  String get deskTxNowNotPosted =>
+      'Nicht im Netzwerk. Der Knoten hat diese Zahlung nicht angenommen. Senden Sie sie erneut ins Netzwerk; sie kann nicht doppelt ausgeführt werden.';
+
+  @override
+  String get deskTxBroadcastAgain => 'Erneut übertragen';
+
+  @override
+  String get deskTxBroadcastDone => 'An das Netzwerk gesendet';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return 'Nicht zugestellt. Die Wallet des Empfängers hat die Zahlung über $method nicht angenommen, er hat sie also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.';
+  }
+
+  @override
+  String get deskInvPayStalled => 'Hängt fest';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return 'Ihre Zahlung an $service hängt fest';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      'Nicht zugestellt: Sie hat das Netzwerk noch nicht erreicht, und das Guthaben bleibt gesperrt. Erneut senden schickt sie noch einmal, ohne zweite Freigabe.';
 }

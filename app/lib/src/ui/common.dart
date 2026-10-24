@@ -11,6 +11,7 @@ import '../l10n.dart';
 import '../price.dart';
 import '../providers.dart';
 import '../settings.dart';
+import '../stall_retry.dart';
 import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
@@ -497,11 +498,16 @@ String txStatusLabel(
   TxEntry tx,
   BigInt? tip, {
   int? target,
+  DateTime? now,
 }) => switch (txPhase(tx, tip, target: target)) {
   TxPhase.waitingRecipient when tx.undelivered => l.txStatusNotDelivered,
+  TxPhase.waitingRecipient when now != null && invoicePaymentStalled(tx, now) =>
+    l.txStatusStalled,
   TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
   TxPhase.waitingSender => l.txStatusWaitingSender,
   TxPhase.waitingPayer => l.txStatusWaitingPayer,
+  // Finished, but the node refused it: not on the network until it is posted again.
+  TxPhase.confirming when tx.repostable => l.txStatusNotPosted,
   TxPhase.confirming => l.txStatusConfirming(
     txConfirmations(tx, tip) ?? 0,
     target ?? confirmationsTarget,
@@ -562,7 +568,13 @@ class TxStatusLine extends ConsumerWidget {
             TextSpan(
               children: [
                 TextSpan(
-                  text: txStatusLabel(context.l10n, tx, tip, target: target),
+                  text: txStatusLabel(
+                    context.l10n,
+                    tx,
+                    tip,
+                    target: target,
+                    now: ref.watch(clockProvider)(),
+                  ),
                   style: phase == TxPhase.confirming
                       ? base?.copyWith(color: t.info)
                       : base,
@@ -602,12 +614,13 @@ List<TimelineStep>? txTimeline(
     steps = [
       (l.txStepStarted, l.txStepStarted, l.txStepStarted),
       (l.txStepAccepted, l.txStatusWaitingRecipient, l.txStepAccepted),
-      (l.txStepPosted, l.txStepPosted, l.txStepPosted),
+      (l.txStepPosted, l.txStatusNotPosted, l.txStepPosted),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
     at = switch (phase) {
       TxPhase.waitingRecipient => 1,
+      TxPhase.confirming when tx.repostable => 2,
       TxPhase.confirming => 3,
       TxPhase.completed => steps.length,
       _ => null,
@@ -718,7 +731,13 @@ class TxStatusChip extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         child: Text(
-          txStatusLabel(context.l10n, tx, tip, target: target),
+          txStatusLabel(
+            context.l10n,
+            tx,
+            tip,
+            target: target,
+            now: ref.watch(clockProvider)(),
+          ),
           // Tabular digits, so the chip keeps its width while confirmations come in.
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: fg,
@@ -1270,7 +1289,13 @@ class TxTile extends ConsumerWidget {
                 ? null
                 : shortAddress(counterparty, ownServer: ownEpicboxServer(ref))),
         date: date,
-        status: txStatusLabel(l, tx, tip, target: confirmationsTargetOf(ref)),
+        status: txStatusLabel(
+          l,
+          tx,
+          tip,
+          target: confirmationsTargetOf(ref),
+          now: ref.watch(clockProvider)(),
+        ),
         hidden: display.hidden,
       ),
       onTap: open,

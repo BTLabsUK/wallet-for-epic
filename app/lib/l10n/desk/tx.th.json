@@ -117,5 +117,10 @@
   "deskTxSendAgain": "ส่งอีกครั้ง",
   "deskTxNotSent": "ส่งไม่สำเร็จ",
   "deskTxSentAgain": "ส่งอีกครั้งแล้ว",
-  "deskTxSentAgainText": "จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์"
+  "deskTxSentAgainText": "จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์",
+  "deskTxStatusNotPosted": "ไม่อยู่ในเครือข่าย",
+  "deskTxNowNotPosted": "ไม่อยู่ในเครือข่าย โหนดไม่รับรายการนี้ กระจายอีกครั้งได้ รายการเดียวกันจะไม่ผ่านซ้ำสองครั้ง",
+  "deskTxBroadcastAgain": "กระจายอีกครั้ง",
+  "deskTxBroadcastDone": "ส่งเข้าเครือข่ายแล้ว",
+  "deskTxNowUndeliveredDirect": "ส่งไม่ถึง กระเป๋าเงินของผู้รับไม่รับรายการผ่าน {method} ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน"
 }

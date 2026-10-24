@@ -13805,4 +13805,53 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'Какие выходы тратит отправка. «Наименьшие» тратит как можно меньше мелких выходов, остальные остаются доступными; «Все» тратит всё и возвращает один выход. На странице «Отправить» её можно изменить для одной отправки в разделе «Дополнительно».';
+
+  @override
+  String get txStatusNotPosted => 'Не в сети';
+
+  @override
+  String get txStatusStalled => 'Застряло';
+
+  @override
+  String get txDetailsStalledBody =>
+      'Застряло, не доставлено. Ваш платёж ещё не попал в сеть. Отправьте его снова.';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      'Этот платёж не дошёл до кошелька получателя, поэтому он его не получил. Ваши средства остаются заблокированными, пока платёж не будет отправлен снова или отменён.';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service ещё не опубликовал ваш платёж.';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => 'Не в сети';
+
+  @override
+  String get deskTxNowNotPosted =>
+      'Не в сети. Узел не принял этот платёж. Отправьте его в сеть снова: дважды он пройти не может.';
+
+  @override
+  String get deskTxBroadcastAgain => 'Отправить в сеть снова';
+
+  @override
+  String get deskTxBroadcastDone => 'Отправлено в сеть';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return 'Не доставлено. Кошелёк получателя не принял платёж через $method, поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить средства.';
+  }
+
+  @override
+  String get deskInvPayStalled => 'Застряло';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return 'Ваш платёж для $service застрял';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      'Не доставлено: платёж ещё не попал в сеть, средства остаются заблокированными. «Отправить снова» отправит его ещё раз без повторного подтверждения.';
 }

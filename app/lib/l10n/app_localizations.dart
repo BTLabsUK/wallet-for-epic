@@ -21271,6 +21271,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.'**
   String get deskOutStrategyHint;
+
+  /// Status of a finished payment the node refused: it is not on the network until it is broadcast again.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on the network'**
+  String get txStatusNotPosted;
+
+  /// Status of a paid invoice whose payment has not reached the network a while after paying, though the wallet sent it again by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Stalled'**
+  String get txStatusStalled;
+
+  /// Explanation under the status of a stalled invoice payment; Send again is a button below.
+  ///
+  /// In en, this message translates to:
+  /// **'Stalled, not delivered. Your payment has not reached the network yet. Send it again.'**
+  String get txDetailsStalledBody;
+
+  /// Explanation under the status of an HTTP or Tor payment that was not delivered (the recipient's wallet did not answer).
+  ///
+  /// In en, this message translates to:
+  /// **'This payment did not reach the recipient\'s wallet, so they have not received it. Your funds stay locked until it is sent again or cancelled.'**
+  String get txDetailsNotDeliveredDirectBody;
+
+  /// Paid invoice in the payment's details: the service still has not posted the payment a while after paying. service is the user's label for the service.
+  ///
+  /// In en, this message translates to:
+  /// **'{service} has not posted your payment yet.'**
+  String invoiceDetailsStalled(String service);
+
+  /// Activity row status: a finished send the node refused; it is not on the network until it is broadcast again.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on the network'**
+  String get deskTxStatusNotPosted;
+
+  /// Payment detail, the line under the status of a finished send the node refused. Broadcast again is a button below; the wallet also retries by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on the network. The node did not take this payment. Broadcast it again; it cannot go through twice.'**
+  String get deskTxNowNotPosted;
+
+  /// Button on the payment detail of a send the node refused: posts it to the node again.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast again'**
+  String get deskTxBroadcastAgain;
+
+  /// Toast after Broadcast again worked.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the network'**
+  String get deskTxBroadcastDone;
+
+  /// Payment detail, the line under the status of a Direct send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered. The recipient\'s wallet did not take the payment over {method}, so they have not received it. Send it again, or cancel it to free the funds.'**
+  String deskTxNowUndeliveredDirect(String method);
+
+  /// State of an invoice you paid: the payment has not reached the network a while after paying, though the wallet sent it again by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Stalled'**
+  String get deskInvPayStalled;
+
+  /// Notice on To pay: a paid invoice whose payment has not reached the network a while after paying. service is the user's label for the service.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment to {service} is stalled'**
+  String deskInvPayerStalledTitle(String service);
+
+  /// Notice text and Invoice block text for a stalled invoice payment. Send again is a button.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.'**
+  String get deskInvPayerStalledText;
 }
 
 class _AppLocalizationsDelegate
