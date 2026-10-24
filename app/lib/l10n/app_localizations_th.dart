@@ -13309,7 +13309,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskTxNowUndeliveredDirect(String method) {
-    return 'ส่งไม่ถึง กระเป๋าเงินของผู้รับไม่รับรายการผ่าน $method ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน';
+    return 'ส่งไม่ถึง กระเป๋าเงินของผู้รับไม่รับรายการนี้ ($method) ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน';
   }
 
   @override

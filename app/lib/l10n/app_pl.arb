@@ -3554,7 +3554,7 @@
   "deskTxNowNotPosted": "Nie ma w sieci. Węzeł nie przyjął tej płatności. Roześlij ją ponownie; nie może przejść dwa razy.",
   "deskTxBroadcastAgain": "Roześlij ponownie",
   "deskTxBroadcastDone": "Wysłano do sieci",
-  "deskTxNowUndeliveredDirect": "Nie dostarczono. Portfel odbiorcy nie przyjął płatności przez {method}, więc jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.",
+  "deskTxNowUndeliveredDirect": "Nie dostarczono. Portfel odbiorcy nie przyjął płatności ({method}), więc jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.",
   "deskInvPayStalled": "Utknęło",
   "deskInvPayerStalledTitle": "Twoja płatność dla {service} utknęła",
   "deskInvPayerStalledText": "Nie dostarczono: płatność jeszcze nie dotarła do sieci, a środki pozostają zablokowane. Wyślij ponownie wysyła ją jeszcze raz bez drugiej zgody.",

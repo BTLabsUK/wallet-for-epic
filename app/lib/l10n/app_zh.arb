@@ -3554,7 +3554,7 @@
   "deskTxNowNotPosted": "不在网络上。节点没有接受这笔付款。请重新广播；同一笔付款不会成交两次。",
   "deskTxBroadcastAgain": "重新广播",
   "deskTxBroadcastDone": "已发送到网络",
-  "deskTxNowUndeliveredDirect": "未送达。收款人的钱包没有通过 {method} 接收这笔付款，对方没有收到。请重新发送，或取消以释放资金。",
+  "deskTxNowUndeliveredDirect": "未送达。收款人的钱包没有接收这笔付款（{method}），对方没有收到。请重新发送，或取消以释放资金。",
   "deskInvPayStalled": "已停滞",
   "deskInvPayerStalledTitle": "你给 {service} 的付款已停滞",
   "deskInvPayerStalledText": "未送达：付款还没有进入网络，资金仍被锁定。“重新发送”会再发送一次，无需再次批准。",

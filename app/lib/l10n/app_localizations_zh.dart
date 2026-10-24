@@ -12846,7 +12846,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskTxNowUndeliveredDirect(String method) {
-    return '未送达。收款人的钱包没有通过 $method 接收这笔付款，对方没有收到。请重新发送，或取消以释放资金。';
+    return '未送达。收款人的钱包没有接收这笔付款（$method），对方没有收到。请重新发送，或取消以释放资金。';
   }
 
   @override

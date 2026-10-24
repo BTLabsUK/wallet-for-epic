@@ -13947,7 +13947,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskTxNowUndeliveredDirect(String method) {
-    return 'Не доставлено. Кошелёк получателя не принял платёж через $method, поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить средства.';
+    return 'Не доставлено. Кошелёк получателя не принял платёж ($method), поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить средства.';
   }
 
   @override

@@ -13720,7 +13720,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskTxNowUndeliveredDirect(String method) {
-    return 'Nicht zugestellt. Die Wallet des Empfängers hat die Zahlung über $method nicht angenommen, er hat sie also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.';
+    return 'Nicht zugestellt. Die Wallet des Empfängers hat die Zahlung ($method) nicht angenommen, er hat sie also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.';
   }
 
   @override

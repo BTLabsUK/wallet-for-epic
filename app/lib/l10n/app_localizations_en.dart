@@ -13566,7 +13566,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskTxNowUndeliveredDirect(String method) {
-    return 'Not delivered. The recipient\'s wallet did not take the payment over $method, so they have not received it. Send it again, or cancel it to free the funds.';
+    return 'Not delivered. The recipient\'s wallet did not take the payment ($method), so they have not received it. Send it again, or cancel it to free the funds.';
   }
 
   @override

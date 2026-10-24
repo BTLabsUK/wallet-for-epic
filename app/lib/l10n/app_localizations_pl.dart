@@ -13980,7 +13980,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskTxNowUndeliveredDirect(String method) {
-    return 'Nie dostarczono. Portfel odbiorcy nie przyjął płatności przez $method, więc jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.';
+    return 'Nie dostarczono. Portfel odbiorcy nie przyjął płatności ($method), więc jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.';
   }
 
   @override

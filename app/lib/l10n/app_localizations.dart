@@ -21479,7 +21479,7 @@ abstract class AppLocalizations {
   /// Payment detail, the line under the status of a Direct send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.
   ///
   /// In en, this message translates to:
-  /// **'Not delivered. The recipient\'s wallet did not take the payment over {method}, so they have not received it. Send it again, or cancel it to free the funds.'**
+  /// **'Not delivered. The recipient\'s wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the funds.'**
   String deskTxNowUndeliveredDirect(String method);
 
   /// State of an invoice you paid: the payment has not reached the network a while after paying, though the wallet sent it again by itself.
