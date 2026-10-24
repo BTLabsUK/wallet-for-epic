@@ -18,7 +18,6 @@ import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 import 'theme/brand.dart';
-import 'theme/tokens.dart';
 
 /// The demo's first route, in place of [LaunchScreen]: welcome without a demo, the ended
 /// screen after one ran out, and the usual start (PIN unlock or first run) during one.
@@ -233,7 +232,6 @@ class _DemoCountdownState extends ConsumerState<DemoCountdown> {
     final status = ref.watch(demoStatusProvider).value;
     if (status is! DemoActive) return const SizedBox.shrink();
     final l = context.l10n;
-    final t = context.tokens;
     final left = demoTimeLeft(
       status.expiresAt.difference(ref.watch(clockProvider)()),
     );
@@ -241,8 +239,6 @@ class _DemoCountdownState extends ConsumerState<DemoCountdown> {
     final time = left.hours > 0
         ? l.demoLeftHours(left.hours)
         : l.demoLeftMinutes(left.minutes);
-    final style = Theme.of(context).textTheme.labelMedium
-        ?.copyWith(color: t.dim);
     return Tooltip(
       key: demoCountdownKey,
       message:
@@ -254,39 +250,7 @@ class _DemoCountdownState extends ConsumerState<DemoCountdown> {
         constraints: const BoxConstraints(minHeight: 48),
         child: Align(
           widthFactor: 1,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border.all(color: t.lineStrong),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ExcludeSemantics(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: t.accent,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                      child: const SizedBox.square(dimension: 7),
-                    ),
-                  ),
-                  const SizedBox(width: 7),
-                  Flexible(
-                    child: Text(
-                      '${l.demoTestCoinsPill} · $time',
-                      maxLines: 1,
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
-                      style: style,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          child: EBadge('${l.demoTestCoinsPill} · $time', icon: Icons.science_outlined, tone: BadgeTone.gold),
         ),
       ),
     );

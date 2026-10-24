@@ -51,7 +51,7 @@ void main() {
   testWidgets('kind: the method glyph and its name', (tester) async {
     await tester.pumpWidget(
       _phone(
-        Builder(builder: (context) => EBadge.kind(RecipientKind.tor, l: AppLocalizations.of(context)!)),
+        Builder(builder: (context) => EBadge.kind(RecipientKind.tor, l: AppLocalizations.of(context))),
       ),
     );
     expect(find.byIcon(EpicGlyphs.tor), findsOneWidget);
@@ -59,7 +59,7 @@ void main() {
 
     await tester.pumpWidget(
       _desk(
-        Builder(builder: (context) => EBadge.kind(RecipientKind.epicbox, l: AppLocalizations.of(context)!)),
+        Builder(builder: (context) => EBadge.kind(RecipientKind.epicbox, l: AppLocalizations.of(context))),
       ),
     );
     expect(find.byIcon(EpicGlyphs.epicbox), findsOneWidget);
