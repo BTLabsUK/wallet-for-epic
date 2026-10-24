@@ -5779,7 +5779,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvIssuerFile => 'Plik';
 
   @override
-  String get deskInvIssuerDirect => 'Bezpośrednio';
+  String get deskInvIssuerDirect => 'Link';
 
   @override
   String get deskInvIssuerSoon => 'Wkrótce';
@@ -6550,7 +6550,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get methodDirect => 'Bezpośrednio';
+  String get methodDirect => 'Link';
 
   @override
   String get methodLinkPayment => 'Płatność linkiem';
@@ -6626,7 +6626,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony.';
 
   @override
-  String get receiveTabDirect => 'Bezpośrednio';
+  String get receiveTabDirect => 'Link';
 
   @override
   String get receiveDirectNeedsTor => 'Odbieranie przez Link wymaga Tora.';
@@ -8197,7 +8197,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Przekaż plik, odbierz plik odpowiedzi, potem sfinalizuj go tutaj.';
 
   @override
-  String get deskSendTagDirect => 'Bezpośrednio';
+  String get deskSendTagDirect => 'Link';
 
   @override
   String get deskSendTagFile => 'Plik';

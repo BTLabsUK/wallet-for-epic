@@ -124,7 +124,7 @@
   "deskSendDirectLine2": "Eine http(s)- oder .onion-Adresse; Onion läuft über Tor. Die Wallet des Empfängers muss geöffnet sein.",
   "deskSendFileLine1": "Keine Verbindung nötig.",
   "deskSendFileLine2": "Datei übergeben, Antwortdatei zurückbekommen, dann hier abschließen.",
-  "deskSendTagDirect": "Direkt",
+  "deskSendTagDirect": "Link",
   "deskSendTagFile": "Datei",
   "deskSendTagEpicbox": "Über Epicbox",
   "deskSendSwitchedDirect": "Link-Adresse. Methode auf Link gestellt.",

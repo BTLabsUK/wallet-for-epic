@@ -5647,7 +5647,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskInvIssuerFile => 'Datei';
 
   @override
-  String get deskInvIssuerDirect => 'Direkt';
+  String get deskInvIssuerDirect => 'Link';
 
   @override
   String get deskInvIssuerSoon => 'Demnächst';
@@ -6419,7 +6419,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get methodDirect => 'Direkt';
+  String get methodDirect => 'Link';
 
   @override
   String get methodLinkPayment => 'Link-Zahlung';
@@ -6497,7 +6497,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist.';
 
   @override
-  String get receiveTabDirect => 'Direkt';
+  String get receiveTabDirect => 'Link';
 
   @override
   String get receiveDirectNeedsTor => 'Link-Empfang benötigt Tor.';
@@ -8032,7 +8032,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Datei übergeben, Antwortdatei zurückbekommen, dann hier abschließen.';
 
   @override
-  String get deskSendTagDirect => 'Direkt';
+  String get deskSendTagDirect => 'Link';
 
   @override
   String get deskSendTagFile => 'Datei';

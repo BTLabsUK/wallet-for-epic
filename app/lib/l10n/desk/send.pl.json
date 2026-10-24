@@ -124,7 +124,7 @@
   "deskSendDirectLine2": "Adres http(s) lub .onion; onion idzie przez Tor. Portfel odbiorcy musi być otwarty.",
   "deskSendFileLine1": "Bez połączenia.",
   "deskSendFileLine2": "Przekaż plik, odbierz plik odpowiedzi, potem sfinalizuj go tutaj.",
-  "deskSendTagDirect": "Bezpośrednio",
+  "deskSendTagDirect": "Link",
   "deskSendTagFile": "Plik",
   "deskSendTagEpicbox": "Przez Epicbox",
   "deskSendSwitchedDirect": "Adres Link. Ustawiono metodę Link.",
