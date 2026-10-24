@@ -382,8 +382,8 @@ Future<bool?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<bool
       icon: EIcons.cancel,
       tone: ETone.risk,
       description: t.incoming
-          ? l.deskTxCancelIncomingBody(formatEpic(t.amount), whoOf(l, t))
-          : l.deskTxCancelOutgoingBody(formatEpic(t.amount), whoOf(l, t)),
+          ? l.deskTxCancelIncomingBody(formatEpicL(l, t.amount), whoOf(l, t))
+          : l.deskTxCancelOutgoingBody(formatEpicL(l, t.amount), whoOf(l, t)),
       actions: [
         EButton(label: l.deskTxCancelKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
         EButton(label: t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
@@ -426,7 +426,7 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
         title: l.deskTxPaymentProof,
         icon: EIcons.proof,
         tone: ETone.ok,
-        description: t.incoming ? l.deskTxProofIncoming(formatEpic(t.amount)) : l.deskTxProofOutgoing(formatEpic(t.amount)),
+        description: t.incoming ? l.deskTxProofIncoming(formatEpicL(l, t.amount)) : l.deskTxProofOutgoing(formatEpicL(l, t.amount)),
         width: 520.u,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

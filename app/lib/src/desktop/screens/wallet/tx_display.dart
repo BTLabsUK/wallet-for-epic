@@ -146,7 +146,7 @@ class FitMoney extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
-    final text = '${sign && nano > 0 ? '+' : ''}${hidden ? '••••••' : formatEpic(nano)}${unit ? ' EPIC' : ''}';
+    final text = '${sign && nano > 0 ? '+' : ''}${hidden ? '••••••' : formatEpicL(context.l10n, nano)}${unit ? ' EPIC' : ''}';
     final style = context.ts.mono(weight: weight ?? FontWeight.w500);
     if (width != null) {
       return EMoney(nano, size: fitFontSize(context, text, style, sizes, width!), color: color, sign: sign, unit: unit, weight: weight);
@@ -261,7 +261,7 @@ class TxAmount extends StatelessWidget {
     // A request not paid yet is not money: neutral, no sign, "Requested" (flow.md §3.3).
     final asked = txAsked(tx);
     final color = off ? c.faint : (asked ? c.text : (tx.incoming ? c.ok : c.text));
-    final line = asked && tx.state == TxState.waitingRecipient ? context.l10n.deskInvUnpaid : sub ?? (showFee && !tx.incoming && tx.fee > 0 ? context.l10n.deskTxFee(formatEpic(tx.fee)) : null);
+    final line = asked && tx.state == TxState.waitingRecipient ? context.l10n.deskInvUnpaid : sub ?? (showFee && !tx.incoming && tx.fee > 0 ? context.l10n.deskTxFee(formatEpicL(context.l10n, tx.fee)) : null);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
@@ -427,7 +427,7 @@ class _TxRowState extends ConsumerState<TxRow> {
       selected: widget.selected,
       // A request is never read out as money received (flow.md §5, fake invoice dressed as income);
       // it reads Unpaid only while it is, then its state word says what became of it.
-      label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : '${formatEpic(t.amount)} EPIC', word),
+      label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : '${formatEpicL(l, t.amount)} EPIC', word),
       excludeSemantics: true,
       child: InkWell(
         onTap: widget.onTap,

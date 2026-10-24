@@ -162,7 +162,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
 void _invoiceToast(BuildContext context, InvoiceNotice n) {
   final l = context.l10n;
   final (text, tone) = switch (n.kind) {
-    InvoiceNoticeKind.paid => (l.deskInvNoticePaid(n.who, formatEpic(n.amount)), ETone.ok),
+    InvoiceNoticeKind.paid => (l.deskInvNoticePaid(n.who, formatEpicL(l, n.amount)), ETone.ok),
     InvoiceNoticeKind.declined => (l.deskInvNoticeDeclined(n.who), ETone.warn),
     InvoiceNoticeKind.issuedExpired => (l.deskInvNoticeIssuedExpired, ETone.neutral),
     InvoiceNoticeKind.bounced => (l.deskInvIssuerBounced(n.who), ETone.warn),

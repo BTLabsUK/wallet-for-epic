@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
+import '../../../l10n.dart' show localDigits, localInt;
 import '../../widgets/kit.dart';
 import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider;
@@ -245,7 +246,7 @@ class _SyncNotice extends StatelessWidget {
           tone: ETone.warn,
           icon: EIcons.server,
           title: l.deskOvSyncTitle((part * 100).round()),
-          text: l.deskOvSyncText(_group(walletTip)),
+          text: l.deskOvSyncText(_group(l, walletTip)),
         ),
         SizedBox(height: Sp.x2),
         Semantics(
@@ -260,7 +261,7 @@ class _SyncNotice extends StatelessWidget {
   }
 }
 
-String _group(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
+String _group(AppLocalizations l, int n) => localInt(l, n);
 
 class _BalancePanel extends ConsumerWidget {
   const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false});
@@ -326,7 +327,7 @@ class _BalancePanel extends ConsumerWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(l.deskOvAvailable, style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500)),
-                        if (asOfBlock != null) ETag(l.deskOvAsOfBlock(_group(asOfBlock!)), tone: ETone.warn),
+                        if (asOfBlock != null) ETag(l.deskOvAsOfBlock(_group(l, asOfBlock!)), tone: ETone.warn),
                         if (updating && asOfBlock == null) const _UpdatingTag(),
                       ],
                     ),
@@ -468,10 +469,12 @@ class _BigAmount extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final text = formatEpic(nano);
-    final dot = text.indexOf('.');
-    final whole = dot < 0 ? text : text.substring(0, dot);
-    final frac = dot < 0 ? '' : text.substring(dot);
+    final l = context.l10n;
+    final canonical = formatEpic(nano);
+    final dot = canonical.indexOf('.');
+    final whole = localDigits(l, dot < 0 ? canonical : canonical.substring(0, dot));
+    final frac = dot < 0 ? '' : localDigits(l, canonical.substring(dot));
+    final text = whole + frac;
     return LayoutBuilder(
       builder: (context, box) {
         final base = ts.display.copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
