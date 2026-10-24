@@ -8,14 +8,18 @@ import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import 'tx_detail.dart';
 import 'tx_display.dart';
+import 'tx_label.dart';
 
 enum _Filter { all, received, sent, requests }
 
 /// Starts Activity on a selected transaction, a search, or the empty state.
 class ActivityArgs {
-  const ActivityArgs({this.txId, this.empty = false, this.waitingNode = false, this.query});
+  const ActivityArgs({this.txId, this.empty = false, this.waitingNode = false, this.query, this.page = 0});
 
   final int? txId;
+
+  /// The list page to open on (zero-based).
+  final int page;
   final bool empty;
 
   /// Empty and the node not synced yet: a waiting line instead of the learn panel.
@@ -49,7 +53,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   late int? _selected = _args.txId;
   late final _query = TextEditingController(text: _args.query);
   _Filter _filter = _Filter.all;
-  int _page = 0;
+  late int _page = _args.page;
   bool _refreshing = false;
 
   bool get _noTxs => _args.empty || _args.waitingNode;
@@ -80,6 +84,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         if ((_filter == _Filter.all || (_filter == _Filter.requests ? t.isInvoice : !t.isInvoice && (_filter == _Filter.received) == t.incoming)) &&
             (q.isEmpty ||
                 whoOf(l, t).toLowerCase().contains(q) ||
+                (t.labelText ?? '').toLowerCase().contains(q) ||
                 (t.counterparty ?? '').toLowerCase().contains(q) ||
                 (t.message ?? '').toLowerCase().contains(q) ||
                 t.slateId.contains(q) ||
@@ -141,7 +146,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         title: selectedTx.isInvoice ? l.deskInvActBlock : (selectedTx.incoming ? l.deskActDetailReceived : l.deskActDetailSent),
         width: EPageWidth.narrow,
         onBack: () => setState(() => _selected = null),
-        child: TxDetail(tx: selectedTx),
+        child: TxDetail(tx: selectedTx, showTitle: true),
       );
     }
 
@@ -230,7 +235,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       }
       rows.add(
         TxRow(
+          key: ValueKey('tx-${t.id}'),
           tx: t,
+          labelEditable: true,
           selected: t.id == _selected,
           onTap: () => setState(() => _selected = t.id),
           onFinalize: () => ref.read(deskNavProvider.notifier).go(DeskRoute.finalize),
@@ -465,7 +472,7 @@ class _DetailPane extends StatelessWidget {
       head: Row(
         children: [
           Expanded(
-            child: Semantics(header: true, child: Text(tx.isInvoice ? l.deskInvActBlock : (tx.incoming ? l.deskActDetailReceived : l.deskActDetailSent), style: context.ts.h3)),
+            child: TxPanelTitle(tx: tx, fallback: tx.isInvoice ? l.deskInvActBlock : (tx.incoming ? l.deskActDetailReceived : l.deskActDetailSent)),
           ),
           EIconButton(icon: EIcons.close, label: l.commonClose, onPressed: onClose),
         ],

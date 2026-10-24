@@ -316,6 +316,186 @@ abstract class AppLocalizations {
   /// **'Restored funds'**
   String get txRestoredFunds;
 
+  /// Screen-reader sentence of a payment row the user labelled: the label first, then the whole row sentence (what happened, status, date).
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, {row}'**
+  String txSpokenLabelled(String label, String row);
+
+  /// Phone: title of the label tile on a payment with a label, and the field name in the history import dialog. A name the user gave the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get txLabel;
+
+  /// Phone: the tile and the pen button on a payment without a label (screen readers say it for the pen).
+  ///
+  /// In en, this message translates to:
+  /// **'Add label'**
+  String get txLabelAdd;
+
+  /// Phone: the pen button on a payment with a label (screen readers say it).
+  ///
+  /// In en, this message translates to:
+  /// **'Edit label'**
+  String get txLabelEdit;
+
+  /// Phone: placeholder of the one-line label field that opens in place.
+  ///
+  /// In en, this message translates to:
+  /// **'Add label'**
+  String get txLabelHint;
+
+  /// Notice after a label was added to a payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Label added'**
+  String get txLabelAddedNotice;
+
+  /// Notice after a label was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Label saved'**
+  String get txLabelSavedNotice;
+
+  /// Notice after a label was emptied and removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Label removed'**
+  String get txLabelRemovedNotice;
+
+  /// Phone: tile and sheet title on a payment found by a scan that has no details of the user yet (sender, method, note).
+  ///
+  /// In en, this message translates to:
+  /// **'Add details'**
+  String get txEditAdd;
+
+  /// Phone: tile and sheet title on a payment found by a scan whose details the user already entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get txEditEdit;
+
+  /// Field of the details sheet and its tile: who paid, typed by the user. Also the field name in the history import dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get txEditFrom;
+
+  /// Placeholder of the From field: an address the user typed or picked from contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get txEditFromHint;
+
+  /// Helper under the From field. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Not verified. Never used for payment proofs.'**
+  String get txEditFromHelper;
+
+  /// Method choice in the details sheet: how the payment came is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get txMethodUnknown;
+
+  /// Small tag after a value the user typed, not read from the chain or made by the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you'**
+  String get txManualTag;
+
+  /// Tooltip of the tag; date is the day and time the user entered it.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you on {date}. Not from the chain.'**
+  String txManualTip(String date);
+
+  /// Tooltip of the tag when the time is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you. Not from the chain.'**
+  String get txManualTipNoDate;
+
+  /// Tooltip of the tag on the From value; the sender was typed by the user and is not checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you on {date}. Not from the chain, not verified.'**
+  String txManualTipFrom(String date);
+
+  /// Tooltip of the tag on the From value when the time is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you. Not from the chain, not verified.'**
+  String get txManualTipFromNoDate;
+
+  /// Notice after details were added to a payment found by a scan.
+  ///
+  /// In en, this message translates to:
+  /// **'Details added'**
+  String get txEditAddedNotice;
+
+  /// Notice after details were changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Details saved'**
+  String get txEditSavedNotice;
+
+  /// Notice after every detail was emptied.
+  ///
+  /// In en, this message translates to:
+  /// **'Details removed'**
+  String get txEditRemovedNotice;
+
+  /// Title of the sheet shown when a history backup has other values than the ones the user entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Details differ'**
+  String get histConflictTitle;
+
+  /// Lead of the Details differ sheet; n is the number of payments. The user picks per value, Mine is chosen at first.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  String histConflictLead(int n);
+
+  /// Choice card: the value entered on this phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get histConflictMine;
+
+  /// Choice card: the value in the backup file.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get histConflictBackup;
+
+  /// Button: import without replacing anything the user entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep all mine'**
+  String get histConflictKeepAll;
+
+  /// Button: import with the choices made.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get histConflictImport;
+
+  /// Shown in italics on a card whose value is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'empty'**
+  String get histConflictEmpty;
+
+  /// Line after an import in which the user chose the backup for some values; n is how many.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}'**
+  String histImportedReplaced(int n);
+
   /// No description provided for @txOutgoingPayment.
   ///
   /// In en, this message translates to:
@@ -4675,7 +4855,7 @@ abstract class AppLocalizations {
   /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.'**
+  /// **'Epic Cash Mobile by BT Labs: Apache-2.0.'**
   String get licencesApp;
 
   /// Licences screen: one line for Flutter and the Dart packages.
@@ -5284,11 +5464,11 @@ abstract class AppLocalizations {
   /// **'Can\'t reach the network right now.'**
   String get sendNodeDown;
 
-  /// Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered.
+  /// Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered. {relay} is its host name, as in the address (epicbox.example.org).
   ///
   /// In en, this message translates to:
-  /// **'Their relay isn\'t answering.'**
-  String get sendRelayDown;
+  /// **'Their relay ({relay}) isn\'t answering.'**
+  String sendRelayDown(String relay);
 
   /// Send, review: this wallet is not connected to its message relay yet; sending is still allowed.
   ///
@@ -5548,17 +5728,17 @@ abstract class AppLocalizations {
   /// **'Next step'**
   String get handshakeNext;
 
-  /// Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days.
+  /// Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. {relay} is the relay's host name, as in the address.
   ///
   /// In en, this message translates to:
-  /// **'{days, plural, =1{Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most {days} days.}}'**
-  String sendRelayRefused(int days);
+  /// **'{days, plural, =1{Their relay ({relay}) didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay ({relay}) didn\'t take it. The amount is on hold until you cancel it, or for at most {days} days.}}'**
+  String sendRelayRefused(int days, String relay);
 
-  /// Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again.
+  /// Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again. {relay} is the relay's host name, as in the address.
   ///
   /// In en, this message translates to:
-  /// **'Their relay didn\'t take it. Check Wallet before you send again.'**
-  String get sendRelayRefusedLost;
+  /// **'Their relay ({relay}) didn\'t take it. Check Wallet before you send again.'**
+  String sendRelayRefusedLost(String relay);
 
   /// Send, review after a failed send: cancels the payment the wallet kept, then pays the same amount with a payment file.
   ///
@@ -6753,47 +6933,29 @@ abstract class AppLocalizations {
   /// **'My servers'**
   String get serverMyRelays;
 
-  /// Tooltip and screen reader name of the remove button on a My servers row of the Epicbox picker.
+  /// Tooltip of the down arrow on a public server in the My nodes or My servers list, and the one item of the popup it opens: the server goes back to the public list.
   ///
   /// In en, this message translates to:
-  /// **'Remove from my servers'**
-  String get serverRemoveRelay;
+  /// **'Remove from my list'**
+  String get serverMenuRemove;
 
-  /// Tooltip of the disabled remove button (Epicbox) or star (node) on the server the wallet uses now: why it cannot be removed.
+  /// Tooltip of the bin on a typed-in server in the My nodes or My servers list, and the one item of the popup it opens: the server is deleted.
   ///
   /// In en, this message translates to:
-  /// **'In use. Switch to another server first.'**
+  /// **'Delete'**
+  String get serverMenuDelete;
+
+  /// Tor's part of the state line under Privacy & network on the Settings hub, after the node and Epicbox hosts: the word is lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor {state}'**
+  String settingsStateTor(String state);
+
+  /// Tooltip of the disabled arrow or bin on the My list row of the server the wallet uses now: why it cannot be removed or deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'In use. Pick another server first.'**
   String get serverRemoveInUse;
-
-  /// Title of the dialog that confirms removing an Epicbox relay from My servers.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove this server?'**
-  String get serverRemoveRelayTitle;
-
-  /// Title of the dialog that confirms removing a node from My nodes (the star of a My nodes row).
-  ///
-  /// In en, this message translates to:
-  /// **'Remove this node?'**
-  String get serverRemoveNodeTitle;
-
-  /// Body of the dialog that confirms removing a public node or Epicbox relay from the user's own list: it goes back to the public list.
-  ///
-  /// In en, this message translates to:
-  /// **'{host} leaves my list. Select it from the public list to use it again.'**
-  String serverRemoveBodyPublic(String host);
-
-  /// Body of the dialog that confirms removing a node or Epicbox relay the user typed in (not in the public list) from their own list: it is gone.
-  ///
-  /// In en, this message translates to:
-  /// **'{host} leaves my list. Type it in again to use it.'**
-  String serverRemoveBodyCustom(String host);
-
-  /// Confirm button of the remove dialogs.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove'**
-  String get serverRemoveConfirm;
 
   /// Screen reader words for the bell icon on the Epicbox relay that can send push notifications.
   ///
@@ -6920,18 +7082,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{{count} block behind} other{{count} blocks behind}}'**
   String serverBehindLabel(int count);
-
-  /// Star button: add the node to My nodes.
-  ///
-  /// In en, this message translates to:
-  /// **'Add to my nodes'**
-  String get serverAddMine;
-
-  /// Star button: remove the node from My nodes.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove from my nodes'**
-  String get serverRemoveMine;
 
   /// Row: the server does not answer the monitor.
   ///
@@ -7083,17 +7233,17 @@ abstract class AppLocalizations {
   /// **'Epicbox'**
   String get methodEpicbox;
 
-  /// Method name: straight to the other wallet over HTTP.
+  /// Method name: Direct, with HTTP as its transport. The Direct word, then a middle dot, then HTTP. Shown wherever a payment's method is named.
   ///
   /// In en, this message translates to:
-  /// **'HTTP'**
-  String get methodHttp;
+  /// **'Direct · HTTP'**
+  String get methodDirectHttp;
 
-  /// Method name: straight to the other wallet over Tor.
+  /// Method name: Direct, with Tor as its transport. The Direct word, then a middle dot, then Tor. Shown wherever a payment's method is named.
   ///
   /// In en, this message translates to:
-  /// **'Tor'**
-  String get methodTor;
+  /// **'Direct · Tor'**
+  String get methodDirectTor;
 
   /// Method name: a transaction file handed over by hand.
   ///
@@ -8373,16 +8523,16 @@ abstract class AppLocalizations {
   /// **'An invoice expired before you answered it.'**
   String get deskInvNoticeExpired;
 
-  /// Warning notice (desktop and phone): LEPIC refused the payment of an invoice it does not know; another install on the same recovery phrase may have issued it. Unverified: names no sender.
+  /// Warning notice (desktop and phone): the payment of an invoice this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have issued it. Unverified: names no sender.
   ///
   /// In en, this message translates to:
-  /// **'A payment for an invoice this device did not issue arrived and was refused. If another device with this wallet issued it, ask the payer to cancel and pay again.'**
+  /// **'A payment for an invoice this device did not issue arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.'**
   String get deskInvNoticeUnknownPayment;
 
-  /// Warning notice (desktop and phone): LEPIC refused the answer to a send it does not know; another install on the same recovery phrase may have made it. Unverified: names no sender.
+  /// Warning notice (desktop and phone): the answer to a send this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have made the send. Unverified: names no sender.
   ///
   /// In en, this message translates to:
-  /// **'An answer to a payment this device did not send arrived and was refused. If another device with this wallet sent it, cancel it there and send again.'**
+  /// **'An answer to a payment this device did not send arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.'**
   String get deskInvNoticeUnknownAnswer;
 
   /// Section heading on the Invoices page › To pay: invoices from trusted services that wait for the user's answer.
@@ -10860,7 +11010,7 @@ abstract class AppLocalizations {
   /// Title of the HTTP panel on Receive and of its QR code.
   ///
   /// In en, this message translates to:
-  /// **'HTTP address'**
+  /// **'Direct · HTTP address'**
   String get deskRecvHttpAddress;
 
   /// Label of the copy button next to the HTTP address.
@@ -10896,7 +11046,7 @@ abstract class AppLocalizations {
   /// Title of the Tor panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Direct, Tor address'**
+  /// **'Direct · Tor address'**
   String get deskRecvDirectTor;
 
   /// Intro text of the Tor panel on Receive.
@@ -10908,7 +11058,7 @@ abstract class AppLocalizations {
   /// Title of the QR code of the Tor address on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Tor address'**
+  /// **'Direct · Tor address'**
   String get deskRecvTorAddress;
 
   /// Label of the copy button next to the Tor address.
@@ -11784,13 +11934,13 @@ abstract class AppLocalizations {
   /// Value of the Via fact in the review dialog for a Direct send over http(s).
   ///
   /// In en, this message translates to:
-  /// **'Direct (their wallet must be open)'**
+  /// **'Direct · HTTP (their wallet must be open)'**
   String get deskSendViaDirect;
 
   /// Value of the Via fact in the review dialog for a Direct send to an onion address.
   ///
   /// In en, this message translates to:
-  /// **'Direct, over Tor (their wallet must be open)'**
+  /// **'Direct · Tor (their wallet must be open)'**
   String get deskSendViaTor;
 
   /// Value of the Via fact in the review dialog for a file send.
@@ -12618,13 +12768,13 @@ abstract class AppLocalizations {
   /// Label above the address in a contact's detail, for a Tor address.
   ///
   /// In en, this message translates to:
-  /// **'Tor address'**
+  /// **'Direct · Tor address'**
   String get deskConAddrTor;
 
   /// Label above the address in a contact's detail, for an HTTP address.
   ///
   /// In en, this message translates to:
-  /// **'HTTP address'**
+  /// **'Direct · HTTP address'**
   String get deskConAddrHttp;
 
   /// Label above the note in a contact's detail; also the label of the note field in the form.
@@ -15840,7 +15990,7 @@ abstract class AppLocalizations {
   /// Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings.
   ///
   /// In en, this message translates to:
-  /// **'Open HTTP receiving'**
+  /// **'Open Direct · HTTP receiving'**
   String get deskRailOpenHttp;
 
   /// Status word on the sidebar's Tor row when this build of the app does not include Tor.
@@ -16092,7 +16242,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.'**
+  /// **'This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.'**
   String get deskTourReceiveText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16128,7 +16278,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.'**
+  /// **'Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.'**
   String get deskTourContactsText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16314,13 +16464,13 @@ abstract class AppLocalizations {
   /// Screen-reader description of the HTTP picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
+  /// **'Direct · HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get deskKitHeroLabelHttp;
 
   /// Screen-reader description of the Tor picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
+  /// **'Direct · Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
   String get deskKitHeroLabelTor;
 
   /// Screen-reader description of the transaction-file picture on the Send page.
@@ -19787,7 +19937,7 @@ abstract class AppLocalizations {
   /// Settings > Receiving: heading of the HTTP group.
   ///
   /// In en, this message translates to:
-  /// **'HTTP receiving'**
+  /// **'Direct · HTTP receiving'**
   String get deskSetRecvHttpTitle;
 
   /// Settings > Receiving: text of the HTTP receiving row.
@@ -20699,7 +20849,7 @@ abstract class AppLocalizations {
   /// Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.'**
+  /// **'Epic Cash Desktop by BT Labs: Apache-2.0.'**
   String get deskSetAboutLicenceApp;
 
   /// Toast title when a link could not be opened in the web browser; the link follows.
@@ -21271,6 +21421,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.'**
   String get deskOutStrategyHint;
+
+  /// Status of a finished payment the node refused: it is not on the network until it is broadcast again.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on the network'**
+  String get txStatusNotPosted;
+
+  /// Status of a paid invoice whose payment has not reached the network a while after paying, though the wallet sent it again by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Stalled'**
+  String get txStatusStalled;
+
+  /// Explanation under the status of a stalled invoice payment; Send again is a button below.
+  ///
+  /// In en, this message translates to:
+  /// **'Stalled, not delivered. Your payment has not reached the network yet. Send it again.'**
+  String get txDetailsStalledBody;
+
+  /// Explanation under the status of an HTTP or Tor payment that was not delivered (the recipient's wallet did not answer).
+  ///
+  /// In en, this message translates to:
+  /// **'This payment did not reach the recipient\'s wallet, so they have not received it. Your funds stay locked until it is sent again or cancelled.'**
+  String get txDetailsNotDeliveredDirectBody;
+
+  /// Paid invoice in the payment's details: the service still has not posted the payment a while after paying. service is the user's label for the service.
+  ///
+  /// In en, this message translates to:
+  /// **'{service} has not posted your payment yet.'**
+  String invoiceDetailsStalled(String service);
+
+  /// Activity row status: a finished send the node refused; it is not on the network until it is broadcast again.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on the network'**
+  String get deskTxStatusNotPosted;
+
+  /// Payment detail, the line under the status of a finished send the node refused. Broadcast again is a button below; the wallet also retries by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on the network. The node did not take this payment. Broadcast it again; it cannot go through twice.'**
+  String get deskTxNowNotPosted;
+
+  /// Button on the payment detail of a send the node refused: posts it to the node again.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast again'**
+  String get deskTxBroadcastAgain;
+
+  /// Toast after Broadcast again worked.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the network'**
+  String get deskTxBroadcastDone;
+
+  /// Payment detail, the line under the status of a Direct send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered. The recipient\'s wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the funds.'**
+  String deskTxNowUndeliveredDirect(String method);
+
+  /// State of an invoice you paid: the payment has not reached the network a while after paying, though the wallet sent it again by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Stalled'**
+  String get deskInvPayStalled;
+
+  /// Notice on To pay: a paid invoice whose payment has not reached the network a while after paying. service is the user's label for the service.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment to {service} is stalled'**
+  String deskInvPayerStalledTitle(String service);
+
+  /// Notice text and Invoice block text for a stalled invoice payment. Send again is a button.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.'**
+  String get deskInvPayerStalledText;
+
+  /// Tooltip and screen-reader name of the pen on an Activity row or details title that has no label yet; also the ghost button in the details sub-header.
+  ///
+  /// In en, this message translates to:
+  /// **'Add label'**
+  String get deskTxLabelAdd;
+
+  /// Tooltip and screen-reader name of the pen when the payment has a label; also the ghost button in the details sub-header.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit label'**
+  String get deskTxLabelEdit;
+
+  /// Placeholder of the inline label field while it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add label'**
+  String get deskTxLabelHint;
+
+  /// Screen-reader name of the inline label field, and the name of the field in the Details differ dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get deskTxLabelField;
+
+  /// Tooltip on the label pen: what a label is.
+  ///
+  /// In en, this message translates to:
+  /// **'A name for this payment, for you. Shown in Activity and exports.'**
+  String get deskTxLabelTip;
+
+  /// Toast title after a label was added.
+  ///
+  /// In en, this message translates to:
+  /// **'Label added'**
+  String get deskTxLabelAdded;
+
+  /// Toast title after a label was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Label saved'**
+  String get deskTxLabelSaved;
+
+  /// Toast title after a label was emptied and removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Label removed'**
+  String get deskTxLabelRemoved;
+
+  /// Toast title when saving a label failed; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Label not saved'**
+  String get deskTxLabelNotSaved;
+
+  /// Ghost button in the details sub-header of a payment a scan found: opens the dialog to add what the user knows.
+  ///
+  /// In en, this message translates to:
+  /// **'Add details'**
+  String get deskTxDetailsAdd;
+
+  /// Short ghost button in the details sub-header when details were added already.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get deskTxDetailsEdit;
+
+  /// Title of the dialog where the user adds details to a payment a scan found.
+  ///
+  /// In en, this message translates to:
+  /// **'Add details'**
+  String get deskTxDetailsTitleAdd;
+
+  /// Title of the dialog when details exist already.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get deskTxDetailsTitleEdit;
+
+  /// Description under the details dialog title, and tooltip on the details button: what it is for.
+  ///
+  /// In en, this message translates to:
+  /// **'Only for payments found by a scan. Shown as added by you in Activity, details and exports. Amounts, dates and confirmations do not change.'**
+  String get deskTxDetailsTip;
+
+  /// Field name in the details dialog: who paid.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get deskTxDetailsFrom;
+
+  /// Tooltip on the From field of the details dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Who paid, for your records. Not verified and never used for payment proofs.'**
+  String get deskTxDetailsFromTip;
+
+  /// Placeholder of the From field in the details dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Address of the sender'**
+  String get deskTxDetailsFromHint;
+
+  /// Shown under the From field when the text is not an address the wallet knows.
+  ///
+  /// In en, this message translates to:
+  /// **'Use an Epicbox, http(s) or .onion address.'**
+  String get deskTxDetailsFromBad;
+
+  /// Field name in the details dialog and the details list: the private note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get deskTxDetailsNote;
+
+  /// Toast title after details were added to a payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Details added'**
+  String get deskTxDetailsAdded;
+
+  /// Toast title after details were changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Details saved'**
+  String get deskTxDetailsSaved;
+
+  /// Toast title after every detail was cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Details removed'**
+  String get deskTxDetailsRemoved;
+
+  /// Toast title when saving details failed; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Details not saved'**
+  String get deskTxDetailsNotSaved;
+
+  /// Tag next to a value the user typed (label, sender, method, note).
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you'**
+  String get deskTxManualTag;
+
+  /// Tooltip on the Added by you tag when the time of the change is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you on {date}. Not from the chain.'**
+  String deskTxManualTip(String date);
+
+  /// Tooltip on the Added by you tag when the time of the change is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you. Not from the chain.'**
+  String get deskTxManualTipNoDate;
+
+  /// Tooltip on the Added by you tag of the From value when the time of the change is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you on {date}. Not from the chain, not verified.'**
+  String deskTxManualTipFrom(String date);
+
+  /// Tooltip on the Added by you tag of the From value when the time of the change is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you. Not from the chain, not verified.'**
+  String get deskTxManualTipFromNoDate;
+
+  /// Title of the dialog shown when a history backup disagrees with what the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Details differ'**
+  String get deskHistConflictTitle;
+
+  /// Description of the Details differ dialog; n payments.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{The backup has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  String deskHistConflictLead(int n);
+
+  /// Choice card in the Details differ dialog: the value typed here.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get deskHistConflictMine;
+
+  /// Choice card in the Details differ dialog: the value in the backup file.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get deskHistConflictBackup;
+
+  /// Button in the Details differ dialog: import and keep every value the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep all mine'**
+  String get deskHistConflictKeepAll;
+
+  /// Primary button in the Details differ dialog: import with the choices made.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get deskHistConflictImport;
+
+  /// Placeholder, in italics, where a value in the Details differ dialog is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'empty'**
+  String get deskHistConflictEmpty;
+
+  /// Line on the import result: how many typed details the user replaced with the backup's.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{{n} detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}'**
+  String deskHistImportedReplaced(int n);
+
+  /// Send, review: the recipient's relay (the part of the address after @) is not one the app knows from its public list or the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} isn\'t a server this app knows. Check the address before you send.'**
+  String sendRelayUnknown(String relay);
+
+  /// A payment could not be handed to the recipient's relay: it did not answer (a failed Send again). {relay} is the relay's host name, as in the address.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} did not answer.'**
+  String relayNoAnswer(String relay);
+
+  /// Explanation under the status of a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} did not answer, so the recipient has not received this payment. Your funds stay locked until it is sent again or cancelled.'**
+  String txDetailsNotDeliveredRelayBody(String relay);
+
+  /// Why an Epicbox send failed: the recipient's relay did not answer; the payment waits in Activity. {relay} is its host name, as in the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered: {relay} did not answer. The payment waits in Activity; cancel it there to unlock the funds.'**
+  String deskErrNotDeliveredRelay(String relay);
+
+  /// An error message the user reads when Send again to an Epicbox address fails because the recipient's relay did not answer. {relay} is its host name, as in the address.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} did not answer.'**
+  String deskErrRelayNoAnswer(String relay);
+
+  /// Send review: title of the warning that the recipient's Epicbox server is not one the app knows.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Epicbox server'**
+  String get deskSendRelayUnknownTitle;
+
+  /// Send review: the recipient's Epicbox server (the part of the address after @) is not in the app's public list or among the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} is not a server this app knows. Check the address before you send. You can still send.'**
+  String deskSendRelayUnknownText(String relay);
+
+  /// Transaction detail, 'what is happening now' for a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.'**
+  String deskTxNowUndeliveredRelay(String relay);
+
+  /// Notice (desktop and phone): another install on the same recovery phrase answered the same incoming payment and the sender completed that one, so this install's copy of the receive ended. 'Recheck balance' is the name of the rescan action in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other device with this wallet took a payment this device was also receiving. Recheck balance to see it here.'**
+  String get deskInvNoticeReceiveSuperseded;
+
+  /// Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{The old wallet\'s history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet\'s history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  String deskHistConflictLeadOldWallet(int n);
+
+  /// Choice card in the Details differ dialog: the value in the old wallet's history.
+  ///
+  /// In en, this message translates to:
+  /// **'Old wallet'**
+  String get deskHistConflictOldWallet;
+
+  /// Primary button in the Details differ dialog for the old wallet's history: apply the choices made.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get deskHistConflictApply;
+
+  /// Body of the payment proof dialog when the payment has no proof to show.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment proof for this payment.'**
+  String get deskTxProofNone;
 }
 
 class _AppLocalizationsDelegate

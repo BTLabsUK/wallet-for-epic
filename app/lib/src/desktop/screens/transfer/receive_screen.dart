@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/method_names.dart';
 import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
@@ -136,12 +137,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     }
   }
 
-  static String _name(AppLocalizations l, TxMethod m) => switch (m) {
-    TxMethod.epicbox => 'Epicbox', // l10n-ok: product name
-    TxMethod.http => 'HTTP', // l10n-ok: protocol name
-    TxMethod.tor => 'Tor', // l10n-ok: product name
-    TxMethod.file => l.deskRecvNameFile,
-  };
+  static String _name(AppLocalizations l, TxMethod m) => methodLabel(l, m);
 
   /// Direct receiving is the clearnet HTTP listener with Tor off and the Tor address with Tor
   /// on (tor_routes.dart: the listener stops while Tor is on).

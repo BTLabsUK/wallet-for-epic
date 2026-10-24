@@ -124,6 +124,116 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txRestoredFunds => '恢复的资金';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label，$row';
+  }
+
+  @override
+  String get txLabel => '标签';
+
+  @override
+  String get txLabelAdd => '添加标签';
+
+  @override
+  String get txLabelEdit => '编辑标签';
+
+  @override
+  String get txLabelHint => '添加标签';
+
+  @override
+  String get txLabelAddedNotice => '标签已添加';
+
+  @override
+  String get txLabelSavedNotice => '标签已保存';
+
+  @override
+  String get txLabelRemovedNotice => '标签已移除';
+
+  @override
+  String get txEditAdd => '添加详情';
+
+  @override
+  String get txEditEdit => '编辑详情';
+
+  @override
+  String get txEditFrom => '来自';
+
+  @override
+  String get txEditFromHint => '地址';
+
+  @override
+  String get txEditFromHelper => '未验证。绝不用于付款证明。';
+
+  @override
+  String get txMethodUnknown => '未知';
+
+  @override
+  String get txManualTag => '由你添加';
+
+  @override
+  String txManualTip(String date) {
+    return '你于 $date 添加。并非来自区块链。';
+  }
+
+  @override
+  String get txManualTipNoDate => '由你添加。并非来自区块链。';
+
+  @override
+  String txManualTipFrom(String date) {
+    return '你于 $date 添加。并非来自区块链，未验证。';
+  }
+
+  @override
+  String get txManualTipFromNoDate => '由你添加。并非来自区块链，未验证。';
+
+  @override
+  String get txEditAddedNotice => '详情已添加';
+
+  @override
+  String get txEditSavedNotice => '详情已保存';
+
+  @override
+  String get txEditRemovedNotice => '详情已移除';
+
+  @override
+  String get histConflictTitle => '详情不一致';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '备份中有 $n 笔你已描述的付款带有不同的详情。除非你另行选择，否则保留你的。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => '我的';
+
+  @override
+  String get histConflictBackup => '备份';
+
+  @override
+  String get histConflictKeepAll => '全部保留我的';
+
+  @override
+  String get histConflictImport => '导入';
+
+  @override
+  String get histConflictEmpty => '空';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '已替换 $n 项详情，其余保留为你的内容。',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => '发出的付款';
 
   @override
@@ -2922,8 +3032,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get licencesLead => '本钱包包含的开源软件。每个组件保留各自的许可证；点按即可查看完整文本。';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile，BT Labs 出品：Apache-2.0。代码托管在 GitHub 上。';
+  String get licencesApp => 'Epic Cash Mobile，BT Labs 出品：Apache-2.0。';
 
   @override
   String get licencesFlutter => 'Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。';
@@ -3254,7 +3363,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendNodeDown => '目前无法连接网络。';
 
   @override
-  String get sendRelayDown => '对方的中继没有响应。';
+  String sendRelayDown(String relay) {
+    return '对方的中继（$relay）没有响应。';
+  }
 
   @override
   String get sendListenerDown => '尚未连接。仍可发送。';
@@ -3396,17 +3507,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeNext => '下一步';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '对方的中继没有接收。在你取消之前，这笔金额处于锁定状态，最长 $days 天。',
+      other: '对方的中继（$relay）没有接收。在你取消之前，这笔金额处于锁定状态，最长 $days 天。',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost => '对方的中继没有接收。再次发送前请先查看钱包。';
+  String sendRelayRefusedLost(String relay) {
+    return '对方的中继（$relay）没有接收。再次发送前请先查看钱包。';
+  }
 
   @override
   String get sendCancelAndFile => '取消并改用文件付款';
@@ -4126,29 +4239,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverMyRelays => '我的服务器';
 
   @override
-  String get serverRemoveRelay => '从我的服务器移除';
+  String get serverMenuRemove => '从我的列表移除';
 
   @override
-  String get serverRemoveInUse => '正在使用。请先切换到其他服务器。';
+  String get serverMenuDelete => '删除';
 
   @override
-  String get serverRemoveRelayTitle => '移除此服务器？';
-
-  @override
-  String get serverRemoveNodeTitle => '移除此节点？';
-
-  @override
-  String serverRemoveBodyPublic(String host) {
-    return '$host 将从我的列表中移除。要再次使用，请从公共列表中选择。';
+  String settingsStateTor(String state) {
+    return 'Tor $state';
   }
 
   @override
-  String serverRemoveBodyCustom(String host) {
-    return '$host 将从我的列表中移除。要使用，请重新输入。';
-  }
-
-  @override
-  String get serverRemoveConfirm => '移除';
+  String get serverRemoveInUse => '正在使用。请先选择其他服务器。';
 
   @override
   String get serverSupportsNotifications => '支持通知';
@@ -4227,12 +4329,6 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get serverAddMine => '添加到我的节点';
-
-  @override
-  String get serverRemoveMine => '从我的节点移除';
 
   @override
   String get serverNotResponding => '无响应';
@@ -4345,10 +4441,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodHttp => 'HTTP';
+  String get methodDirectHttp => '直连 · HTTP';
 
   @override
-  String get methodTor => 'Tor';
+  String get methodDirectTor => '直连 · Tor';
 
   @override
   String get methodFile => '文件';
@@ -5072,11 +5168,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      '收到一笔针对本设备未开具账单的付款，已被拒绝。如果是使用此钱包的另一台设备开具的，请让付款方取消后重新付款。';
+      '收到了一笔本设备未开具的账单的付款。它会在中继上为您使用此钱包的另一台设备保留一天：请在那台设备上打开钱包完成它。';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      '收到一条针对本设备未发送付款的回复，已被拒绝。如果是使用此钱包的另一台设备发送的，请在那里取消后重新发送。';
+      '收到了对一笔本设备未发送的付款的回复。它会在中继上为您使用此钱包的另一台设备保留一天：请在那台设备上打开钱包完成它。';
 
   @override
   String get deskInvPayerWaitingHead => '等待你处理';
@@ -6526,7 +6622,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRecvCheckSix => '念给别人核对时，请检查前六位和后六位字符。';
 
   @override
-  String get deskRecvHttpAddress => 'HTTP 地址';
+  String get deskRecvHttpAddress => '直连 · HTTP 地址';
 
   @override
   String get deskRecvCopyHttp => '复制 HTTP 地址';
@@ -6546,13 +6642,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRecvHttpTorHint => '如需 Tor 地址，请在“设置 › 隐私”中开启 Tor。';
 
   @override
-  String get deskRecvDirectTor => '直连，Tor 地址';
+  String get deskRecvDirectTor => '直连 · Tor 地址';
 
   @override
   String get deskRecvTorIntro => '本钱包打开时，经由 Tor 直接从另一个钱包接收。Tor 在“设置 › 隐私”中设置。';
 
   @override
-  String get deskRecvTorAddress => 'Tor 地址';
+  String get deskRecvTorAddress => '直连 · Tor 地址';
 
   @override
   String get deskRecvCopyTor => '复制 Tor 地址';
@@ -7088,10 +7184,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendViaEpicbox => 'Epicbox（接收方可以不在线）';
 
   @override
-  String get deskSendViaDirect => '直连（对方钱包必须处于打开状态）';
+  String get deskSendViaDirect => '直连 · HTTP（对方钱包必须处于打开状态）';
 
   @override
-  String get deskSendViaTor => '直连，经由 Tor（对方钱包必须处于打开状态）';
+  String get deskSendViaTor => '直连 · Tor（对方钱包必须处于打开状态）';
 
   @override
   String get deskSendViaFile => '交易文件';
@@ -7548,10 +7644,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskConAddrEpicbox => 'Epicbox 地址';
 
   @override
-  String get deskConAddrTor => 'Tor 地址';
+  String get deskConAddrTor => '直连 · Tor 地址';
 
   @override
-  String get deskConAddrHttp => 'HTTP 地址';
+  String get deskConAddrHttp => '直连 · HTTP 地址';
 
   @override
   String get deskConNote => '备注';
@@ -9490,7 +9586,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => '打开 HTTP 接收设置';
+  String get deskRailOpenHttp => '打开 直连 · HTTP 接收设置';
 
   @override
   String get deskRailTorNotInBuild => '此版本不含 Tor';
@@ -9628,7 +9724,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskTourReceiveText =>
-      '本钱包的 Epicbox 地址，旁边是 HTTP 和 Tor。需要签名或完成的交易文件在页面底部。';
+      '本钱包的 Epicbox 地址，旁边是 直连 · HTTP 和 直连 · Tor。需要签名或完成的交易文件在页面底部。';
 
   @override
   String get deskTourInvoicesTitle => '账单';
@@ -9646,7 +9742,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTourContactsTitle => '联系人';
 
   @override
-  String get deskTourContactsText => '按名称保存的地址：Epicbox、HTTP 或 Tor。发送时可从这里选择。';
+  String get deskTourContactsText =>
+      '按名称保存的地址：Epicbox、直连 · HTTP 或 直连 · Tor。发送时可从这里选择。';
 
   @override
   String get deskTourNodeTitle => '设置 › 节点';
@@ -9759,10 +9856,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'Epicbox：付款发送到 Epicbox 服务器，由服务器暂存，直到接收方的钱包重新上线';
 
   @override
-  String get deskKitHeroLabelHttp => 'HTTP：付款直接发送到接收方的钱包，对方钱包必须处于打开状态';
+  String get deskKitHeroLabelHttp => '直连 · HTTP：付款直接发送到接收方的钱包，对方钱包必须处于打开状态';
 
   @override
-  String get deskKitHeroLabelTor => 'Tor：付款经由 Tor 网络直接发送到接收方的钱包';
+  String get deskKitHeroLabelTor => '直连 · Tor：付款经由 Tor 网络直接发送到接收方的钱包';
 
   @override
   String get deskKitHeroLabelFile => '文件：交出一个交易文件，收回一个回复文件，然后由发送方完成交易';
@@ -11881,7 +11978,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRecvListNote => '状态来自 status.btlabs.uk，每隔几分钟检查一次。';
 
   @override
-  String get deskSetRecvHttpTitle => 'HTTP 接收';
+  String get deskSetRecvHttpTitle => '直连 · HTTP 接收';
 
   @override
   String get deskSetRecvHttpText => '本钱包打开时，直接从另一个钱包接收。';
@@ -12368,7 +12465,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop，BT Labs 出品：Apache-2.0。代码托管在 GitHub 上。';
+      'Epic Cash Desktop，BT Labs 出品：Apache-2.0。';
 
   @override
   String get deskSetAboutBrowserNotOpened => '未能打开浏览器';
@@ -12716,4 +12813,239 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       '一笔发送花掉哪些输出。“最小”花掉最少的小额输出，其余仍可使用；“全部”花掉所有输出，并返回一个输出。可在“发送”页的“高级”中为单次发送更改。';
+
+  @override
+  String get txStatusNotPosted => '不在网络上';
+
+  @override
+  String get txStatusStalled => '已停滞';
+
+  @override
+  String get txDetailsStalledBody => '已停滞，未送达。你的付款还没有进入网络。请重新发送。';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      '这笔付款没有到达收款人的钱包，对方没有收到。在重新发送或取消之前，你的资金会一直锁定。';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service 还没有发布你的付款。';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => '不在网络上';
+
+  @override
+  String get deskTxNowNotPosted => '不在网络上。节点没有接受这笔付款。请重新广播；同一笔付款不会成交两次。';
+
+  @override
+  String get deskTxBroadcastAgain => '重新广播';
+
+  @override
+  String get deskTxBroadcastDone => '已发送到网络';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return '未送达。收款人的钱包没有接收这笔付款（$method），对方没有收到。请重新发送，或取消以释放资金。';
+  }
+
+  @override
+  String get deskInvPayStalled => '已停滞';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return '你给 $service 的付款已停滞';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      '未送达：付款还没有进入网络，资金仍被锁定。“重新发送”会再发送一次，无需再次批准。';
+
+  @override
+  String get deskTxLabelAdd => '添加标签';
+
+  @override
+  String get deskTxLabelEdit => '编辑标签';
+
+  @override
+  String get deskTxLabelHint => '添加标签';
+
+  @override
+  String get deskTxLabelField => '标签';
+
+  @override
+  String get deskTxLabelTip => '这笔付款的名称，只给你自己看。显示在“活动”和导出文件中。';
+
+  @override
+  String get deskTxLabelAdded => '已添加标签';
+
+  @override
+  String get deskTxLabelSaved => '已保存标签';
+
+  @override
+  String get deskTxLabelRemoved => '已删除标签';
+
+  @override
+  String get deskTxLabelNotSaved => '标签未保存';
+
+  @override
+  String get deskTxDetailsAdd => '添加详情';
+
+  @override
+  String get deskTxDetailsEdit => '编辑';
+
+  @override
+  String get deskTxDetailsTitleAdd => '添加详情';
+
+  @override
+  String get deskTxDetailsTitleEdit => '编辑详情';
+
+  @override
+  String get deskTxDetailsTip =>
+      '仅适用于扫描找到的付款。在“活动”、详情和导出文件中会标为由你添加。金额、日期和确认数不会改变。';
+
+  @override
+  String get deskTxDetailsFrom => '来自';
+
+  @override
+  String get deskTxDetailsFromTip => '付款人，仅供你记录。未验证，也不会用于付款证明。';
+
+  @override
+  String get deskTxDetailsFromHint => '发送方地址';
+
+  @override
+  String get deskTxDetailsFromBad => '请使用 Epicbox、http(s) 或 .onion 地址。';
+
+  @override
+  String get deskTxDetailsNote => '备注';
+
+  @override
+  String get deskTxDetailsAdded => '已添加详情';
+
+  @override
+  String get deskTxDetailsSaved => '已保存详情';
+
+  @override
+  String get deskTxDetailsRemoved => '已删除详情';
+
+  @override
+  String get deskTxDetailsNotSaved => '详情未保存';
+
+  @override
+  String get deskTxManualTag => '由你添加';
+
+  @override
+  String deskTxManualTip(String date) {
+    return '你于 $date 添加。并非来自区块链。';
+  }
+
+  @override
+  String get deskTxManualTipNoDate => '由你添加。并非来自区块链。';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return '你于 $date 添加。并非来自区块链，未验证。';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate => '由你添加。并非来自区块链，未验证。';
+
+  @override
+  String get deskHistConflictTitle => '详情不一致';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '备份中有 $n 笔你描述过的付款带有不同的详情。除非你另行选择，否则保留你的内容。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => '我的';
+
+  @override
+  String get deskHistConflictBackup => '备份';
+
+  @override
+  String get deskHistConflictKeepAll => '全部保留我的';
+
+  @override
+  String get deskHistConflictImport => '导入';
+
+  @override
+  String get deskHistConflictEmpty => '空';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '已替换 $n 项详情，其余保留你的内容。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return '此应用不认识服务器 $relay。发送前请检查地址。';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay 没有响应。';
+  }
+
+  @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay 没有响应，收款人还没有收到此付款。在重新发送或取消之前，你的资金保持锁定。';
+  }
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return '未送达：$relay 没有响应。这笔付款保留在“活动”中；在那里取消即可解锁资金。';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay 没有响应。';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => '未知的 Epicbox 服务器';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return '此应用不认识服务器 $relay。发送前请检查地址。你仍然可以发送。';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return '未送达。$relay 没有响应，收款人没有收到这笔付款。请重新发送，或取消以释放资金。';
+  }
+
+  @override
+  String get deskInvNoticeReceiveSuperseded =>
+      '您使用此钱包的另一台设备接收了一笔本设备也在接收的付款。请重新核对余额，在这里查看它。';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '旧钱包的历史中有 $n 笔你描述过的付款带有不同的详情。除非你另行选择，否则保留你的内容。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => '旧钱包';
+
+  @override
+  String get deskHistConflictApply => '应用';
+
+  @override
+  String get deskTxProofNone => '这笔付款没有付款证明。';
 }

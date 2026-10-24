@@ -30,6 +30,7 @@ class DeskState {
     this.settings = const DeskSettings(),
     this.epicboxAddress,
     this.wallets,
+    this.oldHistory = const [],
   });
 
   final WalletAccount? account;
@@ -42,6 +43,9 @@ class DeskState {
   final DeskSettings settings;
   final String? epicboxAddress;
   final List<WalletEntry>? wallets;
+
+  /// What the old wallet's history waits for the user to choose ("Details differ").
+  final List<ImportConflict> oldHistory;
 
   /// File sends waiting for the recipient's response: the Activity badge.
   int get pendingFiles =>
@@ -58,6 +62,7 @@ class DeskState {
     DeskSettings? settings,
     String? epicboxAddress,
     List<WalletEntry>? wallets,
+    List<ImportConflict>? oldHistory,
   }) => DeskState(
     account: account ?? this.account,
     balance: balance ?? this.balance,
@@ -69,6 +74,7 @@ class DeskState {
     settings: settings ?? this.settings,
     epicboxAddress: epicboxAddress ?? this.epicboxAddress,
     wallets: wallets ?? this.wallets,
+    oldHistory: oldHistory ?? this.oldHistory,
   );
 }
 
@@ -147,6 +153,13 @@ class DeskController extends Notifier<DeskState> {
     state = DeskState(settings: state.settings, nodes: state.nodes, epicboxes: state.epicboxes);
   }
 
+  /// Answers "Details differ" for the old wallet's history: the choices, or null to ask later.
+  Future<void> resolveOldHistory(Map<String, bool>? choices) async {
+    state = state.copyWith(oldHistory: const []);
+    await api.resolveOldHistory(choices);
+    if (choices != null) await refresh();
+  }
+
   /// Re-reads the wallet list (Unlock, All wallets).
   Future<List<WalletEntry>> loadWallets() async {
     final wallets = await api.wallets();
@@ -195,7 +208,7 @@ class DeskController extends Notifier<DeskState> {
       final nodes = await a.nodes();
       final boxes = await a.epicboxes();
       final status = await a.status();
-      if (_changes != null) state = state.copyWith(balance: balance, txs: txs, contacts: contacts, nodes: nodes, epicboxes: boxes, status: status);
+      if (_changes != null) state = state.copyWith(balance: balance, txs: txs, contacts: contacts, nodes: nodes, epicboxes: boxes, status: status, oldHistory: a.oldHistoryConflicts);
     } on Object {
       // Locked meanwhile.
     }
@@ -228,6 +241,7 @@ class DeskController extends Notifier<DeskState> {
       settings: _keepTourSeen(settings),
       epicboxAddress: results[7] as String,
       wallets: results[8] as List<WalletEntry>,
+      oldHistory: a.oldHistoryConflicts,
     );
   }
 
@@ -293,8 +307,10 @@ class DeskController extends Notifier<DeskState> {
       }
       rethrow;
     }
+    // The address carries the relay: it changes with the switch.
     final status = await api.status();
-    state = state.copyWith(status: status);
+    final address = await api.epicboxAddress();
+    state = state.copyWith(status: status, epicboxAddress: address);
   }
 
   /// Starts or stops receiving (Receive › Start listener / Stop receiving). Transitional: the
@@ -372,8 +388,28 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(txs: txs);
   }
 
+  Future<void> repostTx(int id) async {
+    await api.repostTx(id);
+    final txs = await api.transactions();
+    state = state.copyWith(txs: txs);
+  }
+
   Future<void> cancelTx(int id) async {
     await api.cancelTx(id);
+    final txs = await api.transactions();
+    state = state.copyWith(txs: txs);
+  }
+
+  /// Names a payment, or removes its name (null or blank); the list shows it at once.
+  Future<void> setTxLabel(String key, String? label) async {
+    await api.setTxLabel(key, label);
+    final txs = await api.transactions();
+    state = state.copyWith(txs: txs);
+  }
+
+  /// Sets the details of a payment a scan found (see [DeskWalletApi.setTxDetails]).
+  Future<void> setTxDetails(String key, {String? counterparty, String? transport, String? note}) async {
+    await api.setTxDetails(key, counterparty: counterparty, transport: transport, note: note);
     final txs = await api.transactions();
     state = state.copyWith(txs: txs);
   }

@@ -23,7 +23,7 @@ void main() {
   for (final lang in ['de', 'pl', 'ru', 'zh', 'th', 'en']) {
     final l = lookupAppLocalizations(Locale(lang));
     test('$lang: a port in use reads whole in the sidebar and the status card', () {
-      final row = receivingRailItems(l, _down(HttpProblem.portInUse), settings).singleWhere((i) => i.name == 'HTTP');
+      final row = receivingRailItems(l, _down(HttpProblem.portInUse), settings).singleWhere((i) => i.name == l.methodDirectHttp);
       expect(row.second, l.deskRailPortInUse);
       expect(row.lines, contains(l.deskErrPortInUse(3420)));
       expect(row.state, EState.risk);
@@ -32,7 +32,7 @@ void main() {
     });
 
     test('$lang: a listener that stopped with an error says so, not "port in use"', () {
-      final row = receivingRailItems(l, _down(HttpProblem.stopped), settings).singleWhere((i) => i.name == 'HTTP');
+      final row = receivingRailItems(l, _down(HttpProblem.stopped), settings).singleWhere((i) => i.name == l.methodDirectHttp);
       expect(row.second, l.deskRailStopped);
       expect(row.lines, contains(l.deskErrStoppedWithError));
       final line = methodStateLine(l, TxMethod.http, _down(HttpProblem.portUnavailable), settings);

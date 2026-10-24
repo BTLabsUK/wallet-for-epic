@@ -58,6 +58,33 @@ void main() {
       expect(s.epicbox, EpicboxState.online);
     });
 
+    test('android-04: a refresh at the tip that has scanned nothing is not syncing', () {
+      final atTip = walletStatus(
+        tip: AsyncData(_tip),
+        syncing: true,
+        percent: 0,
+        summary: _summary(height: 2499998),
+        listener: _connected,
+      );
+      expect(atTip.node.state, NodeState.online);
+      final behind = walletStatus(
+        tip: AsyncData(_tip),
+        syncing: true,
+        percent: 0,
+        summary: _summary(height: 2499990),
+        listener: _connected,
+      );
+      expect(behind.node.state, NodeState.syncing);
+      final scanning = walletStatus(
+        tip: AsyncData(_tip),
+        syncing: true,
+        percent: 30,
+        summary: _summary(height: 2499999),
+        listener: _connected,
+      );
+      expect(scanning.node.state, NodeState.syncing);
+    });
+
     test('a failed tip is offline, even with checked balances', () {
       final s = walletStatus(
         tip: AsyncError(StateError('down'), StackTrace.empty),

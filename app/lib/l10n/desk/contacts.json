@@ -143,11 +143,11 @@
   "@deskConAddrEpicbox": {
     "description": "Label above the address in a contact's detail, for an Epicbox address."
   },
-  "deskConAddrTor": "Tor address",
+  "deskConAddrTor": "Direct · Tor address",
   "@deskConAddrTor": {
     "description": "Label above the address in a contact's detail, for a Tor address."
   },
-  "deskConAddrHttp": "HTTP address",
+  "deskConAddrHttp": "Direct · HTTP address",
   "@deskConAddrHttp": {
     "description": "Label above the address in a contact's detail, for an HTTP address."
   },

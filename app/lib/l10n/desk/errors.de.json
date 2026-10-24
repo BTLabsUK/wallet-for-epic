@@ -131,5 +131,7 @@
   "deskErrOldSeedTooLarge": "Die Datei wallet.seed ist zu groß, um ein Wallet-Seed zu sein.",
   "deskErrSendUnbuildable": "Diese Zahlung lässt sich aus den verfügbaren Coins nicht zusammenstellen.",
   "deskErrNothingToConsolidate": "Nichts zum Zusammenführen: weniger als zwei verfügbare Outputs.",
-  "deskErrTxNotFound": "Transaktion nicht gefunden"
+  "deskErrTxNotFound": "Transaktion nicht gefunden",
+  "deskErrNotDeliveredRelay": "Nicht zugestellt: {relay} hat nicht geantwortet. Die Zahlung wartet unter Aktivität; stornieren Sie sie dort, um den Betrag freizugeben.",
+  "deskErrRelayNoAnswer": "{relay} hat nicht geantwortet."
 }

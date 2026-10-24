@@ -15,6 +15,7 @@ import '../amount.dart';
 import '../providers.dart';
 import '../send_preflight.dart';
 import '../settings.dart';
+import '../stall_retry.dart' show invoicePaymentStalled;
 import '../wallet_service.dart';
 import 'common.dart';
 import 'invoice_rows.dart';
@@ -673,7 +674,18 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
       ),
     );
 
+    final now = ref.watch(clockProvider)();
     final status = switch (paid.status) {
+      // Still not on the network a while after paying, though the wallet sent the reply again
+      // by itself (windows-05, stall_retry.dart): Stalled, with Send again.
+      InvoiceStatus.replied when invoicePaymentStalled(widget.tx, now) => warning(
+        l.invoiceDetailsStalled(service),
+        TextButton.icon(
+          icon: const Icon(Icons.send_outlined),
+          label: Text(l.txDetailsSendAgain),
+          onPressed: _busy ? null : () => _retry(paid, service),
+        ),
+      ),
       // Still waiting: the service may never have got the reply (linux-12). Send again
       // delivers the stored one; Cancel comes once the payment's time runs out.
       InvoiceStatus.replied

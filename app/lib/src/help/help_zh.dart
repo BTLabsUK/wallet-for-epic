@@ -56,7 +56,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要 Epicbox 服务器有响应；直连地址（http 或 .onion）需要收款方钱包在那一刻处于打开且可访问的状态。')
         else
-          const HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要开启 Epicbox 接收；HTTP 和 Tor 地址需要收款方钱包在那一刻处于打开且可访问的状态。'),
+          const HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要开启 Epicbox 接收；直连地址（http 或 .onion）需要收款方钱包在那一刻处于打开且可访问的状态。'),
       ],
       id: HelpId.send,
     ),
@@ -95,7 +95,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Epic Cash 使用 Mimblewimble。它不在区块链上写入地址和金额，而是由两个钱包共同构建每笔交易，就像握手一样：'),
         HelpBlock.ol(['发送方钱包发起交易，并锁定要发送的输出。', '收款方钱包加入自己的部分并签名。', '发送方钱包也签名，完成交易并广播到网络。']),
-        HelpBlock.p('因此需要有东西在两个钱包之间传递消息。**Epicbox** 负责这件事：在对方钱包离线时保存消息，所以双方不必同时在线。**HTTP** 和 **Tor** 在对方钱包打开时直接送达。**交易文件** 是手动方式。'),
+        HelpBlock.p('因此需要有东西在两个钱包之间传递消息。**Epicbox** 负责这件事：在对方钱包离线时保存消息，所以双方不必同时在线。**直连 · HTTP** 和 **直连 · Tor** 在对方钱包打开时直接送达。**交易文件** 是手动方式。'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -259,7 +259,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
             '在[[设置 › 隐私|Settings › Privacy]]中开启。侧边栏中的 Tor 行显示其状态。',
             'Tor 启动中或未连接时，经由 Tor 的内容会等待；不会绕过它。点“重试”，或关闭 Tor。',
             '发往 http(s) 地址的直连发送不经由 Tor；“发送”会注明这一点。',
-            'Tor 开启期间 HTTP 接收关闭：其他钱包直接发来的付款会到达 Tor 地址。',
+            'Tor 开启期间 直连 · HTTP 接收关闭：其他钱包直接发来的付款会到达 直连 · Tor 地址。',
             '某些国家封锁或不允许使用 Tor；在那里它无法连接。',
           ]),
           HelpBlock.p('有些钱包显示的地址不带 .onion；两者是同一个地址。'),
@@ -287,7 +287,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**Tor 显示“未连接”。** Tor 无法连接到其网络。在“设置 › 隐私”中点“重试”，或关闭 Tor；在此期间不会发出任何内容。'),
         if (!phone) ...const [
-          HelpBlock.p('**“端口 3415 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 Epicbox、Tor 和文件照常工作。'),
+          HelpBlock.p('**“端口 3415 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 直连 · HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 Epicbox、直连 · Tor 和文件照常工作。'),
           HelpBlock.p('**“另一个 Epic 程序正在使用此文件夹”。** 另一个 Epic 钱包或节点打开了相同的文件。关闭它后重试。'),
         ],
         if (phone)

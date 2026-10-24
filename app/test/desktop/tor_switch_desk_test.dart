@@ -177,8 +177,8 @@ void main() {
     testWidgets('Receive: Direct is the Tor address with Tor on, with no switch of its own', (tester) async {
       await tester.runAsync(() => container.read(deskProvider.notifier).setTor(true));
       await show(tester, const ReceiveScreen());
-      expect(find.text('Direct, Tor address'), findsOneWidget);
-      expect(find.text('HTTP address'), findsNothing);
+      expect(find.text('Direct · Tor address'), findsOneWidget);
+      expect(find.text('Direct · HTTP address'), findsNothing);
       expect(find.byKey(const ValueKey('rx-switch-tor')), findsNothing);
       expect(find.text('Over Tor'), findsOneWidget, reason: 'the chip beside the title');
     }, skip: _skip);

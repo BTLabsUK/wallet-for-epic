@@ -8,7 +8,7 @@ import 'dart:typed_data';
 import 'package:epic_wallet/src/desktop/data/invoice_scheduler.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
-import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, OutputWord;
+import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, OutputWord, Tx, TxState;
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
@@ -51,6 +51,7 @@ lepic.TransactionDetails _tx({
   flow: lepic.TxFlow.invoice,
   origin: lepic.TxOrigin.wallet,
   transport: 'epicbox',
+  outputCommits: const [],
 );
 
 /// LEPIC's wallet in memory: the invoice half, transactions and a summary. Fails any other call.
@@ -284,6 +285,45 @@ void main() {
       expect(at(day, core.InvoiceStatus.replied), PayState.pastTtl);
       expect(at(day, core.InvoiceStatus.posted), PayState.posted, reason: 'the service posted it: no cancel offer');
       expect(of(entry(lepic.TxStatus.cancelled), core.InvoiceStatus.withdrawn), PayState.cancelled);
+    });
+
+    test('a paid invoice still not on the network a while after paying reads Stalled (windows-05)', () {
+      final paidAt = DateTime.fromMillisecondsSinceEpoch(1790000000000);
+      PayState after(Duration d, [core.InvoiceStatus s = core.InvoiceStatus.replied]) =>
+          payState(entry(lepic.TxStatus.sent), s, tip: 100, minConf: 3, now: paidAt.add(d));
+      expect(after(const Duration(minutes: 19)), PayState.delivered);
+      expect(after(const Duration(minutes: 20)), PayState.stalled);
+      expect(PayState.stalled.needsAction, isTrue);
+      expect(PayState.stalled.cancellable, isFalse, reason: 'the service may still post it');
+      expect(after(const Duration(hours: 1), core.InvoiceStatus.posted), PayState.posted);
+      expect(after(const Duration(hours: 1), core.InvoiceStatus.replyFailed), PayState.notDelivered);
+    });
+
+    test('an unpaid request waits for its payer; once finished it is posted (windows-05)', () {
+      core.TxEntry issued(lepic.TxStatus status, {String? kernel}) => lepicTxEntry(
+        lepic.TransactionDetails(
+          txId: 12,
+          direction: lepic.TxDirection.incoming,
+          status: status,
+          slateId: '0a9b35d2',
+          counterparty: _payer,
+          amountCredited: BigInt.from(5000000),
+          amountDebited: BigInt.zero,
+          createdAtMs: 1790000000000,
+          kernelExcess: kernel,
+          releasable: false,
+          undelivered: false,
+          messages: const [],
+          flow: lepic.TxFlow.invoice,
+          origin: lepic.TxOrigin.wallet,
+          transport: 'epicbox',
+          outputCommits: const [],
+        ),
+      );
+      Tx desk(core.TxEntry e) => deskTx(e, tip: 100, minConf: 3, fallbackId: -1);
+      expect(desk(issued(lepic.TxStatus.received)).state, TxState.waitingRecipient);
+      expect(desk(issued(lepic.TxStatus.posted, kernel: '08abc')).state, TxState.posted);
+      expect(desk(issued(lepic.TxStatus.finalized, kernel: '08abc')).notPosted, isTrue);
     });
 
     test('an issued invoice: every row of flow §3.3', () {

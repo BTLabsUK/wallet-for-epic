@@ -58,7 +58,7 @@ double shortAddressWidth(BuildContext context, String address, TextStyle style) 
   return w.ceilToDouble() + 1;
 }
 
-/// The kind tag of an address row: Epicbox (gold), HTTP or Tor.
+/// The kind tag of an address row: Epicbox (gold), Direct · HTTP or Direct · Tor.
 class EKindTag extends StatelessWidget {
   const EKindTag(this.kind, {super.key});
 
@@ -66,9 +66,9 @@ class EKindTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => switch (kind) {
-    AddressKind.epicbox => const ETag('Epicbox', tone: ETone.gold, icon: EIcons.epicbox), // l10n-ok: product name
-    AddressKind.http => const ETag('HTTP', icon: EIcons.http),
-    AddressKind.tor => const ETag('Tor', icon: EIcons.tor), // l10n-ok: product name
+    AddressKind.epicbox => ETag(context.l10n.methodEpicbox, tone: ETone.gold, icon: EIcons.epicbox),
+    AddressKind.http => ETag(context.l10n.methodDirectHttp, icon: EIcons.http),
+    AddressKind.tor => ETag(context.l10n.methodDirectTor, icon: EIcons.tor),
     AddressKind.none => ETag(context.l10n.deskKitUnknown),
   };
 }

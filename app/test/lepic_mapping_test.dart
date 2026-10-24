@@ -41,6 +41,7 @@ class _SendingWallet extends _NoNativeWallet {
           lepic.SlateMessage(role: lepic.SlateRole.sender, text: m),
     ],
     origin: lepic.TxOrigin.wallet,
+    outputCommits: const [],
   );
 
   @override
@@ -240,6 +241,7 @@ void main() {
       flow: lepic.TxFlow.payment,
       messages: const [],
       origin: lepic.TxOrigin.wallet,
+      outputCommits: const [],
     );
     expect(lepicTxEntry(send()).undelivered, isTrue);
     // The first attempt of a send still running is undelivered for LEPIC too.
@@ -626,6 +628,7 @@ void main() {
       lepic.TxOrigin origin = lepic.TxOrigin.wallet,
       lepic.ImportedTx? imported,
       lepic.ScanFound? found,
+      List<String> outputCommits = const [],
     }) => lepic.TransactionDetails(
       txId: 7,
       direction: direction,
@@ -647,6 +650,7 @@ void main() {
       origin: origin,
       imported: imported,
       found: found,
+      outputCommits: outputCommits,
     );
 
     test('a send waiting for its answer can be cancelled', () {
@@ -711,8 +715,11 @@ void main() {
           status: lepic.TxStatus.confirmed,
           slateId: null,
           origin: lepic.TxOrigin.foundByScan,
+          outputCommits: const ['08cafe'],
         ),
       );
+      // The commitment is what the row is known by after a restore changes its id.
+      expect(row.outputCommits, ['08cafe']);
       expect(row.kind, TxKind.received);
       expect(row.source, TxSource.restored);
       expect(row.messages, isEmpty);

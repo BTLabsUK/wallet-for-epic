@@ -1,0 +1,92 @@
+// The one naming rule for a payment method on the phone: Epicbox, Direct · HTTP, Direct · Tor or
+// File, in each language. HTTP and Tor are Direct's transport and never a method on their own.
+// The CSV's `method` column names them in English; the desktop's mapper is in
+// test/desktop/method_names_test.dart.
+import 'package:epic_wallet/src/history/export.dart';
+import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/recipient.dart';
+import 'package:epic_wallet/src/ui/contact_sheet.dart';
+import 'package:epic_wallet/src/ui/method_names.dart';
+import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// Epicbox, Direct · HTTP, Direct · Tor, File per language; Direct is each language's own term.
+const _names = <String, List<String>>{
+  'en': ['Epicbox', 'Direct · HTTP', 'Direct · Tor', 'File'],
+  'de': ['Epicbox', 'Direkt · HTTP', 'Direkt · Tor', 'Datei'],
+  'pl': ['Epicbox', 'Bezpośrednio · HTTP', 'Bezpośrednio · Tor', 'Plik'],
+  'ru': ['Epicbox', 'Напрямую · HTTP', 'Напрямую · Tor', 'Файл'],
+  'zh': ['Epicbox', '直连 · HTTP', '直连 · Tor', '文件'],
+  'th': ['Epicbox', 'ส่งตรง · HTTP', 'ส่งตรง · Tor', 'ไฟล์'],
+};
+
+void main() {
+  group('the phone names a method from one mapper', () {
+    for (final MapEntry(key: lang, value: names) in _names.entries) {
+      test('$lang: epicbox, http, tor and file', () {
+        final l = lookupAppLocalizations(Locale(lang));
+        expect([
+          for (final t in ['epicbox', 'http', 'tor', 'file']) txMethodWord(l, t),
+        ], names);
+        expect([
+          for (final k in RecipientKind.values) recipientMethodWord(l, k),
+        ], [names[0], names[2], names[1]], reason: 'enum order: epicbox, tor, http');
+      });
+    }
+
+    test('an unknown or missing transport reads Unknown, not a bare protocol', () {
+      final l = lookupAppLocalizations(const Locale('en'));
+      expect(txMethodWord(l, null), 'Unknown');
+      expect(txMethodWord(l, 'carrier-pigeon'), 'Unknown');
+    });
+
+    test('no language names HTTP or Tor alone as a method', () {
+      for (final lang in _names.keys) {
+        final l = lookupAppLocalizations(Locale(lang));
+        for (final t in ['http', 'tor']) {
+          expect(txMethodWord(l, t), isNot(anyOf('HTTP', 'Tor')), reason: lang);
+          expect(txMethodWord(l, t), startsWith(l.methodDirect), reason: lang);
+        }
+      }
+    });
+
+    test('a contact\'s tag is the method its address is reached by', () {
+      final l = lookupAppLocalizations(const Locale('de'));
+      expect(contactTag(l, 'esAbc@epicbox.epiccash.com'), 'Epicbox');
+      expect(contactTag(l, 'https://pay.example.org:3415'), 'Direkt · HTTP');
+    });
+  });
+
+  group('the CSV method column', () {
+    test('names the four methods the way the app does, in English', () {
+      expect(methodWord('epicbox'), 'Epicbox');
+      expect(methodWord('http'), 'Direct · HTTP');
+      expect(methodWord('tor'), 'Direct · Tor');
+      expect(methodWord('file'), 'File');
+      expect(methodWord(null), '');
+      expect(methodWord('other'), 'other');
+    });
+
+    test('a row carries the name, not LEPIC\'s transport', () {
+      TxEntry row(String? transport) => fakeTx(
+        key: 's:$transport',
+        id: 1,
+        slateId: 's-$transport',
+        kind: TxKind.sent,
+        status: TxStatus.confirmed,
+        createdAtUnix: 1790000000,
+        blockHeight: BigInt.from(12),
+        amountDebited: BigInt.from(200000000),
+        transport: transport,
+      );
+      final lines = historyCsv([
+        for (final t in ['epicbox', 'http', 'tor', 'file', null]) row(t),
+      ], BigInt.from(40)).trim().split('\n');
+      final methods = [for (final line in lines.skip(1)) line.split(',')[11]];
+      expect(methods, ['Epicbox', 'Direct · HTTP', 'Direct · Tor', 'File', '']);
+      expect(lines.join('\n'), isNot(contains(',http,')));
+      expect(lines.join('\n'), isNot(contains(',tor,')));
+    });
+  });
+}

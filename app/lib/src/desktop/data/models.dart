@@ -8,12 +8,12 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 
 import '../../l10n.dart' show AppLocalizations, englishStrings, localDigits;
-import '../../models.dart' show SelectionStrategy, SendOptions;
+import '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../smart_outputs.dart' show smartOutputsDefault;
 import '../../ui/send_screen.dart' show normalizeAmountText;
 
-export '../../models.dart' show SelectionStrategy, SendOptions;
+export '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions, txLabelMaxLength, txTransports;
 export '../../send_summary.dart' show SendEstimate, SendSummary;
 
 /// Amounts are kept in nanoepic (1 EPIC = 10^8), as the wallet does.
@@ -248,6 +248,8 @@ class Tx {
     this.height,
     this.kernel,
     this.hasProof = false,
+    this.proofSender,
+    this.proofSignature,
     this.coinbase = false,
     this.foundByScan = false,
     this.foundDuring,
@@ -260,9 +262,20 @@ class Tx {
     this.detail,
     this.flow = TxFlow.payment,
     this.toSelf = false,
+    this._key,
+    this.transport,
+    this.label,
+    this.note,
+    this.manualFields = const {},
+    this.manualEditedAt,
   });
 
   final int id;
+
+  /// The row's stable key as the core names it (`s:<slate>`, `k:<kernel>`, `c:<commitment>`,
+  /// `l:<id>`); what labels and details are stored under.
+  String get key => _key ?? (slateId.isNotEmpty ? 's:$slateId' : 'l:$id');
+  final String? _key;
   final String slateId;
   final TxDirection direction;
   final TxState state;
@@ -281,10 +294,32 @@ class Tx {
 
   /// A split or consolidation: both sides are this wallet (F13).
   final bool toSelf;
+
+  /// How it came, as the core names it (`epicbox`, `http`, `tor`, `file`); null when not known,
+  /// which a restored row is until the user says.
+  final String? transport;
+
+  /// The user's name for this payment; null when there is none.
+  final String? label;
+
+  /// The user's private note.
+  final String? note;
+
+  /// What the user typed rather than the chain or the wallet: [ManualField.label] when set, and
+  /// on a restored row the sender, method and note. Shown as "Added by you".
+  final Set<ManualField> manualFields;
+
+  /// When the user last changed [manualFields]; null when none is set or the time is not known.
+  final DateTime? manualEditedAt;
   final String? message;
   final int? height;
   final String? kernel;
   final bool hasProof;
+
+  /// The payment proof's sender address and the recipient's signature over it, as the core
+  /// reports them; null where it has none. The proof dialog shows only what is here.
+  final String? proofSender;
+  final String? proofSignature;
 
   /// A mining reward: spendable only after [coinbaseMaturity] confirmations.
   final bool coinbase;
@@ -324,6 +359,67 @@ class Tx {
   final TxFlow flow;
 
   bool get isInvoice => flow == TxFlow.invoice;
+
+  /// A payment a scan found with no record (the core's `TxSource.restored`): the only rows that
+  /// take typed details.
+  bool get restored => foundByScan;
+
+  /// The label without surrounding blanks, or null when there is none.
+  String? get labelText {
+    final t = label?.trim();
+    return t == null || t.isEmpty ? null : t;
+  }
+
+  /// This row with the user's entries replaced; a null argument keeps the field, an empty
+  /// string removes it. For the mock, which stores them beside the rows.
+  Tx withManual({String? label, String? counterparty, String? transport, String? note, int? editedAtUnix}) {
+    String? pick(String? now, String? was) => now == null ? was : (now.isEmpty ? null : now);
+    final l = pick(label, this.label), cp = pick(counterparty, this.counterparty), via = pick(transport, this.transport), n = pick(note, this.note);
+    final manual = <ManualField>{
+      if (l != null) ManualField.label,
+      if (restored && cp != null) ManualField.counterparty,
+      if (restored && via != null) ManualField.transport,
+      if (restored && n != null) ManualField.note,
+    };
+    return Tx(
+      id: id,
+      slateId: slateId,
+      direction: direction,
+      state: state,
+      method: via == null ? method : TxMethod.values.firstWhere((m) => m.name == via, orElse: () => method),
+      amount: amount,
+      fee: fee,
+      created: created,
+      confirmations: confirmations,
+      confirmationsNeeded: confirmationsNeeded,
+      counterparty: cp,
+      contactName: contactName,
+      message: message,
+      height: height,
+      kernel: kernel,
+      hasProof: hasProof,
+      proofSender: proofSender,
+      proofSignature: proofSignature,
+      coinbase: coinbase,
+      foundByScan: foundByScan,
+      foundDuring: foundDuring,
+      datedByBlock: datedByBlock,
+      fromBackup: fromBackup,
+      cancellable: cancellable,
+      notPosted: notPosted,
+      undelivered: undelivered,
+      confirmedAt: confirmedAt,
+      detail: detail,
+      flow: flow,
+      toSelf: toSelf,
+      key: key,
+      transport: via,
+      label: l,
+      note: n,
+      manualFields: manual,
+      manualEditedAt: manual.isEmpty ? null : (editedAtUnix == null ? manualEditedAt : DateTime.fromMillisecondsSinceEpoch(editedAtUnix * 1000)),
+    );
+  }
 
   bool get immature => coinbase && state != TxState.cancelled && confirmations > 0 && confirmations < coinbaseMaturity;
 
@@ -556,7 +652,15 @@ class HistoryBackupState {
 /// What an import of a history backup did.
 @immutable
 class HistoryImport {
-  const HistoryImport({this.merged = 0, this.added = 0, this.skipped = 0, this.contactsAdded = 0});
+  const HistoryImport({
+    this.merged = 0,
+    this.added = 0,
+    this.skipped = 0,
+    this.contactsAdded = 0,
+    this.conflicts = const [],
+    this.applied = true,
+    this.replaced = 0,
+  });
 
   /// Payments already here that got details back.
   final int merged;
@@ -568,7 +672,17 @@ class HistoryImport {
   final int skipped;
   final int contactsAdded;
 
-  bool get nothingNew => merged == 0 && added == 0 && contactsAdded == 0;
+  /// Fields where the file has another value than one the user typed here. Not empty only when
+  /// [applied] is false: nothing was written, and the import runs again with the user's choices.
+  final List<ImportConflict> conflicts;
+
+  /// False when [conflicts] stopped the import before anything was written.
+  final bool applied;
+
+  /// Fields the user chose the file's value for.
+  final int replaced;
+
+  bool get nothingNew => merged == 0 && added == 0 && contactsAdded == 0 && replaced == 0;
 }
 
 /// Why a history backup file was refused.

@@ -211,7 +211,7 @@ class _RequestRowState extends ConsumerState<RequestRow> {
           invoiceTimeLeftSpan(context, widget.left),
         ],
       ),
-      IssuedInvoiceState.paid => marked(Icons.check, t.ok, l.issuedPaid),
+      IssuedInvoiceState.paid => marked(Icons.check, t.txReceived, l.issuedPaid),
       IssuedInvoiceState.withdrawn => marked(
         Icons.radio_button_unchecked,
         t.dim,

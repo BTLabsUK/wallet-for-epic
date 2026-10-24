@@ -21,7 +21,7 @@
   "deskSetRecvNotInList": "нет в публичном списке",
   "deskSetRecvTypedNote": "Enter — использовать. Его состояние появится, когда кошелёк подключится.",
   "deskSetRecvListNote": "Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.",
-  "deskSetRecvHttpTitle": "Приём по HTTP",
+  "deskSetRecvHttpTitle": "Напрямую · HTTP, приём",
   "deskSetRecvHttpText": "Напрямую из другого кошелька, пока этот открыт.",
   "deskSetRecvHttpOffTitle": "Выключен, пока включён Tor",
   "deskSetRecvHttpOffText": "Прямые платежи вместо этого приходят на адрес Tor этого кошелька.",

@@ -126,6 +126,122 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txRestoredFunds => 'Wiederhergestelltes Guthaben';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label, $row';
+  }
+
+  @override
+  String get txLabel => 'Bezeichnung';
+
+  @override
+  String get txLabelAdd => 'Bezeichnung hinzufügen';
+
+  @override
+  String get txLabelEdit => 'Bezeichnung bearbeiten';
+
+  @override
+  String get txLabelHint => 'Bezeichnung hinzufügen';
+
+  @override
+  String get txLabelAddedNotice => 'Bezeichnung hinzugefügt';
+
+  @override
+  String get txLabelSavedNotice => 'Bezeichnung gespeichert';
+
+  @override
+  String get txLabelRemovedNotice => 'Bezeichnung entfernt';
+
+  @override
+  String get txEditAdd => 'Details hinzufügen';
+
+  @override
+  String get txEditEdit => 'Details bearbeiten';
+
+  @override
+  String get txEditFrom => 'Von';
+
+  @override
+  String get txEditFromHint => 'Adresse';
+
+  @override
+  String get txEditFromHelper =>
+      'Nicht geprüft. Wird nie für Zahlungsnachweise verwendet.';
+
+  @override
+  String get txMethodUnknown => 'Unbekannt';
+
+  @override
+  String get txManualTag => 'Von Ihnen hinzugefügt';
+
+  @override
+  String txManualTip(String date) {
+    return 'Von Ihnen am $date hinzugefügt. Nicht aus der Blockchain.';
+  }
+
+  @override
+  String get txManualTipNoDate =>
+      'Von Ihnen hinzugefügt. Nicht aus der Blockchain.';
+
+  @override
+  String txManualTipFrom(String date) {
+    return 'Von Ihnen am $date hinzugefügt. Nicht aus der Blockchain, nicht geprüft.';
+  }
+
+  @override
+  String get txManualTipFromNoDate =>
+      'Von Ihnen hinzugefügt. Nicht aus der Blockchain, nicht geprüft.';
+
+  @override
+  String get txEditAddedNotice => 'Details hinzugefügt';
+
+  @override
+  String get txEditSavedNotice => 'Details gespeichert';
+
+  @override
+  String get txEditRemovedNotice => 'Details entfernt';
+
+  @override
+  String get histConflictTitle => 'Details weichen ab';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Die Sicherung hat andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, wenn Sie nichts anderes wählen.',
+      one: 'Die Sicherung hat andere Details für 1 Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, wenn Sie nichts anderes wählen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => 'Meine';
+
+  @override
+  String get histConflictBackup => 'Sicherung';
+
+  @override
+  String get histConflictKeepAll => 'Alle meine behalten';
+
+  @override
+  String get histConflictImport => 'Importieren';
+
+  @override
+  String get histConflictEmpty => 'leer';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Details ersetzt, der Rest bleibt wie von Ihnen eingegeben.',
+      one: '1 Detail ersetzt, der Rest bleibt wie von Ihnen eingegeben.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => 'Ausgehende Zahlung';
 
   @override
@@ -3150,8 +3266,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Open-Source-Software in dieser Wallet. Jede Komponente behält ihre eigene Lizenz; die vollständigen Texte sind einen Tipp entfernt.';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile von BT Labs: Apache-2.0. Der Code ist auf GitHub.';
+  String get licencesApp => 'Epic Cash Mobile von BT Labs: Apache-2.0.';
 
   @override
   String get licencesFlutter =>
@@ -3502,8 +3617,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendNodeDown => 'Das Netzwerk ist gerade nicht erreichbar.';
 
   @override
-  String get sendRelayDown =>
-      'Der Epicbox-Server der Gegenseite antwortet nicht.';
+  String sendRelayDown(String relay) {
+    return 'Der Epicbox-Server der Gegenseite ($relay) antwortet nicht.';
+  }
 
   @override
   String get sendListenerDown =>
@@ -3656,20 +3772,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get handshakeNext => 'Nächster Schritt';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'Der Epicbox-Server der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
-      one: 'Der Epicbox-Server der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
+          'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
+      one:
+          'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'Der Epicbox-Server der Gegenseite hat sie nicht angenommen. Prüfen Sie die Wallet, bevor Sie erneut senden.';
+  String sendRelayRefusedLost(String relay) {
+    return 'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Prüfen Sie die Wallet, bevor Sie erneut senden.';
+  }
 
   @override
   String get sendCancelAndFile => 'Stornieren und mit Datei zahlen';
@@ -4428,30 +4546,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get serverMyRelays => 'Meine Server';
 
   @override
-  String get serverRemoveRelay => 'Aus meinen Servern entfernen';
+  String get serverMenuRemove => 'Aus meiner Liste entfernen';
+
+  @override
+  String get serverMenuDelete => 'Löschen';
+
+  @override
+  String settingsStateTor(String state) {
+    return 'Tor $state';
+  }
 
   @override
   String get serverRemoveInUse =>
-      'In Verwendung. Wechseln Sie zuerst zu einem anderen Server.';
-
-  @override
-  String get serverRemoveRelayTitle => 'Diesen Server entfernen?';
-
-  @override
-  String get serverRemoveNodeTitle => 'Diesen Node entfernen?';
-
-  @override
-  String serverRemoveBodyPublic(String host) {
-    return '$host verschwindet aus meiner Liste. Wählen Sie ihn aus der öffentlichen Liste, um ihn wieder zu nutzen.';
-  }
-
-  @override
-  String serverRemoveBodyCustom(String host) {
-    return '$host verschwindet aus meiner Liste. Geben Sie ihn erneut ein, um ihn zu nutzen.';
-  }
-
-  @override
-  String get serverRemoveConfirm => 'Entfernen';
+      'In Verwendung. Wählen Sie zuerst einen anderen Server.';
 
   @override
   String get serverSupportsNotifications => 'Unterstützt Benachrichtigungen';
@@ -4533,12 +4640,6 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get serverAddMine => 'Zu meinen Nodes hinzufügen';
-
-  @override
-  String get serverRemoveMine => 'Aus meinen Nodes entfernen';
 
   @override
   String get serverNotResponding => 'Antwortet nicht';
@@ -4657,10 +4758,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodHttp => 'HTTP';
+  String get methodDirectHttp => 'Direkt · HTTP';
 
   @override
-  String get methodTor => 'Tor';
+  String get methodDirectTor => 'Direkt · Tor';
 
   @override
   String get methodFile => 'Datei';
@@ -5451,11 +5552,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      'Eine Zahlung für eine Rechnung, die dieses Gerät nicht ausgestellt hat, ist eingetroffen und wurde abgelehnt. Hat ein anderes Gerät mit dieser Wallet sie ausgestellt, bitten Sie den Zahler, zu stornieren und erneut zu zahlen.';
+      'Eine Zahlung für eine Rechnung, die dieses Gerät nicht ausgestellt hat, ist eingetroffen. Sie bleibt einen Tag lang auf dem Relay für Ihr anderes Gerät mit dieser Wallet: Öffnen Sie die Wallet dort, um sie abzuschließen.';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      'Eine Antwort auf eine Zahlung, die dieses Gerät nicht gesendet hat, ist eingetroffen und wurde abgelehnt. Hat ein anderes Gerät mit dieser Wallet sie gesendet, stornieren Sie sie dort und senden Sie erneut.';
+      'Eine Antwort auf eine Zahlung, die dieses Gerät nicht gesendet hat, ist eingetroffen. Sie bleibt einen Tag lang auf dem Relay für Ihr anderes Gerät mit dieser Wallet: Öffnen Sie die Wallet dort, um sie abzuschließen.';
 
   @override
   String get deskInvPayerWaitingHead => 'Wartet auf Sie';
@@ -7002,7 +7103,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.';
 
   @override
-  String get deskRecvHttpAddress => 'HTTP-Adresse';
+  String get deskRecvHttpAddress => 'Direkt · HTTP-Adresse';
 
   @override
   String get deskRecvCopyHttp => 'HTTP-Adresse kopieren';
@@ -7025,14 +7126,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Schalten Sie Tor unter Einstellungen › Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.';
 
   @override
-  String get deskRecvDirectTor => 'Direkt, Tor-Adresse';
+  String get deskRecvDirectTor => 'Direkt · Tor-Adresse';
 
   @override
   String get deskRecvTorIntro =>
       'Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Datenschutz eingestellt.';
 
   @override
-  String get deskRecvTorAddress => 'Tor-Adresse';
+  String get deskRecvTorAddress => 'Direkt · Tor-Adresse';
 
   @override
   String get deskRecvCopyTor => 'Tor-Adresse kopieren';
@@ -7627,11 +7728,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Direkt (die Wallet des Empfängers muss geöffnet sein)';
+      'Direkt · HTTP (die Wallet des Empfängers muss geöffnet sein)';
 
   @override
   String get deskSendViaTor =>
-      'Direkt über Tor (die Wallet des Empfängers muss geöffnet sein)';
+      'Direkt · Tor (die Wallet des Empfängers muss geöffnet sein)';
 
   @override
   String get deskSendViaFile => 'Transaktionsdatei';
@@ -8119,10 +8220,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskConAddrEpicbox => 'Epicbox-Adresse';
 
   @override
-  String get deskConAddrTor => 'Tor-Adresse';
+  String get deskConAddrTor => 'Direkt · Tor-Adresse';
 
   @override
-  String get deskConAddrHttp => 'HTTP-Adresse';
+  String get deskConAddrHttp => 'Direkt · HTTP-Adresse';
 
   @override
   String get deskConNote => 'Notiz';
@@ -10181,7 +10282,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'HTTP-Empfang öffnen';
+  String get deskRailOpenHttp => 'Direkt · HTTP-Empfang öffnen';
 
   @override
   String get deskRailTorNotInBuild => 'Nicht in dieser Version';
@@ -10325,7 +10426,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTourReceiveText =>
-      'Die Epicbox-Adresse dieser Wallet, daneben HTTP und Tor. Transaktionsdateien zum Signieren oder Abschließen stehen unten.';
+      'Die Epicbox-Adresse dieser Wallet, daneben Direkt · HTTP und Direkt · Tor. Transaktionsdateien zum Signieren oder Abschließen stehen unten.';
 
   @override
   String get deskTourInvoicesTitle => 'Rechnungen';
@@ -10346,7 +10447,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'Gespeicherte Adressen mit Namen: Epicbox, HTTP oder Tor. Senden wählt von hier.';
+      'Gespeicherte Adressen mit Namen: Epicbox, Direkt · HTTP oder Direkt · Tor. Senden wählt von hier.';
 
   @override
   String get deskTourNodeTitle => 'Einstellungen › Node';
@@ -10463,11 +10564,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'HTTP: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
+      'Direkt · HTTP: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Tor: Die Zahlung geht direkt an die Wallet des Empfängers, über das Tor-Netzwerk';
+      'Direkt · Tor: Die Zahlung geht direkt an die Wallet des Empfängers, über das Tor-Netzwerk';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -12691,7 +12792,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zustand von status.btlabs.uk, alle paar Minuten geprüft.';
 
   @override
-  String get deskSetRecvHttpTitle => 'HTTP-Empfang';
+  String get deskSetRecvHttpTitle => 'Direkt · HTTP-Empfang';
 
   @override
   String get deskSetRecvHttpText =>
@@ -13211,7 +13312,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop von BT Labs: Apache-2.0. Der Code liegt auf GitHub.';
+      'Epic Cash Desktop von BT Labs: Apache-2.0.';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'Browser nicht geöffnet';
@@ -13584,4 +13685,254 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'Welche Outputs eine Zahlung verbraucht. Kleinste verbraucht möglichst wenige kleine Outputs und lässt den Rest verfügbar; Alle verbraucht alles und gibt einen Output zurück. Unter Senden › Erweitert lässt sich das für eine Zahlung ändern.';
+
+  @override
+  String get txStatusNotPosted => 'Nicht im Netzwerk';
+
+  @override
+  String get txStatusStalled => 'Hängt fest';
+
+  @override
+  String get txDetailsStalledBody =>
+      'Hängt fest, nicht zugestellt. Deine Zahlung hat das Netzwerk noch nicht erreicht. Sende sie erneut.';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      'Diese Zahlung hat die Wallet des Empfängers nicht erreicht, deshalb hat er sie nicht erhalten. Dein Guthaben bleibt gesperrt, bis sie erneut gesendet oder storniert wird.';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service hat deine Zahlung noch nicht veröffentlicht.';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => 'Nicht im Netzwerk';
+
+  @override
+  String get deskTxNowNotPosted =>
+      'Nicht im Netzwerk. Der Knoten hat diese Zahlung nicht angenommen. Senden Sie sie erneut ins Netzwerk; sie kann nicht doppelt ausgeführt werden.';
+
+  @override
+  String get deskTxBroadcastAgain => 'Erneut übertragen';
+
+  @override
+  String get deskTxBroadcastDone => 'An das Netzwerk gesendet';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return 'Nicht zugestellt. Die Wallet des Empfängers hat die Zahlung ($method) nicht angenommen, er hat sie also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.';
+  }
+
+  @override
+  String get deskInvPayStalled => 'Hängt fest';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return 'Ihre Zahlung an $service hängt fest';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      'Nicht zugestellt: Sie hat das Netzwerk noch nicht erreicht, und das Guthaben bleibt gesperrt. Erneut senden schickt sie noch einmal, ohne zweite Freigabe.';
+
+  @override
+  String get deskTxLabelAdd => 'Bezeichnung hinzufügen';
+
+  @override
+  String get deskTxLabelEdit => 'Bezeichnung ändern';
+
+  @override
+  String get deskTxLabelHint => 'Bezeichnung hinzufügen';
+
+  @override
+  String get deskTxLabelField => 'Bezeichnung';
+
+  @override
+  String get deskTxLabelTip =>
+      'Ein Name für diese Zahlung, nur für Sie. Wird in der Aktivität und in Exporten angezeigt.';
+
+  @override
+  String get deskTxLabelAdded => 'Bezeichnung hinzugefügt';
+
+  @override
+  String get deskTxLabelSaved => 'Bezeichnung gespeichert';
+
+  @override
+  String get deskTxLabelRemoved => 'Bezeichnung entfernt';
+
+  @override
+  String get deskTxLabelNotSaved => 'Bezeichnung nicht gespeichert';
+
+  @override
+  String get deskTxDetailsAdd => 'Details hinzufügen';
+
+  @override
+  String get deskTxDetailsEdit => 'Ändern';
+
+  @override
+  String get deskTxDetailsTitleAdd => 'Details hinzufügen';
+
+  @override
+  String get deskTxDetailsTitleEdit => 'Details ändern';
+
+  @override
+  String get deskTxDetailsTip =>
+      'Nur für Zahlungen, die ein Scan gefunden hat. Wird in der Aktivität, in den Details und in Exporten als von Ihnen hinzugefügt angezeigt. Beträge, Daten und Bestätigungen ändern sich nicht.';
+
+  @override
+  String get deskTxDetailsFrom => 'Von';
+
+  @override
+  String get deskTxDetailsFromTip =>
+      'Wer bezahlt hat, für Ihre Unterlagen. Nicht geprüft und nie für Zahlungsnachweise verwendet.';
+
+  @override
+  String get deskTxDetailsFromHint => 'Adresse des Absenders';
+
+  @override
+  String get deskTxDetailsFromBad =>
+      'Verwenden Sie eine Epicbox-, http(s)- oder .onion-Adresse.';
+
+  @override
+  String get deskTxDetailsNote => 'Notiz';
+
+  @override
+  String get deskTxDetailsAdded => 'Details hinzugefügt';
+
+  @override
+  String get deskTxDetailsSaved => 'Details gespeichert';
+
+  @override
+  String get deskTxDetailsRemoved => 'Details entfernt';
+
+  @override
+  String get deskTxDetailsNotSaved => 'Details nicht gespeichert';
+
+  @override
+  String get deskTxManualTag => 'Von Ihnen hinzugefügt';
+
+  @override
+  String deskTxManualTip(String date) {
+    return 'Am $date von Ihnen hinzugefügt. Nicht aus der Blockchain.';
+  }
+
+  @override
+  String get deskTxManualTipNoDate =>
+      'Von Ihnen hinzugefügt. Nicht aus der Blockchain.';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return 'Am $date von Ihnen hinzugefügt. Nicht aus der Blockchain, nicht geprüft.';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate =>
+      'Von Ihnen hinzugefügt. Nicht aus der Blockchain, nicht geprüft.';
+
+  @override
+  String get deskHistConflictTitle => 'Details weichen ab';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Die Sicherung enthält andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+      one:
+          'Die Sicherung enthält andere Details für $n Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => 'Meine';
+
+  @override
+  String get deskHistConflictBackup => 'Sicherung';
+
+  @override
+  String get deskHistConflictKeepAll => 'Alle meine behalten';
+
+  @override
+  String get deskHistConflictImport => 'Importieren';
+
+  @override
+  String get deskHistConflictEmpty => 'leer';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n Details ersetzt, der Rest bleibt wie von Ihnen.',
+      one: '$n Detail ersetzt, der Rest bleibt wie von Ihnen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return '$relay ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden.';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay hat nicht geantwortet.';
+  }
+
+  @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay hat nicht geantwortet, deshalb hat der Empfänger diese Zahlung nicht erhalten. Dein Guthaben bleibt gesperrt, bis sie erneut gesendet oder storniert wird.';
+  }
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'Nicht zugestellt: $relay hat nicht geantwortet. Die Zahlung wartet unter Aktivität; stornieren Sie sie dort, um den Betrag freizugeben.';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay hat nicht geantwortet.';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'Unbekannter Epicbox-Server';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return '$relay ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden.';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'Nicht zugestellt. $relay hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.';
+  }
+
+  @override
+  String get deskInvNoticeReceiveSuperseded =>
+      'Ihr anderes Gerät mit dieser Wallet hat eine Zahlung angenommen, die auch dieses Gerät empfangen hat. Tippen Sie auf „Guthaben neu prüfen“, um sie hier zu sehen.';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Der Verlauf des alten Wallets enthält andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+      one:
+          'Der Verlauf des alten Wallets enthält andere Details für $n Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => 'Altes Wallet';
+
+  @override
+  String get deskHistConflictApply => 'Übernehmen';
+
+  @override
+  String get deskTxProofNone =>
+      'Für diese Zahlung gibt es keinen Zahlungsnachweis.';
 }

@@ -1,0 +1,188 @@
+{
+  "deskTxLabelAdd": "Add label",
+  "@deskTxLabelAdd": {
+    "description": "Tooltip and screen-reader name of the pen on an Activity row or details title that has no label yet; also the ghost button in the details sub-header."
+  },
+  "deskTxLabelEdit": "Edit label",
+  "@deskTxLabelEdit": {
+    "description": "Tooltip and screen-reader name of the pen when the payment has a label; also the ghost button in the details sub-header."
+  },
+  "deskTxLabelHint": "Add label",
+  "@deskTxLabelHint": {
+    "description": "Placeholder of the inline label field while it is empty."
+  },
+  "deskTxLabelField": "Label",
+  "@deskTxLabelField": {
+    "description": "Screen-reader name of the inline label field, and the name of the field in the Details differ dialog."
+  },
+  "deskTxLabelTip": "A name for this payment, for you. Shown in Activity and exports.",
+  "@deskTxLabelTip": {
+    "description": "Tooltip on the label pen: what a label is."
+  },
+  "deskTxLabelAdded": "Label added",
+  "@deskTxLabelAdded": {
+    "description": "Toast title after a label was added."
+  },
+  "deskTxLabelSaved": "Label saved",
+  "@deskTxLabelSaved": {
+    "description": "Toast title after a label was changed."
+  },
+  "deskTxLabelRemoved": "Label removed",
+  "@deskTxLabelRemoved": {
+    "description": "Toast title after a label was emptied and removed."
+  },
+  "deskTxLabelNotSaved": "Label not saved",
+  "@deskTxLabelNotSaved": {
+    "description": "Toast title when saving a label failed; the reason follows as its text."
+  },
+  "deskTxDetailsAdd": "Add details",
+  "@deskTxDetailsAdd": {
+    "description": "Ghost button in the details sub-header of a payment a scan found: opens the dialog to add what the user knows."
+  },
+  "deskTxDetailsEdit": "Edit",
+  "@deskTxDetailsEdit": {
+    "description": "Short ghost button in the details sub-header when details were added already."
+  },
+  "deskTxDetailsTitleAdd": "Add details",
+  "@deskTxDetailsTitleAdd": {
+    "description": "Title of the dialog where the user adds details to a payment a scan found."
+  },
+  "deskTxDetailsTitleEdit": "Edit details",
+  "@deskTxDetailsTitleEdit": {
+    "description": "Title of the dialog when details exist already."
+  },
+  "deskTxDetailsTip": "Only for payments found by a scan. Shown as added by you in Activity, details and exports. Amounts, dates and confirmations do not change.",
+  "@deskTxDetailsTip": {
+    "description": "Description under the details dialog title, and tooltip on the details button: what it is for."
+  },
+  "deskTxDetailsFrom": "From",
+  "@deskTxDetailsFrom": {
+    "description": "Field name in the details dialog: who paid."
+  },
+  "deskTxDetailsFromTip": "Who paid, for your records. Not verified and never used for payment proofs.",
+  "@deskTxDetailsFromTip": {
+    "description": "Tooltip on the From field of the details dialog."
+  },
+  "deskTxDetailsFromHint": "Address of the sender",
+  "@deskTxDetailsFromHint": {
+    "description": "Placeholder of the From field in the details dialog."
+  },
+  "deskTxDetailsFromBad": "Use an Epicbox, http(s) or .onion address.",
+  "@deskTxDetailsFromBad": {
+    "description": "Shown under the From field when the text is not an address the wallet knows."
+  },
+  "deskTxDetailsNote": "Note",
+  "@deskTxDetailsNote": {
+    "description": "Field name in the details dialog and the details list: the private note."
+  },
+  "deskTxDetailsAdded": "Details added",
+  "@deskTxDetailsAdded": {
+    "description": "Toast title after details were added to a payment."
+  },
+  "deskTxDetailsSaved": "Details saved",
+  "@deskTxDetailsSaved": {
+    "description": "Toast title after details were changed."
+  },
+  "deskTxDetailsRemoved": "Details removed",
+  "@deskTxDetailsRemoved": {
+    "description": "Toast title after every detail was cleared."
+  },
+  "deskTxDetailsNotSaved": "Details not saved",
+  "@deskTxDetailsNotSaved": {
+    "description": "Toast title when saving details failed; the reason follows as its text."
+  },
+  "deskTxManualTag": "Added by you",
+  "@deskTxManualTag": {
+    "description": "Tag next to a value the user typed (label, sender, method, note)."
+  },
+  "deskTxManualTip": "Added by you on {date}. Not from the chain.",
+  "@deskTxManualTip": {
+    "description": "Tooltip on the Added by you tag when the time of the change is known.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "17 Oct 2026"
+      }
+    }
+  },
+  "deskTxManualTipNoDate": "Added by you. Not from the chain.",
+  "@deskTxManualTipNoDate": {
+    "description": "Tooltip on the Added by you tag when the time of the change is not known."
+  },
+  "deskTxManualTipFrom": "Added by you on {date}. Not from the chain, not verified.",
+  "@deskTxManualTipFrom": {
+    "description": "Tooltip on the Added by you tag of the From value when the time of the change is known.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "17 Oct 2026"
+      }
+    }
+  },
+  "deskTxManualTipFromNoDate": "Added by you. Not from the chain, not verified.",
+  "@deskTxManualTipFromNoDate": {
+    "description": "Tooltip on the Added by you tag of the From value when the time of the change is not known."
+  },
+  "deskHistConflictTitle": "Details differ",
+  "@deskHistConflictTitle": {
+    "description": "Title of the dialog shown when a history backup disagrees with what the user typed."
+  },
+  "deskHistConflictLead": "{n, plural, one{The backup has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "@deskHistConflictLead": {
+    "description": "Description of the Details differ dialog; n payments.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskHistConflictMine": "Mine",
+  "@deskHistConflictMine": {
+    "description": "Choice card in the Details differ dialog: the value typed here."
+  },
+  "deskHistConflictBackup": "Backup",
+  "@deskHistConflictBackup": {
+    "description": "Choice card in the Details differ dialog: the value in the backup file."
+  },
+  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet's history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet's history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "@deskHistConflictLeadOldWallet": {
+    "description": "Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskHistConflictOldWallet": "Old wallet",
+  "@deskHistConflictOldWallet": {
+    "description": "Choice card in the Details differ dialog: the value in the old wallet's history."
+  },
+  "deskHistConflictApply": "Apply",
+  "@deskHistConflictApply": {
+    "description": "Primary button in the Details differ dialog for the old wallet's history: apply the choices made."
+  },
+  "deskHistConflictKeepAll": "Keep all mine",
+  "@deskHistConflictKeepAll": {
+    "description": "Button in the Details differ dialog: import and keep every value the user typed."
+  },
+  "deskHistConflictImport": "Import",
+  "@deskHistConflictImport": {
+    "description": "Primary button in the Details differ dialog: import with the choices made."
+  },
+  "deskHistConflictEmpty": "empty",
+  "@deskHistConflictEmpty": {
+    "description": "Placeholder, in italics, where a value in the Details differ dialog is empty."
+  },
+  "deskHistImportedReplaced": "{n, plural, one{{n} detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}",
+  "@deskHistImportedReplaced": {
+    "description": "Line on the import result: how many typed details the user replaced with the backup's.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  }
+}

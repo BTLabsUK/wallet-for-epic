@@ -176,5 +176,9 @@
   "deskInvEpicboxAddress": "Epicbox address",
   "@deskInvEpicboxAddress": {
     "description": "Title of the QR of this wallet's Epicbox address (its payments address)."
+  },
+  "deskInvPayStalled": "Stalled",
+  "@deskInvPayStalled": {
+    "description": "State of an invoice you paid: the payment has not reached the network a while after paying, though the wallet sent it again by itself."
   }
 }

@@ -129,6 +129,15 @@ WireCodec<List<T>> listOf<T>(WireCodec<T> codec) => WireCodec<List<T>>(
       : throw wireError('List<${codec.type}>', 'not a list'),
 );
 
+WireCodec<Map<String, T>> mapOf<T>(WireCodec<T> codec) =>
+    WireCodec<Map<String, T>>(
+      'Map<String, ${codec.type}>',
+      (v) => {for (final e in v.entries) e.key: codec.encode(e.value)},
+      (json) => json is Map<String, Object?>
+          ? {for (final e in json.entries) e.key: codec.decode(e.value)}
+          : throw wireError('Map<String, ${codec.type}>', 'not a map'),
+    );
+
 final WireCodec<String?> optString = nullable(stringWire);
 final WireCodec<int?> optInt = nullable(intWire);
 final WireCodec<BigInt?> optBigInt = nullable(bigIntWire);
@@ -153,6 +162,10 @@ final WireCodec<SlateStage> slateStageWire = enumWire(
 final WireCodec<TxKind> txKindWire = enumWire('TxKind', TxKind.values);
 final WireCodec<TxFlow> txFlowWire = enumWire('TxFlow', TxFlow.values);
 final WireCodec<TxSource> txSourceWire = enumWire('TxSource', TxSource.values);
+final WireCodec<ManualField> manualFieldWire = enumWire(
+  'ManualField',
+  ManualField.values,
+);
 final WireCodec<TxStatus> txStatusWire = enumWire('TxStatus', TxStatus.values);
 final WireCodec<PeerCapability> peerCapabilityWire = enumWire(
   'PeerCapability',
@@ -325,6 +338,26 @@ final WireCodec<SelfSentTx> selfSentTxWire = _object<SelfSentTx>(
   ),
 );
 
+final WireCodec<ImportConflict> importConflictWire = _object<ImportConflict>(
+  'ImportConflict',
+  (v) => {
+    'key': v.key,
+    'field': manualFieldWire.encode(v.field),
+    'mine': v.mine,
+    'theirs': v.theirs,
+    'timeUnix': v.timeUnix,
+    'amount': bigIntWire.encode(v.amount),
+  },
+  (r) => ImportConflict(
+    key: r.of('key', stringWire),
+    field: r.of('field', manualFieldWire),
+    mine: r.of('mine', optString),
+    theirs: r.of('theirs', stringWire),
+    timeUnix: r.of('timeUnix', intWire),
+    amount: r.of('amount', bigIntWire),
+  ),
+);
+
 final WireCodec<ImportReport> importReportWire = _object<ImportReport>(
   'ImportReport',
   (v) => {
@@ -332,12 +365,19 @@ final WireCodec<ImportReport> importReportWire = _object<ImportReport>(
     'added': v.added,
     'skipped': v.skipped,
     'contactsAdded': v.contactsAdded,
+    'conflicts': listOf(importConflictWire).encode(v.conflicts),
+    'applied': v.applied,
+    'replaced': v.replaced,
   },
   (r) => ImportReport(
     merged: r.of('merged', intWire),
     added: r.of('added', intWire),
     skipped: r.of('skipped', intWire),
     contactsAdded: r.of('contactsAdded', intWire),
+    conflicts:
+        r.of('conflicts', nullable(listOf(importConflictWire))) ?? const [],
+    applied: r.of('applied', nullable(boolWire)) ?? true,
+    replaced: r.of('replaced', optInt) ?? 0,
   ),
 );
 
@@ -496,6 +536,9 @@ final WireCodec<TxEntry> txEntryWire = _object<TxEntry>(
     'outputCommits': listOf(stringWire).encode(v.outputCommits),
     'counterparty': v.counterparty,
     'note': v.note,
+    'label': v.label,
+    'manualFields': listOf(manualFieldWire).encode([...v.manualFields]),
+    'manualEditedAtUnix': v.manualEditedAtUnix,
     'messages': listOf(slateMessageWire).encode(v.messages),
     'ttlCutoffHeight': optBigInt.encode(v.ttlCutoffHeight),
     'cancellable': v.cancellable,
@@ -527,6 +570,11 @@ final WireCodec<TxEntry> txEntryWire = _object<TxEntry>(
     outputCommits: r.of('outputCommits', listOf(stringWire)),
     counterparty: r.of('counterparty', optString),
     note: r.of('note', optString),
+    label: r.of('label', optString),
+    manualFields: {
+      ...?r.of('manualFields', nullable(listOf(manualFieldWire))),
+    },
+    manualEditedAtUnix: r.of('manualEditedAtUnix', optInt),
     messages: r.of('messages', listOf(slateMessageWire)),
     ttlCutoffHeight: r.of('ttlCutoffHeight', optBigInt),
     cancellable: r.of('cancellable', boolWire),

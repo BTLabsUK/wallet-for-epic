@@ -889,12 +889,9 @@ void main() {
       await tester.pump(noticeDuration(NoticeLevel.success));
       await tester.pumpAndSettle();
       expect(find.text('PIN changed'), findsNothing);
-      // The dock closed and the content moved back up by its height.
+      // The dock closed, and the row under the finger stayed where it was (android-02).
       expect(tester.getSize(find.byType(NoticeDock)).height, 0);
-      expect(
-        tester.getTopLeft(find.text('Change PIN')),
-        docked.translate(0, -dock),
-      );
+      expect(tester.getTopLeft(find.text('Change PIN')), docked);
       expect(
         h.store.values['wallet.mainnet.pinSealed'],
         fakeSealedPassword('654321'),
@@ -1701,6 +1698,28 @@ void main() {
   });
 
   group('about', () {
+    testWidgets('windows-02: no link to the source repository while it is private', (
+      tester,
+    ) async {
+      registerTorLicence();
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.about);
+      expect(projectRepoPublic, isFalse);
+      expect(find.text('Licences'), findsOneWidget);
+      expect(find.text('Source code'), findsNothing);
+      expect(find.text('Epic Cash'), findsWidgets, reason: 'the other links stay');
+      await _reveal(tester, find.byKey(settingsLicencesKey));
+      await tester.tap(find.byKey(settingsLicencesKey));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(LicencesScreen), findsOneWidget);
+      expect(find.text('Epic Cash Mobile by BT Labs: Apache-2.0.'), findsOneWidget);
+      expect(find.textContaining('wallet-for-epic'), findsNothing);
+      expect(find.textContaining('GitHub'), findsNothing);
+    });
+
     testWidgets('Licences opens the licence page with the bundled tor in it', (
       tester,
     ) async {
@@ -1740,6 +1759,66 @@ void main() {
       }
       expect(find.text('tor'), findsOneWidget);
     });
+  });
+
+  group('a notice under the finger (android-02)', () {
+    // Phone sizes in dp: a 411 x 914 and a 360 x 740, where the hub and About fit on screen
+    // or nearly so and cannot scroll by themselves.
+    const phones = [(w: 411.0, h: 914.0), (w: 360.0, h: 740.0), (w: 360.0, h: 640.0)];
+
+    for (final phone in phones) {
+      for (final page in [null, SettingsSection.about]) {
+        testWidgets(
+          '${page?.name ?? 'hub'} at ${phone.w.round()}x${phone.h.round()}: opening and closing a notice moves no row',
+          (tester) async {
+            final h = _Harness();
+            h.updates.supported = true;
+            await h.pump(tester);
+            await h.unlock(tester);
+            tester.view.devicePixelRatio = 2;
+            tester.view.physicalSize = Size(phone.w * 2, phone.h * 2);
+            await h.openSettings(tester, page);
+            final rows = page == null
+                ? [
+                    find.byKey(settingsGroupKey(SettingsSection.privacyNetwork)),
+                    find.byKey(settingsGroupKey(SettingsSection.display)),
+                  ]
+                : [find.text('Version'), find.text('Check for updates')];
+            for (final row in rows) {
+              expect(row, findsOneWidget);
+            }
+            final before = [for (final row in rows) tester.getCenter(row)];
+            h.container
+                .read(noticeProvider.notifier)
+                .show('Notifications off', level: NoticeLevel.info);
+            await tester.pump();
+            // Every frame of the dock opening, then settled.
+            for (var i = 0; i < 12; i++) {
+              await tester.pump(const Duration(milliseconds: 30));
+              for (var r = 0; r < rows.length; r++) {
+                expect(
+                  tester.getCenter(rows[r]).dy,
+                  moreOrLessEquals(before[r].dy, epsilon: 1),
+                  reason: 'open, frame $i',
+                );
+              }
+            }
+            await tester.pumpAndSettle(const Duration(milliseconds: 50));
+            expect(tester.getSize(find.byType(NoticeDock).last).height, greaterThan(0));
+            for (var r = 0; r < rows.length; r++) {
+              expect(tester.getCenter(rows[r]).dy, moreOrLessEquals(before[r].dy, epsilon: 1));
+            }
+            // Closing does not move them either.
+            await tester.pump(noticeDuration(NoticeLevel.info));
+            await tester.pumpAndSettle(const Duration(milliseconds: 50));
+            expect(tester.getSize(find.byType(NoticeDock).last).height, 0);
+            for (var r = 0; r < rows.length; r++) {
+              expect(tester.getCenter(rows[r]).dy, moreOrLessEquals(before[r].dy, epsilon: 1));
+            }
+          },
+        );
+      }
+    }
   });
 
   group('wording', () {

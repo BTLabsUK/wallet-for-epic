@@ -765,6 +765,9 @@ class RemoteWalletSession implements WalletSession {
   Future<void> refreshTor({required bool networkChanged}) async {}
 
   @override
+  Future<void> torNetworkLost() async {}
+
+  @override
   Future<HttpSent> sendTor({
     required BigInt amount,
     required BigInt minimumConfirmations,
@@ -870,6 +873,23 @@ class RemoteWalletSession implements WalletSession {
       _call(SessionMember.setTxNote, voidWire, {'key': key, 'note': note});
 
   @override
+  Future<void> setTxLabel({required String key, String? label}) =>
+      _call(SessionMember.setTxLabel, voidWire, {'key': key, 'label': label});
+
+  @override
+  Future<void> setTxDetails({
+    required String key,
+    String? counterparty,
+    String? transport,
+    String? note,
+  }) => _call(SessionMember.setTxDetails, voidWire, {
+    'key': key,
+    'counterparty': counterparty,
+    'transport': transport,
+    'note': note,
+  });
+
+  @override
   Future<List<Contact>> contacts() =>
       _call(SessionMember.contacts, listOf(contactWire));
 
@@ -893,15 +913,20 @@ class RemoteWalletSession implements WalletSession {
       _call(SessionMember.exportHistoryCsv, stringWire);
 
   @override
-  Future<ImportReport> importHistory({required Uint8List data}) => _call(
-    SessionMember.importHistory,
-    importReportWire,
-    {'data': bytesWire.encode(data)},
-  );
+  Future<ImportReport> importHistory({
+    required Uint8List data,
+    Map<String, bool>? useBackup,
+  }) => _call(SessionMember.importHistory, importReportWire, {
+    'data': bytesWire.encode(data),
+    'useBackup': nullable(mapOf(boolWire)).encode(useBackup),
+  });
 
   // An old wallet's folder is on the server's disk, which a remote client does not choose.
   @override
-  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir}) async =>
+  Future<LegacyHistoryImport> importLegacyHistory({
+    required String sourceDir,
+    Map<String, bool>? useOldWallet,
+  }) async =>
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message: 'Importing an old wallet is not offered remotely',

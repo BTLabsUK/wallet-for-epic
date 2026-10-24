@@ -9,15 +9,15 @@ import 'l10n.dart' show englishStrings;
 import 'network.dart';
 import 'phone_tor.dart';
 import 'secret_store.dart';
+import 'settings.dart' show clockProvider;
+import 'stall_retry.dart';
 import 'vault.dart';
 import 'wallet_backend.dart' as backend;
 import 'wallet_service.dart';
+
+export 'models.dart' show defaultMinimumConfirmations;
 import 'phrase_clipboard.dart';
 
-/// Confirmations before an output counts as spendable, until a balance says otherwise: the
-/// count LEPIC's balance uses (3, as the GUI 6.1.6). The app never counts with its own number
-/// once a balance is there; see [countedConfirmationsProvider].
-const int defaultMinimumConfirmations = 3;
 final BigInt minimumConfirmations = BigInt.from(defaultMinimumConfirmations);
 
 /// The fallback the app counts with before the first balance: [minimumConfirmations], and 1 in
@@ -281,6 +281,12 @@ final homeProvider = AsyncNotifierProvider.autoDispose<HomeNotifier, HomeData>(
   HomeNotifier.new,
 );
 
+/// The automatic reposts and resends of the open wallet ([StallRetry]), kept across reloads.
+final stallRetryProvider = Provider<StallRetry>((ref) {
+  ref.watch(sessionProvider);
+  return StallRetry();
+});
+
 class HomeNotifier extends AsyncNotifier<HomeData> {
   bool _enriching = false;
 
@@ -327,6 +333,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     final transactions = await session.transactions(refresh: false);
     // Heights and dates for history rows come afterwards, so they never hold up the balance.
     Future<void>.delayed(Duration.zero, () => _enrich(session));
+    unawaited(_retryStalled(session, transactions));
     return HomeData(
       summary: summary,
       transactions: transactions,
@@ -351,6 +358,25 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       }
     }
     if (retried && ref.mounted) unawaited(reload());
+  }
+
+  /// Posts again a payment the chain has not taken and sends again a paid invoice's answer
+  /// when the shared policy says it is due (stall_retry.dart), then reads the list again.
+  Future<void> _retryStalled(
+    WalletSession session,
+    List<TxEntry> transactions,
+  ) async {
+    try {
+      final retry = ref.read(stallRetryProvider);
+      final sent = await retry.run(
+        session,
+        transactions,
+        ref.read(clockProvider)(),
+      );
+      if (sent && ref.mounted) unawaited(reload());
+    } catch (error) {
+      logWarn('home', 'automatic retry failed: ${error.runtimeType}');
+    }
   }
 
   /// The refresh after a local first load. A failure keeps the local figures and shows the

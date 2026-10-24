@@ -51,6 +51,11 @@ typedef WalletStatus = ({NodeStatus node, EpicboxState? epicbox});
 /// online, a lost connection is offline, anything else connecting; a stopped listener has no
 /// status. While the relay's connection [waitingForTor] (the user turned Tor on and it is still
 /// starting) a lost connection is connecting: the user closed it on purpose (android-09).
+/// Blocks the wallet may be behind the node's tip while a refresh runs and still read as up to
+/// date: a routine refresh at the tip is not syncing, however long it takes over Tor (android-04,
+/// "Syncing 0 %" at the tip after a network change).
+const int syncLagBlocks = 3;
+
 WalletStatus walletStatus({
   required AsyncValue<NodeTip> tip,
   required bool syncing,
@@ -63,8 +68,14 @@ WalletStatus walletStatus({
   final checked = summary != null && summary.lastConfirmedHeight > BigInt.zero
       ? summary.lastConfirmedHeight
       : answer?.height;
+  // A refresh that has scanned nothing yet, with the wallet at the tip, is a routine check.
+  final atTip =
+      answer != null &&
+      summary != null &&
+      summary.lastConfirmedHeight > BigInt.zero &&
+      answer.height - summary.lastConfirmedHeight <= BigInt.from(syncLagBlocks);
   final NodeStatus node;
-  if (syncing) {
+  if (syncing && !(atTip && (percent ?? 0) == 0)) {
     node = NodeStatus(
       NodeState.syncing,
       percent: percent,

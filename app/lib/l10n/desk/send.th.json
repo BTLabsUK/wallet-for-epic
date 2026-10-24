@@ -135,8 +135,8 @@
   "deskSendWrongPassword": "รหัสผ่านไม่ถูกต้อง",
   "deskSendNotConfirmed": "ยังไม่ยืนยัน ตรวจประวัติก่อนส่งอีกครั้ง",
   "deskSendViaEpicbox": "Epicbox (ผู้รับออฟไลน์อยู่ก็ได้)",
-  "deskSendViaDirect": "ส่งตรง (กระเป๋าเงินของผู้รับต้องเปิดอยู่)",
-  "deskSendViaTor": "ส่งตรง ผ่าน Tor (กระเป๋าเงินของผู้รับต้องเปิดอยู่)",
+  "deskSendViaDirect": "ส่งตรง · HTTP (กระเป๋าเงินของผู้รับต้องเปิดอยู่)",
+  "deskSendViaTor": "ส่งตรง · Tor (กระเป๋าเงินของผู้รับต้องเปิดอยู่)",
   "deskSendViaFile": "ไฟล์ธุรกรรม",
   "deskSendUsesAll": "{count, plural, other{ใช้ทั้ง {count} เอาต์พุต · เงินทอน 1 เอาต์พุต}}",
   "deskSendReviewTitle": "ตรวจสอบและส่ง",
@@ -162,5 +162,7 @@
   "deskSendFeeChangedTitle": "ค่าธรรมเนียมเปลี่ยนไป",
   "deskSendFeeChangedText": "เอาต์พุตของกระเป๋าเงินเปลี่ยนไปหลังการตรวจสอบนี้ การส่งครั้งนี้จึงเสียค่าธรรมเนียม {fee} EPIC แทน {was} EPIC โปรดตรวจสอบแล้วส่งอีกครั้ง",
   "deskSendMessageBytes": "{used} / {max} ไบต์",
-  "deskSendMessageTooLong": "ข้อความยาวเกิน {max} ไบต์ โปรดทำให้สั้นลง"
+  "deskSendMessageTooLong": "ข้อความยาวเกิน {max} ไบต์ โปรดทำให้สั้นลง",
+  "deskSendRelayUnknownTitle": "ไม่รู้จักเซิร์ฟเวอร์ Epicbox",
+  "deskSendRelayUnknownText": "แอปไม่รู้จักเซิร์ฟเวอร์ {relay} ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้"
 }

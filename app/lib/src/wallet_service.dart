@@ -10,7 +10,6 @@ import 'dart:typed_data';
 
 import 'history/wallet_history.dart';
 import 'models.dart';
-import 'providers.dart' show defaultMinimumConfirmations;
 
 export 'models.dart';
 
@@ -304,6 +303,12 @@ abstract interface class WalletSession {
   /// stream then ends with `failed` and `stopped`).
   Future<void> refreshTor({required bool networkChanged});
 
+  /// The device lost its network: a running tor turns its network off until the next
+  /// [refreshTor], so it makes no attempt that would fail meanwhile and count the relays it
+  /// enters the Tor network through as unreachable (android-04). Does nothing when no tor
+  /// runs or while it starts.
+  Future<void> torNetworkLost();
+
   /// Sends to the wallet at [onion] over Tor, then finalizes its answer and posts, as
   /// [sendHttp]. Needs tor connected, else [WalletErrorKind.torNotRunning] and nothing is
   /// stored. Reaching an onion that is not online takes up to about 150 seconds before
@@ -354,6 +359,21 @@ abstract interface class WalletSession {
   /// Sets the note of the transaction with [TxEntry.key]; null or blank clears it.
   Future<void> setTxNote({required String key, String? note});
 
+  /// Sets the label of the transaction with [TxEntry.key], at most [txLabelMaxLength]
+  /// characters; null or blank removes it. Any transaction may have one.
+  Future<void> setTxLabel({required String key, String? label});
+
+  /// Sets what the user knows of a transaction a scan restored ([TxSource.restored]): who paid
+  /// ([counterparty], an address), how ([transport]: `epicbox`, `http`, `tor` or `file`) and a
+  /// [note]. Each null or blank clears that field. Refused with
+  /// [WalletErrorKind.invalidArgument] for any other row. Never reaches LEPIC.
+  Future<void> setTxDetails({
+    required String key,
+    String? counterparty,
+    String? transport,
+    String? note,
+  });
+
   /// Address book, sorted by name.
   Future<List<Contact>> contacts();
 
@@ -370,12 +390,30 @@ abstract interface class WalletSession {
 
   /// Merges a file from [exportHistory]. A second import of the same file changes nothing. A
   /// file from another wallet throws [WalletError] with [WalletErrorKind.invalidArgument].
-  Future<ImportReport> importHistory({required Uint8List data});
+  ///
+  /// Per field, what the user entered here wins; the file fills only empty fields. Where the
+  /// file has another value ([ImportReport.conflicts]) and [useBackup] is null, nothing is
+  /// written and the report has `applied: false`. Called again with [useBackup], by
+  /// [ImportConflict.id]: true takes the file's value, false or missing keeps the user's, and
+  /// a kept value is remembered so the same file never asks again.
+  Future<ImportReport> importHistory({
+    required Uint8List data,
+    Map<String, bool>? useBackup,
+  });
 
   /// Brings across the transaction history of the epic-wallet wallet (GUI or CLI) in
   /// [sourceDir], the folder holding `wallet_data`, that this wallet was made from. Nothing in
   /// [sourceDir] is written. A history that cannot be imported is a status, not an error.
-  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir});
+  ///
+  /// Where the old wallet records another sender or method than the user typed for a payment
+  /// ([LegacyHistoryImport.conflicts]) and [useOldWallet] is null, the report has `applied:
+  /// false` and the typed values stay as they are. Called again with [useOldWallet] (by
+  /// [ImportConflict.id]: true takes the old wallet's value, false or missing keeps the user's,
+  /// remembered so the same value never asks again).
+  Future<LegacyHistoryImport> importLegacyHistory({
+    required String sourceDir,
+    Map<String, bool>? useOldWallet,
+  });
 
   /// Largest amount that can be sent now, with its fee.
   Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations});
@@ -990,7 +1028,13 @@ class FakeWalletSession implements WalletSession {
       );
     }
     final tx = transactionsValue.where((t) => t.key == key).firstOrNull;
-    if (tx == null || !tx.repostable) {
+    // As LEPIC: a finalized one the node refused, or a posted one not in a block yet.
+    final posted =
+        tx != null &&
+        tx.kernelExcess != null &&
+        tx.status == TxStatus.awaitingConfirmation &&
+        tx.blockHeight == null;
+    if (tx == null || !(tx.repostable || posted)) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message:
@@ -1454,6 +1498,12 @@ class FakeWalletSession implements WalletSession {
   /// Holds [refreshTor] until completed; it then answers by [torStatusValue] as it is then.
   Completer<void>? torRefreshGate;
 
+  /// How many times [torNetworkLost] was called.
+  int torNetworkLosses = 0;
+
+  @override
+  Future<void> torNetworkLost() async => torNetworkLosses++;
+
   @override
   Future<void> refreshTor({required bool networkChanged}) async {
     torRefreshes.add(networkChanged);
@@ -1633,10 +1683,78 @@ class FakeWalletSession implements WalletSession {
   /// When set, [importHistory] throws it (for example a wrong-wallet error).
   WalletError? importError;
 
+  /// Labels by transaction key, as [setTxLabel] stores them.
+  final Map<String, String> labels = {};
+
+  /// What [setTxDetails] stored, by transaction key.
+  final Map<String, ({String? counterparty, String? transport, String? note})>
+  details = {};
+
+  /// The conflicts the next [importHistory] without `useBackup` reports (then stops).
+  List<ImportConflict> importConflicts = const [];
+
+  /// The `useBackup` of the last [importHistory] call.
+  Map<String, bool>? lastUseBackup;
+
   TxEntry _withNote(TxEntry tx) {
     final note = notes[tx.key];
-    if (note == null) return tx;
-    return copyTx(tx, note: note);
+    final label = labels[tx.key];
+    final d = details[tx.key];
+    if (note == null && label == null && d == null) return tx;
+    final manual = {
+      if (label != null) ManualField.label,
+      if (d?.counterparty != null) ManualField.counterparty,
+      if (d?.transport != null) ManualField.transport,
+      if (d?.note != null) ManualField.note,
+    };
+    return copyTx(
+      tx,
+      note: d?.note ?? note ?? tx.note,
+      label: label,
+      counterparty: tx.counterparty ?? d?.counterparty,
+      transport: tx.transport ?? d?.transport,
+      manualFields: manual,
+      manualEditedAtUnix: manual.isEmpty ? null : 1790000000,
+    );
+  }
+
+  @override
+  Future<void> setTxLabel({required String key, String? label}) async {
+    final text = label?.trim() ?? '';
+    if (text.isEmpty) {
+      labels.remove(key);
+    } else {
+      labels[key] = text.length > txLabelMaxLength
+          ? text.substring(0, txLabelMaxLength)
+          : text;
+    }
+  }
+
+  @override
+  Future<void> setTxDetails({
+    required String key,
+    String? counterparty,
+    String? transport,
+    String? note,
+  }) async {
+    final row = transactionsValue.where((t) => t.key == key).firstOrNull;
+    if (row == null || row.source != TxSource.restored) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'only a restored transaction takes details',
+      );
+    }
+    String? some(String? v) => v == null || v.trim().isEmpty ? null : v.trim();
+    final d = (
+      counterparty: some(counterparty),
+      transport: some(transport),
+      note: some(note),
+    );
+    if (d.counterparty == null && d.transport == null && d.note == null) {
+      details.remove(key);
+    } else {
+      details[key] = d;
+    }
   }
 
   @override
@@ -1741,14 +1859,50 @@ class FakeWalletSession implements WalletSession {
   @override
   Future<LegacyHistoryImport> importLegacyHistory({
     required String sourceDir,
+    Map<String, bool>? useOldWallet,
   }) async {
     legacyImports.add(sourceDir);
-    return legacyImport;
+    lastUseOldWallet = useOldWallet;
+    final waiting = legacyImport.conflicts;
+    if (useOldWallet == null && waiting.isNotEmpty) {
+      return LegacyHistoryImport(
+        status: legacyImport.status,
+        transactions: legacyImport.transactions,
+        conflicts: waiting,
+        applied: false,
+      );
+    }
+    return LegacyHistoryImport(
+      status: legacyImport.status,
+      transactions: legacyImport.transactions,
+      linked: legacyImport.linked,
+      skipped: legacyImport.skipped,
+      replaced: useOldWallet?.values.where((v) => v).length ?? 0,
+    );
   }
 
+  /// The `useOldWallet` of the last [importLegacyHistory] call.
+  Map<String, bool>? lastUseOldWallet;
+
   @override
-  Future<ImportReport> importHistory({required Uint8List data}) async {
+  Future<ImportReport> importHistory({
+    required Uint8List data,
+    Map<String, bool>? useBackup,
+  }) async {
     if (importError != null) throw importError!;
+    lastUseBackup = useBackup;
+    if (useBackup == null && importConflicts.isNotEmpty) {
+      return ImportReport(
+        merged: 0,
+        added: 0,
+        skipped: 0,
+        contactsAdded: 0,
+        conflicts: importConflicts,
+        applied: false,
+      );
+    }
+    final replaced = useBackup?.values.where((v) => v).length ?? 0;
+    importConflicts = const [];
     final text = utf8.decode(data, allowMalformed: true);
     if (!text.startsWith(_exportMagic)) {
       throw const WalletError(
@@ -1787,6 +1941,7 @@ class FakeWalletSession implements WalletSession {
       added: added,
       skipped: skipped,
       contactsAdded: contactsAdded,
+      replaced: replaced,
     );
   }
 
@@ -2641,6 +2796,9 @@ TxEntry fakeTx({
   String? counterparty,
   String? transport,
   String? note,
+  String? label,
+  Set<ManualField> manualFields = const {},
+  int? manualEditedAtUnix,
   List<SlateMessage> messages = const [],
   BigInt? ttlCutoffHeight,
   bool cancellable = false,
@@ -2685,6 +2843,9 @@ TxEntry fakeTx({
     counterparty: counterparty,
     transport: transport,
     note: note,
+    label: label,
+    manualFields: manualFields,
+    manualEditedAtUnix: manualEditedAtUnix,
     messages: messages,
     ttlCutoffHeight: ttlCutoffHeight,
     cancellable: cancellable,
@@ -2698,8 +2859,18 @@ TxEntry fakeTx({
   );
 }
 
-/// [tx] with [note] replaced, and [undelivered] when given.
-TxEntry copyTx(TxEntry tx, {String? note, bool? undelivered}) => TxEntry(
+/// [tx] with [note] replaced, and [undelivered], [label], [counterparty], [transport],
+/// [manualFields] and [manualEditedAtUnix] when given.
+TxEntry copyTx(
+  TxEntry tx, {
+  String? note,
+  bool? undelivered,
+  String? label,
+  String? counterparty,
+  String? transport,
+  Set<ManualField>? manualFields,
+  int? manualEditedAtUnix,
+}) => TxEntry(
   key: tx.key,
   id: tx.id,
   slateId: tx.slateId,
@@ -2718,9 +2889,12 @@ TxEntry copyTx(TxEntry tx, {String? note, bool? undelivered}) => TxEntry(
   numOutputs: tx.numOutputs,
   kernelExcess: tx.kernelExcess,
   outputCommits: tx.outputCommits,
-  counterparty: tx.counterparty,
-  transport: tx.transport,
+  counterparty: counterparty ?? tx.counterparty,
+  transport: transport ?? tx.transport,
   note: note,
+  label: label ?? tx.label,
+  manualFields: manualFields ?? tx.manualFields,
+  manualEditedAtUnix: manualEditedAtUnix ?? tx.manualEditedAtUnix,
   messages: tx.messages,
   ttlCutoffHeight: tx.ttlCutoffHeight,
   cancellable: tx.cancellable,
@@ -2731,4 +2905,6 @@ TxEntry copyTx(TxEntry tx, {String? note, bool? undelivered}) => TxEntry(
   finalizedAtUnix: tx.finalizedAtUnix,
   cancelReason: tx.cancelReason,
   flow: tx.flow,
+  foundDuring: tx.foundDuring,
+  datedByBlock: tx.datedByBlock,
 );

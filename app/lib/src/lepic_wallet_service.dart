@@ -436,6 +436,7 @@ InvoiceEvent? lepicInvoiceEvent(lepic.WalletEvent e) {
     lepic.WalletEventKind.unknownSlate when e.slateStage == 'I2' =>
       InvoiceEventKind.unknownInvoicePayment,
     lepic.WalletEventKind.unknownSlate => InvoiceEventKind.unknownSendAnswer,
+    lepic.WalletEventKind.receiveSuperseded => InvoiceEventKind.receiveSuperseded,
     _ => null,
   };
   if (kind == null) return null;
@@ -498,9 +499,11 @@ int lepicTxId(String key) {
 /// The transports whose undelivered sends are sent again: Epicbox, HTTP and Tor.
 const resendTransports = {'epicbox', 'http', 'tor'};
 
-/// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]). Notes, contacts
-/// and imported rows are the app's (H-01), so `note` stays empty here; `messages` are the
-/// slate's, which LEPIC verified.
+/// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]) until the merge
+/// gives the stable one: a row a scan restored is then known by its output's commitment, which
+/// a restore finds again while the id changes. Notes, labels, contacts and imported rows are
+/// the app's (H-01), so `note` and `label` stay empty here; `messages` are the slate's, which
+/// LEPIC verified.
 TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
   final outgoing = d.direction == lepic.TxDirection.outgoing;
   final ended =
@@ -549,7 +552,7 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
     numInputs: imported?.inputCount ?? 0,
     numOutputs: imported?.outputCount ?? 0,
     kernelExcess: d.kernelExcess,
-    outputCommits: const [],
+    outputCommits: d.outputCommits,
     counterparty: d.counterparty,
     transport: d.transport,
     messages: lepicMessages(d.messages),
@@ -1427,6 +1430,9 @@ class LepicWalletSession implements WalletSession {
       _guard(() => _wallet.refreshTor(networkChanged: networkChanged));
 
   @override
+  Future<void> torNetworkLost() => _guard(() => _wallet.torNetworkLost());
+
+  @override
   Future<TorStatus> torStatus() async {
     if (_wallet.isDisposed) return TorStatus.off;
     final s = _guardSync(_wallet.torStatus);
@@ -1597,6 +1603,26 @@ class LepicWalletSession implements WalletSession {
       _guard(() async => _history.setNote(await _live(), key, note));
 
   @override
+  Future<void> setTxLabel({required String key, String? label}) =>
+      _guard(() async => _history.setLabel(await _live(), key, label));
+
+  @override
+  Future<void> setTxDetails({
+    required String key,
+    String? counterparty,
+    String? transport,
+    String? note,
+  }) => _guard(
+    () async => _history.setDetails(
+      await _live(),
+      key,
+      counterparty: counterparty,
+      transport: transport,
+      note: note,
+    ),
+  );
+
+  @override
   Future<List<Contact>> contacts() async => _history.contacts();
 
   @override
@@ -1628,14 +1654,18 @@ class LepicWalletSession implements WalletSession {
   });
 
   @override
-  Future<ImportReport> importHistory({required Uint8List data}) =>
-      _guard(() async {
+  Future<ImportReport> importHistory({
+    required Uint8List data,
+    Map<String, bool>? useBackup,
+  }) => _guard(() async {
         final payload = HistoryPayload.decode(await _openHistoryFile(data));
         final report = await _history.importPayload(
           payload,
           await _live(),
           walletFp: walletFingerprint(await _wallet.epicboxAddress()),
+          useBackup: useBackup,
         );
+        if (!report.applied) return report;
         // The file may carry the invoice index from before a restore.
         await restoreInvoiceIndex();
         return report;
@@ -1644,10 +1674,10 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<LegacyHistoryImport> importLegacyHistory({
     required String sourceDir,
+    Map<String, bool>? useOldWallet,
   }) => _guard(() async {
     final r = await _wallet.importLegacyHistory(sourceDir: sourceDir);
-    return LegacyHistoryImport(
-      status: switch (r.status) {
+    final status = switch (r.status) {
         lepic.LegacyImportStatus.imported => LegacyHistoryStatus.imported,
         lepic.LegacyImportStatus.alreadyImported =>
           LegacyHistoryStatus.alreadyImported,
@@ -1659,10 +1689,33 @@ class LepicWalletSession implements WalletSession {
         lepic.LegacyImportStatus.otherWallet => LegacyHistoryStatus.otherWallet,
         lepic.LegacyImportStatus.otherHistory =>
           LegacyHistoryStatus.otherHistory,
-      },
+    };
+    // What the user typed for a payment a scan found, against what the old wallet recorded
+    // for it: the same per-field choice as a history backup, Mine unless they say otherwise.
+    final read =
+        status == LegacyHistoryStatus.imported ||
+        status == LegacyHistoryStatus.alreadyImported;
+    final live = read ? await _live() : const <TxEntry>[];
+    final List<ImportConflict> conflicts =
+        read ? _history.legacyConflicts(live) : const [];
+    var replaced = 0;
+    if (conflicts.isNotEmpty) {
+      if (useOldWallet == null) {
+        return LegacyHistoryImport(
+          status: status,
+          transactions: r.transactions,
+          conflicts: conflicts,
+          applied: false,
+        );
+      }
+      replaced = await _history.resolveLegacyConflicts(live, useOldWallet);
+    }
+    return LegacyHistoryImport(
+      status: status,
       transactions: r.transactions,
       linked: r.linked,
       skipped: r.skipped,
+      replaced: replaced,
     );
   });
 
@@ -1767,7 +1820,8 @@ class LepicWalletSession implements WalletSession {
         case InvoiceEventKind.declined || InvoiceEventKind.expired:
           _waitingSlates.remove(event.slateId);
         case InvoiceEventKind.unknownInvoicePayment ||
-            InvoiceEventKind.unknownSendAnswer:
+            InvoiceEventKind.unknownSendAnswer ||
+            InvoiceEventKind.receiveSuperseded:
           // A relay that did not settle the message delivers it again: one notice per slate.
           if (!_unknownSlates.add(event.slateId)) return;
       }

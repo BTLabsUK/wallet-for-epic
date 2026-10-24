@@ -68,5 +68,7 @@
   "deskInvPayerSpentText": "Ihr Guthaben ist freigegeben und innerhalb dieser Wallet verschoben. Die Stornierung ist endgültig.",
   "deskInvPayerSpendFailedText": "Ihr Guthaben ist freigegeben, aber das Verschieben hat nicht geklappt. Die Stornierung ist noch nicht endgültig.",
   "deskInvPayerLocked": "Diese Rechnung kann nicht bezahlt werden: Sie ist bis zu einem späteren Block gesperrt. Nichts wurde bezahlt.",
-  "deskInvPayerRelayDownPay": "Der Epicbox-Server antwortet nicht. Es wurde nichts bezahlt."
+  "deskInvPayerRelayDownPay": "Der Epicbox-Server antwortet nicht. Es wurde nichts bezahlt.",
+  "deskInvPayerStalledTitle": "Ihre Zahlung an {service} hängt fest",
+  "deskInvPayerStalledText": "Nicht zugestellt: Sie hat das Netzwerk noch nicht erreicht, und das Guthaben bleibt gesperrt. Erneut senden schickt sie noch einmal, ohne zweite Freigabe."
 }

@@ -43,6 +43,8 @@ enum SessionMember {
   transactions,
   enrichHistory,
   setTxNote,
+  setTxLabel,
+  setTxDetails,
   contacts,
   saveContact,
   deleteContact,
@@ -102,6 +104,7 @@ const Set<String> localSessionMembers = {
   'stopTor',
   'torStatus',
   'refreshTor',
+  'torNetworkLost',
   'sendTor',
   'resendTor',
   // Route the server's own Epicbox connection through its tor; answered by the client.

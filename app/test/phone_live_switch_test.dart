@@ -10,7 +10,9 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/ui/first_run_screen.dart' show NetworkSettingsButton;
 import 'package:epic_wallet/src/ui/launch_screen.dart';
+import 'package:epic_wallet/src/ui/pin_unlock_screen.dart';
 import 'package:epic_wallet/src/ui/setup_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -173,6 +175,89 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(w.container.read(listenerProvider).last?.txId, 7);
+  });
+
+  group('android-15: the lock screen\'s Node and Epicbox link', () {
+    /// A locked wallet on the default servers, with the lock screen's link pressed.
+    Future<ProviderContainer> openFromLockScreen(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 2340);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final container = ProviderContainer(
+        retry: (_, _) => null,
+        overrides: [
+          walletServiceProvider.overrideWithValue(
+            FakeWalletService(existingWallets: {_dir}),
+          ),
+          secretStoreProvider.overrideWithValue(MemorySecretStore()),
+          relayDirectoryProvider.overrideWithValue(_NoRelays()),
+        ],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: PinUnlockScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(container.read(sessionProvider), isNull);
+      await tester.tap(find.byType(NetworkSettingsButton));
+      await tester.pumpAndSettle();
+      expect(find.byType(SetupScreen), findsOneWidget);
+      return container;
+    }
+
+    testWidgets('a new relay asks first, and Cancel saves nothing', (tester) async {
+      final container = await openFromLockScreen(tester);
+      await _useRelay(tester, 'relay.example.org');
+      await _save(tester);
+      expect(find.text(_l.serverSwitchRelayTitle), findsOneWidget);
+      expect(find.textContaining('…@relay.example.org'), findsOneWidget);
+      await tester.tap(find.text(_l.commonCancel));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SetupScreen), findsOneWidget);
+      expect(
+        (await container.read(networkChoiceProvider.future)).relay,
+        mainnetPreset.defaultRelay,
+      );
+    });
+
+    testWidgets('Switch saves the relay and returns to the lock screen', (tester) async {
+      final container = await openFromLockScreen(tester);
+      await _useRelay(tester, 'relay.example.org');
+      await _save(tester);
+      await tester.tap(find.text(_l.serverSwitchRelayConfirm));
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+
+      expect(find.byType(SetupScreen), findsNothing);
+      expect(
+        (await container.read(networkChoiceProvider.future)).relay.host,
+        'relay.example.org',
+      );
+    });
+
+    testWidgets('a new node needs no confirm', (tester) async {
+      final container = await openFromLockScreen(tester);
+      await tester.enterText(
+        find.widgetWithText(TextField, _l.setupNodeUrlLabel),
+        'https://node.example.org',
+      );
+      await _save(tester, settle: false);
+
+      expect(find.text(_l.serverSwitchRelayTitle), findsNothing);
+      expect(
+        (await container.read(networkChoiceProvider.future)).nodeUrl,
+        'https://node.example.org',
+      );
+    });
   });
 
   testWidgets('cancelling the relay confirm switches nothing', (tester) async {

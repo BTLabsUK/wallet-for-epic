@@ -68,5 +68,7 @@
   "deskInvPayerSpentText": "你的资金已解锁并在此钱包内转移。取消已为最终结果。",
   "deskInvPayerSpendFailedText": "你的资金已解锁，但转移未成功。取消尚未成为最终结果。",
   "deskInvPayerLocked": "此账单无法支付：它被锁定到较晚的区块。未支付任何款项。",
-  "deskInvPayerRelayDownPay": "Epicbox 服务器没有响应。未支付任何款项。"
+  "deskInvPayerRelayDownPay": "Epicbox 服务器没有响应。未支付任何款项。",
+  "deskInvPayerStalledTitle": "你给 {service} 的付款已停滞",
+  "deskInvPayerStalledText": "未送达：付款还没有进入网络，资金仍被锁定。“重新发送”会再发送一次，无需再次批准。"
 }

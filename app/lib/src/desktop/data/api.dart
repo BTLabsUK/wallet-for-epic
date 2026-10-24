@@ -265,8 +265,30 @@ abstract interface class DeskWalletApi {
   /// (inclusive).
   Future<String> exportHistoryCsv({DateTime? from, DateTime? to});
 
-  /// Merges a `.wfeh` of this wallet. A refused file throws a [HistoryFileError].
-  Future<HistoryImport> importHistory(Uint8List data);
+  /// Merges a `.wfeh` of this wallet. A refused file throws a [HistoryFileError]. When the file
+  /// disagrees with details the user typed, nothing is written and the answer has
+  /// [HistoryImport.applied] false with the [HistoryImport.conflicts]; call again with
+  /// [useBackup] (by [ImportConflict.id]: true takes the file's value, false or missing keeps
+  /// the user's).
+  Future<HistoryImport> importHistory(Uint8List data, {Map<String, bool>? useBackup});
+
+  /// Fields where the old wallet's history, brought across after the user had described the
+  /// payments, records another sender or method. Empty when nothing waits. The shell shows
+  /// "Details differ" for them and answers with [resolveOldHistory].
+  List<ImportConflict> get oldHistoryConflicts;
+
+  /// Applies the user's choices for [oldHistoryConflicts] (by [ImportConflict.id]: true takes the
+  /// old wallet's value, false keeps the user's), or postpones them when null (Cancel).
+  Future<void> resolveOldHistory(Map<String, bool>? useOldWallet);
+
+  /// Names the payment [key] ([Tx.key]), or removes the name when [label] is null or blank.
+  /// At most [txLabelMaxLength] characters. Any payment takes a label.
+  Future<void> setTxLabel(String key, String? label);
+
+  /// Sets what the user knows of a payment a scan found ([Tx.restored]): who paid
+  /// ([counterparty], never verified), how it came ([transport], one of [txTransports]) and a
+  /// [note]. Each null or blank value clears that field. Throws a [DeskError] for any other row.
+  Future<void> setTxDetails(String key, {String? counterparty, String? transport, String? note});
 
   /// Records an export saved at [when], with what it held.
   Future<void> markHistoryExported(DateTime when);

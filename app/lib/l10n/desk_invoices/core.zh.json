@@ -36,5 +36,6 @@
   "deskInvFailed": "操作未成功。没有任何更改；请重试。",
   "deskInvHowItWorks": "账单如何运作",
   "deskInvAddressHint": "es…@epicbox.epiccash.com",
-  "deskInvEpicboxAddress": "Epicbox 地址"
+  "deskInvEpicboxAddress": "Epicbox 地址",
+  "deskInvPayStalled": "已停滞"
 }

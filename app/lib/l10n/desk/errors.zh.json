@@ -131,5 +131,7 @@
   "deskErrOldSeedTooLarge": "wallet.seed 文件太大，不可能是钱包种子文件。",
   "deskErrSendUnbuildable": "无法用现有的币构建这笔发送。",
   "deskErrNothingToConsolidate": "无需合并：可用输出少于两个。",
-  "deskErrTxNotFound": "找不到该交易"
+  "deskErrTxNotFound": "找不到该交易",
+  "deskErrNotDeliveredRelay": "未送达：{relay} 没有响应。这笔付款保留在“活动”中；在那里取消即可解锁资金。",
+  "deskErrRelayNoAnswer": "{relay} 没有响应。"
 }

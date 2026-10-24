@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +12,7 @@ import '../l10n.dart';
 import '../price.dart';
 import '../providers.dart';
 import '../settings.dart';
+import '../stall_retry.dart';
 import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
@@ -19,6 +21,7 @@ import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
+import 'tx_label.dart';
 
 export 'notices.dart';
 
@@ -118,7 +121,7 @@ class SlotProgress extends StatelessWidget {
 /// otherwise it starts right below the dock, which moves it down while a notice shows. [idle]
 /// is what the slot shows, such as a [SlotProgress]. With [glow], the screen gets the lit
 /// Protocol backdrop, its light at that point.
-class SlotScaffold extends StatelessWidget {
+class SlotScaffold extends StatefulWidget {
   const SlotScaffold({
     super.key,
     this.appBar,
@@ -139,23 +142,34 @@ class SlotScaffold extends StatelessWidget {
   final Widget? bottomNavigationBar;
 
   @override
+  State<SlotScaffold> createState() => _SlotScaffoldState();
+}
+
+class _SlotScaffoldState extends State<SlotScaffold> {
+  final DockMeter _dock = DockMeter();
+
+  @override
   Widget build(BuildContext context) {
+    final body = widget.body;
     final scaffold = Scaffold(
-      appBar: appBar,
-      floatingActionButton: floatingActionButton,
-      bottomNavigationBar: bottomNavigationBar,
+      appBar: widget.appBar,
+      floatingActionButton: widget.floatingActionButton,
+      bottomNavigationBar: widget.bottomNavigationBar,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ProgressSlot(idle: idle),
-          const NoticeDock(),
+          ProgressSlot(idle: widget.idle),
+          MeasureDock(meter: _dock, child: const NoticeDock()),
           Expanded(
-            child: StillUnderDock(child: centered ? CenteredScroll(child: body) : body),
+            child: StillUnderDock(
+              meter: _dock,
+              child: widget.centered ? CenteredScroll(child: body) : body,
+            ),
           ),
         ],
       ),
     );
-    final glow = this.glow;
+    final glow = widget.glow;
     return glow == null
         ? scaffold
         : ProtocolBackdrop(focus: glow, child: scaffold);
@@ -163,43 +177,154 @@ class SlotScaffold extends StatelessWidget {
 }
 
 /// Keeps a scrolling [child] still on screen while the [NoticeDock] above it opens or closes:
-/// as the dock moves the body's top edge, the body scrolls by as much, so the row under the
-/// finger stays and a second tap lands where the first did (android-02). Content that cannot
-/// scroll that far moves by the rest, and nothing is ever covered. A change at the bottom (the
-/// keyboard) is left alone.
-class StillUnderDock extends StatefulWidget {
-  const StillUnderDock({super.key, required this.child});
+/// as the dock moves the body's top edge, the body scrolls by as much in the same layout pass,
+/// so the row under the finger stays and a second tap lands where the first did (android-02).
+/// A list too short to scroll that far has no room to do it, so while the dock is open
+/// [DockSlack] gives the lists that read it ([ScreenBody], Settings) empty room below their
+/// last row; nothing is ever covered. A change at the bottom (the keyboard) is left alone.
+/// [meter] reads the [NoticeDock]'s height, so the slack lasts exactly as long as it is open.
+class StillUnderDock extends ConsumerStatefulWidget {
+  const StillUnderDock({super.key, required this.child, this.meter});
 
   final Widget child;
+  final DockMeter? meter;
 
   @override
-  State<StillUnderDock> createState() => _StillUnderDockState();
+  ConsumerState<StillUnderDock> createState() => _StillUnderDockState();
 }
 
-class _StillUnderDockState extends State<StillUnderDock> {
-  double? _top;
+class _StillUnderDockState extends ConsumerState<StillUnderDock> {
+  final _use = SlackUse();
+  ScrollPosition? _position;
+  double? _dockBefore;
+  bool _slack = false;
+
+  double get _dockHeight => widget.meter?.height ?? 0;
 
   bool _onMetrics(ScrollMetricsNotification n) {
-    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null || !box.hasSize) return false;
-    final top = box.localToGlobal(Offset.zero).dy;
-    final before = _top;
-    _top = top;
-    final moved = before == null ? 0.0 : top - before;
-    if (moved.abs() < 0.5) return false;
-    final position = Scrollable.maybeOf(n.context)?.position;
-    if (position == null || !position.hasPixels) return false;
-    final to = (position.pixels + moved).clamp(position.minScrollExtent, position.maxScrollExtent);
-    if (to != position.pixels) position.jumpTo(to);
+    if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
+      _position = Scrollable.maybeOf(n.context)?.position;
+    }
     return false;
   }
 
+  /// In the body's layout, after the dock's: the body's top moved by as much as the dock grew.
+  void _onLayout() {
+    final height = _dockHeight;
+    final before = _dockBefore;
+    _dockBefore = height;
+    if (_slack && height < 0.5 && ref.read(noticeProvider) == null) {
+      _slack = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
+    final position = _position;
+    if (before == null || position == null || !position.hasPixels) return;
+    final moved = height - before;
+    if (moved.abs() < 0.01) return;
+    var to = math.max(position.pixels + moved, position.minScrollExtent);
+    // Without slack to scroll into, the content moves by the rest.
+    if (!_use.used) to = math.min(to, math.max(position.maxScrollExtent, position.pixels));
+    position.correctBy(to - position.pixels);
+  }
+
   @override
-  Widget build(BuildContext context) => NotificationListener<ScrollMetricsNotification>(
-    onNotification: _onMetrics,
-    child: widget.child,
-  );
+  Widget build(BuildContext context) {
+    // Slack from the moment a notice arrives, before the dock has moved anything, and until
+    // the dock is shut.
+    if (ref.watch(noticeProvider) != null || _dockHeight >= 0.5) _slack = true;
+    return NotificationListener<ScrollMetricsNotification>(
+      onNotification: _onMetrics,
+      child: DockSlack(
+        extra: _slack ? MediaQuery.sizeOf(context).height : 0,
+        use: _use,
+        child: _OnLayout(onLayout: _onLayout, child: widget.child),
+      ),
+    );
+  }
+}
+
+/// The height the [NoticeDock] had in its last layout.
+class DockMeter {
+  double height = 0;
+}
+
+/// [child] with its height written to [meter] as it is laid out.
+class MeasureDock extends SingleChildRenderObjectWidget {
+  const MeasureDock({super.key, required this.meter, super.child});
+
+  final DockMeter meter;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderMeasureDock(meter);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) =>
+      (renderObject as _RenderMeasureDock).meter = meter;
+}
+
+class _RenderMeasureDock extends RenderProxyBox {
+  _RenderMeasureDock(this.meter);
+
+  DockMeter meter;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    meter.height = size.height;
+  }
+}
+
+/// Whether a list under a [DockSlack] reads it.
+class SlackUse {
+  bool used = false;
+}
+
+/// Runs [onLayout] in its own layout, before its child's.
+class _OnLayout extends SingleChildRenderObjectWidget {
+  const _OnLayout({required this.onLayout, super.child});
+
+  final VoidCallback onLayout;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderOnLayout(onLayout);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderOnLayout renderObject) =>
+      renderObject.onLayout = onLayout;
+}
+
+class _RenderOnLayout extends RenderProxyBox {
+  _RenderOnLayout(this.onLayout);
+
+  VoidCallback onLayout;
+
+  @override
+  void performLayout() {
+    onLayout();
+    super.performLayout();
+  }
+}
+
+/// Empty room for a scrolling list under a docked notice ([StillUnderDock]): as tall as the
+/// screen while the dock is open, else none. A list adds it to its bottom padding with [pad].
+class DockSlack extends InheritedWidget {
+  const DockSlack({super.key, required this.extra, required this.use, required super.child});
+
+  final double extra;
+  final SlackUse use;
+
+  /// [base] with the slack under it.
+  static EdgeInsets pad(BuildContext context, EdgeInsets base) {
+    final slack = context.dependOnInheritedWidgetOfExactType<DockSlack>();
+    if (slack == null) return base;
+    slack.use.used = true;
+    return slack.extra == 0 ? base : base.copyWith(bottom: base.bottom + slack.extra);
+  }
+
+  @override
+  bool updateShouldNotify(DockSlack old) => old.extra != extra;
 }
 
 /// [child] in the middle of the space it gets, scrolling when it does not fit. For a short
@@ -385,33 +510,62 @@ String signedEpic(
 bool _outgoingKind(TxEntry tx) =>
     tx.kind == TxKind.sent || tx.kind == TxKind.sentCancelled;
 
-/// The row title, the same style for every row: the contact's name, else the other side's
-/// short address, else what kind of payment it is. The status is never in the title, only in
-/// the chip.
+/// A payment's label as a title, or null when it has none.
+String? _labelOf(TxEntry tx) {
+  final label = tx.label?.trim();
+  return label == null || label.isEmpty ? null : label;
+}
+
+/// The row title, the same style for every row: the user's label, else the contact's name,
+/// else the other side's short address, else what kind of payment it is. The status is never
+/// in the title, only in the second line.
 String txTitle(
   AppLocalizations l,
   TxEntry tx, {
   String? contactName,
   String? ownServer,
 }) {
-  final special = _specialTitle(l, tx);
-  if (special != null) return special;
+  if (_labelOf(tx) case final label?) return label;
   final counterparty = tx.counterparty;
+  final special = _specialTitle(l, tx, hasCounterparty: counterparty != null);
+  if (special != null) return special;
   return contactName ??
       (counterparty == null
           ? _directionNoun(l, tx)
           : shortAddress(counterparty, ownServer: ownServer));
 }
 
-/// The details title: the contact's name, else what kind of payment it is. The address is in
-/// the "Sent to" / "Received from" row just below, in full.
-String txHeading(AppLocalizations l, TxEntry tx, {String? contactName}) =>
-    _specialTitle(l, tx) ?? contactName ?? _directionNoun(l, tx);
+/// What a labelled row's second line adds after the date, so the name or address the label
+/// replaced is not lost: the contact's name, else the short address; null without a label or
+/// when there is nothing to add.
+String? txTitleAside(TxEntry tx, {String? contactName, String? ownServer}) {
+  if (_labelOf(tx) == null) return null;
+  final counterparty = tx.counterparty;
+  return contactName ??
+      (counterparty == null
+          ? null
+          : shortAddress(counterparty, ownServer: ownServer));
+}
 
-/// Titles that describe where a payment came from rather than who: mining and a chain scan.
-String? _specialTitle(AppLocalizations l, TxEntry tx) {
+/// The details title: the label, else the contact's name, else what kind of payment it is. The
+/// address is in the "Sent to" / "Received from" row just below, in full.
+String txHeading(AppLocalizations l, TxEntry tx, {String? contactName}) =>
+    _labelOf(tx) ??
+    _specialTitle(l, tx, hasCounterparty: false) ??
+    contactName ??
+    _directionNoun(l, tx);
+
+/// Titles that describe where a payment came from rather than who: mining and a chain scan
+/// (which knows no sender, unless the user typed one).
+String? _specialTitle(
+  AppLocalizations l,
+  TxEntry tx, {
+  required bool hasCounterparty,
+}) {
   if (tx.kind == TxKind.coinbase) return l.txMiningReward;
-  if (tx.source == TxSource.restored) return l.txRestoredFunds;
+  if (tx.source == TxSource.restored && !hasCounterparty) {
+    return l.txRestoredFunds;
+  }
   return null;
 }
 
@@ -497,11 +651,16 @@ String txStatusLabel(
   TxEntry tx,
   BigInt? tip, {
   int? target,
+  DateTime? now,
 }) => switch (txPhase(tx, tip, target: target)) {
   TxPhase.waitingRecipient when tx.undelivered => l.txStatusNotDelivered,
+  TxPhase.waitingRecipient when now != null && invoicePaymentStalled(tx, now) =>
+    l.txStatusStalled,
   TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
   TxPhase.waitingSender => l.txStatusWaitingSender,
   TxPhase.waitingPayer => l.txStatusWaitingPayer,
+  // Finished, but the node refused it: not on the network until it is posted again.
+  TxPhase.confirming when tx.repostable => l.txStatusNotPosted,
   TxPhase.confirming => l.txStatusConfirming(
     txConfirmations(tx, tip) ?? 0,
     target ?? confirmationsTarget,
@@ -535,11 +694,15 @@ class TxStatusLine extends ConsumerWidget {
     required this.tx,
     required this.tip,
     required this.date,
+    this.aside,
   });
 
   final TxEntry tx;
   final BigInt? tip;
   final String date;
+
+  /// A name after the date, on a row whose label took the title ([txTitleAside]).
+  final String? aside;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -557,17 +720,26 @@ class TxStatusLine extends ConsumerWidget {
         Icon(icon, size: 14, color: color),
         const SizedBox(width: 5),
         // One text, so the status and the time share the line and shorten as one.
-        Expanded(
+        Flexible(
+          flex: 3,
           child: Text.rich(
             TextSpan(
               children: [
                 TextSpan(
-                  text: txStatusLabel(context.l10n, tx, tip, target: target),
+                  text: txStatusLabel(
+                    context.l10n,
+                    tx,
+                    tip,
+                    target: target,
+                    now: ref.watch(clockProvider)(),
+                  ),
                   style: phase == TxPhase.confirming
                       ? base?.copyWith(color: t.info)
                       : base,
                 ),
                 TextSpan(text: ' \u00B7 $date', style: base),
+                if (aside != null)
+                  TextSpan(text: ' \u00B7 $aside', style: base),
               ],
             ),
             maxLines: 1,
@@ -575,6 +747,10 @@ class TxStatusLine extends ConsumerWidget {
             style: base,
           ),
         ),
+        if (tx.manualFields.isNotEmpty) ...[
+          const SizedBox(width: 6),
+          ManualTag(editedAtUnix: tx.manualEditedAtUnix, compact: true),
+        ],
       ],
     );
   }
@@ -602,12 +778,13 @@ List<TimelineStep>? txTimeline(
     steps = [
       (l.txStepStarted, l.txStepStarted, l.txStepStarted),
       (l.txStepAccepted, l.txStatusWaitingRecipient, l.txStepAccepted),
-      (l.txStepPosted, l.txStepPosted, l.txStepPosted),
+      (l.txStepPosted, l.txStatusNotPosted, l.txStepPosted),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
     at = switch (phase) {
       TxPhase.waitingRecipient => 1,
+      TxPhase.confirming when tx.repostable => 2,
       TxPhase.confirming => 3,
       TxPhase.completed => steps.length,
       _ => null,
@@ -708,7 +885,11 @@ class TxStatusChip extends ConsumerWidget {
         colors.surfaceContainerHighest,
         colors.onSurfaceVariant,
       ),
-      TxPhase.cancelled => (colors.errorContainer, colors.onErrorContainer),
+      // Cancelled is over, not wrong: the same neutral chip as a completed payment.
+      TxPhase.cancelled => (
+        colors.surfaceContainerHighest,
+        colors.onSurfaceVariant,
+      ),
     };
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -718,7 +899,13 @@ class TxStatusChip extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         child: Text(
-          txStatusLabel(context.l10n, tx, tip, target: target),
+          txStatusLabel(
+            context.l10n,
+            tx,
+            tip,
+            target: target,
+            now: ref.watch(clockProvider)(),
+          ),
           // Tabular digits, so the chip keeps its width while confirmations come in.
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: fg,
@@ -730,8 +917,8 @@ class TxStatusChip extends ConsumerWidget {
   }
 }
 
-/// The direction of [tx] in a rounded square whose edge shows its progress: green in, plain
-/// out, gold for a reward. See [TxProgressSquare] for the edge.
+/// The direction of [tx] in a rounded square whose edge shows its progress: green in, gold
+/// out, grey when cancelled ([WalletTokens.txSent] and kin). See [TxProgressSquare] for the edge.
 class TxIcon extends ConsumerWidget {
   const TxIcon({super.key, required this.tx, required this.tip});
 
@@ -747,14 +934,19 @@ class TxIcon extends ConsumerWidget {
     final (IconData icon, Color fg, String label) = switch (tx.kind) {
       _ when tx.status == TxStatus.cancelled => (
         Icons.block,
-        t.dim,
+        t.txCancelled,
         l.txIconCancelled,
       ),
-      TxKind.coinbase => (Icons.bolt, t.accentText, l.txMiningReward),
+      // A reward is money in, so green like a receipt; the bolt tells it apart.
+      TxKind.coinbase => (Icons.bolt, t.txReceived, l.txMiningReward),
       TxKind.received ||
-      TxKind.receivedCancelled => (Icons.south_west, t.ok, l.txIconIncoming),
+      TxKind.receivedCancelled => (
+        Icons.south_west,
+        t.txReceived,
+        l.txIconIncoming,
+      ),
       TxKind.sent ||
-      TxKind.sentCancelled => (Icons.north_east, t.text, l.txIconOutgoing),
+      TxKind.sentCancelled => (Icons.north_east, t.txSent, l.txIconOutgoing),
     };
     final target = confirmationsTargetOf(ref);
     final phase = txPhase(tx, tip, target: target);
@@ -1175,7 +1367,8 @@ Path txEdgePath(Rect rect, double radius, double start, double extent) {
 
 /// What a screen reader says for a payment row, as one sentence:
 /// "Received 10 EPIC from Alice, completed, Today, 10:01".
-/// [who] is the contact name or short address, [date] the row's date text.
+/// [who] is the contact name or short address, [date] the row's date text. A [label] the user
+/// gave the payment is said first.
 String txSpokenLabel(
   AppLocalizations l,
   TxEntry tx, {
@@ -1183,6 +1376,7 @@ String txSpokenLabel(
   required String date,
   required String status,
   required bool hidden,
+  String? label,
 }) {
   final amount = hidden
       ? l.txSpokenHiddenAmount
@@ -1222,7 +1416,9 @@ String txSpokenLabel(
   // English lower-cases the chip's word mid-sentence; other languages keep it, since German
   // nouns stay capitalised and Chinese has no case.
   final spokenStatus = l.localeName == 'en' ? status.toLowerCase() : status;
-  return l.txSpokenRow(what, spokenStatus, date);
+  final sentence = l.txSpokenRow(what, spokenStatus, date);
+  final named = label?.trim() ?? '';
+  return named.isEmpty ? sentence : l.txSpokenLabelled(named, sentence);
 }
 
 /// One transaction in a list. Tapping it opens its details, where cancel lives.
@@ -1256,88 +1452,160 @@ class TxTile extends ConsumerWidget {
       MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
     );
     final counterparty = tx.counterparty;
+    final aside = txTitleAside(
+      tx,
+      contactName: name,
+      ownServer: ownEpicboxServer(ref),
+    );
     // One sentence for screen readers instead of the pieces (title, chip, date, amount, fiat),
-    // so the status is said once and in order.
-    return Semantics(
-      key: ValueKey('tx-${tx.key}'),
-      button: true,
-      label: txSpokenLabel(
-        l,
-        tx,
-        who:
-            name ??
-            (counterparty == null
-                ? null
-                : shortAddress(counterparty, ownServer: ownEpicboxServer(ref))),
-        date: date,
-        status: txStatusLabel(l, tx, tip, target: confirmationsTargetOf(ref)),
-        hidden: display.hidden,
-      ),
-      onTap: open,
-      excludeSemantics: true,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: open,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TxIcon(tx: tx, tip: tip),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 2),
-                    TxStatusLine(tx: tx, tip: tip, date: date),
-                  ],
-                ),
+    // so the status is said once and in order. It sits under the row, which is on top of it
+    // only where there is something to read: the pen is its own button above it.
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Semantics(
+            key: ValueKey('tx-${tx.key}'),
+            button: true,
+            label: txSpokenLabel(
+              l,
+              tx,
+              who:
+                  name ??
+                  (counterparty == null
+                      ? null
+                      : shortAddress(
+                          counterparty,
+                          ownServer: ownEpicboxServer(ref),
+                        )),
+              date: date,
+              status: txStatusLabel(
+                l,
+                tx,
+                tip,
+                target: confirmationsTargetOf(ref),
+                now: now,
               ),
-              const SizedBox(width: 8),
-              // At most 40 % of the row, so a long title keeps some room.
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.sizeOf(context).width * 0.4,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // Amounts are data, so the mono face.
-                    Text(
-                      signed,
-                      textAlign: TextAlign.end,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontFamily: context.tokens.monoFamily,
-                        fontSize: 14.5,
-                        // Money in reads green, as on the desktop; money out stays plain.
-                        color: !outgoing && tx.status != TxStatus.cancelled
-                            ? context.tokens.ok
-                            : null,
-                        decoration: tx.status == TxStatus.cancelled
-                            ? TextDecoration.lineThrough
-                            : null,
-                      ),
-                    ),
-                    if (fiat != null)
-                      Text(
-                        fiat,
-                        textAlign: TextAlign.end,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                  ],
-                ),
-              ),
-            ],
+              hidden: display.hidden,
+              label: tx.label,
+            ),
+            onTap: open,
+            excludeSemantics: true,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: open,
+            ),
           ),
         ),
-      ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IgnorePointer(
+              child: ExcludeSemantics(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: TxIcon(tx: tx, tip: tip),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // The pen's target is 48 dp tall around a 24 dp line; the second line is
+                  // drawn up into the room above and below the title.
+                  SizedBox(
+                    height: 48,
+                    child: TxLabelEditor(
+                      tx: tx,
+                      style: theme.textTheme.bodyLarge,
+                      // Short enough to leave the second line clear.
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      idle: (context, edit) => Row(
+                        children: [
+                          Expanded(
+                            child: IgnorePointer(
+                              child: ExcludeSemantics(
+                                child: Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodyLarge,
+                                ),
+                              ),
+                            ),
+                          ),
+                          LabelPen(hasLabel: tx.label != null, onPressed: edit),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0, -8),
+                    child: IgnorePointer(
+                      child: ExcludeSemantics(
+                        child: TxStatusLine(
+                          tx: tx,
+                          tip: tip,
+                          date: date,
+                          aside: aside,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            // At most 40 % of the row, so a long title keeps some room.
+            IgnorePointer(
+              child: ExcludeSemantics(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.sizeOf(context).width * 0.4,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // Amounts are data, so the mono face.
+                        Text(
+                          signed,
+                          textAlign: TextAlign.end,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontFamily: context.tokens.monoFamily,
+                            fontSize: 14.5,
+                            // The amount wears the direction, like the icon: green in, gold
+                            // out; a cancelled one is struck through in grey.
+                            color: tx.status == TxStatus.cancelled
+                                ? context.tokens.txCancelled
+                                : outgoing
+                                ? context.tokens.txSent
+                                : context.tokens.txReceived,
+                            decoration: tx.status == TxStatus.cancelled
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        ),
+                        if (fiat != null)
+                          Text(
+                            fiat,
+                            textAlign: TextAlign.end,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -1391,9 +1659,7 @@ class ErrorText extends StatelessWidget {
               semanticLabel: context.l10n.commonError,
             ),
             const SizedBox(width: 8),
-            Expanded(
-              child: Text(message, style: TextStyle(color: color)),
-            ),
+            Expanded(child: Text(message, style: TextStyle(color: color))),
           ],
         ),
       ),
@@ -1581,7 +1847,7 @@ class ScreenBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final bottom = this.bottom;
     final list = ListView(
-      padding: const EdgeInsets.all(16),
+      padding: DockSlack.pad(context, const EdgeInsets.all(16)),
       children: children,
     );
     return SafeArea(

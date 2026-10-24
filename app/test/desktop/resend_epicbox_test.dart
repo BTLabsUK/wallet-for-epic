@@ -22,16 +22,21 @@ class _Desk extends MockDeskWallet {
   _Desk() : super(delay: Duration.zero);
 
   final List<int> resent = [];
+  final List<int> reposted = [];
 
   @override
   Future<void> resendTx(int id) async => resent.add(id);
+
+  @override
+  Future<void> repostTx(int id) async => reposted.add(id);
 }
 
-Tx _tx({bool undelivered = false, TxMethod method = TxMethod.epicbox}) => Tx(
+Tx _tx({bool undelivered = false, TxMethod method = TxMethod.epicbox, bool notPosted = false}) => Tx(
   id: 77,
   slateId: 'f0e1d2c3-b4a5-4697-8879-9f3a7c21a0b1',
   direction: TxDirection.sent,
-  state: TxState.waitingRecipient,
+  state: notPosted ? TxState.posted : TxState.waitingRecipient,
+  notPosted: notPosted,
   method: method,
   amount: 250000000,
   fee: 7000000,
@@ -75,6 +80,8 @@ void main() {
       await _pump(tester, _tx(undelivered: true), desk);
       expect(statusOf(englishStrings, _tx(undelivered: true)).$1, 'Not delivered');
       expect(find.textContaining('Not delivered.'), findsOneWidget);
+      // linux-14: the relay that did not answer is named.
+      expect(find.textContaining('epicbox.example did not answer'), findsOneWidget);
       expect(find.widgetWithText(EButton, 'Cancel'), findsOneWidget);
       await tester.tap(find.widgetWithText(EButton, 'Send again'));
       await tester.pump();
@@ -93,9 +100,35 @@ void main() {
       await _pump(tester, tx, desk);
       expect(statusOf(englishStrings, tx).$1, 'Not delivered');
       expect(find.textContaining('Not delivered.'), findsOneWidget);
+      // Its words fit the method (windows-07): no epicbox for an HTTP send.
+      expect(find.textContaining('(Direct · HTTP)'), findsOneWidget);
+      expect(find.textContaining('did not reach the epicbox'), findsNothing);
       await tester.tap(find.widgetWithText(EButton, 'Send again'));
       await tester.pump();
       expect(desk.resent, [77]);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 30));
+    },
+  );
+
+  testWidgets('a Tor send that was not delivered names Tor', (tester) async {
+    await _pump(tester, _tx(undelivered: true, method: TxMethod.tor), _Desk());
+    expect(find.textContaining('(Direct · Tor)'), findsOneWidget);
+    expect(find.textContaining('did not reach the epicbox'), findsNothing);
+  });
+
+  testWidgets(
+    'a send the node refused says it is not on the network and offers Broadcast again at once (android-17)',
+    (tester) async {
+      final desk = _Desk();
+      final tx = _tx(notPosted: true);
+      await _pump(tester, tx, desk);
+      expect(statusOf(englishStrings, tx).$1, 'Not on the network');
+      expect(find.textContaining('Not on the network.'), findsOneWidget);
+      expect(find.textContaining('waiting for a block'), findsNothing);
+      await tester.tap(find.widgetWithText(EButton, 'Broadcast again'));
+      await tester.pump();
+      expect(desk.reposted, [77]);
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 30));
     },
@@ -211,5 +244,76 @@ void main() {
     expect(session.resentEpicboxKeys, isEmpty);
     expect((await wallet.transactions()).where((t) => t.undelivered).map((t) => t.id), [7]);
     await wallet.dispose();
+  });
+
+  group('linux-14: a relay that does not answer is named', () {
+    late Directory dir;
+    late core.FakeWalletSession session;
+    late LepicDeskWallet wallet;
+    const relayError = core.WalletError(kind: core.WalletErrorKind.transportFailed, message: 'epicbox post failed: relay sent nothing in time');
+
+    setUp(() async {
+      dir = Directory.systemTemp.createTempSync('resend');
+      session = core.FakeWalletSession(
+        transactions: [
+          core.fakeTx(
+            id: 4,
+            slateId: 'a',
+            kind: core.TxKind.sent,
+            status: core.TxStatus.awaitingRecipient,
+            transport: 'epicbox',
+            counterparty: '${'b' * 52}@epicbox.stackwalle',
+            undelivered: true,
+          ),
+        ],
+      );
+      final service = core.FakeWalletService(password: _password, session: session)..existingWallets.add('${dir.path}/wallets/mainnet');
+      wallet = LepicDeskWallet(
+        service: service,
+        walletDir: (chain) async => '${dir.path}/wallets/${chain.name}',
+        secrets: MemorySecretStore(),
+        filesDir: () async => dir,
+      );
+      expect(await wallet.unlock(_password), isTrue);
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      session.resentEpicboxKeys.clear();
+      await wallet.sync();
+      session.summaryValue = core.WalletSummary(
+        lastConfirmedHeight: BigInt.from(2500000),
+        minimumConfirmations: BigInt.from(3),
+        total: BigInt.from(100000000),
+        spendable: BigInt.from(100000000),
+        awaitingConfirmation: BigInt.zero,
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: BigInt.zero,
+        validatedWithNode: true,
+      );
+    });
+
+    tearDown(() async {
+      await wallet.dispose();
+      dir.deleteSync(recursive: true);
+    });
+
+    test('Send again that fails says which server did not answer', () async {
+      session.resendEpicboxError = relayError;
+      Object? caught;
+      try {
+        await wallet.resendTx(4);
+      } on Object catch (e) {
+        caught = e;
+      }
+      expect(caught, isA<DeskError>());
+      expect(deskErrorText(caught!, englishStrings), 'epicbox.stackwalle did not answer.');
+    });
+
+    test('a send that is not delivered says which server did not answer', () async {
+      session.sendError = relayError;
+      final r = await wallet.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: '${'c' * 52}@epicbox.stackwalle'));
+      expect(r, isA<SendFailed>());
+      expect((r as SendFailed).message, startsWith('Not delivered: epicbox.stackwalle did not answer.'));
+      expect(r.inActivity, isTrue);
+    });
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
+import '../../data/method_names.dart';
 import '../../desk_l10n.dart';
 import '../../../network.dart' show defaultEpicboxHost;
 import '../../../tor_routes.dart' show TorRoute, TorWay, torWay;
@@ -92,18 +93,11 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
           break;
       }
     } on Object catch (e) {
-      if (mounted) showEToast(context, on ? l.deskSetRecvMethodOnFailed(_name(m)) : l.deskSetRecvMethodOffFailed(_name(m)), text: deskErrorText(e, l), tone: ETone.risk);
+      if (mounted) showEToast(context, on ? l.deskSetRecvMethodOnFailed(methodLabel(l, m)) : l.deskSetRecvMethodOffFailed(methodLabel(l, m)), text: deskErrorText(e, l), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _busy.remove(m));
     }
   }
-
-  static String _name(TxMethod m) => switch (m) {
-    TxMethod.epicbox => 'Epicbox', // l10n-ok: product name
-    TxMethod.http => 'HTTP', // l10n-ok: protocol name
-    TxMethod.tor => 'Tor', // l10n-ok: product name
-    TxMethod.file => 'File', // l10n-ok: method name, never shown on this page
-  };
 
   Future<void> _switch(String domain) async {
     final l = context.l10n;
@@ -130,11 +124,11 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         width: 40.u,
         height: 24.u,
         child: busy
-            ? Center(child: Semantics(label: l.deskSetRecvSwitching(_name(m)), child: ESpinner(size: 18.u)))
+            ? Center(child: Semantics(label: l.deskSetRecvSwitching(methodLabel(l, m)), child: ESpinner(size: 18.u)))
             : ESwitch(
                 key: ValueKey('st-switch-${m.name}'),
                 value: on,
-                semanticLabel: l.deskSetRecvMethodReceiving(_name(m)),
+                semanticLabel: l.deskSetRecvMethodReceiving(methodLabel(l, m)),
                 onChanged: enabled ? (v) => _toggle(m, v) : null,
               ),
       ),
@@ -174,7 +168,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     return ESetRow(
       title: l.deskSetRecvAutostart,
       hint: l.deskSetRecvAutostartHint,
-      control: ESwitch(key: ValueKey('st-autostart-${m.name}'), value: value, semanticLabel: l.deskSetRecvMethodAutostart(_name(m)), onChanged: onChanged),
+      control: ESwitch(key: ValueKey('st-autostart-${m.name}'), value: value, semanticLabel: l.deskSetRecvMethodAutostart(methodLabel(l, m)), onChanged: onChanged),
     );
   }
 
