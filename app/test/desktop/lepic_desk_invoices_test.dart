@@ -46,6 +46,7 @@ lepic.TransactionDetails _tx({
   createdAtMs: createdAtMs,
   confirmedHeight: confirmedHeight,
   releasable: releasable,
+  undelivered: false,
   messages: const [],
   flow: lepic.TxFlow.invoice,
   origin: lepic.TxOrigin.wallet,

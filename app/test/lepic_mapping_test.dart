@@ -33,6 +33,7 @@ class _SendingWallet extends _NoNativeWallet {
     fee: BigInt.one,
     createdAtMs: 1790000000000,
     releasable: false,
+    undelivered: false,
     flow: lepic.TxFlow.payment,
     messages: [
       for (final m in messages)
@@ -606,6 +607,7 @@ void main() {
       counterparty: 'key@relay',
       ttlCutoffHeight: BigInt.from(99),
       releasable: releasable,
+      undelivered: false,
       messages: messages,
       flow: flow,
       origin: origin,

@@ -196,6 +196,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
         fee: BigInt.one,
         createdAtMs: 1790000000000,
         releasable: false,
+        undelivered: false,
         messages: [
           if (invoice.message case final text?)
             lepic.SlateMessage(role: lepic.SlateRole.receiver, text: text),
