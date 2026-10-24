@@ -5052,7 +5052,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvDeclined => 'Odrzucono';
 
   @override
-  String get deskInvExpired => 'Wygasło';
+  String get deskInvExpired => 'Wygasła';
 
   @override
   String get deskInvWithdrawn => 'Wycofano';
@@ -11815,7 +11815,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetFramePhrase => 'Fraza odzyskiwania';
 
   @override
-  String get deskSetFrameRescan => 'Sprawdź saldo ponownie';
+  String get deskSetFrameRescan => 'Sprawdź saldo';
 
   @override
   String get deskSetFrameAbout => 'O aplikacji';
