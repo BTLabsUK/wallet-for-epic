@@ -379,6 +379,9 @@ class GatedWalletSession implements WalletSession {
   Future<void> refreshTor({required bool networkChanged}) async {}
 
   @override
+  Future<void> torNetworkLost() async {}
+
+  @override
   Future<HttpSent> sendTor({
     required BigInt amount,
     required BigInt minimumConfirmations,

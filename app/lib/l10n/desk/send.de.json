@@ -162,5 +162,7 @@
   "deskSendFeeChangedTitle": "Die Gebühr hat sich geändert",
   "deskSendFeeChangedText": "Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt {fee} EPIC statt {was} EPIC Gebühr. Prüfe sie und sende erneut.",
   "deskSendMessageBytes": "{used} / {max} Byte",
-  "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie."
+  "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie.",
+  "deskSendRelayUnknownTitle": "Unbekannter Epicbox-Server",
+  "deskSendRelayUnknownText": "{relay} ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden."
 }

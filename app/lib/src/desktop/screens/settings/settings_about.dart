@@ -1,7 +1,7 @@
 import '../../../app_info.dart';
 import '../../../app_version.dart';
 import '../../../tor_licence.dart' show torSourceNote;
-import '../../../ui/settings_screen.dart' show projectRepoUrl;
+import '../../../ui/settings_screen.dart' show projectRepoPublic, projectRepoUrl;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
 
 import 'package:flutter/material.dart';
@@ -130,7 +130,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                   ],
                 ),
               ),
-              linkRow(l.deskSetAboutSource, 'github.com/BTLabs-EPIC/wallet-for-epic', projectRepoUrl),
+              if (projectRepoPublic) linkRow(l.deskSetAboutSource, 'github.com/BTLabs-EPIC/wallet-for-epic', projectRepoUrl),
               ESetRow(
                 title: l.licencesFull,
                 control: ERowControl(

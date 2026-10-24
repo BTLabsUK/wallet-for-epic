@@ -35,6 +35,7 @@ import '../../l10n.dart' show AppLocalizations, englishStrings;
 import '../desk_l10n.dart' show deskStrings;
 import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
+import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
@@ -2071,7 +2072,14 @@ class LepicDeskWallet implements DeskWalletApi {
           final sent = await session.resendTor(txId: id, onion: to);
           if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
         default:
-          await session.resendEpicbox(key: e.key);
+          try {
+            await session.resendEpicbox(key: e.key);
+          } on core.WalletError catch (err) {
+            final relay = recipientRelay(to);
+            if (err.kind != core.WalletErrorKind.transportFailed || relay == null) rethrow;
+            logWarn('desk', 'resend: ${err.kind.name} (${relay.label})');
+            throw DeskError.l10n((l) => l.deskErrRelayNoAnswer(relay.label));
+          }
       }
     } on core.WalletError catch (e) {
       logWarn('desk', 'resend: ${e.kind.name}');
@@ -2203,7 +2211,11 @@ class LepicDeskWallet implements DeskWalletApi {
               ? SendFailed.l10n((l) => l.deskErrRecipientNoAnswerWaits, inActivity: true)
               : SendFailed.l10n((l) => l.deskErrRecipientNoAnswer);
         }
-        return SendFailed.l10n((l) => l.deskErrNotDelivered, inActivity: true);
+        // The relay is named: a mistyped domain is the usual reason it never answers.
+        final relay = recipientRelay((r.to ?? '').trim());
+        return relay == null
+            ? SendFailed.l10n((l) => l.deskErrNotDelivered, inActivity: true)
+            : SendFailed.l10n((l) => l.deskErrNotDeliveredRelay(relay.label), inActivity: true);
       }
       // Ended by a lock (the app's own lock waits; the wallet can still close under it): the
       // send may have been stored as sent, so the next unlock's Activity tells.

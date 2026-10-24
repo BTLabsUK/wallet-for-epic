@@ -151,6 +151,18 @@ final epicboxWaitingForTorProvider = Provider<bool>((ref) {
   return !listener.connected && !listener.stopped;
 });
 
+/// Counts the times tor renewed its connections after a network change or a long time away
+/// ([PhoneTor] through LEPIC's `refreshTor`): what goes over tor asks again on the new circuits
+/// at once ([nodeRecheckProvider]), as a question asked before died with the old connections.
+final torRenewalsProvider = NotifierProvider<TorRenewals, int>(TorRenewals.new);
+
+class TorRenewals extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void renewed() => state++;
+}
+
 /// Finds the tor binary: `findTorBundle()` (on Android the app's `libtor.so`), null on the
 /// web. Tests override it.
 final torBundleFinderProvider = Provider<Future<TorBundle?> Function()>(
@@ -341,7 +353,10 @@ class PhoneTor extends Notifier<PhoneTorState> {
     WidgetsBinding.instance.addObserver(lifecycle);
     final network = ref.watch(networkChangesProvider).listen((available) {
       _networkTimer?.cancel();
-      if (!available) return;
+      if (!available) {
+        if (_current(generation)) unawaited(_networkLost());
+        return;
+      }
       _networkTimer = Timer(ref.read(phoneTorTimingProvider).networkSettle, () {
         if (_current(generation)) _wake('network');
       });
@@ -711,6 +726,24 @@ class PhoneTor extends Notifier<PhoneTorState> {
     }
   }
 
+  /// The device lost its network: a running tor turns its network off at once, so it does
+  /// not spend the outage marking the relays it enters through as unreachable; the refresh
+  /// when the network returns ([_nudge]) turns it on again (android-04). A tor still starting
+  /// is left alone (LEPIC does nothing then).
+  Future<void> _networkLost() async {
+    final session = _session;
+    if (session == null || !_running) return;
+    try {
+      await session.torNetworkLost();
+      logInfo('tor', 'network off until the network returns');
+    } on WalletError catch (e) {
+      // A tor that ended reports it on its stream; the network's return restarts it.
+      logWarn('tor', 'network lost: ${e.kind.name}');
+    } catch (e) {
+      logWarn('tor', 'network lost: ${e.runtimeType}');
+    }
+  }
+
   /// Wakes a running tor after a freeze, and renews its connections after a network change
   /// or a long time away (LEPIC's `refreshTor`). A tor that no longer runs or answers ends,
   /// and is restarted.
@@ -723,6 +756,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
     try {
       await session.refreshTor(networkChanged: renew);
       logInfo('tor', 'refreshed after $why${renew ? ', connections renewed' : ''}');
+      if (renew && _current(generation)) ref.read(torRenewalsProvider.notifier).renewed();
       // Renewing turns tor's network off and on, which reopens its SOCKS port elsewhere: the
       // app's own requests follow it, or they would fail at the old one.
       final port = (await session.torStatus()).socksPort;

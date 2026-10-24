@@ -4855,7 +4855,7 @@ abstract class AppLocalizations {
   /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.'**
+  /// **'Epic Cash Mobile by BT Labs: Apache-2.0.'**
   String get licencesApp;
 
   /// Licences screen: one line for Flutter and the Dart packages.
@@ -5464,11 +5464,11 @@ abstract class AppLocalizations {
   /// **'Can\'t reach the network right now.'**
   String get sendNodeDown;
 
-  /// Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered.
+  /// Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered. {relay} is its host name, as in the address (epicbox.example.org).
   ///
   /// In en, this message translates to:
-  /// **'Their relay isn\'t answering.'**
-  String get sendRelayDown;
+  /// **'Their relay ({relay}) isn\'t answering.'**
+  String sendRelayDown(String relay);
 
   /// Send, review: this wallet is not connected to its message relay yet; sending is still allowed.
   ///
@@ -5728,17 +5728,17 @@ abstract class AppLocalizations {
   /// **'Next step'**
   String get handshakeNext;
 
-  /// Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days.
+  /// Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. {relay} is the relay's host name, as in the address.
   ///
   /// In en, this message translates to:
-  /// **'{days, plural, =1{Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most {days} days.}}'**
-  String sendRelayRefused(int days);
+  /// **'{days, plural, =1{Their relay ({relay}) didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay ({relay}) didn\'t take it. The amount is on hold until you cancel it, or for at most {days} days.}}'**
+  String sendRelayRefused(int days, String relay);
 
-  /// Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again.
+  /// Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again. {relay} is the relay's host name, as in the address.
   ///
   /// In en, this message translates to:
-  /// **'Their relay didn\'t take it. Check Wallet before you send again.'**
-  String get sendRelayRefusedLost;
+  /// **'Their relay ({relay}) didn\'t take it. Check Wallet before you send again.'**
+  String sendRelayRefusedLost(String relay);
 
   /// Send, review after a failed send: cancels the payment the wallet kept, then pays the same amount with a payment file.
   ///
@@ -20879,7 +20879,7 @@ abstract class AppLocalizations {
   /// Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.'**
+  /// **'Epic Cash Desktop by BT Labs: Apache-2.0.'**
   String get deskSetAboutLicenceApp;
 
   /// Toast title when a link could not be opened in the web browser; the link follows.
@@ -21745,6 +21745,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n, plural, one{{n} detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}'**
   String deskHistImportedReplaced(int n);
+
+  /// Send, review: the recipient's relay (the part of the address after @) is not one the app knows from its public list or the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} isn\'t a server this app knows. Check the address before you send.'**
+  String sendRelayUnknown(String relay);
+
+  /// A payment could not be handed to the recipient's relay: it did not answer (a failed Send again). {relay} is the relay's host name, as in the address.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} did not answer.'**
+  String relayNoAnswer(String relay);
+
+  /// Explanation under the status of a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} did not answer, so the recipient has not received this payment. Your funds stay locked until it is sent again or cancelled.'**
+  String txDetailsNotDeliveredRelayBody(String relay);
+
+  /// Why an Epicbox send failed: the recipient's relay did not answer; the payment waits in Activity. {relay} is its host name, as in the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered: {relay} did not answer. The payment waits in Activity; cancel it there to unlock the funds.'**
+  String deskErrNotDeliveredRelay(String relay);
+
+  /// An error message the user reads when Send again to an Epicbox address fails because the recipient's relay did not answer. {relay} is its host name, as in the address.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} did not answer.'**
+  String deskErrRelayNoAnswer(String relay);
+
+  /// Send review: title of the warning that the recipient's Epicbox server is not one the app knows.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Epicbox server'**
+  String get deskSendRelayUnknownTitle;
+
+  /// Send review: the recipient's Epicbox server (the part of the address after @) is not in the app's public list or among the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} is not a server this app knows. Check the address before you send. You can still send.'**
+  String deskSendRelayUnknownText(String relay);
+
+  /// Transaction detail, 'what is happening now' for a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.'**
+  String deskTxNowUndeliveredRelay(String relay);
 }
 
 class _AppLocalizationsDelegate

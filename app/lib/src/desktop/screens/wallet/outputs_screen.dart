@@ -7,7 +7,7 @@ import '../../../l10n.dart' show localInt;
 import '../../widgets/kit.dart';
 import 'activity_screen.dart' show ListPager;
 import 'outputs_dialogs.dart';
-import 'tx_display.dart' show shortDayMonth;
+import 'tx_display.dart' show iconOf, shortDayMonth;
 
 /// The list's filter on the Outputs page.
 enum OutputsFilter { all, spendable, confirming, locked }
@@ -702,7 +702,18 @@ class _OutputRow extends StatelessWidget {
     final t = tx;
     final txCell = t == null
         ? Text(o.txId == null ? '–' : '#${o.txId}', style: ts.small.copyWith(color: c.faint))
-        : Align(alignment: Alignment.centerLeft, child: ELink(label: _txText(l, t), onPressed: onTx));
+        : Align(
+            alignment: Alignment.centerLeft,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // The direction, as in Activity: green in, gold out.
+                Icon(iconOf(t), size: Ctl.iconSm, color: t.incoming ? c.txReceived : c.txSent),
+                SizedBox(width: Sp.x1),
+                Flexible(child: ELink(label: _txText(l, t), onPressed: onTx)),
+              ],
+            ),
+          );
     final conf = o.word == OutputWord.spendable ? l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)) : null;
     return Opacity(
       opacity: spent ? 0.6 : 1,

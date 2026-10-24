@@ -192,8 +192,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
-            child: ListView(
-              padding: const EdgeInsets.only(top: 4, bottom: 24),
+            child: Builder(
+              builder: (context) => ListView(
+              padding: DockSlack.pad(context, const EdgeInsets.only(top: 4, bottom: 24)),
               children: [
                 if (updates) const _UpdateRow(),
                 if (!scan.running && scan.error != null)
@@ -265,6 +266,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   state: version,
                 ),
               ],
+            ),
             ),
           ),
         ),

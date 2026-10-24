@@ -9,11 +9,16 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'known_relays.dart';
+
+export 'known_relays.dart' show recipientRelay;
+import 'log.dart';
 import 'net/tor_switch.dart';
 import 'net/ws_probe.dart';
 import 'network.dart';
 import 'providers.dart';
 import 'relay_directory.dart';
+import 'ui/server_picker.dart' show myRelaysProvider;
 import 'wallet_service.dart';
 
 /// How long the node may take to give its tip before the check fails.
@@ -40,6 +45,7 @@ class SendPreflight {
     required this.listener,
     this.relay,
     this.relayOutcome,
+    this.unknownRelay,
   });
 
   final CheckOutcome node;
@@ -48,6 +54,10 @@ class SendPreflight {
   /// The recipient's relay, and how the monitor sees it; both null when skipped.
   final EpicboxRelay? relay;
   final CheckOutcome? relayOutcome;
+
+  /// The recipient's relay when the app does not know it ([isKnownRelay]): a warning that the
+  /// address may be mistyped, never a block.
+  final EpicboxRelay? unknownRelay;
 
   /// Confirm is allowed only once the node has answered.
   bool get canSend => node == CheckOutcome.passed;
@@ -61,12 +71,6 @@ class SendPreflight {
       listener == CheckOutcome.failed || relayOutcome == CheckOutcome.failed;
 }
 
-/// The relay of an `<key>@<relay>[:port]` address, or null when it has none.
-EpicboxRelay? recipientRelay(String address) {
-  final at = address.lastIndexOf('@');
-  return at < 0 ? null : EpicboxRelay.parse(address.substring(at + 1));
-}
-
 /// The [SendPreflight] from the node's answer, the listener and the monitor's relay list. The
 /// monitor's word on a relay it lists stands; for one it does not list, or when it gave no
 /// answer, [probe] (the relay's own handshake, when asked) decides.
@@ -76,6 +80,7 @@ SendPreflight sendPreflight({
   required AsyncValue<List<RelayStatus>> relays,
   required EpicboxRelay? relay,
   AsyncValue<bool>? probe,
+  Iterable<EpicboxRelay> known = const [],
 }) {
   final nodeOutcome = node.isLoading
       ? CheckOutcome.running
@@ -94,7 +99,11 @@ SendPreflight sendPreflight({
             : CheckOutcome.failed;
       }
     }
-    if (relayOutcome == null && !relays.isLoading && probe != null) {
+    // A probe that could not run (Tor not connected) says nothing about the relay.
+    if (relayOutcome == null &&
+        !relays.isLoading &&
+        probe != null &&
+        probe.error is! ProbeNotRun) {
       relayOutcome = probe.isLoading
           ? CheckOutcome.running
           : probe.value == true
@@ -107,6 +116,11 @@ SendPreflight sendPreflight({
     listener: listener.connected ? CheckOutcome.passed : CheckOutcome.failed,
     relay: relayOutcome == null ? null : relay,
     relayOutcome: relayOutcome,
+    // Not while the monitor's list is still coming: it may well list it.
+    unknownRelay:
+        relay == null || relays.isLoading || isKnownRelay(relay, extra: known)
+        ? null
+        : relay,
   );
 }
 
@@ -130,7 +144,10 @@ abstract interface class RelayProbe {
 /// `wss://<host>:<port>`, within [probeTimeout], or [torProbeTimeout] while the Tor switch is
 /// on: then the handshake goes through tor as the wallet's Epicbox connection does (BT Labs'
 /// relays at their onions, others through an exit, names resolved by tor), and a slow circuit
-/// is not a relay that does not answer.
+/// is not a relay that does not answer. A try over Tor that fails at once (a circuit that did
+/// not build, an exit that refused) gets one more, on a new circuit; only silence for the
+/// whole timeout, or two failures, say the relay does not answer. Tor not connected in time
+/// throws [ProbeNotRun]: the relay was never asked.
 class WebSocketRelayProbe implements RelayProbe {
   const WebSocketRelayProbe({this.uriFor = relayProbeUri});
 
@@ -138,8 +155,24 @@ class WebSocketRelayProbe implements RelayProbe {
   final Uri Function(EpicboxRelay relay) uriFor;
 
   @override
-  Future<bool> reachable(EpicboxRelay relay) =>
-      probeWebSocket(uriFor(relay), timeout: relayProbeTimeout());
+  Future<bool> reachable(EpicboxRelay relay) async {
+    final url = uriFor(relay);
+    final timeout = relayProbeTimeout();
+    final watch = Stopwatch()..start();
+    var ok = await probeWebSocket(url, timeout: timeout);
+    var tries = 1;
+    if (!ok && TorSwitch.on && watch.elapsed < timeout ~/ 2) {
+      tries = 2;
+      ok = await probeWebSocket(url, timeout: timeout);
+    }
+    logInfo(
+      'send',
+      'relay check ${relay.host}: ${ok ? 'answers' : 'no answer'}'
+      '${TorSwitch.on ? ' over Tor' : ''}, $tries ${tries == 1 ? 'try' : 'tries'}, '
+      '${watch.elapsed.inMilliseconds} ms',
+    );
+    return ok;
+  }
 }
 
 /// How long the relay probe waits now.
@@ -204,7 +237,17 @@ final sendPreflightProvider = Provider.autoDispose
           relays.hasValue &&
           !relays.hasError &&
           relays.requireValue.any((r) => r.relay == relay);
+      final mine = config == null
+          ? const <String>[]
+          : ref.watch(myRelaysProvider(config.chain)).value ?? const <String>[];
       return sendPreflight(
+        known: [
+          if (relays.hasValue && !relays.hasError)
+            for (final r in relays.requireValue) r.relay,
+          for (final label in mine) ?EpicboxRelay.parse(label),
+          if (config != null)
+            EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort),
+        ],
         node: ref.watch(sendNodeCheckProvider),
         listener: ref.watch(listenerProvider),
         relays: relays,

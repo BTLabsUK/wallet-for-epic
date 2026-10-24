@@ -304,6 +304,12 @@ abstract interface class WalletSession {
   /// stream then ends with `failed` and `stopped`).
   Future<void> refreshTor({required bool networkChanged});
 
+  /// The device lost its network: a running tor turns its network off until the next
+  /// [refreshTor], so it makes no attempt that would fail meanwhile and count the relays it
+  /// enters the Tor network through as unreachable (android-04). Does nothing when no tor
+  /// runs or while it starts.
+  Future<void> torNetworkLost();
+
   /// Sends to the wallet at [onion] over Tor, then finalizes its answer and posts, as
   /// [sendHttp]. Needs tor connected, else [WalletErrorKind.torNotRunning] and nothing is
   /// stored. Reaching an onion that is not online takes up to about 150 seconds before
@@ -1483,6 +1489,12 @@ class FakeWalletSession implements WalletSession {
 
   /// Holds [refreshTor] until completed; it then answers by [torStatusValue] as it is then.
   Completer<void>? torRefreshGate;
+
+  /// How many times [torNetworkLost] was called.
+  int torNetworkLosses = 0;
+
+  @override
+  Future<void> torNetworkLost() async => torNetworkLosses++;
 
   @override
   Future<void> refreshTor({required bool networkChanged}) async {

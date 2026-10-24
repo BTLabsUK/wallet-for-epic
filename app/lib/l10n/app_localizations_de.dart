@@ -3266,8 +3266,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Open-Source-Software in dieser Wallet. Jede Komponente behält ihre eigene Lizenz; die vollständigen Texte sind einen Tipp entfernt.';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile von BT Labs: Apache-2.0. Der Code ist auf GitHub.';
+  String get licencesApp => 'Epic Cash Mobile von BT Labs: Apache-2.0.';
 
   @override
   String get licencesFlutter =>
@@ -3618,8 +3617,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendNodeDown => 'Das Netzwerk ist gerade nicht erreichbar.';
 
   @override
-  String get sendRelayDown =>
-      'Der Epicbox-Server der Gegenseite antwortet nicht.';
+  String sendRelayDown(String relay) {
+    return 'Der Epicbox-Server der Gegenseite ($relay) antwortet nicht.';
+  }
 
   @override
   String get sendListenerDown =>
@@ -3772,20 +3772,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get handshakeNext => 'Nächster Schritt';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'Der Epicbox-Server der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
-      one: 'Der Epicbox-Server der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
+          'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
+      one:
+          'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'Der Epicbox-Server der Gegenseite hat sie nicht angenommen. Prüfen Sie die Wallet, bevor Sie erneut senden.';
+  String sendRelayRefusedLost(String relay) {
+    return 'Der Epicbox-Server der Gegenseite ($relay) hat sie nicht angenommen. Prüfen Sie die Wallet, bevor Sie erneut senden.';
+  }
 
   @override
   String get sendCancelAndFile => 'Stornieren und mit Datei zahlen';
@@ -13327,7 +13329,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop von BT Labs: Apache-2.0. Der Code liegt auf GitHub.';
+      'Epic Cash Desktop von BT Labs: Apache-2.0.';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'Browser nicht geöffnet';
@@ -13884,5 +13886,43 @@ class AppLocalizationsDe extends AppLocalizations {
       one: '$n Detail ersetzt, der Rest bleibt wie von Ihnen.',
     );
     return '$_temp0';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return '$relay ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden.';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay hat nicht geantwortet.';
+  }
+
+  @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay hat nicht geantwortet, deshalb hat der Empfänger diese Zahlung nicht erhalten. Dein Guthaben bleibt gesperrt, bis sie erneut gesendet oder storniert wird.';
+  }
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'Nicht zugestellt: $relay hat nicht geantwortet. Die Zahlung wartet unter Aktivität; stornieren Sie sie dort, um den Betrag freizugeben.';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay hat nicht geantwortet.';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'Unbekannter Epicbox-Server';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return '$relay ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden.';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'Nicht zugestellt. $relay hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.';
   }
 }

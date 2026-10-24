@@ -214,7 +214,7 @@ String whenText(AppLocalizations l, DateTime d, {DateTime? now}) {
   return d.year == n.year ? shortDayMonth(l, d) : shortDay(l, d);
 }
 
-/// The 36 px square with the direction icon: green in, gold out, dashed when cancelled.
+/// The 36 px square with the direction icon: green in, gold out, grey when cancelled.
 class TxIcon extends StatelessWidget {
   const TxIcon(this.tx, {super.key, this._size});
 
@@ -226,8 +226,8 @@ class TxIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final off = tx.state == TxState.cancelled;
-    // Direction, as the phone draws it: green in, plain out; never gold for a state.
-    final color = off ? c.faint : (txAsked(tx) ? c.dim : (tx.incoming ? c.ok : c.text));
+    // Direction, as the phone draws it: green in, gold out, grey when cancelled (txSent and kin).
+    final color = off ? c.txCancelled : (txAsked(tx) ? c.dim : (tx.incoming ? c.txReceived : c.txSent));
     return Container(
       width: size,
       height: size,
@@ -263,7 +263,7 @@ class TxStateMark extends StatelessWidget {
   }
 }
 
-/// The amount column: signed, green when in, struck through when cancelled; fee under a send.
+/// The amount column: signed, green when in, gold when out, struck through when cancelled; fee under a send.
 class TxAmount extends StatelessWidget {
   const TxAmount(this.tx, {super.key, this.showFee = true, this.sub});
 
@@ -279,7 +279,7 @@ class TxAmount extends StatelessWidget {
     final off = tx.state == TxState.cancelled;
     // A request not paid yet is not money: neutral, no sign, "Requested" (flow.md §3.3).
     final asked = txAsked(tx);
-    final color = off ? c.faint : (asked ? c.text : (tx.incoming ? c.ok : c.text));
+    final color = off ? c.txCancelled : (asked ? c.text : (tx.incoming ? c.txReceived : c.txSent));
     final line = asked && tx.state == TxState.waitingRecipient ? context.l10n.deskInvUnpaid : sub ?? (showFee && !tx.incoming && tx.fee > 0 ? context.l10n.deskTxFee(formatEpicL(context.l10n, tx.fee)) : null);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,

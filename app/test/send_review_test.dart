@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:epic_wallet/src/known_relays.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -761,7 +762,7 @@ void main() {
         await h.pump(tester);
         await h.connect(tester);
         await _review(tester, _bob, note: 'For rent');
-        expect(find.text("Their relay isn't answering."), findsOneWidget);
+        expect(find.text("Their relay (epicbox.epiccash.com) isn't answering."), findsOneWidget);
         expect(_sendButton, findsNothing);
         expect(_enabled(tester, _fileButton), isTrue);
         // Sending is still possible.
@@ -820,7 +821,7 @@ void main() {
         expect(find.textContaining('relay sent nothing'), findsNothing);
         expect(
           find.text(
-            "Their relay didn't take it. The amount is on hold until you cancel "
+            "Their relay (epicbox.epiccash.com) didn't take it. The amount is on hold until you cancel "
             'it, or for at most 14 days.',
           ),
           findsOneWidget,
@@ -902,7 +903,7 @@ void main() {
       await _review(tester, _bob);
       await _tap(tester, _sendButton);
       // Balance and payments as before: nothing is held, so a file cannot pay twice.
-      expect(find.text("Their relay isn't answering."), findsOneWidget);
+      expect(find.text("Their relay (epicbox.epiccash.com) isn't answering."), findsOneWidget);
       expect(find.text('Cancel and pay with a file'), findsNothing);
       expect(find.text('Send anyway'), findsNothing);
       expect(_sendButton, findsNothing);
@@ -935,7 +936,7 @@ void main() {
         await _tap(tester, _sendButton);
         expect(
           find.text(
-            "Their relay didn't take it. Check Wallet before you send again.",
+            "Their relay (epicbox.epiccash.com) didn't take it. Check Wallet before you send again.",
           ),
           findsOneWidget,
         );
@@ -1093,6 +1094,37 @@ void main() {
       expect(find.text('Ready to send'), findsOneWidget);
       expect(_fileButton, findsNothing);
       expect(_enabled(tester, _sendButton), isTrue);
+      // linux-14: a relay the app does not know is named in a warning, and does not block.
+      expect(
+        find.descendant(
+          of: find.byKey(sendUnknownRelayKey),
+          matching: find.text(
+            "relay.example.org isn't a server this app knows. Check the address before you send.",
+          ),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a relay the app lists, or the user keeps, raises no warning', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      expect(find.byKey(sendUnknownRelayKey), findsNothing);
+      expect(
+        isKnownRelay(
+          const EpicboxRelay(host: 'Relay.Example.org'),
+          extra: const [EpicboxRelay(host: 'relay.example.org')],
+        ),
+        isTrue,
+      );
+      expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.stackwalle')), isFalse);
+      expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.stackwallet.com')), isTrue);
+      expect(isKnownRelay(const EpicboxRelay(host: 'flooepicbox.btlabs.uk')), isTrue);
+      expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.epiccash.com', port: 444)), isFalse);
     });
 
     testWidgets(
@@ -1103,7 +1135,7 @@ void main() {
         await h.pump(tester);
         await h.connect(tester);
         await _review(tester, _carol);
-        expect(find.text("Their relay isn't answering."), findsOneWidget);
+        expect(find.text("Their relay (relay.example.org) isn't answering."), findsOneWidget);
         expect(_enabled(tester, _fileButton), isTrue);
         expect(_sendButton, findsNothing);
         await _tap(tester, _fileButton);
@@ -1144,7 +1176,7 @@ void main() {
       await h.connect(tester);
       await _review(tester, _bob);
       expect(probe.probed, [_bobRelay]);
-      expect(find.text("Their relay isn't answering."), findsOneWidget);
+      expect(find.text("Their relay (epicbox.epiccash.com) isn't answering."), findsOneWidget);
     });
   });
 

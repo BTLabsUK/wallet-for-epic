@@ -1429,6 +1429,13 @@ class LepicWalletSession implements WalletSession {
       _guard(() => _wallet.refreshTor(networkChanged: networkChanged));
 
   @override
+  Future<void> torNetworkLost() async {
+    // TODO(bugs-26108): binding — LEPIC's `EpicWallet::tor_network_lost` (fix/android-04-tor)
+    // is not in the generated binding yet. After the regen, replace this body with:
+    //   return _guard(() => _wallet.torNetworkLost());
+  }
+
+  @override
   Future<TorStatus> torStatus() async {
     if (_wallet.isDisposed) return TorStatus.off;
     final s = _guardSync(_wallet.torStatus);

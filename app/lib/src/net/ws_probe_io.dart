@@ -4,11 +4,17 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'probe_not_run.dart';
 import 'tor_net.dart';
 
 /// Opens a WebSocket to [url] and closes it again; true when the handshake succeeded within
-/// [timeout].
+/// [timeout]. While Tor is on and not connected yet it waits for tor like every request
+/// ([TorNet.untilConnected]); one still waiting throws [ProbeNotRun], not a false.
 Future<bool> probeWebSocket(Uri url, {required Duration timeout}) async {
+  if (!isLoopbackUrl(url)) {
+    await TorNet.untilConnected();
+    if (TorNet.mode == TorNetMode.waiting) throw const ProbeNotRun();
+  }
   // No User-Agent: nothing that names the app or its version (F35).
   final client = HttpClient()
     ..connectionTimeout = timeout

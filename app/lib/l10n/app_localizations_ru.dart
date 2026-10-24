@@ -3360,8 +3360,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Открытое ПО в этом кошельке. Каждый компонент сохраняет свою лицензию; полные тексты в одном касании.';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile от BT Labs: Apache-2.0. Код на GitHub.';
+  String get licencesApp => 'Epic Cash Mobile от BT Labs: Apache-2.0.';
 
   @override
   String get licencesFlutter =>
@@ -3710,7 +3709,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendNodeDown => 'Сеть сейчас недоступна.';
 
   @override
-  String get sendRelayDown => 'Сервер Epicbox получателя не отвечает.';
+  String sendRelayDown(String relay) {
+    return 'Сервер Epicbox получателя ($relay) не отвечает.';
+  }
 
   @override
   String get sendListenerDown => 'Ещё нет подключения. Отправить можно.';
@@ -3861,25 +3862,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get handshakeNext => 'Следующий шаг';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
       many:
-          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
       few:
-          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
       one:
-          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'Сервер Epicbox получателя не принял платёж. Проверьте «Кошелёк», прежде чем отправлять снова.';
+  String sendRelayRefusedLost(String relay) {
+    return 'Сервер Epicbox получателя ($relay) не принял платёж. Проверьте «Кошелёк», прежде чем отправлять снова.';
+  }
 
   @override
   String get sendCancelAndFile => 'Отменить и оплатить файлом';
@@ -13547,7 +13549,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop от BT Labs: Apache-2.0. Код на GitHub.';
+      'Epic Cash Desktop от BT Labs: Apache-2.0.';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'Браузер не открылся';
@@ -14116,5 +14118,43 @@ class AppLocalizationsRu extends AppLocalizations {
       one: 'Заменена $n подробность, остальные оставлены как у вас.',
     );
     return '$_temp0';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return 'Приложение не знает сервер $relay. Проверьте адрес перед отправкой.';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay не ответил.';
+  }
+
+  @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay не ответил, поэтому получатель не получил этот платёж. Средства остаются заблокированными, пока платёж не отправят повторно или не отменят.';
+  }
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'Не доставлено: $relay не ответил. Платёж ждёт в «Активности»; отмените его там, чтобы разблокировать средства.';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay не ответил.';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'Неизвестный сервер Epicbox';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return 'Приложение не знает сервер $relay. Проверьте адрес перед отправкой. Отправить всё равно можно.';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'Не доставлено. $relay не ответил, поэтому получатель не получил платёж. Отправьте его снова или отмените, чтобы освободить средства.';
   }
 }

@@ -11,7 +11,11 @@ import 'package:epic_wallet/src/net/socks.dart';
 import 'package:epic_wallet/src/net/tor_net.dart';
 import 'package:epic_wallet/src/net/tor_switch.dart';
 import 'package:epic_wallet/src/net/ws_probe.dart';
+import 'package:epic_wallet/src/models.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/providers.dart' show ListenerState;
+import 'package:epic_wallet/src/relay_directory.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,6 +34,9 @@ class _FakeSocks {
   final Map<String, int> targets;
   final List<({int atyp, String host, int port, String user})> connects = [];
   int accepted = 0;
+
+  /// The next this many CONNECTs are refused (host unreachable), as a circuit that fails.
+  int refuse = 0;
 
   SocksProxy get proxy => SocksProxy('127.0.0.1', _server.port);
 
@@ -72,7 +79,8 @@ class _FakeSocks {
     final p = await take(2);
     final port = p[0] << 8 | p[1];
     connects.add((atyp: atyp, host: host, port: port, user: user));
-    final to = targets[host];
+    final to = refuse > 0 ? null : targets[host];
+    if (refuse > 0) refuse--;
     if (to == null) {
       client.add([5, 4, 0, 1, 0, 0, 0, 0, 0, 0]);
       await client.close();
@@ -301,5 +309,75 @@ void main() {
   test('with Tor off the relay probe keeps the short direct timeout', () {
     TorNet.follow(TorState.off);
     expect(relayProbeTimeout(), probeTimeout);
+  });
+
+  group('android-10: the Send review\'s relay check over Tor', () {
+    // A relay on this computer that takes the WebSocket handshake, behind a fake onion.
+    Future<_FakeSocks> relayBehindTor() async {
+      final relay = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      addTearDown(() => relay.close(force: true));
+      relay.listen((request) async {
+        final socket = await WebSocketTransformer.upgrade(request);
+        await socket.close();
+      });
+      const onion = 'relayrelayrelayrelayrelayrelayrelayrelayrelayrelayrelayr.onion';
+      final socks = await _FakeSocks.start({onion: relay.port});
+      addTearDown(socks.close);
+      TorNet.onions = (host, port) =>
+          host == 'epicbox.example.org' ? (onion: onion, port: 80, tls: false) : null;
+      addTearDown(() => TorSwitch.on = false);
+      return socks;
+    }
+
+    final probe = WebSocketRelayProbe(uriFor: (r) => Uri(scheme: 'ws', host: r.host, port: r.port));
+    final relay = EpicboxRelay(host: 'epicbox.example.org', port: 443);
+
+    test('Tor still connecting when the review opens: the probe waits for it, then asks', () async {
+      final socks = await relayBehindTor();
+      TorNet.follow(TorState.starting);
+      TorNet.hold = const Duration(seconds: 5);
+      addTearDown(() => TorNet.hold = Duration.zero);
+      final answer = probe.reachable(relay);
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      expect(socks.accepted, 0, reason: 'nothing opened, nothing direct, while tor is not up');
+      TorNet.follow(TorState.on, proxy: socks.proxy);
+      expect(await answer, isTrue);
+    });
+
+    test('Tor not connected in time: the relay is not asked, so it is not flagged', () async {
+      final socks = await relayBehindTor();
+      TorNet.follow(TorState.starting);
+      TorNet.hold = const Duration(milliseconds: 100);
+      addTearDown(() => TorNet.hold = Duration.zero);
+      await expectLater(probe.reachable(relay), throwsA(isA<ProbeNotRun>()));
+      expect(socks.accepted, 0);
+      // The review reads that as "no word": neither ready-to-send nor a relay that is down.
+      final checks = sendPreflight(
+        node: AsyncData(NodeTip(height: BigInt.one, nodeVersion: 'x')),
+        listener: const ListenerState(connected: true),
+        relays: const AsyncData(<RelayStatus>[]),
+        relay: relay,
+        probe: AsyncError<bool>(const ProbeNotRun(), StackTrace.empty),
+      );
+      expect(checks.relayOutcome, isNull);
+      expect(checks.warns, isFalse);
+    });
+
+    test('a circuit that fails at once is tried once more; a working relay is not flagged', () async {
+      final socks = await relayBehindTor();
+      TorNet.follow(TorState.on, proxy: socks.proxy);
+      socks.refuse = 1;
+      expect(await probe.reachable(relay), isTrue);
+      expect(socks.connects, hasLength(2));
+      expect(socks.connects[0].user, isNot(socks.connects[1].user), reason: 'a new circuit');
+    });
+
+    test('two failures say the relay does not answer', () async {
+      final socks = await relayBehindTor();
+      TorNet.follow(TorState.on, proxy: socks.proxy);
+      socks.refuse = 2;
+      expect(await probe.reachable(relay), isFalse);
+      expect(socks.connects, hasLength(2));
+    });
   });
 }

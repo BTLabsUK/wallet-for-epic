@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -120,7 +121,7 @@ class SlotProgress extends StatelessWidget {
 /// otherwise it starts right below the dock, which moves it down while a notice shows. [idle]
 /// is what the slot shows, such as a [SlotProgress]. With [glow], the screen gets the lit
 /// Protocol backdrop, its light at that point.
-class SlotScaffold extends StatelessWidget {
+class SlotScaffold extends StatefulWidget {
   const SlotScaffold({
     super.key,
     this.appBar,
@@ -141,23 +142,34 @@ class SlotScaffold extends StatelessWidget {
   final Widget? bottomNavigationBar;
 
   @override
+  State<SlotScaffold> createState() => _SlotScaffoldState();
+}
+
+class _SlotScaffoldState extends State<SlotScaffold> {
+  final DockMeter _dock = DockMeter();
+
+  @override
   Widget build(BuildContext context) {
+    final body = widget.body;
     final scaffold = Scaffold(
-      appBar: appBar,
-      floatingActionButton: floatingActionButton,
-      bottomNavigationBar: bottomNavigationBar,
+      appBar: widget.appBar,
+      floatingActionButton: widget.floatingActionButton,
+      bottomNavigationBar: widget.bottomNavigationBar,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ProgressSlot(idle: idle),
-          const NoticeDock(),
+          ProgressSlot(idle: widget.idle),
+          MeasureDock(meter: _dock, child: const NoticeDock()),
           Expanded(
-            child: StillUnderDock(child: centered ? CenteredScroll(child: body) : body),
+            child: StillUnderDock(
+              meter: _dock,
+              child: widget.centered ? CenteredScroll(child: body) : body,
+            ),
           ),
         ],
       ),
     );
-    final glow = this.glow;
+    final glow = widget.glow;
     return glow == null
         ? scaffold
         : ProtocolBackdrop(focus: glow, child: scaffold);
@@ -165,43 +177,154 @@ class SlotScaffold extends StatelessWidget {
 }
 
 /// Keeps a scrolling [child] still on screen while the [NoticeDock] above it opens or closes:
-/// as the dock moves the body's top edge, the body scrolls by as much, so the row under the
-/// finger stays and a second tap lands where the first did (android-02). Content that cannot
-/// scroll that far moves by the rest, and nothing is ever covered. A change at the bottom (the
-/// keyboard) is left alone.
-class StillUnderDock extends StatefulWidget {
-  const StillUnderDock({super.key, required this.child});
+/// as the dock moves the body's top edge, the body scrolls by as much in the same layout pass,
+/// so the row under the finger stays and a second tap lands where the first did (android-02).
+/// A list too short to scroll that far has no room to do it, so while the dock is open
+/// [DockSlack] gives the lists that read it ([ScreenBody], Settings) empty room below their
+/// last row; nothing is ever covered. A change at the bottom (the keyboard) is left alone.
+/// [meter] reads the [NoticeDock]'s height, so the slack lasts exactly as long as it is open.
+class StillUnderDock extends ConsumerStatefulWidget {
+  const StillUnderDock({super.key, required this.child, this.meter});
 
   final Widget child;
+  final DockMeter? meter;
 
   @override
-  State<StillUnderDock> createState() => _StillUnderDockState();
+  ConsumerState<StillUnderDock> createState() => _StillUnderDockState();
 }
 
-class _StillUnderDockState extends State<StillUnderDock> {
-  double? _top;
+class _StillUnderDockState extends ConsumerState<StillUnderDock> {
+  final _use = SlackUse();
+  ScrollPosition? _position;
+  double? _dockBefore;
+  bool _slack = false;
+
+  double get _dockHeight => widget.meter?.height ?? 0;
 
   bool _onMetrics(ScrollMetricsNotification n) {
-    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null || !box.hasSize) return false;
-    final top = box.localToGlobal(Offset.zero).dy;
-    final before = _top;
-    _top = top;
-    final moved = before == null ? 0.0 : top - before;
-    if (moved.abs() < 0.5) return false;
-    final position = Scrollable.maybeOf(n.context)?.position;
-    if (position == null || !position.hasPixels) return false;
-    final to = (position.pixels + moved).clamp(position.minScrollExtent, position.maxScrollExtent);
-    if (to != position.pixels) position.jumpTo(to);
+    if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
+      _position = Scrollable.maybeOf(n.context)?.position;
+    }
     return false;
   }
 
+  /// In the body's layout, after the dock's: the body's top moved by as much as the dock grew.
+  void _onLayout() {
+    final height = _dockHeight;
+    final before = _dockBefore;
+    _dockBefore = height;
+    if (_slack && height < 0.5 && ref.read(noticeProvider) == null) {
+      _slack = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
+    final position = _position;
+    if (before == null || position == null || !position.hasPixels) return;
+    final moved = height - before;
+    if (moved.abs() < 0.01) return;
+    var to = math.max(position.pixels + moved, position.minScrollExtent);
+    // Without slack to scroll into, the content moves by the rest.
+    if (!_use.used) to = math.min(to, math.max(position.maxScrollExtent, position.pixels));
+    position.correctBy(to - position.pixels);
+  }
+
   @override
-  Widget build(BuildContext context) => NotificationListener<ScrollMetricsNotification>(
-    onNotification: _onMetrics,
-    child: widget.child,
-  );
+  Widget build(BuildContext context) {
+    // Slack from the moment a notice arrives, before the dock has moved anything, and until
+    // the dock is shut.
+    if (ref.watch(noticeProvider) != null || _dockHeight >= 0.5) _slack = true;
+    return NotificationListener<ScrollMetricsNotification>(
+      onNotification: _onMetrics,
+      child: DockSlack(
+        extra: _slack ? MediaQuery.sizeOf(context).height : 0,
+        use: _use,
+        child: _OnLayout(onLayout: _onLayout, child: widget.child),
+      ),
+    );
+  }
+}
+
+/// The height the [NoticeDock] had in its last layout.
+class DockMeter {
+  double height = 0;
+}
+
+/// [child] with its height written to [meter] as it is laid out.
+class MeasureDock extends SingleChildRenderObjectWidget {
+  const MeasureDock({super.key, required this.meter, super.child});
+
+  final DockMeter meter;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderMeasureDock(meter);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) =>
+      (renderObject as _RenderMeasureDock).meter = meter;
+}
+
+class _RenderMeasureDock extends RenderProxyBox {
+  _RenderMeasureDock(this.meter);
+
+  DockMeter meter;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    meter.height = size.height;
+  }
+}
+
+/// Whether a list under a [DockSlack] reads it.
+class SlackUse {
+  bool used = false;
+}
+
+/// Runs [onLayout] in its own layout, before its child's.
+class _OnLayout extends SingleChildRenderObjectWidget {
+  const _OnLayout({required this.onLayout, super.child});
+
+  final VoidCallback onLayout;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderOnLayout(onLayout);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderOnLayout renderObject) =>
+      renderObject.onLayout = onLayout;
+}
+
+class _RenderOnLayout extends RenderProxyBox {
+  _RenderOnLayout(this.onLayout);
+
+  VoidCallback onLayout;
+
+  @override
+  void performLayout() {
+    onLayout();
+    super.performLayout();
+  }
+}
+
+/// Empty room for a scrolling list under a docked notice ([StillUnderDock]): as tall as the
+/// screen while the dock is open, else none. A list adds it to its bottom padding with [pad].
+class DockSlack extends InheritedWidget {
+  const DockSlack({super.key, required this.extra, required this.use, required super.child});
+
+  final double extra;
+  final SlackUse use;
+
+  /// [base] with the slack under it.
+  static EdgeInsets pad(BuildContext context, EdgeInsets base) {
+    final slack = context.dependOnInheritedWidgetOfExactType<DockSlack>();
+    if (slack == null) return base;
+    slack.use.used = true;
+    return slack.extra == 0 ? base : base.copyWith(bottom: base.bottom + slack.extra);
+  }
+
+  @override
+  bool updateShouldNotify(DockSlack old) => old.extra != extra;
 }
 
 /// [child] in the middle of the space it gets, scrolling when it does not fit. For a short
@@ -762,7 +885,11 @@ class TxStatusChip extends ConsumerWidget {
         colors.surfaceContainerHighest,
         colors.onSurfaceVariant,
       ),
-      TxPhase.cancelled => (colors.errorContainer, colors.onErrorContainer),
+      // Cancelled is over, not wrong: the same neutral chip as a completed payment.
+      TxPhase.cancelled => (
+        colors.surfaceContainerHighest,
+        colors.onSurfaceVariant,
+      ),
     };
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -790,8 +917,8 @@ class TxStatusChip extends ConsumerWidget {
   }
 }
 
-/// The direction of [tx] in a rounded square whose edge shows its progress: green in, plain
-/// out, gold for a reward. See [TxProgressSquare] for the edge.
+/// The direction of [tx] in a rounded square whose edge shows its progress: green in, gold
+/// out, grey when cancelled ([WalletTokens.txSent] and kin). See [TxProgressSquare] for the edge.
 class TxIcon extends ConsumerWidget {
   const TxIcon({super.key, required this.tx, required this.tip});
 
@@ -807,14 +934,19 @@ class TxIcon extends ConsumerWidget {
     final (IconData icon, Color fg, String label) = switch (tx.kind) {
       _ when tx.status == TxStatus.cancelled => (
         Icons.block,
-        t.dim,
+        t.txCancelled,
         l.txIconCancelled,
       ),
-      TxKind.coinbase => (Icons.bolt, t.accentText, l.txMiningReward),
+      // A reward is money in, so green like a receipt; the bolt tells it apart.
+      TxKind.coinbase => (Icons.bolt, t.txReceived, l.txMiningReward),
       TxKind.received ||
-      TxKind.receivedCancelled => (Icons.south_west, t.ok, l.txIconIncoming),
+      TxKind.receivedCancelled => (
+        Icons.south_west,
+        t.txReceived,
+        l.txIconIncoming,
+      ),
       TxKind.sent ||
-      TxKind.sentCancelled => (Icons.north_east, t.text, l.txIconOutgoing),
+      TxKind.sentCancelled => (Icons.north_east, t.txSent, l.txIconOutgoing),
     };
     final target = confirmationsTargetOf(ref);
     final phase = txPhase(tx, tip, target: target);
@@ -1447,10 +1579,13 @@ class TxTile extends ConsumerWidget {
                           style: theme.textTheme.bodyLarge?.copyWith(
                             fontFamily: context.tokens.monoFamily,
                             fontSize: 14.5,
-                            // Money in reads green, as on the desktop; money out stays plain.
-                            color: !outgoing && tx.status != TxStatus.cancelled
-                                ? context.tokens.ok
-                                : null,
+                            // The amount wears the direction, like the icon: green in, gold
+                            // out; a cancelled one is struck through in grey.
+                            color: tx.status == TxStatus.cancelled
+                                ? context.tokens.txCancelled
+                                : outgoing
+                                ? context.tokens.txSent
+                                : context.tokens.txReceived,
                             decoration: tx.status == TxStatus.cancelled
                                 ? TextDecoration.lineThrough
                                 : null,
@@ -1712,7 +1847,7 @@ class ScreenBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final bottom = this.bottom;
     final list = ListView(
-      padding: const EdgeInsets.all(16),
+      padding: DockSlack.pad(context, const EdgeInsets.all(16)),
       children: children,
     );
     return SafeArea(

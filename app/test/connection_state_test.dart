@@ -9,7 +9,7 @@ import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/net/tor_switch.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/log.dart';
-import 'package:epic_wallet/src/phone_tor.dart' show networkChangesProvider, networkEvent;
+import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -31,10 +31,21 @@ class _Raw extends Notifier<WalletStatus> {
 
 final _raw = NotifierProvider<_Raw, WalletStatus>(_Raw.new);
 
+/// The phone's Tor controller, in the test's hands.
+class _Tor extends PhoneTor {
+  @override
+  PhoneTorState build() => const PhoneTorState(phase: PhoneTorPhase.off);
+
+  void set(PhoneTorPhase phase) => state = PhoneTorState(phase: phase, receiving: true);
+}
+
 class _Harness {
   _Harness(FakeAsync async) : _async = async {
     container = ProviderContainer(
-      overrides: [rawWalletStatusProvider.overrideWith((ref) => ref.watch(_raw))],
+      overrides: [
+        rawWalletStatusProvider.overrideWith((ref) => ref.watch(_raw)),
+        phoneTorProvider.overrideWith(_Tor.new),
+      ],
     );
     container.listen(walletStatusProvider, (_, _) {}, fireImmediately: true);
     // Online from the start: settled once the first 5 s pass.
@@ -56,6 +67,12 @@ class _Harness {
     _async.elapse(d);
     _async.flushMicrotasks();
   }
+
+  /// Tor's phase; the raw status follows it on its next change, as it watches it.
+  void tor(PhoneTorPhase phase) {
+    (container.read(phoneTorProvider.notifier) as _Tor).set(phase);
+    _async.elapse(Duration.zero);
+  }
 }
 
 const _s = Duration(seconds: 1);
@@ -68,6 +85,47 @@ void main() {
   });
 
   group('Epicbox', () {
+    test('android-09: turning Tor on shows connecting until the relay is up over Tor, never offline', () {
+      fakeAsync((async) {
+        final h = _Harness(async);
+        expect(h.shown.epicbox, EpicboxState.online);
+        // The switch closes the relay connection; while tor starts the raw status is
+        // connecting (waiting for Tor).
+        h.tor(PhoneTorPhase.starting);
+        h.set(epicbox: EpicboxState.connecting);
+        h.elapse(_s * 20);
+        expect(h.shown.epicbox, EpicboxState.connecting);
+        // Tor is up, the connection still lost: its first try over the new tor failed.
+        h.tor(PhoneTorPhase.connected);
+        h.set(epicbox: EpicboxState.offline);
+        for (var i = 0; i < 12; i++) {
+          h.elapse(_s);
+          expect(h.shown.epicbox, EpicboxState.connecting, reason: '${i + 1} s after tor came up');
+        }
+        h.set(epicbox: EpicboxState.online);
+        expect(h.shown.epicbox, EpicboxState.online);
+        // Once up over Tor, a later drop is an outage again.
+        h.set(epicbox: EpicboxState.offline);
+        h.elapse(statusSettle + _s);
+        expect(h.shown.epicbox, EpicboxState.offline);
+      });
+    });
+
+    test('android-09: a relay still down a minute after tor came up shows offline', () {
+      fakeAsync((async) {
+        final h = _Harness(async);
+        h.tor(PhoneTorPhase.starting);
+        h.set(epicbox: EpicboxState.connecting);
+        h.elapse(_s * 5);
+        h.tor(PhoneTorPhase.connected);
+        h.set(epicbox: EpicboxState.offline);
+        h.elapse(torRelayGrace - _s);
+        expect(h.shown.epicbox, EpicboxState.connecting);
+        h.elapse(_s + statusSettle + _s);
+        expect(h.shown.epicbox, EpicboxState.offline);
+      });
+    });
+
     test('a 3 s drop shows nothing', () {
       fakeAsync((async) {
         final h = _Harness(async);
@@ -332,7 +390,7 @@ void nodeRecheckTests() {
     });
   });
 
-  test('android-04: over Tor the node is asked for as long as tor takes to rebuild its circuits', () {
+  test('android-04: over Tor the node is asked once tor has renewed its connections', () {
     fakeAsync((async) {
       TorSwitch.on = true;
       addTearDown(() => TorSwitch.on = false);
@@ -342,13 +400,44 @@ void nodeRecheckTests() {
       async.elapse(statusSettle + const Duration(seconds: 1));
       expect(h.shown, NodeState.offline);
 
-      // The network is back; tor renews its connections and the node answers 25 s later.
+      // The network is back: a question now would go out on tor's old connections, which
+      // its renewal closes, so none is asked until tor has renewed them.
+      final asked = h.session.nodeTipsFor.length;
       h.network.add(true);
-      async.elapse(const Duration(seconds: 25));
-      expect(h.shown, NodeState.offline);
+      async.elapse(const Duration(seconds: 1));
+      expect(h.session.nodeTipsFor.length, asked);
+
       h.down = false;
-      async.elapse(const Duration(seconds: 10));
-      expect(h.shown, NodeState.online, reason: 'asked again, not left to the minute refresh');
+      h.container.read(torRenewalsProvider.notifier).renewed();
+      async.elapse(const Duration(milliseconds: 100));
+      expect(h.session.nodeTipsFor.length, asked + 1, reason: 'asked at once on the new circuits');
+      expect(h.shown, NodeState.online);
+      h.dispose();
+    });
+  });
+
+  test('android-04: over Tor a network change shows no node offline once tor has renewed', () {
+    fakeAsync((async) {
+      TorSwitch.on = true;
+      addTearDown(() => TorSwitch.on = false);
+      final h = _Node(async);
+      expect(h.shown, NodeState.online);
+
+      // The network changes under a poll: tor's renewal 1.5 s later closes its connection.
+      h.network.add(false);
+      h.network.add(true);
+      h.down = true;
+      h.container.invalidate(nodeTipProvider);
+      async.elapse(const Duration(milliseconds: 1500));
+      // Renewed: the node reads online, so only a question asked anyway clears the failure.
+      h.down = false;
+      final asked = h.session.nodeTipsFor.length;
+      h.container.read(torRenewalsProvider.notifier).renewed();
+      for (var i = 0; i < 20; i++) {
+        async.elapse(const Duration(seconds: 1));
+        expect(h.shown, NodeState.online, reason: '${i + 1} s after the renewal');
+      }
+      expect(h.session.nodeTipsFor.length, asked + 1);
       h.dispose();
     });
   });

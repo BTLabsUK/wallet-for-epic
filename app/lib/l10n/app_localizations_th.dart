@@ -3137,8 +3137,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ซอฟต์แวร์โอเพนซอร์สในกระเป๋านี้ แต่ละส่วนใช้สัญญาอนุญาตของตนเอง ดูข้อความเต็มได้ในแตะเดียว';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile โดย BT Labs: Apache-2.0 โค้ดอยู่บน GitHub';
+  String get licencesApp => 'Epic Cash Mobile โดย BT Labs: Apache-2.0';
 
   @override
   String get licencesFlutter =>
@@ -3481,7 +3480,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendNodeDown => 'เชื่อมต่อเครือข่ายไม่ได้ในขณะนี้';
 
   @override
-  String get sendRelayDown => 'เซิร์ฟเวอร์ของผู้รับไม่ตอบสนอง';
+  String sendRelayDown(String relay) {
+    return 'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่ตอบสนอง';
+  }
 
   @override
   String get sendListenerDown => 'ยังไม่ได้เชื่อมต่อ แต่ยังส่งได้';
@@ -3630,19 +3631,20 @@ class AppLocalizationsTh extends AppLocalizations {
   String get handshakeNext => 'ขั้นตอนถัดไป';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'เซิร์ฟเวอร์ของผู้รับไม่รับรายการ จำนวนเงินจะถูกพักไว้จนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
+          'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่รับรายการ จำนวนเงินจะถูกพักไว้จนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'เซิร์ฟเวอร์ของผู้รับไม่รับรายการ ตรวจสอบหน้ากระเป๋าก่อนส่งอีกครั้ง';
+  String sendRelayRefusedLost(String relay) {
+    return 'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่รับรายการ ตรวจสอบหน้ากระเป๋าก่อนส่งอีกครั้ง';
+  }
 
   @override
   String get sendCancelAndFile => 'ยกเลิกแล้วชำระด้วยไฟล์';
@@ -12927,7 +12929,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop โดย BT Labs: Apache-2.0 โค้ดอยู่บน GitHub';
+      'Epic Cash Desktop โดย BT Labs: Apache-2.0';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'เปิดเบราว์เซอร์ไม่ได้';
@@ -13468,5 +13470,43 @@ class AppLocalizationsTh extends AppLocalizations {
       other: 'แทนที่รายละเอียด $n รายการ ที่เหลือใช้ของคุณเหมือนเดิม',
     );
     return '$_temp0';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return 'แอปไม่รู้จักเซิร์ฟเวอร์ $relay ตรวจสอบที่อยู่ก่อนส่ง';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay ไม่ตอบสนอง';
+  }
+
+  @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay ไม่ตอบสนอง ผู้รับจึงยังไม่ได้รับการชำระเงินนี้ เงินของคุณจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก';
+  }
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'ส่งไม่ถึง: $relay ไม่ตอบสนอง รายการรออยู่ในประวัติ ยกเลิกที่นั่นเพื่อปลดล็อกยอดเงิน';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay ไม่ตอบสนอง';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'ไม่รู้จักเซิร์ฟเวอร์ Epicbox';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return 'แอปไม่รู้จักเซิร์ฟเวอร์ $relay ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'ส่งไม่ถึง $relay ไม่ตอบสนอง ผู้รับจึงยังไม่ได้รับรายการนี้ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน';
   }
 }
