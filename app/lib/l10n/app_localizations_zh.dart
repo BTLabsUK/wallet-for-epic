@@ -13070,92 +13070,86 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskUpdUnfinished => '更新未完成。请重试。';
 
   @override
-  String get slNodeField => 'Node address';
+  String get slNodeField => '节点地址';
 
   @override
-  String get slRelayField => 'Epicbox server';
+  String get slRelayField => 'Epicbox 服务器';
 
   @override
-  String get slHelpIdleNode =>
-      'In use. Edit it to switch, or type to filter the list.';
+  String get slHelpIdleNode => '使用中。修改即可切换，或输入文字筛选列表。';
 
   @override
-  String get slHelpIdleRelay =>
-      'In use. Edit it to switch, or type to filter the list.';
+  String get slHelpIdleRelay => '使用中。修改即可切换，或输入文字筛选列表。';
 
   @override
-  String get slHelpAddable => 'Not in the list.';
+  String get slHelpAddable => '不在列表中。';
 
   @override
   String slHelpMatches(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count matches.',
-      one: '$count match.',
-      zero: 'No match.',
+      other: '$count 个匹配项。',
+      zero: '无匹配项。',
     );
     return '$_temp0';
   }
 
   @override
-  String get slClear => 'Clear';
+  String get slClear => '清除';
 
   @override
   String slAddRow(String host) {
-    return 'Add $host';
+    return '添加 $host';
   }
 
   @override
-  String get slAddTestsNode => 'Tests the node first, then offers the switch.';
+  String get slAddTestsNode => '先测试节点，再提供切换。';
 
   @override
-  String get slAddTestsRelay =>
-      'Tests the server first, then offers the switch.';
+  String get slAddTestsRelay => '先测试服务器，再提供切换。';
 
   @override
   String slAdded(String host) {
-    return 'Added $host.';
+    return '已添加 $host。';
   }
 
   @override
-  String get slRemove => 'Remove';
+  String get slRemove => '移除';
 
   @override
   String slRemoved(String host) {
-    return 'Removed $host.';
+    return '已移除 $host。';
   }
 
   @override
-  String get slUndo => 'Undo';
+  String get slUndo => '撤销';
 
   @override
-  String get slInUseSwitchFirst => 'In use. Switch first.';
+  String get slInUseSwitchFirst => '使用中。请先切换。';
 
   @override
-  String get slRestore => 'Restore the public list';
+  String get slRestore => '恢复公共列表';
 
   @override
   String slRemovedCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count removed',
-      one: '$count removed',
+      other: '已移除 $count 个',
     );
     return '$_temp0';
   }
 
   @override
-  String get slRestored => 'Restored the public list.';
+  String get slRestored => '已恢复公共列表。';
 
   @override
-  String get slRelayWarning =>
-      'Switching changes your address. Senders need the new one.';
+  String get slRelayWarning => '切换会改变你的地址；发送方需要新地址。';
 
   @override
-  String get slNotAnAddress => 'Not a server address. Use host or host:port.';
+  String get slNotAnAddress => '不是服务器地址。请使用 host 或 host:port。';
 
   @override
-  String get slRelayNoAnswer => 'No answer from this server. Nothing added.';
+  String get slRelayNoAnswer => '此服务器无应答。未添加任何内容。';
 }

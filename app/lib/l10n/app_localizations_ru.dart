@@ -14187,92 +14187,98 @@ class AppLocalizationsRu extends AppLocalizations {
       'Обновление не завершилось. Повторите попытку.';
 
   @override
-  String get slNodeField => 'Node address';
+  String get slNodeField => 'Адрес узла';
 
   @override
-  String get slRelayField => 'Epicbox server';
+  String get slRelayField => 'Сервер Epicbox';
 
   @override
   String get slHelpIdleNode =>
-      'In use. Edit it to switch, or type to filter the list.';
+      'Используется. Измените адрес, чтобы переключиться, или вводите текст, чтобы отфильтровать список.';
 
   @override
   String get slHelpIdleRelay =>
-      'In use. Edit it to switch, or type to filter the list.';
+      'Используется. Измените адрес, чтобы переключиться, или вводите текст, чтобы отфильтровать список.';
 
   @override
-  String get slHelpAddable => 'Not in the list.';
+  String get slHelpAddable => 'Нет в списке.';
 
   @override
   String slHelpMatches(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count matches.',
-      one: '$count match.',
-      zero: 'No match.',
+      other: '$count совпадения.',
+      many: '$count совпадений.',
+      few: '$count совпадения.',
+      one: '$count совпадение.',
+      zero: 'Ничего не найдено.',
     );
     return '$_temp0';
   }
 
   @override
-  String get slClear => 'Clear';
+  String get slClear => 'Очистить';
 
   @override
   String slAddRow(String host) {
-    return 'Add $host';
+    return 'Добавить $host';
   }
 
   @override
-  String get slAddTestsNode => 'Tests the node first, then offers the switch.';
+  String get slAddTestsNode =>
+      'Сначала проверит узел, затем предложит переключиться.';
 
   @override
   String get slAddTestsRelay =>
-      'Tests the server first, then offers the switch.';
+      'Сначала проверит сервер, затем предложит переключиться.';
 
   @override
   String slAdded(String host) {
-    return 'Added $host.';
+    return 'Добавлено: $host.';
   }
 
   @override
-  String get slRemove => 'Remove';
+  String get slRemove => 'Удалить';
 
   @override
   String slRemoved(String host) {
-    return 'Removed $host.';
+    return 'Удалено: $host.';
   }
 
   @override
-  String get slUndo => 'Undo';
+  String get slUndo => 'Отменить';
 
   @override
-  String get slInUseSwitchFirst => 'In use. Switch first.';
+  String get slInUseSwitchFirst => 'Используется. Сначала переключитесь.';
 
   @override
-  String get slRestore => 'Restore the public list';
+  String get slRestore => 'Восстановить публичный список';
 
   @override
   String slRemovedCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count removed',
-      one: '$count removed',
+      other: '$count удалено',
+      many: '$count удалено',
+      few: '$count удалено',
+      one: '$count удалён',
     );
     return '$_temp0';
   }
 
   @override
-  String get slRestored => 'Restored the public list.';
+  String get slRestored => 'Публичный список восстановлен.';
 
   @override
   String get slRelayWarning =>
-      'Switching changes your address. Senders need the new one.';
+      'При переключении ваш адрес изменится; отправителям нужен новый.';
 
   @override
-  String get slNotAnAddress => 'Not a server address. Use host or host:port.';
+  String get slNotAnAddress =>
+      'Это не адрес сервера. Введите host или host:port.';
 
   @override
-  String get slRelayNoAnswer => 'No answer from this server. Nothing added.';
+  String get slRelayNoAnswer => 'Сервер не отвечает. Ничего не добавлено.';
 }

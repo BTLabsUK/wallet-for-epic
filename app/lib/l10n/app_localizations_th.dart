@@ -13531,92 +13531,90 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskUpdUnfinished => 'อัปเดตไม่เสร็จ ลองอีกครั้ง';
 
   @override
-  String get slNodeField => 'Node address';
+  String get slNodeField => 'ที่อยู่โหนด';
 
   @override
-  String get slRelayField => 'Epicbox server';
+  String get slRelayField => 'เซิร์ฟเวอร์ Epicbox';
 
   @override
   String get slHelpIdleNode =>
-      'In use. Edit it to switch, or type to filter the list.';
+      'ใช้อยู่ แก้ไขเพื่อเปลี่ยน หรือพิมพ์เพื่อกรองรายการ';
 
   @override
   String get slHelpIdleRelay =>
-      'In use. Edit it to switch, or type to filter the list.';
+      'ใช้อยู่ แก้ไขเพื่อเปลี่ยน หรือพิมพ์เพื่อกรองรายการ';
 
   @override
-  String get slHelpAddable => 'Not in the list.';
+  String get slHelpAddable => 'ไม่อยู่ในรายการ';
 
   @override
   String slHelpMatches(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count matches.',
-      one: '$count match.',
-      zero: 'No match.',
+      other: 'พบ $count รายการ',
+      zero: 'ไม่พบรายการที่ตรงกัน',
     );
     return '$_temp0';
   }
 
   @override
-  String get slClear => 'Clear';
+  String get slClear => 'ล้าง';
 
   @override
   String slAddRow(String host) {
-    return 'Add $host';
+    return 'เพิ่ม $host';
   }
 
   @override
-  String get slAddTestsNode => 'Tests the node first, then offers the switch.';
+  String get slAddTestsNode => 'ทดสอบโหนดก่อน แล้วจึงเสนอให้เปลี่ยน';
 
   @override
-  String get slAddTestsRelay =>
-      'Tests the server first, then offers the switch.';
+  String get slAddTestsRelay => 'ทดสอบเซิร์ฟเวอร์ก่อน แล้วจึงเสนอให้เปลี่ยน';
 
   @override
   String slAdded(String host) {
-    return 'Added $host.';
+    return 'เพิ่ม $host แล้ว';
   }
 
   @override
-  String get slRemove => 'Remove';
+  String get slRemove => 'นำออก';
 
   @override
   String slRemoved(String host) {
-    return 'Removed $host.';
+    return 'นำ $host ออกแล้ว';
   }
 
   @override
-  String get slUndo => 'Undo';
+  String get slUndo => 'เลิกทำ';
 
   @override
-  String get slInUseSwitchFirst => 'In use. Switch first.';
+  String get slInUseSwitchFirst => 'ใช้อยู่ ต้องเปลี่ยนก่อน';
 
   @override
-  String get slRestore => 'Restore the public list';
+  String get slRestore => 'กู้คืนรายการสาธารณะ';
 
   @override
   String slRemovedCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count removed',
-      one: '$count removed',
+      other: 'นำออก $count รายการ',
     );
     return '$_temp0';
   }
 
   @override
-  String get slRestored => 'Restored the public list.';
+  String get slRestored => 'กู้คืนรายการสาธารณะแล้ว';
 
   @override
   String get slRelayWarning =>
-      'Switching changes your address. Senders need the new one.';
+      'การเปลี่ยนจะทำให้ที่อยู่ของคุณเปลี่ยน ผู้ส่งต้องใช้ที่อยู่ใหม่';
 
   @override
-  String get slNotAnAddress => 'Not a server address. Use host or host:port.';
+  String get slNotAnAddress =>
+      'ไม่ใช่ที่อยู่เซิร์ฟเวอร์ ใช้ host หรือ host:port';
 
   @override
-  String get slRelayNoAnswer => 'No answer from this server. Nothing added.';
+  String get slRelayNoAnswer => 'เซิร์ฟเวอร์นี้ไม่ตอบสนอง ไม่ได้เพิ่มอะไร';
 }
