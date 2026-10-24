@@ -634,7 +634,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ),
     );
     if (!mounted || res == null) return;
-    if (res is SendDone) showEToast(context, context.l10n.deskSendSent, text: '${formatEpic(res.tx.amount)} EPIC');
+    if (res is SendDone) showEToast(context, context.l10n.deskSendSent, text: '${formatEpicL(context.l10n, res.tx.amount)} EPIC');
     setState(() {
       switch (res) {
         case final SendFailed failed:
@@ -940,7 +940,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           error: amErr,
           aside: spendable == null
               ? Text(l.deskSendAvailableNone, style: ts.small)
-              : ELink(label: l.deskSendAvailable(st.settings.hideAmounts ? '••••••' : formatEpic(spendable)), dim: st.status?.syncProgress != null, tabStop: false, onPressed: _allBusy ? null : _sendAll),
+              : ELink(label: l.deskSendAvailable(st.settings.hideAmounts ? '••••••' : formatEpicL(l, spendable)), dim: st.status?.syncProgress != null, tabStop: false, onPressed: _allBusy ? null : _sendAll),
           child: EInput(
             controller: _amount,
             mono: true,
@@ -963,7 +963,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ),
         if ((st.balance?.awaitingConfirmation ?? 0) > 0) ...[
           SizedBox(height: Sp.x2),
-          Text(st.settings.hideAmounts ? l.deskSendConfirmingHidden : l.deskSendConfirming(formatEpic(st.balance!.awaitingConfirmation)), style: ts.small),
+          Text(st.settings.hideAmounts ? l.deskSendConfirmingHidden : l.deskSendConfirming(formatEpicL(l, st.balance!.awaitingConfirmation)), style: ts.small),
         ],
         SizedBox(height: Sp.x5),
         EField(
@@ -1435,7 +1435,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Flexible(child: Text(formatEpic(d.amount), style: ts.h1.copyWith(fontFeatures: const [FontFeature.tabularFigures()]))),
+              Flexible(child: Text(formatEpicL(l, d.amount), style: ts.h1.copyWith(fontFeatures: const [FontFeature.tabularFigures()]))),
               SizedBox(width: Sp.x2),
               Text('EPIC', style: ts.lead),
             ],
@@ -1512,7 +1512,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       ),
       actions: [
         EButton(label: l.deskSendBack, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: _busy ? l.deskSendSending : l.deskSendConfirm(formatEpic(d.amount)), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
+        EButton.primary(label: _busy ? l.deskSendSending : l.deskSendConfirm(formatEpicL(l, d.amount)), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
       ],
     );
   }

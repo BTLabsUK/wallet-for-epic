@@ -66,7 +66,7 @@ class SendSplitLine extends StatelessWidget {
   final int change;
 
   /// The help icon's text.
-  static String why(AppLocalizations l, int outputs, int change) => l.deskSendSplitWhy(outputs, formatEpic(change ~/ outputs, decimals: 4));
+  static String why(AppLocalizations l, int outputs, int change) => l.deskSendSplitWhy(outputs, formatEpicL(l, change ~/ outputs, decimals: 4));
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +79,7 @@ class SendSplitLine extends StatelessWidget {
         children: [
           Icon(EIcons.split, size: 14.u, color: c.accentText),
           SizedBox(width: Sp.x2),
-          Expanded(child: Text(l.deskSendSplitLine(outputs, formatEpic(extraFee, minDecimals: 3)), style: ts.small)),
+          Expanded(child: Text(l.deskSendSplitLine(outputs, formatEpicL(l, extraFee, minDecimals: 3)), style: ts.small)),
           HelpTip(text: why(l, outputs, change), label: l.deskSendSplitWhyLabel),
         ],
       ),
@@ -145,8 +145,8 @@ class _HelpTipState extends State<HelpTip> {
 (String, bool) lockCaption(AppLocalizations l, SendSummary s) {
   final n = s.lockedOutputs;
   if (s.noChange) return (l.deskSendLockNoChange(n), false);
-  if (s.locksAll) return (l.deskSendLockAll(n, formatEpic(s.locked)), true);
-  return (l.deskSendLockSome(n, formatEpic(s.locked)), false);
+  if (s.locksAll) return (l.deskSendLockAll(n, formatEpicL(l, s.locked)), true);
+  return (l.deskSendLockSome(n, formatEpicL(l, s.locked)), false);
 }
 
 /// Under Total: Balance after, Spendable until change confirms with the lock caption, and
@@ -195,11 +195,11 @@ class SendLockRows extends StatelessWidget {
 /// The review dialog's Locks fact (§4.5).
 String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy) {
   final n = s.lockedOutputs;
-  final locked = formatEpic(s.locked);
+  final locked = formatEpicL(l, s.locked);
   if (s.noChange) return l.deskSendReviewLocksNone(n, locked);
   if (strategy == SelectionStrategy.all && s.locksAll) return l.deskSendReviewLocksAll(n, locked);
   if (s.locksAll) return l.deskSendReviewLocksEverything(n, locked);
-  return l.deskSendReviewLocksSome(n, locked, formatEpic(s.spendableMeanwhile));
+  return l.deskSendReviewLocksSome(n, locked, formatEpicL(l, s.spendableMeanwhile));
 }
 
 /// The review dialog's lines for the outputs: the second line of Network fee when the change
@@ -218,7 +218,7 @@ String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy
   feeSecondLine: strategy == SelectionStrategy.all && s.change > 0 && usesAll != null
       ? usesAll(s.lockedOutputs)
       : s.changeOutputs > 1
-      ? l.deskSendReviewSplit(s.changeOutputs, formatEpic(extraFee, minDecimals: 3))
+      ? l.deskSendReviewSplit(s.changeOutputs, formatEpicL(l, extraFee, minDecimals: 3))
       : null,
   facts: [
     (l.deskSendFactLocks, Text(reviewLocks(l, s, strategy))),
