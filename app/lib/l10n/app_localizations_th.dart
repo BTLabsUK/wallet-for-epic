@@ -13548,7 +13548,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor first starts Tor with the wallet and asks before it falls back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all. Transaction files still work.';
+      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait until you switch back.';
 
   @override
   String get advOutputs => 'Outputs';
@@ -13569,7 +13569,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advSendOptionsHint =>
-      'Lets one send choose which outputs it spends, Smallest or All, and whether to split the change. The choice sits on Send\'s review and applies to that send only. The defaults stay on Outputs.';
+      'Shows Strategy for sends and Split change on Outputs: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.';
 
   @override
   String get advDirect => 'Direct receiving';
@@ -13590,7 +13590,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advRecheckHeightHint =>
-      'Lets Recheck balance and Restore start from a block height or a date instead of the first block. Faster, and the only way to skip early history.';
+      'Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.';
 
   @override
   String get advModeStandard => 'Standard';
@@ -13611,7 +13611,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advModeOfflineLine =>
-      'No network. The balance stays as last seen. Transaction files still work.';
+      'No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.';
 
   @override
   String get advTorOnlyNote =>
@@ -13619,7 +13619,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline pauses Epicbox, Direct receiving, status checks and notifications until the mode changes.';
+      'Offline pauses Epicbox, Direct receiving, transaction files, status checks and notifications until the mode changes.';
 
   @override
   String get advReset => 'Hide everything again';
@@ -13760,4 +13760,35 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
+
+  @override
+  String get netBlockOffline => 'Offline mode is on in Advanced.';
+
+  @override
+  String get netBlockTorOnly => 'Tor only is on in Advanced.';
+
+  @override
+  String get netBlockWaitingForTor => 'Waiting for Tor.';
+
+  @override
+  String get receiveOfflineLine =>
+      'Can\'t receive this way while Offline mode is on.';
+
+  @override
+  String get txDetailsMore => 'More';
+
+  @override
+  String get restoreStartFromLink => 'Start from a date or height';
+
+  @override
+  String get homeOfflineDetail =>
+      'Offline mode is on in Advanced. The balance is the last one seen.';
+
+  @override
+  String get homeWaitingTorDetail =>
+      'Tor only is on in Advanced. Waiting for Tor to connect.';
+
+  @override
+  String get settingsRescanBodyPlain =>
+      'The wallet looks for its funds again, from the first block. This can take a long time.';
 }

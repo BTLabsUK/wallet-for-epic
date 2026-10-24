@@ -242,15 +242,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ].reduce(l.settingsStateJoin),
                 ),
                 _GroupRow(
-                  key: settingsGroupKey(SettingsSection.advanced),
-                  section: SettingsSection.advanced,
-                  state: advancedStateLine(l, s.advanced),
-                ),
-                _GroupRow(
                   key: settingsHelpKey,
                   icon: Icons.help_outline,
                   title: l.settingsSectionHelpFeedback,
                   onTap: () => openHelp(context),
+                ),
+                _GroupRow(
+                  key: settingsGroupKey(SettingsSection.advanced),
+                  section: SettingsSection.advanced,
+                  state: advancedStateLine(l, s.advanced),
                 ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.about),

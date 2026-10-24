@@ -18136,7 +18136,7 @@
   "@advNetworkHeader": {
     "description": "Header over the network mode choice on the Advanced page."
   },
-  "advNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor first starts Tor with the wallet and asks before it falls back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all. Transaction files still work.",
+  "advNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait until you switch back.",
   "@advNetworkHint": {
     "description": "Info sheet behind the Network header on the Advanced page."
   },
@@ -18160,7 +18160,7 @@
   "@advSendOptions": {
     "description": "Advanced switch: strategy and split change on Send."
   },
-  "advSendOptionsHint": "Lets one send choose which outputs it spends, Smallest or All, and whether to split the change. The choice sits on Send's review and applies to that send only. The defaults stay on Outputs.",
+  "advSendOptionsHint": "Shows Strategy for sends and Split change on Outputs: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.",
   "@advSendOptionsHint": {
     "description": "Info sheet of the Send options switch."
   },
@@ -18184,7 +18184,7 @@
   "@advRecheckHeight": {
     "description": "Advanced switch: recheck balance and restore from a block height or date."
   },
-  "advRecheckHeightHint": "Lets Recheck balance and Restore start from a block height or a date instead of the first block. Faster, and the only way to skip early history.",
+  "advRecheckHeightHint": "Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.",
   "@advRecheckHeightHint": {
     "description": "Info sheet of the Recheck from a height switch."
   },
@@ -18208,7 +18208,7 @@
   "@advModeOffline": {
     "description": "Network mode: no network."
   },
-  "advModeOfflineLine": "No network. The balance stays as last seen. Transaction files still work.",
+  "advModeOfflineLine": "No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.",
   "@advModeOfflineLine": {
     "description": "One line under the Offline network mode."
   },
@@ -18216,7 +18216,7 @@
   "@advTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "advOfflineNote": "Offline pauses Epicbox, Direct receiving, status checks and notifications until the mode changes.",
+  "advOfflineNote": "Offline pauses Epicbox, Direct receiving, transaction files, status checks and notifications until the mode changes.",
   "@advOfflineNote": {
     "description": "Note under the network choice while Offline is selected."
   },
@@ -18380,5 +18380,41 @@
   "deskShellTorOnlyWaiting": "Tor only · waiting for Tor",
   "@deskShellTorOnlyWaiting": {
     "description": "Sidebar status row while Tor only is on and Tor is not connected yet."
+  },
+  "netBlockOffline": "Offline mode is on in Advanced.",
+  "@netBlockOffline": {
+    "description": "Why a network action is disabled while the Offline network mode is on. Tapping it opens the Advanced page."
+  },
+  "netBlockTorOnly": "Tor only is on in Advanced.",
+  "@netBlockTorOnly": {
+    "description": "Line under the Tor switch while the Tor only network mode locks it on."
+  },
+  "netBlockWaitingForTor": "Waiting for Tor.",
+  "@netBlockWaitingForTor": {
+    "description": "Why a network action is disabled while Tor only is on and Tor is not connected yet."
+  },
+  "receiveOfflineLine": "Can't receive this way while Offline mode is on.",
+  "@receiveOfflineLine": {
+    "description": "Line on Receive's Epicbox and Direct tabs while the Offline network mode is on; the address is still shown to hand out."
+  },
+  "txDetailsMore": "More",
+  "@txDetailsMore": {
+    "description": "Small text link on a payment's details that shows the technical rows for this view only, when Technical details is off in Advanced."
+  },
+  "restoreStartFromLink": "Start from a date or height",
+  "@restoreStartFromLink": {
+    "description": "Small link on Restore that opens the choice of where to start scanning the chain."
+  },
+  "homeOfflineDetail": "Offline mode is on in Advanced. The balance is the last one seen.",
+  "@homeOfflineDetail": {
+    "description": "Tooltip and screen reader hint of Home's Offline status."
+  },
+  "homeWaitingTorDetail": "Tor only is on in Advanced. Waiting for Tor to connect.",
+  "@homeWaitingTorDetail": {
+    "description": "Tooltip and screen reader hint of Home's Waiting for Tor status."
+  },
+  "settingsRescanBodyPlain": "The wallet looks for its funds again, from the first block. This can take a long time.",
+  "@settingsRescanBodyPlain": {
+    "description": "Recheck balance dialog text while Recheck from a height is off in Advanced: no start choice, the whole chain is scanned."
   }
 }

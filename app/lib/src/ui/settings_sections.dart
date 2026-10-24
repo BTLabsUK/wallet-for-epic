@@ -16,6 +16,7 @@ import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
+import '../network_gate.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
@@ -35,6 +36,7 @@ import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'licences_screen.dart';
 import 'network_menu.dart';
+import 'net_block.dart';
 import 'network_status.dart';
 import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
@@ -355,7 +357,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final chain = ref.read(walletConfigProvider)?.chain;
     final start = await showDialog<BigInt>(
       context: context,
-      builder: (_) => _RescanDialog(datesSupported: chain == Chain.mainnet),
+      builder: (_) => _RescanDialog(
+        datesSupported: chain == Chain.mainnet,
+        // Advanced › Recheck from a height: without it the dialog only confirms.
+        choice: AdvancedOptions.has(context, AdvancedFeature.recheckFromHeight),
+      ),
     );
     if (start == null || !mounted) return;
     final ok = await ref.read(scanProvider.notifier).run(startHeight: start);
@@ -612,6 +618,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             ),
           );
     final error = Theme.of(context).colorScheme.error;
+    final block = watchNetBlock(context, ref);
     return [
       ListTile(
         leading: const Icon(Icons.contacts_outlined),
@@ -660,12 +667,16 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ),
       ],
       // Recheck balance is the fix for a wrong balance: for everyone. From a height is Advanced.
+      // It reads the chain, so it waits for the network.
       if (!demo)
         ListTile(
           leading: const Icon(Icons.sync),
           title: Text(l.settingsRescan),
-          enabled: !scan.running,
-          onTap: _rescan,
+          subtitle: netBlockReason(l, block) == null
+              ? null
+              : Text(netBlockReason(l, block)!),
+          enabled: !scan.running && block == NetBlock.none,
+          onTap: block == NetBlock.none ? _rescan : null,
         ),
       const Divider(height: 24),
       ListTile(
@@ -843,6 +854,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final version = ref.watch(appVersionProvider);
     final demo = ref.watch(demoModeProvider);
     final updates = !demo && ref.read(updateProvider.notifier).supported;
+    final block = watchNetBlock(context, ref);
     return [
       const Padding(
         padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
@@ -859,11 +871,17 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ListTile(
           leading: const Icon(Icons.system_update),
           title: Text(l.settingsCheckUpdates),
-          onTap: () {
-            ref.read(updateProvider.notifier).check();
-            // The result follows as a notice of its own.
-            _say(l.updateChecking, level: NoticeLevel.info);
-          },
+          subtitle: netBlockReason(l, block) == null
+              ? null
+              : Text(netBlockReason(l, block)!),
+          enabled: block == NetBlock.none,
+          onTap: block != NetBlock.none
+              ? null
+              : () {
+                  ref.read(updateProvider.notifier).check();
+                  // The result follows as a notice of its own.
+                  _say(l.updateChecking, level: NoticeLevel.info);
+                },
         ),
       // The short Licences screen; the full texts (the packages', the fonts', the word
       // lists' and the bundled tor's) are one tap further.
@@ -985,16 +1003,21 @@ enum _RescanFrom { date, height, start }
 
 /// Where a rescan starts. Pops the start height, or null when cancelled.
 class _RescanDialog extends StatefulWidget {
-  const _RescanDialog({required this.datesSupported});
+  const _RescanDialog({required this.datesSupported, required this.choice});
 
   final bool datesSupported;
+
+  /// Offer the start (a date, a height, the whole chain); else the whole chain without asking.
+  final bool choice;
 
   @override
   State<_RescanDialog> createState() => _RescanDialogState();
 }
 
 class _RescanDialogState extends State<_RescanDialog> {
-  late _RescanFrom _from = widget.datesSupported
+  late _RescanFrom _from = !widget.choice
+      ? _RescanFrom.start
+      : widget.datesSupported
       ? _RescanFrom.date
       : _RescanFrom.height;
   DateTime? _date;
@@ -1053,35 +1076,36 @@ class _RescanDialogState extends State<_RescanDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l.settingsRescanBody),
+            Text(widget.choice ? l.settingsRescanBody : l.settingsRescanBodyPlain),
             const SizedBox(height: 8),
-            RadioGroup<_RescanFrom>(
-              groupValue: _from,
-              onChanged: (value) => setState(() {
-                _from = value ?? _from;
-                _error = null;
-              }),
-              child: Column(
-                children: [
-                  if (widget.datesSupported)
+            if (widget.choice)
+              RadioGroup<_RescanFrom>(
+                groupValue: _from,
+                onChanged: (value) => setState(() {
+                  _from = value ?? _from;
+                  _error = null;
+                }),
+                child: Column(
+                  children: [
+                    if (widget.datesSupported)
+                      RadioListTile(
+                        contentPadding: EdgeInsets.zero,
+                        value: _RescanFrom.date,
+                        title: Text(l.settingsRescanFromDate),
+                      ),
                     RadioListTile(
                       contentPadding: EdgeInsets.zero,
-                      value: _RescanFrom.date,
-                      title: Text(l.settingsRescanFromDate),
+                      value: _RescanFrom.height,
+                      title: Text(l.settingsRescanFromHeight),
                     ),
-                  RadioListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: _RescanFrom.height,
-                    title: Text(l.settingsRescanFromHeight),
-                  ),
-                  RadioListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: _RescanFrom.start,
-                    title: Text(l.settingsRescanWholeChain),
-                  ),
-                ],
+                    RadioListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: _RescanFrom.start,
+                      title: Text(l.settingsRescanWholeChain),
+                    ),
+                  ],
+                ),
               ),
-            ),
             if (_from == _RescanFrom.date)
               OutlinedButton.icon(
                 icon: const Icon(Icons.calendar_today),

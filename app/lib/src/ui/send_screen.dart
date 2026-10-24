@@ -12,6 +12,7 @@ import '../demo.dart' show demoModeProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
+import '../network_gate.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
@@ -29,9 +30,11 @@ import 'contacts_screen.dart';
 import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
 import 'handshake.dart';
+import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
 import 'method_names.dart';
 import 'method_strip.dart';
+import 'net_block.dart';
 import 'pin.dart' show askPin;
 import 'scan_screen.dart';
 import 'shell_header.dart' show comingIn;
@@ -1483,8 +1486,17 @@ class _SendViewState extends ConsumerState<SendView> {
 
   // Build.
 
+  /// What the Advanced network mode allows now, read in [build]: Epicbox and Direct sends
+  /// wait while it is not [NetBlock.none]; the File route never does.
+  NetBlock _block = NetBlock.none;
+
+  /// What it allows the File method: Offline stops making a file too (it asks the node).
+  NetBlock _fileBlock = NetBlock.none;
+
   @override
   Widget build(BuildContext context) {
+    _block = watchNetBlock(context, ref);
+    _fileBlock = fileBlockFor(AdvancedOptions.of(context).networkMode);
     // An estimate made against the old balance is stale: coins that confirmed may cover it
     // now, or a send elsewhere may have spent them (F-06).
     ref.listen(homeProvider.select((home) => home.value?.summary.spendable), (
@@ -1538,8 +1550,22 @@ class _SendViewState extends ConsumerState<SendView> {
       ),
       SendStage.fileSent => (_fileSentStep(context), _doneAction()),
     };
+    // The reason sits above the button that waits for the network (not after a send).
+    final note = switch (_stage) {
+      SendStage.recipient || SendStage.amount => _block,
+      SendStage.review when !_sendFailed => _block,
+      SendStage.fileAmount => _fileBlock,
+      SendStage.fileMade => _block,
+      _ => NetBlock.none,
+    };
     return ScreenBody(
-      bottom: bottom,
+      bottom: note != NetBlock.none
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [NetBlockNote(note), bottom],
+            )
+          : bottom,
       children: [...children, if (_error != null) ErrorText(_error!)],
     );
   }
@@ -1861,7 +1887,9 @@ class _SendViewState extends ConsumerState<SendView> {
 
   Widget _recipientAction() => BusyButton(
     label: context.l10n.commonContinue,
-    onPressed: _recipient.text.trim().isEmpty ? null : _toAmount,
+    onPressed: _recipient.text.trim().isEmpty || _block != NetBlock.none
+        ? null
+        : _toAmount,
   );
 
   /// The big amount, what is available, Use USD and Max, the fee, and the folded note.
@@ -2031,7 +2059,7 @@ class _SendViewState extends ConsumerState<SendView> {
       sendRoute(parseRecipient(_recipient.text)),
       phoneTorState(ref.read(phoneTorProvider)),
     );
-    if (!torGoes(way)) return;
+    if (!torGoes(way) || _block != NetBlock.none) return;
     _toReview();
   }
 
@@ -2058,7 +2086,10 @@ class _SendViewState extends ConsumerState<SendView> {
           ? context.l10n.torWaiting
           : context.l10n.commonContinue,
       busy: _estimating,
-      onPressed: _amountReady && !_busy && torGoes(way) ? _toReview : null,
+      onPressed:
+          _amountReady && !_busy && torGoes(way) && _block == NetBlock.none
+          ? _toReview
+          : null,
     );
   }
 
@@ -2157,7 +2188,10 @@ class _SendViewState extends ConsumerState<SendView> {
       // while the change confirms, only the outputs the send does not lock.
       if (spendable != null && spendable >= total) ...[
         _Row(label: l.sendBalanceAfter, value: epicExact(l, spendable - total)),
-        if (estimate.locked > total && estimate.locked <= spendable) ...[
+        // The change locks outputs: only said where Outputs shows (Advanced).
+        if (outputsShown(context, ref) &&
+            estimate.locked > total &&
+            estimate.locked <= spendable) ...[
           _Row(
             label: l.sendSpendableUntilChange,
             value: epicExact(l, spendable - estimate.locked),
@@ -2209,7 +2243,8 @@ class _SendViewState extends ConsumerState<SendView> {
     // Without a node answer the send could not be built or posted, and a connection that
     // waits for Tor or needs it does not go.
     final way = _wayOf(sendRoute(parseRecipient(_recipient.text)));
-    final canSend = checks.ready && !_busy && torGoes(way);
+    final canSend =
+        checks.ready && !_busy && torGoes(way) && _block == NetBlock.none;
     final amount = epicExact(l, _estimate!.amount);
     final quiet = TextButton.styleFrom(minimumSize: const Size.fromHeight(44));
     return Column(
@@ -2497,7 +2532,7 @@ class _SendViewState extends ConsumerState<SendView> {
   Widget _fileAmountAction() => BusyButton(
     label: context.l10n.sendMakeFile,
     busy: _busy,
-    onPressed: _amountReady ? _createFile : null,
+    onPressed: _amountReady && _fileBlock == NetBlock.none ? _createFile : null,
   );
 
   /// The file route's three steps, [at] the current one (3 when all are done).
@@ -2558,7 +2593,7 @@ class _SendViewState extends ConsumerState<SendView> {
           BusyButton(
             label: l.slateFinishPayment,
             busy: _busy,
-            onPressed: _finalizePasted,
+            onPressed: _block != NetBlock.none ? null : _finalizePasted,
           ),
           const SizedBox(height: 8),
         ],
@@ -2573,7 +2608,7 @@ class _SendViewState extends ConsumerState<SendView> {
 
   Widget _openReplyAction() => BusyButton(
     label: context.l10n.sendOpenReply,
-    onPressed: _busy ? null : _openReply,
+    onPressed: _busy || _block != NetBlock.none ? null : _openReply,
   );
 
   List<Widget> _fileSentStep(BuildContext context) {

@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../network_gate.dart';
 import '../amount.dart';
 import '../providers.dart';
 import '../send_preflight.dart';
@@ -20,6 +21,7 @@ import '../wallet_service.dart';
 import 'common.dart';
 import 'invoice_rows.dart';
 import 'invoices_screen.dart';
+import 'net_block.dart';
 import 'pin.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
@@ -222,7 +224,10 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
         unsent == null && spendable != null && _invoice.amount > spendable
         ? _invoice.amount - spendable
         : null;
-    final canAnswer = unsent == null && !expired && !gone && !_busy;
+    // Approving, declining and sending again all answer over the network.
+    final block = watchNetBlock(context, ref);
+    final canAnswer =
+        unsent == null && !expired && !gone && !_busy && block == NetBlock.none;
     // The amount shows even with balances hidden: nobody approves what they cannot see.
     final fiat = approxFiat(l, _invoice.amount, (
       hidden: false,
@@ -237,7 +242,11 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
     );
 
     final Widget bottom = unsent != null
-        ? BusyButton(label: l.invoiceRetry, busy: _busy, onPressed: _retry)
+        ? BusyButton(
+            label: l.invoiceRetry,
+            busy: _busy,
+            onPressed: block == NetBlock.none ? _retry : null,
+          )
         : Row(
             children: [
               Expanded(
@@ -286,7 +295,13 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
       appBar: AppBar(title: Text(l.invoiceReviewTitle)),
       idle: _busy ? SlotProgress(label: l.invoiceReviewTitle) : null,
       body: ScreenBody(
-        bottom: bottom,
+        bottom: block == NetBlock.none
+            ? bottom
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [NetBlockNote(block), bottom],
+              ),
         children: [
           // The service, by the user's own label; its key shortened, never the relay's name.
           Row(

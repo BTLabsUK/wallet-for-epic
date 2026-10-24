@@ -24,3 +24,9 @@ NetBlock netBlockFor(NetworkMode mode, TorState tor) => switch (mode) {
   NetworkMode.torOnly when tor != TorState.on => NetBlock.waitingForTor,
   _ => NetBlock.none,
 };
+
+/// What [mode] allows for the transaction file method: making a send file, signing a received
+/// one and finalizing all ask the node for its tip, so Offline stops them too. Tor only does not:
+/// they wait for the same Tor as everything else.
+NetBlock fileBlockFor(NetworkMode mode) =>
+    mode == NetworkMode.offline ? NetBlock.offline : NetBlock.none;

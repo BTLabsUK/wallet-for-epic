@@ -12,6 +12,7 @@ import '../connection_state.dart';
 import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../network_gate.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -28,6 +29,7 @@ import 'method_strip.dart';
 import 'settings_screen.dart';
 import 'status.dart' show EpicboxState;
 import 'slate_file_screen.dart';
+import 'net_block.dart';
 import 'theme/advanced.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
@@ -81,6 +83,9 @@ class ReceiveView extends ConsumerWidget {
     var tab = ref.watch(receiveTabProvider);
     if (tab == ReceiveTab.direct && !torAvailable) tab = ReceiveTab.epicbox;
     final torState = phoneTorState(ref.watch(phoneTorProvider));
+    // Offline: the addresses stay to hand out, with a line that nothing arrives meanwhile.
+    final offline = watchNetBlock(context, ref) == NetBlock.offline;
+    final offlineNote = NetBlockNote(NetBlock.offline, line: l.receiveOfflineLine);
     final address = ref.watch(addressProvider);
     final demo = ref.watch(demoModeProvider);
     final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
@@ -181,7 +186,7 @@ class ReceiveView extends ConsumerWidget {
       ]);
       code = null;
       below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.direct && torState == TorState.off) {
+    } else if (tab == ReceiveTab.direct && torState == TorState.off && !offline) {
       // No Direct receiving without Tor: the phone accepts no other connection.
       above = column([
         strip,
@@ -213,7 +218,10 @@ class ReceiveView extends ConsumerWidget {
           const SizedBox(height: 8),
         ] else
           const LinearProgressIndicator(),
-        TorStateLine(openSettings: () => openPrivacySettings(context)),
+        if (offline)
+          offlineNote
+        else
+          TorStateLine(openSettings: () => openPrivacySettings(context)),
         const SizedBox(height: 4),
       ]);
       code = onion == null
@@ -248,7 +256,7 @@ class ReceiveView extends ConsumerWidget {
             cardKey: receiveAddressKey,
           ),
           const SizedBox(height: 8),
-          const _EpicboxLine(),
+          if (offline) offlineNote else const _EpicboxLine(),
           if (demo) const _KeepTabOpenLine(),
           const SizedBox(height: 8),
         ] else if (address.hasError)
@@ -793,6 +801,8 @@ class _FileCard extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
+    // Opening or pasting a file asks the node: Offline stops it, with the reason.
+    final block = fileBlockFor(AdvancedOptions.of(context).networkMode);
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -840,7 +850,9 @@ class _FileCard extends ConsumerWidget {
                       ),
                       icon: const Icon(Icons.file_open_outlined),
                       label: Text(l.receiveFileOpen),
-                      onPressed: () => openSlateFile(context, ref),
+                      onPressed: block != NetBlock.none
+                          ? null
+                          : () => openSlateFile(context, ref),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -851,12 +863,19 @@ class _FileCard extends ConsumerWidget {
                       ),
                       icon: const Icon(Icons.content_paste),
                       label: Text(l.commonPaste),
-                      onPressed: () => pasteSlate(context, ref),
+                      onPressed: block != NetBlock.none
+                          ? null
+                          : () => pasteSlate(context, ref),
                     ),
                   ),
                 ],
               ),
             ),
+            if (block != NetBlock.none)
+              Padding(
+                padding: const EdgeInsets.only(top: 8, right: 12),
+                child: NetBlockNote(block),
+              ),
           ],
         ),
       ),

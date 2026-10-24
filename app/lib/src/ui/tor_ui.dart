@@ -12,6 +12,8 @@ import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../wallet_service.dart';
 import 'info_hint.dart';
+import 'settings_sections.dart' show SettingsSection, openSettingsSection;
+import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 
 /// Tor's icon wherever a method or a status needs one: a private connection.
@@ -25,6 +27,9 @@ bool torShown(PhoneTorState s) =>
 
 /// The key of the Tor switch in Settings › Privacy, for tests.
 const Key torReceivingSwitchKey = ValueKey('tor-receiving-switch');
+
+/// The key of the line under the Tor switch that names the locking mode, for tests.
+const Key torLockedLineKey = ValueKey('tor-locked-line');
 
 /// The key of the Tor status line, for tests.
 const Key torStatusKey = ValueKey('tor-status');
@@ -140,6 +145,9 @@ class TorSwitchTile extends ConsumerWidget {
     final state = phoneTorState(tor);
     final failed = state == TorState.failed;
     final busy = tor.phase == PhoneTorPhase.unavailable;
+    // Advanced › Network: Tor only locks the switch on, Offline turns it off and away.
+    final mode = AdvancedOptions.of(context).networkMode;
+    final locked = mode != NetworkMode.standard;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -164,12 +172,34 @@ class TorSwitchTile extends ConsumerWidget {
             ),
             _ => null,
           },
-          value: tor.receiving,
-          onChanged: busy
+          value: switch (mode) {
+            NetworkMode.torOnly => true,
+            NetworkMode.offline => false,
+            NetworkMode.standard => tor.receiving,
+          },
+          onChanged: busy || locked
               ? null
               : (on) => ref.read(phoneTorProvider.notifier).setReceiving(on),
         ),
-        if (failed)
+        if (locked)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: InkWell(
+              key: torLockedLineKey,
+              onTap: () =>
+                  openSettingsSection(context, SettingsSection.advanced),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(60, 4, 16, 8),
+                child: Text(
+                  mode == NetworkMode.torOnly
+                      ? l.netBlockTorOnly
+                      : l.netBlockOffline,
+                  style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+                ),
+              ),
+            ),
+          ),
+        if (failed && mode != NetworkMode.offline)
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: Padding(
