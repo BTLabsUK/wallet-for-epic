@@ -1540,5 +1540,10 @@
   "torWayOver": "ผ่าน Tor",
   "torWayWaiting": "รอ Tor",
   "torWayNotConnected": "Tor ยังไม่ได้เชื่อมต่อ",
-  "sendUsesAllOutputs": "{count, plural, other{ใช้เอาต์พุตทั้งหมด {count} · เงินทอน 1 เอาต์พุต}}"
+  "sendUsesAllOutputs": "{count, plural, other{ใช้เอาต์พุตทั้งหมด {count} · เงินทอน 1 เอาต์พุต}}",
+  "deskKeyringMissingTitle": "ไม่พบพวงกุญแจ",
+  "deskKeyringMissingText": "Epic Cash เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ แต่ไม่มีพวงกุญแจใดตอบกลับ ติดตั้งหรือเริ่มพวงกุญแจ (GNOME Keyring หรือ KWallet) เข้าสู่ระบบเดสก์ท็อปที่ใช้งานพวงกุญแจ แล้วเลือกลองอีกครั้ง",
+  "deskKeyringLockedTitle": "พวงกุญแจถูกล็อก",
+  "deskKeyringLockedText": "Epic Cash เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ ซึ่งถูกล็อกอยู่ ปลดล็อกพวงกุญแจ (ใช้รหัสผ่านเข้าสู่ระบบ) แล้วเลือกลองอีกครั้ง หรือเลือกปลดล็อกตอนนี้เพื่อให้ระบบถามรหัสผ่าน",
+  "deskKeyringUnlockNow": "ปลดล็อกตอนนี้"
 }

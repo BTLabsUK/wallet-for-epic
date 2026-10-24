@@ -6082,4 +6082,21 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskKeyringMissingTitle => 'Kein Schlüsselbund gefunden';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, aber keiner hat geantwortet. Installiere oder starte einen Schlüsselbund (GNOME Keyring oder KWallet), melde dich in einer Desktop-Sitzung an, die einen ausführt, und wähle dann Wiederholen.';
+
+  @override
+  String get deskKeyringLockedTitle => 'Der Schlüsselbund ist gesperrt';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, und der ist gesperrt. Entsperre ihn (er öffnet sich mit deinem Anmeldepasswort) und wähle dann Wiederholen, oder wähle Jetzt entsperren, damit das System danach fragt.';
+
+  @override
+  String get deskKeyringUnlockNow => 'Jetzt entsperren';
 }
