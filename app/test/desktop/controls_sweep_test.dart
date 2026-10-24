@@ -132,8 +132,8 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<WalletEntry?> walletWithPhrase(List<String> words) => _r('walletWithPhrase', () => _m.walletWithPhrase(words));
   @override
-  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) =>
-      _r('restoreWallet', () => _m.restoreWallet(name: name, password: password, phrase: phrase));
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight}) =>
+      _r('restoreWallet', () => _m.restoreWallet(name: name, password: password, phrase: phrase, startHeight: startHeight));
   @override
   Future<List<OldWallet>> findOldWallets() => _r('findOldWallets', _m.findOldWallets);
   @override

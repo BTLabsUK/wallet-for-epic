@@ -335,12 +335,16 @@ class MockDeskWallet implements DeskWalletApi {
   bool checkPhrase(List<String> words) => bip39PhraseValid(words);
 
   @override
-  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight}) async {
+    restoreStartHeight = startHeight;
     final same = await walletWithPhrase(phrase);
     if (same != null) throw DeskError('This wallet is already here: ${same.name}', sameWallet: same);
     await _wait(3);
     _phrases[phraseFingerprint(phrase.join(' '))] = _addWallet(name);
   }
+
+  /// The start height the last restore asked for (null: the whole chain).
+  BigInt? restoreStartHeight;
 
   /// The new wallet is listed as the next free "Wallet N" (or [name]) and is the selected one.
   /// Returns its id.
