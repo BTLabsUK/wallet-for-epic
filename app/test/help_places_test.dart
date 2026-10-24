@@ -56,7 +56,7 @@ void main() {
     'Send': {l.homeSendButton, l.deskShellNavSend},
     'Activity': {l.homeDestActivity, l.deskShellNavActivity},
     'Outputs': {l.outputsTitle, l.deskShellNavOutputs},
-    'Advanced': {l.outputsAdvanced, l.deskOutAdvanced},
+    'Manage outputs': {l.outputsAdvanced, l.deskOutAdvanced},
     'File': {l.receiveTabFile},
     'Transaction files': {l.deskRecvFiles},
     'Sign a transaction file': {l.deskRecvSignTitle},
@@ -81,7 +81,7 @@ void main() {
       expect(helpPlaceDestination('Settings › Display'), HelpPhonePlace.display);
       expect(helpPlaceDestination('Settings › About'), HelpPhonePlace.about);
       expect(helpPlaceDestination('Settings'), HelpPhonePlace.settings);
-      expect(helpPlaceDestination('Outputs › Advanced'), HelpPhonePlace.outputs);
+      expect(helpPlaceDestination('Outputs › Manage outputs'), HelpPhonePlace.outputs);
       expect(helpPlaceDestination('Invoices › To pay'), HelpPhonePlace.invoices);
     });
 

@@ -272,9 +272,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.p('**Smallest** sorts the spendable outputs by value and takes the smallest ones until the amount and fee are covered. Only those are locked while the send confirms; the rest can be sent right away.'),
         HelpBlock.p('**All** spends every spendable output and returns one change output. Everything is locked for $confirmations blocks, the wallet ends up with fewer, larger outputs, and the fee is a little higher because each input costs. Sending the whole balance always uses All.'),
         if (phone)
-          const HelpBlock.p('The default is set under [[Outputs › Advanced]].')
+          const HelpBlock.p('The default is set under [[Outputs › Manage outputs]].')
         else
-          const HelpBlock.p('The default is set under [[Outputs › Advanced]]; Send can change it for one send under **Advanced**.'),
+          const HelpBlock.p('The default is set under [[Outputs › Manage outputs]]; Send can change it for one send under **Send options**.'),
       ],
       id: HelpId.strategy,
     ),
@@ -285,7 +285,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         HelpBlock.p('Both are normal network transactions from this wallet to itself, confirmed after $confirmations blocks like any send, and both lock every spendable output until then.'),
         const HelpBlock.ul(['**Split** takes the spendable balance and makes 2 to 10 outputs of nearly equal value.', '**Consolidate** takes every spendable output and makes one.', '**Split change** (on by default) does the same inside an ordinary send when few outputs would be left, for 0.004 EPIC per extra output.']),
-        const HelpBlock.p('Activity shows each as two entries, a send and a receive, both with this wallet. Both are under [[Outputs › Advanced]].'),
+        const HelpBlock.p('Activity shows each as two entries, a send and a receive, both with this wallet. Both are under [[Outputs › Manage outputs]].'),
       ],
       id: HelpId.split,
     ),

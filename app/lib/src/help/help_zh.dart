@@ -143,9 +143,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**最小** 按金额对可用输出排序，从最小的开始取，直到覆盖金额和手续费。发送确认期间只锁定这些输出；其余可以立即发送。'),
         HelpBlock.p('**全部** 花掉每一个可用输出，并退回一个找零输出。所有资金锁定 $confirmations 个区块，钱包最终的输出更少、更大，手续费也略高，因为每个输入都有成本。发送全部余额时总是使用“全部”。'),
         if (phone)
-          const HelpBlock.p('默认方式在[[输出 › 高级|Outputs › Advanced]]中设置。')
+          const HelpBlock.p('默认方式在[[输出 › 高级|Outputs › Manage outputs]]中设置。')
         else
-          const HelpBlock.p('默认方式在[[输出 › 高级|Outputs › Advanced]]中设置；“发送”可在 **高级** 中为单次发送更改。'),
+          const HelpBlock.p('默认方式在[[输出 › 高级|Outputs › Manage outputs]]中设置；“发送”可在 **高级** 中为单次发送更改。'),
       ],
       id: HelpId.strategy,
     ),
@@ -156,7 +156,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('两者都是此钱包发给自己的普通网络交易，与任何发送一样在 $confirmations 个区块后确认，在此之前都会锁定所有可用输出。'),
         const HelpBlock.ul(['**拆分** 用可用余额生成 2 到 10 个金额几乎相等的输出。', '**合并** 用所有可用输出生成一个输出。', '**拆分找零**（默认开启）在普通发送中、剩余输出过少时做同样的事，每多一个输出收取 0.004 EPIC。']),
-        const HelpBlock.p('“活动”中每次操作显示为两条记录：一次发送和一次接收，对方都是此钱包。两者都在[[输出 › 高级|Outputs › Advanced]]中。'),
+        const HelpBlock.p('“活动”中每次操作显示为两条记录：一次发送和一次接收，对方都是此钱包。两者都在[[输出 › 高级|Outputs › Manage outputs]]中。'),
       ],
       id: HelpId.split,
     ),

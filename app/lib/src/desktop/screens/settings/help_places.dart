@@ -28,7 +28,7 @@ final Map<String, DeskHelpPlace> _places = {
   'Invoices': _page(DeskRoute.invoices),
   'Invoices › Pay': _page(DeskRoute.invoices, arg: InvoicesTab.pay),
   'Invoices › Issue': _page(DeskRoute.invoices, arg: InvoicesTab.issue),
-  'Outputs › Advanced': _page(DeskRoute.outputs),
+  'Outputs › Manage outputs': _page(DeskRoute.outputs),
   'Settings › Node': _page(DeskRoute.settingsNode, jump: SettingsJump.node),
   'Settings › Receiving': _page(DeskRoute.settingsReceiving),
   'Settings › Receiving › Epicbox receiving': _page(DeskRoute.settingsReceiving, jump: SettingsJump.epicbox),

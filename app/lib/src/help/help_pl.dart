@@ -145,9 +145,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**Najmniejsze** sortuje wyjścia do wydania według wartości i bierze najmniejsze, aż pokryją kwotę i opłatę. Tylko one są zablokowane, dopóki płatność się potwierdza; resztę można od razu wysłać.'),
         HelpBlock.p('**Wszystkie** wydaje każde wyjście do wydania i zwraca jedno wyjście reszty. Wszystko jest zablokowane do osiągnięcia wymaganej liczby potwierdzeń ($confirmations), portfel ma potem mniej, ale większych wyjść, a opłata jest nieco wyższa, bo każde wejście kosztuje. Wysłanie całego salda zawsze używa Wszystkie.'),
         if (phone)
-          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zaawansowane|Outputs › Advanced]].')
+          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zaawansowane|Outputs › Manage outputs]].')
         else
-          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zaawansowane|Outputs › Advanced]]; w Wyślij możesz go zmienić dla jednej płatności w sekcji **Zaawansowane**.'),
+          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zaawansowane|Outputs › Manage outputs]]; w Wyślij możesz go zmienić dla jednej płatności w sekcji **Zaawansowane**.'),
       ],
       id: HelpId.strategy,
     ),
@@ -158,7 +158,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Oba to zwykłe transakcje sieciowe z tego portfela do niego samego, ostateczne po osiągnięciu wymaganej liczby potwierdzeń ($confirmations) jak każda płatność, i oba do tego czasu blokują każde wyjście do wydania.'),
         const HelpBlock.ul(['**Podziel** bierze saldo do wydania i tworzy od 2 do 10 wyjść o prawie równej wartości.', '**Scal** bierze każde wyjście do wydania i tworzy jedno.', '**Podziel resztę** (domyślnie włączone) robi to samo w zwykłej płatności, gdy zostałoby mało wyjść, za 0,004 EPIC za każde dodatkowe wyjście.']),
-        const HelpBlock.p('Aktywność pokazuje każde z nich jako dwa wpisy, wysłanie i odbiór, oba z tym portfelem. Oba znajdziesz w [[Wyjścia › Zaawansowane|Outputs › Advanced]].'),
+        const HelpBlock.p('Aktywność pokazuje każde z nich jako dwa wpisy, wysłanie i odbiór, oba z tym portfelem. Oba znajdziesz w [[Wyjścia › Zaawansowane|Outputs › Manage outputs]].'),
       ],
       id: HelpId.split,
     ),

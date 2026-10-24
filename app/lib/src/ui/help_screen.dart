@@ -628,7 +628,7 @@ const _screenPlaces = <String, (HelpPhonePlace, Set<String>)>{
   'Receive': (HelpPhonePlace.receive, {'File'}),
   'Send': (HelpPhonePlace.send, <String>{}),
   'Activity': (HelpPhonePlace.activity, <String>{}),
-  'Outputs': (HelpPhonePlace.outputs, {'Advanced'}),
+  'Outputs': (HelpPhonePlace.outputs, {'Manage outputs'}),
   'Contacts': (HelpPhonePlace.contacts, <String>{}),
   'Invoices': (HelpPhonePlace.invoices, {'To pay', 'Requests you sent'}),
 };
