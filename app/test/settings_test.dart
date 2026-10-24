@@ -383,10 +383,11 @@ void main() {
     testWidgets('scans from the date, then offers a history import', (
       tester,
     ) async {
-      final h = _Harness(advanced: true, sealed: false, walletExists: false);
+      final h = _Harness(sealed: false, walletExists: false);
       await h.pump(tester);
       await _tapText(tester, 'I already have a wallet: restore it');
       await _enter(tester, 'Recovery phrase', h.service.phrase);
+      await _tapText(tester, 'Start from a date or height');
       await _tapText(tester, 'Pick the date you created the wallet');
       // The picker opens on today (the real clock); pick the 1st of this month.
       await tester.tap(find.text('1'));
@@ -1073,6 +1074,39 @@ void main() {
   });
 
   group('wallet', () {
+    testWidgets('Recheck balance without Recheck from a height only confirms', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
+
+      await _tapText(tester, 'Recheck balance');
+      // No start choice: the from-height stays behind the Advanced switch.
+      expect(find.text('From a block height'), findsNothing);
+      expect(find.text('From a date'), findsNothing);
+      expect(find.text('The whole chain'), findsNothing);
+      await _tapText(tester, 'Rescan');
+      expect(h.session.lastStart, BigInt.one);
+      expect(h.session.scanCalls, 1);
+    });
+
+    testWidgets('Offline: Recheck balance waits, with the reason', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.store.values['app.advanced_prefs'] = 'outputs|offline';
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
+      await _reveal(tester, find.text('Recheck balance'));
+      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      await _tapText(tester, 'Recheck balance');
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(h.session.scanCalls, 0);
+    });
+
     testWidgets('rescans from a height or the whole chain', (tester) async {
       final h = _Harness(advanced: true);
       await h.pump(tester);
@@ -1924,54 +1958,34 @@ void main() {
         .map((t) => t.data ?? '')
         .toSet();
 
-    testWidgets('the switch shows network, node, relay and rescan, and is '
-        'saved', (tester) async {
+    testWidgets('the Advanced page saves a switch, and Recheck from a height follows', (
+      tester,
+    ) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester, SettingsSection.about);
-
-      // The switch is on About; the pages it changes are Privacy & network and Wallet.
-      // Each visit opens the page over the last one, and About is the one left in front.
-      Future<Set<String>> texts() async {
-        final seen = <String>{};
-        for (final section in [
-          SettingsSection.privacyNetwork,
-          SettingsSection.wallet,
-          SettingsSection.about,
-        ]) {
-          await h.openSettings(tester, section);
-          if (section != SettingsSection.about) seen.addAll(pageTexts(tester));
-        }
-        return seen;
+      // Off: Recheck balance only confirms; Node and Epicbox stay for everyone.
+      await h.openSettings(tester, SettingsSection.privacyNetwork);
+      final privacy = pageTexts(tester);
+      for (final kept in ['Node', 'Epicbox']) {
+        expect(privacy, contains(kept), reason: kept);
       }
+      await h.openSettings(tester, SettingsSection.advanced);
+      expect(h.store.values['app.advanced_prefs'], isNull);
+      await _tapText(tester, 'Recheck from a height');
+      expect(h.store.values['app.advanced_prefs'], 'recheckFromHeight|standard');
+      await h.openSettings(tester, SettingsSection.wallet);
+      await _tapText(tester, 'Recheck balance');
+      expect(find.text('From a block height'), findsOneWidget);
+      await _tapText(tester, 'Cancel');
 
-      final off = await texts();
-      for (final hidden in ['Recheck balance']) {
-        expect(off, isNot(contains(hidden)), reason: hidden);
-      }
-      // Kept: the connection is for everyone (the status card on Home opens the same
-      // pickers), and the Home backup reminder points at the exports.
-      for (final kept in [
-        'Node',
-        'Epicbox',
-        'Export history backup',
-        'Export CSV',
-        'Import history backup',
-      ]) {
-        expect(off, contains(kept), reason: kept);
-      }
-
-      await _tapText(tester, 'Advanced options');
-      expect(h.store.values['app.advanced'], 'true');
-      final on = await texts();
-      for (final shown in ['Node', 'Epicbox', 'Recheck balance']) {
-        expect(on, contains(shown), reason: shown);
-      }
-
-      await _tapText(tester, 'Advanced options');
-      expect(h.store.values['app.advanced'], 'false');
-      expect(await texts(), isNot(contains('Recheck balance')));
+      // Off again: the page's own reset.
+      await h.openSettings(tester, SettingsSection.advanced);
+      await _tapText(tester, 'Hide everything again');
+      expect(h.store.values['app.advanced_prefs'], '|standard');
+      await h.openSettings(tester, SettingsSection.wallet);
+      await _tapText(tester, 'Recheck balance');
+      expect(find.text('From a block height'), findsNothing);
     });
 
     testWidgets(
@@ -1987,6 +2001,7 @@ void main() {
         expect(find.text('Where to start scanning'), findsNothing);
         expect(find.text('Pick the date you created the wallet'), findsNothing);
         expect(find.text('Block height'), findsNothing);
+        expect(find.byKey(restoreStartLinkKey), findsOneWidget);
         await _enter(tester, 'Recovery phrase', h.service.phrase);
         await _tapText(tester, 'Continue');
         await _enter(tester, 'PIN', _pin);
@@ -1997,13 +2012,19 @@ void main() {
       },
     );
 
-    testWidgets('restore and first run offer the choices with it', (
+    testWidgets('restore offers the start to everyone, behind a link', (
       tester,
     ) async {
-      final h = _Harness(sealed: false, walletExists: false, advanced: true);
+      // Advanced is off: Restore is a one-off, so the choice is not behind a switch.
+      final h = _Harness(sealed: false, walletExists: false);
       await h.pump(tester);
       expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
       await _tapText(tester, 'I already have a wallet: restore it');
+      expect(find.byKey(restoreStartLinkKey), findsOneWidget);
+      expect(find.text('Start from a date or height'), findsOneWidget);
+      expect(find.text('Where to start scanning'), findsNothing);
+      await _tapText(tester, 'Start from a date or height');
+      expect(find.byKey(restoreStartLinkKey), findsNothing);
       expect(find.text('Where to start scanning'), findsOneWidget);
       expect(find.text('Pick the date you created the wallet'), findsOneWidget);
       await _tapText(tester, 'Block height');

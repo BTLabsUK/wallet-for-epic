@@ -5,11 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart';
 import '../l10n.dart';
+import '../network_gate.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'home_status.dart' show StatusIcons;
+import 'net_block.dart' show watchNetBlock;
 import 'status.dart';
 import 'theme/protocol.dart';
 import 'theme/brand.dart' show BrandVariant, BrandWordmark;
@@ -155,6 +157,8 @@ class WalletBalance extends ConsumerWidget {
     final scaler = MediaQuery.textScalerOf(context);
     final data = ref.watch(homeProvider).value;
     final summary = data?.summary;
+    // Offline keeps the last known balance and marks it so on the caption.
+    final offline = watchNetBlock(context, ref) == NetBlock.offline;
     final display = amountDisplay(ref);
     final hidden = display.hidden;
     final fiat = summary == null
@@ -211,7 +215,12 @@ class WalletBalance extends ConsumerWidget {
               child: SizedBox(
                 height: _lineHeight(captionStyle, scaler, context),
                 child: Text(
-                  l.homeAvailableToSpend,
+                  offline
+                      ? l.settingsStateJoin(
+                          l.homeAvailableToSpend,
+                          l.advModeOffline,
+                        )
+                      : l.homeAvailableToSpend,
                   key: balanceCaptionKey,
                   maxLines: 1,
                   textAlign: TextAlign.center,

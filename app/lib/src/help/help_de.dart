@@ -145,9 +145,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**Kleinste** sortiert die verfügbaren Outputs nach Wert und nimmt die kleinsten, bis Betrag und Gebühr gedeckt sind. Nur diese sind gesperrt, solange die Zahlung bestätigt wird; der Rest kann sofort gesendet werden.'),
         HelpBlock.p('**Alle** gibt jeden verfügbaren Output aus und gibt einen einzigen Wechselgeld-Output zurück. Alles ist bis zur $confirmations. Bestätigung gesperrt, die Wallet hat danach weniger, größere Outputs, und die Gebühr ist etwas höher, weil jeder Input kostet. Wird das ganze Guthaben gesendet, gilt immer Alle.'),
         if (phone)
-          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Outputs › Erweitert|Outputs › Advanced]] fest.')
+          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Outputs › Erweitert|Outputs › Manage outputs]] fest.')
         else
-          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Outputs › Erweitert|Outputs › Advanced]] fest; Senden kann sie für eine einzelne Zahlung unter **Erweitert** ändern.'),
+          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Outputs › Erweitert|Outputs › Manage outputs]] fest; Senden kann sie für eine einzelne Zahlung unter **Erweitert** ändern.'),
       ],
       id: HelpId.strategy,
     ),
@@ -158,7 +158,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Beides sind normale Netzwerktransaktionen dieser Wallet an sich selbst, ab der $confirmations. Bestätigung endgültig wie jede Zahlung, und beide sperren bis dahin jeden verfügbaren Output.'),
         const HelpBlock.ul(['**Aufteilen** nimmt das verfügbare Guthaben und erzeugt 2 bis 10 Outputs mit fast gleichem Wert.', '**Zusammenführen** nimmt jeden verfügbaren Output und erzeugt einen.', '**Wechselgeld aufteilen** (standardmäßig an) tut dasselbe innerhalb einer gewöhnlichen Zahlung, wenn nur wenige Outputs übrig blieben, für 0,004 EPIC pro zusätzlichem Output.']),
-        const HelpBlock.p('Aktivität zeigt beides als zwei Einträge, eine gesendete und eine empfangene Zahlung, beide mit dieser Wallet. Beides finden Sie unter [[Outputs › Erweitert|Outputs › Advanced]].'),
+        const HelpBlock.p('Aktivität zeigt beides als zwei Einträge, eine gesendete und eine empfangene Zahlung, beide mit dieser Wallet. Beides finden Sie unter [[Outputs › Erweitert|Outputs › Manage outputs]].'),
       ],
       id: HelpId.split,
     ),

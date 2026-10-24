@@ -22001,7 +22001,7 @@ abstract class AppLocalizations {
   /// Info sheet behind the Network header on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor first starts Tor with the wallet and asks before it falls back to a direct connection. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all. Transaction files still work.'**
+  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait until you switch back.'**
   String get advNetworkHint;
 
   /// Advanced switch: the Outputs page.
@@ -22037,7 +22037,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Send options switch.
   ///
   /// In en, this message translates to:
-  /// **'Lets one send choose which outputs it spends, Smallest or All, and whether to split the change. The choice sits on Send\'s review and applies to that send only. The defaults stay on Outputs.'**
+  /// **'Shows Strategy for sends and Split change on Outputs: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.'**
   String get advSendOptionsHint;
 
   /// Advanced switch: the Direct (Tor) method.
@@ -22073,7 +22073,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Recheck from a height switch.
   ///
   /// In en, this message translates to:
-  /// **'Lets Recheck balance and Restore start from a block height or a date instead of the first block. Faster, and the only way to skip early history.'**
+  /// **'Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.'**
   String get advRecheckHeightHint;
 
   /// Network mode: direct connections.
@@ -22109,7 +22109,7 @@ abstract class AppLocalizations {
   /// One line under the Offline network mode.
   ///
   /// In en, this message translates to:
-  /// **'No network. The balance stays as last seen. Transaction files still work.'**
+  /// **'No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.'**
   String get advModeOfflineLine;
 
   /// Note under the network choice while Tor only is selected.
@@ -22121,7 +22121,7 @@ abstract class AppLocalizations {
   /// Note under the network choice while Offline is selected.
   ///
   /// In en, this message translates to:
-  /// **'Offline pauses Epicbox, Direct receiving, status checks and notifications until the mode changes.'**
+  /// **'Offline pauses Epicbox, Direct receiving, transaction files, status checks and notifications until the mode changes.'**
   String get advOfflineNote;
 
   /// Row at the end of the Advanced page: turns every visibility switch off. The network mode stays.
@@ -22363,6 +22363,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Locks the wallet after this long without a key press or mouse movement. Turn it off to lock only with Lock wallet.'**
   String get deskSetAcctAutoLockHint;
+
+  /// Why a network action is disabled while the Offline network mode is on. Tapping it opens the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode is on in Advanced.'**
+  String get netBlockOffline;
+
+  /// Line under the Tor switch while the Tor only network mode locks it on.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only is on in Advanced.'**
+  String get netBlockTorOnly;
+
+  /// Why a network action is disabled while Tor only is on and Tor is not connected yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor.'**
+  String get netBlockWaitingForTor;
+
+  /// Line on Receive's Epicbox and Direct tabs while the Offline network mode is on; the address is still shown to hand out.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t receive this way while Offline mode is on.'**
+  String get receiveOfflineLine;
+
+  /// Small text link on a payment's details that shows the technical rows for this view only, when Technical details is off in Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get txDetailsMore;
+
+  /// Small link on Restore that opens the choice of where to start scanning the chain.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a date or height'**
+  String get restoreStartFromLink;
+
+  /// Tooltip and screen reader hint of Home's Offline status.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode is on in Advanced. The balance is the last one seen.'**
+  String get homeOfflineDetail;
+
+  /// Tooltip and screen reader hint of Home's Waiting for Tor status.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only is on in Advanced. Waiting for Tor to connect.'**
+  String get homeWaitingTorDetail;
+
+  /// Recheck balance dialog text while Recheck from a height is off in Advanced: no start choice, the whole chain is scanned.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet looks for its funds again, from the first block. This can take a long time.'**
+  String get settingsRescanBodyPlain;
 }
 
 class _AppLocalizationsDelegate

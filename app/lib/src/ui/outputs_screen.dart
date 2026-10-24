@@ -15,6 +15,7 @@ import '../wallet_service.dart';
 import 'common.dart';
 import 'info_hint.dart';
 import 'pin.dart';
+import 'theme/advanced.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
@@ -192,6 +193,12 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final settings = ref.watch(appSettingsProvider).value;
     final hidden = settings?.hideBalances ?? false;
     final strategy = settings?.sendStrategy ?? SelectionStrategy.smallest;
+    // Advanced › Send options shows the defaults a send uses; one that is not at its default
+    // stays (never hide a choice in use).
+    final showDefaults =
+        AdvancedOptions.has(context, AdvancedFeature.sendOptions) ||
+        strategy != SelectionStrategy.smallest ||
+        !(settings?.splitChange ?? true);
     final home = ref.watch(homeProvider).value;
     final summary = home?.summary;
     final outputs = ref.watch(walletOutputsProvider);
@@ -456,31 +463,33 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                 style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
               ),
             ),
-          const SizedBox(height: 8),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: TitleWithHint(
-              l.outputsStrategy,
-              hint: l.outputsStrategyHint,
-              icon: Icons.tune,
+          if (showDefaults) ...[
+            const SizedBox(height: 8),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: TitleWithHint(
+                l.outputsStrategy,
+                hint: l.outputsStrategyHint,
+                icon: Icons.tune,
+              ),
+              subtitle: Text(_strategyName(l, strategy)),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _pickStrategy,
             ),
-            subtitle: Text(_strategyName(l, strategy)),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _pickStrategy,
-          ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: TitleWithHint(
-              l.outputsSplitChange,
-              hint: l.outputsSplitChangeText,
-              icon: Icons.call_split,
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: TitleWithHint(
+                l.outputsSplitChange,
+                hint: l.outputsSplitChangeText,
+                icon: Icons.call_split,
+              ),
+              value: settings?.splitChange ?? true,
+              onChanged: settings == null
+                  ? null
+                  : (v) =>
+                        ref.read(appSettingsProvider.notifier).setSplitChange(v),
             ),
-            value: settings?.splitChange ?? true,
-            onChanged: settings == null
-                ? null
-                : (v) =>
-                      ref.read(appSettingsProvider.notifier).setSplitChange(v),
-          ),
+          ],
         ],
       ),
     );

@@ -2229,11 +2229,13 @@ void main() {
   });
 
   group('advanced options', () {
-    testWidgets('send offers the file and Direct either way', (tester) async {
+    testWidgets('send offers the file always, Direct with its switch', (
+      tester,
+    ) async {
       final off = _Harness();
       await off.pump(tester, _sendTab());
       expect(find.text('File'), findsOneWidget);
-      expect(find.text('Direct'), findsOneWidget);
+      expect(find.text('Direct'), findsNothing);
       expect(find.text('Other ways to send'), findsNothing);
 
       // A fresh tree, so the screen's state starts over.
@@ -2241,6 +2243,7 @@ void main() {
       final on = _Harness(advanced: true);
       await on.pump(tester, _sendTab());
       expect(find.text('File'), findsOneWidget);
+      expect(find.text('Direct'), findsOneWidget);
       await _enter(tester, _address, 'http://203.0.113.5:3415');
       await _tap(tester, _continue);
       expect(find.text('2 of 3'), findsOneWidget);

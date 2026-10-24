@@ -16,6 +16,7 @@ import '../app_log.dart';
 import '../contacts.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../network_gate.dart';
 import '../price.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -25,6 +26,7 @@ import 'common.dart';
 import 'contacts_screen.dart';
 import 'file_exchange_help.dart';
 import 'invoices_screen.dart';
+import 'net_block.dart';
 import 'receive_screen.dart' show shareAddress;
 import 'scan_screen.dart';
 import 'send_screen.dart'
@@ -337,6 +339,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final block = watchNetBlock(context, ref);
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
@@ -391,10 +394,12 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               ),
               const SizedBox(height: 12),
             ],
+            // Sending the request is a network action.
+            NetBlockNote(block),
             BusyButton(
               label: l.invoicesSendRequest,
               busy: _busy,
-              onPressed: _request,
+              onPressed: block == NetBlock.none ? _request : null,
             ),
           ],
         ),
