@@ -3936,7 +3936,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a transaction file to pass on. A review comes before anything leaves.';
+      'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.';
 
   @override
   String get tourPhoneReceiveTitle => 'Receive';
@@ -3978,7 +3978,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPhoneAdvancedText =>
-      'Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.';
+      'Tor-only mode, outputs and technical details live here. Switch on what you need.';
 
   @override
   String get tourPhoneHelpTitle => 'Help';
@@ -13762,7 +13762,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advSendOptionsHint =>
-      'Shows Strategy for sends and Split change on Outputs: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.';
+      'Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.';
 
   @override
   String get advDirect => 'Direct receiving';
@@ -14182,4 +14182,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTxLess => 'Less';
+
+  @override
+  String get settingsSectionTransactions => 'Transactions';
+
+  @override
+  String get settingsHubMethods => 'Methods';
+
+  @override
+  String get settingsHubDefault => 'Default';
+
+  @override
+  String get settingsHubSendDefaults => 'Send defaults';
+
+  @override
+  String get txMethodsHeader => 'Payment methods';
+
+  @override
+  String get txAlwaysOn => 'Always on';
+
+  @override
+  String get txEpicboxHint =>
+      'Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.';
+
+  @override
+  String get txDirectLine =>
+      'Pay onion and web addresses; get paid at this phone\'s Tor address.';
+
+  @override
+  String get txDirectHint =>
+      'Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.';
+
+  @override
+  String get txFileLine => 'Pay or get paid with a file you pass on yourself.';
+
+  @override
+  String get txFileHint =>
+      'File makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File to Send and Receive.';
+
+  @override
+  String get txStartHeader => 'Send starts on';
+
+  @override
+  String get txStartNote => 'You can still pick another method on Send.';
+
+  @override
+  String get txDefaultsHeader => 'Send defaults';
+
+  @override
+  String get outputsDefaultsMoved =>
+      'Send defaults are in Settings › Transactions';
 }

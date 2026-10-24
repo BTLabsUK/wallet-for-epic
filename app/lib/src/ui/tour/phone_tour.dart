@@ -12,7 +12,6 @@
 library;
 
 import 'dart:async';
-import 'dart:io' show Platform;
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -102,7 +101,7 @@ void startPhoneTour(WidgetRef ref) =>
 /// Whether Home opens the tour by itself. Not under `flutter test` (the suites pump Home after
 /// an unlock); the tour's own tests turn it on.
 final phoneTourAutoProvider = Provider<bool>(
-  (ref) => kIsWeb || !Platform.environment.containsKey('FLUTTER_TEST'),
+  (ref) => kIsWeb || !WidgetsBinding.instance.runtimeType.toString().contains('TestWidgetsFlutterBinding'),
 );
 
 // ---- anchor --------------------------------------------------------------------------------

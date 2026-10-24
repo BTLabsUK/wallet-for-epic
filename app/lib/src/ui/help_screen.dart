@@ -634,13 +634,14 @@ class _PlaceLink extends StatelessWidget {
 }
 
 /// Where a place in Help goes on the phone.
-enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, settings, security, privacyNetwork, wallet, display, about }
+enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, settings, security, privacyNetwork, wallet, transactions, display, about }
 
 /// The rows of each Settings page that Help names: `Settings › Wallet › Recheck balance`.
 const _settingsPlaces = <String, (HelpPhonePlace, Set<String>)>{
   'Security': (HelpPhonePlace.security, {'Back up recovery phrase'}),
   'Privacy & network': (HelpPhonePlace.privacyNetwork, {'Tor Network', 'Node', 'Epicbox'}),
   'Wallet': (HelpPhonePlace.wallet, {'Export history backup', 'Recheck balance', 'Invoice address and trusted services'}),
+  'Transactions': (HelpPhonePlace.transactions, {'Send defaults'}),
   'Display': (HelpPhonePlace.display, <String>{}),
   'About': (HelpPhonePlace.about, <String>{}),
 };
@@ -709,6 +710,8 @@ void openHelpPlace(BuildContext context, String place) {
       openSettingsSection(context, SettingsSection.privacyNetwork);
     case HelpPhonePlace.wallet:
       openSettingsSection(context, SettingsSection.wallet);
+    case HelpPhonePlace.transactions:
+      openSettingsSection(context, SettingsSection.transactions);
     case HelpPhonePlace.display:
       openSettingsSection(context, SettingsSection.display);
     case HelpPhonePlace.about:

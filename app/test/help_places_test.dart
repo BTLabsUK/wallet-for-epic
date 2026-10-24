@@ -39,6 +39,7 @@ void main() {
     'Privacy & network': {l.settingsSectionPrivacyNetwork},
     'Tor Network': {l.torNetworkLabel},
     'Wallet': {l.settingsSectionWallet},
+    'Transactions': {l.settingsSectionTransactions},
     'Export history backup': {l.settingsExportHistory, l.deskSetBackupExportTitle},
     'Recheck balance': {l.settingsRescan, l.deskSetFrameRescan},
     'Invoice address and trusted services': {l.settingsInvoices},

@@ -145,7 +145,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**Kleinste** sortiert die verfügbaren Outputs nach Wert und nimmt die kleinsten, bis Betrag und Gebühr gedeckt sind. Nur diese sind gesperrt, solange die Zahlung bestätigt wird; der Rest kann sofort gesendet werden.'),
         HelpBlock.p('**Alle** gibt jeden verfügbaren Output aus und gibt einen einzigen Wechselgeld-Output zurück. Alles ist bis zur $confirmations. Bestätigung gesperrt, die Wallet hat danach weniger, größere Outputs, und die Gebühr ist etwas höher, weil jeder Input kostet. Wird das ganze Guthaben gesendet, gilt immer Alle.'),
         if (phone)
-          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Outputs › Erweitert|Outputs › Manage outputs]] fest.')
+          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Einstellungen › Transactions|Settings › Transactions]] fest.')
         else
           const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Outputs › Erweitert|Outputs › Manage outputs]] fest; Senden kann sie für eine einzelne Zahlung unter **Erweitert** ändern.'),
       ],

@@ -107,6 +107,11 @@ void main() {
       (_l.settingsContacts, () => find.text(_l.settingsContacts)),
       (_l.settingsSectionHistory, () => find.text(_l.settingsSectionHistory)),
     ],
+    // Send defaults are named (and shown) only with Advanced > Send options: see below.
+    SettingsSection.transactions: [
+      (_l.settingsHubMethods, () => find.text(_l.txMethodsHeader)),
+      (_l.settingsHubDefault, () => find.text(_l.txStartHeader)),
+    ],
     SettingsSection.display: [
       (_l.settingsTheme, () => find.text(_l.settingsTheme)),
       (_l.languageSetting, () => find.text(_l.languageSetting)),
@@ -119,7 +124,15 @@ void main() {
       tester,
     ) async {
       await _pump(tester);
-      expect(items, hasLength(section == SettingsSection.wallet ? 2 : 3));
+      expect(
+        items,
+        hasLength(
+          section == SettingsSection.wallet ||
+                  section == SettingsSection.transactions
+              ? 2
+              : 3,
+        ),
+      );
       expect(_line(section, _join([for (final (name, _) in items) name])), findsOneWidget);
       await tester.tap(find.byKey(settingsGroupKey(section)));
       await tester.pumpAndSettle();
@@ -150,6 +163,36 @@ void main() {
     await tester.tap(find.byKey(settingsGroupKey(SettingsSection.wallet)));
     await tester.pumpAndSettle();
     expect(find.text(_l.outputsTitle), findsWidgets);
+  });
+
+  testWidgets('transactions: Send defaults join the line and the page with Send options', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      advanced: const AdvancedPrefs(features: {AdvancedFeature.sendOptions}),
+    );
+    expect(
+      _line(
+        SettingsSection.transactions,
+        _join([_l.settingsHubMethods, _l.settingsHubDefault, _l.settingsHubSendDefaults]),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(settingsGroupKey(SettingsSection.transactions)));
+    await tester.pumpAndSettle();
+    expect(find.text(_l.txDefaultsHeader), findsOneWidget);
+  });
+
+  testWidgets('the Transactions row comes right after Wallet', (tester) async {
+    await _pump(tester);
+    final wallet = find.byKey(settingsGroupKey(SettingsSection.wallet));
+    final tx = find.byKey(settingsGroupKey(SettingsSection.transactions));
+    expect(tx, findsOneWidget);
+    expect(
+      tester.getTopLeft(tx).dy - tester.getTopLeft(wallet).dy,
+      moreOrLessEquals(tester.getSize(wallet).height, epsilon: 1),
+    );
   });
 
   testWidgets('the Advanced row is last but one: below Help, directly above About', (

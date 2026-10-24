@@ -145,7 +145,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**Najmniejsze** sortuje wyjścia do wydania według wartości i bierze najmniejsze, aż pokryją kwotę i opłatę. Tylko one są zablokowane, dopóki płatność się potwierdza; resztę można od razu wysłać.'),
         HelpBlock.p('**Wszystkie** wydaje każde wyjście do wydania i zwraca jedno wyjście reszty. Wszystko jest zablokowane do osiągnięcia wymaganej liczby potwierdzeń ($confirmations), portfel ma potem mniej, ale większych wyjść, a opłata jest nieco wyższa, bo każde wejście kosztuje. Wysłanie całego salda zawsze używa Wszystkie.'),
         if (phone)
-          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zaawansowane|Outputs › Manage outputs]].')
+          const HelpBlock.p('Domyślny sposób ustawisz w [[Ustawienia › Transactions|Settings › Transactions]].')
         else
           const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zaawansowane|Outputs › Manage outputs]]; w Wyślij możesz go zmienić dla jednej płatności w sekcji **Zaawansowane**.'),
       ],

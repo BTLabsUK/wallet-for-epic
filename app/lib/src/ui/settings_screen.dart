@@ -232,6 +232,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       l.settingsSectionHistory,
                     ].reduce(l.settingsStateJoin),
                   ),
+                if (walletOpen)
+                  _GroupRow(
+                    key: settingsGroupKey(SettingsSection.transactions),
+                    section: SettingsSection.transactions,
+                    // What is inside, never live values; the send defaults only while
+                    // Advanced › Send options shows them.
+                    state: [
+                      l.settingsHubMethods,
+                      l.settingsHubDefault,
+                      if (s.advanced.has(AdvancedFeature.sendOptions))
+                        l.settingsHubSendDefaults,
+                    ].reduce(l.settingsStateJoin),
+                  ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.display),
                   section: SettingsSection.display,

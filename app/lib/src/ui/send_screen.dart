@@ -13,6 +13,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../network_gate.dart';
+import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
@@ -35,6 +36,7 @@ import 'help_screen.dart';
 import 'method_names.dart';
 import 'method_strip.dart';
 import 'net_block.dart';
+import 'payment_gate.dart';
 import 'pin.dart' show askPin;
 import 'scan_screen.dart';
 import 'shell_header.dart' show comingIn;
@@ -389,6 +391,41 @@ class _SendViewState extends ConsumerState<SendView> {
       _recipient.text = to.address;
       _lastTo = to.address;
       if (recipientShaped(to)) _method = methodForRecipient(to.kind);
+    }
+    // Settings › Transactions: the method Send starts on. A recipient handed over wins; the
+    // settings load on their own, so a form still untouched takes them when they arrive.
+    if (handoff == null || !recipientShaped(parseRecipient(handoff.text))) {
+      _startOn(ref.read(appSettingsProvider).value?.payments.startMethod);
+      if (!_startApplied) {
+        ref.listenManual(
+          appSettingsProvider.select((s) => s.value?.payments.startMethod),
+          (_, start) {
+            if (start == null || _startApplied || !mounted) return;
+            if (_stage != SendStage.recipient ||
+                _recipient.text.isNotEmpty ||
+                _method != TransferMethod.epicbox) {
+              return;
+            }
+            setState(() => _startOn(start));
+          },
+        );
+      }
+    }
+  }
+
+  bool _startApplied = false;
+
+  /// Opens the form on [start], the method Settings › Transactions chose (null: not loaded).
+  void _startOn(PayMethod? start) {
+    if (start == null) return;
+    _startApplied = true;
+    switch (start) {
+      case PayMethod.direct:
+        _method = TransferMethod.direct;
+      case PayMethod.file:
+        _stage = SendStage.fileAmount;
+      case PayMethod.epicbox:
+        break;
     }
   }
 
@@ -1673,14 +1710,21 @@ class _SendViewState extends ConsumerState<SendView> {
         ],
       ),
     );
-    // Advanced › Direct receiving shows its method; the method in use stays whatever the
-    // switch says (a pasted onion picks Direct). File is everyday.
+    // Settings › Transactions says which methods are offered; the method in use stays
+    // whatever the switch says (a pasted onion picks Direct; a file send, the failed-Epicbox
+    // file fallback and a file waiting for its reply keep File).
+    final payments =
+        ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
+        PaymentPrefs.defaults;
+    final filePending = hasPendingFileSend(
+      ref.watch(homeProvider.select((h) => h.value?.transactions)),
+    );
     final segments = [
       segment(TransferMethod.epicbox, Icons.alternate_email, l.methodEpicbox),
-      if (selected == TransferMethod.direct ||
-          AdvancedOptions.has(context, AdvancedFeature.directReceiving))
+      if (selected == TransferMethod.direct || payments.direct)
         segment(TransferMethod.direct, Icons.link, l.methodDirect),
-      segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
+      if (selected == TransferMethod.file || payments.file || filePending)
+        segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
     ];
     if (segments.length == 1) return const SizedBox.shrink();
     return PhoneTourTarget(

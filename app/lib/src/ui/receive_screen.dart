@@ -13,6 +13,7 @@ import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network_gate.dart';
+import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -26,6 +27,7 @@ import 'file_exchange_help.dart';
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import 'method_strip.dart';
+import 'payment_gate.dart';
 import 'settings_screen.dart';
 import 'status.dart' show EpicboxState;
 import 'slate_file_screen.dart';
@@ -82,6 +84,12 @@ class ReceiveView extends ConsumerWidget {
     final l = context.l10n;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     var tab = ref.watch(receiveTabProvider);
+    final payments =
+        ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
+        PaymentPrefs.defaults;
+    final filePending = hasPendingFileSend(
+      ref.watch(homeProvider.select((h) => h.value?.transactions)),
+    );
     if (tab == ReceiveTab.direct && !torAvailable) tab = ReceiveTab.epicbox;
     final torState = phoneTorState(ref.watch(phoneTorProvider));
     // Offline: the addresses stay to hand out, with a line that nothing arrives meanwhile.
@@ -107,11 +115,12 @@ class ReceiveView extends ConsumerWidget {
             child: Text(l.receiveTabEpicbox, maxLines: 1),
           ),
         ),
-        // Advanced › Direct receiving; Tor receiving on keeps Direct. File is everyday.
+        // Settings › Transactions says which are offered; Tor receiving on (or starting, or
+        // failed) keeps Direct, and so does the tab in use.
         if (torAvailable &&
             (tab == ReceiveTab.direct ||
                 torState != TorState.off ||
-                AdvancedOptions.has(context, AdvancedFeature.directReceiving)))
+                payments.direct))
           ButtonSegment(
             value: ReceiveTab.direct,
             icon: const Icon(Icons.link),
@@ -120,7 +129,9 @@ class ReceiveView extends ConsumerWidget {
               child: Text(l.receiveTabDirect, maxLines: 1),
             ),
           ),
-        ButtonSegment(
+        // The tab in use and a file send waiting for its reply keep File.
+        if (tab == ReceiveTab.file || payments.file || filePending)
+          ButtonSegment(
             value: ReceiveTab.file,
             icon: const Icon(Icons.description_outlined),
           label: FittedBox(

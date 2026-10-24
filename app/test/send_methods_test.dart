@@ -25,6 +25,7 @@ import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/net_block.dart' show netBlockNoteKey;
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -158,6 +159,7 @@ class _Harness {
     Widget? body,
     double height = 2340,
     AdvancedPrefs advanced = AdvancedPrefs.none,
+    PaymentPrefs payments = PaymentPrefs.defaults,
   }) async {
     tester.view.physicalSize = Size(1080, height);
     tester.view.devicePixelRatio = 3;
@@ -168,7 +170,9 @@ class _Harness {
         overrides: [
           relayProbeProvider.overrideWithValue(FakeRelayProbe()),
           walletServiceProvider.overrideWithValue(FakeWalletService()),
-          secretStoreProvider.overrideWithValue(sendPinStore()),
+          secretStoreProvider.overrideWithValue(
+            sendPinStore()..values['app.payment_prefs'] = payments.encode(),
+          ),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: true)),
           priceSourceProvider.overrideWithValue(_NoPrice()),
@@ -369,12 +373,12 @@ void _clipboard(WidgetTester tester, String? Function() text) {
   );
 }
 
-/// Advanced › Direct receiving on, as the Direct segment and tab need it.
-const _directOn = AdvancedPrefs(features: {AdvancedFeature.directReceiving});
+/// Settings › Transactions › Direct on, as the Direct segment and tab need it.
+const _directOn = PaymentPrefs(direct: true);
 
 void main() {
   group('selector and strip', () {
-    testWidgets('Epicbox and File by default; Direct receiving adds Direct', (
+    testWidgets('Epicbox and File by default; Direct on adds Direct', (
       tester,
     ) async {
       final h = _Harness();
@@ -384,7 +388,7 @@ void main() {
       expect(_segment('Direct'), findsNothing);
       await tester.pumpWidget(const SizedBox());
       final on = _Harness();
-      await on.pump(tester, advanced: _directOn);
+      await on.pump(tester, payments: _directOn);
       expect(_segment('Direct'), findsOneWidget);
     });
 
@@ -392,7 +396,7 @@ void main() {
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester, advanced: _directOn);
+      await h.pump(tester, payments: _directOn);
       for (final label in ['Epicbox', 'Direct', 'File']) {
         expect(_segment(label), findsOneWidget, reason: label);
       }
@@ -476,6 +480,56 @@ void main() {
     });
   });
 
+  group('Settings › Transactions', () {
+    testWidgets('File off: the File segment goes, Epicbox and Direct stay', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: const PaymentPrefs(direct: true, file: false));
+      expect(_segment('Epicbox'), findsOneWidget);
+      expect(_segment('Direct'), findsOneWidget);
+      expect(_segment('File'), findsNothing);
+    });
+
+    testWidgets('only Epicbox offered: no selector', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: const PaymentPrefs(file: false));
+      expect(find.byKey(sendMethodsKey), findsNothing);
+      expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
+    });
+
+    testWidgets('a pasted onion keeps Direct for that send with Direct off', (tester) async {
+      String? clip = _onion;
+      _clipboard(tester, () => clip);
+      final h = _Harness();
+      await h.pump(tester, payments: const PaymentPrefs(file: false));
+      await _tap(tester, find.text('Paste'));
+      expect(_segment('Direct'), findsOneWidget);
+      expect(_method(tester), TransferMethod.direct);
+    });
+
+    testWidgets('Send opens on the default method', (tester) async {
+      final h = _Harness();
+      await h.pump(
+        tester,
+        payments: const PaymentPrefs(direct: true, defaultMethod: PayMethod.direct),
+      );
+      expect(_method(tester), TransferMethod.direct);
+      expect(find.text('Direct address'), findsNothing);
+    });
+
+    testWidgets('a default that is not offered falls back to Epicbox', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: const PaymentPrefs(defaultMethod: PayMethod.direct));
+      expect(_method(tester), TransferMethod.epicbox);
+    });
+
+    testWidgets('File as the default opens the file route', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: const PaymentPrefs(defaultMethod: PayMethod.file));
+      expect(find.text(lookupAppLocalizations(const Locale('en')).sendMakeFile), findsOneWidget);
+      expect(find.byKey(sendRecipientFieldKey), findsNothing);
+    });
+  });
+
   group('the method follows the address', () {
     testWidgets('typing es stays on Epicbox', (tester) async {
       final h = _Harness();
@@ -492,7 +546,7 @@ void main() {
         _clipboard(tester, () => clip);
         final semantics = tester.ensureSemantics();
         final h = _Harness();
-        await h.pump(tester, advanced: _directOn);
+        await h.pump(tester, payments: _directOn);
         await _tap(tester, _segment('Direct'));
         expect(_method(tester), TransferMethod.direct);
         clip = _bob;
@@ -587,7 +641,7 @@ void main() {
     });
 
     testWidgets(
-      'Direct receiving off: a pasted onion or http address is accepted, with Direct shown',
+      'Direct off: a pasted onion or http address is accepted, with Direct shown',
       (tester) async {
         String? clip;
         _clipboard(tester, () => clip);
@@ -596,7 +650,7 @@ void main() {
           await tester.pumpWidget(const SizedBox());
           final h = _Harness();
           await h.pump(tester);
-          // Direct receiving is off: the selector has Epicbox and File only.
+          // Direct is off: the selector has Epicbox and File only.
           expect(_segment('Direct'), findsNothing);
           clip = address;
           await _tap(tester, find.text('Paste'));
@@ -621,7 +675,7 @@ void main() {
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester, advanced: _directOn);
+      await h.pump(tester, payments: _directOn);
       await _enter(tester, 'To', _bob);
       await _tap(tester, _segment('Direct'));
       expect(
@@ -950,7 +1004,7 @@ void main() {
         tester,
         body: const ReceiveView(),
         height: 3600,
-        advanced: _directOn,
+        payments: _directOn,
       );
       expect(find.text('Share it to get paid.'), findsOneWidget);
       expect(find.text('Works with the wallet closed.'), findsOneWidget);

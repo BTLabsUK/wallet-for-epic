@@ -17,6 +17,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../network_gate.dart';
+import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
@@ -103,7 +104,7 @@ final biometricsProvider =
 
 /// The groups of the Settings hub that open a page of their own. Help & feedback opens Help
 /// and Notifications is a switch on the hub, so neither is here.
-enum SettingsSection { security, privacyNetwork, wallet, display, advanced, about }
+enum SettingsSection { security, privacyNetwork, wallet, transactions, display, advanced, about }
 
 /// The group's title, on the hub's row and on its page's app bar.
 String settingsSectionTitle(AppLocalizations l, SettingsSection section) =>
@@ -111,6 +112,7 @@ String settingsSectionTitle(AppLocalizations l, SettingsSection section) =>
       SettingsSection.security => l.settingsSectionSecurity,
       SettingsSection.privacyNetwork => l.settingsSectionPrivacyNetwork,
       SettingsSection.wallet => l.settingsSectionWallet,
+      SettingsSection.transactions => l.settingsSectionTransactions,
       SettingsSection.display => l.settingsSectionDisplay,
       SettingsSection.advanced => l.advTitle,
       SettingsSection.about => l.settingsSectionAbout,
@@ -121,6 +123,7 @@ IconData settingsSectionIcon(SettingsSection section) => switch (section) {
   SettingsSection.security => Icons.shield_outlined,
   SettingsSection.privacyNetwork => Icons.hub_outlined,
   SettingsSection.wallet => Icons.account_balance_wallet_outlined,
+  SettingsSection.transactions => Icons.swap_horiz,
   SettingsSection.display => Icons.tune,
   SettingsSection.advanced => Icons.terminal,
   SettingsSection.about => Icons.info_outline,
@@ -439,6 +442,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       SettingsSection.security => _security(l),
       SettingsSection.privacyNetwork => _privacyNetwork(l),
       SettingsSection.wallet => _wallet(l),
+      SettingsSection.transactions => _transactions(l),
       SettingsSection.display => _display(l),
       SettingsSection.advanced => _advanced(l),
       SettingsSection.about => _about(l),
@@ -697,6 +701,164 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ];
   }
 
+  /// Transactions: how payments are made. The methods Send and Receive offer (Epicbox is
+  /// always on), the one Send starts on, and, with Advanced › Send options, the defaults a
+  /// send uses (which outputs it spends and whether its change is split).
+  List<Widget> _transactions(AppLocalizations l) {
+    final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
+    final payments = s.payments;
+    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    final t = context.tokens;
+    // Send options on shows the defaults; one that is not at its default stays (never hide a
+    // choice in use), as Outputs did before they moved here.
+    final showDefaults =
+        s.advanced.has(AdvancedFeature.sendOptions) ||
+        s.sendStrategy != SelectionStrategy.smallest ||
+        !s.splitChange;
+    final offered = [
+      for (final m in PayMethod.values)
+        if (payments.offers(m)) m,
+    ];
+    String methodName(PayMethod m) => switch (m) {
+      PayMethod.epicbox => l.methodEpicbox,
+      PayMethod.direct => l.methodDirect,
+      PayMethod.file => l.methodFile,
+    };
+    Future<void> save(PaymentPrefs next) => _settings.setPayments(next);
+    return [
+      SettingsHeader(l.txMethodsHeader),
+      ListTile(
+        key: const ValueKey('tx-epicbox'),
+        leading: const Icon(Icons.alternate_email),
+        title: TitleWithHint(
+          l.methodEpicbox,
+          hint: l.txEpicboxHint,
+          icon: Icons.alternate_email,
+        ),
+        subtitle: Text(l.txAlwaysOn),
+      ),
+      // Direct needs Tor; where the app has none (and the switch is off) there is nothing to
+      // turn on.
+      if (torAvailable || payments.direct)
+        HintSwitchTile(
+          key: const ValueKey('tx-direct'),
+          icon: Icons.link,
+          title: l.methodDirect,
+          hint: l.txDirectHint,
+          subtitle: Text(l.txDirectLine),
+          value: payments.direct,
+          onChanged: (on) => save(payments.copyWith(direct: on)),
+        ),
+      HintSwitchTile(
+        key: const ValueKey('tx-file'),
+        icon: Icons.description_outlined,
+        title: l.methodFile,
+        hint: l.txFileHint,
+        subtitle: Text(l.txFileLine),
+        value: payments.file,
+        onChanged: (on) => save(payments.copyWith(file: on)),
+      ),
+      // Only a choice when there is one: Epicbox alone is what Send opens on.
+      if (offered.length > 1) ...[
+        SettingsHeader(l.txStartHeader),
+        RadioGroup<PayMethod>(
+          groupValue: payments.startMethod,
+          onChanged: (m) {
+            if (m != null) save(payments.copyWith(defaultMethod: m));
+          },
+          child: Column(
+            children: [
+              for (final m in offered)
+                RadioListTile<PayMethod>(
+                  key: ValueKey('tx-start-${m.name}'),
+                  value: m,
+                  title: Text(methodName(m)),
+                ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+          child: Text(
+            l.txStartNote,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+          ),
+        ),
+      ],
+      if (showDefaults) ...[
+        SettingsHeader(l.txDefaultsHeader),
+        ListTile(
+          key: const ValueKey('tx-strategy'),
+          leading: const Icon(Icons.tune),
+          title: TitleWithHint(
+            l.outputsStrategy,
+            hint: l.outputsStrategyHint,
+            icon: Icons.tune,
+          ),
+          subtitle: Text(
+            s.sendStrategy == SelectionStrategy.smallest
+                ? l.outputsSmallest
+                : l.outputsAll,
+          ),
+          onTap: () => _pickStrategy(s.sendStrategy),
+        ),
+        HintSwitchTile(
+          key: const ValueKey('tx-split'),
+          icon: Icons.call_split,
+          title: l.outputsSplitChange,
+          hint: l.outputsSplitChangeText,
+          value: s.splitChange,
+          onChanged: _settings.setSplitChange,
+        ),
+      ],
+    ];
+  }
+
+  /// The strategy a send spends outputs by: the two choices, each with its one line.
+  Future<void> _pickStrategy(SelectionStrategy current) async {
+    final l = context.l10n;
+    final picked = await showModalBottomSheet<SelectionStrategy>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final strategy in SelectionStrategy.values)
+              Semantics(
+                inMutuallyExclusiveGroup: true,
+                checked: strategy == current,
+                child: ListTile(
+                  key: ValueKey('tx-strategy-${strategy.name}'),
+                  minVerticalPadding: 12,
+                  leading: Icon(
+                    strategy == current
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    color: strategy == current
+                        ? context.tokens.accent
+                        : context.tokens.dim,
+                  ),
+                  title: Text(
+                    strategy == SelectionStrategy.smallest
+                        ? l.outputsSmallest
+                        : l.outputsAll,
+                  ),
+                  subtitle: Text(
+                    strategy == SelectionStrategy.smallest
+                        ? l.outputsSmallestText
+                        : l.outputsAllText,
+                  ),
+                  onTap: () => Navigator.pop(context, strategy),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (picked != null) await _settings.setSendStrategy(picked);
+  }
+
   /// Advanced: the switches that show more of the wallet, each explained in a sheet, and the
   /// one network mode. Nothing here is a value the simple path needs.
   List<Widget> _advanced(AppLocalizations l) {
@@ -755,8 +917,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         l.advSendOptions,
         l.advSendOptionsHint,
       ),
-      if (torAvailable)
-        feature(AdvancedFeature.directReceiving, Icons.link, l.advDirect, l.advDirectHint),
       feature(
         AdvancedFeature.serverDetails,
         Icons.dns_outlined,

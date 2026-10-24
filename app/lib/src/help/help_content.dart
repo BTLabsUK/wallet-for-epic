@@ -272,7 +272,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.p('**Smallest** sorts the spendable outputs by value and takes the smallest ones until the amount and fee are covered. Only those are locked while the send confirms; the rest can be sent right away.'),
         HelpBlock.p('**All** spends every spendable output and returns one change output. Everything is locked for $confirmations blocks, the wallet ends up with fewer, larger outputs, and the fee is a little higher because each input costs. Sending the whole balance always uses All.'),
         if (phone)
-          const HelpBlock.p('The default is set under [[Outputs › Manage outputs]].')
+          const HelpBlock.p('The default is set under [[Settings › Transactions]], with Send options switched on in Advanced.')
         else
           const HelpBlock.p('The default is set under [[Outputs › Manage outputs]]; Send can change it for one send under **Send options**.'),
       ],
