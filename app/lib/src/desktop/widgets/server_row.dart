@@ -10,7 +10,9 @@ import 'kit.dart';
 import '../desk_l10n.dart';
 import '../../l10n.dart' show localInt;
 
-enum ServerKind { node, relay }
+import '../../server_list.dart' show ServerKind;
+
+export '../../server_list.dart' show ServerKind;
 
 /// What a row knows about one server; a field the source does not give is null and prints "–".
 @immutable

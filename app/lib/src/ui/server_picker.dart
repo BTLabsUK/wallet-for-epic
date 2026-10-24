@@ -22,6 +22,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../models.dart' show Chain;
 import '../network.dart';
+import '../server_list.dart';
 import '../server_switch.dart';
 import '../providers.dart';
 import '../public_servers.dart';
@@ -38,6 +39,8 @@ import 'status.dart' hide NodeStatus;
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart' show TorWayLine;
+
+export '../server_list.dart' show ServerKind, typedNodeUrl;
 
 // Providers.
 
@@ -331,32 +334,9 @@ List<PublicRelay> builtInRelaysFor(NetworkPreset preset) =>
         ),
       ];
 
-/// A node address from what the user typed: `https://` is added to a bare `host[:port]`.
-/// Null unless it is an http(s) address with a dotted host or a port.
-String? typedNodeUrl(String text) {
-  var t = text.trim();
-  if (t.isEmpty || t.contains(' ')) return null;
-  if (!t.contains('://')) t = 'https://$t';
-  final u = Uri.tryParse(t);
-  if (u == null ||
-      (u.scheme != 'https' && u.scheme != 'http') ||
-      u.host.isEmpty ||
-      (!u.host.contains('.') && !u.hasPort) ||
-      u.userInfo.isNotEmpty ||
-      u.hasQuery ||
-      (u.path.isNotEmpty && u.path != '/')) {
-    return null;
-  }
-  return u.hasPort
-      ? '${u.scheme}://${u.host.toLowerCase()}:${u.port}'
-      : '${u.scheme}://${u.host.toLowerCase()}';
-}
-
 bool _sameNode(String a, String b) => (nodeKey(a) ?? a) == (nodeKey(b) ?? b);
 
 // The list.
-
-enum ServerKind { node, relay }
 
 /// The key of a server row, by its value (the node URL or the relay label), for tests.
 Key serverRowKey(String value) => ValueKey('server-row-$value');
