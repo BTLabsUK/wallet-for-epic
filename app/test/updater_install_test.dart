@@ -184,6 +184,83 @@ void main() {
     expect(state().phase, UpdatePhase.available);
   });
 
+  group('with Tor on, an APK on examples.btlabs.uk (android-16)', () {
+    late ServerSocket socks;
+    final connects = <String>[];
+
+    /// A SOCKS5 proxy that records each CONNECT's name and port, then drops the connection.
+    setUp(() async {
+      connects.clear();
+      socks = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+      socks.listen((client) {
+        final buf = <int>[];
+        var stage = 0;
+        client.listen((data) {
+          buf.addAll(data);
+          if (stage == 0 && buf.length >= 3) {
+            buf.clear();
+            stage = 1;
+            client.add([5, 2]);
+          } else if (stage == 1 && buf.length >= 3 && buf.length >= 3 + buf[1] + buf[2 + buf[1]]) {
+            buf.clear();
+            stage = 2;
+            client.add([1, 0]);
+          } else if (stage == 2 && buf.length >= 5 && buf.length >= 7 + buf[4]) {
+            connects.add('${String.fromCharCodes(buf.sublist(5, 5 + buf[4]))}:${buf[5 + buf[4]] << 8 | buf[6 + buf[4]]}');
+            stage = 3;
+            client.destroy();
+          }
+        }, onError: (_) {});
+      });
+      TorNet.useTor(SocksProxy('127.0.0.1', socks.port));
+      (container.read(updateProvider.notifier) as _Updates).offer(
+        AvailableUpdate(
+          versionName: update.versionName,
+          notes: '',
+          apk: ReleaseApk(
+            abi: 'arm64-v8a',
+            versionCode: 26100100,
+            url: Uri.parse('https://examples.btlabs.uk/epic-cash-wallets/downloads/app.apk'),
+            sha256: update.apk.sha256,
+            size: update.apk.size,
+          ),
+        ),
+      );
+      platform.canInstall = true;
+    });
+    tearDown(() async {
+      TorNet.useDirect();
+      TorNet.onions = null;
+      await socks.close();
+    });
+
+    test('the download goes to the built-in onion as a name, never to the host itself', () async {
+      await notifier().install();
+      expect(connects, [
+        'lnuvd4uk5ks7bsrt4mxddjahup2dfl5dadiywocbhxfdqwimsahijzid.onion:443',
+      ]);
+      expect(torBuiltInOnion('examples.btlabs.uk', 443)?.tls, isTrue);
+      expect(hits, 0);
+      expect(state().phase, UpdatePhase.failed, reason: 'the fake proxy drops the connection');
+      expect(platform.installs, isEmpty);
+    });
+
+    test('the signed btlabs.json list is asked first', () async {
+      TorNet.onions = (host, port) => host == 'examples.btlabs.uk'
+          ? (onion: 'listedlistedlistedlistedlistedlistedlistedlistedlistedlist.onion', port: 443, tls: true)
+          : null;
+      await notifier().install();
+      expect(connects, ['listedlistedlistedlistedlistedlistedlistedlistedlistedlist.onion:443']);
+    });
+
+    test('a list that does not know the host leaves the built-in onion in use', () async {
+      TorNet.onions = (host, port) => torBuiltInOnion(host, port);
+      await notifier().install();
+      expect(connects.single, endsWith('.onion:443'));
+      expect(connects.single, startsWith('lnuvd4uk'));
+    });
+  });
+
   group('with Tor on, an APK on a BT Labs server without an onion (android-16)', () {
     setUp(() {
       TorNet.useTor(const SocksProxy('127.0.0.1', 9));
@@ -194,7 +271,7 @@ void main() {
           apk: ReleaseApk(
             abi: 'arm64-v8a',
             versionCode: 26100100,
-            url: Uri.parse('https://examples.btlabs.uk/epic-cash-wallets/downloads/app.apk'),
+            url: Uri.parse('https://other.btlabs.uk/epic-cash-wallets/downloads/app.apk'),
             sha256: update.apk.sha256,
             size: update.apk.size,
           ),

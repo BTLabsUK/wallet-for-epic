@@ -135,8 +135,8 @@
   "deskSendWrongPassword": "Nieprawidłowe hasło.",
   "deskSendNotConfirmed": "Niepotwierdzone. Sprawdź Aktywność przed ponownym wysłaniem.",
   "deskSendViaEpicbox": "Epicbox (odbiorca może być offline)",
-  "deskSendViaDirect": "Bezpośrednio (portfel odbiorcy musi być otwarty)",
-  "deskSendViaTor": "Bezpośrednio, przez Tor (portfel odbiorcy musi być otwarty)",
+  "deskSendViaDirect": "Bezpośrednio · HTTP (portfel odbiorcy musi być otwarty)",
+  "deskSendViaTor": "Bezpośrednio · Tor (portfel odbiorcy musi być otwarty)",
   "deskSendViaFile": "Plik transakcji",
   "deskSendUsesAll": "{count, plural, one{Używa wszystkich wyjść: {count} · reszta: 1 wyjście} few{Używa wszystkich wyjść: {count} · reszta: 1 wyjście} many{Używa wszystkich wyjść: {count} · reszta: 1 wyjście} other{Używa wszystkich wyjść: {count} · reszta: 1 wyjście}}",
   "deskSendReviewTitle": "Sprawdź i wyślij",
@@ -162,5 +162,7 @@
   "deskSendFeeChangedTitle": "Opłata się zmieniła",
   "deskSendFeeChangedText": "Wyjścia portfela zmieniły się od tego przeglądu, więc wysyłka kosztuje teraz {fee} EPIC zamiast {was} EPIC opłaty. Sprawdź ją i wyślij ponownie.",
   "deskSendMessageBytes": "{used} / {max} bajtów",
-  "deskSendMessageTooLong": "Wiadomość jest dłuższa niż {max} bajtów. Skróć ją."
+  "deskSendMessageTooLong": "Wiadomość jest dłuższa niż {max} bajtów. Skróć ją.",
+  "deskSendRelayUnknownTitle": "Nieznany serwer Epicbox",
+  "deskSendRelayUnknownText": "Aplikacja nie zna serwera {relay}. Sprawdź adres przed wysłaniem. Nadal możesz wysłać."
 }

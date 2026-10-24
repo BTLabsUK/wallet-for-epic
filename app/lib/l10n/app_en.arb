@@ -104,6 +104,156 @@
   "@txRestoredFunds": {
     "description": "Funds the wallet found by scanning the chain after a restore, with no record of who sent them."
   },
+  "txSpokenLabelled": "{label}, {row}",
+  "@txSpokenLabelled": {
+    "description": "Screen-reader sentence of a payment row the user labelled: the label first, then the whole row sentence (what happened, status, date).",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Rent, September"
+      },
+      "row": {
+        "type": "String",
+        "example": "Received 10 EPIC from Alice, completed, Today, 10:01"
+      }
+    }
+  },
+  "txLabel": "Label",
+  "@txLabel": {
+    "description": "Phone: title of the label tile on a payment with a label, and the field name in the history import dialog. A name the user gave the payment."
+  },
+  "txLabelAdd": "Add label",
+  "@txLabelAdd": {
+    "description": "Phone: the tile and the pen button on a payment without a label (screen readers say it for the pen)."
+  },
+  "txLabelEdit": "Edit label",
+  "@txLabelEdit": {
+    "description": "Phone: the pen button on a payment with a label (screen readers say it)."
+  },
+  "txLabelHint": "Add label",
+  "@txLabelHint": {
+    "description": "Phone: placeholder of the one-line label field that opens in place."
+  },
+  "txLabelAddedNotice": "Label added",
+  "@txLabelAddedNotice": {
+    "description": "Notice after a label was added to a payment."
+  },
+  "txLabelSavedNotice": "Label saved",
+  "@txLabelSavedNotice": {
+    "description": "Notice after a label was changed."
+  },
+  "txLabelRemovedNotice": "Label removed",
+  "@txLabelRemovedNotice": {
+    "description": "Notice after a label was emptied and removed."
+  },
+  "txEditAdd": "Add details",
+  "@txEditAdd": {
+    "description": "Phone: tile and sheet title on a payment found by a scan that has no details of the user yet (sender, method, note)."
+  },
+  "txEditEdit": "Edit details",
+  "@txEditEdit": {
+    "description": "Phone: tile and sheet title on a payment found by a scan whose details the user already entered."
+  },
+  "txEditFrom": "From",
+  "@txEditFrom": {
+    "description": "Field of the details sheet and its tile: who paid, typed by the user. Also the field name in the history import dialog."
+  },
+  "txEditFromHint": "Address",
+  "@txEditFromHint": {
+    "description": "Placeholder of the From field: an address the user typed or picked from contacts."
+  },
+  "txEditFromHelper": "Not verified. Never used for payment proofs.",
+  "@txEditFromHelper": {
+    "description": "Helper under the From field. Short."
+  },
+  "txMethodUnknown": "Unknown",
+  "@txMethodUnknown": {
+    "description": "Method choice in the details sheet: how the payment came is not known."
+  },
+  "txManualTag": "Added by you",
+  "@txManualTag": {
+    "description": "Small tag after a value the user typed, not read from the chain or made by the wallet."
+  },
+  "txManualTip": "Added by you on {date}. Not from the chain.",
+  "@txManualTip": {
+    "description": "Tooltip of the tag; date is the day and time the user entered it.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "txManualTipNoDate": "Added by you. Not from the chain.",
+  "@txManualTipNoDate": {
+    "description": "Tooltip of the tag when the time is not known."
+  },
+  "txManualTipFrom": "Added by you on {date}. Not from the chain, not verified.",
+  "@txManualTipFrom": {
+    "description": "Tooltip of the tag on the From value; the sender was typed by the user and is not checked.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "txManualTipFromNoDate": "Added by you. Not from the chain, not verified.",
+  "@txManualTipFromNoDate": {
+    "description": "Tooltip of the tag on the From value when the time is not known."
+  },
+  "txEditAddedNotice": "Details added",
+  "@txEditAddedNotice": {
+    "description": "Notice after details were added to a payment found by a scan."
+  },
+  "txEditSavedNotice": "Details saved",
+  "@txEditSavedNotice": {
+    "description": "Notice after details were changed."
+  },
+  "txEditRemovedNotice": "Details removed",
+  "@txEditRemovedNotice": {
+    "description": "Notice after every detail was emptied."
+  },
+  "histConflictTitle": "Details differ",
+  "@histConflictTitle": {
+    "description": "Title of the sheet shown when a history backup has other values than the ones the user entered."
+  },
+  "histConflictLead": "{n, plural, =1{The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "@histConflictLead": {
+    "description": "Lead of the Details differ sheet; n is the number of payments. The user picks per value, Mine is chosen at first.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "histConflictMine": "Mine",
+  "@histConflictMine": {
+    "description": "Choice card: the value entered on this phone."
+  },
+  "histConflictBackup": "Backup",
+  "@histConflictBackup": {
+    "description": "Choice card: the value in the backup file."
+  },
+  "histConflictKeepAll": "Keep all mine",
+  "@histConflictKeepAll": {
+    "description": "Button: import without replacing anything the user entered."
+  },
+  "histConflictImport": "Import",
+  "@histConflictImport": {
+    "description": "Button: import with the choices made."
+  },
+  "histConflictEmpty": "empty",
+  "@histConflictEmpty": {
+    "description": "Shown in italics on a card whose value is empty."
+  },
+  "histImportedReplaced": "{n, plural, =1{1 detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}",
+  "@histImportedReplaced": {
+    "description": "Line after an import in which the user chose the backup for some values; n is how many.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "txOutgoingPayment": "Outgoing payment",
   "txIncomingPayment": "Incoming payment",
   "txStatusWaitingRecipient": "Waiting for recipient",
@@ -3721,7 +3871,7 @@
   "@licencesLead": {
     "description": "Licences screen: the first paragraph."
   },
-  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.",
+  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0.",
   "@licencesApp": {
     "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web demo shows this screen too."
   },
@@ -4186,9 +4336,14 @@
   "@sendNodeDown": {
     "description": "Send, review: the node does not answer, so the payment cannot be sent; a Retry button follows."
   },
-  "sendRelayDown": "Their relay isn't answering.",
+  "sendRelayDown": "Their relay ({relay}) isn't answering.",
   "@sendRelayDown": {
-    "description": "Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered."
+    "description": "Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered. {relay} is its host name, as in the address (epicbox.example.org).",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
   },
   "sendListenerDown": "Not connected yet. You can still send.",
   "@sendListenerDown": {
@@ -4387,18 +4542,26 @@
   "@handshakeNext": {
     "description": "How it works sheet: tooltip of the button that shows the next step."
   },
-  "sendRelayRefused": "{days, plural, =1{Their relay didn't take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay didn't take it. The amount is on hold until you cancel it, or for at most {days} days.}}",
+  "sendRelayRefused": "{days, plural, =1{Their relay ({relay}) didn't take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay ({relay}) didn't take it. The amount is on hold until you cancel it, or for at most {days} days.}}",
   "@sendRelayRefused": {
-    "description": "Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days.",
+    "description": "Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. {relay} is the relay's host name, as in the address.",
     "placeholders": {
       "days": {
         "type": "int"
+      },
+      "relay": {
+        "type": "String"
       }
     }
   },
-  "sendRelayRefusedLost": "Their relay didn't take it. Check Wallet before you send again.",
+  "sendRelayRefusedLost": "Their relay ({relay}) didn't take it. Check Wallet before you send again.",
   "@sendRelayRefusedLost": {
-    "description": "Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again."
+    "description": "Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again. {relay} is the relay's host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
   },
   "sendCancelAndFile": "Cancel and pay with a file",
   "@sendCancelAndFile": {
@@ -5452,45 +5615,27 @@
   "@serverMyRelays": {
     "description": "Epicbox picker section head: relays the wallet has connected to that the public list does not have, each with a remove button. Beside the 'Public servers' head."
   },
-  "serverRemoveRelay": "Remove from my servers",
-  "@serverRemoveRelay": {
-    "description": "Tooltip and screen reader name of the remove button on a My servers row of the Epicbox picker."
+  "serverMenuRemove": "Remove from my list",
+  "@serverMenuRemove": {
+    "description": "Tooltip of the down arrow on a public server in the My nodes or My servers list, and the one item of the popup it opens: the server goes back to the public list."
   },
-  "serverRemoveInUse": "In use. Switch to another server first.",
+  "serverMenuDelete": "Delete",
+  "@serverMenuDelete": {
+    "description": "Tooltip of the bin on a typed-in server in the My nodes or My servers list, and the one item of the popup it opens: the server is deleted."
+  },
+  "settingsStateTor": "Tor {state}",
+  "@settingsStateTor": {
+    "description": "Tor's part of the state line under Privacy & network on the Settings hub, after the node and Epicbox hosts: the word is lower case.",
+    "placeholders": {
+      "state": {
+        "type": "String",
+        "example": "off"
+      }
+    }
+  },
+  "serverRemoveInUse": "In use. Pick another server first.",
   "@serverRemoveInUse": {
-    "description": "Tooltip of the disabled remove button (Epicbox) or star (node) on the server the wallet uses now: why it cannot be removed."
-  },
-  "serverRemoveRelayTitle": "Remove this server?",
-  "@serverRemoveRelayTitle": {
-    "description": "Title of the dialog that confirms removing an Epicbox relay from My servers."
-  },
-  "serverRemoveNodeTitle": "Remove this node?",
-  "@serverRemoveNodeTitle": {
-    "description": "Title of the dialog that confirms removing a node from My nodes (the star of a My nodes row)."
-  },
-  "serverRemoveBodyPublic": "{host} leaves my list. Select it from the public list to use it again.",
-  "@serverRemoveBodyPublic": {
-    "description": "Body of the dialog that confirms removing a public node or Epicbox relay from the user's own list: it goes back to the public list.",
-    "placeholders": {
-      "host": {
-        "type": "String",
-        "example": "relay.example.org"
-      }
-    }
-  },
-  "serverRemoveBodyCustom": "{host} leaves my list. Type it in again to use it.",
-  "@serverRemoveBodyCustom": {
-    "description": "Body of the dialog that confirms removing a node or Epicbox relay the user typed in (not in the public list) from their own list: it is gone.",
-    "placeholders": {
-      "host": {
-        "type": "String",
-        "example": "relay.example.org"
-      }
-    }
-  },
-  "serverRemoveConfirm": "Remove",
-  "@serverRemoveConfirm": {
-    "description": "Confirm button of the remove dialogs."
+    "description": "Tooltip of the disabled arrow or bin on the My list row of the server the wallet uses now: why it cannot be removed or deleted."
   },
   "serverSupportsNotifications": "Supports notifications",
   "@serverSupportsNotifications": {
@@ -5603,14 +5748,6 @@
         "type": "int"
       }
     }
-  },
-  "serverAddMine": "Add to my nodes",
-  "@serverAddMine": {
-    "description": "Star button: add the node to My nodes."
-  },
-  "serverRemoveMine": "Remove from my nodes",
-  "@serverRemoveMine": {
-    "description": "Star button: remove the node from My nodes."
   },
   "serverNotResponding": "Not responding",
   "@serverNotResponding": {
@@ -5768,13 +5905,13 @@
   "@methodEpicbox": {
     "description": "Method name on Send and Receive segments."
   },
-  "methodHttp": "HTTP",
-  "@methodHttp": {
-    "description": "Method name: straight to the other wallet over HTTP."
+  "methodDirectHttp": "Direct · HTTP",
+  "@methodDirectHttp": {
+    "description": "Method name: Direct, with HTTP as its transport. The Direct word, then a middle dot, then HTTP. Shown wherever a payment's method is named."
   },
-  "methodTor": "Tor",
-  "@methodTor": {
-    "description": "Method name: straight to the other wallet over Tor."
+  "methodDirectTor": "Direct · Tor",
+  "@methodDirectTor": {
+    "description": "Method name: Direct, with Tor as its transport. The Direct word, then a middle dot, then Tor. Shown wherever a payment's method is named."
   },
   "methodFile": "File",
   "@methodFile": {
@@ -6760,13 +6897,13 @@
   "@deskInvNoticeExpired": {
     "description": "Notice: an invoice waiting for the user ran out of time."
   },
-  "deskInvNoticeUnknownPayment": "A payment for an invoice this device did not issue arrived and was refused. If another device with this wallet issued it, ask the payer to cancel and pay again.",
+  "deskInvNoticeUnknownPayment": "A payment for an invoice this device did not issue arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.",
   "@deskInvNoticeUnknownPayment": {
-    "description": "Warning notice (desktop and phone): LEPIC refused the payment of an invoice it does not know; another install on the same recovery phrase may have issued it. Unverified: names no sender."
+    "description": "Warning notice (desktop and phone): the payment of an invoice this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have issued it. Unverified: names no sender."
   },
-  "deskInvNoticeUnknownAnswer": "An answer to a payment this device did not send arrived and was refused. If another device with this wallet sent it, cancel it there and send again.",
+  "deskInvNoticeUnknownAnswer": "An answer to a payment this device did not send arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.",
   "@deskInvNoticeUnknownAnswer": {
-    "description": "Warning notice (desktop and phone): LEPIC refused the answer to a send it does not know; another install on the same recovery phrase may have made it. Unverified: names no sender."
+    "description": "Warning notice (desktop and phone): the answer to a send this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have made the send. Unverified: names no sender."
   },
   "deskInvPayerWaitingHead": "Waiting for you",
   "@deskInvPayerWaitingHead": {
@@ -8898,7 +9035,7 @@
   "@deskRecvCheckSix": {
     "description": "Caption under the Epicbox address on Receive."
   },
-  "deskRecvHttpAddress": "HTTP address",
+  "deskRecvHttpAddress": "Direct · HTTP address",
   "@deskRecvHttpAddress": {
     "description": "Title of the HTTP panel on Receive and of its QR code."
   },
@@ -8927,7 +9064,7 @@
   "@deskRecvHttpTorHint": {
     "description": "Caption at the bottom of the HTTP panel on Receive."
   },
-  "deskRecvDirectTor": "Direct, Tor address",
+  "deskRecvDirectTor": "Direct · Tor address",
   "@deskRecvDirectTor": {
     "description": "Title of the Tor panel on Receive."
   },
@@ -8935,7 +9072,7 @@
   "@deskRecvTorIntro": {
     "description": "Intro text of the Tor panel on Receive."
   },
-  "deskRecvTorAddress": "Tor address",
+  "deskRecvTorAddress": "Direct · Tor address",
   "@deskRecvTorAddress": {
     "description": "Title of the QR code of the Tor address on Receive."
   },
@@ -9658,11 +9795,11 @@
   "@deskSendViaEpicbox": {
     "description": "Value of the Via fact in the review dialog for an Epicbox send."
   },
-  "deskSendViaDirect": "Direct (their wallet must be open)",
+  "deskSendViaDirect": "Direct · HTTP (their wallet must be open)",
   "@deskSendViaDirect": {
     "description": "Value of the Via fact in the review dialog for a Direct send over http(s)."
   },
-  "deskSendViaTor": "Direct, over Tor (their wallet must be open)",
+  "deskSendViaTor": "Direct · Tor (their wallet must be open)",
   "@deskSendViaTor": {
     "description": "Value of the Via fact in the review dialog for a Direct send to an onion address."
   },
@@ -10282,11 +10419,11 @@
   "@deskConAddrEpicbox": {
     "description": "Label above the address in a contact's detail, for an Epicbox address."
   },
-  "deskConAddrTor": "Tor address",
+  "deskConAddrTor": "Direct · Tor address",
   "@deskConAddrTor": {
     "description": "Label above the address in a contact's detail, for a Tor address."
   },
-  "deskConAddrHttp": "HTTP address",
+  "deskConAddrHttp": "Direct · HTTP address",
   "@deskConAddrHttp": {
     "description": "Label above the address in a contact's detail, for an HTTP address."
   },
@@ -13043,7 +13180,7 @@
       }
     }
   },
-  "deskRailOpenHttp": "Open HTTP receiving",
+  "deskRailOpenHttp": "Open Direct · HTTP receiving",
   "@deskRailOpenHttp": {
     "description": "Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings."
   },
@@ -13236,7 +13373,7 @@
   "@deskTourReceiveTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourReceiveText": "This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.",
+  "deskTourReceiveText": "This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.",
   "@deskTourReceiveText": {
     "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
   },
@@ -13260,7 +13397,7 @@
   "@deskTourContactsTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourContactsText": "Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.",
+  "deskTourContactsText": "Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.",
   "@deskTourContactsText": {
     "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
   },
@@ -13416,11 +13553,11 @@
   "@deskKitHeroLabelEpicbox": {
     "description": "Screen-reader description of the Epicbox picture on the Send page."
   },
-  "deskKitHeroLabelHttp": "HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "deskKitHeroLabelHttp": "Direct · HTTP: the payment goes straight to the recipient's wallet, which must be open",
   "@deskKitHeroLabelHttp": {
     "description": "Screen-reader description of the HTTP picture on the Send page."
   },
-  "deskKitHeroLabelTor": "Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "deskKitHeroLabelTor": "Direct · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
   "@deskKitHeroLabelTor": {
     "description": "Screen-reader description of the Tor picture on the Send page."
   },
@@ -16464,7 +16601,7 @@
   "@deskSetRecvListNote": {
     "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
   },
-  "deskSetRecvHttpTitle": "HTTP receiving",
+  "deskSetRecvHttpTitle": "Direct · HTTP receiving",
   "@deskSetRecvHttpTitle": {
     "description": "Settings > Receiving: heading of the HTTP group."
   },
@@ -17145,7 +17282,7 @@
   "@deskSetAboutLicencesLead": {
     "description": "Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead)."
   },
-  "deskSetAboutLicenceApp": "Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.",
+  "deskSetAboutLicenceApp": "Epic Cash Desktop by BT Labs: Apache-2.0.",
   "@deskSetAboutLicenceApp": {
     "description": "Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them."
   },
@@ -17661,5 +17798,333 @@
   "deskOutStrategyHint": "Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.",
   "@deskOutStrategyHint": {
     "description": "Hover card behind the info icon of the Strategy for sends row (its title is deskOutStrategyHelpTitle)."
+  },
+  "txStatusNotPosted": "Not on the network",
+  "@txStatusNotPosted": {
+    "description": "Status of a finished payment the node refused: it is not on the network until it is broadcast again."
+  },
+  "txStatusStalled": "Stalled",
+  "@txStatusStalled": {
+    "description": "Status of a paid invoice whose payment has not reached the network a while after paying, though the wallet sent it again by itself."
+  },
+  "txDetailsStalledBody": "Stalled, not delivered. Your payment has not reached the network yet. Send it again.",
+  "@txDetailsStalledBody": {
+    "description": "Explanation under the status of a stalled invoice payment; Send again is a button below."
+  },
+  "txDetailsNotDeliveredDirectBody": "This payment did not reach the recipient's wallet, so they have not received it. Your funds stay locked until it is sent again or cancelled.",
+  "@txDetailsNotDeliveredDirectBody": {
+    "description": "Explanation under the status of an HTTP or Tor payment that was not delivered (the recipient's wallet did not answer)."
+  },
+  "invoiceDetailsStalled": "{service} has not posted your payment yet.",
+  "@invoiceDetailsStalled": {
+    "description": "Paid invoice in the payment's details: the service still has not posted the payment a while after paying. service is the user's label for the service.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskTxStatusNotPosted": "Not on the network",
+  "@deskTxStatusNotPosted": {
+    "description": "Activity row status: a finished send the node refused; it is not on the network until it is broadcast again."
+  },
+  "deskTxNowNotPosted": "Not on the network. The node did not take this payment. Broadcast it again; it cannot go through twice.",
+  "@deskTxNowNotPosted": {
+    "description": "Payment detail, the line under the status of a finished send the node refused. Broadcast again is a button below; the wallet also retries by itself."
+  },
+  "deskTxBroadcastAgain": "Broadcast again",
+  "@deskTxBroadcastAgain": {
+    "description": "Button on the payment detail of a send the node refused: posts it to the node again."
+  },
+  "deskTxBroadcastDone": "Sent to the network",
+  "@deskTxBroadcastDone": {
+    "description": "Toast after Broadcast again worked."
+  },
+  "deskTxNowUndeliveredDirect": "Not delivered. The recipient's wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the funds.",
+  "@deskTxNowUndeliveredDirect": {
+    "description": "Payment detail, the line under the status of a Direct send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayStalled": "Stalled",
+  "@deskInvPayStalled": {
+    "description": "State of an invoice you paid: the payment has not reached the network a while after paying, though the wallet sent it again by itself."
+  },
+  "deskInvPayerStalledTitle": "Your payment to {service} is stalled",
+  "@deskInvPayerStalledTitle": {
+    "description": "Notice on To pay: a paid invoice whose payment has not reached the network a while after paying. service is the user's label for the service.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerStalledText": "Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.",
+  "@deskInvPayerStalledText": {
+    "description": "Notice text and Invoice block text for a stalled invoice payment. Send again is a button."
+  },
+  "deskTxLabelAdd": "Add label",
+  "@deskTxLabelAdd": {
+    "description": "Tooltip and screen-reader name of the pen on an Activity row or details title that has no label yet; also the ghost button in the details sub-header."
+  },
+  "deskTxLabelEdit": "Edit label",
+  "@deskTxLabelEdit": {
+    "description": "Tooltip and screen-reader name of the pen when the payment has a label; also the ghost button in the details sub-header."
+  },
+  "deskTxLabelHint": "Add label",
+  "@deskTxLabelHint": {
+    "description": "Placeholder of the inline label field while it is empty."
+  },
+  "deskTxLabelField": "Label",
+  "@deskTxLabelField": {
+    "description": "Screen-reader name of the inline label field, and the name of the field in the Details differ dialog."
+  },
+  "deskTxLabelTip": "A name for this payment, for you. Shown in Activity and exports.",
+  "@deskTxLabelTip": {
+    "description": "Tooltip on the label pen: what a label is."
+  },
+  "deskTxLabelAdded": "Label added",
+  "@deskTxLabelAdded": {
+    "description": "Toast title after a label was added."
+  },
+  "deskTxLabelSaved": "Label saved",
+  "@deskTxLabelSaved": {
+    "description": "Toast title after a label was changed."
+  },
+  "deskTxLabelRemoved": "Label removed",
+  "@deskTxLabelRemoved": {
+    "description": "Toast title after a label was emptied and removed."
+  },
+  "deskTxLabelNotSaved": "Label not saved",
+  "@deskTxLabelNotSaved": {
+    "description": "Toast title when saving a label failed; the reason follows as its text."
+  },
+  "deskTxDetailsAdd": "Add details",
+  "@deskTxDetailsAdd": {
+    "description": "Ghost button in the details sub-header of a payment a scan found: opens the dialog to add what the user knows."
+  },
+  "deskTxDetailsEdit": "Edit",
+  "@deskTxDetailsEdit": {
+    "description": "Short ghost button in the details sub-header when details were added already."
+  },
+  "deskTxDetailsTitleAdd": "Add details",
+  "@deskTxDetailsTitleAdd": {
+    "description": "Title of the dialog where the user adds details to a payment a scan found."
+  },
+  "deskTxDetailsTitleEdit": "Edit details",
+  "@deskTxDetailsTitleEdit": {
+    "description": "Title of the dialog when details exist already."
+  },
+  "deskTxDetailsTip": "Only for payments found by a scan. Shown as added by you in Activity, details and exports. Amounts, dates and confirmations do not change.",
+  "@deskTxDetailsTip": {
+    "description": "Description under the details dialog title, and tooltip on the details button: what it is for."
+  },
+  "deskTxDetailsFrom": "From",
+  "@deskTxDetailsFrom": {
+    "description": "Field name in the details dialog: who paid."
+  },
+  "deskTxDetailsFromTip": "Who paid, for your records. Not verified and never used for payment proofs.",
+  "@deskTxDetailsFromTip": {
+    "description": "Tooltip on the From field of the details dialog."
+  },
+  "deskTxDetailsFromHint": "Address of the sender",
+  "@deskTxDetailsFromHint": {
+    "description": "Placeholder of the From field in the details dialog."
+  },
+  "deskTxDetailsFromBad": "Use an Epicbox, http(s) or .onion address.",
+  "@deskTxDetailsFromBad": {
+    "description": "Shown under the From field when the text is not an address the wallet knows."
+  },
+  "deskTxDetailsNote": "Note",
+  "@deskTxDetailsNote": {
+    "description": "Field name in the details dialog and the details list: the private note."
+  },
+  "deskTxDetailsAdded": "Details added",
+  "@deskTxDetailsAdded": {
+    "description": "Toast title after details were added to a payment."
+  },
+  "deskTxDetailsSaved": "Details saved",
+  "@deskTxDetailsSaved": {
+    "description": "Toast title after details were changed."
+  },
+  "deskTxDetailsRemoved": "Details removed",
+  "@deskTxDetailsRemoved": {
+    "description": "Toast title after every detail was cleared."
+  },
+  "deskTxDetailsNotSaved": "Details not saved",
+  "@deskTxDetailsNotSaved": {
+    "description": "Toast title when saving details failed; the reason follows as its text."
+  },
+  "deskTxManualTag": "Added by you",
+  "@deskTxManualTag": {
+    "description": "Tag next to a value the user typed (label, sender, method, note)."
+  },
+  "deskTxManualTip": "Added by you on {date}. Not from the chain.",
+  "@deskTxManualTip": {
+    "description": "Tooltip on the Added by you tag when the time of the change is known.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "17 Oct 2026"
+      }
+    }
+  },
+  "deskTxManualTipNoDate": "Added by you. Not from the chain.",
+  "@deskTxManualTipNoDate": {
+    "description": "Tooltip on the Added by you tag when the time of the change is not known."
+  },
+  "deskTxManualTipFrom": "Added by you on {date}. Not from the chain, not verified.",
+  "@deskTxManualTipFrom": {
+    "description": "Tooltip on the Added by you tag of the From value when the time of the change is known.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "17 Oct 2026"
+      }
+    }
+  },
+  "deskTxManualTipFromNoDate": "Added by you. Not from the chain, not verified.",
+  "@deskTxManualTipFromNoDate": {
+    "description": "Tooltip on the Added by you tag of the From value when the time of the change is not known."
+  },
+  "deskHistConflictTitle": "Details differ",
+  "@deskHistConflictTitle": {
+    "description": "Title of the dialog shown when a history backup disagrees with what the user typed."
+  },
+  "deskHistConflictLead": "{n, plural, one{The backup has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The backup has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "@deskHistConflictLead": {
+    "description": "Description of the Details differ dialog; n payments.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskHistConflictMine": "Mine",
+  "@deskHistConflictMine": {
+    "description": "Choice card in the Details differ dialog: the value typed here."
+  },
+  "deskHistConflictBackup": "Backup",
+  "@deskHistConflictBackup": {
+    "description": "Choice card in the Details differ dialog: the value in the backup file."
+  },
+  "deskHistConflictKeepAll": "Keep all mine",
+  "@deskHistConflictKeepAll": {
+    "description": "Button in the Details differ dialog: import and keep every value the user typed."
+  },
+  "deskHistConflictImport": "Import",
+  "@deskHistConflictImport": {
+    "description": "Primary button in the Details differ dialog: import with the choices made."
+  },
+  "deskHistConflictEmpty": "empty",
+  "@deskHistConflictEmpty": {
+    "description": "Placeholder, in italics, where a value in the Details differ dialog is empty."
+  },
+  "deskHistImportedReplaced": "{n, plural, one{{n} detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}",
+  "@deskHistImportedReplaced": {
+    "description": "Line on the import result: how many typed details the user replaced with the backup's.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "sendRelayUnknown": "{relay} isn't a server this app knows. Check the address before you send.",
+  "@sendRelayUnknown": {
+    "description": "Send, review: the recipient's relay (the part of the address after @) is not one the app knows from its public list or the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "relayNoAnswer": "{relay} did not answer.",
+  "@relayNoAnswer": {
+    "description": "A payment could not be handed to the recipient's relay: it did not answer (a failed Send again). {relay} is the relay's host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "txDetailsNotDeliveredRelayBody": "{relay} did not answer, so the recipient has not received this payment. Your funds stay locked until it is sent again or cancelled.",
+  "@txDetailsNotDeliveredRelayBody": {
+    "description": "Explanation under the status of a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrNotDeliveredRelay": "Not delivered: {relay} did not answer. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrNotDeliveredRelay": {
+    "description": "Why an Epicbox send failed: the recipient's relay did not answer; the payment waits in Activity. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrRelayNoAnswer": "{relay} did not answer.",
+  "@deskErrRelayNoAnswer": {
+    "description": "An error message the user reads when Send again to an Epicbox address fails because the recipient's relay did not answer. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSendRelayUnknownTitle": "Unknown Epicbox server",
+  "@deskSendRelayUnknownTitle": {
+    "description": "Send review: title of the warning that the recipient's Epicbox server is not one the app knows."
+  },
+  "deskSendRelayUnknownText": "{relay} is not a server this app knows. Check the address before you send. You can still send.",
+  "@deskSendRelayUnknownText": {
+    "description": "Send review: the recipient's Epicbox server (the part of the address after @) is not in the app's public list or among the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "deskTxNowUndeliveredRelay": "Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.",
+  "@deskTxNowUndeliveredRelay": {
+    "description": "Transaction detail, 'what is happening now' for a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvNoticeReceiveSuperseded": "Your other device with this wallet took a payment this device was also receiving. Recheck balance to see it here.",
+  "@deskInvNoticeReceiveSuperseded": {
+    "description": "Notice (desktop and phone): another install on the same recovery phrase answered the same incoming payment and the sender completed that one, so this install's copy of the receive ended. 'Recheck balance' is the name of the rescan action in Settings."
+  },
+  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet's history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet's history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "@deskHistConflictLeadOldWallet": {
+    "description": "Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskHistConflictOldWallet": "Old wallet",
+  "@deskHistConflictOldWallet": {
+    "description": "Choice card in the Details differ dialog: the value in the old wallet's history."
+  },
+  "deskHistConflictApply": "Apply",
+  "@deskHistConflictApply": {
+    "description": "Primary button in the Details differ dialog for the old wallet's history: apply the choices made."
+  },
+  "deskTxProofNone": "No payment proof for this payment.",
+  "@deskTxProofNone": {
+    "description": "Body of the payment proof dialog when the payment has no proof to show."
   }
 }

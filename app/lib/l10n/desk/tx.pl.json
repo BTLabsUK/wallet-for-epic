@@ -71,6 +71,7 @@
   "deskTxFactMessage": "Wiadomość",
   "deskTxSignedByRecipient": "Podpisana przez odbiorcę",
   "deskTxProofView": "Pokaż",
+  "deskTxProofNone": "Brak dowodu płatności dla tej płatności.",
   "deskTxTechTitle": "Szczegóły techniczne",
   "deskTxTechId": "ID",
   "deskTxTechSlate": "ID slate",
@@ -117,5 +118,11 @@
   "deskTxSendAgain": "Wyślij ponownie",
   "deskTxNotSent": "Nie wysłano",
   "deskTxSentAgain": "Wysłano ponownie",
-  "deskTxSentAgainText": "Zakończy się, gdy portfel odbiorcy będzie online."
+  "deskTxSentAgainText": "Zakończy się, gdy portfel odbiorcy będzie online.",
+  "deskTxStatusNotPosted": "Nie ma w sieci",
+  "deskTxNowNotPosted": "Nie ma w sieci. Węzeł nie przyjął tej płatności. Roześlij ją ponownie; nie może przejść dwa razy.",
+  "deskTxBroadcastAgain": "Roześlij ponownie",
+  "deskTxBroadcastDone": "Wysłano do sieci",
+  "deskTxNowUndeliveredDirect": "Nie dostarczono. Portfel odbiorcy nie przyjął płatności ({method}), więc jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.",
+  "deskTxNowUndeliveredRelay": "Nie dostarczono. {relay} nie odpowiedział, więc odbiorca nie otrzymał płatności. Wyślij ją ponownie albo anuluj, żeby odblokować środki."
 }

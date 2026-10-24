@@ -128,6 +128,128 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txRestoredFunds => 'Восстановленные средства';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label, $row';
+  }
+
+  @override
+  String get txLabel => 'Метка';
+
+  @override
+  String get txLabelAdd => 'Добавить метку';
+
+  @override
+  String get txLabelEdit => 'Изменить метку';
+
+  @override
+  String get txLabelHint => 'Добавить метку';
+
+  @override
+  String get txLabelAddedNotice => 'Метка добавлена';
+
+  @override
+  String get txLabelSavedNotice => 'Метка сохранена';
+
+  @override
+  String get txLabelRemovedNotice => 'Метка удалена';
+
+  @override
+  String get txEditAdd => 'Добавить сведения';
+
+  @override
+  String get txEditEdit => 'Изменить сведения';
+
+  @override
+  String get txEditFrom => 'Отправитель';
+
+  @override
+  String get txEditFromHint => 'Адрес';
+
+  @override
+  String get txEditFromHelper =>
+      'Не проверено. Не используется для подтверждений платежа.';
+
+  @override
+  String get txMethodUnknown => 'Неизвестно';
+
+  @override
+  String get txManualTag => 'Добавлено вами';
+
+  @override
+  String txManualTip(String date) {
+    return 'Добавлено вами $date. Не из блокчейна.';
+  }
+
+  @override
+  String get txManualTipNoDate => 'Добавлено вами. Не из блокчейна.';
+
+  @override
+  String txManualTipFrom(String date) {
+    return 'Добавлено вами $date. Не из блокчейна, не проверено.';
+  }
+
+  @override
+  String get txManualTipFromNoDate =>
+      'Добавлено вами. Не из блокчейна, не проверено.';
+
+  @override
+  String get txEditAddedNotice => 'Сведения добавлены';
+
+  @override
+  String get txEditSavedNotice => 'Сведения сохранены';
+
+  @override
+  String get txEditRemovedNotice => 'Сведения удалены';
+
+  @override
+  String get histConflictTitle => 'Сведения различаются';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+      many:
+          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+      few:
+          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+      one:
+          'В копии другие сведения для платежей, которые вы описали: $n. Ваши сохраняются, если не выберете иначе.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => 'Мои';
+
+  @override
+  String get histConflictBackup => 'Копия';
+
+  @override
+  String get histConflictKeepAll => 'Оставить все мои';
+
+  @override
+  String get histConflictImport => 'Импортировать';
+
+  @override
+  String get histConflictEmpty => 'пусто';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Заменено сведений: $n. Остальные остаются вашими.',
+      many: 'Заменено сведений: $n. Остальные остаются вашими.',
+      few: 'Заменено сведений: $n. Остальные остаются вашими.',
+      one: 'Заменено сведений: $n. Остальные остаются вашими.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => 'Исходящий платёж';
 
   @override
@@ -3238,8 +3360,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Открытое ПО в этом кошельке. Каждый компонент сохраняет свою лицензию; полные тексты в одном касании.';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile от BT Labs: Apache-2.0. Код на GitHub.';
+  String get licencesApp => 'Epic Cash Mobile от BT Labs: Apache-2.0.';
 
   @override
   String get licencesFlutter =>
@@ -3588,7 +3709,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendNodeDown => 'Сеть сейчас недоступна.';
 
   @override
-  String get sendRelayDown => 'Сервер Epicbox получателя не отвечает.';
+  String sendRelayDown(String relay) {
+    return 'Сервер Epicbox получателя ($relay) не отвечает.';
+  }
 
   @override
   String get sendListenerDown => 'Ещё нет подключения. Отправить можно.';
@@ -3739,25 +3862,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get handshakeNext => 'Следующий шаг';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
       many:
-          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
       few:
-          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
       one:
-          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+          'Сервер Epicbox получателя ($relay) не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'Сервер Epicbox получателя не принял платёж. Проверьте «Кошелёк», прежде чем отправлять снова.';
+  String sendRelayRefusedLost(String relay) {
+    return 'Сервер Epicbox получателя ($relay) не принял платёж. Проверьте «Кошелёк», прежде чем отправлять снова.';
+  }
 
   @override
   String get sendCancelAndFile => 'Отменить и оплатить файлом';
@@ -4524,30 +4648,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverMyRelays => 'Мои серверы';
 
   @override
-  String get serverRemoveRelay => 'Удалить из моих серверов';
+  String get serverMenuRemove => 'Убрать из моего списка';
+
+  @override
+  String get serverMenuDelete => 'Удалить';
+
+  @override
+  String settingsStateTor(String state) {
+    return 'Tor $state';
+  }
 
   @override
   String get serverRemoveInUse =>
-      'Используется. Сначала переключитесь на другой сервер.';
-
-  @override
-  String get serverRemoveRelayTitle => 'Удалить этот сервер?';
-
-  @override
-  String get serverRemoveNodeTitle => 'Удалить этот узел?';
-
-  @override
-  String serverRemoveBodyPublic(String host) {
-    return '$host исчезнет из моего списка. Выберите его в публичном списке, чтобы использовать снова.';
-  }
-
-  @override
-  String serverRemoveBodyCustom(String host) {
-    return '$host исчезнет из моего списка. Введите его снова, чтобы использовать.';
-  }
-
-  @override
-  String get serverRemoveConfirm => 'Удалить';
+      'Используется. Сначала выберите другой сервер.';
 
   @override
   String get serverSupportsNotifications => 'Поддерживает уведомления';
@@ -4630,12 +4743,6 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get serverAddMine => 'Добавить в мои узлы';
-
-  @override
-  String get serverRemoveMine => 'Удалить из моих узлов';
 
   @override
   String get serverNotResponding => 'Не отвечает';
@@ -4760,10 +4867,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodHttp => 'HTTP';
+  String get methodDirectHttp => 'Напрямую · HTTP';
 
   @override
-  String get methodTor => 'Tor';
+  String get methodDirectTor => 'Напрямую · Tor';
 
   @override
   String get methodFile => 'Файл';
@@ -5560,11 +5667,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      'Пришла оплата счёта, который это устройство не выставляло, и была отклонена. Если его выставило другое устройство с этим кошельком, попросите плательщика отменить и оплатить снова.';
+      'Пришла оплата счёта, который это устройство не выставляло. Она сутки ждёт на ретрансляторе ваше другое устройство с этим кошельком: откройте кошелёк там, чтобы завершить её.';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      'Пришёл ответ на платёж, который это устройство не отправляло, и был отклонён. Если его отправило другое устройство с этим кошельком, отмените его там и отправьте снова.';
+      'Пришёл ответ на платёж, который это устройство не отправляло. Он сутки ждёт на ретрансляторе ваше другое устройство с этим кошельком: откройте кошелёк там, чтобы завершить платёж.';
 
   @override
   String get deskInvPayerWaitingHead => 'Ждёт вас';
@@ -7116,7 +7223,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Читая его вслух, сверьте первые шесть и последние шесть символов.';
 
   @override
-  String get deskRecvHttpAddress => 'Адрес HTTP';
+  String get deskRecvHttpAddress => 'Напрямую · адрес HTTP';
 
   @override
   String get deskRecvCopyHttp => 'Копировать адрес HTTP';
@@ -7139,14 +7246,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».';
 
   @override
-  String get deskRecvDirectTor => 'Напрямую, адрес Tor';
+  String get deskRecvDirectTor => 'Напрямую · адрес Tor';
 
   @override
   String get deskRecvTorIntro =>
       'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».';
 
   @override
-  String get deskRecvTorAddress => 'Адрес Tor';
+  String get deskRecvTorAddress => 'Напрямую · адрес Tor';
 
   @override
   String get deskRecvCopyTor => 'Копировать адрес Tor';
@@ -7762,11 +7869,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Напрямую (кошелёк получателя должен быть открыт)';
+      'Напрямую · HTTP (кошелёк получателя должен быть открыт)';
 
   @override
   String get deskSendViaTor =>
-      'Напрямую, через Tor (кошелёк получателя должен быть открыт)';
+      'Напрямую · Tor (кошелёк получателя должен быть открыт)';
 
   @override
   String get deskSendViaFile => 'Файл транзакции';
@@ -8262,10 +8369,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskConAddrEpicbox => 'Адрес Epicbox';
 
   @override
-  String get deskConAddrTor => 'Адрес Tor';
+  String get deskConAddrTor => 'Напрямую · адрес Tor';
 
   @override
-  String get deskConAddrHttp => 'Адрес HTTP';
+  String get deskConAddrHttp => 'Напрямую · адрес HTTP';
 
   @override
   String get deskConNote => 'Заметка';
@@ -10372,7 +10479,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Открыть приём по HTTP';
+  String get deskRailOpenHttp => 'Открыть приём: Напрямую · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'Нет в этой сборке';
@@ -10516,7 +10623,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTourReceiveText =>
-      'Адрес Epicbox этого кошелька, рядом HTTP и Tor. Внизу — файлы транзакций, которые нужно подписать или завершить.';
+      'Адрес Epicbox этого кошелька, рядом Напрямую · HTTP и Напрямую · Tor. Внизу — файлы транзакций, которые нужно подписать или завершить.';
 
   @override
   String get deskTourInvoicesTitle => 'Счета';
@@ -10537,7 +10644,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'Сохранённые адреса с именами: Epicbox, HTTP или Tor. Отсюда их берёт страница «Отправить».';
+      'Сохранённые адреса с именами: Epicbox, Напрямую · HTTP или Напрямую · Tor. Отсюда их берёт страница «Отправить».';
 
   @override
   String get deskTourNodeTitle => 'Настройки › Узел';
@@ -10658,11 +10765,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+      'Напрямую · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
+      'Напрямую · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -12919,7 +13026,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Приём по HTTP';
+  String get deskSetRecvHttpTitle => 'Напрямую · HTTP, приём';
 
   @override
   String get deskSetRecvHttpText =>
@@ -13430,7 +13537,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop от BT Labs: Apache-2.0. Код на GitHub.';
+      'Epic Cash Desktop от BT Labs: Apache-2.0.';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'Браузер не открылся';
@@ -13810,4 +13917,262 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'Какие выходы тратит отправка. «Наименьшие» тратит как можно меньше мелких выходов, остальные остаются доступными; «Все» тратит всё и возвращает один выход. На странице «Отправить» её можно изменить для одной отправки в разделе «Дополнительно».';
+
+  @override
+  String get txStatusNotPosted => 'Не в сети';
+
+  @override
+  String get txStatusStalled => 'Застряло';
+
+  @override
+  String get txDetailsStalledBody =>
+      'Застряло, не доставлено. Ваш платёж ещё не попал в сеть. Отправьте его снова.';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      'Этот платёж не дошёл до кошелька получателя, поэтому он его не получил. Ваши средства остаются заблокированными, пока платёж не будет отправлен снова или отменён.';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service ещё не опубликовал ваш платёж.';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => 'Не в сети';
+
+  @override
+  String get deskTxNowNotPosted =>
+      'Не в сети. Узел не принял этот платёж. Отправьте его в сеть снова: дважды он пройти не может.';
+
+  @override
+  String get deskTxBroadcastAgain => 'Отправить в сеть снова';
+
+  @override
+  String get deskTxBroadcastDone => 'Отправлено в сеть';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return 'Не доставлено. Кошелёк получателя не принял платёж ($method), поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить средства.';
+  }
+
+  @override
+  String get deskInvPayStalled => 'Застряло';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return 'Ваш платёж для $service застрял';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      'Не доставлено: платёж ещё не попал в сеть, средства остаются заблокированными. «Отправить снова» отправит его ещё раз без повторного подтверждения.';
+
+  @override
+  String get deskTxLabelAdd => 'Добавить метку';
+
+  @override
+  String get deskTxLabelEdit => 'Изменить метку';
+
+  @override
+  String get deskTxLabelHint => 'Добавить метку';
+
+  @override
+  String get deskTxLabelField => 'Метка';
+
+  @override
+  String get deskTxLabelTip =>
+      'Название этого платежа, для вас. Показывается в «Активности» и в экспорте.';
+
+  @override
+  String get deskTxLabelAdded => 'Метка добавлена';
+
+  @override
+  String get deskTxLabelSaved => 'Метка сохранена';
+
+  @override
+  String get deskTxLabelRemoved => 'Метка удалена';
+
+  @override
+  String get deskTxLabelNotSaved => 'Метка не сохранена';
+
+  @override
+  String get deskTxDetailsAdd => 'Добавить подробности';
+
+  @override
+  String get deskTxDetailsEdit => 'Изменить';
+
+  @override
+  String get deskTxDetailsTitleAdd => 'Добавить подробности';
+
+  @override
+  String get deskTxDetailsTitleEdit => 'Изменить подробности';
+
+  @override
+  String get deskTxDetailsTip =>
+      'Только для платежей, найденных при сканировании. В «Активности», подробностях и экспорте они помечены как добавленные вами. Суммы, даты и подтверждения не меняются.';
+
+  @override
+  String get deskTxDetailsFrom => 'От';
+
+  @override
+  String get deskTxDetailsFromTip =>
+      'Кто заплатил, для ваших записей. Не проверяется и не используется в подтверждениях платежа.';
+
+  @override
+  String get deskTxDetailsFromHint => 'Адрес отправителя';
+
+  @override
+  String get deskTxDetailsFromBad =>
+      'Укажите адрес Epicbox, http(s) или .onion.';
+
+  @override
+  String get deskTxDetailsNote => 'Заметка';
+
+  @override
+  String get deskTxDetailsAdded => 'Подробности добавлены';
+
+  @override
+  String get deskTxDetailsSaved => 'Подробности сохранены';
+
+  @override
+  String get deskTxDetailsRemoved => 'Подробности удалены';
+
+  @override
+  String get deskTxDetailsNotSaved => 'Подробности не сохранены';
+
+  @override
+  String get deskTxManualTag => 'Добавлено вами';
+
+  @override
+  String deskTxManualTip(String date) {
+    return 'Добавлено вами $date. Не из блокчейна.';
+  }
+
+  @override
+  String get deskTxManualTipNoDate => 'Добавлено вами. Не из блокчейна.';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return 'Добавлено вами $date. Не из блокчейна, не проверено.';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate =>
+      'Добавлено вами. Не из блокчейна, не проверено.';
+
+  @override
+  String get deskHistConflictTitle => 'Подробности различаются';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'В резервной копии другие подробности для $n платежа, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      many:
+          'В резервной копии другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      few:
+          'В резервной копии другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      one:
+          'В резервной копии другие подробности для $n платежа, который вы описали. Ваши сохраняются, если вы не выберете иначе.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => 'Мои';
+
+  @override
+  String get deskHistConflictBackup => 'Резервная копия';
+
+  @override
+  String get deskHistConflictKeepAll => 'Оставить все мои';
+
+  @override
+  String get deskHistConflictImport => 'Импортировать';
+
+  @override
+  String get deskHistConflictEmpty => 'пусто';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Заменено $n подробности, остальные оставлены как у вас.',
+      many: 'Заменено $n подробностей, остальные оставлены как у вас.',
+      few: 'Заменены $n подробности, остальные оставлены как у вас.',
+      one: 'Заменена $n подробность, остальные оставлены как у вас.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return 'Приложение не знает сервер $relay. Проверьте адрес перед отправкой.';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay не ответил.';
+  }
+
+  @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay не ответил, поэтому получатель не получил этот платёж. Средства остаются заблокированными, пока платёж не отправят повторно или не отменят.';
+  }
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'Не доставлено: $relay не ответил. Платёж ждёт в «Активности»; отмените его там, чтобы разблокировать средства.';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay не ответил.';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'Неизвестный сервер Epicbox';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return 'Приложение не знает сервер $relay. Проверьте адрес перед отправкой. Отправить всё равно можно.';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'Не доставлено. $relay не ответил, поэтому получатель не получил платёж. Отправьте его снова или отмените, чтобы освободить средства.';
+  }
+
+  @override
+  String get deskInvNoticeReceiveSuperseded =>
+      'Ваше другое устройство с этим кошельком приняло платёж, который получало и это устройство. Запустите «Сверка баланса», чтобы увидеть его здесь.';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'В истории старого кошелька другие подробности для $n платежа, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      many:
+          'В истории старого кошелька другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      few:
+          'В истории старого кошелька другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      one:
+          'В истории старого кошелька другие подробности для $n платежа, который вы описали. Ваши сохраняются, если вы не выберете иначе.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => 'Старый кошелёк';
+
+  @override
+  String get deskHistConflictApply => 'Применить';
+
+  @override
+  String get deskTxProofNone => 'Для этого платежа нет подтверждения платежа.';
 }

@@ -7,6 +7,7 @@ import '../../data/desk_node.dart';
 import '../../data/mock_wallet.dart';
 import '../../widgets/kit.dart';
 import 'backup.dart';
+import 'history_conflicts.dart';
 import 'dialogs.dart';
 import '../onboarding/local_node_step.dart' show showLocalNodeSetupDialog;
 import 'local_node_dialogs.dart';
@@ -193,6 +194,24 @@ final List<DeskShot> settingsShots = [
       ),
     ),
   ),
+  DeskShot(
+    id: '25l-dlg-history-conflicts',
+    title: 'Import history backup, details differ',
+    route: DeskRoute.settingsAccount,
+    height: 1000,
+    dialog: (c) => showHistoryConflicts(c, _conflicts),
+  ),
+  DeskShot(
+    id: '25m-dlg-import-history-replaced',
+    title: 'Import history backup, some details replaced',
+    route: DeskRoute.settingsAccount,
+    dialog: (c) => showEDialog<void>(
+      c,
+      builder: (_) => const ImportHistoryDialog(
+        doneDemo: (name: 'epic-history-mainnet-20261003.wfeh', result: HistoryImport(merged: 2, skipped: 44, replaced: 1)),
+      ),
+    ),
+  ),
   DeskShot(id: '25j-dlg-export-csv', title: 'Export CSV', route: DeskRoute.settingsAccount, dialog: showExportCsvDialog),
   DeskShot(
     id: '25k-dlg-export-csv-custom',
@@ -270,3 +289,10 @@ void _backup(ProviderContainer c, HistoryBackupState state) {
   if (api is MockDeskWallet) api.backup = state;
   c.invalidate(historyBackupProvider);
 }
+
+/// What a backup says against what was typed here: two payments, three fields.
+final List<ImportConflict> _conflicts = [
+  ImportConflict(key: 'l:103', field: ManualField.label, mine: 'Pool payout, March', theirs: 'March payout', timeUnix: DateTime(2026, 10, 15, 9, 30).millisecondsSinceEpoch ~/ 1000, amount: BigInt.from(425000000)),
+  ImportConflict(key: 'l:103', field: ManualField.transport, mine: 'epicbox', theirs: 'tor', timeUnix: DateTime(2026, 10, 15, 9, 30).millisecondsSinceEpoch ~/ 1000, amount: BigInt.from(425000000)),
+  ImportConflict(key: 's:e5f60718-2a3b-44c5-d6e7-f8091a2b3c4d', field: ManualField.label, mine: 'Rent, October', theirs: 'Tom, rent', timeUnix: DateTime(2026, 10, 19, 8, 30).millisecondsSinceEpoch ~/ 1000, amount: BigInt.from(-4000000000)),
+];

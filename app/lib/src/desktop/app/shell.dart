@@ -13,6 +13,8 @@ import '../desk_l10n.dart';
 import '../data/desk_update.dart' show deskAppVersion;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
+import '../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
 import '../screens/settings/prefs.dart';
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
@@ -83,6 +85,22 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     return false;
   }
 
+  bool _askingOld = false;
+
+  Future<void> _askOldHistory(List<ImportConflict> conflicts) async {
+    if (_askingOld) return;
+    _askingOld = true;
+    try {
+      final choices = await showHistoryConflicts(context, conflicts, oldWallet: true);
+      if (!mounted) return;
+      await ref.read(deskProvider.notifier).resolveOldHistory(choices);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.warn);
+    } finally {
+      _askingOld = false;
+    }
+  }
+
   @override
   void didUpdateWidget(DeskShell oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -116,6 +134,11 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskInvoiceNoticesProvider, (_, next) {
       final n = next.value;
       if (n != null && mounted) _invoiceToast(context, n);
+    });
+    // The old wallet's history differs from details the user typed: the same per-field
+    // "Details differ" choice as a history backup, Mine until they say otherwise.
+    ref.listen(deskProvider.select((s) => s.oldHistory), (_, next) {
+      if (next.isNotEmpty && mounted) unawaited(_askOldHistory(next));
     });
     final page = KeyedSubtree(key: ValueKey(at.route), child: deskScreen(at));
     final main = Material(color: c.bg, child: page);
@@ -170,6 +193,7 @@ void _invoiceToast(BuildContext context, InvoiceNotice n) {
     InvoiceNoticeKind.expired => (l.deskInvNoticeExpired, ETone.neutral),
     InvoiceNoticeKind.unknownPayment => (l.deskInvNoticeUnknownPayment, ETone.warn),
     InvoiceNoticeKind.unknownAnswer => (l.deskInvNoticeUnknownAnswer, ETone.warn),
+    InvoiceNoticeKind.receiveSuperseded => (l.deskInvNoticeReceiveSuperseded, ETone.neutral),
   };
   showEToast(context, text, tone: tone);
 }

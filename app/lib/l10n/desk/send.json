@@ -676,11 +676,11 @@
   "@deskSendViaEpicbox": {
     "description": "Value of the Via fact in the review dialog for an Epicbox send."
   },
-  "deskSendViaDirect": "Direct (their wallet must be open)",
+  "deskSendViaDirect": "Direct · HTTP (their wallet must be open)",
   "@deskSendViaDirect": {
     "description": "Value of the Via fact in the review dialog for a Direct send over http(s)."
   },
-  "deskSendViaTor": "Direct, over Tor (their wallet must be open)",
+  "deskSendViaTor": "Direct · Tor (their wallet must be open)",
   "@deskSendViaTor": {
     "description": "Value of the Via fact in the review dialog for a Direct send to an onion address."
   },
@@ -819,6 +819,19 @@
     "placeholders": {
       "max": {
         "type": "int"
+      }
+    }
+  },
+  "deskSendRelayUnknownTitle": "Unknown Epicbox server",
+  "@deskSendRelayUnknownTitle": {
+    "description": "Send review: title of the warning that the recipient's Epicbox server is not one the app knows."
+  },
+  "deskSendRelayUnknownText": "{relay} is not a server this app knows. Check the address before you send. You can still send.",
+  "@deskSendRelayUnknownText": {
+    "description": "Send review: the recipient's Epicbox server (the part of the address after @) is not in the app's public list or among the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
       }
     }
   }

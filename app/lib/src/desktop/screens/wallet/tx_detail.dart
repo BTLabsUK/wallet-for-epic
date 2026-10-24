@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../known_relays.dart' show recipientRelay;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../invoices/tx_invoice_block.dart';
+import 'tx_details_dialog.dart';
 import 'tx_display.dart';
+import 'tx_label.dart';
 
 /// One transaction: amount and counterparty, where it stands, its progress, details, proof,
 /// technical details and the actions it allows (cancel, finalize).
 class TxDetail extends ConsumerStatefulWidget {
-  const TxDetail({super.key, required this.tx});
+  const TxDetail({super.key, required this.tx, this.showTitle = false});
 
   final Tx tx;
+
+  /// Starts with the title (the label's field), for a layout whose page title is a plain string.
+  final bool showTitle;
 
   @override
   ConsumerState<TxDetail> createState() => _TxDetailState();
@@ -26,13 +32,18 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       : t.immature
       ? l.deskTxNowImmature(coinbaseMaturity)
       : switch (t.state) {
-          TxState.waitingRecipient when t.undelivered => l.deskTxNowUndelivered,
+          TxState.waitingRecipient when t.undelivered => switch ((t.method, recipientRelay(t.counterparty ?? ''))) {
+            (TxMethod.http || TxMethod.tor, _) => l.deskTxNowUndeliveredDirect(methodLabel(l, t.method)),
+            (TxMethod.epicbox, final relay?) => l.deskTxNowUndeliveredRelay(relay.label),
+            _ => l.deskTxNowUndelivered,
+          },
           TxState.waitingRecipient =>
             t.incoming
                 ? l.deskTxNowWaitingSender
                 : t.method == TxMethod.file
                 ? l.deskTxNowWaitingResponseFile
                 : l.deskTxNowWaitingRecipient,
+          TxState.posted when t.notPosted => l.deskTxNowNotPosted,
           TxState.posted => l.deskTxNowPosted,
           TxState.confirming => l.deskTxNowConfirming(t.confirmations, t.confirmationsNeeded),
           TxState.confirmed => l.deskTxNowConfirmed(t.confirmations),
@@ -52,6 +63,21 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     if (!mounted) return;
     setState(() => _cancelling = false);
     showEToast(context, context.l10n.deskTxSentAgain, text: context.l10n.deskTxSentAgainText);
+  }
+
+  Future<void> _broadcastAgain() async {
+    setState(() => _cancelling = true);
+    try {
+      await ref.read(deskProvider.notifier).repostTx(widget.tx.id);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _cancelling = false);
+      showEToast(context, context.l10n.deskTxNotSent, text: deskErrorText(e, context.l10n));
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _cancelling = false);
+    showEToast(context, context.l10n.deskTxBroadcastDone);
   }
 
   Future<void> _cancel() async {
@@ -88,10 +114,16 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed
             : (t.cancellable && t.state == TxState.waitingRecipient) || t.notPosted);
     final finalizable = !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
+    // The node refused it: broadcast it again at once (android-17); the app also does by itself.
+    final repostable = !t.fromBackup && !t.isInvoice && t.notPosted;
     final steps = _steps(l, t);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (widget.showTitle) ...[
+          TxPanelTitle(tx: t, fallback: t.isInvoice ? l.deskInvActBlock : (t.incoming ? l.deskActDetailReceived : l.deskActDetailSent)),
+          SizedBox(height: Sp.x4),
+        ],
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -106,7 +138,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                     sign: !txAsked(t),
                     sizes: const [Fs.h2, Fs.h3, Fs.lg, Fs.md],
                     weight: FontWeight.w500,
-                    color: t.incoming && t.state != TxState.cancelled && !txAsked(t) ? c.ok : c.text,
+                    color: t.state == TxState.cancelled ? c.txCancelled : (txAsked(t) ? c.text : (t.incoming ? c.txReceived : c.txSent)),
                   ),
                   // Not money yet: the row's caption, by the big amount too (P-1).
                   if (txAsked(t) && t.state == TxState.waitingRecipient) Text(context.l10n.deskInvUnpaid, style: ts.caption),
@@ -158,30 +190,59 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
         if (t.isInvoice) TxInvoiceBlock(tx: t),
         if (t.state != TxState.cancelled && !t.fromBackup && !t.isInvoice) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
-        _Sub(l.deskTxSubDetails),
+        _SubBar(
+          l.deskTxSubDetails,
+          [
+            if (t.restored)
+              EButton(
+                label: _typed(t) ? l.deskTxDetailsEdit : l.deskTxDetailsAdd,
+                icon: _typed(t) ? EIcons.pencil : EIcons.plus,
+                kind: EBtnKind.ghost,
+                size: EBtnSize.inline,
+                onPressed: () => showTxDetailsDialog(context, t),
+              ),
+            EButton(
+              label: t.labelText == null ? l.deskTxLabelAdd : l.deskTxLabelEdit,
+              icon: EIcons.pencil,
+              kind: EBtnKind.ghost,
+              size: EBtnSize.inline,
+              onPressed: () => ref.read(txLabelEditingProvider.notifier).open(t.key, txLabelDetailPlace),
+            ),
+          ],
+        ),
         EFacts(labelWidth: 96.u, [
           (l.deskTxFactDate, Text(dateTimeOf(l, t))),
           if (t.counterparty != null)
             (
               t.incoming ? l.deskTxFactFrom : l.deskTxFactTo,
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.counterparty!,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: ts.mono(size: Fs.xs),
+              _withTag(
+                t,
+                ManualField.counterparty,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        t.counterparty!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: ts.mono(size: Fs.xs),
+                      ),
                     ),
-                  ),
-                  ECopyButton(text: t.counterparty!, label: l.deskTxCopyAddress),
-                ],
+                    ECopyButton(text: t.counterparty!, label: l.deskTxCopyAddress),
+                  ],
+                ),
               ),
             ),
-          (l.deskTxFactMethod, Text(t.foundByScan ? '–' : methodLabel(l, t.method))),
+          (
+            l.deskTxFactMethod,
+            t.foundByScan
+                ? _withTag(t, ManualField.transport, Text(restoredMethodOf(l, t) ?? '–'))
+                : Text(methodLabel(l, t.method)),
+          ),
           (l.deskTxFactAmount, EMoney(t.amount)),
           if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600))],
           if (t.message != null) (l.deskTxFactMessage, Text(t.message!)),
+          if (t.note != null && t.note!.trim().isNotEmpty) (l.deskTxDetailsNote, _withTag(t, ManualField.note, Text(t.note!))),
         ]),
         if (DeskFeatures.paymentProofs && t.hasProof) ...[
           _Sub(l.deskTxPaymentProof),
@@ -219,7 +280,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             (l.deskTxTechType, Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))), // l10n-ok: the core's type names
           ]),
         ),
-        if (cancelable || finalizable || t.undelivered) ...[
+        if (cancelable || finalizable || t.undelivered || repostable) ...[
           SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),
           SizedBox(height: Sp.x4),
@@ -243,6 +304,14 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   busy: _cancelling,
                   onPressed: _sendAgain,
                 ),
+              if (repostable)
+                EButton.primary(
+                  label: l.deskTxBroadcastAgain,
+                  icon: EIcons.refresh,
+                  size: EBtnSize.sm,
+                  busy: _cancelling,
+                  onPressed: _broadcastAgain,
+                ),
               if (finalizable)
                 EButton.primary(
                   label: l.deskTxFinalize,
@@ -256,6 +325,21 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       ],
     );
   }
+
+  /// Whether the user has typed a sender, method or note on this scan find.
+  bool _typed(Tx t) => t.manualFields.any((f) => f != ManualField.label);
+
+  /// [value] with "Added by you" under it when the user typed [field].
+  Widget _withTag(Tx t, ManualField field, Widget value) => t.manualFields.contains(field)
+      ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            value,
+            SizedBox(height: Sp.x1),
+            ManualTag(t, field),
+          ],
+        )
+      : value;
 
   List<_Step> _steps(AppLocalizations l, Tx t) {
     final at = t.created;
@@ -271,7 +355,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       ];
     }
     final signed = t.state != TxState.waitingRecipient;
-    final posted = t.state == TxState.confirming || t.state == TxState.confirmed || t.state == TxState.posted;
+    final posted = t.state == TxState.confirming || t.state == TxState.confirmed || (t.state == TxState.posted && !t.notPosted);
     final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
     final done = t.state == TxState.confirmed;
     return [
@@ -384,6 +468,29 @@ class _TimelineStep extends StatelessWidget {
   }
 }
 
+/// A sub-header with ghost buttons at its end.
+class _SubBar extends StatelessWidget {
+  const _SubBar(this.title, this.actions);
+
+  final String title;
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(top: Sp.x6, bottom: Sp.x2),
+    // The buttons drop under the title when the panel is too narrow for both.
+    child: Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      runSpacing: Sp.x1,
+      children: [
+        Semantics(header: true, child: Text(title, style: context.ts.label)),
+        Wrap(spacing: Sp.x1, children: actions),
+      ],
+    ),
+  );
+}
+
 class _Sub extends StatelessWidget {
   const _Sub(this.title);
 
@@ -416,7 +523,10 @@ Future<bool?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<bool
   },
 );
 
-/// The payment proof: who signed what, with copy and export.
+/// The payment proof: who signed what, with copy and export. Shows what the transaction carries;
+/// without a proof (or without its sender and signature) it says so and offers nothing to export.
+String? _some(String? s) => s == null || s.trim().isEmpty ? null : s.trim();
+
 Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
   context,
   builder: (context) => Consumer(
@@ -446,6 +556,18 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
           ],
         ),
       );
+      final sender = _some(t.proofSender), signature = _some(t.proofSignature);
+      if (!t.hasProof || (sender == null && signature == null)) {
+        return EDialog(
+          title: l.deskTxPaymentProof,
+          icon: EIcons.proof,
+          width: 520.u,
+          body: Text(l.deskTxProofNone, style: ts.body),
+          actions: [EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.pop(context))],
+        );
+      }
+      // An address the user typed is not what the payment's proof is about: never shown here.
+      final recipient = t.manualFields.contains(ManualField.counterparty) ? null : _some((t.counterparty ?? '').split('@').first);
       return EDialog(
         title: l.deskTxPaymentProof,
         icon: EIcons.proof,
@@ -455,10 +577,10 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            field(l.deskTxTechKernel, l.deskTxProofCopyKernel, t.kernel ?? '-'),
-            field(l.deskTxProofSenderAddress, l.deskTxProofCopySender, 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b'),
-            field(l.deskTxProofRecipientAddress, l.deskTxProofCopyRecipient, (t.counterparty ?? '').split('@').first),
-            field(l.deskTxProofRecipientSignature, l.deskTxProofCopySignature, '3045022100c7a1e9f0b2d4a6c8e0f2b4d6a8c0e2f4b6d8a0c2e4f6b8d0a2c4e6f8b0d2a4c602205f'),
+            if (_some(t.kernel) != null) field(l.deskTxTechKernel, l.deskTxProofCopyKernel, t.kernel!),
+            if (sender != null) field(l.deskTxProofSenderAddress, l.deskTxProofCopySender, sender),
+            if (recipient != null) field(l.deskTxProofRecipientAddress, l.deskTxProofCopyRecipient, recipient),
+            if (signature != null) field(l.deskTxProofRecipientSignature, l.deskTxProofCopySignature, signature),
           ],
         ),
         actions: [

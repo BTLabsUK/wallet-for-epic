@@ -35,6 +35,7 @@ import '../../l10n.dart' show AppLocalizations, englishStrings;
 import '../desk_l10n.dart' show deskStrings;
 import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
+import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
@@ -45,6 +46,7 @@ import '../../tor_routes.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
 import '../../seed_contacts.dart';
+import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName;
 import '../../tor_location.dart';
 import '../../updater.dart' show updateStateKey;
@@ -221,6 +223,13 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// When [_importHistoryOnce] last read each wallet's old database (by meta key).
   final Map<String, DateTime> _historyTried = {};
+
+  /// What the old wallet's history waits for: the sender or method it records against what the
+  /// user typed, with the wallet's meta key and old folder. Asked once the shell shows it.
+  ({String key, String from, List<ImportConflict> conflicts})? _oldHistoryAsk;
+
+  /// Wallets whose choices the user postponed (Cancel): not asked again until the app restarts.
+  final Set<String> _oldHistoryHeld = {};
 
   /// Public nodes from status.btlabs.uk; null keeps the built-in list.
   final NodeDirectory? nodeDirectory;
@@ -1005,6 +1014,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _config = null;
     _summary = null;
     _entries = null;
+    _stall = StallRetry();
     _syncProgress = null;
     _epicboxHealth = ServiceHealth.off;
     session?.dispose();
@@ -1628,10 +1638,41 @@ class LepicDeskWallet implements DeskWalletApi {
     // The sync runs at every block; the old database is read at most once an hour.
     final last = _historyTried[key];
     if (last != null && DateTime.now().difference(last) < const Duration(hours: 1)) return;
+    if (_oldHistoryAsk != null || _oldHistoryHeld.contains(key)) return;
     _historyTried[key] = DateTime.now();
     final r = await _importHistory(session, from);
     if (r == null || r.status == core.LegacyHistoryStatus.sourceBusy) return;
+    if (!r.applied) {
+      // Typed details differ from the old wallet's: nothing is recorded as done until the user
+      // chose, so Cancel leaves the import to be asked again.
+      logInfo('desk', 'old history waits for ${r.conflicts.length} choices');
+      _oldHistoryAsk = (key: key, from: from, conflicts: r.conflicts);
+      return;
+    }
     await _setMeta({'historyImport': r.status.name}, key);
+  }
+
+  @override
+  List<ImportConflict> get oldHistoryConflicts => _oldHistoryAsk?.conflicts ?? const [];
+
+  @override
+  Future<void> resolveOldHistory(Map<String, bool>? useOldWallet) async {
+    final ask = _oldHistoryAsk;
+    if (ask == null) return;
+    _oldHistoryAsk = null;
+    if (useOldWallet == null) {
+      _oldHistoryHeld.add(ask.key);
+      return;
+    }
+    try {
+      final r = await _open.importLegacyHistory(sourceDir: ask.from, useOldWallet: useOldWallet);
+      logInfo('desk', 'old history imported: ${r.replaced} replaced');
+      if (r.applied) await _setMeta({'historyImport': r.status.name}, ask.key);
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'old history choices not applied: ${e.kind.name}');
+      throw _deskError(e);
+    }
+    await _reload();
   }
 
   Future<void> _checkTip() async {
@@ -1661,6 +1702,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       // A new block: confirmations move, payments may have landed.
       if (grew && _summary != null) unawaited(sync());
+      unawaited(_retryStalled());
     } on Object catch (e) {
       final why = e is core.WalletError ? e.kind.name : e.runtimeType;
       if (overTor && _torGrace()) {
@@ -2068,7 +2110,14 @@ class LepicDeskWallet implements DeskWalletApi {
           final sent = await session.resendTor(txId: id, onion: to);
           if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
         default:
-          await session.resendEpicbox(key: e.key);
+          try {
+            await session.resendEpicbox(key: e.key);
+          } on core.WalletError catch (err) {
+            final relay = recipientRelay(to);
+            if (err.kind != core.WalletErrorKind.transportFailed || relay == null) rethrow;
+            logWarn('desk', 'resend: ${err.kind.name} (${relay.label})');
+            throw DeskError.l10n((l) => l.deskErrRelayNoAnswer(relay.label));
+          }
       }
     } on core.WalletError catch (e) {
       logWarn('desk', 'resend: ${e.kind.name}');
@@ -2200,7 +2249,11 @@ class LepicDeskWallet implements DeskWalletApi {
               ? SendFailed.l10n((l) => l.deskErrRecipientNoAnswerWaits, inActivity: true)
               : SendFailed.l10n((l) => l.deskErrRecipientNoAnswer);
         }
-        return SendFailed.l10n((l) => l.deskErrNotDelivered, inActivity: true);
+        // The relay is named: a mistyped domain is the usual reason it never answers.
+        final relay = recipientRelay((r.to ?? '').trim());
+        return relay == null
+            ? SendFailed.l10n((l) => l.deskErrNotDelivered, inActivity: true)
+            : SendFailed.l10n((l) => l.deskErrNotDeliveredRelay(relay.label), inActivity: true);
       }
       // Ended by a lock (the app's own lock waits; the wallet can still close under it): the
       // send may have been stored as sent, so the next unlock's Activity tells.
@@ -3355,17 +3408,41 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<HistoryImport> importHistory(Uint8List data) async {
+  Future<HistoryImport> importHistory(Uint8List data, {Map<String, bool>? useBackup}) async {
     if (data.length > maxDeskHistoryBytes) throw HistoryFileError.l10n(HistoryFileProblem.tooLarge, (l) => l.deskErrHistTooLarge);
     try {
-      final r = await _open.importHistory(data: data);
-      logInfo('desk', 'history imported: ${r.merged} merged, ${r.added} added, ${r.contactsAdded} contacts');
+      final r = await _open.importHistory(data: data, useBackup: useBackup);
+      if (!r.applied) {
+        logInfo('desk', 'history import waits for ${r.conflicts.length} choices');
+        return HistoryImport(conflicts: r.conflicts, applied: false);
+      }
+      logInfo('desk', 'history imported: ${r.merged} merged, ${r.added} added, ${r.contactsAdded} contacts, ${r.replaced} replaced');
       await _reload();
-      return HistoryImport(merged: r.merged, added: r.added, skipped: r.skipped, contactsAdded: r.contactsAdded);
+      return HistoryImport(merged: r.merged, added: r.added, skipped: r.skipped, contactsAdded: r.contactsAdded, replaced: r.replaced);
     } on core.WalletError catch (e) {
       logWarn('desk', 'history import refused: ${e.kind.name}');
       throw historyFileError(e);
     }
+  }
+
+  @override
+  Future<void> setTxLabel(String key, String? label) async {
+    try {
+      await _open.setTxLabel(key: key, label: label);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+    await _reload();
+  }
+
+  @override
+  Future<void> setTxDetails(String key, {String? counterparty, String? transport, String? note}) async {
+    try {
+      await _open.setTxDetails(key: key, counterparty: counterparty, transport: transport, note: note);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+    await _reload();
   }
 
   @override
@@ -3511,6 +3588,10 @@ class LepicDeskWallet implements DeskWalletApi {
         return;
       case core.InvoiceEventKind.unknownSendAnswer:
         _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.unknownAnswer, slateId: e.slateId));
+        return;
+      case core.InvoiceEventKind.receiveSuperseded:
+        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.receiveSuperseded, slateId: e.slateId));
+        await _reload();
         return;
       case _:
         break;
@@ -3949,6 +4030,22 @@ class LepicDeskWallet implements DeskWalletApi {
 
   // ---- Helpers.
 
+  /// The open wallet's automatic reposts and resends; a new one per unlock.
+  StallRetry _stall = StallRetry();
+
+  /// Posts again a payment the chain has not taken and sends again a paid invoice's answer, when
+  /// the shared policy says it is due (stall_retry.dart). Runs with each node check.
+  Future<void> _retryStalled() async {
+    final session = _session;
+    final entries = _entries;
+    if (session == null || entries == null) return;
+    try {
+      if (await _stall.run(session, entries, DateTime.now()) && _session == session) await _reload();
+    } on Object catch (e) {
+      logWarn('desk', 'automatic retry: ${e.runtimeType}');
+    }
+  }
+
   Future<void> _reload() async {
     final session = _session;
     if (session == null) return;
@@ -4025,6 +4122,9 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
   final state = switch (e.status) {
     core.TxStatus.cancelled => TxState.cancelled,
     core.TxStatus.awaitingRecipient => TxState.waitingRecipient,
+    // A request nobody paid yet is not on its way to the chain: it waits for the payer, as the
+    // mock keeps it (windows-05 read "posted" in its technical details).
+    core.TxStatus.awaitingConfirmation when e.awaitingPayer => TxState.waitingRecipient,
     core.TxStatus.awaitingConfirmation => height == null ? TxState.posted : TxState.confirming,
     core.TxStatus.confirmed => confirmations > 0 && confirmations < minConf ? TxState.confirming : TxState.confirmed,
   };
@@ -4032,6 +4132,8 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
   final method = switch (e.transport) {
     'tor' => TxMethod.tor,
     'http' => TxMethod.http,
+    // A restored row has no wallet record of how it came: only the user's words say.
+    'file' when e.source == core.TxSource.restored => TxMethod.file,
     _ when to != null && to.toLowerCase().contains('.onion') => TxMethod.tor,
     _ when to == null => e.source == core.TxSource.wallet && e.kind != core.TxKind.coinbase ? TxMethod.file : TxMethod.epicbox,
     _ when to.startsWith('http') => TxMethod.http,
@@ -4069,6 +4171,12 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     notPosted: e.repostable,
     undelivered: e.undelivered,
     flow: e.flow == core.TxFlow.invoice ? TxFlow.invoice : TxFlow.payment,
+    key: e.key,
+    transport: e.transport,
+    label: e.label,
+    note: e.note,
+    manualFields: e.manualFields,
+    manualEditedAt: e.manualEditedAtUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.manualEditedAtUnix! * 1000),
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,
   );
@@ -4090,6 +4198,8 @@ PayState payState(core.TxEntry e, core.InvoiceStatus status, {required int tip, 
   if (e.releasable || (ttl != null && tip > ttl)) return PayState.pastTtl;
   if (status == core.InvoiceStatus.posted) return PayState.posted;
   if (overdueAt != null && !(now ?? DateTime.now()).isBefore(overdueAt)) return PayState.pastTtl;
+  // Not on the network a while after paying, though sent again by itself (stall_retry.dart).
+  if (now != null && invoicePaymentStalled(e, now)) return PayState.stalled;
   return PayState.delivered;
 }
 

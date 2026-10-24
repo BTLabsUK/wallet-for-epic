@@ -77,6 +77,7 @@ class InvButton extends StatelessWidget {
     PayState.waiting => (l.deskInvPayWaiting, ETone.info),
     PayState.notDelivered => (l.deskInvPayNotDelivered, ETone.risk),
     PayState.delivered => (l.deskInvPayDelivered, ETone.neutral),
+    PayState.stalled => (l.deskInvPayStalled, ETone.risk),
     PayState.posted => (l.deskInvPayPosted, ETone.neutral),
     PayState.confirming => (l.deskInvConfirming(i.confirmations, defaultMinimumConfirmations), ETone.neutral),
     PayState.completed => (l.deskInvCompleted, ETone.ok),

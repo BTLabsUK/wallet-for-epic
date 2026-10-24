@@ -379,6 +379,9 @@ class GatedWalletSession implements WalletSession {
   Future<void> refreshTor({required bool networkChanged}) async {}
 
   @override
+  Future<void> torNetworkLost() async {}
+
+  @override
   Future<HttpSent> sendTor({
     required BigInt amount,
     required BigInt minimumConfirmations,
@@ -434,6 +437,23 @@ class GatedWalletSession implements WalletSession {
       _inner.setTxNote(key: key, note: note);
 
   @override
+  Future<void> setTxLabel({required String key, String? label}) =>
+      _inner.setTxLabel(key: key, label: label);
+
+  @override
+  Future<void> setTxDetails({
+    required String key,
+    String? counterparty,
+    String? transport,
+    String? note,
+  }) => _inner.setTxDetails(
+    key: key,
+    counterparty: counterparty,
+    transport: transport,
+    note: note,
+  );
+
+  @override
   Future<List<Contact>> contacts() => _inner.contacts();
 
   @override
@@ -451,12 +471,17 @@ class GatedWalletSession implements WalletSession {
   Future<String> exportHistoryCsv() => _inner.exportHistoryCsv();
 
   @override
-  Future<ImportReport> importHistory({required Uint8List data}) =>
-      _inner.importHistory(data: data);
+  Future<ImportReport> importHistory({
+    required Uint8List data,
+    Map<String, bool>? useBackup,
+  }) => _inner.importHistory(data: data, useBackup: useBackup);
 
   // The server's disk is not the visitor's to read.
   @override
-  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir}) async =>
+  Future<LegacyHistoryImport> importLegacyHistory({
+    required String sourceDir,
+    Map<String, bool>? useOldWallet,
+  }) async =>
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message: 'Importing an old wallet is not offered remotely',

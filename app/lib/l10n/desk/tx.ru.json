@@ -71,6 +71,7 @@
   "deskTxFactMessage": "Сообщение",
   "deskTxSignedByRecipient": "Подписано получателем",
   "deskTxProofView": "Открыть",
+  "deskTxProofNone": "Для этого платежа нет подтверждения платежа.",
   "deskTxTechTitle": "Технические сведения",
   "deskTxTechId": "ID",
   "deskTxTechSlate": "ID слейта",
@@ -117,5 +118,11 @@
   "deskTxSendAgain": "Отправить снова",
   "deskTxNotSent": "Не отправлено",
   "deskTxSentAgain": "Отправлено снова",
-  "deskTxSentAgainText": "Платёж завершится, когда кошелёк получателя появится в сети."
+  "deskTxSentAgainText": "Платёж завершится, когда кошелёк получателя появится в сети.",
+  "deskTxStatusNotPosted": "Не в сети",
+  "deskTxNowNotPosted": "Не в сети. Узел не принял этот платёж. Отправьте его в сеть снова: дважды он пройти не может.",
+  "deskTxBroadcastAgain": "Отправить в сеть снова",
+  "deskTxBroadcastDone": "Отправлено в сеть",
+  "deskTxNowUndeliveredDirect": "Не доставлено. Кошелёк получателя не принял платёж ({method}), поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить средства.",
+  "deskTxNowUndeliveredRelay": "Не доставлено. {relay} не ответил, поэтому получатель не получил платёж. Отправьте его снова или отмените, чтобы освободить средства."
 }

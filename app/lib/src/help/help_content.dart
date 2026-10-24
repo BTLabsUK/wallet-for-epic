@@ -169,7 +169,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         if (phone)
           const HelpBlock.p('Sending needs a synced node. An Epicbox address also needs the Epicbox server to answer; a Direct address (http or .onion) needs the recipient\'s wallet open and reachable at that moment.')
         else
-          const HelpBlock.p('Sending needs a synced node. An Epicbox address also needs Epicbox receiving to be on; HTTP and Tor addresses need the recipient\'s wallet open and reachable at that moment.'),
+          const HelpBlock.p('Sending needs a synced node. An Epicbox address also needs Epicbox receiving to be on; a Direct address (http or .onion) needs the recipient\'s wallet open and reachable at that moment.'),
       ],
       id: HelpId.send,
     ),
@@ -208,7 +208,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         HelpBlock.p('Epic Cash uses Mimblewimble. Instead of writing an address and an amount on the blockchain, the two wallets build each transaction together, like a handshake:'),
         HelpBlock.ol(['The sender\'s wallet starts it and locks the outputs being sent.', 'The receiver\'s wallet adds its part and signs.', 'The sender\'s wallet signs too, finishes the transaction and posts it to the network.']),
-        HelpBlock.p('So something has to carry the messages between the two wallets. **Epicbox** does it: it holds the message while the other wallet is offline, so both need not be online at the same moment. **HTTP** and **Tor** go straight to the other wallet while it is open. A **transaction file** is the manual way.'),
+        HelpBlock.p('So something has to carry the messages between the two wallets. **Epicbox** does it: it holds the message while the other wallet is offline, so both need not be online at the same moment. **Direct · HTTP** and **Direct · Tor** go straight to the other wallet while it is open. A **transaction file** is the manual way.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -372,7 +372,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
             'Turn it on under [[Settings › Privacy]]. The Tor row in the sidebar shows its state.',
             'While Tor starts or is not connected, what goes over Tor waits; nothing goes around it. Retry, or turn Tor off.',
             'Direct sends to an http(s) address do not go over Tor; Send says so.',
-            'HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Tor address.',
+            'Direct · HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Direct · Tor address.',
             'Tor is blocked or not allowed in some countries; there it does not connect.',
           ]),
           HelpBlock.p('Some wallets show the address without .onion; both are the same address.'),
@@ -400,7 +400,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         if (phone)
           const HelpBlock.p('**Tor says "Not connected".** Tor could not reach its network. Press Retry under Settings › Privacy, or turn Tor off; nothing goes out meanwhile.'),
         if (!phone) ...const [
-          HelpBlock.p('**"Port 3415 is used by another program".** Another program, often another Epic wallet, uses the port for HTTP payments. Close it, then press Try again on Receive. Epicbox, Tor and files keep working meanwhile.'),
+          HelpBlock.p('**"Port 3415 is used by another program".** Another program, often another Epic wallet, uses the port for Direct · HTTP payments. Close it, then press Try again on Receive. Epicbox, Direct · Tor and files keep working meanwhile.'),
           HelpBlock.p('**"Another Epic program is using this folder".** Another Epic wallet or node has the same files open. Close it and try again.'),
         ],
         if (phone)

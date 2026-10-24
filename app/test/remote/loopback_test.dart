@@ -586,6 +586,19 @@ void main() {
       expect(session.notes, {'s:a': 'rent'});
       await s.setTxNote(key: 's:a');
       expect(session.notes, isEmpty);
+      await s.setTxLabel(key: 's:a', label: 'Rent');
+      expect(session.labels, {'s:a': 'Rent'});
+      session.transactionsValue = [
+        fakeTx(key: 'c:o', source: TxSource.restored),
+      ];
+      await s.setTxDetails(key: 'c:o', transport: 'tor', note: 'n');
+      expect(session.details['c:o'], (
+        counterparty: null,
+        transport: 'tor',
+        note: 'n',
+      ));
+      final labelled = (await s.transactions(refresh: false)).single;
+      expect(labelled.manualFields, {ManualField.transport, ManualField.note});
       final saved = await s.saveContact(
         contact: Contact(id: '', name: 'Bob', address: payerAddress, note: 'n'),
       );
@@ -613,6 +626,24 @@ void main() {
         const ImportReport(merged: 0, added: 1, skipped: 0, contactsAdded: 0),
       );
       expect(session.notes, {'s:a': 'rent'});
+      final conflict = ImportConflict(
+        key: 's:a',
+        field: ManualField.label,
+        mine: 'Mine',
+        theirs: 'Theirs',
+        timeUnix: 5,
+        amount: BigInt.from(-7),
+      );
+      session.importConflicts = [conflict];
+      final asked = await s.importHistory(data: file);
+      expect(asked.applied, isFalse);
+      expect(asked.conflicts, [conflict]);
+      final chosen = await s.importHistory(
+        data: file,
+        useBackup: {conflict.id: true},
+      );
+      expect((chosen.applied, chosen.replaced), (true, 1));
+      expect(session.lastUseBackup, {conflict.id: true});
       await expectLater(
         s.importHistory(data: Uint8List.fromList([1, 2, 3])),
         throwsKind(WalletErrorKind.invalidArgument),

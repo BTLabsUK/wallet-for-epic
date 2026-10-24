@@ -143,7 +143,7 @@ void main() {
     final view = tester.getRect(find.byType(Scrollable).first);
     final before = tester.getRect(panel).top;
     expect(view.contains(tester.getRect(panel).bottomLeft), isFalse, reason: 'below the fold in one column');
-    await tester.tap(find.bySemanticsLabel(RegExp(r'^Tor: ')));
+    await tester.tap(find.bySemanticsLabel(RegExp(r'^Direct · Tor: ')));
     await tester.pumpAndSettle();
     expect(tester.getRect(panel).top, lessThan(before));
     expect(view.contains(tester.getRect(panel).topLeft), isTrue);
@@ -152,7 +152,7 @@ void main() {
   testWidgets('the header says each method in words for screen readers', (tester) async {
     final handle = tester.ensureSemantics();
     await _pump(tester, const ReceiveArgs(http: RxHttp.on));
-    expect(find.bySemanticsLabel(RegExp(r'^Epicbox on, HTTP on')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^Epicbox on, Direct · HTTP on')), findsOneWidget);
     handle.dispose();
   });
 

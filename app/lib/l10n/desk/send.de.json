@@ -135,8 +135,8 @@
   "deskSendWrongPassword": "Falsches Passwort.",
   "deskSendNotConfirmed": "Nicht bestätigt. Prüfen Sie die Aktivität, bevor Sie erneut senden.",
   "deskSendViaEpicbox": "Epicbox (der Empfänger kann offline sein)",
-  "deskSendViaDirect": "Direkt (die Wallet des Empfängers muss geöffnet sein)",
-  "deskSendViaTor": "Direkt über Tor (die Wallet des Empfängers muss geöffnet sein)",
+  "deskSendViaDirect": "Direkt · HTTP (die Wallet des Empfängers muss geöffnet sein)",
+  "deskSendViaTor": "Direkt · Tor (die Wallet des Empfängers muss geöffnet sein)",
   "deskSendViaFile": "Transaktionsdatei",
   "deskSendUsesAll": "{count, plural, one{Nutzt den 1 Output · Wechselgeld 1 Output} other{Nutzt alle {count} Outputs · Wechselgeld 1 Output}}",
   "deskSendReviewTitle": "Prüfen und senden",
@@ -162,5 +162,7 @@
   "deskSendFeeChangedTitle": "Die Gebühr hat sich geändert",
   "deskSendFeeChangedText": "Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt {fee} EPIC statt {was} EPIC Gebühr. Prüfe sie und sende erneut.",
   "deskSendMessageBytes": "{used} / {max} Byte",
-  "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie."
+  "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie.",
+  "deskSendRelayUnknownTitle": "Unbekannter Epicbox-Server",
+  "deskSendRelayUnknownText": "{relay} ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden."
 }

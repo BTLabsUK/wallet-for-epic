@@ -50,6 +50,7 @@ class TxInvoiceBlock extends ConsumerWidget {
       text = switch (inv.state) {
         PayState.notDelivered => l.invoiceDetailsReplyFailed(inv.label),
         PayState.delivered => l.invoiceDetailsReplied(inv.label),
+        PayState.stalled => l.deskInvPayerStalledText,
         PayState.posted || PayState.confirming || PayState.completed => l.invoiceDetailsPosted(inv.label),
         PayState.withdrawnAfterPay => l.invoiceDetailsWithdrawn(inv.label),
         // A cancel is final only once these coins are spent again (P-3).
@@ -60,7 +61,7 @@ class TxInvoiceBlock extends ConsumerWidget {
         if (inv.state == PayState.notDelivered)
           InvButton(label: l.invoiceRetry, kind: EBtnKind.primary, width: InvW.md, onPressed: () => retryInvoicePayment(context, ref, inv)),
         // Delivered but never posted (linux-12): the stored reply goes again.
-        if (inv.state == PayState.delivered)
+        if (inv.state == PayState.delivered || inv.state == PayState.stalled)
           InvButton(label: l.deskTxSendAgain, kind: EBtnKind.primary, width: InvW.md, onPressed: () => retryInvoicePayment(context, ref, inv)),
         if (inv.state.cancellable)
           InvButton(label: l.deskInvIssuerCancel, kind: EBtnKind.danger, width: InvW.md, onPressed: () => showCancelInvoicePayment(context, ref, inv)),

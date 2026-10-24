@@ -57,7 +57,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też odpowiadającego serwera Epicbox; adres bezpośredni (http lub .onion) wymaga, by portfel odbiorcy był w tej chwili otwarty i osiągalny.')
         else
-          const HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też włączonego odbierania przez Epicbox; adresy HTTP i Tor wymagają, by portfel odbiorcy był w tej chwili otwarty i osiągalny.'),
+          const HelpBlock.p('Wysyłanie wymaga zsynchronizowanego węzła. Adres Epicbox wymaga też włączonego odbierania przez Epicbox; adres Bezpośrednio (http lub .onion) wymaga, by portfel odbiorcy był w tej chwili otwarty i osiągalny.'),
       ],
       id: HelpId.send,
     ),
@@ -96,7 +96,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Epic Cash używa Mimblewimble. Zamiast zapisywać w łańcuchu bloków adres i kwotę, oba portfele budują każdą transakcję razem, jak w uścisku dłoni:'),
         HelpBlock.ol(['Portfel nadawcy ją rozpoczyna i blokuje wysyłane wyjścia.', 'Portfel odbiorcy dodaje swoją część i podpisuje.', 'Portfel nadawcy też podpisuje, kończy transakcję i wysyła ją do sieci.']),
-        HelpBlock.p('Coś musi więc przenosić wiadomości między portfelami. Robi to **Epicbox**: przechowuje wiadomość, gdy drugi portfel jest offline, więc oba nie muszą być online w tej samej chwili. **HTTP** i **Tor** trafiają prosto do drugiego portfela, gdy jest otwarty. **Plik transakcji** to sposób ręczny.'),
+        HelpBlock.p('Coś musi więc przenosić wiadomości między portfelami. Robi to **Epicbox**: przechowuje wiadomość, gdy drugi portfel jest offline, więc oba nie muszą być online w tej samej chwili. **Bezpośrednio · HTTP** i **Bezpośrednio · Tor** trafiają prosto do drugiego portfela, gdy jest otwarty. **Plik transakcji** to sposób ręczny.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -260,7 +260,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
             'Włącz go w [[Ustawienia › Prywatność|Settings › Privacy]]. Wiersz Tor na pasku bocznym pokazuje jego stan.',
             'Gdy Tor się uruchamia lub nie jest połączony, to, co idzie przez Tor, czeka; nic nie idzie obok. Ponów lub wyłącz Tor.',
             'Płatności bezpośrednie na adres http(s) nie idą przez Tor; Wyślij o tym informuje.',
-            'Odbieranie przez HTTP jest wyłączone, gdy Tor jest włączony: płatności prosto z innego portfela docierają na adres Tor.',
+            'Odbieranie Bezpośrednio · HTTP jest wyłączone, gdy Tor jest włączony: płatności prosto z innego portfela docierają na adres Bezpośrednio · Tor.',
             'W niektórych krajach Tor jest blokowany lub niedozwolony; tam się nie połączy.',
           ]),
           HelpBlock.p('Niektóre portfele pokazują adres bez .onion; to ten sam adres.'),
@@ -288,7 +288,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**Tor pokazuje „Brak połączenia”.** Tor nie mógł połączyć się ze swoją siecią. Naciśnij Ponów w Ustawienia › Prywatność albo wyłącz Tor; w tym czasie nic nie wychodzi.'),
         if (!phone) ...const [
-          HelpBlock.p('**„Port 3415 jest używany przez inny program”.** Inny program, często inny portfel Epic, używa tego portu do płatności HTTP. Zamknij go, potem naciśnij Spróbuj ponownie w Odbierz. Epicbox, Tor i pliki działają w tym czasie dalej.'),
+          HelpBlock.p('**„Port 3415 jest używany przez inny program”.** Inny program, często inny portfel Epic, używa tego portu do płatności Bezpośrednio · HTTP. Zamknij go, potem naciśnij Spróbuj ponownie w Odbierz. Epicbox, Bezpośrednio · Tor i pliki działają w tym czasie dalej.'),
           HelpBlock.p('**„Inny program Epic używa tego folderu”.** Inny portfel lub węzeł Epic ma otwarte te same pliki. Zamknij go i spróbuj ponownie.'),
         ],
         if (phone)

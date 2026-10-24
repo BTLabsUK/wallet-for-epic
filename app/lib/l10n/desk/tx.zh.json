@@ -71,6 +71,7 @@
   "deskTxFactMessage": "留言",
   "deskTxSignedByRecipient": "接收方已签名",
   "deskTxProofView": "查看",
+  "deskTxProofNone": "这笔付款没有付款证明。",
   "deskTxTechTitle": "技术详情",
   "deskTxTechId": "ID",
   "deskTxTechSlate": "Slate ID",
@@ -117,5 +118,11 @@
   "deskTxSendAgain": "重新发送",
   "deskTxNotSent": "未发送",
   "deskTxSentAgain": "已重新发送",
-  "deskTxSentAgainText": "收款人的钱包上线后即可完成。"
+  "deskTxSentAgainText": "收款人的钱包上线后即可完成。",
+  "deskTxStatusNotPosted": "不在网络上",
+  "deskTxNowNotPosted": "不在网络上。节点没有接受这笔付款。请重新广播；同一笔付款不会成交两次。",
+  "deskTxBroadcastAgain": "重新广播",
+  "deskTxBroadcastDone": "已发送到网络",
+  "deskTxNowUndeliveredDirect": "未送达。收款人的钱包没有接收这笔付款（{method}），对方没有收到。请重新发送，或取消以释放资金。",
+  "deskTxNowUndeliveredRelay": "未送达。{relay} 没有响应，收款人没有收到这笔付款。请重新发送，或取消以释放资金。"
 }

@@ -36,5 +36,6 @@
   "deskInvFailed": "ไม่สำเร็จ ไม่มีสิ่งใดเปลี่ยนแปลง ลองอีกครั้ง",
   "deskInvHowItWorks": "ใบแจ้งหนี้ทำงานอย่างไร",
   "deskInvAddressHint": "es…@epicbox.epiccash.com",
-  "deskInvEpicboxAddress": "ที่อยู่ Epicbox"
+  "deskInvEpicboxAddress": "ที่อยู่ Epicbox",
+  "deskInvPayStalled": "ค้างอยู่"
 }

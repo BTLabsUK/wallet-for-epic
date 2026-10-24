@@ -735,12 +735,18 @@ class UpdateNotifier extends Notifier<UpdateState> {
   ) async {
     state = UpdateState(UpdatePhase.downloading, update: update, progress: 0);
     unawaited(_notePermissionAsked(null));
-    // No User-Agent: the download says nothing about this app either.
+    // With Tor on and not connected yet, held until it is: never direct meanwhile.
+    await TorNet.untilConnected();
+    // No User-Agent: the download says nothing about this app either. Over Tor the first
+    // connection to an onion can take longer than a direct one.
     final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 15)
+      ..connectionTimeout = TorNet.mode == TorNetMode.tor
+          ? const Duration(seconds: 90)
+          : const Duration(seconds: 15)
       ..userAgent = null;
     try {
-      // Through tor while the Tor switch covers the app's requests.
+      // Through tor while the Tor switch covers the app's requests: BT Labs' servers at their
+      // onions (the signed list, then the built-in table), the rest through an exit.
       TorNet.configure(client);
       final dir = Directory(
         '${(await ref.read(updateTempDirProvider)()).path}${Platform.pathSeparator}updates',
@@ -811,7 +817,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
   static String Function(AppLocalizations l) _describe(Object error) =>
       switch (error) {
         UpdateError(:final text) => text,
-        // The APK's host has no onion, so it cannot be fetched over Tor (android-16).
+        // The APK's host is a BT Labs server without an onion: it cannot be fetched over Tor.
         SocksError(:final message) when message == SocksError.noBtLabsOnion =>
           (l) => l.updateNoTorDownload,
         SocketException() || NetError() => (l) => l.updateServerUnreachable,

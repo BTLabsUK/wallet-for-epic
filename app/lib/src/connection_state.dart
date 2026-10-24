@@ -22,6 +22,11 @@ import 'ui/status.dart';
 /// blip mends within it; a relay or node that is really gone shows after 5 s.
 const Duration statusSettle = Duration(seconds: 5);
 
+/// How long after tor came up the relay's first connection over it may take before a lost
+/// one reads as offline again (android-09): a tor just up often fails its first connection to
+/// an onion, and builds a circuit to the relay in up to about half a minute.
+const Duration torRelayGrace = Duration(seconds: 60);
+
 /// The statuses as they are this moment, from the node's tip, the refresh, the balances and
 /// the listener ([walletStatus]). The UI reads [walletStatusProvider] instead.
 final rawWalletStatusProvider = Provider<WalletStatus>((ref) {
@@ -55,6 +60,12 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
   /// Runs while the raw Epicbox status is offline and the shown one is not yet.
   Timer? _epicbox;
 
+  /// The relay's connection waited for Tor and has not been up over it since ([_heldForTor]).
+  bool _torWaited = false;
+
+  /// Runs from tor up until [torRelayGrace] while [_torWaited].
+  Timer? _torGrace;
+
   @override
   WalletStatus build() {
     // A new wallet starts over; within one, the raw status only feeds this.
@@ -62,17 +73,19 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
     ref.onDispose(() {
       _node?.cancel();
       _epicbox?.cancel();
-      _node = _epicbox = null;
+      _torGrace?.cancel();
+      _node = _epicbox = _torGrace = null;
+      _torWaited = false;
     });
     // The raw status may be rebuilt while a widget builds, when no provider may change: the
     // settled one follows a microtask later.
     ref.listen(
       rawWalletStatusProvider,
       (_, raw) => scheduleMicrotask(() {
-        if (ref.mounted) _settle(raw);
+        if (ref.mounted) _settle(_heldForTor(raw));
       }),
     );
-    final raw = ref.read(rawWalletStatusProvider);
+    final raw = _heldForTor(ref.read(rawWalletStatusProvider));
     // Nothing shown yet: what waits for the settle time starts as connecting.
     return _settle(raw, (
       node: NodeStatus(NodeState.connecting, height: raw.node.height),
@@ -98,7 +111,7 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
       _node ??= Timer(statusSettle, () {
         _node = null;
         if (!ref.mounted) return;
-        _show(node: ref.read(rawWalletStatusProvider).node);
+        _show(node: _heldForTor(ref.read(rawWalletStatusProvider)).node);
       });
     }
     if (epicbox == raw.epicbox) {
@@ -108,7 +121,7 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
       _epicbox ??= Timer(statusSettle, () {
         _epicbox = null;
         if (!ref.mounted) return;
-        _show(epicbox: ref.read(rawWalletStatusProvider).epicbox);
+        _show(epicbox: _heldForTor(ref.read(rawWalletStatusProvider)).epicbox);
       });
     }
 
@@ -116,6 +129,40 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
     if (shown == null) _logFlips(before, next);
     if (shown == null) state = next;
     return next;
+  }
+
+  /// android-09: turning Tor on, or opening a wallet with it on, drops the relay connection on
+  /// purpose, and the first connection over a tor just up often fails once. From the wait for
+  /// Tor until the relay is up over it, at most [torRelayGrace] after tor came up, a lost
+  /// connection reads as connecting, as while tor starts ([rawWalletStatusProvider]).
+  WalletStatus _heldForTor(WalletStatus raw) {
+    // The phone's Tor controller runs from Home on; the status never starts it itself.
+    final way = ref.exists(phoneTorProvider)
+        ? torWay(TorRoute.epicbox, phoneTorState(ref.read(phoneTorProvider)))
+        : null;
+    if (way == TorWay.wait) {
+      _torWaited = true;
+      _torGrace?.cancel();
+      _torGrace = null;
+      return raw;
+    }
+    if (!_torWaited) return raw;
+    if (way != TorWay.overTor ||
+        raw.epicbox == EpicboxState.online ||
+        raw.epicbox == null) {
+      _torWaited = false;
+      _torGrace?.cancel();
+      _torGrace = null;
+      return raw;
+    }
+    _torGrace ??= Timer(torRelayGrace, () {
+      _torGrace = null;
+      _torWaited = false;
+      if (ref.mounted) _settle(ref.read(rawWalletStatusProvider));
+    });
+    return raw.epicbox == EpicboxState.offline
+        ? (node: raw.node, epicbox: EpicboxState.connecting)
+        : raw;
   }
 
   void _show({NodeStatus? node, EpicboxState? epicbox}) {
@@ -171,23 +218,15 @@ const List<Duration> nodeRecheckDelays = [
   Duration(seconds: 10),
 ];
 
-/// [nodeRecheckDelays] while the Tor switch is on: after a network change tor renews its
-/// connections and builds new circuits, which took 20 to 100 s in testing (android-04), so
-/// the node is asked until about two minutes after the network came back.
-const List<Duration> torNodeRecheckDelays = [
-  Duration.zero,
-  Duration(seconds: 3),
-  Duration(seconds: 10),
-  Duration(seconds: 15),
-  Duration(seconds: 15),
-  Duration(seconds: 20),
-  Duration(seconds: 30),
-];
-
 /// Clears a stale node offline after a network change or a resume without waiting for the
 /// next minute's refresh: asks the node's tip ([nodeRecheckDelays]) and, once it answers,
 /// refreshes the balances so the ones the node could not check are checked again. Alive for
 /// the app's life (`WalletApp`); does nothing while the node reads anything but offline.
+///
+/// While the Tor switch is on the node is asked once tor has renewed its connections after
+/// the network change ([torRenewalsProvider]), whatever the node reads: the renewal closes
+/// every connection through tor, so a question asked before it fails, and one asked after it
+/// goes out on the new circuits at once (android-04).
 final nodeRecheckProvider = NotifierProvider<NodeRecheckNotifier, void>(
   NodeRecheckNotifier.new,
 );
@@ -202,19 +241,23 @@ class NodeRecheckNotifier extends Notifier<void> {
     ref.onDispose(() => _run++);
     if (session == null) return;
     final network = ref.watch(networkChangesProvider).listen((available) {
-      if (available) unawaited(recheck('network'));
+      if (available && !TorSwitch.on) unawaited(recheck('network'));
     });
     ref.onDispose(network.cancel);
+    ref.listen(torRenewalsProvider, (_, _) {
+      unawaited(recheck('tor renewed', evenOnline: true));
+    });
   }
 
   bool get _offline =>
       ref.read(rawWalletStatusProvider).node.state == NodeState.offline;
 
-  Future<void> recheck(String why) async {
-    if (ref.read(sessionProvider) == null || !_offline) return;
+  /// [evenOnline]: asks a node that reads online too.
+  Future<void> recheck(String why, {bool evenOnline = false}) async {
+    if (ref.read(sessionProvider) == null || !(evenOnline || _offline)) return;
     final run = ++_run;
     logInfo('status', 'node recheck on $why');
-    for (final delay in TorSwitch.on ? torNodeRecheckDelays : nodeRecheckDelays) {
+    for (final delay in nodeRecheckDelays) {
       if (delay > Duration.zero) await Future<void>.delayed(delay);
       if (!ref.mounted || run != _run) return;
       ref.invalidate(nodeTipProvider);

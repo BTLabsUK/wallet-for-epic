@@ -36,5 +36,6 @@
   "deskInvFailed": "To się nie udało. Nic się nie zmieniło; spróbuj ponownie.",
   "deskInvHowItWorks": "Jak działają faktury",
   "deskInvAddressHint": "es…@epicbox.epiccash.com",
-  "deskInvEpicboxAddress": "Adres Epicbox"
+  "deskInvEpicboxAddress": "Adres Epicbox",
+  "deskInvPayStalled": "Utknęło"
 }

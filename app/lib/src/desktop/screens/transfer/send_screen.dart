@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
+import '../../../known_relays.dart';
 import '../../../log.dart';
+import '../../../network.dart' show EpicboxRelay;
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -88,6 +90,7 @@ class _Draft {
     this.strategy = SelectionStrategy.smallest,
     this.defaultStrategy = SelectionStrategy.smallest,
     this.extraFee = 0,
+    this.unknownRelay,
   });
 
   final TxMethod method;
@@ -106,6 +109,10 @@ class _Draft {
   final SendOptions? options;
   final SelectionStrategy strategy;
   final SelectionStrategy defaultStrategy;
+
+  /// The recipient's Epicbox server when the app does not know it: the review warns that the
+  /// address may be mistyped (linux-14). A warning, not a block.
+  final EpicboxRelay? unknownRelay;
 
   /// What splitting the change adds to the fee.
   final int extraFee;
@@ -607,8 +614,24 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _fee = plan.estimate.fee;
       });
     }
-    final contacts = ref.read(deskProvider).contacts;
+    final st = ref.read(deskProvider);
+    final contacts = st.contacts;
     final n = _amountNano;
+    // The relay in the address, when the app knows no such server: the public list, the
+    // monitor's, and the one this wallet is on.
+    final addressRelay = _method == TxMethod.epicbox ? recipientRelay(_to.text.trim()) : null;
+    final own = st.status?.epicbox;
+    final unknownRelay =
+        addressRelay != null &&
+            !isKnownRelay(
+              addressRelay,
+              extra: [
+                for (final b in st.epicboxes ?? const <EpicboxServer>[]) EpicboxRelay(host: b.domain, port: b.port),
+                if (own != null) EpicboxRelay(host: own.domain, port: own.port),
+              ],
+            )
+        ? addressRelay
+        : null;
     _Draft draftOf(SmartSendPlan? plan) {
       final balance = ref.read(deskProvider).balance;
       return _Draft(
@@ -625,6 +648,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         strategy: _strategy,
         defaultStrategy: _prefs.strategy,
         extraFee: plan == null ? 0 : plan.estimate.fee - plan.base.fee,
+        unknownRelay: unknownRelay,
       );
     }
 
@@ -675,7 +699,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ),
     );
     if (!mounted || res == null) return;
-    if (res is SendDone) showEToast(context, context.l10n.deskSendSent, text: '${formatEpicL(context.l10n, res.tx.amount)} EPIC');
+    // Money out is gold, as its row in Activity.
+    if (res is SendDone) showEToast(context, context.l10n.deskSendSent, text: '${formatEpicL(context.l10n, res.tx.amount)} EPIC', tone: ETone.gold);
     setState(() {
       switch (res) {
         case final SendFailed failed:
@@ -1543,6 +1568,14 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
             if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
           ], labelWidth: 100.u),
+          if (d.unknownRelay case final unknown? when !_busy) ...[
+            SizedBox(height: Sp.x4),
+            ENotice(
+              tone: ETone.warn,
+              title: l.deskSendRelayUnknownTitle,
+              text: l.deskSendRelayUnknownText(unknown.label),
+            ),
+          ],
           if (_feeWas != null && !_busy) ...[
             SizedBox(height: Sp.x4),
             ENotice(

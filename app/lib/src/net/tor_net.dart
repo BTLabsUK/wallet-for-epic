@@ -118,6 +118,8 @@ OnionTarget? torBuiltInOnion(String host, int port) => switch ((host.toLowerCase
   ('node.btlabs.uk', 443) => (onion: '5drwoknehnzducfsxsl45dazaw3cwcmpx3ycamynagmcpv6aalrbrtqd.onion', port: 443, tls: true),
   ('support.btlabs.uk', 443) => (onion: 'lowiz5jnnu5vyyqc5guig3zag3k7azorbjfkcszfqwdxh3yarfei66yd.onion', port: 443, tls: true),
   ('flooepicbox.btlabs.uk', 443) => (onion: 'j2xf5rizkow5jtrdf6edotk5qam4kohavip23dqeuih5bq4yqisbz5ad.onion', port: 443, tls: true),
+  // The update downloads (only /epic-cash-wallets/downloads/); TLS for the name.
+  ('examples.btlabs.uk', 443) => (onion: 'lnuvd4uk5ks7bsrt4mxddjahup2dfl5dadiywocbhxfdqwimsahijzid.onion', port: 443, tls: true),
   // The status site's onion is plain HTTP on port 80 (the onion is the encryption).
   ('status.btlabs.uk', _) => (onion: 't6furoapbsowxp3hvmjwp223zenmauwldfv2noddih7bfuuavwyvaqad.onion', port: 80, tls: false),
   _ => null,

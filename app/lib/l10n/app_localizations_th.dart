@@ -124,6 +124,119 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txRestoredFunds => 'ยอดที่กู้คืน';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label, $row';
+  }
+
+  @override
+  String get txLabel => 'ป้ายกำกับ';
+
+  @override
+  String get txLabelAdd => 'เพิ่มป้ายกำกับ';
+
+  @override
+  String get txLabelEdit => 'แก้ไขป้ายกำกับ';
+
+  @override
+  String get txLabelHint => 'เพิ่มป้ายกำกับ';
+
+  @override
+  String get txLabelAddedNotice => 'เพิ่มป้ายกำกับแล้ว';
+
+  @override
+  String get txLabelSavedNotice => 'บันทึกป้ายกำกับแล้ว';
+
+  @override
+  String get txLabelRemovedNotice => 'ลบป้ายกำกับแล้ว';
+
+  @override
+  String get txEditAdd => 'เพิ่มรายละเอียด';
+
+  @override
+  String get txEditEdit => 'แก้ไขรายละเอียด';
+
+  @override
+  String get txEditFrom => 'จาก';
+
+  @override
+  String get txEditFromHint => 'ที่อยู่';
+
+  @override
+  String get txEditFromHelper =>
+      'ยังไม่ได้ตรวจสอบ ไม่ใช้เป็นหลักฐานการชำระเงิน';
+
+  @override
+  String get txMethodUnknown => 'ไม่ทราบ';
+
+  @override
+  String get txManualTag => 'คุณเพิ่มเอง';
+
+  @override
+  String txManualTip(String date) {
+    return 'คุณเพิ่มเมื่อ $date ไม่ได้มาจากบล็อกเชน';
+  }
+
+  @override
+  String get txManualTipNoDate => 'คุณเพิ่มเอง ไม่ได้มาจากบล็อกเชน';
+
+  @override
+  String txManualTipFrom(String date) {
+    return 'คุณเพิ่มเมื่อ $date ไม่ได้มาจากบล็อกเชน ยังไม่ได้ตรวจสอบ';
+  }
+
+  @override
+  String get txManualTipFromNoDate =>
+      'คุณเพิ่มเอง ไม่ได้มาจากบล็อกเชน ยังไม่ได้ตรวจสอบ';
+
+  @override
+  String get txEditAddedNotice => 'เพิ่มรายละเอียดแล้ว';
+
+  @override
+  String get txEditSavedNotice => 'บันทึกรายละเอียดแล้ว';
+
+  @override
+  String get txEditRemovedNotice => 'ลบรายละเอียดแล้ว';
+
+  @override
+  String get histConflictTitle => 'รายละเอียดไม่ตรงกัน';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'ข้อมูลสำรองมีรายละเอียดต่างจากที่คุณระบุไว้ใน $n รายการ ระบบจะใช้ของคุณ เว้นแต่คุณเลือกอย่างอื่น',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => 'ของฉัน';
+
+  @override
+  String get histConflictBackup => 'ข้อมูลสำรอง';
+
+  @override
+  String get histConflictKeepAll => 'เก็บของฉันทั้งหมด';
+
+  @override
+  String get histConflictImport => 'นำเข้า';
+
+  @override
+  String get histConflictEmpty => 'ว่าง';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'แทนที่ $n รายละเอียด ส่วนที่เหลือยังเป็นของคุณ',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => 'รายการส่งออก';
 
   @override
@@ -3025,8 +3138,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ซอฟต์แวร์โอเพนซอร์สในกระเป๋านี้ แต่ละส่วนใช้สัญญาอนุญาตของตนเอง ดูข้อความเต็มได้ในแตะเดียว';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile โดย BT Labs: Apache-2.0 โค้ดอยู่บน GitHub';
+  String get licencesApp => 'Epic Cash Mobile โดย BT Labs: Apache-2.0';
 
   @override
   String get licencesFlutter =>
@@ -3369,7 +3481,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendNodeDown => 'เชื่อมต่อเครือข่ายไม่ได้ในขณะนี้';
 
   @override
-  String get sendRelayDown => 'เซิร์ฟเวอร์ของผู้รับไม่ตอบสนอง';
+  String sendRelayDown(String relay) {
+    return 'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่ตอบสนอง';
+  }
 
   @override
   String get sendListenerDown => 'ยังไม่ได้เชื่อมต่อ แต่ยังส่งได้';
@@ -3518,19 +3632,20 @@ class AppLocalizationsTh extends AppLocalizations {
   String get handshakeNext => 'ขั้นตอนถัดไป';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'เซิร์ฟเวอร์ของผู้รับไม่รับรายการ จำนวนเงินจะถูกพักไว้จนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
+          'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่รับรายการ จำนวนเงินจะถูกพักไว้จนกว่าจะยกเลิก หรือไม่เกิน $days วัน',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'เซิร์ฟเวอร์ของผู้รับไม่รับรายการ ตรวจสอบหน้ากระเป๋าก่อนส่งอีกครั้ง';
+  String sendRelayRefusedLost(String relay) {
+    return 'เซิร์ฟเวอร์ของผู้รับ ($relay)ไม่รับรายการ ตรวจสอบหน้ากระเป๋าก่อนส่งอีกครั้ง';
+  }
 
   @override
   String get sendCancelAndFile => 'ยกเลิกแล้วชำระด้วยไฟล์';
@@ -4274,30 +4389,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverMyRelays => 'เซิร์ฟเวอร์ของฉัน';
 
   @override
-  String get serverRemoveRelay => 'ลบออกจากเซิร์ฟเวอร์ของฉัน';
+  String get serverMenuRemove => 'นำออกจากรายการของฉัน';
 
   @override
-  String get serverRemoveInUse =>
-      'กำลังใช้งานอยู่ เปลี่ยนไปใช้เซิร์ฟเวอร์อื่นก่อน';
+  String get serverMenuDelete => 'ลบ';
 
   @override
-  String get serverRemoveRelayTitle => 'ลบเซิร์ฟเวอร์นี้ไหม?';
-
-  @override
-  String get serverRemoveNodeTitle => 'ลบโหนดนี้ไหม?';
-
-  @override
-  String serverRemoveBodyPublic(String host) {
-    return '$host จะถูกลบออกจากรายการของฉัน เลือกจากรายการสาธารณะเพื่อใช้อีกครั้ง';
+  String settingsStateTor(String state) {
+    return 'Tor $state';
   }
 
   @override
-  String serverRemoveBodyCustom(String host) {
-    return '$host จะถูกลบออกจากรายการของฉัน หากต้องการใช้ ให้พิมพ์ใหม่';
-  }
-
-  @override
-  String get serverRemoveConfirm => 'ลบ';
+  String get serverRemoveInUse => 'กำลังใช้งานอยู่ เลือกเซิร์ฟเวอร์อื่นก่อน';
 
   @override
   String get serverSupportsNotifications => 'รองรับการแจ้งเตือน';
@@ -4377,12 +4480,6 @@ class AppLocalizationsTh extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get serverAddMine => 'เพิ่มในโหนดของฉัน';
-
-  @override
-  String get serverRemoveMine => 'ลบออกจากโหนดของฉัน';
 
   @override
   String get serverNotResponding => 'ไม่ตอบสนอง';
@@ -4498,10 +4595,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodHttp => 'HTTP';
+  String get methodDirectHttp => 'ส่งตรง · HTTP';
 
   @override
-  String get methodTor => 'Tor';
+  String get methodDirectTor => 'ส่งตรง · Tor';
 
   @override
   String get methodFile => 'ไฟล์';
@@ -5274,11 +5371,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      'มีการชำระสำหรับใบแจ้งหนี้ที่อุปกรณ์นี้ไม่ได้ออก และถูกปฏิเสธ หากอุปกรณ์อื่นที่มีกระเป๋านี้เป็นผู้ออก ให้ขอผู้ชำระยกเลิกแล้วชำระใหม่';
+      'มีการชำระเงินสำหรับใบแจ้งหนี้ที่อุปกรณ์นี้ไม่ได้ออกเข้ามา ระบบจะเก็บไว้บนรีเลย์หนึ่งวันสำหรับอุปกรณ์อีกเครื่องของคุณที่ใช้กระเป๋านี้ เปิดกระเป๋าที่เครื่องนั้นเพื่อทำให้เสร็จ';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      'มีคำตอบสำหรับรายการที่อุปกรณ์นี้ไม่ได้ส่ง และถูกปฏิเสธ หากอุปกรณ์อื่นที่มีกระเป๋านี้เป็นผู้ส่ง ให้ยกเลิกที่อุปกรณ์นั้นแล้วส่งใหม่';
+      'มีคำตอบของการชำระเงินที่อุปกรณ์นี้ไม่ได้ส่งเข้ามา ระบบจะเก็บไว้บนรีเลย์หนึ่งวันสำหรับอุปกรณ์อีกเครื่องของคุณที่ใช้กระเป๋านี้ เปิดกระเป๋าที่เครื่องนั้นเพื่อทำให้เสร็จ';
 
   @override
   String get deskInvPayerWaitingHead => 'รอคุณตอบ';
@@ -6783,7 +6880,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เวลาอ่านให้กัน ให้เทียบ 6 ตัวแรกและ 6 ตัวสุดท้าย';
 
   @override
-  String get deskRecvHttpAddress => 'ที่อยู่ HTTP';
+  String get deskRecvHttpAddress => 'ส่งตรง · ที่อยู่ HTTP';
 
   @override
   String get deskRecvCopyHttp => 'คัดลอกที่อยู่ HTTP';
@@ -6806,14 +6903,14 @@ class AppLocalizationsTh extends AppLocalizations {
       'เปิด Tor ที่ การตั้งค่า › ความเป็นส่วนตัว เพื่อใช้ที่อยู่ Tor แทน';
 
   @override
-  String get deskRecvDirectTor => 'ส่งตรง, ที่อยู่ Tor';
+  String get deskRecvDirectTor => 'ส่งตรง · ที่อยู่ Tor';
 
   @override
   String get deskRecvTorIntro =>
       'ตรงจากกระเป๋าเงินอื่นผ่าน Tor ขณะที่กระเป๋าเงินนี้เปิดอยู่ ตั้งค่า Tor ได้ที่ การตั้งค่า › ความเป็นส่วนตัว';
 
   @override
-  String get deskRecvTorAddress => 'ที่อยู่ Tor';
+  String get deskRecvTorAddress => 'ส่งตรง · ที่อยู่ Tor';
 
   @override
   String get deskRecvCopyTor => 'คัดลอกที่อยู่ Tor';
@@ -7374,11 +7471,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendViaEpicbox => 'Epicbox (ผู้รับออฟไลน์อยู่ก็ได้)';
 
   @override
-  String get deskSendViaDirect => 'ส่งตรง (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
+  String get deskSendViaDirect =>
+      'ส่งตรง · HTTP (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
 
   @override
   String get deskSendViaTor =>
-      'ส่งตรง ผ่าน Tor (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
+      'ส่งตรง · Tor (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
 
   @override
   String get deskSendViaFile => 'ไฟล์ธุรกรรม';
@@ -7857,10 +7955,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskConAddrEpicbox => 'ที่อยู่ Epicbox';
 
   @override
-  String get deskConAddrTor => 'ที่อยู่ Tor';
+  String get deskConAddrTor => 'ส่งตรง · ที่อยู่ Tor';
 
   @override
-  String get deskConAddrHttp => 'ที่อยู่ HTTP';
+  String get deskConAddrHttp => 'ส่งตรง · ที่อยู่ HTTP';
 
   @override
   String get deskConNote => 'บันทึก';
@@ -9852,7 +9950,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'เปิดการรับผ่าน HTTP';
+  String get deskRailOpenHttp => 'เปิดการรับ: ส่งตรง · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'ไม่มีในรุ่นนี้';
@@ -9994,7 +10092,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTourReceiveText =>
-      'ที่อยู่ Epicbox ของกระเป๋าเงินนี้ มี HTTP และ Tor อยู่ข้าง ๆ ไฟล์ธุรกรรมที่ต้องลงนามหรือทำให้เสร็จอยู่ด้านล่าง';
+      'ที่อยู่ Epicbox ของกระเป๋าเงินนี้ มี ส่งตรง · HTTP และ ส่งตรง · Tor อยู่ข้าง ๆ ไฟล์ธุรกรรมที่ต้องลงนามหรือทำให้เสร็จอยู่ด้านล่าง';
 
   @override
   String get deskTourInvoicesTitle => 'ใบแจ้งหนี้';
@@ -10015,7 +10113,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'ที่อยู่ที่บันทึกไว้ตามชื่อ: Epicbox, HTTP หรือ Tor หน้า ส่ง เลือกจากที่นี่';
+      'ที่อยู่ที่บันทึกไว้ตามชื่อ: Epicbox, ส่งตรง · HTTP หรือ ส่งตรง · Tor หน้า ส่ง เลือกจากที่นี่';
 
   @override
   String get deskTourNodeTitle => 'การตั้งค่า › โหนด';
@@ -10130,11 +10228,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'HTTP: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ซึ่งต้องเปิดอยู่';
+      'ส่งตรง · HTTP: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ซึ่งต้องเปิดอยู่';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Tor: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ผ่านเครือข่าย Tor';
+      'ส่งตรง · Tor: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ผ่านเครือข่าย Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -12312,7 +12410,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที';
 
   @override
-  String get deskSetRecvHttpTitle => 'รับผ่าน HTTP';
+  String get deskSetRecvHttpTitle => 'ส่งตรง · HTTP: การรับ';
 
   @override
   String get deskSetRecvHttpText =>
@@ -12820,7 +12918,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop โดย BT Labs: Apache-2.0 โค้ดอยู่บน GitHub';
+      'Epic Cash Desktop โดย BT Labs: Apache-2.0';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'เปิดเบราว์เซอร์ไม่ได้';
@@ -13182,4 +13280,246 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'การส่งจะใช้เอาต์พุตใด เล็กสุด ใช้เอาต์พุตเล็กให้น้อยที่สุดและเหลือส่วนอื่นไว้ใช้ได้ ทั้งหมด ใช้ทุกเอาต์พุตและคืนเป็นเอาต์พุตเดียว หน้า ส่ง เปลี่ยนได้เฉพาะครั้งนั้นใต้ ขั้นสูง';
+
+  @override
+  String get txStatusNotPosted => 'ไม่อยู่ในเครือข่าย';
+
+  @override
+  String get txStatusStalled => 'ค้างอยู่';
+
+  @override
+  String get txDetailsStalledBody =>
+      'ค้างอยู่ ส่งไม่ถึง รายการชำระของคุณยังไม่เข้าสู่เครือข่าย ส่งอีกครั้ง';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      'รายการนี้ไปไม่ถึงกระเป๋าเงินของผู้รับ ผู้รับจึงยังไม่ได้รับ เงินของคุณจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service ยังไม่ได้เผยแพร่รายการชำระของคุณ';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => 'ไม่อยู่ในเครือข่าย';
+
+  @override
+  String get deskTxNowNotPosted =>
+      'ไม่อยู่ในเครือข่าย โหนดไม่รับรายการนี้ กระจายอีกครั้งได้ รายการเดียวกันจะไม่ผ่านซ้ำสองครั้ง';
+
+  @override
+  String get deskTxBroadcastAgain => 'กระจายอีกครั้ง';
+
+  @override
+  String get deskTxBroadcastDone => 'ส่งเข้าเครือข่ายแล้ว';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return 'ส่งไม่ถึง กระเป๋าเงินของผู้รับไม่รับรายการนี้ ($method) ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน';
+  }
+
+  @override
+  String get deskInvPayStalled => 'ค้างอยู่';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return 'รายการชำระให้ $service ค้างอยู่';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      'ส่งไม่ถึง รายการยังไม่เข้าสู่เครือข่าย และเงินยังถูกล็อกอยู่ ส่งอีกครั้งจะส่งซ้ำโดยไม่ต้องอนุมัติอีก';
+
+  @override
+  String get deskTxLabelAdd => 'เพิ่มป้ายกำกับ';
+
+  @override
+  String get deskTxLabelEdit => 'แก้ไขป้ายกำกับ';
+
+  @override
+  String get deskTxLabelHint => 'เพิ่มป้ายกำกับ';
+
+  @override
+  String get deskTxLabelField => 'ป้ายกำกับ';
+
+  @override
+  String get deskTxLabelTip =>
+      'ชื่อของรายการนี้ไว้ให้คุณเอง แสดงในกิจกรรมและในไฟล์ที่ส่งออก';
+
+  @override
+  String get deskTxLabelAdded => 'เพิ่มป้ายกำกับแล้ว';
+
+  @override
+  String get deskTxLabelSaved => 'บันทึกป้ายกำกับแล้ว';
+
+  @override
+  String get deskTxLabelRemoved => 'ลบป้ายกำกับแล้ว';
+
+  @override
+  String get deskTxLabelNotSaved => 'ไม่ได้บันทึกป้ายกำกับ';
+
+  @override
+  String get deskTxDetailsAdd => 'เพิ่มรายละเอียด';
+
+  @override
+  String get deskTxDetailsEdit => 'แก้ไข';
+
+  @override
+  String get deskTxDetailsTitleAdd => 'เพิ่มรายละเอียด';
+
+  @override
+  String get deskTxDetailsTitleEdit => 'แก้ไขรายละเอียด';
+
+  @override
+  String get deskTxDetailsTip =>
+      'ใช้ได้เฉพาะรายการที่พบจากการสแกน จะแสดงว่าคุณเพิ่มเองในกิจกรรม รายละเอียด และไฟล์ที่ส่งออก ยอดเงิน วันที่ และการยืนยันจะไม่เปลี่ยน';
+
+  @override
+  String get deskTxDetailsFrom => 'จาก';
+
+  @override
+  String get deskTxDetailsFromTip =>
+      'ผู้จ่ายเงิน ไว้เป็นบันทึกของคุณ ไม่ได้ตรวจสอบ และไม่ใช้ในหลักฐานการชำระเงิน';
+
+  @override
+  String get deskTxDetailsFromHint => 'ที่อยู่ของผู้ส่ง';
+
+  @override
+  String get deskTxDetailsFromBad => 'ใช้ที่อยู่ Epicbox, http(s) หรือ .onion';
+
+  @override
+  String get deskTxDetailsNote => 'บันทึก';
+
+  @override
+  String get deskTxDetailsAdded => 'เพิ่มรายละเอียดแล้ว';
+
+  @override
+  String get deskTxDetailsSaved => 'บันทึกรายละเอียดแล้ว';
+
+  @override
+  String get deskTxDetailsRemoved => 'ลบรายละเอียดแล้ว';
+
+  @override
+  String get deskTxDetailsNotSaved => 'ไม่ได้บันทึกรายละเอียด';
+
+  @override
+  String get deskTxManualTag => 'คุณเพิ่มเอง';
+
+  @override
+  String deskTxManualTip(String date) {
+    return 'คุณเพิ่มเมื่อ $date ไม่ได้มาจากบล็อกเชน';
+  }
+
+  @override
+  String get deskTxManualTipNoDate => 'คุณเพิ่มเอง ไม่ได้มาจากบล็อกเชน';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return 'คุณเพิ่มเมื่อ $date ไม่ได้มาจากบล็อกเชน และไม่ได้ตรวจสอบ';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate =>
+      'คุณเพิ่มเอง ไม่ได้มาจากบล็อกเชน และไม่ได้ตรวจสอบ';
+
+  @override
+  String get deskHistConflictTitle => 'รายละเอียดไม่ตรงกัน';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'ข้อมูลสำรองมีรายละเอียดต่างจากที่คุณใส่ไว้ใน $n รายการ จะใช้ของคุณต่อไป เว้นแต่คุณเลือกอย่างอื่น',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => 'ของฉัน';
+
+  @override
+  String get deskHistConflictBackup => 'ข้อมูลสำรอง';
+
+  @override
+  String get deskHistConflictKeepAll => 'เก็บของฉันทั้งหมด';
+
+  @override
+  String get deskHistConflictImport => 'นำเข้า';
+
+  @override
+  String get deskHistConflictEmpty => 'ว่าง';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'แทนที่รายละเอียด $n รายการ ที่เหลือใช้ของคุณเหมือนเดิม',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return 'แอปไม่รู้จักเซิร์ฟเวอร์ $relay ตรวจสอบที่อยู่ก่อนส่ง';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay ไม่ตอบสนอง';
+  }
+
+  @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay ไม่ตอบสนอง ผู้รับจึงยังไม่ได้รับการชำระเงินนี้ เงินของคุณจะถูกล็อกไว้จนกว่าจะส่งอีกครั้งหรือยกเลิก';
+  }
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'ส่งไม่ถึง: $relay ไม่ตอบสนอง รายการรออยู่ในประวัติ ยกเลิกที่นั่นเพื่อปลดล็อกยอดเงิน';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay ไม่ตอบสนอง';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'ไม่รู้จักเซิร์ฟเวอร์ Epicbox';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return 'แอปไม่รู้จักเซิร์ฟเวอร์ $relay ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'ส่งไม่ถึง $relay ไม่ตอบสนอง ผู้รับจึงยังไม่ได้รับรายการนี้ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน';
+  }
+
+  @override
+  String get deskInvNoticeReceiveSuperseded =>
+      'อุปกรณ์อีกเครื่องของคุณที่ใช้กระเป๋านี้รับการชำระเงินที่อุปกรณ์นี้กำลังรับอยู่ด้วยไปแล้ว ใช้ “ตรวจยอดใหม่” เพื่อดูที่นี่';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'ประวัติของกระเป๋าเงินเก่ามีรายละเอียดต่างจากที่คุณใส่ไว้ใน $n รายการ ระบบจะเก็บของคุณไว้ เว้นแต่คุณเลือกอย่างอื่น',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => 'กระเป๋าเงินเก่า';
+
+  @override
+  String get deskHistConflictApply => 'ใช้';
+
+  @override
+  String get deskTxProofNone => 'การชำระเงินนี้ไม่มีหลักฐานการชำระเงิน';
 }

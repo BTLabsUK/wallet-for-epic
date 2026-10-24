@@ -217,7 +217,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
                   ? null
                   : () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => const SetupScreen(),
+                        builder: (_) => const SetupScreen(locked: true),
                       ),
                     ),
             ),

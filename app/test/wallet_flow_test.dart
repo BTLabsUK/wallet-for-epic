@@ -663,6 +663,8 @@ void main() {
       await _tap(tester, find.byKey(const ValueKey('tx-s:b')));
       // No address was recorded, so this is a send by transaction file.
       expect(find.textContaining('their transaction file'), findsOneWidget);
+      // The label tile above the rows pushes the fee below a short screen's first page.
+      await _reveal(tester, find.text('Fee'));
       expect(find.text('Fee'), findsOneWidget);
       expect(find.text('0.008 EPIC'), findsOneWidget);
       final cancel = find.widgetWithText(OutlinedButton, 'Cancel payment');

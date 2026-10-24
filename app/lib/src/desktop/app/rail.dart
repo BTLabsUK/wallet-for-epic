@@ -94,7 +94,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
     items.add(
       RailItem(
         icon: EIcons.http,
-        name: 'HTTP',
+        name: l.methodDirectHttp,
         word: switch (run) {
           HttpRun.on => l.deskRailOn,
           HttpRun.busy => l.deskRailStarting,

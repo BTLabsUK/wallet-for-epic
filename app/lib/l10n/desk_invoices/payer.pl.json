@@ -68,5 +68,7 @@
   "deskInvPayerSpentText": "Twoje środki są odblokowane i przeniesione w obrębie tego portfela. Anulowanie jest ostateczne.",
   "deskInvPayerSpendFailedText": "Twoje środki są odblokowane, ale przeniesienie się nie udało. Anulowanie nie jest jeszcze ostateczne.",
   "deskInvPayerLocked": "Tej faktury nie można zapłacić: jest zablokowana do późniejszego bloku. Nic nie zostało zapłacone.",
-  "deskInvPayerRelayDownPay": "Serwer Epicbox nie odpowiada. Nic nie zostało zapłacone."
+  "deskInvPayerRelayDownPay": "Serwer Epicbox nie odpowiada. Nic nie zostało zapłacone.",
+  "deskInvPayerStalledTitle": "Twoja płatność dla {service} utknęła",
+  "deskInvPayerStalledText": "Nie dostarczono: płatność jeszcze nie dotarła do sieci, a środki pozostają zablokowane. Wyślij ponownie wysyła ją jeszcze raz bez drugiej zgody."
 }

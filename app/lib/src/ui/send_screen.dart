@@ -30,6 +30,7 @@ import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'help_screen.dart';
+import 'method_names.dart';
 import 'method_strip.dart';
 import 'pin.dart' show askPin;
 import 'scan_screen.dart';
@@ -145,6 +146,9 @@ const Key sendReplyFieldKey = ValueKey('send-reply-field');
 
 /// Try again and Cancel payment on the review after a failed Tor send, for tests.
 const Key sendTryAgainKey = ValueKey('send-try-again');
+
+/// The warning that the recipient's relay is not one the app knows, for tests.
+const Key sendUnknownRelayKey = ValueKey('send-unknown-relay');
 const Key sendCancelPaymentKey = ValueKey('send-cancel-payment');
 
 /// Send's method selector, and the tag beside the To label after the method followed the
@@ -2093,11 +2097,13 @@ class _SendViewState extends ConsumerState<SendView> {
             )
           : l.sendTorNotReached(sendTtlDays);
     } else {
+      // The relay is named: a mistyped domain is the usual reason it never answers.
+      final relayName = _relay?.label ?? '';
       failed = _nothingStored
-          ? l.sendRelayDown
+          ? l.sendRelayDown(relayName)
           : _undelivered == null
-          ? l.sendRelayRefusedLost
-          : l.sendRelayRefused(sendTtlDays);
+          ? l.sendRelayRefusedLost(relayName)
+          : l.sendRelayRefused(sendTtlDays, relayName);
     }
     return [
       // After a failed send the payment exists: no way back to send it again.
@@ -2121,13 +2127,11 @@ class _SendViewState extends ConsumerState<SendView> {
         label: l.sendMethodLabel,
         value: switch (to.kind) {
           RecipientKind.epicbox when way == TorWay.overTor =>
-            '${l.methodEpicbox} · ${l.sendOverTor}',
-          RecipientKind.epicbox => l.methodEpicbox,
+            '${recipientMethodWord(l, to.kind)} · ${l.sendOverTor}',
           RecipientKind.http
               when way == TorWay.clearnet && torState != TorState.off =>
-            '${l.methodDirect} · ${l.torNotOverTor}',
-          RecipientKind.http => l.methodDirect,
-          RecipientKind.tor => '${l.methodDirect} · ${l.sendOverTor}',
+            '${recipientMethodWord(l, to.kind)} · ${l.torNotOverTor}',
+          _ => recipientMethodWord(l, to.kind),
         },
         mono: false,
       ),
@@ -2176,6 +2180,19 @@ class _SendViewState extends ConsumerState<SendView> {
         http: overHttp,
         way: way,
       ),
+      // An address whose relay the app does not know may be mistyped: a warning, not a block.
+      if (checks.unknownRelay case final unknown? when !_sendFailed) ...[
+        const SizedBox(height: 8),
+        Row(
+          key: sendUnknownRelayKey,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.warning_amber, size: 18, color: t.warn),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l.sendRelayUnknown(unknown.label))),
+          ],
+        ),
+      ],
       const SizedBox(height: 4),
       Text(
         to.kind == RecipientKind.epicbox
@@ -3111,7 +3128,7 @@ class _ReadyLine extends ConsumerWidget {
       ),
       _ when relayDown => (
         Icon(Icons.warning_amber, size: 18, color: t.warn),
-        l.sendRelayDown,
+        l.sendRelayDown(checks.relay?.label ?? ''),
         t.text,
         null,
       ),

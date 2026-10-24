@@ -125,6 +125,120 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txRestoredFunds => 'Restored funds';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label, $row';
+  }
+
+  @override
+  String get txLabel => 'Label';
+
+  @override
+  String get txLabelAdd => 'Add label';
+
+  @override
+  String get txLabelEdit => 'Edit label';
+
+  @override
+  String get txLabelHint => 'Add label';
+
+  @override
+  String get txLabelAddedNotice => 'Label added';
+
+  @override
+  String get txLabelSavedNotice => 'Label saved';
+
+  @override
+  String get txLabelRemovedNotice => 'Label removed';
+
+  @override
+  String get txEditAdd => 'Add details';
+
+  @override
+  String get txEditEdit => 'Edit details';
+
+  @override
+  String get txEditFrom => 'From';
+
+  @override
+  String get txEditFromHint => 'Address';
+
+  @override
+  String get txEditFromHelper => 'Not verified. Never used for payment proofs.';
+
+  @override
+  String get txMethodUnknown => 'Unknown';
+
+  @override
+  String get txManualTag => 'Added by you';
+
+  @override
+  String txManualTip(String date) {
+    return 'Added by you on $date. Not from the chain.';
+  }
+
+  @override
+  String get txManualTipNoDate => 'Added by you. Not from the chain.';
+
+  @override
+  String txManualTipFrom(String date) {
+    return 'Added by you on $date. Not from the chain, not verified.';
+  }
+
+  @override
+  String get txManualTipFromNoDate =>
+      'Added by you. Not from the chain, not verified.';
+
+  @override
+  String get txEditAddedNotice => 'Details added';
+
+  @override
+  String get txEditSavedNotice => 'Details saved';
+
+  @override
+  String get txEditRemovedNotice => 'Details removed';
+
+  @override
+  String get histConflictTitle => 'Details differ';
+
+  @override
+  String histConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'The backup has other details for $n payments you described. Yours are kept unless you choose otherwise.',
+      one: 'The backup has other details for 1 payment you described. Yours are kept unless you choose otherwise.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get histConflictMine => 'Mine';
+
+  @override
+  String get histConflictBackup => 'Backup';
+
+  @override
+  String get histConflictKeepAll => 'Keep all mine';
+
+  @override
+  String get histConflictImport => 'Import';
+
+  @override
+  String get histConflictEmpty => 'empty';
+
+  @override
+  String histImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n details replaced, the rest kept as yours.',
+      one: '1 detail replaced, the rest kept as yours.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txOutgoingPayment => 'Outgoing payment';
 
   @override
@@ -3107,8 +3221,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Open-source software in this wallet. Each component keeps its own licence; the full texts are one tap away.';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.';
+  String get licencesApp => 'Epic Cash Mobile by BT Labs: Apache-2.0.';
 
   @override
   String get licencesFlutter =>
@@ -3456,7 +3569,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendNodeDown => 'Can\'t reach the network right now.';
 
   @override
-  String get sendRelayDown => 'Their relay isn\'t answering.';
+  String sendRelayDown(String relay) {
+    return 'Their relay ($relay) isn\'t answering.';
+  }
 
   @override
   String get sendListenerDown => 'Not connected yet. You can still send.';
@@ -3604,20 +3719,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get handshakeNext => 'Next step';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
       other:
-          'Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most $days days.',
-      one: 'Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.',
+          'Their relay ($relay) didn\'t take it. The amount is on hold until you cancel it, or for at most $days days.',
+      one:
+          'Their relay ($relay) didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost =>
-      'Their relay didn\'t take it. Check Wallet before you send again.';
+  String sendRelayRefusedLost(String relay) {
+    return 'Their relay ($relay) didn\'t take it. Check Wallet before you send again.';
+  }
 
   @override
   String get sendCancelAndFile => 'Cancel and pay with a file';
@@ -4370,29 +4487,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverMyRelays => 'My servers';
 
   @override
-  String get serverRemoveRelay => 'Remove from my servers';
+  String get serverMenuRemove => 'Remove from my list';
 
   @override
-  String get serverRemoveInUse => 'In use. Switch to another server first.';
+  String get serverMenuDelete => 'Delete';
 
   @override
-  String get serverRemoveRelayTitle => 'Remove this server?';
-
-  @override
-  String get serverRemoveNodeTitle => 'Remove this node?';
-
-  @override
-  String serverRemoveBodyPublic(String host) {
-    return '$host leaves my list. Select it from the public list to use it again.';
+  String settingsStateTor(String state) {
+    return 'Tor $state';
   }
 
   @override
-  String serverRemoveBodyCustom(String host) {
-    return '$host leaves my list. Type it in again to use it.';
-  }
-
-  @override
-  String get serverRemoveConfirm => 'Remove';
+  String get serverRemoveInUse => 'In use. Pick another server first.';
 
   @override
   String get serverSupportsNotifications => 'Supports notifications';
@@ -4473,12 +4579,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get serverAddMine => 'Add to my nodes';
-
-  @override
-  String get serverRemoveMine => 'Remove from my nodes';
 
   @override
   String get serverNotResponding => 'Not responding';
@@ -4597,10 +4697,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodHttp => 'HTTP';
+  String get methodDirectHttp => 'Direct · HTTP';
 
   @override
-  String get methodTor => 'Tor';
+  String get methodDirectTor => 'Direct · Tor';
 
   @override
   String get methodFile => 'File';
@@ -5383,11 +5483,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      'A payment for an invoice this device did not issue arrived and was refused. If another device with this wallet issued it, ask the payer to cancel and pay again.';
+      'A payment for an invoice this device did not issue arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      'An answer to a payment this device did not send arrived and was refused. If another device with this wallet sent it, cancel it there and send again.';
+      'An answer to a payment this device did not send arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.';
 
   @override
   String get deskInvPayerWaitingHead => 'Waiting for you';
@@ -6915,7 +7015,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'When reading it out, check the first six and last six characters.';
 
   @override
-  String get deskRecvHttpAddress => 'HTTP address';
+  String get deskRecvHttpAddress => 'Direct · HTTP address';
 
   @override
   String get deskRecvCopyHttp => 'Copy HTTP address';
@@ -6938,14 +7038,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Turn on Tor in Settings › Privacy for a Tor address instead.';
 
   @override
-  String get deskRecvDirectTor => 'Direct, Tor address';
+  String get deskRecvDirectTor => 'Direct · Tor address';
 
   @override
   String get deskRecvTorIntro =>
       'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.';
 
   @override
-  String get deskRecvTorAddress => 'Tor address';
+  String get deskRecvTorAddress => 'Direct · Tor address';
 
   @override
   String get deskRecvCopyTor => 'Copy Tor address';
@@ -7526,10 +7626,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendViaEpicbox => 'Epicbox (the recipient can be offline)';
 
   @override
-  String get deskSendViaDirect => 'Direct (their wallet must be open)';
+  String get deskSendViaDirect => 'Direct · HTTP (their wallet must be open)';
 
   @override
-  String get deskSendViaTor => 'Direct, over Tor (their wallet must be open)';
+  String get deskSendViaTor => 'Direct · Tor (their wallet must be open)';
 
   @override
   String get deskSendViaFile => 'Transaction file';
@@ -8014,10 +8114,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskConAddrEpicbox => 'Epicbox address';
 
   @override
-  String get deskConAddrTor => 'Tor address';
+  String get deskConAddrTor => 'Direct · Tor address';
 
   @override
-  String get deskConAddrHttp => 'HTTP address';
+  String get deskConAddrHttp => 'Direct · HTTP address';
 
   @override
   String get deskConNote => 'Note';
@@ -10060,7 +10160,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Open HTTP receiving';
+  String get deskRailOpenHttp => 'Open Direct · HTTP receiving';
 
   @override
   String get deskRailTorNotInBuild => 'Not in this build';
@@ -10203,7 +10303,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTourReceiveText =>
-      'This wallet’s Epicbox address, with HTTP and Tor beside it. Transaction files to sign or finalize are at the bottom.';
+      'This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.';
 
   @override
   String get deskTourInvoicesTitle => 'Invoices';
@@ -10224,7 +10324,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'Saved addresses by name: Epicbox, HTTP or Tor. Send picks from here.';
+      'Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.';
 
   @override
   String get deskTourNodeTitle => 'Settings › Node';
@@ -10341,11 +10441,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'HTTP: the payment goes straight to the recipient\'s wallet, which must be open';
+      'Direct · HTTP: the payment goes straight to the recipient\'s wallet, which must be open';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network';
+      'Direct · Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -12554,7 +12654,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'State from status.btlabs.uk, checked every few minutes.';
 
   @override
-  String get deskSetRecvHttpTitle => 'HTTP receiving';
+  String get deskSetRecvHttpTitle => 'Direct · HTTP receiving';
 
   @override
   String get deskSetRecvHttpText =>
@@ -13066,7 +13166,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.';
+      'Epic Cash Desktop by BT Labs: Apache-2.0.';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'Browser not opened';
@@ -13437,4 +13537,252 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskOutStrategyHint =>
       'Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.';
+
+  @override
+  String get txStatusNotPosted => 'Not on the network';
+
+  @override
+  String get txStatusStalled => 'Stalled';
+
+  @override
+  String get txDetailsStalledBody =>
+      'Stalled, not delivered. Your payment has not reached the network yet. Send it again.';
+
+  @override
+  String get txDetailsNotDeliveredDirectBody =>
+      'This payment did not reach the recipient\'s wallet, so they have not received it. Your funds stay locked until it is sent again or cancelled.';
+
+  @override
+  String invoiceDetailsStalled(String service) {
+    return '$service has not posted your payment yet.';
+  }
+
+  @override
+  String get deskTxStatusNotPosted => 'Not on the network';
+
+  @override
+  String get deskTxNowNotPosted =>
+      'Not on the network. The node did not take this payment. Broadcast it again; it cannot go through twice.';
+
+  @override
+  String get deskTxBroadcastAgain => 'Broadcast again';
+
+  @override
+  String get deskTxBroadcastDone => 'Sent to the network';
+
+  @override
+  String deskTxNowUndeliveredDirect(String method) {
+    return 'Not delivered. The recipient\'s wallet did not take the payment ($method), so they have not received it. Send it again, or cancel it to free the funds.';
+  }
+
+  @override
+  String get deskInvPayStalled => 'Stalled';
+
+  @override
+  String deskInvPayerStalledTitle(String service) {
+    return 'Your payment to $service is stalled';
+  }
+
+  @override
+  String get deskInvPayerStalledText =>
+      'Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.';
+
+  @override
+  String get deskTxLabelAdd => 'Add label';
+
+  @override
+  String get deskTxLabelEdit => 'Edit label';
+
+  @override
+  String get deskTxLabelHint => 'Add label';
+
+  @override
+  String get deskTxLabelField => 'Label';
+
+  @override
+  String get deskTxLabelTip =>
+      'A name for this payment, for you. Shown in Activity and exports.';
+
+  @override
+  String get deskTxLabelAdded => 'Label added';
+
+  @override
+  String get deskTxLabelSaved => 'Label saved';
+
+  @override
+  String get deskTxLabelRemoved => 'Label removed';
+
+  @override
+  String get deskTxLabelNotSaved => 'Label not saved';
+
+  @override
+  String get deskTxDetailsAdd => 'Add details';
+
+  @override
+  String get deskTxDetailsEdit => 'Edit';
+
+  @override
+  String get deskTxDetailsTitleAdd => 'Add details';
+
+  @override
+  String get deskTxDetailsTitleEdit => 'Edit details';
+
+  @override
+  String get deskTxDetailsTip =>
+      'Only for payments found by a scan. Shown as added by you in Activity, details and exports. Amounts, dates and confirmations do not change.';
+
+  @override
+  String get deskTxDetailsFrom => 'From';
+
+  @override
+  String get deskTxDetailsFromTip =>
+      'Who paid, for your records. Not verified and never used for payment proofs.';
+
+  @override
+  String get deskTxDetailsFromHint => 'Address of the sender';
+
+  @override
+  String get deskTxDetailsFromBad =>
+      'Use an Epicbox, http(s) or .onion address.';
+
+  @override
+  String get deskTxDetailsNote => 'Note';
+
+  @override
+  String get deskTxDetailsAdded => 'Details added';
+
+  @override
+  String get deskTxDetailsSaved => 'Details saved';
+
+  @override
+  String get deskTxDetailsRemoved => 'Details removed';
+
+  @override
+  String get deskTxDetailsNotSaved => 'Details not saved';
+
+  @override
+  String get deskTxManualTag => 'Added by you';
+
+  @override
+  String deskTxManualTip(String date) {
+    return 'Added by you on $date. Not from the chain.';
+  }
+
+  @override
+  String get deskTxManualTipNoDate => 'Added by you. Not from the chain.';
+
+  @override
+  String deskTxManualTipFrom(String date) {
+    return 'Added by you on $date. Not from the chain, not verified.';
+  }
+
+  @override
+  String get deskTxManualTipFromNoDate =>
+      'Added by you. Not from the chain, not verified.';
+
+  @override
+  String get deskHistConflictTitle => 'Details differ';
+
+  @override
+  String deskHistConflictLead(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'The backup has other details for $n payments you described. Yours are kept unless you choose otherwise.',
+      one:
+          'The backup has other details for $n payment you described. Yours are kept unless you choose otherwise.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictMine => 'Mine';
+
+  @override
+  String get deskHistConflictBackup => 'Backup';
+
+  @override
+  String get deskHistConflictKeepAll => 'Keep all mine';
+
+  @override
+  String get deskHistConflictImport => 'Import';
+
+  @override
+  String get deskHistConflictEmpty => 'empty';
+
+  @override
+  String deskHistImportedReplaced(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n details replaced, the rest kept as yours.',
+      one: '$n detail replaced, the rest kept as yours.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return '$relay isn\'t a server this app knows. Check the address before you send.';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay did not answer.';
+  }
+
+  @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay did not answer, so the recipient has not received this payment. Your funds stay locked until it is sent again or cancelled.';
+  }
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return 'Not delivered: $relay did not answer. The payment waits in Activity; cancel it there to unlock the funds.';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay did not answer.';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => 'Unknown Epicbox server';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return '$relay is not a server this app knows. Check the address before you send. You can still send.';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return 'Not delivered. $relay did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.';
+  }
+
+  @override
+  String get deskInvNoticeReceiveSuperseded =>
+      'Your other device with this wallet took a payment this device was also receiving. Recheck balance to see it here.';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'The old wallet\'s history has other details for $n payments you described. Yours are kept unless you choose otherwise.',
+      one:
+          'The old wallet\'s history has other details for $n payment you described. Yours are kept unless you choose otherwise.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => 'Old wallet';
+
+  @override
+  String get deskHistConflictApply => 'Apply';
+
+  @override
+  String get deskTxProofNone => 'No payment proof for this payment.';
 }

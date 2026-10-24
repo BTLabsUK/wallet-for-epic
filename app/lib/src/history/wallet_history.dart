@@ -87,6 +87,96 @@ class WalletHistory {
     });
   }
 
+  /// The keys [key]'s data may sit under: the key and every alias of its row no other row
+  /// carries.
+  List<String> _ownAliases(List<MergedTx> rows, String key) {
+    final shared = sharedAliases(rows);
+    return [
+      for (final a
+          in rows.where((m) => m.key == key).firstOrNull?.aliases ?? [key])
+        if (a == key || !shared.contains(a)) a,
+    ];
+  }
+
+  /// Takes [key]'s manual record out of [m], from under the key or an alias, so a change
+  /// stores it under the key alone. A new one when there is none.
+  static ManualRec _takeManual(Meta m, List<String> aliases) {
+    ManualRec? found;
+    for (final a in aliases) {
+      final r = m.manual.remove(a);
+      found ??= r;
+    }
+    return found ?? ManualRec();
+  }
+
+  static void _putManual(Meta m, String key, ManualRec rec) {
+    if (!rec.isEmpty) m.manual[key] = rec;
+  }
+
+  int _nowUnix(DateTime? now) =>
+      (now ?? DateTime.now()).millisecondsSinceEpoch ~/ 1000;
+
+  /// Sets or removes (null or blank) the label of the transaction with [key]. At most
+  /// [txLabelMaxLength] characters are kept.
+  Future<void> setLabel(
+    List<TxEntry> live,
+    String key,
+    String? label, {
+    DateTime? now,
+  }) {
+    var text = label?.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (text != null && text.runes.length > txLabelMaxLength) {
+      text = String.fromCharCodes(text.runes.take(txLabelMaxLength));
+    }
+    final aliases = _ownAliases(merged(live), key);
+    return _store.update((m) {
+      final rec = _takeManual(m, aliases);
+      final value = text == null || text.isEmpty ? null : text;
+      if (rec.label != value) rec.editedAtUnix = _nowUnix(now);
+      rec.label = value;
+      _putManual(m, key, rec);
+    });
+  }
+
+  /// Sets who paid, how and the note of the restored row [key]; each null or blank clears
+  /// its field. Refused for any other row: what the wallet recorded is never overwritten.
+  Future<void> setDetails(
+    List<TxEntry> live,
+    String key, {
+    String? counterparty,
+    String? transport,
+    String? note,
+    DateTime? now,
+  }) {
+    final rows = merged(live);
+    final row = rows.where((m) => m.key == key).firstOrNull;
+    if (row == null || row.source != TxSource.restored) {
+      throw _invalid('only a payment found by a scan takes details');
+    }
+    String? some(String? s) {
+      final t = s?.trim();
+      return t == null || t.isEmpty ? null : t;
+    }
+
+    final via = some(transport);
+    if (via != null && !txTransports.contains(via)) {
+      throw _invalid('unknown method $via');
+    }
+    final from = some(counterparty), text = some(note);
+    final aliases = _ownAliases(rows, key);
+    return _store.update((m) {
+      final rec = _takeManual(m, aliases);
+      final notes = [for (final a in aliases) m.notes.remove(a)];
+      final before = (rec.counterparty, rec.transport, notes.nonNulls.firstOrNull);
+      rec
+        ..counterparty = from
+        ..transport = via;
+      if (before != (from, via, text)) rec.editedAtUnix = _nowUnix(now);
+      if (text != null) m.notes[key] = text;
+      _putManual(m, key, rec);
+    });
+  }
+
   /// Address book, sorted by name.
   List<Contact> contacts() =>
       [for (final c in meta.contacts) _contact(c)]
@@ -227,7 +317,10 @@ class WalletHistory {
     lastConfirmedHeight: lastConfirmedHeight,
     txs: [
       for (final m in merged(live))
-        if (!(m.source == TxSource.restored && m.note == null)) toRecord(m),
+        if (!(m.source == TxSource.restored &&
+            m.note == null &&
+            m.manualFields.isEmpty))
+          toRecord(m),
     ],
     contacts: [for (final c in meta.contacts) ContactRec.fromJson(c.toJson())],
     serviceLabels: {...meta.serviceLabels},
@@ -236,95 +329,346 @@ class WalletHistory {
 
   /// Merges an opened history file of this wallet into the archive. A record known from an
   /// earlier import takes only what this file adds, so a second import changes nothing.
+  ///
+  /// What the user entered here (labels, notes, a restored row's sender and method) wins per
+  /// field: the file fills only empty ones. Where it has another value, the field is a
+  /// conflict. With [useBackup] null and any conflict, nothing is written and the report says
+  /// `applied: false`; with [useBackup] (by [ImportConflict.id]) true takes the file's value,
+  /// anything else keeps the user's and remembers the file's, so it never asks again.
   Future<ImportReport> importPayload(
     HistoryPayload payload,
     List<TxEntry> live, {
     required String walletFp,
-  }) {
+    Map<String, bool>? useBackup,
+    DateTime? now,
+  }) async {
     if (payload.chain != chainName(chain)) {
       throw _invalid(historyOtherChain(payload.chain, chainName(chain)));
     }
     if (payload.walletFp != walletFp) throw _invalid(historyOtherWallet);
     final shown = merged(live);
-    return _store.update((m) {
-      var merged = 0, added = 0, skipped = 0, contactsAdded = 0;
-      for (final r in payload.txs) {
-        final identified =
-            r.slateId != null ||
-            r.kernelExcess != null ||
-            r.outputCommits.isNotEmpty;
-        if (!identified) {
-          // A note on a row a scan rebuilt has no slate, kernel or commitment to match by: it
-          // goes to the one scan row of the same kind, block and amounts.
-          final key = _scanRowFor(r, shown);
-          final note = r.note?.trim();
-          if (key != null &&
-              note != null &&
-              note.isNotEmpty &&
-              !m.notes.containsKey(key)) {
-            m.notes[key] = note;
-            merged++;
-          } else {
-            skipped++;
-          }
+    final at = _nowUnix(now);
+    if (useBackup == null) {
+      final trial = _importInto(meta.copy(), payload, live, shown, null, at);
+      if (trial.conflicts.isNotEmpty) return trial;
+    }
+    return _store.update(
+      (m) => _importInto(m, payload, live, shown, useBackup ?? const {}, at),
+    );
+  }
+
+  /// The import itself, on [m]. With [useBackup] null it only finds conflicts: the report
+  /// has them, `applied: false`, and [m] is a copy to throw away.
+  ImportReport _importInto(
+    Meta m,
+    HistoryPayload payload,
+    List<TxEntry> live,
+    List<MergedTx> shown,
+    Map<String, bool>? useBackup,
+    int now,
+  ) {
+    var merged = 0, added = 0, skipped = 0, contactsAdded = 0;
+    // Records whose user fields are applied once the rows are merged with the new records,
+    // with the key of the row a record not kept in the archive goes to.
+    final userData = <(Record, String?, {bool userOnly})>[];
+    for (final r in payload.txs) {
+      final identified =
+          r.slateId != null ||
+          r.kernelExcess != null ||
+          r.outputCommits.isNotEmpty;
+      if (!identified) {
+        // A row a scan rebuilt, from a file with no commitments: it goes to the one scan row
+        // of the same kind, block and amounts.
+        userData.add((r, _scanRowFor(r, shown), userOnly: true));
+        continue;
+      }
+      // A row a scan rebuilt, found again here by its commitments: only what the user added
+      // travels; a record would turn the row into history from a backup.
+      if (r.slateId == null && r.kernelExcess == null) {
+        final row = shown
+            .where(
+              (t) =>
+                  t.source == TxSource.restored &&
+                  t.outputCommits.any(r.outputCommits.contains),
+            )
+            .firstOrNull;
+        if (row != null) {
+          userData.add((r, row.key, userOnly: true));
           continue;
         }
-        r.exportedAtUnix = payload.exportedAtUnix;
-        final existing = m.records.where((e) => e.sameTx(r)).firstOrNull;
-        if (existing != null) {
-          // Known from an earlier import: take what this file adds.
-          if (existing.mergeFrom(r)) {
-            merged++;
-          } else {
-            skipped++;
-          }
-          continue;
-        }
-        final isLive = shown.any((t) => t.id != null && recordMatches(r, t));
-        if (isLive) {
+      }
+      r.exportedAtUnix = payload.exportedAtUnix;
+      userData.add((r, null, userOnly: false));
+      final existing = m.records.where((e) => e.sameTx(r)).firstOrNull;
+      if (existing != null) {
+        // Known from an earlier import: take what this file adds.
+        if (existing.mergeFrom(r)) {
           merged++;
         } else {
-          added++;
+          skipped++;
         }
-        m.records.add(r.copy());
+        continue;
       }
-      // A label set here wins over the file's; the index only moves forward, so an older
-      // file never brings back an abandoned invoice address.
-      payload.serviceLabels.forEach((a, l) {
-        final address = a.trim(), label = l.trim();
-        if (address.isNotEmpty && label.isNotEmpty) {
-          m.serviceLabels.putIfAbsent(address, () => label);
+      final isLive = shown.any((t) => t.id != null && recordMatches(r, t));
+      if (isLive) {
+        merged++;
+      } else {
+        added++;
+      }
+      m.records.add(r.withoutUserFields());
+    }
+
+    // The rows as they will show, so a record's user data lands on the row it now describes.
+    final rows = mergeHistory(live, m);
+    final shared = sharedAliases(rows);
+    final conflicts = <ImportConflict>[];
+    var replaced = 0;
+    for (final (r, key, :userOnly) in userData) {
+      final row = !userOnly
+          ? _rowOf(r, rows)
+          : key == null
+          ? null
+          : rows.where((t) => t.key == key || t.aliases.contains(key)).firstOrNull;
+      if (row == null) {
+        if (userOnly) skipped++;
+        continue;
+      }
+      final aliases = [
+        for (final a in row.aliases)
+          if (a == row.key || !shared.contains(a)) a,
+      ];
+      final rec = _takeManual(m, aliases);
+      final userNote = [for (final a in aliases) m.notes[a]].nonNulls.firstOrNull;
+      final theirsManual = {
+        for (final f in r.userFields) ?userFieldFrom(f),
+        // A label is the user's by definition.
+        ManualField.label,
+      };
+      final restored = row.source == TxSource.restored;
+      var filled = false;
+
+      String? clean(String? s) {
+        final t = s?.trim();
+        return t == null || t.isEmpty ? null : t;
+      }
+
+      final hash = declinedHash;
+
+      /// One field: fill when empty, else a conflict unless equal or declined before.
+      void field(
+        ManualField f,
+        String? mine,
+        String? theirs,
+        void Function(String value) write,
+      ) {
+        if (theirs == null || mine == theirs) return;
+        if (mine == null) {
+          write(theirs);
+          filled = true;
+          return;
         }
+        if (rec.declined[f.name] == hash(theirs)) return;
+        final c = ImportConflict(
+          key: row.key,
+          field: f,
+          mine: mine,
+          theirs: theirs,
+          timeUnix: row.timeUnix,
+          amount: netAmount(row.tx),
+        );
+        if (useBackup == null) {
+          conflicts.add(c);
+        } else if (useBackup[c.id] == true) {
+          write(theirs);
+          rec.declined.remove(f.name);
+          replaced++;
+        } else {
+          rec.declined[f.name] = hash(theirs);
+        }
+      }
+
+      final editedAt = r.userEditedAtUnix ?? now;
+      field(ManualField.label, clean(rec.label), clean(r.label), (v) {
+        rec.label = v;
+        rec.editedAtUnix = editedAt;
       });
-      final index = payload.invoiceIndex;
-      if (index != null && index > (m.invoiceIndex ?? 1)) {
-        m.invoiceIndex = index;
+      if (restored && theirsManual.contains(ManualField.counterparty)) {
+        field(
+          ManualField.counterparty,
+          clean(rec.counterparty),
+          clean(r.counterparty),
+          (v) {
+            rec.counterparty = v;
+            rec.editedAtUnix = editedAt;
+          },
+        );
       }
-      for (final c in payload.contacts) {
-        if (m.contacts.any((e) => e.address.trim() == c.address.trim())) {
-          continue;
+      if (restored && theirsManual.contains(ManualField.transport)) {
+        final via = clean(r.transport);
+        field(
+          ManualField.transport,
+          clean(rec.transport),
+          via != null && txTransports.contains(via) ? via : null,
+          (v) {
+            rec.transport = v;
+            rec.editedAtUnix = editedAt;
+          },
+        );
+      }
+      // A note the user typed here against the file's; with none here, the record's note
+      // shows by itself, unless no record is kept for the row.
+      final theirNote = clean(r.note);
+      if (userNote != null || userOnly) {
+        field(ManualField.note, userNote, theirNote, (v) {
+          for (final a in aliases) {
+            m.notes.remove(a);
+          }
+          m.notes[row.key] = v;
+        });
+      }
+      _putManual(m, row.key, rec);
+      if (userOnly) {
+        if (filled) {
+          merged++;
+        } else {
+          skipped++;
         }
-        final id = c.id.isEmpty || m.contacts.any((e) => e.id == c.id)
-            ? _randomHex(16)
-            : c.id;
-        m.contacts.add(
-          ContactRec(
-            id: id,
-            name: c.name,
-            address: c.address,
-            note: c.note,
-            invoiceAddress: c.invoiceAddress,
+      }
+    }
+
+    // A label set here wins over the file's; the index only moves forward, so an older
+    // file never brings back an abandoned invoice address.
+    payload.serviceLabels.forEach((a, l) {
+      final address = a.trim(), label = l.trim();
+      if (address.isNotEmpty && label.isNotEmpty) {
+        m.serviceLabels.putIfAbsent(address, () => label);
+      }
+    });
+    final index = payload.invoiceIndex;
+    if (index != null && index > (m.invoiceIndex ?? 1)) {
+      m.invoiceIndex = index;
+    }
+    for (final c in payload.contacts) {
+      if (m.contacts.any((e) => e.address.trim() == c.address.trim())) {
+        continue;
+      }
+      final id = c.id.isEmpty || m.contacts.any((e) => e.id == c.id)
+          ? _randomHex(16)
+          : c.id;
+      m.contacts.add(
+        ContactRec(
+          id: id,
+          name: c.name,
+          address: c.address,
+          note: c.note,
+          invoiceAddress: c.invoiceAddress,
+        ),
+      );
+      contactsAdded++;
+    }
+    return ImportReport(
+      merged: merged,
+      added: added,
+      skipped: skipped,
+      contactsAdded: contactsAdded,
+      conflicts: useBackup == null ? conflicts : const [],
+      applied: useBackup != null || conflicts.isEmpty,
+      replaced: replaced,
+    );
+  }
+
+  /// Fields where the old wallet's history, now imported, records another sender or method
+  /// than the user typed for the payment while it was a scan-found one. The recorded value
+  /// shows until the user chooses; [ImportConflict.theirs] is the old wallet's. Labels and
+  /// notes never conflict: the old wallet has none.
+  List<ImportConflict> legacyConflicts(List<TxEntry> live) {
+    final rows = merged(live);
+    final shared = sharedAliases(rows);
+    final bare = meta.copy()..manual.clear();
+    final recorded = {for (final t in mergeHistory(live, bare)) t.key: t};
+    final out = <ImportConflict>[];
+    String? clean(String? s) {
+      final t = s?.trim();
+      return t == null || t.isEmpty ? null : t;
+    }
+
+    for (final row in rows) {
+      final rec = manualOf(meta, row, shared);
+      final own = recorded[row.key];
+      if (rec == null || own == null || row.source == TxSource.restored) {
+        continue;
+      }
+      void field(ManualField f, String? mine, String? theirs) {
+        if (mine == null || theirs == null || mine == theirs) return;
+        if (rec.declined[f.name] == declinedHash(theirs)) return;
+        out.add(
+          ImportConflict(
+            key: row.key,
+            field: f,
+            mine: mine,
+            theirs: theirs,
+            timeUnix: row.timeUnix,
+            amount: netAmount(row.tx),
           ),
         );
-        contactsAdded++;
       }
-      return ImportReport(
-        merged: merged,
-        added: added,
-        skipped: skipped,
-        contactsAdded: contactsAdded,
+
+      field(
+        ManualField.counterparty,
+        clean(rec.counterparty),
+        clean(own.counterparty),
       );
+      field(ManualField.transport, clean(rec.transport), clean(own.transport));
+    }
+    return out;
+  }
+
+  /// Applies the user's choices for [legacyConflicts] ([ImportConflict.id]; true takes the old
+  /// wallet's value and drops the typed one, anything else keeps the typed one over exactly
+  /// that value). Returns how many fields took the old wallet's value.
+  Future<int> resolveLegacyConflicts(
+    List<TxEntry> live,
+    Map<String, bool> useOldWallet,
+  ) async {
+    final conflicts = legacyConflicts(live);
+    if (conflicts.isEmpty) return 0;
+    final rows = merged(live);
+    final shared = sharedAliases(rows);
+    var replaced = 0;
+    await _store.update((m) {
+      for (final c in conflicts) {
+        final row = rows.firstWhere((t) => t.key == c.key);
+        final aliases = [
+          for (final a in row.aliases)
+            if (a == row.key || !shared.contains(a)) a,
+        ];
+        final rec = _takeManual(m, aliases);
+        if (useOldWallet[c.id] == true) {
+          switch (c.field) {
+            case ManualField.counterparty:
+              rec.counterparty = null;
+            case ManualField.transport:
+              rec.transport = null;
+            case ManualField.label || ManualField.note:
+              break;
+          }
+          rec.declined.remove(c.field.name);
+          replaced++;
+        } else {
+          rec.declined[c.field.name] = declinedHash(c.theirs);
+        }
+        _putManual(m, row.key, rec);
+      }
     });
+    return replaced;
+  }
+
+  /// The row [r] describes once merged: by slate id, kernel or commitment, of its own kind
+  /// when both sides of a self-send match.
+  MergedTx? _rowOf(Record r, List<MergedTx> rows) {
+    final hits = [for (final t in rows) if (recordMatches(r, t)) t];
+    final kind = kindFrom(r.kind);
+    return hits.where((t) => t.kind == kind).firstOrNull ?? hits.firstOrNull;
   }
 
   /// The key of the only scan-rebuilt row [r] describes, by kind, block and amounts; null when

@@ -131,5 +131,7 @@
   "deskErrOldSeedTooLarge": "Файл wallet.seed слишком велик для сида кошелька.",
   "deskErrSendUnbuildable": "Этот перевод нельзя собрать из доступных монет.",
   "deskErrNothingToConsolidate": "Нечего объединять: доступно меньше двух выходов.",
-  "deskErrTxNotFound": "Транзакция не найдена"
+  "deskErrTxNotFound": "Транзакция не найдена",
+  "deskErrNotDeliveredRelay": "Не доставлено: {relay} не ответил. Платёж ждёт в «Активности»; отмените его там, чтобы разблокировать средства.",
+  "deskErrRelayNoAnswer": "{relay} не ответил."
 }
