@@ -35,6 +35,7 @@
   "dateYesterday": "Gestern",
   "txMiningReward": "Mining-Belohnung",
   "txRestoredFunds": "Wiederhergestelltes Guthaben",
+  "txSpokenLabelled": "{label}, {row}",
   "txLabel": "Bezeichnung",
   "txLabelAdd": "Bezeichnung hinzufügen",
   "txLabelEdit": "Bezeichnung bearbeiten",

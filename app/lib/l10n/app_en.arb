@@ -104,6 +104,20 @@
   "@txRestoredFunds": {
     "description": "Funds the wallet found by scanning the chain after a restore, with no record of who sent them."
   },
+  "txSpokenLabelled": "{label}, {row}",
+  "@txSpokenLabelled": {
+    "description": "Screen-reader sentence of a payment row the user labelled: the label first, then the whole row sentence (what happened, status, date).",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Rent, September"
+      },
+      "row": {
+        "type": "String",
+        "example": "Received 10 EPIC from Alice, completed, Today, 10:01"
+      }
+    }
+  },
   "txLabel": "Label",
   "@txLabel": {
     "description": "Phone: title of the label tile on a payment with a label, and the field name in the history import dialog. A name the user gave the payment."

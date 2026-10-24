@@ -35,6 +35,7 @@
   "dateYesterday": "昨天",
   "txMiningReward": "挖矿奖励",
   "txRestoredFunds": "恢复的资金",
+  "txSpokenLabelled": "{label}，{row}",
   "txLabel": "标签",
   "txLabelAdd": "添加标签",
   "txLabelEdit": "编辑标签",

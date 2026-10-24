@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
+import 'package:epic_wallet/src/ui/common.dart' show txSpokenLabel;
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
@@ -189,6 +190,46 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Rent, September'), findsOneWidget);
       expect(find.text('Knut'), findsNothing);
+    });
+  });
+
+  group('screen readers', () {
+    testWidgets('a labelled row reads its label first', (tester) async {
+      final h = _Harness();
+      h.session.labels['s:plain'] = 'Rent, September';
+      final semantics = tester.ensureSemantics();
+      await h.pump(tester, const HistoryScreen());
+      final label = tester
+          .getSemantics(find.byKey(const ValueKey('tx-s:plain')))
+          .label;
+      expect(label, startsWith('Rent, September, Received 5 EPIC from esAlic'));
+      // An unlabelled row reads as before.
+      final plain = tester
+          .getSemantics(find.byKey(const ValueKey('tx-s:known')))
+          .label;
+      expect(plain, startsWith('Sent 2.992 EPIC to Knut'));
+      semantics.dispose();
+    });
+
+    test('the label comes first in every language', () {
+      final tx = _rows().first;
+      for (final code in ['en', 'de', 'pl', 'ru', 'zh', 'th']) {
+        final l = lookupAppLocalizations(Locale(code));
+        String say({String? label}) => txSpokenLabel(
+          l,
+          tx,
+          who: 'Alice',
+          date: 'Today',
+          status: 'Done',
+          hidden: false,
+          label: label,
+        );
+        final plain = say();
+        final named = say(label: 'Rent, September');
+        expect(named, startsWith('Rent, September'), reason: code);
+        expect(named, contains(plain), reason: code);
+        expect(say(label: '  '), plain, reason: code);
+      }
     });
   });
 

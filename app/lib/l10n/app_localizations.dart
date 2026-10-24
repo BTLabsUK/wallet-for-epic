@@ -316,6 +316,12 @@ abstract class AppLocalizations {
   /// **'Restored funds'**
   String get txRestoredFunds;
 
+  /// Screen-reader sentence of a payment row the user labelled: the label first, then the whole row sentence (what happened, status, date).
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, {row}'**
+  String txSpokenLabelled(String label, String row);
+
   /// Phone: title of the label tile on a payment with a label, and the field name in the history import dialog. A name the user gave the payment.
   ///
   /// In en, this message translates to:

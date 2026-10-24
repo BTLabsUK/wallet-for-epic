@@ -128,6 +128,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txRestoredFunds => 'Восстановленные средства';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label, $row';
+  }
+
+  @override
   String get txLabel => 'Метка';
 
   @override

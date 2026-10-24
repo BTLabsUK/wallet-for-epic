@@ -35,6 +35,7 @@
   "dateYesterday": "Вчера",
   "txMiningReward": "Награда за майнинг",
   "txRestoredFunds": "Восстановленные средства",
+  "txSpokenLabelled": "{label}, {row}",
   "txLabel": "Метка",
   "txLabelAdd": "Добавить метку",
   "txLabelEdit": "Изменить метку",

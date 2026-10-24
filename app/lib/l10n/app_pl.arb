@@ -35,6 +35,7 @@
   "dateYesterday": "Wczoraj",
   "txMiningReward": "Nagroda za kopanie",
   "txRestoredFunds": "Odzyskane środki",
+  "txSpokenLabelled": "{label}, {row}",
   "txLabel": "Etykieta",
   "txLabelAdd": "Dodaj etykietę",
   "txLabelEdit": "Edytuj etykietę",

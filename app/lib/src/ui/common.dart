@@ -1235,7 +1235,8 @@ Path txEdgePath(Rect rect, double radius, double start, double extent) {
 
 /// What a screen reader says for a payment row, as one sentence:
 /// "Received 10 EPIC from Alice, completed, Today, 10:01".
-/// [who] is the contact name or short address, [date] the row's date text.
+/// [who] is the contact name or short address, [date] the row's date text. A [label] the user
+/// gave the payment is said first.
 String txSpokenLabel(
   AppLocalizations l,
   TxEntry tx, {
@@ -1243,6 +1244,7 @@ String txSpokenLabel(
   required String date,
   required String status,
   required bool hidden,
+  String? label,
 }) {
   final amount = hidden
       ? l.txSpokenHiddenAmount
@@ -1282,7 +1284,9 @@ String txSpokenLabel(
   // English lower-cases the chip's word mid-sentence; other languages keep it, since German
   // nouns stay capitalised and Chinese has no case.
   final spokenStatus = l.localeName == 'en' ? status.toLowerCase() : status;
-  return l.txSpokenRow(what, spokenStatus, date);
+  final sentence = l.txSpokenRow(what, spokenStatus, date);
+  final named = label?.trim() ?? '';
+  return named.isEmpty ? sentence : l.txSpokenLabelled(named, sentence);
 }
 
 /// One transaction in a list. Tapping it opens its details, where cancel lives.
@@ -1350,6 +1354,7 @@ class TxTile extends ConsumerWidget {
                 now: now,
               ),
               hidden: display.hidden,
+              label: tx.label,
             ),
             onTap: open,
             excludeSemantics: true,

@@ -127,6 +127,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txRestoredFunds => 'Odzyskane środki';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label, $row';
+  }
+
+  @override
   String get txLabel => 'Etykieta';
 
   @override

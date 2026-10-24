@@ -30,6 +30,7 @@ class LabelPen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final text = hasLabel ? l.txLabelEdit : l.txLabelAdd;
+    final onSurface = Theme.of(context).colorScheme.onSurfaceVariant;
     return Semantics(
       button: true,
       label: text,
@@ -39,7 +40,22 @@ class LabelPen extends StatelessWidget {
         tooltip: text,
         constraints: const BoxConstraints.tightFor(width: 48, height: 48),
         padding: EdgeInsets.zero,
-        icon: Icon(Icons.edit_outlined, size: 18, color: context.tokens.dim),
+        // Dim at rest, so a list of pens stays quiet; full strength once it is in use.
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) =>
+                states.any(
+                  {
+                    WidgetState.focused,
+                    WidgetState.pressed,
+                    WidgetState.hovered,
+                  }.contains,
+                )
+                ? onSurface
+                : onSurface.withValues(alpha: 0.45),
+          ),
+        ),
+        icon: const Icon(Icons.edit_outlined, size: 18),
         onPressed: onPressed,
       ),
     );

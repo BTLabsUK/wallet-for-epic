@@ -124,6 +124,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txRestoredFunds => '恢复的资金';
 
   @override
+  String txSpokenLabelled(String label, String row) {
+    return '$label，$row';
+  }
+
+  @override
   String get txLabel => '标签';
 
   @override

@@ -35,6 +35,7 @@
   "dateYesterday": "เมื่อวาน",
   "txMiningReward": "รางวัลการขุด",
   "txRestoredFunds": "ยอดที่กู้คืน",
+  "txSpokenLabelled": "{label}, {row}",
   "txLabel": "ป้ายกำกับ",
   "txLabelAdd": "เพิ่มป้ายกำกับ",
   "txLabelEdit": "แก้ไขป้ายกำกับ",
