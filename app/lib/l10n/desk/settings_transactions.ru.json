@@ -1,11 +1,11 @@
 {
-  "deskSetFrameTransactions": "Transactions",
-  "deskSetTxMethods": "Payment methods",
-  "deskSetTxAlwaysOn": "Always on",
-  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.",
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.",
-  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.",
-  "deskSetTxSend": "Send",
-  "deskSetTxStart": "Send starts on",
-  "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send."
+  "deskSetFrameTransactions": "Транзакции",
+  "deskSetTxMethods": "Способы оплаты",
+  "deskSetTxAlwaysOn": "Всегда включён",
+  "deskSetTxEpicboxHint": "Платите и получайте платежи через сервер Epicbox. Так идёт большинство платежей, поэтому он включён всегда.",
+  "deskSetTxDirectHint": "Платите и получайте платежи напрямую от кошелька к кошельку, по HTTP или через Tor, без сервера посередине. Работает, только пока кошелёк открыт. Добавляет «Напрямую» в «Отправить», а его адрес — в «Получить».",
+  "deskSetTxFileHint": "Платите и получайте платежи, передавая файл транзакции, сеть не нужна. Добавляет «Файл» в «Отправить», а шаги с файлами — в «Получить».",
+  "deskSetTxSend": "Отправка",
+  "deskSetTxStart": "Отправка начинается с",
+  "deskSetTxStartHint": "Способ, с которого открывается страница «Отправить». Для одного платежа его всё равно можно изменить на странице «Отправить»."
 }

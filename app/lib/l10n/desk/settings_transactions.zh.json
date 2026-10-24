@@ -1,11 +1,11 @@
 {
-  "deskSetFrameTransactions": "Transactions",
-  "deskSetTxMethods": "Payment methods",
-  "deskSetTxAlwaysOn": "Always on",
-  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.",
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.",
-  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.",
-  "deskSetTxSend": "Send",
-  "deskSetTxStart": "Send starts on",
-  "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send."
+  "deskSetFrameTransactions": "交易",
+  "deskSetTxMethods": "付款方式",
+  "deskSetTxAlwaysOn": "始终开启",
+  "deskSetTxEpicboxHint": "通过 Epicbox 服务器付款和收款。大多数付款都走这条路，所以始终开启。",
+  "deskSetTxDirectHint": "钱包对钱包直接付款和收款，通过 HTTP 或 Tor，中间没有服务器。仅在钱包打开时有效。会在“发送”中加入“直连”，并在“接收”中加入它的地址。",
+  "deskSetTxFileHint": "通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件”，并在“接收”中加入文件步骤。",
+  "deskSetTxSend": "发送",
+  "deskSetTxStart": "发送默认方式",
+  "deskSetTxStartHint": "“发送”页面打开时使用的方式。单笔付款时，仍可在“发送”页面更改。"
 }

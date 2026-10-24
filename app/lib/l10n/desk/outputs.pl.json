@@ -119,6 +119,6 @@
   "deskOutNothingText": "Nie ma czego scalać: portfel ma {what}. Scalanie łączy kilka wyjść w jedno.",
   "deskOutWhatFewer": "mniej niż dwa wyjścia do wydania",
   "deskOutWhatOne": "jedno wyjście do wydania",
-  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
-  "deskOutDefaultsOpen": "Open Transactions"
+  "deskOutDefaultsMoved": "Strategię i Podziel resztę dla wysyłek ustawisz w Ustawienia › Transakcje.",
+  "deskOutDefaultsOpen": "Otwórz Transakcje"
 }

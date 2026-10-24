@@ -212,9 +212,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Payment methods and send defaults',
       'Epicbox is always on. Direct and File are switches. Send starts on the method you choose.',
       [
-        phone
-            ? const HelpBlock.p('The Transactions page in [[Settings › Transactions]] holds three things.')
-            : const HelpBlock.p('The **Transactions** page in Settings holds three things.'),
+        const HelpBlock.p('The Transactions page in [[Settings › Transactions]] holds three things.'),
         HelpBlock.ul([
           '**Payment methods.** Epicbox is always on. **Direct** (to .onion and web addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and **File** are switches: a method that is off does not appear on Send and Receive.',
           '**Send starts on.** The method the Send screen opens with. You can still pick another on Send.',
@@ -426,7 +424,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.ul([
           '**Standard**: connects directly. Tor is the switch under $torPlace.',
           '**Tor only**: Tor is always on and its switch is locked. Nothing goes over the open internet. While Tor starts or has failed, the wallet says **Waiting for Tor** and whatever needs the network waits, with the reason on the disabled action. ${phone ? 'Notifications are off, because signing up for them would reveal this phone.' : 'HTTP receiving is off, because a plain address would reveal this computer.'}',
-          '**Offline**: nothing beyond $device and the local network. The balance and history stay as last seen. With a node on ${phone ? 'the local network' : 'this computer or the local network'}, the wallet can still make, sign, finalize and post payments, and send Direct to local addresses. Without one, sending and receiving wait.',
+          '**Offline**: nothing beyond $device and the local network. The balance and history stay as last seen. With a node on ${phone ? 'the local network' : 'this computer or the local network'}, the wallet can still make, sign, finalize and post payments, and send Direct to local addresses.${phone ? '' : ' Receiving over the local network needs HTTP receiving set to **From the internet**.'} Without one, sending and receiving wait.',
         ]),
         if (!phone) const HelpBlock.p('The built-in node\'s own peers are the node\'s setting, not the mode\'s.'),
         HelpBlock.p('${phone ? 'Home' : 'The sidebar'} says when the wallet is offline or waiting for Tor. Setting the mode back to **Standard** brings everything back.'),

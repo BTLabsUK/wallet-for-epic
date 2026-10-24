@@ -119,6 +119,6 @@
   "deskOutNothingText": "Nichts zum Zusammenführen: Die Wallet hat {what}. Zusammenführen macht aus mehreren Outputs einen.",
   "deskOutWhatFewer": "weniger als zwei verfügbare Outputs",
   "deskOutWhatOne": "einen verfügbaren Output",
-  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
-  "deskOutDefaultsOpen": "Open Transactions"
+  "deskOutDefaultsMoved": "Strategie und Wechselgeld aufteilen für Zahlungen stellen Sie unter Einstellungen › Transaktionen ein.",
+  "deskOutDefaultsOpen": "Transaktionen öffnen"
 }

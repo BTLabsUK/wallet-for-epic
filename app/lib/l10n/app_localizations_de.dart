@@ -7144,7 +7144,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'Programs on this computer can pay this address. For other devices, see Settings › Transactions.';
+      'Programme auf diesem Computer können an diese Adresse zahlen. Für andere Geräte siehe Einstellungen › Transaktionen.';
 
   @override
   String get deskRecvHttpIntro =>
@@ -13877,7 +13877,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.';
+      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt; Tor lässt sich unter Datenschutz & Netzwerk einschalten. Nur Tor verbindet nie direkt: ohne Tor bleibt die Wallet offline und sagt es auf der Startseite. Offline bleibt auf diesem Smartphone und Ihrem lokalen Netzwerk: Mit einem Node in Ihrem Netzwerk können Sie weiterhin an lokale Adressen zahlen und Dateien nutzen; sonst sehen Sie Guthaben und Verlauf, wie zuletzt gesehen.';
 
   @override
   String get advOutputs => 'Outputs';
@@ -13933,7 +13933,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advModeOfflineLine =>
-      'Only this phone and your local network. A node on your network still works; everything else waits until you switch back.';
+      'Nur dieses Smartphone und Ihr lokales Netzwerk. Ein Node in Ihrem Netzwerk funktioniert weiter; alles andere wartet, bis Sie zurückschalten.';
 
   @override
   String get advTorOnlyNote =>
@@ -13941,7 +13941,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node\'s own peers are the node\'s setting.';
+      'Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren „Guthaben neu prüfen“, Dateien und direkte Zahlungen an lokale Adressen weiter. Die Peers des Nodes sind eine Einstellung des Nodes.';
 
   @override
   String get advReset => 'Alles wieder ausblenden';
@@ -14022,7 +14022,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node\'s setting.';
+      'Wie die Wallet das Netzwerk erreicht. Standard verbindet direkt; Tor lässt sich unter Datenschutz einschalten. Nur Tor verbindet nie direkt: ohne Tor bleibt die Wallet offline und sagt es in der Seitenleiste. Offline bleibt auf diesem Computer und Ihrem lokalen Netzwerk: Mit einem Node hier oder in Ihrem Netzwerk können Sie weiterhin an lokale Adressen zahlen, über Direkt empfangen und Dateien nutzen; der integrierte Node läuft weiter, seine Peers sind eine Einstellung des Nodes.';
 
   @override
   String get deskSetAdvModeStandard => 'Standard';
@@ -14043,7 +14043,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'Only this computer and your local network. Your node keeps running; its own peers are the node\'s setting.';
+      'Nur dieser Computer und Ihr lokales Netzwerk. Ihr Node läuft weiter; seine Peers sind eine Einstellung des Nodes.';
 
   @override
   String get deskSetAdvTorOnlyNote =>
@@ -14051,7 +14051,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.';
+      'Epicbox, Tor und Statusprüfungen pausieren. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren „Guthaben neu prüfen“, Dateien und Direkt an lokale Adressen weiter.';
 
   @override
   String get deskSetAdvNotInBuild => 'Nicht in dieser Version';
@@ -14119,18 +14119,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get slRelayField => 'Epicbox-Server';
 
   @override
-  String get slFieldHint => 'Paste or type to filter or add';
+  String get slFieldHint =>
+      'Einfügen oder tippen, um zu filtern oder hinzuzufügen';
 
   @override
   String slSwitchTitle(String host) {
-    return 'Switch to $host?';
+    return 'Zu $host wechseln?';
   }
 
   @override
-  String get slSwitchBody => 'Your Epicbox address changes. Share the new one.';
+  String get slSwitchBody =>
+      'Ihre Epicbox-Adresse ändert sich. Teilen Sie die neue.';
 
   @override
-  String get slSwitch => 'Switch';
+  String get slSwitch => 'Wechseln';
 
   @override
   String get slHelpAddable => 'Nicht in der Liste.';
@@ -14307,7 +14309,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTourAdvancedText =>
-      'Direkte Zahlungen, der Nur-Tor-Modus, Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.';
+      'Der Nur-Tor-Modus, Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.';
 
   @override
   String get deskTxMore => 'Mehr';
@@ -14402,54 +14404,54 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get netOfflineOnlyLocal => 'Offline: only local addresses.';
+  String get netOfflineOnlyLocal => 'Offline: nur lokale Adressen.';
 
   @override
   String get netOfflineNoPeers =>
-      'Your node has no peers: the payment waits in its pool until it reconnects.';
+      'Ihr Node hat keine Peers: Die Zahlung wartet in seinem Pool, bis er sich wieder verbindet.';
 
   @override
-  String get deskErrOfflineOnlyLocal => 'Offline: only local addresses.';
+  String get deskErrOfflineOnlyLocal => 'Offline: nur lokale Adressen.';
 
   @override
   String get deskNetOfflineNoPeers =>
-      'Your node has no peers: the payment waits in its pool until it reconnects.';
+      'Ihr Node hat keine Peers: Die Zahlung wartet in seinem Pool, bis er sich wieder verbindet.';
 
   @override
   String get deskOutDefaultsMoved =>
-      'The strategy and Split change for sends are set in Settings › Transactions.';
+      'Strategie und Wechselgeld aufteilen für Zahlungen stellen Sie unter Einstellungen › Transaktionen ein.';
 
   @override
-  String get deskOutDefaultsOpen => 'Open Transactions';
+  String get deskOutDefaultsOpen => 'Transaktionen öffnen';
 
   @override
-  String get deskSetFrameTransactions => 'Transactions';
+  String get deskSetFrameTransactions => 'Transaktionen';
 
   @override
-  String get deskSetTxMethods => 'Payment methods';
+  String get deskSetTxMethods => 'Zahlungsmethoden';
 
   @override
-  String get deskSetTxAlwaysOn => 'Always on';
+  String get deskSetTxAlwaysOn => 'Immer an';
 
   @override
   String get deskSetTxEpicboxHint =>
-      'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.';
+      'Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so, deshalb ist es immer an.';
 
   @override
   String get deskSetTxDirectHint =>
-      'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.';
+      'Zahlen und bezahlt werden direkt von Wallet zu Wallet, über HTTP oder Tor, ohne Server dazwischen. Funktioniert nur, solange die Wallet geöffnet ist. Fügt Direkt zu Senden und seine Adresse zu Empfangen hinzu.';
 
   @override
   String get deskSetTxFileHint =>
-      'Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.';
+      'Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt Datei zu Senden und die Dateischritte zu Empfangen hinzu.';
 
   @override
-  String get deskSetTxSend => 'Send';
+  String get deskSetTxSend => 'Senden';
 
   @override
-  String get deskSetTxStart => 'Send starts on';
+  String get deskSetTxStart => 'Senden beginnt mit';
 
   @override
   String get deskSetTxStartHint =>
-      'The method the Send page opens with. You can still change it for one payment on Send.';
+      'Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern.';
 }

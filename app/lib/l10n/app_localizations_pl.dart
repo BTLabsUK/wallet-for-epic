@@ -7284,7 +7284,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'Programs on this computer can pay this address. For other devices, see Settings › Transactions.';
+      'Na ten adres mogą płacić programy na tym komputerze. Inne urządzenia: zobacz Ustawienia › Transakcje.';
 
   @override
   String get deskRecvHttpIntro =>
@@ -14146,7 +14146,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.';
+      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatność i sieć. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na ekranie głównym. Offline zostaje na tym telefonie i w twojej sieci lokalnej: z węzłem w twojej sieci nadal możesz wysyłać na adresy lokalne i używać plików; poza tym widzisz saldo i historię z ostatniego odczytu.';
 
   @override
   String get advOutputs => 'Wyjścia';
@@ -14202,7 +14202,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeOfflineLine =>
-      'Only this phone and your local network. A node on your network still works; everything else waits until you switch back.';
+      'Tylko ten telefon i twoja sieć lokalna. Węzeł w twojej sieci nadal działa; wszystko inne czeka, aż wrócisz do poprzedniego trybu.';
 
   @override
   String get advTorOnlyNote =>
@@ -14210,7 +14210,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node\'s own peers are the node\'s setting.';
+      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Z węzłem w twojej sieci lokalnej nadal działają Sprawdź saldo, pliki i wysyłki bezpośrednie na adresy lokalne. Peery węzła to ustawienie samego węzła.';
 
   @override
   String get advReset => 'Ukryj wszystko ponownie';
@@ -14291,7 +14291,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node\'s setting.';
+      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatności. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na pasku bocznym. Offline zostaje na tym komputerze i w twojej sieci lokalnej: z węzłem tutaj lub w twojej sieci nadal możesz wysyłać na adresy lokalne, odbierać przez Bezpośrednio i używać plików; wbudowany węzeł działa dalej, a jego peery to ustawienie samego węzła.';
 
   @override
   String get deskSetAdvModeStandard => 'Standardowy';
@@ -14312,7 +14312,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'Only this computer and your local network. Your node keeps running; its own peers are the node\'s setting.';
+      'Tylko ten komputer i twoja sieć lokalna. Twój węzeł działa dalej; jego peery to ustawienie samego węzła.';
 
   @override
   String get deskSetAdvTorOnlyNote =>
@@ -14320,7 +14320,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.';
+      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, pliki i Bezpośrednio na adresy lokalne.';
 
   @override
   String get deskSetAdvNotInBuild => 'Brak w tej wersji';
@@ -14389,18 +14389,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String get slRelayField => 'Serwer Epicbox';
 
   @override
-  String get slFieldHint => 'Paste or type to filter or add';
+  String get slFieldHint => 'Wklej lub wpisz, aby filtrować lub dodać';
 
   @override
   String slSwitchTitle(String host) {
-    return 'Switch to $host?';
+    return 'Przełączyć na $host?';
   }
 
   @override
-  String get slSwitchBody => 'Your Epicbox address changes. Share the new one.';
+  String get slSwitchBody => 'Twój adres Epicbox się zmieni. Udostępnij nowy.';
 
   @override
-  String get slSwitch => 'Switch';
+  String get slSwitch => 'Przełącz';
 
   @override
   String get slHelpAddable => 'Nie ma go na liście.';
@@ -14576,7 +14576,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTourAdvancedText =>
-      'Płatności bezpośrednie, tryb tylko Tor, wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.';
+      'Tryb tylko Tor, wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.';
 
   @override
   String get deskTxMore => 'Więcej';
@@ -14671,54 +14671,54 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get netOfflineOnlyLocal => 'Offline: only local addresses.';
+  String get netOfflineOnlyLocal => 'Offline: tylko adresy lokalne.';
 
   @override
   String get netOfflineNoPeers =>
-      'Your node has no peers: the payment waits in its pool until it reconnects.';
+      'Twój węzeł nie ma peerów: płatność czeka w jego puli, aż się ponownie połączy.';
 
   @override
-  String get deskErrOfflineOnlyLocal => 'Offline: only local addresses.';
+  String get deskErrOfflineOnlyLocal => 'Offline: tylko adresy lokalne.';
 
   @override
   String get deskNetOfflineNoPeers =>
-      'Your node has no peers: the payment waits in its pool until it reconnects.';
+      'Twój węzeł nie ma peerów: płatność czeka w jego puli, aż się ponownie połączy.';
 
   @override
   String get deskOutDefaultsMoved =>
-      'The strategy and Split change for sends are set in Settings › Transactions.';
+      'Strategię i Podziel resztę dla wysyłek ustawisz w Ustawienia › Transakcje.';
 
   @override
-  String get deskOutDefaultsOpen => 'Open Transactions';
+  String get deskOutDefaultsOpen => 'Otwórz Transakcje';
 
   @override
-  String get deskSetFrameTransactions => 'Transactions';
+  String get deskSetFrameTransactions => 'Transakcje';
 
   @override
-  String get deskSetTxMethods => 'Payment methods';
+  String get deskSetTxMethods => 'Metody płatności';
 
   @override
-  String get deskSetTxAlwaysOn => 'Always on';
+  String get deskSetTxAlwaysOn => 'Zawsze włączone';
 
   @override
   String get deskSetTxEpicboxHint =>
-      'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.';
+      'Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności, więc jest zawsze włączone.';
 
   @override
   String get deskSetTxDirectHint =>
-      'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.';
+      'Płać i dostawaj zapłatę prosto z portfela do portfela, przez HTTP lub Tor, bez serwera pośrodku. Działa tylko, gdy portfel jest otwarty. Dodaje Bezpośrednio do Wyślij, a jego adres do Odbierz.';
 
   @override
   String get deskSetTxFileHint =>
-      'Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.';
+      'Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Plik do Wyślij, a kroki z plikami do Odbierz.';
 
   @override
-  String get deskSetTxSend => 'Send';
+  String get deskSetTxSend => 'Wyślij';
 
   @override
-  String get deskSetTxStart => 'Send starts on';
+  String get deskSetTxStart => 'Wysyłanie zaczyna od';
 
   @override
   String get deskSetTxStartHint =>
-      'The method the Send page opens with. You can still change it for one payment on Send.';
+      'Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij.';
 }

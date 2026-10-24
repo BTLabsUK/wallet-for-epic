@@ -1,11 +1,11 @@
 {
-  "deskSetFrameTransactions": "Transactions",
-  "deskSetTxMethods": "Payment methods",
-  "deskSetTxAlwaysOn": "Always on",
-  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.",
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.",
-  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.",
-  "deskSetTxSend": "Send",
-  "deskSetTxStart": "Send starts on",
-  "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send."
+  "deskSetFrameTransactions": "ธุรกรรม",
+  "deskSetTxMethods": "วิธีชำระเงิน",
+  "deskSetTxAlwaysOn": "เปิดเสมอ",
+  "deskSetTxEpicboxHint": "จ่ายและรับเงินผ่านเซิร์ฟเวอร์ Epicbox การชำระเงินส่วนใหญ่ไปทางนี้ จึงเปิดเสมอ",
+  "deskSetTxDirectHint": "จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงิน ผ่าน HTTP หรือ Tor โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ เพิ่มส่งตรงใน ส่ง และเพิ่มที่อยู่ของมันใน รับ",
+  "deskSetTxFileHint": "จ่ายและรับเงินโดยส่งต่อไฟล์ธุรกรรม ไม่ต้องใช้เครือข่าย เพิ่มไฟล์ใน ส่ง และเพิ่มขั้นตอนเกี่ยวกับไฟล์ใน รับ",
+  "deskSetTxSend": "ส่ง",
+  "deskSetTxStart": "การส่งเริ่มด้วย",
+  "deskSetTxStartHint": "วิธีที่หน้า ส่ง เปิดขึ้นมา สำหรับการจ่ายครั้งเดียวยังเปลี่ยนได้ที่หน้า ส่ง"
 }

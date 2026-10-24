@@ -6668,8 +6668,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskRecvHttpLocal =>
-      'Programs on this computer can pay this address. For other devices, see Settings › Transactions.';
+  String get deskRecvHttpLocal => '本机上的程序可以向此地址付款。其他设备请见“设置 › 交易”。';
 
   @override
   String get deskRecvHttpIntro => '本钱包打开时，直接从另一个钱包接收。除非设置中另有选择，否则仅限本机。';
@@ -12998,7 +12997,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.';
+      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私与网络”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在主页上提示。“离线”只限这部手机和你的本地网络：如果你的网络中有节点，仍可向本地地址发送并使用文件；否则你看到的是上次看到的余额和记录。';
 
   @override
   String get advOutputs => '输出';
@@ -13051,15 +13050,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advModeOffline => '离线';
 
   @override
-  String get advModeOfflineLine =>
-      'Only this phone and your local network. A node on your network still works; everything else waits until you switch back.';
+  String get advModeOfflineLine => '只限这部手机和你的本地网络。你网络中的节点仍可使用；其余一切会等到你切换回来。';
 
   @override
   String get advTorOnlyNote => '“仅 Tor”会暂停通知：注册通知会暴露这部手机的地址。';
 
   @override
   String get advOfflineNote =>
-      'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node\'s own peers are the node\'s setting.';
+      '离线会暂停 Epicbox、Tor、状态检查和通知。如果你的本地网络中有节点，“重新核对余额”、文件以及向本地地址的直连发送仍可使用。节点自己的对等节点是节点本身的设置。';
 
   @override
   String get advReset => '再次全部隐藏';
@@ -13139,7 +13137,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node\'s setting.';
+      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在侧边栏中提示。“离线”只限这台电脑和你的本地网络：如果这里或你的网络中有节点，仍可向本地地址发送、通过“直连”接收并使用文件；内置节点会继续运行，它的对等节点是节点本身的设置。';
 
   @override
   String get deskSetAdvModeStandard => '标准';
@@ -13158,14 +13156,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'Only this computer and your local network. Your node keeps running; its own peers are the node\'s setting.';
+      '只限这台电脑和你的本地网络。你的节点继续运行；它的对等节点是节点本身的设置。';
 
   @override
   String get deskSetAdvTorOnlyNote => '“仅 Tor”会关闭 HTTP 接收：普通地址会暴露这台电脑。';
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.';
+      'Epicbox、Tor 和状态检查会暂停。如果这台电脑上或你的网络中有节点，“重新核对余额”、文件以及向本地地址的“直连”仍可使用。';
 
   @override
   String get deskSetAdvNotInBuild => '此版本不含';
@@ -13226,18 +13224,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slRelayField => 'Epicbox 服务器';
 
   @override
-  String get slFieldHint => 'Paste or type to filter or add';
+  String get slFieldHint => '粘贴或输入，用于筛选或添加';
 
   @override
   String slSwitchTitle(String host) {
-    return 'Switch to $host?';
+    return '切换到 $host？';
   }
 
   @override
-  String get slSwitchBody => 'Your Epicbox address changes. Share the new one.';
+  String get slSwitchBody => '你的 Epicbox 地址会改变。请分享新的地址。';
 
   @override
-  String get slSwitch => 'Switch';
+  String get slSwitch => '切换';
 
   @override
   String get slHelpAddable => '不在列表中。';
@@ -13396,7 +13394,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTourAdvancedTitle => '高级';
 
   @override
-  String get deskTourAdvancedText => '直连付款、仅 Tor 模式、输出和技术详情都在这里。需要什么就开启什么。';
+  String get deskTourAdvancedText => '仅 Tor 模式、输出和技术详情都在这里。需要什么就开启什么。';
 
   @override
   String get deskTxMore => '更多';
@@ -13484,54 +13482,49 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get netOfflineOnlyLocal => 'Offline: only local addresses.';
+  String get netOfflineOnlyLocal => '离线：只能用本地地址。';
 
   @override
-  String get netOfflineNoPeers =>
-      'Your node has no peers: the payment waits in its pool until it reconnects.';
+  String get netOfflineNoPeers => '你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。';
 
   @override
-  String get deskErrOfflineOnlyLocal => 'Offline: only local addresses.';
+  String get deskErrOfflineOnlyLocal => '离线：只能用本地地址。';
 
   @override
-  String get deskNetOfflineNoPeers =>
-      'Your node has no peers: the payment waits in its pool until it reconnects.';
+  String get deskNetOfflineNoPeers => '你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。';
 
   @override
-  String get deskOutDefaultsMoved =>
-      'The strategy and Split change for sends are set in Settings › Transactions.';
+  String get deskOutDefaultsMoved => '发送的“策略”和“拆分找零”在“设置 › 交易”中设置。';
 
   @override
-  String get deskOutDefaultsOpen => 'Open Transactions';
+  String get deskOutDefaultsOpen => '打开“交易”';
 
   @override
-  String get deskSetFrameTransactions => 'Transactions';
+  String get deskSetFrameTransactions => '交易';
 
   @override
-  String get deskSetTxMethods => 'Payment methods';
+  String get deskSetTxMethods => '付款方式';
 
   @override
-  String get deskSetTxAlwaysOn => 'Always on';
+  String get deskSetTxAlwaysOn => '始终开启';
 
   @override
-  String get deskSetTxEpicboxHint =>
-      'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.';
+  String get deskSetTxEpicboxHint => '通过 Epicbox 服务器付款和收款。大多数付款都走这条路，所以始终开启。';
 
   @override
   String get deskSetTxDirectHint =>
-      'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.';
+      '钱包对钱包直接付款和收款，通过 HTTP 或 Tor，中间没有服务器。仅在钱包打开时有效。会在“发送”中加入“直连”，并在“接收”中加入它的地址。';
 
   @override
   String get deskSetTxFileHint =>
-      'Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.';
+      '通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件”，并在“接收”中加入文件步骤。';
 
   @override
-  String get deskSetTxSend => 'Send';
+  String get deskSetTxSend => '发送';
 
   @override
-  String get deskSetTxStart => 'Send starts on';
+  String get deskSetTxStart => '发送默认方式';
 
   @override
-  String get deskSetTxStartHint =>
-      'The method the Send page opens with. You can still change it for one payment on Send.';
+  String get deskSetTxStartHint => '“发送”页面打开时使用的方式。单笔付款时，仍可在“发送”页面更改。';
 }

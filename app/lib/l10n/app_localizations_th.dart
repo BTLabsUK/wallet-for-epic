@@ -6917,7 +6917,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'Programs on this computer can pay this address. For other devices, see Settings › Transactions.';
+      'โปรแกรมบนคอมพิวเตอร์นี้จ่ายมาที่ที่อยู่นี้ได้ สำหรับอุปกรณ์อื่น ดูที่ การตั้งค่า › ธุรกรรม';
 
   @override
   String get deskRecvHttpIntro =>
@@ -13459,7 +13459,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.';
+      'วิธีที่กระเป๋าเงินเชื่อมต่อเครือข่าย มาตรฐานเชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัวและเครือข่าย Tor เท่านั้นไม่เชื่อมต่อตรงเด็ดขาด ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์และบอกที่หน้าแรก ออฟไลน์ใช้เฉพาะโทรศัพท์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ ถ้ามีโหนดในเครือข่ายของคุณ ยังส่งไปที่อยู่ในพื้นที่และใช้ไฟล์ได้ นอกนั้นคุณเห็นยอดและประวัติตามที่เห็นล่าสุด';
 
   @override
   String get advOutputs => 'เอาต์พุต';
@@ -13515,7 +13515,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advModeOfflineLine =>
-      'Only this phone and your local network. A node on your network still works; everything else waits until you switch back.';
+      'เฉพาะโทรศัพท์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ โหนดในเครือข่ายของคุณยังใช้ได้ ส่วนอย่างอื่นรอจนกว่าคุณจะสลับกลับ';
 
   @override
   String get advTorOnlyNote =>
@@ -13523,7 +13523,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node\'s own peers are the node\'s setting.';
+      'ออฟไลน์จะหยุด Epicbox, Tor, การตรวจสถานะ และการแจ้งเตือน ถ้ามีโหนดในเครือข่ายในพื้นที่ของคุณ ตรวจยอดใหม่ ไฟล์ และการส่งตรงไปที่อยู่ในพื้นที่ยังใช้ได้ เพียร์ของโหนดเป็นการตั้งค่าของตัวโหนดเอง';
 
   @override
   String get advReset => 'ซ่อนทั้งหมดอีกครั้ง';
@@ -13604,7 +13604,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node\'s setting.';
+      'วิธีที่กระเป๋าเงินเชื่อมต่อเครือข่าย มาตรฐานเชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัว Tor เท่านั้นไม่เชื่อมต่อตรงเด็ดขาด ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์และบอกที่แถบด้านข้าง ออฟไลน์ใช้เฉพาะคอมพิวเตอร์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ ถ้ามีโหนดที่นี่หรือในเครือข่ายของคุณ ยังส่งไปที่อยู่ในพื้นที่ รับผ่านส่งตรง และใช้ไฟล์ได้ โหนดในตัวทำงานต่อไป และเพียร์ของมันเป็นการตั้งค่าของตัวโหนดเอง';
 
   @override
   String get deskSetAdvModeStandard => 'มาตรฐาน';
@@ -13625,7 +13625,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'Only this computer and your local network. Your node keeps running; its own peers are the node\'s setting.';
+      'เฉพาะคอมพิวเตอร์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ โหนดของคุณทำงานต่อไป เพียร์ของมันเป็นการตั้งค่าของตัวโหนดเอง';
 
   @override
   String get deskSetAdvTorOnlyNote =>
@@ -13633,7 +13633,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.';
+      'Epicbox, Tor และการตรวจสถานะหยุดชั่วคราว ถ้ามีโหนดบนคอมพิวเตอร์เครื่องนี้หรือในเครือข่ายของคุณ ตรวจยอดใหม่ ไฟล์ และส่งตรงไปที่อยู่ในพื้นที่ยังใช้ได้';
 
   @override
   String get deskSetAdvNotInBuild => 'ไม่มีในรุ่นนี้';
@@ -13698,18 +13698,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get slRelayField => 'เซิร์ฟเวอร์ Epicbox';
 
   @override
-  String get slFieldHint => 'Paste or type to filter or add';
+  String get slFieldHint => 'วางหรือพิมพ์เพื่อกรองหรือเพิ่ม';
 
   @override
   String slSwitchTitle(String host) {
-    return 'Switch to $host?';
+    return 'สลับไปที่ $host ไหม?';
   }
 
   @override
-  String get slSwitchBody => 'Your Epicbox address changes. Share the new one.';
+  String get slSwitchBody =>
+      'ที่อยู่ Epicbox ของคุณจะเปลี่ยน แชร์ที่อยู่ใหม่ด้วย';
 
   @override
-  String get slSwitch => 'Switch';
+  String get slSwitch => 'สลับ';
 
   @override
   String get slHelpAddable => 'ไม่อยู่ในรายการ';
@@ -13876,7 +13877,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTourAdvancedText =>
-      'การจ่ายแบบส่งตรง โหมด Tor เท่านั้น เอาต์พุต และรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ';
+      'โหมด Tor เท่านั้น เอาต์พุต และรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ';
 
   @override
   String get deskTxMore => 'เพิ่มเติม';
@@ -13969,54 +13970,54 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get netOfflineOnlyLocal => 'Offline: only local addresses.';
+  String get netOfflineOnlyLocal => 'ออฟไลน์: เฉพาะที่อยู่ในพื้นที่';
 
   @override
   String get netOfflineNoPeers =>
-      'Your node has no peers: the payment waits in its pool until it reconnects.';
+      'โหนดของคุณไม่มีเพียร์ รายการจะรออยู่ในพูลของโหนดจนกว่าจะเชื่อมต่อใหม่';
 
   @override
-  String get deskErrOfflineOnlyLocal => 'Offline: only local addresses.';
+  String get deskErrOfflineOnlyLocal => 'ออฟไลน์: เฉพาะที่อยู่ในพื้นที่';
 
   @override
   String get deskNetOfflineNoPeers =>
-      'Your node has no peers: the payment waits in its pool until it reconnects.';
+      'โหนดของคุณไม่มีเพียร์ รายการจะรออยู่ในพูลของโหนดจนกว่าจะเชื่อมต่อใหม่';
 
   @override
   String get deskOutDefaultsMoved =>
-      'The strategy and Split change for sends are set in Settings › Transactions.';
+      'วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › ธุรกรรม';
 
   @override
-  String get deskOutDefaultsOpen => 'Open Transactions';
+  String get deskOutDefaultsOpen => 'เปิดธุรกรรม';
 
   @override
-  String get deskSetFrameTransactions => 'Transactions';
+  String get deskSetFrameTransactions => 'ธุรกรรม';
 
   @override
-  String get deskSetTxMethods => 'Payment methods';
+  String get deskSetTxMethods => 'วิธีชำระเงิน';
 
   @override
-  String get deskSetTxAlwaysOn => 'Always on';
+  String get deskSetTxAlwaysOn => 'เปิดเสมอ';
 
   @override
   String get deskSetTxEpicboxHint =>
-      'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.';
+      'จ่ายและรับเงินผ่านเซิร์ฟเวอร์ Epicbox การชำระเงินส่วนใหญ่ไปทางนี้ จึงเปิดเสมอ';
 
   @override
   String get deskSetTxDirectHint =>
-      'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.';
+      'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงิน ผ่าน HTTP หรือ Tor โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ เพิ่มส่งตรงใน ส่ง และเพิ่มที่อยู่ของมันใน รับ';
 
   @override
   String get deskSetTxFileHint =>
-      'Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.';
+      'จ่ายและรับเงินโดยส่งต่อไฟล์ธุรกรรม ไม่ต้องใช้เครือข่าย เพิ่มไฟล์ใน ส่ง และเพิ่มขั้นตอนเกี่ยวกับไฟล์ใน รับ';
 
   @override
-  String get deskSetTxSend => 'Send';
+  String get deskSetTxSend => 'ส่ง';
 
   @override
-  String get deskSetTxStart => 'Send starts on';
+  String get deskSetTxStart => 'การส่งเริ่มด้วย';
 
   @override
   String get deskSetTxStartHint =>
-      'The method the Send page opens with. You can still change it for one payment on Send.';
+      'วิธีที่หน้า ส่ง เปิดขึ้นมา สำหรับการจ่ายครั้งเดียวยังเปลี่ยนได้ที่หน้า ส่ง';
 }

@@ -119,6 +119,6 @@
   "deskOutNothingText": "ไม่มีอะไรให้รวม: กระเป๋าเงินมี{what} การรวมจะผสานหลายเอาต์พุตเป็นก้อนเดียว",
   "deskOutWhatFewer": "เอาต์พุตที่ใช้ได้น้อยกว่าสองก้อน",
   "deskOutWhatOne": "เอาต์พุตที่ใช้ได้เพียงก้อนเดียว",
-  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
-  "deskOutDefaultsOpen": "Open Transactions"
+  "deskOutDefaultsMoved": "วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › ธุรกรรม",
+  "deskOutDefaultsOpen": "เปิดธุรกรรม"
 }

@@ -18,7 +18,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final device = phone ? '这部手机' : '这台电脑';
   final secret = phone ? '你的 PIN 码' : '钱包密码';
   final nodePlace = phone ? '[[设置 › 隐私与网络 › 节点|Settings › Privacy & network › Node]]' : '[[设置 › 节点|Settings › Node]]';
-  final epicboxPlace = phone ? '[[设置 › 隐私与网络 › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[设置 › Transactions › Epicbox 接收|Settings › Transactions › Epicbox receiving]]';
+  final epicboxPlace = phone ? '[[设置 › 隐私与网络 › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[设置 › 交易 › Epicbox 接收|Settings › Transactions › Epicbox receiving]]';
   final torPlace = phone ? '[[设置 › 隐私与网络 › Tor 网络|Settings › Privacy & network › Tor Network]]' : '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
@@ -80,9 +80,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '付款方式与发送默认设置',
       'Epicbox 始终开启。“直连”和“文件”是开关。“发送”从你选的方式开始。',
       [
-        phone
-            ? const HelpBlock.p('[[设置 › 交易|Settings › Transactions]]页面包含三项内容。')
-            : const HelpBlock.p('设置中的**交易**页面包含三项内容。'),
+        const HelpBlock.p('[[设置 › 交易|Settings › Transactions]]页面包含三项内容。'),
         HelpBlock.ul([
           '**付款方式。** Epicbox 始终开启。**直连**（向 .onion 和网址付款${phone ? '，以及用这部手机的 Tor 地址收款' : ''}）和**文件**是开关：关闭的方式不会出现在“发送”和“接收”中。',
           '**发送从哪种方式开始。** “发送”页面打开时使用的方式。在“发送”中仍可选择其他方式。',
@@ -227,9 +225,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.ul(['**公共节点**（默认）：由他人运行的公共节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出。', '**本地节点**：在这台电脑上运行。它首先要下载整条区块链，需要一些时间和磁盘空间，之后就完全归你所有。同步期间，钱包使用公共节点。']),
         if (phone)
-          HelpBlock.p('点“钱包”标签页上的节点行，或在$nodePlace中更换：公共节点会连同状态一起列出，也可以输入节点地址。发送需要已同步的节点；显示 **落后** 或 **无响应** 时，请换一个。')
+          HelpBlock.p('点“钱包”标签页上的节点行，或在$nodePlace中更换：节点会连同状态一起列出。点一个即可立即切换到它，也可以输入地址来筛选列表或添加节点。发送需要已同步的节点；显示 **落后** 或 **无响应** 时，请换一个。')
         else
-          HelpBlock.p('在$nodePlace中更换：选择一个公共节点（会连同状态一起列出），或输入节点地址。发送需要已同步的节点；如果节点落后，钱包会推荐另一个。'),
+          HelpBlock.p('在$nodePlace中更换：节点会连同状态一起列出。点击一个即可立即切换到它，也可以输入地址来筛选列表或添加节点。发送需要已同步的节点；如果节点落后，钱包会推荐另一个。'),
       ],
       id: HelpId.node,
     ),
@@ -241,9 +239,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('每笔交易都有双方钱包参与，因此它们的消息需要一个汇合点。Epicbox 服务器就是这个汇合点：它保存发给此钱包的付款，直到钱包上线，并把钱包的回复送回去。消息是加密的，Epicbox 无法花费这些币。'),
         const HelpBlock.p('Epicbox 地址是钱包的公钥，后接 **@** 和其 Epicbox 服务器的名称。'),
         if (phone)
-          HelpBlock.p('点“钱包”标签页上的 Epicbox 行，或在$epicboxPlace中设置服务器：选择一个公共服务器（会连同状态一起列出），或自行输入。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款方。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。')
+          HelpBlock.p('点“钱包”标签页上的 Epicbox 行，或在$epicboxPlace中设置服务器：服务器会连同状态一起列出。点一个并确认，也可以输入地址来筛选列表或添加服务器。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款方。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。')
         else
-          HelpBlock.p('在$epicboxPlace中设置服务器：选择一个公共服务器（会连同状态一起列出），或自行输入。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款方。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。'),
+          HelpBlock.p('在$epicboxPlace中设置服务器：服务器会连同状态一起列出。点击一个并确认，也可以输入地址来筛选列表或添加服务器。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款方。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。'),
       ],
       id: HelpId.epicbox,
     ),
@@ -294,7 +292,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         HelpBlock.ul([
           '**标准**：直接连接。Tor 是$torPlace里的开关。',
           '**仅 Tor**：Tor 始终开启，开关被锁定。任何内容都不经过开放的互联网。Tor 启动中或失败时，钱包会显示**等待 Tor**，所有需要网络的操作都会等待，不可用的操作上会写明原因。${phone ? '通知会关闭，因为注册通知会暴露这部手机。' : 'HTTP 接收会关闭，因为普通地址会暴露这台电脑。'}',
-          '**离线**：除了${phone ? '这部手机' : '这台电脑'}和本地网络外什么都不用。余额和记录保持上次看到的样子。如果${phone ? '本地网络中' : '这台电脑上或本地网络中'}有节点，钱包仍可生成、签名、完成并发出付款，也可以直连向本地地址付款。没有节点时，发送和接收会等待。',
+          '**离线**：除了${phone ? '这部手机' : '这台电脑'}和本地网络外什么都不用。余额和记录保持上次看到的样子。如果${phone ? '本地网络中' : '这台电脑上或本地网络中'}有节点，钱包仍可生成、签名、完成并发出付款，也可以直连向本地地址付款。${phone ? '' : '在本地网络中接收，需要把 HTTP 接收的访问范围设为**来自互联网**。'}没有节点时，发送和接收会等待。',
         ]),
         if (!phone) const HelpBlock.p('内置节点自己的对等节点是节点本身的设置，不属于模式。'),
         HelpBlock.p('${phone ? '主页' : '侧边栏'}会显示钱包已离线或正在等待 Tor。把模式改回**标准**，一切就恢复了。'),
@@ -339,7 +337,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或点“钱包”标签页上的 Epicbox 行，选择另一个服务器。在此期间可以使用文件。')
         else
-          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在[[设置 › Transactions|Settings › Transactions]]中选择另一个服务器。在此期间可以使用文件。'),
+          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在[[设置 › 交易|Settings › Transactions]]中选择另一个服务器。在此期间可以使用文件。'),
         const HelpBlock.p('**发送显示“等待接收方”。** 对方钱包尚未回复。请对方打开钱包。如果对方一直不会打开，请在“活动”中取消发送以解锁输出。'),
         if (phone)
           const HelpBlock.p('**付款没有到账。** 在“钱包”标签页上检查节点是否已同步、Epicbox 是否在线。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。')

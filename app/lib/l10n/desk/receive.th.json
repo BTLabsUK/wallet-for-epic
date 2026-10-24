@@ -31,7 +31,7 @@
   "deskRecvHttpAddress": "ส่งตรง · ที่อยู่ HTTP",
   "deskRecvCopyHttp": "คัดลอกที่อยู่ HTTP",
   "deskRecvHttpPublic": "ที่อยู่สาธารณะของเราเตอร์ ผู้ส่งบนอินเทอร์เน็ตใช้ได้เมื่อเราเตอร์ forward พอร์ต {port} แล้ว",
-  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
+  "deskRecvHttpLocal": "โปรแกรมบนคอมพิวเตอร์นี้จ่ายมาที่ที่อยู่นี้ได้ สำหรับอุปกรณ์อื่น ดูที่ การตั้งค่า › ธุรกรรม",
   "deskRecvHttpIntro": "ตรงจากกระเป๋าเงินอื่นขณะที่กระเป๋าเงินนี้เปิดอยู่ ใช้ได้บนคอมพิวเตอร์นี้เท่านั้น เว้นแต่ตั้งค่าไว้เป็นอื่น",
   "deskRecvHttpTorHint": "เปิด Tor ที่ การตั้งค่า › ความเป็นส่วนตัว เพื่อใช้ที่อยู่ Tor แทน",
   "deskRecvDirectTor": "ส่งตรง · ที่อยู่ Tor",
