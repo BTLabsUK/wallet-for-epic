@@ -188,6 +188,11 @@ class SettingsSectionScreen extends ConsumerStatefulWidget {
 class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   bool _busy = false;
 
+  /// Transactions rows shown once stay while the page is open: a setting never disappears
+  /// because it was changed (Split change back on, Direct off without Tor).
+  bool _txDefaultsShown = false;
+  bool _txDirectShown = false;
+
   void _say(String message, {required NoticeLevel level}) {
     ref.read(noticeProvider.notifier).show(message, level: level);
   }
@@ -714,10 +719,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final t = context.tokens;
     // Send options on shows the defaults; one that is not at its default stays (never hide a
     // choice in use), as Outputs did before they moved here.
-    final showDefaults =
+    final showDefaults = _txDefaultsShown |=
         s.advanced.has(AdvancedFeature.sendOptions) ||
         s.sendStrategy != SelectionStrategy.smallest ||
         !s.splitChange;
+    final showDirect = _txDirectShown |= torAvailable || payments.direct;
     final offered = [
       for (final m in PayMethod.values)
         if (payments.offers(m)) m,
@@ -742,7 +748,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       ),
       // Direct needs Tor; where the app has none (and the switch is off) there is nothing to
       // turn on.
-      if (torAvailable || payments.direct)
+      if (showDirect)
         HintSwitchTile(
           key: const ValueKey('tx-direct'),
           icon: Icons.link,
