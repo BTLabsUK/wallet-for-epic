@@ -5444,9 +5444,19 @@
   "@serverRemoveNodeTitle": {
     "description": "Title of the dialog that confirms removing a node from My nodes (the star of a My nodes row)."
   },
-  "serverRemoveBody": "{host} leaves this list. Type it in again to use it later.",
-  "@serverRemoveBody": {
-    "description": "Body of the dialogs that confirm removing a node or an Epicbox relay from the user's own list.",
+  "serverRemoveBodyPublic": "{host} leaves my list. Select it from the public list to use it again.",
+  "@serverRemoveBodyPublic": {
+    "description": "Body of the dialog that confirms removing a public node or Epicbox relay from the user's own list: it goes back to the public list.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "relay.example.org"
+      }
+    }
+  },
+  "serverRemoveBodyCustom": "{host} leaves my list. Type it in again to use it.",
+  "@serverRemoveBodyCustom": {
+    "description": "Body of the dialog that confirms removing a node or Epicbox relay the user typed in (not in the public list) from their own list: it is gone.",
     "placeholders": {
       "host": {
         "type": "String",

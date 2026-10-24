@@ -4123,8 +4123,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverRemoveNodeTitle => '移除此节点？';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host 将从此列表中移除。以后要使用，请重新输入。';
+  String serverRemoveBodyPublic(String host) {
+    return '$host 将从我的列表中移除。要再次使用，请从公共列表中选择。';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host 将从我的列表中移除。要使用，请重新输入。';
   }
 
   @override

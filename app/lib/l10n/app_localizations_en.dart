@@ -4359,8 +4359,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverRemoveNodeTitle => 'Remove this node?';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host leaves this list. Type it in again to use it later.';
+  String serverRemoveBodyPublic(String host) {
+    return '$host leaves my list. Select it from the public list to use it again.';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host leaves my list. Type it in again to use it.';
   }
 
   @override

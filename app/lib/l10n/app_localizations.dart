@@ -6747,11 +6747,17 @@ abstract class AppLocalizations {
   /// **'Remove this node?'**
   String get serverRemoveNodeTitle;
 
-  /// Body of the dialogs that confirm removing a node or an Epicbox relay from the user's own list.
+  /// Body of the dialog that confirms removing a public node or Epicbox relay from the user's own list: it goes back to the public list.
   ///
   /// In en, this message translates to:
-  /// **'{host} leaves this list. Type it in again to use it later.'**
-  String serverRemoveBody(String host);
+  /// **'{host} leaves my list. Select it from the public list to use it again.'**
+  String serverRemoveBodyPublic(String host);
+
+  /// Body of the dialog that confirms removing a node or Epicbox relay the user typed in (not in the public list) from their own list: it is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} leaves my list. Type it in again to use it.'**
+  String serverRemoveBodyCustom(String host);
 
   /// Confirm button of the remove dialogs.
   ///

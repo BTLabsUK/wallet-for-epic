@@ -4514,8 +4514,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverRemoveNodeTitle => 'Удалить этот узел?';
 
   @override
-  String serverRemoveBody(String host) {
-    return '$host исчезнет из этого списка. Введите его снова, чтобы использовать позже.';
+  String serverRemoveBodyPublic(String host) {
+    return '$host исчезнет из моего списка. Выберите его в публичном списке, чтобы использовать снова.';
+  }
+
+  @override
+  String serverRemoveBodyCustom(String host) {
+    return '$host исчезнет из моего списка. Введите его снова, чтобы использовать.';
   }
 
   @override

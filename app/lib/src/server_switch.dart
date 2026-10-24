@@ -46,9 +46,10 @@ Future<bool> switchServersLive(
       next.epicboxPort != opened.epicboxPort;
   await session.setServers(config: next);
   await notifier.save(choice.preset, nodeUrl, relay: relay);
-  // Connected: both servers join the user's lists (My nodes, My relays) in the pickers.
+  // Connected: both servers join the user's lists (My nodes, My relays) in the pickers; a public
+  // one replaces the public one the list had.
   if (ref.context.mounted) {
-    await rememberServers(ref, choice.preset.chain, nodeUrl: nodeUrl, relay: relay);
+    await rememberServers(ref, choice.preset, nodeUrl: nodeUrl, relay: relay);
   }
   logInfo(
     'network',
