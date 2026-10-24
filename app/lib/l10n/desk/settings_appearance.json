@@ -1,0 +1,42 @@
+{
+  "deskSetAppearTheme": "Theme",
+  "@deskSetAppearTheme": {
+    "description": "Settings › Appearance row: light or dark colours."
+  },
+  "deskSetAppearThemeHint": "System follows the computer’s setting.",
+  "@deskSetAppearThemeHint": {
+    "description": "Hint under the Theme row. 'System' is the first choice (deskSetAppearSystem)."
+  },
+  "deskSetAppearSystem": "System",
+  "@deskSetAppearSystem": {
+    "description": "Theme choice: follow the computer's light or dark setting. One short word: a segment of a three-part switch."
+  },
+  "deskSetAppearDark": "Dark",
+  "@deskSetAppearDark": {
+    "description": "Theme choice: dark colours. One short word: a segment of a three-part switch."
+  },
+  "deskSetAppearLight": "Light",
+  "@deskSetAppearLight": {
+    "description": "Theme choice: light colours. One short word: a segment of a three-part switch."
+  },
+  "deskSetAppearScale": "Interface scale",
+  "@deskSetAppearScale": {
+    "description": "Settings › Appearance row: make text and controls larger or smaller (90 % to 150 %)."
+  },
+  "deskSetAppearScaleHint": "Text and controls, larger or smaller. Applies at once.",
+  "@deskSetAppearScaleHint": {
+    "description": "Hint under the Interface scale row."
+  },
+  "deskSetAppearLanguage": "Language",
+  "@deskSetAppearLanguage": {
+    "description": "Settings › Appearance row: the language of the app. The language names in its list stay in their own language."
+  },
+  "deskSetAppearLanguageHint": "Applies at once.",
+  "@deskSetAppearLanguageHint": {
+    "description": "Hint under the Language row: no restart needed."
+  },
+  "deskSetAppearHideHint": "Shows dots in place of balances and amounts.",
+  "@deskSetAppearHideHint": {
+    "description": "Hint under the Hide amounts row (the row's title is deskOvHideAmounts)."
+  }
+}

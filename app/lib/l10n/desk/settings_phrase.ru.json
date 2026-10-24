@@ -1,0 +1,19 @@
+{
+  "deskSetPhraseNotCopied": "Не скопировано",
+  "deskSetPhraseClipboardRefused": "Буфер обмена не принял текст.",
+  "deskSetPhraseCopied": "Фраза скопирована",
+  "deskSetPhraseCleared": "Буфер обмена очистится через 30 с.",
+  "deskSetPhraseEnterPassword": "Введите пароль.",
+  "deskSetPhraseWrongPassword": "Неверный пароль.",
+  "deskSetPhraseIntro": "Запишите слова на бумаге в этом порядке. Никогда не вводите их на сайтах и в чатах.",
+  "deskSetPhrasePanel": "Введите пароль, чтобы показать слова",
+  "deskSetPhraseShowWords": "Показать слова",
+  "deskSetPhraseWordsLabel": "{count, plural, one{Фраза восстановления, {count} слово} few{Фраза восстановления, {count} слова} many{Фраза восстановления, {count} слов} other{Фраза восстановления, {count} слова}}",
+  "deskSetPhraseHideQr": "Скрыть QR-код",
+  "deskSetPhraseShowQr": "Показать QR-код",
+  "deskSetPhraseHideWords": "Скрыть слова",
+  "deskSetPhraseHidesIn": "Скроется через {seconds} с",
+  "deskSetPhraseQrLabel": "QR-код фразы восстановления",
+  "deskSetPhraseBackUp": "Сохраните фразу",
+  "deskSetPhraseBackUpText": "Любой, у кого есть эти слова, может забрать EPIC. Убедитесь, что никто не видит экран."
+}

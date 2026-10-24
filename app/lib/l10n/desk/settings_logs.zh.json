@@ -1,0 +1,20 @@
+{
+  "deskSetLogsMemoryOnly": "日志只保存在内存中。",
+  "deskSetLogsClearTitle": "清除日志？",
+  "deskSetLogsClearDesc": "删除日志文件。之后发送的报告只包含从现在开始记录的内容。",
+  "deskSetLogsKeep": "保留日志",
+  "deskSetLogsClear": "清除日志",
+  "deskSetLogsCleared": "日志已清除",
+  "deskSetLogsToday": "今天 {time}",
+  "deskSetLogsTomorrow": "明天 {time}",
+  "deskSetLogsTitle": "日志",
+  "deskSetLogsLevel": "日志级别",
+  "deskSetLogsLevelNormal": "普通。“详细”会在磁盘上保留更多行，持续 24 小时；文件中可能出现地址，报告会去掉它们。",
+  "deskSetLogsLevelDetailed": "详细，直到 {until}，之后恢复普通。文件中可能出现地址；报告会去掉它们。",
+  "deskSetLogsLevelDetailedCore": "详细，直到 {until}，之后恢复普通。文件中可能出现地址；报告会去掉它们。钱包核心的日志从下次启动应用起变为详细。",
+  "deskSetLogsNormal": "普通",
+  "deskSetLogsDetailed": "详细",
+  "deskSetLogsFiles": "日志文件",
+  "deskSetLogsSize": "当前大小 {size}，上限 {max}。保留一个较旧的文件。",
+  "deskSetLogsOpenFolder": "打开日志文件夹"
+}

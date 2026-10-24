@@ -1,0 +1,154 @@
+{
+  "deskSetFrameTitle": "Settings",
+  "@deskSetFrameTitle": {
+    "description": "Title of the Settings page."
+  },
+  "deskSetFrameSections": "Settings sections",
+  "@deskSetFrameSections": {
+    "description": "Accessibility label of the Settings sidebar list."
+  },
+  "deskSetFrameNode": "Node",
+  "@deskSetFrameNode": {
+    "description": "Settings sidebar entry and page name for the node section. Narrow (about 200 px)."
+  },
+  "deskSetFrameReceiving": "Receiving",
+  "@deskSetFrameReceiving": {
+    "description": "Settings sidebar entry and page name for how this wallet receives payments. Narrow."
+  },
+  "deskSetFramePrivacy": "Privacy",
+  "@deskSetFramePrivacy": {
+    "description": "Settings sidebar entry and page name for privacy and network routing. Narrow."
+  },
+  "deskSetFrameAppearance": "Appearance",
+  "@deskSetFrameAppearance": {
+    "description": "Settings sidebar entry and page name for theme, language and display. Narrow."
+  },
+  "deskSetFrameThisWallet": "This wallet",
+  "@deskSetFrameThisWallet": {
+    "description": "Settings sidebar entry and page name for the open wallet (name, password, backup, delete). Narrow."
+  },
+  "deskSetFrameAllWallets": "All wallets",
+  "@deskSetFrameAllWallets": {
+    "description": "Settings sidebar entry and page name for the list of wallets on this computer. Narrow."
+  },
+  "deskSetFramePhrase": "Recovery phrase",
+  "@deskSetFramePhrase": {
+    "description": "Settings sidebar entry and page name for showing the recovery phrase. Narrow."
+  },
+  "deskSetFrameRescan": "Recheck balance",
+  "@deskSetFrameRescan": {
+    "description": "Settings sidebar entry and page name for rescanning the chain to recheck the balance. Narrow."
+  },
+  "deskSetFrameAbout": "About",
+  "@deskSetFrameAbout": {
+    "description": "Settings sidebar entry and page name for the About page. Narrow."
+  },
+  "deskSetFrameHelp": "Help",
+  "@deskSetFrameHelp": {
+    "description": "Settings sidebar entry and page name for the Help page. Narrow."
+  },
+  "deskSetFrameHealthOn": "On",
+  "@deskSetFrameHealthOn": {
+    "description": "Status word of a service that works normally."
+  },
+  "deskSetFrameHealthSlow": "Slow",
+  "@deskSetFrameHealthSlow": {
+    "description": "Status word of a service that answers slowly."
+  },
+  "deskSetFrameNotResponding": "Not responding",
+  "@deskSetFrameNotResponding": {
+    "description": "Status word of a service or node that does not answer."
+  },
+  "deskSetFrameOff": "Off",
+  "@deskSetFrameOff": {
+    "description": "Status word of a service that is switched off."
+  },
+  "deskSetFrameChecking": "Checking…",
+  "@deskSetFrameChecking": {
+    "description": "Status word while a service is being checked."
+  },
+  "deskSetFrameNodeSynced": "Synced",
+  "@deskSetFrameNodeSynced": {
+    "description": "Status word of a node that has the whole blockchain."
+  },
+  "deskSetFrameNodeSyncing": "Syncing",
+  "@deskSetFrameNodeSyncing": {
+    "description": "Status word of a node that is still downloading the blockchain."
+  },
+  "deskSetFrameConnecting": "Connecting…",
+  "@deskSetFrameConnecting": {
+    "description": "Status word while connecting to a node or to Epicbox."
+  },
+  "deskSetFrameListening": "Listening",
+  "@deskSetFrameListening": {
+    "description": "Status word of the Epicbox listener that waits for incoming payments."
+  },
+  "deskSetFrameHealthLatency": "{word} · {ms} ms",
+  "@deskSetFrameHealthLatency": {
+    "description": "Status word with its response time, e.g. \"On · 84 ms\". {word} is a status word, {ms} milliseconds.",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      },
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetFrameNever": "never",
+  "@deskSetFrameNever": {
+    "description": "Time since an event that never happened. Lowercase, part of a line."
+  },
+  "deskSetFrameJustNow": "just now",
+  "@deskSetFrameJustNow": {
+    "description": "Time since an event that happened less than a minute ago. Lowercase."
+  },
+  "deskSetFrameMinAgo": "{count, plural, one{{count} min ago} other{{count} min ago}}",
+  "@deskSetFrameMinAgo": {
+    "description": "Minutes since an event, abbreviated, e.g. \"5 min ago\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetFrameHoursAgo": "{count, plural, one{{count} h ago} other{{count} h ago}}",
+  "@deskSetFrameHoursAgo": {
+    "description": "Hours since an event, abbreviated, e.g. \"3 h ago\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetFrameDaysAgo": "{count, plural, one{{count} d ago} other{{count} d ago}}",
+  "@deskSetFrameDaysAgo": {
+    "description": "Days since an event, abbreviated, e.g. \"2 d ago\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetComboOpens": "Opens the list",
+  "@deskSetComboOpens": {
+    "description": "Screen reader hint of the node and relay picker field."
+  },
+  "deskSetComboNoAnswer": "No answer yet",
+  "@deskSetComboNoAnswer": {
+    "description": "Picker field: shown when a check takes long. Narrow."
+  },
+  "deskSetComboNothing": "Nothing to show.",
+  "@deskSetComboNothing": {
+    "description": "Picker list: empty note."
+  },
+  "deskSetComboUse": "Use {host}",
+  "@deskSetComboUse": {
+    "description": "Screen reader label of a picker row; the node’s details follow after a comma. {host} is a server address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  }
+}

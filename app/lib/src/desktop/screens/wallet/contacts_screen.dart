@@ -67,6 +67,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final all = _args.loading ? null : (_args.empty ? const <Contact>[] : ref.watch(deskProvider.select((s) => s.contacts)));
     final split = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final selected = all?.where((x) => x.id == _selected).firstOrNull;
@@ -93,7 +94,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
 
     if (all == null) {
       return EPage(
-        title: 'Contacts',
+        title: l.deskConTitle,
         child: Container(
           decoration: panel,
           padding: EdgeInsets.all(Sp.x8),
@@ -105,7 +106,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               spacing: Sp.x3,
               children: [
                 const ESpinner(),
-                Text('Loading contacts', style: ts.bodyDim),
+                Text(l.deskConLoading, style: ts.bodyDim),
               ],
             ),
           ),
@@ -114,7 +115,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     }
     if (all.isEmpty && !_adding) {
       return EPage(
-        title: 'Contacts',
+        title: l.deskConTitle,
         width: EPageWidth.narrow,
         child: Container(
           decoration: panel,
@@ -123,7 +124,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       );
     }
     if (!split && paneOpen) {
-      return EPage(title: _adding ? 'New contact' : (_editing ? 'Edit contact' : selected!.name), width: EPageWidth.narrow, onBack: _back, child: pane());
+      return EPage(title: _adding ? l.deskConNewTitle : (_editing ? l.deskConEditTitle : selected!.name), width: EPageWidth.narrow, onBack: _back, child: pane());
     }
 
     final q = _query.text.trim().toLowerCase();
@@ -137,7 +138,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               : (b.lastUsed ?? DateTime(2000)).compareTo(a.lastUsed ?? DateTime(2000)),
         );
     final long = all.length > _longList;
-    final count = q.isEmpty ? '${all.length} contacts' : (shown.isEmpty ? 'No matches' : (shown.length == 1 ? '1 match' : '${shown.length} matches'));
+    final count = q.isEmpty ? l.deskConCount(all.length) : (shown.isEmpty ? l.deskConNoMatches : l.deskConMatches(shown.length));
 
     // The search in the list's header band, level with the detail's (docs/plans/w7-layout.md R2).
     final list = TourTarget(
@@ -155,13 +156,13 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           child: EInput(
             size: EBtnSize.sm,
             controller: _query,
-            hint: 'Name or address',
+            hint: l.deskConSearchHint,
             leading: EIcons.search,
-            semanticLabel: 'Search contacts',
+            semanticLabel: l.deskConSearchLabel,
             onChanged: (_) => setState(() {}),
             trailing: _query.text.isEmpty
                 ? null
-                : EIconButton(icon: EIcons.close, label: 'Clear search', size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
+                : EIconButton(icon: EIcons.close, label: l.deskConClearSearch, size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
           ),
         ),
       ),
@@ -182,7 +183,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                     children: [
                       Semantics(liveRegion: true, child: Text(count, style: ts.small)),
                       ESegmented<_Sort>(
-                        segments: const [ESegment(_Sort.name, 'Name'), ESegment(_Sort.recent, 'Recent')],
+                        segments: [ESegment(_Sort.name, l.deskConSortName), ESegment(_Sort.recent, l.deskConSortRecent)],
                         value: _sort,
                         onChanged: (v) => setState(() => _sort = v),
                       ),
@@ -196,16 +197,16 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           if (shown.isEmpty && _query.text.isEmpty)
             Padding(
               padding: EdgeInsets.all(Sp.x5),
-              child: Text('No contacts yet.', style: ts.bodyDim, textAlign: TextAlign.center),
+              child: Text(l.deskConNone, style: ts.bodyDim, textAlign: TextAlign.center),
             )
           else if (shown.isEmpty)
             Padding(
               padding: EdgeInsets.all(Sp.x5),
               child: Column(
                 children: [
-                  Text('No contacts match', style: ts.bodyDim),
+                  Text(l.deskConNoMatchList, style: ts.bodyDim),
                   SizedBox(height: Sp.x2),
-                  EButton.ghost(label: 'Clear search', onPressed: () => setState(_query.clear)),
+                  EButton.ghost(label: l.deskConClearSearch, onPressed: () => setState(_query.clear)),
                 ],
               ),
             )
@@ -234,13 +235,13 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     );
 
     return EPage(
-      title: 'Contacts',
+      title: l.deskConTitle,
       width: EPageWidth.full,
       actions: [
         if (_adding || _editing)
-          EButton.ghost(label: 'Add contact', icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add)
+          EButton.ghost(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add)
         else
-          EButton.primary(label: 'Add contact', icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add),
+          EButton.primary(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add),
       ],
       child: split
           // The list and the detail are one unit (docs/plans/w7-layout.md R1): same top and bottom.
@@ -250,7 +251,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               side: list,
               // A header band like the list's: what the pane shows.
               main: EPanel(
-                    title: _adding ? 'New contact' : (_editing ? 'Edit contact' : 'Details'),
+                    title: _adding ? l.deskConNewTitle : (_editing ? l.deskConEditTitle : l.deskConDetailsTitle),
                     padding: EdgeInsets.all(Sp.x6),
                     child: paneOpen
                         ? Align(
@@ -279,7 +280,7 @@ class _Idle extends StatelessWidget {
       children: [
         Icon(EIcons.contacts, size: Ctl.iconLg, color: context.dc.faint),
         SizedBox(height: Sp.x3),
-        Text('Choose a contact to see their details, send to them, edit or delete them.', style: context.ts.bodyDim, textAlign: TextAlign.center),
+        Text(context.l10n.deskConIdle, style: context.ts.bodyDim, textAlign: TextAlign.center),
       ],
     ),
   );
@@ -295,6 +296,7 @@ class _Empty extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x10),
       child: Column(
@@ -303,13 +305,13 @@ class _Empty extends ConsumerWidget {
           SizedBox(height: Sp.x5),
           Semantics(
             header: true,
-            child: Text('No contacts yet', style: ts.h3, textAlign: TextAlign.center),
+            child: Text(l.deskConEmptyTitle, style: ts.h3, textAlign: TextAlign.center),
           ),
           SizedBox(height: Sp.x2),
-          Text('Save the people and shops paid often. On Send, pick a name instead of pasting an address.', style: ts.bodyDim, textAlign: TextAlign.center),
+          Text(l.deskConEmptyText, style: ts.bodyDim, textAlign: TextAlign.center),
           SizedBox(height: Sp.x2),
           Text(
-            'Contacts stay on this computer. They are not part of the recovery phrase.',
+            l.deskConEmptyLocal,
             style: ts.small.copyWith(color: c.faint),
             textAlign: TextAlign.center,
           ),
@@ -319,8 +321,8 @@ class _Empty extends ConsumerWidget {
             spacing: Sp.x2,
             runSpacing: Sp.x2,
             children: [
-              EButton.primary(label: 'Add contact', icon: EIcons.userPlus, onPressed: onAdd),
-              EButton.ghost(label: 'Send to address', size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.send)),
+              EButton.primary(label: l.deskConAdd, icon: EIcons.userPlus, onPressed: onAdd),
+              EButton.ghost(label: l.deskConSendToAddress, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.send)),
             ],
           ),
         ],
@@ -425,14 +427,15 @@ class _ContactDetail extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final x = contact;
     final nav = ref.read(deskNavProvider.notifier);
     final mine = (ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[]).where((t) => t.counterparty == x.address).toList();
     final last = mine.isEmpty ? x.lastUsed : mine.first.created;
     final kind = switch (addressKindOf(x.address)) {
-      AddressKind.tor => 'Tor',
-      AddressKind.http => 'HTTP',
-      _ => 'Epicbox',
+      AddressKind.tor => l.deskConAddrTor,
+      AddressKind.http => l.deskConAddrHttp,
+      _ => l.deskConAddrEpicbox,
     };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -446,7 +449,7 @@ class _ContactDetail extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Semantics(header: true, child: Text(x.name, style: ts.h2)),
-                  if (last != null) Text('Last transaction: ${whenText(last)}', style: ts.small),
+                  if (last != null) Text(l.deskConLastTx(whenText(l, last)), style: ts.small),
                 ],
               ),
             ),
@@ -457,10 +460,10 @@ class _ContactDetail extends ConsumerWidget {
           spacing: Sp.x2,
           runSpacing: Sp.x2,
           children: [
-            EButton.primary(label: 'Send', icon: EIcons.send, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.send, x)),
-            EButton(label: 'Edit', icon: EIcons.pencil, size: EBtnSize.sm, onPressed: onEdit),
+            EButton.primary(label: l.deskConSend, icon: EIcons.send, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.send, x)),
+            EButton(label: l.deskConEdit, icon: EIcons.pencil, size: EBtnSize.sm, onPressed: onEdit),
             EButton(
-              label: x.favourite ? 'Unstar' : 'Star',
+              label: x.favourite ? l.deskConUnstar : l.deskConStar,
               icon: x.favourite ? EIcons.star : EIcons.starOutline,
               size: EBtnSize.sm,
               onPressed: () => ref
@@ -469,11 +472,11 @@ class _ContactDetail extends ConsumerWidget {
                     Contact(id: x.id, name: x.name, address: x.address, note: x.note, favourite: !x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture, invoiceAddress: x.invoiceAddress),
                   )
                   .then<void>((_) {}, onError: (Object e) {
-                    if (context.mounted) showEToast(context, deskErrorText(e));
+                    if (context.mounted) showEToast(context, deskErrorText(e, l));
                   }),
             ),
             EButton(
-              label: 'Delete',
+              label: l.deskConDelete,
               icon: EIcons.trash,
               kind: EBtnKind.danger,
               size: EBtnSize.sm,
@@ -485,20 +488,20 @@ class _ContactDetail extends ConsumerWidget {
                   await ref.read(deskProvider.notifier).deleteContact(x.id);
                   if (stopTrust != null) await ref.read(deskInvoicesProvider.notifier).untrust(stopTrust.address);
                 } on Object catch (e) {
-                  if (context.mounted) showEToast(context, 'Not deleted', text: deskErrorText(e), tone: ETone.risk);
+                  if (context.mounted) showEToast(context, l.deskConNotDeleted, text: deskErrorText(e, l), tone: ETone.risk);
                   return;
                 }
-                if (context.mounted) showEToast(context, '${x.name} was deleted');
+                if (context.mounted) showEToast(context, l.deskConDeleted(x.name));
                 onDeleted();
               },
             ),
           ],
         ),
         SizedBox(height: Sp.x6),
-        Text('$kind address', style: ts.label),
+        Text(kind, style: ts.label),
         SizedBox(height: 6.u),
         EAddress(x.address),
-        if (x.note != null) ...[SizedBox(height: Sp.x5), Text('Note', style: ts.label), SizedBox(height: Sp.x1), Text(x.note!, style: ts.body)],
+        if (x.note != null) ...[SizedBox(height: Sp.x5), Text(l.deskConNote, style: ts.label), SizedBox(height: Sp.x1), Text(x.note!, style: ts.body)],
         // Invoices (docs/invoices/flow.md §7): their invoice address, trust, request, share.
         if (ref.watch(deskApiProvider).supportsInvoices) ...[SizedBox(height: Sp.x6), _ContactInvoices(contact: x)],
         SizedBox(height: Sp.x6),
@@ -507,15 +510,15 @@ class _ContactDetail extends ConsumerWidget {
             Expanded(
               child: Semantics(
                 header: true,
-                child: Text('Transactions with ${x.name}', style: ts.label, overflow: TextOverflow.ellipsis),
+                child: Text(l.deskConTxWith(x.name), style: ts.label, overflow: TextOverflow.ellipsis),
               ),
             ),
-            if (mine.isNotEmpty) ELink(label: 'All transactions', onPressed: () => nav.go(DeskRoute.activity)),
+            if (mine.isNotEmpty) ELink(label: l.deskConAllTx, onPressed: () => nav.go(DeskRoute.activity)),
           ],
         ),
         SizedBox(height: Sp.x2),
         if (mine.isEmpty)
-          Text('No transactions with this contact yet. Payments sent to them from Send appear here.', style: ts.bodyDim)
+          Text(l.deskConTxNone, style: ts.bodyDim)
         else
           Container(
             clipBehavior: Clip.antiAlias,
@@ -527,7 +530,7 @@ class _ContactDetail extends ConsumerWidget {
               children: [
                 for (final (i, t) in mine.take(5).indexed) ...[
                   if (i > 0) Divider(height: 1, color: c.line),
-                  TxRow(tx: t, compact: true, title: t.incoming ? 'Received' : 'Sent', onTap: () => nav.go(DeskRoute.activity, t.id)),
+                  TxRow(tx: t, compact: true, title: t.incoming ? l.deskConTxReceived : l.deskConTxSent, onTap: () => nav.go(DeskRoute.activity, t.id)),
                 ],
               ],
             ),
@@ -574,11 +577,11 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     watch(_addressFocus, 'address', _address);
   }
 
-  String? get _nameError => _name.text.trim().isEmpty ? 'Give the contact a name.' : null;
+  String? get _nameError => _name.text.trim().isEmpty ? context.l10n.deskConErrName : null;
   /// One error for every form that is not an address: "Not a recognised address" (spec 7).
   String? get _addressError {
     final a = _address.text.trim();
-    if (a.isEmpty) return 'Add an address.';
+    if (a.isEmpty) return context.l10n.deskConErrAddressEmpty;
     final p = parseAddress(a, ref.read(deskApiProvider));
     final allowed = switch (p.kind) {
       AddressKind.tor => DeskFeatures.tor,
@@ -586,7 +589,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       AddressKind.epicbox => true,
       AddressKind.none => false,
     };
-    return allowed && p.complete ? null : 'Not a recognised address';
+    return allowed && p.complete ? null : context.l10n.deskConErrAddressInvalid;
   }
 
   String? _shown(String key, String? error) => _tried || _touched.contains(key) ? error : null;
@@ -640,7 +643,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       if (mounted) {
         setState(() {
           _saving = false;
-          _saveError = deskErrorText(e);
+          _saveError = deskErrorText(e, context.l10n);
         });
       }
       return;
@@ -658,6 +661,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
+    final l = context.l10n;
     final nameError = _shown('name', _nameError);
     final addressError = _shown('address', _addressError);
     // Enter: Name → Address, then Save (the Note keeps Enter for a new line).
@@ -679,7 +683,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Semantics(header: true, child: Text(widget.contact == null ? 'New contact' : 'Edit contact', style: ts.h2)),
+                  Semantics(header: true, child: Text(widget.contact == null ? l.deskConNewTitle : l.deskConEditTitle, style: ts.h2)),
                   if (DeskFeatures.contactPictures) ...[
                   SizedBox(height: Sp.x2),
                   Wrap(
@@ -687,18 +691,18 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
                     runSpacing: Sp.x1,
                     children: [
                       EButton(
-                        label: _picture ? 'Change picture' : 'Add picture',
+                        label: _picture ? l.deskConChangePicture : l.deskConAddPicture,
                         icon: EIcons.camera,
                         kind: EBtnKind.ghost,
                         size: EBtnSize.inline,
                         tabStop: false,
                         onPressed: () => setState(() => _picture = true),
                       ),
-                      if (_picture) EButton(label: 'Remove', icon: EIcons.trash, kind: EBtnKind.ghost, size: EBtnSize.inline, tabStop: false, onPressed: () => setState(() => _picture = false)),
+                      if (_picture) EButton(label: l.deskConRemovePicture, icon: EIcons.trash, kind: EBtnKind.ghost, size: EBtnSize.inline, tabStop: false, onPressed: () => setState(() => _picture = false)),
                     ],
                   ),
                   SizedBox(height: Sp.x1),
-                  Text('PNG, JPEG, WebP or GIF, up to 10 MB. A small copy is kept in this app.', style: ts.caption),
+                  Text(l.deskConPictureHelp, style: ts.caption),
                   ],
                 ],
               ),
@@ -707,13 +711,13 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
         ),
         SizedBox(height: Sp.x6),
         EField(
-          label: 'Name',
+          label: l.deskConFieldName,
           error: nameError,
           child: EInput(controller: _name, focusNode: _nameFocus, invalid: nameError != null, onChanged: (_) => setState(() {}), autofocus: true),
         ),
         SizedBox(height: Sp.x5),
         EField(
-          label: 'Address',
+          label: l.deskConFieldAddress,
           error: addressError,
           child: EInput(controller: _address, focusNode: _addressFocus, mono: true, invalid: addressError != null, onChanged: (_) => setState(() {})),
         ),
@@ -729,13 +733,13 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
         ],
         SizedBox(height: Sp.x5),
         EField(
-          label: 'Note',
+          label: l.deskConNote,
           optional: true,
           child: EInput(controller: _note, maxLines: 3),
         ),
         SizedBox(height: Sp.x6),
         if (_saveError != null) ...[
-          ENotice(title: 'Contact not saved', text: _saveError, tone: ETone.risk),
+          ENotice(title: l.deskConSaveFailed, text: _saveError, tone: ETone.risk),
           SizedBox(height: Sp.x4),
         ],
         Wrap(
@@ -743,8 +747,8 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           spacing: Sp.x2,
           runSpacing: Sp.x2,
           children: [
-            EButton(label: 'Cancel', tabStop: false, onPressed: () => widget.onDone(null)),
-            EButton.primary(label: 'Save contact', icon: EIcons.check, busy: _saving, onPressed: _save),
+            EButton(label: l.commonCancel, tabStop: false, onPressed: () => widget.onDone(null)),
+            EButton.primary(label: l.deskConSave, icon: EIcons.check, busy: _saving, onPressed: _save),
           ],
         ),
       ],
@@ -785,16 +789,19 @@ Future<TrustedSender?> _askStopTrusting(BuildContext context, WidgetRef ref, Con
 /// Asks before deleting a contact.
 Future<bool?> showDeleteContactDialog(BuildContext context, Contact x) => showEDialog<bool>(
   context,
-  builder: (context) => EDialog(
-    title: 'Delete ${x.name}?',
-    icon: EIcons.trash,
-    tone: ETone.risk,
-    description: 'The contact’s address and note are removed from this wallet. Past transactions stay in Activity. This cannot be undone.',
-    actions: [
-      EButton(label: 'Keep contact', size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
-      EButton(label: 'Delete contact', icon: EIcons.trash, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
-    ],
-  ),
+  builder: (context) {
+    final l = context.l10n;
+    return EDialog(
+      title: l.deskConDeleteTitle(x.name),
+      icon: EIcons.trash,
+      tone: ETone.risk,
+      description: l.deskConDeleteBody,
+      actions: [
+        EButton(label: l.deskConKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
+        EButton(label: l.deskConDeleteAction, icon: EIcons.trash, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+      ],
+    );
+  },
 );
 
 /// A contact's invoices: their invoice address, whether they may bill this wallet, and the two

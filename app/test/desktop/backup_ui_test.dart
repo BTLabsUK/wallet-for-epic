@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/backup.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
@@ -79,12 +80,12 @@ Future<void> _open(WidgetTester tester) async {
 void main() {
   test('the state line in its three forms', () {
     final now = DateTime(2026, 10, 22, 16);
-    expect(backupStateLine(const HistoryBackupState()), 'Never exported.');
+    expect(backupStateLine(englishStrings, const HistoryBackupState()), 'Never exported.');
     expect(
-      backupStateLine(HistoryBackupState(lastExport: DateTime(2026, 10, 3, 14, 2), unbacked: 12), now: now),
+      backupStateLine(englishStrings, HistoryBackupState(lastExport: DateTime(2026, 10, 3, 14, 2), unbacked: 12), now: now),
       'Last export 3 Oct 2026, 14:02 · 12 payments since.',
     );
-    expect(backupStateLine(HistoryBackupState(lastExport: DateTime(2026, 10, 22, 14, 2)), now: now), 'Last export today, 14:02 · nothing new since.');
+    expect(backupStateLine(englishStrings, HistoryBackupState(lastExport: DateTime(2026, 10, 22, 14, 2)), now: now), 'Last export today, 14:02 · nothing new since.');
     expect(deskHistoryFileName('mainnet', DateTime(2026, 10, 22), 'wfeh'), 'epic-history-mainnet-20261022.wfeh');
   });
 
@@ -225,9 +226,9 @@ void main() {
       created: DateTime(2026, 9, 14),
       fromBackup: true,
     );
-    expect(whoOf(t), 'Received');
-    expect(statusOf(t).$1, 'From backup');
-    expect(whoTip(t), 'Added from a history backup.');
+    expect(whoOf(englishStrings, t), 'Received');
+    expect(statusOf(englishStrings, t).$1, 'From backup');
+    expect(whoTip(englishStrings, t), 'Added from a history backup.');
     await _pump(tester, TxRow(tx: t, onTap: () {}));
     expect(find.text('Received'), findsOneWidget);
     expect(find.textContaining('From backup', findRichText: true), findsWidgets);

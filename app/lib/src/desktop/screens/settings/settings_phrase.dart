@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
 
@@ -23,10 +25,11 @@ Timer? _clipboardTimer;
 /// Copies a recovery phrase and clears the clipboard 30 s later if the phrase is still there.
 /// One timer for the app, outliving the page.
 Future<void> copyPhrase(BuildContext context, String phrase) async {
+  final l = context.l10n;
   try {
     await Clipboard.setData(ClipboardData(text: phrase));
   } on Object {
-    if (context.mounted) showEToast(context, 'Not copied', text: 'The clipboard refused the text.', tone: ETone.risk);
+    if (context.mounted) showEToast(context, l.deskSetPhraseNotCopied, text: l.deskSetPhraseClipboardRefused, tone: ETone.risk);
     return;
   }
   _clipboardTimer?.cancel();
@@ -34,7 +37,7 @@ Future<void> copyPhrase(BuildContext context, String phrase) async {
     final now = await Clipboard.getData(Clipboard.kTextPlain);
     if (now?.text == phrase) await Clipboard.setData(const ClipboardData(text: ''));
   });
-  if (context.mounted) showEToast(context, 'Phrase copied', text: 'The clipboard is cleared in 30 s.');
+  if (context.mounted) showEToast(context, l.deskSetPhraseCopied, text: l.deskSetPhraseCleared);
 }
 
 class SettingsPhraseScreen extends ConsumerStatefulWidget {
@@ -92,8 +95,9 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
   }
 
   Future<void> _show() async {
+    final l = context.l10n;
     if (_password.text.isEmpty) {
-      setState(() => _error = 'Enter the password.');
+      setState(() => _error = l.deskSetPhraseEnterPassword);
       return;
     }
     setState(() {
@@ -113,7 +117,7 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = e is DeskError && !e.wrongPassword ? e.message : 'Wrong password.';
+          _error = e is DeskError && !e.wrongPassword ? deskErrorText(e, l) : l.deskSetPhraseWrongPassword;
         });
       }
     }
@@ -125,69 +129,70 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
   Widget build(BuildContext context) {
     final words = _words;
     final c = context.dc;
+    final l = context.l10n;
     return SettingsFrame(
       route: DeskRoute.settingsPhrase,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ESectionHead('Recovery phrase', top: 0),
-          Text('Write the words on paper, in this order. Never type them into a website or a chat.', style: context.ts.bodyDim),
+          ESectionHead(l.deskSetFramePhrase, top: 0),
+          Text(l.deskSetPhraseIntro, style: context.ts.bodyDim),
           SizedBox(height: Sp.x5),
           if (words == null)
             EPanel(
-              title: 'Enter the password to show the words',
+              title: l.deskSetPhrasePanel,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ESeedGrid(words: List.filled(24, ''), revealed: false),
                   SizedBox(height: Sp.x5),
                   EField(
-                    label: 'Password',
+                    label: l.deskSetDlgPassword,
                     error: _error,
                     child: EPasswordInput(controller: _password, invalid: _error != null, onChanged: (_) => setState(() => _error = null), onSubmitted: (_) => _show()),
                   ),
                   SizedBox(height: Sp.x4),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: EButton.primary(label: 'Show words', icon: EIcons.eye, busy: _busy, onPressed: _show),
+                    child: EButton.primary(label: l.deskSetPhraseShowWords, icon: EIcons.eye, busy: _busy, onPressed: _show),
                   ),
                 ],
               ),
             )
           else ...[
-            Semantics(label: 'Recovery phrase, ${words.length} words', child: ESeedGrid(words: words)),
+            Semantics(label: l.deskSetPhraseWordsLabel(words.length), child: ESeedGrid(words: words)),
             SizedBox(height: Sp.x4),
             Wrap(
               spacing: Sp.x2,
               runSpacing: Sp.x2,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                EButton(label: 'Copy', icon: EIcons.copy, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _copy),
+                EButton(label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _copy),
                 Semantics(
                   expanded: _qr,
                   child: EButton(
-                    label: _qr ? 'Hide QR code' : 'Show QR code',
+                    label: _qr ? l.deskSetPhraseHideQr : l.deskSetPhraseShowQr,
                     icon: _qr ? EIcons.eyeOff : EIcons.qr,
                     size: EBtnSize.sm,
                     kind: EBtnKind.ghost,
                     onPressed: () => setState(() => _qr = !_qr),
                   ),
                 ),
-                EButton(label: 'Hide words', icon: EIcons.eyeOff, size: EBtnSize.sm, onPressed: _hide),
-                Text('Hides in $_left s', style: context.ts.small.copyWith(color: c.faint)),
+                EButton(label: l.deskSetPhraseHideWords, icon: EIcons.eyeOff, size: EBtnSize.sm, onPressed: _hide),
+                Text(l.deskSetPhraseHidesIn(_left), style: context.ts.small.copyWith(color: c.faint)),
               ],
             ),
             if (_qr) ...[
               SizedBox(height: Sp.x4),
               Align(
                 alignment: Alignment.centerLeft,
-                child: Semantics(label: 'QR code of the recovery phrase', image: true, child: EQr(words.join(' '), size: 216.u)),
+                child: Semantics(label: l.deskSetPhraseQrLabel, image: true, child: EQr(words.join(' '), size: 216.u)),
               ),
             ],
             SizedBox(height: Sp.x5),
-            const ENotice(
-              title: 'Back up the phrase',
-              text: 'Anyone with these words can take the EPIC. Check that nobody can see the screen.',
+            ENotice(
+              title: l.deskSetPhraseBackUp,
+              text: l.deskSetPhraseBackUpText,
               tone: ETone.warn,
               icon: EIcons.shield,
             ),

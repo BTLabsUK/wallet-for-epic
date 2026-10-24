@@ -1,0 +1,250 @@
+{
+  "deskConTitle": "Contacts",
+  "@deskConTitle": {
+    "description": "Title of the Contacts page: saved people and shops with their addresses."
+  },
+  "deskConLoading": "Loading contacts",
+  "@deskConLoading": {
+    "description": "Line with a spinner on Contacts while the list loads."
+  },
+  "deskConNewTitle": "New contact",
+  "@deskConNewTitle": {
+    "description": "Title of the form for a new contact (page title on a narrow window, panel title and form heading)."
+  },
+  "deskConEditTitle": "Edit contact",
+  "@deskConEditTitle": {
+    "description": "Title of the form for editing a contact (page title on a narrow window, panel title and form heading)."
+  },
+  "deskConDetailsTitle": "Details",
+  "@deskConDetailsTitle": {
+    "description": "Title of the panel beside the contact list when a contact is shown."
+  },
+  "deskConSearchHint": "Name or address",
+  "@deskConSearchHint": {
+    "description": "Placeholder of the search field above the contact list."
+  },
+  "deskConSearchLabel": "Search contacts",
+  "@deskConSearchLabel": {
+    "description": "Screen reader label of the search field above the contact list."
+  },
+  "deskConClearSearch": "Clear search",
+  "@deskConClearSearch": {
+    "description": "Tooltip of the button that empties the contact search; also the button of the 'no contacts match' state."
+  },
+  "deskConCount": "{count, plural, one{{count} contact} other{{count} contacts}}",
+  "@deskConCount": {
+    "description": "Number of saved contacts, above a long contact list.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "deskConNoMatches": "No matches",
+  "@deskConNoMatches": {
+    "description": "Count line above the contact list when the search finds nobody."
+  },
+  "deskConMatches": "{count, plural, one{{count} match} other{{count} matches}}",
+  "@deskConMatches": {
+    "description": "Count line above the contact list while searching.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskConSortName": "Name",
+  "@deskConSortName": {
+    "description": "Option of the sort switch above the contact list: sort by name. Narrow segment."
+  },
+  "deskConSortRecent": "Recent",
+  "@deskConSortRecent": {
+    "description": "Option of the sort switch above the contact list: most recently used first. Narrow segment."
+  },
+  "deskConNone": "No contacts yet.",
+  "@deskConNone": {
+    "description": "Line in the contact list when there are no contacts."
+  },
+  "deskConNoMatchList": "No contacts match",
+  "@deskConNoMatchList": {
+    "description": "Line in the contact list when the search finds nobody."
+  },
+  "deskConAdd": "Add contact",
+  "@deskConAdd": {
+    "description": "Button on Contacts that opens the form for a new contact. Short."
+  },
+  "deskConIdle": "Choose a contact to see their details, send to them, edit or delete them.",
+  "@deskConIdle": {
+    "description": "Text in the empty detail panel beside the contact list."
+  },
+  "deskConEmptyTitle": "No contacts yet",
+  "@deskConEmptyTitle": {
+    "description": "Title of the empty state of Contacts."
+  },
+  "deskConEmptyText": "Save the people and shops paid often. On Send, pick a name instead of pasting an address.",
+  "@deskConEmptyText": {
+    "description": "Text of the empty state of Contacts."
+  },
+  "deskConEmptyLocal": "Contacts stay on this computer. They are not part of the recovery phrase.",
+  "@deskConEmptyLocal": {
+    "description": "Small text of the empty state of Contacts."
+  },
+  "deskConSendToAddress": "Send to address",
+  "@deskConSendToAddress": {
+    "description": "Ghost button in the empty state of Contacts: opens Send without a contact."
+  },
+  "deskConLastTx": "Last transaction: {when}",
+  "@deskConLastTx": {
+    "description": "Small line under a contact's name. The placeholder is a time such as 'today', '3 days ago' or '12 Oct'.",
+    "placeholders": {
+      "when": {
+        "type": "String",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "deskConSend": "Send",
+  "@deskConSend": {
+    "description": "Primary button in a contact's detail: send to this contact. Short."
+  },
+  "deskConEdit": "Edit",
+  "@deskConEdit": {
+    "description": "Button in a contact's detail: edit it. Short."
+  },
+  "deskConStar": "Star",
+  "@deskConStar": {
+    "description": "Button in a contact's detail: mark as favourite. Short."
+  },
+  "deskConUnstar": "Unstar",
+  "@deskConUnstar": {
+    "description": "Button in a contact's detail: remove the favourite mark. Short."
+  },
+  "deskConDelete": "Delete",
+  "@deskConDelete": {
+    "description": "Danger button in a contact's detail: delete it. Short."
+  },
+  "deskConNotDeleted": "Not deleted",
+  "@deskConNotDeleted": {
+    "description": "Title of the toast when a contact could not be deleted; the reason follows as its text."
+  },
+  "deskConDeleted": "{name} was deleted",
+  "@deskConDeleted": {
+    "description": "Toast after a contact was deleted.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskConAddrEpicbox": "Epicbox address",
+  "@deskConAddrEpicbox": {
+    "description": "Label above the address in a contact's detail, for an Epicbox address."
+  },
+  "deskConAddrTor": "Tor address",
+  "@deskConAddrTor": {
+    "description": "Label above the address in a contact's detail, for a Tor address."
+  },
+  "deskConAddrHttp": "HTTP address",
+  "@deskConAddrHttp": {
+    "description": "Label above the address in a contact's detail, for an HTTP address."
+  },
+  "deskConNote": "Note",
+  "@deskConNote": {
+    "description": "Label above the note in a contact's detail; also the label of the note field in the form."
+  },
+  "deskConTxWith": "Transactions with {name}",
+  "@deskConTxWith": {
+    "description": "Heading above the list of payments with this contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskConAllTx": "All transactions",
+  "@deskConAllTx": {
+    "description": "Link next to the heading: opens Activity."
+  },
+  "deskConTxNone": "No transactions with this contact yet. Payments sent to them from Send appear here.",
+  "@deskConTxNone": {
+    "description": "Text under the heading when there are no payments with this contact."
+  },
+  "deskConTxReceived": "Received",
+  "@deskConTxReceived": {
+    "description": "Title of a compact row in a contact's payments: an incoming payment. One word."
+  },
+  "deskConTxSent": "Sent",
+  "@deskConTxSent": {
+    "description": "Title of a compact row in a contact's payments: an outgoing payment. One word."
+  },
+  "deskConErrName": "Give the contact a name.",
+  "@deskConErrName": {
+    "description": "Error under the Name field of the contact form when it is empty."
+  },
+  "deskConErrAddressEmpty": "Add an address.",
+  "@deskConErrAddressEmpty": {
+    "description": "Error under the Address field of the contact form when it is empty."
+  },
+  "deskConErrAddressInvalid": "Not a recognised address",
+  "@deskConErrAddressInvalid": {
+    "description": "Error under the Address field of the contact form when the text is not an address."
+  },
+  "deskConAddPicture": "Add picture",
+  "@deskConAddPicture": {
+    "description": "Small button in the contact form: add a picture. Only shown when contact pictures exist."
+  },
+  "deskConChangePicture": "Change picture",
+  "@deskConChangePicture": {
+    "description": "Small button in the contact form: change the picture."
+  },
+  "deskConRemovePicture": "Remove",
+  "@deskConRemovePicture": {
+    "description": "Small button in the contact form: remove the picture."
+  },
+  "deskConPictureHelp": "PNG, JPEG, WebP or GIF, up to 10 MB. A small copy is kept in this app.",
+  "@deskConPictureHelp": {
+    "description": "Small text under the picture buttons in the contact form."
+  },
+  "deskConFieldName": "Name",
+  "@deskConFieldName": {
+    "description": "Label of the Name field in the contact form."
+  },
+  "deskConFieldAddress": "Address",
+  "@deskConFieldAddress": {
+    "description": "Label of the Address field in the contact form."
+  },
+  "deskConSaveFailed": "Contact not saved",
+  "@deskConSaveFailed": {
+    "description": "Title of the red notice in the contact form when saving failed; the reason follows."
+  },
+  "deskConSave": "Save contact",
+  "@deskConSave": {
+    "description": "Primary button of the contact form. Short."
+  },
+  "deskConDeleteTitle": "Delete {name}?",
+  "@deskConDeleteTitle": {
+    "description": "Title of the dialog that asks before deleting a contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskConDeleteBody": "The contact’s address and note are removed from this wallet. Past transactions stay in Activity. This cannot be undone.",
+  "@deskConDeleteBody": {
+    "description": "Body of the dialog that asks before deleting a contact."
+  },
+  "deskConKeep": "Keep contact",
+  "@deskConKeep": {
+    "description": "Button in the delete dialog: do not delete. Short."
+  },
+  "deskConDeleteAction": "Delete contact",
+  "@deskConDeleteAction": {
+    "description": "Danger button in the delete dialog. Short."
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "deskSetPhraseNotCopied": "Not copied",
+  "@deskSetPhraseNotCopied": {
+    "description": "Toast title when the recovery phrase could not be copied."
+  },
+  "deskSetPhraseClipboardRefused": "The clipboard refused the text.",
+  "@deskSetPhraseClipboardRefused": {
+    "description": "Toast text when the clipboard refused the recovery phrase."
+  },
+  "deskSetPhraseCopied": "Phrase copied",
+  "@deskSetPhraseCopied": {
+    "description": "Toast title after the recovery phrase was copied."
+  },
+  "deskSetPhraseCleared": "The clipboard is cleared in 30 s.",
+  "@deskSetPhraseCleared": {
+    "description": "Toast text after the recovery phrase was copied."
+  },
+  "deskSetPhraseEnterPassword": "Enter the password.",
+  "@deskSetPhraseEnterPassword": {
+    "description": "Settings > Recovery phrase: error under the password field when it is empty."
+  },
+  "deskSetPhraseWrongPassword": "Wrong password.",
+  "@deskSetPhraseWrongPassword": {
+    "description": "Settings > Recovery phrase: error under the password field."
+  },
+  "deskSetPhraseIntro": "Write the words on paper, in this order. Never type them into a website or a chat.",
+  "@deskSetPhraseIntro": {
+    "description": "Settings > Recovery phrase: text under the page heading."
+  },
+  "deskSetPhrasePanel": "Enter the password to show the words",
+  "@deskSetPhrasePanel": {
+    "description": "Settings > Recovery phrase: title of the panel with the hidden words and the password field."
+  },
+  "deskSetPhraseShowWords": "Show words",
+  "@deskSetPhraseShowWords": {
+    "description": "Settings > Recovery phrase: button that reveals the words."
+  },
+  "deskSetPhraseWordsLabel": "{count, plural, one{Recovery phrase, {count} word} other{Recovery phrase, {count} words}}",
+  "@deskSetPhraseWordsLabel": {
+    "description": "Screen reader label of the revealed recovery phrase grid.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPhraseHideQr": "Hide QR code",
+  "@deskSetPhraseHideQr": {
+    "description": "Settings > Recovery phrase: button that hides the QR code."
+  },
+  "deskSetPhraseShowQr": "Show QR code",
+  "@deskSetPhraseShowQr": {
+    "description": "Settings > Recovery phrase: button that shows the phrase as a QR code."
+  },
+  "deskSetPhraseHideWords": "Hide words",
+  "@deskSetPhraseHideWords": {
+    "description": "Settings > Recovery phrase: button that hides the words."
+  },
+  "deskSetPhraseHidesIn": "Hides in {seconds} s",
+  "@deskSetPhraseHidesIn": {
+    "description": "Settings > Recovery phrase: countdown until the words hide themselves. {seconds} is a number of seconds.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPhraseQrLabel": "QR code of the recovery phrase",
+  "@deskSetPhraseQrLabel": {
+    "description": "Screen reader label of the recovery phrase QR code."
+  },
+  "deskSetPhraseBackUp": "Back up the phrase",
+  "@deskSetPhraseBackUp": {
+    "description": "Settings > Recovery phrase: title of the warning under the words."
+  },
+  "deskSetPhraseBackUpText": "Anyone with these words can take the EPIC. Check that nobody can see the screen.",
+  "@deskSetPhraseBackUpText": {
+    "description": "Settings > Recovery phrase: text of the warning under the words."
+  }
+}

@@ -1,6 +1,6 @@
 // The Help language switch on the desktop: the flag and own name of the help's language, a menu
 // of the six languages, a choice that is remembered and changes only the help, and the default
-// that follows the computer's language (the desktop interface itself stays English).
+// that follows the interface language, which follows the computer's unless one is chosen.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -65,9 +65,9 @@ void main() {
     await tester.pumpAndSettle();
     final settings = container.read(deskProvider).settings;
     expect(settings.helpLanguage, 'th');
-    // The interface is as it was: English, as the setting says.
-    expect(settings.language, 'English');
-    expect(deskLocaleOf(settings.language), const Locale('en'));
+    // The interface is as it was: the computer's language, as the setting says.
+    expect(settings.language, isNull);
+    expect(deskLocaleOf(settings.language), isNull);
     expect(find.descendant(of: _switch, matching: find.text('ไทย')), findsOneWidget);
     expect(find.text('Search help'), findsOneWidget);
   });
@@ -87,10 +87,19 @@ void main() {
     expect(const DeskSettings(helpLanguage: 'pl').copyWith(helpLanguage: () => null).helpLanguage, isNull);
   });
 
+  test('the interface language is saved with the settings; none follows the computer', () {
+    final json = deskSettingsToJson(const DeskSettings(language: 'de'));
+    expect(deskSettingsFromJson(json).language, 'de');
+    expect(deskSettingsFromJson(deskSettingsToJson(const DeskSettings())).language, isNull);
+    expect(deskSettingsFromJson({...json, 'language': 'Deutsch'}).language, isNull);
+    expect(const DeskSettings(language: 'de').copyWith(scale: 110).language, 'de');
+    expect(const DeskSettings(language: 'de').copyWith(language: () => null).language, isNull);
+  });
+
   test('every language of the desktop picker has a locale and a flag', () {
     for (final a in appLanguages) {
       expect(languageFlagFiles, contains(a.code));
     }
-    expect(deskLocaleOf('ไทย'), const Locale('th'));
+    expect(deskLocaleOf('th'), const Locale('th'));
   });
 }

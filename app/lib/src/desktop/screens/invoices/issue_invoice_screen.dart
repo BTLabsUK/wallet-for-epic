@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n.dart' show LocalizedFormatException;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
@@ -105,7 +106,12 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
 
   String? _amountError() {
     final l = context.l10n;
-    final p = parseEpic(_amount.text.trim());
+    final int? p;
+    try {
+      p = parseEpicIn(l, _amount.text);
+    } on LocalizedFormatException catch (e) {
+      return e.text(l);
+    }
     if (_amount.text.trim().isEmpty || p == null) return l.deskInvIssuerAmountMissing;
     if (p == epicTooLong) return l.deskInvIssuerAmountDecimals;
     if (p <= 0) return l.deskInvIssuerAmountZero;
@@ -130,7 +136,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
       final msg = _message.text.trim();
       await ref
           .read(deskInvoicesProvider.notifier)
-          .request(PaymentRequestDraft(payerAddress: payer, payerName: name, amount: parseEpic(_amount.text.trim())!, message: msg.isEmpty ? null : msg));
+          .request(PaymentRequestDraft(payerAddress: payer, payerName: name, amount: parseEpicIn(l, _amount.text)!, message: msg.isEmpty ? null : msg));
       if (!mounted) return;
       showEToast(context, l.deskInvIssuerSent(name ?? shortAddress(payer)));
       ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, InvoicesTab.issue);

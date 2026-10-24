@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -47,21 +48,23 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
   }
 
   Future<void> _addBack(WalletEntry w) async {
+    final l = context.l10n;
     setState(() => _adding = w.id);
     try {
       await ref.read(deskApiProvider).addBack(w.id);
       await ref.read(deskProvider.notifier).loadWallets();
-      if (mounted) showEToast(context, '${w.name} added back');
+      if (mounted) showEToast(context, l.deskSetWalletsAddedBack(w.name));
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Not added back', text: deskErrorText(e));
+      if (mounted) showEToast(context, l.deskSetWalletsNotAddedBack, text: deskErrorText(e, l));
     }
     if (mounted) setState(() => _adding = null);
     await _findRemoved();
   }
 
   Future<void> _openFolder(WalletEntry w) async {
+    final l = context.l10n;
     final ok = Directory(w.folder).existsSync() && await ref.read(deskOpenFolderProvider)(w.folder);
-    if (!ok && mounted) showEToast(context, 'Folder not opened', text: w.folder);
+    if (!ok && mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: w.folder);
   }
 
   Future<void> _remove(WalletEntry w) async {
@@ -71,6 +74,7 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final wallets = ref.watch(deskProvider.select((s) => s.wallets));
     final nav = ref.read(deskNavProvider.notifier);
     final c = context.dc;
@@ -83,7 +87,7 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ESetGroup(
-                  title: 'All wallets',
+                  title: l.deskSetFrameAllWallets,
                   rows: [
                     for (final w in wallets)
                       Padding(
@@ -103,8 +107,8 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                                     children: [
                                       Text(w.name, style: ts.strong, overflow: TextOverflow.ellipsis),
                                       if (w.network != 'mainnet') ETag(w.network, tone: ETone.warn),
-                                      if (w.current) const ETag('Open now', tone: ETone.ok),
-                                      if (w.missing) const ETag('Folder missing', tone: ETone.risk),
+                                      if (w.current) ETag(l.deskSetWalletsOpenNow, tone: ETone.ok),
+                                      if (w.missing) ETag(l.deskSetWalletsFolderMissing, tone: ETone.risk),
                                     ],
                                   ),
                                   Tooltip(
@@ -117,12 +121,12 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                             SizedBox(width: Sp.x2),
                             EIconButton(
                               icon: EIcons.folderOpen,
-                              label: 'Show ${w.name} in its folder',
+                              label: l.deskSetWalletsShowFolder(w.name),
                               onPressed: () => _openFolder(w),
                             ),
                             w.current
                                 ? SizedBox(width: Ctl.sm)
-                                : EIconButton(icon: EIcons.trash, label: 'Remove ${w.name}…', onPressed: () => _remove(w)),
+                                : EIconButton(icon: EIcons.trash, label: l.deskSetWalletsRemove(w.name), onPressed: () => _remove(w)),
                           ],
                         ),
                       ),
@@ -130,38 +134,38 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                 ),
                 if (_removed.isNotEmpty)
                   ESetGroup(
-                    title: 'Removed from list',
+                    title: l.deskSetWalletsRemovedGroup,
                     rows: [
                       for (final w in _removed)
                         ESetRow(
                           title: w.name,
                           text: shortPath(w.folder),
-                          control: ERowControl(child: EButton(label: 'Add back', size: EBtnSize.sm, busy: _adding == w.id, onPressed: _adding == null ? () => _addBack(w) : null)),
+                          control: ERowControl(child: EButton(label: l.deskSetWalletsAddBack, size: EBtnSize.sm, busy: _adding == w.id, onPressed: _adding == null ? () => _addBack(w) : null)),
                         ),
                     ],
                   ),
-                ESectionHead('Add a wallet', top: 0),
+                ESectionHead(l.deskSetWalletsAdd, top: 0),
                 LayoutBuilder(
                   builder: (context, box) {
                     final cards = [
                       EChoiceCard(
-                        title: 'Create a wallet',
-                        description: 'A new wallet with a new recovery phrase.',
+                        title: l.deskSetWalletsCreate,
+                        description: l.deskSetWalletsCreateText,
                         icon: EIcons.plus,
                         selected: false,
                         onTap: () => nav.go(DeskRoute.create),
                       ),
                       if (DeskFeatures.importWizard)
                         EChoiceCard(
-                          title: 'Import',
-                          description: 'From an older Epic Wallet or a folder.',
+                          title: l.deskSetWalletsImport,
+                          description: l.deskSetWalletsImportText,
                           icon: EIcons.folderOpen,
                           selected: false,
                           onTap: () => nav.go(DeskRoute.importWallets),
                         ),
                       EChoiceCard(
-                        title: 'Restore',
-                        description: 'From a recovery phrase.',
+                        title: l.deskSetWalletsRestore,
+                        description: l.deskSetWalletsRestoreText,
                         icon: EIcons.backup,
                         selected: false,
                         onTap: () => nav.go(DeskRoute.restore),

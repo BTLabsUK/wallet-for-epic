@@ -1,0 +1,646 @@
+{
+  "deskTxMethodFile": "File",
+  "@deskTxMethodFile": {
+    "description": "Transaction method name for a payment made with a file (not Epicbox, HTTP or Tor). Table cell and detail value; one short word."
+  },
+  "deskTxMiningReward": "Mining reward",
+  "@deskTxMiningReward": {
+    "description": "Who the other side of a transaction is when it is a mining reward. Activity table name column; short."
+  },
+  "deskTxReceived": "Received",
+  "@deskTxReceived": {
+    "description": "Name column of an Activity row for a payment restored from a history backup with no sender known (incoming); also the status word of a confirmed incoming payment and the semantics label. One word."
+  },
+  "deskTxSent": "Sent",
+  "@deskTxSent": {
+    "description": "Name column of an Activity row for a payment restored from a history backup with no recipient known (outgoing); also the status word of a confirmed outgoing payment. One word."
+  },
+  "deskTxUnknownSender": "Unknown sender",
+  "@deskTxUnknownSender": {
+    "description": "Name column of an Activity row for an incoming payment whose sender is not recorded."
+  },
+  "deskTxUnknownRecipient": "Unknown recipient",
+  "@deskTxUnknownRecipient": {
+    "description": "Name column of an Activity row for an outgoing payment whose recipient is not recorded."
+  },
+  "deskTxNoteBlock": "Block time. The sender is not recorded.",
+  "@deskTxNoteBlock": {
+    "description": "Small note under the Date step of a payment found by a scan, when the date comes from the block."
+  },
+  "deskTxNoteScanTime": "Time of the scan; the block's time could not be read. The sender is not recorded.",
+  "@deskTxNoteScanTime": {
+    "description": "Small note under the Date step of a payment found by a scan, when the block's time could not be read so the time of the scan is shown."
+  },
+  "deskTxNoteUnknown": "The sender is not recorded.",
+  "@deskTxNoteUnknown": {
+    "description": "Small note under the first step of a payment found by a scan when the scan type is not known."
+  },
+  "deskTxFoundRestoredLabel": "Restored",
+  "@deskTxFoundRestoredLabel": {
+    "description": "Name of a payment found while restoring the wallet. Activity table, narrow; one word."
+  },
+  "deskTxFoundRestoredLine": "Found while restoring",
+  "@deskTxFoundRestoredLine": {
+    "description": "Small line under the name of a payment found while restoring the wallet. Activity table, narrow."
+  },
+  "deskTxFoundRestoredStep": "Found while restoring this wallet",
+  "@deskTxFoundRestoredStep": {
+    "description": "First step on the transaction detail timeline for a payment found while restoring the wallet."
+  },
+  "deskTxFoundRestoredTip": "Found on the chain while restoring this wallet. The sender is not recorded.",
+  "@deskTxFoundRestoredTip": {
+    "description": "Tooltip on a payment found while restoring the wallet."
+  },
+  "deskTxFoundRescanLabel": "Found by scan",
+  "@deskTxFoundRescanLabel": {
+    "description": "Name of a payment found by a scan (balance recheck or any scan). Activity table, narrow."
+  },
+  "deskTxFoundRescanLine": "Found by a balance recheck",
+  "@deskTxFoundRescanLine": {
+    "description": "Small line under the name of a payment found by a balance recheck. Activity table, narrow."
+  },
+  "deskTxFoundRescanStep": "Found by a balance recheck",
+  "@deskTxFoundRescanStep": {
+    "description": "First step on the transaction detail timeline for a payment found by a balance recheck."
+  },
+  "deskTxFoundRescanTip": "Found on the chain by a balance recheck. The sender is not recorded.",
+  "@deskTxFoundRescanTip": {
+    "description": "Tooltip on a payment found by a balance recheck."
+  },
+  "deskTxFoundScanLine": "Found by a scan",
+  "@deskTxFoundScanLine": {
+    "description": "Small line under the name of a payment found by a scan of unknown kind. Activity table, narrow."
+  },
+  "deskTxFoundScanStep": "Found by a scan",
+  "@deskTxFoundScanStep": {
+    "description": "First step on the transaction detail timeline for a payment found by a scan of unknown kind."
+  },
+  "deskTxFoundScanTip": "Found on the chain by a scan. The sender is not recorded.",
+  "@deskTxFoundScanTip": {
+    "description": "Tooltip on a payment found by a scan of unknown kind."
+  },
+  "deskTxBackupTip": "Added from a history backup.",
+  "@deskTxBackupTip": {
+    "description": "Tooltip on a payment that was added from a history backup file."
+  },
+  "deskTxFromBackup": "From backup",
+  "@deskTxFromBackup": {
+    "description": "Status and small line of a payment that came from a history backup. Activity table, narrow."
+  },
+  "deskTxStatusImmature": "Immature",
+  "@deskTxStatusImmature": {
+    "description": "Status of a mining reward not yet spendable. Activity table status column, narrow; one word."
+  },
+  "deskTxStatusWaitingSender": "Waiting for sender to finalize",
+  "@deskTxStatusWaitingSender": {
+    "description": "Status of an incoming payment that waits for the sender to finalize it. Narrow status column."
+  },
+  "deskTxStatusWaitingResponseFile": "Waiting for the response file",
+  "@deskTxStatusWaitingResponseFile": {
+    "description": "Status of an outgoing file payment that waits for the response file from the recipient. Narrow status column."
+  },
+  "deskTxStatusWaitingRecipient": "Waiting for recipient to sign",
+  "@deskTxStatusWaitingRecipient": {
+    "description": "Status of an outgoing payment that waits for the recipient to sign. Narrow status column."
+  },
+  "deskTxStatusWaitingBlock": "Waiting for a block",
+  "@deskTxStatusWaitingBlock": {
+    "description": "Status of a payment that was sent to the network and waits to be put in a block. Narrow status column."
+  },
+  "deskTxStatusConfirming": "Confirming {confirmations}/{needed}",
+  "@deskTxStatusConfirming": {
+    "description": "Status of a payment on the chain: how many confirmations it has of how many are needed. Narrow status column.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int",
+        "example": "1"
+      },
+      "needed": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskTxStatusCancelled": "Cancelled",
+  "@deskTxStatusCancelled": {
+    "description": "Status of a cancelled payment. Narrow status column; one word."
+  },
+  "deskTxToday": "today",
+  "@deskTxToday": {
+    "description": "Lower case, inside a sentence such as 'Last transaction: today'."
+  },
+  "deskTxYesterday": "yesterday",
+  "@deskTxYesterday": {
+    "description": "Lower case, inside a sentence such as 'Last transaction: yesterday'."
+  },
+  "deskTxDaysAgo": "{count, plural, one{{count} day ago} other{{count} days ago}}",
+  "@deskTxDaysAgo": {
+    "description": "How long ago a payment was, from 2 to 6 days. Inside a sentence such as 'Last transaction: 3 days ago'.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskTxTodayAt": "Today {time}",
+  "@deskTxTodayAt": {
+    "description": "Compact row time: today with the clock time.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "16:58"
+      }
+    }
+  },
+  "deskTxDayToday": "Today · {date}",
+  "@deskTxDayToday": {
+    "description": "Day separator above the Activity list for today. The date is a full weekday and date.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Wednesday 21 October"
+      }
+    }
+  },
+  "deskTxDayYesterday": "Yesterday · {date}",
+  "@deskTxDayYesterday": {
+    "description": "Day separator above the Activity list for yesterday. The date is a full weekday and date.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Tuesday 20 October"
+      }
+    }
+  },
+  "deskTxFee": "Fee {amount}",
+  "@deskTxFee": {
+    "description": "Small line under the amount of an outgoing payment: the network fee. The amount is a number without the unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "0.023"
+      }
+    }
+  },
+  "deskTxPaymentProof": "Payment proof",
+  "@deskTxPaymentProof": {
+    "description": "Small line under a payment that has a payment proof."
+  },
+  "deskTxFinalize": "Finalize",
+  "@deskTxFinalize": {
+    "description": "Button in an Activity row of an outgoing file payment: finalize it with the response file. Short."
+  },
+  "deskTxSemReceived": "Received {amount}, {who}, {status}",
+  "@deskTxSemReceived": {
+    "description": "Screen reader label of an Activity row for a payment received.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      },
+      "status": {
+        "type": "String",
+        "example": "Confirming 2/3"
+      }
+    }
+  },
+  "deskTxSemSent": "Sent {amount}, {who}, {status}",
+  "@deskTxSemSent": {
+    "description": "Screen reader label of an Activity row for a payment sent.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      },
+      "status": {
+        "type": "String",
+        "example": "Confirming 2/3"
+      }
+    }
+  },
+  "deskTxSemKind": "{kind} {amount}, {who}, {status}",
+  "@deskTxSemKind": {
+    "description": "Screen reader label of an Activity row for an invoice or request; kind is a word such as Unpaid.",
+    "placeholders": {
+      "kind": {
+        "type": "String",
+        "example": "Unpaid"
+      },
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      },
+      "status": {
+        "type": "String",
+        "example": "Waiting"
+      }
+    }
+  },
+  "deskTxHiddenAmount": "hidden amount",
+  "@deskTxHiddenAmount": {
+    "description": "Screen reader words for an amount hidden by the 'hide amounts' setting."
+  },
+  "deskTxNowBackup": "From backup; the chain was not asked.",
+  "@deskTxNowBackup": {
+    "description": "Status line at the top of the transaction detail for a payment that came from a history backup."
+  },
+  "deskTxNowImmature": "{count, plural, one{Confirmed, but a mining reward is spendable only after {count} confirmation.} other{Confirmed, but a mining reward is spendable only after {count} confirmations.}}",
+  "@deskTxNowImmature": {
+    "description": "Status line at the top of the transaction detail for a mining reward that is not yet spendable.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "100"
+      }
+    }
+  },
+  "deskTxNowWaitingSender": "Signed and returned. Waiting for the sender to finalize.",
+  "@deskTxNowWaitingSender": {
+    "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back."
+  },
+  "deskTxNowWaitingResponseFile": "Waiting for the response file. Finalize when it arrives.",
+  "@deskTxNowWaitingResponseFile": {
+    "description": "Status line on the transaction detail: an outgoing file payment waiting for the recipient's response file."
+  },
+  "deskTxNowWaitingRecipient": "Waiting for the recipient to sign. Nothing leaves the wallet until it is finalized.",
+  "@deskTxNowWaitingRecipient": {
+    "description": "Status line on the transaction detail: an outgoing payment waiting for the recipient to sign."
+  },
+  "deskTxNowPosted": "Posted to the network, waiting for a block.",
+  "@deskTxNowPosted": {
+    "description": "Status line on the transaction detail: a payment was sent to the network and is not in a block yet."
+  },
+  "deskTxNowConfirming": "{needed, plural, one{In a block, {confirmations} of {needed} confirmation.} other{In a block, {confirmations} of {needed} confirmations.}}",
+  "@deskTxNowConfirming": {
+    "description": "Status line on the transaction detail: how many confirmations a payment has of how many it needs.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int",
+        "example": "2"
+      },
+      "needed": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskTxNowConfirmed": "{confirmations, plural, one{Confirmed, {confirmations} confirmation.} other{Confirmed, {confirmations} confirmations.}}",
+  "@deskTxNowConfirmed": {
+    "description": "Status line on the transaction detail for a confirmed payment.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "deskTxNowCancelled": "Cancelled.",
+  "@deskTxNowCancelled": {
+    "description": "Status line on the transaction detail for a cancelled payment."
+  },
+  "deskTxNotCancelled": "Not cancelled",
+  "@deskTxNotCancelled": {
+    "description": "Title of the toast when cancelling a payment failed; the reason follows as its text."
+  },
+  "deskTxCancelled": "Transaction cancelled",
+  "@deskTxCancelled": {
+    "description": "Toast after a payment was cancelled."
+  },
+  "deskTxCancelling": "Cancelling",
+  "@deskTxCancelling": {
+    "description": "Label of the Cancel button on the transaction detail while the cancel is running. One word."
+  },
+  "deskTxHeadRestored": "restored",
+  "@deskTxHeadRestored": {
+    "description": "Small line under the big amount on the transaction detail: the payment was found while restoring the wallet. Lower case."
+  },
+  "deskTxHeadFoundOnChain": "found on the chain",
+  "@deskTxHeadFoundOnChain": {
+    "description": "Small line under the big amount on the transaction detail: the payment was found by a scan. Lower case."
+  },
+  "deskTxHeadBackup": "added from a history backup",
+  "@deskTxHeadBackup": {
+    "description": "Small line under the big amount on the transaction detail: the payment came from a history backup. Lower case."
+  },
+  "deskTxHeadFrom": "from {who}",
+  "@deskTxHeadFrom": {
+    "description": "Small line under the big amount on the transaction detail for an incoming payment. The name is shown in a different style; keep the placeholder as one piece. Lower case.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskTxHeadTo": "to {who}",
+  "@deskTxHeadTo": {
+    "description": "Small line under the big amount on the transaction detail for an outgoing payment. The name is shown in a different style; keep the placeholder as one piece. Lower case.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskTxSubProgress": "Progress",
+  "@deskTxSubProgress": {
+    "description": "Section heading on the transaction detail: the timeline of steps."
+  },
+  "deskTxSubDetails": "Details",
+  "@deskTxSubDetails": {
+    "description": "Section heading on the transaction detail: the facts list."
+  },
+  "deskTxFactDate": "Date",
+  "@deskTxFactDate": {
+    "description": "Label in the facts list on the transaction detail. Narrow label column."
+  },
+  "deskTxFactFrom": "From",
+  "@deskTxFactFrom": {
+    "description": "Label in the facts list on the transaction detail for an incoming payment's sender address. Narrow label column."
+  },
+  "deskTxFactTo": "To",
+  "@deskTxFactTo": {
+    "description": "Label in the facts list on the transaction detail for an outgoing payment's recipient address. Narrow label column."
+  },
+  "deskTxCopyAddress": "Copy address",
+  "@deskTxCopyAddress": {
+    "description": "Tooltip of the copy button next to the address on the transaction detail."
+  },
+  "deskTxFactMethod": "Method",
+  "@deskTxFactMethod": {
+    "description": "Label in the facts list on the transaction detail: how the payment travelled (Epicbox, HTTP, Tor, file). Narrow label column."
+  },
+  "deskTxFactAmount": "Amount",
+  "@deskTxFactAmount": {
+    "description": "Label in the facts list on the transaction detail. Narrow label column."
+  },
+  "deskTxFactFee": "Fee",
+  "@deskTxFactFee": {
+    "description": "Label in the facts list on the transaction detail: the network fee. Narrow label column."
+  },
+  "deskTxFactTotal": "Total",
+  "@deskTxFactTotal": {
+    "description": "Label in the facts list on the transaction detail: amount plus fee. Narrow label column."
+  },
+  "deskTxFactMessage": "Message",
+  "@deskTxFactMessage": {
+    "description": "Label in the facts list on the transaction detail: the note attached to the payment. Narrow label column."
+  },
+  "deskTxSignedByRecipient": "Signed by the recipient",
+  "@deskTxSignedByRecipient": {
+    "description": "Payment proof line on the transaction detail, and a step of the timeline."
+  },
+  "deskTxProofView": "View",
+  "@deskTxProofView": {
+    "description": "Button on the transaction detail that opens the payment proof. Short."
+  },
+  "deskTxTechTitle": "Technical details",
+  "@deskTxTechTitle": {
+    "description": "Collapsible section on the transaction detail with technical identifiers."
+  },
+  "deskTxTechId": "Id",
+  "@deskTxTechId": {
+    "description": "Technical details label: the wallet's internal number of the transaction. Narrow label column."
+  },
+  "deskTxTechSlate": "Slate id",
+  "@deskTxTechSlate": {
+    "description": "Technical details label: the slate id, a unique id of the payment. Narrow label column."
+  },
+  "deskTxCopySlate": "Copy slate id",
+  "@deskTxCopySlate": {
+    "description": "Tooltip of the copy button next to the slate id."
+  },
+  "deskTxTechHeight": "Height",
+  "@deskTxTechHeight": {
+    "description": "Technical details label: the block height. Narrow label column."
+  },
+  "deskTxTechKernel": "Kernel",
+  "@deskTxTechKernel": {
+    "description": "Technical details label: the transaction kernel. Narrow label column."
+  },
+  "deskTxTechConfirmed": "Confirmed",
+  "@deskTxTechConfirmed": {
+    "description": "Technical details label: when the payment was confirmed. Narrow label column."
+  },
+  "deskTxTechCredited": "Credited",
+  "@deskTxTechCredited": {
+    "description": "Technical details label: the amount added to the balance. Narrow label column."
+  },
+  "deskTxTechDebited": "Debited",
+  "@deskTxTechDebited": {
+    "description": "Technical details label: the amount taken from the balance. Narrow label column."
+  },
+  "deskTxTechStatus": "Status",
+  "@deskTxTechStatus": {
+    "description": "Technical details label: the internal state name. Narrow label column."
+  },
+  "deskTxTechType": "Type",
+  "@deskTxTechType": {
+    "description": "Technical details label: the core's transaction type name. Narrow label column."
+  },
+  "deskTxStepMined": "Mined in a block",
+  "@deskTxStepMined": {
+    "description": "Timeline step of a mining reward."
+  },
+  "deskTxStepSpendable": "Spendable",
+  "@deskTxStepSpendable": {
+    "description": "Timeline step: the payment can be spent. Also the status of a payment that has enough confirmations."
+  },
+  "deskTxStepBlocksToGo": "{count, plural, one{{count} block to go} other{{count} blocks to go}}",
+  "@deskTxStepBlocksToGo": {
+    "description": "Small line under the Spendable step of a mining reward.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "40"
+      }
+    }
+  },
+  "deskTxStepReceivedSlate": "Received slate",
+  "@deskTxStepReceivedSlate": {
+    "description": "Timeline step of an incoming payment: the sender's first message arrived."
+  },
+  "deskTxStepCreated": "Created and signed",
+  "@deskTxStepCreated": {
+    "description": "Timeline step of an outgoing payment."
+  },
+  "deskTxStepSignedReturned": "Signed and returned",
+  "@deskTxStepSignedReturned": {
+    "description": "Timeline step of an incoming payment: this wallet signed and sent it back."
+  },
+  "deskTxStepWaitingFile": "Waiting for the response file",
+  "@deskTxStepWaitingFile": {
+    "description": "Small line under a timeline step of an outgoing file payment."
+  },
+  "deskTxStepWaitingRecipient": "Waiting for the recipient",
+  "@deskTxStepWaitingRecipient": {
+    "description": "Small line under a timeline step of an outgoing payment."
+  },
+  "deskTxStepPosted": "Posted to the network",
+  "@deskTxStepPosted": {
+    "description": "Timeline step: the payment was sent to the network."
+  },
+  "deskTxStepConfirming": "Confirming",
+  "@deskTxStepConfirming": {
+    "description": "Timeline step: the payment is in a block and collecting confirmations."
+  },
+  "deskTxStepProgress": "{confirmations} of {needed}",
+  "@deskTxStepProgress": {
+    "description": "Small line under the Confirming step: confirmations so far of how many are needed.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int",
+        "example": "1"
+      },
+      "needed": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskTxCancelIncomingTitle": "Cancel this payment?",
+  "@deskTxCancelIncomingTitle": {
+    "description": "Title of the dialog that asks before cancelling an incoming payment."
+  },
+  "deskTxCancelOutgoingTitle": "Cancel this send?",
+  "@deskTxCancelOutgoingTitle": {
+    "description": "Title of the dialog that asks before cancelling an outgoing payment."
+  },
+  "deskTxCancelIncomingBody": "{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.",
+  "@deskTxCancelIncomingBody": {
+    "description": "Body of the dialog that asks before cancelling an incoming payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The locked amount returns to the balance. If the recipient already finalized it, it may still confirm.",
+  "@deskTxCancelOutgoingBody": {
+    "description": "Body of the dialog that asks before cancelling an outgoing payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      },
+      "who": {
+        "type": "String",
+        "example": "Piotr"
+      }
+    }
+  },
+  "deskTxCancelKeep": "Keep",
+  "@deskTxCancelKeep": {
+    "description": "Button in the cancel dialog that leaves the payment as it is. Short."
+  },
+  "deskTxCancelIncomingAction": "Cancel payment",
+  "@deskTxCancelIncomingAction": {
+    "description": "Danger button in the cancel dialog for an incoming payment. Short."
+  },
+  "deskTxCancelOutgoingAction": "Cancel send",
+  "@deskTxCancelOutgoingAction": {
+    "description": "Danger button in the cancel dialog for an outgoing payment. Short."
+  },
+  "deskTxProofIncoming": "Proves that this wallet received {amount} EPIC in this kernel.",
+  "@deskTxProofIncoming": {
+    "description": "Description in the payment proof dialog for an incoming payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
+  "deskTxProofOutgoing": "Proves that the recipient received {amount} EPIC in this kernel.",
+  "@deskTxProofOutgoing": {
+    "description": "Description in the payment proof dialog for an outgoing payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
+  "deskTxProofSenderAddress": "Sender address",
+  "@deskTxProofSenderAddress": {
+    "description": "Field label in the payment proof dialog."
+  },
+  "deskTxProofRecipientAddress": "Recipient address",
+  "@deskTxProofRecipientAddress": {
+    "description": "Field label in the payment proof dialog."
+  },
+  "deskTxProofRecipientSignature": "Recipient signature",
+  "@deskTxProofRecipientSignature": {
+    "description": "Field label in the payment proof dialog."
+  },
+  "deskTxProofCopyKernel": "Copy kernel",
+  "@deskTxProofCopyKernel": {
+    "description": "Tooltip of the copy button next to the kernel in the payment proof dialog."
+  },
+  "deskTxProofCopySender": "Copy sender address",
+  "@deskTxProofCopySender": {
+    "description": "Tooltip of the copy button next to the sender address in the payment proof dialog."
+  },
+  "deskTxProofCopyRecipient": "Copy recipient address",
+  "@deskTxProofCopyRecipient": {
+    "description": "Tooltip of the copy button next to the recipient address in the payment proof dialog."
+  },
+  "deskTxProofCopySignature": "Copy recipient signature",
+  "@deskTxProofCopySignature": {
+    "description": "Tooltip of the copy button next to the recipient signature in the payment proof dialog."
+  },
+  "deskTxProofExport": "Export",
+  "@deskTxProofExport": {
+    "description": "Primary button in the payment proof dialog: save the proof as a file. Short."
+  },
+  "deskTxProofSaved": "Proof saved",
+  "@deskTxProofSaved": {
+    "description": "Toast title after the payment proof was saved to a file; the path follows as its text."
+  },
+  "deskTxThisWallet": "This wallet",
+  "@deskTxThisWallet": {
+    "description": "Activity and payment detail: who the other side is for a split or consolidation, where both sides are this wallet. Short, it sits in the name column."
+  },
+  "deskTxNowUndelivered": "Not delivered. The payment did not reach the epicbox, so the recipient has not received it. Send it again, or cancel it to free the funds.",
+  "@deskTxNowUndelivered": {
+    "description": "Payment detail, the line under the status of a send that never reached the Epicbox server (\"epicbox\" here means that server). Send again and Cancel are buttons below it."
+  },
+  "deskTxStatusUndelivered": "Not delivered",
+  "@deskTxStatusUndelivered": {
+    "description": "Status of a send that never reached the Epicbox server, in the Activity list and payment detail. Short: a table cell."
+  },
+  "deskTxSendAgain": "Send again",
+  "@deskTxSendAgain": {
+    "description": "Button in the payment detail of an undelivered send: send it to the Epicbox server again."
+  },
+  "deskTxNotSent": "Not sent",
+  "@deskTxNotSent": {
+    "description": "Toast title when Send again failed; the reason follows."
+  },
+  "deskTxSentAgain": "Sent again",
+  "@deskTxSentAgain": {
+    "description": "Toast title after Send again worked."
+  },
+  "deskTxSentAgainText": "It completes when the recipient’s wallet comes online.",
+  "@deskTxSentAgainText": {
+    "description": "Toast text after Send again worked."
+  }
+}

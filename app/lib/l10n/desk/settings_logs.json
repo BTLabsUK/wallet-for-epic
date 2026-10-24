@@ -1,0 +1,102 @@
+{
+  "deskSetLogsMemoryOnly": "The log is kept in memory only.",
+  "@deskSetLogsMemoryOnly": {
+    "description": "Toast text when the log folder cannot be opened because the log is not written to disk."
+  },
+  "deskSetLogsClearTitle": "Clear logs?",
+  "@deskSetLogsClearTitle": {
+    "description": "Clear logs dialog: title."
+  },
+  "deskSetLogsClearDesc": "Deletes the log files. A report sent later has only what is logged from now on.",
+  "@deskSetLogsClearDesc": {
+    "description": "Clear logs dialog: description."
+  },
+  "deskSetLogsKeep": "Keep logs",
+  "@deskSetLogsKeep": {
+    "description": "Clear logs dialog: button that cancels."
+  },
+  "deskSetLogsClear": "Clear logs",
+  "@deskSetLogsClear": {
+    "description": "Clear logs dialog danger button and the Settings > Help > Logs button that opens it."
+  },
+  "deskSetLogsCleared": "Logs cleared",
+  "@deskSetLogsCleared": {
+    "description": "Toast title after the logs were cleared."
+  },
+  "deskSetLogsToday": "today {time}",
+  "@deskSetLogsToday": {
+    "description": "Settings > Help > Logs: when detailed logging ends, today. {time} is a clock time like 14:02. Lowercase, part of a line.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLogsTomorrow": "tomorrow {time}",
+  "@deskSetLogsTomorrow": {
+    "description": "Settings > Help > Logs: when detailed logging ends, tomorrow. {time} is a clock time like 14:02. Lowercase, part of a line.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLogsTitle": "Logs",
+  "@deskSetLogsTitle": {
+    "description": "Settings > Help: title of the Logs group."
+  },
+  "deskSetLogsLevel": "Log level",
+  "@deskSetLogsLevel": {
+    "description": "Settings > Help > Logs: row title."
+  },
+  "deskSetLogsLevelNormal": "Normal. Detailed keeps more lines on disk for 24 hours; addresses may appear in the file, reports leave them out.",
+  "@deskSetLogsLevelNormal": {
+    "description": "Settings > Help > Logs: text of the Log level row when the level is Normal."
+  },
+  "deskSetLogsLevelDetailed": "Detailed until {until}, then Normal. Addresses may appear in the file; reports leave them out.",
+  "@deskSetLogsLevelDetailed": {
+    "description": "Settings > Help > Logs: text of the Log level row when Detailed. {until} is like \"today 14:02\" or \"tomorrow 14:02\".",
+    "placeholders": {
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLogsLevelDetailedCore": "Detailed until {until}, then Normal. Addresses may appear in the file; reports leave them out. Wallet core lines get detailed from the next app start.",
+  "@deskSetLogsLevelDetailedCore": {
+    "description": "Settings > Help > Logs: text of the Log level row when Detailed and the wallet core needs an app restart. {until} is like \"today 14:02\".",
+    "placeholders": {
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLogsNormal": "Normal",
+  "@deskSetLogsNormal": {
+    "description": "Settings > Help > Logs: segment for the normal log level. Short."
+  },
+  "deskSetLogsDetailed": "Detailed",
+  "@deskSetLogsDetailed": {
+    "description": "Settings > Help > Logs: segment for the detailed log level. Short."
+  },
+  "deskSetLogsFiles": "Log files",
+  "@deskSetLogsFiles": {
+    "description": "Settings > Help > Logs: row title."
+  },
+  "deskSetLogsSize": "Current size {size} of {max}. Keeps one older file.",
+  "@deskSetLogsSize": {
+    "description": "Settings > Help > Logs: text of the Log files row. Sizes like \"1.2 MB\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLogsOpenFolder": "Open log folder",
+  "@deskSetLogsOpenFolder": {
+    "description": "Settings > Help > Logs: button that opens the log folder."
+  }
+}

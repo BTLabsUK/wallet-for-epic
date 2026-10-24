@@ -1,4 +1,5 @@
 import '../../../app_info.dart';
+import '../../../l10n.dart' show appLanguages;
 import '../../../ui/language_flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/shell.dart' show deskVersion;
 import '../../data/api.dart' show DeskWalletApi;
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
 /// The version line under the full-window screens.
@@ -38,13 +40,15 @@ class AccountForm extends StatelessWidget {
   final String? confirmError;
 
   @override
-  Widget build(BuildContext context) => EForm(
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return EForm(
     onSubmit: onSubmit,
     child: Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       EField(
-        label: 'Password',
+        label: l.deskOnbStepPassword,
         error: passwordError,
         reserveError: true,
         child: Column(
@@ -53,7 +57,7 @@ class AccountForm extends StatelessWidget {
             PasswordBox(
               controller: password,
               invalid: passwordError != null,
-              semanticLabel: 'Password',
+              semanticLabel: l.deskOnbStepPassword,
               textInputAction: TextInputAction.next,
               onChanged: (_) => onChanged(),
             ),
@@ -65,12 +69,12 @@ class AccountForm extends StatelessWidget {
       ),
       SizedBox(height: Sp.x5),
       EField(
-        label: 'Confirm password',
+        label: l.deskSetupConfirmPassword,
         error: confirmError,
         child: PasswordBox(
           controller: confirm,
           invalid: confirmError != null,
-          semanticLabel: 'Confirm password',
+          semanticLabel: l.deskSetupConfirmPassword,
           textInputAction: TextInputAction.done,
           onChanged: (_) => onChanged(),
         ),
@@ -78,14 +82,15 @@ class AccountForm extends StatelessWidget {
     ],
   ),
   );
+  }
 }
 
 /// Validation of [AccountForm]; null when fine.
-(String?, String?) accountErrors(String password, String confirm) {
+(String?, String?) accountErrors(AppLocalizations l, String password, String confirm) {
   String? p;
   String? c;
-  if (password.isNotEmpty && password.length < 8) p = 'At least 8 characters';
-  if (confirm.isNotEmpty && confirm != password) c = 'Passwords differ';
+  if (password.isNotEmpty && password.length < 8) p = l.deskSetupPasswordShort;
+  if (confirm.isNotEmpty && confirm != password) c = l.deskSetupPasswordsDiffer;
   return (p, c);
 }
 
@@ -96,40 +101,41 @@ List<ERailStep> railOf(List<String> labels, int current) => [
 
 /// Back button used in the foot of the first-run frames. Not a Tab stop: Alt+Left and the
 /// mouse Back button do the same (keyboard.dart).
-Widget backButton(VoidCallback onTap, {String label = 'Back'}) =>
-    EButton.ghost(label: label, icon: EIcons.arrowLeft, tabStop: false, onPressed: onTap);
+Widget backButton(VoidCallback onTap, {String? label}) => Builder(
+  builder: (context) => EButton.ghost(label: label ?? context.l10n.deskSetupBack, icon: EIcons.arrowLeft, tabStop: false, onPressed: onTap),
+);
 
-/// The languages the app has: Setup › Preferences, Settings › Appearance. Each is stored by its
-/// own name (`DeskSettings.language`); the code picks its flag.
-const deskLanguageCodes = {
-  'English': 'en',
-  'Deutsch': 'de',
-  'Polski': 'pl',
-  'Русский': 'ru',
-  '中文': 'zh',
-  'ไทย': 'th',
-};
+/// The value of [deskLanguageItems]' first option: follow the computer's language
+/// (`DeskSettings.language` null).
+const deskSystemLanguage = '';
 
-/// The language options of a select: the flag and the language's own name.
-List<ESelectItem<String>> deskLanguageItems() => [
-  for (final MapEntry(key: name, value: code) in deskLanguageCodes.entries)
-    ESelectItem(name, name, leading: LanguageFlag(code, height: 14)),
+/// The language options of a select (Setup › Preferences, Settings › Appearance): the system's
+/// language first, then each of `appLanguages` by its flag and its own name. A value is a
+/// language code, or [deskSystemLanguage].
+List<ESelectItem<String>> deskLanguageItems(AppLocalizations l) => [
+  ESelectItem(deskSystemLanguage, l.languageSystem, leading: Icon(EIcons.themeSystem, size: 14)),
+  for (final a in appLanguages) ESelectItem(a.code, a.name, leading: LanguageFlag(a.code, height: 14)),
 ];
+
+/// The name the language pickers show for the setting [code] (null: the system's).
+String deskLanguageName(AppLocalizations l, String? code) =>
+    appLanguages.where((a) => a.code == code).firstOrNull?.name ?? l.languageSystem;
 
 /// Unlock's argument after a flow added a wallet: [id] is chosen and "{name} added." shows.
 class UnlockAdded {
-  const UnlockAdded(this.name, {this.id, this.notice = 'New wallet added.'});
+  const UnlockAdded(this.name, {this.id, this.notice});
 
   final String name;
   final String? id;
 
-  /// Unlock's notice: "New wallet added." / "Wallet restored." / "Wallet imported." (no name).
-  final String notice;
+  /// Unlock's notice: "Wallet restored." / "Wallet imported." (no name); null for the default,
+  /// "New wallet added." in the window's language.
+  final String? notice;
 }
 
 /// The wallet a flow added: the entry the list has now and did not have in [before] (ids), as
 /// Unlock's argument. [fallback] names it when the list cannot say.
-Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fallback, {String notice = 'New wallet added.'}) async {
+Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fallback, {String? notice}) async {
   try {
     final added = (await api.wallets()).where((w) => !before.contains(w.id)).lastOrNull;
     if (added != null) return UnlockAdded(added.name, id: added.id, notice: notice);
@@ -175,9 +181,9 @@ class OnbFlowNotifier extends Notifier<OnbFlow> {
 final onbFlowProvider = NotifierProvider<OnbFlowNotifier, OnbFlow>(OnbFlowNotifier.new);
 
 String networkName(String n) => switch (n) {
-  'floonet' => 'Floonet',
-  'usernet' => 'Usernet',
-  _ => 'Mainnet',
+  'floonet' => 'Floonet', // l10n-ok: network names
+  'usernet' => 'Usernet', // l10n-ok
+  _ => 'Mainnet', // l10n-ok
 };
 
 /// A warn tag with the test network's name and a line after it.
@@ -251,7 +257,7 @@ class _CapsLockNoteState extends State<CapsLockNote> {
           children: [
             Icon(EIcons.keyboard, size: Ctl.iconSm, color: context.dc.warn),
             SizedBox(width: Sp.x2),
-            Flexible(child: Text('Caps Lock is on', style: context.ts.small)),
+            Flexible(child: Text(context.l10n.deskSetupCapsLock, style: context.ts.small)),
           ],
         ),
       ),
@@ -394,7 +400,7 @@ class StageList extends StatelessWidget {
         if (a >= 0)
           Semantics(
             liveRegion: true,
-            label: 'Step ${a + 1} of ${stages.length}: ${stages[a].label}',
+            label: context.l10n.deskSetupStepSem(a + 1, stages.length, stages[a].label),
             child: const SizedBox.shrink(),
           ),
       ],
@@ -489,9 +495,9 @@ class ProgressView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (onBack != null) EButton(label: 'Back', onPressed: onBack),
+                  if (onBack != null) EButton(label: context.l10n.deskSetupBack, onPressed: onBack),
                   SizedBox(width: Sp.x3),
-                  if (onRetry != null) EButton.primary(label: 'Try again', icon: EIcons.refresh, onPressed: onRetry),
+                  if (onRetry != null) EButton.primary(label: context.l10n.deskSetupTryAgain, icon: EIcons.refresh, onPressed: onRetry),
                 ],
               ),
             ] else if (wait != null)

@@ -1,0 +1,478 @@
+{
+  "deskNodeSynced": "Synced",
+  "@deskNodeSynced": {
+    "description": "Node status word: the node is at the chain tip. Short, in the status rail and node panels."
+  },
+  "deskNodeBehind": "Behind",
+  "@deskNodeBehind": {
+    "description": "Node status word: the node is behind the network. Short."
+  },
+  "deskNodeNotAnswering": "Not answering",
+  "@deskNodeNotAnswering": {
+    "description": "Node status word: the node does not answer. Short."
+  },
+  "deskNodeChecking": "Checking",
+  "@deskNodeChecking": {
+    "description": "Node status word while the first check is running. Short."
+  },
+  "deskNodeStarting": "Starting",
+  "@deskNodeStarting": {
+    "description": "Local node status word: the node program is starting. Short."
+  },
+  "deskNodeSyncing": "Syncing",
+  "@deskNodeSyncing": {
+    "description": "Local node status word: the node is downloading the chain. Short."
+  },
+  "deskNodeStalled": "Stalled",
+  "@deskNodeStalled": {
+    "description": "Local node status word: the sync made no progress. Short."
+  },
+  "deskNodeFailed": "Failed",
+  "@deskNodeFailed": {
+    "description": "Local node status word: the node program failed. Short."
+  },
+  "deskNodeStopped": "Stopped",
+  "@deskNodeStopped": {
+    "description": "Local node status word: the node program is stopped. Short."
+  },
+  "deskNodeMarkerNoAnswer": "no answer",
+  "@deskNodeMarkerNoAnswer": {
+    "description": "Marker after the node host in the rail's second line when the node does not answer. Very short, lowercase."
+  },
+  "deskNodeMarkerBehind": "{count} behind",
+  "@deskNodeMarkerBehind": {
+    "description": "Marker after the node host in the rail when the node is that many blocks behind. Very short. {count} is a number with thousands separators.",
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "12"
+      }
+    }
+  },
+  "deskNodeMarkerStarting": "starting",
+  "@deskNodeMarkerStarting": {
+    "description": "Marker after the host in the rail while the local node starts. Very short, lowercase."
+  },
+  "deskNodeMarkerStalled": "stalled",
+  "@deskNodeMarkerStalled": {
+    "description": "Marker after the host in the rail when the local node's sync stalled. Very short, lowercase."
+  },
+  "deskNodeMarkerFailed": "failed",
+  "@deskNodeMarkerFailed": {
+    "description": "Marker after the host in the rail when the local node failed. Very short, lowercase."
+  },
+  "deskNodeMarkerStopped": "stopped",
+  "@deskNodeMarkerStopped": {
+    "description": "Marker after the host in the rail when the local node is stopped. Very short, lowercase."
+  },
+  "deskNodeHostSince": "{host} · since {time}",
+  "@deskNodeHostSince": {
+    "description": "Tooltip line for a node that stopped answering: the node's host and the time it went down.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      },
+      "time": {
+        "type": "String",
+        "example": "14:05"
+      }
+    }
+  },
+  "deskNodeNotAnsweringLine": "The node is not answering.",
+  "@deskNodeNotAnsweringLine": {
+    "description": "Tooltip line when the node does not answer."
+  },
+  "deskNodeLatency": "{ms} ms",
+  "@deskNodeLatency": {
+    "description": "Tooltip line part: the node's answer time in milliseconds.",
+    "placeholders": {
+      "ms": {
+        "type": "String",
+        "example": "722"
+      }
+    }
+  },
+  "deskNodeLatencyOverTor": "{ms} ms over Tor",
+  "@deskNodeLatencyOverTor": {
+    "description": "Tooltip line part: the node's answer time in milliseconds, measured over Tor.",
+    "placeholders": {
+      "ms": {
+        "type": "String",
+        "example": "722"
+      }
+    }
+  },
+  "deskNodeNewerOut": "{version} is out",
+  "@deskNodeNewerOut": {
+    "description": "Tooltip line part: a newer node version is released.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "4.1.1"
+      }
+    }
+  },
+  "deskNodeBehindLine": "Behind the network; catching up.",
+  "@deskNodeBehindLine": {
+    "description": "Tooltip line when the node is behind the network."
+  },
+  "deskNodeHeightOf": "{height} of {total}",
+  "@deskNodeHeightOf": {
+    "description": "Tooltip line part: the node's block height of the network's height.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,914,414"
+      },
+      "total": {
+        "type": "String",
+        "example": "2,914,500"
+      }
+    }
+  },
+  "deskNodeAtTip": "at tip",
+  "@deskNodeAtTip": {
+    "description": "Tooltip line part: the node is at the chain tip. Short, lowercase."
+  },
+  "deskNodeLocal": "Local node",
+  "@deskNodeLocal": {
+    "description": "Name of the node program that runs on this computer, in the rail and node panels."
+  },
+  "deskNodeConnectingPeers": "Connecting to peers",
+  "@deskNodeConnectingPeers": {
+    "description": "Local node line while it looks for peers."
+  },
+  "deskNodeUsingUntilSynced": "Using {host} until it is synced.",
+  "@deskNodeUsingUntilSynced": {
+    "description": "Local node tooltip line: the wallet reads through this public node until the local node has synced.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      }
+    }
+  },
+  "deskNodeNothingUntilSynced": "Nothing can be sent until it is synced.",
+  "@deskNodeNothingUntilSynced": {
+    "description": "Local node tooltip line while it syncs and no other node is used."
+  },
+  "deskNodePeers": "{count, plural, one{{count} peer} other{{count} peers}}",
+  "@deskNodePeers": {
+    "description": "Local node tooltip line part: how many peers the node is connected to.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeRunning": "running {duration}",
+  "@deskNodeRunning": {
+    "description": "Local node tooltip line part: how long the node program has been running. {duration} is like \"9 h 40 min\".",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "9 h 40 min"
+      }
+    }
+  },
+  "deskNodeStillUsing": "Still using {host}; the local node takes over shortly.",
+  "@deskNodeStillUsing": {
+    "description": "Local node tooltip line once synced while the wallet still reads through a public node.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      }
+    }
+  },
+  "deskNodeNoProgress": "No progress for 5 min. Restarted once already.",
+  "@deskNodeNoProgress": {
+    "description": "Local node tooltip line when the sync stalled."
+  },
+  "deskNodeUsingMeanwhile": "Using {host} meanwhile.",
+  "@deskNodeUsingMeanwhile": {
+    "description": "Local node tooltip line: the wallet reads through this public node while the local node is not working.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      }
+    }
+  },
+  "deskNodeStartIt": "Start it under Settings › Node.",
+  "@deskNodeStartIt": {
+    "description": "Local node tooltip line when the node is stopped."
+  },
+  "deskNodeFailPort": "port 3413 is used by another program",
+  "@deskNodeFailPort": {
+    "description": "Why the local node failed, as a detail after the word \"Failed\". Lowercase fragment."
+  },
+  "deskNodeFailDisk": "not enough disk space",
+  "@deskNodeFailDisk": {
+    "description": "Why the local node failed. Lowercase fragment."
+  },
+  "deskNodeFailMissing": "the node program is missing",
+  "@deskNodeFailMissing": {
+    "description": "Why the local node failed. Lowercase fragment."
+  },
+  "deskNodeFailExited": "the node program stopped",
+  "@deskNodeFailExited": {
+    "description": "Why the local node failed. Lowercase fragment."
+  },
+  "deskNodeFailExitedCode": "the node program stopped (exit code {code})",
+  "@deskNodeFailExitedCode": {
+    "description": "Why the local node failed, with the program's exit code. Lowercase fragment.",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "deskNodeFailDefault": "the node did not start",
+  "@deskNodeFailDefault": {
+    "description": "Why the local node failed when nothing more is known. Lowercase fragment."
+  },
+  "deskNodeStageWaiting": "connecting to peers",
+  "@deskNodeStageWaiting": {
+    "description": "Name of the local node's sync stage, lowercase, used inside a sentence."
+  },
+  "deskNodeStageHeaders": "headers",
+  "@deskNodeStageHeaders": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageChainDownload": "chain state download",
+  "@deskNodeStageChainDownload": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageKernels": "checking kernels",
+  "@deskNodeStageKernels": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageRangeProofs": "checking range proofs",
+  "@deskNodeStageRangeProofs": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageProcessing": "processing the chain state",
+  "@deskNodeStageProcessing": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageBlocks": "blocks",
+  "@deskNodeStageBlocks": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageCompacting": "compacting",
+  "@deskNodeStageCompacting": {
+    "description": "Name of the local node's sync stage, lowercase."
+  },
+  "deskNodeStageStopping": "stopping",
+  "@deskNodeStageStopping": {
+    "description": "Name of the local node's stage, lowercase."
+  },
+  "deskNodeStageSyncing": "syncing",
+  "@deskNodeStageSyncing": {
+    "description": "Name of the local node's stage, lowercase."
+  },
+  "deskNodeLineWaiting": "Connecting to peers",
+  "@deskNodeLineWaiting": {
+    "description": "Local node stage line while it waits for peers."
+  },
+  "deskNodeLineHeaders": "Headers · {done} of {total}",
+  "@deskNodeLineHeaders": {
+    "description": "Local node stage line: block headers downloaded of the total.",
+    "placeholders": {
+      "done": {
+        "type": "String",
+        "example": "1,480,200"
+      },
+      "total": {
+        "type": "String",
+        "example": "3,764,975"
+      }
+    }
+  },
+  "deskNodeLineHeadersBare": "Headers",
+  "@deskNodeLineHeadersBare": {
+    "description": "Local node stage line: block headers, count unknown."
+  },
+  "deskNodeLineChain": "Chain state · {done} of {total} GB",
+  "@deskNodeLineChain": {
+    "description": "Local node stage line: chain state downloaded of the total, in gigabytes.",
+    "placeholders": {
+      "done": {
+        "type": "String",
+        "example": "1.2"
+      },
+      "total": {
+        "type": "String",
+        "example": "5.2"
+      }
+    }
+  },
+  "deskNodeLineChainBare": "Chain state",
+  "@deskNodeLineChainBare": {
+    "description": "Local node stage line: chain state, size unknown."
+  },
+  "deskNodeLineKernels": "Checking kernels · {done} of {total} million",
+  "@deskNodeLineKernels": {
+    "description": "Local node stage line: kernels checked of the total, in millions.",
+    "placeholders": {
+      "done": {
+        "type": "String",
+        "example": "1.2"
+      },
+      "total": {
+        "type": "String",
+        "example": "5.2"
+      }
+    }
+  },
+  "deskNodeLineKernelsBare": "Checking kernels",
+  "@deskNodeLineKernelsBare": {
+    "description": "Local node stage line: checking kernels."
+  },
+  "deskNodeLineRangeProofs": "Checking range proofs · {done} of {total} million",
+  "@deskNodeLineRangeProofs": {
+    "description": "Local node stage line: range proofs checked of the total, in millions.",
+    "placeholders": {
+      "done": {
+        "type": "String",
+        "example": "1.2"
+      },
+      "total": {
+        "type": "String",
+        "example": "5.2"
+      }
+    }
+  },
+  "deskNodeLineRangeProofsBare": "Checking range proofs",
+  "@deskNodeLineRangeProofsBare": {
+    "description": "Local node stage line: checking range proofs."
+  },
+  "deskNodeLineProcessing": "Processing the chain state",
+  "@deskNodeLineProcessing": {
+    "description": "Local node stage line."
+  },
+  "deskNodeLineBlocks": "Blocks · {done} of {total}",
+  "@deskNodeLineBlocks": {
+    "description": "Local node stage line: blocks downloaded of the total.",
+    "placeholders": {
+      "done": {
+        "type": "String",
+        "example": "1,480,200"
+      },
+      "total": {
+        "type": "String",
+        "example": "3,764,975"
+      }
+    }
+  },
+  "deskNodeLineBlocksBare": "Blocks",
+  "@deskNodeLineBlocksBare": {
+    "description": "Local node stage line: blocks, count unknown."
+  },
+  "deskNodeLineCompacting": "Compacting the chain data",
+  "@deskNodeLineCompacting": {
+    "description": "Local node stage line."
+  },
+  "deskNodeLineStopping": "Stopping…",
+  "@deskNodeLineStopping": {
+    "description": "Local node stage line while the node program shuts down."
+  },
+  "deskNodeLineSyncing": "Syncing",
+  "@deskNodeLineSyncing": {
+    "description": "Local node stage line when the stage is unknown."
+  },
+  "deskNodeNoEstimate": "no estimate; up to an hour",
+  "@deskNodeNoEstimate": {
+    "description": "Time left for the local node's checks, which cannot be estimated. Lowercase."
+  },
+  "deskNodeEstimating": "estimating…",
+  "@deskNodeEstimating": {
+    "description": "Time left for the local node's sync while the estimate is not ready yet. Lowercase."
+  },
+  "deskNodeAboutHours": "about {hours} h left",
+  "@deskNodeAboutHours": {
+    "description": "Time left for the local node's sync, in hours. Lowercase.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeAboutMinutes": "about {minutes} min left",
+  "@deskNodeAboutMinutes": {
+    "description": "Time left for the local node's sync, in minutes. Lowercase.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeDurationHm": "{hours} h {minutes} min",
+  "@deskNodeDurationHm": {
+    "description": "A length of time in hours and minutes, e.g. how long the node has been running.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeDurationM": "{minutes} min",
+  "@deskNodeDurationM": {
+    "description": "A length of time in minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deskTorNetworkLabel": "Tor Network",
+  "@deskTorNetworkLabel": {
+    "description": "Label of the Tor switch in Settings › Privacy and the status rail's Tor row."
+  },
+  "deskTorNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.",
+  "@deskTorNetworkHint": {
+    "description": "Explains what the Tor switch does, in the info hover card behind the Tor switch."
+  },
+  "deskTorOff": "Off",
+  "@deskTorOff": {
+    "description": "Tor state word: the switch is off. Short."
+  },
+  "deskTorStarting": "Starting…",
+  "@deskTorStarting": {
+    "description": "Tor state word: Tor is connecting. Short."
+  },
+  "deskTorOn": "On",
+  "@deskTorOn": {
+    "description": "Tor state word: Tor is connected. Short."
+  },
+  "deskTorNotConnected": "Not connected",
+  "@deskTorNotConnected": {
+    "description": "Tor state word: Tor stopped or could not connect. Short."
+  },
+  "deskTorRoutes": "Epicbox, the node, status, price, updates, support and Tor addresses",
+  "@deskTorRoutes": {
+    "description": "The connections that wait for Tor, as a phrase that starts a sentence: Epicbox, the node, the app's status/price/update/support requests and Tor addresses. It is followed by a verb in the sentences that use it (\"… wait until Tor is up.\")."
+  },
+  "deskTorCoverage": "Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.",
+  "@deskTorCoverage": {
+    "description": "One sentence listing what goes over Tor while the switch is on."
+  },
+  "deskTorNodeOver": "Over Tor",
+  "@deskTorNodeOver": {
+    "description": "Node tooltip line: the node is reached over Tor."
+  },
+  "deskTorNodeNotEncrypted": "Not encrypted past Tor",
+  "@deskTorNodeNotEncrypted": {
+    "description": "Node tooltip line: a plain http node is not encrypted after the Tor exit."
+  },
+  "deskTorNodeWaits": "Waits until Tor is connected.",
+  "@deskTorNodeWaits": {
+    "description": "Node tooltip line: the node connection waits for Tor."
+  }
+}

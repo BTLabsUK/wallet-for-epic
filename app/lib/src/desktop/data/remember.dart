@@ -115,7 +115,7 @@ class RememberedPasswords {
       throw const RememberUnavailable();
     }
     try {
-      if (key == null) throw const FormatException('no key');
+      if (key == null) throw const FormatException('no key'); // l10n-ok: internal
       final box = SecretBox.fromConcatenation(
         base64.decode(r['box'] as String),
         nonceLength: _aes.nonceLength,
@@ -180,7 +180,7 @@ class RememberUnavailable implements Exception {
   const RememberUnavailable();
 
   @override
-  String toString() => 'Remembered password unavailable';
+  String toString() => 'Remembered password unavailable'; // l10n-ok: log text
 }
 
 /// Set once the first Unlock screen of this run tried the remembered password: Unlock after a

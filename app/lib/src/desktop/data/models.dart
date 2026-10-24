@@ -5,9 +5,13 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import 'package:intl/intl.dart' show NumberFormat;
+
+import '../../l10n.dart' show AppLocalizations, englishStrings, localDigits;
 import '../../models.dart' show SelectionStrategy, SendOptions;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../smart_outputs.dart' show smartOutputsDefault;
+import '../../ui/send_screen.dart' show normalizeAmountText;
 
 export '../../models.dart' show SelectionStrategy, SendOptions;
 export '../../send_summary.dart' show SendEstimate, SendSummary;
@@ -28,6 +32,11 @@ String formatEpic(int nano, {int decimals = 8, bool trim = true, int minDecimals
   return '${neg ? '-' : ''}$w${frac.isEmpty ? '' : '.$frac'}';
 }
 
+/// [formatEpic] in [l]'s separators (`1.281,52615` in German): for text shown, never for a field,
+/// the clipboard or a file.
+String formatEpicL(AppLocalizations l, int nano, {int decimals = 8, bool trim = true, int minDecimals = 4}) =>
+    localDigits(l, formatEpic(nano, decimals: decimals, trim: trim, minDecimals: minDecimals));
+
 /// [parseEpic]'s answer for more than 8 decimals.
 const int epicTooLong = -1;
 
@@ -42,6 +51,16 @@ int? parseEpic(String raw) {
   if (frac.length > 8) return epicTooLong;
   return (int.tryParse(m.group(1)!.isEmpty ? '0' : m.group(1)!) ?? 0) * nanoPerEpic + (int.tryParse(frac.padRight(8, '0')) ?? 0);
 }
+
+/// An amount field's text in [l]'s language to nanoepic, as [parseEpic] answers: cleaned by
+/// [normalizeAmountText] first, so "1.000" in German, where the app shows 1000 so, is refused as
+/// unclear instead of read as 1, and "1,5" is 1.5 everywhere.
+///
+/// Throws a [LocalizedFormatException] (its `text(l)` is the field error) for an unclear or
+/// negative amount.
+int? parseEpicIn(AppLocalizations l, String raw) => parseEpic(
+  normalizeAmountText(raw, unit: 'EPIC', groupSeparator: NumberFormat.decimalPattern(l.localeName).symbols.GROUP_SEP),
+);
 
 @immutable
 class Balance {
@@ -240,6 +259,7 @@ class Tx {
     this.confirmedAt,
     this.detail,
     this.flow = TxFlow.payment,
+    this.toSelf = false,
   });
 
   final int id;
@@ -258,6 +278,9 @@ class Tx {
   /// Address, URL or file name of the other side.
   final String? counterparty;
   final String? contactName;
+
+  /// A split or consolidation: both sides are this wallet (F13).
+  final bool toSelf;
   final String? message;
   final int? height;
   final String? kernel;
@@ -391,6 +414,7 @@ class ServiceStatus {
     required this.httpListener,
     required this.tor,
     this.httpProblem,
+    this.httpProblemPort,
     this.torProgress,
     this.torProblem,
     this.torCanSend = false,
@@ -412,8 +436,11 @@ class ServiceStatus {
   /// stopped by itself ([ServiceHealth.down], with [httpProblem]).
   final ServiceHealth httpListener;
 
-  /// Why the HTTP listener is down, in a few words ("Port 3415 in use"); null otherwise.
-  final String? httpProblem;
+  /// Why the HTTP listener is down; null otherwise. Worded at display time ([httpProblemText]).
+  final HttpProblem? httpProblem;
+
+  /// The port [httpProblem] is about.
+  final int? httpProblemPort;
 
   /// The wallet's tor: off, connecting ([ServiceHealth.checking], with [torProgress] until
   /// connected, then publishing the onion), ready, running for sends only
@@ -450,15 +477,25 @@ class ServiceStatus {
   final String? notice;
 }
 
+/// Why the HTTP listener is down: kept structured so every language words it ([httpProblemText]).
+enum HttpProblem { portInUse, portUnavailable, stopped }
+
+/// [ServiceStatus.httpProblem] in a few words: "Port 3415 in use".
+String httpProblemText(AppLocalizations l, HttpProblem p, int port) => switch (p) {
+  HttpProblem.portInUse => l.deskErrPortInUse(port),
+  HttpProblem.portUnavailable => l.deskErrPortUnavailable(port),
+  HttpProblem.stopped => l.deskErrStoppedWithError,
+};
+
 /// The Tor line of the status card and Settings › Receiving: what tor is doing now.
-String torStatusLine(ServiceStatus s) {
-  if (!s.torIncluded) return 'Tor not included in this build';
+String torStatusLine(AppLocalizations l, ServiceStatus s) {
+  if (!s.torIncluded) return l.deskErrTorMissing;
   return switch (s.tor) {
-    ServiceHealth.off => 'Off',
-    ServiceHealth.ok => 'Ready',
-    ServiceHealth.down => s.torProblem ?? 'Tor stopped',
-    ServiceHealth.slow => '${s.torProblem ?? 'Onion address not published'}. Sends work.',
-    ServiceHealth.checking => s.torCanSend ? 'Publishing the onion address…' : 'Connecting to Tor… ${s.torProgress ?? 0} %',
+    ServiceHealth.off => l.deskTorLineOff,
+    ServiceHealth.ok => l.deskTorLineReady,
+    ServiceHealth.down => s.torProblem ?? l.deskErrTorStopped,
+    ServiceHealth.slow => l.deskTorLineSendsWork(s.torProblem ?? l.deskErrOnionNotPublished),
+    ServiceHealth.checking => s.torCanSend ? l.deskTorLinePublishing : l.deskTorLineConnecting(s.torProgress ?? 0),
   };
 }
 
@@ -536,24 +573,41 @@ class HistoryImport {
 
 /// Why a history backup file was refused.
 enum HistoryFileProblem {
-  otherWallet("Another wallet's backup"),
-  otherChain('Wrong network'),
-  notOurs('Not a history backup'),
-  newer('Newer file'),
-  damaged('File damaged'),
-  tooLarge('Not a history backup');
+  otherWallet("Another wallet's backup"), // l10n-ok: English for tests; screens use [label]
+  otherChain('Wrong network'), // l10n-ok
+  notOurs('Not a history backup'), // l10n-ok
+  newer('Newer file'), // l10n-ok
+  damaged('File damaged'), // l10n-ok
+  tooLarge('Not a history backup'); // l10n-ok
 
   const HistoryFileProblem(this.title);
 
+  /// English, for tests and logs. Screens show [label].
   final String title;
+
+  /// The title in [l]'s language.
+  String label(AppLocalizations l) => switch (this) {
+    otherWallet => l.deskErrHistOtherWallet,
+    otherChain => l.deskErrHistOtherChain,
+    notOurs || tooLarge => l.deskErrHistNotOurs,
+    newer => l.deskErrHistNewer,
+    damaged => l.deskErrHistDamaged,
+  };
 }
 
 /// A refused history backup file: [problem]'s title, and [text] saying why.
 class HistoryFileError implements Exception {
-  const HistoryFileError(this.problem, this.text);
+  const HistoryFileError(this.problem, this.text) : _word = null;
+
+  /// A refusal the user reads in their language: [shown] words it, [text] keeps its English.
+  HistoryFileError.l10n(this.problem, String Function(AppLocalizations l) word) : text = word(englishStrings), _word = word;
 
   final HistoryFileProblem problem;
   final String text;
+  final String Function(AppLocalizations l)? _word;
+
+  /// [text] in [l]'s language.
+  String shown(AppLocalizations l) => _word?.call(l) ?? text;
 
   @override
   String toString() => text;
@@ -561,9 +615,21 @@ class HistoryFileError implements Exception {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx});
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx})
+    : _text = null;
 
+  /// An error the user reads in their language: [text] words it when shown ([DeskError.text]),
+  /// [message] keeps its English for logs.
+  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx})
+    : message = text(englishStrings),
+      _text = text;
+
+  /// English, for logs. The user reads [text].
   final String message;
+  final String Function(AppLocalizations l)? _text;
+
+  /// The message in [l]'s language; English for an error made with a plain [message].
+  String text(AppLocalizations l) => _text?.call(l) ?? message;
   final bool wrongPassword;
 
   /// A restore whose phrase belongs to this listed wallet (O1): nothing was made. The restore
@@ -615,7 +681,7 @@ class DeskSettings {
   const DeskSettings({
     this.theme = ThemeChoice.dark,
     this.scale = 100,
-    this.language = 'English',
+    this.language,
     this.helpLanguage,
     this.hideAmounts = false,
     this.nodeFailover = true,
@@ -639,11 +705,13 @@ class DeskSettings {
 
   /// Interface scale in percent, one of [deskScales]: text and layout together.
   final int scale;
-  final String language;
+
+  /// The interface language as a code from `appLanguages` (Settings › Appearance › Language),
+  /// or null to follow the computer's first language the app has, else English.
+  final String? language;
 
   /// The language of the Help topics as a code from `appLanguages`, or null to follow the
-  /// computer's language (English when the app has none of them). Chosen with the switch at the
-  /// top of Help; the interface itself stays as [language] says.
+  /// interface ([language]). Chosen with the switch at the top of Help.
   final String? helpLanguage;
   final bool hideAmounts;
 
@@ -691,7 +759,7 @@ class DeskSettings {
   DeskSettings copyWith({
     ThemeChoice? theme,
     int? scale,
-    String? language,
+    String? Function()? language,
     String? Function()? helpLanguage,
     bool? hideAmounts,
     bool? nodeFailover,
@@ -712,7 +780,7 @@ class DeskSettings {
   }) => DeskSettings(
     theme: theme ?? this.theme,
     scale: scale ?? this.scale,
-    language: language ?? this.language,
+    language: language != null ? language() : this.language,
     helpLanguage: helpLanguage != null ? helpLanguage() : this.helpLanguage,
     hideAmounts: hideAmounts ?? this.hideAmounts,
     nodeFailover: nodeFailover ?? this.nodeFailover,
@@ -777,8 +845,17 @@ final class SendFileReady extends SendResult {
 }
 
 final class SendFailed extends SendResult {
-  const SendFailed(this.message, {this.inActivity = false});
+  const SendFailed(this.message, {this.inActivity = false}) : _word = null;
+
+  /// A failure the user reads in their language: [text] words it, [message] keeps its English.
+  SendFailed.l10n(String Function(AppLocalizations l) word, {this.inActivity = false}) : message = word(englishStrings), _word = word;
+
+  /// English, for logs and tests.
   final String message;
+  final String Function(AppLocalizations l)? _word;
+
+  /// The message in [l]'s language.
+  String text(AppLocalizations l) => _word?.call(l) ?? message;
 
   /// The payment may exist already (waiting in Activity): sending again could pay twice.
   final bool inActivity;
@@ -835,12 +912,21 @@ enum WalletRemoval {
 
 /// Where the import wizard found an old wallet: the groups of its Find step.
 enum OldWalletGroup {
-  gui('Older Epic Wallet'),
-  cli('The epic program'),
-  picked('Chosen folders');
+  gui('Older Epic Wallet'), // l10n-ok: English for tests; screens use [label]
+  cli('The epic program'), // l10n-ok
+  picked('Chosen folders'); // l10n-ok
 
   const OldWalletGroup(this.title);
+
+  /// English, for tests. Screens show [label].
   final String title;
+
+  /// The group's title in [l]'s language.
+  String label(AppLocalizations l) => switch (this) {
+    gui => l.deskErrOldGui,
+    cli => l.deskErrOldCli,
+    picked => l.deskErrOldPicked,
+  };
 }
 
 /// A wallet an older Epic Wallet or the epic program left on this computer. Only read: the
@@ -898,9 +984,18 @@ enum OldWalletUse { free, inUse, unknown }
 /// One line of an import's proof: what was done and whether it held.
 @immutable
 class ImportProof {
-  const ImportProof(this.text, {this.ok = true});
+  const ImportProof(this.text, {this.ok = true}) : _word = null;
+
+  /// A line the user reads in their language: [line] words it, [text] keeps its English.
+  ImportProof.l10n(String Function(AppLocalizations l) word, {this.ok = true}) : text = word(englishStrings), _word = word;
+
+  /// English, for tests and logs.
   final String text;
+  final String Function(AppLocalizations l)? _word;
   final bool ok;
+
+  /// The line in [l]'s language.
+  String line(AppLocalizations l) => _word?.call(l) ?? text;
 }
 
 /// A wallet the import made: listed, selected, its history due from a scan at the first unlock.

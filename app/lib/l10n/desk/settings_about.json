@@ -1,0 +1,107 @@
+{
+  "deskSetAboutLicencesLead": "Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.",
+  "@deskSetAboutLicencesLead": {
+    "description": "Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead)."
+  },
+  "deskSetAboutLicenceApp": "Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.",
+  "@deskSetAboutLicenceApp": {
+    "description": "Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them."
+  },
+  "deskSetAboutBrowserNotOpened": "Browser not opened",
+  "@deskSetAboutBrowserNotOpened": {
+    "description": "Toast title when a link could not be opened in the web browser; the link follows."
+  },
+  "deskSetAboutOpen": "Open",
+  "@deskSetAboutOpen": {
+    "description": "Small button on a link row of Settings › About: open the link in the browser."
+  },
+  "deskSetAboutVersion": "Version  {version}",
+  "@deskSetAboutVersion": {
+    "description": "Settings › About: the app's version, e.g. 'Version  26.10.2 · core 0.1.0'. Two spaces before the value, as in the English.",
+    "placeholders": {"version": {"type": "String", "example": "26.10.2 · core 0.1.0"}}
+  },
+  "deskSetAboutNode": "Node  {version}",
+  "@deskSetAboutNode": {
+    "description": "Settings › About: the version of the Epic node the wallet uses, or '-'. Two spaces before the value, as in the English.",
+    "placeholders": {"version": {"type": "String", "example": "3.6.0"}}
+  },
+  "deskSetAboutCommunity": "Community",
+  "@deskSetAboutCommunity": {
+    "description": "Settings › About: group head of the Epic Cash community links (Telegram, epiccash.com)."
+  },
+  "deskSetAboutLicences": "Licences",
+  "@deskSetAboutLicences": {
+    "description": "Settings › About: group head of the open-source licences."
+  },
+  "deskSetAboutSource": "Source code",
+  "@deskSetAboutSource": {
+    "description": "Settings › About › Licences: row with the link to the app's source code."
+  },
+  "deskSetAboutView": "View",
+  "@deskSetAboutView": {
+    "description": "Small button on the All licence texts row: open the page with every licence text."
+  },
+  "deskSetAboutChecked": "Checked {ago}.",
+  "@deskSetAboutChecked": {
+    "description": "Settings › About › Updates: when the app last asked for updates, e.g. 'Checked 5 min ago.' or 'Checked just now.' The {ago} part comes from deskSetAboutAgo*.",
+    "placeholders": {"ago": {"type": "String", "example": "5 min ago"}}
+  },
+  "deskSetAboutLatest": "{version} is the latest",
+  "@deskSetAboutLatest": {
+    "description": "Settings › About › Updates: this version is the newest.",
+    "placeholders": {"version": {"type": "String", "example": "26.10.2"}}
+  },
+  "deskSetAboutAvailable": "Update available: {version}",
+  "@deskSetAboutAvailable": {
+    "description": "Settings › About › Updates: a newer version exists.",
+    "placeholders": {"version": {"type": "String", "example": "26.11.0"}}
+  },
+  "deskSetAboutCouldNotCheck": "Could not check",
+  "@deskSetAboutCouldNotCheck": {
+    "description": "Settings › About › Updates: the update check failed; the reason follows."
+  },
+  "deskSetAboutUpdates": "Updates",
+  "@deskSetAboutUpdates": {
+    "description": "Settings › About: group head of the update check."
+  },
+  "deskSetAboutGet": "Get {version}",
+  "@deskSetAboutGet": {
+    "description": "Button: open the download page of the newer version.",
+    "placeholders": {"version": {"type": "String", "example": "26.11.0"}}
+  },
+  "deskSetAboutCheckNow": "Check now",
+  "@deskSetAboutCheckNow": {
+    "description": "Button: check for updates now."
+  },
+  "deskSetAboutAgoNow": "just now",
+  "@deskSetAboutAgoNow": {
+    "description": "Fills {ago} in deskSetAboutChecked: less than a minute ago. Lower case."
+  },
+  "deskSetAboutAgoMin": "{count} min ago",
+  "@deskSetAboutAgoMin": {
+    "description": "Fills {ago} in deskSetAboutChecked: minutes ago (1 to 59). Lower case; 'min' is the short unit.",
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "deskSetAboutAgoHours": "{count} h ago",
+  "@deskSetAboutAgoHours": {
+    "description": "Fills {ago} in deskSetAboutChecked: hours ago (1 to 23). Lower case; 'h' is the short unit.",
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "deskSetAboutAgoDays": "{count} d ago",
+  "@deskSetAboutAgoDays": {
+    "description": "Fills {ago} in deskSetAboutChecked: days ago. Lower case; 'd' is the short unit.",
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "deskSetAboutCopyLink": "Copy link",
+  "@deskSetAboutCopyLink": {
+    "description": "Tooltip and screen reader label of the small copy icon beside a link."
+  },
+  "deskSetAboutCopied": "Copied",
+  "@deskSetAboutCopied": {
+    "description": "Shown in place of Copy link for a moment after the link was copied."
+  },
+  "deskSetAboutNotCopied": "Not copied",
+  "@deskSetAboutNotCopied": {
+    "description": "Shown in place of Copy link for a moment when copying failed."
+  }
+}

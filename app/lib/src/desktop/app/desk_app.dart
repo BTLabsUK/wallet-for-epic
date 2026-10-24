@@ -3,6 +3,7 @@ import '../../l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../desk_l10n.dart' show deskStrings;
 import '../theme/theme.dart';
 import '../widgets/kit.dart';
 import 'screens.dart';
@@ -44,6 +45,7 @@ class DeskApp extends ConsumerWidget {
       // Interface scale: text through the text scaler, layout through the tokens. The key
       // rebuilds every page and dialog with the new sizes.
       builder: (context, child) {
+        deskStrings = context.l10n;
         final mq = MediaQuery.of(context);
         return MediaQuery(
           data: mq.copyWith(textScaler: DeskTextScaler(mq.textScaler, deskScale)),
@@ -123,13 +125,7 @@ class DeskTextScaler extends TextScaler {
   int get hashCode => Object.hash(base, factor);
 }
 
-/// The locale of Settings › Appearance › Language (its names: English, Deutsch, Polski,
-/// Русский, 中文, ไทย); English for anything else.
-Locale deskLocaleOf(String language) => switch (language) {
-  'Deutsch' => const Locale('de'),
-  'Polski' => const Locale('pl'),
-  'Русский' => const Locale('ru'),
-  '中文' || '简体中文' => const Locale('zh'),
-  'ไทย' => const Locale('th'),
-  _ => const Locale('en'),
-};
+/// The locale of Settings › Appearance › Language (a code from `appLanguages`); null follows
+/// the computer: the first of its languages the app has, else English (l10n.yaml puts English
+/// first among the supported locales).
+Locale? deskLocaleOf(String? language) => language == null ? null : Locale(language);

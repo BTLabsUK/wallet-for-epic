@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../desk_l10n.dart';
 import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, EpicMark;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
@@ -97,7 +98,7 @@ class _BackButton extends StatelessWidget {
   // Not a Tab stop: Alt+Left and the mouse Back button do the same.
   Widget build(BuildContext context) => ExcludeFocusTraversal(
     child: Tooltip(
-    message: 'Back (Alt+Left)',
+    message: context.l10n.deskKitBackAlt,
     child: IconButton(
       onPressed: onBack,
       icon: Icon(EIcons.arrowLeft, size: Ctl.icon, color: context.dc.dim),
@@ -351,7 +352,7 @@ class EOnbFrame extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (narrow && current >= 0) ...[
-                      Text('Step ${current + 1} of ${steps.length}', style: ts.caption),
+                      Text(context.l10n.deskKitStepOf(current + 1, steps.length), style: ts.caption),
                       SizedBox(height: Sp.x2),
                     ],
                     Semantics(header: true, child: Text(title, style: ts.h1)),

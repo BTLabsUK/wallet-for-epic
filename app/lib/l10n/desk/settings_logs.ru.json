@@ -1,0 +1,20 @@
+{
+  "deskSetLogsMemoryOnly": "Журнал хранится только в памяти.",
+  "deskSetLogsClearTitle": "Очистить журналы?",
+  "deskSetLogsClearDesc": "Удаляет файлы журналов. В отчёт, отправленный позже, попадёт только то, что записано с этого момента.",
+  "deskSetLogsKeep": "Оставить журналы",
+  "deskSetLogsClear": "Очистить журналы",
+  "deskSetLogsCleared": "Журналы очищены",
+  "deskSetLogsToday": "сегодня в {time}",
+  "deskSetLogsTomorrow": "завтра в {time}",
+  "deskSetLogsTitle": "Журналы",
+  "deskSetLogsLevel": "Уровень журнала",
+  "deskSetLogsLevelNormal": "Обычный. «Подробный» хранит больше строк на диске в течение 24 часов; в файле могут быть адреса, в отчётах их нет.",
+  "deskSetLogsLevelDetailed": "Подробный до {until}, затем обычный. В файле могут быть адреса; в отчётах их нет.",
+  "deskSetLogsLevelDetailedCore": "Подробный до {until}, затем обычный. В файле могут быть адреса; в отчётах их нет. Строки ядра кошелька станут подробными со следующего запуска приложения.",
+  "deskSetLogsNormal": "Обычный",
+  "deskSetLogsDetailed": "Подробный",
+  "deskSetLogsFiles": "Файлы журнала",
+  "deskSetLogsSize": "Текущий размер {size} из {max}. Хранится ещё один старый файл.",
+  "deskSetLogsOpenFolder": "Открыть папку журналов"
+}

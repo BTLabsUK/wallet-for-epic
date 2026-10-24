@@ -445,7 +445,7 @@ class MockDeskNode implements DeskNodeApi {
             ConnectedPeer(
               addr: _peerAddr(i),
               direction: i % 3 == 2 ? PeerDirection.outbound : PeerDirection.inbound,
-              userAgent: i == 5 ? 'MW/Epic 3.6.0' : 'MW/Epic 4.1.1',
+              userAgent: i == 5 ? 'MW/Epic 3.6.0' : 'MW/Epic 4.1.1', // l10n-ok: mock peer user agent
               protocolVersion: 1000,
               height: 3764975 - (i % 4) * 2,
             ),
@@ -640,7 +640,7 @@ NodeInfo mockNodeInfo(
     directoryReachedAt: directory ? DateTime(2026, 10, 22, 14, 1) : null,
     uptime24h: directory ? 0.997 : null,
     peers: directory ? 63 : null,
-    operator: directory ? 'Epic Cash' : null,
+    operator: directory ? 'Epic Cash' : null, // l10n-ok: mock operator name
     listing: directory ? 'official' : null,
     readyForTxs: directory ? null : true,
     tipTime: directory ? null : DateTime(2026, 10, 22, 14),
@@ -685,11 +685,11 @@ final List<ChainDataInfo> mockChainCandidates = [
 ];
 
 const List<String> mockNodeLog = [
-  '20261022 13:58:01.112 INFO epic_servers::epic::server - Starting server, genesis block: 0000…',
-  '20261022 13:58:01.530 INFO epic_p2p::serv - P2P server started on 0.0.0.0:3414',
-  '20261022 13:58:04.882 INFO epic_servers::epic::sync::syncer - sync: waiting for peers',
-  '20261022 13:58:12.301 WARN epic_p2p::peers - connect to 51.38.4.1:3414 timed out',
-  '20261022 13:58:19.004 INFO epic_servers::epic::sync::header_sync - header sync: 1480200 of 3764975',
-  '20261022 14:01:44.770 ERROR epic_p2p::protocol - bad block from 203.0.113.9:3414, banning',
-  '20261022 14:02:00.010 INFO epic_servers::epic::sync::header_sync - header sync: 1482900 of 3764975',
+  '20261022 13:58:01.112 INFO epic_servers::epic::server - Starting server, genesis block: 0000…', // l10n-ok: mock node log (log lines are English)
+  '20261022 13:58:01.530 INFO epic_p2p::serv - P2P server started on 0.0.0.0:3414', // l10n-ok: mock node log (log lines are English)
+  '20261022 13:58:04.882 INFO epic_servers::epic::sync::syncer - sync: waiting for peers', // l10n-ok: mock node log (log lines are English)
+  '20261022 13:58:12.301 WARN epic_p2p::peers - connect to 51.38.4.1:3414 timed out', // l10n-ok: mock node log (log lines are English)
+  '20261022 13:58:19.004 INFO epic_servers::epic::sync::header_sync - header sync: 1480200 of 3764975', // l10n-ok: mock node log (log lines are English)
+  '20261022 14:01:44.770 ERROR epic_p2p::protocol - bad block from 203.0.113.9:3414, banning', // l10n-ok: mock node log (log lines are English)
+  '20261022 14:02:00.010 INFO epic_servers::epic::sync::header_sync - header sync: 1482900 of 3764975', // l10n-ok: mock node log (log lines are English)
 ];

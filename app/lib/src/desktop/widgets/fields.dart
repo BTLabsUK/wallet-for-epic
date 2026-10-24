@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatf
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../desk_l10n.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
@@ -57,7 +58,7 @@ class EField extends StatelessWidget {
                 Text(label, style: ts.label),
                 if (optional) ...[
                   SizedBox(width: Sp.x2),
-                  Text('Optional', style: ts.small.copyWith(color: c.faint)),
+                  Text(context.l10n.deskKitOptional, style: ts.small.copyWith(color: c.faint)),
                 ],
                 ?labelTrailing,
               ],

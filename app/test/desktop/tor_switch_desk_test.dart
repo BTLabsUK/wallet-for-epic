@@ -1,5 +1,6 @@
 // The one Tor switch on the desktop (Settings › Privacy): its state everywhere it shows, the
 // clearnet HTTP listener off while it is on, and Epicbox waiting for it, never going around it.
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/app/rail.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/tor_view.dart';
@@ -69,7 +70,7 @@ void main() {
     });
 
     test('the status card shows the Tor row in every state and opens Privacy', () {
-      RailItem torRow(DeskSettings s, ServiceStatus st) => receivingRailItems(st, s).singleWhere((i) => i.name == 'Tor');
+      RailItem torRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Tor');
       expect(torRow(const DeskSettings(), _status()).word, 'Off');
       expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.checking)).word, 'Starting…');
       expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.ok, canSend: true)).word, 'On');
@@ -80,18 +81,18 @@ void main() {
     }, skip: _skip);
 
     test('Epicbox waits for Tor while it starts or failed, and says over Tor once on', () {
-      RailItem ebRow(DeskSettings s, ServiceStatus st) => receivingRailItems(st, s).singleWhere((i) => i.name == 'Epicbox');
+      RailItem ebRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Epicbox');
       const on = DeskSettings(tor: true);
       expect(ebRow(on, _status(tor: ServiceHealth.checking, epicbox: ServiceHealth.checking)).word, 'Waiting for Tor');
       expect(ebRow(on, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down)).word, 'Waiting for Tor');
       expect(ebRow(on, _status(tor: ServiceHealth.ok, canSend: true)).lines, contains('Over Tor'));
       expect(ebRow(const DeskSettings(), _status()).lines, isNot(contains('Over Tor')));
-      final line = methodStateLine(TxMethod.epicbox, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down), on);
+      final line = methodStateLine(englishStrings, TxMethod.epicbox, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down), on);
       expect(line.word, 'Waiting for Tor');
     }, skip: _skip);
 
     test('the coverage text names only what goes over Tor', () {
-      final text = torCoverageText();
+      final text = torCoverageText(englishStrings);
       expect(text, 'Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.');
       expect(text, isNot(contains('Not over Tor')));
       expect(text, isNot(contains('Direct to http(s)')));

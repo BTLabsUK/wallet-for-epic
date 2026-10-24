@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../../feedback.dart';
 import '../../../log.dart';
 import '../../../support_report.dart';
@@ -83,7 +84,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
       _files = await sink.files();
       _log = await sink.tail(feedbackLogBytes);
     } catch (error) {
-      _log = 'The log could not be read: $error\n';
+      _log = 'The log could not be read: $error\n'; // l10n-ok: goes into the report
     }
     if (mounted) setState(() {});
     _refreshPreview();
@@ -95,15 +96,16 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     return FeedbackDetails(
       appVersion: deskVersion,
       platform: ref.read(feedbackPlatformProvider),
-      network: s.account?.network ?? 'Unknown',
-      node: status == null ? 'Unknown' : (Uri.tryParse(status.node.url)?.host ?? '?'),
-      relay: status?.epicbox.domain ?? 'Unknown',
+      // l10n-ok: the report body sent to the developer stays English
+      network: s.account?.network ?? 'Unknown', // l10n-ok
+      node: status == null ? 'Unknown' : (Uri.tryParse(status.node.url)?.host ?? '?'), // l10n-ok
+      relay: status?.epicbox.domain ?? 'Unknown', // l10n-ok
       sync: status == null
-          ? (s.account == null ? 'Wallet locked' : 'Loading')
+          ? (s.account == null ? 'Wallet locked' : 'Loading') // l10n-ok
           : [
-              if (status.syncProgress case final p?) 'Syncing, ${(p * 100).round()}%',
-              'node ${status.nodeHealth.name} at height ${status.nodeHeight}',
-              'epicbox ${status.epicboxHealth.name}',
+              if (status.syncProgress case final p?) 'Syncing, ${(p * 100).round()}%', // l10n-ok
+              'node ${status.nodeHealth.name} at height ${status.nodeHeight}', // l10n-ok
+              'epicbox ${status.epicboxHealth.name}', // l10n-ok
             ].join(', '),
       logLevel: ref.read(logsProvider).label,
     );
@@ -125,6 +127,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   bool get _empty => _description.text.trim().isEmpty;
 
   Future<void> _send() async {
+    final l = context.l10n;
     setState(() {
       _tried = true;
       _error = null;
@@ -140,7 +143,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     } catch (error) {
       logWarn('support', 'report not sent: $error');
       if (mounted) {
-        setState(() => _error = error is FeedbackSendError ? error.message : 'The report was not sent. Try again.');
+        setState(() => _error = error is FeedbackSendError ? error.message : l.deskSetReportNotSent);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -150,6 +153,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   /// Writes the cleaned report, not sealed, through the system Save dialog.
   Future<void> _save() async {
     if (_busy || _saving) return;
+    final l = context.l10n;
     setState(() {
       _saving = true;
       _saved = null;
@@ -159,82 +163,81 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
       await _logRead;
       final saved = await ref
           .read(feedbackOutletProvider)
-          .save(name: feedbackFileName(_at), report: (await _report()).text, dialogTitle: 'Save the report');
+          .save(name: feedbackFileName(_at), report: (await _report()).text, dialogTitle: l.deskSetReportSaveDialog);
       if (saved) logInfo('support', 'report saved to a file');
-      if (mounted && saved) setState(() => _saved = 'Saved. Cleaned of secrets, not encrypted.');
+      if (mounted && saved) setState(() => _saved = l.deskSetReportSaved);
     } catch (error) {
       logWarn('support', 'report not saved: $error');
-      if (mounted) setState(() => _error = 'The file was not saved. Try again.');
+      if (mounted) setState(() => _error = l.deskSetReportNotSaved);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
   }
 
   /// "What is sent": the report text and each log file with how much of it goes along.
-  List<String> get _parts => [
-    'Report text',
+  List<String> _parts(AppLocalizations l) => [
+    l.deskSetReportText,
     if (_attachLogs)
-      if (_files.isEmpty) 'App log (last ${logSize((_log ?? '').length)})' else ...describeLogFiles(_files, feedbackLogBytes),
+      if (_files.isEmpty) l.deskSetReportAppLog(logSize((_log ?? '').length, l)) else ...describeLogFiles(_files, feedbackLogBytes, l),
   ];
 
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
+    final l = context.l10n;
     final nav = Navigator.of(context);
     if (_sentId case final id?) {
       return EDialog(
-        title: 'Report sent',
+        title: l.deskSetReportSent,
         icon: EIcons.check,
         tone: ETone.ok,
-        description: id.isEmpty ? 'The report arrived.' : 'The report arrived. Its reference is $id.',
-        actions: [EButton.primary(label: 'Close', size: EBtnSize.sm, onPressed: nav.pop)],
+        description: id.isEmpty ? l.deskSetReportArrived : l.deskSetReportArrivedRef(id),
+        actions: [EButton.primary(label: l.commonClose, size: EBtnSize.sm, onPressed: nav.pop)],
       );
     }
     final canSend = ref.watch(feedbackUrlProvider) != null;
-    final emptyError = _tried && _empty ? 'Describe what happened.' : null;
+    final emptyError = _tried && _empty ? l.deskSetReportDescribe : null;
     return CallbackShortcuts(
       // The barrier does not close the dialog (a stray click would lose the text); Esc does.
       bindings: {const SingleActivator(LogicalKeyboardKey.escape): () => _busy ? null : nav.maybePop()},
       child: PopScope(
       canPop: !_busy,
       child: EDialog(
-        title: 'Report a problem',
+        title: l.deskSetReportTitle,
         width: 560.u,
         dismissible: !_busy,
-        description:
-            'The report is encrypted so only the developer can read it. Nothing is sent before Send. '
-            'Save to file keeps the same cleaned report, not encrypted.',
+        description: l.deskSetReportDesc,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             EField(
-              label: 'What happened',
+              label: l.deskSetReportWhat,
               error: emptyError,
               child: EInput(
                 controller: _description,
                 autofocus: true,
                 maxLines: 4,
                 invalid: emptyError != null,
-                hint: 'What you did, what you expected, what happened instead',
-                semanticLabel: 'What happened',
+                hint: l.deskSetReportWhatHint,
+                semanticLabel: l.deskSetReportWhat,
                 onChanged: (_) => setState(() {}),
               ),
             ),
             SizedBox(height: Sp.x4),
             EField(
-              label: 'Contact',
+              label: l.deskSetReportContact,
               optional: true,
               child: EInput(
                 controller: _contact,
-                hint: 'An email address or other handle, for a reply',
-                semanticLabel: 'Contact',
+                hint: l.deskSetReportContactHint,
+                semanticLabel: l.deskSetReportContact,
                 onChanged: (_) => setState(() {}),
               ),
             ),
             SizedBox(height: Sp.x4),
             ECheckbox(
               value: _attachLogs,
-              label: 'Attach logs (recommended)',
+              label: l.deskSetReportAttach,
               onChanged: (v) {
                 setState(() => _attachLogs = v);
                 _refreshPreview();
@@ -242,16 +245,16 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
             ),
             SizedBox(height: Sp.x1),
             Text(
-              'The newest part of the app log, cleaned of phrases, passwords, addresses, IPs and home folders.',
+              l.deskSetReportAttachHint,
               style: ts.small,
             ),
             SizedBox(height: Sp.x3),
             EDetails(
-              title: 'What is sent',
+              title: l.deskSetReportSentWhat,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(_parts.join(' · '), style: ts.small),
+                  Text(_parts(l).join(' · '), style: ts.small),
                   SizedBox(height: Sp.x2),
                   ReportPreview(text: _log == null && _attachLogs ? null : _preview),
                 ],
@@ -263,18 +266,18 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
             ],
             if (_error != null) ...[
               SizedBox(height: Sp.x3),
-              Semantics(liveRegion: true, child: ENotice(title: 'Not sent', text: _error, tone: ETone.risk, icon: EIcons.alert)),
+              Semantics(liveRegion: true, child: ENotice(title: l.deskSetReportNotSentTitle, text: _error, tone: ETone.risk, icon: EIcons.alert)),
             ],
             if (!canSend) ...[
               SizedBox(height: Sp.x3),
-              const ENotice(title: 'Sending is off in this build', tone: ETone.warn),
+              ENotice(title: l.deskSetReportOff, tone: ETone.warn),
             ],
           ],
         ),
         actions: [
-          EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: _busy ? null : nav.pop),
-          EButton(label: 'Save to file', icon: EIcons.download, size: EBtnSize.sm, busy: _saving, onPressed: _busy ? null : _save),
-          EButton.primary(label: 'Send', icon: EIcons.send, size: EBtnSize.sm, busy: _busy, onPressed: canSend ? _send : null),
+          EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: _busy ? null : nav.pop),
+          EButton(label: l.deskSetReportSaveToFile, icon: EIcons.download, size: EBtnSize.sm, busy: _saving, onPressed: _busy ? null : _save),
+          EButton.primary(label: l.deskSetReportSend, icon: EIcons.send, size: EBtnSize.sm, busy: _busy, onPressed: canSend ? _send : null),
         ],
       ),
       ),

@@ -1,0 +1,12 @@
+{
+  "deskSetAppearTheme": "主题",
+  "deskSetAppearThemeHint": "“系统”会跟随电脑的设置。",
+  "deskSetAppearSystem": "系统",
+  "deskSetAppearDark": "深色",
+  "deskSetAppearLight": "浅色",
+  "deskSetAppearScale": "界面缩放",
+  "deskSetAppearScaleHint": "放大或缩小文字和控件。立即生效。",
+  "deskSetAppearLanguage": "语言",
+  "deskSetAppearLanguageHint": "立即生效。",
+  "deskSetAppearHideHint": "用圆点代替余额和金额。"
+}

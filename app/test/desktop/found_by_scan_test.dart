@@ -6,6 +6,7 @@ import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 
 Tx _found({FoundDuring? during, bool byBlock = true}) => Tx(
@@ -25,30 +26,30 @@ Tx _found({FoundDuring? during, bool byBlock = true}) => Tx(
 
 void main() {
   test('the four kinds', () {
-    final restored = foundTexts(_found(during: FoundDuring.restore));
+    final restored = foundTexts(englishStrings, _found(during: FoundDuring.restore));
     expect(restored.label, 'Restored');
     expect(restored.line, 'Found while restoring');
     expect(restored.step, 'Found while restoring this wallet');
     expect(restored.note, 'Block time. The sender is not recorded.');
     expect(restored.tip, 'Found on the chain while restoring this wallet. The sender is not recorded.');
 
-    final rescan = foundTexts(_found(during: FoundDuring.rescan));
+    final rescan = foundTexts(englishStrings, _found(during: FoundDuring.rescan));
     expect(rescan.label, 'Found by scan');
     expect(rescan.line, 'Found by a balance recheck');
     expect(rescan.tip, 'Found on the chain by a balance recheck. The sender is not recorded.');
     expect(rescan.note, 'Block time. The sender is not recorded.');
 
-    final scanTime = foundTexts(_found(during: FoundDuring.rescan, byBlock: false));
+    final scanTime = foundTexts(englishStrings, _found(during: FoundDuring.rescan, byBlock: false));
     expect(scanTime.note, "Time of the scan; the block's time could not be read. The sender is not recorded.");
 
-    final older = foundTexts(_found());
+    final older = foundTexts(englishStrings, _found());
     expect(older.label, 'Found by scan');
     expect(older.step, 'Found by a scan');
     expect(older.note, 'The sender is not recorded.');
     expect(older.tip, 'Found on the chain by a scan. The sender is not recorded.');
 
-    expect(whoOf(_found(during: FoundDuring.restore)), 'Restored');
-    expect(methodOf(_found()), isNull);
+    expect(whoOf(englishStrings, _found(during: FoundDuring.restore)), 'Restored');
+    expect(methodOf(englishStrings, _found()), isNull);
     // No "The time is the block time" sentence is left anywhere.
     for (final t in [restored, rescan, scanTime, older]) {
       expect('${t.label}${t.line}${t.step}${t.note}${t.tip}', isNot(contains('when the scan')));

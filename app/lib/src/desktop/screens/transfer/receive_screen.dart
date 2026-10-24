@@ -97,9 +97,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       epicboxHealth: epicbox,
       httpListener: http,
       tor: tor,
-      httpProblem: a.http == RxHttp.failed ? 'Port 3415 in use' : s.httpProblem,
+      httpProblem: a.http == RxHttp.failed ? HttpProblem.portInUse : s.httpProblem,
+      httpProblemPort: a.http == RxHttp.failed ? 3415 : s.httpProblemPort,
       torProgress: a.tor == RxTor.connecting ? 45 : s.torProgress,
-      torProblem: a.tor == RxTor.failed ? 'Tor could not connect to the network.' : s.torProblem,
+      torProblem: a.tor == RxTor.failed ? 'Tor could not connect to the network.' : s.torProblem, // l10n-ok: tour demo state
       torCanSend: a.tor == RxTor.connecting ? false : s.torCanSend,
       torIncluded: s.torIncluded,
       syncProgress: s.syncProgress,
@@ -129,17 +130,17 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           break;
       }
     } on Object catch (e) {
-      if (mounted) showEToast(context, '${_name(m)} not turned ${on ? 'on' : 'off'}', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, on ? context.l10n.deskRecvTurnOnFailed(_name(context.l10n, m)) : context.l10n.deskRecvTurnOffFailed(_name(context.l10n, m)), text: deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _busy.remove(m));
     }
   }
 
-  static String _name(TxMethod m) => switch (m) {
-    TxMethod.epicbox => 'Epicbox',
-    TxMethod.http => 'HTTP',
-    TxMethod.tor => 'Tor',
-    TxMethod.file => 'File',
+  static String _name(AppLocalizations l, TxMethod m) => switch (m) {
+    TxMethod.epicbox => 'Epicbox', // l10n-ok: product name
+    TxMethod.http => 'HTTP', // l10n-ok: protocol name
+    TxMethod.tor => 'Tor', // l10n-ok: product name
+    TxMethod.file => l.deskRecvNameFile,
   };
 
   /// Direct receiving is the clearnet HTTP listener with Tor off and the Tor address with Tor
@@ -167,6 +168,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final status = _status(st.status);
     if (DeskFeatures.httpDirect && status?.httpListener == ServiceHealth.ok) unawaited(_readHttp());
     final nav = ref.read(deskNavProvider.notifier);
+    final l = context.l10n;
     final epicbox = TourTarget(id: 'receive-epicbox', child: _epicboxPanel(st, status));
     final others = [
       if (DeskFeatures.tor && st.settings.tor) _torPanel(st, status) else if (DeskFeatures.httpDirect) _httpPanel(st, status),
@@ -174,15 +176,15 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final tor = torStateOf(st.settings, status);
     final files = _filesPanel(nav);
     final head = ESectionHead(
-      'Other ways to receive',
+      l.deskRecvOtherWays,
       top: 0,
-      trailing: EButton.ghost(label: 'Settings', icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
+      trailing: EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
     );
     List<Widget> gap(List<Widget> xs) => [
       for (var i = 0; i < xs.length; i++) ...[if (i > 0) SizedBox(height: Sp.x3), xs[i]],
     ];
     return EPage(
-      title: 'Receive',
+      title: l.deskRecvTitle,
       // How receiving connects while the Tor switch is on (tor_routes.dart). Nothing with it
       // off: the switch names only what goes over Tor.
       titleTrailing: DeskFeatures.tor && torWay(TorRoute.epicbox, tor) != TorWay.clearnet
@@ -246,17 +248,16 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Widget _torNotice(TorState tor) {
     final failed = tor == TorState.failed;
     final busy = _busy.contains(TxMethod.tor);
+    final l = context.l10n;
     return ENotice(
       key: const ValueKey('rx-tor-notice'),
       tone: failed ? ETone.risk : ETone.warn,
-      title: failed ? 'Tor is not connected.' : 'Tor is starting.',
-      text: failed
-          ? 'Nothing arrives over ${torWaitingText()} until it is, or until Tor is turned off.'
-          : 'Addresses become reachable once it is connected. Nothing goes over the clearnet meanwhile.',
+      title: failed ? l.deskRecvTorNotConnected : l.deskRecvTorStarting,
+      text: failed ? l.deskRecvTorDownText(torWaitingText(l)) : l.deskRecvTorStartingText,
       actions: [
         if (failed) ...[
-          EButton(label: 'Retry', icon: EIcons.refresh, size: EBtnSize.inline, busy: busy, onPressed: busy ? null : () => _toggle(TxMethod.tor, true)),
-          EButton.ghost(label: 'Turn Tor off', size: EBtnSize.inline, onPressed: busy ? null : () => _toggle(TxMethod.tor, false)),
+          EButton(label: l.commonRetry, icon: EIcons.refresh, size: EBtnSize.inline, busy: busy, onPressed: busy ? null : () => _toggle(TxMethod.tor, true)),
+          EButton.ghost(label: l.deskRecvTurnTorOff, size: EBtnSize.inline, onPressed: busy ? null : () => _toggle(TxMethod.tor, false)),
         ],
       ],
     );
@@ -266,23 +267,28 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Widget _indicator(DeskState st, ServiceStatus? status) {
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     final methods = _methodsFor(st.settings);
-    final lines = {for (final m in methods) m: status == null ? null : methodStateLine(m, status, st.settings)};
-    String word(TxMethod m) => lines[m] == null ? 'checking' : (lines[m]!.state == EState.off ? 'off' : (lines[m]!.word == 'On' ? 'on' : lines[m]!.word.toLowerCase()));
+    final lines = {for (final m in methods) m: status == null ? null : methodStateLine(l, m, status, st.settings)};
+    String word(TxMethod m) => lines[m] == null ? l.deskRecvStateChecking : (lines[m]!.state == EState.off ? l.deskRecvStateOff : (lines[m]!.state == EState.ok ? l.deskRecvStateOn : lines[m]!.word.toLowerCase()));
     return Semantics(
       liveRegion: true,
-      label: [for (final m in methods) '${_name(m)} ${word(m)}'].join(', '),
+      label: [for (final m in methods) l.deskRecvSemList(_name(l, m), word(m))].join(', '),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ExcludeSemantics(child: Text('Receiving', style: ts.small.copyWith(color: c.dim))),
+          ExcludeSemantics(child: Text(l.deskRecvReceiving, style: ts.small.copyWith(color: c.dim))),
           for (final m in methods) ...[
             SizedBox(width: Sp.x2),
             Tooltip(
-              message: lines[m] == null ? '${_name(m)} · Checking' : '${_name(m)} · ${lines[m]!.word}${lines[m]!.detail == null ? '' : '\n${lines[m]!.detail}'}',
+              message: lines[m] == null
+                  ? l.deskRecvTipChecking(_name(l, m))
+                  : lines[m]!.detail == null
+                  ? l.deskRecvTip(_name(l, m), lines[m]!.word)
+                  : l.deskRecvTipDetail(_name(l, m), lines[m]!.word, lines[m]!.detail!),
               child: Semantics(
                 button: true,
-                label: '${_name(m)}: ${word(m)}',
+                label: l.deskRecvSemMethod(_name(l, m), word(m)),
                 excludeSemantics: true,
                 onTap: () => _jump(m),
                 child: InkWell(
@@ -305,7 +311,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     if (!line.retry) return null;
     final busy = _busy.contains(m);
     return EButton(
-      label: m == TxMethod.http ? 'Try again' : 'Retry',
+      label: m == TxMethod.http ? context.l10n.deskRecvTryAgain : context.l10n.commonRetry,
       icon: EIcons.refresh,
       size: EBtnSize.sm,
       busy: busy,
@@ -316,31 +322,32 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Widget _epicboxPanel(DeskState st, ServiceStatus? status) {
     const m = TxMethod.epicbox;
     final ts = context.ts;
+    final l = context.l10n;
     final addr = st.epicboxAddress;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
     final health = status?.epicboxHealth;
     final tag = !on
-        ? 'Paused'
+        ? l.deskRecvTagPaused
         : health == ServiceHealth.checking
-        ? 'Starting'
+        ? l.deskRecvTagStarting
         : null;
     final Widget addressBox = addr == null
         ? Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20.u))
         : addr.isEmpty
-        ? Text('The address could not be read. Open Receive again in a moment.', style: ts.small)
+        ? Text(l.deskRecvAddressUnreadable, style: ts.small)
         : Opacity(
             opacity: on ? 1 : 0.6,
-            child: EAddress(addr, large: true, copyLabel: 'Copy Epicbox address'),
+            child: EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox),
           );
     final info = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Share it to get paid. Works while the wallet is closed: the Epicbox server holds payments until the wallet is back.', style: ts.bodyDim),
+        Text(l.deskRecvEpicboxIntro, style: ts.bodyDim),
         SizedBox(height: Sp.x4),
         addressBox,
         SizedBox(height: Sp.x2),
-        Text('When reading it out, check the first six and last six characters.', style: ts.caption),
+        Text(l.deskRecvCheckSix, style: ts.caption),
         SizedBox(height: Sp.x4),
         if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
         if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), const EpicboxDownNotice()],
@@ -369,7 +376,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         : EQrReveal(
             address: addr,
             form: QrRevealForm.covered,
-            title: 'Epicbox address',
+            title: l.deskRecvEpicboxAddress,
             tag: tag,
             method: 'epicbox',
             initiallyShown: _args?.qr == RxQr.epicbox,
@@ -377,7 +384,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     return _MethodPanel(
       key: _panels[m],
       method: m,
-      title: 'Epicbox address',
+      title: l.deskRecvEpicboxAddress,
       state: line?.state ?? EState.off,
       switchOn: on,
       busy: _busy.contains(m) || status == null,
@@ -395,21 +402,22 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Widget _httpPanel(DeskState st, ServiceStatus? status) {
     const m = TxMethod.http;
     final ts = context.ts;
+    final l = context.l10n;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
     final ok = status?.httpListener == ServiceHealth.ok;
     final failed = status?.httpListener == ServiceHealth.down;
     final addr = _http != null && _http!.isNotEmpty ? _http : null;
     final caption = Text(
       st.settings.publicMode
-          ? 'Your router’s public address. Senders on the internet use it once the router forwards port ${st.settings.httpPort}.'
-          : 'Programs on this computer can pay this address. For other devices, see Settings › Receiving.',
+          ? l.deskRecvHttpPublic(st.settings.httpPort)
+          : l.deskRecvHttpLocal,
       style: ts.caption,
     );
     return _MethodPanel(
       key: _panels[m],
       method: m,
-      title: 'HTTP address',
+      title: l.deskRecvHttpAddress,
       state: line?.state ?? EState.off,
       switchOn: on,
       busy: _busy.contains(m) || status == null,
@@ -419,16 +427,16 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Straight from another wallet while this one is open. On this computer only unless Settings says otherwise.', style: ts.bodyDim),
+          Text(l.deskRecvHttpIntro, style: ts.bodyDim),
           SizedBox(height: Sp.x4),
           if (addr != null) ...[
             EQrReveal(
               address: addr,
               form: QrRevealForm.compact,
-              title: 'HTTP address',
-              copyLabel: 'Copy HTTP address',
+              title: l.deskRecvHttpAddress,
+              copyLabel: l.deskRecvCopyHttp,
               addressOpacity: ok ? 1 : 0.6,
-              tag: failed ? 'Not reachable' : (ok ? null : 'Starting'),
+              tag: failed ? l.deskRecvTagNotReachable : (ok ? null : l.deskRecvTagStarting),
               caption: caption,
               method: 'http',
               initiallyShown: _args?.qr == RxQr.http,
@@ -442,7 +450,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           if (line != null) EStateLine(line, key: const ValueKey('rx-state-http'), trailing: _retry(m, line)),
           if (DeskFeatures.tor) ...[
             SizedBox(height: Sp.x3),
-            Text('Turn on Tor in Settings › Privacy for a Tor address instead.', style: ts.caption),
+            Text(l.deskRecvHttpTorHint, style: ts.caption),
           ],
         ],
       ),
@@ -452,8 +460,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Widget _torPanel(DeskState st, ServiceStatus? status) {
     const m = TxMethod.tor;
     final ts = context.ts;
+    final l = context.l10n;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
     final ready = status?.tor == ServiceHealth.ok;
     final failed = status?.tor == ServiceHealth.down || status?.tor == ServiceHealth.slow;
     final addr = _tor;
@@ -461,7 +470,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     return _MethodPanel(
       key: _panels[m],
       method: m,
-      title: 'Direct, Tor address',
+      title: l.deskRecvDirectTor,
       state: line?.state ?? EState.off,
       switchOn: on && included,
       busy: _busy.contains(m) || status == null,
@@ -472,21 +481,21 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.', style: ts.bodyDim),
+          Text(l.deskRecvTorIntro, style: ts.bodyDim),
           SizedBox(height: Sp.x4),
           if (addr == null)
             Align(alignment: Alignment.centerLeft, child: ESpinner(size: 20.u))
           else if (addr.isEmpty)
-            Text('The address could not be read. Open Receive again in a moment.', style: ts.small)
+            Text(l.deskRecvAddressUnreadable, style: ts.small)
           else
             EQrReveal(
               address: addr,
               form: QrRevealForm.compact,
-              title: 'Tor address',
-              copyLabel: 'Copy Tor address',
+              title: l.deskRecvTorAddress,
+              copyLabel: l.deskRecvCopyTor,
               addressOpacity: ready ? 1 : 0.6,
-              tag: failed ? 'Not reachable' : (ready ? null : 'Starting'),
-              caption: Text('Some wallets show the address without .onion; both are the same address.', style: ts.caption),
+              tag: failed ? l.deskRecvTagNotReachable : (ready ? null : l.deskRecvTagStarting),
+              caption: Text(l.deskRecvTorOnion, style: ts.caption),
               method: 'tor',
             ),
           SizedBox(height: Sp.x4),
@@ -499,6 +508,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Widget _filesPanel(DeskNav nav) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     return EPanel(
       padding: EdgeInsets.zero,
       child: Column(
@@ -510,20 +520,20 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
               children: [
                 Icon(EIcons.file, size: 20.u, color: c.dim),
                 SizedBox(width: 10.u),
-                Semantics(header: true, child: Text('Transaction files', style: ts.h3)),
+                Semantics(header: true, child: Text(l.deskRecvFiles, style: ts.h3)),
               ],
             ),
           ),
           ESetRow(
-            title: 'Sign a transaction file',
-            text: 'A sender gave a transaction file. The wallet signs it and saves a response for them.',
-            control: EButton(label: 'Open', icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
+            title: l.deskRecvSignTitle,
+            text: l.deskRecvSignText,
+            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
           ),
           Divider(height: 1, thickness: 1, color: c.line),
           ESetRow(
-            title: 'Finalize a response file',
-            text: 'A file send got a response back. Finalizing posts the payment.',
-            control: EButton(label: 'Open', icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.finalize)),
+            title: l.deskRecvFinalizeTitle,
+            text: l.deskRecvFinalizeText,
+            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.finalize)),
           ),
         ],
       ),
@@ -580,7 +590,7 @@ class _MethodPanel extends StatelessWidget {
                   child: Semantics(header: true, child: Text(title, style: ts.h3, maxLines: 1, overflow: TextOverflow.ellipsis)),
                 ),
                 if (showSwitch) ...[
-                ExcludeSemantics(child: Text('Receiving', style: ts.body)),
+                ExcludeSemantics(child: Text(context.l10n.deskRecvReceiving, style: ts.body)),
                 SizedBox(width: Sp.x3),
                 SizedBox(
                   width: 40.u,
@@ -591,7 +601,7 @@ class _MethodPanel extends StatelessWidget {
                           key: ValueKey('rx-switch-${method.name}'),
                           value: switchOn,
                           onChanged: onSwitch,
-                          semanticLabel: '$title, receiving',
+                          semanticLabel: context.l10n.deskRecvSwitchLabel(title),
                         ),
                 ),
                 ],

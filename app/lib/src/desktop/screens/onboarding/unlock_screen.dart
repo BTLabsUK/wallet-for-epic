@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/mock_wallet.dart' show MockDeskWallet;
 import '../../data/remember.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -39,12 +40,8 @@ class UnlockScreen extends ConsumerStatefulWidget {
   ConsumerState<UnlockScreen> createState() => _UnlockScreenState();
 }
 
-const _wrongPassword = 'Wrong password. Check Caps Lock and the keyboard layout.';
-
 /// Who else can open a remembered wallet: the truth, in the checkbox's tooltip.
-String get rememberWho => !kIsWeb && Platform.isWindows
-    ? 'Anyone using this Windows account can open this wallet.'
-    : 'Anyone using this account can open this wallet.';
+String rememberWho(AppLocalizations l) => !kIsWeb && Platform.isWindows ? l.deskOnbUnlockWhoWindows : l.deskOnbUnlockWho;
 
 class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   final _password = TextEditingController();
@@ -74,12 +71,17 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     super.initState();
     switch (widget.arg) {
       case UnlockShow.wrongPassword:
-        _error = _wrongPassword;
+        // Worded after the first frame: initState has no l10n.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) setState(() => _error = context.l10n.deskOnbUnlockWrong);
+        });
         _password.text = 'secret';
       case UnlockShow.progress:
         _stage = 'wallet';
       case UnlockShow.failed:
-        _failure = 'The wallet service did not start: port 3415 is in use by another program.';
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) setState(() => _failure = context.l10n.deskOnbUnlockPortInUse);
+        });
         _failedStage = 'wallet';
       case UnlockShow.missing:
         _missing = true;
@@ -99,7 +101,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     try {
       w = await ref.read(deskApiProvider).wallets();
     } on Object catch (e) {
-      if (mounted) setState(() => _error = deskErrorText(e));
+      if (mounted) setState(() => _error = deskErrorText(e, context.l10n));
       return;
     }
     if (!mounted) return;
@@ -117,7 +119,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       try {
         await ref.read(deskApiProvider).selectWallet(pick.id);
       } on Object catch (e) {
-        if (mounted) setState(() => _error = deskErrorText(e));
+        if (mounted) setState(() => _error = deskErrorText(e, context.l10n));
       }
     }
     if (await _toSetup(pick, w.length > 1)) return;
@@ -165,7 +167,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     try {
       await ref.read(deskApiProvider).selectWallet(id);
     } on Object catch (e) {
-      if (mounted) setState(() => _error = deskErrorText(e));
+      if (mounted) setState(() => _error = deskErrorText(e, context.l10n));
     }
     final entry = _selected;
     if (entry != null && await _toSetup(entry, (_wallets?.length ?? 0) > 1)) return;
@@ -194,12 +196,12 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 
   WalletEntry? get _selected => _wallets?.where((w) => w.id == _id).firstOrNull;
 
-  List<Stage> get _stages => [
-    const Stage('check', 'Checking wallet files'),
-    if (DeskFeatures.walletProcesses) const Stage('processes', 'Looking for wallet processes still running'),
-    if (_closingStage) const Stage('closing', 'Closing the old wallet processes'),
-    const Stage('wallet', 'Starting the wallet service'),
-    const Stage('unlock', 'Unlocking the wallet'),
+  List<Stage> _stages(AppLocalizations l) => [
+    Stage('check', l.deskOnbUnlockStageCheck),
+    if (DeskFeatures.walletProcesses) Stage('processes', l.deskOnbUnlockStageProcesses),
+    if (_closingStage) Stage('closing', l.deskOnbUnlockStageClosing),
+    Stage('wallet', l.deskOnbUnlockStageWallet),
+    Stage('unlock', l.deskOnbUnlockStageUnlock),
   ];
 
   /// Shows [stage] running; false when the screen went away.
@@ -227,7 +229,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     if (_stage != null) return;
     final password = _password.text;
     if (password.isEmpty && !remembered) {
-      setState(() => _error = 'Enter the password');
+      setState(() => _error = context.l10n.deskOnbUnlockEnter);
       return;
     }
     setState(() {
@@ -241,7 +243,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       final closed = await showKillProcessDialog(context);
       if (!mounted) return;
       if (!closed) {
-        _backToForm(error: 'Close the other Epic processes, then unlock.');
+        _backToForm(error: context.l10n.deskOnbUnlockCloseOthers);
         return;
       }
       setState(() => _closingStage = true);
@@ -250,7 +252,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     if (!await _run('wallet')) return;
     if (mock && !remembered && password == 'fail') {
       setState(() {
-        _failure = 'The wallet service did not start: port 3415 is in use by another program.';
+        _failure = context.l10n.deskOnbUnlockPortInUse;
         _failedStage = 'wallet';
         _stage = null;
       });
@@ -264,12 +266,12 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       ok = remembered ? await api.unlockRemembered() : await api.unlock(password, remember: _remember);
     } on RememberUnavailable {
       // The OS store did not answer: the password stays remembered for the next start.
-      if (mounted) _backToForm(error: 'Remembered password unavailable. Enter the password.');
+      if (mounted) _backToForm(error: context.l10n.deskOnbUnlockRememberedUnavailable);
       return;
     } on Object catch (e) {
       if (!mounted) return;
       setState(() {
-        _failure = deskErrorText(e);
+        _failure = deskErrorText(e, context.l10n);
         _failedStage = 'unlock';
         _stage = null;
       });
@@ -279,9 +281,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     if (!ok) {
       if (remembered) {
         setState(() => _remember = false);
-        _backToForm(error: 'The remembered password was forgotten. Enter the password.');
+        _backToForm(error: context.l10n.deskOnbUnlockRememberedForgotten);
       } else {
-        _backToForm(error: _wrongPassword);
+        _backToForm(error: context.l10n.deskOnbUnlockWrong);
         // The wrong password that forgot a remembered one (the last allowed try) unticks the
         // box, so the next right password does not remember it again unasked.
         final id = _id;
@@ -301,18 +303,19 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final then = widget.arg is UnlockPick ? (widget.arg as UnlockPick).then : null;
     ref.read(deskNavProvider.notifier).reset(then ?? DeskRoute.overview);
     // After the move: a toast closes when its screen goes.
-    if (notRemembered) showEToast(context, 'Not remembered', text: "This computer's key store is unavailable.", tone: ETone.risk);
+    if (notRemembered) showEToast(context, context.l10n.deskOnbUnlockNotRemembered, text: context.l10n.deskOnbUnlockKeyStore, tone: ETone.risk);
   }
 
   @override
   Widget build(BuildContext context) {
-    final name = _selected?.name ?? 'this wallet';
+    final l = context.l10n;
+    final name = _selected?.name ?? l.deskOnbUnlockThisWallet;
     if (_failure != null) {
       return ProgressView(
-        title: 'Unlock failed',
-        lead: 'The wallet did not open. The reason is below.',
-        failureTitle: 'The wallet did not open',
-        stages: _stages,
+        title: l.deskOnbUnlockFailed,
+        lead: l.deskOnbUnlockFailedLead,
+        failureTitle: l.deskOnbUnlockFailedBox,
+        stages: _stages(l),
         failed: _failedStage,
         failure: _failure,
         onBack: _backToForm,
@@ -321,12 +324,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     }
     if (_stage != null) {
       return ProgressView(
-        title: 'Unlocking $name',
-        lead: 'Each step shows as it finishes.',
-        stages: _stages,
+        title: l.deskOnbUnlockUnlocking(name),
+        lead: l.deskOnbUnlockStepsLead,
+        stages: _stages(l),
         current: _stage!,
-        note:
-            'Then the overview opens and finishes in the background: connecting to the node, updating balances, turning on receiving.',
+        note: l.deskOnbUnlockNote,
       );
     }
     return _form(context);
@@ -335,16 +337,17 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   Widget _form(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
     final ts = context.ts;
+    final l = context.l10n;
     final wallets = _wallets;
     final selected = _selected;
-    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).notice : null;
+    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).notice ?? context.l10n.deskSetupNewWalletAdded : null;
     return EHeroScreen(
       footer: const AuthFoot(),
       child: EAuthCard(
-        title: 'Unlock wallet',
-        lead: 'Keys stay on this computer.',
+        title: l.deskOnbUnlockTitle,
+        lead: l.deskOnbUnlockLead,
         alternatives: [
-          if (DeskFeatures.multiWallet) ELink(label: 'Add a wallet', dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
+          if (DeskFeatures.multiWallet) ELink(label: l.deskOnbWelcomeAdd, dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
         ],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -358,9 +361,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
             ],
             if (DeskFeatures.multiWallet && wallets != null && wallets.length > 1) ...[
               EField(
-                label: 'Wallet',
+                label: l.deskOnbSameWallet,
                 child: ESelect<String>(
-                  semanticLabel: 'Wallet',
+                  semanticLabel: l.deskOnbSameWallet,
                   value: _id ?? wallets.first.id,
                   onChanged: _select,
                   items: [
@@ -394,14 +397,14 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                 child: Align(alignment: Alignment.centerLeft, child: ESpinner(size: Ctl.iconSm)),
               ),
             EField(
-              label: 'Password',
+              label: l.deskOnbStepPassword,
               error: _error,
               child: PasswordBox(
                 controller: _password,
                 focusNode: _passwordFocus,
                 autofocus: true,
                 invalid: _error != null,
-                semanticLabel: 'Password',
+                semanticLabel: l.deskOnbStepPassword,
                 onChanged: (_) {
                   if (_error != null) setState(() => _error = null);
                 },
@@ -410,10 +413,10 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
             ),
             SizedBox(height: Sp.x4),
             Tooltip(
-              message: rememberWho,
+              message: rememberWho(l),
               child: ECheckbox(
                 value: _remember,
-                label: 'Remember on this computer',
+                label: l.deskOnbUnlockRemember,
                 onChanged: (v) => setState(() => _remember = _rememberChosen = v),
               ),
             ),
@@ -421,14 +424,14 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               SizedBox(height: Sp.x1),
               Padding(
                 padding: EdgeInsets.only(left: Sp.x8),
-                child: Text('For 30 days. $rememberWho', style: ts.caption),
+                child: Text(l.deskOnbUnlockRememberFor(rememberWho(l)), style: ts.caption),
               ),
             ],
             if (DeskFeatures.multiWallet && _missing) ...[
               SizedBox(height: Sp.x5),
               ENotice(
-                title: 'This wallet’s folder is missing',
-                text: 'It was at ${selected?.folder ?? ''}',
+                title: l.deskOnbUnlockMissingTitle,
+                text: l.deskOnbUnlockMissingText(selected?.folder ?? ''),
                 tone: ETone.risk,
                 icon: EIcons.alert,
               ),
@@ -438,14 +441,14 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                 runSpacing: Sp.x2,
                 children: [
                   EButton(
-                    label: 'Remove',
+                    label: l.deskOnbUnlockRemove,
                     icon: EIcons.trash,
                     kind: EBtnKind.danger,
                     size: EBtnSize.sm,
                     onPressed: selected == null ? null : () => _removeMissing(selected),
                   ),
                   EButton(
-                    label: 'Try again',
+                    label: l.deskOnbUnlockTryAgain,
                     icon: EIcons.refresh,
                     size: EBtnSize.sm,
                     onPressed: () => setState(() => _missing = false),
@@ -454,7 +457,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               ),
             ],
             SizedBox(height: Sp.x6),
-            EButton.primary(label: 'Unlock', icon: EIcons.lockOpen, expand: true, onPressed: _unlock),
+            EButton.primary(label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: _unlock),
           ],
         ),
       ),

@@ -9,6 +9,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/desk_node.dart';
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
@@ -45,7 +46,7 @@ class LocalNodeChoice {
 enum LocalNodeDemo { none, found, notFound }
 
 /// "5 GB", "4.8 GB".
-String _gb(int bytes) => bytesText(bytes);
+String _gb(AppLocalizations l, int bytes) => bytesText(bytes, l);
 
 class LocalNodeStep extends ConsumerStatefulWidget {
   const LocalNodeStep({super.key, required this.onChanged, this.demo = LocalNodeDemo.none, this.compact = false});
@@ -112,16 +113,17 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final f = _facts;
-    final free = f?.freeBytes == null ? 'free space unknown' : '${_gb(f!.freeBytes!)} free here';
-    final chain = f == null ? 'About 5 GB of disk now' : (f.chainBytesMeasured ? '${_gb(f.chainBytes)} of disk now' : 'About ${_gb(f.chainBytes)} of disk now');
+    final free = f?.freeBytes == null ? l.deskOnbNodeFreeUnknown : l.deskOnbNodeFreeHere(_gb(l, f!.freeBytes!));
+    final chain = f == null ? l.deskOnbNodeDiskAbout('5 GB') : (f.chainBytesMeasured ? l.deskOnbNodeDisk(_gb(l, f.chainBytes)) : l.deskOnbNodeDiskAbout(_gb(l, f.chainBytes)));
     final windows = f?.firewallPrompt ?? Platform.isWindows;
     final facts = <(IconData, String, String)>[
-      (EIcons.server, 'A separate program.', 'The wallet starts the Epic node and stops it with the app.'),
-      if (windows) (EIcons.shield, 'Windows asks once', 'to allow it through the firewall. Allow it on private networks.'),
-      (EIcons.folder, chain, 'growing slowly. $free.'),
-      (EIcons.clock, 'Hours to sync', 'the first time, 2 to 6 on a typical connection. The wallet shows the progress and can use a public node meanwhile.'),
-      (EIcons.download, 'About 4 GB downloaded', 'the first time, then a little every day.'),
+      (EIcons.server, l.deskOnbNodeSeparate, l.deskOnbNodeSeparateText),
+      if (windows) (EIcons.shield, l.deskOnbNodeFirewall, l.deskOnbNodeFirewallText),
+      (EIcons.folder, chain, l.deskOnbNodeGrowing(free)),
+      (EIcons.clock, l.deskOnbNodeHours, l.deskOnbNodeHoursText),
+      (EIcons.download, l.deskOnbNodeDownload, l.deskOnbNodeDownloadText),
     ];
     final p = _choice.probe;
     final existing = _choice.how == LocalNodeHow.existing;
@@ -132,10 +134,14 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
         ? Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: 'Found', style: ts.small.copyWith(color: c.ok, fontWeight: FontWeight.w600)),
+                TextSpan(text: l.deskOnbNodeFound, style: ts.small.copyWith(color: c.ok, fontWeight: FontWeight.w600)),
                 TextSpan(
-                  text:
-                      ' · Epic ${p.version ?? '?'} at ${nodeHost(p.url)}:${Uri.parse(p.url).port}${p.height == null ? '' : ' · height ${digits(p.height!)}'}${p.readyForTxs == true ? ' · synced' : ''}',
+                  text: [
+                    '',
+                    l.deskOnbNodeFoundAt(p.version ?? '?', '${nodeHost(p.url)}:${Uri.parse(p.url).port}'),
+                    if (p.height != null) l.deskOnbNodeHeight(digits(context.l10n, p.height!)),
+                    if (p.readyForTxs == true) l.deskOnbNodeSynced,
+                  ].join(' · '),
                   style: ts.small.copyWith(color: c.dim),
                 ),
               ],
@@ -144,8 +150,8 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
         : Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: 'No node answers', style: ts.small.copyWith(color: c.risk, fontWeight: FontWeight.w600)),
-                TextSpan(text: ' · at ${nodeHost(p.url)}:${Uri.parse(p.url).port}. Start it, or check the address and port.', style: ts.small.copyWith(color: c.dim)),
+                TextSpan(text: l.deskOnbNodeNoAnswer, style: ts.small.copyWith(color: c.risk, fontWeight: FontWeight.w600)),
+                TextSpan(text: ' · ${l.deskOnbNodeNoAnswerAt('${nodeHost(p.url)}:${Uri.parse(p.url).port}')}', style: ts.small.copyWith(color: c.dim)),
               ],
             ),
           );
@@ -176,8 +182,8 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
           ),
         SizedBox(height: gap),
         EChoiceCard(
-          title: 'Use a node already running on this computer',
-          description: 'The Epic GUI or CLI node. The wallet connects to it and starts nothing.',
+          title: l.deskOnbNodeExisting,
+          description: l.deskOnbNodeExistingText,
           icon: EIcons.monitor,
           selected: existing,
           onTap: () => _set(_choice.copyWith(how: LocalNodeHow.existing)),
@@ -198,13 +204,13 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
                         controller: _url,
                         mono: true,
                         hint: '127.0.0.1:3413',
-                        semanticLabel: 'Address of the node on this computer',
+                        semanticLabel: l.deskOnbNodeAddress,
                         onChanged: (_) => _set(_choice.copyWith(clearProbe: true)),
                         onSubmitted: (_) => _check(),
                       ),
                     ),
                     SizedBox(width: Sp.x2),
-                    ERowControl(child: EButton(label: 'Check', size: EBtnSize.sm, busy: _checking, onPressed: _checking ? null : _check)),
+                    ERowControl(child: EButton(label: l.deskOnbNodeCheck, size: EBtnSize.sm, busy: _checking, onPressed: _checking ? null : _check)),
                   ],
                 ),
                 if (stateLine != null) ...[SizedBox(height: Sp.x2), Semantics(liveRegion: true, child: stateLine)],
@@ -214,8 +220,8 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
         ),
         SizedBox(height: gap),
         EChoiceCard(
-          title: 'Start the bundled node',
-          description: 'Downloads and syncs the chain into the wallet’s own folder. Nothing is downloaded before Save on the last step.',
+          title: l.deskOnbNodeBundled,
+          description: l.deskOnbNodeBundledText,
           icon: EIcons.node,
           selected: !existing,
           onTap: () => _set(_choice.copyWith(how: LocalNodeHow.bundled)),
@@ -226,7 +232,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
             padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x3, 0, Sp.x1),
             child: ECheckbox(
               value: _choice.useFallback,
-              label: 'Use ${nodeHost(defaultFallbackNodeUrl)} until the local node is synced. The local node takes over by itself.',
+              label: l.deskOnbNodeFallback(nodeHost(defaultFallbackNodeUrl)),
               onChanged: (v) => _set(_choice.copyWith(useFallback: v)),
             ),
           ),
@@ -256,17 +262,18 @@ class _LocalNodeSetupDialogState extends State<LocalNodeSetupDialog> {
   @override
   Widget build(BuildContext context) {
     final c = _choice;
+    final l = context.l10n;
     final existing = c?.how == LocalNodeHow.existing;
     return EDialog(
-      title: 'Local node',
-      description: 'What running the node here means, and which node to use.',
+      title: l.deskOnbNodeDialogTitle,
+      description: l.deskOnbNodeDialogBody,
       icon: EIcons.monitor,
       width: 640.u,
       body: LocalNodeStep(compact: true, demo: widget.demo, onChanged: (v) => setState(() => _choice = v)),
       actions: [
-        EButton.ghost(label: 'Cancel', size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
+        EButton.ghost(label: l.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
         EButton.primary(
-          label: existing ? 'Use this node' : 'Start local node',
+          label: existing ? l.deskOnbNodeUseThis : l.deskOnbNodeStart,
           onPressed: c == null || (existing && !c.existingFound) ? null : () => Navigator.of(context).pop(c),
         ),
       ],

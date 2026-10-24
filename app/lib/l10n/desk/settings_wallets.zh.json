@@ -1,0 +1,17 @@
+{
+  "deskSetWalletsAddedBack": "已重新添加 {name}",
+  "deskSetWalletsNotAddedBack": "未重新添加",
+  "deskSetWalletsOpenNow": "已打开",
+  "deskSetWalletsFolderMissing": "文件夹丢失",
+  "deskSetWalletsShowFolder": "在文件夹中显示 {name}",
+  "deskSetWalletsRemove": "移除 {name}…",
+  "deskSetWalletsRemovedGroup": "已从列表中移除",
+  "deskSetWalletsAddBack": "重新添加",
+  "deskSetWalletsAdd": "添加钱包",
+  "deskSetWalletsCreate": "创建钱包",
+  "deskSetWalletsCreateText": "带有新助记词的新钱包。",
+  "deskSetWalletsImport": "导入",
+  "deskSetWalletsImportText": "从旧版 Epic Wallet 或文件夹导入。",
+  "deskSetWalletsRestore": "恢复",
+  "deskSetWalletsRestoreText": "用助记词恢复。"
+}

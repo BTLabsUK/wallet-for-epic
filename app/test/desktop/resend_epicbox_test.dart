@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/desk_l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -71,7 +72,7 @@ void main() {
     (tester) async {
       final desk = _Desk();
       await _pump(tester, _tx(undelivered: true), desk);
-      expect(statusOf(_tx(undelivered: true)).$1, 'Not delivered');
+      expect(statusOf(englishStrings, _tx(undelivered: true)).$1, 'Not delivered');
       expect(find.textContaining('Not delivered.'), findsOneWidget);
       expect(find.widgetWithText(EButton, 'Cancel'), findsOneWidget);
       await tester.tap(find.widgetWithText(EButton, 'Send again'));
@@ -87,7 +88,7 @@ void main() {
     'a send that is not undelivered (the one being sent now) has no Send again',
     (tester) async {
       await _pump(tester, _tx(), _Desk());
-      expect(statusOf(_tx()).$1, 'Waiting for recipient to sign');
+      expect(statusOf(englishStrings, _tx()).$1, 'Waiting for recipient to sign');
       expect(find.widgetWithText(EButton, 'Send again'), findsNothing);
       expect(find.widgetWithText(EButton, 'Cancel'), findsOneWidget);
     },

@@ -5,6 +5,7 @@
 // Regenerate with `flutter test --no-pub --update-goldens test/desktop/node_card_test.dart`.
 import 'dart:io';
 
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/node_view.dart' show remoteNodeView, shownLatency;
@@ -205,8 +206,8 @@ void main() {
     );
     expect(find.textContaining('Not answering', findRichText: true), findsNothing);
     expect(find.textContaining('Switch to'), findsNothing);
-    expect(remoteNodeView(_url, probe, health: ServiceHealth.ok).word, 'Synced', reason: 'the rail and the head say the same');
-    expect(remoteNodeView(_url, probe, health: ServiceHealth.down).word, 'Not answering');
+    expect(remoteNodeView(englishStrings, _url, probe, health: ServiceHealth.ok).word, 'Synced', reason: 'the rail and the head say the same');
+    expect(remoteNodeView(englishStrings, _url, probe, health: ServiceHealth.down).word, 'Not answering');
   });
 
   testWidgets('Tor turned on: a direct reading is dropped at once, never shown with Tor on', (tester) async {
@@ -216,7 +217,7 @@ void main() {
     expect(find.textContaining('812'), findsNothing);
     expect(find.textContaining('from this computer'), findsNothing);
     expect(shownLatency(direct, torOn: true), isNull);
-    expect(remoteNodeView(_url, direct, torOn: true).lines.join(' '), isNot(contains('812')), reason: 'the rail drops it too');
+    expect(remoteNodeView(englishStrings, _url, direct, torOn: true).lines.join(' '), isNot(contains('812')), reason: 'the rail drops it too');
     // Off, the same reading shows as before.
     await _pump(tester, _card(direct));
     expect(find.text('812 ms'), findsOneWidget);

@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../desk_l10n.dart';
 import '../theme/icons.dart';
 import 'package:flutter/widgets.dart' show IconData;
 
@@ -65,16 +66,28 @@ class DeskLocation {
 }
 
 /// The sidebar's entries, in order.
-const List<(DeskSection, DeskRoute, String, IconData)> deskNav = [
-  (DeskSection.overview, DeskRoute.overview, 'Overview', EIcons.home),
-  (DeskSection.activity, DeskRoute.activity, 'Activity', EIcons.activity),
-  (DeskSection.send, DeskRoute.send, 'Send', EIcons.send),
-  (DeskSection.receive, DeskRoute.receive, 'Receive', EIcons.receive),
-  // Shown only when the wallet supports invoices; the label comes from l10n (deskInvNav).
-  (DeskSection.invoices, DeskRoute.invoices, 'Invoices', EIcons.invoice),
-  (DeskSection.outputs, DeskRoute.outputs, 'Outputs', EIcons.coins),
-  (DeskSection.contacts, DeskRoute.contacts, 'Contacts', EIcons.contacts),
+const List<(DeskSection, DeskRoute, IconData)> deskNav = [
+  (DeskSection.overview, DeskRoute.overview, EIcons.home),
+  (DeskSection.activity, DeskRoute.activity, EIcons.activity),
+  (DeskSection.send, DeskRoute.send, EIcons.send),
+  (DeskSection.receive, DeskRoute.receive, EIcons.receive),
+  // Shown only when the wallet supports invoices.
+  (DeskSection.invoices, DeskRoute.invoices, EIcons.invoice),
+  (DeskSection.outputs, DeskRoute.outputs, EIcons.coins),
+  (DeskSection.contacts, DeskRoute.contacts, EIcons.contacts),
 ];
+
+/// The sidebar's label of a place (the window title uses it too).
+String deskNavLabel(AppLocalizations l, DeskSection s) => switch (s) {
+  DeskSection.overview => l.deskShellNavOverview,
+  DeskSection.activity => l.deskShellNavActivity,
+  DeskSection.send => l.deskShellNavSend,
+  DeskSection.receive => l.deskShellNavReceive,
+  DeskSection.invoices => l.deskInvNav,
+  DeskSection.outputs => l.deskShellNavOutputs,
+  DeskSection.contacts => l.deskShellNavContacts,
+  DeskSection.settings => l.deskShellNavSettings,
+};
 
 /// The tabs of Invoices: Pay (invoices to pay) and Issue (invoices this wallet issued).
 enum InvoicesTab { pay, issue }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../desk_l10n.dart';
 import '../data/models.dart';
 import '../data/tor_view.dart';
 import '../theme/icons.dart';
@@ -171,56 +172,56 @@ class MethodLine {
 }
 
 /// The state line of [m] for Receive, Settings › Receiving and the rail tooltip.
-MethodLine methodStateLine(TxMethod m, ServiceStatus s, DeskSettings settings) {
+MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, DeskSettings settings) {
   switch (m) {
     case TxMethod.epicbox:
       final host = s.epicbox.domain;
       // With the Tor switch on, Epicbox goes through Tor or waits for it (tor_routes.dart).
       final way = torWay(TorRoute.epicbox, torStateOf(settings, s));
       if (s.epicboxHealth != ServiceHealth.off) {
-        if (way == TorWay.wait) return MethodLine('Waiting for Tor', EState.warn, detail: host);
-        if (way == TorWay.blocked) return MethodLine('Waiting for Tor', EState.risk, detail: '$host. Tor is not connected.');
-        if (way == TorWay.overTor && s.epicboxHealth == ServiceHealth.ok) return MethodLine('On', EState.ok, detail: '$host, over Tor');
+        if (way == TorWay.wait) return MethodLine(l.deskKitMethodWaitingTor, EState.warn, detail: host);
+        if (way == TorWay.blocked) return MethodLine(l.deskKitMethodWaitingTor, EState.risk, detail: l.deskKitMethodTorNotConnected(host));
+        if (way == TorWay.overTor && s.epicboxHealth == ServiceHealth.ok) return MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodOverTor(host));
       }
       return switch (s.epicboxHealth) {
-        ServiceHealth.off => const MethodLine('Off', EState.off, detail: 'Payments to this address wait on the Epicbox server.'),
-        ServiceHealth.checking => MethodLine('Connecting', EState.warn, detail: host),
-        ServiceHealth.ok => MethodLine('On', EState.ok, detail: host),
-        ServiceHealth.slow => MethodLine('Slow', EState.warn, detail: host),
-        ServiceHealth.down => MethodLine('Not answering', EState.risk, detail: '$host. Payments wait on the Epicbox server.'),
+        ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodEpicboxOffDetail),
+        ServiceHealth.checking => MethodLine(l.deskKitMethodConnecting, EState.warn, detail: host),
+        ServiceHealth.ok => MethodLine(l.deskKitMethodOn, EState.ok, detail: host),
+        ServiceHealth.slow => MethodLine(l.deskKitMethodSlow, EState.warn, detail: host),
+        ServiceHealth.down => MethodLine(l.deskKitMethodNotAnswering, EState.risk, detail: l.deskKitMethodEpicboxDown(host)),
       };
     case TxMethod.http:
       final port = settings.httpPort;
       return switch (s.httpListener) {
-        ServiceHealth.off => const MethodLine('Off', EState.off, detail: 'Straight from another wallet while this one is open.'),
-        ServiceHealth.checking => const MethodLine('Starting…', EState.warn),
+        ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodHttpOffDetail),
+        ServiceHealth.checking => MethodLine(l.deskKitMethodStarting, EState.warn),
         ServiceHealth.ok || ServiceHealth.slow => MethodLine(
-          'On',
+          l.deskKitMethodOn,
           EState.ok,
-          detail: settings.publicMode ? 'from the internet, port $port' : 'this computer only (127.0.0.1)',
+          detail: settings.publicMode ? l.deskKitMethodHttpInternet('$port') : l.deskKitMethodHttpLocal,
         ),
         ServiceHealth.down => MethodLine(
-          'Not receiving',
+          l.deskKitMethodNotReceiving,
           EState.risk,
           retry: true,
-          detail: s.httpProblem == null || s.httpProblem!.toLowerCase().contains('in use')
-              ? 'Port $port is used by another program. Close it or pick another port in Settings.'
-              : '${s.httpProblem}.',
+          detail: s.httpProblem == null || s.httpProblem == HttpProblem.portInUse
+              ? l.deskKitMethodPortInUse('$port')
+              : '${httpProblemText(l, s.httpProblem!, s.httpProblemPort ?? port)}.',
         ),
       };
     case TxMethod.tor:
-      if (!s.torIncluded) return const MethodLine('Not in this build', EState.off);
+      if (!s.torIncluded) return MethodLine(l.deskKitMethodNotInBuild, EState.off);
       return switch (s.tor) {
-        ServiceHealth.off => const MethodLine('Off', EState.off, detail: 'Slower and more private. Blocked or not allowed in some countries.'),
+        ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodTorOffDetail),
         ServiceHealth.checking => s.torCanSend
-            ? const MethodLine('Publishing the Tor address…', EState.warn)
-            : MethodLine('Connecting to Tor…', EState.warn, detail: '${s.torProgress ?? 0} %', retry: s.torSlowStart),
-        ServiceHealth.ok => const MethodLine('On', EState.ok, detail: 'reachable at the Tor address'),
-        ServiceHealth.slow => MethodLine('Not published', EState.warn, detail: '${s.torProblem ?? 'The Tor address is not reachable yet'}. Sends work.', retry: true),
-        ServiceHealth.down => MethodLine('Stopped', EState.risk, detail: s.torProblem ?? 'Tor stopped.', retry: true),
+            ? MethodLine(l.deskKitMethodTorPublishing, EState.warn)
+            : MethodLine(l.deskKitMethodTorConnecting, EState.warn, detail: '${s.torProgress ?? 0} %', retry: s.torSlowStart),
+        ServiceHealth.ok => MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodTorOnDetail),
+        ServiceHealth.slow => MethodLine(l.deskKitMethodTorNotPublished, EState.warn, detail: l.deskKitMethodTorSendsWork(s.torProblem ?? l.deskKitMethodTorNotReachableYet), retry: true),
+        ServiceHealth.down => MethodLine(l.deskKitMethodTorStopped, EState.risk, detail: s.torProblem ?? l.deskKitMethodTorStoppedDetail, retry: true),
       };
     case TxMethod.file:
-      return const MethodLine('Files', EState.off);
+      return MethodLine(l.deskKitMethodFiles, EState.off);
   }
 }
 

@@ -3,6 +3,7 @@
 // overall %, the step strip and the rail line; then stalled, each failure, stopped; the Ask
 // dialog once and never again; Change… under While syncing; Delete's typed confirm; Reuse's
 // candidates; nothing starts the node without Start.
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/node_view.dart';
@@ -121,7 +122,7 @@ void main() {
       expect(find.text(right), findsOneWidget, reason: line);
       expect(tester.widget<StageStrip>(find.byType(StageStrip)).step, strip, reason: line);
       expect(find.textContaining('using node.epiccash.com meanwhile', findRichText: true), findsOneWidget, reason: line);
-      expect(localNodeView(s, fallbackUrl: defaultFallbackNodeUrl).second, rail, reason: line);
+      expect(localNodeView(englishStrings, s, fallbackUrl: defaultFallbackNodeUrl).second, rail, reason: line);
       expect(tester.takeException(), isNull, reason: line);
     }
 
@@ -130,7 +131,7 @@ void main() {
     expect(find.textContaining('3,764,975 · at tip', findRichText: true), findsOneWidget);
     expect(find.byType(StageStrip), findsNothing);
     expect(find.text('Peers'), findsWidgets, reason: 'the tiles');
-    expect(localNodeView(mockLocalNode(LocalNodePhase.synced)).second, 'Local node');
+    expect(localNodeView(englishStrings, mockLocalNode(LocalNodePhase.synced)).second, 'Local node');
     expect(find.text('Stop'), findsOneWidget);
     expect(find.text('Restart'), findsOneWidget);
     await end(tester);
@@ -210,7 +211,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Use node.btlabs.uk until the local node is synced. The local node takes over by itself.'), findsOneWidget);
     expect(find.textContaining('using node.btlabs.uk meanwhile', findRichText: true), findsOneWidget);
-    expect(localNodeView(node.state, fallbackUrl: 'https://node.btlabs.uk').second, 'btlabs.uk · 12 %');
+    expect(localNodeView(englishStrings, node.state, fallbackUrl: 'https://node.btlabs.uk').second, 'btlabs.uk · 12 %');
     await end(tester);
   });
 
@@ -282,9 +283,9 @@ void main() {
   });
 
   test('statusWords: the table of §19', () {
-    expect(statusWords(mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epiccash.com', accepted: true).detail, 'blocks · using node.epiccash.com meanwhile');
-    expect(statusWords(mockLocalNode(LocalNodePhase.stopped), fallback: 'node.epiccash.com', accepted: true).detail, 'the wallet uses node.epiccash.com meanwhile');
-    expect(statusWords(mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, 'Change folder…');
-    expect(statusWords(mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), fallback: 'x', accepted: true).notice?.action, isNull);
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epiccash.com', accepted: true).detail, 'blocks · using node.epiccash.com meanwhile');
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.stopped), fallback: 'node.epiccash.com', accepted: true).detail, 'the wallet uses node.epiccash.com meanwhile');
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, NodeAct.folder);
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), fallback: 'x', accepted: true).notice?.action, isNull);
   });
 }

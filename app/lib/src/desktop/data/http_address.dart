@@ -6,6 +6,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import '../../l10n.dart' show AppLocalizations, englishStrings;
+
 /// The port `epic-wallet` and the GUI listen on.
 const int defaultHttpPort = 3415;
 
@@ -23,17 +25,18 @@ Uri? parseHttpAddress(String text) {
 /// What is wrong with [text] as an HTTP(S) address, in a short sentence; null when it is one.
 /// `HTTP://` in capitals is accepted; `host:port` without a scheme is not, so the sender picks
 /// between plain and encrypted on purpose.
-String? httpAddressProblem(String text) {
+String? httpAddressProblem(String text, [AppLocalizations? l]) {
+  l ??= englishStrings;
   final t = text.trim();
-  if (t.isEmpty) return 'Enter the recipient’s address';
-  if (!t.contains('://')) return 'Start with https:// or http://';
+  if (t.isEmpty) return l.deskDataHttpEnter;
+  if (!t.contains('://')) return l.deskDataHttpScheme;
   final uri = parseHttpAddress(t);
   if (uri == null) {
     final host = Uri.tryParse(t)?.host.toLowerCase() ?? '';
-    if (host.endsWith('.onion')) return 'Onion addresses need Tor';
-    return 'Not an http(s) address';
+    if (host.endsWith('.onion')) return l.deskDataHttpOnion;
+    return l.deskDataHttpNot;
   }
-  if (uri.hasPort && (uri.port < 1 || uri.port > 65535)) return 'Port must be 1 to 65535';
+  if (uri.hasPort && (uri.port < 1 || uri.port > 65535)) return l.deskDataHttpPort;
   return null;
 }
 
