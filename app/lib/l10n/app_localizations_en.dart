@@ -13837,13 +13837,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Lets one send choose which outputs it spends, Smallest or All, and whether to split the change. The choice sits on Send\'s review and applies to that send only. The defaults stay on Outputs.';
 
   @override
-  String get advFiles => 'Transaction files';
-
-  @override
-  String get advFilesHint =>
-      'Adds the File method to Send and Receive. A payment travels as a file: hand it over any way you like, the other side signs it and hands it back. For wallets that use no relay. A file payment in progress keeps the method visible.';
-
-  @override
   String get advDirect => 'Direct receiving';
 
   @override
@@ -13870,13 +13863,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get advModeStandardLine =>
       'Connects directly. Tor can be turned on in Privacy & network.';
-
-  @override
-  String get advModeTorFirst => 'Tor first';
-
-  @override
-  String get advModeTorFirstLine =>
-      'Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.';
 
   @override
   String get advModeTorOnly => 'Tor only';
@@ -13947,13 +13933,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.';
 
   @override
-  String get deskSetAdvFiles => 'Transaction files';
-
-  @override
-  String get deskSetAdvFilesHint =>
-      'Adds the File method to Send and Receive, with Finalize and Import. A payment travels as a file: hand it over any way you like, the other side signs it and hands it back. For wallets that use no relay. A file payment in progress keeps the method visible.';
-
-  @override
   String get deskSetAdvDirect => 'Direct receiving';
 
   @override
@@ -14001,13 +13980,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetAdvModeStandardText =>
       'Connects directly. Tor can be turned on under Privacy.';
-
-  @override
-  String get deskSetAdvModeTorFirst => 'Tor first';
-
-  @override
-  String get deskSetAdvModeTorFirstText =>
-      'Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.';
 
   @override
   String get deskSetAdvModeTorOnly => 'Tor only';

@@ -28,7 +28,6 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.outputs => l.deskSetAdvOutputs,
   AdvancedFeature.technicalDetails => l.deskSetAdvTechnical,
   AdvancedFeature.sendOptions => l.deskSetAdvSendOptions,
-  AdvancedFeature.transactionFiles => l.deskSetAdvFiles,
   AdvancedFeature.directReceiving => l.deskSetAdvDirect,
   AdvancedFeature.serverDetails => l.deskSetAdvServerDetails,
   AdvancedFeature.recheckFromHeight => l.deskSetAdvRecheck,
@@ -39,7 +38,6 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
 /// A network mode's name.
 String networkModeName(AppLocalizations l, NetworkMode m) => switch (m) {
   NetworkMode.standard => l.deskSetAdvModeStandard,
-  NetworkMode.torFirst => l.deskSetAdvModeTorFirst,
   NetworkMode.torOnly => l.deskSetAdvModeTorOnly,
   NetworkMode.offline => l.deskSetAdvModeOffline,
 };
@@ -113,7 +111,6 @@ class _ShowsGroup extends ConsumerWidget {
         if (DeskFeatures.coins) row(AdvancedFeature.outputs, l.deskSetAdvOutputsHint),
         row(AdvancedFeature.technicalDetails, l.deskSetAdvTechnicalHint),
         row(AdvancedFeature.sendOptions, l.deskSetAdvSendOptionsHint),
-        row(AdvancedFeature.transactionFiles, l.deskSetAdvFilesHint),
         if (DeskFeatures.httpDirect || DeskFeatures.tor)
           row(AdvancedFeature.directReceiving, l.deskSetAdvDirectHint),
         row(AdvancedFeature.serverDetails, l.deskSetAdvServerDetailsHint),
@@ -125,7 +122,7 @@ class _ShowsGroup extends ConsumerWidget {
   }
 }
 
-/// The four network modes as radio rows, the note a mode brings with it under them.
+/// The three network modes as radio rows, the note a mode brings with it under them.
 class _NetworkGroup extends ConsumerWidget {
   const _NetworkGroup();
 
@@ -162,7 +159,6 @@ class _NetworkGroup extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               mode(NetworkMode.standard, l.deskSetAdvModeStandardText),
-              mode(NetworkMode.torFirst, l.deskSetAdvModeTorFirstText, tor: true),
               mode(NetworkMode.torOnly, l.deskSetAdvModeTorOnlyText, tor: true),
               mode(NetworkMode.offline, l.deskSetAdvModeOfflineText),
               if (note != null) ...[

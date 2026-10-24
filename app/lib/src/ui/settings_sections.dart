@@ -128,7 +128,6 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.outputs => l.advOutputs,
   AdvancedFeature.technicalDetails => l.advTechnical,
   AdvancedFeature.sendOptions => l.advSendOptions,
-  AdvancedFeature.transactionFiles => l.advFiles,
   AdvancedFeature.directReceiving => l.advDirect,
   AdvancedFeature.serverDetails => l.advServerDetails,
   AdvancedFeature.recheckFromHeight => l.advRecheckHeight,
@@ -140,7 +139,6 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
 /// A network mode's name.
 String networkModeName(AppLocalizations l, NetworkMode m) => switch (m) {
   NetworkMode.standard => l.advModeStandard,
-  NetworkMode.torFirst => l.advModeTorFirst,
   NetworkMode.torOnly => l.advModeTorOnly,
   NetworkMode.offline => l.advModeOffline,
 };
@@ -735,12 +733,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         l.advSendOptions,
         l.advSendOptionsHint,
       ),
-      feature(
-        AdvancedFeature.transactionFiles,
-        Icons.description_outlined,
-        l.advFiles,
-        l.advFilesHint,
-      ),
       if (torAvailable)
         feature(AdvancedFeature.directReceiving, Icons.link, l.advDirect, l.advDirectHint),
       feature(
@@ -773,12 +765,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         child: Column(
           children: [
             mode(NetworkMode.standard, l.advModeStandard, l.advModeStandardLine),
-            mode(
-              NetworkMode.torFirst,
-              l.advModeTorFirst,
-              l.advModeTorFirstLine,
-              enabled: torAvailable,
-            ),
             mode(
               NetworkMode.torOnly,
               l.advModeTorOnly,

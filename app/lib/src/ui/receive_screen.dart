@@ -101,7 +101,7 @@ class ReceiveView extends ConsumerWidget {
             child: Text(l.receiveTabEpicbox, maxLines: 1),
           ),
         ),
-        // Advanced › Direct receiving / Transaction files; Tor receiving on keeps Direct.
+        // Advanced › Direct receiving; Tor receiving on keeps Direct. File is everyday.
         if (torAvailable &&
             (tab == ReceiveTab.direct ||
                 torState != TorState.off ||
@@ -114,9 +114,7 @@ class ReceiveView extends ConsumerWidget {
               child: Text(l.receiveTabDirect, maxLines: 1),
             ),
           ),
-        if (tab == ReceiveTab.file ||
-            AdvancedOptions.has(context, AdvancedFeature.transactionFiles))
-          ButtonSegment(
+        ButtonSegment(
             value: ReceiveTab.file,
             icon: const Icon(Icons.description_outlined),
           label: FittedBox(

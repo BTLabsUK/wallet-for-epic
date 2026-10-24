@@ -19,9 +19,6 @@ enum AdvancedFeature {
   /// Send › strategy (Smallest / All) and Split change for one send.
   sendOptions,
 
-  /// The transaction file method on Send and Receive (Finalize, Import).
-  transactionFiles,
-
   /// Direct receiving: HTTP and Tor addresses, the listener settings, the Direct method on Send.
   directReceiving,
 
@@ -38,15 +35,11 @@ enum AdvancedFeature {
   logs,
 }
 
-/// How the wallet reaches the network. One choice; the Privacy page's Tor switch keeps working
-/// in [standard] and [torFirst].
+/// How the wallet reaches the network. One choice; the Privacy page's Tor switch is the user's
+/// in [standard], locked on in [torOnly] and off in [offline].
 enum NetworkMode {
   /// Connects directly. Tor can be turned on in Privacy for this session.
   standard,
-
-  /// Starts Tor at launch and uses it. If Tor fails, the wallet asks before it connects
-  /// directly.
-  torFirst,
 
   /// Every connection goes through Tor. Without Tor the wallet stays offline and says so; it
   /// never connects directly.
@@ -78,9 +71,8 @@ class AdvancedPrefs {
   /// Whether anything is on: the hub's state line and the About row read it.
   bool get any => features.isNotEmpty || networkMode != NetworkMode.standard;
 
-  /// Tor is wanted at launch ([NetworkMode.torFirst] or [NetworkMode.torOnly]).
-  bool get startsWithTor =>
-      networkMode == NetworkMode.torFirst || networkMode == NetworkMode.torOnly;
+  /// Tor is wanted at launch ([NetworkMode.torOnly]).
+  bool get startsWithTor => networkMode == NetworkMode.torOnly;
 
   /// Direct connections are refused ([NetworkMode.torOnly]) or there is no network at all.
   bool get refusesDirect =>

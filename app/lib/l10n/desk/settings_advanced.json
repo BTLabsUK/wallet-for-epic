@@ -35,14 +35,6 @@
   "@deskSetAdvSendOptionsHint": {
     "description": "Hover card of the Send options switch."
   },
-  "deskSetAdvFiles": "Transaction files",
-  "@deskSetAdvFiles": {
-    "description": "Advanced switch: the File method."
-  },
-  "deskSetAdvFilesHint": "Adds the File method to Send and Receive, with Finalize and Import. A payment travels as a file: hand it over any way you like, the other side signs it and hands it back. For wallets that use no relay. A file payment in progress keeps the method visible.",
-  "@deskSetAdvFilesHint": {
-    "description": "Hover card of the Transaction files switch."
-  },
   "deskSetAdvDirect": "Direct receiving",
   "@deskSetAdvDirect": {
     "description": "Advanced switch: HTTP and Tor receiving."
@@ -98,14 +90,6 @@
   "deskSetAdvModeStandardText": "Connects directly. Tor can be turned on under Privacy.",
   "@deskSetAdvModeStandardText": {
     "description": "Text under the Standard mode."
-  },
-  "deskSetAdvModeTorFirst": "Tor first",
-  "@deskSetAdvModeTorFirst": {
-    "description": "Network mode: Tor at launch, direct as a fallback."
-  },
-  "deskSetAdvModeTorFirstText": "Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.",
-  "@deskSetAdvModeTorFirstText": {
-    "description": "Text under the Tor first mode."
   },
   "deskSetAdvModeTorOnly": "Tor only",
   "@deskSetAdvModeTorOnly": {

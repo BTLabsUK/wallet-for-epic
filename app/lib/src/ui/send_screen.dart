@@ -1643,17 +1643,14 @@ class _SendViewState extends ConsumerState<SendView> {
         ],
       ),
     );
-    // Advanced › Direct receiving and Transaction files show their methods; the method in
-    // use stays whatever the switches say (a pasted onion picks Direct, a file in progress
-    // keeps File). With Epicbox alone there is nothing to choose: the strip names it.
+    // Advanced › Direct receiving shows its method; the method in use stays whatever the
+    // switch says (a pasted onion picks Direct). File is everyday.
     final segments = [
       segment(TransferMethod.epicbox, Icons.alternate_email, l.methodEpicbox),
       if (selected == TransferMethod.direct ||
           AdvancedOptions.has(context, AdvancedFeature.directReceiving))
         segment(TransferMethod.direct, Icons.link, l.methodDirect),
-      if (selected == TransferMethod.file ||
-          AdvancedOptions.has(context, AdvancedFeature.transactionFiles))
-        segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
+      segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
     ];
     if (segments.length == 1) return const SizedBox.shrink();
     return Semantics(

@@ -916,13 +916,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           segments: [
             const ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox), // l10n-ok: product name
             // Direct: http(s) or an onion, the address decides ([TxMethod.tor] is its route).
-            // Advanced › Direct receiving and Transaction files; the method in use stays (a pasted
-            // onion picks Direct, a file in progress keeps File).
+            // Advanced › Direct receiving; the method in use stays (a pasted onion picks Direct).
+            // File is everyday.
             if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
                 advancedHas(ref, AdvancedFeature.directReceiving, keep: _segmentOf(_method) == TxMethod.http))
               ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http),
-            if (advancedHas(ref, AdvancedFeature.transactionFiles, keep: _method == TxMethod.file))
-              ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file),
+            ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file),
           ],
           value: _segmentOf(_method),
           onChanged: (m) => setState(() {

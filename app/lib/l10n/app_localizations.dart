@@ -21896,18 +21896,6 @@ abstract class AppLocalizations {
   /// **'Lets one send choose which outputs it spends, Smallest or All, and whether to split the change. The choice sits on Send\'s review and applies to that send only. The defaults stay on Outputs.'**
   String get advSendOptionsHint;
 
-  /// Advanced switch: the file method on Send and Receive.
-  ///
-  /// In en, this message translates to:
-  /// **'Transaction files'**
-  String get advFiles;
-
-  /// Info sheet of the Transaction files switch.
-  ///
-  /// In en, this message translates to:
-  /// **'Adds the File method to Send and Receive. A payment travels as a file: hand it over any way you like, the other side signs it and hands it back. For wallets that use no relay. A file payment in progress keeps the method visible.'**
-  String get advFilesHint;
-
   /// Advanced switch: the Direct (Tor) method.
   ///
   /// In en, this message translates to:
@@ -21955,18 +21943,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connects directly. Tor can be turned on in Privacy & network.'**
   String get advModeStandardLine;
-
-  /// Network mode: Tor starts with the wallet, direct as a fallback.
-  ///
-  /// In en, this message translates to:
-  /// **'Tor first'**
-  String get advModeTorFirst;
-
-  /// One line under the Tor first network mode.
-  ///
-  /// In en, this message translates to:
-  /// **'Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.'**
-  String get advModeTorFirstLine;
 
   /// Network mode: Tor or nothing.
   ///
@@ -22088,18 +22064,6 @@ abstract class AppLocalizations {
   /// **'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.'**
   String get deskSetAdvSendOptionsHint;
 
-  /// Advanced switch: the File method.
-  ///
-  /// In en, this message translates to:
-  /// **'Transaction files'**
-  String get deskSetAdvFiles;
-
-  /// Hover card of the Transaction files switch.
-  ///
-  /// In en, this message translates to:
-  /// **'Adds the File method to Send and Receive, with Finalize and Import. A payment travels as a file: hand it over any way you like, the other side signs it and hands it back. For wallets that use no relay. A file payment in progress keeps the method visible.'**
-  String get deskSetAdvFilesHint;
-
   /// Advanced switch: HTTP and Tor receiving.
   ///
   /// In en, this message translates to:
@@ -22183,18 +22147,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connects directly. Tor can be turned on under Privacy.'**
   String get deskSetAdvModeStandardText;
-
-  /// Network mode: Tor at launch, direct as a fallback.
-  ///
-  /// In en, this message translates to:
-  /// **'Tor first'**
-  String get deskSetAdvModeTorFirst;
-
-  /// Text under the Tor first mode.
-  ///
-  /// In en, this message translates to:
-  /// **'Starts Tor with the wallet. If Tor fails, the wallet asks before it connects directly.'**
-  String get deskSetAdvModeTorFirstText;
 
   /// Network mode: Tor or nothing.
   ///

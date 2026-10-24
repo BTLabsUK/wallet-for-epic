@@ -173,8 +173,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       if (DeskFeatures.tor && st.settings.tor) _torPanel(st, status) else if (DeskFeatures.httpDirect && direct) _httpPanel(st, status),
     ];
     final tor = torStateOf(st.settings, status);
-    // Advanced › Transaction files.
-    final files = advancedHas(ref, AdvancedFeature.transactionFiles) ? _filesPanel(nav) : null;
+    final files = _filesPanel(nav);
     final head = ESectionHead(
       l.deskRecvOtherWays,
       top: 0,
@@ -206,7 +205,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                 children: [
                   Expanded(
                     flex: 7,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, ?files])),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, files])),
                   ),
                   if (others.isNotEmpty) ...[
                     SizedBox(width: Sp.x6),
@@ -232,7 +231,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
                   ),
                 ],
-                if (files != null) ...[SizedBox(height: Sp.x3), files],
+                SizedBox(height: Sp.x3),
+                files,
               ],
             );
           },
