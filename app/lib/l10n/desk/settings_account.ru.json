@@ -11,7 +11,7 @@
   "deskSetAcctPhraseHint": "Слова, которые восстанавливают этот кошелёк. Никому их не показывайте.",
   "deskSetAcctShowPhrase": "Показать фразу…",
   "deskSetAcctRescanHint": "Заново читает блокчейн, если баланс выглядит неверным.",
-  "deskSetAcctRecheck": "Перепроверить…",
+  "deskSetAcctRecheck": "Сверить…",
   "deskSetAcctFiles": "Файлы",
   "deskSetAcctWalletFolder": "Папка кошелька",
   "deskSetAcctAppFiles": "Файлы приложения",

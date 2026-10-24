@@ -25,7 +25,7 @@
   "deskSetRecvHttpText": "Напрямую из другого кошелька, пока этот открыт.",
   "deskSetRecvHttpOffTitle": "Выключен, пока включён Tor",
   "deskSetRecvHttpOffText": "Прямые платежи вместо этого приходят на адрес Tor этого кошелька.",
-  "deskSetRecvPrivacySettings": "Настройки конфиденциальности",
+  "deskSetRecvPrivacySettings": "Настройки приватности",
   "deskSetHttpNotChanged": "Не изменено",
   "deskSetHttpPortError": "Порт должен быть от 1 до 65535",
   "deskSetHttpReachable": "Доступность",

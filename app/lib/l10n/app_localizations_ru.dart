@@ -3366,10 +3366,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Технические детали, файлы и журналы';
 
   @override
-  String get settingsSectionPrivacy => 'Конфиденциальность';
+  String get settingsSectionPrivacy => 'Приватность';
 
   @override
-  String get settingsSectionPrivacyNetwork => 'Конфиденциальность и сеть';
+  String get settingsSectionPrivacyNetwork => 'Приватность и сеть';
 
   @override
   String get settingsSectionHelpFeedback => 'Справка и отзывы';
@@ -4525,7 +4525,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netStatusNotReachable => 'Недоступен';
 
   @override
-  String get netStatusTorOpenHint => 'Открывает настройки конфиденциальности';
+  String get netStatusTorOpenHint => 'Открывает настройки приватности';
 
   @override
   String get netStatusDirectOpenHint => 'Открывает прямой адрес для приёма';
@@ -7096,14 +7096,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvHttpTorHint =>
-      'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Конфиденциальность».';
+      'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».';
 
   @override
   String get deskRecvDirectTor => 'Напрямую, адрес Tor';
 
   @override
   String get deskRecvTorIntro =>
-      'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Конфиденциальность».';
+      'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».';
 
   @override
   String get deskRecvTorAddress => 'Адрес Tor';
@@ -7594,10 +7594,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendMessageHelp => 'Получатель увидит это сообщение.';
 
   @override
-  String get deskSendPrivacyOn => 'Конфиденциальность · Dandelion++ вкл.';
+  String get deskSendPrivacyOn => 'Приватность · Dandelion++ вкл.';
 
   @override
-  String get deskSendPrivacyOff => 'Конфиденциальность · Dandelion++ выкл.';
+  String get deskSendPrivacyOff => 'Приватность · Dandelion++ выкл.';
 
   @override
   String get deskSendDandelionText =>
@@ -7762,7 +7762,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendFactVia => 'Способ';
 
   @override
-  String get deskSendFactPrivacy => 'Конфиденциальность';
+  String get deskSendFactPrivacy => 'Приватность';
 
   @override
   String get deskSendDandelionOn => 'Dandelion++ вкл.';
@@ -7984,7 +7984,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskActNotUpdated => 'Не обновлено';
 
   @override
-  String get deskActSearchHint => 'Адрес или ID слейта';
+  String get deskActSearchHint => 'Адрес или слейт';
 
   @override
   String get deskActSearchHintEmpty => 'Пока искать нечего';
@@ -9056,14 +9056,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxFoundRescanLabel => 'Найдено сканированием';
 
   @override
-  String get deskTxFoundRescanLine => 'Найдено при перепроверке баланса';
+  String get deskTxFoundRescanLine => 'Найдено при сверке баланса';
 
   @override
-  String get deskTxFoundRescanStep => 'Найдено при перепроверке баланса';
+  String get deskTxFoundRescanStep => 'Найдено при сверке баланса';
 
   @override
   String get deskTxFoundRescanTip =>
-      'Найдено в блокчейне при перепроверке баланса. Отправитель не записан.';
+      'Найдено в блокчейне при сверке баланса. Отправитель не записан.';
 
   @override
   String get deskTxFoundScanLine => 'Найдено сканированием';
@@ -10357,7 +10357,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskRailTorNoAddress => 'Адрес Tor не опубликован';
 
   @override
-  String get deskRailOpenPrivacy => 'Открыть настройки конфиденциальности';
+  String get deskRailOpenPrivacy => 'Открыть настройки приватности';
 
   @override
   String get deskRailNode => 'Узел';
@@ -11129,7 +11129,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Заново читает блокчейн, если баланс выглядит неверным.';
 
   @override
-  String get deskSetAcctRecheck => 'Перепроверить…';
+  String get deskSetAcctRecheck => 'Сверить…';
 
   @override
   String get deskSetAcctFiles => 'Файлы';
@@ -11771,7 +11771,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetFrameReceiving => 'Приём';
 
   @override
-  String get deskSetFramePrivacy => 'Конфиденциальность';
+  String get deskSetFramePrivacy => 'Приватность';
 
   @override
   String get deskSetFrameAppearance => 'Внешний вид';
@@ -11783,10 +11783,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetFrameAllWallets => 'Все кошельки';
 
   @override
-  String get deskSetFramePhrase => 'Фраза восстановления';
+  String get deskSetFramePhrase => 'Сид-фраза';
 
   @override
-  String get deskSetFrameRescan => 'Перепроверка баланса';
+  String get deskSetFrameRescan => 'Сверка баланса';
 
   @override
   String get deskSetFrameAbout => 'О приложении';
@@ -12901,7 +12901,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Прямые платежи вместо этого приходят на адрес Tor этого кошелька.';
 
   @override
-  String get deskSetRecvPrivacySettings => 'Настройки конфиденциальности';
+  String get deskSetRecvPrivacySettings => 'Настройки приватности';
 
   @override
   String get deskSetHttpNotChanged => 'Не изменено';
