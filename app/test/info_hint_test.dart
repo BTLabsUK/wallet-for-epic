@@ -5,7 +5,6 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -119,6 +118,6 @@ void main() {
     final node = tester.getSemantics(find.byType(InfoHint));
     expect(node.label, contains(_title));
     expect(node.hint, _text);
-    expect(node.hasFlag(SemanticsFlag.isButton), isTrue);
+    expect(node.flagsCollection.isButton, isTrue);
   });
 }

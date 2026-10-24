@@ -2,7 +2,6 @@
 // the output sheet, Split and Consolidate behind the PIN, and the strategy pref.
 
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
