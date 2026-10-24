@@ -72,15 +72,6 @@
   "@deskSetRecvHeadStarting": {
     "description": "Settings > Receiving: state word at the right of a method group head while the method starts. Short."
   },
-  "deskSetRecvResponseTime": "Response time {ms} ms. Measured from the status site.",
-  "@deskSetRecvResponseTime": {
-    "description": "Tooltip on an Epicbox server in the picker. {ms} is milliseconds.",
-    "placeholders": {
-      "ms": {
-        "type": "int"
-      }
-    }
-  },
   "deskSetRecvEpicboxTitle": "Epicbox receiving",
   "@deskSetRecvEpicboxTitle": {
     "description": "Settings > Receiving: heading of the Epicbox group."
@@ -97,21 +88,9 @@
   "@deskSetRecvEpicboxServerHint": {
     "description": "Settings > Receiving: hint under the Epicbox server row."
   },
-  "deskSetRecvFindHint": "Find or type an Epicbox server",
-  "@deskSetRecvFindHint": {
-    "description": "Settings > Receiving: placeholder of the Epicbox server picker search field."
-  },
   "deskSetRecvSwitchingServer": "Switching the Epicbox server…",
   "@deskSetRecvSwitchingServer": {
     "description": "Settings > Receiving: shown while the Epicbox server is switched."
-  },
-  "deskSetRecvNotInList": "not in the public list",
-  "@deskSetRecvNotInList": {
-    "description": "Epicbox server picker: note on a typed server that is not in the public list. Lowercase."
-  },
-  "deskSetRecvTypedNote": "Enter uses it. Its status shows once the wallet connects.",
-  "@deskSetRecvTypedNote": {
-    "description": "Epicbox server picker: note under a typed server. \"Enter\" is the keyboard key."
   },
   "deskSetRecvListNote": "State from status.btlabs.uk, checked every few minutes.",
   "@deskSetRecvListNote": {

@@ -138,10 +138,6 @@
   "@deskSetComboNoAnswer": {
     "description": "Picker field: shown when a check takes long. Narrow."
   },
-  "deskSetComboNothing": "Nothing to show.",
-  "@deskSetComboNothing": {
-    "description": "Picker list: empty note."
-  },
   "deskSetComboUse": "Use {host}",
   "@deskSetComboUse": {
     "description": "Screen reader label of a picker row; the node’s details follow after a comma. {host} is a server address.",

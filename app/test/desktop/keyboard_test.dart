@@ -8,7 +8,8 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/import_wallets_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/setup_screen.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/combo.dart';
+import 'package:epic_wallet/src/desktop/data/server_lists.dart';
+import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -61,7 +62,7 @@ String _focused() {
       EChoiceCard() => 'card:${w.title}',
       ESwitch() => 'switch:${w.label ?? w.semanticLabel}',
       ESegmented() => 'segment',
-      ServiceCombo() => 'combo:${w.label}',
+      ServerListPanel() => 'combo:${w.label}',
       EDetails() => 'details',
       ENavItem() => 'nav:${w.label}',
       _ => null,
@@ -77,6 +78,12 @@ Finder _edit(String label) => find.descendant(of: _input(label), matching: find.
 
 Future<void> _focus(WidgetTester tester, Finder edit) async {
   tester.widget<EditableText>(edit).focusNode.requestFocus();
+  await tester.pump();
+}
+
+/// Focuses the closed button of the server list.
+Future<void> _focusPanel(WidgetTester tester) async {
+  tester.widget<FocusableActionDetector>(find.descendant(of: find.byType(ServerListPanel), matching: find.byType(FocusableActionDetector)).first).focusNode!.requestFocus();
   await tester.pump();
 }
 
@@ -175,10 +182,17 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('Setup › Epicbox: the server, then Continue, then wrap; the server chips are not stops', (tester) async {
+    testWidgets('Setup › Epicbox: the server, then Continue, then the switch', (tester) async {
       await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox);
-      final tabs = await _tabs(tester, _edit('Epicbox server'), 2);
-      expect(tabs, ['button:Continue', 'field:Epicbox server']);
+      await _focusPanel(tester);
+      expect(_focused(), 'combo:Epicbox server');
+      final tabs = <String>[];
+      for (var i = 0; i < 2; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        tabs.add(_focused());
+      }
+      expect(tabs, ['button:Continue', 'switch:Receive through Epicbox']);
       await _end(tester);
     });
 
@@ -207,8 +221,8 @@ void main() {
     testWidgets('Settings › Node: from the node field no icon is a Tab stop', (tester) async {
       await _open(tester, DeskRoute.settingsNode);
       // The closed combo is a button (F27): no text field to focus.
-      expect(find.descendant(of: find.byType(ServiceCombo), matching: find.byType(EditableText)), findsNothing);
-      tester.widget<FocusableActionDetector>(find.descendant(of: find.byType(ServiceCombo), matching: find.byType(FocusableActionDetector)).first).focusNode!.requestFocus();
+      expect(find.descendant(of: find.byType(ServerListPanel), matching: find.byType(EditableText)), findsNothing);
+      tester.widget<FocusableActionDetector>(find.descendant(of: find.byType(ServerListPanel), matching: find.byType(FocusableActionDetector)).first).focusNode!.requestFocus();
       await tester.pump();
       expect(_focused(), 'combo:Node server');
       final tabs = <String>[];
@@ -257,11 +271,14 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('Setup › Epicbox: Enter is Continue', (tester) async {
+    testWidgets('Setup › Epicbox: Enter on the server opens its list', (tester) async {
       await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox);
-      await _focus(tester, _edit('Epicbox server'));
-      await _enter(tester);
-      expect(find.text('Check settings'), findsOneWidget);
+      await _focusPanel(tester);
+      await _key(tester, LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(find.byKey(const ValueKey('server-list-field')), findsOneWidget, reason: 'the list is open');
+      expect(find.text('Check settings'), findsNothing);
+      await _key(tester, LogicalKeyboardKey.escape);
       await _end(tester);
     });
 
@@ -455,25 +472,16 @@ void main() {
   });
 
   group('Settings combo (F27)', () {
-    Future<GlobalKey<ServiceComboState>> pumpCombo(WidgetTester tester, {bool busy = false, ValueChanged<String>? onPicked}) async {
-      final key = GlobalKey<ServiceComboState>();
+    Future<void> pumpCombo(WidgetTester tester, {bool busy = false, ValueChanged<String>? onPicked}) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildDeskTheme(Brightness.dark),
-          home: Scaffold(
-            body: Center(
-              child: SizedBox(
-                width: 500,
-                child: ServiceCombo(
-                  key: key,
-                  label: 'Node server',
-                  hint: 'Find',
-                  options: const [ComboOption(value: 'a', host: 'a.example'), ComboOption(value: 'b', host: 'b.example')],
-                  value: 'a',
-                  fieldText: 'a.example',
-                  busy: busy,
-                  busyTimeout: const Duration(seconds: 2),
-                  onPicked: onPicked ?? (_) {},
+        ProviderScope(
+          child: MaterialApp(
+            theme: buildDeskTheme(Brightness.dark),
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 500,
+                  child: _panel(busy: busy, onPicked: onPicked),
                 ),
               ),
             ),
@@ -481,10 +489,10 @@ void main() {
         ),
       );
       await tester.pump();
-      return key;
+      await tester.pump();
     }
 
-    Finder closedField() => find.descendant(of: find.byType(ServiceCombo), matching: find.byType(EditableText));
+    Finder closedField() => find.descendant(of: find.byType(ServerListPanel), matching: find.byType(EditableText));
 
     testWidgets('the closed combo is a button with no text field; Esc and a pick leave nothing selected', (tester) async {
       String? picked;
@@ -503,14 +511,16 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('b.example', findRichText: true));
       await tester.pump();
-      expect(picked, 'b');
+      await tester.tap(find.text('Switch to b.example'));
+      await tester.pump();
+      expect(picked, 'b.example');
       expect(closedField(), findsNothing);
     });
 
     testWidgets('Space, Enter and ↓ on the focused button open the list', (tester) async {
       for (final k in [LogicalKeyboardKey.space, LogicalKeyboardKey.enter, LogicalKeyboardKey.arrowDown]) {
         await pumpCombo(tester);
-        tester.widget<FocusableActionDetector>(find.descendant(of: find.byType(ServiceCombo), matching: find.byType(FocusableActionDetector)).first).focusNode!.requestFocus();
+        tester.widget<FocusableActionDetector>(find.descendant(of: find.byType(ServerListPanel), matching: find.byType(FocusableActionDetector)).first).focusNode!.requestFocus();
         await tester.pump();
         await _key(tester, k);
         await tester.pump();
@@ -697,7 +707,7 @@ void main() {
     // Ctrl+Enter is a key event the form handles itself.
     testWidgets('Setup › Epicbox: the Ctrl+Enter key event continues', (tester) async {
       await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox);
-      await _focus(tester, _edit('Epicbox server'));
+      await _focusPanel(tester);
       await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
@@ -707,7 +717,7 @@ void main() {
     });
 
     testWidgets('Esc on an open combo in a dialog closes the combo first, then the dialog', (tester) async {
-      await tester.pumpWidget(MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SizedBox())));
+      await tester.pumpWidget(ProviderScope(child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SizedBox()))));
       final ctx = tester.element(find.byType(Scaffold));
       showDialog<void>(
         context: ctx,
@@ -715,14 +725,7 @@ void main() {
           child: SizedBox(
             width: 500,
             height: 300,
-            child: ServiceCombo(
-              label: 'Node server',
-              hint: 'Find',
-              options: const [ComboOption(value: 'a', host: 'a.example'), ComboOption(value: 'b', host: 'b.example')],
-              value: 'a',
-              fieldText: 'a.example',
-              onPicked: (_) {},
-            ),
+            child: _panel(),
           ),
         ),
       );
@@ -742,3 +745,17 @@ void main() {
 
 /// The sequence with repeats after the first wrap dropped.
 List<String> _focusOrder(List<String> tabs) => [...{...tabs}];
+
+/// A two-row Epicbox list, a.example in use.
+Widget _panel({bool busy = false, ValueChanged<String>? onPicked}) => ServerListPanel(
+  kind: ServerKind.relay,
+  label: 'Node server',
+  value: 'a.example',
+  fieldText: 'a.example',
+  servers: const [PanelServer(value: 'a.example', host: 'a.example'), PanelServer(value: 'b.example', host: 'b.example')],
+  source: const DeskServerSource(public: ['a.example', 'b.example']),
+  busy: busy,
+  busyTimeout: const Duration(seconds: 2),
+  onChoose: (v) async => onPicked?.call(v),
+  onTest: (_) async => null,
+);

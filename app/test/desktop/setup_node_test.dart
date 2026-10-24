@@ -5,7 +5,7 @@ import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/local_node_step.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/setup_screen.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/combo.dart';
+import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart' show nodeUrlOf;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -89,9 +89,9 @@ void main() {
     await show(tester, SetupStep.node);
     expect(find.text('Choose a node'), findsOneWidget);
     expect(find.text('The wallet reads the chain and sends through an Epic node.'), findsOneWidget);
-    final combo = tester.widget<ServiceCombo>(find.byType(ServiceCombo));
+    final combo = tester.widget<ServerListPanel>(find.byType(ServerListPanel));
     expect(combo.value, 'https://node.epicnet.us:3413', reason: 'healthy, the lowest latency');
-    expect(combo.fieldText, 'node.epicnet.us');
+    expect(combo.fieldText, 'node.epicnet.us:3413');
     expect(find.text('default'), findsNothing);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
     await end(tester);
@@ -184,7 +184,7 @@ void main() {
     container.dispose();
     container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(checking), deskNodeProvider.overrideWithValue(node)]);
     await show(tester, SetupStep.node);
-    var combo = tester.widget<ServiceCombo>(find.byType(ServiceCombo));
+    var combo = tester.widget<ServerListPanel>(find.byType(ServerListPanel));
     expect(combo.value, '', reason: 'a node being checked is not healthy, whatever its place in the list');
     expect(combo.tone, ETone.neutral);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNull);
@@ -192,7 +192,7 @@ void main() {
     checking.answered = true;
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
     await tester.pump();
-    combo = tester.widget<ServiceCombo>(find.byType(ServiceCombo));
+    combo = tester.widget<ServerListPanel>(find.byType(ServerListPanel));
     expect(combo.value, 'https://node.epicnet.us:3413', reason: 'healthy, the lowest latency');
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
     await end(tester);
@@ -204,12 +204,12 @@ void main() {
     container.dispose();
     container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(checking), deskNodeProvider.overrideWithValue(node)]);
     await show(tester, SetupStep.node);
-    tester.widget<ServiceCombo>(find.byType(ServiceCombo)).onPicked('epic.stackwallet.com:3413');
+    tester.widget<ServerListPanel>(find.byType(ServerListPanel)).onChoose('epic.stackwallet.com:3413');
     await tester.pump();
     checking.answered = true;
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
     await tester.pump();
-    expect(tester.widget<ServiceCombo>(find.byType(ServiceCombo)).value, 'https://epic.stackwallet.com:3413', reason: 'typed without a scheme: https');
+    expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).value, 'https://epic.stackwallet.com:3413', reason: 'typed without a scheme: https');
     await end(tester);
   });
 
@@ -258,7 +258,7 @@ void main() {
   testWidgets('run again with a remote node: starts from the current node; Save unchanged moves nothing', (tester) async {
     await rerun(tester);
     final current = container.read(deskProvider).status!.node.url;
-    expect(tester.widget<ServiceCombo>(find.byType(ServiceCombo)).value, current, reason: 'not a preselection over the node in use');
+    expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).value, current, reason: 'not a preselection over the node in use');
     await toReviewAndSave(tester);
     expect(wallet.calls, isEmpty, reason: 'same node: no useNode, the local node untouched');
     expect(node.calls.where((c) => c == 'stop'), isEmpty);
