@@ -340,6 +340,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   VoidCallback? _lineAction;
   Timer? _lineTimer;
 
+  /// Whether the foot line answers a refusal ("In use. Switch first.") rather than an action.
+  bool _lineIsNote = false;
+
   /// The address the field was last filled with by the sheet (the one in use).
   String _filled = '';
 
@@ -369,18 +372,20 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   /// Whether the field differs from the address in use: then it filters the list.
   bool get _dirty => _text != _filled;
 
-  void _say(String text, {VoidCallback? action}) {
+  void _say(String text, {VoidCallback? action, bool note = false}) {
     _lineTimer?.cancel();
     setState(() {
       _line = text;
       _lineAction = action;
+      _lineIsNote = note;
     });
     _lineTimer = Timer(
-      noticeDuration(
-        NoticeLevel.success,
-        accessible:
-            MediaQuery.accessibleNavigationOf(context) || action != null,
-      ),
+      action != null
+          ? const Duration(seconds: 8)
+          : noticeDuration(
+              NoticeLevel.success,
+              accessible: MediaQuery.accessibleNavigationOf(context),
+            ),
       () {
         if (mounted) {
           setState(() {
@@ -410,7 +415,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       // The server in use: a pending choice is taken back, else the sheet says so and the
       // field goes back to the address in use.
       if (_pending == null) {
-        _say(context.l10n.serverAlreadyInUse);
+        _say(context.l10n.serverAlreadyInUse, note: true);
         if (_dirty) _field.text = _filled;
       }
       setState(() {
@@ -484,12 +489,24 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       _switchError = null;
     });
     _say(l.slAdded(serverHost(value)));
+    // The new row is the last: bring it into view once it is laid out.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final scroll = widget.scrollController;
+      if (!mounted || scroll == null || !scroll.hasClients) return;
+      scroll.animateTo(
+        scroll.position.maxScrollExtent,
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   Future<void> _remove(_Entry e, NetworkChoice choice) async {
     final l = context.l10n;
     if (_same(e.value, _current(choice))) {
-      _say(l.slInUseSwitchFirst);
+      _say(l.slInUseSwitchFirst, note: true);
       return;
     }
     final notifier = ref.read(
@@ -668,7 +685,12 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (line != null)
-                  _FootLine(line, action: _lineAction, actionLabel: l.slUndo),
+                  _FootLine(
+                    line,
+                    action: _lineAction,
+                    actionLabel: l.slUndo,
+                    note: _lineIsNote,
+                  ),
                 if (_pending != null || _switchError != null)
                   _ConfirmStrip(
                     host: _pending == null ? null : serverHost(_pending!),
@@ -936,6 +958,7 @@ class _ServerRow extends StatelessWidget {
     final push = kind == ServerKind.relay && e.host == PushRegistration.relayHost;
     final facts = [
       if (current) l.serverCurrent,
+      if (tip != null) tip.text,
       if (state == NodeHealthState.degraded) l.serverDegraded,
       if (down) l.serverNotResponding,
       if (unknown) l.serverHealthNone,
@@ -1012,17 +1035,6 @@ class _ServerRow extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  if (tip != null) ...[
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      tip.text,
-                                      style: TextStyle(
-                                        fontFamily: t.monoFamily,
-                                        fontSize: 12,
-                                        color: tip.color,
-                                      ),
-                                    ),
-                                  ],
                                   if (isDefault) ...[
                                     const SizedBox(width: 8),
                                     Container(
@@ -1052,14 +1064,14 @@ class _ServerRow extends StatelessWidget {
                                 ],
                               ),
                               const SizedBox(height: 2),
-                              _Facts(facts: facts, style: small),
+                              _Facts(facts: facts, style: small, tip: tip),
                             ],
                           ),
                         ),
                       ),
                     ),
                     SizedBox(
-                      width: 24,
+                      width: 20,
                       child: check
                           ? Icon(
                               Icons.check,
@@ -1071,6 +1083,8 @@ class _ServerRow extends StatelessWidget {
                     IconButton(
                       key: serverListRemoveKey(e.value),
                       tooltip: l.slRemove,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                       icon: Icon(Icons.delete_outline, color: t.dim),
                       onPressed: onRemove,
                     ),
@@ -1212,10 +1226,13 @@ class _RestoreRow extends StatelessWidget {
 
 /// A row's second line: the facts joined by ` · `.
 class _Facts extends StatelessWidget {
-  const _Facts({required this.facts, required this.style});
+  const _Facts({required this.facts, required this.style, this.tip});
 
   final List<String> facts;
   final TextStyle? style;
+
+  /// The node's lag (`at tip`, `−12`) and its colour, shown in mono among the facts.
+  final ({String text, String words, Color color})? tip;
 
   @override
   Widget build(BuildContext context) {
@@ -1228,7 +1245,9 @@ class _Facts extends StatelessWidget {
             if (i > 0) const TextSpan(text: ' · '),
             TextSpan(
               text: facts[i],
-              style: facts[i] == l.serverNotResponding
+              style: tip != null && facts[i] == tip!.text
+                  ? TextStyle(color: tip!.color, fontFamily: t.monoFamily)
+                  : facts[i] == l.serverNotResponding
                   ? TextStyle(color: t.risk)
                   : facts[i] == l.serverDegraded
                   ? TextStyle(color: t.warn)
@@ -1416,11 +1435,19 @@ class _LionColors extends ColorMapper {
 /// One line at the sheet's foot that says what the last action did, with a check before it
 /// and, when the action can be undone, Undo at its end; read out as it appears.
 class _FootLine extends StatelessWidget {
-  const _FootLine(this.text, {this.action, required this.actionLabel});
+  const _FootLine(
+    this.text, {
+    this.action,
+    required this.actionLabel,
+    this.note = false,
+  });
 
   final String text;
   final VoidCallback? action;
   final String actionLabel;
+
+  /// A refusal: an info mark in the dim colour instead of the green check.
+  final bool note;
 
   @override
   Widget build(BuildContext context) {
@@ -1437,7 +1464,11 @@ class _FootLine extends StatelessWidget {
         liveRegion: true,
         child: Row(
           children: [
-            Icon(Icons.check_circle_outline, size: 18, color: t.ok),
+            Icon(
+              note ? Icons.info_outline : Icons.check_circle_outline,
+              size: 18,
+              color: note ? t.dim : t.ok,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
