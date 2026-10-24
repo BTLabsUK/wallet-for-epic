@@ -4,6 +4,7 @@
 library;
 
 import '../../advanced.dart';
+import '../../payment_prefs.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:intl/intl.dart' show NumberFormat;
@@ -832,6 +833,7 @@ class DeskSettings {
     this.tourSeen = false,
     this.useStatusSite = true,
     this.advanced = AdvancedPrefs.none,
+    this.payments = PaymentPrefs.defaults,
   });
 
   final ThemeChoice theme;
@@ -892,6 +894,9 @@ class DeskSettings {
   /// Off, only the servers themselves are asked.
   final bool useStatusSite;
 
+  /// Settings › Transactions: the methods Send and Receive offer and Send's first one.
+  final PaymentPrefs payments;
+
   /// The Advanced page: which expert features show and the network mode (`advanced.dart`).
   final AdvancedPrefs advanced;
 
@@ -917,6 +922,7 @@ class DeskSettings {
     bool? tourSeen,
     bool? useStatusSite,
     AdvancedPrefs? advanced,
+    PaymentPrefs? payments,
   }) => DeskSettings(
     theme: theme ?? this.theme,
     scale: scale ?? this.scale,
@@ -938,6 +944,7 @@ class DeskSettings {
     internetGuideSeen: internetGuideSeen ?? this.internetGuideSeen,
     tourSeen: tourSeen ?? this.tourSeen,
     useStatusSite: useStatusSite ?? this.useStatusSite,
+    payments: payments ?? this.payments,
     advanced: advanced ?? this.advanced,
   );
 }

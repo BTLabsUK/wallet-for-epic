@@ -4,6 +4,7 @@
 library;
 
 import '../../advanced.dart';
+import '../../payment_prefs.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -264,6 +265,7 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'publicMode': s.publicMode,
   'httpPort': s.httpPort,
   'advanced': s.advanced.toJson(),
+  'payments': s.payments.toJson(),
 };
 
 /// Each value of the wrong type falls back to its default, so bad saved data cannot block
@@ -295,6 +297,14 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
     useStatusSite: site is bool ? site : d.useStatusSite,
     publicMode: public is bool ? public : d.publicMode,
     advanced: AdvancedPrefs.fromJson(j['advanced']),
+    // Direct was Advanced's "Direct receiving" switch before 26.10.13.
+    payments: PaymentPrefs.fromJson(
+      j['payments'],
+      legacyDirect: switch (j['advanced']) {
+        {'features': final List<Object?> f} => f.contains('directReceiving'),
+        _ => false,
+      },
+    ),
     httpPort: port is int && port > 0 && port < 65536 ? port : d.httpPort,
     autoLockMinutes: lock is int ? autoLockChoice(lock) : d.autoLockMinutes,
     autoLockOn: lockOn is bool ? lockOn : d.autoLockOn,

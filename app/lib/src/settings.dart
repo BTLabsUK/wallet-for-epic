@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'advanced.dart';
+import 'payment_prefs.dart';
 import 'app_log.dart';
 import 'l10n.dart' show appLanguages;
 import 'network_gate.dart';
@@ -126,6 +127,7 @@ class AppSettings {
     this.helpLanguage,
     this.advancedOptions = false,
     this.advanced = AdvancedPrefs.none,
+    this.payments = PaymentPrefs.defaults,
     this.useStatusSite = true,
     this.sendStrategy = SelectionStrategy.smallest,
     this.splitChange = true,
@@ -145,6 +147,9 @@ class AppSettings {
 
   /// The Advanced page: which expert features show and the network mode (`advanced.dart`).
   final AdvancedPrefs advanced;
+
+  /// Settings › Transactions: the methods Send and Receive offer and Send's first one.
+  final PaymentPrefs payments;
 
   /// Which outputs a send spends unless Send overrides it (Outputs).
   final SelectionStrategy sendStrategy;
@@ -218,6 +223,7 @@ class AppSettings {
     String? Function()? helpLanguage,
     bool? advancedOptions,
     AdvancedPrefs? advanced,
+    PaymentPrefs? payments,
     bool? useStatusSite,
     SelectionStrategy? sendStrategy,
     bool? splitChange,
@@ -243,6 +249,7 @@ class AppSettings {
     helpLanguage: helpLanguage != null ? helpLanguage() : this.helpLanguage,
     advancedOptions: advancedOptions ?? this.advancedOptions,
     advanced: advanced ?? this.advanced,
+    payments: payments ?? this.payments,
     useStatusSite: useStatusSite ?? this.useStatusSite,
     sendStrategy: sendStrategy ?? this.sendStrategy,
     splitChange: splitChange ?? this.splitChange,
@@ -285,6 +292,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _helpLanguageKey = 'app.helpLanguage';
   static const String _advancedKey = 'app.advanced';
   static const String _advancedPrefsKey = 'app.advanced_prefs';
+  static const String _paymentsKey = 'app.payment_prefs';
   static const String _strategyKey = 'app.send_strategy';
   static const String _splitChangeKey = 'app.split_change';
   static const String statusSiteKey = 'app.status_site';
@@ -314,6 +322,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final helpLanguage = await store.read(_helpLanguageKey);
     final advanced = await store.read(_advancedKey);
     final advancedPrefs = await store.read(_advancedPrefsKey);
+    final payments = await store.read(_paymentsKey);
     final strategy = await store.read(_strategyKey);
     final splitChange = await store.read(_splitChangeKey);
     final tips = await store.read(tipsHiddenKey);
@@ -385,6 +394,11 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
               },
             )
           : defaults.advanced,
+      // Direct was the Advanced page's "Direct receiving" switch before 26.10.13.
+      payments: PaymentPrefs.decode(
+        payments,
+        legacyDirect: (advancedPrefs ?? '').split('|').first.split(',').contains('directReceiving'),
+      ),
       useStatusSite: site,
       sendStrategy: SelectionStrategy.values.firstWhere(
         (v) => v.name == strategy,
@@ -464,6 +478,10 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     );
     NetGate.set(prefs.networkMode);
   }
+
+  /// Settings › Transactions changed.
+  Future<void> setPayments(PaymentPrefs prefs) async =>
+      _put(_paymentsKey, prefs.encode(), (await _current()).copyWith(payments: prefs));
 
   /// The saved network mode, read at launch before any request (`main.dart`).
   static Future<NetworkMode> savedNetworkMode(SecretStore store) async =>
