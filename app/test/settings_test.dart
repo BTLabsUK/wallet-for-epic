@@ -1698,6 +1698,28 @@ void main() {
   });
 
   group('about', () {
+    testWidgets('windows-02: no link to the source repository while it is private', (
+      tester,
+    ) async {
+      registerTorLicence();
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.about);
+      expect(projectRepoPublic, isFalse);
+      expect(find.text('Licences'), findsOneWidget);
+      expect(find.text('Source code'), findsNothing);
+      expect(find.text('Epic Cash'), findsWidgets, reason: 'the other links stay');
+      await _reveal(tester, find.byKey(settingsLicencesKey));
+      await tester.tap(find.byKey(settingsLicencesKey));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(LicencesScreen), findsOneWidget);
+      expect(find.text('Epic Cash Mobile by BT Labs: Apache-2.0.'), findsOneWidget);
+      expect(find.textContaining('wallet-for-epic'), findsNothing);
+      expect(find.textContaining('GitHub'), findsNothing);
+    });
+
     testWidgets('Licences opens the licence page with the bundled tor in it', (
       tester,
     ) async {

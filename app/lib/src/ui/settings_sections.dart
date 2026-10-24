@@ -50,6 +50,11 @@ import 'tor_ui.dart';
 
 /// The project's source code.
 const String projectRepoUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic';
+
+/// Whether the repositories are public. Until they are, no screen links to them (the phone's
+/// and the desktop's About, the Licences page) and no text says the code is on GitHub; set it
+/// to true when they are, and the links come back.
+const bool projectRepoPublic = false;
 const String epicCashUrl = 'https://epiccash.com';
 
 /// Deletes leftover copies of shared files; uisend's `clearSharedFiles`. Tests replace it.
@@ -727,7 +732,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       ),
       // A proper name, the same in every language.
       const LinkTile(title: 'Epic Cash', url: epicCashUrl),
-      LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),
+      if (projectRepoPublic) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),
     ];
   }
 }

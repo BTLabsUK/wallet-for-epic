@@ -3259,8 +3259,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Oprogramowanie open source w tym portfelu. Każdy składnik zachowuje własną licencję; pełne teksty są o jedno dotknięcie dalej.';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile od BT Labs: Apache-2.0. Kod jest na GitHubie.';
+  String get licencesApp => 'Epic Cash Mobile od BT Labs: Apache-2.0.';
 
   @override
   String get licencesFlutter =>
@@ -13458,7 +13457,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop od BT Labs: Apache-2.0. Kod jest na GitHubie.';
+      'Epic Cash Desktop od BT Labs: Apache-2.0.';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'Nie otwarto przeglądarki';

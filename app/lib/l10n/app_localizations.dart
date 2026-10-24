@@ -4675,7 +4675,7 @@ abstract class AppLocalizations {
   /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.'**
+  /// **'Epic Cash Mobile by BT Labs: Apache-2.0.'**
   String get licencesApp;
 
   /// Licences screen: one line for Flutter and the Dart packages.
@@ -20699,7 +20699,7 @@ abstract class AppLocalizations {
   /// Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.'**
+  /// **'Epic Cash Desktop by BT Labs: Apache-2.0.'**
   String get deskSetAboutLicenceApp;
 
   /// Toast title when a link could not be opened in the web browser; the link follows.

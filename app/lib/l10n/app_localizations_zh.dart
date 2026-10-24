@@ -2922,8 +2922,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get licencesLead => '本钱包包含的开源软件。每个组件保留各自的许可证；点按即可查看完整文本。';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile，BT Labs 出品：Apache-2.0。代码托管在 GitHub 上。';
+  String get licencesApp => 'Epic Cash Mobile，BT Labs 出品：Apache-2.0。';
 
   @override
   String get licencesFlutter => 'Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。';
@@ -12368,7 +12367,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop，BT Labs 出品：Apache-2.0。代码托管在 GitHub 上。';
+      'Epic Cash Desktop，BT Labs 出品：Apache-2.0。';
 
   @override
   String get deskSetAboutBrowserNotOpened => '未能打开浏览器';

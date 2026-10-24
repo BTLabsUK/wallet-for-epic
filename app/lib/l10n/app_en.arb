@@ -3721,7 +3721,7 @@
   "@licencesLead": {
     "description": "Licences screen: the first paragraph."
   },
-  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.",
+  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0.",
   "@licencesApp": {
     "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web demo shows this screen too."
   },
@@ -17141,7 +17141,7 @@
   "@deskSetAboutLicencesLead": {
     "description": "Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead)."
   },
-  "deskSetAboutLicenceApp": "Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.",
+  "deskSetAboutLicenceApp": "Epic Cash Desktop by BT Labs: Apache-2.0.",
   "@deskSetAboutLicenceApp": {
     "description": "Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them."
   },

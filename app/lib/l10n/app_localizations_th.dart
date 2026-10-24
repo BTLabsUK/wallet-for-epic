@@ -3024,8 +3024,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ซอฟต์แวร์โอเพนซอร์สในกระเป๋านี้ แต่ละส่วนใช้สัญญาอนุญาตของตนเอง ดูข้อความเต็มได้ในแตะเดียว';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile โดย BT Labs: Apache-2.0 โค้ดอยู่บน GitHub';
+  String get licencesApp => 'Epic Cash Mobile โดย BT Labs: Apache-2.0';
 
   @override
   String get licencesFlutter =>
@@ -12814,7 +12813,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop โดย BT Labs: Apache-2.0 โค้ดอยู่บน GitHub';
+      'Epic Cash Desktop โดย BT Labs: Apache-2.0';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'เปิดเบราว์เซอร์ไม่ได้';

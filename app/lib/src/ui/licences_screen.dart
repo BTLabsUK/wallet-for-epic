@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import '../l10n.dart';
 import '../tor_licence.dart';
 import 'common.dart';
-import 'settings_screen.dart' show openFlutterLicences, projectRepoUrl;
+import 'settings_screen.dart' show openFlutterLicences, projectRepoPublic, projectRepoUrl;
 import 'theme/fonts.dart' show flagsLicenceNote;
 import 'theme/tokens.dart';
 
@@ -53,11 +53,13 @@ class LicencesScreen extends StatelessWidget {
             torSourceNote,
             style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
           ),
-          const SizedBox(height: 8),
-          SelectableText(
-            projectRepoUrl,
-            style: TextStyle(fontFamily: t.monoFamily, fontSize: 12, color: t.dim),
-          ),
+          if (projectRepoPublic) ...[
+            const SizedBox(height: 8),
+            SelectableText(
+              projectRepoUrl,
+              style: TextStyle(fontFamily: t.monoFamily, fontSize: 12, color: t.dim),
+            ),
+          ],
           const SizedBox(height: 16),
           OutlinedButton.icon(
             key: licencesFullKey,

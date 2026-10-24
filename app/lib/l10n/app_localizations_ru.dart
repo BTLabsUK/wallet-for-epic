@@ -3238,8 +3238,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Открытое ПО в этом кошельке. Каждый компонент сохраняет свою лицензию; полные тексты в одном касании.';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile от BT Labs: Apache-2.0. Код на GitHub.';
+  String get licencesApp => 'Epic Cash Mobile от BT Labs: Apache-2.0.';
 
   @override
   String get licencesFlutter =>
@@ -13425,7 +13424,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop от BT Labs: Apache-2.0. Код на GitHub.';
+      'Epic Cash Desktop от BT Labs: Apache-2.0.';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'Браузер не открылся';
