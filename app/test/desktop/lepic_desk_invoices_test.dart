@@ -317,6 +317,7 @@ void main() {
           flow: lepic.TxFlow.invoice,
           origin: lepic.TxOrigin.wallet,
           transport: 'epicbox',
+          outputCommits: const [],
         ),
       );
       Tx desk(core.TxEntry e) => deskTx(e, tip: 100, minConf: 3, fallbackId: -1);
