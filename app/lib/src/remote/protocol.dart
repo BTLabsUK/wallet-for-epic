@@ -86,6 +86,7 @@ enum SessionMember {
 const Set<String> localServiceMembers = {
   'validateMnemonic',
   'validateEpicboxAddress',
+  'epicboxAddressOtherChain',
   'validateOnionAddress',
   // The payment QR is for people next to each other; the protocol does not carry it.
   'encodeQrSlate',

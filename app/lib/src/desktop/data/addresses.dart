@@ -2,7 +2,8 @@
 /// of address a typed or pasted text is, and its canonical form.
 library;
 
-import '../../recipient.dart' show RecipientKind, parseRecipient;
+import '../../recipient.dart' show RecipientKind, httpAddressComplete, parseRecipient;
+import '../../scan/scan_router.dart';
 import 'api.dart' show DeskWalletApi;
 import 'http_address.dart';
 import 'models.dart' show TxMethod;
@@ -67,3 +68,15 @@ ParsedAddress _parse(String text, DeskWalletApi? api) {
       return ParsedAddress(AddressKind.epicbox, r.address, complete: api?.isEpicboxAddress(r.address) ?? false);
   }
 }
+
+/// The scan router's address check on the desktop: the wallet's own checks, the ones Send runs.
+AddressCheck deskScanCheck(DeskWalletApi api) => (to) => switch (to.kind) {
+  RecipientKind.epicbox => api.isEpicboxAddress(to.address)
+      ? AddressVerdict.valid
+      : (api.epicboxAddressOtherChain(to.address) ? AddressVerdict.otherChain : AddressVerdict.invalid),
+  RecipientKind.tor => api.isOnionAddress(to.address) ? AddressVerdict.valid : AddressVerdict.invalid,
+  RecipientKind.http => httpAddressComplete(to.address) ? AddressVerdict.valid : AddressVerdict.invalid,
+};
+
+/// What a pasted or linked [text] is, checked against [api].
+ScannedCode deskClassify(DeskWalletApi api, String text) => classifyScan(text, check: deskScanCheck(api));

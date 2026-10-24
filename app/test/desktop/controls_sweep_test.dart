@@ -67,6 +67,7 @@ const Set<String> _reads = {
   'torAddress',
   'isOnionAddress',
   'isEpicboxAddress',
+  'epicboxAddressOtherChain',
   'estimateFee',
   'estimateMax',
   'findRemoved',
@@ -179,6 +180,9 @@ class _Recorder implements DeskWalletApi {
 
   @override
   bool isEpicboxAddress(String to) => _r('isEpicboxAddress', () => _m.isEpicboxAddress(to));
+  @override
+  bool epicboxAddressOtherChain(String to) =>
+      _r('epicboxAddressOtherChain', () => _m.epicboxAddressOtherChain(to));
   @override
   Future<int> estimateFee(int amount) => _r('estimateFee', () => _m.estimateFee(amount));
   @override

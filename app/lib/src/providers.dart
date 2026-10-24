@@ -8,6 +8,8 @@ import 'errors.dart';
 import 'l10n.dart' show englishStrings;
 import 'network.dart';
 import 'phone_tor.dart';
+import 'scan/scan_checks.dart' show CodeOrigin;
+import 'scan/scan_router.dart' show PaymentRequest;
 import 'tor_phone.dart' show phoneTorState;
 import 'tor_routes.dart';
 import 'secret_store.dart';
@@ -919,8 +921,14 @@ class ShellTabNotifier extends Notifier<ShellTab> {
 }
 
 /// A recipient handed to the Send tab, from a scanned QR code or Send again. [id] tells two
-/// hand-offs of the same text apart.
-typedef RecipientHandoff = ({int id, String text});
+/// hand-offs of the same text apart. A payment code ([request]) also brings an amount, a note
+/// and where it came from ([origin]); it only fills the form.
+typedef RecipientHandoff = ({
+  int id,
+  String text,
+  PaymentRequest? request,
+  CodeOrigin? origin,
+});
 
 /// The latest [RecipientHandoff], until the Send form that took it is cleared.
 final sendRecipientProvider =
@@ -937,7 +945,17 @@ class SendRecipientNotifier extends Notifier<RecipientHandoff?> {
     return null;
   }
 
-  void hand(String text) => state = (id: _next++, text: text);
+  /// Hands over [text] as the recipient; [origin] when it came from a scan, paste or link.
+  void hand(String text, {CodeOrigin? origin}) =>
+      state = (id: _next++, text: text, request: null, origin: origin);
+
+  /// Hands over a payment code: Send fills the address, the amount and the note.
+  void handRequest(PaymentRequest request, CodeOrigin origin) => state = (
+    id: _next++,
+    text: request.recipient.address,
+    request: request,
+    origin: origin,
+  );
 
   void clear() => state = null;
 }
