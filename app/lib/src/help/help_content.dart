@@ -133,14 +133,16 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   // The words that differ between a computer and a phone.
   final device = phone ? 'this phone' : 'this computer';
   final secret = phone ? 'your PIN' : 'the wallet password';
-  final nodePlace = phone ? '[[Node]]' : '[[Settings › Node]]';
-  final epicboxPlace = phone ? '[[Epicbox]]' : '[[Settings › Receiving › Epicbox receiving]]';
-  final torPlace = phone ? '[[Settings › Privacy › Tor]]' : '[[Settings › Privacy]]';
+  final nodePlace = phone ? '[[Settings › Privacy & network › Node and Epicbox]]' : '[[Settings › Node]]';
+  final epicboxPlace = phone ? '[[Settings › Privacy & network › Node and Epicbox]]' : '[[Settings › Receiving › Epicbox receiving]]';
+  final torPlace = phone ? '[[Settings › Privacy & network › Tor Network]]' : '[[Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
-  final historyBackupPlace = phone ? '[[Settings › Payment history › Export history backup]]' : '[[Settings › This wallet › Export history backup]]';
+  final historyBackupPlace = phone ? '[[Settings › Wallet › Export history backup]]' : '[[Settings › This wallet › Export history backup]]';
   final restorePlace = phone
-      ? '[[Restore from a recovery phrase]] (on the first screen, or after deleting this wallet under Settings)'
-      : '[[Restore from a recovery phrase]] (on the first screen, Unlock › Add a wallet, or Settings › All wallets)';
+      ? '**I already have a wallet: restore it** (on the first screen, or after deleting this wallet under [[Settings › Wallet]])'
+      : '**Restore from a phrase** (on the first screen, Unlock › Add a wallet, or [[Settings › All wallets]])';
+  final recheckPlace = phone ? '[[Settings › Wallet › Recheck balance]] (shown when Advanced options is on)' : '[[Settings › Recheck balance]]';
+  final phrasePlace = phone ? '[[Settings › Security › Back up recovery phrase]]' : '[[Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
       'start',
@@ -255,9 +257,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.p('**Smallest** sorts the spendable outputs by value and takes the smallest ones until the amount and fee are covered. Only those are locked while the send confirms; the rest can be sent right away.'),
         HelpBlock.p('**All** spends every spendable output and returns one change output. Everything is locked for $confirmations blocks, the wallet ends up with fewer, larger outputs, and the fee is a little higher because each input costs. Sending the whole balance always uses All.'),
         if (phone)
-          const HelpBlock.p('The default is set under [[Outputs]].')
+          const HelpBlock.p('The default is set under [[Outputs › Advanced]].')
         else
-          const HelpBlock.p('The default is set under [[Outputs]]; Send can change it for one send under **Advanced**.'),
+          const HelpBlock.p('The default is set under [[Outputs › Advanced]]; Send can change it for one send under **Advanced**.'),
       ],
       id: HelpId.strategy,
     ),
@@ -268,7 +270,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         HelpBlock.p('Both are normal network transactions from this wallet to itself, confirmed after $confirmations blocks like any send, and both lock every spendable output until then.'),
         const HelpBlock.ul(['**Split** takes the spendable balance and makes 2 to 10 outputs of nearly equal value.', '**Consolidate** takes every spendable output and makes one.', '**Split change** (on by default) does the same inside an ordinary send when few outputs would be left, for 0.004 EPIC per extra output.']),
-        const HelpBlock.p('Activity shows each as two entries, a send and a receive, both with this wallet. Both are under [[Outputs]].'),
+        const HelpBlock.p('Activity shows each as two entries, a send and a receive, both with this wallet. Both are under [[Outputs › Advanced]].'),
       ],
       id: HelpId.split,
     ),
@@ -290,9 +292,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.p('The recovery phrase (24 words for a new wallet) is the key to the money. With it the wallet can be restored on any ${phone ? 'phone or computer' : 'computer'}, and anyone else who has it can take the EPIC.'),
         const HelpBlock.ul(['Write the words on paper, in this order, and keep the paper somewhere safe and offline.', 'Never keep them as a photo, screenshot or file. Never type them into a website or a chat.', 'Nobody from Epic Cash or this wallet will ever ask for them.']),
         if (phone)
-          HelpBlock.p('To see the words again, open [[Settings › Recovery phrase]] and enter $secret. The app never sends them anywhere. Better not to copy them: if copied, the wallet clears the clipboard after 60 seconds, and when the wallet locks or closes.')
+          HelpBlock.p('To see the words again, open $phrasePlace and enter $secret. The app never sends them anywhere. Better not to copy them: if copied, the wallet clears the clipboard after 60 seconds, and when the wallet locks or closes.')
         else
-          HelpBlock.p('To see the words again, open [[Settings › Recovery phrase]] and enter $secret. Better not to copy them: if copied, the wallet clears the clipboard after 60 seconds, and when the wallet locks or closes.'),
+          HelpBlock.p('To see the words again, open $phrasePlace and enter $secret. Better not to copy them: if copied, the wallet clears the clipboard after 60 seconds, and when the wallet locks or closes.'),
       ],
       id: HelpId.phrase,
     ),
@@ -304,7 +306,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.p('The recovery phrase brings back everything that is on the blockchain, which is the balance.'),
         HelpBlock.p('**To restore** on a new ${phone ? 'phone' : 'computer'} or after a loss: open $restorePlace, enter the words and choose ${phone ? 'a PIN' : 'a password'}. When the wallet opens, it scans the blockchain for its outputs. The balance appears after that first scan; the payments it finds are labelled **Restored**.'),
         HelpBlock.p('**What a restore cannot bring back:** what was never on the blockchain, such as who paid what, transaction messages, contacts and wallet names. A history backup keeps the payment details and contacts: $historyBackupPlace.${phone ? ' Keep the backup file outside the phone, for example in email or cloud storage.' : ''}'),
-        const HelpBlock.p('**Balance looks wrong?** Run [[Settings › Recheck balance]]. It reads the whole blockchain again for this wallet\'s outputs.'),
+        HelpBlock.p('**Balance looks wrong?** Run $recheckPlace. It reads the whole blockchain again for this wallet\'s outputs.'),
         if (!phone)
           const HelpBlock.p('**The wallet\'s files** are in [[Settings › This wallet › Wallet folder]]. Keep the recovery phrase even with a copy of them: it works when the files are lost.'),
       ],
@@ -369,7 +371,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         [
           HelpBlock.p('With Tor on, the connection to the Epicbox server goes through Tor, and the wallet has a Tor address (it ends in .onion) that other wallets can pay straight to, from anywhere, with nothing to forward on the router. The addresses you share stay the same.'),
           HelpBlock.ul([
-            'Turn it on under [[Settings › Privacy]]. The Tor row in the sidebar shows its state.',
+            'Turn it on under [[Settings › Privacy › Tor]]. The Tor row in the sidebar shows its state.',
             'While Tor starts or is not connected, what goes over Tor waits; nothing goes around it. Retry, or turn Tor off.',
             'Direct sends to an http(s) address do not go over Tor; Send says so.',
             'Direct · HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Direct · Tor address.',
@@ -387,18 +389,18 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         if (phone)
           const HelpBlock.p('**"Node not synced": cannot send.** Sending opens when the node has caught up. Wait a little, or tap the Node row on the Wallet tab and choose another node.')
         else
-          const HelpBlock.p('**"Node not synced": cannot send.** Sending opens when the node has caught up. Wait a little, or choose another node under Settings › Node.'),
+          const HelpBlock.p('**"Node not synced": cannot send.** Sending opens when the node has caught up. Wait a little, or choose another node under [[Settings › Node]].'),
         if (phone)
           const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or tap the Epicbox row on the Wallet tab and pick another server. Meanwhile a file works.')
         else
-          const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under Settings › Receiving. Meanwhile a file works.'),
+          const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under [[Settings › Receiving]]. Meanwhile a file works.'),
         const HelpBlock.p('**A send says "Waiting for the recipient".** Their wallet has not answered yet. Ask them to open it. If they never will, cancel the send in Activity to unlock the outputs.'),
         if (phone)
           const HelpBlock.p('**A payment has not arrived.** Check on the Wallet tab that the node is synced and Epicbox is online. After a change of Epicbox server, the sender needs the new address. The sender\'s wallet also has to finish the transaction; then a few minutes for the confirmations.')
         else
           const HelpBlock.p('**A payment has not arrived.** Check on Receive that receiving is on and the node is synced. After a change of Epicbox server, the sender needs the new address. The sender\'s wallet also has to finish the transaction; then a few minutes for the confirmations.'),
         if (phone)
-          const HelpBlock.p('**Tor says "Not connected".** Tor could not reach its network. Press Retry under Settings › Privacy, or turn Tor off; nothing goes out meanwhile.'),
+          const HelpBlock.p('**Tor says "Not connected".** Tor could not reach its network. Press Retry under [[Settings › Privacy & network]], or turn Tor off; nothing goes out meanwhile.'),
         if (!phone) ...const [
           HelpBlock.p('**"Port 3415 is used by another program".** Another program, often another Epic wallet, uses the port for Direct · HTTP payments. Close it, then press Try again on Receive. Epicbox, Direct · Tor and files keep working meanwhile.'),
           HelpBlock.p('**"Another Epic program is using this folder".** Another Epic wallet or node has the same files open. Close it and try again.'),
@@ -407,7 +409,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           const HelpBlock.p('**Forgotten PIN.** Delete the wallet on the unlock screen and restore it from its recovery phrase with a new PIN. Without the phrase the EPIC cannot be recovered.')
         else
           const HelpBlock.p('**"Wrong password".** Check Caps Lock and the keyboard layout. A forgotten password: restore the wallet from its recovery phrase and choose a new one.'),
-        const HelpBlock.p('**The balance looks wrong.** Run Settings › Recheck balance.'),
+        HelpBlock.p('**The balance looks wrong.** Run $recheckPlace.'),
       ],
       id: HelpId.trouble,
     ),
@@ -415,31 +417,58 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
 }
 
 /// The three invoice topics, with [confirmations] as the open wallet counts them. Localized,
-/// unlike the rest, as the invoice flow was written for all five languages.
-List<HelpTopic> invoiceHelpTopics(AppLocalizations l, int confirmations) => [
-  HelpTopic(
-    invoiceHelpSection,
-    l.deskInvHelpFlowTitle,
-    l.deskInvHelpFlowShort,
-    [
-      HelpBlock.p(l.deskInvHelpFlowIntro),
-      HelpBlock.ol([l.deskInvHelpFlowStep1, l.deskInvHelpFlowStep2, l.deskInvHelpFlowStep3, l.deskInvHelpFlowStep4(confirmations)]),
-      HelpBlock.p(l.deskInvHelpFlowNever),
-      HelpBlock.p(l.deskInvHelpFlowIssued),
-    ],
-    invoiceFlow: true,
-    id: HelpId.invoices,
-  ),
-  HelpTopic(invoiceHelpSection, l.deskInvHelpTrustTitle, l.deskInvHelpTrustShort, [
-    HelpBlock.p(l.deskInvHelpTrustP1),
-    HelpBlock.p(l.deskInvHelpTrustP2),
-    HelpBlock.p(l.deskInvHelpTrustP3),
-    HelpBlock.ul([l.deskInvHelpTrustWhere1, l.deskInvHelpTrustWhere2, l.deskInvHelpTrustWhere3]),
-  ], id: HelpId.trusted),
-  HelpTopic(invoiceHelpSection, l.deskInvHelpAddrTitle, l.deskInvHelpAddrShort, [
-    HelpBlock.p(l.deskInvHelpAddrP1),
-    HelpBlock.p(l.deskInvHelpAddrP2),
-    HelpBlock.p(l.deskInvHelpAddrP3),
-    HelpBlock.ul([l.deskInvHelpAddrWhere1, l.deskInvHelpAddrWhere2]),
-  ], id: HelpId.invoiceAddress),
-];
+/// unlike the rest, as the invoice flow was written for all five languages. The strings name the
+/// desktop's places; on the phone [_phoneInvoicePlace] gives each the phone's own.
+List<HelpTopic> invoiceHelpTopics(
+  AppLocalizations l,
+  int confirmations, {
+  HelpPlatform platform = HelpPlatform.desktop,
+}) {
+  String t(String text) => platform == HelpPlatform.phone
+      ? text.replaceAllMapped(RegExp(r'\[\[(.+?)\]\]'), (m) => _phoneInvoicePlace(l, m.group(1)!, m.group(0)!))
+      : text;
+  return [
+    HelpTopic(
+      invoiceHelpSection,
+      l.deskInvHelpFlowTitle,
+      l.deskInvHelpFlowShort,
+      [
+        HelpBlock.p(t(l.deskInvHelpFlowIntro)),
+        HelpBlock.ol([t(l.deskInvHelpFlowStep1), t(l.deskInvHelpFlowStep2), t(l.deskInvHelpFlowStep3), t(l.deskInvHelpFlowStep4(confirmations))]),
+        HelpBlock.p(t(l.deskInvHelpFlowNever)),
+        HelpBlock.p(t(l.deskInvHelpFlowIssued)),
+      ],
+      invoiceFlow: true,
+      id: HelpId.invoices,
+    ),
+    HelpTopic(invoiceHelpSection, l.deskInvHelpTrustTitle, l.deskInvHelpTrustShort, [
+      HelpBlock.p(t(l.deskInvHelpTrustP1)),
+      HelpBlock.p(t(l.deskInvHelpTrustP2)),
+      HelpBlock.p(t(l.deskInvHelpTrustP3)),
+      HelpBlock.ul([t(l.deskInvHelpTrustWhere1), t(l.deskInvHelpTrustWhere2), t(l.deskInvHelpTrustWhere3)]),
+    ], id: HelpId.trusted),
+    HelpTopic(invoiceHelpSection, l.deskInvHelpAddrTitle, l.deskInvHelpAddrShort, [
+      HelpBlock.p(t(l.deskInvHelpAddrP1)),
+      HelpBlock.p(t(l.deskInvHelpAddrP2)),
+      HelpBlock.p(t(l.deskInvHelpAddrP3)),
+      HelpBlock.ul([t(l.deskInvHelpAddrWhere1), t(l.deskInvHelpAddrWhere2)]),
+    ], id: HelpId.invoiceAddress),
+  ];
+}
+
+/// The phone's place for one of the invoice strings' desktop places [inner] (the text between
+/// `[[` and `]]`; [whole] with them): the Invoices screen's sections, and the Wallet page's row.
+String _phoneInvoicePlace(AppLocalizations l, String inner, String whole) {
+  final bar = inner.indexOf('|');
+  final target = bar < 0 ? inner : inner.substring(bar + 1).trim();
+  String link(List<String> label, String place) => '[[${label.join(' › ')}|$place]]';
+  return switch (target) {
+    'Invoices › Pay' => link([l.invoicesTitle, l.invoicesToPaySection], 'Invoices › To pay'),
+    'Invoices › Issue' => link([l.invoicesTitle, l.invoicesSentSection], 'Invoices › Requests you sent'),
+    'Settings › Invoices' => link(
+      [l.settingsTitle, l.settingsSectionWallet, l.settingsInvoices],
+      'Settings › Wallet › Invoice address and trusted services',
+    ),
+    _ => whole,
+  };
+}

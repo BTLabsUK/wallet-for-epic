@@ -3265,13 +3265,13 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get settingsRescan => 'Skanuj łańcuch ponownie';
+  String get settingsRescan => 'Sprawdź saldo';
 
   @override
   String get settingsRescanFinished => 'Ponowne skanowanie zakończone';
 
   @override
-  String get settingsRescanTitle => 'Skanuj łańcuch ponownie';
+  String get settingsRescanTitle => 'Sprawdź saldo';
 
   @override
   String get settingsRescanBody =>
@@ -5288,7 +5288,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowStep2 =>
-      'Płacący otwiera ją w [[Faktury › Zapłać]], sprawdza nadawcę, kwotę i wiadomość, i wybiera **Zatwierdź i zapłać**, podając hasło portfela.';
+      'Płacący otwiera ją w [[Faktury › Zapłać|Invoices › Pay]], sprawdza nadawcę, kwotę i wiadomość, i wybiera **Zatwierdź i zapłać**, podając hasło portfela.';
 
   @override
   String get deskInvHelpFlowStep3 =>
@@ -5305,7 +5305,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowIssued =>
-      'Faktury wystawione przez ten portfel są w [[Faktury › Wystaw]].';
+      'Faktury wystawione przez ten portfel są w [[Faktury › Wystaw|Invoices › Issue]].';
 
   @override
   String get deskInvHelpTrustTitle => 'Dlaczego tylko zaufani nadawcy';
@@ -5316,7 +5316,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustP1 =>
-      'Portfel przyjmuje fakturę tylko na swój adres do faktur i tylko od nadawcy z listy zaufanych, rozpoznanego po adresie. Wszystko inne jest odrzucane bez czytania, zanim zostanie otwarte, i nigdy nie pojawia się w [[Faktury › Zapłać]].';
+      'Portfel przyjmuje fakturę tylko na swój adres do faktur i tylko od nadawcy z listy zaufanych, rozpoznanego po adresie. Wszystko inne jest odrzucane bez czytania, zanim zostanie otwarte, i nigdy nie pojawia się w [[Faktury › Zapłać|Invoices › Pay]].';
 
   @override
   String get deskInvHelpTrustP2 =>
@@ -5328,11 +5328,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustWhere1 =>
-      'Zaufaj nadawcy w [[Ustawienia › Faktury]].';
+      'Zaufaj nadawcy w [[Ustawienia › Faktury|Settings › Invoices]].';
 
   @override
   String get deskInvHelpTrustWhere2 =>
-      'Albo włącz **Zaufany dla faktur** przy kontakcie w [[Kontakty]].';
+      'Albo włącz **Zaufany dla faktur** przy kontakcie w [[Kontakty|Contacts]].';
 
   @override
   String get deskInvHelpTrustWhere3 =>
@@ -5347,7 +5347,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrP1 =>
-      'Portfel ma dwa adresy Epicbox. **Adres do płatności**, w [[Odbierz]], przyjmuje płatności. **Adres do faktur** przyjmuje tylko faktury.';
+      'Portfel ma dwa adresy Epicbox. **Adres do płatności**, w [[Odbierz|Receive]], przyjmuje płatności. **Adres do faktur** przyjmuje tylko faktury.';
 
   @override
   String get deskInvHelpAddrP2 =>
@@ -5359,7 +5359,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrWhere1 =>
-      'Adres do faktur można znaleźć, skopiować lub pokazać jako kod QR w [[Ustawienia › Faktury]].';
+      'Adres do faktur można znaleźć, skopiować lub pokazać jako kod QR w [[Ustawienia › Faktury|Settings › Invoices]].';
 
   @override
   String get deskInvHelpAddrWhere2 =>

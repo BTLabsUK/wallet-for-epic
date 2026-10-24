@@ -3242,13 +3242,13 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get settingsRescan => 'Пересканировать блокчейн';
+  String get settingsRescan => 'Сверка баланса';
 
   @override
   String get settingsRescanFinished => 'Повторное сканирование завершено';
 
   @override
-  String get settingsRescanTitle => 'Пересканировать блокчейн';
+  String get settingsRescanTitle => 'Сверка баланса';
 
   @override
   String get settingsRescanBody =>
@@ -5268,7 +5268,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowStep2 =>
-      'Плательщик открывает его в [[Счета › Оплатить]], проверяет отправителя, сумму и сообщение и выбирает **Одобрить и оплатить**, вводя пароль кошелька.';
+      'Плательщик открывает его в [[Счета › Оплатить|Invoices › Pay]], проверяет отправителя, сумму и сообщение и выбирает **Одобрить и оплатить**, вводя пароль кошелька.';
 
   @override
   String get deskInvHelpFlowStep3 =>
@@ -5285,7 +5285,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowIssued =>
-      'Счета, выставленные этим кошельком, — в [[Счета › Выставить]].';
+      'Счета, выставленные этим кошельком, — в [[Счета › Выставить|Invoices › Issue]].';
 
   @override
   String get deskInvHelpTrustTitle => 'Почему только доверенные отправители';
@@ -5296,7 +5296,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustP1 =>
-      'Кошелёк принимает счёт только на свой адрес для счетов и только от отправителя из списка доверенных, которого узнаёт по адресу. Всё остальное отбрасывается непрочитанным, до открытия, и никогда не появляется в [[Счета › Оплатить]].';
+      'Кошелёк принимает счёт только на свой адрес для счетов и только от отправителя из списка доверенных, которого узнаёт по адресу. Всё остальное отбрасывается непрочитанным, до открытия, и никогда не появляется в [[Счета › Оплатить|Invoices › Pay]].';
 
   @override
   String get deskInvHelpTrustP2 =>
@@ -5308,11 +5308,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustWhere1 =>
-      'Добавить доверенного отправителя можно в [[Настройки › Счета]].';
+      'Добавить доверенного отправителя можно в [[Настройки › Счета|Settings › Invoices]].';
 
   @override
   String get deskInvHelpTrustWhere2 =>
-      'Или включите **Доверенный для счетов** у контакта в [[Контакты]].';
+      'Или включите **Доверенный для счетов** у контакта в [[Контакты|Contacts]].';
 
   @override
   String get deskInvHelpTrustWhere3 =>
@@ -5327,7 +5327,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrP1 =>
-      'У кошелька два адреса Epicbox. **Адрес для платежей** в [[Получить]] принимает платежи. **Адрес для счетов** принимает только счета.';
+      'У кошелька два адреса Epicbox. **Адрес для платежей** в [[Получить|Receive]] принимает платежи. **Адрес для счетов** принимает только счета.';
 
   @override
   String get deskInvHelpAddrP2 =>
@@ -5339,7 +5339,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrWhere1 =>
-      'Найти, скопировать или показать адрес для счетов QR-кодом можно в [[Настройки › Счета]].';
+      'Найти, скопировать или показать адрес для счетов QR-кодом можно в [[Настройки › Счета|Settings › Invoices]].';
 
   @override
   String get deskInvHelpAddrWhere2 =>

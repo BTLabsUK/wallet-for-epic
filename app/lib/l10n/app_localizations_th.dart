@@ -4975,7 +4975,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowStep2 =>
-      'ผู้ชำระเปิดใบแจ้งหนี้ใน [[ใบแจ้งหนี้ › ชำระ]] ตรวจผู้ส่ง จำนวน และข้อความ แล้วเลือก **อนุมัติและชำระ** ด้วยรหัสผ่านกระเป๋า';
+      'ผู้ชำระเปิดใบแจ้งหนี้ใน [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]] ตรวจผู้ส่ง จำนวน และข้อความ แล้วเลือก **อนุมัติและชำระ** ด้วยรหัสผ่านกระเป๋า';
 
   @override
   String get deskInvHelpFlowStep3 =>
@@ -4992,7 +4992,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowIssued =>
-      'ใบแจ้งหนี้ที่กระเป๋านี้ออกอยู่ใน [[ใบแจ้งหนี้ › ออก]]';
+      'ใบแจ้งหนี้ที่กระเป๋านี้ออกอยู่ใน [[ใบแจ้งหนี้ › ออก|Invoices › Issue]]';
 
   @override
   String get deskInvHelpTrustTitle => 'ทำไมรับเฉพาะผู้ส่งที่เชื่อถือ';
@@ -5003,7 +5003,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustP1 =>
-      'กระเป๋ารับใบแจ้งหนี้เฉพาะที่ที่อยู่สำหรับใบแจ้งหนี้ และเฉพาะจากผู้ส่งในรายการที่เชื่อถือ โดยจับคู่จากที่อยู่ของผู้ส่ง สิ่งอื่นจะถูกทิ้งโดยไม่เปิดอ่าน และไม่แสดงใน [[ใบแจ้งหนี้ › ชำระ]]';
+      'กระเป๋ารับใบแจ้งหนี้เฉพาะที่ที่อยู่สำหรับใบแจ้งหนี้ และเฉพาะจากผู้ส่งในรายการที่เชื่อถือ โดยจับคู่จากที่อยู่ของผู้ส่ง สิ่งอื่นจะถูกทิ้งโดยไม่เปิดอ่าน และไม่แสดงใน [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]]';
 
   @override
   String get deskInvHelpTrustP2 =>
@@ -5015,11 +5015,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustWhere1 =>
-      'เพิ่มผู้ส่งที่เชื่อถือได้ใน [[การตั้งค่า › ใบแจ้งหนี้]]';
+      'เพิ่มผู้ส่งที่เชื่อถือได้ใน [[การตั้งค่า › ใบแจ้งหนี้|Settings › Invoices]]';
 
   @override
   String get deskInvHelpTrustWhere2 =>
-      'หรือเปิด **เชื่อถือสำหรับใบแจ้งหนี้** ที่ผู้ติดต่อใน [[ผู้ติดต่อ]]';
+      'หรือเปิด **เชื่อถือสำหรับใบแจ้งหนี้** ที่ผู้ติดต่อใน [[ผู้ติดต่อ|Contacts]]';
 
   @override
   String get deskInvHelpTrustWhere3 =>
@@ -5034,7 +5034,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrP1 =>
-      'กระเป๋ามีที่อยู่ Epicbox สองที่อยู่ **ที่อยู่รับเงิน** ใน [[รับ]] ใช้รับเงิน **ที่อยู่สำหรับใบแจ้งหนี้** รับเฉพาะใบแจ้งหนี้';
+      'กระเป๋ามีที่อยู่ Epicbox สองที่อยู่ **ที่อยู่รับเงิน** ใน [[รับ|Receive]] ใช้รับเงิน **ที่อยู่สำหรับใบแจ้งหนี้** รับเฉพาะใบแจ้งหนี้';
 
   @override
   String get deskInvHelpAddrP2 =>
@@ -5046,7 +5046,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrWhere1 =>
-      'ดู คัดลอก หรือแสดงที่อยู่สำหรับใบแจ้งหนี้เป็น QR Code ได้ใน [[การตั้งค่า › ใบแจ้งหนี้]]';
+      'ดู คัดลอก หรือแสดงที่อยู่สำหรับใบแจ้งหนี้เป็น QR Code ได้ใน [[การตั้งค่า › ใบแจ้งหนี้|Settings › Invoices]]';
 
   @override
   String get deskInvHelpAddrWhere2 =>

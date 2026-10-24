@@ -4639,7 +4639,7 @@ abstract class AppLocalizations {
   /// Settings row: search the blockchain for the wallet's funds again.
   ///
   /// In en, this message translates to:
-  /// **'Rescan the chain'**
+  /// **'Recheck balance'**
   String get settingsRescan;
 
   /// Short notice.
@@ -4651,7 +4651,7 @@ abstract class AppLocalizations {
   /// Title of the dialog that starts a new search of the blockchain for the wallet's funds.
   ///
   /// In en, this message translates to:
-  /// **'Rescan the chain'**
+  /// **'Recheck balance'**
   String get settingsRescanTitle;
 
   /// No description provided for @settingsRescanBody.
