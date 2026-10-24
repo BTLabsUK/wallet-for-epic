@@ -3527,6 +3527,10 @@ class LepicDeskWallet implements DeskWalletApi {
       case core.InvoiceEventKind.unknownSendAnswer:
         _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.unknownAnswer, slateId: e.slateId));
         return;
+      case core.InvoiceEventKind.receiveSuperseded:
+        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.receiveSuperseded, slateId: e.slateId));
+        await _reload();
+        return;
       case _:
         break;
     }

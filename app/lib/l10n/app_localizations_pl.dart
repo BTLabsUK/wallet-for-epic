@@ -5575,11 +5575,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      'Nadeszła płatność za fakturę, której to urządzenie nie wystawiło, i została odrzucona. Jeśli wystawiło ją inne urządzenie z tym portfelem, poproś płacącego o anulowanie i ponowną płatność.';
+      'Nadeszła płatność za rachunek, którego to urządzenie nie wystawiło. Przez dobę czeka na przekaźniku na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      'Nadeszła odpowiedź na płatność, której to urządzenie nie wysłało, i została odrzucona. Jeśli wysłało ją inne urządzenie z tym portfelem, anuluj ją tam i wyślij ponownie.';
+      'Nadeszła odpowiedź na płatność, której to urządzenie nie wysłało. Przez dobę czeka na przekaźniku na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.';
 
   @override
   String get deskInvPayerWaitingHead => 'Czeka na ciebie';
@@ -13926,4 +13926,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskTxNowUndeliveredRelay(String relay) {
     return 'Nie dostarczono. $relay nie odpowiedział, więc odbiorca nie otrzymał płatności. Wyślij ją ponownie albo anuluj, żeby odblokować środki.';
   }
+
+  @override
+  String get deskInvNoticeReceiveSuperseded =>
+      'Twoje drugie urządzenie z tym portfelem przyjęło płatność, którą odbierało też to urządzenie. Użyj „Sprawdź saldo”, aby zobaczyć ją tutaj.';
 }

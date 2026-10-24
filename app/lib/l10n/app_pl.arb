@@ -1371,8 +1371,8 @@
   "deskInvNoticeIssuedExpired": "Wystawiona przez ciebie faktura wygasła bez zapłaty.",
   "deskInvNoticeWithdrawn": "Faktura od {service} została wycofana przed twoją odpowiedzią.",
   "deskInvNoticeExpired": "Faktura wygasła przed twoją odpowiedzią.",
-  "deskInvNoticeUnknownPayment": "Nadeszła płatność za fakturę, której to urządzenie nie wystawiło, i została odrzucona. Jeśli wystawiło ją inne urządzenie z tym portfelem, poproś płacącego o anulowanie i ponowną płatność.",
-  "deskInvNoticeUnknownAnswer": "Nadeszła odpowiedź na płatność, której to urządzenie nie wysłało, i została odrzucona. Jeśli wysłało ją inne urządzenie z tym portfelem, anuluj ją tam i wyślij ponownie.",
+  "deskInvNoticeUnknownPayment": "Nadeszła płatność za rachunek, którego to urządzenie nie wystawiło. Przez dobę czeka na przekaźniku na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.",
+  "deskInvNoticeUnknownAnswer": "Nadeszła odpowiedź na płatność, której to urządzenie nie wysłało. Przez dobę czeka na przekaźniku na Twoje drugie urządzenie z tym portfelem: otwórz tam portfel, aby ją dokończyć.",
   "deskInvPayerWaitingHead": "Czeka na ciebie",
   "deskInvPayerNeedsHead": "Płatności do rozliczenia",
   "deskInvPayerReview": "Sprawdź",
@@ -3540,5 +3540,6 @@
   "deskErrRelayNoAnswer": "{relay} nie odpowiedział.",
   "deskSendRelayUnknownTitle": "Nieznany serwer Epicbox",
   "deskSendRelayUnknownText": "Aplikacja nie zna serwera {relay}. Sprawdź adres przed wysłaniem. Nadal możesz wysłać.",
-  "deskTxNowUndeliveredRelay": "Nie dostarczono. {relay} nie odpowiedział, więc odbiorca nie otrzymał płatności. Wyślij ją ponownie albo anuluj, żeby odblokować środki."
+  "deskTxNowUndeliveredRelay": "Nie dostarczono. {relay} nie odpowiedział, więc odbiorca nie otrzymał płatności. Wyślij ją ponownie albo anuluj, żeby odblokować środki.",
+  "deskInvNoticeReceiveSuperseded": "Twoje drugie urządzenie z tym portfelem przyjęło płatność, którą odbierało też to urządzenie. Użyj „Sprawdź saldo”, aby zobaczyć ją tutaj."
 }

@@ -35,6 +35,7 @@ lepic.TransactionDetails _tx({
   bool releasable = false,
   int createdAtMs = 1790000000000,
 }) => lepic.TransactionDetails(
+  outputCommits: const [],
   txId: txId,
   direction: direction,
   status: status,
@@ -301,6 +302,7 @@ void main() {
     test('an unpaid request waits for its payer; once finished it is posted (windows-05)', () {
       core.TxEntry issued(lepic.TxStatus status, {String? kernel}) => lepicTxEntry(
         lepic.TransactionDetails(
+          outputCommits: const [],
           txId: 12,
           direction: lepic.TxDirection.incoming,
           status: status,

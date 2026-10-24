@@ -24,6 +24,7 @@ class _SendingWallet extends _NoNativeWallet {
   BigInt maxAmount = BigInt.from(90);
 
   lepic.TransactionDetails get _stored => lepic.TransactionDetails(
+    outputCommits: const [],
     txId: 5,
     direction: lepic.TxDirection.outgoing,
     status: lepic.TxStatus.sent,
@@ -226,6 +227,7 @@ void main() {
       bool undelivered = true,
       lepic.TxStatus status = lepic.TxStatus.sent,
     }) => lepic.TransactionDetails(
+      outputCommits: const [],
       txId: 7,
       direction: lepic.TxDirection.outgoing,
       status: status,
@@ -627,6 +629,7 @@ void main() {
       lepic.ImportedTx? imported,
       lepic.ScanFound? found,
     }) => lepic.TransactionDetails(
+      outputCommits: const [],
       txId: 7,
       direction: direction,
       status: status,

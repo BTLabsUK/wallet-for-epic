@@ -5075,11 +5075,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      '收到一笔针对本设备未开具账单的付款，已被拒绝。如果是使用此钱包的另一台设备开具的，请让付款方取消后重新付款。';
+      '收到了一笔本设备未开具的账单的付款。它会在中继上为您使用此钱包的另一台设备保留一天：请在那台设备上打开钱包完成它。';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      '收到一条针对本设备未发送付款的回复，已被拒绝。如果是使用此钱包的另一台设备发送的，请在那里取消后重新发送。';
+      '收到了对一笔本设备未发送的付款的回复。它会在中继上为您使用此钱包的另一台设备保留一天：请在那台设备上打开钱包完成它。';
 
   @override
   String get deskInvPayerWaitingHead => '等待你处理';
@@ -12804,4 +12804,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskTxNowUndeliveredRelay(String relay) {
     return '未送达。$relay 没有响应，收款人没有收到这笔付款。请重新发送，或取消以释放资金。';
   }
+
+  @override
+  String get deskInvNoticeReceiveSuperseded =>
+      '您使用此钱包的另一台设备接收了一笔本设备也在接收的付款。请重新核对余额，在这里查看它。';
 }

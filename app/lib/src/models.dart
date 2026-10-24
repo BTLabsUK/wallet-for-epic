@@ -1681,9 +1681,15 @@ enum InvoiceEventKind {
   /// verified: inform the user only, never act on it.
   unknownInvoicePayment,
 
-  /// The answer to a send this wallet does not know arrived and was refused: another install
-  /// on the same recovery phrase may have made it. Inform only, as [unknownInvoicePayment].
+  /// The answer to a send this wallet does not know arrived: another install on the same
+  /// recovery phrase may have made it, and LEPIC leaves it on the relay for that one for a day.
+  /// Inform only, as [unknownInvoicePayment].
   unknownSendAnswer,
+
+  /// Another install on the same recovery phrase answered the same incoming payment and the
+  /// sender completed that one, so LEPIC ended this install's receive. Its coins are on the
+  /// phrase; a Recheck balance shows them here.
+  receiveSuperseded,
 }
 
 class InvoiceEvent {

@@ -1371,8 +1371,8 @@
   "deskInvNoticeIssuedExpired": "Eine von Ihnen ausgestellte Rechnung ist unbezahlt abgelaufen.",
   "deskInvNoticeWithdrawn": "{service} hat eine Rechnung zurückgezogen, bevor Sie sie beantwortet haben.",
   "deskInvNoticeExpired": "Eine Rechnung ist abgelaufen, bevor Sie sie beantwortet haben.",
-  "deskInvNoticeUnknownPayment": "Eine Zahlung für eine Rechnung, die dieses Gerät nicht ausgestellt hat, ist eingetroffen und wurde abgelehnt. Hat ein anderes Gerät mit dieser Wallet sie ausgestellt, bitten Sie den Zahler, zu stornieren und erneut zu zahlen.",
-  "deskInvNoticeUnknownAnswer": "Eine Antwort auf eine Zahlung, die dieses Gerät nicht gesendet hat, ist eingetroffen und wurde abgelehnt. Hat ein anderes Gerät mit dieser Wallet sie gesendet, stornieren Sie sie dort und senden Sie erneut.",
+  "deskInvNoticeUnknownPayment": "Eine Zahlung für eine Rechnung, die dieses Gerät nicht ausgestellt hat, ist eingetroffen. Sie bleibt einen Tag lang auf dem Relay für Ihr anderes Gerät mit dieser Wallet: Öffnen Sie die Wallet dort, um sie abzuschließen.",
+  "deskInvNoticeUnknownAnswer": "Eine Antwort auf eine Zahlung, die dieses Gerät nicht gesendet hat, ist eingetroffen. Sie bleibt einen Tag lang auf dem Relay für Ihr anderes Gerät mit dieser Wallet: Öffnen Sie die Wallet dort, um sie abzuschließen.",
   "deskInvPayerWaitingHead": "Wartet auf Sie",
   "deskInvPayerNeedsHead": "Offene Zahlungen",
   "deskInvPayerReview": "Prüfen",
@@ -3540,5 +3540,6 @@
   "deskErrRelayNoAnswer": "{relay} hat nicht geantwortet.",
   "deskSendRelayUnknownTitle": "Unbekannter Epicbox-Server",
   "deskSendRelayUnknownText": "{relay} ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden.",
-  "deskTxNowUndeliveredRelay": "Nicht zugestellt. {relay} hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben."
+  "deskTxNowUndeliveredRelay": "Nicht zugestellt. {relay} hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.",
+  "deskInvNoticeReceiveSuperseded": "Ihr anderes Gerät mit dieser Wallet hat eine Zahlung angenommen, die auch dieses Gerät empfangen hat. Tippen Sie auf „Guthaben neu prüfen“, um sie hier zu sehen."
 }

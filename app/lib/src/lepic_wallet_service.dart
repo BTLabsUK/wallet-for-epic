@@ -436,6 +436,7 @@ InvoiceEvent? lepicInvoiceEvent(lepic.WalletEvent e) {
     lepic.WalletEventKind.unknownSlate when e.slateStage == 'I2' =>
       InvoiceEventKind.unknownInvoicePayment,
     lepic.WalletEventKind.unknownSlate => InvoiceEventKind.unknownSendAnswer,
+    lepic.WalletEventKind.receiveSuperseded => InvoiceEventKind.receiveSuperseded,
     _ => null,
   };
   if (kind == null) return null;
@@ -1427,11 +1428,7 @@ class LepicWalletSession implements WalletSession {
       _guard(() => _wallet.refreshTor(networkChanged: networkChanged));
 
   @override
-  Future<void> torNetworkLost() async {
-    // TODO(bugs-26108): binding — LEPIC's `EpicWallet::tor_network_lost` (fix/android-04-tor)
-    // is not in the generated binding yet. After the regen, replace this body with:
-    //   return _guard(() => _wallet.torNetworkLost());
-  }
+  Future<void> torNetworkLost() => _guard(() => _wallet.torNetworkLost());
 
   @override
   Future<TorStatus> torStatus() async {
@@ -1774,7 +1771,8 @@ class LepicWalletSession implements WalletSession {
         case InvoiceEventKind.declined || InvoiceEventKind.expired:
           _waitingSlates.remove(event.slateId);
         case InvoiceEventKind.unknownInvoicePayment ||
-            InvoiceEventKind.unknownSendAnswer:
+            InvoiceEventKind.unknownSendAnswer ||
+            InvoiceEventKind.receiveSuperseded:
           // A relay that did not settle the message delivers it again: one notice per slate.
           if (!_unknownSlates.add(event.slateId)) return;
       }

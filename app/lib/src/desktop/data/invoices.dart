@@ -459,8 +459,12 @@ enum InvoiceNoticeKind {
   /// the same phrase may have). Unverified: names no one.
   unknownPayment,
 
-  /// An answer to a send this install did not make was refused. Unverified: names no one.
+  /// An answer to a send this install did not make arrived and was left for the install that
+  /// made it. Unverified: names no one.
   unknownAnswer,
+
+  /// Another install on the same phrase completed a payment this one was receiving too.
+  receiveSuperseded,
 }
 
 @immutable

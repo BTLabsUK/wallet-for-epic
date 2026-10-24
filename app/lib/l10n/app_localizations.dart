@@ -8373,16 +8373,16 @@ abstract class AppLocalizations {
   /// **'An invoice expired before you answered it.'**
   String get deskInvNoticeExpired;
 
-  /// Warning notice (desktop and phone): LEPIC refused the payment of an invoice it does not know; another install on the same recovery phrase may have issued it. Unverified: names no sender.
+  /// Warning notice (desktop and phone): the payment of an invoice this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have issued it. Unverified: names no sender.
   ///
   /// In en, this message translates to:
-  /// **'A payment for an invoice this device did not issue arrived and was refused. If another device with this wallet issued it, ask the payer to cancel and pay again.'**
+  /// **'A payment for an invoice this device did not issue arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.'**
   String get deskInvNoticeUnknownPayment;
 
-  /// Warning notice (desktop and phone): LEPIC refused the answer to a send it does not know; another install on the same recovery phrase may have made it. Unverified: names no sender.
+  /// Warning notice (desktop and phone): the answer to a send this install does not know arrived; LEPIC leaves it on the relay for a day for another install on the same recovery phrase, which may have made the send. Unverified: names no sender.
   ///
   /// In en, this message translates to:
-  /// **'An answer to a payment this device did not send arrived and was refused. If another device with this wallet sent it, cancel it there and send again.'**
+  /// **'An answer to a payment this device did not send arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.'**
   String get deskInvNoticeUnknownAnswer;
 
   /// Section heading on the Invoices page › To pay: invoices from trusted services that wait for the user's answer.
@@ -21397,6 +21397,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.'**
   String deskTxNowUndeliveredRelay(String relay);
+
+  /// Notice (desktop and phone): another install on the same recovery phrase answered the same incoming payment and the sender completed that one, so this install's copy of the receive ended. 'Recheck balance' is the name of the rescan action in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other device with this wallet took a payment this device was also receiving. Recheck balance to see it here.'**
+  String get deskInvNoticeReceiveSuperseded;
 }
 
 class _AppLocalizationsDelegate

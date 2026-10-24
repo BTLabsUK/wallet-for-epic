@@ -5380,11 +5380,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      'A payment for an invoice this device did not issue arrived and was refused. If another device with this wallet issued it, ask the payer to cancel and pay again.';
+      'A payment for an invoice this device did not issue arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      'An answer to a payment this device did not send arrived and was refused. If another device with this wallet sent it, cancel it there and send again.';
+      'An answer to a payment this device did not send arrived. It stays on the relay for a day for your other device with this wallet: open the wallet there to finish it.';
 
   @override
   String get deskInvPayerWaitingHead => 'Waiting for you';
@@ -13521,4 +13521,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskTxNowUndeliveredRelay(String relay) {
     return 'Not delivered. $relay did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.';
   }
+
+  @override
+  String get deskInvNoticeReceiveSuperseded =>
+      'Your other device with this wallet took a payment this device was also receiving. Recheck balance to see it here.';
 }

@@ -5453,11 +5453,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      'Eine Zahlung für eine Rechnung, die dieses Gerät nicht ausgestellt hat, ist eingetroffen und wurde abgelehnt. Hat ein anderes Gerät mit dieser Wallet sie ausgestellt, bitten Sie den Zahler, zu stornieren und erneut zu zahlen.';
+      'Eine Zahlung für eine Rechnung, die dieses Gerät nicht ausgestellt hat, ist eingetroffen. Sie bleibt einen Tag lang auf dem Relay für Ihr anderes Gerät mit dieser Wallet: Öffnen Sie die Wallet dort, um sie abzuschließen.';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
-      'Eine Antwort auf eine Zahlung, die dieses Gerät nicht gesendet hat, ist eingetroffen und wurde abgelehnt. Hat ein anderes Gerät mit dieser Wallet sie gesendet, stornieren Sie sie dort und senden Sie erneut.';
+      'Eine Antwort auf eine Zahlung, die dieses Gerät nicht gesendet hat, ist eingetroffen. Sie bleibt einen Tag lang auf dem Relay für Ihr anderes Gerät mit dieser Wallet: Öffnen Sie die Wallet dort, um sie abzuschließen.';
 
   @override
   String get deskInvPayerWaitingHead => 'Wartet auf Sie';
@@ -13673,4 +13673,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskTxNowUndeliveredRelay(String relay) {
     return 'Nicht zugestellt. $relay hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.';
   }
+
+  @override
+  String get deskInvNoticeReceiveSuperseded =>
+      'Ihr anderes Gerät mit dieser Wallet hat eine Zahlung angenommen, die auch dieses Gerät empfangen hat. Tippen Sie auf „Guthaben neu prüfen“, um sie hier zu sehen.';
 }

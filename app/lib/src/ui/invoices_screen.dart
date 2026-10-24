@@ -184,6 +184,8 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
         view(l.deskInvNoticeUnknownPayment, NoticeLevel.warning, null);
       case InvoiceEventKind.unknownSendAnswer:
         view(l.deskInvNoticeUnknownAnswer, NoticeLevel.warning, null);
+      case InvoiceEventKind.receiveSuperseded:
+        view(l.deskInvNoticeReceiveSuperseded, NoticeLevel.info, null);
     }
   }
 
