@@ -8,6 +8,8 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import '../advanced.dart';
+import '../network_gate.dart';
 import '../tor_routes.dart';
 import 'http_types.dart';
 import 'socks.dart';
@@ -26,12 +28,17 @@ enum TorNetMode {
   waiting,
 }
 
+/// [NetError.message] of a request refused in Offline.
+const String offlineError = 'Offline mode';
+
 abstract final class TorNet {
   static TorNetMode _mode = TorNetMode.direct;
   static SocksProxy? _proxy;
   static OnionLookup? _onions;
 
-  static TorNetMode get mode => _mode;
+  /// In Tor only nothing goes direct, even before the switch, forced on, is followed.
+  static TorNetMode get mode =>
+      NetGate.torOnly && _mode == TorNetMode.direct ? TorNetMode.waiting : _mode;
 
   /// How long a request held by [untilConnected] waits for tor before it fails. Zero refuses
   /// at once (tests); the phone sets its hold at launch (`main.dart`).
@@ -64,7 +71,8 @@ abstract final class TorNet {
   /// turned off), for at most [hold]; [configure] then refuses one still waiting. Nothing is
   /// opened meanwhile.
   static Future<void> untilConnected() async {
-    if (_mode != TorNetMode.waiting || hold <= Duration.zero) return;
+    if (NetGate.offline) return;
+    if (mode != TorNetMode.waiting || hold <= Duration.zero) return;
     final connected = _connected ??= Completer<void>();
     try {
       await connected.future.timeout(hold);
@@ -81,9 +89,13 @@ abstract final class TorNet {
   /// Follows the Tor switch for the app's own requests ([TorRoute.appHttp]): through tor at
   /// [proxy] once it is connected, none while it starts or failed, direct while it is off or
   /// does not cover them. Over Tor without a known [proxy] waits.
+  ///
+  /// In Tor only a switch not on yet waits ([torWayIn]); Offline is checked by [configure]
+  /// at every request, so following the switch meanwhile changes nothing that goes out.
   static void follow(TorState state, {SocksProxy? proxy}) {
-    TorSwitch.on = state != TorState.off;
-    switch (torWay(TorRoute.appHttp, state)) {
+    TorSwitch.on = state != TorState.off || NetGate.torOnly;
+    final mode = NetGate.offline ? NetworkMode.standard : NetGate.mode;
+    switch (torWayIn(TorRoute.appHttp, state, mode)) {
       case TorWay.overTor:
         proxy == null ? waitForTor() : useTor(proxy);
       case TorWay.wait || TorWay.blocked || TorWay.needsTor || TorWay.off:
@@ -93,11 +105,13 @@ abstract final class TorNet {
     }
   }
 
-  /// Makes [client] go the current way. Throws [NetError] while Tor is not connected, before
-  /// anything is opened. [loopback] clients (a node on this computer) always go direct.
+  /// Makes [client] go the current way. Throws [NetError] while Tor is not connected or the
+  /// network mode is Offline, before anything is opened. [loopback] clients (a node on this
+  /// computer) always go direct.
   static void configure(HttpClient client, {bool loopback = false}) {
     if (loopback) return;
-    switch (_mode) {
+    if (NetGate.offline) throw const NetError(offlineError);
+    switch (mode) {
       case TorNetMode.direct:
         return;
       case TorNetMode.waiting:

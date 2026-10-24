@@ -25,6 +25,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path_provider/path_provider.dart';
 
 import '../../address_format.dart' show shortAddress;
+import '../../advanced.dart' show NetworkMode;
 import '../../btlabs_keys.dart' show btlabsKeyring;
 import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
@@ -37,6 +38,7 @@ import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
 import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
+import '../../network_gate.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
@@ -94,6 +96,10 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
   l ??= englishStrings;
   if (error is DeskError) return error.text(l);
   if (error is SecretProtectError) return l.deskErrSecretProtect;
+  // The network mode refused it (network_gate.dart).
+  if (error is NetBlocked) {
+    return error.mode == NetworkMode.offline ? l.deskShellOffline : l.deskSetAdvModeTorOnlyText;
+  }
   if (error is! core.WalletError) return l.deskErrSomethingWrong;
   final detail = error.message.split('\n').first.trim();
   return switch (error.kind) {

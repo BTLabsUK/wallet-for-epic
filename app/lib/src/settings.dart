@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'advanced.dart';
 import 'app_log.dart';
 import 'l10n.dart' show appLanguages;
+import 'network_gate.dart';
 import 'providers.dart';
 import 'relay_directory.dart' show statusSite;
 import 'models.dart' show SelectionStrategy;
@@ -241,6 +242,14 @@ class AppSettings {
 Future<bool> readUseStatusSite(SecretStore store) async =>
     await store.read(AppSettingsNotifier.statusSiteKey) != 'false';
 
+/// The network mode the phone runs in now (network_gate.dart): Standard, Tor only or Offline.
+/// Before the settings load, the mode read at launch.
+final networkModeProvider = Provider<NetworkMode>(
+  (ref) => netModeOf(
+    ref.watch(appSettingsProvider.select((s) => s.value?.advanced.networkMode)) ?? NetGate.mode,
+  ),
+);
+
 final appSettingsProvider =
     AsyncNotifierProvider<AppSettingsNotifier, AppSettings>(
       AppSettingsNotifier.new,
@@ -318,7 +327,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
         );
       }
     }
-    return AppSettings(
+    final settings = AppSettings(
       themeMode: ThemeMode.values.firstWhere(
         (m) => m.name == theme,
         orElse: () => defaults.themeMode,
@@ -370,6 +379,9 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
           : splitChange == 'true',
       hiddenTips: _tipIds(tips),
     );
+    // The network mode reaches the runtime here (network_gate.dart); main.dart set it at launch.
+    NetGate.set(settings.advanced.networkMode);
+    return settings;
   }
 
   /// The ids saved under [tipsHiddenKey], a JSON list; anything else counts as none hidden.
@@ -426,11 +438,19 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   );
 
   /// The Advanced page: one feature switch or the network mode changed.
-  Future<void> setAdvanced(AdvancedPrefs prefs) async => _put(
-    _advancedPrefsKey,
-    prefs.encode(),
-    (await _current()).copyWith(advanced: prefs),
-  );
+  /// A new network mode applies at once ([NetGate], [networkModeProvider]).
+  Future<void> setAdvanced(AdvancedPrefs prefs) async {
+    await _put(
+      _advancedPrefsKey,
+      prefs.encode(),
+      (await _current()).copyWith(advanced: prefs),
+    );
+    NetGate.set(prefs.networkMode);
+  }
+
+  /// The saved network mode, read at launch before any request (`main.dart`).
+  static Future<NetworkMode> savedNetworkMode(SecretStore store) async =>
+      netModeOf(AdvancedPrefs.decode(await store.read(_advancedPrefsKey)).networkMode);
 
   Future<void> setFeature(AdvancedFeature f, bool on) async =>
       setAdvanced((await _current()).advanced.withFeature(f, on));

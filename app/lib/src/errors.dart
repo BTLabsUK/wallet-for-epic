@@ -1,4 +1,6 @@
+import 'advanced.dart' show NetworkMode;
 import 'l10n.dart';
+import 'network_gate.dart';
 import 'wallet_service.dart';
 
 /// Turns anything thrown by the wallet layer into a sentence for the user, in [l]'s language.
@@ -56,6 +58,10 @@ String describeError(AppLocalizations l, Object error) {
     };
   }
   if (error is ScanFailed) return _withDetail(l.errorScanFailed, error.detail);
+  // The network mode refused it (network_gate.dart). The Advanced page's own lines say why.
+  if (error is NetBlocked) {
+    return error.mode == NetworkMode.offline ? l.advHomeOffline : l.advModeTorOnlyLine;
+  }
   if (error is LocalizedFormatException) return error.text(l);
   if (error is FormatException) return error.message;
   return l.errorUnexpected;
