@@ -4060,6 +4060,89 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get tourPhoneSemantics => 'Wallet tour';
+
+  @override
+  String tourPhoneCounter(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String get tourPhoneSkip => 'Skip';
+
+  @override
+  String get tourPhoneBack => 'Back';
+
+  @override
+  String get tourPhoneNext => 'Next';
+
+  @override
+  String get tourPhoneWalletTitle => 'Wallet';
+
+  @override
+  String get tourPhoneWalletText =>
+      'Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.';
+
+  @override
+  String get tourPhoneSendTitle => 'Send';
+
+  @override
+  String get tourPhoneSendText =>
+      'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a transaction file to pass on. A review comes before anything leaves.';
+
+  @override
+  String get tourPhoneReceiveTitle => 'Receive';
+
+  @override
+  String get tourPhoneReceiveText =>
+      'Your Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.';
+
+  @override
+  String get tourPhoneActivityTitle => 'Activity';
+
+  @override
+  String get tourPhoneActivityText =>
+      'Every payment with its progress and details. Tap one to open it.';
+
+  @override
+  String get tourPhoneContactsTitle => 'Contacts';
+
+  @override
+  String get tourPhoneContactsText =>
+      'Saved addresses by name. Send picks from here.';
+
+  @override
+  String get tourPhoneInvoicesTitle => 'Invoices';
+
+  @override
+  String get tourPhoneInvoicesText =>
+      'Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.';
+
+  @override
+  String get tourPhonePrivacyTitle => 'Privacy & network';
+
+  @override
+  String get tourPhonePrivacyText =>
+      'Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.';
+
+  @override
+  String get tourPhoneAdvancedTitle => 'Advanced';
+
+  @override
+  String get tourPhoneAdvancedText =>
+      'Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.';
+
+  @override
+  String get tourPhoneHelpTitle => 'Help';
+
+  @override
+  String get tourPhoneHelpText =>
+      'Search the topics or send feedback. “Show the tour again” is at the bottom of the list.';
+
+  @override
+  String get tourPhoneShowAgain => 'Show the tour again';
+
+  @override
   String get homeDestActivity => 'Активность';
 
   @override

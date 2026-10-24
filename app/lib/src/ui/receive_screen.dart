@@ -33,6 +33,7 @@ import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import 'tour/tour_target.dart';
 
 /// Receive's ways of receiving, one tab each: Epicbox first and by default, Direct (the onion
 /// address, over Tor) where the app has Tor, and a payment file.
@@ -242,10 +243,13 @@ class ReceiveView extends ConsumerWidget {
       above = column([
         strip,
         if (value != null) ...[
-          _AddressRow(
-            address: value,
-            label: l.receiveAddressLabel,
-            cardKey: receiveAddressKey,
+          PhoneTourTarget(
+            id: 'tour-receive-address',
+            child: _AddressRow(
+              address: value,
+              label: l.receiveAddressLabel,
+              cardKey: receiveAddressKey,
+            ),
           ),
           const SizedBox(height: 8),
           const _EpicboxLine(),

@@ -39,6 +39,7 @@ import 'status.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
+import 'tour/phone_tour.dart';
 import 'tx_details_screen.dart';
 
 /// How often home refreshes against the node while it is on screen and the app is in front.
@@ -486,7 +487,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final demo = ref.watch(demoModeProvider);
     final scan = offersQrScan(ref);
 
-    return _Backdrop(
+    return PhoneTourAnchor(
+      child: _Backdrop(
       child: SlotScaffold(
         idle: const ShellEdge(),
         appBar: AppBar(
@@ -562,6 +564,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -622,7 +625,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: Opacity(opacity: shellFade(t), child: child),
               );
             },
-            child: column(const WalletBalance()),
+            child: column(
+              const PhoneTourTarget(id: 'tour-balance', child: WalletBalance()),
+            ),
           ),
           Expanded(
             child: RefreshIndicator(

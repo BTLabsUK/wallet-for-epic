@@ -121,6 +121,7 @@ class AppSettings {
     this.sendStrategy = SelectionStrategy.smallest,
     this.splitChange = true,
     this.hiddenTips = const {},
+    this.phoneTourSeen = false,
   });
 
   final ThemeMode themeMode;
@@ -187,6 +188,9 @@ class AppSettings {
   /// until Show tips again clears them.
   final Set<String> hiddenTips;
 
+  /// The first-unlock tour was shown (or skipped) once; it does not open by itself again.
+  final bool phoneTourSeen;
+
   /// Whether any guide is hidden, so Show tips again can be off when there is nothing to show.
   bool get tipsHidden => hiddenTips.isNotEmpty;
 
@@ -209,6 +213,7 @@ class AppSettings {
     SelectionStrategy? sendStrategy,
     bool? splitChange,
     Set<String>? hiddenTips,
+    bool? phoneTourSeen,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -233,6 +238,7 @@ class AppSettings {
     sendStrategy: sendStrategy ?? this.sendStrategy,
     splitChange: splitChange ?? this.splitChange,
     hiddenTips: hiddenTips ?? this.hiddenTips,
+    phoneTourSeen: phoneTourSeen ?? this.phoneTourSeen,
   );
 }
 
@@ -266,6 +272,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _splitChangeKey = 'app.split_change';
   static const String statusSiteKey = 'app.status_site';
   static const String tipsHiddenKey = 'app.tips_hidden';
+  static const String phoneTourSeenKey = 'app.phone_tour_seen';
   static String _exportedKey(Chain chain) =>
       'app.history_exported.${chain.name}';
   static String _dismissedKey(Chain chain) =>
@@ -293,6 +300,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final strategy = await store.read(_strategyKey);
     final splitChange = await store.read(_splitChangeKey);
     final tips = await store.read(tipsHiddenKey);
+    final tourSeen = await store.read(phoneTourSeenKey);
     final site = await store.read(statusSiteKey) != 'false';
     statusSite.on = site;
     Future<Map<String, int>> perChain(String Function(Chain) key) async => {
@@ -369,6 +377,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
           ? defaults.splitChange
           : splitChange == 'true',
       hiddenTips: _tipIds(tips),
+      phoneTourSeen: tourSeen == 'true',
     );
   }
 
@@ -437,6 +446,14 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
 
   Future<void> setNetworkMode(NetworkMode mode) async =>
       setAdvanced((await _current()).advanced.withMode(mode));
+
+  /// The first-unlock tour was shown: written first, and the state copied after the write from
+  /// what the settings are then, so a setting saved meanwhile is not undone.
+  Future<void> markPhoneTourSeen() async {
+    final store = ref.read(secretStoreProvider);
+    await store.write(phoneTourSeenKey, 'true');
+    state = AsyncData((await _current()).copyWith(phoneTourSeen: true));
+  }
 
   /// Settings › Privacy › Use status.btlabs.uk; applies at once ([statusSite]).
   Future<void> setUseStatusSite(bool on) async {

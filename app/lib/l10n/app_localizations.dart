@@ -6010,6 +6010,150 @@ abstract class AppLocalizations {
   /// **'View all {count}'**
   String homeViewAll(int count);
 
+  /// Names the tour card for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet tour'**
+  String get tourPhoneSemantics;
+
+  /// Step counter on the tour card: this step's number of the total.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String tourPhoneCounter(int current, int total);
+
+  /// Button on the tour card: ends the tour.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get tourPhoneSkip;
+
+  /// Button on the tour card: the previous step.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get tourPhoneBack;
+
+  /// Button on the tour card: the next step.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get tourPhoneNext;
+
+  /// Title of the tour card for the Wallet tab (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get tourPhoneWalletTitle;
+
+  /// Text of the tour card for the Wallet tab; one or two short sentences. Names the status icons.
+  ///
+  /// In en, this message translates to:
+  /// **'Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.'**
+  String get tourPhoneWalletText;
+
+  /// Title of the tour card for the Send tab (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get tourPhoneSendTitle;
+
+  /// Text of the tour card for the Send tab; names the two payment methods shown by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a transaction file to pass on. A review comes before anything leaves.'**
+  String get tourPhoneSendText;
+
+  /// Title of the tour card for the Receive tab (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get tourPhoneReceiveTitle;
+
+  /// Text of the tour card for the Receive tab; one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.'**
+  String get tourPhoneReceiveText;
+
+  /// Title of the tour card for the Activity screen (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get tourPhoneActivityTitle;
+
+  /// Text of the tour card for the Activity screen; one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Every payment with its progress and details. Tap one to open it.'**
+  String get tourPhoneActivityText;
+
+  /// Title of the tour card for the Contacts screen (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get tourPhoneContactsTitle;
+
+  /// Text of the tour card for the Contacts screen; one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved addresses by name. Send picks from here.'**
+  String get tourPhoneContactsText;
+
+  /// Title of the tour card for the Invoices screen (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices'**
+  String get tourPhoneInvoicesTitle;
+
+  /// Text of the tour card for the Invoices screen; one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.'**
+  String get tourPhoneInvoicesText;
+
+  /// Title of the tour card for Settings › Privacy & network (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & network'**
+  String get tourPhonePrivacyTitle;
+
+  /// Text of the tour card for Privacy & network; one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.'**
+  String get tourPhonePrivacyText;
+
+  /// Title of the tour card for Settings › Advanced (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get tourPhoneAdvancedTitle;
+
+  /// Text of the tour card for Settings › Advanced; the tour itself switches nothing on.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.'**
+  String get tourPhoneAdvancedText;
+
+  /// Title of the tour card for the Help screen (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get tourPhoneHelpTitle;
+
+  /// Text of the tour card for the Help screen; names the row that restarts the tour.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the topics or send feedback. “Show the tour again” is at the bottom of the list.'**
+  String get tourPhoneHelpText;
+
+  /// Row at the bottom of Help: starts the first-unlock tour again.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the tour again'**
+  String get tourPhoneShowAgain;
+
   /// Home destination tile: the payment history.
   ///
   /// In en, this message translates to:
