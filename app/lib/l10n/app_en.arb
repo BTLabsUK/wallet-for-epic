@@ -5462,7 +5462,7 @@
   },
   "netStatusTorOpenHint": "Opens the privacy settings",
   "@netStatusTorOpenHint": {
-    "description": "Screen reader hint on the Tor status icon: a tap opens Settings \u203a Privacy."
+    "description": "Screen reader hint on the Tor status icon: a tap opens Settings › Privacy."
   },
   "netStatusDirectOpenHint": "Opens the Direct receive address",
   "@netStatusDirectOpenHint": {
