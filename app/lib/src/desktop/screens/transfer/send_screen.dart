@@ -1470,7 +1470,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               onSubmit: _ready ? _go : null,
               child: EField(
                 label: 'Password',
-                help: 'Opened with the remembered password: this send asks it.',
+                help: 'Every send asks the wallet’s password.',
                 error: _wrong,
                 child: EPasswordInput(
                   controller: _password,
