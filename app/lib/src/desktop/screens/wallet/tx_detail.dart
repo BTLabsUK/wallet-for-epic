@@ -128,7 +128,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                     sign: !txAsked(t),
                     sizes: const [Fs.h2, Fs.h3, Fs.lg, Fs.md],
                     weight: FontWeight.w500,
-                    color: t.incoming && t.state != TxState.cancelled && !txAsked(t) ? c.ok : c.text,
+                    color: t.state == TxState.cancelled ? c.txCancelled : (txAsked(t) ? c.text : (t.incoming ? c.txReceived : c.txSent)),
                   ),
                   // Not money yet: the row's caption, by the big amount too (P-1).
                   if (txAsked(t) && t.state == TxState.waitingRecipient) Text(context.l10n.deskInvUnpaid, style: ts.caption),

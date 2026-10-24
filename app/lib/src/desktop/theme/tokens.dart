@@ -158,6 +158,9 @@ class DeskColors extends ThemeExtension<DeskColors> {
     required this.riskSoft,
     required this.info,
     required this.infoSoft,
+    required this.txSent,
+    required this.txReceived,
+    required this.txCancelled,
     required this.hover,
     required this.press,
     required this.grid,
@@ -175,14 +178,21 @@ class DeskColors extends ThemeExtension<DeskColors> {
   final Color text, dim, faint;
 
   /// The brand gold and its ink, text, soft and faint fills, and the corner ticks. Buttons,
-  /// focus, links, the mark. Never a state colour: see [ok], [info] and [s3] for selection.
+  /// focus, links, the mark. Never a state colour (see [ok], [info] and [s3] for selection),
+  /// except the sent direction, [txSent].
   final Color accent, accentDeep, accentInk, accentText, accentSoft, accentFaint, tick;
 
-  /// Status: [ok] green (connected, synced, confirmed, sent, received, success), [warn] amber
+  /// Status: [ok] green (connected, synced, confirmed, success), [warn] amber
   /// (needs attention, not ready), [risk] red (error), [info] blue (in progress: confirming,
   /// the current step, checking). Each `Soft` is the translucent fill behind it. A selected or
   /// current row takes [s3], plus an [ok] check only when it is working.
   final Color ok, okSoft, warn, warnSoft, risk, riskSoft, info, infoSoft;
+
+  /// A transaction's direction on its arrow, icon and amount (Activity, Overview, details,
+  /// Outputs, invoices, toasts). the owner's rule (26.10.8): sent gold, received green, cancelled
+  /// a neutral grey. [txSent] is the one deliberate exception to "gold only for the brand".
+  /// States keep theirs: confirming [info], failed or stalled [warn] or [risk].
+  final Color txSent, txReceived, txCancelled;
   final Color hover, press, grid, scrim, glow;
 
   @override
@@ -219,6 +229,9 @@ const DeskColors deskDark = DeskColors(
   riskSoft: Color(0x1FF08A8A),
   info: Color(0xFF8FB8E8),
   infoSoft: Color(0x1F8FB8E8),
+  txSent: Color(0xFFF6D471),
+  txReceived: Color(0xFF8AD98A),
+  txCancelled: Color(0xFF8A8A94),
   hover: Color(0x0DFFF9F9),
   press: Color(0x17FFF9F9),
   grid: Color(0x09FFF9F9),
@@ -253,6 +266,9 @@ const DeskColors deskLight = DeskColors(
   riskSoft: Color(0x14B3261E),
   info: Color(0xFF2F5F9E),
   infoSoft: Color(0x1A2F5F9E),
+  txSent: Color(0xFF815525),
+  txReceived: Color(0xFF1F7A3A),
+  txCancelled: Color(0xFF6B6B75),
   hover: Color(0x0A000000),
   press: Color(0x12000000),
   grid: Color(0x0D1C1E21),
