@@ -8525,18 +8525,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOutStrategyTitle => 'Стратегия отправок';
 
   @override
-  String get deskOutStrategyText =>
-      'Какие выходы тратит отправка. На странице «Отправить» её можно изменить для одной отправки в разделе «Дополнительно».';
-
-  @override
   String get deskOutStrategySmallest => 'Наименьшие';
 
   @override
   String get deskOutStrategyAll => 'Все';
-
-  @override
-  String get deskOutStrategyHelp =>
-      '«Наименьшие» тратит как можно меньше мелких выходов, остальные остаются доступными. «Все» тратит всё и возвращает один выход.';
 
   @override
   String get deskOutStrategyHelpTitle => '«Наименьшие» или «Все»';
@@ -13806,4 +13798,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetPhraseCopyText =>
       'Любой, у кого есть эти слова, может забрать ваши средства. Храните копию в надёжном месте.';
+
+  @override
+  String get deskOutAdvanced => 'Дополнительно';
+
+  @override
+  String get deskOutStrategyHint =>
+      'Какие выходы тратит отправка. «Наименьшие» тратит как можно меньше мелких выходов, остальные остаются доступными; «Все» тратит всё и возвращает один выход. На странице «Отправить» её можно изменить для одной отправки в разделе «Дополнительно».';
 }

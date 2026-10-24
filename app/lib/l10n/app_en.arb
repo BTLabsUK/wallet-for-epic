@@ -10600,10 +10600,6 @@
   "@deskOutStrategyTitle": {
     "description": "Setting title in the Defaults panel: which outputs a send spends."
   },
-  "deskOutStrategyText": "Which outputs a send spends. Send can change it for one send under Advanced.",
-  "@deskOutStrategyText": {
-    "description": "Setting description under 'Strategy for sends'. 'Advanced' is a section of the Send page."
-  },
   "deskOutStrategySmallest": "Smallest",
   "@deskOutStrategySmallest": {
     "description": "Option of the strategy switch: spend the smallest outputs. Narrow segment."
@@ -10611,10 +10607,6 @@
   "deskOutStrategyAll": "All",
   "@deskOutStrategyAll": {
     "description": "Option of the strategy switch: spend all outputs. Narrow segment."
-  },
-  "deskOutStrategyHelp": "Smallest spends the fewest small outputs and leaves the rest spendable. All spends everything and returns one output.",
-  "@deskOutStrategyHelp": {
-    "description": "Help text of the strategy switch, shown as a toast and as the help button's label."
   },
   "deskOutStrategyHelpTitle": "Smallest or All",
   "@deskOutStrategyHelpTitle": {
@@ -17657,5 +17649,13 @@
   "deskSetPhraseCopyText": "Anyone with these words can take your funds. Store the copy somewhere safe.",
   "@deskSetPhraseCopyText": {
     "description": "Confirm dialog text before the recovery phrase is copied to the clipboard."
+  },
+  "deskOutAdvanced": "Advanced",
+  "@deskOutAdvanced": {
+    "description": "Head of the management section under the outputs table: the intro paragraph, Split and Consolidate, the defaults for sends."
+  },
+  "deskOutStrategyHint": "Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.",
+  "@deskOutStrategyHint": {
+    "description": "Hover card behind the info icon of the Strategy for sends row (its title is deskOutStrategyHelpTitle)."
   }
 }

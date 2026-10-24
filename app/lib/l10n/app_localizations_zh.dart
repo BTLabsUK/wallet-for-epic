@@ -7794,16 +7794,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOutStrategyTitle => '发送策略';
 
   @override
-  String get deskOutStrategyText => '一笔发送花掉哪些输出。可在“发送”页的“高级”中为单次发送更改。';
-
-  @override
   String get deskOutStrategySmallest => '最小';
 
   @override
   String get deskOutStrategyAll => '全部';
-
-  @override
-  String get deskOutStrategyHelp => '“最小”花掉最少的小额输出，其余仍可使用。“全部”花掉所有输出，并返回一个输出。';
 
   @override
   String get deskOutStrategyHelpTitle => '最小还是全部';
@@ -12715,4 +12709,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetPhraseCopyText => '任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。';
+
+  @override
+  String get deskOutAdvanced => '高级';
+
+  @override
+  String get deskOutStrategyHint =>
+      '一笔发送花掉哪些输出。“最小”花掉最少的小额输出，其余仍可使用；“全部”花掉所有输出，并返回一个输出。可在“发送”页的“高级”中为单次发送更改。';
 }

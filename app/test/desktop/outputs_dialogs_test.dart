@@ -266,7 +266,8 @@ void main() {
       expect(pressed(tester, 'Split…'), isNull);
       expect(pressed(tester, 'Consolidate…'), isNull);
       expect(find.text('Wait until the send confirms (about 3 blocks).'), findsNWidgets(2));
-      expect(find.textContaining('Locked outputs are being spent'), findsOneWidget);
+      // The note sits behind the Locked tile's info icon, not in the main view.
+      expect(find.byWidgetPredicate((w) => w is EInfoHint && w.text.startsWith('Locked outputs are being spent')), findsOneWidget);
     });
 
     testWidgets('one spendable: split only', (tester) async {
@@ -302,15 +303,19 @@ void main() {
 
     testWidgets('linux-07: Split change says which change it splits', (tester) async {
       await page(tester, [out(1, 10, OutputStatus.unspent)], bal(10));
-      // The rule (smart_outputs.dart): change of at least 1 EPIC, parts of at least 0.5 EPIC.
-      expect(find.textContaining('at least 1 EPIC'), findsOneWidget);
-      expect(find.textContaining('0.5 EPIC'), findsOneWidget);
+      // The rule (smart_outputs.dart): change of at least 1 EPIC, parts of at least 0.5 EPIC,
+      // behind the row's info icon (the main view shows labels only).
+      final hint = find.byWidgetPredicate((w) => w is EInfoHint && w.text.contains('at least 1 EPIC') && w.text.contains('0.5 EPIC'));
+      expect(hint, findsOneWidget);
+      expect(find.textContaining('at least 1 EPIC'), findsNothing);
     });
 
     testWidgets('spent outputs show only when asked; tiles count outputs', (tester) async {
       await page(tester, [out(1, 10, OutputStatus.unspent), out(2, 5, OutputStatus.spent)], bal(10));
       expect(find.text('Spent'), findsNothing);
-      expect(find.text('1 output'), findsOneWidget);
+      // Spendable and Total count the one unspent output; the spent one is in no tile.
+      expect(find.text('1 output'), findsNWidgets(2));
+      expect(find.text('0 outputs'), findsNWidgets(2));
       await tester.tap(find.text('Show spent'));
       await tester.pumpAndSettle();
       expect(find.text('Spent'), findsOneWidget);

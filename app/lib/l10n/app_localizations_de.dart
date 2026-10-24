@@ -8379,18 +8379,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskOutStrategyTitle => 'Strategie für Zahlungen';
 
   @override
-  String get deskOutStrategyText =>
-      'Welche Outputs eine Zahlung verbraucht. Unter Senden › Erweitert lässt sich das für eine Zahlung ändern.';
-
-  @override
   String get deskOutStrategySmallest => 'Kleinste';
 
   @override
   String get deskOutStrategyAll => 'Alle';
-
-  @override
-  String get deskOutStrategyHelp =>
-      'Kleinste verbraucht möglichst wenige kleine Outputs und lässt den Rest verfügbar. Alle verbraucht alles und gibt einen Output zurück.';
 
   @override
   String get deskOutStrategyHelpTitle => 'Kleinste oder Alle';
@@ -13585,4 +13577,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetPhraseCopyText =>
       'Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf.';
+
+  @override
+  String get deskOutAdvanced => 'Erweitert';
+
+  @override
+  String get deskOutStrategyHint =>
+      'Welche Outputs eine Zahlung verbraucht. Kleinste verbraucht möglichst wenige kleine Outputs und lässt den Rest verfügbar; Alle verbraucht alles und gibt einen Output zurück. Unter Senden › Erweitert lässt sich das für eine Zahlung ändern.';
 }

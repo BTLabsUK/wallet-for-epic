@@ -8103,18 +8103,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOutStrategyTitle => 'วิธีเลือกเอาต์พุตตอนส่ง';
 
   @override
-  String get deskOutStrategyText =>
-      'การส่งจะใช้เอาต์พุตใด หน้า ส่ง เปลี่ยนได้เฉพาะครั้งนั้นใต้ ขั้นสูง';
-
-  @override
   String get deskOutStrategySmallest => 'เล็กสุด';
 
   @override
   String get deskOutStrategyAll => 'ทั้งหมด';
-
-  @override
-  String get deskOutStrategyHelp =>
-      'เล็กสุด ใช้เอาต์พุตเล็กให้น้อยที่สุดและเหลือส่วนอื่นไว้ใช้ได้ ทั้งหมด ใช้ทุกเอาต์พุตและคืนเป็นเอาต์พุตเดียว';
 
   @override
   String get deskOutStrategyHelpTitle => 'เล็กสุด หรือ ทั้งหมด';
@@ -13177,4 +13169,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetPhraseCopyText =>
       'ใครมีคำเหล่านี้ก็นำเงินของคุณไปได้ เก็บสำเนาไว้ในที่ปลอดภัย';
+
+  @override
+  String get deskOutAdvanced => 'ขั้นสูง';
+
+  @override
+  String get deskOutStrategyHint =>
+      'การส่งจะใช้เอาต์พุตใด เล็กสุด ใช้เอาต์พุตเล็กให้น้อยที่สุดและเหลือส่วนอื่นไว้ใช้ได้ ทั้งหมด ใช้ทุกเอาต์พุตและคืนเป็นเอาต์พุตเดียว หน้า ส่ง เปลี่ยนได้เฉพาะครั้งนั้นใต้ ขั้นสูง';
 }

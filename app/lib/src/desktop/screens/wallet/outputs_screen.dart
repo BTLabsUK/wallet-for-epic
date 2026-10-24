@@ -37,29 +37,39 @@ String shortCommitment(String s) => s.length <= 13 ? s : '${s.substring(0, 6)}â€
 String _group(AppLocalizations l, int n) => localInt(l, n);
 
 /// How many outputs of each part of the balance: spendable; confirming and awaiting
-/// finalization; immature and mining; locked.
-({int spendable, int confirming, int immature, int locked}) outputCounts(List<Output> all) {
-  var s = 0, c = 0, i = 0, l = 0;
+/// finalization; immature and mining; locked; and in Total (the outputs its value adds up:
+/// not the ones awaiting finalization, which are in no figure but Confirming).
+typedef OutputCounts = ({int spendable, int confirming, int immature, int locked, int total});
+
+OutputCounts outputCounts(List<Output> all) {
+  var s = 0, c = 0, i = 0, l = 0, t = 0;
   for (final o in all) {
     switch (o.word) {
       case OutputWord.spendable:
         s++;
-      case OutputWord.confirming || OutputWord.finalizing:
+        t++;
+      case OutputWord.confirming:
+        c++;
+        t++;
+      case OutputWord.finalizing:
         c++;
       case OutputWord.immature || OutputWord.mining:
         i++;
+        t++;
       case OutputWord.locked:
         l++;
+        t++;
       // An unpaid invoice's output is in no part of the balance.
       case OutputWord.unpaidInvoice || OutputWord.spent:
         break;
     }
   }
-  return (spendable: s, confirming: c, immature: i, locked: l);
+  return (spendable: s, confirming: c, immature: i, locked: l, total: t);
 }
 
-/// Outputs (F13): the pieces the balance is made of, Split and Consolidate, the defaults
-/// Send uses (strategy, Split change), and every output with its status and transaction.
+/// Outputs (F13): the balance by part, every output with its status and transaction, then
+/// Advanced: what outputs are, Split and Consolidate, and the defaults Send uses (strategy,
+/// Split change). Tiles, table, management, as on the phone.
 class OutputsScreen extends ConsumerStatefulWidget {
   const OutputsScreen({super.key, this.arg});
 
@@ -186,33 +196,22 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (balance != null) ...[
-            _Tiles(balance: balance, counts: all == null ? null : counts),
-            if (balance.locked > 0) ...[
-              SizedBox(height: Sp.x2),
-              Text(
-                l.deskOutLockedNote,
-                style: context.ts.caption,
-              ),
-            ],
-            SizedBox(height: Sp.x4),
-          ],
-          Text(
-            l.deskOutIntro,
-            style: context.ts.bodyDim,
-          ),
+          if (balance != null) ...[_Tiles(balance: balance, counts: all == null ? null : counts), SizedBox(height: Sp.x4)],
+          ..._list(value, counts),
+          // The management part, after the table: what outputs are, Split and Consolidate,
+          // the defaults for sends.
+          ESectionHead(l.deskOutAdvanced, top: Sp.x8),
+          Text(l.deskOutIntro, style: context.ts.bodyDim),
           SizedBox(height: Sp.x4),
           _cards(balance, counts, loaded: all != null),
           SizedBox(height: Sp.x4),
           const _DefaultsBox(),
-          SizedBox(height: Sp.x6),
-          ..._list(value, counts),
         ],
       ),
     );
   }
 
-  Widget _cards(Balance? b, ({int spendable, int confirming, int immature, int locked}) counts, {required bool loaded}) {
+  Widget _cards(Balance? b, OutputCounts counts, {required bool loaded}) {
     final l = context.l10n;
     final locked = (b?.locked ?? 0) > 0 || counts.locked > 0;
     final wait = l.deskOutCardWait;
@@ -272,7 +271,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     );
   }
 
-  List<Widget> _list(AsyncValue<List<Output>> value, ({int spendable, int confirming, int immature, int locked}) counts) {
+  List<Widget> _list(AsyncValue<List<Output>> value, OutputCounts counts) {
     final c = context.dc;
     final l = context.l10n;
     final all = value.value;
@@ -431,14 +430,16 @@ class _Tiles extends StatelessWidget {
   const _Tiles({required this.balance, required this.counts});
 
   final Balance balance;
-  final ({int spendable, int confirming, int immature, int locked})? counts;
+  final OutputCounts? counts;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    Widget tile(String label, Widget? mark, int nano, int? n, {bool total = false}) => Semantics(
+    // Label, then "N outputs", then the value, as the phone's tiles. [hint] puts an
+    // explanation behind an info icon after the label (the Locked tile while outputs are locked).
+    Widget tile(String label, Widget? mark, int nano, int? n, {bool total = false, String? hint}) => Semantics(
       container: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,18 +447,22 @@ class _Tiles extends StatelessWidget {
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
-            children: [?mark, if (mark != null) SizedBox(width: Sp.x2), Text(label, style: ts.small)],
-          ),
-          SizedBox(height: Sp.x1),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
             children: [
-              EMoney(nano, size: Fs.lg, unit: total, weight: total ? FontWeight.w600 : null, color: nano == 0 ? c.faint : c.text),
-              if (n != null) ...[SizedBox(width: Sp.x2), Text(l.deskOutCount(n), style: ts.caption)],
+              ?mark,
+              if (mark != null) SizedBox(width: Sp.x2),
+              Text(label, style: ts.small),
+              if (hint != null) ...[SizedBox(width: Sp.x1), EInfoHint(hint)],
             ],
           ),
+          SizedBox(height: Sp.x1),
+          SizedBox(
+            height: 24.u,
+            child: n == null
+                ? Align(alignment: AlignmentDirectional.centerStart, child: SizedBox.square(dimension: 14.u, child: const ESpinner()))
+                : Text(l.deskOutCount(n), style: ts.body.copyWith(fontSize: Fs.lg, fontWeight: FontWeight.w600, color: n == 0 ? c.dim : c.text)),
+          ),
+          SizedBox(height: 2.u),
+          EMoney(nano, size: Fs.sm, unit: total, weight: total ? FontWeight.w600 : null, color: nano == 0 ? c.faint : c.dim),
         ],
       ),
     );
@@ -474,8 +479,8 @@ class _Tiles extends StatelessWidget {
           // as the phone's: they are in no other figure and not in Total.
           tile(l.deskOutTileConfirming, ERing(confirmations: 1, size: icon), b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
           if (b.immature > 0) tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.warn), b.immature, n?.immature),
-          tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b.locked, n?.locked),
-          tile(l.deskOutTileTotal, null, b.total, null, total: true),
+          tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b.locked, n?.locked, hint: b.locked > 0 ? l.deskOutLockedNote : null),
+          tile(l.deskOutTileTotal, null, b.total, n?.total, total: true),
         ],
       ),
     );
@@ -545,35 +550,31 @@ class _DefaultsBox extends ConsumerWidget {
     final l = context.l10n;
     final prefs = ref.watch(deskOutputPrefsProvider).value ?? const OutputPrefs();
     final save = ref.read(deskOutputPrefsProvider.notifier).save;
+    final c = context.dc;
     return EPanel(
       title: l.deskOutDefaultsTitle,
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ESetRow(
             title: l.deskOutStrategyTitle,
-            text: l.deskOutStrategyText,
-            control: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ESegmented<SelectionStrategy>(
-                  segments: [ESegment(SelectionStrategy.smallest, l.deskOutStrategySmallest), ESegment(SelectionStrategy.all, l.deskOutStrategyAll)],
-                  value: prefs.strategy,
-                  onChanged: (v) => save(OutputPrefs(strategy: v, smartOutputs: prefs.smartOutputs)),
-                ),
-                SizedBox(width: Sp.x1),
-                EIconButton(
-                  icon: EIcons.help,
-                  label: l.deskOutStrategyHelp,
-                  tabStop: false,
-                  onPressed: () => showEToast(context, l.deskOutStrategyHelpTitle, text: l.deskOutStrategyHelp, tone: ETone.neutral),
-                ),
-              ],
+            hint: l.deskOutStrategyHint,
+            hintTitle: l.deskOutStrategyHelpTitle,
+            hintIcon: EIcons.coins,
+            control: ERowControl(
+              child: ESegmented<SelectionStrategy>(
+                stretch: true,
+                segments: [ESegment(SelectionStrategy.smallest, l.deskOutStrategySmallest), ESegment(SelectionStrategy.all, l.deskOutStrategyAll)],
+                value: prefs.strategy,
+                onChanged: (v) => save(OutputPrefs(strategy: v, smartOutputs: prefs.smartOutputs)),
+              ),
             ),
           ),
+          Divider(height: 1, thickness: 1, color: c.line),
           ESetRow(
             title: l.deskOutSplitChangeTitle,
-            text: l.deskOutSplitChangeText,
+            hint: l.deskOutSplitChangeText,
             control: ESwitch(
               value: prefs.smartOutputs,
               semanticLabel: l.deskOutSplitChangeTitle,

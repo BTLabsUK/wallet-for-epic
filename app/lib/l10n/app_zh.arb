@@ -2017,10 +2017,8 @@
   "deskOutTileTotal": "总额",
   "deskOutDefaultsTitle": "发送的默认设置",
   "deskOutStrategyTitle": "发送策略",
-  "deskOutStrategyText": "一笔发送花掉哪些输出。可在“发送”页的“高级”中为单次发送更改。",
   "deskOutStrategySmallest": "最小",
   "deskOutStrategyAll": "全部",
-  "deskOutStrategyHelp": "“最小”花掉最少的小额输出，其余仍可使用。“全部”花掉所有输出，并返回一个输出。",
   "deskOutStrategyHelpTitle": "最小还是全部",
   "deskOutSplitChangeTitle": "拆分找零",
   "deskOutSplitChangeText": "当一笔发送会使可用输出少于 3 个且找零至少为 1 EPIC 时，找零会以最多 4 个输出返回，每个至少 0.5 EPIC。每多一个输出花费 0.004 EPIC。",
@@ -3519,5 +3517,7 @@
   "deskSendMessageBytes": "{used} / {max} 字节",
   "deskSendMessageTooLong": "消息超过 {max} 字节，请缩短。",
   "deskSetPhraseCopyTitle": "复制助记词？",
-  "deskSetPhraseCopyText": "任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。"
+  "deskSetPhraseCopyText": "任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。",
+  "deskOutAdvanced": "高级",
+  "deskOutStrategyHint": "一笔发送花掉哪些输出。“最小”花掉最少的小额输出，其余仍可使用；“全部”花掉所有输出，并返回一个输出。可在“发送”页的“高级”中为单次发送更改。"
 }
