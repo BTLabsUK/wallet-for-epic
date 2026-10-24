@@ -7514,7 +7514,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSendSummary => 'Übersicht';
 
   @override
-  String get deskSendNetworkFee => 'Netzwerkgebühr';
+  String get deskSendNetworkFee => 'Gebühr';
 
   @override
   String get deskSendTotal => 'Gesamt';
@@ -7851,7 +7851,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskActNotUpdated => 'Nicht aktualisiert';
 
   @override
-  String get deskActSearchHint => 'Adresse oder Slate-ID';
+  String get deskActSearchHint => 'Adresse, Slate-ID';
 
   @override
   String get deskActSearchHintEmpty => 'Noch nichts zu suchen';
@@ -11760,7 +11760,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Startet den Node beim Start der App und hält ihn synchron, solange die App geöffnet ist.';
 
   @override
-  String get deskSetLnodeViewLog => 'Node-Protokoll anzeigen';
+  String get deskSetLnodeViewLog => 'Protokoll anzeigen';
 
   @override
   String get deskSetLnodeChangeFolder => 'Ordner ändern…';
@@ -11857,7 +11857,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskSetLnodeThisSession(String size) {
-    return '+$size in dieser Sitzung';
+    return '+$size seit Start';
   }
 
   @override
