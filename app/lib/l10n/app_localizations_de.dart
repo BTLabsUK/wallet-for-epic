@@ -4551,19 +4551,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get serverMyRelays => 'Meine Server';
 
   @override
-  String get serverMenuRemove => 'Aus meiner Liste entfernen';
-
-  @override
   String get serverMenuDelete => 'Löschen';
 
   @override
   String settingsStateTor(String state) {
     return 'Tor $state';
   }
-
-  @override
-  String get serverRemoveInUse =>
-      'In Verwendung. Wählen Sie zuerst einen anderen Server.';
 
   @override
   String get serverSupportsNotifications => 'Unterstützt Benachrichtigungen';
@@ -4594,20 +4587,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get serverEpicboxTitle => 'Epicbox';
 
   @override
-  String get serverSearchHint => 'Node suchen oder Adresse eingeben';
-
-  @override
-  String serverUseAddress(String address) {
-    return '$address verwenden';
-  }
-
-  @override
-  String get serverTesting => 'Wird geprüft…';
-
-  @override
-  String serverTestAnswer(String height, String version) {
-    return 'Block $height · v$version';
-  }
+  String get serverSearchHint => 'Node suchen';
 
   @override
   String serverTestFailed(String error) {
@@ -4693,6 +4673,40 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get serverOtherRelay => 'Anderer Server, host oder host:port';
+
+  @override
+  String get serverMyListNote =>
+      'Der verwendete und die, die Sie hinzugefügt haben.';
+
+  @override
+  String get serverPublicNote => 'Zum Wechseln antippen.';
+
+  @override
+  String get serverOtherNode => 'Anderer Node, host oder host:port';
+
+  @override
+  String get serverOtherNodeInvalid =>
+      'Geben Sie eine Node-Adresse ein, z. B. node.example.com:3413';
+
+  @override
+  String get serverAdd => 'Hinzufügen';
+
+  @override
+  String get serverAddedNode => 'Zu Meine Nodes hinzugefügt.';
+
+  @override
+  String get serverAddedRelay => 'Zu Meine Server hinzugefügt.';
+
+  @override
+  String serverDeleted(String host) {
+    return '$host gelöscht.';
+  }
+
+  @override
+  String get serverAlreadyInUse => 'Wird bereits verwendet.';
+
+  @override
+  String get serverNoMatch => 'Keine Treffer.';
 
   @override
   String get serverFactHeight => 'Höhe';

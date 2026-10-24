@@ -4389,18 +4389,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverMyRelays => 'เซิร์ฟเวอร์ของฉัน';
 
   @override
-  String get serverMenuRemove => 'นำออกจากรายการของฉัน';
-
-  @override
   String get serverMenuDelete => 'ลบ';
 
   @override
   String settingsStateTor(String state) {
     return 'Tor $state';
   }
-
-  @override
-  String get serverRemoveInUse => 'กำลังใช้งานอยู่ เลือกเซิร์ฟเวอร์อื่นก่อน';
 
   @override
   String get serverSupportsNotifications => 'รองรับการแจ้งเตือน';
@@ -4430,20 +4424,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverEpicboxTitle => 'Epicbox';
 
   @override
-  String get serverSearchHint => 'ค้นหาหรือพิมพ์ที่อยู่โหนด';
-
-  @override
-  String serverUseAddress(String address) {
-    return 'ใช้ $address';
-  }
-
-  @override
-  String get serverTesting => 'กำลังทดสอบ…';
-
-  @override
-  String serverTestAnswer(String height, String version) {
-    return 'บล็อก $height · v$version';
-  }
+  String get serverSearchHint => 'ค้นหาโหนด';
 
   @override
   String serverTestFailed(String error) {
@@ -4528,6 +4509,39 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get serverOtherRelay => 'เซิร์ฟเวอร์อื่น host หรือ host:port';
+
+  @override
+  String get serverMyListNote => 'ตัวที่ใช้อยู่และที่เพิ่มเอง';
+
+  @override
+  String get serverPublicNote => 'แตะเพื่อเปลี่ยนไปใช้ตัวนั้น';
+
+  @override
+  String get serverOtherNode => 'โหนดอื่น host หรือ host:port';
+
+  @override
+  String get serverOtherNodeInvalid =>
+      'ใส่ที่อยู่โหนด เช่น node.example.com:3413';
+
+  @override
+  String get serverAdd => 'เพิ่ม';
+
+  @override
+  String get serverAddedNode => 'เพิ่มในโหนดของฉันแล้ว';
+
+  @override
+  String get serverAddedRelay => 'เพิ่มในเซิร์ฟเวอร์ของฉันแล้ว';
+
+  @override
+  String serverDeleted(String host) {
+    return 'ลบ $host แล้ว';
+  }
+
+  @override
+  String get serverAlreadyInUse => 'ใช้อยู่แล้ว';
+
+  @override
+  String get serverNoMatch => 'ไม่พบรายการที่ตรงกัน';
 
   @override
   String get serverFactHeight => 'ความสูงบล็อก';

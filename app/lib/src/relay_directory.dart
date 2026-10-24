@@ -13,8 +13,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'models.dart' show Chain;
 import 'net/http.dart';
 import 'network.dart';
+import 'push_registration.dart' show PushRegistration;
 
 /// The monitor's status endpoint. Override with `--dart-define=WFE_STATUS_URL=...`.
 const String relayStatusUrl = String.fromEnvironment(
@@ -450,11 +452,30 @@ final relayDirectoryProvider = Provider<RelayDirectory>(
   (ref) => HttpRelayDirectory(),
 );
 
-/// Relay health for [NetworkPreset.statusChain]. Empty for usernet.
+/// Relay health for [NetworkPreset.statusChain]. Empty for usernet. The push relay
+/// ([PushRegistration.relayHost]) is one host serving both chains, and the monitor lists it
+/// under floonet only: on mainnet its floonet entry stands in when the mainnet list has none,
+/// so it does not look dead beside the others. A failed floonet fetch leaves it unknown.
 final relayStatusProvider = FutureProvider.autoDispose
     .family<List<RelayStatus>, NetworkPreset>((ref, preset) async {
       final chain = preset.statusChain;
       if (chain == null) return const [];
       ref.watch(useStatusSiteProvider);
-      return ref.watch(relayDirectoryProvider).relays(chain);
+      final directory = ref.watch(relayDirectoryProvider);
+      final list = await directory.relays(chain);
+      const push = PushRegistration.relayHost;
+      if (preset.chain != Chain.mainnet ||
+          list.any((r) => r.relay.host == push)) {
+        return list;
+      }
+      try {
+        final floonet = await directory.relays('floonet');
+        return [
+          ...list,
+          for (final r in floonet)
+            if (r.relay.host == push) r,
+        ];
+      } catch (_) {
+        return list;
+      }
     });

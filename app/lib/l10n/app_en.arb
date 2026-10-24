@@ -5613,15 +5613,11 @@
   },
   "serverMyRelays": "My servers",
   "@serverMyRelays": {
-    "description": "Epicbox picker section head: relays the wallet has connected to that the public list does not have, each with a remove button. Beside the 'Public servers' head."
-  },
-  "serverMenuRemove": "Remove from my list",
-  "@serverMenuRemove": {
-    "description": "Tooltip of the down arrow on a public server in the My nodes or My servers list, and the one item of the popup it opens: the server goes back to the public list."
+    "description": "Epicbox picker section head: the relay in use and the relays the user typed in. Beside the 'Public servers' head."
   },
   "serverMenuDelete": "Delete",
   "@serverMenuDelete": {
-    "description": "Tooltip of the bin on a typed-in server in the My nodes or My servers list, and the one item of the popup it opens: the server is deleted."
+    "description": "Tooltip of the bin on a typed-in server in the My nodes or My servers list that is not in use, and the one item of the popup it opens: the server is deleted."
   },
   "settingsStateTor": "Tor {state}",
   "@settingsStateTor": {
@@ -5632,10 +5628,6 @@
         "example": "off"
       }
     }
-  },
-  "serverRemoveInUse": "In use. Pick another server first.",
-  "@serverRemoveInUse": {
-    "description": "Tooltip of the disabled arrow or bin on the My list row of the server the wallet uses now: why it cannot be removed or deleted."
   },
   "serverSupportsNotifications": "Supports notifications",
   "@serverSupportsNotifications": {
@@ -5673,34 +5665,9 @@
   "@serverEpicboxTitle": {
     "description": "Epicbox picker sheet title."
   },
-  "serverSearchHint": "Find or type a node address",
+  "serverSearchHint": "Find a node",
   "@serverSearchHint": {
-    "description": "Node picker search field."
-  },
-  "serverUseAddress": "Use {address}",
-  "@serverUseAddress": {
-    "description": "Row offering a typed node address that matches no list row.",
-    "placeholders": {
-      "address": {
-        "type": "String"
-      }
-    }
-  },
-  "serverTesting": "Testing…",
-  "@serverTesting": {
-    "description": "While a typed node address is being tested."
-  },
-  "serverTestAnswer": "Block {height} · v{version}",
-  "@serverTestAnswer": {
-    "description": "The typed node answered: its block and version.",
-    "placeholders": {
-      "height": {
-        "type": "String"
-      },
-      "version": {
-        "type": "String"
-      }
-    }
+    "description": "Hint of the node picker's search field: filters both lists by host or operator. A node not listed is added in the Other node field at the foot."
   },
   "serverTestFailed": "No answer. {error}",
   "@serverTestFailed": {
@@ -5713,7 +5680,7 @@
   },
   "serverMyNodes": "My nodes",
   "@serverMyNodes": {
-    "description": "Node picker section head: starred and typed nodes."
+    "description": "Node picker section head: the node in use and the nodes the user typed in. Beside the 'Public nodes' head."
   },
   "serverPublicNodes": "Public nodes",
   "@serverPublicNodes": {
@@ -5814,7 +5781,53 @@
   },
   "serverOtherRelay": "Other server, host or host:port",
   "@serverOtherRelay": {
-    "description": "Epicbox picker field for a relay not in the list."
+    "description": "Epicbox picker field at the foot of the list for a relay not in the lists. Beside the Add button."
+  },
+  "serverMyListNote": "The one in use and the ones you added.",
+  "@serverMyListNote": {
+    "description": "One line under the My nodes / My servers head: what the group holds. The public server in use is listed there and leaves it by itself on a switch to another public one."
+  },
+  "serverPublicNote": "Tap one to switch to it.",
+  "@serverPublicNote": {
+    "description": "One line under the Public nodes / Public servers head: what a tap does (it selects the row; the Switch button at the foot confirms)."
+  },
+  "serverOtherNode": "Other node, host or host:port",
+  "@serverOtherNode": {
+    "description": "Node picker field at the foot of the list for a node not in the lists; https:// is added when left out. Beside the Add button."
+  },
+  "serverOtherNodeInvalid": "Enter a node address such as node.example.com:3413",
+  "@serverOtherNodeInvalid": {
+    "description": "Error under the Other node field when the text is not a host, host:port or http(s) address."
+  },
+  "serverAdd": "Add",
+  "@serverAdd": {
+    "description": "Button beside the Other node / Other server field: the typed server joins My nodes or My servers and is offered for a switch."
+  },
+  "serverAddedNode": "Added to My nodes.",
+  "@serverAddedNode": {
+    "description": "Line at the node sheet's foot for a few seconds after Add. 'My nodes' is the section head serverMyNodes."
+  },
+  "serverAddedRelay": "Added to My servers.",
+  "@serverAddedRelay": {
+    "description": "Line at the Epicbox sheet's foot for a few seconds after Add. 'My servers' is the section head serverMyRelays."
+  },
+  "serverDeleted": "Deleted {host}.",
+  "@serverDeleted": {
+    "description": "Line at the sheet's foot for a few seconds after the bin's Delete on a typed-in server.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "relay.example.org"
+      }
+    }
+  },
+  "serverAlreadyInUse": "Already in use.",
+  "@serverAlreadyInUse": {
+    "description": "Line at the sheet's foot after a tap on the row of the server the wallet uses now: there is nothing to switch to."
+  },
+  "serverNoMatch": "No match.",
+  "@serverNoMatch": {
+    "description": "Under the node picker's search field when no node's host or operator contains the text."
   },
   "serverFactHeight": "Height",
   "@serverFactHeight": {

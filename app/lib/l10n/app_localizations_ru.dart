@@ -4648,19 +4648,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverMyRelays => 'Мои серверы';
 
   @override
-  String get serverMenuRemove => 'Убрать из моего списка';
-
-  @override
   String get serverMenuDelete => 'Удалить';
 
   @override
   String settingsStateTor(String state) {
     return 'Tor $state';
   }
-
-  @override
-  String get serverRemoveInUse =>
-      'Используется. Сначала выберите другой сервер.';
 
   @override
   String get serverSupportsNotifications => 'Поддерживает уведомления';
@@ -4690,20 +4683,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverEpicboxTitle => 'Epicbox';
 
   @override
-  String get serverSearchHint => 'Найдите или введите адрес узла';
-
-  @override
-  String serverUseAddress(String address) {
-    return 'Использовать $address';
-  }
-
-  @override
-  String get serverTesting => 'Проверка…';
-
-  @override
-  String serverTestAnswer(String height, String version) {
-    return 'Блок $height · v$version';
-  }
+  String get serverSearchHint => 'Найдите узел';
 
   @override
   String serverTestFailed(String error) {
@@ -4791,6 +4771,39 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get serverOtherRelay => 'Другой сервер, host или host:port';
+
+  @override
+  String get serverMyListNote => 'Используемый сейчас и добавленные вами.';
+
+  @override
+  String get serverPublicNote => 'Нажмите, чтобы переключиться.';
+
+  @override
+  String get serverOtherNode => 'Другой узел, host или host:port';
+
+  @override
+  String get serverOtherNodeInvalid =>
+      'Введите адрес узла, например node.example.com:3413';
+
+  @override
+  String get serverAdd => 'Добавить';
+
+  @override
+  String get serverAddedNode => 'Добавлено в «Мои узлы».';
+
+  @override
+  String get serverAddedRelay => 'Добавлено в «Мои серверы».';
+
+  @override
+  String serverDeleted(String host) {
+    return 'Удалено: $host.';
+  }
+
+  @override
+  String get serverAlreadyInUse => 'Уже используется.';
+
+  @override
+  String get serverNoMatch => 'Ничего не найдено.';
 
   @override
   String get serverFactHeight => 'Высота';

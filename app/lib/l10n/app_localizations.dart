@@ -6933,19 +6933,13 @@ abstract class AppLocalizations {
   /// **'Network status'**
   String get netStatusTitle;
 
-  /// Epicbox picker section head: relays the wallet has connected to that the public list does not have, each with a remove button. Beside the 'Public servers' head.
+  /// Epicbox picker section head: the relay in use and the relays the user typed in. Beside the 'Public servers' head.
   ///
   /// In en, this message translates to:
   /// **'My servers'**
   String get serverMyRelays;
 
-  /// Tooltip of the down arrow on a public server in the My nodes or My servers list, and the one item of the popup it opens: the server goes back to the public list.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove from my list'**
-  String get serverMenuRemove;
-
-  /// Tooltip of the bin on a typed-in server in the My nodes or My servers list, and the one item of the popup it opens: the server is deleted.
+  /// Tooltip of the bin on a typed-in server in the My nodes or My servers list that is not in use, and the one item of the popup it opens: the server is deleted.
   ///
   /// In en, this message translates to:
   /// **'Delete'**
@@ -6956,12 +6950,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tor {state}'**
   String settingsStateTor(String state);
-
-  /// Tooltip of the disabled arrow or bin on the My list row of the server the wallet uses now: why it cannot be removed or deleted.
-  ///
-  /// In en, this message translates to:
-  /// **'In use. Pick another server first.'**
-  String get serverRemoveInUse;
 
   /// Screen reader words for the bell icon on the Epicbox relay that can send push notifications.
   ///
@@ -7017,29 +7005,11 @@ abstract class AppLocalizations {
   /// **'Epicbox'**
   String get serverEpicboxTitle;
 
-  /// Node picker search field.
+  /// Hint of the node picker's search field: filters both lists by host or operator. A node not listed is added in the Other node field at the foot.
   ///
   /// In en, this message translates to:
-  /// **'Find or type a node address'**
+  /// **'Find a node'**
   String get serverSearchHint;
-
-  /// Row offering a typed node address that matches no list row.
-  ///
-  /// In en, this message translates to:
-  /// **'Use {address}'**
-  String serverUseAddress(String address);
-
-  /// While a typed node address is being tested.
-  ///
-  /// In en, this message translates to:
-  /// **'Testing…'**
-  String get serverTesting;
-
-  /// The typed node answered: its block and version.
-  ///
-  /// In en, this message translates to:
-  /// **'Block {height} · v{version}'**
-  String serverTestAnswer(String height, String version);
 
   /// The typed node did not answer; {error} says why.
   ///
@@ -7047,7 +7017,7 @@ abstract class AppLocalizations {
   /// **'No answer. {error}'**
   String serverTestFailed(String error);
 
-  /// Node picker section head: starred and typed nodes.
+  /// Node picker section head: the node in use and the nodes the user typed in. Beside the 'Public nodes' head.
   ///
   /// In en, this message translates to:
   /// **'My nodes'**
@@ -7161,11 +7131,71 @@ abstract class AppLocalizations {
   /// **'Your address changes; senders need the new one.'**
   String get serverRelaySwitchNote;
 
-  /// Epicbox picker field for a relay not in the list.
+  /// Epicbox picker field at the foot of the list for a relay not in the lists. Beside the Add button.
   ///
   /// In en, this message translates to:
   /// **'Other server, host or host:port'**
   String get serverOtherRelay;
+
+  /// One line under the My nodes / My servers head: what the group holds. The public server in use is listed there and leaves it by itself on a switch to another public one.
+  ///
+  /// In en, this message translates to:
+  /// **'The one in use and the ones you added.'**
+  String get serverMyListNote;
+
+  /// One line under the Public nodes / Public servers head: what a tap does (it selects the row; the Switch button at the foot confirms).
+  ///
+  /// In en, this message translates to:
+  /// **'Tap one to switch to it.'**
+  String get serverPublicNote;
+
+  /// Node picker field at the foot of the list for a node not in the lists; https:// is added when left out. Beside the Add button.
+  ///
+  /// In en, this message translates to:
+  /// **'Other node, host or host:port'**
+  String get serverOtherNode;
+
+  /// Error under the Other node field when the text is not a host, host:port or http(s) address.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a node address such as node.example.com:3413'**
+  String get serverOtherNodeInvalid;
+
+  /// Button beside the Other node / Other server field: the typed server joins My nodes or My servers and is offered for a switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get serverAdd;
+
+  /// Line at the node sheet's foot for a few seconds after Add. 'My nodes' is the section head serverMyNodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to My nodes.'**
+  String get serverAddedNode;
+
+  /// Line at the Epicbox sheet's foot for a few seconds after Add. 'My servers' is the section head serverMyRelays.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to My servers.'**
+  String get serverAddedRelay;
+
+  /// Line at the sheet's foot for a few seconds after the bin's Delete on a typed-in server.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {host}.'**
+  String serverDeleted(String host);
+
+  /// Line at the sheet's foot after a tap on the row of the server the wallet uses now: there is nothing to switch to.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in use.'**
+  String get serverAlreadyInUse;
+
+  /// Under the node picker's search field when no node's host or operator contains the text.
+  ///
+  /// In en, this message translates to:
+  /// **'No match.'**
+  String get serverNoMatch;
 
   /// Current node card label: the node's block height.
   ///

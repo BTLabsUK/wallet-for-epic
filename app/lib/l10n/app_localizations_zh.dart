@@ -4248,18 +4248,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverMyRelays => '我的服务器';
 
   @override
-  String get serverMenuRemove => '从我的列表移除';
-
-  @override
   String get serverMenuDelete => '删除';
 
   @override
   String settingsStateTor(String state) {
     return 'Tor $state';
   }
-
-  @override
-  String get serverRemoveInUse => '正在使用。请先选择其他服务器。';
 
   @override
   String get serverSupportsNotifications => '支持通知';
@@ -4289,20 +4283,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverEpicboxTitle => 'Epicbox';
 
   @override
-  String get serverSearchHint => '查找或输入节点地址';
-
-  @override
-  String serverUseAddress(String address) {
-    return '使用 $address';
-  }
-
-  @override
-  String get serverTesting => '正在测试…';
-
-  @override
-  String serverTestAnswer(String height, String version) {
-    return '区块 $height · v$version';
-  }
+  String get serverSearchHint => '查找节点';
 
   @override
   String serverTestFailed(String error) {
@@ -4383,6 +4364,38 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get serverOtherRelay => '其他服务器，host 或 host:port';
+
+  @override
+  String get serverMyListNote => '正在使用的和你添加的。';
+
+  @override
+  String get serverPublicNote => '点按即可切换。';
+
+  @override
+  String get serverOtherNode => '其他节点，host 或 host:port';
+
+  @override
+  String get serverOtherNodeInvalid => '请输入节点地址，例如 node.example.com:3413';
+
+  @override
+  String get serverAdd => '添加';
+
+  @override
+  String get serverAddedNode => '已添加到“我的节点”。';
+
+  @override
+  String get serverAddedRelay => '已添加到“我的服务器”。';
+
+  @override
+  String serverDeleted(String host) {
+    return '已删除 $host。';
+  }
+
+  @override
+  String get serverAlreadyInUse => '已在使用。';
+
+  @override
+  String get serverNoMatch => '无匹配结果。';
 
   @override
   String get serverFactHeight => '高度';

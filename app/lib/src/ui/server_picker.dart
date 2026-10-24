@@ -1,14 +1,18 @@
 /// The phone's one server picker: the node and Epicbox lists ([ServerList]), the sheets the
-/// status card opens ([showNodePicker], [showEpicboxPicker]) and the "my nodes" store.
+/// status card opens ([showNodePicker], [showEpicboxPicker]) and the "my servers" stores.
 ///
 /// Rows come from the built-in lists merged with status.btlabs.uk's ([mergePublicNodes],
-/// [mergePublicRelays]); with no answer from it the built-in rows show without health. Nothing
-/// switches on its own: a tap asks first, and a switch saves the network choice and starts the
-/// app again on it, as Settings › Network does.
+/// [mergePublicRelays]); with no answer from it the built-in rows show without health. The
+/// user's list ("My nodes", "My servers") is the server in use and the ones they added by
+/// hand; the public servers stay in their own list, so no row carries a control that has
+/// nothing to do. Nothing switches on its own: a tap asks first, and a switch saves the
+/// network choice and starts the app again on it, as Settings › Network does.
 library;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+
 
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
@@ -356,48 +360,34 @@ enum ServerKind { node, relay }
 /// The key of a server row, by its value (the node URL or the relay label), for tests.
 Key serverRowKey(String value) => ValueKey('server-row-$value');
 
-/// The key of a My-list row's menu button (the down arrow of a public server, the bin of a
-/// typed-in one), for tests.
+/// The key of the bin on a My-list row of a typed-in server, for tests.
 Key serverMenuKey(String value) => ValueKey('server-menu-$value');
 
-/// The key of the one item in a My-list row's popup, for tests.
+/// The key of the one item in the bin's popup, for tests.
 Key serverMenuItemKey(String value) => ValueKey('server-menu-item-$value');
 
-/// The button at the end of a My-list row. A [public] server has a down arrow whose popup
-/// "Remove from my list" sends it back to the public list; a typed-in one has a bin whose popup
-/// "Delete" deletes it. Disabled, with the reason as its tooltip, on the server in use.
-class _RowMenu extends StatelessWidget {
-  const _RowMenu({
-    required this.value,
-    required this.public,
-    required this.inUse,
-    required this.onChosen,
-  });
+/// The bin at the end of a My-list row of a typed-in server that is not in use: its popup's
+/// one item, "Delete", deletes the server. The server in use has no bin, as it cannot go.
+class _DeleteButton extends StatelessWidget {
+  const _DeleteButton({required this.value, required this.onDelete});
 
   final String value;
-  final bool public;
-  final bool inUse;
-  final VoidCallback onChosen;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final label = public ? l.serverMenuRemove : l.serverMenuDelete;
     return PopupMenuButton<bool>(
       key: serverMenuKey(value),
-      enabled: !inUse,
-      tooltip: inUse ? l.serverRemoveInUse : label,
-      icon: Icon(
-        public ? Icons.arrow_downward : Icons.delete_outline,
-        color: inUse ? t.faint : t.dim,
-      ),
-      onSelected: (_) => onChosen(),
+      tooltip: l.serverMenuDelete,
+      icon: Icon(Icons.delete_outline, color: t.dim),
+      onSelected: (_) => onDelete(),
       itemBuilder: (context) => [
         PopupMenuItem(
           key: serverMenuItemKey(value),
           value: true,
-          child: Text(label),
+          child: Text(l.serverMenuDelete),
         ),
       ],
     );
@@ -431,18 +421,19 @@ class _RowMenu extends StatelessWidget {
   };
 }
 
-/// The node or Epicbox rows of [preset]'s network: a "My nodes" or "My servers" section (the
-/// user's list, and the [current] server when no list has it) and the public servers. The
-/// user's list holds at most one public server (the one in use after a switch) and any number
-/// of typed-in ones; a server in it shows once, there, with a [_RowMenu]: a public one has a
-/// down arrow that sends it back to the public list, a typed-in one a bin that deletes it; the
-/// [current] one has it disabled. Public-list rows have none; tapping one selects it, and a
-/// switch moves it up into the user's list in place of the public one it had. The push relay
-/// is a public relay with a bell. Each row is one 56 dp target; [selected] has the check,
-/// [current] says so. Not scrollable itself: the sheet and Settings › Network put it in their scroll.
+/// The node or Epicbox rows of [preset]'s network in two groups. "My nodes" or "My servers"
+/// is the [current] server first, then the servers the user added by hand (the stored list
+/// less the public ones); "Public nodes" or "Public servers" is every public server not in
+/// use. A public server is in the user's group only while it is in use, so a switch to another
+/// one moves it back down by itself, and the group never needs a control to send it back. A
+/// typed-in server that is not in use has a bin ([_DeleteButton]); the one in use and the
+/// public rows have none: tapping a row selects it, and what a tap does can be said under each
+/// head ([myNote], [publicNote]). The push relay is a public relay with a bell. Each row is one
+/// 56 dp target; [selected] has the check, [current] says so. Not scrollable itself: the sheet
+/// and Setup put it in their scroll.
 ///
 /// [value]s are node URLs or relay labels (`host` or `host:port`). [query] filters the rows
-/// by host or operator.
+/// by host or operator; [onDeleted] hears the value a bin deleted.
 class ServerList extends ConsumerWidget {
   const ServerList({
     super.key,
@@ -452,6 +443,9 @@ class ServerList extends ConsumerWidget {
     this.selected,
     this.current,
     this.query = '',
+    this.myNote,
+    this.publicNote,
+    this.onDeleted,
   });
 
   final ServerKind kind;
@@ -460,6 +454,15 @@ class ServerList extends ConsumerWidget {
   final String? selected;
   final String? current;
   final String query;
+
+  /// One line under the "My …" head: what the group is.
+  final String? myNote;
+
+  /// One line under the "Public …" head: what a tap does.
+  final String? publicNote;
+
+  /// Called with the value of a typed-in server the user deleted, after it left the list.
+  final ValueChanged<String>? onDeleted;
 
   bool _matches(String host, String? operator) {
     final q = query.trim().toLowerCase();
@@ -472,6 +475,41 @@ class ServerList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) =>
       kind == ServerKind.node ? _nodes(context, ref) : _relays(context, ref);
+
+  Widget _groups(
+    BuildContext context, {
+    required String myHead,
+    required String publicHead,
+    required List<Widget> mine,
+    required List<Widget> public,
+    required AsyncValue<Object?> status,
+  }) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (mine.isNotEmpty) ...[
+          _SectionHead(myHead, note: myNote),
+          ...mine,
+          const SizedBox(height: 8),
+        ],
+        if (public.isNotEmpty) ...[
+          _SectionHead(publicHead, note: publicNote),
+          ...public,
+        ],
+        if (mine.isEmpty && public.isEmpty && query.trim().isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              l.serverNoMatch,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+            ),
+          ),
+        _HealthCaption(status: status, preset: preset),
+      ],
+    );
+  }
 
   Widget _nodes(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
@@ -486,20 +524,16 @@ class ServerList extends ConsumerWidget {
     }
 
     final cur = current;
-    // At most one public node in the list, whatever an older list held.
-    final mine = keepOnePublic(
-      ref.watch(myNodesProvider(preset.chain)).value ?? const [],
-      sameKey: (u) => nodeKey(u) ?? u,
-      isPublic: (u) => publicOf(u) != null,
-      inUse: cur,
-    );
+    // The node in use first, then the typed-in ones. A public node an older list stored is
+    // left to the public group unless it is the one in use.
+    final stored = ref.watch(myNodesProvider(preset.chain)).value ?? const [];
+    final mine = <String>[
+      ?cur,
+      for (final url in stored)
+        if (publicOf(url) == null && !(cur != null && _sameNode(url, cur))) url,
+    ];
     final mineRows = [
       for (final url in mine) (url: url, node: publicOf(url), mine: true),
-      if (cur != null &&
-          publicOf(cur) == null &&
-          !mine.any((m) => _sameNode(m, cur)))
-        // The typed-in node in use, out of the list: shown, with its bin disabled.
-        (url: cur, node: null, mine: true),
     ];
     final publicRows = [
       for (final n in public)
@@ -520,40 +554,33 @@ class ServerList extends ConsumerWidget {
         url: r.url,
         operator: r.node?.operator ?? s?.operator,
         status: s,
-        inMine: r.mine,
-        public: r.node != null,
+        healthUnknown: s == null && status is AsyncData,
         selected: isSelected,
         check: isSelected || (inUse && !selectedListed),
         current: inUse,
+        // The bin: only a typed-in node that is not in use leaves the list.
+        deletable: r.mine && r.node == null && !inUse,
         onTap: () => onSelected(r.url),
-        // The popup is the confirmation; the node in use cannot leave the list.
-        onRemove: () =>
-            ref.read(myNodesProvider(preset.chain).notifier).remove(r.url),
+        onDelete: () async {
+          await ref.read(myNodesProvider(preset.chain).notifier).remove(r.url);
+          onDeleted?.call(r.url);
+        },
       );
     }
 
-    final shownMine = [
-      for (final r in mineRows)
-        if (_matches(serverHost(r.url), r.node?.operator)) r,
-    ];
-    final shownPublic = [
-      for (final r in publicRows)
-        if (_matches(serverHost(r.url), r.node.operator)) r,
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (shownMine.isNotEmpty) ...[
-          _SectionHead(l.serverMyNodes),
-          for (final r in shownMine) row(r),
-          const SizedBox(height: 8),
-        ],
-        if (shownPublic.isNotEmpty) ...[
-          _SectionHead(l.serverPublicNodes),
-          for (final r in shownPublic) row(r),
-        ],
-        _HealthCaption(status: status, preset: preset),
+    return _groups(
+      context,
+      myHead: l.serverMyNodes,
+      publicHead: l.serverPublicNodes,
+      mine: [
+        for (final r in mineRows)
+          if (_matches(serverHost(r.url), r.node?.operator)) row(r),
       ],
+      public: [
+        for (final r in publicRows)
+          if (_matches(serverHost(r.url), r.node.operator)) row(r),
+      ],
+      status: status,
     );
   }
 
@@ -571,104 +598,104 @@ class ServerList extends ConsumerWidget {
       return null;
     }
 
-    // At most one public relay in the list, whatever an older list held.
-    final mine = keepOnePublic(
-      ref.watch(myRelaysProvider(preset.chain)).value ?? const [],
-      sameKey: (v) => EpicboxRelay.parse(v)?.label ?? v,
-      isPublic: (v) {
-        final r = EpicboxRelay.parse(v);
-        return r != null && publicOf(r) != null;
-      },
-      inUse: current,
-    );
-    final kept = <EpicboxRelay>{
-      for (final m in mine) ?EpicboxRelay.parse(m),
-    };
-    final extra = <EpicboxRelay>{
-      for (final v in [current, selected])
-        if (v != null) ?EpicboxRelay.parse(v),
-    }.where((r) => !kept.contains(r) && publicOf(r) == null);
+    final cur = current == null ? null : EpicboxRelay.parse(current!);
+    final stored = ref.watch(myRelaysProvider(preset.chain)).value ?? const [];
+    // The relay in use first, then the typed-in ones; a public relay an older list stored
+    // stays in the public group unless it is the one in use.
+    final mine = <EpicboxRelay>[
+      ?cur,
+      for (final v in stored)
+        if (EpicboxRelay.parse(v) case final r?
+            when r != cur && publicOf(r) == null)
+          r,
+    ];
+    final sel = selected == null ? null : EpicboxRelay.parse(selected!);
+    // A relay picked but in no list (Setup's own field): shown, without a bin.
+    final extra = sel != null && !mine.contains(sel) && publicOf(sel) == null;
     final mineRows = [
-      for (final r in kept) (relay: r, listed: publicOf(r), removable: true),
-      // A relay typed in and not saved yet, or the one in use out of the list: the bin shows
-      // (disabled) only on the one in use.
-      for (final r in extra)
-        (relay: r, listed: null, removable: r.label == current),
+      for (final r in mine) (relay: r, listed: publicOf(r), mine: true),
+      if (extra) (relay: sel, listed: null, mine: false),
     ];
     final publicRows = [
       for (final p in public)
-        if (!kept.contains(p.relay))
-          (relay: p.relay, listed: p, removable: false),
+        if (!mine.contains(p.relay)) (relay: p.relay, listed: p, mine: false),
     ];
     final selectedListed = [...mineRows, ...publicRows].any(
       (r) => r.relay.label == selected,
     );
-    Widget row(
-      ({EpicboxRelay relay, PublicRelay? listed, bool removable}) r,
-    ) {
+    Widget row(({EpicboxRelay relay, PublicRelay? listed, bool mine}) r) {
       final label = r.relay.label;
-      final isCurrent = current == label;
+      final isCurrent = r.relay == cur;
       final operator = r.listed?.operator ?? '';
       return _RelayRow(
         key: serverRowKey(label),
         relay: r.relay,
         operator: operator.isEmpty ? r.listed?.status?.operator : operator,
         status: r.listed?.status,
+        healthUnknown: r.listed?.status == null && status is AsyncData,
         isDefault: r.relay == preset.defaultRelay,
         selected: selected == label,
         check: selected == label || (isCurrent && !selectedListed),
         current: isCurrent,
-        public: r.listed != null,
-        removable: r.removable,
+        deletable: r.mine && r.listed == null && !isCurrent,
         onTap: () => onSelected(label),
-        onRemove: () =>
-            ref.read(myRelaysProvider(preset.chain).notifier).remove(label),
+        onDelete: () async {
+          await ref.read(myRelaysProvider(preset.chain).notifier).remove(label);
+          onDeleted?.call(label);
+        },
       );
     }
 
-    bool shown(({EpicboxRelay relay, PublicRelay? listed, bool removable}) r) =>
+    bool shown(({EpicboxRelay relay, PublicRelay? listed, bool mine}) r) =>
         _matches(r.relay.label, r.listed?.operator);
-    final shownMine = mineRows.where(shown).toList();
-    final shownPublic = publicRows.where(shown).toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (shownMine.isNotEmpty) ...[
-          _SectionHead(l.serverMyRelays),
-          for (final r in shownMine) row(r),
-          const SizedBox(height: 8),
-        ],
-        if (shownPublic.isNotEmpty) ...[
-          _SectionHead(l.serverPublicRelays),
-          for (final r in shownPublic) row(r),
-        ],
-        _HealthCaption(status: status, preset: preset),
-      ],
+    return _groups(
+      context,
+      myHead: l.serverMyRelays,
+      publicHead: l.serverPublicRelays,
+      mine: [for (final r in mineRows.where(shown)) row(r)],
+      public: [for (final r in publicRows.where(shown)) row(r)],
+      status: status,
     );
   }
 }
 
-/// A caption head over a group of rows: small capitals in the dim colour.
+/// A caption head over a group of rows: small capitals in the dim colour, and under it the
+/// optional [note], one short line in the same colour.
 class _SectionHead extends StatelessWidget {
-  const _SectionHead(this.text);
+  const _SectionHead(this.text, {this.note});
 
   final String text;
+  final String? note;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Semantics(
-      header: true,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 12, 0, 4),
-        child: Text(
-          text.toUpperCase(),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: t.dim,
-            letterSpacing: 0.8,
-            fontWeight: FontWeight.w600,
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 12, 0, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              text.toUpperCase(),
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: t.dim,
+                letterSpacing: 0.8,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-        ),
+          if (note != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                note!,
+                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -709,7 +736,6 @@ class _HealthCaption extends ConsumerWidget {
 /// a health colour: beside the health bars a gold row read as a warning.
 class _RowFrame extends StatelessWidget {
   const _RowFrame({
-    super.key,
     required this.bars,
     required this.first,
     required this.second,
@@ -784,40 +810,43 @@ class _RowFrame extends StatelessWidget {
 }
 
 /// One node: bars in the monitor's health colour, host in mono and its lag (`at tip`, `−12`),
-/// under it operator · latency · version, or "Not responding" greyed; the [_RowMenu] on a My
-/// nodes row, which takes it out of the list (disabled on the node in use).
+/// under it operator · latency · version, or "Not responding" greyed, or "Health unknown"
+/// when the monitor answered without it; a bin on a typed-in node that is not in use
+/// ([deletable]).
 class _NodeRow extends StatelessWidget {
   const _NodeRow({
     super.key,
     required this.url,
     required this.operator,
     required this.status,
-    required this.inMine,
-    required this.public,
+    required this.healthUnknown,
     required this.selected,
     required this.check,
     required this.current,
+    required this.deletable,
     required this.onTap,
-    required this.onRemove,
+    required this.onDelete,
   });
 
   final String url;
   final String? operator;
   final NodeStatus? status;
-  final bool inMine;
 
-  /// Whether the public list has the node (the down arrow), else it was typed in (the bin).
-  final bool public;
+  /// Whether the monitor answered and had nothing on this node: the words say so.
+  final bool healthUnknown;
   final bool selected;
 
   /// Whether the check shows: on the selected row, and on the one in use while the selection
   /// is not in the list.
   final bool check;
   final bool current;
+
+  /// Whether the bin shows: a typed-in node in My nodes that is not in use.
+  final bool deletable;
   final VoidCallback onTap;
 
-  /// Takes the node out of My nodes (not offered on the node in use, which stays).
-  final VoidCallback onRemove;
+  /// Takes the node out of My nodes.
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -843,6 +872,7 @@ class _NodeRow extends StatelessWidget {
     final facts = [
       if (current) l.serverCurrent,
       if (down) l.serverNotResponding,
+      if (healthUnknown) l.serverHealthNone,
       if (operator != null && operator!.isNotEmpty) operator!,
       if (!down && latency != null) l.serverLatency(groupDigits(l, latency)),
       if (!down && version != null && version.isNotEmpty) version,
@@ -892,87 +922,52 @@ class _NodeRow extends StatelessWidget {
           ],
         ],
       ),
-      second: Text.rich(
-        TextSpan(
-          children: [
-            for (var i = 0; i < facts.length; i++) ...[
-              if (i > 0) const TextSpan(text: ' · '),
-              TextSpan(
-                text: facts[i],
-                style: facts[i] == l.serverNotResponding
-                    ? TextStyle(color: t.risk)
-                    : facts[i] == l.serverCurrent
-                    ? TextStyle(color: t.text, fontWeight: FontWeight.w600)
-                    : null,
-              ),
-            ],
-          ],
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: down ? small?.copyWith(color: t.faint) : small,
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // The check is green only while the chosen server is up (the bars' word); on a
-          // server that is down or unknown it is dim. Never the accent, which reads as a
-          // warning beside the health colours.
-          if (check)
-            Icon(
-              Icons.check,
-              size: 20,
-              color: s?.state == NodeHealthState.healthy ? t.ok : t.dim,
-            ),
-          // Only a node in My nodes has the menu: a public one joins the list by being
-          // switched to, so a button on it would have nothing to do.
-          if (inMine)
-            _RowMenu(
-              value: url,
-              public: public,
-              inUse: current,
-              onChosen: onRemove,
-            ),
-        ],
+      second: _Facts(facts: facts, style: down ? small?.copyWith(color: t.faint) : small),
+      trailing: _Trailing(
+        check: check,
+        checkColor: s?.state == NodeHealthState.healthy ? t.ok : t.dim,
+        delete: deletable ? _DeleteButton(value: url, onDelete: onDelete) : null,
       ),
     );
   }
 }
 
 /// One Epicbox relay: bars, host in mono with the `Default` tag and, on the push relay, a bell;
-/// under it operator · uptime · latency. A [removable] row (My servers) has a [_RowMenu],
-/// disabled with the reason as its tooltip on the relay in use.
+/// under it operator · uptime · latency, or "Health unknown" when the monitor answered
+/// without it; a bin on a typed-in relay that is not in use ([deletable]).
 class _RelayRow extends StatelessWidget {
   const _RelayRow({
     super.key,
     required this.relay,
     required this.operator,
     required this.status,
+    required this.healthUnknown,
     required this.isDefault,
     required this.selected,
     required this.check,
     required this.current,
+    required this.deletable,
     required this.onTap,
-    this.public = false,
-    this.removable = false,
-    this.onRemove,
+    required this.onDelete,
   });
 
   final EpicboxRelay relay;
   final String? operator;
   final RelayStatus? status;
+
+  /// Whether the monitor answered and had nothing on this relay: the words say so.
+  final bool healthUnknown;
   final bool isDefault;
   final bool selected;
 
   /// Whether the check shows, as for [_NodeRow].
   final bool check;
   final bool current;
-  final VoidCallback onTap;
 
-  /// Whether the public list has the relay (the down arrow), else it was typed in (the bin).
-  final bool public;
-  final bool removable;
-  final VoidCallback? onRemove;
+  /// Whether the bin shows: a typed-in relay in My servers that is not in use.
+  final bool deletable;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -995,6 +990,7 @@ class _RelayRow extends StatelessWidget {
     final facts = [
       if (current) l.serverCurrent,
       if (down) l.serverNotResponding,
+      if (healthUnknown) l.serverHealthNone,
       if (operator != null && operator!.isNotEmpty) operator!,
       if (uptime != null)
         l.serverUptime(localDigits(l, (uptime * 100).toStringAsFixed(1))),
@@ -1055,50 +1051,79 @@ class _RelayRow extends StatelessWidget {
           ],
         ],
       ),
-      second: Text.rich(
-        TextSpan(
-          children: [
-            for (var i = 0; i < facts.length; i++) ...[
-              if (i > 0) const TextSpan(text: ' · '),
-              TextSpan(
-                text: facts[i],
-                style: facts[i] == l.serverNotResponding
-                    ? TextStyle(color: t.risk)
-                    : facts[i] == l.serverCurrent
-                    ? TextStyle(color: t.text, fontWeight: FontWeight.w600)
-                    : null,
-              ),
-            ],
-          ],
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: small,
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: removable ? 20 : 44,
-            child: check
-                ? Icon(
-                    Icons.check,
-                    size: 20,
-                    color: s != null && s.healthy ? t.ok : t.dim,
-                  )
-                : null,
-          ),
-          if (removable)
-            _RowMenu(
-              value: relay.label,
-              public: public,
-              inUse: current,
-              onChosen: onRemove!,
-            ),
-        ],
+      second: _Facts(facts: facts, style: small),
+      trailing: _Trailing(
+        check: check,
+        checkColor: s != null && s.healthy ? t.ok : t.dim,
+        delete: deletable
+            ? _DeleteButton(value: relay.label, onDelete: onDelete)
+            : null,
       ),
     );
   }
+}
+
+/// A row's second line: the facts joined by ` · `, "Not responding" in the risk colour and
+/// "Current" in the text colour, bold.
+class _Facts extends StatelessWidget {
+  const _Facts({required this.facts, required this.style});
+
+  final List<String> facts;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return Text.rich(
+      TextSpan(
+        children: [
+          for (var i = 0; i < facts.length; i++) ...[
+            if (i > 0) const TextSpan(text: ' · '),
+            TextSpan(
+              text: facts[i],
+              style: facts[i] == l.serverNotResponding
+                  ? TextStyle(color: t.risk)
+                  : facts[i] == l.serverCurrent
+                  ? TextStyle(color: t.text, fontWeight: FontWeight.w600)
+                  : null,
+            ),
+          ],
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: style,
+    );
+  }
+}
+
+/// The end of a row: the check in a 44 dp slot (20 dp beside a bin, so the checks line up),
+/// then the bin when the row has one. The check is green only while the chosen server is up;
+/// on one that is down or unknown it is dim, never the accent, which reads as a warning
+/// beside the health colours.
+class _Trailing extends StatelessWidget {
+  const _Trailing({
+    required this.check,
+    required this.checkColor,
+    required this.delete,
+  });
+
+  final bool check;
+  final Color checkColor;
+  final Widget? delete;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      SizedBox(
+        width: delete != null ? 20 : 44,
+        child: check ? Icon(Icons.check, size: 20, color: checkColor) : null,
+      ),
+      ?delete,
+    ],
+  );
 }
 
 // The sheets.
@@ -1167,27 +1192,53 @@ class ServerPickerSheet extends ConsumerStatefulWidget {
 /// The key of the confirm strip's Switch button, for tests.
 const Key serverSwitchKey = ValueKey('server-switch');
 
-/// The key of the "Use https://…" row, for tests.
-const Key serverUseTypedKey = ValueKey('server-use-typed');
+/// The key of the "Other server" field at the foot of the list, for tests.
+const Key serverAddFieldKey = ValueKey('server-add-field');
+
+/// The key of the Add button beside it, for tests.
+const Key serverAddKey = ValueKey('server-add');
+
+/// The key of the line at the sheet's foot that answers an action, for tests.
+const Key serverFootLineKey = ValueKey('server-foot-line');
 
 class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
   final _query = TextEditingController();
-  final _otherRelay = TextEditingController();
+  final _other = TextEditingController();
   String? _pending;
-  String? _relayError;
+  String? _otherError;
   String? _error;
   bool _busy = false;
 
-  /// The typed node being tested or tested: its URL and the answer (null while testing).
-  ({String url, ({String text, bool ok})? result})? _typed;
+  /// Whether the typed node is being asked for its tip before it joins the list.
+  bool _adding = false;
+
+  /// What the last action did ("Added to My servers."), at the foot for a few seconds.
+  String? _line;
+  Timer? _lineTimer;
 
   bool get _node => widget.kind == ServerKind.node;
 
   @override
   void dispose() {
+    _lineTimer?.cancel();
     _query.dispose();
-    _otherRelay.dispose();
+    _other.dispose();
     super.dispose();
+  }
+
+  /// Shows [text] at the foot for a success notice's time, then takes it away.
+  void _say(String text) {
+    _lineTimer?.cancel();
+    setState(() => _line = text);
+    _lineTimer = Timer(
+      noticeDuration(
+        NoticeLevel.success,
+        accessible: MediaQuery.accessibleNavigationOf(context),
+      ),
+      () {
+        if (mounted) setState(() => _line = null);
+      },
+    );
   }
 
   void _pick(String value, NetworkChoice choice) {
@@ -1195,50 +1246,113 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
     final same = _node ? _sameNode(value, current) : value == current;
     // The keyboard (from the search or Other server field) would cover the confirm strip.
     FocusManager.instance.primaryFocus?.unfocus();
+    // A tap on the server in use answers: it takes a pending choice back, or says so.
+    if (same && _pending == null) _say(context.l10n.serverAlreadyInUse);
     setState(() {
       _pending = same ? null : value;
       _error = null;
     });
   }
 
-  Future<void> _testTyped(String url, NetworkChoice choice) async {
-    final l = context.l10n;
-    FocusManager.instance.primaryFocus?.unfocus();
-    setState(() {
-      _typed = (url: url, result: null);
-      _pending = null;
-    });
-    ({String text, bool ok}) result;
-    try {
-      // The node call needs no wallet, so no data directory.
-      final tip = await askNodeTip(
-        ref.read(walletServiceProvider),
-        ref.read(sessionProvider),
-        choice.preset.config(dataDir: '', nodeUrl: url),
+  /// Whether [value] is already a row: public, in the user's list, or in use.
+  bool _listed(String value, NetworkChoice choice) {
+    if (_node) {
+      final public = mergePublicNodes(
+        ref.read(publicNodeStatusProvider(choice.preset)).value,
+        builtIn: builtInNodesFor(choice.preset),
       );
-      result = (
-        text: l.serverTestAnswer(groupDigits(l, tip.height), tip.nodeVersion),
-        ok: true,
-      );
-    } catch (error) {
-      result = (text: l.serverTestFailed(describeError(l, error)), ok: false);
+      return [
+        ...public.map((n) => n.url),
+        ...?ref.read(myNodesProvider(choice.preset.chain)).value,
+        choice.nodeUrl,
+      ].any((u) => _sameNode(u, value));
     }
-    if (!mounted || _typed?.url != url) return;
-    setState(() {
-      _typed = (url: url, result: result);
-      if (result.ok) _pending = url;
-    });
+    final relay = EpicboxRelay.parse(value);
+    final public = mergePublicRelays(
+      ref.read(relayStatusProvider(choice.preset)).value,
+      builtIn: builtInRelaysFor(choice.preset),
+    );
+    return public.any((p) => p.relay == relay) ||
+        (ref.read(myRelaysProvider(choice.preset.chain)).value ?? const [])
+            .any((v) => EpicboxRelay.parse(v) == relay) ||
+        choice.relay == relay;
   }
 
-  void _useOtherRelay(NetworkChoice choice) {
-    final relay = EpicboxRelay.parse(_otherRelay.text);
-    setState(() {
-      _relayError = relay == null ? context.l10n.setupCustomRelayInvalid : null;
-    });
-    if (relay != null) {
-      _otherRelay.clear();
-      _pick(relay.label, choice);
+  /// Add: the typed server joins My nodes or My servers and is offered for a switch. A node
+  /// is asked for its tip first, so a typo does not get saved; one already listed is picked
+  /// instead of added again.
+  Future<void> _add(NetworkChoice choice) async {
+    final l = context.l10n;
+    final value = _node
+        ? typedNodeUrl(_other.text)
+        : EpicboxRelay.parse(_other.text)?.label;
+    if (value == null) {
+      setState(() {
+        _otherError = _node ? l.serverOtherNodeInvalid : l.setupCustomRelayInvalid;
+      });
+      return;
     }
+    if (_listed(value, choice)) {
+      _other.clear();
+      final current = _node ? choice.nodeUrl : choice.relay.label;
+      final same = _node ? _sameNode(value, current) : value == current;
+      // The server in use: nothing to switch to, and the sheet says so; another listed
+      // one is picked, not added again.
+      setState(() {
+        _otherError = null;
+        if (same) _pending = null;
+      });
+      if (same) {
+        FocusManager.instance.primaryFocus?.unfocus();
+        _say(l.serverAlreadyInUse);
+      } else {
+        _pick(value, choice);
+      }
+      return;
+    }
+    FocusManager.instance.primaryFocus?.unfocus();
+    final chain = choice.preset.chain;
+    if (_node) {
+      setState(() {
+        _adding = true;
+        _otherError = null;
+      });
+      try {
+        // The node call needs no wallet, so no data directory.
+        await askNodeTip(
+          ref.read(walletServiceProvider),
+          ref.read(sessionProvider),
+          choice.preset.config(dataDir: '', nodeUrl: value),
+        );
+      } catch (error) {
+        if (!mounted) return;
+        setState(() {
+          _adding = false;
+          _otherError = l.serverTestFailed(describeError(l, error));
+        });
+        return;
+      }
+      if (!mounted) return;
+      await ref.read(myNodesProvider(chain).notifier).add(value);
+    } else {
+      await ref
+          .read(myRelaysProvider(chain).notifier)
+          .add(value, inUse: choice.relay.label);
+    }
+    if (!mounted) return;
+    _other.clear();
+    setState(() {
+      _adding = false;
+      _otherError = null;
+      _pending = value;
+      _error = null;
+    });
+    _say(_node ? l.serverAddedNode : l.serverAddedRelay);
+  }
+
+  void _deleted(String value) {
+    _say(context.l10n.serverDeleted(serverHost(value)));
+    if (_pending == value) setState(() => _pending = null);
   }
 
   Future<void> _switch(NetworkChoice choice) async {
@@ -1305,6 +1419,7 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
     // never under either. Android folds the bar into the keyboard's inset while it shows.
     final media = MediaQuery.of(context);
     final foot = math.max(media.padding.bottom, media.viewInsets.bottom);
+    final line = _line;
     return Column(
       children: [
         Padding(
@@ -1332,9 +1447,24 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
               : ListView(
                   controller: widget.scrollController,
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                  children: _node
-                      ? _nodeBody(context, choice)
-                      : _relayBody(context, choice),
+                  children: [
+                    ...(_node
+                        ? _nodeBody(context, choice)
+                        : _relayBody(context, choice)),
+                    const SizedBox(height: 16),
+                    _AddField(
+                      controller: _other,
+                      label: _node ? l.serverOtherNode : l.serverOtherRelay,
+                      error: _otherError,
+                      busy: _adding,
+                      onChanged: () {
+                        if (_otherError != null) {
+                          setState(() => _otherError = null);
+                        }
+                      },
+                      onAdd: () => _add(choice),
+                    ),
+                  ],
                 ),
         ),
         if (choice != null)
@@ -1344,9 +1474,12 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
                 : const Duration(milliseconds: 220),
             curve: Curves.easeOut,
             alignment: Alignment.topCenter,
-            child: _pending == null && _error == null
-                ? const SizedBox(width: double.infinity)
-                : _ConfirmStrip(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (line != null) _FootLine(line),
+                if (_pending != null || _error != null)
+                  _ConfirmStrip(
                     host: _pending == null ? null : serverHost(_pending!),
                     note: _node
                         ? l.serverNodeSwitchNote
@@ -1360,6 +1493,8 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
                       _error = null;
                     }),
                   ),
+              ],
+            ),
           ),
         SizedBox(height: foot),
       ],
@@ -1368,21 +1503,6 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
 
   List<Widget> _nodeBody(BuildContext context, NetworkChoice choice) {
     final l = context.l10n;
-    final typed = typedNodeUrl(_query.text);
-    final public = mergePublicNodes(
-      ref.watch(publicNodeStatusProvider(choice.preset)).value,
-      builtIn: builtInNodesFor(choice.preset),
-    );
-    final mine =
-        ref.watch(myNodesProvider(choice.preset.chain)).value ?? const [];
-    final known =
-        typed != null &&
-        ([
-          ...public.map((n) => n.url),
-          ...mine,
-          choice.nodeUrl,
-        ].any((u) => _sameNode(u, typed)));
-    final test = _typed;
     final nodeLocal =
         torSkipsLocalNode && isLoopbackUrl(Uri.parse(choice.nodeUrl));
     return [
@@ -1406,29 +1526,18 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
           constraints: const BoxConstraints(minHeight: 44),
           border: const OutlineInputBorder(),
         ),
-        onChanged: (_) => setState(() {
-          if (_typed != null && _typed!.url != typedNodeUrl(_query.text)) {
-            _typed = null;
-          }
-        }),
+        onChanged: (_) => setState(() {}),
       ),
-      if (typed != null && !known) ...[
-        const SizedBox(height: 8),
-        _TypedRow(
-          url: typed,
-          result: test?.url == typed ? test!.result : null,
-          testing: test?.url == typed && test!.result == null,
-          selected: _pending == typed,
-          onTap: () => _testTyped(typed, choice),
-        ),
-      ],
       ServerList(
         kind: ServerKind.node,
         preset: choice.preset,
         current: choice.nodeUrl,
         selected: _pending ?? choice.nodeUrl,
-        query: typed != null && !known ? '' : _query.text,
+        query: _query.text,
+        myNote: l.serverMyListNote,
+        publicNote: l.serverPublicNote,
         onSelected: (url) => _pick(url, choice),
+        onDeleted: _deleted,
       ),
     ];
   }
@@ -1461,99 +1570,111 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
         preset: choice.preset,
         current: choice.relay.label,
         selected: _pending ?? choice.relay.label,
+        myNote: l.serverMyListNote,
+        publicNote: l.serverPublicNote,
         onSelected: (label) => _pick(label, choice),
-      ),
-      const SizedBox(height: 16),
-      TextField(
-        controller: _otherRelay,
-        keyboardType: TextInputType.url,
-        autocorrect: false,
-        enableSuggestions: false,
-        onSubmitted: (_) => _useOtherRelay(choice),
-        onChanged: (_) => setState(() {}),
-        decoration: InputDecoration(
-          labelText: l.serverOtherRelay,
-          errorText: _relayError,
-          border: const OutlineInputBorder(),
-          suffixIcon: _otherRelay.text.trim().isEmpty
-              ? null
-              : IconButton(
-                  tooltip: l.setupCustomRelayUse,
-                  icon: const Icon(Icons.check),
-                  onPressed: () => _useOtherRelay(choice),
-                ),
-        ),
+        onDeleted: _deleted,
       ),
     ];
   }
 }
 
-/// The row for a typed node address: `Use https://host:port`, and once tested, its answer.
-class _TypedRow extends StatelessWidget {
-  const _TypedRow({
-    required this.url,
-    required this.result,
-    required this.testing,
-    required this.selected,
-    required this.onTap,
+/// The "Other server" field at the foot of the list with Add beside it, 48 dp tall and always
+/// enabled: an empty or malformed field answers with the error line, so the button never
+/// does nothing. While a node is asked for its tip, Add shows a spinner.
+class _AddField extends StatelessWidget {
+  const _AddField({
+    required this.controller,
+    required this.label,
+    required this.error,
+    required this.busy,
+    required this.onChanged,
+    required this.onAdd,
   });
 
-  final String url;
-  final ({String text, bool ok})? result;
-  final bool testing;
-  final bool selected;
-  final VoidCallback onTap;
+  final TextEditingController controller;
+  final String label;
+  final String? error;
+  final bool busy;
+  final VoidCallback onChanged;
+  final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
-    final r = result;
-    final second = testing ? l.serverTesting : r?.text ?? '';
-    return Semantics(
-      liveRegion: true,
-      child: _RowFrame(
-        key: serverUseTypedKey,
-        bars: SizedBox.square(
-          dimension: statusGlyph,
-          child: testing
-              ? const CircularProgressIndicator(strokeWidth: 2)
-              : Icon(
-                  r == null
-                      ? Icons.add_link
-                      : r.ok
-                      ? Icons.check_circle_outline
-                      : Icons.error_outline,
-                  size: statusGlyph,
-                  color: r == null
-                      ? t.dim
-                      : r.ok
-                      ? t.ok
-                      : t.risk,
-                ),
-        ),
-        label: [
-          l.serverUseAddress(url),
-          if (second.isNotEmpty) second,
-        ].join(', '),
-        selected: selected,
-        onTap: onTap,
-        first: Text(
-          l.serverUseAddress(url),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontFamily: t.monoFamily,
-            fontSize: 13,
-            color: t.text,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: TextField(
+            key: serverAddFieldKey,
+            controller: controller,
+            keyboardType: TextInputType.url,
+            autocorrect: false,
+            enableSuggestions: false,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => onAdd(),
+            onChanged: (_) => onChanged(),
+            decoration: InputDecoration(
+              labelText: label,
+              errorText: error,
+              errorMaxLines: 3,
+              border: const OutlineInputBorder(),
+            ),
           ),
         ),
-        second: Text(
-          second,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodySmall
-              ?.copyWith(color: r != null && !r.ok ? t.risk : t.dim),
+        const SizedBox(width: 8),
+        // The field is 56 dp tall: the button sits 4 dp down, centred on it.
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: FilledButton.tonal(
+            key: serverAddKey,
+            style: FilledButton.styleFrom(minimumSize: const Size(72, 48)),
+            onPressed: busy ? null : onAdd,
+            child: busy
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l.serverAdd),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// One line at the sheet's foot that says what the last action did, with a check before
+/// it; read out as it appears.
+class _FootLine extends StatelessWidget {
+  const _FootLine(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      key: serverFootLineKey,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border(top: BorderSide(color: t.line)),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      child: Semantics(
+        liveRegion: true,
+        child: Row(
+          children: [
+            Icon(Icons.check_circle_outline, size: 18, color: t.ok),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                text,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.text),
+              ),
+            ),
+          ],
         ),
       ),
     );
