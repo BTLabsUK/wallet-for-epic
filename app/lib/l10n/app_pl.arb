@@ -536,6 +536,10 @@
   "backupWarningIconLabel": "Ostrzeżenie",
   "backupWriteDown": "{count, plural, few{Zapisz te {count} słowa na papierze w podanej kolejności i nikomu ich nie pokazuj. Tylko za ich pomocą można przywrócić ten portfel.} many{Zapisz te {count} słów na papierze w podanej kolejności i nikomu ich nie pokazuj. Tylko za ich pomocą można przywrócić ten portfel.} other{Zapisz te {count} słowa na papierze w podanej kolejności i nikomu ich nie pokazuj. Tylko za ich pomocą można przywrócić ten portfel.}}",
   "backupWordSpoken": "Słowo {number}: {word}",
+  "backupCopyTitle": "Skopiować frazę odzyskiwania?",
+  "backupCopyBody": "Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu.",
+  "backupCopied": "Skopiowano. Schowek zostanie wyczyszczony za 30 sekund.",
+  "backupNotCopied": "Nie skopiowano. Schowek odrzucił tekst.",
   "unlockTitle": "Odblokuj portfel",
   "pinLabel": "PIN",
   "pinRepeatLabel": "Powtórz PIN",
@@ -3511,5 +3515,7 @@
   "deskSendFeeChangedTitle": "Opłata się zmieniła",
   "deskSendFeeChangedText": "Wyjścia portfela zmieniły się od tego przeglądu, więc wysyłka kosztuje teraz {fee} EPIC zamiast {was} EPIC opłaty. Sprawdź ją i wyślij ponownie.",
   "deskSendMessageBytes": "{used} / {max} bajtów",
-  "deskSendMessageTooLong": "Wiadomość jest dłuższa niż {max} bajtów. Skróć ją."
+  "deskSendMessageTooLong": "Wiadomość jest dłuższa niż {max} bajtów. Skróć ją.",
+  "deskSetPhraseCopyTitle": "Skopiować frazę odzyskiwania?",
+  "deskSetPhraseCopyText": "Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu."
 }

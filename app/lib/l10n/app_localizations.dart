@@ -3358,6 +3358,30 @@ abstract class AppLocalizations {
   /// **'Word {number}: {word}'**
   String backupWordSpoken(int number, String word);
 
+  /// Title of the confirm dialog before the recovery phrase is copied to the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the recovery phrase?'**
+  String get backupCopyTitle;
+
+  /// Text of the confirm dialog before the recovery phrase is copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with these words can take your funds. Store the copy somewhere safe.'**
+  String get backupCopyBody;
+
+  /// Notice after the recovery phrase was copied: the clipboard is cleared after 30 seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied. The clipboard is cleared in 30 seconds.'**
+  String get backupCopied;
+
+  /// Notice when the clipboard refused the recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Not copied. The clipboard refused the text.'**
+  String get backupNotCopied;
+
   /// Title of the screen that opens the wallet with the PIN or biometrics.
   ///
   /// In en, this message translates to:
@@ -21223,6 +21247,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The message is longer than {max} bytes. Shorten it.'**
   String deskSendMessageTooLong(int max);
+
+  /// Confirm dialog title before the recovery phrase is copied to the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the recovery phrase?'**
+  String get deskSetPhraseCopyTitle;
+
+  /// Confirm dialog text before the recovery phrase is copied to the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with these words can take your funds. Store the copy somewhere safe.'**
+  String get deskSetPhraseCopyText;
 }
 
 class _AppLocalizationsDelegate

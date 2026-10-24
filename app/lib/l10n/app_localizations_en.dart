@@ -2288,6 +2288,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get backupCopyTitle => 'Copy the recovery phrase?';
+
+  @override
+  String get backupCopyBody =>
+      'Anyone with these words can take your funds. Store the copy somewhere safe.';
+
+  @override
+  String get backupCopied => 'Copied. The clipboard is cleared in 30 seconds.';
+
+  @override
+  String get backupNotCopied => 'Not copied. The clipboard refused the text.';
+
+  @override
   String get unlockTitle => 'Unlock wallet';
 
   @override
@@ -13403,4 +13416,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return 'The message is longer than $max bytes. Shorten it.';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => 'Copy the recovery phrase?';
+
+  @override
+  String get deskSetPhraseCopyText =>
+      'Anyone with these words can take your funds. Store the copy somewhere safe.';
 }

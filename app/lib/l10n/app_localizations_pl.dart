@@ -2414,6 +2414,20 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get backupCopyTitle => 'Skopiować frazę odzyskiwania?';
+
+  @override
+  String get backupCopyBody =>
+      'Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu.';
+
+  @override
+  String get backupCopied =>
+      'Skopiowano. Schowek zostanie wyczyszczony za 30 sekund.';
+
+  @override
+  String get backupNotCopied => 'Nie skopiowano. Schowek odrzucił tekst.';
+
+  @override
   String get unlockTitle => 'Odblokuj portfel';
 
   @override
@@ -13808,4 +13822,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return 'Wiadomość jest dłuższa niż $max bajtów. Skróć ją.';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => 'Skopiować frazę odzyskiwania?';
+
+  @override
+  String get deskSetPhraseCopyText =>
+      'Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu.';
 }

@@ -2224,6 +2224,19 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get backupCopyTitle => 'คัดลอกวลีกู้คืน?';
+
+  @override
+  String get backupCopyBody =>
+      'ใครมีคำเหล่านี้ก็นำเงินของคุณไปได้ เก็บสำเนาไว้ในที่ปลอดภัย';
+
+  @override
+  String get backupCopied => 'คัดลอกแล้ว คลิปบอร์ดจะถูกล้างใน 30 วินาที';
+
+  @override
+  String get backupNotCopied => 'ไม่ได้คัดลอก คลิปบอร์ดปฏิเสธข้อความ';
+
+  @override
   String get unlockTitle => 'ปลดล็อกกระเป๋า';
 
   @override
@@ -13149,4 +13162,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return 'ข้อความยาวเกิน $max ไบต์ โปรดทำให้สั้นลง';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => 'คัดลอกวลีกู้คืน?';
+
+  @override
+  String get deskSetPhraseCopyText =>
+      'ใครมีคำเหล่านี้ก็นำเงินของคุณไปได้ เก็บสำเนาไว้ในที่ปลอดภัย';
 }

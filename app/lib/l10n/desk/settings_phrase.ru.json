@@ -15,5 +15,7 @@
   "deskSetPhraseHidesIn": "Скроется через {seconds} с",
   "deskSetPhraseQrLabel": "QR-код фразы восстановления",
   "deskSetPhraseBackUp": "Сохраните фразу",
-  "deskSetPhraseBackUpText": "Любой, у кого есть эти слова, может забрать EPIC. Убедитесь, что никто не видит экран."
+  "deskSetPhraseBackUpText": "Любой, у кого есть эти слова, может забрать EPIC. Убедитесь, что никто не видит экран.",
+  "deskSetPhraseCopyTitle": "Скопировать фразу восстановления?",
+  "deskSetPhraseCopyText": "Любой, у кого есть эти слова, может забрать ваши средства. Храните копию в надёжном месте."
 }

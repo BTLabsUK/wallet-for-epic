@@ -15,5 +15,7 @@
   "deskSetPhraseHidesIn": "ซ่อนใน {seconds} วินาที",
   "deskSetPhraseQrLabel": "QR Code ของวลีกู้คืน",
   "deskSetPhraseBackUp": "สำรองวลี",
-  "deskSetPhraseBackUpText": "ใครมีคำเหล่านี้ก็เอา EPIC ไปได้ ตรวจดูว่าไม่มีใครเห็นหน้าจอ"
+  "deskSetPhraseBackUpText": "ใครมีคำเหล่านี้ก็เอา EPIC ไปได้ ตรวจดูว่าไม่มีใครเห็นหน้าจอ",
+  "deskSetPhraseCopyTitle": "คัดลอกวลีกู้คืน?",
+  "deskSetPhraseCopyText": "ใครมีคำเหล่านี้ก็นำเงินของคุณไปได้ เก็บสำเนาไว้ในที่ปลอดภัย"
 }

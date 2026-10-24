@@ -22,10 +22,25 @@ const _demoWords = [
 
 Timer? _clipboardTimer;
 
-/// Copies a recovery phrase and clears the clipboard 30 s later if the phrase is still there.
-/// One timer for the app, outliving the page.
+/// Warns that anyone with the words can take the funds, and copies a recovery phrase if the
+/// user agrees. The clipboard is cleared 30 s later if the phrase is still there. One timer for
+/// the app, outliving the page.
 Future<void> copyPhrase(BuildContext context, String phrase) async {
   final l = context.l10n;
+  final sure = await showEDialog<bool>(
+    context,
+    builder: (context) => EDialog(
+      title: l.deskSetPhraseCopyTitle,
+      description: l.deskSetPhraseCopyText,
+      icon: EIcons.alert,
+      tone: ETone.warn,
+      actions: [
+        EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop(false)),
+        EButton.primary(label: l.commonCopy, onPressed: () => Navigator.of(context).pop(true)),
+      ],
+    ),
+  );
+  if (sure != true || !context.mounted) return;
   try {
     await Clipboard.setData(ClipboardData(text: phrase));
   } on Object {
