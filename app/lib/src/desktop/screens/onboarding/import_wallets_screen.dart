@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
-import '../../../l10n.dart' show localDay;
+import '../../../l10n.dart' show localDay, localDigits;
 import '../../desk_l10n.dart';
 import '../../data/api.dart';
 import '../../widgets/kit.dart';
@@ -20,9 +20,9 @@ const _groupIcons = {
   OldWalletGroup.picked: EIcons.folder,
 };
 
-String _size(int bytes) {
+String _size(AppLocalizations l, int bytes) {
   final mb = bytes / (1 << 20);
-  if (mb >= 1000) return '${(mb / 1024).toStringAsFixed(1)} GB';
+  if (mb >= 1000) return '${localDigits(l, (mb / 1024).toStringAsFixed(1))} GB';
   return mb < 1 ? '< 1 MB' : '${mb.round()} MB';
 }
 
@@ -558,7 +558,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     final ts = context.ts;
     final c = context.dc;
     final l = context.l10n;
-    final meta = [if (f.lastUsed != null) l.deskOnbImportLastUsed(_date(l, f.lastUsed!)), _size(f.sizeBytes)].join(' · ');
+    final meta = [if (f.lastUsed != null) l.deskOnbImportLastUsed(_date(l, f.lastUsed!)), _size(l, f.sizeBytes)].join(' · ');
     final notes = [
       if (f.blocked != null) f.blocked!,
       if (f.importable && f.sameAs != null) l.deskOnbImportSecondCopy('${f.sameAs}'),
@@ -594,7 +594,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
           Wrap(
             spacing: Sp.x2,
             children: [
-              if (f.network != 'mainnet') ETag('${f.network[0].toUpperCase()}${f.network.substring(1)}'),
+              if (f.network != 'mainnet') ETag(networkName(f.network)),
               if (f.sameAs != null) ETag(f.inApp ? l.deskOnbImportInApp : l.deskOnbImportSameWallet, tone: ETone.warn, icon: EIcons.alert),
             ],
           ),

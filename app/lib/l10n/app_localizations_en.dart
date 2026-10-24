@@ -13304,4 +13304,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'Unlock now';
+
+  @override
+  String get deskTxThisWallet => 'This wallet';
+
+  @override
+  String get deskErrOldLinks =>
+      'This wallet\'s folder has links in it; copy it by hand or restore from the phrase.';
+
+  @override
+  String get deskErrOldIncomplete =>
+      'This wallet\'s folder could not be read completely; copy it by hand or restore from the phrase.';
+
+  @override
+  String get deskErrOldSeedTooLarge =>
+      'The wallet.seed file is too large to be a wallet seed.';
+
+  @override
+  String get deskErrSendUnbuildable =>
+      'This send cannot be built from the coins available.';
+
+  @override
+  String get deskErrNothingToConsolidate =>
+      'Nothing to consolidate: fewer than two spendable outputs.';
+
+  @override
+  String deskSetReportFileNone(String name) {
+    return '$name (not included)';
+  }
+
+  @override
+  String deskSetReportFileAll(String name, String size) {
+    return '$name (all, $size)';
+  }
+
+  @override
+  String deskSetReportFilePart(String name, String part, String size) {
+    return '$name (last $part of $size)';
+  }
 }

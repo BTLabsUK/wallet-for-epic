@@ -256,7 +256,8 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                       l.deskSetRescanStoppedEarly,
                       if (_deleted) l.deskSetRescanNotDeleted,
                     ],
-                  ].join(' '),
+                  // Chinese sentences follow each other without a space; Thai separates them with one.
+                  ].join(l.localeName == 'zh' ? '' : ' '),
                   style: context.ts.bodyDim,
                 ),
               ),

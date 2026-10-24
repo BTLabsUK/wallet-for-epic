@@ -178,7 +178,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   List<String> _parts(AppLocalizations l) => [
     l.deskSetReportText,
     if (_attachLogs)
-      if (_files.isEmpty) l.deskSetReportAppLog(logSize((_log ?? '').length)) else ...describeLogFiles(_files, feedbackLogBytes),
+      if (_files.isEmpty) l.deskSetReportAppLog(logSize((_log ?? '').length, l)) else ...describeLogFiles(_files, feedbackLogBytes, l),
   ];
 
   @override

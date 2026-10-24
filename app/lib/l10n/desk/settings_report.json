@@ -100,5 +100,47 @@
   "deskSetReportSend": "Send",
   "@deskSetReportSend": {
     "description": "Report a problem dialog: primary button that sends the report."
+  },
+  "deskSetReportFileNone": "{name} (not included)",
+  "@deskSetReportFileNone": {
+    "description": "Report a problem › What is sent: a log file that does not go with the report. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "wfe.log.1"
+      }
+    }
+  },
+  "deskSetReportFileAll": "{name} (all, {size})",
+  "@deskSetReportFileAll": {
+    "description": "Report a problem › What is sent: a log file that goes with the report whole. {size} is its size.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "wfe.log"
+      },
+      "size": {
+        "type": "String",
+        "example": "40 KB"
+      }
+    }
+  },
+  "deskSetReportFilePart": "{name} (last {part} of {size})",
+  "@deskSetReportFilePart": {
+    "description": "Report a problem › What is sent: only the end of a log file goes with the report. {part} is how much, {size} the whole file.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "wfe.log"
+      },
+      "part": {
+        "type": "String",
+        "example": "256 KB"
+      },
+      "size": {
+        "type": "String",
+        "example": "1.0 MB"
+      }
+    }
   }
 }

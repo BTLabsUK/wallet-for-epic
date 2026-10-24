@@ -204,9 +204,9 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
           l.deskKitMethodNotReceiving,
           EState.risk,
           retry: true,
-          detail: s.httpProblem == null || s.httpProblem!.toLowerCase().contains('in use')
+          detail: s.httpProblem == null || s.httpProblem == HttpProblem.portInUse
               ? l.deskKitMethodPortInUse('$port')
-              : '${s.httpProblem}.',
+              : '${httpProblemText(l, s.httpProblem!, s.httpProblemPort ?? port)}.',
         ),
       };
     case TxMethod.tor:

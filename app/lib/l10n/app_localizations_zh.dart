@@ -12597,4 +12597,37 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => '立即解锁';
+
+  @override
+  String get deskTxThisWallet => '此钱包';
+
+  @override
+  String get deskErrOldLinks => '此钱包的文件夹中含有链接；请手动复制它，或用助记词恢复。';
+
+  @override
+  String get deskErrOldIncomplete => '无法完整读取此钱包的文件夹；请手动复制它，或用助记词恢复。';
+
+  @override
+  String get deskErrOldSeedTooLarge => 'wallet.seed 文件太大，不可能是钱包种子文件。';
+
+  @override
+  String get deskErrSendUnbuildable => '无法用现有的币构建这笔发送。';
+
+  @override
+  String get deskErrNothingToConsolidate => '无需合并：可用输出少于两个。';
+
+  @override
+  String deskSetReportFileNone(String name) {
+    return '$name（不包含）';
+  }
+
+  @override
+  String deskSetReportFileAll(String name, String size) {
+    return '$name（全部，$size）';
+  }
+
+  @override
+  String deskSetReportFilePart(String name, String part, String size) {
+    return '$name（$size 中的最后 $part）';
+  }
 }

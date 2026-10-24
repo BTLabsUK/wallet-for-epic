@@ -94,7 +94,7 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
           builder: (context, box) => ESetRow(
           title: l.deskSetLogsFiles,
           stacked: box.maxWidth < 720.u,
-          text: total == null ? l.deskSetLndReading : l.deskSetLogsSize(logSize(total), logSize(2 * maxLogFileBytes)),
+          text: total == null ? l.deskSetLndReading : l.deskSetLogsSize(logSize(total, l), logSize(2 * maxLogFileBytes, l)),
           control: Wrap(
             spacing: Sp.x2,
             runSpacing: Sp.x2,

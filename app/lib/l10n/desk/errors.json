@@ -617,5 +617,25 @@
   "deskErrSecretProtect": "Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Sign in to Windows with your own account and its password, not through a remote or service session, then try again.",
   "@deskErrSecretProtect": {
     "description": "Error when Windows (DPAPI) refused to protect the wallet's secrets, e.g. in a remote or service session. DPAPI and Windows are names."
+  },
+  "deskErrOldLinks": "This wallet's folder has links in it; copy it by hand or restore from the phrase.",
+  "@deskErrOldLinks": {
+    "description": "Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user can copy the folder by hand or restore from the recovery phrase."
+  },
+  "deskErrOldIncomplete": "This wallet's folder could not be read completely; copy it by hand or restore from the phrase.",
+  "@deskErrOldIncomplete": {
+    "description": "Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user can copy it by hand or restore from the recovery phrase."
+  },
+  "deskErrOldSeedTooLarge": "The wallet.seed file is too large to be a wallet seed.",
+  "@deskErrOldSeedTooLarge": {
+    "description": "Import of an old wallet: why it cannot be imported. wallet.seed is a file name and stays as written."
+  },
+  "deskErrSendUnbuildable": "This send cannot be built from the coins available.",
+  "@deskErrSendUnbuildable": {
+    "description": "Error when a send or split cannot be made from the wallet's spendable outputs (the core refused it). Nothing was sent."
+  },
+  "deskErrNothingToConsolidate": "Nothing to consolidate: fewer than two spendable outputs.",
+  "@deskErrNothingToConsolidate": {
+    "description": "Error when Consolidate is asked with fewer than two spendable outputs. Nothing was changed."
   }
 }

@@ -3486,5 +3486,14 @@
   "deskKeyringMissingText": "Epic Cash speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, aber keiner hat geantwortet. Installiere oder starte einen Schlüsselbund (GNOME Keyring oder KWallet), melde dich in einer Desktop-Sitzung an, die einen ausführt, und wähle dann Wiederholen.",
   "deskKeyringLockedTitle": "Der Schlüsselbund ist gesperrt",
   "deskKeyringLockedText": "Epic Cash speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, und der ist gesperrt. Entsperre ihn (er öffnet sich mit deinem Anmeldepasswort) und wähle dann Wiederholen, oder wähle Jetzt entsperren, damit das System danach fragt.",
-  "deskKeyringUnlockNow": "Jetzt entsperren"
+  "deskKeyringUnlockNow": "Jetzt entsperren",
+  "deskTxThisWallet": "Diese Wallet",
+  "deskErrOldLinks": "Der Ordner dieser Wallet enthält Verknüpfungen; kopieren Sie ihn von Hand oder stellen Sie die Wallet mit der Wiederherstellungsphrase wieder her.",
+  "deskErrOldIncomplete": "Der Ordner dieser Wallet konnte nicht vollständig gelesen werden; kopieren Sie ihn von Hand oder stellen Sie die Wallet mit der Wiederherstellungsphrase wieder her.",
+  "deskErrOldSeedTooLarge": "Die Datei wallet.seed ist zu groß, um ein Wallet-Seed zu sein.",
+  "deskErrSendUnbuildable": "Diese Zahlung lässt sich aus den verfügbaren Coins nicht zusammenstellen.",
+  "deskErrNothingToConsolidate": "Nichts zum Zusammenführen: weniger als zwei verfügbare Outputs.",
+  "deskSetReportFileNone": "{name} (nicht enthalten)",
+  "deskSetReportFileAll": "{name} (vollständig, {size})",
+  "deskSetReportFilePart": "{name} (letzte {part} von {size})"
 }

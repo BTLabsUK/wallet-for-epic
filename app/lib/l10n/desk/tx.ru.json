@@ -110,5 +110,6 @@
   "deskTxProofCopyRecipient": "Копировать адрес получателя",
   "deskTxProofCopySignature": "Копировать подпись получателя",
   "deskTxProofExport": "Экспорт",
-  "deskTxProofSaved": "Подтверждение сохранено"
+  "deskTxProofSaved": "Подтверждение сохранено",
+  "deskTxThisWallet": "Этот кошелёк"
 }

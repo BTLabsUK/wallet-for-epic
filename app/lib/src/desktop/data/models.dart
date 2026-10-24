@@ -5,10 +5,13 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import 'package:intl/intl.dart' show NumberFormat;
+
 import '../../l10n.dart' show AppLocalizations, englishStrings, localDigits;
 import '../../models.dart' show SelectionStrategy, SendOptions;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../smart_outputs.dart' show smartOutputsDefault;
+import '../../ui/send_screen.dart' show normalizeAmountText;
 
 export '../../models.dart' show SelectionStrategy, SendOptions;
 export '../../send_summary.dart' show SendEstimate, SendSummary;
@@ -48,6 +51,16 @@ int? parseEpic(String raw) {
   if (frac.length > 8) return epicTooLong;
   return (int.tryParse(m.group(1)!.isEmpty ? '0' : m.group(1)!) ?? 0) * nanoPerEpic + (int.tryParse(frac.padRight(8, '0')) ?? 0);
 }
+
+/// An amount field's text in [l]'s language to nanoepic, as [parseEpic] answers: cleaned by
+/// [normalizeAmountText] first, so "1.000" in German, where the app shows 1000 so, is refused as
+/// unclear instead of read as 1, and "1,5" is 1.5 everywhere.
+///
+/// Throws a [LocalizedFormatException] (its `text(l)` is the field error) for an unclear or
+/// negative amount.
+int? parseEpicIn(AppLocalizations l, String raw) => parseEpic(
+  normalizeAmountText(raw, unit: 'EPIC', groupSeparator: NumberFormat.decimalPattern(l.localeName).symbols.GROUP_SEP),
+);
 
 @immutable
 class Balance {
@@ -245,6 +258,7 @@ class Tx {
     this.confirmedAt,
     this.detail,
     this.flow = TxFlow.payment,
+    this.toSelf = false,
   });
 
   final int id;
@@ -263,6 +277,9 @@ class Tx {
   /// Address, URL or file name of the other side.
   final String? counterparty;
   final String? contactName;
+
+  /// A split or consolidation: both sides are this wallet (F13).
+  final bool toSelf;
   final String? message;
   final int? height;
   final String? kernel;
@@ -392,6 +409,7 @@ class ServiceStatus {
     required this.httpListener,
     required this.tor,
     this.httpProblem,
+    this.httpProblemPort,
     this.torProgress,
     this.torProblem,
     this.torCanSend = false,
@@ -413,8 +431,11 @@ class ServiceStatus {
   /// stopped by itself ([ServiceHealth.down], with [httpProblem]).
   final ServiceHealth httpListener;
 
-  /// Why the HTTP listener is down, in a few words ("Port 3415 in use"); null otherwise.
-  final String? httpProblem;
+  /// Why the HTTP listener is down; null otherwise. Worded at display time ([httpProblemText]).
+  final HttpProblem? httpProblem;
+
+  /// The port [httpProblem] is about.
+  final int? httpProblemPort;
 
   /// The wallet's tor: off, connecting ([ServiceHealth.checking], with [torProgress] until
   /// connected, then publishing the onion), ready, running for sends only
@@ -450,6 +471,16 @@ class ServiceStatus {
   /// A one-line state the wallet is in, e.g. a database being rebuilt; null when none.
   final String? notice;
 }
+
+/// Why the HTTP listener is down: kept structured so every language words it ([httpProblemText]).
+enum HttpProblem { portInUse, portUnavailable, stopped }
+
+/// [ServiceStatus.httpProblem] in a few words: "Port 3415 in use".
+String httpProblemText(AppLocalizations l, HttpProblem p, int port) => switch (p) {
+  HttpProblem.portInUse => l.deskErrPortInUse(port),
+  HttpProblem.portUnavailable => l.deskErrPortUnavailable(port),
+  HttpProblem.stopped => l.deskErrStoppedWithError,
+};
 
 /// The Tor line of the status card and Settings › Receiving: what tor is doing now.
 String torStatusLine(AppLocalizations l, ServiceStatus s) {

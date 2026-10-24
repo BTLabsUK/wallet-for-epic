@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
 import '../../../log.dart';
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/http_address.dart';
@@ -110,9 +111,16 @@ class _Draft {
   int get total => amount + fee;
 }
 
-/// Amount text to nanoepic: null when it is not a number, [_tooLong] for more than 8 decimals.
+/// Amount text in [l]'s language to nanoepic ([parseEpicIn]): null when it is not a number or is
+/// unclear, [_tooLong] for more than 8 decimals.
 const int _tooLong = epicTooLong;
-int? _parseAmount(String raw) => parseEpic(raw);
+int? _parseAmount(AppLocalizations l, String raw) {
+  try {
+    return parseEpicIn(l, raw);
+  } on LocalizedFormatException {
+    return null;
+  }
+}
 
 /// What is wrong with the recipient for method [m], or null (spec 7: one parser for every kind).
 String? _recipientError(AppLocalizations l, TxMethod m, String v, DeskWalletApi api) {
@@ -203,7 +211,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _suggestOff = _to.text.isNotEmpty && !args.suggest;
     _amount.text = args.amount ?? '';
     _message.text = args.message ?? '';
-    if (args.amount != null) unawaited(_loadFee());
+    // After the first frame: reading the amount needs the language, not available in initState.
+    if (args.amount != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_loadFee());
+      });
+    }
     switch (args.step) {
       case SendStep.errors:
         _submitted = true;
@@ -228,7 +241,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     direction: TxDirection.sent,
     state: m == TxMethod.file || m == TxMethod.epicbox ? TxState.waitingRecipient : TxState.posted,
     method: m,
-    amount: _parseAmount(_amount.text) ?? 12 * nanoPerEpic,
+    amount: parseEpic(_amount.text) ?? 12 * nanoPerEpic,
     fee: 600000,
     created: DateTime.now(),
     counterparty: to,
@@ -243,7 +256,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     super.dispose();
   }
 
-  int? get _parsed => _parseAmount(_amount.text);
+  int? get _parsed => _parseAmount(context.l10n, _amount.text);
   int get _amountNano => (_parsed ?? 0) > 0 ? _parsed! : 0;
 
   ServiceHealth? _epicboxHealth(DeskState st) => _args.epicboxHealth ?? st.status?.epicboxHealth;
@@ -447,7 +460,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           estimate: max,
           options: const SendOptions(strategy: SelectionStrategy.all),
         );
-        _amount.text = formatEpic(n, minDecimals: 0).replaceAll(',', '');
+        _amount.text = localDecimal(context.l10n, formatEpic(n, minDecimals: 0).replaceAll(',', ''));
       });
     } catch (_) {
       if (mounted) setState(() => _allError = context.l10n.deskSendAllFailed);
@@ -457,8 +470,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   String? _amountError(int? spendable) {
-    final p = _parsed;
     final l = context.l10n;
+    final int? p;
+    try {
+      p = parseEpicIn(l, _amount.text);
+    } on LocalizedFormatException catch (e) {
+      return e.text(l);
+    }
     if (_amount.text.trim().isEmpty || p == null) return l.deskSendErrAmountEnter;
     if (p == _tooLong) return l.deskSendErrAmountDecimals;
     if (p <= 0) return l.deskSendErrAmountZero;

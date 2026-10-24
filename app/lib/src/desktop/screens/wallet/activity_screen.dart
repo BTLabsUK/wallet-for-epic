@@ -25,6 +25,9 @@ class ActivityArgs {
 
 const int _pageSize = 12;
 
+/// The no-break spaces Polish and Russian group digits with.
+final RegExp _nbsp = RegExp('[\u00A0\u202F]');
+
 /// Activity: every transaction (filter, search, pages) with the selected one in a detail pane
 /// beside the list at desktop width, or in its place below. Outputs have their own page.
 class ActivityScreen extends ConsumerStatefulWidget {
@@ -80,7 +83,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                 (t.counterparty ?? '').toLowerCase().contains(q) ||
                 (t.message ?? '').toLowerCase().contains(q) ||
                 t.slateId.contains(q) ||
-                formatEpic(t.amount).contains(q)))
+                formatEpic(t.amount).contains(q) ||
+                // As the list shows it (1.234,5 in German); a typed space matches the no-break one.
+                formatEpicL(l, t.amount).replaceAll(_nbsp, ' ').contains(q.replaceAll(_nbsp, ' '))))
           t,
     ];
   }

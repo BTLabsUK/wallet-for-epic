@@ -110,12 +110,12 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
         second: switch (run) {
           HttpRun.on => public ? l.deskRailOnInternet : l.deskRailOnLocal,
           HttpRun.busy => l.deskRailStarting,
-          HttpRun.failed => (st?.httpProblem ?? '').toLowerCase().contains('port') ? l.deskRailPortInUse : l.deskRailStopped,
+          HttpRun.failed => st?.httpProblem == HttpProblem.portInUse || st?.httpProblem == HttpProblem.portUnavailable ? l.deskRailPortInUse : l.deskRailStopped,
           HttpRun.off => '–',
         },
         lines: [
           if (run != HttpRun.off) public ? l.deskRailPortInternet('${settings.httpPort}') : l.deskRailPortLocal('${settings.httpPort}'),
-          if (run == HttpRun.failed && st?.httpProblem != null) st!.httpProblem!,
+          if (run == HttpRun.failed && st?.httpProblem != null) httpProblemText(l, st!.httpProblem!, st.httpProblemPort ?? settings.httpPort),
         ],
         open: l.deskRailOpenHttp,
         jump: SettingsJump.http,
@@ -385,7 +385,8 @@ class _RailRowState extends State<RailRow> {
       child: Semantics(
         button: true,
         label: '${i.open}: ${i.word}',
-        hint: [...i.lines, ?i.note].join('. '),
+        // One line each: '. ' would add full stops in Thai and Chinese.
+        hint: [...i.lines, ?i.note].join('\n'),
         excludeSemantics: true,
         child: InkWell(
           onTap: widget.onTap,

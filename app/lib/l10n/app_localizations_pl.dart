@@ -13709,4 +13709,42 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKeyringUnlockNow => 'Odblokuj teraz';
+
+  @override
+  String get deskTxThisWallet => 'Ten portfel';
+
+  @override
+  String get deskErrOldLinks =>
+      'Folder tego portfela zawiera dowiązania; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.';
+
+  @override
+  String get deskErrOldIncomplete =>
+      'Nie udało się odczytać całego folderu tego portfela; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.';
+
+  @override
+  String get deskErrOldSeedTooLarge =>
+      'Plik wallet.seed jest za duży, by był seedem portfela.';
+
+  @override
+  String get deskErrSendUnbuildable =>
+      'Tej płatności nie da się złożyć z dostępnych środków.';
+
+  @override
+  String get deskErrNothingToConsolidate =>
+      'Nie ma czego scalać: mniej niż dwa wyjścia do wydania.';
+
+  @override
+  String deskSetReportFileNone(String name) {
+    return '$name (niedołączony)';
+  }
+
+  @override
+  String deskSetReportFileAll(String name, String size) {
+    return '$name (cały, $size)';
+  }
+
+  @override
+  String deskSetReportFilePart(String name, String part, String size) {
+    return '$name (ostatnie $part z $size)';
+  }
 }

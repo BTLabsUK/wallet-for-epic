@@ -62,6 +62,7 @@ import 'http_address.dart';
 import 'invoice_scheduler.dart';
 import 'invoices.dart';
 import 'models.dart';
+import 'node_view.dart' show startFailureLine;
 import 'phrase_check.dart' show phraseFingerprint;
 import 'remember.dart';
 
@@ -115,7 +116,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.invoiceAlreadyPaid => l.deskErrInvoicePaid,
     core.WalletErrorKind.invoiceLockedAboveTip => l.deskErrInvoiceLocked,
     core.WalletErrorKind.invoiceChanged => l.deskErrInvoiceChanged,
-    core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable || detail == core.nothingToConsolidate ? detail : detail.isEmpty ? l.deskErrNotAccepted : l.deskErrNotAcceptedDetail(detail),
+    core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable ? l.deskErrSendUnbuildable : detail == core.nothingToConsolidate ? l.deskErrNothingToConsolidate : detail.isEmpty ? l.deskErrNotAccepted : l.deskErrNotAcceptedDetail(detail),
     core.WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
     core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
   };
@@ -366,7 +367,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// The HTTP listener's events while it runs or starts; its health and, when down, why.
   StreamSubscription<core.HttpListenerEvent>? _http;
   ServiceHealth _httpHealth = ServiceHealth.off;
-  String? _httpProblem;
+  HttpProblem? _httpProblem;
 
   /// The port and reach the running HTTP listener started with.
   int? _httpPort;
@@ -1246,6 +1247,13 @@ class LepicDeskWallet implements DeskWalletApi {
 
   static String _testNetText(AppLocalizations l) => l.deskErrTestNet;
 
+  /// Why an old wallet cannot be imported ([legacy.LegacyRefusal.text] is the English).
+  static String _refusalText(AppLocalizations l, legacy.LegacyRefusal r) => switch (r) {
+    legacy.LegacyRefusal.links => l.deskErrOldLinks,
+    legacy.LegacyRefusal.incomplete => l.deskErrOldIncomplete,
+    legacy.LegacyRefusal.seedTooLarge => l.deskErrOldSeedTooLarge,
+  };
+
   OldWallet _oldOf(legacy.LegacyWallet w, Map<String, legacy.SameWallet> same) {
     final s = same[w.path];
     return OldWallet(
@@ -1262,7 +1270,7 @@ class LepicDeskWallet implements DeskWalletApi {
       sizeBytes: w.sizeBytes,
       sameAs: s?.text,
       inApp: s?.inApp ?? false,
-      blocked: w.refusal?.text ?? (w.network == legacy.LegacyNetwork.main ? null : _testNetText(deskStrings)),
+      blocked: w.refusal != null ? _refusalText(deskStrings, w.refusal!) : (w.network == legacy.LegacyNetwork.main ? null : _testNetText(deskStrings)),
     );
   }
 
@@ -1330,7 +1338,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<ImportedWallet> importOldWallet(String id, {required String oldPassword, String? newPassword}) async {
     final w = _oldWallet(id);
     final refusal = w.refusal;
-    if (refusal != null) throw DeskError(refusal.text);
+    if (refusal != null) throw DeskError.l10n((l) => _refusalText(l, refusal));
     if (w.network != legacy.LegacyNetwork.main) throw DeskError.l10n(_testNetText);
     if (oldPassword.isEmpty) throw DeskError.l10n((l) => l.deskErrEnterOldPassword);
     final next = newPassword ?? oldPassword;
@@ -1349,7 +1357,7 @@ class LepicDeskWallet implements DeskWalletApi {
     } on FileSystemException {
       throw DeskError.l10n((l) => l.deskErrSeedUnreadable);
     }
-    if (bytes.isEmpty || bytes.length > legacy.maxSeedBytes) throw const DeskError(legacy.seedTooLargeText);
+    if (bytes.isEmpty || bytes.length > legacy.maxSeedBytes) throw DeskError.l10n((l) => l.deskErrOldSeedTooLarge);
     final String seed;
     try {
       seed = utf8.decode(bytes);
@@ -1789,6 +1797,7 @@ class LepicDeskWallet implements DeskWalletApi {
       epicboxHealth: _epicboxHealth,
       httpListener: _httpHealth,
       httpProblem: _httpHealth == ServiceHealth.down ? _httpProblem : null,
+      httpProblemPort: _httpHealth == ServiceHealth.down && _httpProblem != null ? _httpPort : null,
       tor: _torHealth,
       torProgress: _torHealth == ServiceHealth.checking && !_torCanSend ? _torProgress : null,
       torProblem: _torHealth == ServiceHealth.down || _torHealth == ServiceHealth.slow ? _torProblem : null,
@@ -2102,8 +2111,7 @@ class LepicDeskWallet implements DeskWalletApi {
           return SendFileReady(tx, file.path);
         case TxMethod.http:
           final to = (r.to ?? '').trim();
-          final problem = httpAddressProblem(to);
-          if (problem != null) return SendFailed(problem);
+          if (httpAddressProblem(to) != null) return SendFailed.l10n((l) => httpAddressProblem(to, l)!);
           // Send asks before plain HTTP leaves this computer; LEPIC refuses it otherwise.
           if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return SendFailed.l10n((l) => l.deskErrPlainHttp);
           before = {for (final e in await session.transactions(refresh: false)) e.id};
@@ -2568,7 +2576,7 @@ class LepicDeskWallet implements DeskWalletApi {
       try {
         await node.start();
       } on NodeStartException catch (e) {
-        throw DeskError(e.message);
+        throw DeskError.l10n((l) => l.deskErrLocalNodeNotStarted(startFailureLine(l, e)));
       }
       await _nodeLock(() async {
         // A stop that came in while it was starting wins.
@@ -2662,7 +2670,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await (await _theNode()).start();
     } on Object catch (e) {
       logWarn('desk', 'built-in node did not start: ${e is NodeStartException ? e.failure.name : e.runtimeType}');
-      _notice = deskStrings.deskErrLocalNodeNotStarted(e is NodeStartException ? e.message : deskStrings.deskErrUnknown);
+      _notice = deskStrings.deskErrLocalNodeNotStarted(e is NodeStartException ? startFailureLine(deskStrings, e) : deskStrings.deskErrUnknown);
       _changed();
       // The notice describes that failed start only: it goes when the node is started later
       // (also an earlier run's node adopted) or stopped, not when the page is left.
@@ -2807,7 +2815,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
     logInfo('desk', 'http listener start ${exposure.name}');
     late final StreamSubscription<core.HttpListenerEvent> sub;
-    void ended(ServiceHealth health, String? problem) {
+    void ended(ServiceHealth health, HttpProblem? problem) {
       if (_http != sub) return;
       _http = null;
       _httpHealth = health;
@@ -2822,9 +2830,11 @@ class LepicDeskWallet implements DeskWalletApi {
             _httpHealth = ServiceHealth.ok;
             _httpPort = e.port ?? port;
           case core.HttpListenerEventKind.portInUse:
-            ended(ServiceHealth.down, deskStrings.deskErrPortInUse(e.port ?? port));
+            _httpPort = e.port ?? port;
+            ended(ServiceHealth.down, HttpProblem.portInUse);
           case core.HttpListenerEventKind.bindFailed:
-            ended(ServiceHealth.down, deskStrings.deskErrPortUnavailable(e.port ?? port));
+            _httpPort = e.port ?? port;
+            ended(ServiceHealth.down, HttpProblem.portUnavailable);
           case core.HttpListenerEventKind.received:
             unawaited(_reload());
           case core.HttpListenerEventKind.refused:
@@ -2837,7 +2847,7 @@ class LepicDeskWallet implements DeskWalletApi {
       },
       onError: (Object e) {
         logWarn('desk', 'http listener ended: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
-        ended(ServiceHealth.down, deskStrings.deskErrStoppedWithError);
+        ended(ServiceHealth.down, HttpProblem.stopped);
         _changed();
       },
       onDone: () {
@@ -3994,7 +4004,8 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     confirmationsNeeded: minConf,
     counterparty: to,
     // A split or consolidate: both sides are this wallet (F13).
-    contactName: e.transport == 'self' ? 'This wallet' : contactName, // l10n-ok: stored in the history row; contact column of the tx list
+    contactName: e.transport == 'self' ? null : contactName,
+    toSelf: e.transport == 'self',
     message: core.messageBy(e.messages, core.SlateRole.sender) ?? core.messageBy(e.messages, core.SlateRole.receiver),
     height: height,
     kernel: e.kernelExcess,

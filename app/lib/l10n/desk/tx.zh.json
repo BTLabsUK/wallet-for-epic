@@ -110,5 +110,6 @@
   "deskTxProofCopyRecipient": "复制接收方地址",
   "deskTxProofCopySignature": "复制接收方签名",
   "deskTxProofExport": "导出",
-  "deskTxProofSaved": "证明已保存"
+  "deskTxProofSaved": "证明已保存",
+  "deskTxThisWallet": "此钱包"
 }

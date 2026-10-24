@@ -179,7 +179,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     setState(() => _busy = true);
     final domain = _domain.text.trim();
     prefs.set(ref.read(settingsPrefsProvider).copyWith(epicboxOnStart: domain.isNotEmpty));
-    if (_steps.contains(SetupStep.prefs)) await c.saveSettings(st.settings.copyWith(language: () => _language));
+    if (_steps.contains(SetupStep.prefs)) await c.saveSettings(ref.read(deskProvider).settings.copyWith(language: () => _language)); // read now: the dialogs above may have saved settings
     try {
       if (bundled) {
         if (!_wasBuiltin) await c.useBuiltInNode(true);

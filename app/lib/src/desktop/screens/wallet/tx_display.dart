@@ -19,6 +19,7 @@ String methodLabel(AppLocalizations l, TxMethod m) => switch (m) {
 /// what kind of transaction it was.
 String whoOf(AppLocalizations l, Tx t) {
   if (t.contactName != null) return t.contactName!;
+  if (t.toSelf) return l.deskTxThisWallet;
   if (t.coinbase) return l.deskTxMiningReward;
   if (t.foundByScan) return foundTexts(l, t).label;
   final cp = t.counterparty;
@@ -60,7 +61,7 @@ String? whoTip(AppLocalizations l, Tx t) =>
     t.detail ?? (t.foundByScan && t.contactName == null ? foundTexts(l, t).tip : (t.fromBackup ? l.deskTxBackupTip : null));
 
 /// Whether the name is an address (shown in mono).
-bool whoIsAddress(Tx t) => t.contactName == null && t.counterparty != null && t.method != TxMethod.file;
+bool whoIsAddress(Tx t) => t.contactName == null && !t.toSelf && t.counterparty != null && t.method != TxMethod.file;
 
 /// How it travelled, or null when that is not known (mining rewards, scan finds).
 String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.foundByScan ? null : methodLabel(l, t.method);

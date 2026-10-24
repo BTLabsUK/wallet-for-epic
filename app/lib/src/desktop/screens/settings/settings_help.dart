@@ -269,7 +269,9 @@ class _HelpLanguageSwitch extends ConsumerWidget {
       items: [for (final a in appLanguages) ESelectItem(a.code, a.name, leading: LanguageFlag(a.code, height: 14))],
       onChanged: (code) {
         final n = ref.read(deskProvider.notifier);
-        n.saveSettings(ref.read(deskProvider).settings.copyWith(helpLanguage: () => code));
+        // The interface's own language is the default, not a pin: Help then follows it.
+        final ui = context.l10n.localeName;
+        n.saveSettings(ref.read(deskProvider).settings.copyWith(helpLanguage: () => code == ui ? null : code));
       },
     ),
   );

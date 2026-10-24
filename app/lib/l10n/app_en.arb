@@ -17460,5 +17460,71 @@
   "deskKeyringUnlockNow": "Unlock now",
   "@deskKeyringUnlockNow": {
     "description": "Desktop, Linux, locked keyring: go on, and the system asks for the keyring's password."
+  },
+  "deskTxThisWallet": "This wallet",
+  "@deskTxThisWallet": {
+    "description": "Activity and payment detail: who the other side is for a split or consolidation, where both sides are this wallet. Short, it sits in the name column."
+  },
+  "deskErrOldLinks": "This wallet's folder has links in it; copy it by hand or restore from the phrase.",
+  "@deskErrOldLinks": {
+    "description": "Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user can copy the folder by hand or restore from the recovery phrase."
+  },
+  "deskErrOldIncomplete": "This wallet's folder could not be read completely; copy it by hand or restore from the phrase.",
+  "@deskErrOldIncomplete": {
+    "description": "Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user can copy it by hand or restore from the recovery phrase."
+  },
+  "deskErrOldSeedTooLarge": "The wallet.seed file is too large to be a wallet seed.",
+  "@deskErrOldSeedTooLarge": {
+    "description": "Import of an old wallet: why it cannot be imported. wallet.seed is a file name and stays as written."
+  },
+  "deskErrSendUnbuildable": "This send cannot be built from the coins available.",
+  "@deskErrSendUnbuildable": {
+    "description": "Error when a send or split cannot be made from the wallet's spendable outputs (the core refused it). Nothing was sent."
+  },
+  "deskErrNothingToConsolidate": "Nothing to consolidate: fewer than two spendable outputs.",
+  "@deskErrNothingToConsolidate": {
+    "description": "Error when Consolidate is asked with fewer than two spendable outputs. Nothing was changed."
+  },
+  "deskSetReportFileNone": "{name} (not included)",
+  "@deskSetReportFileNone": {
+    "description": "Report a problem › What is sent: a log file that does not go with the report. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "wfe.log.1"
+      }
+    }
+  },
+  "deskSetReportFileAll": "{name} (all, {size})",
+  "@deskSetReportFileAll": {
+    "description": "Report a problem › What is sent: a log file that goes with the report whole. {size} is its size.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "wfe.log"
+      },
+      "size": {
+        "type": "String",
+        "example": "40 KB"
+      }
+    }
+  },
+  "deskSetReportFilePart": "{name} (last {part} of {size})",
+  "@deskSetReportFilePart": {
+    "description": "Report a problem › What is sent: only the end of a log file goes with the report. {part} is how much, {size} the whole file.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "wfe.log"
+      },
+      "part": {
+        "type": "String",
+        "example": "256 KB"
+      },
+      "size": {
+        "type": "String",
+        "example": "1.0 MB"
+      }
+    }
   }
 }

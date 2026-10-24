@@ -125,5 +125,10 @@
   "deskDataUpdUnreachable": "Nie udało się połączyć z serwerem aktualizacji.",
   "deskDataUpdStatus": "Serwer aktualizacji zwrócił {status}.",
   "deskDataUpdNone": "Nie opublikowano jeszcze informacji o aktualizacjach wersji desktopowej.",
-  "deskErrSecretProtect": "Windows nie mógł zabezpieczyć sekretów portfela (DPAPI odmówiło), więc nic nie zapisano. Zaloguj się do Windows na własne konto i jego hasłem, nie przez sesję zdalną ani usługową, i spróbuj ponownie."
+  "deskErrSecretProtect": "Windows nie mógł zabezpieczyć sekretów portfela (DPAPI odmówiło), więc nic nie zapisano. Zaloguj się do Windows na własne konto i jego hasłem, nie przez sesję zdalną ani usługową, i spróbuj ponownie.",
+  "deskErrOldLinks": "Folder tego portfela zawiera dowiązania; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.",
+  "deskErrOldIncomplete": "Nie udało się odczytać całego folderu tego portfela; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.",
+  "deskErrOldSeedTooLarge": "Plik wallet.seed jest za duży, by był seedem portfela.",
+  "deskErrSendUnbuildable": "Tej płatności nie da się złożyć z dostępnych środków.",
+  "deskErrNothingToConsolidate": "Nie ma czego scalać: mniej niż dwa wyjścia do wydania."
 }

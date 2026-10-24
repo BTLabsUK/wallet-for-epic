@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_log.dart';
+import '../../l10n.dart' show AppLocalizations, englishStrings, localDigits;
 import 'desk_store.dart';
 
 const String logsKey = 'desk.logs';
@@ -146,26 +147,30 @@ class AppLogFiles implements LogFiles {
 
 final logFilesProvider = Provider<LogFiles>((ref) => const AppLogFiles());
 
-/// [bytes] as `640 KB` or `1.0 MB`.
-String logSize(int bytes) {
+/// [bytes] as `640 KB` or `1.0 MB`, in [l]'s decimal separator when given (`1,0 MB`).
+String logSize(int bytes, [AppLocalizations? l]) {
   if (bytes < 1024 * 1024) return '${(bytes / 1024).ceil()} KB';
-  return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  final mb = (bytes / (1024 * 1024)).toStringAsFixed(1);
+  return '${l == null ? mb : localDigits(l, mb)} MB';
 }
 
 /// What a report attaches of each file, newest first, when it takes the newest [budget] bytes
 /// across them: `wfe.log (last 256 KB of 1.0 MB)`, `wfe.log.1 (all, 40 KB)` or
-/// `wfe.log.1 (not included)`.
-List<String> describeLogFiles(List<LogFileInfo> files, int budget) {
+/// `wfe.log.1 (not included)`. In [l]'s language for the Report dialog's "What is sent"
+/// (English without it).
+List<String> describeLogFiles(List<LogFileInfo> files, int budget, [AppLocalizations? l]) {
+  final w = l ?? englishStrings;
+  String size(int b) => logSize(b, l);
   var left = budget;
   final out = <String>[];
   for (final f in files) {
     if (left <= 0) {
-      out.add('${f.name} (not included)'); // l10n-ok: the problem report is English
+      out.add(w.deskSetReportFileNone(f.name));
     } else if (f.bytes <= left) {
-      out.add('${f.name} (all, ${logSize(f.bytes)})'); // l10n-ok: the problem report is English
+      out.add(w.deskSetReportFileAll(f.name, size(f.bytes)));
       left -= f.bytes;
     } else {
-      out.add('${f.name} (last ${logSize(left)} of ${logSize(f.bytes)})'); // l10n-ok: the problem report is English
+      out.add(w.deskSetReportFilePart(f.name, size(left), size(f.bytes)));
       left = 0;
     }
   }

@@ -3486,5 +3486,14 @@
   "deskKeyringMissingText": "Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，但没有密钥环响应。请安装或启动密钥环（GNOME Keyring 或 KWallet），登录运行密钥环的桌面会话，然后选择重试。",
   "deskKeyringLockedTitle": "密钥环已锁定",
   "deskKeyringLockedText": "Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（使用您的登录密码），然后选择重试，或选择立即解锁让系统询问密码。",
-  "deskKeyringUnlockNow": "立即解锁"
+  "deskKeyringUnlockNow": "立即解锁",
+  "deskTxThisWallet": "此钱包",
+  "deskErrOldLinks": "此钱包的文件夹中含有链接；请手动复制它，或用助记词恢复。",
+  "deskErrOldIncomplete": "无法完整读取此钱包的文件夹；请手动复制它，或用助记词恢复。",
+  "deskErrOldSeedTooLarge": "wallet.seed 文件太大，不可能是钱包种子文件。",
+  "deskErrSendUnbuildable": "无法用现有的币构建这笔发送。",
+  "deskErrNothingToConsolidate": "无需合并：可用输出少于两个。",
+  "deskSetReportFileNone": "{name}（不包含）",
+  "deskSetReportFileAll": "{name}（全部，{size}）",
+  "deskSetReportFilePart": "{name}（{size} 中的最后 {part}）"
 }

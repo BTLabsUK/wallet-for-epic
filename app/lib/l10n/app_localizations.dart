@@ -21073,6 +21073,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock now'**
   String get deskKeyringUnlockNow;
+
+  /// Activity and payment detail: who the other side is for a split or consolidation, where both sides are this wallet. Short, it sits in the name column.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet'**
+  String get deskTxThisWallet;
+
+  /// Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user can copy the folder by hand or restore from the recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet\'s folder has links in it; copy it by hand or restore from the phrase.'**
+  String get deskErrOldLinks;
+
+  /// Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user can copy it by hand or restore from the recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet\'s folder could not be read completely; copy it by hand or restore from the phrase.'**
+  String get deskErrOldIncomplete;
+
+  /// Import of an old wallet: why it cannot be imported. wallet.seed is a file name and stays as written.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet.seed file is too large to be a wallet seed.'**
+  String get deskErrOldSeedTooLarge;
+
+  /// Error when a send or split cannot be made from the wallet's spendable outputs (the core refused it). Nothing was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'This send cannot be built from the coins available.'**
+  String get deskErrSendUnbuildable;
+
+  /// Error when Consolidate is asked with fewer than two spendable outputs. Nothing was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to consolidate: fewer than two spendable outputs.'**
+  String get deskErrNothingToConsolidate;
+
+  /// Report a problem › What is sent: a log file that does not go with the report. {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (not included)'**
+  String deskSetReportFileNone(String name);
+
+  /// Report a problem › What is sent: a log file that goes with the report whole. {size} is its size.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (all, {size})'**
+  String deskSetReportFileAll(String name, String size);
+
+  /// Report a problem › What is sent: only the end of a log file goes with the report. {part} is how much, {size} the whole file.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (last {part} of {size})'**
+  String deskSetReportFilePart(String name, String part, String size);
 }
 
 class _AppLocalizationsDelegate
