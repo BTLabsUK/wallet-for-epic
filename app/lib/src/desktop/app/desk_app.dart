@@ -7,6 +7,7 @@ import '../desk_l10n.dart' show deskStrings;
 import '../theme/theme.dart';
 import '../widgets/kit.dart';
 import 'screens.dart';
+import 'auto_lock.dart';
 import 'shell.dart';
 import 'tour.dart';
 
@@ -95,7 +96,8 @@ class _DeskRootState extends ConsumerState<DeskRoot> {
     final child = at.route.bare
         // A Scaffold, so toasts (showEToast) show on the first-run screens too.
         ? Scaffold(backgroundColor: context.dc.bg, body: KeyedSubtree(key: ValueKey(at.route), child: deskScreen(at)))
-        : DeskShell(at: at);
+        // The open wallet locks itself after the idle time (Settings › Account › Security).
+        : DeskAutoLock(child: DeskShell(at: at));
     return DeskNavKeys(
       child: AnimatedSwitcher(duration: Dur.base, child: KeyedSubtree(key: ValueKey(at.route.bare), child: child)),
     );

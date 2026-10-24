@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../../advanced.dart' show NetworkMode;
+import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../widgets/kit.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
+import 'settings_advanced.dart' show openAdvanced;
 
 /// The tour's Tor states: on, starting, not connected (laid over the mock's status).
 enum PrivacyDemo { torOn, torStarting, torFailed }
@@ -94,8 +97,12 @@ class _TorGroupState extends ConsumerState<TorGroup> {
     final st = ref.watch(deskProvider);
     final status = _status(st.status);
     final included = status?.torIncluded ?? true;
-    final tor = torStateOf(st.settings, status);
+    final tor = netTorState(st.settings, status);
     final line = torStateLine(l, tor, status, included: included);
+    // Advanced › Network: Tor only keeps the switch on, Offline leaves it off.
+    final mode = st.settings.advanced.networkMode;
+    final torOnly = mode == NetworkMode.torOnly;
+    final offline = mode == NetworkMode.offline;
     return JumpSection(
       section: SettingsJump.tor,
       child: ESetGroup(
@@ -113,23 +120,38 @@ class _TorGroupState extends ConsumerState<TorGroup> {
                   ? Center(child: Semantics(label: l.deskSetPrivSwitching, child: ESpinner(size: 18.u)))
                   : ESwitch(
                       key: const ValueKey('privacy-tor-switch'),
-                      value: st.settings.tor && included,
+                      value: (torOnly || st.settings.tor) && included && !offline,
                       semanticLabel: torNetworkLabel(context.l10n),
-                      onChanged: included ? _set : null,
+                      onChanged: included && !torOnly && !offline ? _set : null,
                     ),
             ),
             below: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                EStateLine(line, key: const ValueKey('privacy-tor-state')),
-                if (tor == TorState.failed) ...[
+                if (!offline) EStateLine(line, key: const ValueKey('privacy-tor-state')),
+                if (torOnly || offline) ...[
+                  SizedBox(height: Sp.x2),
+                  Wrap(
+                    spacing: Sp.x2,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        torOnly ? l.deskNetTorOnlyLine : l.deskNetOfflineReason,
+                        key: const ValueKey('privacy-mode-line'),
+                        style: context.ts.small,
+                      ),
+                      ELink(label: l.deskNetOpenAdvanced, onPressed: () => openAdvanced(ref)),
+                    ],
+                  ),
+                ],
+                if (tor == TorState.failed && !offline) ...[
                   SizedBox(height: Sp.x3),
                   Wrap(
                     spacing: Sp.x2,
                     runSpacing: Sp.x2,
                     children: [
                       EButton(label: l.commonRetry, icon: EIcons.refresh, size: EBtnSize.inline, busy: _busy, onPressed: _busy ? null : () => _set(true)),
-                      EButton.ghost(label: l.deskSetPrivTurnOff, size: EBtnSize.inline, onPressed: _busy ? null : () => _set(false)),
+                      if (!torOnly) EButton.ghost(label: l.deskSetPrivTurnOff, size: EBtnSize.inline, onPressed: _busy ? null : () => _set(false)),
                     ],
                   ),
                 ],

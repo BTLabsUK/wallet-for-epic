@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import '../net/local_address.dart';
 import '../net/tor_net.dart';
 import 'node_api_types.dart';
 
@@ -250,7 +251,7 @@ Future<({int status, String body})> _ioTransport(
     ..userAgent = null;
   try {
     // A remote node through tor while the Tor switch covers it; a node on this computer direct.
-    TorNet.configure(client, loopback: isLoopbackUrl(url));
+    TorNet.configure(client, loopback: isLoopbackUrl(url), local: isLocalAddressUrl(url.toString()));
     return await () async {
       final req = body.isEmpty ? await client.getUrl(url) : await client.postUrl(url);
       req.followRedirects = false; // never carry the secret to another address

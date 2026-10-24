@@ -209,6 +209,9 @@ String? ttlLine(AppLocalizations l, TxEntry tx, BigInt? tip) {
   };
 }
 
+/// The key of the "More" link that shows the technical rows once, for tests.
+const Key txDetailsMoreKey = ValueKey('tx-details-more');
+
 /// Everything known about one transaction, with its note, contact and cancel.
 class TxDetailsScreen extends ConsumerStatefulWidget {
   const TxDetailsScreen({super.key, required this.txKey});
@@ -221,6 +224,9 @@ class TxDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
+  /// "More" was tapped: the technical rows show for this view although the switch is off.
+  bool _more = false;
+
   bool _busy = false;
 
   void _showMessage(String message, {required NoticeLevel level}) =>
@@ -741,11 +747,28 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 notice: l.txDetailsLinkCopied,
               ),
             ),
+          // Advanced › Technical details shows the rows; without it a small "More" shows them
+          // for this view only (the switch stays off). Send feedback carries the slate id for
+          // support either way.
+          if (!AdvancedOptions.has(context, AdvancedFeature.technicalDetails) &&
+              !_more)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton(
+                key: txDetailsMoreKey,
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(48, 44),
+                  padding: EdgeInsets.zero,
+                ),
+                onPressed: () => setState(() => _more = true),
+                child: Text(l.txDetailsMore),
+              ),
+            )
+          else
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
             childrenPadding: EdgeInsets.zero,
-            // Open by itself for people who asked for the technical side.
-            initiallyExpanded: AdvancedOptions.of(context),
+            initiallyExpanded: true,
             title: Text(l.txDetailsTechnical),
             children: [
               if (tx.blockHeight case final height?)

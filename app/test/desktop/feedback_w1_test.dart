@@ -18,6 +18,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
 
@@ -50,12 +52,13 @@ class _NodeAtZero extends _Wallet {
 }
 
 Future<ProviderContainer> _pump(WidgetTester tester, Widget child, {MockDeskWallet? api, bool refresh = true}) async {
-  tester.view.physicalSize = const Size(1280, 900);
+  tester.view.physicalSize = const Size(1280, 1500);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api ?? _Wallet())]);
   addTearDown(container.dispose);
   if (refresh) await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() => advancedOn(container));
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
@@ -139,7 +142,7 @@ void main() {
     expect(find.byType(InternetGuide), findsNothing);
   });
 
-  testWidgets('the Receiving page turns Tor on from the guide (F30)', (tester) async {
+  testWidgets('the Transactions page turns Tor on from the guide (F30)', (tester) async {
     final api = _Wallet();
     final container = await _pump(tester, const SettingsReceivingScreen(), api: api);
     await tester.tap(find.byKey(const ValueKey('st-switch-http')));

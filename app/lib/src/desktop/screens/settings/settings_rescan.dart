@@ -6,8 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/net_mode_view.dart';
+import '../../../network_gate.dart' show NetBlock;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
+import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 /// Start states of Settings › Recheck balance.
 enum RescanDemo { running }
@@ -155,6 +158,9 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
       ),
     );
     final percent = _percent;
+    // Offline without a local node, or Tor only without Tor: nothing to recheck against.
+    final block = ref.watch(deskNodeBlockProvider);
+    final reason = netBlockReason(l, block);
     return SettingsFrame(
       route: DeskRoute.settingsRescan,
       child: Column(
@@ -166,11 +172,13 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
               if (!_running)
                 ESetRow(
                   text: l.deskSetRescanText,
-                  control: ERowControl(child: EButton.primary(label: _end != null || _failure != null ? l.deskSetRescanStartAgain : l.deskSetLnodeStart, icon: EIcons.scan, size: EBtnSize.sm, onPressed: _start)),
-                  below: DeskFeatures.rescanRepair
+                  control: ERowControl(child: EButton.primary(label: _end != null || _failure != null ? l.deskSetRescanStartAgain : l.deskSetLnodeStart, icon: EIcons.scan, size: EBtnSize.sm, onPressed: block == NetBlock.none ? _start : null)),
+                  below: reason != null || (DeskFeatures.rescanRepair && advancedHas(ref, AdvancedFeature.recheckFromHeight))
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if (reason != null) Text(reason, key: const ValueKey('rescan-net-blocked'), style: ts.small),
+                            if (DeskFeatures.rescanRepair && advancedHas(ref, AdvancedFeature.recheckFromHeight)) ...[
                             ECheckbox(value: _deleteUnconfirmed, onChanged: (v) => setState(() => _deleteUnconfirmed = v), label: l.deskSetRescanDeleteUnconfirmed),
                             Padding(
                               padding: EdgeInsets.only(left: Sp.x8),
@@ -179,6 +187,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                                 style: ts.caption,
                               ),
                             ),
+                            ],
                           ],
                         )
                       : null,

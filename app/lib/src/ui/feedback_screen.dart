@@ -11,10 +11,12 @@ import '../l10n.dart';
 import '../network.dart';
 import '../providers.dart';
 import '../settings.dart';
+import '../network_gate.dart';
 import '../support_clean.dart';
 import '../support_report.dart';
 import 'common.dart';
 import 'contacts_screen.dart' show LiveFieldError;
+import 'net_block.dart';
 import 'settings_screen.dart' show appVersionProvider;
 
 /// `android 14 (…)`: the OS and its version, as Dart reports them. Tests pin it.
@@ -307,6 +309,8 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     final l = context.l10n;
     final url = ref.watch(feedbackUrlProvider);
     final theme = Theme.of(context);
+    // Sending is a network action; saving or sharing the report is not.
+    final block = watchNetBlock(context, ref);
     return SlotScaffold(
       appBar: AppBar(title: Text(l.feedbackTitle)),
       body: ScreenBody(
@@ -364,10 +368,11 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           const SizedBox(height: 8),
           if (_error != null) ErrorText(_error!),
           if (url != null) ...[
+            NetBlockNote(block),
             BusyButton(
               label: l.feedbackSend,
               busy: _busy,
-              onPressed: () => _send(url),
+              onPressed: block == NetBlock.none ? () => _send(url) : null,
             ),
             const SizedBox(height: 8),
             OutlinedButton(

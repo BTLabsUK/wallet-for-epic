@@ -16,6 +16,8 @@ import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
+import '../network_gate.dart';
+import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
@@ -35,7 +37,9 @@ import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'licences_screen.dart';
 import 'network_menu.dart';
+import 'net_block.dart';
 import 'network_status.dart';
+import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart'
@@ -49,6 +53,7 @@ import 'theme/advanced.dart';
 import 'theme/brand.dart' show BrandLockup, BrandVariant;
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import 'tour/tour_target.dart';
 
 /// The project's source code.
 const String projectRepoUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic';
@@ -99,7 +104,7 @@ final biometricsProvider =
 
 /// The groups of the Settings hub that open a page of their own. Help & feedback opens Help
 /// and Notifications is a switch on the hub, so neither is here.
-enum SettingsSection { security, privacyNetwork, wallet, display, about }
+enum SettingsSection { security, privacyNetwork, wallet, transactions, display, advanced, about }
 
 /// The group's title, on the hub's row and on its page's app bar.
 String settingsSectionTitle(AppLocalizations l, SettingsSection section) =>
@@ -107,7 +112,9 @@ String settingsSectionTitle(AppLocalizations l, SettingsSection section) =>
       SettingsSection.security => l.settingsSectionSecurity,
       SettingsSection.privacyNetwork => l.settingsSectionPrivacyNetwork,
       SettingsSection.wallet => l.settingsSectionWallet,
+      SettingsSection.transactions => l.settingsSectionTransactions,
       SettingsSection.display => l.settingsSectionDisplay,
+      SettingsSection.advanced => l.advTitle,
       SettingsSection.about => l.settingsSectionAbout,
     };
 
@@ -116,8 +123,29 @@ IconData settingsSectionIcon(SettingsSection section) => switch (section) {
   SettingsSection.security => Icons.shield_outlined,
   SettingsSection.privacyNetwork => Icons.hub_outlined,
   SettingsSection.wallet => Icons.account_balance_wallet_outlined,
+  SettingsSection.transactions => Icons.swap_horiz,
   SettingsSection.display => Icons.tune,
+  SettingsSection.advanced => Icons.terminal,
   SettingsSection.about => Icons.info_outline,
+};
+
+/// A feature's name as the Advanced page shows it (the hub's state line reuses it).
+String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) {
+  AdvancedFeature.outputs => l.advOutputs,
+  AdvancedFeature.technicalDetails => l.advTechnical,
+  AdvancedFeature.sendOptions => l.advSendOptions,
+  AdvancedFeature.serverDetails => l.advServerDetails,
+  AdvancedFeature.recheckFromHeight => l.advRecheckHeight,
+  // Desktop only; never on a phone's list.
+  AdvancedFeature.builtInNode => l.advBuiltInNode,
+  AdvancedFeature.logs => l.advLogs,
+};
+
+/// A network mode's name.
+String networkModeName(AppLocalizations l, NetworkMode m) => switch (m) {
+  NetworkMode.standard => l.advModeStandard,
+  NetworkMode.torOnly => l.advModeTorOnly,
+  NetworkMode.offline => l.advModeOffline,
 };
 
 /// The key of the Privacy header on the Privacy & network page, for tests.
@@ -127,6 +155,9 @@ const Key settingsPrivacyKey = ValueKey('settings-privacy');
 /// wallet is open, the plain rows otherwise.
 const Key settingsNodeKey = netStatusNodeKey;
 const Key settingsEpicboxKey = netStatusEpicboxKey;
+
+/// The key of the Node failover switch on the Advanced page, for tests.
+const Key advNodeFailoverKey = ValueKey('adv-nodeFailover');
 
 /// The key of the Licences row in About, for tests.
 const Key settingsLicencesKey = ValueKey('settings-licences');
@@ -275,12 +306,13 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final l = context.l10n;
     // A sentinel, because the dialog returns null when dismissed and null also means never.
     const never = -1;
+    final current = s.autoLockMinutes;
     final minutes = await _choose<int>(
       title: l.settingsAutoLock,
-      current: s.autoLockMinutes ?? never,
+      current: current == null ? never : autoLockChoice(current),
       options: [
-        for (final m in autoLockChoices)
-          (value: m ?? never, label: autoLockLabel(l, m)),
+        for (final m in autoLockChoices) (value: m, label: autoLockLabel(l, m)),
+        (value: never, label: autoLockLabel(l, null)),
       ],
     );
     if (minutes != null) {
@@ -332,7 +364,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final chain = ref.read(walletConfigProvider)?.chain;
     final start = await showDialog<BigInt>(
       context: context,
-      builder: (_) => _RescanDialog(datesSupported: chain == Chain.mainnet),
+      builder: (_) => _RescanDialog(
+        datesSupported: chain == Chain.mainnet,
+        // Advanced › Recheck from a height: without it the dialog only confirms.
+        choice: AdvancedOptions.has(context, AdvancedFeature.recheckFromHeight),
+      ),
     );
     if (start == null || !mounted) return;
     final ok = await ref.read(scanProvider.notifier).run(startHeight: start);
@@ -408,7 +444,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       SettingsSection.security => _security(l),
       SettingsSection.privacyNetwork => _privacyNetwork(l),
       SettingsSection.wallet => _wallet(l),
+      SettingsSection.transactions => _transactions(l),
       SettingsSection.display => _display(l),
+      SettingsSection.advanced => _advanced(l),
       SettingsSection.about => _about(l),
     };
     return SlotScaffold(
@@ -511,9 +549,12 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     // show: plain rows open the same pickers.
     return [
       if (walletOpen)
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
-          child: NetworkStatusCard(showTor: false),
+        const PhoneTourTarget(
+          id: 'tour-privacy-servers',
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: NetworkStatusCard(showTor: false),
+          ),
         )
       else if (!demo) ...[
         ListTile(
@@ -548,7 +589,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
       // state; it moves nothing the user chose.
       SettingsHeader(l.settingsSectionPrivacy, key: settingsPrivacyKey),
-      if (walletOpen && torAvailable) const TorSwitchTile(),
+      if (walletOpen && torAvailable)
+        const PhoneTourTarget(id: 'tour-privacy-tor', child: TorSwitchTile()),
       HintSwitchTile(
         icon: Icons.travel_explore,
         title: l.settingsUseStatusSite,
@@ -557,7 +599,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         onChanged: _settings.setUseStatusSite,
       ),
       // Development builds only: the network itself, each with its own wallet.
-      if (!demo && advanced && devNetworks)
+      if (!demo && advanced.has(AdvancedFeature.serverDetails) && devNetworks)
         ListTile(
           leading: const Icon(Icons.hub),
           title: Text(l.settingsAboutNetwork),
@@ -574,7 +616,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final walletOpen = ref.watch(sessionProvider) != null;
     final scan = ref.watch(scanProvider);
     final demo = ref.watch(demoModeProvider);
-    final advanced = AdvancedOptions.of(context);
     // Invoices only on a core that has them (UP-14); until then no entry at all.
     final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
     final outputs = walletOpen ? ref.watch(walletOutputsProvider).value : null;
@@ -589,18 +630,23 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             ),
           );
     final error = Theme.of(context).colorScheme.error;
+    // Recheck balance asks the node only: Offline lets it run on a local one.
+    final block = watchNetBlock(context, ref, localNode: ref.watch(localNodeProvider));
     return [
       ListTile(
         leading: const Icon(Icons.contacts_outlined),
         title: Text(l.settingsContacts),
         onTap: () => _push(const ContactsScreen()),
       ),
-      ListTile(
-        leading: const Icon(Icons.grain),
-        title: Text(l.outputsTitle),
-        subtitle: outputsSubtitle,
-        onTap: () => _push(const OutputsScreen()),
-      ),
+      // Advanced › Outputs; a split or consolidation mid-way keeps the row (never hide what is
+      // in use).
+      if (outputsShown(context, ref))
+        ListTile(
+          leading: const Icon(Icons.grain),
+          title: Text(l.outputsTitle),
+          subtitle: outputsSubtitle,
+          onTap: () => _push(const OutputsScreen()),
+        ),
       if (invoices)
         ListTile(
           leading: const Icon(Icons.request_quote_outlined),
@@ -633,12 +679,17 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
               : () => _run(() => importHistoryBackup(context, ref)),
         ),
       ],
-      if (advanced && !demo)
+      // Recheck balance is the fix for a wrong balance: for everyone. From a height is Advanced.
+      // It reads the chain, so it waits for the network.
+      if (!demo)
         ListTile(
           leading: const Icon(Icons.sync),
           title: Text(l.settingsRescan),
-          enabled: !scan.running,
-          onTap: _rescan,
+          subtitle: netBlockReason(l, block) == null
+              ? null
+              : Text(netBlockReason(l, block)!),
+          enabled: !scan.running && block == NetBlock.none,
+          onTap: block == NetBlock.none ? _rescan : null,
         ),
       const Divider(height: 24),
       ListTile(
@@ -649,6 +700,300 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ),
         enabled: !_busy,
         onTap: demo ? () => _run(() => endDemo(context, ref)) : _deleteWallet,
+      ),
+    ];
+  }
+
+  /// Transactions: how payments are made. The methods Send and Receive offer (Epicbox is
+  /// always on), the one Send starts on, and, with Advanced › Send options, the defaults a
+  /// send uses (which outputs it spends and whether its change is split).
+  List<Widget> _transactions(AppLocalizations l) {
+    final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
+    final payments = s.payments;
+    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    final t = context.tokens;
+    // Send options on shows the defaults; one that is not at its default stays (never hide a
+    // choice in use), as Outputs did before they moved here.
+    final showDefaults =
+        s.advanced.has(AdvancedFeature.sendOptions) ||
+        s.sendStrategy != SelectionStrategy.smallest ||
+        !s.splitChange;
+    final offered = [
+      for (final m in PayMethod.values)
+        if (payments.offers(m)) m,
+    ];
+    String methodName(PayMethod m) => switch (m) {
+      PayMethod.epicbox => l.methodEpicbox,
+      PayMethod.direct => l.methodDirect,
+      PayMethod.file => l.methodFile,
+    };
+    Future<void> save(PaymentPrefs next) => _settings.setPayments(next);
+    return [
+      SettingsHeader(l.txMethodsHeader),
+      ListTile(
+        key: const ValueKey('tx-epicbox'),
+        leading: const Icon(Icons.alternate_email),
+        title: TitleWithHint(
+          l.methodEpicbox,
+          hint: l.txEpicboxHint,
+          icon: Icons.alternate_email,
+        ),
+        subtitle: Text(l.txAlwaysOn),
+      ),
+      // Direct needs Tor; where the app has none (and the switch is off) there is nothing to
+      // turn on.
+      if (torAvailable || payments.direct)
+        HintSwitchTile(
+          key: const ValueKey('tx-direct'),
+          icon: Icons.link,
+          title: l.methodDirect,
+          hint: l.txDirectHint,
+          subtitle: Text(l.txDirectLine),
+          value: payments.direct,
+          onChanged: (on) => save(payments.copyWith(direct: on)),
+        ),
+      HintSwitchTile(
+        key: const ValueKey('tx-file'),
+        icon: Icons.description_outlined,
+        title: l.methodFile,
+        hint: l.txFileHint,
+        subtitle: Text(l.txFileLine),
+        value: payments.file,
+        onChanged: (on) => save(payments.copyWith(file: on)),
+      ),
+      // Only a choice when there is one: Epicbox alone is what Send opens on.
+      if (offered.length > 1) ...[
+        SettingsHeader(l.txStartHeader),
+        RadioGroup<PayMethod>(
+          groupValue: payments.startMethod,
+          onChanged: (m) {
+            if (m != null) save(payments.copyWith(defaultMethod: m));
+          },
+          child: Column(
+            children: [
+              for (final m in offered)
+                RadioListTile<PayMethod>(
+                  key: ValueKey('tx-start-${m.name}'),
+                  value: m,
+                  title: Text(methodName(m)),
+                ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+          child: Text(
+            l.txStartNote,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+          ),
+        ),
+      ],
+      if (showDefaults) ...[
+        SettingsHeader(l.txDefaultsHeader),
+        ListTile(
+          key: const ValueKey('tx-strategy'),
+          leading: const Icon(Icons.tune),
+          title: TitleWithHint(
+            l.outputsStrategy,
+            hint: l.outputsStrategyHint,
+            icon: Icons.tune,
+          ),
+          subtitle: Text(
+            s.sendStrategy == SelectionStrategy.smallest
+                ? l.outputsSmallest
+                : l.outputsAll,
+          ),
+          onTap: () => _pickStrategy(s.sendStrategy),
+        ),
+        HintSwitchTile(
+          key: const ValueKey('tx-split'),
+          icon: Icons.call_split,
+          title: l.outputsSplitChange,
+          hint: l.outputsSplitChangeText,
+          value: s.splitChange,
+          onChanged: _settings.setSplitChange,
+        ),
+      ],
+    ];
+  }
+
+  /// The strategy a send spends outputs by: the two choices, each with its one line.
+  Future<void> _pickStrategy(SelectionStrategy current) async {
+    final l = context.l10n;
+    final picked = await showModalBottomSheet<SelectionStrategy>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final strategy in SelectionStrategy.values)
+              Semantics(
+                inMutuallyExclusiveGroup: true,
+                checked: strategy == current,
+                child: ListTile(
+                  key: ValueKey('tx-strategy-${strategy.name}'),
+                  minVerticalPadding: 12,
+                  leading: Icon(
+                    strategy == current
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    color: strategy == current
+                        ? context.tokens.accent
+                        : context.tokens.dim,
+                  ),
+                  title: Text(
+                    strategy == SelectionStrategy.smallest
+                        ? l.outputsSmallest
+                        : l.outputsAll,
+                  ),
+                  subtitle: Text(
+                    strategy == SelectionStrategy.smallest
+                        ? l.outputsSmallestText
+                        : l.outputsAllText,
+                  ),
+                  onTap: () => Navigator.pop(context, strategy),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (picked != null) await _settings.setSendStrategy(picked);
+  }
+
+  /// Advanced: the switches that show more of the wallet, each explained in a sheet, and the
+  /// one network mode. Nothing here is a value the simple path needs.
+  List<Widget> _advanced(AppLocalizations l) {
+    final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
+    final adv = s.advanced;
+    final t = context.tokens;
+    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    Widget feature(
+      AdvancedFeature f,
+      IconData icon,
+      String title,
+      String hint,
+    ) => HintSwitchTile(
+      key: ValueKey('adv-${f.name}'),
+      icon: icon,
+      title: title,
+      hint: hint,
+      value: adv.has(f),
+      onChanged: (on) => _settings.setFeature(f, on),
+    );
+    Widget mode(NetworkMode m, String title, String line, {bool enabled = true}) =>
+        RadioListTile<NetworkMode>(
+          key: ValueKey('adv-mode-${m.name}'),
+          value: m,
+          enabled: enabled,
+          title: Text(title),
+          subtitle: Text(line),
+        );
+    final note = switch (adv.networkMode) {
+      NetworkMode.torOnly => l.advTorOnlyNote,
+      NetworkMode.offline => l.advOfflineNote,
+      _ => null,
+    };
+    return [
+      PhoneTourTarget(
+        id: 'tour-advanced-top',
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Text(
+            l.advIntro,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim),
+          ),
+        ),
+      ),
+      SettingsHeader(l.advShowsHeader),
+      feature(AdvancedFeature.outputs, Icons.grain, l.advOutputs, l.advOutputsHint),
+      feature(
+        AdvancedFeature.technicalDetails,
+        Icons.data_object,
+        l.advTechnical,
+        l.advTechnicalHint,
+      ),
+      feature(
+        AdvancedFeature.sendOptions,
+        Icons.call_split,
+        l.advSendOptions,
+        l.advSendOptionsHint,
+      ),
+      feature(
+        AdvancedFeature.serverDetails,
+        Icons.dns_outlined,
+        l.advServerDetails,
+        l.advServerDetailsHint,
+      ),
+      feature(
+        AdvancedFeature.recheckFromHeight,
+        Icons.sync,
+        l.advRecheckHeight,
+        l.advRecheckHeightHint,
+      ),
+      const SizedBox(height: 8),
+      Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: Row(
+          children: [
+            Expanded(child: SettingsHeader(l.advNetworkHeader)),
+            InfoHint(l.advNetworkHint, title: l.advNetworkHeader, icon: Icons.hub_outlined),
+          ],
+        ),
+      ),
+      PhoneTourTarget(
+        id: 'tour-advanced-modes',
+        child: RadioGroup<NetworkMode>(
+        groupValue: adv.networkMode,
+        onChanged: (v) {
+          if (v != null) _settings.setNetworkMode(v);
+        },
+        child: Column(
+          children: [
+            mode(NetworkMode.standard, l.advModeStandard, l.advModeStandardLine),
+            mode(
+              NetworkMode.torOnly,
+              l.advModeTorOnly,
+              l.advModeTorOnlyLine,
+              enabled: torAvailable,
+            ),
+            mode(NetworkMode.offline, l.advModeOffline, l.advModeOfflineLine),
+          ],
+        ),
+      ),
+      ),
+      if (note != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          child: Text(
+            note,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.warn),
+          ),
+        ),
+      // On by default: the one switch here that keeps the simple app working.
+      HintSwitchTile(
+        key: advNodeFailoverKey,
+        icon: Icons.alt_route,
+        title: l.advNodeFailover,
+        hint: l.advNodeFailoverHint,
+        value: adv.nodeFailover,
+        onChanged: _settings.setNodeFailover,
+      ),
+      const Divider(height: 24),
+      ListTile(
+        key: const ValueKey('adv-reset'),
+        leading: const Icon(Icons.visibility_off_outlined),
+        title: Text(l.advReset),
+        enabled: adv.features.isNotEmpty,
+        onTap: adv.features.isEmpty
+            ? null
+            : () => _settings.setAdvanced(
+                AdvancedPrefs(
+                  networkMode: adv.networkMode,
+                  nodeFailover: adv.nodeFailover,
+                ),
+              ),
       ),
     ];
   }
@@ -690,13 +1035,13 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ];
   }
 
-  /// About: the app, its version and updates, then the rare things: Advanced options,
-  /// Licences and the links.
+  /// About: the app, its version and updates, then the rare things: Licences and the links.
+  /// Advanced is a hub row of its own.
   List<Widget> _about(AppLocalizations l) {
-    final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final version = ref.watch(appVersionProvider);
     final demo = ref.watch(demoModeProvider);
     final updates = !demo && ref.read(updateProvider.notifier).supported;
+    final block = watchNetBlock(context, ref);
     return [
       const Padding(
         padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
@@ -713,19 +1058,18 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ListTile(
           leading: const Icon(Icons.system_update),
           title: Text(l.settingsCheckUpdates),
-          onTap: () {
-            ref.read(updateProvider.notifier).check();
-            // The result follows as a notice of its own.
-            _say(l.updateChecking, level: NoticeLevel.info);
-          },
+          subtitle: netBlockReason(l, block) == null
+              ? null
+              : Text(netBlockReason(l, block)!),
+          enabled: block == NetBlock.none,
+          onTap: block != NetBlock.none
+              ? null
+              : () {
+                  ref.read(updateProvider.notifier).check();
+                  // The result follows as a notice of its own.
+                  _say(l.updateChecking, level: NoticeLevel.info);
+                },
         ),
-      HintSwitchTile(
-        icon: Icons.terminal,
-        title: l.settingsAdvancedOptions,
-        hint: l.settingsAdvancedOptionsSubtitle,
-        value: s.advancedOptions,
-        onChanged: _settings.setAdvancedOptions,
-      ),
       // The short Licences screen; the full texts (the packages', the fonts', the word
       // lists' and the bundled tor's) are one tap further.
       ListTile(
@@ -846,16 +1190,21 @@ enum _RescanFrom { date, height, start }
 
 /// Where a rescan starts. Pops the start height, or null when cancelled.
 class _RescanDialog extends StatefulWidget {
-  const _RescanDialog({required this.datesSupported});
+  const _RescanDialog({required this.datesSupported, required this.choice});
 
   final bool datesSupported;
+
+  /// Offer the start (a date, a height, the whole chain); else the whole chain without asking.
+  final bool choice;
 
   @override
   State<_RescanDialog> createState() => _RescanDialogState();
 }
 
 class _RescanDialogState extends State<_RescanDialog> {
-  late _RescanFrom _from = widget.datesSupported
+  late _RescanFrom _from = !widget.choice
+      ? _RescanFrom.start
+      : widget.datesSupported
       ? _RescanFrom.date
       : _RescanFrom.height;
   DateTime? _date;
@@ -914,35 +1263,36 @@ class _RescanDialogState extends State<_RescanDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l.settingsRescanBody),
+            Text(widget.choice ? l.settingsRescanBody : l.settingsRescanBodyPlain),
             const SizedBox(height: 8),
-            RadioGroup<_RescanFrom>(
-              groupValue: _from,
-              onChanged: (value) => setState(() {
-                _from = value ?? _from;
-                _error = null;
-              }),
-              child: Column(
-                children: [
-                  if (widget.datesSupported)
+            if (widget.choice)
+              RadioGroup<_RescanFrom>(
+                groupValue: _from,
+                onChanged: (value) => setState(() {
+                  _from = value ?? _from;
+                  _error = null;
+                }),
+                child: Column(
+                  children: [
+                    if (widget.datesSupported)
+                      RadioListTile(
+                        contentPadding: EdgeInsets.zero,
+                        value: _RescanFrom.date,
+                        title: Text(l.settingsRescanFromDate),
+                      ),
                     RadioListTile(
                       contentPadding: EdgeInsets.zero,
-                      value: _RescanFrom.date,
-                      title: Text(l.settingsRescanFromDate),
+                      value: _RescanFrom.height,
+                      title: Text(l.settingsRescanFromHeight),
                     ),
-                  RadioListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: _RescanFrom.height,
-                    title: Text(l.settingsRescanFromHeight),
-                  ),
-                  RadioListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: _RescanFrom.start,
-                    title: Text(l.settingsRescanWholeChain),
-                  ),
-                ],
+                    RadioListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: _RescanFrom.start,
+                      title: Text(l.settingsRescanWholeChain),
+                    ),
+                  ],
+                ),
               ),
-            ),
             if (_from == _RescanFrom.date)
               OutlinedButton.icon(
                 icon: const Icon(Icons.calendar_today),

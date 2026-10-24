@@ -680,5 +680,13 @@
         "type": "String"
       }
     }
+  },
+  "deskTxMore": "More",
+  "@deskTxMore": {
+    "description": "Small link under a transaction's details that shows the technical rows for this view only."
+  },
+  "deskTxLess": "Less",
+  "@deskTxLess": {
+    "description": "The same link while the technical rows are shown: hides them again."
   }
 }

@@ -12,6 +12,8 @@ import '../connection_state.dart';
 import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../network_gate.dart';
+import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -25,14 +27,17 @@ import 'file_exchange_help.dart';
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import 'method_strip.dart';
+import 'payment_gate.dart';
 import 'settings_screen.dart';
 import 'status.dart' show EpicboxState;
 import 'slate_file_screen.dart';
+import 'net_block.dart';
 import 'theme/advanced.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import 'tour/tour_target.dart';
 
 /// Receive's ways of receiving, one tab each: Epicbox first and by default, Direct (the onion
 /// address, over Tor) where the app has Tor, and a payment file.
@@ -79,8 +84,17 @@ class ReceiveView extends ConsumerWidget {
     final l = context.l10n;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     var tab = ref.watch(receiveTabProvider);
+    final payments =
+        ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
+        PaymentPrefs.defaults;
+    final filePending = hasPendingFileSend(
+      ref.watch(homeProvider.select((h) => h.value?.transactions)),
+    );
     if (tab == ReceiveTab.direct && !torAvailable) tab = ReceiveTab.epicbox;
     final torState = phoneTorState(ref.watch(phoneTorProvider));
+    // Offline: the addresses stay to hand out, with a line that nothing arrives meanwhile.
+    final offline = watchNetBlock(context, ref) == NetBlock.offline;
+    final offlineNote = NetBlockNote(NetBlock.offline, line: l.receiveOfflineLine);
     final address = ref.watch(addressProvider);
     final demo = ref.watch(demoModeProvider);
     final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
@@ -91,9 +105,8 @@ class ReceiveView extends ConsumerWidget {
         onPressed: () => openHelp(context, HelpId.receive),
       ),
     );
-    final tabs = SegmentedButton<ReceiveTab>(
-      key: receiveTabsKey,
-      segments: [
+    // With Epicbox alone there is nothing to choose: the strip names it.
+    final tabSegments = <ButtonSegment<ReceiveTab>>[
         ButtonSegment(
           value: ReceiveTab.epicbox,
           icon: const Icon(Icons.alternate_email),
@@ -102,7 +115,12 @@ class ReceiveView extends ConsumerWidget {
             child: Text(l.receiveTabEpicbox, maxLines: 1),
           ),
         ),
-        if (torAvailable)
+        // Settings › Transactions says which are offered; Tor receiving on (or starting, or
+        // failed) keeps Direct, and so does the tab in use.
+        if (torAvailable &&
+            (tab == ReceiveTab.direct ||
+                torState != TorState.off ||
+                payments.direct))
           ButtonSegment(
             value: ReceiveTab.direct,
             icon: const Icon(Icons.link),
@@ -111,24 +129,31 @@ class ReceiveView extends ConsumerWidget {
               child: Text(l.receiveTabDirect, maxLines: 1),
             ),
           ),
-        ButtonSegment(
-          value: ReceiveTab.file,
-          icon: const Icon(Icons.description_outlined),
+        // The tab in use and a file send waiting for its reply keep File.
+        if (tab == ReceiveTab.file || payments.file || filePending)
+          ButtonSegment(
+            value: ReceiveTab.file,
+            icon: const Icon(Icons.description_outlined),
           label: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(l.receiveTabFile, maxLines: 1),
           ),
         ),
-      ],
-      selected: {tab},
-      showSelectedIcon: false,
-      expandedInsets: EdgeInsets.zero,
-      style: const ButtonStyle(
-        minimumSize: WidgetStatePropertyAll(Size(0, 44)),
-      ),
-      onSelectionChanged: (selected) =>
-          ref.read(receiveTabProvider.notifier).choose(selected.first),
-    );
+    ];
+    final Widget tabs = tabSegments.length == 1
+        ? const SizedBox.shrink()
+        : SegmentedButton<ReceiveTab>(
+            key: receiveTabsKey,
+            segments: tabSegments,
+            selected: {tab},
+            showSelectedIcon: false,
+            expandedInsets: EdgeInsets.zero,
+            style: const ButtonStyle(
+              minimumSize: WidgetStatePropertyAll(Size(0, 44)),
+            ),
+            onSelectionChanged: (selected) =>
+                ref.read(receiveTabProvider.notifier).choose(selected.first),
+          );
     Widget column(List<Widget> children) => Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -173,7 +198,7 @@ class ReceiveView extends ConsumerWidget {
       ]);
       code = null;
       below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.direct && torState == TorState.off) {
+    } else if (tab == ReceiveTab.direct && torState == TorState.off && !offline) {
       // No Direct receiving without Tor: the phone accepts no other connection.
       above = column([
         strip,
@@ -205,7 +230,10 @@ class ReceiveView extends ConsumerWidget {
           const SizedBox(height: 8),
         ] else
           const LinearProgressIndicator(),
-        TorStateLine(openSettings: () => openPrivacySettings(context)),
+        if (offline)
+          offlineNote
+        else
+          TorStateLine(openSettings: () => openPrivacySettings(context)),
         const SizedBox(height: 4),
       ]);
       code = onion == null
@@ -234,13 +262,16 @@ class ReceiveView extends ConsumerWidget {
       above = column([
         strip,
         if (value != null) ...[
-          _AddressRow(
-            address: value,
-            label: l.receiveAddressLabel,
-            cardKey: receiveAddressKey,
+          PhoneTourTarget(
+            id: 'tour-receive-address',
+            child: _AddressRow(
+              address: value,
+              label: l.receiveAddressLabel,
+              cardKey: receiveAddressKey,
+            ),
           ),
           const SizedBox(height: 8),
-          const _EpicboxLine(),
+          if (offline) offlineNote else const _EpicboxLine(),
           if (demo) const _KeepTabOpenLine(),
           const SizedBox(height: 8),
         ] else if (address.hasError)
@@ -626,6 +657,7 @@ class _EpicboxLine extends ConsumerWidget {
         ),
         if (config != null)
           Advanced(
+            feature: AdvancedFeature.serverDetails,
             child: Center(
               child: Readout(
                 l.statusRelay('${config.epicboxDomain}:${config.epicboxPort}'),
@@ -784,6 +816,9 @@ class _FileCard extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
+    // Opening or pasting a file asks the node: Offline stops it, with the reason, unless the
+    // node is local.
+    final block = fileBlockFor(AdvancedOptions.of(context).networkMode, localNode: ref.watch(localNodeProvider));
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -831,7 +866,9 @@ class _FileCard extends ConsumerWidget {
                       ),
                       icon: const Icon(Icons.file_open_outlined),
                       label: Text(l.receiveFileOpen),
-                      onPressed: () => openSlateFile(context, ref),
+                      onPressed: block != NetBlock.none
+                          ? null
+                          : () => openSlateFile(context, ref),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -842,12 +879,19 @@ class _FileCard extends ConsumerWidget {
                       ),
                       icon: const Icon(Icons.content_paste),
                       label: Text(l.commonPaste),
-                      onPressed: () => pasteSlate(context, ref),
+                      onPressed: block != NetBlock.none
+                          ? null
+                          : () => pasteSlate(context, ref),
                     ),
                   ),
                 ],
               ),
             ),
+            if (block != NetBlock.none)
+              Padding(
+                padding: const EdgeInsets.only(top: 8, right: 12),
+                child: NetBlockNote(block),
+              ),
           ],
         ),
       ),

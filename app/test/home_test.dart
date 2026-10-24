@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
+import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/network_status.dart' show NetworkStatusCard;
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
@@ -308,6 +309,7 @@ class _Harness {
     this.still = false,
     this.settle = true,
     this.size,
+    this.advanced = AdvancedPrefs.none,
     FakeWalletSession? session,
   }) : session =
            session ??
@@ -333,6 +335,9 @@ class _Harness {
 
   /// Reduced motion, for the states whose pulses never settle: a sync that does not end.
   final bool still;
+
+  /// The Advanced choices the tree runs under (none, as a new wallet).
+  final AdvancedPrefs advanced;
 
   /// Whether [pump] waits for the screen to settle; false for pulses that run on.
   final bool settle;
@@ -396,12 +401,15 @@ class _Harness {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: home,
-          builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: TextScaler.linear(textScale),
-              disableAnimations: still,
+          builder: (context, child) => AdvancedOptions(
+            prefs: advanced,
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(textScale),
+                disableAnimations: still,
+              ),
+              child: child!,
             ),
-            child: child!,
           ),
         ),
       ),
@@ -1154,7 +1162,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('08commit'), findsNothing);
-      await _tap(tester, find.text('Technical details'));
+      await _tap(tester, find.byKey(txDetailsMoreKey));
       expect(find.text('08commit'), findsOneWidget);
       expect(find.text('from-alice'), findsOneWidget);
 
@@ -2058,6 +2066,44 @@ void main() {
       expect(first.dy, last.dy);
     });
 
+    testWidgets(
+      'technical rows hide by default; More shows them once, the switch stays off',
+      (tester) async {
+        final h = _Harness();
+        await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+        expect(find.text('Technical details'), findsNothing);
+        expect(find.text('08commit'), findsNothing);
+        expect(find.text('Kernel'), findsNothing);
+        expect(find.text('More'), findsOneWidget);
+        await _tap(tester, find.byKey(txDetailsMoreKey));
+        // The rows show, with the fold open, and the link is gone.
+        expect(find.text('Technical details'), findsOneWidget);
+        expect(find.text('08commit'), findsOneWidget);
+        expect(find.byTooltip('Copy kernel'), findsOneWidget);
+        expect(find.byKey(txDetailsMoreKey), findsNothing);
+        // Only this view: a new one starts hidden again.
+        await tester.pumpWidget(const SizedBox());
+        final again = _Harness();
+        await again.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+        expect(find.text('08commit'), findsNothing);
+        expect(find.byKey(txDetailsMoreKey), findsOneWidget);
+      },
+    );
+
+    testWidgets('with Technical details on the rows show and there is no More', (
+      tester,
+    ) async {
+      final h = _Harness(
+        advanced: const AdvancedPrefs(
+          features: {AdvancedFeature.technicalDetails},
+        ),
+      );
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+      expect(find.text('Technical details'), findsOneWidget);
+      expect(find.text('08commit'), findsOneWidget);
+      expect(find.byKey(txDetailsMoreKey), findsNothing);
+    });
+
     testWidgets('details copy only what is worth copying', (tester) async {
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         SystemChannels.platform,
@@ -2075,7 +2121,7 @@ void main() {
       expect(find.byTooltip('Copy explorer link'), findsOneWidget);
       expect(find.text('Copy explorer link'), findsOneWidget);
       expect(find.byTooltip('Copy address'), findsNothing);
-      await _tap(tester, find.text('Technical details'));
+      await _tap(tester, find.byKey(txDetailsMoreKey));
       expect(find.byTooltip('Copy slate id'), findsOneWidget);
       expect(find.byTooltip('Copy kernel'), findsOneWidget);
       expect(find.byTooltip('Copy block height'), findsNothing);
@@ -3393,7 +3439,7 @@ void main() {
       tester,
     ) async {
       final handle = tester.ensureSemantics();
-      final h = _Harness(price: 0.5, size: const Size(1236, 2340));
+      final h = _Harness(price: 0.5, size: const Size(1236, 2340), advanced: AdvancedPrefs.all);
       await h.pump(tester);
       final area = tester.getRect(find.byKey(walletBalanceKey));
       final figure = tester.getRect(find.byKey(balanceFigureKey));
@@ -3476,7 +3522,7 @@ void main() {
       'a balance tile with a value can be pressed by a screen reader',
       (tester) async {
         final handle = tester.ensureSemantics();
-        final h = _Harness(still: true);
+        final h = _Harness(still: true, advanced: AdvancedPrefs.all);
         await h.pump(tester);
         expect(
           tester.getSemantics(find.byKey(balanceTileKey(BalanceKind.locked))),

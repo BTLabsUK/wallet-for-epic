@@ -22,7 +22,7 @@
   "deskSendAdvSmallestNoSplit": "· Kleinste Outputs, Wechselgeld nicht aufgeteilt",
   "deskSendAdvAll": "· Alle Outputs",
   "deskSendAdvAllNoSplit": "· Alle Outputs, Wechselgeld nicht aufgeteilt",
-  "deskSendAdvanced": "Erweitert",
+  "deskSendAdvanced": "Zahlungsoptionen",
   "deskSendAdvStrategy": "Strategie für diese Zahlung",
   "deskSendAdvSmallestText": "Verbraucht möglichst wenige kleine Outputs; der Rest des Guthabens bleibt verfügbar, während das Wechselgeld bestätigt wird.",
   "deskSendAdvAllText": "Verbraucht jeden verfügbaren Output und gibt einen Wechselgeld-Output zurück. Alles ist gesperrt, bis er bestätigt ist; danach weniger, größere Outputs.",

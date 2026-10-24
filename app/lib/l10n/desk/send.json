@@ -196,7 +196,7 @@
   "@deskSendAdvAllNoSplit": {
     "description": "Subtitle of the Advanced disclosure on Send: strategy All, change not split. Starts with a middle dot."
   },
-  "deskSendAdvanced": "Advanced",
+  "deskSendAdvanced": "Send options",
   "@deskSendAdvanced": {
     "description": "Title of the collapsed Advanced disclosure on Send."
   },

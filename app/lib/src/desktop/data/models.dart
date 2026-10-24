@@ -3,6 +3,8 @@
 /// LEPIC adapter will map `WalletService` and `models.dart` onto them later.
 library;
 
+import '../../advanced.dart';
+import '../../payment_prefs.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:intl/intl.dart' show NumberFormat;
@@ -10,6 +12,7 @@ import 'package:intl/intl.dart' show NumberFormat;
 import '../../l10n.dart' show AppLocalizations, englishStrings, localDigits;
 import '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions;
 import '../../providers.dart' show defaultMinimumConfirmations;
+import '../../settings.dart' show autoLockDefault;
 import '../../smart_outputs.dart' show smartOutputsDefault;
 import '../../ui/send_screen.dart' show normalizeAmountText;
 import '../../relay_directory.dart' show ServerIcon;
@@ -599,7 +602,7 @@ String httpProblemText(AppLocalizations l, HttpProblem p, int port) => switch (p
   HttpProblem.stopped => l.deskErrStoppedWithError,
 };
 
-/// The Tor line of the status card and Settings › Receiving: what tor is doing now.
+/// The Tor line of the status card and Settings › Transactions: what tor is doing now.
 String torStatusLine(AppLocalizations l, ServiceStatus s) {
   if (!s.torIncluded) return l.deskErrTorMissing;
   return switch (s.tor) {
@@ -814,8 +817,6 @@ class DeskSettings {
     this.language,
     this.helpLanguage,
     this.hideAmounts = false,
-    this.nodeFailover = true,
-    this.epicboxFailover = true,
     this.directHttp = false,
     this.tor = false,
     this.publicMode = false,
@@ -823,12 +824,15 @@ class DeskSettings {
     this.httpAutostart = false,
     this.epicboxAutostart = true,
     this.torAutostart = false,
-    this.autoLockMinutes = 15,
+    this.autoLockMinutes = autoLockDefault,
+    this.autoLockOn = true,
     this.fiat = 'USD',
     this.newLookSeen = false,
     this.internetGuideSeen = false,
     this.tourSeen = false,
     this.useStatusSite = true,
+    this.advanced = AdvancedPrefs.none,
+    this.payments = PaymentPrefs.defaults,
   });
 
   final ThemeChoice theme;
@@ -844,10 +848,6 @@ class DeskSettings {
   /// interface ([language]). Chosen with the switch at the top of Help.
   final String? helpLanguage;
   final bool hideAmounts;
-
-  /// Switch to the next healthy node when the current one stops answering.
-  final bool nodeFailover;
-  final bool epicboxFailover;
 
   /// The HTTP listener switch: on, it runs while receiving is on. Not saved: at unlock it is
   /// what Start with the wallet says.
@@ -870,7 +870,11 @@ class DeskSettings {
 
   /// Tor starts at unlock. The open wallet's own; [tor] alone is the now-state.
   final bool torAutostart;
-  final int? autoLockMinutes;
+  /// Auto-lock after this many minutes without a key or the mouse, one of `autoLockChoices`.
+  final int autoLockMinutes;
+
+  /// Auto-lock is on; off, the wallet locks only by Lock wallet or quitting.
+  final bool autoLockOn;
   final String fiat;
 
   /// The one-time "new look" notice on Overview was closed.
@@ -886,14 +890,18 @@ class DeskSettings {
   /// Off, only the servers themselves are asked.
   final bool useStatusSite;
 
+  /// Settings › Transactions: the methods Send and Receive offer and Send's first one.
+  final PaymentPrefs payments;
+
+  /// The Advanced page: which expert features show and the network mode (`advanced.dart`).
+  final AdvancedPrefs advanced;
+
   DeskSettings copyWith({
     ThemeChoice? theme,
     int? scale,
     String? Function()? language,
     String? Function()? helpLanguage,
     bool? hideAmounts,
-    bool? nodeFailover,
-    bool? epicboxFailover,
     bool? directHttp,
     bool? tor,
     bool? publicMode,
@@ -902,19 +910,20 @@ class DeskSettings {
     bool? epicboxAutostart,
     bool? torAutostart,
     int? autoLockMinutes,
+    bool? autoLockOn,
     String? fiat,
     bool? newLookSeen,
     bool? internetGuideSeen,
     bool? tourSeen,
     bool? useStatusSite,
+    AdvancedPrefs? advanced,
+    PaymentPrefs? payments,
   }) => DeskSettings(
     theme: theme ?? this.theme,
     scale: scale ?? this.scale,
     language: language != null ? language() : this.language,
     helpLanguage: helpLanguage != null ? helpLanguage() : this.helpLanguage,
     hideAmounts: hideAmounts ?? this.hideAmounts,
-    nodeFailover: nodeFailover ?? this.nodeFailover,
-    epicboxFailover: epicboxFailover ?? this.epicboxFailover,
     directHttp: directHttp ?? this.directHttp,
     tor: tor ?? this.tor,
     publicMode: publicMode ?? this.publicMode,
@@ -923,11 +932,14 @@ class DeskSettings {
     epicboxAutostart: epicboxAutostart ?? this.epicboxAutostart,
     torAutostart: torAutostart ?? this.torAutostart,
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
+    autoLockOn: autoLockOn ?? this.autoLockOn,
     fiat: fiat ?? this.fiat,
     newLookSeen: newLookSeen ?? this.newLookSeen,
     internetGuideSeen: internetGuideSeen ?? this.internetGuideSeen,
     tourSeen: tourSeen ?? this.tourSeen,
     useStatusSite: useStatusSite ?? this.useStatusSite,
+    payments: payments ?? this.payments,
+    advanced: advanced ?? this.advanced,
   );
 }
 

@@ -1,7 +1,10 @@
 /// The one Tor switch: which connections go over Tor while it is on, which wait for it, and
-/// which stay on the clearnet. Every screen and the wallet adapters ask [torWay]; nothing
-/// decides a route on its own, so what the switch covers changes here and nowhere else.
+/// which stay on the clearnet. Every screen and the wallet adapters ask [torWay] (or
+/// [torWayIn] with the network mode of Settings › Advanced); nothing decides a route on its
+/// own, so what the switch covers changes here and nowhere else.
 library;
+
+import 'advanced.dart';
 
 /// What the Tor switch is doing now, shown the same everywhere (status card, Send, Receive,
 /// Settings › Privacy).
@@ -61,7 +64,8 @@ enum TorWay {
   /// An onion address with the switch off: Tor must be turned on first.
   needsTor,
 
-  /// Not offered while Tor is on (the clearnet HTTP listener, push).
+  /// Not offered while Tor is on (the clearnet HTTP listener, push), in Tor only (also a
+  /// Direct http(s) send) or in Offline (everything).
   off,
 }
 
@@ -96,6 +100,26 @@ TorWay torWay(TorRoute route, TorState state) {
     TorState.on => TorWay.overTor,
     TorState.failed => TorWay.blocked,
   };
+}
+
+/// How [route] goes in the network [mode] while the switch is [state].
+///
+/// - Offline: nothing goes ([TorWay.off]); a node on this computer is the caller's business.
+/// - Tor only: never the clearnet. A Direct http(s) send, the HTTP listener and push are
+///   [TorWay.off]; with the switch not on yet (it is being forced on) covered routes and
+///   onions [TorWay.wait].
+/// - Any other mode is Standard: [torWay].
+TorWay torWayIn(TorRoute route, TorState state, NetworkMode mode) {
+  switch (mode) {
+    case NetworkMode.offline:
+      return TorWay.off;
+    case NetworkMode.torOnly:
+      if (route == TorRoute.httpDirect) return TorWay.off;
+      final way = torWay(route, state == TorState.off ? TorState.starting : state);
+      return way == TorWay.clearnet ? TorWay.off : way;
+    default:
+      return torWay(route, state);
+  }
 }
 
 /// [way] lets the connection go now.

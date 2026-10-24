@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/theme/brand.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
@@ -39,11 +40,21 @@ class _OpenSession extends SessionNotifier {
 }
 
 class _Harness {
-  _Harness({this.bundle = _bundle}) {
+  _Harness({
+    this.bundle = _bundle,
+    this.advanced = AdvancedPrefs.none,
+    this.payments = PaymentPrefs.defaults,
+  }) {
     session.address = _address;
   }
 
   final TorBundle? bundle;
+
+  /// What the Advanced page holds.
+  final AdvancedPrefs advanced;
+
+  /// Settings › Transactions; Direct on shows the Direct tab.
+  final PaymentPrefs payments;
   final session = FakeWalletSession();
   final service = FakeWalletService();
   final store = MemorySecretStore();
@@ -77,7 +88,9 @@ class _Harness {
         retry: (_, _) => null,
         overrides: [
           walletServiceProvider.overrideWithValue(service),
-          secretStoreProvider.overrideWithValue(store),
+          secretStoreProvider.overrideWithValue(
+            store..values['app.payment_prefs'] = payments.encode(),
+          ),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           sessionProvider.overrideWith(() => _OpenSession(session)),
           torBundleFinderProvider.overrideWithValue(() async => bundle),
@@ -89,7 +102,7 @@ class _Harness {
           builder: (context, child) => MediaQuery.withClampedTextScaling(
             minScaleFactor: textScale,
             maxScaleFactor: textScale,
-            child: AdvancedOptions(enabled: false, child: child!),
+            child: AdvancedOptions(prefs: advanced, child: child!),
           ),
           home: const SlotScaffold(body: ReceiveView()),
         ),
@@ -181,12 +194,27 @@ Finder _status(String text) => find.descendant(
   matching: find.textContaining(text),
 );
 
+/// Settings › Transactions › Direct on, as the Direct tab needs it.
+const _directOn = PaymentPrefs(direct: true);
+
 void main() {
   group('tabs', () {
-    testWidgets('three equal tabs, Epicbox first and by default', (
+    testWidgets('Epicbox and File by default; Direct on adds Direct', (
       tester,
     ) async {
-      final h = _Harness();
+      final plain = _Harness();
+      await plain.pump(tester);
+      expect(
+        [
+          for (final s in tester
+              .widget<SegmentedButton<ReceiveTab>>(find.byKey(receiveTabsKey))
+              .segments)
+            s.value,
+        ],
+        [ReceiveTab.epicbox, ReceiveTab.file],
+      );
+      await tester.pumpWidget(const SizedBox());
+      final h = _Harness(payments: _directOn);
       await h.pump(tester);
       final tabs = tester.widget<SegmentedButton<ReceiveTab>>(
         find.byKey(receiveTabsKey),
@@ -237,11 +265,135 @@ void main() {
     });
   });
 
+  group('File follows Settings › Transactions', () {
+    List<ReceiveTab> tabsOf(WidgetTester tester) => [
+      for (final s in tester
+          .widget<SegmentedButton<ReceiveTab>>(find.byKey(receiveTabsKey))
+          .segments)
+        s.value,
+    ];
+
+    testWidgets('File off: its tab goes; Direct on keeps the choice', (tester) async {
+      final h = _Harness(payments: const PaymentPrefs(direct: true, file: false));
+      await h.pump(tester);
+      expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct]);
+    });
+
+    testWidgets('File off and nothing else: no choice at all', (tester) async {
+      final h = _Harness(payments: const PaymentPrefs(file: false));
+      await h.pump(tester);
+      expect(find.byKey(receiveTabsKey), findsNothing);
+      expect(find.byKey(receiveAddressKey), findsOneWidget);
+    });
+
+    testWidgets('the File tab in use stays when the switch goes off', (tester) async {
+      final h = _Harness(payments: const PaymentPrefs(direct: true, file: false));
+      await h.pump(tester);
+      h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.file);
+      await tester.pumpAndSettle();
+      expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct, ReceiveTab.file]);
+      expect(tester.widget<SegmentedButton<ReceiveTab>>(find.byKey(receiveTabsKey)).selected, {ReceiveTab.file});
+    });
+
+    testWidgets('a file payment waiting for its reply keeps File', (tester) async {
+      final h = _Harness(payments: const PaymentPrefs(direct: true, file: false));
+      h.session.transactionsValue = [
+        fakeTx(
+          id: 1,
+          slateId: 'waiting',
+          kind: TxKind.sent,
+          status: TxStatus.awaitingRecipient,
+          transport: 'file',
+          amountDebited: BigInt.from(10000000000),
+        ),
+      ];
+      await h.pump(tester);
+      expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct, ReceiveTab.file]);
+    });
+
+    testWidgets('a finished or Epicbox payment does not keep it', (tester) async {
+      final h = _Harness(payments: const PaymentPrefs(direct: true, file: false));
+      h.session.transactionsValue = [
+        fakeTx(
+          id: 1,
+          slateId: 'done',
+          kind: TxKind.sent,
+          status: TxStatus.awaitingConfirmation,
+          transport: 'file',
+        ),
+        fakeTx(
+          id: 2,
+          slateId: 'box',
+          kind: TxKind.sent,
+          status: TxStatus.awaitingRecipient,
+          transport: 'epicbox',
+        ),
+      ];
+      await h.pump(tester);
+      expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct]);
+    });
+  });
+
+  group('Offline', () {
+    const offline = AdvancedPrefs(networkMode: NetworkMode.offline);
+
+    testWidgets('Epicbox: the address to hand out, and the line that it cannot receive', (
+      tester,
+    ) async {
+      final h = _Harness(advanced: offline, payments: _directOn);
+      await h.pump(tester);
+      expect(find.byKey(receiveAddressKey), findsOneWidget);
+      expect(
+        find.text("Can't receive this way while Offline mode is on."),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Direct: the onion to hand out, no Turn on Tor', (tester) async {
+      final h = _Harness(advanced: offline, payments: _directOn);
+      await h.pump(tester);
+      await h.torTab(tester);
+      expect(find.byKey(receiveTorAddressKey), findsOneWidget);
+      expect(
+        find.text("Can't receive this way while Offline mode is on."),
+        findsOneWidget,
+      );
+      expect(find.byKey(receiveTurnOnTorKey), findsNothing);
+      expect(h.session.torStarts, isEmpty);
+    });
+
+    testWidgets('File: Open file and Paste wait, with the reason', (tester) async {
+      final h = _Harness(advanced: offline, payments: _directOn);
+      await h.pump(tester);
+      h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.file);
+      await tester.pumpAndSettle();
+      for (final label in ['Open file', 'Paste']) {
+        expect(
+          tester
+              .widget<OutlinedButton>(find.widgetWithText(OutlinedButton, label))
+              .onPressed,
+          isNull,
+          reason: label,
+        );
+      }
+      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+    });
+
+    testWidgets('Standard: no offline line', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      expect(
+        find.text("Can't receive this way while Offline mode is on."),
+        findsNothing,
+      );
+    });
+  });
+
   group('Direct tab', () {
     testWidgets('Tor off: Direct receiving needs Tor; no switch on Receive', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
       expect(find.text('Direct receiving needs Tor.'), findsOneWidget);
@@ -266,7 +418,7 @@ void main() {
     testWidgets('Turn on Tor: starting, then on; the address and its code', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
       await h.switchOn(tester);
@@ -300,7 +452,7 @@ void main() {
     });
 
     testWidgets('a tap on the card copies the address', (tester) async {
-      final h = _Harness();
+      final h = _Harness(payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
       await h.switchOn(tester);
@@ -313,7 +465,7 @@ void main() {
     testWidgets('not connected: the reason in one line and Retry', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
       await h.switchOn(tester);
@@ -334,7 +486,7 @@ void main() {
     testWidgets('connected but not reachable: the reason and Retry', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
       await h.switchOn(tester);
@@ -345,7 +497,7 @@ void main() {
     });
 
     testWidgets('fits and reads at text scale 2', (tester) async {
-      final h = _Harness();
+      final h = _Harness(payments: _directOn);
       await h.pump(tester, textScale: 2);
       await h.torTab(tester);
       expect(tester.takeException(), isNull);

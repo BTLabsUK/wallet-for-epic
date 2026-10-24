@@ -48,6 +48,9 @@ enum DeskRoute {
   settingsWallets(section: DeskSection.settings),
   settingsPhrase(section: DeskSection.settings),
   settingsRescan(section: DeskSection.settings),
+
+  /// The expert features' switches and the network mode (`settings_advanced.dart`).
+  settingsAdvanced(section: DeskSection.settings),
   settingsAbout(section: DeskSection.settings),
   settingsHelp(section: DeskSection.settings);
 

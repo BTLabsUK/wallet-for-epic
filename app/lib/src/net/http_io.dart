@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'http_types.dart';
+import 'local_address.dart';
 import 'tor_net.dart';
 
 /// With [maxBytes], a body longer than that is not read to its end: the call throws
@@ -77,7 +78,7 @@ Future<({int status, Uint8List bytes})> _sendRaw(
     ..userAgent = null;
   // Through tor while the Tor switch covers these requests; none while it is not connected.
   try {
-    TorNet.configure(client, loopback: isLoopbackUrl(url));
+    TorNet.configure(client, loopback: isLoopbackUrl(url), local: isLocalAddressUrl(url.toString()));
   } on NetError {
     client.close(force: true);
     rethrow;

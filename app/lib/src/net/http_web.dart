@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'dart:js_interop';
 import 'dart:typed_data';
 
+import '../network_gate.dart';
 import 'http_types.dart';
 
 /// With [maxBytes], a longer body throws [NetTooLarge] (checked once read: `fetch` gives no
@@ -79,6 +80,8 @@ Future<HttpReply> _send(
   List<int>? body,
   Duration timeout,
 ) async {
+  // The Offline mode: nothing leaves the page (the demo server's own calls included).
+  if (NetGate.offline) throw const NetError('Offline mode');
   final abort = _AbortController();
   var timedOut = false;
   final timer = Timer(timeout, () {

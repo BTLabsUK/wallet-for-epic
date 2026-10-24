@@ -209,11 +209,7 @@
   "@deskOutTileTotal": {
     "description": "Label of a balance tile on Outputs: the whole balance. Narrow tile."
   },
-  "deskOutDefaultsTitle": "Defaults for sends",
-  "@deskOutDefaultsTitle": {
-    "description": "Title of the panel on Outputs with the settings Send uses."
-  },
-  "deskOutAdvanced": "Advanced",
+  "deskOutAdvanced": "Manage outputs",
   "@deskOutAdvanced": {
     "description": "Head of the management section under the outputs table: the intro paragraph, Split and Consolidate, the defaults for sends."
   },
@@ -656,5 +652,13 @@
   "deskOutWhatOne": "one spendable output",
   "@deskOutWhatOne": {
     "description": "Bold part of the 'nothing to consolidate' text."
+  },
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
+  "deskOutDefaultsOpen": "Open Transactions",
+  "@deskOutDefaultsMoved": {
+    "description": "One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went."
+  },
+  "@deskOutDefaultsOpen": {
+    "description": "Inline button after deskOutDefaultsMoved: opens Settings › Transactions."
   }
 }

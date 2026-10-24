@@ -291,24 +291,8 @@ void main() {
       expect(pressed(tester, 'Consolidate…'), isNull);
     });
 
-    testWidgets('the defaults are saved at once', (tester) async {
-      await page(tester, [out(1, 10, OutputStatus.unspent)], bal(10));
-      await tester.tap(find.descendant(of: find.byType(ESegmented<SelectionStrategy>), matching: find.text('All')));
-      await tester.pumpAndSettle();
-      expect(wallet.saved?.strategy, SelectionStrategy.all);
-      await tester.tap(find.byType(ESwitch));
-      await tester.pumpAndSettle();
-      expect(wallet.saved, const OutputPrefs(strategy: SelectionStrategy.all, smartOutputs: false));
-    });
-
-    testWidgets('linux-07: Split change says which change it splits', (tester) async {
-      await page(tester, [out(1, 10, OutputStatus.unspent)], bal(10));
-      // The rule (smart_outputs.dart): change of at least 1 EPIC, parts of at least 0.5 EPIC,
-      // behind the row's info icon (the main view shows labels only).
-      final hint = find.byWidgetPredicate((w) => w is EInfoHint && w.text.contains('at least 1 EPIC') && w.text.contains('0.5 EPIC'));
-      expect(hint, findsOneWidget);
-      expect(find.textContaining('at least 1 EPIC'), findsNothing);
-    });
+    // The send defaults (strategy, Split change) moved to Settings › Transactions:
+    // test/desktop/transactions_settings_test.dart.
 
     testWidgets('spent outputs show only when asked; tiles count outputs', (tester) async {
       await page(tester, [out(1, 10, OutputStatus.unspent), out(2, 5, OutputStatus.spent)], bal(10));

@@ -206,5 +206,11 @@
   "deskOnbImportStopTitle": "Przerwać import?",
   "deskOnbImportStopBody": "Zaimportowane do tej pory portfele zostaną usunięte. Stare foldery są bez zmian.",
   "deskOnbImportGoBack": "Wróć",
-  "deskOnbImportStop": "Przerwij import"
+  "deskOnbImportStop": "Przerwij import",
+  "deskOnbRestoreFromLink": "Zacznij od wysokości bloku",
+  "deskOnbRestoreFromHide": "Sprawdź cały łańcuch",
+  "deskOnbRestoreFromLabel": "Zacznij od bloku",
+  "deskOnbRestoreFromHint": "Wysokość bloku",
+  "deskOnbRestoreFromHelp": "Tylko jeśli pierwsza płatność portfela przyszła po tym bloku. Zostaw puste, aby sprawdzić cały łańcuch.",
+  "deskOnbRestoreFromInvalid": "Użyj samych cyfr albo zostaw puste."
 }

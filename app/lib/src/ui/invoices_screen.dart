@@ -22,6 +22,7 @@ import 'invoice_rows.dart';
 import 'settings_invoices.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
+import 'tour/tour_target.dart';
 import 'tx_details_screen.dart';
 
 /// The most of a service's message the app shows. LEPIC caps it too; this keeps one line.
@@ -548,7 +549,9 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                  child: SegmentedButton<InvoicesSegment>(
+                  child: PhoneTourTarget(
+                    id: 'tour-invoices-tabs',
+                    child: SegmentedButton<InvoicesSegment>(
                     key: invoicesSegmentsKey,
                     showSelectedIcon: false,
                     style: SegmentedButton.styleFrom(
@@ -569,6 +572,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                     selected: {segment},
                     onSelectionChanged: (s) =>
                         setState(() => _segment = s.first),
+                  ),
                   ),
                 ),
                 if (invoices.hasError && !invoices.isLoading)

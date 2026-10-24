@@ -206,5 +206,11 @@
   "deskOnbImportStopTitle": "Import abbrechen?",
   "deskOnbImportStopBody": "Bisher importierte Wallets werden entfernt. Alte Ordner bleiben unverändert.",
   "deskOnbImportGoBack": "Weiter importieren",
-  "deskOnbImportStop": "Import abbrechen"
+  "deskOnbImportStop": "Import abbrechen",
+  "deskOnbRestoreFromLink": "Ab einer Blockhöhe starten",
+  "deskOnbRestoreFromHide": "Gesamte Blockchain prüfen",
+  "deskOnbRestoreFromLabel": "Ab Block starten",
+  "deskOnbRestoreFromHint": "Blockhöhe",
+  "deskOnbRestoreFromHelp": "Nur, wenn die erste Zahlung der Wallet nach diesem Block kam. Leer lassen, um die gesamte Blockchain zu prüfen.",
+  "deskOnbRestoreFromInvalid": "Nur Ziffern verwenden oder leer lassen."
 }

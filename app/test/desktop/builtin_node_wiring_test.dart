@@ -5,11 +5,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, ServiceHealth;
 import 'package:epic_wallet/src/node/node_settings.dart';
 import 'package:epic_wallet/src/models.dart' show Chain;
+import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
@@ -295,6 +297,25 @@ void main() {
     expect(toml, contains('db_root = "${dir.path}/elsewhere/chain_data"'));
     expect(toml, contains('peers_preferred = ["203.0.113.9:3414"]'));
     await w.dispose();
+  });
+
+  test('Offline keeps the built-in node running and still asks it; launching in Offline starts it', () async {
+    final wallet = make();
+    expect(await wallet.unlock(_password), isTrue);
+    await wallet.useBuiltInNode(true);
+    final s = await wallet.settings();
+    await wallet.saveSettings(s.copyWith(advanced: s.advanced.withMode(NetworkMode.offline)));
+    addTearDown(() => NetGate.set(NetworkMode.standard));
+    expect(NetGate.offline, isTrue);
+    expect(spawned.single.terminated, 0, reason: 'its own peers are the node\'s setting');
+    await wallet.syncNow();
+    await wallet.dispose();
+    await stopAllBuiltInNodes();
+    final again = make();
+    NetGate.set(NetworkMode.offline);
+    await again.resumeBuiltInNode();
+    expect(spawned, hasLength(2));
+    await again.dispose();
   });
 
   test('a build without the node refuses to turn it on', () async {

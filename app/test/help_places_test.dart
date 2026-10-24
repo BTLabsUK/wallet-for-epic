@@ -39,12 +39,12 @@ void main() {
     'Privacy & network': {l.settingsSectionPrivacyNetwork},
     'Tor Network': {l.torNetworkLabel},
     'Wallet': {l.settingsSectionWallet},
+    'Transactions': {l.settingsSectionTransactions, l.deskSetFrameTransactions},
     'Export history backup': {l.settingsExportHistory, l.deskSetBackupExportTitle},
     'Recheck balance': {l.settingsRescan, l.deskSetFrameRescan},
     'Invoice address and trusted services': {l.settingsInvoices},
     'Node': {l.deskSetFrameNode, l.serverNodeTitle},
     'Epicbox': {l.serverEpicboxTitle},
-    'Receiving': {l.deskSetFrameReceiving},
     'Epicbox receiving': {l.deskSetRecvEpicboxTitle},
     'Privacy': {l.deskSetFramePrivacy},
     'Tor': {l.deskSetPrivTor},
@@ -56,7 +56,7 @@ void main() {
     'Send': {l.homeSendButton, l.deskShellNavSend},
     'Activity': {l.homeDestActivity, l.deskShellNavActivity},
     'Outputs': {l.outputsTitle, l.deskShellNavOutputs},
-    'Advanced': {l.outputsAdvanced, l.deskOutAdvanced},
+    'Manage outputs': {l.outputsAdvanced, l.deskOutAdvanced},
     'File': {l.receiveTabFile},
     'Transaction files': {l.deskRecvFiles},
     'Sign a transaction file': {l.deskRecvSignTitle},
@@ -81,7 +81,7 @@ void main() {
       expect(helpPlaceDestination('Settings › Display'), HelpPhonePlace.display);
       expect(helpPlaceDestination('Settings › About'), HelpPhonePlace.about);
       expect(helpPlaceDestination('Settings'), HelpPhonePlace.settings);
-      expect(helpPlaceDestination('Outputs › Advanced'), HelpPhonePlace.outputs);
+      expect(helpPlaceDestination('Outputs › Manage outputs'), HelpPhonePlace.outputs);
       expect(helpPlaceDestination('Invoices › To pay'), HelpPhonePlace.invoices);
     });
 
@@ -105,7 +105,7 @@ void main() {
       expect(deskHelpPlace('Settings › Recheck balance')!.route, DeskRoute.settingsRescan);
       expect(deskHelpPlace('Settings › Privacy › Tor')!.route, DeskRoute.settingsPrivacy);
       expect(deskHelpPlace('Settings › Privacy › Tor')!.jump, SettingsJump.tor);
-      expect(deskHelpPlace('Settings › Receiving › Epicbox receiving')!.jump, SettingsJump.epicbox);
+      expect(deskHelpPlace('Settings › Transactions › Epicbox receiving')!.jump, SettingsJump.epicbox);
       expect(deskHelpPlace('Receive › Transaction files › Finalize a response file')!.route, DeskRoute.finalize);
       expect(deskHelpPlace('Invoices › Issue')!.arg, InvoicesTab.issue);
       expect(deskHelpPlace('Settings › Security'), isNull);

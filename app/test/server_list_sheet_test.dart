@@ -1,5 +1,6 @@
-// The phone's Node and Epicbox sheets: one list per kind, a field at the top that filters and
-// adds, a bin on every row with Undo, "Restore the public list", the directory's servers
+// The phone's Node and Epicbox sheets: one list per kind, a field at the top that starts empty,
+// filters and adds, a Node row that switches at once, an Epicbox row that asks first, a bin on
+// every row with Undo, "Restore the public list", the directory's servers
 // joining the list, the operators' icons, and the sheet on small phones.
 import 'dart:io';
 import 'dart:typed_data';
@@ -231,17 +232,25 @@ List<String> _order(WidgetTester tester, Iterable<String> values) {
 }
 
 const _noMatch = 'No match.';
+const _placeholder = 'Paste or type to filter or add';
+
+/// The Epicbox confirm that a row tap opens.
+Finder _confirm() => find.byType(AlertDialog);
+Finder _confirmSwitch() => find.byKey(serverListSwitchKey);
+Finder _footAction(String label) =>
+    find.descendant(of: find.byKey(serverListFootKey), matching: find.text(label));
 const _notAddress = 'Not a server address. Use host or host:port.';
 
 void main() {
   group('the list', () {
-    testWidgets('node: the built-in nodes in order, the field holds the one in use', (
-      tester,
-    ) async {
+    testWidgets('node: the built-in nodes in order; the field is empty with its placeholder, '
+        'the one in use shows in its row only', (tester) async {
       final env = _Env();
       await _pump(tester, ServerKind.node, env);
       expect(find.text('Node'), findsOneWidget);
-      expect(_fieldText(tester), 'node.btlabs.uk');
+      expect(_fieldText(tester), '');
+      expect(find.text(_placeholder), findsOneWidget);
+      expect(find.text('In use. Edit it to switch, or type to filter the list.'), findsNothing);
       expect(_order(tester, [_btlabs, _epicnet, _epiccash]), [_btlabs, _epicnet, _epiccash]);
       expect(_row('https://epic.stackwallet.com:3413'), findsOneWidget);
       expect(_row('https://epic-node.iniaku.my.id'), findsOneWidget);
@@ -258,13 +267,14 @@ void main() {
       expect(_saved(env.store, ServerKind.node).entries.first, _btlabs);
     });
 
-    testWidgets('epicbox: the list, the default tagged, the one in use in the field', (
+    testWidgets('epicbox: the list, the default tagged, the field empty, the one in use checked', (
       tester,
     ) async {
       final env = _Env();
       await _pump(tester, ServerKind.relay, env);
       expect(find.text('Epicbox'), findsOneWidget);
-      expect(_fieldText(tester), _stack);
+      expect(_fieldText(tester), '');
+      expect(find.text(_placeholder), findsOneWidget);
       expect(_row(defaultEpicboxHost), findsOneWidget);
       expect(_inRow(defaultEpicboxHost, 'Default'), findsOneWidget);
       expect(_inRow(_stack, 'Current'), findsOneWidget);
@@ -272,33 +282,59 @@ void main() {
       expect(_row('flooepicbox.btlabs.uk'), findsOneWidget, reason: 'the push relay');
     });
 
-    testWidgets('epicbox: the address warning on the sheet and, once a server is picked, the '
-        'strip warns again', (tester) async {
+    testWidgets('epicbox: the address warning on the sheet; a tap opens the confirm with the '
+        'title, the line and Cancel / Switch', (tester) async {
       final env = _Env();
       await _pump(tester, ServerKind.relay, env);
       expect(
         find.text('Switching changes your address. Senders need the new one.'),
         findsOneWidget,
       );
-      expect(find.text('Your address changes; senders need the new one.'), findsNothing);
+      expect(_confirm(), findsNothing);
       await tester.tap(_row('epicbox.epicnet.us'));
       await tester.pumpAndSettle();
-      expect(find.text('Switch to epicbox.epicnet.us'), findsOneWidget);
-      expect(find.text('Your address changes; senders need the new one.'), findsOneWidget);
+      expect(_confirm(), findsOneWidget);
+      expect(find.text('Switch to epicbox.epicnet.us?'), findsOneWidget);
+      expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+      expect(find.byKey(serverListCancelKey), findsOneWidget);
+      expect(_confirmSwitch(), findsOneWidget);
+      expect(env.live, isEmpty);
     });
 
-    testWidgets('node: neither the address warning nor its strip note', (tester) async {
+    testWidgets('epicbox: Cancel keeps the relay; Switch switches', (tester) async {
       final env = _Env();
+      await _pump(tester, ServerKind.relay, env);
+      await tester.tap(_row('epicbox.epicnet.us'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverListCancelKey));
+      await tester.pumpAndSettle();
+      expect(_confirm(), findsNothing);
+      expect(env.live, isEmpty);
+      expect(env.saved, 0);
+      expect(env.store.values['app.relay.mainnet'], _stack);
+
+      await tester.tap(_row('epicbox.epicnet.us'));
+      await tester.pumpAndSettle();
+      await tester.tap(_confirmSwitch());
+      await tester.pumpAndSettle();
+      expect(_confirm(), findsNothing);
+      expect(env.saved, 1);
+      expect(env.store.values['app.relay.mainnet'], 'epicbox.epicnet.us');
+      expect(env.store.values['app.node.mainnet'], _btlabs);
+      await _timers(tester);
+    });
+
+    testWidgets('node: a tap switches at once with no confirm; the foot says so', (tester) async {
+      final env = _Env()..liveAnswer = true;
       await _pump(tester, ServerKind.node, env);
       expect(find.text('Switching changes your address. Senders need the new one.'), findsNothing);
       await tester.tap(_row(_epicnet));
       await tester.pumpAndSettle();
-      expect(find.text('Switch to node.epicnet.us:3413'), findsOneWidget);
-      expect(find.text('Your address changes; senders need the new one.'), findsNothing);
-      expect(
-        find.text('The wallet reconnects. Balances are checked again against the new node.'),
-        findsOneWidget,
-      );
+      expect(_confirm(), findsNothing);
+      expect(env.live.single, (nodeUrl: _epicnet, relay: _stack));
+      expect(_foot('Switched to node.epicnet.us:3413'), findsOneWidget);
+      expect(_fieldText(tester), '');
+      await _timers(tester);
     });
 
     testWidgets('typing filters by host or operator; closing the filter brings the list back', (
@@ -337,7 +373,7 @@ void main() {
     testWidgets('an address no row has is addable even while other rows match its text', (
       tester,
     ) async {
-      await _pump(tester, ServerKind.node, _Env());
+      await _pump(tester, ServerKind.node, _Env()..liveAnswer = true);
       await _type(tester, 'epicnet.us');
       expect(_row(_epicnet), findsOneWidget);
       expect(find.byKey(serverListAddKey), findsOneWidget);
@@ -348,30 +384,20 @@ void main() {
       expect(find.byKey(serverListAddKey), findsNothing);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
-      expect(find.text('Switch to node.epicnet.us:3413'), findsOneWidget);
+      expect(_foot('Switched to node.epicnet.us:3413'), findsOneWidget);
+      await _timers(tester);
     });
 
-    testWidgets('a tap on a row asks first; the server in use answers; Cancel takes it back; '
-        'Switch saves the node and keeps the relay', (tester) async {
+    testWidgets('a node tap saves the node and keeps the relay; the server in use answers', (
+      tester,
+    ) async {
       final env = _Env();
       await _pump(tester, ServerKind.node, env);
-      expect(find.byKey(serverListSwitchKey), findsNothing);
       await tester.tap(_row(_btlabs));
       await tester.pumpAndSettle();
-      expect(find.byKey(serverListSwitchKey), findsNothing);
       expect(_foot('Already in use.'), findsOneWidget);
+      expect(env.saved, 0);
       await tester.tap(_row(_epicnet));
-      await tester.pumpAndSettle();
-      expect(find.text('Switch to node.epicnet.us:3413'), findsOneWidget);
-      expect(_check(_epicnet), findsOneWidget);
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(find.byKey(serverListSwitchKey), findsNothing);
-      expect(env.store.values['app.node.mainnet'], _btlabs);
-
-      await tester.tap(_row(_epicnet));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(serverListSwitchKey));
       await tester.pumpAndSettle();
       expect(env.saved, 1);
       expect(env.store.values['app.node.mainnet'], _epicnet);
@@ -386,16 +412,17 @@ void main() {
       await _pump(tester, ServerKind.relay, env);
       await tester.tap(_row('epicbox.epicnet.us'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(serverListSwitchKey));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(_confirmSwitch());
+      await tester.pumpAndSettle();
       expect(env.live.single, (nodeUrl: _btlabs, relay: 'epicbox.epicnet.us'));
       expect(env.saved, 0);
+      expect(_foot('Switched to epicbox.epicnet.us'), findsOneWidget);
       await _timers(tester);
     });
 
     testWidgets('a tap closes the keyboard', (tester) async {
-      await _pump(tester, ServerKind.node, _Env());
+      final env = _Env();
+      await _pump(tester, ServerKind.node, env);
       await tester.tap(_field());
       await tester.pump();
       expect(_typing(), isTrue);
@@ -404,12 +431,13 @@ void main() {
       await tester.tap(_row(_epicnet));
       await tester.pumpAndSettle();
       expect(_typing(), isFalse);
-      expect(find.text('Switch to node.epicnet.us:3413'), findsOneWidget);
+      expect(env.saved, 1);
+      await _timers(tester);
     });
   });
 
   group('add', () {
-    testWidgets('a good node is tested by its tip, added, selected and offered for a switch', (
+    testWidgets('a good node is tested by its tip, added, and offered for a switch', (
       tester,
     ) async {
       final env = _Env();
@@ -422,24 +450,25 @@ void main() {
       expect(env.service.nodeTipCalls, 1);
       expect(_row('https://node.example.org'), findsOneWidget);
       expect(_saved(env.store, ServerKind.node).entries.last, 'https://node.example.org');
-      expect(_check('https://node.example.org'), findsOneWidget);
-      expect(find.text('Switch to node.example.org'), findsOneWidget);
       expect(_foot('Added node.example.org.'), findsOneWidget);
-      // The field is back on the server in use; the filter is closed.
-      expect(_fieldText(tester), 'node.btlabs.uk');
+      expect(_footAction('Switch'), findsOneWidget);
+      // The field is empty again; the filter is closed.
+      expect(_fieldText(tester), '');
       expect(_row(_btlabs), findsOneWidget);
       expect(find.byKey(serverListAddKey), findsNothing);
       // The wallet still uses the old node until Switch.
       expect(env.store.values['app.node.mainnet'], _btlabs);
 
-      await tester.tap(find.byKey(serverListSwitchKey));
+      await tester.tap(_footAction('Switch'));
       await tester.pumpAndSettle();
       expect(env.store.values['app.node.mainnet'], 'https://node.example.org');
       expect(env.saved, 1);
       await _timers(tester);
     });
 
-    testWidgets('a good relay is probed, added, selected and offered for a switch', (tester) async {
+    testWidgets('a good relay is probed, added and offered for a switch, which asks first', (
+      tester,
+    ) async {
       final env = _Env();
       await _pump(tester, ServerKind.relay, env);
       await _type(tester, 'relay.example.org:4443');
@@ -448,11 +477,13 @@ void main() {
       expect(env.probe.probed.single.label, 'relay.example.org:4443');
       expect(_row('relay.example.org:4443'), findsOneWidget);
       expect(_saved(env.store, ServerKind.relay).entries.last, 'relay.example.org:4443');
-      expect(_check('relay.example.org:4443'), findsOneWidget);
-      expect(find.text('Switch to relay.example.org:4443'), findsOneWidget);
-      expect(find.text('Your address changes; senders need the new one.'), findsOneWidget);
       expect(_foot('Added relay.example.org:4443.'), findsOneWidget);
-      await tester.tap(find.byKey(serverListSwitchKey));
+      expect(env.store.values['app.relay.mainnet'], _stack);
+
+      await tester.tap(_footAction('Switch'));
+      await tester.pumpAndSettle();
+      expect(find.text('Switch to relay.example.org:4443?'), findsOneWidget);
+      await tester.tap(_confirmSwitch());
       await tester.pumpAndSettle();
       expect(env.store.values['app.relay.mainnet'], 'relay.example.org:4443');
       await _timers(tester);
@@ -578,18 +609,6 @@ void main() {
       );
       expect(_row(_btlabs), findsOneWidget);
       expect(_saved(env.store, ServerKind.node), before);
-      await _timers(tester);
-    });
-
-    testWidgets('removing the server picked for a switch takes the offer back', (tester) async {
-      final env = _Env();
-      await _pump(tester, ServerKind.node, env);
-      await tester.tap(_row(_epicnet));
-      await tester.pumpAndSettle();
-      expect(find.byKey(serverListSwitchKey), findsOneWidget);
-      await tester.tap(find.byKey(serverListRemoveKey(_epicnet)));
-      await tester.pumpAndSettle();
-      expect(find.byKey(serverListSwitchKey), findsNothing);
       await _timers(tester);
     });
 
@@ -919,7 +938,7 @@ void main() {
         for (final kind in ServerKind.values) {
           testWidgets(
             '${kind.name} sheet at ${size.width.round()}×${size.height.round()}, text ×${scale.toStringAsFixed(0)}: '
-            'no overflow; a row below the fold is reachable; the strip is in reach; Add answers',
+            'no overflow; a row below the fold is reachable; the confirm is in reach; Add answers',
             (tester) async {
               final env = _Env();
               await open(tester, kind, env, size: size, scale: scale);
@@ -932,17 +951,27 @@ void main() {
               // Built in the list's cache is not yet on the screen.
               await tester.ensureVisible(_row(target));
               await tester.pumpAndSettle();
-              await tester.tap(_row(target));
-              await tester.pumpAndSettle();
-              final screenHeight = size.height - 16;
-              // Switch and Cancel are in view at once: over its cap only the strip's note scrolls.
-              final button = tester.getRect(find.byKey(serverListSwitchKey));
-              expect(button.height, greaterThanOrEqualTo(48));
-              expect(button.bottom, lessThanOrEqualTo(screenHeight));
-              expect(button.top, greaterThanOrEqualTo(0));
-              expect(tester.getRect(find.text('Cancel')).bottom, lessThanOrEqualTo(screenHeight));
-              await tester.tap(find.text('Cancel'));
-              await tester.pumpAndSettle();
+              if (kind == ServerKind.node) {
+                // A tap would switch and restart the app flow here; the bin's foot line with
+                // its Undo must be in reach instead.
+                await tester.tap(find.byKey(serverListRemoveKey(target)));
+                await tester.pumpAndSettle();
+                final undo = tester.getRect(_footAction('Undo'));
+                expect(undo.bottom, lessThanOrEqualTo(size.height));
+                expect(undo.top, greaterThanOrEqualTo(0));
+                await _timers(tester);
+              } else {
+                await tester.tap(_row(target));
+                await tester.pumpAndSettle();
+                // Switch and Cancel are in view at once.
+                final button = tester.getRect(_confirmSwitch());
+                expect(button.height, greaterThanOrEqualTo(36));
+                expect(button.bottom, lessThanOrEqualTo(size.height));
+                expect(button.top, greaterThanOrEqualTo(0));
+                await tester.tap(find.byKey(serverListCancelKey));
+                await tester.pumpAndSettle();
+                expect(_confirm(), findsNothing);
+              }
 
               // A filter nothing matches: one "No match." and the Add row in reach.
               // The field is pinned above the list: always there.

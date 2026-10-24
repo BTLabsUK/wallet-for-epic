@@ -1,0 +1,11 @@
+{
+  "deskSetFrameTransactions": "Transaktionen",
+  "deskSetTxMethods": "Zahlungsmethoden",
+  "deskSetTxAlwaysOn": "Immer an",
+  "deskSetTxEpicboxHint": "Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so, deshalb ist es immer an.",
+  "deskSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet, über HTTP oder Tor, ohne Server dazwischen. Funktioniert nur, solange die Wallet geöffnet ist. Fügt Direkt zu Senden und seine Adresse zu Empfangen hinzu.",
+  "deskSetTxFileHint": "Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt Datei zu Senden und die Dateischritte zu Empfangen hinzu.",
+  "deskSetTxSend": "Senden",
+  "deskSetTxStart": "Senden beginnt mit",
+  "deskSetTxStartHint": "Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern."
+}

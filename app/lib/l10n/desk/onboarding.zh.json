@@ -206,5 +206,11 @@
   "deskOnbImportStopTitle": "停止导入？",
   "deskOnbImportStopBody": "已导入的钱包会被移除。旧文件夹不会改动。",
   "deskOnbImportGoBack": "返回",
-  "deskOnbImportStop": "停止导入"
+  "deskOnbImportStop": "停止导入",
+  "deskOnbRestoreFromLink": "从某个区块高度开始",
+  "deskOnbRestoreFromHide": "检查整条链",
+  "deskOnbRestoreFromLabel": "从区块开始",
+  "deskOnbRestoreFromHint": "区块高度",
+  "deskOnbRestoreFromHelp": "仅当钱包的第一笔付款发生在此区块之后才使用。留空则检查整条链。",
+  "deskOnbRestoreFromInvalid": "只能输入数字，或留空。"
 }

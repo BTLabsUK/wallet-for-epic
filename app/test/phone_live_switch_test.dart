@@ -93,7 +93,7 @@ Future<_World> _open(
 }
 
 /// Types [text] into the field at the top and taps the Add row: the server is tested, added
-/// and offered for a switch.
+/// and offered for a switch at the foot.
 Future<void> _offer(WidgetTester tester, String text) async {
   await tester.enterText(find.byKey(serverListFieldKey), text);
   await tester.pumpAndSettle();
@@ -101,8 +101,21 @@ Future<void> _offer(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
+/// The foot line's Switch, which a Node switches with and an Epicbox server asks first with.
+Future<void> _footSwitch(WidgetTester tester) async {
+  await tester.tap(
+    find.descendant(of: find.byKey(serverListFootKey), matching: find.text(_l.slSwitch)),
+  );
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// Switches to the server just added, confirming the Epicbox dialog when it opens.
 Future<void> _switch(WidgetTester tester, {bool settle = true}) async {
-  await tester.tap(find.byKey(serverListSwitchKey));
+  await _footSwitch(tester);
+  if (find.byKey(serverListSwitchKey).evaluate().isNotEmpty) {
+    await tester.tap(find.byKey(serverListSwitchKey));
+  }
   if (settle) {
     await tester.pumpAndSettle();
     // The success notice's timer runs on after the switch.
@@ -128,7 +141,6 @@ void _relaunched() {
 /// The open wallet, on the same session, not locked and not handed to the PIN screen.
 void _stillOpen(_World w) {
   expect(find.byType(LaunchScreen), findsNothing);
-  expect(find.byType(ServerListSheet), findsNothing);
   expect(find.text('home'), findsOneWidget);
   expect(w.container.read(sessionProvider), same(w.session));
   expect(w.session.disposeCalls, 0);
@@ -155,16 +167,19 @@ void main() {
     expect(w.session.onionRoutes, hasLength(1));
   });
 
-  testWidgets('a new relay is switched live after the strip says the address changes, and the '
+  testWidgets('a new relay is switched live after the dialog says the address changes, and the '
       'listener receives on it', (tester) async {
     final w = await _open(tester);
     expect(w.session.listenerStarts, 1);
 
     await _offer(tester, 'relay.example.org');
-    // The strip's Switch, with its caption, is the confirmation.
-    expect(find.text(_l.serverRelaySwitchNote), findsOneWidget);
+    // The dialog's Switch, with its line, is the confirmation.
+    await _footSwitch(tester);
+    expect(find.text(_l.slSwitchBody), findsOneWidget);
     expect(find.byKey(serverListSwitchKey), findsOneWidget);
-    await _switch(tester);
+    await tester.tap(find.byKey(serverListSwitchKey));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 10));
 
     _stillOpen(w);
     final switched = w.session.serverSwitches.single;
@@ -213,8 +228,7 @@ void main() {
     final w = await _open(tester);
     final gate = w.session.serverSwitchGate = Completer<void>();
     await _offer(tester, 'relay.example.org');
-    await tester.tap(find.byKey(serverListSwitchKey));
-    await tester.pump();
+    await _switch(tester, settle: false);
     // Back out of the sheet while the switch waits for a payment in hand.
     tester.state<NavigatorState>(find.byType(Navigator)).pop();
     await tester.pumpAndSettle();
@@ -270,11 +284,12 @@ void main() {
       return container;
     }
 
-    testWidgets('a new relay asks first (the strip), and Cancel saves nothing', (tester) async {
+    testWidgets('a new relay asks first (the dialog), and Cancel saves nothing', (tester) async {
       final container = await openFromLockScreen(tester, networkMenuEpicboxKey);
       await _offer(tester, 'relay.example.org');
-      expect(find.text(_l.serverRelaySwitchNote), findsOneWidget);
-      await tester.tap(find.text(_l.commonCancel));
+      await _footSwitch(tester);
+      expect(find.text(_l.slSwitchBody), findsOneWidget);
+      await tester.tap(find.byKey(serverListCancelKey));
       await tester.pumpAndSettle();
 
       expect(find.byKey(serverListSwitchKey), findsNothing);
@@ -299,11 +314,11 @@ void main() {
       _relaunched();
     });
 
-    testWidgets('a new node needs no confirm beyond the strip', (tester) async {
+    testWidgets('a new node needs no confirm', (tester) async {
       final container = await openFromLockScreen(tester, networkMenuNodeKey);
       await _offer(tester, 'https://node.example.org');
-      expect(find.text(_l.serverRelaySwitchNote), findsNothing);
       await _switch(tester, settle: false);
+      expect(find.byType(AlertDialog), findsNothing);
 
       expect(
         (await container.read(networkChoiceProvider.future)).nodeUrl,
@@ -315,10 +330,11 @@ void main() {
     });
   });
 
-  testWidgets('cancelling the strip switches nothing', (tester) async {
+  testWidgets('cancelling the dialog switches nothing', (tester) async {
     final w = await _open(tester);
     await _offer(tester, 'relay.example.org');
-    await tester.tap(find.text(_l.commonCancel));
+    await _footSwitch(tester);
+    await tester.tap(find.byKey(serverListCancelKey));
     await tester.pumpAndSettle();
 
     expect(find.byType(ServerListSheet), findsOneWidget);
@@ -330,11 +346,11 @@ void main() {
     );
   });
 
-  testWidgets('a new node switches live without a relay note', (tester) async {
+  testWidgets('a new node switches live without a dialog', (tester) async {
     final w = await _open(tester, open: showNodePicker);
     await _offer(tester, 'https://node.example.org');
-    expect(find.text(_l.serverRelaySwitchNote), findsNothing);
     await _switch(tester);
+    expect(find.byType(AlertDialog), findsNothing);
 
     _stillOpen(w);
     expect(w.session.serverSwitches.single.nodeUrl, 'https://node.example.org');

@@ -171,7 +171,7 @@ class MethodLine {
   String get text => detail == null ? word : '$word · $detail';
 }
 
-/// The state line of [m] for Receive, Settings › Receiving and the rail tooltip.
+/// The state line of [m] for Receive, Settings › Transactions and the rail tooltip.
 MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, DeskSettings settings) {
   switch (m) {
     case TxMethod.epicbox:

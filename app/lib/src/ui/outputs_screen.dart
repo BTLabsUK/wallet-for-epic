@@ -13,8 +13,9 @@ import '../settings.dart';
 import '../smart_outputs.dart';
 import '../wallet_service.dart';
 import 'common.dart';
-import 'info_hint.dart';
 import 'pin.dart';
+import 'settings_sections.dart' show SettingsSection, openSettingsSection;
+import 'theme/advanced.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
@@ -67,9 +68,6 @@ String _meaning(AppLocalizations l, OutputLabel w, int need) => switch (w) {
       OutputLabel.spent => (icon: Icons.circle_outlined, color: t.dim),
     };
 
-String _strategyName(AppLocalizations l, SelectionStrategy s) =>
-    s == SelectionStrategy.smallest ? l.outputsSmallest : l.outputsAll;
-
 /// The note under a row's state word: the day it came (no clock: the cell is narrow, and the
 /// sheet has the transaction), which send holds it. Confirmations have a column of their own.
 String? _rowNote(
@@ -103,6 +101,9 @@ String? _rowNote(
 String _confirmations(AppLocalizations l, WalletOutput o) =>
     o.height == BigInt.zero ? '–' : localDigits(l, '${o.confirmations}');
 
+/// The link to the send defaults (now in Settings › Transactions), for tests.
+const Key outputsDefaultsLinkKey = ValueKey('outputs-defaults-link');
+
 class OutputsScreen extends ConsumerStatefulWidget {
   const OutputsScreen({super.key, this.filter});
 
@@ -120,49 +121,6 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   void _reload() {
     ref.invalidate(walletOutputsProvider);
     ref.invalidate(homeProvider);
-  }
-
-  Future<void> _pickStrategy() async {
-    final l = context.l10n;
-    final notifier = ref.read(appSettingsProvider.notifier);
-    final current =
-        ref.read(appSettingsProvider).value?.sendStrategy ??
-        SelectionStrategy.smallest;
-    final picked = await showModalBottomSheet<SelectionStrategy>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final s in SelectionStrategy.values)
-              Semantics(
-                inMutuallyExclusiveGroup: true,
-                checked: s == current,
-                child: ListTile(
-                  minVerticalPadding: 12,
-                  leading: Icon(
-                    s == current
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked,
-                    color: s == current
-                        ? context.tokens.accent
-                        : context.tokens.dim,
-                  ),
-                  title: Text(_strategyName(l, s)),
-                  subtitle: Text(
-                    s == SelectionStrategy.smallest
-                        ? l.outputsSmallestText
-                        : l.outputsAllText,
-                  ),
-                  onTap: () => Navigator.pop(context, s),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-    if (picked != null) await notifier.setSendStrategy(picked);
   }
 
   void _openSheet(WalletOutput o, TxEntry? tx) {
@@ -192,6 +150,12 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final settings = ref.watch(appSettingsProvider).value;
     final hidden = settings?.hideBalances ?? false;
     final strategy = settings?.sendStrategy ?? SelectionStrategy.smallest;
+    // Advanced › Send options shows the defaults a send uses; one that is not at its default
+    // stays (never hide a choice in use).
+    final showDefaults =
+        AdvancedOptions.has(context, AdvancedFeature.sendOptions) ||
+        strategy != SelectionStrategy.smallest ||
+        !(settings?.splitChange ?? true);
     final home = ref.watch(homeProvider).value;
     final summary = home?.summary;
     final outputs = ref.watch(walletOutputsProvider);
@@ -456,31 +420,18 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                 style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
               ),
             ),
-          const SizedBox(height: 8),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: TitleWithHint(
-              l.outputsStrategy,
-              hint: l.outputsStrategyHint,
-              icon: Icons.tune,
+          if (showDefaults) ...[
+            const SizedBox(height: 8),
+            // The send defaults live in Settings › Transactions; one place for each setting.
+            ListTile(
+              key: outputsDefaultsLinkKey,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.tune),
+              title: Text(l.outputsDefaultsMoved),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => openSettingsSection(context, SettingsSection.transactions),
             ),
-            subtitle: Text(_strategyName(l, strategy)),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _pickStrategy,
-          ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: TitleWithHint(
-              l.outputsSplitChange,
-              hint: l.outputsSplitChangeText,
-              icon: Icons.call_split,
-            ),
-            value: settings?.splitChange ?? true,
-            onChanged: settings == null
-                ? null
-                : (v) =>
-                      ref.read(appSettingsProvider.notifier).setSplitChange(v),
-          ),
+          ],
         ],
       ),
     );

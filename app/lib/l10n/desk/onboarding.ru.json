@@ -206,5 +206,11 @@
   "deskOnbImportStopTitle": "Остановить импорт?",
   "deskOnbImportStopBody": "Уже импортированные кошельки будут удалены. Старые папки не изменены.",
   "deskOnbImportGoBack": "Вернуться",
-  "deskOnbImportStop": "Остановить импорт"
+  "deskOnbImportStop": "Остановить импорт",
+  "deskOnbRestoreFromLink": "Начать с высоты блока",
+  "deskOnbRestoreFromHide": "Проверить весь блокчейн",
+  "deskOnbRestoreFromLabel": "Начать с блока",
+  "deskOnbRestoreFromHint": "Высота блока",
+  "deskOnbRestoreFromHelp": "Только если первый платёж кошелька пришёл после этого блока. Оставьте пустым, чтобы проверить весь блокчейн.",
+  "deskOnbRestoreFromInvalid": "Введите только цифры или оставьте пустым."
 }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../network_gate.dart' show NetBlock;
 import '../../data/files.dart';
+import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'file_panels.dart';
+import '../settings/settings_advanced.dart' show openAdvanced;
 
 /// Argument of the Import route: [done] opens on the saved response file, [error] on a
 /// refused file.
@@ -103,6 +106,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final ts = context.ts;
     final l = context.l10n;
+    final block = ref.watch(deskFileBlockProvider);
     return EPage(
       title: l.deskImpTitle,
       width: EPageWidth.narrow,
@@ -116,6 +120,16 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
             icon: EIcons.info,
           ),
           SizedBox(height: Sp.x5),
+          if (block != NetBlock.none) ...[
+            ENotice(
+              key: const ValueKey('file-net-blocked'),
+              title: netBlockReason(l, block)!,
+              tone: ETone.warn,
+              icon: EIcons.lanOff,
+              actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
+            ),
+            SizedBox(height: Sp.x5),
+          ],
           if (_error != null) ...[
             ENotice(title: _error!.title(l), text: _error == ImportError.failed && _detail != null ? l.deskImpFailedDetail(_detail!.text(l)) : _error!.text(l), tone: ETone.risk, icon: EIcons.error),
             SizedBox(height: Sp.x5),
@@ -156,7 +170,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
               title: l.deskImpChoose,
               text: l.deskImpChooseText,
               buttonLabel: l.deskFinChooseFile,
-              onPick: _pick,
+              onPick: block == NetBlock.none ? _pick : null,
             ),
         ],
       ),

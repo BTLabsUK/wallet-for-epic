@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
+import '../../../payment_prefs.dart';
 import '../../data/method_names.dart';
 import '../../desk_l10n.dart';
 import '../../../net/probe_not_run.dart';
@@ -16,10 +17,12 @@ import '../../data/server_lists.dart';
 import '../transfer/epicbox_notice.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
+import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'settings_http.dart';
 
-/// Start states of Settings › Receiving, for the tour.
-enum ReceivingDemo { comboOpen, picked, torOn, torStopped, epicboxDown, httpOn, httpFailed, httpPublic }
+/// Start states of Settings › Transactions (once Receiving), for the tour. [directOn] has the
+/// Direct switch on, [sendOptions] also Advanced › Send options.
+enum ReceivingDemo { comboOpen, picked, torOn, torStopped, epicboxDown, httpOn, httpFailed, httpPublic, directOn, sendOptions }
 
 ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.ok => ETone.ok,
@@ -28,8 +31,11 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.off => ETone.neutral,
 };
 
-/// Settings › Receiving (spec 6.1): one group per method, each the same three parts:
-/// Receiving (switch and state line), Start with the wallet, then the method's options.
+/// Settings › Transactions (spec 6.1, 26.10.13): how payments are made. Payment methods (Epicbox
+/// always on, Direct and File switches), what Send starts on and, with Advanced › Send options,
+/// its defaults; then one group per receiving method, each the same three parts: Receiving
+/// (switch and state line), Start with the wallet, then the method's options. Direct's group
+/// shows while Direct is on or its listener runs.
 class SettingsReceivingScreen extends ConsumerStatefulWidget {
   const SettingsReceivingScreen({super.key, this.arg});
 
@@ -53,6 +59,15 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       if (arg == ReceivingDemo.torOn || arg == ReceivingDemo.torStopped) await n.setTor(true);
       if (arg == ReceivingDemo.httpOn || arg == ReceivingDemo.httpFailed || arg == ReceivingDemo.httpPublic) await n.setHttp(true);
       if (arg == ReceivingDemo.httpPublic && !s.publicMode) await n.saveSettings(ref.read(deskProvider).settings.copyWith(publicMode: true));
+      if (arg == ReceivingDemo.directOn || arg == ReceivingDemo.sendOptions) {
+        final now = ref.read(deskProvider).settings;
+        await n.saveSettings(
+          now.copyWith(
+            payments: now.payments.copyWith(direct: true),
+            advanced: arg == ReceivingDemo.sendOptions ? now.advanced.withFeature(AdvancedFeature.sendOptions, true) : null,
+          ),
+        );
+      }
     });
   }
 
@@ -209,6 +224,119 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     return line.word;
   }
 
+  Future<void> _savePayments(PaymentPrefs Function(PaymentPrefs p) change) async {
+    final s = ref.read(deskProvider).settings;
+    await _saveAutostart(s.copyWith(payments: change(s.payments)));
+  }
+
+  /// A method's row in Payment methods: its name, one hint, and a switch or the Always on tag.
+  Widget _methodRow(PayMethod m, PaymentPrefs p) {
+    final l = context.l10n;
+    final name = switch (m) {
+      PayMethod.epicbox => 'Epicbox', // l10n-ok: product name
+      PayMethod.direct => l.deskSendMethodDirect,
+      PayMethod.file => l.deskSendMethodFile,
+    };
+    final hint = switch (m) {
+      PayMethod.epicbox => l.deskSetTxEpicboxHint,
+      PayMethod.direct => l.deskSetTxDirectHint,
+      PayMethod.file => l.deskSetTxFileHint,
+    };
+    return ESetRow(
+      key: ValueKey('st-method-${m.name}'),
+      title: name,
+      hint: hint,
+      hintTitle: name,
+      control: m == PayMethod.epicbox
+          ? ETag(l.deskSetTxAlwaysOn, tone: ETone.ok)
+          : ESwitch(
+              key: ValueKey('st-offer-${m.name}'),
+              value: p.offers(m),
+              semanticLabel: name,
+              onChanged: (v) => _savePayments((x) => m == PayMethod.direct ? x.copyWith(direct: v) : x.copyWith(file: v)),
+            ),
+    );
+  }
+
+  String _startName(AppLocalizations l, PayMethod m) => switch (m) {
+    PayMethod.epicbox => 'Epicbox', // l10n-ok: product name
+    PayMethod.direct => l.deskSendMethodDirect,
+    PayMethod.file => l.deskSendMethodFile,
+  };
+
+  /// Payment methods: what Send and Receive offer.
+  Widget _methodsGroup(PaymentPrefs p) {
+    final l = context.l10n;
+    return ESetGroup(
+      title: l.deskSetTxMethods,
+      rows: [
+        for (final m in PayMethod.values)
+          if (m != PayMethod.direct || DeskFeatures.httpDirect || DeskFeatures.tor) _methodRow(m, p),
+      ],
+    );
+  }
+
+  /// Send: the method it starts on, and with Advanced › Send options its defaults (the strategy
+  /// and Split change that Outputs kept before).
+  Widget? _sendGroup(PaymentPrefs p) {
+    final l = context.l10n;
+    final offered = [
+      for (final m in PayMethod.values)
+        if (p.offers(m) && (m != PayMethod.direct || DeskFeatures.httpDirect || DeskFeatures.tor)) m,
+    ];
+    final options = advancedHas(ref, AdvancedFeature.sendOptions);
+    if (offered.length < 2 && !options) return null;
+    final out = ref.watch(deskOutputPrefsProvider).value ?? const OutputPrefs();
+    final save = ref.read(deskOutputPrefsProvider.notifier).save;
+    return ESetGroup(
+        title: l.deskSetTxSend,
+        rows: [
+          if (offered.length > 1)
+            ESetRow(
+              key: const ValueKey('st-start-method'),
+              title: l.deskSetTxStart,
+              hint: l.deskSetTxStartHint,
+              control: ERowControl(
+                wide: true,
+                child: ESegmented<PayMethod>(
+                  stretch: true,
+                  segments: [for (final m in offered) ESegment(m, _startName(l, m))],
+                  value: p.startMethod,
+                  onChanged: (m) => _savePayments((x) => x.copyWith(defaultMethod: m)),
+                ),
+              ),
+            ),
+          if (options) ...[
+            ESetRow(
+              key: const ValueKey('st-strategy'),
+              title: l.deskOutStrategyTitle,
+              hint: l.deskOutStrategyHint,
+              hintTitle: l.deskOutStrategyHelpTitle,
+              hintIcon: EIcons.coins,
+              control: ERowControl(
+                child: ESegmented<SelectionStrategy>(
+                  stretch: true,
+                  segments: [ESegment(SelectionStrategy.smallest, l.deskOutStrategySmallest), ESegment(SelectionStrategy.all, l.deskOutStrategyAll)],
+                  value: out.strategy,
+                  onChanged: (v) => save(OutputPrefs(strategy: v, smartOutputs: out.smartOutputs)),
+                ),
+              ),
+            ),
+            ESetRow(
+              key: const ValueKey('st-split'),
+              title: l.deskOutSplitChangeTitle,
+              hint: l.deskOutSplitChangeText,
+              control: ESwitch(
+                value: out.smartOutputs,
+                semanticLabel: l.deskOutSplitChangeTitle,
+                onChanged: (v) => save(OutputPrefs(strategy: out.strategy, smartOutputs: v)),
+              ),
+            ),
+          ],
+        ],
+    );
+  }
+
   Widget _group(TxMethod m, SettingsJump jump, String title, MethodLine line, String word, List<Widget> rows) => JumpSection(
     section: jump,
     child: Column(
@@ -240,6 +368,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _methodsGroup(s.payments),
+          ?_sendGroup(s.payments),
           _group(TxMethod.epicbox, SettingsJump.epicbox, l.deskSetRecvEpicboxTitle, ebLine, _headWord(l, TxMethod.epicbox, status, s, ebLine), [
             _receivingRow(
               TxMethod.epicbox,
@@ -272,7 +402,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               ),
             ),
           ]),
-          if (DeskFeatures.httpDirect)
+          // Direct on; a listener that is on keeps its rows.
+          if (DeskFeatures.httpDirect && (s.payments.direct || status.httpListener != ServiceHealth.off))
             _group(TxMethod.http, SettingsJump.http, l.deskSetRecvHttpTitle, httpLine, _headWord(l, TxMethod.http, status, s, httpLine), [
               _receivingRow(
                 TxMethod.http,

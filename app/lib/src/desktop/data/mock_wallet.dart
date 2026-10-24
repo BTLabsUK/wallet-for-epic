@@ -9,6 +9,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 
+import '../../advanced.dart' show NetworkMode;
+import '../../network_gate.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
 import '../../slate_files.dart' show responseFileName, sendFileName;
@@ -344,12 +346,16 @@ class MockDeskWallet implements DeskWalletApi {
   bool checkPhrase(List<String> words) => bip39PhraseValid(words);
 
   @override
-  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight}) async {
+    restoreStartHeight = startHeight;
     final same = await walletWithPhrase(phrase);
     if (same != null) throw DeskError('This wallet is already here: ${same.name}', sameWallet: same);
     await _wait(3);
     _phrases[phraseFingerprint(phrase.join(' '))] = _addWallet(name);
   }
+
+  /// The start height the last restore asked for (null: the whole chain).
+  BigInt? restoreStartHeight;
 
   /// The new wallet is listed as the next free "Wallet N" (or [name]) and is the selected one.
   /// Returns its id.
@@ -690,11 +696,26 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> deleteContact(String id) async => _contacts.removeWhere((c) => c.id == id);
 
   @override
-  Future<void> saveSettings(DeskSettings settings) async => _settings = settings;
+  Future<void> saveSettings(DeskSettings settings) async {
+    // The network mode as the real wallet takes it: Tor only keeps the Tor switch on.
+    final mode = netModeOf(settings.advanced.networkMode);
+    NetGate.set(mode);
+    _settings = mode == NetworkMode.torOnly ? settings.copyWith(torAutostart: true) : settings;
+  }
 
   @override
   Future<void> useNode(String url) async {
     await _wait();
+    _node = url;
+  }
+
+  /// Every [useNodeForSession] call, in order, for tests.
+  final List<String> sessionNodes = [];
+
+  @override
+  Future<void> useNodeForSession(String url) async {
+    await _wait();
+    sessionNodes.add(url);
     _node = url;
   }
 

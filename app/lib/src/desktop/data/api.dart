@@ -91,7 +91,7 @@ abstract interface class DeskWalletApi {
 
   /// Restores a wallet from [phrase]. A phrase [walletWithPhrase] knows throws a [DeskError]
   /// with [DeskError.sameWallet] set and makes nothing.
-  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase});
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight});
 
   // Import (only when [DeskFeatures.importWizard]). Old folders are only read.
   /// Looks where older Epic Wallets and the epic program kept wallets, and starts a new import
@@ -195,6 +195,11 @@ abstract interface class DeskWalletApi {
   Future<void> deleteContact(String id);
   Future<void> saveSettings(DeskSettings settings);
   Future<void> useNode(String url);
+
+  /// Moves the open wallet onto [url] for this session only (node failover,
+  /// `desk_failover.dart`): the chosen node stays saved and the next unlock opens on it.
+  /// Locked: nothing happens. Payments and scans under way end first, as for [useNode].
+  Future<void> useNodeForSession(String url);
 
   /// Turns the built-in node on (starts it and moves the wallet to it) or off (moves the wallet
   /// back to the node used before, then stops it). Only when [DeskFeatures.builtInNode].

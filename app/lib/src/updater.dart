@@ -26,6 +26,7 @@ import 'btlabs_keys.dart';
 import 'btlabs_public.dart';
 import 'net/tor_net.dart';
 import 'l10n.dart';
+import 'network_gate.dart';
 import 'net/http.dart';
 import 'net/socks.dart' show SocksError;
 import 'providers.dart' show secretStoreProvider;
@@ -650,7 +651,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
   /// Checks each time the app is opened: at start, on each unlock, and on a resume that needs
   /// no unlock (`app/README.md` "In-app updates"). Never on a timer. Stays quiet on failure.
   Future<void> checkOnOpening() async {
-    if (!supported) return;
+    // Offline checks nothing (network_gate.dart).
+    if (!supported || NetGate.offline) return;
     await check(quiet: true);
   }
 

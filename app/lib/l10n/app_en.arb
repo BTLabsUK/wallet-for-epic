@@ -4786,6 +4786,112 @@
       }
     }
   },
+  "tourPhoneSemantics": "Wallet tour",
+  "@tourPhoneSemantics": {
+    "description": "Names the tour card for screen readers."
+  },
+  "tourPhoneCounter": "{current} of {total}",
+  "@tourPhoneCounter": {
+    "description": "Step counter on the tour card: this step's number of the total.",
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "example": "3"
+      },
+      "total": {
+        "type": "int",
+        "example": "9"
+      }
+    }
+  },
+  "tourPhoneSkip": "Skip",
+  "@tourPhoneSkip": {
+    "description": "Button on the tour card: ends the tour."
+  },
+  "tourPhoneBack": "Back",
+  "@tourPhoneBack": {
+    "description": "Button on the tour card: the previous step."
+  },
+  "tourPhoneNext": "Next",
+  "@tourPhoneNext": {
+    "description": "Button on the tour card: the next step."
+  },
+  "tourPhoneWalletTitle": "Wallet",
+  "@tourPhoneWalletTitle": {
+    "description": "Title of the tour card for the Wallet tab (first-unlock tour). Short."
+  },
+  "tourPhoneWalletText": "Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.",
+  "@tourPhoneWalletText": {
+    "description": "Text of the tour card for the Wallet tab; one or two short sentences. Names the status icons."
+  },
+  "tourPhoneSendTitle": "Send",
+  "@tourPhoneSendTitle": {
+    "description": "Title of the tour card for the Send tab (first-unlock tour). Short."
+  },
+  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.",
+  "@tourPhoneSendText": {
+    "description": "Text of the tour card for the Send tab; names the two payment methods shown by default."
+  },
+  "tourPhoneReceiveTitle": "Receive",
+  "@tourPhoneReceiveTitle": {
+    "description": "Title of the tour card for the Receive tab (first-unlock tour). Short."
+  },
+  "tourPhoneReceiveText": "Your Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.",
+  "@tourPhoneReceiveText": {
+    "description": "Text of the tour card for the Receive tab; one or two short sentences."
+  },
+  "tourPhoneActivityTitle": "Activity",
+  "@tourPhoneActivityTitle": {
+    "description": "Title of the tour card for the Activity screen (first-unlock tour). Short."
+  },
+  "tourPhoneActivityText": "Every payment with its progress and details. Tap one to open it.",
+  "@tourPhoneActivityText": {
+    "description": "Text of the tour card for the Activity screen; one or two short sentences."
+  },
+  "tourPhoneContactsTitle": "Contacts",
+  "@tourPhoneContactsTitle": {
+    "description": "Title of the tour card for the Contacts screen (first-unlock tour). Short."
+  },
+  "tourPhoneContactsText": "Saved addresses by name. Send picks from here.",
+  "@tourPhoneContactsText": {
+    "description": "Text of the tour card for the Contacts screen; one or two short sentences."
+  },
+  "tourPhoneInvoicesTitle": "Invoices",
+  "@tourPhoneInvoicesTitle": {
+    "description": "Title of the tour card for the Invoices screen (first-unlock tour). Short."
+  },
+  "tourPhoneInvoicesText": "Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.",
+  "@tourPhoneInvoicesText": {
+    "description": "Text of the tour card for the Invoices screen; one or two short sentences."
+  },
+  "tourPhonePrivacyTitle": "Privacy & network",
+  "@tourPhonePrivacyTitle": {
+    "description": "Title of the tour card for Settings › Privacy & network (first-unlock tour). Short."
+  },
+  "tourPhonePrivacyText": "Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.",
+  "@tourPhonePrivacyText": {
+    "description": "Text of the tour card for Privacy & network; one or two short sentences."
+  },
+  "tourPhoneAdvancedTitle": "Advanced",
+  "@tourPhoneAdvancedTitle": {
+    "description": "Title of the tour card for Settings › Advanced (first-unlock tour). Short."
+  },
+  "tourPhoneAdvancedText": "Tor-only mode, outputs and technical details live here. Switch on what you need.",
+  "@tourPhoneAdvancedText": {
+    "description": "Text of the tour card for Settings › Advanced; the tour itself switches nothing on."
+  },
+  "tourPhoneHelpTitle": "Help",
+  "@tourPhoneHelpTitle": {
+    "description": "Title of the tour card for the Help screen (first-unlock tour). Short."
+  },
+  "tourPhoneHelpText": "Search the topics or send feedback. “Show the tour again” is at the bottom of the list.",
+  "@tourPhoneHelpText": {
+    "description": "Text of the tour card for the Help screen; names the row that restarts the tour."
+  },
+  "tourPhoneShowAgain": "Show the tour again",
+  "@tourPhoneShowAgain": {
+    "description": "Row at the bottom of Help: starts the first-unlock tour again."
+  },
   "homeDestActivity": "Activity",
   "@homeDestActivity": {
     "description": "Home destination tile: the payment history."
@@ -5207,7 +5313,7 @@
   "@outputsConsolidateStarted": {
     "description": "Notice after a consolidation was posted."
   },
-  "outputsAdvanced": "Advanced",
+  "outputsAdvanced": "Manage outputs",
   "@outputsAdvanced": {
     "description": "Outputs screen: head of the section under the table that holds Split, Consolidate, the strategy and Split change."
   },
@@ -5656,26 +5762,9 @@
       }
     }
   },
-  "serverSwitchTo": "Switch to {host}",
-  "@serverSwitchTo": {
-    "description": "Confirm strip button: switch to the chosen server.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
-  "serverNodeSwitchNote": "The wallet reconnects. Balances are checked again against the new node.",
-  "@serverNodeSwitchNote": {
-    "description": "Confirm strip caption: what switching the node does."
-  },
   "serverRelayWarning": "Your address includes this server. Switching changes your address; senders need the new one.",
   "@serverRelayWarning": {
     "description": "Epicbox picker warning above the list."
-  },
-  "serverRelaySwitchNote": "Your address changes; senders need the new one.",
-  "@serverRelaySwitchNote": {
-    "description": "Epicbox confirm strip caption."
   },
   "serverOtherRelay": "Other server, host or host:port",
   "@serverOtherRelay": {
@@ -6239,7 +6328,7 @@
   "@deskInvSlateId": {
     "description": "Label: the transaction's technical identifier (Advanced)."
   },
-  "deskInvAdvanced": "Advanced",
+  "deskInvAdvanced": "Address and expiry",
   "@deskInvAdvanced": {
     "description": "Title of a fold that holds technical controls (slate ID, rotation, expiry). Desktop has no Advanced switch."
   },
@@ -8963,7 +9052,7 @@
       }
     }
   },
-  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Receiving.",
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },
@@ -9226,7 +9315,7 @@
   "@deskSendAdvAllNoSplit": {
     "description": "Subtitle of the Advanced disclosure on Send: strategy All, change not split. Starts with a middle dot."
   },
-  "deskSendAdvanced": "Advanced",
+  "deskSendAdvanced": "Send options",
   "@deskSendAdvanced": {
     "description": "Title of the collapsed Advanced disclosure on Send."
   },
@@ -10644,10 +10733,6 @@
   "@deskOutTileTotal": {
     "description": "Label of a balance tile on Outputs: the whole balance. Narrow tile."
   },
-  "deskOutDefaultsTitle": "Defaults for sends",
-  "@deskOutDefaultsTitle": {
-    "description": "Title of the panel on Outputs with the settings Send uses."
-  },
   "deskOutStrategyTitle": "Strategy for sends",
   "@deskOutStrategyTitle": {
     "description": "Setting title in the Defaults panel: which outputs a send spends."
@@ -12028,7 +12113,7 @@
   "@deskOnbWelcomeBack": {
     "description": "Link on the Welcome page (when wallets exist) that returns to the unlock screen."
   },
-  "deskOnbWelcomeAdvanced": "Advanced",
+  "deskOnbWelcomeAdvanced": "Network and folder",
   "@deskOnbWelcomeAdvanced": {
     "description": "Title of the collapsible 'Advanced' section of the Welcome page (network and data folder)."
   },
@@ -13276,17 +13361,17 @@
   "@deskTourSendTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourSendText": "Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.",
+  "deskTourSendText": "Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.",
   "@deskTourSendText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Send step of the first-run tour. Names only what is visible by default."
   },
   "deskTourReceiveTitle": "Receive",
   "@deskTourReceiveTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourReceiveText": "This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.",
+  "deskTourReceiveText": "This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.",
   "@deskTourReceiveText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Receive step of the first-run tour."
   },
   "deskTourInvoicesTitle": "Invoices",
   "@deskTourInvoicesTitle": {
@@ -13308,25 +13393,25 @@
   "@deskTourContactsTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourContactsText": "Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.",
+  "deskTourContactsText": "Saved addresses by name. Send picks from here.",
   "@deskTourContactsText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Contacts step of the first-run tour."
   },
   "deskTourNodeTitle": "Settings › Node",
   "@deskTourNodeTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourNodeText": "Which node the wallet reads the chain from: a public one or the local node. The other settings pages are listed on the left.",
+  "deskTourNodeText": "Which node the wallet reads the chain from. The other settings pages are listed on the left.",
   "@deskTourNodeText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Settings › Node step of the first-run tour."
   },
   "deskTourHelpTitle": "Help",
   "@deskTourHelpTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourHelpText": "Topics by section, Report a problem and the app log. More on every page is here, and this tour can be shown again.",
+  "deskTourHelpText": "Topics by section and Report a problem. More on every page is here, and this tour can be shown again.",
   "@deskTourHelpText": {
-    "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
+    "description": "Text of the Help step, the last step of the first-run tour."
   },
   "deskTourCounter": "{current} of {total}",
   "@deskTourCounter": {
@@ -14854,10 +14939,6 @@
   "deskSetFrameNode": "Node",
   "@deskSetFrameNode": {
     "description": "Settings sidebar entry and page name for the node section. Narrow (about 200 px)."
-  },
-  "deskSetFrameReceiving": "Receiving",
-  "@deskSetFrameReceiving": {
-    "description": "Settings sidebar entry and page name for how this wallet receives payments. Narrow."
   },
   "deskSetFramePrivacy": "Privacy",
   "@deskSetFramePrivacy": {
@@ -17482,7 +17563,7 @@
   "@deskSetPhraseCopyText": {
     "description": "Confirm dialog text before the recovery phrase is copied to the clipboard."
   },
-  "deskOutAdvanced": "Advanced",
+  "deskOutAdvanced": "Manage outputs",
   "@deskOutAdvanced": {
     "description": "Head of the management section under the outputs table: the intro paragraph, Split and Consolidate, the defaults for sends."
   },
@@ -17906,21 +17987,323 @@
   "@deskUpdUnfinished": {
     "description": "Sidebar notice and Settings › About (Windows): an update was started but Setup did not finish (it was stopped or failed part way); the action runs the update again. The version is on the line under it."
   },
+  "advTitle": "Advanced",
+  "@advTitle": {
+    "description": "Title of the Advanced page in Settings and its hub row."
+  },
+  "advStateOff": "Off",
+  "@advStateOff": {
+    "description": "State line of the Advanced hub row when nothing is switched on."
+  },
+  "advIntro": "Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.",
+  "@advIntro": {
+    "description": "First line of the Advanced page."
+  },
+  "advShowsHeader": "Shows more",
+  "@advShowsHeader": {
+    "description": "Header over the visibility switches on the Advanced page."
+  },
+  "advNetworkHeader": "Network",
+  "@advNetworkHeader": {
+    "description": "Header over the network mode choice on the Advanced page."
+  },
+  "advNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.",
+  "@advNetworkHint": {
+    "description": "Info sheet behind the Network header on the Advanced page."
+  },
+  "advOutputs": "Outputs",
+  "@advOutputs": {
+    "description": "Advanced switch: the Outputs page."
+  },
+  "advOutputsHint": "Shows the Outputs page, under Wallet and on Home. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.",
+  "@advOutputsHint": {
+    "description": "Info sheet of the Outputs switch."
+  },
+  "advTechnical": "Technical details",
+  "@advTechnical": {
+    "description": "Advanced switch: technical rows on transactions."
+  },
+  "advTechnicalHint": "Shows the technical rows on a payment's details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.",
+  "@advTechnicalHint": {
+    "description": "Info sheet of the Technical details switch."
+  },
+  "advSendOptions": "Send options",
+  "@advSendOptions": {
+    "description": "Advanced switch: strategy and split change on Send."
+  },
+  "advSendOptionsHint": "Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.",
+  "@advSendOptionsHint": {
+    "description": "Info sheet of the Send options switch."
+  },
+  "advServerDetails": "Server details",
+  "@advServerDetails": {
+    "description": "Advanced switch: hosts, latency, version, height."
+  },
+  "advServerDetailsHint": "Shows hosts, latency, version and block height in the server pickers and on the status card, the relay address under Receive, and the invoice address in full.",
+  "@advServerDetailsHint": {
+    "description": "Info sheet of the Server details switch."
+  },
+  "advRecheckHeight": "Recheck from a height",
+  "@advRecheckHeight": {
+    "description": "Advanced switch: recheck balance and restore from a block height or date."
+  },
+  "advRecheckHeightHint": "Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.",
+  "@advRecheckHeightHint": {
+    "description": "Info sheet of the Recheck from a height switch."
+  },
+  "advModeStandard": "Standard",
+  "@advModeStandard": {
+    "description": "Network mode: direct connections."
+  },
+  "advModeStandardLine": "Connects directly. Tor can be turned on in Privacy & network.",
+  "@advModeStandardLine": {
+    "description": "One line under the Standard network mode."
+  },
+  "advModeTorOnly": "Tor only",
+  "@advModeTorOnly": {
+    "description": "Network mode: Tor or nothing."
+  },
+  "advModeTorOnlyLine": "Every connection goes through Tor. Without Tor the wallet stays offline and says so.",
+  "@advModeTorOnlyLine": {
+    "description": "One line under the Tor only network mode."
+  },
+  "advModeOffline": "Offline",
+  "@advModeOffline": {
+    "description": "Network mode: no network."
+  },
+  "advModeOfflineLine": "Only this phone and your local network. A node on your network still works; everything else waits until you switch back.",
+  "@advModeOfflineLine": {
+    "description": "One line under the Offline network mode."
+  },
+  "advTorOnlyNote": "Tor only pauses notifications: registering for them would reveal this phone's address.",
+  "@advTorOnlyNote": {
+    "description": "Note under the network choice while Tor only is selected."
+  },
+  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node's own peers are the node's setting.",
+  "@advOfflineNote": {
+    "description": "Note under the network choice while Offline is selected."
+  },
+  "advReset": "Hide everything again",
+  "@advReset": {
+    "description": "Row at the end of the Advanced page: turns every visibility switch off. The network mode stays."
+  },
+  "advHomeOffline": "Offline mode",
+  "@advHomeOffline": {
+    "description": "Home status line while the Offline network mode is on."
+  },
+  "advHomeTorOnlyWaiting": "Tor only · waiting for Tor",
+  "@advHomeTorOnlyWaiting": {
+    "description": "Home status line while Tor only is on and Tor is not connected yet."
+  },
+  "advBuiltInNode": "Built-in node",
+  "@advBuiltInNode": {
+    "description": "Advanced switch (desktop): run a node on this computer."
+  },
+  "advLogs": "Logs",
+  "@advLogs": {
+    "description": "Advanced switch (desktop): logs and diagnostics."
+  },
+  "deskSetFrameAdvanced": "Advanced",
+  "@deskSetFrameAdvanced": {
+    "description": "Settings sidebar entry and page name of the Advanced section. Narrow (about 200 px)."
+  },
+  "deskSetAdvIntro": "Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.",
+  "@deskSetAdvIntro": {
+    "description": "First line of Settings › Advanced."
+  },
+  "deskSetAdvShows": "Shows more",
+  "@deskSetAdvShows": {
+    "description": "Title of the group of visibility switches on Settings › Advanced."
+  },
+  "deskSetAdvOutputs": "Outputs",
+  "@deskSetAdvOutputs": {
+    "description": "Advanced switch: the Outputs page in the sidebar."
+  },
+  "deskSetAdvOutputsHint": "Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.",
+  "@deskSetAdvOutputsHint": {
+    "description": "Hover card of the Outputs switch."
+  },
+  "deskSetAdvTechnical": "Technical details",
+  "@deskSetAdvTechnical": {
+    "description": "Advanced switch: technical rows on transactions."
+  },
+  "deskSetAdvTechnicalHint": "Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core's status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.",
+  "@deskSetAdvTechnicalHint": {
+    "description": "Hover card of the Technical details switch on the Advanced page."
+  },
+  "deskSetAdvSendOptions": "Send options",
+  "@deskSetAdvSendOptions": {
+    "description": "Advanced switch: the Advanced fold on Send."
+  },
+  "deskSetAdvSendOptionsHint": "Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.",
+  "@deskSetAdvSendOptionsHint": {
+    "description": "Hover card of the Send options switch."
+  },
+  "deskSetAdvServerDetails": "Server details",
+  "@deskSetAdvServerDetails": {
+    "description": "Advanced switch: hosts, latency, version, height."
+  },
+  "deskSetAdvServerDetailsHint": "Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar's status rows and in the status card.",
+  "@deskSetAdvServerDetailsHint": {
+    "description": "Hover card of the Server details switch."
+  },
+  "deskSetAdvRecheck": "Recheck from a height",
+  "@deskSetAdvRecheck": {
+    "description": "Advanced switch: recheck balance from a height, delete unconfirmed, restore from a height."
+  },
+  "deskSetAdvRecheckHint": "Lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone, whatever this says.",
+  "@deskSetAdvRecheckHint": {
+    "description": "Hover card of the Recheck from a height switch on the Advanced page."
+  },
+  "deskSetAdvBuiltInNode": "Built-in node",
+  "@deskSetAdvBuiltInNode": {
+    "description": "Advanced switch: the node on this computer."
+  },
+  "deskSetAdvBuiltInNodeHint": "Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.",
+  "@deskSetAdvBuiltInNodeHint": {
+    "description": "Hover card of the Built-in node switch."
+  },
+  "deskSetAdvLogs": "Logs",
+  "@deskSetAdvLogs": {
+    "description": "Advanced switch: logs and diagnostics."
+  },
+  "deskSetAdvLogsHint": "Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.",
+  "@deskSetAdvLogsHint": {
+    "description": "Hover card of the Logs switch."
+  },
+  "deskSetAdvNetwork": "Network",
+  "@deskSetAdvNetwork": {
+    "description": "Title of the network mode group on Settings › Advanced."
+  },
+  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node's setting.",
+  "@deskSetAdvNetworkHint": {
+    "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
+  },
+  "deskSetAdvModeStandard": "Standard",
+  "@deskSetAdvModeStandard": {
+    "description": "Network mode: direct connections."
+  },
+  "deskSetAdvModeStandardText": "Connects directly. Tor can be turned on under Privacy.",
+  "@deskSetAdvModeStandardText": {
+    "description": "Text under the Standard mode."
+  },
+  "deskSetAdvModeTorOnly": "Tor only",
+  "@deskSetAdvModeTorOnly": {
+    "description": "Network mode: Tor or nothing."
+  },
+  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Without Tor the wallet stays offline and says so.",
+  "@deskSetAdvModeTorOnlyText": {
+    "description": "Text under the Tor only mode."
+  },
+  "deskSetAdvModeOffline": "Offline",
+  "@deskSetAdvModeOffline": {
+    "description": "Network mode: no network."
+  },
+  "deskSetAdvModeOfflineText": "Only this computer and your local network. Your node keeps running; its own peers are the node's setting.",
+  "@deskSetAdvModeOfflineText": {
+    "description": "One-line description of the Offline network mode on the Advanced page."
+  },
+  "deskSetAdvTorOnlyNote": "Tor only turns HTTP receiving off: a plain address would reveal this computer.",
+  "@deskSetAdvTorOnlyNote": {
+    "description": "Note under the network choice while Tor only is selected."
+  },
+  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.",
+  "@deskSetAdvOfflineNote": {
+    "description": "Note under the chosen Offline mode on the Advanced page."
+  },
+  "deskSetAdvNotInBuild": "Not in this build",
+  "@deskSetAdvNotInBuild": {
+    "description": "Tag on a Tor mode when the build has no tor."
+  },
+  "deskSetAdvReset": "Hide everything again",
+  "@deskSetAdvReset": {
+    "description": "Button at the end of Settings › Advanced: turns every visibility switch off. The network mode stays."
+  },
+  "deskSetAdvOn": "{n, plural, =1{1 switch on} other{{n} switches on}}",
+  "@deskSetAdvOn": {
+    "description": "State line of the Advanced page head: how many visibility switches are on.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "deskShellOffline": "Offline mode",
+  "@deskShellOffline": {
+    "description": "Sidebar status row while the Offline network mode is on."
+  },
+  "deskShellTorOnlyWaiting": "Tor only · waiting for Tor",
+  "@deskShellTorOnlyWaiting": {
+    "description": "Sidebar status row while Tor only is on and Tor is not connected yet."
+  },
+  "deskSetAcctAutoLockHint": "Locks the wallet after this long without a key press or mouse movement. Turn it off to lock only with Lock wallet.",
+  "@deskSetAcctAutoLockHint": {
+    "description": "Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch)."
+  },
+  "netBlockOffline": "Offline mode is on in Advanced.",
+  "@netBlockOffline": {
+    "description": "Why a network action is disabled while the Offline network mode is on. Tapping it opens the Advanced page."
+  },
+  "netBlockTorOnly": "Tor only is on in Advanced.",
+  "@netBlockTorOnly": {
+    "description": "Line under the Tor switch while the Tor only network mode locks it on."
+  },
+  "netBlockWaitingForTor": "Waiting for Tor.",
+  "@netBlockWaitingForTor": {
+    "description": "Why a network action is disabled while Tor only is on and Tor is not connected yet."
+  },
+  "receiveOfflineLine": "Can't receive this way while Offline mode is on.",
+  "@receiveOfflineLine": {
+    "description": "Line on Receive's Epicbox and Direct tabs while the Offline network mode is on; the address is still shown to hand out."
+  },
+  "txDetailsMore": "More",
+  "@txDetailsMore": {
+    "description": "Small text link on a payment's details that shows the technical rows for this view only, when Technical details is off in Advanced."
+  },
+  "restoreStartFromLink": "Start from a date or height",
+  "@restoreStartFromLink": {
+    "description": "Small link on Restore that opens the choice of where to start scanning the chain."
+  },
+  "homeOfflineDetail": "Offline mode is on in Advanced. The balance is the last one seen.",
+  "@homeOfflineDetail": {
+    "description": "Tooltip and screen reader hint of Home's Offline status."
+  },
+  "homeWaitingTorDetail": "Tor only is on in Advanced. Waiting for Tor to connect.",
+  "@homeWaitingTorDetail": {
+    "description": "Tooltip and screen reader hint of Home's Waiting for Tor status."
+  },
+  "settingsRescanBodyPlain": "The wallet looks for its funds again, from the first block. This can take a long time.",
+  "@settingsRescanBodyPlain": {
+    "description": "Recheck balance dialog text while Recheck from a height is off in Advanced: no start choice, the whole chain is scanned."
+  },
   "slNodeField": "Node address",
   "@slNodeField": {
-    "description": "Label of the one field at the top of the Node sheet: it holds the node in use, filters the list while typed in, and adds an address that is not listed."
+    "description": "Label of the one field at the top of the Node sheet: it starts empty, filters the list while typed in, and adds an address that is not listed."
   },
   "slRelayField": "Epicbox server",
   "@slRelayField": {
     "description": "Label of the one field at the top of the Epicbox sheet."
   },
-  "slHelpIdleNode": "In use. Edit it to switch, or type to filter the list.",
-  "@slHelpIdleNode": {
-    "description": "Under the Node field while it still holds the node in use."
+  "slFieldHint": "Paste or type to filter or add",
+  "@slFieldHint": {
+    "description": "Placeholder of the Node and Epicbox list field while it is empty: the field filters the list and adds an address that is not listed. The server in use is never shown in it."
   },
-  "slHelpIdleRelay": "In use. Edit it to switch, or type to filter the list.",
-  "@slHelpIdleRelay": {
-    "description": "Under the Epicbox field while it still holds the server in use."
+  "slSwitchTitle": "Switch to {host}?",
+  "@slSwitchTitle": {
+    "description": "Title of the Epicbox confirm that opens when a server in the list is tapped. {host} is the server.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "slSwitchBody": "Your Epicbox address changes. Share the new one.",
+  "@slSwitchBody": {
+    "description": "One line under that title: switching Epicbox changes the address senders pay to."
+  },
+  "slSwitch": "Switch",
+  "@slSwitch": {
+    "description": "Button that confirms the Epicbox switch, and the action beside the Added foot line of the Node and Epicbox lists. Short."
   },
   "slHelpAddable": "Not in the list.",
   "@slHelpAddable": {
@@ -18040,15 +18423,6 @@
   "@deskSlTorWait": {
     "description": "Under the Node or Epicbox list's field: the test could not run because Tor is still connecting."
   },
-  "deskSlSwitchTo": "Switch to {host}",
-  "@deskSlSwitchTo": {
-    "description": "The primary button at the foot of the Node or Epicbox list after a row was picked.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
   "deskSlLatency": "{ms} ms",
   "@deskSlLatency": {
     "description": "A row's response time in milliseconds.",
@@ -18078,5 +18452,257 @@
   "deskSlHelpChoose": "Pick one, or type to filter the list or add a server.",
   "@deskSlHelpChoose": {
     "description": "Under the field of Setup's Node or Epicbox list while nothing is typed: before a wallet exists a pick chooses at once."
+  },
+  "deskOnbRestoreFromLink": "Start from a block height",
+  "@deskOnbRestoreFromLink": {
+    "description": "Small link on the Restore password step that opens an optional field for the block the check starts from."
+  },
+  "deskOnbRestoreFromHide": "Check the whole chain",
+  "@deskOnbRestoreFromHide": {
+    "description": "The same link while the field is open: closes it and checks the whole chain again."
+  },
+  "deskOnbRestoreFromLabel": "Start from block",
+  "@deskOnbRestoreFromLabel": {
+    "description": "Label of the optional start block field on Restore."
+  },
+  "deskOnbRestoreFromHint": "Block height",
+  "@deskOnbRestoreFromHint": {
+    "description": "Placeholder of the start block field on Restore."
+  },
+  "deskOnbRestoreFromHelp": "Only if the wallet's first payment came after this block. Leave it empty to check the whole chain.",
+  "@deskOnbRestoreFromHelp": {
+    "description": "Help line under the start block field on Restore."
+  },
+  "deskOnbRestoreFromInvalid": "Use digits only, or leave it empty.",
+  "@deskOnbRestoreFromInvalid": {
+    "description": "Error under the start block field on Restore when the text is not a number."
+  },
+  "deskNetOfflineReason": "Offline mode is on in Advanced.",
+  "@deskNetOfflineReason": {
+    "description": "Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control."
+  },
+  "deskNetWaitingTorReason": "Waiting for Tor. Tor only is on in Advanced.",
+  "@deskNetWaitingTorReason": {
+    "description": "Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line."
+  },
+  "deskNetTorOnlyLine": "Tor only is on in Advanced.",
+  "@deskNetTorOnlyLine": {
+    "description": "Line under the Tor switch in Settings › Privacy while the Tor only network mode keeps the switch on and locked."
+  },
+  "deskNetOpenAdvanced": "Open Advanced",
+  "@deskNetOpenAdvanced": {
+    "description": "Link or small button that opens Settings › Advanced, next to a line that names the network mode."
+  },
+  "deskNetSendFileHint": "A transaction file still works.",
+  "@deskNetSendFileHint": {
+    "description": "Second line of the notice on Send when the network mode holds Epicbox and Direct sends."
+  },
+  "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive until Offline mode is off.",
+  "@deskNetRecvOfflineText": {
+    "description": "Text of the notice on Receive while Offline mode is on."
+  },
+  "deskNetRecvWaitTorText": "Receiving starts when Tor is connected. A transaction file still works.",
+  "@deskNetRecvWaitTorText": {
+    "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
+  },
+  "deskNetCantReceive": "Can't receive offline.",
+  "@deskNetCantReceive": {
+    "description": "Detail of the Epicbox state line on Receive while Offline mode is on."
+  },
+  "deskRailOffline": "Offline",
+  "@deskRailOffline": {
+    "description": "Word on a sidebar status row (Node, Epicbox, Tor) and the mark on the Overview balance while Offline mode is on."
+  },
+  "deskTourAdvancedTitle": "Advanced",
+  "@deskTourAdvancedTitle": {
+    "description": "Title of the Settings › Advanced step of the first-run tour."
+  },
+  "deskTourAdvancedText": "Tor-only mode, outputs and technical details live here. Switch on what you need.",
+  "@deskTourAdvancedText": {
+    "description": "Text of the Settings › Advanced step of the first-run tour. The tour switches nothing on."
+  },
+  "deskTxMore": "More",
+  "@deskTxMore": {
+    "description": "Small link under a transaction's details that shows the technical rows for this view only."
+  },
+  "deskTxLess": "Less",
+  "@deskTxLess": {
+    "description": "The same link while the technical rows are shown: hides them again."
+  },
+  "settingsSectionTransactions": "Transactions",
+  "@settingsSectionTransactions": {
+    "description": "Section heading in settings, and the hub row: how payments are made (the methods, the one Send starts on, the send defaults)."
+  },
+  "settingsHubMethods": "Methods",
+  "@settingsHubMethods": {
+    "description": "Settings hub, state line of the Transactions row: the payment methods."
+  },
+  "settingsHubDefault": "Default",
+  "@settingsHubDefault": {
+    "description": "Settings hub, state line of the Transactions row: the method Send starts on."
+  },
+  "settingsHubSendDefaults": "Send defaults",
+  "@settingsHubSendDefaults": {
+    "description": "Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on."
+  },
+  "txMethodsHeader": "Payment methods",
+  "@txMethodsHeader": {
+    "description": "Header on Settings › Transactions above the three payment methods."
+  },
+  "txAlwaysOn": "Always on",
+  "@txAlwaysOn": {
+    "description": "Second line of the Epicbox row on Settings › Transactions: it has no switch."
+  },
+  "txEpicboxHint": "Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.",
+  "@txEpicboxHint": {
+    "description": "Info sheet text of the Epicbox row on Settings › Transactions."
+  },
+  "txDirectLine": "Pay onion and web addresses; get paid at this phone's Tor address.",
+  "@txDirectLine": {
+    "description": "One line under the Direct switch on Settings › Transactions."
+  },
+  "txDirectHint": "Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.",
+  "@txDirectHint": {
+    "description": "Info sheet text of the Direct switch on Settings › Transactions."
+  },
+  "txFileLine": "Pay or get paid with a file you pass on yourself.",
+  "@txFileLine": {
+    "description": "One line under the File switch on Settings › Transactions."
+  },
+  "txFileHint": "File makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File to Send and Receive.",
+  "@txFileHint": {
+    "description": "Info sheet text of the File switch on Settings › Transactions."
+  },
+  "txStartHeader": "Send starts on",
+  "@txStartHeader": {
+    "description": "Header on Settings › Transactions above the choice of the method Send opens on."
+  },
+  "txStartNote": "You can still pick another method on Send.",
+  "@txStartNote": {
+    "description": "Small line under the choice of the method Send starts on."
+  },
+  "txDefaultsHeader": "Send defaults",
+  "@txDefaultsHeader": {
+    "description": "Header on Settings › Transactions above Strategy and Split change; shown with Advanced › Send options."
+  },
+  "outputsDefaultsMoved": "Send defaults are in Settings › Transactions",
+  "@outputsDefaultsMoved": {
+    "description": "Row on the Outputs page that opens Settings › Transactions, where Strategy for sends and Split change now are."
+  },
+  "advNodeFailover": "Node failover",
+  "@advNodeFailover": {
+    "description": "Switch on the Advanced page, under the network modes: on by default."
+  },
+  "advNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "@advNodeFailoverHint": {
+    "description": "Info sheet of the Node failover switch on the Advanced page."
+  },
+  "nodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "@nodeFailoverSwitched": {
+    "description": "Notice when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epic.node.example"
+      }
+    }
+  },
+  "nodeFailoverInsteadOf": "Instead of {host}",
+  "@nodeFailoverInsteadOf": {
+    "description": "Under the node's address on the status card while node failover uses another node: host is the chosen node.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epic.node.example"
+      }
+    }
+  },
+  "deskSetAdvNodeFailover": "Node failover",
+  "@deskSetAdvNodeFailover": {
+    "description": "Switch on Settings › Advanced, under the network modes: on by default."
+  },
+  "deskSetAdvNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "@deskSetAdvNodeFailoverHint": {
+    "description": "Hover card of the Node failover switch on Settings › Advanced."
+  },
+  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "@deskNodeFailoverSwitched": {
+    "description": "Toast when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epic.node.example"
+      }
+    }
+  },
+  "deskNodeFailoverInsteadOf": "Instead of {host}",
+  "@deskNodeFailoverInsteadOf": {
+    "description": "Second line of the sidebar Node status and the Settings › Node head while node failover uses another node: host is the chosen node.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epic.node.example"
+      }
+    }
+  },
+  "netOfflineOnlyLocal": "Offline: only local addresses.",
+  "@netOfflineOnlyLocal": {
+    "description": "Why a Direct send was refused in the Offline network mode: the address is not on this device or the local network."
+  },
+  "netOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
+  "@netOfflineNoPeers": {
+    "description": "Line on Send in the Offline mode when the local node in use has no peers."
+  },
+  "deskErrOfflineOnlyLocal": "Offline: only local addresses.",
+  "@deskErrOfflineOnlyLocal": {
+    "description": "Why a Direct send was refused in the Offline network mode: the address is not on this computer or the local network."
+  },
+  "deskNetOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
+  "@deskNetOfflineNoPeers": {
+    "description": "Notice on Send in the Offline mode when the local node in use has no peers."
+  },
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
+  "deskOutDefaultsOpen": "Open Transactions",
+  "@deskOutDefaultsMoved": {
+    "description": "One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went."
+  },
+  "@deskOutDefaultsOpen": {
+    "description": "Inline button after deskOutDefaultsMoved: opens Settings › Transactions."
+  },
+  "deskSetFrameTransactions": "Transactions",
+  "@deskSetFrameTransactions": {
+    "description": "Settings sidebar entry and page name for how payments are made: the methods, what Send starts on, receiving. Narrow (about 200 px)."
+  },
+  "deskSetTxMethods": "Payment methods",
+  "@deskSetTxMethods": {
+    "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Direct, File)."
+  },
+  "deskSetTxAlwaysOn": "Always on",
+  "@deskSetTxAlwaysOn": {
+    "description": "Tag in place of a switch on the Epicbox row of Settings › Transactions: Epicbox cannot be turned off here. Short."
+  },
+  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.",
+  "@deskSetTxEpicboxHint": {
+    "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
+  },
+  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.",
+  "@deskSetTxDirectHint": {
+    "description": "Hover card behind the info icon of the Direct row (switch) on Settings › Transactions."
+  },
+  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.",
+  "@deskSetTxFileHint": {
+    "description": "Hover card behind the info icon of the File row (switch) on Settings › Transactions."
+  },
+  "deskSetTxSend": "Send",
+  "@deskSetTxSend": {
+    "description": "Title of the group on Settings › Transactions with what the Send page starts on and, with Advanced › Send options on, its defaults."
+  },
+  "deskSetTxStart": "Send starts on",
+  "@deskSetTxStart": {
+    "description": "Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on."
+  },
+  "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send.",
+  "@deskSetTxStartHint": {
+    "description": "Hover card behind the info icon of the Send starts on row."
   }
 }

@@ -9,6 +9,7 @@ import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/node_view.dart';
 import '../../data/tor_view.dart';
+import '../../app/desk_failover.dart';
 import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/node_card.dart';
@@ -20,6 +21,7 @@ import 'local_node.dart';
 import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import 'prefs.dart';
 import 'settings_frame.dart';
+import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
@@ -317,6 +319,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final p = ref.read(settingsPrefsProvider.notifier);
     final current = prefs.typedNode ?? status.node;
     final value = prefs.builtin ? builtinNode : current.url;
+    // Node failover stands in for the chosen node this session: the field says which.
+    final failover = prefs.typedNode == null ? ref.watch(deskFailoverProvider) : null;
     final local = ref.watch(deskLocalNodeProvider).value;
     final info = prefs.builtin ? null : ref.watch(deskNodeInfoProvider(current.url)).value;
     // A figure measured the other way is dropped at once (shownLatency); the node is asked
@@ -384,7 +388,11 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     label: l.deskSetNodeServer,
                     value: value,
                     fieldText: prefs.builtin ? l.deskSetNodeLocalNode : hostOf(current.url),
-                    fieldSub: prefs.builtin ? localNodeRowText(l, local) : (prefs.nodeLabels[current.url] ?? current.operator),
+                    fieldSub: prefs.builtin
+                        ? localNodeRowText(l, local)
+                        : failover != null
+                        ? l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))
+                        : (prefs.nodeLabels[current.url] ?? current.operator),
                     tone: switch (view.state) {
                       EState.ok => ETone.ok,
                       EState.warn => ETone.warn,
@@ -393,7 +401,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     },
                     servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels),
                     source: nodeSource(nodes, removedNodes: prefs.removedNodes, inUse: prefs.builtin ? null : current.url),
-                    local: DeskFeatures.builtInNode ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
+                    // Advanced › Built-in node; the node in use stays listed.
+                    local: DeskFeatures.builtInNode && advancedHas(ref, AdvancedFeature.builtInNode, keep: prefs.builtin) ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
                     listNote: nodeListNoteText(l),
                     busy: _saving,
                     busyLabel: l.deskSetNodeChecking,

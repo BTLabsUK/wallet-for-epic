@@ -22,7 +22,7 @@
   "deskSendAdvSmallestNoSplit": "· Najmniejsze wyjścia, reszta niedzielona",
   "deskSendAdvAll": "· Wszystkie wyjścia",
   "deskSendAdvAllNoSplit": "· Wszystkie wyjścia, reszta niedzielona",
-  "deskSendAdvanced": "Zaawansowane",
+  "deskSendAdvanced": "Opcje wysyłki",
   "deskSendAdvStrategy": "Strategia tej wysyłki",
   "deskSendAdvSmallestText": "Wydaje jak najmniej małych wyjść; pozostała część salda jest do wydania, gdy reszta się potwierdza.",
   "deskSendAdvAllText": "Wydaje wszystkie wyjścia do wydania i zwraca jedno wyjście reszty. Wszystko jest zablokowane do potwierdzenia; potem jest mniej, ale większych wyjść.",

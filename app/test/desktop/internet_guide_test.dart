@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 void main() {
   late MemorySecretStore secrets;
   late DeskStore store;
@@ -37,6 +39,7 @@ void main() {
     );
     addTearDown(container.dispose);
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.runAsync(() => advancedOn(container));
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,

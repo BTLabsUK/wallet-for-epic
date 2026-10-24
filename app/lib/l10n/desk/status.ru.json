@@ -79,5 +79,7 @@
   "deskTorCoverage": "Через Tor: Epicbox, узел, статус, курс, обновления, поддержка и адреса Tor.",
   "deskTorNodeOver": "Через Tor",
   "deskTorNodeNotEncrypted": "После Tor без шифрования",
-  "deskTorNodeWaits": "Ждёт подключения Tor."
+  "deskTorNodeWaits": "Ждёт подключения Tor.",
+  "deskNodeFailoverSwitched": "Узел не отвечает. Переключено на {host}.",
+  "deskNodeFailoverInsteadOf": "Вместо {host}"
 }
