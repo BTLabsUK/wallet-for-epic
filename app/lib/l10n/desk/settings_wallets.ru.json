@@ -1,0 +1,17 @@
+{
+  "deskSetWalletsAddedBack": "{name} снова в списке",
+  "deskSetWalletsNotAddedBack": "Не добавлен обратно",
+  "deskSetWalletsOpenNow": "Открыт",
+  "deskSetWalletsFolderMissing": "Нет папки",
+  "deskSetWalletsShowFolder": "Показать {name} в папке",
+  "deskSetWalletsRemove": "Убрать {name}…",
+  "deskSetWalletsRemovedGroup": "Убраны из списка",
+  "deskSetWalletsAddBack": "Вернуть в список",
+  "deskSetWalletsAdd": "Добавить кошелёк",
+  "deskSetWalletsCreate": "Создать кошелёк",
+  "deskSetWalletsCreateText": "Новый кошелёк с новой фразой восстановления.",
+  "deskSetWalletsImport": "Импорт",
+  "deskSetWalletsImportText": "Из старого Epic Wallet или из папки.",
+  "deskSetWalletsRestore": "Восстановление",
+  "deskSetWalletsRestoreText": "По фразе восстановления."
+}

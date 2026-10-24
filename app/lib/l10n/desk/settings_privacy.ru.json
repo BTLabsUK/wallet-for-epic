@@ -1,0 +1,19 @@
+{
+  "deskSetPrivTorOnFailed": "Tor не включён",
+  "deskSetPrivTorOffFailed": "Tor не выключен",
+  "deskSetPrivTor": "Tor",
+  "deskSetPrivSwitching": "Переключение Tor",
+  "deskSetPrivTurnOff": "Выключить Tor",
+  "deskSetPrivNotInBuild": "Нет в этой сборке",
+  "deskSetPrivStarting": "Запуск…",
+  "deskSetPrivStartingDetail": "{progress} %. {waiting} ждут, пока Tor подключится.",
+  "deskSetPrivNotPublished": "Адрес Tor ещё не опубликован. Отправка работает.",
+  "deskSetPrivProblemSendsWork": "{problem}. Отправка работает.",
+  "deskSetPrivConnected": "Подключено.",
+  "deskSetPrivNotConnected": "Нет подключения",
+  "deskSetPrivStoppedDetail": "Tor остановился. {waiting} ждут повторной попытки или выключения Tor.",
+  "deskSetPrivProblemDetail": "{problem}. {waiting} ждут повторной попытки или выключения Tor.",
+  "deskSetPrivStatusSite": "Сайт статуса",
+  "deskSetPrivUseStatus": "Использовать status.btlabs.uk",
+  "deskSetPrivUseStatusHint": "Состояние сети и информация предоставляются status.btlabs.uk"
+}
