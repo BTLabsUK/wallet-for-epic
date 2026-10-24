@@ -434,14 +434,17 @@ void main() {
       ];
       await wallet.sync();
       var txs = await wallet.transactions();
-      expect((txs[0].key, txs[0].label, txs[0].manualFields), ('s:s1', null, isEmpty));
-      expect((txs[1].key, txs[1].restored, txs[1].transport), ('c:aa', true, isNull));
+      expect((txs[0].key, txs[0].label), ('s:s1', null));
+      expect(txs[0].manualFields, isEmpty);
+      expect((txs[1].key, txs[1].restored), ('c:aa', true));
+      expect(txs[1].transport, isNull);
 
       await wallet.setTxLabel('s:s1', '  Rent  ');
       expect(s.labels, {'s:s1': 'Rent'});
       await wallet.setTxDetails('c:aa', counterparty: 'esA@epicbox.epiccash.com', transport: 'file', note: 'Pool');
       txs = await wallet.transactions();
-      expect((txs[0].label, txs[0].manualFields), ('Rent', {ManualField.label}));
+      expect(txs[0].label, 'Rent');
+      expect(txs[0].manualFields, {ManualField.label});
       expect(txs[0].manualEditedAt, isNotNull);
       expect((txs[1].counterparty, txs[1].transport, txs[1].method, txs[1].note), ('esA@epicbox.epiccash.com', 'file', TxMethod.file, 'Pool'));
       expect(txs[1].manualFields, {ManualField.counterparty, ManualField.transport, ManualField.note});
@@ -459,7 +462,8 @@ void main() {
         core.ImportConflict(key: 's:s1', field: core.ManualField.label, mine: 'Rent', theirs: 'Flat', timeUnix: 1790000000, amount: BigInt.from(-300)),
       ];
       final first = await wallet.importHistory(Uint8List.fromList(utf8.encode('WFEH')));
-      expect((first.applied, first.conflicts.map((c) => c.id)), (false, ['s:s1|label']));
+      expect(first.applied, isFalse);
+      expect(first.conflicts.map((c) => c.id), ['s:s1|label']);
       expect(s.lastUseBackup, isNull);
     });
 

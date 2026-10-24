@@ -464,7 +464,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                     style: ts.small.copyWith(color: c.faint),
                   ),
                 ),
-                if (typed) ...[SizedBox(width: Sp.x2), ManualTag(t, t.manualFields.firstWhere((f) => f != ManualField.label))],
+                if (typed) ...[SizedBox(width: Sp.x2), Flexible(child: ManualTag(t, t.manualFields.firstWhere((f) => f != ManualField.label)))],
               ],
             ),
           ),

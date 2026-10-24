@@ -477,9 +477,13 @@ class _SubBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: EdgeInsets.only(top: Sp.x6, bottom: Sp.x2),
-    child: Row(
+    // The buttons drop under the title when the panel is too narrow for both.
+    child: Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      runSpacing: Sp.x1,
       children: [
-        Expanded(child: Semantics(header: true, child: Text(title, style: context.ts.label))),
+        Semantics(header: true, child: Text(title, style: context.ts.label)),
         Wrap(spacing: Sp.x1, children: actions),
       ],
     ),
