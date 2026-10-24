@@ -1344,6 +1344,27 @@ void main() {
       expect(_fieldText(tester, 'Amount (EPIC)'), '2');
     });
 
+    // android-15: making a payment file locks the coins it pays, so it asks the PIN as an
+    // Epicbox send does; a dismissed prompt makes nothing.
+    testWidgets('a payment file is made only after the PIN', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, _sendTab());
+      await _toFile(tester);
+      await _enter(tester, 'Amount (EPIC)', '1.5');
+      final make = find.text('Make payment file');
+      await tester.ensureVisible(make);
+      await tester.tap(make);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Enter the PIN to make a payment file'), findsOneWidget);
+      await tester.tap(find.text(englishStrings.commonCancel));
+      await tester.pumpAndSettle();
+      expect(h.session.sentAmounts, isEmpty);
+      await tester.tap(make);
+      await tester.pumpAndSettle();
+      await answerPin(tester);
+      expect(h.session.sentAmounts, [_epic(1.5)]);
+    });
+
     testWidgets('by payment file, from the first step with Advanced off', (
       tester,
     ) async {
