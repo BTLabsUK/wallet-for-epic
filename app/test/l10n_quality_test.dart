@@ -13,7 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 const Map<String, Set<String>> _same = {
   // "online" and "offline" are everyday German; Node and Epicbox are names.
   'de': {'statusNodeOnline', 'statusNodeOffline', 'statusEpicboxOnline', 'statusEpicboxOffline'},
-  'pl': {},
+  // Polish UIs write online/offline as loanwords; Epicbox is a name.
+  'pl': {'statusEpicboxOnline', 'statusEpicboxOffline'},
   'ru': {},
   'zh': {},
   'th': {},
