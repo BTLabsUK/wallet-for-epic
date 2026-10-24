@@ -1606,13 +1606,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get statusNodeOffline => 'Узел не в сети';
 
   @override
-  String get statusEpicboxOnline => 'epicbox в сети';
+  String get statusEpicboxOnline => 'Epicbox в сети';
 
   @override
   String get statusEpicboxConnecting => 'Подключение к epicbox';
 
   @override
-  String get statusEpicboxOffline => 'epicbox не в сети';
+  String get statusEpicboxOffline => 'Epicbox не в сети';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -1762,7 +1762,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get invoiceDecline => 'Отклонить';
 
   @override
-  String get invoicePinReason => 'Введите PIN, чтобы оплатить этот счёт.';
+  String get invoicePinReason => 'Введите PIN-код, чтобы оплатить этот счёт.';
 
   @override
   String get invoiceDeclineTitle => 'Отклонить этот счёт?';
@@ -1936,7 +1936,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get issuedDetailsPaid =>
-      'Оплачен. Ваш кошелёк завершил платёж; он будет готов, когда сеть его подтвердит.';
+      'Оплачен. Ваш кошелёк завершил платёж; он завершится, когда сеть его подтвердит.';
 
   @override
   String get issuedDetailsDeclined =>
@@ -1966,7 +1966,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String issuerNoticeBouncedFrom(String payer) {
-    return 'Кошелёк $payer не умеет оплачивать запросы и вернул ваш, поэтому он отозван. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.';
+    return 'Кошелёк $payer не умеет оплачивать запросы и вернул ваш, поэтому он отозван. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или платёжным файлом.';
   }
 
   @override
@@ -1974,11 +1974,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      'Кошелёк плательщика не умеет оплачивать запросы и вернул этот, поэтому он отозван. Ничего не оплачено. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.';
+      'Кошелёк плательщика не умеет оплачивать запросы и вернул этот, поэтому он отозван. Ничего не оплачено. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или платёжным файлом.';
 
   @override
   String get requestPayerNoInvoices =>
-      'Этот кошелёк уже возвращал запрос: он не умеет оплачивать запросы. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.';
+      'Этот кошелёк уже возвращал запрос: он не умеет оплачивать запросы. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или платёжным файлом.';
 
   @override
   String get txStatusWaitingPayer => 'Ждёт плательщика';
@@ -2194,7 +2194,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get setupConnectedIconLabel => 'Подключено';
 
   @override
-  String get setupRelayHeading => 'Сервер epicbox';
+  String get setupRelayHeading => 'Сервер Epicbox';
 
   @override
   String get setupRelayHint => 'Этот сервер входит в ваш адрес.';
@@ -2384,6 +2384,8 @@ class AppLocalizationsRu extends AppLocalizations {
           'Запишите эти $count слов на бумаге по порядку и никому их не показывайте. Только с их помощью можно восстановить этот кошелёк.',
       few:
           'Запишите эти $count слова на бумаге по порядку и никому их не показывайте. Только с их помощью можно восстановить этот кошелёк.',
+      one:
+          'Запишите это $count слово на бумаге по порядку и никому их не показывайте. Только с его помощью можно восстановить этот кошелёк.',
     );
     return '$_temp0';
   }
@@ -2582,7 +2584,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendContactsButton => 'Контакты';
 
   @override
-  String get sendMethodEpicbox => 'Адрес epicbox';
+  String get sendMethodEpicbox => 'Адрес Epicbox';
 
   @override
   String get sendMethodFile => 'Платёжный файл';
@@ -3175,7 +3177,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsAboutNetwork => 'Сеть';
 
   @override
-  String get settingsEpicboxServer => 'Сервер epicbox';
+  String get settingsEpicboxServer => 'Сервер Epicbox';
 
   @override
   String settingsUpdateTo(String version) {
@@ -3303,7 +3305,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get feedbackAttachLogsHint =>
-      'Помогает найти проблему. Фраза восстановления, PIN-код и другие секретные данные предварительно удаляются.';
+      'Журналы помогают найти проблему. Фраза восстановления, PIN-код и другие секретные данные удаляются заранее.';
 
   @override
   String get feedbackPreviewButton => 'Посмотреть, что будет отправлено';
@@ -3336,7 +3338,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get feedbackSent => 'Спасибо! Ваш отзыв отправлен.';
+  String get feedbackSent => 'Спасибо. Ваш отзыв отправлен.';
 
   @override
   String get feedbackThanks => 'Спасибо за отзыв.';
@@ -3367,10 +3369,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionPrivacy => 'Конфиденциальность';
 
   @override
-  String get settingsSectionPrivacyNetwork => 'Приватность и сеть';
+  String get settingsSectionPrivacyNetwork => 'Конфиденциальность и сеть';
 
   @override
-  String get settingsSectionHelpFeedback => 'Помощь и отзыв';
+  String get settingsSectionHelpFeedback => 'Справка и отзывы';
 
   @override
   String get settingsStateBackUp => 'Сохраните фразу восстановления';
@@ -3520,7 +3522,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendRecent => 'Недавние';
 
   @override
-  String get sendUseFile => 'Нет адреса? Используйте файл платежа';
+  String get sendUseFile => 'Нет адреса? Используйте платёжный файл';
 
   @override
   String sendTo(String who) {
@@ -3559,7 +3561,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendNodeDown => 'Сеть сейчас недоступна.';
 
   @override
-  String get sendRelayDown => 'Их ретранслятор не отвечает.';
+  String get sendRelayDown => 'Сервер Epicbox получателя не отвечает.';
 
   @override
   String get sendListenerDown => 'Ещё нет подключения. Отправить можно.';
@@ -3618,7 +3620,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendFileTitle => 'Оплата файлом';
 
   @override
-  String get sendMakeFile => 'Создать файл платежа';
+  String get sendMakeFile => 'Создать платёжный файл';
 
   @override
   String get sendFileMade => 'Файл создан';
@@ -3715,20 +3717,20 @@ class AppLocalizationsRu extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
       many:
-          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
       few:
-          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
       one:
-          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
     );
     return '$_temp0';
   }
 
   @override
   String get sendRelayRefusedLost =>
-      'Их ретранслятор не принял платёж. Проверьте Кошелёк, прежде чем отправлять снова.';
+      'Сервер Epicbox получателя не принял платёж. Проверьте «Кошелёк», прежде чем отправлять снова.';
 
   @override
   String get sendCancelAndFile => 'Отменить и оплатить файлом';
@@ -3756,7 +3758,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String balanceLineOnHold(String amount) {
-    return '$amount на удержании';
+    return '$amount заблокировано';
   }
 
   @override
@@ -3974,12 +3976,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String sendPinReason(String amount) {
-    return 'Введите PIN, чтобы отправить $amount.';
+    return 'Введите PIN-код, чтобы отправить $amount.';
   }
 
   @override
   String sendFilePinReason(String amount) {
-    return 'Введите PIN, чтобы создать файл платежа на $amount.';
+    return 'Введите PIN-код, чтобы создать платёжный файл на $amount.';
   }
 
   @override
@@ -3992,7 +3994,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsConfirming => 'Подтверждается';
 
   @override
-  String get outputsLockedTile => 'Заблокировано отправками';
+  String get outputsLockedTile => 'Заблокировано в отправках';
 
   @override
   String get outputsImmature => 'Не созрели';
@@ -4103,7 +4105,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String outputsMeanConfirming(int need) {
-    return 'Нужно $need подтверждений, прежде чем его можно потратить.';
+    return 'Можно потратить после подтверждений: $need.';
   }
 
   @override
@@ -4145,13 +4147,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsFactTransaction => 'Транзакция';
 
   @override
-  String get outputsFactCommitment => 'Обязательство';
+  String get outputsFactCommitment => 'Коммитмент';
 
   @override
   String get outputsCopy => 'Копировать';
 
   @override
-  String get outputsCopied => 'Обязательство скопировано';
+  String get outputsCopied => 'Коммитмент скопирован';
 
   @override
   String get outputsEmpty => 'Выходов пока нет';
@@ -4252,7 +4254,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String outputsSplitStarted(int count) {
-    return 'Разделение начато: $count выходов, подтверждение примерно через 3 блока';
+    return 'Разделение начато, выходов: $count; подтверждение примерно через 3 блока';
   }
 
   @override
@@ -4523,10 +4525,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netStatusNotReachable => 'Недоступен';
 
   @override
-  String get netStatusTorOpenHint => 'Открывает настройки приватности';
+  String get netStatusTorOpenHint => 'Открывает настройки конфиденциальности';
 
   @override
-  String get netStatusDirectOpenHint => 'Открывает адрес прямого получения';
+  String get netStatusDirectOpenHint => 'Открывает прямой адрес для приёма';
 
   @override
   String get netStatusOpenHint => 'Показывает серверы';
@@ -4637,7 +4639,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get serverRelayWarning =>
-      'Ваш адрес содержит этот сервер. Смена меняет адрес; отправителям нужен новый.';
+      'Ваш адрес содержит этот сервер. При смене сервера адрес изменится; отправителям нужен новый.';
 
   @override
   String get serverRelaySwitchNote =>
@@ -4918,7 +4920,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvActBlock => 'Счёт';
 
   @override
-  String get deskInvActOpen => 'Открыть в счетах';
+  String get deskInvActOpen => 'Открыть в «Счетах»';
 
   @override
   String get deskInvActBilledBy => 'Выставил';
@@ -5162,11 +5164,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustWhere1 =>
-      'Доверить отправителю можно в [[Настройки › Счета]].';
+      'Добавить доверенного отправителя можно в [[Настройки › Счета]].';
 
   @override
   String get deskInvHelpTrustWhere2 =>
-      'Или включить **Доверять счета** у контакта в [[Контакты]].';
+      'Или включите **Доверенный для счетов** у контакта в [[Контакты]].';
 
   @override
   String get deskInvHelpTrustWhere3 =>
@@ -5282,15 +5284,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvIssuerPayerHelp =>
-      'Кошелёк плательщика показывает его в разделе Настройки › Счета.';
+      'Кошелёк плательщика показывает его в разделе «Настройки › Счета».';
 
   @override
   String get deskInvIssuerPayerMissing =>
       'Вставьте адрес для счетов плательщика.';
 
   @override
-  String get deskInvIssuerPayerInvalid =>
-      'Это не действительный адрес Epicbox.';
+  String get deskInvIssuerPayerInvalid => 'Это недействительный адрес Epicbox.';
 
   @override
   String get deskInvIssuerPayerOwn =>
@@ -5305,7 +5306,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvIssuerNoContacts =>
-      'Пока ни у одного контакта нет адреса для счетов. Добавьте его в Контактах.';
+      'Пока ни у одного контакта нет адреса для счетов. Добавьте его в разделе «Контакты».';
 
   @override
   String get deskInvIssuerNoInvoices =>
@@ -5500,12 +5501,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvNoticePaid(String payer, String amount) {
-    return '$payer оплатил(а) $amount EPIC.';
+    return 'Оплата от $payer: $amount EPIC.';
   }
 
   @override
   String deskInvNoticeDeclined(String payer) {
-    return '$payer отклонил(а) ваш счёт.';
+    return 'Плательщик $payer отклонил ваш счёт.';
   }
 
   @override
@@ -5514,7 +5515,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvNoticeWithdrawn(String service) {
-    return '$service отозвал(а) счёт до вашего ответа.';
+    return 'Сервис $service отозвал счёт до вашего ответа.';
   }
 
   @override
@@ -5574,7 +5575,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
-    return 'Ваш платёж $service не доставлен';
+    return 'Ваш платёж сервису $service не доставлен';
   }
 
   @override
@@ -5583,7 +5584,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerWithdrawnTitle(String service) {
-    return '$service отозвал оплаченный счёт';
+    return 'Сервис $service отозвал оплаченный вами счёт';
   }
 
   @override
@@ -5592,7 +5593,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerPastTtlTitle(String service) {
-    return 'Вашего платежа $service нет в блокчейне';
+    return 'Вашего платежа сервису $service нет в блокчейне';
   }
 
   @override
@@ -5611,7 +5612,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerSameBillTitle(String service, String ago) {
-    return 'Вы заплатили $service ту же сумму $ago назад';
+    return 'Вы заплатили сервису $service ту же сумму $ago назад';
   }
 
   @override
@@ -5642,7 +5643,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Написано сервисом. Кошелёк это не проверяет.';
 
   @override
-  String get deskInvPayerPaysTo => 'Платёж для';
+  String get deskInvPayerPaysTo => 'Получатель';
 
   @override
   String deskInvPayerTrustedSince(String service, String date) {
@@ -5674,7 +5675,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerNodeDownText =>
-      'Кошелёк не может проверить средства, поэтому не может заплатить. Одобрение снова заработает, когда узел ответит; другой узел можно выбрать в Настройки › Узел.';
+      'Кошелёк не может проверить средства, поэтому не может заплатить. Одобрение снова заработает, когда узел ответит; другой узел можно выбрать в разделе «Настройки › Узел».';
 
   @override
   String get deskInvPayerPaid =>
@@ -5689,7 +5690,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerApproveTitle(String amount, String fee, String service) {
-    return 'Заплатить $amount EPIC + $fee комиссии $service?';
+    return 'Заплатить сервису $service $amount EPIC + $fee комиссии?';
   }
 
   @override
@@ -5732,7 +5733,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerNotDeliveredToastText =>
-      'Сервер Epicbox не отвечает. Повторите в разделе Счета › Оплатить; без повторного одобрения.';
+      'Сервер Epicbox не отвечает. Повторите в разделе «Счета › Оплатить»; повторное одобрение не нужно.';
 
   @override
   String get deskInvPayerRetryFailed => 'Всё ещё не доставлено';
@@ -5750,7 +5751,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
-    return '$amount EPIC для $service';
+    return '$amount EPIC сервису $service';
   }
 
   @override
@@ -5887,7 +5888,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вставьте адрес, который показывает сервис.';
 
   @override
-  String get deskInvSetSenderInvalid => 'Это не действительный адрес Epicbox.';
+  String get deskInvSetSenderInvalid => 'Это недействительный адрес Epicbox.';
 
   @override
   String get deskInvSetTrust => 'Доверять';
@@ -5971,7 +5972,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvSetIssueNeeds => 'Нужен адрес для счетов контакта.';
 
   @override
-  String get deskInvSetShare => 'Поделиться адресом счетов';
+  String get deskInvSetShare => 'Поделиться адресом для счетов';
 
   @override
   String get deskInvSetReceiveHint =>
@@ -6048,7 +6049,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get methodSendDirectLine =>
-      'Их кошелёк должен быть открыт. Адрес onion идёт через Tor.';
+      'Кошелёк получателя должен быть открыт. Платёж на адрес .onion идёт через Tor.';
 
   @override
   String get methodArtLabelDirect =>
@@ -6116,7 +6117,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveTabDirect => 'Напрямую';
 
   @override
-  String get receiveDirectNeedsTor => 'Прямое получение требует Tor.';
+  String get receiveDirectNeedsTor => 'Для прямого приёма нужен Tor.';
 
   @override
   String get receiveDirectMeanwhile =>

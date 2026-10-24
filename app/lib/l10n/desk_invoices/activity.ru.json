@@ -2,7 +2,7 @@
   "deskInvActFrom": "Счёт от {label}",
   "deskInvActFilter": "Счета",
   "deskInvActBlock": "Счёт",
-  "deskInvActOpen": "Открыть в счетах",
+  "deskInvActOpen": "Открыть в «Счетах»",
   "deskInvActBilledBy": "Выставил",
   "deskInvActOverviewTitle": "Счета",
   "deskInvActOverviewToPay": "{count, plural, =0{Нечего оплачивать} one{{count} счёт к оплате} few{{count} счёта к оплате} many{{count} счетов к оплате} other{{count} счёта к оплате}}",
