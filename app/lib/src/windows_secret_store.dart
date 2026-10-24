@@ -261,7 +261,13 @@ class WindowsSecretStore implements SecretStore {
   Future<void> _save(Map<String, String> map, _Source source) async {
     final mainPath = await _path('');
     final tmpPath = await _path('.tmp');
-    final encrypted = _cipher.protect(utf8.encode(jsonEncode(map)));
+    final Uint8List encrypted;
+    try {
+      encrypted = _cipher.protect(utf8.encode(jsonEncode(map)));
+    } catch (error) {
+      // DPAPI without a user master key (a logon with no password, a broken profile).
+      throw SecretProtectError('$error'.split('\n').first);
+    }
     await _files.writeFlushed(tmpPath, encrypted);
     switch (source) {
       case _Source.main:
