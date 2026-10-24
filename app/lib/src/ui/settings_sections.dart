@@ -6,6 +6,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'status_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -564,7 +565,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       else if (!demo) ...[
         ListTile(
           key: settingsNodeKey,
-          leading: const Icon(Icons.dns_outlined),
+          leading: const Icon(EpicGlyphs.node),
           title: Text(l.serverNodeTitle),
           subtitle: withTorWay(
             network == null ? null : Text(serverHost(network.nodeUrl)),
@@ -574,7 +575,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ),
         ListTile(
           key: settingsEpicboxKey,
-          leading: const Icon(Icons.mail_outline),
+          leading: const Icon(EpicGlyphs.epicbox),
           title: Text(l.serverEpicboxTitle),
           subtitle: withTorWay(
             Text(
@@ -738,11 +739,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       SettingsHeader(l.txMethodsHeader),
       ListTile(
         key: const ValueKey('tx-epicbox'),
-        leading: const Icon(Icons.alternate_email),
+        leading: const Icon(EpicGlyphs.epicbox),
         title: TitleWithHint(
           l.methodEpicbox,
           hint: l.txEpicboxHint,
-          icon: Icons.alternate_email,
+          icon: EpicGlyphs.epicbox,
         ),
         subtitle: Text(l.txAlwaysOn),
       ),
@@ -751,7 +752,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       if (showDirect)
         HintSwitchTile(
           key: const ValueKey('tx-direct'),
-          icon: Icons.link,
+          icon: EpicGlyphs.http,
           title: l.methodDirect,
           hint: l.txDirectHint,
           subtitle: Text(l.txDirectLine),
@@ -928,7 +929,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       ),
       feature(
         AdvancedFeature.serverDetails,
-        Icons.dns_outlined,
+        EpicGlyphs.node,
         l.advServerDetails,
         l.advServerDetailsHint,
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../connection_state.dart';
@@ -132,7 +133,7 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
     String sentence,
   ) = switch (node.state) {
     NodeState.online => (
-      Icons.cloud_done_outlined,
+      EpicGlyphs.node,
       l.statusNodeOnline,
       t.ok,
       l.homeSyncUpToDate,
@@ -199,7 +200,7 @@ _Face _epicboxFace(
       l.receiveEpicboxConnected,
     ),
     EpicboxState.connecting => (
-      Icons.mail_outline,
+      EpicGlyphs.epicbox,
       l.statusEpicboxConnecting,
       t.info,
       l.homeEpicboxConnecting,
@@ -428,7 +429,7 @@ class StatusIcon extends StatelessWidget {
         l.statusRelay('${config.epicboxDomain}:${config.epicboxPort}'),
     ].join('\n');
     return (
-      icon: Icons.mail_outline,
+      icon: EpicGlyphs.epicbox,
       dot: StatusDot.off,
       word: net.word,
       detail: detail,

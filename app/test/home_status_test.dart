@@ -23,6 +23,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/ui/status_icons.dart';
 
 WalletSummary _summary({bool validated = true, int height = 2499990}) =>
     WalletSummary(
@@ -276,7 +277,7 @@ void main() {
       await _pump(tester);
       final t = _tokens(tester);
       expect(_label(tester, nodeStatusKey), 'Node, Synced');
-      expect(_icon(tester, nodeStatusKey), Icons.cloud_done_outlined);
+      expect(_icon(tester, nodeStatusKey), EpicGlyphs.node);
       expect(_dot(tester, nodeStatusKey), t.ok);
       expect(
         _tip_(tester, nodeStatusKey),
@@ -382,7 +383,7 @@ void main() {
       expect(_dot(tester, nodeStatusKey), t.info);
       expect(_tip_(tester, nodeStatusKey), startsWith('Contacting node…'));
       expect(_label(tester, epicboxStatusKey), 'Epicbox, Connecting');
-      expect(_icon(tester, epicboxStatusKey), Icons.mail_outline);
+      expect(_icon(tester, epicboxStatusKey), EpicGlyphs.epicbox);
       expect(_dot(tester, epicboxStatusKey), t.info);
       // Connecting sits still: only a sync in progress pulses, so Home settles.
       await tester.pump(const Duration(milliseconds: 400));
@@ -488,7 +489,7 @@ void main() {
       expect(_dot(tester, torIconKey), t.ok);
       expect(_tip_(tester, torIconKey), 'On');
       expect(_label(tester, directIconKey), 'Direct, Reachable');
-      expect(_icon(tester, directIconKey), Icons.link);
+      expect(_icon(tester, directIconKey), EpicGlyphs.http);
       expect(_dot(tester, directIconKey), t.ok);
       expect(_tip_(tester, directIconKey), 'Tor receiving is on');
       expect(

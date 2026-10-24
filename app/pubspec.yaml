@@ -108,6 +108,7 @@ flutter:
     - assets/passwords/
     # Tor's licence; the tor binary itself ships beside the app (tools/fetch-tor.sh).
     - assets/licenses/tor.txt
+    - assets/licenses/status-icons.txt
     # Help illustrations (settings design, F20); drawn in the theme colours by HelpArt.
     - assets/help/
     # Language flags (lipis/flag-icons, MIT; the licence is registered with the fonts', see
@@ -124,6 +125,10 @@ flutter:
     - family: JetBrainsMonoNL
       fonts:
         - asset: assets/fonts/JetBrainsMonoNL-Regular.ttf
+    # Tor, Epicbox, Direct · HTTP and Node glyphs (tools/status_icons_font.py; lib/src/ui/status_icons.dart).
+    - family: EpicStatusIcons
+      fonts:
+        - asset: assets/fonts/EpicStatusIcons.ttf
     # Thai, as the fallback of every text style (thaiFallback in lib/src/ui/theme/fonts.dart):
     # Montserrat, JetBrains Mono and the platform fonts on some systems have no Thai, and a
     # system fallback may clip the marks above and below. Noto Sans Thai 2.002, hinted, OFL.

@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 /// A full-length address, as long as a real one.
@@ -193,7 +194,7 @@ void main() {
       );
       expect(
         [for (final s in tabs.segments) (s.icon! as Icon).icon],
-        [Icons.alternate_email, Icons.description_outlined],
+        [EpicGlyphs.epicbox, Icons.description_outlined],
       );
       // Full width: as wide as the address card under it.
       expect(

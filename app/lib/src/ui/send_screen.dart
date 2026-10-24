@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'status_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show NumberFormat;
@@ -1803,9 +1804,9 @@ class _SendViewState extends ConsumerState<SendView> {
       ref.watch(homeProvider.select((h) => h.value?.transactions)),
     );
     final segments = [
-      segment(TransferMethod.epicbox, Icons.alternate_email, l.methodEpicbox),
+      segment(TransferMethod.epicbox, EpicGlyphs.epicbox, l.methodEpicbox),
       if (selected == TransferMethod.direct || payments.direct)
-        segment(TransferMethod.direct, Icons.link, l.methodDirect),
+        segment(TransferMethod.direct, EpicGlyphs.http, l.methodDirect),
       if (selected == TransferMethod.file || payments.file || filePending)
         segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
     ];
@@ -2957,8 +2958,8 @@ class _SwitchTag extends StatelessWidget {
     final still = MediaQuery.disableAnimationsOf(context);
     if (method == null) return const SizedBox.shrink();
     final (icon, text) = switch (method) {
-      TransferMethod.direct => (Icons.link, l.sendSwitchedDirect),
-      _ => (Icons.alternate_email, l.sendSwitchedEpicbox),
+      TransferMethod.direct => (EpicGlyphs.http, l.sendSwitchedDirect),
+      _ => (EpicGlyphs.epicbox, l.sendSwitchedEpicbox),
     };
     // The text field merges its label: [_SwitchAnnouncement] says it out loud.
     return ExcludeSemantics(

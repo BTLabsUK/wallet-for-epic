@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'status_icons.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -109,7 +110,7 @@ class ReceiveView extends ConsumerWidget {
     final tabSegments = <ButtonSegment<ReceiveTab>>[
         ButtonSegment(
           value: ReceiveTab.epicbox,
-          icon: const Icon(Icons.alternate_email),
+          icon: const Icon(EpicGlyphs.epicbox),
           label: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(l.receiveTabEpicbox, maxLines: 1),
@@ -123,7 +124,7 @@ class ReceiveView extends ConsumerWidget {
                 payments.direct))
           ButtonSegment(
             value: ReceiveTab.direct,
-            icon: const Icon(Icons.link),
+            icon: const Icon(EpicGlyphs.http),
             label: FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(l.receiveTabDirect, maxLines: 1),
@@ -632,7 +633,7 @@ class _EpicboxLine extends ConsumerWidget {
         ? (Icons.mark_email_read_outlined, l.statusEpicboxOnline, t.ok)
         : offline
         ? (Icons.unsubscribe_outlined, l.statusEpicboxOffline, t.risk)
-        : (Icons.mail_outline, l.statusEpicboxConnecting, t.dim);
+        : (EpicGlyphs.epicbox, l.statusEpicboxConnecting, t.dim);
     final config = ref.watch(walletConfigProvider);
     return Column(
       key: receiveEpicboxKey,
