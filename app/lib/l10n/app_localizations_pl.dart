@@ -6205,4 +6205,21 @@ class AppLocalizationsPl extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskKeyringMissingTitle => 'Nie znaleziono pęku kluczy';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, ale żaden nie odpowiedział. Zainstaluj lub uruchom pęk kluczy (GNOME Keyring lub KWallet), zaloguj się do sesji pulpitu, która go uruchamia, a potem wybierz Ponów.';
+
+  @override
+  String get deskKeyringLockedTitle => 'Pęk kluczy jest zablokowany';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, który jest zablokowany. Odblokuj go (otwiera się hasłem logowania), a potem wybierz Ponów, albo wybierz Odblokuj teraz, aby system o nie poprosił.';
+
+  @override
+  String get deskKeyringUnlockNow => 'Odblokuj teraz';
 }

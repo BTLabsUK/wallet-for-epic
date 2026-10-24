@@ -5886,4 +5886,21 @@ class AppLocalizationsTh extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskKeyringMissingTitle => 'ไม่พบพวงกุญแจ';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ แต่ไม่มีพวงกุญแจใดตอบกลับ ติดตั้งหรือเริ่มพวงกุญแจ (GNOME Keyring หรือ KWallet) เข้าสู่ระบบเดสก์ท็อปที่ใช้งานพวงกุญแจ แล้วเลือกลองอีกครั้ง';
+
+  @override
+  String get deskKeyringLockedTitle => 'พวงกุญแจถูกล็อก';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ ซึ่งถูกล็อกอยู่ ปลดล็อกพวงกุญแจ (ใช้รหัสผ่านเข้าสู่ระบบ) แล้วเลือกลองอีกครั้ง หรือเลือกปลดล็อกตอนนี้เพื่อให้ระบบถามรหัสผ่าน';
+
+  @override
+  String get deskKeyringUnlockNow => 'ปลดล็อกตอนนี้';
 }

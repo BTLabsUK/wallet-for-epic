@@ -24,6 +24,7 @@ import 'src/data_folder.dart';
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/app/shell.dart' show deskVersion;
 import 'src/desktop/data/desk_node.dart';
+import 'src/desktop/keyring_check.dart';
 import 'src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
 import 'src/desktop/data/desk_store.dart';
 import 'src/desktop/data/files.dart';
@@ -70,6 +71,14 @@ Future<void> main() async {
     registerPasswordListLicences();
     registerTorLicence();
     logInfo('app', 'desktop start $deskVersion, $platformLabel');
+    // Linux without a keyring to use: say so on the first screen, before libsecret is asked
+    // anything (it would hold the window's thread, so no window showed).
+    final keyring = await checkLinuxKeyring();
+    if (keyring != null) {
+      final ready = Completer<void>();
+      runApp(KeyringApp(problem: keyring, check: checkLinuxKeyring, onReady: () => ready.isCompleted ? null : ready.complete()));
+      await ready.future;
+    }
     final overrides = await deskOverrides();
     // Wallet errors are final answers (wrong password, node down); do not retry them silently.
     runApp(ProviderScope(retry: (_, _) => null, overrides: overrides, child: const DeskApp()));

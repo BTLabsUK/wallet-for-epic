@@ -6004,4 +6004,21 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskKeyringMissingTitle => 'No keyring found';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash keeps its settings and your wallet\'s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.';
+
+  @override
+  String get deskKeyringLockedTitle => 'The keyring is locked';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash keeps its settings and your wallet\'s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.';
+
+  @override
+  String get deskKeyringUnlockNow => 'Unlock now';
 }

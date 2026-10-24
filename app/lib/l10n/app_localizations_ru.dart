@@ -6190,4 +6190,21 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskKeyringMissingTitle => 'Связка ключей не найдена';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, но ни одна не ответила. Установите или запустите связку ключей (GNOME Keyring или KWallet), войдите в сеанс рабочего стола, где она работает, затем нажмите «Повторить».';
+
+  @override
+  String get deskKeyringLockedTitle => 'Связка ключей заблокирована';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, а она заблокирована. Разблокируйте её (она открывается паролем входа), затем нажмите «Повторить», или нажмите «Разблокировать сейчас», чтобы система запросила пароль.';
+
+  @override
+  String get deskKeyringUnlockNow => 'Разблокировать сейчас';
 }

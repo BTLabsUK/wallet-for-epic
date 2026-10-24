@@ -9392,6 +9392,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}'**
   String sendUsesAllOutputs(int count);
+
+  /// Desktop, Linux, first screen: the system has no usable keyring (Secret Service) to keep the wallet's secrets.
+  ///
+  /// In en, this message translates to:
+  /// **'No keyring found'**
+  String get deskKeyringMissingTitle;
+
+  /// Desktop, Linux: what is missing and what to do. Names the keyring programs; Retry is the commonRetry button.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash keeps its settings and your wallet\'s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.'**
+  String get deskKeyringMissingText;
+
+  /// Desktop, Linux, first screen: the system keyring exists but is locked.
+  ///
+  /// In en, this message translates to:
+  /// **'The keyring is locked'**
+  String get deskKeyringLockedTitle;
+
+  /// Desktop, Linux: the keyring is locked. Retry is commonRetry; 'Unlock now' is deskKeyringUnlockNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash keeps its settings and your wallet\'s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.'**
+  String get deskKeyringLockedText;
+
+  /// Desktop, Linux, locked keyring: go on, and the system asks for the keyring's password.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock now'**
+  String get deskKeyringUnlockNow;
 }
 
 class _AppLocalizationsDelegate

@@ -7575,5 +7575,25 @@
         "type": "int"
       }
     }
+  },
+  "deskKeyringMissingTitle": "No keyring found",
+  "@deskKeyringMissingTitle": {
+    "description": "Desktop, Linux, first screen: the system has no usable keyring (Secret Service) to keep the wallet's secrets."
+  },
+  "deskKeyringMissingText": "Epic Cash keeps its settings and your wallet's sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.",
+  "@deskKeyringMissingText": {
+    "description": "Desktop, Linux: what is missing and what to do. Names the keyring programs; Retry is the commonRetry button."
+  },
+  "deskKeyringLockedTitle": "The keyring is locked",
+  "@deskKeyringLockedTitle": {
+    "description": "Desktop, Linux, first screen: the system keyring exists but is locked."
+  },
+  "deskKeyringLockedText": "Epic Cash keeps its settings and your wallet's sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.",
+  "@deskKeyringLockedText": {
+    "description": "Desktop, Linux: the keyring is locked. Retry is commonRetry; 'Unlock now' is deskKeyringUnlockNow."
+  },
+  "deskKeyringUnlockNow": "Unlock now",
+  "@deskKeyringUnlockNow": {
+    "description": "Desktop, Linux, locked keyring: go on, and the system asks for the keyring's password."
   }
 }

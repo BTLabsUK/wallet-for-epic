@@ -5657,4 +5657,21 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get deskKeyringMissingTitle => '未找到密钥环';
+
+  @override
+  String get deskKeyringMissingText =>
+      'Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，但没有密钥环响应。请安装或启动密钥环（GNOME Keyring 或 KWallet），登录运行密钥环的桌面会话，然后选择重试。';
+
+  @override
+  String get deskKeyringLockedTitle => '密钥环已锁定';
+
+  @override
+  String get deskKeyringLockedText =>
+      'Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（使用您的登录密码），然后选择重试，或选择立即解锁让系统询问密码。';
+
+  @override
+  String get deskKeyringUnlockNow => '立即解锁';
 }
