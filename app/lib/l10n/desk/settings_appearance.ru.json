@@ -1,0 +1,12 @@
+{
+  "deskSetAppearTheme": "Тема",
+  "deskSetAppearThemeHint": "«Системная» следует настройке компьютера.",
+  "deskSetAppearSystem": "Системная",
+  "deskSetAppearDark": "Тёмная",
+  "deskSetAppearLight": "Светлая",
+  "deskSetAppearScale": "Масштаб интерфейса",
+  "deskSetAppearScaleHint": "Текст и элементы управления крупнее или мельче. Применяется сразу.",
+  "deskSetAppearLanguage": "Язык",
+  "deskSetAppearLanguageHint": "Применяется сразу.",
+  "deskSetAppearHideHint": "Показывает точки вместо баланса и сумм."
+}

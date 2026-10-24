@@ -22,7 +22,7 @@
   "deskInvSetAddBody": "Ein vertrauenswürdiger Absender kann dieser Wallet Rechnungen an ihre Rechnungsadresse stellen. Bezahlt wird erst, wenn Sie jeder Rechnung mit Ihrem Wallet-Passwort zustimmen.",
   "deskInvSetName": "Name",
   "deskInvSetNameMissing": "Geben Sie dem Absender einen Namen.",
-  "deskInvSetSenderAddress": "Seine Zahlungsadresse",
+  "deskInvSetSenderAddress": "Zahlungsadresse des Absenders",
   "deskInvSetSenderMissing": "Fügen Sie die Adresse ein, die der Dienst anzeigt.",
   "deskInvSetSenderInvalid": "Das ist keine gültige Epicbox-Adresse.",
   "deskInvSetTrust": "Vertrauen",

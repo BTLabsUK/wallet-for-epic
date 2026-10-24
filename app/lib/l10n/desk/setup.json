@@ -1,0 +1,241 @@
+{
+  "deskSetupConfirmPassword": "Confirm password",
+  "@deskSetupConfirmPassword": {
+    "description": "Field label and screen reader label on the password step of creating or restoring a wallet: type the password again."
+  },
+  "deskSetupPasswordShort": "At least 8 characters",
+  "@deskSetupPasswordShort": {
+    "description": "Error under the password field when the new password is shorter than 8 characters."
+  },
+  "deskSetupPasswordsDiffer": "Passwords differ",
+  "@deskSetupPasswordsDiffer": {
+    "description": "Error under the confirm field when the two passwords are not the same."
+  },
+  "deskSetupBack": "Back",
+  "@deskSetupBack": {
+    "description": "Button in the foot of the first-run and setup screens: one step back."
+  },
+  "deskSetupNewWalletAdded": "New wallet added.",
+  "@deskSetupNewWalletAdded": {
+    "description": "Notice on the Unlock screen after a new wallet was created; the wallet is selected below it."
+  },
+  "deskSetupCapsLock": "Caps Lock is on",
+  "@deskSetupCapsLock": {
+    "description": "Warning under a password field while Caps Lock is on. Caps Lock is the key's name as printed on keyboards."
+  },
+  "deskSetupStepSem": "Step {number} of {total}: {label}",
+  "@deskSetupStepSem": {
+    "description": "Screen reader announcement of the step a progress list is on, e.g. 'Step 2 of 4: Scanning the chain'.",
+    "placeholders": {
+      "number": {"type": "int"},
+      "total": {"type": "int"},
+      "label": {"type": "String"}
+    }
+  },
+  "deskSetupTryAgain": "Try again",
+  "@deskSetupTryAgain": {
+    "description": "Button after a step of creating or restoring a wallet failed: run it again."
+  },
+  "deskSetupNotSaved": "Not saved",
+  "@deskSetupNotSaved": {
+    "description": "Toast title when the setup's settings could not be saved; the reason follows."
+  },
+  "deskSetupStepPrefs": "Preferences",
+  "@deskSetupStepPrefs": {
+    "description": "Setup step and its title: app preferences (the language). Also a section head on the setup's last step. Short: it is in the step list of a narrow side panel."
+  },
+  "deskSetupStepNode": "Node",
+  "@deskSetupStepNode": {
+    "description": "Setup step in the side panel's step list (choose the Epic node), and a section head on the last step. One word."
+  },
+  "deskSetupStepEpicbox": "Epicbox",
+  "@deskSetupStepEpicbox": {
+    "description": "Setup step in the side panel's step list (the Epicbox server for receiving), and a section head on the last step. Epicbox is a product name: keep it."
+  },
+  "deskSetupStepReview": "Review",
+  "@deskSetupStepReview": {
+    "description": "Setup's last step in the side panel's step list: check everything, then save. One word."
+  },
+  "deskSetupAgain": "Running setup again. Nothing changes until Save on the last step.",
+  "@deskSetupAgain": {
+    "description": "Lead under each step's title when setup is opened again from Settings. 'Save' is the button on the last step (deskSetupSave)."
+  },
+  "deskSetupPrefsLead": "App language. It can be changed later.",
+  "@deskSetupPrefsLead": {
+    "description": "Lead under the title of the setup's Preferences step, which has the language picker."
+  },
+  "deskSetupNodeTitle": "Choose a node",
+  "@deskSetupNodeTitle": {
+    "description": "Title of the setup step where the user picks the Epic node the wallet uses."
+  },
+  "deskSetupNodeLead": "The wallet reads the chain and sends through an Epic node.",
+  "@deskSetupNodeLead": {
+    "description": "Lead under the title of the setup's node step."
+  },
+  "deskSetupLocalTitle": "Local node",
+  "@deskSetupLocalTitle": {
+    "description": "Title of the setup step about running the Epic node on this computer."
+  },
+  "deskSetupLocalLead": "What running the node here means, and which node to use.",
+  "@deskSetupLocalLead": {
+    "description": "Lead under the title of the setup's local node step."
+  },
+  "deskSetupEpicboxTitle": "Receive when offline",
+  "@deskSetupEpicboxTitle": {
+    "description": "Title of the setup step about the Epicbox server, which holds payments while this wallet is closed."
+  },
+  "deskSetupReviewTitle": "Check settings",
+  "@deskSetupReviewTitle": {
+    "description": "Title of the setup's last step: a summary of the choices."
+  },
+  "deskSetupReviewLead": "Change anything that is not right, then save.",
+  "@deskSetupReviewLead": {
+    "description": "Lead under the title of the setup's last step."
+  },
+  "deskSetupSideTitle": "Set up",
+  "@deskSetupSideTitle": {
+    "description": "Title of the setup's side panel, above its step list. Short."
+  },
+  "deskSetupBackToWallet": "Back to wallet",
+  "@deskSetupBackToWallet": {
+    "description": "Button in the setup's side panel when setup was opened again from Settings: leave it without changes."
+  },
+  "deskSetupLaterNote": "Everything here can be changed later in Settings.",
+  "@deskSetupLaterNote": {
+    "description": "Small note at the foot of the setup's side panel on the first run."
+  },
+  "deskSetupSave": "Save settings",
+  "@deskSetupSave": {
+    "description": "Main button on the setup's last step: save every choice."
+  },
+  "deskSetupLanguage": "Language",
+  "@deskSetupLanguage": {
+    "description": "Label of the language picker on the setup's Preferences step, and the row in its summary. The language names in the list stay in their own language."
+  },
+  "deskSetupNodeServer": "Node server",
+  "@deskSetupNodeServer": {
+    "description": "Label of the field where the user picks or types a public Epic node."
+  },
+  "deskSetupNodeHint": "Find or type a node address",
+  "@deskSetupNodeHint": {
+    "description": "Placeholder in the node picker's search field."
+  },
+  "deskSetupCheckingNodes": "Checking nodes…",
+  "@deskSetupCheckingNodes": {
+    "description": "Shown in the node picker while the public node list is being checked."
+  },
+  "deskSetupPickNode": "Pick a node",
+  "@deskSetupPickNode": {
+    "description": "Shown in the node picker's field before a node is chosen."
+  },
+  "deskSetupPublicNodes": "Public nodes",
+  "@deskSetupPublicNodes": {
+    "description": "Group head in the node picker's list: public Epic nodes run by others."
+  },
+  "deskSetupNotInList": "not in the public list",
+  "@deskSetupNotInList": {
+    "description": "Small line under a node address the user typed that is not one of the public nodes. Lower case: it follows the address."
+  },
+  "deskSetupEnterUses": "Enter uses it.",
+  "@deskSetupEnterUses": {
+    "description": "Note under a typed node address in the picker: pressing the Enter key picks it."
+  },
+  "deskSetupNoNodes": "No nodes to show.",
+  "@deskSetupNoNodes": {
+    "description": "The node picker's list is empty."
+  },
+  "deskSetupRemoteNode": "Remote node",
+  "@deskSetupRemoteNode": {
+    "description": "Choice card on the setup's node step: use a public node on the internet. Also the node type on the summary step."
+  },
+  "deskSetupRemoteNodeText": "Any public node. Ready at once.",
+  "@deskSetupRemoteNodeText": {
+    "description": "Text on the Remote node choice card."
+  },
+  "deskSetupLocalNodeText": "Runs the Epic node on this computer. Nothing is shared with an operator. Needs disk space and hours to sync.",
+  "@deskSetupLocalNodeText": {
+    "description": "Text on the Local node choice card of the setup's node step."
+  },
+  "deskSetupEpicboxText": "Epicbox delivers payments to the Epicbox address and holds them until the wallet is online.",
+  "@deskSetupEpicboxText": {
+    "description": "First paragraph of the setup's Epicbox step."
+  },
+  "deskSetupEpicboxPrivacy": "It does not hide the IP address from the Epicbox server. Use a VPN if that matters.",
+  "@deskSetupEpicboxPrivacy": {
+    "description": "Second paragraph of the setup's Epicbox step: a privacy note."
+  },
+  "deskSetupEpicboxServer": "Epicbox server",
+  "@deskSetupEpicboxServer": {
+    "description": "Label of the Epicbox server field on the setup's Epicbox step."
+  },
+  "deskSetupEpicboxHelp": "Leave empty to turn receiving through Epicbox off.",
+  "@deskSetupEpicboxHelp": {
+    "description": "Help under the Epicbox server field."
+  },
+  "deskSetupChangePrefsSem": "Change preferences",
+  "@deskSetupChangePrefsSem": {
+    "description": "Screen reader label of the Change link next to the Preferences section on the setup's summary."
+  },
+  "deskSetupChangeNodeSem": "Change node",
+  "@deskSetupChangeNodeSem": {
+    "description": "Screen reader label of the Change link next to the Node section on the setup's summary."
+  },
+  "deskSetupChangeEpicboxSem": "Change epicbox",
+  "@deskSetupChangeEpicboxSem": {
+    "description": "Screen reader label of the Change link next to the Epicbox section on the setup's summary."
+  },
+  "deskSetupChange": "Change",
+  "@deskSetupChange": {
+    "description": "Link next to a section on the setup's summary: go back to that step."
+  },
+  "deskSetupType": "Type",
+  "@deskSetupType": {
+    "description": "Row label on the setup's summary: what kind of node. Narrow label column."
+  },
+  "deskSetupAddress": "Address",
+  "@deskSetupAddress": {
+    "description": "Row label on the setup's summary: the node's address. Narrow label column."
+  },
+  "deskSetupExistingNode": "Existing node at {host}",
+  "@deskSetupExistingNode": {
+    "description": "Node type on the setup's summary: an Epic node already running on this computer.",
+    "placeholders": {
+      "host": {"type": "String", "example": "127.0.0.1:3413"}
+    }
+  },
+  "deskSetupBundledNode": "Local node, bundled",
+  "@deskSetupBundledNode": {
+    "description": "Node type on the setup's summary: the Epic node that comes with the app, run on this computer."
+  },
+  "deskSetupWhileSyncing": "While syncing",
+  "@deskSetupWhileSyncing": {
+    "description": "Row label on the setup's summary: which node the wallet uses while the local node syncs. Narrow label column."
+  },
+  "deskSetupWait": "wait",
+  "@deskSetupWait": {
+    "description": "Value of the While syncing row when the wallet waits for the local node instead of using a public one. Lower case, one word."
+  },
+  "deskSetupDataFolder": "Data folder",
+  "@deskSetupDataFolder": {
+    "description": "Row label on the setup's summary: where the local node keeps the chain. Narrow label column."
+  },
+  "deskSetupSaveStartsFallback": "Save starts the node. The first sync takes hours; the wallet opens meanwhile and uses {node} until then.",
+  "@deskSetupSaveStartsFallback": {
+    "description": "Note under the Node section of the setup's summary when the local node is chosen and a public node is used while it syncs.",
+    "placeholders": {
+      "node": {"type": "String", "example": "node.epiccash.com"}
+    }
+  },
+  "deskSetupSaveStarts": "Save starts the node. The first sync takes hours; the wallet opens meanwhile.",
+  "@deskSetupSaveStarts": {
+    "description": "Note under the Node section of the setup's summary when the local node is chosen and the wallet waits for it."
+  },
+  "deskSetupServer": "Server",
+  "@deskSetupServer": {
+    "description": "Row label on the setup's summary: the Epicbox server. Narrow label column."
+  },
+  "deskSetupOff": "Off",
+  "@deskSetupOff": {
+    "description": "Value of the Epicbox server row when no server is set: receiving through Epicbox is off."
+  }
+}

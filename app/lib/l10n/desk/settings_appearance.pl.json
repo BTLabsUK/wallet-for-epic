@@ -1,0 +1,12 @@
+{
+  "deskSetAppearTheme": "Motyw",
+  "deskSetAppearThemeHint": "Systemowy to motyw ustawiony w komputerze.",
+  "deskSetAppearSystem": "Systemowy",
+  "deskSetAppearDark": "Ciemny",
+  "deskSetAppearLight": "Jasny",
+  "deskSetAppearScale": "Skala interfejsu",
+  "deskSetAppearScaleHint": "Większy lub mniejszy tekst i przyciski. Działa od razu.",
+  "deskSetAppearLanguage": "Język",
+  "deskSetAppearLanguageHint": "Działa od razu.",
+  "deskSetAppearHideHint": "Pokazuje kropki zamiast sald i kwot."
+}

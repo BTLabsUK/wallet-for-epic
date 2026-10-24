@@ -1,0 +1,786 @@
+{
+  "deskSendStrategySmallest": "Smallest",
+  "@deskSendStrategySmallest": {
+    "description": "Name of the output-selection strategy that spends the fewest small outputs. Used as a radio title and inside sentences. Short."
+  },
+  "deskSendStrategyAll": "All",
+  "@deskSendStrategyAll": {
+    "description": "Name of the output-selection strategy that spends every output. Used as a radio title and inside sentences. Short."
+  },
+  "deskSendBalanceAfter": "Balance after",
+  "@deskSendBalanceAfter": {
+    "description": "Summary line on Send: the balance left after this payment."
+  },
+  "deskSendSpendableUntil": "Spendable until change confirms",
+  "@deskSendSpendableUntil": {
+    "description": "Summary line on Send: the amount still spendable while the change confirms."
+  },
+  "deskSendSplitLine": "{outputs, plural, one{Change split into {outputs} output (+{fee} EPIC fee)} other{Change split into {outputs} outputs (+{fee} EPIC fee)}}",
+  "@deskSendSplitLine": {
+    "description": "Summary line on Send when the change comes back as several outputs. {outputs} is the number of change outputs; {fee} the extra network fee, in EPIC.",
+    "placeholders": {
+      "outputs": {
+        "type": "int"
+      },
+      "fee": {
+        "type": "String",
+        "example": "0.012"
+      }
+    }
+  },
+  "deskSendSplitWhy": "{outputs, plural, one{So the next send does not wait for this one to confirm. Change comes back as {outputs} output of about {each} EPIC instead of one.} other{So the next send does not wait for this one to confirm. Change comes back as {outputs} outputs of about {each} EPIC instead of one.}}",
+  "@deskSendSplitWhy": {
+    "description": "Help text behind the info icon of the split-change line. {outputs} is the number of change outputs; {each} the size of each, in EPIC.",
+    "placeholders": {
+      "outputs": {
+        "type": "int"
+      },
+      "each": {
+        "type": "String",
+        "example": "2.4310"
+      }
+    }
+  },
+  "deskSendSplitWhyLabel": "Why the change is split",
+  "@deskSendSplitWhyLabel": {
+    "description": "Screen reader label of the info icon next to the split-change line."
+  },
+  "deskSendLockNoChange": "{count, plural, one{No change: 1 output spent exactly, nothing waits.} other{No change: {count} outputs spent exactly, nothing waits.}}",
+  "@deskSendLockNoChange": {
+    "description": "Caption under \"Spendable until change confirms\" on Send when the payment spends its outputs exactly.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSendLockAll": "{count, plural, one{Everything is locked: 1 output, {amount} EPIC, about 3 blocks.} other{Everything is locked: {count} outputs, {amount} EPIC, about 3 blocks.}}",
+  "@deskSendLockAll": {
+    "description": "Caption under \"Spendable until change confirms\" on Send when every output is locked until the change confirms. {amount} is in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String",
+        "example": "1,284.73215"
+      }
+    }
+  },
+  "deskSendLockSome": "{count, plural, one{1 output locked, {amount} EPIC, about 3 blocks.} other{{count} outputs locked, {amount} EPIC, about 3 blocks.}}",
+  "@deskSendLockSome": {
+    "description": "Caption under \"Spendable until change confirms\" on Send: how much is locked until the change confirms. {amount} is in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String",
+        "example": "34.73215"
+      }
+    }
+  },
+  "deskSendStrategyLine": "{count, plural, one{Strategy for this send: {strategy} · 1 output.} other{Strategy for this send: {strategy} · {count} outputs.}}",
+  "@deskSendStrategyLine": {
+    "description": "Caption on Send when this send uses another output strategy than the default. {strategy} is the strategy's name (Smallest or All).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "strategy": {
+        "type": "String",
+        "example": "Smallest"
+      }
+    }
+  },
+  "deskSendReviewSplit": "{outputs, plural, one{Change split into {outputs} output (+{fee} EPIC).} other{Change split into {outputs} outputs (+{fee} EPIC).}}",
+  "@deskSendReviewSplit": {
+    "description": "Second line of the Network fee in the review dialog when the change is split. {fee} is the extra fee in EPIC.",
+    "placeholders": {
+      "outputs": {
+        "type": "int"
+      },
+      "fee": {
+        "type": "String",
+        "example": "0.012"
+      }
+    }
+  },
+  "deskSendReviewLocksNone": "{count, plural, one{{locked} EPIC in 1 output; no change comes back.} other{{locked} EPIC in {count} outputs; no change comes back.}}",
+  "@deskSendReviewLocksNone": {
+    "description": "Review dialog, fact \"Locks\": the outputs are spent exactly. {locked} is in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "locked": {
+        "type": "String",
+        "example": "25.0080"
+      }
+    }
+  },
+  "deskSendReviewLocksAll": "{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms (3 blocks). Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing stays spendable.}}",
+  "@deskSendReviewLocksAll": {
+    "description": "Review dialog, fact \"Locks\": strategy All locks everything. {locked} is in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "locked": {
+        "type": "String",
+        "example": "1,284.73215"
+      }
+    }
+  },
+  "deskSendReviewLocksEverything": "{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). Nothing else is spendable meanwhile.}}",
+  "@deskSendReviewLocksEverything": {
+    "description": "Review dialog, fact \"Locks\": all outputs are needed. {locked} is in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "locked": {
+        "type": "String",
+        "example": "1,284.73215"
+      }
+    }
+  },
+  "deskSendReviewLocksSome": "{count, plural, one{{locked} EPIC in 1 output until the change confirms (3 blocks). {spendable} EPIC stays spendable.} other{{locked} EPIC in {count} outputs until the change confirms (3 blocks). {spendable} EPIC stays spendable.}}",
+  "@deskSendReviewLocksSome": {
+    "description": "Review dialog, fact \"Locks\": some outputs are locked, the rest stays spendable. Amounts are in EPIC.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "locked": {
+        "type": "String",
+        "example": "34.73215"
+      },
+      "spendable": {
+        "type": "String",
+        "example": "1,250.0000"
+      }
+    }
+  },
+  "deskSendFactLocks": "Locks",
+  "@deskSendFactLocks": {
+    "description": "Label of a fact in the review dialog: the outputs the payment locks until the change confirms. Short."
+  },
+  "deskSendFactStrategy": "Strategy",
+  "@deskSendFactStrategy": {
+    "description": "Label of a fact in the review dialog: the output strategy of this send. Short."
+  },
+  "deskSendFactStrategyValue": "{strategy} outputs, for this send",
+  "@deskSendFactStrategyValue": {
+    "description": "Value of the Strategy fact in the review dialog. {strategy} is the strategy's name (Smallest or All).",
+    "placeholders": {
+      "strategy": {
+        "type": "String",
+        "example": "All"
+      }
+    }
+  },
+  "deskSendAdvSmallest": "· Smallest outputs",
+  "@deskSendAdvSmallest": {
+    "description": "Subtitle of the Advanced disclosure on Send: strategy Smallest, change split. Starts with a middle dot."
+  },
+  "deskSendAdvSmallestNoSplit": "· Smallest outputs, change not split",
+  "@deskSendAdvSmallestNoSplit": {
+    "description": "Subtitle of the Advanced disclosure on Send: strategy Smallest, change not split. Starts with a middle dot."
+  },
+  "deskSendAdvAll": "· All outputs",
+  "@deskSendAdvAll": {
+    "description": "Subtitle of the Advanced disclosure on Send: strategy All, change split. Starts with a middle dot."
+  },
+  "deskSendAdvAllNoSplit": "· All outputs, change not split",
+  "@deskSendAdvAllNoSplit": {
+    "description": "Subtitle of the Advanced disclosure on Send: strategy All, change not split. Starts with a middle dot."
+  },
+  "deskSendAdvanced": "Advanced",
+  "@deskSendAdvanced": {
+    "description": "Title of the collapsed Advanced disclosure on Send."
+  },
+  "deskSendAdvStrategy": "Strategy for this send",
+  "@deskSendAdvStrategy": {
+    "description": "Screen reader label of the group of strategy radio rows on Send."
+  },
+  "deskSendAdvSmallestText": "Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.",
+  "@deskSendAdvSmallestText": {
+    "description": "Description of the Smallest strategy radio row on Send."
+  },
+  "deskSendAdvAllText": "Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.",
+  "@deskSendAdvAllText": {
+    "description": "Description of the All strategy radio row on Send."
+  },
+  "deskSendDefaultTag": "default",
+  "@deskSendDefaultTag": {
+    "description": "Small tag on the radio row of the strategy that is the default. Lowercase, very short."
+  },
+  "deskSendAdvAllNote": "Sending everything spends every output.",
+  "@deskSendAdvAllNote": {
+    "description": "Note under the strategy rows when the whole balance is sent."
+  },
+  "deskSendAdvSplit": "Split change",
+  "@deskSendAdvSplit": {
+    "description": "Title of the switch (and its screen reader label) that splits the change into several outputs, on Send › Advanced."
+  },
+  "deskSendAdvSplitText": "Returns the change as several outputs when few would be left, so the next send does not wait.",
+  "@deskSendAdvSplitText": {
+    "description": "Description of the Split change switch on Send › Advanced."
+  },
+  "deskSendAdvDefaults": "For this send only. Defaults: ",
+  "@deskSendAdvDefaults": {
+    "description": "Caption under Send › Advanced, followed by a link named \"Outputs\". Ends with a space."
+  },
+  "deskSendAdvOutputsLink": "Outputs",
+  "@deskSendAdvOutputsLink": {
+    "description": "Link at the end of the Advanced caption: opens the Outputs page, where the defaults are set."
+  },
+  "deskSendPickNone": "No contacts yet",
+  "@deskSendPickNone": {
+    "description": "Empty state title of the Choose contact dialog on Send."
+  },
+  "deskSendPickNoneText": "Save the people you pay in Contacts, then choose them here.",
+  "@deskSendPickNoneText": {
+    "description": "Empty state text of the Choose contact dialog on Send."
+  },
+  "deskSendPickOpen": "Open contacts",
+  "@deskSendPickOpen": {
+    "description": "Button (empty state and dialog footer) that opens the Contacts page."
+  },
+  "deskSendPickNoMatch": "No contact matches \"{query}\".",
+  "@deskSendPickNoMatch": {
+    "description": "Shown in the Choose contact dialog when the search finds nothing. {query} is what the user typed.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "ann"
+      }
+    }
+  },
+  "deskSendPickTitle": "Choose contact",
+  "@deskSendPickTitle": {
+    "description": "Title of the dialog that picks a contact as the recipient on Send."
+  },
+  "deskSendPickDesc": "The address fills the recipient field.",
+  "@deskSendPickDesc": {
+    "description": "Subtitle of the Choose contact dialog."
+  },
+  "deskSendPickSearch": "Search contacts",
+  "@deskSendPickSearch": {
+    "description": "Placeholder and screen reader label of the search field in the Choose contact dialog."
+  },
+  "deskSendTitle": "Send",
+  "@deskSendTitle": {
+    "description": "Page title of Send."
+  },
+  "deskSendErrNoAddress": "Add an address to send to.",
+  "@deskSendErrNoAddress": {
+    "description": "Error under the To field on Send when it is empty."
+  },
+  "deskSendErrEpicbox": "This is not a valid Epicbox address.",
+  "@deskSendErrEpicbox": {
+    "description": "Error under the To field on Send when the Epicbox method is chosen and the address is not an Epicbox address."
+  },
+  "deskSendErrNotDirect": "This is not a Direct address.",
+  "@deskSendErrNotDirect": {
+    "description": "Error under the To field on Send when the Direct method is chosen and the address is an Epicbox address."
+  },
+  "deskSendErrOnion": "This is not a valid onion address.",
+  "@deskSendErrOnion": {
+    "description": "Error under the To field on Send when the address looks like a Tor address but is not complete or valid."
+  },
+  "deskSendErrOwn": "This is the wallet's own address.",
+  "@deskSendErrOwn": {
+    "description": "Error under the To field on Send when the recipient is this wallet."
+  },
+  "deskSendNoAnswer": "The recipient did not answer. Nothing was sent.",
+  "@deskSendNoAnswer": {
+    "description": "Demo failure text on Send (used by the guided tour)."
+  },
+  "deskSendTorOnFailed": "Tor not turned on",
+  "@deskSendTorOnFailed": {
+    "description": "Toast title on Send when switching Tor on failed; the reason follows as text."
+  },
+  "deskSendTorOffFailed": "Tor not turned off",
+  "@deskSendTorOffFailed": {
+    "description": "Toast title on Send when switching Tor off failed; the reason follows as text."
+  },
+  "deskSendEpicboxOnFailed": "Epicbox not turned on",
+  "@deskSendEpicboxOnFailed": {
+    "description": "Toast title on Send when switching Epicbox receiving on failed; the reason follows as text."
+  },
+  "deskSendNothingSpendable": "Nothing spendable to send.",
+  "@deskSendNothingSpendable": {
+    "description": "Error under the Amount field on Send when the All button finds nothing to send."
+  },
+  "deskSendAllFailed": "Could not work out how much can be sent. Try again in a moment.",
+  "@deskSendAllFailed": {
+    "description": "Error under the Amount field on Send when the All button could not get the maximum."
+  },
+  "deskSendErrAmountEnter": "Enter an amount.",
+  "@deskSendErrAmountEnter": {
+    "description": "Error under the Amount field on Send when it is empty or not a number."
+  },
+  "deskSendErrAmountDecimals": "EPIC has at most 8 decimals.",
+  "@deskSendErrAmountDecimals": {
+    "description": "Error under the Amount field on Send when the amount has more than eight decimals."
+  },
+  "deskSendErrAmountZero": "The amount must be more than 0.",
+  "@deskSendErrAmountZero": {
+    "description": "Error under the Amount field on Send when the amount is zero or negative."
+  },
+  "deskSendErrAmountMore": "More than the available balance.",
+  "@deskSendErrAmountMore": {
+    "description": "Error under the Amount field on Send when the amount plus the fee is more than the spendable balance."
+  },
+  "deskSendSent": "Sent",
+  "@deskSendSent": {
+    "description": "Toast title and notice title after a send went out."
+  },
+  "deskSendFileReadyTitle": "Transaction file ready",
+  "@deskSendFileReadyTitle": {
+    "description": "Result card title on Send after a file send created the transaction file."
+  },
+  "deskSendFileReadyText": "Give this file to the recipient. The wallet is waiting for the response file; finalize it when it comes back.",
+  "@deskSendFileReadyText": {
+    "description": "Result card text on Send after a file send created the transaction file."
+  },
+  "deskSendFinalize": "Finalize",
+  "@deskSendFinalize": {
+    "description": "Button on the file-ready card on Send: opens the Finalize page."
+  },
+  "deskSendNewSend": "New send",
+  "@deskSendNewSend": {
+    "description": "Button on the file-ready card on Send: starts over."
+  },
+  "deskSendNodeNotSynced": "Node not synced",
+  "@deskSendNodeNotSynced": {
+    "description": "Title of the warning notice on Send while the node has not synced."
+  },
+  "deskSendNodeSyncingPct": "Sending is possible once the node has synced. {percent}% done; the form can be filled in meanwhile.",
+  "@deskSendNodeSyncingPct": {
+    "description": "Text of that notice with the sync progress. {percent} is a whole number from 0 to 100.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSendNodeSyncing": "Sending is possible once the node has synced.",
+  "@deskSendNodeSyncing": {
+    "description": "Text of that notice when the progress is unknown."
+  },
+  "deskSendTorBlocked": "Tor is not connected",
+  "@deskSendTorBlocked": {
+    "description": "Title of the notice on Send when Tor failed and a send needs it."
+  },
+  "deskSendTorBlockedText": "Nothing is sent until it is, or until Tor is turned off.",
+  "@deskSendTorBlockedText": {
+    "description": "Text of that notice."
+  },
+  "deskSendTurnTorOff": "Turn Tor off",
+  "@deskSendTurnTorOff": {
+    "description": "Button in the Tor failed notice on Send: switches Tor off."
+  },
+  "deskSendTorStarting": "Tor is starting",
+  "@deskSendTorStarting": {
+    "description": "Title of the notice on Send while Tor connects."
+  },
+  "deskSendTorStartingText": "Sending waits until it is connected. Nothing goes over the clearnet meanwhile.",
+  "@deskSendTorStartingText": {
+    "description": "Text of the notice on Send while Tor connects."
+  },
+  "deskSendEpicboxOff": "Epicbox not connected",
+  "@deskSendEpicboxOff": {
+    "description": "Title of the warning notice on Send when Epicbox receiving is off."
+  },
+  "deskSendEpicboxOffText": "Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.",
+  "@deskSendEpicboxOffText": {
+    "description": "Text of that notice."
+  },
+  "deskSendEpicboxTurnOn": "Turn on Epicbox receiving",
+  "@deskSendEpicboxTurnOn": {
+    "description": "Button in that notice."
+  },
+  "deskSendDoneViaDirect": "Finalized and posted to the network.",
+  "@deskSendDoneViaDirect": {
+    "description": "Text of the Sent notice after a Direct send."
+  },
+  "deskSendDoneViaEpicbox": "Handed to Epicbox. Completes when the recipient answers.",
+  "@deskSendDoneViaEpicbox": {
+    "description": "Text of the Sent notice after an Epicbox send."
+  },
+  "deskSendViewTx": "View transaction",
+  "@deskSendViewTx": {
+    "description": "Button in the Sent notice: opens the payment in Activity."
+  },
+  "deskSendFailedTitle": "Send failed",
+  "@deskSendFailedTitle": {
+    "description": "Title of the error notice on Send after a send failed; the reason is the text."
+  },
+  "deskSendReviewAgain": "Review again",
+  "@deskSendReviewAgain": {
+    "description": "Button in the Send failed notice: opens the review again."
+  },
+  "deskSendMethodDirect": "Direct",
+  "@deskSendMethodDirect": {
+    "description": "Name of the Direct send method (an http(s) or onion address), in the method selector and in tags. Short."
+  },
+  "deskSendMethodFile": "File",
+  "@deskSendMethodFile": {
+    "description": "Name of the File send method (a transaction file), in the method selector. Short."
+  },
+  "deskSendTo": "To",
+  "@deskSendTo": {
+    "description": "Label of the recipient field on Send."
+  },
+  "deskSendToHelp": "Paste an address, or type a contact’s name.",
+  "@deskSendToHelp": {
+    "description": "Help text under the recipient field on Send."
+  },
+  "deskSendToHint": "Address or contact",
+  "@deskSendToHint": {
+    "description": "Placeholder of the recipient field on Send."
+  },
+  "deskSendToSem": "Recipient",
+  "@deskSendToSem": {
+    "description": "Screen reader label of the recipient field on Send."
+  },
+  "deskSendClearTo": "Clear recipient",
+  "@deskSendClearTo": {
+    "description": "Screen reader label of the clear button in the recipient field."
+  },
+  "deskSendContacts": "Contacts",
+  "@deskSendContacts": {
+    "description": "Small button in the recipient field on Send: opens the contact picker."
+  },
+  "deskSendNeedsTor": "Needs Tor",
+  "@deskSendNeedsTor": {
+    "description": "Title of the warning under the recipient field when an onion address is entered and Tor is off."
+  },
+  "deskSendNeedsTorText": "An onion address can only be reached over Tor.",
+  "@deskSendNeedsTorText": {
+    "description": "Text of that warning."
+  },
+  "deskSendNoTorBuild": "Tor is not in this build.",
+  "@deskSendNoTorBuild": {
+    "description": "Text of that warning when this app build has no Tor."
+  },
+  "deskSendTurnOnTor": "Turn on Tor",
+  "@deskSendTurnOnTor": {
+    "description": "Button in that warning: switches Tor on."
+  },
+  "deskSendHttpClearnet": "Direct to http(s) addresses goes over the clearnet, not Tor.",
+  "@deskSendHttpClearnet": {
+    "description": "Note under the recipient field when Tor is on and the address is http(s)."
+  },
+  "deskSendClear": "Clear",
+  "@deskSendClear": {
+    "description": "Button on the card of the contact picked as recipient: clears the recipient."
+  },
+  "deskSendAmount": "Amount",
+  "@deskSendAmount": {
+    "description": "Label of the amount field on Send and of the summary line."
+  },
+  "deskSendAvailableNone": "Available —",
+  "@deskSendAvailableNone": {
+    "description": "Label next to the amount field while the balance is unknown."
+  },
+  "deskSendAvailable": "Available {amount} EPIC",
+  "@deskSendAvailable": {
+    "description": "Link next to the amount field: the spendable balance; clicking it sends everything. {amount} is a number or hidden dots.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,234.5"
+      }
+    }
+  },
+  "deskSendAmountSem": "Amount in EPIC",
+  "@deskSendAmountSem": {
+    "description": "Screen reader label of the amount field."
+  },
+  "deskSendAllButton": "All",
+  "@deskSendAllButton": {
+    "description": "Small button in the amount field: send the whole spendable balance. Very short."
+  },
+  "deskSendConfirmingHidden": "Part of the balance is still confirming and cannot be sent yet.",
+  "@deskSendConfirmingHidden": {
+    "description": "Note under the amount field when amounts are hidden and some balance is still confirming."
+  },
+  "deskSendConfirming": "{amount} EPIC is still confirming and cannot be sent yet.",
+  "@deskSendConfirming": {
+    "description": "Note under the amount field when some balance is still confirming. {amount} is in EPIC.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
+  "deskSendMessage": "Message",
+  "@deskSendMessage": {
+    "description": "Label and screen reader label of the message field on Send."
+  },
+  "deskSendMessageHelp": "The recipient sees this message.",
+  "@deskSendMessageHelp": {
+    "description": "Help text under the message field."
+  },
+  "deskSendPrivacyOn": "Privacy · Dandelion++ on",
+  "@deskSendPrivacyOn": {
+    "description": "Title of the collapsed privacy disclosure on Send when Dandelion++ is on. Dandelion++ is a protocol name."
+  },
+  "deskSendPrivacyOff": "Privacy · Dandelion++ off",
+  "@deskSendPrivacyOff": {
+    "description": "Title of the collapsed privacy disclosure on Send when Dandelion++ is off."
+  },
+  "deskSendDandelionText": "Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.",
+  "@deskSendDandelionText": {
+    "description": "Description of the Dandelion++ switch on Send."
+  },
+  "deskSendHintSent": "Sent. Enter a new amount and recipient to send again.",
+  "@deskSendHintSent": {
+    "description": "Line under the Review send button after a send went out."
+  },
+  "deskSendHintNode": "Waiting for the node to sync.",
+  "@deskSendHintNode": {
+    "description": "Line under the Review send button while the node syncs."
+  },
+  "deskSendHintEpicbox": "Waiting for Epicbox to connect.",
+  "@deskSendHintEpicbox": {
+    "description": "Line under the Review send button while Epicbox connects."
+  },
+  "deskSendHintTorWait": "Waiting for Tor to connect.",
+  "@deskSendHintTorWait": {
+    "description": "Line under the Review send button while Tor connects."
+  },
+  "deskSendHintTorBlocked": "Retry Tor, or turn it off.",
+  "@deskSendHintTorBlocked": {
+    "description": "Line under the Review send button when Tor failed."
+  },
+  "deskSendHintNeedsTor": "Turn on Tor to send to an onion address.",
+  "@deskSendHintNeedsTor": {
+    "description": "Line under the Review send button when an onion address needs Tor."
+  },
+  "deskSendHintFix": "Fix the fields marked in red.",
+  "@deskSendHintFix": {
+    "description": "Line under the Review send button when the form has errors."
+  },
+  "deskSendHintChecking": "Checking the fee for this amount.",
+  "@deskSendHintChecking": {
+    "description": "Line under the Review send button while the fee is estimated."
+  },
+  "deskSendHintDefault": "Nothing is sent until confirmed.",
+  "@deskSendHintDefault": {
+    "description": "Line under the Review send button when the form is ready."
+  },
+  "deskSendReviewWaitTor": "Waiting for Tor",
+  "@deskSendReviewWaitTor": {
+    "description": "Label of the disabled primary button on Send while Tor connects."
+  },
+  "deskSendReviewTorOff": "Tor not connected",
+  "@deskSendReviewTorOff": {
+    "description": "Label of the disabled primary button on Send when Tor failed."
+  },
+  "deskSendReview": "Review send",
+  "@deskSendReview": {
+    "description": "Label of the primary button on Send: opens the review dialog."
+  },
+  "deskSendSummary": "Summary",
+  "@deskSendSummary": {
+    "description": "Title of the summary panel on Send."
+  },
+  "deskSendNetworkFee": "Network fee",
+  "@deskSendNetworkFee": {
+    "description": "Label of the fee line in the Send summary and in the review dialog."
+  },
+  "deskSendTotal": "Total",
+  "@deskSendTotal": {
+    "description": "Label of the total line in the Send summary and in the review dialog."
+  },
+  "deskSendUpdating": "Balance updating while the wallet scans.",
+  "@deskSendUpdating": {
+    "description": "Caption in the Send summary while the wallet rechecks the balance."
+  },
+  "deskSendEpicboxLine1": "The recipient can be offline.",
+  "@deskSendEpicboxLine1": {
+    "description": "Bold first line under the method selector on Send for the Epicbox method."
+  },
+  "deskSendEpicboxLine2": "The Epicbox server holds the payment until they open their wallet.",
+  "@deskSendEpicboxLine2": {
+    "description": "Second line under the method selector for the Epicbox method."
+  },
+  "deskSendDirectLine1": "Straight to their wallet.",
+  "@deskSendDirectLine1": {
+    "description": "Bold first line under the method selector for the Direct method."
+  },
+  "deskSendDirectLine2": "An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.",
+  "@deskSendDirectLine2": {
+    "description": "Second line under the method selector for the Direct method."
+  },
+  "deskSendFileLine1": "No connection needed.",
+  "@deskSendFileLine1": {
+    "description": "Bold first line under the method selector for the File method."
+  },
+  "deskSendFileLine2": "Hand the file over, get their response file back, then finalize it here.",
+  "@deskSendFileLine2": {
+    "description": "Second line under the method selector for the File method."
+  },
+  "deskSendTagDirect": "Direct",
+  "@deskSendTagDirect": {
+    "description": "Small tag next to the To label after the method switched to Direct by itself. Short."
+  },
+  "deskSendTagFile": "File",
+  "@deskSendTagFile": {
+    "description": "Small tag next to the To label after the method switched to File. Short."
+  },
+  "deskSendTagEpicbox": "Via Epicbox",
+  "@deskSendTagEpicbox": {
+    "description": "Small tag next to the To label after the method switched to Epicbox. Short."
+  },
+  "deskSendSwitchedDirect": "Direct address. Method set to Direct.",
+  "@deskSendSwitchedDirect": {
+    "description": "Screen reader announcement when the method switched to Direct by itself."
+  },
+  "deskSendSwitchedFile": "File address. Method set to File.",
+  "@deskSendSwitchedFile": {
+    "description": "Screen reader announcement when the method switched to File."
+  },
+  "deskSendSwitchedEpicbox": "Epicbox address. Method set to Epicbox.",
+  "@deskSendSwitchedEpicbox": {
+    "description": "Screen reader announcement when the method switched to Epicbox by itself."
+  },
+  "deskSendMatching": "Matching contacts",
+  "@deskSendMatching": {
+    "description": "Screen reader label of the list of contacts that match the recipient text."
+  },
+  "deskSendMatchCount": "{count, plural, one{1 contact matches} other{{count} contacts match}}",
+  "@deskSendMatchCount": {
+    "description": "Caption under the list of contacts that match the recipient text.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSendWrongPassword": "Wrong password.",
+  "@deskSendWrongPassword": {
+    "description": "Error under the password field in the review dialog."
+  },
+  "deskSendNotConfirmed": "Not confirmed. Check Activity before sending again.",
+  "@deskSendNotConfirmed": {
+    "description": "Failure text when a send ended with an unknown error; the payment may exist."
+  },
+  "deskSendViaEpicbox": "Epicbox (the recipient can be offline)",
+  "@deskSendViaEpicbox": {
+    "description": "Value of the Via fact in the review dialog for an Epicbox send."
+  },
+  "deskSendViaDirect": "Direct (their wallet must be open)",
+  "@deskSendViaDirect": {
+    "description": "Value of the Via fact in the review dialog for a Direct send over http(s)."
+  },
+  "deskSendViaTor": "Direct, over Tor (their wallet must be open)",
+  "@deskSendViaTor": {
+    "description": "Value of the Via fact in the review dialog for a Direct send to an onion address."
+  },
+  "deskSendViaFile": "Transaction file",
+  "@deskSendViaFile": {
+    "description": "Value of the Via fact in the review dialog for a file send."
+  },
+  "deskSendUsesAll": "{count, plural, one{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}",
+  "@deskSendUsesAll": {
+    "description": "Second line of the Network fee in the review dialog when strategy All spends every output and one change output comes back.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSendReviewTitle": "Check and send",
+  "@deskSendReviewTitle": {
+    "description": "Title of the review dialog."
+  },
+  "deskSendReviewDesc": "A send cannot be undone once it is posted.",
+  "@deskSendReviewDesc": {
+    "description": "Subtitle of the review dialog."
+  },
+  "deskSendFactTo": "To",
+  "@deskSendFactTo": {
+    "description": "Label of the recipient fact in the review dialog."
+  },
+  "deskSendCheckChars": "Check the highlighted characters against what the recipient gave.",
+  "@deskSendCheckChars": {
+    "description": "Caption under the recipient address in the review dialog."
+  },
+  "deskSendFactVia": "Via",
+  "@deskSendFactVia": {
+    "description": "Label of the fact that says how the payment goes (Epicbox, Direct, file) in the review dialog."
+  },
+  "deskSendFactPrivacy": "Privacy",
+  "@deskSendFactPrivacy": {
+    "description": "Label of the privacy fact in the review dialog."
+  },
+  "deskSendDandelionOn": "Dandelion++ on",
+  "@deskSendDandelionOn": {
+    "description": "Value of the Privacy fact in the review dialog."
+  },
+  "deskSendDandelionOff": "Dandelion++ off",
+  "@deskSendDandelionOff": {
+    "description": "Value of the Privacy fact in the review dialog."
+  },
+  "deskSendFactMessage": "Message",
+  "@deskSendFactMessage": {
+    "description": "Label of the message fact in the review dialog."
+  },
+  "deskSendPassword": "Password",
+  "@deskSendPassword": {
+    "description": "Label of the password field in the review dialog."
+  },
+  "deskSendPasswordHelp": "Every send asks the wallet’s password.",
+  "@deskSendPasswordHelp": {
+    "description": "Help text under the password field in the review dialog."
+  },
+  "deskSendBusyFile": "Creating the file.",
+  "@deskSendBusyFile": {
+    "description": "Status in the review dialog while a file send creates the transaction file."
+  },
+  "deskSendBusyTor": "Reaching their wallet over Tor… This can take a while. Keep the app open.",
+  "@deskSendBusyTor": {
+    "description": "Status in the review dialog while a send to an onion address runs."
+  },
+  "deskSendBusy": "Sending. This can take a few seconds; keep this window open.",
+  "@deskSendBusy": {
+    "description": "Status in the review dialog while a send runs."
+  },
+  "deskSendBack": "Back",
+  "@deskSendBack": {
+    "description": "Button in the review dialog: close it and edit the form."
+  },
+  "deskSendSending": "Sending",
+  "@deskSendSending": {
+    "description": "Label of the primary button in the review dialog while the send runs."
+  },
+  "deskSendConfirm": "Send {amount} EPIC",
+  "@deskSendConfirm": {
+    "description": "Label of the primary button in the review dialog. {amount} is the amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "deskSendPlainTitle": "Not encrypted. Send anyway?",
+  "@deskSendPlainTitle": {
+    "description": "Title of the dialog shown before a send to a plain http address."
+  },
+  "deskSendPlainDesc": "Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.",
+  "@deskSendPlainDesc": {
+    "description": "Text of that dialog."
+  },
+  "deskSendPlainConfirm": "Send anyway",
+  "@deskSendPlainConfirm": {
+    "description": "Button in that dialog: send over plain http."
+  }
+}

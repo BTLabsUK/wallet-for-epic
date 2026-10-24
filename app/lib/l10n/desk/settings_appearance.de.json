@@ -1,0 +1,12 @@
+{
+  "deskSetAppearTheme": "Design",
+  "deskSetAppearThemeHint": "System folgt der Einstellung des Computers.",
+  "deskSetAppearSystem": "System",
+  "deskSetAppearDark": "Dunkel",
+  "deskSetAppearLight": "Hell",
+  "deskSetAppearScale": "Skalierung",
+  "deskSetAppearScaleHint": "Text und Bedienelemente größer oder kleiner. Gilt sofort.",
+  "deskSetAppearLanguage": "Sprache",
+  "deskSetAppearLanguageHint": "Gilt sofort.",
+  "deskSetAppearHideHint": "Zeigt Punkte statt Guthaben und Beträgen."
+}

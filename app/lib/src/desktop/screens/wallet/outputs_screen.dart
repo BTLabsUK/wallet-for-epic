@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../desk_l10n.dart';
+import '../../../l10n.dart' show localInt;
 import '../../widgets/kit.dart';
 import 'activity_screen.dart' show ListPager;
 import 'outputs_dialogs.dart';
+import 'tx_display.dart' show shortDayMonth;
 
 /// The list's filter on the Outputs page.
 enum OutputsFilter { all, spendable, confirming, locked }
@@ -31,9 +34,7 @@ const int _pageSize = 20;
 /// "08c7a1…b2d4a6": both ends of a commitment, the whole on hover and when copied.
 String shortCommitment(String s) => s.length <= 13 ? s : '${s.substring(0, 6)}…${s.substring(s.length - 6)}';
 
-String _group(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
-
-String _outputs(int n) => n == 1 ? '1 output' : '$n outputs';
+String _group(AppLocalizations l, int n) => localInt(l, n);
 
 /// How many outputs of each part of the balance: spendable; confirming and awaiting
 /// finalization; immature and mining; locked.
@@ -94,7 +95,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     try {
       await ref.read(deskProvider.notifier).syncNow();
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Not updated', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, context.l10n.deskOutNotUpdated, text: deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
       if (mounted) {
         ref.invalidate(deskOutputsProvider);
@@ -148,6 +149,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final s = ref.watch(deskProvider);
     final hidden = s.settings.hideAmounts;
     final AsyncValue<List<Output>> value = _args.error
@@ -168,18 +170,18 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     }
 
     return EPage(
-      title: 'Outputs',
+      title: l.deskOutTitle,
       width: EPageWidth.full,
       actions: [
         EIconButton(
           icon: hidden ? EIcons.eyeOff : EIcons.eye,
-          label: hidden ? 'Show amounts' : 'Hide amounts',
+          label: hidden ? l.deskOutShowAmounts : l.deskOutHideAmounts,
           selected: hidden,
           onPressed: () => ref.read(deskProvider.notifier).saveSettings(s.settings.copyWith(hideAmounts: !hidden)),
         ),
         _refreshing
             ? SizedBox.square(dimension: Ctl.sm, child: const Center(child: ESpinner()))
-            : EIconButton(icon: EIcons.refresh, label: 'Refresh', onPressed: _refresh),
+            : EIconButton(icon: EIcons.refresh, label: l.deskOutRefresh, onPressed: _refresh),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -189,14 +191,14 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
             if (balance.locked > 0) ...[
               SizedBox(height: Sp.x2),
               Text(
-                'Locked outputs are being spent by a transaction in progress. Their change shows as awaiting finalization and is not in Total until the send is finalized, so Total counts the coins once.',
+                l.deskOutLockedNote,
                 style: context.ts.caption,
               ),
             ],
             SizedBox(height: Sp.x4),
           ],
           Text(
-            'Outputs are the pieces the balance is made of. A send spends whole outputs, pays the recipient and returns the rest as a new output; the spent ones are locked until the send confirms.',
+            l.deskOutIntro,
             style: context.ts.bodyDim,
           ),
           SizedBox(height: Sp.x4),
@@ -211,45 +213,46 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   }
 
   Widget _cards(Balance? b, ({int spendable, int confirming, int immature, int locked}) counts, {required bool loaded}) {
+    final l = context.l10n;
     final locked = (b?.locked ?? 0) > 0 || counts.locked > 0;
-    final wait = 'Wait until the send confirms (about 3 blocks).';
+    final wait = l.deskOutCardWait;
     final splitOn = loaded && !locked && counts.spendable >= 1 && _split != null;
     final splitNote = !loaded
         ? ''
         : locked
         ? wait
         : counts.spendable == 0
-        ? 'Nothing to split yet.'
+        ? l.deskOutSplitNothing
         : _split == null
-        ? 'Spends ${_outputs(counts.spendable)}.'
-        : 'Spends ${_outputs(counts.spendable)}. Fee from ${formatEpic(_split!.fee, minDecimals: 3)} EPIC.';
+        ? l.deskOutSplitSpends(counts.spendable)
+        : l.deskOutSplitSpendsFee(counts.spendable, formatEpicL(l, _split!.fee, minDecimals: 3));
     final consOn = loaded && !locked && counts.spendable >= 2;
     final consNote = !loaded
         ? ''
         : locked
         ? wait
         : counts.spendable == 0
-        ? 'Nothing to consolidate yet.'
+        ? l.deskOutConsNothing
         : counts.spendable == 1
-        ? 'Nothing to consolidate: one spendable output.'
+        ? l.deskOutConsOne
         : _consolidate == null
-        ? '${counts.spendable} outputs into 1.'
-        : '${counts.spendable} outputs into 1. Fee ${formatEpic(_consolidate!.fee, minDecimals: 3)} EPIC.';
+        ? l.deskOutConsInto(counts.spendable)
+        : l.deskOutConsIntoFee(counts.spendable, formatEpicL(l, _consolidate!.fee, minDecimals: 3));
     final split = _ActionCard(
       icon: EIcons.split,
-      title: 'Split',
-      text: 'Makes more outputs from the spendable balance, so several sends can follow each other without waiting.',
+      title: l.deskOutSplitCardTitle,
+      text: l.deskOutSplitCardText,
       note: splitNote,
-      button: 'Split…',
+      button: l.deskOutSplitCardButton,
       enabled: splitOn,
       onPressed: () => _open(() => showSplitDialog(context)),
     );
     final consolidate = _ActionCard(
       icon: EIcons.merge,
-      title: 'Consolidate',
-      text: 'Merges every spendable output into one. Smaller fees on the next send; everything is locked until it confirms.',
+      title: l.deskOutConsCardTitle,
+      text: l.deskOutConsCardText,
       note: consNote,
-      button: 'Consolidate…',
+      button: l.deskOutConsCardButton,
       enabled: consOn,
       onPressed: () => _open(() => showConsolidateDialog(context, spendableCount: counts.spendable)),
     );
@@ -271,6 +274,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
 
   List<Widget> _list(AsyncValue<List<Output>> value, ({int spendable, int confirming, int immature, int locked}) counts) {
     final c = context.dc;
+    final l = context.l10n;
     final all = value.value;
     if (all == null) {
       if (value.hasError) {
@@ -278,22 +282,22 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
           _panel(
             EEmpty(
               icon: EIcons.coins,
-              title: 'Outputs not loaded',
-              text: 'Refresh to try again.',
-              actions: [EButton.ghost(label: 'Refresh', onPressed: _refresh)],
+              title: l.deskOutNotLoadedTitle,
+              text: l.deskOutNotLoadedText,
+              actions: [EButton.ghost(label: l.deskOutRefresh, onPressed: _refresh)],
             ),
           ),
         ];
       }
-      return [_waiting('Loading wallet data')];
+      return [_waiting(l.deskOutLoading)];
     }
     if (all.isEmpty) {
       return [
         _panel(
-          const EEmpty(
+          EEmpty(
             icon: EIcons.coins,
-            title: 'No outputs yet',
-            text: 'The first payment received makes one. Split and Consolidate need something to work with.',
+            title: l.deskOutNoneTitle,
+            text: l.deskOutNoneText,
           ),
         ),
       ];
@@ -315,10 +319,10 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       children: [
         ESegmented<OutputsFilter>(
           segments: [
-            ESegment(OutputsFilter.all, 'All', count: all.where((o) => _showSpent || o.word != OutputWord.spent).length),
-            ESegment(OutputsFilter.spendable, 'Spendable', count: counts.spendable),
-            ESegment(OutputsFilter.confirming, 'Confirming', count: all.where((o) => o.word == OutputWord.confirming || o.word == OutputWord.finalizing).length),
-            ESegment(OutputsFilter.locked, 'Locked', count: counts.locked),
+            ESegment(OutputsFilter.all, l.deskOutFilterAll, count: all.where((o) => _showSpent || o.word != OutputWord.spent).length),
+            ESegment(OutputsFilter.spendable, l.deskOutFilterSpendable, count: counts.spendable),
+            ESegment(OutputsFilter.confirming, l.deskOutFilterConfirming, count: all.where((o) => o.word == OutputWord.confirming || o.word == OutputWord.finalizing).length),
+            ESegment(OutputsFilter.locked, l.deskOutFilterLocked, count: counts.locked),
           ],
           value: _filter,
           onChanged: (v) => setState(() {
@@ -330,16 +334,16 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
           width: 240.u,
           child: EInput(
             controller: _query,
-            hint: 'Commitment',
+            hint: l.deskOutSearchHint,
             leading: EIcons.search,
-            semanticLabel: 'Search outputs',
+            semanticLabel: l.deskOutSearchLabel,
             onChanged: (_) => setState(() => _page = 0),
-            trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
+            trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: l.deskOutClearSearch, size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
           ),
         ),
         ECheckbox(
           value: _showSpent,
-          label: 'Show spent',
+          label: l.deskOutShowSpent,
           onChanged: (v) => setState(() {
             _showSpent = v;
             _page = 0;
@@ -354,11 +358,11 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
         _panel(
           EEmpty(
             icon: EIcons.search,
-            title: 'No outputs match',
-            text: 'Try another commitment, or clear the filter.',
+            title: l.deskOutNoMatchTitle,
+            text: l.deskOutNoMatchText,
             actions: [
               EButton.ghost(
-                label: 'Clear filter',
+                label: l.deskOutClearFilter,
                 onPressed: () => setState(() {
                   _query.clear();
                   _filter = OutputsFilter.all;
@@ -370,7 +374,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       else
         _panel(
           Semantics(
-            label: 'Outputs',
+            label: l.deskOutTitle,
             container: true,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -433,6 +437,7 @@ class _Tiles extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     Widget tile(String label, Widget? mark, int nano, int? n, {bool total = false}) => Semantics(
       container: true,
       child: Column(
@@ -450,7 +455,7 @@ class _Tiles extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               EMoney(nano, size: Fs.lg, unit: total, weight: total ? FontWeight.w600 : null, color: nano == 0 ? c.faint : c.text),
-              if (n != null) ...[SizedBox(width: Sp.x2), Text(_outputs(n), style: ts.caption)],
+              if (n != null) ...[SizedBox(width: Sp.x2), Text(l.deskOutCount(n), style: ts.caption)],
             ],
           ),
         ],
@@ -464,11 +469,11 @@ class _Tiles extends StatelessWidget {
         spacing: 40.u,
         runSpacing: 24.u,
         children: [
-          tile('Spendable', Icon(EIcons.okCircle, size: icon, color: c.ok), b.spendable, n?.spendable),
-          tile('Confirming', ERing(confirmations: 1, size: icon), b.awaitingConfirmation, n?.confirming),
-          if (b.immature > 0) tile('Immature', Icon(EIcons.sand, size: icon, color: c.warn), b.immature, n?.immature),
-          tile('Locked in sends', Icon(EIcons.lock, size: icon, color: c.dim), b.locked, n?.locked),
-          tile('Total', null, b.total, null, total: true),
+          tile(l.deskOutTileSpendable, Icon(EIcons.okCircle, size: icon, color: c.ok), b.spendable, n?.spendable),
+          tile(l.deskOutTileConfirming, ERing(confirmations: 1, size: icon), b.awaitingConfirmation, n?.confirming),
+          if (b.immature > 0) tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.warn), b.immature, n?.immature),
+          tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b.locked, n?.locked),
+          tile(l.deskOutTileTotal, null, b.total, null, total: true),
         ],
       ),
     );
@@ -529,48 +534,47 @@ class _ActionCard extends StatelessWidget {
   }
 }
 
-const String _strategyHelp = 'Smallest spends the fewest small outputs and leaves the rest spendable. All spends everything and returns one output.';
-
 /// The defaults Send uses: strategy and Split change (D-5), saved per wallet at once.
 class _DefaultsBox extends ConsumerWidget {
   const _DefaultsBox();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     final prefs = ref.watch(deskOutputPrefsProvider).value ?? const OutputPrefs();
     final save = ref.read(deskOutputPrefsProvider.notifier).save;
     return EPanel(
-      title: 'Defaults for sends',
+      title: l.deskOutDefaultsTitle,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ESetRow(
-            title: 'Strategy for sends',
-            text: 'Which outputs a send spends. Send can change it for one send under Advanced.',
+            title: l.deskOutStrategyTitle,
+            text: l.deskOutStrategyText,
             control: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ESegmented<SelectionStrategy>(
-                  segments: const [ESegment(SelectionStrategy.smallest, 'Smallest'), ESegment(SelectionStrategy.all, 'All')],
+                  segments: [ESegment(SelectionStrategy.smallest, l.deskOutStrategySmallest), ESegment(SelectionStrategy.all, l.deskOutStrategyAll)],
                   value: prefs.strategy,
                   onChanged: (v) => save(OutputPrefs(strategy: v, smartOutputs: prefs.smartOutputs)),
                 ),
                 SizedBox(width: Sp.x1),
                 EIconButton(
                   icon: EIcons.help,
-                  label: _strategyHelp,
+                  label: l.deskOutStrategyHelp,
                   tabStop: false,
-                  onPressed: () => showEToast(context, 'Smallest or All', text: _strategyHelp, tone: ETone.neutral),
+                  onPressed: () => showEToast(context, l.deskOutStrategyHelpTitle, text: l.deskOutStrategyHelp, tone: ETone.neutral),
                 ),
               ],
             ),
           ),
           ESetRow(
-            title: 'Split change',
-            text: 'When a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC, the change comes back as up to 4 outputs of at least 0.5 EPIC each. Costs 0.004 EPIC per extra output.',
+            title: l.deskOutSplitChangeTitle,
+            text: l.deskOutSplitChangeText,
             control: ESwitch(
               value: prefs.smartOutputs,
-              semanticLabel: 'Split change',
+              semanticLabel: l.deskOutSplitChangeTitle,
               onChanged: (v) => save(OutputPrefs(strategy: prefs.strategy, smartOutputs: v)),
             ),
           ),
@@ -590,6 +594,7 @@ class _OutputHead extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final style = context.ts.caption.copyWith(fontWeight: FontWeight.w600);
+    final l = context.l10n;
     return LayoutBuilder(
       builder: (context, box) {
         final wide = box.maxWidth >= _wide.u;
@@ -604,12 +609,12 @@ class _OutputHead extends StatelessWidget {
           decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
           child: Row(
             children: [
-              col(150.u, 'Value', right: true),
+              col(150.u, l.deskOutColValue, right: true),
               SizedBox(width: Sp.x5),
-              col(200.u, 'Status'),
-              if (wide) ...[col(104.u, 'Confirmations', right: true), SizedBox(width: Sp.x5), col(88.u, 'Height')],
-              col(140.u, 'Transaction'),
-              Expanded(child: Text('Commitment', style: style)),
+              col(200.u, l.deskOutColStatus),
+              if (wide) ...[col(104.u, l.deskOutColConfirmations, right: true), SizedBox(width: Sp.x5), col(88.u, l.deskOutColHeight)],
+              col(140.u, l.deskOutColTransaction),
+              Expanded(child: Text(l.deskOutColCommitment, style: style)),
             ],
           ),
         );
@@ -626,33 +631,33 @@ class _OutputRow extends StatelessWidget {
   final Tx? tx;
   final VoidCallback? onTx;
 
-  (String, String?, Color) _status(DeskColors c) {
+  (String, String?, Color) _status(AppLocalizations l, DeskColors c) {
     final o = output;
     return switch (o.word) {
-      OutputWord.spendable => ('Spendable', null, c.ok),
-      OutputWord.confirming => ('Confirming', '${_group(o.confirmations)} ${o.confirmations == 1 ? 'confirmation' : 'confirmations'}', c.warn),
-      OutputWord.finalizing => ('Awaiting finalization', 'waiting for the sender', c.dim),
-      OutputWord.unpaidInvoice => ('Unpaid invoice', 'not in the balance', c.dim),
-      OutputWord.immature => ('Immature', o.lockHeight != null && o.lockHeight! > tip ? '${_group(o.lockHeight! - tip)} blocks to go' : null, c.warn),
-      OutputWord.mining => ('Mining', null, c.warn),
-      OutputWord.locked => ('Locked', o.txId == null ? null : 'by send #${o.txId}', c.dim),
-      OutputWord.spent => ('Spent', null, c.faint),
+      OutputWord.spendable => (l.deskOutStatusSpendable, null, c.ok),
+      OutputWord.confirming => (l.deskOutStatusConfirming, l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)), c.warn),
+      OutputWord.finalizing => (l.deskOutStatusAwaiting, l.deskOutNoteWaitingSender, c.dim),
+      OutputWord.unpaidInvoice => (l.deskOutStatusUnpaid, l.deskOutNoteNotInBalance, c.dim),
+      OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, _group(l, o.lockHeight! - tip)) : null, c.warn),
+      OutputWord.mining => (l.deskOutStatusMining, null, c.warn),
+      OutputWord.locked => (l.deskOutStatusLocked, o.txId == null ? null : l.deskOutNoteBySend(o.txId!), c.dim),
+      OutputWord.spent => (l.deskOutStatusSpent, null, c.faint),
     };
   }
 
-  String _txText(Tx t) {
-    final d = t.created;
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return '${t.incoming ? 'Received' : 'Sent'} ${d.day} ${months[d.month - 1]}';
+  String _txText(AppLocalizations l, Tx t) {
+    final date = shortDayMonth(l, t.created);
+    return t.incoming ? l.deskOutTxReceived(date) : l.deskOutTxSent(date);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final o = output;
     final spent = o.word == OutputWord.spent;
-    final (word, note, color) = _status(c);
+    final (word, note, color) = _status(l, c);
     final mark = switch (o.word) {
       OutputWord.spendable => Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok),
       OutputWord.confirming => ERing(confirmations: o.confirmations, needed: o.confirmationsNeeded, size: 18.u),
@@ -684,7 +689,7 @@ class _OutputRow extends StatelessWidget {
     final commitment = Row(
       children: [
         Flexible(child: EShortAddress(o.commitment, style: ts.mono(size: Fs.xs, color: spent ? c.faint : c.dim))),
-        ECopyButton(text: o.commitment, label: 'Copy commitment ${shortCommitment(o.commitment)}'),
+        ECopyButton(text: o.commitment, label: l.deskOutCopyCommitment(shortCommitment(o.commitment))),
       ],
     );
     final value = Align(
@@ -694,8 +699,8 @@ class _OutputRow extends StatelessWidget {
     final t = tx;
     final txCell = t == null
         ? Text(o.txId == null ? '–' : '#${o.txId}', style: ts.small.copyWith(color: c.faint))
-        : Align(alignment: Alignment.centerLeft, child: ELink(label: _txText(t), onPressed: onTx));
-    final conf = o.word == OutputWord.spendable ? '${_group(o.confirmations)} confirmations' : null;
+        : Align(alignment: Alignment.centerLeft, child: ELink(label: _txText(l, t), onPressed: onTx));
+    final conf = o.word == OutputWord.spendable ? l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)) : null;
     return Opacity(
       opacity: spent ? 0.6 : 1,
       child: ConstrainedBox(
@@ -714,12 +719,12 @@ class _OutputRow extends StatelessWidget {
                     if (wide) ...[
                       SizedBox(
                         width: 104.u,
-                        child: Text(_group(o.confirmations), textAlign: TextAlign.right, style: ts.mono(size: Fs.xs, color: c.dim)),
+                        child: Text(_group(l, o.confirmations), textAlign: TextAlign.right, style: ts.mono(size: Fs.xs, color: c.dim)),
                       ),
                       SizedBox(width: Sp.x5),
                       SizedBox(
                         width: 88.u,
-                        child: Text((o.height ?? 0) == 0 ? '–' : _group(o.height!), style: ts.mono(size: Fs.xs, color: c.faint)),
+                        child: Text((o.height ?? 0) == 0 ? '–' : _group(l, o.height!), style: ts.mono(size: Fs.xs, color: c.faint)),
                       ),
                     ],
                     SizedBox(width: 140.u, child: txCell),

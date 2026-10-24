@@ -1,0 +1,162 @@
+{
+  "deskActNotUpdated": "Not updated",
+  "@deskActNotUpdated": {
+    "description": "Title of the toast on Activity when the refresh could not ask the node; the reason follows as its text."
+  },
+  "deskActSearchHint": "Address or slate id",
+  "@deskActSearchHint": {
+    "description": "Placeholder of the search field on Activity. Narrow field."
+  },
+  "deskActSearchHintEmpty": "Nothing to search yet",
+  "@deskActSearchHintEmpty": {
+    "description": "Placeholder of the search field on Activity when there are no transactions yet. Narrow field."
+  },
+  "deskActSearchLabel": "Search transactions",
+  "@deskActSearchLabel": {
+    "description": "Screen reader label of the search field on Activity."
+  },
+  "deskActClearSearch": "Clear search",
+  "@deskActClearSearch": {
+    "description": "Tooltip of the button that empties the search field; also the button of the 'no match' state."
+  },
+  "deskActShowAmounts": "Show amounts",
+  "@deskActShowAmounts": {
+    "description": "Tooltip of the icon button on Activity that shows the hidden amounts."
+  },
+  "deskActHideAmounts": "Hide amounts",
+  "@deskActHideAmounts": {
+    "description": "Tooltip of the icon button on Activity that hides amounts."
+  },
+  "deskActRefresh": "Refresh",
+  "@deskActRefresh": {
+    "description": "Tooltip of the icon button on Activity that asks the node for new transactions."
+  },
+  "deskActTitle": "Activity",
+  "@deskActTitle": {
+    "description": "Title of the Activity page: the list of all transactions."
+  },
+  "deskActDetailReceived": "Received transaction",
+  "@deskActDetailReceived": {
+    "description": "Title of the transaction detail for an incoming payment, in the pane beside the list or on its own page."
+  },
+  "deskActDetailSent": "Sent transaction",
+  "@deskActDetailSent": {
+    "description": "Title of the transaction detail for an outgoing payment, in the pane beside the list or on its own page."
+  },
+  "deskActLoading": "Loading transactions",
+  "@deskActLoading": {
+    "description": "Line with a spinner on Activity while the transactions are being read."
+  },
+  "deskActWaitingNode": "Waiting for the node to be synced.",
+  "@deskActWaitingNode": {
+    "description": "Line with a spinner on Activity while the node has not finished syncing, so there is no list yet."
+  },
+  "deskActFilterAll": "All",
+  "@deskActFilterAll": {
+    "description": "Filter tab on Activity: every transaction. Narrow tab; a count follows it."
+  },
+  "deskActFilterReceived": "Received",
+  "@deskActFilterReceived": {
+    "description": "Filter tab on Activity: incoming payments. Narrow tab; a count follows it."
+  },
+  "deskActFilterSent": "Sent",
+  "@deskActFilterSent": {
+    "description": "Filter tab on Activity: outgoing payments. Narrow tab; a count follows it."
+  },
+  "deskActNoMatchTitle": "No transactions match",
+  "@deskActNoMatchTitle": {
+    "description": "Title of the empty state on Activity when the search and filter show nothing."
+  },
+  "deskActNoMatchText": "Try another address or slate id, or clear the filter.",
+  "@deskActNoMatchText": {
+    "description": "Text of the empty state on Activity when the search and filter show nothing."
+  },
+  "deskActPageOf": "Page {page} of {pages}",
+  "@deskActPageOf": {
+    "description": "Pager caption under the Activity list: the current page of all pages.",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "2"
+      },
+      "pages": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "deskActPrevPage": "Previous page",
+  "@deskActPrevPage": {
+    "description": "Tooltip of the pager's previous button."
+  },
+  "deskActNextPage": "Next page",
+  "@deskActNextPage": {
+    "description": "Tooltip of the pager's next button."
+  },
+  "deskActPages": "Pages",
+  "@deskActPages": {
+    "description": "Screen reader label of the pager group."
+  },
+  "deskActColFromTo": "From / to",
+  "@deskActColFromTo": {
+    "description": "Column header of the Activity table: who the other side is. Narrow header."
+  },
+  "deskActColStatus": "Status",
+  "@deskActColStatus": {
+    "description": "Column header of the Activity table. Narrow header."
+  },
+  "deskActColTime": "Time",
+  "@deskActColTime": {
+    "description": "Column header of the Activity table: the clock time. Narrow header, right aligned."
+  },
+  "deskActColAmount": "Amount",
+  "@deskActColAmount": {
+    "description": "Column header of the Activity table. Narrow header, right aligned."
+  },
+  "deskActEmptyTitle": "No transactions yet",
+  "@deskActEmptyTitle": {
+    "description": "Title of the empty state on Activity when the wallet has no transactions."
+  },
+  "deskActEmptyText": "Every payment sent or received is listed here, newest first, with who it was with and how far along it is.",
+  "@deskActEmptyText": {
+    "description": "Text of the empty state on Activity when the wallet has no transactions."
+  },
+  "deskActStageWaiting": "Waiting",
+  "@deskActStageWaiting": {
+    "description": "Title of the first of three stages a payment goes through, in the empty state of Activity."
+  },
+  "deskActStageWaitingText": "Both wallets sign it. Over Epicbox this is automatic.",
+  "@deskActStageWaitingText": {
+    "description": "Text of the first stage in the empty state of Activity."
+  },
+  "deskActStageConfirming": "Confirming",
+  "@deskActStageConfirming": {
+    "description": "Title of the second stage in the empty state of Activity."
+  },
+  "deskActStageConfirmingText": "On the chain. About one block a minute.",
+  "@deskActStageConfirmingText": {
+    "description": "Text of the second stage in the empty state of Activity."
+  },
+  "deskActStageSpendable": "Spendable",
+  "@deskActStageSpendable": {
+    "description": "Title of the third stage in the empty state of Activity."
+  },
+  "deskActStageSpendableText": "{needed, plural, one{After {needed} confirmation, about {needed} minute.} other{After {needed} confirmations, about {needed} minutes.}}",
+  "@deskActStageSpendableText": {
+    "description": "Text of the third stage in the empty state of Activity: the number of confirmations before the money can be spent; the minutes equal the confirmations (one block a minute).",
+    "placeholders": {
+      "needed": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskActShowAddress": "Show address",
+  "@deskActShowAddress": {
+    "description": "Primary button in the empty state of Activity: opens the Receive page."
+  },
+  "deskActReceiveFile": "Receive a file",
+  "@deskActReceiveFile": {
+    "description": "Ghost button in the empty state of Activity: opens the page to import a payment file."
+  }
+}

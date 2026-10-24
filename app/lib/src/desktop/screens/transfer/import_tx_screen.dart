@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/files.dart';
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'file_panels.dart';
 
@@ -16,14 +17,24 @@ class ImportArgs {
 
 /// Why a transaction file was not signed.
 enum ImportError {
-  wrongType('Not a transaction file', 'The file is not a transaction file. Choose the .slate or .tx file the sender gave.'),
-  unreadable('File not readable', 'The file could not be read. It may be damaged or still being copied.'),
-  noPlace('Nothing signed', 'No place was chosen for the response file, so nothing was signed.'),
-  failed('Signing failed', 'The wallet could not sign this file. It may be for another wallet or already used.');
+  wrongType,
+  unreadable,
+  noPlace,
+  failed;
 
-  const ImportError(this.title, this.text);
-  final String title;
-  final String text;
+  String title(AppLocalizations l) => switch (this) {
+    wrongType => l.deskImpWrongType,
+    unreadable => l.deskImpUnreadable,
+    noPlace => l.deskImpNoPlace,
+    failed => l.deskImpFailed,
+  };
+
+  String text(AppLocalizations l) => switch (this) {
+    wrongType => l.deskImpWrongTypeText,
+    unreadable => l.deskImpUnreadableText,
+    noPlace => l.deskImpNoPlaceText,
+    failed => l.deskImpFailedText,
+  };
 }
 
 class ImportTxScreen extends ConsumerStatefulWidget {
@@ -41,7 +52,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   ImportError? _error;
 
   /// The wallet's own reason, under a failed signing.
-  String? _detail;
+  DeskError? _detail;
   Tx? _tx;
 
   @override
@@ -54,7 +65,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
 
   Future<void> _pick() async {
     final files = ref.read(deskFilesProvider);
-    final path = files == null ? 'invoice_0042.slate' : await files.pickSlate(title: 'Transaction file');
+    final path = files == null ? 'invoice_0042.slate' : await files.pickSlate(title: context.l10n.deskImpPickTitle);
     if (path == null || !mounted) return;
     setState(() {
       _busy = true;
@@ -71,8 +82,8 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     } on DeskError catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.message == 'File not readable' ? ImportError.unreadable : (e.message == 'Not a transaction file' ? ImportError.wrongType : ImportError.failed);
-          _detail = e.message;
+          _error = e.message == 'File not readable' ? ImportError.unreadable : (e.message == 'Not a transaction file' ? ImportError.wrongType : ImportError.failed); // l10n-ok: DeskError.message is the English key
+          _detail = e;
         });
       }
     } catch (_) {
@@ -91,40 +102,41 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   Widget build(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
     final ts = context.ts;
+    final l = context.l10n;
     return EPage(
-      title: 'Sign a transaction file',
+      title: l.deskImpTitle,
       width: EPageWidth.narrow,
       onBack: () => nav.canBack ? nav.back() : nav.go(DeskRoute.receive),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ENotice(
-            title: 'Signing does not spend anything',
-            text: 'Send the response file back to the sender over the same channel they used.',
+          ENotice(
+            title: l.deskImpNoticeTitle,
+            text: l.deskImpNoticeText,
             icon: EIcons.info,
           ),
           SizedBox(height: Sp.x5),
           if (_error != null) ...[
-            ENotice(title: _error!.title, text: _error == ImportError.failed && _detail != null ? '${_error!.text} $_detail.' : _error!.text, tone: ETone.risk, icon: EIcons.error),
+            ENotice(title: _error!.title(l), text: _error == ImportError.failed && _detail != null ? l.deskImpFailedDetail(_detail!.text(l)) : _error!.text(l), tone: ETone.risk, icon: EIcons.error),
             SizedBox(height: Sp.x5),
           ],
           if (_response != null)
             ResultPanel(
-              title: 'Response saved',
-              text: 'Send the response file back to the sender. The EPIC arrives once the sender finalizes it.',
+              title: l.deskImpSaved,
+              text: l.deskImpSavedText,
               body: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   FileChip(_response!),
                   if (_tx != null) ...[
                     SizedBox(height: Sp.x3),
-                    Row(children: [Text('Amount ', style: ts.small), EMoney(_tx!.amount)]),
+                    Row(children: [Text(l.deskImpAmount, style: ts.small), EMoney(_tx!.amount)]),
                   ],
                 ],
               ),
               actions: [
-                EButton.primary(label: 'Sign another file', icon: EIcons.fileDown, onPressed: _again),
-                EButton(label: 'View in Activity', onPressed: () => nav.go(DeskRoute.activity, _tx?.id)),
+                EButton.primary(label: l.deskImpAnother, icon: EIcons.fileDown, onPressed: _again),
+                EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, _tx?.id)),
               ],
             )
           else if (_busy)
@@ -135,15 +147,15 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
                 children: [
                   ESpinner(size: 20.u),
                   SizedBox(width: Sp.x3),
-                  Text('Signing the file', style: ts.bodyDim),
+                  Text(l.deskImpBusy, style: ts.bodyDim),
                 ],
               ),
             )
           else
             EDropZone(
-              title: 'Choose a transaction file',
-              text: 'The wallet signs it and saves a response for the sender.',
-              buttonLabel: 'Choose file',
+              title: l.deskImpChoose,
+              text: l.deskImpChooseText,
+              buttonLabel: l.deskFinChooseFile,
               onPick: _pick,
             ),
         ],

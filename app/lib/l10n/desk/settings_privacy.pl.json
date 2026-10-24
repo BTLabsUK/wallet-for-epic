@@ -1,0 +1,19 @@
+{
+  "deskSetPrivTorOnFailed": "Nie włączono Tora",
+  "deskSetPrivTorOffFailed": "Nie wyłączono Tora",
+  "deskSetPrivTor": "Tor",
+  "deskSetPrivSwitching": "Przełączanie Tora",
+  "deskSetPrivTurnOff": "Wyłącz Tor",
+  "deskSetPrivNotInBuild": "Brak w tej wersji",
+  "deskSetPrivStarting": "Uruchamianie…",
+  "deskSetPrivStartingDetail": "{progress} %. {waiting} czekają, aż Tor się połączy.",
+  "deskSetPrivNotPublished": "Adres Tor nie jest jeszcze opublikowany. Wysyłanie działa.",
+  "deskSetPrivProblemSendsWork": "{problem}. Wysyłanie działa.",
+  "deskSetPrivConnected": "Połączono.",
+  "deskSetPrivNotConnected": "Brak połączenia",
+  "deskSetPrivStoppedDetail": "Tor się zatrzymał. {waiting} czekają na Ponów albo wyłączenie Tora.",
+  "deskSetPrivProblemDetail": "{problem}. {waiting} czekają na Ponów albo wyłączenie Tora.",
+  "deskSetPrivStatusSite": "Strona stanu",
+  "deskSetPrivUseStatus": "Używaj status.btlabs.uk",
+  "deskSetPrivUseStatusHint": "Stan sieci i informacje dostarczane przez status.btlabs.uk"
+}

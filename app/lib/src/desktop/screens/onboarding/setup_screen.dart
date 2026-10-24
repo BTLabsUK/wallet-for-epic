@@ -6,11 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../network.dart' show defaultEpicboxHost;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../settings/combo.dart';
 import '../settings/local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import '../settings/prefs.dart' show settingsPrefsProvider;
-import '../settings/settings_node.dart' show hostOf, nodeUrlOf, serverRows, nodeListNote;
+import '../settings/settings_node.dart' show hostOf, nodeUrlOf, serverRows, nodeListNoteText;
 import 'local_node_step.dart';
 import 'onboarding_parts.dart';
 
@@ -62,7 +63,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   // Lazy: [_steps] needs the widget.
   late SetupStep _step = _startStep == SetupStep.local || _steps.contains(_startStep) ? _startStep : _steps.first;
-  String _language = 'English';
+  /// The language picked on Preferences: a code, or null for the computer's.
+  late String? _language = ref.read(deskProvider).settings.language;
 
   /// Local node chosen on the node step (the bundled node or one already running here).
   late bool _local = _startStep == SetupStep.local || (_demo?.localChosen ?? false);
@@ -177,7 +179,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     setState(() => _busy = true);
     final domain = _domain.text.trim();
     prefs.set(ref.read(settingsPrefsProvider).copyWith(epicboxOnStart: domain.isNotEmpty));
-    if (_steps.contains(SetupStep.prefs)) await c.saveSettings(st.settings.copyWith(language: _language));
+    if (_steps.contains(SetupStep.prefs)) await c.saveSettings(ref.read(deskProvider).settings.copyWith(language: () => _language)); // read now: the dialogs above may have saved settings
     try {
       if (bundled) {
         if (!_wasBuiltin) await c.useBuiltInNode(true);
@@ -197,7 +199,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showEToast(context, 'Not saved', text: deskErrorText(e));
+      showEToast(context, context.l10n.deskSetupNotSaved, text: deskErrorText(e, context.l10n));
       return;
     }
     if (!mounted) return;
@@ -208,7 +210,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       } on Object catch (e) {
         if (!mounted) return;
         setState(() => _busy = false);
-        showEToast(context, 'Not saved', text: deskErrorText(e));
+        showEToast(context, context.l10n.deskSetupNotSaved, text: deskErrorText(e, context.l10n));
         return;
       }
     }
@@ -250,39 +252,40 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Widget build(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
     final ts = context.ts;
+    final l = context.l10n;
     final railIndex = _step == SetupStep.local ? _steps.indexOf(SetupStep.node) : _steps.indexOf(_step);
-    final rail = railOf([if (_steps.contains(SetupStep.prefs)) 'Preferences', 'Node', 'Epicbox', 'Review'], railIndex);
+    final rail = railOf([if (_steps.contains(SetupStep.prefs)) l.deskSetupStepPrefs, l.deskSetupStepNode, l.deskSetupStepEpicbox, l.deskSetupStepReview], railIndex);
     final last = _step == SetupStep.review;
-    final again = nav.canBack ? 'Running setup again. Nothing changes until Save on the last step.' : null;
+    final again = nav.canBack ? l.deskSetupAgain : null;
     final (title, lead, body) = switch (_step) {
-      SetupStep.prefs => ('Preferences', again ?? 'App language. It can be changed later.', _prefs(context)),
-      SetupStep.node => ('Choose a node', again ?? 'The wallet reads the chain and sends through an Epic node.', _node(context)),
+      SetupStep.prefs => (l.deskSetupStepPrefs, again ?? l.deskSetupPrefsLead, _prefs(context)),
+      SetupStep.node => (l.deskSetupNodeTitle, again ?? l.deskSetupNodeLead, _node(context)),
       SetupStep.local => (
-        'Local node',
-        'What running the node here means, and which node to use.',
+        l.deskSetupLocalTitle,
+        l.deskSetupLocalLead,
         LocalNodeStep(demo: _demo?.local ?? LocalNodeDemo.none, onChanged: (c) => setState(() => _localChoice = c)),
       ),
-      SetupStep.epicbox => ('Receive when offline', again, _epicbox(context)),
-      SetupStep.review => ('Check settings', again ?? 'Change anything that is not right, then save.', _review(context)),
+      SetupStep.epicbox => (l.deskSetupEpicboxTitle, again, _epicbox(context)),
+      SetupStep.review => (l.deskSetupReviewTitle, again ?? l.deskSetupReviewLead, _review(context)),
     };
     final first = _step == _steps.first;
     // Back (mouse, Alt+Left) goes one step back first; held while saving.
     return DeskStepBack(
       onBack: _busy || _checking ? () {} : (first ? null : () => _to(_back)),
       child: EOnbFrame(
-        sideTitle: 'Set up',
+        sideTitle: l.deskSetupSideTitle,
         steps: rail,
         title: title,
         lead: lead,
         sideFoot: first && nav.canBack
             ? Align(
                 alignment: Alignment.centerLeft,
-                child: EButton.ghost(label: 'Back to wallet', icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
+                child: EButton.ghost(label: l.deskSetupBackToWallet, icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
               )
-            : Text('Everything here can be changed later in Settings.', style: ts.caption),
+            : Text(l.deskSetupLaterNote, style: ts.caption),
         actions: [
           if (!first) backButton(() => _to(_back)),
-          EButton.primary(label: last ? 'Save settings' : 'Continue', busy: _busy || _checking, onPressed: _canContinue ? _continue : null),
+          EButton.primary(label: last ? l.deskSetupSave : l.commonContinue, busy: _busy || _checking, onPressed: _canContinue ? _continue : null),
         ],
         child: body,
       ),
@@ -293,12 +296,12 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       EField(
-        label: 'Language',
+        label: context.l10n.deskSetupLanguage,
         child: ESelect<String>(
-          semanticLabel: 'Language',
-          value: _language,
-          onChanged: (v) => setState(() => _language = v),
-          items: deskLanguageItems(),
+          semanticLabel: context.l10n.deskSetupLanguage,
+          value: _language ?? deskSystemLanguage,
+          onChanged: (v) => setState(() => _language = v == deskSystemLanguage ? null : v),
+          items: deskLanguageItems(context.l10n),
         ),
       ),
     ],
@@ -306,14 +309,15 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   Widget _node(BuildContext context) {
     final nodes = _nodes;
+    final l = context.l10n;
     final rows = nodes == null ? const <ServerInfo>[] : serverRows(nodes.where((n) => !n.own).toList());
     final current = rows.where((r) => r.value == _nodeUrl).firstOrNull;
     final picker = ServiceCombo(
-      label: 'Node server',
-      hint: 'Find or type a node address',
+      label: l.deskSetupNodeServer,
+      hint: l.deskSetupNodeHint,
       kind: ServerKind.node,
       value: _nodeUrl ?? '',
-      fieldText: nodes == null ? 'Checking nodes…' : (current?.host ?? (_nodeUrl == null ? 'Pick a node' : hostOf(_nodeUrl!))),
+      fieldText: nodes == null ? l.deskSetupCheckingNodes : (current?.host ?? (_nodeUrl == null ? l.deskSetupPickNode : hostOf(_nodeUrl!))),
       fieldSub: current?.operator,
       tone: switch (current?.state) {
         null || EState.off => ETone.neutral,
@@ -321,11 +325,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         EState.risk => ETone.risk,
         EState.warn => ETone.warn,
       },
-      options: [for (final r in rows) ComboOption(value: r.value, host: r.host, sub: r.operator, server: r, group: 'Public nodes')],
-      typedRow: (t) => RegExp(r'^[^\s]*[.:][^\s]*$').hasMatch(t) ? ComboOption(value: t, host: hostOf(t), sub: 'not in the public list', tone: ETone.neutral) : null,
-      typedNote: (_) => 'Enter uses it.',
-      listNote: nodeListNote,
-      emptyNote: nodes == null ? 'Checking nodes…' : 'No nodes to show.',
+      options: [for (final r in rows) ComboOption(value: r.value, host: r.host, sub: r.operator, server: r, group: l.deskSetupPublicNodes)],
+      typedRow: (t) => RegExp(r'^[^\s]*[.:][^\s]*$').hasMatch(t) ? ComboOption(value: t, host: hostOf(t), sub: l.deskSetupNotInList, tone: ETone.neutral) : null,
+      typedNote: (_) => l.deskSetupEnterUses,
+      listNote: nodeListNoteText(l),
+      emptyNote: nodes == null ? l.deskSetupCheckingNodes : l.deskSetupNoNodes,
       onPicked: (v) => setState(() {
         _picked = true;
         _nodeUrl = nodeUrlOf(v);
@@ -335,8 +339,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         EChoiceCard(
-          title: 'Remote node',
-          description: 'Any public node. Ready at once.',
+          title: l.deskSetupRemoteNode,
+          description: l.deskSetupRemoteNodeText,
           icon: EIcons.server,
           selected: !_local,
           onTap: () => setState(() => _local = false),
@@ -348,8 +352,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         if (DeskFeatures.builtInNode) ...[
           SizedBox(height: Sp.x3),
           EChoiceCard(
-            title: 'Local node',
-            description: 'Runs the Epic node on this computer. Nothing is shared with an operator. Needs disk space and hours to sync.',
+            title: l.deskSetupLocalTitle,
+            description: l.deskSetupLocalNodeText,
             icon: EIcons.monitor,
             selected: _local,
             onTap: () => setState(() => _local = true),
@@ -362,20 +366,21 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Widget _epicbox(BuildContext context) {
     final ts = context.ts;
     final boxes = _boxes;
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Epicbox delivers payments to the Epicbox address and holds them until the wallet is online.', style: ts.body),
+        Text(l.deskSetupEpicboxText, style: ts.body),
         SizedBox(height: Sp.x2),
-        Text('It does not hide the IP address from the Epicbox server. Use a VPN if that matters.', style: ts.bodyDim),
+        Text(l.deskSetupEpicboxPrivacy, style: ts.bodyDim),
         SizedBox(height: Sp.x6),
         EField(
-          label: 'Epicbox server',
-          help: 'Leave empty to turn receiving through Epicbox off.',
+          label: l.deskSetupEpicboxServer,
+          help: l.deskSetupEpicboxHelp,
           // Enter is Continue.
           child: EForm(
             onSubmit: _continue,
-            child: EInput(controller: _domain, mono: true, semanticLabel: 'Epicbox server', onChanged: (_) => setState(() {})),
+            child: EInput(controller: _domain, mono: true, semanticLabel: l.deskSetupEpicboxServer, onChanged: (_) => setState(() {})),
           ),
         ),
         SizedBox(height: Sp.x3),
@@ -400,7 +405,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     );
   }
 
-  Widget _section(BuildContext context, String title, List<(String, Widget)> rows, SetupStep to, {String? caption}) {
+  Widget _section(BuildContext context, String title, String changeLabel, List<(String, Widget)> rows, SetupStep to, {String? caption}) {
     final ts = context.ts;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: Sp.x3),
@@ -419,11 +424,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
             ),
           ),
           Semantics(
-            label: 'Change ${title.toLowerCase()}',
+            label: changeLabel,
             button: true,
             excludeSemantics: true,
             onTap: () => _to(to),
-            child: ELink(label: 'Change', onPressed: () => _to(to)),
+            child: ELink(label: context.l10n.deskSetupChange, onPressed: () => _to(to)),
           ),
         ],
       ),
@@ -437,16 +442,17 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final bundled = local == null ? _local : local.how == LocalNodeHow.bundled;
     final fallback = nodeHost(defaultFallbackNodeUrl);
     final folder = ref.watch(deskLocalNodeProvider).value?.dataFolder ?? mockDataFolder;
+    final l = context.l10n;
     final nodeRows = <(String, Widget)>[
       if (local == null && !_local) ...[
-        ('Type', Text('Remote node', style: ts.body)),
-        ('Address', Text(_nodeUrl ?? '–', style: ts.mono())),
+        (l.deskSetupType, Text(l.deskSetupRemoteNode, style: ts.body)),
+        (l.deskSetupAddress, Text(_nodeUrl ?? '–', style: ts.mono())),
       ] else if (!bundled) ...[
-        ('Type', Text('Existing node at ${hostOf(local!.existingUrl)}', style: ts.body)),
+        (l.deskSetupType, Text(l.deskSetupExistingNode(hostOf(local!.existingUrl)), style: ts.body)),
       ] else ...[
-        ('Type', Text('Local node, bundled', style: ts.body)),
-        ('While syncing', Text(local?.useFallback ?? true ? fallback : 'wait', style: ts.mono())),
-        ('Data folder', Text(folder, style: ts.mono(), overflow: TextOverflow.ellipsis)),
+        (l.deskSetupType, Text(l.deskSetupBundledNode, style: ts.body)),
+        (l.deskSetupWhileSyncing, Text(local?.useFallback ?? true ? fallback : l.deskSetupWait, style: ts.mono())),
+        (l.deskSetupDataFolder, Text(folder, style: ts.mono(), overflow: TextOverflow.ellipsis)),
       ],
     ];
     return EPanel(
@@ -454,21 +460,22 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (_steps.contains(SetupStep.prefs)) ...[
-            _section(context, 'Preferences', [('Language', Text(_language, style: ts.body))], SetupStep.prefs),
+            _section(context, l.deskSetupStepPrefs, l.deskSetupChangePrefsSem, [(l.deskSetupLanguage, Text(deskLanguageName(l, _language), style: ts.body))], SetupStep.prefs),
             EDivider(space: Sp.x2),
           ],
           _section(
             context,
-            'Node',
+            l.deskSetupStepNode,
+            l.deskSetupChangeNodeSem,
             nodeRows,
             _local ? SetupStep.local : SetupStep.node,
             caption: bundled && _local
-                ? 'Save starts the node. The first sync takes hours; the wallet opens meanwhile${local?.useFallback ?? true ? ' and uses $fallback until then' : ''}.'
+                ? (local?.useFallback ?? true ? l.deskSetupSaveStartsFallback(fallback) : l.deskSetupSaveStarts)
                 : null,
           ),
           EDivider(space: Sp.x2),
-          _section(context, 'Epicbox', [
-            ('Server', domain.isEmpty ? Text('Off', style: ts.body) : Text(domain, style: ts.mono())),
+          _section(context, l.deskSetupStepEpicbox, l.deskSetupChangeEpicboxSem, [
+            (l.deskSetupServer, domain.isEmpty ? Text(l.deskSetupOff, style: ts.body) : Text(domain, style: ts.mono())),
           ], SetupStep.epicbox),
         ],
       ),

@@ -18,9 +18,10 @@ export '../../../help/help_i18n.dart' show helpStrings, localizedHelpSections;
 List<HelpTopic> helpTopicsFor(int confirmations, {String lang = 'en'}) =>
     localizedHelpTopics(lang, confirmations, platform: HelpPlatform.desktop, tor: DeskFeatures.tor);
 
-/// The language Help shows its topics in: the choice in its switch, else the computer's first
-/// language the app has, else English. The interface itself stays as Settings says.
+/// The language Help shows its topics in: the choice in its switch, else the interface's
+/// (Settings › Appearance › Language), else the computer's first language the app has, else
+/// English.
 String deskHelpLanguage(WidgetRef ref) {
-  final chosen = ref.watch(deskProvider.select((s) => s.settings.helpLanguage));
+  final chosen = ref.watch(deskProvider.select((s) => s.settings.helpLanguage ?? s.settings.language));
   return chosen ?? systemHelpLanguage(WidgetsBinding.instance.platformDispatcher.locales);
 }

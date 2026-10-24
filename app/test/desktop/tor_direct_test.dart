@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/data/http_address.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -98,7 +99,7 @@ void main() {
       expect(session().torStarts, isEmpty);
       final st = await wallet.status();
       expect(st.tor, ServiceHealth.off);
-      expect(torStatusLine(st), 'Off');
+      expect(torStatusLine(englishStrings, st), 'Off');
     });
 
     test('on starts tor from the bundle; unlock starts it again only with Start with the wallet', () async {
@@ -219,7 +220,7 @@ void main() {
       expect(await wallet.unlock(_password), isTrue);
       final st = await wallet.status();
       expect(st.torIncluded, isFalse);
-      expect(torStatusLine(st), 'Tor not included in this build');
+      expect(torStatusLine(englishStrings, st), 'Tor not included in this build');
       await wallet.setTor(true);
       expect(session().torStarts, isEmpty);
       expect((await wallet.status()).torProblem, 'Tor not included in this build');
@@ -255,19 +256,19 @@ void main() {
     setUp(() => wallet.setTor(true));
 
     test('progress, connected, publishing, ready', () async {
-      expect(torStatusLine(await wallet.status()), 'Connecting to Tor… 0 %');
+      expect(torStatusLine(englishStrings, await wallet.status()), 'Connecting to Tor… 0 %');
       await tor(const core.TorEvent(kind: core.TorEventKind.starting, progress: 45));
       var st = await wallet.status();
       expect((st.tor, st.torProgress, st.torCanSend), (ServiceHealth.checking, 45, false));
-      expect(torStatusLine(st), 'Connecting to Tor… 45 %');
+      expect(torStatusLine(englishStrings, st), 'Connecting to Tor… 45 %');
       await tor(const core.TorEvent(kind: core.TorEventKind.bootstrapped));
       st = await wallet.status();
       expect(st.torCanSend, isTrue);
-      expect(torStatusLine(st), 'Publishing the onion address…');
+      expect(torStatusLine(englishStrings, st), 'Publishing the onion address…');
       await tor(const core.TorEvent(kind: core.TorEventKind.ready, onion: 'pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion'));
       st = await wallet.status();
       expect(st.tor, ServiceHealth.ok);
-      expect(torStatusLine(st), 'Ready');
+      expect(torStatusLine(englishStrings, st), 'Ready');
       expect(await wallet.torAddress(), _onion);
     });
 
@@ -289,7 +290,7 @@ void main() {
         final st = await wallet.status();
         expect(st.tor, ServiceHealth.down);
         expect(st.torProblem, text);
-        expect(torStatusLine(st), text);
+        expect(torStatusLine(englishStrings, st), text);
         await wallet.setTor(true);
         expect(session().torStarts, hasLength(tries + 1));
         expect((await wallet.status()).tor, ServiceHealth.checking);
@@ -302,7 +303,7 @@ void main() {
         await tor(core.TorEvent(kind: core.TorEventKind.failed, failure: failure));
         final st = await wallet.status();
         expect(st.torProblem, 'Onion address not published');
-        expect(torStatusLine(st), startsWith('Onion address not published'));
+        expect(torStatusLine(englishStrings, st), startsWith('Onion address not published'));
       });
     }
 
@@ -313,7 +314,7 @@ void main() {
       expect(session().torStarts, hasLength(2));
       var st = await wallet.status();
       expect((st.tor, st.torProblem), (ServiceHealth.checking, null));
-      expect(torStatusLine(st), startsWith('Connecting to Tor'));
+      expect(torStatusLine(englishStrings, st), startsWith('Connecting to Tor'));
       expect(TorNet.mode, TorNetMode.waiting);
       await connected();
       await tor(const core.TorEvent(kind: core.TorEventKind.ready, onion: 'pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion'));
@@ -399,7 +400,7 @@ void main() {
       await tor(const core.TorEvent(kind: core.TorEventKind.failed, failure: core.TorFailure.keys));
       final st = await wallet.status();
       expect((st.tor, st.torCanSend), (ServiceHealth.slow, true));
-      expect(torStatusLine(st), 'Onion address not published. Sends work.');
+      expect(torStatusLine(englishStrings, st), 'Onion address not published. Sends work.');
     });
 
     test('a stop nobody asked for restarts tor; after the tries it reads “Tor stopped”', () async {
@@ -411,7 +412,7 @@ void main() {
         await tor(const core.TorEvent(kind: core.TorEventKind.stopped));
       }
       expect(session().torStarts, hasLength(4));
-      expect(torStatusLine(await wallet.status()), 'Tor stopped');
+      expect(torStatusLine(englishStrings, await wallet.status()), 'Tor stopped');
     });
 
     test('a payment over Tor reloads the history', () async {

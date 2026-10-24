@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../onboarding/onboarding_parts.dart' show accountErrors;
@@ -61,14 +62,15 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
 
   /// A problem with the address itself; an offline node is not one.
   String? get _problem {
+    final l = context.l10n;
     final t = _address.text.trim();
-    if (t.isEmpty) return _tried ? 'Enter the node’s address.' : null;
+    if (t.isEmpty) return _tried ? l.deskSetDlgNodeAddressEmpty : null;
     if (t.contains(' ') || !RegExp(r'[.:]').hasMatch(t) || (widget.showError && t == widget.initial)) {
-      return 'Not a node address. Check the address and the port (usually 3413).';
+      return l.deskSetDlgNodeAddressBad;
     }
     final mine = ref.read(deskProvider).nodes?.where((n) => n.own).map((n) => n.url) ?? const <String>[];
     final removed = ref.read(settingsPrefsProvider).removedNodes;
-    if (_url != widget.initial && mine.contains(_url) && !removed.contains(_url)) return 'This address is already in My nodes.';
+    if (_url != widget.initial && mine.contains(_url) && !removed.contains(_url)) return l.deskSetDlgNodeAddressDuplicate;
     return null;
   }
 
@@ -93,6 +95,7 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
   Future<void> _save() async {
     setState(() => _tried = true);
     if (_problem != null) return;
+    final l = context.l10n;
     final url = _url;
     final label = _label.text.trim();
     final prefs = ref.read(settingsPrefsProvider.notifier);
@@ -105,7 +108,7 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
           NodeServer(url: url, label: label, own: true, health: r?.health ?? ServiceHealth.down, height: r?.height, version: r?.version, latencyMs: r?.latencyMs),
         );
       } on Object catch (e) {
-        if (mounted) showEToast(context, 'Node not added', text: deskErrorText(e), tone: ETone.risk);
+        if (mounted) showEToast(context, l.deskSetDlgNodeNotAdded, text: deskErrorText(e, l), tone: ETone.risk);
         return;
       }
     }
@@ -113,18 +116,19 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
     prefs.label(url, label);
     if (!mounted) return;
     Navigator.of(context).pop(true);
-    showEToast(context, widget.editing ? 'Node saved' : 'Added to my nodes', text: label.isEmpty ? hostOf(url) : label);
+    showEToast(context, widget.editing ? l.deskSetDlgNodeSaved : l.deskSetDlgNodeAdded, text: label.isEmpty ? hostOf(url) : label);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final problem = _problem;
     final r = _check;
     Widget? status;
     if (problem == null && _checking) {
-      status = Row(children: [ESpinner(size: Ctl.iconSm), SizedBox(width: Sp.x2), Text('Checking…', style: ts.small)]);
+      status = Row(children: [ESpinner(size: Ctl.iconSm), SizedBox(width: Sp.x2), Text(l.deskSetFrameChecking, style: ts.small)]);
     } else if (problem == null && r != null) {
       final down = r.health == ServiceHealth.down;
       status = Wrap(
@@ -133,16 +137,16 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           EStatusDot(nodeTone(r.health)),
-          Text(nodeWord(r.health), style: ts.small.copyWith(color: down ? c.risk : c.text, fontWeight: FontWeight.w600)),
-          if (r.height != null) Text(groupDigits(r.height!), style: ts.mono(size: Fs.sm, color: c.dim)),
-          if (versionOld(r.version)) ETag('Version older than $minNodeVersion', tone: ETone.warn),
-          if (down) Text('It can be saved anyway.', style: ts.small),
+          Text(nodeWord(l, r.health), style: ts.small.copyWith(color: down ? c.risk : c.text, fontWeight: FontWeight.w600)),
+          if (r.height != null) Text(groupDigits(l, r.height!), style: ts.mono(size: Fs.sm, color: c.dim)),
+          if (versionOld(r.version)) ETag(l.deskSetNodeVersionOld(minNodeVersion), tone: ETone.warn),
+          if (down) Text(l.deskSetDlgNodeSaveAnyway, style: ts.small),
         ],
       );
     }
     return EDialog(
-      title: widget.editing ? 'Edit node' : 'Add to my nodes',
-      description: 'Save a node address to find it again later. It can be saved while it is offline.',
+      title: widget.editing ? l.deskSetDlgNodeEditTitle : l.deskSetDlgNodeAddTitle,
+      description: l.deskSetDlgNodeDesc,
       icon: EIcons.server,
       // Enter: Address → Label, then Save.
       body: EForm(
@@ -151,31 +155,31 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
-            label: 'Node address',
+            label: l.deskSetDlgNodeAddress,
             error: problem,
             child: EInput(
               controller: _address,
-              hint: 'http://10.0.1.24:3413',
+              hint: 'http://10.0.1.24:3413', // l10n-ok: example address
               mono: true,
               invalid: problem != null,
               autofocus: widget.editing || widget.initial.isEmpty,
-              semanticLabel: 'Node address',
+              semanticLabel: l.deskSetDlgNodeAddress,
               onChanged: (_) => _recheck(),
             ),
           ),
           if (status != null) ...[SizedBox(height: Sp.x2), Semantics(liveRegion: true, child: status)],
           SizedBox(height: Sp.x4),
           EField(
-            label: 'Label',
+            label: l.deskSetDlgNodeLabel,
             optional: true,
-            child: EInput(controller: _label, hint: 'e.g. Home node', autofocus: !widget.editing && widget.initial.isNotEmpty, semanticLabel: 'Label'),
+            child: EInput(controller: _label, hint: l.deskSetDlgNodeLabelHint, autofocus: !widget.editing && widget.initial.isNotEmpty, semanticLabel: l.deskSetDlgNodeLabel),
           ),
         ],
       ),
       ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, tabStop: false, onPressed: () => Navigator.of(context).pop()),
-        EButton.primary(label: 'Save', icon: EIcons.check, size: EBtnSize.sm, onPressed: _address.text.trim().isEmpty ? null : _save),
+        EButton(label: l.commonCancel, size: EBtnSize.sm, tabStop: false, onPressed: () => Navigator.of(context).pop()),
+        EButton.primary(label: l.commonSave, icon: EIcons.check, size: EBtnSize.sm, onPressed: _address.text.trim().isEmpty ? null : _save),
       ],
     );
   }
@@ -193,19 +197,20 @@ class NodeDirectoryDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final st = ref.watch(deskProvider);
     final prefs = ref.watch(settingsPrefsProvider);
     final nodes = (st.nodes ?? const <NodeServer>[]).where((n) => !n.own).toList();
     final current = prefs.builtin ? null : (prefs.typedNode ?? st.status?.node)?.url;
     return EDialog(
-      title: 'Node directory',
-      description: 'Public nodes, their operators and their state at the last check.',
+      title: l.deskSetDlgDirTitle,
+      description: l.deskSetDlgDirDesc,
       icon: EIcons.server,
       width: 640.u,
       body: st.nodes == null
           ? const SettingsLoading()
           : nodes.isEmpty
-          ? const EEmpty(icon: EIcons.node, title: 'No nodes to show')
+          ? EEmpty(icon: EIcons.node, title: l.deskSetDlgDirEmpty)
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -225,7 +230,7 @@ class NodeDirectoryDialog extends ConsumerWidget {
                                   children: [
                                     Text(hostOf(nodes[i].url), style: ts.mono(size: Fs.sm, color: c.text), overflow: TextOverflow.ellipsis),
                                     Text(
-                                      [nodes[i].operator, if (nodes[i].version != null) 'version ${nodes[i].version}', if (nodes[i].height != null) 'height ${groupDigits(nodes[i].height!)}']
+                                      [nodes[i].operator, if (nodes[i].version != null) l.deskSetDlgDirVersion(nodes[i].version!), if (nodes[i].height != null) l.deskSetDlgDirHeight(groupDigits(l, nodes[i].height!))]
                                           .whereType<String>()
                                           .join(' · '),
                                       style: ts.caption,
@@ -238,9 +243,9 @@ class NodeDirectoryDialog extends ConsumerWidget {
                               HealthLine(nodes[i].health, latencyMs: nodes[i].latencyMs),
                               SizedBox(width: Sp.x3),
                               nodes[i].url == current
-                                  ? const ETag('In use')
+                                  ? ETag(l.deskSetDlgDirInUse)
                                   : EButton(
-                                      label: 'Use',
+                                      label: l.deskSetDlgDirUse,
                                       size: EBtnSize.inline,
                                       onPressed: nodes[i].health == ServiceHealth.down
                                           ? null
@@ -259,10 +264,10 @@ class NodeDirectoryDialog extends ConsumerWidget {
                   ),
                 ),
                 SizedBox(height: Sp.x3),
-                Text('Response times are measured from the status site, not from this computer.', style: ts.caption),
+                Text(l.deskSetDlgDirNote, style: ts.caption),
               ],
             ),
-      actions: [EButton(label: 'Close', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())],
+      actions: [EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())],
     );
   }
 }
@@ -283,35 +288,36 @@ class ChainOfferDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final nav = Navigator.of(context);
     return EDialog(
-      title: 'Existing blockchain data found',
-      description: 'This computer already has Epic blockchain data that the local node can use.',
+      title: l.deskSetDlgChainTitle,
+      description: l.deskSetDlgChainDesc,
       icon: EIcons.node,
       tone: ETone.gold,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EFacts([
-            ('Folder', Text('~/.epic/main/chain_data', style: ts.mono(size: Fs.sm, color: c.text))),
-            ('Size', Text('4.2 GB', style: ts.mono(size: Fs.sm, color: c.text))),
-            ('Last updated', Text('3 days ago', style: ts.small.copyWith(color: c.text))),
+            (l.deskSetDlgChainFolder, Text('~/.epic/main/chain_data', style: ts.mono(size: Fs.sm, color: c.text))),
+            (l.deskSetDlgChainSize, Text('4.2 GB', style: ts.mono(size: Fs.sm, color: c.text))), // l10n-ok: size
+            (l.deskSetDlgChainUpdated, Text(l.deskSetDlgChainUpdatedValue, style: ts.small.copyWith(color: c.text))),
           ], labelWidth: 110.u),
           SizedBox(height: Sp.x3),
-          Text('Other copies were found too (1). This one was updated most recently.', style: ts.small),
+          Text(l.deskSetDlgChainOthers, style: ts.small),
           SizedBox(height: Sp.x3),
           Text(
-            inUse ? 'Another Epic program is using this folder. Close it, then pick the local node again to use this data.' : 'Use it? That saves downloading and syncing the whole blockchain.',
+            inUse ? l.deskSetDlgChainInUse : l.deskSetDlgChainUseIt,
             style: ts.body.copyWith(fontWeight: FontWeight.w600),
           ),
           SizedBox(height: Sp.x2),
-          Text('An older Epic Wallet that uses this folder may need to sync again after this. Coins are not affected.', style: ts.caption),
+          Text(l.deskSetDlgChainOlderWallet, style: ts.caption),
         ],
       ),
       actions: [
-        EButton(label: 'Download fresh', size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => nav.pop(false)),
-        if (inUse) EButton(label: 'Close', size: EBtnSize.sm, onPressed: () => nav.pop()),
-        EButton.primary(label: 'Use this data', icon: EIcons.check, size: EBtnSize.sm, onPressed: inUse ? null : () => nav.pop(true)),
+        EButton(label: l.deskSetDlgChainFresh, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => nav.pop(false)),
+        if (inUse) EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => nav.pop()),
+        EButton.primary(label: l.deskSetDlgChainUse, icon: EIcons.check, size: EBtnSize.sm, onPressed: inUse ? null : () => nav.pop(true)),
       ],
     );
   }
@@ -350,6 +356,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
 
   Future<void> _save() async {
     if (!_valid || _busy) return;
+    final l = context.l10n;
     setState(() {
       _busy = true;
       _wrong = false;
@@ -359,14 +366,14 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
       await ref.read(deskApiProvider).changePassword(_current.text, _next.text);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showEToast(context, 'Password changed.');
+      showEToast(context, l.deskSetDlgPwChanged);
     } on Object catch (e) {
       if (!mounted) return;
       final wrong = e is DeskError && e.wrongPassword;
       setState(() {
         _busy = false;
         _wrong = wrong;
-        _error = wrong ? null : deskErrorText(e);
+        _error = wrong ? null : deskErrorText(e, l);
       });
     }
   }
@@ -377,13 +384,14 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final (nextError, repeatError) = accountErrors(_next.text, _repeat.text);
+    final l = context.l10n;
+    final (nextError, repeatError) = accountErrors(context.l10n, _next.text, _repeat.text);
     return PopScope(
       canPop: !_busy,
       child: EDialog(
-      title: 'Change password',
+      title: l.deskSetDlgPwTitle,
       dismissible: !_busy,
-      description: 'The new password unlocks this wallet from now on. A remembered password is forgotten.',
+      description: l.deskSetDlgPwDesc,
       icon: EIcons.lock,
       // Enter: Current → New → Repeat, then Change password once all three are valid.
       body: EForm(
@@ -392,13 +400,13 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
-            label: 'Current password',
-            error: _wrong ? 'Wrong password' : null,
+            label: l.deskSetDlgPwCurrent,
+            error: _wrong ? l.deskSetDlgPwWrong : null,
             child: EPasswordInput(
               controller: _current,
               autofocus: true,
               invalid: _wrong,
-              semanticLabel: 'Current password',
+              semanticLabel: l.deskSetDlgPwCurrent,
               onChanged: (_) => setState(() {
                 _wrong = false;
                 _error = null;
@@ -407,12 +415,12 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           ),
           SizedBox(height: Sp.x4),
           EField(
-            label: 'New password',
+            label: l.deskSetDlgPwNew,
             error: nextError,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                EPasswordInput(controller: _next, invalid: nextError != null, semanticLabel: 'New password', onChanged: (_) => _edited()),
+                EPasswordInput(controller: _next, invalid: nextError != null, semanticLabel: l.deskSetDlgPwNew, onChanged: (_) => _edited()),
                 SizedBox(height: Sp.x2),
                 // Informs only; its info icon is not a Tab stop.
                 ExcludeFocusTraversal(child: PasswordHint(controller: _next)),
@@ -421,9 +429,9 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           ),
           SizedBox(height: Sp.x4),
           EField(
-            label: 'Repeat new password',
+            label: l.deskSetDlgPwRepeat,
             error: repeatError,
-            child: EPasswordInput(controller: _repeat, invalid: repeatError != null, semanticLabel: 'Repeat new password', onChanged: (_) => _edited()),
+            child: EPasswordInput(controller: _repeat, invalid: repeatError != null, semanticLabel: l.deskSetDlgPwRepeat, onChanged: (_) => _edited()),
           ),
           if (_error != null) ...[
             SizedBox(height: Sp.x3),
@@ -433,8 +441,8 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
       ),
       ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: 'Change password', size: EBtnSize.sm, busy: _busy, onPressed: _valid ? _save : null),
+        EButton(label: l.commonCancel, size: EBtnSize.sm, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton.primary(label: l.deskSetDlgPwTitle, size: EBtnSize.sm, busy: _busy, onPressed: _valid ? _save : null),
       ],
     ),
     );
@@ -493,6 +501,7 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
   /// Locks the open wallet and opens Unlock with this one selected, landing on Settings › This
   /// wallet, where Delete wallet is.
   Future<void> _unlockThis() async {
+    final l = context.l10n;
     setState(() => _busy = true);
     try {
       if (ref.read(deskProvider).account != null) await ref.read(deskProvider.notifier).lock();
@@ -501,7 +510,7 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = deskErrorText(e);
+          _error = deskErrorText(e, l);
         });
       }
       return;
@@ -514,6 +523,7 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
   Future<void> _remove() async {
     final mode = _mode;
     if (mode == null || !_ready) return;
+    final l = context.l10n;
     setState(() {
       _busy = true;
       _error = null;
@@ -528,7 +538,7 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = deskErrorText(e);
+          _error = deskErrorText(e, l);
         });
       }
       return;
@@ -536,15 +546,16 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
     if (!mounted) return;
     Navigator.of(context).pop();
     showEToast(context, switch (mode) {
-      WalletRemoval.list => '${w.name} removed from the list',
-      WalletRemoval.delete => '${w.name} deleted',
-    }, text: mode == WalletRemoval.list ? 'Files kept.' : null);
+      WalletRemoval.list => l.deskSetDlgRemoveToastList(w.name),
+      WalletRemoval.delete => l.deskSetDlgRemoveToastDeleted(w.name),
+    }, text: mode == WalletRemoval.list ? l.deskSetDlgRemoveFilesKept : null);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     Widget choice(WalletRemoval m, String title, String hint) => Padding(
       padding: EdgeInsets.only(bottom: Sp.x2),
       child: IgnorePointer(
@@ -563,8 +574,8 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
     return PopScope(
       canPop: !_busy,
       child: EDialog(
-        title: 'Remove ${w.name}?',
-        description: 'Nothing changes until confirmed.',
+        title: l.deskSetDlgRemoveTitle(w.name),
+        description: l.deskSetDlgRemoveDesc,
         icon: EIcons.trash,
         tone: ETone.risk,
         dismissible: !_busy,
@@ -575,16 +586,16 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Semantics(
-              label: 'What to remove',
+              label: l.deskSetDlgRemoveWhat,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  choice(WalletRemoval.list, 'Remove from list', 'Files stay in ${w.folder}. All wallets can add it back.'),
+                  choice(WalletRemoval.list, l.deskSetDlgRemoveFromList, l.deskSetDlgRemoveFromListHint(w.folder)),
                   if (_isOpen)
                     choice(
                       WalletRemoval.delete,
-                      'Delete wallet',
-                      'Deletes its keys and database from ${w.folder}. Only the recovery phrase restores it; without it the coins are lost.',
+                      l.deskSetDlgDeleteWallet,
+                      l.deskSetDlgRemoveDeleteHint(w.folder),
                     ),
                 ],
               ),
@@ -592,42 +603,42 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
             if (!_isOpen) ...[
               SizedBox(height: Sp.x1),
               Text(
-                'To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.',
+                l.deskSetDlgRemoveUnlockHint,
                 style: ts.small,
               ),
               SizedBox(height: Sp.x1),
               Align(
                 alignment: Alignment.centerLeft,
-                child: ELink(label: 'Unlock this wallet', onPressed: _busy ? null : _unlockThis),
+                child: ELink(label: l.deskSetDlgRemoveUnlock, onPressed: _busy ? null : _unlockThis),
               ),
             ],
             if (_mode == WalletRemoval.delete) ...[
               SizedBox(height: Sp.x2),
-              const ENotice(
-                title: 'Cannot be undone',
-                text: 'Only the recovery phrase restores the wallet; without it the coins are lost for good.',
+              ENotice(
+                title: l.deskSetDlgRemoveIrreversible,
+                text: l.deskSetDlgRemoveIrreversibleBody,
                 tone: ETone.risk,
               ),
               SizedBox(height: Sp.x4),
               EField(
-                label: 'Wallet name',
-                help: 'Type ${w.name} to confirm.',
-                error: _typed.text.isNotEmpty && !_nameOk ? 'Name does not match' : null,
+                label: l.deskSetDlgRemoveName,
+                help: l.deskSetDlgRemoveTypeName(w.name),
+                error: _typed.text.isNotEmpty && !_nameOk ? l.deskSetDlgRemoveNameMismatch : null,
                 child: EInput(
                   controller: _typed,
                   enabled: !_busy,
                   invalid: _typed.text.isNotEmpty && !_nameOk,
-                  semanticLabel: 'Wallet name',
+                  semanticLabel: l.deskSetDlgRemoveName,
                   onChanged: (_) => setState(() {}),
                 ),
               ),
               SizedBox(height: Sp.x3),
               EField(
-                label: 'Password',
+                label: l.deskSetDlgPassword,
                 child: EPasswordInput(controller: _password, onChanged: (_) => setState(() => _error = null)),
               ),
               SizedBox(height: Sp.x3),
-              ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: 'The recovery phrase is written down'),
+              ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: l.deskSetDlgPhraseWritten),
             ],
             if (_error != null) ...[
               SizedBox(height: Sp.x3),
@@ -635,15 +646,15 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
             ],
             if (_busy) ...[
               SizedBox(height: Sp.x2),
-              Text('Removing…', style: ts.small.copyWith(color: c.dim)),
+              Text(l.deskSetDlgRemoving, style: ts.small.copyWith(color: c.dim)),
             ],
           ],
         ),
         ),
         actions: [
-          EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+          EButton(label: l.commonCancel, size: EBtnSize.sm, kind: EBtnKind.ghost, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
           EButton(
-            label: _mode == WalletRemoval.delete ? 'Delete wallet' : 'Remove from list',
+            label: _mode == WalletRemoval.delete ? l.deskSetDlgDeleteWallet : l.deskSetDlgRemoveFromList,
             icon: EIcons.trash,
             size: EBtnSize.sm,
             kind: EBtnKind.danger,
@@ -686,6 +697,7 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
 
   Future<void> _delete() async {
     if (!_ready) return;
+    final l = context.l10n;
     setState(() {
       _busy = true;
       _error = null;
@@ -694,13 +706,13 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
     final nav = ref.read(deskNavProvider.notifier);
     final id = ref.read(deskProvider).account?.id;
     try {
-      if (id == null) throw const DeskError('The wallet is locked');
+      if (id == null) throw DeskError.l10n((l) => l.deskSetDlgWalletLocked);
       await desk.removeWallet(id, WalletRemoval.delete, password: _password.text);
     } on Object catch (e) {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = deskErrorText(e);
+          _error = deskErrorText(e, l);
         });
       }
       return;
@@ -712,11 +724,13 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => PopScope(
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return PopScope(
     canPop: !_busy,
     child: EDialog(
-      title: 'Delete this wallet?',
-      description: 'Deletes the wallet and its seed from this computer. Only the recovery phrase restores it; without it the coins are lost.',
+      title: l.deskSetDlgDeleteTitle,
+      description: l.deskSetDlgDeleteDesc,
       icon: EIcons.trash,
       tone: ETone.risk,
       dismissible: !_busy,
@@ -724,7 +738,7 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
-            label: 'Password',
+            label: l.deskSetDlgPassword,
             error: _error,
             child: EPasswordInput(
               controller: _password,
@@ -735,13 +749,14 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
             ),
           ),
           SizedBox(height: Sp.x4),
-          ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: 'The recovery phrase is written down'),
+          ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: l.deskSetDlgPhraseWritten),
         ],
       ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton(label: 'Delete wallet', icon: EIcons.trash, size: EBtnSize.sm, kind: EBtnKind.danger, busy: _busy, onPressed: _ready ? _delete : null),
+        EButton(label: l.commonCancel, size: EBtnSize.sm, kind: EBtnKind.ghost, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton(label: l.deskSetDlgDeleteWallet, icon: EIcons.trash, size: EBtnSize.sm, kind: EBtnKind.danger, busy: _busy, onPressed: _ready ? _delete : null),
       ],
     ),
   );
+  }
 }

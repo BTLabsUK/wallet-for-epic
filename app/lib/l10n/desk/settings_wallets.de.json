@@ -1,0 +1,17 @@
+{
+  "deskSetWalletsAddedBack": "{name} wieder hinzugefügt",
+  "deskSetWalletsNotAddedBack": "Nicht wieder hinzugefügt",
+  "deskSetWalletsOpenNow": "Geöffnet",
+  "deskSetWalletsFolderMissing": "Ordner fehlt",
+  "deskSetWalletsShowFolder": "{name} im Ordner zeigen",
+  "deskSetWalletsRemove": "{name} entfernen…",
+  "deskSetWalletsRemovedGroup": "Aus der Liste entfernt",
+  "deskSetWalletsAddBack": "Wieder hinzufügen",
+  "deskSetWalletsAdd": "Wallet hinzufügen",
+  "deskSetWalletsCreate": "Wallet erstellen",
+  "deskSetWalletsCreateText": "Eine neue Wallet mit einer neuen Wiederherstellungsphrase.",
+  "deskSetWalletsImport": "Importieren",
+  "deskSetWalletsImportText": "Aus einer älteren Epic Wallet oder einem Ordner.",
+  "deskSetWalletsRestore": "Wiederherstellen",
+  "deskSetWalletsRestoreText": "Aus einer Wiederherstellungsphrase."
+}

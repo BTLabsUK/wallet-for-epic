@@ -1,0 +1,294 @@
+{
+  "deskSetDlgNodeAddressEmpty": "Enter the node’s address.",
+  "@deskSetDlgNodeAddressEmpty": {
+    "description": "Add or edit node dialog: error under the address field when it is empty."
+  },
+  "deskSetDlgNodeAddressBad": "Not a node address. Check the address and the port (usually 3413).",
+  "@deskSetDlgNodeAddressBad": {
+    "description": "Add or edit node dialog: error under the address field when the text is not a node address."
+  },
+  "deskSetDlgNodeAddressDuplicate": "This address is already in My nodes.",
+  "@deskSetDlgNodeAddressDuplicate": {
+    "description": "Add or edit node dialog: error when the address is already saved. \"My nodes\" is the list of own nodes in Settings > Node."
+  },
+  "deskSetDlgNodeNotAdded": "Node not added",
+  "@deskSetDlgNodeNotAdded": {
+    "description": "Toast title when saving a node failed; the reason follows as the toast text."
+  },
+  "deskSetDlgNodeSaved": "Node saved",
+  "@deskSetDlgNodeSaved": {
+    "description": "Toast title after an edited node was saved."
+  },
+  "deskSetDlgNodeAdded": "Added to my nodes",
+  "@deskSetDlgNodeAdded": {
+    "description": "Toast title after a node was added to the own-nodes list."
+  },
+  "deskSetDlgNodeSaveAnyway": "It can be saved anyway.",
+  "@deskSetDlgNodeSaveAnyway": {
+    "description": "Add node dialog: shown next to the check result when the node does not respond."
+  },
+  "deskSetDlgNodeEditTitle": "Edit node",
+  "@deskSetDlgNodeEditTitle": {
+    "description": "Title of the dialog for editing a saved node."
+  },
+  "deskSetDlgNodeAddTitle": "Add to my nodes",
+  "@deskSetDlgNodeAddTitle": {
+    "description": "Title of the dialog for adding a node to the own-nodes list; also the matching button."
+  },
+  "deskSetDlgNodeDesc": "Save a node address to find it again later. It can be saved while it is offline.",
+  "@deskSetDlgNodeDesc": {
+    "description": "Add or edit node dialog: description under the title."
+  },
+  "deskSetDlgNodeAddress": "Node address",
+  "@deskSetDlgNodeAddress": {
+    "description": "Add or edit node dialog: label and screen reader name of the address field."
+  },
+  "deskSetDlgNodeLabel": "Label",
+  "@deskSetDlgNodeLabel": {
+    "description": "Add or edit node dialog: label and screen reader name of the optional name field."
+  },
+  "deskSetDlgNodeLabelHint": "e.g. Home node",
+  "@deskSetDlgNodeLabelHint": {
+    "description": "Add or edit node dialog: placeholder of the label field."
+  },
+  "deskSetDlgDirTitle": "Node directory",
+  "@deskSetDlgDirTitle": {
+    "description": "Title of the dialog listing public nodes."
+  },
+  "deskSetDlgDirDesc": "Public nodes, their operators and their state at the last check.",
+  "@deskSetDlgDirDesc": {
+    "description": "Node directory dialog: description under the title."
+  },
+  "deskSetDlgDirEmpty": "No nodes to show",
+  "@deskSetDlgDirEmpty": {
+    "description": "Node directory dialog: empty state."
+  },
+  "deskSetDlgDirVersion": "version {version}",
+  "@deskSetDlgDirVersion": {
+    "description": "Node directory: a node’s software version in a small detail line, e.g. \"version 4.1.0\". Lowercase.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgDirHeight": "height {height}",
+  "@deskSetDlgDirHeight": {
+    "description": "Node directory: a node’s block height in a small detail line, e.g. \"height 2,914,414\". Lowercase.",
+    "placeholders": {
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgDirInUse": "In use",
+  "@deskSetDlgDirInUse": {
+    "description": "Node directory: tag on the node the wallet uses now. Short."
+  },
+  "deskSetDlgDirUse": "Use",
+  "@deskSetDlgDirUse": {
+    "description": "Node directory: button that switches to that node. Short."
+  },
+  "deskSetDlgDirNote": "Response times are measured from the status site, not from this computer.",
+  "@deskSetDlgDirNote": {
+    "description": "Node directory dialog: note under the list."
+  },
+  "deskSetDlgChainTitle": "Existing blockchain data found",
+  "@deskSetDlgChainTitle": {
+    "description": "Title of the dialog offering to reuse blockchain data already on this computer."
+  },
+  "deskSetDlgChainDesc": "This computer already has Epic blockchain data that the local node can use.",
+  "@deskSetDlgChainDesc": {
+    "description": "Existing blockchain data dialog: description under the title."
+  },
+  "deskSetDlgChainFolder": "Folder",
+  "@deskSetDlgChainFolder": {
+    "description": "Existing blockchain data dialog: fact label for the folder. Narrow label column."
+  },
+  "deskSetDlgChainSize": "Size",
+  "@deskSetDlgChainSize": {
+    "description": "Existing blockchain data dialog: fact label for the data size. Narrow label column."
+  },
+  "deskSetDlgChainUpdated": "Last updated",
+  "@deskSetDlgChainUpdated": {
+    "description": "Existing blockchain data dialog: fact label for when the data was last changed. Narrow label column."
+  },
+  "deskSetDlgChainUpdatedValue": "3 days ago",
+  "@deskSetDlgChainUpdatedValue": {
+    "description": "Existing blockchain data dialog: sample value of Last updated."
+  },
+  "deskSetDlgChainOthers": "Other copies were found too (1). This one was updated most recently.",
+  "@deskSetDlgChainOthers": {
+    "description": "Existing blockchain data dialog: note that another copy exists."
+  },
+  "deskSetDlgChainInUse": "Another Epic program is using this folder. Close it, then pick the local node again to use this data.",
+  "@deskSetDlgChainInUse": {
+    "description": "Existing blockchain data dialog: question line when the folder is locked by another program."
+  },
+  "deskSetDlgChainUseIt": "Use it? That saves downloading and syncing the whole blockchain.",
+  "@deskSetDlgChainUseIt": {
+    "description": "Existing blockchain data dialog: question line."
+  },
+  "deskSetDlgChainOlderWallet": "An older Epic Wallet that uses this folder may need to sync again after this. Coins are not affected.",
+  "@deskSetDlgChainOlderWallet": {
+    "description": "Existing blockchain data dialog: small note under the question."
+  },
+  "deskSetDlgChainFresh": "Download fresh",
+  "@deskSetDlgChainFresh": {
+    "description": "Existing blockchain data dialog: button to ignore the old data and download anew."
+  },
+  "deskSetDlgChainUse": "Use this data",
+  "@deskSetDlgChainUse": {
+    "description": "Existing blockchain data dialog: primary button to reuse the data."
+  },
+  "deskSetDlgPwChanged": "Password changed.",
+  "@deskSetDlgPwChanged": {
+    "description": "Toast after the wallet password was changed."
+  },
+  "deskSetDlgPwTitle": "Change password",
+  "@deskSetDlgPwTitle": {
+    "description": "Change password dialog: title and primary button."
+  },
+  "deskSetDlgPwDesc": "The new password unlocks this wallet from now on. A remembered password is forgotten.",
+  "@deskSetDlgPwDesc": {
+    "description": "Change password dialog: description under the title."
+  },
+  "deskSetDlgPwCurrent": "Current password",
+  "@deskSetDlgPwCurrent": {
+    "description": "Change password dialog: label and screen reader name of the field."
+  },
+  "deskSetDlgPwWrong": "Wrong password",
+  "@deskSetDlgPwWrong": {
+    "description": "Change password dialog: error under the current password field."
+  },
+  "deskSetDlgPwNew": "New password",
+  "@deskSetDlgPwNew": {
+    "description": "Change password dialog: label and screen reader name of the field."
+  },
+  "deskSetDlgPwRepeat": "Repeat new password",
+  "@deskSetDlgPwRepeat": {
+    "description": "Change password dialog: label and screen reader name of the field."
+  },
+  "deskSetDlgRemoveToastList": "{name} removed from the list",
+  "@deskSetDlgRemoveToastList": {
+    "description": "Toast title after a wallet was removed from the list. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveToastDeleted": "{name} deleted",
+  "@deskSetDlgRemoveToastDeleted": {
+    "description": "Toast title after a wallet was deleted. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveFilesKept": "Files kept.",
+  "@deskSetDlgRemoveFilesKept": {
+    "description": "Toast text after a wallet was removed from the list only."
+  },
+  "deskSetDlgRemoveTitle": "Remove {name}?",
+  "@deskSetDlgRemoveTitle": {
+    "description": "Remove wallet dialog: title. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveDesc": "Nothing changes until confirmed.",
+  "@deskSetDlgRemoveDesc": {
+    "description": "Remove wallet dialog: description under the title."
+  },
+  "deskSetDlgRemoveWhat": "What to remove",
+  "@deskSetDlgRemoveWhat": {
+    "description": "Remove wallet dialog: screen reader label of the two choices."
+  },
+  "deskSetDlgRemoveFromList": "Remove from list",
+  "@deskSetDlgRemoveFromList": {
+    "description": "Remove wallet dialog: choice title and button label; the wallet’s files stay on the computer."
+  },
+  "deskSetDlgRemoveFromListHint": "Files stay in {folder}. All wallets can add it back.",
+  "@deskSetDlgRemoveFromListHint": {
+    "description": "Remove wallet dialog: explanation of Remove from list. {folder} is a folder path. \"All wallets\" is the Settings page.",
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgDeleteWallet": "Delete wallet",
+  "@deskSetDlgDeleteWallet": {
+    "description": "Remove wallet and Delete wallet dialogs: choice title and danger button label."
+  },
+  "deskSetDlgRemoveDeleteHint": "Deletes its keys and database from {folder}. Only the recovery phrase restores it; without it the coins are lost.",
+  "@deskSetDlgRemoveDeleteHint": {
+    "description": "Remove wallet dialog: explanation of Delete wallet. {folder} is a folder path.",
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveUnlockHint": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.",
+  "@deskSetDlgRemoveUnlockHint": {
+    "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › This wallet\" is a menu path."
+  },
+  "deskSetDlgRemoveUnlock": "Unlock this wallet",
+  "@deskSetDlgRemoveUnlock": {
+    "description": "Remove wallet dialog: link that locks the open wallet and opens Unlock with this wallet selected."
+  },
+  "deskSetDlgRemoveIrreversible": "Cannot be undone",
+  "@deskSetDlgRemoveIrreversible": {
+    "description": "Remove wallet dialog: title of the warning shown for Delete wallet."
+  },
+  "deskSetDlgRemoveIrreversibleBody": "Only the recovery phrase restores the wallet; without it the coins are lost for good.",
+  "@deskSetDlgRemoveIrreversibleBody": {
+    "description": "Remove wallet dialog: text of the warning."
+  },
+  "deskSetDlgRemoveName": "Wallet name",
+  "@deskSetDlgRemoveName": {
+    "description": "Remove wallet dialog: label and screen reader name of the confirmation field."
+  },
+  "deskSetDlgRemoveTypeName": "Type {name} to confirm.",
+  "@deskSetDlgRemoveTypeName": {
+    "description": "Remove wallet dialog: help under the confirmation field. {name} is the wallet name to type.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveNameMismatch": "Name does not match",
+  "@deskSetDlgRemoveNameMismatch": {
+    "description": "Remove wallet dialog: error under the confirmation field."
+  },
+  "deskSetDlgPassword": "Password",
+  "@deskSetDlgPassword": {
+    "description": "Remove and Delete wallet dialogs: label of the password field."
+  },
+  "deskSetDlgPhraseWritten": "The recovery phrase is written down",
+  "@deskSetDlgPhraseWritten": {
+    "description": "Remove and Delete wallet dialogs: checkbox label confirming the recovery phrase is saved."
+  },
+  "deskSetDlgRemoving": "Removing…",
+  "@deskSetDlgRemoving": {
+    "description": "Remove wallet dialog: shown while the wallet is removed."
+  },
+  "deskSetDlgWalletLocked": "The wallet is locked",
+  "@deskSetDlgWalletLocked": {
+    "description": "Error when an action needs the open wallet but it is locked."
+  },
+  "deskSetDlgDeleteTitle": "Delete this wallet?",
+  "@deskSetDlgDeleteTitle": {
+    "description": "Delete wallet dialog: title."
+  },
+  "deskSetDlgDeleteDesc": "Deletes the wallet and its seed from this computer. Only the recovery phrase restores it; without it the coins are lost.",
+  "@deskSetDlgDeleteDesc": {
+    "description": "Delete wallet dialog: description under the title."
+  }
+}

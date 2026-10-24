@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
 import '../../../log.dart';
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/http_address.dart';
@@ -110,26 +111,33 @@ class _Draft {
   int get total => amount + fee;
 }
 
-/// Amount text to nanoepic: null when it is not a number, [_tooLong] for more than 8 decimals.
+/// Amount text in [l]'s language to nanoepic ([parseEpicIn]): null when it is not a number or is
+/// unclear, [_tooLong] for more than 8 decimals.
 const int _tooLong = epicTooLong;
-int? _parseAmount(String raw) => parseEpic(raw);
+int? _parseAmount(AppLocalizations l, String raw) {
+  try {
+    return parseEpicIn(l, raw);
+  } on LocalizedFormatException {
+    return null;
+  }
+}
 
 /// What is wrong with the recipient for method [m], or null (spec 7: one parser for every kind).
-String? _recipientError(TxMethod m, String v, DeskWalletApi api) {
+String? _recipientError(AppLocalizations l, TxMethod m, String v, DeskWalletApi api) {
   final t = v.trim();
   if (m == TxMethod.file) return null;
-  if (t.isEmpty) return 'Add an address to send to.';
+  if (t.isEmpty) return l.deskSendErrNoAddress;
   final p = parseAddress(t, api);
   switch (m) {
     case TxMethod.file:
       return null;
     case TxMethod.epicbox:
-      return p.kind == AddressKind.epicbox && p.complete ? null : 'This is not a valid Epicbox address.';
+      return p.kind == AddressKind.epicbox && p.complete ? null : l.deskSendErrEpicbox;
     // Direct: an http(s) address or an onion; the address decides the route.
     case TxMethod.http || TxMethod.tor:
-      if (p.kind == AddressKind.epicbox) return 'This is not a Direct address.';
-      if (p.kind == AddressKind.tor) return p.complete ? null : 'This is not a valid onion address.';
-      final problem = httpAddressProblem(p.kind == AddressKind.http ? p.canonical : t);
+      if (p.kind == AddressKind.epicbox) return l.deskSendErrNotDirect;
+      if (p.kind == AddressKind.tor) return p.complete ? null : l.deskSendErrOnion;
+      final problem = httpAddressProblem(p.kind == AddressKind.http ? p.canonical : t, l);
       return problem == null ? null : '$problem.';
   }
 }
@@ -179,7 +187,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   bool _tagOn = false;
   Timer? _tagTimer;
   SendResult? _result;
-  String? _failure;
+  // The failed payment's message, worded when shown.
+  String Function(AppLocalizations l)? _failure;
 
   /// The failed payment may exist (waiting in Activity): no Review again.
   bool _failureInActivity = false;
@@ -202,7 +211,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _suggestOff = _to.text.isNotEmpty && !args.suggest;
     _amount.text = args.amount ?? '';
     _message.text = args.message ?? '';
-    if (args.amount != null) unawaited(_loadFee());
+    // After the first frame: reading the amount needs the language, not available in initState.
+    if (args.amount != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_loadFee());
+      });
+    }
     switch (args.step) {
       case SendStep.errors:
         _submitted = true;
@@ -214,7 +228,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _method = TxMethod.file;
         _result = SendFileReady(_demoTx(TxMethod.file, null), 'send_${args.amount ?? '12.5'}_epic_9f3a7c21.slate');
       case SendStep.failed:
-        _failure = 'The recipient did not answer. Nothing was sent.';
+        _failure = (l) => l.deskSendNoAnswer;
         _submitted = true;
       case SendStep.form:
         break;
@@ -227,7 +241,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     direction: TxDirection.sent,
     state: m == TxMethod.file || m == TxMethod.epicbox ? TxState.waitingRecipient : TxState.posted,
     method: m,
-    amount: _parseAmount(_amount.text) ?? 12 * nanoPerEpic,
+    amount: parseEpic(_amount.text) ?? 12 * nanoPerEpic,
     fee: 600000,
     created: DateTime.now(),
     counterparty: to,
@@ -242,7 +256,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     super.dispose();
   }
 
-  int? get _parsed => _parseAmount(_amount.text);
+  int? get _parsed => _parseAmount(context.l10n, _amount.text);
   int get _amountNano => (_parsed ?? 0) > 0 ? _parsed! : 0;
 
   ServiceHealth? _epicboxHealth(DeskState st) => _args.epicboxHealth ?? st.status?.epicboxHealth;
@@ -395,7 +409,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     try {
       await ref.read(deskProvider.notifier).setTor(on);
     } on Object catch (e) {
-      if (mounted) showEToast(context, on ? 'Tor not turned on' : 'Tor not turned off', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, on ? context.l10n.deskSendTorOnFailed : context.l10n.deskSendTorOffFailed, text: deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _torBusy = false);
     }
@@ -432,7 +446,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       final (n, fee) = (max?.amount ?? 0, max?.fee ?? 0);
       if (!mounted) return;
       if (n <= 0) {
-        setState(() => _allError = 'Nothing spendable to send.');
+        setState(() => _allError = context.l10n.deskSendNothingSpendable);
         return;
       }
       setState(() {
@@ -446,21 +460,27 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           estimate: max,
           options: const SendOptions(strategy: SelectionStrategy.all),
         );
-        _amount.text = formatEpic(n, minDecimals: 0).replaceAll(',', '');
+        _amount.text = localDecimal(context.l10n, formatEpic(n, minDecimals: 0).replaceAll(',', ''));
       });
     } catch (_) {
-      if (mounted) setState(() => _allError = 'Could not work out how much can be sent. Try again in a moment.');
+      if (mounted) setState(() => _allError = context.l10n.deskSendAllFailed);
     } finally {
       if (mounted) setState(() => _allBusy = false);
     }
   }
 
   String? _amountError(int? spendable) {
-    final p = _parsed;
-    if (_amount.text.trim().isEmpty || p == null) return 'Enter an amount.';
-    if (p == _tooLong) return 'EPIC has at most 8 decimals.';
-    if (p <= 0) return 'The amount must be more than 0.';
-    if (spendable != null && p + (_fee ?? 0) > spendable) return 'More than the available balance.';
+    final l = context.l10n;
+    final int? p;
+    try {
+      p = parseEpicIn(l, _amount.text);
+    } on LocalizedFormatException catch (e) {
+      return e.text(l);
+    }
+    if (_amount.text.trim().isEmpty || p == null) return l.deskSendErrAmountEnter;
+    if (p == _tooLong) return l.deskSendErrAmountDecimals;
+    if (p <= 0) return l.deskSendErrAmountZero;
+    if (spendable != null && p + (_fee ?? 0) > spendable) return l.deskSendErrAmountMore;
     return null;
   }
 
@@ -512,7 +532,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     try {
       await ref.read(deskProvider.notifier).setEpicboxListening(true);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Epicbox not turned on', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, context.l10n.deskSendEpicboxOnFailed, text: deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _starting = false);
     }
@@ -526,7 +546,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_method != TxMethod.epicbox || own == null || own.isEmpty) return null;
     final (key, host) = _epicboxParts(_to.text);
     final (ownKey, ownHost) = _epicboxParts(own);
-    return key == ownKey && (host == null || host == ownHost) ? "This is the wallet's own address." : null;
+    return key == ownKey && (host == null || host == ownHost) ? context.l10n.deskSendErrOwn : null;
   }
 
   /// The key and the server (lower-case, without ":443"; null when missing) of an Epicbox address.
@@ -539,7 +559,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return (a.substring(0, at), host.isEmpty ? null : host);
   }
 
-  String? _toError(DeskState st) => _ownAddressError(st) ?? _recipientError(_method, _to.text, ref.read(deskApiProvider));
+  String? _toError(DeskState st) => _ownAddressError(st) ?? _recipientError(context.l10n, _method, _to.text, ref.read(deskApiProvider));
 
   Future<void> _review() async {
     final st = ref.read(deskProvider);
@@ -569,7 +589,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       } on Object catch (e) {
         if (mounted) {
           setState(() {
-            _failure = deskErrorText(e);
+            _failure = (l) => deskErrorText(e, l);
             _failureInActivity = false;
           });
         }
@@ -632,12 +652,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ),
     );
     if (!mounted || res == null) return;
-    if (res is SendDone) showEToast(context, 'Sent', text: '${formatEpic(res.tx.amount)} EPIC');
+    if (res is SendDone) showEToast(context, context.l10n.deskSendSent, text: '${formatEpicL(context.l10n, res.tx.amount)} EPIC');
     setState(() {
       switch (res) {
-        case SendFailed(:final message, :final inActivity):
-          _failure = message;
-          _failureInActivity = inActivity;
+        case final SendFailed failed:
+          _failure = failed.text;
+          _failureInActivity = failed.inActivity;
           _result = null;
         default:
           _failure = null;
@@ -676,7 +696,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return DeskStepBack(
       onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
       child: EPage(
-      title: 'Send',
+      title: context.l10n.deskSendTitle,
       titleTrailing: res is SendFileReady ? null : TorChip(_torWay(st)),
       width: EPageWidth.mid,
       child: res is SendFileReady
@@ -715,16 +735,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   Widget _fileReady(SendFileReady r, DeskNav nav) {
+    final l = context.l10n;
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: Ctl.narrow),
       child: ResultPanel(
-        title: 'Transaction file ready',
-        text: 'Give this file to the recipient. The wallet is waiting for the response file; finalize it when it comes back.',
+        title: l.deskSendFileReadyTitle,
+        text: l.deskSendFileReadyText,
         body: FileChip(r.fileName),
         actions: [
-          EButton.primary(label: 'Finalize', icon: EIcons.fileUp, onPressed: () => nav.go(DeskRoute.finalize)),
-          EButton(label: 'View in Activity', onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
-          EButton.ghost(label: 'New send', onPressed: _reset),
+          EButton.primary(label: l.deskSendFinalize, icon: EIcons.fileUp, onPressed: () => nav.go(DeskRoute.finalize)),
+          EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
+          EButton.ghost(label: l.deskSendNewSend, onPressed: _reset),
         ],
       ),
     );
@@ -732,13 +753,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// The one notice about what keeps a send from going out, most blocking first.
   Widget? _blockNotice(DeskState st) {
+    final l = context.l10n;
     final node = _nodeBlock(st);
     if (st.status != null && node != null) {
       return ENotice(
-        title: 'Node not synced',
-        text: node >= 0
-            ? 'Sending is possible once the node has synced. ${(node * 100).round()}% done; the form can be filled in meanwhile.'
-            : 'Sending is possible once the node has synced.',
+        title: l.deskSendNodeNotSynced,
+        text: node >= 0 ? l.deskSendNodeSyncingPct((node * 100).round()) : l.deskSendNodeSyncing,
         tone: ETone.warn,
         icon: EIcons.server,
       );
@@ -747,21 +767,21 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (way == TorWay.blocked) {
       return ENotice(
         key: const ValueKey('send-tor-blocked'),
-        title: 'Tor is not connected',
-        text: 'Nothing is sent until it is, or until Tor is turned off.',
+        title: l.deskSendTorBlocked,
+        text: l.deskSendTorBlockedText,
         tone: ETone.risk,
         icon: EIcons.tor,
         actions: [
-          EButton(label: 'Retry', size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
-          EButton.ghost(label: 'Turn Tor off', size: EBtnSize.inline, onPressed: _torBusy ? null : () => _setTor(false)),
+          EButton(label: l.commonRetry, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
+          EButton.ghost(label: l.deskSendTurnTorOff, size: EBtnSize.inline, onPressed: _torBusy ? null : () => _setTor(false)),
         ],
       );
     }
     if (way == TorWay.wait) {
       return ENotice(
         key: const ValueKey('send-tor-wait'),
-        title: 'Tor is starting',
-        text: 'Sending waits until it is connected. Nothing goes over the clearnet meanwhile.',
+        title: l.deskSendTorStarting,
+        text: l.deskSendTorStartingText,
         icon: EIcons.tor,
       );
     }
@@ -769,13 +789,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_method == TxMethod.epicbox && eb == ServiceHealth.down) return const EpicboxDownNotice();
     if (_epicboxBlocked(st)) {
       return ENotice(
-        title: 'Epicbox not connected',
-        text: 'Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.',
+        title: l.deskSendEpicboxOff,
+        text: l.deskSendEpicboxOffText,
         tone: ETone.warn,
         icon: EIcons.antenna,
         actions: [
           if (eb == ServiceHealth.off)
-            EButton(label: 'Turn on Epicbox receiving', icon: EIcons.epicbox, size: EBtnSize.inline, busy: _starting, onPressed: _starting ? null : _startEpicbox),
+            EButton(label: l.deskSendEpicboxTurnOn, icon: EIcons.epicbox, size: EBtnSize.inline, busy: _starting, onPressed: _starting ? null : _startEpicbox),
         ],
       );
     }
@@ -786,34 +806,35 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   List<Widget> _notices(DeskState st) {
     final res = _result;
     final block = _blockNotice(st);
+    final l = context.l10n;
     return [
         if (res is SendDone) ...[
           ENotice(
-            title: 'Sent',
+            title: l.deskSendSent,
             text: switch (res.tx.method) {
-              TxMethod.tor || TxMethod.http => 'Finalized and posted to the network.',
-              _ => 'Handed to Epicbox. Completes when the recipient answers.',
+              TxMethod.tor || TxMethod.http => l.deskSendDoneViaDirect,
+              _ => l.deskSendDoneViaEpicbox,
             },
             tone: ETone.ok,
             icon: EIcons.okCircle,
             actions: [
-              EButton(label: 'View transaction', size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, res.tx.id)),
+              EButton(label: l.deskSendViewTx, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, res.tx.id)),
             ],
           ),
           SizedBox(height: Sp.x5),
         ],
         if (_failure != null) ...[
           ENotice(
-            title: 'Send failed',
-            text: _failure,
+            title: l.deskSendFailedTitle,
+            text: _failure!(l),
             tone: ETone.risk,
             icon: EIcons.error,
             actions: [
               // The payment may be waiting already: a second review could pay twice.
               if (_failureInActivity)
-                EButton(label: 'View in Activity', size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity))
+                EButton(label: l.deskFinViewActivity, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity))
               else
-                EButton(label: 'Review again', size: EBtnSize.inline, onPressed: _review),
+                EButton(label: l.deskSendReviewAgain, size: EBtnSize.inline, onPressed: _review),
             ],
           ),
           SizedBox(height: Sp.x5),
@@ -825,6 +846,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// The form's panel: the method selector in its header band (level with the Summary's), the
   /// method's strip, then the fields.
   Widget _form(DeskState st) {
+    final l = context.l10n;
     final ts = context.ts;
     final c = context.dc;
     final spendable = st.balance?.spendable;
@@ -841,11 +863,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           id: 'send-methods',
           child: ESegmented<TxMethod>(
           stretch: true,
-          segments: const [
-            ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox),
+          segments: [
+            const ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox), // l10n-ok: product name
             // Direct: http(s) or an onion, the address decides ([TxMethod.tor] is its route).
-            if (DeskFeatures.httpDirect || DeskFeatures.tor) ESegment(TxMethod.http, 'Direct', icon: EIcons.http),
-            ESegment(TxMethod.file, 'File', icon: EIcons.file),
+            if (DeskFeatures.httpDirect || DeskFeatures.tor) ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http),
+            ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file),
           ],
           value: _segmentOf(_method),
           onChanged: (m) => setState(() {
@@ -867,16 +889,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             children: [
         if (!file) ...[
           EField(
-            label: 'To',
+            label: l.deskSendTo,
             labelTrailing: _SwitchTag(method: _switchedTo, shown: _tagOn),
             error: toErr,
-            help: toErr == null ? 'Paste an address, or type a contact’s name.' : null,
+            help: toErr == null ? l.deskSendToHelp : null,
             child: EInput(
               controller: _to,
               mono: true,
               invalid: toErr != null,
-              hint: 'Address or contact',
-              semanticLabel: 'Recipient',
+              hint: l.deskSendToHint,
+              semanticLabel: l.deskSendToSem,
               leading: EIcons.user,
               onChanged: (_) => _changed(to: true),
               // Enter picks the first matching contact, else goes on to Amount.
@@ -886,14 +908,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (_to.text.isNotEmpty)
-                    EIconButton(icon: EIcons.close, label: 'Clear recipient', size: EBtnSize.inline, tabStop: false, onPressed: () {
+                    EIconButton(icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, tabStop: false, onPressed: () {
                       _to.clear();
                       _changed(to: true);
                     })
                   else
-                    EIconButton(icon: EIcons.paste, label: 'Paste', size: EBtnSize.inline, tabStop: false, onPressed: _paste),
+                    EIconButton(icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste),
                   SizedBox(width: Sp.x1),
-                  EButton(label: 'Contacts', icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
+                  EButton(label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
                 ],
               ),
             ),
@@ -906,18 +928,18 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             SizedBox(height: Sp.x3),
             ENotice(
               key: const ValueKey('send-needs-tor'),
-              title: 'Needs Tor',
-              text: st.status?.torIncluded ?? true ? 'An onion address can only be reached over Tor.' : 'Tor is not in this build.',
+              title: l.deskSendNeedsTor,
+              text: st.status?.torIncluded ?? true ? l.deskSendNeedsTorText : l.deskSendNoTorBuild,
               tone: ETone.warn,
               icon: EIcons.tor,
               actions: [
                 if (st.status?.torIncluded ?? true)
-                  EButton(label: 'Turn on Tor', size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
+                  EButton(label: l.deskSendTurnOnTor, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
               ],
             ),
           ] else if (_method == TxMethod.http && _torState(st) != TorState.off) ...[
             SizedBox(height: Sp.x2),
-            Text('Direct to http(s) addresses goes over the clearnet, not Tor.', key: const ValueKey('send-http-clearnet'), style: ts.small),
+            Text(l.deskSendHttpClearnet, key: const ValueKey('send-http-clearnet'), style: ts.small),
           ],
           if (contact != null) ...[
             SizedBox(height: Sp.x2),
@@ -932,17 +954,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           SizedBox(height: Sp.x5),
         ],
         EField(
-          label: 'Amount',
+          label: l.deskSendAmount,
           error: amErr,
           aside: spendable == null
-              ? Text('Available —', style: ts.small)
-              : ELink(label: 'Available ${st.settings.hideAmounts ? '••••••' : formatEpic(spendable)} EPIC', dim: st.status?.syncProgress != null, tabStop: false, onPressed: _allBusy ? null : _sendAll),
+              ? Text(l.deskSendAvailableNone, style: ts.small)
+              : ELink(label: l.deskSendAvailable(st.settings.hideAmounts ? '••••••' : formatEpicL(l, spendable)), dim: st.status?.syncProgress != null, tabStop: false, onPressed: _allBusy ? null : _sendAll),
           child: EInput(
             controller: _amount,
             mono: true,
             invalid: amErr != null,
             hint: '0',
-            semanticLabel: 'Amount in EPIC',
+            semanticLabel: l.deskSendAmountSem,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
             onChanged: (_) => _changed(amount: true),
@@ -952,25 +974,25 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               children: [
                 Text('EPIC', style: ts.small.copyWith(color: c.dim)),
                 SizedBox(width: Sp.x2),
-                EButton(label: 'All', size: EBtnSize.inline, busy: _allBusy, onPressed: spendable == null || _allBusy ? null : _sendAll),
+                EButton(label: l.deskSendAllButton, size: EBtnSize.inline, busy: _allBusy, onPressed: spendable == null || _allBusy ? null : _sendAll),
               ],
             ),
           ),
         ),
         if ((st.balance?.awaitingConfirmation ?? 0) > 0) ...[
           SizedBox(height: Sp.x2),
-          Text('${st.settings.hideAmounts ? 'Part of the balance' : '${formatEpic(st.balance!.awaitingConfirmation)} EPIC'} is still confirming and cannot be sent yet.', style: ts.small),
+          Text(st.settings.hideAmounts ? l.deskSendConfirmingHidden : l.deskSendConfirming(formatEpicL(l, st.balance!.awaitingConfirmation)), style: ts.small),
         ],
         SizedBox(height: Sp.x5),
         EField(
-          label: 'Message',
+          label: l.deskSendMessage,
           optional: true,
           aside: Text('${_message.text.length} / 256', style: ts.mono(size: Fs.xs, color: c.faint)),
-          help: 'The recipient sees this message.',
+          help: l.deskSendMessageHelp,
           child: EInput(
             controller: _message,
             maxLines: 3,
-            semanticLabel: 'Message',
+            semanticLabel: l.deskSendMessage,
             inputFormatters: [LengthLimitingTextInputFormatter(256)],
             onChanged: (_) => setState(() {}),
           ),
@@ -995,12 +1017,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         if (DeskFeatures.dandelion && !file) ...[
           SizedBox(height: Sp.x5),
           EDetails(
-            title: 'Privacy · Dandelion++ ${_dandelion ? 'on' : 'off'}',
+            title: _dandelion ? l.deskSendPrivacyOn : l.deskSendPrivacyOff,
             initiallyOpen: _args.privacyOpen,
             child: ESetRow(
-              title: 'Dandelion++',
-              text: 'Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.',
-              control: ESwitch(value: _dandelion, semanticLabel: 'Dandelion++', onChanged: (v) => setState(() => _dandelion = v)),
+              title: 'Dandelion++', // l10n-ok: protocol name
+              text: l.deskSendDandelionText,
+              control: ESwitch(value: _dandelion, semanticLabel: 'Dandelion++', onChanged: (v) => setState(() => _dandelion = v)), // l10n-ok: protocol name
             ),
           ),
         ],
@@ -1014,21 +1036,22 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// What the summary shows now: the amounts and the one line under Review send.
   Widget _summary(DeskState st, SendResult? res) {
+    final l = context.l10n;
     final spendable = st.balance?.spendable;
     final n = _amountNano;
     final fee = n > 0 ? (_fee ?? 0) : 0;
     final nodeBlocked = _nodeBlock(st) != null;
     final hint = switch (null) {
-      _ when res is SendDone => 'Sent. Enter a new amount and recipient to send again.',
-      _ when nodeBlocked => 'Waiting for the node to sync.',
-      _ when _epicboxBlocked(st) => 'Waiting for Epicbox to connect.',
-      _ when _torWay(st) == TorWay.wait => 'Waiting for Tor to connect.',
-      _ when _torWay(st) == TorWay.blocked => 'Retry Tor, or turn it off.',
-      _ when _torWay(st) == TorWay.needsTor => 'Turn on Tor to send to an onion address.',
-      _ when _submitted && !_toEdited && _toError(st) != null => 'Fix the fields marked in red.',
-      _ when _submitted && !_amountEdited && _amountError(spendable) != null => 'Fix the fields marked in red.',
-      _ when _reviewing => 'Checking the fee for this amount.',
-      _ => 'Nothing is sent until confirmed.',
+      _ when res is SendDone => l.deskSendHintSent,
+      _ when nodeBlocked => l.deskSendHintNode,
+      _ when _epicboxBlocked(st) => l.deskSendHintEpicbox,
+      _ when _torWay(st) == TorWay.wait => l.deskSendHintTorWait,
+      _ when _torWay(st) == TorWay.blocked => l.deskSendHintTorBlocked,
+      _ when _torWay(st) == TorWay.needsTor => l.deskSendHintNeedsTor,
+      _ when _submitted && !_toEdited && _toError(st) != null => l.deskSendHintFix,
+      _ when _submitted && !_amountEdited && _amountError(spendable) != null => l.deskSendHintFix,
+      _ when _reviewing => l.deskSendHintChecking,
+      _ => l.deskSendHintDefault,
     };
     final plan = _plan?.estimate.amount == n && n > 0 ? _plan : null;
     final balance = st.balance;
@@ -1043,9 +1066,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       updating: st.status?.syncProgress != null,
       hint: hint,
       reviewLabel: switch (_torWay(st)) {
-        TorWay.wait => 'Waiting for Tor',
-        TorWay.blocked => 'Tor not connected',
-        _ => 'Review send',
+        TorWay.wait => l.deskSendReviewWaitTor,
+        TorWay.blocked => l.deskSendReviewTorOff,
+        _ => l.deskSendReview,
       },
       reviewing: _reviewing,
       onReview: _canSend(st) && !_reviewing ? _review : null,
@@ -1064,7 +1087,7 @@ class _SendSummary extends StatelessWidget {
     required this.hint,
     required this.reviewing,
     required this.onReview,
-    this.reviewLabel = 'Review send',
+    required this.reviewLabel,
     this.summary,
     this.extraFee = 0,
     this.strategy = SelectionStrategy.smallest,
@@ -1097,6 +1120,7 @@ class _SendSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final n = amount;
     final bad = n > 0 && spendable != null && n + fee > spendable!;
     final ready = n > 0 && !bad;
@@ -1105,7 +1129,7 @@ class _SendSummary extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Text(label, style: strong ? ts.strong : ts.bodyDim)),
-          if (v == null || v == 0 && label != 'Balance after')
+          if (v == null || v == 0)
             Text('—', style: ts.mono(size: Fs.md, color: c.faint))
           else
             EMoney(v, size: strong ? Fs.lg : Fs.md, color: risk ? c.risk : (dim ? c.dim : null), weight: strong ? FontWeight.w600 : null),
@@ -1113,13 +1137,13 @@ class _SendSummary extends StatelessWidget {
       ),
     );
     return EPanel(
-      title: 'Summary',
+      title: l.deskSendSummary,
       padding: EdgeInsets.all(Sp.panel),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          line('Amount', n > 0 ? n : null, risk: bad),
-          line('Network fee', fee > 0 ? fee : null),
+          line(l.deskSendAmount, n > 0 ? n : null, risk: bad),
+          line(l.deskSendNetworkFee, fee > 0 ? fee : null),
           ExpandFade(
             open: ready && (summary?.changeOutputs ?? 0) > 1,
             child: summary == null || summary!.changeOutputs < 2
@@ -1127,9 +1151,9 @@ class _SendSummary extends StatelessWidget {
                 : SendSplitLine(outputs: summary!.changeOutputs, extraFee: extraFee, change: summary!.change),
           ),
           Divider(height: Sp.x4, color: c.line),
-          line('Total', ready ? n + fee : null, strong: true),
+          line(l.deskSendTotal, ready ? n + fee : null, strong: true),
           SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy),
-          if (updating) Text('Balance updating while the wallet scans.', style: ts.caption),
+          if (updating) Text(l.deskSendUpdating, style: ts.caption),
           SizedBox(height: Sp.x4),
           EButton.primary(label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, onPressed: onReview),
           SizedBox(height: Sp.x3),
@@ -1147,17 +1171,17 @@ class _MethodStrip extends StatelessWidget {
 
   final TxMethod method;
 
-  static (String, String) words(TxMethod m) => switch (m) {
-    TxMethod.epicbox => ('The recipient can be offline.', 'The Epicbox server holds the payment until they open their wallet.'),
-    TxMethod.http || TxMethod.tor => ('Straight to their wallet.', 'An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.'),
-    TxMethod.file => ('No connection needed.', 'Hand the file over, get their response file back, then finalize it here.'),
+  static (String, String) words(AppLocalizations l, TxMethod m) => switch (m) {
+    TxMethod.epicbox => (l.deskSendEpicboxLine1, l.deskSendEpicboxLine2),
+    TxMethod.http || TxMethod.tor => (l.deskSendDirectLine1, l.deskSendDirectLine2),
+    TxMethod.file => (l.deskSendFileLine1, l.deskSendFileLine2),
   };
 
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
     final reduce = MediaQuery.disableAnimationsOf(context);
-    final (title, line) = words(method);
+    final (title, line) = words(context.l10n, method);
     // The first section of the form's panel: no frame of its own.
     return AnimatedSwitcher(
         duration: reduce ? Duration.zero : Motion.cross,
@@ -1198,17 +1222,18 @@ class _SwitchTag extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = method;
     if (m == null) return const SizedBox.shrink();
-    final (word, kind) = switch (m) {
-      TxMethod.tor || TxMethod.http => ('Direct', 'Direct'),
-      TxMethod.file => ('File', 'File'),
-      TxMethod.epicbox => ('Via Epicbox', 'Epicbox'),
+    final l = context.l10n;
+    final (word, said) = switch (m) {
+      TxMethod.tor || TxMethod.http => (l.deskSendTagDirect, l.deskSendSwitchedDirect),
+      TxMethod.file => (l.deskSendTagFile, l.deskSendSwitchedFile),
+      TxMethod.epicbox => (l.deskSendTagEpicbox, l.deskSendSwitchedEpicbox),
     };
     final reduce = MediaQuery.disableAnimationsOf(context);
     return Padding(
       padding: EdgeInsets.only(left: Sp.x2),
       child: Semantics(
         liveRegion: true,
-        label: shown ? '$kind address. Method set to $kind.' : null,
+        label: shown ? said : null,
         excludeSemantics: true,
         child: AnimatedOpacity(
           key: const ValueKey('send-switch-tag'),
@@ -1242,7 +1267,7 @@ class _PickedCard extends StatelessWidget {
           SizedBox(width: Sp.x3),
           Expanded(child: EAddressLines(name: contact.name, address: contact.address)),
           SizedBox(width: Sp.x2),
-          EButton.ghost(label: 'Clear', size: EBtnSize.inline, onPressed: onClear),
+          EButton.ghost(label: context.l10n.deskSendClear, size: EBtnSize.inline, onPressed: onClear),
         ],
       ),
     );
@@ -1261,7 +1286,7 @@ class _Suggestions extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     return Semantics(
-      label: 'Matching contacts',
+      label: context.l10n.deskSendMatching,
       container: true,
       child: Align(
         alignment: Alignment.centerLeft,
@@ -1304,7 +1329,7 @@ class _Suggestions extends StatelessWidget {
             Divider(height: 1, color: c.line),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
-              child: Text(contacts.length == 1 ? '1 contact matches' : '${contacts.length} contacts match', style: ts.caption),
+              child: Text(context.l10n.deskSendMatchCount(contacts.length), style: ts.caption),
             ),
           ],
         ),
@@ -1360,7 +1385,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       if (!ok) {
         setState(() {
           _busy = false;
-          _wrong = 'Wrong password.';
+          _wrong = context.l10n.deskSendWrongPassword;
         });
         _password.selection = TextSelection(baseOffset: 0, extentOffset: _password.text.length);
         return;
@@ -1373,7 +1398,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     } on Object catch (e) {
       // The payment may have left before the error: never offer to send it again blind.
       logWarn('desk', 'send ended with ${e.runtimeType}');
-      r = const SendFailed('Not confirmed. Check Activity before sending again.', inActivity: true);
+      r = SendFailed.l10n((l) => l.deskSendNotConfirmed, inActivity: true);
     }
     if (mounted) Navigator.of(context).pop(r);
   }
@@ -1407,17 +1432,18 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     final d = widget.draft;
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     final via = switch (d.method) {
-      TxMethod.epicbox => 'Epicbox (the recipient can be offline)',
-      TxMethod.http => 'Direct (their wallet must be open)',
-      TxMethod.tor => 'Direct, over Tor (their wallet must be open)',
-      TxMethod.file => 'Transaction file',
+      TxMethod.epicbox => l.deskSendViaEpicbox,
+      TxMethod.http => l.deskSendViaDirect,
+      TxMethod.tor => l.deskSendViaTor,
+      TxMethod.file => l.deskSendViaFile,
     };
     final sum = d.summary;
-    final lines = sum == null ? null : reviewOutputLines(sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, extraFee: d.extraFee, usesAll: context.l10n.sendUsesAllOutputs);
+    final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
     return EDialog(
-      title: 'Check and send',
-      description: 'A send cannot be undone once it is posted.',
+      title: l.deskSendReviewTitle,
+      description: l.deskSendReviewDesc,
       dismissible: !_busy,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1427,7 +1453,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Flexible(child: Text(formatEpic(d.amount), style: ts.h1.copyWith(fontFeatures: const [FontFeature.tabularFigures()]))),
+              Flexible(child: Text(formatEpicL(l, d.amount), style: ts.h1.copyWith(fontFeatures: const [FontFeature.tabularFigures()]))),
               SizedBox(width: Sp.x2),
               Text('EPIC', style: ts.lead),
             ],
@@ -1436,20 +1462,20 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           EFacts([
             if (d.to != null)
               (
-                'To',
+                l.deskSendFactTo,
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (d.contactName != null) Text(d.contactName!, style: ts.strong),
                     _address(context, d.to!),
                     SizedBox(height: Sp.x1),
-                    Text('Check the highlighted characters against what the recipient gave.', style: ts.caption),
+                    Text(l.deskSendCheckChars, style: ts.caption),
                   ],
                 ),
               ),
-            ('Via', Text(via, style: ts.body)),
+            (l.deskSendFactVia, Text(via, style: ts.body)),
             (
-              'Network fee',
+              l.deskSendNetworkFee,
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1458,10 +1484,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                 ],
               ),
             ),
-            ('Total', EMoney(d.total, weight: FontWeight.w600)),
+            (l.deskSendTotal, EMoney(d.total, weight: FontWeight.w600)),
             ...?lines?.facts,
-            if (DeskFeatures.dandelion && d.method != TxMethod.file) ('Privacy', Text(d.dandelion ? 'Dandelion++ on' : 'Dandelion++ off', style: ts.body)),
-            if (d.message.isNotEmpty) ('Message', Text(d.message, style: ts.body)),
+            if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
+            if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
           ], labelWidth: 100.u),
           if (_asks && !_busy) ...[
             SizedBox(height: Sp.x4),
@@ -1469,8 +1495,8 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             EForm(
               onSubmit: _ready ? _go : null,
               child: EField(
-                label: 'Password',
-                help: 'Every send asks the wallet’s password.',
+                label: l.deskSendPassword,
+                help: l.deskSendPasswordHelp,
                 error: _wrong,
                 child: EPasswordInput(
                   controller: _password,
@@ -1490,9 +1516,9 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                 Expanded(
                   child: Text(
                     switch (d.method) {
-                      TxMethod.file => 'Creating the file.',
-                      TxMethod.tor => 'Reaching their wallet over Tor… This can take a while. Keep the app open.',
-                      _ => 'Sending. This can take a few seconds; keep this window open.',
+                      TxMethod.file => l.deskSendBusyFile,
+                      TxMethod.tor => l.deskSendBusyTor,
+                      _ => l.deskSendBusy,
                     },
                     style: ts.small.copyWith(color: c.dim),
                   ),
@@ -1503,8 +1529,8 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         ],
       ),
       actions: [
-        EButton(label: 'Back', kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: _busy ? 'Sending' : 'Send ${formatEpic(d.amount)} EPIC', icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
+        EButton(label: l.deskSendBack, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton.primary(label: _busy ? l.deskSendSending : l.deskSendConfirm(formatEpicL(l, d.amount)), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
       ],
     );
   }
@@ -1516,13 +1542,13 @@ class PlainHttpDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => EDialog(
-    title: 'Not encrypted. Send anyway?',
-    description: 'Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.',
+    title: context.l10n.deskSendPlainTitle,
+    description: context.l10n.deskSendPlainDesc,
     icon: EIcons.alert,
     tone: ETone.warn,
     actions: [
-      EButton(label: 'Cancel', onPressed: () => Navigator.of(context).pop(false)),
-      EButton.primary(label: 'Send anyway', onPressed: () => Navigator.of(context).pop(true)),
+      EButton(label: context.l10n.commonCancel, onPressed: () => Navigator.of(context).pop(false)),
+      EButton.primary(label: context.l10n.deskSendPlainConfirm, onPressed: () => Navigator.of(context).pop(true)),
     ],
   );
 }

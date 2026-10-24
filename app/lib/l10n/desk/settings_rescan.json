@@ -1,0 +1,111 @@
+{
+  "deskSetRescanComplete": "Scan complete",
+  "@deskSetRescanComplete": {
+    "description": "Settings > Recheck balance: line added to the scan log when the scan ended normally."
+  },
+  "deskSetRescanStoppedLine": "Scan stopped",
+  "@deskSetRescanStoppedLine": {
+    "description": "Settings > Recheck balance: line added to the scan log when the scan was stopped; also the title of the result card."
+  },
+  "deskSetRescanLog": "Scan log",
+  "@deskSetRescanLog": {
+    "description": "Settings > Recheck balance: title of the collapsible scan log and its screen reader label."
+  },
+  "deskSetRescanText": "Reads the chain again and rebuilds the balance from the outputs found. Use it when the balance looks wrong, after a restore, or when outputs stay locked after a failed send. The wallet stays usable meanwhile.",
+  "@deskSetRescanText": {
+    "description": "Settings > Recheck balance: text of the first row."
+  },
+  "deskSetRescanStartAgain": "Start again",
+  "@deskSetRescanStartAgain": {
+    "description": "Settings > Recheck balance: button after a scan ended or failed."
+  },
+  "deskSetRescanDeleteUnconfirmed": "Delete unconfirmed",
+  "@deskSetRescanDeleteUnconfirmed": {
+    "description": "Settings > Recheck balance: checkbox label."
+  },
+  "deskSetRescanDeleteHint": "Also cancels unconfirmed transactions and unlocks their outputs. A payment already on its way may then fail.",
+  "@deskSetRescanDeleteHint": {
+    "description": "Settings > Recheck balance: small text under the Delete unconfirmed checkbox."
+  },
+  "deskSetRescanScanning": "Scanning the chain. The wallet stays usable; the balance updates when the scan ends.",
+  "@deskSetRescanScanning": {
+    "description": "Settings > Recheck balance: text while a scan runs."
+  },
+  "deskSetRescanStopping": "Stopping…",
+  "@deskSetRescanStopping": {
+    "description": "Settings > Recheck balance: progress line after Stop was pressed."
+  },
+  "deskSetRescanChecking": "Checking… {percent} %",
+  "@deskSetRescanChecking": {
+    "description": "Settings > Recheck balance: progress line with the percentage done.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetRescanFailed": "Scan failed",
+  "@deskSetRescanFailed": {
+    "description": "Settings > Recheck balance: title of the error notice when the scan failed."
+  },
+  "deskSetRescanNoneFound": "No unconfirmed transaction was found.",
+  "@deskSetRescanNoneFound": {
+    "description": "Settings > Recheck balance: result sentence after Delete unconfirmed found nothing."
+  },
+  "deskSetRescanCancelled": "Unconfirmed transactions were cancelled and their outputs unlocked.",
+  "@deskSetRescanCancelled": {
+    "description": "Settings > Recheck balance: result sentence after Delete unconfirmed."
+  },
+  "deskSetRescanNotRead": "Not read",
+  "@deskSetRescanNotRead": {
+    "description": "Settings > Recheck balance: shown instead of a balance that could not be read."
+  },
+  "deskSetRescanFinished": "Scan finished",
+  "@deskSetRescanFinished": {
+    "description": "Settings > Recheck balance: title of the result card after a complete scan."
+  },
+  "deskSetRescanUpToDate": "The balance is up to date.",
+  "@deskSetRescanUpToDate": {
+    "description": "Settings > Recheck balance: first sentence of the result after a complete scan. Further sentences follow after a space."
+  },
+  "deskSetRescanResumed": "The scan carried on from where it stopped; the counts cover that part.",
+  "@deskSetRescanResumed": {
+    "description": "Settings > Recheck balance: result sentence after a resumed scan; follows another sentence after a space."
+  },
+  "deskSetRescanStoppedEarly": "Stopped before the end. The balance was read again; start again to carry on.",
+  "@deskSetRescanStoppedEarly": {
+    "description": "Settings > Recheck balance: first sentence of the result after a stopped scan. A further sentence may follow after a space."
+  },
+  "deskSetRescanNotDeleted": "Unconfirmed transactions were not deleted: that runs only when a scan completes.",
+  "@deskSetRescanNotDeleted": {
+    "description": "Settings > Recheck balance: result sentence after a stopped scan with Delete unconfirmed; follows another sentence after a space."
+  },
+  "deskSetRescanBefore": "Balance before",
+  "@deskSetRescanBefore": {
+    "description": "Settings > Recheck balance: label of a fact in the result card."
+  },
+  "deskSetRescanAfter": "Balance after",
+  "@deskSetRescanAfter": {
+    "description": "Settings > Recheck balance: label of a fact in the result card."
+  },
+  "deskSetRescanFound": "Outputs found",
+  "@deskSetRescanFound": {
+    "description": "Settings > Recheck balance: label of a count in the result card. An output is a coin unit in the wallet."
+  },
+  "deskSetRescanRestored": "Restored",
+  "@deskSetRescanRestored": {
+    "description": "Settings > Recheck balance: label of a count of restored outputs in the result card."
+  },
+  "deskSetRescanRevived": "Back to unspent",
+  "@deskSetRescanRevived": {
+    "description": "Settings > Recheck balance: label of a count of outputs that became spendable again in the result card."
+  },
+  "deskSetRescanUnlocked": "Unlocked",
+  "@deskSetRescanUnlocked": {
+    "description": "Settings > Recheck balance: label of a count of unlocked outputs in the result card."
+  },
+  "deskSetRescanDeleted": "Deleted",
+  "@deskSetRescanDeleted": {
+    "description": "Settings > Recheck balance: label of a count of deleted outputs in the result card."
+  }
+}

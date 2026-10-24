@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/desk_node.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/node_view.dart';
@@ -101,7 +102,14 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
     try {
       await go();
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'The node did not ${what == 'restart' ? 'restart' : what}', text: '$e', tone: ETone.risk);
+      if (mounted) {
+        final l = context.l10n;
+        showEToast(context, switch (what) {
+          'start' => l.deskSetLnodeDidNotStart,
+          'stop' => l.deskSetLnodeDidNotStop,
+          _ => l.deskSetLnodeDidNotRestart,
+        }, text: '$e', tone: ETone.risk);
+      }
     } finally {
       if (mounted) setState(() => _busy = null);
     }
@@ -109,6 +117,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
 
   Future<void> _changeFolder(LocalNodeState s) async {
     final api = ref.read(deskNodeProvider);
+    final l = context.l10n;
     final how = await showChangeFolderDialog(context, api, s);
     if (how == null || !mounted) return;
     setState(() => _moving = (0, s.chainDataBytes ?? 0));
@@ -116,9 +125,9 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
       await api.changeDataFolder(how.$1, how.$2, progress: (d, t) {
         if (mounted) setState(() => _moving = (d, t));
       });
-      if (mounted) showEToast(context, how.$2 == FolderChange.move ? 'Chain data moved' : 'Data folder changed', text: how.$1);
+      if (mounted) showEToast(context, how.$2 == FolderChange.move ? l.deskSetLnodeMoved : l.deskSetLnodeFolderChanged, text: how.$1);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'The folder did not change', text: '$e', tone: ETone.risk);
+      if (mounted) showEToast(context, l.deskSetLnodeFolderFailed, text: '$e', tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _moving = null);
     }
@@ -128,6 +137,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final api = ref.read(deskNodeProvider);
     // The D-7 question, once, when the node first syncs and nothing was answered.
     ref.listen(deskFallbackDecisionProvider, (_, d) {
@@ -140,7 +150,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
     if (s == null) {
       return Padding(
         padding: EdgeInsets.all(Sp.x5),
-        child: Text('Local node', style: ts.body.copyWith(color: c.dim)),
+        child: Text(l.deskSetNodeLocalNode, style: ts.body.copyWith(color: c.dim)),
       );
     }
     final running = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;
@@ -149,7 +159,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
       if (!running && !noBinary)
         ERowControl(
           child: EButton.primary(
-            label: 'Start',
+            label: l.deskSetLnodeStart,
             icon: Icons.play_arrow_rounded,
             size: EBtnSize.sm,
             busy: _busy == 'start',
@@ -157,8 +167,8 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
           ),
         ),
       if (running) ...[
-        ERowControl(child: EButton(label: 'Stop', icon: EIcons.stop, size: EBtnSize.sm, busy: _busy == 'stop', onPressed: _busy == null ? () => _run('stop', api.stop) : null)),
-        ERowControl(child: EButton(label: 'Restart', icon: EIcons.refresh, size: EBtnSize.sm, busy: _busy == 'restart', onPressed: _busy == null ? () => _run('restart', api.restart) : null)),
+        ERowControl(child: EButton(label: l.deskSetLnodeStop, icon: EIcons.stop, size: EBtnSize.sm, busy: _busy == 'stop', onPressed: _busy == null ? () => _run('stop', api.stop) : null)),
+        ERowControl(child: EButton(label: l.deskSetLnodeRestart, icon: EIcons.refresh, size: EBtnSize.sm, busy: _busy == 'restart', onPressed: _busy == null ? () => _run('restart', api.restart) : null)),
       ],
     ];
 
@@ -193,7 +203,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
               Row(
                 children: [
                   ESegmented<LocalTab>(
-                    segments: const [ESegment(LocalTab.status, 'Status'), ESegment(LocalTab.peers, 'Peers')],
+                    segments: [ESegment(LocalTab.status, l.deskSetLnodeTabStatus), ESegment(LocalTab.peers, l.deskSetLnodeTabPeers)],
                     value: _tab,
                     onChanged: (t) => setState(() => _tab = t),
                   ),
@@ -222,14 +232,14 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
         _AutostartRow(api: api),
         Divider(height: 1, thickness: 1, color: c.line),
         ESetRow(
-          title: 'While syncing',
-          text: 'Use $fallback until the local node is synced. The local node takes over by itself.',
+          title: l.deskSetLnodeWhileSyncing,
+          text: l.deskSetLnodeWhileSyncingText(fallback),
           control: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               ERowControl(
                 child: EButton(
-                  label: 'Change…',
+                  label: l.deskSetLnodeChange,
                   size: EBtnSize.sm,
                   onPressed: () async {
                     final url = await showFallbackPickerDialog(context, current: choice?.nodeUrl ?? defaultFallbackNodeUrl);
@@ -238,13 +248,13 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                 ),
               ),
               SizedBox(width: Sp.x3),
-              ESwitch(value: accepted, semanticLabel: 'Use $fallback while syncing', onChanged: (v) => ref.read(deskFallbackProvider.notifier).answer(v)),
+              ESwitch(value: accepted, semanticLabel: l.deskSetLnodeUseWhileSyncing(fallback), onChanged: (v) => ref.read(deskFallbackProvider.notifier).answer(v)),
             ],
           ),
         ),
         Divider(height: 1, thickness: 1, color: c.line),
         ESetRow(
-          title: 'Data folder',
+          title: l.deskSetLnodeDataFolder,
           stacked: true,
           // The path with the two row buttons beside it, or under it when they leave it too little room.
           control: LayoutBuilder(
@@ -255,7 +265,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                     EMiddleEllipsis(s.dataFolder, style: ts.mono(size: Fs.sm, color: c.text)),
                     SizedBox(height: 2.u),
                     Text(
-                      [if (s.chainDataBytes != null) '${bytesText(s.chainDataBytes!)} used', s.freeBytes == null ? 'free space unknown' : '${bytesText(s.freeBytes!)} free'].join(' · '),
+                      [if (s.chainDataBytes != null) l.deskSetLnodeUsed(bytesText(s.chainDataBytes!, l)), s.freeBytes == null ? l.deskSetLnodeFreeUnknown : l.deskSetLnodeFree(bytesText(s.freeBytes!, l))].join(' · '),
                       style: ts.caption.copyWith(color: c.dim),
                     ),
                   ],
@@ -266,15 +276,15 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                 children: [
               ERowControl(
                 child: EButton(
-                  label: 'Open',
+                  label: l.deskSetLnodeOpen,
                   size: EBtnSize.sm,
                   onPressed: () async {
                     final ok = await ref.read(deskOpenFolderProvider)(s.dataFolder);
-                    if (!ok && context.mounted) showEToast(context, 'Folder not opened', text: s.dataFolder);
+                    if (!ok && context.mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: s.dataFolder);
                   },
                 ),
               ),
-              ERowControl(child: EButton(label: 'Change…', size: EBtnSize.sm, onPressed: _moving == null ? () => _changeFolder(s) : null)),
+              ERowControl(child: EButton(label: l.deskSetLnodeChange, size: EBtnSize.sm, onPressed: _moving == null ? () => _changeFolder(s) : null)),
                 ],
               );
               if (box.maxWidth - 2 * Ctl.rowW - Sp.x2 - Sp.x3 >= 240.u) {
@@ -288,19 +298,17 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
         // Two row buttons: under the text when the card leaves the words too little room.
         LayoutBuilder(
           builder: (context, box) => ESetRow(
-          title: 'Chain data',
+          title: l.deskSetLnodeChainData,
           stacked: box.maxWidth < 720.u,
-          text: s.chainDataOrigin == ChainDataOrigin.pointed
-              ? 'This node reads another program’s folder; delete it there.'
-              : 'Use chain data another Epic node left on this computer, or delete this node’s data and download the chain again.',
+          text: s.chainDataOrigin == ChainDataOrigin.pointed ? l.deskSetLnodeChainPointed : l.deskSetLnodeChainText,
           control: Wrap(
             spacing: Sp.x2,
             runSpacing: Sp.x2,
             children: [
-              ERowControl(child: EButton(label: 'Reuse existing…', size: EBtnSize.sm, onPressed: () => showReuseChainDataDialog(context, api))),
+              ERowControl(child: EButton(label: l.deskSetLnodeReuse, size: EBtnSize.sm, onPressed: () => showReuseChainDataDialog(context, api))),
               ERowControl(
                 child: EButton(
-                  label: 'Delete…',
+                  label: l.deskSetLnodeDelete,
                   size: EBtnSize.sm,
                   onPressed: s.chainDataOrigin == ChainDataOrigin.pointed ? null : () => showDeleteChainDataDialog(context, api, s),
                 ),
@@ -322,12 +330,13 @@ class _AutostartRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final on = ref.watch(localAutostartProvider).value ?? false;
+    final l = context.l10n;
     return ESetRow(
-      title: 'Start with the app',
-      hint: 'Starts the node at launch and keeps it syncing while the app is open.',
+      title: l.deskSetLnodeAutostart,
+      hint: l.deskSetLnodeAutostartHint,
       control: ESwitch(
         value: on,
-        semanticLabel: 'Start with the app',
+        semanticLabel: l.deskSetLnodeAutostart,
         onChanged: (v) async {
           await api.setStartWithApp(v);
           ref.invalidate(localAutostartProvider);
@@ -338,50 +347,61 @@ class _AutostartRow extends ConsumerWidget {
 }
 
 /// What the Status tab says for a state (the table of §19): the detail after the word, and the
-/// notice (tone, title, text, action label) if any.
+/// notice (tone, title, text, action) if any.
 class StatusWords {
   const StatusWords({required this.detail, this.notice});
 
   final String detail;
-  final ({ETone tone, String title, String? text, String? action})? notice;
+  final ({ETone tone, String title, String? text, NodeAct? action})? notice;
 }
 
-StatusWords statusWords(LocalNodeState s, {required String fallback, required bool accepted}) {
+/// What a Status notice's button does.
+enum NodeAct { restart, log, folder, fallback }
+
+/// The label of a notice's button; [fallback] is the host the fallback act names.
+String nodeActLabel(AppLocalizations l, NodeAct a, String fallback) => switch (a) {
+  NodeAct.restart => l.deskSetLnodeRestart,
+  NodeAct.log => l.deskSetLnodeViewLog,
+  NodeAct.folder => l.deskSetLnodeChangeFolder,
+  NodeAct.fallback => l.deskSetLnodeUseMeanwhile(fallback),
+};
+
+StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String fallback, required bool accepted}) {
   switch (s.phase) {
     case LocalNodePhase.starting:
-      return const StatusWords(detail: 'waiting for peers');
+      return StatusWords(detail: l.deskSetLnodeWaitingPeers);
     case LocalNodePhase.syncing:
-      final stage = s.progress == null ? 'syncing' : stageName(s.progress!.stage);
-      if (accepted) return StatusWords(detail: '$stage · using $fallback meanwhile');
+      final stage = s.progress == null ? l.deskSetLnodeSyncingLower : stageName(l, s.progress!.stage);
+      if (accepted) return StatusWords(detail: l.deskSetLnodeStageUsing(stage, fallback));
       return StatusWords(
         detail: stage,
-        notice: (tone: ETone.neutral, title: 'Nothing can be sent or received until the local node is synced.', text: null, action: 'Use $fallback meanwhile'),
+        notice: (tone: ETone.neutral, title: l.deskSetLnodeNothingUntilSynced, text: null, action: NodeAct.fallback),
       );
     case LocalNodePhase.synced:
-      return StatusWords(detail: [if (s.height != null) digits(s.height!), 'at tip'].join(' · '));
+      return StatusWords(detail: [if (s.height != null) digits(l, s.height!), l.deskSetLnodeAtTip].join(' · '));
     case LocalNodePhase.error:
       if (s.stalled) {
-        return const StatusWords(
-          detail: 'no progress for 5 min; restarted once already',
-          notice: (tone: ETone.risk, title: 'The node makes no progress.', text: 'Restarting usually helps; if not, the log says why.', action: 'Restart'),
+        return StatusWords(
+          detail: l.deskSetLnodeStalledDetail,
+          notice: (tone: ETone.risk, title: l.deskSetLnodeNoProgress, text: l.deskSetLnodeNoProgressText, action: NodeAct.restart),
         );
       }
       return StatusWords(
-        detail: failureLine(s),
+        detail: failureLine(l, s),
         notice: switch (s.failure) {
           NodeFailure.portInUse => (
             tone: ETone.risk,
-            title: 'Port 3413 is used by another program.',
-            text: 'Close it (another Epic node?) or pick the node already running there under Node server.',
-            action: 'View node log',
+            title: l.deskSetLnodePortInUse,
+            text: l.deskSetLnodePortInUseText,
+            action: NodeAct.log,
           ),
-          NodeFailure.diskLow => (tone: ETone.risk, title: 'Less than 2 GB free on this volume.', text: 'Free space or change the data folder.', action: 'Change folder…'),
-          NodeFailure.binaryMissing => (tone: ETone.risk, title: 'The node program is missing from this installation.', text: 'Reinstall the wallet.', action: null),
-          _ => (tone: ETone.risk, title: 'The node stopped by itself.', text: 'The last log lines may say why.', action: 'View node log'),
+          NodeFailure.diskLow => (tone: ETone.risk, title: l.deskSetLnodeDiskLow, text: l.deskSetLnodeDiskLowText, action: NodeAct.folder),
+          NodeFailure.binaryMissing => (tone: ETone.risk, title: l.deskSetLnodeMissing, text: l.deskSetLnodeMissingText, action: null),
+          _ => (tone: ETone.risk, title: l.deskSetLnodeStopped, text: l.deskSetLnodeStoppedText, action: NodeAct.log),
         },
       );
     case LocalNodePhase.stopped:
-      return StatusWords(detail: accepted ? 'the wallet uses $fallback meanwhile' : 'nothing can be sent until it runs');
+      return StatusWords(detail: accepted ? l.deskSetLnodeUsesMeanwhile(fallback) : l.deskSetLnodeNothingUntilRuns);
   }
 }
 
@@ -421,62 +441,63 @@ class _StatusTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final s = state;
-    final v = localNodeView(s);
-    final words = statusWords(s, fallback: fallback, accepted: accepted);
+    final v = localNodeView(l, s);
+    final words = statusWords(l, s, fallback: fallback, accepted: accepted);
     final p = s.progress;
     final syncing = s.phase == LocalNodePhase.syncing || s.phase == LocalNodePhase.starting;
     final live = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;
     final overall = p?.overall;
     final pct = overall == null ? null : percent(overall);
-    final left = p == null ? null : timeLeft(p.stage, s.eta);
+    final left = p == null ? null : timeLeft(context.l10n, p.stage, s.eta);
     final startedAgo = s.startedAt == null ? null : now.difference(s.startedAt!);
 
-    VoidCallback? actionOf(String? label) => switch (label) {
-      'Restart' || 'Restart now' => onRestart,
-      'View node log' => onLog,
-      'Change folder…' => onChangeFolder,
+    VoidCallback? actionOf(NodeAct? act) => switch (act) {
+      NodeAct.restart => onRestart,
+      NodeAct.log => onLog,
+      NodeAct.folder => onChangeFolder,
       null => null,
-      _ => onUseFallback,
+      NodeAct.fallback => onUseFallback,
     };
 
-    Widget notice(({ETone tone, String title, String? text, String? action}) n) => ENotice(
+    Widget notice(({ETone tone, String title, String? text, NodeAct? action}) n) => ENotice(
       tone: n.tone,
       title: n.title,
       text: n.text,
-      actions: [if (n.action != null) EButton(label: n.action!, size: EBtnSize.inline, onPressed: actionOf(n.action))],
+      actions: [if (n.action != null) EButton(label: nodeActLabel(l, n.action!, fallback), size: EBtnSize.inline, onPressed: actionOf(n.action))],
     );
 
     final tiles = <Widget>[
       _Tile(
-        label: 'Peers',
+        label: l.deskSetLnodeTilePeers,
         value: s.peers == null ? '–' : '${s.peers}',
         series: [for (final h in peerHistory) (h.inbound + h.outbound).toDouble()],
       ),
-      _Tile(label: 'Sync', value: pct ?? (s.phase == LocalNodePhase.synced ? '100 %' : '–'), suffix: left, series: [for (final x in sync) x.value]),
+      _Tile(label: l.deskSetLnodeTileSync, value: pct ?? (s.phase == LocalNodePhase.synced ? '100 %' : '–'), suffix: left, series: [for (final x in sync) x.value]),
       if (p?.stage == SyncStage.chainStateDownload)
         _Tile(
-          label: 'Download',
-          value: s.stageRate == null ? '–' : '${bytesText(s.stageRate!.round())}/s',
-          suffix: p?.done == null ? null : '${bytesText(p!.done!)} so far',
+          label: l.deskSetLnodeTileDownload,
+          value: s.stageRate == null ? '–' : '${bytesText(s.stageRate!.round(), l)}/s',
+          suffix: p?.done == null ? null : l.deskSetLnodeSoFar(bytesText(p!.done!, l)),
           series: [for (final x in download) x.value],
         )
       else
         _Tile(
-          label: 'Chain data on disk',
-          value: s.chainDataBytes == null ? '–' : bytesText(s.chainDataBytes!),
+          label: l.deskSetLnodeTileDisk,
+          value: s.chainDataBytes == null ? '–' : bytesText(s.chainDataBytes!, l),
           suffix: s.chainDataBytes != null && s.chainDataBytesAtStart != null && s.chainDataBytes! > s.chainDataBytesAtStart!
-              ? '+${bytesText(s.chainDataBytes! - s.chainDataBytesAtStart!)} this session'
+              ? l.deskSetLnodeThisSession(bytesText(s.chainDataBytes! - s.chainDataBytesAtStart!, l))
               : null,
           series: [for (final x in disk) x.value],
         ),
     ];
 
     final meta = [
-      if (s.version != null) 'Version ${s.version}',
-      if (live && s.uptime != null) 'running ${duration(s.uptime!)}',
-      if (!live) 'stopped ${hhmm(s.at)}',
-      if (live && s.peers != null) '${s.peers} peers',
+      if (s.version != null) l.deskSetLnodeVersion(s.version!),
+      if (live && s.uptime != null) l.deskSetLnodeRunning(duration(l, s.uptime!)),
+      if (!live) l.deskSetLnodeStoppedAt(hhmm(s.at)),
+      if (live && s.peers != null) l.deskSetLnodePeersCount(s.peers!),
     ].join(' · ');
 
     return Column(
@@ -505,18 +526,18 @@ class _StatusTab extends StatelessWidget {
           SizedBox(height: Sp.x4),
           _Bar(value: moving!.$2 == 0 ? null : moving!.$1 / moving!.$2),
           SizedBox(height: Sp.x2),
-          Text('Moving the chain data · ${bytesText(moving!.$1)} of ${bytesText(moving!.$2)}', style: ts.small),
+          Text(l.deskSetLnodeMoving(bytesText(moving!.$1, l), bytesText(moving!.$2, l)), style: ts.small),
         ] else if (syncing) ...[
           SizedBox(height: Sp.x4),
           _Bar(value: overall),
           SizedBox(height: Sp.x2),
           Row(
             children: [
-              Expanded(child: Text(p == null ? 'Connecting to peers' : stageLine(p), style: ts.small)),
+              Expanded(child: Text(p == null ? l.deskSetLnodeConnectingPeers : stageLine(l, p), style: ts.small)),
               SizedBox(width: Sp.x3),
               Text(
                 p?.stage == SyncStage.waitingForPeers || p == null
-                    ? (startedAgo == null ? '' : 'started ${startedAgo.inSeconds < 90 ? '${startedAgo.inSeconds} s' : duration(startedAgo)} ago')
+                    ? (startedAgo == null ? '' : (startedAgo.inSeconds < 90 ? l.deskSetLnodeStartedSecAgo(startedAgo.inSeconds) : l.deskSetLnodeStartedAgo(duration(l, startedAgo))))
                     : [?pct, ?left].join(' · '),
                 style: ts.small.copyWith(color: c.dim),
               ),
@@ -540,9 +561,9 @@ class _StatusTab extends StatelessWidget {
             padding: EdgeInsets.only(top: Sp.x4),
             child: ENotice(
               tone: ETone.warn,
-              title: 'Settings changed.',
-              text: 'They apply at the next restart.',
-              actions: [EButton(label: 'Restart now', size: EBtnSize.inline, onPressed: onRestart)],
+              title: l.deskSetLnodeSettingsChanged,
+              text: l.deskSetLnodeSettingsChangedText,
+              actions: [EButton(label: l.deskSetLnodeRestartNow, size: EBtnSize.inline, onPressed: onRestart)],
             ),
           ),
         ),
@@ -560,19 +581,19 @@ class _StatusTab extends StatelessWidget {
             },
           ),
           SizedBox(height: Sp.x2),
-          Text('Sampled every 30 s while this page is open.', style: ts.caption.copyWith(color: c.faint)),
+          Text(l.deskSetLnodeSampled, style: ts.caption.copyWith(color: c.faint)),
         ],
         SizedBox(height: Sp.x4),
         Row(
           children: [
             Expanded(child: Text(meta, style: ts.small.copyWith(color: c.dim), overflow: TextOverflow.ellipsis)),
             SizedBox(width: Sp.x3),
-            ERowControl(child: EButton(label: 'View node log', icon: EIcons.log, size: EBtnSize.sm, onPressed: onLog)),
+            ERowControl(child: EButton(label: l.deskSetLnodeViewLog, icon: EIcons.log, size: EBtnSize.sm, onPressed: onLog)),
           ],
         ),
         if (s.userToml) ...[
           SizedBox(height: Sp.x2),
-          Text('epic-server.toml was edited by hand; peer and folder settings here do not apply.', style: ts.caption.copyWith(color: c.warn)),
+          Text(l.deskSetLnodeTomlEdited, style: ts.caption.copyWith(color: c.warn)),
         ],
       ],
     );
@@ -618,7 +639,7 @@ class _Bar extends StatelessWidget {
           value: value ?? (reduced ? 1 : null),
           backgroundColor: c.s3,
           color: value == null && reduced ? c.accent.withValues(alpha: 0.35) : c.accent,
-          semanticsLabel: 'Sync progress',
+          semanticsLabel: context.l10n.deskSetLnodeSyncProgress,
           semanticsValue: value == null ? null : '${(value! * 100).floor()} %',
         ),
       ),
@@ -633,14 +654,16 @@ class StageStrip extends StatelessWidget {
 
   final int? step;
 
-  static const names = ['Headers', 'Chain state', 'Blocks', 'Synced'];
+  static List<String> namesOf(AppLocalizations l) => [l.deskSetLnodeStepHeaders, l.deskSetLnodeStepChainState, l.deskSetLnodeStepBlocks, l.deskSetFrameNodeSynced];
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
+    final names = namesOf(l);
     return Semantics(
-      label: step == null ? 'Sync steps: none started' : 'Sync step ${step! + 1} of 4: ${names[step!]}',
+      label: step == null ? l.deskSetLnodeStepsNone : l.deskSetLnodeStepOf(step! + 1, names[step!]),
       excludeSemantics: true,
       child: Row(
         children: [

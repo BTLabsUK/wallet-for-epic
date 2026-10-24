@@ -1606,13 +1606,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get statusNodeOffline => 'Узел не в сети';
 
   @override
-  String get statusEpicboxOnline => 'epicbox в сети';
+  String get statusEpicboxOnline => 'Epicbox в сети';
 
   @override
   String get statusEpicboxConnecting => 'Подключение к epicbox';
 
   @override
-  String get statusEpicboxOffline => 'epicbox не в сети';
+  String get statusEpicboxOffline => 'Epicbox не в сети';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -1762,7 +1762,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get invoiceDecline => 'Отклонить';
 
   @override
-  String get invoicePinReason => 'Введите PIN, чтобы оплатить этот счёт.';
+  String get invoicePinReason => 'Введите PIN-код, чтобы оплатить этот счёт.';
 
   @override
   String get invoiceDeclineTitle => 'Отклонить этот счёт?';
@@ -1936,7 +1936,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get issuedDetailsPaid =>
-      'Оплачен. Ваш кошелёк завершил платёж; он будет готов, когда сеть его подтвердит.';
+      'Оплачен. Ваш кошелёк завершил платёж; он завершится, когда сеть его подтвердит.';
 
   @override
   String get issuedDetailsDeclined =>
@@ -1966,7 +1966,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String issuerNoticeBouncedFrom(String payer) {
-    return 'Кошелёк $payer не умеет оплачивать запросы и вернул ваш, поэтому он отозван. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.';
+    return 'Кошелёк $payer не умеет оплачивать запросы и вернул ваш, поэтому он отозван. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или платёжным файлом.';
   }
 
   @override
@@ -1974,11 +1974,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      'Кошелёк плательщика не умеет оплачивать запросы и вернул этот, поэтому он отозван. Ничего не оплачено. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.';
+      'Кошелёк плательщика не умеет оплачивать запросы и вернул этот, поэтому он отозван. Ничего не оплачено. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или платёжным файлом.';
 
   @override
   String get requestPayerNoInvoices =>
-      'Этот кошелёк уже возвращал запрос: он не умеет оплачивать запросы. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.';
+      'Этот кошелёк уже возвращал запрос: он не умеет оплачивать запросы. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или платёжным файлом.';
 
   @override
   String get txStatusWaitingPayer => 'Ждёт плательщика';
@@ -2194,7 +2194,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get setupConnectedIconLabel => 'Подключено';
 
   @override
-  String get setupRelayHeading => 'Сервер epicbox';
+  String get setupRelayHeading => 'Сервер Epicbox';
 
   @override
   String get setupRelayHint => 'Этот сервер входит в ваш адрес.';
@@ -2384,6 +2384,8 @@ class AppLocalizationsRu extends AppLocalizations {
           'Запишите эти $count слов на бумаге по порядку и никому их не показывайте. Только с их помощью можно восстановить этот кошелёк.',
       few:
           'Запишите эти $count слова на бумаге по порядку и никому их не показывайте. Только с их помощью можно восстановить этот кошелёк.',
+      one:
+          'Запишите это $count слово на бумаге по порядку и никому их не показывайте. Только с его помощью можно восстановить этот кошелёк.',
     );
     return '$_temp0';
   }
@@ -2582,7 +2584,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendContactsButton => 'Контакты';
 
   @override
-  String get sendMethodEpicbox => 'Адрес epicbox';
+  String get sendMethodEpicbox => 'Адрес Epicbox';
 
   @override
   String get sendMethodFile => 'Платёжный файл';
@@ -3175,7 +3177,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsAboutNetwork => 'Сеть';
 
   @override
-  String get settingsEpicboxServer => 'Сервер epicbox';
+  String get settingsEpicboxServer => 'Сервер Epicbox';
 
   @override
   String settingsUpdateTo(String version) {
@@ -3303,7 +3305,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get feedbackAttachLogsHint =>
-      'Помогает найти проблему. Фраза восстановления, PIN-код и другие секретные данные предварительно удаляются.';
+      'Журналы помогают найти проблему. Фраза восстановления, PIN-код и другие секретные данные удаляются заранее.';
 
   @override
   String get feedbackPreviewButton => 'Посмотреть, что будет отправлено';
@@ -3336,7 +3338,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get feedbackSent => 'Спасибо! Ваш отзыв отправлен.';
+  String get feedbackSent => 'Спасибо. Ваш отзыв отправлен.';
 
   @override
   String get feedbackThanks => 'Спасибо за отзыв.';
@@ -3364,13 +3366,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'Технические детали, файлы и журналы';
 
   @override
-  String get settingsSectionPrivacy => 'Конфиденциальность';
+  String get settingsSectionPrivacy => 'Приватность';
 
   @override
   String get settingsSectionPrivacyNetwork => 'Приватность и сеть';
 
   @override
-  String get settingsSectionHelpFeedback => 'Помощь и отзыв';
+  String get settingsSectionHelpFeedback => 'Справка и отзывы';
 
   @override
   String get settingsStateBackUp => 'Сохраните фразу восстановления';
@@ -3520,7 +3522,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendRecent => 'Недавние';
 
   @override
-  String get sendUseFile => 'Нет адреса? Используйте файл платежа';
+  String get sendUseFile => 'Нет адреса? Используйте платёжный файл';
 
   @override
   String sendTo(String who) {
@@ -3559,7 +3561,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendNodeDown => 'Сеть сейчас недоступна.';
 
   @override
-  String get sendRelayDown => 'Их ретранслятор не отвечает.';
+  String get sendRelayDown => 'Сервер Epicbox получателя не отвечает.';
 
   @override
   String get sendListenerDown => 'Ещё нет подключения. Отправить можно.';
@@ -3618,7 +3620,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendFileTitle => 'Оплата файлом';
 
   @override
-  String get sendMakeFile => 'Создать файл платежа';
+  String get sendMakeFile => 'Создать платёжный файл';
 
   @override
   String get sendFileMade => 'Файл создан';
@@ -3715,20 +3717,20 @@ class AppLocalizationsRu extends AppLocalizations {
       days,
       locale: localeName,
       other:
-          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
       many:
-          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
       few:
-          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
       one:
-          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+          'Сервер Epicbox получателя не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
     );
     return '$_temp0';
   }
 
   @override
   String get sendRelayRefusedLost =>
-      'Их ретранслятор не принял платёж. Проверьте Кошелёк, прежде чем отправлять снова.';
+      'Сервер Epicbox получателя не принял платёж. Проверьте «Кошелёк», прежде чем отправлять снова.';
 
   @override
   String get sendCancelAndFile => 'Отменить и оплатить файлом';
@@ -3756,7 +3758,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String balanceLineOnHold(String amount) {
-    return '$amount на удержании';
+    return '$amount заблокировано';
   }
 
   @override
@@ -3974,12 +3976,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String sendPinReason(String amount) {
-    return 'Введите PIN, чтобы отправить $amount.';
+    return 'Введите PIN-код, чтобы отправить $amount.';
   }
 
   @override
   String sendFilePinReason(String amount) {
-    return 'Введите PIN, чтобы создать файл платежа на $amount.';
+    return 'Введите PIN-код, чтобы создать платёжный файл на $amount.';
   }
 
   @override
@@ -3992,7 +3994,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsConfirming => 'Подтверждается';
 
   @override
-  String get outputsLockedTile => 'Заблокировано отправками';
+  String get outputsLockedTile => 'Заблокировано в отправках';
 
   @override
   String get outputsImmature => 'Не созрели';
@@ -4103,7 +4105,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String outputsMeanConfirming(int need) {
-    return 'Нужно $need подтверждений, прежде чем его можно потратить.';
+    return 'Можно потратить после подтверждений: $need.';
   }
 
   @override
@@ -4145,13 +4147,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsFactTransaction => 'Транзакция';
 
   @override
-  String get outputsFactCommitment => 'Обязательство';
+  String get outputsFactCommitment => 'Коммитмент';
 
   @override
   String get outputsCopy => 'Копировать';
 
   @override
-  String get outputsCopied => 'Обязательство скопировано';
+  String get outputsCopied => 'Коммитмент скопирован';
 
   @override
   String get outputsEmpty => 'Выходов пока нет';
@@ -4252,7 +4254,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String outputsSplitStarted(int count) {
-    return 'Разделение начато: $count выходов, подтверждение примерно через 3 блока';
+    return 'Разделение начато, выходов: $count; подтверждение примерно через 3 блока';
   }
 
   @override
@@ -4526,7 +4528,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netStatusTorOpenHint => 'Открывает настройки приватности';
 
   @override
-  String get netStatusDirectOpenHint => 'Открывает адрес прямого получения';
+  String get netStatusDirectOpenHint => 'Открывает прямой адрес для приёма';
 
   @override
   String get netStatusOpenHint => 'Показывает серверы';
@@ -4637,7 +4639,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get serverRelayWarning =>
-      'Ваш адрес содержит этот сервер. Смена меняет адрес; отправителям нужен новый.';
+      'Ваш адрес содержит этот сервер. При смене сервера адрес изменится; отправителям нужен новый.';
 
   @override
   String get serverRelaySwitchNote =>
@@ -4918,7 +4920,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvActBlock => 'Счёт';
 
   @override
-  String get deskInvActOpen => 'Открыть в счетах';
+  String get deskInvActOpen => 'Открыть в «Счетах»';
 
   @override
   String get deskInvActBilledBy => 'Выставил';
@@ -5162,11 +5164,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustWhere1 =>
-      'Доверить отправителю можно в [[Настройки › Счета]].';
+      'Добавить доверенного отправителя можно в [[Настройки › Счета]].';
 
   @override
   String get deskInvHelpTrustWhere2 =>
-      'Или включить **Доверять счета** у контакта в [[Контакты]].';
+      'Или включите **Доверенный для счетов** у контакта в [[Контакты]].';
 
   @override
   String get deskInvHelpTrustWhere3 =>
@@ -5282,15 +5284,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvIssuerPayerHelp =>
-      'Кошелёк плательщика показывает его в разделе Настройки › Счета.';
+      'Кошелёк плательщика показывает его в разделе «Настройки › Счета».';
 
   @override
   String get deskInvIssuerPayerMissing =>
       'Вставьте адрес для счетов плательщика.';
 
   @override
-  String get deskInvIssuerPayerInvalid =>
-      'Это не действительный адрес Epicbox.';
+  String get deskInvIssuerPayerInvalid => 'Это недействительный адрес Epicbox.';
 
   @override
   String get deskInvIssuerPayerOwn =>
@@ -5305,7 +5306,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvIssuerNoContacts =>
-      'Пока ни у одного контакта нет адреса для счетов. Добавьте его в Контактах.';
+      'Пока ни у одного контакта нет адреса для счетов. Добавьте его в разделе «Контакты».';
 
   @override
   String get deskInvIssuerNoInvoices =>
@@ -5500,12 +5501,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvNoticePaid(String payer, String amount) {
-    return '$payer оплатил(а) $amount EPIC.';
+    return 'Оплата от $payer: $amount EPIC.';
   }
 
   @override
   String deskInvNoticeDeclined(String payer) {
-    return '$payer отклонил(а) ваш счёт.';
+    return 'Плательщик $payer отклонил ваш счёт.';
   }
 
   @override
@@ -5514,7 +5515,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvNoticeWithdrawn(String service) {
-    return '$service отозвал(а) счёт до вашего ответа.';
+    return 'Сервис $service отозвал счёт до вашего ответа.';
   }
 
   @override
@@ -5574,7 +5575,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
-    return 'Ваш платёж $service не доставлен';
+    return 'Ваш платёж сервису $service не доставлен';
   }
 
   @override
@@ -5583,7 +5584,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerWithdrawnTitle(String service) {
-    return '$service отозвал оплаченный счёт';
+    return 'Сервис $service отозвал оплаченный вами счёт';
   }
 
   @override
@@ -5592,7 +5593,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerPastTtlTitle(String service) {
-    return 'Вашего платежа $service нет в блокчейне';
+    return 'Вашего платежа сервису $service нет в блокчейне';
   }
 
   @override
@@ -5611,7 +5612,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerSameBillTitle(String service, String ago) {
-    return 'Вы заплатили $service ту же сумму $ago назад';
+    return 'Вы заплатили сервису $service ту же сумму $ago назад';
   }
 
   @override
@@ -5642,7 +5643,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Написано сервисом. Кошелёк это не проверяет.';
 
   @override
-  String get deskInvPayerPaysTo => 'Платёж для';
+  String get deskInvPayerPaysTo => 'Получатель';
 
   @override
   String deskInvPayerTrustedSince(String service, String date) {
@@ -5674,7 +5675,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerNodeDownText =>
-      'Кошелёк не может проверить средства, поэтому не может заплатить. Одобрение снова заработает, когда узел ответит; другой узел можно выбрать в Настройки › Узел.';
+      'Кошелёк не может проверить средства, поэтому не может заплатить. Одобрение снова заработает, когда узел ответит; другой узел можно выбрать в разделе «Настройки › Узел».';
 
   @override
   String get deskInvPayerPaid =>
@@ -5689,7 +5690,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerApproveTitle(String amount, String fee, String service) {
-    return 'Заплатить $amount EPIC + $fee комиссии $service?';
+    return 'Заплатить сервису $service $amount EPIC + $fee комиссии?';
   }
 
   @override
@@ -5732,7 +5733,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerNotDeliveredToastText =>
-      'Сервер Epicbox не отвечает. Повторите в разделе Счета › Оплатить; без повторного одобрения.';
+      'Сервер Epicbox не отвечает. Повторите в разделе «Счета › Оплатить»; повторное одобрение не нужно.';
 
   @override
   String get deskInvPayerRetryFailed => 'Всё ещё не доставлено';
@@ -5750,7 +5751,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
-    return '$amount EPIC для $service';
+    return '$amount EPIC сервису $service';
   }
 
   @override
@@ -5887,7 +5888,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вставьте адрес, который показывает сервис.';
 
   @override
-  String get deskInvSetSenderInvalid => 'Это не действительный адрес Epicbox.';
+  String get deskInvSetSenderInvalid => 'Это недействительный адрес Epicbox.';
 
   @override
   String get deskInvSetTrust => 'Доверять';
@@ -5971,7 +5972,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvSetIssueNeeds => 'Нужен адрес для счетов контакта.';
 
   @override
-  String get deskInvSetShare => 'Поделиться адресом счетов';
+  String get deskInvSetShare => 'Поделиться адресом для счетов';
 
   @override
   String get deskInvSetReceiveHint =>
@@ -6051,7 +6052,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get methodSendDirectLine =>
-      'Их кошелёк должен быть открыт. Адрес onion идёт через Tor.';
+      'Кошелёк получателя должен быть открыт. Платёж на адрес .onion идёт через Tor.';
 
   @override
   String get methodArtLabelDirect =>
@@ -6119,7 +6120,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveTabDirect => 'Напрямую';
 
   @override
-  String get receiveDirectNeedsTor => 'Прямое получение требует Tor.';
+  String get receiveDirectNeedsTor => 'Для прямого приёма нужен Tor.';
 
   @override
   String get receiveDirectMeanwhile =>
@@ -6192,6 +6193,7475 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get deskErrSomethingWrong => 'Что-то пошло не так';
+
+  @override
+  String get deskErrWrongPassword => 'Неверный пароль';
+
+  @override
+  String get deskErrPhraseInvalid => 'Неверная фраза восстановления';
+
+  @override
+  String get deskErrWalletExists => 'Такой кошелёк уже есть';
+
+  @override
+  String get deskErrWalletNotFound => 'Кошелёк не найден';
+
+  @override
+  String get deskErrNodeNotAnswering => 'Узел не отвечает';
+
+  @override
+  String get deskErrNotEnoughFunds => 'Недостаточно средств';
+
+  @override
+  String get deskErrNotTxFile => 'Это не файл транзакции для этого кошелька';
+
+  @override
+  String get deskErrEpicboxUnreachable => 'Сервер Epicbox недоступен';
+
+  @override
+  String get deskErrNotHttpAddress => 'Это не адрес http(s)';
+
+  @override
+  String get deskErrPlainHttp => 'Отправка по обычному HTTP не подтверждена';
+
+  @override
+  String get deskErrNotOnion => 'Это не адрес .onion';
+
+  @override
+  String get deskErrTorNotConnected => 'Tor не подключён';
+
+  @override
+  String get deskErrOnionUnreachable =>
+      'Кошелёк получателя недоступен через Tor';
+
+  @override
+  String get deskErrWalletBusy => 'Кошелёк занят. Повторите через минуту.';
+
+  @override
+  String get deskErrDbDamaged =>
+      'База данных кошелька повреждена, идёт восстановление';
+
+  @override
+  String get deskErrPaymentExpired => 'Срок платежа истёк';
+
+  @override
+  String get deskErrInvoiceNotFound => 'Счёт не найден';
+
+  @override
+  String get deskErrAmountMismatch => 'Сумма не совпадает со счётом';
+
+  @override
+  String get deskErrInvoicePaid => 'Счёт уже оплачен';
+
+  @override
+  String get deskErrInvoiceLocked =>
+      'Счёт заблокирован до более позднего блока';
+
+  @override
+  String get deskErrInvoiceChanged => 'Счёт изменился';
+
+  @override
+  String get deskErrNotAccepted => 'Не принято';
+
+  @override
+  String deskErrNotAcceptedDetail(String detail) {
+    return 'Не принято: $detail';
+  }
+
+  @override
+  String get deskErrDisk => 'Ошибка диска';
+
+  @override
+  String deskErrDiskDetail(String detail) {
+    return 'Ошибка диска: $detail';
+  }
+
+  @override
+  String get deskErrTorMissing => 'Tor не входит в эту сборку';
+
+  @override
+  String get deskErrTorNetwork => 'Не удаётся подключиться к сети Tor';
+
+  @override
+  String get deskErrTorClock => 'Часы компьютера идут неверно';
+
+  @override
+  String get deskErrOnionNotPublished => 'Адрес .onion не опубликован';
+
+  @override
+  String get deskErrTorStart => 'Tor не запустился';
+
+  @override
+  String get deskErrTorStopped => 'Tor остановился';
+
+  @override
+  String get deskErrScanRunning => 'Сканирование уже идёт.';
+
+  @override
+  String get deskErrCancelRefused =>
+      'Не отменено: этот платёж уже есть у узла.';
+
+  @override
+  String get deskErrWalletLocked => 'Кошелёк заблокирован';
+
+  @override
+  String get deskErrWalletLocking => 'Кошелёк блокируется';
+
+  @override
+  String deskErrDbDamagedDetail(String detail) {
+    return 'База данных кошелька повреждена. $detail';
+  }
+
+  @override
+  String deskErrWalletClosed(String detail) {
+    return 'Кошелёк закрыт: $detail. Разблокируйте его снова.';
+  }
+
+  @override
+  String deskErrNotChanged(String detail) {
+    return 'Не изменено: $detail';
+  }
+
+  @override
+  String deskErrPasswordShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Не меньше $count символа',
+      many: 'Не меньше $count символов',
+      few: 'Не меньше $count символов',
+      one: 'Не меньше $count символа',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrWalletNotListed => 'Кошелька нет в списке';
+
+  @override
+  String get deskErrUpdateApp => 'Чтобы изменить список, обновите приложение';
+
+  @override
+  String get deskErrListNotChanged => 'Список кошельков не изменён';
+
+  @override
+  String get deskErrOpenToDelete => 'Чтобы удалить кошелёк, откройте его';
+
+  @override
+  String get deskErrEnterPassword => 'Введите пароль';
+
+  @override
+  String get deskErrFolderNotFound => 'Папка кошелька не найдена';
+
+  @override
+  String deskErrAlreadyHere(String name) {
+    return 'Этот кошелёк уже здесь: $name';
+  }
+
+  @override
+  String get deskErrTestNet =>
+      'Кошелёк тестовой сети. Импортировать можно только кошельки Mainnet.';
+
+  @override
+  String get deskErrWalletInApp => 'Этот кошелёк уже есть в приложении.';
+
+  @override
+  String get deskErrWalletNotFoundSearch => 'Кошелёк не найден. Поищите снова.';
+
+  @override
+  String get deskErrEnterOldPassword => 'Введите старый пароль';
+
+  @override
+  String deskErrOldPasswordShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Старый пароль слишком короткий. Придумайте новый, не короче $count символа.',
+      many:
+          'Старый пароль слишком короткий. Придумайте новый, не короче $count символов.',
+      few:
+          'Старый пароль слишком короткий. Придумайте новый, не короче $count символов.',
+      one:
+          'Старый пароль слишком короткий. Придумайте новый, не короче $count символа.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrSeedUnreadable => 'Не удалось прочитать файл wallet.seed';
+
+  @override
+  String get deskErrNotSeedFile => 'Это не файл wallet.seed';
+
+  @override
+  String deskErrAlreadyInApp(String name) {
+    return 'Уже есть в приложении как $name';
+  }
+
+  @override
+  String get deskErrWrongOldPassword => 'Неверный старый пароль';
+
+  @override
+  String get deskErrListNotSaved => 'Список кошельков не сохранён';
+
+  @override
+  String get deskErrProofSeedRead => 'Seed прочитан';
+
+  @override
+  String get deskErrProofWalletCreated => 'Кошелёк создан';
+
+  @override
+  String deskErrProofContacts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Добавлено $count контакта',
+      many: 'Добавлено $count контактов',
+      few: 'Добавлено $count контакта',
+      one: 'Добавлен $count контакт',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofNode(String name) {
+    return 'Узел $name добавлен в список узлов';
+  }
+
+  @override
+  String deskErrProofEpicbox(String old, String current) {
+    return 'Старое приложение использовало сервер Epicbox $old; это приложение использует $current';
+  }
+
+  @override
+  String get deskErrProofFolderUnchanged => 'Старая папка не изменена';
+
+  @override
+  String get deskErrProofFolderChanged =>
+      'Старая папка изменена другой программой';
+
+  @override
+  String deskErrProofHistory(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'История: $count транзакции',
+      many: 'История: $count транзакций',
+      few: 'История: $count транзакции',
+      one: 'История: $count транзакция',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrProofHistoryAlready => 'История уже импортирована';
+
+  @override
+  String get deskErrProofHistoryNone =>
+      'В старой папке нет истории; баланс восстановит сканирование';
+
+  @override
+  String get deskErrProofHistoryOld =>
+      'Историю Epic Wallet 5.3 и старше прочитать нельзя; баланс восстановит сканирование';
+
+  @override
+  String get deskErrProofHistoryBusy =>
+      'История не импортирована: старый кошелёк запущен. Она будет импортирована при следующей разблокировке';
+
+  @override
+  String get deskErrProofHistoryOther =>
+      'История не импортирована: она относится к другому кошельку';
+
+  @override
+  String get deskErrProofHistoryUnreadable =>
+      'История не импортирована: не удалось прочитать старую базу данных; баланс восстановит сканирование';
+
+  @override
+  String get deskErrNodeNoAnswer => 'Узел не ответил';
+
+  @override
+  String get deskErrNotPosted => 'Не отправлено в сеть';
+
+  @override
+  String get deskErrNotEpicboxAddress => 'Это не адрес Epicbox';
+
+  @override
+  String get deskErrFileNotSaved =>
+      'Файл не сохранён. Платёж ждёт в «Активности»; отмените его там, чтобы разблокировать средства.';
+
+  @override
+  String get deskErrTorOffSend =>
+      'Tor выключен. Чтобы отправить на адрес .onion, включите Tor.';
+
+  @override
+  String get deskErrTorConnecting =>
+      'Tor ещё подключается. Повторите через минуту.';
+
+  @override
+  String get deskErrRecipientNoAnswer =>
+      'Кошелёк получателя не ответил или отказал.';
+
+  @override
+  String get deskErrRecipientNoAnswerWaits =>
+      'Кошелёк получателя не ответил или отказал. Платёж ждёт в «Активности»; отмените его там, чтобы разблокировать средства.';
+
+  @override
+  String get deskErrNotDelivered =>
+      'Не доставлено. Платёж ждёт в «Активности»; отмените его там, чтобы разблокировать средства.';
+
+  @override
+  String get deskErrInterruptedLock =>
+      'Прервано блокировкой. Возможно, платёж ушёл: после разблокировки проверьте «Активность».';
+
+  @override
+  String deskErrStoredWaits(String detail) {
+    return '$detail. Платёж ждёт в «Активности»; отмените его там, чтобы разблокировать средства.';
+  }
+
+  @override
+  String get deskErrNodeRefused =>
+      'Оба кошелька подписали, но узел отклонил транзакцию. Отмените её в «Активности», чтобы разблокировать средства.';
+
+  @override
+  String get deskErrFileNotReadable => 'Файл не читается';
+
+  @override
+  String get deskErrNotTxFile2 => 'Это не файл транзакции';
+
+  @override
+  String get deskErrResponseNotSaved => 'Файл ответа не сохранён';
+
+  @override
+  String get deskErrCannotCancel => 'Этот платёж нельзя отменить';
+
+  @override
+  String get deskErrNoLocalNode => 'В этой сборке нет локального узла';
+
+  @override
+  String get deskErrLocalNodeStopped => 'Локальный узел остановлен';
+
+  @override
+  String get deskErrNotChangedLocked => 'Не изменено: кошелёк был заблокирован';
+
+  @override
+  String deskErrLocalNodeNotStarted(String detail) {
+    return 'Локальный узел не запущен: $detail';
+  }
+
+  @override
+  String get deskErrUnknown => 'неизвестная ошибка';
+
+  @override
+  String get deskErrNotServerName => 'Это не имя сервера';
+
+  @override
+  String deskErrPortInUse(int port) {
+    return 'Порт $port занят';
+  }
+
+  @override
+  String deskErrPortUnavailable(int port) {
+    return 'Порт $port недоступен';
+  }
+
+  @override
+  String get deskErrStoppedWithError => 'Остановлен с ошибкой';
+
+  @override
+  String get deskErrPasswordNotChanged =>
+      'Пароль не изменён. Кошелёк по-прежнему открывается текущим паролем.';
+
+  @override
+  String get deskErrNothingToSpend => 'Нечего тратить';
+
+  @override
+  String get deskTorLineOff => 'Выкл.';
+
+  @override
+  String get deskTorLineReady => 'Готов';
+
+  @override
+  String deskTorLineSendsWork(String problem) {
+    return '$problem. Отправка работает.';
+  }
+
+  @override
+  String get deskTorLinePublishing => 'Публикация адреса .onion…';
+
+  @override
+  String deskTorLineConnecting(int percent) {
+    return 'Подключение к Tor… $percent %';
+  }
+
+  @override
+  String get deskErrHistOtherWallet => 'Копия другого кошелька';
+
+  @override
+  String get deskErrHistOtherChain => 'Не та сеть';
+
+  @override
+  String get deskErrHistNotOurs => 'Это не резервная копия истории';
+
+  @override
+  String get deskErrHistNewer => 'Файл новее';
+
+  @override
+  String get deskErrHistDamaged => 'Файл повреждён';
+
+  @override
+  String get deskErrOldGui => 'Старый Epic Wallet';
+
+  @override
+  String get deskErrOldCli => 'Программа epic';
+
+  @override
+  String get deskErrOldPicked => 'Выбранные папки';
+
+  @override
+  String get deskErrHistTooLarge => 'Файл слишком большой для резервной копии.';
+
+  @override
+  String deskErrHistChains(String from, String to) {
+    return 'Файл из сети $from; этот кошелёк в сети $to.';
+  }
+
+  @override
+  String get deskErrHistOtherWalletText =>
+      'Файл экспортирован из кошелька с другой фразой восстановления.';
+
+  @override
+  String get deskErrHistNewerText =>
+      'Этот файл создан более новой версией приложения. Обновите приложение, затем импортируйте его.';
+
+  @override
+  String get deskErrHistDamagedText => 'Файл неполный или был изменён.';
+
+  @override
+  String get deskErrHistNotOursText =>
+      'Файл создан не в Epic Cash Desktop и не в Epic Cash Mobile.';
+
+  @override
+  String get deskDataHttpEnter => 'Введите адрес получателя';
+
+  @override
+  String get deskDataHttpScheme => 'Начните с https:// или http://';
+
+  @override
+  String get deskDataHttpOnion => 'Для адресов .onion нужен Tor';
+
+  @override
+  String get deskDataHttpNot => 'Это не адрес http(s)';
+
+  @override
+  String get deskDataHttpPort => 'Порт должен быть от 1 до 65535';
+
+  @override
+  String get deskDataUpdTimeout => 'Сервер обновлений не ответил.';
+
+  @override
+  String get deskDataUpdUnreachable =>
+      'Не удалось связаться с сервером обновлений.';
+
+  @override
+  String deskDataUpdStatus(int status) {
+    return 'Сервер обновлений ответил: $status.';
+  }
+
+  @override
+  String get deskDataUpdNone =>
+      'Сведений об обновлениях для настольной версии пока нет.';
+
+  @override
+  String get deskNodeSynced => 'Синхронизирован';
+
+  @override
+  String get deskNodeBehind => 'Отстаёт';
+
+  @override
+  String get deskNodeNotAnswering => 'Не отвечает';
+
+  @override
+  String get deskNodeChecking => 'Проверка';
+
+  @override
+  String get deskNodeStarting => 'Запуск';
+
+  @override
+  String get deskNodeSyncing => 'Синхронизация';
+
+  @override
+  String get deskNodeStalled => 'Застрял';
+
+  @override
+  String get deskNodeFailed => 'Ошибка';
+
+  @override
+  String get deskNodeStopped => 'Остановлен';
+
+  @override
+  String get deskNodeMarkerNoAnswer => 'нет ответа';
+
+  @override
+  String deskNodeMarkerBehind(String count) {
+    return 'отстаёт на $count';
+  }
+
+  @override
+  String get deskNodeMarkerStarting => 'запуск';
+
+  @override
+  String get deskNodeMarkerStalled => 'застрял';
+
+  @override
+  String get deskNodeMarkerFailed => 'ошибка';
+
+  @override
+  String get deskNodeMarkerStopped => 'остановлен';
+
+  @override
+  String deskNodeHostSince(String host, String time) {
+    return '$host · с $time';
+  }
+
+  @override
+  String get deskNodeNotAnsweringLine => 'Узел не отвечает.';
+
+  @override
+  String deskNodeLatency(String ms) {
+    return '$ms мс';
+  }
+
+  @override
+  String deskNodeLatencyOverTor(String ms) {
+    return '$ms мс через Tor';
+  }
+
+  @override
+  String deskNodeNewerOut(String version) {
+    return 'вышла версия $version';
+  }
+
+  @override
+  String get deskNodeBehindLine => 'Отстаёт от сети; догоняет.';
+
+  @override
+  String deskNodeHeightOf(String height, String total) {
+    return '$height из $total';
+  }
+
+  @override
+  String get deskNodeAtTip => 'актуален';
+
+  @override
+  String get deskNodeLocal => 'Локальный узел';
+
+  @override
+  String get deskNodeConnectingPeers => 'Подключение к пирам';
+
+  @override
+  String deskNodeUsingUntilSynced(String host) {
+    return 'Пока он не синхронизирован, используется $host.';
+  }
+
+  @override
+  String get deskNodeNothingUntilSynced =>
+      'Пока он не синхронизирован, отправить ничего нельзя.';
+
+  @override
+  String deskNodePeers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count пира',
+      many: '$count пиров',
+      few: '$count пира',
+      one: '$count пир',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskNodeRunning(String duration) {
+    return 'работает $duration';
+  }
+
+  @override
+  String deskNodeStillUsing(String host) {
+    return 'Пока используется $host; скоро его заменит локальный узел.';
+  }
+
+  @override
+  String get deskNodeNoProgress =>
+      'Нет прогресса 5 мин. Один перезапуск уже был.';
+
+  @override
+  String deskNodeUsingMeanwhile(String host) {
+    return 'Пока используется $host.';
+  }
+
+  @override
+  String get deskNodeStartIt => 'Запустите его в разделе «Настройки › Узел».';
+
+  @override
+  String get deskNodeFailPort => 'порт 3413 занят другой программой';
+
+  @override
+  String get deskNodeFailDisk => 'недостаточно места на диске';
+
+  @override
+  String get deskNodeFailMissing => 'программа узла не найдена';
+
+  @override
+  String get deskNodeFailExited => 'программа узла остановилась';
+
+  @override
+  String deskNodeFailExitedCode(String code) {
+    return 'программа узла остановилась (код выхода $code)';
+  }
+
+  @override
+  String get deskNodeFailDefault => 'узел не запустился';
+
+  @override
+  String get deskNodeStageWaiting => 'подключение к пирам';
+
+  @override
+  String get deskNodeStageHeaders => 'заголовки';
+
+  @override
+  String get deskNodeStageChainDownload => 'загрузка состояния цепочки';
+
+  @override
+  String get deskNodeStageKernels => 'проверка ядер';
+
+  @override
+  String get deskNodeStageRangeProofs => 'проверка доказательств диапазона';
+
+  @override
+  String get deskNodeStageProcessing => 'обработка состояния цепочки';
+
+  @override
+  String get deskNodeStageBlocks => 'блоки';
+
+  @override
+  String get deskNodeStageCompacting => 'сжатие';
+
+  @override
+  String get deskNodeStageStopping => 'остановка';
+
+  @override
+  String get deskNodeStageSyncing => 'синхронизация';
+
+  @override
+  String get deskNodeLineWaiting => 'Подключение к пирам';
+
+  @override
+  String deskNodeLineHeaders(String done, String total) {
+    return 'Заголовки · $done из $total';
+  }
+
+  @override
+  String get deskNodeLineHeadersBare => 'Заголовки';
+
+  @override
+  String deskNodeLineChain(String done, String total) {
+    return 'Состояние цепочки · $done из $total ГБ';
+  }
+
+  @override
+  String get deskNodeLineChainBare => 'Состояние цепочки';
+
+  @override
+  String deskNodeLineKernels(String done, String total) {
+    return 'Проверка ядер · $done из $total млн';
+  }
+
+  @override
+  String get deskNodeLineKernelsBare => 'Проверка ядер';
+
+  @override
+  String deskNodeLineRangeProofs(String done, String total) {
+    return 'Проверка доказательств диапазона · $done из $total млн';
+  }
+
+  @override
+  String get deskNodeLineRangeProofsBare => 'Проверка доказательств диапазона';
+
+  @override
+  String get deskNodeLineProcessing => 'Обработка состояния цепочки';
+
+  @override
+  String deskNodeLineBlocks(String done, String total) {
+    return 'Блоки · $done из $total';
+  }
+
+  @override
+  String get deskNodeLineBlocksBare => 'Блоки';
+
+  @override
+  String get deskNodeLineCompacting => 'Сжатие данных цепочки';
+
+  @override
+  String get deskNodeLineStopping => 'Остановка…';
+
+  @override
+  String get deskNodeLineSyncing => 'Синхронизация';
+
+  @override
+  String get deskNodeNoEstimate => 'без оценки; до часа';
+
+  @override
+  String get deskNodeEstimating => 'оценка…';
+
+  @override
+  String deskNodeAboutHours(int hours) {
+    return 'осталось около $hours ч';
+  }
+
+  @override
+  String deskNodeAboutMinutes(int minutes) {
+    return 'осталось около $minutes мин';
+  }
+
+  @override
+  String deskNodeDurationHm(int hours, int minutes) {
+    return '$hours ч $minutes мин';
+  }
+
+  @override
+  String deskNodeDurationM(int minutes) {
+    return '$minutes мин';
+  }
+
+  @override
+  String get deskTorNetworkLabel => 'Сеть Tor';
+
+  @override
+  String get deskTorNetworkHint =>
+      'Сетевая активность идёт через сеть Tor. Tor скрывает интернет-адрес кошелька: каждое соединение проходит через несколько узлов, которые держат добровольцы, и ни один сервер не узнаёт, где находится кошелёк.';
+
+  @override
+  String get deskTorOff => 'Выкл.';
+
+  @override
+  String get deskTorStarting => 'Запуск…';
+
+  @override
+  String get deskTorOn => 'Вкл.';
+
+  @override
+  String get deskTorNotConnected => 'Нет подключения';
+
+  @override
+  String get deskTorRoutes =>
+      'Epicbox, узел, статус, курс, обновления, поддержка и адреса Tor';
+
+  @override
+  String get deskTorCoverage =>
+      'Через Tor: Epicbox, узел, статус, курс, обновления, поддержка и адреса Tor.';
+
+  @override
+  String get deskTorNodeOver => 'Через Tor';
+
+  @override
+  String get deskTorNodeNotEncrypted => 'После Tor без шифрования';
+
+  @override
+  String get deskTorNodeWaits => 'Ждёт подключения Tor.';
+
+  @override
+  String get deskRecvTitle => 'Получить';
+
+  @override
+  String get deskRecvReceiving => 'Приём';
+
+  @override
+  String get deskRecvNameFile => 'Файл';
+
+  @override
+  String deskRecvTurnOnFailed(String method) {
+    return '$method: не удалось включить';
+  }
+
+  @override
+  String deskRecvTurnOffFailed(String method) {
+    return '$method: не удалось выключить';
+  }
+
+  @override
+  String get deskRecvOtherWays => 'Другие способы приёма';
+
+  @override
+  String get deskRecvSettings => 'Настройки';
+
+  @override
+  String get deskRecvTorNotConnected => 'Tor не подключён.';
+
+  @override
+  String get deskRecvTorStarting => 'Tor запускается.';
+
+  @override
+  String deskRecvTorDownText(String routes) {
+    return '$routes: ничего не придёт, пока Tor не подключится или пока его не выключат.';
+  }
+
+  @override
+  String get deskRecvTorStartingText =>
+      'Адреса станут доступны, когда он подключится. Тем временем ничего не идёт в обход Tor.';
+
+  @override
+  String get deskRecvTurnTorOff => 'Выключить Tor';
+
+  @override
+  String get deskRecvTryAgain => 'Повторить';
+
+  @override
+  String get deskRecvStateOn => 'вкл.';
+
+  @override
+  String get deskRecvStateOff => 'выкл.';
+
+  @override
+  String get deskRecvStateChecking => 'проверка';
+
+  @override
+  String deskRecvSemList(String method, String state) {
+    return '$method $state';
+  }
+
+  @override
+  String deskRecvSemMethod(String method, String state) {
+    return '$method: $state';
+  }
+
+  @override
+  String deskRecvTipChecking(String method) {
+    return '$method · Проверка';
+  }
+
+  @override
+  String deskRecvTip(String method, String state) {
+    return '$method · $state';
+  }
+
+  @override
+  String deskRecvTipDetail(String method, String state, String detail) {
+    return '$method · $state\n$detail';
+  }
+
+  @override
+  String get deskRecvTagPaused => 'Приостановлен';
+
+  @override
+  String get deskRecvTagStarting => 'Запуск';
+
+  @override
+  String get deskRecvTagNotReachable => 'Недоступен';
+
+  @override
+  String get deskRecvAddressUnreadable =>
+      'Не удалось прочитать адрес. Откройте «Получить» снова через минуту.';
+
+  @override
+  String get deskRecvEpicboxAddress => 'Адрес Epicbox';
+
+  @override
+  String get deskRecvCopyEpicbox => 'Копировать адрес Epicbox';
+
+  @override
+  String get deskRecvEpicboxIntro =>
+      'Поделитесь им, чтобы получить оплату. Работает и при закрытом кошельке: сервер Epicbox хранит платежи, пока кошелёк не вернётся.';
+
+  @override
+  String get deskRecvCheckSix =>
+      'Читая его вслух, сверьте первые шесть и последние шесть символов.';
+
+  @override
+  String get deskRecvHttpAddress => 'Адрес HTTP';
+
+  @override
+  String get deskRecvCopyHttp => 'Копировать адрес HTTP';
+
+  @override
+  String deskRecvHttpPublic(int port) {
+    return 'Публичный адрес вашего роутера. Отправители из интернета смогут им пользоваться, когда роутер перенаправит порт $port.';
+  }
+
+  @override
+  String get deskRecvHttpLocal =>
+      'На этот адрес могут платить программы на этом компьютере. Для других устройств см. «Настройки › Приём».';
+
+  @override
+  String get deskRecvHttpIntro =>
+      'Напрямую из другого кошелька, пока этот открыт. Только на этом компьютере, если в настройках не указано иное.';
+
+  @override
+  String get deskRecvHttpTorHint =>
+      'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».';
+
+  @override
+  String get deskRecvDirectTor => 'Напрямую, адрес Tor';
+
+  @override
+  String get deskRecvTorIntro =>
+      'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».';
+
+  @override
+  String get deskRecvTorAddress => 'Адрес Tor';
+
+  @override
+  String get deskRecvCopyTor => 'Копировать адрес Tor';
+
+  @override
+  String get deskRecvTorOnion =>
+      'Некоторые кошельки показывают адрес без .onion; это один и тот же адрес.';
+
+  @override
+  String get deskRecvFiles => 'Файлы транзакций';
+
+  @override
+  String get deskRecvSignTitle => 'Подписать файл транзакции';
+
+  @override
+  String get deskRecvSignText =>
+      'Отправитель передал файл транзакции. Кошелёк подписывает его и сохраняет ответ для отправителя.';
+
+  @override
+  String get deskRecvOpen => 'Открыть';
+
+  @override
+  String get deskRecvFinalizeTitle => 'Завершить по файлу ответа';
+
+  @override
+  String get deskRecvFinalizeText =>
+      'На отправку файлом пришёл ответ. Завершение отправляет платёж в сеть.';
+
+  @override
+  String deskRecvSwitchLabel(String title) {
+    return '$title, приём';
+  }
+
+  @override
+  String get deskSendStrategySmallest => 'Наименьшие';
+
+  @override
+  String get deskSendStrategyAll => 'Все';
+
+  @override
+  String get deskSendBalanceAfter => 'Баланс после';
+
+  @override
+  String get deskSendSpendableUntil => 'Доступно до подтверждения сдачи';
+
+  @override
+  String deskSendSplitLine(int outputs, String fee) {
+    String _temp0 = intl.Intl.pluralLogic(
+      outputs,
+      locale: localeName,
+      other: 'Сдача делится на $outputs выхода (+$fee EPIC комиссии)',
+      many: 'Сдача делится на $outputs выходов (+$fee EPIC комиссии)',
+      few: 'Сдача делится на $outputs выхода (+$fee EPIC комиссии)',
+      one: 'Сдача делится на $outputs выход (+$fee EPIC комиссии)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendSplitWhy(int outputs, String each) {
+    String _temp0 = intl.Intl.pluralLogic(
+      outputs,
+      locale: localeName,
+      other:
+          'Чтобы следующая отправка не ждала подтверждения этой. Сдача вернётся $outputs выхода примерно по $each EPIC, а не одним.',
+      many:
+          'Чтобы следующая отправка не ждала подтверждения этой. Сдача вернётся $outputs выходами примерно по $each EPIC, а не одним.',
+      few:
+          'Чтобы следующая отправка не ждала подтверждения этой. Сдача вернётся $outputs выходами примерно по $each EPIC, а не одним.',
+      one:
+          'Чтобы следующая отправка не ждала подтверждения этой. Сдача вернётся $outputs выходом примерно по $each EPIC, а не одним.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSendSplitWhyLabel => 'Почему сдача делится';
+
+  @override
+  String deskSendLockNoChange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Без сдачи: $count выхода потрачено без остатка, ничего не ждёт.',
+      many: 'Без сдачи: $count выходов потрачено без остатка, ничего не ждёт.',
+      few: 'Без сдачи: $count выхода потрачены без остатка, ничего не ждёт.',
+      one: 'Без сдачи: $count выход потрачен без остатка, ничего не ждёт.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendLockAll(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Заблокировано всё: $count выхода, $amount EPIC, около 3 блоков.',
+      many: 'Заблокировано всё: $count выходов, $amount EPIC, около 3 блоков.',
+      few: 'Заблокировано всё: $count выхода, $amount EPIC, около 3 блоков.',
+      one: 'Заблокировано всё: $count выход, $amount EPIC, около 3 блоков.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendLockSome(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Заблокировано $count выхода, $amount EPIC, около 3 блоков.',
+      many: 'Заблокировано $count выходов, $amount EPIC, около 3 блоков.',
+      few: 'Заблокированы $count выхода, $amount EPIC, около 3 блоков.',
+      one: 'Заблокирован $count выход, $amount EPIC, около 3 блоков.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendStrategyLine(int count, String strategy) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Стратегия для этой отправки: $strategy · $count выхода.',
+      many: 'Стратегия для этой отправки: $strategy · $count выходов.',
+      few: 'Стратегия для этой отправки: $strategy · $count выхода.',
+      one: 'Стратегия для этой отправки: $strategy · $count выход.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewSplit(int outputs, String fee) {
+    String _temp0 = intl.Intl.pluralLogic(
+      outputs,
+      locale: localeName,
+      other: 'Сдача делится на $outputs выхода (+$fee EPIC).',
+      many: 'Сдача делится на $outputs выходов (+$fee EPIC).',
+      few: 'Сдача делится на $outputs выхода (+$fee EPIC).',
+      one: 'Сдача делится на $outputs выход (+$fee EPIC).',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewLocksNone(int count, String locked) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$locked EPIC в $count выхода; сдачи не будет.',
+      many: '$locked EPIC в $count выходах; сдачи не будет.',
+      few: '$locked EPIC в $count выходах; сдачи не будет.',
+      one: '$locked EPIC в $count выходе; сдачи не будет.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewLocksAll(int count, String locked) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Всё: $locked EPIC в $count выхода до подтверждения сдачи (3 блока). Доступного не остаётся.',
+      many:
+          'Всё: $locked EPIC в $count выходах до подтверждения сдачи (3 блока). Доступного не остаётся.',
+      few:
+          'Всё: $locked EPIC в $count выходах до подтверждения сдачи (3 блока). Доступного не остаётся.',
+      one:
+          'Всё: $locked EPIC в $count выходе до подтверждения сдачи (3 блока). Доступного не остаётся.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewLocksEverything(int count, String locked) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$locked EPIC в $count выхода до подтверждения сдачи (3 блока). Больше ничего пока не доступно.',
+      many:
+          '$locked EPIC в $count выходах до подтверждения сдачи (3 блока). Больше ничего пока не доступно.',
+      few:
+          '$locked EPIC в $count выходах до подтверждения сдачи (3 блока). Больше ничего пока не доступно.',
+      one:
+          '$locked EPIC в $count выходе до подтверждения сдачи (3 блока). Больше ничего пока не доступно.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewLocksSome(int count, String locked, String spendable) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$locked EPIC в $count выхода до подтверждения сдачи (3 блока). Доступными остаются $spendable EPIC.',
+      many:
+          '$locked EPIC в $count выходах до подтверждения сдачи (3 блока). Доступными остаются $spendable EPIC.',
+      few:
+          '$locked EPIC в $count выходах до подтверждения сдачи (3 блока). Доступными остаются $spendable EPIC.',
+      one:
+          '$locked EPIC в $count выходе до подтверждения сдачи (3 блока). Доступными остаются $spendable EPIC.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSendFactLocks => 'Блокирует';
+
+  @override
+  String get deskSendFactStrategy => 'Стратегия';
+
+  @override
+  String deskSendFactStrategyValue(String strategy) {
+    return '$strategy выходы, для этой отправки';
+  }
+
+  @override
+  String get deskSendAdvSmallest => '· Наименьшие выходы';
+
+  @override
+  String get deskSendAdvSmallestNoSplit =>
+      '· Наименьшие выходы, сдача не делится';
+
+  @override
+  String get deskSendAdvAll => '· Все выходы';
+
+  @override
+  String get deskSendAdvAllNoSplit => '· Все выходы, сдача не делится';
+
+  @override
+  String get deskSendAdvanced => 'Дополнительно';
+
+  @override
+  String get deskSendAdvStrategy => 'Стратегия для этой отправки';
+
+  @override
+  String get deskSendAdvSmallestText =>
+      'Тратит как можно меньше мелких выходов; остальной баланс остаётся доступным, пока сдача подтверждается.';
+
+  @override
+  String get deskSendAdvAllText =>
+      'Тратит все доступные выходы и возвращает один выход сдачи. Всё заблокировано до подтверждения; потом выходов меньше и они крупнее.';
+
+  @override
+  String get deskSendDefaultTag => 'по умолчанию';
+
+  @override
+  String get deskSendAdvAllNote =>
+      'При отправке всего баланса тратятся все выходы.';
+
+  @override
+  String get deskSendAdvSplit => 'Делить сдачу';
+
+  @override
+  String get deskSendAdvSplitText =>
+      'Возвращает сдачу несколькими выходами, если их осталось бы мало, чтобы следующая отправка не ждала.';
+
+  @override
+  String get deskSendAdvDefaults =>
+      'Только для этой отправки. Значения по умолчанию: ';
+
+  @override
+  String get deskSendAdvOutputsLink => 'Выходы';
+
+  @override
+  String get deskSendPickNone => 'Контактов пока нет';
+
+  @override
+  String get deskSendPickNoneText =>
+      'Сохраните тех, кому платите, в «Контактах», а потом выбирайте их здесь.';
+
+  @override
+  String get deskSendPickOpen => 'Открыть контакты';
+
+  @override
+  String deskSendPickNoMatch(String query) {
+    return 'Нет контактов по запросу «$query».';
+  }
+
+  @override
+  String get deskSendPickTitle => 'Выбор контакта';
+
+  @override
+  String get deskSendPickDesc => 'Адрес подставится в поле получателя.';
+
+  @override
+  String get deskSendPickSearch => 'Поиск контактов';
+
+  @override
+  String get deskSendTitle => 'Отправить';
+
+  @override
+  String get deskSendErrNoAddress => 'Укажите адрес получателя.';
+
+  @override
+  String get deskSendErrEpicbox => 'Это недействительный адрес Epicbox.';
+
+  @override
+  String get deskSendErrNotDirect => 'Это не прямой адрес.';
+
+  @override
+  String get deskSendErrOnion => 'Это недействительный адрес .onion.';
+
+  @override
+  String get deskSendErrOwn => 'Это собственный адрес кошелька.';
+
+  @override
+  String get deskSendNoAnswer => 'Получатель не ответил. Ничего не отправлено.';
+
+  @override
+  String get deskSendTorOnFailed => 'Tor не включён';
+
+  @override
+  String get deskSendTorOffFailed => 'Tor не выключен';
+
+  @override
+  String get deskSendEpicboxOnFailed => 'Epicbox не включён';
+
+  @override
+  String get deskSendNothingSpendable => 'Нет доступных средств для отправки.';
+
+  @override
+  String get deskSendAllFailed =>
+      'Не удалось посчитать, сколько можно отправить. Повторите через минуту.';
+
+  @override
+  String get deskSendErrAmountEnter => 'Введите сумму.';
+
+  @override
+  String get deskSendErrAmountDecimals =>
+      'У EPIC не больше 8 знаков после запятой.';
+
+  @override
+  String get deskSendErrAmountZero => 'Сумма должна быть больше 0.';
+
+  @override
+  String get deskSendErrAmountMore => 'Больше доступного баланса.';
+
+  @override
+  String get deskSendSent => 'Отправлено';
+
+  @override
+  String get deskSendFileReadyTitle => 'Файл транзакции готов';
+
+  @override
+  String get deskSendFileReadyText =>
+      'Передайте этот файл получателю. Кошелёк ждёт файл ответа; когда он вернётся, завершите транзакцию.';
+
+  @override
+  String get deskSendFinalize => 'Завершить';
+
+  @override
+  String get deskSendNewSend => 'Новая отправка';
+
+  @override
+  String get deskSendNodeNotSynced => 'Узел не синхронизирован';
+
+  @override
+  String deskSendNodeSyncingPct(int percent) {
+    return 'Отправка станет возможна, когда узел синхронизируется. Готово $percent%; форму можно заполнить уже сейчас.';
+  }
+
+  @override
+  String get deskSendNodeSyncing =>
+      'Отправка станет возможна, когда узел синхронизируется.';
+
+  @override
+  String get deskSendTorBlocked => 'Tor не подключён';
+
+  @override
+  String get deskSendTorBlockedText =>
+      'Ничего не отправится, пока Tor не подключится или пока его не выключат.';
+
+  @override
+  String get deskSendTurnTorOff => 'Выключить Tor';
+
+  @override
+  String get deskSendTorStarting => 'Tor запускается';
+
+  @override
+  String get deskSendTorStartingText =>
+      'Отправка ждёт, пока он подключится. Тем временем ничего не идёт в обход Tor.';
+
+  @override
+  String get deskSendEpicboxOff => 'Epicbox не подключён';
+
+  @override
+  String get deskSendEpicboxOffText =>
+      'Отправка через Epicbox заработает, когда будет включён приём через Epicbox. А пока отправляйте файлом.';
+
+  @override
+  String get deskSendEpicboxTurnOn => 'Включить приём через Epicbox';
+
+  @override
+  String get deskSendDoneViaDirect => 'Завершено и отправлено в сеть.';
+
+  @override
+  String get deskSendDoneViaEpicbox =>
+      'Передано в Epicbox. Завершится, когда получатель ответит.';
+
+  @override
+  String get deskSendViewTx => 'Открыть транзакцию';
+
+  @override
+  String get deskSendFailedTitle => 'Отправка не удалась';
+
+  @override
+  String get deskSendReviewAgain => 'Проверить снова';
+
+  @override
+  String get deskSendMethodDirect => 'Напрямую';
+
+  @override
+  String get deskSendMethodFile => 'Файл';
+
+  @override
+  String get deskSendTo => 'Кому';
+
+  @override
+  String get deskSendToHelp => 'Вставьте адрес или введите имя контакта.';
+
+  @override
+  String get deskSendToHint => 'Адрес или контакт';
+
+  @override
+  String get deskSendToSem => 'Получатель';
+
+  @override
+  String get deskSendClearTo => 'Очистить получателя';
+
+  @override
+  String get deskSendContacts => 'Контакты';
+
+  @override
+  String get deskSendNeedsTor => 'Нужен Tor';
+
+  @override
+  String get deskSendNeedsTorText => 'Адрес .onion доступен только через Tor.';
+
+  @override
+  String get deskSendNoTorBuild => 'В этой сборке нет Tor.';
+
+  @override
+  String get deskSendTurnOnTor => 'Включить Tor';
+
+  @override
+  String get deskSendHttpClearnet =>
+      'Платёж напрямую на адрес http(s) идёт через обычный интернет, не через Tor.';
+
+  @override
+  String get deskSendClear => 'Очистить';
+
+  @override
+  String get deskSendAmount => 'Сумма';
+
+  @override
+  String get deskSendAvailableNone => 'Доступно —';
+
+  @override
+  String deskSendAvailable(String amount) {
+    return 'Доступно $amount EPIC';
+  }
+
+  @override
+  String get deskSendAmountSem => 'Сумма в EPIC';
+
+  @override
+  String get deskSendAllButton => 'Всё';
+
+  @override
+  String get deskSendConfirmingHidden =>
+      'Часть баланса ещё подтверждается, её пока нельзя отправить.';
+
+  @override
+  String deskSendConfirming(String amount) {
+    return '$amount EPIC ещё подтверждаются, их пока нельзя отправить.';
+  }
+
+  @override
+  String get deskSendMessage => 'Сообщение';
+
+  @override
+  String get deskSendMessageHelp => 'Получатель увидит это сообщение.';
+
+  @override
+  String get deskSendPrivacyOn => 'Приватность · Dandelion++ вкл.';
+
+  @override
+  String get deskSendPrivacyOff => 'Приватность · Dandelion++ выкл.';
+
+  @override
+  String get deskSendDandelionText =>
+      'Пропускает транзакцию через несколько случайных узлов, прежде чем она разойдётся по сети, и сеть не может узнать, откуда она пришла.';
+
+  @override
+  String get deskSendHintSent =>
+      'Отправлено. Чтобы отправить снова, введите новую сумму и получателя.';
+
+  @override
+  String get deskSendHintNode => 'Ждём синхронизации узла.';
+
+  @override
+  String get deskSendHintEpicbox => 'Ждём подключения Epicbox.';
+
+  @override
+  String get deskSendHintTorWait => 'Ждём подключения Tor.';
+
+  @override
+  String get deskSendHintTorBlocked =>
+      'Повторите подключение Tor или выключите его.';
+
+  @override
+  String get deskSendHintNeedsTor =>
+      'Чтобы отправить на адрес .onion, включите Tor.';
+
+  @override
+  String get deskSendHintFix => 'Исправьте поля, отмеченные красным.';
+
+  @override
+  String get deskSendHintChecking => 'Считаем комиссию для этой суммы.';
+
+  @override
+  String get deskSendHintDefault => 'Ничего не отправится без подтверждения.';
+
+  @override
+  String get deskSendReviewWaitTor => 'Ждём Tor';
+
+  @override
+  String get deskSendReviewTorOff => 'Tor не подключён';
+
+  @override
+  String get deskSendReview => 'Проверить отправку';
+
+  @override
+  String get deskSendSummary => 'Итог';
+
+  @override
+  String get deskSendNetworkFee => 'Комиссия сети';
+
+  @override
+  String get deskSendTotal => 'Итого';
+
+  @override
+  String get deskSendUpdating => 'Баланс обновляется, пока кошелёк сканирует.';
+
+  @override
+  String get deskSendEpicboxLine1 => 'Получатель может быть офлайн.';
+
+  @override
+  String get deskSendEpicboxLine2 =>
+      'Сервер Epicbox хранит платёж, пока получатель не откроет кошелёк.';
+
+  @override
+  String get deskSendDirectLine1 => 'Прямо в кошелёк получателя.';
+
+  @override
+  String get deskSendDirectLine2 =>
+      'Адрес http(s) или .onion; .onion идёт через Tor. Кошелёк получателя должен быть открыт.';
+
+  @override
+  String get deskSendFileLine1 => 'Соединение не нужно.';
+
+  @override
+  String get deskSendFileLine2 =>
+      'Передайте файл, получите файл ответа и завершите платёж здесь.';
+
+  @override
+  String get deskSendTagDirect => 'Напрямую';
+
+  @override
+  String get deskSendTagFile => 'Файл';
+
+  @override
+  String get deskSendTagEpicbox => 'Через Epicbox';
+
+  @override
+  String get deskSendSwitchedDirect =>
+      'Прямой адрес. Выбран способ «Напрямую».';
+
+  @override
+  String get deskSendSwitchedFile => 'Адрес файла. Выбран способ «Файл».';
+
+  @override
+  String get deskSendSwitchedEpicbox => 'Адрес Epicbox. Выбран способ Epicbox.';
+
+  @override
+  String get deskSendMatching => 'Подходящие контакты';
+
+  @override
+  String deskSendMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Подходят $count контакта',
+      many: 'Подходят $count контактов',
+      few: 'Подходят $count контакта',
+      one: 'Подходит $count контакт',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSendWrongPassword => 'Неверный пароль.';
+
+  @override
+  String get deskSendNotConfirmed =>
+      'Не подтверждено. Проверьте «Активность», прежде чем отправлять снова.';
+
+  @override
+  String get deskSendViaEpicbox => 'Epicbox (получатель может быть офлайн)';
+
+  @override
+  String get deskSendViaDirect =>
+      'Напрямую (кошелёк получателя должен быть открыт)';
+
+  @override
+  String get deskSendViaTor =>
+      'Напрямую, через Tor (кошелёк получателя должен быть открыт)';
+
+  @override
+  String get deskSendViaFile => 'Файл транзакции';
+
+  @override
+  String deskSendUsesAll(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Использует все $count выхода · сдача 1 выход',
+      many: 'Использует все $count выходов · сдача 1 выход',
+      few: 'Использует все $count выхода · сдача 1 выход',
+      one: 'Использует свой $count выход · сдача 1 выход',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSendReviewTitle => 'Проверка и отправка';
+
+  @override
+  String get deskSendReviewDesc =>
+      'После публикации в сети отправку нельзя отменить.';
+
+  @override
+  String get deskSendFactTo => 'Кому';
+
+  @override
+  String get deskSendCheckChars =>
+      'Сверьте выделенные символы с тем, что дал получатель.';
+
+  @override
+  String get deskSendFactVia => 'Способ';
+
+  @override
+  String get deskSendFactPrivacy => 'Приватность';
+
+  @override
+  String get deskSendDandelionOn => 'Dandelion++ вкл.';
+
+  @override
+  String get deskSendDandelionOff => 'Dandelion++ выкл.';
+
+  @override
+  String get deskSendFactMessage => 'Сообщение';
+
+  @override
+  String get deskSendPassword => 'Пароль';
+
+  @override
+  String get deskSendPasswordHelp =>
+      'Каждая отправка запрашивает пароль кошелька.';
+
+  @override
+  String get deskSendBusyFile => 'Создаём файл.';
+
+  @override
+  String get deskSendBusyTor =>
+      'Связываемся с кошельком получателя через Tor… Это может занять время. Не закрывайте приложение.';
+
+  @override
+  String get deskSendBusy =>
+      'Отправка. Это может занять несколько секунд; не закрывайте окно.';
+
+  @override
+  String get deskSendBack => 'Назад';
+
+  @override
+  String get deskSendSending => 'Отправка';
+
+  @override
+  String deskSendConfirm(String amount) {
+    return 'Отправить $amount EPIC';
+  }
+
+  @override
+  String get deskSendPlainTitle => 'Без шифрования. Всё равно отправить?';
+
+  @override
+  String get deskSendPlainDesc =>
+      'Обычный HTTP к другому компьютеру. Любой на пути может прочитать транзакцию. https:// зашифрован.';
+
+  @override
+  String get deskSendPlainConfirm => 'Всё равно отправить';
+
+  @override
+  String deskSendEpicboxSwitched(String domain) {
+    return 'Переключено на $domain';
+  }
+
+  @override
+  String get deskSendEpicboxNotSwitched => 'Не переключено';
+
+  @override
+  String get deskSendEpicboxDownTitle => 'Сервер Epicbox не отвечает';
+
+  @override
+  String get deskSendEpicboxDownWait =>
+      'Платежи подождут, пока он не вернётся.';
+
+  @override
+  String deskSendEpicboxSwitchTo(String domain) {
+    return 'Переключиться на $domain?';
+  }
+
+  @override
+  String get deskSendEpicboxSwitch => 'Переключить';
+
+  @override
+  String get deskFinOpenFolder => 'Открыть папку';
+
+  @override
+  String get deskFinFolderNotOpened => 'Папка не открыта';
+
+  @override
+  String get deskFinWrongType => 'Это не файл ответа';
+
+  @override
+  String get deskFinWrongTypeText =>
+      'Этот файл не является файлом ответа. Выберите файл, который вернул получатель.';
+
+  @override
+  String get deskFinUnreadable => 'Файл не читается';
+
+  @override
+  String get deskFinUnreadableText =>
+      'Не удалось прочитать файл. Возможно, он повреждён или ещё копируется.';
+
+  @override
+  String get deskFinFailed => 'Не удалось завершить';
+
+  @override
+  String get deskFinFailedText =>
+      'Кошелёк не смог завершить этот файл. Возможно, он относится к другой транзакции или уже завершён.';
+
+  @override
+  String get deskFinNotPosted => 'Не отправлено в сеть';
+
+  @override
+  String get deskFinNotPostedText =>
+      'Транзакция завершена, но узел её не принял. Проверьте узел и повторите попытку.';
+
+  @override
+  String get deskFinPickTitle => 'Файл ответа';
+
+  @override
+  String get deskFinPosted => 'Транзакция отправлена в сеть';
+
+  @override
+  String get deskFinTitle => 'Завершить по файлу ответа';
+
+  @override
+  String get deskFinNoticeTitle => 'Для транзакции, созданной файлом';
+
+  @override
+  String get deskFinNoticeText =>
+      'Используйте файл ответа, который прислал получатель.';
+
+  @override
+  String get deskFinTryAgain => 'Повторить';
+
+  @override
+  String get deskFinPostedText =>
+      'Платёж завершён и отправлен в сеть. Следите за ним в «Активности».';
+
+  @override
+  String get deskFinAnother => 'Завершить другой файл';
+
+  @override
+  String get deskFinViewActivity => 'Открыть в «Активности»';
+
+  @override
+  String get deskFinBusy => 'Завершение и отправка в сеть';
+
+  @override
+  String get deskFinChoose => 'Выберите файл ответа';
+
+  @override
+  String get deskFinChooseText =>
+      'Кошелёк завершит транзакцию и отправит её в сеть.';
+
+  @override
+  String get deskFinChooseFile => 'Выбрать файл';
+
+  @override
+  String get deskImpWrongType => 'Это не файл транзакции';
+
+  @override
+  String get deskImpWrongTypeText =>
+      'Этот файл не является файлом транзакции. Выберите файл .slate или .tx, который передал отправитель.';
+
+  @override
+  String get deskImpUnreadable => 'Файл не читается';
+
+  @override
+  String get deskImpUnreadableText =>
+      'Не удалось прочитать файл. Возможно, он повреждён или ещё копируется.';
+
+  @override
+  String get deskImpNoPlace => 'Ничего не подписано';
+
+  @override
+  String get deskImpNoPlaceText =>
+      'Место для файла ответа не выбрано, поэтому ничего не подписано.';
+
+  @override
+  String get deskImpFailed => 'Не удалось подписать';
+
+  @override
+  String get deskImpFailedText =>
+      'Кошелёк не смог подписать этот файл. Возможно, он для другого кошелька или уже использован.';
+
+  @override
+  String deskImpFailedDetail(String detail) {
+    return 'Кошелёк не смог подписать этот файл. Возможно, он для другого кошелька или уже использован. $detail.';
+  }
+
+  @override
+  String get deskImpPickTitle => 'Файл транзакции';
+
+  @override
+  String get deskImpTitle => 'Подписать файл транзакции';
+
+  @override
+  String get deskImpNoticeTitle => 'Подпись ничего не тратит';
+
+  @override
+  String get deskImpNoticeText =>
+      'Отправьте файл ответа отправителю тем же способом, которым он передал файл.';
+
+  @override
+  String get deskImpSaved => 'Ответ сохранён';
+
+  @override
+  String get deskImpSavedText =>
+      'Отправьте файл ответа отправителю. EPIC поступят, когда отправитель завершит транзакцию.';
+
+  @override
+  String get deskImpAmount => 'Сумма ';
+
+  @override
+  String get deskImpAnother => 'Подписать другой файл';
+
+  @override
+  String get deskImpBusy => 'Подпись файла';
+
+  @override
+  String get deskImpChoose => 'Выберите файл транзакции';
+
+  @override
+  String get deskImpChooseText =>
+      'Кошелёк подпишет его и сохранит ответ для отправителя.';
+
+  @override
+  String get deskActNotUpdated => 'Не обновлено';
+
+  @override
+  String get deskActSearchHint => 'Адрес или слейт';
+
+  @override
+  String get deskActSearchHintEmpty => 'Пока искать нечего';
+
+  @override
+  String get deskActSearchLabel => 'Поиск транзакций';
+
+  @override
+  String get deskActClearSearch => 'Очистить поиск';
+
+  @override
+  String get deskActShowAmounts => 'Показать суммы';
+
+  @override
+  String get deskActHideAmounts => 'Скрыть суммы';
+
+  @override
+  String get deskActRefresh => 'Обновить';
+
+  @override
+  String get deskActTitle => 'Активность';
+
+  @override
+  String get deskActDetailReceived => 'Полученная транзакция';
+
+  @override
+  String get deskActDetailSent => 'Отправленная транзакция';
+
+  @override
+  String get deskActLoading => 'Загрузка транзакций';
+
+  @override
+  String get deskActWaitingNode => 'Ждём синхронизации узла.';
+
+  @override
+  String get deskActFilterAll => 'Все';
+
+  @override
+  String get deskActFilterReceived => 'Полученные';
+
+  @override
+  String get deskActFilterSent => 'Отправленные';
+
+  @override
+  String get deskActNoMatchTitle => 'Транзакции не найдены';
+
+  @override
+  String get deskActNoMatchText =>
+      'Попробуйте другой адрес или ID слейта либо сбросьте фильтр.';
+
+  @override
+  String deskActPageOf(int page, int pages) {
+    return 'Страница $page из $pages';
+  }
+
+  @override
+  String get deskActPrevPage => 'Предыдущая страница';
+
+  @override
+  String get deskActNextPage => 'Следующая страница';
+
+  @override
+  String get deskActPages => 'Страницы';
+
+  @override
+  String get deskActColFromTo => 'От / кому';
+
+  @override
+  String get deskActColStatus => 'Статус';
+
+  @override
+  String get deskActColTime => 'Время';
+
+  @override
+  String get deskActColAmount => 'Сумма';
+
+  @override
+  String get deskActEmptyTitle => 'Транзакций пока нет';
+
+  @override
+  String get deskActEmptyText =>
+      'Здесь появится каждый отправленный и полученный платёж, сначала новые: с кем он и на каком он этапе.';
+
+  @override
+  String get deskActStageWaiting => 'Ожидание';
+
+  @override
+  String get deskActStageWaitingText =>
+      'Оба кошелька подписывают платёж. Через Epicbox это происходит само.';
+
+  @override
+  String get deskActStageConfirming => 'Подтверждение';
+
+  @override
+  String get deskActStageConfirmingText =>
+      'Платёж в блокчейне. Примерно один блок в минуту.';
+
+  @override
+  String get deskActStageSpendable => 'Доступно';
+
+  @override
+  String deskActStageSpendableText(int needed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      needed,
+      locale: localeName,
+      other: 'После $needed подтверждения, примерно через $needed минуты.',
+      many: 'После $needed подтверждений, примерно через $needed минут.',
+      few: 'После $needed подтверждений, примерно через $needed минуты.',
+      one: 'После $needed подтверждения, примерно через $needed минуту.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskActShowAddress => 'Показать адрес';
+
+  @override
+  String get deskActReceiveFile => 'Получить файл';
+
+  @override
+  String get deskConTitle => 'Контакты';
+
+  @override
+  String get deskConLoading => 'Загрузка контактов';
+
+  @override
+  String get deskConNewTitle => 'Новый контакт';
+
+  @override
+  String get deskConEditTitle => 'Изменить контакт';
+
+  @override
+  String get deskConDetailsTitle => 'Подробности';
+
+  @override
+  String get deskConSearchHint => 'Имя или адрес';
+
+  @override
+  String get deskConSearchLabel => 'Поиск контактов';
+
+  @override
+  String get deskConClearSearch => 'Очистить поиск';
+
+  @override
+  String deskConCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count контакта',
+      many: '$count контактов',
+      few: '$count контакта',
+      one: '$count контакт',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskConNoMatches => 'Ничего не найдено';
+
+  @override
+  String deskConMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Найдено $count',
+      many: 'Найдено $count',
+      few: 'Найдено $count',
+      one: 'Найден $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskConSortName => 'Имя';
+
+  @override
+  String get deskConSortRecent => 'Недавние';
+
+  @override
+  String get deskConNone => 'Контактов пока нет.';
+
+  @override
+  String get deskConNoMatchList => 'Контакты не найдены';
+
+  @override
+  String get deskConAdd => 'Добавить контакт';
+
+  @override
+  String get deskConIdle =>
+      'Выберите контакт, чтобы увидеть подробности, отправить ему платёж, изменить или удалить его.';
+
+  @override
+  String get deskConEmptyTitle => 'Контактов пока нет';
+
+  @override
+  String get deskConEmptyText =>
+      'Сохраните людей и магазины, которым часто платите. На странице «Отправить» выберите имя, а не вставляйте адрес.';
+
+  @override
+  String get deskConEmptyLocal =>
+      'Контакты хранятся на этом компьютере. Они не входят во фразу восстановления.';
+
+  @override
+  String get deskConSendToAddress => 'Отправить на адрес';
+
+  @override
+  String deskConLastTx(String when) {
+    return 'Последняя транзакция: $when';
+  }
+
+  @override
+  String get deskConSend => 'Отправить';
+
+  @override
+  String get deskConEdit => 'Изменить';
+
+  @override
+  String get deskConStar => 'В избранное';
+
+  @override
+  String get deskConUnstar => 'Из избранного';
+
+  @override
+  String get deskConDelete => 'Удалить';
+
+  @override
+  String get deskConNotDeleted => 'Не удалено';
+
+  @override
+  String deskConDeleted(String name) {
+    return 'Контакт «$name» удалён';
+  }
+
+  @override
+  String get deskConAddrEpicbox => 'Адрес Epicbox';
+
+  @override
+  String get deskConAddrTor => 'Адрес Tor';
+
+  @override
+  String get deskConAddrHttp => 'Адрес HTTP';
+
+  @override
+  String get deskConNote => 'Заметка';
+
+  @override
+  String deskConTxWith(String name) {
+    return 'Транзакции с контактом «$name»';
+  }
+
+  @override
+  String get deskConAllTx => 'Все транзакции';
+
+  @override
+  String get deskConTxNone =>
+      'Транзакций с этим контактом пока нет. Здесь появятся платежи, отправленные ему со страницы «Отправить».';
+
+  @override
+  String get deskConTxReceived => 'Получено';
+
+  @override
+  String get deskConTxSent => 'Отправлено';
+
+  @override
+  String get deskConErrName => 'Дайте контакту имя.';
+
+  @override
+  String get deskConErrAddressEmpty => 'Добавьте адрес.';
+
+  @override
+  String get deskConErrAddressInvalid => 'Адрес не распознан';
+
+  @override
+  String get deskConAddPicture => 'Добавить фото';
+
+  @override
+  String get deskConChangePicture => 'Сменить фото';
+
+  @override
+  String get deskConRemovePicture => 'Удалить';
+
+  @override
+  String get deskConPictureHelp =>
+      'PNG, JPEG, WebP или GIF, до 10 МБ. В приложении хранится уменьшенная копия.';
+
+  @override
+  String get deskConFieldName => 'Имя';
+
+  @override
+  String get deskConFieldAddress => 'Адрес';
+
+  @override
+  String get deskConSaveFailed => 'Контакт не сохранён';
+
+  @override
+  String get deskConSave => 'Сохранить контакт';
+
+  @override
+  String deskConDeleteTitle(String name) {
+    return 'Удалить контакт «$name»?';
+  }
+
+  @override
+  String get deskConDeleteBody =>
+      'Адрес и заметка контакта будут удалены из этого кошелька. Прошлые транзакции останутся в «Активности». Это нельзя отменить.';
+
+  @override
+  String get deskConKeep => 'Оставить';
+
+  @override
+  String get deskConDeleteAction => 'Удалить контакт';
+
+  @override
+  String get deskOutNotUpdated => 'Не обновлено';
+
+  @override
+  String get deskOutTitle => 'Выходы';
+
+  @override
+  String get deskOutShowAmounts => 'Показать суммы';
+
+  @override
+  String get deskOutHideAmounts => 'Скрыть суммы';
+
+  @override
+  String get deskOutRefresh => 'Обновить';
+
+  @override
+  String get deskOutLockedNote =>
+      'Заблокированные выходы тратятся текущей транзакцией. Их сдача показана как ждущая завершения и не входит во «Всего», пока отправка не завершена, поэтому монеты учитываются один раз.';
+
+  @override
+  String get deskOutIntro =>
+      'Выходы — это части, из которых состоит баланс. Отправка тратит выходы целиком, платит получателю и возвращает остаток новым выходом; потраченные выходы заблокированы, пока отправка не подтвердится.';
+
+  @override
+  String deskOutCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count выхода',
+      many: '$count выходов',
+      few: '$count выхода',
+      one: '$count выход',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOutCardWait =>
+      'Дождитесь подтверждения отправки (около 3 блоков).';
+
+  @override
+  String get deskOutSplitNothing => 'Пока нечего разделять.';
+
+  @override
+  String deskOutSplitSpends(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Тратит $count выхода.',
+      many: 'Тратит $count выходов.',
+      few: 'Тратит $count выхода.',
+      one: 'Тратит $count выход.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOutSplitSpendsFee(int count, String fee) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Тратит $count выхода. Комиссия от $fee EPIC.',
+      many: 'Тратит $count выходов. Комиссия от $fee EPIC.',
+      few: 'Тратит $count выхода. Комиссия от $fee EPIC.',
+      one: 'Тратит $count выход. Комиссия от $fee EPIC.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOutConsNothing => 'Пока нечего объединять.';
+
+  @override
+  String get deskOutConsOne => 'Нечего объединять: доступен один выход.';
+
+  @override
+  String deskOutConsInto(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count выхода в 1.',
+      many: '$count выходов в 1.',
+      few: '$count выхода в 1.',
+      one: '$count выход в 1.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOutConsIntoFee(int count, String fee) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count выхода в 1. Комиссия $fee EPIC.',
+      many: '$count выходов в 1. Комиссия $fee EPIC.',
+      few: '$count выхода в 1. Комиссия $fee EPIC.',
+      one: '$count выход в 1. Комиссия $fee EPIC.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOutSplitCardTitle => 'Разделить';
+
+  @override
+  String get deskOutSplitCardText =>
+      'Делает из доступного баланса больше выходов, чтобы несколько отправок могли идти друг за другом без ожидания.';
+
+  @override
+  String get deskOutSplitCardButton => 'Разделить…';
+
+  @override
+  String get deskOutConsCardTitle => 'Объединить';
+
+  @override
+  String get deskOutConsCardText =>
+      'Сливает все доступные выходы в один. Следующая отправка дешевле; всё заблокировано до подтверждения.';
+
+  @override
+  String get deskOutConsCardButton => 'Объединить…';
+
+  @override
+  String get deskOutNotLoadedTitle => 'Выходы не загружены';
+
+  @override
+  String get deskOutNotLoadedText => 'Обновите, чтобы попробовать снова.';
+
+  @override
+  String get deskOutLoading => 'Загрузка данных кошелька';
+
+  @override
+  String get deskOutNoneTitle => 'Выходов пока нет';
+
+  @override
+  String get deskOutNoneText =>
+      'Первый полученный платёж создаст выход. Разделению и объединению нужно, с чем работать.';
+
+  @override
+  String get deskOutFilterAll => 'Все';
+
+  @override
+  String get deskOutFilterSpendable => 'Доступные';
+
+  @override
+  String get deskOutFilterConfirming => 'Подтверждаются';
+
+  @override
+  String get deskOutFilterLocked => 'Заблокированы';
+
+  @override
+  String get deskOutSearchHint => 'Коммитмент';
+
+  @override
+  String get deskOutSearchLabel => 'Поиск выходов';
+
+  @override
+  String get deskOutClearSearch => 'Очистить поиск';
+
+  @override
+  String get deskOutShowSpent => 'Показать потраченные';
+
+  @override
+  String get deskOutNoMatchTitle => 'Выходы не найдены';
+
+  @override
+  String get deskOutNoMatchText =>
+      'Попробуйте другой коммитмент или сбросьте фильтр.';
+
+  @override
+  String get deskOutClearFilter => 'Сбросить фильтр';
+
+  @override
+  String get deskOutTileSpendable => 'Доступно';
+
+  @override
+  String get deskOutTileConfirming => 'Подтверждается';
+
+  @override
+  String get deskOutTileImmature => 'Не созрело';
+
+  @override
+  String get deskOutTileLocked => 'Заблокировано в отправках';
+
+  @override
+  String get deskOutTileTotal => 'Всего';
+
+  @override
+  String get deskOutDefaultsTitle => 'Настройки отправок по умолчанию';
+
+  @override
+  String get deskOutStrategyTitle => 'Стратегия отправок';
+
+  @override
+  String get deskOutStrategyText =>
+      'Какие выходы тратит отправка. На странице «Отправить» её можно изменить для одной отправки в разделе «Дополнительно».';
+
+  @override
+  String get deskOutStrategySmallest => 'Наименьшие';
+
+  @override
+  String get deskOutStrategyAll => 'Все';
+
+  @override
+  String get deskOutStrategyHelp =>
+      '«Наименьшие» тратит как можно меньше мелких выходов, остальные остаются доступными. «Все» тратит всё и возвращает один выход.';
+
+  @override
+  String get deskOutStrategyHelpTitle => '«Наименьшие» или «Все»';
+
+  @override
+  String get deskOutSplitChangeTitle => 'Делить сдачу';
+
+  @override
+  String get deskOutSplitChangeText =>
+      'Если после отправки осталось бы меньше 3 доступных выходов, а сдача не меньше 1 EPIC, она вернётся несколькими выходами, до 4, не меньше 0,5 EPIC каждый. Каждый лишний выход стоит 0,004 EPIC.';
+
+  @override
+  String get deskOutColValue => 'Сумма';
+
+  @override
+  String get deskOutColStatus => 'Статус';
+
+  @override
+  String get deskOutColConfirmations => 'Подтв.';
+
+  @override
+  String get deskOutColHeight => 'Высота';
+
+  @override
+  String get deskOutColTransaction => 'Транзакция';
+
+  @override
+  String get deskOutColCommitment => 'Коммитмент';
+
+  @override
+  String get deskOutStatusSpendable => 'Доступен';
+
+  @override
+  String get deskOutStatusConfirming => 'Подтверждается';
+
+  @override
+  String deskOutConfirmations(int count, String number) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$number подтверждения',
+      many: '$number подтверждений',
+      few: '$number подтверждения',
+      one: '$number подтверждение',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOutStatusAwaiting => 'Ждёт завершения';
+
+  @override
+  String get deskOutNoteWaitingSender => 'ждёт отправителя';
+
+  @override
+  String get deskOutStatusUnpaid => 'Неоплаченный счёт';
+
+  @override
+  String get deskOutNoteNotInBalance => 'не входит в баланс';
+
+  @override
+  String get deskOutStatusImmature => 'Не созрел';
+
+  @override
+  String deskOutNoteBlocksToGo(int count, String number) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'осталось $number блока',
+      many: 'осталось $number блоков',
+      few: 'осталось $number блока',
+      one: 'остался $number блок',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOutStatusMining => 'Майнинг';
+
+  @override
+  String get deskOutStatusLocked => 'Заблокирован';
+
+  @override
+  String deskOutNoteBySend(int id) {
+    return 'отправкой #$id';
+  }
+
+  @override
+  String get deskOutStatusSpent => 'Потрачен';
+
+  @override
+  String deskOutTxReceived(String date) {
+    return 'Получено $date';
+  }
+
+  @override
+  String deskOutTxSent(String date) {
+    return 'Отправлено $date';
+  }
+
+  @override
+  String deskOutCopyCommitment(String short) {
+    return 'Копировать коммитмент $short';
+  }
+
+  @override
+  String deskOutSplitSpentPart(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count выхода ($amount EPIC)',
+      many: '$count выходов ($amount EPIC)',
+      few: '$count выхода ($amount EPIC)',
+      one: '$count выход ($amount EPIC)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOutSplitMadePart(int count, String amount) {
+    return 'новые выходы ($count) примерно по $amount EPIC';
+  }
+
+  @override
+  String deskOutConsMadePart(String amount) {
+    return 'один выход на $amount EPIC';
+  }
+
+  @override
+  String deskOutSplitDialogText(String spent, String made) {
+    return 'Тратит $spent и создаёт $made. Обычная сетевая транзакция на этот кошелёк, подтверждается через 3 блока, как любая отправка; до этого всё доступное заблокировано.';
+  }
+
+  @override
+  String deskOutConsDialogText(String spent, String made) {
+    return 'Тратит $spent и создаёт $made. Обычная сетевая транзакция на этот кошелёк, подтверждается через 3 блока, как любая отправка; до этого всё доступное заблокировано. Следующая отправка потратит один выход, поэтому её комиссия будет наименьшей.';
+  }
+
+  @override
+  String get deskOutFactFee => 'Комиссия сети';
+
+  @override
+  String get deskOutFactEach => 'Каждый выход';
+
+  @override
+  String deskOutFactAbout(String amount) {
+    return 'около $amount EPIC';
+  }
+
+  @override
+  String get deskOutFactLocked => 'Заблокировано';
+
+  @override
+  String deskOutFactLockedValue(String amount) {
+    return '$amount EPIC, около 3 блоков. Доступного не остаётся.';
+  }
+
+  @override
+  String get deskOutMakeLabel => 'Сколько выходов';
+
+  @override
+  String get deskOutMakeRange => 'От 2 до 10.';
+
+  @override
+  String get deskOutStepperFewer => 'Меньше';
+
+  @override
+  String get deskOutStepperMore => 'Больше';
+
+  @override
+  String get deskOutFeeWorking => 'Считаем комиссию';
+
+  @override
+  String get deskOutNoEstimate => 'Нет оценки';
+
+  @override
+  String get deskOutEachMin => 'Каждый выход должен быть не меньше 0,5 EPIC.';
+
+  @override
+  String get deskOutNotEnoughFee => 'Не хватает на комиссию.';
+
+  @override
+  String deskOutSplitInto(int count) {
+    return 'Разделить на $count';
+  }
+
+  @override
+  String get deskOutConsolidateButton => 'Объединить';
+
+  @override
+  String get deskOutPostingSplit =>
+      'Создаём и отправляем разделение в сеть. Не закрывайте приложение.';
+
+  @override
+  String get deskOutPostingCons =>
+      'Создаём и отправляем объединение в сеть. Не закрывайте приложение.';
+
+  @override
+  String get deskOutSplitPosted => 'Разделение отправлено в сеть';
+
+  @override
+  String get deskOutConsPosted => 'Объединение отправлено в сеть';
+
+  @override
+  String deskOutSplitDoneText(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Теперь в кошельке $count выхода примерно по $amount EPIC, они подтверждаются. Всё заблокировано до подтверждения (3 блока). В «Активности» две записи: отправка и получение, обе на этот кошелёк.',
+      many:
+          'Теперь в кошельке $count выходов примерно по $amount EPIC, они подтверждаются. Всё заблокировано до подтверждения (3 блока). В «Активности» две записи: отправка и получение, обе на этот кошелёк.',
+      few:
+          'Теперь в кошельке $count выхода примерно по $amount EPIC, они подтверждаются. Всё заблокировано до подтверждения (3 блока). В «Активности» две записи: отправка и получение, обе на этот кошелёк.',
+      one:
+          'Теперь в кошельке $count выход примерно по $amount EPIC, он подтверждается. Всё заблокировано до подтверждения (3 блока). В «Активности» две записи: отправка и получение, обе на этот кошелёк.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOutConsDoneText(String amount) {
+    return 'Один выход на $amount EPIC, подтверждается. Всё заблокировано до подтверждения (3 блока). В «Активности» две записи: отправка и получение, обе на этот кошелёк.';
+  }
+
+  @override
+  String get deskOutNotPostedTitle => 'Не отправлено в сеть.';
+
+  @override
+  String get deskOutNotPostedSplit =>
+      'Разделение создано и сохранено, но узел его не принял. Отправьте его снова или отмените, чтобы разблокировать выходы.';
+
+  @override
+  String get deskOutNotPostedCons =>
+      'Объединение создано и сохранено, но узел его не принял. Отправьте его снова или отмените, чтобы разблокировать выходы.';
+
+  @override
+  String get deskOutCancelSplit => 'Отменить разделение';
+
+  @override
+  String get deskOutCancelCons => 'Отменить объединение';
+
+  @override
+  String get deskOutPostAgain => 'Отправить снова';
+
+  @override
+  String get deskOutNotDoneTitle => 'Не выполнено';
+
+  @override
+  String deskOutNotDoneText(String error) {
+    return '$error. Выходы не изменились.';
+  }
+
+  @override
+  String get deskOutSomethingWrong => 'Что-то пошло не так';
+
+  @override
+  String get deskOutTryAgain => 'Повторить';
+
+  @override
+  String get deskOutToastNotPosted => 'Не отправлено в сеть';
+
+  @override
+  String get deskOutToastNotCancelled => 'Не отменено';
+
+  @override
+  String get deskOutSplitDialogTitle => 'Разделение выходов';
+
+  @override
+  String get deskOutConsDialogTitle => 'Объединение выходов';
+
+  @override
+  String get deskOutPostingDesc => 'Отправка в сеть.';
+
+  @override
+  String get deskOutDoneDesc => 'Готово.';
+
+  @override
+  String get deskOutSplitDesc =>
+      'Больше выходов, чтобы несколько отправок могли идти друг за другом.';
+
+  @override
+  String get deskOutConsDesc => 'Один выход вместо многих.';
+
+  @override
+  String deskOutNothingText(String what) {
+    return 'Нечего объединять: у кошелька $what. Объединение сливает несколько выходов в один.';
+  }
+
+  @override
+  String get deskOutWhatFewer => 'меньше двух доступных выходов';
+
+  @override
+  String get deskOutWhatOne => 'один доступный выход';
+
+  @override
+  String get deskOvNotUpdated => 'Не обновлено';
+
+  @override
+  String get deskOvNodeNotStarted => 'Узел не запущен';
+
+  @override
+  String get deskOvNodeAddrTitle => 'Адрес узла обновлён';
+
+  @override
+  String get deskOvNodeAddrText =>
+      'Теперь используется node.epiccash.com вместо node.epiccash.com:3413.';
+
+  @override
+  String get deskOvNodeIncompatTitle =>
+      'Версия этого узла несовместима с этим кошельком';
+
+  @override
+  String deskOvNodeUrl(String url) {
+    return 'Узел: $url';
+  }
+
+  @override
+  String get deskOvUsePublicNode => 'Публичный узел';
+
+  @override
+  String get deskOvUseLocalNode => 'Локальный узел';
+
+  @override
+  String get deskOvHide => 'Скрыть';
+
+  @override
+  String deskOvCantReachNode(String url) {
+    return 'Не удаётся связаться с узлом $url';
+  }
+
+  @override
+  String get deskOvCantReachNodeText =>
+      'Проверьте, что он запущен и доступен. Баланс может быть устаревшим, отправка приостановлена.';
+
+  @override
+  String get deskOvStarting => 'Запуск';
+
+  @override
+  String get deskOvStartNode => 'Запустить узел';
+
+  @override
+  String get deskOvNodeSettings => 'Настройки узла';
+
+  @override
+  String get deskOvTitle => 'Обзор';
+
+  @override
+  String get deskOvShowAmounts => 'Показать суммы';
+
+  @override
+  String get deskOvHideAmounts => 'Скрыть суммы';
+
+  @override
+  String get deskOvRefresh => 'Обновить';
+
+  @override
+  String get deskOvStepDone => 'готово';
+
+  @override
+  String get deskOvStepNow => 'выполняется';
+
+  @override
+  String get deskOvStepWait => 'ожидает';
+
+  @override
+  String deskOvStepSemantics(String text, String state) {
+    return '$text, $state';
+  }
+
+  @override
+  String get deskOvStartingUp => 'Запуск';
+
+  @override
+  String get deskOvStepUnlocked => 'Кошелёк разблокирован';
+
+  @override
+  String get deskOvStepConnected => 'Подключено к узлу';
+
+  @override
+  String get deskOvStepUpdating => 'Обновление баланса';
+
+  @override
+  String get deskOvStepEpicbox => 'Запуск приёма через Epicbox';
+
+  @override
+  String deskOvSyncTitle(int percent) {
+    return 'Синхронизация узла: $percent%';
+  }
+
+  @override
+  String deskOvSyncText(String block) {
+    return 'Загружаются блоки. Баланс показан на момент блока $block. Отправка станет доступна, когда узел догонит сеть.';
+  }
+
+  @override
+  String get deskOvSyncProgress => 'Ход синхронизации узла';
+
+  @override
+  String deskOvSyncOfChain(int percent) {
+    return '$percent% блокчейна';
+  }
+
+  @override
+  String get deskOvReceiveEpic => 'Получить EPIC';
+
+  @override
+  String get deskOvSend => 'Отправить';
+
+  @override
+  String get deskOvReceive => 'Получить';
+
+  @override
+  String get deskOvSendWaits =>
+      'Отправка станет доступна, когда узел синхронизируется.';
+
+  @override
+  String get deskOvAvailable => 'Доступно';
+
+  @override
+  String deskOvAsOfBlock(String block) {
+    return 'На блоке $block';
+  }
+
+  @override
+  String get deskOvEmptyHint =>
+      'Поделитесь адресом Epicbox, чтобы получить первые EPIC.';
+
+  @override
+  String get deskOvFiatNote => '  весь баланс, CoinGecko';
+
+  @override
+  String get deskOvBreakTotal => 'Всего';
+
+  @override
+  String get deskOvBreakConfirming => 'Подтверждается';
+
+  @override
+  String get deskOvBreakImmature => 'Не созрело';
+
+  @override
+  String get deskOvBreakAwaiting => 'Ждёт завершения';
+
+  @override
+  String get deskOvBreakLocked => 'Заблокировано в отправках';
+
+  @override
+  String get deskOvUpdating => 'Обновление';
+
+  @override
+  String get deskOvHiddenAmount => 'Сумма скрыта';
+
+  @override
+  String get deskOvLoading => 'Загрузка транзакций';
+
+  @override
+  String get deskOvEmptyTitle => 'Транзакций пока нет';
+
+  @override
+  String deskOvEmptyText(int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other:
+          'Полученные EPIC сначала появятся здесь как подтверждающиеся, а после $blocks блока станут доступны.',
+      many:
+          'Полученные EPIC сначала появятся здесь как подтверждающиеся, а после $blocks блоков станут доступны.',
+      few:
+          'Полученные EPIC сначала появятся здесь как подтверждающиеся, а после $blocks блоков станут доступны.',
+      one:
+          'Полученные EPIC сначала появятся здесь как подтверждающиеся, а после $blocks блока станут доступны.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOvShowAddress => 'Показать адрес';
+
+  @override
+  String get deskOvReceiveFile => 'Получить файл';
+
+  @override
+  String get deskOvRecent => 'Последние операции';
+
+  @override
+  String deskOvViewAll(int count) {
+    return 'Все ($count)';
+  }
+
+  @override
+  String deskOvPendingFiles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count отправки файлом открыты',
+      many: '$count отправок файлом открыты',
+      few: '$count отправки файлом открыты',
+      one: '$count отправка файлом открыта',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOvPendingText => 'Завершите их файлом ответа от получателя.';
+
+  @override
+  String get deskOvFinalize => 'Завершить';
+
+  @override
+  String get deskTxMethodFile => 'Файл';
+
+  @override
+  String get deskTxMiningReward => 'Награда за майнинг';
+
+  @override
+  String get deskTxReceived => 'Получено';
+
+  @override
+  String get deskTxSent => 'Отправлено';
+
+  @override
+  String get deskTxUnknownSender => 'Отправитель неизвестен';
+
+  @override
+  String get deskTxUnknownRecipient => 'Получатель неизвестен';
+
+  @override
+  String get deskTxNoteBlock => 'Время блока. Отправитель не записан.';
+
+  @override
+  String get deskTxNoteScanTime =>
+      'Время сканирования; время блока прочитать не удалось. Отправитель не записан.';
+
+  @override
+  String get deskTxNoteUnknown => 'Отправитель не записан.';
+
+  @override
+  String get deskTxFoundRestoredLabel => 'Восстановлено';
+
+  @override
+  String get deskTxFoundRestoredLine => 'Найдено при восстановлении';
+
+  @override
+  String get deskTxFoundRestoredStep =>
+      'Найдено при восстановлении этого кошелька';
+
+  @override
+  String get deskTxFoundRestoredTip =>
+      'Найдено в блокчейне при восстановлении этого кошелька. Отправитель не записан.';
+
+  @override
+  String get deskTxFoundRescanLabel => 'Найдено сканированием';
+
+  @override
+  String get deskTxFoundRescanLine => 'Найдено при сверке баланса';
+
+  @override
+  String get deskTxFoundRescanStep => 'Найдено при сверке баланса';
+
+  @override
+  String get deskTxFoundRescanTip =>
+      'Найдено в блокчейне при сверке баланса. Отправитель не записан.';
+
+  @override
+  String get deskTxFoundScanLine => 'Найдено сканированием';
+
+  @override
+  String get deskTxFoundScanStep => 'Найдено сканированием';
+
+  @override
+  String get deskTxFoundScanTip =>
+      'Найдено в блокчейне сканированием. Отправитель не записан.';
+
+  @override
+  String get deskTxBackupTip => 'Добавлено из резервной копии истории.';
+
+  @override
+  String get deskTxFromBackup => 'Из резервной копии';
+
+  @override
+  String get deskTxStatusImmature => 'Не созрело';
+
+  @override
+  String get deskTxStatusWaitingSender => 'Ждёт завершения отправителем';
+
+  @override
+  String get deskTxStatusWaitingResponseFile => 'Ждёт файл ответа';
+
+  @override
+  String get deskTxStatusWaitingRecipient => 'Ждёт подписи получателя';
+
+  @override
+  String get deskTxStatusWaitingBlock => 'Ждёт блок';
+
+  @override
+  String deskTxStatusConfirming(int confirmations, int needed) {
+    return 'Подтверждение $confirmations/$needed';
+  }
+
+  @override
+  String get deskTxStatusCancelled => 'Отменено';
+
+  @override
+  String get deskTxToday => 'сегодня';
+
+  @override
+  String get deskTxYesterday => 'вчера';
+
+  @override
+  String deskTxDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дня назад',
+      many: '$count дней назад',
+      few: '$count дня назад',
+      one: '$count день назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskTxTodayAt(String time) {
+    return 'Сегодня $time';
+  }
+
+  @override
+  String deskTxDayToday(String date) {
+    return 'Сегодня · $date';
+  }
+
+  @override
+  String deskTxDayYesterday(String date) {
+    return 'Вчера · $date';
+  }
+
+  @override
+  String deskTxFee(String amount) {
+    return 'Комиссия $amount';
+  }
+
+  @override
+  String get deskTxPaymentProof => 'Подтверждение платежа';
+
+  @override
+  String get deskTxFinalize => 'Завершить';
+
+  @override
+  String deskTxSemReceived(String amount, String who, String status) {
+    return 'Получено $amount, $who, $status';
+  }
+
+  @override
+  String deskTxSemSent(String amount, String who, String status) {
+    return 'Отправлено $amount, $who, $status';
+  }
+
+  @override
+  String deskTxSemKind(String kind, String amount, String who, String status) {
+    return '$kind $amount, $who, $status';
+  }
+
+  @override
+  String get deskTxHiddenAmount => 'сумма скрыта';
+
+  @override
+  String get deskTxNowBackup => 'Из резервной копии; блокчейн не запрашивался.';
+
+  @override
+  String deskTxNowImmature(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Подтверждено, но награду за майнинг можно потратить только после $count подтверждения.',
+      many:
+          'Подтверждено, но награду за майнинг можно потратить только после $count подтверждений.',
+      few:
+          'Подтверждено, но награду за майнинг можно потратить только после $count подтверждений.',
+      one:
+          'Подтверждено, но награду за майнинг можно потратить только после $count подтверждения.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskTxNowWaitingSender =>
+      'Подписано и возвращено. Ждём, пока отправитель завершит.';
+
+  @override
+  String get deskTxNowWaitingResponseFile =>
+      'Ждём файл ответа. Когда он придёт, завершите транзакцию.';
+
+  @override
+  String get deskTxNowWaitingRecipient =>
+      'Ждём подписи получателя. Ничего не уйдёт из кошелька, пока транзакция не завершена.';
+
+  @override
+  String get deskTxNowPosted => 'Отправлено в сеть, ждёт блок.';
+
+  @override
+  String deskTxNowConfirming(int confirmations, int needed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      needed,
+      locale: localeName,
+      other: 'В блоке, $confirmations из $needed подтверждения.',
+      many: 'В блоке, $confirmations из $needed подтверждений.',
+      few: 'В блоке, $confirmations из $needed подтверждений.',
+      one: 'В блоке, $confirmations из $needed подтверждения.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskTxNowConfirmed(int confirmations) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: 'Подтверждено, $confirmations подтверждения.',
+      many: 'Подтверждено, $confirmations подтверждений.',
+      few: 'Подтверждено, $confirmations подтверждения.',
+      one: 'Подтверждено, $confirmations подтверждение.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskTxNowCancelled => 'Отменено.';
+
+  @override
+  String get deskTxNotCancelled => 'Не отменено';
+
+  @override
+  String get deskTxCancelled => 'Транзакция отменена';
+
+  @override
+  String get deskTxCancelling => 'Отмена';
+
+  @override
+  String get deskTxHeadRestored => 'восстановлено';
+
+  @override
+  String get deskTxHeadFoundOnChain => 'найдено в блокчейне';
+
+  @override
+  String get deskTxHeadBackup => 'добавлено из резервной копии истории';
+
+  @override
+  String deskTxHeadFrom(String who) {
+    return 'от $who';
+  }
+
+  @override
+  String deskTxHeadTo(String who) {
+    return 'для $who';
+  }
+
+  @override
+  String get deskTxSubProgress => 'Ход';
+
+  @override
+  String get deskTxSubDetails => 'Подробности';
+
+  @override
+  String get deskTxFactDate => 'Дата';
+
+  @override
+  String get deskTxFactFrom => 'От';
+
+  @override
+  String get deskTxFactTo => 'Кому';
+
+  @override
+  String get deskTxCopyAddress => 'Копировать адрес';
+
+  @override
+  String get deskTxFactMethod => 'Способ';
+
+  @override
+  String get deskTxFactAmount => 'Сумма';
+
+  @override
+  String get deskTxFactFee => 'Комиссия';
+
+  @override
+  String get deskTxFactTotal => 'Итого';
+
+  @override
+  String get deskTxFactMessage => 'Сообщение';
+
+  @override
+  String get deskTxSignedByRecipient => 'Подписано получателем';
+
+  @override
+  String get deskTxProofView => 'Открыть';
+
+  @override
+  String get deskTxTechTitle => 'Технические сведения';
+
+  @override
+  String get deskTxTechId => 'ID';
+
+  @override
+  String get deskTxTechSlate => 'ID слейта';
+
+  @override
+  String get deskTxCopySlate => 'Копировать ID слейта';
+
+  @override
+  String get deskTxTechHeight => 'Высота';
+
+  @override
+  String get deskTxTechKernel => 'Ядро';
+
+  @override
+  String get deskTxTechConfirmed => 'Подтверждено';
+
+  @override
+  String get deskTxTechCredited => 'Зачислено';
+
+  @override
+  String get deskTxTechDebited => 'Списано';
+
+  @override
+  String get deskTxTechStatus => 'Статус';
+
+  @override
+  String get deskTxTechType => 'Тип';
+
+  @override
+  String get deskTxStepMined => 'Добыто в блоке';
+
+  @override
+  String get deskTxStepSpendable => 'Доступно';
+
+  @override
+  String deskTxStepBlocksToGo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'осталось $count блока',
+      many: 'осталось $count блоков',
+      few: 'осталось $count блока',
+      one: 'остался $count блок',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskTxStepReceivedSlate => 'Получен слейт';
+
+  @override
+  String get deskTxStepCreated => 'Создано и подписано';
+
+  @override
+  String get deskTxStepSignedReturned => 'Подписано и возвращено';
+
+  @override
+  String get deskTxStepWaitingFile => 'Ждём файл ответа';
+
+  @override
+  String get deskTxStepWaitingRecipient => 'Ждём получателя';
+
+  @override
+  String get deskTxStepPosted => 'Отправлено в сеть';
+
+  @override
+  String get deskTxStepConfirming => 'Подтверждение';
+
+  @override
+  String deskTxStepProgress(int confirmations, int needed) {
+    return '$confirmations из $needed';
+  }
+
+  @override
+  String get deskTxCancelIncomingTitle => 'Отменить этот платёж?';
+
+  @override
+  String get deskTxCancelOutgoingTitle => 'Отменить эту отправку?';
+
+  @override
+  String deskTxCancelIncomingBody(String amount, String who) {
+    return '$amount EPIC от $who уйдут из баланса. Кошелёк сначала спросит узел и откажет, если платёж уже в пуле узла или в блоке. Если отправитель опубликует его позже, он всё равно может прийти.';
+  }
+
+  @override
+  String deskTxCancelOutgoingBody(String amount, String who) {
+    return '$amount EPIC для $who. Заблокированная сумма вернётся в баланс. Если получатель уже завершил платёж, он всё равно может подтвердиться.';
+  }
+
+  @override
+  String get deskTxCancelKeep => 'Оставить';
+
+  @override
+  String get deskTxCancelIncomingAction => 'Отменить платёж';
+
+  @override
+  String get deskTxCancelOutgoingAction => 'Отменить отправку';
+
+  @override
+  String deskTxProofIncoming(String amount) {
+    return 'Подтверждает, что этот кошелёк получил $amount EPIC в этом ядре.';
+  }
+
+  @override
+  String deskTxProofOutgoing(String amount) {
+    return 'Подтверждает, что получатель получил $amount EPIC в этом ядре.';
+  }
+
+  @override
+  String get deskTxProofSenderAddress => 'Адрес отправителя';
+
+  @override
+  String get deskTxProofRecipientAddress => 'Адрес получателя';
+
+  @override
+  String get deskTxProofRecipientSignature => 'Подпись получателя';
+
+  @override
+  String get deskTxProofCopyKernel => 'Копировать ядро';
+
+  @override
+  String get deskTxProofCopySender => 'Копировать адрес отправителя';
+
+  @override
+  String get deskTxProofCopyRecipient => 'Копировать адрес получателя';
+
+  @override
+  String get deskTxProofCopySignature => 'Копировать подпись получателя';
+
+  @override
+  String get deskTxProofExport => 'Экспорт';
+
+  @override
+  String get deskTxProofSaved => 'Подтверждение сохранено';
+
+  @override
+  String get deskOnbWelcomeAdd => 'Добавить кошелёк';
+
+  @override
+  String get deskOnbWelcomeTagline =>
+      'Ключи и монеты остаются на этом компьютере под защитой пароля.';
+
+  @override
+  String get deskOnbWelcomeCreate => 'Создать новый кошелёк';
+
+  @override
+  String get deskOnbWelcomeCreateSub => 'Новая фраза восстановления';
+
+  @override
+  String get deskOnbWelcomeImport => 'Импортировать кошельки';
+
+  @override
+  String get deskOnbWelcomeImportSub => 'Из старого Epic Wallet или из папки';
+
+  @override
+  String get deskOnbWelcomeRestore => 'Восстановить по фразе';
+
+  @override
+  String get deskOnbWelcomeRestoreSub => 'По словам фразы восстановления';
+
+  @override
+  String get deskOnbWelcomeTestNote =>
+      'Новые кошельки создаются в этой тестовой сети.';
+
+  @override
+  String get deskOnbWelcomeBack => 'Назад к разблокировке';
+
+  @override
+  String get deskOnbWelcomeAdvanced => 'Дополнительно';
+
+  @override
+  String get deskOnbWelcomeNetwork => 'Сеть';
+
+  @override
+  String get deskOnbWelcomeNetworkHelp =>
+      'В Mainnet настоящие EPIC. Floonet и Usernet — тестовые сети.';
+
+  @override
+  String get deskOnbWelcomeFolder => 'Папка данных приложения';
+
+  @override
+  String get deskOnbWelcomeHideDetails => 'Скрыть подробности';
+
+  @override
+  String get deskOnbWelcomeMoreAbout => 'Подробнее';
+
+  @override
+  String get deskOnbWelcomeFolderWhere =>
+      'Где приложение хранит кошельки и настройки.';
+
+  @override
+  String get deskOnbWelcomeFolderDetail =>
+      'С локальным узлом здесь хранится и блокчейн. Новая папка должна быть пустой: приложение создаст в ней свои папки и будет пользоваться ею дальше.';
+
+  @override
+  String deskOnbWelcomeUsing(String folder) {
+    return 'Используется $folder. Чтобы перейти на неё, приложение перезапустится.';
+  }
+
+  @override
+  String get deskOnbWelcomeLocked =>
+      'Её можно изменить только до добавления первого кошелька.';
+
+  @override
+  String get deskOnbWelcomeChooseFolder => 'Выбрать папку';
+
+  @override
+  String get deskOnbWelcomeDefaultFolder => 'Папка по умолчанию';
+
+  @override
+  String get deskOnbWelcomeFolderNotEmpty =>
+      'Эта папка не пустая. Выберите новую пустую папку.';
+
+  @override
+  String get deskOnbWelcomeFolderIsWallet =>
+      'Это папка кошелька. Выберите новую пустую папку.';
+
+  @override
+  String get deskOnbWelcomeChoose => 'Выбрать';
+
+  @override
+  String get deskOnbStepPassword => 'Пароль';
+
+  @override
+  String get deskOnbStepPhrase => 'Фраза восстановления';
+
+  @override
+  String get deskOnbCreateStageCreate =>
+      'Создание кошелька и его фразы восстановления';
+
+  @override
+  String get deskOnbCreateStageSave => 'Сохранение учётной записи';
+
+  @override
+  String get deskOnbCreateNotCreated => 'Кошелёк не создан';
+
+  @override
+  String get deskOnbCreateCreating => 'Создание кошелька';
+
+  @override
+  String deskOnbCreateTestLead(String network) {
+    return 'Кошелёк в $network, тестовой сети.';
+  }
+
+  @override
+  String get deskOnbCreateFailedTitle => 'Не удалось создать кошелёк';
+
+  @override
+  String get deskOnbCreateDiskFull =>
+      'Не удалось сохранить учётную запись: диск заполнен.';
+
+  @override
+  String get deskOnbCreateWait =>
+      'Это может занять до минуты. Не закрывайте приложение.';
+
+  @override
+  String get deskOnbCreateLocking => 'Блокировка открытого кошелька';
+
+  @override
+  String get deskOnbCreateSide => 'Новый кошелёк';
+
+  @override
+  String get deskOnbCreateTitle => 'Создать кошелёк';
+
+  @override
+  String get deskOnbCreateLead =>
+      'Пароль открывает этот кошелёк на этом компьютере. Он не поможет вернуть монеты — это делает фраза на следующем шаге.';
+
+  @override
+  String get deskOnbCreateTestNote =>
+      'Кошелёк в тестовой сети, не для настоящих EPIC';
+
+  @override
+  String get deskOnbCreatePhraseLead =>
+      'Эти слова — единственный способ вернуть монеты, если компьютер сломается. Запишите их на бумаге по порядку.';
+
+  @override
+  String get deskOnbCreateRevealFirst => 'Сначала откройте фразу';
+
+  @override
+  String get deskOnbCreateWarn =>
+      'Любой, у кого есть эти слова, может забрать монеты';
+
+  @override
+  String get deskOnbCreateReveal => 'Показать фразу';
+
+  @override
+  String get deskOnbCreateCheckScreen => 'Убедитесь, что никто не видит экран.';
+
+  @override
+  String get deskOnbCreateHide => 'Скрыть';
+
+  @override
+  String get deskOnbCreateShowQr => 'Показать QR-код';
+
+  @override
+  String get deskOnbCreateHideQr => 'Скрыть QR-код';
+
+  @override
+  String get deskOnbCreateQrWarn =>
+      'Любой, кто отсканирует этот код, может забрать монеты';
+
+  @override
+  String get deskOnbCreateQrWarnText =>
+      'Сканируйте его только в другой кошелёк, которому доверяете.';
+
+  @override
+  String get deskOnbCreateQrLabel => 'Фраза восстановления в виде QR-кода';
+
+  @override
+  String deskOnbCreateWritten(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count слова',
+      many: '$count слов',
+      few: '$count слова',
+      one: '$count слово',
+    );
+    return 'Записано: все $_temp0 на бумаге';
+  }
+
+  @override
+  String get deskOnbRestoreDone => 'Кошелёк восстановлен.';
+
+  @override
+  String get deskOnbRestoreNotRestored => 'Кошелёк не восстановлен';
+
+  @override
+  String get deskOnbRestoreRestoring => 'Восстановление кошелька';
+
+  @override
+  String get deskOnbRestoreFailedTitle => 'Не удалось восстановить кошелёк';
+
+  @override
+  String get deskOnbRestorePermission =>
+      'Не удалось записать файлы кошелька: нет доступа к ~/.config/Epic Cash Desktop.';
+
+  @override
+  String get deskOnbRestoreWait =>
+      'Это может занять до минуты. Баланс появится после первого сканирования блокчейна.';
+
+  @override
+  String get deskOnbRestoreSide => 'Восстановить кошелёк';
+
+  @override
+  String get deskOnbRestoreChoosePassword => 'Придумайте пароль';
+
+  @override
+  String deskOnbRestorePasswordLead(int count) {
+    return 'Фраза из $count слов верна. Задайте пароль, который открывает этот кошелёк на этом компьютере. Кошелёк откроется после восстановления.';
+  }
+
+  @override
+  String get deskOnbRestoreNothingToPaste =>
+      'Нечего вставить: в буфере обмена нет слов.';
+
+  @override
+  String deskOnbRestoreBadWord(int position, String word) {
+    return 'Слова $position («$word») нет в списке слов.';
+  }
+
+  @override
+  String deskOnbRestoreAllOk(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Все $count слова верны.',
+      many: 'Все $count слов верны.',
+      few: 'Все $count слова верны.',
+      one: 'Все $count слово верны.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOnbRestoreStaysHere =>
+      'Фраза никогда не покидает этот компьютер.';
+
+  @override
+  String get deskOnbRestoreChecksumFirm =>
+      'Контрольная сумма фразы не сходится. Сверьте каждое слово с бумагой.';
+
+  @override
+  String deskOnbRestoreChecksumSoFar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Пока $count слова; контрольная сумма не сходится. Продолжайте ввод или сверьте каждое слово с бумагой.',
+      many:
+          'Пока $count слов; контрольная сумма не сходится. Продолжайте ввод или сверьте каждое слово с бумагой.',
+      few:
+          'Пока $count слова; контрольная сумма не сходится. Продолжайте ввод или сверьте каждое слово с бумагой.',
+      one:
+          'Пока $count слово; контрольная сумма не сходится. Продолжайте ввод или сверьте каждое слово с бумагой.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOnbRestoreWordsLead =>
+      'Введите слова по порядку или вставьте всю фразу в любое поле. Переносы строк, запятые и нумерация не учитываются.';
+
+  @override
+  String get deskOnbRestoreClear => 'Очистить';
+
+  @override
+  String deskOnbRestoreUseWords(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Использовать $count слова',
+      many: 'Использовать $count слов',
+      few: 'Использовать $count слова',
+      one: 'Использовать $count слово',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOnbRestoreWords => 'Слова';
+
+  @override
+  String deskOnbRestoreFilledOf(int filled, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total слова',
+      many: '$total слов',
+      few: '$total слов',
+      one: '$total слова',
+    );
+    return '$filled из $_temp0';
+  }
+
+  @override
+  String get deskOnbKillTitle => 'Epic уже запущен';
+
+  @override
+  String get deskOnbKillBody =>
+      'Другой процесс кошелька или узла использует файлы и порты кошелька. Закройте его, чтобы разблокировать здесь, или отмените и закройте его сами.';
+
+  @override
+  String get deskOnbKillProcesses => 'Запущенные процессы';
+
+  @override
+  String get deskOnbKillRoleWallet => 'служба кошелька';
+
+  @override
+  String get deskOnbKillRoleNode => 'узел';
+
+  @override
+  String get deskOnbKillNote =>
+      'Закрытие остановит то, что они делали, например синхронизацию узла или приём платежей. После разблокировки это приложение запустит их снова.';
+
+  @override
+  String get deskOnbKillClosing => 'Закрытие…';
+
+  @override
+  String get deskOnbKillClose => 'Закрыть и разблокировать';
+
+  @override
+  String get deskOnbSameTitle => 'Этот кошелёк уже здесь';
+
+  @override
+  String get deskOnbSameBody =>
+      'Фраза принадлежит кошельку из списка. Ничего не добавлено.';
+
+  @override
+  String get deskOnbSameWallet => 'Кошелёк';
+
+  @override
+  String get deskOnbSameNote =>
+      '«Открыть его» запросит пароль этого кошелька. «Отмена» оставит фразу в полях.';
+
+  @override
+  String get deskOnbSameOpen => 'Открыть его';
+
+  @override
+  String get deskOnbUnlockWhoWindows =>
+      'Этот кошелёк может открыть любой, кто пользуется этой учётной записью Windows.';
+
+  @override
+  String get deskOnbUnlockWho =>
+      'Этот кошелёк может открыть любой, кто пользуется этой учётной записью.';
+
+  @override
+  String get deskOnbUnlockWrong =>
+      'Неверный пароль. Проверьте Caps Lock и раскладку клавиатуры.';
+
+  @override
+  String get deskOnbUnlockPortInUse =>
+      'Служба кошелька не запустилась: порт 3415 занят другой программой.';
+
+  @override
+  String get deskOnbUnlockStageCheck => 'Проверка файлов кошелька';
+
+  @override
+  String get deskOnbUnlockStageProcesses =>
+      'Поиск ещё работающих процессов кошелька';
+
+  @override
+  String get deskOnbUnlockStageClosing => 'Закрытие старых процессов кошелька';
+
+  @override
+  String get deskOnbUnlockStageWallet => 'Запуск службы кошелька';
+
+  @override
+  String get deskOnbUnlockStageUnlock => 'Разблокировка кошелька';
+
+  @override
+  String get deskOnbUnlockEnter => 'Введите пароль';
+
+  @override
+  String get deskOnbUnlockCloseOthers =>
+      'Закройте другие процессы Epic и разблокируйте снова.';
+
+  @override
+  String get deskOnbUnlockRememberedUnavailable =>
+      'Запомненный пароль недоступен. Введите пароль.';
+
+  @override
+  String get deskOnbUnlockRememberedForgotten =>
+      'Запомненный пароль удалён. Введите пароль.';
+
+  @override
+  String get deskOnbUnlockNotRemembered => 'Не запомнено';
+
+  @override
+  String get deskOnbUnlockKeyStore =>
+      'Хранилище ключей этого компьютера недоступно.';
+
+  @override
+  String get deskOnbUnlockThisWallet => 'этот кошелёк';
+
+  @override
+  String get deskOnbUnlockFailed => 'Не удалось разблокировать';
+
+  @override
+  String get deskOnbUnlockFailedLead => 'Кошелёк не открылся. Причина ниже.';
+
+  @override
+  String get deskOnbUnlockFailedBox => 'Кошелёк не открылся';
+
+  @override
+  String deskOnbUnlockUnlocking(String name) {
+    return 'Разблокировка: $name';
+  }
+
+  @override
+  String get deskOnbUnlockStepsLead =>
+      'Каждый шаг появляется по мере выполнения.';
+
+  @override
+  String get deskOnbUnlockNote =>
+      'Затем откроется обзор, а остальное завершится в фоне: подключение к узлу, обновление баланса, включение приёма.';
+
+  @override
+  String get deskOnbUnlockTitle => 'Разблокировка кошелька';
+
+  @override
+  String get deskOnbUnlockLead => 'Ключи остаются на этом компьютере.';
+
+  @override
+  String get deskOnbUnlockRemember => 'Запомнить на этом компьютере';
+
+  @override
+  String deskOnbUnlockRememberFor(String who) {
+    return 'На 30 дней. $who';
+  }
+
+  @override
+  String get deskOnbUnlockMissingTitle => 'Папка этого кошелька пропала';
+
+  @override
+  String deskOnbUnlockMissingText(String folder) {
+    return 'Она была в $folder';
+  }
+
+  @override
+  String get deskOnbUnlockRemove => 'Удалить';
+
+  @override
+  String get deskOnbUnlockTryAgain => 'Повторить';
+
+  @override
+  String get deskOnbUnlockButton => 'Разблокировать';
+
+  @override
+  String get deskOnbNodeFreeUnknown => 'свободное место неизвестно';
+
+  @override
+  String deskOnbNodeFreeHere(String size) {
+    return 'Свободно здесь: $size';
+  }
+
+  @override
+  String deskOnbNodeDiskAbout(String size) {
+    return 'Сейчас около $size на диске,';
+  }
+
+  @override
+  String deskOnbNodeDisk(String size) {
+    return 'Сейчас $size на диске,';
+  }
+
+  @override
+  String get deskOnbNodeSeparate => 'Отдельная программа.';
+
+  @override
+  String get deskOnbNodeSeparateText =>
+      'Кошелёк запускает узел Epic и останавливает его вместе с приложением.';
+
+  @override
+  String get deskOnbNodeFirewall => 'Windows один раз спросит,';
+
+  @override
+  String get deskOnbNodeFirewallText =>
+      'пропустить ли его через брандмауэр. Разрешите для частных сетей.';
+
+  @override
+  String deskOnbNodeGrowing(String free) {
+    return 'и объём медленно растёт. $free.';
+  }
+
+  @override
+  String get deskOnbNodeHours => 'Несколько часов на синхронизацию';
+
+  @override
+  String get deskOnbNodeHoursText =>
+      'в первый раз, от 2 до 6 при обычном подключении. Кошелёк показывает ход и тем временем может пользоваться публичным узлом.';
+
+  @override
+  String get deskOnbNodeDownload => 'Около 4 ГБ загрузки';
+
+  @override
+  String get deskOnbNodeDownloadText =>
+      'в первый раз, потом понемногу каждый день.';
+
+  @override
+  String get deskOnbNodeFound => 'Найден';
+
+  @override
+  String deskOnbNodeFoundAt(String version, String address) {
+    return 'Epic $version по адресу $address';
+  }
+
+  @override
+  String deskOnbNodeHeight(String height) {
+    return 'высота $height';
+  }
+
+  @override
+  String get deskOnbNodeSynced => 'синхронизирован';
+
+  @override
+  String get deskOnbNodeNoAnswer => 'Узел не отвечает';
+
+  @override
+  String deskOnbNodeNoAnswerAt(String address) {
+    return 'по адресу $address. Запустите его или проверьте адрес и порт.';
+  }
+
+  @override
+  String get deskOnbNodeExisting =>
+      'Использовать узел, уже запущенный на этом компьютере';
+
+  @override
+  String get deskOnbNodeExistingText =>
+      'Узел Epic GUI или CLI. Кошелёк подключается к нему и ничего не запускает.';
+
+  @override
+  String get deskOnbNodeAddress => 'Адрес узла на этом компьютере';
+
+  @override
+  String get deskOnbNodeCheck => 'Проверить';
+
+  @override
+  String get deskOnbNodeBundled => 'Запустить встроенный узел';
+
+  @override
+  String get deskOnbNodeBundledText =>
+      'Загружает и синхронизирует блокчейн в собственную папку кошелька. До нажатия «Сохранить» на последнем шаге ничего не загружается.';
+
+  @override
+  String deskOnbNodeFallback(String host) {
+    return 'Использовать $host, пока локальный узел не синхронизирован. Потом локальный узел сам займёт его место.';
+  }
+
+  @override
+  String get deskOnbNodeDialogTitle => 'Локальный узел';
+
+  @override
+  String get deskOnbNodeDialogBody =>
+      'Что значит запускать узел здесь и какой узел использовать.';
+
+  @override
+  String get deskOnbNodeUseThis => 'Использовать этот узел';
+
+  @override
+  String get deskOnbNodeStart => 'Запустить локальный узел';
+
+  @override
+  String deskOnbRestorePasteCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Вставлено $count слова; во фразе 12, 15, 18, 21 или 24 слова',
+      many: 'Вставлено $count слов; во фразе 12, 15, 18, 21 или 24 слова',
+      few: 'Вставлено $count слова; во фразе 12, 15, 18, 21 или 24 слова',
+      one: 'Вставлено $count слово; во фразе 12, 15, 18, 21 или 24 слова',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOnbWordN(int number) {
+    return 'Слово $number';
+  }
+
+  @override
+  String get deskOnbImportEnterOld => 'Введите старый пароль';
+
+  @override
+  String deskOnbImportNewShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count символа',
+      many: '$count символов',
+      few: '$count символов',
+      one: '$count символа',
+    );
+    return 'Новый пароль: не меньше $_temp0';
+  }
+
+  @override
+  String get deskOnbImportNewDiffer => 'Новые пароли не совпадают';
+
+  @override
+  String deskOnbImportWalletsN(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count кошелька',
+      many: '$count кошельков',
+      few: '$count кошелька',
+      one: '$count кошелёк',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOnbImportDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Импортировано $count кошелька.',
+      many: 'Импортировано $count кошельков.',
+      few: 'Импортировано $count кошелька.',
+      one: 'Импортирован $count кошелёк.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOnbImportFindingTitle => 'Поиск кошельков';
+
+  @override
+  String get deskOnbImportFindingLead =>
+      'Ищем в папках старых версий Epic Wallet и программы epic. Ничего не меняется.';
+
+  @override
+  String deskOnbImportFoundTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Найдено $count кошелька',
+      many: 'Найдено $count кошельков',
+      few: 'Найдено $count кошелька',
+      one: 'Найден $count кошелёк',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOnbImportFoundLead => 'Старые папки только читаются.';
+
+  @override
+  String get deskOnbImportNoneTitle => 'Кошельки не найдены';
+
+  @override
+  String get deskOnbImportNoneLead =>
+      'Выберите папку кошелька или восстановите его по фразе восстановления.';
+
+  @override
+  String get deskOnbImportChooseTitle => 'Выбор кошельков';
+
+  @override
+  String get deskOnbImportChooseLead =>
+      'Отмеченные кошельки будут добавлены в приложение. История восстанавливается сканированием.';
+
+  @override
+  String get deskOnbImportCheckTitle => 'Проверка использования';
+
+  @override
+  String get deskOnbImportCheckLead =>
+      'Кошелёк, который использует другая программа, не импортируется.';
+
+  @override
+  String get deskOnbImportTitle => 'Импорт';
+
+  @override
+  String get deskOnbImportLead =>
+      'Каждый кошелёк один раз запросит свой старый пароль.';
+
+  @override
+  String get deskOnbImportDoneTitle => 'Кошельки импортированы';
+
+  @override
+  String get deskOnbImportDoneLead =>
+      'При первой разблокировке каждого кошелька блокчейн сканируется в поисках его истории.';
+
+  @override
+  String deskOnbImportSelected(int selected, int total) {
+    return 'Выбрано $selected из $total';
+  }
+
+  @override
+  String get deskOnbImportChecking => 'Проверка…';
+
+  @override
+  String get deskOnbImportCloseOther =>
+      'Закройте другую программу или пропустите кошелёк';
+
+  @override
+  String deskOnbImportImportedOf(int done, int total) {
+    return 'Импортировано $done из $total';
+  }
+
+  @override
+  String get deskOnbImportOpen => 'Открыть кошелёк';
+
+  @override
+  String get deskOnbImportStepFind => 'Поиск';
+
+  @override
+  String get deskOnbImportStepChoose => 'Выбор';
+
+  @override
+  String get deskOnbImportStepCheck => 'Проверка';
+
+  @override
+  String get deskOnbImportBack => 'Назад';
+
+  @override
+  String get deskOnbImportSkip => 'Пропустить';
+
+  @override
+  String get deskOnbImportOlder => 'Старый Epic Wallet';
+
+  @override
+  String get deskOnbImportOlderSub => 'Учётные записи и папки';
+
+  @override
+  String get deskOnbImportEpicProgram => 'Программа epic';
+
+  @override
+  String get deskOnbImportSearching => 'Поиск…';
+
+  @override
+  String get deskOnbImportRestore => 'Восстановить по фразе';
+
+  @override
+  String deskOnbImportLastUsed(String date) {
+    return 'Использовался $date';
+  }
+
+  @override
+  String deskOnbImportSecondCopy(String reason) {
+    return '$reason. Отметьте, чтобы добавить вторую копию.';
+  }
+
+  @override
+  String deskOnbImportCannot(String name) {
+    return '$name: импорт невозможен';
+  }
+
+  @override
+  String get deskOnbImportInApp => 'Уже в приложении';
+
+  @override
+  String get deskOnbImportSameWallet => 'Тот же кошелёк';
+
+  @override
+  String get deskOnbImportNotInUse => 'Не используется';
+
+  @override
+  String get deskOnbImportNotChecked => 'Не проверен';
+
+  @override
+  String get deskOnbImportSkipped => 'Пропущен';
+
+  @override
+  String get deskOnbImportInUse => 'Используется';
+
+  @override
+  String get deskOnbImportInUseText =>
+      'Используется другой программой. Закройте старый Epic Wallet или программу epic и проверьте снова.';
+
+  @override
+  String get deskOnbImportCheckAgain => 'Проверить снова';
+
+  @override
+  String get deskOnbImportImported => 'Импортирован';
+
+  @override
+  String get deskOnbImportImporting => 'Импорт…';
+
+  @override
+  String get deskOnbImportWaiting => 'Ожидает';
+
+  @override
+  String get deskOnbImportOldPassword => 'Старый пароль';
+
+  @override
+  String deskOnbImportOldHelp(String name) {
+    return 'Пароль кошелька $name в старом приложении.';
+  }
+
+  @override
+  String deskOnbImportOldOf(String name) {
+    return 'Старый пароль кошелька $name';
+  }
+
+  @override
+  String deskOnbImportOldShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'не меньше $count символа.',
+      many: 'не меньше $count символов.',
+      few: 'не меньше $count символов.',
+      one: 'не меньше $count символа.',
+    );
+    return 'Старый пароль слишком короткий. Придумайте новый, $_temp0';
+  }
+
+  @override
+  String get deskOnbImportNewPassword => 'Новый пароль';
+
+  @override
+  String get deskOnbImportRepeat => 'Повтор';
+
+  @override
+  String get deskOnbImportRepeatNew => 'Повторите новый пароль';
+
+  @override
+  String get deskOnbImportUnchanged =>
+      'Старые папки не изменены. Старое приложение по-прежнему может их открыть.';
+
+  @override
+  String get deskOnbImportStopTitle => 'Остановить импорт?';
+
+  @override
+  String get deskOnbImportStopBody =>
+      'Уже импортированные кошельки будут удалены. Старые папки не изменены.';
+
+  @override
+  String get deskOnbImportGoBack => 'Вернуться';
+
+  @override
+  String get deskOnbImportStop => 'Остановить импорт';
+
+  @override
+  String get deskRailWaitingTor => 'Ждёт Tor';
+
+  @override
+  String get deskRailOn => 'Вкл.';
+
+  @override
+  String get deskRailConnecting => 'Подключение';
+
+  @override
+  String get deskRailSlow => 'Медленно';
+
+  @override
+  String get deskRailNotAnswering => 'Не отвечает';
+
+  @override
+  String get deskRailOff => 'Выкл.';
+
+  @override
+  String get deskRailChecking => 'Проверка';
+
+  @override
+  String get deskRailOverTor => 'Через Tor';
+
+  @override
+  String get deskRailWaitsForTor => 'Ждёт подключения Tor.';
+
+  @override
+  String get deskRailPaymentsWait => 'Платежи ждут на сервере Epicbox.';
+
+  @override
+  String get deskRailOpenEpicbox => 'Открыть приём через Epicbox';
+
+  @override
+  String get deskRailStarting => 'Запуск';
+
+  @override
+  String get deskRailNotReceiving => 'Приём не работает';
+
+  @override
+  String get deskRailOnInternet => 'Вкл. · интернет';
+
+  @override
+  String get deskRailOnLocal => 'Вкл. · локально';
+
+  @override
+  String get deskRailPortInUse => 'Порт занят';
+
+  @override
+  String get deskRailStopped => 'Остановлен';
+
+  @override
+  String deskRailPortInternet(String port) {
+    return 'Порт $port · из интернета';
+  }
+
+  @override
+  String deskRailPortLocal(String port) {
+    return 'Порт $port · только этот компьютер';
+  }
+
+  @override
+  String get deskRailOpenHttp => 'Открыть приём по HTTP';
+
+  @override
+  String get deskRailTorNotInBuild => 'Нет в этой сборке';
+
+  @override
+  String get deskRailStartingDots => 'Запуск…';
+
+  @override
+  String deskRailTorSlow(String problem) {
+    return '$problem. Отправка работает.';
+  }
+
+  @override
+  String get deskRailTorNoAddress => 'Адрес Tor не опубликован';
+
+  @override
+  String get deskRailOpenPrivacy => 'Открыть настройки приватности';
+
+  @override
+  String get deskRailNode => 'Узел';
+
+  @override
+  String get deskRailOpenNode => 'Открыть настройки узла';
+
+  @override
+  String get deskAppNodeSyncedTitle => 'Локальный узел синхронизирован';
+
+  @override
+  String get deskAppNodeSyncedBody =>
+      'У локального узла есть весь блокчейн, им уже можно пользоваться. Чтобы переключиться на него, приложение перезапустится.';
+
+  @override
+  String get deskAppNotNow => 'Не сейчас';
+
+  @override
+  String get deskAppRestartNow => 'Перезапустить';
+
+  @override
+  String get deskAppFirstScanTitle => 'Первое сканирование кошелька';
+
+  @override
+  String get deskAppFirstScanBody =>
+      'Кошелёк ищет в блокчейне свои выходы. Им можно пользоваться; баланс обновится, когда сканирование закончится.';
+
+  @override
+  String get deskAppScanOutput => 'Ход сканирования';
+
+  @override
+  String get deskAppWaitingOutput => 'Ждём первых строк…';
+
+  @override
+  String get deskShellNavOverview => 'Обзор';
+
+  @override
+  String get deskShellNavActivity => 'Активность';
+
+  @override
+  String get deskShellNavSend => 'Отправить';
+
+  @override
+  String get deskShellNavReceive => 'Получить';
+
+  @override
+  String get deskShellNavOutputs => 'Выходы';
+
+  @override
+  String get deskShellNavContacts => 'Контакты';
+
+  @override
+  String get deskShellNavSettings => 'Настройки';
+
+  @override
+  String get deskShellTitleImportTx => 'Импорт транзакции';
+
+  @override
+  String get deskShellTitleFinalizeTx => 'Завершение транзакции';
+
+  @override
+  String get deskShellLocksAfterSend =>
+      'Кошелёк заблокируется, когда платёж будет отправлен';
+
+  @override
+  String get deskShellNotQuitTitle => 'Выход отложен';
+
+  @override
+  String get deskShellNotQuitBody =>
+      'Идёт отправка. Выйдите снова, когда она закончится.';
+
+  @override
+  String get deskShellLockedTitle => 'Кошелёк заблокирован';
+
+  @override
+  String get deskShellLockedBody =>
+      'Выход закроет приложение, когда ядро кошелька будет подключено.';
+
+  @override
+  String deskShellLockWallet(String keys) {
+    return 'Заблокировать кошелёк ($keys)';
+  }
+
+  @override
+  String get deskShellMainNav => 'Основная навигация';
+
+  @override
+  String deskShellVersion(String version) {
+    return 'Версия $version';
+  }
+
+  @override
+  String get deskShellOpenWalletSettings => 'Открыть настройки кошелька';
+
+  @override
+  String deskShellOpenWalletSettingsNamed(String name) {
+    return 'Открыть настройки кошелька: $name';
+  }
+
+  @override
+  String get deskShellSwitchWallet => 'Сменить кошелёк';
+
+  @override
+  String deskShellWalletBy(String maker) {
+    return 'Кошелёк от $maker';
+  }
+
+  @override
+  String get deskTourOverviewTitle => 'Обзор';
+
+  @override
+  String get deskTourOverviewText =>
+      'Баланс и то, что ещё подтверждается, а ниже последние транзакции. Всё остальное — в боковой панели.';
+
+  @override
+  String get deskTourSendTitle => 'Отправить';
+
+  @override
+  String get deskTourSendText =>
+      'Три способа оплаты: адрес Epicbox, прямой адрес (http(s) или Tor) или файл транзакции. Перед отправкой всегда есть проверка.';
+
+  @override
+  String get deskTourReceiveTitle => 'Получить';
+
+  @override
+  String get deskTourReceiveText =>
+      'Адрес Epicbox этого кошелька, рядом HTTP и Tor. Внизу — файлы транзакций, которые нужно подписать или завершить.';
+
+  @override
+  String get deskTourInvoicesTitle => 'Счета';
+
+  @override
+  String get deskTourInvoicesText =>
+      'Оплатите присланный вам счёт или выставьте счёт тому, кто вам должен. Вкладки переключают между ними.';
+
+  @override
+  String get deskTourActivityTitle => 'Активность';
+
+  @override
+  String get deskTourActivityText =>
+      'Все транзакции с ходом выполнения и подробностями. Число у этого пункта боковой панели значит, что что-то ждёт вашего действия.';
+
+  @override
+  String get deskTourContactsTitle => 'Контакты';
+
+  @override
+  String get deskTourContactsText =>
+      'Сохранённые адреса с именами: Epicbox, HTTP или Tor. Отсюда их берёт страница «Отправить».';
+
+  @override
+  String get deskTourNodeTitle => 'Настройки › Узел';
+
+  @override
+  String get deskTourNodeText =>
+      'Узел, через который кошелёк читает блокчейн: публичный или локальный. Остальные страницы настроек — в списке слева.';
+
+  @override
+  String get deskTourHelpTitle => 'Справка';
+
+  @override
+  String get deskTourHelpText =>
+      'Темы по разделам, «Сообщить о проблеме» и журнал приложения. Здесь же подробности о каждой странице, и этот тур можно показать снова.';
+
+  @override
+  String deskTourCounter(int current, int total) {
+    return '$current из $total';
+  }
+
+  @override
+  String get deskTourSemantics => 'Тур по кошельку';
+
+  @override
+  String get deskTourSkip => 'Пропустить тур';
+
+  @override
+  String get deskTourBack => 'Назад';
+
+  @override
+  String get deskTourNext => 'Далее';
+
+  @override
+  String get deskKitUnknown => 'Неизвестно';
+
+  @override
+  String get deskKitRingCancelled => 'Отменено';
+
+  @override
+  String get deskKitRingConfirmed => 'Подтверждено';
+
+  @override
+  String deskKitRingProgress(int confirmations, int needed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: '$confirmations из $needed подтверждений',
+      many: '$confirmations из $needed подтверждений',
+      few: '$confirmations из $needed подтверждений',
+      one: '$confirmations из $needed подтверждений',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskKitHiddenAmount => 'Сумма скрыта';
+
+  @override
+  String get deskKitChooseFile => 'Выбрать файл';
+
+  @override
+  String deskKitNeedAction(String label, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ждут действия',
+      many: '$count ждут действия',
+      few: '$count ждут действия',
+      one: '$count ждёт действия',
+    );
+    return '$label, $_temp0';
+  }
+
+  @override
+  String get deskKitHealthOn => 'Работает';
+
+  @override
+  String get deskKitHealthSlow => 'Медленно';
+
+  @override
+  String get deskKitHealthOffline => 'Не в сети';
+
+  @override
+  String get deskKitHealthOff => 'Выкл.';
+
+  @override
+  String get deskKitHealthChecking => 'Проверка';
+
+  @override
+  String get deskKitCloseEsc => 'Закрыть (Esc)';
+
+  @override
+  String get deskKitOptional => 'Необязательно';
+
+  @override
+  String get deskKitBackAlt => 'Назад (Alt+←)';
+
+  @override
+  String deskKitStepOf(int current, int total) {
+    return 'Шаг $current из $total';
+  }
+
+  @override
+  String get deskKitHeroCaptionEpicbox => 'ХРАНИТ СЕРВЕР EPICBOX';
+
+  @override
+  String get deskKitHeroCaptionHttp => 'ПРЯМО В КОШЕЛЁК';
+
+  @override
+  String get deskKitHeroCaptionTor => 'НАПРЯМУЮ, ЧЕРЕЗ TOR';
+
+  @override
+  String get deskKitHeroCaptionFile => 'ФАЙЛ ТУДА, ОТВЕТ ОБРАТНО';
+
+  @override
+  String get deskKitHeroLabelEpicbox =>
+      'Epicbox: платёж уходит на сервер Epicbox, который хранит его, пока кошелёк получателя не вернётся';
+
+  @override
+  String get deskKitHeroLabelHttp =>
+      'HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+
+  @override
+  String get deskKitHeroLabelTor =>
+      'Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
+
+  @override
+  String get deskKitHeroLabelFile =>
+      'Файл: файл транзакции передаётся, возвращается файл ответа, затем отправитель завершает платёж';
+
+  @override
+  String get deskKitReachCheck => 'Проверить';
+
+  @override
+  String get deskKitReachChecking => 'Проверка из интернета…';
+
+  @override
+  String get deskKitReachNoIpTitle => 'Публичный IP не найден';
+
+  @override
+  String get deskKitReachNoIpText =>
+      'Не удалось узнать его через интернет. Попробуйте позже.';
+
+  @override
+  String deskKitReachNoIpTextLan(String address) {
+    return 'Не удалось узнать его через интернет. Попробуйте позже. В вашей сети: $address.';
+  }
+
+  @override
+  String get deskKitReachClosedTitle => 'Недоступен из интернета';
+
+  @override
+  String deskKitReachClosedText(String port) {
+    return 'Перенаправьте TCP-порт $port на роутере на этот компьютер и проверьте снова.';
+  }
+
+  @override
+  String deskKitReachClosedTextLan(String port, String address) {
+    return 'Перенаправьте TCP-порт $port на роутере на этот компьютер ($address) и проверьте снова.';
+  }
+
+  @override
+  String get deskKitReachUnknownTitle => 'Доступность неизвестна';
+
+  @override
+  String get deskKitReachUnknownText =>
+      'Проверка порта не ответила. Попробуйте позже.';
+
+  @override
+  String deskKitReachUnknownTextLan(String address) {
+    return 'Проверка порта не ответила. Попробуйте позже. В вашей сети: $address.';
+  }
+
+  @override
+  String get deskKitReachOpenTitle => 'Доступен из интернета';
+
+  @override
+  String deskKitReachOpenText(String port) {
+    return 'Порт $port перенаправлен.';
+  }
+
+  @override
+  String deskKitReachOpenTextLan(String port, String address) {
+    return 'Порт $port перенаправлен. В вашей сети: $address.';
+  }
+
+  @override
+  String deskKitAgeSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count с назад',
+      many: '$count с назад',
+      few: '$count с назад',
+      one: '$count с назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitAgeMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мин назад',
+      many: '$count мин назад',
+      few: '$count мин назад',
+      one: '$count мин назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitAgeHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ч назад',
+      many: '$count ч назад',
+      few: '$count ч назад',
+      one: '$count ч назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitAgeDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дн. назад',
+      many: '$count дн. назад',
+      few: '$count дн. назад',
+      one: '$count дн. назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskKitNodeBefore410 => 'узел старше 4.1.0';
+
+  @override
+  String get deskKitNodeNoAnswer => 'нет ответа';
+
+  @override
+  String get deskKitNodesDisagree => 'Узлы расходятся в последнем блоке';
+
+  @override
+  String deskKitNodesAgree(String height) {
+    return 'Узлы согласны на $height';
+  }
+
+  @override
+  String deskKitNodesUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      up,
+      locale: localeName,
+      other: '$up из $total узлов работают',
+      many: '$up из $total узлов работают',
+      few: '$up из $total узлов работают',
+      one: '$up из $total узлов работает',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitEpicboxUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      up,
+      locale: localeName,
+      other: '$up из $total серверов Epicbox работают',
+      many: '$up из $total серверов Epicbox работают',
+      few: '$up из $total серверов Epicbox работают',
+      one: '$up из $total серверов Epicbox работает',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitLastBlock(String age) {
+    return 'последний блок $age';
+  }
+
+  @override
+  String get deskKitLimitedNetwork =>
+      'status.btlabs.uk недоступен. Эти сведения получены от самого узла: не с чем сравнить последний блок, нет данных о доступности и числе пиров.';
+
+  @override
+  String get deskKitFactHeight => 'Высота';
+
+  @override
+  String get deskKitFactVersion => 'Версия';
+
+  @override
+  String get deskKitFactAccepts => 'Принимает транзакции';
+
+  @override
+  String get deskKitFactYes => 'Да';
+
+  @override
+  String get deskKitFactNotYet => 'Пока нет';
+
+  @override
+  String get deskKitFactUnknown => 'Неизвестно';
+
+  @override
+  String get deskKitFactLatency => 'Задержка';
+
+  @override
+  String get deskKitFactUptime => 'Доступность';
+
+  @override
+  String get deskKitFactPeers => 'Пиры';
+
+  @override
+  String get deskKitFactOperator => 'Оператор';
+
+  @override
+  String get deskKitAtTip => 'актуален';
+
+  @override
+  String deskKitBehind(int count, String blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'отстаёт на $blocks блока',
+      many: 'отстаёт на $blocks блоков',
+      few: 'отстаёт на $blocks блока',
+      one: 'отстаёт на $blocks блок',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitVersionOut(String version) {
+    return 'вышла $version';
+  }
+
+  @override
+  String get deskKitVersionLatest => 'последняя';
+
+  @override
+  String get deskKitUptimeWindow => 'за 24 ч';
+
+  @override
+  String deskKitAtTime(String time) {
+    return 'в $time';
+  }
+
+  @override
+  String get deskKitListedOfficial => 'в списке официальных';
+
+  @override
+  String deskKitSourceChecked(String time) {
+    return 'status.btlabs.uk, проверено в $time';
+  }
+
+  @override
+  String deskKitLatencyMeasured(String where) {
+    return 'задержка измерена $where';
+  }
+
+  @override
+  String deskKitSiteLastReached(String time) {
+    return 'Сайт статуса последний раз отвечал в $time';
+  }
+
+  @override
+  String deskKitSince(String time) {
+    return 'с $time';
+  }
+
+  @override
+  String deskKitNodeSemantics(String status, String host) {
+    return 'Узел $status: $host';
+  }
+
+  @override
+  String get deskKitNodeDownTitle => 'Узел не отвечает.';
+
+  @override
+  String deskKitNodeDownText(String host) {
+    return 'Переключиться на $host, самый исправный из других узлов?';
+  }
+
+  @override
+  String get deskKitSwitch => 'Переключить';
+
+  @override
+  String get deskKitLimitedInfo => 'Неполные данные';
+
+  @override
+  String get deskKitFromStatusSite => 'с status.btlabs.uk';
+
+  @override
+  String get deskKitOverTor => 'через Tor';
+
+  @override
+  String get deskKitFromThisComputer => 'с этого компьютера';
+
+  @override
+  String deskKitNodeRemove(String host) {
+    return 'Удалить $host из моих узлов';
+  }
+
+  @override
+  String deskKitNodeAdd(String host) {
+    return 'Добавить $host в мои узлы';
+  }
+
+  @override
+  String deskKitNodeUse(String host) {
+    return 'Использовать $host';
+  }
+
+  @override
+  String deskKitNodeUseOperator(String host, String operator) {
+    return 'Использовать $host, $operator';
+  }
+
+  @override
+  String deskKitNodeUseDown(String host) {
+    return 'Использовать $host, не отвечает';
+  }
+
+  @override
+  String deskKitNodeUseOperatorDown(String host, String operator) {
+    return 'Использовать $host, $operator, не отвечает';
+  }
+
+  @override
+  String deskKitLocalNodeUse(String state) {
+    return 'Использовать локальный узел, $state';
+  }
+
+  @override
+  String get deskKitLocalNode => 'Локальный узел';
+
+  @override
+  String get deskKitMethodWaitingTor => 'Ждёт Tor';
+
+  @override
+  String deskKitMethodTorNotConnected(String host) {
+    return '$host. Tor не подключён.';
+  }
+
+  @override
+  String get deskKitMethodOn => 'Вкл.';
+
+  @override
+  String deskKitMethodOverTor(String host) {
+    return '$host, через Tor';
+  }
+
+  @override
+  String get deskKitMethodOff => 'Выкл.';
+
+  @override
+  String get deskKitMethodEpicboxOffDetail =>
+      'Платежи на этот адрес ждут на сервере Epicbox.';
+
+  @override
+  String get deskKitMethodConnecting => 'Подключение';
+
+  @override
+  String get deskKitMethodSlow => 'Медленно';
+
+  @override
+  String get deskKitMethodNotAnswering => 'Не отвечает';
+
+  @override
+  String deskKitMethodEpicboxDown(String host) {
+    return '$host. Платежи ждут на сервере Epicbox.';
+  }
+
+  @override
+  String get deskKitMethodHttpOffDetail =>
+      'Напрямую из другого кошелька, пока этот открыт.';
+
+  @override
+  String get deskKitMethodStarting => 'Запуск…';
+
+  @override
+  String deskKitMethodHttpInternet(String port) {
+    return 'из интернета, порт $port';
+  }
+
+  @override
+  String get deskKitMethodHttpLocal => 'только этот компьютер (127.0.0.1)';
+
+  @override
+  String get deskKitMethodNotReceiving => 'Приём не работает';
+
+  @override
+  String deskKitMethodPortInUse(String port) {
+    return 'Порт $port занят другой программой. Закройте её или выберите другой порт в настройках.';
+  }
+
+  @override
+  String get deskKitMethodNotInBuild => 'Нет в этой сборке';
+
+  @override
+  String get deskKitMethodTorOffDetail =>
+      'Медленнее и приватнее. В некоторых странах заблокирован или запрещён.';
+
+  @override
+  String get deskKitMethodTorPublishing => 'Публикация адреса Tor…';
+
+  @override
+  String get deskKitMethodTorConnecting => 'Подключение к Tor…';
+
+  @override
+  String get deskKitMethodTorOnDetail => 'доступен по адресу Tor';
+
+  @override
+  String get deskKitMethodTorNotPublished => 'Не опубликован';
+
+  @override
+  String deskKitMethodTorSendsWork(String reason) {
+    return '$reason. Отправка работает.';
+  }
+
+  @override
+  String get deskKitMethodTorNotReachableYet => 'Адрес Tor пока недоступен';
+
+  @override
+  String get deskKitMethodTorStopped => 'Остановлен';
+
+  @override
+  String get deskKitMethodTorStoppedDetail => 'Tor остановился.';
+
+  @override
+  String get deskKitMethodFiles => 'Файлы';
+
+  @override
+  String get deskKitChipOverTor => 'Через Tor';
+
+  @override
+  String get deskKitChipStarting => 'Tor запускается';
+
+  @override
+  String get deskKitChipNotConnected => 'Tor не подключён';
+
+  @override
+  String get deskKitChipNotOverTor => 'Не через Tor';
+
+  @override
+  String get deskKitPasswordNote =>
+      'Оценка сделана на этом устройстве по длине и по распространённым словам, именам и шаблонам — для атакующего с быстрым оборудованием, который перебирает 100 000 вариантов в секунду против файла этого кошелька. Это ориентир, а не гарантия.';
+
+  @override
+  String get deskKitPasswordNoteLabel => 'Как оценивается время';
+
+  @override
+  String get deskKitNotCopied => 'Не скопировано';
+
+  @override
+  String get deskKitCopied => 'Скопировано';
+
+  @override
+  String deskKitQrOf(String title) {
+    return 'QR-код: $title';
+  }
+
+  @override
+  String deskKitQrOfTag(String title, String tag) {
+    return 'QR-код: $title, $tag';
+  }
+
+  @override
+  String deskKitQrShowOf(String title) {
+    return 'Показать QR-код: $title';
+  }
+
+  @override
+  String get deskKitQrShow => 'Показать QR';
+
+  @override
+  String get deskKitQrHide => 'Скрыть QR';
+
+  @override
+  String get deskKitQrHideCode => 'Скрыть QR-код';
+
+  @override
+  String get deskSetAcctNotForgotten => 'Не забыт';
+
+  @override
+  String get deskSetAcctForgotten => 'Пароль забыт на этом компьютере';
+
+  @override
+  String get deskSetAcctForgottenText =>
+      'При следующем запуске нужно будет ввести пароль.';
+
+  @override
+  String get deskSetAcctLabelNotSaved => 'Название не сохранено';
+
+  @override
+  String get deskSetAcctEnterLabel => 'Введите название';
+
+  @override
+  String get deskSetAcctLabelSaved => 'Название сохранено';
+
+  @override
+  String get deskSetAcctLabel => 'Название';
+
+  @override
+  String get deskSetAcctLabelHint => 'Видно только в этом приложении.';
+
+  @override
+  String get deskSetAcctSaveLabel => 'Сохранить название';
+
+  @override
+  String get deskSetAcctPhraseHint =>
+      'Слова, которые восстанавливают этот кошелёк. Никому их не показывайте.';
+
+  @override
+  String get deskSetAcctShowPhrase => 'Показать фразу…';
+
+  @override
+  String get deskSetAcctRescanHint =>
+      'Заново читает блокчейн, если баланс выглядит неверным.';
+
+  @override
+  String get deskSetAcctRecheck => 'Сверить…';
+
+  @override
+  String get deskSetAcctFiles => 'Файлы';
+
+  @override
+  String get deskSetAcctWalletFolder => 'Папка кошелька';
+
+  @override
+  String get deskSetAcctAppFiles => 'Файлы приложения';
+
+  @override
+  String get deskSetAcctAppFilesHint => 'Настройки и журнал.';
+
+  @override
+  String get deskSetAcctNetwork => 'Сеть';
+
+  @override
+  String get deskSetAcctNetworkHint => 'Задаётся при создании кошелька.';
+
+  @override
+  String get deskSetAcctSetup => 'Мастер настройки';
+
+  @override
+  String get deskSetAcctSetupHint =>
+      'Пройти настройку узла и приёма заново. Ничего не потеряется.';
+
+  @override
+  String get deskSetAcctRunSetup => 'Запустить…';
+
+  @override
+  String get deskSetAcctSecurity => 'Безопасность';
+
+  @override
+  String get deskSetAcctRemembered => 'Запомнен на этом компьютере';
+
+  @override
+  String deskSetAcctRememberedHint(String who) {
+    return 'Открывается при запуске без пароля в течение 30 дней с момента настройки. Для отправки пароль всё равно нужен. $who';
+  }
+
+  @override
+  String get deskSetAcctForget => 'Забыть на этом компьютере';
+
+  @override
+  String get deskSetAcctPasswordHint => 'Открывает этот кошелёк.';
+
+  @override
+  String get deskSetAcctChangePassword => 'Сменить пароль…';
+
+  @override
+  String get deskSetAcctDeleteHint => 'Удаляет его ключи и базу данных.';
+
+  @override
+  String get deskSetAcctFolderNotFound => 'Папка не найдена';
+
+  @override
+  String deskSetAcctCopyPath(String title) {
+    return 'Копировать путь: $title';
+  }
+
+  @override
+  String deskSetBackupWhenToday(String time) {
+    return 'сегодня, $time';
+  }
+
+  @override
+  String deskSetBackupWhenYesterday(String time) {
+    return 'вчера, $time';
+  }
+
+  @override
+  String deskSetBackupWhenDate(String day, String time) {
+    return '$day, $time';
+  }
+
+  @override
+  String get deskSetBackupNeverExported => 'Ещё не экспортировалась.';
+
+  @override
+  String deskSetBackupLastExportNothingNew(String when) {
+    return 'Последний экспорт: $when · с тех пор ничего нового.';
+  }
+
+  @override
+  String deskSetBackupLastExportSince(String when, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'с тех пор $count платежа',
+      many: 'с тех пор $count платежей',
+      few: 'с тех пор $count платежа',
+      one: 'с тех пор $count платёж',
+    );
+    return 'Последний экспорт: $when · $_temp0.';
+  }
+
+  @override
+  String deskSetBackupWriteFailedHere(String reason) {
+    return 'Не удалось записать в папку: $reason. Выберите другую папку.';
+  }
+
+  @override
+  String deskSetBackupWriteFailedIn(String folder, String reason) {
+    return 'Не удалось записать в $folder: $reason. Выберите другую папку.';
+  }
+
+  @override
+  String get deskSetBackupWriteFailed =>
+      'Не удалось записать файл. Выберите другую папку.';
+
+  @override
+  String get deskSetBackupGroup => 'Резервная копия';
+
+  @override
+  String get deskSetBackupExportTitle => 'Экспорт резервной копии истории';
+
+  @override
+  String get deskSetBackupExportHint =>
+      'Платежи с подробностями и контакты — в файле, который открывает только кошелёк с этой фразой восстановления. Одна фраза возвращает баланс, но не записи.';
+
+  @override
+  String get deskSetBackupExporting => 'Экспорт…';
+
+  @override
+  String get deskSetBackupExportButton => 'Экспорт…';
+
+  @override
+  String get deskSetBackupImportTitle => 'Импорт резервной копии истории';
+
+  @override
+  String get deskSetBackupImportHint =>
+      'Добавляет резервную копию этого кошелька в «Активность». Ничего не удаляется; повторный импорт того же файла ничего не меняет.';
+
+  @override
+  String get deskSetBackupImportButton => 'Импорт…';
+
+  @override
+  String get deskSetBackupCsvTitle => 'Платежи в CSV';
+
+  @override
+  String get deskSetBackupCsvHint =>
+      'Простая таблица для электронных таблиц. Без шифрования, импортировать нельзя.';
+
+  @override
+  String get deskSetBackupCsvButton => 'Экспорт CSV…';
+
+  @override
+  String get deskSetBackupSaveDialogTitle => 'Сохранить историю платежей';
+
+  @override
+  String get deskSetBackupNotSaved => 'Не сохранено';
+
+  @override
+  String get deskSetBackupInFile => 'В файле';
+
+  @override
+  String deskSetBackupInFileCounts(int payments, int contacts) {
+    String _temp0 = intl.Intl.pluralLogic(
+      payments,
+      locale: localeName,
+      other: '$payments платежа',
+      many: '$payments платежей',
+      few: '$payments платежа',
+      one: '$payments платёж',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      contacts,
+      locale: localeName,
+      other: '$contacts контакта',
+      many: '$contacts контактов',
+      few: '$contacts контакта',
+      one: '$contacts контакт',
+    );
+    return '$_temp0, $_temp1';
+  }
+
+  @override
+  String get deskSetBackupInFileSub =>
+      'Кто кому платил, комиссии, заметки, ID слейтов';
+
+  @override
+  String get deskSetBackupNotIn => 'Не входит';
+
+  @override
+  String get deskSetBackupNotInValue => 'Ключи, фраза восстановления, пароль';
+
+  @override
+  String get deskSetBackupOpensWith => 'Откроет';
+
+  @override
+  String get deskSetBackupOpensWithValue =>
+      'Этот кошелёк или восстановленный по его фразе';
+
+  @override
+  String get deskSetBackupFile => 'Файл';
+
+  @override
+  String get deskSetBackupFileNote =>
+      'Файл содержит платежи на текущий момент. После новых платежей экспортируйте снова.';
+
+  @override
+  String get deskSetBackupExportDesc =>
+      'Файл с платежами этого кошелька, их подробностями и контактами. Открыть его может только кошелёк с той же фразой восстановления.';
+
+  @override
+  String get deskSetBackupSaved => 'Сохранено';
+
+  @override
+  String get deskSetBackupKeepCopy =>
+      'Храните копию и вне этого компьютера: на флешке, другом диске или в облаке. После новых платежей экспортируйте снова.';
+
+  @override
+  String get deskSetBackupOpenFolder => 'Открыть папку';
+
+  @override
+  String get deskSetBackupSaving => 'Сохранение…';
+
+  @override
+  String get deskSetBackupTryAgain => 'Повторить';
+
+  @override
+  String get deskSetBackupSaveAs => 'Сохранить как…';
+
+  @override
+  String get deskSetBackupOpenDialogTitle => 'Открыть резервную копию истории';
+
+  @override
+  String get deskSetBackupDetailsRestored => 'Подробности восстановлены';
+
+  @override
+  String get deskSetBackupDetailsRestoredSub =>
+      'Платежам, которые уже здесь, вернулись контрагент, комиссия или заметка';
+
+  @override
+  String get deskSetBackupOlderAdded => 'Добавлены старые платежи';
+
+  @override
+  String get deskSetBackupOlderAddedSub =>
+      'Их больше не было в списке; показаны как «Из резервной копии»';
+
+  @override
+  String get deskSetBackupContactsAdded => 'Добавлены контакты';
+
+  @override
+  String get deskSetBackupAlreadyHere => 'Уже здесь';
+
+  @override
+  String get deskSetBackupUnchanged => 'Без изменений';
+
+  @override
+  String get deskSetBackupNothingNew => 'Ничего нового';
+
+  @override
+  String deskSetBackupNothingNewBody(String file) {
+    return 'Все записи из $file уже здесь.';
+  }
+
+  @override
+  String get deskSetBackupImported => 'Импортировано';
+
+  @override
+  String deskSetBackupReading(String file) {
+    return 'Чтение $file…';
+  }
+
+  @override
+  String get deskSetBackupNotImported => 'Не импортировано';
+
+  @override
+  String get deskSetBackupBringsBack => 'Вернёт';
+
+  @override
+  String get deskSetBackupBringsBackValue =>
+      'Кто кому платил, комиссии и заметки платежей, которые уже здесь; старые платежи, пропавшие из списка; контакты';
+
+  @override
+  String get deskSetBackupNeeds => 'Нужен';
+
+  @override
+  String deskSetBackupNeedsValue(String network) {
+    return 'Файл из этого кошелька (та же фраза восстановления), сеть $network';
+  }
+
+  @override
+  String get deskSetBackupNever => 'Никогда не';
+
+  @override
+  String get deskSetBackupNeverValue =>
+      'удаляет и не меняет платёж, который уже здесь';
+
+  @override
+  String get deskSetBackupChooseFile => 'Выбрать файл…';
+
+  @override
+  String get deskSetBackupImportDesc =>
+      'Добавляет резервную копию истории этого кошелька в «Активность». Ничего не удаляется, и повторный импорт того же файла ничего не меняет.';
+
+  @override
+  String get deskSetBackupSaveCsvDialogTitle => 'Сохранить платежи в CSV';
+
+  @override
+  String get deskSetBackupCsvDialogTitle => 'Экспорт CSV';
+
+  @override
+  String get deskSetBackupCsvDialogDesc =>
+      'Простая таблица платежей этого кошелька для электронных таблиц.';
+
+  @override
+  String deskSetBackupCsvSavedNote(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count платежа',
+      many: '$count платежей',
+      few: '$count платежа',
+      one: '$count платёж',
+    );
+    return '$_temp0, сначала новые. Суммы в EPIC с 8 знаками после запятой; даты в UTC.';
+  }
+
+  @override
+  String get deskSetBackupDateError => 'Введите дату в виде 2026-01-31';
+
+  @override
+  String get deskSetBackupDateHint => 'ГГГГ-ММ-ДД';
+
+  @override
+  String get deskSetBackupRange => 'Период';
+
+  @override
+  String get deskSetBackupRangeAll => 'Все';
+
+  @override
+  String get deskSetBackupRangeThisYear => 'Этот год';
+
+  @override
+  String get deskSetBackupRangeLastYear => 'Прошлый год';
+
+  @override
+  String get deskSetBackupRangeCustom => 'Свой';
+
+  @override
+  String get deskSetBackupFrom => 'С';
+
+  @override
+  String get deskSetBackupTo => 'По';
+
+  @override
+  String deskSetBackupCsvInfo(int count, String file) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count платежа',
+      many: '$count платежей',
+      few: '$count платежа',
+      one: '$count платёж',
+    );
+    return '$_temp0 · столбцы: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. Файл $file.';
+  }
+
+  @override
+  String deskSetBackupCsvInfoNoCount(String file) {
+    return '– · столбцы: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. Файл $file.';
+  }
+
+  @override
+  String get deskSetBackupNotEncrypted => 'Без шифрования.';
+
+  @override
+  String get deskSetBackupNotEncryptedBody =>
+      'Любой, у кого есть файл, увидит суммы, даты, адреса и заметки. Импортировать его нельзя; для этого есть резервная копия истории.';
+
+  @override
+  String deskSetBackupReminderNever(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count платежа не входят в резервную копию истории.',
+      many: '$count платежей не входят в резервную копию истории.',
+      few: '$count платежа не входят в резервную копию истории.',
+      one: '$count платёж не входит в резервную копию истории.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetBackupReminderChanged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count платежа добавлены или изменены после последней резервной копии истории.',
+      many:
+          '$count платежей добавлены или изменены после последней резервной копии истории.',
+      few:
+          '$count платежа добавлены или изменены после последней резервной копии истории.',
+      one:
+          '$count платёж добавлен или изменён после последней резервной копии истории.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetBackupReminderBody =>
+      'Восстановление по фразе вернёт баланс, но не историю того, кто кому платил.';
+
+  @override
+  String get deskSetBackupNotNow => 'Не сейчас';
+
+  @override
+  String get deskSetDlgNodeAddressEmpty => 'Введите адрес узла.';
+
+  @override
+  String get deskSetDlgNodeAddressBad =>
+      'Это не адрес узла. Проверьте адрес и порт (обычно 3413).';
+
+  @override
+  String get deskSetDlgNodeAddressDuplicate =>
+      'Этот адрес уже есть в «Моих узлах».';
+
+  @override
+  String get deskSetDlgNodeNotAdded => 'Узел не добавлен';
+
+  @override
+  String get deskSetDlgNodeSaved => 'Узел сохранён';
+
+  @override
+  String get deskSetDlgNodeAdded => 'Добавлено в мои узлы';
+
+  @override
+  String get deskSetDlgNodeSaveAnyway => 'Его всё равно можно сохранить.';
+
+  @override
+  String get deskSetDlgNodeEditTitle => 'Изменить узел';
+
+  @override
+  String get deskSetDlgNodeAddTitle => 'Добавить в мои узлы';
+
+  @override
+  String get deskSetDlgNodeDesc =>
+      'Сохраните адрес узла, чтобы потом легко его найти. Сохранить можно, даже если он не в сети.';
+
+  @override
+  String get deskSetDlgNodeAddress => 'Адрес узла';
+
+  @override
+  String get deskSetDlgNodeLabel => 'Название';
+
+  @override
+  String get deskSetDlgNodeLabelHint => 'например, Домашний узел';
+
+  @override
+  String get deskSetDlgDirTitle => 'Каталог узлов';
+
+  @override
+  String get deskSetDlgDirDesc =>
+      'Публичные узлы, их операторы и состояние на момент последней проверки.';
+
+  @override
+  String get deskSetDlgDirEmpty => 'Нет узлов';
+
+  @override
+  String deskSetDlgDirVersion(String version) {
+    return 'версия $version';
+  }
+
+  @override
+  String deskSetDlgDirHeight(String height) {
+    return 'высота $height';
+  }
+
+  @override
+  String get deskSetDlgDirInUse => 'Используется';
+
+  @override
+  String get deskSetDlgDirUse => 'Выбрать';
+
+  @override
+  String get deskSetDlgDirNote =>
+      'Время ответа измеряется с сайта статуса, а не с этого компьютера.';
+
+  @override
+  String get deskSetDlgChainTitle => 'Найдены данные блокчейна';
+
+  @override
+  String get deskSetDlgChainDesc =>
+      'На этом компьютере уже есть данные блокчейна Epic, которые может использовать локальный узел.';
+
+  @override
+  String get deskSetDlgChainFolder => 'Папка';
+
+  @override
+  String get deskSetDlgChainSize => 'Размер';
+
+  @override
+  String get deskSetDlgChainUpdated => 'Обновлено';
+
+  @override
+  String get deskSetDlgChainUpdatedValue => '3 дня назад';
+
+  @override
+  String get deskSetDlgChainOthers =>
+      'Найдены и другие копии (1). Эта обновлялась последней.';
+
+  @override
+  String get deskSetDlgChainInUse =>
+      'Эту папку использует другая программа Epic. Закройте её и снова выберите локальный узел, чтобы использовать эти данные.';
+
+  @override
+  String get deskSetDlgChainUseIt =>
+      'Использовать их? Это избавит от загрузки и синхронизации всего блокчейна.';
+
+  @override
+  String get deskSetDlgChainOlderWallet =>
+      'Старому Epic Wallet, который использует эту папку, после этого может понадобиться повторная синхронизация. Монеты это не затрагивает.';
+
+  @override
+  String get deskSetDlgChainFresh => 'Загрузить заново';
+
+  @override
+  String get deskSetDlgChainUse => 'Использовать эти данные';
+
+  @override
+  String get deskSetDlgPwChanged => 'Пароль изменён.';
+
+  @override
+  String get deskSetDlgPwTitle => 'Сменить пароль';
+
+  @override
+  String get deskSetDlgPwDesc =>
+      'Теперь этот кошелёк будет открываться новым паролем. Запомненный пароль будет забыт.';
+
+  @override
+  String get deskSetDlgPwCurrent => 'Текущий пароль';
+
+  @override
+  String get deskSetDlgPwWrong => 'Неверный пароль';
+
+  @override
+  String get deskSetDlgPwNew => 'Новый пароль';
+
+  @override
+  String get deskSetDlgPwRepeat => 'Повторите новый пароль';
+
+  @override
+  String deskSetDlgRemoveToastList(String name) {
+    return '$name удалён из списка';
+  }
+
+  @override
+  String deskSetDlgRemoveToastDeleted(String name) {
+    return '$name удалён';
+  }
+
+  @override
+  String get deskSetDlgRemoveFilesKept => 'Файлы сохранены.';
+
+  @override
+  String deskSetDlgRemoveTitle(String name) {
+    return 'Убрать $name?';
+  }
+
+  @override
+  String get deskSetDlgRemoveDesc => 'Ничего не изменится без подтверждения.';
+
+  @override
+  String get deskSetDlgRemoveWhat => 'Что убрать';
+
+  @override
+  String get deskSetDlgRemoveFromList => 'Убрать из списка';
+
+  @override
+  String deskSetDlgRemoveFromListHint(String folder) {
+    return 'Файлы останутся в $folder. На странице «Все кошельки» его можно добавить обратно.';
+  }
+
+  @override
+  String get deskSetDlgDeleteWallet => 'Удалить кошелёк';
+
+  @override
+  String deskSetDlgRemoveDeleteHint(String folder) {
+    return 'Удаляет его ключи и базу данных из $folder. Восстановить его можно только по фразе восстановления; без неё монеты потеряны.';
+  }
+
+  @override
+  String get deskSetDlgRemoveUnlockHint =>
+      'Чтобы удалить и его файлы, разблокируйте этот кошелёк и выберите «Удалить кошелёк» в разделе «Настройки › Этот кошелёк».';
+
+  @override
+  String get deskSetDlgRemoveUnlock => 'Разблокировать этот кошелёк';
+
+  @override
+  String get deskSetDlgRemoveIrreversible => 'Это нельзя отменить';
+
+  @override
+  String get deskSetDlgRemoveIrreversibleBody =>
+      'Восстановить кошелёк можно только по фразе восстановления; без неё монеты будут потеряны навсегда.';
+
+  @override
+  String get deskSetDlgRemoveName => 'Название кошелька';
+
+  @override
+  String deskSetDlgRemoveTypeName(String name) {
+    return 'Введите $name для подтверждения.';
+  }
+
+  @override
+  String get deskSetDlgRemoveNameMismatch => 'Название не совпадает';
+
+  @override
+  String get deskSetDlgPassword => 'Пароль';
+
+  @override
+  String get deskSetDlgPhraseWritten => 'Фраза восстановления записана';
+
+  @override
+  String get deskSetDlgRemoving => 'Удаление…';
+
+  @override
+  String get deskSetDlgWalletLocked => 'Кошелёк заблокирован';
+
+  @override
+  String get deskSetDlgDeleteTitle => 'Удалить этот кошелёк?';
+
+  @override
+  String get deskSetDlgDeleteDesc =>
+      'Удаляет кошелёк и его seed с этого компьютера. Восстановить его можно только по фразе восстановления; без неё монеты потеряны.';
+
+  @override
+  String get deskSetFrameTitle => 'Настройки';
+
+  @override
+  String get deskSetFrameSections => 'Разделы настроек';
+
+  @override
+  String get deskSetFrameNode => 'Узел';
+
+  @override
+  String get deskSetFrameReceiving => 'Приём';
+
+  @override
+  String get deskSetFramePrivacy => 'Приватность';
+
+  @override
+  String get deskSetFrameAppearance => 'Внешний вид';
+
+  @override
+  String get deskSetFrameThisWallet => 'Этот кошелёк';
+
+  @override
+  String get deskSetFrameAllWallets => 'Все кошельки';
+
+  @override
+  String get deskSetFramePhrase => 'Сид-фраза';
+
+  @override
+  String get deskSetFrameRescan => 'Сверка баланса';
+
+  @override
+  String get deskSetFrameAbout => 'О приложении';
+
+  @override
+  String get deskSetFrameHelp => 'Справка';
+
+  @override
+  String get deskSetFrameHealthOn => 'Работает';
+
+  @override
+  String get deskSetFrameHealthSlow => 'Медленно';
+
+  @override
+  String get deskSetFrameNotResponding => 'Не отвечает';
+
+  @override
+  String get deskSetFrameOff => 'Выкл.';
+
+  @override
+  String get deskSetFrameChecking => 'Проверка…';
+
+  @override
+  String get deskSetFrameNodeSynced => 'Синхронизирован';
+
+  @override
+  String get deskSetFrameNodeSyncing => 'Синхронизация';
+
+  @override
+  String get deskSetFrameConnecting => 'Подключение…';
+
+  @override
+  String get deskSetFrameListening => 'Слушает';
+
+  @override
+  String deskSetFrameHealthLatency(String word, int ms) {
+    return '$word · $ms мс';
+  }
+
+  @override
+  String get deskSetFrameNever => 'никогда';
+
+  @override
+  String get deskSetFrameJustNow => 'только что';
+
+  @override
+  String deskSetFrameMinAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мин назад',
+      many: '$count мин назад',
+      few: '$count мин назад',
+      one: '$count мин назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetFrameHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ч назад',
+      many: '$count ч назад',
+      few: '$count ч назад',
+      one: '$count ч назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetFrameDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дн. назад',
+      many: '$count дн. назад',
+      few: '$count дн. назад',
+      one: '$count дн. назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetComboOpens => 'Открывает список';
+
+  @override
+  String get deskSetComboNoAnswer => 'Ответа пока нет';
+
+  @override
+  String get deskSetComboNothing => 'Пусто.';
+
+  @override
+  String deskSetComboUse(String host) {
+    return 'Использовать $host';
+  }
+
+  @override
+  String get deskSetLnodeDidNotStart => 'Узел не запустился';
+
+  @override
+  String get deskSetLnodeDidNotStop => 'Узел не остановился';
+
+  @override
+  String get deskSetLnodeDidNotRestart => 'Узел не перезапустился';
+
+  @override
+  String get deskSetLnodeMoved => 'Данные блокчейна перемещены';
+
+  @override
+  String get deskSetLnodeFolderChanged => 'Папка данных изменена';
+
+  @override
+  String get deskSetLnodeFolderFailed => 'Папка не изменена';
+
+  @override
+  String get deskSetLnodeStart => 'Запустить';
+
+  @override
+  String get deskSetLnodeStop => 'Остановить';
+
+  @override
+  String get deskSetLnodeRestart => 'Перезапустить';
+
+  @override
+  String get deskSetLnodeTabStatus => 'Состояние';
+
+  @override
+  String get deskSetLnodeTabPeers => 'Пиры';
+
+  @override
+  String get deskSetLnodeWhileSyncing => 'Во время синхронизации';
+
+  @override
+  String deskSetLnodeWhileSyncingText(String host) {
+    return 'Использовать $host, пока локальный узел не синхронизирован. Потом локальный узел сам займёт его место.';
+  }
+
+  @override
+  String get deskSetLnodeChange => 'Изменить…';
+
+  @override
+  String deskSetLnodeUseWhileSyncing(String host) {
+    return 'Использовать $host во время синхронизации';
+  }
+
+  @override
+  String get deskSetLnodeDataFolder => 'Папка данных';
+
+  @override
+  String deskSetLnodeUsed(String size) {
+    return 'Занято $size';
+  }
+
+  @override
+  String get deskSetLnodeFreeUnknown => 'свободное место неизвестно';
+
+  @override
+  String deskSetLnodeFree(String size) {
+    return 'свободно $size';
+  }
+
+  @override
+  String get deskSetLnodeOpen => 'Открыть';
+
+  @override
+  String get deskSetLnodeFolderNotOpened => 'Папка не открыта';
+
+  @override
+  String get deskSetLnodeChainData => 'Данные блокчейна';
+
+  @override
+  String get deskSetLnodeChainPointed =>
+      'Этот узел читает папку другой программы; удаляйте данные там.';
+
+  @override
+  String get deskSetLnodeChainText =>
+      'Используйте данные блокчейна, которые оставил на этом компьютере другой узел Epic, или удалите данные этого узла и загрузите блокчейн заново.';
+
+  @override
+  String get deskSetLnodeReuse => 'Использовать найденные…';
+
+  @override
+  String get deskSetLnodeDelete => 'Удалить…';
+
+  @override
+  String get deskSetLnodeAutostart => 'Запускать вместе с приложением';
+
+  @override
+  String get deskSetLnodeAutostartHint =>
+      'Запускает узел при старте и держит его синхронизированным, пока приложение открыто.';
+
+  @override
+  String get deskSetLnodeViewLog => 'Журнал узла';
+
+  @override
+  String get deskSetLnodeChangeFolder => 'Сменить папку…';
+
+  @override
+  String deskSetLnodeUseMeanwhile(String host) {
+    return 'Пока использовать $host';
+  }
+
+  @override
+  String get deskSetLnodeWaitingPeers => 'ждёт пиров';
+
+  @override
+  String get deskSetLnodeSyncingLower => 'синхронизация';
+
+  @override
+  String deskSetLnodeStageUsing(String stage, String host) {
+    return '$stage · пока используется $host';
+  }
+
+  @override
+  String get deskSetLnodeNothingUntilSynced =>
+      'Пока локальный узел не синхронизирован, ничего нельзя отправить или получить.';
+
+  @override
+  String get deskSetLnodeAtTip => 'актуален';
+
+  @override
+  String get deskSetLnodeStalledDetail =>
+      'нет прогресса 5 мин; один перезапуск уже был';
+
+  @override
+  String get deskSetLnodeNoProgress => 'Узел не продвигается.';
+
+  @override
+  String get deskSetLnodeNoProgressText =>
+      'Обычно помогает перезапуск; если нет, причина будет в журнале.';
+
+  @override
+  String get deskSetLnodePortInUse => 'Порт 3413 занят другой программой.';
+
+  @override
+  String get deskSetLnodePortInUseText =>
+      'Закройте её (другой узел Epic?) или выберите уже запущенный там узел в строке «Сервер узла».';
+
+  @override
+  String get deskSetLnodeDiskLow => 'На этом томе свободно меньше 2 ГБ.';
+
+  @override
+  String get deskSetLnodeDiskLowText =>
+      'Освободите место или смените папку данных.';
+
+  @override
+  String get deskSetLnodeMissing => 'В этой установке нет программы узла.';
+
+  @override
+  String get deskSetLnodeMissingText => 'Переустановите кошелёк.';
+
+  @override
+  String get deskSetLnodeStopped => 'Узел остановился сам.';
+
+  @override
+  String get deskSetLnodeStoppedText =>
+      'Причина может быть в последних строках журнала.';
+
+  @override
+  String deskSetLnodeUsesMeanwhile(String host) {
+    return 'пока кошелёк использует $host';
+  }
+
+  @override
+  String get deskSetLnodeNothingUntilRuns =>
+      'пока он не запущен, отправить ничего нельзя';
+
+  @override
+  String get deskSetLnodeTilePeers => 'Пиры';
+
+  @override
+  String get deskSetLnodeTileSync => 'Синхронизация';
+
+  @override
+  String get deskSetLnodeTileDownload => 'Загрузка';
+
+  @override
+  String deskSetLnodeSoFar(String size) {
+    return 'всего $size';
+  }
+
+  @override
+  String get deskSetLnodeTileDisk => 'Блокчейн на диске';
+
+  @override
+  String deskSetLnodeThisSession(String size) {
+    return '+$size за сеанс';
+  }
+
+  @override
+  String deskSetLnodeVersion(String version) {
+    return 'Версия $version';
+  }
+
+  @override
+  String deskSetLnodeRunning(String duration) {
+    return 'работает $duration';
+  }
+
+  @override
+  String deskSetLnodeStoppedAt(String time) {
+    return 'остановлен в $time';
+  }
+
+  @override
+  String deskSetLnodePeersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count пира',
+      many: '$count пиров',
+      few: '$count пира',
+      one: '$count пир',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetLnodeMoving(String done, String total) {
+    return 'Перемещение данных блокчейна · $done из $total';
+  }
+
+  @override
+  String get deskSetLnodeConnectingPeers => 'Подключение к пирам';
+
+  @override
+  String deskSetLnodeStartedSecAgo(int seconds) {
+    return 'запущен $seconds с назад';
+  }
+
+  @override
+  String deskSetLnodeStartedAgo(String duration) {
+    return 'запущен $duration назад';
+  }
+
+  @override
+  String get deskSetLnodeSettingsChanged => 'Настройки изменены.';
+
+  @override
+  String get deskSetLnodeSettingsChangedText =>
+      'Они вступят в силу после перезапуска.';
+
+  @override
+  String get deskSetLnodeRestartNow => 'Перезапустить';
+
+  @override
+  String get deskSetLnodeSampled =>
+      'Обновляется каждые 30 с, пока открыта эта страница.';
+
+  @override
+  String get deskSetLnodeTomlEdited =>
+      'epic-server.toml изменён вручную; настройки пиров и папки здесь не действуют.';
+
+  @override
+  String get deskSetLnodeSyncProgress => 'Ход синхронизации';
+
+  @override
+  String get deskSetLnodeStepHeaders => 'Заголовки';
+
+  @override
+  String get deskSetLnodeStepChainState => 'Состояние';
+
+  @override
+  String get deskSetLnodeStepBlocks => 'Блоки';
+
+  @override
+  String get deskSetLnodeStepsNone => 'Шаги синхронизации: ни один не начат';
+
+  @override
+  String deskSetLnodeStepOf(int n, String name) {
+    return 'Шаг синхронизации $n из 4: $name';
+  }
+
+  @override
+  String deskSetLndAskTitle(String host) {
+    return 'Использовать $host, пока локальный узел не синхронизирован?';
+  }
+
+  @override
+  String deskSetLndAskDesc(String host) {
+    return 'Синхронизация занимает часы. Тем временем кошелёк может читать блокчейн и отправлять через $host, публичный узел. Когда локальный узел синхронизируется, он сам займёт его место.';
+  }
+
+  @override
+  String get deskSetLndAskNote =>
+      'Спрашиваем один раз. Узел и выбор можно изменить в разделе «Настройки › Узел › Во время синхронизации».';
+
+  @override
+  String get deskSetLndAskWait => 'Ждать локальный узел';
+
+  @override
+  String deskSetLndAskUse(String host) {
+    return 'Использовать $host';
+  }
+
+  @override
+  String get deskSetLndPickTitle => 'Узел на время синхронизации';
+
+  @override
+  String get deskSetLndPickDesc =>
+      'Публичный узел, который кошелёк использует, пока локальный узел не синхронизирован.';
+
+  @override
+  String get deskSetLndDeleted => 'Данные блокчейна удалены';
+
+  @override
+  String deskSetLndFreed(String size) {
+    return 'Освобождено $size';
+  }
+
+  @override
+  String get deskSetLndNotDeleted => 'Данные блокчейна не удалены';
+
+  @override
+  String get deskSetLndDeleteTitle => 'Удалить данные блокчейна';
+
+  @override
+  String deskSetLndDeleteDesc(String size, String path) {
+    return 'Удаляет $size из $path. Узел остановится, и при следующем запуске весь блокчейн загрузится заново (часы). Ключи и история кошелька не затрагиваются.';
+  }
+
+  @override
+  String deskSetLndDeleteDescNoSize(String path) {
+    return 'Удаляет данные блокчейна из $path. Узел остановится, и при следующем запуске весь блокчейн загрузится заново (часы). Ключи и история кошелька не затрагиваются.';
+  }
+
+  @override
+  String deskSetLndTypeToConfirm(String word) {
+    return 'Введите $word для подтверждения.';
+  }
+
+  @override
+  String deskSetLndTypeToConfirmLabel(String word) {
+    return 'Введите $word для подтверждения';
+  }
+
+  @override
+  String get deskSetLndSourceCli => 'epic (узел для командной строки)';
+
+  @override
+  String get deskSetLndSourceGui => 'Epic GUI';
+
+  @override
+  String get deskSetLndSourceBundled => 'прежний Epic Wallet';
+
+  @override
+  String get deskSetLndSourceCustom => 'другая папка';
+
+  @override
+  String get deskSetLndInUse => 'Данные блокчейна используются';
+
+  @override
+  String get deskSetLndNotInUse => 'Папка не используется';
+
+  @override
+  String get deskSetLndReuseTitle =>
+      'На этом компьютере найдены данные блокчейна';
+
+  @override
+  String get deskSetLndReuseDesc =>
+      'Другой узел Epic оставил здесь данные блокчейна. Локальный узел может читать эту папку вместо загрузки блокчейна.';
+
+  @override
+  String get deskSetLndLooking => 'Поиск…';
+
+  @override
+  String get deskSetLndUseIt => 'Использовать';
+
+  @override
+  String deskSetLndLastWritten(String date) {
+    return 'последняя запись $date';
+  }
+
+  @override
+  String get deskSetLndLocked => 'Используется другой программой';
+
+  @override
+  String get deskSetLndNothingCopied =>
+      'Ничего не копируется: узел читает эту папку, а «Удалить данные блокчейна» для неё отключено.';
+
+  @override
+  String get deskSetLndFresh => 'Загрузить заново';
+
+  @override
+  String deskSetLndFreshLine(String size) {
+    return 'В собственную папку кошелька. Около $size.';
+  }
+
+  @override
+  String get deskSetLndLogTitle => 'Журнал узла';
+
+  @override
+  String get deskSetLndReading => 'Чтение…';
+
+  @override
+  String get deskSetLndLogNote =>
+      'Последние 200 строк epic-server.log из папки данных. Новые внизу.';
+
+  @override
+  String get deskSetLndCopied => 'Скопировано';
+
+  @override
+  String deskSetLndLines(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count строки',
+      many: '$count строк',
+      few: '$count строки',
+      one: '$count строка',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetLndBadFolder => 'Эта папка не подходит';
+
+  @override
+  String get deskSetLndChooseAnother => 'Выбрать другую';
+
+  @override
+  String deskSetLndMoveTitle(String size, String folder) {
+    return 'Переместить $size в $folder?';
+  }
+
+  @override
+  String get deskSetLndMoveDesc =>
+      'Узел остановится на время перемещения, затем запустится из новой папки. «Начать там заново» вместо этого загрузит в неё блокчейн с нуля.';
+
+  @override
+  String get deskSetLndStartFresh => 'Начать там заново';
+
+  @override
+  String get deskSetLndMove => 'Переместить';
+
+  @override
+  String get deskSetLndProbNotEmpty => 'Папка не пустая.';
+
+  @override
+  String get deskSetLndProbInsideSource => 'Она внутри текущей папки.';
+
+  @override
+  String get deskSetLndProbSourceInside =>
+      'Текущая папка находится внутри неё.';
+
+  @override
+  String deskSetLndProbSpace(String needed, String free) {
+    return 'Недостаточно места: нужно $needed, свободно $free.';
+  }
+
+  @override
+  String deskSetLndProbSpaceUnknown(String needed) {
+    return 'Недостаточно места: нужно $needed, сколько свободно — неизвестно.';
+  }
+
+  @override
+  String get deskSetLndProbLocked => 'Её занимает другая программа.';
+
+  @override
+  String get deskSetLndProbMissing => 'Текущих данных блокчейна нет.';
+
+  @override
+  String get deskSetLndProbNotWritable => 'В неё нельзя записывать.';
+
+  @override
+  String get deskSetLndProbIncomplete => 'Текущие данные блокчейна неполные.';
+
+  @override
+  String get deskSetLndProbForeign => 'Там данные блокчейна другой программы.';
+
+  @override
+  String get deskSetPeersBannedToast => 'Пир заблокирован';
+
+  @override
+  String get deskSetPeersUnbannedToast => 'Пир разблокирован';
+
+  @override
+  String get deskSetPeersNotAddress =>
+      'Это не IP-адрес с портом, например 203.0.113.5:3414.';
+
+  @override
+  String get deskSetPeersAlreadyPreferred => 'Уже в предпочтительных.';
+
+  @override
+  String deskSetPeersMaxRange(int min, int max) {
+    return 'От $min до $max.';
+  }
+
+  @override
+  String get deskSetPeersReading => 'Чтение пиров…';
+
+  @override
+  String deskSetPeersSummary(int connected, int inbound, int outbound) {
+    return 'Подключено $connected · входящих $inbound · исходящих $outbound';
+  }
+
+  @override
+  String deskSetPeersSummaryBanned(
+    int connected,
+    int inbound,
+    int outbound,
+    int banned,
+  ) {
+    return 'Подключено $connected · входящих $inbound · исходящих $outbound · заблокировано $banned';
+  }
+
+  @override
+  String get deskSetPeersIn => 'вх.';
+
+  @override
+  String get deskSetPeersOut => 'исх.';
+
+  @override
+  String get deskSetPeersBan => 'Заблокировать';
+
+  @override
+  String get deskSetPeersColAddress => 'Адрес';
+
+  @override
+  String get deskSetPeersColDirection => 'Направл.';
+
+  @override
+  String get deskSetPeersColVersion => 'Версия';
+
+  @override
+  String get deskSetPeersColHeight => 'Высота';
+
+  @override
+  String get deskSetPeersColFirstSeen => 'Впервые';
+
+  @override
+  String get deskSetPeersNone => 'Нет подключённых пиров.';
+
+  @override
+  String deskSetPeersMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ещё $count',
+      many: 'Ещё $count',
+      few: 'Ещё $count',
+      one: 'Ещё $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetPeersRefreshed => 'Обновляется каждые 10 с';
+
+  @override
+  String get deskSetPeersBanned => 'Заблокированные';
+
+  @override
+  String deskSetPeersBannedAt(String time) {
+    return 'заблокирован в $time';
+  }
+
+  @override
+  String get deskSetPeersUnban => 'Разблокировать';
+
+  @override
+  String get deskSetPeersPreferred => 'Предпочтительные пиры';
+
+  @override
+  String get deskSetPeersPreferredLabel =>
+      'Предпочтительный пир, IP-адрес и порт';
+
+  @override
+  String get deskSetPeersAdd => 'Добавить';
+
+  @override
+  String get deskSetPeersMaxIn => 'Макс. входящих';
+
+  @override
+  String get deskSetPeersMaxInLabel => 'Максимум входящих пиров';
+
+  @override
+  String get deskSetPeersMaxOut => 'Макс. исходящих';
+
+  @override
+  String get deskSetPeersMaxOutLabel => 'Максимум исходящих пиров';
+
+  @override
+  String deskSetPeersPreferredCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Предпочтительных $count:',
+      many: 'Предпочтительных $count:',
+      few: 'Предпочтительных $count:',
+      one: 'Предпочтительных $count:',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetPeersForget(String peer) {
+    return 'Забыть $peer';
+  }
+
+  @override
+  String deskSetPeersNote(int min, int max, int def) {
+    return '«Впервые» — когда это приложение впервые увидело пир подключённым за этот сеанс; узел не сообщает, когда началось соединение. Блокировка и разблокировка идут через owner API узла. Enter сохраняет максимум (от $min до $max, по умолчанию $def).';
+  }
+
+  @override
+  String get deskSetLndDeleteQuestion => 'Удалить данные блокчейна?';
+
+  @override
+  String get deskSetLogsMemoryOnly => 'Журнал хранится только в памяти.';
+
+  @override
+  String get deskSetLogsClearTitle => 'Очистить журналы?';
+
+  @override
+  String get deskSetLogsClearDesc =>
+      'Удаляет файлы журналов. В отчёт, отправленный позже, попадёт только то, что записано с этого момента.';
+
+  @override
+  String get deskSetLogsKeep => 'Оставить журналы';
+
+  @override
+  String get deskSetLogsClear => 'Очистить журналы';
+
+  @override
+  String get deskSetLogsCleared => 'Журналы очищены';
+
+  @override
+  String deskSetLogsToday(String time) {
+    return 'сегодня в $time';
+  }
+
+  @override
+  String deskSetLogsTomorrow(String time) {
+    return 'завтра в $time';
+  }
+
+  @override
+  String get deskSetLogsTitle => 'Журналы';
+
+  @override
+  String get deskSetLogsLevel => 'Уровень журнала';
+
+  @override
+  String get deskSetLogsLevelNormal =>
+      'Обычный. «Подробный» хранит больше строк на диске в течение 24 часов; в файле могут быть адреса, в отчётах их нет.';
+
+  @override
+  String deskSetLogsLevelDetailed(String until) {
+    return 'Подробный до $until, затем обычный. В файле могут быть адреса; в отчётах их нет.';
+  }
+
+  @override
+  String deskSetLogsLevelDetailedCore(String until) {
+    return 'Подробный до $until, затем обычный. В файле могут быть адреса; в отчётах их нет. Строки ядра кошелька станут подробными со следующего запуска приложения.';
+  }
+
+  @override
+  String get deskSetLogsNormal => 'Обычный';
+
+  @override
+  String get deskSetLogsDetailed => 'Подробный';
+
+  @override
+  String get deskSetLogsFiles => 'Файлы журнала';
+
+  @override
+  String deskSetLogsSize(String size, String max) {
+    return 'Текущий размер $size из $max. Хранится ещё один старый файл.';
+  }
+
+  @override
+  String get deskSetLogsOpenFolder => 'Открыть папку журналов';
+
+  @override
+  String deskSetNodeVersionOld(String version) {
+    return 'Версия старше $version';
+  }
+
+  @override
+  String get deskSetNodePortNote => 'Проверьте адрес и порт (обычно 3413).';
+
+  @override
+  String get deskSetNodeListNote =>
+      'Состояние по данным status.btlabs.uk, проверяется раз в несколько минут. Задержка измерена с этого компьютера.';
+
+  @override
+  String get deskSetNodeStartTitle => 'Запустить локальный узел?';
+
+  @override
+  String get deskSetNodeStartDesc =>
+      'Отдельная программа синхронизирует блокчейн Epic на этом компьютере.';
+
+  @override
+  String get deskSetNodeStartLine1 =>
+      'Загружает весь блокчейн: несколько ГБ места на диске и трафика.';
+
+  @override
+  String get deskSetNodeStartLine2 =>
+      'Первая синхронизация занимает часы. Пока она не закончится, у узла статус «Синхронизация».';
+
+  @override
+  String get deskSetNodeStartLine3 =>
+      'Брандмауэр может спросить, разрешить ли программу узла.';
+
+  @override
+  String get deskSetNodeStartButton => 'Запустить локальный узел';
+
+  @override
+  String get deskSetNodeRowNotSetUp => 'Не настроен';
+
+  @override
+  String get deskSetNodeRowStopped => 'Остановлен';
+
+  @override
+  String get deskSetNodeRowStarting => 'Запуск';
+
+  @override
+  String deskSetNodeRowSyncingPct(String percent) {
+    return 'Синхронизация $percent';
+  }
+
+  @override
+  String get deskSetNodeRowStalled => 'Застрял';
+
+  @override
+  String get deskSetNodeRowFailed => 'Ошибка';
+
+  @override
+  String get deskSetNodeLocalInUse => 'Используется локальный узел';
+
+  @override
+  String get deskSetNodeLocalInUseText =>
+      'Он загружает весь блокчейн. Нужно 5 ГБ свободного места.';
+
+  @override
+  String get deskSetNodeLocalNode => 'Локальный узел';
+
+  @override
+  String get deskSetNodeGroupComputer => 'Этот компьютер';
+
+  @override
+  String get deskSetNodeGroupMine => 'Мои узлы';
+
+  @override
+  String get deskSetNodeGroupPublic => 'Публичные узлы';
+
+  @override
+  String get deskSetNodeRemovedFromMine => 'Удалено из моих узлов';
+
+  @override
+  String get deskSetNodeNotAnswering => 'Не отвечает';
+
+  @override
+  String get deskSetNodeAddToMine => 'Добавить в мои узлы';
+
+  @override
+  String get deskSetNodeServer => 'Сервер узла';
+
+  @override
+  String get deskSetNodeServerHint =>
+      'Узел, через который кошелёк читает блокчейн и отправляет платежи.';
+
+  @override
+  String get deskSetNodeFindHint => 'Найдите или введите адрес узла';
+
+  @override
+  String get deskSetNodeChecking => 'Проверка узла…';
+
+  @override
+  String get deskSetNodeTypedNote =>
+      'Enter — использовать. Звёздочка сохранит его в «Моих узлах».';
+
+  @override
+  String get deskSetNodeNoNodes => 'Нет узлов.';
+
+  @override
+  String get deskSetNodeFooterAdd => 'Добавить в мои узлы…';
+
+  @override
+  String get deskSetNodeFooterDirectory => 'Каталог узлов…';
+
+  @override
+  String get deskSetNodeBackground => 'Синхронизация в фоне';
+
+  @override
+  String get deskSetNodeBackgroundHint =>
+      'Продолжает синхронизацию, когда приложение закрыто.';
+
+  @override
+  String get deskSetPhraseNotCopied => 'Не скопировано';
+
+  @override
+  String get deskSetPhraseClipboardRefused => 'Буфер обмена не принял текст.';
+
+  @override
+  String get deskSetPhraseCopied => 'Фраза скопирована';
+
+  @override
+  String get deskSetPhraseCleared => 'Буфер обмена очистится через 30 с.';
+
+  @override
+  String get deskSetPhraseEnterPassword => 'Введите пароль.';
+
+  @override
+  String get deskSetPhraseWrongPassword => 'Неверный пароль.';
+
+  @override
+  String get deskSetPhraseIntro =>
+      'Запишите слова на бумаге в этом порядке. Никогда не вводите их на сайтах и в чатах.';
+
+  @override
+  String get deskSetPhrasePanel => 'Введите пароль, чтобы показать слова';
+
+  @override
+  String get deskSetPhraseShowWords => 'Показать слова';
+
+  @override
+  String deskSetPhraseWordsLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Фраза восстановления, $count слова',
+      many: 'Фраза восстановления, $count слов',
+      few: 'Фраза восстановления, $count слова',
+      one: 'Фраза восстановления, $count слово',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetPhraseHideQr => 'Скрыть QR-код';
+
+  @override
+  String get deskSetPhraseShowQr => 'Показать QR-код';
+
+  @override
+  String get deskSetPhraseHideWords => 'Скрыть слова';
+
+  @override
+  String deskSetPhraseHidesIn(int seconds) {
+    return 'Скроется через $seconds с';
+  }
+
+  @override
+  String get deskSetPhraseQrLabel => 'QR-код фразы восстановления';
+
+  @override
+  String get deskSetPhraseBackUp => 'Сохраните фразу';
+
+  @override
+  String get deskSetPhraseBackUpText =>
+      'Любой, у кого есть эти слова, может забрать EPIC. Убедитесь, что никто не видит экран.';
+
+  @override
+  String get deskSetPrivTorOnFailed => 'Tor не включён';
+
+  @override
+  String get deskSetPrivTorOffFailed => 'Tor не выключен';
+
+  @override
+  String get deskSetPrivTor => 'Tor';
+
+  @override
+  String get deskSetPrivSwitching => 'Переключение Tor';
+
+  @override
+  String get deskSetPrivTurnOff => 'Выключить Tor';
+
+  @override
+  String get deskSetPrivNotInBuild => 'Нет в этой сборке';
+
+  @override
+  String get deskSetPrivStarting => 'Запуск…';
+
+  @override
+  String deskSetPrivStartingDetail(int progress, String waiting) {
+    return '$progress %. $waiting ждут, пока Tor подключится.';
+  }
+
+  @override
+  String get deskSetPrivNotPublished =>
+      'Адрес Tor ещё не опубликован. Отправка работает.';
+
+  @override
+  String deskSetPrivProblemSendsWork(String problem) {
+    return '$problem. Отправка работает.';
+  }
+
+  @override
+  String get deskSetPrivConnected => 'Подключено.';
+
+  @override
+  String get deskSetPrivNotConnected => 'Нет подключения';
+
+  @override
+  String deskSetPrivStoppedDetail(String waiting) {
+    return 'Tor остановился. $waiting ждут повторной попытки или выключения Tor.';
+  }
+
+  @override
+  String deskSetPrivProblemDetail(String problem, String waiting) {
+    return '$problem. $waiting ждут повторной попытки или выключения Tor.';
+  }
+
+  @override
+  String get deskSetPrivStatusSite => 'Сайт статуса';
+
+  @override
+  String get deskSetPrivUseStatus => 'Использовать status.btlabs.uk';
+
+  @override
+  String get deskSetPrivUseStatusHint =>
+      'Состояние сети и информация предоставляются status.btlabs.uk';
+
+  @override
+  String deskSetRecvMethodOnFailed(String method) {
+    return '$method: не удалось включить';
+  }
+
+  @override
+  String deskSetRecvMethodOffFailed(String method) {
+    return '$method: не удалось выключить';
+  }
+
+  @override
+  String get deskSetRecvServerNotChanged => 'Сервер не изменён';
+
+  @override
+  String get deskSetRecvReceiving => 'Приём';
+
+  @override
+  String deskSetRecvSwitching(String method) {
+    return 'Переключение приёма: $method';
+  }
+
+  @override
+  String deskSetRecvMethodReceiving(String method) {
+    return 'Приём: $method';
+  }
+
+  @override
+  String get deskSetRecvNotSaved => 'Не сохранено';
+
+  @override
+  String get deskSetRecvAutostart => 'Запускать вместе с кошельком';
+
+  @override
+  String get deskSetRecvAutostartHint => 'Включается при разблокировке.';
+
+  @override
+  String deskSetRecvMethodAutostart(String method) {
+    return '$method: запускать вместе с кошельком';
+  }
+
+  @override
+  String get deskSetRecvHeadStopped => 'Остановлен';
+
+  @override
+  String get deskSetRecvHeadStarting => 'Запуск';
+
+  @override
+  String deskSetRecvResponseTime(int ms) {
+    return 'Время ответа $ms мс. Измерено с сайта статуса.';
+  }
+
+  @override
+  String get deskSetRecvEpicboxTitle => 'Приём через Epicbox';
+
+  @override
+  String get deskSetRecvEpicboxText =>
+      'Платежи приходят через сервер Epicbox, даже когда кошелёк закрыт.';
+
+  @override
+  String get deskSetRecvEpicboxServer => 'Сервер Epicbox';
+
+  @override
+  String get deskSetRecvEpicboxServerHint =>
+      'Какой сервер хранит платежи для этого адреса. У двух кошельков могут быть разные серверы.';
+
+  @override
+  String get deskSetRecvFindHint => 'Найдите или введите сервер Epicbox';
+
+  @override
+  String get deskSetRecvSwitchingServer => 'Переключение сервера Epicbox…';
+
+  @override
+  String get deskSetRecvNotInList => 'нет в публичном списке';
+
+  @override
+  String get deskSetRecvTypedNote =>
+      'Enter — использовать. Его состояние появится, когда кошелёк подключится.';
+
+  @override
+  String get deskSetRecvListNote =>
+      'Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.';
+
+  @override
+  String get deskSetRecvHttpTitle => 'Приём по HTTP';
+
+  @override
+  String get deskSetRecvHttpText =>
+      'Напрямую из другого кошелька, пока этот открыт.';
+
+  @override
+  String get deskSetRecvHttpOffTitle => 'Выключен, пока включён Tor';
+
+  @override
+  String get deskSetRecvHttpOffText =>
+      'Прямые платежи вместо этого приходят на адрес Tor этого кошелька.';
+
+  @override
+  String get deskSetRecvPrivacySettings => 'Настройки приватности';
+
+  @override
+  String get deskSetHttpNotChanged => 'Не изменено';
+
+  @override
+  String get deskSetHttpPortError => 'Порт должен быть от 1 до 65535';
+
+  @override
+  String get deskSetHttpReachable => 'Доступность';
+
+  @override
+  String get deskSetHttpReachableHint => 'Кто может платить на адрес HTTP.';
+
+  @override
+  String get deskSetHttpLocalOnly => 'Только локально';
+
+  @override
+  String get deskSetHttpFromInternet => 'Из интернета';
+
+  @override
+  String get deskSetHttpGuideHelp => 'Приём из интернета: как это работает';
+
+  @override
+  String deskSetHttpPublicNote(String port) {
+    return 'Отвечает на всех интерфейсах. Роутер должен перенаправлять TCP $port на этот компьютер. Отправители из интернета используют http://<public IP>:$port.';
+  }
+
+  @override
+  String get deskSetHttpPort => 'Порт';
+
+  @override
+  String get deskSetHttpPortHint => 'От 1 до 65535. Используется адресом HTTP.';
+
+  @override
+  String get deskSetHttpPortLabel => 'Порт HTTP';
+
+  @override
+  String get deskSetHttpGuideTitle => 'Приём из интернета';
+
+  @override
+  String get deskSetHttpGuideNowPublic => 'Сейчас: из интернета.';
+
+  @override
+  String get deskSetHttpGuideNowLocal =>
+      'Сейчас: только локально. Адрес HTTP доступен только программам на этом компьютере.';
+
+  @override
+  String get deskSetHttpStep1 => 'Слушать на всех интерфейсах';
+
+  @override
+  String deskSetHttpStep1Text(String port) {
+    return 'Кошелёк отвечает на 0.0.0.0, порт $port. Тогда другие устройства и интернет смогут отправлять платежи на этот кошелёк. Брандмауэр может спросить разрешение.';
+  }
+
+  @override
+  String get deskSetHttpStep2 => 'Перенаправить порт';
+
+  @override
+  String deskSetHttpStep2Text(String port) {
+    return 'На странице роутера (часто 10.0.1.1) найдите «Перенаправление портов» (Port forwarding) и перенаправьте TCP $port на этот компьютер.';
+  }
+
+  @override
+  String get deskSetHttpStep3 => 'Поделиться публичным адресом';
+
+  @override
+  String deskSetHttpStep3Text(String port) {
+    return 'Отправители используют http://<public IP>:$port. Публичный IP может меняться.';
+  }
+
+  @override
+  String get deskSetHttpNoRouter => 'Не хотите настраивать роутер?';
+
+  @override
+  String get deskSetHttpNoRouterText =>
+      'Tor работает откуда угодно, ничего перенаправлять не нужно.';
+
+  @override
+  String get deskSetHttpTurnOnTor => 'Включить Tor';
+
+  @override
+  String get deskSetHttpExposed =>
+      'Открыт только API приёма. Обычный HTTP не шифруется.';
+
+  @override
+  String get deskSetHttpBackLocal => 'Вернуть «Только локально»';
+
+  @override
+  String get deskSetReportNotSent => 'Отчёт не отправлен. Попробуйте ещё раз.';
+
+  @override
+  String get deskSetReportSaveDialog => 'Сохранить отчёт';
+
+  @override
+  String get deskSetReportSaved =>
+      'Сохранено. Секретные данные удалены, без шифрования.';
+
+  @override
+  String get deskSetReportNotSaved => 'Файл не сохранён. Попробуйте ещё раз.';
+
+  @override
+  String get deskSetReportText => 'Текст отчёта';
+
+  @override
+  String deskSetReportAppLog(String size) {
+    return 'Журнал приложения (последние $size)';
+  }
+
+  @override
+  String get deskSetReportSent => 'Отчёт отправлен';
+
+  @override
+  String get deskSetReportArrived => 'Отчёт получен.';
+
+  @override
+  String deskSetReportArrivedRef(String id) {
+    return 'Отчёт получен. Его номер: $id.';
+  }
+
+  @override
+  String get deskSetReportDescribe => 'Опишите, что произошло.';
+
+  @override
+  String get deskSetReportTitle => 'Сообщить о проблеме';
+
+  @override
+  String get deskSetReportDesc =>
+      'Отчёт шифруется, чтобы прочитать его мог только разработчик. До нажатия «Отправить» ничего не отправляется. «Сохранить в файл» сохраняет тот же очищенный отчёт, но без шифрования.';
+
+  @override
+  String get deskSetReportWhat => 'Что произошло';
+
+  @override
+  String get deskSetReportWhatHint =>
+      'Что вы делали, чего ожидали и что произошло вместо этого';
+
+  @override
+  String get deskSetReportContact => 'Контакт';
+
+  @override
+  String get deskSetReportContactHint =>
+      'Эл. почта или другой контакт для ответа';
+
+  @override
+  String get deskSetReportAttach => 'Приложить журналы (рекомендуется)';
+
+  @override
+  String get deskSetReportAttachHint =>
+      'Последняя часть журнала приложения, очищенная от фраз, паролей, адресов, IP и домашних папок.';
+
+  @override
+  String get deskSetReportSentWhat => 'Что отправляется';
+
+  @override
+  String get deskSetReportNotSentTitle => 'Не отправлено';
+
+  @override
+  String get deskSetReportOff => 'В этой сборке отправка отключена';
+
+  @override
+  String get deskSetReportSaveToFile => 'Сохранить в файл';
+
+  @override
+  String get deskSetReportSend => 'Отправить';
+
+  @override
+  String get deskSetRescanComplete => 'Сканирование завершено';
+
+  @override
+  String get deskSetRescanStoppedLine => 'Сканирование остановлено';
+
+  @override
+  String get deskSetRescanLog => 'Журнал сканирования';
+
+  @override
+  String get deskSetRescanText =>
+      'Заново читает блокчейн и пересобирает баланс из найденных выходов. Используйте, если баланс выглядит неверным, после восстановления или если выходы остались заблокированными после неудачной отправки. Кошельком можно пользоваться и во время проверки.';
+
+  @override
+  String get deskSetRescanStartAgain => 'Запустить снова';
+
+  @override
+  String get deskSetRescanDeleteUnconfirmed => 'Удалить неподтверждённые';
+
+  @override
+  String get deskSetRescanDeleteHint =>
+      'Также отменяет неподтверждённые транзакции и разблокирует их выходы. Платёж, который уже в пути, может после этого не пройти.';
+
+  @override
+  String get deskSetRescanScanning =>
+      'Сканирование блокчейна. Кошельком можно пользоваться; баланс обновится по окончании.';
+
+  @override
+  String get deskSetRescanStopping => 'Остановка…';
+
+  @override
+  String deskSetRescanChecking(int percent) {
+    return 'Проверка… $percent %';
+  }
+
+  @override
+  String get deskSetRescanFailed => 'Сканирование не удалось';
+
+  @override
+  String get deskSetRescanNoneFound =>
+      'Неподтверждённых транзакций не найдено.';
+
+  @override
+  String get deskSetRescanCancelled =>
+      'Неподтверждённые транзакции отменены, их выходы разблокированы.';
+
+  @override
+  String get deskSetRescanNotRead => 'Не прочитано';
+
+  @override
+  String get deskSetRescanFinished => 'Сканирование закончено';
+
+  @override
+  String get deskSetRescanUpToDate => 'Баланс актуален.';
+
+  @override
+  String get deskSetRescanResumed =>
+      'Сканирование продолжилось с места остановки; числа относятся к этой части.';
+
+  @override
+  String get deskSetRescanStoppedEarly =>
+      'Остановлено до конца. Баланс прочитан заново; запустите снова, чтобы продолжить.';
+
+  @override
+  String get deskSetRescanNotDeleted =>
+      'Неподтверждённые транзакции не удалены: это выполняется только после полного сканирования.';
+
+  @override
+  String get deskSetRescanBefore => 'Баланс до';
+
+  @override
+  String get deskSetRescanAfter => 'Баланс после';
+
+  @override
+  String get deskSetRescanFound => 'Найдено выходов';
+
+  @override
+  String get deskSetRescanRestored => 'Восстановлено';
+
+  @override
+  String get deskSetRescanRevived => 'Снова не потрачены';
+
+  @override
+  String get deskSetRescanUnlocked => 'Разблокировано';
+
+  @override
+  String get deskSetRescanDeleted => 'Удалено';
+
+  @override
+  String deskSetWalletsAddedBack(String name) {
+    return '$name снова в списке';
+  }
+
+  @override
+  String get deskSetWalletsNotAddedBack => 'Не добавлен обратно';
+
+  @override
+  String get deskSetWalletsOpenNow => 'Открыт';
+
+  @override
+  String get deskSetWalletsFolderMissing => 'Нет папки';
+
+  @override
+  String deskSetWalletsShowFolder(String name) {
+    return 'Показать $name в папке';
+  }
+
+  @override
+  String deskSetWalletsRemove(String name) {
+    return 'Убрать $name…';
+  }
+
+  @override
+  String get deskSetWalletsRemovedGroup => 'Убраны из списка';
+
+  @override
+  String get deskSetWalletsAddBack => 'Вернуть в список';
+
+  @override
+  String get deskSetWalletsAdd => 'Добавить кошелёк';
+
+  @override
+  String get deskSetWalletsCreate => 'Создать кошелёк';
+
+  @override
+  String get deskSetWalletsCreateText =>
+      'Новый кошелёк с новой фразой восстановления.';
+
+  @override
+  String get deskSetWalletsImport => 'Импорт';
+
+  @override
+  String get deskSetWalletsImportText => 'Из старого Epic Wallet или из папки.';
+
+  @override
+  String get deskSetWalletsRestore => 'Восстановление';
+
+  @override
+  String get deskSetWalletsRestoreText => 'По фразе восстановления.';
+
+  @override
+  String get deskSetupConfirmPassword => 'Повторите пароль';
+
+  @override
+  String get deskSetupPasswordShort => 'Не меньше 8 символов';
+
+  @override
+  String get deskSetupPasswordsDiffer => 'Пароли не совпадают';
+
+  @override
+  String get deskSetupBack => 'Назад';
+
+  @override
+  String get deskSetupNewWalletAdded => 'Новый кошелёк добавлен.';
+
+  @override
+  String get deskSetupCapsLock => 'Включён Caps Lock';
+
+  @override
+  String deskSetupStepSem(int number, int total, String label) {
+    return 'Шаг $number из $total: $label';
+  }
+
+  @override
+  String get deskSetupTryAgain => 'Повторить';
+
+  @override
+  String get deskSetupNotSaved => 'Не сохранено';
+
+  @override
+  String get deskSetupStepPrefs => 'Параметры';
+
+  @override
+  String get deskSetupStepNode => 'Узел';
+
+  @override
+  String get deskSetupStepEpicbox => 'Epicbox';
+
+  @override
+  String get deskSetupStepReview => 'Проверка';
+
+  @override
+  String get deskSetupAgain =>
+      'Повторная настройка. Ничего не изменится до нажатия «Сохранить настройки» на последнем шаге.';
+
+  @override
+  String get deskSetupPrefsLead => 'Язык приложения. Его можно изменить позже.';
+
+  @override
+  String get deskSetupNodeTitle => 'Выберите узел';
+
+  @override
+  String get deskSetupNodeLead =>
+      'Кошелёк читает блокчейн и отправляет платежи через узел Epic.';
+
+  @override
+  String get deskSetupLocalTitle => 'Локальный узел';
+
+  @override
+  String get deskSetupLocalLead =>
+      'Что значит запускать узел здесь и какой узел использовать.';
+
+  @override
+  String get deskSetupEpicboxTitle => 'Приём, пока кошелёк закрыт';
+
+  @override
+  String get deskSetupReviewTitle => 'Проверьте настройки';
+
+  @override
+  String get deskSetupReviewLead => 'Исправьте то, что не так, и сохраните.';
+
+  @override
+  String get deskSetupSideTitle => 'Настройка';
+
+  @override
+  String get deskSetupBackToWallet => 'Назад к кошельку';
+
+  @override
+  String get deskSetupLaterNote => 'Всё это можно изменить позже в настройках.';
+
+  @override
+  String get deskSetupSave => 'Сохранить настройки';
+
+  @override
+  String get deskSetupLanguage => 'Язык';
+
+  @override
+  String get deskSetupNodeServer => 'Сервер узла';
+
+  @override
+  String get deskSetupNodeHint => 'Найдите или введите адрес узла';
+
+  @override
+  String get deskSetupCheckingNodes => 'Проверка узлов…';
+
+  @override
+  String get deskSetupPickNode => 'Выберите узел';
+
+  @override
+  String get deskSetupPublicNodes => 'Публичные узлы';
+
+  @override
+  String get deskSetupNotInList => 'нет в публичном списке';
+
+  @override
+  String get deskSetupEnterUses => 'Enter — использовать.';
+
+  @override
+  String get deskSetupNoNodes => 'Нет узлов.';
+
+  @override
+  String get deskSetupRemoteNode => 'Удалённый узел';
+
+  @override
+  String get deskSetupRemoteNodeText => 'Любой публичный узел. Готов сразу.';
+
+  @override
+  String get deskSetupLocalNodeText =>
+      'Запускает узел Epic на этом компьютере. Оператору ничего не передаётся. Нужны место на диске и часы на синхронизацию.';
+
+  @override
+  String get deskSetupEpicboxText =>
+      'Epicbox доставляет платежи на адрес Epicbox и хранит их, пока кошелёк не появится в сети.';
+
+  @override
+  String get deskSetupEpicboxPrivacy =>
+      'Он не скрывает IP-адрес от сервера Epicbox. Если это важно, используйте VPN.';
+
+  @override
+  String get deskSetupEpicboxServer => 'Сервер Epicbox';
+
+  @override
+  String get deskSetupEpicboxHelp =>
+      'Оставьте пустым, чтобы выключить приём через Epicbox.';
+
+  @override
+  String get deskSetupChangePrefsSem => 'Изменить параметры';
+
+  @override
+  String get deskSetupChangeNodeSem => 'Изменить узел';
+
+  @override
+  String get deskSetupChangeEpicboxSem => 'Изменить Epicbox';
+
+  @override
+  String get deskSetupChange => 'Изменить';
+
+  @override
+  String get deskSetupType => 'Тип';
+
+  @override
+  String get deskSetupAddress => 'Адрес';
+
+  @override
+  String deskSetupExistingNode(String host) {
+    return 'Уже запущенный узел на $host';
+  }
+
+  @override
+  String get deskSetupBundledNode => 'Локальный узел, встроенный';
+
+  @override
+  String get deskSetupWhileSyncing => 'Во время синхронизации';
+
+  @override
+  String get deskSetupWait => 'ждать';
+
+  @override
+  String get deskSetupDataFolder => 'Папка данных';
+
+  @override
+  String deskSetupSaveStartsFallback(String node) {
+    return 'Сохранение запустит узел. Первая синхронизация занимает часы; кошелёк тем временем откроется и до её конца будет использовать $node.';
+  }
+
+  @override
+  String get deskSetupSaveStarts =>
+      'Сохранение запустит узел. Первая синхронизация занимает часы; кошелёк тем временем откроется.';
+
+  @override
+  String get deskSetupServer => 'Сервер';
+
+  @override
+  String get deskSetupOff => 'Выкл.';
+
+  @override
+  String get deskSetAboutLicencesLead =>
+      'Открытое ПО в этом кошельке. Каждый компонент сохраняет свою лицензию; полные тексты в одном клике.';
+
+  @override
+  String get deskSetAboutLicenceApp =>
+      'Epic Cash Desktop от BT Labs: Apache-2.0. Код на GitHub.';
+
+  @override
+  String get deskSetAboutBrowserNotOpened => 'Браузер не открылся';
+
+  @override
+  String get deskSetAboutOpen => 'Открыть';
+
+  @override
+  String deskSetAboutVersion(String version) {
+    return 'Версия  $version';
+  }
+
+  @override
+  String deskSetAboutNode(String version) {
+    return 'Узел  $version';
+  }
+
+  @override
+  String get deskSetAboutCommunity => 'Сообщество';
+
+  @override
+  String get deskSetAboutLicences => 'Лицензии';
+
+  @override
+  String get deskSetAboutSource => 'Исходный код';
+
+  @override
+  String get deskSetAboutView => 'Открыть';
+
+  @override
+  String deskSetAboutChecked(String ago) {
+    return 'Проверено $ago.';
+  }
+
+  @override
+  String deskSetAboutLatest(String version) {
+    return '$version — последняя версия';
+  }
+
+  @override
+  String deskSetAboutAvailable(String version) {
+    return 'Доступно обновление: $version';
+  }
+
+  @override
+  String get deskSetAboutCouldNotCheck => 'Не удалось проверить';
+
+  @override
+  String get deskSetAboutUpdates => 'Обновления';
+
+  @override
+  String deskSetAboutGet(String version) {
+    return 'Скачать $version';
+  }
+
+  @override
+  String get deskSetAboutCheckNow => 'Проверить сейчас';
+
+  @override
+  String get deskSetAboutAgoNow => 'только что';
+
+  @override
+  String deskSetAboutAgoMin(int count) {
+    return '$count мин назад';
+  }
+
+  @override
+  String deskSetAboutAgoHours(int count) {
+    return '$count ч назад';
+  }
+
+  @override
+  String deskSetAboutAgoDays(int count) {
+    return '$count дн. назад';
+  }
+
+  @override
+  String get deskSetAboutCopyLink => 'Копировать ссылку';
+
+  @override
+  String get deskSetAboutCopied => 'Скопировано';
+
+  @override
+  String get deskSetAboutNotCopied => 'Не скопировано';
+
+  @override
+  String get deskSetAppearTheme => 'Тема';
+
+  @override
+  String get deskSetAppearThemeHint =>
+      '«Системная» следует настройке компьютера.';
+
+  @override
+  String get deskSetAppearSystem => 'Системная';
+
+  @override
+  String get deskSetAppearDark => 'Тёмная';
+
+  @override
+  String get deskSetAppearLight => 'Светлая';
+
+  @override
+  String get deskSetAppearScale => 'Масштаб интерфейса';
+
+  @override
+  String get deskSetAppearScaleHint =>
+      'Текст и элементы управления крупнее или мельче. Применяется сразу.';
+
+  @override
+  String get deskSetAppearLanguage => 'Язык';
+
+  @override
+  String get deskSetAppearLanguageHint => 'Применяется сразу.';
+
+  @override
+  String get deskSetAppearHideHint => 'Показывает точки вместо баланса и сумм.';
+
+  @override
+  String deskSetHelpNoMatchText(String query) {
+    return 'Нет тем по запросу «$query». Попробуйте другое слово.';
+  }
+
+  @override
+  String deskSetHelpFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Найдено тем: $count',
+      many: 'Найдено тем: $count',
+      few: 'Найдено тем: $count',
+      one: 'Найдено тем: $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetHelpNoMatch => 'Темы не найдены';
+
+  @override
+  String get deskSetHelpReportText =>
+      'Опишите, что пошло не так. Можно приложить журнал приложения: он очищается от секретных данных и шифруется для разработчика. «Сохранить в файл» сохранит копию, чтобы отправить её вручную.';
+
+  @override
+  String get deskSetHelpShowLess => 'Свернуть';
+
+  @override
+  String get deskSetHelpReadMore => 'Читать дальше';
+
+  @override
+  String get deskSetHelpEb1 =>
+      'Кошелёк отправителя передаёт платёж в Epicbox и блокирует выходы.';
+
+  @override
+  String get deskSetHelpEb2 =>
+      'Epicbox доставляет его, когда кошелёк получателя в сети. Тот добавляет свою часть и подписывает.';
+
+  @override
+  String get deskSetHelpEb3 =>
+      'Кошелёк получателя отправляет его обратно в Epicbox.';
+
+  @override
+  String get deskSetHelpEb4 =>
+      'Epicbox передаёт его обратно кошельку отправителя.';
+
+  @override
+  String get deskSetHelpSigns =>
+      'Кошелёк отправителя тоже подписывает, завершает транзакцию и отправляет её в сеть.';
+
+  @override
+  String deskSetHelpFinal(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Сеть включает её в блок. После $count подтверждения она окончательна.',
+      many:
+          'Сеть включает её в блок. После $count подтверждений она окончательна.',
+      few:
+          'Сеть включает её в блок. После $count подтверждений она окончательна.',
+      one:
+          'Сеть включает её в блок. После $count подтверждения она окончательна.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskSetHelpFile1 =>
+      'Кошелёк отправителя сохраняет файл транзакции и блокирует выходы. Файл попадает к получателю любым способом.';
+
+  @override
+  String get deskSetHelpFile2 =>
+      'Получатель открывает его. Его кошелёк добавляет свою часть, подписывает и сохраняет файл ответа.';
+
+  @override
+  String get deskSetHelpFile3 => 'Файл ответа возвращается к отправителю.';
+
+  @override
+  String get deskSetHelpFile4 =>
+      'Отправитель открывает файл ответа на странице «Завершить по файлу ответа».';
+
+  @override
+  String get deskSetHelpSender => 'Отправитель';
+
+  @override
+  String get deskSetHelpFile => 'Файл';
+
+  @override
+  String get deskSetHelpRecipient => 'Получатель';
+
+  @override
+  String get deskSetHelpNetwork => 'Сеть';
+
+  @override
+  String get deskSetHelpTravels => 'Путь транзакции';
+
+  @override
+  String get deskSetHelpOverEpicbox => 'Через Epicbox';
+
+  @override
+  String get deskSetHelpWithFile => 'Файлом';
+
+  @override
+  String deskSetHelpStep(int number, int total) {
+    return 'Шаг $number из $total';
+  }
+
+  @override
+  String get deskSetHelpSearch => 'Поиск по справке';
+
+  @override
+  String get deskSetHelpSearchKeys =>
+      'Нажмите /, чтобы искать. Esc очищает поиск.';
+
+  @override
+  String get deskSetHelpSearchHint => 'Например: файл, подтверждения, фраза';
+
+  @override
+  String get deskSetHelpClear => 'Очистить поиск';
+
+  @override
+  String get deskSetHelpTourAgain => 'Показать тур снова';
+
+  @override
+  String deskSetHelpTopics(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count темы',
+      many: '$count тем',
+      few: '$count темы',
+      one: '$count тема',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrSecretProtect =>
+      'Windows не смог защитить секреты кошелька (DPAPI отказал), поэтому ничего не сохранено. Войдите в Windows под своей учётной записью с её паролем, а не через удалённый или служебный сеанс, и попробуйте снова.';
+
+  @override
   String get deskKeyringMissingTitle => 'Связка ключей не найдена';
 
   @override
@@ -6218,4 +13688,65 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get txDetailsSendAgainDone =>
       'Отправлено снова. Платёж завершится, когда кошелёк получателя выйдет в сеть.';
+
+  @override
+  String get deskTxThisWallet => 'Этот кошелёк';
+
+  @override
+  String get deskErrOldLinks =>
+      'В папке этого кошелька есть ссылки; скопируйте её вручную или восстановите кошелёк по фразе восстановления.';
+
+  @override
+  String get deskErrOldIncomplete =>
+      'Папку этого кошелька не удалось прочитать полностью; скопируйте её вручную или восстановите кошелёк по фразе восстановления.';
+
+  @override
+  String get deskErrOldSeedTooLarge =>
+      'Файл wallet.seed слишком велик для сида кошелька.';
+
+  @override
+  String get deskErrSendUnbuildable =>
+      'Этот перевод нельзя собрать из доступных монет.';
+
+  @override
+  String get deskErrNothingToConsolidate =>
+      'Нечего объединять: доступно меньше двух выходов.';
+
+  @override
+  String deskSetReportFileNone(String name) {
+    return '$name (не включён)';
+  }
+
+  @override
+  String deskSetReportFileAll(String name, String size) {
+    return '$name (целиком, $size)';
+  }
+
+  @override
+  String deskSetReportFilePart(String name, String part, String size) {
+    return '$name (последние $part из $size)';
+  }
+
+  @override
+  String get deskErrTxNotFound => 'Транзакция не найдена';
+
+  @override
+  String get deskTxNowUndelivered =>
+      'Не доставлено. Платёж не дошёл до сервера Epicbox, поэтому получатель его не получил. Отправьте его снова или отмените, чтобы освободить средства.';
+
+  @override
+  String get deskTxStatusUndelivered => 'Не доставлено';
+
+  @override
+  String get deskTxSendAgain => 'Отправить снова';
+
+  @override
+  String get deskTxNotSent => 'Не отправлено';
+
+  @override
+  String get deskTxSentAgain => 'Отправлено снова';
+
+  @override
+  String get deskTxSentAgainText =>
+      'Платёж завершится, когда кошелёк получателя появится в сети.';
 }

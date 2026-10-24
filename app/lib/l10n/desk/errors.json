@@ -1,0 +1,645 @@
+{
+  "deskErrSomethingWrong": "Something went wrong",
+  "@deskErrSomethingWrong": {
+    "description": "An error message the user reads when nothing more is known (toast, inline error)."
+  },
+  "deskErrWrongPassword": "Wrong password",
+  "@deskErrWrongPassword": {
+    "description": "An error message the user reads when a password is wrong."
+  },
+  "deskErrPhraseInvalid": "Recovery phrase not valid",
+  "@deskErrPhraseInvalid": {
+    "description": "An error message the user reads when the recovery phrase is not a valid phrase."
+  },
+  "deskErrWalletExists": "A wallet exists already",
+  "@deskErrWalletExists": {
+    "description": "An error message the user reads when creating a wallet that already exists."
+  },
+  "deskErrWalletNotFound": "No wallet found",
+  "@deskErrWalletNotFound": {
+    "description": "An error message the user reads when no wallet is found."
+  },
+  "deskErrNodeNotAnswering": "Node not answering",
+  "@deskErrNodeNotAnswering": {
+    "description": "An error message the user reads when the node does not answer."
+  },
+  "deskErrNotEnoughFunds": "Not enough funds",
+  "@deskErrNotEnoughFunds": {
+    "description": "An error message the user reads when the spendable balance is too small."
+  },
+  "deskErrNotTxFile": "Not a transaction file for this wallet",
+  "@deskErrNotTxFile": {
+    "description": "An error message the user reads when a transaction file does not belong to this wallet."
+  },
+  "deskErrEpicboxUnreachable": "Epicbox server not reachable",
+  "@deskErrEpicboxUnreachable": {
+    "description": "An error message the user reads when the Epicbox server cannot be reached."
+  },
+  "deskErrNotHttpAddress": "Not an http(s) address",
+  "@deskErrNotHttpAddress": {
+    "description": "An error message the user reads when an address is not an http or https address."
+  },
+  "deskErrPlainHttp": "Plain HTTP not confirmed",
+  "@deskErrPlainHttp": {
+    "description": "An error message the user reads when a send to a plain http address was not confirmed by the user."
+  },
+  "deskErrNotOnion": "Not an onion address",
+  "@deskErrNotOnion": {
+    "description": "An error message the user reads when an address is not a Tor onion address."
+  },
+  "deskErrTorNotConnected": "Tor is not connected",
+  "@deskErrTorNotConnected": {
+    "description": "An error message the user reads when a Tor send is asked while Tor is not connected."
+  },
+  "deskErrOnionUnreachable": "The recipient’s wallet is not reachable over Tor",
+  "@deskErrOnionUnreachable": {
+    "description": "An error message the user reads when a Tor send finds no wallet at the onion address."
+  },
+  "deskErrWalletBusy": "Wallet busy. Try again in a moment.",
+  "@deskErrWalletBusy": {
+    "description": "An error message the user reads when the wallet is busy with another operation."
+  },
+  "deskErrDbDamaged": "Wallet database damaged, rebuilding",
+  "@deskErrDbDamaged": {
+    "description": "An error message the user reads (also a notice on Overview) when the wallet database is damaged and is being rebuilt."
+  },
+  "deskErrPaymentExpired": "Payment expired",
+  "@deskErrPaymentExpired": {
+    "description": "An error message the user reads when a payment has expired."
+  },
+  "deskErrInvoiceNotFound": "Invoice not found",
+  "@deskErrInvoiceNotFound": {
+    "description": "An error message the user reads when an invoice cannot be found."
+  },
+  "deskErrAmountMismatch": "Amount differs from the invoice",
+  "@deskErrAmountMismatch": {
+    "description": "An error message the user reads when the amount does not match the invoice."
+  },
+  "deskErrInvoicePaid": "Invoice already paid",
+  "@deskErrInvoicePaid": {
+    "description": "An error message the user reads when an invoice is already paid."
+  },
+  "deskErrInvoiceLocked": "Invoice locked until a later block",
+  "@deskErrInvoiceLocked": {
+    "description": "An error message the user reads when an invoice is locked until a later block."
+  },
+  "deskErrInvoiceChanged": "Invoice changed",
+  "@deskErrInvoiceChanged": {
+    "description": "An error message the user reads when an invoice changed since it was read."
+  },
+  "deskErrNotAccepted": "Not accepted",
+  "@deskErrNotAccepted": {
+    "description": "An error message the user reads when the wallet core did not accept an input and gave no detail."
+  },
+  "deskErrNotAcceptedDetail": "Not accepted: {detail}",
+  "@deskErrNotAcceptedDetail": {
+    "description": "An error message the user reads when the wallet core did not accept an input. {detail} is the core's own English sentence.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrDisk": "Disk error",
+  "@deskErrDisk": {
+    "description": "An error message the user reads when the disk failed, no detail."
+  },
+  "deskErrDiskDetail": "Disk error: {detail}",
+  "@deskErrDiskDetail": {
+    "description": "An error message the user reads when the disk failed. {detail} is the system's English text.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrTorMissing": "Tor not included in this build",
+  "@deskErrTorMissing": {
+    "description": "Why Tor is down: this build has no Tor program. Shown on the Tor status line."
+  },
+  "deskErrTorNetwork": "Can’t reach the Tor network",
+  "@deskErrTorNetwork": {
+    "description": "Why Tor is down: the Tor network cannot be reached. Shown on the Tor status line."
+  },
+  "deskErrTorClock": "The computer’s clock is wrong",
+  "@deskErrTorClock": {
+    "description": "Why Tor is down: the computer's clock is wrong. Shown on the Tor status line."
+  },
+  "deskErrOnionNotPublished": "Onion address not published",
+  "@deskErrOnionNotPublished": {
+    "description": "Why Tor receiving does not work: the onion address is not published. Shown on the Tor status line."
+  },
+  "deskErrTorStart": "Tor did not start",
+  "@deskErrTorStart": {
+    "description": "Why Tor is down: the Tor program did not start. Shown on the Tor status line."
+  },
+  "deskErrTorStopped": "Tor stopped",
+  "@deskErrTorStopped": {
+    "description": "Why Tor is down: Tor stopped. Shown on the Tor status line."
+  },
+  "deskErrScanRunning": "A scan is already running.",
+  "@deskErrScanRunning": {
+    "description": "An error message the user reads when a second balance recheck is asked while one runs."
+  },
+  "deskErrCancelRefused": "Not cancelled: the node already has this payment.",
+  "@deskErrCancelRefused": {
+    "description": "An error message the user reads when a cancel was refused because the node already has the payment."
+  },
+  "deskErrWalletLocked": "The wallet is locked",
+  "@deskErrWalletLocked": {
+    "description": "An error message the user reads when an action needs the wallet to be unlocked."
+  },
+  "deskErrWalletLocking": "The wallet is locking",
+  "@deskErrWalletLocking": {
+    "description": "An error message the user reads when an action is asked while the wallet is locking."
+  },
+  "deskErrDbDamagedDetail": "Wallet database damaged. {detail}",
+  "@deskErrDbDamagedDetail": {
+    "description": "An error message the user reads when the damaged wallet database could not be reopened. {detail} is the second error.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrWalletClosed": "Wallet closed: {detail}. Unlock again.",
+  "@deskErrWalletClosed": {
+    "description": "An error message the user reads when a change failed and the wallet had to be closed. {detail} is the reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrNotChanged": "Not changed: {detail}",
+  "@deskErrNotChanged": {
+    "description": "An error message the user reads when a settings change failed. {detail} is the reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrPasswordShort": "{count, plural, one{Use at least {count} character} other{Use at least {count} characters}}",
+  "@deskErrPasswordShort": {
+    "description": "An error message the user reads when a new password is too short. {count} is the minimum length.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrWalletNotListed": "Wallet not in the list",
+  "@deskErrWalletNotListed": {
+    "description": "An error message the user reads when the wallet is not in the wallet list."
+  },
+  "deskErrUpdateApp": "Update the app to change the list",
+  "@deskErrUpdateApp": {
+    "description": "An error message the user reads when the wallet list was written by a newer app version."
+  },
+  "deskErrListNotChanged": "Wallet list not changed",
+  "@deskErrListNotChanged": {
+    "description": "An error message the user reads when the wallet list could not be changed, no detail."
+  },
+  "deskErrOpenToDelete": "Open the wallet to delete it",
+  "@deskErrOpenToDelete": {
+    "description": "An error message the user reads when a wallet is deleted without being open."
+  },
+  "deskErrEnterPassword": "Enter the password",
+  "@deskErrEnterPassword": {
+    "description": "An error message the user reads when a password is needed and empty."
+  },
+  "deskErrFolderNotFound": "Wallet folder not found",
+  "@deskErrFolderNotFound": {
+    "description": "An error message the user reads when a wallet's folder is gone."
+  },
+  "deskErrAlreadyHere": "This wallet is already here: {name}",
+  "@deskErrAlreadyHere": {
+    "description": "An error message the user reads when a recovery phrase belongs to a wallet that is already listed. {name} is the listed wallet's name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrTestNet": "Test network wallet. Only mainnet wallets can be imported.",
+  "@deskErrTestNet": {
+    "description": "Shown in the import wizard for an older wallet on the test network."
+  },
+  "deskErrWalletInApp": "This wallet is in the app already.",
+  "@deskErrWalletInApp": {
+    "description": "Shown in the import wizard when every wallet found is already in the app."
+  },
+  "deskErrWalletNotFoundSearch": "Wallet not found. Search again.",
+  "@deskErrWalletNotFoundSearch": {
+    "description": "An error message the user reads in the import wizard when the chosen old wallet is gone."
+  },
+  "deskErrEnterOldPassword": "Enter the old password",
+  "@deskErrEnterOldPassword": {
+    "description": "An error message the user reads in the import wizard when the old password is empty."
+  },
+  "deskErrOldPasswordShort": "{count, plural, one{The old password is short. Choose a new one of at least {count} character.} other{The old password is short. Choose a new one of at least {count} characters.}}",
+  "@deskErrOldPasswordShort": {
+    "description": "An error message the user reads in the import wizard when the old password is shorter than the app's minimum. {count} is the minimum length.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrSeedUnreadable": "The wallet.seed file could not be read",
+  "@deskErrSeedUnreadable": {
+    "description": "An error message the user reads in the import wizard when wallet.seed cannot be read from disk."
+  },
+  "deskErrNotSeedFile": "Not a wallet.seed file",
+  "@deskErrNotSeedFile": {
+    "description": "An error message the user reads in the import wizard when the chosen file is not a wallet.seed file."
+  },
+  "deskErrAlreadyInApp": "Already in the app as {name}",
+  "@deskErrAlreadyInApp": {
+    "description": "An error message the user reads in the import wizard when the wallet is already in the app. {name} is its name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrWrongOldPassword": "Wrong old password",
+  "@deskErrWrongOldPassword": {
+    "description": "An error message the user reads in the import wizard when the old wallet's password is wrong."
+  },
+  "deskErrListNotSaved": "Wallet list not saved",
+  "@deskErrListNotSaved": {
+    "description": "An error message the user reads in the import wizard when the new wallet could not be listed."
+  },
+  "deskErrProofSeedRead": "Seed read",
+  "@deskErrProofSeedRead": {
+    "description": "A line of the import wizard's result: the old wallet's seed was read."
+  },
+  "deskErrProofWalletCreated": "Wallet created",
+  "@deskErrProofWalletCreated": {
+    "description": "A line of the import wizard's result: the new wallet was created."
+  },
+  "deskErrProofContacts": "{count, plural, one{1 contact added} other{{count} contacts added}}",
+  "@deskErrProofContacts": {
+    "description": "A line of the import wizard's result: contacts taken over from the old app.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrProofNode": "Node {name} added to the node list",
+  "@deskErrProofNode": {
+    "description": "A line of the import wizard's result: the old app's node was added to the node list. {name} is the node's label.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrProofEpicbox": "The older app used the Epicbox server {old}; this app uses {current}",
+  "@deskErrProofEpicbox": {
+    "description": "A line of the import wizard's result: the old app used another Epicbox server than this app. Both are host names.",
+    "placeholders": {
+      "old": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrProofFolderUnchanged": "Old folder unchanged",
+  "@deskErrProofFolderUnchanged": {
+    "description": "A line of the import wizard's result: the old wallet's folder was only read."
+  },
+  "deskErrProofFolderChanged": "Old folder changed by another program",
+  "@deskErrProofFolderChanged": {
+    "description": "A line of the import wizard's result: another program changed the old folder meanwhile."
+  },
+  "deskErrProofHistory": "{count, plural, one{History: 1 transaction} other{History: {count} transactions}}",
+  "@deskErrProofHistory": {
+    "description": "A line of the import wizard's result: the old payment history was imported.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrProofHistoryAlready": "History already imported",
+  "@deskErrProofHistoryAlready": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrProofHistoryNone": "No history in the old folder; the scan restores the balance",
+  "@deskErrProofHistoryNone": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrProofHistoryOld": "History of Epic Wallet 5.3 or older is not readable; the scan restores the balance",
+  "@deskErrProofHistoryOld": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrProofHistoryBusy": "History not imported: the older wallet is running. It is imported at the next unlock",
+  "@deskErrProofHistoryBusy": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrProofHistoryOther": "History not imported: it belongs to another wallet",
+  "@deskErrProofHistoryOther": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrProofHistoryUnreadable": "History not imported: the old database could not be read; the scan restores the balance",
+  "@deskErrProofHistoryUnreadable": {
+    "description": "A line of the import wizard's result."
+  },
+  "deskErrNodeNoAnswer": "The node did not answer",
+  "@deskErrNodeNoAnswer": {
+    "description": "An error message the user reads when a sync could not reach the node."
+  },
+  "deskErrNotPosted": "Not posted",
+  "@deskErrNotPosted": {
+    "description": "An error message the user reads when a split or consolidation was stored but the node did not take it."
+  },
+  "deskErrNotEpicboxAddress": "Not an Epicbox address",
+  "@deskErrNotEpicboxAddress": {
+    "description": "Why a send failed: the address is not an Epicbox address."
+  },
+  "deskErrFileNotSaved": "File not saved. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrFileNotSaved": {
+    "description": "Why a file send failed: the transaction file could not be saved."
+  },
+  "deskErrTorOffSend": "Tor is off. Turn on Tor to send to an onion address.",
+  "@deskErrTorOffSend": {
+    "description": "Why a send to an onion address failed: Tor is off."
+  },
+  "deskErrTorConnecting": "Tor is still connecting. Try again in a moment.",
+  "@deskErrTorConnecting": {
+    "description": "Why a send to an onion address failed: Tor is still starting."
+  },
+  "deskErrRecipientNoAnswer": "The recipient’s wallet did not answer or refused.",
+  "@deskErrRecipientNoAnswer": {
+    "description": "Why a direct send failed: nothing was sent."
+  },
+  "deskErrRecipientNoAnswerWaits": "The recipient’s wallet did not answer or refused. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrRecipientNoAnswerWaits": {
+    "description": "Why a direct send failed: the payment may exist and waits in Activity."
+  },
+  "deskErrNotDelivered": "Not delivered. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrNotDelivered": {
+    "description": "Why an Epicbox send failed: the payment waits in Activity."
+  },
+  "deskErrInterruptedLock": "Interrupted by the lock. It may have gone out: check Activity after unlocking.",
+  "@deskErrInterruptedLock": {
+    "description": "Why a send ended: the wallet was locked during it."
+  },
+  "deskErrStoredWaits": "{detail}. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrStoredWaits": {
+    "description": "Why a send failed with a reason, when the payment may exist. {detail} is the reason without its final full stop.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrNodeRefused": "Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.",
+  "@deskErrNodeRefused": {
+    "description": "Why a direct send failed: both wallets signed but the node refused the transaction."
+  },
+  "deskErrFileNotReadable": "File not readable",
+  "@deskErrFileNotReadable": {
+    "description": "An error message the user reads when a transaction file cannot be read from disk."
+  },
+  "deskErrNotTxFile2": "Not a transaction file",
+  "@deskErrNotTxFile2": {
+    "description": "An error message the user reads when a chosen file is not a transaction file."
+  },
+  "deskErrResponseNotSaved": "Response file not saved",
+  "@deskErrResponseNotSaved": {
+    "description": "An error message the user reads when the response file could not be written."
+  },
+  "deskErrCannotCancel": "This payment cannot be cancelled",
+  "@deskErrCannotCancel": {
+    "description": "An error message the user reads when a payment cannot be cancelled."
+  },
+  "deskErrNoLocalNode": "No local node in this build",
+  "@deskErrNoLocalNode": {
+    "description": "An error message the user reads when the local node is asked but this build has none."
+  },
+  "deskErrLocalNodeStopped": "Local node stopped",
+  "@deskErrLocalNodeStopped": {
+    "description": "An error message the user reads when the local node was stopped while starting."
+  },
+  "deskErrNotChangedLocked": "Not changed: the wallet was locked",
+  "@deskErrNotChangedLocked": {
+    "description": "An error message the user reads when the wallet was locked during a change."
+  },
+  "deskErrLocalNodeNotStarted": "Local node not started: {detail}",
+  "@deskErrLocalNodeNotStarted": {
+    "description": "Notice on Overview when the local node did not start. {detail} is the reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrUnknown": "unknown error",
+  "@deskErrUnknown": {
+    "description": "Reason after \"Local node not started:\" when nothing more is known. Lowercase."
+  },
+  "deskErrNotServerName": "Not a server name",
+  "@deskErrNotServerName": {
+    "description": "An error message the user reads when the Epicbox server name is not valid."
+  },
+  "deskErrPortInUse": "Port {port} in use",
+  "@deskErrPortInUse": {
+    "description": "Why receiving over HTTP did not start: the port is used by another program.",
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrPortUnavailable": "Port {port} not available",
+  "@deskErrPortUnavailable": {
+    "description": "Why receiving over HTTP did not start: the port cannot be opened.",
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrStoppedWithError": "Stopped with an error",
+  "@deskErrStoppedWithError": {
+    "description": "Why receiving over HTTP stopped, no detail."
+  },
+  "deskErrPasswordNotChanged": "Password not changed. The current password still opens the wallet.",
+  "@deskErrPasswordNotChanged": {
+    "description": "An error message the user reads when changing the password failed."
+  },
+  "deskErrNothingToSpend": "Nothing to spend",
+  "@deskErrNothingToSpend": {
+    "description": "An error message the user reads when there are no coins to spend."
+  },
+  "deskTorLineOff": "Off",
+  "@deskTorLineOff": {
+    "description": "Tor line of the status card and Settings › Receiving when Tor is off. Short."
+  },
+  "deskTorLineReady": "Ready",
+  "@deskTorLineReady": {
+    "description": "Tor line of the status card and Settings › Receiving when Tor is ready. Short."
+  },
+  "deskTorLineSendsWork": "{problem}. Sends work.",
+  "@deskTorLineSendsWork": {
+    "description": "Tor line when the onion address is not published but sending works. {problem} is a short reason such as \"Onion address not published\".",
+    "placeholders": {
+      "problem": {
+        "type": "String"
+      }
+    }
+  },
+  "deskTorLinePublishing": "Publishing the onion address…",
+  "@deskTorLinePublishing": {
+    "description": "Tor line while the onion address is being published."
+  },
+  "deskTorLineConnecting": "Connecting to Tor… {percent} %",
+  "@deskTorLineConnecting": {
+    "description": "Tor line while Tor connects. {percent} is a number from 0 to 100.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrHistOtherWallet": "Another wallet's backup",
+  "@deskErrHistOtherWallet": {
+    "description": "Title of the notice when a history backup file was exported from a different wallet."
+  },
+  "deskErrHistOtherChain": "Wrong network",
+  "@deskErrHistOtherChain": {
+    "description": "Title of the notice when a history backup file is from another network (mainnet or the test network)."
+  },
+  "deskErrHistNotOurs": "Not a history backup",
+  "@deskErrHistNotOurs": {
+    "description": "Title of the notice when a chosen file is not a history backup."
+  },
+  "deskErrHistNewer": "Newer file",
+  "@deskErrHistNewer": {
+    "description": "Title of the notice when a history backup file was made by a newer app version."
+  },
+  "deskErrHistDamaged": "File damaged",
+  "@deskErrHistDamaged": {
+    "description": "Title of the notice when a history backup file is incomplete or changed."
+  },
+  "deskErrOldGui": "Older Epic Wallet",
+  "@deskErrOldGui": {
+    "description": "Group heading in the import wizard's Find step: wallets made by the older Epic Wallet app."
+  },
+  "deskErrOldCli": "The epic program",
+  "@deskErrOldCli": {
+    "description": "Group heading in the import wizard's Find step: wallets made by the epic command-line program."
+  },
+  "deskErrOldPicked": "Chosen folders",
+  "@deskErrOldPicked": {
+    "description": "Group heading in the import wizard's Find step: folders the user picked by hand."
+  },
+  "deskErrHistTooLarge": "The file is too large to be one.",
+  "@deskErrHistTooLarge": {
+    "description": "Why a history backup was refused: the file is far larger than any backup."
+  },
+  "deskErrHistChains": "The file is from {from}; this wallet is on {to}.",
+  "@deskErrHistChains": {
+    "description": "Why a history backup was refused: it is from another network. {from} and {to} are network names such as Mainnet.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrHistOtherWalletText": "The file was exported from a wallet with a different recovery phrase.",
+  "@deskErrHistOtherWalletText": {
+    "description": "Why a history backup was refused: it belongs to another wallet."
+  },
+  "deskErrHistNewerText": "A newer version of the app made this file. Update the app, then import it.",
+  "@deskErrHistNewerText": {
+    "description": "Why a history backup was refused: it was made by a newer app version."
+  },
+  "deskErrHistDamagedText": "The file is incomplete or was changed.",
+  "@deskErrHistDamagedText": {
+    "description": "Why a history backup was refused: the file is damaged."
+  },
+  "deskErrHistNotOursText": "The file was not made by Epic Cash Desktop or Epic Cash Mobile.",
+  "@deskErrHistNotOursText": {
+    "description": "Why a history backup was refused: it is not a backup file of this app."
+  },
+  "deskDataHttpEnter": "Enter the recipient’s address",
+  "@deskDataHttpEnter": {
+    "description": "Hint under the Send address field when it is empty and the Direct method is chosen."
+  },
+  "deskDataHttpScheme": "Start with https:// or http://",
+  "@deskDataHttpScheme": {
+    "description": "Hint under the Send address field: an http address needs its scheme."
+  },
+  "deskDataHttpOnion": "Onion addresses need Tor",
+  "@deskDataHttpOnion": {
+    "description": "Hint under the Send address field: an .onion address was typed where an http(s) address is expected."
+  },
+  "deskDataHttpNot": "Not an http(s) address",
+  "@deskDataHttpNot": {
+    "description": "Hint under the Send address field: the text is not an http or https address."
+  },
+  "deskDataHttpPort": "Port must be 1 to 65535",
+  "@deskDataHttpPort": {
+    "description": "Hint under the Send address field: the port number is out of range."
+  },
+  "deskDataUpdTimeout": "The update server did not answer.",
+  "@deskDataUpdTimeout": {
+    "description": "Update check failed: the server did not answer in time."
+  },
+  "deskDataUpdUnreachable": "The update server could not be reached.",
+  "@deskDataUpdUnreachable": {
+    "description": "Update check failed: the server could not be reached."
+  },
+  "deskDataUpdStatus": "The update server answered {status}.",
+  "@deskDataUpdStatus": {
+    "description": "Update check failed: the server answered with an HTTP error code.",
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "deskDataUpdNone": "No desktop update information is published yet.",
+  "@deskDataUpdNone": {
+    "description": "Update check: the update list has no entry for the desktop app yet."
+  },
+  "deskErrSecretProtect": "Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Sign in to Windows with your own account and its password, not through a remote or service session, then try again.",
+  "@deskErrSecretProtect": {
+    "description": "Error when Windows (DPAPI) refused to protect the wallet's secrets, e.g. in a remote or service session. DPAPI and Windows are names."
+  },
+  "deskErrOldLinks": "This wallet's folder has links in it; copy it by hand or restore from the phrase.",
+  "@deskErrOldLinks": {
+    "description": "Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user can copy the folder by hand or restore from the recovery phrase."
+  },
+  "deskErrOldIncomplete": "This wallet's folder could not be read completely; copy it by hand or restore from the phrase.",
+  "@deskErrOldIncomplete": {
+    "description": "Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user can copy it by hand or restore from the recovery phrase."
+  },
+  "deskErrOldSeedTooLarge": "The wallet.seed file is too large to be a wallet seed.",
+  "@deskErrOldSeedTooLarge": {
+    "description": "Import of an old wallet: why it cannot be imported. wallet.seed is a file name and stays as written."
+  },
+  "deskErrSendUnbuildable": "This send cannot be built from the coins available.",
+  "@deskErrSendUnbuildable": {
+    "description": "Error when a send or split cannot be made from the wallet's spendable outputs (the core refused it). Nothing was sent."
+  },
+  "deskErrNothingToConsolidate": "Nothing to consolidate: fewer than two spendable outputs.",
+  "@deskErrNothingToConsolidate": {
+    "description": "Error when Consolidate is asked with fewer than two spendable outputs. Nothing was changed."
+  },
+  "deskErrTxNotFound": "Transaction not found",
+  "@deskErrTxNotFound": {
+    "description": "Error when the wallet cannot find the transaction it was asked to send again."
+  }
+}

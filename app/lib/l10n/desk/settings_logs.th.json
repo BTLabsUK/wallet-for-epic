@@ -1,0 +1,20 @@
+{
+  "deskSetLogsMemoryOnly": "บันทึกเก็บไว้ในหน่วยความจำเท่านั้น",
+  "deskSetLogsClearTitle": "ล้างบันทึกไหม?",
+  "deskSetLogsClearDesc": "ลบไฟล์บันทึก รายงานที่ส่งภายหลังจะมีเฉพาะสิ่งที่บันทึกตั้งแต่นี้",
+  "deskSetLogsKeep": "เก็บบันทึกไว้",
+  "deskSetLogsClear": "ล้างบันทึก",
+  "deskSetLogsCleared": "ล้างบันทึกแล้ว",
+  "deskSetLogsToday": "วันนี้ {time}",
+  "deskSetLogsTomorrow": "พรุ่งนี้ {time}",
+  "deskSetLogsTitle": "บันทึก",
+  "deskSetLogsLevel": "ระดับบันทึก",
+  "deskSetLogsLevelNormal": "ปกติ แบบละเอียดจะเก็บบรรทัดมากขึ้นบนดิสก์ 24 ชั่วโมง ที่อยู่อาจปรากฏในไฟล์ แต่รายงานจะตัดออก",
+  "deskSetLogsLevelDetailed": "ละเอียดถึง {until} แล้วกลับเป็นปกติ ที่อยู่อาจปรากฏในไฟล์ แต่รายงานจะตัดออก",
+  "deskSetLogsLevelDetailedCore": "ละเอียดถึง {until} แล้วกลับเป็นปกติ ที่อยู่อาจปรากฏในไฟล์ แต่รายงานจะตัดออก บรรทัดของแกนกระเป๋าเงินจะละเอียดตั้งแต่เปิดแอปครั้งถัดไป",
+  "deskSetLogsNormal": "ปกติ",
+  "deskSetLogsDetailed": "ละเอียด",
+  "deskSetLogsFiles": "ไฟล์บันทึก",
+  "deskSetLogsSize": "ขนาดปัจจุบัน {size} จาก {max} เก็บไฟล์เก่าไว้หนึ่งไฟล์",
+  "deskSetLogsOpenFolder": "เปิดโฟลเดอร์บันทึก"
+}
