@@ -2223,8 +2223,15 @@ class FakeWalletSession implements WalletSession {
       StreamController<InvoiceEvent>.broadcast();
 
   /// The invoice address at [index].
-  static String fakeInvoiceAddress(int index) =>
-      'esFakeInvoice$index@epicbox.epiccash.com';
+  static String fakeInvoiceAddress(
+    int index, [
+    String relay = 'epicbox.epiccash.com',
+  ]) => 'esFakeInvoice$index@$relay';
+
+  /// The invoice address at [index] on the relay in use, as LEPIC builds it: the domain (and
+  /// port) of [address].
+  String _invoiceAddressAt(int index) =>
+      fakeInvoiceAddress(index, address.split('@').last);
 
   /// An invoice from [from] waiting at the relay. Parked by the next drain only if [from]'s
   /// key is on the allowlist and [expiresIn] is at most [maxInvoiceExpiry]; dropped
@@ -2293,7 +2300,7 @@ class FakeWalletSession implements WalletSession {
   @override
   Future<String> invoiceAddress() async {
     _requireInvoices('invoiceAddress');
-    return fakeInvoiceAddress(invoiceHistory.invoiceIndex);
+    return _invoiceAddressAt(invoiceHistory.invoiceIndex);
   }
 
   @override
@@ -2307,7 +2314,7 @@ class FakeWalletSession implements WalletSession {
     _requireInvoices('rotateInvoiceAddress');
     final next = invoiceHistory.invoiceIndex + 1;
     await invoiceHistory.setInvoiceIndex(next);
-    return fakeInvoiceAddress(next);
+    return _invoiceAddressAt(next);
   }
 
   @override
@@ -2336,7 +2343,7 @@ class FakeWalletSession implements WalletSession {
         message: 'not an epicbox address',
       );
     }
-    final own = [this.address, fakeInvoiceAddress(invoiceHistory.invoiceIndex)];
+    final own = [this.address, _invoiceAddressAt(invoiceHistory.invoiceIndex)];
     if (own.any((o) => epicboxKey(o) == epicboxKey(a))) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
@@ -2621,7 +2628,7 @@ class FakeWalletSession implements WalletSession {
     _requireInvoices('issueInvoice');
     final to = address.trim();
     // Its own addresses first: the fake's are not valid epicbox addresses.
-    final own = [this.address, fakeInvoiceAddress(invoiceHistory.invoiceIndex)];
+    final own = [this.address, _invoiceAddressAt(invoiceHistory.invoiceIndex)];
     if (own.any((o) => epicboxKey(o) == epicboxKey(to))) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,

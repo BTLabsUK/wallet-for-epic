@@ -177,6 +177,28 @@ void main() {
     expect(w.container.read(listenerProvider).last?.txId, 7);
   });
 
+  testWidgets('after a live relay switch the shown addresses carry the new relay: Receive and '
+      'the invoice address, even while a page showing them stays open', (tester) async {
+    final w = await _open(tester);
+    w.session.invoicesSupported = true;
+    // Settings › Wallet › Invoices and Receive watch these; held here as an open page holds them.
+    final invoice = w.container.listen(invoiceAddressProvider, (_, _) {});
+    final receive = w.container.listen(addressProvider, (_, _) {});
+    expect(await w.container.read(invoiceAddressProvider.future), endsWith('@epicbox.epiccash.com'));
+    expect(await w.container.read(addressProvider.future), endsWith('@epicbox.epiccash.com'));
+
+    await _useRelay(tester, 'relay.example.org');
+    await _save(tester);
+    await tester.tap(find.text(_l.serverSwitchRelayConfirm));
+    await tester.pumpAndSettle();
+
+    _stillOpen(w);
+    expect(await w.container.read(invoiceAddressProvider.future), endsWith('@relay.example.org'));
+    expect(await w.container.read(addressProvider.future), endsWith('@relay.example.org'));
+    invoice.close();
+    receive.close();
+  });
+
   group('android-15: the lock screen\'s Node and Epicbox link', () {
     /// A locked wallet on the default servers, with the lock screen's link pressed.
     Future<ProviderContainer> openFromLockScreen(WidgetTester tester) async {

@@ -57,9 +57,9 @@ Future<bool> switchServersLive(
   );
   // The session may have been locked while the switch ran; then the next open reads the save.
   if (!ref.context.mounted || ref.read(sessionProvider) != session) return true;
+  // Own addresses carry the relay: addressProvider and invoiceAddressProvider read again.
   ref.read(walletConfigProvider.notifier).select(next);
   if (relayChanged) {
-    ref.invalidate(addressProvider);
     // LEPIC moves a running listener itself; one that had stopped starts on the new relay.
     final listener = ref.read(listenerProvider);
     if (listener.stopped || listener.lost) {

@@ -170,7 +170,7 @@ class InvoiceProto {
 
   InvoiceBook book() => InvoiceBook(
     now: now,
-    invoiceAddress: invoiceAddress,
+    invoiceAddress: _onRelay(invoiceAddress),
     invoiceIndex: invoiceIndex,
     trusted: List.unmodifiable(trusted),
     toPay: List.unmodifiable(toPay),
@@ -267,8 +267,11 @@ class InvoiceProto {
   String rotate() {
     invoiceIndex++;
     invoiceAddress = 'esJnV${invoiceIndex}x9TzWmR2uPfVc9LdN6hJx3gA7sKeQ1oBnC5vD9rHtF7@epicbox.epiccash.com';
-    return invoiceAddress;
+    return _onRelay(invoiceAddress);
   }
+
+  /// [address] on the relay in use: the invoice address carries the relay, as LEPIC builds it.
+  String _onRelay(String address) => '${address.split('@').first}@${_w._epicbox}';
 
   void trust(String address, String label, String? contactId) {
     trusted.removeWhere((t) => addressKey(t.address) == addressKey(address));
