@@ -72,18 +72,25 @@ const Duration qrPostedFor = Duration(milliseconds: 800);
 
 /// Opens the scan screen and returns its result, or null when the user backs out. With
 /// [finish] the screen runs it on the finished reply and says "Posting…" and "Posted".
+/// [first] is a part another scanner already read (Home's scan), read before the camera's.
 Future<QrScanResult?> scanQrSlate(
   BuildContext context,
   QrScanKind kind, {
   QrFinish? finish,
+  String? first,
 }) => Navigator.of(context).push<QrScanResult>(
   MaterialPageRoute<QrScanResult>(
-    builder: (_) => QrScanScreen(kind: kind, finish: finish),
+    builder: (_) => QrScanScreen(kind: kind, finish: finish, first: first),
   ),
 );
 
 class QrScanScreen extends ConsumerStatefulWidget {
-  const QrScanScreen({super.key, required this.kind, this.finish});
+  const QrScanScreen({
+    super.key,
+    required this.kind,
+    this.finish,
+    this.first,
+  });
 
   const QrScanScreen.payment({Key? key})
     : this(key: key, kind: QrScanKind.payment);
@@ -95,6 +102,9 @@ class QrScanScreen extends ConsumerStatefulWidget {
 
   /// What to do with the finished reply; null hands the text back as it is.
   final QrFinish? finish;
+
+  /// A part read before this screen opened, fed first.
+  final String? first;
 
   @override
   ConsumerState<QrScanScreen> createState() => _QrScanScreenState();
@@ -138,6 +148,8 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
     super.initState();
     PortraitLock.hold();
     _codes = _camera.codes.listen(_onCode);
+    final first = widget.first;
+    if (first != null) unawaited(_onCode(first));
     // After this frame: the hold is a provider, which a build must not change.
     Future.microtask(_retry);
   }

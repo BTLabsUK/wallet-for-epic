@@ -1052,11 +1052,15 @@ Future<void> pasteSlate(BuildContext context, WidgetRef ref) async {
 
 /// Reads an animated payment QR with the camera and opens what it carried in
 /// [SlateFileScreen], as pasted text would be. "Open a file instead" on the camera screen
-/// runs the file picker.
-Future<void> scanSlateQr(BuildContext context, WidgetRef ref) async {
+/// runs the file picker. [first] is a part Home's scan already read.
+Future<void> scanSlateQr(
+  BuildContext context,
+  WidgetRef ref, {
+  String? first,
+}) async {
   final notice = ref.read(noticeProvider.notifier);
   final l = context.l10n;
-  final result = await scanQrSlate(context, QrScanKind.payment);
+  final result = await scanQrSlate(context, QrScanKind.payment, first: first);
   if (!context.mounted) return;
   switch (result) {
     case QrScanned(:final json):

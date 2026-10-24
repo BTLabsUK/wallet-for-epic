@@ -18,6 +18,9 @@ import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
+import '../scan/incoming_link.dart' show linkBusyProvider;
+import '../scan/scan_checks.dart';
+import '../scan/scan_router.dart';
 import '../send_preflight.dart';
 import '../settings.dart';
 import '../smart_outputs.dart' show planSessionSend;
@@ -41,6 +44,7 @@ import 'payment_gate.dart';
 import 'pin.dart' show askPin;
 import 'qr_scan_screen.dart';
 import 'qr_show_screen.dart';
+import 'scan_route.dart';
 import 'scan_screen.dart';
 import 'shell_header.dart' show comingIn;
 import 'send_tracker.dart';
@@ -391,6 +395,29 @@ class _SendViewState extends ConsumerState<SendView> {
   /// A recipient handed over while the tracker or a file screen shows, for the next form.
   String? _laterRecipient;
 
+  /// A payment code handed over meanwhile, for the next form.
+  ({PaymentRequest request, CodeOrigin origin})? _laterRequest;
+
+  /// The payment code that filled this form, and where it came from. Its note and name are
+  /// the payee's claims; they show only while the To field still holds the code's address.
+  PaymentRequest? _request;
+  CodeOrigin? _origin;
+
+  /// The code's banner is open; × closes it for this code.
+  bool _requestBanner = false;
+
+  /// [_request] while the To field still holds its address, else null.
+  PaymentRequest? get _activeRequest {
+    final request = _request;
+    if (request == null) return null;
+    return parseRecipient(_recipient.text).address == _requestAddress
+        ? request
+        : null;
+  }
+
+  /// The address the code filled in (the code's own, or its Direct one).
+  String? _requestAddress;
+
   Slate? _slate;
   _Sent? _sent;
 
@@ -409,10 +436,16 @@ class _SendViewState extends ConsumerState<SendView> {
     final handoff = ref.read(sendRecipientProvider);
     if (handoff != null) {
       _handoff = handoff.id;
-      final to = parseRecipient(handoff.text);
+      final request = handoff.request;
+      final to = parseRecipient(
+        request == null
+            ? handoff.text
+            : _requestRecipient(request).address,
+      );
       _recipient.text = to.address;
       _lastTo = to.address;
       if (recipientShaped(to)) _method = methodForRecipient(to.kind);
+      if (request != null) _fillFromRequest(request, handoff.origin);
     }
     // Settings › Transactions: the method Send starts on. A recipient handed over wins; the
     // settings load on their own, so a form still untouched takes them when they arrive.
@@ -519,7 +552,25 @@ class _SendViewState extends ConsumerState<SendView> {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     final text = data?.text?.trim();
     if (text == null || text.isEmpty || !mounted) return;
-    _setRecipient(text);
+    _openText(text, CodeOrigin.paste);
+  }
+
+  /// A scanned or pasted text: a payment code fills the form, an address the To field, and
+  /// anything the router knows elsewhere goes there. Plain text that is none of these (a name,
+  /// half an address) lands in the To field as before, where its own check speaks.
+  void _openText(String text, CodeOrigin origin) {
+    final code = classifyFor(ref.read(walletServiceProvider), text);
+    switch (code) {
+      case PaymentRequest():
+        _applyRequest(code, origin);
+      case ScannedAddress(:final recipient):
+        _setRecipient(recipient.address);
+      case UnknownCode(reason: UnknownReason.notEpic)
+          when origin == CodeOrigin.paste && !looksLikeCode(text):
+        _setRecipient(text);
+      default:
+        unawaited(openScannedCode(context, ref, code, origin: origin));
+    }
   }
 
   /// Whether the wallet can pay [to] as it is: the checksum, chain and host hold.
@@ -600,7 +651,62 @@ class _SendViewState extends ConsumerState<SendView> {
 
   Future<void> _scan() async {
     final text = await ref.read(qrScannerProvider).scan(context);
-    if (text != null && mounted) _setRecipient(text);
+    if (text != null && mounted) _openText(text, CodeOrigin.qr);
+  }
+
+  /// The address a payment code fills in: its Direct one when it asks for Direct and Link
+  /// Payment is offered, else its own.
+  Recipient _requestRecipient(PaymentRequest request) {
+    final payments =
+        ref.read(appSettingsProvider).value?.payments ??
+        (ref.read(phonePaymentsProvider)
+            ? PaymentPrefs.phoneDefaults
+            : PaymentPrefs.defaults);
+    return request.recipientFor(directAllowed: payments.direct);
+  }
+
+  /// Fills the form from a payment code: the address, the amount and the note. Nothing is
+  /// sent; every field stays editable and the review and PIN still come first.
+  void _applyRequest(PaymentRequest request, CodeOrigin origin) {
+    if (_stage == SendStage.sent ||
+        _stage == SendStage.fileMade ||
+        _stage == SendStage.fileSent ||
+        _sendFailed) {
+      _laterRequest = (request: request, origin: origin);
+      _laterRecipient = null;
+      return;
+    }
+    if (_stage == SendStage.fileAmount) {
+      _viaQr = false;
+      _stage = SendStage.recipient;
+    }
+    _setRecipient(_requestRecipient(request).address);
+    setState(() => _fillFromRequest(request, origin));
+    if (_amount.text.isNotEmpty) _onAmountChanged(_amount.text);
+  }
+
+  /// The amount and note fields from [request]. Call inside setState or initState.
+  void _fillFromRequest(PaymentRequest request, CodeOrigin? origin) {
+    _request = request;
+    _origin = origin;
+    _requestAddress = parseRecipient(_requestRecipient(request).address).address;
+    _requestBanner = true;
+    _fiatEntry = false;
+    _maxUsed = false;
+    final amount = request.amount;
+    _amount.text = amount == null ? '' : formatEpic(amount);
+    _parsedAmount = amount;
+    _amountError = null;
+    _estimate = null;
+    final note = request.note;
+    // The note travels in the payment, signed, up to its byte limit; a longer one shows only
+    // in the payee block, never cut.
+    if (note != null && utf8Length(note) <= slateMessageMaxBytes) {
+      _note.text = note;
+      _noteOpen = true;
+    } else {
+      _note.clear();
+    }
   }
 
   Future<void> _pickContact() async {
@@ -996,7 +1102,19 @@ class _SendViewState extends ConsumerState<SendView> {
     return ok == true && mounted;
   }
 
+  /// Sends the reviewed payment. A payment link that comes meanwhile is dropped, so it cannot
+  /// change what the user is confirming.
   Future<void> _send() async {
+    final busy = ref.read(linkBusyProvider.notifier);
+    busy.set(true);
+    try {
+      await _sendReviewed();
+    } finally {
+      busy.set(false);
+    }
+  }
+
+  Future<void> _sendReviewed() async {
     final reviewed = _estimate;
     // A second tap can land on the old button after the first send already finished.
     if (reviewed == null || _stage != SendStage.review) return;
@@ -1640,10 +1758,15 @@ class _SendViewState extends ConsumerState<SendView> {
   void _done() {
     ref.read(trackedSendProvider.notifier).track(null);
     final later = _laterRecipient;
+    final laterRequest = _laterRequest;
     // The shell clears the handoff for a fresh form; one that came meanwhile goes to it.
     final handoff = ref.read(sendRecipientProvider.notifier);
     widget.onDone();
-    if (later != null) {
+    if (laterRequest != null) {
+      _laterRequest = null;
+      _laterRecipient = null;
+      handoff.handRequest(laterRequest.request, laterRequest.origin);
+    } else if (later != null) {
       _laterRecipient = null;
       handoff.hand(later);
     }
@@ -1693,7 +1816,12 @@ class _SendViewState extends ConsumerState<SendView> {
     ref.listen(sendRecipientProvider, (_, handoff) {
       if (handoff == null || handoff.id == _handoff) return;
       _handoff = handoff.id;
-      _setRecipient(handoff.text);
+      final request = handoff.request;
+      if (request != null) {
+        _applyRequest(request, handoff.origin ?? CodeOrigin.qr);
+      } else {
+        _setRecipient(handoff.text);
+      }
     });
 
     // Keeps the listener running while Send shows, as home does, so the review's check sees
