@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -18,7 +19,6 @@ import 'local_node.dart';
 import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import 'prefs.dart';
 import 'settings_frame.dart';
-import '../../desk_l10n.dart';
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
@@ -59,10 +59,11 @@ ETone nodeTone(ServiceHealth h) => switch (h) {
   ServiceHealth.off => ETone.neutral,
 };
 
-const _portNote = 'Check the address and the port (usually 3413).';
-
 /// The picker's footer under the node list.
-const nodeListNote = 'State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.';
+String nodeListNoteText(AppLocalizations l) => l.deskSetNodeListNote;
+
+/// English text of [nodeListNoteText], for the first-run Setup picker until it reads the key.
+const nodeListNote = 'State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.'; // l10n-ok: onboarding still uses it
 
 /// Before the local node starts: what that means for this computer. True to go on.
 Future<bool> confirmLocalNode(BuildContext context) async {
@@ -70,6 +71,7 @@ Future<bool> confirmLocalNode(BuildContext context) async {
     context,
     builder: (context) {
       final ts = context.ts;
+      final l = context.l10n;
       Widget line(String text) => Padding(
         padding: EdgeInsets.only(bottom: Sp.x2),
         child: Row(
@@ -82,20 +84,20 @@ Future<bool> confirmLocalNode(BuildContext context) async {
         ),
       );
       return EDialog(
-        title: 'Start the local node?',
-        description: 'A separate program syncs the Epic chain on this computer.',
+        title: l.deskSetNodeStartTitle,
+        description: l.deskSetNodeStartDesc,
         icon: EIcons.server,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            line('Downloads the whole chain: several GB of disk space and bandwidth.'),
-            line('The first sync takes hours. Until it is done the node shows Syncing.'),
-            line('The firewall may ask to allow the node program.'),
+            line(l.deskSetNodeStartLine1),
+            line(l.deskSetNodeStartLine2),
+            line(l.deskSetNodeStartLine3),
           ],
         ),
         actions: [
-          EButton(label: 'Cancel', onPressed: () => Navigator.of(context).pop(false)),
-          EButton.primary(label: 'Start local node', onPressed: () => Navigator.of(context).pop(true)),
+          EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop(false)),
+          EButton.primary(label: l.deskSetNodeStartButton, onPressed: () => Navigator.of(context).pop(true)),
         ],
       );
     },
@@ -104,14 +106,14 @@ Future<bool> confirmLocalNode(BuildContext context) async {
 }
 
 /// The local node's state as the picker's This computer row says it.
-String localNodeRowText(LocalNodeState? s) {
-  if (s == null) return 'Not set up';
+String localNodeRowText(AppLocalizations l, LocalNodeState? s) {
+  if (s == null) return l.deskSetNodeRowNotSetUp;
   return switch (s.phase) {
-    LocalNodePhase.stopped => (s.chainDataBytes ?? 0) == 0 ? 'Not set up' : 'Stopped',
-    LocalNodePhase.starting => 'Starting',
-    LocalNodePhase.syncing => s.progress?.overall == null ? 'Syncing' : 'Syncing ${percent(s.progress!.overall!)}',
-    LocalNodePhase.synced => 'Synced',
-    LocalNodePhase.error => s.stalled ? 'Stalled' : 'Failed',
+    LocalNodePhase.stopped => (s.chainDataBytes ?? 0) == 0 ? l.deskSetNodeRowNotSetUp : l.deskSetNodeRowStopped,
+    LocalNodePhase.starting => l.deskSetNodeRowStarting,
+    LocalNodePhase.syncing => s.progress?.overall == null ? l.deskSetFrameNodeSyncing : l.deskSetNodeRowSyncingPct(percent(s.progress!.overall!)),
+    LocalNodePhase.synced => l.deskSetFrameNodeSynced,
+    LocalNodePhase.error => s.stalled ? l.deskSetNodeRowStalled : l.deskSetNodeRowFailed,
   };
 }
 
@@ -181,8 +183,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     super.initState();
     final arg = widget.arg;
     if (arg == NodeDemo.typed) _onTyped(_demoTyped);
-    if (arg == NodeDemo.pickFailed) _error = _portNote;
-    if (arg == NodeDemo.builtin || arg == NodeDemo.peers) {
+        if (arg == NodeDemo.builtin || arg == NodeDemo.peers) {
       Future.microtask(() {
         final p = ref.read(settingsPrefsProvider.notifier);
         p.set(ref.read(settingsPrefsProvider).copyWith(builtin: true, clearTyped: true));
@@ -190,6 +191,17 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     }
     Future.microtask(_demoCard);
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.arg == NodeDemo.pickFailed && _error == null && !_pickFailedShown) {
+      _pickFailedShown = true;
+      _error = context.l10n.deskSetNodePortNote;
+    }
+  }
+
+  bool _pickFailedShown = false;
 
   /// The tour's card states, through the mock node layer; any other start puts the mock's
   /// answer back (the shots run one after another).
@@ -238,6 +250,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   }
 
   Future<void> _pick(String value) async {
+    final l = context.l10n;
     final prefs = ref.read(settingsPrefsProvider.notifier);
     final p = ref.read(settingsPrefsProvider);
     if (value == builtinNode) {
@@ -267,7 +280,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         if (!mounted) return;
         setState(() {
           _saving = false;
-          _error = deskErrorText(e);
+          _error = deskErrorText(e, l);
         });
         return;
       }
@@ -275,7 +288,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       prefs.set(p.copyWith(builtin: true, clearTyped: true));
       setState(() => _saving = false);
       _combo.currentState?.collapse();
-      showEToast(context, 'Local node in use', text: 'It downloads the whole chain. Needs 5 GB free.');
+      showEToast(context, l.deskSetNodeLocalInUse, text: l.deskSetNodeLocalInUseText);
       return;
     }
     await _useRemote(value);
@@ -295,6 +308,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   }
 
   Future<void> _useRemote(String value) async {
+    final l = context.l10n;
     setState(() {
       _saving = true;
       _error = null;
@@ -306,7 +320,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     if (r.health == ServiceHealth.down) {
       setState(() {
         _saving = false;
-        _error = _portNote;
+        _error = l.deskSetNodePortNote;
       });
       _combo.currentState?.keepTyped(hostOf(url));
       return;
@@ -322,6 +336,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final st = ref.watch(deskProvider);
     final prefs = ref.watch(settingsPrefsProvider);
     final nodes = st.nodes;
@@ -348,17 +363,17 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final myRows = serverRows(mine, released: released, starred: true);
     final publicRows = serverRows(public, released: released, starred: false);
     final options = <ComboOption>[
-      if (DeskFeatures.builtInNode) ComboOption(value: builtinNode, host: 'Local node', sub: localNodeRowText(local), local: true, group: 'This computer'),
+      if (DeskFeatures.builtInNode) ComboOption(value: builtinNode, host: l.deskSetNodeLocalNode, sub: localNodeRowText(l, local), local: true, group: l.deskSetNodeGroupComputer),
       for (final r in myRows)
         ComboOption(
           value: r.value,
           host: r.host,
           sub: prefs.nodeLabels[r.value],
           server: r,
-          group: 'My nodes',
+          group: l.deskSetNodeGroupMine,
           onStar: () {
             p.forgetNode(r.value);
-            showEToast(context, 'Removed from my nodes', text: r.host);
+            showEToast(context, l.deskSetNodeRemovedFromMine, text: r.host);
           },
         ),
       for (final r in publicRows)
@@ -367,7 +382,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
           host: r.host,
           sub: r.operator,
           server: r,
-          group: 'Public nodes',
+          group: l.deskSetNodeGroupPublic,
           onStar: () => showMyNodeDialog(context, initial: r.value, label: r.operator ?? '', adding: true),
         ),
     ];
@@ -379,13 +394,13 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       return ComboOption(
         value: t,
         host: hostOf(t),
-        word: checking ? 'Checking…' : (r.health == ServiceHealth.down ? 'Not answering' : null),
-        sub: !checking && r.health != ServiceHealth.down ? (versionOld(r.version) ? 'Version older than $minNodeVersion' : nodeWord(r.health)) : null,
+        word: checking ? l.deskSetFrameChecking : (r.health == ServiceHealth.down ? l.deskSetNodeNotAnswering : null),
+        sub: !checking && r.health != ServiceHealth.down ? (versionOld(r.version) ? l.deskSetNodeVersionOld(minNodeVersion) : nodeWord(l, r.health)) : null,
         tone: checking ? ETone.warn : nodeTone(r.health),
         height: checking ? null : r.height,
         actions: [
           if (!mine.any((n) => n.url == t))
-            EIconButton(icon: EIcons.starOutline, label: 'Add to my nodes', size: EBtnSize.inline, tabStop: false, onPressed: () => _addTyped(t)),
+            EIconButton(icon: EIcons.starOutline, label: l.deskSetNodeAddToMine, size: EBtnSize.inline, tabStop: false, onPressed: () => _addTyped(t)),
         ],
       );
     }
@@ -431,22 +446,22 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
               id: 'node-server',
               child: ESetGroup(
               gap: false,
-              title: 'Node',
+              title: l.deskSetFrameNode,
               trailing: head,
               rows: [
                 ESetRow(
-                  title: 'Node server',
-                  hint: 'The node the wallet reads the chain through and sends with.',
+                  title: l.deskSetNodeServer,
+                  hint: l.deskSetNodeServerHint,
                   stacked: true,
                   control: ServiceCombo(
                     key: _combo,
-                    label: 'Node server',
-                    hint: 'Find or type a node address',
+                    label: l.deskSetNodeServer,
+                    hint: l.deskSetNodeFindHint,
                     kind: ServerKind.node,
                     options: options,
                     value: value,
-                    fieldText: prefs.builtin ? 'Local node' : hostOf(current.url),
-                    fieldSub: prefs.builtin ? localNodeRowText(local) : (prefs.nodeLabels[current.url] ?? current.operator),
+                    fieldText: prefs.builtin ? l.deskSetNodeLocalNode : hostOf(current.url),
+                    fieldSub: prefs.builtin ? localNodeRowText(l, local) : (prefs.nodeLabels[current.url] ?? current.operator),
                     tone: switch (view.state) {
                       EState.ok => ETone.ok,
                       EState.warn => ETone.warn,
@@ -454,19 +469,19 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       EState.off => ETone.neutral,
                     },
                     busy: _saving,
-                    busyLabel: 'Checking the node…',
+                    busyLabel: l.deskSetNodeChecking,
                     error: _error,
                     openInitially: widget.arg == NodeDemo.comboOpen,
                     initialQuery: widget.arg == NodeDemo.typed || widget.arg == NodeDemo.pickFailed ? (widget.arg == NodeDemo.typed ? _demoTyped : 'bad.example:3413') : null,
                     onTyped: _onTyped,
                     typedRow: typedRow,
-                    typedNote: (t) => _typedCheck?.health == ServiceHealth.down && _typed == t ? _portNote : 'Enter uses it. The star keeps it in My nodes.',
-                    emptyNote: 'No nodes to show.',
-                    listNote: nodeListNote,
+                    typedNote: (t) => _typedCheck?.health == ServiceHealth.down && _typed == t ? l.deskSetNodePortNote : l.deskSetNodeTypedNote,
+                    emptyNote: l.deskSetNodeNoNodes,
+                    listNote: nodeListNoteText(l),
                     onPicked: _pick,
                     footer: [
-                      ('Add to my nodes…', EIcons.plus, _addTyped),
-                      ('Node directory…', EIcons.book, (_) => showNodeDirectoryDialog(context)),
+                      (l.deskSetNodeFooterAdd, EIcons.plus, _addTyped),
+                      (l.deskSetNodeFooterDirectory, EIcons.book, (_) => showNodeDirectoryDialog(context)),
                     ],
                   ),
                 ),
@@ -485,11 +500,11 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                 if (prefs.builtin) LocalNodePanel(initialTab: widget.arg == NodeDemo.peers ? LocalTab.peers : LocalTab.status),
                 if (prefs.builtin && DeskFeatures.nodeBackground)
                   ESetRow(
-                    title: 'Sync in background',
-                    hint: 'Keeps syncing while the app is closed.',
+                    title: l.deskSetNodeBackground,
+                    hint: l.deskSetNodeBackgroundHint,
                     control: ESwitch(
                       value: prefs.nodeBackground,
-                      semanticLabel: 'Sync in background',
+                      semanticLabel: l.deskSetNodeBackground,
                       onChanged: (v) => p.set(prefs.copyWith(nodeBackground: v)),
                     ),
                   ),

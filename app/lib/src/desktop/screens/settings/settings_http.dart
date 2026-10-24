@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../widgets/http_reach.dart';
 import '../../widgets/kit.dart';
 import 'prefs.dart';
@@ -47,10 +48,11 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
   }
 
   Future<void> _run(Future<void> Function() action) async {
+    final l = context.l10n;
     try {
       await action();
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Not changed', text: '$e', tone: ETone.risk);
+      if (mounted) showEToast(context, l.deskSetHttpNotChanged, text: '$e', tone: ETone.risk);
     }
   }
 
@@ -64,7 +66,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
   Future<void> _applyPort() async {
     final port = parsePort(_port.text);
     if (port == null) {
-      setState(() => _portError = 'Port must be 1 to 65535');
+      setState(() => _portError = context.l10n.deskSetHttpPortError);
       return;
     }
     setState(() => _portError = null);
@@ -105,14 +107,15 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
     final listening = ref.watch(deskProvider.select((st) => st.status?.httpListener == ServiceHealth.ok));
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         LayoutBuilder(
           builder: (context, box) => ESetRow(
-          title: 'Reachable',
+          title: l.deskSetHttpReachable,
           stacked: box.maxWidth < 640.u,
-          hint: 'Who can pay the HTTP address.',
+          hint: l.deskSetHttpReachableHint,
           control: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -120,7 +123,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
                 wide: true,
                 child: ESegmented<bool>(
                   stretch: true,
-                  segments: const [ESegment(false, 'Local only'), ESegment(true, 'From the internet')],
+                  segments: [ESegment(false, l.deskSetHttpLocalOnly), ESegment(true, l.deskSetHttpFromInternet)],
                   value: s.publicMode,
                   // The first From the internet opens the guide; only its button makes the
                   // address public. Once seen, the guide is behind the (?).
@@ -128,7 +131,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
                 ),
               ),
               SizedBox(width: Sp.x2),
-              EIconButton(icon: EIcons.help, label: 'Receive from the internet: how it works', size: EBtnSize.sm, tabStop: false, onPressed: _openGuide),
+              EIconButton(icon: EIcons.help, label: l.deskSetHttpGuideHelp, size: EBtnSize.sm, tabStop: false, onPressed: _openGuide),
             ],
           ),
           below: s.publicMode
@@ -136,7 +139,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Answers on all interfaces. The router must forward TCP ${s.httpPort} to this computer. Senders on the internet use http://<public IP>:${s.httpPort}.',
+                      l.deskSetHttpPublicNote('${s.httpPort}'),
                       style: ts.caption,
                     ),
                     if (listening) ...[SizedBox(height: Sp.x3), const HttpReachNotice()],
@@ -147,8 +150,8 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
         ),
         Divider(height: 1, thickness: 1, color: c.line),
         ESetRow(
-          title: 'Port',
-          hint: '1 to 65535. Used by the HTTP address.',
+          title: l.deskSetHttpPort,
+          hint: l.deskSetHttpPortHint,
           control: ERowControl(
             child: Focus(
               onFocusChange: (f) => f ? null : unawaited(_applyPort()),
@@ -157,7 +160,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
                 controller: _port,
                 mono: true,
                 invalid: _portError != null,
-                semanticLabel: 'HTTP port',
+                semanticLabel: l.deskSetHttpPortLabel,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(5)],
                 onSubmitted: (_) => _applyPort(),
@@ -187,6 +190,7 @@ class InternetGuide extends StatelessWidget {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     Widget step(int n, String title, String text, [Widget? extra]) => Padding(
       padding: EdgeInsets.only(bottom: Sp.x4),
       child: Row(
@@ -208,36 +212,36 @@ class InternetGuide extends StatelessWidget {
       ),
     );
     return EDialog(
-      title: 'Receive from the internet',
-      description: isPublic ? 'Now: from the internet.' : 'Now: local only. Only programs on this computer reach the HTTP address.',
+      title: l.deskSetHttpGuideTitle,
+      description: isPublic ? l.deskSetHttpGuideNowPublic : l.deskSetHttpGuideNowLocal,
       icon: EIcons.web,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          step(1, 'Listen on all interfaces', 'The wallet answers on 0.0.0.0, port $port. Other devices and the internet can then send payments to this wallet. The firewall may ask to allow it.'),
-          step(2, 'Forward the port', 'On the router’s page (often 10.0.1.1), find Port forwarding and forward TCP $port to this computer.'),
-          step(3, 'Share the public address', 'Senders use http://<public IP>:$port. The public IP can change.'),
+          step(1, l.deskSetHttpStep1, l.deskSetHttpStep1Text('$port')),
+          step(2, l.deskSetHttpStep2, l.deskSetHttpStep2Text('$port')),
+          step(3, l.deskSetHttpStep3, l.deskSetHttpStep3Text('$port')),
           if (DeskFeatures.tor) ...[
             ENotice(
               icon: EIcons.tor,
-              title: 'No router setup?',
-              text: 'Tor works from anywhere with nothing to forward.',
+              title: l.deskSetHttpNoRouter,
+              text: l.deskSetHttpNoRouterText,
               actionsBelow: true,
               actions: [
-                EButton(label: 'Turn on Tor', size: EBtnSize.inline, onPressed: () => Navigator.of(context).pop(InternetGuideChoice.tor)),
+                EButton(label: l.deskSetHttpTurnOnTor, size: EBtnSize.inline, onPressed: () => Navigator.of(context).pop(InternetGuideChoice.tor)),
               ],
             ),
             SizedBox(height: Sp.x3),
           ],
-          Text('Only the receiving API is exposed. Plain HTTP is not encrypted.', style: ts.caption),
+          Text(l.deskSetHttpExposed, style: ts.caption),
         ],
       ),
       actions: [
-        EButton(label: 'Close', onPressed: () => Navigator.of(context).pop()),
+        EButton(label: l.commonClose, onPressed: () => Navigator.of(context).pop()),
         if (isPublic)
-          EButton(label: 'Back to local only', onPressed: () => Navigator.of(context).pop(InternetGuideChoice.local))
+          EButton(label: l.deskSetHttpBackLocal, onPressed: () => Navigator.of(context).pop(InternetGuideChoice.local))
         else
-          EButton.primary(label: 'Receive from the internet', icon: EIcons.web, onPressed: () => Navigator.of(context).pop(InternetGuideChoice.public)),
+          EButton.primary(label: l.deskSetHttpGuideTitle, icon: EIcons.web, onPressed: () => Navigator.of(context).pop(InternetGuideChoice.public)),
       ],
     );
   }

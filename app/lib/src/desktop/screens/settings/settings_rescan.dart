@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -74,6 +75,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   }
 
   Future<void> _start() async {
+    final l = context.l10n;
     final delete = DeskFeatures.rescanRepair && _deleteUnconfirmed;
     setState(() {
       _running = true;
@@ -110,7 +112,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
           setState(() {
             _running = false;
             _stopping = false;
-            _failure = deskErrorText(e);
+            _failure = deskErrorText(e, l);
           });
         }
       },
@@ -123,7 +125,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
           _stopping = false;
           _after = after;
           _end = _finished ? _End.finished : _End.stopped;
-          _log.insert(0, _finished ? 'Scan complete' : 'Scan stopped');
+          _log.insert(0, _finished ? l.deskSetRescanComplete : l.deskSetRescanStoppedLine);
         });
       },
     );
@@ -139,15 +141,16 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final log = Container(
       constraints: BoxConstraints(maxHeight: 220.u),
       decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
       child: Semantics(
-        label: 'Scan log',
+        label: l.deskSetRescanLog,
         child: ListView(
           shrinkWrap: true,
           padding: EdgeInsets.all(Sp.x3),
-          children: [for (final l in _log) Text(l, style: ts.mono(size: Fs.xs, color: c.dim))],
+          children: [for (final line in _log) Text(line, style: ts.mono(size: Fs.xs, color: c.dim))],
         ),
       ),
     );
@@ -158,24 +161,21 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ESetGroup(
-            title: 'Recheck balance',
+            title: l.deskSetFrameRescan,
             rows: [
               if (!_running)
                 ESetRow(
-                  text:
-                      'Reads the chain again and rebuilds the balance from the outputs found. '
-                      'Use it when the balance looks wrong, after a restore, or when outputs stay locked after a failed send. '
-                      'The wallet stays usable meanwhile.',
-                  control: ERowControl(child: EButton.primary(label: _end != null || _failure != null ? 'Start again' : 'Start', icon: EIcons.scan, size: EBtnSize.sm, onPressed: _start)),
+                  text: l.deskSetRescanText,
+                  control: ERowControl(child: EButton.primary(label: _end != null || _failure != null ? l.deskSetRescanStartAgain : l.deskSetLnodeStart, icon: EIcons.scan, size: EBtnSize.sm, onPressed: _start)),
                   below: DeskFeatures.rescanRepair
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ECheckbox(value: _deleteUnconfirmed, onChanged: (v) => setState(() => _deleteUnconfirmed = v), label: 'Delete unconfirmed'),
+                            ECheckbox(value: _deleteUnconfirmed, onChanged: (v) => setState(() => _deleteUnconfirmed = v), label: l.deskSetRescanDeleteUnconfirmed),
                             Padding(
                               padding: EdgeInsets.only(left: Sp.x8),
                               child: Text(
-                                'Also cancels unconfirmed transactions and unlocks their outputs. A payment already on its way may then fail.',
+                                l.deskSetRescanDeleteHint,
                                 style: ts.caption,
                               ),
                             ),
@@ -185,7 +185,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                 )
               else
                 ESetRow(
-                  text: 'Scanning the chain. The wallet stays usable; the balance updates when the scan ends.',
+                  text: l.deskSetRescanScanning,
                   stacked: true,
                   control: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -198,29 +198,29 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                             child: Semantics(
                               liveRegion: true,
                               child: Text(
-                                _stopping ? 'Stopping…' : (percent == null ? 'Checking…' : 'Checking… $percent %'),
+                                _stopping ? l.deskSetRescanStopping : (percent == null ? l.deskSetFrameChecking : l.deskSetRescanChecking(percent)),
                                 style: ts.strong,
                               ),
                             ),
                           ),
                           if (DeskFeatures.stopScan)
-                            ERowControl(child: EButton(label: 'Stop', icon: EIcons.stop, size: EBtnSize.sm, busy: _stopping, onPressed: _stopping || !_live ? null : _stop)),
+                            ERowControl(child: EButton(label: l.deskSetLnodeStop, icon: EIcons.stop, size: EBtnSize.sm, busy: _stopping, onPressed: _stopping || !_live ? null : _stop)),
                         ],
                       ),
                       SizedBox(height: Sp.x3),
                       EProgress(value: percent == null ? null : percent / 100),
                       SizedBox(height: Sp.x3),
-                      EDetails(title: 'Scan log', initiallyOpen: true, child: log),
+                      EDetails(title: l.deskSetRescanLog, initiallyOpen: true, child: log),
                     ],
                   ),
                 ),
             ],
           ),
           if (_end != null) _result(context),
-          if (_failure != null) ENotice(title: 'Scan failed', text: _failure, tone: ETone.risk, icon: EIcons.error),
+          if (_failure != null) ENotice(title: l.deskSetRescanFailed, text: _failure, tone: ETone.risk, icon: EIcons.error),
           if (!_running && _log.isNotEmpty) ...[
             SizedBox(height: Sp.x4),
-            EDetails(title: 'Scan log', child: log),
+            EDetails(title: l.deskSetRescanLog, child: log),
           ],
         ],
       ),
@@ -229,16 +229,15 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
 
   /// The Delete unconfirmed outcome. The core counts outputs, not transactions (a send has
   /// locked inputs and an unconfirmed change output), so no transaction count is claimed.
-  static String _cancelled(ScanCounts c) => c.unlocked + c.deleted == 0
-      ? 'No unconfirmed transaction was found.'
-      : 'Unconfirmed transactions were cancelled and their outputs unlocked.';
+  static String _cancelled(AppLocalizations l, ScanCounts c) => c.unlocked + c.deleted == 0 ? l.deskSetRescanNoneFound : l.deskSetRescanCancelled;
 
   Widget _result(BuildContext context) {
+    final l = context.l10n;
     final finished = _end == _End.finished;
     final counts = _counts;
-    Widget money(int? nano) => nano == null ? const Text('Not read') : EMoney(nano);
+    Widget money(int? nano) => nano == null ? Text(l.deskSetRescanNotRead) : EMoney(nano);
     return ESetGroup(
-      title: finished ? 'Scan finished' : 'Scan stopped',
+      title: finished ? l.deskSetRescanFinished : l.deskSetRescanStoppedLine,
       rows: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
@@ -248,25 +247,30 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
               Semantics(
                 liveRegion: true,
                 child: Text(
-                  finished
-                      ? 'The balance is up to date.${_deleted && counts != null ? ' ${_cancelled(counts)}' : ''}'
-                            '${counts?.resumed == true ? ' The scan carried on from where it stopped; the counts cover that part.' : ''}'
-                      : 'Stopped before the end. The balance was read again; start again to carry on.'
-                            '${_deleted ? ' Unconfirmed transactions were not deleted: that runs only when a scan completes.' : ''}',
+                  [
+                    if (finished) ...[
+                      l.deskSetRescanUpToDate,
+                      if (_deleted && counts != null) _cancelled(l, counts),
+                      if (counts?.resumed == true) l.deskSetRescanResumed,
+                    ] else ...[
+                      l.deskSetRescanStoppedEarly,
+                      if (_deleted) l.deskSetRescanNotDeleted,
+                    ],
+                  ].join(' '),
                   style: context.ts.bodyDim,
                 ),
               ),
               SizedBox(height: Sp.x3),
               EFacts([
-                ('Balance before', money(_before)),
-                ('Balance after', money(_after)),
+                (l.deskSetRescanBefore, money(_before)),
+                (l.deskSetRescanAfter, money(_after)),
                 if (counts != null) ...[
-                  ('Outputs found', Text('${counts.found}')),
-                  ('Restored', Text('${counts.restored}')),
-                  ('Back to unspent', Text('${counts.revived}')),
+                  (l.deskSetRescanFound, Text('${counts.found}')),
+                  (l.deskSetRescanRestored, Text('${counts.restored}')),
+                  (l.deskSetRescanRevived, Text('${counts.revived}')),
                   if (_deleted) ...[
-                    ('Unlocked', Text('${counts.unlocked}')),
-                    ('Deleted', Text('${counts.deleted}')),
+                    (l.deskSetRescanUnlocked, Text('${counts.unlocked}')),
+                    (l.deskSetRescanDeleted, Text('${counts.deleted}')),
                   ],
                 ],
               ]),

@@ -283,9 +283,9 @@ void main() {
   });
 
   test('statusWords: the table of §19', () {
-    expect(statusWords(mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epiccash.com', accepted: true).detail, 'blocks · using node.epiccash.com meanwhile');
-    expect(statusWords(mockLocalNode(LocalNodePhase.stopped), fallback: 'node.epiccash.com', accepted: true).detail, 'the wallet uses node.epiccash.com meanwhile');
-    expect(statusWords(mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, 'Change folder…');
-    expect(statusWords(mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), fallback: 'x', accepted: true).notice?.action, isNull);
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epiccash.com', accepted: true).detail, 'blocks · using node.epiccash.com meanwhile');
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.stopped), fallback: 'node.epiccash.com', accepted: true).detail, 'the wallet uses node.epiccash.com meanwhile');
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, NodeAct.folder);
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), fallback: 'x', accepted: true).notice?.action, isNull);
   });
 }

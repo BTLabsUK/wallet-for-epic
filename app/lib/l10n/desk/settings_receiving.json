@@ -1,0 +1,260 @@
+{
+  "deskSetRecvMethodOnFailed": "{method} not turned on",
+  "@deskSetRecvMethodOnFailed": {
+    "description": "Toast title when turning a receiving method on failed. {method} is a method name such as Epicbox, HTTP or Tor.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetRecvMethodOffFailed": "{method} not turned off",
+  "@deskSetRecvMethodOffFailed": {
+    "description": "Toast title when turning a receiving method off failed. {method} is a method name such as Epicbox, HTTP or Tor.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetRecvServerNotChanged": "Server not changed",
+  "@deskSetRecvServerNotChanged": {
+    "description": "Toast title when switching the Epicbox server failed."
+  },
+  "deskSetRecvReceiving": "Receiving",
+  "@deskSetRecvReceiving": {
+    "description": "Settings > Receiving: title of the first row of each method group (the on/off switch)."
+  },
+  "deskSetRecvSwitching": "Switching {method} receiving",
+  "@deskSetRecvSwitching": {
+    "description": "Screen reader label of the spinner while a receiving method is switched. {method} is Epicbox, HTTP or Tor.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetRecvMethodReceiving": "{method} receiving",
+  "@deskSetRecvMethodReceiving": {
+    "description": "Screen reader label of the switch for a receiving method. {method} is Epicbox, HTTP or Tor.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetRecvNotSaved": "Not saved",
+  "@deskSetRecvNotSaved": {
+    "description": "Toast title when saving a receiving setting failed."
+  },
+  "deskSetRecvAutostart": "Start with the wallet",
+  "@deskSetRecvAutostart": {
+    "description": "Settings > Receiving: row title of the switch that turns the method on at unlock."
+  },
+  "deskSetRecvAutostartHint": "Turns on at unlock.",
+  "@deskSetRecvAutostartHint": {
+    "description": "Settings > Receiving: hint under Start with the wallet."
+  },
+  "deskSetRecvMethodAutostart": "{method}: start with the wallet",
+  "@deskSetRecvMethodAutostart": {
+    "description": "Screen reader label of the Start with the wallet switch. {method} is Epicbox, HTTP or Tor.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetRecvHeadStopped": "Stopped",
+  "@deskSetRecvHeadStopped": {
+    "description": "Settings > Receiving: state word at the right of a method group head when the method has stopped. Short."
+  },
+  "deskSetRecvHeadStarting": "Starting",
+  "@deskSetRecvHeadStarting": {
+    "description": "Settings > Receiving: state word at the right of a method group head while the method starts. Short."
+  },
+  "deskSetRecvResponseTime": "Response time {ms} ms. Measured from the status site.",
+  "@deskSetRecvResponseTime": {
+    "description": "Tooltip on an Epicbox server in the picker. {ms} is milliseconds.",
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetRecvEpicboxTitle": "Epicbox receiving",
+  "@deskSetRecvEpicboxTitle": {
+    "description": "Settings > Receiving: heading of the Epicbox group."
+  },
+  "deskSetRecvEpicboxText": "Payments arrive via the Epicbox server, also while the wallet is closed.",
+  "@deskSetRecvEpicboxText": {
+    "description": "Settings > Receiving: text of the Epicbox receiving row."
+  },
+  "deskSetRecvEpicboxServer": "Epicbox server",
+  "@deskSetRecvEpicboxServer": {
+    "description": "Settings > Receiving: row title, picker label and screen reader name for the Epicbox server."
+  },
+  "deskSetRecvEpicboxServerHint": "Which server holds payments for this address. Both wallets can use different servers.",
+  "@deskSetRecvEpicboxServerHint": {
+    "description": "Settings > Receiving: hint under the Epicbox server row."
+  },
+  "deskSetRecvFindHint": "Find or type an Epicbox server",
+  "@deskSetRecvFindHint": {
+    "description": "Settings > Receiving: placeholder of the Epicbox server picker search field."
+  },
+  "deskSetRecvSwitchingServer": "Switching the Epicbox server…",
+  "@deskSetRecvSwitchingServer": {
+    "description": "Settings > Receiving: shown while the Epicbox server is switched."
+  },
+  "deskSetRecvNotInList": "not in the public list",
+  "@deskSetRecvNotInList": {
+    "description": "Epicbox server picker: note on a typed server that is not in the public list. Lowercase."
+  },
+  "deskSetRecvTypedNote": "Enter uses it. Its status shows once the wallet connects.",
+  "@deskSetRecvTypedNote": {
+    "description": "Epicbox server picker: note under a typed server. \"Enter\" is the keyboard key."
+  },
+  "deskSetRecvListNote": "State from status.btlabs.uk, checked every few minutes.",
+  "@deskSetRecvListNote": {
+    "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
+  },
+  "deskSetRecvHttpTitle": "HTTP receiving",
+  "@deskSetRecvHttpTitle": {
+    "description": "Settings > Receiving: heading of the HTTP group."
+  },
+  "deskSetRecvHttpText": "Straight from another wallet while this one is open.",
+  "@deskSetRecvHttpText": {
+    "description": "Settings > Receiving: text of the HTTP receiving row."
+  },
+  "deskSetRecvHttpOffTitle": "Off while Tor is on",
+  "@deskSetRecvHttpOffTitle": {
+    "description": "Settings > Receiving: notice title in the HTTP group when Tor is on."
+  },
+  "deskSetRecvHttpOffText": "Direct payments arrive at this wallet’s Tor address instead.",
+  "@deskSetRecvHttpOffText": {
+    "description": "Settings > Receiving: notice text in the HTTP group when Tor is on."
+  },
+  "deskSetRecvPrivacySettings": "Privacy settings",
+  "@deskSetRecvPrivacySettings": {
+    "description": "Settings > Receiving: notice button that jumps to the Tor switch in Settings > Privacy."
+  },
+  "deskSetHttpNotChanged": "Not changed",
+  "@deskSetHttpNotChanged": {
+    "description": "Toast title when changing an HTTP receiving option failed. The error follows as text."
+  },
+  "deskSetHttpPortError": "Port must be 1 to 65535",
+  "@deskSetHttpPortError": {
+    "description": "Settings > Receiving > HTTP: error under the port field."
+  },
+  "deskSetHttpReachable": "Reachable",
+  "@deskSetHttpReachable": {
+    "description": "Settings > Receiving > HTTP: row title for who can send payments to the HTTP address."
+  },
+  "deskSetHttpReachableHint": "Who can pay the HTTP address.",
+  "@deskSetHttpReachableHint": {
+    "description": "Settings > Receiving > HTTP: hint under the Reachable row."
+  },
+  "deskSetHttpLocalOnly": "Local only",
+  "@deskSetHttpLocalOnly": {
+    "description": "Settings > Receiving > HTTP: segment, only programs on this computer reach the address. Short."
+  },
+  "deskSetHttpFromInternet": "From the internet",
+  "@deskSetHttpFromInternet": {
+    "description": "Settings > Receiving > HTTP: segment, the address answers on the internet. Short."
+  },
+  "deskSetHttpGuideHelp": "Receive from the internet: how it works",
+  "@deskSetHttpGuideHelp": {
+    "description": "Tooltip and screen reader label of the help button that opens the internet guide."
+  },
+  "deskSetHttpPublicNote": "Answers on all interfaces. The router must forward TCP {port} to this computer. Senders on the internet use http://<public IP>:{port}.",
+  "@deskSetHttpPublicNote": {
+    "description": "Settings > Receiving > HTTP: note under the Reachable row when From the internet is chosen. {port} is a port number; http://<public IP>:{port} is an address template and stays in this form.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetHttpPort": "Port",
+  "@deskSetHttpPort": {
+    "description": "Settings > Receiving > HTTP: row title for the port number."
+  },
+  "deskSetHttpPortHint": "1 to 65535. Used by the HTTP address.",
+  "@deskSetHttpPortHint": {
+    "description": "Settings > Receiving > HTTP: hint under the Port row."
+  },
+  "deskSetHttpPortLabel": "HTTP port",
+  "@deskSetHttpPortLabel": {
+    "description": "Screen reader label of the port field."
+  },
+  "deskSetHttpGuideTitle": "Receive from the internet",
+  "@deskSetHttpGuideTitle": {
+    "description": "Internet guide dialog: title; also the primary button that turns it on."
+  },
+  "deskSetHttpGuideNowPublic": "Now: from the internet.",
+  "@deskSetHttpGuideNowPublic": {
+    "description": "Internet guide dialog: description when the address is public."
+  },
+  "deskSetHttpGuideNowLocal": "Now: local only. Only programs on this computer reach the HTTP address.",
+  "@deskSetHttpGuideNowLocal": {
+    "description": "Internet guide dialog: description when the address is local only."
+  },
+  "deskSetHttpStep1": "Listen on all interfaces",
+  "@deskSetHttpStep1": {
+    "description": "Internet guide dialog: step 1 title."
+  },
+  "deskSetHttpStep1Text": "The wallet answers on 0.0.0.0, port {port}. Other devices and the internet can then send payments to this wallet. The firewall may ask to allow it.",
+  "@deskSetHttpStep1Text": {
+    "description": "Internet guide dialog: step 1 text. 0.0.0.0 is an address and stays.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetHttpStep2": "Forward the port",
+  "@deskSetHttpStep2": {
+    "description": "Internet guide dialog: step 2 title."
+  },
+  "deskSetHttpStep2Text": "On the router’s page (often 10.0.1.1), find Port forwarding and forward TCP {port} to this computer.",
+  "@deskSetHttpStep2Text": {
+    "description": "Internet guide dialog: step 2 text.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetHttpStep3": "Share the public address",
+  "@deskSetHttpStep3": {
+    "description": "Internet guide dialog: step 3 title."
+  },
+  "deskSetHttpStep3Text": "Senders use http://<public IP>:{port}. The public IP can change.",
+  "@deskSetHttpStep3Text": {
+    "description": "Internet guide dialog: step 3 text. http://<public IP>:{port} is an address template and stays in this form.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetHttpNoRouter": "No router setup?",
+  "@deskSetHttpNoRouter": {
+    "description": "Internet guide dialog: title of the Tor suggestion."
+  },
+  "deskSetHttpNoRouterText": "Tor works from anywhere with nothing to forward.",
+  "@deskSetHttpNoRouterText": {
+    "description": "Internet guide dialog: text of the Tor suggestion."
+  },
+  "deskSetHttpTurnOnTor": "Turn on Tor",
+  "@deskSetHttpTurnOnTor": {
+    "description": "Internet guide dialog: small button that turns Tor receiving on."
+  },
+  "deskSetHttpExposed": "Only the receiving API is exposed. Plain HTTP is not encrypted.",
+  "@deskSetHttpExposed": {
+    "description": "Internet guide dialog: small note at the bottom."
+  },
+  "deskSetHttpBackLocal": "Back to local only",
+  "@deskSetHttpBackLocal": {
+    "description": "Internet guide dialog: button that goes back to local only."
+  }
+}

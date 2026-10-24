@@ -1,0 +1,96 @@
+{
+  "deskSetPrivTorOnFailed": "Tor not turned on",
+  "@deskSetPrivTorOnFailed": {
+    "description": "Toast title when turning Tor on failed. The error follows as text."
+  },
+  "deskSetPrivTorOffFailed": "Tor not turned off",
+  "@deskSetPrivTorOffFailed": {
+    "description": "Toast title when turning Tor off failed. The error follows as text."
+  },
+  "deskSetPrivTor": "Tor",
+  "@deskSetPrivTor": {
+    "description": "Settings > Privacy: title of the Tor group. Tor is a product name."
+  },
+  "deskSetPrivSwitching": "Switching Tor",
+  "@deskSetPrivSwitching": {
+    "description": "Screen reader label of the spinner while Tor is switched."
+  },
+  "deskSetPrivTurnOff": "Turn Tor off",
+  "@deskSetPrivTurnOff": {
+    "description": "Settings > Privacy: small button shown when Tor is not connected."
+  },
+  "deskSetPrivNotInBuild": "Not in this build",
+  "@deskSetPrivNotInBuild": {
+    "description": "Settings > Privacy: Tor state word when this app build has no Tor."
+  },
+  "deskSetPrivStarting": "Starting…",
+  "@deskSetPrivStarting": {
+    "description": "Settings > Privacy: Tor state word while it starts."
+  },
+  "deskSetPrivStartingDetail": "{progress} %. {waiting} wait until Tor is up.",
+  "@deskSetPrivStartingDetail": {
+    "description": "Settings > Privacy: detail of the Tor state while it starts. {progress} is a number 0–100. {waiting} is a list of what waits, e.g. \"Sending, Epicbox and HTTP\", supplied by the app.",
+    "placeholders": {
+      "progress": {
+        "type": "int"
+      },
+      "waiting": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPrivNotPublished": "Tor address not published yet. Sends work.",
+  "@deskSetPrivNotPublished": {
+    "description": "Settings > Privacy: detail of the Tor state when Tor runs but its receiving address is not published yet."
+  },
+  "deskSetPrivProblemSendsWork": "{problem}. Sends work.",
+  "@deskSetPrivProblemSendsWork": {
+    "description": "Settings > Privacy: detail of the Tor state when Tor runs but receiving has a problem. {problem} is a short sentence from the app without final full stop.",
+    "placeholders": {
+      "problem": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPrivConnected": "Connected.",
+  "@deskSetPrivConnected": {
+    "description": "Settings > Privacy: detail of the Tor state when everything works."
+  },
+  "deskSetPrivNotConnected": "Not connected",
+  "@deskSetPrivNotConnected": {
+    "description": "Settings > Privacy: Tor state word when Tor could not connect."
+  },
+  "deskSetPrivStoppedDetail": "Tor stopped. {waiting} wait for Retry or Tor off.",
+  "@deskSetPrivStoppedDetail": {
+    "description": "Settings > Privacy: detail of the Tor state when Tor stopped. {waiting} is a list of what waits, supplied by the app.",
+    "placeholders": {
+      "waiting": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPrivProblemDetail": "{problem}. {waiting} wait for Retry or Tor off.",
+  "@deskSetPrivProblemDetail": {
+    "description": "Settings > Privacy: detail of the Tor state when Tor failed. {problem} is a short sentence from the app without final full stop; {waiting} is a list of what waits.",
+    "placeholders": {
+      "problem": {
+        "type": "String"
+      },
+      "waiting": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPrivStatusSite": "Status site",
+  "@deskSetPrivStatusSite": {
+    "description": "Settings > Privacy: title of the group with the status site switch."
+  },
+  "deskSetPrivUseStatus": "Use status.btlabs.uk",
+  "@deskSetPrivUseStatus": {
+    "description": "Settings > Privacy: switch title and screen reader name. status.btlabs.uk is a web address and stays."
+  },
+  "deskSetPrivUseStatusHint": "Network status and information provided by status.btlabs.uk",
+  "@deskSetPrivUseStatusHint": {
+    "description": "Settings > Privacy: hint under the status site switch. status.btlabs.uk is a web address and stays."
+  }
+}

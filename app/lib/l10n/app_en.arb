@@ -14021,5 +14021,2829 @@
   "deskKitQrHideCode": "Hide QR code",
   "@deskKitQrHideCode": {
     "description": "Screen-reader label of the button that hides the QR code."
+  },
+  "deskSetAcctNotForgotten": "Not forgotten",
+  "@deskSetAcctNotForgotten": {
+    "description": "Toast title when forgetting the remembered password failed."
+  },
+  "deskSetAcctForgotten": "Forgotten on this computer",
+  "@deskSetAcctForgotten": {
+    "description": "Toast title after the remembered password was forgotten."
+  },
+  "deskSetAcctForgottenText": "The next start asks the password.",
+  "@deskSetAcctForgottenText": {
+    "description": "Toast text after the remembered password was forgotten."
+  },
+  "deskSetAcctLabelNotSaved": "Label not saved",
+  "@deskSetAcctLabelNotSaved": {
+    "description": "Toast title when the wallet label could not be saved."
+  },
+  "deskSetAcctEnterLabel": "Enter a label",
+  "@deskSetAcctEnterLabel": {
+    "description": "Toast text when the wallet label is empty."
+  },
+  "deskSetAcctLabelSaved": "Label saved",
+  "@deskSetAcctLabelSaved": {
+    "description": "Toast title after the wallet label was saved. The label follows as text."
+  },
+  "deskSetAcctLabel": "Label",
+  "@deskSetAcctLabel": {
+    "description": "Settings > This wallet: row title and screen reader name of the wallet label field."
+  },
+  "deskSetAcctLabelHint": "Only shown in this app.",
+  "@deskSetAcctLabelHint": {
+    "description": "Settings > This wallet: hint under the Label row."
+  },
+  "deskSetAcctSaveLabel": "Save label",
+  "@deskSetAcctSaveLabel": {
+    "description": "Tooltip and screen reader label of the check button in the label field."
+  },
+  "deskSetAcctPhraseHint": "The words that restore this wallet. Keep them private.",
+  "@deskSetAcctPhraseHint": {
+    "description": "Settings > This wallet: hint under the Recovery phrase row."
+  },
+  "deskSetAcctShowPhrase": "Show phrase…",
+  "@deskSetAcctShowPhrase": {
+    "description": "Settings > This wallet: button that opens the recovery phrase page."
+  },
+  "deskSetAcctRescanHint": "Reads the chain again when the balance looks wrong.",
+  "@deskSetAcctRescanHint": {
+    "description": "Settings > This wallet: hint under the Recheck balance row."
+  },
+  "deskSetAcctRecheck": "Recheck…",
+  "@deskSetAcctRecheck": {
+    "description": "Settings > This wallet: button that opens the Recheck balance page."
+  },
+  "deskSetAcctFiles": "Files",
+  "@deskSetAcctFiles": {
+    "description": "Settings > This wallet: title of the group of folder rows."
+  },
+  "deskSetAcctWalletFolder": "Wallet folder",
+  "@deskSetAcctWalletFolder": {
+    "description": "Settings > This wallet: row title for the folder holding this wallet’s files."
+  },
+  "deskSetAcctAppFiles": "App files",
+  "@deskSetAcctAppFiles": {
+    "description": "Settings > This wallet: row title for the folder holding the app’s files."
+  },
+  "deskSetAcctAppFilesHint": "Settings and the log.",
+  "@deskSetAcctAppFilesHint": {
+    "description": "Settings > This wallet: hint under the App files row."
+  },
+  "deskSetAcctNetwork": "Network",
+  "@deskSetAcctNetwork": {
+    "description": "Settings > This wallet: row title showing which network (e.g. Floonet) the wallet belongs to. Shown only when it is not Mainnet."
+  },
+  "deskSetAcctNetworkHint": "Set when the wallet was created.",
+  "@deskSetAcctNetworkHint": {
+    "description": "Settings > This wallet: hint under the Network row."
+  },
+  "deskSetAcctSetup": "Setup assistant",
+  "@deskSetAcctSetup": {
+    "description": "Settings > This wallet: row title for the first-run setup assistant."
+  },
+  "deskSetAcctSetupHint": "Walk through node and receiving again. Nothing is lost.",
+  "@deskSetAcctSetupHint": {
+    "description": "Settings > This wallet: hint under the Setup assistant row."
+  },
+  "deskSetAcctRunSetup": "Run setup…",
+  "@deskSetAcctRunSetup": {
+    "description": "Settings > This wallet: button that opens the setup assistant."
+  },
+  "deskSetAcctSecurity": "Security",
+  "@deskSetAcctSecurity": {
+    "description": "Settings > This wallet: title of the group with password and delete rows."
+  },
+  "deskSetAcctRemembered": "Remembered on this computer",
+  "@deskSetAcctRemembered": {
+    "description": "Settings > This wallet: row title shown when the wallet opens without a password."
+  },
+  "deskSetAcctRememberedHint": "Opens at start without the password, for 30 days from when it was set. Sends still ask the password. {who}",
+  "@deskSetAcctRememberedHint": {
+    "description": "Settings > This wallet: hint under the Remembered row. {who} is another sentence about who can open the wallet, supplied by the app in English.",
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetAcctForget": "Forget this computer",
+  "@deskSetAcctForget": {
+    "description": "Settings > This wallet: button that forgets the remembered password."
+  },
+  "deskSetAcctPasswordHint": "Unlocks this wallet.",
+  "@deskSetAcctPasswordHint": {
+    "description": "Settings > This wallet: hint under the Password row."
+  },
+  "deskSetAcctChangePassword": "Change password…",
+  "@deskSetAcctChangePassword": {
+    "description": "Settings > This wallet: button that opens the change password dialog."
+  },
+  "deskSetAcctDeleteHint": "Deletes its keys and database.",
+  "@deskSetAcctDeleteHint": {
+    "description": "Settings > This wallet: hint under the Delete wallet row."
+  },
+  "deskSetAcctFolderNotFound": "Folder not found",
+  "@deskSetAcctFolderNotFound": {
+    "description": "Toast title when a folder does not exist on disk. The path follows as text."
+  },
+  "deskSetAcctCopyPath": "Copy path: {title}",
+  "@deskSetAcctCopyPath": {
+    "description": "Tooltip and screen reader label of the copy button of a folder row. {title} is the row title, e.g. \"Wallet folder\".",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWhenToday": "today, {time}",
+  "@deskSetBackupWhenToday": {
+    "description": "Settings > Backup: when the last export was, when it was today. {time} is a clock time like 14:02. Part of a longer line; keep lowercase.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWhenYesterday": "yesterday, {time}",
+  "@deskSetBackupWhenYesterday": {
+    "description": "Settings > Backup: when the last export was, when it was yesterday. {time} is a clock time like 09:10. Part of a longer line; keep lowercase.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWhenDate": "{day}, {time}",
+  "@deskSetBackupWhenDate": {
+    "description": "Settings > Backup: date and time of the last export, e.g. \"3 Oct 2026, 14:02\".",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNeverExported": "Never exported.",
+  "@deskSetBackupNeverExported": {
+    "description": "Settings > Backup: line under Export history backup when nothing was ever exported."
+  },
+  "deskSetBackupLastExportNothingNew": "Last export {when} · nothing new since.",
+  "@deskSetBackupLastExportNothingNew": {
+    "description": "Settings > Backup: line under Export history backup. {when} is a date such as \"today, 14:02\".",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupLastExportSince": "Last export {when} · {count, plural, one{1 payment since} other{{count} payments since}}.",
+  "@deskSetBackupLastExportSince": {
+    "description": "Settings > Backup: line under Export history backup. {when} is a date such as \"today, 14:02\"; count is how many payments are not in that backup.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupWriteFailedHere": "Could not write to the folder: {reason}. Choose another folder.",
+  "@deskSetBackupWriteFailedHere": {
+    "description": "Error in the Export dialogs when the file could not be saved and the system did not say where. {reason} is the system message.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWriteFailedIn": "Could not write to {folder}: {reason}. Choose another folder.",
+  "@deskSetBackupWriteFailedIn": {
+    "description": "Error in the Export dialogs when the file could not be saved. {folder} is a path; {reason} is the system message.",
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupWriteFailed": "The file could not be written. Choose another folder.",
+  "@deskSetBackupWriteFailed": {
+    "description": "Error in the Export dialogs when the file could not be saved, reason unknown."
+  },
+  "deskSetBackupGroup": "Backup",
+  "@deskSetBackupGroup": {
+    "description": "Settings > This wallet: title of the Backup group of rows."
+  },
+  "deskSetBackupExportTitle": "Export history backup",
+  "@deskSetBackupExportTitle": {
+    "description": "Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file."
+  },
+  "deskSetBackupExportHint": "Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. The phrase alone brings back the balance, not the records.",
+  "@deskSetBackupExportHint": {
+    "description": "Settings > Backup: hint under the Export history backup row."
+  },
+  "deskSetBackupExporting": "Exporting…",
+  "@deskSetBackupExporting": {
+    "description": "Settings > Backup: button label while the export dialog is open. Short."
+  },
+  "deskSetBackupExportButton": "Export…",
+  "@deskSetBackupExportButton": {
+    "description": "Settings > Backup: button that opens the export dialog. Short; the dots mean a dialog follows."
+  },
+  "deskSetBackupImportTitle": "Import history backup",
+  "@deskSetBackupImportTitle": {
+    "description": "Settings > Backup: row title and dialog title for importing a history backup file."
+  },
+  "deskSetBackupImportHint": "Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.",
+  "@deskSetBackupImportHint": {
+    "description": "Settings > Backup: hint under the Import history backup row."
+  },
+  "deskSetBackupImportButton": "Import…",
+  "@deskSetBackupImportButton": {
+    "description": "Settings > Backup: button that opens the import dialog. Short."
+  },
+  "deskSetBackupCsvTitle": "Payments as CSV",
+  "@deskSetBackupCsvTitle": {
+    "description": "Settings > Backup: row title for exporting payments as a spreadsheet file."
+  },
+  "deskSetBackupCsvHint": "A plain table for spreadsheets. Not encrypted, not importable.",
+  "@deskSetBackupCsvHint": {
+    "description": "Settings > Backup: hint under the Payments as CSV row."
+  },
+  "deskSetBackupCsvButton": "Export CSV…",
+  "@deskSetBackupCsvButton": {
+    "description": "Settings > Backup: button that opens the CSV export dialog. Short."
+  },
+  "deskSetBackupSaveDialogTitle": "Save payment history",
+  "@deskSetBackupSaveDialogTitle": {
+    "description": "Title of the system Save dialog when exporting the history backup."
+  },
+  "deskSetBackupNotSaved": "Not saved",
+  "@deskSetBackupNotSaved": {
+    "description": "Export dialogs: title of the error notice when the file could not be saved."
+  },
+  "deskSetBackupInFile": "In the file",
+  "@deskSetBackupInFile": {
+    "description": "Export history dialog: label of the row listing what the file holds. Narrow label column (about 100 px)."
+  },
+  "deskSetBackupInFileCounts": "{payments, plural, one{1 payment} other{{payments} payments}}, {contacts, plural, one{1 contact} other{{contacts} contacts}}",
+  "@deskSetBackupInFileCounts": {
+    "description": "Export history dialog: what the file holds, e.g. \"12 payments, 3 contacts\".",
+    "placeholders": {
+      "payments": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupInFileSub": "Who paid what, fees, notes, slate ids",
+  "@deskSetBackupInFileSub": {
+    "description": "Export history dialog: small text under the counts of what the file holds."
+  },
+  "deskSetBackupNotIn": "Not in it",
+  "@deskSetBackupNotIn": {
+    "description": "Export history dialog: label of the row listing what the file does not hold. Narrow label column."
+  },
+  "deskSetBackupNotInValue": "Keys, the recovery phrase, the password",
+  "@deskSetBackupNotInValue": {
+    "description": "Export history dialog: what the file does not contain."
+  },
+  "deskSetBackupOpensWith": "Opens with",
+  "@deskSetBackupOpensWith": {
+    "description": "Export history dialog: label of the row saying which wallet can open the file. Narrow label column."
+  },
+  "deskSetBackupOpensWithValue": "This wallet, or one restored from its phrase",
+  "@deskSetBackupOpensWithValue": {
+    "description": "Export history dialog: which wallets can open the file."
+  },
+  "deskSetBackupFile": "File",
+  "@deskSetBackupFile": {
+    "description": "Export dialog: label of the row with the file name. Narrow label column."
+  },
+  "deskSetBackupFileNote": "The file holds payments up to now. Export again after new payments.",
+  "@deskSetBackupFileNote": {
+    "description": "Export history dialog: note under the list."
+  },
+  "deskSetBackupExportDesc": "A file with this wallet’s payments, their details and contacts. Only a wallet with the same recovery phrase opens it.",
+  "@deskSetBackupExportDesc": {
+    "description": "Export history dialog: description under the title."
+  },
+  "deskSetBackupSaved": "Saved",
+  "@deskSetBackupSaved": {
+    "description": "Export dialogs: title of the success block once the file is saved."
+  },
+  "deskSetBackupKeepCopy": "Keep a copy off this computer too: a USB stick, another drive, or cloud storage. Export again after new payments.",
+  "@deskSetBackupKeepCopy": {
+    "description": "Export history dialog: advice shown after saving."
+  },
+  "deskSetBackupOpenFolder": "Open folder",
+  "@deskSetBackupOpenFolder": {
+    "description": "Export dialogs: button that opens the folder of the saved file."
+  },
+  "deskSetBackupSaving": "Saving…",
+  "@deskSetBackupSaving": {
+    "description": "Export dialogs: save button label while saving."
+  },
+  "deskSetBackupTryAgain": "Try again",
+  "@deskSetBackupTryAgain": {
+    "description": "Export dialogs: save button label after a failed save."
+  },
+  "deskSetBackupSaveAs": "Save as…",
+  "@deskSetBackupSaveAs": {
+    "description": "Export dialogs: button that opens the system Save dialog."
+  },
+  "deskSetBackupOpenDialogTitle": "Open history backup",
+  "@deskSetBackupOpenDialogTitle": {
+    "description": "Title of the system Open dialog when importing a history backup."
+  },
+  "deskSetBackupDetailsRestored": "Details restored",
+  "@deskSetBackupDetailsRestored": {
+    "description": "Import result tile title: count of payments that got details back."
+  },
+  "deskSetBackupDetailsRestoredSub": "Payments already here got their counterparty, fee or note back",
+  "@deskSetBackupDetailsRestoredSub": {
+    "description": "Import result tile text under \"Details restored\"."
+  },
+  "deskSetBackupOlderAdded": "Older payments added",
+  "@deskSetBackupOlderAdded": {
+    "description": "Import result tile title: count of payments added from the backup."
+  },
+  "deskSetBackupOlderAddedSub": "Not in the list any more; shown as From backup",
+  "@deskSetBackupOlderAddedSub": {
+    "description": "Import result tile text under \"Older payments added\". \"From backup\" is a label shown in Activity."
+  },
+  "deskSetBackupContactsAdded": "Contacts added",
+  "@deskSetBackupContactsAdded": {
+    "description": "Import result tile title: count of contacts added."
+  },
+  "deskSetBackupAlreadyHere": "Already here",
+  "@deskSetBackupAlreadyHere": {
+    "description": "Import result tile title: count of records that were already in the wallet."
+  },
+  "deskSetBackupUnchanged": "Unchanged",
+  "@deskSetBackupUnchanged": {
+    "description": "Import result tile text under \"Already here\"."
+  },
+  "deskSetBackupNothingNew": "Nothing new",
+  "@deskSetBackupNothingNew": {
+    "description": "Import dialog: title of the success block when the file brought nothing new."
+  },
+  "deskSetBackupNothingNewBody": "Every record in {file} was already here.",
+  "@deskSetBackupNothingNewBody": {
+    "description": "Import dialog: text of the \"Nothing new\" block. {file} is the file name, shown in monospace.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupImported": "Imported",
+  "@deskSetBackupImported": {
+    "description": "Import dialog: title of the success block."
+  },
+  "deskSetBackupReading": "Reading {file}…",
+  "@deskSetBackupReading": {
+    "description": "Import dialog: shown while the chosen file is read. {file} is the file name, shown in monospace.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNotImported": "Not imported",
+  "@deskSetBackupNotImported": {
+    "description": "Import dialog: title of the error notice when the import failed."
+  },
+  "deskSetBackupBringsBack": "Brings back",
+  "@deskSetBackupBringsBack": {
+    "description": "Import dialog: label of the row saying what the import restores. Narrow label column."
+  },
+  "deskSetBackupBringsBackValue": "Who paid what, fees and notes of payments already here; older payments the list lost; contacts",
+  "@deskSetBackupBringsBackValue": {
+    "description": "Import dialog: what the import restores."
+  },
+  "deskSetBackupNeeds": "Needs",
+  "@deskSetBackupNeeds": {
+    "description": "Import dialog: label of the row saying what file is needed. Narrow label column."
+  },
+  "deskSetBackupNeedsValue": "A file from this wallet (the same recovery phrase), on {network}",
+  "@deskSetBackupNeedsValue": {
+    "description": "Import dialog: what file the import needs. {network} is the network name, e.g. \"Mainnet\".",
+    "placeholders": {
+      "network": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNever": "Never",
+  "@deskSetBackupNever": {
+    "description": "Import dialog: label of the row saying what the import never does. Narrow label column."
+  },
+  "deskSetBackupNeverValue": "Removes or changes a payment that is here",
+  "@deskSetBackupNeverValue": {
+    "description": "Import dialog: what the import never does (continues the label \"Never\")."
+  },
+  "deskSetBackupChooseFile": "Choose file…",
+  "@deskSetBackupChooseFile": {
+    "description": "Import dialog: button that opens the system Open dialog."
+  },
+  "deskSetBackupImportDesc": "Merges a history backup of this wallet into Activity. Nothing is removed, and the same file twice changes nothing.",
+  "@deskSetBackupImportDesc": {
+    "description": "Import history dialog: description under the title."
+  },
+  "deskSetBackupSaveCsvDialogTitle": "Save payments as CSV",
+  "@deskSetBackupSaveCsvDialogTitle": {
+    "description": "Title of the system Save dialog when exporting the CSV."
+  },
+  "deskSetBackupCsvDialogTitle": "Export CSV",
+  "@deskSetBackupCsvDialogTitle": {
+    "description": "Export CSV dialog: title."
+  },
+  "deskSetBackupCsvDialogDesc": "A plain table of this wallet’s payments, for spreadsheets.",
+  "@deskSetBackupCsvDialogDesc": {
+    "description": "Export CSV dialog: description under the title."
+  },
+  "deskSetBackupCsvSavedNote": "{count, plural, one{1 payment} other{{count} payments}}, newest first. Amounts in EPIC with 8 decimals; dates in UTC.",
+  "@deskSetBackupCsvSavedNote": {
+    "description": "Export CSV dialog: note after saving.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupDateError": "Enter a date as 2026-01-31",
+  "@deskSetBackupDateError": {
+    "description": "Export CSV dialog: error under a custom date field that is not a valid date. Keep the year-month-day format shown."
+  },
+  "deskSetBackupDateHint": "YYYY-MM-DD",
+  "@deskSetBackupDateHint": {
+    "description": "Export CSV dialog: placeholder of the custom date fields."
+  },
+  "deskSetBackupRange": "Range",
+  "@deskSetBackupRange": {
+    "description": "Export CSV dialog: label of the segmented control choosing which payments to export."
+  },
+  "deskSetBackupRangeAll": "All payments",
+  "@deskSetBackupRangeAll": {
+    "description": "Export CSV dialog: segment, all payments. Four segments share a narrow row; keep short."
+  },
+  "deskSetBackupRangeThisYear": "This year",
+  "@deskSetBackupRangeThisYear": {
+    "description": "Export CSV dialog: segment, payments of this calendar year. Keep short."
+  },
+  "deskSetBackupRangeLastYear": "Last year",
+  "@deskSetBackupRangeLastYear": {
+    "description": "Export CSV dialog: segment, payments of last calendar year. Keep short."
+  },
+  "deskSetBackupRangeCustom": "Custom",
+  "@deskSetBackupRangeCustom": {
+    "description": "Export CSV dialog: segment, choose own dates. Keep short."
+  },
+  "deskSetBackupFrom": "From",
+  "@deskSetBackupFrom": {
+    "description": "Export CSV dialog: label of the first custom date field."
+  },
+  "deskSetBackupTo": "To",
+  "@deskSetBackupTo": {
+    "description": "Export CSV dialog: label of the last custom date field."
+  },
+  "deskSetBackupCsvInfo": "{count, plural, one{1 payment} other{{count} payments}} · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.",
+  "@deskSetBackupCsvInfo": {
+    "description": "Export CSV dialog: summary line. {file} is the file name, shown in monospace. The columns named are in the file, whose headers stay English.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupCsvInfoNoCount": "– · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.",
+  "@deskSetBackupCsvInfoNoCount": {
+    "description": "Export CSV dialog: summary line while the date range is not valid, so there is no count. {file} is the file name.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetBackupNotEncrypted": "Not encrypted.",
+  "@deskSetBackupNotEncrypted": {
+    "description": "Export CSV dialog: title of the warning notice."
+  },
+  "deskSetBackupNotEncryptedBody": "Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; the history backup is for that.",
+  "@deskSetBackupNotEncryptedBody": {
+    "description": "Export CSV dialog: text of the warning notice."
+  },
+  "deskSetBackupReminderNever": "{count, plural, one{1 payment is not in a history backup.} other{{count} payments are not in a history backup.}}",
+  "@deskSetBackupReminderNever": {
+    "description": "Reminder on Overview when the history was never backed up. Count is the number of payments.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupReminderChanged": "{count, plural, one{1 payment is new or changed since the last history backup.} other{{count} payments are new or changed since the last history backup.}}",
+  "@deskSetBackupReminderChanged": {
+    "description": "Reminder on Overview when payments changed since the last history backup.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetBackupReminderBody": "A restore from the recovery phrase brings back the balance, not who paid what.",
+  "@deskSetBackupReminderBody": {
+    "description": "Reminder on Overview: text under the title."
+  },
+  "deskSetBackupNotNow": "Not now",
+  "@deskSetBackupNotNow": {
+    "description": "Reminder on Overview: button that dismisses the reminder. Small inline button."
+  },
+  "deskSetDlgNodeAddressEmpty": "Enter the node’s address.",
+  "@deskSetDlgNodeAddressEmpty": {
+    "description": "Add or edit node dialog: error under the address field when it is empty."
+  },
+  "deskSetDlgNodeAddressBad": "Not a node address. Check the address and the port (usually 3413).",
+  "@deskSetDlgNodeAddressBad": {
+    "description": "Add or edit node dialog: error under the address field when the text is not a node address."
+  },
+  "deskSetDlgNodeAddressDuplicate": "This address is already in My nodes.",
+  "@deskSetDlgNodeAddressDuplicate": {
+    "description": "Add or edit node dialog: error when the address is already saved. \"My nodes\" is the list of own nodes in Settings > Node."
+  },
+  "deskSetDlgNodeNotAdded": "Node not added",
+  "@deskSetDlgNodeNotAdded": {
+    "description": "Toast title when saving a node failed; the reason follows as the toast text."
+  },
+  "deskSetDlgNodeSaved": "Node saved",
+  "@deskSetDlgNodeSaved": {
+    "description": "Toast title after an edited node was saved."
+  },
+  "deskSetDlgNodeAdded": "Added to my nodes",
+  "@deskSetDlgNodeAdded": {
+    "description": "Toast title after a node was added to the own-nodes list."
+  },
+  "deskSetDlgNodeSaveAnyway": "It can be saved anyway.",
+  "@deskSetDlgNodeSaveAnyway": {
+    "description": "Add node dialog: shown next to the check result when the node does not respond."
+  },
+  "deskSetDlgNodeEditTitle": "Edit node",
+  "@deskSetDlgNodeEditTitle": {
+    "description": "Title of the dialog for editing a saved node."
+  },
+  "deskSetDlgNodeAddTitle": "Add to my nodes",
+  "@deskSetDlgNodeAddTitle": {
+    "description": "Title of the dialog for adding a node to the own-nodes list; also the matching button."
+  },
+  "deskSetDlgNodeDesc": "Save a node address to find it again later. It can be saved while it is offline.",
+  "@deskSetDlgNodeDesc": {
+    "description": "Add or edit node dialog: description under the title."
+  },
+  "deskSetDlgNodeAddress": "Node address",
+  "@deskSetDlgNodeAddress": {
+    "description": "Add or edit node dialog: label and screen reader name of the address field."
+  },
+  "deskSetDlgNodeLabel": "Label",
+  "@deskSetDlgNodeLabel": {
+    "description": "Add or edit node dialog: label and screen reader name of the optional name field."
+  },
+  "deskSetDlgNodeLabelHint": "e.g. Home node",
+  "@deskSetDlgNodeLabelHint": {
+    "description": "Add or edit node dialog: placeholder of the label field."
+  },
+  "deskSetDlgDirTitle": "Node directory",
+  "@deskSetDlgDirTitle": {
+    "description": "Title of the dialog listing public nodes."
+  },
+  "deskSetDlgDirDesc": "Public nodes, their operators and their state at the last check.",
+  "@deskSetDlgDirDesc": {
+    "description": "Node directory dialog: description under the title."
+  },
+  "deskSetDlgDirEmpty": "No nodes to show",
+  "@deskSetDlgDirEmpty": {
+    "description": "Node directory dialog: empty state."
+  },
+  "deskSetDlgDirVersion": "version {version}",
+  "@deskSetDlgDirVersion": {
+    "description": "Node directory: a node’s software version in a small detail line, e.g. \"version 4.1.0\". Lowercase.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgDirHeight": "height {height}",
+  "@deskSetDlgDirHeight": {
+    "description": "Node directory: a node’s block height in a small detail line, e.g. \"height 2,914,414\". Lowercase.",
+    "placeholders": {
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgDirInUse": "In use",
+  "@deskSetDlgDirInUse": {
+    "description": "Node directory: tag on the node the wallet uses now. Short."
+  },
+  "deskSetDlgDirUse": "Use",
+  "@deskSetDlgDirUse": {
+    "description": "Node directory: button that switches to that node. Short."
+  },
+  "deskSetDlgDirNote": "Response times are measured from the status site, not from this computer.",
+  "@deskSetDlgDirNote": {
+    "description": "Node directory dialog: note under the list."
+  },
+  "deskSetDlgChainTitle": "Existing blockchain data found",
+  "@deskSetDlgChainTitle": {
+    "description": "Title of the dialog offering to reuse blockchain data already on this computer."
+  },
+  "deskSetDlgChainDesc": "This computer already has Epic blockchain data that the local node can use.",
+  "@deskSetDlgChainDesc": {
+    "description": "Existing blockchain data dialog: description under the title."
+  },
+  "deskSetDlgChainFolder": "Folder",
+  "@deskSetDlgChainFolder": {
+    "description": "Existing blockchain data dialog: fact label for the folder. Narrow label column."
+  },
+  "deskSetDlgChainSize": "Size",
+  "@deskSetDlgChainSize": {
+    "description": "Existing blockchain data dialog: fact label for the data size. Narrow label column."
+  },
+  "deskSetDlgChainUpdated": "Last updated",
+  "@deskSetDlgChainUpdated": {
+    "description": "Existing blockchain data dialog: fact label for when the data was last changed. Narrow label column."
+  },
+  "deskSetDlgChainUpdatedValue": "3 days ago",
+  "@deskSetDlgChainUpdatedValue": {
+    "description": "Existing blockchain data dialog: sample value of Last updated."
+  },
+  "deskSetDlgChainOthers": "Other copies were found too (1). This one was updated most recently.",
+  "@deskSetDlgChainOthers": {
+    "description": "Existing blockchain data dialog: note that another copy exists."
+  },
+  "deskSetDlgChainInUse": "Another Epic program is using this folder. Close it, then pick the local node again to use this data.",
+  "@deskSetDlgChainInUse": {
+    "description": "Existing blockchain data dialog: question line when the folder is locked by another program."
+  },
+  "deskSetDlgChainUseIt": "Use it? That saves downloading and syncing the whole blockchain.",
+  "@deskSetDlgChainUseIt": {
+    "description": "Existing blockchain data dialog: question line."
+  },
+  "deskSetDlgChainOlderWallet": "An older Epic Wallet that uses this folder may need to sync again after this. Coins are not affected.",
+  "@deskSetDlgChainOlderWallet": {
+    "description": "Existing blockchain data dialog: small note under the question."
+  },
+  "deskSetDlgChainFresh": "Download fresh",
+  "@deskSetDlgChainFresh": {
+    "description": "Existing blockchain data dialog: button to ignore the old data and download anew."
+  },
+  "deskSetDlgChainUse": "Use this data",
+  "@deskSetDlgChainUse": {
+    "description": "Existing blockchain data dialog: primary button to reuse the data."
+  },
+  "deskSetDlgPwChanged": "Password changed.",
+  "@deskSetDlgPwChanged": {
+    "description": "Toast after the wallet password was changed."
+  },
+  "deskSetDlgPwTitle": "Change password",
+  "@deskSetDlgPwTitle": {
+    "description": "Change password dialog: title and primary button."
+  },
+  "deskSetDlgPwDesc": "The new password unlocks this wallet from now on. A remembered password is forgotten.",
+  "@deskSetDlgPwDesc": {
+    "description": "Change password dialog: description under the title."
+  },
+  "deskSetDlgPwCurrent": "Current password",
+  "@deskSetDlgPwCurrent": {
+    "description": "Change password dialog: label and screen reader name of the field."
+  },
+  "deskSetDlgPwWrong": "Wrong password",
+  "@deskSetDlgPwWrong": {
+    "description": "Change password dialog: error under the current password field."
+  },
+  "deskSetDlgPwNew": "New password",
+  "@deskSetDlgPwNew": {
+    "description": "Change password dialog: label and screen reader name of the field."
+  },
+  "deskSetDlgPwRepeat": "Repeat new password",
+  "@deskSetDlgPwRepeat": {
+    "description": "Change password dialog: label and screen reader name of the field."
+  },
+  "deskSetDlgRemoveToastList": "{name} removed from the list",
+  "@deskSetDlgRemoveToastList": {
+    "description": "Toast title after a wallet was removed from the list. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveToastDeleted": "{name} deleted",
+  "@deskSetDlgRemoveToastDeleted": {
+    "description": "Toast title after a wallet was deleted. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveFilesKept": "Files kept.",
+  "@deskSetDlgRemoveFilesKept": {
+    "description": "Toast text after a wallet was removed from the list only."
+  },
+  "deskSetDlgRemoveTitle": "Remove {name}?",
+  "@deskSetDlgRemoveTitle": {
+    "description": "Remove wallet dialog: title. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveDesc": "Nothing changes until confirmed.",
+  "@deskSetDlgRemoveDesc": {
+    "description": "Remove wallet dialog: description under the title."
+  },
+  "deskSetDlgRemoveWhat": "What to remove",
+  "@deskSetDlgRemoveWhat": {
+    "description": "Remove wallet dialog: screen reader label of the two choices."
+  },
+  "deskSetDlgRemoveFromList": "Remove from list",
+  "@deskSetDlgRemoveFromList": {
+    "description": "Remove wallet dialog: choice title and button label; the wallet’s files stay on the computer."
+  },
+  "deskSetDlgRemoveFromListHint": "Files stay in {folder}. All wallets can add it back.",
+  "@deskSetDlgRemoveFromListHint": {
+    "description": "Remove wallet dialog: explanation of Remove from list. {folder} is a folder path. \"All wallets\" is the Settings page.",
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgDeleteWallet": "Delete wallet",
+  "@deskSetDlgDeleteWallet": {
+    "description": "Remove wallet and Delete wallet dialogs: choice title and danger button label."
+  },
+  "deskSetDlgRemoveDeleteHint": "Deletes its keys and database from {folder}. Only the recovery phrase restores it; without it the coins are lost.",
+  "@deskSetDlgRemoveDeleteHint": {
+    "description": "Remove wallet dialog: explanation of Delete wallet. {folder} is a folder path.",
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveUnlockHint": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.",
+  "@deskSetDlgRemoveUnlockHint": {
+    "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › This wallet\" is a menu path."
+  },
+  "deskSetDlgRemoveUnlock": "Unlock this wallet",
+  "@deskSetDlgRemoveUnlock": {
+    "description": "Remove wallet dialog: link that locks the open wallet and opens Unlock with this wallet selected."
+  },
+  "deskSetDlgRemoveIrreversible": "Cannot be undone",
+  "@deskSetDlgRemoveIrreversible": {
+    "description": "Remove wallet dialog: title of the warning shown for Delete wallet."
+  },
+  "deskSetDlgRemoveIrreversibleBody": "Only the recovery phrase restores the wallet; without it the coins are lost for good.",
+  "@deskSetDlgRemoveIrreversibleBody": {
+    "description": "Remove wallet dialog: text of the warning."
+  },
+  "deskSetDlgRemoveName": "Wallet name",
+  "@deskSetDlgRemoveName": {
+    "description": "Remove wallet dialog: label and screen reader name of the confirmation field."
+  },
+  "deskSetDlgRemoveTypeName": "Type {name} to confirm.",
+  "@deskSetDlgRemoveTypeName": {
+    "description": "Remove wallet dialog: help under the confirmation field. {name} is the wallet name to type.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetDlgRemoveNameMismatch": "Name does not match",
+  "@deskSetDlgRemoveNameMismatch": {
+    "description": "Remove wallet dialog: error under the confirmation field."
+  },
+  "deskSetDlgPassword": "Password",
+  "@deskSetDlgPassword": {
+    "description": "Remove and Delete wallet dialogs: label of the password field."
+  },
+  "deskSetDlgPhraseWritten": "The recovery phrase is written down",
+  "@deskSetDlgPhraseWritten": {
+    "description": "Remove and Delete wallet dialogs: checkbox label confirming the recovery phrase is saved."
+  },
+  "deskSetDlgRemoving": "Removing…",
+  "@deskSetDlgRemoving": {
+    "description": "Remove wallet dialog: shown while the wallet is removed."
+  },
+  "deskSetDlgWalletLocked": "The wallet is locked",
+  "@deskSetDlgWalletLocked": {
+    "description": "Error when an action needs the open wallet but it is locked."
+  },
+  "deskSetDlgDeleteTitle": "Delete this wallet?",
+  "@deskSetDlgDeleteTitle": {
+    "description": "Delete wallet dialog: title."
+  },
+  "deskSetDlgDeleteDesc": "Deletes the wallet and its seed from this computer. Only the recovery phrase restores it; without it the coins are lost.",
+  "@deskSetDlgDeleteDesc": {
+    "description": "Delete wallet dialog: description under the title."
+  },
+  "deskSetFrameTitle": "Settings",
+  "@deskSetFrameTitle": {
+    "description": "Title of the Settings page."
+  },
+  "deskSetFrameSections": "Settings sections",
+  "@deskSetFrameSections": {
+    "description": "Accessibility label of the Settings sidebar list."
+  },
+  "deskSetFrameNode": "Node",
+  "@deskSetFrameNode": {
+    "description": "Settings sidebar entry and page name for the node section. Narrow (about 200 px)."
+  },
+  "deskSetFrameReceiving": "Receiving",
+  "@deskSetFrameReceiving": {
+    "description": "Settings sidebar entry and page name for how this wallet receives payments. Narrow."
+  },
+  "deskSetFramePrivacy": "Privacy",
+  "@deskSetFramePrivacy": {
+    "description": "Settings sidebar entry and page name for privacy and network routing. Narrow."
+  },
+  "deskSetFrameAppearance": "Appearance",
+  "@deskSetFrameAppearance": {
+    "description": "Settings sidebar entry and page name for theme, language and display. Narrow."
+  },
+  "deskSetFrameThisWallet": "This wallet",
+  "@deskSetFrameThisWallet": {
+    "description": "Settings sidebar entry and page name for the open wallet (name, password, backup, delete). Narrow."
+  },
+  "deskSetFrameAllWallets": "All wallets",
+  "@deskSetFrameAllWallets": {
+    "description": "Settings sidebar entry and page name for the list of wallets on this computer. Narrow."
+  },
+  "deskSetFramePhrase": "Recovery phrase",
+  "@deskSetFramePhrase": {
+    "description": "Settings sidebar entry and page name for showing the recovery phrase. Narrow."
+  },
+  "deskSetFrameRescan": "Recheck balance",
+  "@deskSetFrameRescan": {
+    "description": "Settings sidebar entry and page name for rescanning the chain to recheck the balance. Narrow."
+  },
+  "deskSetFrameAbout": "About",
+  "@deskSetFrameAbout": {
+    "description": "Settings sidebar entry and page name for the About page. Narrow."
+  },
+  "deskSetFrameHelp": "Help",
+  "@deskSetFrameHelp": {
+    "description": "Settings sidebar entry and page name for the Help page. Narrow."
+  },
+  "deskSetFrameHealthOn": "On",
+  "@deskSetFrameHealthOn": {
+    "description": "Status word of a service that works normally."
+  },
+  "deskSetFrameHealthSlow": "Slow",
+  "@deskSetFrameHealthSlow": {
+    "description": "Status word of a service that answers slowly."
+  },
+  "deskSetFrameNotResponding": "Not responding",
+  "@deskSetFrameNotResponding": {
+    "description": "Status word of a service or node that does not answer."
+  },
+  "deskSetFrameOff": "Off",
+  "@deskSetFrameOff": {
+    "description": "Status word of a service that is switched off."
+  },
+  "deskSetFrameChecking": "Checking…",
+  "@deskSetFrameChecking": {
+    "description": "Status word while a service is being checked."
+  },
+  "deskSetFrameNodeSynced": "Synced",
+  "@deskSetFrameNodeSynced": {
+    "description": "Status word of a node that has the whole blockchain."
+  },
+  "deskSetFrameNodeSyncing": "Syncing",
+  "@deskSetFrameNodeSyncing": {
+    "description": "Status word of a node that is still downloading the blockchain."
+  },
+  "deskSetFrameConnecting": "Connecting…",
+  "@deskSetFrameConnecting": {
+    "description": "Status word while connecting to a node or to Epicbox."
+  },
+  "deskSetFrameListening": "Listening",
+  "@deskSetFrameListening": {
+    "description": "Status word of the Epicbox listener that waits for incoming payments."
+  },
+  "deskSetFrameHealthLatency": "{word} · {ms} ms",
+  "@deskSetFrameHealthLatency": {
+    "description": "Status word with its response time, e.g. \"On · 84 ms\". {word} is a status word, {ms} milliseconds.",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      },
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetFrameNever": "never",
+  "@deskSetFrameNever": {
+    "description": "Time since an event that never happened. Lowercase, part of a line."
+  },
+  "deskSetFrameJustNow": "just now",
+  "@deskSetFrameJustNow": {
+    "description": "Time since an event that happened less than a minute ago. Lowercase."
+  },
+  "deskSetFrameMinAgo": "{count, plural, one{{count} min ago} other{{count} min ago}}",
+  "@deskSetFrameMinAgo": {
+    "description": "Minutes since an event, abbreviated, e.g. \"5 min ago\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetFrameHoursAgo": "{count, plural, one{{count} h ago} other{{count} h ago}}",
+  "@deskSetFrameHoursAgo": {
+    "description": "Hours since an event, abbreviated, e.g. \"3 h ago\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetFrameDaysAgo": "{count, plural, one{{count} d ago} other{{count} d ago}}",
+  "@deskSetFrameDaysAgo": {
+    "description": "Days since an event, abbreviated, e.g. \"2 d ago\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetComboOpens": "Opens the list",
+  "@deskSetComboOpens": {
+    "description": "Screen reader hint of the node and relay picker field."
+  },
+  "deskSetComboNoAnswer": "No answer yet",
+  "@deskSetComboNoAnswer": {
+    "description": "Picker field: shown when a check takes long. Narrow."
+  },
+  "deskSetComboNothing": "Nothing to show.",
+  "@deskSetComboNothing": {
+    "description": "Picker list: empty note."
+  },
+  "deskSetComboUse": "Use {host}",
+  "@deskSetComboUse": {
+    "description": "Screen reader label of a picker row; the node’s details follow after a comma. {host} is a server address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeDidNotStart": "The node did not start",
+  "@deskSetLnodeDidNotStart": {
+    "description": "Toast title when starting the local node failed; the error follows as text."
+  },
+  "deskSetLnodeDidNotStop": "The node did not stop",
+  "@deskSetLnodeDidNotStop": {
+    "description": "Toast title when stopping the local node failed; the error follows as text."
+  },
+  "deskSetLnodeDidNotRestart": "The node did not restart",
+  "@deskSetLnodeDidNotRestart": {
+    "description": "Toast title when restarting the local node failed; the error follows as text."
+  },
+  "deskSetLnodeMoved": "Chain data moved",
+  "@deskSetLnodeMoved": {
+    "description": "Toast title after the blockchain data folder was moved. The new path follows as text."
+  },
+  "deskSetLnodeFolderChanged": "Data folder changed",
+  "@deskSetLnodeFolderChanged": {
+    "description": "Toast title after the node data folder was changed without moving data. The new path follows as text."
+  },
+  "deskSetLnodeFolderFailed": "The folder did not change",
+  "@deskSetLnodeFolderFailed": {
+    "description": "Toast title when changing the node data folder failed."
+  },
+  "deskSetLnodeStart": "Start",
+  "@deskSetLnodeStart": {
+    "description": "Local node panel: button that starts the node. Short."
+  },
+  "deskSetLnodeStop": "Stop",
+  "@deskSetLnodeStop": {
+    "description": "Local node panel: button that stops the node. Short."
+  },
+  "deskSetLnodeRestart": "Restart",
+  "@deskSetLnodeRestart": {
+    "description": "Local node panel: button that restarts the node; also the label of a notice button. Short."
+  },
+  "deskSetLnodeTabStatus": "Status",
+  "@deskSetLnodeTabStatus": {
+    "description": "Local node panel: tab showing the node state. Short."
+  },
+  "deskSetLnodeTabPeers": "Peers",
+  "@deskSetLnodeTabPeers": {
+    "description": "Local node panel: tab showing connected peers. Short."
+  },
+  "deskSetLnodeWhileSyncing": "While syncing",
+  "@deskSetLnodeWhileSyncing": {
+    "description": "Local node panel: row title for using another node while the local node syncs."
+  },
+  "deskSetLnodeWhileSyncingText": "Use {host} until the local node is synced. The local node takes over by itself.",
+  "@deskSetLnodeWhileSyncingText": {
+    "description": "Local node panel: text of the While syncing row. {host} is a node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeChange": "Change…",
+  "@deskSetLnodeChange": {
+    "description": "Local node panel: button that opens a dialog to change a setting. Short; the dots mean a dialog follows."
+  },
+  "deskSetLnodeUseWhileSyncing": "Use {host} while syncing",
+  "@deskSetLnodeUseWhileSyncing": {
+    "description": "Screen reader label of the switch that makes the wallet use another node while the local node syncs. {host} is a node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeDataFolder": "Data folder",
+  "@deskSetLnodeDataFolder": {
+    "description": "Local node panel: row title for the folder where the node keeps its data."
+  },
+  "deskSetLnodeUsed": "{size} used",
+  "@deskSetLnodeUsed": {
+    "description": "Local node panel: disk space the chain data uses, e.g. \"4.2 GB used\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeFreeUnknown": "free space unknown",
+  "@deskSetLnodeFreeUnknown": {
+    "description": "Local node panel: shown when the free disk space cannot be read. Lowercase, part of a line."
+  },
+  "deskSetLnodeFree": "{size} free",
+  "@deskSetLnodeFree": {
+    "description": "Local node panel: free disk space, e.g. \"120 GB free\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeOpen": "Open",
+  "@deskSetLnodeOpen": {
+    "description": "Local node panel: button that opens the data folder in the file manager. Short."
+  },
+  "deskSetLnodeFolderNotOpened": "Folder not opened",
+  "@deskSetLnodeFolderNotOpened": {
+    "description": "Toast title when the data folder could not be opened. The path follows as text."
+  },
+  "deskSetLnodeChainData": "Chain data",
+  "@deskSetLnodeChainData": {
+    "description": "Local node panel: row title for the downloaded blockchain."
+  },
+  "deskSetLnodeChainPointed": "This node reads another program’s folder; delete it there.",
+  "@deskSetLnodeChainPointed": {
+    "description": "Local node panel: text of the Chain data row when the node uses another program’s folder."
+  },
+  "deskSetLnodeChainText": "Use chain data another Epic node left on this computer, or delete this node’s data and download the chain again.",
+  "@deskSetLnodeChainText": {
+    "description": "Local node panel: text of the Chain data row."
+  },
+  "deskSetLnodeReuse": "Reuse existing…",
+  "@deskSetLnodeReuse": {
+    "description": "Local node panel: button that offers chain data found on this computer. The dots mean a dialog follows."
+  },
+  "deskSetLnodeDelete": "Delete…",
+  "@deskSetLnodeDelete": {
+    "description": "Local node panel: button that deletes the chain data. The dots mean a dialog follows."
+  },
+  "deskSetLnodeAutostart": "Start with the app",
+  "@deskSetLnodeAutostart": {
+    "description": "Local node panel: switch title and screen reader name for starting the node when the app starts."
+  },
+  "deskSetLnodeAutostartHint": "Starts the node at launch and keeps it syncing while the app is open.",
+  "@deskSetLnodeAutostartHint": {
+    "description": "Local node panel: hint under Start with the app."
+  },
+  "deskSetLnodeViewLog": "View node log",
+  "@deskSetLnodeViewLog": {
+    "description": "Local node panel: button and notice button that open the node log."
+  },
+  "deskSetLnodeChangeFolder": "Change folder…",
+  "@deskSetLnodeChangeFolder": {
+    "description": "Local node panel: notice button that opens the change data folder dialog."
+  },
+  "deskSetLnodeUseMeanwhile": "Use {host} meanwhile",
+  "@deskSetLnodeUseMeanwhile": {
+    "description": "Local node panel: notice button that makes the wallet use another node while the local node syncs. {host} is a node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeWaitingPeers": "waiting for peers",
+  "@deskSetLnodeWaitingPeers": {
+    "description": "Local node panel: detail after the status word while the node starts. Lowercase."
+  },
+  "deskSetLnodeSyncingLower": "syncing",
+  "@deskSetLnodeSyncingLower": {
+    "description": "Local node panel: detail after the status word while syncing, when no stage is known. Lowercase."
+  },
+  "deskSetLnodeStageUsing": "{stage} · using {host} meanwhile",
+  "@deskSetLnodeStageUsing": {
+    "description": "Local node panel: detail after the status word. {stage} is a sync stage word; {host} a node address.",
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeNothingUntilSynced": "Nothing can be sent or received until the local node is synced.",
+  "@deskSetLnodeNothingUntilSynced": {
+    "description": "Local node panel: notice title while the node is syncing."
+  },
+  "deskSetLnodeAtTip": "at tip",
+  "@deskSetLnodeAtTip": {
+    "description": "Local node panel: detail after the block height when the node has the newest block. Lowercase."
+  },
+  "deskSetLnodeStalledDetail": "no progress for 5 min; restarted once already",
+  "@deskSetLnodeStalledDetail": {
+    "description": "Local node panel: detail after the status word when the sync stalled. Lowercase."
+  },
+  "deskSetLnodeNoProgress": "The node makes no progress.",
+  "@deskSetLnodeNoProgress": {
+    "description": "Local node panel: notice title when the sync stalled."
+  },
+  "deskSetLnodeNoProgressText": "Restarting usually helps; if not, the log says why.",
+  "@deskSetLnodeNoProgressText": {
+    "description": "Local node panel: notice text when the sync stalled."
+  },
+  "deskSetLnodePortInUse": "Port 3413 is used by another program.",
+  "@deskSetLnodePortInUse": {
+    "description": "Local node panel: notice title when the node cannot open its port."
+  },
+  "deskSetLnodePortInUseText": "Close it (another Epic node?) or pick the node already running there under Node server.",
+  "@deskSetLnodePortInUseText": {
+    "description": "Local node panel: notice text when the port is in use. \"Node server\" is a row title in Settings > Node."
+  },
+  "deskSetLnodeDiskLow": "Less than 2 GB free on this volume.",
+  "@deskSetLnodeDiskLow": {
+    "description": "Local node panel: notice title when the disk is nearly full."
+  },
+  "deskSetLnodeDiskLowText": "Free space or change the data folder.",
+  "@deskSetLnodeDiskLowText": {
+    "description": "Local node panel: notice text when the disk is nearly full."
+  },
+  "deskSetLnodeMissing": "The node program is missing from this installation.",
+  "@deskSetLnodeMissing": {
+    "description": "Local node panel: notice title when the node program file is gone."
+  },
+  "deskSetLnodeMissingText": "Reinstall the wallet.",
+  "@deskSetLnodeMissingText": {
+    "description": "Local node panel: notice text when the node program file is gone."
+  },
+  "deskSetLnodeStopped": "The node stopped by itself.",
+  "@deskSetLnodeStopped": {
+    "description": "Local node panel: notice title when the node ended unexpectedly."
+  },
+  "deskSetLnodeStoppedText": "The last log lines may say why.",
+  "@deskSetLnodeStoppedText": {
+    "description": "Local node panel: notice text when the node ended unexpectedly."
+  },
+  "deskSetLnodeUsesMeanwhile": "the wallet uses {host} meanwhile",
+  "@deskSetLnodeUsesMeanwhile": {
+    "description": "Local node panel: detail after the status word when the node is stopped and another node is used. Lowercase. {host} is a node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeNothingUntilRuns": "nothing can be sent until it runs",
+  "@deskSetLnodeNothingUntilRuns": {
+    "description": "Local node panel: detail after the status word when the node is stopped. Lowercase."
+  },
+  "deskSetLnodeTilePeers": "Peers",
+  "@deskSetLnodeTilePeers": {
+    "description": "Local node panel: label of the tile showing the number of connected peers."
+  },
+  "deskSetLnodeTileSync": "Sync",
+  "@deskSetLnodeTileSync": {
+    "description": "Local node panel: label of the tile showing sync progress."
+  },
+  "deskSetLnodeTileDownload": "Download",
+  "@deskSetLnodeTileDownload": {
+    "description": "Local node panel: label of the tile showing the download speed."
+  },
+  "deskSetLnodeSoFar": "{size} so far",
+  "@deskSetLnodeSoFar": {
+    "description": "Local node panel: download tile suffix, e.g. \"1.2 GB so far\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeTileDisk": "Chain data on disk",
+  "@deskSetLnodeTileDisk": {
+    "description": "Local node panel: label of the tile showing the disk space used by the chain."
+  },
+  "deskSetLnodeThisSession": "+{size} this session",
+  "@deskSetLnodeThisSession": {
+    "description": "Local node panel: disk tile suffix, e.g. \"+300 MB this session\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeVersion": "Version {version}",
+  "@deskSetLnodeVersion": {
+    "description": "Local node panel: node version in the line under the tiles.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeRunning": "running {duration}",
+  "@deskSetLnodeRunning": {
+    "description": "Local node panel: how long the node has run, e.g. \"running 2 h 5 min\". Lowercase.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeStoppedAt": "stopped {time}",
+  "@deskSetLnodeStoppedAt": {
+    "description": "Local node panel: when the node stopped, e.g. \"stopped 14:02\". Lowercase.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodePeersCount": "{count, plural, one{{count} peer} other{{count} peers}}",
+  "@deskSetLnodePeersCount": {
+    "description": "Local node panel: number of connected peers in the line under the tiles.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetLnodeMoving": "Moving the chain data · {done} of {total}",
+  "@deskSetLnodeMoving": {
+    "description": "Local node panel: progress text while the data folder moves, e.g. \"Moving the chain data · 1 GB of 4 GB\".",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeConnectingPeers": "Connecting to peers",
+  "@deskSetLnodeConnectingPeers": {
+    "description": "Local node panel: line under the progress bar while the node looks for peers."
+  },
+  "deskSetLnodeStartedSecAgo": "started {seconds} s ago",
+  "@deskSetLnodeStartedSecAgo": {
+    "description": "Local node panel: how long ago the node started, in seconds. Lowercase.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetLnodeStartedAgo": "started {duration} ago",
+  "@deskSetLnodeStartedAgo": {
+    "description": "Local node panel: how long ago the node started. {duration} is like \"3 min\". Lowercase.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodeSettingsChanged": "Settings changed.",
+  "@deskSetLnodeSettingsChanged": {
+    "description": "Local node panel: notice title when node settings changed while it runs."
+  },
+  "deskSetLnodeSettingsChangedText": "They apply at the next restart.",
+  "@deskSetLnodeSettingsChangedText": {
+    "description": "Local node panel: notice text when node settings changed."
+  },
+  "deskSetLnodeRestartNow": "Restart now",
+  "@deskSetLnodeRestartNow": {
+    "description": "Local node panel: notice button that restarts the node."
+  },
+  "deskSetLnodeSampled": "Sampled every 30 s while this page is open.",
+  "@deskSetLnodeSampled": {
+    "description": "Local node panel: note under the tiles."
+  },
+  "deskSetLnodeTomlEdited": "epic-server.toml was edited by hand; peer and folder settings here do not apply.",
+  "@deskSetLnodeTomlEdited": {
+    "description": "Local node panel: warning when the node config file was edited by hand. epic-server.toml is a file name and stays."
+  },
+  "deskSetLnodeSyncProgress": "Sync progress",
+  "@deskSetLnodeSyncProgress": {
+    "description": "Screen reader label of the sync progress bar."
+  },
+  "deskSetLnodeStepHeaders": "Headers",
+  "@deskSetLnodeStepHeaders": {
+    "description": "Local node panel: first sync step name. Short; shown in a row of four."
+  },
+  "deskSetLnodeStepChainState": "Chain state",
+  "@deskSetLnodeStepChainState": {
+    "description": "Local node panel: second sync step name. Short; shown in a row of four."
+  },
+  "deskSetLnodeStepBlocks": "Blocks",
+  "@deskSetLnodeStepBlocks": {
+    "description": "Local node panel: third sync step name. Short; shown in a row of four."
+  },
+  "deskSetLnodeStepsNone": "Sync steps: none started",
+  "@deskSetLnodeStepsNone": {
+    "description": "Screen reader label of the sync step strip before the first step."
+  },
+  "deskSetLnodeStepOf": "Sync step {n} of 4: {name}",
+  "@deskSetLnodeStepOf": {
+    "description": "Screen reader label of the sync step strip. {n} is the step number, {name} its name.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndAskTitle": "Use {host} until the local node is synced?",
+  "@deskSetLndAskTitle": {
+    "description": "Dialog title asked once when the local node first syncs. {host} is a public node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndAskDesc": "Syncing takes hours. Meanwhile the wallet can read the chain and send through {host}, a public node. The local node takes over by itself once it is synced.",
+  "@deskSetLndAskDesc": {
+    "description": "Fallback question dialog: description. {host} is a public node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndAskNote": "Asked once. The node and the choice can be changed under Settings › Node › While syncing.",
+  "@deskSetLndAskNote": {
+    "description": "Fallback question dialog: small note. \"Settings › Node › While syncing\" is a menu path."
+  },
+  "deskSetLndAskWait": "Wait for the local node",
+  "@deskSetLndAskWait": {
+    "description": "Fallback question dialog: button to wait instead of using a public node."
+  },
+  "deskSetLndAskUse": "Use {host}",
+  "@deskSetLndAskUse": {
+    "description": "Fallback question dialog: primary button. {host} is a public node address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndPickTitle": "Node while syncing",
+  "@deskSetLndPickTitle": {
+    "description": "Dialog title for choosing the public node used while the local node syncs."
+  },
+  "deskSetLndPickDesc": "The public node the wallet uses until the local node is synced.",
+  "@deskSetLndPickDesc": {
+    "description": "Node while syncing dialog: description."
+  },
+  "deskSetLndDeleted": "Chain data deleted",
+  "@deskSetLndDeleted": {
+    "description": "Toast title after the chain data was deleted."
+  },
+  "deskSetLndFreed": "{size} freed",
+  "@deskSetLndFreed": {
+    "description": "Toast text after the chain data was deleted, e.g. \"4.2 GB freed\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndNotDeleted": "Chain data not deleted",
+  "@deskSetLndNotDeleted": {
+    "description": "Toast title when deleting the chain data failed."
+  },
+  "deskSetLndDeleteTitle": "Delete chain data",
+  "@deskSetLndDeleteTitle": {
+    "description": "Delete chain data dialog: danger button label."
+  },
+  "deskSetLndDeleteDesc": "Removes {size} from {path}. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.",
+  "@deskSetLndDeleteDesc": {
+    "description": "Delete chain data dialog: description. {size} is a size like \"4.2 GB\"; {path} a folder path.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndDeleteDescNoSize": "Removes the chain data from {path}. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.",
+  "@deskSetLndDeleteDescNoSize": {
+    "description": "Delete chain data dialog: description when the size is not known. {path} is a folder path.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndTypeToConfirm": "Type {word} to confirm.",
+  "@deskSetLndTypeToConfirm": {
+    "description": "Delete chain data dialog: asks to type a word, which is shown in monospace in place of {word}. The word itself is always the English \"delete\" and is not translated.",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndTypeToConfirmLabel": "Type {word} to confirm",
+  "@deskSetLndTypeToConfirmLabel": {
+    "description": "Screen reader label of the confirmation field in the Delete chain data dialog. {word} is the English word \"delete\".",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndSourceCli": "epic (the command-line node)",
+  "@deskSetLndSourceCli": {
+    "description": "Reuse chain data dialog: where a chain data folder came from. \"epic\" is the program name."
+  },
+  "deskSetLndSourceGui": "Epic GUI",
+  "@deskSetLndSourceGui": {
+    "description": "Reuse chain data dialog: where a chain data folder came from."
+  },
+  "deskSetLndSourceBundled": "an earlier Epic Wallet",
+  "@deskSetLndSourceBundled": {
+    "description": "Reuse chain data dialog: where a chain data folder came from."
+  },
+  "deskSetLndSourceCustom": "another folder",
+  "@deskSetLndSourceCustom": {
+    "description": "Reuse chain data dialog: where a chain data folder came from."
+  },
+  "deskSetLndInUse": "Chain data in use",
+  "@deskSetLndInUse": {
+    "description": "Toast title after the node was pointed at existing chain data. The folder follows as text."
+  },
+  "deskSetLndNotInUse": "The folder is not in use",
+  "@deskSetLndNotInUse": {
+    "description": "Toast title when pointing the node at a chain data folder failed."
+  },
+  "deskSetLndReuseTitle": "Chain data found on this computer",
+  "@deskSetLndReuseTitle": {
+    "description": "Reuse chain data dialog: title."
+  },
+  "deskSetLndReuseDesc": "Another Epic node left chain data here. The local node can read that folder instead of downloading the chain.",
+  "@deskSetLndReuseDesc": {
+    "description": "Reuse chain data dialog: description."
+  },
+  "deskSetLndLooking": "Looking…",
+  "@deskSetLndLooking": {
+    "description": "Reuse chain data dialog: shown while folders are searched."
+  },
+  "deskSetLndUseIt": "Use it",
+  "@deskSetLndUseIt": {
+    "description": "Reuse chain data dialog: choice title for using a found folder."
+  },
+  "deskSetLndLastWritten": "last written {date}",
+  "@deskSetLndLastWritten": {
+    "description": "Reuse chain data dialog: when the folder last changed, e.g. \"last written 2026-10-03\". Lowercase.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndLocked": "In use by another program",
+  "@deskSetLndLocked": {
+    "description": "Reuse chain data dialog: shown on a folder that another program holds."
+  },
+  "deskSetLndNothingCopied": "Nothing is copied: the node reads that folder, and Delete chain data is off for it.",
+  "@deskSetLndNothingCopied": {
+    "description": "Reuse chain data dialog: explains what Use it does. \"Delete chain data\" is a button name."
+  },
+  "deskSetLndFresh": "Download fresh",
+  "@deskSetLndFresh": {
+    "description": "Reuse chain data dialog: choice title for not reusing any folder."
+  },
+  "deskSetLndFreshLine": "Into the wallet’s own folder. About {size}.",
+  "@deskSetLndFreshLine": {
+    "description": "Reuse chain data dialog: Download fresh details. {size} is like \"5 GB\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndLogTitle": "Node log",
+  "@deskSetLndLogTitle": {
+    "description": "Node log dialog: title."
+  },
+  "deskSetLndReading": "Reading…",
+  "@deskSetLndReading": {
+    "description": "Node log dialog: shown while the log is read."
+  },
+  "deskSetLndLogNote": "Last 200 lines of epic-server.log in the data folder. Newest at the bottom.",
+  "@deskSetLndLogNote": {
+    "description": "Node log dialog: note under the log. epic-server.log is a file name and stays."
+  },
+  "deskSetLndCopied": "Copied",
+  "@deskSetLndCopied": {
+    "description": "Toast title after the node log was copied."
+  },
+  "deskSetLndLines": "{count, plural, one{{count} line} other{{count} lines}}",
+  "@deskSetLndLines": {
+    "description": "Toast text after the node log was copied.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetLndBadFolder": "That folder does not work",
+  "@deskSetLndBadFolder": {
+    "description": "Change folder dialog: title when the chosen folder is unusable. The reasons follow."
+  },
+  "deskSetLndChooseAnother": "Choose another",
+  "@deskSetLndChooseAnother": {
+    "description": "Change folder dialog: button to pick another folder."
+  },
+  "deskSetLndMoveTitle": "Move {size} to {folder}?",
+  "@deskSetLndMoveTitle": {
+    "description": "Change folder dialog: title. {size} is like \"4.2 GB\"; {folder} a path.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndMoveDesc": "The node stops while the data moves, then starts again from the new folder. Start fresh there downloads the chain again into it instead.",
+  "@deskSetLndMoveDesc": {
+    "description": "Change folder dialog: description. \"Start fresh there\" is a button name."
+  },
+  "deskSetLndStartFresh": "Start fresh there",
+  "@deskSetLndStartFresh": {
+    "description": "Change folder dialog: button that uses the new folder and downloads the chain again."
+  },
+  "deskSetLndMove": "Move",
+  "@deskSetLndMove": {
+    "description": "Change folder dialog: primary button that moves the data."
+  },
+  "deskSetLndProbNotEmpty": "The folder is not empty.",
+  "@deskSetLndProbNotEmpty": {
+    "description": "Change folder dialog: reason the chosen folder does not work."
+  },
+  "deskSetLndProbInsideSource": "It is inside the current folder.",
+  "@deskSetLndProbInsideSource": {
+    "description": "Change folder dialog: reason; \"It\" is the chosen folder."
+  },
+  "deskSetLndProbSourceInside": "The current folder is inside it.",
+  "@deskSetLndProbSourceInside": {
+    "description": "Change folder dialog: reason; \"it\" is the chosen folder."
+  },
+  "deskSetLndProbSpace": "Not enough space: {needed} needed, {free} free.",
+  "@deskSetLndProbSpace": {
+    "description": "Change folder dialog: reason. Sizes like \"4.2 GB\".",
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      },
+      "free": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndProbSpaceUnknown": "Not enough space: {needed} needed, unknown free.",
+  "@deskSetLndProbSpaceUnknown": {
+    "description": "Change folder dialog: reason when the free space cannot be read. {needed} is a size.",
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLndProbLocked": "Another program holds it.",
+  "@deskSetLndProbLocked": {
+    "description": "Change folder dialog: reason; \"it\" is the current folder."
+  },
+  "deskSetLndProbMissing": "The current chain data is missing.",
+  "@deskSetLndProbMissing": {
+    "description": "Change folder dialog: reason."
+  },
+  "deskSetLndProbNotWritable": "It cannot be written to.",
+  "@deskSetLndProbNotWritable": {
+    "description": "Change folder dialog: reason; \"It\" is the chosen folder."
+  },
+  "deskSetLndProbIncomplete": "The current chain data is incomplete.",
+  "@deskSetLndProbIncomplete": {
+    "description": "Change folder dialog: reason."
+  },
+  "deskSetLndProbForeign": "Another program’s chain data is there.",
+  "@deskSetLndProbForeign": {
+    "description": "Change folder dialog: reason."
+  },
+  "deskSetPeersBannedToast": "Peer banned",
+  "@deskSetPeersBannedToast": {
+    "description": "Toast title after a peer was banned. The peer address follows as text."
+  },
+  "deskSetPeersUnbannedToast": "Peer unbanned",
+  "@deskSetPeersUnbannedToast": {
+    "description": "Toast title after a peer was unbanned. The peer address follows as text."
+  },
+  "deskSetPeersNotAddress": "Not an IP address and port, such as 203.0.113.5:3414.",
+  "@deskSetPeersNotAddress": {
+    "description": "Peers tab: error under the preferred peer field."
+  },
+  "deskSetPeersAlreadyPreferred": "Already preferred.",
+  "@deskSetPeersAlreadyPreferred": {
+    "description": "Peers tab: error under the preferred peer field when the address is already in the list."
+  },
+  "deskSetPeersMaxRange": "{min} to {max}.",
+  "@deskSetPeersMaxRange": {
+    "description": "Peers tab: error under the maximum peers fields, e.g. \"8 to 500.\"",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPeersReading": "Reading the peers…",
+  "@deskSetPeersReading": {
+    "description": "Peers tab: summary line while the peers are read."
+  },
+  "deskSetPeersSummary": "{connected} connected · {inbound} in · {outbound} out",
+  "@deskSetPeersSummary": {
+    "description": "Peers tab: summary line. Counts of connected peers, incoming and outgoing connections.",
+    "placeholders": {
+      "connected": {
+        "type": "int"
+      },
+      "inbound": {
+        "type": "int"
+      },
+      "outbound": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPeersSummaryBanned": "{connected} connected · {inbound} in · {outbound} out · {banned} banned",
+  "@deskSetPeersSummaryBanned": {
+    "description": "Peers tab: summary line when some peers are banned.",
+    "placeholders": {
+      "connected": {
+        "type": "int"
+      },
+      "inbound": {
+        "type": "int"
+      },
+      "outbound": {
+        "type": "int"
+      },
+      "banned": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPeersIn": "in",
+  "@deskSetPeersIn": {
+    "description": "Peers tab: direction of a connection that the peer opened. Lowercase, narrow column."
+  },
+  "deskSetPeersOut": "out",
+  "@deskSetPeersOut": {
+    "description": "Peers tab: direction of a connection that this node opened. Lowercase, narrow column."
+  },
+  "deskSetPeersBan": "Ban",
+  "@deskSetPeersBan": {
+    "description": "Peers tab: small button on a peer row that bans the peer."
+  },
+  "deskSetPeersColAddress": "Address",
+  "@deskSetPeersColAddress": {
+    "description": "Peers tab: table header of the peer address column."
+  },
+  "deskSetPeersColDirection": "Direction",
+  "@deskSetPeersColDirection": {
+    "description": "Peers tab: table header of the connection direction column. Narrow (70 px)."
+  },
+  "deskSetPeersColVersion": "Version",
+  "@deskSetPeersColVersion": {
+    "description": "Peers tab: table header of the peer software version column. Narrow (70 px)."
+  },
+  "deskSetPeersColHeight": "Height",
+  "@deskSetPeersColHeight": {
+    "description": "Peers tab: table header of the peer block height column. Narrow (90 px)."
+  },
+  "deskSetPeersColFirstSeen": "First seen",
+  "@deskSetPeersColFirstSeen": {
+    "description": "Peers tab: table header of the column with the time the peer was first seen. Narrow (80 px)."
+  },
+  "deskSetPeersNone": "No peers connected.",
+  "@deskSetPeersNone": {
+    "description": "Peers tab: empty state of the table."
+  },
+  "deskSetPeersMore": "{count, plural, one{{count} more} other{{count} more}}",
+  "@deskSetPeersMore": {
+    "description": "Peers tab: link that shows the remaining peers of the table, e.g. \"12 more\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPeersRefreshed": "Refreshed every 10 s",
+  "@deskSetPeersRefreshed": {
+    "description": "Peers tab: note beside the summary."
+  },
+  "deskSetPeersBanned": "Banned",
+  "@deskSetPeersBanned": {
+    "description": "Peers tab: small heading of the list of banned peers. Shown in capital letters by the app."
+  },
+  "deskSetPeersBannedAt": "banned {time}",
+  "@deskSetPeersBannedAt": {
+    "description": "Peers tab: when a peer was banned, e.g. \"banned 14:02\". Lowercase.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPeersUnban": "Unban",
+  "@deskSetPeersUnban": {
+    "description": "Peers tab: small button that lifts a ban."
+  },
+  "deskSetPeersPreferred": "Preferred peers",
+  "@deskSetPeersPreferred": {
+    "description": "Peers tab: label of the field for adding a preferred peer."
+  },
+  "deskSetPeersPreferredLabel": "Preferred peer, IP address and port",
+  "@deskSetPeersPreferredLabel": {
+    "description": "Screen reader label of the preferred peer field."
+  },
+  "deskSetPeersAdd": "Add",
+  "@deskSetPeersAdd": {
+    "description": "Peers tab: small button that adds the preferred peer."
+  },
+  "deskSetPeersMaxIn": "Max incoming",
+  "@deskSetPeersMaxIn": {
+    "description": "Peers tab: label of the field for the maximum number of incoming connections."
+  },
+  "deskSetPeersMaxInLabel": "Max incoming peers",
+  "@deskSetPeersMaxInLabel": {
+    "description": "Screen reader label of the maximum incoming connections field."
+  },
+  "deskSetPeersMaxOut": "Max outgoing",
+  "@deskSetPeersMaxOut": {
+    "description": "Peers tab: label of the field for the maximum number of outgoing connections."
+  },
+  "deskSetPeersMaxOutLabel": "Max outgoing peers",
+  "@deskSetPeersMaxOutLabel": {
+    "description": "Screen reader label of the maximum outgoing connections field."
+  },
+  "deskSetPeersPreferredCount": "{count, plural, one{{count} preferred:} other{{count} preferred:}}",
+  "@deskSetPeersPreferredCount": {
+    "description": "Peers tab: label before the list of preferred peers, e.g. \"2 preferred:\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPeersForget": "Forget {peer}",
+  "@deskSetPeersForget": {
+    "description": "Tooltip and screen reader label of the small button that removes a preferred peer. {peer} is its address.",
+    "placeholders": {
+      "peer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPeersNote": "First seen is when this app first saw the peer connected, this session; the node does not report when a connection began. Ban and unban use the node’s owner API. Enter saves a maximum ({min} to {max}, {def} by default).",
+  "@deskSetPeersNote": {
+    "description": "Peers tab: explanatory note at the bottom. \"Enter\" is the keyboard key. {min}, {max} and {def} are numbers.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      },
+      "def": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetLndDeleteQuestion": "Delete chain data?",
+  "@deskSetLndDeleteQuestion": {
+    "description": "Delete chain data dialog: title."
+  },
+  "deskSetLogsMemoryOnly": "The log is kept in memory only.",
+  "@deskSetLogsMemoryOnly": {
+    "description": "Toast text when the log folder cannot be opened because the log is not written to disk."
+  },
+  "deskSetLogsClearTitle": "Clear logs?",
+  "@deskSetLogsClearTitle": {
+    "description": "Clear logs dialog: title."
+  },
+  "deskSetLogsClearDesc": "Deletes the log files. A report sent later has only what is logged from now on.",
+  "@deskSetLogsClearDesc": {
+    "description": "Clear logs dialog: description."
+  },
+  "deskSetLogsKeep": "Keep logs",
+  "@deskSetLogsKeep": {
+    "description": "Clear logs dialog: button that cancels."
+  },
+  "deskSetLogsClear": "Clear logs",
+  "@deskSetLogsClear": {
+    "description": "Clear logs dialog danger button and the Settings > Help > Logs button that opens it."
+  },
+  "deskSetLogsCleared": "Logs cleared",
+  "@deskSetLogsCleared": {
+    "description": "Toast title after the logs were cleared."
+  },
+  "deskSetLogsToday": "today {time}",
+  "@deskSetLogsToday": {
+    "description": "Settings > Help > Logs: when detailed logging ends, today. {time} is a clock time like 14:02. Lowercase, part of a line.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLogsTomorrow": "tomorrow {time}",
+  "@deskSetLogsTomorrow": {
+    "description": "Settings > Help > Logs: when detailed logging ends, tomorrow. {time} is a clock time like 14:02. Lowercase, part of a line.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLogsTitle": "Logs",
+  "@deskSetLogsTitle": {
+    "description": "Settings > Help: title of the Logs group."
+  },
+  "deskSetLogsLevel": "Log level",
+  "@deskSetLogsLevel": {
+    "description": "Settings > Help > Logs: row title."
+  },
+  "deskSetLogsLevelNormal": "Normal. Detailed keeps more lines on disk for 24 hours; addresses may appear in the file, reports leave them out.",
+  "@deskSetLogsLevelNormal": {
+    "description": "Settings > Help > Logs: text of the Log level row when the level is Normal."
+  },
+  "deskSetLogsLevelDetailed": "Detailed until {until}, then Normal. Addresses may appear in the file; reports leave them out.",
+  "@deskSetLogsLevelDetailed": {
+    "description": "Settings > Help > Logs: text of the Log level row when Detailed. {until} is like \"today 14:02\" or \"tomorrow 14:02\".",
+    "placeholders": {
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLogsLevelDetailedCore": "Detailed until {until}, then Normal. Addresses may appear in the file; reports leave them out. Wallet core lines get detailed from the next app start.",
+  "@deskSetLogsLevelDetailedCore": {
+    "description": "Settings > Help > Logs: text of the Log level row when Detailed and the wallet core needs an app restart. {until} is like \"today 14:02\".",
+    "placeholders": {
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLogsNormal": "Normal",
+  "@deskSetLogsNormal": {
+    "description": "Settings > Help > Logs: segment for the normal log level. Short."
+  },
+  "deskSetLogsDetailed": "Detailed",
+  "@deskSetLogsDetailed": {
+    "description": "Settings > Help > Logs: segment for the detailed log level. Short."
+  },
+  "deskSetLogsFiles": "Log files",
+  "@deskSetLogsFiles": {
+    "description": "Settings > Help > Logs: row title."
+  },
+  "deskSetLogsSize": "Current size {size} of {max}. Keeps one older file.",
+  "@deskSetLogsSize": {
+    "description": "Settings > Help > Logs: text of the Log files row. Sizes like \"1.2 MB\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLogsOpenFolder": "Open log folder",
+  "@deskSetLogsOpenFolder": {
+    "description": "Settings > Help > Logs: button that opens the log folder."
+  },
+  "deskSetNodeVersionOld": "Version older than {version}",
+  "@deskSetNodeVersionOld": {
+    "description": "Settings > Node: tag or sub-line on a node whose software is older than the minimum version the wallet works well with. {version} is a version number like 3.6.0.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetNodePortNote": "Check the address and the port (usually 3413).",
+  "@deskSetNodePortNote": {
+    "description": "Settings > Node: error under the node picker when the typed node does not answer."
+  },
+  "deskSetNodeListNote": "State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.",
+  "@deskSetNodeListNote": {
+    "description": "Settings > Node: footer under the node list. status.btlabs.uk is a web address and stays as is."
+  },
+  "deskSetNodeStartTitle": "Start the local node?",
+  "@deskSetNodeStartTitle": {
+    "description": "Dialog title before the local node program starts."
+  },
+  "deskSetNodeStartDesc": "A separate program syncs the Epic chain on this computer.",
+  "@deskSetNodeStartDesc": {
+    "description": "Start the local node dialog: description under the title."
+  },
+  "deskSetNodeStartLine1": "Downloads the whole chain: several GB of disk space and bandwidth.",
+  "@deskSetNodeStartLine1": {
+    "description": "Start the local node dialog: first bullet."
+  },
+  "deskSetNodeStartLine2": "The first sync takes hours. Until it is done the node shows Syncing.",
+  "@deskSetNodeStartLine2": {
+    "description": "Start the local node dialog: second bullet. \"Syncing\" is the node status word."
+  },
+  "deskSetNodeStartLine3": "The firewall may ask to allow the node program.",
+  "@deskSetNodeStartLine3": {
+    "description": "Start the local node dialog: third bullet."
+  },
+  "deskSetNodeStartButton": "Start local node",
+  "@deskSetNodeStartButton": {
+    "description": "Start the local node dialog: primary button."
+  },
+  "deskSetNodeRowNotSetUp": "Not set up",
+  "@deskSetNodeRowNotSetUp": {
+    "description": "Status of the local node in the node picker: not installed or never started."
+  },
+  "deskSetNodeRowStopped": "Stopped",
+  "@deskSetNodeRowStopped": {
+    "description": "Status of the local node in the node picker: switched off."
+  },
+  "deskSetNodeRowStarting": "Starting",
+  "@deskSetNodeRowStarting": {
+    "description": "Status of the local node in the node picker: starting up."
+  },
+  "deskSetNodeRowSyncingPct": "Syncing {percent}",
+  "@deskSetNodeRowSyncingPct": {
+    "description": "Status of the local node in the node picker while syncing. {percent} is a number with a percent sign, e.g. \"42%\".",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetNodeRowStalled": "Stalled",
+  "@deskSetNodeRowStalled": {
+    "description": "Status of the local node in the node picker: sync stopped making progress."
+  },
+  "deskSetNodeRowFailed": "Failed",
+  "@deskSetNodeRowFailed": {
+    "description": "Status of the local node in the node picker: could not run."
+  },
+  "deskSetNodeLocalInUse": "Local node in use",
+  "@deskSetNodeLocalInUse": {
+    "description": "Toast title after switching to the local node."
+  },
+  "deskSetNodeLocalInUseText": "It downloads the whole chain. Needs 5 GB free.",
+  "@deskSetNodeLocalInUseText": {
+    "description": "Toast text after switching to the local node."
+  },
+  "deskSetNodeLocalNode": "Local node",
+  "@deskSetNodeLocalNode": {
+    "description": "Name of the node program on this computer, in the node picker and its field."
+  },
+  "deskSetNodeGroupComputer": "This computer",
+  "@deskSetNodeGroupComputer": {
+    "description": "Heading of the node picker group holding the local node."
+  },
+  "deskSetNodeGroupMine": "My nodes",
+  "@deskSetNodeGroupMine": {
+    "description": "Heading of the node picker group of nodes the user saved; also a name used in other texts."
+  },
+  "deskSetNodeGroupPublic": "Public nodes",
+  "@deskSetNodeGroupPublic": {
+    "description": "Heading of the node picker group of public nodes."
+  },
+  "deskSetNodeRemovedFromMine": "Removed from my nodes",
+  "@deskSetNodeRemovedFromMine": {
+    "description": "Toast title after a node was removed from the saved nodes. The node address follows as text."
+  },
+  "deskSetNodeNotAnswering": "Not answering",
+  "@deskSetNodeNotAnswering": {
+    "description": "Node picker: word on a typed address whose node does not answer."
+  },
+  "deskSetNodeAddToMine": "Add to my nodes",
+  "@deskSetNodeAddToMine": {
+    "description": "Node picker: tooltip and screen reader label of the star button on a typed address."
+  },
+  "deskSetNodeServer": "Node server",
+  "@deskSetNodeServer": {
+    "description": "Settings > Node: row title, picker label and screen reader name."
+  },
+  "deskSetNodeServerHint": "The node the wallet reads the chain through and sends with.",
+  "@deskSetNodeServerHint": {
+    "description": "Settings > Node: hint under the Node server row."
+  },
+  "deskSetNodeFindHint": "Find or type a node address",
+  "@deskSetNodeFindHint": {
+    "description": "Settings > Node: placeholder of the node picker search field."
+  },
+  "deskSetNodeChecking": "Checking the node…",
+  "@deskSetNodeChecking": {
+    "description": "Settings > Node: shown while a chosen node is checked."
+  },
+  "deskSetNodeTypedNote": "Enter uses it. The star keeps it in My nodes.",
+  "@deskSetNodeTypedNote": {
+    "description": "Settings > Node: note under a typed address in the picker. \"Enter\" is the keyboard key."
+  },
+  "deskSetNodeNoNodes": "No nodes to show.",
+  "@deskSetNodeNoNodes": {
+    "description": "Settings > Node: empty note of the node picker."
+  },
+  "deskSetNodeFooterAdd": "Add to my nodes…",
+  "@deskSetNodeFooterAdd": {
+    "description": "Node picker footer action that opens the add node dialog."
+  },
+  "deskSetNodeFooterDirectory": "Node directory…",
+  "@deskSetNodeFooterDirectory": {
+    "description": "Node picker footer action that opens the node directory dialog."
+  },
+  "deskSetNodeBackground": "Sync in background",
+  "@deskSetNodeBackground": {
+    "description": "Settings > Node: switch title and screen reader name."
+  },
+  "deskSetNodeBackgroundHint": "Keeps syncing while the app is closed.",
+  "@deskSetNodeBackgroundHint": {
+    "description": "Settings > Node: hint under Sync in background."
+  },
+  "deskSetPhraseNotCopied": "Not copied",
+  "@deskSetPhraseNotCopied": {
+    "description": "Toast title when the recovery phrase could not be copied."
+  },
+  "deskSetPhraseClipboardRefused": "The clipboard refused the text.",
+  "@deskSetPhraseClipboardRefused": {
+    "description": "Toast text when the clipboard refused the recovery phrase."
+  },
+  "deskSetPhraseCopied": "Phrase copied",
+  "@deskSetPhraseCopied": {
+    "description": "Toast title after the recovery phrase was copied."
+  },
+  "deskSetPhraseCleared": "The clipboard is cleared in 30 s.",
+  "@deskSetPhraseCleared": {
+    "description": "Toast text after the recovery phrase was copied."
+  },
+  "deskSetPhraseEnterPassword": "Enter the password.",
+  "@deskSetPhraseEnterPassword": {
+    "description": "Settings > Recovery phrase: error under the password field when it is empty."
+  },
+  "deskSetPhraseWrongPassword": "Wrong password.",
+  "@deskSetPhraseWrongPassword": {
+    "description": "Settings > Recovery phrase: error under the password field."
+  },
+  "deskSetPhraseIntro": "Write the words on paper, in this order. Never type them into a website or a chat.",
+  "@deskSetPhraseIntro": {
+    "description": "Settings > Recovery phrase: text under the page heading."
+  },
+  "deskSetPhrasePanel": "Enter the password to show the words",
+  "@deskSetPhrasePanel": {
+    "description": "Settings > Recovery phrase: title of the panel with the hidden words and the password field."
+  },
+  "deskSetPhraseShowWords": "Show words",
+  "@deskSetPhraseShowWords": {
+    "description": "Settings > Recovery phrase: button that reveals the words."
+  },
+  "deskSetPhraseWordsLabel": "{count, plural, one{Recovery phrase, {count} word} other{Recovery phrase, {count} words}}",
+  "@deskSetPhraseWordsLabel": {
+    "description": "Screen reader label of the revealed recovery phrase grid.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPhraseHideQr": "Hide QR code",
+  "@deskSetPhraseHideQr": {
+    "description": "Settings > Recovery phrase: button that hides the QR code."
+  },
+  "deskSetPhraseShowQr": "Show QR code",
+  "@deskSetPhraseShowQr": {
+    "description": "Settings > Recovery phrase: button that shows the phrase as a QR code."
+  },
+  "deskSetPhraseHideWords": "Hide words",
+  "@deskSetPhraseHideWords": {
+    "description": "Settings > Recovery phrase: button that hides the words."
+  },
+  "deskSetPhraseHidesIn": "Hides in {seconds} s",
+  "@deskSetPhraseHidesIn": {
+    "description": "Settings > Recovery phrase: countdown until the words hide themselves. {seconds} is a number of seconds.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetPhraseQrLabel": "QR code of the recovery phrase",
+  "@deskSetPhraseQrLabel": {
+    "description": "Screen reader label of the recovery phrase QR code."
+  },
+  "deskSetPhraseBackUp": "Back up the phrase",
+  "@deskSetPhraseBackUp": {
+    "description": "Settings > Recovery phrase: title of the warning under the words."
+  },
+  "deskSetPhraseBackUpText": "Anyone with these words can take the EPIC. Check that nobody can see the screen.",
+  "@deskSetPhraseBackUpText": {
+    "description": "Settings > Recovery phrase: text of the warning under the words."
+  },
+  "deskSetPrivTorOnFailed": "Tor not turned on",
+  "@deskSetPrivTorOnFailed": {
+    "description": "Toast title when turning Tor on failed. The error follows as text."
+  },
+  "deskSetPrivTorOffFailed": "Tor not turned off",
+  "@deskSetPrivTorOffFailed": {
+    "description": "Toast title when turning Tor off failed. The error follows as text."
+  },
+  "deskSetPrivTor": "Tor",
+  "@deskSetPrivTor": {
+    "description": "Settings > Privacy: title of the Tor group. Tor is a product name."
+  },
+  "deskSetPrivSwitching": "Switching Tor",
+  "@deskSetPrivSwitching": {
+    "description": "Screen reader label of the spinner while Tor is switched."
+  },
+  "deskSetPrivTurnOff": "Turn Tor off",
+  "@deskSetPrivTurnOff": {
+    "description": "Settings > Privacy: small button shown when Tor is not connected."
+  },
+  "deskSetPrivNotInBuild": "Not in this build",
+  "@deskSetPrivNotInBuild": {
+    "description": "Settings > Privacy: Tor state word when this app build has no Tor."
+  },
+  "deskSetPrivStarting": "Starting…",
+  "@deskSetPrivStarting": {
+    "description": "Settings > Privacy: Tor state word while it starts."
+  },
+  "deskSetPrivStartingDetail": "{progress} %. {waiting} wait until Tor is up.",
+  "@deskSetPrivStartingDetail": {
+    "description": "Settings > Privacy: detail of the Tor state while it starts. {progress} is a number 0–100. {waiting} is a list of what waits, e.g. \"Sending, Epicbox and HTTP\", supplied by the app.",
+    "placeholders": {
+      "progress": {
+        "type": "int"
+      },
+      "waiting": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPrivNotPublished": "Tor address not published yet. Sends work.",
+  "@deskSetPrivNotPublished": {
+    "description": "Settings > Privacy: detail of the Tor state when Tor runs but its receiving address is not published yet."
+  },
+  "deskSetPrivProblemSendsWork": "{problem}. Sends work.",
+  "@deskSetPrivProblemSendsWork": {
+    "description": "Settings > Privacy: detail of the Tor state when Tor runs but receiving has a problem. {problem} is a short sentence from the app without final full stop.",
+    "placeholders": {
+      "problem": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPrivConnected": "Connected.",
+  "@deskSetPrivConnected": {
+    "description": "Settings > Privacy: detail of the Tor state when everything works."
+  },
+  "deskSetPrivNotConnected": "Not connected",
+  "@deskSetPrivNotConnected": {
+    "description": "Settings > Privacy: Tor state word when Tor could not connect."
+  },
+  "deskSetPrivStoppedDetail": "Tor stopped. {waiting} wait for Retry or Tor off.",
+  "@deskSetPrivStoppedDetail": {
+    "description": "Settings > Privacy: detail of the Tor state when Tor stopped. {waiting} is a list of what waits, supplied by the app.",
+    "placeholders": {
+      "waiting": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPrivProblemDetail": "{problem}. {waiting} wait for Retry or Tor off.",
+  "@deskSetPrivProblemDetail": {
+    "description": "Settings > Privacy: detail of the Tor state when Tor failed. {problem} is a short sentence from the app without final full stop; {waiting} is a list of what waits.",
+    "placeholders": {
+      "problem": {
+        "type": "String"
+      },
+      "waiting": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetPrivStatusSite": "Status site",
+  "@deskSetPrivStatusSite": {
+    "description": "Settings > Privacy: title of the group with the status site switch."
+  },
+  "deskSetPrivUseStatus": "Use status.btlabs.uk",
+  "@deskSetPrivUseStatus": {
+    "description": "Settings > Privacy: switch title and screen reader name. status.btlabs.uk is a web address and stays."
+  },
+  "deskSetPrivUseStatusHint": "Network status and information provided by status.btlabs.uk",
+  "@deskSetPrivUseStatusHint": {
+    "description": "Settings > Privacy: hint under the status site switch. status.btlabs.uk is a web address and stays."
+  },
+  "deskSetRecvMethodOnFailed": "{method} not turned on",
+  "@deskSetRecvMethodOnFailed": {
+    "description": "Toast title when turning a receiving method on failed. {method} is a method name such as Epicbox, HTTP or Tor.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetRecvMethodOffFailed": "{method} not turned off",
+  "@deskSetRecvMethodOffFailed": {
+    "description": "Toast title when turning a receiving method off failed. {method} is a method name such as Epicbox, HTTP or Tor.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetRecvServerNotChanged": "Server not changed",
+  "@deskSetRecvServerNotChanged": {
+    "description": "Toast title when switching the Epicbox server failed."
+  },
+  "deskSetRecvReceiving": "Receiving",
+  "@deskSetRecvReceiving": {
+    "description": "Settings > Receiving: title of the first row of each method group (the on/off switch)."
+  },
+  "deskSetRecvSwitching": "Switching {method} receiving",
+  "@deskSetRecvSwitching": {
+    "description": "Screen reader label of the spinner while a receiving method is switched. {method} is Epicbox, HTTP or Tor.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetRecvMethodReceiving": "{method} receiving",
+  "@deskSetRecvMethodReceiving": {
+    "description": "Screen reader label of the switch for a receiving method. {method} is Epicbox, HTTP or Tor.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetRecvNotSaved": "Not saved",
+  "@deskSetRecvNotSaved": {
+    "description": "Toast title when saving a receiving setting failed."
+  },
+  "deskSetRecvAutostart": "Start with the wallet",
+  "@deskSetRecvAutostart": {
+    "description": "Settings > Receiving: row title of the switch that turns the method on at unlock."
+  },
+  "deskSetRecvAutostartHint": "Turns on at unlock.",
+  "@deskSetRecvAutostartHint": {
+    "description": "Settings > Receiving: hint under Start with the wallet."
+  },
+  "deskSetRecvMethodAutostart": "{method}: start with the wallet",
+  "@deskSetRecvMethodAutostart": {
+    "description": "Screen reader label of the Start with the wallet switch. {method} is Epicbox, HTTP or Tor.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetRecvHeadStopped": "Stopped",
+  "@deskSetRecvHeadStopped": {
+    "description": "Settings > Receiving: state word at the right of a method group head when the method has stopped. Short."
+  },
+  "deskSetRecvHeadStarting": "Starting",
+  "@deskSetRecvHeadStarting": {
+    "description": "Settings > Receiving: state word at the right of a method group head while the method starts. Short."
+  },
+  "deskSetRecvResponseTime": "Response time {ms} ms. Measured from the status site.",
+  "@deskSetRecvResponseTime": {
+    "description": "Tooltip on an Epicbox server in the picker. {ms} is milliseconds.",
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetRecvEpicboxTitle": "Epicbox receiving",
+  "@deskSetRecvEpicboxTitle": {
+    "description": "Settings > Receiving: heading of the Epicbox group."
+  },
+  "deskSetRecvEpicboxText": "Payments arrive via the Epicbox server, also while the wallet is closed.",
+  "@deskSetRecvEpicboxText": {
+    "description": "Settings > Receiving: text of the Epicbox receiving row."
+  },
+  "deskSetRecvEpicboxServer": "Epicbox server",
+  "@deskSetRecvEpicboxServer": {
+    "description": "Settings > Receiving: row title, picker label and screen reader name for the Epicbox server."
+  },
+  "deskSetRecvEpicboxServerHint": "Which server holds payments for this address. Both wallets can use different servers.",
+  "@deskSetRecvEpicboxServerHint": {
+    "description": "Settings > Receiving: hint under the Epicbox server row."
+  },
+  "deskSetRecvFindHint": "Find or type an Epicbox server",
+  "@deskSetRecvFindHint": {
+    "description": "Settings > Receiving: placeholder of the Epicbox server picker search field."
+  },
+  "deskSetRecvSwitchingServer": "Switching the Epicbox server…",
+  "@deskSetRecvSwitchingServer": {
+    "description": "Settings > Receiving: shown while the Epicbox server is switched."
+  },
+  "deskSetRecvNotInList": "not in the public list",
+  "@deskSetRecvNotInList": {
+    "description": "Epicbox server picker: note on a typed server that is not in the public list. Lowercase."
+  },
+  "deskSetRecvTypedNote": "Enter uses it. Its status shows once the wallet connects.",
+  "@deskSetRecvTypedNote": {
+    "description": "Epicbox server picker: note under a typed server. \"Enter\" is the keyboard key."
+  },
+  "deskSetRecvListNote": "State from status.btlabs.uk, checked every few minutes.",
+  "@deskSetRecvListNote": {
+    "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
+  },
+  "deskSetRecvHttpTitle": "HTTP receiving",
+  "@deskSetRecvHttpTitle": {
+    "description": "Settings > Receiving: heading of the HTTP group."
+  },
+  "deskSetRecvHttpText": "Straight from another wallet while this one is open.",
+  "@deskSetRecvHttpText": {
+    "description": "Settings > Receiving: text of the HTTP receiving row."
+  },
+  "deskSetRecvHttpOffTitle": "Off while Tor is on",
+  "@deskSetRecvHttpOffTitle": {
+    "description": "Settings > Receiving: notice title in the HTTP group when Tor is on."
+  },
+  "deskSetRecvHttpOffText": "Direct payments arrive at this wallet’s Tor address instead.",
+  "@deskSetRecvHttpOffText": {
+    "description": "Settings > Receiving: notice text in the HTTP group when Tor is on."
+  },
+  "deskSetRecvPrivacySettings": "Privacy settings",
+  "@deskSetRecvPrivacySettings": {
+    "description": "Settings > Receiving: notice button that jumps to the Tor switch in Settings > Privacy."
+  },
+  "deskSetHttpNotChanged": "Not changed",
+  "@deskSetHttpNotChanged": {
+    "description": "Toast title when changing an HTTP receiving option failed. The error follows as text."
+  },
+  "deskSetHttpPortError": "Port must be 1 to 65535",
+  "@deskSetHttpPortError": {
+    "description": "Settings > Receiving > HTTP: error under the port field."
+  },
+  "deskSetHttpReachable": "Reachable",
+  "@deskSetHttpReachable": {
+    "description": "Settings > Receiving > HTTP: row title for who can send payments to the HTTP address."
+  },
+  "deskSetHttpReachableHint": "Who can pay the HTTP address.",
+  "@deskSetHttpReachableHint": {
+    "description": "Settings > Receiving > HTTP: hint under the Reachable row."
+  },
+  "deskSetHttpLocalOnly": "Local only",
+  "@deskSetHttpLocalOnly": {
+    "description": "Settings > Receiving > HTTP: segment, only programs on this computer reach the address. Short."
+  },
+  "deskSetHttpFromInternet": "From the internet",
+  "@deskSetHttpFromInternet": {
+    "description": "Settings > Receiving > HTTP: segment, the address answers on the internet. Short."
+  },
+  "deskSetHttpGuideHelp": "Receive from the internet: how it works",
+  "@deskSetHttpGuideHelp": {
+    "description": "Tooltip and screen reader label of the help button that opens the internet guide."
+  },
+  "deskSetHttpPublicNote": "Answers on all interfaces. The router must forward TCP {port} to this computer. Senders on the internet use http://<public IP>:{port}.",
+  "@deskSetHttpPublicNote": {
+    "description": "Settings > Receiving > HTTP: note under the Reachable row when From the internet is chosen. {port} is a port number; http://<public IP>:{port} is an address template and stays in this form.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetHttpPort": "Port",
+  "@deskSetHttpPort": {
+    "description": "Settings > Receiving > HTTP: row title for the port number."
+  },
+  "deskSetHttpPortHint": "1 to 65535. Used by the HTTP address.",
+  "@deskSetHttpPortHint": {
+    "description": "Settings > Receiving > HTTP: hint under the Port row."
+  },
+  "deskSetHttpPortLabel": "HTTP port",
+  "@deskSetHttpPortLabel": {
+    "description": "Screen reader label of the port field."
+  },
+  "deskSetHttpGuideTitle": "Receive from the internet",
+  "@deskSetHttpGuideTitle": {
+    "description": "Internet guide dialog: title; also the primary button that turns it on."
+  },
+  "deskSetHttpGuideNowPublic": "Now: from the internet.",
+  "@deskSetHttpGuideNowPublic": {
+    "description": "Internet guide dialog: description when the address is public."
+  },
+  "deskSetHttpGuideNowLocal": "Now: local only. Only programs on this computer reach the HTTP address.",
+  "@deskSetHttpGuideNowLocal": {
+    "description": "Internet guide dialog: description when the address is local only."
+  },
+  "deskSetHttpStep1": "Listen on all interfaces",
+  "@deskSetHttpStep1": {
+    "description": "Internet guide dialog: step 1 title."
+  },
+  "deskSetHttpStep1Text": "The wallet answers on 0.0.0.0, port {port}. Other devices and the internet can then send payments to this wallet. The firewall may ask to allow it.",
+  "@deskSetHttpStep1Text": {
+    "description": "Internet guide dialog: step 1 text. 0.0.0.0 is an address and stays.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetHttpStep2": "Forward the port",
+  "@deskSetHttpStep2": {
+    "description": "Internet guide dialog: step 2 title."
+  },
+  "deskSetHttpStep2Text": "On the router’s page (often 10.0.1.1), find Port forwarding and forward TCP {port} to this computer.",
+  "@deskSetHttpStep2Text": {
+    "description": "Internet guide dialog: step 2 text.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetHttpStep3": "Share the public address",
+  "@deskSetHttpStep3": {
+    "description": "Internet guide dialog: step 3 title."
+  },
+  "deskSetHttpStep3Text": "Senders use http://<public IP>:{port}. The public IP can change.",
+  "@deskSetHttpStep3Text": {
+    "description": "Internet guide dialog: step 3 text. http://<public IP>:{port} is an address template and stays in this form.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetHttpNoRouter": "No router setup?",
+  "@deskSetHttpNoRouter": {
+    "description": "Internet guide dialog: title of the Tor suggestion."
+  },
+  "deskSetHttpNoRouterText": "Tor works from anywhere with nothing to forward.",
+  "@deskSetHttpNoRouterText": {
+    "description": "Internet guide dialog: text of the Tor suggestion."
+  },
+  "deskSetHttpTurnOnTor": "Turn on Tor",
+  "@deskSetHttpTurnOnTor": {
+    "description": "Internet guide dialog: small button that turns Tor receiving on."
+  },
+  "deskSetHttpExposed": "Only the receiving API is exposed. Plain HTTP is not encrypted.",
+  "@deskSetHttpExposed": {
+    "description": "Internet guide dialog: small note at the bottom."
+  },
+  "deskSetHttpBackLocal": "Back to local only",
+  "@deskSetHttpBackLocal": {
+    "description": "Internet guide dialog: button that goes back to local only."
+  },
+  "deskSetReportNotSent": "The report was not sent. Try again.",
+  "@deskSetReportNotSent": {
+    "description": "Report a problem dialog: error when sending failed."
+  },
+  "deskSetReportSaveDialog": "Save the report",
+  "@deskSetReportSaveDialog": {
+    "description": "Title of the system Save dialog when saving the report to a file."
+  },
+  "deskSetReportSaved": "Saved. Cleaned of secrets, not encrypted.",
+  "@deskSetReportSaved": {
+    "description": "Report a problem dialog: notice after the report was saved to a file."
+  },
+  "deskSetReportNotSaved": "The file was not saved. Try again.",
+  "@deskSetReportNotSaved": {
+    "description": "Report a problem dialog: error when saving to a file failed."
+  },
+  "deskSetReportText": "Report text",
+  "@deskSetReportText": {
+    "description": "Report a problem dialog: item in the \"What is sent\" list."
+  },
+  "deskSetReportAppLog": "App log (last {size})",
+  "@deskSetReportAppLog": {
+    "description": "Report a problem dialog: item in the \"What is sent\" list. {size} is like \"256 KB\".",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetReportSent": "Report sent",
+  "@deskSetReportSent": {
+    "description": "Report a problem dialog: title after the report was sent."
+  },
+  "deskSetReportArrived": "The report arrived.",
+  "@deskSetReportArrived": {
+    "description": "Report a problem dialog: description after the report was sent, when there is no reference."
+  },
+  "deskSetReportArrivedRef": "The report arrived. Its reference is {id}.",
+  "@deskSetReportArrivedRef": {
+    "description": "Report a problem dialog: description after the report was sent. {id} is a reference code.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetReportDescribe": "Describe what happened.",
+  "@deskSetReportDescribe": {
+    "description": "Report a problem dialog: error under the description field when empty."
+  },
+  "deskSetReportTitle": "Report a problem",
+  "@deskSetReportTitle": {
+    "description": "Report a problem dialog: title."
+  },
+  "deskSetReportDesc": "The report is encrypted so only the developer can read it. Nothing is sent before Send. Save to file keeps the same cleaned report, not encrypted.",
+  "@deskSetReportDesc": {
+    "description": "Report a problem dialog: description under the title. \"Send\" and \"Save to file\" are button names."
+  },
+  "deskSetReportWhat": "What happened",
+  "@deskSetReportWhat": {
+    "description": "Report a problem dialog: label and screen reader name of the description field."
+  },
+  "deskSetReportWhatHint": "What you did, what you expected, what happened instead",
+  "@deskSetReportWhatHint": {
+    "description": "Report a problem dialog: placeholder of the description field."
+  },
+  "deskSetReportContact": "Contact",
+  "@deskSetReportContact": {
+    "description": "Report a problem dialog: label and screen reader name of the optional contact field."
+  },
+  "deskSetReportContactHint": "An email address or other handle, for a reply",
+  "@deskSetReportContactHint": {
+    "description": "Report a problem dialog: placeholder of the contact field."
+  },
+  "deskSetReportAttach": "Attach logs (recommended)",
+  "@deskSetReportAttach": {
+    "description": "Report a problem dialog: checkbox label."
+  },
+  "deskSetReportAttachHint": "The newest part of the app log, cleaned of phrases, passwords, addresses, IPs and home folders.",
+  "@deskSetReportAttachHint": {
+    "description": "Report a problem dialog: small text under the Attach logs checkbox."
+  },
+  "deskSetReportSentWhat": "What is sent",
+  "@deskSetReportSentWhat": {
+    "description": "Report a problem dialog: title of the collapsible list of what the report holds."
+  },
+  "deskSetReportNotSentTitle": "Not sent",
+  "@deskSetReportNotSentTitle": {
+    "description": "Report a problem dialog: title of the error notice when sending failed."
+  },
+  "deskSetReportOff": "Sending is off in this build",
+  "@deskSetReportOff": {
+    "description": "Report a problem dialog: notice shown when this app build cannot send reports."
+  },
+  "deskSetReportSaveToFile": "Save to file",
+  "@deskSetReportSaveToFile": {
+    "description": "Report a problem dialog: button that saves the report to a file."
+  },
+  "deskSetReportSend": "Send",
+  "@deskSetReportSend": {
+    "description": "Report a problem dialog: primary button that sends the report."
+  },
+  "deskSetRescanComplete": "Scan complete",
+  "@deskSetRescanComplete": {
+    "description": "Settings > Recheck balance: line added to the scan log when the scan ended normally."
+  },
+  "deskSetRescanStoppedLine": "Scan stopped",
+  "@deskSetRescanStoppedLine": {
+    "description": "Settings > Recheck balance: line added to the scan log when the scan was stopped; also the title of the result card."
+  },
+  "deskSetRescanLog": "Scan log",
+  "@deskSetRescanLog": {
+    "description": "Settings > Recheck balance: title of the collapsible scan log and its screen reader label."
+  },
+  "deskSetRescanText": "Reads the chain again and rebuilds the balance from the outputs found. Use it when the balance looks wrong, after a restore, or when outputs stay locked after a failed send. The wallet stays usable meanwhile.",
+  "@deskSetRescanText": {
+    "description": "Settings > Recheck balance: text of the first row."
+  },
+  "deskSetRescanStartAgain": "Start again",
+  "@deskSetRescanStartAgain": {
+    "description": "Settings > Recheck balance: button after a scan ended or failed."
+  },
+  "deskSetRescanDeleteUnconfirmed": "Delete unconfirmed",
+  "@deskSetRescanDeleteUnconfirmed": {
+    "description": "Settings > Recheck balance: checkbox label."
+  },
+  "deskSetRescanDeleteHint": "Also cancels unconfirmed transactions and unlocks their outputs. A payment already on its way may then fail.",
+  "@deskSetRescanDeleteHint": {
+    "description": "Settings > Recheck balance: small text under the Delete unconfirmed checkbox."
+  },
+  "deskSetRescanScanning": "Scanning the chain. The wallet stays usable; the balance updates when the scan ends.",
+  "@deskSetRescanScanning": {
+    "description": "Settings > Recheck balance: text while a scan runs."
+  },
+  "deskSetRescanStopping": "Stopping…",
+  "@deskSetRescanStopping": {
+    "description": "Settings > Recheck balance: progress line after Stop was pressed."
+  },
+  "deskSetRescanChecking": "Checking… {percent} %",
+  "@deskSetRescanChecking": {
+    "description": "Settings > Recheck balance: progress line with the percentage done.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetRescanFailed": "Scan failed",
+  "@deskSetRescanFailed": {
+    "description": "Settings > Recheck balance: title of the error notice when the scan failed."
+  },
+  "deskSetRescanNoneFound": "No unconfirmed transaction was found.",
+  "@deskSetRescanNoneFound": {
+    "description": "Settings > Recheck balance: result sentence after Delete unconfirmed found nothing."
+  },
+  "deskSetRescanCancelled": "Unconfirmed transactions were cancelled and their outputs unlocked.",
+  "@deskSetRescanCancelled": {
+    "description": "Settings > Recheck balance: result sentence after Delete unconfirmed."
+  },
+  "deskSetRescanNotRead": "Not read",
+  "@deskSetRescanNotRead": {
+    "description": "Settings > Recheck balance: shown instead of a balance that could not be read."
+  },
+  "deskSetRescanFinished": "Scan finished",
+  "@deskSetRescanFinished": {
+    "description": "Settings > Recheck balance: title of the result card after a complete scan."
+  },
+  "deskSetRescanUpToDate": "The balance is up to date.",
+  "@deskSetRescanUpToDate": {
+    "description": "Settings > Recheck balance: first sentence of the result after a complete scan. Further sentences follow after a space."
+  },
+  "deskSetRescanResumed": "The scan carried on from where it stopped; the counts cover that part.",
+  "@deskSetRescanResumed": {
+    "description": "Settings > Recheck balance: result sentence after a resumed scan; follows another sentence after a space."
+  },
+  "deskSetRescanStoppedEarly": "Stopped before the end. The balance was read again; start again to carry on.",
+  "@deskSetRescanStoppedEarly": {
+    "description": "Settings > Recheck balance: first sentence of the result after a stopped scan. A further sentence may follow after a space."
+  },
+  "deskSetRescanNotDeleted": "Unconfirmed transactions were not deleted: that runs only when a scan completes.",
+  "@deskSetRescanNotDeleted": {
+    "description": "Settings > Recheck balance: result sentence after a stopped scan with Delete unconfirmed; follows another sentence after a space."
+  },
+  "deskSetRescanBefore": "Balance before",
+  "@deskSetRescanBefore": {
+    "description": "Settings > Recheck balance: label of a fact in the result card."
+  },
+  "deskSetRescanAfter": "Balance after",
+  "@deskSetRescanAfter": {
+    "description": "Settings > Recheck balance: label of a fact in the result card."
+  },
+  "deskSetRescanFound": "Outputs found",
+  "@deskSetRescanFound": {
+    "description": "Settings > Recheck balance: label of a count in the result card. An output is a coin unit in the wallet."
+  },
+  "deskSetRescanRestored": "Restored",
+  "@deskSetRescanRestored": {
+    "description": "Settings > Recheck balance: label of a count of restored outputs in the result card."
+  },
+  "deskSetRescanRevived": "Back to unspent",
+  "@deskSetRescanRevived": {
+    "description": "Settings > Recheck balance: label of a count of outputs that became spendable again in the result card."
+  },
+  "deskSetRescanUnlocked": "Unlocked",
+  "@deskSetRescanUnlocked": {
+    "description": "Settings > Recheck balance: label of a count of unlocked outputs in the result card."
+  },
+  "deskSetRescanDeleted": "Deleted",
+  "@deskSetRescanDeleted": {
+    "description": "Settings > Recheck balance: label of a count of deleted outputs in the result card."
+  },
+  "deskSetWalletsAddedBack": "{name} added back",
+  "@deskSetWalletsAddedBack": {
+    "description": "Toast title after a wallet that was removed from the list was added back. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetWalletsNotAddedBack": "Not added back",
+  "@deskSetWalletsNotAddedBack": {
+    "description": "Toast title when adding a wallet back failed."
+  },
+  "deskSetWalletsOpenNow": "Open now",
+  "@deskSetWalletsOpenNow": {
+    "description": "Settings > All wallets: tag on the wallet that is open. Short."
+  },
+  "deskSetWalletsFolderMissing": "Folder missing",
+  "@deskSetWalletsFolderMissing": {
+    "description": "Settings > All wallets: tag on a wallet whose folder is gone. Short."
+  },
+  "deskSetWalletsShowFolder": "Show {name} in its folder",
+  "@deskSetWalletsShowFolder": {
+    "description": "Tooltip and screen reader label of the button that opens a wallet’s folder. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetWalletsRemove": "Remove {name}…",
+  "@deskSetWalletsRemove": {
+    "description": "Tooltip and screen reader label of the button that opens the remove dialog. {name} is the wallet name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetWalletsRemovedGroup": "Removed from list",
+  "@deskSetWalletsRemovedGroup": {
+    "description": "Settings > All wallets: title of the group of wallets removed from the list but whose files still exist."
+  },
+  "deskSetWalletsAddBack": "Add back",
+  "@deskSetWalletsAddBack": {
+    "description": "Settings > All wallets: button that puts a removed wallet back into the list."
+  },
+  "deskSetWalletsAdd": "Add a wallet",
+  "@deskSetWalletsAdd": {
+    "description": "Settings > All wallets: heading above the cards for creating, importing or restoring a wallet."
+  },
+  "deskSetWalletsCreate": "Create a wallet",
+  "@deskSetWalletsCreate": {
+    "description": "Settings > All wallets: card title."
+  },
+  "deskSetWalletsCreateText": "A new wallet with a new recovery phrase.",
+  "@deskSetWalletsCreateText": {
+    "description": "Settings > All wallets: text of the Create a wallet card."
+  },
+  "deskSetWalletsImport": "Import",
+  "@deskSetWalletsImport": {
+    "description": "Settings > All wallets: card title for importing wallets from an older app or a folder."
+  },
+  "deskSetWalletsImportText": "From an older Epic Wallet or a folder.",
+  "@deskSetWalletsImportText": {
+    "description": "Settings > All wallets: text of the Import card."
+  },
+  "deskSetWalletsRestore": "Restore",
+  "@deskSetWalletsRestore": {
+    "description": "Settings > All wallets: card title for restoring a wallet from its recovery phrase."
+  },
+  "deskSetWalletsRestoreText": "From a recovery phrase.",
+  "@deskSetWalletsRestoreText": {
+    "description": "Settings > All wallets: text of the Restore card."
   }
 }
