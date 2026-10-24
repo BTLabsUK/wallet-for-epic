@@ -12,7 +12,6 @@ import '../l10n.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
-import '../smart_outputs.dart' show OutputLabel, outputWord;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 
@@ -22,8 +21,7 @@ import 'theme/tokens.dart';
 bool outputsShown(BuildContext context, WidgetRef ref) =>
     AdvancedOptions.has(context, AdvancedFeature.outputs) ||
     (ref.watch(sessionProvider) != null &&
-        (ref.watch(walletOutputsProvider).value?.any((o) => outputWord(o) == OutputLabel.confirming) ??
-            false));
+        (ref.watch(homeProvider).value?.transactions.any((t) => t.repostable) ?? false));
 
 /// What a balance tile shows.
 enum BalanceKind {
