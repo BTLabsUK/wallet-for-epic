@@ -205,7 +205,7 @@ class LepicDeskWallet implements DeskWalletApi {
        ) {
     statusSite.addListener(_statusSiteChanged);
     NetGate.set(_settings.advanced.networkMode);
-    NetGate.setEpicbox(_settings.payments.epicbox);
+    NetGate.setPayments(_settings.payments);
     _followTor();
   }
 

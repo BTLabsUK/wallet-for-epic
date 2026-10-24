@@ -4985,6 +4985,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get methodShortQr => 'QR';
 
   @override
+  String get methodShortFile => 'File';
+
+  @override
+  String get methodDirectQr => 'Direct · QR Payment';
+
+  @override
+  String get methodDirectFile => 'Direct · File Transfer';
+
+  @override
+  String get methodDirectFamily => 'Direct';
+
+  @override
   String get methodArtCaptionEpicbox => 'เซิร์ฟเวอร์ Epicbox เก็บไว้ให้';
 
   @override
@@ -14346,6 +14358,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get netBlockEpicboxOff => 'Epicbox ปิดอยู่ใน การตั้งค่า › ธุรกรรม';
 
   @override
+  String netBlockMethodOff(String method) {
+    return '$method is off in Settings › Transactions.';
+  }
+
+  @override
   String get txEpicboxLine =>
       'จ่ายหรือรับเงินผ่านรีเลย์ กระเป๋าเงินอีกฝั่งปิดอยู่ได้';
 
@@ -14376,6 +14393,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String sendContactOnlyEpicbox(String name) {
     return '$name มีเฉพาะที่อยู่ Epicbox';
+  }
+
+  @override
+  String sendContactOnlyMethod(String name, String method) {
+    return '$name has only a $method address.';
   }
 
   @override

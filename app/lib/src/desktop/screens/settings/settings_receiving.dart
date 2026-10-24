@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../payment_prefs.dart';
 import '../../data/method_names.dart';
+import '../../../ui/method_icons.dart' show MethodIcons;
 import '../../desk_l10n.dart';
 import '../../../net/probe_not_run.dart';
 import '../../../network.dart' show EpicboxRelay, defaultEpicboxHost;
@@ -63,7 +64,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         final now = ref.read(deskProvider).settings;
         await n.saveSettings(
           now.copyWith(
-            payments: now.payments.copyWith(direct: true),
+            payments: now.payments.copyWith(linkHttp: true),
             advanced: arg == ReceivingDemo.sendOptions ? now.advanced.withFeature(AdvancedFeature.sendOptions, true) : null,
           ),
         );
@@ -260,19 +261,14 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   }
 
   /// A method's row in Payment methods: its name, one hint, and its switch.
-  Widget _methodRow(PayMethod m, PaymentPrefs p) {
+  Widget _methodRow(MethodKind m, PaymentPrefs p) {
     final l = context.l10n;
-    final name = switch (m) {
-      PayMethod.epicbox => 'Epicbox', // l10n-ok: product name
-      PayMethod.direct => l.methodLinkPayment,
-      PayMethod.qr => 'QR', // l10n-ok: the phone's method, never listed here
-      PayMethod.file => l.deskSendMethodFile,
-    };
+    final name = MethodIcons.fullName(l, m);
     final hint = switch (m) {
-      PayMethod.epicbox => l.deskSetTxEpicboxHint,
-      PayMethod.direct => l.deskSetTxDirectHint,
-      PayMethod.qr => '',
-      PayMethod.file => l.deskSetTxFileHint,
+      MethodKind.epicbox => l.deskSetTxEpicboxHint,
+      MethodKind.linkHttp || MethodKind.linkTor => l.deskSetTxDirectHint,
+      MethodKind.directQr => '',
+      MethodKind.directFile => l.deskSetTxFileHint,
     };
     return ESetRow(
       key: ValueKey('st-method-${m.name}'),
@@ -283,20 +279,14 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         key: ValueKey('st-offer-${m.name}'),
         value: p.offers(m),
         semanticLabel: name,
-        onChanged: (v) => switch (m) {
-          PayMethod.epicbox => _setEpicbox(v),
-          PayMethod.direct => _savePayments((x) => x.copyWith(direct: v)),
-          _ => _savePayments((x) => x.copyWith(file: v)),
-        },
+        onChanged: (v) => m == MethodKind.epicbox ? _setEpicbox(v) : _savePayments((x) => x.withMethod(m, v)),
       ),
     );
   }
 
-  String _startName(AppLocalizations l, PayMethod m) => switch (m) {
-    PayMethod.epicbox => 'Epicbox', // l10n-ok: product name
-    PayMethod.direct => l.methodLinkPayment,
-    PayMethod.qr => 'QR', // l10n-ok: the phone's method, never listed here
-    PayMethod.file => l.deskSendMethodFile,
+  String _startName(AppLocalizations l, MethodKind m) => switch (m) {
+    MethodKind.linkHttp || MethodKind.linkTor => l.methodDirect,
+    _ => MethodIcons.fullName(l, m),
   };
 
   /// Payment methods: what Send and Receive offer.
@@ -305,8 +295,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     return ESetGroup(
       title: l.deskSetTxMethods,
       rows: [
-        for (final m in PayMethod.values)
-          if (m != PayMethod.qr && (m != PayMethod.direct || DeskFeatures.httpDirect || DeskFeatures.tor)) _methodRow(m, p),
+        for (final m in MethodKind.values)
+          if (m != MethodKind.directQr && (m.family != MethodFamily.link || DeskFeatures.httpDirect || DeskFeatures.tor)) _methodRow(m, p),
       ],
     );
   }
@@ -316,8 +306,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   Widget? _sendGroup(PaymentPrefs p) {
     final l = context.l10n;
     final offered = [
-      for (final m in PayMethod.values)
-        if (m != PayMethod.qr && p.offers(m) && (m != PayMethod.direct || DeskFeatures.httpDirect || DeskFeatures.tor)) m,
+      for (final m in MethodKind.values)
+        if (m != MethodKind.directQr && m != MethodKind.linkTor && p.offers(m) && (m.family != MethodFamily.link || DeskFeatures.httpDirect || DeskFeatures.tor)) m,
     ];
     final options = advancedHas(ref, AdvancedFeature.sendOptions);
     if (offered.length < 2 && !options) return null;
@@ -333,7 +323,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               hint: l.deskSetTxStartHint,
               control: ERowControl(
                 wide: true,
-                child: ESegmented<PayMethod>(
+                child: ESegmented<MethodKind>(
                   stretch: true,
                   segments: [for (final m in offered) ESegment(m, _startName(l, m))],
                   value: p.startMethod,
@@ -443,7 +433,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             ),
           ]),
           // Direct on; a listener that is on keeps its rows.
-          if (DeskFeatures.httpDirect && (s.payments.direct || status.httpListener != ServiceHealth.off))
+          if (DeskFeatures.httpDirect && (s.payments.linkHttp || status.httpListener != ServiceHealth.off))
             _group(TxMethod.http, SettingsJump.http, l.deskSetRecvHttpTitle, httpLine, _headWord(l, TxMethod.http, status, s, httpLine), [
               _receivingRow(
                 TxMethod.http,

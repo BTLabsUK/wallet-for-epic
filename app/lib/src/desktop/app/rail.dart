@@ -111,7 +111,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
   ];
   // Settings › Transactions › Direct; a listener that is on, starting or failed keeps its row.
   final run = httpRun(st);
-  if (DeskFeatures.httpDirect && (settings.payments.direct || run != HttpRun.off)) {
+  if (DeskFeatures.httpDirect && (settings.payments.linkHttp || run != HttpRun.off)) {
     final public = settings.publicMode;
     items.add(
       RailItem(

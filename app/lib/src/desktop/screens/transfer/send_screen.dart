@@ -28,7 +28,7 @@ import 'epicbox_notice.dart';
 import 'file_panels.dart';
 import 'send_advanced.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
-import '../../../payment_prefs.dart' show PayMethod;
+import '../../../payment_prefs.dart' show MethodKind, MethodFamily;
 import '../../../scan/scan_router.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
@@ -436,8 +436,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// Settings › Transactions › Send starts on, among the methods this build has.
   TxMethod _startMethod() => switch (ref.read(deskProvider).settings.payments.startMethod) {
-    PayMethod.direct when DeskFeatures.httpDirect || DeskFeatures.tor => TxMethod.http,
-    PayMethod.file => TxMethod.file,
+    MethodKind.linkHttp || MethodKind.linkTor when DeskFeatures.httpDirect || DeskFeatures.tor => TxMethod.http,
+    MethodKind.directFile => TxMethod.file,
     _ => TxMethod.epicbox,
   };
 
@@ -623,7 +623,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   void _fillFrom(PaymentRequest r, CodeOrigin origin) {
     final l = context.l10n;
     final st = ref.read(deskProvider);
-    final directOn = (DeskFeatures.httpDirect || DeskFeatures.tor) && st.settings.payments.direct;
+    final directOn = (DeskFeatures.httpDirect || DeskFeatures.tor) && st.settings.payments.offersFamily(MethodFamily.link);
     final to = r.recipientFor(directAllowed: directOn, epicboxAllowed: st.settings.payments.epicbox).address;
     final atomic = r.amount;
     final note = r.note;
@@ -1148,9 +1148,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             // picks Direct; a file send in progress or the file fallback of a failed Epicbox
             // keeps File).
             if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
-                (st.settings.payments.direct || _segmentOf(_method) == TxMethod.http))
+                (st.settings.payments.offersFamily(MethodFamily.link) || _segmentOf(_method) == TxMethod.http))
               ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.link, enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
-            if (st.settings.payments.file || file || _epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)
+            if (st.settings.payments.directFile || file || _epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)
               ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file, tooltip: fileTip),
           ],
           value: _segmentOf(_method),

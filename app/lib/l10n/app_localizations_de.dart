@@ -5166,6 +5166,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodShortQr => 'QR';
 
   @override
+  String get methodShortFile => 'File';
+
+  @override
+  String get methodDirectQr => 'Direct · QR Payment';
+
+  @override
+  String get methodDirectFile => 'Direct · File Transfer';
+
+  @override
+  String get methodDirectFamily => 'Direct';
+
+  @override
   String get methodArtCaptionEpicbox => 'Epicbox-Server hält sie';
 
   @override
@@ -14795,6 +14807,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Epicbox ist unter Einstellungen › Transaktionen aus.';
 
   @override
+  String netBlockMethodOff(String method) {
+    return '$method is off in Settings › Transactions.';
+  }
+
+  @override
   String get txEpicboxLine =>
       'Zahlen oder bezahlt werden über ein Relay. Die andere Wallet kann geschlossen sein.';
 
@@ -14826,6 +14843,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String sendContactOnlyEpicbox(String name) {
     return '$name hat nur eine Epicbox-Adresse.';
+  }
+
+  @override
+  String sendContactOnlyMethod(String name, String method) {
+    return '$name has only a $method address.';
   }
 
   @override

@@ -5077,13 +5077,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => 'Link Payment · HTTP';
+  String get methodDirectHttp => 'Link · HTTP';
 
   @override
-  String get methodDirectTor => 'Link Payment · Tor';
+  String get methodDirectTor => 'Link · Tor';
 
   @override
-  String get methodFile => 'File';
+  String get methodFile => 'File Transfer';
 
   @override
   String get methodShortHttp => 'HTTP';
@@ -5093,6 +5093,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodShortQr => 'QR';
+
+  @override
+  String get methodShortFile => 'File';
+
+  @override
+  String get methodDirectQr => 'Direct · QR Payment';
+
+  @override
+  String get methodDirectFile => 'Direct · File Transfer';
+
+  @override
+  String get methodDirectFamily => 'Direct';
 
   @override
   String get methodArtCaptionEpicbox => 'Epicbox server holds it';
@@ -14621,6 +14633,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get netBlockEpicboxOff => 'Epicbox is off in Settings › Transactions.';
 
   @override
+  String netBlockMethodOff(String method) {
+    return '$method is off in Settings › Transactions.';
+  }
+
+  @override
   String get txEpicboxLine =>
       'Pay or get paid through a relay. The other wallet can be closed.';
 
@@ -14651,6 +14668,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String sendContactOnlyEpicbox(String name) {
     return '$name has only an Epicbox address.';
+  }
+
+  @override
+  String sendContactOnlyMethod(String name, String method) {
+    return '$name has only a $method address.';
   }
 
   @override

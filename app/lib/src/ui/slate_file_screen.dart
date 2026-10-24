@@ -204,7 +204,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
                 (ref.watch(phonePaymentsProvider)
                     ? PaymentPrefs.phoneDefaults
                     : PaymentPrefs.defaults))
-            .file;
+            .directFile;
     final List<Widget> body;
     if (_posted case final posted? when posted.repostable) {
       body = [

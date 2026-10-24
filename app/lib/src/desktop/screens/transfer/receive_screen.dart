@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/method_names.dart';
+import '../../../payment_prefs.dart' show MethodFamily;
 import '../../../network_gate.dart' show NetBlock;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
@@ -176,14 +177,14 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     // where it is turned on and that senders' payments wait at the relay meanwhile.
     final epicbox = TourTarget(id: 'receive-epicbox', child: st.settings.payments.epicbox ? _epicboxPanel(st, status) : _epicboxOffNotice(nav));
     // Settings › Transactions › Direct; Tor receiving on or a running listener keeps its panel.
-    final direct = st.settings.payments.direct || st.settings.tor || status?.httpListener == ServiceHealth.ok;
+    final direct = st.settings.payments.offersFamily(MethodFamily.link) || st.settings.tor || status?.httpListener == ServiceHealth.ok;
     final others = [
       if (DeskFeatures.tor && st.settings.tor) _torPanel(st, status) else if (DeskFeatures.httpDirect && direct) _httpPanel(st, status),
     ];
     final tor = netTorState(st.settings, status);
     final net = deskNetBlock(st);
     // Settings › Transactions › File; a file send waiting for its response keeps the panel (Finalize).
-    final files = st.settings.payments.file || st.pendingFiles > 0
+    final files = st.settings.payments.directFile || st.pendingFiles > 0
         ? TourTarget(id: 'receive-files', child: _filesPanel(nav, offlineNode: deskOfflineUsesNode(st)))
         : null;
     final head = ESectionHead(

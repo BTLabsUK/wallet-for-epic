@@ -3524,7 +3524,7 @@
   },
   "methodQr": "QR Payment",
   "@methodQr": {
-    "description": "Name of the QR payment method, in the method selector and Settings: two phones next to each other, a code on a screen. Keep it short."
+    "description": "Method name under a Direct header, and the QR screens' title: two phones next to each other, a code on a screen. The full form is methodDirectQr, the short one methodShortQr."
   },
   "methodQrChip": "QR Code",
   "@methodQrChip": {
@@ -6390,17 +6390,17 @@
   "@methodEpicbox": {
     "description": "Method name on Send and Receive segments."
   },
-  "methodDirectHttp": "Link Payment · HTTP",
+  "methodDirectHttp": "Link · HTTP",
   "@methodDirectHttp": {
     "description": "Method name: Link, with HTTP as its transport. The Link word, then a middle dot, then HTTP. Shown wherever a payment's method is named."
   },
-  "methodDirectTor": "Link Payment · Tor",
+  "methodDirectTor": "Link · Tor",
   "@methodDirectTor": {
     "description": "Method name: Link, with Tor as its transport. The Link word, then a middle dot, then Tor. Shown wherever a payment's method is named."
   },
-  "methodFile": "File",
+  "methodFile": "File Transfer",
   "@methodFile": {
-    "description": "Method name: a transaction file handed over by hand."
+    "description": "Method name under a Direct header, and Receive's step names: a transaction file handed over by hand. The short form where space is short is methodShortFile."
   },
   "methodShortHttp": "HTTP",
   "@methodShortHttp": {
@@ -6413,6 +6413,22 @@
   "methodShortQr": "QR",
   "@methodShortQr": {
     "description": "Short method name where space is short (badges, segments): QR Payment as just QR. Keep the Latin letters."
+  },
+  "methodShortFile": "File",
+  "@methodShortFile": {
+    "description": "Short method name where space is short (badges, segments, table cells): Direct · File Transfer as just File."
+  },
+  "methodDirectQr": "Direct · QR Payment",
+  "@methodDirectQr": {
+    "description": "Full method name: the Direct family, a middle dot, then QR Payment. Shown where no Direct header stands around it."
+  },
+  "methodDirectFile": "Direct · File Transfer",
+  "@methodDirectFile": {
+    "description": "Full method name: the Direct family, a middle dot, then File Transfer. Shown where no Direct header stands around it."
+  },
+  "methodDirectFamily": "Direct",
+  "@methodDirectFamily": {
+    "description": "Name of the Direct family of methods (QR Payment and File Transfer): hand to hand, no network between the two wallets. A header or a segment."
   },
   "methodArtCaptionEpicbox": "Epicbox server holds it",
   "@methodArtCaptionEpicbox": {
@@ -8082,7 +8098,7 @@
   },
   "methodDirect": "Link",
   "@methodDirect": {
-    "description": "Send and Receive method: straight to the other wallet, at an http(s) or onion address."
+    "description": "Name of the Link family of methods (Link · HTTP and Link · Tor): straight to the other wallet, at an http(s) or onion address. A header, a segment or a tab."
   },
   "methodLinkPayment": "Link Payment",
   "@methodLinkPayment": {
@@ -19166,6 +19182,15 @@
   "@netBlockEpicboxOff": {
     "description": "Reason line under a disabled Epicbox action (Send, Receive, the listener, invoices) while the Epicbox switch on Settings › Transactions is off. Phone and desktop."
   },
+  "netBlockMethodOff": "{method} is off in Settings › Transactions.",
+  "@netBlockMethodOff": {
+    "description": "Reason line under a disabled action by a payment method whose switch on Settings › Transactions is off. {method} is the method's full name (Link · HTTP, Link · Tor, Direct · QR Payment, Direct · File Transfer). Phone and desktop.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
   "txEpicboxLine": "Pay or get paid through a relay. The other wallet can be closed.",
   "@txEpicboxLine": {
     "description": "Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences."
@@ -19200,6 +19225,18 @@
     "description": "Send, under the Epicbox-off reason, when the recipient is a saved contact: the contact can be paid only over Epicbox. {name} is the contact's name.",
     "placeholders": {
       "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendContactOnlyMethod": "{name} has only a {method} address.",
+  "@sendContactOnlyMethod": {
+    "description": "Send, under the method-off reason, when the recipient is a saved contact whose only address is of that kind. {name} is the contact's name, {method} the method's full name (Link · HTTP or Link · Tor).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "method": {
         "type": "String"
       }
     }

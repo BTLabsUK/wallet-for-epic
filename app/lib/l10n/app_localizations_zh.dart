@@ -4821,6 +4821,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodShortQr => 'QR';
 
   @override
+  String get methodShortFile => 'File';
+
+  @override
+  String get methodDirectQr => 'Direct · QR Payment';
+
+  @override
+  String get methodDirectFile => 'Direct · File Transfer';
+
+  @override
+  String get methodDirectFamily => 'Direct';
+
+  @override
   String get methodArtCaptionEpicbox => 'Epicbox 服务器暂存';
 
   @override
@@ -13841,6 +13853,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netBlockEpicboxOff => 'Epicbox 已在 设置 › 交易 中关闭。';
 
   @override
+  String netBlockMethodOff(String method) {
+    return '$method is off in Settings › Transactions.';
+  }
+
+  @override
   String get txEpicboxLine => '通过中继付款或收款。对方的钱包可以处于关闭状态。';
 
   @override
@@ -13868,6 +13885,11 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String sendContactOnlyEpicbox(String name) {
     return '$name 只有 Epicbox 地址。';
+  }
+
+  @override
+  String sendContactOnlyMethod(String name, String method) {
+    return '$name has only a $method address.';
   }
 
   @override

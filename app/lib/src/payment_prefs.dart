@@ -2,118 +2,195 @@
 /// starts on. One model for the phone (`AppSettings.payments`) and the desktop
 /// (`DeskSettings.payments`), so the page reads the same on both.
 ///
-/// Epicbox is on by default and can be turned off (26.10.16): off, the wallet connects to no
-/// Epicbox relay (no listener, no sends, no invoices, no push), and Receive shows no Epicbox
-/// address. No method is required: QR and File need no connection of their own. On the
-/// desktop File is offered by default (an everyday method) and QR never is. On the phone QR is offered by default and File is not (a switch behind
-/// Advanced; a phone that had File keeps it). Direct is not offered by default (it needs Tor on
-/// the phone, an HTTP listener on the desktop). A method in use is never hidden mid-way: a
-/// pasted onion or http address still picks Direct for that send.
+/// One switch per method ([MethodKind], `payment_method.dart`), grouped by family: Epicbox;
+/// Link · HTTP and Link · Tor; Direct · QR Payment and Direct · File Transfer. Off means off
+/// for each: no listener, no address on Receive, no option on Send (a payment half-way keeps
+/// its method, the screens say so). At least one stays on ([canTurnOff]). Epicbox off is the
+/// one setting behind every Epicbox connection (`network_gate.dart`, [NetGate]); the others
+/// reach the gate the same way ([NetGate.offers]).
+///
+/// Defaults: Epicbox on everywhere. The desktop offers File Transfer (an everyday method) and
+/// never QR Payment; the phone offers QR Payment and keeps File Transfer behind Advanced (a
+/// phone that had it keeps it). Link · HTTP and Link · Tor are off until chosen: HTTP receiving
+/// needs a listener (on the phone it reaches this network only), Tor receiving needs Tor.
 library;
 
-/// A way to pay or be paid. [qr] is the phone's: two phones side by side, an animated QR code.
-enum PayMethod { epicbox, direct, qr, file }
+import 'payment_method.dart';
+
+export 'payment_method.dart';
 
 class PaymentPrefs {
   const PaymentPrefs({
     this.epicbox = true,
-    this.direct = false,
-    this.file = true,
-    this.qr = true,
-    this.defaultMethod = PayMethod.epicbox,
+    this.linkHttp = false,
+    this.linkTor = false,
+    this.directQr = true,
+    this.directFile = true,
+    this.defaultMethod = MethodKind.epicbox,
   });
 
   /// Epicbox is on: the listener runs, Send and Receive offer it, invoices and push work. Off
   /// is the one setting behind every Epicbox connection (`network_gate.dart`, [NetGate]).
   final bool epicbox;
 
-  /// Direct is offered on Send and Receive.
-  final bool direct;
+  /// Link · HTTP: the HTTP listener runs (this network only on a phone) and Send offers
+  /// http(s) addresses.
+  final bool linkHttp;
 
-  /// File is offered on Send and Receive.
-  final bool file;
+  /// Link · Tor: the onion address is handed out while Tor runs and Send offers onions.
+  final bool linkTor;
 
-  /// QR is offered on Send and Receive (the phone only; the desktop never reads it).
-  final bool qr;
+  /// Direct · QR Payment (the phone only; the desktop never reads it).
+  final bool directQr;
 
-  /// The method Send starts on; Epicbox when the chosen one is not offered ([startMethod]).
-  final PayMethod defaultMethod;
+  /// Direct · File Transfer.
+  final bool directFile;
 
-  /// The desktop's: File on, Direct off.
+  /// The method Send starts on; the first one on when the chosen one is off ([startMethod]).
+  final MethodKind defaultMethod;
+
+  /// The desktop's: File Transfer on, Link off.
   static const PaymentPrefs defaults = PaymentPrefs();
 
-  /// A new phone's: QR on, File off (a switch behind Advanced), Direct off.
-  static const PaymentPrefs phoneDefaults = PaymentPrefs(file: false);
+  /// A new phone's: QR Payment on, File Transfer off (a switch behind Advanced), Link off.
+  static const PaymentPrefs phoneDefaults = PaymentPrefs(directFile: false);
 
-  bool offers(PayMethod m) => switch (m) {
-    PayMethod.epicbox => epicbox,
-    PayMethod.direct => direct,
-    PayMethod.qr => qr,
-    PayMethod.file => file,
+  bool offers(MethodKind m) => switch (m) {
+    MethodKind.epicbox => epicbox,
+    MethodKind.linkHttp => linkHttp,
+    MethodKind.linkTor => linkTor,
+    MethodKind.directQr => directQr,
+    MethodKind.directFile => directFile,
   };
 
-  /// The method Send opens on: the chosen one when it is offered, else the first offered in
-  /// Epicbox, Link, QR, File order; Epicbox when nothing is (Send then says it is off).
-  PayMethod get startMethod =>
-      offers(defaultMethod) ? defaultMethod : PayMethod.values.where(offers).firstOrNull ?? PayMethod.epicbox;
+  /// Any method of [f] is on.
+  bool offersFamily(MethodFamily f) => MethodKind.values.any((m) => m.family == f && offers(m));
 
-  PaymentPrefs copyWith({bool? epicbox, bool? direct, bool? file, bool? qr, PayMethod? defaultMethod}) => PaymentPrefs(
+  /// The methods that are on, in Epicbox, Link, Direct order.
+  List<MethodKind> get on => [for (final m in MethodKind.values) if (offers(m)) m];
+
+  /// [m] may be turned off: another method stays on. The last one on stays (Send and
+  /// Receive always have a way; the screens say why).
+  bool canTurnOff(MethodKind m) => !offers(m) || on.length > 1;
+
+  /// The method Send opens on: the chosen one when it is on, else the first on in Epicbox,
+  /// Link · HTTP, Link · Tor, QR Payment, File Transfer order; Epicbox when nothing is (Send
+  /// then says it is off). A Link choice counts for the family: the address picks HTTP or Tor.
+  MethodKind get startMethod {
+    if (offers(defaultMethod)) return defaultMethod;
+    if (defaultMethod.family == MethodFamily.link) {
+      final link = on.where((m) => m.family == MethodFamily.link).firstOrNull;
+      if (link != null) return link;
+    }
+    return on.firstOrNull ?? MethodKind.epicbox;
+  }
+
+  /// [m] turned [on] or off.
+  PaymentPrefs withMethod(MethodKind m, bool on) => switch (m) {
+    MethodKind.epicbox => copyWith(epicbox: on),
+    MethodKind.linkHttp => copyWith(linkHttp: on),
+    MethodKind.linkTor => copyWith(linkTor: on),
+    MethodKind.directQr => copyWith(directQr: on),
+    MethodKind.directFile => copyWith(directFile: on),
+  };
+
+  PaymentPrefs copyWith({
+    bool? epicbox,
+    bool? linkHttp,
+    bool? linkTor,
+    bool? directQr,
+    bool? directFile,
+    MethodKind? defaultMethod,
+  }) => PaymentPrefs(
     epicbox: epicbox ?? this.epicbox,
-    direct: direct ?? this.direct,
-    file: file ?? this.file,
-    qr: qr ?? this.qr,
+    linkHttp: linkHttp ?? this.linkHttp,
+    linkTor: linkTor ?? this.linkTor,
+    directQr: directQr ?? this.directQr,
+    directFile: directFile ?? this.directFile,
     defaultMethod: defaultMethod ?? this.defaultMethod,
   );
 
-  /// `direct,file|epicbox`: the offered methods besides Epicbox, then the default. QR and
-  /// Epicbox are on unless `noqr` or `noepicbox` stands among them, so a value stored before
-  /// either switch existed reads as on.
+  /// `v2,http,tor,file|epicbox`: the methods on besides Epicbox and QR, then the default. QR
+  /// and Epicbox are on unless `noqr` or `noepicbox` stands among them, so a value stored
+  /// before either switch existed reads as on. `v2` marks the per-method form; a value
+  /// without it comes from the one Link switch ([decode]).
   String encode() =>
-      '${[if (direct) 'direct', if (file) 'file', if (!qr) 'noqr', if (!epicbox) 'noepicbox'].join(',')}|${defaultMethod.name}';
+      '${['v2', if (linkHttp) 'http', if (linkTor) 'tor', if (directFile) 'file', if (!directQr) 'noqr', if (!epicbox) 'noepicbox'].join(',')}|${defaultMethod.name}';
 
   /// [raw] as stored; null (never saved) is the defaults ([phoneDefaults] on a [phone]), with
-  /// Direct on when [legacyDirect] (the Advanced page's "Direct receiving" switch before
-  /// 26.10.13 held it).
+  /// Link on when [legacyDirect] (the Advanced page's "Direct receiving" switch before
+  /// 26.10.13 held it). A value from the one Link switch (`direct`, before 26.10.16) turns on
+  /// the Link method that worked then: Tor on the phone (Link needed Tor), HTTP and Tor on
+  /// the desktop (the HTTP card, the Tor address while Tor ran).
   static PaymentPrefs decode(String? raw, {bool legacyDirect = false, bool phone = false}) {
     if (raw == null || raw.isEmpty) {
-      return (phone ? phoneDefaults : defaults).copyWith(direct: legacyDirect);
+      return _legacyLink(phone ? phoneDefaults : defaults, legacyDirect, phone: phone);
     }
     final parts = raw.split('|');
     final on = parts.first.split(',').toSet();
-    return PaymentPrefs(
+    final v2 = on.contains('v2');
+    final prefs = PaymentPrefs(
       epicbox: !on.contains('noepicbox'),
-      direct: on.contains('direct'),
-      file: on.contains('file'),
-      qr: !on.contains('noqr'),
-      defaultMethod: parts.length > 1
-          ? PayMethod.values.where((m) => m.name == parts[1]).firstOrNull ?? PayMethod.epicbox
-          : PayMethod.epicbox,
+      linkHttp: on.contains('http'),
+      linkTor: on.contains('tor'),
+      directFile: on.contains('file'),
+      directQr: !on.contains('noqr'),
+      defaultMethod: parts.length > 1 ? _method(parts[1]) : MethodKind.epicbox,
     );
+    return v2 ? prefs : _legacyLink(prefs, on.contains('direct'), phone: phone);
   }
 
-  Map<String, Object?> toJson() => {'epicbox': epicbox, 'direct': direct, 'file': file, 'qr': qr, 'default': defaultMethod.name};
+  static PaymentPrefs _legacyLink(PaymentPrefs p, bool direct, {required bool phone}) =>
+      direct ? p.copyWith(linkTor: true, linkHttp: !phone) : p;
 
+  /// A stored method name: today's, or the names before the split (`direct` was Link, `qr`
+  /// and `file` the Direct methods).
+  static MethodKind _method(String name) => switch (name) {
+    'direct' => MethodKind.linkHttp,
+    'qr' => MethodKind.directQr,
+    'file' => MethodKind.directFile,
+    _ => MethodKind.values.where((m) => m.name == name).firstOrNull ?? MethodKind.epicbox,
+  };
+
+  Map<String, Object?> toJson() => {
+    'epicbox': epicbox,
+    'linkHttp': linkHttp,
+    'linkTor': linkTor,
+    'directQr': directQr,
+    'directFile': directFile,
+    'default': defaultMethod.name,
+  };
+
+  /// The desktop's stored form; the keys before the split (`direct`, `file`, `qr`) read as
+  /// [decode] reads them.
   static PaymentPrefs fromJson(Object? j, {bool legacyDirect = false}) {
-    if (j is! Map) return PaymentPrefs(direct: legacyDirect);
-    final e = j['epicbox'], d = j['direct'], f = j['file'], q = j['qr'], m = j['default'];
-    return PaymentPrefs(
-      epicbox: e is bool ? e : true,
-      direct: d is bool ? d : legacyDirect,
-      file: f is bool ? f : true,
-      qr: q is bool ? q : true,
-      defaultMethod: PayMethod.values.where((x) => x.name == m).firstOrNull ?? PayMethod.epicbox,
+    if (j is! Map) return _legacyLink(defaults, legacyDirect, phone: false);
+    bool flag(String key, bool fallback) => j[key] is bool ? j[key] as bool : fallback;
+    final legacy = !j.containsKey('linkHttp') && !j.containsKey('linkTor');
+    final prefs = PaymentPrefs(
+      epicbox: flag('epicbox', true),
+      linkHttp: flag('linkHttp', false),
+      linkTor: flag('linkTor', false),
+      directQr: flag('directQr', flag('qr', true)),
+      directFile: flag('directFile', flag('file', true)),
+      defaultMethod: _method('${j['default']}'),
     );
+    return legacy ? _legacyLink(prefs, flag('direct', legacyDirect), phone: false) : prefs;
   }
 
   @override
   bool operator ==(Object other) =>
       other is PaymentPrefs &&
       other.epicbox == epicbox &&
-      other.direct == direct &&
-      other.file == file &&
-      other.qr == qr &&
+      other.linkHttp == linkHttp &&
+      other.linkTor == linkTor &&
+      other.directQr == directQr &&
+      other.directFile == directFile &&
       other.defaultMethod == defaultMethod;
 
   @override
-  int get hashCode => Object.hash(epicbox, direct, file, qr, defaultMethod);
+  int get hashCode => Object.hash(epicbox, linkHttp, linkTor, directQr, directFile, defaultMethod);
+
+  @override
+  String toString() => 'PaymentPrefs(${encode()})';
 }

@@ -703,7 +703,7 @@ class MockDeskWallet implements DeskWalletApi {
     // The network mode as the real wallet takes it: Tor only keeps the Tor switch on.
     final mode = netModeOf(settings.advanced.networkMode);
     NetGate.set(mode);
-    NetGate.setEpicbox(settings.payments.epicbox);
+    NetGate.setPayments(settings.payments);
     if (!settings.payments.epicbox) _listening = false;
     _settings = mode == NetworkMode.torOnly ? settings.copyWith(torAutostart: true) : settings;
   }

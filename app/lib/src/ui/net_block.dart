@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
 import '../network_gate.dart';
+import '../payment_prefs.dart' show MethodKind;
+import 'method_icons.dart' show MethodIcons;
 import '../providers.dart' show localNodeProvider;
 import '../settings.dart' show appSettingsProvider;
 import '../phone_tor.dart';
@@ -93,7 +95,13 @@ String? netBlockReason(AppLocalizations l, NetBlock block) => switch (block) {
   NetBlock.offline => l.netBlockOffline,
   NetBlock.waitingForTor => l.netBlockWaitingForTor,
   NetBlock.epicboxOff => l.netBlockEpicboxOff,
+  // The screen names the method it asked about ([methodOffReason]).
+  NetBlock.methodOff => null,
 };
+
+/// The reason an action by [m] is off: its switch on Settings › Transactions.
+String methodOffReason(AppLocalizations l, MethodKind m) =>
+    m == MethodKind.epicbox ? l.netBlockEpicboxOff : l.netBlockMethodOff(MethodIcons.fullName(l, m));
 
 /// The reason line under a disabled network action. Offline opens the Advanced page, where the
 /// mode is changed, Epicbox off the Transactions page; nothing shows when [block] is

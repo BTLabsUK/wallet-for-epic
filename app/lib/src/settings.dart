@@ -427,7 +427,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     // The network mode and the Epicbox switch reach the runtime here (network_gate.dart);
     // main.dart set the mode at launch.
     NetGate.set(settings.advanced.networkMode);
-    NetGate.setEpicbox(settings.payments.epicbox);
+    NetGate.setPayments(settings.payments);
     return settings;
   }
 
@@ -449,7 +449,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     if (hadWallet) {
       // As the version before read it: nothing stored means File on.
       final before = PaymentPrefs.decode(payments, legacyDirect: legacyDirect);
-      if (before.file) {
+      if (before.directFile) {
         payments = before.encode();
         await store.write(_paymentsKey, payments);
       }
@@ -525,7 +525,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   /// Settings › Transactions changed. The Epicbox switch reaches the gate before anything
   /// reads the new settings (network_gate.dart).
   Future<void> setPayments(PaymentPrefs prefs) async {
-    NetGate.setEpicbox(prefs.epicbox);
+    NetGate.setPayments(prefs);
     await _put(_paymentsKey, prefs.encode(), (await _current()).copyWith(payments: prefs));
   }
 

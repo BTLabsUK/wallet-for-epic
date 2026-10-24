@@ -5266,6 +5266,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodShortQr => 'QR';
 
   @override
+  String get methodShortFile => 'File';
+
+  @override
+  String get methodDirectQr => 'Direct · QR Payment';
+
+  @override
+  String get methodDirectFile => 'Direct · File Transfer';
+
+  @override
+  String get methodDirectFamily => 'Direct';
+
+  @override
   String get methodArtCaptionEpicbox => 'Её хранит сервер Epicbox';
 
   @override
@@ -15026,6 +15038,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Epicbox выключен в разделе Настройки › Транзакции.';
 
   @override
+  String netBlockMethodOff(String method) {
+    return '$method is off in Settings › Transactions.';
+  }
+
+  @override
   String get txEpicboxLine =>
       'Платите или получайте платежи через релей. Другой кошелёк может быть закрыт.';
 
@@ -15061,6 +15078,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String sendContactOnlyEpicbox(String name) {
     return 'У $name есть только адрес Epicbox.';
+  }
+
+  @override
+  String sendContactOnlyMethod(String name, String method) {
+    return '$name has only a $method address.';
   }
 
   @override

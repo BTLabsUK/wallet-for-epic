@@ -8,12 +8,13 @@ import '../models.dart';
 import '../payment_prefs.dart';
 import 'method_art.dart';
 
-/// [m] as the Send and Receive screens name it.
-TransferMethod transferMethodOf(PayMethod m) => switch (m) {
-  PayMethod.epicbox => TransferMethod.epicbox,
-  PayMethod.direct => TransferMethod.direct,
-  PayMethod.qr => TransferMethod.qr,
-  PayMethod.file => TransferMethod.file,
+/// [m] as the Send and Receive screens name it (Link · HTTP and Link · Tor are one Link
+/// there: the address picks the route).
+TransferMethod transferMethodOf(MethodKind m) => switch (m) {
+  MethodKind.epicbox => TransferMethod.epicbox,
+  MethodKind.linkHttp || MethodKind.linkTor => TransferMethod.direct,
+  MethodKind.directQr => TransferMethod.qr,
+  MethodKind.directFile => TransferMethod.file,
 };
 
 /// Sends over Epicbox that still wait for the recipient's reply: Settings warns before Epicbox

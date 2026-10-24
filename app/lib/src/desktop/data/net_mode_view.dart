@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../advanced.dart';
 import '../../l10n.dart' show AppLocalizations;
 import '../../network_gate.dart';
+import '../../payment_prefs.dart' show MethodKind;
+import '../../ui/method_icons.dart' show MethodIcons;
 import '../../net/node_peers.dart';
 import 'models.dart';
 import 'state.dart';
@@ -66,4 +68,10 @@ String? netBlockReason(AppLocalizations l, NetBlock b) => switch (b) {
   NetBlock.offline => l.deskNetOfflineReason,
   NetBlock.waitingForTor => l.deskNetWaitingTorReason,
   NetBlock.epicboxOff => l.netBlockEpicboxOff,
+  // The screen names the method it asked about ([methodOffReason]).
+  NetBlock.methodOff => null,
 };
+
+/// The reason an action by [m] is off: its switch on Settings › Transactions.
+String methodOffReason(AppLocalizations l, MethodKind m) =>
+    m == MethodKind.epicbox ? l.netBlockEpicboxOff : l.netBlockMethodOff(MethodIcons.fullName(l, m));

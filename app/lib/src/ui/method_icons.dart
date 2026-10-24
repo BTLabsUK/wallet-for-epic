@@ -11,32 +11,11 @@ library;
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
-import '../recipient.dart' show RecipientKind;
+import '../payment_method.dart';
 import 'status_icons.dart';
 
-/// A payment method, by family.
-enum MethodKind {
-  epicbox(MethodFamily.epicbox),
-  linkHttp(MethodFamily.link),
-  linkTor(MethodFamily.link),
-  directQr(MethodFamily.direct),
-  directFile(MethodFamily.direct);
+export '../payment_method.dart';
 
-  const MethodKind(this.family);
-
-  final MethodFamily family;
-
-  /// The method an address of [kind] is paid through.
-  static MethodKind ofRecipient(RecipientKind kind) => switch (kind) {
-    RecipientKind.epicbox => MethodKind.epicbox,
-    RecipientKind.http => MethodKind.linkHttp,
-    RecipientKind.tor => MethodKind.linkTor,
-  };
-}
-
-/// The three families: Epicbox (a relay holds the payment), Link (straight to their wallet
-/// over the network), Direct (hand to hand: a QR code or a file, no network).
-enum MethodFamily { epicbox, link, direct }
 
 /// One icon per method and per family. Epicbox is the "44" glyph, Link · HTTP the http glyph,
 /// Link · Tor the Tor glyph (all from `EpicStatusIcons`); QR and File are Material's; the Link
@@ -72,15 +51,33 @@ abstract final class MethodIcons {
     MethodKind.linkHttp => l.methodShortHttp,
     MethodKind.linkTor => l.methodShortTor,
     MethodKind.directQr => l.methodShortQr,
-    MethodKind.directFile => l.methodFile,
+    MethodKind.directFile => l.methodShortFile,
   };
 
-  /// The full name, with the family: Epicbox, Link · HTTP, Link · Tor, QR Payment, File.
+  /// The full name, with the family: Epicbox, Link · HTTP, Link · Tor, Direct · QR Payment,
+  /// Direct · File Transfer. For a place with no family header around it.
   static String fullName(AppLocalizations l, MethodKind m) => switch (m) {
     MethodKind.epicbox => l.methodEpicbox,
     MethodKind.linkHttp => l.methodDirectHttp,
     MethodKind.linkTor => l.methodDirectTor,
+    MethodKind.directQr => l.methodDirectQr,
+    MethodKind.directFile => l.methodDirectFile,
+  };
+
+  /// The name under its family's header (Settings, a grouped list): Epicbox, HTTP, Tor,
+  /// QR Payment, File Transfer.
+  static String groupName(AppLocalizations l, MethodKind m) => switch (m) {
+    MethodKind.epicbox => l.methodEpicbox,
+    MethodKind.linkHttp => l.methodShortHttp,
+    MethodKind.linkTor => l.methodShortTor,
     MethodKind.directQr => l.methodQr,
     MethodKind.directFile => l.methodFile,
+  };
+
+  /// The family's name: Epicbox, Link, Direct.
+  static String familyName(AppLocalizations l, MethodFamily f) => switch (f) {
+    MethodFamily.epicbox => l.methodEpicbox,
+    MethodFamily.link => l.methodDirect,
+    MethodFamily.direct => l.methodDirectFamily,
   };
 }

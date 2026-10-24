@@ -517,18 +517,18 @@ class _SendViewState extends ConsumerState<SendView> {
   bool _startApplied = false;
 
   /// Opens the form on [start], the method Settings › Transactions chose (null: not loaded).
-  void _startOn(PayMethod? start) {
+  void _startOn(MethodKind? start) {
     if (start == null) return;
     _startApplied = true;
     switch (start) {
-      case PayMethod.direct:
+      case MethodKind.linkHttp || MethodKind.linkTor:
         _method = TransferMethod.direct;
-      case PayMethod.file:
+      case MethodKind.directFile:
         _stage = SendStage.fileAmount;
-      case PayMethod.qr:
+      case MethodKind.directQr:
         _stage = SendStage.fileAmount;
         _viaQr = true;
-      case PayMethod.epicbox:
+      case MethodKind.epicbox:
         break;
     }
   }
@@ -763,7 +763,7 @@ class _SendViewState extends ConsumerState<SendView> {
             ? PaymentPrefs.phoneDefaults
             : PaymentPrefs.defaults);
     return request.recipientFor(
-      directAllowed: payments.direct,
+      directAllowed: payments.offersFamily(MethodFamily.link),
       epicboxAllowed: payments.epicbox,
     );
   }
@@ -2175,11 +2175,11 @@ class _SendViewState extends ConsumerState<SendView> {
       // back for this send, where the note says it is off.
       if (selected == TransferMethod.epicbox || payments.epicbox)
         segment(TransferMethod.epicbox, EpicGlyphs.epicbox, l.methodEpicbox),
-      if (selected == TransferMethod.direct || payments.direct)
+      if (selected == TransferMethod.direct || payments.offersFamily(MethodFamily.link))
         segment(TransferMethod.direct, EpicGlyphs.link, l.methodDirect),
-      if (selected == TransferMethod.qr || (payments.qr && offersQrPayment(ref)))
+      if (selected == TransferMethod.qr || (payments.directQr && offersQrPayment(ref)))
         segment(TransferMethod.qr, Icons.qr_code_2, l.methodQrChip),
-      if (selected == TransferMethod.file || payments.file || filePending)
+      if (selected == TransferMethod.file || payments.directFile || filePending)
         segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
     ];
     if (segments.length == 1) return const SizedBox.shrink();

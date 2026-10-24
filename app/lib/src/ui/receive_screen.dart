@@ -129,7 +129,7 @@ class ReceiveView extends ConsumerWidget {
         if (torAvailable &&
             (tab == ReceiveTab.direct ||
                 torState != TorState.off ||
-                payments.direct))
+                payments.offersFamily(MethodFamily.link)))
           ButtonSegment(
             value: ReceiveTab.direct,
             icon: const Icon(EpicGlyphs.link),
@@ -139,7 +139,7 @@ class ReceiveView extends ConsumerWidget {
             ),
           ),
         // QR is the phone next to this one: offered where the camera works.
-        if (tab == ReceiveTab.qr || (payments.qr && offersQrPayment(ref)))
+        if (tab == ReceiveTab.qr || (payments.directQr && offersQrPayment(ref)))
           ButtonSegment(
             value: ReceiveTab.qr,
             icon: const Icon(Icons.qr_code_2),
@@ -149,7 +149,7 @@ class ReceiveView extends ConsumerWidget {
             ),
           ),
         // The tab in use and a file send waiting for its reply keep File.
-        if (tab == ReceiveTab.file || payments.file || filePending)
+        if (tab == ReceiveTab.file || payments.directFile || filePending)
           ButtonSegment(
             value: ReceiveTab.file,
             icon: const Icon(Icons.description_outlined),

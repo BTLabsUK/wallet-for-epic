@@ -4354,7 +4354,7 @@ abstract class AppLocalizations {
   /// **'Accepted. Show the reply to the sender.'**
   String get slateAcceptedHeadlineQr;
 
-  /// Name of the QR payment method, in the method selector and Settings: two phones next to each other, a code on a screen. Keep it short.
+  /// Method name under a Direct header, and the QR screens' title: two phones next to each other, a code on a screen. The full form is methodDirectQr, the short one methodShortQr.
   ///
   /// In en, this message translates to:
   /// **'QR Payment'**
@@ -7890,19 +7890,19 @@ abstract class AppLocalizations {
   /// Method name: Link, with HTTP as its transport. The Link word, then a middle dot, then HTTP. Shown wherever a payment's method is named.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · HTTP'**
+  /// **'Link · HTTP'**
   String get methodDirectHttp;
 
   /// Method name: Link, with Tor as its transport. The Link word, then a middle dot, then Tor. Shown wherever a payment's method is named.
   ///
   /// In en, this message translates to:
-  /// **'Link Payment · Tor'**
+  /// **'Link · Tor'**
   String get methodDirectTor;
 
-  /// Method name: a transaction file handed over by hand.
+  /// Method name under a Direct header, and Receive's step names: a transaction file handed over by hand. The short form where space is short is methodShortFile.
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'File Transfer'**
   String get methodFile;
 
   /// Short method name where space is short (badges, segments): Link · HTTP as just HTTP. Keep the Latin letters.
@@ -7922,6 +7922,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'QR'**
   String get methodShortQr;
+
+  /// Short method name where space is short (badges, segments, table cells): Direct · File Transfer as just File.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get methodShortFile;
+
+  /// Full method name: the Direct family, a middle dot, then QR Payment. Shown where no Direct header stands around it.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct · QR Payment'**
+  String get methodDirectQr;
+
+  /// Full method name: the Direct family, a middle dot, then File Transfer. Shown where no Direct header stands around it.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct · File Transfer'**
+  String get methodDirectFile;
+
+  /// Name of the Direct family of methods (QR Payment and File Transfer): hand to hand, no network between the two wallets. A header or a segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get methodDirectFamily;
 
   /// Caption under the Epicbox picture, a few words, shown in capitals.
   ///
@@ -10011,7 +10035,7 @@ abstract class AppLocalizations {
   /// **'Switched to {host}'**
   String serverSwitched(String host);
 
-  /// Send and Receive method: straight to the other wallet, at an http(s) or onion address.
+  /// Name of the Link family of methods (Link · HTTP and Link · Tor): straight to the other wallet, at an http(s) or onion address. A header, a segment or a tab.
   ///
   /// In en, this message translates to:
   /// **'Link'**
@@ -23186,6 +23210,12 @@ abstract class AppLocalizations {
   /// **'Epicbox is off in Settings › Transactions.'**
   String get netBlockEpicboxOff;
 
+  /// Reason line under a disabled action by a payment method whose switch on Settings › Transactions is off. {method} is the method's full name (Link · HTTP, Link · Tor, Direct · QR Payment, Direct · File Transfer). Phone and desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} is off in Settings › Transactions.'**
+  String netBlockMethodOff(String method);
+
   /// Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences.
   ///
   /// In en, this message translates to:
@@ -23227,6 +23257,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} has only an Epicbox address.'**
   String sendContactOnlyEpicbox(String name);
+
+  /// Send, under the method-off reason, when the recipient is a saved contact whose only address is of that kind. {name} is the contact's name, {method} the method's full name (Link · HTTP or Link · Tor).
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has only a {method} address.'**
+  String sendContactOnlyMethod(String name, String method);
 
   /// Receive while Epicbox is off: what happens to payments sent to the Epicbox address meanwhile.
   ///

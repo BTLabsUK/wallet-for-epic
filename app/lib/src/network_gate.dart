@@ -14,15 +14,18 @@
 ///
 /// Any stored mode other than Tor only and Offline runs as Standard ([netModeOf]).
 ///
-/// The Epicbox switch (Settings › Transactions, `PaymentPrefs.epicbox`) is read here too, so
-/// Offline and "Epicbox off" are one gate: [netBlockFor] with `epicbox:` for the screens,
-/// [NetGate.checkEpicbox] for the code that connects. Off: no relay connection, no listener,
-/// no Epicbox sends or invoices, no push; QR Payment and files go on.
+/// The method switches (Settings › Transactions, `PaymentPrefs`) are read here too, so Offline
+/// and "off" are one gate: [netBlockFor] with `epicbox:` or `offered:` for the screens,
+/// [NetGate.checkEpicbox] and [NetGate.checkMethod] for the code that connects. Epicbox off:
+/// no relay connection, no listener, no Epicbox sends or invoices, no push. Link · HTTP or
+/// Link · Tor off: no listener of that kind, no address on Receive, no send to such an
+/// address. QR Payment and File Transfer off: not offered.
 library;
 
 import 'dart:async';
 
 import 'advanced.dart';
+import 'payment_prefs.dart';
 import 'tor_routes.dart';
 
 export 'net/local_address.dart' show isLocalAddressUrl;
@@ -40,6 +43,10 @@ enum NetBlock {
 
   /// Epicbox is off in Settings › Transactions: nothing over Epicbox until it is on again.
   epicboxOff,
+
+  /// The method the action needs is off in Settings › Transactions (Link · HTTP, Link · Tor,
+  /// QR Payment or File Transfer; Epicbox is [epicboxOff]). The screen names it.
+  methodOff,
 }
 
 /// Why network actions can't run in [mode] with the Tor switch [tor] (`tor_view.dart`'s
@@ -47,12 +54,15 @@ enum NetBlock {
 /// only the node (Recheck balance, posting) or local addresses (a Direct send, which refuses a
 /// non-local one itself), and the node in use is local ([isLocalAddressUrl]): Offline lets it run.
 /// [epicbox]: false for an action over Epicbox while the Epicbox switch is off
-/// ([NetBlock.epicboxOff]); the mode's own answer comes first.
-NetBlock netBlockFor(NetworkMode mode, TorState tor, {bool localNode = false, bool epicbox = true}) => switch (mode) {
-  NetworkMode.offline => localNode ? NetBlock.none : NetBlock.offline,
-  NetworkMode.torOnly when tor != TorState.on => NetBlock.waitingForTor,
-  _ => epicbox ? NetBlock.none : NetBlock.epicboxOff,
-};
+/// ([NetBlock.epicboxOff]); [offered]: false for an action by another method whose switch
+/// is off ([NetBlock.methodOff]). The mode's own answer comes first.
+NetBlock netBlockFor(NetworkMode mode, TorState tor, {bool localNode = false, bool epicbox = true, bool offered = true}) =>
+    switch (mode) {
+      NetworkMode.offline => localNode ? NetBlock.none : NetBlock.offline,
+      NetworkMode.torOnly when tor != TorState.on => NetBlock.waitingForTor,
+      _ when !epicbox => NetBlock.epicboxOff,
+      _ => offered ? NetBlock.none : NetBlock.methodOff,
+    };
 
 /// The mode the runtime follows for a stored one: Tor only and Offline as they are, anything
 /// else (an older build's choice included) as Standard.
@@ -87,17 +97,19 @@ bool pushAllowed(NetworkMode mode, {bool epicbox = true}) => netModeOf(mode) == 
 /// A network action refused by the mode: [what] is for the log, [mode] says why (Offline, or
 /// Tor only refusing a clearnet connection). [notLocal]: Offline refused a Direct send to an
 /// address that is not local ("Offline: only local addresses."). [epicboxOff]: the Epicbox
-/// switch refused an Epicbox action (the mode is then whatever it is).
+/// switch refused an Epicbox action (the mode is then whatever it is); [methodOff] names the
+/// method whose switch refused it (Epicbox included).
 class NetBlocked implements Exception {
-  const NetBlocked(this.mode, this.what, {this.notLocal = false, this.epicboxOff = false});
+  const NetBlocked(this.mode, this.what, {this.notLocal = false, this.epicboxOff = false, this.methodOff});
 
   final NetworkMode mode;
   final String what;
   final bool notLocal;
   final bool epicboxOff;
+  final MethodKind? methodOff;
 
   @override
-  String toString() => epicboxOff ? 'NetBlocked(epicbox off): $what' : 'NetBlocked(${mode.name}): $what';
+  String toString() => methodOff != null ? 'NetBlocked(${methodOff!.name} off): $what' : 'NetBlocked(${mode.name}): $what';
 }
 
 /// The current mode for code without a Riverpod ref (the app's own HTTP, the wallet adapters).
@@ -105,21 +117,30 @@ class NetBlocked implements Exception {
 /// every change; [changes] lets a long-lived owner (the desktop wallet) resume or stop.
 abstract final class NetGate {
   static NetworkMode _mode = NetworkMode.standard;
-  static bool _epicbox = true;
+  static PaymentPrefs _payments = PaymentPrefs.defaults;
   static final StreamController<NetworkMode> _changes = StreamController.broadcast(sync: true);
 
   static NetworkMode get mode => _mode;
 
   static bool get offline => _mode == NetworkMode.offline;
 
-  /// The Epicbox switch (Settings › Transactions): on by default. The phone's settings and
-  /// the desktop's store set it at launch and on every change, as [set] for the mode.
-  static bool get epicbox => _epicbox;
+  /// The method switches (Settings › Transactions). The phone's settings and the desktop's
+  /// store set them at launch and on every change, as [set] for the mode.
+  static PaymentPrefs get payments => _payments;
 
-  static void setEpicbox(bool on) => _epicbox = on;
+  static void setPayments(PaymentPrefs p) => _payments = p;
+
+  /// The Epicbox switch: on by default.
+  static bool get epicbox => _payments.epicbox;
+
+  /// The Epicbox switch alone, for code that holds no [PaymentPrefs].
+  static void setEpicbox(bool on) => _payments = _payments.copyWith(epicbox: on);
+
+  /// [m] is on in Settings › Transactions.
+  static bool offers(MethodKind m) => _payments.offers(m);
 
   /// Nothing over Epicbox now: Offline, or the Epicbox switch is off.
-  static bool get epicboxOff => offline || !_epicbox;
+  static bool get epicboxOff => offline || !epicbox;
 
   static bool get torOnly => _mode == NetworkMode.torOnly;
 
@@ -143,6 +164,14 @@ abstract final class NetGate {
   /// in Offline as [check], and with the Epicbox switch off with `epicboxOff`.
   static void checkEpicbox(String what) {
     check(what);
-    if (!_epicbox) throw NetBlocked(_mode, what, epicboxOff: true);
+    if (!epicbox) throw NetBlocked(_mode, what, epicboxOff: true, methodOff: MethodKind.epicbox);
+  }
+
+  /// Throws [NetBlocked] for an action by method [m] (a listener, a send, an address handed
+  /// out): in Offline as [check] (with [local] for a Link send to a local address), and with
+  /// the method's switch off with `methodOff`.
+  static void checkMethod(MethodKind m, String what, {bool local = false}) {
+    check(what, local: local);
+    if (!offers(m)) throw NetBlocked(_mode, what, epicboxOff: m == MethodKind.epicbox, methodOff: m);
   }
 }

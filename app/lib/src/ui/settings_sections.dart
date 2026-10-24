@@ -19,6 +19,7 @@ import '../l10n.dart';
 import '../network.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart';
+import 'method_icons.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
@@ -760,24 +761,22 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         s.advanced.has(AdvancedFeature.sendOptions) ||
         s.sendStrategy != SelectionStrategy.smallest ||
         !s.splitChange;
-    final showDirect = _txDirectShown |= torAvailable || payments.direct;
+    final showDirect = _txDirectShown |= torAvailable || payments.offersFamily(MethodFamily.link);
     // The phone's methods: QR for everyone, File behind Advanced › Transaction files (a phone
     // that has File on keeps the row, so it can still be turned off).
     final phone = ref.watch(phonePaymentsProvider);
     final loaded = ref.watch(appSettingsProvider).value != null;
     final showFile = !phone ||
         (_txFileShown |= loaded &&
-            (payments.file ||
+            (payments.directFile ||
                 s.advanced.has(AdvancedFeature.transactionFiles)));
     final offered = [
-      for (final m in PayMethod.values)
-        if (payments.offers(m) && (phone || m != PayMethod.qr)) m,
+      for (final m in MethodKind.values)
+        if (payments.offers(m) && (phone || m != MethodKind.directQr) && m != MethodKind.linkTor) m,
     ];
-    String methodName(PayMethod m) => switch (m) {
-      PayMethod.epicbox => l.methodEpicbox,
-      PayMethod.direct => l.methodLinkPayment,
-      PayMethod.qr => l.methodQr,
-      PayMethod.file => l.methodFile,
+    String methodName(MethodKind m) => switch (m) {
+      MethodKind.linkHttp || MethodKind.linkTor => l.methodDirect,
+      _ => MethodIcons.fullName(l, m),
     };
     Future<void> save(PaymentPrefs next) => _settings.setPayments(next);
     // Off while a send still waits for its reply over Epicbox: one confirm first.
@@ -805,11 +804,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         HintSwitchTile(
           key: const ValueKey('tx-direct'),
           icon: EpicGlyphs.link,
-          title: l.methodLinkPayment,
+          title: l.methodDirect,
           hint: l.txDirectHint,
           subtitle: Text(l.txDirectLine),
-          value: payments.direct,
-          onChanged: (on) => save(payments.copyWith(direct: on)),
+          value: payments.linkTor,
+          onChanged: (on) => save(payments.copyWith(linkTor: on)),
         ),
       if (phone)
         HintSwitchTile(
@@ -818,8 +817,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           title: l.methodQr,
           hint: l.txQrHint,
           subtitle: Text(l.txQrLine),
-          value: payments.qr,
-          onChanged: (on) => save(payments.copyWith(qr: on)),
+          value: payments.directQr,
+          onChanged: (on) => save(payments.copyWith(directQr: on)),
         ),
       if (showFile)
         HintSwitchTile(
@@ -828,13 +827,13 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           title: l.methodFile,
           hint: l.txFileHint,
           subtitle: Text(l.txFileLine),
-          value: payments.file,
-          onChanged: (on) => save(payments.copyWith(file: on)),
+          value: payments.directFile,
+          onChanged: (on) => save(payments.copyWith(directFile: on)),
         ),
       // Only a choice when there is one: Epicbox alone is what Send opens on.
       if (offered.length > 1) ...[
         SettingsHeader(l.txStartHeader),
-        RadioGroup<PayMethod>(
+        RadioGroup<MethodKind>(
           groupValue: payments.startMethod,
           onChanged: (m) {
             if (m != null) save(payments.copyWith(defaultMethod: m));
@@ -842,7 +841,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           child: Column(
             children: [
               for (final m in offered)
-                RadioListTile<PayMethod>(
+                RadioListTile<MethodKind>(
                   key: ValueKey('tx-start-${m.name}'),
                   value: m,
                   title: Text(methodName(m)),
