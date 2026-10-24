@@ -1,6 +1,6 @@
 // Settings › Privacy & network: the one Tor switch, bound to the phone's Tor controller, with one line
 // saying what it covers ("Not connected" and Retry when Tor failed); not under Advanced (F28),
-// and absent where the app has no Tor. Notifications (on the hub) are not offered while Tor
+// and absent where the app has no Tor. Notifications (on Advanced) are not offered while Tor
 // is on.
 
 import 'dart:async';
@@ -44,7 +44,11 @@ class _Harness {
   final network = StreamController<bool>.broadcast();
   late ProviderContainer container;
 
-  Future<void> pump(WidgetTester tester, {bool privacy = false}) async {
+  Future<void> pump(
+    WidgetTester tester, {
+    bool privacy = false,
+    SettingsSection? section,
+  }) async {
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -65,7 +69,7 @@ class _Harness {
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) =>
               AdvancedOptions(prefs: advanced, child: child!),
-          home: SettingsScreen(privacy: privacy),
+          home: SettingsScreen(privacy: privacy, section: section),
         ),
       ),
     );
@@ -122,14 +126,6 @@ Future<void> _reach(WidgetTester tester, Finder finder) async {
   );
   await tester.pumpAndSettle();
 }
-
-ListTile _push(WidgetTester tester) =>
-    tester.widget<ListTile>(
-  find.descendant(
-    of: find.byKey(settingsPushKey),
-    matching: find.byType(ListTile),
-  ),
-);
 
 Switch _pushSwitch(WidgetTester tester) => tester.widget<Switch>(
   find.descendant(
@@ -316,7 +312,7 @@ void main() {
 
   testWidgets('notifications are not offered while Tor is on', (tester) async {
     final h = _Harness();
-    await h.pump(tester);
+    await h.pump(tester, section: SettingsSection.advanced);
     // On the BT Labs relay, the only one that can push.
     h.container
         .read(walletConfigProvider.notifier)
@@ -332,7 +328,18 @@ void main() {
     await tester.pumpAndSettle();
     await _reach(tester, find.byKey(settingsPushKey));
     expect(_pushSwitch(tester).onChanged, isNotNull);
-    expect(_push(tester).subtitle, isNull);
+    // Only the Experimental label under the title, no state line.
+    expect(
+      tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byKey(settingsPushKey),
+              matching: find.byType(Text),
+            ),
+          )
+          .map((t) => t.data),
+      ['Notifications', 'Experimental'],
+    );
 
     await h.container.read(phoneTorProvider.notifier).setReceiving(true);
     await tester.pumpAndSettle();

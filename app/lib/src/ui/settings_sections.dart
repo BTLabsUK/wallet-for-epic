@@ -1,8 +1,8 @@
 /// The phone's Settings pages, one per group of the hub (`settings_screen.dart`): Security,
 /// Privacy & network, Wallet, Display and About. Each page is a short list of label-only rows
 /// (an explanation sits behind an info icon, a value or a state on the row's second line), so
-/// a page fits a 360 dp phone without a search. Help & feedback opens Help itself, and
-/// Notifications is one switch on the hub.
+/// a page fits a 360 dp phone without a search. Help & feedback opens Help itself; the
+/// Notifications switch is the last row of Advanced.
 library;
 
 import 'package:flutter/material.dart';
@@ -43,6 +43,7 @@ import 'network_status.dart';
 import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
 import 'pin.dart';
+import 'push_switch.dart';
 import 'restore_screen.dart'
     show ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
 import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
@@ -1015,6 +1016,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         value: adv.nodeFailover,
         onChanged: _settings.setNodeFailover,
       ),
+      // Experimental, so last; nothing where the phone cannot push.
+      const PushNotificationsTile(),
       const Divider(height: 24),
       ListTile(
         key: const ValueKey('adv-reset'),
