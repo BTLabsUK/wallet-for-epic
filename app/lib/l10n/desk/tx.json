@@ -667,5 +667,14 @@
         "type": "String"
       }
     }
+  },
+  "deskTxNowUndeliveredRelay": "Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.",
+  "@deskTxNowUndeliveredRelay": {
+    "description": "Transaction detail, 'what is happening now' for a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
   }
 }

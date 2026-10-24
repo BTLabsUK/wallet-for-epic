@@ -162,5 +162,7 @@
   "deskSendFeeChangedTitle": "ค่าธรรมเนียมเปลี่ยนไป",
   "deskSendFeeChangedText": "เอาต์พุตของกระเป๋าเงินเปลี่ยนไปหลังการตรวจสอบนี้ การส่งครั้งนี้จึงเสียค่าธรรมเนียม {fee} EPIC แทน {was} EPIC โปรดตรวจสอบแล้วส่งอีกครั้ง",
   "deskSendMessageBytes": "{used} / {max} ไบต์",
-  "deskSendMessageTooLong": "ข้อความยาวเกิน {max} ไบต์ โปรดทำให้สั้นลง"
+  "deskSendMessageTooLong": "ข้อความยาวเกิน {max} ไบต์ โปรดทำให้สั้นลง",
+  "deskSendRelayUnknownTitle": "ไม่รู้จักเซิร์ฟเวอร์ Epicbox",
+  "deskSendRelayUnknownText": "แอปไม่รู้จักเซิร์ฟเวอร์ {relay} ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้"
 }

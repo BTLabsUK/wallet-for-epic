@@ -2922,8 +2922,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get licencesLead => '本钱包包含的开源软件。每个组件保留各自的许可证；点按即可查看完整文本。';
 
   @override
-  String get licencesApp =>
-      'Epic Cash Mobile，BT Labs 出品：Apache-2.0。代码托管在 GitHub 上。';
+  String get licencesApp => 'Epic Cash Mobile，BT Labs 出品：Apache-2.0。';
 
   @override
   String get licencesFlutter => 'Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。';
@@ -3254,7 +3253,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendNodeDown => '目前无法连接网络。';
 
   @override
-  String get sendRelayDown => '对方的中继没有响应。';
+  String sendRelayDown(String relay) {
+    return '对方的中继（$relay）没有响应。';
+  }
 
   @override
   String get sendListenerDown => '尚未连接。仍可发送。';
@@ -3396,17 +3397,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeNext => '下一步';
 
   @override
-  String sendRelayRefused(int days) {
+  String sendRelayRefused(int days, String relay) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '对方的中继没有接收。在你取消之前，这笔金额处于锁定状态，最长 $days 天。',
+      other: '对方的中继（$relay）没有接收。在你取消之前，这笔金额处于锁定状态，最长 $days 天。',
     );
     return '$_temp0';
   }
 
   @override
-  String get sendRelayRefusedLost => '对方的中继没有接收。再次发送前请先查看钱包。';
+  String sendRelayRefusedLost(String relay) {
+    return '对方的中继（$relay）没有接收。再次发送前请先查看钱包。';
+  }
 
   @override
   String get sendCancelAndFile => '取消并改用文件付款';
@@ -12368,7 +12371,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop，BT Labs 出品：Apache-2.0。代码托管在 GitHub 上。';
+      'Epic Cash Desktop，BT Labs 出品：Apache-2.0。';
 
   @override
   String get deskSetAboutBrowserNotOpened => '未能打开浏览器';
@@ -12763,4 +12766,42 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskInvPayerStalledText =>
       '未送达：付款还没有进入网络，资金仍被锁定。“重新发送”会再发送一次，无需再次批准。';
+
+  @override
+  String sendRelayUnknown(String relay) {
+    return '此应用不认识服务器 $relay。发送前请检查地址。';
+  }
+
+  @override
+  String relayNoAnswer(String relay) {
+    return '$relay 没有响应。';
+  }
+
+  @override
+  String txDetailsNotDeliveredRelayBody(String relay) {
+    return '$relay 没有响应，收款人还没有收到此付款。在重新发送或取消之前，你的资金保持锁定。';
+  }
+
+  @override
+  String deskErrNotDeliveredRelay(String relay) {
+    return '未送达：$relay 没有响应。这笔付款保留在“活动”中；在那里取消即可解锁资金。';
+  }
+
+  @override
+  String deskErrRelayNoAnswer(String relay) {
+    return '$relay 没有响应。';
+  }
+
+  @override
+  String get deskSendRelayUnknownTitle => '未知的 Epicbox 服务器';
+
+  @override
+  String deskSendRelayUnknownText(String relay) {
+    return '此应用不认识服务器 $relay。发送前请检查地址。你仍然可以发送。';
+  }
+
+  @override
+  String deskTxNowUndeliveredRelay(String relay) {
+    return '未送达。$relay 没有响应，收款人没有收到这笔付款。请重新发送，或取消以释放资金。';
+  }
 }

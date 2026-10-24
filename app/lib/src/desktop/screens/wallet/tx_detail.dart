@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../known_relays.dart' show recipientRelay;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -26,9 +27,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       : t.immature
       ? l.deskTxNowImmature(coinbaseMaturity)
       : switch (t.state) {
-          TxState.waitingRecipient when t.undelivered => switch (t.method) {
-            TxMethod.http => l.deskTxNowUndeliveredDirect('HTTP'), // l10n-ok: the method's name
-            TxMethod.tor => l.deskTxNowUndeliveredDirect('Tor'), // l10n-ok: the method's name
+          TxState.waitingRecipient when t.undelivered => switch ((t.method, recipientRelay(t.counterparty ?? ''))) {
+            (TxMethod.http, _) => l.deskTxNowUndeliveredDirect('HTTP'), // l10n-ok: the method's name
+            (TxMethod.tor, _) => l.deskTxNowUndeliveredDirect('Tor'), // l10n-ok: the method's name
+            (TxMethod.epicbox, final relay?) => l.deskTxNowUndeliveredRelay(relay.label),
             _ => l.deskTxNowUndelivered,
           },
           TxState.waitingRecipient =>

@@ -3721,7 +3721,7 @@
   "@licencesLead": {
     "description": "Licences screen: the first paragraph."
   },
-  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.",
+  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0.",
   "@licencesApp": {
     "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web demo shows this screen too."
   },
@@ -4186,9 +4186,14 @@
   "@sendNodeDown": {
     "description": "Send, review: the node does not answer, so the payment cannot be sent; a Retry button follows."
   },
-  "sendRelayDown": "Their relay isn't answering.",
+  "sendRelayDown": "Their relay ({relay}) isn't answering.",
   "@sendRelayDown": {
-    "description": "Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered."
+    "description": "Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered. {relay} is its host name, as in the address (epicbox.example.org).",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
   },
   "sendListenerDown": "Not connected yet. You can still send.",
   "@sendListenerDown": {
@@ -4387,18 +4392,26 @@
   "@handshakeNext": {
     "description": "How it works sheet: tooltip of the button that shows the next step."
   },
-  "sendRelayRefused": "{days, plural, =1{Their relay didn't take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay didn't take it. The amount is on hold until you cancel it, or for at most {days} days.}}",
+  "sendRelayRefused": "{days, plural, =1{Their relay ({relay}) didn't take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay ({relay}) didn't take it. The amount is on hold until you cancel it, or for at most {days} days.}}",
   "@sendRelayRefused": {
-    "description": "Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days.",
+    "description": "Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. {relay} is the relay's host name, as in the address.",
     "placeholders": {
       "days": {
         "type": "int"
+      },
+      "relay": {
+        "type": "String"
       }
     }
   },
-  "sendRelayRefusedLost": "Their relay didn't take it. Check Wallet before you send again.",
+  "sendRelayRefusedLost": "Their relay ({relay}) didn't take it. Check Wallet before you send again.",
   "@sendRelayRefusedLost": {
-    "description": "Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again."
+    "description": "Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again. {relay} is the relay's host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
   },
   "sendCancelAndFile": "Cancel and pay with a file",
   "@sendCancelAndFile": {
@@ -17141,7 +17154,7 @@
   "@deskSetAboutLicencesLead": {
     "description": "Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead)."
   },
-  "deskSetAboutLicenceApp": "Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.",
+  "deskSetAboutLicenceApp": "Epic Cash Desktop by BT Labs: Apache-2.0.",
   "@deskSetAboutLicenceApp": {
     "description": "Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them."
   },
@@ -17724,5 +17737,72 @@
   "deskInvPayerStalledText": "Not delivered: it has not reached the network yet, and the funds stay locked. Send again sends it once more without a second approval.",
   "@deskInvPayerStalledText": {
     "description": "Notice text and Invoice block text for a stalled invoice payment. Send again is a button."
+  },
+  "sendRelayUnknown": "{relay} isn't a server this app knows. Check the address before you send.",
+  "@sendRelayUnknown": {
+    "description": "Send, review: the recipient's relay (the part of the address after @) is not one the app knows from its public list or the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "relayNoAnswer": "{relay} did not answer.",
+  "@relayNoAnswer": {
+    "description": "A payment could not be handed to the recipient's relay: it did not answer (a failed Send again). {relay} is the relay's host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "txDetailsNotDeliveredRelayBody": "{relay} did not answer, so the recipient has not received this payment. Your funds stay locked until it is sent again or cancelled.",
+  "@txDetailsNotDeliveredRelayBody": {
+    "description": "Explanation under the status of a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrNotDeliveredRelay": "Not delivered: {relay} did not answer. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrNotDeliveredRelay": {
+    "description": "Why an Epicbox send failed: the recipient's relay did not answer; the payment waits in Activity. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrRelayNoAnswer": "{relay} did not answer.",
+  "@deskErrRelayNoAnswer": {
+    "description": "An error message the user reads when Send again to an Epicbox address fails because the recipient's relay did not answer. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSendRelayUnknownTitle": "Unknown Epicbox server",
+  "@deskSendRelayUnknownTitle": {
+    "description": "Send review: title of the warning that the recipient's Epicbox server is not one the app knows."
+  },
+  "deskSendRelayUnknownText": "{relay} is not a server this app knows. Check the address before you send. You can still send.",
+  "@deskSendRelayUnknownText": {
+    "description": "Send review: the recipient's Epicbox server (the part of the address after @) is not in the app's public list or among the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "deskTxNowUndeliveredRelay": "Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the funds.",
+  "@deskTxNowUndeliveredRelay": {
+    "description": "Transaction detail, 'what is happening now' for a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
   }
 }

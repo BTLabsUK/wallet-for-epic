@@ -641,5 +641,23 @@
   "deskErrTxNotFound": "Transaction not found",
   "@deskErrTxNotFound": {
     "description": "Error when the wallet cannot find the transaction it was asked to send again."
+  },
+  "deskErrNotDeliveredRelay": "Not delivered: {relay} did not answer. The payment waits in Activity; cancel it there to unlock the funds.",
+  "@deskErrNotDeliveredRelay": {
+    "description": "Why an Epicbox send failed: the recipient's relay did not answer; the payment waits in Activity. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
+  },
+  "deskErrRelayNoAnswer": "{relay} did not answer.",
+  "@deskErrRelayNoAnswer": {
+    "description": "An error message the user reads when Send again to an Epicbox address fails because the recipient's relay did not answer. {relay} is its host name, as in the address.",
+    "placeholders": {
+      "relay": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -122,5 +122,6 @@
   "deskTxNowNotPosted": "不在网络上。节点没有接受这笔付款。请重新广播；同一笔付款不会成交两次。",
   "deskTxBroadcastAgain": "重新广播",
   "deskTxBroadcastDone": "已发送到网络",
-  "deskTxNowUndeliveredDirect": "未送达。收款人的钱包没有通过 {method} 接收这笔付款，对方没有收到。请重新发送，或取消以释放资金。"
+  "deskTxNowUndeliveredDirect": "未送达。收款人的钱包没有通过 {method} 接收这笔付款，对方没有收到。请重新发送，或取消以释放资金。",
+  "deskTxNowUndeliveredRelay": "未送达。{relay} 没有响应，收款人没有收到这笔付款。请重新发送，或取消以释放资金。"
 }

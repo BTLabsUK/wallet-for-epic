@@ -21,8 +21,14 @@ import 'tor_ui.dart';
 
 /// Network, node and relay settings. Saving another node or relay of the open wallet's network
 /// switches it live, keeping it unlocked; saving another network restarts the app flow on it.
+///
+/// With [locked], the wallet exists but is locked (the lock screen's Node and Epicbox link):
+/// another relay is the same address change as on the open wallet, so it is asked the same way.
+/// It needs no PIN: it moves the wallet to other servers and touches no key or coin.
 class SetupScreen extends ConsumerStatefulWidget {
-  const SetupScreen({super.key});
+  const SetupScreen({super.key, this.locked = false});
+
+  final bool locked;
 
   @override
   ConsumerState<SetupScreen> createState() => _SetupScreenState();
@@ -171,7 +177,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final relay = _relay ?? preset.defaultRelay;
     final live = preset == _savedPreset && ref.read(sessionProvider) != null;
     final saved = _savedRelay;
-    if (live &&
+    if ((live || widget.locked) &&
         saved != null &&
         !await confirmRelaySwitch(context, from: saved, to: relay)) {
       return;
