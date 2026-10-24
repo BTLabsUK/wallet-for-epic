@@ -391,6 +391,11 @@ final updateApkUrlProvider = Provider<Uri Function(Uri url)>(
 /// manifest revoked. The phone keeps it in the secret store, the desktop in its desk store.
 const String updateStateKey = 'app.update_state';
 
+/// The version code of the update that sent the user to Android's "allow installs from this
+/// source" screen. Allowing it there can end the app's process (Android 8–11 do), so the
+/// update carries on at the next opening that finds it, not only on [UpdateNotifier.resumed].
+const String updatePermissionKey = 'app.update_after_permission';
+
 /// The stored state from its decoded JSON; null when nothing is stored. A stored value that
 /// does not read as a state is logged and counts as none: the next manifest that verifies
 /// writes a good one.
@@ -483,7 +488,12 @@ class UpdateNotifier extends Notifier<UpdateState> {
           text: (l) => l.updateNotInstalled(detail),
         );
       case 'cancelled':
-        state = UpdateState(UpdatePhase.available, update: state.update);
+        // The system dialog was closed without installing: say so, Update tries again.
+        state = UpdateState(
+          UpdatePhase.available,
+          update: state.update,
+          text: (l) => l.updateInstallCancelled,
+        );
       default:
         // pendingUserAction: the system dialog is up. success: this process ends shortly.
         break;
@@ -503,8 +513,10 @@ class UpdateNotifier extends Notifier<UpdateState> {
   Future<void> check({bool quiet = false}) async {
     final platform = ref.read(updatePlatformProvider);
     if (platform == null) return;
+    // An update waiting for the install permission keeps its line ([resumed] carries it on).
     final busy = {
       UpdatePhase.checking,
+      UpdatePhase.needsPermission,
       UpdatePhase.downloading,
       UpdatePhase.installing,
     };
@@ -597,6 +609,15 @@ class UpdateNotifier extends Notifier<UpdateState> {
             ? UpdateState(quiet ? UpdatePhase.idle : UpdatePhase.upToDate)
             : UpdateState(UpdatePhase.available, update: update),
       );
+      // The permission screen ended the app before it could carry on: now it can.
+      final asked = await _permissionAsked();
+      if (asked == null || !ref.mounted) return;
+      if (update == null || asked != update.apk.versionCode) {
+        await _notePermissionAsked(null);
+      } else if (app.canInstall && state.phase == UpdatePhase.available) {
+        logInfo('update', 'install allowed while the app was closed; carrying on');
+        await _downloadAndInstall(platform, update);
+      }
     } catch (error) {
       logInfo('update', 'check failed: $error');
       if (!ref.mounted) return;
@@ -661,6 +682,30 @@ class UpdateNotifier extends Notifier<UpdateState> {
       update: update,
       text: (l) => l.updateAllowInstalls,
     );
+    unawaited(_notePermissionAsked(update.apk.versionCode));
+  }
+
+  Future<int?> _permissionAsked() async {
+    try {
+      return int.tryParse(await ref.read(secretStoreProvider).read(updatePermissionKey) ?? '');
+    } on Object catch (e) {
+      logWarn('update', 'permission note not read: ${e.runtimeType}');
+      return null;
+    }
+  }
+
+  /// Notes [versionCode] as waiting for the permission; null forgets it.
+  Future<void> _notePermissionAsked(int? versionCode) async {
+    try {
+      final store = ref.read(secretStoreProvider);
+      if (versionCode == null) {
+        await store.delete(updatePermissionKey);
+      } else {
+        await store.write(updatePermissionKey, '$versionCode');
+      }
+    } on Object catch (e) {
+      logWarn('update', 'permission note not stored: ${e.runtimeType}');
+    }
   }
 
   Future<void> _downloadAndInstall(
@@ -668,6 +713,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
     AvailableUpdate update,
   ) async {
     state = UpdateState(UpdatePhase.downloading, update: update, progress: 0);
+    unawaited(_notePermissionAsked(null));
     // No User-Agent: the download says nothing about this app either.
     final client = HttpClient()
       ..connectionTimeout = const Duration(seconds: 15)

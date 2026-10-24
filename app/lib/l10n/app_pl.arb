@@ -453,6 +453,7 @@
   "updateTryAgain": "Ponów",
   "updateDownloadProgressLabel": "Postęp pobierania",
   "updateAllowInstalls": "Zezwól na instalacje z Epic Cash Mobile, a potem wróć.",
+  "updateInstallCancelled": "Aktualizacja nie została zainstalowana. Możesz spróbować ponownie.",
   "updateNotInstalled": "Aktualizacja nie została zainstalowana: {detail}",
   "updateCannotInstall": "Nie można zainstalować aktualizacji: {detail}.",
   "updateCannotInstallUnknown": "Nie można zainstalować aktualizacji: nieznany błąd.",

@@ -1987,6 +1987,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Allow installs from Epic Cash Mobile, then return.';
 
   @override
+  String get updateInstallCancelled =>
+      'The update was not installed. You can try again.';
+
+  @override
   String updateNotInstalled(String detail) {
     return 'The update was not installed: $detail';
   }

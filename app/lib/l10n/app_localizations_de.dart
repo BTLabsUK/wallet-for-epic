@@ -2008,6 +2008,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Erlauben Sie Installationen von Epic Cash Mobile und kehren Sie dann zurück.';
 
   @override
+  String get updateInstallCancelled =>
+      'Das Update wurde nicht installiert. Sie können es erneut versuchen.';
+
+  @override
   String updateNotInstalled(String detail) {
     return 'Das Update wurde nicht installiert: $detail';
   }

@@ -2303,6 +2303,10 @@
   "@updateAllowInstalls": {
     "description": "Settings' update row while Android's screen for allowing installs from this app is open or was just opened; the update carries on by itself once the user allows and comes back. 'Epic Cash Mobile' is the app's name, never translated."
   },
+  "updateInstallCancelled": "The update was not installed. You can try again.",
+  "@updateInstallCancelled": {
+    "description": "Update banner and Settings row after Android's install dialog was closed without installing (Cancel or Back); the banner's and the row's buttons start it again."
+  },
   "updateNotInstalled": "The update was not installed: {detail}",
   "@updateNotInstalled": {
     "description": "Android's installer refused the update. detail is the installer's own message, in English.",

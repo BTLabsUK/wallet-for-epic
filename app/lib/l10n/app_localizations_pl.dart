@@ -2105,6 +2105,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zezwól na instalacje z Epic Cash Mobile, a potem wróć.';
 
   @override
+  String get updateInstallCancelled =>
+      'Aktualizacja nie została zainstalowana. Możesz spróbować ponownie.';
+
+  @override
   String updateNotInstalled(String detail) {
     return 'Aktualizacja nie została zainstalowana: $detail';
   }
