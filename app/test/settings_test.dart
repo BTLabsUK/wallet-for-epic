@@ -21,6 +21,7 @@ import 'package:epic_wallet/src/ui/language_flag.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
+import 'package:epic_wallet/src/ui/server_picker.dart' show ServerPickerSheet, serverAddFieldKey, serverAddKey, serverSwitchKey;
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
@@ -1869,93 +1870,45 @@ void main() {
         'Recheck balance',
         'Delete this wallet',
       ]);
-      // Node and Epicbox and Epicbox server show their server as a state line, so only
-      // the plain words are checked on the Privacy & network page.
+      // The Node and Epicbox rows show their server as a state line, so only the plain words
+      // are checked on the Privacy & network page.
       await h.openSettings(tester, SettingsSection.privacyNetwork);
-      await _reveal(tester, find.text('Epicbox server'));
+      await _reveal(tester, find.byKey(settingsEpicboxKey));
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('Relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);
     });
 
-    testWidgets('network settings call the relay an epicbox server', (
+    testWidgets('the Epicbox row opens the picker, which calls the relay an epicbox server', (
       tester,
     ) async {
       final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.privacyNetwork);
-      await _tapText(tester, 'Node and Epicbox');
-      await _reveal(tester, find.text('Epicbox server'));
-      expect(find.text('Epicbox server'), findsOneWidget);
-      // An empty field offers no use button, so it does not look confirmed.
-      expect(find.byTooltip('Use this server'), findsNothing);
-      // _NoRelays lists nothing, so there is no health source line either.
-      expect(
-        find.text('Health from status.btlabs.uk, measured from its server.'),
-        findsNothing,
-      );
-      await _enter(
-        tester,
-        'Other epicbox server (host or host:port)',
-        'mail.example.com',
-      );
-      await tester.tap(find.byTooltip('Use this server'));
+      await _reveal(tester, find.byKey(settingsEpicboxKey));
+      await tester.tap(find.byKey(settingsEpicboxKey));
       await tester.pumpAndSettle();
-      await _reveal(
-        tester,
-        find.textContaining('Changing the epicbox server changes your address'),
-      );
+      expect(find.byType(ServerPickerSheet), findsOneWidget);
       expect(
-        find.textContaining('Changing the epicbox server changes your address'),
+        find.descendant(of: find.byType(ServerPickerSheet), matching: find.text('Epicbox')),
         findsOneWidget,
       );
+      // The warning names the address, not a relay or a mailbox.
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);
-      // android-05: an expected consequence is a warning for a screen reader, not an error.
-      final warning = find.ancestor(
-        of: find.textContaining('Changing the epicbox server changes your address'),
-        matching: find.byType(WarningText),
+      await tester.scrollUntilVisible(
+        find.byKey(serverAddFieldKey),
+        200,
+        scrollable: find.descendant(of: find.byType(ServerPickerSheet), matching: find.byType(Scrollable)).first,
       );
-      expect(warning, findsOneWidget);
-      expect(
-        find.descendant(
-          of: warning,
-          matching: find.byWidgetPredicate((w) => w is Icon && w.semanticLabel == 'Warning'),
-        ),
-        findsOneWidget,
-      );
-      expect(find.byType(ErrorText), findsNothing);
-    });
-  });
-
-  group('network', () {
-    testWidgets('test connection shows the node height and version', (
-      tester,
-    ) async {
-      final h = _Harness(advanced: true);
-      await h.pump(tester);
-      await h.unlock(tester);
-      await h.openSettings(tester, SettingsSection.privacyNetwork);
-      await _tapText(tester, 'Node and Epicbox');
-      // A release names no network: no picker, no description of the chain.
-      expect(find.text('The real Epic Cash network.'), findsNothing);
-      expect(find.text('Mainnet'), findsNothing);
-      await _tapText(tester, 'Test connection');
-      expect(
-        find.text(
-          'Connected. The node is at block 2,500,000, running version 3.6.0.',
-        ),
-        findsOneWidget,
-      );
-      // Back up to the node field, above the relay list.
-      await tester.drag(find.byType(Scrollable).last, const Offset(0, 2000));
+      await tester.enterText(find.byKey(serverAddFieldKey), 'mail.example.com');
+      await tester.tap(find.byKey(serverAddKey));
       await tester.pumpAndSettle();
-      await _enter(tester, 'Node URL', 'not a url');
-      await _tapText(tester, 'Test connection');
-      await tester.drag(find.byType(Scrollable).last, const Offset(0, 2000));
-      await tester.pumpAndSettle();
-      expect(find.textContaining('Enter a full URL'), findsOneWidget);
+      expect(find.text('Your address changes; senders need the new one.'), findsOneWidget);
+      expect(find.byKey(serverSwitchKey), findsOneWidget);
+      expect(find.textContaining('relay'), findsNothing);
+      expect(find.textContaining('ailbox'), findsNothing);
     });
   });
 
@@ -1989,13 +1942,14 @@ void main() {
       }
 
       final off = await texts();
-      for (final hidden in ['Recheck balance', 'Epicbox server']) {
+      for (final hidden in ['Recheck balance']) {
         expect(off, isNot(contains(hidden)), reason: hidden);
       }
       // Kept: the connection is for everyone (the status card on Home opens the same
       // pickers), and the Home backup reminder points at the exports.
       for (final kept in [
-        'Node and Epicbox',
+        'Node',
+        'Epicbox',
         'Servers',
         'Export history backup',
         'Export CSV',
@@ -2007,12 +1961,7 @@ void main() {
       await _tapText(tester, 'Advanced options');
       expect(h.store.values['app.advanced'], 'true');
       final on = await texts();
-      for (final shown in [
-        'Node and Epicbox',
-        'Recheck balance',
-        'Servers',
-        'Epicbox server',
-      ]) {
+      for (final shown in ['Node', 'Epicbox', 'Recheck balance', 'Servers']) {
         expect(on, contains(shown), reason: shown);
       }
 

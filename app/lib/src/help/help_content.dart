@@ -133,8 +133,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   // The words that differ between a computer and a phone.
   final device = phone ? 'this phone' : 'this computer';
   final secret = phone ? 'your PIN' : 'the wallet password';
-  final nodePlace = phone ? '[[Settings › Privacy & network › Node and Epicbox]]' : '[[Settings › Node]]';
-  final epicboxPlace = phone ? '[[Settings › Privacy & network › Node and Epicbox]]' : '[[Settings › Receiving › Epicbox receiving]]';
+  final nodePlace = phone ? '[[Settings › Privacy & network › Node]]' : '[[Settings › Node]]';
+  final epicboxPlace = phone ? '[[Settings › Privacy & network › Epicbox]]' : '[[Settings › Receiving › Epicbox receiving]]';
   final torPlace = phone ? '[[Settings › Privacy & network › Tor Network]]' : '[[Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone ? '[[Settings › Wallet › Export history backup]]' : '[[Settings › This wallet › Export history backup]]';

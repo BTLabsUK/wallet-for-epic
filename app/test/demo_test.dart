@@ -807,7 +807,7 @@ void main() {
             // The demo wallet keeps the demo PIN, which unlock fills in.
             l.settingsChangePin,
           ],
-          SettingsSection.privacyNetwork: [l.settingsNetworkAndNode],
+          SettingsSection.privacyNetwork: [l.settingsSectionNetwork],
           SettingsSection.wallet: [
             l.settingsRescan,
             l.settingsExportHistory,

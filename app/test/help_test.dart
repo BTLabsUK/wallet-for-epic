@@ -96,7 +96,8 @@ void main() {
     test('places the phone can go to', () {
       expect(helpPlaceGoes('Receive'), isTrue);
       expect(helpPlaceGoes('Settings › Security › Back up recovery phrase'), isTrue);
-      expect(helpPlaceGoes('Settings › Privacy & network › Node and Epicbox'), isTrue);
+      expect(helpPlaceGoes('Settings › Privacy & network › Node'), isTrue);
+      expect(helpPlaceGoes('Settings › Privacy & network › Epicbox'), isTrue);
       expect(helpPlaceGoes('Settings › Recovery phrase'), isFalse);
       expect(helpPlaceGoes('Restore from a recovery phrase'), isFalse);
     });

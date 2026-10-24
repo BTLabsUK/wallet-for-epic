@@ -2042,9 +2042,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateCheckFailed => '检查更新失败。';
 
   @override
-  String get setupTitle => '节点与 Epicbox';
-
-  @override
   String get setupNetworkSettingsTooltip => '节点与 Epicbox';
 
   @override
@@ -2054,42 +2051,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get setupNodeUrlLabel => '节点地址';
 
   @override
-  String get setupNodeUrlInvalid => '请输入完整的地址，例如 https://node.example.com';
-
-  @override
-  String get setupTestConnection => '测试连接';
-
-  @override
-  String setupTestConnected(String height, String version) {
-    return '已连接。节点当前区块高度为 $height，运行版本 $version。';
-  }
-
-  @override
-  String setupTestFailed(String error) {
-    return '无法连接。$error';
-  }
-
-  @override
-  String get setupConnectedIconLabel => '已连接';
-
-  @override
-  String get setupRelayHeading => 'Epicbox 服务器';
-
-  @override
-  String get setupRelayHint => '你的地址包含此服务器。';
-
-  @override
   String get setupCustomRelayLabel => '其他 Epicbox 服务器（主机名或 host:port）';
 
   @override
-  String get setupCustomRelayUse => '使用此服务器';
-
-  @override
   String get setupCustomRelayInvalid => '请输入主机名，例如 epicbox.example.com';
-
-  @override
-  String get setupRelayChangeWarning =>
-      '更换 Epicbox 服务器会改变你的地址。请把新地址告诉发送方。发送到旧地址的付款会留在旧服务器上，直到你切换回去。';
 
   @override
   String get setupWalletPerNetwork => '每个网络都有各自的钱包。尚无钱包的网络会创建一个新钱包。';
@@ -2717,14 +2682,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionNetwork => '服务器';
 
   @override
-  String get settingsNetworkAndNode => '节点与 Epicbox';
-
-  @override
-  String settingsNetworkSubtitle(String network, String node) {
-    return '$network · $node';
-  }
-
-  @override
   String get settingsSectionDisplay => '显示';
 
   @override
@@ -3006,9 +2963,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsAboutNetwork => '网络';
-
-  @override
-  String get settingsEpicboxServer => 'Epicbox 服务器';
 
   @override
   String settingsUpdateTo(String version) {
