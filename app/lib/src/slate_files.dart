@@ -34,11 +34,31 @@ class SlateFile {
   final String json;
 }
 
-/// The file name for a new send, `<slate id>.tx`, as the CLI examples use.
-String sendFileName(String slateId) => '$slateId.tx';
+/// The first 8 characters of a slate id: short enough that a phone shows a file's whole name,
+/// ending included.
+String shortSlateId(String slateId) =>
+    slateId.length <= 8 ? slateId : slateId.substring(0, 8);
 
-/// The CLI's answer name: the incoming file's name plus `.response`.
-String responseFileName(String incomingName) => '$incomingName.response';
+/// The file name for a new send, `<first 8 of the slate id>.tx`.
+String sendFileName(String slateId) => '${shortSlateId(slateId)}.tx';
+
+/// The recipient's answer, `<first 8 of the slate id>.response`.
+String responseFileName(String slateId) =>
+    '${shortSlateId(slateId)}.response';
+
+/// [name] if [taken] says it is free, else `-2`, `-3`, ... before the suffix
+/// (`ab12cd34-2.response`). Reading never depends on names; this only keeps a save from
+/// overwriting another file.
+String uniqueFileName(String name, bool Function(String candidate) taken) {
+  if (!taken(name)) return name;
+  final dot = name.lastIndexOf('.');
+  final stem = dot <= 0 ? name : name.substring(0, dot);
+  final suffix = dot <= 0 ? '' : name.substring(dot);
+  for (var n = 2;; n++) {
+    final candidate = '$stem-$n$suffix';
+    if (!taken(candidate)) return candidate;
+  }
+}
 
 /// Reads a picked file's bytes as slate JSON, refusing files that cannot be one.
 String decodeSlateFile(List<int> bytes) {

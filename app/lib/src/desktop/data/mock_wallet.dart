@@ -11,6 +11,7 @@ import 'dart:typed_data';
 
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
+import '../../slate_files.dart' show responseFileName, sendFileName;
 import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
 import 'http_address.dart';
@@ -604,15 +605,16 @@ class MockDeskWallet implements DeskWalletApi {
       message: r.message,
     );
     _txs.insert(0, tx);
-    if (r.method == TxMethod.file) return SendFileReady(tx, 'send_${formatEpic(r.amount, minDecimals: 0)}_${tx.slateId.substring(0, 8)}.slate.json');
+    if (r.method == TxMethod.file) return SendFileReady(tx, sendFileName(tx.slateId));
     return SendDone(tx);
   }
 
   @override
   Future<ReceivedFile> receiveFile(String fileName) async {
     await _wait(2);
-    final tx = Tx(id: _nextId++, slateId: '9a8b7c6d-5e4f-4321-8765-0fedcba98765', direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(42), fee: 0, cancellable: true, created: DateTime.now(), counterparty: fileName);
-    return ReceivedFile(tx, '$fileName.response');
+    const slateId = '9a8b7c6d-5e4f-4321-8765-0fedcba98765';
+    final tx = Tx(id: _nextId++, slateId: slateId, direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(42), fee: 0, cancellable: true, created: DateTime.now(), counterparty: fileName);
+    return ReceivedFile(tx, responseFileName(slateId));
   }
 
   @override

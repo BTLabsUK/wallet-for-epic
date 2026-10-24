@@ -153,9 +153,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         ),
       ];
     } else if (_response case final response?) {
-      final name = responseFileName(
-        widget.pasted ? sendFileName(info!.slateId) : widget.file.name,
-      );
+      final name = responseFileName(info!.slateId);
       body = [
         _Headline(
           icon: Icons.check_circle,
@@ -166,8 +164,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         const SizedBox(height: 8),
         Text(
           response.repeated
-              ? l.slateRepeatedBody(epicExact(l, info!.amount))
-              : l.slateAcceptedBody(epicExact(l, info!.amount)),
+              ? l.slateRepeatedBody(epicExact(l, info.amount))
+              : l.slateAcceptedBody(epicExact(l, info.amount)),
         ),
         const SizedBox(height: 24),
         SlateFileButtons(
