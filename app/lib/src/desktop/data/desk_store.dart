@@ -3,6 +3,8 @@
 /// preferences (`settings.dart`), so the app needs no preferences dependency.
 library;
 
+import '../../advanced.dart';
+import '../../payment_prefs.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -12,6 +14,7 @@ import '../../log.dart';
 import '../../l10n.dart' show appLanguages;
 import '../../secret_store_api.dart';
 import '../../server_list.dart' show ServerKind, ServerList;
+import '../../settings.dart' show autoLockChoice;
 import 'models.dart';
 
 class DeskStore {
@@ -257,9 +260,12 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'internetGuideSeen': s.internetGuideSeen,
   'tourSeen': s.tourSeen,
   'useStatusSite': s.useStatusSite,
-  'autoLockMinutes': s.autoLockMinutes,
+  'autoLock': s.autoLockMinutes,
+  'autoLockOn': s.autoLockOn,
   'publicMode': s.publicMode,
   'httpPort': s.httpPort,
+  'advanced': s.advanced.toJson(),
+  'payments': s.payments.toJson(),
 };
 
 /// Each value of the wrong type falls back to its default, so bad saved data cannot block
@@ -274,7 +280,9 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
   final guide = j['internetGuideSeen'];
   final tour = j['tourSeen'];
   final site = j['useStatusSite'];
-  final lock = j['autoLockMinutes'];
+  // The key before 26.10.13 held a value nothing read: it is not taken over.
+  final lock = j['autoLock'];
+  final lockOn = j['autoLockOn'];
   final public = j['publicMode'];
   final port = j['httpPort'];
   return DeskSettings(
@@ -288,9 +296,18 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
     tourSeen: tour is bool ? tour : d.tourSeen,
     useStatusSite: site is bool ? site : d.useStatusSite,
     publicMode: public is bool ? public : d.publicMode,
+    advanced: AdvancedPrefs.fromJson(j['advanced']),
+    // Direct was Advanced's "Direct receiving" switch before 26.10.13.
+    payments: PaymentPrefs.fromJson(
+      j['payments'],
+      legacyDirect: switch (j['advanced']) {
+        {'features': final List<Object?> f} => f.contains('directReceiving'),
+        _ => false,
+      },
+    ),
     httpPort: port is int && port > 0 && port < 65536 ? port : d.httpPort,
-    // A saved null stays null.
-    autoLockMinutes: lock is int ? lock : (j.containsKey('autoLockMinutes') && lock == null ? null : d.autoLockMinutes),
+    autoLockMinutes: lock is int ? autoLockChoice(lock) : d.autoLockMinutes,
+    autoLockOn: lockOn is bool ? lockOn : d.autoLockOn,
   );
 }
 

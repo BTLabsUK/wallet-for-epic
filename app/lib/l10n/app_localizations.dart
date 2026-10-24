@@ -6010,6 +6010,150 @@ abstract class AppLocalizations {
   /// **'View all {count}'**
   String homeViewAll(int count);
 
+  /// Names the tour card for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet tour'**
+  String get tourPhoneSemantics;
+
+  /// Step counter on the tour card: this step's number of the total.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String tourPhoneCounter(int current, int total);
+
+  /// Button on the tour card: ends the tour.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get tourPhoneSkip;
+
+  /// Button on the tour card: the previous step.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get tourPhoneBack;
+
+  /// Button on the tour card: the next step.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get tourPhoneNext;
+
+  /// Title of the tour card for the Wallet tab (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get tourPhoneWalletTitle;
+
+  /// Text of the tour card for the Wallet tab; one or two short sentences. Names the status icons.
+  ///
+  /// In en, this message translates to:
+  /// **'Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.'**
+  String get tourPhoneWalletText;
+
+  /// Title of the tour card for the Send tab (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get tourPhoneSendTitle;
+
+  /// Text of the tour card for the Send tab; names the two payment methods shown by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.'**
+  String get tourPhoneSendText;
+
+  /// Title of the tour card for the Receive tab (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get tourPhoneReceiveTitle;
+
+  /// Text of the tour card for the Receive tab; one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.'**
+  String get tourPhoneReceiveText;
+
+  /// Title of the tour card for the Activity screen (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get tourPhoneActivityTitle;
+
+  /// Text of the tour card for the Activity screen; one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Every payment with its progress and details. Tap one to open it.'**
+  String get tourPhoneActivityText;
+
+  /// Title of the tour card for the Contacts screen (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get tourPhoneContactsTitle;
+
+  /// Text of the tour card for the Contacts screen; one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved addresses by name. Send picks from here.'**
+  String get tourPhoneContactsText;
+
+  /// Title of the tour card for the Invoices screen (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices'**
+  String get tourPhoneInvoicesTitle;
+
+  /// Text of the tour card for the Invoices screen; one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.'**
+  String get tourPhoneInvoicesText;
+
+  /// Title of the tour card for Settings › Privacy & network (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & network'**
+  String get tourPhonePrivacyTitle;
+
+  /// Text of the tour card for Privacy & network; one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.'**
+  String get tourPhonePrivacyText;
+
+  /// Title of the tour card for Settings › Advanced (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get tourPhoneAdvancedTitle;
+
+  /// Text of the tour card for Settings › Advanced; the tour itself switches nothing on.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor-only mode, outputs and technical details live here. Switch on what you need.'**
+  String get tourPhoneAdvancedText;
+
+  /// Title of the tour card for the Help screen (first-unlock tour). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get tourPhoneHelpTitle;
+
+  /// Text of the tour card for the Help screen; names the row that restarts the tour.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the topics or send feedback. “Show the tour again” is at the bottom of the list.'**
+  String get tourPhoneHelpText;
+
+  /// Row at the bottom of Help: starts the first-unlock tour again.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the tour again'**
+  String get tourPhoneShowAgain;
+
   /// Home destination tile: the payment history.
   ///
   /// In en, this message translates to:
@@ -6492,7 +6636,7 @@ abstract class AppLocalizations {
   /// Outputs screen: head of the section under the table that holds Split, Consolidate, the strategy and Split change.
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
+  /// **'Manage outputs'**
   String get outputsAdvanced;
 
   /// Output table header: the column with each output's state mark, word and note. One word.
@@ -7011,29 +7155,11 @@ abstract class AppLocalizations {
   /// **'{percent} % up'**
   String serverUptime(String percent);
 
-  /// Confirm strip button: switch to the chosen server.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to {host}'**
-  String serverSwitchTo(String host);
-
-  /// Confirm strip caption: what switching the node does.
-  ///
-  /// In en, this message translates to:
-  /// **'The wallet reconnects. Balances are checked again against the new node.'**
-  String get serverNodeSwitchNote;
-
   /// Epicbox picker warning above the list.
   ///
   /// In en, this message translates to:
   /// **'Your address includes this server. Switching changes your address; senders need the new one.'**
   String get serverRelayWarning;
-
-  /// Epicbox confirm strip caption.
-  ///
-  /// In en, this message translates to:
-  /// **'Your address changes; senders need the new one.'**
-  String get serverRelaySwitchNote;
 
   /// Epicbox picker field at the foot of the list for a relay not in the lists. Beside the Add button.
   ///
@@ -7734,7 +7860,7 @@ abstract class AppLocalizations {
   /// Title of a fold that holds technical controls (slate ID, rotation, expiry). Desktop has no Advanced switch.
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
+  /// **'Address and expiry'**
   String get deskInvAdvanced;
 
   /// Standing warning on the request form, Review and Settings › Invoices: the same wallet on two devices can intercept invoice payments.
@@ -10968,7 +11094,7 @@ abstract class AppLocalizations {
   /// Caption under the HTTP address when receiving is only for this computer.
   ///
   /// In en, this message translates to:
-  /// **'Programs on this computer can pay this address. For other devices, see Settings › Receiving.'**
+  /// **'Programs on this computer can pay this address. For other devices, see Settings › Transactions.'**
   String get deskRecvHttpLocal;
 
   /// Intro text of the HTTP panel on Receive.
@@ -11196,7 +11322,7 @@ abstract class AppLocalizations {
   /// Title of the collapsed Advanced disclosure on Send.
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
+  /// **'Send options'**
   String get deskSendAdvanced;
 
   /// Screen reader label of the group of strategy radio rows on Send.
@@ -13101,12 +13227,6 @@ abstract class AppLocalizations {
   /// **'Total'**
   String get deskOutTileTotal;
 
-  /// Title of the panel on Outputs with the settings Send uses.
-  ///
-  /// In en, this message translates to:
-  /// **'Defaults for sends'**
-  String get deskOutDefaultsTitle;
-
   /// Setting title in the Defaults panel: which outputs a send spends.
   ///
   /// In en, this message translates to:
@@ -14628,7 +14748,7 @@ abstract class AppLocalizations {
   /// Title of the collapsible 'Advanced' section of the Welcome page (network and data folder).
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
+  /// **'Network and folder'**
   String get deskOnbWelcomeAdvanced;
 
   /// Label of the network selector in the Advanced section of the Welcome page, and its screen-reader name.
@@ -16167,10 +16287,10 @@ abstract class AppLocalizations {
   /// **'Send'**
   String get deskTourSendTitle;
 
-  /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
+  /// Text of the Send step of the first-run tour. Names only what is visible by default.
   ///
   /// In en, this message translates to:
-  /// **'Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.'**
+  /// **'Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.'**
   String get deskTourSendText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16179,10 +16299,10 @@ abstract class AppLocalizations {
   /// **'Receive'**
   String get deskTourReceiveTitle;
 
-  /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
+  /// Text of the Receive step of the first-run tour.
   ///
   /// In en, this message translates to:
-  /// **'This wallet’s Epicbox address, with Direct · HTTP and Direct · Tor beside it. Transaction files to sign or finalize are at the bottom.'**
+  /// **'This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.'**
   String get deskTourReceiveText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16215,10 +16335,10 @@ abstract class AppLocalizations {
   /// **'Contacts'**
   String get deskTourContactsTitle;
 
-  /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
+  /// Text of the Contacts step of the first-run tour.
   ///
   /// In en, this message translates to:
-  /// **'Saved addresses by name: Epicbox, Direct · HTTP or Direct · Tor. Send picks from here.'**
+  /// **'Saved addresses by name. Send picks from here.'**
   String get deskTourContactsText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16227,10 +16347,10 @@ abstract class AppLocalizations {
   /// **'Settings › Node'**
   String get deskTourNodeTitle;
 
-  /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
+  /// Text of the Settings › Node step of the first-run tour.
   ///
   /// In en, this message translates to:
-  /// **'Which node the wallet reads the chain from: a public one or the local node. The other settings pages are listed on the left.'**
+  /// **'Which node the wallet reads the chain from. The other settings pages are listed on the left.'**
   String get deskTourNodeText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -16239,10 +16359,10 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get deskTourHelpTitle;
 
-  /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
+  /// Text of the Help step, the last step of the first-run tour.
   ///
   /// In en, this message translates to:
-  /// **'Topics by section, Report a problem and the app log. More on every page is here, and this tour can be shown again.'**
+  /// **'Topics by section and Report a problem. More on every page is here, and this tour can be shown again.'**
   String get deskTourHelpText;
 
   /// Step counter on the tour card, e.g. '2 of 7'. Narrow: keep it short.
@@ -17966,12 +18086,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Node'**
   String get deskSetFrameNode;
-
-  /// Settings sidebar entry and page name for how this wallet receives payments. Narrow.
-  ///
-  /// In en, this message translates to:
-  /// **'Receiving'**
-  String get deskSetFrameReceiving;
 
   /// Settings sidebar entry and page name for privacy and network routing. Narrow.
   ///
@@ -21077,7 +21191,7 @@ abstract class AppLocalizations {
   /// Head of the management section under the outputs table: the intro paragraph, Split and Consolidate, the defaults for sends.
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
+  /// **'Manage outputs'**
   String get deskOutAdvanced;
 
   /// Hover card behind the info icon of the Strategy for sends row (its title is deskOutStrategyHelpTitle).
@@ -21554,7 +21668,433 @@ abstract class AppLocalizations {
   /// **'Update didn\'t finish. Try again.'**
   String get deskUpdUnfinished;
 
-  /// Label of the one field at the top of the Node sheet: it holds the node in use, filters the list while typed in, and adds an address that is not listed.
+  /// Title of the Advanced page in Settings and its hub row.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get advTitle;
+
+  /// State line of the Advanced hub row when nothing is switched on.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get advStateOff;
+
+  /// First line of the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.'**
+  String get advIntro;
+
+  /// Header over the visibility switches on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows more'**
+  String get advShowsHeader;
+
+  /// Header over the network mode choice on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get advNetworkHeader;
+
+  /// Info sheet behind the Network header on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.'**
+  String get advNetworkHint;
+
+  /// Advanced switch: the Outputs page.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs'**
+  String get advOutputs;
+
+  /// Info sheet of the Outputs switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the Outputs page, under Wallet and on Home. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.'**
+  String get advOutputsHint;
+
+  /// Advanced switch: technical rows on transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details'**
+  String get advTechnical;
+
+  /// Info sheet of the Technical details switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the technical rows on a payment\'s details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.'**
+  String get advTechnicalHint;
+
+  /// Advanced switch: strategy and split change on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send options'**
+  String get advSendOptions;
+
+  /// Info sheet of the Send options switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.'**
+  String get advSendOptionsHint;
+
+  /// Advanced switch: hosts, latency, version, height.
+  ///
+  /// In en, this message translates to:
+  /// **'Server details'**
+  String get advServerDetails;
+
+  /// Info sheet of the Server details switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows hosts, latency, version and block height in the server pickers and on the status card, the relay address under Receive, and the invoice address in full.'**
+  String get advServerDetailsHint;
+
+  /// Advanced switch: recheck balance and restore from a block height or date.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck from a height'**
+  String get advRecheckHeight;
+
+  /// Info sheet of the Recheck from a height switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.'**
+  String get advRecheckHeightHint;
+
+  /// Network mode: direct connections.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get advModeStandard;
+
+  /// One line under the Standard network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Connects directly. Tor can be turned on in Privacy & network.'**
+  String get advModeStandardLine;
+
+  /// Network mode: Tor or nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only'**
+  String get advModeTorOnly;
+
+  /// One line under the Tor only network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Every connection goes through Tor. Without Tor the wallet stays offline and says so.'**
+  String get advModeTorOnlyLine;
+
+  /// Network mode: no network.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get advModeOffline;
+
+  /// One line under the Offline network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Only this phone and your local network. A node on your network still works; everything else waits until you switch back.'**
+  String get advModeOfflineLine;
+
+  /// Note under the network choice while Tor only is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only pauses notifications: registering for them would reveal this phone\'s address.'**
+  String get advTorOnlyNote;
+
+  /// Note under the network choice while Offline is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node\'s own peers are the node\'s setting.'**
+  String get advOfflineNote;
+
+  /// Row at the end of the Advanced page: turns every visibility switch off. The network mode stays.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide everything again'**
+  String get advReset;
+
+  /// Home status line while the Offline network mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode'**
+  String get advHomeOffline;
+
+  /// Home status line while Tor only is on and Tor is not connected yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only · waiting for Tor'**
+  String get advHomeTorOnlyWaiting;
+
+  /// Advanced switch (desktop): run a node on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in node'**
+  String get advBuiltInNode;
+
+  /// Advanced switch (desktop): logs and diagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get advLogs;
+
+  /// Settings sidebar entry and page name of the Advanced section. Narrow (about 200 px).
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get deskSetFrameAdvanced;
+
+  /// First line of Settings › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.'**
+  String get deskSetAdvIntro;
+
+  /// Title of the group of visibility switches on Settings › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows more'**
+  String get deskSetAdvShows;
+
+  /// Advanced switch: the Outputs page in the sidebar.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs'**
+  String get deskSetAdvOutputs;
+
+  /// Hover card of the Outputs switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.'**
+  String get deskSetAdvOutputsHint;
+
+  /// Advanced switch: technical rows on transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details'**
+  String get deskSetAdvTechnical;
+
+  /// Hover card of the Technical details switch on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core\'s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.'**
+  String get deskSetAdvTechnicalHint;
+
+  /// Advanced switch: the Advanced fold on Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send options'**
+  String get deskSetAdvSendOptions;
+
+  /// Hover card of the Send options switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.'**
+  String get deskSetAdvSendOptionsHint;
+
+  /// Advanced switch: hosts, latency, version, height.
+  ///
+  /// In en, this message translates to:
+  /// **'Server details'**
+  String get deskSetAdvServerDetails;
+
+  /// Hover card of the Server details switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar\'s status rows and in the status card.'**
+  String get deskSetAdvServerDetailsHint;
+
+  /// Advanced switch: recheck balance from a height, delete unconfirmed, restore from a height.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck from a height'**
+  String get deskSetAdvRecheck;
+
+  /// Hover card of the Recheck from a height switch on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone, whatever this says.'**
+  String get deskSetAdvRecheckHint;
+
+  /// Advanced switch: the node on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in node'**
+  String get deskSetAdvBuiltInNode;
+
+  /// Hover card of the Built-in node switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.'**
+  String get deskSetAdvBuiltInNodeHint;
+
+  /// Advanced switch: logs and diagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get deskSetAdvLogs;
+
+  /// Hover card of the Logs switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.'**
+  String get deskSetAdvLogsHint;
+
+  /// Title of the network mode group on Settings › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get deskSetAdvNetwork;
+
+  /// Hover card of the Network group on the Advanced page: what the three network modes do.
+  ///
+  /// In en, this message translates to:
+  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node\'s setting.'**
+  String get deskSetAdvNetworkHint;
+
+  /// Network mode: direct connections.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get deskSetAdvModeStandard;
+
+  /// Text under the Standard mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Connects directly. Tor can be turned on under Privacy.'**
+  String get deskSetAdvModeStandardText;
+
+  /// Network mode: Tor or nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only'**
+  String get deskSetAdvModeTorOnly;
+
+  /// Text under the Tor only mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Every connection goes through Tor. Without Tor the wallet stays offline and says so.'**
+  String get deskSetAdvModeTorOnlyText;
+
+  /// Network mode: no network.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get deskSetAdvModeOffline;
+
+  /// One-line description of the Offline network mode on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Only this computer and your local network. Your node keeps running; its own peers are the node\'s setting.'**
+  String get deskSetAdvModeOfflineText;
+
+  /// Note under the network choice while Tor only is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only turns HTTP receiving off: a plain address would reveal this computer.'**
+  String get deskSetAdvTorOnlyNote;
+
+  /// Note under the chosen Offline mode on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.'**
+  String get deskSetAdvOfflineNote;
+
+  /// Tag on a Tor mode when the build has no tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in this build'**
+  String get deskSetAdvNotInBuild;
+
+  /// Button at the end of Settings › Advanced: turns every visibility switch off. The network mode stays.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide everything again'**
+  String get deskSetAdvReset;
+
+  /// State line of the Advanced page head: how many visibility switches are on.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 switch on} other{{n} switches on}}'**
+  String deskSetAdvOn(int n);
+
+  /// Sidebar status row while the Offline network mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode'**
+  String get deskShellOffline;
+
+  /// Sidebar status row while Tor only is on and Tor is not connected yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only · waiting for Tor'**
+  String get deskShellTorOnlyWaiting;
+
+  /// Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch).
+  ///
+  /// In en, this message translates to:
+  /// **'Locks the wallet after this long without a key press or mouse movement. Turn it off to lock only with Lock wallet.'**
+  String get deskSetAcctAutoLockHint;
+
+  /// Why a network action is disabled while the Offline network mode is on. Tapping it opens the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode is on in Advanced.'**
+  String get netBlockOffline;
+
+  /// Line under the Tor switch while the Tor only network mode locks it on.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only is on in Advanced.'**
+  String get netBlockTorOnly;
+
+  /// Why a network action is disabled while Tor only is on and Tor is not connected yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor.'**
+  String get netBlockWaitingForTor;
+
+  /// Line on Receive's Epicbox and Direct tabs while the Offline network mode is on; the address is still shown to hand out.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t receive this way while Offline mode is on.'**
+  String get receiveOfflineLine;
+
+  /// Small text link on a payment's details that shows the technical rows for this view only, when Technical details is off in Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get txDetailsMore;
+
+  /// Small link on Restore that opens the choice of where to start scanning the chain.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a date or height'**
+  String get restoreStartFromLink;
+
+  /// Tooltip and screen reader hint of Home's Offline status.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode is on in Advanced. The balance is the last one seen.'**
+  String get homeOfflineDetail;
+
+  /// Tooltip and screen reader hint of Home's Waiting for Tor status.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only is on in Advanced. Waiting for Tor to connect.'**
+  String get homeWaitingTorDetail;
+
+  /// Recheck balance dialog text while Recheck from a height is off in Advanced: no start choice, the whole chain is scanned.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet looks for its funds again, from the first block. This can take a long time.'**
+  String get settingsRescanBodyPlain;
+
+  /// Label of the one field at the top of the Node sheet: it starts empty, filters the list while typed in, and adds an address that is not listed.
   ///
   /// In en, this message translates to:
   /// **'Node address'**
@@ -21566,17 +22106,29 @@ abstract class AppLocalizations {
   /// **'Epicbox server'**
   String get slRelayField;
 
-  /// Under the Node field while it still holds the node in use.
+  /// Placeholder of the Node and Epicbox list field while it is empty: the field filters the list and adds an address that is not listed. The server in use is never shown in it.
   ///
   /// In en, this message translates to:
-  /// **'In use. Edit it to switch, or type to filter the list.'**
-  String get slHelpIdleNode;
+  /// **'Paste or type to filter or add'**
+  String get slFieldHint;
 
-  /// Under the Epicbox field while it still holds the server in use.
+  /// Title of the Epicbox confirm that opens when a server in the list is tapped. {host} is the server.
   ///
   /// In en, this message translates to:
-  /// **'In use. Edit it to switch, or type to filter the list.'**
-  String get slHelpIdleRelay;
+  /// **'Switch to {host}?'**
+  String slSwitchTitle(String host);
+
+  /// One line under that title: switching Epicbox changes the address senders pay to.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Epicbox address changes. Share the new one.'**
+  String get slSwitchBody;
+
+  /// Button that confirms the Epicbox switch, and the action beside the Added foot line of the Node and Epicbox lists. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get slSwitch;
 
   /// Under the field while it holds an address no row has: the Add row is offered above the list.
   ///
@@ -21710,12 +22262,6 @@ abstract class AppLocalizations {
   /// **'Tor is not connected yet. Nothing added.'**
   String get deskSlTorWait;
 
-  /// The primary button at the foot of the Node or Epicbox list after a row was picked.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to {host}'**
-  String deskSlSwitchTo(String host);
-
   /// A row's response time in milliseconds.
   ///
   /// In en, this message translates to:
@@ -21745,6 +22291,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick one, or type to filter the list or add a server.'**
   String get deskSlHelpChoose;
+
+  /// Small link on the Restore password step that opens an optional field for the block the check starts from.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a block height'**
+  String get deskOnbRestoreFromLink;
+
+  /// The same link while the field is open: closes it and checks the whole chain again.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the whole chain'**
+  String get deskOnbRestoreFromHide;
+
+  /// Label of the optional start block field on Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from block'**
+  String get deskOnbRestoreFromLabel;
+
+  /// Placeholder of the start block field on Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Block height'**
+  String get deskOnbRestoreFromHint;
+
+  /// Help line under the start block field on Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Only if the wallet\'s first payment came after this block. Leave it empty to check the whole chain.'**
+  String get deskOnbRestoreFromHelp;
+
+  /// Error under the start block field on Restore when the text is not a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Use digits only, or leave it empty.'**
+  String get deskOnbRestoreFromInvalid;
+
+  /// Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode is on in Advanced.'**
+  String get deskNetOfflineReason;
+
+  /// Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor. Tor only is on in Advanced.'**
+  String get deskNetWaitingTorReason;
+
+  /// Line under the Tor switch in Settings › Privacy while the Tor only network mode keeps the switch on and locked.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only is on in Advanced.'**
+  String get deskNetTorOnlyLine;
+
+  /// Link or small button that opens Settings › Advanced, next to a line that names the network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Advanced'**
+  String get deskNetOpenAdvanced;
+
+  /// Second line of the notice on Send when the network mode holds Epicbox and Direct sends.
+  ///
+  /// In en, this message translates to:
+  /// **'A transaction file still works.'**
+  String get deskNetSendFileHint;
+
+  /// Text of the notice on Receive while Offline mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address stays the same. Nothing can arrive until Offline mode is off.'**
+  String get deskNetRecvOfflineText;
+
+  /// Text of the notice on Receive in Tor only mode while Tor is not connected yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving starts when Tor is connected. A transaction file still works.'**
+  String get deskNetRecvWaitTorText;
+
+  /// Detail of the Epicbox state line on Receive while Offline mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t receive offline.'**
+  String get deskNetCantReceive;
+
+  /// Word on a sidebar status row (Node, Epicbox, Tor) and the mark on the Overview balance while Offline mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get deskRailOffline;
+
+  /// Title of the Settings › Advanced step of the first-run tour.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get deskTourAdvancedTitle;
+
+  /// Text of the Settings › Advanced step of the first-run tour. The tour switches nothing on.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor-only mode, outputs and technical details live here. Switch on what you need.'**
+  String get deskTourAdvancedText;
+
+  /// Small link under a transaction's details that shows the technical rows for this view only.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get deskTxMore;
+
+  /// The same link while the technical rows are shown: hides them again.
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get deskTxLess;
+
+  /// Section heading in settings, and the hub row: how payments are made (the methods, the one Send starts on, the send defaults).
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get settingsSectionTransactions;
+
+  /// Settings hub, state line of the Transactions row: the payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'Methods'**
+  String get settingsHubMethods;
+
+  /// Settings hub, state line of the Transactions row: the method Send starts on.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get settingsHubDefault;
+
+  /// Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Send defaults'**
+  String get settingsHubSendDefaults;
+
+  /// Header on Settings › Transactions above the three payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment methods'**
+  String get txMethodsHeader;
+
+  /// Second line of the Epicbox row on Settings › Transactions: it has no switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Always on'**
+  String get txAlwaysOn;
+
+  /// Info sheet text of the Epicbox row on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.'**
+  String get txEpicboxHint;
+
+  /// One line under the Direct switch on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay onion and web addresses; get paid at this phone\'s Tor address.'**
+  String get txDirectLine;
+
+  /// Info sheet text of the Direct switch on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.'**
+  String get txDirectHint;
+
+  /// One line under the File switch on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay or get paid with a file you pass on yourself.'**
+  String get txFileLine;
+
+  /// Info sheet text of the File switch on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'File makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File to Send and Receive.'**
+  String get txFileHint;
+
+  /// Header on Settings › Transactions above the choice of the method Send opens on.
+  ///
+  /// In en, this message translates to:
+  /// **'Send starts on'**
+  String get txStartHeader;
+
+  /// Small line under the choice of the method Send starts on.
+  ///
+  /// In en, this message translates to:
+  /// **'You can still pick another method on Send.'**
+  String get txStartNote;
+
+  /// Header on Settings › Transactions above Strategy and Split change; shown with Advanced › Send options.
+  ///
+  /// In en, this message translates to:
+  /// **'Send defaults'**
+  String get txDefaultsHeader;
+
+  /// Row on the Outputs page that opens Settings › Transactions, where Strategy for sends and Split change now are.
+  ///
+  /// In en, this message translates to:
+  /// **'Send defaults are in Settings › Transactions'**
+  String get outputsDefaultsMoved;
+
+  /// Switch on the Advanced page, under the network modes: on by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Node failover'**
+  String get advNodeFailover;
+
+  /// Info sheet of the Node failover switch on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'When your node stops answering, the wallet uses the next working node in your list for this session.'**
+  String get advNodeFailoverHint;
+
+  /// Notice when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.
+  ///
+  /// In en, this message translates to:
+  /// **'Node not answering. Switched to {host}.'**
+  String nodeFailoverSwitched(String host);
+
+  /// Under the node's address on the status card while node failover uses another node: host is the chosen node.
+  ///
+  /// In en, this message translates to:
+  /// **'Instead of {host}'**
+  String nodeFailoverInsteadOf(String host);
+
+  /// Switch on Settings › Advanced, under the network modes: on by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Node failover'**
+  String get deskSetAdvNodeFailover;
+
+  /// Hover card of the Node failover switch on Settings › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'When your node stops answering, the wallet uses the next working node in your list for this session.'**
+  String get deskSetAdvNodeFailoverHint;
+
+  /// Toast when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.
+  ///
+  /// In en, this message translates to:
+  /// **'Node not answering. Switched to {host}.'**
+  String deskNodeFailoverSwitched(String host);
+
+  /// Second line of the sidebar Node status and the Settings › Node head while node failover uses another node: host is the chosen node.
+  ///
+  /// In en, this message translates to:
+  /// **'Instead of {host}'**
+  String deskNodeFailoverInsteadOf(String host);
+
+  /// Why a Direct send was refused in the Offline network mode: the address is not on this device or the local network.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline: only local addresses.'**
+  String get netOfflineOnlyLocal;
+
+  /// Line on Send in the Offline mode when the local node in use has no peers.
+  ///
+  /// In en, this message translates to:
+  /// **'Your node has no peers: the payment waits in its pool until it reconnects.'**
+  String get netOfflineNoPeers;
+
+  /// Why a Direct send was refused in the Offline network mode: the address is not on this computer or the local network.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline: only local addresses.'**
+  String get deskErrOfflineOnlyLocal;
+
+  /// Notice on Send in the Offline mode when the local node in use has no peers.
+  ///
+  /// In en, this message translates to:
+  /// **'Your node has no peers: the payment waits in its pool until it reconnects.'**
+  String get deskNetOfflineNoPeers;
+
+  /// One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went.
+  ///
+  /// In en, this message translates to:
+  /// **'The strategy and Split change for sends are set in Settings › Transactions.'**
+  String get deskOutDefaultsMoved;
+
+  /// Inline button after deskOutDefaultsMoved: opens Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Transactions'**
+  String get deskOutDefaultsOpen;
+
+  /// Settings sidebar entry and page name for how payments are made: the methods, what Send starts on, receiving. Narrow (about 200 px).
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get deskSetFrameTransactions;
+
+  /// Title of the group on Settings › Transactions with one row per payment method (Epicbox, Direct, File).
+  ///
+  /// In en, this message translates to:
+  /// **'Payment methods'**
+  String get deskSetTxMethods;
+
+  /// Tag in place of a switch on the Epicbox row of Settings › Transactions: Epicbox cannot be turned off here. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Always on'**
+  String get deskSetTxAlwaysOn;
+
+  /// Hover card behind the info icon of the Epicbox row on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.'**
+  String get deskSetTxEpicboxHint;
+
+  /// Hover card behind the info icon of the Direct row (switch) on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.'**
+  String get deskSetTxDirectHint;
+
+  /// Hover card behind the info icon of the File row (switch) on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.'**
+  String get deskSetTxFileHint;
+
+  /// Title of the group on Settings › Transactions with what the Send page starts on and, with Advanced › Send options on, its defaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deskSetTxSend;
+
+  /// Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on.
+  ///
+  /// In en, this message translates to:
+  /// **'Send starts on'**
+  String get deskSetTxStart;
+
+  /// Hover card behind the info icon of the Send starts on row.
+  ///
+  /// In en, this message translates to:
+  /// **'The method the Send page opens with. You can still change it for one payment on Send.'**
+  String get deskSetTxStartHint;
 }
 
 class _AppLocalizationsDelegate

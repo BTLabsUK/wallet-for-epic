@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'demo.dart';
+import 'network_gate.dart';
 import 'phone_tor.dart';
 import 'providers.dart';
 import 'push.dart';
@@ -127,6 +128,12 @@ class PushController extends Notifier<bool> {
         }
       });
     });
+    // Back to Standard from Tor only or Offline: registers again when notifications are on.
+    ref.listen(networkModeProvider, (before, after) {
+      final session = ref.read(sessionProvider);
+      if (before == after || session == null || !pushAllowed(after)) return;
+      unawaited(_sync(session, why: 'network mode'));
+    });
     // A new token from Firebase: register it.
     ref.listen(pushProvider.select((s) => s.token), (_, token) {
       if (token != null) unawaited(_serial(() => _registerToken(token)));
@@ -135,8 +142,9 @@ class PushController extends Notifier<bool> {
   }
 
   /// This wallet's Tor is off right now, by the state the app routes by.
+  /// Tor only and Offline never register (network_gate.dart, [torWayIn]).
   bool _torOffNow() =>
-      torWay(TorRoute.push, phoneTorState(ref.read(phoneTorProvider))) ==
+      torWayIn(TorRoute.push, phoneTorState(ref.read(phoneTorProvider)), NetGate.mode) ==
       TorWay.clearnet;
 
   /// The saved Tor switch is on for this wallet: tor starts with it, and until the controller

@@ -1,0 +1,187 @@
+{
+  "deskSetFrameAdvanced": "Advanced",
+  "@deskSetFrameAdvanced": {
+    "description": "Settings sidebar entry and page name of the Advanced section. Narrow (about 200 px)."
+  },
+  "deskSetAdvIntro": "Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.",
+  "@deskSetAdvIntro": {
+    "description": "First line of Settings › Advanced."
+  },
+  "deskSetAdvShows": "Shows more",
+  "@deskSetAdvShows": {
+    "description": "Title of the group of visibility switches on Settings › Advanced."
+  },
+  "deskSetAdvOutputs": "Outputs",
+  "@deskSetAdvOutputs": {
+    "description": "Advanced switch: the Outputs page in the sidebar."
+  },
+  "deskSetAdvOutputsHint": "Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.",
+  "@deskSetAdvOutputsHint": {
+    "description": "Hover card of the Outputs switch."
+  },
+  "deskSetAdvTechnical": "Technical details",
+  "@deskSetAdvTechnical": {
+    "description": "Advanced switch: technical rows on transactions."
+  },
+  "deskSetAdvTechnicalHint": "Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core's status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.",
+  "@deskSetAdvTechnicalHint": {
+    "description": "Hover card of the Technical details switch on the Advanced page."
+  },
+  "deskSetAdvSendOptions": "Send options",
+  "@deskSetAdvSendOptions": {
+    "description": "Advanced switch: the Advanced fold on Send."
+  },
+  "deskSetAdvSendOptionsHint": "Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.",
+  "@deskSetAdvSendOptionsHint": {
+    "description": "Hover card of the Send options switch."
+  },
+  "deskSetAdvServerDetails": "Server details",
+  "@deskSetAdvServerDetails": {
+    "description": "Advanced switch: hosts, latency, version, height."
+  },
+  "deskSetAdvServerDetailsHint": "Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar's status rows and in the status card.",
+  "@deskSetAdvServerDetailsHint": {
+    "description": "Hover card of the Server details switch."
+  },
+  "deskSetAdvRecheck": "Recheck from a height",
+  "@deskSetAdvRecheck": {
+    "description": "Advanced switch: recheck balance from a height, delete unconfirmed, restore from a height."
+  },
+  "deskSetAdvRecheckHint": "Lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone, whatever this says.",
+  "@deskSetAdvRecheckHint": {
+    "description": "Hover card of the Recheck from a height switch on the Advanced page."
+  },
+  "deskSetAdvBuiltInNode": "Built-in node",
+  "@deskSetAdvBuiltInNode": {
+    "description": "Advanced switch: the node on this computer."
+  },
+  "deskSetAdvBuiltInNodeHint": "Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.",
+  "@deskSetAdvBuiltInNodeHint": {
+    "description": "Hover card of the Built-in node switch."
+  },
+  "deskSetAdvLogs": "Logs",
+  "@deskSetAdvLogs": {
+    "description": "Advanced switch: logs and diagnostics."
+  },
+  "deskSetAdvLogsHint": "Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.",
+  "@deskSetAdvLogsHint": {
+    "description": "Hover card of the Logs switch."
+  },
+  "deskSetAdvNetwork": "Network",
+  "@deskSetAdvNetwork": {
+    "description": "Title of the network mode group on Settings › Advanced."
+  },
+  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node's setting.",
+  "@deskSetAdvNetworkHint": {
+    "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
+  },
+  "deskSetAdvModeStandard": "Standard",
+  "@deskSetAdvModeStandard": {
+    "description": "Network mode: direct connections."
+  },
+  "deskSetAdvModeStandardText": "Connects directly. Tor can be turned on under Privacy.",
+  "@deskSetAdvModeStandardText": {
+    "description": "Text under the Standard mode."
+  },
+  "deskSetAdvModeTorOnly": "Tor only",
+  "@deskSetAdvModeTorOnly": {
+    "description": "Network mode: Tor or nothing."
+  },
+  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Without Tor the wallet stays offline and says so.",
+  "@deskSetAdvModeTorOnlyText": {
+    "description": "Text under the Tor only mode."
+  },
+  "deskSetAdvModeOffline": "Offline",
+  "@deskSetAdvModeOffline": {
+    "description": "Network mode: no network."
+  },
+  "deskSetAdvModeOfflineText": "Only this computer and your local network. Your node keeps running; its own peers are the node's setting.",
+  "@deskSetAdvModeOfflineText": {
+    "description": "One-line description of the Offline network mode on the Advanced page."
+  },
+  "deskSetAdvTorOnlyNote": "Tor only turns HTTP receiving off: a plain address would reveal this computer.",
+  "@deskSetAdvTorOnlyNote": {
+    "description": "Note under the network choice while Tor only is selected."
+  },
+  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.",
+  "@deskSetAdvOfflineNote": {
+    "description": "Note under the chosen Offline mode on the Advanced page."
+  },
+  "deskSetAdvNotInBuild": "Not in this build",
+  "@deskSetAdvNotInBuild": {
+    "description": "Tag on a Tor mode when the build has no tor."
+  },
+  "deskSetAdvReset": "Hide everything again",
+  "@deskSetAdvReset": {
+    "description": "Button at the end of Settings › Advanced: turns every visibility switch off. The network mode stays."
+  },
+  "deskSetAdvOn": "{n, plural, =1{1 switch on} other{{n} switches on}}",
+  "@deskSetAdvOn": {
+    "description": "State line of the Advanced page head: how many visibility switches are on.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "deskShellOffline": "Offline mode",
+  "@deskShellOffline": {
+    "description": "Sidebar status row while the Offline network mode is on."
+  },
+  "deskShellTorOnlyWaiting": "Tor only · waiting for Tor",
+  "@deskShellTorOnlyWaiting": {
+    "description": "Sidebar status row while Tor only is on and Tor is not connected yet."
+  },
+  "deskNetOfflineReason": "Offline mode is on in Advanced.",
+  "@deskNetOfflineReason": {
+    "description": "Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control."
+  },
+  "deskErrOfflineOnlyLocal": "Offline: only local addresses.",
+  "@deskErrOfflineOnlyLocal": {
+    "description": "Why a Direct send was refused in the Offline network mode: the address is not on this computer or the local network."
+  },
+  "deskNetOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
+  "@deskNetOfflineNoPeers": {
+    "description": "Notice on Send in the Offline mode when the local node in use has no peers."
+  },
+  "deskNetWaitingTorReason": "Waiting for Tor. Tor only is on in Advanced.",
+  "@deskNetWaitingTorReason": {
+    "description": "Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line."
+  },
+  "deskNetTorOnlyLine": "Tor only is on in Advanced.",
+  "@deskNetTorOnlyLine": {
+    "description": "Line under the Tor switch in Settings › Privacy while the Tor only network mode keeps the switch on and locked."
+  },
+  "deskNetOpenAdvanced": "Open Advanced",
+  "@deskNetOpenAdvanced": {
+    "description": "Link or small button that opens Settings › Advanced, next to a line that names the network mode."
+  },
+  "deskNetSendFileHint": "A transaction file still works.",
+  "@deskNetSendFileHint": {
+    "description": "Second line of the notice on Send when the network mode holds Epicbox and Direct sends."
+  },
+  "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive until Offline mode is off.",
+  "@deskNetRecvOfflineText": {
+    "description": "Text of the notice on Receive while Offline mode is on."
+  },
+  "deskNetRecvWaitTorText": "Receiving starts when Tor is connected. A transaction file still works.",
+  "@deskNetRecvWaitTorText": {
+    "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
+  },
+  "deskNetCantReceive": "Can't receive offline.",
+  "@deskNetCantReceive": {
+    "description": "Detail of the Epicbox state line on Receive while Offline mode is on."
+  },
+  "deskRailOffline": "Offline",
+  "@deskRailOffline": {
+    "description": "Word on a sidebar status row (Node, Epicbox, Tor) and the mark on the Overview balance while Offline mode is on."
+  },
+  "deskSetAdvNodeFailover": "Node failover",
+  "@deskSetAdvNodeFailover": {
+    "description": "Switch on Settings › Advanced, under the network modes: on by default."
+  },
+  "deskSetAdvNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "@deskSetAdvNodeFailoverHint": {
+    "description": "Hover card of the Node failover switch on Settings › Advanced."
+  }
+}

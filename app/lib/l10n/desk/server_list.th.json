@@ -4,7 +4,6 @@
   "deskSlHealthUnknown": "ไม่ทราบสถานะ",
   "deskSlNodeNoAnswer": "โหนดนี้ไม่ตอบสนอง ไม่ได้เพิ่มอะไร",
   "deskSlTorWait": "Tor ยังไม่ได้เชื่อมต่อ ไม่ได้เพิ่มอะไร",
-  "deskSlSwitchTo": "เปลี่ยนเป็น {host}",
   "deskSlLatency": "{ms} มิลลิวินาที",
   "deskSlDefault": "ค่าเริ่มต้น",
   "deskSlTesting": "กำลังทดสอบ {host}…",

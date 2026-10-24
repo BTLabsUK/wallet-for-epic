@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/ui/receive_screen.dart'
 import 'package:epic_wallet/src/ui/server_list_sheet.dart' show ServerListSheet;
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
+import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -162,6 +163,7 @@ Future<void> _pump(
   Widget child = const StatusIcons(key: walletStatusesKey),
   double width = 412,
   double scale = 1,
+  AdvancedPrefs advanced = AdvancedPrefs.none,
 }) async {
   final t = tip ?? AsyncData(_tip);
   tester.view.physicalSize = Size(width * 3, 2400);
@@ -193,11 +195,14 @@ Future<void> _pump(
         theme: buildWalletTheme(protocolDark, Brightness.dark),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(scale),
+        builder: (context, child) => AdvancedOptions(
+          prefs: advanced,
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(scale),
+            ),
+            child: child!,
           ),
-          child: child!,
         ),
         home: Scaffold(body: Center(child: child)),
       ),
@@ -246,6 +251,9 @@ Color _dot(WidgetTester tester, Key key) {
   );
   return (box.decoration! as BoxDecoration).color!;
 }
+
+WalletTokens _tokens2(WidgetTester tester) =>
+    tester.element(find.byKey(netModeStatusKey)).tokens;
 
 WalletTokens _tokens(WidgetTester tester) =>
     tester.element(find.byKey(nodeStatusKey)).tokens;
@@ -544,6 +552,94 @@ void main() {
       await tester.pump();
       expect(container.read(shellTabProvider), ShellTab.receive);
       expect(container.read(receiveTabProvider), ReceiveTab.direct);
+    });
+  });
+
+  group('network mode', () {
+    const offline = AdvancedPrefs(networkMode: NetworkMode.offline);
+    const torOnly = AdvancedPrefs(networkMode: NetworkMode.torOnly);
+
+    testWidgets('Standard: the icons, no mode word', (tester) async {
+      await _pump(tester);
+      expect(find.byKey(netModeStatusKey), findsNothing);
+      expect(find.byKey(nodeStatusKey), findsOneWidget);
+      expect(find.byKey(epicboxStatusKey), findsOneWidget);
+    });
+
+    testWidgets('Offline: the word in a neutral colour, still, in place of the icons', (
+      tester,
+    ) async {
+      await _pump(tester, advanced: offline, tor: _torOff);
+      final t = _tokens2(tester);
+      expect(find.byKey(nodeStatusKey), findsNothing);
+      expect(find.byKey(epicboxStatusKey), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byKey(netModeStatusKey),
+          matching: find.text('Offline'),
+        ),
+        findsOneWidget,
+      );
+      final word = tester.widget<Text>(
+        find.descendant(
+          of: find.byKey(netModeStatusKey),
+          matching: find.text('Offline'),
+        ),
+      );
+      expect(word.style?.color, t.dim);
+      // No pulse: nothing animates, so the tree settles.
+      await tester.pumpAndSettle();
+      expect(_label(tester, netModeStatusKey), 'Offline');
+      expect(_hint(tester, netModeStatusKey), contains('Offline mode is on in Advanced.'));
+    });
+
+    testWidgets('Tor only without Tor: Waiting for Tor in the in-progress colour', (
+      tester,
+    ) async {
+      await _pump(tester, advanced: torOnly, tor: _torStarting);
+      final t = _tokens2(tester);
+      final word = tester.widget<Text>(
+        find.descendant(
+          of: find.byKey(netModeStatusKey),
+          matching: find.text('Waiting for Tor'),
+        ),
+      );
+      expect(word.style?.color, t.info);
+      expect(find.byKey(nodeStatusKey), findsNothing);
+      // Tor's own icon stays: it is how the user sees Tor start.
+      expect(find.byKey(torIconKey), findsOneWidget);
+    });
+
+    testWidgets('Tor only with Tor connected: the icons are back', (
+      tester,
+    ) async {
+      await _pump(tester, advanced: torOnly, tor: _torReady);
+      expect(find.byKey(netModeStatusKey), findsNothing);
+      expect(find.byKey(nodeStatusKey), findsOneWidget);
+    });
+
+    testWidgets('Offline keeps the last balance and marks the caption', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        child: const WalletBalance(),
+        advanced: offline,
+        tor: _torOff,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(balanceCaptionKey)).data,
+        'Available to spend · Offline',
+      );
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, child: const WalletBalance(), tor: _torOff);
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<Text>(find.byKey(balanceCaptionKey)).data,
+        'Available to spend',
+      );
     });
   });
 

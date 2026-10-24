@@ -23,7 +23,7 @@ class _Backstop extends MockDeskWallet {
   Future<WalletEntry?> walletWithPhrase(List<String> words) async => null;
 
   @override
-  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight}) async {
     restores++;
     final same = (await wallets()).firstWhere((w) => w.id == 'legacy-mainnet');
     throw DeskError('This wallet is already here: ${same.name}', sameWallet: same);

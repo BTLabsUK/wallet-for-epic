@@ -11,10 +11,6 @@
   "@deskSetFrameNode": {
     "description": "Settings sidebar entry and page name for the node section. Narrow (about 200 px)."
   },
-  "deskSetFrameReceiving": "Receiving",
-  "@deskSetFrameReceiving": {
-    "description": "Settings sidebar entry and page name for how this wallet receives payments. Narrow."
-  },
   "deskSetFramePrivacy": "Privacy",
   "@deskSetFramePrivacy": {
     "description": "Settings sidebar entry and page name for privacy and network routing. Narrow."

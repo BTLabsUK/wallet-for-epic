@@ -235,6 +235,9 @@ class HttpReachCache {
     }
   }
 
+  /// The local network address only, asking nothing on the internet (Offline). Not kept.
+  Future<HttpReach> readLan(int port) async => HttpReach(port: port, lan: await _lan(), checkedAt: _now());
+
   /// Forgets the last check (the listener stopped, Tor came on).
   void clear() => _last = null;
 

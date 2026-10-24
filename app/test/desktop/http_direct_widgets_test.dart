@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 import 'review_password.dart';
 
 /// The mock wallet, recording each send.
@@ -37,10 +39,11 @@ void main() {
   tearDown(() => container.dispose());
 
   Future<void> show(WidgetTester tester, Widget screen) async {
-    tester.view.physicalSize = const Size(1280, 1000);
+    tester.view.physicalSize = const Size(1280, 1500); // Transactions is a long page
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.runAsync(() => advancedOn(container));
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -91,7 +94,7 @@ void main() {
     });
   });
 
-  group('Settings › Receiving', () {
+  group('Settings › Transactions', () {
     Finder httpSwitch() => find.byKey(const ValueKey('st-switch-http'));
     String httpState(WidgetTester tester) => tester.widget<EStateLine>(find.byKey(const ValueKey('st-state-http'))).line.text;
 

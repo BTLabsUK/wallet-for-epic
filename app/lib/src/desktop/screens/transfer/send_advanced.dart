@@ -34,7 +34,8 @@ class SendAdvanced extends StatelessWidget {
   final ValueChanged<bool> onSplit;
 
   /// Opens the Outputs page (the defaults).
-  final VoidCallback onOutputs;
+  /// Opens Outputs; null while Advanced hides that page (the caption then has no link).
+  final VoidCallback? onOutputs;
 
   /// Sending everything spends every output: the strategy rows are off.
   final bool sendAll;
@@ -81,7 +82,7 @@ class SendAdvanced extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(l.deskSendAdvDefaults, style: ts.caption.copyWith(color: c.dim)),
-              ELink(label: l.deskSendAdvOutputsLink, onPressed: onOutputs),
+              if (onOutputs case final go?) ELink(label: l.deskSendAdvOutputsLink, onPressed: go),
             ],
           ),
         ],

@@ -29,5 +29,6 @@
   "deskSetAcctChangePassword": "Zmień hasło…",
   "deskSetAcctDeleteHint": "Usuwa jego klucze i bazę danych.",
   "deskSetAcctFolderNotFound": "Nie znaleziono folderu",
-  "deskSetAcctCopyPath": "Kopiuj ścieżkę: {title}"
+  "deskSetAcctCopyPath": "Kopiuj ścieżkę: {title}",
+  "deskSetAcctAutoLockHint": "Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Wyłączona: portfel blokuje tylko „Zablokuj portfel”."
 }

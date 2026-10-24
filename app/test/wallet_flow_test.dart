@@ -16,7 +16,12 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/network_menu.dart' show networkMenuEpicboxKey, networkMenuNetworkKey;
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
-    show serverListAddKey, serverListFieldKey, serverListRowKey, serverListSwitchKey;
+    show
+        serverListAddKey,
+        serverListCancelKey,
+        serverListFieldKey,
+        serverListRowKey,
+        serverListSwitchKey;
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -389,6 +394,8 @@ void main() {
         'Recovery phrase',
         '  ${service.phrase.toUpperCase()} ',
       );
+      // The start choice is offered to everyone behind a small link.
+      await _tapText(tester, 'Start from a date or height');
       await _tapText(tester, 'Block height');
       await _enter(tester, 'Start height (optional)', '1000');
       await _tapText(tester, 'Continue');
@@ -445,9 +452,11 @@ void main() {
       find.textContaining('epicnet.us', findRichText: true),
       findsWidgets,
     );
-    expect(find.text('Your address changes; senders need the new one.'), findsNothing);
+    expect(find.text('Your Epicbox address changes. Share the new one.'), findsNothing);
     await _tap(tester, row);
-    expect(find.text('Your address changes; senders need the new one.'), findsOneWidget);
+    expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+    await _tap(tester, find.byKey(serverListCancelKey));
+    expect(find.byKey(serverListSwitchKey), findsNothing);
 
     // Text that is no address: the Add row says so under the field, and adds nothing.
     await tester.enterText(find.byKey(serverListFieldKey), 'not a host!');

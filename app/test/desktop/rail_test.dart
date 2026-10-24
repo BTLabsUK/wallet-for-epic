@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 /// The mock wallet with a fixed status ([status] null: nothing known yet).
 class _Wallet extends MockDeskWallet {
   _Wallet(this.fixed) : super(delay: Duration.zero);
@@ -67,6 +69,7 @@ void main() {
     final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_Wallet(status))]);
     addTearDown(container.dispose);
     if (refresh) await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.runAsync(() => advancedOn(container));
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,

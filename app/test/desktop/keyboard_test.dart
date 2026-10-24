@@ -21,6 +21,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 Future<ProviderContainer> _open(WidgetTester tester, DeskRoute route, {Object? arg}) async {
   tester.view.physicalSize = const Size(1280, 800);
   tester.view.devicePixelRatio = 1;
@@ -28,6 +30,7 @@ Future<ProviderContainer> _open(WidgetTester tester, DeskRoute route, {Object? a
   final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))], retry: (_, _) => null);
   addTearDown(container.dispose);
   await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() => advancedOn(container));
   container.read(deskNavProvider.notifier).reset(route, arg);
   await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
   await _settle(tester);
@@ -511,8 +514,11 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('b.example', findRichText: true));
       await tester.pump();
-      await tester.tap(find.text('Switch to b.example'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Switch to b.example?'), findsOneWidget, reason: 'an Epicbox pick asks first');
+      await tester.tap(find.byKey(const ValueKey('server-list-switch')));
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
       expect(picked, 'b.example');
       expect(closedField(), findsNothing);
     });

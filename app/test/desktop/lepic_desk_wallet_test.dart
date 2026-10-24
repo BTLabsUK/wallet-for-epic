@@ -20,6 +20,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 const _password = 'test-pass-1234';
 
 /// Throws [core.WalletErrorKind.damagedDatabase] on the first open, as LEPIC does once it has
@@ -111,6 +113,17 @@ class _Recording extends _TwoPhrases {
   Future<core.WalletSession> open({required core.WalletConfig config, required String password}) async {
     opened.add(config);
     return super.open(config: config, password: password);
+  }
+}
+
+/// A session that notes where each scan was told to start.
+class _Starts extends _StrictSession {
+  final List<BigInt?> starts = [];
+
+  @override
+  Stream<core.ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
+    starts.add(startHeight);
+    return super.scan(startHeight: startHeight, deleteUnconfirmed: deleteUnconfirmed);
   }
 }
 
@@ -759,8 +772,15 @@ void main() {
       final s = await DeskStore(secrets).settings();
       const d = DeskSettings();
       expect((s.theme, s.scale, s.hideAmounts, s.newLookSeen, s.autoLockMinutes), (ThemeChoice.light, d.scale, d.hideAmounts, d.newLookSeen, d.autoLockMinutes));
-      expect(deskSettingsFromJson({'autoLockMinutes': null}).autoLockMinutes, isNull);
-      expect(deskSettingsFromJson({'autoLockMinutes': 30}).autoLockMinutes, 30);
+      // Auto-lock: 15 minutes and on by default; 1 to 60; the pre-26.10.13 key is not read.
+      expect((d.autoLockMinutes, d.autoLockOn), (15, true));
+      expect(deskSettingsFromJson({'autoLockMinutes': 30}).autoLockMinutes, 15);
+      expect(deskSettingsFromJson({'autoLock': 30}).autoLockMinutes, 30);
+      expect(deskSettingsFromJson({'autoLock': 0}).autoLockMinutes, 1);
+      expect(deskSettingsFromJson({'autoLock': 600}).autoLockMinutes, 60);
+      expect(deskSettingsFromJson({'autoLockOn': false}).autoLockOn, isFalse);
+      final back = deskSettingsFromJson(deskSettingsToJson(d.copyWith(autoLockMinutes: 1, autoLockOn: false)));
+      expect((back.autoLockMinutes, back.autoLockOn), (1, false));
     });
   });
 
@@ -1058,6 +1078,30 @@ void main() {
       expect(await secrets.read('desk.favourites'), firstFavourites);
     });
 
+    test('a restore from a block height scans from there once, and forgets it', () async {
+      final session = _Starts();
+      final gw = make(_TwoPhrases(session: session));
+      addTearDown(gw.dispose);
+      await gw.createWallet(name: 'Main', password: _password);
+      await gw.restoreWallet(name: 'Old', password: _password, phrase: _TwoPhrases.other.split(' '), startHeight: BigInt.from(2800000));
+      final id = (await gw.wallets()).last.id;
+      expect(jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!), containsPair('scanFrom', 2800000));
+      expect(await gw.unlock(_password), isTrue);
+      await gw.sync();
+      expect(session.starts, [BigInt.from(2800000)]);
+      expect(jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!)['scanFrom'], isNull);
+    });
+
+    test('a restore without a start height scans the whole chain', () async {
+      final session = _Starts();
+      final gw = make(_TwoPhrases(session: session));
+      addTearDown(gw.dispose);
+      await gw.restoreWallet(name: 'Old', password: _password, phrase: _TwoPhrases.other.split(' '));
+      expect(await gw.unlock(_password), isTrue);
+      await gw.sync();
+      expect(session.starts, [null]);
+    });
+
     test('a scan that ends after a switch clears the flag of the wallet it ran for', () async {
       final session = _GatedScan();
       final gw = make(_TwoPhrases(session: session));
@@ -1206,6 +1250,8 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
       await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+      // The Direct parts are an Advanced switch; these tests look at what a build offers.
+      await tester.runAsync(() => advancedOn(container));
       await tester.pumpWidget(UncontrolledProviderScope(
         container: container,
         child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: deskScreen(DeskLocation(route)))),

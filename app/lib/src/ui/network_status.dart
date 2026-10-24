@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n.dart';
 import '../models.dart' show Chain;
 import '../network.dart';
+import '../node_failover_phone.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../tor_phone.dart';
@@ -94,6 +95,8 @@ class NetworkStatusCard extends ConsumerWidget {
     final nodeUrl = config?.nodeUrl ?? choice?.nodeUrl;
     final chain = config?.chain ?? preset?.chain;
     final nodeHost = nodeUrl == null ? '' : serverHost(nodeUrl);
+    // Node failover moved the wallet for this session: the chosen node is named under it.
+    final failover = ref.watch(nodeFailoverProvider);
     final relay = config != null
         ? EpicboxRelay(
             host: config.epicboxDomain,
@@ -115,6 +118,9 @@ class NetworkStatusCard extends ConsumerWidget {
         host: chain != null && chain != Chain.mainnet && nodeHost.isNotEmpty
             ? l.netStatusTestHost(chainName(l, chain), nodeHost)
             : nodeHost,
+        note: failover == null
+            ? null
+            : l.nodeFailoverInsteadOf(serverHost(failover.chosen)),
         face: node,
         spoken: nodeWords.label,
         detail: nodeWords.detail,
@@ -182,7 +188,11 @@ class _StatusRow extends StatelessWidget {
     this.pulse = false,
     this.torWay = TorWay.clearnet,
     this.hint,
+    this.note,
   });
+
+  /// A line under the host: the node chosen while failover uses another one.
+  final String? note;
 
   final String? spoken;
   final String? detail;
@@ -212,6 +222,7 @@ class _StatusRow extends StatelessWidget {
       label: [
         spoken ?? title,
         if (host.isNotEmpty) host,
+        ?note,
         face.word,
         if (torWay == TorWay.overTor) l.netStatusOverTor else ?tor?.word,
       ].join(', '),
@@ -281,6 +292,15 @@ class _StatusRow extends StatelessWidget {
                                 height: 1.3,
                                 color: t.dim,
                               ),
+                            ),
+                          ),
+                        if (note != null)
+                          ExcludeSemantics(
+                            child: Text(
+                              note!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
                             ),
                           ),
                       ],

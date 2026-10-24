@@ -69,7 +69,7 @@ List<TourStep> tourStepsFor({required bool invoices}) => [
   ),
   TourStep(
     route: DeskRoute.receive,
-    targets: ['receive-epicbox', 'receive-others'],
+    targets: ['receive-epicbox', 'receive-files'],
     titleOf: (l) => l.deskTourReceiveTitle,
     textOf: (l) => l.deskTourReceiveText,
   ),
@@ -98,6 +98,14 @@ List<TourStep> tourStepsFor({required bool invoices}) => [
     sub: DeskRoute.settingsNode,
     titleOf: (l) => l.deskTourNodeTitle,
     textOf: (l) => l.deskTourNodeText,
+  ),
+  // Advanced: where the hidden parts are switched on. The step only shows the page.
+  TourStep(
+    route: DeskRoute.settingsAdvanced,
+    targets: ['advanced-top'],
+    sub: DeskRoute.settingsAdvanced,
+    titleOf: (l) => l.deskTourAdvancedTitle,
+    textOf: (l) => l.deskTourAdvancedText,
   ),
   TourStep(
     route: DeskRoute.settingsHelp,

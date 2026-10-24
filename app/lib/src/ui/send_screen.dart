@@ -12,6 +12,8 @@ import '../demo.dart' show demoModeProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
+import '../network_gate.dart';
+import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
@@ -29,9 +31,12 @@ import 'contacts_screen.dart';
 import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
 import 'handshake.dart';
+import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
 import 'method_names.dart';
 import 'method_strip.dart';
+import 'net_block.dart';
+import 'payment_gate.dart';
 import 'pin.dart' show askPin;
 import 'scan_screen.dart';
 import 'shell_header.dart' show comingIn;
@@ -39,8 +44,10 @@ import 'send_tracker.dart';
 import 'slate_file_screen.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart' show TimelineState, TimelineStep;
+import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import 'tour/tour_target.dart';
 
 export '../utf8_limit.dart';
 
@@ -384,6 +391,41 @@ class _SendViewState extends ConsumerState<SendView> {
       _recipient.text = to.address;
       _lastTo = to.address;
       if (recipientShaped(to)) _method = methodForRecipient(to.kind);
+    }
+    // Settings › Transactions: the method Send starts on. A recipient handed over wins; the
+    // settings load on their own, so a form still untouched takes them when they arrive.
+    if (handoff == null || !recipientShaped(parseRecipient(handoff.text))) {
+      _startOn(ref.read(appSettingsProvider).value?.payments.startMethod);
+      if (!_startApplied) {
+        ref.listenManual(
+          appSettingsProvider.select((s) => s.value?.payments.startMethod),
+          (_, start) {
+            if (start == null || _startApplied || !mounted) return;
+            if (_stage != SendStage.recipient ||
+                _recipient.text.isNotEmpty ||
+                _method != TransferMethod.epicbox) {
+              return;
+            }
+            setState(() => _startOn(start));
+          },
+        );
+      }
+    }
+  }
+
+  bool _startApplied = false;
+
+  /// Opens the form on [start], the method Settings › Transactions chose (null: not loaded).
+  void _startOn(PayMethod? start) {
+    if (start == null) return;
+    _startApplied = true;
+    switch (start) {
+      case PayMethod.direct:
+        _method = TransferMethod.direct;
+      case PayMethod.file:
+        _stage = SendStage.fileAmount;
+      case PayMethod.epicbox:
+        break;
     }
   }
 
@@ -1482,8 +1524,26 @@ class _SendViewState extends ConsumerState<SendView> {
 
   // Build.
 
+  /// What the Advanced network mode allows now, read in [build]: Epicbox and Direct sends
+  /// wait while it is not [NetBlock.none]; the File route never does.
+  NetBlock _block = NetBlock.none;
+
+  /// What it allows the File method: Offline stops making a file too (it asks the node),
+  /// unless the node is local.
+  NetBlock _fileBlock = NetBlock.none;
+
+  /// What it allows finishing a file (finalize and post, which reach only the node).
+  NetBlock _postBlock = NetBlock.none;
+
   @override
   Widget build(BuildContext context) {
+    // Offline with a local node: a Direct send (to a local address; LEPIC's adapter refuses
+    // any other) and the File method run.
+    final localNode = ref.watch(localNodeProvider);
+    final direct = _method == TransferMethod.direct && parseRecipient(_recipient.text).kind != RecipientKind.tor;
+    _block = watchNetBlock(context, ref, localNode: localNode && direct);
+    _fileBlock = fileBlockFor(AdvancedOptions.of(context).networkMode, localNode: localNode);
+    _postBlock = watchNetBlock(context, ref, localNode: localNode);
     // An estimate made against the old balance is stale: coins that confirmed may cover it
     // now, or a send elsewhere may have spent them (F-06).
     ref.listen(homeProvider.select((home) => home.value?.summary.spendable), (
@@ -1537,8 +1597,33 @@ class _SendViewState extends ConsumerState<SendView> {
       ),
       SendStage.fileSent => (_fileSentStep(context), _doneAction()),
     };
+    // The reason sits above the button that waits for the network (not after a send).
+    final note = switch (_stage) {
+      SendStage.recipient || SendStage.amount => _block,
+      SendStage.review when !_sendFailed => _block,
+      SendStage.fileAmount => _fileBlock,
+      SendStage.fileMade => _postBlock,
+      _ => NetBlock.none,
+    };
+    // Offline on a local node without peers: what is posted waits in its pool.
+    final noPeers =
+        note == NetBlock.none &&
+        (_stage == SendStage.review || _stage == SendStage.fileMade) &&
+        ref.watch(offlineNodePeersProvider).value == 0;
     return ScreenBody(
-      bottom: bottom,
+      bottom: note != NetBlock.none || noPeers
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (noPeers)
+                  NetBlockNote(NetBlock.none, key: offlineNoPeersKey, line: context.l10n.netOfflineNoPeers)
+                else
+                  NetBlockNote(note),
+                bottom,
+              ],
+            )
+          : bottom,
       children: [...children, if (_error != null) ErrorText(_error!)],
     );
   }
@@ -1548,7 +1633,9 @@ class _SendViewState extends ConsumerState<SendView> {
     return CenteredScroll(
       child: CenteredBody(
         children: [
-          EmptyState(
+          PhoneTourTarget(
+            id: 'tour-send-empty',
+            child: EmptyState(
             icon: const Icon(Icons.north_east),
             message: context.l10n.sendNoCoins,
             // Never a dead end: the next step is the Receive tab.
@@ -1560,6 +1647,7 @@ class _SendViewState extends ConsumerState<SendView> {
                         .go(ShellTab.receive),
                     child: Text(context.l10n.homeReceiveButton),
                   ),
+          ),
           ),
         ],
       ),
@@ -1642,24 +1730,31 @@ class _SendViewState extends ConsumerState<SendView> {
         ],
       ),
     );
-    return Semantics(
+    // Settings › Transactions says which methods are offered; the method in use stays
+    // whatever the switch says (a pasted onion picks Direct; a file send, the failed-Epicbox
+    // file fallback and a file waiting for its reply keep File).
+    final payments =
+        ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
+        PaymentPrefs.defaults;
+    final filePending = hasPendingFileSend(
+      ref.watch(homeProvider.select((h) => h.value?.transactions)),
+    );
+    final segments = [
+      segment(TransferMethod.epicbox, Icons.alternate_email, l.methodEpicbox),
+      if (selected == TransferMethod.direct || payments.direct)
+        segment(TransferMethod.direct, Icons.link, l.methodDirect),
+      if (selected == TransferMethod.file || payments.file || filePending)
+        segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
+    ];
+    if (segments.length == 1) return const SizedBox.shrink();
+    return PhoneTourTarget(
+      id: 'tour-send-methods',
+      child: Semantics(
       label: l.sendMethodLabel,
       container: true,
       child: SegmentedButton<TransferMethod>(
         key: sendMethodsKey,
-        segments: [
-          segment(
-            TransferMethod.epicbox,
-            Icons.alternate_email,
-            l.methodEpicbox,
-          ),
-          segment(TransferMethod.direct, Icons.link, l.methodDirect),
-          segment(
-            TransferMethod.file,
-            Icons.description_outlined,
-            l.methodFile,
-          ),
-        ],
+        segments: segments,
         selected: {selected},
         showSelectedIcon: false,
         expandedInsets: EdgeInsets.zero,
@@ -1672,6 +1767,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
         onSelectionChanged: (chosen) => _chooseMethod(chosen.first),
       ),
+    ),
     );
   }
 
@@ -1716,7 +1812,9 @@ class _SendViewState extends ConsumerState<SendView> {
     return [
       _header(context, l.sendStepRecipient, step: 1),
       ..._methodHead(context, _method),
-      TextField(
+      PhoneTourTarget(
+        id: 'tour-send-recipient',
+        child: TextField(
         key: sendRecipientFieldKey,
         controller: _recipient,
         focusNode: _recipientFocus,
@@ -1759,6 +1857,7 @@ class _SendViewState extends ConsumerState<SendView> {
               : LiveFieldError(_recipientError!),
           border: const OutlineInputBorder(),
         ),
+      ),
       ),
       if (_tagOn && _switchedTo != null)
         _SwitchAnnouncement(method: _switchedTo!),
@@ -1862,7 +1961,9 @@ class _SendViewState extends ConsumerState<SendView> {
 
   Widget _recipientAction() => BusyButton(
     label: context.l10n.commonContinue,
-    onPressed: _recipient.text.trim().isEmpty ? null : _toAmount,
+    onPressed: _recipient.text.trim().isEmpty || _block != NetBlock.none
+        ? null
+        : _toAmount,
   );
 
   /// The big amount, what is available, Use USD and Max, the fee, and the folded note.
@@ -2032,7 +2133,7 @@ class _SendViewState extends ConsumerState<SendView> {
       sendRoute(parseRecipient(_recipient.text)),
       phoneTorState(ref.read(phoneTorProvider)),
     );
-    if (!torGoes(way)) return;
+    if (!torGoes(way) || _block != NetBlock.none) return;
     _toReview();
   }
 
@@ -2059,7 +2160,10 @@ class _SendViewState extends ConsumerState<SendView> {
           ? context.l10n.torWaiting
           : context.l10n.commonContinue,
       busy: _estimating,
-      onPressed: _amountReady && !_busy && torGoes(way) ? _toReview : null,
+      onPressed:
+          _amountReady && !_busy && torGoes(way) && _block == NetBlock.none
+          ? _toReview
+          : null,
     );
   }
 
@@ -2158,7 +2262,10 @@ class _SendViewState extends ConsumerState<SendView> {
       // while the change confirms, only the outputs the send does not lock.
       if (spendable != null && spendable >= total) ...[
         _Row(label: l.sendBalanceAfter, value: epicExact(l, spendable - total)),
-        if (estimate.locked > total && estimate.locked <= spendable) ...[
+        // The change locks outputs: only said where Outputs shows (Advanced).
+        if (outputsShown(context, ref) &&
+            estimate.locked > total &&
+            estimate.locked <= spendable) ...[
           _Row(
             label: l.sendSpendableUntilChange,
             value: epicExact(l, spendable - estimate.locked),
@@ -2210,7 +2317,8 @@ class _SendViewState extends ConsumerState<SendView> {
     // Without a node answer the send could not be built or posted, and a connection that
     // waits for Tor or needs it does not go.
     final way = _wayOf(sendRoute(parseRecipient(_recipient.text)));
-    final canSend = checks.ready && !_busy && torGoes(way);
+    final canSend =
+        checks.ready && !_busy && torGoes(way) && _block == NetBlock.none;
     final amount = epicExact(l, _estimate!.amount);
     final quiet = TextButton.styleFrom(minimumSize: const Size.fromHeight(44));
     return Column(
@@ -2498,7 +2606,7 @@ class _SendViewState extends ConsumerState<SendView> {
   Widget _fileAmountAction() => BusyButton(
     label: context.l10n.sendMakeFile,
     busy: _busy,
-    onPressed: _amountReady ? _createFile : null,
+    onPressed: _amountReady && _fileBlock == NetBlock.none ? _createFile : null,
   );
 
   /// The file route's three steps, [at] the current one (3 when all are done).
@@ -2559,7 +2667,7 @@ class _SendViewState extends ConsumerState<SendView> {
           BusyButton(
             label: l.slateFinishPayment,
             busy: _busy,
-            onPressed: _finalizePasted,
+            onPressed: _postBlock != NetBlock.none ? null : _finalizePasted,
           ),
           const SizedBox(height: 8),
         ],
@@ -2574,7 +2682,7 @@ class _SendViewState extends ConsumerState<SendView> {
 
   Widget _openReplyAction() => BusyButton(
     label: context.l10n.sendOpenReply,
-    onPressed: _busy ? null : _openReply,
+    onPressed: _busy || _postBlock != NetBlock.none ? null : _openReply,
   );
 
   List<Widget> _fileSentStep(BuildContext context) {

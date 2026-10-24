@@ -1,0 +1,38 @@
+{
+  "deskSetFrameTransactions": "Transactions",
+  "@deskSetFrameTransactions": {
+    "description": "Settings sidebar entry and page name for how payments are made: the methods, what Send starts on, receiving. Narrow (about 200 px)."
+  },
+  "deskSetTxMethods": "Payment methods",
+  "@deskSetTxMethods": {
+    "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Direct, File)."
+  },
+  "deskSetTxAlwaysOn": "Always on",
+  "@deskSetTxAlwaysOn": {
+    "description": "Tag in place of a switch on the Epicbox row of Settings › Transactions: Epicbox cannot be turned off here. Short."
+  },
+  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.",
+  "@deskSetTxEpicboxHint": {
+    "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
+  },
+  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.",
+  "@deskSetTxDirectHint": {
+    "description": "Hover card behind the info icon of the Direct row (switch) on Settings › Transactions."
+  },
+  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.",
+  "@deskSetTxFileHint": {
+    "description": "Hover card behind the info icon of the File row (switch) on Settings › Transactions."
+  },
+  "deskSetTxSend": "Send",
+  "@deskSetTxSend": {
+    "description": "Title of the group on Settings › Transactions with what the Send page starts on and, with Advanced › Send options on, its defaults."
+  },
+  "deskSetTxStart": "Send starts on",
+  "@deskSetTxStart": {
+    "description": "Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on."
+  },
+  "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send.",
+  "@deskSetTxStartHint": {
+    "description": "Hover card behind the info icon of the Send starts on row."
+  }
+}

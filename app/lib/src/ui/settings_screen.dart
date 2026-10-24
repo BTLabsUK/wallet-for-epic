@@ -31,6 +31,7 @@ import 'help_screen.dart';
 import 'info_hint.dart';
 import 'restore_screen.dart' show ScanSlotLine;
 import 'settings_sections.dart';
+import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 
 export 'settings_sections.dart';
@@ -224,10 +225,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _GroupRow(
                     key: settingsGroupKey(SettingsSection.wallet),
                     section: SettingsSection.wallet,
+                    // Outputs is named only while Advanced shows it.
                     state: [
                       l.settingsContacts,
-                      l.outputsTitle,
+                      if (s.advanced.has(AdvancedFeature.outputs)) l.outputsTitle,
                       l.settingsSectionHistory,
+                    ].reduce(l.settingsStateJoin),
+                  ),
+                if (walletOpen)
+                  _GroupRow(
+                    key: settingsGroupKey(SettingsSection.transactions),
+                    section: SettingsSection.transactions,
+                    // What is inside, never live values; the send defaults only while
+                    // Advanced › Send options shows them.
+                    state: [
+                      l.settingsHubMethods,
+                      l.settingsHubDefault,
+                      if (s.advanced.has(AdvancedFeature.sendOptions))
+                        l.settingsHubSendDefaults,
                     ].reduce(l.settingsStateJoin),
                   ),
                 _GroupRow(
@@ -246,6 +261,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onTap: () => openHelp(context),
                 ),
                 _GroupRow(
+                  key: settingsGroupKey(SettingsSection.advanced),
+                  section: SettingsSection.advanced,
+                  state: advancedStateLine(l, s.advanced),
+                ),
+                _GroupRow(
                   key: settingsGroupKey(SettingsSection.about),
                   section: SettingsSection.about,
                 ),
@@ -257,6 +277,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
     );
   }
+}
+
+/// The Advanced row's state line: "Off", or what is on ("Outputs · Tor only").
+String advancedStateLine(AppLocalizations l, AdvancedPrefs adv) {
+  final parts = <String>[
+    for (final f in AdvancedFeature.values)
+      if (adv.has(f)) advancedFeatureName(l, f),
+    if (adv.networkMode != NetworkMode.standard)
+      networkModeName(l, adv.networkMode),
+  ];
+  return parts.isEmpty ? l.advStateOff : parts.reduce(l.settingsStateJoin);
 }
 
 /// The Notifications row's state line, only when there is a state to say: paused by Tor, or

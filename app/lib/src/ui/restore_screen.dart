@@ -14,7 +14,6 @@ import 'common.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
 import 'settings_history.dart';
-import 'theme/advanced.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
@@ -59,6 +58,9 @@ enum _RestoreStep { phrase, pin, scan, importOffer }
 
 enum _StartBy { date, height }
 
+/// The key of the "Start from a date or height" link, for tests.
+const Key restoreStartLinkKey = ValueKey('restore-start-link');
+
 class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   final _phrase = TextEditingController();
   final _startHeight = TextEditingController();
@@ -69,6 +71,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   BigInt? _height;
   String? _error;
   bool _busy = false;
+
+  /// "Start from a date or height" was tapped: the choice shows. Restore is a one-off, so it
+  /// is not behind the Recheck from a height switch.
+  bool _startOpen = false;
 
   @override
   void dispose() {
@@ -88,8 +94,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     if (!service.validateMnemonic(phrase: phrase)) {
       problem = l.errorInvalidMnemonic;
     }
-    // Without Advanced options the choice is hidden and the scan covers the whole chain.
-    final advanced = AdvancedOptions.of(context);
+    // The start choice is offered to everyone behind a small link; until it is opened the scan
+    // covers the whole chain.
+    final advanced = _startOpen;
     final byDate = _startBy == _StartBy.date && _datesSupported;
     final heightText = byDate || !advanced ? '' : _startHeight.text.trim();
     final date = byDate && advanced ? _startDate : null;
@@ -212,7 +219,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   List<Widget> _form(BuildContext context) {
     final l = context.l10n;
-    final advanced = AdvancedOptions.of(context);
+    final advanced = _startOpen;
     return [
       TextField(
         controller: _phrase,
@@ -229,6 +236,16 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           border: const OutlineInputBorder(),
         ),
       ),
+      if (!advanced)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton(
+            key: restoreStartLinkKey,
+            style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
+            onPressed: () => setState(() => _startOpen = true),
+            child: Text(l.restoreStartFromLink),
+          ),
+        ),
       const SizedBox(height: 12),
       if (advanced && _datesSupported) ...[
         Text(

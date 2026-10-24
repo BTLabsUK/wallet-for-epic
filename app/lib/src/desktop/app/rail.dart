@@ -4,6 +4,7 @@
 /// changes height.
 library;
 
+import '../../advanced.dart' show NetworkMode;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -11,8 +12,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../desk_l10n.dart';
 import '../data/desk_node.dart';
+import '../data/net_mode_view.dart';
+import 'desk_failover.dart';
 import '../data/node_view.dart';
-import '../data/tor_view.dart';
+import '../data/tor_view.dart' as tor_view;
+import '../data/tor_view.dart' hide isLocalNodeUrl;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_http.dart' show httpRun;
 import '../widgets/kit.dart';
@@ -50,13 +54,25 @@ class RailItem {
   /// The hover card's last line: where a click goes.
   final String open;
   final SettingsJump jump;
+
+  /// The row in Offline mode: neutral, one word, nothing is being checked.
+  RailItem offline(AppLocalizations l) => RailItem(
+    icon: icon,
+    name: name,
+    word: l.deskRailOffline,
+    state: EState.off,
+    second: l.deskRailOffline,
+    lines: [l.deskNetOfflineReason],
+    open: open,
+    jump: jump,
+  );
 }
 
 /// The Epicbox, HTTP and Tor rows of a status (null: nothing known yet).
 List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSettings settings) {
   final eb = st?.epicboxHealth ?? ServiceHealth.checking;
   final ebHost = st?.epicbox.domain;
-  final tor = torStateOf(settings, st);
+  final tor = netTorState(settings, st);
   final ebWay = torWay(TorRoute.epicbox, tor);
   final ebWaits = eb != ServiceHealth.off && (ebWay == TorWay.wait || ebWay == TorWay.blocked);
   final ebWord = switch (eb) {
@@ -77,7 +93,12 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
           : ebWaits
           ? (ebWay == TorWay.blocked ? EState.risk : EState.warn)
           : stateOf(eb),
-      second: eb == ServiceHealth.off || ebHost == null ? '–' : railHost('Epicbox', ebHost), // l10n-ok: product name
+      // Tor only says what it waits for on the row itself; the other modes keep the host.
+      second: ebWaits && settings.advanced.networkMode == NetworkMode.torOnly
+          ? ebWord
+          : eb == ServiceHealth.off || ebHost == null
+          ? '–'
+          : railHost('Epicbox', ebHost), // l10n-ok: product name
       lines: [
         if (eb != ServiceHealth.off && ebHost != null) ebHost,
         if (eb != ServiceHealth.off && ebWay == TorWay.overTor) l.deskRailOverTor,
@@ -88,8 +109,9 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
       jump: SettingsJump.epicbox,
     ),
   ];
-  if (DeskFeatures.httpDirect) {
-    final run = httpRun(st);
+  // Settings › Transactions › Direct; a listener that is on, starting or failed keeps its row.
+  final run = httpRun(st);
+  if (DeskFeatures.httpDirect && (settings.payments.direct || run != HttpRun.off)) {
     final public = settings.publicMode;
     items.add(
       RailItem(
@@ -152,7 +174,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
       ),
     );
   }
-  return items;
+  return settings.advanced.networkMode == NetworkMode.offline ? [for (final i in items) i.offline(l)] : items;
 }
 
 /// The Node row from a [NodeView].
@@ -216,6 +238,10 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     super.dispose();
   }
 
+  /// The node is on this computer: never over Tor, so Tor only does not hold it.
+  bool _localNode(SettingsPrefs prefs, ServiceStatus? status) =>
+      status != null && tor_view.isLocalNodeUrl((prefs.typedNode ?? status.node).url);
+
   /// The wallet's view of its node, once it has been down for [railDownAfter]: before that the
   /// row keeps what the node's own info says (a blip never flashes red).
   ServiceHealth? _settledHealth(ServiceHealth h) {
@@ -255,7 +281,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       final url = (prefs.typedNode ?? status.node).url;
       _url = url;
       final health = _settledHealth(status.nodeHealth);
-      final torState = torStateOf(settings, status);
+      final torState = netTorState(settings, status);
       final v = remoteNodeView(
         context.l10n,
         url,
@@ -265,9 +291,31 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
         torOn: torState != TorState.off,
       );
       final tor = torNodeLines(context.l10n, url, torState);
-      node = tor.isEmpty ? v : NodeView(word: v.word, state: v.state, host: v.host, marker: v.marker, lines: [...v.lines, ...tor]);
+      // Node failover: the chosen node, under the one standing in for it this session.
+      final failover = ref.watch(deskFailoverProvider);
+      final instead = failover == null ? const <String>[] : [l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))];
+      node = tor.isEmpty && instead.isEmpty
+          ? v
+          : NodeView(word: v.word, state: v.state, host: v.host, marker: v.marker, lines: [...instead, ...v.lines, ...tor]);
     }
-    final items = [nodeRailItem(l, node), ...receivingRailItems(l, status, settings)];
+    var nodeItem = nodeRailItem(l, node);
+    final netMode = settings.advanced.networkMode;
+    if (netMode == NetworkMode.offline) {
+      nodeItem = nodeItem.offline(l);
+    } else if (netMode == NetworkMode.torOnly && netTorState(settings, status) != TorState.on && !(prefs.builtin || _localNode(prefs, status))) {
+      // Tor only, Tor not up yet: the node waits for it and goes nowhere else.
+      nodeItem = RailItem(
+        icon: nodeItem.icon,
+        name: nodeItem.name,
+        word: l.deskRailWaitingTor,
+        state: EState.warn,
+        second: l.deskRailWaitingTor,
+        lines: [l.deskRailWaitsForTor],
+        open: nodeItem.open,
+        jump: nodeItem.jump,
+      );
+    }
+    final items = [nodeItem, ...receivingRailItems(l, status, settings)];
     Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.jump));
     if (widget.horizontal) {
       return Row(mainAxisSize: MainAxisSize.min, children: [for (final i in items) SizedBox(width: Ctl.md, child: row(i))]);

@@ -38,7 +38,7 @@ void main() {
       'Nodes and Epicbox',
       'When something goes wrong',
     ]);
-    expect(topics, hasLength(DeskFeatures.tor ? 16 : 15));
+    expect(topics, hasLength(DeskFeatures.tor ? 19 : 18));
     for (final t in topics) {
       expect(helpSections.map((s) => s.id), contains(t.section));
       expect(t.body, isNotEmpty, reason: t.title);
@@ -53,7 +53,8 @@ void main() {
       final all = '${t.title} ${t.short} ${t.bodyText}';
       expect(all, isNot(contains('Epic address')), reason: t.title);
       expect(all, isNot(contains('Rescan')), reason: t.title);
-      expect(all, isNot(contains('built-in')), reason: t.title);
+      // "Built-in node" is the Advanced switch's name; only the old wording is out.
+      expect(all.replaceAll(RegExp(r"[Bb]uilt-in node"), ''), isNot(contains('built-in')), reason: t.title);
       expect(all, isNot(contains('listener')), reason: t.title);
       expect(all.toLowerCase(), isNot(contains(' we ')), reason: t.title);
       final low = all.toLowerCase();

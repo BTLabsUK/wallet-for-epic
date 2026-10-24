@@ -31,7 +31,7 @@
   "deskRecvHttpAddress": "直连 · HTTP 地址",
   "deskRecvCopyHttp": "复制 HTTP 地址",
   "deskRecvHttpPublic": "你的路由器的公网地址。路由器转发端口 {port} 后，互联网上的发送方即可使用。",
-  "deskRecvHttpLocal": "本机上的程序可以向此地址付款。其他设备请见“设置 › 接收”。",
+  "deskRecvHttpLocal": "本机上的程序可以向此地址付款。其他设备请见“设置 › 交易”。",
   "deskRecvHttpIntro": "本钱包打开时，直接从另一个钱包接收。除非设置中另有选择，否则仅限本机。",
   "deskRecvHttpTorHint": "如需 Tor 地址，请在“设置 › 隐私”中开启 Tor。",
   "deskRecvDirectTor": "直连 · Tor 地址",

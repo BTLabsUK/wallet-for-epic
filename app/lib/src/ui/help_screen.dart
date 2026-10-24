@@ -25,8 +25,10 @@ import 'history_screen.dart';
 import 'invoices_screen.dart';
 import 'outputs_screen.dart';
 import 'settings_screen.dart';
+import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import 'tour/phone_tour.dart';
 
 export '../help/help_content.dart' show HelpId;
 
@@ -40,12 +42,16 @@ const Key helpSearchKey = ValueKey('help-search');
 /// The topics this wallet shows in [lang], the help language: the shared set for the phone, the
 /// invoice topics when the wallet supports invoices, Tor only when the phone has it. A topic
 /// [lang] has no translation of is English.
-List<HelpTopic> phoneHelpTopics(WidgetRef ref, String lang) {
+List<HelpTopic> phoneHelpTopics(BuildContext context, WidgetRef ref, String lang) {
   final confirmations = confirmationsTargetOf(ref);
   final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
   final tor = ref.watch(phoneTorProvider.select(torShown));
   return [
-    ...localizedHelpTopics(lang, confirmations, platform: HelpPlatform.phone, tor: tor),
+    // The topics of a part Advanced hides go with it (Outputs).
+    ...helpTopicsShown(
+      localizedHelpTopics(lang, confirmations, platform: HelpPlatform.phone, tor: tor),
+      AdvancedOptions.of(context),
+    ),
     if (invoices) ...invoiceHelpTopics(helpStrings(lang), confirmations, platform: HelpPlatform.phone),
   ];
 }
@@ -142,7 +148,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     final t = context.tokens;
     final text = Theme.of(context).textTheme;
     final lang = phoneHelpLanguage(ref, context);
-    final topics = phoneHelpTopics(ref, lang);
+    final topics = phoneHelpTopics(context, ref, lang);
     final sections = _sectionsFor(topics, lang);
     if (!_opened && widget.topic != null) {
       // The topic's page goes over the index on arrival, so Back lands on the index.
@@ -184,8 +190,10 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
               children: [
                 // Send feedback first, above the topics and the search: the one thing a
                 // stuck user needs most, one tap from Settings.
-                const _FeedbackRow(),
-                Padding(
+                const PhoneTourTarget(id: 'tour-help-feedback', child: _FeedbackRow()),
+                PhoneTourTarget(
+                  id: 'tour-help-search',
+                  child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                   child: TextField(
                     key: helpSearchKey,
@@ -207,6 +215,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                       border: const OutlineInputBorder(),
                     ),
                   ),
+                ),
                 ),
                 Expanded(
                   child: ListView(
@@ -233,6 +242,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                           const SizedBox(height: 16),
                         ],
                       if (!searching) const _ShowTipsAgain(),
+                      if (!searching) const _ShowTourAgain(),
                       const _StillStuck(),
                     ],
                   ),
@@ -277,6 +287,23 @@ class _FeedbackRow extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// The key of the Show the tour again row, for tests.
+const Key helpShowTourKey = ValueKey('help-show-tour');
+
+/// Show the tour again: opens the first-unlock tour from its first step.
+class _ShowTourAgain extends ConsumerWidget {
+  const _ShowTourAgain();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => ListTile(
+    key: helpShowTourKey,
+    contentPadding: EdgeInsets.zero,
+    leading: const Icon(Icons.tour_outlined),
+    title: Text(context.l10n.tourPhoneShowAgain),
+    onTap: () => startPhoneTour(ref),
+  );
 }
 
 /// Show tips again: brings back every inline guide closed with its X. Off while none is
@@ -522,7 +549,7 @@ class HelpBlockView extends StatelessWidget {
       style: style,
       children: [
         for (final p in helpInline(text))
-          if (p.place && helpPlaceGoes(p.target))
+          if (p.place && helpPlaceGoes(p.target, prefs: AdvancedOptions.of(context)))
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,
@@ -607,13 +634,14 @@ class _PlaceLink extends StatelessWidget {
 }
 
 /// Where a place in Help goes on the phone.
-enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, settings, security, privacyNetwork, wallet, display, about }
+enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, settings, security, privacyNetwork, wallet, transactions, display, about }
 
 /// The rows of each Settings page that Help names: `Settings › Wallet › Recheck balance`.
 const _settingsPlaces = <String, (HelpPhonePlace, Set<String>)>{
   'Security': (HelpPhonePlace.security, {'Back up recovery phrase'}),
   'Privacy & network': (HelpPhonePlace.privacyNetwork, {'Tor Network', 'Node', 'Epicbox'}),
   'Wallet': (HelpPhonePlace.wallet, {'Export history backup', 'Recheck balance', 'Invoice address and trusted services'}),
+  'Transactions': (HelpPhonePlace.transactions, {'Send defaults'}),
   'Display': (HelpPhonePlace.display, <String>{}),
   'About': (HelpPhonePlace.about, <String>{}),
 };
@@ -623,7 +651,7 @@ const _screenPlaces = <String, (HelpPhonePlace, Set<String>)>{
   'Receive': (HelpPhonePlace.receive, {'File'}),
   'Send': (HelpPhonePlace.send, <String>{}),
   'Activity': (HelpPhonePlace.activity, <String>{}),
-  'Outputs': (HelpPhonePlace.outputs, {'Advanced'}),
+  'Outputs': (HelpPhonePlace.outputs, {'Manage outputs'}),
   'Contacts': (HelpPhonePlace.contacts, <String>{}),
   'Invoices': (HelpPhonePlace.invoices, {'To pay', 'Requests you sent'}),
 };
@@ -646,8 +674,15 @@ HelpPhonePlace? helpPlaceDestination(String place) {
   return screen.$1;
 }
 
-/// Whether the phone can go to [place] from Help.
-bool helpPlaceGoes(String place) => helpPlaceDestination(place) != null;
+/// Whether the phone can go to [place] from Help: it has the screen, and Advanced ([prefs],
+/// everything when not given) shows it: Outputs needs the Outputs switch. A place of a hidden
+/// part reads as a term instead of a link.
+bool helpPlaceGoes(String place, {AdvancedPrefs? prefs}) {
+  final to = helpPlaceDestination(place);
+  if (to == null) return false;
+  if (prefs == null) return true;
+  return to != HelpPhonePlace.outputs || prefs.has(AdvancedFeature.outputs);
+}
 
 /// Goes to [place]: a shell tab closes Help; a screen or a Settings page opens over it.
 void openHelpPlace(BuildContext context, String place) {
@@ -675,6 +710,8 @@ void openHelpPlace(BuildContext context, String place) {
       openSettingsSection(context, SettingsSection.privacyNetwork);
     case HelpPhonePlace.wallet:
       openSettingsSection(context, SettingsSection.wallet);
+    case HelpPhonePlace.transactions:
+      openSettingsSection(context, SettingsSection.transactions);
     case HelpPhonePlace.display:
       openSettingsSection(context, SettingsSection.display);
     case HelpPhonePlace.about:

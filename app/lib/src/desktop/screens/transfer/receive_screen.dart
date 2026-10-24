@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/method_names.dart';
+import '../../../network_gate.dart' show NetBlock;
+import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
@@ -13,6 +15,7 @@ import '../../widgets/kit.dart';
 import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
+import '../settings/settings_advanced.dart' show openAdvanced;
 
 enum RxEpicbox { on, off, down }
 
@@ -117,6 +120,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   }
 
   Future<void> _toggle(TxMethod m, bool on) async {
+    // Offline and Tor only without Tor: no listener starts (Epicbox, HTTP, Tor itself).
+    if (on && ref.read(m == TxMethod.http ? deskNodeBlockProvider : deskNetBlockProvider) != NetBlock.none) return;
     setState(() => _busy.add(m));
     final n = ref.read(deskProvider.notifier);
     try {
@@ -166,11 +171,17 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
     final epicbox = TourTarget(id: 'receive-epicbox', child: _epicboxPanel(st, status));
+    // Settings › Transactions › Direct; Tor receiving on or a running listener keeps its panel.
+    final direct = st.settings.payments.direct || st.settings.tor || status?.httpListener == ServiceHealth.ok;
     final others = [
-      if (DeskFeatures.tor && st.settings.tor) _torPanel(st, status) else if (DeskFeatures.httpDirect) _httpPanel(st, status),
+      if (DeskFeatures.tor && st.settings.tor) _torPanel(st, status) else if (DeskFeatures.httpDirect && direct) _httpPanel(st, status),
     ];
-    final tor = torStateOf(st.settings, status);
-    final files = _filesPanel(nav);
+    final tor = netTorState(st.settings, status);
+    final net = deskNetBlock(st);
+    // Settings › Transactions › File; a file send waiting for its response keeps the panel (Finalize).
+    final files = st.settings.payments.file || st.pendingFiles > 0
+        ? TourTarget(id: 'receive-files', child: _filesPanel(nav, deskFileBlock(st)))
+        : null;
     final head = ESectionHead(
       l.deskRecvOtherWays,
       top: 0,
@@ -193,7 +204,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (tor == TorState.starting || tor == TorState.failed) ...[_torNotice(tor), SizedBox(height: Sp.x4)],
+            if (net != NetBlock.none) ...[_netNotice(net), SizedBox(height: Sp.x4)]
+            else if (tor == TorState.starting || tor == TorState.failed) ...[_torNotice(tor), SizedBox(height: Sp.x4)],
             LayoutBuilder(
           builder: (context, box) {
             if (box.maxWidth >= 1040.u) {
@@ -202,7 +214,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                 children: [
                   Expanded(
                     flex: 7,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, files])),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, ?files])),
                   ),
                   if (others.isNotEmpty) ...[
                     SizedBox(width: Sp.x6),
@@ -228,8 +240,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
                   ),
                 ],
-                SizedBox(height: Sp.x3),
-                files,
+                if (files != null) ...[SizedBox(height: Sp.x3), files],
               ],
             );
           },
@@ -237,6 +248,20 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  /// The network mode holds receiving: the address stays to hand out, the file panel works.
+  Widget _netNotice(NetBlock net) {
+    final l = context.l10n;
+    final offline = net == NetBlock.offline;
+    return ENotice(
+      key: const ValueKey('rx-net-blocked'),
+      tone: ETone.warn,
+      icon: offline ? EIcons.lanOff : EIcons.tor,
+      title: netBlockReason(l, net)!,
+      text: offline ? l.deskNetRecvOfflineText : l.deskNetRecvWaitTorText,
+      actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
     );
   }
 
@@ -265,7 +290,15 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final c = context.dc;
     final l = context.l10n;
     final methods = _methodsFor(st.settings);
-    final lines = {for (final m in methods) m: status == null ? null : methodStateLine(l, m, status, st.settings)};
+    final offline = deskNetBlock(st) == NetBlock.offline;
+    final lines = {
+      for (final m in methods)
+        m: status == null
+            ? null
+            : offline
+            ? MethodLine(l.deskRailOffline, EState.off)
+            : methodStateLine(l, m, status, st.settings),
+    };
     String word(TxMethod m) => lines[m] == null ? l.deskRecvStateChecking : (lines[m]!.state == EState.off ? l.deskRecvStateOff : (lines[m]!.state == EState.ok ? l.deskRecvStateOn : lines[m]!.word.toLowerCase()));
     return Semantics(
       liveRegion: true,
@@ -321,8 +354,13 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final l = context.l10n;
     final addr = st.epicboxAddress;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
-    final health = status?.epicboxHealth;
+    final net = deskNetBlock(st);
+    final line = status == null
+        ? null
+        : net == NetBlock.offline
+        ? MethodLine(l.deskRailOffline, EState.off, detail: l.deskNetCantReceive)
+        : methodStateLine(context.l10n, m, status, st.settings);
+    final health = net == NetBlock.offline ? null : status?.epicboxHealth;
     final tag = !on
         ? l.deskRecvTagPaused
         : health == ServiceHealth.checking
@@ -384,7 +422,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       state: line?.state ?? EState.off,
       switchOn: on,
       busy: _busy.contains(m) || status == null,
-      onSwitch: status == null ? null : (v) => _toggle(m, v),
+      onSwitch: status == null || net != NetBlock.none ? null : (v) => _toggle(m, v),
       grown: true,
       small: const SizedBox.shrink(),
       body: LayoutBuilder(
@@ -417,7 +455,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       state: line?.state ?? EState.off,
       switchOn: on,
       busy: _busy.contains(m) || status == null,
-      onSwitch: status == null ? null : (v) => _toggle(m, v),
+      // Offline: local senders reach it while the node is local.
+      onSwitch: status == null || deskNetBlock(st, nodeOnly: true) != NetBlock.none ? null : (v) => _toggle(m, v),
       grown: on,
       small: line == null ? const SizedBox.shrink() : EStateLine(line, key: const ValueKey('rx-state-http')),
       body: Column(
@@ -501,7 +540,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     );
   }
 
-  Widget _filesPanel(DeskNav nav) {
+  Widget _filesPanel(DeskNav nav, NetBlock block) {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
@@ -523,14 +562,21 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           ESetRow(
             title: l.deskRecvSignTitle,
             text: l.deskRecvSignText,
-            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
+            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: block == NetBlock.none ? () => nav.go(DeskRoute.importTx) : null),
           ),
           Divider(height: 1, thickness: 1, color: c.line),
           ESetRow(
             title: l.deskRecvFinalizeTitle,
             text: l.deskRecvFinalizeText,
-            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.finalize)),
+            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: block == NetBlock.none ? () => nav.go(DeskRoute.finalize) : null),
           ),
+          if (block != NetBlock.none) ...[
+            Divider(height: 1, thickness: 1, color: c.line),
+            Padding(
+              padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x3, Sp.x6, Sp.x4),
+              child: Text(netBlockReason(l, block)!, key: const ValueKey('rx-files-blocked'), style: ts.small),
+            ),
+          ],
         ],
       ),
     );

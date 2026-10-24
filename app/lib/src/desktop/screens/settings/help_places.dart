@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/routes.dart';
 import 'prefs.dart';
+import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 /// The page a help place opens, and the section of it to flash (null for none).
 typedef DeskHelpPlace = ({DeskRoute route, SettingsJump? jump, Object? arg});
@@ -27,10 +28,10 @@ final Map<String, DeskHelpPlace> _places = {
   'Invoices': _page(DeskRoute.invoices),
   'Invoices › Pay': _page(DeskRoute.invoices, arg: InvoicesTab.pay),
   'Invoices › Issue': _page(DeskRoute.invoices, arg: InvoicesTab.issue),
-  'Outputs › Advanced': _page(DeskRoute.outputs),
+  'Outputs › Manage outputs': _page(DeskRoute.outputs),
   'Settings › Node': _page(DeskRoute.settingsNode, jump: SettingsJump.node),
-  'Settings › Receiving': _page(DeskRoute.settingsReceiving),
-  'Settings › Receiving › Epicbox receiving': _page(DeskRoute.settingsReceiving, jump: SettingsJump.epicbox),
+  'Settings › Transactions': _page(DeskRoute.settingsReceiving),
+  'Settings › Transactions › Epicbox receiving': _page(DeskRoute.settingsReceiving, jump: SettingsJump.epicbox),
   'Settings › Privacy': _page(DeskRoute.settingsPrivacy),
   'Settings › Privacy › Tor': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.tor),
   'Settings › Invoices': _page(DeskRoute.settingsInvoices),
@@ -45,6 +46,21 @@ final Map<String, DeskHelpPlace> _places = {
 /// The page for [place] (the English place a help link carries), or null when the desktop has
 /// none: such a place must not be written as a link.
 DeskHelpPlace? deskHelpPlace(String place) => _places[place.split('›').map((p) => p.trim()).join(' › ')];
+
+/// The places that belong to a part Advanced hides: the Outputs page.
+AdvancedFeature? _placeFeature(DeskHelpPlace to) => switch (to.route) {
+  DeskRoute.outputs => AdvancedFeature.outputs,
+  _ => null,
+};
+
+/// Whether Help may link [place]: the desktop has the page and Advanced shows it. A place of a
+/// hidden part reads as a term instead.
+bool deskHelpPlaceShown(WidgetRef ref, String place) {
+  final to = deskHelpPlace(place);
+  if (to == null) return false;
+  final f = _placeFeature(to);
+  return f == null || advancedHas(ref, f);
+}
 
 /// Goes to [place].
 void openDeskHelpPlace(WidgetRef ref, String place) {

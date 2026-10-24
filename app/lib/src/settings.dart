@@ -8,8 +8,11 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'advanced.dart';
+import 'payment_prefs.dart';
 import 'app_log.dart';
 import 'l10n.dart' show appLanguages;
+import 'network_gate.dart';
 import 'providers.dart';
 import 'relay_directory.dart' show statusSite;
 import 'models.dart' show SelectionStrategy;
@@ -73,8 +76,16 @@ class HistoryExportSnapshot {
   }
 }
 
-/// Auto-lock choices offered in settings, in minutes. Null means never.
-const List<int?> autoLockChoices = [0, 1, 5, 15, null];
+/// Auto-lock choices in minutes, the same on the phone and the desktop (1 to 60).
+const List<int> autoLockChoices = [1, 2, 5, 10, 15, 30, 45, 60];
+
+/// The auto-lock a new wallet starts with, in minutes, on both.
+const int autoLockDefault = 15;
+
+/// [minutes] as one of [autoLockChoices]: the nearest at or above it, 60 at most (an old
+/// "immediately", 0, becomes 1).
+int autoLockChoice(int minutes) =>
+    autoLockChoices.firstWhere((m) => m >= minutes, orElse: () => autoLockChoices.last);
 
 /// The wall clock. Tests override it to move time.
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
@@ -106,7 +117,7 @@ class AppSettings {
     this.fiatCurrency = 'usd',
     this.showFiat = true,
     this.hideBalances = false,
-    this.autoLockMinutes = 5,
+    this.autoLockMinutes = autoLockDefault,
     this.pushNotifications = false,
     this.historyExportedAt = const {},
     this.historyReminderDismissedAt = const {},
@@ -115,10 +126,13 @@ class AppSettings {
     this.language,
     this.helpLanguage,
     this.advancedOptions = false,
+    this.advanced = AdvancedPrefs.none,
+    this.payments = PaymentPrefs.defaults,
     this.useStatusSite = true,
     this.sendStrategy = SelectionStrategy.smallest,
     this.splitChange = true,
     this.hiddenTips = const {},
+    this.phoneTourSeen = false,
   });
 
   final ThemeMode themeMode;
@@ -130,6 +144,12 @@ class AppSettings {
   /// Show the technical controls: node, relay, block heights, transport, files and logs.
   /// Off by default, so the simple path never mentions them.
   final bool advancedOptions;
+
+  /// The Advanced page: which expert features show and the network mode (`advanced.dart`).
+  final AdvancedPrefs advanced;
+
+  /// Settings › Transactions: the methods Send and Receive offer and Send's first one.
+  final PaymentPrefs payments;
 
   /// Which outputs a send spends unless Send overrides it (Outputs).
   final SelectionStrategy sendStrategy;
@@ -182,6 +202,9 @@ class AppSettings {
   /// until Show tips again clears them.
   final Set<String> hiddenTips;
 
+  /// The first-unlock tour was shown (or skipped) once; it does not open by itself again.
+  final bool phoneTourSeen;
+
   /// Whether any guide is hidden, so Show tips again can be off when there is nothing to show.
   bool get tipsHidden => hiddenTips.isNotEmpty;
 
@@ -199,10 +222,13 @@ class AppSettings {
     String? Function()? language,
     String? Function()? helpLanguage,
     bool? advancedOptions,
+    AdvancedPrefs? advanced,
+    PaymentPrefs? payments,
     bool? useStatusSite,
     SelectionStrategy? sendStrategy,
     bool? splitChange,
     Set<String>? hiddenTips,
+    bool? phoneTourSeen,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -222,10 +248,13 @@ class AppSettings {
     language: language != null ? language() : this.language,
     helpLanguage: helpLanguage != null ? helpLanguage() : this.helpLanguage,
     advancedOptions: advancedOptions ?? this.advancedOptions,
+    advanced: advanced ?? this.advanced,
+    payments: payments ?? this.payments,
     useStatusSite: useStatusSite ?? this.useStatusSite,
     sendStrategy: sendStrategy ?? this.sendStrategy,
     splitChange: splitChange ?? this.splitChange,
     hiddenTips: hiddenTips ?? this.hiddenTips,
+    phoneTourSeen: phoneTourSeen ?? this.phoneTourSeen,
   );
 }
 
@@ -233,6 +262,14 @@ class AppSettings {
 /// opted-out phone never asks the site while its settings load.
 Future<bool> readUseStatusSite(SecretStore store) async =>
     await store.read(AppSettingsNotifier.statusSiteKey) != 'false';
+
+/// The network mode the phone runs in now (network_gate.dart): Standard, Tor only or Offline.
+/// Before the settings load, the mode read at launch.
+final networkModeProvider = Provider<NetworkMode>(
+  (ref) => netModeOf(
+    ref.watch(appSettingsProvider.select((s) => s.value?.advanced.networkMode)) ?? NetGate.mode,
+  ),
+);
 
 final appSettingsProvider =
     AsyncNotifierProvider<AppSettingsNotifier, AppSettings>(
@@ -254,10 +291,13 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _languageKey = 'app.language';
   static const String _helpLanguageKey = 'app.helpLanguage';
   static const String _advancedKey = 'app.advanced';
+  static const String _advancedPrefsKey = 'app.advanced_prefs';
+  static const String _paymentsKey = 'app.payment_prefs';
   static const String _strategyKey = 'app.send_strategy';
   static const String _splitChangeKey = 'app.split_change';
   static const String statusSiteKey = 'app.status_site';
   static const String tipsHiddenKey = 'app.tips_hidden';
+  static const String phoneTourSeenKey = 'app.phone_tour_seen';
   static String _exportedKey(Chain chain) =>
       'app.history_exported.${chain.name}';
   static String _dismissedKey(Chain chain) =>
@@ -281,9 +321,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final language = await store.read(_languageKey);
     final helpLanguage = await store.read(_helpLanguageKey);
     final advanced = await store.read(_advancedKey);
+    final advancedPrefs = await store.read(_advancedPrefsKey);
+    final payments = await store.read(_paymentsKey);
     final strategy = await store.read(_strategyKey);
     final splitChange = await store.read(_splitChangeKey);
     final tips = await store.read(tipsHiddenKey);
+    final tourSeen = await store.read(phoneTourSeenKey);
     final site = await store.read(statusSiteKey) != 'false';
     statusSite.on = site;
     Future<Map<String, int>> perChain(String Function(Chain) key) async => {
@@ -309,7 +352,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
         );
       }
     }
-    return AppSettings(
+    final settings = AppSettings(
       themeMode: ThemeMode.values.firstWhere(
         (m) => m.name == theme,
         orElse: () => defaults.themeMode,
@@ -322,7 +365,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       autoLockMinutes: switch (autoLock) {
         null => defaults.autoLockMinutes,
         _never => null,
-        final m => int.tryParse(m) ?? defaults.autoLockMinutes,
+        final m => int.tryParse(m) == null ? defaults.autoLockMinutes : autoLockChoice(int.parse(m)),
       },
       pushNotifications: push == null
           ? defaults.pushNotifications
@@ -339,6 +382,23 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       advancedOptions: advanced == null
           ? defaults.advancedOptions
           : advanced == 'true',
+      // A wallet that had the old Advanced options switch on keeps what it showed.
+      advanced: advancedPrefs != null
+          ? AdvancedPrefs.decode(advancedPrefs)
+          : advanced == 'true'
+          ? const AdvancedPrefs(
+              features: {
+                AdvancedFeature.technicalDetails,
+                AdvancedFeature.serverDetails,
+                AdvancedFeature.recheckFromHeight,
+              },
+            )
+          : defaults.advanced,
+      // Direct was the Advanced page's "Direct receiving" switch before 26.10.13.
+      payments: PaymentPrefs.decode(
+        payments,
+        legacyDirect: (advancedPrefs ?? '').split('|').first.split(',').contains('directReceiving'),
+      ),
       useStatusSite: site,
       sendStrategy: SelectionStrategy.values.firstWhere(
         (v) => v.name == strategy,
@@ -348,7 +408,11 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
           ? defaults.splitChange
           : splitChange == 'true',
       hiddenTips: _tipIds(tips),
+      phoneTourSeen: tourSeen == 'true',
     );
+    // The network mode reaches the runtime here (network_gate.dart); main.dart set it at launch.
+    NetGate.set(settings.advanced.networkMode);
+    return settings;
   }
 
   /// The ids saved under [tipsHiddenKey], a JSON list; anything else counts as none hidden.
@@ -403,6 +467,42 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     '$on',
     (await _current()).copyWith(advancedOptions: on),
   );
+
+  /// The Advanced page: one feature switch or the network mode changed.
+  /// A new network mode applies at once ([NetGate], [networkModeProvider]).
+  Future<void> setAdvanced(AdvancedPrefs prefs) async {
+    await _put(
+      _advancedPrefsKey,
+      prefs.encode(),
+      (await _current()).copyWith(advanced: prefs),
+    );
+    NetGate.set(prefs.networkMode);
+  }
+
+  /// Settings › Transactions changed.
+  Future<void> setPayments(PaymentPrefs prefs) async =>
+      _put(_paymentsKey, prefs.encode(), (await _current()).copyWith(payments: prefs));
+
+  /// The saved network mode, read at launch before any request (`main.dart`).
+  static Future<NetworkMode> savedNetworkMode(SecretStore store) async =>
+      netModeOf(AdvancedPrefs.decode(await store.read(_advancedPrefsKey)).networkMode);
+
+  Future<void> setFeature(AdvancedFeature f, bool on) async =>
+      setAdvanced((await _current()).advanced.withFeature(f, on));
+
+  Future<void> setNetworkMode(NetworkMode mode) async =>
+      setAdvanced((await _current()).advanced.withMode(mode));
+
+  /// The first-unlock tour was shown: written first, and the state copied after the write from
+  /// what the settings are then, so a setting saved meanwhile is not undone.
+  Future<void> markPhoneTourSeen() async {
+    final store = ref.read(secretStoreProvider);
+    await store.write(phoneTourSeenKey, 'true');
+    state = AsyncData((await _current()).copyWith(phoneTourSeen: true));
+  }
+  /// Advanced › Node failover (`node_failover.dart`).
+  Future<void> setNodeFailover(bool on) async =>
+      setAdvanced((await _current()).advanced.withNodeFailover(on));
 
   /// Settings › Privacy › Use status.btlabs.uk; applies at once ([statusSite]).
   Future<void> setUseStatusSite(bool on) async {

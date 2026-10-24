@@ -25,6 +25,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path_provider/path_provider.dart';
 
 import '../../address_format.dart' show shortAddress;
+import '../../advanced.dart' show NetworkMode;
 import '../../btlabs_keys.dart' show btlabsKeyring;
 import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
@@ -37,6 +38,7 @@ import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
 import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
+import '../../network_gate.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
@@ -94,6 +96,11 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
   l ??= englishStrings;
   if (error is DeskError) return error.text(l);
   if (error is SecretProtectError) return l.deskErrSecretProtect;
+  // The network mode refused it (network_gate.dart).
+  if (error is NetBlocked) {
+    if (error.notLocal) return l.deskErrOfflineOnlyLocal;
+    return error.mode == NetworkMode.offline ? l.deskShellOffline : l.deskSetAdvModeTorOnlyText;
+  }
   if (error is! core.WalletError) return l.deskErrSomethingWrong;
   final detail = error.message.split('\n').first.trim();
   return switch (error.kind) {
@@ -192,6 +199,7 @@ class LepicDeskWallet implements DeskWalletApi {
          now: now,
        ) {
     statusSite.addListener(_statusSiteChanged);
+    NetGate.set(_settings.advanced.networkMode);
     _followTor();
   }
 
@@ -288,6 +296,13 @@ class LepicDeskWallet implements DeskWalletApi {
 
   core.WalletSession? _session;
   core.WalletConfig? _config;
+
+  /// The node in use is on this computer or the local network (`net/local_address.dart`):
+  /// Offline still syncs with it, makes and finishes files, posts and receives over HTTP.
+  bool get _localNode => isLocalAddressUrl(_config?.nodeUrl);
+
+  /// Offline, and the node in use is not local: nothing may ask it.
+  bool get _nodeOff => NetGate.offline && !_localNode;
   String? _password;
 
   /// Every move of the wallet's node runs alone, in call order ([_nodeLock]): the user's picks,
@@ -871,7 +886,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     _session = session;
     await _routeEpicbox(session);
-    unawaited(_resendUndelivered(session));
+    if (!NetGate.offline) unawaited(_resendUndelivered(session));
     _config = config;
     _password = password;
     _openEntry = entry;
@@ -882,7 +897,8 @@ class LepicDeskWallet implements DeskWalletApi {
     // off until startAutostart or the switch turns it on (DeskSettings.tor is the now-state).
     final autostart = await _store.autostart(entry.walletId);
     // The Tor switch is app-wide once set: a wallet never opens without Tor that was on.
-    final torSwitch = await _store.torSwitch() ?? autostart.tor;
+    // Tor only: every wallet opens with it on (network_gate.dart).
+    final torSwitch = NetGate.torOnly || (await _store.torSwitch() ?? autostart.tor);
     _settings = _settings.copyWith(
       publicMode: http.publicMode,
       httpPort: http.port,
@@ -907,17 +923,35 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// After an unlock: the node poll and the first sync. The receiving methods start with
   /// [startAutostart], each as its Start with the wallet says.
+  /// Offline: only the wallet's own files are read, or the local node is asked; [_applyMode]
+  /// starts the rest on leaving it.
   void _startOpenWallet() {
+    _torStartRetries = 0;
+    if (_nodeOff) {
+      unawaited(_loadLocal());
+      return;
+    }
     _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
     unawaited(_checkTip());
     unawaited(sync());
-    _torStartRetries = 0;
-    _startInvoices();
+    if (!NetGate.offline) _startInvoices();
   }
 
   @override
   Future<void> startAutostart() async {
     final session = _open;
+    // Offline starts nothing but the HTTP listener on a local node (local senders); leaving it
+    // starts what Start with the wallet says.
+    if (NetGate.offline) {
+      if (_localNode && DeskFeatures.httpDirect && _settings.httpAutostart) {
+        try {
+          await setHttpListening(true);
+        } on Object catch (e) {
+          logWarn('desk', 'http autostart: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
+        }
+      }
+      return;
+    }
     // Tor starts below: the first Epicbox connection waits for it, never going directly first.
     if (_torFeature && _settings.torAutostart && await _findTor() != null) await _expectTor(session);
     if (_settings.epicboxAutostart) {
@@ -1025,7 +1059,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// old ones and the error says so; when even that fails, the wallet locks
   /// ([DeskError.locked]). Locked: only saved. Callers hold [_nodeLock]; [_switching] is set
   /// before the first await: new payments and scans wait for the switch, those running end first.
-  Future<void> _switchTo({required String nodeUrl, required EpicboxRelay relay}) async {
+  Future<void> _switchTo({required String nodeUrl, required EpicboxRelay relay, bool save = true}) async {
     // The mark comes first: no payment or scan starts from now on (the switch is preferred),
     // so a steady stream of them cannot hold it off. Those under way end, then it runs.
     final switching = _switching = Completer<void>();
@@ -1033,15 +1067,17 @@ class LepicDeskWallet implements DeskWalletApi {
       while (_busy > 0) {
         await whenIdle();
       }
-      await _reopenOn(nodeUrl: nodeUrl, relay: relay);
+      await _reopenOn(nodeUrl: nodeUrl, relay: relay, keep: save);
     } finally {
       _switching = null;
       switching.complete();
     }
   }
 
-  Future<void> _reopenOn({required String nodeUrl, required EpicboxRelay relay}) async {
+  /// [keep] false: the move is for this session only (node failover); nothing is saved.
+  Future<void> _reopenOn({required String nodeUrl, required EpicboxRelay relay, bool keep = true}) async {
     Future<void> save() async {
+      if (!keep) return;
       await _secrets.write(_nodeKey, nodeUrl);
       await _secrets.write(_relayKey, relay.label);
     }
@@ -1237,7 +1273,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight}) async {
     _checkPassword(password);
     final mnemonic = _mnemonicOf(phrase);
     if (!_service.validateMnemonic(phrase: mnemonic)) throw DeskError.l10n((l) => l.deskErrPhraseInvalid);
@@ -1245,7 +1281,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (same != null) throw DeskError.l10n((l) => l.deskErrAlreadyHere(same.name), sameWallet: same);
     try {
       // The scan runs after unlock, in the background, with its progress in the status.
-      await _make(name, const {'scanPending': true}, (config) async {
+      await _make(name, {'scanPending': true, if (startHeight != null) 'scanFrom': startHeight.toInt()}, (config) async {
         final session = await _service.create(config: config, mnemonic: mnemonic, password: password);
         session.dispose();
       }, fingerprintOf: (_) => phraseFingerprint(mnemonic));
@@ -1565,16 +1601,20 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _sync() async {
     final session = _session;
     if (session == null) return;
+    if (_nodeOff) return _loadLocal();
     final key = _metaKey(_openEntry?.walletId);
     _syncProgress = 0;
     _syncError = null;
     _changed();
     try {
       // The scan due since a restore or a rebuilt database; not while Recheck balance scans.
-      if (!_rescanning && (await _meta(key))['scanPending'] == true) {
+      final due = await _meta(key);
+      if (!_rescanning && due['scanPending'] == true) {
         var finished = false;
         try {
-          await for (final p in session.scan()) {
+          // A restore from a block height (Restore's start height) scans from there.
+          final from = due['scanFrom'];
+          await for (final p in session.scan(startHeight: from is int ? BigInt.from(from) : null)) {
             if (_session != session) return;
             finished = finished || p.finished;
             if (p.percent != null) _syncProgress = p.percent! / 200;
@@ -1586,7 +1626,7 @@ class LepicDeskWallet implements DeskWalletApi {
         }
         // A scan stopped before its end stays due.
         if (finished) {
-          await _setMeta({'scanPending': false}, key);
+          await _setMeta({'scanPending': false, 'scanFrom': null}, key);
           _notice = null;
         }
       }
@@ -1677,7 +1717,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<void> _checkTip() async {
     final config = _config;
-    if (config == null || _tipBusy) return;
+    if (config == null || _tipBusy || _nodeOff) return;
     // Over Tor, LEPIC holds the check until tor is connected; a failure meanwhile is not counted.
     final overTor = _nodeOverTor(config.nodeUrl);
     _tipBusy = true;
@@ -1964,6 +2004,8 @@ class LepicDeskWallet implements DeskWalletApi {
     if (_httpHealth != ServiceHealth.ok || port == null) return '';
     if (_httpExposure != core.HttpExposure.internet) return 'http://127.0.0.1:$port';
     final reach = await httpReach();
+    // Offline: senders on the local network only, so the LAN address.
+    if (NetGate.offline) return reach?.lanAddress ?? '';
     return reach?.publicAddress ?? reach?.lanAddress ?? '';
   }
 
@@ -1973,6 +2015,8 @@ class LepicDeskWallet implements DeskWalletApi {
     // Never over the clearnet while Tor is on; HTTP receiving is off then anyway.
     if (_settings.tor || _httpExposure != core.HttpExposure.internet || port == null) return null;
     if (_httpHealth != ServiceHealth.ok) return null;
+    // Offline asks nothing on the internet: the LAN address only.
+    if (NetGate.offline) return _reach.readLan(port);
     return _reach.read(port, recheck: recheck);
   }
 
@@ -2622,6 +2666,9 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> saveSettings(DeskSettings settings) async {
     final old = _settings;
+    final mode = netModeOf(settings.advanced.networkMode);
+    // Tor only keeps the Tor switch on (network_gate.dart).
+    if (mode == NetworkMode.torOnly && !settings.torAutostart) settings = settings.copyWith(torAutostart: true);
     // Tor is the open wallet's, changed only through setTor.
     _settings = settings.copyWith(tor: old.tor);
     final moved = settings.httpPort != old.httpPort || settings.publicMode != old.publicMode;
@@ -2636,8 +2683,97 @@ class LepicDeskWallet implements DeskWalletApi {
     _followTor();
     if (moved && _session != null && (_http != null || _httpHealth == ServiceHealth.down)) {
       await _stopHttp();
-      if (settings.directHttp) await setHttpListening(true);
+      if (settings.directHttp && !_nodeOff) await setHttpListening(true);
     }
+    final was = netModeOf(old.advanced.networkMode);
+    if (mode != was) await _applyMode(was, mode);
+  }
+
+  /// What ran when Offline began, started again when it ends.
+  ({bool listening, bool http, bool tor})? _beforeOffline;
+
+  /// A new network mode, while running: Offline stops everything that reaches the network
+  /// and keeps the wallet open on its own files; Tor only turns the Tor switch on and Tor
+  /// with it; leaving Offline starts again what ran (or, when it began locked, what Start
+  /// with the wallet says) without a restart. Locked, only the mode changes; the unlock reads it.
+  Future<void> _applyMode(NetworkMode was, NetworkMode now) async {
+    NetGate.set(now);
+    logInfo('desk', 'network mode ${now.name}');
+    final session = _session;
+    if (now == NetworkMode.offline) {
+      if (session != null) {
+        _beforeOffline = (listening: _listener != null, http: _http != null, tor: _settings.tor);
+        _stopInvoices();
+        await _stopListener();
+        await _stopTor();
+        _settings = _settings.copyWith(tor: false);
+        _epicboxHealth = ServiceHealth.off;
+        // A local node is still asked (the poll, a Recheck balance) and the HTTP listener
+        // stays for local senders; any other node is not.
+        if (!_localNode) {
+          _poll?.cancel();
+          _poll = null;
+          await _stopScanForUser();
+          await _stopHttp();
+          _nodeHealth = ServiceHealth.off;
+        } else if (_beforeOffline!.tor && DeskFeatures.httpDirect && _settings.directHttp) {
+          // Tor kept it off; with Tor stopped it answers local senders.
+          try {
+            await setHttpListening(true);
+          } on Object catch (e) {
+            logWarn('desk', 'http in Offline: ${e.runtimeType}');
+          }
+        }
+      }
+      // The built-in node keeps running: its own peers are the node's setting, not the wallet's.
+      _followTor();
+      _changed();
+      return;
+    }
+    if (now == NetworkMode.torOnly) {
+      _torSaved = true;
+      if (!_settings.torAutostart) {
+        _settings = _settings.copyWith(torAutostart: true);
+        await _store.saveTorSwitch(true);
+      }
+      _epicboxOverTor = true;
+      await _session?.setEpicboxOverTor(true);
+      // Its clearnet listener goes; the onion one comes with Tor.
+      await _stopHttp();
+    }
+    if (was == NetworkMode.offline) {
+      final before = _beforeOffline;
+      _beforeOffline = null;
+      if (session != null) {
+        final tor = _torFeature && (now == NetworkMode.torOnly || (before?.tor ?? _settings.torAutostart));
+        if (tor) _settings = _settings.copyWith(tor: true);
+        _poll?.cancel();
+        _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
+        if (before == null) {
+          // Opened while Offline: as an unlock would have started it.
+          _startInvoices();
+          unawaited(_resendUndelivered(session));
+          unawaited(_checkTip());
+          unawaited(sync());
+          await startAutostart();
+        } else {
+          await _afterReopen(before.listening, before.http && !tor, tor);
+        }
+      }
+      // Started while Offline: kept running, so this only starts one left on and not running.
+      unawaited(resumeBuiltInNode());
+    } else if (now == NetworkMode.torOnly && session != null && _torFeature && !_settings.tor) {
+      await setTor(true);
+    }
+    _followTor();
+    _changed();
+  }
+
+  /// The wallet's own files only (Offline): balance and history as last seen.
+  Future<void> _loadLocal() async {
+    await _reload();
+    final h = _summary?.lastConfirmedHeight.toInt() ?? 0;
+    if (h > _tip) _tip = h;
   }
 
   @override
@@ -2653,6 +2789,14 @@ class LepicDeskWallet implements DeskWalletApi {
       await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
       await _node?.stop();
     }
+  });
+
+  @override
+  Future<void> useNodeForSession(String url) => _nodeLock(() async {
+    if (_session == null || NetGate.offline || await _builtInOn()) return;
+    if (_config?.nodeUrl == url) return;
+    logInfo('desk', 'node failover: ${Uri.tryParse(url)?.host ?? '?'} for this session');
+    await _switchTo(nodeUrl: url, relay: await _relay(), save: false);
   });
 
   String get _beforeBuiltInKey => 'app.node.$_chain.beforeBuiltIn';
@@ -2671,6 +2815,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> useBuiltInNode(bool on) async {
+    if (on && NetGate.offline) throw DeskError.l10n((l) => l.deskShellOffline);
     await _stopScanForUser();
     // The setting and the saved node change only once the wallet runs on the new node, so a
     // failed start or move leaves both as they were.
@@ -2768,6 +2913,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// At launch: starts the built-in node again when it was left on. A failure is logged and
   /// shown as a notice; the wallet then reports its node as not responding.
   Future<void> resumeBuiltInNode() async {
+    // Offline too: the node's own peers are its setting, not the wallet's.
     if (!await _builtInOn()) return;
     // "Start with the app" off: the user starts it from Settings › Node.
     if (!await NodeSettings(_secrets, preset.chain).startWithApp()) return;
@@ -2873,6 +3019,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> setEpicboxListening(bool on) async {
     if (!on) return _stopListener();
     if (_listener != null) return;
+    if (NetGate.offline) throw DeskError.l10n((l) => l.deskShellOffline);
     final session = _open;
     _epicboxHealth = ServiceHealth.checking;
     _changed();
@@ -2906,9 +3053,11 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> setHttpListening(bool on) async {
     if (!on) return _stopHttp();
     if (_http != null) return;
-    // Off while Tor is on: it would answer on this computer's own address. Tor off starts it
-    // again when its switch ([DeskSettings.directHttp]) is on.
-    if (_settings.tor) return;
+    // Off while Tor is on, and in Tor only: it would answer on this computer's own address.
+    // Tor off starts it again when its switch ([DeskSettings.directHttp]) is on.
+    if (_settings.tor || NetGate.torOnly) return;
+    // Offline: a received slate is signed with the node's tip, so only with a local node.
+    if (_nodeOff) throw DeskError.l10n((l) => l.deskShellOffline);
     final session = _open;
     final port = _settings.httpPort;
     // From the internet only after the user chose it in the guide (DeskSettings.publicMode).
@@ -2989,6 +3138,8 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> setEpicboxOverTor(bool on) async {
+    // Tor only keeps Epicbox on tor: off would let it go direct.
+    if (!on && NetGate.torOnly) return;
     _epicboxOverTor = on;
     await _session?.setEpicboxOverTor(on);
     _changed();
@@ -3011,8 +3162,12 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  ///
+  /// Tor only refuses off; Offline refuses on (no tor starts).
   Future<void> setTor(bool on) async {
     _open;
+    if (!on && NetGate.torOnly) throw DeskError.l10n((l) => l.deskSetAdvModeTorOnlyText);
+    if (on && NetGate.offline) throw DeskError.l10n((l) => l.deskShellOffline);
     _settings = _settings.copyWith(tor: on);
     await _store.saveTorOn(_openEntry?.walletId, on);
     logInfo('desk', 'tor ${on ? 'on' : 'off'}');
@@ -3044,7 +3199,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final generation = _generation;
     final bundle = await _findTor();
     // Locked, switched, turned off or started meanwhile.
-    if (generation != _generation || _session != session || _tor != null || !_settings.tor) return;
+    if (generation != _generation || _session != session || _tor != null || !_settings.tor || NetGate.offline) return;
     _torCanSend = false;
     _torProgress = null;
     if (bundle == null) {
@@ -3244,6 +3399,8 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
+    // Recheck balance asks the node: Offline only a local one.
+    if (_nodeOff) throw DeskError.l10n((l) => l.deskShellOffline);
     // Admitted like [_running]: the checks and the count follow each other with no await.
     var waitedForStop = false;
     while (true) {

@@ -12,7 +12,16 @@ import '../l10n.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'theme/advanced.dart';
 import 'theme/tokens.dart';
+
+/// Whether the phone shows Outputs: Advanced › Outputs, or a split or consolidation the node
+/// did not take yet (never hide what is in use). Home's destination, the Settings › Wallet row
+/// and the balance tiles' tap read the same rule.
+bool outputsShown(BuildContext context, WidgetRef ref) =>
+    AdvancedOptions.has(context, AdvancedFeature.outputs) ||
+    (ref.watch(sessionProvider) != null &&
+        (ref.watch(homeProvider).value?.transactions.any((t) => t.repostable) ?? false));
 
 /// What a balance tile shows.
 enum BalanceKind {
@@ -101,7 +110,8 @@ Key balanceTileKey(BalanceKind kind) => ValueKey('balance-tile-${kind.name}');
 /// [width]-wide tiles fit (two on a phone), equal widths, and the last tile alone on its row
 /// takes the whole row, as the desktop Overview's breakdown does. Nothing scrolls sideways and
 /// no tile is ever cut. A tap on a tile with a value calls [onTap] with its kind (Home opens
-/// Outputs with the matching filter).
+/// Outputs with the matching filter); while Advanced hides Outputs the tiles are plain
+/// readouts, every one of them (a balance is everyday reading, the page behind it is not).
 class BalanceTiles extends ConsumerWidget {
   const BalanceTiles({super.key, required this.onTap});
 
@@ -122,6 +132,7 @@ class BalanceTiles extends ConsumerWidget {
     final summary = data?.summary;
     if (summary == null) return const SizedBox(height: height);
     final hidden = amountDisplay(ref).hidden;
+    final outputs = outputsShown(context, ref);
     final tiles = balanceTiles(
       l,
       summary,
@@ -146,7 +157,7 @@ class BalanceTiles extends ConsumerWidget {
         label: tile.label,
         value: text,
         accent: tile.kind == BalanceKind.confirming,
-        onTap: value == null ? null : () => onTap(tile.kind),
+        onTap: value == null || !outputs ? null : () => onTap(tile.kind),
         semanticsLabel: text == null
             ? tile.label
             : l.balanceHelpRow(tile.label, text),
@@ -298,9 +309,9 @@ enum HomeDestination { activity, outputs, contacts, invoices }
 /// A destination tile's key, for tests.
 Key homeDestinationKey(HomeDestination d) => ValueKey('home-dest-${d.name}');
 
-/// The row of destinations under the status card: Activity, Outputs, Contacts and, on a
-/// wallet with invoices, Invoices with the number of invoices to pay as its badge. Each tile
-/// is one 64 dp target.
+/// The row of destinations under the status card: Activity, Outputs (while Advanced shows it,
+/// [outputsShown]), Contacts and, on a wallet with invoices, Invoices with the number of
+/// invoices to pay as its badge. Each tile is one 64 dp target.
 class HomeDestinations extends ConsumerWidget {
   const HomeDestinations({super.key, required this.onOpen});
 
@@ -320,12 +331,13 @@ class HomeDestinations extends ConsumerWidget {
         label: l.homeDestActivity,
         onTap: () => onOpen(HomeDestination.activity),
       ),
-      _DestinationTile(
-        key: homeDestinationKey(HomeDestination.outputs),
-        icon: Icons.data_usage,
-        label: l.homeDestOutputs,
-        onTap: () => onOpen(HomeDestination.outputs),
-      ),
+      if (outputsShown(context, ref))
+        _DestinationTile(
+          key: homeDestinationKey(HomeDestination.outputs),
+          icon: Icons.data_usage,
+          label: l.homeDestOutputs,
+          onTap: () => onOpen(HomeDestination.outputs),
+        ),
       _DestinationTile(
         key: homeDestinationKey(HomeDestination.contacts),
         icon: Icons.people_outline,

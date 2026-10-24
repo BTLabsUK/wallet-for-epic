@@ -178,6 +178,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
           ),
           // Rotation and the dropped count are technical; the simple path never needs them.
           Advanced(
+            feature: AdvancedFeature.technicalDetails,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -265,7 +266,7 @@ class _InvoiceAddress extends ConsumerWidget {
         // Copy and the QR code always carry the full address; on screen it is short unless
         // Advanced options is on, as on Receive.
         SelectableText(
-          AdvancedOptions.of(context)
+          AdvancedOptions.has(context, AdvancedFeature.serverDetails)
               ? address
               : shortAddress(address, ownServer: ownEpicboxServer(ref)),
           textAlign: TextAlign.center,

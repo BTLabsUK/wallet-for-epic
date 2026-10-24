@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 const _args = [
   ReceiveArgs(),
   ReceiveArgs(epicbox: RxEpicbox.off),
@@ -24,6 +26,7 @@ Future<ProviderContainer> _pump(WidgetTester tester, ReceiveArgs args, {double w
   final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
   addTearDown(container.dispose);
   await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() => advancedOn(container));
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,

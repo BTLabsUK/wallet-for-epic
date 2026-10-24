@@ -23,6 +23,7 @@ import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -208,11 +209,14 @@ class _Host extends ConsumerWidget {
 }
 
 class _Harness {
-  _Harness({this.price, bool scanSupported = true, this.advanced = false})
+  _Harness({this.price, bool scanSupported = true, this.advanced = false, this.direct = false})
     : scanner = FakeQrScanner(supported: scanSupported);
 
   /// Advanced options, as `MaterialApp.builder` in the app would provide it.
   final bool advanced;
+
+  /// Settings › Transactions › Direct on.
+  final bool direct;
 
   final session = _funded();
   late final service = FakeWalletService()
@@ -242,7 +246,10 @@ class _Harness {
         retry: (_, _) => null,
         overrides: [
           walletServiceProvider.overrideWithValue(service),
-          secretStoreProvider.overrideWithValue(sendPinStore()),
+          secretStoreProvider.overrideWithValue(
+            sendPinStore()
+              ..values['app.payment_prefs'] = PaymentPrefs(direct: direct).encode(),
+          ),
           slateFilesProvider.overrideWithValue(files),
           qrScannerProvider.overrideWithValue(scanner),
           priceSourceProvider.overrideWithValue(_FixedPrice(price)),
@@ -255,7 +262,7 @@ class _Harness {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) =>
-              AdvancedOptions(enabled: advanced, child: child!),
+              AdvancedOptions(prefs: advanced ? AdvancedPrefs.all : AdvancedPrefs.none, child: child!),
           home: screen,
         ),
       ),
@@ -422,12 +429,12 @@ class _NoRelays implements RelayDirectory {
   Future<List<RelayStatus>> relays(String chain) async => const [];
 }
 
-/// The whole app on a funded mainnet wallet with a PIN, auto-lock "Immediately", and a clock
-/// the test moves.
+/// The whole app on a funded mainnet wallet with a PIN, auto-lock after a minute (the
+/// shortest), and a clock the test moves.
 class _AppHarness {
   _AppHarness({bool advanced = false}) {
     store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
-    store.values['app.auto_lock'] = '0';
+    store.values['app.auto_lock'] = '1';
     if (advanced) store.values['app.advanced'] = 'true';
     service = FakeWalletService(
       existingWallets: {'/fake/wallets/mainnet'},
@@ -1602,8 +1609,8 @@ void main() {
       expect(h.container.read(autoLockHoldProvider), 0);
       expect(h.files.sharedImages.single.text, h.session.address);
 
-      // The control: "Immediately" locks an ordinary trip away.
-      await h.awayAndBack(tester, const Duration(seconds: 1));
+      // The control: a minute locks an ordinary trip away.
+      await h.awayAndBack(tester, const Duration(minutes: 1));
       await tester.pumpAndSettle();
       expect(h.locked, isTrue);
     });
@@ -2229,18 +2236,21 @@ void main() {
   });
 
   group('advanced options', () {
-    testWidgets('send offers the file and Direct either way', (tester) async {
+    testWidgets('send offers the file by default, Direct with its switch in Settings › Transactions', (
+      tester,
+    ) async {
       final off = _Harness();
       await off.pump(tester, _sendTab());
       expect(find.text('File'), findsOneWidget);
-      expect(find.text('Direct'), findsOneWidget);
+      expect(find.text('Direct'), findsNothing);
       expect(find.text('Other ways to send'), findsNothing);
 
       // A fresh tree, so the screen's state starts over.
       await tester.pumpWidget(const SizedBox());
-      final on = _Harness(advanced: true);
+      final on = _Harness(direct: true);
       await on.pump(tester, _sendTab());
       expect(find.text('File'), findsOneWidget);
+      expect(find.text('Direct'), findsOneWidget);
       await _enter(tester, _address, 'http://203.0.113.5:3415');
       await _tap(tester, _continue);
       expect(find.text('2 of 3'), findsOneWidget);

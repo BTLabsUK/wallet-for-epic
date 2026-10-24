@@ -108,7 +108,7 @@ class _Harness {
               disableAnimations: reducedMotion,
               textScaler: TextScaler.linear(textScale),
             ),
-            child: AdvancedOptions(enabled: false, child: child!),
+            child: AdvancedOptions(prefs: AdvancedPrefs.none, child: child!),
           ),
           home: SlotScaffold(
             appBar: AppBar(),

@@ -368,6 +368,30 @@ void main() {
       expect(find.text('Thank you. Your feedback was sent.'), findsOneWidget);
     });
 
+    testWidgets('Offline: Send waits with the reason, sharing the report does not', (
+      tester,
+    ) async {
+      final h = _Harness()..url = Uri.parse('https://feedback.example.com/in');
+      h.store.values['app.advanced_prefs'] = '|offline';
+      await h.pump(tester);
+      await h.openFeedback(tester);
+      await enter(tester, 'Your message', 'Please add dark mode');
+      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      final send = find.widgetWithText(FilledButton, 'Send');
+      await tester.ensureVisible(send);
+      expect(tester.widget<FilledButton>(send).onPressed, isNull);
+      // Saving or sharing the report needs no network.
+      expect(
+        tester
+            .widget<OutlinedButton>(
+              find.widgetWithText(OutlinedButton, 'Share or save instead'),
+            )
+            .onPressed,
+        isNotNull,
+      );
+      expect(h.outlet.posted, isEmpty);
+    });
+
     testWidgets('help links to it', (tester) async {
       final h = _Harness();
       await h.pump(tester);

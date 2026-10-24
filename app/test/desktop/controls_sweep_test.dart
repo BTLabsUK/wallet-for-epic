@@ -28,7 +28,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// Controls that may only toast or change nothing visible here, matched on `<scope>|<label>`
 /// (scope: the route's name, `shell`, or the shot id for a dialog shot), each with its reason.
 final Map<RegExp, String> _allowed = {
-  RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Receiving|settingsPrivacy\|Privacy|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsRescan\|Recheck balance|settingsAbout\|About|settingsHelp\|Help)$'):
+  RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Transactions|settingsPrivacy\|Privacy|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsRescan\|Recheck balance|settingsAdvanced\|Advanced|settingsAbout\|About|settingsHelp\|Help)$'):
       'The place already shown: going there again adds nothing to the history (F16).',
   RegExp(r'^settingsAccount\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
   RegExp(r'^settingsWallets\|Show .* in its folder$'): 'The mock wallet folders are not on disk: says "Folder not opened". A real one opens.',
@@ -83,6 +83,9 @@ class _Recorder implements DeskWalletApi {
   final _m = MockDeskWallet(delay: Duration.zero);
   final List<String> calls = [];
 
+  @override
+  Future<void> useNodeForSession(String url) => _r('useNodeForSession', () => _m.useNodeForSession(url));
+
   T _r<T>(String name, T Function() f) {
     calls.add(name);
     return f();
@@ -132,8 +135,8 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<WalletEntry?> walletWithPhrase(List<String> words) => _r('walletWithPhrase', () => _m.walletWithPhrase(words));
   @override
-  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) =>
-      _r('restoreWallet', () => _m.restoreWallet(name: name, password: password, phrase: phrase));
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight}) =>
+      _r('restoreWallet', () => _m.restoreWallet(name: name, password: password, phrase: phrase, startHeight: startHeight));
   @override
   Future<List<OldWallet>> findOldWallets() => _r('findOldWallets', _m.findOldWallets);
   @override

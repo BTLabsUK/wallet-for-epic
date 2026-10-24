@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n.dart' show autoLockLabel;
+import '../../../settings.dart' show autoLockChoices;
 import '../../desk_l10n.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -157,6 +159,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
           ESetGroup(
             title: l.deskSetAcctSecurity,
             rows: [
+              const _AutoLockRow(),
               if (_remembered)
                 ESetRow(
                   title: l.deskSetAcctRemembered,
@@ -216,6 +219,52 @@ class _FolderRow extends ConsumerWidget {
           ),
           SizedBox(width: Sp.x1),
           ECopyButton(text: path, label: l.deskSetAcctCopyPath(title)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Auto-lock: on or off, and after how many minutes without a key or the mouse (the phone's
+/// choices). Off greys the minutes; Lock wallet works either way.
+class _AutoLockRow extends ConsumerWidget {
+  const _AutoLockRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final s = ref.watch(deskProvider.select((d) => d.settings));
+    void save(DeskSettings next) => ref.read(deskProvider.notifier).saveSettings(next);
+    return ESetRow(
+      title: l.settingsAutoLock,
+      hint: l.deskSetAcctAutoLockHint,
+      control: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 168.u,
+            child: IgnorePointer(
+              ignoring: !s.autoLockOn,
+              child: Opacity(
+                opacity: s.autoLockOn ? 1 : 0.45,
+                child: ESelect<int>(
+                  key: const ValueKey('auto-lock-minutes'),
+                  size: EBtnSize.sm,
+                  semanticLabel: l.settingsAutoLock,
+                  value: s.autoLockMinutes,
+                  items: [for (final m in autoLockChoices) ESelectItem(m, autoLockLabel(l, m))],
+                  onChanged: (m) => save(s.copyWith(autoLockMinutes: m)),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: Sp.x3),
+          ESwitch(
+            key: const ValueKey('auto-lock-on'),
+            value: s.autoLockOn,
+            semanticLabel: l.settingsAutoLock,
+            onChanged: (on) => save(s.copyWith(autoLockOn: on)),
+          ),
         ],
       ),
     );

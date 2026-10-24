@@ -206,5 +206,11 @@
   "deskOnbImportStopTitle": "หยุดการนำเข้าไหม?",
   "deskOnbImportStopBody": "กระเป๋าเงินที่นำเข้าไปแล้วจะถูกนำออก โฟลเดอร์เดิมไม่เปลี่ยน",
   "deskOnbImportGoBack": "กลับไป",
-  "deskOnbImportStop": "หยุดการนำเข้า"
+  "deskOnbImportStop": "หยุดการนำเข้า",
+  "deskOnbRestoreFromLink": "เริ่มจากความสูงบล็อก",
+  "deskOnbRestoreFromHide": "ตรวจทั้งบล็อกเชน",
+  "deskOnbRestoreFromLabel": "เริ่มจากบล็อก",
+  "deskOnbRestoreFromHint": "ความสูงบล็อก",
+  "deskOnbRestoreFromHelp": "ใช้เมื่อรายการแรกของกระเป๋าเงินเกิดหลังบล็อกนี้เท่านั้น เว้นว่างไว้เพื่อตรวจทั้งบล็อกเชน",
+  "deskOnbRestoreFromInvalid": "ใช้ตัวเลขเท่านั้น หรือเว้นว่างไว้"
 }

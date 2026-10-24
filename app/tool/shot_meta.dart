@@ -4,7 +4,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final bool shotMeta = Platform.environment['SHOTS_META'] == '1';
@@ -43,8 +43,37 @@ void writeShotMeta(String png, Element root, Map<String, Object?> fields) {
     seen.add(t);
     texts.add(t);
   }
+  final interactive = countInteractive(root, screen);
   final out = File('${png.substring(0, png.length - 4)}.json');
   out.writeAsStringSync(
-    jsonEncode({...fields, 'text': texts, 'widgets': classes, 'meta_ms': clock.elapsedMicroseconds / 1000}),
+    jsonEncode({...fields, 'text': texts, 'widgets': classes, 'interactive': interactive, 'meta_ms': clock.elapsedMicroseconds / 1000}),
   );
+}
+
+/// The controls a person can reach on stage under [root]: buttons, rows and chips that answer a
+/// tap, switches, checkboxes, radios, sliders and text fields. A control inside another counted
+/// one (a switch in its row, an icon in its button) is the same control and counts once.
+int countInteractive(Element root, Rect screen) {
+  var n = 0;
+  void visit(Element e, bool inside) {
+    final w = e.widget;
+    final control = !inside &&
+        switch (w) {
+          InkResponse() => w.onTap != null || w.onLongPress != null,
+          GestureDetector() => w.onTap != null || w.onLongPress != null,
+          EditableText() || Switch() || Checkbox() || Radio() || Slider() => true,
+          _ => false,
+        };
+    if (control) {
+      final box = e.renderObject;
+      if (box is RenderBox && box.hasSize && box.attached && box.size.width > 0 && box.size.height > 0) {
+        final rect = box.localToGlobal(Offset.zero) & box.size;
+        if (rect.overlaps(screen)) n++;
+      }
+    }
+    // Onstage only, as the text above: routes under the top one and offstage children skip.
+    e.debugVisitOnstageChildren((c) => visit(c, inside || control));
+  }
+  visit(root, false);
+  return n;
 }

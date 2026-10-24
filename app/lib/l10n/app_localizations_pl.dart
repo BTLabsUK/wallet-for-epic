@@ -4081,6 +4081,89 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get tourPhoneSemantics => 'Przewodnik po portfelu';
+
+  @override
+  String tourPhoneCounter(int current, int total) {
+    return '$current z $total';
+  }
+
+  @override
+  String get tourPhoneSkip => 'Pomiń';
+
+  @override
+  String get tourPhoneBack => 'Wstecz';
+
+  @override
+  String get tourPhoneNext => 'Dalej';
+
+  @override
+  String get tourPhoneWalletTitle => 'Portfel';
+
+  @override
+  String get tourPhoneWalletText =>
+      'Twoje saldo, a pod nim ikony węzła, Epicbox i Tora. To, co jeszcze się potwierdza, jest w kafelkach poniżej.';
+
+  @override
+  String get tourPhoneSendTitle => 'Wyślij';
+
+  @override
+  String get tourPhoneSendText =>
+      'Wklej lub zeskanuj adres albo wybierz kontakt. Epicbox płaci na adres; Plik tworzy plik do przekazania dalej. Więcej metod: Ustawienia › Transakcje. Najpierw jest podgląd.';
+
+  @override
+  String get tourPhoneReceiveTitle => 'Odbierz';
+
+  @override
+  String get tourPhoneReceiveText =>
+      'Twój adres Epicbox. Udostępnij go, aby dostać zapłatę. Karta Plik służy do plików transakcji do podpisania lub dokończenia.';
+
+  @override
+  String get tourPhoneActivityTitle => 'Aktywność';
+
+  @override
+  String get tourPhoneActivityText =>
+      'Każda płatność z postępem i szczegółami. Dotknij jednej, aby ją otworzyć.';
+
+  @override
+  String get tourPhoneContactsTitle => 'Kontakty';
+
+  @override
+  String get tourPhoneContactsText =>
+      'Zapisane adresy z nazwami. Wyślij wybiera stąd.';
+
+  @override
+  String get tourPhoneInvoicesTitle => 'Faktury';
+
+  @override
+  String get tourPhoneInvoicesText =>
+      'Zapłać fakturę, którą ktoś przysłał, albo poproś kogoś o płatność. Karty przełączają między jednym a drugim.';
+
+  @override
+  String get tourPhonePrivacyTitle => 'Prywatność i sieć';
+
+  @override
+  String get tourPhonePrivacyText =>
+      'Z jakiego węzła i serwera Epicbox korzysta portfel oraz przełącznik Tora. Dotknij serwera, aby go zmienić.';
+
+  @override
+  String get tourPhoneAdvancedTitle => 'Zaawansowane';
+
+  @override
+  String get tourPhoneAdvancedText =>
+      'Tryb tylko Tor, wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.';
+
+  @override
+  String get tourPhoneHelpTitle => 'Pomoc';
+
+  @override
+  String get tourPhoneHelpText =>
+      'Przeszukaj tematy albo wyślij opinię. „Pokaż przewodnik ponownie” jest na dole listy.';
+
+  @override
+  String get tourPhoneShowAgain => 'Pokaż przewodnik ponownie';
+
+  @override
   String get homeDestActivity => 'Aktywność';
 
   @override
@@ -4385,7 +4468,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Scalanie rozpoczęte: jedno wyjście, potwierdzenie za około 3 bloki';
 
   @override
-  String get outputsAdvanced => 'Zaawansowane';
+  String get outputsAdvanced => 'Zarządzaj wyjściami';
 
   @override
   String get outputsColState => 'Stan';
@@ -4715,21 +4798,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String serverSwitchTo(String host) {
-    return 'Przełącz na $host';
-  }
-
-  @override
-  String get serverNodeSwitchNote =>
-      'Portfel połączy się ponownie. Salda zostaną ponownie sprawdzone z nowym węzłem.';
-
-  @override
   String get serverRelayWarning =>
       'Twój adres zawiera ten serwer. Zmiana zmienia adres; nadawcy potrzebują nowego.';
-
-  @override
-  String get serverRelaySwitchNote =>
-      'Twój adres się zmieni; nadawcy potrzebują nowego.';
 
   @override
   String get serverOtherRelay => 'Inny serwer, host lub host:port';
@@ -7214,7 +7284,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'Na ten adres mogą płacić programy na tym komputerze. Inne urządzenia: zobacz Ustawienia › Odbieranie.';
+      'Na ten adres mogą płacić programy na tym komputerze. Inne urządzenia: zobacz Ustawienia › Transakcje.';
 
   @override
   String get deskRecvHttpIntro =>
@@ -7469,7 +7539,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendAdvAllNoSplit => '· Wszystkie wyjścia, reszta niedzielona';
 
   @override
-  String get deskSendAdvanced => 'Zaawansowane';
+  String get deskSendAdvanced => 'Opcje wysyłki';
 
   @override
   String get deskSendAdvStrategy => 'Strategia tej wysyłki';
@@ -8612,9 +8682,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOutTileTotal => 'Razem';
-
-  @override
-  String get deskOutDefaultsTitle => 'Domyślne dla wysyłek';
 
   @override
   String get deskOutStrategyTitle => 'Strategia wysyłek';
@@ -10600,14 +10667,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTourSendText =>
-      'Trzy sposoby płacenia: adres Epicbox, adres bezpośredni (http(s) lub Tor) albo plik transakcji. Zanim cokolwiek wyjdzie, zobaczysz podsumowanie.';
+      'Zapłać na adres Epicbox albo utwórz plik transakcji do podpisania przez kogoś. Przed wysłaniem jest podgląd.';
 
   @override
   String get deskTourReceiveTitle => 'Odbierz';
 
   @override
   String get deskTourReceiveText =>
-      'Adres Epicbox tego portfela, obok Bezpośrednio · HTTP i Bezpośrednio · Tor. Pliki transakcji do podpisania lub sfinalizowania są na dole.';
+      'Adres Epicbox tego portfela: udostępnij go, aby dostać zapłatę. Pliki transakcji do podpisania lub sfinalizowania są pod nim.';
 
   @override
   String get deskTourInvoicesTitle => 'Faktury';
@@ -10628,21 +10695,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'Zapisane adresy według nazwy: Epicbox, Bezpośrednio · HTTP lub Bezpośrednio · Tor. Wyślij wybiera stąd.';
+      'Zapisane adresy z nazwami. Wyślij wybiera stąd.';
 
   @override
   String get deskTourNodeTitle => 'Ustawienia › Węzeł';
 
   @override
   String get deskTourNodeText =>
-      'Z którego węzła portfel czyta łańcuch: publicznego czy lokalnego. Pozostałe strony ustawień są po lewej.';
+      'Z którego węzła portfel czyta łańcuch. Pozostałe strony ustawień są wymienione po lewej.';
 
   @override
   String get deskTourHelpTitle => 'Pomoc';
 
   @override
   String get deskTourHelpText =>
-      'Tematy według sekcji, Zgłoś problem i log aplikacji. Tu jest więcej o każdej stronie, a ten przewodnik można pokazać ponownie.';
+      'Tematy według sekcji i Zgłoś problem. Więcej o każdej stronie jest tutaj, a przewodnik można pokazać ponownie.';
 
   @override
   String deskTourCounter(int current, int total) {
@@ -11808,9 +11875,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetFrameNode => 'Węzeł';
-
-  @override
-  String get deskSetFrameReceiving => 'Odbieranie';
 
   @override
   String get deskSetFramePrivacy => 'Prywatność';
@@ -13741,7 +13805,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu.';
 
   @override
-  String get deskOutAdvanced => 'Zaawansowane';
+  String get deskOutAdvanced => 'Zarządzaj wyjściami';
 
   @override
   String get deskOutStrategyHint =>
@@ -14065,18 +14129,278 @@ class AppLocalizationsPl extends AppLocalizations {
       'Aktualizacja nie została dokończona. Spróbuj ponownie.';
 
   @override
+  String get advTitle => 'Zaawansowane';
+
+  @override
+  String get advStateOff => 'Wyłączone';
+
+  @override
+  String get advIntro =>
+      'Na początku wszystko jest wyłączone. Każdy przełącznik dodaje jedną część portfela w miejscu, do którego należy.';
+
+  @override
+  String get advShowsHeader => 'Pokazuje więcej';
+
+  @override
+  String get advNetworkHeader => 'Sieć';
+
+  @override
+  String get advNetworkHint =>
+      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatność i sieć. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na ekranie głównym. Offline zostaje na tym telefonie i w twojej sieci lokalnej: z węzłem w twojej sieci nadal możesz wysyłać na adresy lokalne i używać plików; poza tym widzisz saldo i historię z ostatniego odczytu.';
+
+  @override
+  String get advOutputs => 'Wyjścia';
+
+  @override
+  String get advOutputsHint =>
+      'Pokazuje stronę Wyjścia pod Portfelem i na ekranie głównym. Wymienia monety, z których składa się saldo, pozwala je dzielić lub scalać i ustawia domyślne zasady wysyłki. Trwający podział lub scalanie utrzymuje stronę widoczną.';
+
+  @override
+  String get advTechnical => 'Szczegóły techniczne';
+
+  @override
+  String get advTechnicalHint =>
+      'Pokazuje wiersze techniczne w szczegółach płatności: kernel, ID slate, commitmenty i wysokość bloku. W Fakturach pokazuje rotację adresów i liczbę odrzuconych wiadomości.';
+
+  @override
+  String get advSendOptions => 'Opcje wysyłki';
+
+  @override
+  String get advSendOptionsHint =>
+      'Pokazuje Strategię wysyłki i Podziel resztę w Ustawienia › Transakcje: które wyjścia wydaje wysyłka i czy jej reszta jest dzielona. Pozostaje widoczne, dopóki któraś z nich nie jest domyślna.';
+
+  @override
+  String get advServerDetails => 'Szczegóły serwerów';
+
+  @override
+  String get advServerDetailsHint =>
+      'Pokazuje hosty, opóźnienie, wersję i wysokość bloku na listach serwerów i na karcie stanu, adres przekaźnika w Odbierz oraz pełny adres faktur.';
+
+  @override
+  String get advRecheckHeight => 'Sprawdź od wysokości';
+
+  @override
+  String get advRecheckHeightHint =>
+      'Pozwala Sprawdź saldo zacząć od wysokości bloku lub daty zamiast od pierwszego bloku. Szybciej, i jedyny sposób, by pominąć wczesną historię. Przywracanie zawsze daje taki wybór.';
+
+  @override
+  String get advModeStandard => 'Standardowy';
+
+  @override
+  String get advModeStandardLine =>
+      'Łączy się bezpośrednio. Tora można włączyć w Prywatność i sieć.';
+
+  @override
+  String get advModeTorOnly => 'Tylko Tor';
+
+  @override
+  String get advModeTorOnlyLine =>
+      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline i mówi o tym.';
+
+  @override
+  String get advModeOffline => 'Offline';
+
+  @override
+  String get advModeOfflineLine =>
+      'Tylko ten telefon i twoja sieć lokalna. Węzeł w twojej sieci nadal działa; wszystko inne czeka, aż wrócisz do poprzedniego trybu.';
+
+  @override
+  String get advTorOnlyNote =>
+      'Tylko Tor wstrzymuje powiadomienia: zapisanie się na nie ujawniłoby adres tego telefonu.';
+
+  @override
+  String get advOfflineNote =>
+      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Z węzłem w twojej sieci lokalnej nadal działają Sprawdź saldo, pliki i wysyłki bezpośrednie na adresy lokalne. Peery węzła to ustawienie samego węzła.';
+
+  @override
+  String get advReset => 'Ukryj wszystko ponownie';
+
+  @override
+  String get advHomeOffline => 'Tryb offline';
+
+  @override
+  String get advHomeTorOnlyWaiting => 'Tylko Tor · czeka na Tor';
+
+  @override
+  String get advBuiltInNode => 'Wbudowany węzeł';
+
+  @override
+  String get advLogs => 'Logi';
+
+  @override
+  String get deskSetFrameAdvanced => 'Zaawansowane';
+
+  @override
+  String get deskSetAdvIntro =>
+      'Na początku wszystko jest wyłączone. Każdy przełącznik dodaje jedną część portfela w miejscu, do którego należy.';
+
+  @override
+  String get deskSetAdvShows => 'Pokazuje więcej';
+
+  @override
+  String get deskSetAdvOutputs => 'Wyjścia';
+
+  @override
+  String get deskSetAdvOutputsHint =>
+      'Pokazuje stronę Wyjścia na pasku bocznym. Wymienia monety, z których składa się saldo, pozwala je dzielić lub scalać i ustawia domyślne zasady wysyłki. Trwający podział lub scalanie utrzymuje stronę widoczną.';
+
+  @override
+  String get deskSetAdvTechnical => 'Szczegóły techniczne';
+
+  @override
+  String get deskSetAdvTechnicalHint =>
+      'Pokazuje sekcję Szczegóły techniczne przy każdej transakcji: ID slate, kernel, wysokość bloku, stan i typ rdzenia oraz dowód płatności. Bez tego link Więcej przy transakcji pokazuje je jednorazowo. W Fakturach pokazuje sekcje zaawansowane.';
+
+  @override
+  String get deskSetAdvSendOptions => 'Opcje wysyłki';
+
+  @override
+  String get deskSetAdvSendOptionsHint =>
+      'Dodaje do Wyślij sekcję, w której jedna wysyłka może wybrać, które wyjścia wydaje, Najmniejsze lub Wszystkie, i czy dzielić resztę. Wartości domyślne zostają w Wyjściach.';
+
+  @override
+  String get deskSetAdvServerDetails => 'Szczegóły serwerów';
+
+  @override
+  String get deskSetAdvServerDetailsHint =>
+      'Pokazuje hosty, opóźnienie, wersję i wysokość bloku na listach węzłów i Epicbox, w wierszach stanu na pasku bocznym i na karcie stanu.';
+
+  @override
+  String get deskSetAdvRecheck => 'Sprawdź od wysokości';
+
+  @override
+  String get deskSetAdvRecheckHint =>
+      'Pozwala Sprawdź saldo odrzucić także niepotwierdzone transakcje. Przywracanie każdemu daje wybór bloku początkowego, niezależnie od tego przełącznika.';
+
+  @override
+  String get deskSetAdvBuiltInNode => 'Wbudowany węzeł';
+
+  @override
+  String get deskSetAdvBuiltInNodeHint =>
+      'Pozwala temu komputerowi uruchomić własny węzeł: opcja Ten komputer w Węźle, jej panel synchronizacji i Uruchom węzeł na Przeglądzie. Synchronizacja łańcucha trwa godziny i zajmuje kilka gigabajtów dysku. Działający węzeł zachowuje swoje wiersze.';
+
+  @override
+  String get deskSetAdvLogs => 'Logi';
+
+  @override
+  String get deskSetAdvLogsHint =>
+      'Pokazuje grupę Logi w Pomocy: otwórz folder logów, wyczyść logi. Zgłoszenie problemu i tak dołącza log.';
+
+  @override
+  String get deskSetAdvNetwork => 'Sieć';
+
+  @override
+  String get deskSetAdvNetworkHint =>
+      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatności. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na pasku bocznym. Offline zostaje na tym komputerze i w twojej sieci lokalnej: z węzłem tutaj lub w twojej sieci nadal możesz wysyłać na adresy lokalne, odbierać przez Bezpośrednio i używać plików; wbudowany węzeł działa dalej, a jego peery to ustawienie samego węzła.';
+
+  @override
+  String get deskSetAdvModeStandard => 'Standardowy';
+
+  @override
+  String get deskSetAdvModeStandardText =>
+      'Łączy się bezpośrednio. Tora można włączyć w Prywatności.';
+
+  @override
+  String get deskSetAdvModeTorOnly => 'Tylko Tor';
+
+  @override
+  String get deskSetAdvModeTorOnlyText =>
+      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline i mówi o tym.';
+
+  @override
+  String get deskSetAdvModeOffline => 'Offline';
+
+  @override
+  String get deskSetAdvModeOfflineText =>
+      'Tylko ten komputer i twoja sieć lokalna. Twój węzeł działa dalej; jego peery to ustawienie samego węzła.';
+
+  @override
+  String get deskSetAdvTorOnlyNote =>
+      'Tylko Tor wyłącza odbieranie przez HTTP: zwykły adres ujawniłby ten komputer.';
+
+  @override
+  String get deskSetAdvOfflineNote =>
+      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, pliki i Bezpośrednio na adresy lokalne.';
+
+  @override
+  String get deskSetAdvNotInBuild => 'Brak w tej wersji';
+
+  @override
+  String get deskSetAdvReset => 'Ukryj wszystko ponownie';
+
+  @override
+  String deskSetAdvOn(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n przełącznika włączonego',
+      many: '$n przełączników włączonych',
+      few: '$n przełączniki włączone',
+      one: '1 przełącznik włączony',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskShellOffline => 'Tryb offline';
+
+  @override
+  String get deskShellTorOnlyWaiting => 'Tylko Tor · czeka na Tor';
+
+  @override
+  String get deskSetAcctAutoLockHint =>
+      'Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Wyłączona: portfel blokuje tylko „Zablokuj portfel”.';
+
+  @override
+  String get netBlockOffline => 'Tryb offline jest włączony w Zaawansowanych.';
+
+  @override
+  String get netBlockTorOnly => 'Tylko Tor jest włączony w Zaawansowanych.';
+
+  @override
+  String get netBlockWaitingForTor => 'Czeka na Tor.';
+
+  @override
+  String get receiveOfflineLine =>
+      'W trybie offline nie można odbierać tą metodą.';
+
+  @override
+  String get txDetailsMore => 'Więcej';
+
+  @override
+  String get restoreStartFromLink => 'Zacznij od daty lub wysokości';
+
+  @override
+  String get homeOfflineDetail =>
+      'Tryb offline jest włączony w Zaawansowanych. Saldo jest z ostatniego odczytu.';
+
+  @override
+  String get homeWaitingTorDetail =>
+      'Tylko Tor jest włączony w Zaawansowanych. Czekam na połączenie Tora.';
+
+  @override
+  String get settingsRescanBodyPlain =>
+      'Portfel ponownie szuka swoich środków, od pierwszego bloku. To może potrwać długo.';
+
+  @override
   String get slNodeField => 'Adres węzła';
 
   @override
   String get slRelayField => 'Serwer Epicbox';
 
   @override
-  String get slHelpIdleNode =>
-      'W użyciu. Zmień go, aby przełączyć, lub wpisz, aby filtrować listę.';
+  String get slFieldHint => 'Wklej lub wpisz, aby filtrować lub dodać';
 
   @override
-  String get slHelpIdleRelay =>
-      'W użyciu. Zmień go, aby przełączyć, lub wpisz, aby filtrować listę.';
+  String slSwitchTitle(String host) {
+    return 'Przełączyć na $host?';
+  }
+
+  @override
+  String get slSwitchBody => 'Twój adres Epicbox się zmieni. Udostępnij nowy.';
+
+  @override
+  String get slSwitch => 'Przełącz';
 
   @override
   String get slHelpAddable => 'Nie ma go na liście.';
@@ -14178,11 +14502,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSlTorWait => 'Tor nie jest jeszcze połączony. Nic nie dodano.';
 
   @override
-  String deskSlSwitchTo(String host) {
-    return 'Przełącz na $host';
-  }
-
-  @override
   String deskSlLatency(String ms) {
     return '$ms ms';
   }
@@ -14201,4 +14520,205 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'Wybierz jeden albo wpisz, aby przefiltrować listę lub dodać serwer.';
+
+  @override
+  String get deskOnbRestoreFromLink => 'Zacznij od wysokości bloku';
+
+  @override
+  String get deskOnbRestoreFromHide => 'Sprawdź cały łańcuch';
+
+  @override
+  String get deskOnbRestoreFromLabel => 'Zacznij od bloku';
+
+  @override
+  String get deskOnbRestoreFromHint => 'Wysokość bloku';
+
+  @override
+  String get deskOnbRestoreFromHelp =>
+      'Tylko jeśli pierwsza płatność portfela przyszła po tym bloku. Zostaw puste, aby sprawdzić cały łańcuch.';
+
+  @override
+  String get deskOnbRestoreFromInvalid => 'Użyj samych cyfr albo zostaw puste.';
+
+  @override
+  String get deskNetOfflineReason =>
+      'Tryb offline jest włączony w Zaawansowanych.';
+
+  @override
+  String get deskNetWaitingTorReason =>
+      'Czeka na Tor. Tylko Tor jest włączony w Zaawansowanych.';
+
+  @override
+  String get deskNetTorOnlyLine => 'Tylko Tor jest włączony w Zaawansowanych.';
+
+  @override
+  String get deskNetOpenAdvanced => 'Otwórz Zaawansowane';
+
+  @override
+  String get deskNetSendFileHint => 'Plik transakcji nadal działa.';
+
+  @override
+  String get deskNetRecvOfflineText =>
+      'Twój adres się nie zmienia. Nic nie dotrze, dopóki tryb offline jest włączony.';
+
+  @override
+  String get deskNetRecvWaitTorText =>
+      'Odbieranie zacznie się, gdy Tor się połączy. Plik transakcji nadal działa.';
+
+  @override
+  String get deskNetCantReceive => 'Offline nie można odbierać.';
+
+  @override
+  String get deskRailOffline => 'Offline';
+
+  @override
+  String get deskTourAdvancedTitle => 'Zaawansowane';
+
+  @override
+  String get deskTourAdvancedText =>
+      'Tryb tylko Tor, wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.';
+
+  @override
+  String get deskTxMore => 'Więcej';
+
+  @override
+  String get deskTxLess => 'Mniej';
+
+  @override
+  String get settingsSectionTransactions => 'Transakcje';
+
+  @override
+  String get settingsHubMethods => 'Metody';
+
+  @override
+  String get settingsHubDefault => 'Domyślna';
+
+  @override
+  String get settingsHubSendDefaults => 'Zasady wysyłki';
+
+  @override
+  String get txMethodsHeader => 'Metody płatności';
+
+  @override
+  String get txAlwaysOn => 'Zawsze włączone';
+
+  @override
+  String get txEpicboxHint =>
+      'Epicbox płaci przez przekaźnik, więc drugi portfel nie musi być otwarty. Jest zawsze włączony.';
+
+  @override
+  String get txDirectLine =>
+      'Płać na adresy onion i internetowe; dostawaj zapłatę na adres Tor tego telefonu.';
+
+  @override
+  String get txDirectHint =>
+      'Bezpośrednio wysyła prosto do drugiego portfela na adres onion lub internetowy i daje temu telefonowi adres Tor, na który można mu płacić. Portfel po drugiej stronie musi być otwarty, ten też. Wymaga Tora. Dodaje Bezpośrednio do Wyślij i Odbierz.';
+
+  @override
+  String get txFileLine =>
+      'Płać lub dostawaj zapłatę plikiem, który przekazujesz sam.';
+
+  @override
+  String get txFileHint =>
+      'Plik tworzy plik transakcji, który przekazujesz drugiej osobie dowolnym sposobem (wiadomość, mail, kabel), a ona odsyła ci drugi. Nie potrzeba połączenia między portfelami. Dodaje Plik do Wyślij i Odbierz.';
+
+  @override
+  String get txStartHeader => 'Wysyłanie zaczyna od';
+
+  @override
+  String get txStartNote =>
+      'Na ekranie Wyślij nadal możesz wybrać inną metodę.';
+
+  @override
+  String get txDefaultsHeader => 'Zasady wysyłki';
+
+  @override
+  String get outputsDefaultsMoved =>
+      'Domyślne zasady wysyłki są w Ustawienia › Transakcje';
+
+  @override
+  String get advNodeFailover => 'Automatyczna zmiana węzła';
+
+  @override
+  String get advNodeFailoverHint =>
+      'Gdy twój węzeł przestaje odpowiadać, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.';
+
+  @override
+  String nodeFailoverSwitched(String host) {
+    return 'Węzeł nie odpowiada. Przełączono na $host.';
+  }
+
+  @override
+  String nodeFailoverInsteadOf(String host) {
+    return 'Zamiast $host';
+  }
+
+  @override
+  String get deskSetAdvNodeFailover => 'Automatyczna zmiana węzła';
+
+  @override
+  String get deskSetAdvNodeFailoverHint =>
+      'Gdy twój węzeł przestaje odpowiadać, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.';
+
+  @override
+  String deskNodeFailoverSwitched(String host) {
+    return 'Węzeł nie odpowiada. Przełączono na $host.';
+  }
+
+  @override
+  String deskNodeFailoverInsteadOf(String host) {
+    return 'Zamiast $host';
+  }
+
+  @override
+  String get netOfflineOnlyLocal => 'Offline: tylko adresy lokalne.';
+
+  @override
+  String get netOfflineNoPeers =>
+      'Twój węzeł nie ma peerów: płatność czeka w jego puli, aż się ponownie połączy.';
+
+  @override
+  String get deskErrOfflineOnlyLocal => 'Offline: tylko adresy lokalne.';
+
+  @override
+  String get deskNetOfflineNoPeers =>
+      'Twój węzeł nie ma peerów: płatność czeka w jego puli, aż się ponownie połączy.';
+
+  @override
+  String get deskOutDefaultsMoved =>
+      'Strategię i Podziel resztę dla wysyłek ustawisz w Ustawienia › Transakcje.';
+
+  @override
+  String get deskOutDefaultsOpen => 'Otwórz Transakcje';
+
+  @override
+  String get deskSetFrameTransactions => 'Transakcje';
+
+  @override
+  String get deskSetTxMethods => 'Metody płatności';
+
+  @override
+  String get deskSetTxAlwaysOn => 'Zawsze włączone';
+
+  @override
+  String get deskSetTxEpicboxHint =>
+      'Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności, więc jest zawsze włączone.';
+
+  @override
+  String get deskSetTxDirectHint =>
+      'Płać i dostawaj zapłatę prosto z portfela do portfela, przez HTTP lub Tor, bez serwera pośrodku. Działa tylko, gdy portfel jest otwarty. Dodaje Bezpośrednio do Wyślij, a jego adres do Odbierz.';
+
+  @override
+  String get deskSetTxFileHint =>
+      'Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Plik do Wyślij, a kroki z plikami do Odbierz.';
+
+  @override
+  String get deskSetTxSend => 'Wyślij';
+
+  @override
+  String get deskSetTxStart => 'Wysyłanie zaczyna od';
+
+  @override
+  String get deskSetTxStartHint =>
+      'Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij.';
 }

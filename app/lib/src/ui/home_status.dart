@@ -9,14 +9,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import '../network_gate.dart';
+import '../node_failover_phone.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import 'network_status.dart' show nodeBehind, nodeTorWay;
+import 'net_block.dart' show watchNetBlock;
 import 'receive_screen.dart' show ReceiveTab, receiveTabProvider;
 import 'server_picker.dart';
 import 'settings_screen.dart' show openPrivacySettings;
+import 'settings_sections.dart' show SettingsSection, openSettingsSection;
 import 'status.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
@@ -79,7 +83,74 @@ StatusDot torDot(TorState state) => switch (state) {
   );
 }
 
-/// The status icons side by side: Node, Epicbox, Tor, Direct, in that order.
+/// The key of the Offline / Waiting for Tor word that replaces the Node and Epicbox icons, for
+/// tests.
+const Key netModeStatusKey = ValueKey('status-net-mode');
+
+/// What the network mode says in place of the node and Epicbox icons: "Offline" (neutral) or
+/// "Waiting for Tor" (the in-progress blue). The words, not a pulse; a tap opens Advanced.
+class NetModeStatus extends StatelessWidget {
+  const NetModeStatus(this.block, {super.key});
+
+  final NetBlock block;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final offline = block == NetBlock.offline;
+    final word = offline ? l.advModeOffline : l.torWayWaiting;
+    final detail = offline ? l.homeOfflineDetail : l.homeWaitingTorDetail;
+    final color = offline ? t.dim : t.info;
+    void open() => openSettingsSection(context, SettingsSection.advanced);
+    return Semantics(
+      container: true,
+      button: true,
+      label: word,
+      hint: [detail, l.netStatusOpenHint].join('\n'),
+      liveRegion: true,
+      excludeSemantics: true,
+      onTap: open,
+      child: Tooltip(
+        message: detail,
+        triggerMode: TooltipTriggerMode.longPress,
+        showDuration: const Duration(seconds: 6),
+        child: InkWell(
+          onTap: open,
+          borderRadius: BorderRadius.circular(t.radiusSmall),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: statusTarget),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: statusInset),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    offline ? Icons.cloud_off_outlined : torIcon,
+                    size: statusGlyph,
+                    color: color,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    word,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: color,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The status icons side by side: Node, Epicbox, Tor, Direct, in that order. While the network
+/// mode holds the network back (Offline, or Tor only without Tor) one word stands in for the
+/// Node and Epicbox icons.
 class StatusIcons extends ConsumerWidget {
   const StatusIcons({super.key});
 
@@ -99,11 +170,14 @@ class StatusIcons extends ConsumerWidget {
       config,
       behind: nodeBehind(ref, status.node, choice?.preset),
     );
+    final failover = ref.watch(nodeFailoverProvider);
     final nodeTor = underTor(
       context,
       dot: node.dot,
       label: '${l.netStatusNode}, ${node.word}',
-      detail: node.detail,
+      detail: failover == null
+          ? node.detail
+          : '${node.detail}\n${l.nodeFailoverInsteadOf(serverHost(failover.chosen))}',
       way: nodeTorWay(nodeUrl, torState),
     );
     final epicbox = epicboxIconFace(context, status.epicbox, config);
@@ -116,30 +190,35 @@ class StatusIcons extends ConsumerWidget {
     );
     final torFace = torStatusOf(l, t, tor);
     final direct = directFace(l, tor);
+    final block = watchNetBlock(context, ref);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        StatusIcon(
-          key: nodeStatusKey,
-          icon: node.icon,
-          dot: nodeTor.dot,
-          label: nodeTor.label,
-          detail: nodeTor.detail,
-          actionHint: l.netStatusOpenHint,
-          // Only a sync in progress pulses: a connecting or waiting service sits still.
-          pulse: status.node.state == NodeState.syncing,
-          onTap: () => showNodePicker(context),
-        ),
-        StatusIcon(
-          key: epicboxStatusKey,
-          icon: epicbox.icon,
-          dot: epicboxTor.dot,
-          label: epicboxTor.label,
-          detail: epicboxTor.detail,
-          actionHint: l.netStatusOpenHint,
-          onTap: () => showEpicboxPicker(context),
-        ),
-        if (torIconShown(tor))
+        if (block != NetBlock.none)
+          NetModeStatus(block, key: netModeStatusKey)
+        else ...[
+          StatusIcon(
+            key: nodeStatusKey,
+            icon: node.icon,
+            dot: nodeTor.dot,
+            label: nodeTor.label,
+            detail: nodeTor.detail,
+            actionHint: l.netStatusOpenHint,
+            // Only a sync in progress pulses: a connecting or waiting service sits still.
+            pulse: status.node.state == NodeState.syncing,
+            onTap: () => showNodePicker(context),
+          ),
+          StatusIcon(
+            key: epicboxStatusKey,
+            icon: epicbox.icon,
+            dot: epicboxTor.dot,
+            label: epicboxTor.label,
+            detail: epicboxTor.detail,
+            actionHint: l.netStatusOpenHint,
+            onTap: () => showEpicboxPicker(context),
+          ),
+        ],
+        if (torIconShown(tor) && block != NetBlock.offline)
           StatusIcon(
             key: torIconKey,
             icon: torIcon,
@@ -150,7 +229,7 @@ class StatusIcons extends ConsumerWidget {
             pulse: torState == TorState.starting,
             onTap: () => openPrivacySettings(context),
           ),
-        if (directIconShown(tor))
+        if (directIconShown(tor) && block == NetBlock.none)
           StatusIcon(
             key: directIconKey,
             icon: Icons.link,

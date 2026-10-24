@@ -12,6 +12,7 @@ import 'contact_sheet.dart';
 import 'scan_screen.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
+import 'tour/tour_target.dart';
 
 /// A field's error that screen readers announce as soon as it appears, for
 /// `InputDecoration.error`.
@@ -110,7 +111,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           const SizedBox(width: 4),
         ],
       ),
-      body: none
+      body: PhoneTourTarget(
+        id: 'tour-contacts-list',
+        child: none
           ? CenteredBody(
               children: [
                 EmptyState(
@@ -183,6 +186,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                 ),
               ),
             ),
+      ),
     );
   }
 

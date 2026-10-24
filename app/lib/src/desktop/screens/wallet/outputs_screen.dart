@@ -6,6 +6,7 @@ import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localInt;
 import '../../widgets/kit.dart';
 import 'activity_screen.dart' show ListPager;
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'outputs_dialogs.dart';
 import 'tx_display.dart' show iconOf, shortDayMonth;
 
@@ -68,8 +69,8 @@ OutputCounts outputCounts(List<Output> all) {
 }
 
 /// Outputs (F13): the balance by part, every output with its status and transaction, then
-/// Advanced: what outputs are, Split and Consolidate, and the defaults Send uses (strategy,
-/// Split change). Tiles, table, management, as on the phone.
+/// Advanced: what outputs are, Split and Consolidate, and a line to the defaults Send uses
+/// (Settings › Transactions). Tiles, table, management, as on the phone.
 class OutputsScreen extends ConsumerStatefulWidget {
   const OutputsScreen({super.key, this.arg});
 
@@ -199,13 +200,12 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
           if (balance != null) ...[_Tiles(balance: balance, counts: all == null ? null : counts), SizedBox(height: Sp.x4)],
           ..._list(value, counts),
           // The management part, after the table: what outputs are, Split and Consolidate,
-          // the defaults for sends.
+          // a line to where the defaults for sends are.
           ESectionHead(l.deskOutAdvanced, top: Sp.x8),
           Text(l.deskOutIntro, style: context.ts.bodyDim),
           SizedBox(height: Sp.x4),
           _cards(balance, counts, loaded: all != null),
-          SizedBox(height: Sp.x4),
-          const _DefaultsBox(),
+          const _DefaultsMoved(),
         ],
       ),
     );
@@ -541,45 +541,28 @@ class _ActionCard extends StatelessWidget {
   }
 }
 
-/// The defaults Send uses: strategy and Split change (D-5), saved per wallet at once.
-class _DefaultsBox extends ConsumerWidget {
-  const _DefaultsBox();
+/// Where the defaults for sends went (D-5): Settings › Transactions holds the strategy and
+/// Split change. One line, shown while Advanced › Send options is on, so nothing is kept twice.
+class _DefaultsMoved extends ConsumerWidget {
+  const _DefaultsMoved();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final prefs = ref.watch(deskOutputPrefsProvider).value ?? const OutputPrefs();
-    final save = ref.read(deskOutputPrefsProvider.notifier).save;
-    final c = context.dc;
-    return EPanel(
-      title: l.deskOutDefaultsTitle,
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    if (!advancedHas(ref, AdvancedFeature.sendOptions)) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.only(top: Sp.x4),
+      child: Wrap(
+        key: const ValueKey('out-defaults-moved'),
+        spacing: Sp.x3,
+        runSpacing: Sp.x1,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          ESetRow(
-            title: l.deskOutStrategyTitle,
-            hint: l.deskOutStrategyHint,
-            hintTitle: l.deskOutStrategyHelpTitle,
-            hintIcon: EIcons.coins,
-            control: ERowControl(
-              child: ESegmented<SelectionStrategy>(
-                stretch: true,
-                segments: [ESegment(SelectionStrategy.smallest, l.deskOutStrategySmallest), ESegment(SelectionStrategy.all, l.deskOutStrategyAll)],
-                value: prefs.strategy,
-                onChanged: (v) => save(OutputPrefs(strategy: v, smartOutputs: prefs.smartOutputs)),
-              ),
-            ),
-          ),
-          Divider(height: 1, thickness: 1, color: c.line),
-          ESetRow(
-            title: l.deskOutSplitChangeTitle,
-            hint: l.deskOutSplitChangeText,
-            control: ESwitch(
-              value: prefs.smartOutputs,
-              semanticLabel: l.deskOutSplitChangeTitle,
-              onChanged: (v) => save(OutputPrefs(strategy: prefs.strategy, smartOutputs: v)),
-            ),
+          Text(l.deskOutDefaultsMoved, style: context.ts.bodyDim),
+          EButton(
+            label: l.deskOutDefaultsOpen,
+            size: EBtnSize.inline,
+            onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving),
           ),
         ],
       ),

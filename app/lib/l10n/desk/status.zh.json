@@ -79,5 +79,7 @@
   "deskTorCoverage": "经由 Tor：Epicbox、节点、状态、价格、更新、支持和 Tor 地址。",
   "deskTorNodeOver": "经由 Tor",
   "deskTorNodeNotEncrypted": "Tor 出口之后未加密",
-  "deskTorNodeWaits": "等 Tor 连接后再连接。"
+  "deskTorNodeWaits": "等 Tor 连接后再连接。",
+  "deskNodeFailoverSwitched": "节点无响应。已切换到 {host}。",
+  "deskNodeFailoverInsteadOf": "代替 {host}"
 }

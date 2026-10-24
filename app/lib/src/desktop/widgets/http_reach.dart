@@ -1,5 +1,5 @@
 /// HTTP From the internet: whether the internet reaches the public address, with Check. On
-/// Receive and in Settings › Receiving, while the listener runs From the internet.
+/// Receive and in Settings › Transactions, while the listener runs From the internet.
 library;
 
 import 'dart:async';
