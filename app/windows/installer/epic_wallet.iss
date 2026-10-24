@@ -30,6 +30,8 @@
   #define FileVersion AppVersion + ".0"
 #endif
 
+#define AppMutexName "Local\com.blacktyger.EpicWallet.single"
+
 [Setup]
 ; Fixed for good: a new GUID would make an upgrade install beside the old version.
 AppId={{8810835E-6EE5-4989-AE20-C0D60E23800E}
@@ -39,7 +41,7 @@ VersionInfoVersion={#FileVersion}
 AppPublisher=BT Labs
 ; The app's single-instance mutex (windows\runner\main.cpp): Setup and the uninstaller wait for
 ; the app to close instead of replacing files under it.
-AppMutex=Local\com.blacktyger.EpicWallet.single
+AppMutex={#AppMutexName}
 DefaultDirName={%USERPROFILE}\Apps\EpicWallet
 DisableDirPage=yes
 DisableProgramGroupPage=yes
@@ -111,6 +113,9 @@ Type: files; Name: "{userdesktop}\Epic Wallet.lnk"
 ; "Open Epic Cash Desktop" on the finish page (the stock Finish button, renamed). The "Close" link
 ; unchecks this entry first. Never in a silent install.
 Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Description: "Open Epic Cash Desktop"; Flags: nowait postinstall skipifsilent
+; The app's "Restart to update" (lib\src\desktop\data\desk_update.dart) runs Setup with
+; /SILENT /UPDATEFROMAPP=1 and quits: the app opens again once the files are in.
+Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Flags: nowait; Check: FromApp
 
 [Code]
 const
@@ -134,7 +139,7 @@ function RemoveFontResourceEx(Name: String; Flags: DWORD; Reserved: Integer): BO
   external 'RemoveFontResourceExW@gdi32.dll stdcall';
 
 var
-  IsUpdate: Boolean;
+  IsUpdate, InstallDone: Boolean;
   InstalledVersion, HeadFont, FontPath: String;
   BackImages: array of TGraphic;
   { welcome page }
@@ -154,6 +159,12 @@ var
   FinHead, FinSub, FinBody: TNewStaticText;
 
 { ---------- helpers ---------- }
+
+{ Started by the app's "Restart to update" (/UPDATEFROMAPP=1). }
+function FromApp: Boolean;
+begin
+  Result := ExpandConstant('{param:UPDATEFROMAPP|0}') = '1';
+end;
 
 function WantStartMenu: Boolean;
 begin
@@ -506,7 +517,19 @@ end;
 { ---------- events ---------- }
 
 function InitializeSetup: Boolean;
+var
+  Waited: Integer;
 begin
+  { The app quits right after starting Setup. Setup checks AppMutex after this function, so it
+    waits here for the app to close (up to a minute) rather than showing "is open". }
+  if FromApp then begin
+    Waited := 0;
+    while CheckForMutexes('{#AppMutexName}') and (Waited < 60000) do begin
+      Sleep(250);
+      Waited := Waited + 250;
+    end;
+    Log('Started by the app; waited ' + IntToStr(Waited) + ' ms for it to close');
+  end;
   IsUpdate := RegQueryStringValue(HKCU, UninstKey, 'DisplayVersion', InstalledVersion) and (InstalledVersion <> '');
   { Montserrat for the headings, private to this process; Segoe UI Semibold if the load fails. }
   HeadFont := 'Segoe UI Semibold';
@@ -522,7 +545,20 @@ begin
 end;
 
 procedure DeinitializeSetup;
+var
+  Code: Integer;
 begin
+  { Started by the app, which quit for it: if the files did not go in (Setup failed, or the
+    progress was cancelled), open the app that is still there rather than leave nothing. }
+  if FromApp and not InstallDone then begin
+    Log('Started by the app and not installed; opening the app again');
+    try
+      if not Exec(ExpandConstant('{app}\epic_wallet.exe'), '', ExpandConstant('{app}'), SW_SHOWNORMAL, ewNoWait, Code) then
+        Log('The app did not open: code ' + IntToStr(Code));
+    except
+      Log('The app did not open: ' + GetExceptionMessage);
+    end;
+  end;
   if HeadFont = 'Montserrat SemiBold' then
     RemoveFontResourceEx(FontPath, FR_PRIVATE, 0);
 end;
@@ -630,6 +666,9 @@ procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssInstall then
     Log('Installing to ' + ExpandConstant('{app}') + ' (update: ' + IntToStr(Ord(IsUpdate)) + ')');
+  { The files are in; the [Run] entry opens the app. }
+  if CurStep = ssPostInstall then
+    InstallDone := True;
 end;
 
 { ---------- uninstaller ---------- }

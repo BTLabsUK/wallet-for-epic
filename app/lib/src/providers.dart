@@ -446,9 +446,16 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
   }
 }
 
-final addressProvider = FutureProvider.autoDispose<String>(
-  (ref) => _requireSession(ref).epicboxAddress(),
+/// The relay the open wallet uses, as [walletConfigProvider] names it. Own addresses carry the
+/// relay, so a provider of one watches this: a live switch reads the address again.
+void _watchRelay(Ref ref) => ref.watch(
+  walletConfigProvider.select((c) => (c?.epicboxDomain, c?.epicboxPort)),
 );
+
+final addressProvider = FutureProvider.autoDispose<String>((ref) {
+  _watchRelay(ref);
+  return _requireSession(ref).epicboxAddress();
+});
 
 /// Every output of the open wallet, from its database; reads again when home does.
 final walletOutputsProvider = FutureProvider.autoDispose<List<WalletOutput>>((
@@ -924,6 +931,7 @@ class DroppedInvoiceMessagesNotifier extends Notifier<int> {
 
 /// The invoice address the user hands to services, or null without invoices.
 final invoiceAddressProvider = FutureProvider.autoDispose<String?>((ref) {
+  _watchRelay(ref);
   final session = _invoiceSession(ref);
   return session?.invoiceAddress();
 });

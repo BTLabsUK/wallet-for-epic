@@ -39,7 +39,7 @@
   "deskConTxSent": "已发送",
   "deskConErrName": "请为联系人填写名称。",
   "deskConErrAddressEmpty": "请填写地址。",
-  "deskConErrAddressInvalid": "无法识别的地址",
+  "deskConErrAddressInvalid": "地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、直连地址（https://…）或 onion 地址（….onion）。",
   "deskConAddPicture": "添加图片",
   "deskConChangePicture": "更换图片",
   "deskConRemovePicture": "移除",

@@ -39,7 +39,7 @@
   "deskConTxSent": "Wysłana",
   "deskConErrName": "Nadaj kontaktowi nazwę.",
   "deskConErrAddressEmpty": "Dodaj adres.",
-  "deskConErrAddressInvalid": "Nierozpoznany adres",
+  "deskConErrAddressInvalid": "To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@epicbox.epiccash.com), adresu bezpośredniego (https://…) lub adresu onion (….onion).",
   "deskConAddPicture": "Dodaj zdjęcie",
   "deskConChangePicture": "Zmień zdjęcie",
   "deskConRemovePicture": "Usuń",

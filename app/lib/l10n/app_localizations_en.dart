@@ -2081,7 +2081,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return 'Installing version $version…';
+    return 'Epic Cash Mobile closes to install version $version. Open it again afterwards.';
   }
 
   @override
@@ -2877,6 +2877,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override
@@ -2994,7 +2998,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. Your address for payments stays the same.';
+      'A second address, only for invoices, that services you trust can bill. Messages from anyone else are dropped, and nothing is paid until you approve each invoice with your PIN. It is separate from your payment address.';
 
   @override
   String get invoiceSettingsTitle => 'Invoices';
@@ -3004,7 +3008,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddressBody =>
-      'Give this address to a service you trust, so it can send you invoices. Your address for payments stays the same.';
+      'Give this address to a service you trust, so it can send you invoices. It is separate from your payment address.';
 
   @override
   String get invoiceSettingsQrLabel => 'QR code of your invoice address';
@@ -3102,13 +3106,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsRescan => 'Rescan the chain';
+  String get settingsRescan => 'Recheck balance';
 
   @override
   String get settingsRescanFinished => 'Rescan finished';
 
   @override
-  String get settingsRescanTitle => 'Rescan the chain';
+  String get settingsRescanTitle => 'Recheck balance';
 
   @override
   String get settingsRescanBody =>
@@ -8147,7 +8151,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskConErrAddressEmpty => 'Add an address.';
 
   @override
-  String get deskConErrAddressInvalid => 'Not a recognised address';
+  String get deskConErrAddressInvalid =>
+      'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).';
 
   @override
   String get deskConAddPicture => 'Add picture';
@@ -13785,4 +13790,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTxProofNone => 'No payment proof for this payment.';
+
+  @override
+  String get deskUpdAvailable => 'Update available';
+
+  @override
+  String deskUpdNotice(String version) {
+    return 'Update available · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return 'Download $version';
+  }
+
+  @override
+  String get deskUpdOpensPage => 'Opens the download page';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return 'Downloading $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => 'Restart to update';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version is ready';
+  }
+
+  @override
+  String get deskUpdRestartHint =>
+      'The app closes, installs it and opens again.';
+
+  @override
+  String get deskUpdFailed => 'Couldn\'t download the update';
+
+  @override
+  String get deskUpdTryAgain => 'Try again';
+
+  @override
+  String get deskUpdInstallFailed => 'Couldn\'t install the update';
+
+  @override
+  String get deskUpdOpenPage => 'Open the download page';
+
+  @override
+  String get deskUpdErrDamaged =>
+      'The file did not match the signed update information.';
+
+  @override
+  String get deskUpdErrStopped => 'The download stopped.';
+
+  @override
+  String get deskUpdErrInstall => 'The new version could not be put in place.';
 }

@@ -29,6 +29,7 @@ const _skipped = <String>{
   'screens/invoices/shots_req.dart',
   'screens/onboarding/shots.dart',
   'screens/settings/shots.dart',
+  'screens/settings/help_places.dart', // English help place targets, the keys links resolve by
   'screens/transfer/shots.dart',
   'screens/wallet/shots.dart',
   'theme/',

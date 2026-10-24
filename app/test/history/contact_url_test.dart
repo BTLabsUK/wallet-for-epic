@@ -39,10 +39,11 @@ void main() {
     }
     expect(checkContactAddress(l, service, 'http://'), contains('http://203.0.113.5:3415'));
     expect(checkContactAddress(l, service, ''), checkRecipient(l, service, ''));
-    expect(
-      checkContactAddress(l, service, 'nonsense'),
-      contains('not a valid address'),
-    );
+    for (final junk in ['nonsense', 'tiger apple river house music light ocean stone']) {
+      expect(checkContactAddress(l, service, junk), l.contactsAddressInvalidAny, reason: junk);
+    }
+    expect(l.contactsAddressInvalidAny, contains('Direct address (https://…)'));
+    expect(l.contactsAddressInvalidAny, contains('onion address (….onion)'));
   });
 
   testWidgets('the contact form saves a wallet URL', (tester) async {

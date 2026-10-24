@@ -1,0 +1,17 @@
+{
+  "deskUpdAvailable": "Доступно обновление",
+  "deskUpdNotice": "Доступно обновление · {version}",
+  "deskUpdDownload": "Скачать {version}",
+  "deskUpdOpensPage": "Открывает страницу загрузки",
+  "deskUpdDownloading": "Загрузка: {percent} %",
+  "deskUpdRestart": "Перезапустить и обновить",
+  "deskUpdReady": "{version} готова",
+  "deskUpdRestartHint": "Приложение закроется, установит обновление и откроется снова.",
+  "deskUpdFailed": "Не удалось скачать обновление",
+  "deskUpdTryAgain": "Повторить",
+  "deskUpdInstallFailed": "Не удалось установить обновление",
+  "deskUpdOpenPage": "Открыть страницу загрузки",
+  "deskUpdErrDamaged": "Файл не совпадает с подписанными данными обновления.",
+  "deskUpdErrStopped": "Загрузка прервалась.",
+  "deskUpdErrInstall": "Не удалось заменить приложение новой версией."
+}

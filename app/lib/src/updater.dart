@@ -483,6 +483,12 @@ final updateInstallGraceProvider = Provider<Duration>(
   (ref) => const Duration(seconds: 10),
 );
 
+/// How long the "closes to install" line shows before Android's installer takes over: a
+/// self-update closes the app at once and does not reopen it, so the line comes first.
+final updateCloseNoticeProvider = Provider<Duration>(
+  (ref) => const Duration(seconds: 3),
+);
+
 /// Where an APK named by the verified manifest is downloaded from: the manifest's own https
 /// URL. Tests point it at a local server.
 final updateApkUrlProvider = Provider<Uri Function(Uri url)>(
@@ -907,6 +913,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
       }
       if (!ref.mounted) return;
       state = UpdateState(UpdatePhase.installing, update: update);
+      await Future<void>.delayed(ref.read(updateCloseNoticeProvider));
+      if (!ref.mounted) return;
       final status = await platform.install(apk);
       logInfo('update', 'handed to Android\'s installer: $status');
       if (!ref.mounted) return;

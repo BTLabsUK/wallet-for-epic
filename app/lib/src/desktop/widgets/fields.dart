@@ -67,7 +67,7 @@ class EField extends StatelessWidget {
           ],
         ),
         SizedBox(height: 6.u),
-        child,
+        _EFieldLabel(label: label, child: child),
         if (error != null) ...[
           SizedBox(height: 6.u),
           Row(
@@ -93,6 +93,18 @@ class EField extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Hands an [EField]'s label to the [EInput] inside it, as the field's accessible name.
+class _EFieldLabel extends InheritedWidget {
+  const _EFieldLabel({required this.label, required super.child});
+
+  final String label;
+
+  static String? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_EFieldLabel>()?.label;
+
+  @override
+  bool updateShouldNotify(_EFieldLabel old) => label != old.label;
 }
 
 /// A 44 px text field. [mono] for addresses, hosts and amounts. [trailing] holds unit text or
@@ -141,6 +153,8 @@ class EInput extends StatefulWidget {
   /// Above 1 the field grows to a text area.
   final int maxLines;
   final FocusNode? focusNode;
+
+  /// The name a screen reader reads; by default the label of the [EField] around it, else [hint].
   final String? semanticLabel;
 
   /// The soft keyboard's action; in an [EForm] "next", or "done" in its last field.
@@ -233,32 +247,35 @@ class _EInputState extends State<EInput> {
                   child: Icon(widget.leading, size: Ctl.icon, color: c.faint),
                 ),
               Expanded(
-                child: TextField(
-                  controller: widget.controller,
-                  focusNode: _focus,
-                  enabled: widget.enabled,
-                  obscureText: widget.obscure,
-                  autofocus: widget.autofocus,
-                  maxLines: widget.obscure ? 1 : widget.maxLines,
-                  minLines: multi ? 3 : 1,
-                  keyboardType: widget.keyboardType,
-                  inputFormatters: widget.inputFormatters,
-                  onChanged: widget.onChanged,
-                  onSubmitted: _submitted,
-                  // Enter keeps the focus in the field (a wrong password can be retyped);
-                  // the form moves it when there is a next field.
-                  onEditingComplete: widget.onSubmitted != null || _form != null ? () {} : null,
-                  textInputAction: widget.textInputAction ?? (_form == null || _multi ? null : TextInputAction.next),
-                  style: style,
-                  cursorColor: c.accent,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
-                    hintText: widget.hint,
-                    hintStyle: ts.body.copyWith(color: c.faint),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: Sp.x3,
-                      vertical: multi ? Sp.x3 : (sm ? 0 : 12),
+                child: Semantics(
+                  label: widget.semanticLabel ?? _EFieldLabel.of(context) ?? widget.hint,
+                  child: TextField(
+                    controller: widget.controller,
+                    focusNode: _focus,
+                    enabled: widget.enabled,
+                    obscureText: widget.obscure,
+                    autofocus: widget.autofocus,
+                    maxLines: widget.obscure ? 1 : widget.maxLines,
+                    minLines: multi ? 3 : 1,
+                    keyboardType: widget.keyboardType,
+                    inputFormatters: widget.inputFormatters,
+                    onChanged: widget.onChanged,
+                    onSubmitted: _submitted,
+                    // Enter keeps the focus in the field (a wrong password can be retyped);
+                    // the form moves it when there is a next field.
+                    onEditingComplete: widget.onSubmitted != null || _form != null ? () {} : null,
+                    textInputAction: widget.textInputAction ?? (_form == null || _multi ? null : TextInputAction.next),
+                    style: style,
+                    cursorColor: c.accent,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      hintText: widget.hint,
+                      hintStyle: ts.body.copyWith(color: c.faint),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: Sp.x3,
+                        vertical: multi ? Sp.x3 : (sm ? 0 : 12),
+                      ),
                     ),
                   ),
                 ),

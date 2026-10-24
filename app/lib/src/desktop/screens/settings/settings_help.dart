@@ -9,6 +9,7 @@ import '../../desk_l10n.dart';
 import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
 import 'help_invoices.dart';
+import 'help_places.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
@@ -148,7 +149,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     final invoices = ref.watch(deskApiProvider).supportsInvoices;
     final lang = deskHelpLanguage(ref);
     final lh = helpStrings(lang);
-    final helpTopics = [...helpTopicsFor(confirmations, lang: lang), if (invoices) ...invoiceHelpTopics(lh, confirmations)];
+    final helpTopics = [...helpTopicsFor(confirmations, lang: lang), if (invoices) ...invoiceHelpTopics(lh, confirmations, platform: HelpPlatform.desktop)];
     // The invoices section goes before "When something goes wrong".
     final sections = <(HelpSection, Widget)>[
       for (final s in localizedHelpSections(lang)) ...[
@@ -490,38 +491,45 @@ class _TopicState extends ConsumerState<_Topic> {
   }
 }
 
-/// A paragraph or a list of a topic's body, with its terms, places and search marks.
-class _Block extends StatelessWidget {
+/// A paragraph or a list of a topic's body, with its terms, places and search marks. A place is
+/// a link to its page (see [openDeskHelpPlace]).
+class _Block extends ConsumerWidget {
   const _Block({required this.block, required this.words, required this.style});
 
   final HelpBlock block;
   final List<String> words;
   final TextStyle style;
 
-  TextSpan _rich(BuildContext context, String text) {
+  TextSpan _rich(BuildContext context, WidgetRef ref, String text) {
     final c = context.dc;
     return TextSpan(
       style: style,
       children: [
         for (final p in helpInline(text))
-          marked(
-            context,
-            p.text,
-            words,
-            p.term
-                ? style.copyWith(color: c.text, fontWeight: FontWeight.w600)
-                : p.place
-                ? style.copyWith(color: c.accentText, fontWeight: FontWeight.w500)
-                : style,
-          ),
+          if (p.place && deskHelpPlace(p.target) != null)
+            WidgetSpan(
+              alignment: PlaceholderAlignment.baseline,
+              baseline: TextBaseline.alphabetic,
+              child: _PlaceLink(
+                label: marked(context, p.text, words, style.copyWith(color: c.accentText, fontWeight: FontWeight.w500)),
+                onPressed: () => openDeskHelpPlace(ref, p.target),
+              ),
+            )
+          else
+            marked(
+              context,
+              p.text,
+              words,
+              p.term || p.place ? style.copyWith(color: c.text, fontWeight: FontWeight.w600) : style,
+            ),
       ],
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final gap = EdgeInsets.only(bottom: Sp.x2);
-    if (block.kind == HelpBlockKind.p) return Padding(padding: gap, child: Text.rich(_rich(context, block.text)));
+    if (block.kind == HelpBlockKind.p) return Padding(padding: gap, child: Text.rich(_rich(context, ref, block.text)));
     return Padding(
       padding: gap,
       child: Column(
@@ -534,11 +542,57 @@ class _Block extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(width: 22.u, child: Text(block.kind == HelpBlockKind.ol ? '${i + 1}.' : '•', style: style)),
-                  Expanded(child: Text.rich(_rich(context, item))),
+                  Expanded(child: Text.rich(_rich(context, ref, item))),
                 ],
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// A place in a topic's text: underlined, keyboard reachable, going to its page.
+class _PlaceLink extends StatefulWidget {
+  const _PlaceLink({required this.label, required this.onPressed});
+
+  final TextSpan label;
+  final VoidCallback onPressed;
+
+  @override
+  State<_PlaceLink> createState() => _PlaceLinkState();
+}
+
+class _PlaceLinkState extends State<_PlaceLink> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = widget.label.style?.color;
+    return Semantics(
+      link: true,
+      onTap: widget.onPressed,
+      child: FocusableActionDetector(
+        mouseCursor: SystemMouseCursors.click,
+        onShowHoverHighlight: (v) => setState(() => _hover = v),
+        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed())},
+        child: Builder(
+          builder: (context) => GestureDetector(
+            onTap: widget.onPressed,
+            child: FocusRing(
+              focused: Focus.of(context).hasFocus,
+              child: Text.rich(
+                TextSpan(
+                  style: TextStyle(
+                    decoration: TextDecoration.underline,
+                    decorationColor: color == null ? null : (_hover ? color : color.withValues(alpha: 0.45)),
+                  ),
+                  children: [widget.label],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -1,0 +1,17 @@
+{
+  "deskUpdAvailable": "Update verfügbar",
+  "deskUpdNotice": "Update verfügbar · {version}",
+  "deskUpdDownload": "{version} herunterladen",
+  "deskUpdOpensPage": "Öffnet die Download-Seite",
+  "deskUpdDownloading": "Wird heruntergeladen: {percent} %",
+  "deskUpdRestart": "Neu starten und aktualisieren",
+  "deskUpdReady": "{version} ist bereit",
+  "deskUpdRestartHint": "Die App schließt sich, installiert das Update und öffnet sich wieder.",
+  "deskUpdFailed": "Update nicht heruntergeladen",
+  "deskUpdTryAgain": "Erneut versuchen",
+  "deskUpdInstallFailed": "Update nicht installiert",
+  "deskUpdOpenPage": "Download-Seite öffnen",
+  "deskUpdErrDamaged": "Die Datei passt nicht zu den signierten Update-Angaben.",
+  "deskUpdErrStopped": "Der Download wurde unterbrochen.",
+  "deskUpdErrInstall": "Die neue Version konnte nicht eingesetzt werden."
+}

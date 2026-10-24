@@ -687,7 +687,7 @@ void main() {
         checkRecipient(l, service, ''),
         contains('Enter their address'),
       );
-      expect(checkRecipient(l, service, 'esBare'), contains('not a valid'));
+      expect(checkRecipient(l, service, 'esBare'), contains('Not a valid'));
       expect(
         checkRecipient(l, service, 'http://'),
         contains('full wallet URL'),
@@ -1537,7 +1537,7 @@ void main() {
       await _enter(tester, 'Name', 'Bob');
       await _enter(tester, 'Address', 'nonsense');
       await _tap(tester, find.text('Save contact'));
-      expect(find.textContaining('not a valid address'), findsOneWidget);
+      expect(find.textContaining('Use an Epicbox address'), findsOneWidget);
 
       await _enter(tester, 'Address', ' $_bob ');
       await _tap(tester, find.text('Save contact'));

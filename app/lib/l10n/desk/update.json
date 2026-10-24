@@ -1,0 +1,86 @@
+{
+  "deskUpdAvailable": "Update available",
+  "@deskUpdAvailable": {
+    "description": "Sidebar notice, first line: a newer Epic Cash Desktop is out (the version is on the line under it)."
+  },
+  "deskUpdNotice": "Update available · {version}",
+  "@deskUpdNotice": {
+    "description": "Narrow sidebar: tooltip and screen-reader name of the update icon.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.10.9"
+      }
+    }
+  },
+  "deskUpdDownload": "Download {version}",
+  "@deskUpdDownload": {
+    "description": "Button and tooltip: download the newer version inside the app (it is installed after a restart).",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.10.9"
+      }
+    }
+  },
+  "deskUpdOpensPage": "Opens the download page",
+  "@deskUpdOpensPage": {
+    "description": "Tooltip of the update notice when the app cannot install the update itself: a click opens the download page in the browser."
+  },
+  "deskUpdDownloading": "Downloading {percent} %",
+  "@deskUpdDownloading": {
+    "description": "Sidebar notice and Settings › About while the update downloads. {percent} is a whole number from 0 to 100.",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "42"
+      }
+    }
+  },
+  "deskUpdRestart": "Restart to update",
+  "@deskUpdRestart": {
+    "description": "Button: close the app, install the downloaded update and open the app again."
+  },
+  "deskUpdReady": "{version} is ready",
+  "@deskUpdReady": {
+    "description": "The update is downloaded and checked; it is installed by Restart to update.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.10.9"
+      }
+    }
+  },
+  "deskUpdRestartHint": "The app closes, installs it and opens again.",
+  "@deskUpdRestartHint": {
+    "description": "Settings › About, under '{version} is ready': what Restart to update does."
+  },
+  "deskUpdFailed": "Couldn't download the update",
+  "@deskUpdFailed": {
+    "description": "Sidebar notice and Settings › About: the download failed (the reason is in the tooltip or under it)."
+  },
+  "deskUpdTryAgain": "Try again",
+  "@deskUpdTryAgain": {
+    "description": "Second line of the notice and button: download the update again; it carries on from what already arrived."
+  },
+  "deskUpdInstallFailed": "Couldn't install the update",
+  "@deskUpdInstallFailed": {
+    "description": "The downloaded update could not be started; the download page is offered instead."
+  },
+  "deskUpdOpenPage": "Open the download page",
+  "@deskUpdOpenPage": {
+    "description": "Second line of the notice after a failed install: a click opens the download page in the browser."
+  },
+  "deskUpdErrDamaged": "The file did not match the signed update information.",
+  "@deskUpdErrDamaged": {
+    "description": "Why the download failed: wrong size or SHA-256. The file was deleted."
+  },
+  "deskUpdErrStopped": "The download stopped.",
+  "@deskUpdErrStopped": {
+    "description": "Why the download failed: the connection dropped. Trying again carries on from what arrived."
+  },
+  "deskUpdErrInstall": "The new version could not be put in place.",
+  "@deskUpdErrInstall": {
+    "description": "Why Restart to update failed: the installer could not be started or the app file could not be replaced."
+  }
+}

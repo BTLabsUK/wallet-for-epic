@@ -916,7 +916,7 @@ void main() {
 
       await _tap(tester, find.byTooltip('Settings'));
       await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.wallet)));
-      await _tapText(tester, 'Rescan the chain');
+      await _tapText(tester, 'Recheck balance');
       await _tapText(tester, 'The whole chain');
       await _tapText(tester, 'Rescan');
       expect(service.session.scanCalls, 1);
@@ -945,7 +945,7 @@ void main() {
 
       await _tap(tester, find.byTooltip('Settings'));
       await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.wallet)));
-      await _tapText(tester, 'Rescan the chain');
+      await _tapText(tester, 'Recheck balance');
       await _tapText(tester, 'The whole chain');
       await _tapText(tester, 'Rescan');
       await tester.pageBack();

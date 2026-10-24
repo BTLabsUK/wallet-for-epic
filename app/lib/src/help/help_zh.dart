@@ -16,18 +16,19 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final phone = platform == HelpPlatform.phone;
   // The words that differ between a computer and a phone.
   final device = phone ? '这部手机' : '这台电脑';
-  final recheck = phone ? '重新扫描区块链' : '重新核对余额';
   final secret = phone ? '你的 PIN 码' : '钱包密码';
-  final nodePlace = phone ? '[[节点|Node]]' : '[[设置 › 节点|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Epicbox|Epicbox]]' : '[[设置 › 接收 › Epicbox 接收|Settings › Receiving › Epicbox receiving]]';
-  final torPlace = phone ? '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]' : '[[设置 › 隐私|Settings › Privacy]]';
+  final nodePlace = phone ? '[[设置 › 隐私与网络 › 节点与 Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[设置 › 节点|Settings › Node]]';
+  final epicboxPlace = phone ? '[[设置 › 隐私与网络 › 节点与 Epicbox|Settings › Privacy & network › Node and Epicbox]]' : '[[设置 › 接收 › Epicbox 接收|Settings › Receiving › Epicbox receiving]]';
+  final torPlace = phone ? '[[设置 › 隐私与网络 › Tor 网络|Settings › Privacy & network › Tor Network]]' : '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
-      ? '[[设置 › 交易记录 › 导出交易记录备份|Settings › Payment history › Export history backup]]'
+      ? '[[设置 › 钱包 › 导出交易记录备份|Settings › Wallet › Export history backup]]'
       : '[[设置 › 此钱包 › 导出交易记录备份|Settings › This wallet › Export history backup]]';
   final restorePlace = phone
-      ? '[[用助记词恢复|Restore from a recovery phrase]]（在首屏，或在“设置”中删除此钱包之后）'
-      : '[[用助记词恢复|Restore from a recovery phrase]]（在首屏、“解锁 › 添加钱包”或“设置 › 所有钱包”中）';
+      ? '**我已有钱包：恢复钱包**（在首屏，或在[[设置 › 钱包|Settings › Wallet]]中删除此钱包之后）'
+      : '**用助记词恢复**（在首屏、“解锁 › 添加钱包”或[[设置 › 所有钱包|Settings › All wallets]]中）';
+  final recheckPlace = phone ? '[[设置 › 钱包 › 重新核对余额|Settings › Wallet › Recheck balance]] （在开启“高级选项”时显示）' : '[[设置 › 重新核对余额|Settings › Recheck balance]]';
+  final phrasePlace = phone ? '[[设置 › 安全 › 备份助记词|Settings › Security › Back up recovery phrase]]' : '[[设置 › 助记词|Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
       'start',
@@ -142,9 +143,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**最小** 按金额对可用输出排序，从最小的开始取，直到覆盖金额和手续费。发送确认期间只锁定这些输出；其余可以立即发送。'),
         HelpBlock.p('**全部** 花掉每一个可用输出，并退回一个找零输出。所有资金锁定 $confirmations 个区块，钱包最终的输出更少、更大，手续费也略高，因为每个输入都有成本。发送全部余额时总是使用“全部”。'),
         if (phone)
-          const HelpBlock.p('默认方式在[[输出|Outputs]]中设置。')
+          const HelpBlock.p('默认方式在[[输出 › 高级|Outputs › Advanced]]中设置。')
         else
-          const HelpBlock.p('默认方式在[[输出|Outputs]]中设置；“发送”可在 **高级** 中为单次发送更改。'),
+          const HelpBlock.p('默认方式在[[输出 › 高级|Outputs › Advanced]]中设置；“发送”可在 **高级** 中为单次发送更改。'),
       ],
       id: HelpId.strategy,
     ),
@@ -155,7 +156,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('两者都是此钱包发给自己的普通网络交易，与任何发送一样在 $confirmations 个区块后确认，在此之前都会锁定所有可用输出。'),
         const HelpBlock.ul(['**拆分** 用可用余额生成 2 到 10 个金额几乎相等的输出。', '**合并** 用所有可用输出生成一个输出。', '**拆分找零**（默认开启）在普通发送中、剩余输出过少时做同样的事，每多一个输出收取 0.004 EPIC。']),
-        const HelpBlock.p('“活动”中每次操作显示为两条记录：一次发送和一次接收，对方都是此钱包。两者都在[[输出|Outputs]]中。'),
+        const HelpBlock.p('“活动”中每次操作显示为两条记录：一次发送和一次接收，对方都是此钱包。两者都在[[输出 › 高级|Outputs › Advanced]]中。'),
       ],
       id: HelpId.split,
     ),
@@ -177,9 +178,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('助记词（新钱包为 24 个单词）是资金的钥匙。凭它可以在任何${phone ? '手机或电脑' : '电脑'}上恢复钱包，而任何拿到它的人都能拿走 EPIC。'),
         const HelpBlock.ul(['按顺序把单词抄写在纸上，并把纸保存在安全、离线的地方。', '切勿以照片、截图或文件形式保存。切勿在网站或聊天中输入。', 'Epic Cash 或此钱包的任何人都不会向你索要助记词。']),
         if (phone)
-          HelpBlock.p('要再次查看单词，打开[[设置 › 助记词|Settings › Recovery phrase]]并输入$secret。应用不会把它们发送到任何地方。最好不要复制：如果复制了，钱包会在 60 秒后，以及钱包锁定或关闭时清空剪贴板。')
+          HelpBlock.p('要再次查看单词，打开$phrasePlace并输入$secret。应用不会把它们发送到任何地方。最好不要复制：如果复制了，钱包会在 60 秒后，以及钱包锁定或关闭时清空剪贴板。')
         else
-          HelpBlock.p('要再次查看单词，打开[[设置 › 助记词|Settings › Recovery phrase]]并输入$secret。最好不要复制：如果复制了，钱包会在 60 秒后，以及钱包锁定或关闭时清空剪贴板。'),
+          HelpBlock.p('要再次查看单词，打开$phrasePlace并输入$secret。最好不要复制：如果复制了，钱包会在 60 秒后，以及钱包锁定或关闭时清空剪贴板。'),
       ],
       id: HelpId.phrase,
     ),
@@ -191,7 +192,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('助记词能找回区块链上的一切，也就是余额。'),
         HelpBlock.p('**恢复方法**：在新${phone ? '手机' : '电脑'}上或丢失后，打开$restorePlace，输入单词并设置${phone ? ' PIN 码' : '密码'}。钱包打开后会扫描区块链查找自己的输出。首次扫描完成后余额才会出现；找到的付款标记为 **恢复的资金**。'),
         HelpBlock.p('**恢复无法找回的内容：** 从未上链的信息，例如谁付了什么、交易消息、联系人和钱包名称。交易记录备份会保存付款详情和联系人：$historyBackupPlace。${phone ? '请把备份文件保存在手机以外的地方，例如电子邮件或云存储中。' : ''}'),
-        HelpBlock.p('**余额看起来不对？** 运行[[设置 › $recheck|Settings › Recheck balance]]。它会为此钱包的输出重新读取整条区块链。'),
+        HelpBlock.p('**余额看起来不对？** 运行$recheckPlace。它会为此钱包的输出重新读取整条区块链。'),
         if (!phone)
           const HelpBlock.p('**钱包文件** 位于[[设置 › 此钱包 › 钱包文件夹|Settings › This wallet › Wallet folder]]。即使有这些文件的副本，也请保留助记词：文件丢失时它仍然有效。'),
       ],
@@ -254,9 +255,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         'Tor',
         '更慢，但更私密：一个开关即可让钱包的连接经由 Tor，无需开放端口。默认关闭。',
         [
-          HelpBlock.p('开启 Tor 后，与 Epicbox 服务器的连接经由 Tor，钱包还会拥有一个 Tor 地址（以 .onion 结尾），其他钱包可以从任何地方直接向它付款，无需在路由器上做端口转发。你分享的地址保持不变。'),
+          HelpBlock.p('开启 Tor 后，与 Epicbox 服务器的连接经由 Tor，钱包还会拥有一个 Tor 地址（以 .onion 结尾），其他钱包可以从任何地方直接向它付款，无需在路由器上做端口转发。开启 Tor 不会改变你分享的地址。'),
           HelpBlock.ul([
-            '在[[设置 › 隐私|Settings › Privacy]]中开启。侧边栏中的 Tor 行显示其状态。',
+            '在[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]中开启。侧边栏中的 Tor 行显示其状态。',
             'Tor 启动中或未连接时，经由 Tor 的内容会等待；不会绕过它。点“重试”，或关闭 Tor。',
             '发往 http(s) 地址的直连发送不经由 Tor；“发送”会注明这一点。',
             'Tor 开启期间 直连 · HTTP 接收关闭：其他钱包直接发来的付款会到达 直连 · Tor 地址。',
@@ -274,18 +275,18 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**“节点未同步”：无法发送。** 节点追上网络后即可发送。请稍等，或点“钱包”标签页上的节点行，选择另一个节点。')
         else
-          const HelpBlock.p('**“节点未同步”：无法发送。** 节点追上网络后即可发送。请稍等，或在“设置 › 节点”中选择另一个节点。'),
+          const HelpBlock.p('**“节点未同步”：无法发送。** 节点追上网络后即可发送。请稍等，或在[[设置 › 节点|Settings › Node]]中选择另一个节点。'),
         if (phone)
           const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或点“钱包”标签页上的 Epicbox 行，选择另一个服务器。在此期间可以使用文件。')
         else
-          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在“设置 › 接收”中选择另一个服务器。在此期间可以使用文件。'),
+          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在[[设置 › 接收|Settings › Receiving]]中选择另一个服务器。在此期间可以使用文件。'),
         const HelpBlock.p('**发送显示“等待接收方”。** 对方钱包尚未回复。请对方打开钱包。如果对方一直不会打开，请在“活动”中取消发送以解锁输出。'),
         if (phone)
           const HelpBlock.p('**付款没有到账。** 在“钱包”标签页上检查节点是否已同步、Epicbox 是否在线。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。')
         else
           const HelpBlock.p('**付款没有到账。** 在“接收”中检查接收是否已开启、节点是否已同步。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。'),
         if (phone)
-          const HelpBlock.p('**Tor 显示“未连接”。** Tor 无法连接到其网络。在“设置 › 隐私”中点“重试”，或关闭 Tor；在此期间不会发出任何内容。'),
+          const HelpBlock.p('**Tor 显示“未连接”。** Tor 无法连接到其网络。在[[设置 › 隐私与网络|Settings › Privacy & network]]中点“重试”，或关闭 Tor；在此期间不会发出任何内容。'),
         if (!phone) ...const [
           HelpBlock.p('**“端口 3415 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 直连 · HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 Epicbox、直连 · Tor 和文件照常工作。'),
           HelpBlock.p('**“另一个 Epic 程序正在使用此文件夹”。** 另一个 Epic 钱包或节点打开了相同的文件。关闭它后重试。'),
@@ -294,7 +295,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           const HelpBlock.p('**忘记 PIN 码。** 在解锁界面删除钱包，然后用助记词恢复并设置新的 PIN 码。没有助记词，EPIC 将无法找回。')
         else
           const HelpBlock.p('**“密码错误”。** 检查大写锁定键和键盘布局。如果忘记了密码：用助记词恢复钱包并设置新密码。'),
-        HelpBlock.p('**余额看起来不对。** 运行“设置 › $recheck”。'),
+        HelpBlock.p('**余额看起来不对。** 运行$recheckPlace。'),
       ],
       id: HelpId.trouble,
     ),

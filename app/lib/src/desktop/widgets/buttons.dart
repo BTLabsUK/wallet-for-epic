@@ -150,6 +150,8 @@ class _EButtonState extends State<EButton> {
       enabled: enabled,
       label: widget.label,
       excludeSemantics: true,
+      // The tap a screen reader runs: excludeSemantics drops the GestureDetector's own.
+      onTap: enabled ? widget.onPressed : null,
       child: FocusableActionDetector(
         enabled: enabled,
         mouseCursor: enabled ? SystemMouseCursors.click : (widget.busy ? SystemMouseCursors.progress : SystemMouseCursors.forbidden),

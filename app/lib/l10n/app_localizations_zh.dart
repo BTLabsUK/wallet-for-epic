@@ -1954,7 +1954,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String updateInstalling(String version) {
-    return '正在安装版本 $version…';
+    return 'Epic Cash Mobile 将关闭以安装版本 $version。完成后请重新打开。';
   }
 
   @override
@@ -2704,6 +2704,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get contactsAddressInvalidAny =>
+      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、直连地址（https://…）或 onion 地址（….onion）。';
+
+  @override
   String get settingsTitle => '设置';
 
   @override
@@ -2817,7 +2821,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsInvoicesSubtitle =>
-      '第二个地址，只用于账单，你信任的服务可以向它发送账单。其他人的消息一律丢弃；在你用 PIN 批准每张账单之前，不会支付任何款项。你的付款地址保持不变。';
+      '第二个地址，只用于账单，你信任的服务可以向它发送账单。其他人的消息一律丢弃；在你用 PIN 批准每张账单之前，不会支付任何款项。它与你的收款地址分开。';
 
   @override
   String get invoiceSettingsTitle => '账单';
@@ -2827,7 +2831,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddressBody =>
-      '将此地址提供给你信任的服务，以便它向你发送账单。你的收款地址保持不变。';
+      '将此地址提供给你信任的服务，以便它向你发送账单。它与你的收款地址分开。';
 
   @override
   String get invoiceSettingsQrLabel => '你的账单地址二维码';
@@ -2919,13 +2923,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get settingsRescan => '重新扫描区块链';
+  String get settingsRescan => '重新核对余额';
 
   @override
   String get settingsRescanFinished => '重新扫描已完成';
 
   @override
-  String get settingsRescanTitle => '重新扫描区块链';
+  String get settingsRescanTitle => '重新核对余额';
 
   @override
   String get settingsRescanBody =>
@@ -4808,7 +4812,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvHelpFlowStep2 =>
-      '付款方在 [[账单 › 支付]] 中打开它，核对发送方、金额和留言，然后输入钱包密码，选择**批准并付款**。';
+      '付款方在 [[账单 › 支付|Invoices › Pay]] 中打开它，核对发送方、金额和留言，然后输入钱包密码，选择**批准并付款**。';
 
   @override
   String get deskInvHelpFlowStep3 => '付款方的钱包把付款发到开单方的**收款地址**。';
@@ -4823,7 +4827,8 @@ class AppLocalizationsZh extends AppLocalizations {
       '未经批准不会付款，账单也绝不会给付款方的钱包增加资金。每张账单都有付款期限，最长 48 小时；过期后无法再付款。';
 
   @override
-  String get deskInvHelpFlowIssued => '本钱包开具的账单在 [[账单 › 开具]] 中。';
+  String get deskInvHelpFlowIssued =>
+      '本钱包开具的账单在 [[账单 › 开具|Invoices › Issue]] 中。';
 
   @override
   String get deskInvHelpTrustTitle => '为什么只接受受信任的发送方';
@@ -4833,7 +4838,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvHelpTrustP1 =>
-      '钱包只在自己的账单地址接收账单，并且只接收受信任列表中的发送方（按发送方地址匹配）。其他一切在打开之前就被直接丢弃，不会出现在 [[账单 › 支付]] 中。';
+      '钱包只在自己的账单地址接收账单，并且只接收受信任列表中的发送方（按发送方地址匹配）。其他一切在打开之前就被直接丢弃，不会出现在 [[账单 › 支付|Invoices › Pay]] 中。';
 
   @override
   String get deskInvHelpTrustP2 => '没有这个列表，任何知道账单地址的人都可以用垃圾信息或看似真实的账单塞满收件箱。';
@@ -4843,10 +4848,11 @@ class AppLocalizationsZh extends AppLocalizations {
       '信任只是允许发送方提出请求。受信任的发送方无法拿走任何东西：每张账单仍需**批准并付款**。';
 
   @override
-  String get deskInvHelpTrustWhere1 => '在 [[设置 › 账单]] 中信任发送方。';
+  String get deskInvHelpTrustWhere1 =>
+      '在 [[设置 › 账单|Settings › Invoices]] 中信任发送方。';
 
   @override
-  String get deskInvHelpTrustWhere2 => '或在 [[联系人]] 中为联系人打开**信任其账单**。';
+  String get deskInvHelpTrustWhere2 => '或在 [[联系人|Contacts]] 中为联系人打开**信任其账单**。';
 
   @override
   String get deskInvHelpTrustWhere3 => '发送方可随时从列表中移除。之后它的新账单会被丢弃。';
@@ -4859,7 +4865,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvHelpAddrP1 =>
-      '钱包有两个 Epicbox 地址。[[接收]] 中的**收款地址**接收付款。**账单地址**只接收账单。';
+      '钱包有两个 Epicbox 地址。[[接收|Receive]] 中的**收款地址**接收付款。**账单地址**只接收账单。';
 
   @override
   String get deskInvHelpAddrP2 => '分开之后，账单地址可以提供给服务或更换，而不会暴露或改变别人付款用的地址。';
@@ -4868,7 +4874,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvHelpAddrP3 => '账单地址不接收付款：发到它的付款会被丢弃。收款应使用收款地址。';
 
   @override
-  String get deskInvHelpAddrWhere1 => '在 [[设置 › 账单]] 中查找、复制账单地址或显示其二维码。';
+  String get deskInvHelpAddrWhere1 =>
+      '在 [[设置 › 账单|Settings › Invoices]] 中查找、复制账单地址或显示其二维码。';
 
   @override
   String get deskInvHelpAddrWhere2 => '**新的账单地址**会替换它。持有旧地址的服务在拿到新地址之前无法再发送账单。';
@@ -7686,7 +7693,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskConErrAddressEmpty => '请填写地址。';
 
   @override
-  String get deskConErrAddressInvalid => '无法识别的地址';
+  String get deskConErrAddressInvalid =>
+      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、直连地址（https://…）或 onion 地址（….onion）。';
 
   @override
   String get deskConAddPicture => '添加图片';
@@ -13058,4 +13066,57 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskTxProofNone => '这笔付款没有付款证明。';
+
+  @override
+  String get deskUpdAvailable => '有可用更新';
+
+  @override
+  String deskUpdNotice(String version) {
+    return '有可用更新 · $version';
+  }
+
+  @override
+  String deskUpdDownload(String version) {
+    return '下载 $version';
+  }
+
+  @override
+  String get deskUpdOpensPage => '打开下载页面';
+
+  @override
+  String deskUpdDownloading(String percent) {
+    return '正在下载 $percent %';
+  }
+
+  @override
+  String get deskUpdRestart => '重启以更新';
+
+  @override
+  String deskUpdReady(String version) {
+    return '$version 已就绪';
+  }
+
+  @override
+  String get deskUpdRestartHint => '应用会关闭、安装更新，然后重新打开。';
+
+  @override
+  String get deskUpdFailed => '无法下载更新';
+
+  @override
+  String get deskUpdTryAgain => '重试';
+
+  @override
+  String get deskUpdInstallFailed => '无法安装更新';
+
+  @override
+  String get deskUpdOpenPage => '打开下载页面';
+
+  @override
+  String get deskUpdErrDamaged => '文件与已签名的更新信息不符。';
+
+  @override
+  String get deskUpdErrStopped => '下载已中断。';
+
+  @override
+  String get deskUpdErrInstall => '无法替换为新版本。';
 }
