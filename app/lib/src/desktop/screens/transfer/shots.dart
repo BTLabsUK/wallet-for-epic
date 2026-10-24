@@ -1,3 +1,5 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../tor_routes.dart';
 import '../../app/shots.dart';
 import '../../widgets/kit.dart';
@@ -78,6 +80,11 @@ final List<DeskShot> transferShots = [
     prepare: (_, _) => Future<void>.delayed(const Duration(milliseconds: 800)),
   ),
   const DeskShot(id: '16e-send-failed', title: 'Send, failed', route: DeskRoute.send, arg: SendArgs(step: SendStep.failed, recipient: 'esNffxine9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9r@epicbox.offline.example', amount: '3')),
+  // The Epicbox switch (Settings › Transactions) off: no relay connection, no address on
+  // Receive, Send says a contact has only an Epicbox address.
+  DeskShot(id: '16f-send-epicbox-off', title: 'Send, Epicbox off, a contact with only an Epicbox address', route: DeskRoute.send, arg: const SendArgs(recipient: _anna, amount: '12.5'), prepare: (c, _) => _epicboxOff(c)),
+  DeskShot(id: '16g-receive-epicbox-off', title: 'Receive, Epicbox off', route: DeskRoute.receive, prepare: (c, _) => _epicboxOff(c)),
+  DeskShot(id: '16h-transactions-epicbox-off', title: 'Settings › Transactions, Epicbox off', route: DeskRoute.settingsReceiving, prepare: (c, _) => _epicboxOff(c)),
   const DeskShot(id: '17-receive', title: 'Receive', route: DeskRoute.receive, arg: ReceiveArgs()),
   const DeskShot(id: '17b-receive-all-off', title: 'Receive, all off', route: DeskRoute.receive, arg: ReceiveArgs(epicbox: RxEpicbox.off)),
   const DeskShot(id: '17c-receive-http-tor-on', title: 'Receive, HTTP and Tor on', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.on, tor: RxTor.on)),
@@ -110,3 +117,10 @@ final List<DeskShot> transferShots = [
   const DeskShot(id: '20c-finalize-error', title: 'Finalize, not posted', route: DeskRoute.finalize, arg: FinalizeArgs(error: FinalizeError.notPosted)),
   DeskShot(id: '36-dlg-contact-picker', title: 'Choose contact', route: DeskRoute.send, dialog: showContactPickerDialog),
 ];
+
+/// Turns the Epicbox switch off for a shot.
+Future<void> _epicboxOff(ProviderContainer c) async {
+  final n = c.read(deskProvider.notifier);
+  final s = c.read(deskProvider).settings;
+  await n.saveSettings(s.copyWith(payments: s.payments.copyWith(epicbox: false)));
+}

@@ -188,6 +188,23 @@ Stream<T> _netStream<T>(String what, Stream<T> Function() make) => NetGate.offli
     ? Stream.error(NetBlocked(NetworkMode.offline, what))
     : _guardStream(make());
 
+/// [_netGuard] for a call over Epicbox (a send, a resend, an invoice): refused in Offline and
+/// with the Epicbox switch off ([NetGate.checkEpicbox]).
+Future<T> _epicboxGuard<T>(String what, Future<T> Function() call) async {
+  NetGate.checkEpicbox(what);
+  return _guard(call);
+}
+
+/// [_netStream] for the Epicbox listener.
+Stream<T> _epicboxStream<T>(String what, Stream<T> Function() make) {
+  try {
+    NetGate.checkEpicbox(what);
+  } on NetBlocked catch (e) {
+    return Stream.error(e);
+  }
+  return _guardStream(make());
+}
+
 /// Tor only refuses a Direct send to an http(s) address that is not this computer: it would go
 /// on the clearnet (tor_routes.dart, [torWayIn]).
 void _torOnlyRefusesHttp(String url) {
@@ -1015,30 +1032,29 @@ class LepicWalletSession implements WalletSession {
 
   final bool Function(String address)? _validateAddress;
 
-  /// The node the wallet uses (open, then [setServers]). Offline still lets a call that reaches
-  /// only this node run when it is local ([isLocalAddressUrl]); null counts as not local.
+  /// The node the wallet uses (open, then [setServers]). Offline still lets a refresh, a scan
+  /// or the HTTP listener run when it is local ([isLocalAddressUrl]); null counts as not local.
   String? nodeUrl;
 
   bool get _localNode => isLocalAddressUrl(nodeUrl);
 
-  /// [_netGuard] for a call that reaches only the node: Offline lets it run on a local node.
-  Future<T> _nodeGuard<T>(String what, Future<T> Function() call) async {
-    NetGate.check(what, local: _localNode);
-    return _guard(call);
-  }
+  /// [_guard] for a payment call that reaches only the node (a transaction file or QR Payment
+  /// made, signed, finalized or posted, an estimate): Offline lets it use the node in use,
+  /// local or not (`network_gate.dart`, the screen warns), so nothing is checked here.
+  Future<T> _nodeGuard<T>(String what, Future<T> Function() call) => _guard(call);
 
-  /// [_netStream] for a stream that reaches only the node.
+  /// [_netStream] for a stream that reaches only the node and is not a payment (a scan, the
+  /// HTTP listener): Offline lets it run on a local node only.
   Stream<T> _nodeStream<T>(String what, Stream<T> Function() make) => NetGate.offline && !_localNode
       ? Stream.error(NetBlocked(NetworkMode.offline, what))
       : _guardStream(make());
 
   /// The address a Direct send goes to: as given, except in Offline, where only a local one is
-  /// allowed (looked up once, and the address found is what LEPIC connects to) and the node
-  /// must be local too (the send posts there). Tor only refuses one off this computer.
+  /// allowed (looked up once, and the address found is what LEPIC connects to); the send posts
+  /// to the node in use. Tor only refuses one off this computer.
   Future<String> _directUrl(String url) async {
     _torOnlyRefusesHttp(url);
     if (!NetGate.offline) return url;
-    if (!_localNode) throw const NetBlocked(NetworkMode.offline, 'send over HTTP');
     final local = await localUrl(url, directLookup);
     if (local == null) throw const NetBlocked(NetworkMode.offline, 'send over HTTP', notLocal: true);
     return local;
@@ -1345,7 +1361,7 @@ class LepicWalletSession implements WalletSession {
     required String address,
     String? message,
     SendOptions? options,
-  }) => _netGuard('send over Epicbox', () async {
+  }) => _epicboxGuard('send over Epicbox', () async {
     _sending++;
     final lepic.SentTx tx;
     try {
@@ -1377,7 +1393,7 @@ class LepicWalletSession implements WalletSession {
   }
 
   @override
-  Future<void> resendEpicbox({required String key}) => _netGuard('resend over Epicbox', () async {
+  Future<void> resendEpicbox({required String key}) => _epicboxGuard('resend over Epicbox', () async {
     final txId = await _txIdOf(key);
     _sending++;
     try {
@@ -1388,7 +1404,7 @@ class LepicWalletSession implements WalletSession {
   });
 
   @override
-  Stream<ListenerEvent> startListener() => _netStream('listener', () =>
+  Stream<ListenerEvent> startListener() => _epicboxStream('listener', () =>
     _wallet.startListener().expand((e) {
       final bounced = lepicListenerBounce(e);
       if (bounced != null) _onBounce(bounced);
@@ -2054,7 +2070,7 @@ class LepicWalletSession implements WalletSession {
       });
 
   @override
-  Future<InvoiceDrainReport> drainInvoices() => _netGuard('invoice drain', () async {
+  Future<InvoiceDrainReport> drainInvoices() => _epicboxGuard('invoice drain', () async {
     _watchEvents();
     final report = await _wallet.drainInvoices();
     await _sweep();
@@ -2103,7 +2119,7 @@ class LepicWalletSession implements WalletSession {
   Future<PaidInvoice> payInvoice({
     required String slateId,
     required BigInt amount,
-  }) => _netGuard('pay invoice', () async {
+  }) => _epicboxGuard('pay invoice', () async {
     _watchEvents();
     final pending = (await _wallet.pendingInvoices(expirySecs: _expirySecs))
         .where((i) => i.slateId == slateId)
@@ -2152,7 +2168,7 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Future<PaidInvoice> resendInvoiceReply({required String slateId}) =>
-      _netGuard('invoice reply', () async {
+      _epicboxGuard('invoice reply', () async {
         final paid = await _paidInvoice(slateId);
         if (paid == null) {
           throw const WalletError(
@@ -2179,7 +2195,7 @@ class LepicWalletSession implements WalletSession {
       });
 
   @override
-  Future<void> declineInvoice({required String slateId}) => _netGuard('decline invoice', () async {
+  Future<void> declineInvoice({required String slateId}) => _epicboxGuard('decline invoice', () async {
     _watchEvents();
     await _wallet.declineInvoice(slateId: slateId);
     _waitingSlates.remove(slateId);
@@ -2302,7 +2318,7 @@ class LepicWalletSession implements WalletSession {
     required BigInt amount,
     required String address,
     String? message,
-  }) => _netGuard('issue invoice', () async {
+  }) => _epicboxGuard('issue invoice', () async {
     _watchEvents();
     final to = address.trim();
     if (!_validAddress(to)) {
@@ -2440,7 +2456,7 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Future<IssuedInvoice> withdrawInvoice({required String slateId}) =>
-      _netGuard('withdraw invoice', () async {
+      _epicboxGuard('withdraw invoice', () async {
         _watchEvents();
         return _inTurn(() async {
           final issued = await _request(slateId);
@@ -2462,7 +2478,7 @@ class LepicWalletSession implements WalletSession {
       });
 
   @override
-  Future<PaymentsDrainReport> drainPayments() => _netGuard('payments drain', () async {
+  Future<PaymentsDrainReport> drainPayments() => _epicboxGuard('payments drain', () async {
     _watchEvents();
     // Each bounce raises `invoiceBounced` on the events, which withdraws that request.
     final report = await _wallet.drainEpicbox();
@@ -2475,7 +2491,7 @@ class LepicWalletSession implements WalletSession {
   });
 
   @override
-  Future<PeerCapability> peerCapability({required String address}) => _netGuard('peer capability', 
+  Future<PeerCapability> peerCapability({required String address}) => _epicboxGuard('peer capability', 
     () async => lepicPeerCapability(
       await _wallet.peerCapability(address: address.trim()),
     ),

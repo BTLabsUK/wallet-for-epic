@@ -92,11 +92,11 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'start',
       'Zahlungsmethoden und Vorgaben fürs Senden',
-      'Epicbox ist immer an. Link-Zahlung und Datei sind Schalter. Senden beginnt mit der Methode, die Sie wählen.',
+      'Jede Methode ist ein Schalter; Epicbox ist standardmäßig an. Senden beginnt mit der Methode, die Sie wählen.',
       [
         const HelpBlock.p('Die Seite Transaktionen unter [[Einstellungen › Transaktionen|Settings › Transactions]] enthält drei Dinge.'),
         HelpBlock.ul([
-          '**Zahlungsmethoden.** Epicbox ist immer an. **Link-Zahlung** (an .onion- und Web-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und **Datei** sind Schalter: Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.',
+          '**Zahlungsmethoden.** Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Relay, also gibt es keine Epicbox-Zahlungen, Rechnungen oder Benachrichtigungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten am Relay). **Link-Zahlung** (an .onion- und Web-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und **Datei** brauchen kein Relay. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.',
           '**Senden beginnt mit.** Die Methode, mit der der Bildschirm Senden sich öffnet. Auf Senden können Sie trotzdem eine andere wählen.',
           '**Vorgaben fürs Senden.** Welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen nur, solange **Zahlungsoptionen** unter Erweitert an ist.',
         ]),
@@ -306,7 +306,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         HelpBlock.ul([
           '**Standard**: verbindet direkt. Tor ist der Schalter unter $torPlace.',
           '**Nur Tor**: Tor ist immer an, und sein Schalter ist gesperrt. Nichts läuft über das offene Internet. Solange Tor startet oder fehlgeschlagen ist, sagt die Wallet **Wartet auf Tor**, und alles, was das Netzwerk braucht, wartet; den Grund nennt die ausgegraute Aktion. ${phone ? 'Benachrichtigungen sind aus, weil die Anmeldung dafür dieses Smartphone verraten würde.' : 'Der HTTP-Empfang ist aus, weil eine einfache Adresse diesen Computer verraten würde.'}',
-          '**Offline**: nichts außer ${phone ? 'diesem Smartphone' : 'diesem Computer'} und dem lokalen Netzwerk. Guthaben und Verlauf bleiben, wie zuletzt gesehen. Mit einem Node ${phone ? 'im lokalen Netzwerk' : 'auf diesem Computer oder im lokalen Netzwerk'} kann die Wallet weiterhin Zahlungen erstellen, signieren, abschließen und senden und direkt an lokale Adressen zahlen.${phone ? '' : ' Empfangen im lokalen Netzwerk braucht den HTTP-Empfang mit **Aus dem Internet**.'} Ohne einen warten Senden und Empfangen.',
+          '**Offline**: kein Epicbox, kein Link Payment außer an lokale Adressen, ${phone ? 'keine Benachrichtigungen' : 'kein Tor'}, keine Statusprüfungen. Guthaben und Verlauf bleiben, wie zuletzt gesehen. ${phone ? '**QR-Zahlung** und **Transaktionsdateien**' : '**Transaktionsdateien**'} funktionieren weiterhin: Sie nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen, und der Bildschirm sagt es. Für die meiste Privatsphäre nutzen Sie einen Node ${phone ? 'im lokalen Netzwerk' : 'auf diesem Computer oder im lokalen Netzwerk'}: Dann aktualisiert sich das Guthaben${phone ? '' : ', Link Payment empfängt über das lokale Netzwerk, wenn der HTTP-Empfang auf **Aus dem Internet** steht,'} und Guthaben neu prüfen läuft ebenfalls.',
         ]),
         const HelpBlock.p('Geben Sie den Node im Offline-Modus mit seiner IP-Adresse an, zum Beispiel **10.100.10.20:3413**. Namen werden nicht aufgelöst.'),
         if (!phone) const HelpBlock.p('Die Peers des integrierten Nodes sind eine Einstellung des Nodes, nicht des Modus.'),

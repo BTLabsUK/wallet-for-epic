@@ -223,11 +223,11 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
     HelpTopic(
       'start',
       'Payment methods and send defaults',
-      'Epicbox is always on. Link Payment and File are switches. Send starts on the method you choose.',
+      'Every method is a switch; Epicbox is on by default. Send starts on the method you choose.',
       [
         const HelpBlock.p('The Transactions page in [[Settings › Transactions]] holds three things.'),
         HelpBlock.ul([
-          '**Payment methods.** Epicbox is always on. **Link Payment** (to .onion and web addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and **File** are switches: a method that is off does not appear on Send and Receive.',
+          '**Payment methods.** One switch each. **Epicbox** is on by default; off, the wallet connects to no relay, so no Epicbox payments, invoices or notifications, and Receive shows no Epicbox address (payments sent to it wait at the relay). **Link Payment** (to .onion and web addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and **File** need no relay. A method that is off does not appear on Send and Receive.',
           '**Send starts on.** The method the Send screen opens with. You can still pick another on Send.',
           '**Send defaults.** Which outputs a send spends, Smallest or All, and whether its change is split. They show only while **Send options** is on in Advanced.',
         ]),
@@ -437,7 +437,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.ul([
           '**Standard**: connects directly. Tor is the switch under $torPlace.',
           '**Tor only**: Tor is always on and its switch is locked. Nothing goes over the open internet. While Tor starts or has failed, the wallet says **Waiting for Tor** and whatever needs the network waits, with the reason on the disabled action. ${phone ? 'Notifications are off, because signing up for them would reveal this phone.' : 'HTTP receiving is off, because a plain address would reveal this computer.'}',
-          '**Offline**: nothing beyond $device and the local network. The balance and history stay as last seen. With a node on ${phone ? 'the local network' : 'this computer or the local network'}, the wallet can still make, sign, finalize and post payments, and send Link Payment to local addresses.${phone ? '' : ' Receiving over the local network needs HTTP receiving set to **From the internet**.'} Without one, sending and receiving wait.',
+          '**Offline**: no Epicbox, no Link Payment beyond local addresses, ${phone ? 'no notifications' : 'no Tor'}, no status checks. The balance and history stay as last seen. ${phone ? '**QR Payment** and **transaction files**' : '**Transaction files**'} still work: they use the node in use to read the chain and post, a public one too, and the screen says so. For the most privacy, use a node on ${phone ? 'the local network' : 'this computer or the local network'}: then the balance refreshes${phone ? '' : ', Link Payment receives over the local network with HTTP receiving set to **From the internet**,'} and Recheck balance runs as well.',
         ]),
         const HelpBlock.p('In Offline, give the node by its IP address, for example **10.100.10.20:3413**. Names are not looked up.'),
         if (!phone) const HelpBlock.p('The built-in node\'s own peers are the node\'s setting, not the mode\'s.'),

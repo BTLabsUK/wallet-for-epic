@@ -16,7 +16,7 @@ import 'secret_store.dart';
 import 'advanced.dart' show NetworkMode;
 import 'net/node_peers.dart';
 import 'network_gate.dart';
-import 'settings.dart' show clockProvider, networkModeProvider;
+import 'settings.dart' show appSettingsProvider, clockProvider, networkModeProvider;
 import 'stall_retry.dart';
 import 'vault.dart';
 import 'wallet_backend.dart' as backend;
@@ -687,6 +687,11 @@ class ListenerNotifier extends Notifier<ListenerState> {
     if (ref.watch(networkModeProvider) == NetworkMode.offline) {
       unawaited(session.stopListener().catchError((Object _) {}));
       return const ListenerState(offline: true, status: 'Offline mode');
+    }
+    // Epicbox off (Settings › Transactions): the same, and the header shows Epicbox as off.
+    if (ref.watch(appSettingsProvider.select((s) => s.value?.payments.epicbox)) == false) {
+      unawaited(session.stopListener().catchError((Object _) {}));
+      return const ListenerState(stopped: true, status: 'Epicbox off');
     }
     // Android reports the network that is up as soon as this listens; only with a drop seen
     // before is a returning network a reason to reconnect.

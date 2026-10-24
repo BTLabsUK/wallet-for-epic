@@ -14552,7 +14552,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get slInUseSwitchFirst => 'In Verwendung. Zuerst wechseln.';
 
   @override
-  String get slRestore => 'Öffentliche Liste wiederherstellen';
+  String get slRestore => 'Entfernte Server wiederherstellen';
 
   @override
   String slRemovedCount(int count) {
@@ -14566,7 +14566,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get slRestored => 'Öffentliche Liste wiederhergestellt.';
+  String get slRestored => 'Entfernte Server wiederhergestellt.';
 
   @override
   String get slRelayWarning =>
@@ -14700,11 +14700,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txMethodsHeader => 'Zahlungsmethoden';
 
   @override
-  String get txAlwaysOn => 'Immer an';
-
-  @override
   String get txEpicboxHint =>
-      'Epicbox zahlt über ein Relay, die andere Wallet muss also nicht geöffnet sein. Immer an.';
+      'Epicbox zahlt über ein Relay, die andere Wallet muss also nicht geöffnet sein. Aus: Die Wallet verbindet sich mit keinem Relay, also keine Epicbox-Zahlungen, Rechnungen oder Benachrichtigungen. QR-Zahlung und Dateien funktionieren weiter.';
 
   @override
   String get txDirectLine =>
@@ -14778,6 +14775,65 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ihr Node hat keine Peers: Die Zahlung wartet in seinem Pool, bis er sich wieder verbindet.';
 
   @override
+  String get netOfflineNodeHint =>
+      'Nutzt den Node, um die Chain zu lesen und zu senden. Für die größte Privatsphäre einen lokalen Node verwenden.';
+
+  @override
+  String get netOfflineNodeLine => 'Nutzt den Node';
+
+  @override
+  String get netBlockEpicboxOff =>
+      'Epicbox ist unter Einstellungen › Transaktionen aus.';
+
+  @override
+  String get txEpicboxLine =>
+      'Zahlen oder bezahlt werden über ein Relay. Die andere Wallet kann geschlossen sein.';
+
+  @override
+  String get txEpicboxOffTitle => 'Epicbox ausschalten?';
+
+  @override
+  String txEpicboxOffPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count Zahlungen warten auf ihre Antworten über Epicbox. Sie kommen an, sobald Epicbox wieder an ist.',
+      one: 'Eine Zahlung wartet auf ihre Antwort über Epicbox. Sie kommt an, sobald Epicbox wieder an ist.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txEpicboxOffAction => 'Ausschalten';
+
+  @override
+  String get pushNoticeOffEpicbox =>
+      'Benachrichtigungen aus: Sie brauchen Epicbox.';
+
+  @override
+  String get settingsPushNeedsEpicbox => 'Braucht Epicbox';
+
+  @override
+  String sendContactOnlyEpicbox(String name) {
+    return '$name hat nur eine Epicbox-Adresse.';
+  }
+
+  @override
+  String get receiveEpicboxOffText =>
+      'Zahlungen von Absendern warten beim Relay, bis Epicbox wieder an ist.';
+
+  @override
+  String get receiveNoMethods => 'Keine Empfangsmethode ist an';
+
+  @override
+  String get receiveNoMethodsBody =>
+      'Schalten Sie eine unter Einstellungen › Transaktionen an.';
+
+  @override
+  String get receiveNoMethodsButton => 'Einstellungen öffnen';
+
+  @override
   String get deskErrOfflineOnlyLocal => 'Offline: nur lokale Adressen.';
 
   @override
@@ -14798,11 +14854,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetTxMethods => 'Zahlungsmethoden';
 
   @override
-  String get deskSetTxAlwaysOn => 'Immer an';
-
-  @override
   String get deskSetTxEpicboxHint =>
-      'Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so, deshalb ist es immer an.';
+      'Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Aus: Die Wallet verbindet sich mit keinem Epicbox-Server, also keine Epicbox-Zahlungen oder Rechnungen. Dateien funktionieren weiter.';
 
   @override
   String get deskSetTxDirectHint =>

@@ -205,6 +205,7 @@ class LepicDeskWallet implements DeskWalletApi {
        ) {
     statusSite.addListener(_statusSiteChanged);
     NetGate.set(_settings.advanced.networkMode);
+    NetGate.setEpicbox(_settings.payments.epicbox);
     _followTor();
   }
 
@@ -939,7 +940,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
     unawaited(_checkTip());
     unawaited(sync());
-    if (!NetGate.offline) _startInvoices();
+    if (!NetGate.epicboxOff) _startInvoices();
   }
 
   @override
@@ -959,7 +960,9 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     // Tor starts below: the first Epicbox connection waits for it, never going directly first.
     if (_torFeature && _settings.torAutostart && await _findTor() != null) await _expectTor(session);
-    if (_settings.epicboxAutostart) {
+    // The Epicbox switch off (Settings › Transactions): no listener, whatever Start with the
+    // wallet says.
+    if (_settings.epicboxAutostart && _settings.payments.epicbox) {
       try {
         await setEpicboxListening(true);
       } on Object catch (e) {
@@ -2695,6 +2698,35 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     final was = netModeOf(old.advanced.networkMode);
     if (mode != was) await _applyMode(was, mode);
+    if (settings.payments.epicbox != old.payments.epicbox) await _applyEpicboxSwitch(settings.payments.epicbox);
+  }
+
+  /// The Epicbox switch (Settings › Transactions) changed while running: off stops the
+  /// listener and the invoice timers (nothing connects to a relay until it is on again); on
+  /// starts the invoices again and, with Start with the wallet, the listener. One gate with
+  /// the network mode (network_gate.dart): the sends and invoice calls read it there.
+  Future<void> _applyEpicboxSwitch(bool on) async {
+    NetGate.setEpicbox(on);
+    logInfo('desk', 'epicbox switch ${on ? 'on' : 'off'}');
+    final session = _session;
+    if (session == null) return;
+    if (!on) {
+      _stopInvoices();
+      await _stopListener();
+      _epicboxHealth = ServiceHealth.off;
+      _changed();
+      return;
+    }
+    if (NetGate.offline) return;
+    _startInvoices();
+    if (_settings.epicboxAutostart) {
+      try {
+        await setEpicboxListening(true);
+      } on Object catch (e) {
+        logWarn('desk', 'epicbox on: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
+      }
+    }
+    _changed();
   }
 
   /// What ran when Offline began, started again when it ends.
@@ -3028,6 +3060,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (!on) return _stopListener();
     if (_listener != null) return;
     if (NetGate.offline) throw DeskError.l10n((l) => l.deskShellOffline);
+    if (!NetGate.epicbox) throw DeskError.l10n((l) => l.netBlockEpicboxOff);
     final session = _open;
     _epicboxHealth = ServiceHealth.checking;
     _changed();

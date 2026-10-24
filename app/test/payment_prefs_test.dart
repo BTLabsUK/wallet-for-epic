@@ -46,6 +46,23 @@ void main() {
     expect(PaymentPrefs.decode('direct|nonsense').defaultMethod, PayMethod.epicbox);
   });
 
+  test('the Epicbox switch: on by default, read as on from older values, off once saved off', () {
+    expect(PaymentPrefs.defaults.epicbox, isTrue);
+    expect(PaymentPrefs.decode('direct,file|epicbox').epicbox, isTrue);
+    expect(PaymentPrefs.fromJson({'direct': false, 'file': true}).epicbox, isTrue);
+    const off = PaymentPrefs(epicbox: false);
+    expect(off.offers(PayMethod.epicbox), isFalse);
+    expect(PaymentPrefs.decode(off.encode()), off);
+    expect(off.encode(), 'file,noepicbox|epicbox');
+    expect(PaymentPrefs.fromJson(off.toJson()).epicbox, isFalse);
+    // Send starts on the first method that is on; with none on, Epicbox (Send says it is off).
+    expect(off.startMethod, PayMethod.qr);
+    expect(const PaymentPrefs(epicbox: false, qr: false).startMethod, PayMethod.file);
+    expect(const PaymentPrefs(epicbox: false, direct: true).startMethod, PayMethod.direct);
+    expect(const PaymentPrefs(epicbox: false, file: false, qr: false).startMethod, PayMethod.epicbox);
+    expect(deskSettingsFromJson(deskSettingsToJson(const DeskSettings(payments: off))).payments, off);
+  });
+
   test('the desktop store keeps it and takes over the old switch', () {
     const p = PaymentPrefs(direct: true, defaultMethod: PayMethod.file);
     expect(deskSettingsFromJson(deskSettingsToJson(const DeskSettings(payments: p))).payments, p);

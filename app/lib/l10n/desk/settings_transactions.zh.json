@@ -1,8 +1,7 @@
 {
   "deskSetFrameTransactions": "交易",
   "deskSetTxMethods": "付款方式",
-  "deskSetTxAlwaysOn": "始终开启",
-  "deskSetTxEpicboxHint": "通过 Epicbox 服务器付款和收款。大多数付款都走这条路，所以始终开启。",
+  "deskSetTxEpicboxHint": "通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。文件仍然可用。",
   "deskSetTxDirectHint": "钱包对钱包直接付款和收款，通过 HTTP 或 Tor，中间没有服务器。仅在钱包打开时有效。会在“发送”中加入“链接付款”，并在“接收”中加入它的地址。",
   "deskSetTxFileHint": "通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件”，并在“接收”中加入文件步骤。",
   "deskSetTxSend": "发送",

@@ -319,11 +319,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   TorState _torState(DeskState st) => _args.tor ?? deskNetTor(st);
 
-  /// The network mode holds this send: Epicbox and Direct in Offline and in Tor only without
-  /// Tor, a file in Offline only.
-  /// Offline with a local node lets File and Direct to http(s) run (the adapter refuses an
-  /// address that is not local).
-  NetBlock _netBlock(DeskState st) => _method == TxMethod.file ? deskFileBlock(st) : deskNetBlock(st, nodeOnly: _method == TxMethod.http);
+  /// The network mode holds this send: Epicbox in Offline and in Tor only without Tor; Direct
+  /// the same, except Offline with a local node, which lets it go to a local address (the
+  /// adapter refuses any other). A file is never held: Offline lets it use the node in use
+  /// ([deskOfflineUsesNode] says so on the screen).
+  NetBlock _netBlock(DeskState st) => _method == TxMethod.file
+      ? NetBlock.none
+      : deskNetBlock(st, nodeOnly: _method == TxMethod.http, epicbox: _method == TxMethod.epicbox);
 
   /// How this send's connection goes with the Tor switch as it is now; null for File.
   TorWay? _torWay(DeskState st) {
@@ -985,6 +987,18 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   Widget? _blockNotice(DeskState st) {
     final l = context.l10n;
     final net = _netBlock(st);
+    if (net == NetBlock.epicboxOff) {
+      // The Epicbox switch is off: the reason, and that a saved contact has only that address.
+      final contact = _contactOf(st.contacts);
+      return ENotice(
+        key: const ValueKey('send-epicbox-off'),
+        title: l.netBlockEpicboxOff,
+        text: contact == null ? null : l.sendContactOnlyEpicbox(contact.name),
+        tone: ETone.warn,
+        icon: EIcons.epicbox,
+        actions: [EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],
+      );
+    }
     if (net != NetBlock.none) {
       return ENotice(
         key: const ValueKey('send-net-blocked'),
@@ -1101,11 +1115,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final toErr = _codeError?.call(l) ?? (_submitted && !_toEdited ? _toError(st) : null);
     final amErr = _allError ?? (_submitted && !_amountEdited ? _amountError(spendable) : null);
     final matches = file ? const <Contact>[] : _matches(st);
-    // Epicbox and Direct wait for the network mode; File only in Offline.
+    // Epicbox and Direct wait for the network mode; File runs in every mode, and in Offline
+    // on a node that is not local its tooltip says the node is used.
     final net = deskNetBlock(st);
     final netIdle = net == NetBlock.none;
     final netWhy = netBlockReason(l, net);
-    final fileBlock = deskFileBlock(st);
+    final fileTip = deskOfflineUsesNode(st) ? l.netOfflineNodeHint : null;
     return EPanel(
       padding: EdgeInsets.zero,
       title: l.deskSendMethodHeader,
@@ -1119,7 +1134,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           child: ESegmented<TxMethod>(
           stretch: true,
           segments: [
-            ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox, enabled: netIdle, tooltip: netWhy), // l10n-ok: product name
+            ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox, enabled: netIdle && st.settings.payments.epicbox, tooltip: netWhy ?? (st.settings.payments.epicbox ? null : l.netBlockEpicboxOff)), // l10n-ok: product name
             // Direct: http(s) or an onion, the address decides ([TxMethod.tor] is its route).
             // Settings › Transactions: the methods on. The method in use stays (a pasted onion
             // picks Direct; a file send in progress or the file fallback of a failed Epicbox
@@ -1128,7 +1143,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                 (st.settings.payments.direct || _segmentOf(_method) == TxMethod.http))
               ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.link, enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
             if (st.settings.payments.file || file || _epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)
-              ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file, enabled: fileBlock == NetBlock.none, tooltip: netBlockReason(l, fileBlock)),
+              ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file, tooltip: fileTip),
           ],
           value: _segmentOf(_method),
           onChanged: (m) => setState(() {
@@ -1328,6 +1343,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final hint = switch (null) {
       _ when res is SendDone => l.deskSendHintSent,
       _ when nodeBlocked => l.deskSendHintNode,
+      _ when _netBlock(st) == NetBlock.epicboxOff => l.netBlockEpicboxOff,
       _ when _epicboxBlocked(st) => l.deskSendHintEpicbox,
       _ when _torWay(st) == TorWay.wait => l.deskSendHintTorWait,
       _ when _torWay(st) == TorWay.blocked => l.deskSendHintTorBlocked,

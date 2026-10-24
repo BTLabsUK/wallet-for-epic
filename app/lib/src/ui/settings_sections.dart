@@ -39,6 +39,7 @@ import 'launch_screen.dart';
 import 'licences_screen.dart';
 import 'network_menu.dart';
 import 'net_block.dart';
+import 'payment_gate.dart' show pendingEpicboxSends;
 import 'network_status.dart';
 import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
@@ -713,9 +714,41 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ];
   }
 
-  /// Transactions: how payments are made. The methods Send and Receive offer (Epicbox is
-  /// always on), the one Send starts on, and, with Advanced › Send options, the defaults a
-  /// send uses (which outputs it spends and whether its change is split).
+  /// The wallet's transactions as last listed (Home's, else the session's own list); empty
+  /// when nothing answers.
+  Future<List<TxEntry>> _walletTransactions() async {
+    final home = ref.read(homeProvider).value;
+    if (home != null) return home.transactions;
+    try {
+      return await ref.read(sessionProvider)?.transactions(refresh: false) ?? const [];
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// "Turn Epicbox off?" while [waiting] sends still wait for their replies over Epicbox.
+  Future<bool> _confirmEpicboxOff(int waiting) async {
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final l = context.l10n;
+        return AlertDialog(
+          title: Text(l.txEpicboxOffTitle),
+          content: Text(l.txEpicboxOffPending(waiting)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
+            FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l.txEpicboxOffAction)),
+          ],
+        );
+      },
+    );
+    return yes == true;
+  }
+
+  /// Transactions: how payments are made. The methods Send and Receive offer (Epicbox on by
+  /// default; off, nothing connects to a relay), the one Send starts on, and, with Advanced ›
+  /// Send options, the defaults a send uses (which outputs it spends and whether its change is
+  /// split).
   List<Widget> _transactions(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final payments = s.payments;
@@ -747,17 +780,24 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       PayMethod.file => l.methodFile,
     };
     Future<void> save(PaymentPrefs next) => _settings.setPayments(next);
+    // Off while a send still waits for its reply over Epicbox: one confirm first.
+    Future<void> setEpicbox(bool on) async {
+      if (!on) {
+        final waiting = pendingEpicboxSends(await _walletTransactions());
+        if (!mounted || (waiting > 0 && !await _confirmEpicboxOff(waiting))) return;
+      }
+      await save(payments.copyWith(epicbox: on));
+    }
     return [
       SettingsHeader(l.txMethodsHeader),
-      ListTile(
+      HintSwitchTile(
         key: const ValueKey('tx-epicbox'),
-        leading: const Icon(EpicGlyphs.epicbox),
-        title: TitleWithHint(
-          l.methodEpicbox,
-          hint: l.txEpicboxHint,
-          icon: EpicGlyphs.epicbox,
-        ),
-        subtitle: Text(l.txAlwaysOn),
+        icon: EpicGlyphs.epicbox,
+        title: l.methodEpicbox,
+        hint: l.txEpicboxHint,
+        subtitle: Text(l.txEpicboxLine),
+        value: payments.epicbox,
+        onChanged: setEpicbox,
       ),
       // Direct needs Tor; where the app has none (and the switch is off) there is nothing to
       // turn on.

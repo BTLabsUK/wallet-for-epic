@@ -22799,19 +22799,19 @@ abstract class AppLocalizations {
   /// Button at the end of the list while a public server is removed.
   ///
   /// In en, this message translates to:
-  /// **'Restore the public list'**
+  /// **'Restore removed servers'**
   String get slRestore;
 
-  /// Beside Restore the public list: how many public servers are removed.
+  /// Beside Restore removed servers: how many public servers are removed.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, one{{count} removed} other{{count} removed}}'**
   String slRemovedCount(int count);
 
-  /// Foot line after Restore the public list.
+  /// Foot line after Restore removed servers.
   ///
   /// In en, this message translates to:
-  /// **'Restored the public list.'**
+  /// **'Removed servers restored.'**
   String get slRestored;
 
   /// Warning card under the Epicbox field.
@@ -23036,16 +23036,10 @@ abstract class AppLocalizations {
   /// **'Payment methods'**
   String get txMethodsHeader;
 
-  /// Second line of the Epicbox row on Settings › Transactions: it has no switch.
-  ///
-  /// In en, this message translates to:
-  /// **'Always on'**
-  String get txAlwaysOn;
-
   /// Info sheet text of the Epicbox row on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.'**
+  /// **'Epicbox pays through a relay, so the other wallet does not have to be open. Off, the wallet connects to no relay: no Epicbox payments, invoices or notifications. QR Payment and files still work.'**
   String get txEpicboxHint;
 
   /// One line under the Link switch on Settings › Transactions.
@@ -23156,6 +23150,90 @@ abstract class AppLocalizations {
   /// **'Your node has no peers: the payment waits in its pool until it reconnects.'**
   String get netOfflineNoPeers;
 
+  /// Offline mode, under the transaction file and QR Payment actions, which still run: they ask the node in use (a public one too) to read the chain and post. A warning, never a block. Phone info sheet and desktop notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses the node to read the chain and post. For the most privacy, use a local node.'**
+  String get netOfflineNodeHint;
+
+  /// Phone: the short line beside the info icon that opens netOfflineNodeHint, under a file or QR Payment action while Offline. 1-3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses the node'**
+  String get netOfflineNodeLine;
+
+  /// Reason line under a disabled Epicbox action (Send, Receive, the listener, invoices) while the Epicbox switch on Settings › Transactions is off. Phone and desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox is off in Settings › Transactions.'**
+  String get netBlockEpicboxOff;
+
+  /// Second line of the Epicbox switch row on Settings › Transactions, in the other rows' style: what the method is, in one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay or get paid through a relay. The other wallet can be closed.'**
+  String get txEpicboxLine;
+
+  /// Title of the confirm shown when Epicbox is turned off while a payment still waits for its reply over Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Epicbox off?'**
+  String get txEpicboxOffTitle;
+
+  /// Body of the confirm: how many sends over Epicbox still wait for the recipient's reply; the replies come once Epicbox is on again.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{A payment is waiting for its reply over Epicbox. It arrives when Epicbox is on again.} other{{count} payments are waiting for their replies over Epicbox. They arrive when Epicbox is on again.}}'**
+  String txEpicboxOffPending(int count);
+
+  /// Button of the confirm that turns Epicbox off anyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off'**
+  String get txEpicboxOffAction;
+
+  /// One notice when turning Epicbox off also turns push notifications off (they stay off when Epicbox is turned on again).
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications off: they need Epicbox.'**
+  String get pushNoticeOffEpicbox;
+
+  /// State line of the disabled Notifications switch while Epicbox is off in Settings › Transactions. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Epicbox'**
+  String get settingsPushNeedsEpicbox;
+
+  /// Send, under the Epicbox-off reason, when the recipient is a saved contact: the contact can be paid only over Epicbox. {name} is the contact's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has only an Epicbox address.'**
+  String sendContactOnlyEpicbox(String name);
+
+  /// Receive while Epicbox is off: what happens to payments sent to the Epicbox address meanwhile.
+  ///
+  /// In en, this message translates to:
+  /// **'Senders\' payments wait at the relay until Epicbox is on again.'**
+  String get receiveEpicboxOffText;
+
+  /// Receive, empty state title when every method is off in Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No receiving method is on'**
+  String get receiveNoMethods;
+
+  /// Receive, empty state body under receiveNoMethods.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn one on in Settings › Transactions.'**
+  String get receiveNoMethodsBody;
+
+  /// Receive, empty state button that opens Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get receiveNoMethodsButton;
+
   /// Why a Link send was refused in the Offline network mode: the address is not on this computer or the local network.
   ///
   /// In en, this message translates to:
@@ -23192,16 +23270,10 @@ abstract class AppLocalizations {
   /// **'Payment methods'**
   String get deskSetTxMethods;
 
-  /// Tag in place of a switch on the Epicbox row of Settings › Transactions: Epicbox cannot be turned off here. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Always on'**
-  String get deskSetTxAlwaysOn;
-
   /// Hover card behind the info icon of the Epicbox row on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.'**
+  /// **'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. Files still work.'**
   String get deskSetTxEpicboxHint;
 
   /// Hover card behind the info icon of the Link row (switch) on Settings › Transactions.

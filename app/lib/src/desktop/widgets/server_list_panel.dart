@@ -7,7 +7,7 @@
 /// matches, and for a typed address that is not listed: it says plainly when the text is no
 /// address, else tests the server ([ServerListPanel.onTest]), adds it and offers the switch at
 /// the foot. Every row has a bin; the row in use refuses ("In use. Switch first."), others go
-/// with Undo. "Restore the public list" shows while a public server is removed. A picked Node
+/// with Undo. "Restore removed servers" shows while a public server is removed. A picked Node
 /// row switches at once and the foot says so; a picked Epicbox row asks first in a dialog, as
 /// the address changes. In Setup ([ServerListPanel.chooseOnly]) a pick simply chooses.
 ///

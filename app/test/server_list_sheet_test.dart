@@ -1,6 +1,6 @@
 // The phone's Node and Epicbox sheets: one list per kind, a field at the top that starts empty,
 // filters and adds, a Node row that switches at once, an Epicbox row that asks first, a bin on
-// every row with Undo, "Restore the public list", the directory's servers
+// every row with Undo, "Restore removed servers", the directory's servers
 // joining the list, the operators' icons, and the sheet on small phones.
 import 'dart:io';
 import 'dart:typed_data';
@@ -695,7 +695,7 @@ void main() {
       await _timers(tester);
     });
 
-    testWidgets('Restore the public list shows only while a public server is removed, and puts '
+    testWidgets('Restore removed servers shows only while a public server is removed, and puts '
         'them back', (tester) async {
       final env = _Env();
       await _pump(tester, ServerKind.node, env);
@@ -704,11 +704,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(serverListRemoveKey(_epiccash)));
       await tester.pumpAndSettle();
-      expect(find.text('Restore the public list · 2 removed'), findsOneWidget);
+      expect(find.text('Restore removed servers · 2 removed'), findsOneWidget);
 
       await tester.tap(find.byKey(serverListRestoreKey));
       await tester.pumpAndSettle();
-      expect(_foot('Restored the public list.'), findsOneWidget);
+      expect(_foot('Removed servers restored.'), findsOneWidget);
       expect(_row(_epicnet), findsOneWidget);
       expect(_row(_epiccash), findsOneWidget);
       expect(find.byKey(serverListRestoreKey), findsNothing);
@@ -763,7 +763,7 @@ void main() {
       await _pump(tester, ServerKind.node, env);
       expect(_row(added), findsNothing);
       expect(_saved(env.store, ServerKind.node).entries, isNot(contains(added)));
-      expect(find.text('Restore the public list · 1 removed'), findsOneWidget);
+      expect(find.text('Restore removed servers · 1 removed'), findsOneWidget);
 
       // Restore brings it back.
       await tester.tap(find.byKey(serverListRestoreKey));
@@ -795,7 +795,7 @@ void main() {
       await _timers(tester);
       await _pump(tester, ServerKind.node, env);
       expect(_row(_epicnet), findsNothing);
-      expect(find.text('Restore the public list · 1 removed'), findsOneWidget);
+      expect(find.text('Restore removed servers · 1 removed'), findsOneWidget);
       await _timers(tester);
     });
 

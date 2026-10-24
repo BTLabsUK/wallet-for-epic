@@ -362,7 +362,7 @@ void main() {
       expect(h.session.torStarts, isEmpty);
     });
 
-    testWidgets('File: Open file and Paste wait, with the reason', (tester) async {
+    testWidgets('File: Open file and Paste run, with the note that the node is used', (tester) async {
       final h = _Harness(advanced: offline, payments: _directOn);
       await h.pump(tester);
       h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.file);
@@ -372,11 +372,30 @@ void main() {
           tester
               .widget<OutlinedButton>(find.widgetWithText(OutlinedButton, label))
               .onPressed,
-          isNull,
+          isNotNull,
           reason: label,
         );
       }
-      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      expect(find.text('Offline mode is on in Advanced.'), findsNothing);
+      expect(find.text('Uses the node'), findsWidgets);
+    });
+
+    testWidgets('Epicbox off: no Epicbox tab, the first method that is on shows', (tester) async {
+      final h = _Harness(payments: const PaymentPrefs(epicbox: false, direct: true));
+      await h.pump(tester);
+      expect(find.byKey(receiveAddressKey), findsNothing);
+      expect(find.byKey(receiveTurnOnTorKey), findsOneWidget, reason: 'the Link tab is first');
+      final tabs = tester.widget<SegmentedButton<ReceiveTab>>(find.byKey(receiveTabsKey));
+      expect(tabs.segments.map((s) => s.value), isNot(contains(ReceiveTab.epicbox)));
+    });
+
+    testWidgets('every method off: the empty state points to Settings', (tester) async {
+      final h = _Harness(payments: const PaymentPrefs(epicbox: false, file: false, qr: false));
+      await h.pump(tester);
+      expect(find.byKey(receiveNoMethodsKey), findsOneWidget);
+      expect(find.textContaining('No receiving method is on'), findsOneWidget);
+      expect(find.byKey(receiveTabsKey), findsNothing);
+      expect(find.byKey(receiveAddressKey), findsNothing);
     });
 
     testWidgets('Standard: no offline line', (tester) async {

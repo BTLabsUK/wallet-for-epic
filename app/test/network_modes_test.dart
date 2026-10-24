@@ -105,12 +105,16 @@ void main() {
       }
     });
 
-    test('Offline blocks always; the file method too (LEPIC asks the node)', () {
+    test('Offline blocks always; a file or QR Payment runs on the node in use, Tor only waits for tor', () {
       for (final t in TorState.values) {
         expect(netBlockFor(NetworkMode.offline, t), NetBlock.offline);
       }
-      expect(fileBlockFor(NetworkMode.offline), NetBlock.offline);
-      expect(fileBlockFor(NetworkMode.torOnly), NetBlock.none);
+      expect(paymentBlockFor(NetworkMode.offline, TorState.off), NetBlock.none);
+      expect(paymentBlockFor(NetworkMode.torOnly, TorState.starting), NetBlock.waitingForTor);
+      expect(paymentBlockFor(NetworkMode.torOnly, TorState.on), NetBlock.none);
+      expect(offlineUsesNode(NetworkMode.offline, localNode: false), isTrue);
+      expect(offlineUsesNode(NetworkMode.offline, localNode: true), isFalse);
+      expect(offlineUsesNode(NetworkMode.standard, localNode: false), isFalse);
     });
 
     test('the Tor switch: locked in Tor only, disabled in Offline', () {
@@ -187,6 +191,34 @@ void main() {
       expect(() => NetGate.check('x'), returnsNormally);
       NetGate.set(NetworkMode.offline);
       expect(() => NetGate.check('x'), throwsA(isA<NetBlocked>()));
+    });
+
+    test('the Epicbox switch is the same gate: off holds Epicbox actions and push, nothing else', () {
+      addTearDown(() => NetGate.setEpicbox(true));
+      NetGate.set(NetworkMode.standard);
+      NetGate.setEpicbox(false);
+      expect(NetGate.epicboxOff, isTrue);
+      expect(() => NetGate.check('node tip'), returnsNormally);
+      expect(
+        () => NetGate.checkEpicbox('send over Epicbox'),
+        throwsA(isA<NetBlocked>().having((e) => e.epicboxOff, 'epicboxOff', isTrue).having((e) => e.mode, 'mode', NetworkMode.standard)),
+      );
+      for (final t in TorState.values) {
+        expect(netBlockFor(NetworkMode.standard, t, epicbox: false), NetBlock.epicboxOff);
+        expect(netBlockFor(NetworkMode.standard, t), NetBlock.none);
+        // The mode's answer comes first.
+        expect(netBlockFor(NetworkMode.offline, t, epicbox: false), NetBlock.offline);
+      }
+      expect(netBlockFor(NetworkMode.torOnly, TorState.on, epicbox: false), NetBlock.epicboxOff);
+      expect(netBlockFor(NetworkMode.torOnly, TorState.starting, epicbox: false), NetBlock.waitingForTor);
+      expect(pushAllowed(NetworkMode.standard, epicbox: false), isFalse);
+      expect(pushAllowed(NetworkMode.standard), isTrue);
+      NetGate.setEpicbox(true);
+      expect(NetGate.epicboxOff, isFalse);
+      expect(() => NetGate.checkEpicbox('send over Epicbox'), returnsNormally);
+      // Offline refuses an Epicbox action as before, without the switch's flag.
+      NetGate.set(NetworkMode.offline);
+      expect(() => NetGate.checkEpicbox('listener'), throwsA(isA<NetBlocked>().having((e) => e.epicboxOff, 'epicboxOff', isFalse)));
     });
   });
 

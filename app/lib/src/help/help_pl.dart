@@ -92,11 +92,11 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'start',
       'Metody płatności i zasady wysyłki',
-      'Epicbox jest zawsze włączony. Płatność linkiem i Plik to przełączniki. Wysyłanie zaczyna od wybranej metody.',
+      'Każda metoda to przełącznik; Epicbox jest domyślnie włączony. Wysyłanie zaczyna od wybranej metody.',
       [
         const HelpBlock.p('Strona Transakcje w [[Ustawienia › Transakcje|Settings › Transactions]] zawiera trzy rzeczy.'),
         HelpBlock.ul([
-          '**Metody płatności.** Epicbox jest zawsze włączony. **Płatność linkiem** (na adresy .onion i internetowe${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i **Plik** to przełączniki: wyłączona metoda nie pojawia się w Wyślij i Odbierz.',
+          '**Metody płatności.** Po jednym przełączniku. **Epicbox** jest domyślnie włączony; wyłączony, portfel nie łączy się z żadnym przekaźnikiem, więc nie ma płatności Epicbox, faktur ani powiadomień, a Odbierz nie pokazuje adresu Epicbox (płatności wysłane na niego czekają na przekaźniku). **Płatność linkiem** (na adresy .onion i internetowe${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i **Plik** nie potrzebują przekaźnika. Wyłączona metoda nie pojawia się w Wyślij i Odbierz.',
           '**Wysyłanie zaczyna od.** Metoda, z którą otwiera się ekran Wyślij. Na ekranie Wyślij nadal możesz wybrać inną.',
           '**Zasady wysyłki.** Które wyjścia wydaje wysyłka, Najmniejsze czy Wszystkie, i czy jej reszta jest dzielona. Widać je tylko wtedy, gdy w Zaawansowanych włączone są **Opcje wysyłki**.',
         ]),
@@ -306,7 +306,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         HelpBlock.ul([
           '**Standardowy**: łączy się bezpośrednio. Tor to przełącznik w $torPlace.',
           '**Tylko Tor**: Tor jest zawsze włączony, a jego przełącznik zablokowany. Nic nie idzie przez otwarty internet. Gdy Tor się uruchamia lub zawiódł, portfel mówi **Czeka na Tor**, a wszystko, co wymaga sieci, czeka; powód podaje wyszarzona akcja. ${phone ? 'Powiadomienia są wyłączone, bo zapisanie się na nie ujawniłoby ten telefon.' : 'Odbieranie przez HTTP jest wyłączone, bo zwykły adres ujawniłby ten komputer.'}',
-          '**Offline**: nic poza ${phone ? 'tym telefonem' : 'tym komputerem'} i siecią lokalną. Saldo i historia zostają takie, jakie widziano ostatnio. Z węzłem ${phone ? 'w sieci lokalnej' : 'na tym komputerze lub w sieci lokalnej'} portfel nadal może tworzyć, podpisywać, finalizować i wysyłać płatności oraz płacić bezpośrednio na adresy lokalne.${phone ? '' : ' Odbieranie w sieci lokalnej wymaga odbierania przez HTTP ustawionego na **Z internetu**.'} Bez niego wysyłanie i odbieranie czekają.',
+          '**Offline**: bez Epicbox, bez płatności linkiem poza adresami lokalnymi, ${phone ? 'bez powiadomień' : 'bez Tora'}, bez sprawdzania stanu. Saldo i historia zostają takie, jakie widziano ostatnio. ${phone ? '**Płatność QR** i **pliki transakcji**' : '**Pliki transakcji**'} nadal działają: używają używanego węzła, by czytać łańcuch i go wysyłać, także publicznego, a ekran o tym mówi. Dla największej prywatności użyj węzła ${phone ? 'w sieci lokalnej' : 'na tym komputerze lub w sieci lokalnej'}: wtedy saldo się odświeża${phone ? '' : ', Płatność linkiem odbiera przez sieć lokalną przy odbieraniu przez HTTP ustawionym na **Z internetu**,'} i Sprawdź saldo też działa.',
         ]),
         const HelpBlock.p('W trybie Offline podaj węzeł jego adresem IP, na przykład **10.100.10.20:3413**. Nazwy nie są wyszukiwane.'),
         if (!phone) const HelpBlock.p('Peery wbudowanego węzła to ustawienie samego węzła, nie trybu.'),

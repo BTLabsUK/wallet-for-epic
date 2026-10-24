@@ -31,13 +31,18 @@ bool deskLocalNode(DeskState st) => isLocalAddressUrl(st.status?.node.url);
 
 /// Why network actions can't run now ([NetBlock.none]: they can). [nodeOnly]: the action
 /// reaches only the node (Recheck balance, the HTTP listener) or local addresses (a Direct
-/// send), which Offline allows with a local node.
-NetBlock deskNetBlock(DeskState st, {bool nodeOnly = false}) =>
-    netBlockFor(deskNetMode(st), deskNetTor(st), localNode: nodeOnly && deskLocalNode(st));
+/// send), which Offline allows with a local node. [epicbox]: the action goes over Epicbox,
+/// which the Epicbox switch (Settings › Transactions) holds when off.
+NetBlock deskNetBlock(DeskState st, {bool nodeOnly = false, bool epicbox = false}) => netBlockFor(
+  deskNetMode(st),
+  deskNetTor(st),
+  localNode: nodeOnly && deskLocalNode(st),
+  epicbox: !epicbox || st.settings.payments.epicbox,
+);
 
-/// Why the transaction file method can't run now: Offline without a local node only (Tor only
-/// waits for Tor too, but a file needs no connection of its own to be made, so it goes on).
-NetBlock deskFileBlock(DeskState st) => fileBlockFor(deskNetMode(st), localNode: deskLocalNode(st));
+/// The transaction file method uses the node in use while Offline, and the node is not local:
+/// the screen says so (`network_gate.dart`'s [offlineUsesNode]); it is never held.
+bool deskOfflineUsesNode(DeskState st) => offlineUsesNode(deskNetMode(st), localNode: deskLocalNode(st));
 
 /// [deskNetBlock] for a widget: rebuilds only when the answer changes.
 final deskNetBlockProvider = Provider<NetBlock>((ref) => deskNetBlock(ref.watch(deskProvider)));
@@ -52,12 +57,13 @@ final deskOfflinePeersProvider = FutureProvider.autoDispose<int?>((ref) async {
 /// [deskNetBlock] with `nodeOnly` for a widget.
 final deskNodeBlockProvider = Provider<NetBlock>((ref) => deskNetBlock(ref.watch(deskProvider), nodeOnly: true));
 
-/// [deskFileBlock] for a widget.
-final deskFileBlockProvider = Provider<NetBlock>((ref) => deskFileBlock(ref.watch(deskProvider)));
+/// [deskOfflineUsesNode] for a widget.
+final deskOfflineUsesNodeProvider = Provider<bool>((ref) => deskOfflineUsesNode(ref.watch(deskProvider)));
 
 /// The reason for a disabled network action, one short line; null when nothing blocks.
 String? netBlockReason(AppLocalizations l, NetBlock b) => switch (b) {
   NetBlock.none => null,
   NetBlock.offline => l.deskNetOfflineReason,
   NetBlock.waitingForTor => l.deskNetWaitingTorReason,
+  NetBlock.epicboxOff => l.netBlockEpicboxOff,
 };

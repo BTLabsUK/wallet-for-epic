@@ -34,6 +34,7 @@ String? pushStateLine(
   AppSettings settings,
   TorState tor,
 ) {
+  if (!settings.payments.epicbox) return l.settingsPushNeedsEpicbox;
   if (torWay(TorRoute.push, tor) == TorWay.off) {
     return settings.pushNotifications ? l.settingsPushPaused : null;
   }
@@ -139,10 +140,12 @@ class PushNotificationsTile extends ConsumerWidget {
           if (state != null) Text(state),
         ],
       ),
-      value: s.pushNotifications,
+      value: s.pushNotifications && s.payments.epicbox,
+      // Nothing to turn on without Epicbox (they ride on it), or with Tor on.
       onChanged:
-          torWay(TorRoute.push, torState) == TorWay.off &&
-              !s.pushNotifications
+          !s.payments.epicbox ||
+              (torWay(TorRoute.push, torState) == TorWay.off &&
+              !s.pushNotifications)
           ? null
           : (on) => setPushNotifications(context, ref, on),
     );
