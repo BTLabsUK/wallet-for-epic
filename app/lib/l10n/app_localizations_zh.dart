@@ -291,20 +291,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errorUnexpected => '发生意外错误，请重试。';
 
   @override
-  String get errorHistoryNotOurs => '此文件不是本应用导出的历史备份。';
+  String get errorHistoryNotOurs => '此文件不是本应用导出的交易记录备份。';
 
   @override
-  String get errorHistoryNewer => '此历史备份由更新版本的应用创建。';
+  String get errorHistoryNewer => '此交易记录备份由更新版本的应用创建。';
 
   @override
-  String get errorHistoryDamaged => '此历史备份已损坏。';
+  String get errorHistoryDamaged => '此交易记录备份已损坏。';
 
   @override
-  String get errorHistoryOtherWallet => '此历史备份属于另一个钱包。';
+  String get errorHistoryOtherWallet => '此交易记录备份属于另一个钱包。';
 
   @override
   String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return '此历史备份来自 $fileNetwork，但当前钱包位于 $walletNetwork。';
+    return '此交易记录备份来自 $fileNetwork，但当前钱包位于 $walletNetwork。';
   }
 
   @override
@@ -411,24 +411,24 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '已等待 $days 天。epicbox 会在 7 天后删除付款，因此这笔付款已无法完成。请取消它以解锁资金，然后重新发送。',
+      other: '已等待 $days 天。Epicbox 会在 7 天后删除付款，因此这笔付款已无法完成。请取消它以解锁资金，然后重新发送。',
     );
     return '$_temp0';
   }
 
   @override
   String get txDetailsWaitingEpicbox =>
-      '已发送到接收方的 epicbox。对方钱包上线后即可完成。在此之前，或在你取消之前，你的资金将保持锁定。';
+      '已发送到接收方的 Epicbox。对方钱包上线后即可完成。在此之前，或在你取消之前，你的资金将保持锁定。';
 
   @override
   String get txDetailsWaitingRecipient =>
       '正在等待接收方回复其交易文件。在此之前，或在你取消之前，你的资金将保持锁定。';
 
   @override
-  String get txDetailsWaitingSender => '你已接受这笔付款。发送方完成并将其发布到网络后，付款即完成。';
+  String get txDetailsWaitingSender => '你已接受这笔付款。发送方完成并将其广播到网络后，付款即完成。';
 
   @override
-  String get txDetailsPublished => '已发布到网络。正在等待第一个确认。';
+  String get txDetailsPublished => '已广播到网络。正在等待第一个确认。';
 
   @override
   String get txDetailsWaitingConfirmation => '正在等待网络确认。';
@@ -529,7 +529,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsFromBackup =>
-      '这笔付款来自历史备份，备份时尚未完成。此钱包自身没有它的记录，因此无法判断它是否已完成。没有锁定任何资金。';
+      '这笔付款来自交易记录备份，备份时尚未完成。此钱包自身没有它的记录，因此无法判断它是否已完成。没有锁定任何资金。';
 
   @override
   String txDetailsCancelsAtBlock(String height) {
@@ -691,7 +691,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsNoteDialogTitle => '备注';
 
   @override
-  String get txDetailsNoteHelper => '仅保存在此设备和你的历史备份中。';
+  String get txDetailsNoteHelper => '仅保存在此设备和你的交易记录备份中。';
 
   @override
   String get txDetailsNoteSaved => '备注已保存';
@@ -764,10 +764,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsSourceRestored =>
-      '通过扫描区块链找到。发送方和手续费等详情不会保存在链上；导入历史备份即可恢复。';
+      '通过扫描区块链找到。发送方和手续费等详情不会保存在链上；导入交易记录备份即可恢复。';
 
   @override
-  String get txDetailsSourceImported => '从历史备份导入。此钱包自身没有它的记录，因此其状态可能已过时。';
+  String get txDetailsSourceImported => '从交易记录备份导入。此钱包自身没有它的记录，因此其状态可能已过时。';
 
   @override
   String get historyTitle => '交易记录';
@@ -829,7 +829,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get historyBackupSaveDialogTitle => '保存交易记录';
 
   @override
-  String get historyBackupOpenDialogTitle => '打开历史备份';
+  String get historyBackupOpenDialogTitle => '打开交易记录备份';
 
   @override
   String get historyBackupFileTooLarge => '该文件过大，不可能是备份文件。';
@@ -852,27 +852,27 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get historyBackupExportTitle => '导出历史备份';
+  String get historyBackupExportTitle => '导出交易记录备份';
 
   @override
-  String get historyBackupExportNote => '历史备份包含截至目前的付款。有新付款后请重新导出。';
+  String get historyBackupExportNote => '交易记录备份包含截至目前的付款。有新付款后请重新导出。';
 
   @override
   String get historyBackupCsvTitle => '导出 CSV';
 
   @override
   String get historyBackupCsvWarning =>
-      'CSV 文件未加密。任何拿到它的人都能看到你的金额、日期、地址和备注。它无法再导入；如需可导入的备份，请使用“导出历史备份”。';
+      'CSV 文件未加密。任何拿到它的人都能看到你的金额、日期、地址和备注。它无法再导入；如需可导入的备份，请使用“导出交易记录备份”。';
 
   @override
   String get historyBackupCsvConfirm => '导出 CSV';
 
   @override
-  String get historyBackupImportedTitle => '已导入历史备份';
+  String get historyBackupImportedTitle => '已导入交易记录备份';
 
   @override
   String historyBackupImportFailed(String reason) {
-    return '未能导入历史备份。$reason';
+    return '未能导入交易记录备份。$reason';
   }
 
   @override
@@ -1227,7 +1227,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeScanTooltip => '扫描二维码发送';
 
   @override
-  String get homeRecentActivity => '最近交易';
+  String get homeRecentActivity => '最近活动';
 
   @override
   String get homeSeeAll => '查看全部';
@@ -1239,7 +1239,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoticeView => '查看';
 
   @override
-  String get homePushNotice => '你的 epicbox 中有一笔待接收的付款。应用连接后即可到账。';
+  String get homePushNotice => '你的 Epicbox 中有一笔待接收的付款。应用连接后即可到账。';
 
   @override
   String get homeNoticeReceived => '有一笔付款正在途中。待发送方完成操作后即可到账。';
@@ -1279,7 +1279,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoticeDelayed => '无法连接节点。连接恢复后，付款将自动完成。';
 
   @override
-  String get homeNoticeRelayProblem => 'epicbox 服务器报告了问题，正在重试。';
+  String get homeNoticeRelayProblem => 'Epicbox 服务器报告了问题，正在重试。';
 
   @override
   String get homeNoticePaymentFailed => '有一笔付款未能完成。';
@@ -1298,7 +1298,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '有 $count 笔付款不在历史备份中。用助记词恢复钱包只能找回余额。',
+      other: '有 $count 笔付款不在交易记录备份中。用助记词恢复钱包只能找回余额。',
     );
     return '$_temp0';
   }
@@ -1308,7 +1308,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '自上次历史备份以来，有 $count 笔付款为新增或有变动。用助记词恢复钱包只能找回余额。',
+      other: '自上次交易记录备份以来，有 $count 笔付款为新增或有变动。用助记词恢复钱包只能找回余额。',
     );
     return '$_temp0';
   }
@@ -1317,7 +1317,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeHistoryReminderNotNow => '以后再说';
 
   @override
-  String get homeHistoryExportButton => '导出历史备份';
+  String get homeHistoryExportButton => '导出交易记录备份';
 
   @override
   String get homeBalanceSpendable => '可用余额';
@@ -1414,13 +1414,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statusNodeOffline => '节点离线';
 
   @override
-  String get statusEpicboxOnline => 'epicbox 在线';
+  String get statusEpicboxOnline => 'Epicbox 在线';
 
   @override
-  String get statusEpicboxConnecting => '正在连接 epicbox';
+  String get statusEpicboxConnecting => '正在连接 Epicbox';
 
   @override
-  String get statusEpicboxOffline => 'epicbox 离线';
+  String get statusEpicboxOffline => 'Epicbox 离线';
 
   @override
   String statusNodeTestNetwork(String network) {
@@ -1443,10 +1443,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get homeEpicboxOffline => 'epicbox 已离线，正在重新连接。';
+  String get homeEpicboxOffline => 'Epicbox 已离线，正在重新连接。';
 
   @override
-  String get homeEpicboxConnecting => '正在连接 epicbox…';
+  String get homeEpicboxConnecting => '正在连接 Epicbox…';
 
   @override
   String homeSyncedAtBlock(String height) {
@@ -1507,7 +1507,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoicesChecking => '正在检查账单';
 
   @override
-  String get invoicesEmpty => '没有待处理的账单。您信任的服务向您发送账单后，账单会显示在这里。未经您批准，不会支付任何款项。';
+  String get invoicesEmpty => '没有待处理的账单。你信任的服务向你发送账单后，账单会显示在这里。未经你批准，不会支付任何款项。';
 
   @override
   String get invoicesUnnamedService => '未命名的服务';
@@ -1536,14 +1536,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceReviewAsks(String service) {
-    return '$service 请您付款';
+    return '$service 请你付款';
   }
 
   @override
   String get invoiceReviewMessageLabel => '服务的留言';
 
   @override
-  String get invoiceReviewNote => '钱包会加上网络手续费。在您批准之前不会支付任何款项。';
+  String get invoiceReviewNote => '钱包会加上网络手续费。在你批准之前不会支付任何款项。';
 
   @override
   String get invoiceApprove => '批准并付款';
@@ -1559,7 +1559,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceDeclineBody(String service) {
-    return '$service 会收到您拒绝的通知。不会支付任何款项。';
+    return '$service 会收到你拒绝的通知。不会支付任何款项。';
   }
 
   @override
@@ -1575,7 +1575,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceReplyFailedTitle(String service) {
-    return '您的付款尚未送达 $service';
+    return '你的付款尚未送达 $service';
   }
 
   @override
@@ -1595,38 +1595,38 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceDetailsReplied(String service) {
-    return '正在等待 $service 发布这笔付款。';
+    return '正在等待 $service 广播这笔付款。';
   }
 
   @override
   String invoiceDetailsPosted(String service) {
-    return '$service 报告已发布这笔付款。网络确认后即完成。';
+    return '$service 报告已广播这笔付款。网络确认后即完成。';
   }
 
   @override
   String invoiceDetailsReplyFailed(String service) {
-    return '$service 尚未收到您的付款。点“重试”会再次发送，无需再次批准。';
+    return '$service 尚未收到你的付款。点“重试”会再次发送，无需再次批准。';
   }
 
   @override
   String invoiceDetailsWithdrawn(String service) {
-    return '您付款后，$service 撤回了此账单。如果这笔付款未能确认，请取消它以解锁资金。';
+    return '你付款后，$service 撤回了此账单。如果这笔付款未能确认，请取消它以解锁资金。';
   }
 
   @override
-  String get invoiceNoticeReceived => '有一张账单等待您批准。';
+  String get invoiceNoticeReceived => '有一张账单等待你批准。';
 
   @override
-  String get invoiceNoticePosted => '某个服务报告已发布您的付款。';
+  String get invoiceNoticePosted => '某个服务报告已广播你的付款。';
 
   @override
-  String get invoiceNoticeWithdrawnPaid => '某个服务撤回了一张您已支付的账单。';
+  String get invoiceNoticeWithdrawnPaid => '某个服务撤回了一张你已支付的账单。';
 
   @override
-  String get invoiceNoticeWithdrawn => '某个服务在您答复前撤回了一张账单。';
+  String get invoiceNoticeWithdrawn => '某个服务在你答复前撤回了一张账单。';
 
   @override
-  String get invoiceNoticeExpired => '一张账单在您答复前已过期。';
+  String get invoiceNoticeExpired => '一张账单在你答复前已过期。';
 
   @override
   String get receiveRequestTitle => '请求付款';
@@ -1653,13 +1653,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get requestPayerMissing => '粘贴或扫描对方的账单地址。';
 
   @override
-  String get requestPayerOwn => '这是你自己的地址之一。请输入付款人给你的账单地址。';
+  String get requestPayerOwn => '这是你自己的地址之一。请输入付款方给你的账单地址。';
 
   @override
-  String get requestMessageLabel => '给付款人的留言（可选）';
+  String get requestMessageLabel => '给付款方的留言（可选）';
 
   @override
-  String get requestMessageHelper => '付款人会随请求看到这条留言。';
+  String get requestMessageHelper => '付款方会随请求看到这条留言。';
 
   @override
   String get requestButton => '请求';
@@ -1705,19 +1705,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get issuedWithdrawKeep => '保留';
 
   @override
-  String get issuedDetailsSection => '付款请求';
+  String get issuedDetailsSection => '收款请求';
 
   @override
   String get issuedDetailsPayer => '请求对象';
 
   @override
-  String get issuedDetailsWaiting => '正在等待付款人。付款到达后，你的钱包会完成它。';
+  String get issuedDetailsWaiting => '正在等待付款方。付款到达后，你的钱包会完成它。';
 
   @override
   String get issuedDetailsPaid => '已支付。你的钱包已完成这笔付款；网络确认后即完成。';
 
   @override
-  String get issuedDetailsDeclined => '付款人拒绝了这个请求，因此已撤回。没有支付任何款项。';
+  String get issuedDetailsDeclined => '付款方拒绝了这个请求，因此已撤回。没有支付任何款项。';
 
   @override
   String get issuedDetailsWithdrawn => '你撤回了这个请求。没有支付任何款项。';
@@ -1747,14 +1747,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      '付款人的钱包无法支付请求，已将这个请求退回，因此已撤回。没有支付任何款项。请让对方改为直接向你的地址付款，或使用付款文件。';
+      '付款方的钱包无法支付请求，已将这个请求退回，因此已撤回。没有支付任何款项。请让对方改为直接向你的地址付款，或使用付款文件。';
 
   @override
   String get requestPayerNoInvoices =>
       '这个钱包之前退回过请求：它无法支付请求。请让对方改为直接向你的地址付款，或使用付款文件。';
 
   @override
-  String get txStatusWaitingPayer => '等待付款人';
+  String get txStatusWaitingPayer => '等待付款方';
 
   @override
   String get txStepRequested => '已请求';
@@ -1763,7 +1763,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txStepPaid => '已支付';
 
   @override
-  String get txDetailsWaitingPayer => '你请求了这笔付款。目前还没有到账：付款人支付请求后款项才会到达。';
+  String get txDetailsWaitingPayer => '你请求了这笔付款。目前还没有到账：付款方支付请求后款项才会到达。';
 
   @override
   String get txDetailsRequestEnded => '这个请求未付款即已结束。没有任何款项到账。';
@@ -1785,7 +1785,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get receiveEpicboxConnected => 'epicbox 已连接';
+  String get receiveEpicboxConnected => 'Epicbox 已连接';
 
   @override
   String get receiveQrLabel => '你的地址二维码';
@@ -1794,7 +1794,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveAddressLabel => 'Epicbox 地址';
 
   @override
-  String get receiveEpicboxOfflineBody => '发给你的付款现在会在 epicbox 等待，钱包重新连接后到账。';
+  String get receiveEpicboxOfflineBody => '发给你的付款现在会在 Epicbox 等待，钱包重新连接后到账。';
 
   @override
   String get receiveShareCardHeadline => '用 Epic Cash 付款给我';
@@ -1951,13 +1951,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get setupConnectedIconLabel => '已连接';
 
   @override
-  String get setupRelayHeading => 'epicbox 服务器';
+  String get setupRelayHeading => 'Epicbox 服务器';
 
   @override
   String get setupRelayHint => '你的地址包含此服务器。';
 
   @override
-  String get setupCustomRelayLabel => '其他 epicbox 服务器（主机名或 host:port）';
+  String get setupCustomRelayLabel => '其他 Epicbox 服务器（主机名或 host:port）';
 
   @override
   String get setupCustomRelayUse => '使用此服务器';
@@ -1967,7 +1967,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get setupRelayChangeWarning =>
-      '更换 epicbox 服务器会改变你的地址。请把新地址告诉发送方。发送到旧地址的付款会留在旧服务器上，直到你切换回去。';
+      '更换 Epicbox 服务器会改变你的地址。请把新地址告诉发送方。发送到旧地址的付款会留在旧服务器上，直到你切换回去。';
 
   @override
   String get setupWalletPerNetwork => '每个网络都有各自的钱包。尚无钱包的网络会创建一个新钱包。';
@@ -2071,10 +2071,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreImportExplanation =>
-      '区块链上保存着你的余额，但不包含付款对象、手续费和备注。如果你曾从这个钱包导出历史备份，现在导入即可找回这些信息。它就是你分享或保存到旧手机以外的 .wfeh 文件。';
+      '区块链上保存着你的余额，但不包含付款对象、手续费和备注。如果你曾从这个钱包导出交易记录备份，现在导入即可找回这些信息。它就是你分享或保存到旧手机以外的 .wfeh 文件。';
 
   @override
-  String get restoreImportButton => '导入历史备份';
+  String get restoreImportButton => '导入交易记录备份';
 
   @override
   String get restoreImportNotNow => '以后再说';
@@ -2260,7 +2260,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get unlockStranded =>
-      '无法正常读取此钱包。没有删除任何内容。请重启设备后重试。如果问题仍然存在，可以通过“忘记 PIN 码？”移除钱包，再用恢复短语恢复。';
+      '无法正常读取此钱包。没有删除任何内容。请重启设备后重试。如果问题仍然存在，可以通过“忘记 PIN 码？”移除钱包，再用助记词恢复。';
 
   @override
   String get sendAmountNegative => '金额不能为负数。';
@@ -2286,7 +2286,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendAmountZero => '请输入大于零的金额。';
 
   @override
-  String get sendUrlUnsupported => '不支持向钱包 URL 付款。请向接收方索取其 epicbox 地址。';
+  String get sendUrlUnsupported => '不支持向钱包 URL 付款。请向接收方索取其 Epicbox 地址。';
 
   @override
   String get scanQrTooltip => '扫描二维码';
@@ -2386,7 +2386,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slateWrongPayment => '此回复属于另一笔付款。请打开接收方针对这笔付款返回的文件。';
 
   @override
-  String get slateInvoiceUnsupported => '暂不支持收款请求（发票）。';
+  String get slateInvoiceUnsupported => '暂不支持账单。';
 
   @override
   String get slateNotTransactionFile => '该文件不是交易文件。';
@@ -2429,7 +2429,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String slateRepeatedBody(String amount) {
-    return '您之前已接受这笔付款，因此这是相同的回复，而不是第二笔付款。发送方完成付款并上链后，这笔 $amount 即会到账。';
+    return '你之前已接受这笔付款，因此这是相同的回复，而不是第二笔付款。发送方完成付款并上链后，这笔 $amount 即会到账。';
   }
 
   @override
@@ -2661,13 +2661,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionHistory => '交易记录';
 
   @override
-  String get settingsExportHistory => '导出历史备份';
+  String get settingsExportHistory => '导出交易记录备份';
 
   @override
   String get settingsExportCsv => '导出 CSV';
 
   @override
-  String get settingsImportHistory => '导入历史备份';
+  String get settingsImportHistory => '导入交易记录备份';
 
   @override
   String get settingsSectionWallet => '钱包';
@@ -2682,20 +2682,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsInvoices => '账单地址和受信任的服务';
 
   @override
-  String get settingsInvoicesSubtitle => '允许您信任的服务向您发送账单。每张账单都需要您批准。';
+  String get settingsInvoicesSubtitle => '允许你信任的服务向你发送账单。每张账单都需要你批准。';
 
   @override
   String get invoiceSettingsTitle => '账单';
 
   @override
-  String get invoiceSettingsAddressTitle => '您的账单地址';
+  String get invoiceSettingsAddressTitle => '你的账单地址';
 
   @override
   String get invoiceSettingsAddressBody =>
-      '将此地址提供给您信任的服务，以便它向您发送账单。您的收款地址保持不变。';
+      '将此地址提供给你信任的服务，以便它向你发送账单。你的收款地址保持不变。';
 
   @override
-  String get invoiceSettingsQrLabel => '您的账单地址二维码';
+  String get invoiceSettingsQrLabel => '你的账单地址二维码';
 
   @override
   String get invoiceSettingsAddressCopied => '已复制账单地址。';
@@ -2704,7 +2704,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoiceSettingsServicesTitle => '受信任的服务';
 
   @override
-  String get invoiceSettingsNoServices => '还没有受信任的服务。其他人的账单永远不会到达您这里。';
+  String get invoiceSettingsNoServices => '还没有受信任的服务。其他人的账单永远不会到达你这里。';
 
   @override
   String get invoiceSettingsAddService => '添加服务';
@@ -2720,7 +2720,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get invoiceSettingsRemoveBody => '此服务将无法再向您发送账单。已完成的付款不受影响。';
+  String get invoiceSettingsRemoveBody => '此服务将无法再向你发送账单。已完成的付款不受影响。';
 
   @override
   String get invoiceSettingsKeep => '保留';
@@ -2730,7 +2730,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceSettingsRemoved(String name) {
-    return '$name 无法再向您发送账单。';
+    return '$name 无法再向你发送账单。';
   }
 
   @override
@@ -2743,13 +2743,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoiceSettingsRotateTitle => '获取新的账单地址？';
 
   @override
-  String get invoiceSettingsRotateBody => '您当前的账单地址将永久停止使用。每个向您发送账单的服务都需要新地址。';
+  String get invoiceSettingsRotateBody => '你当前的账单地址将永久停止使用。每个向你发送账单的服务都需要新地址。';
 
   @override
   String get invoiceSettingsRotateConfirm => '获取新地址';
 
   @override
-  String get invoiceSettingsRotated => '新的账单地址已就绪。请把它提供给您的服务。';
+  String get invoiceSettingsRotated => '新的账单地址已就绪。请把它提供给你的服务。';
 
   @override
   String invoiceSettingsDropped(int count) {
@@ -2761,7 +2761,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get invoiceSettingsAddExplanation =>
-      '受信任的服务可以向您的账单地址发送账单；其他人的消息会被丢弃。在您用 PIN 或指纹批准每张账单之前，不会支付任何款项。';
+      '受信任的服务可以向你的账单地址发送账单；其他人的消息会被丢弃。在你用 PIN 或指纹批准每张账单之前，不会支付任何款项。';
 
   @override
   String get invoiceSettingsLabelLabel => '名称';
@@ -2770,7 +2770,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoiceSettingsLabelMissing => '请为服务命名。';
 
   @override
-  String get invoiceSettingsServiceAddressLabel => '服务的 epicbox 地址';
+  String get invoiceSettingsServiceAddressLabel => '服务的 Epicbox 地址';
 
   @override
   String get invoiceSettingsAddressMissing => '粘贴或扫描服务显示的地址。';
@@ -2780,7 +2780,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String invoiceSettingsAdded(String name) {
-    return '$name 现在可以向您发送账单了。';
+    return '$name 现在可以向你发送账单了。';
   }
 
   @override
@@ -2866,7 +2866,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAboutNetwork => '网络';
 
   @override
-  String get settingsEpicboxServer => 'epicbox 服务器';
+  String get settingsEpicboxServer => 'Epicbox 服务器';
 
   @override
   String settingsUpdateTo(String version) {
@@ -2895,11 +2895,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsLicences => '许可证';
 
   @override
-  String get licencesLead => '本钱包包含的开源软件。每个组件保留各自的许可证；完整文本一键可达。';
+  String get licencesLead => '本钱包包含的开源软件。每个组件保留各自的许可证；点按即可查看完整文本。';
 
   @override
   String get licencesApp =>
-      'Epic Cash Mobile，由 BT Labs 开发：Apache-2.0。代码在 GitHub 上。';
+      'Epic Cash Mobile，BT Labs 出品：Apache-2.0。代码托管在 GitHub 上。';
 
   @override
   String get licencesFlutter => 'Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。';
@@ -3050,7 +3050,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionHelpFeedback => '帮助与反馈';
 
   @override
-  String get settingsStateBackUp => '备份恢复短语';
+  String get settingsStateBackUp => '备份助记词';
 
   @override
   String get settingsStateNotBackedUp => '尚未备份';
@@ -3138,7 +3138,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fileHelpPlay => '播放动画';
 
   @override
-  String get demoPinFilled => '演示 PIN 已为你填好';
+  String get demoPinFilled => '演示 PIN 码已为你填好';
 
   @override
   String get demoPinSkip => '跳过';
@@ -3273,7 +3273,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sendTrackOffline(String amount) {
-    return '对方钱包打开后会完成付款。在此之前 $amount 处于冻结状态。';
+    return '对方钱包打开后会完成付款。在此之前 $amount 处于锁定状态。';
   }
 
   @override
@@ -3296,7 +3296,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sendFileOnHold(String amount) {
-    return '$amount 已冻结';
+    return '$amount 已锁定';
   }
 
   @override
@@ -3324,7 +3324,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeNetwork => '网络';
 
   @override
-  String get handshakePay1 => '你的钱包把付款发到中继。你的币被冻结。';
+  String get handshakePay1 => '你的钱包把付款发到中继。你的币被锁定。';
 
   @override
   String get handshakePay2 => '中继把它转给对方。对方钱包加入自己的部分并签名。';
@@ -3376,7 +3376,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '对方的中继没有接收。在你取消之前，这笔金额处于冻结状态，最长 $days 天。',
+      other: '对方的中继没有接收。在你取消之前，这笔金额处于锁定状态，最长 $days 天。',
     );
     return '$_temp0';
   }
@@ -3410,7 +3410,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String balanceLineOnHold(String amount) {
-    return '$amount 冻结中';
+    return '$amount 锁定中';
   }
 
   @override
@@ -3558,7 +3558,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '未能通过 Tor 联系到对方钱包。在你取消之前，这笔金额处于冻结状态，最长 $days 天。',
+      other: '未能通过 Tor 联系到对方钱包。在你取消之前，这笔金额处于锁定状态，最长 $days 天。',
     );
     return '$_temp0';
   }
@@ -3611,12 +3611,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sendPinReason(String amount) {
-    return '输入 PIN 以发送 $amount。';
+    return '输入 PIN 码以发送 $amount。';
   }
 
   @override
   String sendFilePinReason(String amount) {
-    return '输入 PIN 以生成 $amount 的付款文件。';
+    return '输入 PIN 码以生成 $amount 的付款文件。';
   }
 
   @override
@@ -3732,7 +3732,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String outputsMeanConfirming(int need) {
-    return '需要 $need 次确认后才能花费。';
+    return '需要 $need 个确认后才能花费。';
   }
 
   @override
@@ -3773,13 +3773,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsFactTransaction => '交易';
 
   @override
-  String get outputsFactCommitment => '承诺值';
+  String get outputsFactCommitment => '承诺';
 
   @override
   String get outputsCopy => '复制';
 
   @override
-  String get outputsCopied => '已复制承诺值';
+  String get outputsCopied => '承诺已复制';
 
   @override
   String get outputsEmpty => '暂无输出';
@@ -3826,7 +3826,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsStepperHint => '2 到 10';
 
   @override
-  String get outputsFactFee => '网络费用';
+  String get outputsFactFee => '网络手续费';
 
   @override
   String get outputsFactEach => '每个输出';
@@ -3867,10 +3867,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsConsolidateAction => '合并';
 
   @override
-  String get outputsSplitPin => '输入 PIN 以确认拆分输出';
+  String get outputsSplitPin => '输入 PIN 码以确认拆分输出';
 
   @override
-  String get outputsConsolidatePin => '输入 PIN 以确认合并输出';
+  String get outputsConsolidatePin => '输入 PIN 码以确认合并输出';
 
   @override
   String outputsSplitStarted(int count) {
@@ -3887,7 +3887,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsColState => '状态';
 
   @override
-  String get outputsColValue => '数值';
+  String get outputsColValue => '金额';
 
   @override
   String get outputsColConfirmations => '确认数';
@@ -3963,10 +3963,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get invoicesToPayEmpty => '没有待付发票';
+  String get invoicesToPayEmpty => '没有待付账单';
 
   @override
-  String get invoicesToPayEmptyCaption => '你信任列表中的服务可以向此钱包开具发票。每张发票都在这里等待你批准。';
+  String get invoicesToPayEmptyCaption => '你信任列表中的服务可以向此钱包开具账单。每张账单都在这里等待你批准。';
 
   @override
   String get invoicesSentEmpty => '没有已发送的请求';
@@ -4050,7 +4050,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String netStatusSyncingPercent(int percent) {
-    return '同步中 $percent %';
+    return '同步中 $percent%';
   }
 
   @override
@@ -4087,7 +4087,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String netStatusStarting(int percent) {
-    return '启动中 $percent %';
+    return '启动中 $percent%';
   }
 
   @override
@@ -4137,7 +4137,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netStatusTorOpenHint => '打开隐私设置';
 
   @override
-  String get netStatusDirectOpenHint => '打开直接接收地址';
+  String get netStatusDirectOpenHint => '打开直连接收地址';
 
   @override
   String get netStatusOpenHint => '显示服务器';
@@ -4182,7 +4182,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverHealthUnknown => '无法访问 status.btlabs.uk；状态未知';
 
   @override
-  String get serverAtTip => '已最新';
+  String get serverAtTip => '已是最新';
 
   @override
   String serverBehindShort(String count) {
@@ -4230,7 +4230,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String serverUptime(String percent) {
-    return '$percent % 在线';
+    return '$percent% 在线';
   }
 
   @override
@@ -4242,10 +4242,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverNodeSwitchNote => '钱包将重新连接，并根据新节点重新核对余额。';
 
   @override
-  String get serverRelayWarning => '你的地址包含此服务器。切换会更改你的地址；付款方需要新地址。';
+  String get serverRelayWarning => '你的地址包含此服务器。切换会更改你的地址；发送方需要新地址。';
 
   @override
-  String get serverRelaySwitchNote => '你的地址将改变；付款方需要新地址。';
+  String get serverRelaySwitchNote => '你的地址将改变；发送方需要新地址。';
 
   @override
   String get serverOtherRelay => '其他服务器，host 或 host:port';
@@ -4264,12 +4264,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String serverHeightAtTip(String height) {
-    return '$height · 已最新';
+    return '$height · 已是最新';
   }
 
   @override
   String serverNodesAgree(String height) {
-    return '节点一致于 $height';
+    return '各节点一致：$height';
   }
 
   @override
@@ -4469,7 +4469,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '未能联系到对方钱包。在你取消之前，这笔金额处于冻结状态，最长 $days 天。',
+      other: '未能联系到对方钱包。在你取消之前，这笔金额处于锁定状态，最长 $days 天。',
     );
     return '$_temp0';
   }
@@ -4573,7 +4573,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvReqPaid => '已付款，正在完成';
 
   @override
-  String get deskInvReqPosted => '已发布';
+  String get deskInvReqPosted => '已广播';
 
   @override
   String deskInvConfirming(int count, int total) {
@@ -4584,7 +4584,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvCompleted => '已完成';
 
   @override
-  String get deskInvReqNotPosted => '未发布';
+  String get deskInvReqNotPosted => '未广播';
 
   @override
   String get deskInvDeclined => '已拒绝';
@@ -4608,10 +4608,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayNotDelivered => '未送达';
 
   @override
-  String get deskInvPayDelivered => '等待发布';
+  String get deskInvPayDelivered => '等待广播';
 
   @override
-  String get deskInvPayPosted => '服务已发布';
+  String get deskInvPayPosted => '已由服务广播';
 
   @override
   String get deskInvPayWithdrawnAfterPay => '付款后已撤回';
@@ -4626,7 +4626,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvUnpaid => '未支付';
 
   @override
-  String get deskInvYouPay => '您支付';
+  String get deskInvYouPay => '你支付';
 
   @override
   String deskInvExpiresAt(String time) {
@@ -4681,7 +4681,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvHelpFlowStep4(int confirmations) {
-    return '开单方的钱包完成这笔付款并发布到网络。经过 $confirmations 个确认后即为最终。';
+    return '开单方的钱包完成这笔付款并广播到网络。$confirmations 个确认后即为最终状态。';
   }
 
   @override
@@ -4782,16 +4782,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvHelpDiagramPayAddrSub => '不是账单地址';
 
   @override
-  String get deskInvHelpDiagramFinal => '完成并发布';
+  String get deskInvHelpDiagramFinal => '完成并广播';
 
   @override
   String deskInvHelpDiagramFinalSub(int confirmations) {
-    return '确认数达到 $confirmations 后为最终';
+    return '$confirmations 个确认后即为最终状态';
   }
 
   @override
   String get deskInvHelpDiagramSemantics =>
-      '开单方把账单发到付款方的账单地址，该地址只接受受信任的发送方并丢弃其他；付款方核对并批准；付款发到开单方的收款地址；开单方的钱包完成付款并发布到网络。';
+      '开单方把账单发到付款方的账单地址，该地址只接受受信任的发送方并丢弃其他；付款方核对并批准；付款发到开单方的收款地址；开单方的钱包完成付款并广播到网络。';
 
   @override
   String get deskInvIssuerFormTitle => '开具账单';
@@ -4800,7 +4800,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerFirstTitle => '首次开具账单之前';
 
   @override
-  String get deskInvIssuerYourAddress => '您的收款地址';
+  String get deskInvIssuerYourAddress => '你的收款地址';
 
   @override
   String get deskInvIssuerMethod => '方式';
@@ -4821,7 +4821,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerPayer => '对方的账单地址';
 
   @override
-  String get deskInvIssuerPayerHelp => '对方钱包在 设置 › 账单 中显示。';
+  String get deskInvIssuerPayerHelp => '对方钱包在“设置 › 账单”中显示它。';
 
   @override
   String get deskInvIssuerPayerMissing => '粘贴对方的账单地址。';
@@ -4830,7 +4830,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerPayerInvalid => '这不是有效的 Epicbox 地址。';
 
   @override
-  String get deskInvIssuerPayerOwn => '这是您自己的地址之一。请使用付款方提供的账单地址。';
+  String get deskInvIssuerPayerOwn => '这是你自己的地址之一。请使用付款方提供的账单地址。';
 
   @override
   String get deskInvIssuerPayerHttp =>
@@ -4840,11 +4840,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerContacts => '联系人';
 
   @override
-  String get deskInvIssuerNoContacts => '还没有联系人有账单地址。请在联系人中添加。';
+  String get deskInvIssuerNoContacts => '还没有联系人有账单地址。请在“联系人”中添加。';
 
   @override
   String get deskInvIssuerNoInvoices =>
-      '该钱包曾退回过账单：它无法通过 Epicbox 支付账单。请改为发送账单文件，或请对方直接付款给您。';
+      '该钱包曾退回过账单：它无法通过 Epicbox 支付账单。请改为发送账单文件，或请对方直接付款给你。';
 
   @override
   String get deskInvIssuerUseFile => '使用文件';
@@ -4869,7 +4869,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerAmountCap => '超过 EPIC 的总供应量。';
 
   @override
-  String get deskInvIssuerAmountHelp => '您的钱包不会支出任何资金：付款方支付此金额外加其自己的手续费。';
+  String get deskInvIssuerAmountHelp => '你的钱包不会支出任何资金：付款方支付此金额外加其自己的手续费。';
 
   @override
   String get deskInvIssuerMessage => '给付款方的留言';
@@ -4905,7 +4905,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskInvIssuerEmpty => '还没有开具账单。账单会让联系人或服务向您付款；它不花费任何资金。';
+  String get deskInvIssuerEmpty => '还没有开具账单。账单会让联系人或服务向你付款；它不花费任何资金。';
 
   @override
   String deskInvIssuerTo(String payer) {
@@ -4962,10 +4962,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerWithdrawn => '账单已撤回。';
 
   @override
-  String get deskInvIssuerRepost => '重新发布';
+  String get deskInvIssuerRepost => '重新广播';
 
   @override
-  String get deskInvIssuerReposted => '付款已重新发布。';
+  String get deskInvIssuerReposted => '付款已重新广播。';
 
   @override
   String get deskInvIssuerNodeDown => '节点无响应。请在节点可用时重试。';
@@ -4986,7 +4986,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvIssuerBounced(String payer) {
-    return '$payer 的钱包退回了账单：它无法支付账单。请改为让对方直接付款给您。';
+    return '$payer 的钱包退回了账单：它无法支付账单。请改为让对方直接付款给你。';
   }
 
   @override
@@ -4997,7 +4997,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvIssuerPaidText(String payer) {
-    return '$payer 已付款。您的钱包已完成并发布该付款。';
+    return '$payer 已付款。你的钱包已完成并广播该付款。';
   }
 
   @override
@@ -5012,10 +5012,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvIssuerStepsIntro => '对方的钱包必须支持账单。首次开具账单之前：';
 
   @override
-  String get deskInvIssuerStepTrust => '1. 对方把您下面的收款地址加入受信任的发送方。';
+  String get deskInvIssuerStepTrust => '1. 对方把你下面的收款地址加入受信任的发送方。';
 
   @override
-  String get deskInvIssuerStepAddress => '2. 对方把其账单地址提供给您。';
+  String get deskInvIssuerStepAddress => '2. 对方把其账单地址提供给你。';
 
   @override
   String get deskInvIssuerStepIssued => '已开具';
@@ -5027,30 +5027,30 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvNoticeDeclined(String payer) {
-    return '$payer 拒绝了你的发票。';
+    return '$payer 拒绝了你的账单。';
   }
 
   @override
-  String get deskInvNoticeIssuedExpired => '你开具的一张发票已过期未付。';
+  String get deskInvNoticeIssuedExpired => '你开具的一张账单已过期未付。';
 
   @override
   String deskInvNoticeWithdrawn(String service) {
-    return '$service 在你回复前撤回了一张发票。';
+    return '$service 在你回复前撤回了一张账单。';
   }
 
   @override
-  String get deskInvNoticeExpired => '一张发票在你回复前已过期。';
+  String get deskInvNoticeExpired => '一张账单在你回复前已过期。';
 
   @override
   String get deskInvNoticeUnknownPayment =>
-      '收到一笔针对本设备未开具发票的付款，已被拒绝。如果是使用此钱包的另一台设备开具的，请让付款方取消后重新付款。';
+      '收到一笔针对本设备未开具账单的付款，已被拒绝。如果是使用此钱包的另一台设备开具的，请让付款方取消后重新付款。';
 
   @override
   String get deskInvNoticeUnknownAnswer =>
       '收到一条针对本设备未发送付款的回复，已被拒绝。如果是使用此钱包的另一台设备发送的，请在那里取消后重新发送。';
 
   @override
-  String get deskInvPayerWaitingHead => '等待您处理';
+  String get deskInvPayerWaitingHead => '等待你处理';
 
   @override
   String get deskInvPayerNeedsHead => '待处理的付款';
@@ -5081,17 +5081,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerTrustService => '信任服务…';
 
   @override
-  String get deskInvPayerYourInvoiceAddress => '您的账单地址';
+  String get deskInvPayerYourInvoiceAddress => '你的账单地址';
 
   @override
   String get deskInvPayerEmptyTitle => '没有等待中的账单';
 
   @override
-  String get deskInvPayerEmptyText => '当您信任的服务向您开账单时，账单会显示在这里。在您批准之前不会付款。';
+  String get deskInvPayerEmptyText => '当你信任的服务向你开账单时，账单会显示在这里。在你批准之前不会付款。';
 
   @override
   String deskInvPayerNotDeliveredTitle(String service) {
-    return '您给 $service 的付款未送达';
+    return '你给 $service 的付款未送达';
   }
 
   @override
@@ -5100,32 +5100,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvPayerWithdrawnTitle(String service) {
-    return '$service 撤回了一张您已支付的账单';
+    return '$service 撤回了一张你已支付的账单';
   }
 
   @override
-  String get deskInvPayerWithdrawnText => '这笔付款可能永远不会上链。取消它以解锁您的资金。';
+  String get deskInvPayerWithdrawnText => '这笔付款可能永远不会上链。取消它以解锁你的资金。';
 
   @override
   String deskInvPayerPastTtlTitle(String service) {
-    return '您给 $service 的付款不在链上';
+    return '你给 $service 的付款不在链上';
   }
 
   @override
-  String get deskInvPayerPastTtlText => '其期限已过，网络未见到它。取消它以解锁您的资金。';
+  String get deskInvPayerPastTtlText => '其期限已过，网络未见到它。取消它以解锁你的资金。';
 
   @override
   String get deskInvPayerCancelPayment => '取消付款';
 
   @override
-  String get deskInvPayerSafetyTitle => '只支付您预期的账单';
+  String get deskInvPayerSafetyTitle => '只支付你预期的账单';
 
   @override
-  String get deskInvPayerSafetyText => '账单永远不会给您的钱包增加资金。批准它就是向外付款。';
+  String get deskInvPayerSafetyText => '账单永远不会给你的钱包增加资金。批准它就是向外付款。';
 
   @override
   String deskInvPayerSameBillTitle(String service, String ago) {
-    return '您在 $ago 前已向 $service 支付过相同金额';
+    return '你在 $ago 前已向 $service 支付过相同金额';
   }
 
   @override
@@ -5151,7 +5151,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerBalanceAfter => '付款后余额';
 
   @override
-  String get deskInvPayerMessageCaption => '由服务填写。您的钱包不会核实。';
+  String get deskInvPayerMessageCaption => '由服务填写。你的钱包不会核实。';
 
   @override
   String get deskInvPayerPaysTo => '付款给';
@@ -5178,7 +5178,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvPayerShortText(String total, String spendable) {
-    return '您需要 $total EPIC 可用资金；您有 $spendable EPIC。确认中的资金在 3 次确认后计入。';
+    return '你需要 $total EPIC 可用资金；你有 $spendable EPIC。确认中的资金在 3 个确认后计入。';
   }
 
   @override
@@ -5186,13 +5186,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvPayerNodeDownText =>
-      '钱包无法检查您的资金，因此无法付款。节点恢复响应后即可再次批准；您可以在 设置 › 节点 中选择其他节点。';
+      '钱包无法检查你的资金，因此无法付款。节点恢复响应后即可再次批准；你可以在“设置 › 节点”中选择其他节点。';
 
   @override
   String get deskInvPayerPaid => '此账单已支付。不能再为其付款。';
 
   @override
-  String get deskInvPayerDeclinedText => '您已拒绝此账单。未支付任何款项。';
+  String get deskInvPayerDeclinedText => '你已拒绝此账单。未支付任何款项。';
 
   @override
   String get deskInvPayerBack => '返回账单';
@@ -5204,7 +5204,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvPayerApproveText(String total) {
-    return '$total EPIC 将离开您的钱包。输入钱包密码以批准。';
+    return '$total EPIC 将离开你的钱包。输入钱包密码以批准。';
   }
 
   @override
@@ -5239,7 +5239,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvPayerNotDeliveredToastText =>
-      'Epicbox 服务器无响应。请在 账单 › 支付 中重试；无需再次批准。';
+      'Epicbox 服务器无响应。请在“账单 › 支付”中重试；无需再次批准。';
 
   @override
   String get deskInvPayerRetryFailed => '仍未送达';
@@ -5252,7 +5252,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      '取消会在此处解锁您的资金。服务仍持有您签名的付款，因此在这些资金再次花出之前，它仍可能完成。';
+      '取消会在此处解锁你的资金。服务仍持有你签名的付款，因此在这些资金再次花出之前，它仍可能完成。';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5272,7 +5272,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerCancelled => '付款已取消';
 
   @override
-  String get deskInvPayerCancelledText => '您的资金已解锁。';
+  String get deskInvPayerCancelledText => '你的资金已解锁。';
 
   @override
   String get deskInvPayerDeclined => '账单已拒绝。未支付任何款项。';
@@ -5291,7 +5291,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerSpendFailedText => '你的资金已解锁，但转移未成功。取消尚未成为最终结果。';
 
   @override
-  String get deskInvPayerLocked => '此发票无法支付：它被锁定到较晚的区块。未支付任何款项。';
+  String get deskInvPayerLocked => '此账单无法支付：它被锁定到较晚的区块。未支付任何款项。';
 
   @override
   String get deskInvPayerRelayDownPay => 'Epicbox 服务器没有响应。未支付任何款项。';
@@ -5300,19 +5300,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetTitle => '账单';
 
   @override
-  String get deskInvSetIntro => '您信任的服务会向此钱包的账单地址发送账单。在您批准每张账单之前不会付款。';
+  String get deskInvSetIntro => '你信任的服务会向此钱包的账单地址发送账单。在你批准每张账单之前不会付款。';
 
   @override
   String get deskInvSetAddressLabel => '账单地址';
 
   @override
-  String get deskInvSetAddressWarning => '只提供给您信任的服务。此地址不接收付款。';
+  String get deskInvSetAddressWarning => '只提供给你信任的服务。此地址不接收付款。';
 
   @override
   String get deskInvSetCopy => '复制';
 
   @override
-  String get deskInvSetCopied => '已复制账单地址。只提供给您信任的服务；此地址不接收付款。';
+  String get deskInvSetCopied => '已复制账单地址。只提供给你信任的服务；此地址不接收付款。';
 
   @override
   String get deskInvSetQrShow => '显示二维码';
@@ -5321,7 +5321,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetQrHide => '隐藏二维码';
 
   @override
-  String get deskInvSetQrLabel => '您的账单地址二维码';
+  String get deskInvSetQrLabel => '你的账单地址二维码';
 
   @override
   String deskInvSetIndex(int index) {
@@ -5352,12 +5352,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvSetRemoveBody(String name) {
-    return '$name 将无法再向您发送账单。已在等待的账单会保留，直到您处理或它们过期。';
+    return '$name 将无法再向你发送账单。已在等待的账单会保留，直到你处理或它们过期。';
   }
 
   @override
   String deskInvSetRemoved(String name) {
-    return '$name 已无法再向您发送账单。';
+    return '$name 已无法再向你发送账单。';
   }
 
   @override
@@ -5367,7 +5367,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetAdd => '信任发送方';
 
   @override
-  String get deskInvSetAddBody => '受信任的发送方可以向此钱包的账单地址发送账单。在您用钱包密码批准每张账单之前不会付款。';
+  String get deskInvSetAddBody => '受信任的发送方可以向此钱包的账单地址发送账单。在你用钱包密码批准每张账单之前不会付款。';
 
   @override
   String get deskInvSetName => '名称';
@@ -5389,7 +5389,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvSetAdded(String name) {
-    return '$name 现在可以向您发送账单。';
+    return '$name 现在可以向你发送账单。';
   }
 
   @override
@@ -5406,25 +5406,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetRotate => '新的账单地址';
 
   @override
-  String get deskInvSetRotateHint => '持有旧地址的服务将无法再向您发送账单。';
+  String get deskInvSetRotateHint => '持有旧地址的服务将无法再向你发送账单。';
 
   @override
   String get deskInvSetRotateTitle => '生成新的账单地址？';
 
   @override
-  String get deskInvSetRotateBody => '持有旧地址的服务将无法再向您发送账单。请把新地址提供给每个向您开账单的服务。';
+  String get deskInvSetRotateBody => '持有旧地址的服务将无法再向你发送账单。请把新地址提供给每个向你开账单的服务。';
 
   @override
   String get deskInvSetRotateConfirm => '生成新地址';
 
   @override
-  String get deskInvSetRotated => '新的账单地址已就绪。请提供给您的服务。';
+  String get deskInvSetRotated => '新的账单地址已就绪。请提供给你的服务。';
 
   @override
   String get deskInvSetExpiry => '付款期限';
 
   @override
-  String get deskInvSetExpiryHint => '您开具的账单可支付多久，以及收到的账单等待您多久。最长 48 小时。';
+  String get deskInvSetExpiryHint => '你开具的账单可支付多久，以及收到的账单等待你多久。最长 48 小时。';
 
   @override
   String deskInvSetHours(int hours) {
@@ -5447,7 +5447,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetTrustedSwitch => '信任其账单';
 
   @override
-  String get deskInvSetTrustedSwitchHelp => '允许此联系人向您开账单。在您批准账单之前不会付款。';
+  String get deskInvSetTrustedSwitchHelp => '允许此联系人向你开账单。在你批准账单之前不会付款。';
 
   @override
   String get deskInvSetIssueNeeds => '需要对方的账单地址。';
@@ -5456,17 +5456,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetShare => '分享账单地址';
 
   @override
-  String get deskInvSetReceiveHint => '请联系人或服务向您付款。对方的钱包必须支持账单。';
+  String get deskInvSetReceiveHint => '请联系人或服务向你付款。对方的钱包必须支持账单。';
 
   @override
-  String get deskInvSetRestoredHint => '此钱包是用助记词恢复的？请重新把这个发票地址提供给服务方。';
+  String get deskInvSetRestoredHint => '此钱包是用助记词恢复的？请重新把这个账单地址提供给服务方。';
 
   @override
-  String get serverSwitchRelayTitle => '更换 epicbox 服务器？';
+  String get serverSwitchRelayTitle => '更换 Epicbox 服务器？';
 
   @override
   String serverSwitchRelayBody(String relay) {
-    return 'epicbox 地址将变为 …@$relay。发送方需要新地址。发送到旧地址的付款会留在旧服务器上。';
+    return 'Epicbox 地址将变为 …@$relay。发送方需要新地址。发送到旧地址的付款会留在旧服务器上。';
   }
 
   @override
@@ -5597,7 +5597,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveDirectNeedsTor => '直连收款需要 Tor。';
 
   @override
-  String get receiveDirectMeanwhile => '在此期间，付款方使用 Epicbox 地址。';
+  String get receiveDirectMeanwhile => '在此期间，发送方使用 Epicbox 地址。';
 
   @override
   String get netStatusOverTor => '经由 Tor';
@@ -8777,13 +8777,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbCreateTestNote => '测试网络上的钱包，不用于真实的 EPIC';
 
   @override
-  String get deskOnbCreatePhraseLead => '如果这台电脑坏了，这些词是找回币的唯一方法。请按顺序抄写在纸上。';
+  String get deskOnbCreatePhraseLead => '如果这台电脑坏了，这些单词是找回币的唯一方法。请按顺序抄写在纸上。';
 
   @override
   String get deskOnbCreateRevealFirst => '请先显示助记词';
 
   @override
-  String get deskOnbCreateWarn => '任何拿到这些词的人都能拿走你的币';
+  String get deskOnbCreateWarn => '任何拿到这些单词的人都能拿走你的币';
 
   @override
   String get deskOnbCreateReveal => '显示助记词';
@@ -8814,7 +8814,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count 个词',
+      other: '$count 个单词',
     );
     return '已抄写：全部 $_temp0都写在纸上';
   }
@@ -8846,15 +8846,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskOnbRestorePasswordLead(int count) {
-    return '这 $count 个词的助记词有效。请设置在这台电脑上解锁此钱包的密码。恢复完成后钱包会打开。';
+    return '这 $count 个单词的助记词有效。请设置在这台电脑上解锁此钱包的密码。恢复完成后钱包会打开。';
   }
 
   @override
-  String get deskOnbRestoreNothingToPaste => '没有可粘贴的内容：剪贴板中没有词。';
+  String get deskOnbRestoreNothingToPaste => '没有可粘贴的内容：剪贴板中没有单词。';
 
   @override
   String deskOnbRestoreBadWord(int position, String word) {
-    return '第 $position 个词“$word”不在词表中。';
+    return '第 $position 个单词“$word”不在词表中。';
   }
 
   @override
@@ -8862,7 +8862,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '全部 $count 个词均有效。',
+      other: '全部 $count 个单词均有效。',
     );
     return '$_temp0';
   }
@@ -8871,21 +8871,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbRestoreStaysHere => '助记词不会离开这台电脑。';
 
   @override
-  String get deskOnbRestoreChecksumFirm => '此助记词的校验位不匹配。请把每个词与纸上的逐一核对。';
+  String get deskOnbRestoreChecksumFirm => '此助记词的校验位不匹配。请把每个单词与纸上的逐一核对。';
 
   @override
   String deskOnbRestoreChecksumSoFar(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '已输入 $count 个词；校验位不匹配。请继续输入，或把每个词与纸上的逐一核对。',
+      other: '已输入 $count 个单词；校验位不匹配。请继续输入，或把每个单词与纸上的逐一核对。',
     );
     return '$_temp0';
   }
 
   @override
   String get deskOnbRestoreWordsLead =>
-      '按顺序输入这些词，或把整段助记词粘贴到任意一个框中。换行、逗号和编号会被忽略。';
+      '按顺序输入这些单词，或把整段助记词粘贴到任意一个框中。换行、逗号和编号会被忽略。';
 
   @override
   String get deskOnbRestoreClear => '清空';
@@ -8895,20 +8895,20 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '使用这 $count 个词',
+      other: '使用这 $count 个单词',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskOnbRestoreWords => '词';
+  String get deskOnbRestoreWords => '单词';
 
   @override
   String deskOnbRestoreFilledOf(int filled, int total) {
     String _temp0 = intl.Intl.pluralLogic(
       total,
       locale: localeName,
-      other: '$total 个词',
+      other: '$total 个单词',
     );
     return '$filled/$_temp0';
   }
@@ -9164,14 +9164,14 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '已粘贴 $count 个词；助记词应为 12、15、18、21 或 24 个词',
+      other: '已粘贴 $count 个单词；助记词应为 12、15、18、21 或 24 个单词',
     );
     return '$_temp0';
   }
 
   @override
   String deskOnbWordN(int number) {
-    return '第 $number 个词';
+    return '第 $number 个单词';
   }
 
   @override
@@ -10199,7 +10199,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetAcctSaveLabel => '保存名称';
 
   @override
-  String get deskSetAcctPhraseHint => '用于恢复此钱包的词。请妥善保密。';
+  String get deskSetAcctPhraseHint => '用于恢复此钱包的单词。请妥善保密。';
 
   @override
   String get deskSetAcctShowPhrase => '显示助记词…';
@@ -11679,20 +11679,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPhraseWrongPassword => '密码错误。';
 
   @override
-  String get deskSetPhraseIntro => '请按此顺序把这些词抄写在纸上。切勿把它们输入任何网站或聊天中。';
+  String get deskSetPhraseIntro => '请按此顺序把这些单词抄写在纸上。切勿把它们输入任何网站或聊天中。';
 
   @override
-  String get deskSetPhrasePanel => '输入密码以显示这些词';
+  String get deskSetPhrasePanel => '输入密码以显示这些单词';
 
   @override
-  String get deskSetPhraseShowWords => '显示词';
+  String get deskSetPhraseShowWords => '显示单词';
 
   @override
   String deskSetPhraseWordsLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '助记词，$count 个词',
+      other: '助记词，$count 个单词',
     );
     return '$_temp0';
   }
@@ -11704,7 +11704,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPhraseShowQr => '显示二维码';
 
   @override
-  String get deskSetPhraseHideWords => '隐藏词';
+  String get deskSetPhraseHideWords => '隐藏单词';
 
   @override
   String deskSetPhraseHidesIn(int seconds) {
@@ -11718,7 +11718,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPhraseBackUp => '备份助记词';
 
   @override
-  String get deskSetPhraseBackUpText => '任何拿到这些词的人都能拿走你的 EPIC。请确认没有人能看到屏幕。';
+  String get deskSetPhraseBackUpText => '任何拿到这些单词的人都能拿走你的 EPIC。请确认没有人能看到屏幕。';
 
   @override
   String get deskSetPrivTorOnFailed => 'Tor 未开启';
@@ -12553,29 +12553,26 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetHelpSearch => 'Search help';
+  String get deskSetHelpSearch => '搜索帮助';
 
   @override
-  String get deskSetHelpSearchKeys =>
-      'Press / to search. Esc clears the search.';
+  String get deskSetHelpSearchKeys => '按 / 搜索。按 Esc 清除搜索。';
 
   @override
-  String get deskSetHelpSearchHint =>
-      'For example: file, confirmations, phrase';
+  String get deskSetHelpSearchHint => '例如：文件、确认、助记词';
 
   @override
-  String get deskSetHelpClear => 'Clear search';
+  String get deskSetHelpClear => '清除搜索';
 
   @override
-  String get deskSetHelpTourAgain => 'Show the tour again';
+  String get deskSetHelpTourAgain => '重新查看导览';
 
   @override
   String deskSetHelpTopics(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count topics',
-      one: '$count topic',
+      other: '$count 个主题',
     );
     return '$_temp0';
   }

@@ -7,7 +7,7 @@
   "deskInvHelpFlowStep1": "开单方的钱包通过 Epicbox 服务器把账单发到付款方的**账单地址**。",
   "deskInvHelpFlowStep2": "付款方在 [[账单 › 支付]] 中打开它，核对发送方、金额和留言，然后输入钱包密码，选择**批准并付款**。",
   "deskInvHelpFlowStep3": "付款方的钱包把付款发到开单方的**收款地址**。",
-  "deskInvHelpFlowStep4": "开单方的钱包完成这笔付款并广播到网络。经过 {confirmations} 个确认后即为最终。",
+  "deskInvHelpFlowStep4": "开单方的钱包完成这笔付款并广播到网络。{confirmations} 个确认后即为最终状态。",
   "deskInvHelpFlowNever": "未经批准不会付款，账单也绝不会给付款方的钱包增加资金。每张账单都有付款期限，最长 48 小时；过期后无法再付款。",
   "deskInvHelpFlowIssued": "本钱包开具的账单在 [[账单 › 开具]] 中。",
   "deskInvHelpTrustTitle": "为什么只接受受信任的发送方",
@@ -39,7 +39,7 @@
   "deskInvHelpDiagramPayment": "付款",
   "deskInvHelpDiagramPayAddr": "收款地址",
   "deskInvHelpDiagramPayAddrSub": "不是账单地址",
-  "deskInvHelpDiagramFinal": "完成并发布",
-  "deskInvHelpDiagramFinalSub": "确认数达到 {confirmations} 后为最终",
+  "deskInvHelpDiagramFinal": "完成并广播",
+  "deskInvHelpDiagramFinalSub": "{confirmations} 个确认后即为最终状态",
   "deskInvHelpDiagramSemantics": "开单方把账单发到付款方的账单地址，该地址只接受受信任的发送方并丢弃其他；付款方核对并批准；付款发到开单方的收款地址；开单方的钱包完成付款并广播到网络。"
 }

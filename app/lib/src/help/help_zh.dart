@@ -16,14 +16,15 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final phone = platform == HelpPlatform.phone;
   // The words that differ between a computer and a phone.
   final device = phone ? '这部手机' : '这台电脑';
+  final recheck = phone ? '重新扫描区块链' : '重新核对余额';
   final secret = phone ? '你的 PIN 码' : '钱包密码';
   final nodePlace = phone ? '[[节点|Node]]' : '[[设置 › 节点|Settings › Node]]';
   final epicboxPlace = phone ? '[[Epicbox|Epicbox]]' : '[[设置 › 接收 › Epicbox 接收|Settings › Receiving › Epicbox receiving]]';
   final torPlace = phone ? '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]' : '[[设置 › 隐私|Settings › Privacy]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
-      ? '[[设置 › 交易记录 › 导出历史备份|Settings › Payment history › Export history backup]]'
-      : '[[设置 › 此钱包 › 导出历史备份|Settings › This wallet › Export history backup]]';
+      ? '[[设置 › 交易记录 › 导出交易记录备份|Settings › Payment history › Export history backup]]'
+      : '[[设置 › 此钱包 › 导出交易记录备份|Settings › This wallet › Export history backup]]';
   final restorePlace = phone
       ? '[[用助记词恢复|Restore from a recovery phrase]]（在首屏，或在“设置”中删除此钱包之后）'
       : '[[用助记词恢复|Restore from a recovery phrase]]（在首屏、“解锁 › 添加钱包”或“设置 › 所有钱包”中）';
@@ -31,15 +32,15 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'start',
       '接收你的第一笔 EPIC',
-      '打开“接收”，复制 Epicbox 地址并发给付款人。付款会自动到账。',
+      '打开“接收”，复制 Epicbox 地址并发给付款方。付款会自动到账。',
       [
         const HelpBlock.p('Epicbox 地址是一串长代码，以 **@** 和 Epicbox 服务器名称结尾，例如 **…@epicbox.epiccash.com**。它可以放心分享：别人需要它来付款，但无法用它拿走任何东西。'),
-        const HelpBlock.ol(['打开[[接收|Receive]]。', '复制地址（或显示其二维码），发给付款人。', '付款会自动出现在“活动”中，无需任何操作。']),
+        const HelpBlock.ol(['打开[[接收|Receive]]。', '复制地址（或显示其二维码），发给付款方。', '付款会自动出现在“活动”中，无需任何操作。']),
         if (phone)
           const HelpBlock.p('应用打开且节点已同步时才能接收。应用关闭期间发来的付款会在 Epicbox 服务器上等待约一周，并在下次解锁时到账。')
         else
           const HelpBlock.p('解锁后，节点同步完成即自动开始接收。如果有人付款时钱包未打开，Epicbox 会保存这笔付款，钱包在下次解锁时取回。'),
-        HelpBlock.p('新付款首先要等发送方钱包完成交易，然后显示为确认中。经过 $confirmations 次确认（约 $confirmations 分钟）后即可使用。'),
+        HelpBlock.p('新付款首先要等发送方钱包完成交易，然后显示为确认中。经过 $confirmations 个确认（约 $confirmations 分钟）后即可使用。'),
       ],
       id: HelpId.receive,
     ),
@@ -48,9 +49,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '向他人发送',
       '打开“发送”，粘贴对方的 Epicbox 地址，输入金额，核对手续费后发送。',
       [
-        const HelpBlock.ol(['打开[[发送|Send]]，粘贴收款方地址，或选择一个联系人。', '输入金额。发送前会显示手续费。', '点 **核对发送**，检查无误后点 **发送 … EPIC**。']),
+        const HelpBlock.ol(['打开[[发送|Send]]，粘贴收款方地址，或选择一个联系人。', '输入金额。发送前会显示手续费。', '点 **确认发送**，检查无误后点 **发送 … EPIC**。']),
         const HelpBlock.p('此时需要收款方钱包回复（见“为什么交易需要双方参与？”）。通过 Epicbox 时，对方不必此刻在线：付款会一直等到对方钱包打开。在此期间，所用的输出会被锁定，因此无法被花费两次。'),
-        HelpBlock.p('收到对方回复后，钱包会自动完成交易并发布到网络。经过 $confirmations 次确认后交易即为最终。'),
+        HelpBlock.p('收到对方回复后，钱包会自动完成交易并广播到网络。经过 $confirmations 个确认后交易即为最终。'),
         HelpBlock.p('**没有回复？** 几分钟后状态会显示“等待接收方”。请对方打开钱包。如果一直没有回复，请在 $cancelPlace 取消发送以解锁输出。发送永远不会自动取消。'),
         if (phone)
           const HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要 Epicbox 服务器有响应；直连地址（http 或 .onion）需要收款方钱包在那一刻处于打开且可访问的状态。')
@@ -66,9 +67,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('文件完成的握手与 Epicbox 相同，只是消息由人工传递，例如通过电子邮件、聊天或 U 盘。它不依赖 Epicbox，也不需要双方钱包同时在线。'),
         if (phone)
-          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并分享文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 文件|Receive › File]]中打开该文件。其钱包签名后分享一个回复文件（文件名以 finalize_ 开头），并把该文件发回。', '**发送方：** 在[[接收 › 文件|Receive › File]]中打开回复文件。钱包完成交易并发布。'])
+          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并分享文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 文件|Receive › File]]中打开该文件。其钱包签名后分享一个回复文件（文件名以 finalize_ 开头），并把该文件发回。', '**发送方：** 在[[接收 › 文件|Receive › File]]中打开回复文件。钱包完成交易并广播。'])
         else
-          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并保存文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 交易文件 › 签名交易文件|Receive › Transaction files › Sign a transaction file]]中打开该文件。其钱包签名后保存一个回复文件（文件名以 finalize_ 开头），并把该文件发回。', '**发送方：** 在[[接收 › 交易文件 › 完成回复文件|Receive › Transaction files › Finalize a response file]]中打开回复文件。钱包完成交易并发布。']),
+          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并保存文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 交易文件 › 签署交易文件|Receive › Transaction files › Sign a transaction file]]中打开该文件。其钱包签名后保存一个回复文件（文件名以 finalize_ 开头），并把该文件发回。', '**发送方：** 在[[接收 › 交易文件 › 完成回复文件|Receive › Transaction files › Finalize a response file]]中打开回复文件。钱包完成交易并广播。']),
         const HelpBlock.p('其他 Epic Cash 钱包对这些步骤有各自的叫法。如果一直收不到回复文件，请在“活动”中取消发送以解锁输出。'),
       ],
       id: HelpId.file,
@@ -93,7 +94,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '在 Epic Cash 中，收款方钱包要参与构建每一笔交易，因此双方钱包都必须参与。',
       [
         HelpBlock.p('Epic Cash 使用 Mimblewimble。它不在区块链上写入地址和金额，而是由两个钱包共同构建每笔交易，就像握手一样：'),
-        HelpBlock.ol(['发送方钱包发起交易，并锁定要发送的输出。', '收款方钱包加入自己的部分并签名。', '发送方钱包也签名，完成交易并发布到网络。']),
+        HelpBlock.ol(['发送方钱包发起交易，并锁定要发送的输出。', '收款方钱包加入自己的部分并签名。', '发送方钱包也签名，完成交易并广播到网络。']),
         HelpBlock.p('因此需要有东西在两个钱包之间传递消息。**Epicbox** 负责这件事：在对方钱包离线时保存消息，所以双方不必同时在线。**HTTP** 和 **Tor** 在对方钱包打开时直接送达。**交易文件** 是手动方式。'),
       ],
       handshake: true,
@@ -102,10 +103,10 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'how',
       '确认',
-      '交易经过 $confirmations 次确认后即为最终，通常约需 $confirmations 分钟。',
+      '交易经过 $confirmations 个确认后即为最终，通常约需 $confirmations 分钟。',
       [
-        const HelpBlock.p('网络接受交易后，矿工会把它打包进一个区块。大约每分钟产生一个新区块。包含该交易的区块是第一次确认，之后的每个区块再增加一次确认，使交易越来越难以撤销。'),
-        HelpBlock.p('此钱包在 **$confirmations 次确认** 后视交易为最终。在此之前显示为 **确认中**，收到的输出暂时不能花费。这个次数是固定的。'),
+        const HelpBlock.p('网络接受交易后，矿工会把它打包进一个区块。大约每分钟产生一个新区块。包含该交易的区块是第一个确认，之后的每个区块再增加一个确认，使交易越来越难以撤销。'),
+        HelpBlock.p('此钱包在 **$confirmations 个确认** 后视交易为最终。在此之前显示为 **确认中**，收到的输出暂时不能花费。这个数字是固定的。'),
         const HelpBlock.p('比平时慢？钱包只能通过它的节点看到新区块：请检查节点是否已同步。'),
       ],
       id: HelpId.confirmations,
@@ -128,7 +129,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('余额是一组输出。要从一个 5 EPIC 的输出中发送 3 EPIC，钱包会花掉整个输出：3 EPIC 给收款方，一小笔手续费给矿工，剩余部分作为一个新输出退回，即 **找零**。'),
         const HelpBlock.p('因此，发送后的几分钟内，部分余额可能不可用：'),
-        HelpBlock.ul(['**已锁定**：尚未完成的发送所用的输出。如果取消发送，它们会被解锁。', '**等待完成**：仍在等待对方钱包的交易。', '**确认中**：所在区块确认次数少于 $confirmations 次的输出，包括找零。']),
+        HelpBlock.ul(['**已锁定**：尚未完成的发送所用的输出。如果取消发送，它们会被解锁。', '**等待完成**：仍在等待对方钱包的交易。', '**确认中**：所在区块确认数少于 $confirmations 个的输出，包括找零。']),
         const HelpBlock.p('输出列在[[输出|Outputs]]中。'),
       ],
       id: HelpId.locked,
@@ -189,8 +190,8 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('助记词能找回区块链上的一切，也就是余额。'),
         HelpBlock.p('**恢复方法**：在新${phone ? '手机' : '电脑'}上或丢失后，打开$restorePlace，输入单词并设置${phone ? ' PIN 码' : '密码'}。钱包打开后会扫描区块链查找自己的输出。首次扫描完成后余额才会出现；找到的付款标记为 **恢复的资金**。'),
-        HelpBlock.p('**恢复无法找回的内容：** 从未上链的信息，例如谁付了什么、交易消息、联系人和钱包名称。历史备份会保存付款详情和联系人：$historyBackupPlace。${phone ? '请把备份文件保存在手机以外的地方，例如电子邮件或云存储中。' : ''}'),
-        const HelpBlock.p('**余额看起来不对？** 运行[[设置 › 重新扫描区块链|Settings › Recheck balance]]。它会为此钱包的输出重新读取整条区块链。'),
+        HelpBlock.p('**恢复无法找回的内容：** 从未上链的信息，例如谁付了什么、交易消息、联系人和钱包名称。交易记录备份会保存付款详情和联系人：$historyBackupPlace。${phone ? '请把备份文件保存在手机以外的地方，例如电子邮件或云存储中。' : ''}'),
+        HelpBlock.p('**余额看起来不对？** 运行[[设置 › $recheck|Settings › Recheck balance]]。它会为此钱包的输出重新读取整条区块链。'),
         if (!phone)
           const HelpBlock.p('**钱包文件** 位于[[设置 › 此钱包 › 钱包文件夹|Settings › This wallet › Wallet folder]]。即使有这些文件的副本，也请保留助记词：文件丢失时它仍然有效。'),
       ],
@@ -203,7 +204,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           ? '节点把钱包连接到 Epic Cash 网络。钱包使用公共节点；节点落后时请换一个。'
           : '节点把钱包连接到 Epic Cash 网络。公共节点最快捷；本地节点归你自己。',
       [
-        const HelpBlock.p('钱包需要节点来读取区块链（余额和确认），并把交易发布到网络。'),
+        const HelpBlock.p('钱包需要节点来读取区块链（余额和确认），并把交易广播到网络。'),
         if (phone)
           const HelpBlock.p('**公共节点** 是由他人运行的节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出；Tor 可以隐藏该地址。')
         else
@@ -223,9 +224,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('每笔交易都有双方钱包参与，因此它们的消息需要一个汇合点。Epicbox 服务器就是这个汇合点：它保存发给此钱包的付款，直到钱包上线，并把钱包的回复送回去。消息是加密的，Epicbox 无法花费这些币。'),
         const HelpBlock.p('Epicbox 地址是钱包的公钥，后接 **@** 和其 Epicbox 服务器的名称。'),
         if (phone)
-          HelpBlock.p('点“钱包”标签页上的 Epicbox 行，或在$epicboxPlace中设置服务器：选择一个公共服务器（会连同状态一起列出），或自行输入。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款人。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。')
+          HelpBlock.p('点“钱包”标签页上的 Epicbox 行，或在$epicboxPlace中设置服务器：选择一个公共服务器（会连同状态一起列出），或自行输入。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款方。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。')
         else
-          HelpBlock.p('在$epicboxPlace中设置服务器：选择一个公共服务器（会连同状态一起列出），或自行输入。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款人。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。'),
+          HelpBlock.p('在$epicboxPlace中设置服务器：选择一个公共服务器（会连同状态一起列出），或自行输入。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款方。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。'),
       ],
       id: HelpId.epicbox,
     ),
@@ -293,7 +294,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           const HelpBlock.p('**忘记 PIN 码。** 在解锁界面删除钱包，然后用助记词恢复并设置新的 PIN 码。没有助记词，EPIC 将无法找回。')
         else
           const HelpBlock.p('**“密码错误”。** 检查大写锁定键和键盘布局。如果忘记了密码：用助记词恢复钱包并设置新密码。'),
-        const HelpBlock.p('**余额看起来不对。** 运行“设置 › 重新扫描区块链”。'),
+        HelpBlock.p('**余额看起来不对。** 运行“设置 › $recheck”。'),
       ],
       id: HelpId.trouble,
     ),

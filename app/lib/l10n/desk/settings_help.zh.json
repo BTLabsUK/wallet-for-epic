@@ -22,5 +22,11 @@
   "deskSetHelpTravels": "一笔交易如何传递",
   "deskSetHelpOverEpicbox": "经由 Epicbox",
   "deskSetHelpWithFile": "使用文件",
-  "deskSetHelpStep": "第 {number} 步，共 {total} 步"
+  "deskSetHelpStep": "第 {number} 步，共 {total} 步",
+  "deskSetHelpSearch": "搜索帮助",
+  "deskSetHelpSearchKeys": "按 / 搜索。按 Esc 清除搜索。",
+  "deskSetHelpSearchHint": "例如：文件、确认、助记词",
+  "deskSetHelpClear": "清除搜索",
+  "deskSetHelpTourAgain": "重新查看导览",
+  "deskSetHelpTopics": "{count, plural, other{{count} 个主题}}"
 }
