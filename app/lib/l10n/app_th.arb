@@ -3594,6 +3594,10 @@
   "advTorOnlyNote": "Tor only pauses notifications: registering for them would reveal this phone's address.",
   "advOfflineNote": "Offline pauses Epicbox, Direct receiving, status checks and notifications until the mode changes.",
   "advReset": "Hide everything again",
+  "advNodeFailover": "Node failover",
+  "advNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "nodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "nodeFailoverInsteadOf": "Instead of {host}",
   "advHomeOffline": "Offline mode",
   "advHomeTorOnlyWaiting": "Tor only · waiting for Tor",
   "advBuiltInNode": "Built-in node",
@@ -3664,5 +3668,9 @@
   "deskSlDefault": "ค่าเริ่มต้น",
   "deskSlTesting": "กำลังทดสอบ {host}…",
   "deskSlSetupEpicboxOn": "รับผ่าน Epicbox",
-  "deskSlHelpChoose": "เลือกหนึ่งรายการ หรือพิมพ์เพื่อกรองรายการหรือเพิ่มเซิร์ฟเวอร์"
+  "deskSlHelpChoose": "เลือกหนึ่งรายการ หรือพิมพ์เพื่อกรองรายการหรือเพิ่มเซิร์ฟเวอร์",
+  "deskSetAdvNodeFailover": "Node failover",
+  "deskSetAdvNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
+  "deskNodeFailoverInsteadOf": "Instead of {host}"
 }

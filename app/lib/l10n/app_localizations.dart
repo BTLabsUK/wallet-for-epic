@@ -21716,6 +21716,30 @@ abstract class AppLocalizations {
   /// **'Hide everything again'**
   String get advReset;
 
+  /// Switch on the Advanced page, under the network modes: on by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Node failover'**
+  String get advNodeFailover;
+
+  /// Info sheet of the Node failover switch on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'When your node stops answering, the wallet uses the next working node in your list for this session.'**
+  String get advNodeFailoverHint;
+
+  /// Notice when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.
+  ///
+  /// In en, this message translates to:
+  /// **'Node not answering. Switched to {host}.'**
+  String nodeFailoverSwitched(String host);
+
+  /// Under the node's address on the status card while node failover uses another node: host is the chosen node.
+  ///
+  /// In en, this message translates to:
+  /// **'Instead of {host}'**
+  String nodeFailoverInsteadOf(String host);
+
   /// Home status line while the Offline network mode is on.
   ///
   /// In en, this message translates to:
@@ -22141,6 +22165,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick one, or type to filter the list or add a server.'**
   String get deskSlHelpChoose;
+
+  /// Switch on Settings › Advanced, under the network modes: on by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Node failover'**
+  String get deskSetAdvNodeFailover;
+
+  /// Hover card of the Node failover switch on Settings › Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'When your node stops answering, the wallet uses the next working node in your list for this session.'**
+  String get deskSetAdvNodeFailoverHint;
+
+  /// Toast when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.
+  ///
+  /// In en, this message translates to:
+  /// **'Node not answering. Switched to {host}.'**
+  String deskNodeFailoverSwitched(String host);
+
+  /// Second line of the sidebar Node status and the Settings › Node head while node failover uses another node: host is the chosen node.
+  ///
+  /// In en, this message translates to:
+  /// **'Instead of {host}'**
+  String deskNodeFailoverInsteadOf(String host);
 }
 
 class _AppLocalizationsDelegate

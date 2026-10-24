@@ -14159,6 +14159,23 @@ class AppLocalizationsPl extends AppLocalizations {
   String get advReset => 'Hide everything again';
 
   @override
+  String get advNodeFailover => 'Node failover';
+
+  @override
+  String get advNodeFailoverHint =>
+      'When your node stops answering, the wallet uses the next working node in your list for this session.';
+
+  @override
+  String nodeFailoverSwitched(String host) {
+    return 'Node not answering. Switched to $host.';
+  }
+
+  @override
+  String nodeFailoverInsteadOf(String host) {
+    return 'Instead of $host';
+  }
+
+  @override
   String get advHomeOffline => 'Offline mode';
 
   @override
@@ -14436,4 +14453,21 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'Wybierz jeden albo wpisz, aby przefiltrować listę lub dodać serwer.';
+
+  @override
+  String get deskSetAdvNodeFailover => 'Node failover';
+
+  @override
+  String get deskSetAdvNodeFailoverHint =>
+      'When your node stops answering, the wallet uses the next working node in your list for this session.';
+
+  @override
+  String deskNodeFailoverSwitched(String host) {
+    return 'Node not answering. Switched to $host.';
+  }
+
+  @override
+  String deskNodeFailoverInsteadOf(String host) {
+    return 'Instead of $host';
+  }
 }
