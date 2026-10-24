@@ -6,12 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
 import '../../data/desk_node.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/server_row.dart';
-import 'settings_node.dart' show serverRows, nodeListNote;
+import 'settings_node.dart' show serverRows, nodeListNoteText;
 
 /// The local node's fallback was asked this session (the dialog shows once).
 bool fallbackAskedThisSession = false;
@@ -21,17 +22,19 @@ bool fallbackAskedThisSession = false;
 /// later; the switch under While syncing answers it for good).
 Future<bool?> showFallbackAskDialog(BuildContext context, {required String host}) => showEDialog<bool>(
   context,
-  builder: (context) => EDialog(
-    title: 'Use $host until the local node is synced?',
-    icon: EIcons.server,
-    description:
-        'Syncing takes hours. Meanwhile the wallet can read the chain and send through $host, a public node. The local node takes over by itself once it is synced.',
-    body: Text('Asked once. The node and the choice can be changed under Settings › Node › While syncing.', style: context.ts.caption),
-    actions: [
-      EButton.ghost(label: 'Wait for the local node', size: EBtnSize.md, onPressed: () => Navigator.of(context).pop(false)),
-      EButton.primary(label: 'Use $host', onPressed: () => Navigator.of(context).pop(true)),
-    ],
-  ),
+  builder: (context) {
+    final l = context.l10n;
+    return EDialog(
+      title: l.deskSetLndAskTitle(host),
+      icon: EIcons.server,
+      description: l.deskSetLndAskDesc(host),
+      body: Text(l.deskSetLndAskNote, style: context.ts.caption),
+      actions: [
+        EButton.ghost(label: l.deskSetLndAskWait, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop(false)),
+        EButton.primary(label: l.deskSetLndAskUse(host), onPressed: () => Navigator.of(context).pop(true)),
+      ],
+    );
+  },
 );
 
 /// Shows the D-7 question when the decision asks for it, once per session, and saves the
@@ -55,9 +58,10 @@ Future<String?> showFallbackPickerDialog(BuildContext context, {required String 
       final nodes = ref.watch(deskProvider.select((s) => s.nodes)) ?? const <NodeServer>[];
       // The fallback is kept only for an https node (FallbackChoice.fromJson): list only those.
       final rows = serverRows(nodes.where((n) => !n.own && n.url.startsWith('https://')).toList());
+      final l = context.l10n;
       return EDialog(
-        title: 'Node while syncing',
-        description: 'The public node the wallet uses until the local node is synced.',
+        title: l.deskSetLndPickTitle,
+        description: l.deskSetLndPickDesc,
         icon: EIcons.node,
         width: 560.u,
         body: Column(
@@ -65,10 +69,10 @@ Future<String?> showFallbackPickerDialog(BuildContext context, {required String 
           children: [
             for (final r in rows) ServerRow(kind: ServerKind.node, info: r, selected: r.value == current, onTap: () => Navigator.of(context).pop(r.value)),
             SizedBox(height: Sp.x2),
-            Text(nodeListNote, style: context.ts.caption),
+            Text(nodeListNoteText(l), style: context.ts.caption),
           ],
         ),
-        actions: [EButton(label: 'Cancel', onPressed: () => Navigator.of(context).pop())],
+        actions: [EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop())],
       );
     },
   ),
@@ -92,7 +96,10 @@ class _DeleteChainDataDialogState extends State<DeleteChainDataDialog> {
   final _text = TextEditingController();
   bool _busy = false;
 
-  bool get _ok => _text.text.trim() == 'delete';
+  /// The word typed to confirm; the same in every language.
+  static const _word = 'delete'; // l10n-ok: the typed confirmation word
+
+  bool get _ok => _text.text.trim() == _word;
 
   @override
   void dispose() {
@@ -101,17 +108,18 @@ class _DeleteChainDataDialogState extends State<DeleteChainDataDialog> {
   }
 
   Future<void> _go() async {
+    final l = context.l10n;
     setState(() => _busy = true);
     try {
       await widget.api.stop();
       final freed = await widget.api.deleteChainData();
       if (!mounted) return;
       Navigator.of(context).pop();
-      showEToast(context, 'Chain data deleted', text: '${bytesText(freed)} freed');
+      showEToast(context, l.deskSetLndDeleted, text: l.deskSetLndFreed(bytesText(freed)));
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showEToast(context, 'Chain data not deleted', text: '$e', tone: ETone.risk);
+      showEToast(context, l.deskSetLndNotDeleted, text: '$e', tone: ETone.risk);
     }
   }
 
@@ -120,36 +128,35 @@ class _DeleteChainDataDialogState extends State<DeleteChainDataDialog> {
     final ts = context.ts;
     final c = context.dc;
     final s = widget.state;
-    final size = s.chainDataBytes == null ? 'the chain data' : bytesText(s.chainDataBytes!);
+    final l = context.l10n;
     return EDialog(
-      title: 'Delete chain data?',
+      title: l.deskSetLndDeleteQuestion,
       icon: EIcons.trash,
       tone: ETone.risk,
-      description:
-          'Removes $size from ${s.chainDataPath}. The node stops, and the whole chain downloads again on the next start (hours). Wallet keys and history are not touched.',
+      description: s.chainDataBytes == null ? l.deskSetLndDeleteDescNoSize(s.chainDataPath) : l.deskSetLndDeleteDesc(bytesText(s.chainDataBytes!), s.chainDataPath),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(text: 'Type '),
-                TextSpan(text: 'delete', style: ts.mono(size: Fs.sm, color: c.text, weight: FontWeight.w600)),
-                const TextSpan(text: ' to confirm.'),
-              ],
-            ),
-            style: ts.small,
-          ),
+          _withWord(l.deskSetLndTypeToConfirm('\u0000'), _word, ts.mono(size: Fs.sm, color: c.text, weight: FontWeight.w600), style: ts.small),
           SizedBox(height: Sp.x2),
-          EInput(controller: _text, hint: 'delete', mono: true, autofocus: true, semanticLabel: 'Type delete to confirm', onChanged: (_) => setState(() {}), onSubmitted: (_) => _ok && !_busy ? _go() : null),
+          EInput(controller: _text, hint: _word, mono: true, autofocus: true, semanticLabel: l.deskSetLndTypeToConfirmLabel(_word), onChanged: (_) => setState(() {}), onSubmitted: (_) => _ok && !_busy ? _go() : null),
         ],
       ),
       actions: [
-        EButton.ghost(label: 'Cancel', size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
-        EButton(label: 'Delete chain data', kind: EBtnKind.danger, busy: _busy, onPressed: _ok && !_busy ? _go : null),
+        EButton.ghost(label: l.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: l.deskSetLndDeleteTitle, kind: EBtnKind.danger, busy: _busy, onPressed: _ok && !_busy ? _go : null),
       ],
     );
   }
+}
+
+/// [text] with the placeholder `\u0000` replaced by [word] in [wordStyle]: a sentence around a typed word.
+Widget _withWord(String text, String word, TextStyle wordStyle, {TextStyle? style}) {
+  final i = text.indexOf('\u0000');
+  return Text.rich(
+    TextSpan(children: [TextSpan(text: text.substring(0, i)), TextSpan(text: word, style: wordStyle), TextSpan(text: text.substring(i + 1))]),
+    style: style,
+  );
 }
 
 /// Chain data found on this computer: one card per candidate, a last card to download fresh.
@@ -187,11 +194,11 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
     }();
   }
 
-  String _source(ChainDataInfo f) => switch (f.source) {
-    ChainDataSource.cli => 'epic (the command-line node)',
-    ChainDataSource.gui => 'Epic GUI',
-    ChainDataSource.bundled => 'an earlier Epic Wallet',
-    ChainDataSource.custom => 'another folder',
+  String _source(AppLocalizations l, ChainDataInfo f) => switch (f.source) {
+    ChainDataSource.cli => l.deskSetLndSourceCli,
+    ChainDataSource.gui => l.deskSetLndSourceGui,
+    ChainDataSource.bundled => l.deskSetLndSourceBundled,
+    ChainDataSource.custom => l.deskSetLndSourceCustom,
   };
 
   Future<void> _go() async {
@@ -202,16 +209,17 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
       return;
     }
     final f = _found!.firstWhere((f) => f.path == pick);
+    final l = context.l10n;
     setState(() => _busy = true);
     try {
       await widget.api.reuseChainData(f, ReuseMode.point);
       if (!mounted) return;
       Navigator.of(context).pop(true);
-      showEToast(context, 'Chain data in use', text: f.path);
+      showEToast(context, l.deskSetLndInUse, text: f.path);
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showEToast(context, 'The folder is not in use', text: '$e', tone: ETone.risk);
+      showEToast(context, l.deskSetLndNotInUse, text: '$e', tone: ETone.risk);
     }
   }
 
@@ -219,23 +227,24 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final c = context.dc;
+    final l = context.l10n;
     final found = _found;
     return EDialog(
-      title: 'Chain data found on this computer',
+      title: l.deskSetLndReuseTitle,
       icon: EIcons.folder,
       width: 640.u,
-      description: 'Another Epic node left chain data here. The local node can read that folder instead of downloading the chain.',
+      description: l.deskSetLndReuseDesc,
       body: found == null
-          ? SizedBox(height: 80.u, child: Center(child: Text('Looking…', style: ts.small.copyWith(color: c.dim))))
+          ? SizedBox(height: 80.u, child: Center(child: Text(l.deskSetLndLooking, style: ts.small.copyWith(color: c.dim))))
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (final f in found) ...[
                   _ReuseCard(
-                    title: 'Use it',
+                    title: l.deskSetLndUseIt,
                     path: f.path,
-                    line: [bytesText(f.bytes), if (f.modified != null) 'last written ${_date(f.modified!)}', _source(f)].join(' · '),
-                    sub: f.lock == FolderLock.locked ? 'In use by another program' : 'Nothing is copied: the node reads that folder, and Delete chain data is off for it.',
+                    line: [bytesText(f.bytes), if (f.modified != null) l.deskSetLndLastWritten(_date(f.modified!)), _source(l, f)].join(' · '),
+                    sub: f.lock == FolderLock.locked ? l.deskSetLndLocked : l.deskSetLndNothingCopied,
                     selected: _pick == f.path,
                     enabled: f.lock != FolderLock.locked,
                     onTap: () => setState(() => _pick = f.path),
@@ -243,8 +252,8 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
                   SizedBox(height: Sp.x2),
                 ],
                 _ReuseCard(
-                  title: 'Download fresh',
-                  line: 'Into the wallet’s own folder. About ${_facts == null ? '5 GB' : bytesText(_facts!.chainBytes)}.',
+                  title: l.deskSetLndFresh,
+                  line: l.deskSetLndFreshLine(_facts == null ? '5 GB' : bytesText(_facts!.chainBytes)),
                   selected: _pick == '',
                   enabled: true,
                   onTap: () => setState(() => _pick = ''),
@@ -252,8 +261,8 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
               ],
             ),
       actions: [
-        EButton.ghost(label: 'Cancel', size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
-        EButton.primary(label: 'Continue', busy: _busy, onPressed: found == null || _pick == null || _busy ? null : _go),
+        EButton.ghost(label: l.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
+        EButton.primary(label: l.commonContinue, busy: _busy, onPressed: found == null || _pick == null || _busy ? null : _go),
       ],
     );
   }
@@ -333,10 +342,11 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l10n = context.l10n;
     final lines = _lines;
     final stamp = RegExp(r'^(\d{8} \d\d:\d\d:\d\d(?:\.\d+)?)\s*(.*)$');
     return EDialog(
-      title: 'Node log',
+      title: l10n.deskSetLndLogTitle,
       icon: EIcons.log,
       width: 640.u,
       body: Column(
@@ -347,7 +357,7 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
             padding: EdgeInsets.all(Sp.x3),
             decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
             child: lines == null
-                ? Text('Reading…', style: ts.small.copyWith(color: c.dim))
+                ? Text(l10n.deskSetLndReading, style: ts.small.copyWith(color: c.dim))
                 : SingleChildScrollView(
                     controller: _scroll,
                     child: SelectableText.rich(
@@ -378,12 +388,12 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
                   ),
           ),
           SizedBox(height: Sp.x2),
-          Text('Last 200 lines of epic-server.log in the data folder. Newest at the bottom.', style: ts.caption),
+          Text(l10n.deskSetLndLogNote, style: ts.caption),
         ],
       ),
       actions: [
         EButton.ghost(
-          label: 'Open folder',
+          label: l10n.deskSetBackupOpenFolder,
           size: EBtnSize.md,
           onPressed: _path == null
               ? null
@@ -391,20 +401,20 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
                   final p = _path!;
                   final dir = p.substring(0, p.lastIndexOf(RegExp(r'[\\/]')).clamp(0, p.length));
                   final ok = await ref.read(deskOpenFolderProvider)(dir);
-                  if (!ok && context.mounted) showEToast(context, 'Folder not opened', text: dir);
+                  if (!ok && context.mounted) showEToast(context, l10n.deskSetLnodeFolderNotOpened, text: dir);
                 },
         ),
         EButton.ghost(
-          label: 'Copy',
+          label: l10n.commonCopy,
           size: EBtnSize.md,
           onPressed: lines == null
               ? null
               : () async {
                   await Clipboard.setData(ClipboardData(text: lines.join('\n')));
-                  if (context.mounted) showEToast(context, 'Copied', text: '${lines.length} lines');
+                  if (context.mounted) showEToast(context, l10n.deskSetLndCopied, text: l10n.deskSetLndLines(lines.length));
                 },
         ),
-        EButton.primary(label: 'Close', onPressed: () => Navigator.of(context).pop()),
+        EButton.primary(label: l10n.commonClose, onPressed: () => Navigator.of(context).pop()),
       ],
     );
   }
@@ -423,16 +433,16 @@ Future<(String, FolderChange)?> showChangeFolderDialog(BuildContext context, Des
       final again = await showEDialog<bool>(
         context,
         builder: (context) => EDialog(
-          title: 'That folder does not work',
+          title: context.l10n.deskSetLndBadFolder,
           icon: EIcons.alert,
           tone: ETone.risk,
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [for (final p in plan.problems) Text(moveProblemText(p, plan), style: context.ts.small.copyWith(color: context.dc.risk))],
+            children: [for (final p in plan.problems) Text(moveProblemText(context.l10n, p, plan), style: context.ts.small.copyWith(color: context.dc.risk))],
           ),
           actions: [
-            EButton.ghost(label: 'Cancel', size: EBtnSize.md, onPressed: () => Navigator.of(context).pop(false)),
-            EButton.primary(label: 'Choose another', onPressed: () => Navigator.of(context).pop(true)),
+            EButton.ghost(label: context.l10n.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop(false)),
+            EButton.primary(label: context.l10n.deskSetLndChooseAnother, onPressed: () => Navigator.of(context).pop(true)),
           ],
         ),
       );
@@ -442,12 +452,12 @@ Future<(String, FolderChange)?> showChangeFolderDialog(BuildContext context, Des
     final how = await showEDialog<FolderChange>(
       context,
       builder: (context) => EDialog(
-        title: 'Move ${bytesText(s.chainDataBytes ?? plan.bytesNeeded)} to $folder?',
+        title: context.l10n.deskSetLndMoveTitle(bytesText(s.chainDataBytes ?? plan.bytesNeeded), folder),
         icon: EIcons.folder,
-        description: 'The node stops while the data moves, then starts again from the new folder. Start fresh there downloads the chain again into it instead.',
+        description: context.l10n.deskSetLndMoveDesc,
         actions: [
-          EButton.ghost(label: 'Start fresh there', size: EBtnSize.md, onPressed: () => Navigator.of(context).pop(FolderChange.point)),
-          EButton.primary(label: 'Move', onPressed: () => Navigator.of(context).pop(FolderChange.move)),
+          EButton.ghost(label: context.l10n.deskSetLndStartFresh, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop(FolderChange.point)),
+          EButton.primary(label: context.l10n.deskSetLndMove, onPressed: () => Navigator.of(context).pop(FolderChange.move)),
         ],
       ),
     );
@@ -455,16 +465,17 @@ Future<(String, FolderChange)?> showChangeFolderDialog(BuildContext context, Des
   }
 }
 
-String moveProblemText(MoveProblem p, MovePlan plan) => switch (p) {
-  MoveProblem.targetNotEmpty => 'The folder is not empty.',
-  MoveProblem.targetInsideSource => 'It is inside the current folder.',
-  MoveProblem.sourceInsideTarget => 'The current folder is inside it.',
-  MoveProblem.notEnoughSpace => 'Not enough space: ${bytesText(plan.bytesNeeded)} needed, ${plan.freeOnTarget == null ? 'unknown' : bytesText(plan.freeOnTarget!)} free.',
-  MoveProblem.sourceLocked => 'Another program holds it.',
-  MoveProblem.sourceMissing => 'The current chain data is missing.',
-  MoveProblem.targetNotWritable => 'It cannot be written to.',
-  MoveProblem.layoutIncomplete => 'The current chain data is incomplete.',
-  MoveProblem.targetForeign => 'Another program’s chain data is there.',
+String moveProblemText(AppLocalizations l, MoveProblem p, MovePlan plan) => switch (p) {
+  MoveProblem.targetNotEmpty => l.deskSetLndProbNotEmpty,
+  MoveProblem.targetInsideSource => l.deskSetLndProbInsideSource,
+  MoveProblem.sourceInsideTarget => l.deskSetLndProbSourceInside,
+  MoveProblem.notEnoughSpace =>
+    plan.freeOnTarget == null ? l.deskSetLndProbSpaceUnknown(bytesText(plan.bytesNeeded)) : l.deskSetLndProbSpace(bytesText(plan.bytesNeeded), bytesText(plan.freeOnTarget!)),
+  MoveProblem.sourceLocked => l.deskSetLndProbLocked,
+  MoveProblem.sourceMissing => l.deskSetLndProbMissing,
+  MoveProblem.targetNotWritable => l.deskSetLndProbNotWritable,
+  MoveProblem.layoutIncomplete => l.deskSetLndProbIncomplete,
+  MoveProblem.targetForeign => l.deskSetLndProbForeign,
 };
 
 /// The OS directory picker (the app sets it; tests and the tour pass [pick]).
