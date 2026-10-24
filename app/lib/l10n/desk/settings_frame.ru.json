@@ -28,6 +28,5 @@
   "deskSetFrameDaysAgo": "{count, plural, one{{count} дн. назад} few{{count} дн. назад} many{{count} дн. назад} other{{count} дн. назад}}",
   "deskSetComboOpens": "Открывает список",
   "deskSetComboNoAnswer": "Ответа пока нет",
-  "deskSetComboNothing": "Пусто.",
   "deskSetComboUse": "Использовать {host}"
 }

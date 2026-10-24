@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_licence.dart';
@@ -22,7 +23,8 @@ import 'package:epic_wallet/src/ui/language_flag.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
-import 'package:epic_wallet/src/ui/server_picker.dart' show ServerPickerSheet, serverAddFieldKey, serverAddKey, serverSwitchKey;
+import 'package:epic_wallet/src/ui/server_list_sheet.dart'
+    show ServerListSheet, serverListAddKey, serverListFieldKey, serverListSwitchKey;
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
@@ -191,6 +193,7 @@ class _Harness {
           updatePlatformProvider.overrideWithValue(null),
           updateProvider.overrideWith(() => _ScriptedUpdates(updates)),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
+          relayProbeProvider.overrideWithValue(FakeRelayProbe()),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           historyFilesProvider.overrideWithValue(files),
           priceSourceProvider.overrideWithValue(_FixedPrice()),
@@ -1894,24 +1897,20 @@ void main() {
       await _reveal(tester, find.byKey(settingsEpicboxKey));
       await tester.tap(find.byKey(settingsEpicboxKey));
       await tester.pumpAndSettle();
-      expect(find.byType(ServerPickerSheet), findsOneWidget);
+      expect(find.byType(ServerListSheet), findsOneWidget);
       expect(
-        find.descendant(of: find.byType(ServerPickerSheet), matching: find.text('Epicbox')),
+        find.descendant(of: find.byType(ServerListSheet), matching: find.text('Epicbox')),
         findsOneWidget,
       );
       // The warning names the address, not a relay or a mailbox.
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);
-      await tester.scrollUntilVisible(
-        find.byKey(serverAddFieldKey),
-        200,
-        scrollable: find.descendant(of: find.byType(ServerPickerSheet), matching: find.byType(Scrollable)).first,
-      );
-      await tester.enterText(find.byKey(serverAddFieldKey), 'mail.example.com');
-      await tester.tap(find.byKey(serverAddKey));
+      await tester.enterText(find.byKey(serverListFieldKey), 'mail.example.com');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverListAddKey));
       await tester.pumpAndSettle();
       expect(find.text('Your address changes; senders need the new one.'), findsOneWidget);
-      expect(find.byKey(serverSwitchKey), findsOneWidget);
+      expect(find.byKey(serverListSwitchKey), findsOneWidget);
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);
     });

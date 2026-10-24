@@ -1,5 +1,4 @@
 {
-  "deskSetNodeVersionOld": "Wersja starsza niż {version}",
   "deskSetNodePortNote": "Sprawdź adres i port (zwykle 3413).",
   "deskSetNodeListNote": "Stan z status.btlabs.uk, sprawdzany co kilka minut. Opóźnienie mierzone z tego komputera.",
   "deskSetNodeStartTitle": "Uruchomić węzeł lokalny?",
@@ -18,19 +17,9 @@
   "deskSetNodeLocalInUseText": "Pobiera cały łańcuch. Potrzebuje 5 GB wolnego miejsca.",
   "deskSetNodeLocalNode": "Węzeł lokalny",
   "deskSetNodeGroupComputer": "Ten komputer",
-  "deskSetNodeGroupMine": "Moje węzły",
-  "deskSetNodeGroupPublic": "Węzły publiczne",
-  "deskSetNodeRemovedFromMine": "Usunięto z moich węzłów",
-  "deskSetNodeNotAnswering": "Nie odpowiada",
-  "deskSetNodeAddToMine": "Dodaj do moich węzłów",
   "deskSetNodeServer": "Serwer węzła",
   "deskSetNodeServerHint": "Węzeł, przez który portfel czyta łańcuch i wysyła płatności.",
-  "deskSetNodeFindHint": "Znajdź lub wpisz adres węzła",
   "deskSetNodeChecking": "Sprawdzanie węzła…",
-  "deskSetNodeTypedNote": "Enter go użyje. Gwiazdka zachowa go w Moich węzłach.",
-  "deskSetNodeNoNodes": "Brak węzłów do pokazania.",
-  "deskSetNodeFooterAdd": "Dodaj do moich węzłów…",
-  "deskSetNodeFooterDirectory": "Katalog węzłów…",
   "deskSetNodeBackground": "Synchronizuj w tle",
   "deskSetNodeBackgroundHint": "Synchronizuje dalej, gdy aplikacja jest zamknięta."
 }

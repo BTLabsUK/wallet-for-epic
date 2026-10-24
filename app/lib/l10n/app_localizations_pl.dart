@@ -11030,16 +11030,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskKitFromThisComputer => 'z tego komputera';
 
   @override
-  String deskKitNodeRemove(String host) {
-    return 'Usuń $host z moich węzłów';
-  }
-
-  @override
-  String deskKitNodeAdd(String host) {
-    return 'Dodaj $host do moich węzłów';
-  }
-
-  @override
   String deskKitNodeUse(String host) {
     return 'Użyj $host';
   }
@@ -11664,78 +11654,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetBackupNotNow => 'Nie teraz';
 
   @override
-  String get deskSetDlgNodeAddressEmpty => 'Wpisz adres węzła.';
-
-  @override
-  String get deskSetDlgNodeAddressBad =>
-      'To nie jest adres węzła. Sprawdź adres i port (zwykle 3413).';
-
-  @override
-  String get deskSetDlgNodeAddressDuplicate =>
-      'Ten adres już jest w Moich węzłach.';
-
-  @override
-  String get deskSetDlgNodeNotAdded => 'Nie dodano węzła';
-
-  @override
-  String get deskSetDlgNodeSaved => 'Zapisano węzeł';
-
-  @override
-  String get deskSetDlgNodeAdded => 'Dodano do moich węzłów';
-
-  @override
-  String get deskSetDlgNodeSaveAnyway => 'Mimo to można go zapisać.';
-
-  @override
-  String get deskSetDlgNodeEditTitle => 'Edytuj węzeł';
-
-  @override
-  String get deskSetDlgNodeAddTitle => 'Dodaj do moich węzłów';
-
-  @override
-  String get deskSetDlgNodeDesc =>
-      'Zapisz adres węzła, aby łatwo go potem znaleźć. Można go zapisać, nawet gdy jest offline.';
-
-  @override
-  String get deskSetDlgNodeAddress => 'Adres węzła';
-
-  @override
-  String get deskSetDlgNodeLabel => 'Etykieta';
-
-  @override
-  String get deskSetDlgNodeLabelHint => 'np. Węzeł domowy';
-
-  @override
-  String get deskSetDlgDirTitle => 'Katalog węzłów';
-
-  @override
-  String get deskSetDlgDirDesc =>
-      'Węzły publiczne, ich operatorzy i stan przy ostatnim sprawdzeniu.';
-
-  @override
-  String get deskSetDlgDirEmpty => 'Brak węzłów do pokazania';
-
-  @override
-  String deskSetDlgDirVersion(String version) {
-    return 'wersja $version';
-  }
-
-  @override
-  String deskSetDlgDirHeight(String height) {
-    return 'wysokość $height';
-  }
-
-  @override
-  String get deskSetDlgDirInUse => 'W użyciu';
-
-  @override
-  String get deskSetDlgDirUse => 'Użyj';
-
-  @override
-  String get deskSetDlgDirNote =>
-      'Czasy odpowiedzi są mierzone ze strony stanu, nie z tego komputera.';
-
-  @override
   String get deskSetDlgChainTitle => 'Znaleziono istniejące dane blockchaina';
 
   @override
@@ -12000,9 +11918,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetComboNoAnswer => 'Jeszcze bez odpowiedzi';
-
-  @override
-  String get deskSetComboNothing => 'Nic do pokazania.';
 
   @override
   String deskSetComboUse(String host) {
@@ -12689,11 +12604,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetLogsOpenFolder => 'Otwórz folder logów';
 
   @override
-  String deskSetNodeVersionOld(String version) {
-    return 'Wersja starsza niż $version';
-  }
-
-  @override
   String get deskSetNodePortNote => 'Sprawdź adres i port (zwykle 3413).';
 
   @override
@@ -12756,21 +12666,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetNodeGroupComputer => 'Ten komputer';
 
   @override
-  String get deskSetNodeGroupMine => 'Moje węzły';
-
-  @override
-  String get deskSetNodeGroupPublic => 'Węzły publiczne';
-
-  @override
-  String get deskSetNodeRemovedFromMine => 'Usunięto z moich węzłów';
-
-  @override
-  String get deskSetNodeNotAnswering => 'Nie odpowiada';
-
-  @override
-  String get deskSetNodeAddToMine => 'Dodaj do moich węzłów';
-
-  @override
   String get deskSetNodeServer => 'Serwer węzła';
 
   @override
@@ -12778,23 +12673,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Węzeł, przez który portfel czyta łańcuch i wysyła płatności.';
 
   @override
-  String get deskSetNodeFindHint => 'Znajdź lub wpisz adres węzła';
-
-  @override
   String get deskSetNodeChecking => 'Sprawdzanie węzła…';
-
-  @override
-  String get deskSetNodeTypedNote =>
-      'Enter go użyje. Gwiazdka zachowa go w Moich węzłach.';
-
-  @override
-  String get deskSetNodeNoNodes => 'Brak węzłów do pokazania.';
-
-  @override
-  String get deskSetNodeFooterAdd => 'Dodaj do moich węzłów…';
-
-  @override
-  String get deskSetNodeFooterDirectory => 'Katalog węzłów…';
 
   @override
   String get deskSetNodeBackground => 'Synchronizuj w tle';
@@ -12976,11 +12855,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetRecvHeadStarting => 'Uruchamianie';
 
   @override
-  String deskSetRecvResponseTime(int ms) {
-    return 'Czas odpowiedzi $ms ms. Mierzony ze strony stanu.';
-  }
-
-  @override
   String get deskSetRecvEpicboxTitle => 'Odbieranie przez Epicbox';
 
   @override
@@ -12995,17 +12869,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Który serwer przechowuje płatności na ten adres. Oba portfele mogą używać różnych serwerów.';
 
   @override
-  String get deskSetRecvFindHint => 'Znajdź lub wpisz serwer Epicbox';
-
-  @override
   String get deskSetRecvSwitchingServer => 'Przełączanie serwera Epicbox…';
-
-  @override
-  String get deskSetRecvNotInList => 'nie ma go na liście publicznej';
-
-  @override
-  String get deskSetRecvTypedNote =>
-      'Enter go użyje. Jego stan pojawi się, gdy portfel się połączy.';
 
   @override
   String get deskSetRecvListNote =>
@@ -13425,25 +13289,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetupNodeServer => 'Serwer węzła';
 
   @override
-  String get deskSetupNodeHint => 'Znajdź lub wpisz adres węzła';
-
-  @override
   String get deskSetupCheckingNodes => 'Sprawdzanie węzłów…';
 
   @override
   String get deskSetupPickNode => 'Wybierz węzeł';
-
-  @override
-  String get deskSetupPublicNodes => 'Węzły publiczne';
-
-  @override
-  String get deskSetupNotInList => 'spoza listy publicznej';
-
-  @override
-  String get deskSetupEnterUses => 'Enter go wybiera.';
-
-  @override
-  String get deskSetupNoNodes => 'Brak węzłów do pokazania.';
 
   @override
   String get deskSetupRemoteNode => 'Węzeł zdalny';
@@ -13466,10 +13315,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxServer => 'Serwer Epicbox';
-
-  @override
-  String get deskSetupEpicboxHelp =>
-      'Zostaw puste, aby wyłączyć odbieranie przez Epicbox.';
 
   @override
   String get deskSetupChangePrefsSem => 'Zmień preferencje';
@@ -14453,4 +14298,142 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetAcctAutoLockHint =>
       'Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Wyłączona: portfel blokuje tylko „Zablokuj portfel”.';
+
+  @override
+  String get slNodeField => 'Adres węzła';
+
+  @override
+  String get slRelayField => 'Serwer Epicbox';
+
+  @override
+  String get slHelpIdleNode =>
+      'W użyciu. Zmień go, aby przełączyć, lub wpisz, aby filtrować listę.';
+
+  @override
+  String get slHelpIdleRelay =>
+      'W użyciu. Zmień go, aby przełączyć, lub wpisz, aby filtrować listę.';
+
+  @override
+  String get slHelpAddable => 'Nie ma go na liście.';
+
+  @override
+  String slHelpMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wyniku.',
+      many: '$count wyników.',
+      few: '$count wyniki.',
+      one: '$count wynik.',
+      zero: 'Brak wyników.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get slClear => 'Wyczyść';
+
+  @override
+  String slAddRow(String host) {
+    return 'Dodaj $host';
+  }
+
+  @override
+  String get slAddTestsNode =>
+      'Najpierw sprawdza węzeł, potem proponuje przełączenie.';
+
+  @override
+  String get slAddTestsRelay =>
+      'Najpierw sprawdza serwer, potem proponuje przełączenie.';
+
+  @override
+  String slAdded(String host) {
+    return 'Dodano $host.';
+  }
+
+  @override
+  String get slRemove => 'Usuń';
+
+  @override
+  String slRemoved(String host) {
+    return 'Usunięto $host.';
+  }
+
+  @override
+  String get slUndo => 'Cofnij';
+
+  @override
+  String get slInUseSwitchFirst => 'W użyciu. Najpierw przełącz.';
+
+  @override
+  String get slRestore => 'Przywróć listę publiczną';
+
+  @override
+  String slRemovedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count usuniętego',
+      many: '$count usuniętych',
+      few: '$count usunięte',
+      one: '$count usunięty',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get slRestored => 'Przywrócono listę publiczną.';
+
+  @override
+  String get slRelayWarning =>
+      'Przełączenie zmieni twój adres; nadawcy potrzebują nowego.';
+
+  @override
+  String get slNotAnAddress =>
+      'To nie jest adres serwera. Użyj host lub host:port.';
+
+  @override
+  String get slRelayNoAnswer => 'Ten serwer nie odpowiada. Nic nie dodano.';
+
+  @override
+  String deskSlRemoveHost(String host) {
+    return 'Usuń $host';
+  }
+
+  @override
+  String get deskSlInUse => 'W użyciu';
+
+  @override
+  String get deskSlHealthUnknown => 'Stan nieznany';
+
+  @override
+  String get deskSlNodeNoAnswer => 'Ten węzeł nie odpowiada. Nic nie dodano.';
+
+  @override
+  String get deskSlTorWait => 'Tor nie jest jeszcze połączony. Nic nie dodano.';
+
+  @override
+  String deskSlSwitchTo(String host) {
+    return 'Przełącz na $host';
+  }
+
+  @override
+  String deskSlLatency(String ms) {
+    return '$ms ms';
+  }
+
+  @override
+  String get deskSlDefault => 'Domyślny';
+
+  @override
+  String deskSlTesting(String host) {
+    return 'Sprawdzanie $host…';
+  }
+
+  @override
+  String get deskSlSetupEpicboxOn => 'Odbieraj przez Epicbox';
+
+  @override
+  String get deskSlHelpChoose =>
+      'Wybierz jeden albo wpisz, aby przefiltrować listę lub dodać serwer.';
 }

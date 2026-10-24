@@ -12,10 +12,12 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/ui/first_run_screen.dart' show NetworkSettingsButton;
 import 'package:epic_wallet/src/ui/launch_screen.dart';
 import 'package:epic_wallet/src/ui/network_menu.dart';
 import 'package:epic_wallet/src/ui/pin_unlock_screen.dart';
+import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +56,7 @@ Future<_World> _open(
       walletServiceProvider.overrideWithValue(service),
       secretStoreProvider.overrideWithValue(MemorySecretStore()),
       relayDirectoryProvider.overrideWithValue(_NoRelays()),
+      relayProbeProvider.overrideWithValue(FakeRelayProbe()),
       // The network chooser is for development builds; one test switches networks.
       devNetworksProvider.overrideWithValue(true),
     ],
@@ -89,23 +92,17 @@ Future<_World> _open(
   return (container: container, service: service, session: session);
 }
 
-/// Types [text] into the Other server field and taps Add: the server is offered for a switch.
+/// Types [text] into the field at the top and taps the Add row: the server is tested, added
+/// and offered for a switch.
 Future<void> _offer(WidgetTester tester, String text) async {
-  final field = find.byKey(serverAddFieldKey);
-  await tester.scrollUntilVisible(
-    field,
-    200,
-    scrollable: find
-        .descendant(of: find.byType(ServerPickerSheet), matching: find.byType(Scrollable))
-        .first,
-  );
-  await tester.enterText(field, text);
-  await tester.tap(find.byKey(serverAddKey));
+  await tester.enterText(find.byKey(serverListFieldKey), text);
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(serverListAddKey));
   await tester.pumpAndSettle();
 }
 
 Future<void> _switch(WidgetTester tester, {bool settle = true}) async {
-  await tester.tap(find.byKey(serverSwitchKey));
+  await tester.tap(find.byKey(serverListSwitchKey));
   if (settle) {
     await tester.pumpAndSettle();
     // The success notice's timer runs on after the switch.
@@ -120,7 +117,7 @@ Future<void> _switch(WidgetTester tester, {bool settle = true}) async {
 
 /// The app flow started again: the launch screen, or the lock screen it routes to.
 void _relaunched() {
-  expect(find.byType(ServerPickerSheet), findsNothing);
+  expect(find.byType(ServerListSheet), findsNothing);
   expect(
     find.byType(LaunchScreen).evaluate().isNotEmpty ||
         find.byType(PinUnlockScreen).evaluate().isNotEmpty,
@@ -131,7 +128,7 @@ void _relaunched() {
 /// The open wallet, on the same session, not locked and not handed to the PIN screen.
 void _stillOpen(_World w) {
   expect(find.byType(LaunchScreen), findsNothing);
-  expect(find.byType(ServerPickerSheet), findsNothing);
+  expect(find.byType(ServerListSheet), findsNothing);
   expect(find.text('home'), findsOneWidget);
   expect(w.container.read(sessionProvider), same(w.session));
   expect(w.session.disposeCalls, 0);
@@ -166,7 +163,7 @@ void main() {
     await _offer(tester, 'relay.example.org');
     // The strip's Switch, with its caption, is the confirmation.
     expect(find.text(_l.serverRelaySwitchNote), findsOneWidget);
-    expect(find.byKey(serverSwitchKey), findsOneWidget);
+    expect(find.byKey(serverListSwitchKey), findsOneWidget);
     await _switch(tester);
 
     _stillOpen(w);
@@ -216,12 +213,12 @@ void main() {
     final w = await _open(tester);
     final gate = w.session.serverSwitchGate = Completer<void>();
     await _offer(tester, 'relay.example.org');
-    await tester.tap(find.byKey(serverSwitchKey));
+    await tester.tap(find.byKey(serverListSwitchKey));
     await tester.pump();
     // Back out of the sheet while the switch waits for a payment in hand.
     tester.state<NavigatorState>(find.byType(Navigator)).pop();
     await tester.pumpAndSettle();
-    expect(find.byType(ServerPickerSheet), findsNothing);
+    expect(find.byType(ServerListSheet), findsNothing);
     gate.complete();
     await tester.pumpAndSettle();
 
@@ -249,6 +246,7 @@ void main() {
           ),
           secretStoreProvider.overrideWithValue(MemorySecretStore()),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
+          relayProbeProvider.overrideWithValue(FakeRelayProbe()),
         ],
       );
       addTearDown(container.dispose);
@@ -268,7 +266,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(entry));
       await tester.pumpAndSettle();
-      expect(find.byType(ServerPickerSheet), findsOneWidget);
+      expect(find.byType(ServerListSheet), findsOneWidget);
       return container;
     }
 
@@ -279,8 +277,8 @@ void main() {
       await tester.tap(find.text(_l.commonCancel));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(serverSwitchKey), findsNothing);
-      expect(find.byType(ServerPickerSheet), findsOneWidget);
+      expect(find.byKey(serverListSwitchKey), findsNothing);
+      expect(find.byType(ServerListSheet), findsOneWidget);
       expect(
         (await container.read(networkChoiceProvider.future)).relay,
         mainnetPreset.defaultRelay,
@@ -292,7 +290,7 @@ void main() {
       await _offer(tester, 'relay.example.org');
       await _switch(tester, settle: false);
 
-      expect(find.byType(ServerPickerSheet), findsNothing);
+      expect(find.byType(ServerListSheet), findsNothing);
       expect(
         (await container.read(networkChoiceProvider.future)).relay.host,
         'relay.example.org',
@@ -323,8 +321,8 @@ void main() {
     await tester.tap(find.text(_l.commonCancel));
     await tester.pumpAndSettle();
 
-    expect(find.byType(ServerPickerSheet), findsOneWidget);
-    expect(find.byKey(serverSwitchKey), findsNothing);
+    expect(find.byType(ServerListSheet), findsOneWidget);
+    expect(find.byKey(serverListSwitchKey), findsNothing);
     expect(w.session.serverSwitches, isEmpty);
     expect(
       (await w.container.read(networkChoiceProvider.future)).relay,
@@ -359,7 +357,7 @@ void main() {
     await _offer(tester, 'https://node.example.org');
     await _switch(tester);
 
-    expect(find.byType(ServerPickerSheet), findsOneWidget);
+    expect(find.byType(ServerListSheet), findsOneWidget);
     expect(w.container.read(sessionProvider), same(w.session));
     expect(
       (await w.container.read(networkChoiceProvider.future)).nodeUrl,

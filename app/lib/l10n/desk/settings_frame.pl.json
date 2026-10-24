@@ -28,6 +28,5 @@
   "deskSetFrameDaysAgo": "{count, plural, one{{count} d temu} few{{count} d temu} many{{count} d temu} other{{count} d temu}}",
   "deskSetComboOpens": "Otwiera listę",
   "deskSetComboNoAnswer": "Jeszcze bez odpowiedzi",
-  "deskSetComboNothing": "Nic do pokazania.",
   "deskSetComboUse": "Użyj {host}"
 }

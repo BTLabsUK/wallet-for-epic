@@ -1,13 +1,4 @@
 {
-  "deskSetNodeVersionOld": "Version older than {version}",
-  "@deskSetNodeVersionOld": {
-    "description": "Settings > Node: tag or sub-line on a node whose software is older than the minimum version the wallet works well with. {version} is a version number like 3.6.0.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "deskSetNodePortNote": "Check the address and the port (usually 3413).",
   "@deskSetNodePortNote": {
     "description": "Settings > Node: error under the node picker when the typed node does not answer."
@@ -85,26 +76,6 @@
   "@deskSetNodeGroupComputer": {
     "description": "Heading of the node picker group holding the local node."
   },
-  "deskSetNodeGroupMine": "My nodes",
-  "@deskSetNodeGroupMine": {
-    "description": "Heading of the node picker group of nodes the user saved; also a name used in other texts."
-  },
-  "deskSetNodeGroupPublic": "Public nodes",
-  "@deskSetNodeGroupPublic": {
-    "description": "Heading of the node picker group of public nodes."
-  },
-  "deskSetNodeRemovedFromMine": "Removed from my nodes",
-  "@deskSetNodeRemovedFromMine": {
-    "description": "Toast title after a node was removed from the saved nodes. The node address follows as text."
-  },
-  "deskSetNodeNotAnswering": "Not answering",
-  "@deskSetNodeNotAnswering": {
-    "description": "Node picker: word on a typed address whose node does not answer."
-  },
-  "deskSetNodeAddToMine": "Add to my nodes",
-  "@deskSetNodeAddToMine": {
-    "description": "Node picker: tooltip and screen reader label of the star button on a typed address."
-  },
   "deskSetNodeServer": "Node server",
   "@deskSetNodeServer": {
     "description": "Settings > Node: row title, picker label and screen reader name."
@@ -113,29 +84,9 @@
   "@deskSetNodeServerHint": {
     "description": "Settings > Node: hint under the Node server row."
   },
-  "deskSetNodeFindHint": "Find or type a node address",
-  "@deskSetNodeFindHint": {
-    "description": "Settings > Node: placeholder of the node picker search field."
-  },
   "deskSetNodeChecking": "Checking the node…",
   "@deskSetNodeChecking": {
     "description": "Settings > Node: shown while a chosen node is checked."
-  },
-  "deskSetNodeTypedNote": "Enter uses it. The star keeps it in My nodes.",
-  "@deskSetNodeTypedNote": {
-    "description": "Settings > Node: note under a typed address in the picker. \"Enter\" is the keyboard key."
-  },
-  "deskSetNodeNoNodes": "No nodes to show.",
-  "@deskSetNodeNoNodes": {
-    "description": "Settings > Node: empty note of the node picker."
-  },
-  "deskSetNodeFooterAdd": "Add to my nodes…",
-  "@deskSetNodeFooterAdd": {
-    "description": "Node picker footer action that opens the add node dialog."
-  },
-  "deskSetNodeFooterDirectory": "Node directory…",
-  "@deskSetNodeFooterDirectory": {
-    "description": "Node picker footer action that opens the node directory dialog."
   },
   "deskSetNodeBackground": "Sync in background",
   "@deskSetNodeBackground": {

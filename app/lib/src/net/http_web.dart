@@ -27,6 +27,38 @@ Future<HttpReply> httpGet(
   return reply;
 }
 
+/// [httpGet] for a binary body (an icon).
+Future<HttpBytes> httpGetBytes(
+  Uri url, {
+  Duration timeout = defaultHttpTimeout,
+  required int maxBytes,
+}) async {
+  final abort = _AbortController();
+  var timedOut = false;
+  final timer = Timer(timeout, () {
+    timedOut = true;
+    abort.abort();
+  });
+  try {
+    final init = _RequestInit(
+      method: 'GET',
+      headers: const <String, String>{}.jsify()! as JSObject,
+      signal: abort.signal,
+    );
+    final response = await _fetch(url.toString(), init).toDart;
+    final bytes = (await response.arrayBuffer().toDart).toDart.asUint8List();
+    if (bytes.length > maxBytes) throw NetTooLarge(maxBytes);
+    return HttpBytes(response.status, bytes);
+  } on NetTooLarge {
+    rethrow;
+  } catch (error) {
+    if (timedOut) throw TimeoutException('GET $url', timeout);
+    throw NetError('fetch failed');
+  } finally {
+    timer.cancel();
+  }
+}
+
 Future<HttpReply> httpPost(
   Uri url, {
   required List<int> body,
@@ -96,6 +128,7 @@ extension type _RequestInit._(JSObject _) implements JSObject {
 extension type _Response._(JSObject _) implements JSObject {
   external int get status;
   external JSPromise<JSString> text();
+  external JSPromise<JSArrayBuffer> arrayBuffer();
 }
 
 @JS('AbortController')

@@ -28,6 +28,5 @@
   "deskSetFrameDaysAgo": "{count, plural, other{{count} 天前}}",
   "deskSetComboOpens": "打开列表",
   "deskSetComboNoAnswer": "暂无响应",
-  "deskSetComboNothing": "没有可显示的内容。",
   "deskSetComboUse": "使用 {host}"
 }

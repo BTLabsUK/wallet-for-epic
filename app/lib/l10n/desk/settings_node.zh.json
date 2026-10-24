@@ -1,5 +1,4 @@
 {
-  "deskSetNodeVersionOld": "版本低于 {version}",
   "deskSetNodePortNote": "请检查地址和端口（通常是 3413）。",
   "deskSetNodeListNote": "状态来自 status.btlabs.uk，每隔几分钟检查一次。延迟是从这台电脑测得的。",
   "deskSetNodeStartTitle": "启动本地节点？",
@@ -18,19 +17,9 @@
   "deskSetNodeLocalInUseText": "它会下载完整的区块链。需要 5 GB 可用空间。",
   "deskSetNodeLocalNode": "本地节点",
   "deskSetNodeGroupComputer": "这台电脑",
-  "deskSetNodeGroupMine": "我的节点",
-  "deskSetNodeGroupPublic": "公共节点",
-  "deskSetNodeRemovedFromMine": "已从我的节点中移除",
-  "deskSetNodeNotAnswering": "无响应",
-  "deskSetNodeAddToMine": "添加到我的节点",
   "deskSetNodeServer": "节点服务器",
   "deskSetNodeServerHint": "钱包通过这个节点读取区块链并发送交易。",
-  "deskSetNodeFindHint": "查找或输入节点地址",
   "deskSetNodeChecking": "正在检查节点…",
-  "deskSetNodeTypedNote": "按 Enter 使用它。点星标可保存到“我的节点”。",
-  "deskSetNodeNoNodes": "没有可显示的节点。",
-  "deskSetNodeFooterAdd": "添加到我的节点…",
-  "deskSetNodeFooterDirectory": "节点目录…",
   "deskSetNodeBackground": "后台同步",
   "deskSetNodeBackgroundHint": "应用关闭时继续同步。"
 }

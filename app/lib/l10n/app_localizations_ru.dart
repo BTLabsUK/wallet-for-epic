@@ -11001,16 +11001,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitFromThisComputer => 'с этого компьютера';
 
   @override
-  String deskKitNodeRemove(String host) {
-    return 'Удалить $host из моих узлов';
-  }
-
-  @override
-  String deskKitNodeAdd(String host) {
-    return 'Добавить $host в мои узлы';
-  }
-
-  @override
   String deskKitNodeUse(String host) {
     return 'Использовать $host';
   }
@@ -11634,78 +11624,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetBackupNotNow => 'Не сейчас';
 
   @override
-  String get deskSetDlgNodeAddressEmpty => 'Введите адрес узла.';
-
-  @override
-  String get deskSetDlgNodeAddressBad =>
-      'Это не адрес узла. Проверьте адрес и порт (обычно 3413).';
-
-  @override
-  String get deskSetDlgNodeAddressDuplicate =>
-      'Этот адрес уже есть в «Моих узлах».';
-
-  @override
-  String get deskSetDlgNodeNotAdded => 'Узел не добавлен';
-
-  @override
-  String get deskSetDlgNodeSaved => 'Узел сохранён';
-
-  @override
-  String get deskSetDlgNodeAdded => 'Добавлено в мои узлы';
-
-  @override
-  String get deskSetDlgNodeSaveAnyway => 'Его всё равно можно сохранить.';
-
-  @override
-  String get deskSetDlgNodeEditTitle => 'Изменить узел';
-
-  @override
-  String get deskSetDlgNodeAddTitle => 'Добавить в мои узлы';
-
-  @override
-  String get deskSetDlgNodeDesc =>
-      'Сохраните адрес узла, чтобы потом легко его найти. Сохранить можно, даже если он не в сети.';
-
-  @override
-  String get deskSetDlgNodeAddress => 'Адрес узла';
-
-  @override
-  String get deskSetDlgNodeLabel => 'Название';
-
-  @override
-  String get deskSetDlgNodeLabelHint => 'например, Домашний узел';
-
-  @override
-  String get deskSetDlgDirTitle => 'Каталог узлов';
-
-  @override
-  String get deskSetDlgDirDesc =>
-      'Публичные узлы, их операторы и состояние на момент последней проверки.';
-
-  @override
-  String get deskSetDlgDirEmpty => 'Нет узлов';
-
-  @override
-  String deskSetDlgDirVersion(String version) {
-    return 'версия $version';
-  }
-
-  @override
-  String deskSetDlgDirHeight(String height) {
-    return 'высота $height';
-  }
-
-  @override
-  String get deskSetDlgDirInUse => 'Используется';
-
-  @override
-  String get deskSetDlgDirUse => 'Выбрать';
-
-  @override
-  String get deskSetDlgDirNote =>
-      'Время ответа измеряется с сайта статуса, а не с этого компьютера.';
-
-  @override
   String get deskSetDlgChainTitle => 'Найдены данные блокчейна';
 
   @override
@@ -11970,9 +11888,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetComboNoAnswer => 'Ответа пока нет';
-
-  @override
-  String get deskSetComboNothing => 'Пусто.';
 
   @override
   String deskSetComboUse(String host) {
@@ -12658,11 +12573,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetLogsOpenFolder => 'Открыть папку журналов';
 
   @override
-  String deskSetNodeVersionOld(String version) {
-    return 'Версия старше $version';
-  }
-
-  @override
   String get deskSetNodePortNote => 'Проверьте адрес и порт (обычно 3413).';
 
   @override
@@ -12725,21 +12635,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetNodeGroupComputer => 'Этот компьютер';
 
   @override
-  String get deskSetNodeGroupMine => 'Мои узлы';
-
-  @override
-  String get deskSetNodeGroupPublic => 'Публичные узлы';
-
-  @override
-  String get deskSetNodeRemovedFromMine => 'Удалено из моих узлов';
-
-  @override
-  String get deskSetNodeNotAnswering => 'Не отвечает';
-
-  @override
-  String get deskSetNodeAddToMine => 'Добавить в мои узлы';
-
-  @override
   String get deskSetNodeServer => 'Сервер узла';
 
   @override
@@ -12747,23 +12642,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Узел, через который кошелёк читает блокчейн и отправляет платежи.';
 
   @override
-  String get deskSetNodeFindHint => 'Найдите или введите адрес узла';
-
-  @override
   String get deskSetNodeChecking => 'Проверка узла…';
-
-  @override
-  String get deskSetNodeTypedNote =>
-      'Enter — использовать. Звёздочка сохранит его в «Моих узлах».';
-
-  @override
-  String get deskSetNodeNoNodes => 'Нет узлов.';
-
-  @override
-  String get deskSetNodeFooterAdd => 'Добавить в мои узлы…';
-
-  @override
-  String get deskSetNodeFooterDirectory => 'Каталог узлов…';
 
   @override
   String get deskSetNodeBackground => 'Синхронизация в фоне';
@@ -12945,11 +12824,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetRecvHeadStarting => 'Запуск';
 
   @override
-  String deskSetRecvResponseTime(int ms) {
-    return 'Время ответа $ms мс. Измерено с сайта статуса.';
-  }
-
-  @override
   String get deskSetRecvEpicboxTitle => 'Приём через Epicbox';
 
   @override
@@ -12964,17 +12838,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Какой сервер хранит платежи для этого адреса. У двух кошельков могут быть разные серверы.';
 
   @override
-  String get deskSetRecvFindHint => 'Найдите или введите сервер Epicbox';
-
-  @override
   String get deskSetRecvSwitchingServer => 'Переключение сервера Epicbox…';
-
-  @override
-  String get deskSetRecvNotInList => 'нет в публичном списке';
-
-  @override
-  String get deskSetRecvTypedNote =>
-      'Enter — использовать. Его состояние появится, когда кошелёк подключится.';
 
   @override
   String get deskSetRecvListNote =>
@@ -13391,25 +13255,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetupNodeServer => 'Сервер узла';
 
   @override
-  String get deskSetupNodeHint => 'Найдите или введите адрес узла';
-
-  @override
   String get deskSetupCheckingNodes => 'Проверка узлов…';
 
   @override
   String get deskSetupPickNode => 'Выберите узел';
-
-  @override
-  String get deskSetupPublicNodes => 'Публичные узлы';
-
-  @override
-  String get deskSetupNotInList => 'нет в публичном списке';
-
-  @override
-  String get deskSetupEnterUses => 'Enter — использовать.';
-
-  @override
-  String get deskSetupNoNodes => 'Нет узлов.';
 
   @override
   String get deskSetupRemoteNode => 'Удалённый узел';
@@ -13431,10 +13280,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxServer => 'Сервер Epicbox';
-
-  @override
-  String get deskSetupEpicboxHelp =>
-      'Оставьте пустым, чтобы выключить приём через Epicbox.';
 
   @override
   String get deskSetupChangePrefsSem => 'Изменить параметры';
@@ -14420,4 +14265,142 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetAcctAutoLockHint =>
       'Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. Если выключить, кошелёк блокируется только кнопкой «Заблокировать кошелёк».';
+
+  @override
+  String get slNodeField => 'Адрес узла';
+
+  @override
+  String get slRelayField => 'Сервер Epicbox';
+
+  @override
+  String get slHelpIdleNode =>
+      'Используется. Измените адрес, чтобы переключиться, или вводите текст, чтобы отфильтровать список.';
+
+  @override
+  String get slHelpIdleRelay =>
+      'Используется. Измените адрес, чтобы переключиться, или вводите текст, чтобы отфильтровать список.';
+
+  @override
+  String get slHelpAddable => 'Нет в списке.';
+
+  @override
+  String slHelpMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count совпадения.',
+      many: '$count совпадений.',
+      few: '$count совпадения.',
+      one: '$count совпадение.',
+      zero: 'Ничего не найдено.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get slClear => 'Очистить';
+
+  @override
+  String slAddRow(String host) {
+    return 'Добавить $host';
+  }
+
+  @override
+  String get slAddTestsNode =>
+      'Сначала проверит узел, затем предложит переключиться.';
+
+  @override
+  String get slAddTestsRelay =>
+      'Сначала проверит сервер, затем предложит переключиться.';
+
+  @override
+  String slAdded(String host) {
+    return 'Добавлено: $host.';
+  }
+
+  @override
+  String get slRemove => 'Удалить';
+
+  @override
+  String slRemoved(String host) {
+    return 'Удалено: $host.';
+  }
+
+  @override
+  String get slUndo => 'Отменить';
+
+  @override
+  String get slInUseSwitchFirst => 'Используется. Сначала переключитесь.';
+
+  @override
+  String get slRestore => 'Восстановить публичный список';
+
+  @override
+  String slRemovedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count удалено',
+      many: '$count удалено',
+      few: '$count удалено',
+      one: '$count удалён',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get slRestored => 'Публичный список восстановлен.';
+
+  @override
+  String get slRelayWarning =>
+      'При переключении ваш адрес изменится; отправителям нужен новый.';
+
+  @override
+  String get slNotAnAddress =>
+      'Это не адрес сервера. Введите host или host:port.';
+
+  @override
+  String get slRelayNoAnswer => 'Сервер не отвечает. Ничего не добавлено.';
+
+  @override
+  String deskSlRemoveHost(String host) {
+    return 'Удалить $host';
+  }
+
+  @override
+  String get deskSlInUse => 'Используется';
+
+  @override
+  String get deskSlHealthUnknown => 'Состояние неизвестно';
+
+  @override
+  String get deskSlNodeNoAnswer => 'Узел не отвечает. Ничего не добавлено.';
+
+  @override
+  String get deskSlTorWait => 'Tor ещё не подключён. Ничего не добавлено.';
+
+  @override
+  String deskSlSwitchTo(String host) {
+    return 'Переключиться на $host';
+  }
+
+  @override
+  String deskSlLatency(String ms) {
+    return '$ms мс';
+  }
+
+  @override
+  String get deskSlDefault => 'По умолчанию';
+
+  @override
+  String deskSlTesting(String host) {
+    return 'Проверка $host…';
+  }
+
+  @override
+  String get deskSlSetupEpicboxOn => 'Получать через Epicbox';
+
+  @override
+  String get deskSlHelpChoose =>
+      'Выберите сервер или введите текст, чтобы отфильтровать список или добавить сервер.';
 }

@@ -32,6 +32,13 @@ DateTime _ago({int days = 0, int hours = 0, int minutes = 0}) =>
 
 int _epic(num v) => (v * nanoPerEpic).round();
 
+/// An operator icon as status.btlabs.uk serves it, by its hash (the tour and the tests hold
+/// the 128 px PNGs in test/fixtures/icons/).
+ServerIcon mockServerIcon(String hash) => ServerIcon(
+  hash: hash,
+  urls: {for (final px in const [128, 256]) px: Uri.parse('https://status.btlabs.uk/api/v1/icons/$hash-$px.png')},
+);
+
 class MockDeskWallet implements DeskWalletApi {
   MockDeskWallet({this.delay = const Duration(milliseconds: 350)});
 
@@ -94,19 +101,21 @@ class MockDeskWallet implements DeskWalletApi {
   ];
 
   final List<NodeServer> _nodes = [
-    NodeServer(url: 'https://node.btlabs.uk', label: 'BT Labs', operator: 'BT Labs', health: ServiceHealth.ok, latencyMs: 18, height: 2914414, version: '4.1.1'),
-    NodeServer(url: 'https://node.epicnet.us:3413', label: 'EpicNet', operator: 'EpicNet', health: ServiceHealth.ok, latencyMs: 132, height: 2914414, version: '4.1.1'),
-    NodeServer(url: 'https://node.epiccash.com:3413', label: 'Epic Cash', operator: 'Epic Cash', health: ServiceHealth.slow, latencyMs: 940, height: 2914413, version: '4.1.1'),
-    NodeServer(url: 'https://epic.stackwallet.com:3413', label: 'Cypher Stack', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 210, height: 2914414, version: '4.1.0'),
-    NodeServer(url: 'https://epic-node.iniaku.my.id', label: 'Iniaku pool', operator: 'Iniaku pool', health: ServiceHealth.down, version: '4.1.1'),
+    NodeServer(url: 'https://node.btlabs.uk', label: 'BT Labs', operator: 'BT Labs', health: ServiceHealth.ok, latencyMs: 18, height: 2914414, version: '4.1.1', icon: mockServerIcon('7f31acd64c95a28ca70a'), listedAs: 'btlabs'),
+    NodeServer(url: 'https://node.epicnet.us:3413', label: 'EpicNet', operator: 'EpicNet', health: ServiceHealth.ok, latencyMs: 132, height: 2914414, version: '4.1.1', listedAs: 'epicnet.us'),
+    NodeServer(url: 'https://node.epiccash.com:3413', label: 'Epic Cash', operator: 'Epic Cash', health: ServiceHealth.slow, latencyMs: 940, height: 2914413, version: '4.1.1', icon: mockServerIcon('41bec7e038f3b806b2db'), listedAs: 'Epic Cash'),
+    NodeServer(url: 'https://epic.stackwallet.com:3413', label: 'Cypher Stack', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 210, height: 2914414, version: '4.1.0', icon: mockServerIcon('9a573fcde155e6753f68'), listedAs: 'Cypher Stack'),
+    NodeServer(url: 'https://epic-node.iniaku.my.id', label: 'Iniaku pool', operator: 'Iniaku pool', health: ServiceHealth.down, version: '4.1.1', icon: mockServerIcon('73de63f69b0165b85c44'), listedAs: 'Iniaku pool'),
     NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', health: ServiceHealth.ok, latencyMs: 6, height: 2914414, version: '4.1.1', own: true),
   ];
 
+  // As status.btlabs.uk lists them: the icons and operator names it serves; Iniaku's relay
+  // with no health yet.
   final List<EpicboxServer> _epicboxes = [
-    EpicboxServer(domain: 'epicbox.stackwallet.com', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 141),
-    EpicboxServer(domain: 'epicbox.epicnet.us', operator: 'EpicNet', health: ServiceHealth.slow, latencyMs: 1210),
-    EpicboxServer(domain: 'epicbox.epiccash.com', operator: 'Epic Cash', health: ServiceHealth.ok, latencyMs: 96),
-    EpicboxServer(domain: 'epicbox.iniaku.my.id', operator: 'Iniaku pool', health: ServiceHealth.ok, latencyMs: 360),
+    EpicboxServer(domain: 'epicbox.stackwallet.com', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 141, icon: mockServerIcon('9a573fcde155e6753f68'), listedAs: 'Cypher Stack'),
+    EpicboxServer(domain: 'epicbox.epicnet.us', operator: 'EpicNet', health: ServiceHealth.slow, latencyMs: 1210, listedAs: 'epicnet.us'),
+    EpicboxServer(domain: 'epicbox.epiccash.com', operator: 'Epic Cash', health: ServiceHealth.ok, latencyMs: 96, icon: mockServerIcon('41bec7e038f3b806b2db'), listedAs: 'Epic Cash'),
+    EpicboxServer(domain: 'epicbox.iniaku.my.id', operator: 'Iniaku pool', health: ServiceHealth.checking, icon: mockServerIcon('73de63f69b0165b85c44'), listedAs: 'Iniaku pool'),
   ];
 
   final List<WalletEntry> _wallets = [
@@ -522,7 +531,8 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<ServiceStatus> status() async {
     final node = _nodes.firstWhere((n) => n.url == _node, orElse: () => _nodes.first);
-    final box = _epicboxes.firstWhere((e) => e.domain == _epicbox, orElse: () => _epicboxes.first);
+    // A relay added by hand is in no list: it is still the one in use.
+    final box = _epicboxes.firstWhere((e) => e.domain == _epicbox, orElse: () => EpicboxServer(domain: _epicbox, health: ServiceHealth.checking));
     return ServiceStatus(
       node: node,
       nodeHealth: node.health,
