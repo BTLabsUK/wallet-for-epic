@@ -782,5 +782,44 @@
   "deskSendPlainConfirm": "Send anyway",
   "@deskSendPlainConfirm": {
     "description": "Button in that dialog: send over plain http."
+  },
+  "deskSendFeeChangedTitle": "The fee changed",
+  "@deskSendFeeChangedTitle": {
+    "description": "Title of the notice in the Check and send dialog when the fee moved after the review was opened (an output finished confirming or was locked)."
+  },
+  "deskSendFeeChangedText": "The wallet's outputs changed since this review, so the send now pays {fee} EPIC instead of {was} EPIC. Check it and send again.",
+  "@deskSendFeeChangedText": {
+    "description": "Text of that notice. {fee} is the new network fee, {was} the fee the dialog showed before, both in EPIC.",
+    "placeholders": {
+      "fee": {
+        "type": "String",
+        "example": "0.0110"
+      },
+      "was": {
+        "type": "String",
+        "example": "0.0120"
+      }
+    }
+  },
+  "deskSendMessageBytes": "{used} / {max} bytes",
+  "@deskSendMessageBytes": {
+    "description": "Counter next to the Message label on Send: the message length in UTF-8 bytes (an emoji takes 4) and the limit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSendMessageTooLong": "The message is longer than {max} bytes. Shorten it.",
+  "@deskSendMessageTooLong": {
+    "description": "Error under the Message field on Send when the message is over the limit, in UTF-8 bytes.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
   }
 }

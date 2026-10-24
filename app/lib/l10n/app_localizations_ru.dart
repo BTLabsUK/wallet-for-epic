@@ -547,7 +547,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'Отменено. Ничего не отправлено, средства снова доступны.';
+      'Отменено. Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий; завершить его больше нельзя.';
 
   @override
   String get txDetailsCancelledReleased =>
@@ -559,11 +559,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'Получатель не ответил за 14 дней, поэтому кошелёк отменил платёж. Ничего не отправлено, средства снова доступны.';
+      'Получатель не ответил за 14 дней, поэтому кошелёк отменил платёж. Ничего не оплачено, средства снова доступны.';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'Получатель ответил после 14-дневного срока, поэтому кошелёк отменил платёж вместо завершения. Ничего не отправлено, средства снова доступны.';
+      'Получатель ответил после 14-дневного срока, поэтому кошелёк отменил платёж вместо завершения. Ничего не оплачено, средства снова доступны.';
 
   @override
   String get txDetailsCancelledUndelivered =>
@@ -1808,6 +1808,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String invoiceDetailsReplied(String service) {
     return 'Ожидание, пока сервис $service опубликует платёж.';
+  }
+
+  @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return 'Если $service не опубликовал платёж, отправьте его снова: ничего не подписывается дважды. Если он так и не будет опубликован, отмена станет доступна, когда истечёт время платежа, примерно через сутки после оплаты.';
   }
 
   @override
@@ -13749,4 +13754,22 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskTxSentAgainText =>
       'Платёж завершится, когда кошелёк получателя появится в сети.';
+
+  @override
+  String get deskSendFeeChangedTitle => 'Комиссия изменилась';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return 'Выходы кошелька изменились после этой проверки, поэтому комиссия перевода теперь $fee EPIC вместо $was EPIC. Проверьте её и отправьте снова.';
+  }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max байт';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return 'Сообщение длиннее $max байт. Сократите его.';
+  }
 }

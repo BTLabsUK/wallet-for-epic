@@ -871,10 +871,10 @@ abstract class AppLocalizations {
   /// **'Completed in block {height}.'**
   String txDetailsCompletedInBlock(String height);
 
-  /// Payment details, why a send is cancelled: the user cancelled it before it was sent.
+  /// Payment details, why a send is cancelled: the user cancelled it. The slate may have reached the recipient, so it never says nothing was sent.
   ///
   /// In en, this message translates to:
-  /// **'Cancelled. Nothing was sent, and the funds are spendable again.'**
+  /// **'Cancelled. Nothing was paid, and the funds are spendable again. If the recipient already got it, their wallet may still show it as waiting; it can no longer complete.'**
   String get txDetailsCancelledByUser;
 
   /// Payment details, why a send is cancelled: the user released the funds of a send the network refused.
@@ -892,13 +892,13 @@ abstract class AppLocalizations {
   /// Payment details, why a send is cancelled: the recipient never answered within its 14-day limit.
   ///
   /// In en, this message translates to:
-  /// **'The recipient did not answer within 14 days, so the wallet cancelled it. Nothing was sent, and the funds are spendable again.'**
+  /// **'The recipient did not answer within 14 days, so the wallet cancelled it. Nothing was paid, and the funds are spendable again.'**
   String get txDetailsCancelledUnanswered;
 
   /// Payment details, why a send is cancelled: the answer came too late.
   ///
   /// In en, this message translates to:
-  /// **'The recipient answered after the 14-day limit, so the wallet cancelled it instead of finishing it. Nothing was sent, and the funds are spendable again.'**
+  /// **'The recipient answered after the 14-day limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the funds are spendable again.'**
   String get txDetailsCancelledLateAnswer;
 
   /// Payment details, why a send is cancelled: it never reached the recipient.
@@ -2385,6 +2385,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for {service} to post the payment.'**
   String invoiceDetailsReplied(String service);
+
+  /// Paid invoice's details while the service has not posted the payment: Send again delivers the stored reply again, and when Cancel becomes available. The payment's time to live is 1440 blocks, about a day. service is the name the user gave the service.
+  ///
+  /// In en, this message translates to:
+  /// **'If {service} has not posted it, send the payment again: nothing is signed twice. If it is never posted, Cancel becomes available once the payment\'s time runs out, about a day after you paid.'**
+  String invoiceDetailsRepliedHelp(String service);
 
   /// Paid invoice's details after the service's receipt arrived. The receipt only informs: the status above comes from the chain. service is the name the user gave the service.
   ///
@@ -21187,6 +21193,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It completes when the recipient’s wallet comes online.'**
   String get deskTxSentAgainText;
+
+  /// Title of the notice in the Check and send dialog when the fee moved after the review was opened (an output finished confirming or was locked).
+  ///
+  /// In en, this message translates to:
+  /// **'The fee changed'**
+  String get deskSendFeeChangedTitle;
+
+  /// Text of that notice. {fee} is the new network fee, {was} the fee the dialog showed before, both in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet\'s outputs changed since this review, so the send now pays {fee} EPIC instead of {was} EPIC. Check it and send again.'**
+  String deskSendFeeChangedText(String fee, String was);
+
+  /// Counter next to the Message label on Send: the message length in UTF-8 bytes (an emoji takes 4) and the limit.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} / {max} bytes'**
+  String deskSendMessageBytes(int used, int max);
+
+  /// Error under the Message field on Send when the message is over the limit, in UTF-8 bytes.
+  ///
+  /// In en, this message translates to:
+  /// **'The message is longer than {max} bytes. Shorten it.'**
+  String deskSendMessageTooLong(int max);
 }
 
 class _AppLocalizationsDelegate

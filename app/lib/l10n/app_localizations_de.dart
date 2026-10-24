@@ -533,7 +533,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'Storniert. Es wurde nichts gesendet und der Betrag ist wieder verfügbar.';
+      'Storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend; abschließen lässt sie sich nicht mehr.';
 
   @override
   String get txDetailsCancelledReleased =>
@@ -545,11 +545,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'Der Empfänger hat nicht innerhalb von 14 Tagen geantwortet, daher hat die Wallet die Zahlung storniert. Es wurde nichts gesendet und der Betrag ist wieder verfügbar.';
+      'Der Empfänger hat nicht innerhalb von 14 Tagen geantwortet, daher hat die Wallet die Zahlung storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'Der Empfänger hat erst nach Ablauf der 14-Tage-Frist geantwortet, daher hat die Wallet die Zahlung storniert, statt sie abzuschließen. Es wurde nichts gesendet und der Betrag ist wieder verfügbar.';
+      'Der Empfänger hat erst nach Ablauf der 14-Tage-Frist geantwortet, daher hat die Wallet die Zahlung storniert, statt sie abzuschließen. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.';
 
   @override
   String get txDetailsCancelledUndelivered =>
@@ -1717,6 +1717,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String invoiceDetailsReplied(String service) {
     return 'Warten, bis $service die Zahlung veröffentlicht.';
+  }
+
+  @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return 'Wenn $service sie nicht gebucht hat, sende die Zahlung erneut: Nichts wird zweimal signiert. Wird sie nie gebucht, wird Abbrechen verfügbar, sobald die Zeit der Zahlung abläuft, etwa einen Tag nach dem Bezahlen.';
   }
 
   @override
@@ -13527,4 +13532,22 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskTxSentAgainText =>
       'Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist.';
+
+  @override
+  String get deskSendFeeChangedTitle => 'Die Gebühr hat sich geändert';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return 'Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt $fee EPIC statt $was EPIC Gebühr. Prüfe sie und sende erneut.';
+  }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max Byte';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return 'Die Nachricht ist länger als $max Byte. Kürze sie.';
+  }
 }

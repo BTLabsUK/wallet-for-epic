@@ -549,7 +549,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'Anulowano. Nic nie zostało wysłane, a środki są znów dostępne.';
+      'Anulowano. Nic nie zostało zapłacone, a środki są znów dostępne. Jeśli odbiorca już ją otrzymał, jego portfel może nadal pokazywać ją jako oczekującą; nie można jej już dokończyć.';
 
   @override
   String get txDetailsCancelledReleased =>
@@ -561,11 +561,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'Odbiorca nie odpowiedział w ciągu 14 dni, więc portfel anulował płatność. Nic nie zostało wysłane, a środki są znów dostępne.';
+      'Odbiorca nie odpowiedział w ciągu 14 dni, więc portfel anulował płatność. Nic nie zostało zapłacone, a środki są znów dostępne.';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'Odbiorca odpowiedział po upływie 14 dni, więc portfel anulował płatność, zamiast ją dokończyć. Nic nie zostało wysłane, a środki są znów dostępne.';
+      'Odbiorca odpowiedział po upływie 14 dni, więc portfel anulował płatność, zamiast ją dokończyć. Nic nie zostało zapłacone, a środki są znów dostępne.';
 
   @override
   String get txDetailsCancelledUndelivered =>
@@ -1819,6 +1819,11 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String invoiceDetailsReplied(String service) {
     return 'Oczekiwanie, aż serwis $service opublikuje płatność.';
+  }
+
+  @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return 'Jeśli $service jej nie opublikował, wyślij płatność ponownie: nic nie jest podpisywane dwa razy. Jeśli nigdy nie zostanie opublikowana, Anuluj będzie dostępne, gdy minie czas płatności, około doby po zapłacie.';
   }
 
   @override
@@ -13781,4 +13786,22 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskTxSentAgainText =>
       'Zakończy się, gdy portfel odbiorcy będzie online.';
+
+  @override
+  String get deskSendFeeChangedTitle => 'Opłata się zmieniła';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return 'Wyjścia portfela zmieniły się od tego przeglądu, więc wysyłka kosztuje teraz $fee EPIC zamiast $was EPIC opłaty. Sprawdź ją i wyślij ponownie.';
+  }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max bajtów';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return 'Wiadomość jest dłuższa niż $max bajtów. Skróć ją.';
+  }
 }

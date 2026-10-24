@@ -59,6 +59,9 @@ class TxInvoiceBlock extends ConsumerWidget {
       actions = [
         if (inv.state == PayState.notDelivered)
           InvButton(label: l.invoiceRetry, kind: EBtnKind.primary, width: InvW.md, onPressed: () => retryInvoicePayment(context, ref, inv)),
+        // Delivered but never posted (linux-12): the stored reply goes again.
+        if (inv.state == PayState.delivered)
+          InvButton(label: l.deskTxSendAgain, kind: EBtnKind.primary, width: InvW.md, onPressed: () => retryInvoicePayment(context, ref, inv)),
         if (inv.state.cancellable)
           InvButton(label: l.deskInvIssuerCancel, kind: EBtnKind.danger, width: InvW.md, onPressed: () => showCancelInvoicePayment(context, ref, inv)),
         if (inv.spendToSelf)
@@ -82,6 +85,10 @@ class TxInvoiceBlock extends ConsumerWidget {
           ),
           SizedBox(height: Sp.x3),
           Text(text, style: ts.body),
+          if (i?.state == PayState.delivered) ...[
+            SizedBox(height: Sp.x2),
+            Text(l.invoiceDetailsRepliedHelp(i!.label), style: ts.small),
+          ],
           if (i != null) ...[
             SizedBox(height: Sp.x3),
             EFacts(labelWidth: 96.u, [

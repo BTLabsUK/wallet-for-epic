@@ -10,7 +10,9 @@ import '../../data/api.dart' show DeskWalletApi;
 import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/tor_view.dart';
+import '../../../models.dart' show slateMessageMaxBytes;
 import '../../../smart_outputs.dart';
+import '../../../utf8_limit.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -561,6 +563,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   String? _toError(DeskState st) => _ownAddressError(st) ?? _recipientError(context.l10n, _method, _to.text, ref.read(deskApiProvider));
 
+  /// LEPIC signs at most [slateMessageMaxBytes] UTF-8 bytes of a message and cuts the rest
+  /// (linux-09): longer text is refused here instead of being cut without a word.
+  bool get _messageTooLong => utf8Length(_message.text.trim()) > slateMessageMaxBytes;
+
   Future<void> _review() async {
     final st = ref.read(deskProvider);
     if (!_canSend(st) || _reviewing) return;
@@ -576,7 +582,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (mounted) setState(() => _reviewing = false);
     }
     if (!mounted) return;
-    if (_toError(st) != null || _amountError(st.balance?.spendable) != null) return;
+    if (_toError(st) != null || _amountError(st.balance?.spendable) != null || _messageTooLong) return;
     await _openReview();
   }
 
@@ -603,23 +609,26 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
     final contacts = ref.read(deskProvider).contacts;
     final n = _amountNano;
-    final plan = _plan;
-    final balance = ref.read(deskProvider).balance;
-    final draft = _Draft(
-      method: _method,
-      to: _method == TxMethod.file ? null : _to.text.trim(),
-      contactName: _contactOf(contacts)?.name,
-      amount: n,
-      fee: _fee ?? 0,
-      message: _message.text.trim(),
-      sendAll: _all,
-      dandelion: _dandelion,
-      summary: plan == null || balance == null ? null : SendSummary.of(balance: balance.total, spendable: balance.spendable, estimate: plan.estimate),
-      options: plan?.options,
-      strategy: _strategy,
-      defaultStrategy: _prefs.strategy,
-      extraFee: plan == null ? 0 : plan.estimate.fee - plan.base.fee,
-    );
+    _Draft draftOf(SmartSendPlan? plan) {
+      final balance = ref.read(deskProvider).balance;
+      return _Draft(
+        method: _method,
+        to: _method == TxMethod.file ? null : _to.text.trim(),
+        contactName: _contactOf(contacts)?.name,
+        amount: n,
+        fee: plan?.estimate.fee ?? _fee ?? 0,
+        message: _message.text.trim(),
+        sendAll: _all,
+        dandelion: _dandelion,
+        summary: plan == null || balance == null ? null : SendSummary.of(balance: balance.total, spendable: balance.spendable, estimate: plan.estimate),
+        options: plan?.options,
+        strategy: _strategy,
+        defaultStrategy: _prefs.strategy,
+        extraFee: plan == null ? 0 : plan.estimate.fee - plan.base.fee,
+      );
+    }
+
+    final draft = draftOf(_plan);
     // Plain HTTP to another computer: the slate travels unencrypted, so ask first.
     final plain = draft.method == TxMethod.http && plainHttpNeedsConsent(draft.to!);
     if (plain) {
@@ -636,7 +645,21 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         draft: draft,
         startBusy: startBusy,
         checkPassword: api.checkPassword,
-        onConfirm: () => notifier.send(
+        // The core chooses the inputs again when it sends: an output that finished confirming
+        // (or was locked) since this estimate changes them and the fee (linux-10). The review
+        // estimates once more first and shows what the send will pay.
+        recheck: (shown) async {
+          final plan = await _planFor(n);
+          if (plan.estimate.fee == shown.fee && plan.options == shown.options) return null;
+          if (mounted) {
+            setState(() {
+              _plan = plan;
+              _fee = plan.estimate.fee;
+            });
+          }
+          return draftOf(plan);
+        },
+        onConfirm: (draft) => notifier.send(
           SendRequest(
             method: draft.method,
             amount: draft.amount,
@@ -987,13 +1010,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         EField(
           label: l.deskSendMessage,
           optional: true,
-          aside: Text('${_message.text.length} / 256', style: ts.mono(size: Fs.xs, color: c.faint)),
+          // Bytes, as LEPIC counts them: an emoji takes 4.
+          aside: Text(l.deskSendMessageBytes(utf8Length(_message.text), slateMessageMaxBytes), style: ts.mono(size: Fs.xs, color: _messageTooLong ? c.risk : c.faint)),
           help: l.deskSendMessageHelp,
+          error: _messageTooLong ? l.deskSendMessageTooLong(slateMessageMaxBytes) : null,
           child: EInput(
             controller: _message,
             maxLines: 3,
             semanticLabel: l.deskSendMessage,
-            inputFormatters: [LengthLimitingTextInputFormatter(256)],
+            inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
             onChanged: (_) => setState(() {}),
           ),
         ),
@@ -1050,6 +1075,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when _torWay(st) == TorWay.needsTor => l.deskSendHintNeedsTor,
       _ when _submitted && !_toEdited && _toError(st) != null => l.deskSendHintFix,
       _ when _submitted && !_amountEdited && _amountError(spendable) != null => l.deskSendHintFix,
+      _ when _messageTooLong => l.deskSendHintFix,
       _ when _reviewing => l.deskSendHintChecking,
       _ => l.deskSendHintDefault,
     };
@@ -1340,11 +1366,15 @@ class _Suggestions extends StatelessWidget {
 }
 
 class _ReviewDialog extends StatefulWidget {
-  const _ReviewDialog({required this.draft, required this.onConfirm, this.startBusy = false, this.checkPassword});
+  const _ReviewDialog({required this.draft, required this.onConfirm, this.startBusy = false, this.checkPassword, this.recheck});
 
   final _Draft draft;
-  final Future<SendResult> Function() onConfirm;
+  final Future<SendResult> Function(_Draft draft) onConfirm;
   final bool startBusy;
+
+  /// Estimates the send again right before it goes: the new review when the fee or the
+  /// options moved, null when the shown one still holds.
+  final Future<_Draft?> Function(_Draft shown)? recheck;
 
   /// Set when this send asks the wallet's password first (F6); true when it is right.
   final Future<bool> Function(String password)? checkPassword;
@@ -1355,8 +1385,12 @@ class _ReviewDialog extends StatefulWidget {
 
 class _ReviewDialogState extends State<_ReviewDialog> {
   late bool _busy = widget.startBusy;
+  late _Draft _draft = widget.draft;
   final _password = TextEditingController();
   String? _wrong;
+
+  /// The fee shown before the last check, when that check moved it.
+  int? _feeWas;
 
   bool get _asks => widget.checkPassword != null && !widget.startBusy;
 
@@ -1373,6 +1407,26 @@ class _ReviewDialogState extends State<_ReviewDialog> {
   Future<void> _go() async {
     if (!_ready) return;
     setState(() => _busy = true);
+    final recheck = widget.recheck;
+    if (recheck != null) {
+      final _Draft? fresh;
+      try {
+        fresh = await recheck(_draft);
+      } on Object catch (e) {
+        // Nothing left: the send cannot be built as reviewed any more.
+        if (mounted) Navigator.of(context).pop(SendFailed(deskErrorText(e)));
+        return;
+      }
+      if (!mounted) return;
+      if (fresh != null) {
+        setState(() {
+          _feeWas = _draft.fee;
+          _draft = fresh!;
+          _busy = false;
+        });
+        return;
+      }
+    }
     if (_asks) {
       bool ok;
       try {
@@ -1394,7 +1448,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     }
     SendResult r;
     try {
-      r = await widget.onConfirm();
+      r = await widget.onConfirm(_draft);
     } on Object catch (e) {
       // The payment may have left before the error: never offer to send it again blind.
       logWarn('desk', 'send ended with ${e.runtimeType}');
@@ -1429,7 +1483,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final d = widget.draft;
+    final d = _draft;
     final ts = context.ts;
     final c = context.dc;
     final l = context.l10n;
@@ -1489,6 +1543,14 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
             if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
           ], labelWidth: 100.u),
+          if (_feeWas != null && !_busy) ...[
+            SizedBox(height: Sp.x4),
+            ENotice(
+              tone: ETone.warn,
+              title: l.deskSendFeeChangedTitle,
+              text: l.deskSendFeeChangedText(formatEpicL(l, d.fee), formatEpicL(l, _feeWas!)),
+            ),
+          ],
           if (_asks && !_busy) ...[
             SizedBox(height: Sp.x4),
             // Enter in the password sends once it is filled (wave 2 rules).

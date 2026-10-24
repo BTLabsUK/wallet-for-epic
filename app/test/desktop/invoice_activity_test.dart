@@ -84,6 +84,27 @@ void main() {
     expect(find.text('No invoices are waiting'), findsNothing, reason: 'never an empty tab');
   });
 
+  // linux-12: a reply that reached a relay the service never reads leaves the payment waiting
+  // to post with its coins locked. Its details offer Send again and say when Cancel comes.
+  testWidgets('a paid invoice waiting to post offers Send again, which sends the reply again', (tester) async {
+    final api = _Resends();
+    for (final w in (await tester.runAsync(api.invoices))!.waiting) {
+      await tester.runAsync(() => api.payInvoice(w.slateId, amount: w.amount, password: 'pass'));
+    }
+    final book = (await tester.runAsync(api.invoices))!;
+    final delivered = book.toPay.lastWhere((i) => i.state == PayState.delivered);
+    await _open(tester, api, arg: delivered.txId, size: const Size(1920, 1000));
+    expect(find.byType(TxInvoiceBlock), findsOneWidget);
+    expect(find.textContaining('Cancel becomes available once'), findsOneWidget);
+    final again = find.descendant(of: find.byType(TxInvoiceBlock), matching: find.text('Send again'));
+    await tester.ensureVisible(again);
+    await tester.tap(again);
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 60));
+    }
+    expect(api.resent, [delivered.slateId]);
+  });
+
   testWidgets('Open in Invoices on an issued invoice: Issue tab, selected', (tester) async {
     final api = MockDeskWallet(delay: Duration.zero);
     final book = (await tester.runAsync(api.invoices))!;
@@ -122,4 +143,17 @@ void main() {
     expect(find.text('${withdrawn.label} withdrew an invoice you paid'), findsOneWidget);
     expect(find.text('Cancel payment'), findsOneWidget);
   });
+}
+
+/// The mock, recording each reply sent again.
+class _Resends extends MockDeskWallet {
+  _Resends() : super(delay: Duration.zero);
+
+  final resent = <String>[];
+
+  @override
+  Future<IncomingInvoice> retryInvoiceReply(String slateId) {
+    resent.add(slateId);
+    return super.retryInvoiceReply(slateId);
+  }
 }

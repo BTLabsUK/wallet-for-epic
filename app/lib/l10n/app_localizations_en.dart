@@ -528,7 +528,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'Cancelled. Nothing was sent, and the funds are spendable again.';
+      'Cancelled. Nothing was paid, and the funds are spendable again. If the recipient already got it, their wallet may still show it as waiting; it can no longer complete.';
 
   @override
   String get txDetailsCancelledReleased =>
@@ -540,11 +540,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'The recipient did not answer within 14 days, so the wallet cancelled it. Nothing was sent, and the funds are spendable again.';
+      'The recipient did not answer within 14 days, so the wallet cancelled it. Nothing was paid, and the funds are spendable again.';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'The recipient answered after the 14-day limit, so the wallet cancelled it instead of finishing it. Nothing was sent, and the funds are spendable again.';
+      'The recipient answered after the 14-day limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the funds are spendable again.';
 
   @override
   String get txDetailsCancelledUndelivered =>
@@ -1701,6 +1701,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String invoiceDetailsReplied(String service) {
     return 'Waiting for $service to post the payment.';
+  }
+
+  @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return 'If $service has not posted it, send the payment again: nothing is signed twice. If it is never posted, Cancel becomes available once the payment\'s time runs out, about a day after you paid.';
   }
 
   @override
@@ -13376,4 +13381,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskTxSentAgainText =>
       'It completes when the recipient’s wallet comes online.';
+
+  @override
+  String get deskSendFeeChangedTitle => 'The fee changed';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return 'The wallet\'s outputs changed since this review, so the send now pays $fee EPIC instead of $was EPIC. Check it and send again.';
+  }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max bytes';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return 'The message is longer than $max bytes. Shorten it.';
+  }
 }

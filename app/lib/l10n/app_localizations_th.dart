@@ -518,7 +518,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'ยกเลิกแล้ว ไม่มีการส่งเงินออก และยอดเงินกลับมาใช้ได้แล้ว';
+      'ยกเลิกแล้ว ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว หากผู้รับได้รับรายการนี้ไปแล้ว กระเป๋าเงินของผู้รับอาจยังแสดงว่ากำลังรอ แต่รายการนี้ทำให้เสร็จไม่ได้อีกแล้ว';
 
   @override
   String get txDetailsCancelledReleased =>
@@ -530,11 +530,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'ผู้รับไม่ตอบภายใน 14 วัน กระเป๋าเงินจึงยกเลิก ไม่มีการส่งเงินออก และยอดเงินกลับมาใช้ได้แล้ว';
+      'ผู้รับไม่ตอบภายใน 14 วัน กระเป๋าเงินจึงยกเลิก ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'ผู้รับตอบหลังครบกำหนด 14 วัน กระเป๋าเงินจึงยกเลิกแทนการทำรายการให้เสร็จ ไม่มีการส่งเงินออก และยอดเงินกลับมาใช้ได้แล้ว';
+      'ผู้รับตอบหลังครบกำหนด 14 วัน กระเป๋าเงินจึงยกเลิกแทนการทำรายการให้เสร็จ ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว';
 
   @override
   String get txDetailsCancelledUndelivered =>
@@ -1647,6 +1647,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String invoiceDetailsReplied(String service) {
     return 'รอ $service ส่งรายการเข้าเครือข่าย';
+  }
+
+  @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return 'หาก $service ยังไม่ได้โพสต์การชำระเงิน ให้ส่งอีกครั้ง โดยไม่มีการลงนามซ้ำ หากไม่ได้โพสต์เลย ปุ่มยกเลิกจะใช้ได้เมื่อหมดเวลาของการชำระเงิน ประมาณหนึ่งวันหลังจากชำระ';
   }
 
   @override
@@ -13122,4 +13127,22 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTxSentAgainText => 'จะเสร็จเมื่อกระเป๋าเงินของผู้รับออนไลน์';
+
+  @override
+  String get deskSendFeeChangedTitle => 'ค่าธรรมเนียมเปลี่ยนไป';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return 'เอาต์พุตของกระเป๋าเงินเปลี่ยนไปหลังการตรวจสอบนี้ การส่งครั้งนี้จึงเสียค่าธรรมเนียม $fee EPIC แทน $was EPIC โปรดตรวจสอบแล้วส่งอีกครั้ง';
+  }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max ไบต์';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return 'ข้อความยาวเกิน $max ไบต์ โปรดทำให้สั้นลง';
+  }
 }

@@ -125,11 +125,11 @@
   "txDetailsConfirmingDays": "In Block {height}. {count} von {target, plural, =1{1 Bestätigung} other{{target} Bestätigungen}}; endgültig in etwa {days, plural, =1{1 Tag} other{{days} Tagen}}.",
   "txDetailsCompleted": "Abgeschlossen.",
   "txDetailsCompletedInBlock": "In Block {height} abgeschlossen.",
-  "txDetailsCancelledByUser": "Storniert. Es wurde nichts gesendet und der Betrag ist wieder verfügbar.",
+  "txDetailsCancelledByUser": "Storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend; abschließen lässt sie sich nicht mehr.",
   "txDetailsCancelledReleased": "Das Netzwerk hat die Zahlung nie angenommen, daher wurde der Betrag freigegeben. Prüfen Sie vor dem erneuten Senden, ob der Empfänger sie nicht doch erhalten hat.",
   "txDetailsCancelledNotOnChain": "Die Zahlung hat das Netzwerk nicht innerhalb von 14 Tagen erreicht, daher hat die Wallet sie storniert. Prüfen Sie vor dem erneuten Senden, ob der Empfänger sie nicht doch erhalten hat.",
-  "txDetailsCancelledUnanswered": "Der Empfänger hat nicht innerhalb von 14 Tagen geantwortet, daher hat die Wallet die Zahlung storniert. Es wurde nichts gesendet und der Betrag ist wieder verfügbar.",
-  "txDetailsCancelledLateAnswer": "Der Empfänger hat erst nach Ablauf der 14-Tage-Frist geantwortet, daher hat die Wallet die Zahlung storniert, statt sie abzuschließen. Es wurde nichts gesendet und der Betrag ist wieder verfügbar.",
+  "txDetailsCancelledUnanswered": "Der Empfänger hat nicht innerhalb von 14 Tagen geantwortet, daher hat die Wallet die Zahlung storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.",
+  "txDetailsCancelledLateAnswer": "Der Empfänger hat erst nach Ablauf der 14-Tage-Frist geantwortet, daher hat die Wallet die Zahlung storniert, statt sie abzuschließen. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.",
   "txDetailsCancelledUndelivered": "Die Zahlung konnte dem Empfänger nicht zugestellt werden, daher hat die Wallet sie sofort storniert. Es wurde nichts gesendet und der Betrag ist wieder verfügbar.",
   "txDetailsCancelledIncoming": "Storniert. Diese Zahlung wird nicht eintreffen.",
   "txDetailsFromBackup": "Diese Zahlung stammt aus einer Verlaufssicherung und war beim Erstellen der Sicherung noch nicht abgeschlossen. Diese Wallet hat keine eigenen Daten dazu und kann daher nicht feststellen, ob sie abgeschlossen wurde. Es ist nichts gesperrt.",
@@ -374,6 +374,7 @@
   "invoiceDetailsSection": "Rechnung",
   "invoiceDetailsService": "Gestellt von",
   "invoiceDetailsReplied": "Warten, bis {service} die Zahlung veröffentlicht.",
+  "invoiceDetailsRepliedHelp": "Wenn {service} sie nicht gebucht hat, sende die Zahlung erneut: Nichts wird zweimal signiert. Wird sie nie gebucht, wird Abbrechen verfügbar, sobald die Zeit der Zahlung abläuft, etwa einen Tag nach dem Bezahlen.",
   "invoiceDetailsPosted": "{service} meldet, dass die Zahlung veröffentlicht wurde. Sie ist abgeschlossen, sobald das Netzwerk sie bestätigt.",
   "invoiceDetailsReplyFailed": "{service} hat Ihre Zahlung noch nicht erhalten. „Erneut senden“ schickt sie noch einmal, ohne dass Sie erneut zustimmen.",
   "invoiceDetailsWithdrawn": "{service} hat diese Rechnung zurückgezogen, nachdem Sie sie bezahlt haben. Wenn die Zahlung nicht bestätigt wird, stornieren Sie sie, um Ihr Guthaben freizugeben.",
@@ -3505,5 +3506,9 @@
   "deskTxSendAgain": "Erneut senden",
   "deskTxNotSent": "Nicht gesendet",
   "deskTxSentAgain": "Erneut gesendet",
-  "deskTxSentAgainText": "Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist."
+  "deskTxSentAgainText": "Sie wird abgeschlossen, sobald die Wallet des Empfängers online ist.",
+  "deskSendFeeChangedTitle": "Die Gebühr hat sich geändert",
+  "deskSendFeeChangedText": "Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt {fee} EPIC statt {was} EPIC Gebühr. Prüfe sie und sende erneut.",
+  "deskSendMessageBytes": "{used} / {max} Byte",
+  "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie."
 }

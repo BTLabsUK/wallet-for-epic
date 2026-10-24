@@ -674,6 +674,26 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
     );
 
     final status = switch (paid.status) {
+      // Still waiting: the service may never have got the reply (linux-12). Send again
+      // delivers the stored one; Cancel comes once the payment's time runs out.
+      InvoiceStatus.replied
+          when widget.tx.status == TxStatus.awaitingRecipient =>
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.invoiceDetailsReplied(service)),
+            const SizedBox(height: 8),
+            Text(l.invoiceDetailsRepliedHelp(service), style: theme.textTheme.bodySmall),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: TextButton.icon(
+                icon: const Icon(Icons.send_outlined),
+                label: Text(l.txDetailsSendAgain),
+                onPressed: _busy ? null : () => _retry(paid, service),
+              ),
+            ),
+          ],
+        ),
       InvoiceStatus.replied => Text(l.invoiceDetailsReplied(service)),
       InvoiceStatus.posted => Row(
         crossAxisAlignment: CrossAxisAlignment.start,

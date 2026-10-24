@@ -128,6 +128,34 @@ void main() {
     expect(wallet.sends, 1);
   });
 
+  // android-15: a payment file locks the coins it pays, so it asks the password as every
+  // other send does.
+  testWidgets('a payment file asks the password before it is made', (tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: buildDeskTheme(Brightness.dark),
+          home: const Scaffold(body: SendScreen(arg: SendArgs(step: SendStep.review, method: TxMethod.file, amount: '1'))),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Check and send'), findsOneWidget);
+    expect(password(), findsOneWidget);
+    expect(tester.widget<EButton>(sendButton()).onPressed, isNull);
+    await tester.enterText(password(), 'secret-pass');
+    await tester.pump();
+    await tester.tap(sendButton());
+    await tester.pumpAndSettle();
+    expect(wallet.checked, ['secret-pass']);
+    expect(wallet.sends, 1);
+  });
+
   test("an older 'askAbove' amount is ignored and dropped at the next save", () {
     final p = SettingsPrefs.fromJson({'askAbove': {'w1': 5 * nanoPerEpic}, 'walletLabel': 'Main'});
     expect(p.walletLabel, 'Main');

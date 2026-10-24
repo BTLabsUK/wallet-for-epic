@@ -12,12 +12,7 @@ import 'surfaces.dart';
 
 /// Opens an [EDialog] over a scrim. Returns what the dialog pops.
 Future<T?> showEDialog<T>(BuildContext context, {required WidgetBuilder builder, bool dismissible = true}) =>
-    showDialog<T>(
-      context: context,
-      barrierDismissible: dismissible,
-      barrierColor: context.dc.scrim,
-      builder: builder,
-    );
+    showDialog<T>(context: context, barrierDismissible: dismissible, barrierColor: context.dc.scrim, builder: builder);
 
 /// Opens an [EDrawer] from the end edge.
 Future<T?> showEDrawer<T>(BuildContext context, {required WidgetBuilder builder}) => showGeneralDialog<T>(
@@ -30,9 +25,7 @@ Future<T?> showEDrawer<T>(BuildContext context, {required WidgetBuilder builder}
   transitionBuilder: (context, anim, _, child) => FadeTransition(
     opacity: anim,
     child: SlideTransition(
-      position: Tween(begin: const Offset(0.06, 0), end: Offset.zero).animate(
-        CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
-      ),
+      position: Tween(begin: const Offset(0.06, 0), end: Offset.zero).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
       child: child,
     ),
   ),
@@ -41,17 +34,7 @@ Future<T?> showEDrawer<T>(BuildContext context, {required WidgetBuilder builder}
 /// A modal dialog: optional glyph, title and description, body, and buttons at the foot
 /// (right-aligned, primary last). 480 wide unless [width] says otherwise.
 class EDialog extends StatelessWidget {
-  const EDialog({
-    super.key,
-    required this.title,
-    this.description,
-    this.icon,
-    this.tone = ETone.neutral,
-    this.body,
-    this.actions = const [],
-    this._width,
-    this.dismissible = true,
-  });
+  const EDialog({super.key, required this.title, this.description, this.icon, this.tone = ETone.neutral, this.body, this.actions = const [], this._width, this.dismissible = true});
 
   final String title;
   final String? description;
@@ -84,68 +67,51 @@ class EDialog extends StatelessWidget {
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: width),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x6, Sp.x4, 0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (icon != null) ...[
-                      Container(
-                        width: 40.u,
-                        height: 40.u,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(Rad.sm),
-                          border: Border.all(color: c.lineStrong),
-                        ),
-                        child: Icon(icon, size: Ctl.icon, color: iconColor),
+        // The title and the buttons stay in view; a body taller than the window scrolls between
+        // them (linux-09: a long message pushed Send off the screen).
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x6, Sp.x4, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (icon != null) ...[
+                    Container(
+                      width: 40.u,
+                      height: 40.u,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(Rad.sm),
+                        border: Border.all(color: c.lineStrong),
                       ),
-                      SizedBox(width: Sp.x3),
-                    ],
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Semantics(header: true, child: Text(title, style: ts.h3)),
-                          if (description != null) ...[
-                            SizedBox(height: 6.u),
-                            Text(description!, style: ts.bodyDim),
-                          ],
-                        ],
-                      ),
+                      child: Icon(icon, size: Ctl.icon, color: iconColor),
                     ),
-                    if (dismissible)
-                      EIconButton(
-                        icon: EIcons.close,
-                        label: context.l10n.deskKitCloseEsc,
-                        tabStop: false,
-                        onPressed: () => Navigator.of(context).maybePop(),
-                      ),
+                    SizedBox(width: Sp.x3),
                   ],
-                ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Semantics(header: true, child: Text(title, style: ts.h3)),
+                        if (description != null) ...[SizedBox(height: 6.u), Text(description!, style: ts.bodyDim)],
+                      ],
+                    ),
+                  ),
+                  if (dismissible) EIconButton(icon: EIcons.close, label: context.l10n.deskKitCloseEsc, tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
+                ],
               ),
-              if (body != null)
-                Padding(
-                  padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x5, Sp.x6, 0),
-                  child: body,
-                ),
-              Padding(
-                padding: EdgeInsets.all(Sp.x6),
-                child: actions.isEmpty
-                    ? const SizedBox.shrink()
-                    : Wrap(
-                        alignment: WrapAlignment.end,
-                        spacing: Sp.x3,
-                        runSpacing: Sp.x2,
-                        children: actions,
-                      ),
+            ),
+            if (body != null)
+              Flexible(
+                child: SingleChildScrollView(padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x5, Sp.x6, 0), child: body),
               ),
-            ],
-          ),
+            Padding(
+              padding: EdgeInsets.all(Sp.x6),
+              child: actions.isEmpty ? const SizedBox.shrink() : Wrap(alignment: WrapAlignment.end, spacing: Sp.x3, runSpacing: Sp.x2, children: actions),
+            ),
+          ],
         ),
       ),
     );
@@ -225,17 +191,23 @@ class EDrawer extends StatelessWidget {
       color: c.s1,
       child: Container(
         width: width,
-        decoration: BoxDecoration(border: Border(left: BorderSide(color: c.lineStrong))),
+        decoration: BoxDecoration(
+          border: Border(left: BorderSide(color: c.lineStrong)),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
               height: Ctl.topbar,
               padding: EdgeInsets.only(left: Sp.x6, right: Sp.x3),
-              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: c.line)),
+              ),
               child: Row(
                 children: [
-                  Expanded(child: Semantics(header: true, child: Text(title, style: context.ts.h3))),
+                  Expanded(
+                    child: Semantics(header: true, child: Text(title, style: context.ts.h3)),
+                  ),
                   EIconButton(icon: EIcons.close, label: context.l10n.deskKitCloseEsc, tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
                 ],
               ),
@@ -246,7 +218,9 @@ class EDrawer extends StatelessWidget {
             if (actions.isNotEmpty)
               Container(
                 padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x4),
-                decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: c.line)),
+                ),
                 child: Wrap(alignment: WrapAlignment.end, spacing: Sp.x3, children: actions),
               ),
           ],
@@ -288,8 +262,15 @@ void showEToast(BuildContext context, String title, {String? text, ETone tone = 
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(color: c.text, fontSize: Fs.md, fontWeight: FontWeight.w600)),
-                if (text != null) Text(text, style: TextStyle(color: c.dim, fontSize: Fs.sm)),
+                Text(
+                  title,
+                  style: TextStyle(color: c.text, fontSize: Fs.md, fontWeight: FontWeight.w600),
+                ),
+                if (text != null)
+                  Text(
+                    text,
+                    style: TextStyle(color: c.dim, fontSize: Fs.sm),
+                  ),
               ],
             ),
           ),

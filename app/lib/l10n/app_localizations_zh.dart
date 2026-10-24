@@ -502,7 +502,8 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get txDetailsCancelledByUser => '已取消。没有发送任何资金，这些资金已恢复可用。';
+  String get txDetailsCancelledByUser =>
+      '已取消。没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中；这笔付款已无法完成。';
 
   @override
   String get txDetailsCancelledReleased =>
@@ -514,11 +515,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsCancelledUnanswered =>
-      '接收方未在 14 天内回复，因此钱包已将其取消。没有发送任何资金，这些资金已恢复可用。';
+      '接收方未在 14 天内回复，因此钱包已将其取消。没有支付任何资金，这些资金已恢复可用。';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      '接收方在 14 天期限过后才回复，因此钱包取消了这笔付款，而没有完成它。没有发送任何资金，这些资金已恢复可用。';
+      '接收方在 14 天期限过后才回复，因此钱包取消了这笔付款，而没有完成它。没有支付任何资金，这些资金已恢复可用。';
 
   @override
   String get txDetailsCancelledUndelivered =>
@@ -1596,6 +1597,11 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String invoiceDetailsReplied(String service) {
     return '正在等待 $service 广播这笔付款。';
+  }
+
+  @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return '如果 $service 尚未发布这笔付款，请再次发送：不会重复签名。如果一直没有发布，付款时限到期后（付款后约一天）即可取消。';
   }
 
   @override
@@ -12662,4 +12668,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskTxSentAgainText => '收款人的钱包上线后即可完成。';
+
+  @override
+  String get deskSendFeeChangedTitle => '手续费已变化';
+
+  @override
+  String deskSendFeeChangedText(String fee, String was) {
+    return '自本次核对以来钱包的输出已变化，此次发送的手续费现在是 $fee EPIC，而不是 $was EPIC。请核对后再次发送。';
+  }
+
+  @override
+  String deskSendMessageBytes(int used, int max) {
+    return '$used / $max 字节';
+  }
+
+  @override
+  String deskSendMessageTooLong(int max) {
+    return '消息超过 $max 字节，请缩短。';
+  }
 }

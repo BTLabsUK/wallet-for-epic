@@ -208,6 +208,7 @@ class PhoneTorTiming {
     this.sendWait = const Duration(minutes: 3),
     this.networkSettle = const Duration(milliseconds: 1500),
     this.awayRenew = const Duration(seconds: 30),
+    this.startStall = const Duration(minutes: 5),
   });
 
   /// Before each restart in a row; the last one repeats. A start that stalls is LEPIC's to
@@ -224,6 +225,12 @@ class PhoneTorTiming {
   /// and later cut a backgrounded app's network after about 50 s): on return tor renews its
   /// connections, as after a network change, instead of only waking.
   final Duration awayRenew;
+
+  /// A start that has not connected after this is stopped and started again (android-14:
+  /// after many network changes tor stayed "Starting…" for good, and no network event came to
+  /// wake it). Longer than LEPIC's own deadlines (240 s on a first start), which end a start
+  /// that stalls in the usual way.
+  final Duration startStall;
 }
 
 final phoneTorTimingProvider = Provider<PhoneTorTiming>(
@@ -275,6 +282,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
   Stopwatch? _away;
   Timer? _restartTimer;
   Timer? _networkTimer;
+  Timer? _startTimer;
 
   /// A [_stop] waiting on LEPIC; a start waits for it, or its stream would end at once.
   Future<void>? _stopping;
@@ -345,6 +353,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
       unawaited(sub?.cancel());
       _restartTimer?.cancel();
       _networkTimer?.cancel();
+      _startTimer?.cancel();
       _failWaiters('wallet locked');
       WidgetsBinding.instance.removeObserver(lifecycle);
       unawaited(network.cancel());
@@ -537,6 +546,13 @@ class PhoneTor extends Notifier<PhoneTorState> {
           },
         );
     _tor = sub;
+    _startTimer?.cancel();
+    _startTimer = Timer(ref.read(phoneTorTimingProvider).startStall, () {
+      if (!_current(generation) || _tor != sub) return;
+      if (state.phase != PhoneTorPhase.starting) return;
+      logWarn('tor', 'start stalled, starting again');
+      unawaited(retry());
+    });
   }
 
   void _onEvent(TorEvent e) {

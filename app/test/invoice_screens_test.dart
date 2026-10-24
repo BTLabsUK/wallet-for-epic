@@ -793,6 +793,26 @@ void main() {
       );
     });
 
+    // linux-12: the reply reached a relay the service never reads, so it is never posted and
+    // the coins stay locked with no way on.
+    testWidgets(
+      'offer Send again for a reply never posted, and say when Cancel comes',
+      (tester) async {
+        final h = await paid(tester);
+        expect(h.session.deliveredReplies, ['inv-1']);
+        await details(tester, h);
+        expect(
+          find.text(_l.invoiceDetailsRepliedHelp('My Exchange')),
+          findsOneWidget,
+        );
+        await tester.tap(find.text(_l.txDetailsSendAgain));
+        await tester.pumpAndSettle();
+        expect(find.text(_l.invoicePinReason), findsNothing);
+        expect(h.session.deliveredReplies, ['inv-1', 'inv-1']);
+        expect(h.session.invoicePayments, 1);
+      },
+    );
+
     testWidgets('warn of a withdrawal after payment, with a confirmed Cancel', (
       tester,
     ) async {
