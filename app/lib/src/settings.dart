@@ -440,9 +440,9 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     if (await store.read(_qrMethodKey) != null) return payments;
     var hadWallet = false;
     for (final chain in Chain.values) {
-      hadWallet |=
-          await store.read('wallet.${chain.name}.pinSealed') != null ||
-          await store.read('wallet.${chain.name}.backedUp') != null;
+      final sealed = await store.read('wallet.${chain.name}.pinSealed');
+      final backedUp = await store.read('wallet.${chain.name}.backedUp');
+      if (sealed != null || backedUp != null) hadWallet = true;
     }
     if (hadWallet) {
       // As the version before read it: nothing stored means File on.
