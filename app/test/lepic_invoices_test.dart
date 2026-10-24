@@ -203,6 +203,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
         ],
         flow: lepic.TxFlow.invoice,
         origin: lepic.TxOrigin.wallet,
+        outputCommits: const [],
       ),
     );
     if (payError != null) throw _lepicError(payError!);

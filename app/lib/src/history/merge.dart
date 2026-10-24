@@ -2,8 +2,8 @@
 ///
 /// A port of `app/rust/src/core/history.rs`, where the live rows were epic-wallet's log. Here
 /// they arrive as [TxEntry] from `lepicTxEntry`, so status, cancel and repost flags are
-/// LEPIC's, and LEPIC rows carry no output commitments. Everything is pure, so the rules are
-/// tested on synthetic rows.
+/// LEPIC's, and so are the output commitments each row created. Everything is pure, so the
+/// rules are tested on synthetic rows.
 ///
 /// - A live row absorbs an archive record matching by slate id, then kernel, then a created
 ///   commitment. Live status and amounts win, except on rows a scan rebuilt ([TxSource.restored]),

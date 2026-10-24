@@ -51,6 +51,7 @@ lepic.TransactionDetails _tx({
   flow: lepic.TxFlow.invoice,
   origin: lepic.TxOrigin.wallet,
   transport: 'epicbox',
+  outputCommits: const [],
 );
 
 /// LEPIC's wallet in memory: the invoice half, transactions and a summary. Fails any other call.

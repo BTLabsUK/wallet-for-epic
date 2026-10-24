@@ -498,9 +498,11 @@ int lepicTxId(String key) {
 /// The transports whose undelivered sends are sent again: Epicbox, HTTP and Tor.
 const resendTransports = {'epicbox', 'http', 'tor'};
 
-/// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]). Notes, contacts
-/// and imported rows are the app's (H-01), so `note` stays empty here; `messages` are the
-/// slate's, which LEPIC verified.
+/// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]) until the merge
+/// gives the stable one: a row a scan restored is then known by its output's commitment, which
+/// a restore finds again while the id changes. Notes, labels, contacts and imported rows are
+/// the app's (H-01), so `note` and `label` stay empty here; `messages` are the slate's, which
+/// LEPIC verified.
 TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
   final outgoing = d.direction == lepic.TxDirection.outgoing;
   final ended =
@@ -549,7 +551,7 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
     numInputs: imported?.inputCount ?? 0,
     numOutputs: imported?.outputCount ?? 0,
     kernelExcess: d.kernelExcess,
-    outputCommits: const [],
+    outputCommits: d.outputCommits,
     counterparty: d.counterparty,
     transport: d.transport,
     messages: lepicMessages(d.messages),
