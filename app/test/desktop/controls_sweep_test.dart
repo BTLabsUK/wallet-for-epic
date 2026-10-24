@@ -83,6 +83,9 @@ class _Recorder implements DeskWalletApi {
   final _m = MockDeskWallet(delay: Duration.zero);
   final List<String> calls = [];
 
+  @override
+  Future<void> useNodeForSession(String url) => _r('useNodeForSession', () => _m.useNodeForSession(url));
+
   T _r<T>(String name, T Function() f) {
     calls.add(name);
     return f();

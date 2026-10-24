@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../demo.dart' show devNetworksProvider;
 import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, EpicMark;
 import '../desk_l10n.dart';
+import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
@@ -19,6 +20,7 @@ import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
+import 'desk_failover.dart';
 import 'rail.dart';
 import 'screens.dart';
 import 'tour.dart';
@@ -138,6 +140,13 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskInvoiceNoticesProvider, (_, next) {
       final n = next.value;
       if (n != null && mounted) _invoiceToast(context, n);
+    });
+    // Node failover moved the wallet to another node for this session: said wherever the
+    // user is, never asked.
+    ref.listen(deskFailoverProvider, (before, now) {
+      if (now != null && now != before && mounted) {
+        showEToast(context, context.l10n.deskNodeFailoverSwitched(nodeHost(now.inUse)), tone: ETone.info);
+      }
     });
     // The old wallet's history differs from details the user typed: the same per-field
     // "Details differ" choice as a history backup, Mine until they say otherwise.

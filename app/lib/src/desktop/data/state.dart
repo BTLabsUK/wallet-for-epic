@@ -290,6 +290,9 @@ class DeskController extends Notifier<DeskState> {
 
   Future<void> useNode(String url) => _reopening(() => api.useNode(url));
 
+  /// Node failover's move: [url] for this session, the chosen node kept (`desk_failover.dart`).
+  Future<void> useNodeForSession(String url) => _reopening(() => api.useNodeForSession(url));
+
   Future<void> useBuiltInNode(bool on) => _reopening(() => api.useBuiltInNode(on));
 
   Future<void> useEpicbox(String domain) => _reopening(() => api.useEpicbox(domain));

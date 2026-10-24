@@ -102,7 +102,7 @@ class _ShowsGroup extends ConsumerWidget {
             onPressed: on == 0
                 ? null
                 : () => n.saveSettings(
-                    s.copyWith(advanced: AdvancedPrefs(networkMode: adv.networkMode)),
+                    s.copyWith(advanced: AdvancedPrefs(networkMode: adv.networkMode, nodeFailover: adv.nodeFailover)),
                   ),
           ),
         ],
@@ -176,6 +176,18 @@ class _NetworkGroup extends ConsumerWidget {
                 ),
               ],
             ],
+          ),
+        ),
+        // On by default: the one switch here that keeps the simple app working.
+        ESetRow(
+          key: const ValueKey('adv-nodeFailover'),
+          title: l.deskSetAdvNodeFailover,
+          hint: l.deskSetAdvNodeFailoverHint,
+          hintTitle: l.deskSetAdvNodeFailover,
+          control: ESwitch(
+            value: adv.nodeFailover,
+            semanticLabel: l.deskSetAdvNodeFailover,
+            onChanged: (v) => ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: adv.withNodeFailover(v))),
           ),
         ),
       ],
