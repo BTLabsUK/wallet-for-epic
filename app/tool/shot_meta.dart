@@ -13,11 +13,12 @@ final bool shotMeta = Platform.environment['SHOTS_META'] == '1';
 /// the app's lib/ declares and finds their files.
 final RegExp _named = RegExp(r'(Screen|Page|View|Sheet|Dialog|Drawer|Panel|Pane|Tab|Card|Step)$');
 
-final RegExp _icons = RegExp('[\uE000-\uF8FF]');
+final RegExp _icons = RegExp(r'[\uE000-\uF8FF\u{F0000}-\u{10FFFD}]', unicode: true);
 
 /// Writes `<png without .png>.json`: [fields], the visible text in tree order and the named
 /// widget classes, from what is on stage under [root].
 void writeShotMeta(String png, Element root, Map<String, Object?> fields) {
+  final clock = Stopwatch()..start();
   final screen = Offset.zero & ((root.renderObject as RenderBox?)?.size ?? Size.zero);
   final texts = <String>[];
   final seen = <String>{};
@@ -43,5 +44,7 @@ void writeShotMeta(String png, Element root, Map<String, Object?> fields) {
     texts.add(t);
   }
   final out = File('${png.substring(0, png.length - 4)}.json');
-  out.writeAsStringSync(jsonEncode({...fields, 'text': texts, 'widgets': classes}));
+  out.writeAsStringSync(
+    jsonEncode({...fields, 'text': texts, 'widgets': classes, 'meta_ms': clock.elapsedMicroseconds / 1000}),
+  );
 }
