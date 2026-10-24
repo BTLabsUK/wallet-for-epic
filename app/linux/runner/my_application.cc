@@ -14,6 +14,88 @@ struct _MyApplication {
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
+// ATK key listeners, kept here instead of in GTK. GTK 3.24.52 and older walk their own list
+// unsafely: the AT-SPI bridge removes its listener from inside that listener's call when the
+// last screen reader or AT-SPI client leaves during a key press, and GTK then reads the freed
+// list node and crashes in gtk_main_do_event (fixed in GTK commit e6372d29, not yet released).
+// This list is walked by key, so a listener removed mid-walk is never touched again.
+typedef struct {
+  AtkKeySnoopFunc func;
+  gpointer data;
+  guint key;
+} KeyListener;
+
+static GSList* key_listeners = nullptr;
+
+static guint add_key_listener(AtkKeySnoopFunc func, gpointer data) {
+  static guint last_key = 0;
+  KeyListener* listener = g_new0(KeyListener, 1);
+  listener->func = func;
+  listener->data = data;
+  listener->key = ++last_key;
+  key_listeners = g_slist_append(key_listeners, listener);
+  return listener->key;
+}
+
+static void remove_key_listener(guint key) {
+  for (GSList* l = key_listeners; l != nullptr; l = l->next) {
+    KeyListener* listener = static_cast<KeyListener*>(l->data);
+    if (listener->key == key) {
+      key_listeners = g_slist_delete_link(key_listeners, l);
+      g_free(listener);
+      return;
+    }
+  }
+}
+
+static KeyListener* find_key_listener(guint key) {
+  for (GSList* l = key_listeners; l != nullptr; l = l->next) {
+    KeyListener* listener = static_cast<KeyListener*>(l->data);
+    if (listener->key == key) return listener;
+  }
+  return nullptr;
+}
+
+// The event as GTK hands it to ATK (gtk/a11y/gtkaccessibilityutil.c).
+static gint key_snooper(GtkWidget* widget, GdkEventKey* key, gpointer data) {
+  if (key_listeners == nullptr) return FALSE;
+  AtkKeyEventStruct event{};
+  event.type = key->type == GDK_KEY_PRESS ? ATK_KEY_EVENT_PRESS : ATK_KEY_EVENT_RELEASE;
+  event.state = key->state;
+  event.keyval = key->keyval;
+  event.length = key->length;
+  if (key->string != nullptr && key->string[0] != '\0' &&
+      g_unichar_isgraph(g_utf8_get_char(key->string))) {
+    event.string = key->string;
+  } else {
+    event.string = const_cast<gchar*>(gdk_keyval_name(key->keyval));
+  }
+  event.keycode = key->hardware_keycode;
+  event.timestamp = key->time;
+
+  g_autoptr(GArray) keys = g_array_new(FALSE, FALSE, sizeof(guint));
+  for (GSList* l = key_listeners; l != nullptr; l = l->next) {
+    g_array_append_val(keys, static_cast<KeyListener*>(l->data)->key);
+  }
+  gint consumed = FALSE;
+  for (guint i = 0; i < keys->len; i++) {
+    KeyListener* listener = find_key_listener(g_array_index(keys, guint, i));
+    if (listener != nullptr) consumed |= listener->func(&event, listener->data);
+  }
+  return consumed;
+}
+
+// After gtk_init, which sets GTK's own listeners on AtkUtil, and before the bridge adds its
+// listener (on the first AT-SPI client).
+static void take_over_atk_key_listeners() {
+  AtkUtilClass* util = ATK_UTIL_CLASS(g_type_class_ref(ATK_TYPE_UTIL));
+  util->add_key_event_listener = add_key_listener;
+  util->remove_key_event_listener = remove_key_listener;
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+  gtk_key_snooper_install(key_snooper, nullptr);
+  G_GNUC_END_IGNORE_DEPRECATIONS
+}
+
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
@@ -118,6 +200,7 @@ static void my_application_startup(GApplication* application) {
   // Perform any actions required at application startup.
 
   G_APPLICATION_CLASS(my_application_parent_class)->startup(application);
+  take_over_atk_key_listeners();
 }
 
 // Implements GApplication::shutdown.

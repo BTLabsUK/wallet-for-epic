@@ -565,6 +565,7 @@ class _ENavItemState extends State<ENavItem> {
       selected: sel,
       label: count > 0 ? context.l10n.deskKitNeedAction(widget.label, count) : widget.label,
       excludeSemantics: true,
+      onTap: widget.onTap,
       child: FocusableActionDetector(
         mouseCursor: SystemMouseCursors.click,
         onShowHoverHighlight: (v) => setState(() => _hover = v),
