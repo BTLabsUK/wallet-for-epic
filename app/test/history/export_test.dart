@@ -45,7 +45,7 @@ void main() {
       expect(
         out.substring(firstBreak + 1),
         '2026-09-21T14:13:20Z,Sent,Completed,-1.49200000,0.00800000,'
-        '"\'=HYPERLINK(""x"")","rent, ""march""\nsecond line",1,08ab,12\n',
+        '"\'=HYPERLINK(""x"")","rent, ""march""\nsecond line",1,08ab,12,,,\n',
       );
       expect(epicDecimal(BigInt.from(5)), '0.00000005');
     });
@@ -418,10 +418,11 @@ void main() {
       expect(noteOf(7), 'rent');
       expect([noteOf(8), noteOf(9), noteOf(10)], [null, null, null]);
 
-      // A note typed since wins over the file's.
+      // A note typed since is not replaced without asking.
       await history.setNote(scan, 'l:7', 'mine');
       final again = await history.importPayload(payload, scan, walletFp: 'fp');
-      expect((again.merged, again.skipped), (0, 3));
+      expect((again.merged, again.skipped, again.applied), (0, 3, false));
+      expect(again.conflicts.single.mine, 'mine');
       expect(history.transactions(scan).firstWhere((t) => t.id == 7).note, 'mine');
     });
 
