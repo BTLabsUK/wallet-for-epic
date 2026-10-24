@@ -2,7 +2,7 @@
 // epicbox addresses, and leave no directory once they expire. Needs the Linux library and
 // creates floonet wallets locally; run it by hand, from app/:
 //
-//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic/bindings/flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
+//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
 //     flutter test test/demo_server/lepic_server_test.dart
 //
 // Without WFE_DEMO_LEPIC_LIB it is skipped, so the gate stays offline and fast.

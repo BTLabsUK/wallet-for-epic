@@ -9,17 +9,21 @@
 #        WFE_BUILD_LEPIC=0                  skip the LEPIC build (the mock build does not use it)
 #        WFE_TOR=0                          leave out the Tor bundle (tools/fetch-tor.sh, in by default)
 #        LEPIC_REPO=../lepic                 where the pinned LEPIC commit is read from
+#        LEPIC_FLUTTER_REPO=~/lepic-flutter where the pinned lepic-flutter (package:lepic) commit is read from
 # Output: build-linux/EpicCashDesktop-<version>-x86_64.AppImage
 # Caches: docker volumes wfe-linux-{pub,cargo,home,lepic-target} keep rebuilds fast.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 image=wfe-linux-build:22.04
 lepic_repo="${LEPIC_REPO:-$HOME/lepic}"
+binding_repo="${LEPIC_FLUTTER_REPO:-$HOME/lepic-flutter}"
 rev="$(tr -d '[:space:]' < "$root/tools/lepic.rev")"
+binding_rev="$(tr -d '[:space:]' < "$root/tools/lepic-flutter.rev")"
 src="${XDG_CACHE_HOME:-$HOME/.cache}/wfe-linux-build/lepic-$rev"
+binding_src="${XDG_CACHE_HOME:-$HOME/.cache}/wfe-linux-build/lepic-flutter-$binding_rev"
 
-# LEPIC at the pinned commit, exported to a cache dir outside the repo, so the app's own
-# (possibly stale) app/third_party/lepic clone is neither used nor touched.
+# LEPIC and the lepic-flutter binding at their pinned commits, exported to cache dirs outside the
+# repo, so the app's own (possibly stale) app/third_party clones are neither used nor touched.
 if [[ ! -f "$src/.exported" ]]; then
   mkdir -p "$src"
   # -m: files get the extraction time, not the commit time. The target volume is shared by
@@ -27,6 +31,18 @@ if [[ ! -f "$src/.exported" ]]; then
   git -C "$lepic_repo" archive "$rev" | tar -x -m -C "$src"
   mkdir -p "$src/target"
   touch "$src/.exported"
+fi
+if [[ ! -f "$binding_src/.exported" ]]; then
+  mkdir -p "$binding_src"
+  git -C "$binding_repo" archive "$binding_rev" | tar -x -m -C "$binding_src"
+  touch "$binding_src/.exported"
+fi
+# The binding builds against its own LEPIC pin; the app's must be the same commit.
+binding_pin="$(tr -d '[:space:]' < "$binding_src/lepic.rev")"
+if [[ "$binding_pin" != "$rev" ]]; then
+  echo "tools/lepic.rev ($rev) differs from the LEPIC pin of lepic-flutter $binding_rev ($binding_pin):" \
+    "set tools/lepic.rev to the binding's lepic.rev" >&2
+  exit 1
 fi
 rust="$(sed -n 's/^channel *= *"\(.*\)"/\1/p' "$src/rust-toolchain.toml")"
 flutter_v="$(tr -d '[:space:]' < "$root/scripts/linux/flutter.version")"
@@ -50,11 +66,11 @@ if [[ "${WFE_WORKTREE:-0}" = 1 ]]; then
 else
   git -C "$root" archive HEAD | tar -x -m -C "$stage"
 fi
-mkdir -p "$stage/app/third_party/lepic" "$stage/app/build"
+mkdir -p "$stage/app/third_party/lepic" "$stage/app/third_party/lepic-flutter" "$stage/app/build"
 rsync -a --delete --exclude=/app/build --exclude=/app/.dart_tool --exclude=/app/third_party \
   --exclude=/app/linux/flutter/ephemeral --exclude=/build-linux "$stage/" "$work/"
 rm -rf "$stage"
-mkdir -p "$work/app/build" "$work/app/third_party/lepic" "$work/build-linux"
+mkdir -p "$work/app/build" "$work/app/third_party/lepic" "$work/app/third_party/lepic-flutter" "$work/build-linux"
 # The built-in node's epic binary (WFE_NODE_BIN, optional) goes in as node-bin/epic.
 mkdir -p "$work/node-bin"
 if [[ -n "${WFE_NODE_BIN:-}" ]]; then
@@ -80,6 +96,7 @@ docker run --rm --user "$(id -u):$(id -g)" \
   -v "$work:/work" \
   -v wfe-linux-build:/work/app/build \
   -v "$src:/work/app/third_party/lepic" \
+  -v "$binding_src:/work/app/third_party/lepic-flutter" \
   -v wfe-linux-lepic-target:/work/app/third_party/lepic/target \
   -v wfe-linux-cargo:/opt/cargo \
   -v wfe-linux-pub:/cache/pub \

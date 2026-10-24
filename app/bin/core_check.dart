@@ -20,7 +20,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 
 const String defaultLibrary =
-    'third_party/lepic/bindings/flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so';
+    'third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so';
 
 Future<void> main(List<String> args) async {
   final library = args.isEmpty ? defaultLibrary : args.first;

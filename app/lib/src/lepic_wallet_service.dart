@@ -29,7 +29,7 @@ import 'wallet_service.dart';
 ///
 /// Outside a Flutter bundle (a plain `dart run`, the demo server) the load by name fails, so
 /// those pass [libraryPath], the library file itself, for example
-/// `third_party/lepic/bindings/flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so`.
+/// `third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so`.
 Future<void> initLepic({String? libraryPath}) => lepic.RustLib.init(
   externalLibrary: libraryPath == null
       ? null
