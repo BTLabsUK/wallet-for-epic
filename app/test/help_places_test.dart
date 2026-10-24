@@ -58,7 +58,7 @@ void main() {
     'Outputs': {l.outputsTitle, l.deskShellNavOutputs},
     'Manage outputs': {l.outputsAdvanced, l.deskOutAdvanced},
     'File': {l.receiveTabFile},
-    'QR Payment': {l.receiveTabQr},
+    'QR Code': {l.receiveTabQr},
     'Transaction files': {l.deskRecvFiles},
     'Sign a transaction file': {l.deskRecvSignTitle},
     'Finalize a response file': {l.deskRecvFinalizeTitle},

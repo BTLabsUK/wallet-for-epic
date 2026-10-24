@@ -1872,8 +1872,8 @@ class _SendViewState extends ConsumerState<SendView> {
       segment(TransferMethod.epicbox, EpicGlyphs.epicbox, l.methodEpicbox),
       if (selected == TransferMethod.direct || payments.direct)
         segment(TransferMethod.direct, EpicGlyphs.link, l.methodDirect),
-      if (selected == TransferMethod.qr || (payments.qr && offersQrScan(ref)))
-        segment(TransferMethod.qr, Icons.qr_code_2, l.methodQr),
+      if (selected == TransferMethod.qr || (payments.qr && offersQrPayment(ref)))
+        segment(TransferMethod.qr, Icons.qr_code_2, l.methodQrChip),
       if (selected == TransferMethod.file || payments.file || filePending)
         segment(TransferMethod.file, Icons.description_outlined, l.methodFile),
     ];
@@ -1941,7 +1941,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final shape = sendAddressShape(l, _method);
     final way = _wayOf(_toRoute);
     return [
-      _header(context, l.sendStepRecipient, step: 1),
+      _header(context, l.sendStepMethod, step: 1),
       ..._methodHead(context, _method),
       PhoneTourTarget(
         id: 'tour-send-recipient',
@@ -2876,7 +2876,7 @@ class _SendViewState extends ConsumerState<SendView> {
         style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
         icon: const Icon(Icons.qr_code_scanner),
         label: Text(l.qrScanReply),
-        onPressed: off || !offersQrScan(ref) ? null : _scanReply,
+        onPressed: off || !offersQrPayment(ref) ? null : _scanReply,
       );
     }
     return BusyButton(
@@ -3096,7 +3096,7 @@ class _SwitchTag extends StatelessWidget {
     final still = MediaQuery.disableAnimationsOf(context);
     if (method == null) return const SizedBox.shrink();
     final (icon, text) = switch (method) {
-      TransferMethod.direct => (EpicGlyphs.http, l.sendSwitchedDirect),
+      TransferMethod.direct => (EpicGlyphs.link, l.sendSwitchedDirect),
       _ => (EpicGlyphs.epicbox, l.sendSwitchedEpicbox),
     };
     // The text field merges its label: [_SwitchAnnouncement] says it out loud.

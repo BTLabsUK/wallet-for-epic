@@ -2781,7 +2781,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodQr => '二维码付款';
 
   @override
-  String get receiveTabQr => '二维码付款';
+  String get methodQrChip => '二维码';
+
+  @override
+  String get receiveTabQr => '二维码';
 
   @override
   String get methodArtCaptionQr => '当面';
@@ -3517,7 +3520,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get demoPinUnlockTitle => '正在打开你的演示钱包';
 
   @override
-  String get sendStepRecipient => '收款人';
+  String get sendStepMethod => '付款方式';
 
   @override
   String get sendStepAmount => '金额';
@@ -6092,7 +6095,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pushNoticeOff => '通知已关闭';
 
   @override
-  String get pushNoticeAvailable => '通知可在设置中开启。';
+  String get pushNoticeAvailable => '通知可在设置 › 高级中开启。';
 
   @override
   String get torWayOver => '经由 Tor';
@@ -13276,6 +13279,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskUpdUnfinished => '更新未完成。请重试。';
 
   @override
+  String get advExperimental => '实验性';
+
+  @override
   String get advTitle => '高级';
 
   @override
@@ -13822,4 +13828,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetTxStartHint => '“发送”页面打开时使用的方式。单笔付款时，仍可在“发送”页面更改。';
+
+  @override
+  String get deskSendMethodHeader => '付款方式';
 }

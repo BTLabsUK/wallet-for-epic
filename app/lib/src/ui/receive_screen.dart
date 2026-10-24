@@ -32,7 +32,7 @@ import 'payment_gate.dart';
 import 'settings_screen.dart';
 import 'status.dart' show EpicboxState;
 import 'qr_scan_screen.dart';
-import 'scan_screen.dart' show offersQrScan;
+import 'scan_screen.dart' show offersQrPayment;
 import 'slate_file_screen.dart';
 import 'net_block.dart';
 import 'theme/advanced.dart';
@@ -129,14 +129,14 @@ class ReceiveView extends ConsumerWidget {
                 payments.direct))
           ButtonSegment(
             value: ReceiveTab.direct,
-            icon: const Icon(EpicGlyphs.http),
+            icon: const Icon(EpicGlyphs.link),
             label: FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(l.receiveTabDirect, maxLines: 1),
             ),
           ),
         // QR is the phone next to this one: offered where the camera works.
-        if (tab == ReceiveTab.qr || (payments.qr && offersQrScan(ref)))
+        if (tab == ReceiveTab.qr || (payments.qr && offersQrPayment(ref)))
           ButtonSegment(
             value: ReceiveTab.qr,
             icon: const Icon(Icons.qr_code_2),

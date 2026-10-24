@@ -703,7 +703,8 @@
   "slateIncomingSendHintQr": "接受付款，然后把回复展示给发送方。",
   "slateAcceptedHeadlineQr": "已接受。请把回复展示给发送方。",
   "methodQr": "二维码付款",
-  "receiveTabQr": "二维码付款",
+  "methodQrChip": "二维码",
+  "receiveTabQr": "二维码",
   "methodArtCaptionQr": "当面",
   "methodArtLabelQr": "二维码付款：一部手机上的码被身边的另一部手机扫描",
   "methodSendQrTitle": "给你身边的手机。",
@@ -930,7 +931,7 @@
   "demoPinSkip": "跳过",
   "demoPinSetUpTitle": "正在设置你的演示钱包",
   "demoPinUnlockTitle": "正在打开你的演示钱包",
-  "sendStepRecipient": "收款人",
+  "sendStepMethod": "付款方式",
   "sendStepAmount": "金额",
   "sendStepReview": "确认",
   "sendStepOf": "第 {step} 步，共 {total} 步",
@@ -1666,7 +1667,7 @@
   "pushConfirmAction": "开启",
   "pushNoticeOn": "通知已开启",
   "pushNoticeOff": "通知已关闭",
-  "pushNoticeAvailable": "通知可在设置中开启。",
+  "pushNoticeAvailable": "通知可在设置 › 高级中开启。",
   "torWayOver": "经由 Tor",
   "torWayWaiting": "正在等待 Tor",
   "torWayNotConnected": "Tor 未连接。",
@@ -3672,6 +3673,7 @@
   "deskUpdErrStopped": "下载已中断。",
   "deskUpdErrInstall": "无法替换为新版本。",
   "deskUpdUnfinished": "更新未完成。请重试。",
+  "advExperimental": "实验性",
   "advTitle": "高级",
   "advStateOff": "关闭",
   "advIntro": "一开始全部关闭。每个开关会把钱包的一个部分加到它所属的位置。",
@@ -3877,5 +3879,6 @@
   "deskSetTxFileHint": "通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件”，并在“接收”中加入文件步骤。",
   "deskSetTxSend": "发送",
   "deskSetTxStart": "发送默认方式",
-  "deskSetTxStartHint": "“发送”页面打开时使用的方式。单笔付款时，仍可在“发送”页面更改。"
+  "deskSetTxStartHint": "“发送”页面打开时使用的方式。单笔付款时，仍可在“发送”页面更改。",
+  "deskSendMethodHeader": "付款方式"
 }

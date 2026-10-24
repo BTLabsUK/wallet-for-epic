@@ -20,9 +20,17 @@ import 'secret_store.dart';
 import 'wallet_backend.dart' show hostIsPhone;
 import 'wallet_service.dart' show Chain, TxEntry, TxSource, TxStatus;
 
+/// `--dart-define=WFE_WEB_FAKE=true`, the clickable web preview of the phone app: the payment
+/// methods are the phone's, QR is offered although the browser has no camera, and the scan
+/// screen shows a simulated camera that reads the fake wallet's payment and reply. Never set
+/// in a real build.
+const bool qrPreviewSimulation = bool.fromEnvironment('WFE_WEB_FAKE');
+
 /// Whether the payment methods are the phone's (QR on, File off by default). Tests override it:
 /// the app under test runs on a computer.
-final phonePaymentsProvider = Provider<bool>((ref) => hostIsPhone);
+final phonePaymentsProvider = Provider<bool>(
+  (ref) => hostIsPhone || qrPreviewSimulation,
+);
 
 /// What a history backup export held, beyond its time: the payments still pending then, and a
 /// short hash of every note. The home reminder compares it with today's list to find payments

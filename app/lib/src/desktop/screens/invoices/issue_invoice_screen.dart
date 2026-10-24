@@ -216,7 +216,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
                   segments: [
                     ESegment(_Method.epicbox, l.deskInvIssuerEpicbox, icon: EIcons.epicbox),
                     ESegment(_Method.file, l.deskInvIssuerFile, icon: EIcons.file, enabled: false, tooltip: l.deskInvIssuerSoon),
-                    ESegment(_Method.direct, l.deskInvIssuerDirect, icon: EIcons.http, enabled: false, tooltip: l.deskInvIssuerSoon),
+                    ESegment(_Method.direct, l.deskInvIssuerDirect, icon: EIcons.link, enabled: false, tooltip: l.deskInvIssuerSoon),
                   ],
                 ),
                 Text('${l.deskInvIssuerFile}, ${l.deskInvIssuerDirect}: ${l.deskInvIssuerSoon}', style: ts.small.copyWith(color: c.dim)),

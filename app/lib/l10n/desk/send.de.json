@@ -76,6 +76,7 @@
   "deskSendViewTx": "Transaktion anzeigen",
   "deskSendFailedTitle": "Senden fehlgeschlagen",
   "deskSendReviewAgain": "Erneut prüfen",
+  "deskSendMethodHeader": "Zahlungsart",
   "deskSendMethodDirect": "Link",
   "deskSendMethodFile": "Datei",
   "deskSendTo": "An",

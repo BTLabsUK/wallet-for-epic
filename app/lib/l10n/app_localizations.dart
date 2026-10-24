@@ -4360,10 +4360,16 @@ abstract class AppLocalizations {
   /// **'QR Payment'**
   String get methodQr;
 
+  /// Short name of the QR payment method on the Send method selector (chip). The full name is methodQr; keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Code'**
+  String get methodQrChip;
+
   /// Receive tab that scans a payment QR from the phone next to this one. Keep it short.
   ///
   /// In en, this message translates to:
-  /// **'QR Payment'**
+  /// **'QR Code'**
   String get receiveTabQr;
 
   /// Caption under the QR method picture; two or three words.
@@ -5722,11 +5728,11 @@ abstract class AppLocalizations {
   /// **'Opening your demo wallet'**
   String get demoPinUnlockTitle;
 
-  /// Send, step 1: heading of the step where the user enters who to pay.
+  /// Send, step 1: heading of the step that starts with the payment method selector, then the recipient field.
   ///
   /// In en, this message translates to:
-  /// **'Recipient'**
-  String get sendStepRecipient;
+  /// **'Payment method'**
+  String get sendStepMethod;
 
   /// Send, step 2: heading of the step where the user enters how much.
   ///
@@ -10146,7 +10152,7 @@ abstract class AppLocalizations {
   /// One-time reminder, about a minute after the first unlock, that notifications exist.
   ///
   /// In en, this message translates to:
-  /// **'Notifications are available in Settings.'**
+  /// **'Notifications are available in Settings › Advanced.'**
   String get pushNoticeAvailable;
 
   /// Status card, Settings › Servers and the server lists: this connection (node or Epicbox) goes through Tor now. Same words as desktop's 'Over Tor'.
@@ -22184,6 +22190,12 @@ abstract class AppLocalizations {
   /// **'Update didn\'t finish. Try again.'**
   String get deskUpdUnfinished;
 
+  /// Small outlined label beside a feature that is not finished (the Notifications switch on Advanced). One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Experimental'**
+  String get advExperimental;
+
   /// Title of the Advanced page in Settings and its hub row.
   ///
   /// In en, this message translates to:
@@ -23149,6 +23161,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The method the Send page opens with. You can still change it for one payment on Send.'**
   String get deskSetTxStartHint;
+
+  /// Title of the first panel on Send: the method selector comes first, then the recipient field.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment method'**
+  String get deskSendMethodHeader;
 }
 
 class _AppLocalizationsDelegate

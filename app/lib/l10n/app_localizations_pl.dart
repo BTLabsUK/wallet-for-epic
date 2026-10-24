@@ -3127,7 +3127,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodQr => 'Płatność QR';
 
   @override
-  String get receiveTabQr => 'Płatność QR';
+  String get methodQrChip => 'Kod QR';
+
+  @override
+  String get receiveTabQr => 'Kod QR';
 
   @override
   String get methodArtCaptionQr => 'Osobiście';
@@ -3904,7 +3907,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get demoPinUnlockTitle => 'Otwieranie portfela demo';
 
   @override
-  String get sendStepRecipient => 'Odbiorca';
+  String get sendStepMethod => 'Metoda płatności';
 
   @override
   String get sendStepAmount => 'Kwota';
@@ -6677,7 +6680,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pushNoticeOff => 'Powiadomienia wyłączone';
 
   @override
-  String get pushNoticeAvailable => 'Powiadomienia są dostępne w Ustawieniach.';
+  String get pushNoticeAvailable =>
+      'Powiadomienia są w Ustawieniach › Zaawansowane.';
 
   @override
   String get torWayOver => 'Przez Tor';
@@ -14448,6 +14452,9 @@ class AppLocalizationsPl extends AppLocalizations {
       'Aktualizacja nie została dokończona. Spróbuj ponownie.';
 
   @override
+  String get advExperimental => 'Eksperymentalne';
+
+  @override
   String get advTitle => 'Zaawansowane';
 
   @override
@@ -15040,4 +15047,7 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetTxStartHint =>
       'Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij.';
+
+  @override
+  String get deskSendMethodHeader => 'Metoda płatności';
 }

@@ -76,6 +76,7 @@
   "deskSendViewTx": "Pokaż transakcję",
   "deskSendFailedTitle": "Wysyłka nie powiodła się",
   "deskSendReviewAgain": "Sprawdź ponownie",
+  "deskSendMethodHeader": "Metoda płatności",
   "deskSendMethodDirect": "Link",
   "deskSendMethodFile": "Plik",
   "deskSendTo": "Do",

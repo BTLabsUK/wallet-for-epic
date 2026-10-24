@@ -193,8 +193,8 @@ RailItem nodeRailItem(AppLocalizations l, NodeView v) => RailItem(
 /// How often the rail asks about a remote node again.
 const Duration railNodeRefresh = Duration(seconds: 60);
 
-/// The rail: Node, a divider, Epicbox, HTTP, Tor. [horizontal] lays the compact rows side by
-/// side (the phone's top bar).
+/// The rail: Node, Epicbox, HTTP, Tor, a divider between every two. [horizontal] lays the
+/// compact rows side by side (the phone's top bar).
 class ServiceRows extends ConsumerStatefulWidget {
   const ServiceRows({super.key, this.compact = false, this.horizontal = false});
 
@@ -325,19 +325,22 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       key: const ValueKey('rail'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        row(items.first),
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 6.u, horizontal: 8.u),
-          child: Divider(height: 1, thickness: 1, color: c.line),
-        ),
-        for (final i in items.skip(1)) row(i),
+        for (var n = 0; n < items.length; n++) ...[
+          // The same hairline and the same space between every two rows.
+          if (n > 0)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 3.u, horizontal: 8.u),
+              child: Divider(height: 1, thickness: 1, color: c.line),
+            ),
+          row(items[n]),
+        ],
       ],
     );
   }
 }
 
-/// One rail row, 40 u tall: bars, the name over one line (compact: the service's icon and the
-/// bars). Hover shows the card; a click opens the service's settings.
+/// One rail row, 40 u tall: the service's icon, the name over one line, the bars at the end
+/// (compact: the icon and the bars). Hover shows the card; a click opens the service's settings.
 class RailRow extends StatefulWidget {
   const RailRow({super.key, required this.item, required this.onTap, this.compact = false});
 
@@ -406,7 +409,7 @@ class _RailRowState extends State<RailRow> {
     } else {
       content = Row(
         children: [
-          ESignalBars(i.state),
+          Icon(i.icon, size: 16.u, color: c.dim),
           SizedBox(width: 10.u),
           Expanded(
             child: Column(
@@ -423,6 +426,8 @@ class _RailRowState extends State<RailRow> {
               ],
             ),
           ),
+          SizedBox(width: 8.u),
+          ESignalBars(i.state),
         ],
       );
     }

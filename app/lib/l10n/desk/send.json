@@ -423,6 +423,10 @@
   "@deskSendReviewAgain": {
     "description": "Button in the Send failed notice: opens the review again."
   },
+  "deskSendMethodHeader": "Payment method",
+  "@deskSendMethodHeader": {
+    "description": "Title of the first panel on Send: the method selector comes first, then the recipient field."
+  },
   "deskSendMethodDirect": "Link",
   "@deskSendMethodDirect": {
     "description": "Name of the Link send method (an http(s) or onion address), in the method selector and in tags. Short."

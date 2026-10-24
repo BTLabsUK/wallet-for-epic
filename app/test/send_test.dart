@@ -710,7 +710,7 @@ void main() {
       (tester) async {
         final h = _Harness();
         await h.pump(tester, _sendTab());
-        expect(find.text('Recipient'), findsOneWidget);
+        expect(find.text('Payment method'), findsOneWidget);
         expect(find.text('1 of 3'), findsOneWidget);
         // Continue waits for an address.
         expect(tester.widget<FilledButton>(_continue).onPressed, isNull);

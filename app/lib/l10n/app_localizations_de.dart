@@ -3006,7 +3006,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodQr => 'QR-Zahlung';
 
   @override
-  String get receiveTabQr => 'QR-Zahlung';
+  String get methodQrChip => 'QR-Code';
+
+  @override
+  String get receiveTabQr => 'QR-Code';
 
   @override
   String get methodArtCaptionQr => 'Persönlich';
@@ -3791,7 +3794,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get demoPinUnlockTitle => 'Ihre Demo-Wallet wird geöffnet';
 
   @override
-  String get sendStepRecipient => 'Empfänger';
+  String get sendStepMethod => 'Zahlungsart';
 
   @override
   String get sendStepAmount => 'Betrag';
@@ -6549,7 +6552,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pushNoticeAvailable =>
-      'Benachrichtigungen sind in den Einstellungen verfügbar.';
+      'Benachrichtigungen gibt es unter Einstellungen › Erweitert.';
 
   @override
   String get torWayOver => 'Über Tor';
@@ -14181,6 +14184,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Update nicht abgeschlossen. Erneut versuchen.';
 
   @override
+  String get advExperimental => 'Experimentell';
+
+  @override
   String get advTitle => 'Erweitert';
 
   @override
@@ -14775,4 +14781,7 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetTxStartHint =>
       'Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern.';
+
+  @override
+  String get deskSendMethodHeader => 'Zahlungsart';
 }
