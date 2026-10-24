@@ -12,6 +12,7 @@ import 'models.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../relay_directory.dart' show statusSite;
 import '../widgets/kit.dart' show DeskFeatures;
+import '../../phrase_clipboard.dart';
 
 /// The wallet behind the desktop UI. Override with a LEPIC adapter to go live.
 final deskApiProvider = Provider<DeskWalletApi>((ref) => MockDeskWallet());
@@ -140,6 +141,8 @@ class DeskController extends Notifier<DeskState> {
   /// Ctrl+L and Lock: the session closed, the open wallet's data dropped.
   Future<void> lock() async {
     _stopLive();
+    // A recovery phrase copied in this session leaves the clipboard with it.
+    unawaited(clearCopiedPhrase());
     await api.lock();
     state = DeskState(settings: state.settings, nodes: state.nodes, epicboxes: state.epicboxes);
   }

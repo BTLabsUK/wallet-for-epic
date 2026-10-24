@@ -2417,7 +2417,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get backupCopied =>
-      'Скопировано. Буфер обмена будет очищен через 30 секунд.';
+      'Скопировано. Буфер обмена будет очищен через 60 секунд.';
 
   @override
   String get backupNotCopied => 'Не скопировано. Буфер обмена отклонил текст.';
@@ -12723,7 +12723,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetPhraseCopied => 'Фраза скопирована';
 
   @override
-  String get deskSetPhraseCleared => 'Буфер обмена очистится через 30 с.';
+  String get deskSetPhraseCleared => 'Буфер обмена очистится через 60 с.';
 
   @override
   String get deskSetPhraseEnterPassword => 'Введите пароль.';

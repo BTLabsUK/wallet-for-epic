@@ -2234,7 +2234,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ใครมีคำเหล่านี้ก็นำเงินของคุณไปได้ เก็บสำเนาไว้ในที่ปลอดภัย';
 
   @override
-  String get backupCopied => 'คัดลอกแล้ว คลิปบอร์ดจะถูกล้างใน 30 วินาที';
+  String get backupCopied => 'คัดลอกแล้ว คลิปบอร์ดจะถูกล้างใน 60 วินาที';
 
   @override
   String get backupNotCopied => 'ไม่ได้คัดลอก คลิปบอร์ดปฏิเสธข้อความ';
@@ -12118,7 +12118,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetPhraseCopied => 'คัดลอกวลีแล้ว';
 
   @override
-  String get deskSetPhraseCleared => 'คลิปบอร์ดจะถูกล้างใน 30 วินาที';
+  String get deskSetPhraseCleared => 'คลิปบอร์ดจะถูกล้างใน 60 วินาที';
 
   @override
   String get deskSetPhraseEnterPassword => 'ใส่รหัสผ่าน';

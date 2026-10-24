@@ -2328,7 +2328,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get backupCopied =>
-      'Kopiert. Die Zwischenablage wird in 30 Sekunden geleert.';
+      'Kopiert. Die Zwischenablage wird in 60 Sekunden geleert.';
 
   @override
   String get backupNotCopied =>
@@ -12501,7 +12501,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetPhraseCopied => 'Phrase kopiert';
 
   @override
-  String get deskSetPhraseCleared => 'Die Zwischenablage wird in 30 s geleert.';
+  String get deskSetPhraseCleared => 'Die Zwischenablage wird in 60 s geleert.';
 
   @override
   String get deskSetPhraseEnterPassword => 'Geben Sie das Passwort ein.';

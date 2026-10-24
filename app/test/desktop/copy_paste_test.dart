@@ -148,6 +148,10 @@ void phraseCopyOnboarding() {
     expect(_clip, isNotNull);
     expect(find.text('Phrase copied'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    // Cleared after 60 s, not at 31.
     await tester.pump(const Duration(seconds: 31));
+    expect(_clip, isNotEmpty);
+    await tester.pump(const Duration(seconds: 30));
+    expect(_clip, '');
   });
 }

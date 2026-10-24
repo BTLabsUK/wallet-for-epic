@@ -2426,7 +2426,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get backupCopied =>
-      'Skopiowano. Schowek zostanie wyczyszczony za 30 sekund.';
+      'Skopiowano. Schowek zostanie wyczyszczony za 60 sekund.';
 
   @override
   String get backupNotCopied => 'Nie skopiowano. Schowek odrzucił tekst.';
@@ -12752,7 +12752,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetPhraseCopied => 'Skopiowano frazę';
 
   @override
-  String get deskSetPhraseCleared => 'Schowek zostanie wyczyszczony za 30 s.';
+  String get deskSetPhraseCleared => 'Schowek zostanie wyczyszczony za 60 s.';
 
   @override
   String get deskSetPhraseEnterPassword => 'Wpisz hasło.';

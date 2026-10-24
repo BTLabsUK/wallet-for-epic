@@ -2153,7 +2153,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backupCopyBody => '任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。';
 
   @override
-  String get backupCopied => '已复制。剪贴板将在 30 秒后清空。';
+  String get backupCopied => '已复制。剪贴板将在 60 秒后清空。';
 
   @override
   String get backupNotCopied => '未复制。剪贴板拒绝了该文本。';
@@ -11699,7 +11699,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPhraseCopied => '助记词已复制';
 
   @override
-  String get deskSetPhraseCleared => '剪贴板将在 30 秒后清空。';
+  String get deskSetPhraseCleared => '剪贴板将在 60 秒后清空。';
 
   @override
   String get deskSetPhraseEnterPassword => '请输入密码。';

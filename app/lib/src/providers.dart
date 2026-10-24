@@ -12,6 +12,7 @@ import 'secret_store.dart';
 import 'vault.dart';
 import 'wallet_backend.dart' as backend;
 import 'wallet_service.dart';
+import 'phrase_clipboard.dart';
 
 /// Confirmations before an output counts as spendable, until a balance says otherwise: the
 /// count LEPIC's balance uses (3, as the GUI 6.1.6). The app never counts with its own number
@@ -201,6 +202,8 @@ class SessionNotifier extends Notifier<WalletSession?> {
   void lock() {
     final previous = state;
     state = null;
+    // A recovery phrase copied in this session leaves the clipboard with it.
+    unawaited(clearCopiedPhrase());
     if (previous != null) logInfo('session', 'wallet locked');
     previous?.dispose();
   }

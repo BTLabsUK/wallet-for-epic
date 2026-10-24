@@ -2,7 +2,7 @@
   "deskSetPhraseNotCopied": "ไม่ได้คัดลอก",
   "deskSetPhraseClipboardRefused": "คลิปบอร์ดไม่รับข้อความ",
   "deskSetPhraseCopied": "คัดลอกวลีแล้ว",
-  "deskSetPhraseCleared": "คลิปบอร์ดจะถูกล้างใน 30 วินาที",
+  "deskSetPhraseCleared": "คลิปบอร์ดจะถูกล้างใน 60 วินาที",
   "deskSetPhraseEnterPassword": "ใส่รหัสผ่าน",
   "deskSetPhraseWrongPassword": "รหัสผ่านไม่ถูกต้อง",
   "deskSetPhraseIntro": "จดคำลงกระดาษตามลำดับนี้ ห้ามพิมพ์ลงในเว็บไซต์หรือแชต",

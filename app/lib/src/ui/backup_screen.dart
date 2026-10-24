@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
 import '../providers.dart';
 import 'common.dart';
 import 'pin.dart';
+import '../phrase_clipboard.dart';
 
 /// Whether the open wallet's recovery phrase has been written down.
 final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
@@ -18,7 +18,7 @@ final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
 
 /// Shows the recovery phrase once the user has agreed to keep any copy private and entered the
 /// PIN. Screenshots and Copy are allowed, since a phrase people cannot copy is a phrase they do
-/// not back up; Copy warns first and clears the clipboard after 30 s ([copyRecoveryPhrase]).
+/// not back up; Copy warns first and clears the clipboard after 60 s and on lock ([copyRecoveryPhrase]).
 /// "Done" marks it backed up and pops true.
 class BackupScreen extends ConsumerStatefulWidget {
   const BackupScreen({super.key});
@@ -239,29 +239,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   }
 }
 
-Timer? _clipboardTimer;
-
-/// Copies the recovery phrase and clears the clipboard 30 s later if the phrase is still there
-/// (as the desktop does). One timer for the app, outliving the screen. False when the clipboard
-/// refused the text. Android 10+ lets an app read the clipboard only while it is in the
-/// foreground: when the read finds nothing (the app is in the background), the clipboard is
-/// cleared anyway, as the phrase may still be on it.
-Future<bool> copyRecoveryPhrase(String phrase) async {
-  try {
-    await Clipboard.setData(ClipboardData(text: phrase));
-  } on Object {
-    return false;
-  }
-  _clipboardTimer?.cancel();
-  _clipboardTimer = Timer(const Duration(seconds: 30), () async {
-    try {
-      final now = await Clipboard.getData(Clipboard.kTextPlain);
-      if (now?.text == null || now!.text == phrase) {
-        await Clipboard.setData(const ClipboardData(text: ''));
-      }
-    } on Object {
-      // Nothing more to do.
-    }
-  });
-  return true;
-}
+/// Copies the recovery phrase, cleared after [phraseClipboardLifetime] and on lock, as on the
+/// desktop. False when the clipboard refused the text.
+Future<bool> copyRecoveryPhrase(String phrase) => copyPhraseToClipboard(phrase);

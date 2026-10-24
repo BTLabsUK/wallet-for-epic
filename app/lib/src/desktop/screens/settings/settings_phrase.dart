@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
+import '../../../phrase_clipboard.dart';
 
 /// Start states of Settings › Recovery phrase.
 enum PhraseDemo { shown, qr }
@@ -20,11 +20,9 @@ const _demoWords = [
 ];
 
 
-Timer? _clipboardTimer;
-
 /// Warns that anyone with the words can take the funds, and copies a recovery phrase if the
-/// user agrees. The clipboard is cleared 30 s later if the phrase is still there. One timer for
-/// the app, outliving the page.
+/// user agrees. The clipboard is cleared after [phraseClipboardLifetime] and on lock, if the
+/// phrase is still there ([copyPhraseToClipboard]).
 Future<void> copyPhrase(BuildContext context, String phrase) async {
   final l = context.l10n;
   final sure = await showEDialog<bool>(
@@ -41,17 +39,10 @@ Future<void> copyPhrase(BuildContext context, String phrase) async {
     ),
   );
   if (sure != true || !context.mounted) return;
-  try {
-    await Clipboard.setData(ClipboardData(text: phrase));
-  } on Object {
+  if (!await copyPhraseToClipboard(phrase)) {
     if (context.mounted) showEToast(context, l.deskSetPhraseNotCopied, text: l.deskSetPhraseClipboardRefused, tone: ETone.risk);
     return;
   }
-  _clipboardTimer?.cancel();
-  _clipboardTimer = Timer(const Duration(seconds: 30), () async {
-    final now = await Clipboard.getData(Clipboard.kTextPlain);
-    if (now?.text == phrase) await Clipboard.setData(const ClipboardData(text: ''));
-  });
   if (context.mounted) showEToast(context, l.deskSetPhraseCopied, text: l.deskSetPhraseCleared);
 }
 

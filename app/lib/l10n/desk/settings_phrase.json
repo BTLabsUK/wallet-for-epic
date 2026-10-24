@@ -11,7 +11,7 @@
   "@deskSetPhraseCopied": {
     "description": "Toast title after the recovery phrase was copied."
   },
-  "deskSetPhraseCleared": "The clipboard is cleared in 30 s.",
+  "deskSetPhraseCleared": "The clipboard is cleared in 60 s.",
   "@deskSetPhraseCleared": {
     "description": "Toast text after the recovery phrase was copied."
   },

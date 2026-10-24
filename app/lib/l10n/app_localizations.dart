@@ -3376,10 +3376,10 @@ abstract class AppLocalizations {
   /// **'Anyone with these words can take your funds. Store the copy somewhere safe.'**
   String get backupCopyBody;
 
-  /// Notice after the recovery phrase was copied: the clipboard is cleared after 30 seconds.
+  /// Notice after the recovery phrase was copied: the clipboard is cleared after 60 seconds, and when the wallet locks.
   ///
   /// In en, this message translates to:
-  /// **'Copied. The clipboard is cleared in 30 seconds.'**
+  /// **'Copied. The clipboard is cleared in 60 seconds.'**
   String get backupCopied;
 
   /// Notice when the clipboard refused the recovery phrase.
@@ -19481,7 +19481,7 @@ abstract class AppLocalizations {
   /// Toast text after the recovery phrase was copied.
   ///
   /// In en, this message translates to:
-  /// **'The clipboard is cleared in 30 s.'**
+  /// **'The clipboard is cleared in 60 s.'**
   String get deskSetPhraseCleared;
 
   /// Settings > Recovery phrase: error under the password field when it is empty.

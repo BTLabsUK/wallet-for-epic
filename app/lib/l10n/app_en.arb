@@ -2672,9 +2672,9 @@
   "@backupCopyBody": {
     "description": "Text of the confirm dialog before the recovery phrase is copied."
   },
-  "backupCopied": "Copied. The clipboard is cleared in 30 seconds.",
+  "backupCopied": "Copied. The clipboard is cleared in 60 seconds.",
   "@backupCopied": {
-    "description": "Notice after the recovery phrase was copied: the clipboard is cleared after 30 seconds."
+    "description": "Notice after the recovery phrase was copied: the clipboard is cleared after 60 seconds, and when the wallet locks."
   },
   "backupNotCopied": "Not copied. The clipboard refused the text.",
   "@backupNotCopied": {
@@ -16190,7 +16190,7 @@
   "@deskSetPhraseCopied": {
     "description": "Toast title after the recovery phrase was copied."
   },
-  "deskSetPhraseCleared": "The clipboard is cleared in 30 s.",
+  "deskSetPhraseCleared": "The clipboard is cleared in 60 s.",
   "@deskSetPhraseCleared": {
     "description": "Toast text after the recovery phrase was copied."
   },

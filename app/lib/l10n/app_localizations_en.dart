@@ -2299,7 +2299,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Anyone with these words can take your funds. Store the copy somewhere safe.';
 
   @override
-  String get backupCopied => 'Copied. The clipboard is cleared in 30 seconds.';
+  String get backupCopied => 'Copied. The clipboard is cleared in 60 seconds.';
 
   @override
   String get backupNotCopied => 'Not copied. The clipboard refused the text.';
@@ -12359,7 +12359,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetPhraseCopied => 'Phrase copied';
 
   @override
-  String get deskSetPhraseCleared => 'The clipboard is cleared in 30 s.';
+  String get deskSetPhraseCleared => 'The clipboard is cleared in 60 s.';
 
   @override
   String get deskSetPhraseEnterPassword => 'Enter the password.';

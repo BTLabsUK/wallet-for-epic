@@ -2,7 +2,7 @@
   "deskSetPhraseNotCopied": "Не скопировано",
   "deskSetPhraseClipboardRefused": "Буфер обмена не принял текст.",
   "deskSetPhraseCopied": "Фраза скопирована",
-  "deskSetPhraseCleared": "Буфер обмена очистится через 30 с.",
+  "deskSetPhraseCleared": "Буфер обмена очистится через 60 с.",
   "deskSetPhraseEnterPassword": "Введите пароль.",
   "deskSetPhraseWrongPassword": "Неверный пароль.",
   "deskSetPhraseIntro": "Запишите слова на бумаге в этом порядке. Никогда не вводите их на сайтах и в чатах.",

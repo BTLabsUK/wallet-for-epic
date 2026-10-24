@@ -2,7 +2,7 @@
   "deskSetPhraseNotCopied": "未复制",
   "deskSetPhraseClipboardRefused": "剪贴板拒绝了这段文本。",
   "deskSetPhraseCopied": "助记词已复制",
-  "deskSetPhraseCleared": "剪贴板将在 30 秒后清空。",
+  "deskSetPhraseCleared": "剪贴板将在 60 秒后清空。",
   "deskSetPhraseEnterPassword": "请输入密码。",
   "deskSetPhraseWrongPassword": "密码错误。",
   "deskSetPhraseIntro": "请按此顺序把这些单词抄写在纸上。切勿把它们输入任何网站或聊天中。",

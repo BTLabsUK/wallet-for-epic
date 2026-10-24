@@ -800,7 +800,7 @@ void main() {
         expect(find.textContaining('Copied.'), findsNothing);
       });
 
-      testWidgets('Copy puts the words on the clipboard, then clears it after 30 s', (
+      testWidgets('Copy puts the words on the clipboard, then clears it after 60 s', (
         tester,
       ) async {
         final phrase = await openPhrase(tester);
@@ -832,10 +832,13 @@ void main() {
         await _pumpFrames(tester);
         expect(clip, phrase);
         expect(
-          find.text('Copied. The clipboard is cleared in 30 seconds.'),
+          find.text('Copied. The clipboard is cleared in 60 seconds.'),
           findsOneWidget,
         );
         await tester.pump(const Duration(seconds: 31));
+        await tester.pump();
+        expect(clip, phrase, reason: 'still there after 31 s');
+        await tester.pump(const Duration(seconds: 30));
         await tester.pump();
         expect(clip, '');
       });
@@ -870,7 +873,7 @@ void main() {
         );
         await _pumpFrames(tester);
         expect(clip, isNotEmpty);
-        await tester.pump(const Duration(seconds: 31));
+        await tester.pump(const Duration(seconds: 61));
         await tester.pump();
         expect(clip, '');
       });
