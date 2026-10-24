@@ -517,15 +517,22 @@ void main() {
           findsOneWidget,
         );
         semantics.dispose();
-        // The tag goes after 3 s; the method stays.
-        await tester.pump(const Duration(seconds: 4));
-        await tester.pump(const Duration(milliseconds: 300));
+        // The tag fades after 3 s, then leaves the label (android-08: no empty notch); the
+        // method stays.
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pump(const Duration(milliseconds: 100));
         expect(
           tester
               .widget<AnimatedOpacity>(find.byKey(sendSwitchedTagKey))
               .opacity,
           0,
         );
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(find.byKey(sendSwitchedTagKey), findsNothing);
+        final label = find.descendant(of: find.widgetWithText(TextField, 'To'), matching: find.text('To'));
+        expect(find.ancestor(of: label, matching: find.byType(Row)).evaluate(), isNotEmpty);
+        expect(tester.getSize(find.ancestor(of: label, matching: find.byType(Row)).first).width,
+            moreOrLessEquals(tester.getSize(label).width, epsilon: 1));
         // Never back: one more character breaks the onion, Direct stays.
         final more = await _type(tester, '${_name}x');
         expect(more.last, TransferMethod.direct);
