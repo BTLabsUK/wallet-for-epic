@@ -518,7 +518,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'ยกเลิกแล้ว ไม่มีการส่งเงินออก และยอดเงินกลับมาใช้ได้แล้ว';
+      'ยกเลิกแล้ว ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว หากผู้รับได้รับรายการนี้ไปแล้ว กระเป๋าเงินของผู้รับอาจยังแสดงว่ากำลังรอ แต่รายการนี้ทำให้เสร็จไม่ได้อีกแล้ว';
 
   @override
   String get txDetailsCancelledReleased =>
@@ -530,11 +530,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'ผู้รับไม่ตอบภายใน 14 วัน กระเป๋าเงินจึงยกเลิก ไม่มีการส่งเงินออก และยอดเงินกลับมาใช้ได้แล้ว';
+      'ผู้รับไม่ตอบภายใน 14 วัน กระเป๋าเงินจึงยกเลิก ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'ผู้รับตอบหลังครบกำหนด 14 วัน กระเป๋าเงินจึงยกเลิกแทนการทำรายการให้เสร็จ ไม่มีการส่งเงินออก และยอดเงินกลับมาใช้ได้แล้ว';
+      'ผู้รับตอบหลังครบกำหนด 14 วัน กระเป๋าเงินจึงยกเลิกแทนการทำรายการให้เสร็จ ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว';
 
   @override
   String get txDetailsCancelledUndelivered =>

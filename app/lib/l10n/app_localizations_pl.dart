@@ -549,7 +549,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'Anulowano. Nic nie zostało wysłane, a środki są znów dostępne.';
+      'Anulowano. Nic nie zostało zapłacone, a środki są znów dostępne. Jeśli odbiorca już ją otrzymał, jego portfel może nadal pokazywać ją jako oczekującą; nie można jej już dokończyć.';
 
   @override
   String get txDetailsCancelledReleased =>
@@ -561,11 +561,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'Odbiorca nie odpowiedział w ciągu 14 dni, więc portfel anulował płatność. Nic nie zostało wysłane, a środki są znów dostępne.';
+      'Odbiorca nie odpowiedział w ciągu 14 dni, więc portfel anulował płatność. Nic nie zostało zapłacone, a środki są znów dostępne.';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'Odbiorca odpowiedział po upływie 14 dni, więc portfel anulował płatność, zamiast ją dokończyć. Nic nie zostało wysłane, a środki są znów dostępne.';
+      'Odbiorca odpowiedział po upływie 14 dni, więc portfel anulował płatność, zamiast ją dokończyć. Nic nie zostało zapłacone, a środki są znów dostępne.';
 
   @override
   String get txDetailsCancelledUndelivered =>

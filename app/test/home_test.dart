@@ -2354,7 +2354,9 @@ void main() {
       // Cancelled by the user.
       expect(
         txExplanation(englishStrings, cancelledSend(), _tip),
-        'Cancelled. Nothing was sent, and the funds are spendable again.',
+        'Cancelled. Nothing was paid, and the funds are spendable again. If the '
+        'recipient already got it, their wallet may still show it as waiting; it '
+        'can no longer complete.',
       );
     });
 
@@ -2438,12 +2440,16 @@ void main() {
       String say(TxEntry tx) => txExplanation(englishStrings, tx, _tip);
       expect(
         say(cancelled(CancelReason.user)),
-        'Cancelled. Nothing was sent, and the funds are spendable again.',
+        'Cancelled. Nothing was paid, and the funds are spendable again. If the '
+        'recipient already got it, their wallet may still show it as waiting; it '
+        'can no longer complete.',
       );
       // The user cancelled on day 2; from day 14 the old rule would blame the limit.
       expect(
         say(cancelled(CancelReason.user, cutoff: _tip - BigInt.one)),
-        'Cancelled. Nothing was sent, and the funds are spendable again.',
+        'Cancelled. Nothing was paid, and the funds are spendable again. If the '
+        'recipient already got it, their wallet may still show it as waiting; it '
+        'can no longer complete.',
       );
       // Released after a refusal, then past the limit: still a release.
       expect(
@@ -2478,7 +2484,17 @@ void main() {
         say(cancelled(null, cutoff: _tip - BigInt.one)),
         startsWith('The recipient did not answer within 14 days'),
       );
-      expect(say(cancelled(null)), startsWith('Cancelled. Nothing was sent'));
+      expect(say(cancelled(null)), startsWith('Cancelled. Nothing was paid'));
+      // android-13: a cancelled send may have reached the recipient, so it never says
+      // nothing was sent.
+      for (final r in [
+        CancelReason.user,
+        CancelReason.expiry,
+        CancelReason.lateAnswer,
+        null,
+      ]) {
+        expect(say(cancelled(r)), isNot(contains('Nothing was sent')));
+      }
     });
 
     testWidgets('a delayed payment is announced once', (tester) async {

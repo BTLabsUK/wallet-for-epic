@@ -871,10 +871,10 @@ abstract class AppLocalizations {
   /// **'Completed in block {height}.'**
   String txDetailsCompletedInBlock(String height);
 
-  /// Payment details, why a send is cancelled: the user cancelled it before it was sent.
+  /// Payment details, why a send is cancelled: the user cancelled it. The slate may have reached the recipient, so it never says nothing was sent.
   ///
   /// In en, this message translates to:
-  /// **'Cancelled. Nothing was sent, and the funds are spendable again.'**
+  /// **'Cancelled. Nothing was paid, and the funds are spendable again. If the recipient already got it, their wallet may still show it as waiting; it can no longer complete.'**
   String get txDetailsCancelledByUser;
 
   /// Payment details, why a send is cancelled: the user released the funds of a send the network refused.
@@ -892,13 +892,13 @@ abstract class AppLocalizations {
   /// Payment details, why a send is cancelled: the recipient never answered within its 14-day limit.
   ///
   /// In en, this message translates to:
-  /// **'The recipient did not answer within 14 days, so the wallet cancelled it. Nothing was sent, and the funds are spendable again.'**
+  /// **'The recipient did not answer within 14 days, so the wallet cancelled it. Nothing was paid, and the funds are spendable again.'**
   String get txDetailsCancelledUnanswered;
 
   /// Payment details, why a send is cancelled: the answer came too late.
   ///
   /// In en, this message translates to:
-  /// **'The recipient answered after the 14-day limit, so the wallet cancelled it instead of finishing it. Nothing was sent, and the funds are spendable again.'**
+  /// **'The recipient answered after the 14-day limit, so the wallet cancelled it instead of finishing it. Nothing was paid, and the funds are spendable again.'**
   String get txDetailsCancelledLateAnswer;
 
   /// Payment details, why a send is cancelled: it never reached the recipient.

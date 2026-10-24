@@ -547,7 +547,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'Отменено. Ничего не отправлено, средства снова доступны.';
+      'Отменено. Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий; завершить его больше нельзя.';
 
   @override
   String get txDetailsCancelledReleased =>
@@ -559,11 +559,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelledUnanswered =>
-      'Получатель не ответил за 14 дней, поэтому кошелёк отменил платёж. Ничего не отправлено, средства снова доступны.';
+      'Получатель не ответил за 14 дней, поэтому кошелёк отменил платёж. Ничего не оплачено, средства снова доступны.';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      'Получатель ответил после 14-дневного срока, поэтому кошелёк отменил платёж вместо завершения. Ничего не отправлено, средства снова доступны.';
+      'Получатель ответил после 14-дневного срока, поэтому кошелёк отменил платёж вместо завершения. Ничего не оплачено, средства снова доступны.';
 
   @override
   String get txDetailsCancelledUndelivered =>

@@ -502,7 +502,8 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get txDetailsCancelledByUser => '已取消。没有发送任何资金，这些资金已恢复可用。';
+  String get txDetailsCancelledByUser =>
+      '已取消。没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中；这笔付款已无法完成。';
 
   @override
   String get txDetailsCancelledReleased =>
@@ -514,11 +515,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsCancelledUnanswered =>
-      '接收方未在 14 天内回复，因此钱包已将其取消。没有发送任何资金，这些资金已恢复可用。';
+      '接收方未在 14 天内回复，因此钱包已将其取消。没有支付任何资金，这些资金已恢复可用。';
 
   @override
   String get txDetailsCancelledLateAnswer =>
-      '接收方在 14 天期限过后才回复，因此钱包取消了这笔付款，而没有完成它。没有发送任何资金，这些资金已恢复可用。';
+      '接收方在 14 天期限过后才回复，因此钱包取消了这笔付款，而没有完成它。没有支付任何资金，这些资金已恢复可用。';
 
   @override
   String get txDetailsCancelledUndelivered =>
