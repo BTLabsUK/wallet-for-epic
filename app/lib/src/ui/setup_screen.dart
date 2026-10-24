@@ -370,7 +370,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 ),
                 if (_relay != null && _relay != _savedRelay) ...[
                   const SizedBox(height: 8),
-                  ErrorText(l.setupRelayChangeWarning),
+                  WarningText(l.setupRelayChangeWarning),
                 ],
                 if (devNetworks) ...[
                   const SizedBox(height: 8),

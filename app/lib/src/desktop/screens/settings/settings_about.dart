@@ -129,7 +129,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                   ],
                 ),
               ),
-              linkRow('Source code', 'github.com/blacktyger/wallet-for-epic', projectRepoUrl),
+              linkRow('Source code', 'github.com/BTLabs-EPIC/wallet-for-epic', projectRepoUrl),
               ESetRow(
                 title: 'All licence texts',
                 control: ERowControl(

@@ -248,6 +248,31 @@ void main() {
     expect(spawned.single.terminated, 1);
   });
 
+  test('linux-04: the "Local node not started" notice goes once the node is started', () async {
+    await secrets.write(builtInNodeSettingKey(Chain.mainnet), 'true');
+    portBusy = true;
+    final w = make();
+    await w.resumeBuiltInNode();
+    expect((await w.status()).notice, startsWith('Local node not started'));
+    portBusy = false;
+    await w.useBuiltInNode(true);
+    await Future<void>.delayed(Duration.zero);
+    expect((await w.status()).notice, isNull);
+    await w.dispose();
+  });
+
+  test('linux-04: the notice goes when the node is stopped', () async {
+    await secrets.write(builtInNodeSettingKey(Chain.mainnet), 'true');
+    portBusy = true;
+    final w = make();
+    await w.resumeBuiltInNode();
+    expect((await w.status()).notice, startsWith('Local node not started'));
+    await w.useBuiltInNode(false);
+    await Future<void>.delayed(Duration.zero);
+    expect((await w.status()).notice, isNull);
+    await w.dispose();
+  });
+
   test('at launch it does not start when "Start with the app" is off', () async {
     await secrets.write(builtInNodeSettingKey(Chain.mainnet), 'true');
     await NodeSettings(secrets, Chain.mainnet).setStartWithApp(false);
