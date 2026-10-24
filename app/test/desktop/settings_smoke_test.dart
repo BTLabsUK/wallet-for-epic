@@ -61,10 +61,6 @@ void main() {
     ('help search', const DeskLocation(DeskRoute.settingsHelp, 'file')),
   ];
   final dialogs = <(String, Future<void> Function(BuildContext))>[
-    ('my node', (c) => showMyNodeDialog(c, adding: true)),
-    ('my node error', (c) => showMyNodeDialog(c, initial: 'http://bad example', adding: true, showError: true)),
-    ('my node edit', (c) => showMyNodeDialog(c, initial: 'http://10.0.1.24:3413', label: 'Home node')),
-    ('directory', showNodeDirectoryDialog),
     ('chain offer', showChainOfferDialog),
     ('chain offer in use', (c) => showChainOfferDialog(c, inUse: true)),
     ('remove', (c) => showRemoveWalletDialog(c, demoOtherWallet)),

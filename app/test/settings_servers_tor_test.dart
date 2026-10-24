@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/network_menu.dart';
+import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
@@ -156,11 +157,12 @@ void main() {
         await openPage(tester);
         await tester.tap(find.byKey(key));
         await tester.pumpAndSettle();
-        final sheet = find.byType(ServerPickerSheet);
+        final sheet = find.byType(ServerListSheet);
         expect(sheet, findsOneWidget);
-        expect(tester.widget<ServerPickerSheet>(sheet).kind, kind);
+        expect(tester.widget<ServerListSheet>(sheet).kind, kind);
         // The sheet is a modal route over the page: closing it lands on the same page.
-        await tester.tap(find.byIcon(Icons.close));
+        // The header's close comes before the field's clear button, which is a close icon too.
+    await tester.tap(find.byIcon(Icons.close).first);
         await tester.pumpAndSettle();
         expect(sheet, findsNothing);
         expect(find.byKey(key), findsOneWidget);
@@ -246,9 +248,9 @@ void main() {
           );
           await tester.tap(_row(route));
           await tester.pumpAndSettle();
-          expect(find.byType(ServerPickerSheet), findsOneWidget);
+          expect(find.byType(ServerListSheet), findsOneWidget);
           final lines = find.descendant(
-            of: find.byType(ServerPickerSheet),
+            of: find.byType(ServerListSheet),
             matching: find.byWidgetPredicate(
               (w) => w is TorWayLine && w.route == route,
             ),

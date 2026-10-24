@@ -1,6 +1,8 @@
 /// What `http.dart`'s calls return and throw, the same on every platform.
 library;
 
+import 'dart:typed_data';
+
 /// A server's answer: its status and its body as UTF-8 text.
 class HttpReply {
   const HttpReply(this.status, this.body);
@@ -10,6 +12,14 @@ class HttpReply {
 
   /// A 2xx status.
   bool get ok => status >= 200 && status < 300;
+}
+
+/// A server's answer with a binary body ([httpGetBytes]).
+class HttpBytes {
+  const HttpBytes(this.status, this.bytes);
+
+  final int status;
+  final Uint8List bytes;
 }
 
 /// The request never got an answer: offline, DNS, TLS, refused, or on the web a CORS check.

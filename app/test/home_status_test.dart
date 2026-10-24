@@ -13,8 +13,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/home_status.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart'
     show ReceiveTab, receiveTabProvider;
-import 'package:epic_wallet/src/ui/server_picker.dart'
-    show ServerPickerSheet;
+import 'package:epic_wallet/src/ui/server_list_sheet.dart' show ServerListSheet;
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
@@ -448,7 +447,7 @@ void main() {
       await tester.pump(const Duration(seconds: 7));
       await tester.tap(find.byKey(nodeStatusKey));
       await tester.pumpAndSettle();
-      expect(find.byType(ServerPickerSheet), findsOneWidget);
+      expect(find.byType(ServerListSheet), findsOneWidget);
       expect(find.text('Node'), findsWidgets);
     });
   });

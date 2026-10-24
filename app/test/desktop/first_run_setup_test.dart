@@ -11,7 +11,7 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/onboarding_parts.dart
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/setup_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/unlock_screen.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/combo.dart';
+import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
@@ -147,7 +147,7 @@ void main() {
     expect(find.text('Preferences'), findsNothing);
     expect(find.text('Back'), findsNothing, reason: 'no way back to the phrase');
     expect(find.text('Back to wallet'), findsNothing);
-    expect(tester.widget<ServiceCombo>(find.byType(ServiceCombo)).value, node);
+    expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).value, node);
     await tester.tap(find.text('Continue'));
     await wait(tester, 1000);
     expect(find.text('Receive when offline'), findsOneWidget);
@@ -223,12 +223,12 @@ void main() {
     container.dispose();
     container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(checking), deskNodeProvider.overrideWithValue(MockDeskNode())]);
     await pumpApp(tester, DeskRoute.setup, const SetupFirstRun(UnlockAdded('Wallet 1', id: 'x')));
-    var combo = tester.widget<ServiceCombo>(find.byType(ServiceCombo));
+    var combo = tester.widget<ServerListPanel>(find.byType(ServerListPanel));
     expect(combo.value, '', reason: 'a node being checked is not healthy');
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNull);
     checking.finish();
     await wait(tester, 800);
-    combo = tester.widget<ServiceCombo>(find.byType(ServiceCombo));
+    combo = tester.widget<ServerListPanel>(find.byType(ServerListPanel));
     expect(combo.value, 'https://fast.example:3413');
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
     await end(tester);

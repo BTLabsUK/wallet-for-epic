@@ -1,5 +1,5 @@
 // The picker row (spec §18): the columns at 640 u, no operator under 420 u, no version under
-// 480 u, a long host never pushes the star; the neutral order of a shuffled list; one
+// 480 u, a long host never pushes the latency past the edge; the neutral order of a shuffled list; one
 // ServerRow class serves nodes and relays; no node row carries a default tag.
 import 'dart:io';
 
@@ -10,9 +10,9 @@ import 'package:epic_wallet/src/desktop/widgets/server_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-const _node = ServerInfo(value: 'https://node.epiccash.com:3413', host: 'node.epiccash.com', operator: 'Epic Cash', behind: 0, latencyMs: 24, version: '4.1.1', starred: false);
-const _behind = ServerInfo(value: 'b', host: 'node.btlabs.uk', operator: 'BT Labs', state: EState.warn, behind: 12, latencyMs: 18, version: '4.1.0', versionOld: true, starred: false);
-const _down = ServerInfo(value: 'c', host: 'epic-node.iniaku.my.id', operator: 'Iniaku pool', state: EState.risk, starred: false);
+const _node = ServerInfo(value: 'https://node.epiccash.com:3413', host: 'node.epiccash.com', operator: 'Epic Cash', behind: 0, latencyMs: 24, version: '4.1.1');
+const _behind = ServerInfo(value: 'b', host: 'node.btlabs.uk', operator: 'BT Labs', state: EState.warn, behind: 12, latencyMs: 18, version: '4.1.0', versionOld: true);
+const _down = ServerInfo(value: 'c', host: 'epic-node.iniaku.my.id', operator: 'Iniaku pool', state: EState.risk);
 const _relay = ServerInfo(value: 'epicbox.epiccash.com', host: 'epicbox.epiccash.com', operator: 'Epic Cash', latencyMs: 40, version: '1', isDefault: true);
 
 Future<void> _pump(WidgetTester tester, double width, Widget row) async {
@@ -30,46 +30,43 @@ Future<void> _pump(WidgetTester tester, double width, Widget row) async {
 
 void main() {
   testWidgets('640 u: every column, 36 u tall', (tester) async {
-    await _pump(tester, 640, ServerRow(kind: ServerKind.node, info: _behind, onTap: () {}, onStar: () {}));
+    await _pump(tester, 640, ServerRow(kind: ServerKind.node, info: _behind, onTap: () {}));
     expect(tester.getSize(find.byType(ServerRow)).height, 36.u);
     expect(find.text('node.btlabs.uk'), findsOneWidget);
     expect(find.text('BT Labs'), findsOneWidget);
     expect(find.text('12 behind'), findsOneWidget);
     expect(find.text('18 ms'), findsOneWidget);
     expect(find.text('v4.1.0'), findsOneWidget);
-    expect(find.bySemanticsLabel('Add node.btlabs.uk to my nodes'), findsOneWidget);
     expect(tester.widget<ESignalBars>(find.byType(ESignalBars)).state, EState.warn);
     expect(tester.takeException(), isNull);
   });
 
   testWidgets('419 u: no operator; 360 u: no version either, the host gets the ellipsis', (tester) async {
-    await _pump(tester, 419, ServerRow(kind: ServerKind.node, info: _behind, onTap: () {}, onStar: () {}));
+    await _pump(tester, 419, ServerRow(kind: ServerKind.node, info: _behind, onTap: () {}));
     expect(find.text('BT Labs'), findsNothing);
     expect(find.text('v4.1.0'), findsNothing, reason: '419 is also under 480');
     expect(find.text('12 behind'), findsOneWidget);
-    final starAt419 = tester.getSize(find.byType(EIconButton)).width;
     final tipAt419 = tester.getSize(find.text('12 behind')).width;
 
-    await _pump(tester, 360, ServerRow(kind: ServerKind.node, info: _behind, onTap: () {}, onStar: () {}));
+    await _pump(tester, 360, ServerRow(kind: ServerKind.node, info: _behind, onTap: () {}));
     expect(find.text('v4.1.0'), findsNothing);
-    expect(tester.getSize(find.byType(EIconButton)).width, starAt419);
     expect(tester.getSize(find.text('12 behind')).width, tipAt419);
     // The latency column keeps its width (the text scales down inside it when it is longer).
     expect(tester.getSize(find.ancestor(of: find.text('18 ms'), matching: find.byType(SizedBox)).first).width, 68.u);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('a 60-character host never pushes the star past the edge', (tester) async {
-    final long = ServerInfo(value: 'x', host: 'a' * 60, latencyMs: 9, version: '4.1.1', behind: 0, starred: true);
-    await _pump(tester, 360, ServerRow(kind: ServerKind.node, info: long, onTap: () {}, onStar: () {}));
-    expect(tester.getTopRight(find.byType(EIconButton)).dx, lessThanOrEqualTo(360));
+  testWidgets('a 60-character host never pushes the latency past the edge', (tester) async {
+    final long = ServerInfo(value: 'x', host: 'a' * 60, latencyMs: 9, version: '4.1.1', behind: 0);
+    await _pump(tester, 360, ServerRow(kind: ServerKind.node, info: long, onTap: () {}));
+    expect(tester.getTopRight(find.text('9 ms')).dx, lessThanOrEqualTo(360));
     expect(tester.getSize(find.byType(ServerRow)).width, 360);
     expect(tester.takeException(), isNull);
   });
 
   testWidgets('a down row: one risk bar, greyed words, "no answer", still a button', (tester) async {
     var tapped = false;
-    await _pump(tester, 640, ServerRow(kind: ServerKind.node, info: _down, onTap: () => tapped = true, onStar: () {}));
+    await _pump(tester, 640, ServerRow(kind: ServerKind.node, info: _down, onTap: () => tapped = true));
     expect(tester.widget<ESignalBars>(find.byType(ESignalBars)).state, EState.risk);
     expect(find.text('no answer'), findsOneWidget);
     expect(find.text('–'), findsWidgets, reason: 'tip and version unknown');
@@ -104,7 +101,7 @@ void main() {
       const NodeServer(url: 'https://node.btlabs.uk', label: 'BT Labs', operator: 'BT Labs', health: ServiceHealth.ok, latencyMs: 18, height: 2914414, version: '4.1.1'),
       const NodeServer(url: 'https://epic.stackwallet.com:3413', label: 'Cypher Stack', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 210, height: 2914414, version: '4.1.0'),
       const NodeServer(url: 'https://epic-node.iniaku.my.id', label: 'Iniaku pool', operator: 'Iniaku pool', health: ServiceHealth.down, version: '4.1.1'),
-    ], released: '4.1.1', starred: false);
+    ], released: '4.1.1');
     expect(rows.map((r) => r.host).toList(), ['node.btlabs.uk', 'epic.stackwallet.com', 'node.epiccash.com', 'epic-node.iniaku.my.id']);
     expect(rows[1].versionOld, isTrue);
     expect(rows[1].state, EState.warn);

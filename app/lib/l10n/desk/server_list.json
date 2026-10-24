@@ -1,0 +1,66 @@
+{
+  "deskSlRemoveHost": "Remove {host}",
+  "@deskSlRemoveHost": {
+    "description": "The bin button of a row in the Node or Epicbox list (tooltip and screen reader name).",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSlInUse": "In use",
+  "@deskSlInUse": {
+    "description": "First fact of the row of the server in use, in the Node or Epicbox list."
+  },
+  "deskSlHealthUnknown": "Health unknown",
+  "@deskSlHealthUnknown": {
+    "description": "A row's health when status.btlabs.uk has nothing on the server."
+  },
+  "deskSlNodeNoAnswer": "No answer from this node. Nothing added.",
+  "@deskSlNodeNoAnswer": {
+    "description": "Under the Node list's field: the typed node did not answer its test, so it was not added."
+  },
+  "deskSlTorWait": "Tor is not connected yet. Nothing added.",
+  "@deskSlTorWait": {
+    "description": "Under the Node or Epicbox list's field: the test could not run because Tor is still connecting."
+  },
+  "deskSlSwitchTo": "Switch to {host}",
+  "@deskSlSwitchTo": {
+    "description": "The primary button at the foot of the Node or Epicbox list after a row was picked.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSlLatency": "{ms} ms",
+  "@deskSlLatency": {
+    "description": "A row's response time in milliseconds.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSlDefault": "Default",
+  "@deskSlDefault": {
+    "description": "Tag on the default Epicbox server's row."
+  },
+  "deskSlTesting": "Testing {host}…",
+  "@deskSlTesting": {
+    "description": "The Add row while the typed server is tested before it joins the list.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSlSetupEpicboxOn": "Receive through Epicbox",
+  "@deskSlSetupEpicboxOn": {
+    "description": "Setup's Epicbox step: the switch that turns Epicbox receiving on or off for this wallet."
+  },
+  "deskSlHelpChoose": "Pick one, or type to filter the list or add a server.",
+  "@deskSlHelpChoose": {
+    "description": "Under the field of Setup's Node or Epicbox list while nothing is typed: before a wallet exists a pick chooses at once."
+  }
+}
