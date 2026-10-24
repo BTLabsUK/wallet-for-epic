@@ -2147,6 +2147,18 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get backupCopyTitle => '复制助记词？';
+
+  @override
+  String get backupCopyBody => '任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。';
+
+  @override
+  String get backupCopied => '已复制。剪贴板将在 30 秒后清空。';
+
+  @override
+  String get backupNotCopied => '未复制。剪贴板拒绝了该文本。';
+
+  @override
   String get unlockTitle => '解锁钱包';
 
   @override
@@ -12697,4 +12709,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return '消息超过 $max 字节，请缩短。';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => '复制助记词？';
+
+  @override
+  String get deskSetPhraseCopyText => '任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。';
 }

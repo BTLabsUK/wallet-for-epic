@@ -15,5 +15,7 @@
   "deskSetPhraseHidesIn": "Ukryje się za {seconds} s",
   "deskSetPhraseQrLabel": "Kod QR frazy odzyskiwania",
   "deskSetPhraseBackUp": "Zabezpiecz frazę",
-  "deskSetPhraseBackUpText": "Każdy, kto zna te słowa, może zabrać EPIC. Upewnij się, że nikt nie widzi ekranu."
+  "deskSetPhraseBackUpText": "Każdy, kto zna te słowa, może zabrać EPIC. Upewnij się, że nikt nie widzi ekranu.",
+  "deskSetPhraseCopyTitle": "Skopiować frazę odzyskiwania?",
+  "deskSetPhraseCopyText": "Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu."
 }

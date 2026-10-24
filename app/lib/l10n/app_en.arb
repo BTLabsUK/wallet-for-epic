@@ -2664,6 +2664,22 @@
       }
     }
   },
+  "backupCopyTitle": "Copy the recovery phrase?",
+  "@backupCopyTitle": {
+    "description": "Title of the confirm dialog before the recovery phrase is copied to the clipboard."
+  },
+  "backupCopyBody": "Anyone with these words can take your funds. Store the copy somewhere safe.",
+  "@backupCopyBody": {
+    "description": "Text of the confirm dialog before the recovery phrase is copied."
+  },
+  "backupCopied": "Copied. The clipboard is cleared in 30 seconds.",
+  "@backupCopied": {
+    "description": "Notice after the recovery phrase was copied: the clipboard is cleared after 30 seconds."
+  },
+  "backupNotCopied": "Not copied. The clipboard refused the text.",
+  "@backupNotCopied": {
+    "description": "Notice when the clipboard refused the recovery phrase."
+  },
   "unlockTitle": "Unlock wallet",
   "@unlockTitle": {
     "description": "Title of the screen that opens the wallet with the PIN or biometrics."
@@ -17633,5 +17649,13 @@
         "type": "int"
       }
     }
+  },
+  "deskSetPhraseCopyTitle": "Copy the recovery phrase?",
+  "@deskSetPhraseCopyTitle": {
+    "description": "Confirm dialog title before the recovery phrase is copied to the clipboard."
+  },
+  "deskSetPhraseCopyText": "Anyone with these words can take your funds. Store the copy somewhere safe.",
+  "@deskSetPhraseCopyText": {
+    "description": "Confirm dialog text before the recovery phrase is copied to the clipboard."
   }
 }

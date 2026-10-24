@@ -537,6 +537,10 @@
   "backupWarningIconLabel": "Warnung",
   "backupWriteDown": "{count, plural, other{Schreiben Sie diese {count} Wörter der Reihe nach auf Papier und halten Sie sie geheim. Nur mit ihnen lässt sich diese Wallet wiederherstellen.}}",
   "backupWordSpoken": "Wort {number}: {word}",
+  "backupCopyTitle": "Wiederherstellungsphrase kopieren?",
+  "backupCopyBody": "Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf.",
+  "backupCopied": "Kopiert. Die Zwischenablage wird in 30 Sekunden geleert.",
+  "backupNotCopied": "Nicht kopiert. Die Zwischenablage hat den Text abgelehnt.",
   "unlockTitle": "Wallet entsperren",
   "pinLabel": "PIN",
   "pinRepeatLabel": "PIN wiederholen",
@@ -3513,5 +3517,7 @@
   "deskSendFeeChangedTitle": "Die Gebühr hat sich geändert",
   "deskSendFeeChangedText": "Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt {fee} EPIC statt {was} EPIC Gebühr. Prüfe sie und sende erneut.",
   "deskSendMessageBytes": "{used} / {max} Byte",
-  "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie."
+  "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie.",
+  "deskSetPhraseCopyTitle": "Wiederherstellungsphrase kopieren?",
+  "deskSetPhraseCopyText": "Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf."
 }

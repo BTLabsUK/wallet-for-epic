@@ -2409,6 +2409,20 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get backupCopyTitle => 'Скопировать фразу восстановления?';
+
+  @override
+  String get backupCopyBody =>
+      'Любой, у кого есть эти слова, может забрать ваши средства. Храните копию в надёжном месте.';
+
+  @override
+  String get backupCopied =>
+      'Скопировано. Буфер обмена будет очищен через 30 секунд.';
+
+  @override
+  String get backupNotCopied => 'Не скопировано. Буфер обмена отклонил текст.';
+
+  @override
   String get unlockTitle => 'Разблокировать кошелёк';
 
   @override
@@ -13785,4 +13799,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return 'Сообщение длиннее $max байт. Сократите его.';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => 'Скопировать фразу восстановления?';
+
+  @override
+  String get deskSetPhraseCopyText =>
+      'Любой, у кого есть эти слова, может забрать ваши средства. Храните копию в надёжном месте.';
 }

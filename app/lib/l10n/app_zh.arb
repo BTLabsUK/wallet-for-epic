@@ -537,6 +537,10 @@
   "backupWarningIconLabel": "警告",
   "backupWriteDown": "{count, plural, other{请将这 {count} 个单词按顺序抄写在纸上，并妥善保管，切勿泄露。它们是恢复此钱包的唯一方式。}}",
   "backupWordSpoken": "第 {number} 个单词：{word}",
+  "backupCopyTitle": "复制助记词？",
+  "backupCopyBody": "任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。",
+  "backupCopied": "已复制。剪贴板将在 30 秒后清空。",
+  "backupNotCopied": "未复制。剪贴板拒绝了该文本。",
   "unlockTitle": "解锁钱包",
   "pinLabel": "PIN 码",
   "pinRepeatLabel": "确认 PIN 码",
@@ -3513,5 +3517,7 @@
   "deskSendFeeChangedTitle": "手续费已变化",
   "deskSendFeeChangedText": "自本次核对以来钱包的输出已变化，此次发送的手续费现在是 {fee} EPIC，而不是 {was} EPIC。请核对后再次发送。",
   "deskSendMessageBytes": "{used} / {max} 字节",
-  "deskSendMessageTooLong": "消息超过 {max} 字节，请缩短。"
+  "deskSendMessageTooLong": "消息超过 {max} 字节，请缩短。",
+  "deskSetPhraseCopyTitle": "复制助记词？",
+  "deskSetPhraseCopyText": "任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。"
 }

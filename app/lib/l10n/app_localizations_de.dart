@@ -2320,6 +2320,21 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get backupCopyTitle => 'Wiederherstellungsphrase kopieren?';
+
+  @override
+  String get backupCopyBody =>
+      'Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf.';
+
+  @override
+  String get backupCopied =>
+      'Kopiert. Die Zwischenablage wird in 30 Sekunden geleert.';
+
+  @override
+  String get backupNotCopied =>
+      'Nicht kopiert. Die Zwischenablage hat den Text abgelehnt.';
+
+  @override
   String get unlockTitle => 'Wallet entsperren';
 
   @override
@@ -13563,4 +13578,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskSendMessageTooLong(int max) {
     return 'Die Nachricht ist länger als $max Byte. Kürze sie.';
   }
+
+  @override
+  String get deskSetPhraseCopyTitle => 'Wiederherstellungsphrase kopieren?';
+
+  @override
+  String get deskSetPhraseCopyText =>
+      'Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf.';
 }
