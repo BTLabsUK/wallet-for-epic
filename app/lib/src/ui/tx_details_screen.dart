@@ -16,6 +16,7 @@ import 'invoice_review_screen.dart' show PaidInvoiceBlock;
 import 'theme/advanced.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
+import 'method_names.dart';
 import 'tx_edit_sheet.dart';
 import 'tx_label.dart';
 

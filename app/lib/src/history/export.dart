@@ -246,12 +246,25 @@ String statusWords(TxEntry tx, BigInt? tip) {
 }
 
 /// The last three columns came later and only ever follow the first ten: `label` the user's
-/// label, `method` the transport (`epicbox`, `http`, `tor`, `file`), `user_fields` which of
+/// label, `method` its name (see [methodWord]), `user_fields` which of
 /// `label;counterparty;method;note` the user entered rather than the wallet recorded.
 const String csvHeader =
     'date,type,status,amount_epic,fee_epic,counterparty,note,slate_id,kernel,block_height,'
     'label,method,user_fields';
 
+
+/// The method as the CSV names it, in English like the rest of the file: `Epicbox`,
+/// `Direct · HTTP`, `Direct · Tor` or `File` for the transports LEPIC names `epicbox`, `http`,
+/// `tor` and `file`; empty when the transport is not known. A name this app does not know stays
+/// as it is.
+String methodWord(String? transport) => switch (transport) {
+  null => '',
+  'epicbox' => 'Epicbox',
+  'http' => 'Direct · HTTP',
+  'tor' => 'Direct · Tor',
+  'file' => 'File',
+  final other => other,
+};
 
 /// One row per payment, newest first as given.
 String historyCsv(List<TxEntry> txs, BigInt? tip) {
@@ -271,7 +284,7 @@ String historyCsv(List<TxEntry> txs, BigInt? tip) {
           csvField(tx.kernelExcess ?? '', text: false),
           csvField(tx.blockHeight?.toString() ?? '', text: false),
           csvField(tx.label ?? '', text: true),
-          csvField(tx.transport ?? '', text: false),
+          csvField(methodWord(tx.transport), text: false),
           csvField(
             [
               for (final f in ManualField.values)

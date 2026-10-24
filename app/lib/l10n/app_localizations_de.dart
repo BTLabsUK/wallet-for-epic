@@ -4758,10 +4758,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodHttp => 'HTTP';
+  String get methodDirectHttp => 'Direkt · HTTP';
 
   @override
-  String get methodTor => 'Tor';
+  String get methodDirectTor => 'Direkt · Tor';
 
   @override
   String get methodFile => 'Datei';
@@ -7103,7 +7103,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.';
 
   @override
-  String get deskRecvHttpAddress => 'HTTP-Adresse';
+  String get deskRecvHttpAddress => 'Direkt · HTTP-Adresse';
 
   @override
   String get deskRecvCopyHttp => 'HTTP-Adresse kopieren';
@@ -7126,14 +7126,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Schalten Sie Tor unter Einstellungen › Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.';
 
   @override
-  String get deskRecvDirectTor => 'Direkt, Tor-Adresse';
+  String get deskRecvDirectTor => 'Direkt · Tor-Adresse';
 
   @override
   String get deskRecvTorIntro =>
       'Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Datenschutz eingestellt.';
 
   @override
-  String get deskRecvTorAddress => 'Tor-Adresse';
+  String get deskRecvTorAddress => 'Direkt · Tor-Adresse';
 
   @override
   String get deskRecvCopyTor => 'Tor-Adresse kopieren';
@@ -7728,11 +7728,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Direkt (die Wallet des Empfängers muss geöffnet sein)';
+      'Direkt · HTTP (die Wallet des Empfängers muss geöffnet sein)';
 
   @override
   String get deskSendViaTor =>
-      'Direkt über Tor (die Wallet des Empfängers muss geöffnet sein)';
+      'Direkt · Tor (die Wallet des Empfängers muss geöffnet sein)';
 
   @override
   String get deskSendViaFile => 'Transaktionsdatei';
@@ -8220,10 +8220,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskConAddrEpicbox => 'Epicbox-Adresse';
 
   @override
-  String get deskConAddrTor => 'Tor-Adresse';
+  String get deskConAddrTor => 'Direkt · Tor-Adresse';
 
   @override
-  String get deskConAddrHttp => 'HTTP-Adresse';
+  String get deskConAddrHttp => 'Direkt · HTTP-Adresse';
 
   @override
   String get deskConNote => 'Notiz';
@@ -10282,7 +10282,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'HTTP-Empfang öffnen';
+  String get deskRailOpenHttp => 'Direkt · HTTP-Empfang öffnen';
 
   @override
   String get deskRailTorNotInBuild => 'Nicht in dieser Version';
@@ -10426,7 +10426,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTourReceiveText =>
-      'Die Epicbox-Adresse dieser Wallet, daneben HTTP und Tor. Transaktionsdateien zum Signieren oder Abschließen stehen unten.';
+      'Die Epicbox-Adresse dieser Wallet, daneben Direkt · HTTP und Direkt · Tor. Transaktionsdateien zum Signieren oder Abschließen stehen unten.';
 
   @override
   String get deskTourInvoicesTitle => 'Rechnungen';
@@ -10447,7 +10447,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'Gespeicherte Adressen mit Namen: Epicbox, HTTP oder Tor. Senden wählt von hier.';
+      'Gespeicherte Adressen mit Namen: Epicbox, Direkt · HTTP oder Direkt · Tor. Senden wählt von hier.';
 
   @override
   String get deskTourNodeTitle => 'Einstellungen › Node';
@@ -10564,11 +10564,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'HTTP: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
+      'Direkt · HTTP: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Tor: Die Zahlung geht direkt an die Wallet des Empfängers, über das Tor-Netzwerk';
+      'Direkt · Tor: Die Zahlung geht direkt an die Wallet des Empfängers, über das Tor-Netzwerk';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -12792,7 +12792,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zustand von status.btlabs.uk, alle paar Minuten geprüft.';
 
   @override
-  String get deskSetRecvHttpTitle => 'HTTP-Empfang';
+  String get deskSetRecvHttpTitle => 'Direkt · HTTP-Empfang';
 
   @override
   String get deskSetRecvHttpText =>

@@ -33,8 +33,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       ? l.deskTxNowImmature(coinbaseMaturity)
       : switch (t.state) {
           TxState.waitingRecipient when t.undelivered => switch ((t.method, recipientRelay(t.counterparty ?? ''))) {
-            (TxMethod.http, _) => l.deskTxNowUndeliveredDirect('HTTP'), // l10n-ok: the method's name
-            (TxMethod.tor, _) => l.deskTxNowUndeliveredDirect('Tor'), // l10n-ok: the method's name
+            (TxMethod.http || TxMethod.tor, _) => l.deskTxNowUndeliveredDirect(methodLabel(l, t.method)),
             (TxMethod.epicbox, final relay?) => l.deskTxNowUndeliveredRelay(relay.label),
             _ => l.deskTxNowUndelivered,
           },

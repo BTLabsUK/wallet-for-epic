@@ -21,7 +21,7 @@
   "deskSetRecvNotInList": "nie ma go na liście publicznej",
   "deskSetRecvTypedNote": "Enter go użyje. Jego stan pojawi się, gdy portfel się połączy.",
   "deskSetRecvListNote": "Stan z status.btlabs.uk, sprawdzany co kilka minut.",
-  "deskSetRecvHttpTitle": "Odbieranie przez HTTP",
+  "deskSetRecvHttpTitle": "Bezpośrednio · HTTP, odbieranie",
   "deskSetRecvHttpText": "Prosto z innego portfela, gdy ten jest otwarty.",
   "deskSetRecvHttpOffTitle": "Wyłączone, gdy Tor jest włączony",
   "deskSetRecvHttpOffText": "Płatności bezpośrednie docierają wtedy na adres Tor tego portfela.",

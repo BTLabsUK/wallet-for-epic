@@ -21,7 +21,7 @@
   "deskSetRecvNotInList": "ไม่อยู่ในรายการสาธารณะ",
   "deskSetRecvTypedNote": "Enter เพื่อใช้ สถานะจะแสดงเมื่อกระเป๋าเงินเชื่อมต่อ",
   "deskSetRecvListNote": "สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที",
-  "deskSetRecvHttpTitle": "รับผ่าน HTTP",
+  "deskSetRecvHttpTitle": "ส่งตรง · HTTP: การรับ",
   "deskSetRecvHttpText": "ตรงจากกระเป๋าเงินอื่นขณะที่กระเป๋าเงินนี้เปิดอยู่",
   "deskSetRecvHttpOffTitle": "ปิดอยู่ขณะเปิด Tor",
   "deskSetRecvHttpOffText": "รายการแบบส่งตรงจะเข้าที่ที่อยู่ Tor ของกระเป๋าเงินนี้แทน",

@@ -5,16 +5,12 @@ import 'package:intl/intl.dart' hide TextDirection;
 import '../../../l10n.dart' show localClock, localDay, localDayMonth;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
+import '../../data/method_names.dart';
 import '../../widgets/kit.dart';
 import '../invoices/invoice_parts.dart' show payStateWord, requestStateWord;
 import 'tx_label.dart';
 
-String methodLabel(AppLocalizations l, TxMethod m) => switch (m) {
-  TxMethod.epicbox => 'Epicbox', // l10n-ok: product name
-  TxMethod.http => 'HTTP', // l10n-ok: protocol name
-  TxMethod.tor => 'Tor', // l10n-ok: product name
-  TxMethod.file => l.deskTxMethodFile,
-};
+export '../../data/method_names.dart' show methodLabel;
 
 /// Who the other side is: the contact's name, else a shortened address or the file name, else
 /// what kind of transaction it was.
@@ -75,11 +71,10 @@ bool whoIsAddress(Tx t) => t.contactName == null && !t.toSelf && t.counterparty 
 /// How it travelled, or null when that is not known (mining rewards, scan finds).
 String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.foundByScan ? null : methodLabel(l, t.method);
 
-/// How a scan find came, in the words of the details dialog (Direct for http); null until the
-/// user says.
+/// How a scan find came, in the words of the details dialog; null until the user says.
 String? restoredMethodOf(AppLocalizations l, Tx t) {
   if (!t.foundByScan || t.transport == null) return null;
-  return t.method == TxMethod.http ? l.deskSendMethodDirect : methodLabel(l, t.method);
+  return methodLabel(l, t.method);
 }
 
 IconData iconOf(Tx t) => switch (t.method) {

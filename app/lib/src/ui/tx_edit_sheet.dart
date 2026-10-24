@@ -10,20 +10,11 @@ import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart' show ContactsScreen;
+import 'method_names.dart';
 import 'theme/tokens.dart';
 
 /// The longest note a payment takes, in characters.
 const int txNoteMaxLength = 500;
-
-/// The word for a method as LEPIC names it (`epicbox`, `http`, `tor`, `file`), or "Unknown".
-String txMethodWord(AppLocalizations l, String? transport) =>
-    switch (transport) {
-      'epicbox' => l.methodEpicbox,
-      'http' => l.methodDirect,
-      'tor' => l.methodTor,
-      'file' => l.methodFile,
-      _ => l.txMethodUnknown,
-    };
 
 /// What the sheet hands back: each field as typed, null where it is empty.
 typedef TxDetailsInput = ({

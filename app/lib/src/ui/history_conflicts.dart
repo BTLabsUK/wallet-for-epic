@@ -8,7 +8,7 @@ import '../l10n.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'theme/tokens.dart';
-import 'tx_edit_sheet.dart' show txMethodWord;
+import 'method_names.dart' show txMethodWord;
 
 /// The choices to import with, by [ImportConflict.id] (true takes the backup's value), or null
 /// when the user cancelled and nothing is to be written.

@@ -117,7 +117,7 @@
   "@deskSetRecvListNote": {
     "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
   },
-  "deskSetRecvHttpTitle": "HTTP receiving",
+  "deskSetRecvHttpTitle": "Direct · HTTP receiving",
   "@deskSetRecvHttpTitle": {
     "description": "Settings > Receiving: heading of the HTTP group."
   },

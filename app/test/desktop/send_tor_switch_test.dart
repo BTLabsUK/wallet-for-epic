@@ -160,7 +160,7 @@ void main() {
     expect(review(tester).label, 'Review send');
     await tester.tap(find.text('Review send'));
     await tester.pumpAndSettle();
-    expect(find.text('Direct (their wallet must be open)'), findsOneWidget);
+    expect(find.text('Direct · HTTP (their wallet must be open)'), findsOneWidget);
     await enterReviewPassword(tester);
     await tester.tap(find.textContaining('Send 5'));
     await tester.pumpAndSettle();

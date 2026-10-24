@@ -4589,10 +4589,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodHttp => 'HTTP';
+  String get methodDirectHttp => 'ส่งตรง · HTTP';
 
   @override
-  String get methodTor => 'Tor';
+  String get methodDirectTor => 'ส่งตรง · Tor';
 
   @override
   String get methodFile => 'ไฟล์';
@@ -6874,7 +6874,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เวลาอ่านให้กัน ให้เทียบ 6 ตัวแรกและ 6 ตัวสุดท้าย';
 
   @override
-  String get deskRecvHttpAddress => 'ที่อยู่ HTTP';
+  String get deskRecvHttpAddress => 'ส่งตรง · ที่อยู่ HTTP';
 
   @override
   String get deskRecvCopyHttp => 'คัดลอกที่อยู่ HTTP';
@@ -6897,14 +6897,14 @@ class AppLocalizationsTh extends AppLocalizations {
       'เปิด Tor ที่ การตั้งค่า › ความเป็นส่วนตัว เพื่อใช้ที่อยู่ Tor แทน';
 
   @override
-  String get deskRecvDirectTor => 'ส่งตรง, ที่อยู่ Tor';
+  String get deskRecvDirectTor => 'ส่งตรง · ที่อยู่ Tor';
 
   @override
   String get deskRecvTorIntro =>
       'ตรงจากกระเป๋าเงินอื่นผ่าน Tor ขณะที่กระเป๋าเงินนี้เปิดอยู่ ตั้งค่า Tor ได้ที่ การตั้งค่า › ความเป็นส่วนตัว';
 
   @override
-  String get deskRecvTorAddress => 'ที่อยู่ Tor';
+  String get deskRecvTorAddress => 'ส่งตรง · ที่อยู่ Tor';
 
   @override
   String get deskRecvCopyTor => 'คัดลอกที่อยู่ Tor';
@@ -7465,11 +7465,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendViaEpicbox => 'Epicbox (ผู้รับออฟไลน์อยู่ก็ได้)';
 
   @override
-  String get deskSendViaDirect => 'ส่งตรง (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
+  String get deskSendViaDirect =>
+      'ส่งตรง · HTTP (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
 
   @override
   String get deskSendViaTor =>
-      'ส่งตรง ผ่าน Tor (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
+      'ส่งตรง · Tor (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
 
   @override
   String get deskSendViaFile => 'ไฟล์ธุรกรรม';
@@ -7948,10 +7949,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskConAddrEpicbox => 'ที่อยู่ Epicbox';
 
   @override
-  String get deskConAddrTor => 'ที่อยู่ Tor';
+  String get deskConAddrTor => 'ส่งตรง · ที่อยู่ Tor';
 
   @override
-  String get deskConAddrHttp => 'ที่อยู่ HTTP';
+  String get deskConAddrHttp => 'ส่งตรง · ที่อยู่ HTTP';
 
   @override
   String get deskConNote => 'บันทึก';
@@ -9943,7 +9944,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'เปิดการรับผ่าน HTTP';
+  String get deskRailOpenHttp => 'เปิดการรับ: ส่งตรง · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'ไม่มีในรุ่นนี้';
@@ -10085,7 +10086,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTourReceiveText =>
-      'ที่อยู่ Epicbox ของกระเป๋าเงินนี้ มี HTTP และ Tor อยู่ข้าง ๆ ไฟล์ธุรกรรมที่ต้องลงนามหรือทำให้เสร็จอยู่ด้านล่าง';
+      'ที่อยู่ Epicbox ของกระเป๋าเงินนี้ มี ส่งตรง · HTTP และ ส่งตรง · Tor อยู่ข้าง ๆ ไฟล์ธุรกรรมที่ต้องลงนามหรือทำให้เสร็จอยู่ด้านล่าง';
 
   @override
   String get deskTourInvoicesTitle => 'ใบแจ้งหนี้';
@@ -10106,7 +10107,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'ที่อยู่ที่บันทึกไว้ตามชื่อ: Epicbox, HTTP หรือ Tor หน้า ส่ง เลือกจากที่นี่';
+      'ที่อยู่ที่บันทึกไว้ตามชื่อ: Epicbox, ส่งตรง · HTTP หรือ ส่งตรง · Tor หน้า ส่ง เลือกจากที่นี่';
 
   @override
   String get deskTourNodeTitle => 'การตั้งค่า › โหนด';
@@ -10221,11 +10222,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'HTTP: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ซึ่งต้องเปิดอยู่';
+      'ส่งตรง · HTTP: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ซึ่งต้องเปิดอยู่';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Tor: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ผ่านเครือข่าย Tor';
+      'ส่งตรง · Tor: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ผ่านเครือข่าย Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -12403,7 +12404,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที';
 
   @override
-  String get deskSetRecvHttpTitle => 'รับผ่าน HTTP';
+  String get deskSetRecvHttpTitle => 'ส่งตรง · HTTP: การรับ';
 
   @override
   String get deskSetRecvHttpText =>

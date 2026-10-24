@@ -4882,10 +4882,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodHttp => 'HTTP';
+  String get methodDirectHttp => 'Bezpośrednio · HTTP';
 
   @override
-  String get methodTor => 'Tor';
+  String get methodDirectTor => 'Bezpośrednio · Tor';
 
   @override
   String get methodFile => 'Plik';
@@ -7242,7 +7242,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.';
 
   @override
-  String get deskRecvHttpAddress => 'Adres HTTP';
+  String get deskRecvHttpAddress => 'Bezpośrednio · adres HTTP';
 
   @override
   String get deskRecvCopyHttp => 'Kopiuj adres HTTP';
@@ -7265,14 +7265,14 @@ class AppLocalizationsPl extends AppLocalizations {
       'Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Prywatność.';
 
   @override
-  String get deskRecvDirectTor => 'Bezpośrednio, adres Tor';
+  String get deskRecvDirectTor => 'Bezpośrednio · adres Tor';
 
   @override
   String get deskRecvTorIntro =>
       'Prosto z innego portfela przez Tor, gdy ten jest otwarty. Tor ustawisz w Ustawienia › Prywatność.';
 
   @override
-  String get deskRecvTorAddress => 'Adres Tor';
+  String get deskRecvTorAddress => 'Bezpośrednio · adres Tor';
 
   @override
   String get deskRecvCopyTor => 'Kopiuj adres Tor';
@@ -7894,11 +7894,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Bezpośrednio (portfel odbiorcy musi być otwarty)';
+      'Bezpośrednio · HTTP (portfel odbiorcy musi być otwarty)';
 
   @override
   String get deskSendViaTor =>
-      'Bezpośrednio, przez Tor (portfel odbiorcy musi być otwarty)';
+      'Bezpośrednio · Tor (portfel odbiorcy musi być otwarty)';
 
   @override
   String get deskSendViaFile => 'Plik transakcji';
@@ -8391,10 +8391,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskConAddrEpicbox => 'Adres Epicbox';
 
   @override
-  String get deskConAddrTor => 'Adres Tor';
+  String get deskConAddrTor => 'Bezpośrednio · adres Tor';
 
   @override
-  String get deskConAddrHttp => 'Adres HTTP';
+  String get deskConAddrHttp => 'Bezpośrednio · adres HTTP';
 
   @override
   String get deskConNote => 'Notatka';
@@ -10503,7 +10503,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Otwórz odbieranie przez HTTP';
+  String get deskRailOpenHttp => 'Otwórz odbieranie: Bezpośrednio · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'Brak w tej wersji';
@@ -10646,7 +10646,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTourReceiveText =>
-      'Adres Epicbox tego portfela, obok HTTP i Tor. Pliki transakcji do podpisania lub sfinalizowania są na dole.';
+      'Adres Epicbox tego portfela, obok Bezpośrednio · HTTP i Bezpośrednio · Tor. Pliki transakcji do podpisania lub sfinalizowania są na dole.';
 
   @override
   String get deskTourInvoicesTitle => 'Faktury';
@@ -10667,7 +10667,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'Zapisane adresy według nazwy: Epicbox, HTTP lub Tor. Wyślij wybiera stąd.';
+      'Zapisane adresy według nazwy: Epicbox, Bezpośrednio · HTTP lub Bezpośrednio · Tor. Wyślij wybiera stąd.';
 
   @override
   String get deskTourNodeTitle => 'Ustawienia › Węzeł';
@@ -10788,11 +10788,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
+      'Bezpośrednio · HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
+      'Bezpośrednio · Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -13051,7 +13051,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Stan z status.btlabs.uk, sprawdzany co kilka minut.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Odbieranie przez HTTP';
+  String get deskSetRecvHttpTitle => 'Bezpośrednio · HTTP, odbieranie';
 
   @override
   String get deskSetRecvHttpText =>
