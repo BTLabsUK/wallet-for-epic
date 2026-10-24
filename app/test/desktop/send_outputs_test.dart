@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 import 'review_password.dart';
 
 class _Wallet extends MockDeskWallet {
@@ -53,6 +55,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.runAsync(() => advancedOn(container));
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -79,7 +82,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(wallet.asked.last?.strategy, SelectionStrategy.all);
     expect(find.textContaining('Strategy for this send: All'), findsOneWidget);
-    expect(find.textContaining('Advanced · All outputs', findRichText: true), findsOneWidget);
+    expect(find.textContaining('Send options · All outputs', findRichText: true), findsOneWidget);
   });
 
   testWidgets('Send all turns the strategy off', (tester) async {

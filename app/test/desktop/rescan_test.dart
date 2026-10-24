@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'advanced_on.dart';
+
 const _password = 'test-pass-1234';
 
 /// A session whose transaction list breaks with an error that is not a WalletError.
@@ -56,6 +58,7 @@ void main() {
     ]);
     addTearDown(container.dispose);
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.runAsync(() => advancedOn(container));
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
       child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsRescanScreen())),
