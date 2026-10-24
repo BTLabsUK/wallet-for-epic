@@ -16,6 +16,7 @@ List<(HandshakeParty, HandshakeParty, HandshakeParty?)> _order(
 
 Future<AppLocalizations> _pump(
   WidgetTester tester, {
+  HandshakeFlow flow = HandshakeFlow.payment,
   bool reducedMotion = false,
   double textScale = 1,
   Size size = const Size(1080, 2340),
@@ -35,7 +36,7 @@ Future<AppLocalizations> _pump(
         ),
         child: child!,
       ),
-      home: const Scaffold(body: HandshakeSheet()),
+      home: Scaffold(body: HandshakeSheet(flow: flow)),
     ),
   );
   await tester.pump();
@@ -92,8 +93,12 @@ void main() {
       ]);
     });
 
-    test('the wallets never talk directly, and the one that starts posts', () {
-      for (final flow in HandshakeFlow.values) {
+    test('the relay flows never talk directly, and the one that starts posts', () {
+      for (final flow in [
+        HandshakeFlow.payment,
+        HandshakeFlow.request,
+        HandshakeFlow.file,
+      ]) {
         final steps = handshakeSteps(flow);
         expect(steps.first.actor, _you, reason: '$flow');
         for (final s in steps) {
@@ -104,6 +109,49 @@ void main() {
           steps.first.actor,
           reason: '$flow',
         );
+      }
+    });
+
+    test('a Link payment goes straight to them, answers on the same '
+        'connection, and has no relay', () {
+      expect(_order(HandshakeFlow.direct), [
+        (_you, _you, _them),
+        (_them, _them, _you),
+        (_you, _you, _network),
+        (_network, _network, null),
+      ]);
+    });
+
+    test('a QR payment is phone to phone, five steps, no relay', () {
+      expect(_order(HandshakeFlow.qr), [
+        (_you, _you, _them),
+        (_them, _you, _them),
+        (_them, _them, _you),
+        (_you, _them, _you),
+        (_you, _you, _network),
+      ]);
+      // Receiving: they show, you scan, you reply, they scan and post.
+      expect(_order(HandshakeFlow.qrReceive), [
+        (_them, _them, _you),
+        (_you, _them, _you),
+        (_you, _you, _them),
+        (_them, _you, _them),
+        (_them, _them, _network),
+      ]);
+    });
+
+    test('only the relay flows name a relay; the others never do', () {
+      final l = lookupAppLocalizations(const Locale('en'));
+      for (final flow in [
+        HandshakeFlow.direct,
+        HandshakeFlow.qr,
+        HandshakeFlow.qrReceive,
+      ]) {
+        for (final s in handshakeSteps(flow)) {
+          expect(s.caption(l).toLowerCase(), isNot(contains('relay')));
+          expect(s.caption(l).toLowerCase(), isNot(contains('slate')));
+          expect({s.from, s.to}, isNot(contains(_relay)));
+        }
       }
     });
 
@@ -169,6 +217,44 @@ void main() {
       expect(find.text(l.handshakeRelay), findsNothing);
       // The segment and the node.
       expect(find.text(l.handshakeFile), findsNWidgets(2));
+    });
+
+    testWidgets('each method opens its own explanation', (tester) async {
+      final expected = {
+        HandshakeFlow.payment: (lc) => lc.handshakePay1,
+        HandshakeFlow.direct: (lc) => lc.handshakeLink1,
+        HandshakeFlow.qr: (lc) => lc.handshakeQr1,
+        HandshakeFlow.qrReceive: (lc) => lc.handshakeQrR1,
+        HandshakeFlow.file: (lc) => lc.handshakeFile1,
+      };
+      for (final MapEntry(key: flow, value: first) in expected.entries) {
+        await tester.pumpWidget(const SizedBox());
+        final l = await _pump(tester, flow: flow);
+        expect(_caption(tester), '1. ${first(l)}', reason: '$flow');
+        // The tab of the method is the lit one.
+        final tabs = tester.widget<SegmentedButton<HandshakeFlow>>(
+          find.byType(SegmentedButton<HandshakeFlow>),
+        );
+        expect(tabs.selected, {flow});
+      }
+    });
+
+    testWidgets('QR Payment: the five QR steps, a phone-to-phone diagram, '
+        'no relay text', (tester) async {
+      final l = await _pump(tester, flow: HandshakeFlow.qr);
+      final qr = [
+        l.handshakeQr1,
+        l.handshakeQr2,
+        l.handshakeQr3,
+        l.handshakeQr4,
+        l.handshakeQr5,
+      ];
+      for (final (i, caption) in qr.indexed) {
+        expect(_caption(tester), '${i + 1}. $caption');
+        expect(find.textContaining('relay'), findsNothing);
+        expect(find.text(l.handshakeRelay), findsNothing);
+        await _nextStep(tester);
+      }
     });
 
     testWidgets('pause stops it; the step buttons still move it', (

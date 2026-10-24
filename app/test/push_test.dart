@@ -194,7 +194,7 @@ class _Harness {
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) =>
               AdvancedOptions(prefs: AdvancedPrefs.none, child: child!),
-          home: const SettingsScreen(),
+          home: const SettingsScreen(section: SettingsSection.advanced),
         ),
       ),
     );
@@ -294,7 +294,7 @@ class _Harness {
   }
 }
 
-/// The Notifications row on the hub: the tile (its state line) and its switch.
+/// The Notifications row on the Advanced page: the tile (its state line) and its switch.
 ({Switch toggle, ListTile tile}) _row(WidgetTester tester) => (
   toggle: tester.widget<Switch>(
     find.descendant(
@@ -309,6 +309,14 @@ class _Harness {
   ),
 ),
 );
+
+/// The state lines under the row's title and Experimental label.
+List<String?> _stateLines(WidgetTester tester) => [
+  for (final t in tester.widgetList<Text>(
+    find.descendant(of: find.byKey(settingsPushKey), matching: find.byType(Text)),
+  ))
+    if (!['Notifications', 'Experimental'].contains(t.data)) t.data,
+];
 
 Future<void> _reach(WidgetTester tester) async {
   await tester.scrollUntilVisible(
@@ -477,7 +485,7 @@ void main() {
       await _reach(tester);
       expect(_row(tester).toggle.value, isFalse);
       expect(_row(tester).toggle.onChanged, isNotNull);
-      expect(_row(tester).tile.subtitle, isNull);
+      expect(_stateLines(tester), isEmpty);
     });
 
     testWidgets('paused: on, with the one state line, while Tor is on', (
@@ -504,7 +512,7 @@ void main() {
       await _reach(tester);
       expect(_row(tester).toggle.value, isFalse);
       expect(_row(tester).toggle.onChanged, isNotNull);
-      expect(_row(tester).tile.subtitle, isNull);
+      expect(_stateLines(tester), isEmpty);
       expect(h.posts, isEmpty);
     });
 

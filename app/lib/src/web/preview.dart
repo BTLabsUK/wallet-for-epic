@@ -19,10 +19,39 @@ const bool webFakeBackend = bool.fromEnvironment('WFE_WEB_FAKE');
 
 /// A fresh fake wallet service. The visitor starts at first run; the PIN they choose opens the
 /// preview wallet.
-FakeWalletService previewWalletService() =>
-    PreviewWalletService(session: _previewSession())
-      // At the preview directory's tip, so the status card reads Synced.
-      ..nodeTipValue = NodeTip(height: _tip, nodeVersion: '4.1.1');
+FakeWalletService previewWalletService() {
+  final session = _previewSession();
+  final service = PreviewWalletService(session: session)
+    // At the preview directory's tip, so the status card reads Synced.
+    ..nodeTipValue = NodeTip(height: _tip, nodeVersion: '4.1.1');
+  _previewQrExchange(service, session);
+  return service;
+}
+
+/// The payment and its reply of the QR method: each long enough for a few parts of the
+/// animated code, so the show screen cycles and the simulated camera counts. The wallet reads
+/// its own payment as one it was sent, so Scan payment QR → Accept → Show reply as QR works
+/// as does Show payment QR → Scan reply QR.
+void _previewQrExchange(PreviewWalletService service, FakeWalletSession session) {
+  const slateId = 'a1b2c3d4-0001-4e5f-8a9b-000000000099';
+  final payment = Slate(
+    slateId: slateId,
+    json: '{"id":"$slateId","step":"payment","pad":"${'a' * 520}"}',
+  );
+  final reply = Slate(
+    slateId: slateId,
+    json: '{"id":"$slateId","step":"response","pad":"${'b' * 330}"}',
+  );
+  session
+    ..sendSlate = payment
+    ..responseSlate = reply;
+  service.slateInfos[payment.json] = SlateInfo(
+    slateId: slateId,
+    amount: _epic(3),
+    fee: BigInt.from(8000000),
+    stage: SlateStage.send,
+  );
+}
 
 /// The fake wallet with a node test that takes a moment and fails for a host with `down`
 /// or `bad` in it, so the pickers' Add can be tried both ways.

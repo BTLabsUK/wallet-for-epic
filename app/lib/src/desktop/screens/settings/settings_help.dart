@@ -618,6 +618,14 @@ List<String> _fileSteps(AppLocalizations l, int confirmations) => [
   l.deskSetHelpFinal(confirmations),
 ];
 
+/// A Link payment goes straight to their wallet: no Epicbox, no file.
+List<String> _linkSteps(AppLocalizations l, int confirmations) => [
+  l.handshakeLink1,
+  l.handshakeLink2,
+  l.handshakeFinish,
+  l.deskSetHelpFinal(confirmations),
+];
+
 /// "How a transaction travels": the steps over Epicbox or with a file, one at a time.
 class HelpHandshake extends ConsumerStatefulWidget {
   const HelpHandshake({super.key});
@@ -626,8 +634,10 @@ class HelpHandshake extends ConsumerStatefulWidget {
   ConsumerState<HelpHandshake> createState() => _HelpHandshakeState();
 }
 
+enum _Way { epicbox, link, file }
+
 class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
-  bool _file = false;
+  _Way _way = _Way.epicbox;
   int _i = 0;
 
   @override
@@ -636,10 +646,16 @@ class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
     final ts = context.ts;
     final confirmations = deskMinConfirmations(ref);
     final l = context.l10n;
-    final steps = _file ? _fileSteps(l, confirmations) : _epicboxSteps(l, confirmations);
+    final steps = switch (_way) {
+      _Way.epicbox => _epicboxSteps(l, confirmations),
+      _Way.link => _linkSteps(l, confirmations),
+      _Way.file => _fileSteps(l, confirmations),
+    };
     // Who holds the slate at each step: 0 sender, 1 middle (Epicbox / file), 2 recipient, 3 network.
-    const at = [1, 2, 1, 0, 3, 3];
-    final names = [l.deskSetHelpSender, _file ? l.deskSetHelpFile : 'Epicbox', l.deskSetHelpRecipient, l.deskSetHelpNetwork]; // l10n-ok: Epicbox is a name
+    // A Link payment has no middle: the slate goes straight across.
+    final at = _way == _Way.link ? const [2, 2, 0, 3] : const [1, 2, 1, 0, 3, 3];
+    final held = _way == _Way.link ? const [0, 2, 3] : const [0, 1, 2, 3];
+    final names = [l.deskSetHelpSender, if (_way != _Way.link) _way == _Way.file ? l.deskSetHelpFile : 'Epicbox', l.deskSetHelpRecipient, l.deskSetHelpNetwork]; // l10n-ok: Epicbox is a name
     return Container(
       padding: EdgeInsets.all(Sp.x4),
       decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
@@ -652,11 +668,11 @@ class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(l.deskSetHelpTravels, style: ts.label),
-              ESegmented<bool>(
-                segments: [ESegment(false, l.deskSetHelpOverEpicbox), ESegment(true, l.deskSetHelpWithFile)],
-                value: _file,
+              ESegmented<_Way>(
+                segments: [ESegment(_Way.epicbox, l.deskSetHelpOverEpicbox), ESegment(_Way.link, l.receiveTabDirect), ESegment(_Way.file, l.deskSetHelpWithFile)],
+                value: _way,
                 onChanged: (v) => setState(() {
-                  _file = v;
+                  _way = v;
                   _i = 0;
                 }),
               ),
@@ -668,7 +684,7 @@ class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
             runSpacing: Sp.x2,
             children: [
               for (var k = 0; k < names.length; k++)
-                ETag(names[k], icon: at[_i] == k ? EIcons.chevronRight : null),
+                ETag(names[k], icon: at[_i] == held[k] ? EIcons.chevronRight : null),
             ],
           ),
           SizedBox(height: Sp.x3),

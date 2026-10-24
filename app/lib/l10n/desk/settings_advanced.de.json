@@ -25,7 +25,7 @@
   "deskSetAdvModeOffline": "Offline",
   "deskSetAdvModeOfflineText": "Nur dieser Computer und Ihr lokales Netzwerk. Ihr Node läuft weiter; seine Peers sind eine Einstellung des Nodes.",
   "deskSetAdvTorOnlyNote": "Nur Tor schaltet den HTTP-Empfang aus: Eine einfache Adresse würde diesen Computer verraten.",
-  "deskSetAdvOfflineNote": "Epicbox, Tor und Statusprüfungen pausieren. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren „Guthaben neu prüfen“, Dateien und Direkt an lokale Adressen weiter.",
+  "deskSetAdvOfflineNote": "Epicbox, Tor und Statusprüfungen pausieren. Mit einem Node auf diesem Computer oder in Ihrem Netzwerk funktionieren „Guthaben neu prüfen“, Dateien und Link-Zahlung an lokale Adressen weiter.",
   "deskSetAdvNotInBuild": "Nicht in dieser Version",
   "deskSetAdvReset": "Alles wieder ausblenden",
   "deskSetAdvOn": "{n, plural, =1{1 Schalter an} other{{n} Schalter an}}",

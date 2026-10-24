@@ -169,7 +169,7 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('Save contact'));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'), findsOneWidget, reason: '"$bad"');
+      expect(find.text('Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'), findsOneWidget, reason: '"$bad"');
     }
   });
 

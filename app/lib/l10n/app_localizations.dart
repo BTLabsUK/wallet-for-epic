@@ -3898,6 +3898,12 @@ abstract class AppLocalizations {
   /// **'Reading the file'**
   String get slateReading;
 
+  /// Spoken label while the scanned payment is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the payment'**
+  String get slateReadingQr;
+
   /// No description provided for @slateFileTooLarge.
   ///
   /// In en, this message translates to:
@@ -4054,6 +4060,498 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get scanQrBack;
 
+  /// Button on the accepted payment screen that shows the signed reply as an animated QR code for the sender's phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Show reply as QR'**
+  String get qrShowReplyAsQr;
+
+  /// App bar title of the screen that shows the payment as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment QR'**
+  String get qrShowTitlePayment;
+
+  /// App bar title of the screen that shows the reply as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply QR'**
+  String get qrShowTitleReply;
+
+  /// Line under the amount on the payment QR screen.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} to a phone next to you'**
+  String qrShowSubPayment(String amount);
+
+  /// Line under the amount on the reply QR screen.
+  ///
+  /// In en, this message translates to:
+  /// **'To the sender of {amount}'**
+  String qrShowSubReply(String amount);
+
+  /// Title on the covered QR card before the user shows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden until you show it'**
+  String get qrHiddenTitle;
+
+  /// Body on the covered payment QR card: why it stays hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever scans it first can accept this payment. Show it only to the person you are paying.'**
+  String get qrHiddenBodyPayment;
+
+  /// Body on the covered reply QR card: why it stays hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to the sender\'s phone. Only their wallet can use it.'**
+  String get qrHiddenBodyReply;
+
+  /// Button that starts the countdown and then shows the QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Show QR'**
+  String get qrShow;
+
+  /// Button that shows the QR code again after it hid itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Show again'**
+  String get qrShowAgain;
+
+  /// Button that hides the QR code at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get qrHide;
+
+  /// Spoken label of the 3, 2, 1 numeral before the QR code appears.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing in {seconds}'**
+  String qrCountdownLabel(int seconds);
+
+  /// Which part of the animated QR code is on screen, such as Part 3 of 7.
+  ///
+  /// In en, this message translates to:
+  /// **'Part {part} of {count}'**
+  String qrPartOf(int part, int count);
+
+  /// Seconds left while the QR code shows, beside the part.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s'**
+  String qrSecondsShort(int seconds);
+
+  /// Spoken when 10 seconds are left before the QR code hides.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds, plural, =1{1 second left} other{{seconds} seconds left}}'**
+  String qrSecondsLeft(int seconds);
+
+  /// Hint under the QR code: what the other person does.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the other phone\'s camera to this code.'**
+  String get qrHoldHint;
+
+  /// Small line under the QR code on Android: screenshots are blocked on this screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshots are off on this screen'**
+  String get qrSecureLine;
+
+  /// Title on the covered QR card after the code hid itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden after {seconds} s'**
+  String qrTimedOutTitle(int seconds);
+
+  /// Body on the card after the code hid itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it again when the other phone is ready.'**
+  String get qrTimedOutBody;
+
+  /// Spoken when the QR code hides itself after its time.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden after {seconds} seconds'**
+  String qrTimedOutAnnounce(int seconds);
+
+  /// Title on the covered QR card after the app left the screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden while the app was away'**
+  String get qrAwayTitle;
+
+  /// Body on the card after the app left the screen.
+  ///
+  /// In en, this message translates to:
+  /// **'The code hides whenever the app leaves the screen.'**
+  String get qrAwayBody;
+
+  /// Spoken label of the payment QR card. {state} is Hidden or Showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment QR code, {state}'**
+  String qrSemanticsPayment(String state);
+
+  /// Spoken label of the reply QR card. {state} is Hidden or Showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply QR code, {state}'**
+  String qrSemanticsReply(String state);
+
+  /// State word in the spoken QR card label.
+  ///
+  /// In en, this message translates to:
+  /// **'hidden'**
+  String get qrStateHidden;
+
+  /// State word in the spoken QR card label.
+  ///
+  /// In en, this message translates to:
+  /// **'showing'**
+  String get qrStateShowing;
+
+  /// Title of the camera screen that scans a payment QR, and the Receive button that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan payment QR'**
+  String get qrScanPayment;
+
+  /// Title of the camera screen that scans the reply QR, and the Send button that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan their reply'**
+  String get qrScanReply;
+
+  /// Hint on the camera screen before any part is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the QR code on their phone.'**
+  String get qrScanAimPayment;
+
+  /// Hint on the camera screen before any part of the reply is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the reply on their phone.'**
+  String get qrScanAimReply;
+
+  /// Hint on the camera screen when no new part came for a few seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold steady, or move a little closer.'**
+  String get qrScanSteady;
+
+  /// Shown on the camera screen when every part is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get qrScanGot;
+
+  /// Parts read so far, such as 4 of 7.
+  ///
+  /// In en, this message translates to:
+  /// **'{got} of {count}'**
+  String qrScanCount(int got, int count);
+
+  /// Spoken label of the parts-read count on the camera screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts read'**
+  String get qrScanCountLabel;
+
+  /// Camera screen warning: the code seen is not a payment QR.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a payment QR. Ask them to show the payment code on their phone.'**
+  String get qrScanNotPayment;
+
+  /// Camera screen warning: the code seen is not a reply QR.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a reply QR. Ask them to show the reply on their phone.'**
+  String get qrScanNotReply;
+
+  /// Camera screen warning: parts of two different payments were seen, so reading starts over.
+  ///
+  /// In en, this message translates to:
+  /// **'This code belongs to a different payment. Starting over.'**
+  String get qrScanOtherPayment;
+
+  /// Spoken label of the torch button on the camera screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Torch'**
+  String get qrScanTorch;
+
+  /// Spoken label of the zoom button on the camera screen. {factor} is 1 or 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom {factor}×'**
+  String qrScanZoom(String factor);
+
+  /// Panel on the camera screen when the camera permission is refused.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet may not use the camera. To scan, allow camera access for this app in your phone\'s settings. You can also open the file instead.'**
+  String get qrScanCameraDenied;
+
+  /// Panel on the camera screen when the camera could not start.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera could not start. Try again, or open the file instead.'**
+  String get qrScanCameraFailed;
+
+  /// Button that opens the phone's settings page of this app, to allow the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get qrScanOpenSettings;
+
+  /// Button on the camera refused panel that leaves the camera and opens a payment file instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a file instead'**
+  String get qrScanOpenFileInstead;
+
+  /// Button after a failed scan that opens the camera again.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan again'**
+  String get qrScanAgain;
+
+  /// Error when the scanned reply belongs to another payment than the one being finished.
+  ///
+  /// In en, this message translates to:
+  /// **'This reply is for a different payment. Scan the reply for this send.'**
+  String get slateWrongPaymentQr;
+
+  /// Heading of the payment screen when the payment came from a scanned QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned payment'**
+  String get slateScannedPaymentTitle;
+
+  /// Heading of the screen that finishes a send with a scanned reply QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned reply'**
+  String get slateScannedReplyTitle;
+
+  /// Hint on a scanned incoming payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept it, then show the reply to the sender.'**
+  String get slateIncomingSendHintQr;
+
+  /// Headline after a scanned payment was accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted. Show the reply to the sender.'**
+  String get slateAcceptedHeadlineQr;
+
+  /// Name of the QR payment method, in the method selector and Settings: two phones next to each other, a code on a screen. Keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Payment'**
+  String get methodQr;
+
+  /// Short name of the QR payment method on the Send method selector (chip). The full name is methodQr; keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Code'**
+  String get methodQrChip;
+
+  /// Receive tab that scans a payment QR from the phone next to this one. Keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Code'**
+  String get receiveTabQr;
+
+  /// Caption under the QR method picture; two or three words.
+  ///
+  /// In en, this message translates to:
+  /// **'In person'**
+  String get methodArtCaptionQr;
+
+  /// Spoken description of the QR method picture.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Payment: a code passes from one phone to the phone next to it'**
+  String get methodArtLabelQr;
+
+  /// Bold line of the strip under Send's method selector when QR is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'For a phone next to you.'**
+  String get methodSendQrTitle;
+
+  /// Plain line of the strip under Send's method selector when QR is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Show a code on this screen, then scan their reply with the camera.'**
+  String get methodSendQrLine;
+
+  /// Bold line of the strip on Receive's QR tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan their screen.'**
+  String get methodReceiveQrTitle;
+
+  /// Plain line of the strip on Receive's QR tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the payment, then show your reply the same way.'**
+  String get methodReceiveQrLine;
+
+  /// Title of the QR card on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Standing next to the sender?'**
+  String get receiveQrTitle;
+
+  /// Text of the QR card on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the code on their phone, accept the payment, then show your reply.'**
+  String get receiveQrBody;
+
+  /// Settings › Transactions: one line under the QR switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay or get paid next to each other, with a code on the screen.'**
+  String get txQrLine;
+
+  /// Settings › Transactions: the explanation behind the info icon of the QR switch.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Payment shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR Payment to Send and Receive.'**
+  String get txQrHint;
+
+  /// Advanced page switch name: transaction files (the File payment method).
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction files'**
+  String get advTransactionFiles;
+
+  /// Advanced page: what the Transaction files switch shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds a File switch under Settings › Transactions: pay or get paid with a file you pass on yourself.'**
+  String get advTransactionFilesHint;
+
+  /// Title of Send's QR way.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Payment'**
+  String get sendQrTitle;
+
+  /// Button that makes the payment shown as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Make payment QR'**
+  String get sendMakeQr;
+
+  /// Why the PIN is asked before a payment QR is made.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the PIN to make a payment QR for {amount}.'**
+  String sendQrPinReason(String amount);
+
+  /// First step of the QR send, done.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment made'**
+  String get sendQrMade;
+
+  /// Hint on Send once the payment QR is made.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the code to the recipient\'s phone, then scan their reply.'**
+  String get sendQrHint;
+
+  /// Line under the amount on Send's QR way: until when the payment can be cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be cancelled until you scan their reply.'**
+  String get sendCancelRuleQr;
+
+  /// Status line on the payment QR screen while the code is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this to the recipient.'**
+  String get qrStatusSendHidden;
+
+  /// Status line on the payment QR screen while the code shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the recipient to scan. Then scan their reply.'**
+  String get qrStatusSendShowing;
+
+  /// Status line on a QR screen after the code hid itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden. Show again if they did not finish scanning.'**
+  String get qrStatusHiddenAgain;
+
+  /// Status line on the reply QR screen while the code is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this to the sender.'**
+  String get qrStatusReplyHidden;
+
+  /// Status line on the reply QR screen while the code shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the sender to scan.'**
+  String get qrStatusReplyShowing;
+
+  /// Status line on the reply QR screen: the payment is received and waits for the sender to post it.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received. Waiting for the sender to scan and post it.'**
+  String get qrStatusReceivedWaiting;
+
+  /// Status line on the reply QR screen: the sender posted the payment; it collects confirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted. Confirming {got}/{target}'**
+  String qrStatusPosted(int got, int target);
+
+  /// Status line on the reply QR screen: the payment is received.
+  ///
+  /// In en, this message translates to:
+  /// **'Received.'**
+  String get qrStatusReceived;
+
+  /// Dock line of the camera screen while parts are read.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned {got} of {count}. Keep the code in the frame.'**
+  String qrScanProgress(int got, int count);
+
+  /// Dock line of the camera screen when the whole reply is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply scanned.'**
+  String get qrScanReplyScanned;
+
+  /// Dock line of the camera screen while the scanned reply is being posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply scanned. Posting…'**
+  String get qrScanPosting;
+
+  /// Dock line of the camera screen once the payment is posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted.'**
+  String get qrScanPosted;
+
   /// Title of the address book screen.
   ///
   /// In en, this message translates to:
@@ -4180,10 +4678,10 @@ abstract class AppLocalizations {
   /// **'This is not a valid address. It looks like {example}'**
   String contactsAddressInvalid(String example);
 
-  /// Error under an address field that takes an Epicbox, a Direct (http/https) or an onion address, when the text is none of them.
+  /// Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'**
   String get contactsAddressInvalidAny;
 
   /// Title of the settings screen.
@@ -5230,11 +5728,11 @@ abstract class AppLocalizations {
   /// **'Opening your demo wallet'**
   String get demoPinUnlockTitle;
 
-  /// Send, step 1: heading of the step where the user enters who to pay.
+  /// Send, step 1: heading of the step that starts with the payment method selector, then the recipient field.
   ///
   /// In en, this message translates to:
-  /// **'Recipient'**
-  String get sendStepRecipient;
+  /// **'Payment method'**
+  String get sendStepMethod;
 
   /// Send, step 2: heading of the step where the user enters how much.
   ///
@@ -5632,6 +6130,78 @@ abstract class AppLocalizations {
   /// **'Previous step'**
   String get handshakePrevious;
 
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet sends the payment straight to their wallet, over the internet or Tor. Your coins go on hold.'**
+  String get handshakeLink1;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet adds its part, signs and answers on the same connection.'**
+  String get handshakeLink2;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'You show your code.'**
+  String get handshakeQr1;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'They scan it with their wallet.'**
+  String get handshakeQr2;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet shows a reply code.'**
+  String get handshakeQr3;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'You scan it.'**
+  String get handshakeQr4;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet sends it to the network.'**
+  String get handshakeQr5;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'They show their code.'**
+  String get handshakeQrR1;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'You scan it with your wallet.'**
+  String get handshakeQrR2;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet shows a reply code.'**
+  String get handshakeQrR3;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'They scan it.'**
+  String get handshakeQrR4;
+
+  /// How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side).
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet sends it to the network.'**
+  String get handshakeQrR5;
+
   /// How it works sheet: tooltip of the button that shows the next step.
   ///
   /// In en, this message translates to:
@@ -5809,7 +6379,7 @@ abstract class AppLocalizations {
   /// Caption above the wallet's full Tor address (the onion address) on the Receive tab; a tap on the card copies it.
   ///
   /// In en, this message translates to:
-  /// **'Tor address'**
+  /// **'Your link'**
   String get receiveTorAddressLabel;
 
   /// Screen reader label of the QR code of the wallet's Tor address.
@@ -6061,7 +6631,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for the Send tab; names the two payment methods shown by default.
   ///
   /// In en, this message translates to:
-  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.'**
+  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.'**
   String get tourPhoneSendText;
 
   /// Title of the tour card for the Receive tab (first-unlock tour). Short.
@@ -7023,19 +7593,19 @@ abstract class AppLocalizations {
   /// **'Supports notifications'**
   String get serverSupportsNotifications;
 
-  /// Direct receive status icon state word: the wallet's Tor address is published and reachable.
+  /// Link receive status icon state word: the wallet's Tor address is published and reachable.
   ///
   /// In en, this message translates to:
   /// **'Reachable'**
   String get netStatusReachable;
 
-  /// Direct receive status icon state word: Tor is connected and the address is being published.
+  /// Link receive status icon state word: Tor is connected and the address is being published.
   ///
   /// In en, this message translates to:
   /// **'Publishing…'**
   String get netStatusPublishing;
 
-  /// Direct receive status icon state word: the Tor address could not be published.
+  /// Link receive status icon state word: the Tor address could not be published.
   ///
   /// In en, this message translates to:
   /// **'Not reachable'**
@@ -7047,10 +7617,10 @@ abstract class AppLocalizations {
   /// **'Opens the privacy settings'**
   String get netStatusTorOpenHint;
 
-  /// Screen reader hint on the Direct receive status icon: a tap opens the Receive tab's Direct address.
+  /// Screen reader hint on the Link receive status icon: a tap opens the Receive tab's Link address.
   ///
   /// In en, this message translates to:
-  /// **'Opens the Direct receive address'**
+  /// **'Opens the Link receive address'**
   String get netStatusDirectOpenHint;
 
   /// Screen reader hint on a status card row.
@@ -7317,16 +7887,16 @@ abstract class AppLocalizations {
   /// **'Epicbox'**
   String get methodEpicbox;
 
-  /// Method name: Direct, with HTTP as its transport. The Direct word, then a middle dot, then HTTP. Shown wherever a payment's method is named.
+  /// Method name: Link, with HTTP as its transport. The Link word, then a middle dot, then HTTP. Shown wherever a payment's method is named.
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP'**
+  /// **'Link Payment · HTTP'**
   String get methodDirectHttp;
 
-  /// Method name: Direct, with Tor as its transport. The Direct word, then a middle dot, then Tor. Shown wherever a payment's method is named.
+  /// Method name: Link, with Tor as its transport. The Link word, then a middle dot, then Tor. Shown wherever a payment's method is named.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor'**
+  /// **'Link Payment · Tor'**
   String get methodDirectTor;
 
   /// Method name: a transaction file handed over by hand.
@@ -8187,7 +8757,7 @@ abstract class AppLocalizations {
   /// **'Your payments address'**
   String get deskInvIssuerYourAddress;
 
-  /// Label of the choice how the request travels: Epicbox, File, Direct.
+  /// Label of the choice how the request travels: Epicbox, File, Link.
   ///
   /// In en, this message translates to:
   /// **'Method'**
@@ -8208,7 +8778,7 @@ abstract class AppLocalizations {
   /// Method: the payment comes straight to this wallet over HTTP or Tor.
   ///
   /// In en, this message translates to:
-  /// **'Direct'**
+  /// **'Link'**
   String get deskInvIssuerDirect;
 
   /// Why a method or button is disabled: not built yet.
@@ -9426,25 +9996,31 @@ abstract class AppLocalizations {
   /// Send and Receive method: straight to the other wallet, at an http(s) or onion address.
   ///
   /// In en, this message translates to:
-  /// **'Direct'**
+  /// **'Link'**
   String get methodDirect;
 
-  /// Under Send's empty To field on Direct: the two shapes a Direct address takes. Keep the addresses as they are.
+  /// Full name of the Link Payment method (Settings › Transactions, labels). The short chip name is methodDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Payment'**
+  String get methodLinkPayment;
+
+  /// Under Send's empty To field on Link: the two shapes a Link address takes. Keep the addresses as they are.
   ///
   /// In en, this message translates to:
   /// **'http://host:3415 or xxxx….onion'**
   String get methodDirectShape;
 
-  /// Send's strip line for Direct.
+  /// Send's strip line for Link.
   ///
   /// In en, this message translates to:
   /// **'Their wallet must be open. An onion address goes over Tor.'**
   String get methodSendDirectLine;
 
-  /// Screen reader label of the Direct picture.
+  /// Screen reader label of the Link picture.
   ///
   /// In en, this message translates to:
-  /// **'Direct: the payment goes straight to the recipient\'s wallet, which must be open'**
+  /// **'Link Payment: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get methodArtLabelDirect;
 
   /// Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No "app": the web demo shows it too.
@@ -9453,13 +10029,13 @@ abstract class AppLocalizations {
   /// **'Works with the wallet closed.'**
   String get methodReceiveEpicboxShort;
 
-  /// Receive's Direct strip title.
+  /// Receive's Link strip title.
   ///
   /// In en, this message translates to:
   /// **'Straight to this wallet.'**
   String get methodReceiveDirectTitle;
 
-  /// Receive's Direct strip line: the onion address answers only while the app runs.
+  /// Receive's Link strip line: the onion address answers only while the app runs.
   ///
   /// In en, this message translates to:
   /// **'Works while the app is open.'**
@@ -9471,22 +10047,22 @@ abstract class AppLocalizations {
   /// **'{line} Over Tor.'**
   String methodLineOverTor(String line);
 
-  /// Tag beside Send's To label for 3 s after the address moved the method to Direct.
+  /// Tag beside Send's To label for 3 s after the address moved the method to Link.
   ///
   /// In en, this message translates to:
-  /// **'Direct address'**
+  /// **'Link address'**
   String get sendSwitchedDirect;
 
-  /// Read out once when the address moved Send's method to Direct.
+  /// Read out once when the address moved Send's method to Link.
   ///
   /// In en, this message translates to:
-  /// **'Direct address. Method set to Direct.'**
+  /// **'Link address. Method set to Link.'**
   String get sendSwitchedDirectAnnounce;
 
-  /// Error under To when Direct is chosen and the text is not an http(s) or onion address.
+  /// Error under To when Link is chosen and the text is not an http(s) or onion address.
   ///
   /// In en, this message translates to:
-  /// **'A Direct address starts with http:// or https://, or ends in .onion.'**
+  /// **'A Link address starts with http:// or https://, or ends in .onion.'**
   String get sendDirectAddressShape;
 
   /// Tag on Send and Review: this connection stays on the clearnet although Tor is on.
@@ -9537,7 +10113,7 @@ abstract class AppLocalizations {
   /// **'Not connected'**
   String get torWordNotConnected;
 
-  /// Text link on Receive's Direct tab to Settings › Privacy.
+  /// Text link on Receive's Link tab to Settings › Privacy.
   ///
   /// In en, this message translates to:
   /// **'Tor settings'**
@@ -9558,16 +10134,16 @@ abstract class AppLocalizations {
   /// Receive tab: receiving straight to this wallet at its onion address.
   ///
   /// In en, this message translates to:
-  /// **'Direct'**
+  /// **'Link'**
   String get receiveTabDirect;
 
-  /// Receive's Direct tab while Tor is off.
+  /// Receive's Link tab while Tor is off.
   ///
   /// In en, this message translates to:
-  /// **'Direct receiving needs Tor.'**
+  /// **'Link receiving needs Tor.'**
   String get receiveDirectNeedsTor;
 
-  /// Caption under 'Direct receiving needs Tor.'
+  /// Caption under 'Link receiving needs Tor.'
   ///
   /// In en, this message translates to:
   /// **'Senders use the Epicbox address meanwhile.'**
@@ -9648,7 +10224,7 @@ abstract class AppLocalizations {
   /// One-time reminder, about a minute after the first unlock, that notifications exist.
   ///
   /// In en, this message translates to:
-  /// **'Notifications are available in Settings.'**
+  /// **'Notifications are available in Settings › Advanced.'**
   String get pushNoticeAvailable;
 
   /// Status card, Settings › Servers and the server lists: this connection (node or Epicbox) goes through Tor now. Same words as desktop's 'Over Tor'.
@@ -10377,7 +10953,7 @@ abstract class AppLocalizations {
   /// **'The file was not made by Epic Cash Desktop or Epic Cash Mobile.'**
   String get deskErrHistNotOursText;
 
-  /// Hint under the Send address field when it is empty and the Direct method is chosen.
+  /// Hint under the Send address field when it is empty and the Link method is chosen.
   ///
   /// In en, this message translates to:
   /// **'Enter the recipient’s address'**
@@ -11094,7 +11670,7 @@ abstract class AppLocalizations {
   /// Title of the HTTP panel on Receive and of its QR code.
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP address'**
+  /// **'Link Payment · HTTP address'**
   String get deskRecvHttpAddress;
 
   /// Label of the copy button next to the HTTP address.
@@ -11130,7 +11706,7 @@ abstract class AppLocalizations {
   /// Title of the Tor panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor address'**
+  /// **'Link Payment · Tor address'**
   String get deskRecvDirectTor;
 
   /// Intro text of the Tor panel on Receive.
@@ -11142,7 +11718,7 @@ abstract class AppLocalizations {
   /// Title of the QR code of the Tor address on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor address'**
+  /// **'Link Payment · Tor address'**
   String get deskRecvTorAddress;
 
   /// Label of the copy button next to the Tor address.
@@ -11457,10 +12033,10 @@ abstract class AppLocalizations {
   /// **'This is not a valid Epicbox address.'**
   String get deskSendErrEpicbox;
 
-  /// Error under the To field on Send when the Direct method is chosen and the address is an Epicbox address.
+  /// Error under the To field on Send when the Link method is chosen and the address is an Epicbox address.
   ///
   /// In en, this message translates to:
-  /// **'This is not a Direct address.'**
+  /// **'This is not a Link address.'**
   String get deskSendErrNotDirect;
 
   /// Error under the To field on Send when the address looks like a Tor address but is not complete or valid.
@@ -11631,7 +12207,7 @@ abstract class AppLocalizations {
   /// **'Turn on Epicbox receiving'**
   String get deskSendEpicboxTurnOn;
 
-  /// Text of the Sent notice after a Direct send.
+  /// Text of the Sent notice after a Link send.
   ///
   /// In en, this message translates to:
   /// **'Finalized and posted to the network.'**
@@ -11661,10 +12237,10 @@ abstract class AppLocalizations {
   /// **'Review again'**
   String get deskSendReviewAgain;
 
-  /// Name of the Direct send method (an http(s) or onion address), in the method selector and in tags. Short.
+  /// Name of the Link send method (an http(s) or onion address), in the method selector and in tags. Short.
   ///
   /// In en, this message translates to:
-  /// **'Direct'**
+  /// **'Link'**
   String get deskSendMethodDirect;
 
   /// Name of the File send method (a transaction file), in the method selector. Short.
@@ -11736,7 +12312,7 @@ abstract class AppLocalizations {
   /// Note under the recipient field when Tor is on and the address is http(s).
   ///
   /// In en, this message translates to:
-  /// **'Direct to http(s) addresses goes over the clearnet, not Tor.'**
+  /// **'Link to http(s) addresses goes over the clearnet, not Tor.'**
   String get deskSendHttpClearnet;
 
   /// Button on the card of the contact picked as recipient: clears the recipient.
@@ -11925,13 +12501,13 @@ abstract class AppLocalizations {
   /// **'The Epicbox server holds the payment until they open their wallet.'**
   String get deskSendEpicboxLine2;
 
-  /// Bold first line under the method selector for the Direct method.
+  /// Bold first line under the method selector for the Link method.
   ///
   /// In en, this message translates to:
   /// **'Straight to their wallet.'**
   String get deskSendDirectLine1;
 
-  /// Second line under the method selector for the Direct method.
+  /// Second line under the method selector for the Link method.
   ///
   /// In en, this message translates to:
   /// **'An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.'**
@@ -11949,10 +12525,10 @@ abstract class AppLocalizations {
   /// **'Hand the file over, get their response file back, then finalize it here.'**
   String get deskSendFileLine2;
 
-  /// Small tag next to the To label after the method switched to Direct by itself. Short.
+  /// Small tag next to the To label after the method switched to Link by itself. Short.
   ///
   /// In en, this message translates to:
-  /// **'Direct'**
+  /// **'Link'**
   String get deskSendTagDirect;
 
   /// Small tag next to the To label after the method switched to File. Short.
@@ -11967,10 +12543,10 @@ abstract class AppLocalizations {
   /// **'Via Epicbox'**
   String get deskSendTagEpicbox;
 
-  /// Screen reader announcement when the method switched to Direct by itself.
+  /// Screen reader announcement when the method switched to Link by itself.
   ///
   /// In en, this message translates to:
-  /// **'Direct address. Method set to Direct.'**
+  /// **'Link address. Method set to Link.'**
   String get deskSendSwitchedDirect;
 
   /// Screen reader announcement when the method switched to File.
@@ -12015,16 +12591,16 @@ abstract class AppLocalizations {
   /// **'Epicbox (the recipient can be offline)'**
   String get deskSendViaEpicbox;
 
-  /// Value of the Via fact in the review dialog for a Direct send over http(s).
+  /// Value of the Via fact in the review dialog for a Link send over http(s).
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP (their wallet must be open)'**
+  /// **'Link Payment · HTTP (their wallet must be open)'**
   String get deskSendViaDirect;
 
-  /// Value of the Via fact in the review dialog for a Direct send to an onion address.
+  /// Value of the Via fact in the review dialog for a Link send to an onion address.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor (their wallet must be open)'**
+  /// **'Link Payment · Tor (their wallet must be open)'**
   String get deskSendViaTor;
 
   /// Value of the Via fact in the review dialog for a file send.
@@ -12063,7 +12639,7 @@ abstract class AppLocalizations {
   /// **'Check the highlighted characters against what the recipient gave.'**
   String get deskSendCheckChars;
 
-  /// Label of the fact that says how the payment goes (Epicbox, Direct, file) in the review dialog.
+  /// Label of the fact that says how the payment goes (Epicbox, Link, file) in the review dialog.
   ///
   /// In en, this message translates to:
   /// **'Via'**
@@ -12852,13 +13428,13 @@ abstract class AppLocalizations {
   /// Label above the address in a contact's detail, for a Tor address.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor address'**
+  /// **'Link Payment · Tor address'**
   String get deskConAddrTor;
 
   /// Label above the address in a contact's detail, for an HTTP address.
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP address'**
+  /// **'Link Payment · HTTP address'**
   String get deskConAddrHttp;
 
   /// Label above the note in a contact's detail; also the label of the note field in the form.
@@ -12912,7 +13488,7 @@ abstract class AppLocalizations {
   /// Error under the Address field of the contact form when the text is not an address.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'**
   String get deskConErrAddressInvalid;
 
   /// Small button in the contact form: add a picture. Only shown when contact pictures exist.
@@ -16068,7 +16644,7 @@ abstract class AppLocalizations {
   /// Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings.
   ///
   /// In en, this message translates to:
-  /// **'Open Direct · HTTP receiving'**
+  /// **'Open Link Payment · HTTP receiving'**
   String get deskRailOpenHttp;
 
   /// Status word on the sidebar's Tor row when this build of the app does not include Tor.
@@ -16542,13 +17118,13 @@ abstract class AppLocalizations {
   /// Screen-reader description of the HTTP picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
+  /// **'Link Payment · HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get deskKitHeroLabelHttp;
 
   /// Screen-reader description of the Tor picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'Direct · Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
+  /// **'Link Payment · Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
   String get deskKitHeroLabelTor;
 
   /// Screen-reader description of the transaction-file picture on the Send page.
@@ -19775,7 +20351,7 @@ abstract class AppLocalizations {
   /// Settings > Receiving: heading of the HTTP group.
   ///
   /// In en, this message translates to:
-  /// **'Direct · HTTP receiving'**
+  /// **'Link Payment · HTTP receiving'**
   String get deskSetRecvHttpTitle;
 
   /// Settings > Receiving: text of the HTTP receiving row.
@@ -19793,7 +20369,7 @@ abstract class AppLocalizations {
   /// Settings > Receiving: notice text in the HTTP group when Tor is on.
   ///
   /// In en, this message translates to:
-  /// **'Direct payments arrive at this wallet’s Tor address instead.'**
+  /// **'Link payments arrive at this wallet’s Tor address instead.'**
   String get deskSetRecvHttpOffText;
 
   /// Settings > Receiving: notice button that jumps to the Tor switch in Settings > Privacy.
@@ -21272,7 +21848,7 @@ abstract class AppLocalizations {
   /// **'Sent to the network'**
   String get deskTxBroadcastDone;
 
-  /// Payment detail, the line under the status of a Direct send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.
+  /// Payment detail, the line under the status of a Link send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.
   ///
   /// In en, this message translates to:
   /// **'Not delivered. The recipient\'s wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the funds.'**
@@ -21686,6 +22262,12 @@ abstract class AppLocalizations {
   /// **'Update didn\'t finish. Try again.'**
   String get deskUpdUnfinished;
 
+  /// Small outlined label beside a feature that is not finished (the Notifications switch on Advanced). One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Experimental'**
+  String get advExperimental;
+
   /// Title of the Advanced page in Settings and its hub row.
   ///
   /// In en, this message translates to:
@@ -21827,7 +22409,7 @@ abstract class AppLocalizations {
   /// Note under the network choice while Offline is selected.
   ///
   /// In en, this message translates to:
-  /// **'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node\'s own peers are the node\'s setting.'**
+  /// **'Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Link Payment sends to local addresses still work. The node\'s own peers are the node\'s setting.'**
   String get advOfflineNote;
 
   /// Row at the end of the Advanced page: turns every visibility switch off. The network mode stays.
@@ -21971,7 +22553,7 @@ abstract class AppLocalizations {
   /// Hover card of the Network group on the Advanced page: what the three network modes do.
   ///
   /// In en, this message translates to:
-  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node\'s setting.'**
+  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use files; the built-in node keeps running, as its own peers are the node\'s setting.'**
   String get deskSetAdvNetworkHint;
 
   /// Network mode: direct connections.
@@ -22019,7 +22601,7 @@ abstract class AppLocalizations {
   /// Note under the chosen Offline mode on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.'**
+  /// **'Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Link Payment to local addresses still work.'**
   String get deskSetAdvOfflineNote;
 
   /// Tag on a Tor mode when the build has no tor.
@@ -22076,7 +22658,7 @@ abstract class AppLocalizations {
   /// **'Waiting for Tor.'**
   String get netBlockWaitingForTor;
 
-  /// Line on Receive's Epicbox and Direct tabs while the Offline network mode is on; the address is still shown to hand out.
+  /// Line on Receive's Epicbox and Link tabs while the Offline network mode is on; the address is still shown to hand out.
   ///
   /// In en, this message translates to:
   /// **'Can\'t receive this way while Offline mode is on.'**
@@ -22370,7 +22952,7 @@ abstract class AppLocalizations {
   /// **'Open Advanced'**
   String get deskNetOpenAdvanced;
 
-  /// Second line of the notice on Send when the network mode holds Epicbox and Direct sends.
+  /// Second line of the notice on Send when the network mode holds Epicbox and Link sends.
   ///
   /// In en, this message translates to:
   /// **'A transaction file still works.'**
@@ -22466,16 +23048,16 @@ abstract class AppLocalizations {
   /// **'Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.'**
   String get txEpicboxHint;
 
-  /// One line under the Direct switch on Settings › Transactions.
+  /// One line under the Link switch on Settings › Transactions.
   ///
   /// In en, this message translates to:
   /// **'Pay onion and web addresses; get paid at this phone\'s Tor address.'**
   String get txDirectLine;
 
-  /// Info sheet text of the Direct switch on Settings › Transactions.
+  /// Info sheet text of the Link switch on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.'**
+  /// **'Link Payment sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Link Payment to Send and Receive.'**
   String get txDirectHint;
 
   /// One line under the File switch on Settings › Transactions.
@@ -22562,7 +23144,7 @@ abstract class AppLocalizations {
   /// **'Instead of {host}'**
   String deskNodeFailoverInsteadOf(String host);
 
-  /// Why a Direct send was refused in the Offline network mode: the address is not on this device or the local network.
+  /// Why a Link send was refused in the Offline network mode: the address is not on this device or the local network.
   ///
   /// In en, this message translates to:
   /// **'Offline: only local addresses.'**
@@ -22574,7 +23156,7 @@ abstract class AppLocalizations {
   /// **'Your node has no peers: the payment waits in its pool until it reconnects.'**
   String get netOfflineNoPeers;
 
-  /// Why a Direct send was refused in the Offline network mode: the address is not on this computer or the local network.
+  /// Why a Link send was refused in the Offline network mode: the address is not on this computer or the local network.
   ///
   /// In en, this message translates to:
   /// **'Offline: only local addresses.'**
@@ -22604,7 +23186,7 @@ abstract class AppLocalizations {
   /// **'Transactions'**
   String get deskSetFrameTransactions;
 
-  /// Title of the group on Settings › Transactions with one row per payment method (Epicbox, Direct, File).
+  /// Title of the group on Settings › Transactions with one row per payment method (Epicbox, Link, File).
   ///
   /// In en, this message translates to:
   /// **'Payment methods'**
@@ -22622,10 +23204,10 @@ abstract class AppLocalizations {
   /// **'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.'**
   String get deskSetTxEpicboxHint;
 
-  /// Hover card behind the info icon of the Direct row (switch) on Settings › Transactions.
+  /// Hover card behind the info icon of the Link row (switch) on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.'**
+  /// **'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Link Payment to Send and its address to Receive.'**
   String get deskSetTxDirectHint;
 
   /// Hover card behind the info icon of the File row (switch) on Settings › Transactions.
@@ -22651,6 +23233,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The method the Send page opens with. You can still change it for one payment on Send.'**
   String get deskSetTxStartHint;
+
+  /// Title of the first panel on Send: the method selector comes first, then the recipient field.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment method'**
+  String get deskSendMethodHeader;
 }
 
 class _AppLocalizationsDelegate

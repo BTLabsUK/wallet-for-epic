@@ -1,4 +1,4 @@
-// Direct HTTP on the desktop: LepicDeskWallet over FakeWalletSession, which records each
+// Link HTTP on the desktop: LepicDeskWallet over FakeWalletSession, which records each
 // sendHttp and startHttpListener call. The password is a throwaway test value.
 import 'dart:io';
 

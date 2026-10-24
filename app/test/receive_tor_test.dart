@@ -1,5 +1,5 @@
-// Receive's Direct tab: receiving straight to this wallet at its onion address, over Tor
-// (F8). With the Tor switch off it says Direct receiving needs Tor, with Turn on Tor; with Tor
+// Receive's Link tab: receiving straight to this wallet at its onion address, over Tor
+// (F8). With the Tor switch off it says Link receiving needs Tor, with Turn on Tor; with Tor
 // on, the onion address in the same card as the epicbox address, a QR code of it dimmed until
 // reachable, and Tor's state in the same words as everywhere (Starting…, On, Not connected
 // with the reason and Retry). The switch itself lives in Settings › Privacy. Where the app
@@ -53,7 +53,7 @@ class _Harness {
   /// What the Advanced page holds.
   final AdvancedPrefs advanced;
 
-  /// Settings › Transactions; Direct on shows the Direct tab.
+  /// Settings › Transactions; Link on shows the Link tab.
   final PaymentPrefs payments;
   final session = FakeWalletSession();
   final service = FakeWalletService();
@@ -133,7 +133,7 @@ class _Harness {
     await tester.tap(
       find.descendant(
         of: find.byKey(receiveTabsKey),
-        matching: find.text('Direct'),
+        matching: find.text('Link'),
       ),
     );
     await tester.pumpAndSettle();
@@ -178,7 +178,7 @@ class _Harness {
     await tester.pumpAndSettle();
   }
 
-  /// Turn on Tor, on the Direct tab with Tor off.
+  /// Turn on Tor, on the Link tab with Tor off.
   Future<void> switchOn(WidgetTester tester) async {
     await tester.tap(find.byKey(receiveTurnOnTorKey));
     await tester.pumpAndSettle();
@@ -194,12 +194,12 @@ Finder _status(String text) => find.descendant(
   matching: find.textContaining(text),
 );
 
-/// Settings › Transactions › Direct on, as the Direct tab needs it.
+/// Settings › Transactions › Link on, as the Link tab needs it.
 const _directOn = PaymentPrefs(direct: true);
 
 void main() {
   group('tabs', () {
-    testWidgets('Epicbox and File by default; Direct on adds Direct', (
+    testWidgets('Epicbox and File by default; Link on adds Link', (
       tester,
     ) async {
       final plain = _Harness();
@@ -237,7 +237,7 @@ void main() {
         ],
         [
           (ReceiveTab.epicbox, 'Epicbox'),
-          (ReceiveTab.direct, 'Direct'),
+          (ReceiveTab.direct, 'Link'),
           (ReceiveTab.file, 'File'),
         ],
       );
@@ -246,7 +246,7 @@ void main() {
       expect(find.byKey(receiveTorAddressKey), findsNothing);
     });
 
-    testWidgets('no Direct tab where the app has no Tor', (tester) async {
+    testWidgets('no Link tab where the app has no Tor', (tester) async {
       final h = _Harness(bundle: null);
       await h.pump(tester);
       expect(h.tor.phase, PhoneTorPhase.unavailable);
@@ -257,8 +257,8 @@ void main() {
         [for (final s in tabs.segments) s.value],
         [ReceiveTab.epicbox, ReceiveTab.file],
       );
-      expect(find.text('Direct'), findsNothing);
-      // A remembered Direct choice falls back to Epicbox.
+      expect(find.text('Link'), findsNothing);
+      // A remembered Link choice falls back to Epicbox.
       h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.direct);
       await tester.pumpAndSettle();
       expect(find.byKey(receiveAddressKey), findsOneWidget);
@@ -273,7 +273,7 @@ void main() {
         s.value,
     ];
 
-    testWidgets('File off: its tab goes; Direct on keeps the choice', (tester) async {
+    testWidgets('File off: its tab goes; Link on keeps the choice', (tester) async {
       final h = _Harness(payments: const PaymentPrefs(direct: true, file: false));
       await h.pump(tester);
       expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct]);
@@ -349,7 +349,7 @@ void main() {
       );
     });
 
-    testWidgets('Direct: the onion to hand out, no Turn on Tor', (tester) async {
+    testWidgets('Link: the onion to hand out, no Turn on Tor', (tester) async {
       final h = _Harness(advanced: offline, payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
@@ -389,14 +389,14 @@ void main() {
     });
   });
 
-  group('Direct tab', () {
-    testWidgets('Tor off: Direct receiving needs Tor; no switch on Receive', (
+  group('Link tab', () {
+    testWidgets('Tor off: Link receiving needs Tor; no switch on Receive', (
       tester,
     ) async {
       final h = _Harness(payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
-      expect(find.text('Direct receiving needs Tor.'), findsOneWidget);
+      expect(find.text('Link receiving needs Tor.'), findsOneWidget);
       expect(
         find.text('Senders use the Epicbox address meanwhile.'),
         findsOneWidget,
@@ -425,7 +425,7 @@ void main() {
       expect(h.session.torStarts, hasLength(1));
       expect(h.tor.receiving, isTrue);
       expect(_status('Tor · Starting…'), findsOneWidget);
-      expect(find.text('Tor address'), findsOneWidget);
+      expect(find.text('Your link'), findsOneWidget);
       expect(find.text(h.session.onion), findsOneWidget);
       final qr = tester.widget<MarkedQr>(find.byType(MarkedQr));
       expect(qr.data, h.session.onion);

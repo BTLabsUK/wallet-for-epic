@@ -944,9 +944,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final fileBlock = deskFileBlock(st);
     return EPanel(
       padding: EdgeInsets.zero,
-      head: Padding(
-        padding: EdgeInsetsDirectional.only(end: Sp.x3),
-        child: TourTarget(
+      title: l.deskSendMethodHeader,
+      child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(Sp.panel, Sp.panel, Sp.panel, Sp.x3),
+          child: TourTarget(
           id: 'send-methods',
           child: ESegmented<TxMethod>(
           stretch: true,
@@ -958,7 +962,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             // keeps File).
             if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
                 (st.settings.payments.direct || _segmentOf(_method) == TxMethod.http))
-              ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http, enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
+              ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.link, enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
             if (st.settings.payments.file || file || _epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)
               ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file, enabled: fileBlock == NetBlock.none, tooltip: netBlockReason(l, fileBlock)),
           ],
@@ -969,11 +973,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           }),
           ),
         ),
-      ),
-      child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(padding: EdgeInsets.all(Sp.panel), child: _MethodStrip(_segmentOf(_method))),
+        ),
+        Padding(padding: EdgeInsets.fromLTRB(Sp.panel, 0, Sp.panel, Sp.panel), child: _MethodStrip(_segmentOf(_method))),
         Divider(height: 1, thickness: 1, color: c.line),
         Padding(
           padding: EdgeInsets.all(Sp.panel),
@@ -1339,7 +1340,7 @@ class _SwitchTag extends StatelessWidget {
           opacity: shown ? 1 : 0,
           duration: reduce ? Duration.zero : Motion.cross,
           curve: shown ? Motion.easeOut : Motion.easeIn,
-          child: SizedBox(height: 22.u, child: ETag(word, icon: methodIcon(_segmentOf(m)))),
+          child: SizedBox(height: 22.u, child: ETag(word, icon: _segmentOf(m) == TxMethod.http ? EIcons.link : methodIcon(_segmentOf(m)))),
         ),
       ),
     );

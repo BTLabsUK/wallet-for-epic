@@ -30,6 +30,10 @@ enum AdvancedFeature {
 
   /// Logs and diagnostics: the log folder, Clear logs, the node debug screen.
   logs,
+
+  /// Transaction files (phone only): the File switch under Settings › Transactions. The
+  /// desktop offers File to everyone and never lists this.
+  transactionFiles,
 }
 
 /// How the wallet reaches the network. One choice; the Privacy page's Tor switch is the user's

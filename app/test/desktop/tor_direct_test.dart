@@ -432,7 +432,7 @@ void main() {
   group('send', () {
     const waits = 'The payment waits in Activity; cancel it there to unlock the funds.';
 
-    test('an onion under Direct goes over Tor', () async {
+    test('an onion under Link goes over Tor', () async {
       await wallet.setTor(true);
       await connected();
       expect(wallet.isOnionAddress(_onion), isTrue);

@@ -648,7 +648,7 @@ const _settingsPlaces = <String, (HelpPhonePlace, Set<String>)>{
 
 /// The sub-places of the screens Help names, under their first word.
 const _screenPlaces = <String, (HelpPhonePlace, Set<String>)>{
-  'Receive': (HelpPhonePlace.receive, {'File'}),
+  'Receive': (HelpPhonePlace.receive, {'File', 'QR Code'}),
   'Send': (HelpPhonePlace.send, <String>{}),
   'Activity': (HelpPhonePlace.activity, <String>{}),
   'Outputs': (HelpPhonePlace.outputs, {'Manage outputs'}),

@@ -3101,6 +3101,10 @@
   "slateInvoiceUnsupported": "Payment requests (invoices) are not supported yet.",
   "slateNotTransactionFile": "That file is not a transaction file.",
   "slateReading": "Reading the file",
+  "slateReadingQr": "Reading the payment",
+  "@slateReadingQr": {
+    "description": "Spoken label while the scanned payment is read."
+  },
   "@slateReading": {
     "description": "Screen reader label of the spinner while a transaction file is being read."
   },
@@ -3251,6 +3255,427 @@
   "@scanQrBack": {
     "description": "Button that leaves the camera screen."
   },
+  "qrShowReplyAsQr": "Show reply as QR",
+  "@qrShowReplyAsQr": {
+    "description": "Button on the accepted payment screen that shows the signed reply as an animated QR code for the sender's phone."
+  },
+  "qrShowTitlePayment": "Payment QR",
+  "@qrShowTitlePayment": {
+    "description": "App bar title of the screen that shows the payment as a QR code."
+  },
+  "qrShowTitleReply": "Reply QR",
+  "@qrShowTitleReply": {
+    "description": "App bar title of the screen that shows the reply as a QR code."
+  },
+  "qrShowSubPayment": "{amount} to a phone next to you",
+  "@qrShowSubPayment": {
+    "description": "Line under the amount on the payment QR screen.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "qrShowSubReply": "To the sender of {amount}",
+  "@qrShowSubReply": {
+    "description": "Line under the amount on the reply QR screen.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "qrHiddenTitle": "Hidden until you show it",
+  "@qrHiddenTitle": {
+    "description": "Title on the covered QR card before the user shows it."
+  },
+  "qrHiddenBodyPayment": "Whoever scans it first can accept this payment. Show it only to the person you are paying.",
+  "@qrHiddenBodyPayment": {
+    "description": "Body on the covered payment QR card: why it stays hidden."
+  },
+  "qrHiddenBodyReply": "Show it to the sender's phone. Only their wallet can use it.",
+  "@qrHiddenBodyReply": {
+    "description": "Body on the covered reply QR card: why it stays hidden."
+  },
+  "qrShow": "Show QR",
+  "@qrShow": {
+    "description": "Button that starts the countdown and then shows the QR code."
+  },
+  "qrShowAgain": "Show again",
+  "@qrShowAgain": {
+    "description": "Button that shows the QR code again after it hid itself."
+  },
+  "qrHide": "Hide",
+  "@qrHide": {
+    "description": "Button that hides the QR code at once."
+  },
+  "qrCountdownLabel": "Showing in {seconds}",
+  "@qrCountdownLabel": {
+    "description": "Spoken label of the 3, 2, 1 numeral before the QR code appears.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "qrPartOf": "Part {part} of {count}",
+  "@qrPartOf": {
+    "description": "Which part of the animated QR code is on screen, such as Part 3 of 7.",
+    "placeholders": {
+      "part": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qrSecondsShort": "{seconds} s",
+  "@qrSecondsShort": {
+    "description": "Seconds left while the QR code shows, beside the part.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "qrSecondsLeft": "{seconds, plural, =1{1 second left} other{{seconds} seconds left}}",
+  "@qrSecondsLeft": {
+    "description": "Spoken when 10 seconds are left before the QR code hides.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "qrHoldHint": "Hold the other phone's camera to this code.",
+  "@qrHoldHint": {
+    "description": "Hint under the QR code: what the other person does."
+  },
+  "qrSecureLine": "Screenshots are off on this screen",
+  "@qrSecureLine": {
+    "description": "Small line under the QR code on Android: screenshots are blocked on this screen."
+  },
+  "qrTimedOutTitle": "Hidden after {seconds} s",
+  "@qrTimedOutTitle": {
+    "description": "Title on the covered QR card after the code hid itself.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "qrTimedOutBody": "Show it again when the other phone is ready.",
+  "@qrTimedOutBody": {
+    "description": "Body on the card after the code hid itself."
+  },
+  "qrTimedOutAnnounce": "Hidden after {seconds} seconds",
+  "@qrTimedOutAnnounce": {
+    "description": "Spoken when the QR code hides itself after its time.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "qrAwayTitle": "Hidden while the app was away",
+  "@qrAwayTitle": {
+    "description": "Title on the covered QR card after the app left the screen."
+  },
+  "qrAwayBody": "The code hides whenever the app leaves the screen.",
+  "@qrAwayBody": {
+    "description": "Body on the card after the app left the screen."
+  },
+  "qrSemanticsPayment": "Payment QR code, {state}",
+  "@qrSemanticsPayment": {
+    "description": "Spoken label of the payment QR card. {state} is Hidden or Showing.",
+    "placeholders": {
+      "state": {
+        "type": "String",
+        "example": "hidden"
+      }
+    }
+  },
+  "qrSemanticsReply": "Reply QR code, {state}",
+  "@qrSemanticsReply": {
+    "description": "Spoken label of the reply QR card. {state} is Hidden or Showing.",
+    "placeholders": {
+      "state": {
+        "type": "String",
+        "example": "hidden"
+      }
+    }
+  },
+  "qrStateHidden": "hidden",
+  "@qrStateHidden": {
+    "description": "State word in the spoken QR card label."
+  },
+  "qrStateShowing": "showing",
+  "@qrStateShowing": {
+    "description": "State word in the spoken QR card label."
+  },
+  "qrScanPayment": "Scan payment QR",
+  "@qrScanPayment": {
+    "description": "Title of the camera screen that scans a payment QR, and the Receive button that opens it."
+  },
+  "qrScanReply": "Scan their reply",
+  "@qrScanReply": {
+    "description": "Title of the camera screen that scans the reply QR, and the Send button that opens it."
+  },
+  "qrScanAimPayment": "Point the camera at the QR code on their phone.",
+  "@qrScanAimPayment": {
+    "description": "Hint on the camera screen before any part is read."
+  },
+  "qrScanAimReply": "Point the camera at the reply on their phone.",
+  "@qrScanAimReply": {
+    "description": "Hint on the camera screen before any part of the reply is read."
+  },
+  "qrScanSteady": "Hold steady, or move a little closer.",
+  "@qrScanSteady": {
+    "description": "Hint on the camera screen when no new part came for a few seconds."
+  },
+  "qrScanGot": "Got it",
+  "@qrScanGot": {
+    "description": "Shown on the camera screen when every part is read."
+  },
+  "qrScanCount": "{got} of {count}",
+  "@qrScanCount": {
+    "description": "Parts read so far, such as 4 of 7.",
+    "placeholders": {
+      "got": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qrScanCountLabel": "Parts read",
+  "@qrScanCountLabel": {
+    "description": "Spoken label of the parts-read count on the camera screen."
+  },
+  "qrScanNotPayment": "That is not a payment QR. Ask them to show the payment code on their phone.",
+  "@qrScanNotPayment": {
+    "description": "Camera screen warning: the code seen is not a payment QR."
+  },
+  "qrScanNotReply": "That is not a reply QR. Ask them to show the reply on their phone.",
+  "@qrScanNotReply": {
+    "description": "Camera screen warning: the code seen is not a reply QR."
+  },
+  "qrScanOtherPayment": "This code belongs to a different payment. Starting over.",
+  "@qrScanOtherPayment": {
+    "description": "Camera screen warning: parts of two different payments were seen, so reading starts over."
+  },
+  "qrScanTorch": "Torch",
+  "@qrScanTorch": {
+    "description": "Spoken label of the torch button on the camera screen."
+  },
+  "qrScanZoom": "Zoom {factor}×",
+  "@qrScanZoom": {
+    "description": "Spoken label of the zoom button on the camera screen. {factor} is 1 or 2.",
+    "placeholders": {
+      "factor": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  },
+  "qrScanCameraDenied": "The wallet may not use the camera. To scan, allow camera access for this app in your phone's settings. You can also open the file instead.",
+  "@qrScanCameraDenied": {
+    "description": "Panel on the camera screen when the camera permission is refused."
+  },
+  "qrScanCameraFailed": "The camera could not start. Try again, or open the file instead.",
+  "@qrScanCameraFailed": {
+    "description": "Panel on the camera screen when the camera could not start."
+  },
+  "qrScanOpenSettings": "Open settings",
+  "@qrScanOpenSettings": {
+    "description": "Button that opens the phone's settings page of this app, to allow the camera."
+  },
+  "qrScanOpenFileInstead": "Open a file instead",
+  "@qrScanOpenFileInstead": {
+    "description": "Button on the camera refused panel that leaves the camera and opens a payment file instead."
+  },
+  "qrScanAgain": "Scan again",
+  "@qrScanAgain": {
+    "description": "Button after a failed scan that opens the camera again."
+  },
+  "slateWrongPaymentQr": "This reply is for a different payment. Scan the reply for this send.",
+  "@slateWrongPaymentQr": {
+    "description": "Error when the scanned reply belongs to another payment than the one being finished."
+  },
+  "slateScannedPaymentTitle": "Scanned payment",
+  "@slateScannedPaymentTitle": {
+    "description": "Heading of the payment screen when the payment came from a scanned QR code."
+  },
+  "slateScannedReplyTitle": "Scanned reply",
+  "@slateScannedReplyTitle": {
+    "description": "Heading of the screen that finishes a send with a scanned reply QR."
+  },
+  "slateIncomingSendHintQr": "Accept it, then show the reply to the sender.",
+  "@slateIncomingSendHintQr": {
+    "description": "Hint on a scanned incoming payment."
+  },
+  "slateAcceptedHeadlineQr": "Accepted. Show the reply to the sender.",
+  "@slateAcceptedHeadlineQr": {
+    "description": "Headline after a scanned payment was accepted."
+  },
+  "methodQr": "QR Payment",
+  "@methodQr": {
+    "description": "Name of the QR payment method, in the method selector and Settings: two phones next to each other, a code on a screen. Keep it short."
+  },
+  "methodQrChip": "QR Code",
+  "@methodQrChip": {
+    "description": "Short name of the QR payment method on the Send method selector (chip). The full name is methodQr; keep it short."
+  },
+  "receiveTabQr": "QR Code",
+  "@receiveTabQr": {
+    "description": "Receive tab that scans a payment QR from the phone next to this one. Keep it short."
+  },
+  "methodArtCaptionQr": "In person",
+  "@methodArtCaptionQr": {
+    "description": "Caption under the QR method picture; two or three words."
+  },
+  "methodArtLabelQr": "QR Payment: a code passes from one phone to the phone next to it",
+  "@methodArtLabelQr": {
+    "description": "Spoken description of the QR method picture."
+  },
+  "methodSendQrTitle": "For a phone next to you.",
+  "@methodSendQrTitle": {
+    "description": "Bold line of the strip under Send's method selector when QR is chosen."
+  },
+  "methodSendQrLine": "Show a code on this screen, then scan their reply with the camera.",
+  "@methodSendQrLine": {
+    "description": "Plain line of the strip under Send's method selector when QR is chosen."
+  },
+  "methodReceiveQrTitle": "Scan their screen.",
+  "@methodReceiveQrTitle": {
+    "description": "Bold line of the strip on Receive's QR tab."
+  },
+  "methodReceiveQrLine": "Accept the payment, then show your reply the same way.",
+  "@methodReceiveQrLine": {
+    "description": "Plain line of the strip on Receive's QR tab."
+  },
+  "receiveQrTitle": "Standing next to the sender?",
+  "@receiveQrTitle": {
+    "description": "Title of the QR card on Receive."
+  },
+  "receiveQrBody": "Scan the code on their phone, accept the payment, then show your reply.",
+  "@receiveQrBody": {
+    "description": "Text of the QR card on Receive."
+  },
+  "txQrLine": "Pay or get paid next to each other, with a code on the screen.",
+  "@txQrLine": {
+    "description": "Settings › Transactions: one line under the QR switch."
+  },
+  "txQrHint": "QR Payment shows the payment as an animated code that the other phone scans with its camera, and takes their reply the same way. It works only between phones next to each other, needs no connection between the two wallets, and the code hides itself after 40 seconds. Adds QR Payment to Send and Receive.",
+  "@txQrHint": {
+    "description": "Settings › Transactions: the explanation behind the info icon of the QR switch."
+  },
+  "advTransactionFiles": "Transaction files",
+  "@advTransactionFiles": {
+    "description": "Advanced page switch name: transaction files (the File payment method)."
+  },
+  "advTransactionFilesHint": "Adds a File switch under Settings › Transactions: pay or get paid with a file you pass on yourself.",
+  "@advTransactionFilesHint": {
+    "description": "Advanced page: what the Transaction files switch shows."
+  },
+  "sendQrTitle": "QR Payment",
+  "@sendQrTitle": {
+    "description": "Title of Send's QR way."
+  },
+  "sendMakeQr": "Make payment QR",
+  "@sendMakeQr": {
+    "description": "Button that makes the payment shown as a QR code."
+  },
+  "sendQrPinReason": "Enter the PIN to make a payment QR for {amount}.",
+  "@sendQrPinReason": {
+    "description": "Why the PIN is asked before a payment QR is made.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "sendQrMade": "Payment made",
+  "@sendQrMade": {
+    "description": "First step of the QR send, done."
+  },
+  "sendQrHint": "Show the code to the recipient's phone, then scan their reply.",
+  "@sendQrHint": {
+    "description": "Hint on Send once the payment QR is made."
+  },
+  "sendCancelRuleQr": "Can be cancelled until you scan their reply.",
+  "@sendCancelRuleQr": {
+    "description": "Line under the amount on Send's QR way: until when the payment can be cancelled."
+  },
+  "qrStatusSendHidden": "Show this to the recipient.",
+  "@qrStatusSendHidden": {
+    "description": "Status line on the payment QR screen while the code is hidden."
+  },
+  "qrStatusSendShowing": "Waiting for the recipient to scan. Then scan their reply.",
+  "@qrStatusSendShowing": {
+    "description": "Status line on the payment QR screen while the code shows."
+  },
+  "qrStatusHiddenAgain": "Hidden. Show again if they did not finish scanning.",
+  "@qrStatusHiddenAgain": {
+    "description": "Status line on a QR screen after the code hid itself."
+  },
+  "qrStatusReplyHidden": "Show this to the sender.",
+  "@qrStatusReplyHidden": {
+    "description": "Status line on the reply QR screen while the code is hidden."
+  },
+  "qrStatusReplyShowing": "Waiting for the sender to scan.",
+  "@qrStatusReplyShowing": {
+    "description": "Status line on the reply QR screen while the code shows."
+  },
+  "qrStatusReceivedWaiting": "Payment received. Waiting for the sender to scan and post it.",
+  "@qrStatusReceivedWaiting": {
+    "description": "Status line on the reply QR screen: the payment is received and waits for the sender to post it."
+  },
+  "qrStatusPosted": "Posted. Confirming {got}/{target}",
+  "@qrStatusPosted": {
+    "description": "Status line on the reply QR screen: the sender posted the payment; it collects confirmations.",
+    "placeholders": {
+      "got": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "qrStatusReceived": "Received.",
+  "@qrStatusReceived": {
+    "description": "Status line on the reply QR screen: the payment is received."
+  },
+  "qrScanProgress": "Scanned {got} of {count}. Keep the code in the frame.",
+  "@qrScanProgress": {
+    "description": "Dock line of the camera screen while parts are read.",
+    "placeholders": {
+      "got": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qrScanReplyScanned": "Reply scanned.",
+  "@qrScanReplyScanned": {
+    "description": "Dock line of the camera screen when the whole reply is read."
+  },
+  "qrScanPosting": "Reply scanned. Posting…",
+  "@qrScanPosting": {
+    "description": "Dock line of the camera screen while the scanned reply is being posted."
+  },
+  "qrScanPosted": "Posted.",
+  "@qrScanPosted": {
+    "description": "Dock line of the camera screen once the payment is posted."
+  },
   "contactsTitle": "Contacts",
   "@contactsTitle": {
     "description": "Title of the address book screen."
@@ -3352,9 +3777,9 @@
       }
     }
   },
-  "contactsAddressInvalidAny": "Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).",
+  "contactsAddressInvalidAny": "Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).",
   "@contactsAddressInvalidAny": {
-    "description": "Error under an address field that takes an Epicbox, a Direct (http/https) or an onion address, when the text is none of them."
+    "description": "Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them."
   },
   "settingsTitle": "Settings",
   "@settingsTitle": {
@@ -4125,9 +4550,9 @@
   "@demoPinUnlockTitle": {
     "description": "Web demo: heading of the unlock screen while the demo PIN fills in. The usual title returns with the PIN field."
   },
-  "sendStepRecipient": "Recipient",
-  "@sendStepRecipient": {
-    "description": "Send, step 1: heading of the step where the user enters who to pay."
+  "sendStepMethod": "Payment method",
+  "@sendStepMethod": {
+    "description": "Send, step 1: heading of the step that starts with the payment method selector, then the recipient field."
   },
   "sendStepAmount": "Amount",
   "@sendStepAmount": {
@@ -4446,6 +4871,54 @@
   "@handshakePrevious": {
     "description": "How it works sheet: tooltip of the button that shows the step before."
   },
+  "handshakeLink1": "Your wallet sends the payment straight to their wallet, over the internet or Tor. Your coins go on hold.",
+  "@handshakeLink1": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeLink2": "Their wallet adds its part, signs and answers on the same connection.",
+  "@handshakeLink2": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQr1": "You show your code.",
+  "@handshakeQr1": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQr2": "They scan it with their wallet.",
+  "@handshakeQr2": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQr3": "Their wallet shows a reply code.",
+  "@handshakeQr3": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQr4": "You scan it.",
+  "@handshakeQr4": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQr5": "Your wallet sends it to the network.",
+  "@handshakeQr5": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQrR1": "They show their code.",
+  "@handshakeQrR1": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQrR2": "You scan it with your wallet.",
+  "@handshakeQrR2": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQrR3": "Your wallet shows a reply code.",
+  "@handshakeQrR3": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQrR4": "They scan it.",
+  "@handshakeQrR4": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
+  "handshakeQrR5": "Their wallet sends it to the network.",
+  "@handshakeQrR5": {
+    "description": "How it works sheet: caption of a step of the Link Payment or QR Payment diagram (QR Payment: R is the receiver's side)."
+  },
   "handshakeNext": "Next step",
   "@handshakeNext": {
     "description": "How it works sheet: tooltip of the button that shows the next step."
@@ -4624,7 +5097,7 @@
   "@receiveTabFile": {
     "description": "Receive, last tab: accepting a payment file. Short: three tabs share one row on a phone."
   },
-  "receiveTorAddressLabel": "Tor address",
+  "receiveTorAddressLabel": "Your link",
   "@receiveTorAddressLabel": {
     "description": "Caption above the wallet's full Tor address (the onion address) on the Receive tab; a tap on the card copies it."
   },
@@ -4828,7 +5301,7 @@
   "@tourPhoneSendTitle": {
     "description": "Title of the tour card for the Send tab (first-unlock tour). Short."
   },
-  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.",
+  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.",
   "@tourPhoneSendText": {
     "description": "Text of the tour card for the Send tab; names the two payment methods shown by default."
   },
@@ -5651,23 +6124,23 @@
   },
   "netStatusReachable": "Reachable",
   "@netStatusReachable": {
-    "description": "Direct receive status icon state word: the wallet's Tor address is published and reachable."
+    "description": "Link receive status icon state word: the wallet's Tor address is published and reachable."
   },
   "netStatusPublishing": "Publishing…",
   "@netStatusPublishing": {
-    "description": "Direct receive status icon state word: Tor is connected and the address is being published."
+    "description": "Link receive status icon state word: Tor is connected and the address is being published."
   },
   "netStatusNotReachable": "Not reachable",
   "@netStatusNotReachable": {
-    "description": "Direct receive status icon state word: the Tor address could not be published."
+    "description": "Link receive status icon state word: the Tor address could not be published."
   },
   "netStatusTorOpenHint": "Opens the privacy settings",
   "@netStatusTorOpenHint": {
     "description": "Screen reader hint on the Tor status icon: a tap opens Settings › Privacy."
   },
-  "netStatusDirectOpenHint": "Opens the Direct receive address",
+  "netStatusDirectOpenHint": "Opens the Link receive address",
   "@netStatusDirectOpenHint": {
-    "description": "Screen reader hint on the Direct receive status icon: a tap opens the Receive tab's Direct address."
+    "description": "Screen reader hint on the Link receive status icon: a tap opens the Receive tab's Link address."
   },
   "netStatusOpenHint": "Shows the servers",
   "@netStatusOpenHint": {
@@ -5917,13 +6390,13 @@
   "@methodEpicbox": {
     "description": "Method name on Send and Receive segments."
   },
-  "methodDirectHttp": "Direct · HTTP",
+  "methodDirectHttp": "Link Payment · HTTP",
   "@methodDirectHttp": {
-    "description": "Method name: Direct, with HTTP as its transport. The Direct word, then a middle dot, then HTTP. Shown wherever a payment's method is named."
+    "description": "Method name: Link, with HTTP as its transport. The Link word, then a middle dot, then HTTP. Shown wherever a payment's method is named."
   },
-  "methodDirectTor": "Direct · Tor",
+  "methodDirectTor": "Link Payment · Tor",
   "@methodDirectTor": {
-    "description": "Method name: Direct, with Tor as its transport. The Direct word, then a middle dot, then Tor. Shown wherever a payment's method is named."
+    "description": "Method name: Link, with Tor as its transport. The Link word, then a middle dot, then Tor. Shown wherever a payment's method is named."
   },
   "methodFile": "File",
   "@methodFile": {
@@ -6560,7 +7033,7 @@
   },
   "deskInvIssuerMethod": "Method",
   "@deskInvIssuerMethod": {
-    "description": "Label of the choice how the request travels: Epicbox, File, Direct."
+    "description": "Label of the choice how the request travels: Epicbox, File, Link."
   },
   "deskInvIssuerEpicbox": "Epicbox",
   "@deskInvIssuerEpicbox": {
@@ -6570,7 +7043,7 @@
   "@deskInvIssuerFile": {
     "description": "Method: the request is saved as a file to hand over."
   },
-  "deskInvIssuerDirect": "Direct",
+  "deskInvIssuerDirect": "Link",
   "@deskInvIssuerDirect": {
     "description": "Method: the payment comes straight to this wallet over HTTP or Tor."
   },
@@ -7595,21 +8068,25 @@
       }
     }
   },
-  "methodDirect": "Direct",
+  "methodDirect": "Link",
   "@methodDirect": {
     "description": "Send and Receive method: straight to the other wallet, at an http(s) or onion address."
   },
+  "methodLinkPayment": "Link Payment",
+  "@methodLinkPayment": {
+    "description": "Full name of the Link Payment method (Settings › Transactions, labels). The short chip name is methodDirect."
+  },
   "methodDirectShape": "http://host:3415 or xxxx….onion",
   "@methodDirectShape": {
-    "description": "Under Send's empty To field on Direct: the two shapes a Direct address takes. Keep the addresses as they are."
+    "description": "Under Send's empty To field on Link: the two shapes a Link address takes. Keep the addresses as they are."
   },
   "methodSendDirectLine": "Their wallet must be open. An onion address goes over Tor.",
   "@methodSendDirectLine": {
-    "description": "Send's strip line for Direct."
+    "description": "Send's strip line for Link."
   },
-  "methodArtLabelDirect": "Direct: the payment goes straight to the recipient's wallet, which must be open",
+  "methodArtLabelDirect": "Link Payment: the payment goes straight to the recipient's wallet, which must be open",
   "@methodArtLabelDirect": {
-    "description": "Screen reader label of the Direct picture."
+    "description": "Screen reader label of the Link picture."
   },
   "methodReceiveEpicboxShort": "Works with the wallet closed.",
   "@methodReceiveEpicboxShort": {
@@ -7617,11 +8094,11 @@
   },
   "methodReceiveDirectTitle": "Straight to this wallet.",
   "@methodReceiveDirectTitle": {
-    "description": "Receive's Direct strip title."
+    "description": "Receive's Link strip title."
   },
   "methodReceiveDirectLine": "Works while the app is open.",
   "@methodReceiveDirectLine": {
-    "description": "Receive's Direct strip line: the onion address answers only while the app runs."
+    "description": "Receive's Link strip line: the onion address answers only while the app runs."
   },
   "methodLineOverTor": "{line} Over Tor.",
   "@methodLineOverTor": {
@@ -7632,17 +8109,17 @@
       }
     }
   },
-  "sendSwitchedDirect": "Direct address",
+  "sendSwitchedDirect": "Link address",
   "@sendSwitchedDirect": {
-    "description": "Tag beside Send's To label for 3 s after the address moved the method to Direct."
+    "description": "Tag beside Send's To label for 3 s after the address moved the method to Link."
   },
-  "sendSwitchedDirectAnnounce": "Direct address. Method set to Direct.",
+  "sendSwitchedDirectAnnounce": "Link address. Method set to Link.",
   "@sendSwitchedDirectAnnounce": {
-    "description": "Read out once when the address moved Send's method to Direct."
+    "description": "Read out once when the address moved Send's method to Link."
   },
-  "sendDirectAddressShape": "A Direct address starts with http:// or https://, or ends in .onion.",
+  "sendDirectAddressShape": "A Link address starts with http:// or https://, or ends in .onion.",
   "@sendDirectAddressShape": {
-    "description": "Error under To when Direct is chosen and the text is not an http(s) or onion address."
+    "description": "Error under To when Link is chosen and the text is not an http(s) or onion address."
   },
   "torNotOverTor": "Not over Tor",
   "@torNotOverTor": {
@@ -7678,7 +8155,7 @@
   },
   "torSettingsLink": "Tor settings",
   "@torSettingsLink": {
-    "description": "Text link on Receive's Direct tab to Settings › Privacy."
+    "description": "Text link on Receive's Link tab to Settings › Privacy."
   },
   "torNetworkLabel": "Tor Network",
   "@torNetworkLabel": {
@@ -7688,17 +8165,17 @@
   "@torNetworkHint": {
     "description": "Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor."
   },
-  "receiveTabDirect": "Direct",
+  "receiveTabDirect": "Link",
   "@receiveTabDirect": {
     "description": "Receive tab: receiving straight to this wallet at its onion address."
   },
-  "receiveDirectNeedsTor": "Direct receiving needs Tor.",
+  "receiveDirectNeedsTor": "Link receiving needs Tor.",
   "@receiveDirectNeedsTor": {
-    "description": "Receive's Direct tab while Tor is off."
+    "description": "Receive's Link tab while Tor is off."
   },
   "receiveDirectMeanwhile": "Senders use the Epicbox address meanwhile.",
   "@receiveDirectMeanwhile": {
-    "description": "Caption under 'Direct receiving needs Tor.'"
+    "description": "Caption under 'Link receiving needs Tor.'"
   },
   "netStatusOverTor": "over Tor",
   "@netStatusOverTor": {
@@ -7748,7 +8225,7 @@
   "@pushNoticeOff": {
     "description": "Notice after the user turned notifications off."
   },
-  "pushNoticeAvailable": "Notifications are available in Settings.",
+  "pushNoticeAvailable": "Notifications are available in Settings › Advanced.",
   "@pushNoticeAvailable": {
     "description": "One-time reminder, about a minute after the first unlock, that notifications exist."
   },
@@ -8349,7 +8826,7 @@
   },
   "deskDataHttpEnter": "Enter the recipient’s address",
   "@deskDataHttpEnter": {
-    "description": "Hint under the Send address field when it is empty and the Direct method is chosen."
+    "description": "Hint under the Send address field when it is empty and the Link method is chosen."
   },
   "deskDataHttpScheme": "Start with https:// or http://",
   "@deskDataHttpScheme": {
@@ -9047,7 +9524,7 @@
   "@deskRecvCheckSix": {
     "description": "Caption under the Epicbox address on Receive."
   },
-  "deskRecvHttpAddress": "Direct · HTTP address",
+  "deskRecvHttpAddress": "Link Payment · HTTP address",
   "@deskRecvHttpAddress": {
     "description": "Title of the HTTP panel on Receive and of its QR code."
   },
@@ -9076,7 +9553,7 @@
   "@deskRecvHttpTorHint": {
     "description": "Caption at the bottom of the HTTP panel on Receive."
   },
-  "deskRecvDirectTor": "Direct · Tor address",
+  "deskRecvDirectTor": "Link Payment · Tor address",
   "@deskRecvDirectTor": {
     "description": "Title of the Tor panel on Receive."
   },
@@ -9084,7 +9561,7 @@
   "@deskRecvTorIntro": {
     "description": "Intro text of the Tor panel on Receive."
   },
-  "deskRecvTorAddress": "Direct · Tor address",
+  "deskRecvTorAddress": "Link Payment · Tor address",
   "@deskRecvTorAddress": {
     "description": "Title of the QR code of the Tor address on Receive."
   },
@@ -9413,9 +9890,9 @@
   "@deskSendErrEpicbox": {
     "description": "Error under the To field on Send when the Epicbox method is chosen and the address is not an Epicbox address."
   },
-  "deskSendErrNotDirect": "This is not a Direct address.",
+  "deskSendErrNotDirect": "This is not a Link address.",
   "@deskSendErrNotDirect": {
-    "description": "Error under the To field on Send when the Direct method is chosen and the address is an Epicbox address."
+    "description": "Error under the To field on Send when the Link method is chosen and the address is an Epicbox address."
   },
   "deskSendErrOnion": "This is not a valid onion address.",
   "@deskSendErrOnion": {
@@ -9536,7 +10013,7 @@
   },
   "deskSendDoneViaDirect": "Finalized and posted to the network.",
   "@deskSendDoneViaDirect": {
-    "description": "Text of the Sent notice after a Direct send."
+    "description": "Text of the Sent notice after a Link send."
   },
   "deskSendDoneViaEpicbox": "Handed to Epicbox. Completes when the recipient answers.",
   "@deskSendDoneViaEpicbox": {
@@ -9554,9 +10031,9 @@
   "@deskSendReviewAgain": {
     "description": "Button in the Send failed notice: opens the review again."
   },
-  "deskSendMethodDirect": "Direct",
+  "deskSendMethodDirect": "Link",
   "@deskSendMethodDirect": {
-    "description": "Name of the Direct send method (an http(s) or onion address), in the method selector and in tags. Short."
+    "description": "Name of the Link send method (an http(s) or onion address), in the method selector and in tags. Short."
   },
   "deskSendMethodFile": "File",
   "@deskSendMethodFile": {
@@ -9602,7 +10079,7 @@
   "@deskSendTurnOnTor": {
     "description": "Button in that warning: switches Tor on."
   },
-  "deskSendHttpClearnet": "Direct to http(s) addresses goes over the clearnet, not Tor.",
+  "deskSendHttpClearnet": "Link to http(s) addresses goes over the clearnet, not Tor.",
   "@deskSendHttpClearnet": {
     "description": "Note under the recipient field when Tor is on and the address is http(s)."
   },
@@ -9744,11 +10221,11 @@
   },
   "deskSendDirectLine1": "Straight to their wallet.",
   "@deskSendDirectLine1": {
-    "description": "Bold first line under the method selector for the Direct method."
+    "description": "Bold first line under the method selector for the Link method."
   },
   "deskSendDirectLine2": "An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.",
   "@deskSendDirectLine2": {
-    "description": "Second line under the method selector for the Direct method."
+    "description": "Second line under the method selector for the Link method."
   },
   "deskSendFileLine1": "No connection needed.",
   "@deskSendFileLine1": {
@@ -9758,9 +10235,9 @@
   "@deskSendFileLine2": {
     "description": "Second line under the method selector for the File method."
   },
-  "deskSendTagDirect": "Direct",
+  "deskSendTagDirect": "Link",
   "@deskSendTagDirect": {
-    "description": "Small tag next to the To label after the method switched to Direct by itself. Short."
+    "description": "Small tag next to the To label after the method switched to Link by itself. Short."
   },
   "deskSendTagFile": "File",
   "@deskSendTagFile": {
@@ -9770,9 +10247,9 @@
   "@deskSendTagEpicbox": {
     "description": "Small tag next to the To label after the method switched to Epicbox. Short."
   },
-  "deskSendSwitchedDirect": "Direct address. Method set to Direct.",
+  "deskSendSwitchedDirect": "Link address. Method set to Link.",
   "@deskSendSwitchedDirect": {
-    "description": "Screen reader announcement when the method switched to Direct by itself."
+    "description": "Screen reader announcement when the method switched to Link by itself."
   },
   "deskSendSwitchedFile": "File address. Method set to File.",
   "@deskSendSwitchedFile": {
@@ -9807,13 +10284,13 @@
   "@deskSendViaEpicbox": {
     "description": "Value of the Via fact in the review dialog for an Epicbox send."
   },
-  "deskSendViaDirect": "Direct · HTTP (their wallet must be open)",
+  "deskSendViaDirect": "Link Payment · HTTP (their wallet must be open)",
   "@deskSendViaDirect": {
-    "description": "Value of the Via fact in the review dialog for a Direct send over http(s)."
+    "description": "Value of the Via fact in the review dialog for a Link send over http(s)."
   },
-  "deskSendViaTor": "Direct · Tor (their wallet must be open)",
+  "deskSendViaTor": "Link Payment · Tor (their wallet must be open)",
   "@deskSendViaTor": {
-    "description": "Value of the Via fact in the review dialog for a Direct send to an onion address."
+    "description": "Value of the Via fact in the review dialog for a Link send to an onion address."
   },
   "deskSendViaFile": "Transaction file",
   "@deskSendViaFile": {
@@ -9846,7 +10323,7 @@
   },
   "deskSendFactVia": "Via",
   "@deskSendFactVia": {
-    "description": "Label of the fact that says how the payment goes (Epicbox, Direct, file) in the review dialog."
+    "description": "Label of the fact that says how the payment goes (Epicbox, Link, file) in the review dialog."
   },
   "deskSendFactPrivacy": "Privacy",
   "@deskSendFactPrivacy": {
@@ -10431,11 +10908,11 @@
   "@deskConAddrEpicbox": {
     "description": "Label above the address in a contact's detail, for an Epicbox address."
   },
-  "deskConAddrTor": "Direct · Tor address",
+  "deskConAddrTor": "Link Payment · Tor address",
   "@deskConAddrTor": {
     "description": "Label above the address in a contact's detail, for a Tor address."
   },
-  "deskConAddrHttp": "Direct · HTTP address",
+  "deskConAddrHttp": "Link Payment · HTTP address",
   "@deskConAddrHttp": {
     "description": "Label above the address in a contact's detail, for an HTTP address."
   },
@@ -10477,7 +10954,7 @@
   "@deskConErrAddressEmpty": {
     "description": "Error under the Address field of the contact form when it is empty."
   },
-  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Direct address (https://…) or an onion address (….onion).",
+  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).",
   "@deskConErrAddressInvalid": {
     "description": "Error under the Address field of the contact form when the text is not an address."
   },
@@ -13188,7 +13665,7 @@
       }
     }
   },
-  "deskRailOpenHttp": "Open Direct · HTTP receiving",
+  "deskRailOpenHttp": "Open Link Payment · HTTP receiving",
   "@deskRailOpenHttp": {
     "description": "Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings."
   },
@@ -13561,11 +14038,11 @@
   "@deskKitHeroLabelEpicbox": {
     "description": "Screen-reader description of the Epicbox picture on the Send page."
   },
-  "deskKitHeroLabelHttp": "Direct · HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "deskKitHeroLabelHttp": "Link Payment · HTTP: the payment goes straight to the recipient's wallet, which must be open",
   "@deskKitHeroLabelHttp": {
     "description": "Screen-reader description of the HTTP picture on the Send page."
   },
-  "deskKitHeroLabelTor": "Direct · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "deskKitHeroLabelTor": "Link Payment · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
   "@deskKitHeroLabelTor": {
     "description": "Screen-reader description of the Tor picture on the Send page."
   },
@@ -16419,7 +16896,7 @@
   "@deskSetRecvListNote": {
     "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
   },
-  "deskSetRecvHttpTitle": "Direct · HTTP receiving",
+  "deskSetRecvHttpTitle": "Link Payment · HTTP receiving",
   "@deskSetRecvHttpTitle": {
     "description": "Settings > Receiving: heading of the HTTP group."
   },
@@ -16431,7 +16908,7 @@
   "@deskSetRecvHttpOffTitle": {
     "description": "Settings > Receiving: notice title in the HTTP group when Tor is on."
   },
-  "deskSetRecvHttpOffText": "Direct payments arrive at this wallet’s Tor address instead.",
+  "deskSetRecvHttpOffText": "Link payments arrive at this wallet’s Tor address instead.",
   "@deskSetRecvHttpOffText": {
     "description": "Settings > Receiving: notice text in the HTTP group when Tor is on."
   },
@@ -17626,7 +18103,7 @@
   },
   "deskTxNowUndeliveredDirect": "Not delivered. The recipient's wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the funds.",
   "@deskTxNowUndeliveredDirect": {
-    "description": "Payment detail, the line under the status of a Direct send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
+    "description": "Payment detail, the line under the status of a Link send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
     "placeholders": {
       "method": {
         "type": "String"
@@ -17999,6 +18476,10 @@
   "@deskUpdUnfinished": {
     "description": "Sidebar notice and Settings › About (Windows): an update was started but Setup did not finish (it was stopped or failed part way); the action runs the update again. The version is on the line under it."
   },
+  "advExperimental": "Experimental",
+  "@advExperimental": {
+    "description": "Small outlined label beside a feature that is not finished (the Notifications switch on Advanced). One word."
+  },
   "advTitle": "Advanced",
   "@advTitle": {
     "description": "Title of the Advanced page in Settings and its hub row."
@@ -18091,7 +18572,7 @@
   "@advTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Direct sends to local addresses still work. The node's own peers are the node's setting.",
+  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Link Payment sends to local addresses still work. The node's own peers are the node's setting.",
   "@advOfflineNote": {
     "description": "Note under the network choice while Offline is selected."
   },
@@ -18187,7 +18668,7 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Direct and use files; the built-in node keeps running, as its own peers are the node's setting.",
+  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use files; the built-in node keeps running, as its own peers are the node's setting.",
   "@deskSetAdvNetworkHint": {
     "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
   },
@@ -18219,7 +18700,7 @@
   "@deskSetAdvTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Direct to local addresses still work.",
+  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Link Payment to local addresses still work.",
   "@deskSetAdvOfflineNote": {
     "description": "Note under the chosen Offline mode on the Advanced page."
   },
@@ -18266,7 +18747,7 @@
   },
   "receiveOfflineLine": "Can't receive this way while Offline mode is on.",
   "@receiveOfflineLine": {
-    "description": "Line on Receive's Epicbox and Direct tabs while the Offline network mode is on; the address is still shown to hand out."
+    "description": "Line on Receive's Epicbox and Link tabs while the Offline network mode is on; the address is still shown to hand out."
   },
   "txDetailsMore": "More",
   "@txDetailsMore": {
@@ -18507,7 +18988,7 @@
   },
   "deskNetSendFileHint": "A transaction file still works.",
   "@deskNetSendFileHint": {
-    "description": "Second line of the notice on Send when the network mode holds Epicbox and Direct sends."
+    "description": "Second line of the notice on Send when the network mode holds Epicbox and Link sends."
   },
   "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive until Offline mode is off.",
   "@deskNetRecvOfflineText": {
@@ -18571,11 +19052,11 @@
   },
   "txDirectLine": "Pay onion and web addresses; get paid at this phone's Tor address.",
   "@txDirectLine": {
-    "description": "One line under the Direct switch on Settings › Transactions."
+    "description": "One line under the Link switch on Settings › Transactions."
   },
-  "txDirectHint": "Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.",
+  "txDirectHint": "Link Payment sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Link Payment to Send and Receive.",
   "@txDirectHint": {
-    "description": "Info sheet text of the Direct switch on Settings › Transactions."
+    "description": "Info sheet text of the Link switch on Settings › Transactions."
   },
   "txFileLine": "Pay or get paid with a file you pass on yourself.",
   "@txFileLine": {
@@ -18659,7 +19140,7 @@
   },
   "netOfflineOnlyLocal": "Offline: only local addresses.",
   "@netOfflineOnlyLocal": {
-    "description": "Why a Direct send was refused in the Offline network mode: the address is not on this device or the local network."
+    "description": "Why a Link send was refused in the Offline network mode: the address is not on this device or the local network."
   },
   "netOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
   "@netOfflineNoPeers": {
@@ -18667,7 +19148,7 @@
   },
   "deskErrOfflineOnlyLocal": "Offline: only local addresses.",
   "@deskErrOfflineOnlyLocal": {
-    "description": "Why a Direct send was refused in the Offline network mode: the address is not on this computer or the local network."
+    "description": "Why a Link send was refused in the Offline network mode: the address is not on this computer or the local network."
   },
   "deskNetOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
   "@deskNetOfflineNoPeers": {
@@ -18687,7 +19168,7 @@
   },
   "deskSetTxMethods": "Payment methods",
   "@deskSetTxMethods": {
-    "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Direct, File)."
+    "description": "Title of the group on Settings › Transactions with one row per payment method (Epicbox, Link, File)."
   },
   "deskSetTxAlwaysOn": "Always on",
   "@deskSetTxAlwaysOn": {
@@ -18697,9 +19178,9 @@
   "@deskSetTxEpicboxHint": {
     "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
   },
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.",
+  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Link Payment to Send and its address to Receive.",
   "@deskSetTxDirectHint": {
-    "description": "Hover card behind the info icon of the Direct row (switch) on Settings › Transactions."
+    "description": "Hover card behind the info icon of the Link row (switch) on Settings › Transactions."
   },
   "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.",
   "@deskSetTxFileHint": {
@@ -18716,5 +19197,9 @@
   "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send.",
   "@deskSetTxStartHint": {
     "description": "Hover card behind the info icon of the Send starts on row."
+  },
+  "deskSendMethodHeader": "Payment method",
+  "@deskSendMethodHeader": {
+    "description": "Title of the first panel on Send: the method selector comes first, then the recipient field."
   }
 }

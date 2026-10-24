@@ -117,6 +117,7 @@ abstract final class HelpId {
   static const receive = 'receive';
   static const send = 'send';
   static const file = 'file';
+  static const qr = 'qr';
   static const addresses = 'addresses';
   static const handshake = 'handshake';
   static const confirmations = 'confirmations';
@@ -187,9 +188,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.p('When their answer comes back, the wallet finishes the transaction and posts it to the network by itself. It is final after $confirmations confirmations.'),
         HelpBlock.p('**No answer?** After a few minutes the status says "Waiting for the recipient". Ask them to open their wallet. If the answer never comes, cancel the send in $cancelPlace to unlock the outputs. A send is never cancelled by itself.'),
         if (phone)
-          const HelpBlock.p('Sending needs a synced node. An Epicbox address also needs the Epicbox server to answer; a Direct address (http or .onion) needs the recipient\'s wallet open and reachable at that moment.')
+          const HelpBlock.p('Sending needs a synced node. An Epicbox address also needs the Epicbox server to answer; a Link address (http or .onion) needs the recipient\'s wallet open and reachable at that moment.')
         else
-          const HelpBlock.p('Sending needs a synced node. An Epicbox address also needs Epicbox receiving to be on; a Direct address (http or .onion) needs the recipient\'s wallet open and reachable at that moment.'),
+          const HelpBlock.p('Sending needs a synced node. An Epicbox address also needs Epicbox receiving to be on; a Link address (http or .onion) needs the recipient\'s wallet open and reachable at that moment.'),
       ],
       id: HelpId.send,
     ),
@@ -207,14 +208,26 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       ],
       id: HelpId.file,
     ),
+    if (phone)
+      const HelpTopic(
+        'start',
+        'Pay in person: QR Payment',
+        'Two phones next to each other pay with an animated QR code, no connection between them.',
+        [
+          HelpBlock.p('The payment travels as an animated QR code that the other phone scans with its camera. Nothing is encrypted, so show the code only to the person you pay.'),
+          HelpBlock.ol(['**Sender:** on Send, choose **QR Code**, enter the amount and tap **Show QR**. The code stays hidden until you show it, counts 3, 2, 1, and hides itself after 40 seconds.', '**Receiver:** on [[Receive › QR Code]], tap **Scan payment QR**, accept the payment, then show the reply the same way.', '**Sender:** taps **Scan their reply**. The wallet posts the payment and the tracker follows it.']),
+          HelpBlock.p('Keep the code in the frame until every part is read: the ring and the count show how far it got. A code that is not a payment is said so and ignored. Screenshots are blocked on the code screen.'),
+        ],
+        id: HelpId.qr,
+      ),
     HelpTopic(
       'start',
       'Payment methods and send defaults',
-      'Epicbox is always on. Direct and File are switches. Send starts on the method you choose.',
+      'Epicbox is always on. Link Payment and File are switches. Send starts on the method you choose.',
       [
         const HelpBlock.p('The Transactions page in [[Settings › Transactions]] holds three things.'),
         HelpBlock.ul([
-          '**Payment methods.** Epicbox is always on. **Direct** (to .onion and web addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and **File** are switches: a method that is off does not appear on Send and Receive.',
+          '**Payment methods.** Epicbox is always on. **Link Payment** (to .onion and web addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and **File** are switches: a method that is off does not appear on Send and Receive.',
           '**Send starts on.** The method the Send screen opens with. You can still pick another on Send.',
           '**Send defaults.** Which outputs a send spends, Smallest or All, and whether its change is split. They show only while **Send options** is on in Advanced.',
         ]),
@@ -225,11 +238,11 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       const HelpTopic(
         'start',
         'What an address looks like',
-        'An Epicbox address starts with es and ends in @ and a server name. A Direct address is a web address or ends in .onion.',
+        'An Epicbox address starts with es and ends in @ and a server name. A Link address is a web address or ends in .onion.',
         [
           HelpBlock.ul([
             '**Epicbox**: about 52 characters starting with **es**, then **@** and the server, for example **esXXXX…XXXX@epicbox.epiccash.com**. The default; the recipient can be offline.',
-            '**Direct**: the recipient\'s own wallet, open right now. Either a web address such as **http://host:3415**, or a Tor address of 56 characters ending in **.onion**, which goes over Tor.',
+            '**Link Payment**: the recipient\'s own wallet, open right now. Either a web address such as **http://host:3415**, or a Tor address of 56 characters ending in **.onion**, which goes over Tor.',
           ]),
           HelpBlock.p('Send picks the method from the address pasted into the To field. When reading an address out, compare the first six and the last six characters.'),
         ],
@@ -242,7 +255,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         HelpBlock.p('Epic Cash uses Mimblewimble. Instead of writing an address and an amount on the blockchain, the two wallets build each transaction together, like a handshake:'),
         HelpBlock.ol(['The sender\'s wallet starts it and locks the outputs being sent.', 'The receiver\'s wallet adds its part and signs.', 'The sender\'s wallet signs too, finishes the transaction and posts it to the network.']),
-        HelpBlock.p('So something has to carry the messages between the two wallets. **Epicbox** does it: it holds the message while the other wallet is offline, so both need not be online at the same moment. **Direct · HTTP** and **Direct · Tor** go straight to the other wallet while it is open. A **transaction file** is the manual way.'),
+        HelpBlock.p('So something has to carry the messages between the two wallets. **Epicbox** does it: it holds the message while the other wallet is offline, so both need not be online at the same moment. **Link Payment · HTTP** and **Link Payment · Tor** go straight to the other wallet while it is open. A **transaction file** is the manual way.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -386,7 +399,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           HelpBlock.p('Tor hides the wallet\'s IP address from the servers it talks to. With the switch on, under $torPlace, the Epicbox connection goes through Tor, a send to a .onion address goes through Tor, and the wallet has a Tor address of its own (it ends in .onion) that other wallets can pay straight to.'),
           const HelpBlock.ul([
             'Nothing the wallet uses changes: the same node, the same Epicbox server, the same address.',
-            'A Direct send to an onion address goes through Tor. Send marks each send with how it goes.',
+            'A Link send to an onion address goes through Tor. Send marks each send with how it goes.',
             'Push notifications are off while Tor is on.',
             'Slower than Epicbox without Tor. Tor is blocked in some countries; there it does not connect.',
             'Receiving at the .onion address works while the app is open; Epicbox keeps working beside it.',
@@ -406,8 +419,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           HelpBlock.ul([
             'Turn it on under [[Settings › Privacy › Tor]]. The Tor row in the sidebar shows its state.',
             'While Tor starts or is not connected, what goes over Tor waits; nothing goes around it. Retry, or turn Tor off.',
-            'Direct sends to an http(s) address do not go over Tor; Send says so.',
-            'Direct · HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Direct · Tor address.',
+            'Link sends to an http(s) address do not go over Tor; Send says so.',
+            'Link Payment · HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Link Payment · Tor address.',
             'Tor is blocked or not allowed in some countries; there it does not connect.',
             'With Tor only in Advanced the switch stays on and cannot be turned off.',
           ]),
@@ -424,7 +437,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.ul([
           '**Standard**: connects directly. Tor is the switch under $torPlace.',
           '**Tor only**: Tor is always on and its switch is locked. Nothing goes over the open internet. While Tor starts or has failed, the wallet says **Waiting for Tor** and whatever needs the network waits, with the reason on the disabled action. ${phone ? 'Notifications are off, because signing up for them would reveal this phone.' : 'HTTP receiving is off, because a plain address would reveal this computer.'}',
-          '**Offline**: nothing beyond $device and the local network. The balance and history stay as last seen. With a node on ${phone ? 'the local network' : 'this computer or the local network'}, the wallet can still make, sign, finalize and post payments, and send Direct to local addresses.${phone ? '' : ' Receiving over the local network needs HTTP receiving set to **From the internet**.'} Without one, sending and receiving wait.',
+          '**Offline**: nothing beyond $device and the local network. The balance and history stay as last seen. With a node on ${phone ? 'the local network' : 'this computer or the local network'}, the wallet can still make, sign, finalize and post payments, and send Link Payment to local addresses.${phone ? '' : ' Receiving over the local network needs HTTP receiving set to **From the internet**.'} Without one, sending and receiving wait.',
         ]),
         const HelpBlock.p('In Offline, give the node by its IP address, for example **10.100.10.20:3413**. Names are not looked up.'),
         if (!phone) const HelpBlock.p('The built-in node\'s own peers are the node\'s setting, not the mode\'s.'),
@@ -454,6 +467,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           if (!phone) '**Logs**: the Logs group in Help, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
         HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Offline mode${phone ? '' : ' or away from a node on this computer'}, and with Tor only it moves only to a node reachable over Tor.'),
+        if (phone) const HelpBlock.p('**Notifications** (experimental) is the last switch on the page. It tells you when a payment or an invoice arrives while the app is closed, and it is off while Tor is on.'),
         const HelpBlock.p('The same page sets the network mode: see "Network modes".'),
       ],
       id: HelpId.advanced,
@@ -479,7 +493,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         if (phone)
           const HelpBlock.p('**Tor says "Not connected".** Tor could not reach its network. Press Retry under [[Settings › Privacy & network]], or turn Tor off; nothing goes out meanwhile.'),
         if (!phone) ...const [
-          HelpBlock.p('**"Port 3415 is used by another program".** Another program, often another Epic wallet, uses the port for Direct · HTTP payments. Close it, then press Try again on Receive. Epicbox, Direct · Tor and files keep working meanwhile.'),
+          HelpBlock.p('**"Port 3415 is used by another program".** Another program, often another Epic wallet, uses the port for Link Payment · HTTP payments. Close it, then press Try again on Receive. Epicbox, Link Payment · Tor and files keep working meanwhile.'),
           HelpBlock.p('**"Another Epic program is using this folder".** Another Epic wallet or node has the same files open. Close it and try again.'),
         ],
         if (phone)

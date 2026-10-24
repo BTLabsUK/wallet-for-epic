@@ -4,6 +4,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
@@ -17,7 +18,7 @@ import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 
 /// Tor's icon wherever a method or a status needs one: a private connection.
-const IconData torIcon = Icons.private_connectivity;
+const IconData torIcon = EpicGlyphs.tor;
 
 /// Whether Receive's Direct tab and Settings' Tor switch exist: the app has Tor and the
 /// controller has read this wallet's onion. Before that the controller says `off` with no

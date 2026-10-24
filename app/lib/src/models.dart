@@ -1136,6 +1136,38 @@ bool _listEquals<T>(List<T> a, List<T> b) {
   return true;
 }
 
+/// How far the QR texts of a payment scanned so far got. [json] is set once every part is
+/// recovered; it is the file's text, not yet read as a payment.
+class QrSlateProgress {
+  final bool complete;
+
+  /// Parts recovered so far, from the plain parts and the extra ones.
+  final int received;
+
+  /// Parts of the code; 0 when no text was given.
+  final int count;
+  final String? json;
+
+  const QrSlateProgress({
+    required this.complete,
+    required this.received,
+    required this.count,
+    this.json,
+  });
+
+  @override
+  int get hashCode => Object.hash(complete, received, count, json);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is QrSlateProgress &&
+          complete == other.complete &&
+          received == other.received &&
+          count == other.count &&
+          json == other.json;
+}
+
 /// A slate's header, read without touching the wallet.
 class SlateInfo {
   final String slateId;
@@ -1607,6 +1639,21 @@ enum WalletErrorKind {
   /// The other wallet is not online with Tor on, or was not reached in time. The send is
   /// stored and waits with its inputs locked: resend it later or cancel it.
   onionUnreachable,
+
+  /// A scanned text is not a payment QR at all (an address, a link, a number).
+  notQrSlate,
+
+  /// A scanned text is a QR code of another kind of data than a payment.
+  foreignQrCode,
+
+  /// Scanned parts belong to two different payments.
+  mixedQrCodes,
+
+  /// A payment QR that is damaged or from a newer version.
+  invalidQrCode,
+
+  /// A payment QR that holds more than the wallet accepts.
+  qrCodeTooLarge,
   io,
   other,
 }

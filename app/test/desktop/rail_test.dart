@@ -1,4 +1,4 @@
-// The sidebar rail (spec §5, §16): Node, a divider, Epicbox, HTTP, Tor; every row 40 u in
+// The sidebar rail (spec §5, §16): Node, Epicbox, HTTP, Tor with a divider between every two; every row 40 u in
 // every state, so the rail never changes height; the Node row's twelve states; no address,
 // URL or port on a row.
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
@@ -62,7 +62,7 @@ final _fixtures = <String, ServiceStatus?>{
 };
 
 void main() {
-  Future<ProviderContainer> show(WidgetTester tester, ServiceStatus? status, {bool compact = false, bool refresh = true, double textScale = 1}) async {
+  Future<ProviderContainer> show(WidgetTester tester, ServiceStatus? status, {bool compact = false, bool refresh = true, double textScale = 1, double width = 200}) async {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -76,7 +76,7 @@ void main() {
         child: MaterialApp(
           theme: buildDeskTheme(Brightness.dark),
           builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(textScale)), child: child!),
-          home: Scaffold(body: Align(alignment: Alignment.topLeft, child: SizedBox(width: compact ? 72 : 200, child: ServiceRows(compact: compact)))),
+          home: Scaffold(body: Align(alignment: Alignment.topLeft, child: SizedBox(width: compact ? 72 : width, child: ServiceRows(compact: compact)))),
         ),
       ),
     );
@@ -165,7 +165,8 @@ void main() {
       var now = DateTime(2026, 10, 22, 14, 2, 0);
       railClock = () => now;
       addTearDown(() => railClock = DateTime.now);
-      await show(tester, _status(node: ServiceHealth.down));
+      // The test font is twice as wide as the real one: room for the host and the marker whole.
+      await show(tester, _status(node: ServiceHealth.down), width: 260);
       RailItem node() => tester.widget<RailRow>(find.byType(RailRow).first).item;
       expect(node().word, isNot('Not answering'), reason: 'a blip never flashes red');
       expect(node().marker, isNull);

@@ -59,7 +59,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem einen antwortenden Epicbox-Server; eine direkte Adresse (http oder .onion) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.')
         else
-          const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem eingeschalteten Empfang über Epicbox; eine Direkt-Adresse (http oder .onion) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.'),
+          const HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem eingeschalteten Empfang über Epicbox; eine Link-Adresse (http oder .onion) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.'),
       ],
       id: HelpId.send,
     ),
@@ -77,14 +77,26 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.file,
     ),
+    if (phone)
+      const HelpTopic(
+        'start',
+        'Persönlich mit QR-Zahlung zahlen',
+        'Zwei Smartphones nebeneinander zahlen mit einem animierten QR-Code, ohne Verbindung zwischen ihnen.',
+        [
+          HelpBlock.p('Die Zahlung reist als animierter QR-Code, den das andere Smartphone mit der Kamera scannt. Nichts ist verschlüsselt, zeigen Sie den Code also nur der Person, die Sie bezahlen.'),
+          HelpBlock.ol(['**Absender:** wählt unter Senden **QR-Code**, gibt den Betrag ein und tippt auf **QR anzeigen**. Der Code bleibt verborgen, bis Sie ihn zeigen, zählt 3, 2, 1 und verbirgt sich nach 40 Sekunden von selbst.', '**Empfänger:** tippt unter [[Empfangen › QR-Code|Receive › QR Code]] auf **Zahlungs-QR scannen**, nimmt die Zahlung an und zeigt dann die Antwort auf dieselbe Weise.', '**Absender:** tippt auf **Antwort scannen**. Die Wallet sendet die Zahlung, und der Verlauf zeigt den Fortgang.']),
+          HelpBlock.p('Halten Sie den Code im Bild, bis alle Teile gelesen sind: Ring und Zähler zeigen, wie weit es ist. Ein Code, der keine Zahlung ist, wird gemeldet und ignoriert. Auf dem Code-Bildschirm sind Screenshots gesperrt.'),
+        ],
+        id: HelpId.qr,
+      ),
     HelpTopic(
       'start',
       'Zahlungsmethoden und Vorgaben fürs Senden',
-      'Epicbox ist immer an. Direkt und Datei sind Schalter. Senden beginnt mit der Methode, die Sie wählen.',
+      'Epicbox ist immer an. Link-Zahlung und Datei sind Schalter. Senden beginnt mit der Methode, die Sie wählen.',
       [
         const HelpBlock.p('Die Seite Transaktionen unter [[Einstellungen › Transaktionen|Settings › Transactions]] enthält drei Dinge.'),
         HelpBlock.ul([
-          '**Zahlungsmethoden.** Epicbox ist immer an. **Direkt** (an .onion- und Web-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und **Datei** sind Schalter: Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.',
+          '**Zahlungsmethoden.** Epicbox ist immer an. **Link-Zahlung** (an .onion- und Web-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und **Datei** sind Schalter: Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.',
           '**Senden beginnt mit.** Die Methode, mit der der Bildschirm Senden sich öffnet. Auf Senden können Sie trotzdem eine andere wählen.',
           '**Vorgaben fürs Senden.** Welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen nur, solange **Zahlungsoptionen** unter Erweitert an ist.',
         ]),
@@ -99,7 +111,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         [
           HelpBlock.ul([
             '**Epicbox**: etwa 52 Zeichen, beginnend mit **es**, dann **@** und der Server, zum Beispiel **esXXXX…XXXX@epicbox.epiccash.com**. Die Standardmethode; der Empfänger darf offline sein.',
-            '**Direkt**: die eigene Wallet des Empfängers, gerade geöffnet. Entweder eine Webadresse wie **http://host:3415** oder eine Tor-Adresse aus 56 Zeichen, die auf **.onion** endet und über Tor läuft.',
+            '**Link-Zahlung**: die eigene Wallet des Empfängers, gerade geöffnet. Entweder eine Webadresse wie **http://host:3415** oder eine Tor-Adresse aus 56 Zeichen, die auf **.onion** endet und über Tor läuft.',
           ]),
           HelpBlock.p('Senden wählt die Methode anhand der Adresse, die im Feld „An“ eingefügt wird. Wer eine Adresse vorliest, vergleicht die ersten sechs und die letzten sechs Zeichen.'),
         ],
@@ -112,7 +124,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Epic Cash nutzt Mimblewimble. Statt eine Adresse und einen Betrag in die Blockchain zu schreiben, bauen die beiden Wallets jede Transaktion gemeinsam, wie bei einem Handschlag:'),
         HelpBlock.ol(['Die Wallet des Absenders beginnt und sperrt die Outputs, die gesendet werden.', 'Die Wallet des Empfängers fügt ihren Teil hinzu und signiert.', 'Die Wallet des Absenders signiert ebenfalls, schließt die Transaktion ab und sendet sie ins Netzwerk.']),
-        HelpBlock.p('Etwas muss also die Nachrichten zwischen den beiden Wallets übermitteln. Das übernimmt **Epicbox**: Es hält die Nachricht bereit, solange die andere Wallet offline ist, sodass nicht beide gleichzeitig online sein müssen. **Direkt · HTTP** und **Direkt · Tor** gehen direkt zur anderen Wallet, solange sie geöffnet ist. Eine **Transaktionsdatei** ist der manuelle Weg.'),
+        HelpBlock.p('Etwas muss also die Nachrichten zwischen den beiden Wallets übermitteln. Das übernimmt **Epicbox**: Es hält die Nachricht bereit, solange die andere Wallet offline ist, sodass nicht beide gleichzeitig online sein müssen. **Link-Zahlung · HTTP** und **Link-Zahlung · Tor** gehen direkt zur anderen Wallet, solange sie geöffnet ist. Eine **Transaktionsdatei** ist der manuelle Weg.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -276,8 +288,8 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           HelpBlock.ul([
             'Schalten Sie es unter [[Einstellungen › Datenschutz › Tor|Settings › Privacy › Tor]] ein. Die Tor-Zeile in der Seitenleiste zeigt den Zustand.',
             'Solange Tor startet oder nicht verbunden ist, wartet, was über Tor läuft; nichts geht daran vorbei. Wiederholen oder Tor ausschalten.',
-            'Direkte Zahlungen an eine http(s)-Adresse laufen nicht über Tor; Senden weist darauf hin.',
-            'Direkt · HTTP-Empfang ist aus, solange Tor an ist: Zahlungen direkt von einer anderen Wallet kommen an der Direkt · Tor-Adresse an.',
+            'Link-Zahlungen an eine http(s)-Adresse laufen nicht über Tor; Senden weist darauf hin.',
+            'Link-Zahlung · HTTP-Empfang ist aus, solange Tor an ist: Zahlungen direkt von einer anderen Wallet kommen an der Link-Zahlung · Tor-Adresse an.',
             'In manchen Ländern ist Tor blockiert oder nicht erlaubt; dort verbindet es sich nicht.',
             'Mit „Nur Tor“ unter Erweitert bleibt der Schalter an und lässt sich nicht ausschalten.',
           ]),
@@ -324,6 +336,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           if (!phone) '**Protokolle**: die Gruppe Protokolle unter Hilfe, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
         ]),
         HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Im Offline-Modus wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist.'),
+        if (phone) const HelpBlock.p('**Benachrichtigungen** (experimentell) ist der letzte Schalter auf der Seite. Er meldet, wenn eine Zahlung oder eine Rechnung ankommt, während die App geschlossen ist; solange Tor an ist, ist er aus.'),
         const HelpBlock.p('Dieselbe Seite legt den Netzwerkmodus fest: siehe „Netzwerkmodi“.'),
       ],
       id: HelpId.advanced,
@@ -349,7 +362,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**Tor zeigt „Nicht verbunden“.** Tor konnte sein Netzwerk nicht erreichen. Drücken Sie unter [[Einstellungen › Datenschutz & Netzwerk|Settings › Privacy & network]] auf „Wiederholen“ oder schalten Sie Tor aus; in der Zwischenzeit geht nichts hinaus.'),
         if (!phone) ...const [
-          HelpBlock.p('**„Port 3415 wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für Direkt · HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. Epicbox, Direkt · Tor und Dateien funktionieren in der Zwischenzeit weiter.'),
+          HelpBlock.p('**„Port 3415 wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für Link-Zahlung · HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. Epicbox, Link-Zahlung · Tor und Dateien funktionieren in der Zwischenzeit weiter.'),
           HelpBlock.p('**„Ein anderes Epic-Programm nutzt diesen Ordner“.** Eine andere Epic-Wallet oder ein Node hat dieselben Dateien geöffnet. Schließen Sie sie und versuchen Sie es erneut.'),
         ],
         if (phone)

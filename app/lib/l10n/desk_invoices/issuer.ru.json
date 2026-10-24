@@ -5,7 +5,7 @@
   "deskInvIssuerMethod": "Способ",
   "deskInvIssuerEpicbox": "Epicbox",
   "deskInvIssuerFile": "Файл",
-  "deskInvIssuerDirect": "Напрямую",
+  "deskInvIssuerDirect": "Ссылка",
   "deskInvIssuerSoon": "Скоро",
   "deskInvIssuerPayer": "Адрес для счетов плательщика",
   "deskInvIssuerPayerHelp": "Кошелёк плательщика показывает его в разделе «Настройки › Счета».",

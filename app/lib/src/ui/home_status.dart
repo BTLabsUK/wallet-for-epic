@@ -6,6 +6,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
@@ -232,7 +233,7 @@ class StatusIcons extends ConsumerWidget {
         if (directIconShown(tor) && block == NetBlock.none)
           StatusIcon(
             key: directIconKey,
-            icon: Icons.link,
+            icon: EpicGlyphs.link,
             dot: direct.dot,
             label: '${l.receiveTabDirect}, ${direct.word}',
             detail: torFace.text,

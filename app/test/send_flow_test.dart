@@ -255,7 +255,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      expect(find.text('Recipient'), findsOneWidget);
+      expect(find.text('Payment method'), findsOneWidget);
       expect(find.text('1 of 3'), findsOneWidget);
       expect(find.byTooltip('Back'), findsNothing);
 

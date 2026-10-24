@@ -2584,6 +2584,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get slateReading => 'กำลังอ่านไฟล์';
 
   @override
+  String get slateReadingQr => 'กำลังอ่านรายการ';
+
+  @override
   String get slateFileTooLarge => 'ไฟล์นี้ใหญ่เกินกว่าจะเป็นไฟล์ธุรกรรม';
 
   @override
@@ -2691,6 +2694,302 @@ class AppLocalizationsTh extends AppLocalizations {
   String get scanQrBack => 'กลับ';
 
   @override
+  String get qrShowReplyAsQr => 'แสดงคำตอบเป็น QR';
+
+  @override
+  String get qrShowTitlePayment => 'QR ของรายการ';
+
+  @override
+  String get qrShowTitleReply => 'QR ของคำตอบ';
+
+  @override
+  String qrShowSubPayment(String amount) {
+    return '$amount ถึงโทรศัพท์ที่อยู่ข้างคุณ';
+  }
+
+  @override
+  String qrShowSubReply(String amount) {
+    return 'ถึงผู้ส่ง $amount';
+  }
+
+  @override
+  String get qrHiddenTitle => 'ซ่อนไว้จนกว่าคุณจะแสดง';
+
+  @override
+  String get qrHiddenBodyPayment =>
+      'ใครสแกนก่อนจะรับรายการนี้ได้ แสดงให้เฉพาะคนที่คุณจ่ายให้เท่านั้น';
+
+  @override
+  String get qrHiddenBodyReply =>
+      'แสดงให้โทรศัพท์ของผู้ส่ง เฉพาะกระเป๋าของเขาเท่านั้นที่ใช้ได้';
+
+  @override
+  String get qrShow => 'แสดง QR';
+
+  @override
+  String get qrShowAgain => 'แสดงอีกครั้ง';
+
+  @override
+  String get qrHide => 'ซ่อน';
+
+  @override
+  String qrCountdownLabel(int seconds) {
+    return 'แสดงใน $seconds';
+  }
+
+  @override
+  String qrPartOf(int part, int count) {
+    return 'ส่วนที่ $part จาก $count';
+  }
+
+  @override
+  String qrSecondsShort(int seconds) {
+    return '$seconds วิ';
+  }
+
+  @override
+  String qrSecondsLeft(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'เหลืออีก $seconds วินาที',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qrHoldHint => 'ถือกล้องของโทรศัพท์อีกเครื่องให้ตรงกับโค้ดนี้';
+
+  @override
+  String get qrSecureLine => 'หน้าจอนี้ปิดการจับภาพหน้าจอ';
+
+  @override
+  String qrTimedOutTitle(int seconds) {
+    return 'ซ่อนหลัง $seconds วิ';
+  }
+
+  @override
+  String get qrTimedOutBody => 'แสดงอีกครั้งเมื่อโทรศัพท์อีกเครื่องพร้อม';
+
+  @override
+  String qrTimedOutAnnounce(int seconds) {
+    return 'ซ่อนหลัง $seconds วินาที';
+  }
+
+  @override
+  String get qrAwayTitle => 'ซ่อนไว้ขณะที่แอปไม่ได้อยู่หน้าจอ';
+
+  @override
+  String get qrAwayBody => 'โค้ดจะซ่อนทุกครั้งที่แอปออกจากหน้าจอ';
+
+  @override
+  String qrSemanticsPayment(String state) {
+    return 'QR ของรายการ, $state';
+  }
+
+  @override
+  String qrSemanticsReply(String state) {
+    return 'QR ของคำตอบ, $state';
+  }
+
+  @override
+  String get qrStateHidden => 'ซ่อนอยู่';
+
+  @override
+  String get qrStateShowing => 'แสดงอยู่';
+
+  @override
+  String get qrScanPayment => 'สแกน QR ของรายการ';
+
+  @override
+  String get qrScanReply => 'สแกนคำตอบ';
+
+  @override
+  String get qrScanAimPayment => 'หันกล้องไปที่ QR Code บนโทรศัพท์ของเขา';
+
+  @override
+  String get qrScanAimReply => 'หันกล้องไปที่คำตอบบนโทรศัพท์ของเขา';
+
+  @override
+  String get qrScanSteady => 'ถือให้นิ่ง หรือขยับเข้าไปใกล้อีกนิด';
+
+  @override
+  String get qrScanGot => 'อ่านครบแล้ว';
+
+  @override
+  String qrScanCount(int got, int count) {
+    return '$got จาก $count';
+  }
+
+  @override
+  String get qrScanCountLabel => 'ส่วนที่อ่านแล้ว';
+
+  @override
+  String get qrScanNotPayment =>
+      'นี่ไม่ใช่ QR ของรายการ ให้เขาแสดงโค้ดรายการบนโทรศัพท์ของเขา';
+
+  @override
+  String get qrScanNotReply =>
+      'นี่ไม่ใช่ QR ของคำตอบ ให้เขาแสดงคำตอบบนโทรศัพท์ของเขา';
+
+  @override
+  String get qrScanOtherPayment =>
+      'โค้ดนี้เป็นของอีกรายการหนึ่ง กำลังเริ่มใหม่';
+
+  @override
+  String get qrScanTorch => 'ไฟฉาย';
+
+  @override
+  String qrScanZoom(String factor) {
+    return 'ซูม $factor×';
+  }
+
+  @override
+  String get qrScanCameraDenied =>
+      'กระเป๋าไม่ได้รับอนุญาตให้ใช้กล้อง หากต้องการสแกน ให้อนุญาตการเข้าถึงกล้องของแอปนี้ในการตั้งค่าของโทรศัพท์ หรือจะเปิดไฟล์แทนก็ได้';
+
+  @override
+  String get qrScanCameraFailed =>
+      'เปิดกล้องไม่ได้ ลองอีกครั้ง หรือเปิดไฟล์แทน';
+
+  @override
+  String get qrScanOpenSettings => 'เปิดการตั้งค่า';
+
+  @override
+  String get qrScanOpenFileInstead => 'เปิดไฟล์แทน';
+
+  @override
+  String get qrScanAgain => 'สแกนอีกครั้ง';
+
+  @override
+  String get slateWrongPaymentQr =>
+      'คำตอบนี้เป็นของอีกรายการหนึ่ง สแกนคำตอบของการส่งครั้งนี้';
+
+  @override
+  String get slateScannedPaymentTitle => 'รายการที่สแกน';
+
+  @override
+  String get slateScannedReplyTitle => 'คำตอบที่สแกน';
+
+  @override
+  String get slateIncomingSendHintQr => 'รับรายการ แล้วแสดงคำตอบให้ผู้ส่ง';
+
+  @override
+  String get slateAcceptedHeadlineQr => 'รับแล้ว แสดงคำตอบให้ผู้ส่ง';
+
+  @override
+  String get methodQr => 'ชำระด้วย QR';
+
+  @override
+  String get methodQrChip => 'QR Code';
+
+  @override
+  String get receiveTabQr => 'QR Code';
+
+  @override
+  String get methodArtCaptionQr => 'ต่อหน้า';
+
+  @override
+  String get methodArtLabelQr =>
+      'ชำระด้วย QR: โค้ดส่งจากโทรศัพท์เครื่องหนึ่งไปยังอีกเครื่องที่อยู่ข้างกัน';
+
+  @override
+  String get methodSendQrTitle => 'สำหรับโทรศัพท์ที่อยู่ข้างคุณ';
+
+  @override
+  String get methodSendQrLine =>
+      'แสดงโค้ดบนหน้าจอนี้ แล้วใช้กล้องสแกนคำตอบของเขา';
+
+  @override
+  String get methodReceiveQrTitle => 'สแกนหน้าจอของเขา';
+
+  @override
+  String get methodReceiveQrLine =>
+      'รับรายการ แล้วแสดงคำตอบของคุณด้วยวิธีเดียวกัน';
+
+  @override
+  String get receiveQrTitle => 'อยู่ข้างผู้ส่งไหม?';
+
+  @override
+  String get receiveQrBody =>
+      'สแกนโค้ดบนโทรศัพท์ของผู้ส่ง รับรายการ แล้วแสดงคำตอบของคุณ';
+
+  @override
+  String get txQrLine => 'จ่ายหรือรับเงินเมื่ออยู่ข้างกัน ด้วยโค้ดบนหน้าจอ';
+
+  @override
+  String get txQrHint =>
+      'ชำระด้วย QR แสดงรายการเป็นโค้ดเคลื่อนไหวที่โทรศัพท์อีกเครื่องสแกนด้วยกล้อง และรับคำตอบด้วยวิธีเดียวกัน ใช้ได้เฉพาะโทรศัพท์ที่อยู่ข้างกัน ไม่ต้องมีการเชื่อมต่อระหว่างกระเป๋าทั้งสอง และโค้ดจะซ่อนเองหลัง 40 วินาที เพิ่ม ชำระด้วย QR ในส่งและรับ';
+
+  @override
+  String get advTransactionFiles => 'ไฟล์ธุรกรรม';
+
+  @override
+  String get advTransactionFilesHint =>
+      'เพิ่มสวิตช์ไฟล์ใน ตั้งค่า › ธุรกรรม: จ่ายหรือรับเงินด้วยไฟล์ที่คุณส่งต่อเอง';
+
+  @override
+  String get sendQrTitle => 'ชำระด้วย QR';
+
+  @override
+  String get sendMakeQr => 'สร้าง QR ของรายการ';
+
+  @override
+  String sendQrPinReason(String amount) {
+    return 'ใส่ PIN เพื่อสร้าง QR ของรายการ $amount';
+  }
+
+  @override
+  String get sendQrMade => 'สร้างรายการแล้ว';
+
+  @override
+  String get sendQrHint => 'แสดงโค้ดให้โทรศัพท์ของผู้รับ แล้วสแกนคำตอบของเขา';
+
+  @override
+  String get sendCancelRuleQr => 'ยกเลิกได้จนกว่าคุณจะสแกนคำตอบของเขา';
+
+  @override
+  String get qrStatusSendHidden => 'แสดงสิ่งนี้ให้ผู้รับ';
+
+  @override
+  String get qrStatusSendShowing => 'รอผู้รับสแกน แล้วสแกนคำตอบของเขา';
+
+  @override
+  String get qrStatusHiddenAgain => 'ซ่อนอยู่ แสดงอีกครั้งถ้าเขาสแกนไม่ทัน';
+
+  @override
+  String get qrStatusReplyHidden => 'แสดงสิ่งนี้ให้ผู้ส่ง';
+
+  @override
+  String get qrStatusReplyShowing => 'รอผู้ส่งสแกน';
+
+  @override
+  String get qrStatusReceivedWaiting =>
+      'ได้รับรายการแล้ว รอผู้ส่งสแกนและส่งเข้าเครือข่าย';
+
+  @override
+  String qrStatusPosted(int got, int target) {
+    return 'ส่งแล้ว กำลังยืนยัน $got/$target';
+  }
+
+  @override
+  String get qrStatusReceived => 'ได้รับแล้ว';
+
+  @override
+  String qrScanProgress(int got, int count) {
+    return 'สแกนแล้ว $got จาก $count ให้โค้ดอยู่ในกรอบ';
+  }
+
+  @override
+  String get qrScanReplyScanned => 'สแกนคำตอบแล้ว';
+
+  @override
+  String get qrScanPosting => 'สแกนคำตอบแล้ว กำลังส่ง…';
+
+  @override
+  String get qrScanPosted => 'ส่งแล้ว';
+
+  @override
   String get contactsTitle => 'ผู้ติดต่อ';
 
   @override
@@ -2765,7 +3064,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ส่งตรง (https://…) หรือที่อยู่ onion (….onion)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)';
 
   @override
   String get settingsTitle => 'การตั้งค่า';
@@ -3348,7 +3647,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get demoPinUnlockTitle => 'กำลังเปิดกระเป๋าทดลอง';
 
   @override
-  String get sendStepRecipient => 'ผู้รับ';
+  String get sendStepMethod => 'วิธีชำระเงิน';
 
   @override
   String get sendStepAmount => 'จำนวน';
@@ -3576,6 +3875,44 @@ class AppLocalizationsTh extends AppLocalizations {
   String get handshakePrevious => 'ขั้นตอนก่อนหน้า';
 
   @override
+  String get handshakeLink1 =>
+      'กระเป๋าของคุณส่งรายการตรงไปยังกระเป๋าของอีกฝ่ายผ่านอินเทอร์เน็ตหรือ Tor เหรียญของคุณถูกพักไว้';
+
+  @override
+  String get handshakeLink2 =>
+      'กระเป๋าของอีกฝ่ายเพิ่มส่วนของตน ลงนาม และตอบกลับในการเชื่อมต่อเดียวกัน';
+
+  @override
+  String get handshakeQr1 => 'คุณแสดงโค้ดของคุณ';
+
+  @override
+  String get handshakeQr2 => 'อีกฝ่ายสแกนด้วยกระเป๋าของตน';
+
+  @override
+  String get handshakeQr3 => 'กระเป๋าของอีกฝ่ายแสดงโค้ดตอบกลับ';
+
+  @override
+  String get handshakeQr4 => 'คุณสแกนโค้ดนั้น';
+
+  @override
+  String get handshakeQr5 => 'กระเป๋าของคุณส่งรายการไปยังเครือข่าย';
+
+  @override
+  String get handshakeQrR1 => 'อีกฝ่ายแสดงโค้ดของตน';
+
+  @override
+  String get handshakeQrR2 => 'คุณสแกนด้วยกระเป๋าของคุณ';
+
+  @override
+  String get handshakeQrR3 => 'กระเป๋าของคุณแสดงโค้ดตอบกลับ';
+
+  @override
+  String get handshakeQrR4 => 'อีกฝ่ายสแกนโค้ดนั้น';
+
+  @override
+  String get handshakeQrR5 => 'กระเป๋าของอีกฝ่ายส่งรายการไปยังเครือข่าย';
+
+  @override
   String get handshakeNext => 'ขั้นตอนถัดไป';
 
   @override
@@ -3694,7 +4031,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiveTabFile => 'ไฟล์';
 
   @override
-  String get receiveTorAddressLabel => 'ที่อยู่ Tor';
+  String get receiveTorAddressLabel => 'ลิงก์ของคุณ';
 
   @override
   String get receiveTorQrLabel => 'QR Code ของที่อยู่ Tor';
@@ -3846,7 +4183,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ ไฟล์สร้างไฟล์ไว้ส่งต่อ วิธีอื่น: การตั้งค่า › ธุรกรรม จะมีการตรวจสอบก่อนเสมอ';
+      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ QR แสดงโค้ดให้โทรศัพท์ที่อยู่ข้างคุณ วิธีอื่น: การตั้งค่า › ธุรกรรม จะมีการตรวจสอบก่อนเสมอ';
 
   @override
   String get tourPhoneReceiveTitle => 'รับ';
@@ -4446,7 +4783,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get netStatusTorOpenHint => 'เปิดการตั้งค่าความเป็นส่วนตัว';
 
   @override
-  String get netStatusDirectOpenHint => 'เปิดที่อยู่สำหรับรับแบบส่งตรง';
+  String get netStatusDirectOpenHint => 'เปิดที่อยู่สำหรับการรับผ่านลิงก์';
 
   @override
   String get netStatusOpenHint => 'แสดงเซิร์ฟเวอร์';
@@ -4630,10 +4967,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => 'ส่งตรง · HTTP';
+  String get methodDirectHttp => 'จ่ายผ่านลิงก์ · HTTP';
 
   @override
-  String get methodDirectTor => 'ส่งตรง · Tor';
+  String get methodDirectTor => 'จ่ายผ่านลิงก์ · Tor';
 
   @override
   String get methodFile => 'ไฟล์';
@@ -5160,7 +5497,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvIssuerFile => 'ไฟล์';
 
   @override
-  String get deskInvIssuerDirect => 'ส่งตรง';
+  String get deskInvIssuerDirect => 'ลิงก์';
 
   @override
   String get deskInvIssuerSoon => 'เร็วๆ นี้';
@@ -5911,7 +6248,10 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get methodDirect => 'ส่งตรง';
+  String get methodDirect => 'ลิงก์';
+
+  @override
+  String get methodLinkPayment => 'จ่ายผ่านลิงก์';
 
   @override
   String get methodDirectShape => 'http://host:3415 หรือ xxxx….onion';
@@ -5922,7 +6262,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get methodArtLabelDirect =>
-      'ส่งตรง: รายการจะไปถึงกระเป๋าของผู้รับโดยตรง ซึ่งต้องเปิดอยู่';
+      'จ่ายผ่านลิงก์: รายการจะไปถึงกระเป๋าของผู้รับโดยตรง ซึ่งต้องเปิดอยู่';
 
   @override
   String get methodReceiveEpicboxShort => 'ใช้ได้แม้กระเป๋าปิดอยู่';
@@ -5939,15 +6279,15 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get sendSwitchedDirect => 'ที่อยู่ส่งตรง';
+  String get sendSwitchedDirect => 'ที่อยู่ลิงก์';
 
   @override
   String get sendSwitchedDirectAnnounce =>
-      'ที่อยู่ส่งตรง ตั้งวิธีส่งเป็น ส่งตรง แล้ว';
+      'ที่อยู่ลิงก์ ตั้งวิธีส่งเป็น ลิงก์ แล้ว';
 
   @override
   String get sendDirectAddressShape =>
-      'ที่อยู่ส่งตรงขึ้นต้นด้วย http:// หรือ https:// หรือลงท้ายด้วย .onion';
+      'ที่อยู่ลิงก์ขึ้นต้นด้วย http:// หรือ https:// หรือลงท้ายด้วย .onion';
 
   @override
   String get torNotOverTor => 'ไม่ผ่าน Tor';
@@ -5984,10 +6324,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor ซึ่งซ่อนที่อยู่อินเทอร์เน็ตของกระเป๋า แต่ละการเชื่อมต่อผ่านเซิร์ฟเวอร์หลายจุดที่อาสาสมัครดูแล จึงไม่มีเซิร์ฟเวอร์ใดรู้ว่ากระเป๋าอยู่ที่ไหน การแจ้งเตือนจะปิดขณะเปิด Tor';
 
   @override
-  String get receiveTabDirect => 'ส่งตรง';
+  String get receiveTabDirect => 'ลิงก์';
 
   @override
-  String get receiveDirectNeedsTor => 'การรับแบบส่งตรงต้องใช้ Tor';
+  String get receiveDirectNeedsTor => 'การรับผ่านลิงก์ต้องใช้ Tor';
 
   @override
   String get receiveDirectMeanwhile => 'ระหว่างนี้ผู้ส่งใช้ที่อยู่ Epicbox';
@@ -6034,7 +6374,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pushNoticeOff => 'ปิดการแจ้งเตือนแล้ว';
 
   @override
-  String get pushNoticeAvailable => 'เปิดการแจ้งเตือนได้ในการตั้งค่า';
+  String get pushNoticeAvailable => 'เปิดการแจ้งเตือนได้ในการตั้งค่า › ขั้นสูง';
 
   @override
   String get torWayOver => 'ผ่าน Tor';
@@ -6915,7 +7255,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เวลาอ่านให้กัน ให้เทียบ 6 ตัวแรกและ 6 ตัวสุดท้าย';
 
   @override
-  String get deskRecvHttpAddress => 'ส่งตรง · ที่อยู่ HTTP';
+  String get deskRecvHttpAddress => 'ลิงก์ · ที่อยู่ HTTP';
 
   @override
   String get deskRecvCopyHttp => 'คัดลอกที่อยู่ HTTP';
@@ -6938,14 +7278,14 @@ class AppLocalizationsTh extends AppLocalizations {
       'เปิด Tor ที่ การตั้งค่า › ความเป็นส่วนตัว เพื่อใช้ที่อยู่ Tor แทน';
 
   @override
-  String get deskRecvDirectTor => 'ส่งตรง · ที่อยู่ Tor';
+  String get deskRecvDirectTor => 'ลิงก์ · ที่อยู่ Tor';
 
   @override
   String get deskRecvTorIntro =>
       'ตรงจากกระเป๋าเงินอื่นผ่าน Tor ขณะที่กระเป๋าเงินนี้เปิดอยู่ ตั้งค่า Tor ได้ที่ การตั้งค่า › ความเป็นส่วนตัว';
 
   @override
-  String get deskRecvTorAddress => 'ส่งตรง · ที่อยู่ Tor';
+  String get deskRecvTorAddress => 'ลิงก์ · ที่อยู่ Tor';
 
   @override
   String get deskRecvCopyTor => 'คัดลอกที่อยู่ Tor';
@@ -7198,7 +7538,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendErrEpicbox => 'ไม่ใช่ที่อยู่ Epicbox ที่ถูกต้อง';
 
   @override
-  String get deskSendErrNotDirect => 'ไม่ใช่ที่อยู่แบบส่งตรง';
+  String get deskSendErrNotDirect => 'ไม่ใช่ที่อยู่ลิงก์';
 
   @override
   String get deskSendErrOnion => 'ไม่ใช่ที่อยู่ onion ที่ถูกต้อง';
@@ -7308,7 +7648,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendReviewAgain => 'ตรวจสอบอีกครั้ง';
 
   @override
-  String get deskSendMethodDirect => 'ส่งตรง';
+  String get deskSendMethodDirect => 'ลิงก์';
 
   @override
   String get deskSendMethodFile => 'ไฟล์';
@@ -7346,7 +7686,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendHttpClearnet =>
-      'การส่งตรงไปที่อยู่ http(s) ผ่านอินเทอร์เน็ตปกติ ไม่ผ่าน Tor';
+      'การส่งผ่านลิงก์ไปที่อยู่ http(s) ผ่านอินเทอร์เน็ตปกติ ไม่ผ่าน Tor';
 
   @override
   String get deskSendClear => 'ล้าง';
@@ -7464,7 +7804,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ส่งไฟล์ให้ผู้รับ รับไฟล์ตอบกลับคืนมา แล้วทำรายการให้เสร็จที่นี่';
 
   @override
-  String get deskSendTagDirect => 'ส่งตรง';
+  String get deskSendTagDirect => 'ลิงก์';
 
   @override
   String get deskSendTagFile => 'ไฟล์';
@@ -7474,7 +7814,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendSwitchedDirect =>
-      'ที่อยู่แบบส่งตรง ตั้งวิธีส่งเป็น ส่งตรง แล้ว';
+      'ที่อยู่ลิงก์ ตั้งวิธีส่งเป็น ลิงก์ แล้ว';
 
   @override
   String get deskSendSwitchedFile => 'ที่อยู่แบบไฟล์ ตั้งวิธีส่งเป็น ไฟล์ แล้ว';
@@ -7507,11 +7847,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'ส่งตรง · HTTP (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
+      'จ่ายผ่านลิงก์ · HTTP (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
 
   @override
   String get deskSendViaTor =>
-      'ส่งตรง · Tor (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
+      'จ่ายผ่านลิงก์ · Tor (กระเป๋าเงินของผู้รับต้องเปิดอยู่)';
 
   @override
   String get deskSendViaFile => 'ไฟล์ธุรกรรม';
@@ -7990,10 +8330,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskConAddrEpicbox => 'ที่อยู่ Epicbox';
 
   @override
-  String get deskConAddrTor => 'ส่งตรง · ที่อยู่ Tor';
+  String get deskConAddrTor => 'ลิงก์ · ที่อยู่ Tor';
 
   @override
-  String get deskConAddrHttp => 'ส่งตรง · ที่อยู่ HTTP';
+  String get deskConAddrHttp => 'ลิงก์ · ที่อยู่ HTTP';
 
   @override
   String get deskConNote => 'บันทึก';
@@ -8024,7 +8364,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ส่งตรง (https://…) หรือที่อยู่ onion (….onion)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)';
 
   @override
   String get deskConAddPicture => 'เพิ่มรูป';
@@ -9983,7 +10323,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'เปิดการรับ: ส่งตรง · HTTP';
+  String get deskRailOpenHttp => 'เปิดการรับ: จ่ายผ่านลิงก์ · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'ไม่มีในรุ่นนี้';
@@ -10261,11 +10601,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'ส่งตรง · HTTP: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ซึ่งต้องเปิดอยู่';
+      'จ่ายผ่านลิงก์ · HTTP: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ซึ่งต้องเปิดอยู่';
 
   @override
   String get deskKitHeroLabelTor =>
-      'ส่งตรง · Tor: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ผ่านเครือข่าย Tor';
+      'จ่ายผ่านลิงก์ · Tor: รายการไปตรงถึงกระเป๋าเงินของผู้รับ ผ่านเครือข่าย Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -12305,7 +12645,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที';
 
   @override
-  String get deskSetRecvHttpTitle => 'ส่งตรง · HTTP: การรับ';
+  String get deskSetRecvHttpTitle => 'จ่ายผ่านลิงก์ · HTTP: การรับ';
 
   @override
   String get deskSetRecvHttpText =>
@@ -12316,7 +12656,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetRecvHttpOffText =>
-      'รายการแบบส่งตรงจะเข้าที่ที่อยู่ Tor ของกระเป๋าเงินนี้แทน';
+      'รายการผ่านลิงก์จะเข้าที่ที่อยู่ Tor ของกระเป๋าเงินนี้แทน';
 
   @override
   String get deskSetRecvPrivacySettings => 'การตั้งค่าความเป็นส่วนตัว';
@@ -13452,6 +13792,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskUpdUnfinished => 'อัปเดตไม่เสร็จ ลองอีกครั้ง';
 
   @override
+  String get advExperimental => 'ทดลอง';
+
+  @override
   String get advTitle => 'ขั้นสูง';
 
   @override
@@ -13533,7 +13876,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'ออฟไลน์จะหยุด Epicbox, Tor, การตรวจสถานะ และการแจ้งเตือน ถ้ามีโหนดในเครือข่ายในพื้นที่ของคุณ ตรวจยอดใหม่ ไฟล์ และการส่งตรงไปที่อยู่ในพื้นที่ยังใช้ได้ เพียร์ของโหนดเป็นการตั้งค่าของตัวโหนดเอง';
+      'ออฟไลน์จะหยุด Epicbox, Tor, การตรวจสถานะ และการแจ้งเตือน ถ้ามีโหนดในเครือข่ายในพื้นที่ของคุณ ตรวจยอดใหม่ ไฟล์ และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ยังใช้ได้ เพียร์ของโหนดเป็นการตั้งค่าของตัวโหนดเอง';
 
   @override
   String get advReset => 'ซ่อนทั้งหมดอีกครั้ง';
@@ -13614,7 +13957,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'วิธีที่กระเป๋าเงินเชื่อมต่อเครือข่าย มาตรฐานเชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัว Tor เท่านั้นไม่เชื่อมต่อตรงเด็ดขาด ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์และบอกที่แถบด้านข้าง ออฟไลน์ใช้เฉพาะคอมพิวเตอร์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ ถ้ามีโหนดที่นี่หรือในเครือข่ายของคุณ ยังส่งไปที่อยู่ในพื้นที่ รับผ่านส่งตรง และใช้ไฟล์ได้ โหนดในตัวทำงานต่อไป และเพียร์ของมันเป็นการตั้งค่าของตัวโหนดเอง';
+      'วิธีที่กระเป๋าเงินเชื่อมต่อเครือข่าย มาตรฐานเชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัว Tor เท่านั้นไม่เชื่อมต่อตรงเด็ดขาด ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์และบอกที่แถบด้านข้าง ออฟไลน์ใช้เฉพาะคอมพิวเตอร์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ ถ้ามีโหนดที่นี่หรือในเครือข่ายของคุณ ยังส่งไปที่อยู่ในพื้นที่ รับผ่านลิงก์ และใช้ไฟล์ได้ โหนดในตัวทำงานต่อไป และเพียร์ของมันเป็นการตั้งค่าของตัวโหนดเอง';
 
   @override
   String get deskSetAdvModeStandard => 'มาตรฐาน';
@@ -13643,7 +13986,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor และการตรวจสถานะหยุดชั่วคราว ถ้ามีโหนดบนคอมพิวเตอร์เครื่องนี้หรือในเครือข่ายของคุณ ตรวจยอดใหม่ ไฟล์ และส่งตรงไปที่อยู่ในพื้นที่ยังใช้ได้';
+      'Epicbox, Tor และการตรวจสถานะหยุดชั่วคราว ถ้ามีโหนดบนคอมพิวเตอร์เครื่องนี้หรือในเครือข่ายของคุณ ตรวจยอดใหม่ ไฟล์ และลิงก์ไปที่อยู่ในพื้นที่ยังใช้ได้';
 
   @override
   String get deskSetAdvNotInBuild => 'ไม่มีในรุ่นนี้';
@@ -13923,7 +14266,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDirectHint =>
-      'ส่งตรงส่งไปยังกระเป๋าเงินอีกฝั่งโดยตรงที่ที่อยู่ onion หรือเว็บ และให้โทรศัพท์เครื่องนี้มีที่อยู่ Tor สำหรับรับเงิน กระเป๋าเงินอีกฝั่งต้องเปิดอยู่ และเครื่องนี้ก็เช่นกัน ต้องใช้ Tor เพิ่มส่งตรงใน ส่ง และ รับ';
+      'ลิงก์ส่งไปยังกระเป๋าเงินอีกฝั่งโดยตรงที่ที่อยู่ onion หรือเว็บ และให้โทรศัพท์เครื่องนี้มีที่อยู่ Tor สำหรับรับเงิน กระเป๋าเงินอีกฝั่งต้องเปิดอยู่ และเครื่องนี้ก็เช่นกัน ต้องใช้ Tor เพิ่มลิงก์ใน ส่ง และ รับ';
 
   @override
   String get txFileLine => 'จ่ายหรือรับเงินด้วยไฟล์ที่คุณส่งต่อเอง';
@@ -14015,7 +14358,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetTxDirectHint =>
-      'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงิน ผ่าน HTTP หรือ Tor โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ เพิ่มส่งตรงใน ส่ง และเพิ่มที่อยู่ของมันใน รับ';
+      'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงิน ผ่าน HTTP หรือ Tor โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ เพิ่มลิงก์ใน ส่ง และเพิ่มที่อยู่ของมันใน รับ';
 
   @override
   String get deskSetTxFileHint =>
@@ -14030,4 +14373,7 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetTxStartHint =>
       'วิธีที่หน้า ส่ง เปิดขึ้นมา สำหรับการจ่ายครั้งเดียวยังเปลี่ยนได้ที่หน้า ส่ง';
+
+  @override
+  String get deskSendMethodHeader => 'วิธีชำระเงิน';
 }

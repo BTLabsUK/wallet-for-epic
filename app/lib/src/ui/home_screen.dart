@@ -409,6 +409,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ref.read(shellTabProvider) == ShellTab.send) {
       return;
     }
+    // The scanned payment's own screen says it is accepted; the notice would cover that.
+    if (event.kind == ListenerEventKind.received &&
+        qrPaymentScreensOpen > 0) {
+      return;
+    }
     final contacts = ref.read(contactsProvider).value ?? const <Contact>[];
     final text = paymentNotice(
       context.l10n,

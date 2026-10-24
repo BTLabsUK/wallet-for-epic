@@ -2798,6 +2798,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get slateReading => 'Чтение файла';
 
   @override
+  String get slateReadingQr => 'Чтение платежа';
+
+  @override
   String get slateFileTooLarge =>
       'Этот файл слишком большой для файла транзакции.';
 
@@ -2910,6 +2913,312 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scanQrBack => 'Назад';
 
   @override
+  String get qrShowReplyAsQr => 'Показать ответ как QR';
+
+  @override
+  String get qrShowTitlePayment => 'QR платежа';
+
+  @override
+  String get qrShowTitleReply => 'QR ответа';
+
+  @override
+  String qrShowSubPayment(String amount) {
+    return '$amount на телефон рядом с вами';
+  }
+
+  @override
+  String qrShowSubReply(String amount) {
+    return 'Отправителю $amount';
+  }
+
+  @override
+  String get qrHiddenTitle => 'Скрыт, пока вы его не покажете';
+
+  @override
+  String get qrHiddenBodyPayment =>
+      'Тот, кто отсканирует его первым, сможет принять этот платёж. Показывайте его только тому, кому платите.';
+
+  @override
+  String get qrHiddenBodyReply =>
+      'Покажите его телефону отправителя. Использовать его сможет только его кошелёк.';
+
+  @override
+  String get qrShow => 'Показать QR';
+
+  @override
+  String get qrShowAgain => 'Показать снова';
+
+  @override
+  String get qrHide => 'Скрыть';
+
+  @override
+  String qrCountdownLabel(int seconds) {
+    return 'Показ через $seconds';
+  }
+
+  @override
+  String qrPartOf(int part, int count) {
+    return 'Часть $part из $count';
+  }
+
+  @override
+  String qrSecondsShort(int seconds) {
+    return '$seconds с';
+  }
+
+  @override
+  String qrSecondsLeft(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'Осталось $seconds секунды',
+      many: 'Осталось $seconds секунд',
+      few: 'Осталось $seconds секунды',
+      one: 'Осталась 1 секунда',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qrHoldHint => 'Поднесите камеру другого телефона к этому коду.';
+
+  @override
+  String get qrSecureLine => 'Скриншоты на этом экране отключены';
+
+  @override
+  String qrTimedOutTitle(int seconds) {
+    return 'Скрыт через $seconds с';
+  }
+
+  @override
+  String get qrTimedOutBody =>
+      'Покажите его снова, когда другой телефон будет готов.';
+
+  @override
+  String qrTimedOutAnnounce(int seconds) {
+    return 'Скрыт через $seconds секунд';
+  }
+
+  @override
+  String get qrAwayTitle => 'Скрыт, пока приложение было свёрнуто';
+
+  @override
+  String get qrAwayBody => 'Код скрывается, когда приложение уходит с экрана.';
+
+  @override
+  String qrSemanticsPayment(String state) {
+    return 'QR-код платежа, $state';
+  }
+
+  @override
+  String qrSemanticsReply(String state) {
+    return 'QR-код ответа, $state';
+  }
+
+  @override
+  String get qrStateHidden => 'скрыт';
+
+  @override
+  String get qrStateShowing => 'виден';
+
+  @override
+  String get qrScanPayment => 'Сканировать QR платежа';
+
+  @override
+  String get qrScanReply => 'Сканировать ответ';
+
+  @override
+  String get qrScanAimPayment => 'Наведите камеру на QR-код на их телефоне.';
+
+  @override
+  String get qrScanAimReply => 'Наведите камеру на ответ на их телефоне.';
+
+  @override
+  String get qrScanSteady => 'Держите ровнее или подойдите немного ближе.';
+
+  @override
+  String get qrScanGot => 'Готово';
+
+  @override
+  String qrScanCount(int got, int count) {
+    return '$got из $count';
+  }
+
+  @override
+  String get qrScanCountLabel => 'Прочитанные части';
+
+  @override
+  String get qrScanNotPayment =>
+      'Это не QR платежа. Попросите их показать код платежа на своём телефоне.';
+
+  @override
+  String get qrScanNotReply =>
+      'Это не QR ответа. Попросите их показать ответ на своём телефоне.';
+
+  @override
+  String get qrScanOtherPayment =>
+      'Этот код относится к другому платежу. Начинаем сначала.';
+
+  @override
+  String get qrScanTorch => 'Фонарик';
+
+  @override
+  String qrScanZoom(String factor) {
+    return 'Масштаб $factor×';
+  }
+
+  @override
+  String get qrScanCameraDenied =>
+      'У кошелька нет доступа к камере. Чтобы сканировать, разрешите этому приложению доступ к камере в настройках телефона. Можно также открыть файл.';
+
+  @override
+  String get qrScanCameraFailed =>
+      'Не удалось запустить камеру. Попробуйте ещё раз или откройте файл.';
+
+  @override
+  String get qrScanOpenSettings => 'Открыть настройки';
+
+  @override
+  String get qrScanOpenFileInstead => 'Открыть файл вместо этого';
+
+  @override
+  String get qrScanAgain => 'Сканировать снова';
+
+  @override
+  String get slateWrongPaymentQr =>
+      'Этот ответ относится к другому платежу. Отсканируйте ответ для этой отправки.';
+
+  @override
+  String get slateScannedPaymentTitle => 'Отсканированный платёж';
+
+  @override
+  String get slateScannedReplyTitle => 'Отсканированный ответ';
+
+  @override
+  String get slateIncomingSendHintQr =>
+      'Примите его, затем покажите ответ отправителю.';
+
+  @override
+  String get slateAcceptedHeadlineQr => 'Принято. Покажите ответ отправителю.';
+
+  @override
+  String get methodQr => 'Оплата по QR';
+
+  @override
+  String get methodQrChip => 'QR-код';
+
+  @override
+  String get receiveTabQr => 'QR-код';
+
+  @override
+  String get methodArtCaptionQr => 'Лично';
+
+  @override
+  String get methodArtLabelQr =>
+      'Оплата по QR: код передаётся с одного телефона на другой, стоящий рядом';
+
+  @override
+  String get methodSendQrTitle => 'Для телефона рядом с вами.';
+
+  @override
+  String get methodSendQrLine =>
+      'Покажите код на этом экране, затем отсканируйте их ответ камерой.';
+
+  @override
+  String get methodReceiveQrTitle => 'Отсканируйте их экран.';
+
+  @override
+  String get methodReceiveQrLine =>
+      'Примите платёж, затем покажите свой ответ так же.';
+
+  @override
+  String get receiveQrTitle => 'Рядом с отправителем?';
+
+  @override
+  String get receiveQrBody =>
+      'Отсканируйте код на телефоне отправителя, примите платёж и покажите свой ответ.';
+
+  @override
+  String get txQrLine =>
+      'Платите или получайте платёж рядом друг с другом, по коду на экране.';
+
+  @override
+  String get txQrHint =>
+      'Оплата по QR показывает платёж как анимированный код, который другой телефон сканирует камерой, а ответ принимает так же. Работает только между телефонами рядом, не требует связи между двумя кошельками, а код сам скрывается через 40 секунд. Добавляет «Оплата по QR» в «Отправить» и «Получить».';
+
+  @override
+  String get advTransactionFiles => 'Файлы транзакций';
+
+  @override
+  String get advTransactionFilesHint =>
+      'Добавляет переключатель «Файл» в Настройки › Транзакции: платите или получайте платежи файлом, который вы передаёте сами.';
+
+  @override
+  String get sendQrTitle => 'Оплата по QR';
+
+  @override
+  String get sendMakeQr => 'Создать QR платежа';
+
+  @override
+  String sendQrPinReason(String amount) {
+    return 'Введите PIN, чтобы создать QR платежа на $amount.';
+  }
+
+  @override
+  String get sendQrMade => 'Платёж создан';
+
+  @override
+  String get sendQrHint =>
+      'Покажите код телефону получателя, затем отсканируйте его ответ.';
+
+  @override
+  String get sendCancelRuleQr =>
+      'Можно отменить, пока вы не отсканировали ответ.';
+
+  @override
+  String get qrStatusSendHidden => 'Покажите это получателю.';
+
+  @override
+  String get qrStatusSendShowing =>
+      'Ждём, пока получатель отсканирует. Затем отсканируйте его ответ.';
+
+  @override
+  String get qrStatusHiddenAgain =>
+      'Скрыт. Покажите снова, если они не успели отсканировать.';
+
+  @override
+  String get qrStatusReplyHidden => 'Покажите это отправителю.';
+
+  @override
+  String get qrStatusReplyShowing => 'Ждём, пока отправитель отсканирует.';
+
+  @override
+  String get qrStatusReceivedWaiting =>
+      'Платёж получен. Ждём, пока отправитель отсканирует и отправит его.';
+
+  @override
+  String qrStatusPosted(int got, int target) {
+    return 'Отправлено. Подтверждение $got/$target';
+  }
+
+  @override
+  String get qrStatusReceived => 'Получено.';
+
+  @override
+  String qrScanProgress(int got, int count) {
+    return 'Отсканировано $got из $count. Держите код в кадре.';
+  }
+
+  @override
+  String get qrScanReplyScanned => 'Ответ отсканирован.';
+
+  @override
+  String get qrScanPosting => 'Ответ отсканирован. Отправляем…';
+
+  @override
+  String get qrScanPosted => 'Отправлено.';
+
+  @override
   String get contactsTitle => 'Контакты';
 
   @override
@@ -2984,7 +3293,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес для прямой отправки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес ссылки (https://…) или onion-адрес (….onion).';
 
   @override
   String get settingsTitle => 'Настройки';
@@ -3576,7 +3885,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demoPinUnlockTitle => 'Открываем ваш демо-кошелёк';
 
   @override
-  String get sendStepRecipient => 'Получатель';
+  String get sendStepMethod => 'Способ оплаты';
 
   @override
   String get sendStepAmount => 'Сумма';
@@ -3806,6 +4115,44 @@ class AppLocalizationsRu extends AppLocalizations {
   String get handshakePrevious => 'Предыдущий шаг';
 
   @override
+  String get handshakeLink1 =>
+      'Ваш кошелёк отправляет платёж прямо их кошельку, через интернет или Tor. Ваши монеты блокируются.';
+
+  @override
+  String get handshakeLink2 =>
+      'Их кошелёк добавляет свою часть, подписывает и отвечает по тому же соединению.';
+
+  @override
+  String get handshakeQr1 => 'Вы показываете свой код.';
+
+  @override
+  String get handshakeQr2 => 'Они сканируют его своим кошельком.';
+
+  @override
+  String get handshakeQr3 => 'Их кошелёк показывает код ответа.';
+
+  @override
+  String get handshakeQr4 => 'Вы сканируете его.';
+
+  @override
+  String get handshakeQr5 => 'Ваш кошелёк отправляет платёж в сеть.';
+
+  @override
+  String get handshakeQrR1 => 'Они показывают свой код.';
+
+  @override
+  String get handshakeQrR2 => 'Вы сканируете его своим кошельком.';
+
+  @override
+  String get handshakeQrR3 => 'Ваш кошелёк показывает код ответа.';
+
+  @override
+  String get handshakeQrR4 => 'Они сканируют его.';
+
+  @override
+  String get handshakeQrR5 => 'Их кошелёк отправляет платёж в сеть.';
+
+  @override
   String get handshakeNext => 'Следующий шаг';
 
   @override
@@ -3931,7 +4278,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveTabFile => 'Файл';
 
   @override
-  String get receiveTorAddressLabel => 'Адрес Tor';
+  String get receiveTorAddressLabel => 'Ваша ссылка';
 
   @override
   String get receiveTorQrLabel => 'QR-код вашего адреса Tor';
@@ -4089,7 +4436,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; «Файл» создаёт файл, который нужно передать дальше. Другие способы: Настройки › Транзакции. Сначала — проверка.';
+      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; QR показывает код телефону рядом с вами. Другие способы: Настройки › Транзакции. Сначала — проверка.';
 
   @override
   String get tourPhoneReceiveTitle => 'Получить';
@@ -4705,7 +5052,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netStatusTorOpenHint => 'Открывает настройки приватности';
 
   @override
-  String get netStatusDirectOpenHint => 'Открывает прямой адрес для приёма';
+  String get netStatusDirectOpenHint => 'Открывает адрес для приёма по ссылке';
 
   @override
   String get netStatusOpenHint => 'Показывает серверы';
@@ -4901,10 +5248,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => 'Напрямую · HTTP';
+  String get methodDirectHttp => 'Платёж по ссылке · HTTP';
 
   @override
-  String get methodDirectTor => 'Напрямую · Tor';
+  String get methodDirectTor => 'Платёж по ссылке · Tor';
 
   @override
   String get methodFile => 'Файл';
@@ -5452,7 +5799,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvIssuerFile => 'Файл';
 
   @override
-  String get deskInvIssuerDirect => 'Напрямую';
+  String get deskInvIssuerDirect => 'Ссылка';
 
   @override
   String get deskInvIssuerSoon => 'Скоро';
@@ -6223,7 +6570,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get methodDirect => 'Напрямую';
+  String get methodDirect => 'Ссылка';
+
+  @override
+  String get methodLinkPayment => 'Платёж по ссылке';
 
   @override
   String get methodDirectShape => 'http://host:3415 или xxxx….onion';
@@ -6234,7 +6584,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get methodArtLabelDirect =>
-      'Напрямую: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+      'Платёж по ссылке: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
 
   @override
   String get methodReceiveEpicboxShort => 'Работает при закрытом кошельке.';
@@ -6251,14 +6601,14 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get sendSwitchedDirect => 'Прямой адрес';
+  String get sendSwitchedDirect => 'Адрес ссылки';
 
   @override
-  String get sendSwitchedDirectAnnounce => 'Прямой адрес. Способ: Напрямую.';
+  String get sendSwitchedDirectAnnounce => 'Адрес ссылки. Способ: Ссылка.';
 
   @override
   String get sendDirectAddressShape =>
-      'Прямой адрес начинается с http:// или https:// либо заканчивается на .onion.';
+      'Адрес ссылки начинается с http:// или https:// либо заканчивается на .onion.';
 
   @override
   String get torNotOverTor => 'Не через Tor';
@@ -6295,10 +6645,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сетевая активность идёт через сеть Tor. Tor скрывает интернет-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк. Уведомления выключены, пока включён Tor.';
 
   @override
-  String get receiveTabDirect => 'Напрямую';
+  String get receiveTabDirect => 'Ссылка';
 
   @override
-  String get receiveDirectNeedsTor => 'Для прямого приёма нужен Tor.';
+  String get receiveDirectNeedsTor => 'Для приёма по ссылке нужен Tor.';
 
   @override
   String get receiveDirectMeanwhile =>
@@ -6346,7 +6696,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pushNoticeOff => 'Уведомления выключены';
 
   @override
-  String get pushNoticeAvailable => 'Уведомления доступны в настройках.';
+  String get pushNoticeAvailable =>
+      'Уведомления доступны в Настройки › Дополнительно.';
 
   @override
   String get torWayOver => 'Через Tor';
@@ -7257,7 +7608,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Читая его вслух, сверьте первые шесть и последние шесть символов.';
 
   @override
-  String get deskRecvHttpAddress => 'Напрямую · адрес HTTP';
+  String get deskRecvHttpAddress => 'Ссылка · адрес HTTP';
 
   @override
   String get deskRecvCopyHttp => 'Копировать адрес HTTP';
@@ -7280,14 +7631,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».';
 
   @override
-  String get deskRecvDirectTor => 'Напрямую · адрес Tor';
+  String get deskRecvDirectTor => 'Ссылка · адрес Tor';
 
   @override
   String get deskRecvTorIntro =>
       'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».';
 
   @override
-  String get deskRecvTorAddress => 'Напрямую · адрес Tor';
+  String get deskRecvTorAddress => 'Ссылка · адрес Tor';
 
   @override
   String get deskRecvCopyTor => 'Копировать адрес Tor';
@@ -7588,7 +7939,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendErrEpicbox => 'Это недействительный адрес Epicbox.';
 
   @override
-  String get deskSendErrNotDirect => 'Это не прямой адрес.';
+  String get deskSendErrNotDirect => 'Это не адрес ссылки.';
 
   @override
   String get deskSendErrOnion => 'Это недействительный адрес .onion.';
@@ -7700,7 +8051,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendReviewAgain => 'Проверить снова';
 
   @override
-  String get deskSendMethodDirect => 'Напрямую';
+  String get deskSendMethodDirect => 'Ссылка';
 
   @override
   String get deskSendMethodFile => 'Файл';
@@ -7857,7 +8208,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Передайте файл, получите файл ответа и завершите платёж здесь.';
 
   @override
-  String get deskSendTagDirect => 'Напрямую';
+  String get deskSendTagDirect => 'Ссылка';
 
   @override
   String get deskSendTagFile => 'Файл';
@@ -7866,8 +8217,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendTagEpicbox => 'Через Epicbox';
 
   @override
-  String get deskSendSwitchedDirect =>
-      'Прямой адрес. Выбран способ «Напрямую».';
+  String get deskSendSwitchedDirect => 'Адрес ссылки. Выбран способ «Ссылка».';
 
   @override
   String get deskSendSwitchedFile => 'Адрес файла. Выбран способ «Файл».';
@@ -7903,11 +8253,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Напрямую · HTTP (кошелёк получателя должен быть открыт)';
+      'Платёж по ссылке · HTTP (кошелёк получателя должен быть открыт)';
 
   @override
   String get deskSendViaTor =>
-      'Напрямую · Tor (кошелёк получателя должен быть открыт)';
+      'Платёж по ссылке · Tor (кошелёк получателя должен быть открыт)';
 
   @override
   String get deskSendViaFile => 'Файл транзакции';
@@ -8403,10 +8753,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskConAddrEpicbox => 'Адрес Epicbox';
 
   @override
-  String get deskConAddrTor => 'Напрямую · адрес Tor';
+  String get deskConAddrTor => 'Ссылка · адрес Tor';
 
   @override
-  String get deskConAddrHttp => 'Напрямую · адрес HTTP';
+  String get deskConAddrHttp => 'Ссылка · адрес HTTP';
 
   @override
   String get deskConNote => 'Заметка';
@@ -8437,7 +8787,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес для прямой отправки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес ссылки (https://…) или onion-адрес (….onion).';
 
   @override
   String get deskConAddPicture => 'Добавить фото';
@@ -10511,7 +10861,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Открыть приём: Напрямую · HTTP';
+  String get deskRailOpenHttp => 'Открыть приём: Платёж по ссылке · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'Нет в этой сборке';
@@ -10797,11 +11147,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'Напрямую · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+      'Платёж по ссылке · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Напрямую · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
+      'Платёж по ссылке · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
 
   @override
   String get deskKitHeroLabelFile =>
@@ -12919,7 +13269,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Напрямую · HTTP, приём';
+  String get deskSetRecvHttpTitle => 'Платёж по ссылке · HTTP, приём';
 
   @override
   String get deskSetRecvHttpText =>
@@ -12930,7 +13280,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetRecvHttpOffText =>
-      'Прямые платежи вместо этого приходят на адрес Tor этого кошелька.';
+      'Платежи по ссылке вместо этого приходят на адрес Tor этого кошелька.';
 
   @override
   String get deskSetRecvPrivacySettings => 'Настройки приватности';
@@ -14106,6 +14456,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Обновление не завершилось. Повторите попытку.';
 
   @override
+  String get advExperimental => 'Экспериментально';
+
+  @override
   String get advTitle => 'Дополнительно';
 
   @override
@@ -14297,7 +14650,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor и проверки состояния приостановлены. С узлом на этом компьютере или в вашей сети по-прежнему работают «Сверка баланса», файлы и «Напрямую» на локальные адреса.';
+      'Epicbox, Tor и проверки состояния приостановлены. С узлом на этом компьютере или в вашей сети по-прежнему работают «Сверка баланса», файлы и «Платёж по ссылке» на локальные адреса.';
 
   @override
   String get deskSetAdvNotInBuild => 'Нет в этой сборке';
@@ -14590,7 +14943,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDirectHint =>
-      '«Напрямую» отправляет прямо в другой кошелёк на адрес onion или веб-адрес и даёт этому телефону адрес Tor, на который ему можно платить. Кошелёк на другой стороне должен быть открыт, и этот тоже. Нужен Tor. Добавляет «Напрямую» в «Отправить» и «Получить».';
+      '«Платёж по ссылке» отправляет прямо в другой кошелёк на адрес onion или веб-адрес и даёт этому телефону адрес Tor, на который ему можно платить. Кошелёк на другой стороне должен быть открыт, и этот тоже. Нужен Tor. Добавляет «Платёж по ссылке» в «Отправить» и «Получить».';
 
   @override
   String get txFileLine =>
@@ -14684,7 +15037,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetTxDirectHint =>
-      'Платите и получайте платежи напрямую от кошелька к кошельку, по HTTP или через Tor, без сервера посередине. Работает, только пока кошелёк открыт. Добавляет «Напрямую» в «Отправить», а его адрес — в «Получить».';
+      'Платите и получайте платежи напрямую от кошелька к кошельку, по HTTP или через Tor, без сервера посередине. Работает, только пока кошелёк открыт. Добавляет «Платёж по ссылке» в «Отправить», а его адрес — в «Получить».';
 
   @override
   String get deskSetTxFileHint =>
@@ -14699,4 +15052,7 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetTxStartHint =>
       'Способ, с которого открывается страница «Отправить». Для одного платежа его всё равно можно изменить на странице «Отправить».';
+
+  @override
+  String get deskSendMethodHeader => 'Способ оплаты';
 }

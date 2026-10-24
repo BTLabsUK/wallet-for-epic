@@ -19,6 +19,7 @@ Future<void> _loadFonts() async {
   }
   await roboto.load();
   await (FontLoader('MaterialIcons')..addFont(read('$dir/MaterialIcons-Regular.otf'))).load();
+  await (FontLoader('EpicStatusIcons')..addFont(read('assets/fonts/EpicStatusIcons.ttf'))).load();
 }
 
 Widget _app(Widget child, {bool reduce = false}) => MaterialApp(
@@ -41,7 +42,7 @@ void main() {
     expect(stateOf(ServiceHealth.down), EState.risk);
     expect(stateOf(ServiceHealth.off), EState.off);
     expect([for (final s in EState.values) stateBars(s)], [3, 2, 1, 0]);
-    expect(methodIcon(TxMethod.tor), Icons.private_connectivity);
+    expect(methodIcon(TxMethod.tor), EIcons.tor);
   });
 
   testWidgets('bars and method icons at four tones (golden)', (tester) async {

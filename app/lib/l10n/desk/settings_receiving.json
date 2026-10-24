@@ -96,7 +96,7 @@
   "@deskSetRecvListNote": {
     "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
   },
-  "deskSetRecvHttpTitle": "Direct · HTTP receiving",
+  "deskSetRecvHttpTitle": "Link Payment · HTTP receiving",
   "@deskSetRecvHttpTitle": {
     "description": "Settings > Receiving: heading of the HTTP group."
   },
@@ -108,7 +108,7 @@
   "@deskSetRecvHttpOffTitle": {
     "description": "Settings > Receiving: notice title in the HTTP group when Tor is on."
   },
-  "deskSetRecvHttpOffText": "Direct payments arrive at this wallet’s Tor address instead.",
+  "deskSetRecvHttpOffText": "Link payments arrive at this wallet’s Tor address instead.",
   "@deskSetRecvHttpOffText": {
     "description": "Settings > Receiving: notice text in the HTTP group when Tor is on."
   },

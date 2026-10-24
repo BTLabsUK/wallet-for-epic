@@ -13,7 +13,7 @@
   },
   "deskInvIssuerMethod": "Method",
   "@deskInvIssuerMethod": {
-    "description": "Label of the choice how the request travels: Epicbox, File, Direct."
+    "description": "Label of the choice how the request travels: Epicbox, File, Link."
   },
   "deskInvIssuerEpicbox": "Epicbox",
   "@deskInvIssuerEpicbox": {
@@ -23,7 +23,7 @@
   "@deskInvIssuerFile": {
     "description": "Method: the request is saved as a file to hand over."
   },
-  "deskInvIssuerDirect": "Direct",
+  "deskInvIssuerDirect": "Link",
   "@deskInvIssuerDirect": {
     "description": "Method: the payment comes straight to this wallet over HTTP or Tor."
   },

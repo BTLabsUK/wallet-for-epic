@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ui/status_icons.dart';
 
 /// The desktop icon set: one outlined Material symbol per meaning, named as the Electron
 /// wallet's sprite names them (`src/components/modern/ui/icons.js`), so a screen never picks
@@ -34,13 +35,14 @@ abstract final class EIcons {
   static const fileUp = Icons.upload_file_outlined;
   static const fileDown = Icons.file_download_outlined;
   static const qr = Icons.qr_code_2;
-  static const server = Icons.dns_outlined;
-  static const node = Icons.hub_outlined;
+  static const server = EpicGlyphs.node;
+  static const node = EpicGlyphs.node;
   static const antenna = Icons.cell_tower;
   // One glyph per receive/send method, shared with the phone.
-  static const epicbox = Icons.alternate_email;
-  static const http = Icons.link;
-  static const tor = Icons.private_connectivity;
+  static const epicbox = EpicGlyphs.epicbox;
+  static const http = EpicGlyphs.http;
+  static const tor = EpicGlyphs.tor;
+  static const link = EpicGlyphs.link;
   static const refresh = Icons.refresh;
   static const info = Icons.info_outline;
   static const alert = Icons.warning_amber_outlined;

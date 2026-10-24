@@ -1,4 +1,4 @@
-// Phone contacts take an Epicbox address, an http(s) wallet address or an onion (the Direct
+// Phone contacts take an Epicbox address, an http(s) wallet address or an onion (the Link
 // methods), checked the way Send checks a recipient; an incomplete URL is refused with the
 // example. The archive underneath stores an address as typed and leaves the rule to each screen.
 import 'dart:io';
@@ -42,7 +42,7 @@ void main() {
     for (final junk in ['nonsense', 'tiger apple river house music light ocean stone']) {
       expect(checkContactAddress(l, service, junk), l.contactsAddressInvalidAny, reason: junk);
     }
-    expect(l.contactsAddressInvalidAny, contains('Direct address (https://…)'));
+    expect(l.contactsAddressInvalidAny, contains('Link address (https://…)'));
     expect(l.contactsAddressInvalidAny, contains('onion address (….onion)'));
   });
 

@@ -102,7 +102,7 @@ class EAddressLines extends StatelessWidget {
             Flexible(child: Text(name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ?nameTrailing,
             SizedBox(width: Sp.x2),
-            EKindTag(addressKindOf(address)),
+            Flexible(child: EKindTag(addressKindOf(address))),
           ],
         ),
         const SizedBox(height: 2),

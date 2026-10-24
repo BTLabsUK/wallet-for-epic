@@ -25,7 +25,44 @@ enum HandshakeFlow {
 
   /// You pay them with a payment file, passed by hand both ways.
   file,
+
+  /// You pay their wallet directly (a Link address: HTTP or Tor), no relay.
+  direct,
+
+  /// You pay the phone next to this one: codes shown and scanned both ways, no relay.
+  qr,
+
+  /// The same, told from the receiver's side: they show the code, you scan it.
+  qrReceive,
 }
+
+/// Whether the flow goes through a middle node: the relay, or the file passed by hand.
+bool handshakeHasMiddle(HandshakeFlow flow) => switch (flow) {
+  HandshakeFlow.payment || HandshakeFlow.request || HandshakeFlow.file => true,
+  HandshakeFlow.direct || HandshakeFlow.qr || HandshakeFlow.qrReceive => false,
+};
+
+/// The arrows of [flow], each as (from, to), in the order of the steps that use them.
+List<(HandshakeParty, HandshakeParty)> handshakeLanes(HandshakeFlow flow) =>
+    switch (flow) {
+      HandshakeFlow.direct || HandshakeFlow.qr => const [
+        (_you, _them),
+        (_them, _you),
+        (_you, _network),
+      ],
+      HandshakeFlow.qrReceive => const [
+        (_them, _you),
+        (_you, _them),
+        (_them, _network),
+      ],
+      _ => const [
+        (_you, _relay),
+        (_relay, _them),
+        (_them, _relay),
+        (_relay, _you),
+        (_you, _network),
+      ],
+    };
 
 /// A node of the diagram. [relay] is the epicbox relay, or the file passed by hand in
 /// [HandshakeFlow.file].
@@ -57,6 +94,104 @@ const _network = HandshakeParty.network;
 /// posts it: the payer for a payment, the issuer for a request (LEPIC finalizes an invoice
 /// on the issuer's side once the payer's reply arrives).
 List<HandshakeStep> handshakeSteps(HandshakeFlow flow) {
+  switch (flow) {
+    case HandshakeFlow.direct:
+      // Their wallet answers on the connection the payment came on.
+      return [
+        HandshakeStep(
+          actor: _you,
+          from: _you,
+          to: _them,
+          caption: (l) => l.handshakeLink1,
+        ),
+        HandshakeStep(
+          actor: _them,
+          from: _them,
+          to: _you,
+          caption: (l) => l.handshakeLink2,
+        ),
+        HandshakeStep(
+          actor: _you,
+          from: _you,
+          to: _network,
+          caption: (l) => l.handshakeFinish,
+        ),
+        HandshakeStep(
+          actor: _network,
+          from: _network,
+          caption: (l) => l.handshakeConfirm,
+        ),
+      ];
+    case HandshakeFlow.qr:
+      // Phone to phone: the codes are the messages, the camera the way in.
+      return [
+        HandshakeStep(
+          actor: _you,
+          from: _you,
+          to: _them,
+          caption: (l) => l.handshakeQr1,
+        ),
+        HandshakeStep(
+          actor: _them,
+          from: _you,
+          to: _them,
+          caption: (l) => l.handshakeQr2,
+        ),
+        HandshakeStep(
+          actor: _them,
+          from: _them,
+          to: _you,
+          caption: (l) => l.handshakeQr3,
+        ),
+        HandshakeStep(
+          actor: _you,
+          from: _them,
+          to: _you,
+          caption: (l) => l.handshakeQr4,
+        ),
+        HandshakeStep(
+          actor: _you,
+          from: _you,
+          to: _network,
+          caption: (l) => l.handshakeQr5,
+        ),
+      ];
+    case HandshakeFlow.qrReceive:
+      return [
+        HandshakeStep(
+          actor: _them,
+          from: _them,
+          to: _you,
+          caption: (l) => l.handshakeQrR1,
+        ),
+        HandshakeStep(
+          actor: _you,
+          from: _them,
+          to: _you,
+          caption: (l) => l.handshakeQrR2,
+        ),
+        HandshakeStep(
+          actor: _you,
+          from: _you,
+          to: _them,
+          caption: (l) => l.handshakeQrR3,
+        ),
+        HandshakeStep(
+          actor: _them,
+          from: _you,
+          to: _them,
+          caption: (l) => l.handshakeQrR4,
+        ),
+        HandshakeStep(
+          actor: _them,
+          from: _them,
+          to: _network,
+          caption: (l) => l.handshakeQrR5,
+        ),
+      ];
+    case HandshakeFlow.payment || HandshakeFlow.request || HandshakeFlow.file:
+      break;
+  }
   final (out, signs, back, returned) = switch (flow) {
     HandshakeFlow.payment => (
       (AppLocalizations l) => l.handshakePay1,
@@ -76,6 +211,7 @@ List<HandshakeStep> handshakeSteps(HandshakeFlow flow) {
       (AppLocalizations l) => l.handshakeFile3,
       (AppLocalizations l) => l.handshakeFile4,
     ),
+    _ => throw StateError('handled above'),
   };
   return [
     HandshakeStep(actor: _you, from: _you, to: _relay, caption: out),
@@ -109,13 +245,15 @@ const Duration handshakeStepDuration = Duration(milliseconds: 2800);
 const Key handshakeCaptionKey = ValueKey('handshake-caption');
 
 /// Opens the sheet.
-Future<void> showHandshakeSheet(BuildContext context) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => const HandshakeSheet(),
-    );
+Future<void> showHandshakeSheet(
+  BuildContext context, {
+  HandshakeFlow flow = HandshakeFlow.payment,
+}) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  showDragHandle: true,
+  builder: (_) => HandshakeSheet(flow: flow),
+);
 
 /// The sheet's content. Public for the screenshot tour and tests; open it with
 /// [showHandshakeSheet].
@@ -132,6 +270,11 @@ class HandshakeSheet extends StatefulWidget {
 class _HandshakeSheetState extends State<HandshakeSheet>
     with SingleTickerProviderStateMixin {
   late HandshakeFlow _flow = widget.flow;
+
+  /// The QR tab's flow: the receiver's side when the sheet was opened from Receive.
+  late final HandshakeFlow _qrFlow = widget.flow == HandshakeFlow.qrReceive
+      ? HandshakeFlow.qrReceive
+      : HandshakeFlow.qr;
   int _step = 0;
   bool _paused = false;
 
@@ -222,18 +365,19 @@ class _HandshakeSheetState extends State<HandshakeSheet>
             const SizedBox(height: 16),
             SegmentedButton<HandshakeFlow>(
               segments: [
+                // One tab per way to pay; the QR tab tells the side it was opened from.
                 for (final (flow, label) in [
-                  (HandshakeFlow.payment, l.handshakePayment),
+                  (HandshakeFlow.payment, l.receiveTabEpicbox),
                   (HandshakeFlow.request, l.handshakeRequest),
+                  (HandshakeFlow.direct, l.receiveTabDirect),
+                  (_qrFlow, l.receiveTabQr),
                   (HandshakeFlow.file, l.handshakeFile),
                 ])
                   ButtonSegment(
                     value: flow,
-                    label: Text(
-                      label,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(label, maxLines: 1),
                     ),
                   ),
               ],
@@ -419,18 +563,20 @@ class _Diagram extends StatelessWidget {
                       token: t.accent,
                       done: t.ok,
                       nodeWidth: nodeWidth,
+                      lanes: handshakeLanes(flow),
                     ),
                   ),
                 ),
                 for (final party in HandshakeParty.values)
-                  Align(
-                    alignment: _place[party]!,
-                    child: _Node(
-                      width: nodeWidth,
-                      label: label(party),
-                      lit: step.actor == party,
+                  if (party != HandshakeParty.relay || handshakeHasMiddle(flow))
+                    Align(
+                      alignment: _place[party]!,
+                      child: _Node(
+                        width: nodeWidth,
+                        label: label(party),
+                        lit: step.actor == party,
+                      ),
                     ),
-                  ),
               ],
             );
           },
@@ -491,12 +637,14 @@ class HandshakePainter extends CustomPainter {
     required this.token,
     required this.done,
     required this.nodeWidth,
+    required this.lanes,
   });
 
   final HandshakeStep step;
   final double progress;
   final Color line, lit, halo, token, done;
   final double nodeWidth;
+  final List<(HandshakeParty, HandshakeParty)> lanes;
 
   static const double _nodeHeight = 40;
 
@@ -546,13 +694,6 @@ class HandshakePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const lanes = [
-      (HandshakeParty.you, HandshakeParty.relay),
-      (HandshakeParty.relay, HandshakeParty.them),
-      (HandshakeParty.them, HandshakeParty.relay),
-      (HandshakeParty.relay, HandshakeParty.you),
-      (HandshakeParty.you, HandshakeParty.network),
-    ];
     final quiet = Paint()
       ..color = line
       ..strokeWidth = 1.2;
@@ -602,5 +743,6 @@ class HandshakePainter extends CustomPainter {
       old.halo != halo ||
       old.token != token ||
       old.done != done ||
-      old.nodeWidth != nodeWidth;
+      old.nodeWidth != nodeWidth ||
+      old.lanes != lanes;
 }

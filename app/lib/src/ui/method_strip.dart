@@ -133,6 +133,7 @@ class MethodStrip extends StatelessWidget {
             l.methodReceiveDirectTitle,
             l.methodReceiveDirectLine,
           ),
+          TransferMethod.qr => (l.methodReceiveQrTitle, l.methodReceiveQrLine),
           TransferMethod.file => (
             l.methodReceiveFileTitle,
             l.methodReceiveFileLine,
@@ -147,6 +148,7 @@ class MethodStrip extends StatelessWidget {
             l.methodSendHttpTitle,
             l.methodSendDirectLine,
           ),
+          TransferMethod.qr => (l.methodSendQrTitle, l.methodSendQrLine),
           TransferMethod.file => (l.methodSendFileTitle, l.methodSendFileLine),
         };
 

@@ -93,7 +93,7 @@ void main() {
   );
 
   testWidgets(
-    'a Direct HTTP send that was not delivered says so and offers Send again (linux-13)',
+    'a Link HTTP send that was not delivered says so and offers Send again (linux-13)',
     (tester) async {
       final desk = _Desk();
       final tx = _tx(undelivered: true, method: TxMethod.http);
@@ -101,7 +101,7 @@ void main() {
       expect(statusOf(englishStrings, tx).$1, 'Not delivered');
       expect(find.textContaining('Not delivered.'), findsOneWidget);
       // Its words fit the method (windows-07): no epicbox for an HTTP send.
-      expect(find.textContaining('(Direct · HTTP)'), findsOneWidget);
+      expect(find.textContaining('(Link Payment · HTTP)'), findsOneWidget);
       expect(find.textContaining('did not reach the epicbox'), findsNothing);
       await tester.tap(find.widgetWithText(EButton, 'Send again'));
       await tester.pump();
@@ -113,7 +113,7 @@ void main() {
 
   testWidgets('a Tor send that was not delivered names Tor', (tester) async {
     await _pump(tester, _tx(undelivered: true, method: TxMethod.tor), _Desk());
-    expect(find.textContaining('(Direct · Tor)'), findsOneWidget);
+    expect(find.textContaining('(Link Payment · Tor)'), findsOneWidget);
     expect(find.textContaining('did not reach the epicbox'), findsNothing);
   });
 
@@ -194,7 +194,7 @@ void main() {
     await wallet.dispose();
   });
 
-  test('Send again on a Direct send goes to its stored URL or onion', () async {
+  test('Send again on a Link send goes to its stored URL or onion', () async {
     final dir = Directory.systemTemp.createTempSync('resend');
     addTearDown(() => dir.deleteSync(recursive: true));
     const onion = 'fiax36yk6a2bksffszfskxao4pt726tbagetojui5ohv2fc36wfc5sad.onion';

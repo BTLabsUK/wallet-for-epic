@@ -1250,7 +1250,7 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
       await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
-      // The Direct parts are an Advanced switch; these tests look at what a build offers.
+      // The Link parts are an Advanced switch; these tests look at what a build offers.
       await tester.runAsync(() => advancedOn(container));
       await tester.pumpWidget(UncontrolledProviderScope(
         container: container,
@@ -1282,7 +1282,7 @@ void main() {
 
     testWidgets('receiving has HTTP receiving; the Tor switch is in Privacy as DeskFeatures.tor says', (tester) async {
       await pump(tester, DeskRoute.settingsReceiving);
-      expect(find.text('Direct · HTTP receiving'), findsOneWidget);
+      expect(find.text('Link Payment · HTTP receiving'), findsOneWidget);
       expect(find.text('Tor receiving'), findsNothing);
       await done(tester);
       await pump(tester, DeskRoute.settingsPrivacy);
@@ -1290,18 +1290,18 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('send has Epicbox, Direct and File (an onion is a Direct send), no Dandelion++', (tester) async {
+    testWidgets('send has Epicbox, Link and File (an onion is a Link send), no Dandelion++', (tester) async {
       await pump(tester, DeskRoute.send);
-      expect(find.text('Direct'), findsOneWidget);
+      expect(find.text('Link'), findsOneWidget);
       expect(find.text('Tor'), findsNothing, reason: 'no Tor method of its own');
       expect(find.textContaining('Dandelion'), findsNothing);
       await done(tester);
     });
 
-    testWidgets('receive has the HTTP address with Tor off (Direct over Tor shows only with it on)', (tester) async {
+    testWidgets('receive has the HTTP address with Tor off (Link over Tor shows only with it on)', (tester) async {
       await pump(tester, DeskRoute.receive);
-      expect(find.text('Direct · HTTP address'), findsOneWidget);
-      expect(find.text('Direct · Tor address'), findsNothing);
+      expect(find.text('Link Payment · HTTP address'), findsOneWidget);
+      expect(find.text('Link Payment · Tor address'), findsNothing);
       await done(tester);
     });
 

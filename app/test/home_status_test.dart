@@ -23,6 +23,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/ui/status_icons.dart';
 
 WalletSummary _summary({bool validated = true, int height = 2499990}) =>
     WalletSummary(
@@ -276,7 +277,7 @@ void main() {
       await _pump(tester);
       final t = _tokens(tester);
       expect(_label(tester, nodeStatusKey), 'Node, Synced');
-      expect(_icon(tester, nodeStatusKey), Icons.cloud_done_outlined);
+      expect(_icon(tester, nodeStatusKey), EpicGlyphs.node);
       expect(_dot(tester, nodeStatusKey), t.ok);
       expect(
         _tip_(tester, nodeStatusKey),
@@ -295,7 +296,7 @@ void main() {
         _tip_(tester, epicboxStatusKey),
         'Epicbox connected\nServer: epicbox.epiccash.com:443',
       );
-      // Tor off: no Tor, no Direct, and no Tor words on the two.
+      // Tor off: no Tor, no Link, and no Tor words on the two.
       expect(find.byKey(torIconKey), findsNothing);
       expect(find.byKey(directIconKey), findsNothing);
       expect(_label(tester, nodeStatusKey), isNot(contains('Tor')));
@@ -361,7 +362,7 @@ void main() {
         expect(dot.right, greaterThan(tester.getRect(glyph).right));
         expect(dot.bottom, greaterThan(tester.getRect(glyph).bottom));
       }
-      // In order: Node, Epicbox, Tor, Direct.
+      // In order: Node, Epicbox, Tor, Link.
       final lefts = [
         for (final key in [
           nodeStatusKey,
@@ -382,7 +383,7 @@ void main() {
       expect(_dot(tester, nodeStatusKey), t.info);
       expect(_tip_(tester, nodeStatusKey), startsWith('Contacting node…'));
       expect(_label(tester, epicboxStatusKey), 'Epicbox, Connecting');
-      expect(_icon(tester, epicboxStatusKey), Icons.mail_outline);
+      expect(_icon(tester, epicboxStatusKey), EpicGlyphs.epicbox);
       expect(_dot(tester, epicboxStatusKey), t.info);
       // Connecting sits still: only a sync in progress pulses, so Home settles.
       await tester.pump(const Duration(milliseconds: 400));
@@ -452,7 +453,7 @@ void main() {
     });
   });
 
-  group('Tor and Direct', () {
+  group('Tor and Link', () {
     testWidgets('starting: Tor blue and pulsing, the two wait for it, still', (
       tester,
     ) async {
@@ -479,7 +480,7 @@ void main() {
       expect(node, {1.0});
     });
 
-    testWidgets('on and published: Tor and Direct green, the two over Tor', (
+    testWidgets('on and published: Tor and Link green, the two over Tor', (
       tester,
     ) async {
       await _pump(tester, tor: _torReady);
@@ -487,13 +488,13 @@ void main() {
       expect(_label(tester, torIconKey), 'Tor, On');
       expect(_dot(tester, torIconKey), t.ok);
       expect(_tip_(tester, torIconKey), 'On');
-      expect(_label(tester, directIconKey), 'Direct, Reachable');
-      expect(_icon(tester, directIconKey), Icons.link);
+      expect(_label(tester, directIconKey), 'Link, Reachable');
+      expect(_icon(tester, directIconKey), EpicGlyphs.link);
       expect(_dot(tester, directIconKey), t.ok);
       expect(_tip_(tester, directIconKey), 'Tor receiving is on');
       expect(
         _hint(tester, directIconKey),
-        'Tor receiving is on\nOpens the Direct receive address',
+        'Tor receiving is on\nOpens the Link receive address',
       );
       expect(_label(tester, nodeStatusKey), 'Node, Synced, Over Tor');
       expect(_dot(tester, nodeStatusKey), t.ok);
@@ -502,14 +503,14 @@ void main() {
       expect(_opacity(tester, torIconKey), 1);
     });
 
-    testWidgets('publishing: Direct blue; unpublished: red', (tester) async {
+    testWidgets('publishing: Link blue; unpublished: red', (tester) async {
       await _pump(tester, tor: _torPublishing);
-      expect(_label(tester, directIconKey), 'Direct, Publishing…');
+      expect(_label(tester, directIconKey), 'Link, Publishing…');
       expect(_dot(tester, directIconKey), _tokens(tester).info);
       // A new scope: a ProviderScope keeps the overrides it was built with.
       await tester.pumpWidget(const SizedBox());
       await _pump(tester, tor: _torUnpublished);
-      expect(_label(tester, directIconKey), 'Direct, Not reachable');
+      expect(_label(tester, directIconKey), 'Link, Not reachable');
       expect(_dot(tester, directIconKey), _tokens(tester).risk);
       expect(_tip_(tester, directIconKey), startsWith('Your Tor address is not reachable yet.'));
     });
@@ -542,7 +543,7 @@ void main() {
       expect(_label(tester, nodeStatusKey), 'Node, Synced');
     });
 
-    testWidgets('a tap on Direct goes to Receive, Direct tab', (tester) async {
+    testWidgets('a tap on Link goes to Receive, Link tab', (tester) async {
       await _pump(tester, tor: _torReady);
       final container = ProviderScope.containerOf(
         tester.element(find.byKey(directIconKey)),

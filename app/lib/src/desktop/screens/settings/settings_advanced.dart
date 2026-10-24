@@ -37,6 +37,8 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.recheckFromHeight => l.deskSetAdvRecheck,
   AdvancedFeature.builtInNode => l.deskSetAdvBuiltInNode,
   AdvancedFeature.logs => l.deskSetAdvLogs,
+  // Phone only; never on the desktop's list.
+  AdvancedFeature.transactionFiles => l.advTransactionFiles,
 };
 
 /// A network mode's name.

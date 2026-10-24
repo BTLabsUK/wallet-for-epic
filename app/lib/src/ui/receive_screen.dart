@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'status_icons.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,12 +25,15 @@ import '../wallet_service.dart';
 import 'common.dart';
 import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
+import 'handshake.dart';
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import 'method_strip.dart';
 import 'payment_gate.dart';
 import 'settings_screen.dart';
 import 'status.dart' show EpicboxState;
+import 'qr_scan_screen.dart';
+import 'scan_screen.dart' show offersQrPayment;
 import 'slate_file_screen.dart';
 import 'net_block.dart';
 import 'theme/advanced.dart';
@@ -40,8 +44,9 @@ import 'tor_ui.dart';
 import 'tour/tour_target.dart';
 
 /// Receive's ways of receiving, one tab each: Epicbox first and by default, Direct (the onion
-/// address, over Tor) where the app has Tor, and a payment file.
-enum ReceiveTab { epicbox, direct, file }
+/// address, over Tor) where the app has Tor, a code scanned from the phone next to this one (QR),
+/// and a payment file.
+enum ReceiveTab { epicbox, direct, qr, file }
 
 /// Which of Receive's tabs shows. Kept while the app runs, across tab changes and rebuilds;
 /// Epicbox at start.
@@ -86,7 +91,9 @@ class ReceiveView extends ConsumerWidget {
     var tab = ref.watch(receiveTabProvider);
     final payments =
         ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
-        PaymentPrefs.defaults;
+        (ref.watch(phonePaymentsProvider)
+            ? PaymentPrefs.phoneDefaults
+            : PaymentPrefs.defaults);
     final filePending = hasPendingFileSend(
       ref.watch(homeProvider.select((h) => h.value?.transactions)),
     );
@@ -109,7 +116,7 @@ class ReceiveView extends ConsumerWidget {
     final tabSegments = <ButtonSegment<ReceiveTab>>[
         ButtonSegment(
           value: ReceiveTab.epicbox,
-          icon: const Icon(Icons.alternate_email),
+          icon: const Icon(EpicGlyphs.epicbox),
           label: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(l.receiveTabEpicbox, maxLines: 1),
@@ -123,10 +130,20 @@ class ReceiveView extends ConsumerWidget {
                 payments.direct))
           ButtonSegment(
             value: ReceiveTab.direct,
-            icon: const Icon(Icons.link),
+            icon: const Icon(EpicGlyphs.link),
             label: FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(l.receiveTabDirect, maxLines: 1),
+            ),
+          ),
+        // QR is the phone next to this one: offered where the camera works.
+        if (tab == ReceiveTab.qr || (payments.qr && offersQrPayment(ref)))
+          ButtonSegment(
+            value: ReceiveTab.qr,
+            icon: const Icon(Icons.qr_code_2),
+            label: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(l.receiveTabQr, maxLines: 1),
             ),
           ),
         // The tab in use and a file send waiting for its reply keep File.
@@ -168,6 +185,7 @@ class ReceiveView extends ConsumerWidget {
           method: switch (tab) {
             ReceiveTab.epicbox => TransferMethod.epicbox,
             ReceiveTab.direct => TransferMethod.direct,
+            ReceiveTab.qr => TransferMethod.qr,
             ReceiveTab.file => TransferMethod.file,
           },
           receiving: true,
@@ -189,7 +207,16 @@ class ReceiveView extends ConsumerWidget {
     final Widget above;
     final Widget? code;
     final Widget below;
-    if (tab == ReceiveTab.file) {
+    if (tab == ReceiveTab.qr) {
+      above = column([
+        strip,
+        const _QrCard(),
+        const SizedBox(height: 8),
+        help,
+      ]);
+      code = null;
+      below = const SizedBox.shrink();
+    } else if (tab == ReceiveTab.file) {
       above = column([
         strip,
         const _FileCard(),
@@ -632,7 +659,7 @@ class _EpicboxLine extends ConsumerWidget {
         ? (Icons.mark_email_read_outlined, l.statusEpicboxOnline, t.ok)
         : offline
         ? (Icons.unsubscribe_outlined, l.statusEpicboxOffline, t.risk)
-        : (Icons.mail_outline, l.statusEpicboxConnecting, t.dim);
+        : (EpicGlyphs.epicbox, l.statusEpicboxConnecting, t.dim);
     final config = ref.watch(walletConfigProvider);
     return Column(
       key: receiveEpicboxKey,
@@ -807,6 +834,79 @@ class _AddressQr extends StatelessWidget {
   }
 }
 
+/// Receiving by QR: the sender's phone shows the payment, this one scans it, accepts and shows
+/// its reply. A title, one line and the camera button.
+class _QrCard extends ConsumerWidget {
+  const _QrCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    // Scanning a payment asks the node to sign, like opening a file: Offline stops it, with
+    // the reason, unless the node is local.
+    final block = fileBlockFor(
+      AdvancedOptions.of(context).networkMode,
+      localNode: ref.watch(localNodeProvider),
+    );
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      l.receiveQrTitle,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: l.sendHowItWorks,
+                  icon: const Icon(Icons.info_outline),
+                  onPressed: () => showHandshakeSheet(
+                    context,
+                    flow: HandshakeFlow.qrReceive,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l.receiveQrBody,
+              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              key: receiveScanQrKey,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+              ),
+              icon: const Icon(Icons.qr_code_scanner),
+              label: Text(l.qrScanPayment),
+              onPressed: block != NetBlock.none
+                  ? null
+                  : () => scanSlateQr(context, ref),
+            ),
+            if (block != NetBlock.none)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: NetBlockNote(block),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Receiving by payment file, for everyone: Open file, Paste, and a ? for the explainer.
 class _FileCard extends ConsumerWidget {
   const _FileCard();
@@ -899,6 +999,9 @@ class _FileCard extends ConsumerWidget {
   }
 }
 
+/// The key of the Scan payment QR button of Receive's file card, for tests.
+const Key receiveScanQrKey = ValueKey('receive-scan-qr');
+
 /// The key of Receive's request button, for tests.
 const Key receiveRequestKey = ValueKey('receive-request');
 
@@ -945,6 +1048,39 @@ Future<void> pasteSlate(BuildContext context, WidgetRef ref) async {
       ),
     ),
   );
+}
+
+/// Reads an animated payment QR with the camera and opens what it carried in
+/// [SlateFileScreen], as pasted text would be. "Open a file instead" on the camera screen
+/// runs the file picker.
+Future<void> scanSlateQr(BuildContext context, WidgetRef ref) async {
+  final notice = ref.read(noticeProvider.notifier);
+  final l = context.l10n;
+  final result = await scanQrSlate(context, QrScanKind.payment);
+  if (!context.mounted) return;
+  switch (result) {
+    case QrScanned(:final json):
+      final String text;
+      try {
+        text = decodeSlateFile(utf8.encode(json));
+      } on FormatException catch (error) {
+        notice.show(describeError(l, error), level: NoticeLevel.error);
+        return;
+      }
+      await Navigator.of(context).push<bool>(
+        MaterialPageRoute<bool>(
+          builder: (_) => SlateFileScreen(
+            file: SlateFile(name: scannedSlateName, json: text),
+            pasted: true,
+            scanned: true,
+          ),
+        ),
+      );
+    case QrScanOpenFile():
+      await openSlateFile(context, ref);
+    case null:
+      break;
+  }
 }
 
 /// The share card's size in logical pixels, and the pixel ratio it is rendered at: a

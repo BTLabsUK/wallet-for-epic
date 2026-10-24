@@ -54,6 +54,13 @@ String describeError(AppLocalizations l, Object error) {
       // input"; the detail ("tor did not connect in time", "not reached") is for the log.
       WalletErrorKind.torNotRunning => l.errorTorNotRunning,
       WalletErrorKind.onionUnreachable => l.errorOnionUnreachable,
+      // The scanner words these itself; elsewhere a QR that is no payment reads like a file
+      // that is none.
+      WalletErrorKind.notQrSlate ||
+      WalletErrorKind.foreignQrCode ||
+      WalletErrorKind.mixedQrCodes ||
+      WalletErrorKind.invalidQrCode ||
+      WalletErrorKind.qrCodeTooLarge => l.errorInvalidSlate,
       WalletErrorKind.other => _withDetail(l.errorOther, error.message),
     };
   }

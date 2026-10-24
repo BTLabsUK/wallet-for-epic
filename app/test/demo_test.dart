@@ -797,8 +797,8 @@ void main() {
         await h.pump(tester, height: 4000);
         await h.unlock(tester);
         await h.open(tester, const SettingsScreen());
-        // The push row is on the hub: the demo has no notifications.
-        expect(find.byKey(settingsPushKey), present);
+        // The hub has no Notifications row any more (it is on Advanced, and the demo has none).
+        expect(find.byKey(settingsPushKey), findsNothing);
         // What the demo hides, page by page. Send feedback lives in Help.
         final pages = {
           SettingsSection.security: [

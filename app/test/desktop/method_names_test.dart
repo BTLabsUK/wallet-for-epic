@@ -1,6 +1,6 @@
-// The one naming rule for a payment method on the desktop: Epicbox, Direct · HTTP, Direct · Tor
+// The one naming rule for a payment method on the desktop: Epicbox, Link Payment · HTTP, Link Payment · Tor
 // or File, in each language, in Activity, the details, the kind tag of an address and the receiving
-// rail. HTTP and Tor are Direct's transport and never a method on their own.
+// rail. HTTP and Tor are Link's transport and never a method on their own.
 import 'package:epic_wallet/src/desktop/data/history_files.dart';
 import 'package:epic_wallet/src/desktop/data/method_names.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -13,12 +13,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _names = <String, List<String>>{
-  'en': ['Epicbox', 'Direct · HTTP', 'Direct · Tor', 'File'],
-  'de': ['Epicbox', 'Direkt · HTTP', 'Direkt · Tor', 'Datei'],
-  'pl': ['Epicbox', 'Bezpośrednio · HTTP', 'Bezpośrednio · Tor', 'Plik'],
-  'ru': ['Epicbox', 'Напрямую · HTTP', 'Напрямую · Tor', 'Файл'],
-  'zh': ['Epicbox', '直连 · HTTP', '直连 · Tor', '文件'],
-  'th': ['Epicbox', 'ส่งตรง · HTTP', 'ส่งตรง · Tor', 'ไฟล์'],
+  'en': ['Epicbox', 'Link Payment · HTTP', 'Link Payment · Tor', 'File'],
+  'de': ['Epicbox', 'Link-Zahlung · HTTP', 'Link-Zahlung · Tor', 'Datei'],
+  'pl': ['Epicbox', 'Płatność linkiem · HTTP', 'Płatność linkiem · Tor', 'Plik'],
+  'ru': ['Epicbox', 'Платёж по ссылке · HTTP', 'Платёж по ссылке · Tor', 'Файл'],
+  'zh': ['Epicbox', '链接付款 · HTTP', '链接付款 · Tor', '文件'],
+  'th': ['Epicbox', 'จ่ายผ่านลิงก์ · HTTP', 'จ่ายผ่านลิงก์ · Tor', 'ไฟล์'],
 };
 
 Future<void> _pump(WidgetTester tester, Widget child, {Locale locale = const Locale('en')}) async {
@@ -63,24 +63,24 @@ void main() {
   });
 
   group('Activity and the details', () {
-    testWidgets('a Direct send over HTTP reads Direct · HTTP, never HTTP alone', (tester) async {
+    testWidgets('a Link send over HTTP reads Link Payment · HTTP, never HTTP alone', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 35));
-      expect(find.text('Direct · HTTP'), findsWidgets);
+      expect(find.text('Link Payment · HTTP'), findsWidgets);
       expect(find.text('HTTP'), findsNothing);
       expect(find.text('Tor'), findsNothing);
     });
 
-    testWidgets('a Direct receive over Tor reads Direct · Tor, never Tor alone', (tester) async {
+    testWidgets('a Link receive over Tor reads Link Payment · Tor, never Tor alone', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 33));
-      expect(find.text('Direct · Tor'), findsWidgets);
+      expect(find.text('Link Payment · Tor'), findsWidgets);
       expect(find.text('Tor'), findsNothing);
       expect(find.text('HTTP'), findsNothing);
     });
 
     testWidgets('the table names the method in the language', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 33), locale: const Locale('de'));
-      expect(find.text('Direkt · Tor'), findsWidgets);
-      expect(find.text('Direct · Tor'), findsNothing);
+      expect(find.text('Link-Zahlung · Tor'), findsWidgets);
+      expect(find.text('Link Payment · Tor'), findsNothing);
     });
   });
 
@@ -93,8 +93,8 @@ void main() {
       ),
     );
     expect(find.text('Epicbox'), findsOneWidget);
-    expect(find.text('Direct · HTTP'), findsOneWidget);
-    expect(find.text('Direct · Tor'), findsOneWidget);
+    expect(find.text('Link Payment · HTTP'), findsOneWidget);
+    expect(find.text('Link Payment · Tor'), findsOneWidget);
     expect(find.text('HTTP'), findsNothing);
     expect(find.text('Tor'), findsNothing);
   });

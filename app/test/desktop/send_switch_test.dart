@@ -43,7 +43,7 @@ void main() {
 
   TxMethod method(WidgetTester tester) => tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value;
   Finder to() => find.byType(EditableText).first;
-  Finder tag() => find.descendant(of: find.byKey(const ValueKey('send-switch-tag')), matching: find.text('Direct'));
+  Finder tag() => find.descendant(of: find.byKey(const ValueKey('send-switch-tag')), matching: find.text('Link'));
 
   /// Types [text] one character at a time; the method after each.
   Future<List<TxMethod>> type(WidgetTester tester, String text) async {
@@ -56,14 +56,14 @@ void main() {
     return seen;
   }
 
-  testWidgets('typing "es" under Direct stays on Direct', (tester) async {
+  testWidgets('typing "es" under Link stays on Link', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http));
     await type(tester, 'es');
     expect(method(tester), TxMethod.http);
     await tester.pump(const Duration(seconds: 4));
   });
 
-  testWidgets('a pasted Epicbox address under Direct switches to Epicbox and says so', (tester) async {
+  testWidgets('a pasted Epicbox address under Link switches to Epicbox and says so', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http));
     await tester.enterText(to(), _epicbox);
     await tester.pump();
@@ -75,7 +75,7 @@ void main() {
     expect(tester.widget<AnimatedOpacity>(find.byKey(const ValueKey('send-switch-tag'))).opacity, 0, reason: 'the tag goes after 3 s');
   });
 
-  testWidgets('an onion typed char by char switches to Direct once, at the last char, never back', (tester) async {
+  testWidgets('an onion typed char by char switches to Link once, at the last char, never back', (tester) async {
     await show(tester, const SendArgs());
     final seen = await type(tester, _onion);
     final first = seen.indexOf(TxMethod.http);
@@ -100,7 +100,7 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
   });
 
-  testWidgets('picking an onion contact switches to Direct', (tester) async {
+  testWidgets('picking an onion contact switches to Link', (tester) async {
     await show(tester, const SendArgs());
     await tester.enterText(to(), 'Olga');
     await tester.pump();

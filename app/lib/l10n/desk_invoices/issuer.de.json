@@ -5,7 +5,7 @@
   "deskInvIssuerMethod": "Methode",
   "deskInvIssuerEpicbox": "Epicbox",
   "deskInvIssuerFile": "Datei",
-  "deskInvIssuerDirect": "Direkt",
+  "deskInvIssuerDirect": "Link",
   "deskInvIssuerSoon": "Demnächst",
   "deskInvIssuerPayer": "Rechnungsadresse der anderen Seite",
   "deskInvIssuerPayerHelp": "Die Wallet der anderen Seite zeigt sie unter Einstellungen › Rechnungen.",

@@ -73,6 +73,7 @@ Future<void> _loadFonts() async {
   for (final (family, file) in [
     ('Montserrat', 'assets/fonts/Montserrat-SemiBold.ttf'),
     ('JetBrainsMonoNL', 'assets/fonts/JetBrainsMonoNL-Regular.ttf'),
+    ('EpicStatusIcons', 'assets/fonts/EpicStatusIcons.ttf'),
   ]) {
     await (FontLoader(family)..addFont(read(file))).load();
   }

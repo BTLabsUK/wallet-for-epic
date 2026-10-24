@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../demo.dart' show devNetworksProvider;
@@ -51,13 +52,13 @@ class _NetworkMenu extends ConsumerWidget {
         children: [
           ListTile(
             key: networkMenuNodeKey,
-            leading: const Icon(Icons.dns_outlined),
+            leading: const Icon(EpicGlyphs.node),
             title: Text(l.serverNodeTitle),
             onTap: () => Navigator.of(context).pop(_Entry.node),
           ),
           ListTile(
             key: networkMenuEpicboxKey,
-            leading: const Icon(Icons.mail_outline),
+            leading: const Icon(EpicGlyphs.epicbox),
             title: Text(l.serverEpicboxTitle),
             onTap: () => Navigator.of(context).pop(_Entry.epicbox),
           ),

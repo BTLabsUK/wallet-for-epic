@@ -61,6 +61,10 @@ final qrScannerProvider = Provider<QrScanner>(
 bool offersQrScan(WidgetRef ref) =>
     ref.watch(qrScannerProvider).supported && !ref.watch(demoModeProvider);
 
+/// Whether Send and Receive offer QR as a payment method (the payment's animated code, not
+/// the address scan of [offersQrScan]).
+bool offersQrPayment(WidgetRef ref) => qrPreviewSimulation || offersQrScan(ref);
+
 /// Full-screen camera view that pops with the first QR code's text.
 class ScanScreen extends ConsumerStatefulWidget {
   const ScanScreen({super.key});
