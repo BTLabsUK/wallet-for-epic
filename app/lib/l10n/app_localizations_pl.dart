@@ -15144,4 +15144,19 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendMethodHeader => 'Metoda płatności';
+
+  @override
+  String get deskSetupSaveFailedTitle => 'Ustawienia nie zostały zapisane';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason. Bez zapisu portfel używa ustawień zapisanych do tej pory. Można je później zmienić w Ustawieniach.';
+  }
+
+  @override
+  String get deskSetupSkipSave => 'Kontynuuj bez zapisywania';
+
+  @override
+  String get deskSetupResumeLead =>
+      'Konfiguracja nie została ostatnio dokończona. Portfel czyta łańcuch i wysyła płatności przez węzeł Epic.';
 }

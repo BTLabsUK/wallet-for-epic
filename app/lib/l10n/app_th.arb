@@ -3904,5 +3904,9 @@
   "deskSetTxSend": "ส่ง",
   "deskSetTxStart": "การส่งเริ่มด้วย",
   "deskSetTxStartHint": "วิธีที่หน้า ส่ง เปิดขึ้นมา สำหรับการจ่ายครั้งเดียวยังเปลี่ยนได้ที่หน้า ส่ง",
-  "deskSendMethodHeader": "วิธีชำระเงิน"
+  "deskSendMethodHeader": "วิธีชำระเงิน",
+  "deskSetupSaveFailedTitle": "ไม่ได้บันทึกการตั้งค่า",
+  "deskSetupSaveFailedText": "{reason} หากไม่บันทึก กระเป๋าเงินจะใช้การตั้งค่าที่เก็บไว้จนถึงตอนนี้ และเปลี่ยนได้ภายหลังในการตั้งค่า",
+  "deskSetupSkipSave": "ดำเนินการต่อโดยไม่บันทึก",
+  "deskSetupResumeLead": "การตั้งค่าครั้งก่อนยังไม่เสร็จ กระเป๋าเงินอ่านบล็อกเชนและส่งธุรกรรมผ่านโหนด Epic"
 }

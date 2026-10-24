@@ -3904,5 +3904,9 @@
   "deskSetTxSend": "Wyślij",
   "deskSetTxStart": "Wysyłanie zaczyna od",
   "deskSetTxStartHint": "Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij.",
-  "deskSendMethodHeader": "Metoda płatności"
+  "deskSendMethodHeader": "Metoda płatności",
+  "deskSetupSaveFailedTitle": "Ustawienia nie zostały zapisane",
+  "deskSetupSaveFailedText": "{reason}. Bez zapisu portfel używa ustawień zapisanych do tej pory. Można je później zmienić w Ustawieniach.",
+  "deskSetupSkipSave": "Kontynuuj bez zapisywania",
+  "deskSetupResumeLead": "Konfiguracja nie została ostatnio dokończona. Portfel czyta łańcuch i wysyła płatności przez węzeł Epic."
 }

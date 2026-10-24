@@ -3904,5 +3904,9 @@
   "deskSetTxSend": "Senden",
   "deskSetTxStart": "Senden beginnt mit",
   "deskSetTxStartHint": "Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern.",
-  "deskSendMethodHeader": "Zahlungsart"
+  "deskSendMethodHeader": "Zahlungsart",
+  "deskSetupSaveFailedTitle": "Einstellungen nicht gespeichert",
+  "deskSetupSaveFailedText": "{reason}. Ohne Speichern verwendet die Wallet die bisher gespeicherten Einstellungen. Sie lassen sich später unter Einstellungen ändern.",
+  "deskSetupSkipSave": "Ohne Speichern fortfahren",
+  "deskSetupResumeLead": "Die Einrichtung wurde beim letzten Mal nicht abgeschlossen. Die Wallet liest die Blockchain und sendet über einen Epic-Node."
 }

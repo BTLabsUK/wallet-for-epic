@@ -3904,5 +3904,9 @@
   "deskSetTxSend": "发送",
   "deskSetTxStart": "发送默认方式",
   "deskSetTxStartHint": "“发送”页面打开时使用的方式。单笔付款时，仍可在“发送”页面更改。",
-  "deskSendMethodHeader": "付款方式"
+  "deskSendMethodHeader": "付款方式",
+  "deskSetupSaveFailedTitle": "设置未保存",
+  "deskSetupSaveFailedText": "{reason}。不保存时，钱包使用目前已存储的设置，之后可在“设置”中更改。",
+  "deskSetupSkipSave": "不保存并继续",
+  "deskSetupResumeLead": "上次设置未完成。钱包通过 Epic 节点读取区块链并发送交易。"
 }

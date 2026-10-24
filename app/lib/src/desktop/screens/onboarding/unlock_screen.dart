@@ -13,7 +13,7 @@ import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;
 import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
-import 'setup_screen.dart' show SetupFirstRun;
+import 'setup_screen.dart' show SetupFirstRun, setupSkippedThisSession;
 
 /// What [UnlockScreen] starts on, for the screenshot tour.
 enum UnlockShow { wrongPassword, progress, failed, missing }
@@ -137,7 +137,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   /// A wallet whose first-run setup was not saved (the app was closed halfway) goes to the
   /// setup before it opens. True when it went there.
   Future<bool> _toSetup(WalletEntry pick, bool second) async {
-    if (pick.missing || widget.arg is UnlockShow) return false;
+    if (pick.missing || widget.arg is UnlockShow || setupSkippedThisSession.contains(pick.id)) return false;
     final bool pending;
     try {
       pending = await ref.read(deskApiProvider).setupPending(pick.id);
@@ -145,7 +145,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       return false;
     }
     if (!pending || !mounted) return false;
-    ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(UnlockAdded(pick.name, id: pick.id), second: second));
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(UnlockAdded(pick.name, id: pick.id), second: second, resumed: true));
     return true;
   }
 

@@ -310,8 +310,13 @@ class DeskController extends Notifier<DeskState> {
       }
       rethrow;
     }
-    // The address carries the relay: it changes with the switch.
+    // The address carries the relay: it changes with the switch. A locked wallet (first-run
+    // Setup, before Unlock) has no address yet: the change was only stored.
     final status = await api.status();
+    if (state.account == null) {
+      state = state.copyWith(status: status);
+      return;
+    }
     final address = await api.epicboxAddress();
     state = state.copyWith(status: status, epicboxAddress: address);
   }

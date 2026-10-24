@@ -14426,4 +14426,19 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendMethodHeader => 'วิธีชำระเงิน';
+
+  @override
+  String get deskSetupSaveFailedTitle => 'ไม่ได้บันทึกการตั้งค่า';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason หากไม่บันทึก กระเป๋าเงินจะใช้การตั้งค่าที่เก็บไว้จนถึงตอนนี้ และเปลี่ยนได้ภายหลังในการตั้งค่า';
+  }
+
+  @override
+  String get deskSetupSkipSave => 'ดำเนินการต่อโดยไม่บันทึก';
+
+  @override
+  String get deskSetupResumeLead =>
+      'การตั้งค่าครั้งก่อนยังไม่เสร็จ กระเป๋าเงินอ่านบล็อกเชนและส่งธุรกรรมผ่านโหนด Epic';
 }
