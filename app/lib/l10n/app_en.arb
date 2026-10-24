@@ -19259,5 +19259,139 @@
   "deskSendMethodHeader": "Payment method",
   "@deskSendMethodHeader": {
     "description": "Title of the first panel on Send: the method selector comes first, then the recipient field."
+  },
+  "sendRequestTitle": "Payment request",
+  "@sendRequestTitle": {
+    "description": "Send › amount step: title of the banner shown when a payment code (QR, link or paste) filled the form."
+  },
+  "sendRequestCheck": "Check the amount, then continue.",
+  "@sendRequestCheck": {
+    "description": "Send › amount step: the payment-request banner's text line when nothing in the code was dropped."
+  },
+  "sendRequestDismiss": "Dismiss",
+  "@sendRequestDismiss": {
+    "description": "Tooltip and screen-reader label of the × that hides the payment-request banner."
+  },
+  "sendAmountFromCode": "Requested by the code",
+  "@sendAmountFromCode": {
+    "description": "Helper under the amount field while it still holds the amount a payment code asked for."
+  },
+  "sendAmountCodeAsked": "The code asked for {amount}.",
+  "@sendAmountCodeAsked": {
+    "description": "Helper under the amount field after the user changed the amount a payment code asked for. {amount} is the code's amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "sendCodeAmountInvalid": "The amount in this code is not valid and was ignored.",
+  "@sendCodeAmountInvalid": {
+    "description": "Payment-request banner line: the code's amount was malformed (zero, a sign, a comma, too many decimals) and the amount field was left empty."
+  },
+  "sendCodeAmountTooLarge": "The amount in this code is too large and was ignored.",
+  "@sendCodeAmountTooLarge": {
+    "description": "Payment-request banner line: the code's amount was above the limit and the amount field was left empty."
+  },
+  "sendCodeTooLong": "Part of this code was too long and was ignored.",
+  "@sendCodeTooLong": {
+    "description": "Payment-request banner line: a part of the code (note, name, amount) was over its length limit and was dropped."
+  },
+  "payeeNameLabel": "Name given by the payee (not verified)",
+  "@payeeNameLabel": {
+    "description": "Caption over the payee's name as written in a payment code (label). Not checked by anyone."
+  },
+  "payeeNoteLabel": "Note from the payee (not verified)",
+  "@payeeNoteLabel": {
+    "description": "Caption over the payee's note as written in a payment code (message). Not checked by anyone."
+  },
+  "payeeUnverifiedTitle": "Not verified",
+  "@payeeUnverifiedTitle": {
+    "description": "Title of the info sheet on the payee block (name and note from a payment code)."
+  },
+  "payeeUnverifiedHint": "The name and the note are written into the code by whoever made it. Nobody checks them. Check the address and the amount, not the name.",
+  "@payeeUnverifiedHint": {
+    "description": "Info sheet text on the payee block: the name and note in a payment code are not verified."
+  },
+  "sendNoteFromCodeHelper": "From the code. They see it too.",
+  "@sendNoteFromCodeHelper": {
+    "description": "Helper under the Note field when the note was filled from a payment code; the receiver sees the note."
+  },
+  "sendOriginQr": "From a QR code",
+  "@sendOriginQr": {
+    "description": "Send review: small pill saying the payment details came from a scanned QR code."
+  },
+  "sendOriginLink": "From a link",
+  "@sendOriginLink": {
+    "description": "Send review: small pill saying the payment details came from a link opened in another app."
+  },
+  "sendOriginPasted": "Pasted",
+  "@sendOriginPasted": {
+    "description": "Send review: small pill saying the payment details were pasted."
+  },
+  "sendDirectHost": "Host",
+  "@sendDirectHost": {
+    "description": "Send review: caption over the host of a Link Payment (Direct) address that came from a code."
+  },
+  "sendPlainHttpRow": "Not encrypted (plain HTTP)",
+  "@sendPlainHttpRow": {
+    "description": "Send review: warning row for a Link Payment address over plain http to another device."
+  },
+  "scanNotEpicTitle": "Not an Epic code",
+  "@scanNotEpicTitle": {
+    "description": "Title of the sheet after a scan or link that read something other than an Epic address or payment code."
+  },
+  "scanNotEpicBody": "This is not an Epic address or payment code.",
+  "@scanNotEpicBody": {
+    "description": "Text of the \"Not an Epic code\" sheet, and the To field error for such text."
+  },
+  "scanBadAddress": "The address in this code is not valid.",
+  "@scanBadAddress": {
+    "description": "An epic: payment code whose address is not valid: sheet text and To field error."
+  },
+  "scanWrongNetworkTitle": "Other network",
+  "@scanWrongNetworkTitle": {
+    "description": "Title of the sheet for an address of the other Epic network (mainnet against floonet). Never name the networks."
+  },
+  "scanWrongNetworkBody": "This address is for a different Epic network. This wallet cannot pay it.",
+  "@scanWrongNetworkBody": {
+    "description": "Text of the \"Other network\" sheet and the To field error for such an address."
+  },
+  "scanSlateTextBody": "This is the text of a transaction file, not an address.",
+  "@scanSlateTextBody": {
+    "description": "Sheet text when the scanned or pasted text is a transaction file's text; its button opens the file flow."
+  },
+  "commonOpen": "Open",
+  "@commonOpen": {
+    "description": "Button: opens the thing named in the sheet or notice (a transaction file, a payment link)."
+  },
+  "scanPairingTitle": "Pairing link",
+  "@scanPairingTitle": {
+    "description": "Title of the sheet for a contact pairing link (epiccash://pair/…)."
+  },
+  "scanPairingUnavailable": "Pairing is not available in this version.",
+  "@scanPairingUnavailable": {
+    "description": "Text of the pairing-link sheet while this version has no pairing."
+  },
+  "scanCodeTextLabel": "Scanned text",
+  "@scanCodeTextLabel": {
+    "description": "Screen-reader label of the box that shows the start of the scanned text."
+  },
+  "scanCopied": "Copied",
+  "@scanCopied": {
+    "description": "Notice after Copy on a scan-result sheet copied the scanned text."
+  },
+  "linkWaitingNotice": "Payment link received",
+  "@linkWaitingNotice": {
+    "description": "Notice when a payment link arrives while another screen is open over home; its action is commonOpen."
+  },
+  "linkFinishCurrentFirst": "Finish the current payment first.",
+  "@linkFinishCurrentFirst": {
+    "description": "Notice when a payment link arrives while Send asks for the PIN or sends; the link is dropped."
+  },
+  "deskSendToQrPayment": "A QR Payment code. Scan it with Epic Cash Mobile.",
+  "@deskSendToQrPayment": {
+    "description": "Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (Epic Cash Mobile) reads. 'QR Payment' is the method's name."
   }
 }

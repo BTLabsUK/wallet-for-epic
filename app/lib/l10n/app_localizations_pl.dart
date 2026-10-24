@@ -15144,4 +15144,110 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendMethodHeader => 'Metoda płatności';
+
+  @override
+  String get sendRequestTitle => 'Prośba o płatność';
+
+  @override
+  String get sendRequestCheck => 'Sprawdź kwotę, potem przejdź dalej.';
+
+  @override
+  String get sendRequestDismiss => 'Zamknij';
+
+  @override
+  String get sendAmountFromCode => 'Kwota z kodu';
+
+  @override
+  String sendAmountCodeAsked(String amount) {
+    return 'Kod prosił o $amount.';
+  }
+
+  @override
+  String get sendCodeAmountInvalid =>
+      'Kwota w tym kodzie jest nieprawidłowa i została pominięta.';
+
+  @override
+  String get sendCodeAmountTooLarge =>
+      'Kwota w tym kodzie jest zbyt duża i została pominięta.';
+
+  @override
+  String get sendCodeTooLong =>
+      'Część tego kodu była zbyt długa i została pominięta.';
+
+  @override
+  String get payeeNameLabel => 'Nazwa podana przez odbiorcę (niezweryfikowana)';
+
+  @override
+  String get payeeNoteLabel => 'Notatka od odbiorcy (niezweryfikowana)';
+
+  @override
+  String get payeeUnverifiedTitle => 'Niezweryfikowane';
+
+  @override
+  String get payeeUnverifiedHint =>
+      'Nazwę i notatkę wpisuje do kodu ten, kto go tworzy. Nikt ich nie sprawdza. Sprawdź adres i kwotę, nie nazwę.';
+
+  @override
+  String get sendNoteFromCodeHelper => 'Z kodu. Odbiorca też ją zobaczy.';
+
+  @override
+  String get sendOriginQr => 'Z kodu QR';
+
+  @override
+  String get sendOriginLink => 'Z linku';
+
+  @override
+  String get sendOriginPasted => 'Wklejone';
+
+  @override
+  String get sendDirectHost => 'Host';
+
+  @override
+  String get sendPlainHttpRow => 'Bez szyfrowania (zwykły HTTP)';
+
+  @override
+  String get scanNotEpicTitle => 'To nie jest kod Epic';
+
+  @override
+  String get scanNotEpicBody => 'To nie jest adres Epic ani kod płatności.';
+
+  @override
+  String get scanBadAddress => 'Adres w tym kodzie jest nieprawidłowy.';
+
+  @override
+  String get scanWrongNetworkTitle => 'Inna sieć';
+
+  @override
+  String get scanWrongNetworkBody =>
+      'Ten adres należy do innej sieci Epic. Ten portfel nie może na niego zapłacić.';
+
+  @override
+  String get scanSlateTextBody =>
+      'To jest tekst pliku transakcji, a nie adres.';
+
+  @override
+  String get commonOpen => 'Otwórz';
+
+  @override
+  String get scanPairingTitle => 'Link parowania';
+
+  @override
+  String get scanPairingUnavailable =>
+      'Parowanie nie jest dostępne w tej wersji.';
+
+  @override
+  String get scanCodeTextLabel => 'Zeskanowany tekst';
+
+  @override
+  String get scanCopied => 'Skopiowano';
+
+  @override
+  String get linkWaitingNotice => 'Otrzymano link płatności';
+
+  @override
+  String get linkFinishCurrentFirst => 'Najpierw dokończ bieżącą płatność.';
+
+  @override
+  String get deskSendToQrPayment =>
+      'Kod Płatności QR. Zeskanuj go w Epic Cash Mobile.';
 }

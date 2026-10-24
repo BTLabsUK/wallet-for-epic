@@ -23311,6 +23311,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Payment method'**
   String get deskSendMethodHeader;
+
+  /// Send › amount step: title of the banner shown when a payment code (QR, link or paste) filled the form.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment request'**
+  String get sendRequestTitle;
+
+  /// Send › amount step: the payment-request banner's text line when nothing in the code was dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the amount, then continue.'**
+  String get sendRequestCheck;
+
+  /// Tooltip and screen-reader label of the × that hides the payment-request banner.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get sendRequestDismiss;
+
+  /// Helper under the amount field while it still holds the amount a payment code asked for.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested by the code'**
+  String get sendAmountFromCode;
+
+  /// Helper under the amount field after the user changed the amount a payment code asked for. {amount} is the code's amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'The code asked for {amount}.'**
+  String sendAmountCodeAsked(String amount);
+
+  /// Payment-request banner line: the code's amount was malformed (zero, a sign, a comma, too many decimals) and the amount field was left empty.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount in this code is not valid and was ignored.'**
+  String get sendCodeAmountInvalid;
+
+  /// Payment-request banner line: the code's amount was above the limit and the amount field was left empty.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount in this code is too large and was ignored.'**
+  String get sendCodeAmountTooLarge;
+
+  /// Payment-request banner line: a part of the code (note, name, amount) was over its length limit and was dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of this code was too long and was ignored.'**
+  String get sendCodeTooLong;
+
+  /// Caption over the payee's name as written in a payment code (label). Not checked by anyone.
+  ///
+  /// In en, this message translates to:
+  /// **'Name given by the payee (not verified)'**
+  String get payeeNameLabel;
+
+  /// Caption over the payee's note as written in a payment code (message). Not checked by anyone.
+  ///
+  /// In en, this message translates to:
+  /// **'Note from the payee (not verified)'**
+  String get payeeNoteLabel;
+
+  /// Title of the info sheet on the payee block (name and note from a payment code).
+  ///
+  /// In en, this message translates to:
+  /// **'Not verified'**
+  String get payeeUnverifiedTitle;
+
+  /// Info sheet text on the payee block: the name and note in a payment code are not verified.
+  ///
+  /// In en, this message translates to:
+  /// **'The name and the note are written into the code by whoever made it. Nobody checks them. Check the address and the amount, not the name.'**
+  String get payeeUnverifiedHint;
+
+  /// Helper under the Note field when the note was filled from a payment code; the receiver sees the note.
+  ///
+  /// In en, this message translates to:
+  /// **'From the code. They see it too.'**
+  String get sendNoteFromCodeHelper;
+
+  /// Send review: small pill saying the payment details came from a scanned QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'From a QR code'**
+  String get sendOriginQr;
+
+  /// Send review: small pill saying the payment details came from a link opened in another app.
+  ///
+  /// In en, this message translates to:
+  /// **'From a link'**
+  String get sendOriginLink;
+
+  /// Send review: small pill saying the payment details were pasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted'**
+  String get sendOriginPasted;
+
+  /// Send review: caption over the host of a Link Payment (Direct) address that came from a code.
+  ///
+  /// In en, this message translates to:
+  /// **'Host'**
+  String get sendDirectHost;
+
+  /// Send review: warning row for a Link Payment address over plain http to another device.
+  ///
+  /// In en, this message translates to:
+  /// **'Not encrypted (plain HTTP)'**
+  String get sendPlainHttpRow;
+
+  /// Title of the sheet after a scan or link that read something other than an Epic address or payment code.
+  ///
+  /// In en, this message translates to:
+  /// **'Not an Epic code'**
+  String get scanNotEpicTitle;
+
+  /// Text of the "Not an Epic code" sheet, and the To field error for such text.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not an Epic address or payment code.'**
+  String get scanNotEpicBody;
+
+  /// An epic: payment code whose address is not valid: sheet text and To field error.
+  ///
+  /// In en, this message translates to:
+  /// **'The address in this code is not valid.'**
+  String get scanBadAddress;
+
+  /// Title of the sheet for an address of the other Epic network (mainnet against floonet). Never name the networks.
+  ///
+  /// In en, this message translates to:
+  /// **'Other network'**
+  String get scanWrongNetworkTitle;
+
+  /// Text of the "Other network" sheet and the To field error for such an address.
+  ///
+  /// In en, this message translates to:
+  /// **'This address is for a different Epic network. This wallet cannot pay it.'**
+  String get scanWrongNetworkBody;
+
+  /// Sheet text when the scanned or pasted text is a transaction file's text; its button opens the file flow.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the text of a transaction file, not an address.'**
+  String get scanSlateTextBody;
+
+  /// Button: opens the thing named in the sheet or notice (a transaction file, a payment link).
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get commonOpen;
+
+  /// Title of the sheet for a contact pairing link (epiccash://pair/…).
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing link'**
+  String get scanPairingTitle;
+
+  /// Text of the pairing-link sheet while this version has no pairing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing is not available in this version.'**
+  String get scanPairingUnavailable;
+
+  /// Screen-reader label of the box that shows the start of the scanned text.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned text'**
+  String get scanCodeTextLabel;
+
+  /// Notice after Copy on a scan-result sheet copied the scanned text.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get scanCopied;
+
+  /// Notice when a payment link arrives while another screen is open over home; its action is commonOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment link received'**
+  String get linkWaitingNotice;
+
+  /// Notice when a payment link arrives while Send asks for the PIN or sends; the link is dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the current payment first.'**
+  String get linkFinishCurrentFirst;
+
+  /// Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (Epic Cash Mobile) reads. 'QR Payment' is the method's name.
+  ///
+  /// In en, this message translates to:
+  /// **'A QR Payment code. Scan it with Epic Cash Mobile.'**
+  String get deskSendToQrPayment;
 }
 
 class _AppLocalizationsDelegate

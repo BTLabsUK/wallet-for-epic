@@ -14,6 +14,7 @@ import io.flutter.plugin.common.MethodChannel
 // FlutterFragmentActivity, because the biometric prompt (local_auth, flutter_secure_storage)
 // needs a FragmentActivity.
 private const val MAX_BYTES = 1 shl 20
+private const val MAX_LINK_CHARS = 4096
 
 class MainActivity : FlutterFragmentActivity() {
     private var updater: AppUpdater? = null
@@ -22,6 +23,19 @@ class MainActivity : FlutterFragmentActivity() {
 
     /** A transaction file another app handed us before Dart asked for it. */
     private var pendingFile: Map<String, String>? = null
+
+    private var linkChannel: MethodChannel? = null
+
+    /** An epic: / epiccash: payment link another app opened, before Dart asked for it. */
+    private var pendingLink: String? = null
+
+    /** The activity was recreated from saved state: its intent was handled before. */
+    private var restored = false
+
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        restored = savedInstanceState != null
+        super.onCreate(savedInstanceState)
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -67,6 +81,25 @@ class MainActivity : FlutterFragmentActivity() {
             }
         }
         readIncoming(intent)?.let { pendingFile = it }
+        // Payment links (epic:, epiccash:), kept apart from files: the text is the link itself.
+        linkChannel = MethodChannel(messenger, "epic_wallet/incoming_link").also {
+            it.setMethodCallHandler { call, result ->
+                if (call.method == "takePending") {
+                    result.success(pendingLink)
+                    pendingLink = null
+                } else {
+                    result.notImplemented()
+                }
+            }
+        }
+        // Once only: a launch from Recents or a restored activity carries the old intent again,
+        // and a link the user already followed (and maybe paid) must not open a second time.
+        if (!restored && intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY == 0) {
+            readLink(intent)?.let {
+                pendingLink = it
+                intent = Intent(intent).setData(null)
+            }
+        }
         // The google-services Gradle plugin writes google_app_id only when google-services.json
         // was present at build time. Dart hides the notifications switch without it.
         MethodChannel(messenger, "epic_wallet/push")
@@ -117,6 +150,23 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        readLink(intent)?.let { link ->
+            val channel = linkChannel
+            if (channel == null) {
+                pendingLink = link
+            } else {
+                channel.invokeMethod("link", link, object : MethodChannel.Result {
+                    override fun success(result: Any?) {}
+                    override fun error(code: String, message: String?, details: Any?) {
+                        pendingLink = link
+                    }
+                    override fun notImplemented() {
+                        pendingLink = link
+                    }
+                })
+            }
+            return
+        }
         val file = readIncoming(intent) ?: return
         val channel = incomingChannel
         if (channel == null) {
@@ -135,8 +185,26 @@ class MainActivity : FlutterFragmentActivity() {
         }
     }
 
+    /**
+     * The payment link of a VIEW intent whose scheme is epic or epiccash, or null. Only the data
+     * string is read, never the extras, and never opened as a file.
+     */
+    private fun readLink(intent: Intent?): String? {
+        if (intent?.action != Intent.ACTION_VIEW) return null
+        val scheme = intent.data?.scheme?.lowercase() ?: return null
+        if (scheme != "epic" && scheme != "epiccash") return null
+        val text = intent.dataString ?: return null
+        return if (text.length > MAX_LINK_CHARS) null else text
+    }
+
+    private fun isLinkScheme(intent: Intent?): Boolean {
+        val scheme = intent?.data?.scheme?.lowercase()
+        return intent?.action == Intent.ACTION_VIEW && (scheme == "epic" || scheme == "epiccash")
+    }
+
     /** Name and text of a transaction file from a VIEW or SEND intent, or null. */
     private fun readIncoming(intent: Intent?): Map<String, String>? {
+        if (readLink(intent) != null || isLinkScheme(intent)) return null
         val uri: Uri = when (intent?.action) {
             Intent.ACTION_VIEW -> intent.data
             Intent.ACTION_SEND -> if (Build.VERSION.SDK_INT >= 33) {

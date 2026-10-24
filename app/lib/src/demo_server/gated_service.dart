@@ -96,6 +96,10 @@ class GatedWalletService implements WalletService {
       _inner.validateEpicboxAddress(address: address);
 
   @override
+  bool epicboxAddressOtherChain({required String address}) =>
+      _inner.epicboxAddressOtherChain(address: address);
+
+  @override
   bool validateOnionAddress({required String address}) =>
       _inner.validateOnionAddress(address: address);
 

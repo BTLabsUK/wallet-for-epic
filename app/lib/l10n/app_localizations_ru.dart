@@ -15112,4 +15112,108 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendMethodHeader => 'Способ оплаты';
+
+  @override
+  String get sendRequestTitle => 'Запрос на оплату';
+
+  @override
+  String get sendRequestCheck => 'Проверьте сумму, затем продолжите.';
+
+  @override
+  String get sendRequestDismiss => 'Скрыть';
+
+  @override
+  String get sendAmountFromCode => 'Запрошено кодом';
+
+  @override
+  String sendAmountCodeAsked(String amount) {
+    return 'В коде указана сумма $amount.';
+  }
+
+  @override
+  String get sendCodeAmountInvalid =>
+      'Сумма в этом коде недействительна и была пропущена.';
+
+  @override
+  String get sendCodeAmountTooLarge =>
+      'Сумма в этом коде слишком велика и была пропущена.';
+
+  @override
+  String get sendCodeTooLong =>
+      'Часть этого кода слишком длинная и была пропущена.';
+
+  @override
+  String get payeeNameLabel => 'Имя, указанное получателем (не проверено)';
+
+  @override
+  String get payeeNoteLabel => 'Заметка получателя (не проверена)';
+
+  @override
+  String get payeeUnverifiedTitle => 'Не проверено';
+
+  @override
+  String get payeeUnverifiedHint =>
+      'Имя и заметку записывает в код тот, кто его создал. Их никто не проверяет. Проверяйте адрес и сумму, а не имя.';
+
+  @override
+  String get sendNoteFromCodeHelper => 'Из кода. Получатель тоже её увидит.';
+
+  @override
+  String get sendOriginQr => 'Из QR-кода';
+
+  @override
+  String get sendOriginLink => 'Из ссылки';
+
+  @override
+  String get sendOriginPasted => 'Вставлено';
+
+  @override
+  String get sendDirectHost => 'Хост';
+
+  @override
+  String get sendPlainHttpRow => 'Без шифрования (обычный HTTP)';
+
+  @override
+  String get scanNotEpicTitle => 'Это не код Epic';
+
+  @override
+  String get scanNotEpicBody => 'Это не адрес Epic и не код оплаты.';
+
+  @override
+  String get scanBadAddress => 'Адрес в этом коде недействителен.';
+
+  @override
+  String get scanWrongNetworkTitle => 'Другая сеть';
+
+  @override
+  String get scanWrongNetworkBody =>
+      'Этот адрес принадлежит другой сети Epic. Этот кошелёк не может его оплатить.';
+
+  @override
+  String get scanSlateTextBody => 'Это текст файла транзакции, а не адрес.';
+
+  @override
+  String get commonOpen => 'Открыть';
+
+  @override
+  String get scanPairingTitle => 'Ссылка для сопряжения';
+
+  @override
+  String get scanPairingUnavailable => 'Сопряжение недоступно в этой версии.';
+
+  @override
+  String get scanCodeTextLabel => 'Отсканированный текст';
+
+  @override
+  String get scanCopied => 'Скопировано';
+
+  @override
+  String get linkWaitingNotice => 'Получена ссылка на оплату';
+
+  @override
+  String get linkFinishCurrentFirst => 'Сначала завершите текущий платёж.';
+
+  @override
+  String get deskSendToQrPayment =>
+      'Код «Оплата по QR». Отсканируйте его в Epic Cash Mobile.';
 }

@@ -14701,4 +14701,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSendMethodHeader => 'Payment method';
+
+  @override
+  String get sendRequestTitle => 'Payment request';
+
+  @override
+  String get sendRequestCheck => 'Check the amount, then continue.';
+
+  @override
+  String get sendRequestDismiss => 'Dismiss';
+
+  @override
+  String get sendAmountFromCode => 'Requested by the code';
+
+  @override
+  String sendAmountCodeAsked(String amount) {
+    return 'The code asked for $amount.';
+  }
+
+  @override
+  String get sendCodeAmountInvalid =>
+      'The amount in this code is not valid and was ignored.';
+
+  @override
+  String get sendCodeAmountTooLarge =>
+      'The amount in this code is too large and was ignored.';
+
+  @override
+  String get sendCodeTooLong =>
+      'Part of this code was too long and was ignored.';
+
+  @override
+  String get payeeNameLabel => 'Name given by the payee (not verified)';
+
+  @override
+  String get payeeNoteLabel => 'Note from the payee (not verified)';
+
+  @override
+  String get payeeUnverifiedTitle => 'Not verified';
+
+  @override
+  String get payeeUnverifiedHint =>
+      'The name and the note are written into the code by whoever made it. Nobody checks them. Check the address and the amount, not the name.';
+
+  @override
+  String get sendNoteFromCodeHelper => 'From the code. They see it too.';
+
+  @override
+  String get sendOriginQr => 'From a QR code';
+
+  @override
+  String get sendOriginLink => 'From a link';
+
+  @override
+  String get sendOriginPasted => 'Pasted';
+
+  @override
+  String get sendDirectHost => 'Host';
+
+  @override
+  String get sendPlainHttpRow => 'Not encrypted (plain HTTP)';
+
+  @override
+  String get scanNotEpicTitle => 'Not an Epic code';
+
+  @override
+  String get scanNotEpicBody => 'This is not an Epic address or payment code.';
+
+  @override
+  String get scanBadAddress => 'The address in this code is not valid.';
+
+  @override
+  String get scanWrongNetworkTitle => 'Other network';
+
+  @override
+  String get scanWrongNetworkBody =>
+      'This address is for a different Epic network. This wallet cannot pay it.';
+
+  @override
+  String get scanSlateTextBody =>
+      'This is the text of a transaction file, not an address.';
+
+  @override
+  String get commonOpen => 'Open';
+
+  @override
+  String get scanPairingTitle => 'Pairing link';
+
+  @override
+  String get scanPairingUnavailable =>
+      'Pairing is not available in this version.';
+
+  @override
+  String get scanCodeTextLabel => 'Scanned text';
+
+  @override
+  String get scanCopied => 'Copied';
+
+  @override
+  String get linkWaitingNotice => 'Payment link received';
+
+  @override
+  String get linkFinishCurrentFirst => 'Finish the current payment first.';
+
+  @override
+  String get deskSendToQrPayment =>
+      'A QR Payment code. Scan it with Epic Cash Mobile.';
 }
