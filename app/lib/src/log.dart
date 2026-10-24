@@ -206,7 +206,8 @@ void logError(String tag, Object error, [StackTrace? stack]) {
 }
 
 /// Fields of LEPIC's log vocabulary whose values say nothing about keys, amounts or addresses,
-/// as LEPIC's own log ring keeps them (`lepic-telemetry/src/mobile.rs`, `KEPT_FIELDS`). Any
+/// as LEPIC's own log ring keeps them (`lepic-telemetry/src/mobile.rs`, `KEPT_FIELDS`), and
+/// the HTTP listener's `port` and `exposure` (local or public), the user's own settings. Any
 /// other field is written as `[redacted]`, and `error` through [redactQuoted].
 const Set<String> lepicKeptFields = {
   'wallet',
@@ -222,6 +223,10 @@ const Set<String> lepicKeptFields = {
   'height',
   'attempt',
   'elapsed_ms',
+  'retry_in_ms',
+  'code',
+  'port',
+  'exposure',
   'error',
   'tag',
 };

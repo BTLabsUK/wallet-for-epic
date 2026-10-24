@@ -59,8 +59,16 @@ void logLepicEntry(lepic.LogEntry entry) {
   };
   if (level == null) return;
   final line = StringBuffer(entry.message);
-  if (entry.spans.isNotEmpty) line.write(' in ${entry.spans.join('>')}');
+  // Nested spans of the same name, and the fields each span and the event repeat, are
+  // written once (windows-08).
+  final spans = [
+    for (final (i, span) in entry.spans.indexed)
+      if (i == 0 || entry.spans[i - 1] != span) span,
+  ];
+  if (spans.isNotEmpty) line.write(' in ${spans.join('>')}');
+  final written = <(String, String)>{};
   for (final field in entry.fields) {
+    if (!written.add((field.name, field.value))) continue;
     final value = field.name == 'error'
         ? redactQuoted(field.value)
         : lepicKeptFields.contains(field.name)
