@@ -14144,4 +14144,30 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskInvNoticeReceiveSuperseded =>
       'Ваше другое устройство с этим кошельком приняло платёж, который получало и это устройство. Запустите «Сверка баланса», чтобы увидеть его здесь.';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'В истории старого кошелька другие подробности для $n платежа, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      many:
+          'В истории старого кошелька другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      few:
+          'В истории старого кошелька другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+      one:
+          'В истории старого кошелька другие подробности для $n платежа, который вы описали. Ваши сохраняются, если вы не выберете иначе.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => 'Старый кошелёк';
+
+  @override
+  String get deskHistConflictApply => 'Применить';
+
+  @override
+  String get deskTxProofNone => 'Для этого платежа нет подтверждения платежа.';
 }

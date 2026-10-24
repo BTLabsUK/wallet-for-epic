@@ -13028,4 +13028,23 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskInvNoticeReceiveSuperseded =>
       '您使用此钱包的另一台设备接收了一笔本设备也在接收的付款。请重新核对余额，在这里查看它。';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '旧钱包的历史中有 $n 笔你描述过的付款带有不同的详情。除非你另行选择，否则保留你的内容。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => '旧钱包';
+
+  @override
+  String get deskHistConflictApply => '应用';
+
+  @override
+  String get deskTxProofNone => '这笔付款没有付款证明。';
 }

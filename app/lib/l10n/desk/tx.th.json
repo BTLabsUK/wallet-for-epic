@@ -71,6 +71,7 @@
   "deskTxFactMessage": "ข้อความ",
   "deskTxSignedByRecipient": "ผู้รับลงนามแล้ว",
   "deskTxProofView": "ดู",
+  "deskTxProofNone": "การชำระเงินนี้ไม่มีหลักฐานการชำระเงิน",
   "deskTxTechTitle": "รายละเอียดทางเทคนิค",
   "deskTxTechId": "ID",
   "deskTxTechSlate": "Slate ID",

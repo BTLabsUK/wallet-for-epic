@@ -405,7 +405,16 @@ abstract interface class WalletSession {
   /// Brings across the transaction history of the epic-wallet wallet (GUI or CLI) in
   /// [sourceDir], the folder holding `wallet_data`, that this wallet was made from. Nothing in
   /// [sourceDir] is written. A history that cannot be imported is a status, not an error.
-  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir});
+  ///
+  /// Where the old wallet records another sender or method than the user typed for a payment
+  /// ([LegacyHistoryImport.conflicts]) and [useOldWallet] is null, the report has `applied:
+  /// false` and the typed values stay as they are. Called again with [useOldWallet] (by
+  /// [ImportConflict.id]: true takes the old wallet's value, false or missing keeps the user's,
+  /// remembered so the same value never asks again).
+  Future<LegacyHistoryImport> importLegacyHistory({
+    required String sourceDir,
+    Map<String, bool>? useOldWallet,
+  });
 
   /// Largest amount that can be sent now, with its fee.
   Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations});
@@ -1851,10 +1860,30 @@ class FakeWalletSession implements WalletSession {
   @override
   Future<LegacyHistoryImport> importLegacyHistory({
     required String sourceDir,
+    Map<String, bool>? useOldWallet,
   }) async {
     legacyImports.add(sourceDir);
-    return legacyImport;
+    lastUseOldWallet = useOldWallet;
+    final waiting = legacyImport.conflicts;
+    if (useOldWallet == null && waiting.isNotEmpty) {
+      return LegacyHistoryImport(
+        status: legacyImport.status,
+        transactions: legacyImport.transactions,
+        conflicts: waiting,
+        applied: false,
+      );
+    }
+    return LegacyHistoryImport(
+      status: legacyImport.status,
+      transactions: legacyImport.transactions,
+      linked: legacyImport.linked,
+      skipped: legacyImport.skipped,
+      replaced: useOldWallet?.values.where((v) => v).length ?? 0,
+    );
   }
+
+  /// The `useOldWallet` of the last [importLegacyHistory] call.
+  Map<String, bool>? lastUseOldWallet;
 
   @override
   Future<ImportReport> importHistory({

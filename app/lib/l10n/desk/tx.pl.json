@@ -71,6 +71,7 @@
   "deskTxFactMessage": "Wiadomość",
   "deskTxSignedByRecipient": "Podpisana przez odbiorcę",
   "deskTxProofView": "Pokaż",
+  "deskTxProofNone": "Brak dowodu płatności dla tej płatności.",
   "deskTxTechTitle": "Szczegóły techniczne",
   "deskTxTechId": "ID",
   "deskTxTechSlate": "ID slate",

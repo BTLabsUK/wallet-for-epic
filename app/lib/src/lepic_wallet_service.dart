@@ -1674,10 +1674,10 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<LegacyHistoryImport> importLegacyHistory({
     required String sourceDir,
+    Map<String, bool>? useOldWallet,
   }) => _guard(() async {
     final r = await _wallet.importLegacyHistory(sourceDir: sourceDir);
-    return LegacyHistoryImport(
-      status: switch (r.status) {
+    final status = switch (r.status) {
         lepic.LegacyImportStatus.imported => LegacyHistoryStatus.imported,
         lepic.LegacyImportStatus.alreadyImported =>
           LegacyHistoryStatus.alreadyImported,
@@ -1689,10 +1689,33 @@ class LepicWalletSession implements WalletSession {
         lepic.LegacyImportStatus.otherWallet => LegacyHistoryStatus.otherWallet,
         lepic.LegacyImportStatus.otherHistory =>
           LegacyHistoryStatus.otherHistory,
-      },
+    };
+    // What the user typed for a payment a scan found, against what the old wallet recorded
+    // for it: the same per-field choice as a history backup, Mine unless they say otherwise.
+    final read =
+        status == LegacyHistoryStatus.imported ||
+        status == LegacyHistoryStatus.alreadyImported;
+    final live = read ? await _live() : const <TxEntry>[];
+    final List<ImportConflict> conflicts =
+        read ? _history.legacyConflicts(live) : const [];
+    var replaced = 0;
+    if (conflicts.isNotEmpty) {
+      if (useOldWallet == null) {
+        return LegacyHistoryImport(
+          status: status,
+          transactions: r.transactions,
+          conflicts: conflicts,
+          applied: false,
+        );
+      }
+      replaced = await _history.resolveLegacyConflicts(live, useOldWallet);
+    }
+    return LegacyHistoryImport(
+      status: status,
       transactions: r.transactions,
       linked: r.linked,
       skipped: r.skipped,
+      replaced: replaced,
     );
   });
 

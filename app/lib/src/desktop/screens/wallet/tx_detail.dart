@@ -524,7 +524,10 @@ Future<bool?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<bool
   },
 );
 
-/// The payment proof: who signed what, with copy and export.
+/// The payment proof: who signed what, with copy and export. Shows what the transaction carries;
+/// without a proof (or without its sender and signature) it says so and offers nothing to export.
+String? _some(String? s) => s == null || s.trim().isEmpty ? null : s.trim();
+
 Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
   context,
   builder: (context) => Consumer(
@@ -554,6 +557,18 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
           ],
         ),
       );
+      final sender = _some(t.proofSender), signature = _some(t.proofSignature);
+      if (!t.hasProof || (sender == null && signature == null)) {
+        return EDialog(
+          title: l.deskTxPaymentProof,
+          icon: EIcons.proof,
+          width: 520.u,
+          body: Text(l.deskTxProofNone, style: ts.body),
+          actions: [EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.pop(context))],
+        );
+      }
+      // An address the user typed is not what the payment's proof is about: never shown here.
+      final recipient = t.manualFields.contains(ManualField.counterparty) ? null : _some((t.counterparty ?? '').split('@').first);
       return EDialog(
         title: l.deskTxPaymentProof,
         icon: EIcons.proof,
@@ -563,11 +578,10 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            field(l.deskTxTechKernel, l.deskTxProofCopyKernel, t.kernel ?? '-'),
-            field(l.deskTxProofSenderAddress, l.deskTxProofCopySender, 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b'),
-            // An address the user typed is not what the payment's proof is about: never shown here.
-            field(l.deskTxProofRecipientAddress, l.deskTxProofCopyRecipient, t.manualFields.contains(ManualField.counterparty) ? '-' : (t.counterparty ?? '').split('@').first),
-            field(l.deskTxProofRecipientSignature, l.deskTxProofCopySignature, '3045022100c7a1e9f0b2d4a6c8e0f2b4d6a8c0e2f4b6d8a0c2e4f6b8d0a2c4e6f8b0d2a4c602205f'),
+            if (_some(t.kernel) != null) field(l.deskTxTechKernel, l.deskTxProofCopyKernel, t.kernel!),
+            if (sender != null) field(l.deskTxProofSenderAddress, l.deskTxProofCopySender, sender),
+            if (recipient != null) field(l.deskTxProofRecipientAddress, l.deskTxProofCopyRecipient, recipient),
+            if (signature != null) field(l.deskTxProofRecipientSignature, l.deskTxProofCopySignature, signature),
           ],
         ),
         actions: [

@@ -3602,5 +3602,9 @@
   "deskSendRelayUnknownTitle": "Unbekannter Epicbox-Server",
   "deskSendRelayUnknownText": "{relay} ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden.",
   "deskTxNowUndeliveredRelay": "Nicht zugestellt. {relay} hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.",
-  "deskInvNoticeReceiveSuperseded": "Ihr anderes Gerät mit dieser Wallet hat eine Zahlung angenommen, die auch dieses Gerät empfangen hat. Tippen Sie auf „Guthaben neu prüfen“, um sie hier zu sehen."
+  "deskInvNoticeReceiveSuperseded": "Ihr anderes Gerät mit dieser Wallet hat eine Zahlung angenommen, die auch dieses Gerät empfangen hat. Tippen Sie auf „Guthaben neu prüfen“, um sie hier zu sehen.",
+  "deskHistConflictLeadOldWallet": "{n, plural, one{Der Verlauf des alten Wallets enthält andere Details für {n} Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.} other{Der Verlauf des alten Wallets enthält andere Details für {n} Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.}}",
+  "deskHistConflictOldWallet": "Altes Wallet",
+  "deskHistConflictApply": "Übernehmen",
+  "deskTxProofNone": "Für diese Zahlung gibt es keinen Zahlungsnachweis."
 }

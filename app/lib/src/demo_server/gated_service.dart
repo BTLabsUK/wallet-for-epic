@@ -478,7 +478,10 @@ class GatedWalletSession implements WalletSession {
 
   // The server's disk is not the visitor's to read.
   @override
-  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir}) async =>
+  Future<LegacyHistoryImport> importLegacyHistory({
+    required String sourceDir,
+    Map<String, bool>? useOldWallet,
+  }) async =>
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message: 'Importing an old wallet is not offered remotely',

@@ -923,7 +923,10 @@ class RemoteWalletSession implements WalletSession {
 
   // An old wallet's folder is on the server's disk, which a remote client does not choose.
   @override
-  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir}) async =>
+  Future<LegacyHistoryImport> importLegacyHistory({
+    required String sourceDir,
+    Map<String, bool>? useOldWallet,
+  }) async =>
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message: 'Importing an old wallet is not offered remotely',

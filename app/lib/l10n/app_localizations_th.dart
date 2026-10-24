@@ -13495,4 +13495,24 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskInvNoticeReceiveSuperseded =>
       'อุปกรณ์อีกเครื่องของคุณที่ใช้กระเป๋านี้รับการชำระเงินที่อุปกรณ์นี้กำลังรับอยู่ด้วยไปแล้ว ใช้ “ตรวจยอดใหม่” เพื่อดูที่นี่';
+
+  @override
+  String deskHistConflictLeadOldWallet(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'ประวัติของกระเป๋าเงินเก่ามีรายละเอียดต่างจากที่คุณใส่ไว้ใน $n รายการ ระบบจะเก็บของคุณไว้ เว้นแต่คุณเลือกอย่างอื่น',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskHistConflictOldWallet => 'กระเป๋าเงินเก่า';
+
+  @override
+  String get deskHistConflictApply => 'ใช้';
+
+  @override
+  String get deskTxProofNone => 'การชำระเงินนี้ไม่มีหลักฐานการชำระเงิน';
 }

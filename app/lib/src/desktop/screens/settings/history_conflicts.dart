@@ -6,14 +6,22 @@ import '../wallet/tx_display.dart';
 
 /// Opens "Details differ" over the import: a history backup has other values than ones the user
 /// typed. Resolves to the choices by [ImportConflict.id] (true: the backup's value; false: keep
-/// the user's), or null when the user cancelled and nothing may be written.
-Future<Map<String, bool>?> showHistoryConflicts(BuildContext context, List<ImportConflict> conflicts) =>
-    showEDialog<Map<String, bool>>(context, dismissible: false, builder: (_) => HistoryConflictsDialog(conflicts: conflicts));
+/// the user's), or null when the user cancelled and nothing may be written. With [oldWallet] the
+/// other side is the old wallet's history (epic-wallet) instead of a backup file.
+Future<Map<String, bool>?> showHistoryConflicts(BuildContext context, List<ImportConflict> conflicts, {bool oldWallet = false}) =>
+    showEDialog<Map<String, bool>>(
+      context,
+      dismissible: false,
+      builder: (_) => HistoryConflictsDialog(conflicts: conflicts, oldWallet: oldWallet),
+    );
 
 class HistoryConflictsDialog extends StatefulWidget {
-  const HistoryConflictsDialog({super.key, required this.conflicts});
+  const HistoryConflictsDialog({super.key, required this.conflicts, this.oldWallet = false});
 
   final List<ImportConflict> conflicts;
+
+  /// The values come from the old wallet's history, not from a backup file.
+  final bool oldWallet;
 
   @override
   State<HistoryConflictsDialog> createState() => _HistoryConflictsDialogState();
@@ -61,7 +69,7 @@ class _HistoryConflictsDialogState extends State<HistoryConflictsDialog> {
     final text = _valueText(l, c.field, backup ? c.theirs : c.mine);
     final mono = c.field == ManualField.counterparty;
     return EChoiceCard(
-      title: backup ? l.deskHistConflictBackup : l.deskHistConflictMine,
+      title: backup ? (widget.oldWallet ? l.deskHistConflictOldWallet : l.deskHistConflictBackup) : l.deskHistConflictMine,
       icon: backup ? EIcons.archive : EIcons.pencil,
       selected: _useBackup[c.id] == backup,
       onTap: () => setState(() => _useBackup[c.id] = backup),
@@ -127,7 +135,7 @@ class _HistoryConflictsDialogState extends State<HistoryConflictsDialog> {
     final payments = _byPayment.values.toList();
     return EDialog(
       title: l.deskHistConflictTitle,
-      description: l.deskHistConflictLead(payments.length),
+      description: widget.oldWallet ? l.deskHistConflictLeadOldWallet(payments.length) : l.deskHistConflictLead(payments.length),
       icon: EIcons.archive,
       width: 600.u,
       body: Column(
@@ -139,7 +147,7 @@ class _HistoryConflictsDialogState extends State<HistoryConflictsDialog> {
       actions: [
         EButton(label: l.deskHistConflictKeepAll, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop(_keepAll)),
         EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
-        EButton.primary(label: l.deskHistConflictImport, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop({..._useBackup})),
+        EButton.primary(label: widget.oldWallet ? l.deskHistConflictApply : l.deskHistConflictImport, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop({..._useBackup})),
       ],
     );
   }

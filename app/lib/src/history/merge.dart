@@ -518,9 +518,22 @@ ManualRec? manualOf(Meta meta, MergedTx m, Set<String> shared) {
   return null;
 }
 
+/// SHA-256 (hex) of a value the user chose to keep their own over, as [ManualRec.declined]
+/// stores it.
+String declinedHash(String value) =>
+    sha256.convert(utf8.encode(value)).toString();
+
+/// Whether the typed [field] shows on a row whose own (recorded) value is [recorded]: when the
+/// row has none, or when the user chose their own over exactly this recorded value ("Details
+/// differ", Mine).
+bool _manualWins(ManualRec? rec, ManualField field, String? recorded) {
+  final own = _someStr(recorded);
+  return own == null || rec?.declined[field.name] == declinedHash(own);
+}
+
 /// Puts what the user entered on [m]. A label fits any row. Who paid and how fill only what
-/// the row does not know, so a recorded value always shows over a typed one. A note on a row a
-/// scan restored is the user's too.
+/// the row does not know, so a recorded value shows over a typed one until the user chose
+/// theirs for it. A note on a row a scan restored is the user's too.
 void _applyManual(MergedTx m, ManualRec? rec) {
   final fields = <ManualField>{};
   final label = _someStr(rec?.label);
@@ -529,12 +542,14 @@ void _applyManual(MergedTx m, ManualRec? rec) {
     fields.add(ManualField.label);
   }
   final counterparty = _someStr(rec?.counterparty);
-  if (counterparty != null && _someStr(m.counterparty) == null) {
+  if (counterparty != null &&
+      _manualWins(rec, ManualField.counterparty, m.counterparty)) {
     m.counterparty = counterparty;
     fields.add(ManualField.counterparty);
   }
   final transport = _someStr(rec?.transport);
-  if (transport != null && _someStr(m.transport) == null) {
+  if (transport != null &&
+      _manualWins(rec, ManualField.transport, m.transport)) {
     m.transport = transport;
     fields.add(ManualField.transport);
   }

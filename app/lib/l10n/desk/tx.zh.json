@@ -71,6 +71,7 @@
   "deskTxFactMessage": "留言",
   "deskTxSignedByRecipient": "接收方已签名",
   "deskTxProofView": "查看",
+  "deskTxProofNone": "这笔付款没有付款证明。",
   "deskTxTechTitle": "技术详情",
   "deskTxTechId": "ID",
   "deskTxTechSlate": "Slate ID",
