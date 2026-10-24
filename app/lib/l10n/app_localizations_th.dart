@@ -3331,7 +3331,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendNoteHelper => 'ผู้รับเห็นบันทึกนี้ด้วย';
 
   @override
-  String get sendNetworkFee => 'ค่าธรรมเนียมเครือข่าย';
+  String get sendNetworkFee => 'ค่าธรรมเนียม';
 
   @override
   String get sendChecking => 'กำลังตรวจสอบ…';
@@ -3963,7 +3963,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get outputsStepperHint => '2 ถึง 10';
 
   @override
-  String get outputsFactFee => 'ค่าธรรมเนียมเครือข่าย';
+  String get outputsFactFee => 'ค่าธรรมเนียม';
 
   @override
   String get outputsFactEach => 'ต่อเอาต์พุต';
