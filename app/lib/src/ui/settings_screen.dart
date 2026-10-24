@@ -10,7 +10,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../address_format.dart' show shortHost;
 import '../app_log.dart';
 import '../demo.dart';
 import '../errors.dart';
@@ -34,7 +33,6 @@ import 'info_hint.dart';
 import 'restore_screen.dart' show ScanSlotLine;
 import 'settings_sections.dart';
 import 'theme/tokens.dart';
-import 'tor_ui.dart';
 
 export 'settings_sections.dart';
 
@@ -153,41 +151,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
-    final config = ref.watch(walletConfigProvider);
-    final network = ref.watch(networkChoiceProvider).value;
     final scan = ref.watch(scanProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
     final demo = ref.watch(demoModeProvider);
     final updates = !demo && ref.read(updateProvider.notifier).supported;
     final torState = phoneTorState(ref.watch(phoneTorProvider));
-    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
-    final biometrics = ref.watch(biometricsProvider).value;
     final backedUp = ref.watch(backedUpProvider).value ?? true;
-    final version = ref.watch(appVersionProvider).value;
     final push = ref.watch(pushProvider);
     final pushOffered =
         !demo && (ref.watch(pushConfiguredProvider).value ?? false);
     final t = context.tokens;
 
-    // The node's and the relay's host, from the open wallet, else from the saved choice.
-    final node = config != null ? config.nodeUrl : network?.nodeUrl;
-    final relay = config != null
-        ? config.epicboxDomain
-        : network?.relay.host;
-    final privacyState = [
-      if (node != null && node.isNotEmpty) shortHost(node),
-      if (relay != null && relay.isNotEmpty) shortHost(relay),
-      if (torAvailable)
-        l.settingsStateTor(torWord(l, torState).toLowerCase()),
-    ];
-    final securityState = !backedUp
-        ? (text: l.settingsStateBackUp, color: t.warn)
-        : (
-            text: (biometrics?.enabled ?? false)
-                ? l.settingsStatePinBiometrics
-                : l.settingsStatePin,
-            color: null,
-          );
 
     return SlotScaffold(
       idle: scan.running ? ScanSlotLine(scan: scan) : null,
@@ -210,15 +184,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _GroupRow(
                     key: settingsGroupKey(SettingsSection.security),
                     section: SettingsSection.security,
-                    state: demo ? null : securityState.text,
-                    stateColor: securityState.color,
+                    // The hub's second lines name what is inside, never live values
+                    // (the owner, 26.10.11); Security warns instead while the recovery phrase
+                    // is not backed up.
+                    state: demo
+                        ? null
+                        : backedUp
+                        ? [l.backupTitle, l.pinLabel, l.settingsAutoLock].reduce(l.settingsStateJoin)
+                        : l.settingsStateBackUp,
+                    stateColor: demo || backedUp ? null : t.warn,
                   ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.privacyNetwork),
                   section: SettingsSection.privacyNetwork,
-                  state: privacyState.isEmpty
-                      ? null
-                      : privacyState.reduce(l.settingsStateJoin),
+                  state: [
+                    l.serverNodeTitle,
+                    l.serverEpicboxTitle,
+                    l.netStatusTor,
+                  ].reduce(l.settingsStateJoin),
                 ),
                 if (pushOffered)
                   // Tor on pauses them (a registration would show this phone's address):
@@ -243,19 +226,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     state: [
                       l.settingsContacts,
                       l.outputsTitle,
-                      if (ref.watch(sessionProvider)?.supportsInvoices ?? false)
-                        l.settingsSectionInvoices,
+                      l.settingsSectionHistory,
                     ].reduce(l.settingsStateJoin),
                   ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.display),
                   section: SettingsSection.display,
-                  // The language only once one is chosen: "System default" says nothing
-                  // and crowds the line at 360 dp.
                   state: [
-                    themeLabel(l, s.themeMode),
-                    if (s.language != null) languageLabel(l, s.language),
-                    if (s.showFiat) s.fiatCurrency.toUpperCase(),
+                    l.settingsTheme,
+                    l.languageSetting,
+                    l.settingsCurrency,
                   ].reduce(l.settingsStateJoin),
                 ),
                 _GroupRow(
@@ -267,7 +247,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.about),
                   section: SettingsSection.about,
-                  state: version,
                 ),
               ],
             ),
