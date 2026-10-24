@@ -4194,7 +4194,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เริ่มรวมแล้ว: 1 เอาต์พุต ยืนยันในประมาณ 3 บล็อก';
 
   @override
-  String get outputsAdvanced => 'ขั้นสูง';
+  String get outputsAdvanced => 'จัดการเอาต์พุต';
 
   @override
   String get outputsColState => 'สถานะ';
@@ -7135,7 +7135,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendAdvAllNoSplit => '· เอาต์พุตทั้งหมด ไม่แยกเงินทอน';
 
   @override
-  String get deskSendAdvanced => 'ขั้นสูง';
+  String get deskSendAdvanced => 'ตัวเลือกการส่ง';
 
   @override
   String get deskSendAdvStrategy => 'วิธีเลือกเอาต์พุตของการส่งนี้';
@@ -13156,7 +13156,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ใครมีคำเหล่านี้ก็นำเงินของคุณไปได้ เก็บสำเนาไว้ในที่ปลอดภัย';
 
   @override
-  String get deskOutAdvanced => 'ขั้นสูง';
+  String get deskOutAdvanced => 'จัดการเอาต์พุต';
 
   @override
   String get deskOutStrategyHint =>

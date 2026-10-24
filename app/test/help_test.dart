@@ -55,7 +55,7 @@ void main() {
     test('the phone and the desktop share the structure and most of the words', () {
       final phone = helpTopics(3, platform: HelpPlatform.phone);
       final desk = helpTopics(3, platform: HelpPlatform.desktop);
-      expect(desk, hasLength(16));
+      expect(desk, hasLength(19));
       // The phone adds "What an address looks like" and keeps every desktop id.
       expect(phone.map((t) => t.id), containsAll(desk.map((t) => t.id)));
       expect(phone.where((t) => t.id == HelpId.addresses), hasLength(1));

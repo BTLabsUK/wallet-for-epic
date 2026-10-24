@@ -27,7 +27,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final restorePlace = phone
       ? '**我已有钱包：恢复钱包**（在首屏，或在[[设置 › 钱包|Settings › Wallet]]中删除此钱包之后）'
       : '**用助记词恢复**（在首屏、“解锁 › 添加钱包”或[[设置 › 所有钱包|Settings › All wallets]]中）';
-  final recheckPlace = phone ? '[[设置 › 钱包 › 重新核对余额|Settings › Wallet › Recheck balance]] （在开启“高级选项”时显示）' : '[[设置 › 重新核对余额|Settings › Recheck balance]]';
+  final recheckPlace = phone ? '[[设置 › 钱包 › 重新核对余额|Settings › Wallet › Recheck balance]]' : '[[设置 › 重新核对余额|Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[设置 › 安全 › 备份助记词|Settings › Security › Back up recovery phrase]]' : '[[设置 › 助记词|Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -74,6 +74,22 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('其他 Epic Cash 钱包对这些步骤有各自的叫法。如果一直收不到回复文件，请在“活动”中取消发送以解锁输出。'),
       ],
       id: HelpId.file,
+    ),
+    HelpTopic(
+      'start',
+      '付款方式与发送默认设置',
+      'Epicbox 始终开启。“直连”和“文件”是开关。“发送”从你选的方式开始。',
+      [
+        phone
+            ? const HelpBlock.p('[[设置 › 交易|Settings › Transactions]]页面包含三项内容。')
+            : const HelpBlock.p('设置中的**交易**页面包含三项内容。'),
+        HelpBlock.ul([
+          '**付款方式。** Epicbox 始终开启。**直连**（向 .onion 和网址付款${phone ? '，以及用这部手机的 Tor 地址收款' : ''}）和**文件**是开关：关闭的方式不会出现在“发送”和“接收”中。',
+          '**发送从哪种方式开始。** “发送”页面打开时使用的方式。在“发送”中仍可选择其他方式。',
+          '**发送默认设置。** 一笔发送花掉哪些输出（“最小”或“全部”），以及找零是否拆分。只有在“高级”中开启**发送选项**时才会显示。',
+        ]),
+      ],
+      id: HelpId.methods,
     ),
     if (phone)
       const HelpTopic(
@@ -143,9 +159,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         const HelpBlock.p('**最小** 按金额对可用输出排序，从最小的开始取，直到覆盖金额和手续费。发送确认期间只锁定这些输出；其余可以立即发送。'),
         HelpBlock.p('**全部** 花掉每一个可用输出，并退回一个找零输出。所有资金锁定 $confirmations 个区块，钱包最终的输出更少、更大，手续费也略高，因为每个输入都有成本。发送全部余额时总是使用“全部”。'),
         if (phone)
-          const HelpBlock.p('默认方式在[[设置 › Transactions|Settings › Transactions]]中设置。')
+          const HelpBlock.p('默认方式在[[设置 › 交易|Settings › Transactions]]中设置，需要在“高级”中开启“发送选项”。')
         else
-          const HelpBlock.p('默认方式在[[输出 › 高级|Outputs › Manage outputs]]中设置；“发送”可在 **高级** 中为单次发送更改。'),
+          const HelpBlock.p('默认方式在[[输出 › 管理输出|Outputs › Manage outputs]]中设置；“发送”可在**发送选项**中为单次发送更改。'),
       ],
       id: HelpId.strategy,
     ),
@@ -156,7 +172,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('两者都是此钱包发给自己的普通网络交易，与任何发送一样在 $confirmations 个区块后确认，在此之前都会锁定所有可用输出。'),
         const HelpBlock.ul(['**拆分** 用可用余额生成 2 到 10 个金额几乎相等的输出。', '**合并** 用所有可用输出生成一个输出。', '**拆分找零**（默认开启）在普通发送中、剩余输出过少时做同样的事，每多一个输出收取 0.004 EPIC。']),
-        const HelpBlock.p('“活动”中每次操作显示为两条记录：一次发送和一次接收，对方都是此钱包。两者都在[[输出 › 高级|Outputs › Manage outputs]]中。'),
+        const HelpBlock.p('“活动”中每次操作显示为两条记录：一次发送和一次接收，对方都是此钱包。两者都在[[输出 › 管理输出|Outputs › Manage outputs]]中。'),
       ],
       id: HelpId.split,
     ),
@@ -244,6 +260,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
             'Tor 开启期间，推送通知关闭。',
             '比不使用 Tor 的 Epicbox 慢。某些国家封锁了 Tor；在那里它无法连接。',
             '应用打开时可以通过 .onion 地址接收；Epicbox 同时照常工作。',
+            '在“高级”中选择“仅 Tor”时，开关保持开启，无法关闭。',
           ]),
           const HelpBlock.p('**正在启动…** 表示 Tor 正在连接；受其覆盖的连接会等待，绝不绕过它。**未连接** 表示连接失败：点“重试”，或关闭 Tor。有些钱包显示的 Tor 地址不带 .onion；两者是同一个地址。'),
         ],
@@ -262,11 +279,54 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
             '发往 http(s) 地址的直连发送不经由 Tor；“发送”会注明这一点。',
             'Tor 开启期间 直连 · HTTP 接收关闭：其他钱包直接发来的付款会到达 直连 · Tor 地址。',
             '某些国家封锁或不允许使用 Tor；在那里它无法连接。',
+            '在“高级”中选择“仅 Tor”时，开关保持开启，无法关闭。',
           ]),
           HelpBlock.p('有些钱包显示的地址不带 .onion；两者是同一个地址。'),
         ],
         id: HelpId.tor,
       ),
+    HelpTopic(
+      'network',
+      '网络模式',
+      '“标准”直接连接。“仅 Tor”从不直接连接。“离线”除了${phone ? '这部手机' : '这台电脑'}和本地网络外什么都不用。',
+      [
+        const HelpBlock.p('钱包如何连接网络，是设置中**高级**页面里“网络”下的一个选择。'),
+        HelpBlock.ul([
+          '**标准**：直接连接。Tor 是$torPlace里的开关。',
+          '**仅 Tor**：Tor 始终开启，开关被锁定。任何内容都不经过开放的互联网。Tor 启动中或失败时，钱包会显示**等待 Tor**，所有需要网络的操作都会等待，不可用的操作上会写明原因。${phone ? '通知会关闭，因为注册通知会暴露这部手机。' : 'HTTP 接收会关闭，因为普通地址会暴露这台电脑。'}',
+          '**离线**：除了${phone ? '这部手机' : '这台电脑'}和本地网络外什么都不用。余额和记录保持上次看到的样子。如果${phone ? '本地网络中' : '这台电脑上或本地网络中'}有节点，钱包仍可生成、签名、完成并发出付款，也可以直连向本地地址付款。没有节点时，发送和接收会等待。',
+        ]),
+        if (!phone) const HelpBlock.p('内置节点自己的对等节点是节点本身的设置，不属于模式。'),
+        HelpBlock.p('${phone ? '主页' : '侧边栏'}会显示钱包已离线或正在等待 Tor。把模式改回**标准**，一切就恢复了。'),
+      ],
+      id: HelpId.modes,
+    ),
+    HelpTopic(
+      'network',
+      '高级',
+      '一开始全部关闭。每个开关会把钱包的一个部分加到它所属的位置。',
+      [
+        const HelpBlock.p('**高级**是设置中的一个页面，放着大多数人用不到的功能。其中一切一开始都是关闭的，让钱包保持简单。开关会把对应部分加到它所属的位置，**再次全部隐藏**则把它们全部关闭。'),
+        HelpBlock.ul([
+          '**输出**：“输出”页面，列出组成余额的币，以及你可以对它们做的操作。',
+          '**技术详情**：${phone ? '付款详情' : '交易'}中的 slate ID、内核、承诺和区块高度。不开启时，交易上的**更多**链接可以一次性显示它们。',
+          if (phone)
+            '**发送选项**：“策略”和“拆分找零”，在[[设置 › 交易|Settings › Transactions]]中：一笔发送花掉哪些输出，以及找零是否拆分。'
+          else
+            '**发送选项**：“发送”中的一个折叠区，单笔发送可在其中选择“最小”或“全部”，以及是否拆分找零。',
+          '**服务器详情**：节点和 Epicbox 列表以及状态卡片中的主机、延迟、版本和区块高度。',
+          if (phone)
+            '**从某个高度重新核对**：让“重新核对余额”可以从某个区块高度或日期开始，而不是从第一个区块开始。恢复钱包时始终可以选择。'
+          else
+            '**从某个高度重新核对**：让“重新核对余额”同时丢弃未确认的交易。恢复钱包时会向所有人提供起始区块。',
+          if (!phone) '**内置节点**：让这台电脑运行自己的节点：“节点”下的“这台电脑”选项，以及概览中的“启动节点”。',
+          if (!phone) '**日志**：“帮助”中的“日志”分组，用于打开日志文件夹或清除日志。无论是否开启，“报告问题”都会附上日志。',
+        ]),
+        HelpBlock.p('**节点故障切换**默认开启。当你的节点 30 秒没有响应时，钱包会改用列表里下一个可用的节点，只在本次会话中有效：你自己的节点仍然保存着，下次启动时，或者你自己选择节点后，钱包就会回到它。离线模式下它从不切换${phone ? '' : '，也不会离开这台电脑上的节点'}；选择“仅 Tor”时，它只切换到可通过 Tor 访问的节点。'),
+        const HelpBlock.p('同一页面还设置网络模式：见“网络模式”。'),
+      ],
+      id: HelpId.advanced,
+    ),
     HelpTopic(
       'trouble',
       '故障排除',
@@ -296,6 +356,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('**“密码错误”。** 检查大写锁定键和键盘布局。如果忘记了密码：用助记词恢复钱包并设置新密码。'),
         HelpBlock.p('**余额看起来不对。** 运行$recheckPlace。'),
+        const HelpBlock.p('**某个操作是灰色的，并写着“离线模式”或“等待 Tor”。** “高级”中开启了“离线”或“仅 Tor”。请在那里把模式改回“标准”，或等待 Tor 连接。'),
       ],
       id: HelpId.trouble,
     ),

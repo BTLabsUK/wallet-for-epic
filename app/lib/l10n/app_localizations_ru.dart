@@ -4447,7 +4447,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Объединение начато: один выход, подтверждение примерно через 3 блока';
 
   @override
-  String get outputsAdvanced => 'Дополнительно';
+  String get outputsAdvanced => 'Управление выходами';
 
   @override
   String get outputsColState => 'Статус';
@@ -7523,7 +7523,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendAdvAllNoSplit => '· Все выходы, сдача не делится';
 
   @override
-  String get deskSendAdvanced => 'Дополнительно';
+  String get deskSendAdvanced => 'Параметры отправки';
 
   @override
   String get deskSendAdvStrategy => 'Стратегия для этой отправки';
@@ -13790,7 +13790,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Любой, у кого есть эти слова, может забрать ваши средства. Храните копию в надёжном месте.';
 
   @override
-  String get deskOutAdvanced => 'Дополнительно';
+  String get deskOutAdvanced => 'Управление выходами';
 
   @override
   String get deskOutStrategyHint =>

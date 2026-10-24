@@ -4352,7 +4352,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zusammenführen gestartet: ein Output, Bestätigung in etwa 3 Blöcken';
 
   @override
-  String get outputsAdvanced => 'Erweitert';
+  String get outputsAdvanced => 'Outputs verwalten';
 
   @override
   String get outputsColState => 'Status';
@@ -7382,7 +7382,7 @@ class AppLocalizationsDe extends AppLocalizations {
       '· Alle Outputs, Wechselgeld nicht aufgeteilt';
 
   @override
-  String get deskSendAdvanced => 'Erweitert';
+  String get deskSendAdvanced => 'Zahlungsoptionen';
 
   @override
   String get deskSendAdvStrategy => 'Strategie für diese Zahlung';
@@ -13562,7 +13562,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf.';
 
   @override
-  String get deskOutAdvanced => 'Erweitert';
+  String get deskOutAdvanced => 'Outputs verwalten';
 
   @override
   String get deskOutStrategyHint =>

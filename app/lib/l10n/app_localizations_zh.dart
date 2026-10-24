@@ -4052,7 +4052,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsConsolidateStarted => '合并已开始：一个输出，约 3 个区块后确认';
 
   @override
-  String get outputsAdvanced => '高级';
+  String get outputsAdvanced => '管理输出';
 
   @override
   String get outputsColState => '状态';
@@ -6874,7 +6874,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendAdvAllNoSplit => '· 全部输出，不拆分找零';
 
   @override
-  String get deskSendAdvanced => '高级';
+  String get deskSendAdvanced => '发送选项';
 
   @override
   String get deskSendAdvStrategy => '本次发送的策略';
@@ -12700,7 +12700,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPhraseCopyText => '任何拿到这些单词的人都能转走你的资金。请把复制的内容保存在安全的地方。';
 
   @override
-  String get deskOutAdvanced => '高级';
+  String get deskOutAdvanced => '管理输出';
 
   @override
   String get deskOutStrategyHint =>

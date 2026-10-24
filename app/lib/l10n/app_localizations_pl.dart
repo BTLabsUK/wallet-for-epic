@@ -4468,7 +4468,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Scalanie rozpoczęte: jedno wyjście, potwierdzenie za około 3 bloki';
 
   @override
-  String get outputsAdvanced => 'Zaawansowane';
+  String get outputsAdvanced => 'Zarządzaj wyjściami';
 
   @override
   String get outputsColState => 'Stan';
@@ -7552,7 +7552,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendAdvAllNoSplit => '· Wszystkie wyjścia, reszta niedzielona';
 
   @override
-  String get deskSendAdvanced => 'Zaawansowane';
+  String get deskSendAdvanced => 'Opcje wysyłki';
 
   @override
   String get deskSendAdvStrategy => 'Strategia tej wysyłki';
@@ -13824,7 +13824,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu.';
 
   @override
-  String get deskOutAdvanced => 'Zaawansowane';
+  String get deskOutAdvanced => 'Zarządzaj wyjściami';
 
   @override
   String get deskOutStrategyHint =>
