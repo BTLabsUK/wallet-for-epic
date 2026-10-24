@@ -309,7 +309,7 @@ class Tx {
   /// outputs locked. It can still be cancelled; the core asks the node first.
   final bool notPosted;
 
-  /// An Epicbox send no attempt has delivered to the relay: [DeskWalletApi.resendEpicbox] sends
+  /// An Epicbox, HTTP or Tor send no attempt has delivered: [DeskWalletApi.resendTx] sends
   /// it again. Never set for the send being made right now.
   final bool undelivered;
   final DateTime? confirmedAt;

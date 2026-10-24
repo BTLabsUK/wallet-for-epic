@@ -1017,6 +1017,10 @@ class FakeWalletSession implements WalletSession {
       );
     }
     resentEpicboxKeys.add(key);
+    _delivered(tx);
+  }
+
+  void _delivered(TxEntry tx) {
     _undelivered.remove(tx.id);
     transactionsValue
       ..remove(tx)
@@ -1320,7 +1324,7 @@ class FakeWalletSession implements WalletSession {
   }) async {
     _checkHttpUrl(url, allowPlainHttp);
     final tx = transactionsValue.where((t) => t.id == txId).firstOrNull;
-    if (tx == null || !_undelivered.contains(txId)) {
+    if (tx == null || !(tx.undelivered || _undelivered.contains(txId))) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message: 'not a send waiting for its answer',
@@ -1334,7 +1338,7 @@ class FakeWalletSession implements WalletSession {
     ));
     final error = sendError;
     if (error != null) throw error;
-    _undelivered.remove(txId);
+    _delivered(tx);
     return HttpSent(txId: txId, slateId: tx.slateId!, posted: httpPosted);
   }
 
@@ -1530,7 +1534,7 @@ class FakeWalletSession implements WalletSession {
   Future<HttpSent> resendTor({required int txId, required String onion}) async {
     _checkOnion(onion);
     final tx = transactionsValue.where((t) => t.id == txId).firstOrNull;
-    if (tx == null || !_undelivered.contains(txId)) {
+    if (tx == null || !(tx.undelivered || _undelivered.contains(txId))) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message: 'not a send waiting for its answer',
@@ -1539,7 +1543,7 @@ class FakeWalletSession implements WalletSession {
     torSends.add((amount: null, txId: txId, onion: onion));
     final error = sendError;
     if (error != null) throw error;
-    _undelivered.remove(txId);
+    _delivered(tx);
     return HttpSent(txId: txId, slateId: tx.slateId!, posted: httpPosted);
   }
 

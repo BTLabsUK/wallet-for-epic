@@ -182,9 +182,9 @@ abstract interface class DeskWalletApi {
   /// Throws a [DeskError] when the node refuses it again.
   Future<void> repostTx(int id);
 
-  /// Sends the undelivered Epicbox send [id] again ([Tx.undelivered]). Throws a [DeskError]
-  /// when the relay refuses it again.
-  Future<void> resendEpicbox(int id);
+  /// Sends the undelivered send [id] again over its method ([Tx.undelivered]): to the same
+  /// Epicbox address, URL or onion. Throws a [DeskError] when it fails again.
+  Future<void> resendTx(int id);
   Future<SendResult> send(SendRequest request);
   Future<ReceivedFile> receiveFile(String fileName);
   Future<Tx> finalizeFile(String fileName);

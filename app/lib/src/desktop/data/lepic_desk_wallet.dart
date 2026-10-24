@@ -2036,7 +2036,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _resendUndelivered(core.WalletSession session) async {
     try {
       var sent = false;
-      for (final e in (await session.transactions(refresh: false)).where((t) => t.undelivered)) {
+      for (final e in (await session.transactions(refresh: false)).where((t) => t.undelivered && t.transport == 'epicbox')) {
         if (_session != session) return;
         try {
           await session.resendEpicbox(key: e.key);
@@ -2052,14 +2052,26 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> resendEpicbox(int id) => _running(() async {
+  Future<void> resendTx(int id) => _running(() async {
     final session = _open;
     try {
-      final key = (await session.transactions(refresh: false)).where((t) => t.id == id).firstOrNull?.key;
-      if (key == null) throw DeskError.l10n((l) => l.deskErrTxNotFound);
-      await session.resendEpicbox(key: key);
+      final e = (await session.transactions(refresh: false)).where((t) => t.id == id).firstOrNull;
+      if (e == null) throw DeskError.l10n((l) => l.deskErrTxNotFound);
+      final to = e.counterparty ?? '';
+      switch (e.transport) {
+        case 'http':
+          // The user allowed plain HTTP to this address when sending.
+          final sent = await session.resendHttp(txId: id, url: to, allowPlainHttp: plainHttpNeedsConsent(to));
+          if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
+        case 'tor':
+          if (!_settings.tor) throw DeskError.l10n((l) => l.deskErrTorOffSend);
+          final sent = await session.resendTor(txId: id, onion: to);
+          if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
+        default:
+          await session.resendEpicbox(key: e.key);
+      }
     } on core.WalletError catch (e) {
-      logWarn('desk', 'resend epicbox: ${e.kind.name}');
+      logWarn('desk', 'resend: ${e.kind.name}');
       throw _deskError(e);
     }
     await _reload();

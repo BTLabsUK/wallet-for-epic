@@ -487,6 +487,9 @@ int lepicTxId(String key) {
   return id;
 }
 
+/// The transports whose undelivered sends are sent again: Epicbox, HTTP and Tor.
+const resendTransports = {'epicbox', 'http', 'tor'};
+
 /// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]). Notes, contacts
 /// and imported rows are the app's (H-01), so `note` stays empty here; `messages` are the
 /// slate's, which LEPIC verified.
@@ -548,12 +551,13 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
     // Finalized but refused by the node: LEPIC stores it for a repost.
     repostable: d.status == lepic.TxStatus.finalized,
     // LEPIC also says undelivered during the first attempt of a send still running: not then.
+    // A file send has no delivery to redo.
     undelivered:
         d.undelivered &&
         !sending &&
         outgoing &&
         d.status == lepic.TxStatus.sent &&
-        d.transport == 'epicbox',
+        resendTransports.contains(d.transport),
     releasable: d.releasable,
     cancelReason: d.status == lepic.TxStatus.expired
         ? CancelReason.expiry
@@ -979,7 +983,7 @@ class LepicWalletSession implements WalletSession {
   /// LEPIC's rows, before the archive is merged in.
   Future<List<TxEntry>> _live() async => [
     for (final d in await _wallet.transactions())
-      lepicTxEntry(d, sending: _epicboxSending > 0),
+      lepicTxEntry(d, sending: _sending > 0),
   ];
 
   /// The stored row of [txId], as the history shows it.
@@ -992,7 +996,7 @@ class LepicWalletSession implements WalletSession {
     return shown ??
         lepicTxEntry(
           await _wallet.transaction(txId: txId),
-          sending: _epicboxSending > 0,
+          sending: _sending > 0,
         );
   }
 
@@ -1236,7 +1240,7 @@ class LepicWalletSession implements WalletSession {
     String? message,
     SendOptions? options,
   }) => _guard(() async {
-    _epicboxSending++;
+    _sending++;
     final lepic.SentTx tx;
     try {
       tx = await _wallet.sendEpicbox(
@@ -1247,23 +1251,33 @@ class LepicWalletSession implements WalletSession {
         options: await _optionsFor(amount, minimumConfirmations, options),
       );
     } finally {
-      _epicboxSending--;
+      _sending--;
     }
     return _entry(tx.txId);
   });
 
-  /// Epicbox sends and resends under way: LEPIC calls a send undelivered until its first
-  /// attempt ends, so none of the rows shows "Not delivered" meanwhile.
-  int _epicboxSending = 0;
+  /// Epicbox, HTTP and Tor sends and resends under way: LEPIC calls a send undelivered until
+  /// its first attempt ends, so none of the rows shows "Not delivered" meanwhile.
+  int _sending = 0;
+
+  /// Runs [send] counted in [_sending].
+  Future<T> _counted<T>(Future<T> Function() send) async {
+    _sending++;
+    try {
+      return await send();
+    } finally {
+      _sending--;
+    }
+  }
 
   @override
   Future<void> resendEpicbox({required String key}) => _guard(() async {
     final txId = await _txIdOf(key);
-    _epicboxSending++;
+    _sending++;
     try {
       await _wallet.resendEpicbox(txId: txId);
     } finally {
-      _epicboxSending--;
+      _sending--;
     }
   });
 
@@ -1291,13 +1305,16 @@ class LepicWalletSession implements WalletSession {
     String? message,
     SendOptions? options,
   }) => _guard(() async {
-    final tx = await _wallet.sendHttp(
-      amount: amount,
-      minimumConfirmations: minimumConfirmations,
-      url: url,
-      allowPlainHttp: allowPlainHttp,
-      message: _message(message),
-      options: await _optionsFor(amount, minimumConfirmations, options),
+    final sendOptions = await _optionsFor(amount, minimumConfirmations, options);
+    final tx = await _counted(
+      () => _wallet.sendHttp(
+        amount: amount,
+        minimumConfirmations: minimumConfirmations,
+        url: url,
+        allowPlainHttp: allowPlainHttp,
+        message: _message(message),
+        options: sendOptions,
+      ),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });
@@ -1308,10 +1325,12 @@ class LepicWalletSession implements WalletSession {
     required String url,
     required bool allowPlainHttp,
   }) => _guard(() async {
-    final tx = await _wallet.resendHttp(
-      txId: txId,
-      url: url,
-      allowPlainHttp: allowPlainHttp,
+    final tx = await _counted(
+      () => _wallet.resendHttp(
+        txId: txId,
+        url: url,
+        allowPlainHttp: allowPlainHttp,
+      ),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });
@@ -1426,12 +1445,15 @@ class LepicWalletSession implements WalletSession {
     String? message,
     SendOptions? options,
   }) => _guard(() async {
-    final tx = await _wallet.sendTor(
-      amount: amount,
-      minimumConfirmations: minimumConfirmations,
-      onion: onion,
-      message: _message(message),
-      options: await _optionsFor(amount, minimumConfirmations, options),
+    final sendOptions = await _optionsFor(amount, minimumConfirmations, options);
+    final tx = await _counted(
+      () => _wallet.sendTor(
+        amount: amount,
+        minimumConfirmations: minimumConfirmations,
+        onion: onion,
+        message: _message(message),
+        options: sendOptions,
+      ),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });
@@ -1439,7 +1461,9 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<HttpSent> resendTor({required int txId, required String onion}) =>
       _guard(() async {
-        final tx = await _wallet.resendTor(txId: txId, onion: onion);
+        final tx = await _counted(
+          () => _wallet.resendTor(txId: txId, onion: onion),
+        );
         return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
       });
 
@@ -2006,7 +2030,7 @@ class LepicWalletSession implements WalletSession {
     for (final d in await _wallet.transactions()) {
       if (d.slateId != slateId) continue;
       final paid = paidInvoiceOf(
-        lepicTxEntry(d, sending: _epicboxSending > 0),
+        lepicTxEntry(d, sending: _sending > 0),
         status: record?.status,
         kernelExcess: record?.kernelExcess,
       );
@@ -2029,7 +2053,7 @@ class LepicWalletSession implements WalletSession {
   /// The requests in LEPIC's store, newest first, with the states the archive recorded.
   Future<List<IssuedInvoice>> _requests() async => requestsOf([
     for (final d in await _wallet.transactions())
-      lepicTxEntry(d, sending: _epicboxSending > 0),
+      lepicTxEntry(d, sending: _sending > 0),
   ], _history.issuedInvoiceState);
 
   Future<IssuedInvoice?> _request(String slateId) async =>

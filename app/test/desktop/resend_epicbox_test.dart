@@ -1,5 +1,6 @@
-// An undelivered Epicbox send on the desktop: the row says Not delivered and offers Send again
-// beside Cancel; the send being made right now is not offered; unlock sends each one again once.
+// An undelivered Epicbox, HTTP or Tor send on the desktop: the row says Not delivered and offers
+// Send again beside Cancel; the send being made right now is not offered; unlock sends each
+// Epicbox one again once; Send again goes to the stored URL or onion.
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
@@ -23,19 +24,19 @@ class _Desk extends MockDeskWallet {
   final List<int> resent = [];
 
   @override
-  Future<void> resendEpicbox(int id) async => resent.add(id);
+  Future<void> resendTx(int id) async => resent.add(id);
 }
 
-Tx _tx({bool undelivered = false}) => Tx(
+Tx _tx({bool undelivered = false, TxMethod method = TxMethod.epicbox}) => Tx(
   id: 77,
   slateId: 'f0e1d2c3-b4a5-4697-8879-9f3a7c21a0b1',
   direction: TxDirection.sent,
   state: TxState.waitingRecipient,
-  method: TxMethod.epicbox,
+  method: method,
   amount: 250000000,
   fee: 7000000,
   created: DateTime(2026, 10, 20),
-  counterparty: 'esAlice@epicbox.example',
+  counterparty: method == TxMethod.http ? 'http://10.90.15.122:3415/v2/foreign' : 'esAlice@epicbox.example',
   cancellable: true,
   undelivered: undelivered,
 );
@@ -85,6 +86,22 @@ void main() {
   );
 
   testWidgets(
+    'a Direct HTTP send that was not delivered says so and offers Send again (linux-13)',
+    (tester) async {
+      final desk = _Desk();
+      final tx = _tx(undelivered: true, method: TxMethod.http);
+      await _pump(tester, tx, desk);
+      expect(statusOf(englishStrings, tx).$1, 'Not delivered');
+      expect(find.textContaining('Not delivered.'), findsOneWidget);
+      await tester.tap(find.widgetWithText(EButton, 'Send again'));
+      await tester.pump();
+      expect(desk.resent, [77]);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 30));
+    },
+  );
+
+  testWidgets(
     'a send that is not undelivered (the one being sent now) has no Send again',
     (tester) async {
       await _pump(tester, _tx(), _Desk());
@@ -115,6 +132,16 @@ void main() {
           status: core.TxStatus.awaitingRecipient,
           transport: 'epicbox',
         ),
+        // Its recipient may be offline: it waits for the user's Send again.
+        core.fakeTx(
+          id: 6,
+          slateId: 'c',
+          kind: core.TxKind.sent,
+          status: core.TxStatus.awaitingRecipient,
+          transport: 'http',
+          counterparty: 'http://10.90.15.122:3415/v2/foreign',
+          undelivered: true,
+        ),
       ],
     );
     final service = core.FakeWalletService(
@@ -130,6 +157,59 @@ void main() {
     expect(await wallet.unlock(_password), isTrue);
     await Future<void>.delayed(const Duration(milliseconds: 100));
     expect(session.resentEpicboxKeys, ['s:a']);
+    expect(session.httpSends, isEmpty);
+    await wallet.dispose();
+  });
+
+  test('Send again on a Direct send goes to its stored URL or onion', () async {
+    final dir = Directory.systemTemp.createTempSync('resend');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    const onion = 'fiax36yk6a2bksffszfskxao4pt726tbagetojui5ohv2fc36wfc5sad.onion';
+    final session = core.FakeWalletSession(
+      transactions: [
+        core.fakeTx(
+          id: 6,
+          slateId: 'c',
+          kind: core.TxKind.sent,
+          status: core.TxStatus.awaitingRecipient,
+          transport: 'http',
+          counterparty: 'http://10.90.15.122:3415/v2/foreign',
+          undelivered: true,
+        ),
+        core.fakeTx(
+          id: 7,
+          slateId: 'd',
+          kind: core.TxKind.sent,
+          status: core.TxStatus.awaitingRecipient,
+          transport: 'tor',
+          counterparty: onion,
+          undelivered: true,
+        ),
+      ],
+    );
+    final service = core.FakeWalletService(
+      password: _password,
+      session: session,
+    )..existingWallets.add('${dir.path}/wallets/mainnet');
+    final wallet = LepicDeskWallet(
+      service: service,
+      walletDir: (chain) async => '${dir.path}/wallets/${chain.name}',
+      secrets: MemorySecretStore(),
+      filesDir: () async => dir,
+    );
+    expect(await wallet.unlock(_password), isTrue);
+    await wallet.resendTx(6);
+    expect(session.httpSends.single, (
+      amount: null,
+      txId: 6,
+      url: 'http://10.90.15.122:3415/v2/foreign',
+      allowPlainHttp: true,
+    ));
+    // Tor is off until it starts: the onion send says so and goes nowhere else.
+    await expectLater(wallet.resendTx(7), throwsA(isA<DeskError>()));
+    expect(session.torSends, isEmpty);
+    expect(session.resentEpicboxKeys, isEmpty);
+    expect((await wallet.transactions()).where((t) => t.undelivered).map((t) => t.id), [7]);
     await wallet.dispose();
   });
 }

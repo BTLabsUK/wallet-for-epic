@@ -338,7 +338,8 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     List<TxEntry> transactions,
   ) async {
     var retried = false;
-    for (final tx in transactions.where((t) => t.undelivered)) {
+    // An HTTP or Tor send waits for the user's Send again: its recipient may be offline.
+    for (final tx in transactions.where((t) => t.undelivered && t.transport == 'epicbox')) {
       try {
         await session.resendEpicbox(key: tx.key);
         retried = true;

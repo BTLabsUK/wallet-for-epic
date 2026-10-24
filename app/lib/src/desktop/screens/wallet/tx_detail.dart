@@ -42,7 +42,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   Future<void> _sendAgain() async {
     setState(() => _cancelling = true);
     try {
-      await ref.read(deskProvider.notifier).resendEpicbox(widget.tx.id);
+      await ref.read(deskProvider.notifier).resendTx(widget.tx.id);
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
