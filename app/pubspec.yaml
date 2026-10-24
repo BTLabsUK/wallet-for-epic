@@ -8,7 +8,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # YY.MM.patch, and the build number derived from it (YY*1000000 + MM*10000 + patch*100 +
 # rebuild), which Android uses as versionCode. Set it only with `tools/version.sh set`, at release
 # time; `tools/version.sh check` fails when anything else disagrees with it.
-version: 26.10.3+26100300
+version: 26.10.4+26100400
 
 environment:
   sdk: ^3.13.4
