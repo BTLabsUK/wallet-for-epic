@@ -4060,87 +4060,87 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get tourPhoneSemantics => 'Wallet tour';
+  String get tourPhoneSemantics => 'Тур по кошельку';
 
   @override
   String tourPhoneCounter(int current, int total) {
-    return '$current of $total';
+    return '$current из $total';
   }
 
   @override
-  String get tourPhoneSkip => 'Skip';
+  String get tourPhoneSkip => 'Пропустить';
 
   @override
-  String get tourPhoneBack => 'Back';
+  String get tourPhoneBack => 'Назад';
 
   @override
-  String get tourPhoneNext => 'Next';
+  String get tourPhoneNext => 'Далее';
 
   @override
-  String get tourPhoneWalletTitle => 'Wallet';
+  String get tourPhoneWalletTitle => 'Кошелёк';
 
   @override
   String get tourPhoneWalletText =>
-      'Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.';
+      'Ваш баланс, а под ним значки узла, Epicbox и Tor. То, что ещё подтверждается, — в плитках ниже.';
 
   @override
-  String get tourPhoneSendTitle => 'Send';
+  String get tourPhoneSendTitle => 'Отправить';
 
   @override
   String get tourPhoneSendText =>
-      'Paste or scan an address, or pick a contact. Epicbox pays an address; File makes a file to pass on. More ways: Settings › Transactions. A review comes first.';
+      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; «Файл» создаёт файл, который нужно передать дальше. Другие способы: Настройки › Транзакции. Сначала — проверка.';
 
   @override
-  String get tourPhoneReceiveTitle => 'Receive';
+  String get tourPhoneReceiveTitle => 'Получить';
 
   @override
   String get tourPhoneReceiveText =>
-      'Your Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.';
+      'Ваш адрес Epicbox. Поделитесь им, чтобы получить платёж. Вкладка «Файл» — для файлов транзакций, которые нужно подписать или завершить.';
 
   @override
-  String get tourPhoneActivityTitle => 'Activity';
+  String get tourPhoneActivityTitle => 'Активность';
 
   @override
   String get tourPhoneActivityText =>
-      'Every payment with its progress and details. Tap one to open it.';
+      'Каждый платёж с ходом выполнения и подробностями. Нажмите на платёж, чтобы открыть его.';
 
   @override
-  String get tourPhoneContactsTitle => 'Contacts';
+  String get tourPhoneContactsTitle => 'Контакты';
 
   @override
   String get tourPhoneContactsText =>
-      'Saved addresses by name. Send picks from here.';
+      'Сохранённые адреса с именами. «Отправить» выбирает отсюда.';
 
   @override
-  String get tourPhoneInvoicesTitle => 'Invoices';
+  String get tourPhoneInvoicesTitle => 'Счета';
 
   @override
   String get tourPhoneInvoicesText =>
-      'Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.';
+      'Оплатите присланный вам счёт или попросите кого-то о платеже. Вкладки переключают между этим и тем.';
 
   @override
-  String get tourPhonePrivacyTitle => 'Privacy & network';
+  String get tourPhonePrivacyTitle => 'Приватность и сеть';
 
   @override
   String get tourPhonePrivacyText =>
-      'Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.';
+      'Какой узел и сервер Epicbox использует кошелёк, и переключатель Tor. Нажмите на сервер, чтобы изменить его.';
 
   @override
-  String get tourPhoneAdvancedTitle => 'Advanced';
+  String get tourPhoneAdvancedTitle => 'Дополнительно';
 
   @override
   String get tourPhoneAdvancedText =>
-      'Tor-only mode, outputs and technical details live here. Switch on what you need.';
+      'Режим «Только Tor», выходы и технические сведения собраны здесь. Включайте то, что нужно.';
 
   @override
-  String get tourPhoneHelpTitle => 'Help';
+  String get tourPhoneHelpTitle => 'Справка';
 
   @override
   String get tourPhoneHelpText =>
-      'Search the topics or send feedback. “Show the tour again” is at the bottom of the list.';
+      'Ищите по темам или отправьте отзыв. «Показать тур снова» — внизу списка.';
 
   @override
-  String get tourPhoneShowAgain => 'Show the tour again';
+  String get tourPhoneShowAgain => 'Показать тур снова';
 
   @override
   String get homeDestActivity => 'Активность';
@@ -10654,14 +10654,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTourSendText =>
-      'Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.';
+      'Заплатите на адрес Epicbox или создайте файл транзакции, который кто-то подпишет. Перед отправкой — проверка.';
 
   @override
   String get deskTourReceiveTitle => 'Получить';
 
   @override
   String get deskTourReceiveText =>
-      'This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.';
+      'Адрес Epicbox этого кошелька: поделитесь им, чтобы получить платёж. Файлы транзакций для подписи или завершения — ниже.';
 
   @override
   String get deskTourInvoicesTitle => 'Счета';
@@ -10682,21 +10682,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTourContactsText =>
-      'Saved addresses by name. Send picks from here.';
+      'Сохранённые адреса с именами. «Отправить» выбирает отсюда.';
 
   @override
   String get deskTourNodeTitle => 'Настройки › Узел';
 
   @override
   String get deskTourNodeText =>
-      'Which node the wallet reads the chain from. The other settings pages are listed on the left.';
+      'Из какого узла кошелёк читает цепочку. Остальные страницы настроек перечислены слева.';
 
   @override
   String get deskTourHelpTitle => 'Справка';
 
   @override
   String get deskTourHelpText =>
-      'Topics by section and Report a problem. More on every page is here, and this tour can be shown again.';
+      'Темы по разделам и «Сообщить о проблеме». Подробнее о каждой странице — здесь, а тур можно показать снова.';
 
   @override
   String deskTourCounter(int current, int total) {
@@ -14115,270 +14115,271 @@ class AppLocalizationsRu extends AppLocalizations {
       'Обновление не завершилось. Повторите попытку.';
 
   @override
-  String get advTitle => 'Advanced';
+  String get advTitle => 'Дополнительно';
 
   @override
-  String get advStateOff => 'Off';
+  String get advStateOff => 'Выкл.';
 
   @override
   String get advIntro =>
-      'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.';
+      'Сначала всё выключено. Каждый переключатель добавляет ещё одну часть кошелька в то место, которому она принадлежит.';
 
   @override
-  String get advShowsHeader => 'Shows more';
+  String get advShowsHeader => 'Показывает больше';
 
   @override
-  String get advNetworkHeader => 'Network';
+  String get advNetworkHeader => 'Сеть';
 
   @override
   String get advNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait until you switch back.';
+      'Как кошелёк выходит в сеть. «Стандартный» подключается напрямую; Tor можно включить в «Приватность и сеть». «Только Tor» никогда не подключается напрямую: без Tor кошелёк остаётся офлайн и говорит об этом на главном экране. «Офлайн» вообще не использует сеть: вы видите баланс и историю, какими они были в последний раз, а отправка и получение ждут, пока вы не переключитесь обратно.';
 
   @override
-  String get advOutputs => 'Outputs';
+  String get advOutputs => 'Выходы';
 
   @override
   String get advOutputsHint =>
-      'Shows the Outputs page, under Wallet and on Home. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.';
+      'Показывает страницу «Выходы» в разделе «Кошелёк» и на главном экране. Она перечисляет монеты, из которых состоит баланс, позволяет разделять и объединять их и задаёт настройки по умолчанию для отправки. Пока идёт разделение или объединение, страница остаётся видимой.';
 
   @override
-  String get advTechnical => 'Technical details';
+  String get advTechnical => 'Технические сведения';
 
   @override
   String get advTechnicalHint =>
-      'Shows the technical rows on a payment\'s details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.';
+      'Показывает технические строки в сведениях о платеже: ядро, ID слейта, коммитменты и высоту блока. В «Счетах» показывает смену адреса и число отброшенных сообщений.';
 
   @override
-  String get advSendOptions => 'Send options';
+  String get advSendOptions => 'Параметры отправки';
 
   @override
   String get advSendOptionsHint =>
-      'Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.';
+      'Показывает «Стратегию» отправки и «Делить сдачу» в «Настройки › Транзакции»: какие выходы тратит отправка и делится ли её сдача. Остаётся видимым, пока что-то из этого не по умолчанию.';
 
   @override
-  String get advDirect => 'Direct receiving';
+  String get advDirect => 'Приём напрямую';
 
   @override
   String get advDirectHint =>
-      'Gives this phone a second address, reached over Tor. Others can pay it directly, without Epicbox. Works only while the app is open. Adds the Direct method to Send and Receive, and its state to Privacy & network. Stays visible while it is on.';
+      'Даёт этому телефону второй адрес, доступный через Tor. Другие могут платить на него напрямую, без Epicbox. Работает, только пока кошелёк открыт. Добавляет способ «Напрямую» в «Отправить» и «Получить», а его состояние — в «Приватность и сеть». Остаётся видимым, пока включён.';
 
   @override
-  String get advServerDetails => 'Server details';
+  String get advServerDetails => 'Сведения о серверах';
 
   @override
   String get advServerDetailsHint =>
-      'Shows hosts, latency, version and block height in the server pickers and on the status card, the relay address under Receive, and the invoice address in full.';
+      'Показывает хосты, задержку, версию и высоту блока в списках серверов и на карточке состояния, адрес релея в «Получить» и полный адрес счёта.';
 
   @override
-  String get advRecheckHeight => 'Recheck from a height';
+  String get advRecheckHeight => 'Сверка с заданной высоты';
 
   @override
   String get advRecheckHeightHint =>
-      'Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.';
+      'Позволяет начать «Сверку баланса» с высоты блока или с даты, а не с первого блока. Быстрее, и это единственный способ пропустить раннюю историю. При восстановлении выбор есть всегда.';
 
   @override
-  String get advModeStandard => 'Standard';
+  String get advModeStandard => 'Стандартный';
 
   @override
   String get advModeStandardLine =>
-      'Connects directly. Tor can be turned on in Privacy & network.';
+      'Подключается напрямую. Tor можно включить в «Приватность и сеть».';
 
   @override
-  String get advModeTorOnly => 'Tor only';
+  String get advModeTorOnly => 'Только Tor';
 
   @override
   String get advModeTorOnlyLine =>
-      'Every connection goes through Tor. Without Tor the wallet stays offline and says so.';
+      'Каждое соединение идёт через Tor. Без Tor кошелёк остаётся офлайн и сообщает об этом.';
 
   @override
-  String get advModeOffline => 'Offline';
+  String get advModeOffline => 'Офлайн';
 
   @override
   String get advModeOfflineLine =>
-      'No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.';
+      'Совсем без сети. Вы видите баланс и историю, какими они были в последний раз; отправка и получение ждут, пока вы не переключитесь обратно.';
 
   @override
   String get advTorOnlyNote =>
-      'Tor only pauses notifications: registering for them would reveal this phone\'s address.';
+      'Режим «Только Tor» приостанавливает уведомления: подписка на них раскрыла бы адрес этого телефона.';
 
   @override
   String get advOfflineNote =>
-      'Offline pauses Epicbox, Direct receiving, transaction files, status checks and notifications until the mode changes.';
+      'Офлайн приостанавливает Epicbox, приём напрямую, файлы транзакций, проверки состояния и уведомления, пока режим не сменится.';
 
   @override
-  String get advReset => 'Hide everything again';
+  String get advReset => 'Скрыть всё снова';
 
   @override
-  String get advHomeOffline => 'Offline mode';
+  String get advHomeOffline => 'Офлайн-режим';
 
   @override
-  String get advHomeTorOnlyWaiting => 'Tor only · waiting for Tor';
+  String get advHomeTorOnlyWaiting => 'Только Tor · ждёт Tor';
 
   @override
-  String get advBuiltInNode => 'Built-in node';
+  String get advBuiltInNode => 'Встроенный узел';
 
   @override
-  String get advLogs => 'Logs';
+  String get advLogs => 'Журналы';
 
   @override
-  String get deskSetFrameAdvanced => 'Advanced';
+  String get deskSetFrameAdvanced => 'Дополнительно';
 
   @override
   String get deskSetAdvIntro =>
-      'Everything here is off to begin with. Each switch adds one more part of the wallet, in the place it belongs.';
+      'Сначала всё выключено. Каждый переключатель добавляет ещё одну часть кошелька в то место, которому она принадлежит.';
 
   @override
-  String get deskSetAdvShows => 'Shows more';
+  String get deskSetAdvShows => 'Показывает больше';
 
   @override
-  String get deskSetAdvOutputs => 'Outputs';
+  String get deskSetAdvOutputs => 'Выходы';
 
   @override
   String get deskSetAdvOutputsHint =>
-      'Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.';
+      'Показывает страницу «Выходы» в боковой панели. Она перечисляет монеты, из которых состоит баланс, позволяет разделять и объединять их и задаёт настройки по умолчанию для отправки. Пока идёт разделение или объединение, страница остаётся видимой.';
 
   @override
-  String get deskSetAdvTechnical => 'Technical details';
+  String get deskSetAdvTechnical => 'Технические сведения';
 
   @override
   String get deskSetAdvTechnicalHint =>
-      'Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core\'s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.';
+      'Показывает раздел «Технические сведения» у каждой транзакции: ID слейта, ядро, высоту блока, состояние и тип ядра и подтверждение платежа. Без этого ссылка «Ещё» у транзакции показывает их один раз. В «Счетах» показывает дополнительные разделы.';
 
   @override
-  String get deskSetAdvSendOptions => 'Send options';
+  String get deskSetAdvSendOptions => 'Параметры отправки';
 
   @override
   String get deskSetAdvSendOptionsHint =>
-      'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.';
+      'Добавляет в «Отправить» раздел, где отдельная отправка может выбрать, какие выходы тратить, «Наименьшие» или «Все», и делить ли сдачу. Значения по умолчанию остаются в «Выходах».';
 
   @override
-  String get deskSetAdvDirect => 'Direct receiving';
+  String get deskSetAdvDirect => 'Приём напрямую';
 
   @override
   String get deskSetAdvDirectHint =>
-      'Gives this computer its own address, over HTTP or Tor. Others can pay it directly, without Epicbox. Works only while the wallet is open. Adds the Direct method to Send, the addresses to Receive, and their settings under Receiving. A listener that is on keeps its rows.';
+      'Даёт этому компьютеру собственный адрес, по HTTP или через Tor. Другие могут платить на него напрямую, без Epicbox. Работает, только пока кошелёк открыт. Добавляет способ «Напрямую» в «Отправить», адреса в «Получить» и их настройки в разделе «Приём». Включённый слушатель сохраняет свои строки.';
 
   @override
-  String get deskSetAdvServerDetails => 'Server details';
+  String get deskSetAdvServerDetails => 'Сведения о серверах';
 
   @override
   String get deskSetAdvServerDetailsHint =>
-      'Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar\'s status rows and in the status card.';
+      'Показывает хосты, задержку, версию и высоту блока в списках узлов и Epicbox, в строках состояния боковой панели и на карточке состояния.';
 
   @override
-  String get deskSetAdvRecheck => 'Recheck from a height';
+  String get deskSetAdvRecheck => 'Сверка с заданной высоты';
 
   @override
   String get deskSetAdvRecheckHint =>
-      'Lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone, whatever this says.';
+      'Позволяет «Сверке баланса» также сбрасывать неподтверждённые транзакции. Восстановление предлагает начальный блок всем, что бы здесь ни было выбрано.';
 
   @override
-  String get deskSetAdvBuiltInNode => 'Built-in node';
+  String get deskSetAdvBuiltInNode => 'Встроенный узел';
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
-      'Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.';
+      'Позволяет этому компьютеру запускать собственный узел: пункт «Этот компьютер» в разделе «Узел», его панель синхронизации и «Запустить узел» на обзоре. Синхронизация цепочки занимает часы и несколько гигабайт на диске. Работающий узел сохраняет свои строки.';
 
   @override
-  String get deskSetAdvLogs => 'Logs';
+  String get deskSetAdvLogs => 'Журналы';
 
   @override
   String get deskSetAdvLogsHint =>
-      'Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.';
+      'Показывает группу «Журналы» в разделе «Справка»: открыть папку журналов, очистить журналы. «Сообщить о проблеме» прикладывает журнал в любом случае.';
 
   @override
-  String get deskSetAdvNetwork => 'Network';
+  String get deskSetAdvNetwork => 'Сеть';
 
   @override
   String get deskSetAdvNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline uses no network at all: you see your balance and history as last seen, and sending and receiving wait.';
+      'Как кошелёк выходит в сеть. «Стандартный» подключается напрямую; Tor можно включить в разделе «Приватность». «Только Tor» никогда не подключается напрямую: без Tor кошелёк остаётся офлайн и говорит об этом в боковой панели. «Офлайн» вообще не использует сеть: вы видите баланс и историю, какими они были в последний раз, а отправка и получение ждут.';
 
   @override
-  String get deskSetAdvModeStandard => 'Standard';
+  String get deskSetAdvModeStandard => 'Стандартный';
 
   @override
   String get deskSetAdvModeStandardText =>
-      'Connects directly. Tor can be turned on under Privacy.';
+      'Подключается напрямую. Tor можно включить в разделе «Приватность».';
 
   @override
-  String get deskSetAdvModeTorOnly => 'Tor only';
+  String get deskSetAdvModeTorOnly => 'Только Tor';
 
   @override
   String get deskSetAdvModeTorOnlyText =>
-      'Every connection goes through Tor. Without Tor the wallet stays offline and says so.';
+      'Каждое соединение идёт через Tor. Без Tor кошелёк остаётся офлайн и сообщает об этом.';
 
   @override
-  String get deskSetAdvModeOffline => 'Offline';
+  String get deskSetAdvModeOffline => 'Офлайн';
 
   @override
   String get deskSetAdvModeOfflineText =>
-      'No network at all. You see your balance and history as last seen; sending and receiving wait until you switch back.';
+      'Совсем без сети. Вы видите баланс и историю, какими они были в последний раз; отправка и получение ждут, пока вы не переключитесь обратно.';
 
   @override
   String get deskSetAdvTorOnlyNote =>
-      'Tor only turns HTTP receiving off: a plain address would reveal this computer.';
+      'Режим «Только Tor» отключает приём по HTTP: обычный адрес раскрыл бы этот компьютер.';
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Sending and receiving wait until you switch back, transaction files included.';
+      'Отправка и получение ждут, пока вы не переключитесь обратно, файлы транзакций тоже.';
 
   @override
-  String get deskSetAdvNotInBuild => 'Not in this build';
+  String get deskSetAdvNotInBuild => 'Нет в этой сборке';
 
   @override
-  String get deskSetAdvReset => 'Hide everything again';
+  String get deskSetAdvReset => 'Скрыть всё снова';
 
   @override
   String deskSetAdvOn(int n) {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n switches on',
-      one: '1 switch on',
+      other: '$n переключателя включено',
+      many: '$n переключателей включено',
+      few: '$n переключателя включены',
+      one: '$n переключатель включён',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskShellOffline => 'Offline mode';
+  String get deskShellOffline => 'Офлайн-режим';
 
   @override
-  String get deskShellTorOnlyWaiting => 'Tor only · waiting for Tor';
+  String get deskShellTorOnlyWaiting => 'Только Tor · ждёт Tor';
 
   @override
   String get deskSetAcctAutoLockHint =>
       'Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. Если выключить, кошелёк блокируется только кнопкой «Заблокировать кошелёк».';
 
   @override
-  String get netBlockOffline => 'Offline mode is on in Advanced.';
+  String get netBlockOffline => 'Офлайн-режим включён в «Дополнительно».';
 
   @override
-  String get netBlockTorOnly => 'Tor only is on in Advanced.';
+  String get netBlockTorOnly => 'Режим «Только Tor» включён в «Дополнительно».';
 
   @override
-  String get netBlockWaitingForTor => 'Waiting for Tor.';
+  String get netBlockWaitingForTor => 'Ждёт Tor.';
 
   @override
-  String get receiveOfflineLine =>
-      'Can\'t receive this way while Offline mode is on.';
+  String get receiveOfflineLine => 'В офлайн-режиме так получать нельзя.';
 
   @override
-  String get txDetailsMore => 'More';
+  String get txDetailsMore => 'Ещё';
 
   @override
-  String get restoreStartFromLink => 'Start from a date or height';
+  String get restoreStartFromLink => 'Начать с даты или высоты';
 
   @override
   String get homeOfflineDetail =>
-      'Offline mode is on in Advanced. The balance is the last one seen.';
+      'Офлайн-режим включён в «Дополнительно». Баланс — последний из виденных.';
 
   @override
   String get homeWaitingTorDetail =>
-      'Tor only is on in Advanced. Waiting for Tor to connect.';
+      'Режим «Только Tor» включён в «Дополнительно». Ждём подключения Tor.';
 
   @override
   String get settingsRescanBodyPlain =>
-      'The wallet looks for its funds again, from the first block. This can take a long time.';
+      'Кошелёк заново ищет свои средства, с первого блока. Это может занять много времени.';
 
   @override
   String get slNodeField => 'Адрес узла';
@@ -14519,148 +14520,152 @@ class AppLocalizationsRu extends AppLocalizations {
       'Выберите сервер или введите текст, чтобы отфильтровать список или добавить сервер.';
 
   @override
-  String get deskOnbRestoreFromLink => 'Start from a block height';
+  String get deskOnbRestoreFromLink => 'Начать с высоты блока';
 
   @override
-  String get deskOnbRestoreFromHide => 'Check the whole chain';
+  String get deskOnbRestoreFromHide => 'Проверить весь блокчейн';
 
   @override
-  String get deskOnbRestoreFromLabel => 'Start from block';
+  String get deskOnbRestoreFromLabel => 'Начать с блока';
 
   @override
-  String get deskOnbRestoreFromHint => 'Block height';
+  String get deskOnbRestoreFromHint => 'Высота блока';
 
   @override
   String get deskOnbRestoreFromHelp =>
-      'Only if the wallet\'s first payment came after this block. Leave it empty to check the whole chain.';
+      'Только если первый платёж кошелька пришёл после этого блока. Оставьте пустым, чтобы проверить весь блокчейн.';
 
   @override
-  String get deskOnbRestoreFromInvalid => 'Use digits only, or leave it empty.';
+  String get deskOnbRestoreFromInvalid =>
+      'Введите только цифры или оставьте пустым.';
 
   @override
-  String get deskNetOfflineReason => 'Offline mode is on in Advanced.';
+  String get deskNetOfflineReason => 'Офлайн-режим включён в «Дополнительно».';
 
   @override
   String get deskNetWaitingTorReason =>
-      'Waiting for Tor. Tor only is on in Advanced.';
+      'Ждёт Tor. Режим «Только Tor» включён в «Дополнительно».';
 
   @override
-  String get deskNetTorOnlyLine => 'Tor only is on in Advanced.';
+  String get deskNetTorOnlyLine =>
+      'Режим «Только Tor» включён в «Дополнительно».';
 
   @override
-  String get deskNetOpenAdvanced => 'Open Advanced';
+  String get deskNetOpenAdvanced => 'Открыть «Дополнительно»';
 
   @override
-  String get deskNetSendFileHint => 'A transaction file still works.';
+  String get deskNetSendFileHint => 'Файл транзакции по-прежнему работает.';
 
   @override
   String get deskNetRecvOfflineText =>
-      'Your address stays the same. Nothing can arrive until Offline mode is off.';
+      'Ваш адрес не меняется. Ничего не придёт, пока включён офлайн-режим.';
 
   @override
   String get deskNetRecvWaitTorText =>
-      'Receiving starts when Tor is connected. A transaction file still works.';
+      'Приём начнётся, когда Tor подключится. Файл транзакции по-прежнему работает.';
 
   @override
-  String get deskNetCantReceive => 'Can\'t receive offline.';
+  String get deskNetCantReceive => 'Офлайн получать нельзя.';
 
   @override
-  String get deskRailOffline => 'Offline';
+  String get deskRailOffline => 'Офлайн';
 
   @override
-  String get deskTourAdvancedTitle => 'Advanced';
+  String get deskTourAdvancedTitle => 'Дополнительно';
 
   @override
   String get deskTourAdvancedText =>
-      'Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.';
+      'Прямые платежи, режим «Только Tor», выходы и технические сведения собраны здесь. Включайте то, что нужно.';
 
   @override
-  String get deskTxMore => 'More';
+  String get deskTxMore => 'Ещё';
 
   @override
-  String get deskTxLess => 'Less';
+  String get deskTxLess => 'Меньше';
 
   @override
-  String get settingsSectionTransactions => 'Transactions';
+  String get settingsSectionTransactions => 'Транзакции';
 
   @override
-  String get settingsHubMethods => 'Methods';
+  String get settingsHubMethods => 'Способы';
 
   @override
-  String get settingsHubDefault => 'Default';
+  String get settingsHubDefault => 'По умолчанию';
 
   @override
-  String get settingsHubSendDefaults => 'Send defaults';
+  String get settingsHubSendDefaults => 'Настройки отправки';
 
   @override
-  String get txMethodsHeader => 'Payment methods';
+  String get txMethodsHeader => 'Способы оплаты';
 
   @override
-  String get txAlwaysOn => 'Always on';
+  String get txAlwaysOn => 'Всегда включён';
 
   @override
   String get txEpicboxHint =>
-      'Epicbox pays through a relay, so the other wallet does not have to be open. It is always on.';
+      'Epicbox платит через релей, поэтому другому кошельку не нужно быть открытым. Всегда включён.';
 
   @override
   String get txDirectLine =>
-      'Pay onion and web addresses; get paid at this phone\'s Tor address.';
+      'Платите на адреса onion и веб-адреса; получайте платежи на адрес Tor этого телефона.';
 
   @override
   String get txDirectHint =>
-      'Direct sends straight to the other wallet at an onion or web address, and gives this phone a Tor address to be paid at. The wallet on the other side must be open, and this one too. Needs Tor. Adds Direct to Send and Receive.';
+      '«Напрямую» отправляет прямо в другой кошелёк на адрес onion или веб-адрес и даёт этому телефону адрес Tor, на который ему можно платить. Кошелёк на другой стороне должен быть открыт, и этот тоже. Нужен Tor. Добавляет «Напрямую» в «Отправить» и «Получить».';
 
   @override
-  String get txFileLine => 'Pay or get paid with a file you pass on yourself.';
+  String get txFileLine =>
+      'Платите или получайте платежи файлом, который вы передаёте сами.';
 
   @override
   String get txFileHint =>
-      'File makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File to Send and Receive.';
+      '«Файл» создаёт файл транзакции, который вы передаёте другому человеку любым способом (сообщением, письмом, кабелем), а он передаёт вам ответный. Связь между кошельками не нужна. Добавляет «Файл» в «Отправить» и «Получить».';
 
   @override
-  String get txStartHeader => 'Send starts on';
+  String get txStartHeader => 'Отправка начинается с';
 
   @override
-  String get txStartNote => 'You can still pick another method on Send.';
+  String get txStartNote =>
+      'В «Отправить» можно по-прежнему выбрать другой способ.';
 
   @override
-  String get txDefaultsHeader => 'Send defaults';
+  String get txDefaultsHeader => 'Настройки отправки';
 
   @override
   String get outputsDefaultsMoved =>
-      'Send defaults are in Settings › Transactions';
+      'Настройки отправки теперь в «Настройки › Транзакции»';
 
   @override
-  String get advNodeFailover => 'Node failover';
+  String get advNodeFailover => 'Автопереключение узла';
 
   @override
   String get advNodeFailoverHint =>
-      'When your node stops answering, the wallet uses the next working node in your list for this session.';
+      'Когда ваш узел перестаёт отвечать, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.';
 
   @override
   String nodeFailoverSwitched(String host) {
-    return 'Node not answering. Switched to $host.';
+    return 'Узел не отвечает. Переключено на $host.';
   }
 
   @override
   String nodeFailoverInsteadOf(String host) {
-    return 'Instead of $host';
+    return 'Вместо $host';
   }
 
   @override
-  String get deskSetAdvNodeFailover => 'Node failover';
+  String get deskSetAdvNodeFailover => 'Автопереключение узла';
 
   @override
   String get deskSetAdvNodeFailoverHint =>
-      'When your node stops answering, the wallet uses the next working node in your list for this session.';
+      'Когда ваш узел перестаёт отвечать, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.';
 
   @override
   String deskNodeFailoverSwitched(String host) {
-    return 'Node not answering. Switched to $host.';
+    return 'Узел не отвечает. Переключено на $host.';
   }
 
   @override
   String deskNodeFailoverInsteadOf(String host) {
-    return 'Instead of $host';
+    return 'Вместо $host';
   }
 }

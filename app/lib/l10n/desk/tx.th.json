@@ -125,6 +125,6 @@
   "deskTxBroadcastDone": "ส่งเข้าเครือข่ายแล้ว",
   "deskTxNowUndeliveredDirect": "ส่งไม่ถึง กระเป๋าเงินของผู้รับไม่รับรายการนี้ ({method}) ผู้รับจึงยังไม่ได้รับ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน",
   "deskTxNowUndeliveredRelay": "ส่งไม่ถึง {relay} ไม่ตอบสนอง ผู้รับจึงยังไม่ได้รับรายการนี้ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน",
-  "deskTxMore": "More",
-  "deskTxLess": "Less"
+  "deskTxMore": "เพิ่มเติม",
+  "deskTxLess": "ย่อ"
 }

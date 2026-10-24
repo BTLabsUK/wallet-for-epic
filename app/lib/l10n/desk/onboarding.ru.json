@@ -207,10 +207,10 @@
   "deskOnbImportStopBody": "Уже импортированные кошельки будут удалены. Старые папки не изменены.",
   "deskOnbImportGoBack": "Вернуться",
   "deskOnbImportStop": "Остановить импорт",
-  "deskOnbRestoreFromLink": "Start from a block height",
-  "deskOnbRestoreFromHide": "Check the whole chain",
-  "deskOnbRestoreFromLabel": "Start from block",
-  "deskOnbRestoreFromHint": "Block height",
-  "deskOnbRestoreFromHelp": "Only if the wallet's first payment came after this block. Leave it empty to check the whole chain.",
-  "deskOnbRestoreFromInvalid": "Use digits only, or leave it empty."
+  "deskOnbRestoreFromLink": "Начать с высоты блока",
+  "deskOnbRestoreFromHide": "Проверить весь блокчейн",
+  "deskOnbRestoreFromLabel": "Начать с блока",
+  "deskOnbRestoreFromHint": "Высота блока",
+  "deskOnbRestoreFromHelp": "Только если первый платёж кошелька пришёл после этого блока. Оставьте пустым, чтобы проверить весь блокчейн.",
+  "deskOnbRestoreFromInvalid": "Введите только цифры или оставьте пустым."
 }
