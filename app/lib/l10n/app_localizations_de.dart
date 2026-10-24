@@ -5157,6 +5157,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get methodFile => 'Datei';
 
   @override
+  String get methodShortHttp => 'HTTP';
+
+  @override
+  String get methodShortTor => 'Tor';
+
+  @override
+  String get methodShortQr => 'QR';
+
+  @override
   String get methodArtCaptionEpicbox => 'Epicbox-Server hält sie';
 
   @override
@@ -14877,4 +14886,114 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendMethodHeader => 'Zahlungsart';
+
+  @override
+  String get sendRequestTitle => 'Zahlungsanforderung';
+
+  @override
+  String get sendRequestCheck => 'Prüfen Sie den Betrag und fahren Sie fort.';
+
+  @override
+  String get sendRequestDismiss => 'Ausblenden';
+
+  @override
+  String get sendAmountFromCode => 'Vom Code angefordert';
+
+  @override
+  String sendAmountCodeAsked(String amount) {
+    return 'Der Code hat $amount angefordert.';
+  }
+
+  @override
+  String get sendCodeAmountInvalid =>
+      'Der Betrag in diesem Code ist ungültig und wurde ignoriert.';
+
+  @override
+  String get sendCodeAmountTooLarge =>
+      'Der Betrag in diesem Code ist zu groß und wurde ignoriert.';
+
+  @override
+  String get sendCodeTooLong =>
+      'Ein Teil dieses Codes war zu lang und wurde ignoriert.';
+
+  @override
+  String get payeeNameLabel =>
+      'Vom Zahlungsempfänger angegebener Name (ungeprüft)';
+
+  @override
+  String get payeeNoteLabel => 'Notiz des Zahlungsempfängers (ungeprüft)';
+
+  @override
+  String get payeeUnverifiedTitle => 'Ungeprüft';
+
+  @override
+  String get payeeUnverifiedHint =>
+      'Name und Notiz schreibt in den Code, wer ihn erstellt. Niemand prüft sie. Prüfen Sie die Adresse und den Betrag, nicht den Namen.';
+
+  @override
+  String get sendNoteFromCodeHelper =>
+      'Aus dem Code. Der Empfänger sieht sie auch.';
+
+  @override
+  String get sendOriginQr => 'Aus einem QR-Code';
+
+  @override
+  String get sendOriginLink => 'Aus einem Link';
+
+  @override
+  String get sendOriginPasted => 'Eingefügt';
+
+  @override
+  String get sendDirectHost => 'Host';
+
+  @override
+  String get sendPlainHttpRow => 'Nicht verschlüsselt (reines HTTP)';
+
+  @override
+  String get scanNotEpicTitle => 'Kein Epic-Code';
+
+  @override
+  String get scanNotEpicBody =>
+      'Dies ist keine Epic-Adresse und kein Zahlungscode.';
+
+  @override
+  String get scanBadAddress => 'Die Adresse in diesem Code ist ungültig.';
+
+  @override
+  String get scanWrongNetworkTitle => 'Anderes Netzwerk';
+
+  @override
+  String get scanWrongNetworkBody =>
+      'Diese Adresse gehört zu einem anderen Epic-Netzwerk. Diese Wallet kann sie nicht bezahlen.';
+
+  @override
+  String get scanSlateTextBody =>
+      'Dies ist der Text einer Transaktionsdatei, keine Adresse.';
+
+  @override
+  String get commonOpen => 'Öffnen';
+
+  @override
+  String get scanPairingTitle => 'Kopplungslink';
+
+  @override
+  String get scanPairingUnavailable =>
+      'Kopplung ist in dieser Version nicht verfügbar.';
+
+  @override
+  String get scanCodeTextLabel => 'Gescannter Text';
+
+  @override
+  String get scanCopied => 'Kopiert';
+
+  @override
+  String get linkWaitingNotice => 'Zahlungslink empfangen';
+
+  @override
+  String get linkFinishCurrentFirst =>
+      'Schließen Sie zuerst die aktuelle Zahlung ab.';
+
+  @override
+  String get deskSendToQrPayment =>
+      'Ein QR-Zahlungscode. Scannen Sie ihn mit Epic Cash Mobile.';
 }

@@ -1121,12 +1121,15 @@ void main() {
     testWidgets('scan opens Send with the scanned address', (tester) async {
       // Reduced motion: the pending dot on Send's title would pulse on.
       final h = _Harness(scanSupported: true, still: true);
-      h.scanner.codes.add(_bob);
+      // A whole address: the scan router sends anything else to its "not an Epic code" sheet.
+      const scanned =
+          'esBobKey2345678923456789ABCDEFGHJKLMNPQRSTUVWXYZabcd@epicbox.epiccash.com';
+      h.scanner.codes.add(scanned);
       await h.pump(tester);
       await _tap(tester, find.byTooltip('Scan a QR code to send'));
       // The Send tab, not a pushed screen, with the recipient filled in.
       expect(find.byType(SendView), findsOneWidget);
-      expect(_toField(tester), _bob);
+      expect(_toField(tester), scanned);
       expect(_selectedTab(tester), ShellTab.send);
     });
 

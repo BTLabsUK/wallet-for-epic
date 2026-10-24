@@ -7,7 +7,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
+import 'data_folder_io.dart' show appDataDirectory;
 
 import 'builtin_node.dart';
 import 'models.dart' show Chain;
@@ -35,7 +35,7 @@ class BuiltInNodeLocation {
 final builtInNodeLocationProvider = FutureProvider<BuiltInNodeLocation>((
   ref,
 ) async {
-  final support = await getApplicationSupportDirectory();
+  final support = await appDataDirectory();
   final sep = Platform.pathSeparator;
   final exeDir = File(Platform.resolvedExecutable).parent.path;
   final name = Platform.isWindows ? 'epic.exe' : 'epic';

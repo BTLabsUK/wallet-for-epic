@@ -13,6 +13,8 @@ import '../phone_tor.dart';
 import '../tor_phone.dart';
 import '../providers.dart';
 import '../push.dart';
+import '../scan/incoming_link.dart';
+import '../scan/scan_checks.dart' show CodeOrigin;
 import '../settings.dart';
 import '../slate_files.dart';
 import '../updater.dart';
@@ -29,6 +31,7 @@ import 'invoices_screen.dart' show InvoicesEntry, InvoicesScreen;
 import 'outputs_screen.dart';
 import 'receive_screen.dart' show ReceiveView;
 import 'restore_screen.dart' show ScanProgressView;
+import 'scan_route.dart';
 import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
 import 'send_screen.dart' show SendView, trackedSendProvider;
 import 'shell_header.dart';
@@ -247,6 +250,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ref.read(updateProvider.notifier).checkOnOpening();
       }
       _openIncoming();
+      _openLink();
     });
   }
 
@@ -325,12 +329,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       Navigator.of(context)
           .push(MaterialPageRoute<void>(builder: (_) => screen));
 
-  /// Scans a QR code and shows the Send tab with it as the recipient.
+  /// Scans a QR code and opens what it is: Send for a payment code or an address, the QR
+  /// Payment reader for a QR Payment code, and a sheet for anything else.
   Future<void> _scan() async {
     final text = await ref.read(qrScannerProvider).scan(context);
     if (text == null || !mounted) return;
-    ref.read(sendRecipientProvider.notifier).hand(text);
-    _goTab(ShellTab.send);
+    await openScannedText(
+      context,
+      ref,
+      text,
+      origin: CodeOrigin.qr,
+      scanAgain: _scan,
+    );
+  }
+
+  /// Opens a payment link another app handed over, once the wallet is open. Over another
+  /// screen it waits for the user's Open, so nothing in progress is closed.
+  void _openLink() {
+    final link = ref.read(incomingLinkProvider.notifier).take();
+    if (link == null || !mounted) return;
+    if (ModalRoute.of(context)?.isCurrent ?? true) {
+      unawaited(openScannedText(context, ref, link.text, origin: CodeOrigin.link));
+      return;
+    }
+    showLinkWaiting(ref, context.l10n, () {
+      if (mounted) {
+        unawaited(
+          openScannedText(context, ref, link.text, origin: CodeOrigin.link),
+        );
+      }
+    });
   }
 
   void _goTab(ShellTab tab) => ref.read(shellTabProvider.notifier).go(tab);
@@ -460,6 +488,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.listen(incomingSlateProvider, (_, file) {
       if (file != null) _openIncoming();
     });
+    ref.listen(incomingLinkProvider, (_, link) {
+      if (link != null) _openLink();
+    });
+    ref.listen(
+      linkDroppedBusyProvider,
+      (_, _) => showLinkBusy(ref, context.l10n),
+    );
     ref.listen(listenerProvider.select((s) => s.last), (_, event) {
       if (event != null) _notify(event);
     });

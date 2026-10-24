@@ -444,6 +444,10 @@ class RemoteWalletService implements WalletService {
   bool validateEpicboxAddress({required String address}) =>
       epicboxAddressFormat(address);
 
+  /// The syntax cannot tell the chains apart; the server's send has the final word.
+  @override
+  bool epicboxAddressOtherChain({required String address}) => false;
+
   /// The address syntax only.
   @override
   bool validateOnionAddress({required String address}) =>

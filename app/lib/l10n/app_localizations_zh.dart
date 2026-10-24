@@ -4812,6 +4812,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodFile => '文件';
 
   @override
+  String get methodShortHttp => 'HTTP';
+
+  @override
+  String get methodShortTor => 'Tor';
+
+  @override
+  String get methodShortQr => 'QR';
+
+  @override
   String get methodArtCaptionEpicbox => 'Epicbox 服务器暂存';
 
   @override
@@ -13914,4 +13923,102 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSendMethodHeader => '付款方式';
+
+  @override
+  String get sendRequestTitle => '付款请求';
+
+  @override
+  String get sendRequestCheck => '请检查金额，然后继续。';
+
+  @override
+  String get sendRequestDismiss => '关闭';
+
+  @override
+  String get sendAmountFromCode => '来自付款码';
+
+  @override
+  String sendAmountCodeAsked(String amount) {
+    return '付款码要求的金额为 $amount。';
+  }
+
+  @override
+  String get sendCodeAmountInvalid => '此码中的金额无效，已忽略。';
+
+  @override
+  String get sendCodeAmountTooLarge => '此码中的金额过大，已忽略。';
+
+  @override
+  String get sendCodeTooLong => '此码的一部分过长，已忽略。';
+
+  @override
+  String get payeeNameLabel => '收款方自称的名称（未验证）';
+
+  @override
+  String get payeeNoteLabel => '收款方的备注（未验证）';
+
+  @override
+  String get payeeUnverifiedTitle => '未验证';
+
+  @override
+  String get payeeUnverifiedHint => '名称和备注由制作此码的人写入，没有人核实。请核对地址和金额，而不是名称。';
+
+  @override
+  String get sendNoteFromCodeHelper => '来自付款码。对方也能看到。';
+
+  @override
+  String get sendOriginQr => '来自二维码';
+
+  @override
+  String get sendOriginLink => '来自链接';
+
+  @override
+  String get sendOriginPasted => '已粘贴';
+
+  @override
+  String get sendDirectHost => '主机';
+
+  @override
+  String get sendPlainHttpRow => '未加密（纯 HTTP）';
+
+  @override
+  String get scanNotEpicTitle => '不是 Epic 码';
+
+  @override
+  String get scanNotEpicBody => '这不是 Epic 地址，也不是付款码。';
+
+  @override
+  String get scanBadAddress => '此码中的地址无效。';
+
+  @override
+  String get scanWrongNetworkTitle => '其他网络';
+
+  @override
+  String get scanWrongNetworkBody => '此地址属于另一个 Epic 网络，此钱包无法向它付款。';
+
+  @override
+  String get scanSlateTextBody => '这是交易文件的文本，不是地址。';
+
+  @override
+  String get commonOpen => '打开';
+
+  @override
+  String get scanPairingTitle => '配对链接';
+
+  @override
+  String get scanPairingUnavailable => '此版本不支持配对。';
+
+  @override
+  String get scanCodeTextLabel => '扫描到的文本';
+
+  @override
+  String get scanCopied => '已复制';
+
+  @override
+  String get linkWaitingNotice => '收到付款链接';
+
+  @override
+  String get linkFinishCurrentFirst => '请先完成当前付款。';
+
+  @override
+  String get deskSendToQrPayment => '这是二维码付款码，请用 Epic Cash Mobile 扫描。';
 }

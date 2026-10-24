@@ -84,7 +84,7 @@ void main() {
     });
   });
 
-  testWidgets('the kind tag of an address row names the method its address is reached by', (tester) async {
+  testWidgets('the kind tag of an address names the method by its short name, with its icon', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -93,9 +93,25 @@ void main() {
       ),
     );
     expect(find.text('Epicbox'), findsOneWidget);
-    expect(find.text('Link Payment · HTTP'), findsOneWidget);
-    expect(find.text('Link Payment · Tor'), findsOneWidget);
-    expect(find.text('HTTP'), findsNothing);
-    expect(find.text('Tor'), findsNothing);
+    expect(find.text('HTTP'), findsOneWidget);
+    expect(find.text('Tor'), findsOneWidget);
+    expect(find.byIcon(EIcons.epicbox), findsOneWidget);
+    expect(find.byIcon(EIcons.http), findsOneWidget);
+    expect(find.byIcon(EIcons.tor), findsOneWidget);
+    expect(find.textContaining('Link Payment'), findsNothing);
+  });
+
+  testWidgets('a compact kind tag is the icon alone, the full name in its tooltip', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Column(children: [EKindTag(AddressKind.tor, compact: true)]),
+      ),
+    );
+    expect(find.byType(Text), findsNothing);
+    expect(find.byIcon(EIcons.tor), findsOneWidget);
+    expect(find.byTooltip('Link Payment · Tor'), findsOneWidget);
+    expect(find.bySemanticsLabel('Link Payment · Tor'), findsOneWidget);
   });
 }

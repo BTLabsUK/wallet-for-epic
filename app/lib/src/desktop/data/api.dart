@@ -147,6 +147,10 @@ abstract interface class DeskWalletApi {
   /// `@server`.
   bool isEpicboxAddress(String to);
 
+  /// An Epicbox address of the other chain (a floonet address in a mainnet wallet, or back):
+  /// the scan router's WrongNetwork. Needs `@server`.
+  bool epicboxAddressOtherChain(String to);
+
   // Acting.
   Future<int> estimateFee(int amount);
 

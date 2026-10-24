@@ -42,6 +42,10 @@ abstract interface class WalletService {
   /// True for `<address>@<relay>[:port]` valid on the chain of the open wallet.
   bool validateEpicboxAddress({required String address});
 
+  /// True for `<address>@<relay>[:port]` valid on the other chain (a floonet address while
+  /// the wallet is on mainnet, or back): the key's version bytes tell the chains apart.
+  bool epicboxAddressOtherChain({required String address});
+
   /// True for an onion v3 address: 56 characters, with or without `.onion`, an `http://`
   /// prefix, a port or a path, whose version and checksum hold.
   bool validateOnionAddress({required String address});
@@ -744,6 +748,9 @@ class FakeWalletService implements WalletService {
   @override
   bool validateEpicboxAddress({required String address}) =>
       fakeEpicboxAddress(address);
+
+  @override
+  bool epicboxAddressOtherChain({required String address}) => false;
 
   @override
   bool validateOnionAddress({required String address}) =>

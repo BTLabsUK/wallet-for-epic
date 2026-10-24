@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../ui/method_icons.dart';
+
+export '../../ui/method_icons.dart';
 import '../../ui/status_icons.dart';
 
 /// The desktop icon set: one outlined Material symbol per meaning, named as the Electron
@@ -31,18 +34,18 @@ abstract final class EIcons {
   static const chevronLeft = Icons.chevron_left;
   static const arrowLeft = Icons.arrow_back;
   static const search = Icons.search;
-  static const file = Icons.description_outlined;
+  static const file = MethodIcons.file;
   static const fileUp = Icons.upload_file_outlined;
   static const fileDown = Icons.file_download_outlined;
-  static const qr = Icons.qr_code_2;
+  static const qr = MethodIcons.qr;
   static const server = EpicGlyphs.node;
   static const node = EpicGlyphs.node;
   static const antenna = Icons.cell_tower;
   // One glyph per receive/send method, shared with the phone.
-  static const epicbox = EpicGlyphs.epicbox;
-  static const http = EpicGlyphs.http;
-  static const tor = EpicGlyphs.tor;
-  static const link = EpicGlyphs.link;
+  static const epicbox = MethodIcons.epicbox;
+  static const http = MethodIcons.http;
+  static const tor = MethodIcons.tor;
+  static const link = MethodIcons.link;
   static const refresh = Icons.refresh;
   static const info = Icons.info_outline;
   static const alert = Icons.warning_amber_outlined;

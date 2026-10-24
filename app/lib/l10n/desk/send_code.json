@@ -1,0 +1,6 @@
+{
+  "deskSendToQrPayment": "A QR Payment code. Scan it with Epic Cash Mobile.",
+  "@deskSendToQrPayment": {
+    "description": "Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (Epic Cash Mobile) reads. 'QR Payment' is the method's name."
+  }
+}

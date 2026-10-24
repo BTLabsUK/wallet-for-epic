@@ -64,12 +64,15 @@ class ContactTile extends StatelessWidget {
 
 /// The kind of [address] as a badge: Epicbox, Link Payment · HTTP or Link Payment · Tor.
 class ContactTag extends StatelessWidget {
-  const ContactTag(this.address, {super.key});
+  const ContactTag(this.address, {super.key, this.compact = false});
 
   final String address;
 
+  /// The glyph alone, its name in the tooltip: list rows.
+  final bool compact;
+
   @override
-  Widget build(BuildContext context) => EBadge.kind(parseRecipient(address).kind, l: context.l10n);
+  Widget build(BuildContext context) => EBadge.kind(parseRecipient(address).kind, l: context.l10n, compact: compact);
 }
 
 /// Opens [contact]'s sheet over [context], the contacts screen.
