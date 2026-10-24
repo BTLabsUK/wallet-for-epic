@@ -833,6 +833,15 @@ class LepicWalletService implements WalletService {
       .validateEpicboxAddress(address: address, chain: _lepicChain(_chain));
 
   @override
+  bool epicboxAddressOtherChain({required String address}) =>
+      lepic.validateEpicboxAddress(
+        address: address,
+        chain: _lepicChain(_chain) == lepic.Chain.mainnet
+            ? lepic.Chain.floonet
+            : lepic.Chain.mainnet,
+      );
+
+  @override
   bool validateOnionAddress({required String address}) =>
       lepic.validateOnionAddress(address: address);
 
