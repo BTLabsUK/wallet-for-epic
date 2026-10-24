@@ -465,7 +465,9 @@ class _Tiles extends StatelessWidget {
         runSpacing: 24.u,
         children: [
           tile('Spendable', Icon(EIcons.okCircle, size: icon, color: c.ok), b.spendable, n?.spendable),
-          tile('Confirming', ERing(confirmations: 1, size: icon), b.awaitingConfirmation, n?.confirming),
+          // Its count takes the outputs awaiting finalization too, so its value does (linux-08),
+          // as the phone's: they are in no other figure and not in Total.
+          tile('Confirming', ERing(confirmations: 1, size: icon), b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
           if (b.immature > 0) tile('Immature', Icon(EIcons.sand, size: icon, color: c.warn), b.immature, n?.immature),
           tile('Locked in sends', Icon(EIcons.lock, size: icon, color: c.dim), b.locked, n?.locked),
           tile('Total', null, b.total, null, total: true),
