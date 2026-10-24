@@ -9,11 +9,11 @@ import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localInt;
 import 'prefs.dart';
 
-/// The sections; [invoices] adds Invoices below Receiving (wallets that take invoices), its label
+/// The sections; [invoices] adds Invoices below Transactions (wallets that take invoices), its label
 /// in the app's language.
 List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices}) => [
   (DeskRoute.settingsNode, l.deskSetFrameNode, EIcons.node),
-  (DeskRoute.settingsReceiving, l.deskSetFrameReceiving, EIcons.antenna),
+  (DeskRoute.settingsReceiving, l.deskSetFrameTransactions, EIcons.antenna),
   (DeskRoute.settingsPrivacy, l.deskSetFramePrivacy, EIcons.shield),
   if (invoices) (DeskRoute.settingsInvoices, l.deskInvSetTitle, EIcons.invoice),
   (DeskRoute.settingsAppearance, l.deskSetFrameAppearance, EIcons.palette),

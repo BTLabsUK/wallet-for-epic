@@ -22,7 +22,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'โทรศัพท์เครื่องนี้' : 'คอมพิวเตอร์เครื่องนี้';
   final secret = phone ? 'PIN' : 'รหัสผ่านกระเป๋าเงิน';
   final nodePlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › โหนด|Settings › Privacy & network › Node]]' : '[[การตั้งค่า › โหนด|Settings › Node]]';
-  final epicboxPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[การตั้งค่า › การรับเงิน › รับผ่าน Epicbox|Settings › Receiving › Epicbox receiving]]';
+  final epicboxPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[การตั้งค่า › Transactions › รับผ่าน Epicbox|Settings › Transactions › Epicbox receiving]]';
   final torPlace = phone ? '[[การตั้งค่า › ความเป็นส่วนตัวและเครือข่าย › เครือข่าย Tor|Settings › Privacy & network › Tor Network]]' : '[[การตั้งค่า › ความเป็นส่วนตัว › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? '[[ประวัติ|Activity]] (เปิดรายการ แล้วแตะ ยกเลิกรายการ)'
@@ -285,7 +285,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**"Epicbox ไม่ตอบสนอง"** กระเป๋าเงินเชื่อมต่อเซิร์ฟเวอร์ Epicbox ไม่ได้ รอสักครู่ ถ้ายังเป็นอยู่ ให้ตรวจการเชื่อมต่อ หรือแตะแถว Epicbox ในแท็บกระเป๋าแล้วเลือกเซิร์ฟเวอร์อื่น ระหว่างนี้ใช้ไฟล์ได้')
         else
-          const HelpBlock.p('**"Epicbox ไม่ตอบสนอง"** กระเป๋าเงินเชื่อมต่อเซิร์ฟเวอร์ Epicbox ไม่ได้ รอสักครู่ ถ้ายังเป็นอยู่ ให้ตรวจการเชื่อมต่อ หรือเลือกเซิร์ฟเวอร์อื่นที่ [[การตั้งค่า › การรับเงิน|Settings › Receiving]] ระหว่างนี้ใช้ไฟล์ได้'),
+          const HelpBlock.p('**"Epicbox ไม่ตอบสนอง"** กระเป๋าเงินเชื่อมต่อเซิร์ฟเวอร์ Epicbox ไม่ได้ รอสักครู่ ถ้ายังเป็นอยู่ ให้ตรวจการเชื่อมต่อ หรือเลือกเซิร์ฟเวอร์อื่นที่ [[การตั้งค่า › Transactions|Settings › Transactions]] ระหว่างนี้ใช้ไฟล์ได้'),
         const HelpBlock.p('**การส่งขึ้นว่า "รอผู้รับ"** กระเป๋าเงินของผู้รับยังไม่ตอบ ขอให้ผู้รับเปิดกระเป๋าเงิน ถ้าจะไม่เปิดเลย ให้ยกเลิกการส่งในประวัติเพื่อปลดล็อกเอาต์พุต'),
         if (phone)
           const HelpBlock.p('**เงินยังไม่เข้า** ตรวจในแท็บกระเป๋าว่าโหนดซิงก์แล้วและ Epicbox ออนไลน์ หลังเปลี่ยนเซิร์ฟเวอร์ Epicbox ผู้ส่งต้องใช้ที่อยู่ใหม่ กระเป๋าเงินของผู้ส่งต้องทำธุรกรรมให้เสร็จด้วย จากนั้นรออีกไม่กี่นาทีเพื่อการยืนยัน')

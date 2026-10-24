@@ -15,7 +15,7 @@ import '../../widgets/kit.dart';
 import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
-import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
+import '../settings/settings_advanced.dart' show openAdvanced;
 
 enum RxEpicbox { on, off, down }
 
@@ -171,14 +171,17 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
     final epicbox = TourTarget(id: 'receive-epicbox', child: _epicboxPanel(st, status));
-    // Advanced › Direct receiving; Tor receiving on or a running listener keeps its panel.
-    final direct = advancedHas(ref, AdvancedFeature.directReceiving, keep: st.settings.tor || status?.httpListener == ServiceHealth.ok);
+    // Settings › Transactions › Direct; Tor receiving on or a running listener keeps its panel.
+    final direct = st.settings.payments.direct || st.settings.tor || status?.httpListener == ServiceHealth.ok;
     final others = [
       if (DeskFeatures.tor && st.settings.tor) _torPanel(st, status) else if (DeskFeatures.httpDirect && direct) _httpPanel(st, status),
     ];
     final tor = netTorState(st.settings, status);
     final net = deskNetBlock(st);
-    final files = TourTarget(id: 'receive-files', child: _filesPanel(nav, deskFileBlock(st)));
+    // Settings › Transactions › File; a file send waiting for its response keeps the panel (Finalize).
+    final files = st.settings.payments.file || st.pendingFiles > 0
+        ? TourTarget(id: 'receive-files', child: _filesPanel(nav, deskFileBlock(st)))
+        : null;
     final head = ESectionHead(
       l.deskRecvOtherWays,
       top: 0,
@@ -211,7 +214,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                 children: [
                   Expanded(
                     flex: 7,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, files])),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, ?files])),
                   ),
                   if (others.isNotEmpty) ...[
                     SizedBox(width: Sp.x6),
@@ -237,8 +240,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
                   ),
                 ],
-                SizedBox(height: Sp.x3),
-                files,
+                if (files != null) ...[SizedBox(height: Sp.x3), files],
               ],
             );
           },

@@ -149,7 +149,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   final device = phone ? 'this phone' : 'this computer';
   final secret = phone ? 'your PIN' : 'the wallet password';
   final nodePlace = phone ? '[[Settings › Privacy & network › Node]]' : '[[Settings › Node]]';
-  final epicboxPlace = phone ? '[[Settings › Privacy & network › Epicbox]]' : '[[Settings › Receiving › Epicbox receiving]]';
+  final epicboxPlace = phone ? '[[Settings › Privacy & network › Epicbox]]' : '[[Settings › Transactions › Epicbox receiving]]';
   final torPlace = phone ? '[[Settings › Privacy & network › Tor Network]]' : '[[Settings › Privacy › Tor]]';
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone ? '[[Settings › Wallet › Export history backup]]' : '[[Settings › This wallet › Export history backup]]';
@@ -408,7 +408,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         if (phone)
           const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or tap the Epicbox row on the Wallet tab and pick another server. Meanwhile a file works.')
         else
-          const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under [[Settings › Receiving]]. Meanwhile a file works.'),
+          const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under [[Settings › Transactions]]. Meanwhile a file works.'),
         const HelpBlock.p('**A send says "Waiting for the recipient".** Their wallet has not answered yet. Ask them to open it. If they never will, cancel the send in Activity to unlock the outputs.'),
         if (phone)
           const HelpBlock.p('**A payment has not arrived.** Check on the Wallet tab that the node is synced and Epicbox is online. After a change of Epicbox server, the sender needs the new address. The sender\'s wallet also has to finish the transaction; then a few minutes for the confirmations.')

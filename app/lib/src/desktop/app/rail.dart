@@ -4,7 +4,7 @@
 /// changes height.
 library;
 
-import '../../advanced.dart' show AdvancedFeature, NetworkMode;
+import '../../advanced.dart' show NetworkMode;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -108,9 +108,9 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
       jump: SettingsJump.epicbox,
     ),
   ];
-  // Advanced › Direct receiving; a listener that is on, starting or failed keeps its row.
+  // Settings › Transactions › Direct; a listener that is on, starting or failed keeps its row.
   final run = httpRun(st);
-  if (DeskFeatures.httpDirect && (settings.advanced.has(AdvancedFeature.directReceiving) || run != HttpRun.off)) {
+  if (DeskFeatures.httpDirect && (settings.payments.direct || run != HttpRun.off)) {
     final public = settings.publicMode;
     items.add(
       RailItem(

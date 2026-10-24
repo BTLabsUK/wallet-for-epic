@@ -22,6 +22,7 @@ import 'settings_help.dart' show HelpDemo;
 import 'settings_rescan.dart';
 import '../wallet/tx_detail.dart' show txMoreDemoProvider;
 import '../../../advanced.dart';
+import '../../../payment_prefs.dart';
 
 /// A wallet that is not open, for the remove dialog's shots.
 const demoOtherWallet = WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic/main/savings', network: 'mainnet');
@@ -30,7 +31,10 @@ const demoOtherWallet = WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name
 Future<void> resetSettingsDemo(ProviderContainer c) async {
   c.read(settingsPrefsProvider.notifier).set(const SettingsPrefs());
   final n = c.read(deskProvider.notifier);
-  await n.saveSettings(c.read(deskProvider).settings.copyWith(tor: false, publicMode: false));
+  final now = c.read(deskProvider).settings;
+  await n.saveSettings(
+    now.copyWith(tor: false, publicMode: false, payments: PaymentPrefs.defaults, advanced: now.advanced.withFeature(AdvancedFeature.sendOptions, false)),
+  );
   await n.setHttp(false);
   final node = c.read(deskNodeProvider);
   if (node is MockDeskNode) node.show(mockLocalNode(LocalNodePhase.stopped));
@@ -129,7 +133,7 @@ final List<DeskShot> settingsShots = [
   DeskShot(id: '22h-dlg-chain-offer-in-use', title: 'Existing blockchain data, in use', route: DeskRoute.settingsNode, dialog: (c) => showChainOfferDialog(c, inUse: true)),
   DeskShot(
     id: '23-settings-receiving',
-    title: 'Settings, receiving',
+    title: 'Settings, transactions',
     route: DeskRoute.settingsReceiving,
     prepare: (c, _) => resetSettingsDemo(c),
   ),
@@ -153,6 +157,8 @@ final List<DeskShot> settingsShots = [
     height: 1200,
   ),
   const DeskShot(id: '23i-receiving-http-public', title: 'Receiving, HTTP from the internet', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpPublic, height: 1000),
+  const DeskShot(id: '23n-transactions-direct-on', title: 'Transactions, Direct on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.directOn, height: 1200),
+  const DeskShot(id: '23o-transactions-send-options', title: 'Transactions, Send options on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.sendOptions, height: 1400),
   const DeskShot(id: '23j-privacy', title: 'Privacy, Tor off', route: DeskRoute.settingsPrivacy),
   const DeskShot(id: '23k-privacy-tor-starting', title: 'Privacy, Tor starting', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torStarting),
   const DeskShot(id: '23l-privacy-tor-on', title: 'Privacy, Tor on', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torOn),
@@ -240,6 +246,7 @@ final List<DeskShot> settingsShots = [
     id: '23g-dlg-internet-guide',
     title: 'Receive from the internet: the guide',
     route: DeskRoute.settingsReceiving,
+    prepare: (c, _) => resetSettingsDemo(c),
     dialog: (c) => showEDialog<InternetGuideChoice>(c, builder: (_) => const InternetGuide(port: 3415, isPublic: false)),
   ),
   DeskShot(id: '30c-dlg-report-problem', title: 'Report a problem', route: DeskRoute.settingsHelp, dialog: showReportProblemDialog),

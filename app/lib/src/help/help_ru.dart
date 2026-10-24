@@ -18,7 +18,7 @@ List<HelpTopic> helpTopicsRu(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'этом телефоне' : 'этом компьютере';
   final secret = phone ? 'PIN-код' : 'пароль кошелька';
   final nodePlace = phone ? '[[Настройки › Приватность и сеть › Узел|Settings › Privacy & network › Node]]' : '[[Настройки › Узел|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Настройки › Приватность и сеть › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Настройки › Приём › Приём через Epicbox|Settings › Receiving › Epicbox receiving]]';
+  final epicboxPlace = phone ? '[[Настройки › Приватность и сеть › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Настройки › Transactions › Приём через Epicbox|Settings › Transactions › Epicbox receiving]]';
   final torPlace = phone ? '[[Настройки › Приватность и сеть › Сеть Tor|Settings › Privacy & network › Tor Network]]' : '[[Настройки › Приватность › Tor|Settings › Privacy › Tor]]';
   final cancelPlace = phone
       ? 'разделе [[Активность|Activity]] (откройте платёж и нажмите «Отменить платёж»)'
@@ -281,7 +281,7 @@ List<HelpTopic> helpTopicsRu(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**«Сервер Epicbox не отвечает».** Кошелёк не может связаться со своим сервером Epicbox. Подождите немного; если так и остаётся, проверьте подключение или нажмите строку «Epicbox» на вкладке «Кошелёк» и выберите другой сервер. Тем временем можно использовать файл.')
         else
-          const HelpBlock.p('**«Сервер Epicbox не отвечает».** Кошелёк не может связаться со своим сервером Epicbox. Подождите немного; если так и остаётся, проверьте подключение или выберите другой сервер в [[Настройки › Приём|Settings › Receiving]]. Тем временем можно использовать файл.'),
+          const HelpBlock.p('**«Сервер Epicbox не отвечает».** Кошелёк не может связаться со своим сервером Epicbox. Подождите немного; если так и остаётся, проверьте подключение или выберите другой сервер в [[Настройки › Transactions|Settings › Transactions]]. Тем временем можно использовать файл.'),
         const HelpBlock.p('**Отправка в статусе «Ждёт получателя».** Кошелёк получателя ещё не ответил. Попросите его открыть кошелёк. Если он так и не откроет, отмените отправку в разделе «Активность», чтобы разблокировать выходы.'),
         if (phone)
           const HelpBlock.p('**Платёж не пришёл.** Проверьте на вкладке «Кошелёк», что узел синхронизирован, а Epicbox в сети. После смены сервера Epicbox отправителю нужен новый адрес. Кроме того, кошелёк отправителя должен завершить транзакцию; затем несколько минут на подтверждения.')

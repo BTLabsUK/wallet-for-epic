@@ -11112,7 +11112,7 @@ abstract class AppLocalizations {
   /// Caption under the HTTP address when receiving is only for this computer.
   ///
   /// In en, this message translates to:
-  /// **'Programs on this computer can pay this address. For other devices, see Settings › Receiving.'**
+  /// **'Programs on this computer can pay this address. For other devices, see Settings › Transactions.'**
   String get deskRecvHttpLocal;
 
   /// Intro text of the HTTP panel on Receive.
@@ -13244,12 +13244,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total'**
   String get deskOutTileTotal;
-
-  /// Title of the panel on Outputs with the settings Send uses.
-  ///
-  /// In en, this message translates to:
-  /// **'Defaults for sends'**
-  String get deskOutDefaultsTitle;
 
   /// Setting title in the Defaults panel: which outputs a send spends.
   ///
@@ -18111,12 +18105,6 @@ abstract class AppLocalizations {
   /// **'Node'**
   String get deskSetFrameNode;
 
-  /// Settings sidebar entry and page name for how this wallet receives payments. Narrow.
-  ///
-  /// In en, this message translates to:
-  /// **'Receiving'**
-  String get deskSetFrameReceiving;
-
   /// Settings sidebar entry and page name for privacy and network routing. Narrow.
   ///
   /// In en, this message translates to:
@@ -21938,18 +21926,6 @@ abstract class AppLocalizations {
   /// **'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.'**
   String get deskSetAdvSendOptionsHint;
 
-  /// Advanced switch: HTTP and Tor receiving.
-  ///
-  /// In en, this message translates to:
-  /// **'Direct receiving'**
-  String get deskSetAdvDirect;
-
-  /// Hover card of the Direct receiving switch.
-  ///
-  /// In en, this message translates to:
-  /// **'Gives this computer its own address, over HTTP or Tor. Others can pay it directly, without Epicbox. Works only while the wallet is open. Adds the Direct method to Send, the addresses to Receive, and their settings under Receiving. A listener that is on keeps its rows.'**
-  String get deskSetAdvDirectHint;
-
   /// Advanced switch: hosts, latency, version, height.
   ///
   /// In en, this message translates to:
@@ -22439,7 +22415,7 @@ abstract class AppLocalizations {
   /// Text of the Settings › Advanced step of the first-run tour. The tour switches nothing on.
   ///
   /// In en, this message translates to:
-  /// **'Direct payments, Tor-only mode, outputs and technical details live here. Switch on what you need.'**
+  /// **'Tor-only mode, outputs and technical details live here. Switch on what you need.'**
   String get deskTourAdvancedText;
 
   /// Small link under a transaction's details that shows the technical rows for this view only.
@@ -22453,6 +22429,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Less'**
   String get deskTxLess;
+
+  /// One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went.
+  ///
+  /// In en, this message translates to:
+  /// **'The strategy and Split change for sends are set in Settings › Transactions.'**
+  String get deskOutDefaultsMoved;
+
+  /// Inline button after deskOutDefaultsMoved: opens Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Transactions'**
+  String get deskOutDefaultsOpen;
+
+  /// Settings sidebar entry and page name for how payments are made: the methods, what Send starts on, receiving. Narrow (about 200 px).
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get deskSetFrameTransactions;
+
+  /// Title of the group on Settings › Transactions with one row per payment method (Epicbox, Direct, File).
+  ///
+  /// In en, this message translates to:
+  /// **'Payment methods'**
+  String get deskSetTxMethods;
+
+  /// Tag in place of a switch on the Epicbox row of Settings › Transactions: Epicbox cannot be turned off here. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Always on'**
+  String get deskSetTxAlwaysOn;
+
+  /// Hover card behind the info icon of the Epicbox row on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid through an Epicbox server. Most payments go this way, so it is always on.'**
+  String get deskSetTxEpicboxHint;
+
+  /// Hover card behind the info icon of the Direct row (switch) on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid straight from wallet to wallet, over HTTP or Tor, with no server between. Works only while the wallet is open. Adds Direct to Send and its address to Receive.'**
+  String get deskSetTxDirectHint;
+
+  /// Hover card behind the info icon of the File row (switch) on Settings › Transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid by handing over a transaction file, with no network needed. Adds File to Send and the file steps to Receive.'**
+  String get deskSetTxFileHint;
+
+  /// Title of the group on Settings › Transactions with what the Send page starts on and, with Advanced › Send options on, its defaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deskSetTxSend;
+
+  /// Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on.
+  ///
+  /// In en, this message translates to:
+  /// **'Send starts on'**
+  String get deskSetTxStart;
+
+  /// Hover card behind the info icon of the Send starts on row.
+  ///
+  /// In en, this message translates to:
+  /// **'The method the Send page opens with. You can still change it for one payment on Send.'**
+  String get deskSetTxStartHint;
 }
 
 class _AppLocalizationsDelegate

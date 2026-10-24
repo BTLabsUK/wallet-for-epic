@@ -31,7 +31,7 @@
   "deskRecvHttpAddress": "Direkt · HTTP-Adresse",
   "deskRecvCopyHttp": "HTTP-Adresse kopieren",
   "deskRecvHttpPublic": "Die öffentliche Adresse Ihres Routers. Absender im Internet nutzen sie, sobald der Router Port {port} weiterleitet.",
-  "deskRecvHttpLocal": "Programme auf diesem Computer können an diese Adresse zahlen. Für andere Geräte siehe Einstellungen › Empfangen.",
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
   "deskRecvHttpIntro": "Direkt von einer anderen Wallet, solange diese geöffnet ist. Nur auf diesem Computer, sofern die Einstellungen nichts anderes sagen.",
   "deskRecvHttpTorHint": "Schalten Sie Tor unter Einstellungen › Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",
   "deskRecvDirectTor": "Direkt · Tor-Adresse",

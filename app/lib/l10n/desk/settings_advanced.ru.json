@@ -8,8 +8,6 @@
   "deskSetAdvTechnicalHint": "Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core's status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.",
   "deskSetAdvSendOptions": "Send options",
   "deskSetAdvSendOptionsHint": "Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.",
-  "deskSetAdvDirect": "Direct receiving",
-  "deskSetAdvDirectHint": "Gives this computer its own address, over HTTP or Tor. Others can pay it directly, without Epicbox. Works only while the wallet is open. Adds the Direct method to Send, the addresses to Receive, and their settings under Receiving. A listener that is on keeps its rows.",
   "deskSetAdvServerDetails": "Server details",
   "deskSetAdvServerDetailsHint": "Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar's status rows and in the status card.",
   "deskSetAdvRecheck": "Recheck from a height",

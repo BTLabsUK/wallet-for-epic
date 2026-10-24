@@ -42,7 +42,6 @@
   "deskOutTileImmature": "Niedojrzałe",
   "deskOutTileLocked": "Zablokowane w wysyłkach",
   "deskOutTileTotal": "Razem",
-  "deskOutDefaultsTitle": "Domyślne dla wysyłek",
   "deskOutAdvanced": "Zaawansowane",
   "deskOutStrategyTitle": "Strategia wysyłek",
   "deskOutStrategyHint": "Które wyjścia wydaje wysyłka. Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania; Wszystkie wydaje wszystko i zwraca jedno wyjście. W Wyślij możesz to zmienić dla jednej wysyłki w sekcji Zaawansowane.",
@@ -119,5 +118,7 @@
   "deskOutConsDesc": "Jedno wyjście zamiast wielu.",
   "deskOutNothingText": "Nie ma czego scalać: portfel ma {what}. Scalanie łączy kilka wyjść w jedno.",
   "deskOutWhatFewer": "mniej niż dwa wyjścia do wydania",
-  "deskOutWhatOne": "jedno wyjście do wydania"
+  "deskOutWhatOne": "jedno wyjście do wydania",
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
+  "deskOutDefaultsOpen": "Open Transactions"
 }

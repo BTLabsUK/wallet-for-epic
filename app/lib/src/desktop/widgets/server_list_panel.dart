@@ -1,4 +1,4 @@
-/// The one Node and Epicbox picker of the desktop (Settings › Node, Settings › Receiving,
+/// The one Node and Epicbox picker of the desktop (Settings › Node, Settings › Transactions,
 /// Setup): a field-like button with the server in use that opens the kind's list under it
 /// ([deskServerListProvider], shared with the phone's lists).
 ///

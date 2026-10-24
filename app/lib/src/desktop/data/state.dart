@@ -321,7 +321,7 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(status: status);
   }
 
-  /// The Epicbox switch (Receive, Settings › Receiving): Epicbox receiving alone, HTTP and Tor
+  /// The Epicbox switch (Receive, Settings › Transactions): Epicbox receiving alone, HTTP and Tor
   /// untouched.
   Future<void> setEpicboxListening(bool on) async {
     await api.setEpicboxListening(on);
@@ -329,7 +329,7 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(status: status);
   }
 
-  /// The HTTP listener switch (Settings › Receiving, Receive's Turn on / Turn off / Try again):
+  /// The HTTP listener switch (Settings › Transactions, Receive's Turn on / Turn off / Try again):
   /// saved as [DeskSettings.directHttp] and the listener started or stopped with it.
   Future<void> setHttp(bool on) async {
     final s = state.settings.copyWith(directHttp: on);

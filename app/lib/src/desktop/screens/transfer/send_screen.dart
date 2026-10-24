@@ -27,6 +27,7 @@ import 'epicbox_notice.dart';
 import 'file_panels.dart';
 import 'send_advanced.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
+import '../../../payment_prefs.dart' show PayMethod;
 import 'send_summary_rows.dart';
 
 /// Where the Send page is, so the tour reaches every state without taps.
@@ -36,7 +37,7 @@ enum SendStep { form, errors, review, sending, done, fileReady, failed }
 /// [nodeSync] (0..1) and [epicboxHealth] stand in for the wallet's status in the tour.
 class SendArgs {
   const SendArgs({
-    this.method = TxMethod.epicbox,
+    this.method,
     this.recipient,
     this.amount,
     this.message,
@@ -53,7 +54,8 @@ class SendArgs {
     this.advancedOpen = false,
   });
 
-  final TxMethod method;
+  /// The method Send opens on; null is the one chosen in Settings › Transactions.
+  final TxMethod? method;
   final String? recipient;
   final String? amount;
   final String? message;
@@ -218,7 +220,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
     _args = args;
     final contact = args.contact;
-    _method = contact != null ? contactMethod(contact) : args.method;
+    _method = contact != null ? contactMethod(contact) : args.method ?? _startMethod();
     _to.text = args.recipient ?? contact?.address ?? '';
     _autoSwitch(forced: true, tag: args.switched);
     _suggestOff = _to.text.isNotEmpty && !args.suggest;
@@ -401,6 +403,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   TxMethod _directRoute(AddressKind k) => k == AddressKind.tor && DeskFeatures.tor ? TxMethod.tor : TxMethod.http;
+
+  /// Settings › Transactions › Send starts on, among the methods this build has.
+  TxMethod _startMethod() => switch (ref.read(deskProvider).settings.payments.startMethod) {
+    PayMethod.direct when DeskFeatures.httpDirect || DeskFeatures.tor => TxMethod.http,
+    PayMethod.file => TxMethod.file,
+    _ => TxMethod.epicbox,
+  };
 
   static bool _offered(TxMethod m) => switch (m) {
     TxMethod.http => DeskFeatures.httpDirect,
@@ -938,12 +947,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           segments: [
             ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox, enabled: netIdle, tooltip: netWhy), // l10n-ok: product name
             // Direct: http(s) or an onion, the address decides ([TxMethod.tor] is its route).
-            // Advanced › Direct receiving; the method in use stays (a pasted onion picks Direct).
-            // File is everyday.
+            // Settings › Transactions: the methods on. The method in use stays (a pasted onion
+            // picks Direct; a file send in progress or the file fallback of a failed Epicbox
+            // keeps File).
             if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
-                advancedHas(ref, AdvancedFeature.directReceiving, keep: _segmentOf(_method) == TxMethod.http))
+                (st.settings.payments.direct || _segmentOf(_method) == TxMethod.http))
               ESegment(TxMethod.http, l.deskSendMethodDirect, icon: EIcons.http, enabled: netIdle, tooltip: netWhy),
-            ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file, enabled: fileBlock == NetBlock.none, tooltip: netBlockReason(l, fileBlock)),
+            if (st.settings.payments.file || file || _result is SendFileReady || _epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)
+              ESegment(TxMethod.file, l.deskSendMethodFile, icon: EIcons.file, enabled: fileBlock == NetBlock.none, tooltip: netBlockReason(l, fileBlock)),
           ],
           value: _segmentOf(_method),
           onChanged: (m) => setState(() {
