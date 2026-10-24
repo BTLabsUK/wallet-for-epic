@@ -30,7 +30,7 @@ class _Config extends WalletConfigNotifier {
 }
 
 class _Harness {
-  _Harness({TorBundle? bundle = _bundle}) {
+  _Harness({TorBundle? bundle = _bundle, Duration startStall = const Duration(minutes: 5)}) {
     container = ProviderContainer(
       retry: (_, _) => null,
       overrides: [
@@ -39,7 +39,7 @@ class _Harness {
         torBundleFinderProvider.overrideWithValue(() async => bundle),
         networkChangesProvider.overrideWithValue(network.stream),
         phoneTorTimingProvider.overrideWithValue(
-          const PhoneTorTiming(
+          PhoneTorTiming(
             backoff: [
               Duration(milliseconds: 20),
               Duration(milliseconds: 60),
@@ -47,7 +47,8 @@ class _Harness {
             ],
             sendWait: Duration(milliseconds: 600),
             networkSettle: Duration(milliseconds: 30),
-            awayRenew: Duration(milliseconds: 50),
+            awayRenew: const Duration(milliseconds: 50),
+            startStall: startStall,
           ),
         ),
       ],
@@ -525,6 +526,29 @@ void main() {
     expect(h.session.torRefreshes, isEmpty);
     await h.settle(100);
     expect(h.session.torRefreshes, [true]);
+  });
+
+  // android-14: after a burst of network changes tor stayed "Starting…" for good and no
+  // network event came to wake it. A start that never connects is stopped and started again.
+  test('a start that never connects is started again', () async {
+    final s = _Harness(startStall: const Duration(milliseconds: 150));
+    addTearDown(s.container.dispose);
+    s.store.values[s.key] = 'true';
+    await s.unlock();
+    expect(s.session.torStarts, hasLength(1));
+    s.emit(TorEventKind.starting, progress: 10);
+    await s.until((st) => st.progress == 10);
+    final end = DateTime.now().add(const Duration(seconds: 3));
+    while (s.session.torStarts.length < 2) {
+      if (DateTime.now().isAfter(end)) fail('never started again');
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+    expect(s.session.torStops, greaterThanOrEqualTo(1));
+    // Connected this time: no further restart.
+    s.emit(TorEventKind.bootstrapped);
+    await s.until((st) => st.phase == PhoneTorPhase.connected);
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    expect(s.session.torStarts, hasLength(2));
   });
 
   test('retry stops and starts again', () async {
