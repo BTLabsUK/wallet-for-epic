@@ -176,18 +176,18 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                   children: [
                     Expanded(
                       child: EField(
-                        label: 'Search help',
-                        help: 'Press / to search. Esc clears the search.',
+                        label: context.l10n.deskSetHelpSearch,
+                        help: context.l10n.deskSetHelpSearchKeys,
                         child: CallbackShortcuts(
                           bindings: {const SingleActivator(LogicalKeyboardKey.escape): _clear},
                           child: EInput(
                             controller: _query,
                             focusNode: _focus,
-                            hint: 'For example: file, confirmations, phrase',
+                            hint: context.l10n.deskSetHelpSearchHint,
                             leading: EIcons.search,
-                            semanticLabel: 'Search help',
+                            semanticLabel: context.l10n.deskSetHelpSearch,
                             onChanged: (_) => setState(() {}),
-                            trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', onPressed: _clear),
+                            trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: context.l10n.deskSetHelpClear, onPressed: _clear),
                           ),
                         ),
                       ),
@@ -206,7 +206,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       for (final (s, _) in sections) _Chip(s.title, onTap: () => _show(_sectionKeys[s.id]!)),
-                      EButton.ghost(label: 'Show the tour again', icon: EIcons.restart, size: EBtnSize.inline, hit44: true, onPressed: () => startDeskTour(ref)),
+                      EButton.ghost(label: context.l10n.deskSetHelpTourAgain, icon: EIcons.restart, size: EBtnSize.inline, hit44: true, onPressed: () => startDeskTour(ref)),
                     ],
                   ),
                 ],
@@ -384,7 +384,7 @@ class _SectionHead extends StatelessWidget {
             ),
           ),
           SizedBox(width: Sp.x4),
-          Text('$count ${count == 1 ? 'topic' : 'topics'}', style: ts.mono(size: Fs.xs, color: c.faint)),
+          Text(context.l10n.deskSetHelpTopics(count), style: ts.mono(size: Fs.xs, color: c.faint)),
         ],
       ),
     );

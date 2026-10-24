@@ -238,6 +238,10 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump(const Duration(milliseconds: 300));
+    // Preferences (the language) comes first; the node step is next.
+    await tester.tap(find.text('Continue'));
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
   }
 
   Future<void> toReviewAndSave(WidgetTester tester) async {

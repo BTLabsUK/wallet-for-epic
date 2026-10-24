@@ -12603,319 +12603,316 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetWalletsRestoreText => 'จากวลีกู้คืน';
 
   @override
-  String get deskSetupConfirmPassword => 'Confirm password';
+  String get deskSetupConfirmPassword => 'ยืนยันรหัสผ่าน';
 
   @override
-  String get deskSetupPasswordShort => 'At least 8 characters';
+  String get deskSetupPasswordShort => 'อย่างน้อย 8 ตัวอักษร';
 
   @override
-  String get deskSetupPasswordsDiffer => 'Passwords differ';
+  String get deskSetupPasswordsDiffer => 'รหัสผ่านไม่ตรงกัน';
 
   @override
-  String get deskSetupBack => 'Back';
+  String get deskSetupBack => 'ย้อนกลับ';
 
   @override
-  String get deskSetupNewWalletAdded => 'New wallet added.';
+  String get deskSetupNewWalletAdded => 'เพิ่มกระเป๋าเงินใหม่แล้ว';
 
   @override
-  String get deskSetupCapsLock => 'Caps Lock is on';
+  String get deskSetupCapsLock => 'Caps Lock เปิดอยู่';
 
   @override
   String deskSetupStepSem(int number, int total, String label) {
-    return 'Step $number of $total: $label';
+    return 'ขั้นตอน $number จาก $total: $label';
   }
 
   @override
-  String get deskSetupTryAgain => 'Try again';
+  String get deskSetupTryAgain => 'ลองอีกครั้ง';
 
   @override
-  String get deskSetupNotSaved => 'Not saved';
+  String get deskSetupNotSaved => 'ไม่ได้บันทึก';
 
   @override
-  String get deskSetupStepPrefs => 'Preferences';
+  String get deskSetupStepPrefs => 'การตั้งค่าแอป';
 
   @override
-  String get deskSetupStepNode => 'Node';
+  String get deskSetupStepNode => 'โหนด';
 
   @override
   String get deskSetupStepEpicbox => 'Epicbox';
 
   @override
-  String get deskSetupStepReview => 'Review';
+  String get deskSetupStepReview => 'ตรวจสอบ';
 
   @override
   String get deskSetupAgain =>
-      'Running setup again. Nothing changes until Save on the last step.';
+      'กำลังตั้งค่าใหม่ ไม่มีอะไรเปลี่ยนจนกว่าจะกด บันทึก ในขั้นตอนสุดท้าย';
 
   @override
-  String get deskSetupPrefsLead => 'App language. It can be changed later.';
+  String get deskSetupPrefsLead => 'ภาษาของแอป เปลี่ยนได้ภายหลัง';
 
   @override
-  String get deskSetupNodeTitle => 'Choose a node';
+  String get deskSetupNodeTitle => 'เลือกโหนด';
 
   @override
   String get deskSetupNodeLead =>
-      'The wallet reads the chain and sends through an Epic node.';
+      'กระเป๋าเงินอ่านบล็อกเชนและส่งธุรกรรมผ่านโหนด Epic';
 
   @override
-  String get deskSetupLocalTitle => 'Local node';
+  String get deskSetupLocalTitle => 'โหนดในเครื่อง';
 
   @override
   String get deskSetupLocalLead =>
-      'What running the node here means, and which node to use.';
+      'การรันโหนดที่นี่หมายถึงอะไร และจะใช้โหนดไหน';
 
   @override
-  String get deskSetupEpicboxTitle => 'Receive when offline';
+  String get deskSetupEpicboxTitle => 'รับเงินแม้ออฟไลน์';
 
   @override
-  String get deskSetupReviewTitle => 'Check settings';
+  String get deskSetupReviewTitle => 'ตรวจการตั้งค่า';
 
   @override
-  String get deskSetupReviewLead =>
-      'Change anything that is not right, then save.';
+  String get deskSetupReviewLead => 'แก้สิ่งที่ไม่ถูกต้อง แล้วบันทึก';
 
   @override
-  String get deskSetupSideTitle => 'Set up';
+  String get deskSetupSideTitle => 'ตั้งค่า';
 
   @override
-  String get deskSetupBackToWallet => 'Back to wallet';
+  String get deskSetupBackToWallet => 'กลับไปที่กระเป๋าเงิน';
 
   @override
   String get deskSetupLaterNote =>
-      'Everything here can be changed later in Settings.';
+      'ทุกอย่างที่นี่เปลี่ยนได้ภายหลังในการตั้งค่า';
 
   @override
-  String get deskSetupSave => 'Save settings';
+  String get deskSetupSave => 'บันทึกการตั้งค่า';
 
   @override
-  String get deskSetupLanguage => 'Language';
+  String get deskSetupLanguage => 'ภาษา';
 
   @override
-  String get deskSetupNodeServer => 'Node server';
+  String get deskSetupNodeServer => 'เซิร์ฟเวอร์โหนด';
 
   @override
-  String get deskSetupNodeHint => 'Find or type a node address';
+  String get deskSetupNodeHint => 'ค้นหาหรือพิมพ์ที่อยู่โหนด';
 
   @override
-  String get deskSetupCheckingNodes => 'Checking nodes…';
+  String get deskSetupCheckingNodes => 'กำลังตรวจโหนด…';
 
   @override
-  String get deskSetupPickNode => 'Pick a node';
+  String get deskSetupPickNode => 'เลือกโหนด';
 
   @override
-  String get deskSetupPublicNodes => 'Public nodes';
+  String get deskSetupPublicNodes => 'โหนดสาธารณะ';
 
   @override
-  String get deskSetupNotInList => 'not in the public list';
+  String get deskSetupNotInList => 'ไม่อยู่ในรายการสาธารณะ';
 
   @override
-  String get deskSetupEnterUses => 'Enter uses it.';
+  String get deskSetupEnterUses => 'Enter เพื่อใช้';
 
   @override
-  String get deskSetupNoNodes => 'No nodes to show.';
+  String get deskSetupNoNodes => 'ไม่มีโหนดให้แสดง';
 
   @override
-  String get deskSetupRemoteNode => 'Remote node';
+  String get deskSetupRemoteNode => 'โหนดระยะไกล';
 
   @override
-  String get deskSetupRemoteNodeText => 'Any public node. Ready at once.';
+  String get deskSetupRemoteNodeText => 'โหนดสาธารณะใดก็ได้ ใช้ได้ทันที';
 
   @override
   String get deskSetupLocalNodeText =>
-      'Runs the Epic node on this computer. Nothing is shared with an operator. Needs disk space and hours to sync.';
+      'รันโหนด Epic บนคอมพิวเตอร์นี้ ไม่มีข้อมูลแชร์กับผู้ดูแลโหนด ต้องใช้พื้นที่ดิสก์และซิงก์หลายชั่วโมง';
 
   @override
   String get deskSetupEpicboxText =>
-      'Epicbox delivers payments to the Epicbox address and holds them until the wallet is online.';
+      'Epicbox ส่งรายการไปยังที่อยู่ Epicbox และเก็บไว้จนกว่ากระเป๋าเงินจะออนไลน์';
 
   @override
   String get deskSetupEpicboxPrivacy =>
-      'It does not hide the IP address from the Epicbox server. Use a VPN if that matters.';
+      'Epicbox ไม่ได้ซ่อนที่อยู่ IP จากเซิร์ฟเวอร์ Epicbox ใช้ VPN ถ้าเรื่องนี้สำคัญ';
 
   @override
-  String get deskSetupEpicboxServer => 'Epicbox server';
+  String get deskSetupEpicboxServer => 'เซิร์ฟเวอร์ Epicbox';
 
   @override
-  String get deskSetupEpicboxHelp =>
-      'Leave empty to turn receiving through Epicbox off.';
+  String get deskSetupEpicboxHelp => 'เว้นว่างไว้เพื่อปิดการรับผ่าน Epicbox';
 
   @override
-  String get deskSetupChangePrefsSem => 'Change preferences';
+  String get deskSetupChangePrefsSem => 'เปลี่ยนการตั้งค่าแอป';
 
   @override
-  String get deskSetupChangeNodeSem => 'Change node';
+  String get deskSetupChangeNodeSem => 'เปลี่ยนโหนด';
 
   @override
-  String get deskSetupChangeEpicboxSem => 'Change epicbox';
+  String get deskSetupChangeEpicboxSem => 'เปลี่ยน Epicbox';
 
   @override
-  String get deskSetupChange => 'Change';
+  String get deskSetupChange => 'เปลี่ยน';
 
   @override
-  String get deskSetupType => 'Type';
+  String get deskSetupType => 'ประเภท';
 
   @override
-  String get deskSetupAddress => 'Address';
+  String get deskSetupAddress => 'ที่อยู่';
 
   @override
   String deskSetupExistingNode(String host) {
-    return 'Existing node at $host';
+    return 'โหนดที่มีอยู่ที่ $host';
   }
 
   @override
-  String get deskSetupBundledNode => 'Local node, bundled';
+  String get deskSetupBundledNode => 'โหนดในเครื่อง ที่มากับแอป';
 
   @override
-  String get deskSetupWhileSyncing => 'While syncing';
+  String get deskSetupWhileSyncing => 'ระหว่างซิงก์';
 
   @override
-  String get deskSetupWait => 'wait';
+  String get deskSetupWait => 'รอ';
 
   @override
-  String get deskSetupDataFolder => 'Data folder';
+  String get deskSetupDataFolder => 'โฟลเดอร์ข้อมูล';
 
   @override
   String deskSetupSaveStartsFallback(String node) {
-    return 'Save starts the node. The first sync takes hours; the wallet opens meanwhile and uses $node until then.';
+    return 'บันทึก จะเริ่มโหนด การซิงก์ครั้งแรกใช้เวลาหลายชั่วโมง ระหว่างนั้นกระเป๋าเงินจะเปิดและใช้ $node';
   }
 
   @override
   String get deskSetupSaveStarts =>
-      'Save starts the node. The first sync takes hours; the wallet opens meanwhile.';
+      'บันทึก จะเริ่มโหนด การซิงก์ครั้งแรกใช้เวลาหลายชั่วโมง ระหว่างนั้นกระเป๋าเงินจะเปิดใช้ได้';
 
   @override
-  String get deskSetupServer => 'Server';
+  String get deskSetupServer => 'เซิร์ฟเวอร์';
 
   @override
-  String get deskSetupOff => 'Off';
+  String get deskSetupOff => 'ปิด';
 
   @override
   String get deskSetAboutLicencesLead =>
-      'Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.';
+      'ซอฟต์แวร์โอเพนซอร์สในกระเป๋าเงินนี้ แต่ละส่วนใช้สัญญาอนุญาตของตัวเอง ข้อความเต็มอยู่ห่างไปแค่คลิกเดียว';
 
   @override
   String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.';
+      'Epic Cash Desktop โดย BT Labs: Apache-2.0 โค้ดอยู่บน GitHub';
 
   @override
-  String get deskSetAboutBrowserNotOpened => 'Browser not opened';
+  String get deskSetAboutBrowserNotOpened => 'เปิดเบราว์เซอร์ไม่ได้';
 
   @override
-  String get deskSetAboutOpen => 'Open';
+  String get deskSetAboutOpen => 'เปิด';
 
   @override
   String deskSetAboutVersion(String version) {
-    return 'Version  $version';
+    return 'เวอร์ชัน  $version';
   }
 
   @override
   String deskSetAboutNode(String version) {
-    return 'Node  $version';
+    return 'โหนด  $version';
   }
 
   @override
-  String get deskSetAboutCommunity => 'Community';
+  String get deskSetAboutCommunity => 'ชุมชน';
 
   @override
-  String get deskSetAboutLicences => 'Licences';
+  String get deskSetAboutLicences => 'สัญญาอนุญาต';
 
   @override
-  String get deskSetAboutSource => 'Source code';
+  String get deskSetAboutSource => 'ซอร์สโค้ด';
 
   @override
-  String get deskSetAboutView => 'View';
+  String get deskSetAboutView => 'ดู';
 
   @override
   String deskSetAboutChecked(String ago) {
-    return 'Checked $ago.';
+    return 'ตรวจเมื่อ $ago';
   }
 
   @override
   String deskSetAboutLatest(String version) {
-    return '$version is the latest';
+    return '$version เป็นเวอร์ชันล่าสุด';
   }
 
   @override
   String deskSetAboutAvailable(String version) {
-    return 'Update available: $version';
+    return 'มีอัปเดต: $version';
   }
 
   @override
-  String get deskSetAboutCouldNotCheck => 'Could not check';
+  String get deskSetAboutCouldNotCheck => 'ตรวจไม่ได้';
 
   @override
-  String get deskSetAboutUpdates => 'Updates';
+  String get deskSetAboutUpdates => 'อัปเดต';
 
   @override
   String deskSetAboutGet(String version) {
-    return 'Get $version';
+    return 'ดาวน์โหลด $version';
   }
 
   @override
-  String get deskSetAboutCheckNow => 'Check now';
+  String get deskSetAboutCheckNow => 'ตรวจตอนนี้';
 
   @override
-  String get deskSetAboutAgoNow => 'just now';
+  String get deskSetAboutAgoNow => 'เมื่อสักครู่';
 
   @override
   String deskSetAboutAgoMin(int count) {
-    return '$count min ago';
+    return '$count นาทีที่แล้ว';
   }
 
   @override
   String deskSetAboutAgoHours(int count) {
-    return '$count h ago';
+    return '$count ชั่วโมงที่แล้ว';
   }
 
   @override
   String deskSetAboutAgoDays(int count) {
-    return '$count d ago';
+    return '$count วันที่แล้ว';
   }
 
   @override
-  String get deskSetAboutCopyLink => 'Copy link';
+  String get deskSetAboutCopyLink => 'คัดลอกลิงก์';
 
   @override
-  String get deskSetAboutCopied => 'Copied';
+  String get deskSetAboutCopied => 'คัดลอกแล้ว';
 
   @override
-  String get deskSetAboutNotCopied => 'Not copied';
+  String get deskSetAboutNotCopied => 'ไม่ได้คัดลอก';
 
   @override
-  String get deskSetAppearTheme => 'Theme';
+  String get deskSetAppearTheme => 'ธีม';
 
   @override
-  String get deskSetAppearThemeHint => 'System follows the computer’s setting.';
+  String get deskSetAppearThemeHint => 'ระบบ ใช้ค่าของคอมพิวเตอร์';
 
   @override
-  String get deskSetAppearSystem => 'System';
+  String get deskSetAppearSystem => 'ระบบ';
 
   @override
-  String get deskSetAppearDark => 'Dark';
+  String get deskSetAppearDark => 'มืด';
 
   @override
-  String get deskSetAppearLight => 'Light';
+  String get deskSetAppearLight => 'สว่าง';
 
   @override
-  String get deskSetAppearScale => 'Interface scale';
+  String get deskSetAppearScale => 'ขนาดอินเทอร์เฟซ';
 
   @override
   String get deskSetAppearScaleHint =>
-      'Text and controls, larger or smaller. Applies at once.';
+      'ปรับขนาดข้อความและปุ่มให้ใหญ่หรือเล็กลง มีผลทันที';
 
   @override
-  String get deskSetAppearLanguage => 'Language';
+  String get deskSetAppearLanguage => 'ภาษา';
 
   @override
-  String get deskSetAppearLanguageHint => 'Applies at once.';
+  String get deskSetAppearLanguageHint => 'มีผลทันที';
 
   @override
-  String get deskSetAppearHideHint =>
-      'Shows dots in place of balances and amounts.';
+  String get deskSetAppearHideHint => 'แสดงจุดแทนยอดคงเหลือและจำนวน';
 
   @override
   String deskSetHelpNoMatchText(String query) {
-    return 'No topic matches “$query”. Try another word.';
+    return 'ไม่มีหัวข้อที่ตรงกับ “$query” ลองคำอื่น';
   }
 
   @override
@@ -12923,42 +12920,41 @@ class AppLocalizationsTh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Topics found: $count',
-      one: 'Topics found: $count',
+      other: 'พบ $count หัวข้อ',
     );
     return '$_temp0';
   }
 
   @override
-  String get deskSetHelpNoMatch => 'No topic matches';
+  String get deskSetHelpNoMatch => 'ไม่มีหัวข้อที่ตรงกัน';
 
   @override
   String get deskSetHelpReportText =>
-      'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer. Save to file keeps a copy to send by hand.';
+      'อธิบายสิ่งที่ผิดพลาด แนบบันทึกของแอปไปด้วยได้ โดยลบข้อมูลลับออกและเข้ารหัสให้นักพัฒนา บันทึกเป็นไฟล์ เก็บสำเนาไว้ส่งเอง';
 
   @override
-  String get deskSetHelpShowLess => 'Show less';
+  String get deskSetHelpShowLess => 'ย่อ';
 
   @override
-  String get deskSetHelpReadMore => 'Read more';
+  String get deskSetHelpReadMore => 'อ่านต่อ';
 
   @override
   String get deskSetHelpEb1 =>
-      'The sending wallet passes the payment to Epicbox and locks the outputs.';
+      'กระเป๋าเงินผู้ส่งส่งรายการให้ Epicbox และล็อกเอาต์พุต';
 
   @override
   String get deskSetHelpEb2 =>
-      'Epicbox delivers it when the receiving wallet is online. That wallet adds its part and signs.';
+      'Epicbox ส่งต่อเมื่อกระเป๋าเงินผู้รับออนไลน์ กระเป๋าเงินนั้นเพิ่มส่วนของตัวเองและลงนาม';
 
   @override
-  String get deskSetHelpEb3 => 'The receiving wallet sends it back to Epicbox.';
+  String get deskSetHelpEb3 => 'กระเป๋าเงินผู้รับส่งกลับไปที่ Epicbox';
 
   @override
-  String get deskSetHelpEb4 => 'Epicbox passes it back to the sending wallet.';
+  String get deskSetHelpEb4 => 'Epicbox ส่งกลับไปยังกระเป๋าเงินผู้ส่ง';
 
   @override
   String get deskSetHelpSigns =>
-      'The sending wallet signs too, finishes the transaction and posts it to the network.';
+      'กระเป๋าเงินผู้ส่งลงนามด้วย ทำธุรกรรมให้เสร็จ และส่งเข้าเครือข่าย';
 
   @override
   String deskSetHelpFinal(int count) {
@@ -12966,51 +12962,76 @@ class AppLocalizationsTh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'The network puts it in a block. After $count confirmations it is final.',
-      one:
-          'The network puts it in a block. After $count confirmation it is final.',
+          'เครือข่ายใส่ธุรกรรมลงในบล็อก หลังยืนยันครบ $count ครั้งถือว่าสมบูรณ์',
     );
     return '$_temp0';
   }
 
   @override
   String get deskSetHelpFile1 =>
-      'The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.';
+      'กระเป๋าเงินผู้ส่งบันทึกไฟล์ธุรกรรมและล็อกเอาต์พุต ไฟล์ไปถึงผู้รับด้วยวิธีใดก็ได้';
 
   @override
   String get deskSetHelpFile2 =>
-      'The recipient opens it. Their wallet adds its part, signs and saves a response file.';
+      'ผู้รับเปิดไฟล์ กระเป๋าเงินของผู้รับเพิ่มส่วนของตัวเอง ลงนาม และบันทึกไฟล์ตอบกลับ';
 
   @override
-  String get deskSetHelpFile3 => 'The response file comes back to the sender.';
+  String get deskSetHelpFile3 => 'ไฟล์ตอบกลับกลับมาถึงผู้ส่ง';
 
   @override
-  String get deskSetHelpFile4 =>
-      'The sender opens the response file under Finalize.';
+  String get deskSetHelpFile4 => 'ผู้ส่งเปิดไฟล์ตอบกลับที่ ทำให้เสร็จ';
 
   @override
-  String get deskSetHelpSender => 'Sender';
+  String get deskSetHelpSender => 'ผู้ส่ง';
 
   @override
-  String get deskSetHelpFile => 'File';
+  String get deskSetHelpFile => 'ไฟล์';
 
   @override
-  String get deskSetHelpRecipient => 'Recipient';
+  String get deskSetHelpRecipient => 'ผู้รับ';
 
   @override
-  String get deskSetHelpNetwork => 'Network';
+  String get deskSetHelpNetwork => 'เครือข่าย';
 
   @override
-  String get deskSetHelpTravels => 'How a transaction travels';
+  String get deskSetHelpTravels => 'ธุรกรรมเดินทางอย่างไร';
 
   @override
-  String get deskSetHelpOverEpicbox => 'Over Epicbox';
+  String get deskSetHelpOverEpicbox => 'ผ่าน Epicbox';
 
   @override
-  String get deskSetHelpWithFile => 'With a file';
+  String get deskSetHelpWithFile => 'ด้วยไฟล์';
 
   @override
   String deskSetHelpStep(int number, int total) {
-    return 'Step $number of $total';
+    return 'ขั้นตอน $number จาก $total';
+  }
+
+  @override
+  String get deskSetHelpSearch => 'Search help';
+
+  @override
+  String get deskSetHelpSearchKeys =>
+      'Press / to search. Esc clears the search.';
+
+  @override
+  String get deskSetHelpSearchHint =>
+      'For example: file, confirmations, phrase';
+
+  @override
+  String get deskSetHelpClear => 'Clear search';
+
+  @override
+  String get deskSetHelpTourAgain => 'Show the tour again';
+
+  @override
+  String deskSetHelpTopics(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count topics',
+      one: '$count topic',
+    );
+    return '$_temp0';
   }
 }

@@ -12551,4 +12551,32 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSetHelpStep(int number, int total) {
     return '第 $number 步，共 $total 步';
   }
+
+  @override
+  String get deskSetHelpSearch => 'Search help';
+
+  @override
+  String get deskSetHelpSearchKeys =>
+      'Press / to search. Esc clears the search.';
+
+  @override
+  String get deskSetHelpSearchHint =>
+      'For example: file, confirmations, phrase';
+
+  @override
+  String get deskSetHelpClear => 'Clear search';
+
+  @override
+  String get deskSetHelpTourAgain => 'Show the tour again';
+
+  @override
+  String deskSetHelpTopics(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count topics',
+      one: '$count topic',
+    );
+    return '$_temp0';
+  }
 }
