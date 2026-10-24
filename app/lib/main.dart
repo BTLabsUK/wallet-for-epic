@@ -12,7 +12,8 @@ import 'src/password_lists.dart';
 import 'src/phone_tor.dart';
 import 'src/push_controller.dart';
 import 'src/relay_directory.dart' show statusSite;
-import 'src/settings.dart' show readUseStatusSite;
+import 'src/network_gate.dart';
+import 'src/settings.dart' show AppSettingsNotifier, readUseStatusSite;
 import 'src/net/tor_net.dart';
 import 'src/tor_licence.dart';
 import 'src/tor_phone.dart';
@@ -51,6 +52,12 @@ Future<void> main() async {
       torSavedOn = true;
     }
     phoneTorAtLaunch(savedOn: torSavedOn);
+    // Before any request too: Offline sends nothing and Tor only nothing direct (network_gate.dart).
+    try {
+      NetGate.set(await AppSettingsNotifier.savedNetworkMode(store).timeout(const Duration(seconds: 5)));
+    } on Object catch (e) {
+      logWarn('net', 'network mode not read: ${e.runtimeType}');
+    }
     // The update check, price and status asked before tor connects wait for it, then go
     // through it.
     TorNet.hold = const Duration(minutes: 3);

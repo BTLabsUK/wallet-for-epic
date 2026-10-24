@@ -12,7 +12,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'btlabs_onions.dart';
+import 'advanced.dart' show NetworkMode;
+import 'network_gate.dart';
 import 'providers.dart';
+import 'settings.dart' show networkModeProvider;
 import 'secret_store_api.dart';
 import 'tor_location.dart';
 import 'wallet_service.dart';
@@ -133,8 +136,13 @@ class EpicboxOverTor extends Notifier<bool> {
   @override
   bool build() => true;
 
-  /// Applies [on] to the open wallet at once, and to every wallet opened later.
+  /// Applies [on] to the open wallet at once, and to every wallet opened later. Tor only
+  /// keeps it on: off would let Epicbox go direct.
   Future<void> set(bool on) async {
+    if (!on && NetGate.torOnly) {
+      logInfo('tor', 'epicbox over tor stays on in Tor only');
+      return;
+    }
     state = on;
     await ref.read(sessionProvider)?.setEpicboxOverTor(on);
   }
@@ -325,11 +333,12 @@ class PhoneTor extends Notifier<PhoneTorState> {
     } on WalletError catch (e) {
       logWarn('tor', 'onion routes not set: ${e.kind.name}');
     }
-    if (!over) return;
+    if (!over || NetGate.offline) return;
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final receiving = await ref.read(secretStoreProvider).read(receivingKey(config));
-    if (receiving != 'true') return;
+    // Tor only turns the switch on when the wallet opens ([PhoneTor._open]).
+    if (receiving != 'true' && !NetGate.torOnly) return;
     if (await ref.read(torBundleFinderProvider)() == null) return;
     await session.expectTor();
   }
@@ -373,6 +382,11 @@ class PhoneTor extends Notifier<PhoneTorState> {
       WidgetsBinding.instance.removeObserver(lifecycle);
       unawaited(network.cancel());
     });
+    // The network mode while the wallet is open: Offline stops tor, Tor only turns the switch
+    // on, back to Standard starts tor again if the switch is on.
+    ref.listen(networkModeProvider, (_, mode) {
+      if (_current(generation)) unawaited(_modeChanged(mode));
+    });
     if (session == null) return PhoneTorState.unread;
     unawaited(_open(session, generation));
     return PhoneTorState.unread;
@@ -397,22 +411,57 @@ class PhoneTor extends Notifier<PhoneTorState> {
         : await ref.read(secretStoreProvider).read(receivingKey(config));
     if (!_current(generation)) return;
     _bundle = bundle;
-    final receiving = saved == 'true';
+    var receiving = saved == 'true';
+    // Tor only: every wallet opens with its Tor switch on, saved so.
+    if (!receiving && NetGate.torOnly && bundle != null && config != null) {
+      receiving = true;
+      await ref.read(secretStoreProvider).write(receivingKey(config), 'true');
+      if (!_current(generation)) return;
+      logInfo('tor', 'receiving on for Tor only');
+    }
     state = PhoneTorState(
       phase: bundle == null ? PhoneTorPhase.unavailable : PhoneTorPhase.off,
       onion: onion == null ? null : onionHost(onion),
       receiving: receiving,
     );
-    if (bundle != null && receiving) _start();
+    if (bundle != null && receiving && !NetGate.offline) _start();
   }
 
-  bool get _wanted => state.receiving || _forSends;
+  /// Applies a new network mode to the open wallet's tor.
+  Future<void> _modeChanged(NetworkMode mode) async {
+    if (_session == null || !state.settled) return;
+    switch (mode) {
+      case NetworkMode.offline:
+        _forSends = false;
+        await _stop();
+      case NetworkMode.torOnly:
+        await ref.read(epicboxOverTorProvider.notifier).set(true);
+        if (!ref.mounted) return;
+        if (!state.receiving) {
+          await setReceiving(true);
+        } else if (!_running && state.phase != PhoneTorPhase.unavailable) {
+          _start();
+        }
+      default:
+        if (_wanted && !_running && state.phase != PhoneTorPhase.unavailable) _start();
+    }
+  }
+
+  /// Offline wants no tor at all; otherwise the switch or a send does.
+  bool get _wanted => !NetGate.offline && (state.receiving || _forSends);
 
   bool get _running => _tor != null;
 
   /// Turns the user's "Tor receiving" switch for this wallet on or off, and starts or stops
   /// tor. Off waits for a Tor send that is running, then stops.
+  ///
+  /// Tor only refuses off: the switch stays on until the mode changes. Offline saves the
+  /// switch and starts nothing.
   Future<void> setReceiving(bool on) async {
+    if (!on && NetGate.torOnly) {
+      logInfo('tor', 'receiving stays on in Tor only');
+      return;
+    }
     final was = state.receiving;
     final hooks = ref.read(torSwitchHooksProvider);
     if (on && !was && _session != null && state.phase != PhoneTorPhase.unavailable) {
@@ -430,7 +479,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
     if (on) {
       _stopAfterSends = false;
       _restarts = 0;
-      if (!_running) _start();
+      if (!_running && !NetGate.offline) _start();
       return;
     }
     _forSends = false;
@@ -455,6 +504,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
   /// [WalletError] (`torNotRunning`) when tor fails, is unavailable, or takes too long.
   /// Tor started for a send keeps running until lock.
   Future<void> ensureForSend() async {
+    NetGate.check('send over Tor');
     if (_session == null || state.phase == PhoneTorPhase.unavailable) {
       throw const WalletError(
         kind: WalletErrorKind.torNotRunning,
@@ -510,7 +560,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
   /// Stops tor if it runs and starts it again now.
   Future<void> retry() async {
     final session = _session;
-    if (session == null || state.phase == PhoneTorPhase.unavailable) return;
+    if (session == null || state.phase == PhoneTorPhase.unavailable || NetGate.offline) return;
     _restartTimer?.cancel();
     _restarts = 0;
     // A restart: the Epicbox connection keeps waiting for the new tor.
@@ -522,7 +572,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
   void _start() {
     final session = _session;
     final bundle = _bundle;
-    if (session == null || bundle == null || _running) return;
+    if (session == null || bundle == null || _running || NetGate.offline) return;
     _restartTimer?.cancel();
     final generation = _generation;
     state = state.copyWith(

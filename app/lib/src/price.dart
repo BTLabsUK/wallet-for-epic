@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'advanced.dart' show NetworkMode;
 import 'amount.dart';
 import 'net/http.dart';
 import 'net/tor_switch.dart';
@@ -160,6 +161,8 @@ class PriceNotifier extends AsyncNotifier<double?> {
     final settings = await ref.watch(appSettingsProvider.future);
     if (!settings.showFiat) return null;
     final currency = settings.fiatCurrency;
+    // Offline asks for no price: the last one seen stays; leaving Offline fetches again.
+    if (ref.watch(networkModeProvider) == NetworkMode.offline) return _cache[currency];
     final timer = Timer.periodic(
       priceRefreshInterval,
       (_) => _refresh(currency),

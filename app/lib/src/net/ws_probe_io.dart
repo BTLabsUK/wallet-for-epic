@@ -4,6 +4,7 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import '../network_gate.dart';
 import 'probe_not_run.dart';
 import 'tor_net.dart';
 
@@ -12,6 +13,7 @@ import 'tor_net.dart';
 /// ([TorNet.untilConnected]); one still waiting throws [ProbeNotRun], not a false.
 Future<bool> probeWebSocket(Uri url, {required Duration timeout}) async {
   if (!isLoopbackUrl(url)) {
+    if (NetGate.offline) throw const ProbeNotRun();
     await TorNet.untilConnected();
     if (TorNet.mode == TorNetMode.waiting) throw const ProbeNotRun();
   }

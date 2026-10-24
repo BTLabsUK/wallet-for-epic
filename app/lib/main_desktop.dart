@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:path_provider/path_provider.dart';
 
+import 'src/network_gate.dart';
 import 'src/app_log.dart';
 import 'src/btlabs_onions.dart';
 import 'src/builtin_node.dart';
@@ -104,6 +105,8 @@ Future<List<Override>> deskOverrides() async {
     logError('desk', 'settings not read: ${e.runtimeType}', stack);
     boot = const DeskBoot();
   }
+  // Before any request: Offline sends nothing, Tor only nothing direct (network_gate.dart).
+  NetGate.set(boot.settings.advanced.networkMode);
   // Before anything asks status.btlabs.uk: off, nothing is asked.
   statusSite.on = boot.settings.useStatusSite;
   final directory = container.read(relayDirectoryProvider);

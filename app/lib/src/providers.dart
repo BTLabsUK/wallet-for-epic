@@ -9,7 +9,9 @@ import 'l10n.dart' show englishStrings;
 import 'network.dart';
 import 'phone_tor.dart';
 import 'secret_store.dart';
-import 'settings.dart' show clockProvider;
+import 'advanced.dart' show NetworkMode;
+import 'network_gate.dart';
+import 'settings.dart' show clockProvider, networkModeProvider;
 import 'stall_retry.dart';
 import 'vault.dart';
 import 'wallet_backend.dart' as backend;
@@ -293,8 +295,10 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
   @override
   Future<HomeData> build() async {
     final session = _requireSession(ref);
+    // Offline reads the wallet's own files only; leaving it refreshes against the node again.
+    final offline = ref.watch(networkModeProvider) == NetworkMode.offline;
     final shown = state.value;
-    if (shown != null && identical(shown.session, session)) {
+    if (!offline && shown != null && identical(shown.session, session)) {
       return _refreshed(session);
     }
     final summary = await session.summary(
@@ -302,6 +306,9 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       minimumConfirmations: ref.read(minimumConfirmationsProvider),
     );
     final transactions = await session.transactions(refresh: false);
+    if (offline) {
+      return HomeData(summary: summary, transactions: transactions, session: session);
+    }
     Future<void>.delayed(Duration.zero, () => _syncInBackground(session));
     unawaited(_retryUndelivered(session, transactions));
     return HomeData(
@@ -472,6 +479,9 @@ final nodeTipProvider = FutureProvider.autoDispose<NodeTip>((ref) {
   final session = _requireSession(ref);
   final config = ref.watch(walletConfigProvider);
   if (config == null) throw StateError('No network selected');
+  if (ref.watch(networkModeProvider) == NetworkMode.offline) {
+    throw const NetBlocked(NetworkMode.offline, 'node tip');
+  }
   return session.nodeTipFor(config: config);
 });
 
@@ -482,9 +492,13 @@ Future<NodeTip> askNodeTip(
   WalletService service,
   WalletSession? session,
   WalletConfig config,
-) => session != null
-    ? session.nodeTipFor(config: config)
-    : service.nodeTip(config: config);
+) async {
+  // Offline asks no node, also before a wallet is open.
+  NetGate.check('node tip');
+  return session != null
+      ? session.nodeTipFor(config: config)
+      : service.nodeTip(config: config);
+}
 
 /// Prefix of the core's final scan event when the scan failed.
 const String scanFailedPrefix = 'Scan failed:';
@@ -527,6 +541,11 @@ class ScanNotifier extends Notifier<ScanState> {
   Future<bool> run({BigInt? startHeight}) async {
     final session = ref.read(sessionProvider);
     if (session == null || state.running) return false;
+    // Recheck balance asks the node: Offline refuses it before it starts.
+    if (NetGate.offline) {
+      state = const ScanState(error: NetBlocked(NetworkMode.offline, 'scan'));
+      return false;
+    }
     state = const ScanState(running: true);
     logInfo('scan', 'started from ${startHeight ?? 'the last scanned block'}');
     // The core ends every scan with a `finished` event; on failure its message starts with
@@ -571,6 +590,7 @@ class ListenerState {
     this.stopped = false,
     this.status,
     this.last,
+    this.offline = false,
   });
 
   /// Subscribed at the relay, so incoming payments and responses arrive.
@@ -584,6 +604,9 @@ class ListenerState {
 
   /// Why it is not connected, when known.
   final String? status;
+
+  /// The network mode is Offline: no listener runs until it changes (network_gate.dart).
+  final bool offline;
 
   /// The latest payment event (received, finalized or failed), for a one-off notice.
   final ListenerEvent? last;
@@ -620,6 +643,11 @@ class ListenerNotifier extends Notifier<ListenerState> {
       _down = false;
     });
     if (session == null) return const ListenerState();
+    // Offline: nothing listens; leaving it rebuilds this, which starts the listener again.
+    if (ref.watch(networkModeProvider) == NetworkMode.offline) {
+      unawaited(session.stopListener().catchError((Object _) {}));
+      return const ListenerState(offline: true, status: 'Offline mode');
+    }
     // Android reports the network that is up as soon as this listens; only with a drop seen
     // before is a returning network a reason to reconnect.
     final network = ref.watch(networkChangesProvider).listen((available) {
@@ -640,7 +668,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
   /// first connection and a stopped one are left alone; a connected one only when the network
   /// changed under it (its socket went with the old network, though LEPIC has not noticed).
   Future<void> wake(String why) async {
-    if (!_down || state.stopped) return;
+    if (!_down || state.stopped || state.offline) return;
     if (state.connected && why != 'network') return;
     logInfo('listener', 'reconnect on $why');
     await restart();
@@ -698,7 +726,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
   /// [listenerStopWait].
   Future<void> restart() async {
     final session = ref.read(sessionProvider);
-    if (session == null || _restarting) return;
+    if (session == null || _restarting || state.offline) return;
     _restarting = true;
     final old = _events;
     final ended = _ended;
@@ -860,6 +888,10 @@ class PendingInvoicesNotifier extends AsyncNotifier<List<PendingInvoice>> {
     ref.onDispose(() => _expiry?.cancel());
     final session = _invoiceSession(ref);
     if (session == null) return const [];
+    // Offline drains nothing: the invoices already in the wallet show; leaving it drains.
+    if (ref.watch(networkModeProvider) == NetworkMode.offline) {
+      return _unexpired(await session.pendingInvoices());
+    }
     final report = await session.drainInvoices();
     if (!ref.mounted) return const [];
     if (report.dropped > 0) {
@@ -1137,7 +1169,9 @@ class PaymentsDrainNotifier extends Notifier<PaymentsDrainReport?> {
     final session = _invoiceSession(ref);
     // Subscribed before the first drain, so its events reach a notice.
     ref.listen(issuerNoticeProvider, (_, _) {});
-    if (session != null) Future<void>.delayed(Duration.zero, drain);
+    // Leaving Offline drains what arrived meanwhile.
+    final offline = ref.watch(networkModeProvider) == NetworkMode.offline;
+    if (session != null && !offline) Future<void>.delayed(Duration.zero, drain);
     return null;
   }
 
@@ -1145,7 +1179,7 @@ class PaymentsDrainNotifier extends Notifier<PaymentsDrainReport?> {
   Future<void> drain() async {
     if (!ref.mounted || _running) return;
     final session = ref.read(sessionProvider);
-    if (session == null || !session.supportsInvoices) return;
+    if (session == null || !session.supportsInvoices || NetGate.offline) return;
     _running = true;
     try {
       final report = await session.drainPayments();
