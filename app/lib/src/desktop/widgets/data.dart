@@ -133,7 +133,7 @@ class EMoney extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final c = context.dc;
-    final text = '${sign && nano > 0 ? '+' : ''}${formatEpic(nano)}';
+    final text = '${sign && nano > 0 ? '+' : ''}${formatEpicL(context.l10n, nano)}';
     final style = context.ts.mono(size: size, color: color, weight: weight ?? FontWeight.w500);
     final row = Text.rich(
       TextSpan(
@@ -508,31 +508,42 @@ class _ENavItemState extends State<ENavItem> {
     final c = context.dc;
     final sel = widget.selected;
     final count = widget.count ?? 0;
+    // A long name wraps to a second line (never one line cut with an ellipsis); the row grows from
+    // 40 px and the icon and badge stay level with the first line.
+    final line = Fs.md * 1.4;
+    final wrapped = !widget.compact;
     Widget item = AnimatedContainer(
       duration: Dur.fast,
-      height: 40.u,
+      constraints: BoxConstraints(minHeight: 40.u),
       margin: const EdgeInsets.only(bottom: 2),
-      padding: EdgeInsets.symmetric(horizontal: widget.compact ? 0 : Sp.x3),
+      padding: EdgeInsets.symmetric(horizontal: widget.compact ? 0 : Sp.x3, vertical: wrapped ? math.max(0.0, (40.u - line) / 2) : 0),
       decoration: BoxDecoration(
         color: sel ? c.s3 : (_hover ? c.hover : Colors.transparent),
         borderRadius: BorderRadius.circular(Rad.sm),
       ),
       child: Row(
+        crossAxisAlignment: wrapped ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         mainAxisAlignment: widget.compact ? MainAxisAlignment.center : MainAxisAlignment.start,
         children: [
-          Badge(
-            isLabelVisible: widget.compact && count > 0,
-            backgroundColor: c.accent,
-            smallSize: 8,
-            child: Icon(widget.icon, size: Ctl.icon, color: sel ? c.accentText : c.faint),
+          SizedBox(
+            height: wrapped ? line : null,
+            child: Center(
+              child: Badge(
+                isLabelVisible: widget.compact && count > 0,
+                backgroundColor: c.accent,
+                smallSize: 8,
+                child: Icon(widget.icon, size: Ctl.icon, color: sel ? c.accentText : c.faint),
+              ),
+            ),
           ),
           if (!widget.compact) ...[
             SizedBox(width: Sp.x3),
             Expanded(
               child: Text(
                 widget.label,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: Fs.md, fontWeight: FontWeight.w500, color: sel || _hover ? c.text : c.dim),
+                style: TextStyle(fontSize: Fs.md, height: 1.4, fontWeight: FontWeight.w500, color: sel || _hover ? c.text : c.dim),
               ),
             ),
             if (count > 0)

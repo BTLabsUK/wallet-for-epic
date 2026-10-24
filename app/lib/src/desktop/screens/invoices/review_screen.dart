@@ -248,7 +248,7 @@ class _Review extends ConsumerWidget {
             ENotice(
               tone: ETone.risk,
               title: l.deskInvPayerShort,
-              text: l.deskInvPayerShortText(formatEpic(i.total), formatEpic(spendable)),
+              text: l.deskInvPayerShortText(formatEpicL(l, i.total), formatEpicL(l, spendable)),
             ),
             SizedBox(height: Sp.x3),
           ],

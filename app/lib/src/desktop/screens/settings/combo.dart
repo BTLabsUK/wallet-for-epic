@@ -551,7 +551,7 @@ class ServiceComboState extends State<ServiceCombo> {
             ),
             if (o.height != null) ...[
               SizedBox(width: Sp.x2),
-              Text(groupDigits(o.height!), style: ts.mono(size: Fs.xs, color: c.dim)),
+              Text(groupDigits(context.l10n, o.height!), style: ts.mono(size: Fs.xs, color: c.dim)),
             ],
             ...o.actions,
           ],

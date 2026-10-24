@@ -127,8 +127,8 @@ class _ApproveDialogState extends ConsumerState<_ApproveDialog> {
     final i = widget.invoice;
     final done = _final != null;
     return EDialog(
-      title: l.deskInvPayerApproveTitle(formatEpic(i.amount), formatEpic(i.fee), i.label),
-      description: l.deskInvPayerApproveText(formatEpic(i.total)),
+      title: l.deskInvPayerApproveTitle(formatEpicL(l, i.amount), formatEpicL(l, i.fee), i.label),
+      description: l.deskInvPayerApproveText(formatEpicL(l, i.total)),
       icon: EIcons.invoice,
       tone: ETone.gold,
       dismissible: !_busy,
@@ -315,7 +315,7 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
     final i = widget.invoice;
     return EDialog(
       title: l.deskInvPayerCancelTitle,
-      description: l.deskInvPayerCancelWho(formatEpic(i.total), i.label),
+      description: l.deskInvPayerCancelWho(formatEpicL(l, i.total), i.label),
       icon: EIcons.cancel,
       tone: ETone.warn,
       dismissible: !_busy,

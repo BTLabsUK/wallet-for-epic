@@ -138,7 +138,7 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
         children: [
           EStatusDot(nodeTone(r.health)),
           Text(nodeWord(l, r.health), style: ts.small.copyWith(color: down ? c.risk : c.text, fontWeight: FontWeight.w600)),
-          if (r.height != null) Text(groupDigits(r.height!), style: ts.mono(size: Fs.sm, color: c.dim)),
+          if (r.height != null) Text(groupDigits(l, r.height!), style: ts.mono(size: Fs.sm, color: c.dim)),
           if (versionOld(r.version)) ETag(l.deskSetNodeVersionOld(minNodeVersion), tone: ETone.warn),
           if (down) Text(l.deskSetDlgNodeSaveAnyway, style: ts.small),
         ],
@@ -230,7 +230,7 @@ class NodeDirectoryDialog extends ConsumerWidget {
                                   children: [
                                     Text(hostOf(nodes[i].url), style: ts.mono(size: Fs.sm, color: c.text), overflow: TextOverflow.ellipsis),
                                     Text(
-                                      [nodes[i].operator, if (nodes[i].version != null) l.deskSetDlgDirVersion(nodes[i].version!), if (nodes[i].height != null) l.deskSetDlgDirHeight(groupDigits(nodes[i].height!))]
+                                      [nodes[i].operator, if (nodes[i].version != null) l.deskSetDlgDirVersion(nodes[i].version!), if (nodes[i].height != null) l.deskSetDlgDirHeight(groupDigits(l, nodes[i].height!))]
                                           .whereType<String>()
                                           .join(' · '),
                                       style: ts.caption,

@@ -190,7 +190,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
                   PeerDirection.unknown => '–',
                 }, 70.u),
                 cell(peerVersion(p.peer.userAgent), 70.u, mono: true),
-                cell(digits(p.peer.height), 90.u, mono: true, align: TextAlign.right),
+                cell(digits(context.l10n, p.peer.height), 90.u, mono: true, align: TextAlign.right),
                 SizedBox(width: Sp.x3),
                 cell(p.firstSeen == null ? '–' : hhmm(p.firstSeen!), 80.u),
                 SizedBox(

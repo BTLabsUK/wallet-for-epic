@@ -6,6 +6,7 @@ import '../../../log.dart';
 import '../../widgets/kit.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
+import '../../../l10n.dart' show localInt;
 import 'prefs.dart';
 
 /// The sections; [invoices] adds Invoices below Receiving (wallets that take invoices), its label
@@ -49,7 +50,7 @@ class SettingsFrame extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 200.u,
+                  width: 232.u,
                   child: Semantics(
                     label: l.deskSetFrameSections,
                     child: ESubnav(
@@ -113,7 +114,7 @@ String epicboxWord(AppLocalizations l, ServiceHealth h) => switch (h) {
 };
 
 /// 2914414 → "2,914,414".
-String groupDigits(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
+String groupDigits(AppLocalizations l, int n) => localInt(l, n);
 
 /// A section a sidebar status row jumps to: scrolled into view, its heading focused and a thin
 /// gold outline that fades out over a second (none with reduced motion); again on every new
