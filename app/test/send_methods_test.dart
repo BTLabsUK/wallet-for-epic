@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/ui/method_strip.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
+import 'package:epic_wallet/src/ui/net_block.dart' show netBlockNoteKey;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -156,6 +157,7 @@ class _Harness {
     WidgetTester tester, {
     Widget? body,
     double height = 2340,
+    AdvancedPrefs advanced = AdvancedPrefs.none,
   }) async {
     tester.view.physicalSize = Size(1080, height);
     tester.view.devicePixelRatio = 3;
@@ -189,7 +191,7 @@ class _Harness {
           builder: (context, child) => MediaQuery(
             // Spinners never settle; a still icon stands in for them.
             data: MediaQuery.of(context).copyWith(disableAnimations: true),
-            child: AdvancedOptions(prefs: AdvancedPrefs.none, child: child!),
+            child: AdvancedOptions(prefs: advanced, child: child!),
           ),
           home: SlotScaffold(
             appBar: AppBar(),
@@ -367,13 +369,30 @@ void _clipboard(WidgetTester tester, String? Function() text) {
   );
 }
 
+/// Advanced › Direct receiving on, as the Direct segment and tab need it.
+const _directOn = AdvancedPrefs(features: {AdvancedFeature.directReceiving});
+
 void main() {
   group('selector and strip', () {
-    testWidgets('three segments, Epicbox first; each with its strip and shape', (
+    testWidgets('Epicbox and File by default; Direct receiving adds Direct', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
+      expect(_segment('Epicbox'), findsOneWidget);
+      expect(_segment('File'), findsOneWidget);
+      expect(_segment('Direct'), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+      final on = _Harness();
+      await on.pump(tester, advanced: _directOn);
+      expect(_segment('Direct'), findsOneWidget);
+    });
+
+    testWidgets('three segments, Epicbox first; each with its strip and shape', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, advanced: _directOn);
       for (final label in ['Epicbox', 'Direct', 'File']) {
         expect(_segment(label), findsOneWidget, reason: label);
       }
@@ -473,7 +492,7 @@ void main() {
         _clipboard(tester, () => clip);
         final semantics = tester.ensureSemantics();
         final h = _Harness();
-        await h.pump(tester);
+        await h.pump(tester, advanced: _directOn);
         await _tap(tester, _segment('Direct'));
         expect(_method(tester), TransferMethod.direct);
         clip = _bob;
@@ -567,11 +586,42 @@ void main() {
       expect(find.text('Direct address'), findsOneWidget);
     });
 
+    testWidgets(
+      'Direct receiving off: a pasted onion or http address is accepted, with Direct shown',
+      (tester) async {
+        String? clip;
+        _clipboard(tester, () => clip);
+        for (final address in [_onion, _https]) {
+          // A fresh tree for each, so the screen's state starts over.
+          await tester.pumpWidget(const SizedBox());
+          final h = _Harness();
+          await h.pump(tester);
+          // Direct receiving is off: the selector has Epicbox and File only.
+          expect(_segment('Direct'), findsNothing);
+          clip = address;
+          await _tap(tester, find.text('Paste'));
+          // The method follows the address and Direct shows for this send.
+          expect(_segment('Direct'), findsOneWidget, reason: address);
+          expect(_method(tester), TransferMethod.direct, reason: address);
+          expect(find.text('Direct address'), findsOneWidget);
+          // Never refused: Continue goes on to the amount.
+          await _tap(tester, _continue);
+          expect(find.text('2 of 3'), findsOneWidget, reason: address);
+          expect(
+            find.text(
+              'A Direct address starts with http:// or https://, or ends in .onion.',
+            ),
+            findsNothing,
+          );
+        }
+      },
+    );
+
     testWidgets('choosing a method by hand never clears the field', (
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester);
+      await h.pump(tester, advanced: _directOn);
       await _enter(tester, 'To', _bob);
       await _tap(tester, _segment('Direct'));
       expect(
@@ -807,6 +857,59 @@ void main() {
     });
   });
 
+  group('network modes', () {
+    const offline = AdvancedPrefs(networkMode: NetworkMode.offline);
+    const torOnly = AdvancedPrefs(networkMode: NetworkMode.torOnly);
+    Finder makeFile() => find.widgetWithText(FilledButton, 'Make payment file');
+
+    testWidgets('Standard: Continue works and no reason shows', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await _enter(tester, 'To', _bob);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(find.byKey(netBlockNoteKey), findsNothing);
+    });
+
+    testWidgets('Offline: Epicbox and File are disabled with the reason', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, advanced: offline);
+      await _enter(tester, 'To', _bob);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      // File asks the node too, so it waits with the same reason.
+      await _tap(tester, _segment('File'));
+      await _enter(tester, 'Amount (EPIC)', '1');
+      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNull);
+      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      expect(h.session.epicboxSends, isEmpty);
+    });
+
+    testWidgets('Tor only without Tor: Waiting for Tor, File still works', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, advanced: torOnly);
+      await _enter(tester, 'To', _bob);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(find.text('Waiting for Tor.'), findsOneWidget);
+      await _tap(tester, _segment('File'));
+      await _enter(tester, 'Amount (EPIC)', '1');
+      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
+      expect(find.text('Waiting for Tor.'), findsNothing);
+    });
+
+    testWidgets('Tor only with Tor connected: nothing waits', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, advanced: torOnly);
+      await h.torOn(tester);
+      await _enter(tester, 'To', _bob);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(find.byKey(netBlockNoteKey), findsNothing);
+    });
+  });
+
   group('details', () {
     test('an HTTP or Tor send their wallet accepted waits for a block', () {
       final l = englishStrings;
@@ -843,7 +946,12 @@ void main() {
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester, body: const ReceiveView(), height: 3600);
+      await h.pump(
+        tester,
+        body: const ReceiveView(),
+        height: 3600,
+        advanced: _directOn,
+      );
       expect(find.text('Share it to get paid.'), findsOneWidget);
       expect(find.text('Works with the wallet closed.'), findsOneWidget);
       // The caption under the address went for room.

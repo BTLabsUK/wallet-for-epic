@@ -38,7 +38,11 @@ class _NoRelays implements RelayDirectory {
   Future<List<RelayStatus>> relays(String chain) async => const [];
 }
 
-Future<void> _pump(WidgetTester tester, {bool backedUp = true}) async {
+Future<void> _pump(
+  WidgetTester tester, {
+  bool backedUp = true,
+  AdvancedPrefs advanced = AdvancedPrefs.none,
+}) async {
   // Tall enough that every page builds all of its rows.
   tester.view.physicalSize = const Size(1080, 7200);
   tester.view.devicePixelRatio = 3;
@@ -53,6 +57,8 @@ Future<void> _pump(WidgetTester tester, {bool backedUp = true}) async {
             'app.network': 'mainnet',
             'app.node.mainnet': 'https://node.epicnet.us:3413',
             'app.relay.mainnet': 'epicbox.stackwallet.com',
+            // The hub reads the stored choice; the pages read the tree's.
+            if (advanced.any) 'app.advanced_prefs': advanced.encode(),
           }),
         ),
         updatePlatformProvider.overrideWithValue(null),
@@ -68,7 +74,7 @@ Future<void> _pump(WidgetTester tester, {bool backedUp = true}) async {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) =>
-            AdvancedOptions(prefs: AdvancedPrefs.none, child: child!),
+            AdvancedOptions(prefs: advanced, child: child!),
         home: const SettingsScreen(),
       ),
     ),
@@ -96,9 +102,9 @@ void main() {
       (_l.serverEpicboxTitle, () => find.text(_l.serverEpicboxTitle)),
       (_l.netStatusTor, () => find.byType(TorSwitchTile)),
     ],
+    // Outputs is named (and shown) only with Advanced > Outputs: see the test below.
     SettingsSection.wallet: [
       (_l.settingsContacts, () => find.text(_l.settingsContacts)),
-      (_l.outputsTitle, () => find.text(_l.outputsTitle)),
       (_l.settingsSectionHistory, () => find.text(_l.settingsSectionHistory)),
     ],
     SettingsSection.display: [
@@ -109,11 +115,11 @@ void main() {
   };
 
   for (final MapEntry(key: section, value: items) in pages.entries) {
-    testWidgets('${section.name}: the line names three things, each on its page', (
+    testWidgets('${section.name}: the line names its things, each on its page', (
       tester,
     ) async {
       await _pump(tester);
-      expect(items, hasLength(3));
+      expect(items, hasLength(section == SettingsSection.wallet ? 2 : 3));
       expect(_line(section, _join([for (final (name, _) in items) name])), findsOneWidget);
       await tester.tap(find.byKey(settingsGroupKey(section)));
       await tester.pumpAndSettle();
@@ -122,6 +128,48 @@ void main() {
       }
     });
   }
+
+  testWidgets('wallet: Outputs joins the line and the page when Advanced shows it', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      advanced: const AdvancedPrefs(features: {AdvancedFeature.outputs}),
+    );
+    expect(
+      _line(
+        SettingsSection.wallet,
+        _join([
+          _l.settingsContacts,
+          _l.outputsTitle,
+          _l.settingsSectionHistory,
+        ]),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(settingsGroupKey(SettingsSection.wallet)));
+    await tester.pumpAndSettle();
+    expect(find.text(_l.outputsTitle), findsWidgets);
+  });
+
+  testWidgets('the Advanced row is last but one: below Help, directly above About', (
+    tester,
+  ) async {
+    await _pump(tester);
+    final advanced = find.byKey(settingsGroupKey(SettingsSection.advanced));
+    final help = find.byKey(settingsHelpKey);
+    final about = find.byKey(settingsGroupKey(SettingsSection.about));
+    expect(advanced, findsOneWidget);
+    final y = [for (final f in [help, advanced, about]) tester.getTopLeft(f).dy];
+    expect(y, orderedEquals([...y]..sort()));
+    // Nothing between the two: About starts one row below Advanced.
+    expect(
+      tester.getTopLeft(about).dy - tester.getTopLeft(advanced).dy,
+      moreOrLessEquals(tester.getSize(advanced).height, epsilon: 1),
+    );
+    // Its state line: Off until something is on.
+    expect(_line(SettingsSection.advanced, _l.advStateOff), findsOneWidget);
+  });
 
   testWidgets('no live values: no host, no version, and About has no line', (tester) async {
     await _pump(tester);

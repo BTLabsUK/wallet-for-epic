@@ -33,9 +33,12 @@ class _OpenSession extends SessionNotifier {
 }
 
 class _Harness {
-  _Harness({this.bundle = _bundle});
+  _Harness({this.bundle = _bundle, this.advanced = AdvancedPrefs.none});
 
   final TorBundle? bundle;
+
+  /// What the Advanced page holds: the network mode locks the Tor switch.
+  final AdvancedPrefs advanced;
   final session = FakeWalletSession();
   final store = MemorySecretStore();
   final network = StreamController<bool>.broadcast();
@@ -61,7 +64,7 @@ class _Harness {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) =>
-              AdvancedOptions(prefs: AdvancedPrefs.none, child: child!),
+              AdvancedOptions(prefs: advanced, child: child!),
           home: SettingsScreen(privacy: privacy),
         ),
       ),
@@ -136,6 +139,64 @@ Switch _pushSwitch(WidgetTester tester) => tester.widget<Switch>(
 );
 
 void main() {
+  group('network modes', () {
+    Switch torSwitch(WidgetTester tester) => tester.widget<Switch>(
+      find.descendant(
+        of: find.byKey(torReceivingSwitchKey),
+        matching: find.byType(Switch),
+      ),
+    );
+
+    testWidgets('Standard: the switch is the user\'s, with no mode line', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, privacy: true);
+      await _reach(tester, find.byKey(torReceivingSwitchKey));
+      expect(torSwitch(tester).onChanged, isNotNull);
+      expect(torSwitch(tester).value, isFalse);
+      expect(find.byKey(torLockedLineKey), findsNothing);
+    });
+
+    testWidgets('Tor only: the switch shows on and locked, its line opens Advanced', (
+      tester,
+    ) async {
+      final h = _Harness(
+        advanced: const AdvancedPrefs(networkMode: NetworkMode.torOnly),
+      );
+      await h.pump(tester, privacy: true);
+      await _reach(tester, find.byKey(torReceivingSwitchKey));
+      expect(torSwitch(tester).value, isTrue, reason: 'shown on although Tor is off');
+      expect(torSwitch(tester).onChanged, isNull, reason: 'locked');
+      expect(find.text('Tor only is on in Advanced.'), findsOneWidget);
+      // A tap on the switch changes nothing.
+      await tester.tap(find.byKey(torReceivingSwitchKey));
+      await tester.pumpAndSettle();
+      expect(h.container.read(phoneTorProvider).receiving, isFalse);
+      expect(h.session.torStarts, isEmpty);
+      // The line goes to the Advanced page.
+      await tester.tap(find.byKey(torLockedLineKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(settingsSectionKey(SettingsSection.advanced)), findsOneWidget);
+    });
+
+    testWidgets('Offline: the switch is off and disabled, with its line', (
+      tester,
+    ) async {
+      final h = _Harness(
+        advanced: const AdvancedPrefs(networkMode: NetworkMode.offline),
+      );
+      await h.pump(tester, privacy: true);
+      await _reach(tester, find.byKey(torReceivingSwitchKey));
+      expect(torSwitch(tester).value, isFalse);
+      expect(torSwitch(tester).onChanged, isNull);
+      expect(find.text('Offline mode is on in Advanced.'), findsOneWidget);
+      await tester.tap(find.byKey(torReceivingSwitchKey));
+      await tester.pumpAndSettle();
+      expect(h.session.torStarts, isEmpty);
+    });
+  });
+
   testWidgets('Privacy: one Tor switch, what it covers, no Advanced needed', (
     tester,
   ) async {

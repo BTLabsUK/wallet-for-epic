@@ -1162,7 +1162,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('08commit'), findsNothing);
-      await _tap(tester, find.text('Technical details'));
+      await _tap(tester, find.byKey(txDetailsMoreKey));
       expect(find.text('08commit'), findsOneWidget);
       expect(find.text('from-alice'), findsOneWidget);
 
@@ -2066,6 +2066,44 @@ void main() {
       expect(first.dy, last.dy);
     });
 
+    testWidgets(
+      'technical rows hide by default; More shows them once, the switch stays off',
+      (tester) async {
+        final h = _Harness();
+        await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+        expect(find.text('Technical details'), findsNothing);
+        expect(find.text('08commit'), findsNothing);
+        expect(find.text('Kernel'), findsNothing);
+        expect(find.text('More'), findsOneWidget);
+        await _tap(tester, find.byKey(txDetailsMoreKey));
+        // The rows show, with the fold open, and the link is gone.
+        expect(find.text('Technical details'), findsOneWidget);
+        expect(find.text('08commit'), findsOneWidget);
+        expect(find.byTooltip('Copy kernel'), findsOneWidget);
+        expect(find.byKey(txDetailsMoreKey), findsNothing);
+        // Only this view: a new one starts hidden again.
+        await tester.pumpWidget(const SizedBox());
+        final again = _Harness();
+        await again.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+        expect(find.text('08commit'), findsNothing);
+        expect(find.byKey(txDetailsMoreKey), findsOneWidget);
+      },
+    );
+
+    testWidgets('with Technical details on the rows show and there is no More', (
+      tester,
+    ) async {
+      final h = _Harness(
+        advanced: const AdvancedPrefs(
+          features: {AdvancedFeature.technicalDetails},
+        ),
+      );
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+      expect(find.text('Technical details'), findsOneWidget);
+      expect(find.text('08commit'), findsOneWidget);
+      expect(find.byKey(txDetailsMoreKey), findsNothing);
+    });
+
     testWidgets('details copy only what is worth copying', (tester) async {
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         SystemChannels.platform,
@@ -2083,7 +2121,7 @@ void main() {
       expect(find.byTooltip('Copy explorer link'), findsOneWidget);
       expect(find.text('Copy explorer link'), findsOneWidget);
       expect(find.byTooltip('Copy address'), findsNothing);
-      await _tap(tester, find.text('Technical details'));
+      await _tap(tester, find.byKey(txDetailsMoreKey));
       expect(find.byTooltip('Copy slate id'), findsOneWidget);
       expect(find.byTooltip('Copy kernel'), findsOneWidget);
       expect(find.byTooltip('Copy block height'), findsNothing);
