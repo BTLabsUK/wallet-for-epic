@@ -1809,10 +1809,8 @@
   "deskOutTileTotal": "Gesamt",
   "deskOutDefaultsTitle": "Standards für Zahlungen",
   "deskOutStrategyTitle": "Strategie für Zahlungen",
-  "deskOutStrategyText": "Welche Outputs eine Zahlung verbraucht. Unter Senden › Erweitert lässt sich das für eine Zahlung ändern.",
   "deskOutStrategySmallest": "Kleinste",
   "deskOutStrategyAll": "Alle",
-  "deskOutStrategyHelp": "Kleinste verbraucht möglichst wenige kleine Outputs und lässt den Rest verfügbar. Alle verbraucht alles und gibt einen Output zurück.",
   "deskOutStrategyHelpTitle": "Kleinste oder Alle",
   "deskOutSplitChangeTitle": "Wechselgeld aufteilen",
   "deskOutSplitChangeText": "Blieben nach einer Zahlung weniger als 3 verfügbare Outputs übrig und beträgt das Wechselgeld mindestens 1 EPIC, kommt es als bis zu 4 Outputs von je mindestens 0,5 EPIC zurück. Kostet 0,004 EPIC je zusätzlichem Output.",
@@ -3519,5 +3517,7 @@
   "deskSendMessageBytes": "{used} / {max} Byte",
   "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie.",
   "deskSetPhraseCopyTitle": "Wiederherstellungsphrase kopieren?",
-  "deskSetPhraseCopyText": "Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf."
+  "deskSetPhraseCopyText": "Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf.",
+  "deskOutAdvanced": "Erweitert",
+  "deskOutStrategyHint": "Welche Outputs eine Zahlung verbraucht. Kleinste verbraucht möglichst wenige kleine Outputs und lässt den Rest verfügbar; Alle verbraucht alles und gibt einen Output zurück. Unter Senden › Erweitert lässt sich das für eine Zahlung ändern."
 }

@@ -8551,18 +8551,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOutStrategyTitle => 'Strategia wysyłek';
 
   @override
-  String get deskOutStrategyText =>
-      'Które wyjścia wydaje wysyłka. W Wyślij możesz to zmienić dla jednej wysyłki w sekcji Zaawansowane.';
-
-  @override
   String get deskOutStrategySmallest => 'Najmniejsze';
 
   @override
   String get deskOutStrategyAll => 'Wszystkie';
-
-  @override
-  String get deskOutStrategyHelp =>
-      'Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania. Wszystkie wydaje wszystko i zwraca jedno wyjście.';
 
   @override
   String get deskOutStrategyHelpTitle => 'Najmniejsze czy Wszystkie';
@@ -13838,4 +13830,11 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetPhraseCopyText =>
       'Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu.';
+
+  @override
+  String get deskOutAdvanced => 'Zaawansowane';
+
+  @override
+  String get deskOutStrategyHint =>
+      'Które wyjścia wydaje wysyłka. Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania; Wszystkie wydaje wszystko i zwraca jedno wyjście. W Wyślij możesz to zmienić dla jednej wysyłki w sekcji Zaawansowane.';
 }

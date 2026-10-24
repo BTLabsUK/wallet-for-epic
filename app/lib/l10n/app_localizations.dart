@@ -13023,12 +13023,6 @@ abstract class AppLocalizations {
   /// **'Strategy for sends'**
   String get deskOutStrategyTitle;
 
-  /// Setting description under 'Strategy for sends'. 'Advanced' is a section of the Send page.
-  ///
-  /// In en, this message translates to:
-  /// **'Which outputs a send spends. Send can change it for one send under Advanced.'**
-  String get deskOutStrategyText;
-
   /// Option of the strategy switch: spend the smallest outputs. Narrow segment.
   ///
   /// In en, this message translates to:
@@ -13040,12 +13034,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All'**
   String get deskOutStrategyAll;
-
-  /// Help text of the strategy switch, shown as a toast and as the help button's label.
-  ///
-  /// In en, this message translates to:
-  /// **'Smallest spends the fewest small outputs and leaves the rest spendable. All spends everything and returns one output.'**
-  String get deskOutStrategyHelp;
 
   /// Title of the toast that shows the strategy help.
   ///
@@ -21271,6 +21259,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Anyone with these words can take your funds. Store the copy somewhere safe.'**
   String get deskSetPhraseCopyText;
+
+  /// Head of the management section under the outputs table: the intro paragraph, Split and Consolidate, the defaults for sends.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get deskOutAdvanced;
+
+  /// Hover card behind the info icon of the Strategy for sends row (its title is deskOutStrategyHelpTitle).
+  ///
+  /// In en, this message translates to:
+  /// **'Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.'**
+  String get deskOutStrategyHint;
 }
 
 class _AppLocalizationsDelegate

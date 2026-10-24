@@ -8266,18 +8266,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOutStrategyTitle => 'Strategy for sends';
 
   @override
-  String get deskOutStrategyText =>
-      'Which outputs a send spends. Send can change it for one send under Advanced.';
-
-  @override
   String get deskOutStrategySmallest => 'Smallest';
 
   @override
   String get deskOutStrategyAll => 'All';
-
-  @override
-  String get deskOutStrategyHelp =>
-      'Smallest spends the fewest small outputs and leaves the rest spendable. All spends everything and returns one output.';
 
   @override
   String get deskOutStrategyHelpTitle => 'Smallest or All';
@@ -13432,4 +13424,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetPhraseCopyText =>
       'Anyone with these words can take your funds. Store the copy somewhere safe.';
+
+  @override
+  String get deskOutAdvanced => 'Advanced';
+
+  @override
+  String get deskOutStrategyHint =>
+      'Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.';
 }

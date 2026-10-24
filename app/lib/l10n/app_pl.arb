@@ -2017,10 +2017,8 @@
   "deskOutTileTotal": "Razem",
   "deskOutDefaultsTitle": "Domyślne dla wysyłek",
   "deskOutStrategyTitle": "Strategia wysyłek",
-  "deskOutStrategyText": "Które wyjścia wydaje wysyłka. W Wyślij możesz to zmienić dla jednej wysyłki w sekcji Zaawansowane.",
   "deskOutStrategySmallest": "Najmniejsze",
   "deskOutStrategyAll": "Wszystkie",
-  "deskOutStrategyHelp": "Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania. Wszystkie wydaje wszystko i zwraca jedno wyjście.",
   "deskOutStrategyHelpTitle": "Najmniejsze czy Wszystkie",
   "deskOutSplitChangeTitle": "Podziel resztę",
   "deskOutSplitChangeText": "Gdy po wysyłce zostałyby mniej niż 3 wyjścia do wydania, a reszta wynosi co najmniej 1 EPIC, reszta wraca jako maksymalnie 4 wyjścia po co najmniej 0,5 EPIC każde. Każde dodatkowe wyjście kosztuje 0,004 EPIC.",
@@ -3519,5 +3517,7 @@
   "deskSendMessageBytes": "{used} / {max} bajtów",
   "deskSendMessageTooLong": "Wiadomość jest dłuższa niż {max} bajtów. Skróć ją.",
   "deskSetPhraseCopyTitle": "Skopiować frazę odzyskiwania?",
-  "deskSetPhraseCopyText": "Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu."
+  "deskSetPhraseCopyText": "Każdy, kto ma te słowa, może zabrać twoje środki. Przechowuj kopię w bezpiecznym miejscu.",
+  "deskOutAdvanced": "Zaawansowane",
+  "deskOutStrategyHint": "Które wyjścia wydaje wysyłka. Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania; Wszystkie wydaje wszystko i zwraca jedno wyjście. W Wyślij możesz to zmienić dla jednej wysyłki w sekcji Zaawansowane."
 }
