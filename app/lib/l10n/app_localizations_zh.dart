@@ -2272,6 +2272,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unlockTitle => '解锁钱包';
 
   @override
+  String get pinlessUnlock => '解锁';
+
+  @override
   String get pinLabel => 'PIN 码';
 
   @override

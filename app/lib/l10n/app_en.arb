@@ -2834,6 +2834,10 @@
   "@unlockTitle": {
     "description": "Title of the screen that opens the wallet with the PIN or biometrics."
   },
+  "pinlessUnlock": "Unlock",
+  "@pinlessUnlock": {
+    "description": "Web demo and preview only: the unlock screen's one button, which opens the wallet without a PIN."
+  },
   "pinLabel": "PIN",
   "@pinLabel": {
     "description": "Label of the 6-digit PIN field."

@@ -2356,6 +2356,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get unlockTitle => 'ปลดล็อกกระเป๋า';
 
   @override
+  String get pinlessUnlock => 'ปลดล็อก';
+
+  @override
   String get pinLabel => 'PIN';
 
   @override

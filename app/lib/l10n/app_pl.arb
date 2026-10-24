@@ -572,6 +572,7 @@
   "backupCopied": "Skopiowano. Schowek zostanie wyczyszczony za 60 sekund.",
   "backupNotCopied": "Nie skopiowano. Schowek odrzucił tekst.",
   "unlockTitle": "Odblokuj portfel",
+  "pinlessUnlock": "Odblokuj",
   "pinLabel": "PIN",
   "pinRepeatLabel": "Powtórz PIN",
   "pinChooseTitle": "{digits, plural, few{Wybierz {digits}-cyfrowy PIN} many{Wybierz {digits}-cyfrowy PIN} other{Wybierz {digits}-cyfrowy PIN}}",

@@ -2454,6 +2454,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get unlockTitle => 'Wallet entsperren';
 
   @override
+  String get pinlessUnlock => 'Entsperren';
+
+  @override
   String get pinLabel => 'PIN';
 
   @override

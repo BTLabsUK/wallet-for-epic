@@ -572,6 +572,7 @@
   "backupCopied": "คัดลอกแล้ว คลิปบอร์ดจะถูกล้างใน 60 วินาที",
   "backupNotCopied": "ไม่ได้คัดลอก คลิปบอร์ดปฏิเสธข้อความ",
   "unlockTitle": "ปลดล็อกกระเป๋า",
+  "pinlessUnlock": "ปลดล็อก",
   "pinLabel": "PIN",
   "pinRepeatLabel": "ป้อน PIN อีกครั้ง",
   "pinChooseTitle": "{digits, plural, other{ตั้ง PIN {digits} หลัก}}",

@@ -3574,6 +3574,12 @@ abstract class AppLocalizations {
   /// **'Unlock wallet'**
   String get unlockTitle;
 
+  /// Web demo and preview only: the unlock screen's one button, which opens the wallet without a PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get pinlessUnlock;
+
   /// Label of the 6-digit PIN field.
   ///
   /// In en, this message translates to:

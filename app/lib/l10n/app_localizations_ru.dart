@@ -2548,6 +2548,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get unlockTitle => 'Разблокировать кошелёк';
 
   @override
+  String get pinlessUnlock => 'Разблокировать';
+
+  @override
   String get pinLabel => 'PIN-код';
 
   @override

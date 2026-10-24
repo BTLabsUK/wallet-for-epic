@@ -572,6 +572,7 @@
   "backupCopied": "Kopiert. Die Zwischenablage wird in 60 Sekunden geleert.",
   "backupNotCopied": "Nicht kopiert. Die Zwischenablage hat den Text abgelehnt.",
   "unlockTitle": "Wallet entsperren",
+  "pinlessUnlock": "Entsperren",
   "pinLabel": "PIN",
   "pinRepeatLabel": "PIN wiederholen",
   "pinChooseTitle": "{digits, plural, other{Wählen Sie eine {digits}-stellige PIN}}",

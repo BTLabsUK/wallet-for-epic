@@ -5,6 +5,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
@@ -25,10 +26,21 @@ final devNetworksProvider = Provider<bool>(
   (ref) => devNetworksBuild || ref.watch(demoModeProvider),
 );
 
+/// `--dart-define=WFE_WEB_FAKE=true`: the web preview on the fake wallet (`web/preview.dart`).
+const bool _webPreviewBuild = bool.fromEnvironment('WFE_WEB_FAKE');
+
+/// The web demo and the web previews ask for no PIN: the app starts in the wallet, a lock
+/// still works, and unlocking takes one tap. Only a web build can be one; a phone or desktop
+/// build always asks for the PIN, whatever it was built with.
+const bool pinlessBuild = kIsWeb && (demoBuild || _webPreviewBuild);
+
+/// Whether this build asks for no PIN ([pinlessBuild]). Tests override it.
+final pinlessProvider = Provider<bool>((ref) => pinlessBuild);
+
 /// The PIN every demo wallet is created with, filled in for the visitor (`ui/demo_pin.dart`).
 /// It is no secret: a demo is guarded by the server's HttpOnly cookie, and its wallet is a
 /// throwaway one on floonet. Still never shown or logged. Used only while [demoModeProvider]
-/// is on.
+/// or [pinlessProvider] is on.
 const String demoPin = '135790';
 
 /// Where the visitor's demo stands.

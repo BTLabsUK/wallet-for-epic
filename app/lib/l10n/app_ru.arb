@@ -572,6 +572,7 @@
   "backupCopied": "Скопировано. Буфер обмена будет очищен через 60 секунд.",
   "backupNotCopied": "Не скопировано. Буфер обмена отклонил текст.",
   "unlockTitle": "Разблокировать кошелёк",
+  "pinlessUnlock": "Разблокировать",
   "pinLabel": "PIN-код",
   "pinRepeatLabel": "Повторите PIN-код",
   "pinChooseTitle": "{digits, plural, few{Придумайте {digits}-значный PIN-код} many{Придумайте {digits}-значный PIN-код} other{Придумайте {digits}-значный PIN-код}}",

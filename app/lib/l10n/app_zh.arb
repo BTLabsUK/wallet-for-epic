@@ -572,6 +572,7 @@
   "backupCopied": "已复制。剪贴板将在 60 秒后清空。",
   "backupNotCopied": "未复制。剪贴板拒绝了该文本。",
   "unlockTitle": "解锁钱包",
+  "pinlessUnlock": "解锁",
   "pinLabel": "PIN 码",
   "pinRepeatLabel": "确认 PIN 码",
   "pinChooseTitle": "{digits, plural, other{设置 {digits} 位 PIN 码}}",

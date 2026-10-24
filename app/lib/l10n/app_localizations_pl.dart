@@ -2558,6 +2558,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get unlockTitle => 'Odblokuj portfel';
 
   @override
+  String get pinlessUnlock => 'Odblokuj';
+
+  @override
   String get pinLabel => 'PIN';
 
   @override

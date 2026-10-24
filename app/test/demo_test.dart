@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/ui/launch_screen.dart';
 import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -157,6 +158,7 @@ class _Harness {
     bool advanced = false,
     String pin = _pin,
     bool demoPinFlag = false,
+    this.pinless,
   }) {
     api = FakeDemoApi(
       status: status ?? DemoActive(now.add(const Duration(hours: 5))),
@@ -176,6 +178,9 @@ class _Harness {
   }
 
   final bool demo;
+
+  /// The build asks for no PIN (web demo and preview); null leaves the build's own answer.
+  final bool? pinless;
   late final FakeDemoApi api;
   final store = MemorySecretStore();
   final bio = MemoryBiometricStore();
@@ -199,6 +204,7 @@ class _Harness {
         retry: (_, _) => null,
         overrides: [
           demoModeProvider.overrideWithValue(demo),
+          if (pinless != null) pinlessProvider.overrideWithValue(pinless!),
           demoApiProvider.overrideWithValue(api),
           walletServiceProvider.overrideWithValue(service),
           walletDirProvider.overrideWithValue(
@@ -845,6 +851,98 @@ void main() {
         expect(find.text(l.helpSendFeedback), present);
       });
     }
+  });
+
+  group('no PIN in the web demo and preview', () {
+    Finder pinField() => find.widgetWithText(TextField, l.pinLabel);
+    Finder unlockButton() => find.widgetWithText(FilledButton, l.pinlessUnlock);
+
+    testWidgets('a phone or desktop build asks for the PIN: only a web build goes without', (
+      tester,
+    ) async {
+      // These tests run outside the web, as phone and desktop builds do.
+      expect(pinlessBuild, isFalse);
+      final h = _Harness(demo: false, pin: demoPin, demoPinFlag: true);
+      await h.pump(tester);
+      expect(h.container.read(pinlessProvider), isFalse);
+      expect(pinField(), findsOneWidget);
+      expect(unlockButton(), findsNothing);
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+      expect(h.container.read(sessionProvider), isNull);
+      await tester.enterText(pinField(), demoPin);
+      await tester.pumpAndSettle();
+      expect(h.container.read(sessionProvider), isNotNull);
+    });
+
+    testWidgets('a phone or desktop build sets up a new wallet with a chosen PIN', (
+      tester,
+    ) async {
+      final h = _Harness(demo: false, wallet: false);
+      await h.pump(tester);
+      expect(pinField(), findsOneWidget);
+      expect(h.container.read(sessionProvider), isNull);
+      await h.choosePin(tester);
+      expect(find.text(l.pinBiometricsQuestion), findsOneWidget);
+      expect(h.container.read(sessionProvider), isNull);
+    });
+
+    testWidgets('preview, first start: straight into the wallet, no PIN set up', (
+      tester,
+    ) async {
+      final h = _Harness(demo: false, wallet: false, pinless: true);
+      await h.pump(tester);
+      expect(pinField(), findsNothing);
+      expect(h.container.read(sessionProvider), isNotNull);
+      expect(h.service.createdPin, demoPin);
+      expect(h.store.values['wallet.mainnet.demoPin'], '1');
+      expect(find.text(l.shellWalletTab), findsOneWidget);
+    });
+
+    testWidgets('preview, later starts: straight into the wallet; Lock works and one tap '
+        'unlocks', (tester) async {
+      final h = _Harness(demo: false, pin: demoPin, demoPinFlag: true, pinless: true);
+      await h.pump(tester);
+      expect(pinField(), findsNothing);
+      expect(h.container.read(sessionProvider), isNotNull);
+      expect(find.text(l.shellWalletTab), findsOneWidget);
+
+      // Lock wallet, as Settings does it (lockWallet).
+      h.container.read(lockReasonProvider.notifier).set(LockReason.manual);
+      h.container.read(sessionProvider.notifier).lock();
+      unawaited(
+        tester
+            .state<NavigatorState>(find.byType(Navigator).first)
+            .pushAndRemoveUntil(
+              MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
+              (_) => false,
+            ),
+      );
+      await tester.pumpAndSettle();
+      expect(h.container.read(sessionProvider), isNull);
+      expect(unlockButton(), findsOneWidget);
+      expect(pinField(), findsNothing);
+      expect(find.text(l.pinForgot), findsNothing);
+      await _tap(tester, unlockButton());
+      expect(h.container.read(sessionProvider), isNotNull);
+      expect(find.text(l.shellWalletTab), findsOneWidget);
+    });
+
+    testWidgets('demo: opens on start with no PIN dots', (tester) async {
+      final h = _Harness(pin: demoPin, demoPinFlag: true, pinless: true);
+      await h.pump(tester);
+      expect(find.byType(DemoPinFill), findsNothing);
+      expect(pinField(), findsNothing);
+      expect(h.container.read(sessionProvider), isNotNull);
+    });
+
+    testWidgets('a preview wallet sealed under another PIN still asks for it', (tester) async {
+      final h = _Harness(demo: false, pinless: true);
+      await h.pump(tester);
+      expect(pinField(), findsOneWidget);
+      expect(h.container.read(sessionProvider), isNull);
+      await h.unlock(tester);
+    });
   });
 
   group('demo PIN', () {

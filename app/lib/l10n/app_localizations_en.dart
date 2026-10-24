@@ -2422,6 +2422,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unlockTitle => 'Unlock wallet';
 
   @override
+  String get pinlessUnlock => 'Unlock';
+
+  @override
   String get pinLabel => 'PIN';
 
   @override

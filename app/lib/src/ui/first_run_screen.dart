@@ -31,6 +31,17 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   String? _error;
 
   @override
+  void initState() {
+    super.initState();
+    // The web demo and preview ask for no PIN: the wallet is set up with the demo PIN at once.
+    if (ref.read(pinlessProvider)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _finish(demoPin, false);
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _answer = null;
     super.dispose();
@@ -51,7 +62,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         pin: pin,
         useBiometrics: useBiometrics,
       );
-      if (ref.read(demoModeProvider)) await _markDemoPin(config.chain);
+      if (ref.read(demoModeProvider) || ref.read(pinlessProvider)) {
+        await _markDemoPin(config.chain);
+      }
       await ref.read(sessionProvider.notifier).open(result.session);
       _answer = null;
       if (!mounted) return;
@@ -96,6 +109,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     final waiting = _answer != null && _error == null;
     // The web demo is on floonet for good, and never takes a phrase or biometrics.
     final demo = ref.watch(demoModeProvider);
+    final pinless = ref.watch(pinlessProvider);
 
     return SlotScaffold(
       centered: true,
@@ -105,7 +119,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         // Mainnet on node.btlabs.uk works without a choice, but a new install must be able
         // to reach floonet or another node before it has a wallet, so this is not Advanced.
         actions: [
-          if (!demo)
+          if (!demo && !pinless)
             NetworkSettingsButton(
               onPressed: waiting ? null : () => _leave(const SetupScreen()),
             ),
@@ -115,10 +129,12 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         children: [
           // The demo has no PIN to choose and no network to name: it only sets itself up.
           BrandHero(
-            title: demo ? l.demoPinSetUpTitle : '${l.firstRunTitle}$network',
+            title: demo || pinless ? l.demoPinSetUpTitle : '${l.firstRunTitle}$network',
           ),
           const SizedBox(height: 28),
-          if (_answer == null) ...[
+          if (_answer == null && pinless)
+            const Center(child: CircularProgressIndicator())
+          else if (_answer == null) ...[
             if (demo)
               DemoPinFill(onDone: () => _finish(demoPin, false))
             else
