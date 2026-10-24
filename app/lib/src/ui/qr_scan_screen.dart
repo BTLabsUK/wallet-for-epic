@@ -15,6 +15,7 @@ import '../providers.dart';
 import '../qr_slate.dart';
 import '../secure_screen.dart';
 import '../settings.dart';
+import '../wallet_service.dart' show FakeWalletSession;
 import 'common.dart';
 import 'qr_camera.dart';
 import 'qr_common.dart';
@@ -102,7 +103,9 @@ class QrScanScreen extends ConsumerStatefulWidget {
 enum _Notice { none, notSlate, otherPayment }
 
 class _QrScanScreenState extends ConsumerState<QrScanScreen> {
-  late final QrCamera _camera = ref.read(qrCameraFactoryProvider)();
+  late final QrCamera _camera = qrPreviewSimulation
+      ? SimulatedQrCamera(source: _otherPhone)
+      : ref.read(qrCameraFactoryProvider)();
   late final QrSlateReader _reader = QrSlateReader(
     ref.read(walletServiceProvider),
   );
@@ -155,6 +158,21 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
     unawaited(_camera.close());
     PortraitLock.release();
     super.dispose();
+  }
+
+  /// The web preview's other phone: what the fake wallet's sender shows (the payment) or its
+  /// receiver shows (the reply).
+  Future<List<String>> _otherPhone() async {
+    final session = ref.read(sessionProvider);
+    final slate = session is FakeWalletSession
+        ? (widget.kind == QrScanKind.payment
+              ? session.sendSlate
+              : session.responseSlate)
+        : null;
+    if (slate == null) return const [];
+    return ref
+        .read(walletServiceProvider)
+        .encodeQrSlate(json: slate.json, maxFragmentLen: qrFragmentLen);
   }
 
   Future<void> _onCode(String text) async {

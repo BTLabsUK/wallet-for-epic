@@ -3105,7 +3105,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodQr => 'Оплата по QR';
 
   @override
-  String get receiveTabQr => 'Оплата по QR';
+  String get methodQrChip => 'QR-код';
+
+  @override
+  String get receiveTabQr => 'QR-код';
 
   @override
   String get methodArtCaptionQr => 'Лично';
@@ -3882,7 +3885,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demoPinUnlockTitle => 'Открываем ваш демо-кошелёк';
 
   @override
-  String get sendStepRecipient => 'Получатель';
+  String get sendStepMethod => 'Способ оплаты';
 
   @override
   String get sendStepAmount => 'Сумма';
@@ -6655,7 +6658,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pushNoticeOff => 'Уведомления выключены';
 
   @override
-  String get pushNoticeAvailable => 'Уведомления доступны в настройках.';
+  String get pushNoticeAvailable =>
+      'Уведомления доступны в Настройки › Дополнительно.';
 
   @override
   String get torWayOver => 'Через Tor';
@@ -14414,6 +14418,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Обновление не завершилось. Повторите попытку.';
 
   @override
+  String get advExperimental => 'Экспериментально';
+
+  @override
   String get advTitle => 'Дополнительно';
 
   @override
@@ -15007,4 +15014,7 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetTxStartHint =>
       'Способ, с которого открывается страница «Отправить». Для одного платежа его всё равно можно изменить на странице «Отправить».';
+
+  @override
+  String get deskSendMethodHeader => 'Способ оплаты';
 }

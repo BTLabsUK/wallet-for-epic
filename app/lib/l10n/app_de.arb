@@ -703,7 +703,8 @@
   "slateIncomingSendHintQr": "Nehmen Sie sie an und zeigen Sie dann dem Absender die Antwort.",
   "slateAcceptedHeadlineQr": "Angenommen. Zeigen Sie dem Absender die Antwort.",
   "methodQr": "QR-Zahlung",
-  "receiveTabQr": "QR-Zahlung",
+  "methodQrChip": "QR-Code",
+  "receiveTabQr": "QR-Code",
   "methodArtCaptionQr": "Persönlich",
   "methodArtLabelQr": "QR-Zahlung: Ein Code wandert von einem Smartphone zum Smartphone daneben",
   "methodSendQrTitle": "Für ein Smartphone neben Ihnen.",
@@ -930,7 +931,7 @@
   "demoPinSkip": "Überspringen",
   "demoPinSetUpTitle": "Ihre Demo-Wallet wird eingerichtet",
   "demoPinUnlockTitle": "Ihre Demo-Wallet wird geöffnet",
-  "sendStepRecipient": "Empfänger",
+  "sendStepMethod": "Zahlungsart",
   "sendStepAmount": "Betrag",
   "sendStepReview": "Prüfen",
   "sendStepOf": "{step} von {total}",
@@ -1666,7 +1667,7 @@
   "pushConfirmAction": "Einschalten",
   "pushNoticeOn": "Benachrichtigungen an",
   "pushNoticeOff": "Benachrichtigungen aus",
-  "pushNoticeAvailable": "Benachrichtigungen sind in den Einstellungen verfügbar.",
+  "pushNoticeAvailable": "Benachrichtigungen gibt es unter Einstellungen › Erweitert.",
   "torWayOver": "Über Tor",
   "torWayWaiting": "Warten auf Tor",
   "torWayNotConnected": "Tor ist nicht verbunden.",
@@ -3672,6 +3673,7 @@
   "deskUpdErrStopped": "Der Download wurde unterbrochen.",
   "deskUpdErrInstall": "Die neue Version konnte nicht eingesetzt werden.",
   "deskUpdUnfinished": "Update nicht abgeschlossen. Erneut versuchen.",
+  "advExperimental": "Experimentell",
   "advTitle": "Erweitert",
   "advStateOff": "Aus",
   "advIntro": "Alles ist zunächst aus. Jeder Schalter blendet einen weiteren Teil der Wallet an der passenden Stelle ein.",
@@ -3877,5 +3879,6 @@
   "deskSetTxFileHint": "Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt Datei zu Senden und die Dateischritte zu Empfangen hinzu.",
   "deskSetTxSend": "Senden",
   "deskSetTxStart": "Senden beginnt mit",
-  "deskSetTxStartHint": "Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern."
+  "deskSetTxStartHint": "Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern.",
+  "deskSendMethodHeader": "Zahlungsart"
 }

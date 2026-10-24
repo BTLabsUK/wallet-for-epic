@@ -703,7 +703,8 @@
   "slateIncomingSendHintQr": "Przyjmij ją, a potem pokaż odpowiedź nadawcy.",
   "slateAcceptedHeadlineQr": "Przyjęto. Pokaż odpowiedź nadawcy.",
   "methodQr": "Płatność QR",
-  "receiveTabQr": "Płatność QR",
+  "methodQrChip": "Kod QR",
+  "receiveTabQr": "Kod QR",
   "methodArtCaptionQr": "Osobiście",
   "methodArtLabelQr": "Płatność QR: kod przechodzi z jednego telefonu na drugi, obok",
   "methodSendQrTitle": "Dla telefonu obok ciebie.",
@@ -930,7 +931,7 @@
   "demoPinSkip": "Pomiń",
   "demoPinSetUpTitle": "Przygotowywanie portfela demo",
   "demoPinUnlockTitle": "Otwieranie portfela demo",
-  "sendStepRecipient": "Odbiorca",
+  "sendStepMethod": "Metoda płatności",
   "sendStepAmount": "Kwota",
   "sendStepReview": "Sprawdź",
   "sendStepOf": "{step} z {total}",
@@ -1666,7 +1667,7 @@
   "pushConfirmAction": "Włącz",
   "pushNoticeOn": "Powiadomienia włączone",
   "pushNoticeOff": "Powiadomienia wyłączone",
-  "pushNoticeAvailable": "Powiadomienia są dostępne w Ustawieniach.",
+  "pushNoticeAvailable": "Powiadomienia są w Ustawieniach › Zaawansowane.",
   "torWayOver": "Przez Tor",
   "torWayWaiting": "Oczekiwanie na Tor",
   "torWayNotConnected": "Tor nie jest połączony.",
@@ -3672,6 +3673,7 @@
   "deskUpdErrStopped": "Pobieranie przerwane.",
   "deskUpdErrInstall": "Nie udało się podmienić aplikacji na nową wersję.",
   "deskUpdUnfinished": "Aktualizacja nie została dokończona. Spróbuj ponownie.",
+  "advExperimental": "Eksperymentalne",
   "advTitle": "Zaawansowane",
   "advStateOff": "Wyłączone",
   "advIntro": "Na początku wszystko jest wyłączone. Każdy przełącznik dodaje jedną część portfela w miejscu, do którego należy.",
@@ -3877,5 +3879,6 @@
   "deskSetTxFileHint": "Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Plik do Wyślij, a kroki z plikami do Odbierz.",
   "deskSetTxSend": "Wyślij",
   "deskSetTxStart": "Wysyłanie zaczyna od",
-  "deskSetTxStartHint": "Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij."
+  "deskSetTxStartHint": "Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij.",
+  "deskSendMethodHeader": "Metoda płatności"
 }

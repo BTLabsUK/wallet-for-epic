@@ -215,7 +215,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         'Two phones next to each other pay with an animated QR code, no connection between them.',
         [
           HelpBlock.p('The payment travels as an animated QR code that the other phone scans with its camera. Nothing is encrypted, so show the code only to the person you pay.'),
-          HelpBlock.ol(['**Sender:** on Send, choose **QR Payment**, enter the amount and tap **Show QR**. The code stays hidden until you show it, counts 3, 2, 1, and hides itself after 40 seconds.', '**Receiver:** on [[Receive › QR Payment]], tap **Scan payment QR**, accept the payment, then show the reply the same way.', '**Sender:** taps **Scan their reply**. The wallet posts the payment and the tracker follows it.']),
+          HelpBlock.ol(['**Sender:** on Send, choose **QR Code**, enter the amount and tap **Show QR**. The code stays hidden until you show it, counts 3, 2, 1, and hides itself after 40 seconds.', '**Receiver:** on [[Receive › QR Code]], tap **Scan payment QR**, accept the payment, then show the reply the same way.', '**Sender:** taps **Scan their reply**. The wallet posts the payment and the tracker follows it.']),
           HelpBlock.p('Keep the code in the frame until every part is read: the ring and the count show how far it got. A code that is not a payment is said so and ignored. Screenshots are blocked on the code screen.'),
         ],
         id: HelpId.qr,
@@ -467,6 +467,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           if (!phone) '**Logs**: the Logs group in Help, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
         HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Offline mode${phone ? '' : ' or away from a node on this computer'}, and with Tor only it moves only to a node reachable over Tor.'),
+        if (phone) const HelpBlock.p('**Notifications** (experimental) is the last switch on the page. It tells you when a payment or an invoice arrives while the app is closed, and it is off while Tor is on.'),
         const HelpBlock.p('The same page sets the network mode: see "Network modes".'),
       ],
       id: HelpId.advanced,

@@ -76,6 +76,7 @@
   "deskSendViewTx": "ดูธุรกรรม",
   "deskSendFailedTitle": "ส่งไม่สำเร็จ",
   "deskSendReviewAgain": "ตรวจสอบอีกครั้ง",
+  "deskSendMethodHeader": "วิธีชำระเงิน",
   "deskSendMethodDirect": "ลิงก์",
   "deskSendMethodFile": "ไฟล์",
   "deskSendTo": "ถึง",

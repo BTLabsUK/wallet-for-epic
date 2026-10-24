@@ -2881,7 +2881,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get methodQr => 'ชำระด้วย QR';
 
   @override
-  String get receiveTabQr => 'ชำระด้วย QR';
+  String get methodQrChip => 'QR Code';
+
+  @override
+  String get receiveTabQr => 'QR Code';
 
   @override
   String get methodArtCaptionQr => 'ต่อหน้า';
@@ -3644,7 +3647,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get demoPinUnlockTitle => 'กำลังเปิดกระเป๋าทดลอง';
 
   @override
-  String get sendStepRecipient => 'ผู้รับ';
+  String get sendStepMethod => 'วิธีชำระเงิน';
 
   @override
   String get sendStepAmount => 'จำนวน';
@@ -6333,7 +6336,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pushNoticeOff => 'ปิดการแจ้งเตือนแล้ว';
 
   @override
-  String get pushNoticeAvailable => 'เปิดการแจ้งเตือนได้ในการตั้งค่า';
+  String get pushNoticeAvailable => 'เปิดการแจ้งเตือนได้ในการตั้งค่า › ขั้นสูง';
 
   @override
   String get torWayOver => 'ผ่าน Tor';
@@ -13751,6 +13754,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskUpdUnfinished => 'อัปเดตไม่เสร็จ ลองอีกครั้ง';
 
   @override
+  String get advExperimental => 'ทดลอง';
+
+  @override
   String get advTitle => 'ขั้นสูง';
 
   @override
@@ -14329,4 +14335,7 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetTxStartHint =>
       'วิธีที่หน้า ส่ง เปิดขึ้นมา สำหรับการจ่ายครั้งเดียวยังเปลี่ยนได้ที่หน้า ส่ง';
+
+  @override
+  String get deskSendMethodHeader => 'วิธีชำระเงิน';
 }

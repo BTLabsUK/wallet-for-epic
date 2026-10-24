@@ -76,6 +76,7 @@
   "deskSendViewTx": "查看交易",
   "deskSendFailedTitle": "发送失败",
   "deskSendReviewAgain": "重新确认",
+  "deskSendMethodHeader": "付款方式",
   "deskSendMethodDirect": "链接",
   "deskSendMethodFile": "文件",
   "deskSendTo": "接收方",

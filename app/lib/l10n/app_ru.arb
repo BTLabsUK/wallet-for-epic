@@ -703,7 +703,8 @@
   "slateIncomingSendHintQr": "Примите его, затем покажите ответ отправителю.",
   "slateAcceptedHeadlineQr": "Принято. Покажите ответ отправителю.",
   "methodQr": "Оплата по QR",
-  "receiveTabQr": "Оплата по QR",
+  "methodQrChip": "QR-код",
+  "receiveTabQr": "QR-код",
   "methodArtCaptionQr": "Лично",
   "methodArtLabelQr": "Оплата по QR: код передаётся с одного телефона на другой, стоящий рядом",
   "methodSendQrTitle": "Для телефона рядом с вами.",
@@ -930,7 +931,7 @@
   "demoPinSkip": "Пропустить",
   "demoPinSetUpTitle": "Настраиваем ваш демо-кошелёк",
   "demoPinUnlockTitle": "Открываем ваш демо-кошелёк",
-  "sendStepRecipient": "Получатель",
+  "sendStepMethod": "Способ оплаты",
   "sendStepAmount": "Сумма",
   "sendStepReview": "Проверка",
   "sendStepOf": "{step} из {total}",
@@ -1666,7 +1667,7 @@
   "pushConfirmAction": "Включить",
   "pushNoticeOn": "Уведомления включены",
   "pushNoticeOff": "Уведомления выключены",
-  "pushNoticeAvailable": "Уведомления доступны в настройках.",
+  "pushNoticeAvailable": "Уведомления доступны в Настройки › Дополнительно.",
   "torWayOver": "Через Tor",
   "torWayWaiting": "Ожидание Tor",
   "torWayNotConnected": "Tor не подключён.",
@@ -3672,6 +3673,7 @@
   "deskUpdErrStopped": "Загрузка прервалась.",
   "deskUpdErrInstall": "Не удалось заменить приложение новой версией.",
   "deskUpdUnfinished": "Обновление не завершилось. Повторите попытку.",
+  "advExperimental": "Экспериментально",
   "advTitle": "Дополнительно",
   "advStateOff": "Выкл.",
   "advIntro": "Сначала всё выключено. Каждый переключатель добавляет ещё одну часть кошелька в то место, которому она принадлежит.",
@@ -3877,5 +3879,6 @@
   "deskSetTxFileHint": "Платите и получайте платежи, передавая файл транзакции, сеть не нужна. Добавляет «Файл» в «Отправить», а шаги с файлами — в «Получить».",
   "deskSetTxSend": "Отправка",
   "deskSetTxStart": "Отправка начинается с",
-  "deskSetTxStartHint": "Способ, с которого открывается страница «Отправить». Для одного платежа его всё равно можно изменить на странице «Отправить»."
+  "deskSetTxStartHint": "Способ, с которого открывается страница «Отправить». Для одного платежа его всё равно можно изменить на странице «Отправить».",
+  "deskSendMethodHeader": "Способ оплаты"
 }

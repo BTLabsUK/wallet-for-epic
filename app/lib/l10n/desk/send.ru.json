@@ -76,6 +76,7 @@
   "deskSendViewTx": "Открыть транзакцию",
   "deskSendFailedTitle": "Отправка не удалась",
   "deskSendReviewAgain": "Проверить снова",
+  "deskSendMethodHeader": "Способ оплаты",
   "deskSendMethodDirect": "Ссылка",
   "deskSendMethodFile": "Файл",
   "deskSendTo": "Кому",

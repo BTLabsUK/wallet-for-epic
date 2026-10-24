@@ -183,7 +183,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, SendView(onDone: () {}));
       expect(_segment('Epicbox'), findsOneWidget);
-      expect(_segment('QR Payment'), findsOneWidget);
+      expect(_segment('QR Code'), findsOneWidget);
       expect(_segment('File'), findsNothing);
       expect(_segment('Link'), findsNothing);
     });
@@ -191,7 +191,7 @@ void main() {
     testWidgets('Send: the order is Epicbox · Link · QR · File', (tester) async {
       final h = _Harness(prefs: 'direct,file|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
-      final names = ['Epicbox', 'Link', 'QR Payment', 'File'];
+      final names = ['Epicbox', 'Link', 'QR Code', 'File'];
       final xs = [
         for (final n in names) tester.getTopLeft(_segment(n)).dx,
       ];
@@ -206,14 +206,15 @@ void main() {
       expect(find.byKey(sendMethodsKey), findsNothing);
       h = _Harness(prefs: 'file,noqr|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
-      expect(_segment('QR Payment'), findsNothing);
+      expect(_segment('QR Code'), findsNothing);
       expect(_segment('File'), findsOneWidget);
     });
 
     testWidgets('Send starts on QR when Settings says so', (tester) async {
       final h = _Harness(prefs: '|qr');
       await h.pump(tester, SendView(onDone: () {}));
-      expect(find.text('QR Payment'), findsNWidgets(2));
+      expect(find.text('QR Code'), findsOneWidget);
+      expect(find.text('QR Payment'), findsOneWidget);
       expect(find.text('Make payment QR'), findsOneWidget);
     });
 
@@ -226,7 +227,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('QR Payment'),
+          matching: find.text('QR Code'),
         ),
       );
       await tester.pumpAndSettle();
@@ -247,7 +248,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('QR Payment'),
+          matching: find.text('QR Code'),
         ),
       );
       await tester.pumpAndSettle();
@@ -407,9 +408,10 @@ void main() {
         stage: SlateStage.response,
       );
       await h.pump(tester, SendView(onDone: () {}));
-      await tester.tap(_segment('QR Payment'));
+      await tester.tap(_segment('QR Code'));
       await tester.pumpAndSettle();
-      expect(find.text('QR Payment'), findsNWidgets(2));
+      expect(find.text('QR Code'), findsOneWidget);
+      expect(find.text('QR Payment'), findsOneWidget);
 
       await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
       await tester.pumpAndSettle();
@@ -464,7 +466,7 @@ void main() {
         stage: SlateStage.response,
       );
       await h.pump(tester, SendView(onDone: () {}));
-      await tester.tap(_segment('QR Payment'));
+      await tester.tap(_segment('QR Code'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
       await tester.pumpAndSettle();
@@ -504,7 +506,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('QR Payment'),
+          matching: find.text('QR Code'),
         ),
       );
       await tester.pumpAndSettle();
@@ -535,7 +537,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('QR Payment'),
+          matching: find.text('QR Code'),
         ),
       );
       await tester.pumpAndSettle();

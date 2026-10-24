@@ -14,7 +14,7 @@ import '../wallet_service.dart';
 import 'common.dart';
 import 'qr_scan_screen.dart';
 import 'qr_show_screen.dart';
-import 'scan_screen.dart' show offersQrScan;
+import 'scan_screen.dart' show offersQrPayment;
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 
@@ -197,7 +197,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     final l = context.l10n;
     final info = _info;
     final theme = Theme.of(context);
-    final showQr = widget.scanned && offersQrScan(ref);
+    final showQr = widget.scanned && offersQrPayment(ref);
     // The reply goes by QR on a phone with File off; the file buttons need File on.
     final fileOn =
         (ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??

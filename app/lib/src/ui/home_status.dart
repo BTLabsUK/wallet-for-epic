@@ -233,7 +233,7 @@ class StatusIcons extends ConsumerWidget {
         if (directIconShown(tor) && block == NetBlock.none)
           StatusIcon(
             key: directIconKey,
-            icon: EpicGlyphs.http,
+            icon: EpicGlyphs.link,
             dot: direct.dot,
             label: '${l.receiveTabDirect}, ${direct.word}',
             detail: torFace.text,

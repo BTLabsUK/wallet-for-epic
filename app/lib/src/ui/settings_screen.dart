@@ -1,7 +1,7 @@
-/// Settings on the phone: a hub of seven groups that fits one screen, in the order people
-/// reach for them. Security, Privacy & network, Wallet, Display and About open a page each
-/// (`settings_sections.dart`); Notifications is its one switch, right on the hub; Help &
-/// feedback opens Help, which starts with Send feedback. A group's row shows its state on a
+/// Settings on the phone: a hub of groups that fits one screen, in the order people reach for
+/// them. Security, Privacy & network, Wallet, Transactions, Display, Advanced and About open a
+/// page each (`settings_sections.dart`); Help & feedback opens Help, which starts with Send
+/// feedback. A group's row shows its state on a
 /// second line ("btlabs.uk · epiccash.com · Tor off"), so the state is visible without opening
 /// the page. No search: the hub is scanned at a glance, and Help has its own search for
 /// questions.
@@ -10,30 +10,20 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../app_log.dart';
 import '../demo.dart';
-import '../errors.dart';
 import '../l10n.dart';
-import '../network.dart';
-import '../phone_tor.dart';
+import '../errors.dart';
 import '../providers.dart';
-import '../push.dart';
-import '../push_controller.dart';
-import '../push_registration.dart';
-import '../server_switch.dart';
 import '../settings.dart';
-import '../tor_phone.dart';
-import '../tor_routes.dart';
-import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'help_screen.dart';
-import 'info_hint.dart';
 import 'restore_screen.dart' show ScanSlotLine;
 import 'settings_sections.dart';
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 
+export 'push_switch.dart' show settingsPushKey, pushStateLine;
 export 'settings_sections.dart';
 
 /// Opens Settings at Privacy & network, where the Tor switch is: the page over the hub, so
@@ -44,9 +34,6 @@ Future<void> openPrivacySettings(BuildContext context) => Navigator.of(context)
         builder: (_) => const SettingsScreen(privacy: true),
       ),
     );
-
-/// The key of the push notifications switch, for tests.
-const Key settingsPushKey = ValueKey('settings-push');
 
 /// The Settings row that offers an update, for tests.
 
@@ -86,66 +73,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  void _say(String message, {required NoticeLevel level}) {
-    ref.read(noticeProvider.notifier).show(message, level: level);
-  }
-
-  /// On: one confirm, then the registration. Only the BT Labs relay can push, so a wallet on
-  /// another relay is told so, and that its Epicbox address changes, and is moved there live
-  /// first. Off never moves the relay back.
-  Future<void> _setPushNotifications(bool on) async {
-    final push = ref.read(pushControllerProvider.notifier);
-    if (!on) return push.turnOff();
-    final l = context.l10n;
-    final config = ref.read(walletConfigProvider);
-    final moveRelay =
-        config != null && config.epicboxDomain != PushRegistration.relayHost;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.pushConfirmTitle),
-        content: moveRelay
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l.pushConfirmRelayBody),
-                  const SizedBox(height: 12),
-                  Text(l.pushConfirmRelayAddress),
-                ],
-              )
-            : Text(l.pushConfirmBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.commonCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.pushConfirmAction),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-    if (moveRelay) {
-      try {
-        await switchServersLive(
-          ref,
-          nodeUrl: config.nodeUrl,
-          nodeApiSecret: config.nodeApiSecret,
-          relay: const EpicboxRelay(host: PushRegistration.relayHost),
-        );
-      } on WalletError catch (e) {
-        logWarn('push', 'relay switch refused: ${e.kind.name}');
-        if (mounted) _say(l.pushRelaySwitchFailed, level: NoticeLevel.error);
-        return;
-      }
-      if (!mounted) return;
-    }
-    await push.turnOn();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -153,11 +80,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final scan = ref.watch(scanProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
     final demo = ref.watch(demoModeProvider);
-    final torState = phoneTorState(ref.watch(phoneTorProvider));
     final backedUp = ref.watch(backedUpProvider).value ?? true;
-    final push = ref.watch(pushProvider);
-    final pushOffered =
-        !demo && (ref.watch(pushConfiguredProvider).value ?? false);
     final t = context.tokens;
 
 
@@ -205,22 +128,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     l.netStatusTor,
                   ].reduce(l.settingsStateJoin),
                 ),
-                if (pushOffered)
-                  // Tor on pauses them (a registration would show this phone's address):
-                  // turning them off still works, turning them on is not offered.
-                  _GroupSwitch(
-                    key: settingsPushKey,
-                    icon: Icons.notifications_outlined,
-                    title: l.settingsNotifications,
-                    hint: l.settingsNotificationsHint,
-                    state: pushStateLine(l, push, s, torState),
-                    value: s.pushNotifications,
-                    onChanged:
-                        torWay(TorRoute.push, torState) == TorWay.off &&
-                            !s.pushNotifications
-                        ? null
-                        : _setPushNotifications,
-                  ),
                 if (walletOpen)
                   _GroupRow(
                     key: settingsGroupKey(SettingsSection.wallet),
@@ -290,24 +197,6 @@ String advancedStateLine(AppLocalizations l, AdvancedPrefs adv) {
   return parts.isEmpty ? l.advStateOff : parts.reduce(l.settingsStateJoin);
 }
 
-/// The Notifications row's state line, only when there is a state to say: paused by Tor, or
-/// why the switch went back off.
-String? pushStateLine(
-  AppLocalizations l,
-  PushState push,
-  AppSettings settings,
-  TorState tor,
-) {
-  if (torWay(TorRoute.push, tor) == TorWay.off) {
-    return settings.pushNotifications ? l.settingsPushPaused : null;
-  }
-  return push.blocked
-      ? l.settingsPushBlocked
-      : push.unavailable
-      ? l.settingsPushUnavailable
-      : null;
-}
-
 /// A group's glyph in a small hairline tile, so the hub reads as a short list of places
 /// rather than a run of settings rows.
 class _GroupGlyph extends StatelessWidget {
@@ -375,40 +264,3 @@ class _GroupRow extends StatelessWidget {
     );
   }
 }
-
-/// The hub's one inline setting, Notifications: the group's glyph and title with the
-/// explanation behind an info icon, the state line, and the switch.
-class _GroupSwitch extends StatelessWidget {
-  const _GroupSwitch({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.hint,
-    required this.value,
-    required this.onChanged,
-    this.state,
-  });
-
-  final IconData icon;
-  final String title;
-  final String hint;
-  final bool value;
-  final ValueChanged<bool>? onChanged;
-  final String? state;
-
-  @override
-  Widget build(BuildContext context) {
-    final onChanged = this.onChanged;
-    final state = this.state;
-    return ListTile(
-      minVerticalPadding: 12,
-      leading: _GroupGlyph(icon),
-      title: TitleWithHint(title, hint: hint, icon: icon),
-      subtitle: state == null ? null : Text(state),
-      trailing: Switch(value: value, onChanged: onChanged),
-      enabled: onChanged != null,
-      onTap: onChanged == null ? null : () => onChanged(!value),
-    );
-  }
-}
-

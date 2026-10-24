@@ -519,7 +519,6 @@ void main() {
       final order = [
         settingsGroupKey(SettingsSection.security),
         settingsGroupKey(SettingsSection.privacyNetwork),
-        settingsPushKey,
         settingsGroupKey(SettingsSection.wallet),
         settingsGroupKey(SettingsSection.transactions),
         settingsGroupKey(SettingsSection.display),
@@ -1222,7 +1221,7 @@ void main() {
       await h.pump(tester);
       await unlockOnRelay(h, tester);
       expect(h.push.starts, 0);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.advanced);
       // The label alone, with its explanation behind the info icon, and no state line.
       await _reveal(tester, row());
       expect(
@@ -1238,11 +1237,19 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(tester
-          .widget<ListTile>(
-            find.descendant(of: row(), matching: find.byType(ListTile)),
-          )
-          .subtitle, isNull);
+      // Marked Experimental, and no state line.
+      expect(
+        find.descendant(of: row(), matching: find.text('Experimental')),
+        findsOneWidget,
+      );
+      expect(
+        tester
+            .widgetList<Text>(
+              find.descendant(of: row(), matching: find.byType(Text)),
+            )
+            .map((t) => t.data),
+        ['Notifications', 'Experimental'],
+      );
 
       await tapRow(tester);
       expect(find.text('Turn on notifications?'), findsOneWidget);
@@ -1267,7 +1274,7 @@ void main() {
       h.session.address = relay;
       await h.pump(tester);
       await unlockOnRelay(h, tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.advanced);
       await turnOn(tester);
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'true');
@@ -1305,7 +1312,7 @@ void main() {
       h.push.permitted = false;
       await h.pump(tester);
       await unlockOnRelay(h, tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.advanced);
       expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
       await turnOn(tester);
       expect(h.push.starts, 1);
@@ -1329,7 +1336,7 @@ void main() {
       h.push.failure = Exception('no Firebase options');
       await h.pump(tester);
       await unlockOnRelay(h, tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.advanced);
       await turnOn(tester);
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'false');
@@ -1357,7 +1364,7 @@ void main() {
       h.push.configuredBuild = false;
       await h.pump(tester);
       await unlockOnRelay(h, tester);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.advanced);
       expect(row(), findsNothing);
       expect(find.text('Notifications'), findsNothing);
       expect(h.push.starts, 0);
@@ -1372,7 +1379,7 @@ void main() {
       final before = h.container.read(walletConfigProvider)!;
       expect(before.epicboxDomain, isNot('flooepicbox.btlabs.uk'));
       final session = h.container.read(sessionProvider);
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.advanced);
       await tapRow(tester);
       expect(find.text('Turn on notifications?'), findsOneWidget);
       expect(
@@ -1419,7 +1426,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       final before = h.container.read(walletConfigProvider)!.epicboxDomain;
-      await h.openSettings(tester);
+      await h.openSettings(tester, SettingsSection.advanced);
       await tapRow(tester);
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
@@ -1455,7 +1462,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byKey(noticeKey),
-          matching: find.text('Notifications are available in Settings.'),
+          matching: find.text('Notifications are available in Settings › Advanced.'),
         ),
         findsOneWidget,
       );

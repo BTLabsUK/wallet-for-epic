@@ -3526,7 +3526,11 @@
   "@methodQr": {
     "description": "Name of the QR payment method, in the method selector and Settings: two phones next to each other, a code on a screen. Keep it short."
   },
-  "receiveTabQr": "QR Payment",
+  "methodQrChip": "QR Code",
+  "@methodQrChip": {
+    "description": "Short name of the QR payment method on the Send method selector (chip). The full name is methodQr; keep it short."
+  },
+  "receiveTabQr": "QR Code",
   "@receiveTabQr": {
     "description": "Receive tab that scans a payment QR from the phone next to this one. Keep it short."
   },
@@ -4546,9 +4550,9 @@
   "@demoPinUnlockTitle": {
     "description": "Web demo: heading of the unlock screen while the demo PIN fills in. The usual title returns with the PIN field."
   },
-  "sendStepRecipient": "Recipient",
-  "@sendStepRecipient": {
-    "description": "Send, step 1: heading of the step where the user enters who to pay."
+  "sendStepMethod": "Payment method",
+  "@sendStepMethod": {
+    "description": "Send, step 1: heading of the step that starts with the payment method selector, then the recipient field."
   },
   "sendStepAmount": "Amount",
   "@sendStepAmount": {
@@ -8173,7 +8177,7 @@
   "@pushNoticeOff": {
     "description": "Notice after the user turned notifications off."
   },
-  "pushNoticeAvailable": "Notifications are available in Settings.",
+  "pushNoticeAvailable": "Notifications are available in Settings › Advanced.",
   "@pushNoticeAvailable": {
     "description": "One-time reminder, about a minute after the first unlock, that notifications exist."
   },
@@ -18424,6 +18428,10 @@
   "@deskUpdUnfinished": {
     "description": "Sidebar notice and Settings › About (Windows): an update was started but Setup did not finish (it was stopped or failed part way); the action runs the update again. The version is on the line under it."
   },
+  "advExperimental": "Experimental",
+  "@advExperimental": {
+    "description": "Small outlined label beside a feature that is not finished (the Notifications switch on Advanced). One word."
+  },
   "advTitle": "Advanced",
   "@advTitle": {
     "description": "Title of the Advanced page in Settings and its hub row."
@@ -19141,5 +19149,9 @@
   "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send.",
   "@deskSetTxStartHint": {
     "description": "Hover card behind the info icon of the Send starts on row."
+  },
+  "deskSendMethodHeader": "Payment method",
+  "@deskSendMethodHeader": {
+    "description": "Title of the first panel on Send: the method selector comes first, then the recipient field."
   }
 }

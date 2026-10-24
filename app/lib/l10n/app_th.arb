@@ -703,7 +703,8 @@
   "slateIncomingSendHintQr": "รับรายการ แล้วแสดงคำตอบให้ผู้ส่ง",
   "slateAcceptedHeadlineQr": "รับแล้ว แสดงคำตอบให้ผู้ส่ง",
   "methodQr": "ชำระด้วย QR",
-  "receiveTabQr": "ชำระด้วย QR",
+  "methodQrChip": "QR Code",
+  "receiveTabQr": "QR Code",
   "methodArtCaptionQr": "ต่อหน้า",
   "methodArtLabelQr": "ชำระด้วย QR: โค้ดส่งจากโทรศัพท์เครื่องหนึ่งไปยังอีกเครื่องที่อยู่ข้างกัน",
   "methodSendQrTitle": "สำหรับโทรศัพท์ที่อยู่ข้างคุณ",
@@ -930,7 +931,7 @@
   "demoPinSkip": "ข้าม",
   "demoPinSetUpTitle": "กำลังตั้งค่ากระเป๋าทดลอง",
   "demoPinUnlockTitle": "กำลังเปิดกระเป๋าทดลอง",
-  "sendStepRecipient": "ผู้รับ",
+  "sendStepMethod": "วิธีชำระเงิน",
   "sendStepAmount": "จำนวน",
   "sendStepReview": "ตรวจสอบ",
   "sendStepOf": "{step} จาก {total}",
@@ -1666,7 +1667,7 @@
   "pushConfirmAction": "เปิด",
   "pushNoticeOn": "เปิดการแจ้งเตือนแล้ว",
   "pushNoticeOff": "ปิดการแจ้งเตือนแล้ว",
-  "pushNoticeAvailable": "เปิดการแจ้งเตือนได้ในการตั้งค่า",
+  "pushNoticeAvailable": "เปิดการแจ้งเตือนได้ในการตั้งค่า › ขั้นสูง",
   "torWayOver": "ผ่าน Tor",
   "torWayWaiting": "รอ Tor",
   "torWayNotConnected": "Tor ยังไม่ได้เชื่อมต่อ",
@@ -3672,6 +3673,7 @@
   "deskUpdErrStopped": "การดาวน์โหลดหยุดลง",
   "deskUpdErrInstall": "แทนที่ด้วยเวอร์ชันใหม่ไม่ได้",
   "deskUpdUnfinished": "อัปเดตไม่เสร็จ ลองอีกครั้ง",
+  "advExperimental": "ทดลอง",
   "advTitle": "ขั้นสูง",
   "advStateOff": "ปิด",
   "advIntro": "ทุกอย่างปิดอยู่ตอนแรก แต่ละสวิตช์เพิ่มส่วนของกระเป๋าเงินอีกส่วนหนึ่งในที่ที่มันอยู่",
@@ -3877,5 +3879,6 @@
   "deskSetTxFileHint": "จ่ายและรับเงินโดยส่งต่อไฟล์ธุรกรรม ไม่ต้องใช้เครือข่าย เพิ่มไฟล์ใน ส่ง และเพิ่มขั้นตอนเกี่ยวกับไฟล์ใน รับ",
   "deskSetTxSend": "ส่ง",
   "deskSetTxStart": "การส่งเริ่มด้วย",
-  "deskSetTxStartHint": "วิธีที่หน้า ส่ง เปิดขึ้นมา สำหรับการจ่ายครั้งเดียวยังเปลี่ยนได้ที่หน้า ส่ง"
+  "deskSetTxStartHint": "วิธีที่หน้า ส่ง เปิดขึ้นมา สำหรับการจ่ายครั้งเดียวยังเปลี่ยนได้ที่หน้า ส่ง",
+  "deskSendMethodHeader": "วิธีชำระเงิน"
 }

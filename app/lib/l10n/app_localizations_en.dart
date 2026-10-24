@@ -2963,7 +2963,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodQr => 'QR Payment';
 
   @override
-  String get receiveTabQr => 'QR Payment';
+  String get methodQrChip => 'QR Code';
+
+  @override
+  String get receiveTabQr => 'QR Code';
 
   @override
   String get methodArtCaptionQr => 'In person';
@@ -3740,7 +3743,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demoPinUnlockTitle => 'Opening your demo wallet';
 
   @override
-  String get sendStepRecipient => 'Recipient';
+  String get sendStepMethod => 'Payment method';
 
   @override
   String get sendStepAmount => 'Amount';
@@ -6461,7 +6464,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pushNoticeOff => 'Notifications off';
 
   @override
-  String get pushNoticeAvailable => 'Notifications are available in Settings.';
+  String get pushNoticeAvailable =>
+      'Notifications are available in Settings › Advanced.';
 
   @override
   String get torWayOver => 'Over Tor';
@@ -14022,6 +14026,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskUpdUnfinished => 'Update didn\'t finish. Try again.';
 
   @override
+  String get advExperimental => 'Experimental';
+
+  @override
   String get advTitle => 'Advanced';
 
   @override
@@ -14603,4 +14610,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetTxStartHint =>
       'The method the Send page opens with. You can still change it for one payment on Send.';
+
+  @override
+  String get deskSendMethodHeader => 'Payment method';
 }
