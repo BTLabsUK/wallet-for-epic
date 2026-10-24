@@ -45,6 +45,10 @@ void main() {
             'accentText on $sname': (t.accentText, surface),
             'dim on $sname': (t.dim, surface),
             'text on $sname': (t.text, surface),
+            // Direction colours on amounts and icons in lists and details.
+            'txSent on $sname': (t.txSent, surface),
+            'txReceived on $sname': (t.txReceived, surface),
+            'txCancelled on $sname': (t.txCancelled, surface),
           },
           // Status text on its own soft fill over a panel (notices, result glyphs).
           'ok on okSoft': (t.ok, Color.alphaBlend(t.okSoft, t.surface)),
@@ -85,6 +89,12 @@ void main() {
         );
         expect(t.ok, isNot(t.accent));
         expect(t.info, isNot(t.accent));
+        // Direction: sent gold (the one gold state), received green, cancelled a neutral grey.
+        expect(t.txSent, t.accentText);
+        expect(t.txReceived, t.ok);
+        expect(t.txCancelled, isNot(t.warn));
+        expect(t.txCancelled, isNot(t.risk));
+        expect((t.txCancelled.r - t.txCancelled.b).abs(), lessThan(0.06), reason: 'cancelled is grey');
         // The selected treatment is neutral: a grey, not a tint of the accent.
         for (final c in [t.selected, t.selectedLine]) {
           expect((c.r - c.b).abs() * 255, lessThan(16), reason: '$mode $c');

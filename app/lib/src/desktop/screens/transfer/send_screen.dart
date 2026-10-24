@@ -699,7 +699,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ),
     );
     if (!mounted || res == null) return;
-    if (res is SendDone) showEToast(context, context.l10n.deskSendSent, text: '${formatEpicL(context.l10n, res.tx.amount)} EPIC');
+    // Money out is gold, as its row in Activity.
+    if (res is SendDone) showEToast(context, context.l10n.deskSendSent, text: '${formatEpicL(context.l10n, res.tx.amount)} EPIC', tone: ETone.gold);
     setState(() {
       switch (res) {
         case final SendFailed failed:

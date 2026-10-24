@@ -39,6 +39,9 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     required this.infoSoft,
     required this.selected,
     required this.selectedLine,
+    required this.txSent,
+    required this.txReceived,
+    required this.txCancelled,
     required this.radius,
     required this.radiusSmall,
     required this.controlHeight,
@@ -67,7 +70,8 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
 
   /// The brand gold: primary buttons, the FAB, focused borders, links as [accentText], the
   /// mark and section rules. Never a state: a connected, synced, selected or confirmed thing is
-  /// [ok], [selected] or [info], not gold. [accentInk] is text on an [accent] fill.
+  /// [ok], [selected] or [info], not gold. The one exception is [txSent], the sent direction.
+  /// [accentInk] is text on an [accent] fill.
   final Color accent;
   final Color accentInk;
   final Color accentText;
@@ -77,7 +81,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   final Color tick;
 
   /// Status colours, each AA as text on [bg], [surface], [surfaceHi], [field] and [selected].
-  /// [ok] (green): connected, synced, confirmed, sent, received, success notices, and the
+  /// [ok] (green): connected, synced, confirmed, success notices, and the
   /// check on a current item that is working. [warn] (amber): something needs attention or is
   /// not ready. [risk] (red): an error or a failure. [info] (blue): an in-progress or
   /// informational state (confirming, the current timeline step, an info notice). The `Soft`
@@ -96,6 +100,16 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   /// is also working.
   final Color selected;
   final Color selectedLine;
+
+  /// A transaction's direction, on its arrow, icon and amount wherever a payment shows
+  /// (Activity, recent activity, details, outputs, invoices, notices). the owner's rule
+  /// (26.10.8): sent is gold, received is green, cancelled is a neutral grey. [txSent] is the
+  /// one deliberate exception to "gold only for the brand": money going out wears the brand
+  /// colour, so a list reads at a glance. States keep their own colours: confirming is [info],
+  /// failed or stalled is [warn] or [risk]. Each is AA on every surface, like [ok].
+  final Color txSent;
+  final Color txReceived;
+  final Color txCancelled;
 
   final double radius;
   final double radiusSmall;
@@ -134,6 +148,9 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     Color? infoSoft,
     Color? selected,
     Color? selectedLine,
+    Color? txSent,
+    Color? txReceived,
+    Color? txCancelled,
     double? radius,
     double? radiusSmall,
     double? controlHeight,
@@ -164,6 +181,9 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     infoSoft: infoSoft ?? this.infoSoft,
     selected: selected ?? this.selected,
     selectedLine: selectedLine ?? this.selectedLine,
+    txSent: txSent ?? this.txSent,
+    txReceived: txReceived ?? this.txReceived,
+    txCancelled: txCancelled ?? this.txCancelled,
     radius: radius ?? this.radius,
     radiusSmall: radiusSmall ?? this.radiusSmall,
     controlHeight: controlHeight ?? this.controlHeight,
@@ -201,6 +221,9 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
       infoSoft: c(infoSoft, other.infoSoft),
       selected: c(selected, other.selected),
       selectedLine: c(selectedLine, other.selectedLine),
+      txSent: c(txSent, other.txSent),
+      txReceived: c(txReceived, other.txReceived),
+      txCancelled: c(txCancelled, other.txCancelled),
       radius: d(radius, other.radius),
       radiusSmall: d(radiusSmall, other.radiusSmall),
       controlHeight: d(controlHeight, other.controlHeight),
@@ -251,6 +274,9 @@ const WalletTokens protocolDark = WalletTokens(
   infoSoft: Color(0x1F8FB8E8),
   selected: Color(0xFF22222B),
   selectedLine: Color(0xFF4A4A56),
+  txSent: Color(0xFFF6D471),
+  txReceived: Color(0xFF8AD98A),
+  txCancelled: Color(0xFFA4A4AD),
   radius: 14,
   radiusSmall: 8,
   controlHeight: 48,
@@ -285,6 +311,9 @@ const WalletTokens protocolLight = WalletTokens(
   infoSoft: Color(0x1A2F5F9E),
   selected: Color(0xFFECECEF),
   selectedLine: Color(0xFFB4B4BD),
+  txSent: Color(0xFF8F5E1F),
+  txReceived: Color(0xFF1F7A3A),
+  txCancelled: Color(0xFF55555F),
   radius: 14,
   radiusSmall: 8,
   controlHeight: 48,

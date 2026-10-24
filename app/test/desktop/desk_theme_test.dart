@@ -35,6 +35,10 @@ void main() {
             'warn on $sname': (c.warn, surface),
             'risk on $sname': (c.risk, surface),
             'info on $sname': (c.info, surface),
+            // Direction colours on amounts and icons in Activity, details and Outputs.
+            'txSent on $sname': (c.txSent, surface),
+            'txReceived on $sname': (c.txReceived, surface),
+            'txCancelled on $sname': (c.txCancelled, surface),
           },
           // Status text on its own soft fill (tags, notices, result glyphs).
           'ok on okSoft': (c.ok, Color.alphaBlend(c.okSoft, c.s1)),
@@ -66,6 +70,11 @@ void main() {
         );
         expect(c.ok, isNot(c.accent));
         expect(c.info, isNot(c.accent));
+        // Direction: sent gold (the one gold state), received green, cancelled a neutral grey.
+        expect(c.txSent, c.accentText);
+        expect(c.txReceived, c.ok);
+        expect(c.txCancelled, isNot(c.warn));
+        expect((c.txCancelled.r - c.txCancelled.b).abs(), lessThan(0.06), reason: 'cancelled is grey');
       });
 
       test('the theme carries the colours', () {

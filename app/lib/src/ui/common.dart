@@ -844,7 +844,11 @@ class TxStatusChip extends ConsumerWidget {
         colors.surfaceContainerHighest,
         colors.onSurfaceVariant,
       ),
-      TxPhase.cancelled => (colors.errorContainer, colors.onErrorContainer),
+      // Cancelled is over, not wrong: the same neutral chip as a completed payment.
+      TxPhase.cancelled => (
+        colors.surfaceContainerHighest,
+        colors.onSurfaceVariant,
+      ),
     };
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -872,8 +876,8 @@ class TxStatusChip extends ConsumerWidget {
   }
 }
 
-/// The direction of [tx] in a rounded square whose edge shows its progress: green in, plain
-/// out, gold for a reward. See [TxProgressSquare] for the edge.
+/// The direction of [tx] in a rounded square whose edge shows its progress: green in, gold
+/// out, grey when cancelled ([WalletTokens.txSent] and kin). See [TxProgressSquare] for the edge.
 class TxIcon extends ConsumerWidget {
   const TxIcon({super.key, required this.tx, required this.tip});
 
@@ -889,14 +893,19 @@ class TxIcon extends ConsumerWidget {
     final (IconData icon, Color fg, String label) = switch (tx.kind) {
       _ when tx.status == TxStatus.cancelled => (
         Icons.block,
-        t.dim,
+        t.txCancelled,
         l.txIconCancelled,
       ),
-      TxKind.coinbase => (Icons.bolt, t.accentText, l.txMiningReward),
+      // A reward is money in, so green like a receipt; the bolt tells it apart.
+      TxKind.coinbase => (Icons.bolt, t.txReceived, l.txMiningReward),
       TxKind.received ||
-      TxKind.receivedCancelled => (Icons.south_west, t.ok, l.txIconIncoming),
+      TxKind.receivedCancelled => (
+        Icons.south_west,
+        t.txReceived,
+        l.txIconIncoming,
+      ),
       TxKind.sent ||
-      TxKind.sentCancelled => (Icons.north_east, t.text, l.txIconOutgoing),
+      TxKind.sentCancelled => (Icons.north_east, t.txSent, l.txIconOutgoing),
     };
     final target = confirmationsTargetOf(ref);
     final phase = txPhase(tx, tip, target: target);
@@ -1464,10 +1473,13 @@ class TxTile extends ConsumerWidget {
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontFamily: context.tokens.monoFamily,
                         fontSize: 14.5,
-                        // Money in reads green, as on the desktop; money out stays plain.
-                        color: !outgoing && tx.status != TxStatus.cancelled
-                            ? context.tokens.ok
-                            : null,
+                        // The amount wears the direction, like the icon: green in, gold
+                        // out; a cancelled one is struck through in grey.
+                        color: tx.status == TxStatus.cancelled
+                            ? context.tokens.txCancelled
+                            : outgoing
+                            ? context.tokens.txSent
+                            : context.tokens.txReceived,
                         decoration: tx.status == TxStatus.cancelled
                             ? TextDecoration.lineThrough
                             : null,
