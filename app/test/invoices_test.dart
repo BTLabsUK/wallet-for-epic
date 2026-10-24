@@ -245,9 +245,11 @@ void main() {
       expect(s.invoicePayments, 1, reason: 'resend signs nothing');
       expect(s.transactionsValue, hasLength(1));
 
-      // A resend of a delivered reply is a no-op.
+      // A delivered reply the service never posted goes again (linux-12), still signing
+      // nothing.
       expect(await s.resendInvoiceReply(slateId: 'i1'), resent);
-      expect(s.deliveredReplies, ['i1']);
+      expect(s.deliveredReplies, ['i1', 'i1']);
+      expect(s.invoicePayments, 1);
     });
 
     test('notices count only from the invoice\'s own service', () async {

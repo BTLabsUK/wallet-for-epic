@@ -1822,6 +1822,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return 'Jeśli $service jej nie opublikował, wyślij płatność ponownie: nic nie jest podpisywane dwa razy. Jeśli nigdy nie zostanie opublikowana, Anuluj będzie dostępne, gdy minie czas płatności, około doby po zapłacie.';
+  }
+
+  @override
   String invoiceDetailsPosted(String service) {
     return 'Serwis $service zgłasza, że płatność została opublikowana. Zakończy się, gdy sieć ją potwierdzi.';
   }

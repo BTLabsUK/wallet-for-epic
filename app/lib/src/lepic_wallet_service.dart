@@ -1965,7 +1965,12 @@ class LepicWalletSession implements WalletSession {
             message: 'no paid invoice with that id',
           );
         }
-        if (paid.status != InvoiceStatus.replyFailed) return paid;
+        // A reply that reached the relay but was never posted goes again too (linux-12): LEPIC
+        // sends only a payment still waiting, and the service finalizes it once.
+        if (paid.status != InvoiceStatus.replyFailed &&
+            paid.status != InvoiceStatus.replied) {
+          return paid;
+        }
         final txId = paid.txId ?? await _paymentTxId(slateId);
         if (txId == null) {
           throw const WalletError(

@@ -374,6 +374,7 @@
   "invoiceDetailsSection": "账单",
   "invoiceDetailsService": "开单方",
   "invoiceDetailsReplied": "正在等待 {service} 广播这笔付款。",
+  "invoiceDetailsRepliedHelp": "如果 {service} 尚未发布这笔付款，请再次发送：不会重复签名。如果一直没有发布，付款时限到期后（付款后约一天）即可取消。",
   "invoiceDetailsPosted": "{service} 报告已广播这笔付款。网络确认后即完成。",
   "invoiceDetailsReplyFailed": "{service} 尚未收到你的付款。点“重试”会再次发送，无需再次批准。",
   "invoiceDetailsWithdrawn": "你付款后，{service} 撤回了此账单。如果这笔付款未能确认，请取消它以解锁资金。",

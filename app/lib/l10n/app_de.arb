@@ -374,6 +374,7 @@
   "invoiceDetailsSection": "Rechnung",
   "invoiceDetailsService": "Gestellt von",
   "invoiceDetailsReplied": "Warten, bis {service} die Zahlung veröffentlicht.",
+  "invoiceDetailsRepliedHelp": "Wenn {service} sie nicht gebucht hat, sende die Zahlung erneut: Nichts wird zweimal signiert. Wird sie nie gebucht, wird Abbrechen verfügbar, sobald die Zeit der Zahlung abläuft, etwa einen Tag nach dem Bezahlen.",
   "invoiceDetailsPosted": "{service} meldet, dass die Zahlung veröffentlicht wurde. Sie ist abgeschlossen, sobald das Netzwerk sie bestätigt.",
   "invoiceDetailsReplyFailed": "{service} hat Ihre Zahlung noch nicht erhalten. „Erneut senden“ schickt sie noch einmal, ohne dass Sie erneut zustimmen.",
   "invoiceDetailsWithdrawn": "{service} hat diese Rechnung zurückgezogen, nachdem Sie sie bezahlt haben. Wenn die Zahlung nicht bestätigt wird, stornieren Sie sie, um Ihr Guthaben freizugeben.",

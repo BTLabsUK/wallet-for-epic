@@ -374,6 +374,7 @@
   "invoiceDetailsSection": "Faktura",
   "invoiceDetailsService": "Wystawca",
   "invoiceDetailsReplied": "Oczekiwanie, aż serwis {service} opublikuje płatność.",
+  "invoiceDetailsRepliedHelp": "Jeśli {service} jej nie opublikował, wyślij płatność ponownie: nic nie jest podpisywane dwa razy. Jeśli nigdy nie zostanie opublikowana, Anuluj będzie dostępne, gdy minie czas płatności, około doby po zapłacie.",
   "invoiceDetailsPosted": "Serwis {service} zgłasza, że płatność została opublikowana. Zakończy się, gdy sieć ją potwierdzi.",
   "invoiceDetailsReplyFailed": "Serwis {service} nie otrzymał jeszcze twojej płatności. „Ponów” wyśle ją jeszcze raz, bez ponownego zatwierdzania.",
   "invoiceDetailsWithdrawn": "Serwis {service} wycofał tę fakturę po jej opłaceniu. Jeśli płatność nie zostanie potwierdzona, anuluj ją, aby odblokować środki.",

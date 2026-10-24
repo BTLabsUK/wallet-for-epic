@@ -1720,6 +1720,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return 'Wenn $service sie nicht gebucht hat, sende die Zahlung erneut: Nichts wird zweimal signiert. Wird sie nie gebucht, wird Abbrechen verfügbar, sobald die Zeit der Zahlung abläuft, etwa einen Tag nach dem Bezahlen.';
+  }
+
+  @override
   String invoiceDetailsPosted(String service) {
     return '$service meldet, dass die Zahlung veröffentlicht wurde. Sie ist abgeschlossen, sobald das Netzwerk sie bestätigt.';
   }

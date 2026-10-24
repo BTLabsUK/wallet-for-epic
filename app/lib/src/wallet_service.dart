@@ -2356,7 +2356,10 @@ class FakeWalletSession implements WalletSession {
         message: 'no paid invoice with that id',
       );
     }
-    if (paid.status != InvoiceStatus.replyFailed) return paid;
+    if (paid.status != InvoiceStatus.replyFailed &&
+        paid.status != InvoiceStatus.replied) {
+      return paid;
+    }
     if (replyError != null) throw replyError!;
     return _deliver(paid);
   }

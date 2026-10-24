@@ -1599,6 +1599,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return '如果 $service 尚未发布这笔付款，请再次发送：不会重复签名。如果一直没有发布，付款时限到期后（付款后约一天）即可取消。';
+  }
+
+  @override
   String invoiceDetailsPosted(String service) {
     return '$service 报告已广播这笔付款。网络确认后即完成。';
   }

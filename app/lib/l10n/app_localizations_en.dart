@@ -1704,6 +1704,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return 'If $service has not posted it, send the payment again: nothing is signed twice. If it is never posted, Cancel becomes available once the payment\'s time runs out, about a day after you paid.';
+  }
+
+  @override
   String invoiceDetailsPosted(String service) {
     return '$service reports it posted the payment. It completes once the network confirms it.';
   }

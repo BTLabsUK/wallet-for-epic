@@ -1650,6 +1650,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return 'หาก $service ยังไม่ได้โพสต์การชำระเงิน ให้ส่งอีกครั้ง โดยไม่มีการลงนามซ้ำ หากไม่ได้โพสต์เลย ปุ่มยกเลิกจะใช้ได้เมื่อหมดเวลาของการชำระเงิน ประมาณหนึ่งวันหลังจากชำระ';
+  }
+
+  @override
   String invoiceDetailsPosted(String service) {
     return '$service แจ้งว่าส่งรายการเข้าเครือข่ายแล้ว จะสำเร็จเมื่อเครือข่ายยืนยัน';
   }

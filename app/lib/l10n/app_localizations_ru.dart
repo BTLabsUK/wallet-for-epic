@@ -1811,6 +1811,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String invoiceDetailsRepliedHelp(String service) {
+    return 'Если $service не опубликовал платёж, отправьте его снова: ничего не подписывается дважды. Если он так и не будет опубликован, отмена станет доступна, когда истечёт время платежа, примерно через сутки после оплаты.';
+  }
+
+  @override
   String invoiceDetailsPosted(String service) {
     return 'Сервис $service сообщает, что опубликовал платёж. Он завершится, когда сеть его подтвердит.';
   }

@@ -2386,6 +2386,12 @@ abstract class AppLocalizations {
   /// **'Waiting for {service} to post the payment.'**
   String invoiceDetailsReplied(String service);
 
+  /// Paid invoice's details while the service has not posted the payment: Send again delivers the stored reply again, and when Cancel becomes available. The payment's time to live is 1440 blocks, about a day. service is the name the user gave the service.
+  ///
+  /// In en, this message translates to:
+  /// **'If {service} has not posted it, send the payment again: nothing is signed twice. If it is never posted, Cancel becomes available once the payment\'s time runs out, about a day after you paid.'**
+  String invoiceDetailsRepliedHelp(String service);
+
   /// Paid invoice's details after the service's receipt arrived. The receipt only informs: the status above comes from the chain. service is the name the user gave the service.
   ///
   /// In en, this message translates to:
