@@ -1644,10 +1644,10 @@ void main() {
         );
       await tester.pumpAndSettle();
       await tester.pump(statusSettle);
-      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Offline');
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Not connected');
       expect(
         _statusTip(tester, epicboxStatusKey),
-        contains('Epicbox offline, reconnecting.'),
+        contains('Your wallet is not connected to its Epicbox server and keeps trying.'),
       );
       expect(find.textContaining('connection reset'), findsNothing);
     });
@@ -1883,7 +1883,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(_statusWord(tester, nodeStatusKey), 'Node, Synced');
-      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Online');
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Connected');
       expect(find.textContaining('Up to date'), findsNothing);
       expect(find.textContaining('receive payments'), findsNothing);
     });
@@ -4082,7 +4082,7 @@ void main() {
       h.session.listenerEvents.addError(StateError('relay closed'));
       await tester.pumpAndSettle();
       await tester.pump(statusSettle);
-      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Offline');
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Not connected');
     });
 
     testWidgets('with reduced motion a tap cuts to the tab', (tester) async {

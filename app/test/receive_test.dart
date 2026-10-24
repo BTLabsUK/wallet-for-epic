@@ -506,22 +506,22 @@ void main() {
       expect(find.text('Retry'), findsNothing);
 
       await h.listener(tester, ListenerEventKind.connected);
-      expect(find.text('Epicbox online'), findsOneWidget);
+      expect(find.text('Epicbox connected'), findsOneWidget);
       expect(find.byIcon(Icons.mark_email_read_outlined), findsOneWidget);
       expect(find.text('Retry'), findsNothing);
 
       await h.listener(tester, ListenerEventKind.disconnected);
-      expect(find.text('Epicbox offline'), findsOneWidget);
+      expect(find.text('Epicbox not connected'), findsOneWidget);
       expect(find.textContaining('wait at epicbox'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
-      expect(find.text('Epicbox online'), findsOneWidget);
+      expect(find.text('Epicbox connected'), findsOneWidget);
       expect(find.textContaining('wait at epicbox'), findsNothing);
 
       // A stopped listener receives nothing either.
       await h.listener(tester, ListenerEventKind.stopped);
-      expect(find.text('Epicbox offline'), findsOneWidget);
+      expect(find.text('Epicbox not connected'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
     });
 
@@ -548,7 +548,7 @@ void main() {
       expect(find.text('Epicbox connecting'), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
-      expect(find.text('Epicbox online'), findsOneWidget);
+      expect(find.text('Epicbox connected'), findsOneWidget);
     });
 
     testWidgets(
@@ -576,7 +576,7 @@ void main() {
       await h.session.listenerEvents.close();
       await tester.pumpAndSettle();
       expect(h.container.read(listenerProvider).stopped, isTrue);
-      expect(find.text('Epicbox offline'), findsOneWidget);
+      expect(find.text('Epicbox not connected'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
     });
 

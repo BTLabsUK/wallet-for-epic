@@ -288,7 +288,7 @@ void main() {
         _hint(tester, nodeStatusKey),
         '${_tip_(tester, nodeStatusKey)}\nShows the servers',
       );
-      expect(_label(tester, epicboxStatusKey), 'Epicbox, Online');
+      expect(_label(tester, epicboxStatusKey), 'Epicbox, Connected');
       expect(_icon(tester, epicboxStatusKey), Icons.mark_email_read_outlined);
       expect(_dot(tester, epicboxStatusKey), t.ok);
       expect(
@@ -405,12 +405,12 @@ void main() {
       expect(_icon(tester, nodeStatusKey), Icons.cloud_off);
       expect(_dot(tester, nodeStatusKey), t.risk);
       expect(_tip_(tester, nodeStatusKey), startsWith('Node unreachable.'));
-      expect(_label(tester, epicboxStatusKey), 'Epicbox, Offline');
+      expect(_label(tester, epicboxStatusKey), 'Epicbox, Not connected');
       expect(_icon(tester, epicboxStatusKey), Icons.unsubscribe_outlined);
       expect(_dot(tester, epicboxStatusKey), t.risk);
       expect(
         _tip_(tester, epicboxStatusKey),
-        startsWith('Epicbox offline, reconnecting.'),
+        startsWith('Your wallet is not connected to its Epicbox server and keeps trying.'),
       );
     });
 
@@ -433,7 +433,7 @@ void main() {
       final handle = tester.ensureSemantics();
       await _pump(tester, listener: _lost);
       expect(find.bySemanticsLabel('Node, Synced'), findsOneWidget);
-      expect(find.bySemanticsLabel('Epicbox, Offline'), findsOneWidget);
+      expect(find.bySemanticsLabel('Epicbox, Not connected'), findsOneWidget);
       handle.dispose();
     });
 
@@ -498,7 +498,7 @@ void main() {
       expect(_label(tester, nodeStatusKey), 'Node, Synced, Over Tor');
       expect(_dot(tester, nodeStatusKey), t.ok);
       expect(_tip_(tester, nodeStatusKey), endsWith('\nOver Tor'));
-      expect(_label(tester, epicboxStatusKey), 'Epicbox, Online, Over Tor');
+      expect(_label(tester, epicboxStatusKey), 'Epicbox, Connected, Over Tor');
       expect(_opacity(tester, torIconKey), 1);
     });
 
