@@ -13962,4 +13962,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get linkFinishCurrentFirst => '请先完成当前付款。';
+
+  @override
+  String get deskSendToQrPayment => '这是二维码付款码，请用 Epic Cash Mobile 扫描。';
 }

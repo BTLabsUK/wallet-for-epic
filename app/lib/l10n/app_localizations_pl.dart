@@ -15190,4 +15190,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get linkFinishCurrentFirst => 'Najpierw dokończ bieżącą płatność.';
+
+  @override
+  String get deskSendToQrPayment =>
+      'Kod Płatności QR. Zeskanuj go w Epic Cash Mobile.';
 }

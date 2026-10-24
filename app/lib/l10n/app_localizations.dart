@@ -23425,6 +23425,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Finish the current payment first.'**
   String get linkFinishCurrentFirst;
+
+  /// Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (Epic Cash Mobile) reads. 'QR Payment' is the method's name.
+  ///
+  /// In en, this message translates to:
+  /// **'A QR Payment code. Scan it with Epic Cash Mobile.'**
+  String get deskSendToQrPayment;
 }
 
 class _AppLocalizationsDelegate

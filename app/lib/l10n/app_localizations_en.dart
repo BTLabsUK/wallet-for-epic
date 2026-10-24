@@ -14753,4 +14753,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkFinishCurrentFirst => 'Finish the current payment first.';
+
+  @override
+  String get deskSendToQrPayment =>
+      'A QR Payment code. Scan it with Epic Cash Mobile.';
 }

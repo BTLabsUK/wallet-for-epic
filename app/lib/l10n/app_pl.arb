@@ -3923,5 +3923,6 @@
   "scanCodeTextLabel": "Zeskanowany tekst",
   "scanCopied": "Skopiowano",
   "linkWaitingNotice": "Otrzymano link płatności",
-  "linkFinishCurrentFirst": "Najpierw dokończ bieżącą płatność."
+  "linkFinishCurrentFirst": "Najpierw dokończ bieżącą płatność.",
+  "deskSendToQrPayment": "Kod Płatności QR. Zeskanuj go w Epic Cash Mobile."
 }

@@ -15155,4 +15155,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get linkFinishCurrentFirst => 'Сначала завершите текущий платёж.';
+
+  @override
+  String get deskSendToQrPayment =>
+      'Код «Оплата по QR». Отсканируйте его в Epic Cash Mobile.';
 }
