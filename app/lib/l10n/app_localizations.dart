@@ -9384,6 +9384,2274 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}'**
   String sendUsesAllOutputs(int count);
+
+  /// Transaction method name for a payment made with a file (not Epicbox, HTTP or Tor). Table cell and detail value; one short word.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get deskTxMethodFile;
+
+  /// Who the other side of a transaction is when it is a mining reward. Activity table name column; short.
+  ///
+  /// In en, this message translates to:
+  /// **'Mining reward'**
+  String get deskTxMiningReward;
+
+  /// Name column of an Activity row for a payment restored from a history backup with no sender known (incoming); also the status word of a confirmed incoming payment and the semantics label. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get deskTxReceived;
+
+  /// Name column of an Activity row for a payment restored from a history backup with no recipient known (outgoing); also the status word of a confirmed outgoing payment. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get deskTxSent;
+
+  /// Name column of an Activity row for an incoming payment whose sender is not recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown sender'**
+  String get deskTxUnknownSender;
+
+  /// Name column of an Activity row for an outgoing payment whose recipient is not recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown recipient'**
+  String get deskTxUnknownRecipient;
+
+  /// Small note under the Date step of a payment found by a scan, when the date comes from the block.
+  ///
+  /// In en, this message translates to:
+  /// **'Block time. The sender is not recorded.'**
+  String get deskTxNoteBlock;
+
+  /// Small note under the Date step of a payment found by a scan, when the block's time could not be read so the time of the scan is shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Time of the scan; the block\'s time could not be read. The sender is not recorded.'**
+  String get deskTxNoteScanTime;
+
+  /// Small note under the first step of a payment found by a scan when the scan type is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'The sender is not recorded.'**
+  String get deskTxNoteUnknown;
+
+  /// Name of a payment found while restoring the wallet. Activity table, narrow; one word.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored'**
+  String get deskTxFoundRestoredLabel;
+
+  /// Small line under the name of a payment found while restoring the wallet. Activity table, narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Found while restoring'**
+  String get deskTxFoundRestoredLine;
+
+  /// First step on the transaction detail timeline for a payment found while restoring the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Found while restoring this wallet'**
+  String get deskTxFoundRestoredStep;
+
+  /// Tooltip on a payment found while restoring the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Found on the chain while restoring this wallet. The sender is not recorded.'**
+  String get deskTxFoundRestoredTip;
+
+  /// Name of a payment found by a scan (balance recheck or any scan). Activity table, narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Found by scan'**
+  String get deskTxFoundRescanLabel;
+
+  /// Small line under the name of a payment found by a balance recheck. Activity table, narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Found by a balance recheck'**
+  String get deskTxFoundRescanLine;
+
+  /// First step on the transaction detail timeline for a payment found by a balance recheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Found by a balance recheck'**
+  String get deskTxFoundRescanStep;
+
+  /// Tooltip on a payment found by a balance recheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Found on the chain by a balance recheck. The sender is not recorded.'**
+  String get deskTxFoundRescanTip;
+
+  /// Small line under the name of a payment found by a scan of unknown kind. Activity table, narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Found by a scan'**
+  String get deskTxFoundScanLine;
+
+  /// First step on the transaction detail timeline for a payment found by a scan of unknown kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Found by a scan'**
+  String get deskTxFoundScanStep;
+
+  /// Tooltip on a payment found by a scan of unknown kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Found on the chain by a scan. The sender is not recorded.'**
+  String get deskTxFoundScanTip;
+
+  /// Tooltip on a payment that was added from a history backup file.
+  ///
+  /// In en, this message translates to:
+  /// **'Added from a history backup.'**
+  String get deskTxBackupTip;
+
+  /// Status and small line of a payment that came from a history backup. Activity table, narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'From backup'**
+  String get deskTxFromBackup;
+
+  /// Status of a mining reward not yet spendable. Activity table status column, narrow; one word.
+  ///
+  /// In en, this message translates to:
+  /// **'Immature'**
+  String get deskTxStatusImmature;
+
+  /// Status of an incoming payment that waits for the sender to finalize it. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for sender to finalize'**
+  String get deskTxStatusWaitingSender;
+
+  /// Status of an outgoing file payment that waits for the response file from the recipient. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the response file'**
+  String get deskTxStatusWaitingResponseFile;
+
+  /// Status of an outgoing payment that waits for the recipient to sign. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for recipient to sign'**
+  String get deskTxStatusWaitingRecipient;
+
+  /// Status of a payment that was sent to the network and waits to be put in a block. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a block'**
+  String get deskTxStatusWaitingBlock;
+
+  /// Status of a payment on the chain: how many confirmations it has of how many are needed. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming {confirmations}/{needed}'**
+  String deskTxStatusConfirming(int confirmations, int needed);
+
+  /// Status of a cancelled payment. Narrow status column; one word.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get deskTxStatusCancelled;
+
+  /// Lower case, inside a sentence such as 'Last transaction: today'.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get deskTxToday;
+
+  /// Lower case, inside a sentence such as 'Last transaction: yesterday'.
+  ///
+  /// In en, this message translates to:
+  /// **'yesterday'**
+  String get deskTxYesterday;
+
+  /// How long ago a payment was, from 2 to 6 days. Inside a sentence such as 'Last transaction: 3 days ago'.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} day ago} other{{count} days ago}}'**
+  String deskTxDaysAgo(int count);
+
+  /// Compact row time: today with the clock time.
+  ///
+  /// In en, this message translates to:
+  /// **'Today {time}'**
+  String deskTxTodayAt(String time);
+
+  /// Day separator above the Activity list for today. The date is a full weekday and date.
+  ///
+  /// In en, this message translates to:
+  /// **'Today · {date}'**
+  String deskTxDayToday(String date);
+
+  /// Day separator above the Activity list for yesterday. The date is a full weekday and date.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday · {date}'**
+  String deskTxDayYesterday(String date);
+
+  /// Small line under the amount of an outgoing payment: the network fee. The amount is a number without the unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee {amount}'**
+  String deskTxFee(String amount);
+
+  /// Small line under a payment that has a payment proof.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment proof'**
+  String get deskTxPaymentProof;
+
+  /// Button in an Activity row of an outgoing file payment: finalize it with the response file. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalize'**
+  String get deskTxFinalize;
+
+  /// Screen reader label of an Activity row for a payment received.
+  ///
+  /// In en, this message translates to:
+  /// **'Received {amount}, {who}, {status}'**
+  String deskTxSemReceived(String amount, String who, String status);
+
+  /// Screen reader label of an Activity row for a payment sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {amount}, {who}, {status}'**
+  String deskTxSemSent(String amount, String who, String status);
+
+  /// Screen reader label of an Activity row for an invoice or request; kind is a word such as Unpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} {amount}, {who}, {status}'**
+  String deskTxSemKind(String kind, String amount, String who, String status);
+
+  /// Screen reader words for an amount hidden by the 'hide amounts' setting.
+  ///
+  /// In en, this message translates to:
+  /// **'hidden amount'**
+  String get deskTxHiddenAmount;
+
+  /// Status line at the top of the transaction detail for a payment that came from a history backup.
+  ///
+  /// In en, this message translates to:
+  /// **'From backup; the chain was not asked.'**
+  String get deskTxNowBackup;
+
+  /// Status line at the top of the transaction detail for a mining reward that is not yet spendable.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Confirmed, but a mining reward is spendable only after {count} confirmation.} other{Confirmed, but a mining reward is spendable only after {count} confirmations.}}'**
+  String deskTxNowImmature(int count);
+
+  /// Status line on the transaction detail: an incoming payment this wallet signed and sent back.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed and returned. Waiting for the sender to finalize.'**
+  String get deskTxNowWaitingSender;
+
+  /// Status line on the transaction detail: an outgoing file payment waiting for the recipient's response file.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the response file. Finalize when it arrives.'**
+  String get deskTxNowWaitingResponseFile;
+
+  /// Status line on the transaction detail: an outgoing payment waiting for the recipient to sign.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the recipient to sign. Nothing leaves the wallet until it is finalized.'**
+  String get deskTxNowWaitingRecipient;
+
+  /// Status line on the transaction detail: a payment was sent to the network and is not in a block yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted to the network, waiting for a block.'**
+  String get deskTxNowPosted;
+
+  /// Status line on the transaction detail: how many confirmations a payment has of how many it needs.
+  ///
+  /// In en, this message translates to:
+  /// **'{needed, plural, one{In a block, {confirmations} of {needed} confirmation.} other{In a block, {confirmations} of {needed} confirmations.}}'**
+  String deskTxNowConfirming(int confirmations, int needed);
+
+  /// Status line on the transaction detail for a confirmed payment.
+  ///
+  /// In en, this message translates to:
+  /// **'{confirmations, plural, one{Confirmed, {confirmations} confirmation.} other{Confirmed, {confirmations} confirmations.}}'**
+  String deskTxNowConfirmed(int confirmations);
+
+  /// Status line on the transaction detail for a cancelled payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled.'**
+  String get deskTxNowCancelled;
+
+  /// Title of the toast when cancelling a payment failed; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Not cancelled'**
+  String get deskTxNotCancelled;
+
+  /// Toast after a payment was cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction cancelled'**
+  String get deskTxCancelled;
+
+  /// Label of the Cancel button on the transaction detail while the cancel is running. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling'**
+  String get deskTxCancelling;
+
+  /// Small line under the big amount on the transaction detail: the payment was found while restoring the wallet. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'restored'**
+  String get deskTxHeadRestored;
+
+  /// Small line under the big amount on the transaction detail: the payment was found by a scan. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'found on the chain'**
+  String get deskTxHeadFoundOnChain;
+
+  /// Small line under the big amount on the transaction detail: the payment came from a history backup. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'added from a history backup'**
+  String get deskTxHeadBackup;
+
+  /// Small line under the big amount on the transaction detail for an incoming payment. The name is shown in a different style; keep the placeholder as one piece. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'from {who}'**
+  String deskTxHeadFrom(String who);
+
+  /// Small line under the big amount on the transaction detail for an outgoing payment. The name is shown in a different style; keep the placeholder as one piece. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'to {who}'**
+  String deskTxHeadTo(String who);
+
+  /// Section heading on the transaction detail: the timeline of steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get deskTxSubProgress;
+
+  /// Section heading on the transaction detail: the facts list.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get deskTxSubDetails;
+
+  /// Label in the facts list on the transaction detail. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get deskTxFactDate;
+
+  /// Label in the facts list on the transaction detail for an incoming payment's sender address. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get deskTxFactFrom;
+
+  /// Label in the facts list on the transaction detail for an outgoing payment's recipient address. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get deskTxFactTo;
+
+  /// Tooltip of the copy button next to the address on the transaction detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get deskTxCopyAddress;
+
+  /// Label in the facts list on the transaction detail: how the payment travelled (Epicbox, HTTP, Tor, file). Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get deskTxFactMethod;
+
+  /// Label in the facts list on the transaction detail. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get deskTxFactAmount;
+
+  /// Label in the facts list on the transaction detail: the network fee. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee'**
+  String get deskTxFactFee;
+
+  /// Label in the facts list on the transaction detail: amount plus fee. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get deskTxFactTotal;
+
+  /// Label in the facts list on the transaction detail: the note attached to the payment. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get deskTxFactMessage;
+
+  /// Payment proof line on the transaction detail, and a step of the timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed by the recipient'**
+  String get deskTxSignedByRecipient;
+
+  /// Button on the transaction detail that opens the payment proof. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get deskTxProofView;
+
+  /// Collapsible section on the transaction detail with technical identifiers.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details'**
+  String get deskTxTechTitle;
+
+  /// Technical details label: the wallet's internal number of the transaction. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Id'**
+  String get deskTxTechId;
+
+  /// Technical details label: the slate id, a unique id of the payment. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Slate id'**
+  String get deskTxTechSlate;
+
+  /// Tooltip of the copy button next to the slate id.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy slate id'**
+  String get deskTxCopySlate;
+
+  /// Technical details label: the block height. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get deskTxTechHeight;
+
+  /// Technical details label: the transaction kernel. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Kernel'**
+  String get deskTxTechKernel;
+
+  /// Technical details label: when the payment was confirmed. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get deskTxTechConfirmed;
+
+  /// Technical details label: the amount added to the balance. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Credited'**
+  String get deskTxTechCredited;
+
+  /// Technical details label: the amount taken from the balance. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Debited'**
+  String get deskTxTechDebited;
+
+  /// Technical details label: the internal state name. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get deskTxTechStatus;
+
+  /// Technical details label: the core's transaction type name. Narrow label column.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get deskTxTechType;
+
+  /// Timeline step of a mining reward.
+  ///
+  /// In en, this message translates to:
+  /// **'Mined in a block'**
+  String get deskTxStepMined;
+
+  /// Timeline step: the payment can be spent. Also the status of a payment that has enough confirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable'**
+  String get deskTxStepSpendable;
+
+  /// Small line under the Spendable step of a mining reward.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} block to go} other{{count} blocks to go}}'**
+  String deskTxStepBlocksToGo(int count);
+
+  /// Timeline step of an incoming payment: the sender's first message arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received slate'**
+  String get deskTxStepReceivedSlate;
+
+  /// Timeline step of an outgoing payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Created and signed'**
+  String get deskTxStepCreated;
+
+  /// Timeline step of an incoming payment: this wallet signed and sent it back.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed and returned'**
+  String get deskTxStepSignedReturned;
+
+  /// Small line under a timeline step of an outgoing file payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the response file'**
+  String get deskTxStepWaitingFile;
+
+  /// Small line under a timeline step of an outgoing payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the recipient'**
+  String get deskTxStepWaitingRecipient;
+
+  /// Timeline step: the payment was sent to the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted to the network'**
+  String get deskTxStepPosted;
+
+  /// Timeline step: the payment is in a block and collecting confirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get deskTxStepConfirming;
+
+  /// Small line under the Confirming step: confirmations so far of how many are needed.
+  ///
+  /// In en, this message translates to:
+  /// **'{confirmations} of {needed}'**
+  String deskTxStepProgress(int confirmations, int needed);
+
+  /// Title of the dialog that asks before cancelling an incoming payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this payment?'**
+  String get deskTxCancelIncomingTitle;
+
+  /// Title of the dialog that asks before cancelling an outgoing payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this send?'**
+  String get deskTxCancelOutgoingTitle;
+
+  /// Body of the dialog that asks before cancelling an incoming payment.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.'**
+  String deskTxCancelIncomingBody(String amount, String who);
+
+  /// Body of the dialog that asks before cancelling an outgoing payment.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC to {who}. The locked amount returns to the balance. If the recipient already finalized it, it may still confirm.'**
+  String deskTxCancelOutgoingBody(String amount, String who);
+
+  /// Button in the cancel dialog that leaves the payment as it is. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get deskTxCancelKeep;
+
+  /// Danger button in the cancel dialog for an incoming payment. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel payment'**
+  String get deskTxCancelIncomingAction;
+
+  /// Danger button in the cancel dialog for an outgoing payment. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel send'**
+  String get deskTxCancelOutgoingAction;
+
+  /// Description in the payment proof dialog for an incoming payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Proves that this wallet received {amount} EPIC in this kernel.'**
+  String deskTxProofIncoming(String amount);
+
+  /// Description in the payment proof dialog for an outgoing payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Proves that the recipient received {amount} EPIC in this kernel.'**
+  String deskTxProofOutgoing(String amount);
+
+  /// Field label in the payment proof dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender address'**
+  String get deskTxProofSenderAddress;
+
+  /// Field label in the payment proof dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient address'**
+  String get deskTxProofRecipientAddress;
+
+  /// Field label in the payment proof dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient signature'**
+  String get deskTxProofRecipientSignature;
+
+  /// Tooltip of the copy button next to the kernel in the payment proof dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy kernel'**
+  String get deskTxProofCopyKernel;
+
+  /// Tooltip of the copy button next to the sender address in the payment proof dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy sender address'**
+  String get deskTxProofCopySender;
+
+  /// Tooltip of the copy button next to the recipient address in the payment proof dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy recipient address'**
+  String get deskTxProofCopyRecipient;
+
+  /// Tooltip of the copy button next to the recipient signature in the payment proof dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy recipient signature'**
+  String get deskTxProofCopySignature;
+
+  /// Primary button in the payment proof dialog: save the proof as a file. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get deskTxProofExport;
+
+  /// Toast title after the payment proof was saved to a file; the path follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof saved'**
+  String get deskTxProofSaved;
+
+  /// Title of the toast on Activity when the refresh could not ask the node; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Not updated'**
+  String get deskActNotUpdated;
+
+  /// Placeholder of the search field on Activity. Narrow field.
+  ///
+  /// In en, this message translates to:
+  /// **'Address or slate id'**
+  String get deskActSearchHint;
+
+  /// Placeholder of the search field on Activity when there are no transactions yet. Narrow field.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to search yet'**
+  String get deskActSearchHintEmpty;
+
+  /// Screen reader label of the search field on Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Search transactions'**
+  String get deskActSearchLabel;
+
+  /// Tooltip of the button that empties the search field; also the button of the 'no match' state.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get deskActClearSearch;
+
+  /// Tooltip of the icon button on Activity that shows the hidden amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Show amounts'**
+  String get deskActShowAmounts;
+
+  /// Tooltip of the icon button on Activity that hides amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get deskActHideAmounts;
+
+  /// Tooltip of the icon button on Activity that asks the node for new transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get deskActRefresh;
+
+  /// Title of the Activity page: the list of all transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get deskActTitle;
+
+  /// Title of the transaction detail for an incoming payment, in the pane beside the list or on its own page.
+  ///
+  /// In en, this message translates to:
+  /// **'Received transaction'**
+  String get deskActDetailReceived;
+
+  /// Title of the transaction detail for an outgoing payment, in the pane beside the list or on its own page.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent transaction'**
+  String get deskActDetailSent;
+
+  /// Line with a spinner on Activity while the transactions are being read.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading transactions'**
+  String get deskActLoading;
+
+  /// Line with a spinner on Activity while the node has not finished syncing, so there is no list yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the node to be synced.'**
+  String get deskActWaitingNode;
+
+  /// Filter tab on Activity: every transaction. Narrow tab; a count follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get deskActFilterAll;
+
+  /// Filter tab on Activity: incoming payments. Narrow tab; a count follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get deskActFilterReceived;
+
+  /// Filter tab on Activity: outgoing payments. Narrow tab; a count follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get deskActFilterSent;
+
+  /// Title of the empty state on Activity when the search and filter show nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions match'**
+  String get deskActNoMatchTitle;
+
+  /// Text of the empty state on Activity when the search and filter show nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another address or slate id, or clear the filter.'**
+  String get deskActNoMatchText;
+
+  /// Pager caption under the Activity list: the current page of all pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {pages}'**
+  String deskActPageOf(int page, int pages);
+
+  /// Tooltip of the pager's previous button.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get deskActPrevPage;
+
+  /// Tooltip of the pager's next button.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get deskActNextPage;
+
+  /// Screen reader label of the pager group.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get deskActPages;
+
+  /// Column header of the Activity table: who the other side is. Narrow header.
+  ///
+  /// In en, this message translates to:
+  /// **'From / to'**
+  String get deskActColFromTo;
+
+  /// Column header of the Activity table. Narrow header.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get deskActColStatus;
+
+  /// Column header of the Activity table: the clock time. Narrow header, right aligned.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get deskActColTime;
+
+  /// Column header of the Activity table. Narrow header, right aligned.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get deskActColAmount;
+
+  /// Title of the empty state on Activity when the wallet has no transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get deskActEmptyTitle;
+
+  /// Text of the empty state on Activity when the wallet has no transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Every payment sent or received is listed here, newest first, with who it was with and how far along it is.'**
+  String get deskActEmptyText;
+
+  /// Title of the first of three stages a payment goes through, in the empty state of Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get deskActStageWaiting;
+
+  /// Text of the first stage in the empty state of Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Both wallets sign it. Over Epicbox this is automatic.'**
+  String get deskActStageWaitingText;
+
+  /// Title of the second stage in the empty state of Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get deskActStageConfirming;
+
+  /// Text of the second stage in the empty state of Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'On the chain. About one block a minute.'**
+  String get deskActStageConfirmingText;
+
+  /// Title of the third stage in the empty state of Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable'**
+  String get deskActStageSpendable;
+
+  /// Text of the third stage in the empty state of Activity: the number of confirmations before the money can be spent; the minutes equal the confirmations (one block a minute).
+  ///
+  /// In en, this message translates to:
+  /// **'{needed, plural, one{After {needed} confirmation, about {needed} minute.} other{After {needed} confirmations, about {needed} minutes.}}'**
+  String deskActStageSpendableText(int needed);
+
+  /// Primary button in the empty state of Activity: opens the Receive page.
+  ///
+  /// In en, this message translates to:
+  /// **'Show address'**
+  String get deskActShowAddress;
+
+  /// Ghost button in the empty state of Activity: opens the page to import a payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive a file'**
+  String get deskActReceiveFile;
+
+  /// Title of the toast on Overview when the refresh could not ask the node; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Not updated'**
+  String get deskOvNotUpdated;
+
+  /// Title of the toast on Overview when the built-in node could not be started; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Node not started'**
+  String get deskOvNodeNotStarted;
+
+  /// Title of a notice on Overview: the saved node address was corrected.
+  ///
+  /// In en, this message translates to:
+  /// **'Node address updated'**
+  String get deskOvNodeAddrTitle;
+
+  /// Text of the notice about the corrected node address. The addresses stay as written.
+  ///
+  /// In en, this message translates to:
+  /// **'Now using node.epiccash.com instead of node.epiccash.com:3413.'**
+  String get deskOvNodeAddrText;
+
+  /// Title of a red notice on Overview: the node runs a version the wallet cannot use.
+  ///
+  /// In en, this message translates to:
+  /// **'This node’s version is not compatible with this wallet'**
+  String get deskOvNodeIncompatTitle;
+
+  /// Text of the incompatible-node notice: the node's address.
+  ///
+  /// In en, this message translates to:
+  /// **'Node: {url}'**
+  String deskOvNodeUrl(String url);
+
+  /// Button in the incompatible-node notice: switch to the public node. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Use public node'**
+  String get deskOvUsePublicNode;
+
+  /// Button in the incompatible-node notice: switch to the node built into the app. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Use local node'**
+  String get deskOvUseLocalNode;
+
+  /// Ghost button in the incompatible-node notice: dismiss it. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get deskOvHide;
+
+  /// Title of a red notice on Overview: the node does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Can’t reach the node at {url}'**
+  String deskOvCantReachNode(String url);
+
+  /// Text of the notice that the node does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Check that it is running and reachable. Balances may be out of date and sending is paused.'**
+  String get deskOvCantReachNodeText;
+
+  /// Label of the Start node button while the node is starting. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting'**
+  String get deskOvStarting;
+
+  /// Button in the node-down notice: start the built-in node. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Start node'**
+  String get deskOvStartNode;
+
+  /// Ghost button in the node-down notice: opens Settings for the node. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Node settings'**
+  String get deskOvNodeSettings;
+
+  /// Title of the Overview page: balance and recent activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get deskOvTitle;
+
+  /// Tooltip of the icon button on Overview that shows the hidden amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Show amounts'**
+  String get deskOvShowAmounts;
+
+  /// Tooltip of the icon button on Overview that hides amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get deskOvHideAmounts;
+
+  /// Tooltip of the icon button on Overview that asks the node for new data.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get deskOvRefresh;
+
+  /// Screen reader state of a start-up step that is finished. Lower case, follows the step's text.
+  ///
+  /// In en, this message translates to:
+  /// **'done'**
+  String get deskOvStepDone;
+
+  /// Screen reader state of a start-up step that is running. Lower case, follows the step's text.
+  ///
+  /// In en, this message translates to:
+  /// **'in progress'**
+  String get deskOvStepNow;
+
+  /// Screen reader state of a start-up step that has not started. Lower case, follows the step's text.
+  ///
+  /// In en, this message translates to:
+  /// **'pending'**
+  String get deskOvStepWait;
+
+  /// Screen reader label of a start-up step: its text and its state.
+  ///
+  /// In en, this message translates to:
+  /// **'{text}, {state}'**
+  String deskOvStepSemantics(String text, String state);
+
+  /// Screen reader label of the group of start-up steps shown after unlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting up'**
+  String get deskOvStartingUp;
+
+  /// Start-up step shown on Overview after unlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet unlocked'**
+  String get deskOvStepUnlocked;
+
+  /// Start-up step shown on Overview after unlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to node'**
+  String get deskOvStepConnected;
+
+  /// Start-up step shown on Overview after unlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating balances'**
+  String get deskOvStepUpdating;
+
+  /// Start-up step shown on Overview after unlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting Epicbox receiving'**
+  String get deskOvStepEpicbox;
+
+  /// Title of a notice on Overview while the node catches up with the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Node syncing: {percent}%'**
+  String deskOvSyncTitle(int percent);
+
+  /// Text of the node-syncing notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading blocks. Balances are what the wallet knew at block {block}. Sending opens when the node has caught up.'**
+  String deskOvSyncText(String block);
+
+  /// Screen reader label of the sync progress bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Node sync progress'**
+  String get deskOvSyncProgress;
+
+  /// Caption under the sync progress bar.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of the chain'**
+  String deskOvSyncOfChain(int percent);
+
+  /// Primary button on Overview of an empty wallet: opens Receive. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive EPIC'**
+  String get deskOvReceiveEpic;
+
+  /// Primary button on Overview: opens Send. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deskOvSend;
+
+  /// Button on Overview: opens Receive. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get deskOvReceive;
+
+  /// Small text under the buttons on Overview while Send is disabled until the node is synced.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending opens when the node is synced.'**
+  String get deskOvSendWaits;
+
+  /// Label above the big balance amount on Overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Available to spend'**
+  String get deskOvAvailable;
+
+  /// Small tag next to the balance: the balance is as of this block height.
+  ///
+  /// In en, this message translates to:
+  /// **'As of block {block}'**
+  String deskOvAsOfBlock(String block);
+
+  /// Text under the balance of an empty wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the Epicbox address to receive the first EPIC.'**
+  String get deskOvEmptyHint;
+
+  /// Small grey text after the dollar value of the whole balance on Overview. Starts with two spaces.
+  ///
+  /// In en, this message translates to:
+  /// **'  whole balance, CoinGecko'**
+  String get deskOvFiatNote;
+
+  /// Label of a balance cell under the big amount on Overview: the whole balance. Narrow cell, may wrap to two lines.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get deskOvBreakTotal;
+
+  /// Label of a balance cell on Overview: money still waiting for confirmations. Narrow cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get deskOvBreakConfirming;
+
+  /// Label of a balance cell on Overview: mining rewards not yet spendable. Narrow cell.
+  ///
+  /// In en, this message translates to:
+  /// **'Immature'**
+  String get deskOvBreakImmature;
+
+  /// Label of a balance cell on Overview: money of payments that wait to be finalized. Narrow cell, may wrap to two lines.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting finalization'**
+  String get deskOvBreakAwaiting;
+
+  /// Label of a balance cell on Overview: money locked in unfinished sends. Narrow cell, may wrap to two lines.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked in sends'**
+  String get deskOvBreakLocked;
+
+  /// Tag next to the balance label while the balance is being updated; also its screen reader label. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating'**
+  String get deskOvUpdating;
+
+  /// Screen reader label of the balance when amounts are hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden amount'**
+  String get deskOvHiddenAmount;
+
+  /// Line with a spinner in the Recent activity panel while the transactions load.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading transactions'**
+  String get deskOvLoading;
+
+  /// Title of the empty state of Recent activity.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get deskOvEmptyTitle;
+
+  /// Text of the empty state of Recent activity; blocks is the number of confirmations needed.
+  ///
+  /// In en, this message translates to:
+  /// **'{blocks, plural, one{Received EPIC shows here first as confirming, then as spendable after {blocks} block.} other{Received EPIC shows here first as confirming, then as spendable after {blocks} blocks.}}'**
+  String deskOvEmptyText(int blocks);
+
+  /// Primary button in the empty state of Recent activity: opens Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Show address'**
+  String get deskOvShowAddress;
+
+  /// Ghost button in the empty state of Recent activity: opens the page to import a payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive a file'**
+  String get deskOvReceiveFile;
+
+  /// Heading above the last transactions on Overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get deskOvRecent;
+
+  /// Link next to the Recent activity heading: opens Activity; count is the number of transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'View all {count}'**
+  String deskOvViewAll(int count);
+
+  /// Title of a notice on Overview: file payments waiting for the recipient's response file.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} file send open} other{{count} file sends open}}'**
+  String deskOvPendingFiles(int count);
+
+  /// Text of the notice about open file sends.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalize with the response file from the recipient.'**
+  String get deskOvPendingText;
+
+  /// Ghost button in the open-file-sends notice: opens the Finalize page. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalize'**
+  String get deskOvFinalize;
+
+  /// Title of the toast on Outputs when the refresh could not ask the node; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Not updated'**
+  String get deskOutNotUpdated;
+
+  /// Title of the Outputs page; also the screen reader label of the outputs table. Outputs are the coins the balance is made of.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs'**
+  String get deskOutTitle;
+
+  /// Tooltip of the icon button on Outputs that shows the hidden amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Show amounts'**
+  String get deskOutShowAmounts;
+
+  /// Tooltip of the icon button on Outputs that hides amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get deskOutHideAmounts;
+
+  /// Tooltip of the icon button on Outputs that asks the node for new data; also the button when the list could not be loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get deskOutRefresh;
+
+  /// Small note under the balance tiles on Outputs, shown while some outputs are locked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked outputs are being spent by a transaction in progress. Their change shows as awaiting finalization and is not in Total until the send is finalized, so Total counts the coins once.'**
+  String get deskOutLockedNote;
+
+  /// Intro paragraph on the Outputs page.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs are the pieces the balance is made of. A send spends whole outputs, pays the recipient and returns the rest as a new output; the spent ones are locked until the send confirms.'**
+  String get deskOutIntro;
+
+  /// Number of outputs, small caption next to an amount in the balance tiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} output} other{{count} outputs}}'**
+  String deskOutCount(int count);
+
+  /// Note on the Split and Consolidate cards while a send is still locking outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait until the send confirms (about 3 blocks).'**
+  String get deskOutCardWait;
+
+  /// Note on the Split card when there are no spendable outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to split yet.'**
+  String get deskOutSplitNothing;
+
+  /// Note on the Split card: how many outputs a split would spend.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Spends {count} output.} other{Spends {count} outputs.}}'**
+  String deskOutSplitSpends(int count);
+
+  /// Note on the Split card: how many outputs a split would spend and the lowest fee.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Spends {count} output. Fee from {fee} EPIC.} other{Spends {count} outputs. Fee from {fee} EPIC.}}'**
+  String deskOutSplitSpendsFee(int count, String fee);
+
+  /// Note on the Consolidate card when there are no spendable outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to consolidate yet.'**
+  String get deskOutConsNothing;
+
+  /// Note on the Consolidate card when there is only one spendable output.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to consolidate: one spendable output.'**
+  String get deskOutConsOne;
+
+  /// Note on the Consolidate card: how many outputs a consolidation merges into one.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} output into 1.} other{{count} outputs into 1.}}'**
+  String deskOutConsInto(int count);
+
+  /// Note on the Consolidate card: how many outputs a consolidation merges into one, and its fee.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} output into 1. Fee {fee} EPIC.} other{{count} outputs into 1. Fee {fee} EPIC.}}'**
+  String deskOutConsIntoFee(int count, String fee);
+
+  /// Title of the Split card on Outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Split'**
+  String get deskOutSplitCardTitle;
+
+  /// Text of the Split card on Outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes more outputs from the spendable balance, so several sends can follow each other without waiting.'**
+  String get deskOutSplitCardText;
+
+  /// Button of the Split card; opens a dialog. Keep the ellipsis. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Split…'**
+  String get deskOutSplitCardButton;
+
+  /// Title of the Consolidate card on Outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate'**
+  String get deskOutConsCardTitle;
+
+  /// Text of the Consolidate card on Outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Merges every spendable output into one. Smaller fees on the next send; everything is locked until it confirms.'**
+  String get deskOutConsCardText;
+
+  /// Button of the Consolidate card; opens a dialog. Keep the ellipsis. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate…'**
+  String get deskOutConsCardButton;
+
+  /// Title of the empty state on Outputs when the list could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs not loaded'**
+  String get deskOutNotLoadedTitle;
+
+  /// Text of the empty state on Outputs when the list could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh to try again.'**
+  String get deskOutNotLoadedText;
+
+  /// Line with a spinner on Outputs while the list loads.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading wallet data'**
+  String get deskOutLoading;
+
+  /// Title of the empty state on Outputs when the wallet has no outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'No outputs yet'**
+  String get deskOutNoneTitle;
+
+  /// Text of the empty state on Outputs when the wallet has no outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'The first payment received makes one. Split and Consolidate need something to work with.'**
+  String get deskOutNoneText;
+
+  /// Filter chip on Outputs: every output. Narrow chip; a count follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get deskOutFilterAll;
+
+  /// Filter chip on Outputs: outputs that can be spent now. Narrow chip; a count follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable'**
+  String get deskOutFilterSpendable;
+
+  /// Filter chip on Outputs: outputs waiting for confirmations. Narrow chip; a count follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get deskOutFilterConfirming;
+
+  /// Filter chip on Outputs: outputs locked by a send. Narrow chip; a count follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get deskOutFilterLocked;
+
+  /// Placeholder of the search field on Outputs. A commitment is the output's technical identifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Commitment'**
+  String get deskOutSearchHint;
+
+  /// Screen reader label of the search field on Outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Search outputs'**
+  String get deskOutSearchLabel;
+
+  /// Tooltip of the button that empties the search field on Outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get deskOutClearSearch;
+
+  /// Checkbox on Outputs: also list outputs that were already spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Show spent'**
+  String get deskOutShowSpent;
+
+  /// Title of the empty state on Outputs when the search and filter show nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No outputs match'**
+  String get deskOutNoMatchTitle;
+
+  /// Text of the empty state on Outputs when the search and filter show nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another commitment, or clear the filter.'**
+  String get deskOutNoMatchText;
+
+  /// Button of the 'no match' state on Outputs: empties the search and resets the filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filter'**
+  String get deskOutClearFilter;
+
+  /// Label of a balance tile on Outputs: money that can be spent now. Narrow tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable'**
+  String get deskOutTileSpendable;
+
+  /// Label of a balance tile on Outputs: money waiting for confirmations. Narrow tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get deskOutTileConfirming;
+
+  /// Label of a balance tile on Outputs: mining rewards not yet spendable. Narrow tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Immature'**
+  String get deskOutTileImmature;
+
+  /// Label of a balance tile on Outputs: money locked in unfinished sends. Narrow tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked in sends'**
+  String get deskOutTileLocked;
+
+  /// Label of a balance tile on Outputs: the whole balance. Narrow tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get deskOutTileTotal;
+
+  /// Title of the panel on Outputs with the settings Send uses.
+  ///
+  /// In en, this message translates to:
+  /// **'Defaults for sends'**
+  String get deskOutDefaultsTitle;
+
+  /// Setting title in the Defaults panel: which outputs a send spends.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy for sends'**
+  String get deskOutStrategyTitle;
+
+  /// Setting description under 'Strategy for sends'. 'Advanced' is a section of the Send page.
+  ///
+  /// In en, this message translates to:
+  /// **'Which outputs a send spends. Send can change it for one send under Advanced.'**
+  String get deskOutStrategyText;
+
+  /// Option of the strategy switch: spend the smallest outputs. Narrow segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest'**
+  String get deskOutStrategySmallest;
+
+  /// Option of the strategy switch: spend all outputs. Narrow segment.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get deskOutStrategyAll;
+
+  /// Help text of the strategy switch, shown as a toast and as the help button's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest spends the fewest small outputs and leaves the rest spendable. All spends everything and returns one output.'**
+  String get deskOutStrategyHelp;
+
+  /// Title of the toast that shows the strategy help.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest or All'**
+  String get deskOutStrategyHelpTitle;
+
+  /// Setting title in the Defaults panel (a switch); also its screen reader label.
+  ///
+  /// In en, this message translates to:
+  /// **'Split change'**
+  String get deskOutSplitChangeTitle;
+
+  /// Setting description under 'Split change'.
+  ///
+  /// In en, this message translates to:
+  /// **'When a send would leave fewer than 3 spendable outputs, its change comes back as up to 4 outputs. Costs 0.004 EPIC per extra output.'**
+  String get deskOutSplitChangeText;
+
+  /// Column header of the outputs table: the amount. Narrow header, right aligned.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get deskOutColValue;
+
+  /// Column header of the outputs table. Narrow header.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get deskOutColStatus;
+
+  /// Column header of the outputs table: number of confirmations. Narrow header, right aligned.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations'**
+  String get deskOutColConfirmations;
+
+  /// Column header of the outputs table: block height. Narrow header.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get deskOutColHeight;
+
+  /// Column header of the outputs table: the transaction the output belongs to. Narrow header.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction'**
+  String get deskOutColTransaction;
+
+  /// Column header of the outputs table: the output's technical identifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Commitment'**
+  String get deskOutColCommitment;
+
+  /// Status of an output that can be spent. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable'**
+  String get deskOutStatusSpendable;
+
+  /// Status of an output waiting for confirmations. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get deskOutStatusConfirming;
+
+  /// Small grey note after an output's status: how many confirmations it has. number is the count with thousands separators.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{number} confirmation} other{{number} confirmations}}'**
+  String deskOutConfirmations(int count, String number);
+
+  /// Status of an output of a payment still waiting to be finalized. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting finalization'**
+  String get deskOutStatusAwaiting;
+
+  /// Small grey note after the status 'Awaiting finalization'. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for the sender'**
+  String get deskOutNoteWaitingSender;
+
+  /// Status of an output made for an invoice that is not paid yet. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid invoice'**
+  String get deskOutStatusUnpaid;
+
+  /// Small grey note after the status 'Unpaid invoice'. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'not in the balance'**
+  String get deskOutNoteNotInBalance;
+
+  /// Status of a mining reward output that cannot be spent yet. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Immature'**
+  String get deskOutStatusImmature;
+
+  /// Small grey note after the status 'Immature': blocks until it can be spent. number is the count with thousands separators.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{number} block to go} other{{number} blocks to go}}'**
+  String deskOutNoteBlocksToGo(int count, String number);
+
+  /// Status of an output that is a mining reward. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Mining'**
+  String get deskOutStatusMining;
+
+  /// Status of an output locked by a send. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get deskOutStatusLocked;
+
+  /// Small grey note after the status 'Locked': which send locked it.
+  ///
+  /// In en, this message translates to:
+  /// **'by send #{id}'**
+  String deskOutNoteBySend(int id);
+
+  /// Status of an output that was spent. Narrow status column.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent'**
+  String get deskOutStatusSpent;
+
+  /// Link in the outputs table to the transaction an output came from: incoming, with a short date.
+  ///
+  /// In en, this message translates to:
+  /// **'Received {date}'**
+  String deskOutTxReceived(String date);
+
+  /// Link in the outputs table to the transaction an output belongs to: outgoing, with a short date.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {date}'**
+  String deskOutTxSent(String date);
+
+  /// Tooltip of the copy button next to a commitment; short is its shortened form.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy commitment {short}'**
+  String deskOutCopyCommitment(String short);
+
+  /// Bold part of the Split and Consolidate dialog text: how many outputs are spent and what they hold.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} output ({amount} EPIC)} other{{count} outputs ({amount} EPIC)}}'**
+  String deskOutSplitSpentPart(int count, String amount);
+
+  /// Bold part of the Split dialog text: how many outputs are made and the size of each.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} outputs of about {amount} EPIC'**
+  String deskOutSplitMadePart(int count, String amount);
+
+  /// Bold part of the Consolidate dialog text: the single output that is made.
+  ///
+  /// In en, this message translates to:
+  /// **'one output of {amount} EPIC'**
+  String deskOutConsMadePart(String amount);
+
+  /// Paragraph in the Split dialog. The two placeholders are shown in bold; keep them as whole pieces.
+  ///
+  /// In en, this message translates to:
+  /// **'Spends {spent} and makes {made} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.'**
+  String deskOutSplitDialogText(String spent, String made);
+
+  /// Paragraph in the Consolidate dialog. The two placeholders are shown in bold; keep them as whole pieces.
+  ///
+  /// In en, this message translates to:
+  /// **'Spends {spent} and makes {made}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.'**
+  String deskOutConsDialogText(String spent, String made);
+
+  /// Label in the dialog's facts list: the fee of the transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Network fee'**
+  String get deskOutFactFee;
+
+  /// Label in the Split dialog's facts list: the size of every new output.
+  ///
+  /// In en, this message translates to:
+  /// **'Each output'**
+  String get deskOutFactEach;
+
+  /// Value in the Split dialog's facts list.
+  ///
+  /// In en, this message translates to:
+  /// **'about {amount} EPIC'**
+  String deskOutFactAbout(String amount);
+
+  /// Label in the dialog's facts list: the amount locked while the transaction confirms.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get deskOutFactLocked;
+
+  /// Value in the dialog's facts list: how much is locked and for how long.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC, about 3 blocks. Nothing stays spendable.'**
+  String deskOutFactLockedValue(String amount);
+
+  /// Label of the number stepper in the Split dialog; also its screen reader label.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs to make'**
+  String get deskOutMakeLabel;
+
+  /// Small text under 'Outputs to make': the allowed range.
+  ///
+  /// In en, this message translates to:
+  /// **'2 to 10.'**
+  String get deskOutMakeRange;
+
+  /// Tooltip of the minus button of the number stepper.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer'**
+  String get deskOutStepperFewer;
+
+  /// Tooltip of the plus button of the number stepper.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get deskOutStepperMore;
+
+  /// Line with a spinner in the dialog while the fee is estimated.
+  ///
+  /// In en, this message translates to:
+  /// **'Working out the fee'**
+  String get deskOutFeeWorking;
+
+  /// Title of the red notice in the dialog when the fee could not be estimated; the reason follows.
+  ///
+  /// In en, this message translates to:
+  /// **'No estimate'**
+  String get deskOutNoEstimate;
+
+  /// Warning in the Split dialog when the outputs would be too small.
+  ///
+  /// In en, this message translates to:
+  /// **'Each output must be at least 0.5 EPIC.'**
+  String get deskOutEachMin;
+
+  /// Warning in the Consolidate dialog when the outputs do not cover the fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough to pay the fee.'**
+  String get deskOutNotEnoughFee;
+
+  /// Primary button of the Split dialog: split into this many outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Split into {count}'**
+  String deskOutSplitInto(int count);
+
+  /// Primary button of the Consolidate dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate'**
+  String get deskOutConsolidateButton;
+
+  /// Line with a spinner in the Split dialog while the transaction is built and sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Building and posting the split. Keep the app open.'**
+  String get deskOutPostingSplit;
+
+  /// Line with a spinner in the Consolidate dialog while the transaction is built and sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Building and posting the consolidate. Keep the app open.'**
+  String get deskOutPostingCons;
+
+  /// Title of the green notice in the Split dialog when it worked.
+  ///
+  /// In en, this message translates to:
+  /// **'Split posted'**
+  String get deskOutSplitPosted;
+
+  /// Title of the green notice in the Consolidate dialog when it worked.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate posted'**
+  String get deskOutConsPosted;
+
+  /// Text of the green notice in the Split dialog when it worked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{The wallet now has {count} output of about {amount} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.} other{The wallet now has {count} outputs of about {amount} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.}}'**
+  String deskOutSplitDoneText(int count, String amount);
+
+  /// Text of the green notice in the Consolidate dialog when it worked.
+  ///
+  /// In en, this message translates to:
+  /// **'One output of {amount} EPIC, confirming. Everything is locked until it confirms (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.'**
+  String deskOutConsDoneText(String amount);
+
+  /// Title of the red notice when the node did not take the transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Not posted.'**
+  String get deskOutNotPostedTitle;
+
+  /// Text of the red notice in the Split dialog when the node did not take the transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'The split was built and stored, but the node did not take it. Post it again, or cancel it to unlock the outputs.'**
+  String get deskOutNotPostedSplit;
+
+  /// Text of the red notice in the Consolidate dialog when the node did not take the transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'The consolidate was built and stored, but the node did not take it. Post it again, or cancel it to unlock the outputs.'**
+  String get deskOutNotPostedCons;
+
+  /// Button in the Split dialog: cancel the stored transaction. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the split'**
+  String get deskOutCancelSplit;
+
+  /// Button in the Consolidate dialog: cancel the stored transaction. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the consolidate'**
+  String get deskOutCancelCons;
+
+  /// Primary button: send the stored transaction to the node again. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Post again'**
+  String get deskOutPostAgain;
+
+  /// Title of the red notice in the dialog when it failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not done'**
+  String get deskOutNotDoneTitle;
+
+  /// Text of the red notice in the dialog when it failed; error is the reason (a sentence without final full stop).
+  ///
+  /// In en, this message translates to:
+  /// **'{error}. The outputs are unchanged.'**
+  String deskOutNotDoneText(String error);
+
+  /// Reason shown when nothing more is known about why the split or consolidate failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get deskOutSomethingWrong;
+
+  /// Primary button of the failure state in the dialog. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskOutTryAgain;
+
+  /// Title of the toast when posting again failed; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Not posted'**
+  String get deskOutToastNotPosted;
+
+  /// Title of the toast when cancelling the stored transaction failed; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Not cancelled'**
+  String get deskOutToastNotCancelled;
+
+  /// Title of the Split dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Split outputs'**
+  String get deskOutSplitDialogTitle;
+
+  /// Title of the Consolidate dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate outputs'**
+  String get deskOutConsDialogTitle;
+
+  /// Description in the dialog header while posting.
+  ///
+  /// In en, this message translates to:
+  /// **'Posting.'**
+  String get deskOutPostingDesc;
+
+  /// Description in the dialog header when it worked.
+  ///
+  /// In en, this message translates to:
+  /// **'Done.'**
+  String get deskOutDoneDesc;
+
+  /// Description in the Split dialog header.
+  ///
+  /// In en, this message translates to:
+  /// **'More outputs, so several sends can follow each other.'**
+  String get deskOutSplitDesc;
+
+  /// Description in the Consolidate dialog header.
+  ///
+  /// In en, this message translates to:
+  /// **'One output instead of many.'**
+  String get deskOutConsDesc;
+
+  /// Text of the dialog shown when there is nothing to consolidate (the wallet has one spendable output, or the core says fewer than two); the placeholder is shown in bold.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to consolidate: the wallet has {what}. Consolidate merges several outputs into one.'**
+  String deskOutNothingText(String what);
+
+  /// Bold part of the 'nothing to consolidate' text.
+  ///
+  /// In en, this message translates to:
+  /// **'fewer than two spendable outputs'**
+  String get deskOutWhatFewer;
+
+  /// Bold part of the 'nothing to consolidate' text.
+  ///
+  /// In en, this message translates to:
+  /// **'one spendable output'**
+  String get deskOutWhatOne;
+
+  /// Title of the Contacts page: saved people and shops with their addresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get deskConTitle;
+
+  /// Line with a spinner on Contacts while the list loads.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading contacts'**
+  String get deskConLoading;
+
+  /// Title of the form for a new contact (page title on a narrow window, panel title and form heading).
+  ///
+  /// In en, this message translates to:
+  /// **'New contact'**
+  String get deskConNewTitle;
+
+  /// Title of the form for editing a contact (page title on a narrow window, panel title and form heading).
+  ///
+  /// In en, this message translates to:
+  /// **'Edit contact'**
+  String get deskConEditTitle;
+
+  /// Title of the panel beside the contact list when a contact is shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get deskConDetailsTitle;
+
+  /// Placeholder of the search field above the contact list.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or address'**
+  String get deskConSearchHint;
+
+  /// Screen reader label of the search field above the contact list.
+  ///
+  /// In en, this message translates to:
+  /// **'Search contacts'**
+  String get deskConSearchLabel;
+
+  /// Tooltip of the button that empties the contact search; also the button of the 'no contacts match' state.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get deskConClearSearch;
+
+  /// Number of saved contacts, above a long contact list.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} contact} other{{count} contacts}}'**
+  String deskConCount(int count);
+
+  /// Count line above the contact list when the search finds nobody.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches'**
+  String get deskConNoMatches;
+
+  /// Count line above the contact list while searching.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} match} other{{count} matches}}'**
+  String deskConMatches(int count);
+
+  /// Option of the sort switch above the contact list: sort by name. Narrow segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get deskConSortName;
+
+  /// Option of the sort switch above the contact list: most recently used first. Narrow segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get deskConSortRecent;
+
+  /// Line in the contact list when there are no contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'No contacts yet.'**
+  String get deskConNone;
+
+  /// Line in the contact list when the search finds nobody.
+  ///
+  /// In en, this message translates to:
+  /// **'No contacts match'**
+  String get deskConNoMatchList;
+
+  /// Button on Contacts that opens the form for a new contact. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Add contact'**
+  String get deskConAdd;
+
+  /// Text in the empty detail panel beside the contact list.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a contact to see their details, send to them, edit or delete them.'**
+  String get deskConIdle;
+
+  /// Title of the empty state of Contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'No contacts yet'**
+  String get deskConEmptyTitle;
+
+  /// Text of the empty state of Contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the people and shops paid often. On Send, pick a name instead of pasting an address.'**
+  String get deskConEmptyText;
+
+  /// Small text of the empty state of Contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts stay on this computer. They are not part of the recovery phrase.'**
+  String get deskConEmptyLocal;
+
+  /// Ghost button in the empty state of Contacts: opens Send without a contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to address'**
+  String get deskConSendToAddress;
+
+  /// Small line under a contact's name. The placeholder is a time such as 'today', '3 days ago' or '12 Oct'.
+  ///
+  /// In en, this message translates to:
+  /// **'Last transaction: {when}'**
+  String deskConLastTx(String when);
+
+  /// Primary button in a contact's detail: send to this contact. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deskConSend;
+
+  /// Button in a contact's detail: edit it. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get deskConEdit;
+
+  /// Button in a contact's detail: mark as favourite. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Star'**
+  String get deskConStar;
+
+  /// Button in a contact's detail: remove the favourite mark. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Unstar'**
+  String get deskConUnstar;
+
+  /// Danger button in a contact's detail: delete it. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deskConDelete;
+
+  /// Title of the toast when a contact could not be deleted; the reason follows as its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Not deleted'**
+  String get deskConNotDeleted;
+
+  /// Toast after a contact was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} was deleted'**
+  String deskConDeleted(String name);
+
+  /// Label above the address in a contact's detail, for an Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox address'**
+  String get deskConAddrEpicbox;
+
+  /// Label above the address in a contact's detail, for a Tor address.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor address'**
+  String get deskConAddrTor;
+
+  /// Label above the address in a contact's detail, for an HTTP address.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP address'**
+  String get deskConAddrHttp;
+
+  /// Label above the note in a contact's detail; also the label of the note field in the form.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get deskConNote;
+
+  /// Heading above the list of payments with this contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions with {name}'**
+  String deskConTxWith(String name);
+
+  /// Link next to the heading: opens Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'All transactions'**
+  String get deskConAllTx;
+
+  /// Text under the heading when there are no payments with this contact.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions with this contact yet. Payments sent to them from Send appear here.'**
+  String get deskConTxNone;
+
+  /// Title of a compact row in a contact's payments: an incoming payment. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get deskConTxReceived;
+
+  /// Title of a compact row in a contact's payments: an outgoing payment. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get deskConTxSent;
+
+  /// Error under the Name field of the contact form when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the contact a name.'**
+  String get deskConErrName;
+
+  /// Error under the Address field of the contact form when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an address.'**
+  String get deskConErrAddressEmpty;
+
+  /// Error under the Address field of the contact form when the text is not an address.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a recognised address'**
+  String get deskConErrAddressInvalid;
+
+  /// Small button in the contact form: add a picture. Only shown when contact pictures exist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add picture'**
+  String get deskConAddPicture;
+
+  /// Small button in the contact form: change the picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Change picture'**
+  String get deskConChangePicture;
+
+  /// Small button in the contact form: remove the picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get deskConRemovePicture;
+
+  /// Small text under the picture buttons in the contact form.
+  ///
+  /// In en, this message translates to:
+  /// **'PNG, JPEG, WebP or GIF, up to 10 MB. A small copy is kept in this app.'**
+  String get deskConPictureHelp;
+
+  /// Label of the Name field in the contact form.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get deskConFieldName;
+
+  /// Label of the Address field in the contact form.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get deskConFieldAddress;
+
+  /// Title of the red notice in the contact form when saving failed; the reason follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact not saved'**
+  String get deskConSaveFailed;
+
+  /// Primary button of the contact form. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Save contact'**
+  String get deskConSave;
+
+  /// Title of the dialog that asks before deleting a contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deskConDeleteTitle(String name);
+
+  /// Body of the dialog that asks before deleting a contact.
+  ///
+  /// In en, this message translates to:
+  /// **'The contact’s address and note are removed from this wallet. Past transactions stay in Activity. This cannot be undone.'**
+  String get deskConDeleteBody;
+
+  /// Button in the delete dialog: do not delete. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep contact'**
+  String get deskConKeep;
+
+  /// Danger button in the delete dialog. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete contact'**
+  String get deskConDeleteAction;
 }
 
 class _AppLocalizationsDelegate

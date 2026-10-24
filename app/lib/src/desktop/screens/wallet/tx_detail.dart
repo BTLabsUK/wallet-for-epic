@@ -21,21 +21,21 @@ class TxDetail extends ConsumerStatefulWidget {
 class _TxDetailState extends ConsumerState<TxDetail> {
   bool _cancelling = false;
 
-  String _now(Tx t) => t.fromBackup
-      ? 'From backup; the chain was not asked.'
+  String _now(AppLocalizations l, Tx t) => t.fromBackup
+      ? l.deskTxNowBackup
       : t.immature
-      ? 'Confirmed, but a mining reward is spendable only after $coinbaseMaturity confirmations.'
+      ? l.deskTxNowImmature(coinbaseMaturity)
       : switch (t.state) {
           TxState.waitingRecipient =>
             t.incoming
-                ? 'Signed and returned. Waiting for the sender to finalize.'
+                ? l.deskTxNowWaitingSender
                 : t.method == TxMethod.file
-                ? 'Waiting for the response file. Finalize when it arrives.'
-                : 'Waiting for the recipient to sign. Nothing leaves the wallet until it is finalized.',
-          TxState.posted => 'Posted to the network, waiting for a block.',
-          TxState.confirming => 'In a block, ${t.confirmations} of ${t.confirmationsNeeded} confirmations.',
-          TxState.confirmed => 'Confirmed, ${t.confirmations} confirmations.',
-          TxState.cancelled => 'Cancelled.',
+                ? l.deskTxNowWaitingResponseFile
+                : l.deskTxNowWaitingRecipient,
+          TxState.posted => l.deskTxNowPosted,
+          TxState.confirming => l.deskTxNowConfirming(t.confirmations, t.confirmationsNeeded),
+          TxState.confirmed => l.deskTxNowConfirmed(t.confirmations),
+          TxState.cancelled => l.deskTxNowCancelled,
         };
 
   Future<void> _cancel() async {
@@ -47,18 +47,19 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
-      showEToast(context, 'Not cancelled', text: deskErrorText(e));
+      showEToast(context, context.l10n.deskTxNotCancelled, text: deskErrorText(e, context.l10n));
       return;
     }
     if (!mounted) return;
     setState(() => _cancelling = false);
-    showEToast(context, 'Transaction cancelled');
+    showEToast(context, context.l10n.deskTxCancelled);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final l = context.l10n;
     final t = widget.tx;
     final total = t.amount + (t.incoming ? 0 : t.fee);
     // A send can be cancelled while it waits for the recipient, or when the node refused its
@@ -71,7 +72,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed
             : (t.cancellable && t.state == TxState.waitingRecipient) || t.notPosted);
     final finalizable = !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
-    final steps = _steps(t);
+    final steps = _steps(l, t);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -95,23 +96,27 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   if (txAsked(t) && t.state == TxState.waitingRecipient) Text(context.l10n.deskInvUnpaid, style: ts.caption),
                   const SizedBox(height: 2),
                   if (t.foundByScan && t.contactName == null)
-                    Text(t.foundDuring == FoundDuring.restore ? 'restored' : 'found on the chain', style: ts.small)
+                    Text(t.foundDuring == FoundDuring.restore ? l.deskTxHeadRestored : l.deskTxHeadFoundOnChain, style: ts.small)
                   else if (t.fromBackup && t.counterparty == null)
-                    Text('added from a history backup', style: ts.small)
+                    Text(l.deskTxHeadBackup, style: ts.small)
                   else
                     Text.rich(
                       TextSpan(
                         children: [
-                          TextSpan(text: t.incoming ? 'from ' : 'to '),
-                          TextSpan(
-                            text: whoOf(t),
-                            style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
-                          ),
+                          // The name sits in its own style: split the sentence at a marker.
+                          for (final (i, part) in (t.incoming ? l.deskTxHeadFrom('\u0001') : l.deskTxHeadTo('\u0001')).split('\u0001').indexed) ...[
+                            if (i > 0)
+                              TextSpan(
+                                text: whoOf(l, t),
+                                style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
+                              ),
+                            TextSpan(text: part),
+                          ],
                         ],
                       ),
                       style: ts.small,
                     ),
-                  if (whoTip(t) != null && !(t.fromBackup && t.counterparty == null)) ...[const SizedBox(height: 2), Text(whoTip(t)!, style: ts.small.copyWith(color: c.faint))],
+                  if (whoTip(l, t) != null && !(t.fromBackup && t.counterparty == null)) ...[const SizedBox(height: 2), Text(whoTip(l, t)!, style: ts.small.copyWith(color: c.faint))],
                 ],
               ),
             ),
@@ -130,19 +135,19 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             children: [
               TxStateMark(t),
               SizedBox(width: Sp.x3),
-              Expanded(child: Text(_now(t), style: ts.body)),
+              Expanded(child: Text(_now(l, t), style: ts.body)),
             ],
           ),
         ),
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
         if (t.isInvoice) TxInvoiceBlock(tx: t),
-        if (t.state != TxState.cancelled && !t.fromBackup && !t.isInvoice) ...[_Sub('Progress'), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
-        _Sub('Details'),
+        if (t.state != TxState.cancelled && !t.fromBackup && !t.isInvoice) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
+        _Sub(l.deskTxSubDetails),
         EFacts(labelWidth: 96.u, [
-          ('Date', Text(dateTimeOf(t))),
+          (l.deskTxFactDate, Text(dateTimeOf(l, t))),
           if (t.counterparty != null)
             (
-              t.incoming ? 'From' : 'To',
+              t.incoming ? l.deskTxFactFrom : l.deskTxFactTo,
               Row(
                 children: [
                   Expanded(
@@ -153,49 +158,49 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                       style: ts.mono(size: Fs.xs),
                     ),
                   ),
-                  ECopyButton(text: t.counterparty!, label: 'Copy address'),
+                  ECopyButton(text: t.counterparty!, label: l.deskTxCopyAddress),
                 ],
               ),
             ),
-          ('Method', Text(t.foundByScan ? '–' : methodLabel(t.method))),
-          ('Amount', EMoney(t.amount)),
-          if (!t.incoming) ...[('Fee', EMoney(t.fee)), ('Total', EMoney(total, weight: FontWeight.w600))],
-          if (t.message != null) ('Message', Text(t.message!)),
+          (l.deskTxFactMethod, Text(t.foundByScan ? '–' : methodLabel(l, t.method))),
+          (l.deskTxFactAmount, EMoney(t.amount)),
+          if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600))],
+          if (t.message != null) (l.deskTxFactMessage, Text(t.message!)),
         ]),
         if (DeskFeatures.paymentProofs && t.hasProof) ...[
-          _Sub('Payment proof'),
+          _Sub(l.deskTxPaymentProof),
           Row(
             children: [
               Icon(EIcons.proof, size: Ctl.iconSm, color: c.ok),
               SizedBox(width: Sp.x2),
-              Expanded(child: Text('Signed by the recipient', style: ts.small)),
-              EButton(label: 'View', kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => showTxProofDialog(context, t)),
+              Expanded(child: Text(l.deskTxSignedByRecipient, style: ts.small)),
+              EButton(label: l.deskTxProofView, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => showTxProofDialog(context, t)),
             ],
           ),
         ],
         SizedBox(height: Sp.x5),
         EDetails(
-          title: 'Technical details',
+          title: l.deskTxTechTitle,
           child: EFacts(labelWidth: 96.u, [
-            ('Id', Text('${t.id}', style: ts.mono(size: Fs.xs))),
+            (l.deskTxTechId, Text('${t.id}', style: ts.mono(size: Fs.xs))),
             (
-              'Slate id',
+              l.deskTxTechSlate,
               Row(
                 children: [
                   Expanded(
                     child: Text(t.slateId.isEmpty ? '-' : t.slateId, style: ts.mono(size: Fs.xs)),
                   ),
-                  if (t.slateId.isNotEmpty) ECopyButton(text: t.slateId, label: 'Copy slate id'),
+                  if (t.slateId.isNotEmpty) ECopyButton(text: t.slateId, label: l.deskTxCopySlate),
                 ],
               ),
             ),
-            ('Height', Text(t.height == null ? '-' : '${t.height}', style: ts.mono(size: Fs.xs))),
-            ('Kernel', Text(t.kernel ?? '-', style: ts.mono(size: Fs.xs))),
-            ('Confirmed', Text(t.confirmedAt == null ? '-' : dateTimeOf(t, at: t.confirmedAt))),
-            ('Credited', EMoney(t.incoming ? t.amount : 0, unit: false)),
-            ('Debited', EMoney(t.incoming ? 0 : t.amount + t.fee, unit: false)),
-            ('Status', Text(t.state.name, style: ts.mono(size: Fs.xs))),
-            ('Type', Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))),
+            (l.deskTxTechHeight, Text(t.height == null ? '-' : '${t.height}', style: ts.mono(size: Fs.xs))),
+            (l.deskTxTechKernel, Text(t.kernel ?? '-', style: ts.mono(size: Fs.xs))),
+            (l.deskTxTechConfirmed, Text(t.confirmedAt == null ? '-' : dateTimeOf(l, t, at: t.confirmedAt))),
+            (l.deskTxTechCredited, EMoney(t.incoming ? t.amount : 0, unit: false)),
+            (l.deskTxTechDebited, EMoney(t.incoming ? 0 : t.amount + t.fee, unit: false)),
+            (l.deskTxTechStatus, Text(t.state.name, style: ts.mono(size: Fs.xs))),
+            (l.deskTxTechType, Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))), // l10n-ok: the core's type names
           ]),
         ),
         if (cancelable || finalizable) ...[
@@ -206,7 +211,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             children: [
               if (cancelable)
                 EButton(
-                  label: _cancelling ? 'Cancelling' : 'Cancel',
+                  label: _cancelling ? l.deskTxCancelling : l.commonCancel,
                   icon: EIcons.cancel,
                   kind: EBtnKind.danger,
                   size: EBtnSize.sm,
@@ -216,7 +221,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               const Spacer(),
               if (finalizable)
                 EButton.primary(
-                  label: 'Finalize',
+                  label: l.deskTxFinalize,
                   icon: EIcons.fileDown,
                   size: EBtnSize.sm,
                   onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.finalize),
@@ -228,17 +233,17 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     );
   }
 
-  List<_Step> _steps(Tx t) {
+  List<_Step> _steps(AppLocalizations l, Tx t) {
     final at = t.created;
     String hm(Duration d) => timeOf(Tx(id: 0, slateId: '', direction: t.direction, state: t.state, method: t.method, amount: 0, fee: 0, created: at.add(d)));
     if (t.coinbase || t.foundByScan) {
       final left = coinbaseMaturity - t.confirmations;
       return [
-        _Step(t.coinbase ? 'Mined in a block' : foundTexts(t).step, _S.done, hm(Duration.zero), sub: t.coinbase ? null : foundTexts(t).note),
+        _Step(t.coinbase ? l.deskTxStepMined : foundTexts(l, t).step, _S.done, hm(Duration.zero), sub: t.coinbase ? null : foundTexts(l, t).note),
         if (t.coinbase)
-          _Step('Spendable', t.immature ? _S.now : _S.done, '', sub: t.immature ? '$left blocks to go' : null)
+          _Step(l.deskTxStepSpendable, t.immature ? _S.now : _S.done, '', sub: t.immature ? l.deskTxStepBlocksToGo(left) : null)
         else
-          _Step('Spendable', _S.done, ''),
+          _Step(l.deskTxStepSpendable, _S.done, ''),
       ];
     }
     final signed = t.state != TxState.waitingRecipient;
@@ -246,21 +251,21 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
     final done = t.state == TxState.confirmed;
     return [
-      _Step(t.incoming ? 'Received slate' : 'Created and signed', _S.done, hm(Duration.zero)),
+      _Step(t.incoming ? l.deskTxStepReceivedSlate : l.deskTxStepCreated, _S.done, hm(Duration.zero)),
       _Step(
-        t.incoming ? 'Signed and returned' : 'Signed by the recipient',
+        t.incoming ? l.deskTxStepSignedReturned : l.deskTxSignedByRecipient,
         signed ? _S.done : _S.now,
         signed ? hm(const Duration(seconds: 40)) : '',
-        sub: signed ? null : (t.method == TxMethod.file ? 'Waiting for the response file' : 'Waiting for the recipient'),
+        sub: signed ? null : (t.method == TxMethod.file ? l.deskTxStepWaitingFile : l.deskTxStepWaitingRecipient),
       ),
-      _Step('Posted to the network', posted ? _S.done : _S.todo, posted ? hm(const Duration(minutes: 1)) : ''),
+      _Step(l.deskTxStepPosted, posted ? _S.done : _S.todo, posted ? hm(const Duration(minutes: 1)) : ''),
       _Step(
-        'Confirming',
+        l.deskTxStepConfirming,
         done ? _S.done : (inBlock ? _S.now : _S.todo),
         inBlock ? hm(const Duration(minutes: 2)) : '',
-        sub: t.state == TxState.confirming ? '${t.confirmations} of ${t.confirmationsNeeded}' : null,
+        sub: t.state == TxState.confirming ? l.deskTxStepProgress(t.confirmations, t.confirmationsNeeded) : null,
       ),
-      _Step('Spendable', done ? _S.done : _S.todo, done ? hm(Duration(minutes: 2 + t.confirmationsNeeded)) : ''),
+      _Step(l.deskTxStepSpendable, done ? _S.done : _S.todo, done ? hm(Duration(minutes: 2 + t.confirmationsNeeded)) : ''),
     ];
   }
 }
@@ -370,20 +375,21 @@ class _Sub extends StatelessWidget {
 /// Asks before cancelling an unfinished send, or an incoming payment the node has not seen.
 Future<bool?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<bool>(
   context,
-  builder: (context) => EDialog(
-    title: t.incoming ? 'Cancel this payment?' : 'Cancel this send?',
-    icon: EIcons.cancel,
-    tone: ETone.risk,
-    description: t.incoming
-        ? '${formatEpic(t.amount)} EPIC from ${whoOf(t)} leaves your balance. The wallet asks the node first and '
-              'refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.'
-        : '${formatEpic(t.amount)} EPIC to ${whoOf(t)}. The locked amount returns to the balance. '
-              'If the recipient already finalized it, it may still confirm.',
-    actions: [
-      EButton(label: 'Keep', size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
-      EButton(label: t.incoming ? 'Cancel payment' : 'Cancel send', kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
-    ],
-  ),
+  builder: (context) {
+    final l = context.l10n;
+    return EDialog(
+      title: t.incoming ? l.deskTxCancelIncomingTitle : l.deskTxCancelOutgoingTitle,
+      icon: EIcons.cancel,
+      tone: ETone.risk,
+      description: t.incoming
+          ? l.deskTxCancelIncomingBody(formatEpic(t.amount), whoOf(l, t))
+          : l.deskTxCancelOutgoingBody(formatEpic(t.amount), whoOf(l, t)),
+      actions: [
+        EButton(label: l.deskTxCancelKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
+        EButton(label: t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+      ],
+    );
+  },
 );
 
 /// The payment proof: who signed what, with copy and export.
@@ -392,7 +398,8 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
   builder: (context) => Consumer(
     builder: (context, ref, _) {
       final ts = context.ts;
-      Widget field(String label, String value) => Padding(
+      final l = context.l10n;
+      Widget field(String label, String copyLabel, String value) => Padding(
         padding: EdgeInsets.only(bottom: Sp.x3),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -409,37 +416,37 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                ECopyButton(text: value, label: 'Copy $label'),
+                ECopyButton(text: value, label: copyLabel),
               ],
             ),
           ],
         ),
       );
       return EDialog(
-        title: 'Payment proof',
+        title: l.deskTxPaymentProof,
         icon: EIcons.proof,
         tone: ETone.ok,
-        description: 'Proves that ${t.incoming ? 'this wallet' : 'the recipient'} received ${formatEpic(t.amount)} EPIC in this kernel.',
+        description: t.incoming ? l.deskTxProofIncoming(formatEpic(t.amount)) : l.deskTxProofOutgoing(formatEpic(t.amount)),
         width: 520.u,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            field('Kernel', t.kernel ?? '-'),
-            field('Sender address', 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b'),
-            field('Recipient address', (t.counterparty ?? '').split('@').first),
-            field('Recipient signature', '3045022100c7a1e9f0b2d4a6c8e0f2b4d6a8c0e2f4b6d8a0c2e4f6b8d0a2c4e6f8b0d2a4c602205f'),
+            field(l.deskTxTechKernel, l.deskTxProofCopyKernel, t.kernel ?? '-'),
+            field(l.deskTxProofSenderAddress, l.deskTxProofCopySender, 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b'),
+            field(l.deskTxProofRecipientAddress, l.deskTxProofCopyRecipient, (t.counterparty ?? '').split('@').first),
+            field(l.deskTxProofRecipientSignature, l.deskTxProofCopySignature, '3045022100c7a1e9f0b2d4a6c8e0f2b4d6a8c0e2f4b6d8a0c2e4f6b8d0a2c4e6f8b0d2a4c602205f'),
           ],
         ),
         actions: [
-          EButton(label: 'Close', size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
+          EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
           EButton.primary(
-            label: 'Export',
+            label: l.deskTxProofExport,
             icon: EIcons.download,
             size: EBtnSize.sm,
             onPressed: () async {
               final path = await ref.read(deskApiProvider).exportProof(t.id);
               if (context.mounted) {
-                showEToast(context, 'Proof saved', text: path);
+                showEToast(context, l.deskTxProofSaved, text: path);
                 Navigator.pop(context);
               }
             },

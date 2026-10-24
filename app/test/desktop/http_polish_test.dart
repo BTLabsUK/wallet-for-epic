@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'review_password.dart';
@@ -51,7 +52,7 @@ void main() {
   });
 
   test('a split or consolidate is with this wallet', () {
-    expect(whoOf(deskTx(_entry(transport: 'self'), tip: 10, minConf: 10, fallbackId: -1)), 'This wallet');
+    expect(whoOf(englishStrings, deskTx(_entry(transport: 'self'), tip: 10, minConf: 10, fallbackId: -1)), 'This wallet');
   });
 
   group('Send result', () {

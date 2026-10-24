@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 
 class _Wallet extends MockDeskWallet {
@@ -225,9 +226,9 @@ void main() {
       created: DateTime(2026, 9, 14),
       fromBackup: true,
     );
-    expect(whoOf(t), 'Received');
-    expect(statusOf(t).$1, 'From backup');
-    expect(whoTip(t), 'Added from a history backup.');
+    expect(whoOf(englishStrings, t), 'Received');
+    expect(statusOf(englishStrings, t).$1, 'From backup');
+    expect(whoTip(englishStrings, t), 'Added from a history backup.');
     await _pump(tester, TxRow(tx: t, onTap: () {}));
     expect(find.text('Received'), findsOneWidget);
     expect(find.textContaining('From backup', findRichText: true), findsWidgets);

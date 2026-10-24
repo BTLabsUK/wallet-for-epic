@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models.dart' show nothingToConsolidate;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
 /// Where a Split or Consolidate dialog is.
@@ -37,7 +38,19 @@ Future<void> showConsolidateDialog(BuildContext context, {int? spendableCount, S
 /// Each split output must be at least this.
 const int _minEach = nanoPerEpic ~/ 2;
 
-const String _network = 'A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.';
+/// [template] with its numbered markers (\u0001, \u0002, ...) replaced by the bold [parts]: the
+/// translated sentence decides where each one goes.
+List<InlineSpan> _marked(String template, List<String> parts, TextStyle bold) {
+  final spans = <InlineSpan>[];
+  var from = 0;
+  for (final m in RegExp('[\u0001-\u0009]').allMatches(template)) {
+    if (m.start > from) spans.add(TextSpan(text: template.substring(from, m.start)));
+    spans.add(TextSpan(text: parts[template.codeUnitAt(m.start) - 1], style: bold));
+    from = m.end;
+  }
+  if (from < template.length) spans.add(TextSpan(text: template.substring(from)));
+  return spans;
+}
 
 class _SelfSendDialog extends ConsumerStatefulWidget {
   const _SelfSendDialog({required this.split, this.demo});
@@ -53,12 +66,14 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
   late int _n = widget.demo?.outputs ?? 4;
   SendEstimate? _est;
   String? _estError;
+  String? _estErrorText;
   bool _notEnough = false;
   bool _estimating = true;
   late SelfSendPhase _phase = widget.demo?.phase ?? SelfSendPhase.choose;
   SelfSend? _sent;
   late int? _txId = widget.demo?.phase == SelfSendPhase.notPosted ? widget.demo!.txId : null;
   String? _error;
+  String? _errorText;
   bool _busy = false;
   Timer? _debounce;
   int _asked = 0;
@@ -94,11 +109,14 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
       });
     } on Object catch (e) {
       if (!mounted || ask != _asked) return;
+      // The English text is what the checks compare; the user reads the translated one.
       final text = deskErrorText(e);
+      final shown = deskErrorText(e, context.l10n);
       setState(() {
         _est = null;
         _estError = text;
-        _notEnough = text == 'Not enough funds';
+        _estErrorText = shown;
+        _notEnough = text == 'Not enough funds'; // l10n-ok: compared with the English error text
         _estimating = false;
       });
     }
@@ -148,6 +166,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
           _phase = SelfSendPhase.notPosted;
         } else {
           _error = e.message;
+          _errorText = deskErrorText(e, context.l10n);
           _phase = SelfSendPhase.failed;
         }
       });
@@ -155,6 +174,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
       if (!mounted) return;
       setState(() {
         _error = deskErrorText(e);
+        _errorText = deskErrorText(e, context.l10n);
         _phase = SelfSendPhase.failed;
       });
     } finally {
@@ -171,7 +191,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
       if (!mounted) return;
       setState(() => _phase = SelfSendPhase.done);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Not posted', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, context.l10n.deskOutToastNotPosted, text: deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -187,7 +207,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showEToast(context, 'Not cancelled', text: deskErrorText(e), tone: ETone.risk);
+      showEToast(context, context.l10n.deskOutToastNotCancelled, text: deskErrorText(e, context.l10n), tone: ETone.risk);
     }
   }
 
@@ -197,7 +217,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final c = context.dc;
-    final word = _split ? 'split' : 'consolidate';
+    final l = context.l10n;
     final e = _est;
     final each = _each;
     final bold = TextStyle(color: c.text, fontWeight: FontWeight.w600);
@@ -207,20 +227,8 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
         : Text.rich(
             TextSpan(
               children: _split
-                  ? [
-                      const TextSpan(text: 'Spends '),
-                      TextSpan(text: '${e.inputCount} ${e.inputCount == 1 ? 'output' : 'outputs'} (${formatEpic(e.locked)} EPIC)', style: bold),
-                      const TextSpan(text: ' and makes '),
-                      TextSpan(text: '$_n outputs of about ${_e4(each!)} EPIC', style: bold),
-                      const TextSpan(text: ' each. $_network'),
-                    ]
-                  : [
-                      const TextSpan(text: 'Spends '),
-                      TextSpan(text: '${e.inputCount} outputs (${formatEpic(e.locked)} EPIC)', style: bold),
-                      const TextSpan(text: ' and makes '),
-                      TextSpan(text: 'one output of ${formatEpic(e.locked - e.fee)} EPIC', style: bold),
-                      const TextSpan(text: '. $_network The next send spends one output, so its fee is the smallest.'),
-                    ],
+                  ? _marked(l.deskOutSplitDialogText('\u0001', '\u0002'), [l.deskOutSplitSpentPart(e.inputCount, formatEpic(e.locked)), l.deskOutSplitMadePart(_n, _e4(each!))], bold)
+                  : _marked(l.deskOutConsDialogText('\u0001', '\u0002'), [l.deskOutSplitSpentPart(e.inputCount, formatEpic(e.locked)), l.deskOutConsMadePart(formatEpic(e.locked - e.fee))], bold),
             ),
             style: ts.bodyDim,
           );
@@ -228,9 +236,9 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
     final facts = e == null
         ? null
         : EFacts([
-            ('Network fee', Text('${formatEpic(e.fee, minDecimals: 3)} EPIC')),
-            if (_split) ('Each output', Text('about ${_e4(each!)} EPIC')),
-            ('Locked', Text('${formatEpic(e.locked)} EPIC, about 3 blocks. Nothing stays spendable.')),
+            (l.deskOutFactFee, Text('${formatEpic(e.fee, minDecimals: 3)} EPIC')),
+            if (_split) (l.deskOutFactEach, Text(l.deskOutFactAbout(_e4(each!)))),
+            (l.deskOutFactLocked, Text(l.deskOutFactLockedValue(formatEpic(e.locked)))),
           ]);
 
     final List<Widget> body;
@@ -249,10 +257,10 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [Text('Outputs to make', style: ts.strong), Text('2 to 10.', style: ts.small)],
+                    children: [Text(l.deskOutMakeLabel, style: ts.strong), Text(l.deskOutMakeRange, style: ts.small)],
                   ),
                 ),
-                EStepper(value: _n, min: 2, max: 10, onChanged: _setN, label: 'Outputs to make'),
+                EStepper(value: _n, min: 2, max: 10, onChanged: _setN, label: l.deskOutMakeLabel),
               ],
             ),
           ],
@@ -260,21 +268,21 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
           if (facts != null)
             facts
           else if (_estimating)
-            Row(children: [const ESpinner(), SizedBox(width: Sp.x3), Text('Working out the fee', style: ts.bodyDim)])
+            Row(children: [const ESpinner(), SizedBox(width: Sp.x3), Text(l.deskOutFeeWorking, style: ts.bodyDim)])
           else if (!_notEnough && !_nothing)
-            ENotice(title: 'No estimate', text: _estError, tone: ETone.risk),
+            ENotice(title: l.deskOutNoEstimate, text: _estErrorText, tone: ETone.risk),
           if (_tooSmall) ...[
             SizedBox(height: Sp.x2),
             Semantics(
               liveRegion: true,
-              child: Text(_split ? 'Each output must be at least 0.5 EPIC.' : 'Not enough to pay the fee.', style: ts.small.copyWith(color: c.warn)),
+              child: Text(_split ? l.deskOutEachMin : l.deskOutNotEnoughFee, style: ts.small.copyWith(color: c.warn)),
             ),
           ],
         ];
         actions = [
-          EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+          EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
           EButton.primary(
-            label: _split ? 'Split into $_n' : 'Consolidate',
+            label: _split ? l.deskOutSplitInto(_n) : l.deskOutConsolidateButton,
             icon: _split ? EIcons.split : EIcons.merge,
             size: EBtnSize.sm,
             onPressed: _canGo ? _go : null,
@@ -289,7 +297,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
               children: [
                 const ESpinner(),
                 SizedBox(width: Sp.x3),
-                Expanded(child: Text('Building and posting the $word. Keep the app open.', style: ts.body)),
+                Expanded(child: Text(_split ? l.deskOutPostingSplit : l.deskOutPostingCons, style: ts.body)),
               ],
             ),
           ),
@@ -303,31 +311,29 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
           ENotice(
             tone: ETone.ok,
             icon: EIcons.okCircle,
-            title: _split ? 'Split posted' : 'Consolidate posted',
-            text: _split
-                ? 'The wallet now has $n outputs of about ${_e4(perOne)} EPIC, confirming. Everything is locked until they confirm (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.'
-                : 'One output of ${formatEpic(perOne)} EPIC, confirming. Everything is locked until it confirms (3 blocks). Activity shows two entries: a send and a receive, both to this wallet.',
+            title: _split ? l.deskOutSplitPosted : l.deskOutConsPosted,
+            text: _split ? l.deskOutSplitDoneText(n, _e4(perOne)) : l.deskOutConsDoneText(formatEpic(perOne)),
           ),
         ];
-        actions = [EButton.primary(label: 'Done', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())];
+        actions = [EButton.primary(label: l.commonDone, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())];
       case SelfSendPhase.notPosted:
         body = [
           ENotice(
             tone: ETone.risk,
-            title: 'Not posted.',
-            text: 'The $word was built and stored, but the node did not take it. Post it again, or cancel it to unlock the outputs.',
+            title: l.deskOutNotPostedTitle,
+            text: _split ? l.deskOutNotPostedSplit : l.deskOutNotPostedCons,
           ),
         ];
         actions = [
-          EButton(label: 'Cancel the $word', size: EBtnSize.sm, onPressed: _busy ? null : _cancelIt),
-          EButton.primary(label: 'Post again', icon: EIcons.refresh, size: EBtnSize.sm, busy: _busy, onPressed: _busy ? null : _repost),
+          EButton(label: _split ? l.deskOutCancelSplit : l.deskOutCancelCons, size: EBtnSize.sm, onPressed: _busy ? null : _cancelIt),
+          EButton.primary(label: l.deskOutPostAgain, icon: EIcons.refresh, size: EBtnSize.sm, busy: _busy, onPressed: _busy ? null : _repost),
         ];
       case SelfSendPhase.failed:
-        body = [ENotice(tone: ETone.risk, title: 'Not done', text: '${_error ?? 'Something went wrong'}. The outputs are unchanged.')];
+        body = [ENotice(tone: ETone.risk, title: l.deskOutNotDoneTitle, text: l.deskOutNotDoneText(_errorText ?? l.deskOutSomethingWrong))];
         actions = [
-          EButton(label: 'Close', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+          EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
           EButton.primary(
-            label: 'Try again',
+            label: l.deskOutTryAgain,
             size: EBtnSize.sm,
             onPressed: () {
               setState(() => _phase = SelfSendPhase.choose);
@@ -349,12 +355,12 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
         child: Focus(
           autofocus: true,
           child: EDialog(
-            title: _split ? 'Split outputs' : 'Consolidate outputs',
+            title: _split ? l.deskOutSplitDialogTitle : l.deskOutConsDialogTitle,
             icon: _split ? EIcons.split : EIcons.merge,
             description: switch (_phase) {
-              SelfSendPhase.posting => 'Posting.',
-              SelfSendPhase.done => 'Done.',
-              _ => _split ? 'More outputs, so several sends can follow each other.' : 'One output instead of many.',
+              SelfSendPhase.posting => l.deskOutPostingDesc,
+              SelfSendPhase.done => l.deskOutDoneDesc,
+              _ => _split ? l.deskOutSplitDesc : l.deskOutConsDesc,
             },
             dismissible: !busy,
             width: 520.u,
@@ -376,21 +382,18 @@ class _NothingToConsolidate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    final l = context.l10n;
     return EDialog(
-      title: 'Consolidate outputs',
+      title: l.deskOutConsDialogTitle,
       icon: EIcons.merge,
       width: 520.u,
       body: Text.rich(
         TextSpan(
-          children: [
-            const TextSpan(text: 'Nothing to consolidate: the wallet has '),
-            TextSpan(text: several ? 'fewer than two spendable outputs' : 'one spendable output', style: TextStyle(color: c.text, fontWeight: FontWeight.w600)),
-            const TextSpan(text: '. Consolidate merges several outputs into one.'),
-          ],
+          children: _marked(l.deskOutNothingText('\u0001'), [several ? l.deskOutWhatFewer : l.deskOutWhatOne], TextStyle(color: c.text, fontWeight: FontWeight.w600)),
         ),
         style: context.ts.bodyDim,
       ),
-      actions: [EButton.primary(label: 'OK', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())],
+      actions: [EButton.primary(label: l.commonOk, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())],
     );
   }
 }
@@ -448,6 +451,7 @@ class _EStepperState extends State<EStepper> {
   @override
   Widget build(BuildContext context) {
     final v = widget.value;
+    final l = context.l10n;
     return Semantics(
       slider: true,
       label: widget.label,
@@ -463,7 +467,7 @@ class _EStepperState extends State<EStepper> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            EIconButton(icon: Icons.remove, label: 'Fewer', tabStop: false, onPressed: v > widget.min ? () => _set(v - 1) : null),
+            EIconButton(icon: Icons.remove, label: l.deskOutStepperFewer, tabStop: false, onPressed: v > widget.min ? () => _set(v - 1) : null),
             SizedBox(width: Sp.x1),
             SizedBox(
               width: 52.u,
@@ -480,7 +484,7 @@ class _EStepperState extends State<EStepper> {
               ),
             ),
             SizedBox(width: Sp.x1),
-            EIconButton(icon: Icons.add, label: 'More', tabStop: false, onPressed: v < widget.max ? () => _set(v + 1) : null),
+            EIconButton(icon: Icons.add, label: l.deskOutStepperMore, tabStop: false, onPressed: v < widget.max ? () => _set(v + 1) : null),
           ],
         ),
       ),
