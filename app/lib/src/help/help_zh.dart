@@ -1,0 +1,301 @@
+/// Chinese help: the topics and sections of help_content.dart in Chinese, by the same ids. A topic or
+/// section missing here shows in English.
+library;
+
+import 'help_content.dart';
+
+const List<HelpSection> helpSectionsZh = [
+  (id: 'start', title: '入门', lede: '接收、发送，以及文件方式。', art: 'help-start'),
+  (id: 'how', title: 'Epic Cash 如何运作', lede: '双方钱包共同参与；确认、隐私、找零和手续费。', art: 'help-how'),
+  (id: 'safety', title: '保护钱包安全', lede: '助记词既是备份，也是密钥。', art: 'help-safety'),
+  (id: 'network', title: '节点与 Epicbox', lede: '钱包连接到什么，以及 Tor。', art: 'help-network'),
+  (id: 'trouble', title: '出现问题时', lede: '常见原因及处理方法。', art: 'help-trouble'),
+];
+
+List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform, bool tor = true}) {
+  final phone = platform == HelpPlatform.phone;
+  // The words that differ between a computer and a phone.
+  final device = phone ? '这部手机' : '这台电脑';
+  final secret = phone ? '你的 PIN 码' : '钱包密码';
+  final nodePlace = phone ? '[[节点|Node]]' : '[[设置 › 节点|Settings › Node]]';
+  final epicboxPlace = phone ? '[[Epicbox|Epicbox]]' : '[[设置 › 接收 › Epicbox 接收|Settings › Receiving › Epicbox receiving]]';
+  final torPlace = phone ? '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]' : '[[设置 › 隐私|Settings › Privacy]]';
+  final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
+  final historyBackupPlace = phone
+      ? '[[设置 › 交易记录 › 导出历史备份|Settings › Payment history › Export history backup]]'
+      : '[[设置 › 此钱包 › 导出历史备份|Settings › This wallet › Export history backup]]';
+  final restorePlace = phone
+      ? '[[用助记词恢复|Restore from a recovery phrase]]（在首屏，或在“设置”中删除此钱包之后）'
+      : '[[用助记词恢复|Restore from a recovery phrase]]（在首屏、“解锁 › 添加钱包”或“设置 › 所有钱包”中）';
+  return <HelpTopic>[
+    HelpTopic(
+      'start',
+      '接收你的第一笔 EPIC',
+      '打开“接收”，复制 Epicbox 地址并发给付款人。付款会自动到账。',
+      [
+        const HelpBlock.p('Epicbox 地址是一串长代码，以 **@** 和 Epicbox 服务器名称结尾，例如 **…@epicbox.epiccash.com**。它可以放心分享：别人需要它来付款，但无法用它拿走任何东西。'),
+        const HelpBlock.ol(['打开[[接收|Receive]]。', '复制地址（或显示其二维码），发给付款人。', '付款会自动出现在“活动”中，无需任何操作。']),
+        if (phone)
+          const HelpBlock.p('应用打开且节点已同步时才能接收。应用关闭期间发来的付款会在 Epicbox 服务器上等待约一周，并在下次解锁时到账。')
+        else
+          const HelpBlock.p('解锁后，节点同步完成即自动开始接收。如果有人付款时钱包未打开，Epicbox 会保存这笔付款，钱包在下次解锁时取回。'),
+        HelpBlock.p('新付款首先要等发送方钱包完成交易，然后显示为确认中。经过 $confirmations 次确认（约 $confirmations 分钟）后即可使用。'),
+      ],
+      id: HelpId.receive,
+    ),
+    HelpTopic(
+      'start',
+      '向他人发送',
+      '打开“发送”，粘贴对方的 Epicbox 地址，输入金额，核对手续费后发送。',
+      [
+        const HelpBlock.ol(['打开[[发送|Send]]，粘贴收款方地址，或选择一个联系人。', '输入金额。发送前会显示手续费。', '点 **核对发送**，检查无误后点 **发送 … EPIC**。']),
+        const HelpBlock.p('此时需要收款方钱包回复（见“为什么交易需要双方参与？”）。通过 Epicbox 时，对方不必此刻在线：付款会一直等到对方钱包打开。在此期间，所用的输出会被锁定，因此无法被花费两次。'),
+        HelpBlock.p('收到对方回复后，钱包会自动完成交易并发布到网络。经过 $confirmations 次确认后交易即为最终。'),
+        HelpBlock.p('**没有回复？** 几分钟后状态会显示“等待接收方”。请对方打开钱包。如果一直没有回复，请在 $cancelPlace 取消发送以解锁输出。发送永远不会自动取消。'),
+        if (phone)
+          const HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要 Epicbox 服务器有响应；直连地址（http 或 .onion）需要收款方钱包在那一刻处于打开且可访问的状态。')
+        else
+          const HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要开启 Epicbox 接收；HTTP 和 Tor 地址需要收款方钱包在那一刻处于打开且可访问的状态。'),
+      ],
+      id: HelpId.send,
+    ),
+    HelpTopic(
+      'start',
+      '用文件发送',
+      '手动方式：保存交易文件，交给收款方，然后打开对方发回的回复文件。',
+      [
+        const HelpBlock.p('文件完成的握手与 Epicbox 相同，只是消息由人工传递，例如通过电子邮件、聊天或 U 盘。它不依赖 Epicbox，也不需要双方钱包同时在线。'),
+        if (phone)
+          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并分享文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 文件|Receive › File]]中打开该文件。其钱包签名后分享一个回复文件（文件名以 finalize_ 开头），并把该文件发回。', '**发送方：** 在[[接收 › 文件|Receive › File]]中打开回复文件。钱包完成交易并发布。'])
+        else
+          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并保存文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 交易文件 › 签名交易文件|Receive › Transaction files › Sign a transaction file]]中打开该文件。其钱包签名后保存一个回复文件（文件名以 finalize_ 开头），并把该文件发回。', '**发送方：** 在[[接收 › 交易文件 › 完成回复文件|Receive › Transaction files › Finalize a response file]]中打开回复文件。钱包完成交易并发布。']),
+        const HelpBlock.p('其他 Epic Cash 钱包对这些步骤有各自的叫法。如果一直收不到回复文件，请在“活动”中取消发送以解锁输出。'),
+      ],
+      id: HelpId.file,
+    ),
+    if (phone)
+      const HelpTopic(
+        'start',
+        '地址是什么样的',
+        'Epicbox 地址以 es 开头，以 @ 和服务器名称结尾。直连地址是网址，或以 .onion 结尾。',
+        [
+          HelpBlock.ul([
+            '**Epicbox**：约 52 个字符，以 **es** 开头，然后是 **@** 和服务器，例如 **esXXXX…XXXX@epicbox.epiccash.com**。默认方式；收款方可以不在线。',
+            '**直连**：收款方自己的钱包，且此刻处于打开状态。可以是 **http://host:3415** 这样的网址，也可以是以 **.onion** 结尾、共 56 个字符的 Tor 地址，后者经由 Tor 发送。',
+          ]),
+          HelpBlock.p('“发送”会根据粘贴到“收款方”栏中的地址选择方式。口头核对地址时，比较前六个和后六个字符。'),
+        ],
+        id: HelpId.addresses,
+      ),
+    const HelpTopic(
+      'how',
+      '为什么交易需要双方参与？',
+      '在 Epic Cash 中，收款方钱包要参与构建每一笔交易，因此双方钱包都必须参与。',
+      [
+        HelpBlock.p('Epic Cash 使用 Mimblewimble。它不在区块链上写入地址和金额，而是由两个钱包共同构建每笔交易，就像握手一样：'),
+        HelpBlock.ol(['发送方钱包发起交易，并锁定要发送的输出。', '收款方钱包加入自己的部分并签名。', '发送方钱包也签名，完成交易并发布到网络。']),
+        HelpBlock.p('因此需要有东西在两个钱包之间传递消息。**Epicbox** 负责这件事：在对方钱包离线时保存消息，所以双方不必同时在线。**HTTP** 和 **Tor** 在对方钱包打开时直接送达。**交易文件** 是手动方式。'),
+      ],
+      handshake: true,
+      id: HelpId.handshake,
+    ),
+    HelpTopic(
+      'how',
+      '确认',
+      '交易经过 $confirmations 次确认后即为最终，通常约需 $confirmations 分钟。',
+      [
+        const HelpBlock.p('网络接受交易后，矿工会把它打包进一个区块。大约每分钟产生一个新区块。包含该交易的区块是第一次确认，之后的每个区块再增加一次确认，使交易越来越难以撤销。'),
+        HelpBlock.p('此钱包在 **$confirmations 次确认** 后视交易为最终。在此之前显示为 **确认中**，收到的输出暂时不能花费。这个次数是固定的。'),
+        const HelpBlock.p('比平时慢？钱包只能通过它的节点看到新区块：请检查节点是否已同步。'),
+      ],
+      id: HelpId.confirmations,
+    ),
+    HelpTopic(
+      'how',
+      '区块链上能看到什么',
+      '没有地址，也没有金额：只有网络能够验证、却看不出是谁和多少的币记录。',
+      [
+        const HelpBlock.p('在许多区块链上，任何人都能查到一个地址，看到它的余额和历史。Epic Cash 不同：'),
+        HelpBlock.ul(['**区块链上没有地址。** Epicbox 地址只告诉 Epicbox 把消息送到哪里，从不写入区块链。', '**区块链上没有金额。** 金额通过密码学隐藏，网络仍能验证没有凭空造出币。', '**备注不上链。** 发送时附加的消息只发给对方钱包。联系人和钱包名称保存在$device上。']),
+        const HelpBlock.p('没有隐藏的是：节点和 Epicbox 服务器能看到钱包的 IP 地址，公共节点能看到钱包查询了哪些输出。Tor 或 VPN 可以隐藏 IP 地址。'),
+      ],
+      id: HelpId.privacy,
+    ),
+    HelpTopic(
+      'how',
+      '锁定金额与找零',
+      '余额由一个个独立的输出组成。发送会花掉整个输出，并把剩余部分作为找零退回。',
+      [
+        const HelpBlock.p('余额是一组输出。要从一个 5 EPIC 的输出中发送 3 EPIC，钱包会花掉整个输出：3 EPIC 给收款方，一小笔手续费给矿工，剩余部分作为一个新输出退回，即 **找零**。'),
+        const HelpBlock.p('因此，发送后的几分钟内，部分余额可能不可用：'),
+        HelpBlock.ul(['**已锁定**：尚未完成的发送所用的输出。如果取消发送，它们会被解锁。', '**等待完成**：仍在等待对方钱包的交易。', '**确认中**：所在区块确认次数少于 $confirmations 次的输出，包括找零。']),
+        const HelpBlock.p('输出列在[[输出|Outputs]]中。'),
+      ],
+      id: HelpId.locked,
+    ),
+    HelpTopic(
+      'how',
+      '最小或全部：发送花费哪些输出',
+      '最小（默认）使用尽量少的小额输出，其余保持可用。全部会使用每一个输出。',
+      [
+        const HelpBlock.p('**最小** 按金额对可用输出排序，从最小的开始取，直到覆盖金额和手续费。发送确认期间只锁定这些输出；其余可以立即发送。'),
+        HelpBlock.p('**全部** 花掉每一个可用输出，并退回一个找零输出。所有资金锁定 $confirmations 个区块，钱包最终的输出更少、更大，手续费也略高，因为每个输入都有成本。发送全部余额时总是使用“全部”。'),
+        if (phone)
+          const HelpBlock.p('默认方式在[[输出|Outputs]]中设置。')
+        else
+          const HelpBlock.p('默认方式在[[输出|Outputs]]中设置；“发送”可在 **高级** 中为单次发送更改。'),
+      ],
+      id: HelpId.strategy,
+    ),
+    HelpTopic(
+      'how',
+      '拆分与合并',
+      '拆分生成更多输出，让发送可以接连进行；合并把它们合成一个。',
+      [
+        HelpBlock.p('两者都是此钱包发给自己的普通网络交易，与任何发送一样在 $confirmations 个区块后确认，在此之前都会锁定所有可用输出。'),
+        const HelpBlock.ul(['**拆分** 用可用余额生成 2 到 10 个金额几乎相等的输出。', '**合并** 用所有可用输出生成一个输出。', '**拆分找零**（默认开启）在普通发送中、剩余输出过少时做同样的事，每多一个输出收取 0.004 EPIC。']),
+        const HelpBlock.p('“活动”中每次操作显示为两条记录：一次发送和一次接收，对方都是此钱包。两者都在[[输出|Outputs]]中。'),
+      ],
+      id: HelpId.split,
+    ),
+    const HelpTopic(
+      'how',
+      '手续费',
+      '每笔交易都要支付一小笔网络手续费，发送前会显示，归矿工所有。',
+      [
+        HelpBlock.p('手续费取决于交易花费和生成的输出数量，与金额无关。通常只是 1 EPIC 的一小部分。'),
+        HelpBlock.p('发送前显示为 **网络手续费**。金额旁的 **全部** 会填入全部可用余额减去准确的手续费，因此不会产生找零。'),
+      ],
+      id: HelpId.fees,
+    ),
+    HelpTopic(
+      'safety',
+      '你的助记词',
+      '这些单词是找回 EPIC 的唯一方式。请抄写在纸上，切勿泄露。',
+      [
+        HelpBlock.p('助记词（新钱包为 24 个单词）是资金的钥匙。凭它可以在任何${phone ? '手机或电脑' : '电脑'}上恢复钱包，而任何拿到它的人都能拿走 EPIC。'),
+        const HelpBlock.ul(['按顺序把单词抄写在纸上，并把纸保存在安全、离线的地方。', '切勿以照片、截图或文件形式保存。切勿在网站或聊天中输入。', 'Epic Cash 或此钱包的任何人都不会向你索要助记词。']),
+        if (phone)
+          HelpBlock.p('要再次查看单词，打开[[设置 › 助记词|Settings › Recovery phrase]]并输入$secret。应用不会把它们发送到任何地方。最好不要复制：如果复制了，钱包会在 60 秒后，以及钱包锁定或关闭时清空剪贴板。')
+        else
+          HelpBlock.p('要再次查看单词，打开[[设置 › 助记词|Settings › Recovery phrase]]并输入$secret。最好不要复制：如果复制了，钱包会在 60 秒后，以及钱包锁定或关闭时清空剪贴板。'),
+      ],
+      id: HelpId.phrase,
+    ),
+    HelpTopic(
+      'safety',
+      '备份与恢复',
+      '助记词就是备份。要恢复钱包，在“用助记词恢复”中输入这些单词。',
+      [
+        const HelpBlock.p('助记词能找回区块链上的一切，也就是余额。'),
+        HelpBlock.p('**恢复方法**：在新${phone ? '手机' : '电脑'}上或丢失后，打开$restorePlace，输入单词并设置${phone ? ' PIN 码' : '密码'}。钱包打开后会扫描区块链查找自己的输出。首次扫描完成后余额才会出现；找到的付款标记为 **恢复的资金**。'),
+        HelpBlock.p('**恢复无法找回的内容：** 从未上链的信息，例如谁付了什么、交易消息、联系人和钱包名称。历史备份会保存付款详情和联系人：$historyBackupPlace。${phone ? '请把备份文件保存在手机以外的地方，例如电子邮件或云存储中。' : ''}'),
+        const HelpBlock.p('**余额看起来不对？** 运行[[设置 › 重新扫描区块链|Settings › Recheck balance]]。它会为此钱包的输出重新读取整条区块链。'),
+        if (!phone)
+          const HelpBlock.p('**钱包文件** 位于[[设置 › 此钱包 › 钱包文件夹|Settings › This wallet › Wallet folder]]。即使有这些文件的副本，也请保留助记词：文件丢失时它仍然有效。'),
+      ],
+      id: HelpId.backup,
+    ),
+    HelpTopic(
+      'network',
+      phone ? '节点' : '节点：公共节点或本地节点',
+      phone
+          ? '节点把钱包连接到 Epic Cash 网络。钱包使用公共节点；节点落后时请换一个。'
+          : '节点把钱包连接到 Epic Cash 网络。公共节点最快捷；本地节点归你自己。',
+      [
+        const HelpBlock.p('钱包需要节点来读取区块链（余额和确认），并把交易发布到网络。'),
+        if (phone)
+          const HelpBlock.p('**公共节点** 是由他人运行的节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出；Tor 可以隐藏该地址。')
+        else
+          const HelpBlock.ul(['**公共节点**（默认）：由他人运行的公共节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出。', '**本地节点**：在这台电脑上运行。它首先要下载整条区块链，需要一些时间和磁盘空间，之后就完全归你所有。同步期间，钱包使用公共节点。']),
+        if (phone)
+          HelpBlock.p('点“钱包”标签页上的节点行，或在$nodePlace中更换：公共节点会连同状态一起列出，也可以输入节点地址。发送需要已同步的节点；显示 **落后** 或 **无响应** 时，请换一个。')
+        else
+          HelpBlock.p('在$nodePlace中更换：选择一个公共节点（会连同状态一起列出），或输入节点地址。发送需要已同步的节点；如果节点落后，钱包会推荐另一个。'),
+      ],
+      id: HelpId.node,
+    ),
+    HelpTopic(
+      'network',
+      'Epicbox',
+      'Epicbox 在钱包之间传递交易，并在对方钱包离线时保存它们。',
+      [
+        const HelpBlock.p('每笔交易都有双方钱包参与，因此它们的消息需要一个汇合点。Epicbox 服务器就是这个汇合点：它保存发给此钱包的付款，直到钱包上线，并把钱包的回复送回去。消息是加密的，Epicbox 无法花费这些币。'),
+        const HelpBlock.p('Epicbox 地址是钱包的公钥，后接 **@** 和其 Epicbox 服务器的名称。'),
+        if (phone)
+          HelpBlock.p('点“钱包”标签页上的 Epicbox 行，或在$epicboxPlace中设置服务器：选择一个公共服务器（会连同状态一起列出），或自行输入。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款人。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。')
+        else
+          HelpBlock.p('在$epicboxPlace中设置服务器：选择一个公共服务器（会连同状态一起列出），或自行输入。更换服务器会改变 @ 之后的部分，因此请把新地址告诉付款人。其他 Epic Cash 钱包也使用 Epicbox；两个钱包可以使用不同的服务器。'),
+      ],
+      id: HelpId.epicbox,
+    ),
+    if (tor && phone)
+      HelpTopic(
+        'network',
+        'Tor',
+        '一个开关即可让钱包的连接经由 Tor，并为其提供 .onion 地址。更慢，但更私密。默认关闭。',
+        [
+          HelpBlock.p('Tor 向钱包所连接的服务器隐藏其 IP 地址。打开$torPlace中的开关后，Epicbox 连接经由 Tor，发往 .onion 地址的付款经由 Tor，钱包还会拥有自己的 Tor 地址（以 .onion 结尾），其他钱包可以直接向它付款。'),
+          const HelpBlock.ul([
+            '钱包使用的一切都不变：同一个节点、同一个 Epicbox 服务器、同一个地址。',
+            '发往 onion 地址的直连发送经由 Tor。“发送”会标明每次发送的方式。',
+            'Tor 开启期间，推送通知关闭。',
+            '比不使用 Tor 的 Epicbox 慢。某些国家封锁了 Tor；在那里它无法连接。',
+            '应用打开时可以通过 .onion 地址接收；Epicbox 同时照常工作。',
+          ]),
+          const HelpBlock.p('**正在启动…** 表示 Tor 正在连接；受其覆盖的连接会等待，绝不绕过它。**未连接** 表示连接失败：点“重试”，或关闭 Tor。有些钱包显示的 Tor 地址不带 .onion；两者是同一个地址。'),
+        ],
+        id: HelpId.tor,
+      )
+    else if (tor)
+      const HelpTopic(
+        'network',
+        'Tor',
+        '更慢，但更私密：一个开关即可让钱包的连接经由 Tor，无需开放端口。默认关闭。',
+        [
+          HelpBlock.p('开启 Tor 后，与 Epicbox 服务器的连接经由 Tor，钱包还会拥有一个 Tor 地址（以 .onion 结尾），其他钱包可以从任何地方直接向它付款，无需在路由器上做端口转发。你分享的地址保持不变。'),
+          HelpBlock.ul([
+            '在[[设置 › 隐私|Settings › Privacy]]中开启。侧边栏中的 Tor 行显示其状态。',
+            'Tor 启动中或未连接时，经由 Tor 的内容会等待；不会绕过它。点“重试”，或关闭 Tor。',
+            '发往 http(s) 地址的直连发送不经由 Tor；“发送”会注明这一点。',
+            'Tor 开启期间 HTTP 接收关闭：其他钱包直接发来的付款会到达 Tor 地址。',
+            '某些国家封锁或不允许使用 Tor；在那里它无法连接。',
+          ]),
+          HelpBlock.p('有些钱包显示的地址不带 .onion；两者是同一个地址。'),
+        ],
+        id: HelpId.tor,
+      ),
+    HelpTopic(
+      'trouble',
+      '故障排除',
+      '大多数问题是节点仍在同步、收款方尚未回复，或端口被占用。',
+      [
+        if (phone)
+          const HelpBlock.p('**“节点未同步”：无法发送。** 节点追上网络后即可发送。请稍等，或点“钱包”标签页上的节点行，选择另一个节点。')
+        else
+          const HelpBlock.p('**“节点未同步”：无法发送。** 节点追上网络后即可发送。请稍等，或在“设置 › 节点”中选择另一个节点。'),
+        if (phone)
+          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或点“钱包”标签页上的 Epicbox 行，选择另一个服务器。在此期间可以使用文件。')
+        else
+          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在“设置 › 接收”中选择另一个服务器。在此期间可以使用文件。'),
+        const HelpBlock.p('**发送显示“等待接收方”。** 对方钱包尚未回复。请对方打开钱包。如果对方一直不会打开，请在“活动”中取消发送以解锁输出。'),
+        if (phone)
+          const HelpBlock.p('**付款没有到账。** 在“钱包”标签页上检查节点是否已同步、Epicbox 是否在线。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。')
+        else
+          const HelpBlock.p('**付款没有到账。** 在“接收”中检查接收是否已开启、节点是否已同步。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。'),
+        if (phone)
+          const HelpBlock.p('**Tor 显示“未连接”。** Tor 无法连接到其网络。在“设置 › 隐私”中点“重试”，或关闭 Tor；在此期间不会发出任何内容。'),
+        if (!phone) ...const [
+          HelpBlock.p('**“端口 3415 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 Epicbox、Tor 和文件照常工作。'),
+          HelpBlock.p('**“另一个 Epic 程序正在使用此文件夹”。** 另一个 Epic 钱包或节点打开了相同的文件。关闭它后重试。'),
+        ],
+        if (phone)
+          const HelpBlock.p('**忘记 PIN 码。** 在解锁界面删除钱包，然后用助记词恢复并设置新的 PIN 码。没有助记词，EPIC 将无法找回。')
+        else
+          const HelpBlock.p('**“密码错误”。** 检查大写锁定键和键盘布局。如果忘记了密码：用助记词恢复钱包并设置新密码。'),
+        const HelpBlock.p('**余额看起来不对。** 运行“设置 › 重新扫描区块链”。'),
+      ],
+      id: HelpId.trouble,
+    ),
+  ];
+}

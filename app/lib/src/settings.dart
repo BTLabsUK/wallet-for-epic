@@ -113,6 +113,7 @@ class AppSettings {
     this.historyReminderFirstSeenAt = const {},
     this.historyExportSnapshots = const {},
     this.language,
+    this.helpLanguage,
     this.advancedOptions = false,
     this.useStatusSite = true,
     this.sendStrategy = SelectionStrategy.smallest,
@@ -141,6 +142,10 @@ class AppSettings {
 
   /// [language] as a [Locale] for `MaterialApp.locale`; null follows the system.
   Locale? get locale => language == null ? null : Locale(language!);
+
+  /// The language of the help topics as a code from `appLanguages`, or null to follow the app's
+  /// language. Chosen with the switch at the top of Help; the rest of the app is not changed.
+  final String? helpLanguage;
 
   /// Lower-case CoinGecko currency code, for example `usd`.
   final String fiatCurrency;
@@ -192,6 +197,7 @@ class AppSettings {
     Map<String, int>? historyReminderFirstSeenAt,
     Map<String, HistoryExportSnapshot>? historyExportSnapshots,
     String? Function()? language,
+    String? Function()? helpLanguage,
     bool? advancedOptions,
     bool? useStatusSite,
     SelectionStrategy? sendStrategy,
@@ -214,6 +220,7 @@ class AppSettings {
     historyExportSnapshots:
         historyExportSnapshots ?? this.historyExportSnapshots,
     language: language != null ? language() : this.language,
+    helpLanguage: helpLanguage != null ? helpLanguage() : this.helpLanguage,
     advancedOptions: advancedOptions ?? this.advancedOptions,
     useStatusSite: useStatusSite ?? this.useStatusSite,
     sendStrategy: sendStrategy ?? this.sendStrategy,
@@ -245,6 +252,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _autoLockKey = 'app.auto_lock';
   static const String _pushKey = 'app.push';
   static const String _languageKey = 'app.language';
+  static const String _helpLanguageKey = 'app.helpLanguage';
   static const String _advancedKey = 'app.advanced';
   static const String _strategyKey = 'app.send_strategy';
   static const String _splitChangeKey = 'app.split_change';
@@ -271,6 +279,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final autoLock = await store.read(_autoLockKey);
     final push = await store.read(_pushKey);
     final language = await store.read(_languageKey);
+    final helpLanguage = await store.read(_helpLanguageKey);
     final advanced = await store.read(_advancedKey);
     final strategy = await store.read(_strategyKey);
     final splitChange = await store.read(_splitChangeKey);
@@ -324,6 +333,9 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       historyExportSnapshots: snapshots,
       // A code no translation has any more (a language removed) falls back to the system.
       language: appLanguages.any((a) => a.code == language) ? language : null,
+      helpLanguage: appLanguages.any((a) => a.code == helpLanguage)
+          ? helpLanguage
+          : null,
       advancedOptions: advanced == null
           ? defaults.advancedOptions
           : advanced == 'true',
@@ -418,6 +430,19 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       await store.write(_languageKey, code);
     }
     state = AsyncData((await _current()).copyWith(language: () => code));
+  }
+
+  /// Sets the language of the help topics to [code] from `appLanguages`, or back to following
+  /// the app's language for null.
+  Future<void> setHelpLanguage(String? code) async {
+    assert(code == null || appLanguages.any((a) => a.code == code));
+    final store = ref.read(secretStoreProvider);
+    if (code == null) {
+      await store.delete(_helpLanguageKey);
+    } else {
+      await store.write(_helpLanguageKey, code);
+    }
+    state = AsyncData((await _current()).copyWith(helpLanguage: () => code));
   }
 
   Future<void> setPushNotifications(bool on) async =>

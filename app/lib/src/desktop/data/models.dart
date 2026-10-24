@@ -611,6 +611,7 @@ class DeskSettings {
     this.theme = ThemeChoice.dark,
     this.scale = 100,
     this.language = 'English',
+    this.helpLanguage,
     this.hideAmounts = false,
     this.nodeFailover = true,
     this.epicboxFailover = true,
@@ -634,6 +635,11 @@ class DeskSettings {
   /// Interface scale in percent, one of [deskScales]: text and layout together.
   final int scale;
   final String language;
+
+  /// The language of the Help topics as a code from `appLanguages`, or null to follow the
+  /// computer's language (English when the app has none of them). Chosen with the switch at the
+  /// top of Help; the interface itself stays as [language] says.
+  final String? helpLanguage;
   final bool hideAmounts;
 
   /// Switch to the next healthy node when the current one stops answering.
@@ -681,6 +687,7 @@ class DeskSettings {
     ThemeChoice? theme,
     int? scale,
     String? language,
+    String? Function()? helpLanguage,
     bool? hideAmounts,
     bool? nodeFailover,
     bool? epicboxFailover,
@@ -701,6 +708,7 @@ class DeskSettings {
     theme: theme ?? this.theme,
     scale: scale ?? this.scale,
     language: language ?? this.language,
+    helpLanguage: helpLanguage != null ? helpLanguage() : this.helpLanguage,
     hideAmounts: hideAmounts ?? this.hideAmounts,
     nodeFailover: nodeFailover ?? this.nodeFailover,
     epicboxFailover: epicboxFailover ?? this.epicboxFailover,

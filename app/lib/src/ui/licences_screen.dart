@@ -9,6 +9,7 @@ import '../l10n.dart';
 import '../tor_licence.dart';
 import 'common.dart';
 import 'settings_screen.dart' show openFlutterLicences, projectRepoUrl;
+import 'theme/fonts.dart' show flagsLicenceNote;
 import 'theme/tokens.dart';
 
 /// The key of the button that opens the full texts, for tests.
@@ -39,6 +40,7 @@ class LicencesScreen extends StatelessWidget {
             l.licencesLepic,
             l.licencesTor,
             l.licencesFonts,
+            flagsLicenceNote,
           ])
             Padding(
               padding: const EdgeInsets.only(bottom: 10),

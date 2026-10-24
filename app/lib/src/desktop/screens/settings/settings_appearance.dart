@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
+import '../onboarding/onboarding_parts.dart' show deskLanguageItems;
 import 'settings_frame.dart';
 
 class SettingsAppearanceScreen extends ConsumerWidget {
@@ -58,13 +59,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
                 semanticLabel: 'Language',
                 value: s.language,
                 // The app's own translations (lib/l10n), as on Setup.
-                items: const [
-                  ESelectItem('English', 'English'),
-                  ESelectItem('Deutsch', 'Deutsch'),
-                  ESelectItem('Polski', 'Polski'),
-                  ESelectItem('Русский', 'Русский'),
-                  ESelectItem('中文', '中文'),
-                ],
+                items: deskLanguageItems(),
                 onChanged: (v) => n.saveSettings(s.copyWith(language: v)),
               ),
             ),

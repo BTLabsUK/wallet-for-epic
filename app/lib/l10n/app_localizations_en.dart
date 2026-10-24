@@ -3097,7 +3097,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get licencesFonts =>
-      'Fonts Montserrat and JetBrains Mono: SIL Open Font License 1.1.';
+      'Fonts Montserrat, JetBrains Mono and Noto Sans Thai: SIL Open Font License 1.1.';
 
   @override
   String get licencesFull => 'All licence texts';
@@ -5817,6 +5817,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpEnglishOnly => 'Help is in English for now.';
+
+  @override
+  String get helpLanguageLabel => 'Help language';
 
   @override
   String helpNoMatch(String query) {
