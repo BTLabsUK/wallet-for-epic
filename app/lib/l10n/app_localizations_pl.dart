@@ -14024,7 +14024,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTxLabelTip =>
-      'Nazwa tej płatności, dla Ciebie. Widoczna w Aktywności i w eksportach.';
+      'Nazwa tej płatności, dla ciebie. Widoczna w Aktywności i w eksportach.';
 
   @override
   String get deskTxLabelAdded => 'Dodano etykietę';
@@ -14052,7 +14052,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTxDetailsTip =>
-      'Tylko dla płatności znalezionych przez skanowanie. W Aktywności, szczegółach i eksportach widoczne jako dodane przez Ciebie. Kwoty, daty i potwierdzenia się nie zmieniają.';
+      'Tylko dla płatności znalezionych przez skanowanie. W Aktywności, szczegółach i eksportach widoczne jako dodane przez ciebie. Kwoty, daty i potwierdzenia się nie zmieniają.';
 
   @override
   String get deskTxDetailsFrom => 'Od';
@@ -14083,24 +14083,24 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskTxDetailsNotSaved => 'Nie zapisano szczegółów';
 
   @override
-  String get deskTxManualTag => 'Dodane przez Ciebie';
+  String get deskTxManualTag => 'Dodane przez ciebie';
 
   @override
   String deskTxManualTip(String date) {
-    return 'Dodane przez Ciebie $date. Nie z łańcucha.';
+    return 'Dodane przez ciebie $date. Nie z łańcucha.';
   }
 
   @override
-  String get deskTxManualTipNoDate => 'Dodane przez Ciebie. Nie z łańcucha.';
+  String get deskTxManualTipNoDate => 'Dodane przez ciebie. Nie z łańcucha.';
 
   @override
   String deskTxManualTipFrom(String date) {
-    return 'Dodane przez Ciebie $date. Nie z łańcucha, niezweryfikowane.';
+    return 'Dodane przez ciebie $date. Nie z łańcucha, niezweryfikowane.';
   }
 
   @override
   String get deskTxManualTipFromNoDate =>
-      'Dodane przez Ciebie. Nie z łańcucha, niezweryfikowane.';
+      'Dodane przez ciebie. Nie z łańcucha, niezweryfikowane.';
 
   @override
   String get deskHistConflictTitle => 'Szczegóły się różnią';

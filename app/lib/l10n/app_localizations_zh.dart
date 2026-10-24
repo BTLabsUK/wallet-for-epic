@@ -12915,13 +12915,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskTxDetailsTip =>
-      '仅适用于扫描找到的付款。在“活动”、详情和导出文件中会标为你添加的内容。金额、日期和确认数不会改变。';
+      '仅适用于扫描找到的付款。在“活动”、详情和导出文件中会标为由你添加。金额、日期和确认数不会改变。';
 
   @override
   String get deskTxDetailsFrom => '来自';
 
   @override
-  String get deskTxDetailsFromTip => '付款人，仅供你记录。未经验证，也不会用于付款证明。';
+  String get deskTxDetailsFromTip => '付款人，仅供你记录。未验证，也不会用于付款证明。';
 
   @override
   String get deskTxDetailsFromHint => '发送方地址';
@@ -12945,23 +12945,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTxDetailsNotSaved => '详情未保存';
 
   @override
-  String get deskTxManualTag => '你添加的';
+  String get deskTxManualTag => '由你添加';
 
   @override
   String deskTxManualTip(String date) {
-    return '你于 $date 添加。不来自区块链。';
+    return '你于 $date 添加。并非来自区块链。';
   }
 
   @override
-  String get deskTxManualTipNoDate => '你添加的。不来自区块链。';
+  String get deskTxManualTipNoDate => '由你添加。并非来自区块链。';
 
   @override
   String deskTxManualTipFrom(String date) {
-    return '你于 $date 添加。不来自区块链，未经验证。';
+    return '你于 $date 添加。并非来自区块链，未验证。';
   }
 
   @override
-  String get deskTxManualTipFromNoDate => '你添加的。不来自区块链，未经验证。';
+  String get deskTxManualTipFromNoDate => '由你添加。并非来自区块链，未验证。';
 
   @override
   String get deskHistConflictTitle => '详情不一致';
