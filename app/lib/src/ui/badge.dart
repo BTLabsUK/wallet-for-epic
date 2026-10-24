@@ -252,9 +252,9 @@ class EBadge extends StatelessWidget {
       badge = Container(
         constraints: BoxConstraints(minHeight: px(18), minWidth: px(18)),
         padding: EdgeInsetsDirectional.fromSTEB(
-          glyph == null ? px(6) : (words == null ? px(2) : px(5)),
+          glyph == null ? px(6) : (words == null ? px(1) : px(5)),
           0,
-          words == null ? px(2) : px(6),
+          words == null ? px(1) : px(6),
           0,
         ),
         decoration: BoxDecoration(
