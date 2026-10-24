@@ -21823,6 +21823,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update didn\'t finish. Try again.'**
   String get deskUpdUnfinished;
+
+  /// Label of the one field at the top of the Node sheet: it holds the node in use, filters the list while typed in, and adds an address that is not listed.
+  ///
+  /// In en, this message translates to:
+  /// **'Node address'**
+  String get slNodeField;
+
+  /// Label of the one field at the top of the Epicbox sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server'**
+  String get slRelayField;
+
+  /// Under the Node field while it still holds the node in use.
+  ///
+  /// In en, this message translates to:
+  /// **'In use. Edit it to switch, or type to filter the list.'**
+  String get slHelpIdleNode;
+
+  /// Under the Epicbox field while it still holds the server in use.
+  ///
+  /// In en, this message translates to:
+  /// **'In use. Edit it to switch, or type to filter the list.'**
+  String get slHelpIdleRelay;
+
+  /// Under the field while it holds an address no row has: the Add row is offered above the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the list.'**
+  String get slHelpAddable;
+
+  /// Under the field while it filters the list.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No match.} one{{count} match.} other{{count} matches.}}'**
+  String slHelpMatches(int count);
+
+  /// In the list when the typed text matches no row and is no address.
+  ///
+  /// In en, this message translates to:
+  /// **'No match. Type a host or host:port to add it.'**
+  String get slNoMatchHint;
+
+  /// Tooltip of the field's clear button.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get slClear;
+
+  /// Screen-reader label of the inline Add row. {host} is the typed server.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {host}'**
+  String slAddRow(String host);
+
+  /// Second line of the inline Add row in the Node sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tests the node first, then offers the switch.'**
+  String get slAddTestsNode;
+
+  /// Second line of the inline Add row in the Epicbox sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tests the server first, then offers the switch.'**
+  String get slAddTestsRelay;
+
+  /// Foot line after a server joined the list. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {host}.'**
+  String slAdded(String host);
+
+  /// Tooltip of the remove button on every row.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get slRemove;
+
+  /// Foot line after a row left the list, with Undo beside it. {host} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed {host}.'**
+  String slRemoved(String host);
+
+  /// Button beside the Removed foot line: puts the server back.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get slUndo;
+
+  /// Foot line when the remove button of the server in use is tapped.
+  ///
+  /// In en, this message translates to:
+  /// **'In use. Switch first.'**
+  String get slInUseSwitchFirst;
+
+  /// Button at the end of the list while a public server is removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore the public list'**
+  String get slRestore;
+
+  /// Beside Restore the public list: how many public servers are removed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} removed} other{{count} removed}}'**
+  String slRemovedCount(int count);
+
+  /// Foot line after Restore the public list.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored the public list.'**
+  String get slRestored;
+
+  /// Warning card under the Epicbox field.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching changes your address. Senders need the new one.'**
+  String get slRelayWarning;
 }
 
 class _AppLocalizationsDelegate

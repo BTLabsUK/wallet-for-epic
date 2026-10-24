@@ -18115,5 +18115,110 @@
   "deskUpdUnfinished": "Update didn't finish. Try again.",
   "@deskUpdUnfinished": {
     "description": "Sidebar notice and Settings › About (Windows): an update was started but Setup did not finish (it was stopped or failed part way); the action runs the update again. The version is on the line under it."
+  },
+  "slNodeField": "Node address",
+  "@slNodeField": {
+    "description": "Label of the one field at the top of the Node sheet: it holds the node in use, filters the list while typed in, and adds an address that is not listed."
+  },
+  "slRelayField": "Epicbox server",
+  "@slRelayField": {
+    "description": "Label of the one field at the top of the Epicbox sheet."
+  },
+  "slHelpIdleNode": "In use. Edit it to switch, or type to filter the list.",
+  "@slHelpIdleNode": {
+    "description": "Under the Node field while it still holds the node in use."
+  },
+  "slHelpIdleRelay": "In use. Edit it to switch, or type to filter the list.",
+  "@slHelpIdleRelay": {
+    "description": "Under the Epicbox field while it still holds the server in use."
+  },
+  "slHelpAddable": "Not in the list.",
+  "@slHelpAddable": {
+    "description": "Under the field while it holds an address no row has: the Add row is offered above the list."
+  },
+  "slHelpMatches": "{count, plural, =0{No match.} one{{count} match.} other{{count} matches.}}",
+  "@slHelpMatches": {
+    "description": "Under the field while it filters the list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "slNoMatchHint": "No match. Type a host or host:port to add it.",
+  "@slNoMatchHint": {
+    "description": "In the list when the typed text matches no row and is no address."
+  },
+  "slClear": "Clear",
+  "@slClear": {
+    "description": "Tooltip of the field's clear button."
+  },
+  "slAddRow": "Add {host}",
+  "@slAddRow": {
+    "description": "Screen-reader label of the inline Add row. {host} is the typed server.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "slAddTestsNode": "Tests the node first, then offers the switch.",
+  "@slAddTestsNode": {
+    "description": "Second line of the inline Add row in the Node sheet."
+  },
+  "slAddTestsRelay": "Tests the server first, then offers the switch.",
+  "@slAddTestsRelay": {
+    "description": "Second line of the inline Add row in the Epicbox sheet."
+  },
+  "slAdded": "Added {host}.",
+  "@slAdded": {
+    "description": "Foot line after a server joined the list. {host} is its host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "slRemove": "Remove",
+  "@slRemove": {
+    "description": "Tooltip of the remove button on every row."
+  },
+  "slRemoved": "Removed {host}.",
+  "@slRemoved": {
+    "description": "Foot line after a row left the list, with Undo beside it. {host} is its host.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "slUndo": "Undo",
+  "@slUndo": {
+    "description": "Button beside the Removed foot line: puts the server back."
+  },
+  "slInUseSwitchFirst": "In use. Switch first.",
+  "@slInUseSwitchFirst": {
+    "description": "Foot line when the remove button of the server in use is tapped."
+  },
+  "slRestore": "Restore the public list",
+  "@slRestore": {
+    "description": "Button at the end of the list while a public server is removed."
+  },
+  "slRemovedCount": "{count, plural, one{{count} removed} other{{count} removed}}",
+  "@slRemovedCount": {
+    "description": "Beside Restore the public list: how many public servers are removed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "slRestored": "Restored the public list.",
+  "@slRestored": {
+    "description": "Foot line after Restore the public list."
+  },
+  "slRelayWarning": "Switching changes your address. Senders need the new one.",
+  "@slRelayWarning": {
+    "description": "Warning card under the Epicbox field."
   }
 }

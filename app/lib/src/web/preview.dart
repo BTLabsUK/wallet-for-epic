@@ -8,7 +8,10 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/misc.dart' show Override;
 
+import '../net/http_types.dart' show NetError;
+import '../network.dart';
 import '../phone_tor.dart';
+import '../relay_directory.dart';
 import '../wallet_service.dart';
 
 /// `--dart-define=WFE_WEB_FAKE=true`: the web app runs on [previewWalletService].
@@ -17,10 +20,82 @@ const bool webFakeBackend = bool.fromEnvironment('WFE_WEB_FAKE');
 /// A fresh fake wallet service. The visitor starts at first run; the PIN they choose opens the
 /// preview wallet.
 FakeWalletService previewWalletService() =>
-    FakeWalletService(session: _previewSession())
-      // Ahead of the live directory's height for a long while, so the status card reads
-      // Synced rather than Behind.
+    PreviewWalletService(session: _previewSession())
+      // At the preview directory's tip, so the status card reads Synced.
       ..nodeTipValue = NodeTip(height: _tip, nodeVersion: '4.1.1');
+
+/// The fake wallet with a node test that takes a moment and fails for a host with `down`
+/// or `bad` in it, so the pickers' Add can be tried both ways.
+class PreviewWalletService extends FakeWalletService {
+  PreviewWalletService({super.session});
+
+  @override
+  Future<NodeTip> nodeAnswer(WalletConfig config) async {
+    await Future<void>.delayed(const Duration(milliseconds: 900));
+    final host = Uri.tryParse(config.nodeUrl)?.host ?? '';
+    if (host.contains('down') || host.contains('bad')) {
+      throw const NetError('connection refused');
+    }
+    return nodeTipValue;
+  }
+}
+
+/// status.btlabs.uk as the preview sees it: the built-in servers with one of each health,
+/// one node and one relay only the directory lists (one down), and the chain at the fake
+/// wallet's tip. Answers after a moment, so the lists' loading bar shows.
+class PreviewDirectory implements RelayDirectory, NodeDirectory, NetworkDirectory {
+  const PreviewDirectory();
+
+  static const Duration _delay = Duration(milliseconds: 500);
+
+  @override
+  Future<List<NodeStatus>> nodes(String chain) async {
+    await Future<void>.delayed(_delay);
+    if (chain != 'mainnet') return const [];
+    final checked = DateTime.now().subtract(const Duration(minutes: 2));
+    final tip = _tip.toInt();
+    return [
+      NodeStatus(url: 'https://node.btlabs.uk', healthy: true, verified: true, operator: 'BT Labs', height: tip, latencyMs: 20, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 61, uptime24h: 0.999, lastCheckedAt: checked),
+      NodeStatus(url: 'https://node.epicnet.us:3413', healthy: true, verified: true, operator: 'EpicNet', height: tip, latencyMs: 766, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 61, uptime24h: 0.998, lastCheckedAt: checked),
+      NodeStatus(url: 'https://node.epiccash.com:3413', healthy: true, verified: true, operator: 'Epic Cash', height: tip, latencyMs: 733, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 54, uptime24h: 0.997, lastCheckedAt: checked),
+      NodeStatus(url: 'https://epic.stackwallet.com:3413', healthy: true, verified: true, operator: 'Cypher Stack', height: tip - 12, latencyMs: 1127, state: NodeHealthState.degraded, reason: 'behind', nodeVersion: '4.1.0', tipLag: 12, peers: 61, uptime24h: 0.98, lastCheckedAt: checked),
+      NodeStatus(url: 'https://epic-node.iniaku.my.id', healthy: true, verified: true, operator: 'Iniaku pool', height: tip, latencyMs: 370, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 22, uptime24h: 0.995, lastCheckedAt: checked),
+      NodeStatus(url: 'https://node.epic.example:3413', healthy: false, verified: false, operator: 'Example pool', state: NodeHealthState.down, reason: 'timeout', lastCheckedAt: checked),
+    ];
+  }
+
+  @override
+  Future<List<RelayStatus>> relays(String chain) async {
+    await Future<void>.delayed(_delay);
+    if (chain != 'mainnet') return const [];
+    return const [
+      RelayStatus(relay: EpicboxRelay(host: 'epicbox.epiccash.com'), healthy: true, verified: true, label: 'Default relay', operator: 'Epic Cash', latencyMs: 766, uptime24h: 0.9966),
+      RelayStatus(relay: EpicboxRelay(host: 'epicbox.stackwallet.com'), healthy: true, verified: true, label: 'Stack Wallet', operator: 'Cypher Stack', latencyMs: 488, uptime24h: 1.0),
+      RelayStatus(relay: EpicboxRelay(host: 'epicbox.epicnet.us'), healthy: true, verified: true, operator: 'EpicNet', latencyMs: 766, uptime24h: 0.9779),
+      RelayStatus(relay: EpicboxRelay(host: 'epicbox.iniaku.my.id'), healthy: true, verified: true, operator: 'Iniaku pool', latencyMs: 360, uptime24h: 0.9997),
+      RelayStatus(relay: EpicboxRelay(host: 'flooepicbox.btlabs.uk'), healthy: true, verified: true, operator: 'BT Labs', latencyMs: 45, uptime24h: 0.9999),
+      RelayStatus(relay: EpicboxRelay(host: 'epicbox.epic.example'), healthy: false, verified: false, operator: 'Example pool', uptime24h: 0.41),
+    ];
+  }
+
+  @override
+  Future<NetworkStatus> network(String chain) async {
+    await Future<void>.delayed(_delay);
+    return NetworkStatus(
+      tipHeight: _tip.toInt(),
+      tipAgeSeconds: 40,
+      releasedNodeVersion: '4.1.1',
+      releasedWalletVersion: '4.1.0',
+      nodesHealthy: 5,
+      nodesTotal: 6,
+      epicboxHealthy: 5,
+      epicboxTotal: 6,
+      medianNodeLatencyMs: 733,
+      forked: false,
+      healthScore: 90,
+    );
+  }
+}
 
 final BigInt _tip = BigInt.from(3900000);
 
@@ -313,6 +388,7 @@ FakeWalletSession _previewSession() {
 /// row of the status card and Receive's Tor tab can be seen without a tor binary.
 List<Override> previewOverrides() => [
   phoneTorProvider.overrideWith(PreviewPhoneTor.new),
+  relayDirectoryProvider.overrideWithValue(const PreviewDirectory()),
 ];
 
 /// Tor for the preview: off until "Tor receiving" is turned on or a send to an onion asks for

@@ -113,6 +113,7 @@ flutter:
     # Language flags (lipis/flag-icons, MIT; the licence is registered with the fonts', see
     # lib/src/ui/theme/fonts.dart).
     - assets/flags/
+    - assets/brand/
   fonts:
     # Display only: the balance, screen titles and section heads. Body text is the platform font.
     - family: Montserrat
