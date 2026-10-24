@@ -12,6 +12,7 @@ const Map<String, String> fontLicenceAssets = {
   'JetBrains Mono': 'assets/fonts/OFL-JetBrainsMono.txt',
   'Noto Sans Thai': 'assets/fonts/OFL-NotoSansThai.txt',
   'flag-icons': 'assets/flags/LICENSE-flag-icons.txt',
+  'Status icons (Bootstrap Icons, Carbon, Material Symbols)': 'assets/licenses/status-icons.txt',
 };
 
 /// The licences screens' line for the language flags: a proper name and a licence, English as

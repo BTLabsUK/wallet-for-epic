@@ -12,6 +12,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../connection_state.dart' show walletStatusProvider;
@@ -625,7 +626,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             helperStyle: _fieldError != null ? TextStyle(color: t.risk) : null,
             border: const OutlineInputBorder(),
             prefixIcon: Icon(
-              filtering ? Icons.search : (_node ? Icons.dns_outlined : Icons.mail_outline),
+              filtering ? Icons.search : (_node ? EpicGlyphs.node : EpicGlyphs.epicbox),
               size: 20,
             ),
             suffixIcon: _adding
