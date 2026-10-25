@@ -42,8 +42,8 @@ class MainActivity : FlutterFragmentActivity() {
         createNotificationChannel()
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         // Lets Dart block screenshots, screen recording and the recent-apps preview
-        // (FLAG_SECURE) while a recovery phrase or a payment QR is on screen, and opens the
-        // app's settings page.
+        // (FLAG_SECURE) while a recovery phrase or a payment QR is on screen, keeps the screen
+        // on (FLAG_KEEP_SCREEN_ON) during a restore's scan, and opens the app's settings page.
         MethodChannel(messenger, "epic_wallet/secure_screen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "setSecure") {
@@ -51,6 +51,15 @@ class MainActivity : FlutterFragmentActivity() {
                         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     } else {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    }
+                    result.success(null)
+                } else if (call.method == "keepScreenOn") {
+                    // A restore's chain scan: the screen stays on, so Android does not cut the
+                    // app's network while it runs.
+                    if (call.arguments == true) {
+                        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    } else {
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                     }
                     result.success(null)
                 } else if (call.method == "openAppSettings") {

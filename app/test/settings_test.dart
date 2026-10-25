@@ -96,11 +96,22 @@ class _ScanSession extends FakeWalletSession {
   StreamController<ScanProgress>? controller;
   BigInt? lastStart;
 
+  /// Every [scan] call, scripted or not.
+  int scans = 0;
+
   @override
   Stream<ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
     lastStart = startHeight;
+    scans++;
     final c = controller;
     return c == null ? super.scan(startHeight: startHeight) : c.stream;
+  }
+
+  /// The core ends a stopped scan's stream.
+  @override
+  void cancelScan() {
+    super.cancelScan();
+    unawaited(controller?.close());
   }
 }
 
@@ -988,7 +999,8 @@ void main() {
       expect(
         find.text(
           'History backups hold payments up to now. Export again after new '
-          'payments.',
+          'payments.\nIt also holds the contacts and their stars. Invoices and settings are '
+          'not in it.',
         ),
         findsOneWidget,
       );
@@ -1107,8 +1119,9 @@ void main() {
       expect(find.text('From a block height'), findsNothing);
       expect(find.text('From a date'), findsNothing);
       expect(find.text('The whole chain'), findsNothing);
+      // Block 0: only a scan from there finishes a restore.
       await _tapText(tester, 'Rescan');
-      expect(h.session.lastStart, BigInt.one);
+      expect(h.session.lastStart, BigInt.zero);
       expect(h.session.scanCalls, 1);
     });
 
@@ -1144,7 +1157,7 @@ void main() {
       await _tapText(tester, 'Recheck balance');
       await _tapText(tester, 'The whole chain');
       await _tapText(tester, 'Rescan');
-      expect(h.session.lastStart, BigInt.one);
+      expect(h.session.lastStart, BigInt.zero);
       expect(h.session.scanCalls, 2);
     });
   });
@@ -1227,9 +1240,11 @@ void main() {
       expect(find.byType(RestoreScreen), findsOneWidget);
     });
 
+    // R7: the phrase comes first; the wallet goes only once it checks out and the warning and
+    // the PIN confirmed, and the restored wallet keeps the PIN.
     testWidgets(
-      'Settings › Wallet › Restore from a phrase goes through the delete warning and the PIN, '
-      'then opens the restore',
+      'Settings › Wallet › Restore from a phrase asks for the phrase first, then the delete '
+      'warning and the PIN, and replaces the wallet in one step',
       (tester) async {
         final h = _Harness();
         await h.pump(tester);
@@ -1240,54 +1255,158 @@ void main() {
         expect(find.text('Restore from a phrase'), findsOneWidget);
         expect(find.text('Delete this wallet'), findsOneWidget);
 
+        // The phrase first; Back leaves the wallet as it is.
         await _tapText(tester, 'Restore from a phrase');
+        expect(find.byType(RestoreScreen), findsOneWidget);
+        expect(find.byType(DeleteWalletDialog), findsNothing);
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        expect(find.byType(RestoreScreen), findsNothing);
+        expect(find.text('Delete this wallet'), findsOneWidget);
+        expect(h.container.read(sessionProvider), isNotNull);
+
+        // A phrase that does not check out never reaches the warning.
+        await _tapText(tester, 'Restore from a phrase');
+        await _enter(tester, 'Recovery phrase', 'abandon abandon abandon');
+        await _tapText(tester, 'Continue');
+        expect(find.textContaining('This phrase has 3 words.'), findsOneWidget);
+        expect(find.byType(DeleteWalletDialog), findsNothing);
+
+        await _enter(tester, 'Recovery phrase', h.service.phrase);
+        await _tapText(tester, 'Continue');
         expect(find.byType(DeleteWalletDialog), findsOneWidget);
         expect(
-          find.textContaining('Restoring from a phrase replaces this wallet'),
+          find.textContaining('This wallet is removed and the wallet of the typed phrase'),
           findsOneWidget,
         );
-        // Keep wallet: nothing deleted, no restore.
+        // Keep wallet: nothing deleted, the phrase still there.
         await _tapText(tester, 'Keep wallet');
         expect(h.service.deletedWallets, isEmpty);
-        expect(find.byType(RestoreScreen), findsNothing);
+        expect(find.text(h.service.phrase), findsOneWidget);
 
         // The extra paragraph makes the dialog scroll on a 360 dp phone: the checkbox is
         // scrolled into view first, as a user would.
         final havePhrase = find.text('I have written down my recovery phrase');
-        await _tapText(tester, 'Restore from a phrase');
-        expect(find.byType(DeleteWalletDialog), findsOneWidget);
-        await tester.ensureVisible(havePhrase);
-        await tester.pumpAndSettle();
-        await tester.tap(havePhrase);
-        await _enter(tester, 'Type "delete" to confirm', 'delete');
-        await tester.tap(find.text('Delete wallet'));
-        await tester.pumpAndSettle();
+        Future<void> confirm() async {
+          await _tapText(tester, 'Continue');
+          expect(find.byType(DeleteWalletDialog), findsOneWidget);
+          await tester.ensureVisible(havePhrase);
+          await tester.pumpAndSettle();
+          await tester.tap(havePhrase);
+          await _enter(tester, 'Type "delete" to confirm', 'delete');
+          await tester.tap(find.text('Delete wallet'));
+          await tester.pumpAndSettle();
+        }
+
         // Cancelling the PIN keeps the wallet too.
+        await confirm();
         await _tapText(tester, 'Cancel');
         expect(h.service.deletedWallets, isEmpty);
-        expect(find.byType(RestoreScreen), findsNothing);
+        expect(h.container.read(sessionProvider), isNotNull);
 
-        await _tapText(tester, 'Restore from a phrase');
-        await tester.ensureVisible(havePhrase);
-        await tester.pumpAndSettle();
-        await tester.tap(havePhrase);
-        await _enter(tester, 'Type "delete" to confirm', 'delete');
-        await tester.tap(find.text('Delete wallet'));
-        await tester.pumpAndSettle();
+        await confirm();
+        expect(find.textContaining('The restored wallet keeps this PIN.'), findsOneWidget);
         await _enter(tester, 'PIN', _pin);
 
+        // Deleted and restored in one step, with the same PIN; the scan then runs.
         expect(h.service.deletedWallets, [_mainnetDir]);
-        expect(h.store.values['wallet.mainnet.pinSealed'], isNull);
-        expect(find.byType(RestoreScreen), findsOneWidget);
-        expect(find.widgetWithText(TextField, 'Recovery phrase'), findsOneWidget);
+        expect(h.service.createdMnemonic, h.service.phrase);
+        expect(h.service.createdPin, _pin);
+        expect(h.store.values['wallet.mainnet.pinSealed'], fakeSealedPassword(_pin));
+        expect(h.cleanups, 1);
+        expect(h.session.scanCalls, 1);
+        expect(find.text('Import a history backup'), findsOneWidget);
         expect(find.byType(FirstRunScreen), findsNothing);
-        // Back from the phrase goes to the launch screen, which offers the choice again.
-        await tester.tap(find.byType(BackButton));
-        await tester.pumpAndSettle();
-        expect(find.byType(FirstRunScreen), findsOneWidget);
-        expect(find.byKey(firstRunCreateKey), findsOneWidget);
       },
     );
+
+    // R10: a delete that fails after the wallet closed leaves for the launch screen.
+    // The automatic restore scan never holds a delete: it is stopped first. A Recheck the user
+    // started still is.
+    testWidgets('Delete stops the automatic restore scan; a running Recheck still waits', (tester) async {
+      final h = _Harness();
+      h.session
+        ..restoreScanPending = true
+        ..controller = StreamController<ScanProgress>();
+      await h.pump(tester);
+      await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(h.container.read(scanProvider).running, isTrue);
+      expect(h.session.lastStart, isNull, reason: 'the automatic scan from block 0');
+      // The running scan animates: frames instead of settling.
+      Future<void> frames() async {
+        for (var i = 0; i < 10; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+      }
+
+      await h.openSettingsNow(tester, SettingsSection.wallet);
+      final delete = find.text('Delete this wallet');
+      await tester.ensureVisible(delete);
+      await frames();
+      await tester.tap(delete);
+      await frames();
+      await tester.tap(find.text('I have written down my recovery phrase'));
+      await tester.enterText(find.widgetWithText(TextField, 'Type "delete" to confirm'), 'delete');
+      await frames();
+      await tester.tap(find.text('Delete wallet'));
+      await frames();
+      await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+      await frames();
+      await tester.pumpAndSettle();
+
+      expect(h.session.scanCancels, 1);
+      expect(h.service.deletedWallets, [_mainnetDir]);
+      expect(find.byType(FirstRunScreen), findsOneWidget);
+      // The stopped scan did not start again.
+      expect(h.session.scans, 1);
+    });
+
+    testWidgets('Delete waits for a Recheck the user started', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      h.session.controller = StreamController<ScanProgress>();
+      await h.openSettings(tester, SettingsSection.wallet);
+      await _tapText(tester, 'Recheck balance');
+      await tester.tap(find.text('Rescan'));
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(h.container.read(scanProvider).running, isTrue);
+      await tester.tap(find.text('Delete this wallet'));
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(find.text('Wait for the scan to finish before deleting the wallet.'), findsOneWidget);
+      expect(find.byType(DeleteWalletDialog), findsNothing);
+      expect(h.session.scanCancels, 0);
+      await h.session.controller!.close();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('a delete that fails returns to the launch screen with the reason', (tester) async {
+      final h = _Harness();
+      h.service.deleteError = const WalletError(kind: WalletErrorKind.walletBusy, message: 'busy');
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
+      await _tapText(tester, 'Delete this wallet');
+      await tester.tap(find.text('I have written down my recovery phrase'));
+      await _enter(tester, 'Type "delete" to confirm', 'delete');
+      await tester.tap(find.text('Delete wallet'));
+      await tester.pumpAndSettle();
+      await _enter(tester, 'PIN', _pin);
+
+      expect(h.service.deletedWallets, isEmpty);
+      expect(h.container.read(sessionProvider), isNull);
+      expect(find.byType(SettingsScreen), findsNothing);
+      // The wallet is still there: its unlock screen, with the reason in a notice.
+      expect(find.text('Unlock wallet'), findsOneWidget);
+      expect(find.textContaining('Wallet not deleted.'), findsOneWidget);
+    });
   });
 
   group('delete while scanning', () {

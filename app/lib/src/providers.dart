@@ -560,6 +560,7 @@ class ScanState {
     this.message,
     this.error,
     this.done = false,
+    this.stopped = false,
   });
 
   final bool running;
@@ -571,6 +572,10 @@ class ScanState {
 
   /// The last scan finished without an error.
   final bool done;
+
+  /// The last scan was stopped ([ScanNotifier.stop]) before it finished. Its pages stay: the
+  /// next scan with the same start goes on from there.
+  final bool stopped;
 }
 
 /// A scan of the chain for the open wallet's outputs, with its latest progress.
@@ -579,10 +584,24 @@ final scanProvider = NotifierProvider<ScanNotifier, ScanState>(
 );
 
 class ScanNotifier extends Notifier<ScanState> {
+  /// [stop] was asked for the running scan.
+  bool _stopping = false;
+
   @override
   ScanState build() {
     ref.watch(sessionProvider);
+    _stopping = false;
     return const ScanState();
+  }
+
+  /// Stops the running scan at its next page; [run] then answers false with
+  /// [ScanState.stopped].
+  void stop() {
+    final session = ref.read(sessionProvider);
+    if (session == null || !state.running) return;
+    _stopping = true;
+    logInfo('scan', 'stop asked');
+    session.cancelScan();
   }
 
   /// Scans from [startHeight] until the core closes the stream. Returns true on success.
@@ -594,6 +613,7 @@ class ScanNotifier extends Notifier<ScanState> {
       state = const ScanState(error: NetBlocked(NetworkMode.offline, 'scan'));
       return false;
     }
+    _stopping = false;
     state = const ScanState(running: true);
     logInfo('scan', 'started from ${startHeight ?? 'the last scanned block'}');
     // The core ends every scan with a `finished` event; on failure its message starts with
@@ -621,6 +641,12 @@ class ScanNotifier extends Notifier<ScanState> {
     if (!ref.mounted) return false;
     // Balances as the scan left them: the restore's Home and Outputs read zero before it.
     ref.invalidate(homeProvider);
+    if (_stopping) {
+      _stopping = false;
+      logInfo('scan', 'stopped');
+      state = const ScanState(stopped: true);
+      return false;
+    }
     if (failure != null) {
       logWarn('scan', 'failed: ${describeError(englishStrings, failure)}');
       state = ScanState(error: failure);

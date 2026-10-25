@@ -2,8 +2,8 @@
 /// `app/rust/src/core/export.rs`; the encryption is LEPIC's (`EpicWallet.sealAppData`), in the
 /// same `WFEH` version 1 format, so files of the old core open and the other way round.
 ///
-/// The payload holds only public or user-entered data ([Record], contacts, invoice service
-/// labels, the invoice address index). Never in it:
+/// The payload holds only public or user-entered data ([Record], contacts and their stars,
+/// invoice service labels, the invoice address index). Never in it:
 /// keys, the seed or phrase, the password, the PIN or its sealed text, node secrets.
 library;
 
@@ -50,8 +50,10 @@ class HistoryPayload {
     List<Record>? txs,
     List<ContactRec>? contacts,
     this.pairings,
+    List<String>? favourites,
   }) : txs = txs ?? [],
-       contacts = contacts ?? [];
+       contacts = contacts ?? [],
+       favourites = favourites ?? [];
 
   /// This payload with [pairings], the core's pairing backup.
   HistoryPayload withPairings(Map<String, Object?>? pairings) => HistoryPayload(
@@ -65,6 +67,7 @@ class HistoryPayload {
     txs: txs,
     contacts: contacts,
     pairings: pairings,
+    favourites: favourites,
   );
 
   /// Reads a payload as serde reads it. Throws [MetaFormatException] for a wrong shape.
@@ -101,6 +104,10 @@ class HistoryPayload {
       txs: [for (final r in list('txs')) Record.fromJson(r)],
       contacts: [for (final c in list('contacts')) ContactRec.fromJson(c)],
       pairings: pairings,
+      favourites: [
+        for (final f in list('favourites'))
+          f is String ? f : throw const MetaFormatException('favourites'),
+      ],
     );
   }
 
@@ -122,6 +129,10 @@ class HistoryPayload {
   /// as it is. Null when the wallet has no pairings or its core none.
   final Map<String, Object?>? pairings;
 
+  /// Ids (in [contacts]) of the contacts the wallet starred. Written only when not empty, so
+  /// a file without stars stays as older apps wrote it; older apps read past it.
+  final List<String> favourites;
+
   // The pairings only when set, so a file without them stays as the old core wrote it.
   Map<String, Object?> toJson() => {
     'format': format,
@@ -134,6 +145,7 @@ class HistoryPayload {
     'txs': [for (final r in txs) r.toJson()],
     'contacts': [for (final c in contacts) c.toJson()],
     'pairings': ?pairings,
+    if (favourites.isNotEmpty) 'favourites': favourites,
   };
 
   List<int> encode() => utf8.encode(encodeJson(toJson()));

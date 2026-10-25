@@ -8,6 +8,7 @@ import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
+import '../restore_scan.dart' show historyImportOfferProvider;
 import '../vault.dart';
 import '../wallet_service.dart';
 import 'centered_body.dart';
@@ -18,6 +19,7 @@ import 'first_run_screen.dart' show NetworkSettingsButton;
 import 'launch_screen.dart';
 import 'pin.dart';
 import 'theme/brand.dart';
+import 'wallet_delete.dart';
 
 /// Opens the wallet with the PIN or biometrics.
 class PinUnlockScreen extends ConsumerStatefulWidget {
@@ -179,7 +181,18 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final checkAt = await pinCheckTime(ref);
     if (mounted) setState(() => _checkAt = checkAt);
     try {
-      final session = await open(vault, config);
+      var rebuilt = false;
+      WalletSession? session;
+      try {
+        session = await open(vault, config);
+      } on WalletError catch (e) {
+        if (e.kind != WalletErrorKind.damagedDatabase) rethrow;
+        // The core set the damaged database aside; opening again rebuilds it from the phrase,
+        // and the restore scan then brings the funds back (restore_scan.dart).
+        logWarn('unlock', 'wallet database damaged: opening a rebuilt one');
+        rebuilt = true;
+        session = await open(vault, config);
+      }
       if (session == null) {
         // Dismissed, or the copy is gone after a new enrollment.
         final still = await vault.biometricsEnabled(config.chain);
@@ -187,6 +200,12 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         return;
       }
       await ref.read(sessionProvider.notifier).open(session);
+      if (rebuilt) {
+        ref
+            .read(noticeProvider.notifier)
+            .show(l.unlockDatabaseRebuilt, level: NoticeLevel.warning, persistent: true);
+        ref.read(historyImportOfferProvider.notifier).set(true);
+      }
       if (mounted) goHome(context);
     } on PinRejected catch (rejection) {
       _pin.clear();
@@ -223,9 +242,8 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     if (confirmed != true || !mounted) return;
     setState(() => _busy = true);
     try {
-      ref.read(sessionProvider.notifier).lock();
-      await ref.read(walletServiceProvider).deleteWallet(config: config);
-      await ref.read(vaultProvider).forget(config.chain);
+      // The same clean-up as Settings › Delete: push, backup note, shared files.
+      await deleteWalletEverywhere(ref, config);
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),

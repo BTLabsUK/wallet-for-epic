@@ -46,6 +46,11 @@ final class SecureScreen: NSObject, FlutterPlugin {
       UIApplication.shared.open(url, options: [:]) { opened in result(opened) }
       return
     }
+    if call.method == "keepScreenOn" {
+      UIApplication.shared.isIdleTimerDisabled = (call.arguments as? Bool) == true
+      result(nil)
+      return
+    }
     guard call.method == "setSecure" else {
       result(FlutterMethodNotImplemented)
       return

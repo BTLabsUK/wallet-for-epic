@@ -66,6 +66,9 @@ String describeError(AppLocalizations l, Object error) {
         l,
         pairingFailureOf(error) ?? PairingFailure.invalid,
       ),
+      // Receive, send or an invoice before the restore's scan from block 0 has finished; Home
+      // shows that scan (restore_scan.dart).
+      WalletErrorKind.restoreScanRequired => l.errorRestoreScanRequired,
       WalletErrorKind.other => _withDetail(l.errorOther, error.message),
     };
   }

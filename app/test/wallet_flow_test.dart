@@ -1,5 +1,10 @@
 import 'dart:async';
 
+import 'package:epic_wallet/src/errors.dart';
+import 'package:epic_wallet/src/settings.dart' show autoLockHoldProvider;
+import 'package:epic_wallet/src/ui/restore_card.dart';
+import 'package:epic_wallet/src/ui/restore_screen.dart' show restoreRetryKey, restoreStopKey;
+import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/app.dart';
@@ -93,6 +98,9 @@ class _Device {
   final store = MemorySecretStore();
   final MemoryBiometricStore bio;
   final files = FakeSlateFiles();
+
+  /// Calls of the shared-file clean-up a delete runs.
+  int cleanups = 0;
 }
 
 /// Pumps a second of frames, for screens with a spinner that never settles.
@@ -128,6 +136,7 @@ Future<void> _pumpApp(
         relayDirectoryProvider.overrideWithValue(_FakeRelays()),
         relayProbeProvider.overrideWithValue(FakeRelayProbe()),
         slateFilesProvider.overrideWithValue(device.files),
+        sharedFilesCleanupProvider.overrideWithValue(() async => device.cleanups++),
         priceSourceProvider.overrideWithValue(const _NoPrice()),
       ],
       child: const WalletApp(),
@@ -396,10 +405,11 @@ void main() {
       await _pumpApp(tester, service, device);
       await _tapText(tester, 'Restore from a phrase');
 
+      // The error names the first word that is not a phrase word.
       await _enter(tester, 'Recovery phrase', 'not a valid phrase');
       await _tapText(tester, 'Continue');
       expect(
-        find.textContaining('recovery phrase is not valid'),
+        find.text('Word 1, “not”, is not in the word list.'),
         findsOneWidget,
       );
 
@@ -642,6 +652,8 @@ void main() {
       await _tap(tester, delete);
       expect(service.deletedWallets, [_mainnetDir]);
       expect(device.store.values['wallet.mainnet.pinSealed'], isNull);
+      // The same clean-up as Settings › Delete.
+      expect(device.cleanups, 1);
       expect(find.text('Welcome'), findsOneWidget);
     });
   });
@@ -1095,6 +1107,141 @@ void main() {
       await _unlockToHome(tester);
       await tester.pumpAndSettle();
       expect(find.text('Someone is sending you 2 EPIC.'), findsOneWidget);
+    });
+  });
+
+  // R1–R3, R8, R9, R36: one "restore not finished" state driven by the core's flag.
+  group('restore not finished', () {
+    ProviderContainer containerOf(WidgetTester tester) =>
+        ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
+
+    testWidgets('Home shows the scan from block 0 the app starts itself, until the flag clears', (tester) async {
+      final scan = StreamController<ScanProgress>();
+      final session = _fundedSession()
+        ..restoreScanPending = true
+        ..scanStream = scan.stream;
+      final service = _existing(session: session);
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _enterNow(tester, 'PIN', _pin);
+
+      expect(session.scanStarts, [null], reason: 'no start height: the core starts at block 0');
+      expect(find.text('Restore not finished'), findsOneWidget);
+      expect(find.textContaining('from block 0. Receiving and sending open'), findsOneWidget);
+      scan.add(const ScanProgress(percent: 40, message: 'Scanning', finished: false));
+      await _pumpFrames(tester);
+      expect(find.text('Scanning the chain (40%)'), findsOneWidget);
+
+      // The core clears the flag when the scan from block 0 ends: the card goes.
+      session.restoreScanPending = false;
+      scan.add(const ScanProgress(percent: 100, message: 'Done', finished: true));
+      await scan.close();
+      await _pumpFrames(tester);
+      expect(find.text('Restore not finished'), findsNothing);
+      expect(session.scanCalls, 1);
+    });
+
+    testWidgets('a failed restore scan says so and offers Try again', (tester) async {
+      final session = _fundedSession()
+        ..restoreScanPending = true
+        ..scanEvents = const [ScanProgress(message: 'Scan failed: node gone', finished: true)];
+      await _pumpApp(tester, _existing(session: session), _Device(sealedMainnet: true));
+      await _unlockToHome(tester);
+
+      expect(find.text('Restore not finished'), findsOneWidget);
+      expect(find.textContaining('The scan stopped and is retried by itself.'), findsOneWidget);
+      session.scanEvents = const [ScanProgress(percent: 100, message: 'Done', finished: true)];
+      await _tap(tester, find.byKey(RestoreCard.retryKey));
+      expect(session.scanCalls, 2);
+      expect(find.text('Restore not finished'), findsNothing);
+    });
+
+    testWidgets('Receive and Send refused before the restore ends say why in the app\'s words', (tester) async {
+      final l = lookupAppLocalizations(const Locale('en'));
+      expect(
+        describeError(l, const WalletError(kind: WalletErrorKind.restoreScanRequired, message: 'a restore scan must complete')),
+        'Restore not finished. Receiving and sending open when the scan shown on Home ends.',
+      );
+    });
+
+    testWidgets('a damaged database at unlock opens the rebuilt wallet, says so and scans', (tester) async {
+      final session = _fundedSession();
+      final service = _existing(session: session)..damageOnNextOpen = true;
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _unlockToHome(tester);
+
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.textContaining('The wallet database was damaged and has been rebuilt'), findsOneWidget);
+      // The rebuilt database carries the flag: the scan from block 0 ran by itself.
+      expect(session.scanStarts, [null]);
+      expect(session.restoreScanPending, isFalse);
+      // The history is not in the new database: Home offers the backup until it is closed.
+      expect(find.textContaining('A history backup brings back who was paid'), findsOneWidget);
+      await _clearNotices(tester);
+      await _tapText(tester, 'Not now');
+      expect(find.textContaining('A history backup brings back who was paid'), findsNothing);
+    });
+
+    testWidgets('the restore scan keeps the screen on and the auto-lock away, and Stop and Try again go on', (tester) async {
+      final calls = <MethodCall>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('epic_wallet/secure_screen'),
+        (call) async {
+          calls.add(call);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          const MethodChannel('epic_wallet/secure_screen'),
+          null,
+        ),
+      );
+      final scan = StreamController<ScanProgress>();
+      final session = FakeWalletSession()..scanStream = scan.stream;
+      final service = FakeWalletService(session: session);
+      await _pumpApp(tester, service, _Device());
+      await _tapText(tester, 'Restore from a phrase');
+      expect(containerOf(tester).read(autoLockHoldProvider), 1);
+      await _enter(tester, 'Recovery phrase', service.phrase);
+      await _tapText(tester, 'Continue');
+      await _enter(tester, 'PIN', _pin);
+      await _enterNow(tester, 'Repeat PIN', _pin);
+
+      expect(find.text('The screen stays on while this runs.'), findsOneWidget);
+      expect(calls.where((c) => c.method == 'keepScreenOn').map((c) => c.arguments), [true]);
+      await tester.tap(find.byKey(restoreStopKey));
+      await _pumpFrames(tester);
+      expect(session.scanCancels, 1);
+      // The core ends a stopped scan's stream.
+      await scan.close();
+      await _pumpFrames(tester);
+      expect(find.textContaining('Stopped. Receiving and sending open only when this scan finishes'), findsOneWidget);
+      expect(calls.where((c) => c.method == 'keepScreenOn').map((c) => c.arguments), [true, false]);
+      // The Home scan waits while this screen is up.
+      expect(session.scanCalls, 1);
+
+      session.scanStream = null;
+      await _tap(tester, find.byKey(restoreRetryKey));
+      expect(session.scanCalls, 2);
+      expect(find.text('Import a history backup'), findsOneWidget);
+      await _tapText(tester, 'Not now');
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(containerOf(tester).read(autoLockHoldProvider), 0);
+    });
+
+    testWidgets('Back to the phrase after a failed restore puts the phrase back', (tester) async {
+      final service = FakeWalletService();
+      await _pumpApp(tester, service, _Device());
+      await _tapText(tester, 'Restore from a phrase');
+      await _enter(tester, 'Recovery phrase', service.phrase);
+      await _tapText(tester, 'Continue');
+      expect(find.text(service.phrase), findsNothing);
+      // A wallet appears on this network meanwhile: the vault refuses to replace it.
+      service.existingWallets.add(_mainnetDir);
+      await _enter(tester, 'PIN', _pin);
+      await _enter(tester, 'Repeat PIN', _pin);
+      await _tapText(tester, 'Back to the phrase');
+      expect(find.text(service.phrase), findsOneWidget);
     });
   });
 }

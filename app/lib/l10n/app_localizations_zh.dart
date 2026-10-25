@@ -2074,7 +2074,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restorePhraseLabel => '助记词';
 
   @override
-  String get restorePhraseHelper => '全部单词（12 至 24 个），以空格分隔。';
+  String get restorePhraseHelper => '全部单词（12、15、18、21 或 24 个），以空格分隔。';
 
   @override
   String get restoreStartHeading => '从何处开始扫描';
@@ -2127,7 +2127,76 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restoreOpenWallet => '打开钱包';
 
   @override
-  String get restoreRescanLater => '你之后可以在“设置”中进行完整的重新扫描。';
+  String get restoreUnfinishedTitle => '恢复尚未完成';
+
+  @override
+  String get restoreUnfinishedRunning => '正在从区块 0 开始查找此钱包的资金。完成后即可接收和发送。';
+
+  @override
+  String get restoreUnfinishedOffline => '关闭离线模式后扫描会继续。';
+
+  @override
+  String get restoreUnfinishedFailed => '扫描已中断，将自动重试。扫描完成前无法接收和发送。';
+
+  @override
+  String get errorRestoreScanRequired => '恢复尚未完成。主页上显示的扫描结束后即可接收和发送。';
+
+  @override
+  String get restoreScanStop => '停止';
+
+  @override
+  String get restoreScanScreenOn => '扫描期间屏幕保持常亮。';
+
+  @override
+  String get restoreScanStopped => '已停止。要等此扫描完成后才能接收和发送；扫描会在主页继续。';
+
+  @override
+  String get restoreScanUnfinished =>
+      '扫描在结束前中断。要等它完成后才能接收和发送：可在此重试，或打开钱包，扫描会在主页继续。';
+
+  @override
+  String get restoreFinishOnHome =>
+      '已找到所选起点之后的资金。现在从区块 0 开始的扫描会在主页完成恢复，结束后即可接收和发送。';
+
+  @override
+  String get unlockDatabaseRebuilt =>
+      '钱包数据库已损坏，并已根据助记词重建。扫描会找回资金；付款详情、备注和标签只能从交易记录备份中找回。';
+
+  @override
+  String get restoreRebuiltImportText => '交易记录备份可找回付款对象、备注和标签。';
+
+  @override
+  String get restoreReplaceLead =>
+      '此助记词恢复的钱包将取代这部手机上的钱包。在助记词核对无误并确认替换之前，不会有任何更改。';
+
+  @override
+  String get restoreReplacePinReason => '输入 PIN 码以替换此钱包。恢复后的钱包沿用此 PIN 码。';
+
+  @override
+  String restorePhraseUnknownWord(int position, String word) {
+    return '第 $position 个单词“$word”不在词表中。';
+  }
+
+  @override
+  String restorePhraseWordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '此助记词有 $count 个单词。助记词应为 12、15、18、21 或 24 个单词。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get restorePhraseChecksum => '每个单词都在词表中，但助记词校验不通过。有单词错误或顺序不对。';
+
+  @override
+  String deleteFailedNotice(String error) {
+    return '钱包未删除。$error请解锁后在“设置”中重试。';
+  }
+
+  @override
+  String get historyBackupExportCarries => '备份还包含联系人及其星标。账单和设置不在其中。';
 
   @override
   String get restoreDoneIconLabel => '完成';
@@ -2161,7 +2230,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get firstRunRestore => '用助记词恢复';
 
   @override
-  String get settingsRestoreReplaces => '用助记词恢复会替换此钱包：先删除此钱包，然后输入要恢复的钱包的助记词。';
+  String get settingsRestoreReplaces => '此钱包将被删除，由所输入助记词对应的钱包取代，PIN 码保持不变。';
 
   @override
   String get firstRunSecuring => '正在保护你的钱包…';

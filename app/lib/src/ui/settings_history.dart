@@ -211,37 +211,40 @@ Future<bool> handOverFile(
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            if (note != null)
+        // Scrolls on a short screen or with large text: the sheet stops at part of the height.
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                child: Text(note),
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
-            // Share first: the copy that matters is the one off this phone.
-            ListTile(
-              leading: const Icon(Icons.share),
-              title: Text(l.historyBackupShare),
-              subtitle: Text(l.historyBackupShareSubtitle),
-              onTap: () => Navigator.pop(context, _Destination.share),
-            ),
-            ListTile(
-              leading: const Icon(Icons.save_alt),
-              title: Text(l.historyBackupSaveToDevice),
-              subtitle: Text(l.historyBackupSaveToDeviceSubtitle),
-              onTap: () => Navigator.pop(context, _Destination.device),
-            ),
-            const SizedBox(height: 8),
-          ],
+              if (note != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                  child: Text(note),
+                ),
+              // Share first: the copy that matters is the one off this phone.
+              ListTile(
+                leading: const Icon(Icons.share),
+                title: Text(l.historyBackupShare),
+                subtitle: Text(l.historyBackupShareSubtitle),
+                onTap: () => Navigator.pop(context, _Destination.share),
+              ),
+              ListTile(
+                leading: const Icon(Icons.save_alt),
+                title: Text(l.historyBackupSaveToDevice),
+                subtitle: Text(l.historyBackupSaveToDeviceSubtitle),
+                onTap: () => Navigator.pop(context, _Destination.device),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
@@ -293,7 +296,8 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
       name: name,
       bytes: bytes,
       title: l.historyBackupExportTitle,
-      note: l.historyBackupExportNote,
+      // What a restore gets back from it, and what it does not (invoices, settings).
+      note: '${l.historyBackupExportNote}\n${l.historyBackupExportCarries}',
     );
     // uihome: the home reminder counts what changed since this export.
     if (saved) {
@@ -393,7 +397,11 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
       final other = report.pairingsOtherDevice;
       final pairings = report.pairingsAdded == 0
           ? null
-          : '${l.restorePairings}: ${other == 0 ? report.pairingsAdded : other == report.pairingsAdded ? l.restorePairingsOnOtherDevice(other) : '${report.pairingsAdded}, ${l.restorePairingsOnOtherDevice(other)}'}';
+          : '${l.restorePairings}: ${other == 0
+                ? report.pairingsAdded
+                : other == report.pairingsAdded
+                ? l.restorePairingsOnOtherDevice(other)
+                : '${report.pairingsAdded}, ${l.restorePairingsOnOtherDevice(other)}'}';
       await _tell(
         context,
         l.historyBackupImportedTitle,
@@ -406,10 +414,12 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
     }
     // A restore that brought pairings back says what came back (SPEC 2.12).
     if (report.pairingsAdded > 0 && context.mounted) {
-      ref.read(noticeProvider.notifier).show(
-        '${l.restoreDone} ${l.restoreDoneBody(report.merged + report.added, report.contactsAdded, report.pairingsAdded)}',
-        level: NoticeLevel.success,
-      );
+      ref
+          .read(noticeProvider.notifier)
+          .show(
+            '${l.restoreDone} ${l.restoreDoneBody(report.merged + report.added, report.contactsAdded, report.pairingsAdded)}',
+            level: NoticeLevel.success,
+          );
     }
     // Pairings used on another device wait until the user takes them over here (RFC 9.5).
     if (report.pairingsOtherDevice > 0 && context.mounted) {
@@ -419,8 +429,14 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
           title: Text(l.restoreUseContactsTitle),
           content: Text(l.restoreUseContactsBody(report.pairingsOtherDevice)),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.pairNotNow)),
-            TextButton(onPressed: () => Navigator.pop(context, true), child: Text(l.restoreUseHere)),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l.pairNotNow),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l.restoreUseHere),
+            ),
           ],
         ),
       );

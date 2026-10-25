@@ -13,6 +13,7 @@ import '../phone_tor.dart';
 import '../tor_phone.dart';
 import '../providers.dart';
 import '../push.dart';
+import '../restore_scan.dart';
 import '../scan/incoming_link.dart';
 import '../scan/scan_checks.dart' show CodeOrigin;
 import '../settings.dart';
@@ -31,6 +32,7 @@ import 'invoices_screen.dart' show InvoicesEntry, InvoicesScreen;
 import 'pairing/pairing_notices.dart';
 import 'outputs_screen.dart';
 import 'receive_screen.dart' show ReceiveView;
+import 'restore_card.dart';
 import 'restore_screen.dart' show ScanProgressView;
 import 'scan_route.dart';
 import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
@@ -670,6 +672,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final config = ref.watch(walletConfigProvider);
     final home = ref.watch(homeProvider);
     final scan = ref.watch(scanProvider);
+    final restoreUnfinished = ref.watch(restoreScanProvider.select((r) => r.required));
+    final importOffer = ref.watch(historyImportOfferProvider);
     final l = context.l10n;
     final data = home.value;
     final demo = ref.watch(demoModeProvider);
@@ -720,7 +724,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     BalanceTiles(onTap: _openOutputs),
                     const SizedBox(height: homeCardGap),
                     HomeDestinations(onOpen: _openDestination),
-                    if (scan.running || scan.error != null)
+                    // An unfinished restore: its own card, with the scan in it.
+                    if (restoreUnfinished || importOffer)
+                      const Padding(
+                        padding: EdgeInsets.only(top: homeCardGap),
+                        child: RestoreCard(),
+                      )
+                    else if (scan.running || scan.error != null)
                       Padding(
                         padding: const EdgeInsets.only(top: homeCardGap),
                         child: Card(

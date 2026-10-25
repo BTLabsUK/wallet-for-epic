@@ -13,6 +13,11 @@ const MethodChannel _channel = MethodChannel('epic_wallet/secure_screen');
 /// A no-op elsewhere. Failures are ignored: the phrase must still be shown.
 Future<void> setSecureScreen(bool secure) => _call('setSecure', secure);
 
+/// While [on] is true the screen does not turn off by itself (Android FLAG_KEEP_SCREEN_ON, iOS
+/// idle timer): a restore's chain scan keeps the network Android cuts once the app is away.
+/// A no-op elsewhere; failures are ignored.
+Future<void> keepScreenOn(bool on) => _call('keepScreenOn', on);
+
 Future<void> _call(String method, bool on) async {
   if (kIsWeb ||
       (defaultTargetPlatform != TargetPlatform.android &&

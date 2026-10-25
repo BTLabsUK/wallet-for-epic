@@ -2215,7 +2215,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restorePhraseHelper =>
-      'All the words (12 to 24), separated by spaces.';
+      'All the words (12, 15, 18, 21 or 24), separated by spaces.';
 
   @override
   String get restoreStartHeading => 'Where to start scanning';
@@ -2271,8 +2271,88 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoreOpenWallet => 'Open wallet';
 
   @override
-  String get restoreRescanLater =>
-      'You can run a full rescan later from Settings.';
+  String get restoreUnfinishedTitle => 'Restore not finished';
+
+  @override
+  String get restoreUnfinishedRunning =>
+      'Looking for this wallet\'s funds from block 0. Receiving and sending open when this ends.';
+
+  @override
+  String get restoreUnfinishedOffline =>
+      'The scan goes on when Offline mode is off.';
+
+  @override
+  String get restoreUnfinishedFailed =>
+      'The scan stopped and is retried by itself. Receiving and sending stay closed until it finishes.';
+
+  @override
+  String get errorRestoreScanRequired =>
+      'Restore not finished. Receiving and sending open when the scan shown on Home ends.';
+
+  @override
+  String get restoreScanStop => 'Stop';
+
+  @override
+  String get restoreScanScreenOn => 'The screen stays on while this runs.';
+
+  @override
+  String get restoreScanStopped =>
+      'Stopped. Receiving and sending open only when this scan finishes; it carries on from Home.';
+
+  @override
+  String get restoreScanUnfinished =>
+      'The scan stopped before the end. Receiving and sending open only when it finishes: try again here, or open the wallet and it carries on from Home.';
+
+  @override
+  String get restoreFinishOnHome =>
+      'Funds after the chosen start are found. A scan from block 0 now finishes the restore on Home; receiving and sending open when it ends.';
+
+  @override
+  String get unlockDatabaseRebuilt =>
+      'The wallet database was damaged and has been rebuilt from the phrase. A scan brings the funds back; payment details, notes and labels come back only from a history backup.';
+
+  @override
+  String get restoreRebuiltImportText =>
+      'A history backup brings back who was paid, notes and labels.';
+
+  @override
+  String get restoreReplaceLead =>
+      'The phrase restores a wallet in place of the one on this phone. Nothing changes before the phrase checks out and the replacement is confirmed.';
+
+  @override
+  String get restoreReplacePinReason =>
+      'Enter your PIN to replace this wallet. The restored wallet keeps this PIN.';
+
+  @override
+  String restorePhraseUnknownWord(int position, String word) {
+    return 'Word $position, “$word”, is not in the word list.';
+  }
+
+  @override
+  String restorePhraseWordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'This phrase has $count words. A recovery phrase has 12, 15, 18, 21 or 24.',
+      one:
+          'This phrase has 1 word. A recovery phrase has 12, 15, 18, 21 or 24.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get restorePhraseChecksum =>
+      'Every word is in the word list, but the phrase does not check out. A word is wrong or out of order.';
+
+  @override
+  String deleteFailedNotice(String error) {
+    return 'Wallet not deleted. $error Unlock and try again from Settings.';
+  }
+
+  @override
+  String get historyBackupExportCarries =>
+      'It also holds the contacts and their stars. Invoices and settings are not in it.';
 
   @override
   String get restoreDoneIconLabel => 'Done';
@@ -2307,7 +2387,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsRestoreReplaces =>
-      'Restoring from a phrase replaces this wallet: it is deleted first, then the phrase of the wallet to restore is entered.';
+      'This wallet is removed and the wallet of the typed phrase takes its place, with the same PIN.';
 
   @override
   String get firstRunSecuring => 'Securing your wallet…';

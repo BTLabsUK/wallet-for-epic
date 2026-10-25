@@ -21,6 +21,7 @@ import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
 import 'advanced.dart' show NetworkMode;
 import 'contact_store.dart';
+import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'log.dart';
 import 'net/lan_node_relay.dart';
 import 'net/local_address.dart';
@@ -144,6 +145,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.onionUnreachable => WalletErrorKind.onionUnreachable,
     lepic.WalletErrorKind.secretStore => WalletErrorKind.io,
     lepic.WalletErrorKind.foreignWallet => WalletErrorKind.invalidArgument,
+    // Only resetPassword returns it, which the phone does not call.
+    lepic.WalletErrorKind.phraseMismatch => WalletErrorKind.invalidArgument,
     // The old core refused a cancel of a payment on chain, and a history file of another
     // wallet or a damaged one, as invalidArgument; the UI words them from that.
     lepic.WalletErrorKind.onChain ||
@@ -161,7 +164,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     // An undelivered issue or resend is a transport failure; `payInvoice` catches the kind
     // before it gets here and answers `InvoiceStatus.replyFailed`.
     lepic.WalletErrorKind.notDelivered => WalletErrorKind.transportFailed,
-    lepic.WalletErrorKind.restoreScanRequired ||
+    lepic.WalletErrorKind.restoreScanRequired =>
+      WalletErrorKind.restoreScanRequired,
     lepic.WalletErrorKind.changedDuringCancel ||
     lepic.WalletErrorKind.other ||
     lepic.WalletErrorKind.locked ||
@@ -1688,6 +1692,9 @@ class LepicWalletSession implements WalletSession {
     if (!_wallet.isDisposed) _guardSync(_wallet.cancelScan);
   }
 
+  @override
+  Future<bool> restoreScanRequired() => _guard(_wallet.restoreScanRequired);
+
   /// LEPIC counts balances with its own confirmations and reports them in the summary
   /// (`countedConfirmationsProvider`), so [minimumConfirmations] changes nothing.
   @override
@@ -1826,6 +1833,14 @@ class LepicWalletSession implements WalletSession {
           await _live(),
           walletFp: walletFingerprint(await _wallet.epicboxAddress()),
           useBackup: useBackup,
+          // The contact form's checks, as the contacts file import uses.
+          checks: AddressChecks(
+            epicbox: (a) => lepic.validateEpicboxAddress(
+              address: a,
+              chain: _lepicChain(_history.chain),
+            ),
+            onion: (a) => lepic.validateOnionAddress(address: a),
+          ),
         );
         if (!report.applied) return report;
         // Restored pairings may still be in use on the device the backup came from.

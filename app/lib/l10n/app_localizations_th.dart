@@ -2151,7 +2151,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get restorePhraseLabel => 'วลีกู้คืน';
 
   @override
-  String get restorePhraseHelper => 'ทุกคำ (12 ถึง 24 คำ) คั่นด้วยช่องว่าง';
+  String get restorePhraseHelper =>
+      'ทุกคำ (12, 15, 18, 21 หรือ 24 คำ) คั่นด้วยช่องว่าง';
 
   @override
   String get restoreStartHeading => 'เริ่มสแกนจากไหน';
@@ -2206,7 +2207,85 @@ class AppLocalizationsTh extends AppLocalizations {
   String get restoreOpenWallet => 'เปิดกระเป๋าเงิน';
 
   @override
-  String get restoreRescanLater => 'สแกนใหม่ทั้งหมดได้ภายหลังจากการตั้งค่า';
+  String get restoreUnfinishedTitle => 'การกู้คืนยังไม่เสร็จ';
+
+  @override
+  String get restoreUnfinishedRunning =>
+      'กำลังค้นหายอดเงินของกระเป๋านี้ตั้งแต่บล็อก 0 เมื่อเสร็จจึงรับและส่งได้';
+
+  @override
+  String get restoreUnfinishedOffline =>
+      'การสแกนจะดำเนินต่อเมื่อปิดโหมดออฟไลน์';
+
+  @override
+  String get restoreUnfinishedFailed =>
+      'การสแกนหยุดและจะลองใหม่เอง รับและส่งไม่ได้จนกว่าจะสแกนเสร็จ';
+
+  @override
+  String get errorRestoreScanRequired =>
+      'การกู้คืนยังไม่เสร็จ เมื่อการสแกนที่แสดงบนหน้าหลักเสร็จจึงรับและส่งได้';
+
+  @override
+  String get restoreScanStop => 'หยุด';
+
+  @override
+  String get restoreScanScreenOn => 'หน้าจอจะเปิดค้างไว้ระหว่างสแกน';
+
+  @override
+  String get restoreScanStopped =>
+      'หยุดแล้ว จะรับและส่งได้เมื่อสแกนนี้เสร็จเท่านั้น และจะดำเนินต่อจากหน้าหลัก';
+
+  @override
+  String get restoreScanUnfinished =>
+      'การสแกนหยุดก่อนจบ จะรับและส่งได้เมื่อสแกนเสร็จเท่านั้น ลองอีกครั้งที่นี่ หรือเปิดกระเป๋าแล้วสแกนจะดำเนินต่อจากหน้าหลัก';
+
+  @override
+  String get restoreFinishOnHome =>
+      'พบยอดเงินหลังจุดเริ่มที่เลือกแล้ว ตอนนี้การสแกนตั้งแต่บล็อก 0 จะกู้คืนให้เสร็จบนหน้าหลัก เมื่อเสร็จจึงรับและส่งได้';
+
+  @override
+  String get unlockDatabaseRebuilt =>
+      'ฐานข้อมูลกระเป๋าเสียหายและถูกสร้างใหม่จากวลีแล้ว การสแกนจะนำยอดเงินกลับมา ส่วนรายละเอียดรายการ บันทึก และป้ายกำกับจะกลับมาได้จากข้อมูลสำรองประวัติเท่านั้น';
+
+  @override
+  String get restoreRebuiltImportText =>
+      'ข้อมูลสำรองประวัติจะนำข้อมูลว่าจ่ายให้ใคร บันทึก และป้ายกำกับกลับมา';
+
+  @override
+  String get restoreReplaceLead =>
+      'วลีนี้จะกู้คืนกระเป๋ามาแทนกระเป๋าบนโทรศัพท์นี้ จะไม่มีอะไรเปลี่ยนจนกว่าวลีจะผ่านการตรวจและยืนยันการแทนที่';
+
+  @override
+  String get restoreReplacePinReason =>
+      'ใส่ PIN เพื่อแทนที่กระเป๋านี้ กระเป๋าที่กู้คืนจะใช้ PIN นี้ต่อ';
+
+  @override
+  String restorePhraseUnknownWord(int position, String word) {
+    return 'คำที่ $position “$word” ไม่อยู่ในรายการคำ';
+  }
+
+  @override
+  String restorePhraseWordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'วลีนี้มี $count คำ วลีกู้คืนมี 12, 15, 18, 21 หรือ 24 คำ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get restorePhraseChecksum =>
+      'ทุกคำอยู่ในรายการคำ แต่วลีไม่ผ่านการตรวจ มีคำผิดหรือลำดับไม่ถูก';
+
+  @override
+  String deleteFailedNotice(String error) {
+    return 'ยังไม่ได้ลบกระเป๋า $error ปลดล็อกแล้วลองอีกครั้งใน การตั้งค่า';
+  }
+
+  @override
+  String get historyBackupExportCarries =>
+      'ไฟล์ยังเก็บผู้ติดต่อและดาวที่ติดไว้ด้วย แต่ไม่รวมใบแจ้งหนี้และการตั้งค่า';
 
   @override
   String get restoreDoneIconLabel => 'เสร็จสิ้น';
@@ -2241,7 +2320,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsRestoreReplaces =>
-      'การกู้คืนจากวลีกู้คืนจะแทนที่กระเป๋าเงินนี้: กระเป๋าเงินนี้จะถูกลบก่อน แล้วจึงใส่วลีกู้คืนของกระเป๋าเงินที่ต้องการกู้คืน';
+      'กระเป๋านี้จะถูกลบ และกระเป๋าของวลีที่ใส่จะมาแทน โดยใช้ PIN เดิม';
 
   @override
   String get firstRunSecuring => 'กำลังรักษาความปลอดภัยกระเป๋าเงิน…';
