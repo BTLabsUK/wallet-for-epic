@@ -54,7 +54,7 @@ Future<void> repostRequestPayment(BuildContext context, WidgetRef ref, IssuedReq
   final l = context.l10n;
   try {
     await ref.read(deskInvoicesProvider.notifier).repost(request.slateId);
-    if (context.mounted) showEToast(context, l.deskInvIssuerReposted);
+    if (context.mounted) showEToast(context, l.deskInvIssuerReposted, tone: ETone.ok);
   } on InvoiceError catch (e) {
     if (context.mounted) showEToast(context, e.problem == InvoiceProblem.nodeDown ? l.deskInvIssuerNodeDown : l.deskInvFailed, tone: ETone.risk);
   } on Object {

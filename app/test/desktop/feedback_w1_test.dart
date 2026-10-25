@@ -251,7 +251,7 @@ void main() {
   testWidgets('a toast closes when the screen changes (B11)', (tester) async {
     final container = await _pump(
       tester,
-      Builder(builder: (c) => EButton(label: 'toast', onPressed: () => showEToast(c, 'Saved'))),
+      Builder(builder: (c) => EButton(label: 'toast', onPressed: () => showEToast(c, 'Saved', tone: ETone.ok))),
       refresh: false,
     );
     await tester.tap(find.text('toast'));
@@ -260,6 +260,19 @@ void main() {
     container.read(deskNavProvider.notifier).go(DeskRoute.send);
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('Saved'), findsNothing);
+  });
+
+  testWidgets('a toast shows its tone: tick only for done, alert for warn, error for risk', (tester) async {
+    for (final (tone, icon) in [(ETone.ok, EIcons.okCircle), (ETone.warn, EIcons.alert), (ETone.risk, EIcons.error)]) {
+      await _pump(tester, Builder(builder: (c) => EButton(label: 'toast', onPressed: () => showEToast(c, 'T', tone: tone))), refresh: false);
+      await tester.tap(find.text('toast'));
+      await tester.pump(const Duration(milliseconds: 300));
+      final toast = find.byType(SnackBar);
+      expect(find.descendant(of: toast, matching: find.byIcon(icon)), findsOneWidget, reason: '$tone');
+      if (tone != ETone.ok) expect(find.descendant(of: toast, matching: find.byIcon(EIcons.okCircle)), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 30));
+    }
   });
 
   testWidgets('a copy refused once is tried again (O7)', (tester) async {

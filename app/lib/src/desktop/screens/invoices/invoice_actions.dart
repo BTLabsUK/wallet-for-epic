@@ -24,7 +24,7 @@ Future<void> spendCancelledPayment(BuildContext context, WidgetRef ref, Incoming
   final l = context.l10n;
   try {
     await ref.read(deskInvoicesProvider.notifier).spendToSelf(invoice.slateId);
-    if (context.mounted) showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpentText);
+    if (context.mounted) showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpentText, tone: ETone.ok);
   } on Object {
     if (context.mounted) showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpendFailedText, tone: ETone.warn);
   }

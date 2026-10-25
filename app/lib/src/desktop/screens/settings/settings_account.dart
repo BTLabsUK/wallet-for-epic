@@ -63,7 +63,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
     }
     if (!mounted) return;
     setState(() => _remembered = false);
-    showEToast(context, l.deskSetAcctForgotten, text: l.deskSetAcctForgottenText);
+    showEToast(context, l.deskSetAcctForgotten, text: l.deskSetAcctForgottenText, tone: ETone.ok);
   }
 
   @override
@@ -77,14 +77,14 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
     final t = _label.text.trim();
     final id = ref.read(deskProvider).account?.id;
     if (t.isEmpty) {
-      showEToast(context, l.deskSetAcctLabelNotSaved, text: l.deskSetAcctEnterLabel);
+      showEToast(context, l.deskSetAcctLabelNotSaved, text: l.deskSetAcctEnterLabel, tone: ETone.warn);
       return;
     }
     if (id != null) {
       try {
         await ref.read(deskProvider.notifier).renameWallet(id, t);
       } on Object catch (e) {
-        if (mounted) showEToast(context, l.deskSetAcctLabelNotSaved, text: deskErrorText(e, l));
+        if (mounted) showEToast(context, l.deskSetAcctLabelNotSaved, text: deskErrorText(e, l), tone: ETone.risk);
         return;
       }
     }
@@ -92,7 +92,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
     // The wallet's own name wins; the old app-wide label stays empty.
     final p = ref.read(settingsPrefsProvider.notifier);
     p.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: id == null ? t : ''));
-    showEToast(context, l.deskSetAcctLabelSaved, text: t);
+    showEToast(context, l.deskSetAcctLabelSaved, text: t, tone: ETone.ok);
   }
 
   @override
@@ -197,10 +197,10 @@ class _FolderRow extends ConsumerWidget {
   Future<void> _open(BuildContext context, WidgetRef ref) async {
     final l = context.l10n;
     if (!Directory(path).existsSync()) {
-      showEToast(context, l.deskSetAcctFolderNotFound, text: path);
+      showEToast(context, l.deskSetAcctFolderNotFound, text: path, tone: ETone.warn);
       return;
     }
-    if (!await ref.read(deskOpenFolderProvider)(path) && context.mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: path);
+    if (!await ref.read(deskOpenFolderProvider)(path) && context.mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: path, tone: ETone.warn);
   }
 
   @override

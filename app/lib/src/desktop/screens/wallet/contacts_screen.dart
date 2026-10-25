@@ -473,7 +473,7 @@ class _ContactDetail extends ConsumerWidget {
                     x.copyWith(favourite: !x.favourite),
                   )
                   .then<void>((_) {}, onError: (Object e) {
-                    if (context.mounted) showEToast(context, deskErrorText(e, l));
+                    if (context.mounted) showEToast(context, deskErrorText(e, l), tone: ETone.risk);
                   }),
             ),
             EButton(
@@ -492,7 +492,7 @@ class _ContactDetail extends ConsumerWidget {
                   if (context.mounted) showEToast(context, l.deskConNotDeleted, text: deskErrorText(e, l), tone: ETone.risk);
                   return;
                 }
-                if (context.mounted) showEToast(context, l.deskConDeleted(x.name));
+                if (context.mounted) showEToast(context, l.deskConDeleted(x.name), tone: ETone.ok);
                 onDeleted();
               },
             ),

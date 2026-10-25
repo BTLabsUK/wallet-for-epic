@@ -54,7 +54,7 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
     if (ok != true) return;
     await ref.read(logFilesProvider).clear();
     await _read();
-    if (mounted) showEToast(context, context.l10n.deskSetLogsCleared);
+    if (mounted) showEToast(context, context.l10n.deskSetLogsCleared, tone: ETone.ok);
   }
 
   String _until(AppLocalizations l, DateTime at) {

@@ -84,7 +84,7 @@ Future<void> openUpdatePage(BuildContext context, WidgetRef ref, String page) as
 Future<void> restartToUpdate(BuildContext context, WidgetRef ref) async {
   final l = context.l10n;
   if (ref.read(deskProvider.notifier).sending > 0) {
-    showEToast(context, l.deskShellNotQuitTitle, text: l.deskShellNotQuitBody);
+    showEToast(context, l.deskShellNotQuitTitle, text: l.deskShellNotQuitBody, tone: ETone.warn);
     return;
   }
   // The update is already running once restart() returns true, so the quit does not wait on this
@@ -99,7 +99,7 @@ Future<void> restartToUpdate(BuildContext context, WidgetRef ref) async {
 Future<void> retryUpdate(BuildContext context, WidgetRef ref) async {
   final l = context.l10n;
   if (ref.read(deskProvider.notifier).sending > 0) {
-    showEToast(context, l.deskShellNotQuitTitle, text: l.deskShellNotQuitBody);
+    showEToast(context, l.deskShellNotQuitTitle, text: l.deskShellNotQuitBody, tone: ETone.warn);
     return;
   }
   // The notice changes (download, restart) while this runs: the quit goes through the container.

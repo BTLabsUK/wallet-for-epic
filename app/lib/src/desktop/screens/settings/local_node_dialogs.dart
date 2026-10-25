@@ -115,7 +115,7 @@ class _DeleteChainDataDialogState extends State<DeleteChainDataDialog> {
       final freed = await widget.api.deleteChainData();
       if (!mounted) return;
       Navigator.of(context).pop();
-      showEToast(context, l.deskSetLndDeleted, text: l.deskSetLndFreed(bytesText(freed, l)));
+      showEToast(context, l.deskSetLndDeleted, text: l.deskSetLndFreed(bytesText(freed, l)), tone: ETone.ok);
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
@@ -215,7 +215,7 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
       await widget.api.reuseChainData(f, ReuseMode.point);
       if (!mounted) return;
       Navigator.of(context).pop(true);
-      showEToast(context, l.deskSetLndInUse, text: f.path);
+      showEToast(context, l.deskSetLndInUse, text: f.path, tone: ETone.ok);
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
@@ -401,7 +401,7 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
                   final p = _path!;
                   final dir = p.substring(0, p.lastIndexOf(RegExp(r'[\\/]')).clamp(0, p.length));
                   final ok = await ref.read(deskOpenFolderProvider)(dir);
-                  if (!ok && context.mounted) showEToast(context, l10n.deskSetLnodeFolderNotOpened, text: dir);
+                  if (!ok && context.mounted) showEToast(context, l10n.deskSetLnodeFolderNotOpened, text: dir, tone: ETone.warn);
                 },
         ),
         EButton.ghost(
@@ -411,7 +411,7 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
               ? null
               : () async {
                   await Clipboard.setData(ClipboardData(text: lines.join('\n')));
-                  if (context.mounted) showEToast(context, l10n.deskSetLndCopied, text: l10n.deskSetLndLines(lines.length));
+                  if (context.mounted) showEToast(context, l10n.deskSetLndCopied, text: l10n.deskSetLndLines(lines.length), tone: ETone.ok);
                 },
         ),
         EButton.primary(label: l10n.commonClose, onPressed: () => Navigator.of(context).pop()),

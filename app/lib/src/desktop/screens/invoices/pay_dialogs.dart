@@ -27,7 +27,7 @@ void _afterPay(BuildContext context, ProviderContainer c, IncomingInvoice paid) 
   if (paid.state == PayState.notDelivered) {
     showEToast(context, l.deskInvPayerNotDeliveredToast, text: l.deskInvPayerNotDeliveredToastText, tone: ETone.risk);
   } else {
-    showEToast(context, l.invoicePaidNotice(paid.label));
+    showEToast(context, l.invoicePaidNotice(paid.label), tone: ETone.ok);
   }
 }
 
@@ -176,7 +176,7 @@ Future<void> showDeclineInvoice(BuildContext context, IncomingInvoice invoice) a
   if (ok != true || !context.mounted) return;
   final c = ProviderScope.containerOf(context, listen: false);
   if (c.read(deskNavProvider).route != DeskRoute.invoices) c.read(deskNavProvider.notifier).go(DeskRoute.invoices, InvoicesTab.pay);
-  showEToast(context, context.l10n.deskInvPayerDeclined);
+  showEToast(context, context.l10n.deskInvPayerDeclined, tone: ETone.neutral);
 }
 
 class _DeclineDialog extends ConsumerStatefulWidget {
@@ -230,11 +230,11 @@ Future<void> showCancelPaymentDialog(BuildContext context, IncomingInvoice invoi
   final l = context.l10n;
   switch (done) {
     case _Cancelled.spent:
-      showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpentText);
+      showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpentText, tone: ETone.ok);
     case _Cancelled.spendFailed:
       showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpendFailedText, tone: ETone.warn);
     case _Cancelled.cancelled || _Cancelled.no:
-      showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerCancelledText);
+      showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerCancelledText, tone: ETone.ok);
   }
 }
 
@@ -358,7 +358,7 @@ Future<void> retryPayment(BuildContext context, IncomingInvoice invoice) async {
     if (i.state == PayState.notDelivered) {
       showEToast(context, l.deskInvPayerRetryFailed, text: l.deskInvPayerRetryFailedText, tone: ETone.risk);
     } else {
-      showEToast(context, l.invoicePaidNotice(invoice.label));
+      showEToast(context, l.invoicePaidNotice(invoice.label), tone: ETone.ok);
     }
   } on Object {
     if (context.mounted) showEToast(context, l.deskInvPayerRetryFailed, text: l.deskInvPayerRetryFailedText, tone: ETone.risk);

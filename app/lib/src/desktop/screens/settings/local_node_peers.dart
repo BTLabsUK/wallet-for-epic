@@ -68,14 +68,14 @@ class _PeersTabState extends ConsumerState<PeersTab> {
     final l = context.l10n;
     await ref.read(deskNodeProvider).ban(addr);
     ref.invalidate(deskPeersProvider);
-    if (mounted) showEToast(context, l.deskSetPeersBannedToast, text: addr);
+    if (mounted) showEToast(context, l.deskSetPeersBannedToast, text: addr, tone: ETone.ok);
   }
 
   Future<void> _unban(String addr) async {
     final l = context.l10n;
     await ref.read(deskNodeProvider).unban(addr);
     ref.invalidate(deskPeersProvider);
-    if (mounted) showEToast(context, l.deskSetPeersUnbannedToast, text: addr);
+    if (mounted) showEToast(context, l.deskSetPeersUnbannedToast, text: addr, tone: ETone.ok);
   }
 
   Future<void> _addPreferred(NodeTomlOptions o) async {

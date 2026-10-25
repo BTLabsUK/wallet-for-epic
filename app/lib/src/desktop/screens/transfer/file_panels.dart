@@ -65,7 +65,7 @@ class FileChip extends ConsumerWidget {
               icon: EIcons.folderOpen,
               size: EBtnSize.inline,
               onPressed: () async {
-                if (!await ref.read(deskOpenFolderProvider)(File(name).parent.path) && context.mounted) showEToast(context, context.l10n.deskFinFolderNotOpened, text: name);
+                if (!await ref.read(deskOpenFolderProvider)(File(name).parent.path) && context.mounted) showEToast(context, context.l10n.deskFinFolderNotOpened, text: name, tone: ETone.warn);
               },
             ),
             SizedBox(width: Sp.x2),

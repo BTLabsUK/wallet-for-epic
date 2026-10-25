@@ -96,12 +96,12 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
-      showEToast(context, context.l10n.deskTxNotSent, text: deskErrorText(e, context.l10n));
+      showEToast(context, context.l10n.deskTxNotSent, text: deskErrorText(e, context.l10n), tone: ETone.risk);
       return;
     }
     if (!mounted) return;
     setState(() => _cancelling = false);
-    showEToast(context, context.l10n.deskTxSentAgain, text: context.l10n.deskTxSentAgainText);
+    showEToast(context, context.l10n.deskTxSentAgain, text: context.l10n.deskTxSentAgainText, tone: ETone.ok);
   }
 
   Future<void> _broadcastAgain() async {
@@ -111,12 +111,12 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
-      showEToast(context, context.l10n.deskTxNotSent, text: deskErrorText(e, context.l10n));
+      showEToast(context, context.l10n.deskTxNotSent, text: deskErrorText(e, context.l10n), tone: ETone.risk);
       return;
     }
     if (!mounted) return;
     setState(() => _cancelling = false);
-    showEToast(context, context.l10n.deskTxBroadcastDone);
+    showEToast(context, context.l10n.deskTxBroadcastDone, tone: ETone.ok);
   }
 
   Future<void> _cancel() async {
@@ -128,12 +128,12 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
-      showEToast(context, context.l10n.deskTxNotCancelled, text: deskErrorText(e, context.l10n));
+      showEToast(context, context.l10n.deskTxNotCancelled, text: deskErrorText(e, context.l10n), tone: ETone.risk);
       return;
     }
     if (!mounted) return;
     setState(() => _cancelling = false);
-    showEToast(context, context.l10n.deskTxCancelled);
+    showEToast(context, context.l10n.deskTxCancelled, tone: ETone.ok);
   }
 
   @override
@@ -652,7 +652,7 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
             onPressed: () async {
               final path = await ref.read(deskApiProvider).exportProof(t.id);
               if (context.mounted) {
-                showEToast(context, l.deskTxProofSaved, text: path);
+                showEToast(context, l.deskTxProofSaved, text: path, tone: ETone.ok);
                 Navigator.pop(context);
               }
             },

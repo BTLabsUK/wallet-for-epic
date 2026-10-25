@@ -23,9 +23,13 @@ class _Desk extends MockDeskWallet {
 
   final List<int> resent = [];
   final List<int> reposted = [];
+  bool fail = false;
 
   @override
-  Future<void> resendTx(int id) async => resent.add(id);
+  Future<void> resendTx(int id) async {
+    if (fail) throw StateError('relay down');
+    resent.add(id);
+  }
 
   @override
   Future<void> repostTx(int id) async => reposted.add(id);
@@ -91,6 +95,20 @@ void main() {
       await tester.pump(const Duration(seconds: 30));
     },
   );
+
+  testWidgets('Send again that fails shows the error icon, not the success tick (qa-next)', (tester) async {
+    final desk = _Desk()..fail = true;
+    await _pump(tester, _tx(undelivered: true), desk);
+    await tester.tap(find.widgetWithText(EButton, 'Send again'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    final toast = find.byType(SnackBar);
+    expect(find.descendant(of: toast, matching: find.text('Not sent')), findsOneWidget);
+    expect(find.descendant(of: toast, matching: find.byIcon(EIcons.error)), findsOneWidget);
+    expect(find.descendant(of: toast, matching: find.byIcon(EIcons.okCircle)), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 30));
+  });
 
   testWidgets(
     'a Link HTTP send that was not delivered says so and offers Send again (linux-13)',

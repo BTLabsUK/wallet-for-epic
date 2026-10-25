@@ -325,10 +325,10 @@ Future<void> quitWallet(BuildContext context, WidgetRef ref) async {
   final quit = ref.read(deskQuitProvider);
   // Quitting mid-send would leave the payment's outcome unknown.
   if (ref.read(deskProvider.notifier).sending > 0) {
-    showEToast(context, context.l10n.deskShellNotQuitTitle, text: context.l10n.deskShellNotQuitBody);
+    showEToast(context, context.l10n.deskShellNotQuitTitle, text: context.l10n.deskShellNotQuitBody, tone: ETone.warn);
     return;
   }
-  if (quit == null) showEToast(context, context.l10n.deskShellLockedTitle, text: context.l10n.deskShellLockedBody);
+  if (quit == null) showEToast(context, context.l10n.deskShellLockedTitle, text: context.l10n.deskShellLockedBody, tone: ETone.info);
   await lockWallet(ref);
   await quit?.call();
 }

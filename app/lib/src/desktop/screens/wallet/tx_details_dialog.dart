@@ -76,7 +76,7 @@ class _TxDetailsDialogState extends ConsumerState<TxDetailsDialog> {
     }
     if (!mounted) return;
     final empty = from.isEmpty && _via.isEmpty && note.isEmpty;
-    showEToast(context, empty ? l.deskTxDetailsRemoved : (_had ? l.deskTxDetailsSaved : l.deskTxDetailsAdded));
+    showEToast(context, empty ? l.deskTxDetailsRemoved : (_had ? l.deskTxDetailsSaved : l.deskTxDetailsAdded), tone: ETone.ok);
     Navigator.of(context).pop();
   }
 

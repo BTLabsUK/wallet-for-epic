@@ -138,7 +138,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
           .read(deskInvoicesProvider.notifier)
           .request(PaymentRequestDraft(payerAddress: payer, payerName: name, amount: parseEpicIn(l, _amount.text)!, message: msg.isEmpty ? null : msg));
       if (!mounted) return;
-      showEToast(context, l.deskInvIssuerSent(name ?? shortAddress(payer)));
+      showEToast(context, l.deskInvIssuerSent(name ?? shortAddress(payer)), tone: ETone.ok);
       ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, InvoicesTab.issue);
     } on InvoiceError catch (e) {
       if (!mounted) return;

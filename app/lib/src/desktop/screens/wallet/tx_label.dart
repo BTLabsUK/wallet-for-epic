@@ -44,7 +44,7 @@ Future<void> saveTxLabel(BuildContext context, WidgetRef ref, Tx t, String text)
     return;
   }
   if (!context.mounted) return;
-  showEToast(context, was.isEmpty ? l.deskTxLabelAdded : (next.isEmpty ? l.deskTxLabelRemoved : l.deskTxLabelSaved));
+  showEToast(context, was.isEmpty ? l.deskTxLabelAdded : (next.isEmpty ? l.deskTxLabelRemoved : l.deskTxLabelSaved), tone: ETone.ok);
 }
 
 /// The single-line field a label is typed in, in place of the title: [style]'s size, a gold

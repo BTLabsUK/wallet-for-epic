@@ -101,7 +101,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
       await ref.read(deskApiProvider).changePassword(_current.text, _next.text);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showEToast(context, l.deskSetDlgPwChanged);
+      showEToast(context, l.deskSetDlgPwChanged, tone: ETone.ok);
     } on Object catch (e) {
       if (!mounted) return;
       final wrong = e is DeskError && e.wrongPassword;
@@ -283,7 +283,7 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
     showEToast(context, switch (mode) {
       WalletRemoval.list => l.deskSetDlgRemoveToastList(w.name),
       WalletRemoval.delete => l.deskSetDlgRemoveToastDeleted(w.name),
-    }, text: mode == WalletRemoval.list ? l.deskSetDlgRemoveFilesKept : null);
+    }, text: mode == WalletRemoval.list ? l.deskSetDlgRemoveFilesKept : null, tone: ETone.ok);
   }
 
   @override

@@ -254,8 +254,10 @@ class EDrawer extends StatelessWidget {
   }
 }
 
-/// A toast at the bottom right: icon, title, one line. Use [showEToast].
-void showEToast(BuildContext context, String title, {String? text, ETone tone = ETone.ok}) {
+/// A toast at the bottom right: icon, title, one line. Use [showEToast]. [tone] has no default,
+/// so a failure never borrows the success tick: [ETone.risk] for errors, [ETone.warn] for refusals
+/// and cautions, [ETone.ok] or [ETone.gold] for done, [ETone.info] or [ETone.neutral] for notes.
+void showEToast(BuildContext context, String title, {String? text, required ETone tone}) {
   final c = context.dc;
   final messenger = ScaffoldMessenger.maybeOf(context);
   if (messenger == null) return;
@@ -264,7 +266,8 @@ void showEToast(BuildContext context, String title, {String? text, ETone tone = 
     ETone.risk => c.risk,
     ETone.warn => c.warn,
     ETone.info => c.info,
-    _ => c.accentText,
+    ETone.neutral => c.dim,
+    ETone.gold => c.accentText,
   };
   final shown = messenger.showSnackBar(
     SnackBar(
@@ -279,7 +282,16 @@ void showEToast(BuildContext context, String title, {String? text, ETone tone = 
       ),
       content: Row(
         children: [
-          Icon(tone == ETone.risk ? EIcons.error : EIcons.okCircle, size: Ctl.icon, color: color),
+          Icon(
+            switch (tone) {
+              ETone.risk => EIcons.error,
+              ETone.warn => EIcons.alert,
+              ETone.info || ETone.neutral => EIcons.info,
+              ETone.ok || ETone.gold => EIcons.okCircle,
+            },
+            size: Ctl.icon,
+            color: color,
+          ),
           SizedBox(width: Sp.x3),
           Expanded(
             child: Column(

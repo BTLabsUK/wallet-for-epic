@@ -76,7 +76,7 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
         _txId = tx.id;
         _done = true;
       });
-      showEToast(context, context.l10n.deskFinPosted);
+      showEToast(context, context.l10n.deskFinPosted, tone: ETone.ok);
     } on DeskError catch (e) {
       if (mounted) {
         setState(() => _error = switch (e.message) {

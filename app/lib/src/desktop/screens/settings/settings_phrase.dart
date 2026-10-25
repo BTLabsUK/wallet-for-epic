@@ -43,7 +43,7 @@ Future<void> copyPhrase(BuildContext context, String phrase) async {
     if (context.mounted) showEToast(context, l.deskSetPhraseNotCopied, text: l.deskSetPhraseClipboardRefused, tone: ETone.risk);
     return;
   }
-  if (context.mounted) showEToast(context, l.deskSetPhraseCopied, text: l.deskSetPhraseCleared);
+  if (context.mounted) showEToast(context, l.deskSetPhraseCopied, text: l.deskSetPhraseCleared, tone: ETone.ok);
 }
 
 class SettingsPhraseScreen extends ConsumerStatefulWidget {

@@ -219,7 +219,7 @@ class _TrustSenderDialogState extends ConsumerState<TrustSenderDialog> {
     await ref.read(deskInvoicesProvider.notifier).trust(_address.text.trim(), name);
     if (!mounted) return;
     Navigator.of(context).pop();
-    showEToast(context, l.deskInvSetAdded(name));
+    showEToast(context, l.deskInvSetAdded(name), tone: ETone.ok);
   }
 
   @override

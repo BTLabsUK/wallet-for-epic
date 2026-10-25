@@ -127,7 +127,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
       await api.changeDataFolder(how.$1, how.$2, progress: (d, t) {
         if (mounted) setState(() => _moving = (d, t));
       });
-      if (mounted) showEToast(context, how.$2 == FolderChange.move ? l.deskSetLnodeMoved : l.deskSetLnodeFolderChanged, text: how.$1);
+      if (mounted) showEToast(context, how.$2 == FolderChange.move ? l.deskSetLnodeMoved : l.deskSetLnodeFolderChanged, text: how.$1, tone: ETone.ok);
     } on Object catch (e) {
       if (mounted) showEToast(context, l.deskSetLnodeFolderFailed, text: '$e', tone: ETone.risk);
     } finally {
@@ -284,7 +284,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                   size: EBtnSize.sm,
                   onPressed: () async {
                     final ok = await ref.read(deskOpenFolderProvider)(s.dataFolder);
-                    if (!ok && context.mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: s.dataFolder);
+                    if (!ok && context.mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: s.dataFolder, tone: ETone.warn);
                   },
                 ),
               ),

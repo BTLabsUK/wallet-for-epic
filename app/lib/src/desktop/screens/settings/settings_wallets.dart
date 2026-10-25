@@ -53,9 +53,9 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
     try {
       await ref.read(deskApiProvider).addBack(w.id);
       await ref.read(deskProvider.notifier).loadWallets();
-      if (mounted) showEToast(context, l.deskSetWalletsAddedBack(w.name));
+      if (mounted) showEToast(context, l.deskSetWalletsAddedBack(w.name), tone: ETone.ok);
     } on Object catch (e) {
-      if (mounted) showEToast(context, l.deskSetWalletsNotAddedBack, text: deskErrorText(e, l));
+      if (mounted) showEToast(context, l.deskSetWalletsNotAddedBack, text: deskErrorText(e, l), tone: ETone.risk);
     }
     if (mounted) setState(() => _adding = null);
     await _findRemoved();
@@ -64,7 +64,7 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
   Future<void> _openFolder(WalletEntry w) async {
     final l = context.l10n;
     final ok = Directory(w.folder).existsSync() && await ref.read(deskOpenFolderProvider)(w.folder);
-    if (!ok && mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: w.folder);
+    if (!ok && mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: w.folder, tone: ETone.warn);
   }
 
   Future<void> _remove(WalletEntry w) async {

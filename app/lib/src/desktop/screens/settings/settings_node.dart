@@ -263,7 +263,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       if (!mounted) return;
       prefs.set(p.copyWith(builtin: true, clearTyped: true));
       setState(() => _saving = false);
-      showEToast(context, l.deskSetNodeLocalInUse, text: l.deskSetNodeLocalInUseText);
+      showEToast(context, l.deskSetNodeLocalInUse, text: l.deskSetNodeLocalInUseText, tone: ETone.info);
       return;
     }
     await _useRemote(value);

@@ -58,7 +58,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     try {
       await ref.read(deskProvider.notifier).useBuiltInNode(true);
     } on Object catch (e) {
-      if (mounted) showEToast(context, context.l10n.deskOvNodeNotStarted, text: deskErrorText(e, context.l10n));
+      if (mounted) showEToast(context, context.l10n.deskOvNodeNotStarted, text: deskErrorText(e, context.l10n), tone: ETone.risk);
     }
     if (mounted) setState(() => _restarting = false);
   }
