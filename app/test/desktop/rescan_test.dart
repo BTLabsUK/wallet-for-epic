@@ -1,6 +1,7 @@
 // Settings › Recheck balance: Stop, Delete unconfirmed and the result, on the mock wallet; and
 // LepicDeskWallet's rescan over FakeWalletSession (the flag passed, Stop calling cancelScan).
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
@@ -21,6 +22,19 @@ const _password = 'test-pass-1234';
 /// A session whose transaction list breaks with an error that is not a WalletError.
 class _ListBreaks extends core.FakeWalletSession {
   bool breaks = false;
+
+  /// When set, every scan fails with it.
+  core.WalletError? scanError;
+
+  @override
+  Stream<core.ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
+    final e = scanError;
+    if (e != null) {
+      scanStarts.add(startHeight);
+      return Stream.error(e);
+    }
+    return super.scan(startHeight: startHeight, deleteUnconfirmed: deleteUnconfirmed);
+  }
 
   @override
   Future<List<core.TxEntry>> transactions({required bool refresh}) =>
@@ -45,7 +59,7 @@ class _Fails extends MockDeskWallet {
   _Fails() : super(delay: const Duration(milliseconds: 10));
 
   @override
-  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) => Stream.error(const DeskError('The node did not answer.'));
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight}) => Stream.error(const DeskError('The node did not answer.'));
 }
 
 void main() {
@@ -306,6 +320,100 @@ void main() {
       await user.close();
       await rescan;
       expect(await pending(), isFalse);
+    });
+
+    Future<Map<String, dynamic>> meta() async {
+      final id = (await wallet.wallets()).single.id;
+      final raw = await secrets.read('desk.wallet.mainnet.$id') ?? await secrets.read('desk.wallet.mainnet');
+      return raw == null ? const {} : jsonDecode(raw) as Map<String, dynamic>;
+    }
+
+    test('the core\'s restore flag makes the scan due without the app\'s note (R6: closed mid-restore)', () async {
+      await wallet.createWallet(name: 'Main', password: _password);
+      expect(await pending(), isFalse);
+      session.restoreScanPending = true;
+      final scan = StreamController<core.ScanProgress>.broadcast();
+      session.scanStream = scan.stream;
+      expect(await wallet.unlock(_password), isTrue);
+      await pumpEventQueue();
+      expect(session.scanStarts, [null], reason: 'no height: the core scans from block 0');
+      scan.add(const core.ScanProgress(message: 'Scanning', percent: 40, finished: false));
+      await pumpEventQueue();
+      final running = (await wallet.status()).restoreScan;
+      expect(running?.state, RestoreScanState.running);
+      expect(running?.percent, 40);
+      session.restoreScanPending = false;
+      scan.add(const core.ScanProgress(message: 'Done', percent: 100, finished: true));
+      await scan.close();
+      await wallet.sync();
+      expect((await wallet.status()).restoreScan, isNull, reason: 'the core says the scan finished');
+    });
+
+    test('a restore from a height scans from it once, then from block 0 by itself while the flag stays (R1, D2)', () async {
+      await wallet.restoreWallet(name: 'Main', password: _password, phrase: service.phrase.split(' '), startHeight: BigInt.from(2800000));
+      session.restoreScanPending = true;
+      expect(await wallet.unlock(_password), isTrue);
+      await wallet.sync();
+      expect(session.scanStarts, [BigInt.from(2800000), null]);
+      expect(session.restoreScanPending, isFalse);
+      expect((await meta())['scanFrom'], isNull);
+      expect(await pending(), isFalse);
+      expect((await wallet.status()).restoreScan, isNull);
+      // Nothing runs again at the next sync.
+      await wallet.sync();
+      expect(session.scanStarts, hasLength(2));
+    });
+
+    test('a flag the finished scan did not clear is no loop: the state offers Try again, which runs it once more', () async {
+      await wallet.createWallet(name: 'Main', password: _password);
+      session.restoreScanPending = true;
+      // A core that never clears the flag (a height start, say).
+      session.scanStream = Stream.fromIterable(const [core.ScanProgress(message: 'Done', percent: 100, finished: true)]);
+      expect(await wallet.unlock(_password), isTrue);
+      await wallet.sync();
+      await wallet.sync();
+      expect(session.scanStarts, [null], reason: 'one whole-chain scan by itself, not one per sync');
+      expect((await wallet.status()).restoreScan?.state, RestoreScanState.failed);
+      session.scanStream = Stream.fromIterable(const [core.ScanProgress(message: 'Done', percent: 100, finished: true)]);
+      await wallet.syncNow();
+      expect(session.scanStarts, [null, null]);
+    });
+
+    test('a failed due scan shows as failed and stays due', () async {
+      await wallet.restoreWallet(name: 'Main', password: _password, phrase: service.phrase.split(' '));
+      session.restoreScanPending = true;
+      session.scanError = const core.WalletError(kind: core.WalletErrorKind.nodeUnreachable, message: 'no answer');
+      expect(await wallet.unlock(_password), isTrue);
+      await wallet.sync();
+      expect((await wallet.status()).restoreScan?.state, RestoreScanState.failed);
+      expect(await pending(), isTrue);
+    });
+
+    test('a finished Recheck forgets the restore\'s start height (R21); the scan from block 0 the core still owes follows', () async {
+      await wallet.restoreWallet(name: 'Main', password: _password, phrase: service.phrase.split(' '), startHeight: BigInt.from(2800000));
+      // Locked out of the due scan: Recheck runs first.
+      final due = StreamController<core.ScanProgress>.broadcast();
+      session.scanStream = due.stream;
+      expect(await wallet.unlock(_password), isTrue);
+      await pumpEventQueue();
+      await due.close();
+      await wallet.sync();
+      expect((await meta())['scanFrom'], 2800000);
+      session.restoreScanPending = true;
+      session.scanStream = null;
+      final steps = await wallet.rescan(startHeight: BigInt.from(2900000)).toList();
+      expect(steps.last.finished, isTrue);
+      expect((await meta())['scanFrom'], isNull);
+      expect(session.scanStarts.where((h) => h != BigInt.from(2800000)), [BigInt.from(2900000), null], reason: 'the Recheck from its height, then the owed scan with no height');
+      expect(session.restoreScanPending, isFalse);
+    });
+
+    test('Recheck "The whole chain" passes block 0', () async {
+      await wallet.createWallet(name: 'Main', password: _password);
+      expect(await wallet.unlock(_password), isTrue);
+      await wallet.sync();
+      await wallet.rescan(startHeight: BigInt.zero).drain<void>();
+      expect(session.scanStarts.last, BigInt.zero);
     });
 
     test('a sync that breaks after a finished scan is logged, not a failed scan', () async {

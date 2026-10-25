@@ -25507,6 +25507,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invoice for anyone with the file'**
   String get deskInvIssuerToAnyone;
+
+  /// Overview and Settings > Recheck balance: title of the panel while the scan a restore needs runs, before it reports a percentage.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching the chain for this wallet\'s funds'**
+  String get deskRsRunningTitle;
+
+  /// Overview and Settings > Recheck balance: title of the panel while the scan a restore needs runs, with how far it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching the chain for this wallet\'s funds · {percent} %'**
+  String deskRsRunningPercent(int percent);
+
+  /// Overview: small text under the restore scan's progress bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving and sending open when the scan ends. The wallet can stay open meanwhile.'**
+  String get deskRsRunningText;
+
+  /// Overview: small text under the progress bar while a restore that was given a start height scans from it; the scan from block 0 follows by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'From the start height first, then from block 0. Receiving and sending open when both end.'**
+  String get deskRsRunningFromHeight;
+
+  /// Overview: notice title when a restored wallet's scan cannot run because the app is Offline.
+  ///
+  /// In en, this message translates to:
+  /// **'The restore scan waits for the network'**
+  String get deskRsWaitingTitle;
+
+  /// Overview: notice text when a restored wallet's scan waits for Offline to end.
+  ///
+  /// In en, this message translates to:
+  /// **'It starts when Offline is turned off. Until then the balance shows what is on this computer.'**
+  String get deskRsWaitingText;
+
+  /// Overview: notice title when the scan a restore needs stopped with an error; also the toast title when Try again fails.
+  ///
+  /// In en, this message translates to:
+  /// **'The restore scan did not finish'**
+  String get deskRsFailedTitle;
+
+  /// Overview: notice text when the restore scan stopped with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving and sending wait for it. It also starts again with the next block.'**
+  String get deskRsFailedText;
+
+  /// Overview: button in the notice when the restore scan stopped; runs it again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskRsTryAgain;
+
+  /// Small text under the buttons on Overview while Send is disabled until the restore scan ends.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending opens when the restore scan ends.'**
+  String get deskRsSendWaits;
+
+  /// Settings > Recheck balance: small text under the disabled Start button while the restore scan runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck balance can start when the restore scan has ended.'**
+  String get deskRsRecheckWaits;
+
+  /// Settings > Recheck balance: label of the choice where the scan starts (Advanced > Recheck from a height).
+  ///
+  /// In en, this message translates to:
+  /// **'Start from'**
+  String get deskSetRescanFrom;
+
+  /// Settings > Recheck balance: choice that scans from a little before the last scan's end (the default).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent blocks'**
+  String get deskSetRescanFromRecent;
+
+  /// Error when the wallet refuses to receive or send because the scan a restore needs has not finished.
+  ///
+  /// In en, this message translates to:
+  /// **'The restore scan has not finished yet. Receiving and sending open when it ends.'**
+  String get deskErrRestoreScanRequired;
 }
 
 class _AppLocalizationsDelegate

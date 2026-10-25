@@ -607,6 +607,7 @@ class ServiceStatus {
     this.epicboxViaTor = false,
     this.syncProgress,
     this.scanning = false,
+    this.restoreScan,
     this.lastUpdate,
     this.notice,
   });
@@ -660,10 +661,33 @@ class ServiceStatus {
   /// A chain scan runs: the first one after a restore, or Recheck balance. Auto-lock waits for
   /// it, or an idle computer would stop a restore at every lock and never finish it.
   final bool scanning;
+
+  /// The scan a restore or a rebuilt database still owes (D3): null once the core says the scan
+  /// from block 0 finished. Receiving and sending wait for it.
+  final RestoreScan? restoreScan;
   final DateTime? lastUpdate;
 
   /// A one-line state the wallet is in, e.g. a database being rebuilt; null when none.
   final String? notice;
+}
+
+/// Where the scan a restore owes stands ([ServiceStatus.restoreScan]): it runs (or is about to),
+/// it waits for the network (Offline), or it stopped with an error or did not finish and waits
+/// for Try again ([DeskWalletApi.syncNow]).
+enum RestoreScanState { running, waiting, failed }
+
+@immutable
+class RestoreScan {
+  const RestoreScan(this.state, {this.percent, this.fromHeight = false});
+
+  final RestoreScanState state;
+
+  /// 0 to 100 while it runs and the core has said how far; null otherwise.
+  final int? percent;
+
+  /// The scan running now starts at the height typed at Restore; the scan from block 0 follows
+  /// by itself.
+  final bool fromHeight;
 }
 
 /// Why the HTTP listener is down: kept structured so every language words it ([httpProblemText]).

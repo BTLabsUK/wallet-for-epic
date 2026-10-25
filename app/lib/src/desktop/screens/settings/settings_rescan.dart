@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
@@ -9,6 +10,7 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../../network_gate.dart' show NetBlock;
 import '../../widgets/kit.dart';
+import '../wallet/restore_scan_panel.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
@@ -17,6 +19,10 @@ enum RescanDemo { running }
 
 /// Why a scan ended, for the result card.
 enum _End { finished, stopped }
+
+/// Where Recheck starts (Advanced › Recheck from a height, R20): a little before the last
+/// scan's end, block 0, or a typed height.
+enum _From { recent, wholeChain, height }
 
 class SettingsRescanScreen extends ConsumerStatefulWidget {
   const SettingsRescanScreen({super.key, this.arg});
@@ -32,6 +38,9 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   bool _stopping = false;
   _End? _end;
   bool _deleteUnconfirmed = false;
+  _From _from = _From.recent;
+  final _height = TextEditingController();
+  String? _heightError;
 
   /// Whether the scan that ran had Delete unconfirmed on.
   bool _deleted = false;
@@ -66,6 +75,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     // Leaving the screen ends the scan: nothing would show its result.
     if (_running) unawaited(_api?.stopRescan());
     _scan?.cancel();
+    _height.dispose();
     super.dispose();
   }
 
@@ -77,9 +87,30 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     }
   }
 
+  /// The start the choice asks for; null for the recent blocks. A height that is not a number of
+  /// 1 or more is refused under the field.
+  ({BigInt? start, bool ok}) _startHeight(AppLocalizations l) {
+    if (!advancedHas(ref, AdvancedFeature.recheckFromHeight)) return (start: null, ok: true);
+    switch (_from) {
+      case _From.recent:
+        return (start: null, ok: true);
+      case _From.wholeChain:
+        return (start: BigInt.zero, ok: true);
+      case _From.height:
+        final h = BigInt.tryParse(_height.text.trim());
+        if (h == null || h < BigInt.one) {
+          setState(() => _heightError = l.settingsRescanHeightInvalid);
+          return (start: null, ok: false);
+        }
+        return (start: h, ok: true);
+    }
+  }
+
   Future<void> _start() async {
     final l = context.l10n;
-    final delete = DeskFeatures.rescanRepair && _deleteUnconfirmed;
+    final delete = DeskFeatures.rescanRepair && advancedHas(ref, AdvancedFeature.recheckFromHeight) && _deleteUnconfirmed;
+    final from = _startHeight(l);
+    if (!from.ok) return;
     setState(() {
       _running = true;
       _stopping = false;
@@ -99,7 +130,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     setState(() => _before = before);
     final api = ref.read(deskApiProvider);
     _api = api;
-    _scan = api.rescan(deleteUnconfirmed: delete).listen(
+    _scan = api.rescan(deleteUnconfirmed: delete, startHeight: from.start).listen(
       (step) {
         if (!mounted) return;
         setState(() {
@@ -161,24 +192,69 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     // Offline without a local node, or Tor only without Tor: nothing to recheck against.
     final block = ref.watch(deskNodeBlockProvider);
     final reason = netBlockReason(l, block);
+    // The scan a restore owes runs: its progress here, and no second scan (R24).
+    final restore = ref.watch(deskProvider.select((s) => s.status?.restoreScan));
+    final restoreRuns = !_running && restore?.state == RestoreScanState.running;
+    final choice = advancedHas(ref, AdvancedFeature.recheckFromHeight);
     return SettingsFrame(
       route: DeskRoute.settingsRescan,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (restoreRuns) ...[RestoreScanPanel(scan: restore!), SizedBox(height: Sp.x4)],
           ESetGroup(
             title: l.deskSetFrameRescan,
             rows: [
               if (!_running)
                 ESetRow(
                   text: l.deskSetRescanText,
-                  control: ERowControl(child: EButton.primary(label: _end != null || _failure != null ? l.deskSetRescanStartAgain : l.deskSetLnodeStart, icon: EIcons.scan, size: EBtnSize.sm, onPressed: block == NetBlock.none ? _start : null)),
-                  below: reason != null || (DeskFeatures.rescanRepair && advancedHas(ref, AdvancedFeature.recheckFromHeight))
+                  control: ERowControl(child: EButton.primary(label: _end != null || _failure != null ? l.deskSetRescanStartAgain : l.deskSetLnodeStart, icon: EIcons.scan, size: EBtnSize.sm, onPressed: block == NetBlock.none && !restoreRuns ? _start : null)),
+                  below: reason != null || restoreRuns || choice
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (reason != null) Text(reason, key: const ValueKey('rescan-net-blocked'), style: ts.small),
-                            if (DeskFeatures.rescanRepair && advancedHas(ref, AdvancedFeature.recheckFromHeight)) ...[
+                            if (restoreRuns) Text(l.deskRsRecheckWaits, key: const ValueKey('rescan-restore-runs'), style: ts.small),
+                            if (choice) ...[
+                              SizedBox(height: Sp.x2),
+                              EField(
+                                label: l.deskSetRescanFrom,
+                                child: ESegmented<_From>(
+                                  key: const ValueKey('rescan-from'),
+                                  segments: [
+                                    ESegment(_From.recent, l.deskSetRescanFromRecent),
+                                    ESegment(_From.wholeChain, l.settingsRescanWholeChain),
+                                    ESegment(_From.height, l.settingsRescanFromHeight),
+                                  ],
+                                  value: _from,
+                                  onChanged: (v) => setState(() {
+                                    _from = v;
+                                    _heightError = null;
+                                  }),
+                                ),
+                              ),
+                              if (_from == _From.height) ...[
+                                SizedBox(height: Sp.x3),
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(maxWidth: 240.u),
+                                  child: EField(
+                                    label: l.settingsRescanStartHeight,
+                                    error: _heightError,
+                                    child: EInput(
+                                      key: const ValueKey('rescan-height'),
+                                      controller: _height,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      invalid: _heightError != null,
+                                      onChanged: (_) => setState(() => _heightError = null),
+                                      onSubmitted: (_) => _start(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              SizedBox(height: Sp.x3),
+                            ],
+                            if (DeskFeatures.rescanRepair && choice) ...[
                             ECheckbox(value: _deleteUnconfirmed, onChanged: (v) => setState(() => _deleteUnconfirmed = v), label: l.deskSetRescanDeleteUnconfirmed),
                             Padding(
                               padding: EdgeInsets.only(left: Sp.x8),

@@ -856,7 +856,7 @@ class MockDeskWallet implements DeskWalletApi {
   bool _scanStop = false;
 
   @override
-  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight}) async* {
     _scanStop = false;
     for (final (i, line) in _scanLog.indexed) {
       await _wait(2.5);

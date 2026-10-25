@@ -16235,4 +16235,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvIssuerToAnyone => 'Invoice for anyone with the file';
+
+  @override
+  String get deskRsRunningTitle =>
+      'Searching the chain for this wallet\'s funds';
+
+  @override
+  String deskRsRunningPercent(int percent) {
+    return 'Searching the chain for this wallet\'s funds · $percent %';
+  }
+
+  @override
+  String get deskRsRunningText =>
+      'Receiving and sending open when the scan ends. The wallet can stay open meanwhile.';
+
+  @override
+  String get deskRsRunningFromHeight =>
+      'From the start height first, then from block 0. Receiving and sending open when both end.';
+
+  @override
+  String get deskRsWaitingTitle => 'The restore scan waits for the network';
+
+  @override
+  String get deskRsWaitingText =>
+      'It starts when Offline is turned off. Until then the balance shows what is on this computer.';
+
+  @override
+  String get deskRsFailedTitle => 'The restore scan did not finish';
+
+  @override
+  String get deskRsFailedText =>
+      'Receiving and sending wait for it. It also starts again with the next block.';
+
+  @override
+  String get deskRsTryAgain => 'Try again';
+
+  @override
+  String get deskRsSendWaits => 'Sending opens when the restore scan ends.';
+
+  @override
+  String get deskRsRecheckWaits =>
+      'Recheck balance can start when the restore scan has ended.';
+
+  @override
+  String get deskSetRescanFrom => 'Start from';
+
+  @override
+  String get deskSetRescanFromRecent => 'Recent blocks';
+
+  @override
+  String get deskErrRestoreScanRequired =>
+      'The restore scan has not finished yet. Receiving and sending open when it ends.';
 }

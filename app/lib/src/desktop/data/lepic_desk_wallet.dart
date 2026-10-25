@@ -137,7 +137,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable ? l.deskErrSendUnbuildable : detail == core.nothingToConsolidate ? l.deskErrNothingToConsolidate : detail.isEmpty ? l.deskErrNotAccepted : l.deskErrNotAcceptedDetail(detail),
     core.WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
     core.WalletErrorKind.pairingFailed => pairingFailureText(l, core.pairingFailureOf(error) ?? core.PairingFailure.invalid),
-    core.WalletErrorKind.restoreScanRequired => detail.isEmpty ? l.deskErrSomethingWrong : detail,
+    core.WalletErrorKind.restoreScanRequired => l.deskErrRestoreScanRequired,
     core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
   };
 }
@@ -981,7 +981,8 @@ class LepicDeskWallet implements DeskWalletApi {
       // scan brings the funds back.
       logWarn('desk', 'wallet database damaged; rebuilding');
       _notice = deskStrings.deskErrDbDamaged;
-      await _setMeta({'scanPending': true}, metaKey);
+      // A rebuild scans the whole chain: never from a start height kept since a restore (R21).
+      await _setMeta({'scanPending': true, 'scanFrom': null}, metaKey);
       try {
         session = await _service.open(config: config, password: password);
       } on core.WalletError catch (e2) {
@@ -991,6 +992,11 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     _session = session;
     _sessionRevision++;
+    // Every unlock asks the core whether a restore's scan is still owed, also for a wallet whose
+    // app was closed before the scan-due note was written (R6).
+    _restoreFailed = false;
+    _restoreUnfinished = false;
+    _restoreDue = await _restoreFlag(session) || (await _meta(metaKey))['scanPending'] == true;
     await _routeEpicbox(session);
     if (!NetGate.offline) unawaited(_resendUndelivered(session));
     _config = config;
@@ -1298,15 +1304,23 @@ class LepicDeskWallet implements DeskWalletApi {
   }) async {
     final entry = await _newWallet(name, ownEntry: ownEntry);
     final config = await _configOf(entry);
+    final label = name.trim().isEmpty ? null : name.trim();
+    final metaKey = _metaKey(entry?.walletId);
+    // Written before the core makes the wallet: an app closed halfway still finds the scan
+    // due at the next unlock (R6).
+    await _store.writeJson(metaKey, {'name': label, 'created': DateTime.now().millisecondsSinceEpoch ~/ 1000, ...meta});
     final T result;
     try {
       result = await create(config);
     } on Object {
-      if (entry != null) await _unlist(entry);
+      if (entry != null) {
+        await _unlist(entry);
+      } else {
+        await _unmakeFirst(config);
+      }
+      await _store.delete(metaKey);
       rethrow;
     }
-    final label = name.trim().isEmpty ? null : name.trim();
-    await _store.writeJson(_metaKey(entry?.walletId), {'name': label, 'created': DateTime.now().millisecondsSinceEpoch ~/ 1000, ...meta});
     var listed = entry;
     if (entry == null) {
       try {
@@ -1328,6 +1342,18 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     }
     return result;
+  }
+
+  /// Takes back what the core wrote for a first wallet it did not finish making (a vault
+  /// without its database, say), so the next start does not take it for a wallet (R37). Only
+  /// the first wallet's folder, which held no wallet before ([_newWallet]).
+  Future<void> _unmakeFirst(core.WalletConfig config) async {
+    try {
+      await _service.deleteWallet(config: config);
+      logInfo('desk', 'half-made first wallet removed');
+    } on Object catch (e) {
+      logWarn('desk', 'half-made first wallet not removed: ${e.runtimeType}');
+    }
   }
 
   /// Takes back an entry whose wallet was not made: the entry, a half-made `lepic` folder
@@ -1709,31 +1735,58 @@ class LepicDeskWallet implements DeskWalletApi {
     _syncError = null;
     _changed();
     try {
-      // The scan due since a restore or a rebuilt database; not while Recheck balance scans.
+      // The scan due since a restore or a rebuilt database (the core's flag, or the note the
+      // app wrote before the core made the wallet); not while Recheck balance scans.
       final due = await _meta(key);
       if (_session != session) return;
-      if (!_rescanning && due['scanPending'] == true) {
-        var finished = false;
-        _scanningDue = true;
-        try {
-          // A restore from a block height (Restore's start height) scans from there.
-          final from = due['scanFrom'];
-          await for (final p in session.scan(startHeight: from is int ? BigInt.from(from) : null)) {
-            if (_session != session) return;
-            finished = finished || p.finished;
-            if (p.percent != null) _syncProgress = p.percent! / 200;
-            _changed();
+      _restoreDue = await _restoreFlag(session) || due['scanPending'] == true;
+      if (_session != session) return;
+      if (!_rescanning && _restoreDue && !_restoreUnfinished) {
+        // A restore from a block height (Restore's start height) scans from there once; while
+        // the core's flag stays, the scan with no height (from block 0, resuming a stopped one)
+        // follows by itself (D2). A rebuild never reuses the height ([_scanEnded]).
+        final from = due['scanFrom'];
+        var start = from is int ? BigInt.from(from) : null;
+        _restoreFailed = false;
+        while (true) {
+          var finished = false;
+          _scanningDue = true;
+          _dueFromHeight = start != null;
+          _duePercent = null;
+          _changed();
+          try {
+            await for (final p in session.scan(startHeight: start)) {
+              if (_session != session) return;
+              finished = finished || p.finished;
+              if (p.percent != null) {
+                _syncProgress = p.percent! / 200;
+                _duePercent = p.percent;
+              }
+              _changed();
+            }
+          } on core.WalletError catch (e) {
+            if (e.kind != core.WalletErrorKind.walletBusy) {
+              _restoreFailed = true;
+              rethrow;
+            }
+            logInfo('desk', 'due scan skipped: a scan is already running');
+          } finally {
+            _scanningDue = false;
+            _dueFromHeight = false;
           }
-        } on core.WalletError catch (e) {
-          if (e.kind != core.WalletErrorKind.walletBusy) rethrow;
-          logInfo('desk', 'due scan skipped: a scan is already running');
-        } finally {
-          _scanningDue = false;
-        }
-        // A scan stopped before its end stays due.
-        if (finished) {
-          await _setMeta({'scanPending': false, 'scanFrom': null}, key);
-          _notice = null;
+          if (_session != session) return;
+          // A scan stopped before its end stays due.
+          if (!finished) break;
+          await _scanEnded(session, key);
+          if (_session != session || !_restoreDue) break;
+          if (start == null) {
+            // The core still owes the scan from block 0 after one ran to its end: no loop of
+            // whole-chain scans; the restore state offers Try again.
+            logWarn('desk', 'restore scan finished, the core still wants one');
+            _restoreUnfinished = true;
+            break;
+          }
+          start = null;
         }
       }
       // Locked meanwhile: the session is gone, and a call on it would fail outside any catch.
@@ -1776,6 +1829,8 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> syncNow() async {
     if (_session == null) throw DeskError.l10n((l) => l.deskErrWalletLocked);
+    // Also the restore state's Try again: the scan the core still owes runs once more.
+    _restoreUnfinished = false;
     await sync();
     final e = _syncError;
     if (e != null) throw e;
@@ -2028,6 +2083,7 @@ class LepicDeskWallet implements DeskWalletApi {
           DateTime.now().difference(_torStartedAt!) >= torRetryAfter,
       syncProgress: _syncProgress,
       scanning: _scanningDue || _rescanning,
+      restoreScan: _restoreView,
       lastUpdate: _lastUpdate,
       notice: _notice,
     );
@@ -3740,11 +3796,56 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// The scan due since a restore runs ([_sync]).
   bool _scanningDue = false;
+
+  /// The open wallet still owes the scan a restore or a rebuilt database needs: the core's
+  /// flag ([core.WalletSession.restoreScanRequired]) or the app's scan-due note. Read at every
+  /// unlock and after every scan.
+  bool _restoreDue = false;
+
+  /// The due scan running now starts at Restore's height, and how far it is.
+  bool _dueFromHeight = false;
+  int? _duePercent;
+
+  /// The due scan stopped with an error; Try again ([syncNow]) runs it again.
+  bool _restoreFailed = false;
+
+  /// A scan with no height ran to its end and the core still wants one: not run again by
+  /// itself this session (a loop of whole-chain scans), only by Try again.
+  bool _restoreUnfinished = false;
+
+  /// The core's restore flag; false when the core cannot say (the scan-due note still counts).
+  Future<bool> _restoreFlag(core.WalletSession session) async {
+    try {
+      return await session.restoreScanRequired();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'restore flag: ${e.kind.name}');
+      return false;
+    }
+  }
+
+  /// After any scan that ran to its end (the due scan, a Recheck): the scan-due note and the
+  /// start height go (R21: a height is used once, by the restore that typed it), and the core
+  /// says whether the scan from block 0 is still owed.
+  Future<void> _scanEnded(core.WalletSession session, String key) async {
+    await _setMeta({'scanPending': false, 'scanFrom': null}, key);
+    _notice = null;
+    _restoreDue = await _restoreFlag(session);
+  }
+
+  /// [ServiceStatus.restoreScan].
+  RestoreScan? get _restoreView {
+    if (_session == null) return null;
+    if (_scanningDue) return RestoreScan(RestoreScanState.running, percent: _duePercent, fromHeight: _dueFromHeight);
+    if (!_restoreDue) return null;
+    if (_nodeOff) return const RestoreScan(RestoreScanState.waiting);
+    if (_restoreFailed || _restoreUnfinished) return const RestoreScan(RestoreScanState.failed);
+    return const RestoreScan(RestoreScanState.running);
+  }
   bool _rescanStopAsked = false;
   Completer<void>? _rescanEnded;
 
   @override
-  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight}) async* {
     // Recheck balance asks the node: Offline only a local one.
     if (_nodeOff) throw DeskError.l10n((l) => l.deskShellOffline);
     // Admitted like [_running]: the checks and the count follow each other with no await.
@@ -3774,7 +3875,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // A scan counts as a running operation: the fallback waits for it (D-7).
     _busy++;
     try {
-      await for (final p in session.scan(deleteUnconfirmed: deleteUnconfirmed)) {
+      await for (final p in session.scan(startHeight: startHeight, deleteUnconfirmed: deleteUnconfirmed)) {
         finished = finished || p.finished;
         final r = p.result;
         yield ScanStep(
@@ -3795,10 +3896,12 @@ class LepicDeskWallet implements DeskWalletApi {
       _opEnded();
       if (!ended.isCompleted) ended.complete();
     }
-    // A stopped scan leaves a due scan due; either way the balance is read again.
-    if (finished) {
-      await _setMeta({'scanPending': false}, key);
-      _notice = null;
+    // A stopped scan leaves a due scan due; either way the balance is read again (and the
+    // scan from block 0 a restore still owes runs then by itself).
+    if (finished && _session == session) {
+      await _scanEnded(session, key);
+      _restoreUnfinished = false;
+      _restoreFailed = false;
     }
     logInfo('desk', finished ? 'rescan finished' : 'rescan stopped');
     // The scan itself ended; a sync that breaks afterwards is not a failed scan.

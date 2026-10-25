@@ -11,6 +11,7 @@ import '../../widgets/kit.dart';
 import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider;
 import '../settings/prefs.dart' show settingsPrefsProvider;
+import 'restore_scan_panel.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 
@@ -71,7 +72,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final s = ref.watch(deskProvider);
     final hidden = s.settings.hideAmounts;
     final loading = demo == OverviewDemo.loading || s.balance == null;
-    final empty = demo == OverviewDemo.empty || (demo == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
+    // The scan a restore owes: its progress, not the empty-wallet state (R16, R35).
+    final restore = demo == null ? s.status?.restoreScan : null;
+    final empty = demo == OverviewDemo.empty || (demo == null && restore == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
     final starting = demo == OverviewDemo.starting;
     final syncing = demo == OverviewDemo.syncing;
     // Offline (but with a local node) and Tor only: the node is not asked, so its last answer
@@ -91,6 +94,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final gap = SizedBox(height: Sp.x4);
 
     final notices = <Widget>[
+      if (restore != null) RestoreScanPanel(scan: restore),
       if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
       if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null) HistoryReminder(state: backup),
       if (starting) const _Steps(),
@@ -169,7 +173,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               updating: !offline && (starting || syncing || loading || walletSync),
               offline: offline,
               asOfBlock: syncing ? _walletTip : null,
-              sendBlocked: syncing || nodeDown || demo == OverviewDemo.nodeProblem,
+              sendBlocked: syncing || nodeDown || demo == OverviewDemo.nodeProblem || restore != null,
+              restoring: restore != null,
             ),
           ),
           SizedBox(height: Sp.x2),
@@ -276,7 +281,7 @@ class _SyncNotice extends StatelessWidget {
 String _group(AppLocalizations l, int n) => localInt(l, n);
 
 class _BalancePanel extends ConsumerWidget {
-  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.offline = false});
+  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.restoring = false, this.offline = false});
 
   final Balance? balance;
   final bool empty;
@@ -288,6 +293,9 @@ class _BalancePanel extends ConsumerWidget {
 
   /// The node is not synced: Send waits, and says why.
   final bool sendBlocked;
+
+  /// A restore's scan has not ended: Send waits for it, and says so.
+  final bool restoring;
 
   /// Offline mode: the amounts are the last known ones, marked as such.
   final bool offline;
@@ -326,7 +334,7 @@ class _BalancePanel extends ConsumerWidget {
           SizedBox(height: Sp.x2),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 240.u),
-            child: Text(l.deskOvSendWaits, style: ts.small),
+            child: Text(restoring ? l.deskRsSendWaits : l.deskOvSendWaits, style: ts.small),
           ),
         ],
       ],

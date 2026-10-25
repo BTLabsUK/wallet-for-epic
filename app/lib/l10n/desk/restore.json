@@ -1,0 +1,63 @@
+{
+  "deskRsRunningTitle": "Searching the chain for this wallet's funds",
+  "@deskRsRunningTitle": {
+    "description": "Overview and Settings > Recheck balance: title of the panel while the scan a restore needs runs, before it reports a percentage."
+  },
+  "deskRsRunningPercent": "Searching the chain for this wallet's funds · {percent} %",
+  "@deskRsRunningPercent": {
+    "description": "Overview and Settings > Recheck balance: title of the panel while the scan a restore needs runs, with how far it is.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "deskRsRunningText": "Receiving and sending open when the scan ends. The wallet can stay open meanwhile.",
+  "@deskRsRunningText": {
+    "description": "Overview: small text under the restore scan's progress bar."
+  },
+  "deskRsRunningFromHeight": "From the start height first, then from block 0. Receiving and sending open when both end.",
+  "@deskRsRunningFromHeight": {
+    "description": "Overview: small text under the progress bar while a restore that was given a start height scans from it; the scan from block 0 follows by itself."
+  },
+  "deskRsWaitingTitle": "The restore scan waits for the network",
+  "@deskRsWaitingTitle": {
+    "description": "Overview: notice title when a restored wallet's scan cannot run because the app is Offline."
+  },
+  "deskRsWaitingText": "It starts when Offline is turned off. Until then the balance shows what is on this computer.",
+  "@deskRsWaitingText": {
+    "description": "Overview: notice text when a restored wallet's scan waits for Offline to end."
+  },
+  "deskRsFailedTitle": "The restore scan did not finish",
+  "@deskRsFailedTitle": {
+    "description": "Overview: notice title when the scan a restore needs stopped with an error; also the toast title when Try again fails."
+  },
+  "deskRsFailedText": "Receiving and sending wait for it. It also starts again with the next block.",
+  "@deskRsFailedText": {
+    "description": "Overview: notice text when the restore scan stopped with an error."
+  },
+  "deskRsTryAgain": "Try again",
+  "@deskRsTryAgain": {
+    "description": "Overview: button in the notice when the restore scan stopped; runs it again."
+  },
+  "deskRsSendWaits": "Sending opens when the restore scan ends.",
+  "@deskRsSendWaits": {
+    "description": "Small text under the buttons on Overview while Send is disabled until the restore scan ends."
+  },
+  "deskRsRecheckWaits": "Recheck balance can start when the restore scan has ended.",
+  "@deskRsRecheckWaits": {
+    "description": "Settings > Recheck balance: small text under the disabled Start button while the restore scan runs."
+  },
+  "deskSetRescanFrom": "Start from",
+  "@deskSetRescanFrom": {
+    "description": "Settings > Recheck balance: label of the choice where the scan starts (Advanced > Recheck from a height)."
+  },
+  "deskSetRescanFromRecent": "Recent blocks",
+  "@deskSetRescanFromRecent": {
+    "description": "Settings > Recheck balance: choice that scans from a little before the last scan's end (the default)."
+  },
+  "deskErrRestoreScanRequired": "The restore scan has not finished yet. Receiving and sending open when it ends.",
+  "@deskErrRestoreScanRequired": {
+    "description": "Error when the wallet refuses to receive or send because the scan a restore needs has not finished."
+  }
+}

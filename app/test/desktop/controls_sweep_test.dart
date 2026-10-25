@@ -268,7 +268,7 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<void> syncNow() => _r('syncNow', _m.syncNow);
   @override
-  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) => _r('rescan', () => _m.rescan(deleteUnconfirmed: deleteUnconfirmed));
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight}) => _r('rescan', () => _m.rescan(deleteUnconfirmed: deleteUnconfirmed, startHeight: startHeight));
   @override
   Future<void> stopRescan() => _r('stopRescan', _m.stopRescan);
   @override

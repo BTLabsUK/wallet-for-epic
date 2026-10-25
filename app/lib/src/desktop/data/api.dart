@@ -287,7 +287,9 @@ abstract interface class DeskWalletApi {
   /// Scans the chain again, with progress; the stream ends when the scan does, after the
   /// balance is brought up to date. [deleteUnconfirmed] also cancels unconfirmed
   /// transactions and unlocks their coins (only when [DeskFeatures.rescanRepair]).
-  Stream<ScanStep> rescan({bool deleteUnconfirmed = false});
+  /// [startHeight]: from that block (0: the whole chain); null from a little before the last
+  /// scan's end, or from block 0 while a restore's scan is owed ([ServiceStatus.restoreScan]).
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight});
 
   /// Ends a running [rescan] at the core's next page; its stream then ends without a
   /// finished step.
