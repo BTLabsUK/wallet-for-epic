@@ -61,6 +61,16 @@ final contactPairingProvider = Provider.family<PairingRecord?, String>((ref, con
   return all.where((r) => r.contactId == contactId && r.state.isPaired).firstOrNull;
 });
 
+/// The paired contact and purpose of the transaction with slate [slateId], or null; read
+/// again on every pairing event.
+final pairingSlateProvider = FutureProvider.autoDispose.family<PairingSlate?, String>((ref, slateId) async {
+  final api = ref.watch(pairingApiProvider);
+  if (!api.supported) return null;
+  final sub = api.events().listen((_) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return api.slateOf(slateId);
+});
+
 /// The pairing [id], or null.
 final pairingByIdProvider = Provider.family<PairingRecord?, String>((ref, id) {
   final all = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];

@@ -13,6 +13,7 @@ import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
 import 'invoice_request_screen.dart' show IssuedInvoiceBlock;
 import 'invoice_review_screen.dart' show PaidInvoiceBlock;
+import 'pairing/withdrawal_block.dart';
 import 'theme/advanced.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
@@ -529,7 +530,12 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         };
 
     return SlotScaffold(
-      appBar: AppBar(title: Text(txHeading(l, tx, contactName: name))),
+      appBar: AppBar(
+        title: Text(switch (withdrawalOf(ref, tx)) {
+          final w? => l.reqWithdrawalFrom(w.name),
+          null => txHeading(l, tx, contactName: name),
+        }),
+      ),
       idle: _busy || home.isLoading
           ? SlotProgress(label: l.txDetailsWorking)
           : null,
@@ -654,6 +660,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           ),
           // The request this wallet sent, if it is one (I-06).
           IssuedInvoiceBlock(tx: tx),
+          // A withdrawal a paired exchange sent (SPEC 2.8).
+          WithdrawalBlock(tx: tx),
           if (tx.source != TxSource.wallet) ...[
             const SizedBox(height: 8),
             _SourceNote(source: tx.source),

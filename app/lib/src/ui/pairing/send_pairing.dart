@@ -25,12 +25,18 @@ const Key sendViaMailboxKey = ValueKey('send-via-mailbox');
 const Key sendViaKey = ValueKey('send-via');
 
 /// The pairing a send to [address] would be sealed for, or null: the paired contact the
-/// address belongs to.
-PairingRecord? sendPairingFor(WidgetRef ref, String address) {
-  if (!ref.watch(pairingSupportedProvider)) return null;
-  final contact = contactFor(ref.watch(contactsProvider).value ?? const <Contact>[], address);
-  return contact == null ? null : ref.watch(contactPairingProvider(contact.id));
+/// address belongs to. [watch] false reads once, outside a build.
+PairingRecord? sendPairingFor(WidgetRef ref, String address, {bool watch = true}) {
+  if (!(watch ? ref.watch(pairingSupportedProvider) : ref.read(pairingSupportedProvider))) return null;
+  final contacts = (watch ? ref.watch(contactsProvider) : ref.read(contactsProvider)).value ?? const <Contact>[];
+  final contact = contactFor(contacts, address);
+  if (contact == null) return null;
+  final pairing = contactPairingProvider(contact.id);
+  return watch ? ref.watch(pairing) : ref.read(pairing);
 }
+
+/// How long without a sealed message from a contact before Send says so (SPEC 2.9).
+const Duration sealQuietFor = Duration(days: 90);
 
 class SendPairingLine extends ConsumerWidget {
   const SendPairingLine({

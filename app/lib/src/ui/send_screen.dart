@@ -8,6 +8,7 @@ import 'package:intl/intl.dart' show NumberFormat;
 import '../app_log.dart';
 import '../amount.dart';
 import '../contacts.dart';
+import '../pairing_providers.dart' show pairingName;
 import '../demo.dart' show demoModeProvider;
 import '../errors.dart';
 import '../initials.dart';
@@ -40,7 +41,9 @@ import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
 import 'method_names.dart';
 import 'method_strip.dart';
+import 'pairing/pairing_parts.dart';
 import 'pairing/send_pairing.dart';
+import 'status_icons.dart';
 import 'net_block.dart';
 import 'payment_gate.dart';
 import 'pin.dart' show askPin;
@@ -212,6 +215,13 @@ const Key sendTurnOffTorKey = ValueKey('send-turn-off-tor');
 
 /// The tag beside To that says whether the payment goes over Tor, for tests.
 const Key sendTorTagKey = ValueKey('send-tor-tag');
+
+/// Keys of the sealed file route (SPEC 2.9), for tests.
+const Key sendSealedOptionKey = ValueKey('send-sealed-option');
+const Key sendPlainOptionKey = ValueKey('send-plain-option');
+const Key sendPlainShortKey = ValueKey('send-plain-short');
+const Key sendAsPlainKey = ValueKey('send-as-plain');
+const Key sendAsPlainConfirmKey = ValueKey('send-as-plain-confirm');
 
 /// The payment Send's tracker is showing, while it shows one, so home does not repeat the
 /// tracker's news in a notice.
@@ -928,6 +938,7 @@ class _SendViewState extends ConsumerState<SendView> {
     _closeChecks();
     setState(() {
       _viaQr = qr;
+      _filePlain = false;
       _stage = SendStage.fileAmount;
       _error = null;
       _sendFailed = false;
@@ -1821,10 +1832,16 @@ class _SendViewState extends ConsumerState<SendView> {
           );
         }
       }
+      // Sealed for the paired contact (RFC 9.2): only its wallet opens the file.
+      final sealFor = _filePlain ? null : _fileSealTarget(watch: false);
+      final sealed = sealFor == null ? null : await session.pairing.sealSlate(id: sealFor.id, slateJson: slate.json);
       container.invalidate(homeProvider);
       if (mounted) {
         setState(() {
           _slate = slate;
+          _sealedText = sealed;
+          _sealedFor = sealed == null ? null : sealFor;
+          _plainCopy = null;
           _stage = SendStage.fileMade;
         });
         // The QR way goes on to the code at once; the step under it waits for the reply.
@@ -1960,6 +1977,24 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// Send through the paired contact's mailbox instead of its payments address (RFC 9.1).
   bool _viaMailbox = false;
+
+  /// The file route seals for the paired contact the recipient belongs to (SPEC 2.9) unless
+  /// the user chose plain ("Seal this file?", or Send plain from the 90-day hint).
+  bool _filePlain = false;
+
+  /// The file made, sealed for [_sealedFor]; and its plain copy once "Send as plain instead"
+  /// was confirmed (the same payment, unsealed).
+  String? _sealedText;
+  PairingRecord? _sealedFor;
+  String? _plainCopy;
+
+  /// The paired contact a file to the recipient is sealed for, or null: the QR way, a
+  /// recipient not paired, or Seal payments off.
+  PairingRecord? _fileSealTarget({bool watch = true}) {
+    if (_viaQr) return null;
+    final r = sendPairingFor(ref, _recipient.text.trim(), watch: watch);
+    return r != null && r.seals ? r : null;
+  }
 
   /// The payment method the form sends by now: Epicbox, or for a Link send the Link method
   /// the address picks (Link · HTTP or Link · Tor); null while a Link send has no address yet,
@@ -3201,6 +3236,7 @@ class _SendViewState extends ConsumerState<SendView> {
               ),
       ),
       ..._methodHead(context, _viaQr ? TransferMethod.qr : TransferMethod.file),
+      ..._sealChoice(context),
       ..._amountFields(context, file: true),
       const SizedBox(height: 12),
       Text(
@@ -3297,6 +3333,11 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ];
     }
+    final sealed = _sealedText;
+    final sealedFor = _sealedFor;
+    if (sealed != null && sealedFor != null && _plainCopy == null) {
+      return _sealedFileStep(context, slate, sealed, sealedFor);
+    }
     return [
       _header(context, l.sendFileTitle),
       _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
@@ -3305,7 +3346,7 @@ class _SendViewState extends ConsumerState<SendView> {
         style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
       ),
       const SizedBox(height: 12),
-      SlateFileButtons(name: name, json: slate.json),
+      SlateFileButtons(name: name, json: _plainCopy ?? slate.json),
       const SizedBox(height: 8),
       // The text itself is a detail for those who copy it by hand.
       ExpansionTile(
@@ -3335,6 +3376,151 @@ class _SendViewState extends ConsumerState<SendView> {
         child: Text(l.commonDone),
       ),
     ];
+  }
+
+  /// The file route to a paired contact (SPEC 2.9): "Sealed for Anna"; after a plain file
+  /// went to it, "Seal this file?" with Sealed preselected; and after 90 days without a sealed
+  /// message from it, a hint that offers Send plain.
+  List<Widget> _sealChoice(BuildContext context) {
+    final target = _fileSealTarget();
+    if (target == null) return const [];
+    final l = context.l10n;
+    final name = pairingName(target, ref.watch(contactsProvider).value ?? const <Contact>[]);
+    final quiet = target.lastSealedIn == null ||
+        DateTime.now().difference(target.lastSealedIn!) > sealQuietFor;
+    final degraded = target.seal == SealMode.degraded;
+    return [
+      if (degraded)
+        PairCard(
+          children: [
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 14, 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.sendSealOrPlainTitle, style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 2),
+                  Text(l.sendSealOrPlainBody(name), style: TextStyle(color: context.tokens.dim)),
+                ],
+              ),
+            ),
+            RadioGroup<bool>(
+              groupValue: _filePlain,
+              onChanged: (v) => setState(() => _filePlain = v ?? false),
+              child: Column(
+                children: [
+                  RadioListTile<bool>(
+                    key: sendSealedOptionKey,
+                    value: false,
+                    title: Text(l.sendSealedOption),
+                    subtitle: Text(l.sendSealedOptionHint(name)),
+                  ),
+                  RadioListTile<bool>(
+                    key: sendPlainOptionKey,
+                    value: true,
+                    title: Text(l.sendPlainOption),
+                    subtitle: Text(l.sendPlainOptionHint),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        )
+      else
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: _filePlain ? EBadge(l.sendPlainOption) : SealedBadge(name: name),
+        ),
+      if (quiet && !_filePlain) ...[
+        const SizedBox(height: 8),
+        PairEdgeNotice(
+          tone: BadgeTone.info,
+          title: l.sendNotHeardTitle(name),
+          body: l.sendNotHeardBody(name),
+          actions: [
+            TextButton(
+              key: sendPlainShortKey,
+              onPressed: () => setState(() => _filePlain = true),
+              child: Text(l.sendPlainShort),
+            ),
+          ],
+        ),
+      ],
+      const SizedBox(height: 12),
+    ];
+  }
+
+  /// The file sealed for [r] (SPEC 2.9): the lock tile, "Sealed for Anna", the file and the
+  /// amount, Save file and Share; then, for a contact whose wallet does not answer, "Send as
+  /// plain instead", which asks first.
+  List<Widget> _sealedFileStep(BuildContext context, Slate slate, String sealed, PairingRecord r) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final name = pairingName(r, ref.watch(contactsProvider).value ?? const <Contact>[]);
+    final file = sealedFileName(slate.slateId);
+    return [
+      _header(context, l.sendFileTitle),
+      _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
+      Row(
+        children: [
+          GlyphTile(size: 48, child: Icon(EpicGlyphs.sealed, color: t.accentText)),
+          const SizedBox(width: 12),
+          Expanded(child: Text(l.sendSealedTitle(name), style: theme.textTheme.titleMedium)),
+        ],
+      ),
+      const SizedBox(height: 8),
+      Text(l.sendSealedBody(name), style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+      const SizedBox(height: 12),
+      PairCard(
+        children: [
+          ListTile(title: Text(file, style: TextStyle(fontFamily: t.monoFamily)), leading: const Icon(Icons.description_outlined)),
+          ListTile(title: Text(epicExact(l, _parsedAmount ?? BigInt.zero)), leading: const Icon(Icons.north_east)),
+        ],
+      ),
+      const SizedBox(height: 12),
+      SlateFileButtons(name: file, json: sealed),
+      const SizedBox(height: 16),
+      PairEdgeNotice(
+        tone: BadgeTone.warn,
+        title: l.sendCantOpenTitle(name),
+        body: l.sendCantOpenBody,
+        actions: [
+          OutlinedButton(
+            key: sendAsPlainKey,
+            onPressed: _busy ? null : () => _sendAsPlain(slate),
+            child: Text(l.sendAsPlain),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      TextButton(
+        style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        onPressed: _done,
+        child: Text(l.commonDone),
+      ),
+    ];
+  }
+
+  /// "Send as plain instead" (RFC 9.3): asks first, then hands over the same payment unsealed.
+  Future<void> _sendAsPlain(Slate slate) async {
+    final l = context.l10n;
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l.sendAsPlainTitle),
+        content: Text(l.sendAsPlainBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.sendKeepSealed)),
+          FilledButton(key: sendAsPlainConfirmKey, onPressed: () => Navigator.pop(context, true), child: Text(l.sendPlain)),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
+    await _run((session) async {
+      final plain = await session.pairing.plainSlate('s:${slate.slateId}');
+      if (mounted) setState(() => _plainCopy = plain);
+    });
   }
 
   Widget _openReplyAction() {

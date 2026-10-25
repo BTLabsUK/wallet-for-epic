@@ -179,6 +179,10 @@ abstract interface class PairingApi {
   /// slate, so it cannot be paid twice. The contact's seal becomes [SealMode.degraded].
   Future<String> plainSlate(String txKey);
 
+  /// The paired contact and purpose of the transaction with slate [slateId] (a withdrawal
+  /// from an exchange, a deposit request it paid, ...), or null when no pairing took part.
+  Future<PairingSlate?> slateOf(String slateId);
+
   // Backup (RFC 10.5, 9.5).
 
   /// Pairing records imported from a backup that were in use on another device start here,
@@ -303,6 +307,9 @@ class NoPairing implements PairingApi {
 
   @override
   Future<int> useImportedPairings() async => 0;
+
+  @override
+  Future<PairingSlate?> slateOf(String slateId) async => null;
 
   @override
   Stream<PairingEvent> events() => const Stream.empty();

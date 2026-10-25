@@ -687,6 +687,7 @@ class WalletDispatcher {
     ),
     SessionMember.pairingPlainSlate => _once(s.pairing.plainSlate(p.of('key', stringWire)), stringWire),
     SessionMember.pairingUseImported => _once(s.pairing.useImportedPairings(), intWire),
+    SessionMember.pairingSlateOf => _once(s.pairing.slateOf(p.of('slateId', stringWire)), nullable(pairingSlateWire)),
     SessionMember.pairingEvents => _many(s.pairing.events(), pairingEventWire),
   };
 }

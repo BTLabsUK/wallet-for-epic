@@ -6,12 +6,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../pairing_providers.dart';
+import '../pairing_text.dart';
+import '../contacts.dart' show contactsProvider;
 import '../payment_prefs.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
+import '../updater.dart' show updateProvider;
 import '../wallet_service.dart';
 import 'common.dart';
+import 'pairing/pairing_parts.dart';
 import 'qr_scan_screen.dart';
 import 'qr_show_screen.dart';
 import 'scan_screen.dart' show offersQrPayment;
@@ -36,6 +41,9 @@ int qrPaymentScreensOpen = 0;
 /// One transaction file: shows what it is, then signs it (a send to us) or finalizes it (the
 /// answer to our send). Opened from Receive (a file or pasted text), from Send's second step,
 /// and from files other apps hand to the wallet.
+/// The Check for updates button of a file sealed by a newer wallet, for tests.
+const Key slateCheckUpdatesKey = ValueKey('slate-check-updates');
+
 class SlateFileScreen extends ConsumerStatefulWidget {
   const SlateFileScreen({
     super.key,
@@ -79,6 +87,12 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   /// True until the core has read the file.
   bool _reading = true;
 
+  /// The paired contact a sealed file came from (RFC 3.4): the answer goes back sealed.
+  PairingRecord? _sealedFrom;
+
+  /// Why a sealed file did not open: sealed for another wallet or install, or by a newer one.
+  PairingFailure? _sealFailure;
+
   @override
   void initState() {
     super.initState();
@@ -92,9 +106,40 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     super.dispose();
   }
 
+  /// Opens sealed text with the pairing engine (RFC 3.4), and tells a plain file from a paired
+  /// contact that seals ("This arrived unsealed"). False when a sealed file did not open.
+  Future<bool> _open() async {
+    final api = ref.read(pairingApiProvider);
+    final sealed = isSealedText(_file.json);
+    if (!api.supported) return true;
+    try {
+      final opened = await api.openSlate(_file.json);
+      final from = opened.pairingId == null ? null : await api.pairing(opened.pairingId!);
+      if (!mounted) return false;
+      if (sealed) {
+        _file = SlateFile(name: _file.name, json: opened.slateJson);
+        _sealedFrom = from;
+      } else if (from != null && from.seals) {
+        final l = context.l10n;
+        final name = pairingName(from, ref.read(contactsProvider).value ?? const []);
+        ref.read(noticeProvider.notifier).show('${l.openArrivedUnsealed} ${l.openArrivedUnsealedBody(name)}', level: NoticeLevel.info);
+      }
+      return true;
+    } catch (error) {
+      final failure = pairingFailureOf(error);
+      if (!sealed) return true;
+      if (mounted) setState(() => _sealFailure = failure ?? PairingFailure.invalid);
+      return false;
+    }
+  }
+
   Future<void> _read() async {
     SlateInfo? info;
     String Function(AppLocalizations l)? error;
+    if (!await _open()) {
+      if (mounted) setState(() => _reading = false);
+      return;
+    }
     try {
       info = await ref
           .read(walletServiceProvider)
@@ -142,9 +187,20 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
 
   Future<void> _sign() => _run((session) async {
     final response = await session.receiveSlate(slateJson: _file.json);
-    if (mounted) setState(() => _response = response);
+    // Sealed in, sealed back (RFC 9.2): only the sender's wallet opens the answer.
+    final from = _sealedFrom;
+    final sealed = from != null && from.seals ? await session.pairing.sealSlate(id: from.id, slateJson: response.json) : null;
+    if (mounted) {
+      setState(() {
+        _response = response;
+        _sealedAnswer = sealed;
+      });
+    }
     return !response.repeated;
   });
+
+  /// The answer sealed for [_sealedFrom], when the payment came sealed.
+  String? _sealedAnswer;
 
   Future<void> _finalize() {
     final hold = ref.read(autoLockHoldProvider.notifier);
@@ -260,7 +316,18 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           ),
           const SizedBox(height: 8),
         ],
-        if (!showQr || fileOn)
+        if (_sealedAnswer case final sealed? when _sealedFrom != null) ...[
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: SealedBadge(name: pairingName(_sealedFrom!, ref.watch(contactsProvider).value ?? const [])),
+          ),
+          const SizedBox(height: 12),
+          SlateFileButtons(
+            name: sealedFileName(info.slateId),
+            json: sealed,
+            copyable: widget.pasted,
+          ),
+        ] else if (!showQr || fileOn)
           SlateFileButtons(
             name: name,
             json: response.json,
@@ -279,6 +346,32 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         Semantics(
           label: widget.scanned ? l.slateReadingQr : l.slateReading,
           child: const Center(child: CircularProgressIndicator()),
+        ),
+      ];
+    } else if (_sealFailure case final failure?) {
+      // A sealed file that did not open here (RFC 3.4, SPEC 2.9).
+      body = [
+        PairEdgeNotice(
+          tone: failure == PairingFailure.newerVersion ? BadgeTone.info : BadgeTone.risk,
+          title: pairingFailureText(l, failure),
+          body: pairingFailureBody(l, failure, file: true),
+          actions: [
+            if (failure == PairingFailure.newerVersion)
+              FilledButton(
+                key: slateCheckUpdatesKey,
+                onPressed: () {
+                  ref.read(updateProvider.notifier).check();
+                  ref.read(noticeProvider.notifier).show(l.updateChecking, level: NoticeLevel.info);
+                },
+                child: Text(l.pairCheckForUpdates),
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        TextButton(
+          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: () => Navigator.pop(context),
+          child: Text(l.pairClosed),
         ),
       ];
     } else if (info == null) {

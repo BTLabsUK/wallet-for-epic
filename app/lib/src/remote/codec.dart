@@ -882,6 +882,18 @@ final WireCodec<PairingEvent> pairingEventWire = _object<PairingEvent>(
   ),
 );
 
+final WireCodec<SlatePurpose> slatePurposeWire = enumWire('SlatePurpose', SlatePurpose.values);
+
+final WireCodec<PairingSlate> pairingSlateWire = _object<PairingSlate>(
+  'PairingSlate',
+  (v) => {'pairingId': v.pairingId, 'purpose': slatePurposeWire.encode(v.purpose), 'reference': v.reference},
+  (r) => PairingSlate(
+    pairingId: r.of('pairingId', stringWire),
+    purpose: r.of('purpose', slatePurposeWire),
+    reference: r.of('reference', optString),
+  ),
+);
+
 final WireCodec<OpenedSlate> openedSlateWire = _object<OpenedSlate>(
   'OpenedSlate',
   (v) => {'slateJson': v.slateJson, 'pairingId': v.pairingId, 'sealed': v.sealed},

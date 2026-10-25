@@ -897,9 +897,14 @@ class DeskSettings {
     this.useStatusSite = true,
     this.advanced = AdvancedPrefs.none,
     this.payments = PaymentPrefs.defaults,
+    this.pairingSeenAs = '',
   });
 
   final ThemeChoice theme;
+
+  /// The name other wallets see when this one pairs ("They will see you as"), as the phone
+  /// keeps it; empty until the user gave one.
+  final String pairingSeenAs;
 
   /// Interface scale in percent, one of [deskScales]: text and layout together.
   final int scale;
@@ -982,6 +987,7 @@ class DeskSettings {
     bool? useStatusSite,
     AdvancedPrefs? advanced,
     PaymentPrefs? payments,
+    String? pairingSeenAs,
   }) => DeskSettings(
     theme: theme ?? this.theme,
     scale: scale ?? this.scale,
@@ -1004,6 +1010,7 @@ class DeskSettings {
     useStatusSite: useStatusSite ?? this.useStatusSite,
     payments: payments ?? this.payments,
     advanced: advanced ?? this.advanced,
+    pairingSeenAs: pairingSeenAs ?? this.pairingSeenAs,
   );
 }
 

@@ -42,6 +42,12 @@ String shortSlateId(String slateId) =>
 /// The file name for a new send, `<first 8 of the slate id>.tx`.
 String sendFileName(String slateId) => '${shortSlateId(slateId)}.tx';
 
+/// A payment file sealed for a paired contact (RFC 3.5), `<first 8 of the slate id>.epicsealed`.
+String sealedFileName(String slateId) => '${shortSlateId(slateId)}.epicsealed';
+
+/// Sealed text (RFC 3.5): armored, `BEGINEPICSEALED` after optional whitespace.
+bool isSealedText(String text) => text.trimLeft().startsWith('BEGINEPICSEALED');
+
 /// The recipient's answer, `<first 8 of the slate id>.response`.
 String responseFileName(String slateId) =>
     '${shortSlateId(slateId)}.response';
@@ -71,7 +77,8 @@ String decodeSlateFile(List<int> bytes) {
   } on FormatException {
     throw LocalizedFormatException((l) => l.slateNotTransactionFile);
   }
-  if (!text.startsWith('{')) {
+  // A sealed file holds armored text, opened by the pairing engine (RFC 3.5).
+  if (!text.startsWith('{') && !isSealedText(text)) {
     throw LocalizedFormatException((l) => l.slateNotTransactionFile);
   }
   return text;

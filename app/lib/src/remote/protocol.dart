@@ -103,6 +103,7 @@ enum SessionMember {
   pairingSendViaMailbox,
   pairingPlainSlate,
   pairingUseImported,
+  pairingSlateOf,
   pairingEvents,
 }
 

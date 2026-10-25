@@ -14,7 +14,7 @@ import 'dart:convert';
 import 'models.dart';
 import 'pairing_api.dart';
 import 'sas_table.dart';
-import 'wallet_service.dart' show FakeWalletSession;
+import 'wallet_service.dart' show FakeWalletSession, fakeTx;
 
 /// The fake's links: `epiccash://<path>/1/<base64url of a JSON object>`.
 String fakePairingLink(String path, Map<String, Object?> body) =>
@@ -732,6 +732,14 @@ class FakePairing implements PairingApi {
     final r = _get(id);
     if (!r.seals) throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'not sealing for this contact');
     final body = base64Url.encode(utf8.encode(jsonEncode({'p': id, 's': slateJson})));
+    // Kept by the transaction, as the engine keeps a sealed send, for [plainSlate].
+    try {
+      final slateId = (jsonDecode(slateJson) as Map<String, Object?>)['id'];
+      if (slateId is String) sealedSends['s:$slateId'] = (id: id, slateJson: slateJson);
+    } on Object {
+      // Not a slate the fake can read: sealed all the same.
+    }
+    calls.add('seal');
     return '$_armorHead$body$_armorFoot';
   }
 
@@ -739,8 +747,8 @@ class FakePairing implements PairingApi {
   Future<OpenedSlate> openSlate(String text) async {
     final t = text.trim();
     if (!t.startsWith('BEGINEPICSEALED')) {
-      // A plain file from a paired contact's address says who sent it.
-      return OpenedSlate(slateJson: text);
+      // A plain file from a paired contact's address says who sent it ([plainFrom]).
+      return OpenedSlate(slateJson: text, pairingId: plainFrom[t]);
     }
     if (!t.startsWith(_armorHead) || !t.endsWith(_armorFoot)) throw pairingError(PairingFailure.newerVersion);
     final Object? body;
@@ -780,6 +788,10 @@ class FakePairing implements PairingApi {
     );
   }
 
+  /// Plain slates a paired contact sent, by their text: [openSlate] names the pairing, as the
+  /// engine does from the slate's payment proof.
+  final Map<String, String> plainFrom = {};
+
   /// The sealed sends by transaction key, with their slate and pairing, for [plainSlate].
   final Map<String, ({String id, String slateJson})> sealedSends = {};
 
@@ -796,6 +808,36 @@ class FakePairing implements PairingApi {
 
   /// Pairings an import brought in as used on another device.
   int importedOtherDevice = 0;
+
+  /// What each slate a pairing took part in was for, by slate id ([slateOf]).
+  final Map<String, PairingSlate> slates = {};
+
+  @override
+  Future<PairingSlate?> slateOf(String slateId) async => enabled ? slates[slateId] : null;
+
+  /// The exchange of [id] sent a withdrawal of [amount] (RFC 12.5): the wallet signed and
+  /// answered it on its own, and it waits for the exchange to post. Raises
+  /// [PairingEventKind.withdrawalFromContact]. Returns the slate id.
+  String withdrawalFrom(String id, BigInt amount, {String? reference}) {
+    final r = _get(id);
+    final s = session;
+    final slateId = _id('withdrawal');
+    s?.transactionsValue.add(
+      fakeTx(
+        id: 700 + slates.length,
+        slateId: slateId,
+        kind: TxKind.received,
+        // Signed and answered here; the exchange finalizes and posts.
+        status: TxStatus.awaitingConfirmation,
+        createdAtUnix: clock().millisecondsSinceEpoch ~/ 1000,
+        amountCredited: amount,
+        counterparty: r.paymentsAddress,
+      ),
+    );
+    slates[slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.withdrawal, reference: reference);
+    emit(PairingEvent(PairingEventKind.withdrawalFromContact, pairingId: id, name: _nameOf(r), slateId: slateId, amount: amount));
+    return slateId;
+  }
 
   @override
   Future<int> useImportedPairings() async {

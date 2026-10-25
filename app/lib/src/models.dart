@@ -2815,6 +2815,26 @@ class PairingStray {
   final String name;
 }
 
+/// What a slate that came through a pairing was for (RFC 3.3, TLV `04`).
+enum SlatePurpose { payment, deposit, withdrawal, refund, request }
+
+/// A transaction a paired contact took part in, by its slate ([PairingApi.slateOf]): who, what
+/// for, and the contact's own reference (shown, never trusted for crediting).
+class PairingSlate {
+  const PairingSlate({required this.pairingId, required this.purpose, this.reference});
+
+  final String pairingId;
+  final SlatePurpose purpose;
+  final String? reference;
+
+  @override
+  int get hashCode => Object.hash(pairingId, purpose, reference);
+
+  @override
+  bool operator ==(Object other) =>
+      other is PairingSlate && other.pairingId == pairingId && other.purpose == purpose && other.reference == reference;
+}
+
 /// A payment file or paste as [PairingApi.openSlate] opened it.
 class OpenedSlate {
   const OpenedSlate({required this.slateJson, this.pairingId, this.sealed = false});

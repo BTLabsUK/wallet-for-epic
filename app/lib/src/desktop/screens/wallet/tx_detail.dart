@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../known_relays.dart' show recipientRelay;
+import '../../../models.dart' show SlatePurpose;
+import '../../data/invoice_state.dart' show PayState, deskInvoicesProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/pairing_state.dart' show deskPairingNameProvider, deskPairingSlateProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../invoices/tx_invoice_block.dart';
@@ -158,7 +161,20 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final finalizable = !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
     // The node refused it: broadcast it again at once (android-17); the app also does by itself.
     final repostable = !t.fromBackup && !t.isInvoice && t.notPosted;
-    final steps = _steps(l, t);
+    // A payment to a paired contact's request, or a withdrawal from a paired exchange: the
+    // contact's own steps (SPEC 2.8).
+    final paid = t.isInvoice && !t.incoming ? ref.watch(deskInvoicesProvider)?.invoiceOfTx(t.id) : null;
+    final paidTo = paid?.pairingId;
+    final slate = t.incoming && !t.isInvoice && t.slateId.isNotEmpty ? ref.watch(deskPairingSlateProvider(t.slateId)).value : null;
+    final withdrawal = slate?.purpose == SlatePurpose.withdrawal ? slate : null;
+    final contact = paidTo ?? withdrawal?.pairingId;
+    final contactName = contact == null ? '' : ref.watch(deskPairingNameProvider(contact));
+    final steps = paidTo != null
+        ? _paidSteps(l, t, paid!.state, contactName)
+        : withdrawal != null
+        ? _withdrawalSteps(l, t, contactName)
+        : _steps(l, t);
+    final onChain = t.state == TxState.confirming || t.state == TxState.confirmed;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -241,8 +257,14 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ],
           ),
         ),
+        // A withdrawal from a paired exchange, not yet posted by it (SPEC 2.8).
+        if (withdrawal != null && !onChain) ...[
+          SizedBox(height: Sp.x3),
+          ENotice(title: l.reqReceivedWaiting(contactName), text: l.reqReceivedWaitingBody, tone: ETone.info),
+        ],
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
         if (t.isInvoice) TxInvoiceBlock(tx: t),
+        if (paidTo != null && t.state != TxState.cancelled) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         if (t.state != TxState.cancelled && !t.fromBackup && !t.isInvoice) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         _SubBar(
           l.deskTxSubDetails,
@@ -392,6 +414,43 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           ],
         )
       : value;
+
+  /// A request a paired contact sent, paid (SPEC 2.8): Paid, Delivered to its relay, Posted
+  /// by it, the confirmations.
+  List<_Step> _paidSteps(AppLocalizations l, Tx t, PayState state, String name) {
+    final delivered = state != PayState.notDelivered;
+    final posted = state == PayState.posted || state == PayState.confirming || state == PayState.completed || t.state == TxState.confirming || t.state == TxState.confirmed;
+    final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
+    final done = t.state == TxState.confirmed || state == PayState.completed;
+    return [
+      _Step(l.reqTlPaid, _S.done, ''),
+      _Step(l.reqTlDelivered(name), delivered ? _S.done : _S.now, '', sub: delivered ? null : l.reqRelayRetrying),
+      _Step(l.reqTlPosted(name), posted ? _S.done : (delivered ? _S.now : _S.todo), '', sub: !posted && delivered ? l.reqTlPostedHint : null),
+      _Step(
+        done ? l.reqTlConfirmed : l.reqTlConfirming,
+        done ? _S.done : (inBlock ? _S.now : _S.todo),
+        '',
+        sub: inBlock && !done ? l.reqTlConfirmingHint(t.confirmations, t.confirmationsNeeded) : null,
+      ),
+    ];
+  }
+
+  /// A withdrawal from a paired exchange (RFC 12.5): the answer delivered to its relay, Posted
+  /// by it, the confirmations.
+  List<_Step> _withdrawalSteps(AppLocalizations l, Tx t, String name) {
+    final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
+    final done = t.state == TxState.confirmed;
+    return [
+      _Step(l.reqTlAnswerDelivered(name), _S.done, ''),
+      _Step(l.reqTlPosted(name), inBlock ? _S.done : _S.now, '', sub: inBlock ? null : l.reqTlPostedHint),
+      _Step(
+        done ? l.reqTlConfirmed : l.reqTlConfirming,
+        done ? _S.done : (inBlock ? _S.now : _S.todo),
+        '',
+        sub: inBlock && !done ? l.reqTlConfirmingHint(t.confirmations, t.confirmationsNeeded) : null,
+      ),
+    ];
+  }
 
   List<_Step> _steps(AppLocalizations l, Tx t) {
     final at = t.created;

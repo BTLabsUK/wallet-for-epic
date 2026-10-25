@@ -8,7 +8,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkMode;
-import '../../models.dart' show PairingEvent, PairingRecord, PairingState;
+import '../../models.dart' show PairingEvent, PairingRecord, PairingSlate, PairingState;
 import '../../pairing_api.dart';
 import 'models.dart' show Contact;
 import 'state.dart';
@@ -88,14 +88,31 @@ final deskPairingNameProvider = Provider.family<String, String>((ref, id) {
   return deskPairingName(r, ref.watch(deskProvider.select((s) => s.contacts)));
 });
 
-/// The name others see when pairing, for this run of the app.
+/// The paired contact and purpose of the transaction with slate [slateId] (a withdrawal from
+/// an exchange, ...), or null; read again on every pairing event.
+final deskPairingSlateProvider = FutureProvider.autoDispose.family<PairingSlate?, String>((ref, slateId) async {
+  final api = ref.watch(deskPairingApiProvider);
+  if (!api.supported) return null;
+  final sub = api.events().listen((_) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return api.slateOf(slateId);
+});
+
+/// The name others see when pairing ("They will see you as"), kept in the settings.
 final deskSeenAsProvider = NotifierProvider<DeskSeenAs, String>(DeskSeenAs.new);
 
 class DeskSeenAs extends Notifier<String> {
   @override
-  String build() => '';
+  String build() => ref.watch(deskProvider.select((s) => s.settings.pairingSeenAs));
 
-  void set(String name) => state = name.trim();
+  /// Keeps [name] in the settings, as the phone keeps it on the device.
+  Future<void> set(String name) async {
+    final shown = name.trim();
+    if (shown == state) return;
+    state = shown;
+    final desk = ref.read(deskProvider.notifier);
+    await desk.saveSettings(ref.read(deskProvider).settings.copyWith(pairingSeenAs: shown));
+  }
 }
 
 /// Runs [call], then reads the records again.

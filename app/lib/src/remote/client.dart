@@ -1253,5 +1253,9 @@ class RemotePairing implements PairingApi {
   Future<int> useImportedPairings() => _call(SessionMember.pairingUseImported, intWire);
 
   @override
+  Future<PairingSlate?> slateOf(String slateId) =>
+      _call(SessionMember.pairingSlateOf, nullable(pairingSlateWire), {'slateId': slateId});
+
+  @override
   Stream<PairingEvent> events() => _session._stream(SessionMember.pairingEvents, pairingEventWire);
 }
