@@ -263,6 +263,16 @@ void main() {
     expect({for (final e in told) if (e.kind == PairingEventKind.paymentFinalized) (e.pairingId, e.slateId)}, {(ids.aSide, tx.slateId)});
     final after = (await anna.transactions(refresh: false)).firstWhere((t) => t.slateId == tx.slateId);
     expect(after.status, TxStatus.awaitingConfirmation);
+    // Posted by the collect: never "not on the network" (LNX3-4).
+    expect(after.repostable, isFalse);
+    // Both sides name the contact by the pairing at every state (LNX3-5).
+    expect(after.pairingId, ids.aSide);
+    final received = (await ben.transactions(refresh: false)).firstWhere((t) => t.slateId == tx.slateId);
+    expect(received.pairingId, ids.bSide);
+    // Ben opened Anna's sealed payment: the pairing says when it last heard from her, the
+    // pairing a contact uses is picked by it (PAIR-AND-20).
+    final heard = (await ben.pairing.pairing(ids.bSide))!;
+    expect(heard.lastSealedIn!.isAfter(heard.createdAt), isTrue);
   }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 
   test('a mailbox payment to a pairing that is gone is refused before anything is held', () async {

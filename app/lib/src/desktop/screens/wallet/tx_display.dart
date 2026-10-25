@@ -5,7 +5,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import '../../../l10n.dart' show localClock, localDay, localDayMonth;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
-import '../../data/pairing_state.dart' show deskPairingNameProvider, deskPairingSlateProvider, deskPairsProvider;
+import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingNameProvider, deskPairingSlateProvider, deskPairsProvider;
 import '../../data/method_names.dart';
 import '../../widgets/kit.dart';
 import '../invoices/invoice_parts.dart' show payStateWord, requestStateWord;
@@ -55,22 +55,31 @@ FoundTexts foundTexts(AppLocalizations l, Tx t) {
   };
 }
 
-/// The paired contact a send went to through its mailbox (RFC 9.1: no address, so LEPIC keeps
-/// it as an export), by name, or null. Rows ask only while it waits for the answer, as each
-/// ask reads the wallet's payments; [any] asks for any such send (the detail pane).
+/// The paired contact a payment went to or came from through its mailbox (RFC 9.1: no
+/// address), by name, or null. The core's link ([Tx.pairingId]) names it at every state, both
+/// ways; without one, rows ask only for a send still waiting for its answer, as each ask reads
+/// the wallet's payments, and [any] asks for any such send (the detail pane).
 String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
-  if (t.incoming || t.isInvoice || t.counterparty != null || t.slateId.isEmpty || t.fromBackup) return null;
+  if (t.isInvoice || t.fromBackup || !ref.watch(deskPairsProvider)) return null;
+  if (t.pairingId case final id?) {
+    final name = ref.watch(deskPairingNameProvider(id));
+    return name.isEmpty ? null : name;
+  }
+  if (t.incoming || t.counterparty != null || t.slateId.isEmpty) return null;
   if (!any && t.state != TxState.waitingRecipient) return null;
-  if (!ref.watch(deskPairsProvider)) return null;
   final pairingId = ref.watch(deskPairingSlateProvider(t.slateId)).value?.pairingId;
   if (pairingId == null) return null;
   final name = ref.watch(deskPairingNameProvider(pairingId));
   return name.isEmpty ? null : name;
 }
 
-/// [statusOf], with "Waiting for Anna to sign" for a send through [mailbox]'s mailbox.
-(String, ETone) statusWithMailbox(AppLocalizations l, Tx t, String? mailbox) =>
-    mailbox != null && t.state == TxState.waitingRecipient && !t.undelivered ? (l.deskTxStatusWaitingFor(mailbox), ETone.warn) : statusOf(l, t);
+/// [statusOf], with "Waiting for Anna to sign" for a send through [mailbox]'s mailbox, and
+/// "Waiting for Anna" for a payment from it: Anna's wallet finalizes by itself, no file. While
+/// Epicbox is off ([paused]) a send waits in the outbox, and the row says that instead.
+(String, ETone) statusWithMailbox(AppLocalizations l, Tx t, String? mailbox, {bool paused = false}) =>
+    mailbox != null && t.state == TxState.waitingRecipient && !t.undelivered && !t.senderPosted
+    ? (t.incoming ? l.txStatusWaitingFor(mailbox) : (paused ? l.contactPausedEpicboxOff : l.deskTxStatusWaitingFor(mailbox)), ETone.warn)
+    : statusOf(l, t);
 
 /// What a row is called: the user's label, else [whoOf].
 String titleOf(AppLocalizations l, Tx t) => t.labelText ?? whoOf(l, t);
@@ -371,7 +380,9 @@ class _TxRowState extends ConsumerState<TxRow> {
     final ts = context.ts;
     final t = widget.tx;
     final mailbox = deskTxMailboxName(ref, t);
-    final (word, tone) = invoiceStatusOf(context, ref, t) ?? statusWithMailbox(context.l10n, t, mailbox);
+    final (word, tone) =
+        invoiceStatusOf(context, ref, t) ??
+        statusWithMailbox(context.l10n, t, mailbox, paused: mailbox != null && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff);
     final toneColor = switch (tone) {
       ETone.ok => c.dim,
       ETone.warn => c.warn,

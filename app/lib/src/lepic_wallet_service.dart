@@ -544,7 +544,7 @@ const resendTransports = {'epicbox', 'http', 'tor'};
 /// a restore finds again while the id changes. Notes, labels, contacts and imported rows are
 /// the app's (H-01), so `note` and `label` stay empty here; `messages` are the slate's, which
 /// LEPIC verified.
-TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
+TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, String? pairingId}) {
   final outgoing = d.direction == lepic.TxDirection.outgoing;
   final ended =
       d.status == lepic.TxStatus.cancelled ||
@@ -627,6 +627,7 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false}) {
     senderReportedPostedAtUnix: d.senderReportedPostedAtMs == null
         ? null
         : d.senderReportedPostedAtMs! ~/ 1000,
+    pairingId: pairingId,
   );
 }
 
@@ -1104,11 +1105,28 @@ class LepicWalletSession implements WalletSession {
     _wallet.dispose();
   }
 
-  /// LEPIC's rows, before the archive is merged in.
+  /// LEPIC's rows, before the archive is merged in, each with the pairing it was exchanged
+  /// with.
   Future<List<TxEntry>> _live() async => [
     for (final d in await _wallet.transactions())
-      lepicTxEntry(d, sending: _sending > 0),
+      lepicTxEntry(d, sending: _sending > 0, pairingId: await _pairingOfTx(d)),
   ];
+
+  /// The pairing [d] was sealed to or from ([_contactOfTx]), asked only of the rows a pairing
+  /// can make: a mailbox payment or a sealed file either way, which have no counterparty
+  /// (LEPIC keeps them as file exchanges, and a mailbox send as `epicbox` once its answer is
+  /// in), and a request. A row with none is asked again while it is open, as LEPIC links a
+  /// receive to its pairing just after storing it.
+  Future<String?> _pairingOfTx(lepic.TransactionDetails d) async {
+    if (d.origin != lepic.TxOrigin.wallet) return null;
+    if (d.counterparty != null && d.flow != lepic.TxFlow.invoice) return null;
+    final contact = await _contactOfTx(d.txId);
+    final ended = d.status == lepic.TxStatus.confirmed ||
+        d.status == lepic.TxStatus.cancelled ||
+        d.status == lepic.TxStatus.expired;
+    if (contact == null && !ended) _txContacts.remove(d.txId);
+    return contact;
+  }
 
   /// The stored row of [txId], as the history shows it.
   Future<TxEntry> _entry(int txId) async {
@@ -2223,8 +2241,8 @@ class LepicWalletSession implements WalletSession {
     return [for (final r in requests) r.withPairing(await _contactOfTx(r.txId))];
   }
 
-  /// The paired contact a transaction was sealed to or from; it never changes, so it is
-  /// asked once.
+  /// The paired contact a transaction was sealed to or from; once known it never changes, so
+  /// it is asked once.
   final Map<int, String?> _txContacts = {};
 
   Future<String?> _contactOfTx(int txId) async {
@@ -2581,10 +2599,11 @@ class _LepicPairing implements PairingApi {
     },
     homeRelay: c.homeRelay ?? '',
     contactId: c.appContact,
-    // "Lapsed": nothing sealed from the contact opened for 90 days.
-    lastSealedIn: c.lapsed ? DateTime.fromMillisecondsSinceEpoch(0) : DateTime.now(),
+    // Since pairing until a sealed message opens, as LEPIC counts it for "lapsed".
+    lastSealedIn: _ms((c.lastSealedInMs ?? c.createdAtMs).toInt()),
     relayDown: c.homeRelay != null && _relaysDown.contains(c.homeRelay),
     otherDevice: c.importedFromBackup,
+    checksKeys: _checking.containsKey(c.contactId),
   );
 
   PairingRecord _pending(lepic.PendingPairingView p) => PairingRecord(
@@ -2656,13 +2675,10 @@ class _LepicPairing implements PairingApi {
   @override
   Future<PairingRecord?> pairingForContact(String contactId) => _call(() async {
     final found = [
-      for (final c in await _w.pairingsForAppContact(appContact: contactId))
+      for (final c in (await _w.pairingsForAppContact(appContact: contactId)).reversed)
         if (!_folded.contains(c.contactId)) _record(c),
     ];
-    // A new pairing in keys changed is the one the page shows; one still checking is not.
-    return found.where((r) => r.state == PairingState.keysChanged).firstOrNull ??
-        found.where((r) => !_checking.containsKey(r.id)).lastOrNull ??
-        found.lastOrNull;
+    return contactPairingOf(found, contactId);
   });
 
   // No second answers are kept: the engine refuses a used invite.

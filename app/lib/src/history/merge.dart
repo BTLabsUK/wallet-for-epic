@@ -118,7 +118,8 @@ class MergedTx {
       finalizedAtUnix = e.finalizedAtUnix,
       cancelReason = e.cancelReason,
       flow = e.flow,
-      senderReportedPostedAtUnix = e.senderReportedPostedAtUnix;
+      senderReportedPostedAtUnix = e.senderReportedPostedAtUnix,
+      pairingId = e.pairingId;
 
   String key;
   int? id;
@@ -162,6 +163,9 @@ class MergedTx {
 
   /// From the live row: LEPIC's, never stored or exported.
   int? senderReportedPostedAtUnix;
+
+  /// From the live row: LEPIC's link to a pairing, never stored or exported.
+  String? pairingId;
 
   /// Every key the transaction was ever known by, for notes.
   List<String> aliases = const [];
@@ -207,6 +211,7 @@ class MergedTx {
     cancelReason: cancelReason,
     flow: flow,
     senderReportedPostedAtUnix: senderReportedPostedAtUnix,
+    pairingId: pairingId,
   );
 }
 

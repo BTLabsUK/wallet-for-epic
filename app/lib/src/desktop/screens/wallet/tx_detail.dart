@@ -216,8 +216,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final mailboxName = deskTxMailboxName(ref, t, any: true);
     final mailboxPairing = mailboxName == null
         ? null
-        : switch (ref.watch(deskPairingSlateProvider(t.slateId)).value) {
-            final slate? => ref.watch(deskPairingByIdProvider(slate.pairingId)),
+        : switch (t.pairingId ?? ref.watch(deskPairingSlateProvider(t.slateId)).value?.pairingId) {
+            final id? => ref.watch(deskPairingByIdProvider(id)),
             null => null,
           };
     final finalizable = !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient && mailboxName == null;

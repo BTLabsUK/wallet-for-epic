@@ -1708,7 +1708,9 @@ class LepicDeskWallet implements DeskWalletApi {
       if (_session != session) return;
       await _importHistoryOnce(session, key);
       if (_session != session) return;
-      _entries = await session.transactions(refresh: false);
+      final run = ++_reloads;
+      final entries = await session.transactions(refresh: false);
+      if (run == _reloads) _entries = entries;
       _lastUpdate = DateTime.now();
       _syncError = _nodeHealth == ServiceHealth.down ? DeskError.l10n((l) => l.deskErrNodeNoAnswer) : null;
     } on core.WalletError catch (e) {
@@ -1883,7 +1885,29 @@ class LepicDeskWallet implements DeskWalletApi {
     _entries = entries;
     final contacts = await _open.contacts();
     final names = {for (final c in contacts) c.address: c.name};
-    return [for (final (i, e) in entries.indexed) deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, contactName: names[e.counterparty])];
+    // A payment through a pairing has no address: the contact it is attached to names it.
+    final paired = entries.any((e) => e.pairingId != null) ? await _pairingNames(contacts) : const <String, String>{};
+    return [
+      for (final (i, e) in entries.indexed)
+        deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, contactName: names[e.counterparty] ?? paired[e.pairingId]),
+    ];
+  }
+
+  /// Each pairing's name, by id: its address-book contact's, else the one it shows; none
+  /// while the core does not pair.
+  Future<Map<String, String>> _pairingNames(List<core.Contact> contacts) async {
+    final api = pairing;
+    if (!api.supported) return const {};
+    final byId = {for (final c in contacts) c.id: c.name};
+    try {
+      return {
+        for (final r in await api.pairings())
+          if (byId[r.contactId] ?? r.shownName case final name when name.isNotEmpty) r.id: name,
+      };
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'pairing names: ${e.kind.name}');
+      return const {};
+    }
   }
 
   /// Every output, spent ones included, from the wallet's database (as of the last refresh).
@@ -3909,6 +3933,7 @@ class LepicDeskWallet implements DeskWalletApi {
   InvoiceScheduler? _invoiceTimers;
   StreamSubscription<core.InvoiceEvent>? _invoiceSub;
   StreamSubscription<core.IssuerEvent>? _issuerSub;
+  StreamSubscription<core.PairingEvent>? _pairingSub;
   final _invoiceNotices = StreamController<InvoiceNotice>.broadcast();
 
   /// How long invoices stay payable here (Settings › Invoices); kept per wallet in the
@@ -3963,7 +3988,16 @@ class LepicDeskWallet implements DeskWalletApi {
   void _startInvoices() {
     _stopInvoices();
     final session = _session;
-    if (session == null || !session.supportsInvoices) return;
+    if (session == null) return;
+    // A payment the contacts' collect finalized and posted (a mailbox send's answer): the list
+    // is read again. The listener's "finalized" comes before the post, so the read it starts
+    // can find the payment not yet posted ("Not on the network", LNX3-4).
+    if (session.pairing.supported) {
+      _pairingSub = session.pairing.events().listen((e) {
+        if (e.kind == core.PairingEventKind.paymentFinalized && _session == session) unawaited(_reload());
+      });
+    }
+    if (!session.supportsInvoices) return;
     unawaited(_loadInvoiceExpiry().then((_) => _changed(), onError: (Object e) => logWarn('invoices', 'expiry not read: $e')));
     _invoiceSub = session.invoiceEvents().listen((e) => unawaited(_onInvoiceEvent(session, e)));
     _issuerSub = session.issuerEvents().listen((e) => unawaited(_onIssuerEvent(session, e)));
@@ -3986,6 +4020,8 @@ class LepicDeskWallet implements DeskWalletApi {
     _invoiceSub = null;
     unawaited(_issuerSub?.cancel());
     _issuerSub = null;
+    unawaited(_pairingSub?.cancel());
+    _pairingSub = null;
     if (!forget) return;
     _invoiceCheckedAt = null;
     _invoiceCheck = InvoiceCheck.ok;
@@ -4484,12 +4520,20 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// Counts [_reload]s, so one that started earlier and ends later keeps what a later one read.
+  int _reloads = 0;
+
   Future<void> _reload() async {
     final session = _session;
     if (session == null) return;
+    final run = ++_reloads;
     try {
-      _summary = await session.summary(refresh: false, minimumConfirmations: _minConf);
-      _entries = await session.transactions(refresh: false);
+      final summary = await session.summary(refresh: false, minimumConfirmations: _minConf);
+      final entries = await session.transactions(refresh: false);
+      // A later read is under way or done: it saw the newer state (a posted payment, LNX3-4).
+      if (run != _reloads) return;
+      _summary = summary;
+      _entries = entries;
     } on core.WalletError catch (e) {
       logWarn('desk', 'reload: ${e.kind.name}');
     }
@@ -4584,6 +4628,9 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     'http' => TxMethod.http,
     // A restored row has no wallet record of how it came: only the user's words say.
     'file' when e.source == core.TxSource.restored => TxMethod.file,
+    // Through a pairing's mailbox: Epicbox, though LEPIC keeps it with no address, as a file
+    // exchange until its answer is in.
+    _ when e.pairingId != null && to == null => TxMethod.epicbox,
     _ when to != null && to.toLowerCase().contains('.onion') => TxMethod.tor,
     _ when to == null => e.source == core.TxSource.wallet && e.kind != core.TxKind.coinbase ? TxMethod.file : TxMethod.epicbox,
     _ when to.startsWith('http') => TxMethod.http,
@@ -4631,6 +4678,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,
     senderPosted: core.senderReportsPosted(e, now: now ?? DateTime.now()),
+    pairingId: e.pairingId,
   );
 }
 

@@ -574,12 +574,13 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final chain = ref.watch(walletConfigProvider)?.chain;
     final (:amount, :outgoing) = txAmount(tx);
     final counterparty = tx.counterparty;
-    // A send through a paired contact's mailbox (no address): the contact, never the mailbox.
+    // A payment through a paired contact's mailbox (no address): the contact, never the
+    // mailbox.
     final mailboxName = txMailboxName(ref, tx, any: true);
     final mailboxPairing = mailboxName == null
         ? null
-        : switch (ref.watch(pairingSlateProvider(tx.slateId!)).value) {
-            final slate? => ref.watch(pairingByIdProvider(slate.pairingId)),
+        : switch (tx.pairingId ?? ref.watch(pairingSlateProvider(tx.slateId!)).value?.pairingId) {
+            final id? => ref.watch(pairingByIdProvider(id)),
             null => null,
           };
     final mailboxWaiting = mailboxName != null && tx.status == TxStatus.awaitingRecipient;
@@ -897,7 +898,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           // Through the pairing: the method and the contact, no address (DESIGN 1.2).
           else if (mailboxName != null) ...[
             _DetailRow(label: l.sendMethodLabel, value: MethodIcons.fullName(l, MethodKind.epicbox)),
-            _DetailRow(label: l.txDetailsSentTo, value: '$mailboxName\n${l.sendRecipientPairing(mailboxName)}'),
+            _DetailRow(
+              label: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,
+              value: '$mailboxName\n${l.sendRecipientPairing(mailboxName)}',
+            ),
           ],
           if (fee != null && outgoing)
             _DetailRow(

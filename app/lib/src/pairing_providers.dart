@@ -80,11 +80,10 @@ class PairingsNotifier extends AsyncNotifier<List<PairingRecord>> {
   }
 }
 
-/// The pairing attached to the address-book contact [contactId], or null.
-final contactPairingProvider = Provider.family<PairingRecord?, String>((ref, contactId) {
-  final all = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
-  return all.where((r) => r.contactId == contactId && r.state.isPaired).firstOrNull;
-});
+/// The pairing the address-book contact [contactId] uses ([contactPairingOf]), or null.
+final contactPairingProvider = Provider.family<PairingRecord?, String>(
+  (ref, contactId) => contactPairingOf(ref.watch(pairingsProvider).value ?? const <PairingRecord>[], contactId),
+);
 
 /// The paired contact and purpose of the transaction with slate [slateId], or null; read
 /// again on every pairing event.

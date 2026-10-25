@@ -1458,6 +1458,11 @@ class TxEntry {
   /// null otherwise. The sender's word only: [senderReportsPosted] says when to show it.
   final int? senderReportedPostedAtUnix;
 
+  /// The pairing this payment was exchanged with (sealed to or from it, through its mailbox
+  /// or as a sealed file), as LEPIC links it; null for any other row. The row and its details
+  /// name the contact by it, as a mailbox payment has no address.
+  final String? pairingId;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -1496,6 +1501,7 @@ class TxEntry {
     this.foundDuring,
     this.datedByBlock = true,
     this.senderReportedPostedAtUnix,
+    this.pairingId,
   });
 
   /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
@@ -1550,7 +1556,8 @@ class TxEntry {
       flow.hashCode ^
       foundDuring.hashCode ^
       datedByBlock.hashCode ^
-      senderReportedPostedAtUnix.hashCode;
+      senderReportedPostedAtUnix.hashCode ^
+      pairingId.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1594,7 +1601,8 @@ class TxEntry {
           flow == other.flow &&
           foundDuring == other.foundDuring &&
           datedByBlock == other.datedByBlock &&
-          senderReportedPostedAtUnix == other.senderReportedPostedAtUnix;
+          senderReportedPostedAtUnix == other.senderReportedPostedAtUnix &&
+          pairingId == other.pairingId;
 }
 
 /// How long a sender's posted report shows, as LEPIC keeps it.
@@ -2640,6 +2648,7 @@ class PairingRecord {
     this.inviteWords = const [],
     this.relayDown = false,
     this.otherDevice = false,
+    this.checksKeys = false,
   });
 
   /// The record's local id: never sent, never a key.
@@ -2687,7 +2696,7 @@ class PairingRecord {
   /// The contact's ordinary Epicbox address from its card (tag 09), for plain sends.
   final String? paymentsAddress;
 
-  /// When the last sealed message from the contact opened.
+  /// When the last sealed message from the contact opened; since pairing when none has.
   final DateTime? lastSealedIn;
 
   /// For a pending invite or answer: when it stops being answered.
@@ -2705,6 +2714,17 @@ class PairingRecord {
   /// Imported from a backup whose pairings were in use on another device and not yet taken
   /// over here (RFC 9.5).
   final bool otherDevice;
+
+  /// A new pairing added to a contact that has one already, still checking whether that old
+  /// pairing's keys are back (RFC 7.8): the contact keeps using the old one meanwhile.
+  final bool checksKeys;
+
+  /// When the contact was last heard from through this pairing: its last sealed message, or
+  /// the pairing itself when that is later.
+  DateTime get heardAt {
+    final sealed = lastSealedIn;
+    return sealed != null && sealed.isAfter(createdAt) ? sealed : createdAt;
+  }
 
   /// The name to show: the label, else the claimed name, else empty.
   String get shownName => label ?? name ?? '';
@@ -2774,6 +2794,29 @@ class PairingRecord {
     relayDown: relayDown ?? this.relayDown,
     otherDevice: otherDevice ?? this.otherDevice,
   );
+}
+
+/// The pairing the address-book contact [contactId] uses, of [pairings] (newest first), or
+/// null when none attached to it is paired. A contact can carry several: a re-pair after the
+/// other side restored its wallet adds one, and when the key check is refused the old ones
+/// stay. Only one is still read by the other side, so a payment goes through the one heard
+/// from last ([PairingRecord.heardAt]), never simply the newest (PAIR-AND-20). One whose keys
+/// changed comes first, as the contact waits on the user's choice; one still checking keys
+/// is taken only when nothing else is.
+PairingRecord? contactPairingOf(Iterable<PairingRecord> pairings, String contactId) {
+  final attached = [
+    for (final r in pairings)
+      if (r.contactId == contactId && r.state.isPaired) r,
+  ];
+  final changed = attached.where((r) => r.state == PairingState.keysChanged).firstOrNull;
+  if (changed != null) return changed;
+  final settled = [for (final r in attached) if (!r.checksKeys) r];
+  final pool = settled.isEmpty ? attached : settled;
+  PairingRecord? best;
+  for (final r in pool) {
+    if (best == null || r.heardAt.isAfter(best.heardAt)) best = r;
+  }
+  return best;
 }
 
 /// An invite opened from a link or pairing words, before the user answers it (RFC 7.2).

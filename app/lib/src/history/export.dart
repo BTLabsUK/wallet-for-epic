@@ -281,7 +281,9 @@ String historyCsv(List<TxEntry> txs, BigInt? tip) {
           csvField(tx.kernelExcess ?? '', text: false),
           csvField(tx.blockHeight?.toString() ?? '', text: false),
           csvField(tx.label ?? '', text: true),
-          csvField(methodWord(tx.transport), text: false),
+          // Through a pairing's mailbox: Epicbox, though LEPIC keeps it with no address, as a
+          // file exchange until its answer is in.
+          csvField(methodWord(tx.pairingId != null && tx.counterparty == null ? 'epicbox' : tx.transport), text: false),
           csvField(
             [
               for (final f in ManualField.values)

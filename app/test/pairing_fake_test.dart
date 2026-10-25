@@ -138,6 +138,41 @@ void main() {
     expect((await other.pairing('p1'))!.otherDevice, isFalse);
   });
 
+  group('which pairing a contact uses (PAIR-AND-20)', () {
+    PairingRecord rec(String id, {required DateTime created, DateTime? heard, PairingState state = PairingState.verified, bool checking = false, String? contact = 'anna'}) =>
+        PairingRecord(id: id, state: state, way: PairingWay.link, inviter: false, createdAt: created, lastSealedIn: heard ?? created, contactId: contact, checksKeys: checking);
+    final t0 = DateTime(2026, 10, 25, 5);
+
+    test('of three attached, the one heard from last, not a newer one never heard from', () {
+      final all = [
+        // Newest first, as the lists hold them.
+        rec('re-pair-2', created: t0.add(const Duration(hours: 4))),
+        rec('re-pair-1', created: t0.add(const Duration(hours: 3)), heard: t0.add(const Duration(hours: 5))),
+        rec('first', created: t0, heard: t0.add(const Duration(minutes: 10))),
+        rec('other', created: t0.add(const Duration(hours: 6)), contact: 'ben'),
+        rec('orphan', created: t0.add(const Duration(hours: 6)), contact: null),
+      ];
+      expect(contactPairingOf(all, 'anna')?.id, 're-pair-1');
+      expect(contactPairingOf(all, 'ben')?.id, 'other');
+      expect(contactPairingOf(all, 'nobody'), isNull);
+    });
+
+    test('a new pairing heard from by nobody yet is newer than an old one heard from before it', () {
+      final all = [rec('new', created: t0.add(const Duration(hours: 2))), rec('old', created: t0, heard: t0.add(const Duration(hours: 1)))];
+      expect(contactPairingOf(all, 'anna')?.id, 'new');
+    });
+
+    test('keys changed comes first; one still checking keys only when nothing else is', () {
+      final checking = rec('checking', created: t0.add(const Duration(hours: 2)), checking: true);
+      final old = rec('old', created: t0);
+      expect(contactPairingOf([checking, old], 'anna')?.id, 'old');
+      expect(contactPairingOf([checking], 'anna')?.id, 'checking');
+      final changed = rec('changed', created: t0.add(const Duration(hours: 1)), state: PairingState.keysChanged);
+      expect(contactPairingOf([old, changed], 'anna')?.id, 'changed');
+      expect(contactPairingOf([rec('pending', created: t0, state: PairingState.pendingInvite)], 'anna'), isNull);
+    });
+  });
+
   test('a core without pairing refuses every call', () async {
     api.enabled = false;
     expect(api.supported, isFalse);

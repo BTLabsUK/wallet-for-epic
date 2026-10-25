@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../amount.dart';
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../l10n.dart';
-import '../pairing_providers.dart' show pairingNameProvider, pairingSlateProvider, pairingSupportedProvider;
+import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingNameProvider, pairingSlateProvider, pairingSupportedProvider;
 import '../price.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -685,7 +685,8 @@ TxPhase txPhase(TxEntry tx, BigInt? tip, {int? target}) {
 }
 
 /// `Waiting for recipient`, `Confirming 1/3`, `Completed`, …; `Waiting for Anna` for a
-/// payment through the mailbox of the paired contact [pairedWith] ([txMailboxName]).
+/// payment to or from the paired contact [pairedWith] through its mailbox ([txMailboxName]),
+/// and for a send to it while Epicbox is off ([paused]) that it waits in the outbox.
 String txStatusLabel(
   AppLocalizations l,
   TxEntry tx,
@@ -693,15 +694,19 @@ String txStatusLabel(
   int? target,
   DateTime? now,
   String? pairedWith,
+  bool paused = false,
 }) => switch (txPhase(tx, tip, target: target)) {
   TxPhase.waitingRecipient when tx.undelivered => l.txStatusNotDelivered,
   TxPhase.waitingRecipient when now != null && invoicePaymentStalled(tx, now) =>
     l.txStatusStalled,
+  TxPhase.waitingRecipient when pairedWith != null && paused => l.contactPausedEpicboxOff,
   TxPhase.waitingRecipient when pairedWith != null => l.txStatusWaitingFor(pairedWith),
   TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
   // The sender's word, not the chain's: never Received before a block.
   TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) =>
     l.txStatusSenderPosted,
+  // Through the sender's pairing: its wallet finalizes by itself, so it is the one awaited.
+  TxPhase.waitingSender when pairedWith != null => l.txStatusWaitingFor(pairedWith),
   TxPhase.waitingSender => l.txStatusWaitingSender,
   TxPhase.waitingPayer => l.txStatusWaitingPayer,
   // Finished, but the node refused it: not on the network until it is posted again.
@@ -782,6 +787,7 @@ class TxStatusLine extends ConsumerWidget {
                     target: target,
                     now: now,
                     pairedWith: txMailboxName(ref, tx),
+                    paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
                   ),
                   style: phase == TxPhase.confirming || reported
                       ? base?.copyWith(color: t.info)
@@ -944,13 +950,16 @@ String? contactName(WidgetRef ref, String? address) {
   return contacts == null ? null : contactNameFor(contacts, address);
 }
 
-/// The name of [tx]'s other side: the saved contact of its address, else, for a payment of
-/// a paired contact's request, that pairing's name: its counterparty is the contact's
-/// mailbox, which no address-book entry holds (PAIR-AND-5).
+/// The name of [tx]'s other side: the saved contact of its address, else the pairing it was
+/// exchanged with ([TxEntry.pairingId]: a payment through a contact's mailbox has no address,
+/// and a request's counterparty is the contact's mailbox, which no address-book entry holds,
+/// PAIR-AND-5), else, for a payment of a paired contact's request, that pairing's name.
 String? txPartyName(WidgetRef ref, TxEntry tx) {
   final saved = contactName(ref, tx.counterparty);
+  if (saved != null) return saved;
+  final linked = txPairingName(ref, tx);
   final slate = tx.slateId;
-  if (saved != null || slate == null || !txAmount(tx).outgoing) return saved;
+  if (linked != null || slate == null || !txAmount(tx).outgoing) return linked;
   if (tx.flow != TxFlow.invoice) return txMailboxName(ref, tx);
   final pairingId = ref.watch(paidInvoiceProvider(slate)).value?.pairingId;
   if (pairingId == null) return null;
@@ -958,10 +967,22 @@ String? txPartyName(WidgetRef ref, TxEntry tx) {
   return name.isEmpty ? null : name;
 }
 
-/// The paired contact a payment went to through its mailbox (RFC 9.1, a send with no address),
-/// by name, or null. Lists ask only for a payment still waiting for its answer, as each ask
-/// reads the wallet's payments; [any] asks for any such send (one detail page).
+/// The name of the pairing [tx] was exchanged with ([TxEntry.pairingId]), or null; nothing
+/// while Pairing is off.
+String? txPairingName(WidgetRef ref, TxEntry tx) {
+  final id = tx.pairingId;
+  if (id == null || !ref.watch(pairingSupportedProvider)) return null;
+  final name = ref.watch(pairingNameProvider(id));
+  return name.isEmpty ? null : name;
+}
+
+/// The paired contact a payment went to or came from through its mailbox (RFC 9.1, a payment
+/// with no address), by name, or null. LEPIC's link ([TxEntry.pairingId]) names it at every
+/// state, both ways; without one (a core that does not tell), lists ask only for a send still
+/// waiting for its answer, as each ask reads the wallet's payments, and [any] asks for any
+/// such send (one detail page).
 String? txMailboxName(WidgetRef ref, TxEntry tx, {bool any = false}) {
+  if (tx.pairingId != null) return txPairingName(ref, tx);
   final slate = tx.slateId;
   if (slate == null || tx.counterparty != null || tx.kind != TxKind.sent) return null;
   if (!any && tx.status != TxStatus.awaitingRecipient) return null;
@@ -995,7 +1016,15 @@ class TxStatusChip extends ConsumerWidget {
       TxPhase.completed || TxPhase.fromBackup || TxPhase.cancelled => BadgeTone.neutral,
     };
     return EBadge(
-      txStatusLabel(context.l10n, tx, tip, target: target, now: now, pairedWith: txMailboxName(ref, tx)),
+      txStatusLabel(
+        context.l10n,
+        tx,
+        tip,
+        target: target,
+        now: now,
+        pairedWith: txMailboxName(ref, tx),
+        paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
+      ),
       tone: tone,
     );
   }
@@ -1569,6 +1598,7 @@ class TxTile extends ConsumerWidget {
                 target: confirmationsTargetOf(ref),
                 now: now,
                 pairedWith: txMailboxName(ref, tx),
+                    paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
               ),
               hidden: display.hidden,
               label: tx.label,

@@ -344,7 +344,7 @@ class FakePairing implements PairingApi {
   @override
   Future<PairingRecord?> pairingForContact(String contactId) async {
     if (!enabled) return null;
-    return records.where((r) => r.contactId == contactId).firstOrNull;
+    return contactPairingOf(records, contactId);
   }
 
   @override

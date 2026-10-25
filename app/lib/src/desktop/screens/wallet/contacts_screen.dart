@@ -531,9 +531,13 @@ class _ContactDetail extends ConsumerWidget {
     final l = context.l10n;
     final x = contact;
     final nav = ref.read(deskNavProvider.notifier);
-    final mine = (ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[]).where((t) => t.counterparty == x.address).toList();
-    final last = mine.isEmpty ? x.lastUsed : mine.first.created;
     final pairs = ref.watch(deskPairsProvider);
+    // Its payments: to and from its address, and through any pairing attached to it.
+    final pairings = pairs ? {for (final r in ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[]) if (r.contactId == x.id) r.id} : const <String>{};
+    final mine = (ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[])
+        .where((t) => t.counterparty == x.address || (t.pairingId != null && pairings.contains(t.pairingId)))
+        .toList();
+    final last = mine.isEmpty ? x.lastUsed : mine.first.created;
     final pairing = pairs ? ref.watch(deskContactPairingProvider(x.id)) : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

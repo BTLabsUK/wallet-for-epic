@@ -276,6 +276,7 @@ class Tx {
     this.manualFields = const {},
     this.manualEditedAt,
     this.senderPosted = false,
+    this.pairingId,
   });
 
   final int id;
@@ -360,6 +361,10 @@ class Tx {
   /// the transaction, under an hour ago (the core's `senderReportsPosted`). The sender's word
   /// only: never shown as received before the chain confirms it.
   final bool senderPosted;
+
+  /// The pairing the payment was exchanged with (the core's `TxEntry.pairingId`): it
+  /// went through the contact's mailbox, or as a file sealed to it; null for any other.
+  final String? pairingId;
   final DateTime? confirmedAt;
 
   /// When this wallet made or took in the slate; [created] becomes the block's time once it
@@ -437,6 +442,7 @@ class Tx {
       manualFields: manual,
       manualEditedAt: manual.isEmpty ? null : (editedAtUnix == null ? manualEditedAt : DateTime.fromMillisecondsSinceEpoch(editedAtUnix * 1000)),
       senderPosted: senderPosted,
+      pairingId: pairingId,
     );
   }
 

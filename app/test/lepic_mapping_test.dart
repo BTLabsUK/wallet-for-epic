@@ -23,6 +23,10 @@ class _SendingWallet extends _NoNativeWallet {
   /// What [estimateMax] answers; a test raises it to stand for a balance that grew.
   BigInt maxAmount = BigInt.from(90);
 
+  /// No send here went through a pairing.
+  @override
+  Future<String?> contactOfTransaction({required int txId}) async => null;
+
   lepic.TransactionDetails get _stored => lepic.TransactionDetails(
     txId: 5,
     direction: lepic.TxDirection.outgoing,

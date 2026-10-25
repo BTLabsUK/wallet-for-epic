@@ -46,9 +46,10 @@ abstract interface class PairingApi {
   /// The pairing [id], or null when there is none.
   Future<PairingRecord?> pairing(String id);
 
-  /// The pairing attached to the address-book contact [contactId] (its record's
-  /// [PairingRecord.contactId]), or null. The address book is shared by every wallet on the
-  /// device; which contact a wallet paired with is the wallet's to say.
+  /// The pairing the address-book contact [contactId] uses, of those attached to it (their
+  /// [PairingRecord.contactId]) as [contactPairingOf] picks it, or null. The address book is
+  /// shared by every wallet on the device; which contact a wallet paired with is the wallet's
+  /// to say.
   Future<PairingRecord?> pairingForContact(String contactId);
 
   /// Second answers to used invites, shown in Pending invites until removed (C-15).

@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkMode;
 import '../../log.dart';
-import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState;
+import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf;
 import '../../pairing_api.dart';
 import 'invoices.dart' show deskFailureKind;
 import 'models.dart' show Contact;
@@ -69,11 +69,10 @@ class DeskPairings extends AsyncNotifier<List<PairingRecord>> {
   }
 }
 
-/// The pairing attached to the contact [contactId], or null.
-final deskContactPairingProvider = Provider.family<PairingRecord?, String>((ref, contactId) {
-  final all = ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[];
-  return all.where((r) => r.contactId == contactId && r.state.isPaired).firstOrNull;
-});
+/// The pairing the contact [contactId] uses ([contactPairingOf]), or null.
+final deskContactPairingProvider = Provider.family<PairingRecord?, String>(
+  (ref, contactId) => contactPairingOf(ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[], contactId),
+);
 
 final deskPairingByIdProvider = Provider.family<PairingRecord?, String>((ref, id) {
   final all = ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[];
