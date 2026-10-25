@@ -21,6 +21,7 @@ import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
 import 'advanced.dart' show NetworkMode;
 import 'contact_store.dart';
+import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'log.dart';
 import 'net/lan_node_relay.dart';
 import 'net/local_address.dart';
@@ -1832,6 +1833,14 @@ class LepicWalletSession implements WalletSession {
           await _live(),
           walletFp: walletFingerprint(await _wallet.epicboxAddress()),
           useBackup: useBackup,
+          // The contact form's checks, as the contacts file import uses.
+          checks: AddressChecks(
+            epicbox: (a) => lepic.validateEpicboxAddress(
+              address: a,
+              chain: _lepicChain(_history.chain),
+            ),
+            onion: (a) => lepic.validateOnionAddress(address: a),
+          ),
         );
         if (!report.applied) return report;
         // Restored pairings may still be in use on the device the backup came from.

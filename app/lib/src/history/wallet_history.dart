@@ -9,6 +9,8 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 
 import '../contact_store.dart';
+import '../legacy/gui_contacts.dart';
+import '../recipient.dart';
 import '../wallet_service.dart';
 import 'export.dart';
 import 'merge.dart';
@@ -65,6 +67,81 @@ String? _trimmed(String? s) {
   final t = s?.trim();
   return t == null || t.isEmpty ? null : t;
 }
+
+/// Address checks by the address's shape only, for a backup imported without the wallet's
+/// own ([WalletHistory.importPayload]): its contacts were checked when they were saved.
+final AddressChecks shapeAddressChecks = AddressChecks(
+  epicbox: (a) => parseRecipient(a).kind == RecipientKind.epicbox && a.contains('@'),
+  onion: (a) => parseRecipient(a).kind == RecipientKind.tor,
+);
+
+/// [c]'s addresses, trimmed.
+List<String> _addressesOf(String? epicbox, String? http, String? tor) => [
+  for (final a in [epicbox, http, tor]) ?_trimmed(a),
+];
+
+/// The same wallet's address: an Epicbox key at any relay, anything else in any case.
+String _addressKey(String a) => a.trim().toLowerCase().split('@').first;
+
+bool _sharesAddress(ContactRec c, ContactFields e) {
+  final theirs = {for (final a in _addressesOf(c.epicbox, c.http, c.tor)) _addressKey(a)};
+  return _addressesOf(e.epicbox, e.http, e.tor).any((a) => theirs.contains(_addressKey(a)));
+}
+
+/// Brings a backup's [theirs] into [book] by the contacts file's rules ([planGuiContacts]):
+/// nothing saved is changed, a contact holding one of the addresses gains the kinds and the
+/// note it lacks, a new one keeps the backup's id when it is free. A contact without an address
+/// (a pairing's) comes in by its id, which the pairing names. Returns the contacts added or
+/// given something.
+int mergeBackupContacts(List<ContactFields> book, Iterable<ContactRec> theirs, AddressChecks checks) {
+  var n = 0;
+  final withAddress = <ContactRec>[];
+  for (final c in theirs) {
+    if (c.name.trim().isEmpty) continue;
+    if (_addressesOf(c.epicbox, c.http, c.tor).isNotEmpty) {
+      withAddress.add(c);
+      continue;
+    }
+    if (c.id.isEmpty || book.any((e) => e.id == c.id)) continue;
+    book.add(ContactFields(id: c.id, name: c.name.trim(), note: _trimmed(c.note)));
+    n++;
+  }
+  final plan = planGuiContacts(
+    [
+      for (final c in withAddress)
+        GuiContactRow(name: c.name, externalOne: c.epicbox, externalTwo: c.http, onion: c.tor, note: c.note),
+    ],
+    book,
+    checks,
+  );
+  for (final u in plan.update) {
+    final i = book.indexWhere((e) => e.id == u.id);
+    if (i < 0) continue;
+    book[i] = u;
+    n++;
+  }
+  for (final a in plan.add) {
+    final from = withAddress.where((c) => _sharesAddress(c, a)).firstOrNull;
+    final id = from == null || from.id.isEmpty || book.any((e) => e.id == from.id) ? _randomHex(16) : from.id;
+    book.add(a.copyWith(id: id));
+    n++;
+  }
+  return n;
+}
+
+/// The ids in [book] of the contacts [payload] starred: the same id holding the same
+/// addresses, else the contact holding one of them.
+Set<String> _favouritesIn(HistoryPayload payload, List<ContactFields> book) => {
+  for (final id in payload.favourites)
+    if (payload.contacts.where((c) => c.id == id).firstOrNull case final c?)
+      if ((book.where((e) => e.id == c.id && (_addressesOf(c.epicbox, c.http, c.tor).isEmpty || _sharesAddress(c, e))).firstOrNull ??
+              book.where((e) => _sharesAddress(c, e)).firstOrNull)
+          case final local?)
+        local.id,
+};
+
+ContactFields _fieldsOfRec(ContactRec c) =>
+    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note);
 
 class WalletHistory {
   /// With [contacts], the address book is that store, shared by every wallet on the device
@@ -358,6 +435,11 @@ class WalletHistory {
       final shared? => [for (final c in shared.list()) _recOf(c)],
       null => [for (final c in meta.contacts) ContactRec.fromJson(c.toJson())],
     },
+    // Stars of contacts the file carries; the book is shared, the star is this wallet's.
+    favourites: [
+      for (final id in meta.favourites)
+        if ((_shared?.list().map((c) => c.id) ?? meta.contacts.map((c) => c.id)).contains(id)) id,
+    ],
   );
 
   /// Merges an opened history file of this wallet into the archive. A record known from an
@@ -368,13 +450,18 @@ class WalletHistory {
   /// conflict. With [useBackup] null and any conflict, nothing is written and the report says
   /// `applied: false`; with [useBackup] (by [ImportConflict.id]) true takes the file's value,
   /// anything else keeps the user's and remembers the file's, so it never asks again.
+  ///
+  /// Its contacts come in by the contacts file's rules ([mergeBackupContacts]) with [checks]
+  /// (by shape when none are given), and its stars go to the contacts they became.
   Future<ImportReport> importPayload(
     HistoryPayload payload,
     List<TxEntry> live, {
     required String walletFp,
     Map<String, bool>? useBackup,
     DateTime? now,
+    AddressChecks? checks,
   }) async {
+    final addressChecks = checks ?? shapeAddressChecks;
     if (payload.chain != chainName(chain)) {
       throw _invalid(historyOtherChain(payload.chain, chainName(chain)));
     }
@@ -382,40 +469,18 @@ class WalletHistory {
     final shown = merged(live);
     final at = _nowUnix(now);
     if (useBackup == null) {
-      final trial = _importInto(meta.copy(), payload, live, shown, null, at);
+      final trial = _importInto(meta.copy(), payload, live, shown, null, at, addressChecks);
       if (trial.conflicts.isNotEmpty) return trial;
     }
     final report = await _store.update(
-      (m) => _importInto(m, payload, live, shown, useBackup ?? const {}, at),
+      (m) => _importInto(m, payload, live, shown, useBackup ?? const {}, at, addressChecks),
     );
     final shared = _shared;
     if (shared == null || !report.applied) return report;
     // The file's contacts go to the shared address book, by the same rule.
-    final added = await shared.update((list) {
-      var n = 0;
-      for (final c in payload.contacts) {
-        final theirs = {
-          for (final a in [c.epicbox, c.http, c.tor]) ?_trimmed(a),
-        };
-        if (c.name.trim().isEmpty) continue;
-        // Without an address, the contact of a pairing: its id is what the pairing names.
-        if (theirs.isEmpty && (c.id.isEmpty || list.any((e) => e.id == c.id))) continue;
-        if (list.any((e) => e.addresses.any((a) => theirs.contains(a.trim())))) continue;
-        final id = c.id.isEmpty || list.any((e) => e.id == c.id) ? _randomHex(16) : c.id;
-        list.add(
-          ContactFields(
-            id: id,
-            name: c.name.trim(),
-            epicbox: _trimmed(c.epicbox),
-            http: _trimmed(c.http),
-            tor: _trimmed(c.tor),
-            note: _trimmed(c.note),
-          ),
-        );
-        n++;
-      }
-      return n;
-    });
+    final added = await shared.update((list) => mergeBackupContacts(list, payload.contacts, addressChecks));
+    final stars = _favouritesIn(payload, shared.list());
+    if (stars.isNotEmpty) await _store.update((m) => m.favourites.addAll(stars));
     return ImportReport(
       merged: report.merged,
       added: report.added,
@@ -438,6 +503,7 @@ class WalletHistory {
     List<MergedTx> shown,
     Map<String, bool>? useBackup,
     int now,
+    AddressChecks checks,
   ) {
     var merged = 0, added = 0, skipped = 0, contactsAdded = 0;
     // Records whose user fields are applied once the rows are merged with the new records,
@@ -608,35 +674,15 @@ class WalletHistory {
       }
     }
 
-    // A contact comes in unless one here already holds one of its addresses; with the shared
-    // address book, [importPayload] adds them there.
-    for (final c in _shared == null ? payload.contacts : const <ContactRec>[]) {
-      final theirs = {
-        for (final a in [c.epicbox, c.http, c.tor]) ?_trimmed(a),
-      };
-      if (m.contacts.any(
-        (e) => [e.epicbox, e.http, e.tor].any(
-          (a) => a != null && theirs.contains(a.trim()),
-        ),
-      )) {
-        continue;
-      }
-      // Without an address, the contact of a pairing: its id is what the pairing names.
-      if (theirs.isEmpty && (c.id.isEmpty || m.contacts.any((e) => e.id == c.id))) continue;
-      final id = c.id.isEmpty || m.contacts.any((e) => e.id == c.id)
-          ? _randomHex(16)
-          : c.id;
-      m.contacts.add(
-        ContactRec(
-          id: id,
-          name: c.name,
-          epicbox: c.epicbox,
-          http: c.http,
-          tor: c.tor,
-          note: c.note,
-                ),
-      );
-      contactsAdded++;
+    // The file's contacts by the contacts file's rules; with the shared address book,
+    // [importPayload] adds them there.
+    if (_shared == null) {
+      final book = [for (final c in m.contacts) _fieldsOfRec(c)];
+      contactsAdded = mergeBackupContacts(book, payload.contacts, checks);
+      m.contacts
+        ..clear()
+        ..addAll([for (final c in book) _recOf(c)]);
+      m.favourites.addAll(_favouritesIn(payload, book));
     }
     return ImportReport(
       merged: merged,

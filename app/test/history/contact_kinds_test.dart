@@ -3,7 +3,9 @@
 // history keeps them through a save and a history file.
 import 'dart:convert';
 
+import 'package:epic_wallet/src/contact_store.dart';
 import 'package:epic_wallet/src/contacts.dart';
+import 'package:epic_wallet/src/history/export.dart';
 import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:epic_wallet/src/history/wallet_history.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -74,5 +76,62 @@ void main() {
     // The pairing names the contact by its id: restored under it, and only once.
     expect(other.contacts().single.id, paired.id);
     expect((await other.importPayload(payload, const [], walletFp: 'fp')).contactsAdded, 0);
+  });
+
+  // R33: a contact the device knows by one address gains the kinds the backup adds, by the
+  // contacts file's rules, in the archive's own list and in the shared address book.
+  for (final shared in [false, true]) {
+    final where = shared ? 'shared book' : 'archive';
+
+    test('a backup gives a known contact the address kinds it lacks ($where)', () async {
+      final from = WalletHistory.memory();
+      await from.saveContact(Contact(id: '', name: 'Anna', epicbox: _box, tor: _onion));
+      final payload = from.exportPayload(const [], walletFp: 'fp', appVersion: 't');
+
+      final here = WalletHistory.memory(contacts: shared ? ContactStore.memory() : null);
+      final known = await here.saveContact(Contact(id: '', name: 'Anna here', epicbox: _box));
+      final report = await here.importPayload(payload, const [], walletFp: 'fp');
+      expect(report.contactsAdded, 1, reason: 'the known contact gained a kind');
+      final after = here.contacts().single;
+      expect(after.id, known.id);
+      expect(after.name, 'Anna here', reason: 'nothing saved is changed');
+      expect([after.epicbox, after.tor], [_box, _onion]);
+      // A second import changes nothing.
+      expect((await here.importPayload(payload, const [], walletFp: 'fp')).contactsAdded, 0);
+    });
+
+    // R14: the stars travel with the contacts they belong to.
+    test('stars travel in the backup to the contacts they became ($where)', () async {
+      final from = WalletHistory.memory(contacts: shared ? ContactStore.memory() : null);
+      final anna = await from.saveContact(Contact(id: '', name: 'Anna', epicbox: _box));
+      await from.saveContact(Contact(id: '', name: 'Bob', http: _http));
+      await from.setFavourite(anna.id, true);
+      final payload = from.exportPayload(const [], walletFp: 'fp', appVersion: 't');
+      expect(payload.favourites, [anna.id]);
+      // Read back from the file's JSON, as an import does.
+      final read = HistoryPayload.fromJson(jsonDecode(utf8.decode(payload.encode())));
+
+      final here = WalletHistory.memory(contacts: shared ? ContactStore.memory() : null);
+      final known = await here.saveContact(Contact(id: '', name: 'Anna', epicbox: _box));
+      await here.importPayload(read, const [], walletFp: 'fp');
+      expect(here.favourites(), {known.id});
+    });
+  }
+
+  test('a file without stars stays as older apps wrote it, and older files read', () {
+    final payload = WalletHistory.memory().exportPayload(const [], walletFp: 'fp', appVersion: 't');
+    expect(payload.toJson().containsKey('favourites'), isFalse);
+    expect(payload.toJson()['version'], 1);
+    final old = HistoryPayload.fromJson({
+      'format': 'wfe-history',
+      'version': 1,
+      'chain': 'Mainnet',
+      'wallet_fp': 'fp',
+      'exported_at_unix': 1,
+      'app_version': 'old',
+      'txs': <Object?>[],
+      'contacts': <Object?>[],
+    });
+    expect(old.favourites, isEmpty);
   });
 }
