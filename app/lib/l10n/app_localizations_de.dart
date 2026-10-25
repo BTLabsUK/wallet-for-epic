@@ -16292,7 +16292,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sendQueuedEpicboxOff =>
-      'Epicbox ist aus. Die Zahlung wartet hier und geht raus, sobald Epicbox wieder an ist.';
+      'Epicbox ist aus. Die Zahlung wartet hier und wird gesendet, sobald Epicbox wieder an ist.';
 
   @override
   String get sendQueue => 'Zahlung einreihen';
@@ -16302,7 +16302,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sendQueuedBody(String name) {
-    return 'Sie geht raus, sobald Epicbox wieder an ist. Die Antwort von $name kommt auf demselben Weg zurück.';
+    return 'Sie wird gesendet, sobald Epicbox wieder an ist. Die Antwort von $name kommt auf demselben Weg zurück.';
   }
 
   @override

@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/models.dart' show PairingState;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -84,6 +85,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(wallet.sent.single.pairingId, 'pz');
     expect(wallet.sent.single.to, isNull);
+  });
+
+  testWidgets('keys changed: the reason and Check the words instead of the readout', (tester) async {
+    await pump(tester, const SendScreen(arg: SendArgs(pairingTo: 'pz', amount: '1', epicboxHealth: ServiceHealth.ok)));
+    final r = (await tester.runAsync(() => wallet.pairing.pairing('pz')))!;
+    wallet.pairing.seed(r.copyWith(state: PairingState.keysChanged));
+    container.invalidate(deskPairingsProvider);
+    await tester.pumpAndSettle();
+    expect(find.text(_l.contactSendKeysChanged), findsOneWidget);
+    expect(find.byKey(const ValueKey('send-pairing-check')), findsOneWidget);
+    expect(find.text(_l.sendViaMailbox('Zoe')), findsNothing);
   });
 
   testWidgets('Epicbox off: the readout pauses and the review queues the payment', (tester) async {

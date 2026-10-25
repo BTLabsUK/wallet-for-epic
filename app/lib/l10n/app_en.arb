@@ -4518,7 +4518,7 @@
   "@sendTrackSent": {
     "description": "Send tracker, step 1 done, for a recipient without a contact name."
   },
-  "sendTrackWaitingFor": "Waiting for {name}'s wallet",
+  "sendTrackWaitingFor": "Waiting for {name}’s wallet",
   "@sendTrackWaitingFor": {
     "description": "Send tracker, step 2 current: the contact's wallet has not signed yet.",
     "placeholders": {
@@ -4531,7 +4531,7 @@
   "@sendTrackWaiting": {
     "description": "Send tracker, step 2 current, for a recipient without a contact name."
   },
-  "sendTrackSignedBy": "{name}'s wallet signed",
+  "sendTrackSignedBy": "{name}’s wallet signed",
   "@sendTrackSignedBy": {
     "description": "Send tracker, step 2 done: the contact's wallet signed the payment.",
     "placeholders": {

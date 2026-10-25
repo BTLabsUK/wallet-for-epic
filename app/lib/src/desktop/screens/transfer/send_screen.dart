@@ -24,7 +24,7 @@ import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskContactPairingProvider, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairingOnProvider, deskPairsProvider;
 import '../../widgets/kit.dart';
-import '../pairing/pair_screens.dart' show deskOpenPairingText;
+import '../pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords;
 import '../../widgets/tor_chip.dart';
 import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
 import 'contact_picker.dart';
@@ -1348,6 +1348,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               pairing: pairing,
               name: pairingName,
               paused: ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff,
+              onCheck: () => unawaited(showDeskCheckWords(context, ref, pairing.id, recheck: true)),
               onClear: () => setState(() {
                 _pairingTo = null;
                 _failure = null;
@@ -1786,13 +1787,16 @@ class _PickedCard extends StatelessWidget {
 /// Anna's pairing", Clear; under it the mailbox the payment goes through, as a readout, or why
 /// it cannot take one (keys changed, a wallet that does not open sealed messages).
 class _PairingCard extends StatelessWidget {
-  const _PairingCard({required this.pairing, required this.name, required this.paused, required this.onClear});
+  const _PairingCard({required this.pairing, required this.name, required this.paused, required this.onCheck, required this.onClear});
 
   final PairingRecord pairing;
   final String name;
 
   /// Epicbox is off: the payment waits in the outbox.
   final bool paused;
+
+  /// Check the words, when the contact's keys changed.
+  final VoidCallback onCheck;
   final VoidCallback onClear;
 
   @override
@@ -1854,6 +1858,10 @@ class _PairingCard extends StatelessWidget {
                           style: ts.body,
                         ),
                 ),
+                if (pairing.state == PairingState.keysChanged) ...[
+                  SizedBox(width: Sp.x2),
+                  EButton.ghost(key: const ValueKey('send-pairing-check'), label: l.noticeCheckWords, size: EBtnSize.inline, onPressed: onCheck),
+                ],
               ],
             ),
           ),

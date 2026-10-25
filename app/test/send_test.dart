@@ -787,7 +787,7 @@ void main() {
         // Known now: the offer is gone and the steps name him.
         expect(find.text('Save as contact'), findsNothing);
         expect(find.text('Sent to Bob'), findsOneWidget);
-        expect(find.text("Waiting for Bob's wallet"), findsOneWidget);
+        expect(find.text('Waiting for Bob’s wallet'), findsOneWidget);
       },
     );
 

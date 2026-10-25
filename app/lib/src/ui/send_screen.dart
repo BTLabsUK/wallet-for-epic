@@ -3303,18 +3303,26 @@ class _SendViewState extends ConsumerState<SendView> {
       (l.sendTrackOnNetwork, l.sendTrackOnNetwork),
       (l.sendTrackConfirmed, l.txStatusConfirming(confirmations, target)),
     ];
+    final waiting = track == SendTrack.waitingRecipient;
+    // Queued while Epicbox is off: it waits in the outbox, so the send itself is still the
+    // step under way, as the payment's detail shows it.
+    final queued = pairingId != null && waiting && ref.watch(pairNetProvider) == PairNet.epicboxOff;
     final steps = [
       for (final (i, (done, now)) in labels.indexed)
-        TimelineStep(
-          i == at ? now : done,
-          i < at
-              ? TimelineState.done
-              : i == at
-              ? TimelineState.current
-              : TimelineState.todo,
-        ),
+        if (queued && i == 0)
+          TimelineStep(sentLabel, TimelineState.current, detail: l.contactPausedEpicboxOff)
+        else if (queued && i == 1)
+          TimelineStep(done, TimelineState.todo)
+        else
+          TimelineStep(
+            i == at ? now : done,
+            i < at
+                ? TimelineState.done
+                : i == at
+                ? TimelineState.current
+                : TimelineState.todo,
+          ),
     ];
-    final waiting = track == SendTrack.waitingRecipient;
     final unknown = name == null;
     // Over HTTP or Tor their wallet took it in the exchange itself: past cancelling, and
     // waiting only for a block.

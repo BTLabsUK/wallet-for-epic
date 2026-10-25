@@ -5677,7 +5677,7 @@ abstract class AppLocalizations {
   /// Send tracker, step 2 current: the contact's wallet has not signed yet.
   ///
   /// In en, this message translates to:
-  /// **'Waiting for {name}\'s wallet'**
+  /// **'Waiting for {name}’s wallet'**
   String sendTrackWaitingFor(String name);
 
   /// Send tracker, step 2 current, for a recipient without a contact name.
@@ -5689,7 +5689,7 @@ abstract class AppLocalizations {
   /// Send tracker, step 2 done: the contact's wallet signed the payment.
   ///
   /// In en, this message translates to:
-  /// **'{name}\'s wallet signed'**
+  /// **'{name}’s wallet signed'**
   String sendTrackSignedBy(String name);
 
   /// Send tracker, step 2 done, for a recipient without a contact name; also the file route's reply step once done.

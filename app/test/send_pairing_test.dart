@@ -250,6 +250,10 @@ void main() {
       expect(h.session.pairing.calls, contains('sendViaMailbox'));
       expect(find.byKey(sendQueuedHeadlineKey), findsOneWidget);
       expect(find.text(_l.sendQueuedBody('Anna')), findsOneWidget);
+      // The send is still the step under way: it waits in the outbox.
+      expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);
+      expect(find.text(_l.contactPausedEpicboxOff), findsOneWidget);
+      expect(find.text(_l.sendTrackWaitingFor('Anna')), findsNothing);
     });
 
     testWidgets('keys changed meanwhile: the warn notice with Check the words, Continue off', (tester) async {

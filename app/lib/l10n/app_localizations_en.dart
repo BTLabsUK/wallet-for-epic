@@ -3707,7 +3707,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sendTrackWaitingFor(String name) {
-    return 'Waiting for $name\'s wallet';
+    return 'Waiting for $name’s wallet';
   }
 
   @override
@@ -3715,7 +3715,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sendTrackSignedBy(String name) {
-    return '$name\'s wallet signed';
+    return '$name’s wallet signed';
   }
 
   @override
