@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:local_auth_android/local_auth_android.dart' show AndroidAuthMessages;
 
 import 'app_log.dart';
 import 'secret_store_api.dart';
@@ -165,14 +166,20 @@ class PlatformBiometricStore implements BiometricStore {
   // Until the process restarts, reads after a write therefore ask local_auth first.
   bool _wroteThisProcess = false;
 
+  /// local_auth's prompt with [prompt]'s words, as the store's own prompt has them (its
+  /// defaults are English).
+  Future<bool> _authenticate() => _auth.authenticate(
+    localizedReason: prompt.subtitle,
+    authMessages: [
+      AndroidAuthMessages(signInTitle: prompt.title, signInHint: prompt.subtitle, cancelButton: prompt.usePin),
+    ],
+    biometricOnly: true,
+    sensitiveTransaction: false,
+  );
+
   @override
   Future<String?> read(String key) => _guard(() async {
-    if (_wroteThisProcess &&
-        !await _auth.authenticate(
-          localizedReason: prompt.title,
-          biometricOnly: true,
-          sensitiveTransaction: false,
-        )) {
+    if (_wroteThisProcess && !await _authenticate()) {
       throw const BiometricCancelled('dismissed');
     }
     return _storage.read(key: key, aOptions: _promptOptions);
@@ -182,11 +189,7 @@ class PlatformBiometricStore implements BiometricStore {
   Future<void> write(String key, String value) => _guard(() async {
     // local_auth first: it answers a dismissed prompt, which the store's own prompt does not
     // (AND-5). The store then asks once more, for its key.
-    if (!await _auth.authenticate(
-      localizedReason: prompt.title,
-      biometricOnly: true,
-      sensitiveTransaction: false,
-    )) {
+    if (!await _authenticate()) {
       throw const BiometricCancelled('dismissed');
     }
     await _storage.write(key: key, value: value, aOptions: _promptOptions);
