@@ -995,6 +995,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String get historyBackupSaveDialogTitle => 'Zahlungsverlauf speichern';
 
   @override
+  String get importWarnTitle => 'Bevor Sie importieren';
+
+  @override
+  String get importWarnEarly => 'Dies ist eine frühe Version einer neuen App.';
+
+  @override
+  String get importWarnReads =>
+      'Der Import liest Ihre alten Wallets und Dateien nur; er löscht oder ändert sie nie.';
+
+  @override
+  String get importWarnBackup =>
+      'Stellen Sie vor dem Fortfahren sicher, dass Sie von jeder Wallet eine Sicherung haben: ihre Wiederherstellungsphrase und, falls Sie sie aufbewahren, ihre Wallet-Dateien.';
+
+  @override
+  String get importWarnRisk =>
+      'Sie importieren auf eigenes Risiko; für Verluste übernehmen wir keine Verantwortung.';
+
+  @override
+  String get importWarnAck => 'Ich habe von jeder Wallet eine Sicherung';
+
+  @override
   String get historyBackupOpenDialogTitle => 'Verlaufssicherung öffnen';
 
   @override

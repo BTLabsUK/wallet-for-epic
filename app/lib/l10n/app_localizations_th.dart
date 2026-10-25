@@ -975,6 +975,27 @@ class AppLocalizationsTh extends AppLocalizations {
   String get historyBackupSaveDialogTitle => 'บันทึกประวัติรายการ';
 
   @override
+  String get importWarnTitle => 'ก่อนนำเข้า';
+
+  @override
+  String get importWarnEarly => 'นี่คือเวอร์ชันแรกเริ่มของแอปใหม่';
+
+  @override
+  String get importWarnReads =>
+      'การนำเข้าจะอ่านกระเป๋าเงินและไฟล์เก่าของคุณเท่านั้น ไม่มีวันลบหรือแก้ไข';
+
+  @override
+  String get importWarnBackup =>
+      'ก่อนดำเนินการต่อ โปรดแน่ใจว่าคุณมีข้อมูลสำรองของกระเป๋าเงินทุกใบ ได้แก่ วลีกู้คืน และไฟล์กระเป๋าเงินหากคุณเก็บไว้';
+
+  @override
+  String get importWarnRisk =>
+      'คุณนำเข้าด้วยความเสี่ยงของคุณเอง และเราไม่รับผิดชอบต่อความสูญเสียใด ๆ';
+
+  @override
+  String get importWarnAck => 'ฉันมีข้อมูลสำรองของกระเป๋าเงินทุกใบแล้ว';
+
+  @override
   String get historyBackupOpenDialogTitle => 'เปิดข้อมูลสำรองประวัติ';
 
   @override

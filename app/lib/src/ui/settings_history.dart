@@ -22,6 +22,7 @@ import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'history_conflicts.dart';
+import 'import_warning.dart';
 
 /// History backups are small; a file far larger is not one.
 const int maxHistoryFileBytes = 32 << 20;
@@ -373,6 +374,8 @@ Future<bool> exportHistoryCsv(BuildContext context, WidgetRef ref) async {
 Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
   final session = ref.read(sessionProvider);
   if (session == null) return false;
+  if (!await confirmImportWarning(context, ref)) return false;
+  if (!context.mounted) return false;
   final l = context.l10n;
   try {
     final bytes = await ref

@@ -958,6 +958,7 @@ class DeskSettings {
     this.newLookSeen = false,
     this.internetGuideSeen = false,
     this.tourSeen = false,
+    this.importWarningSeen = false,
     this.useStatusSite = true,
     this.advanced = AdvancedPrefs.none,
     this.payments = PaymentPrefs.defaults,
@@ -1019,6 +1020,10 @@ class DeskSettings {
   /// The tour was shown once (opened, closed or skipped): it does not open by itself again.
   final bool tourSeen;
 
+  /// The warning before the first import of wallets or files was acknowledged; the dialog
+  /// shows once per install.
+  final bool importWarningSeen;
+
   /// Settings › Privacy: server health and node lists from status.btlabs.uk (`statusSite`).
   /// Off, only the servers themselves are asked.
   final bool useStatusSite;
@@ -1048,6 +1053,7 @@ class DeskSettings {
     bool? newLookSeen,
     bool? internetGuideSeen,
     bool? tourSeen,
+    bool? importWarningSeen,
     bool? useStatusSite,
     AdvancedPrefs? advanced,
     PaymentPrefs? payments,
@@ -1071,6 +1077,7 @@ class DeskSettings {
     newLookSeen: newLookSeen ?? this.newLookSeen,
     internetGuideSeen: internetGuideSeen ?? this.internetGuideSeen,
     tourSeen: tourSeen ?? this.tourSeen,
+    importWarningSeen: importWarningSeen ?? this.importWarningSeen,
     useStatusSite: useStatusSite ?? this.useStatusSite,
     payments: payments ?? this.payments,
     advanced: advanced ?? this.advanced,

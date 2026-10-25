@@ -299,8 +299,15 @@ class DeskController extends Notifier<DeskState> {
   /// say so, and the next save of any setting carries it.
   void holdTourSeen() => state = state.copyWith(settings: state.settings.copyWith(tourSeen: true));
 
+  /// The import warning was acknowledged: held here so a later save of any setting carries it.
+  void holdImportWarningSeen() => state = state.copyWith(settings: state.settings.copyWith(importWarningSeen: true));
+
   /// [DeskSettings.tourSeen] once true stays true: a copy without it is older than the tour.
-  DeskSettings _keepTourSeen(DeskSettings s) => state.settings.tourSeen && !s.tourSeen ? s.copyWith(tourSeen: true) : s;
+  DeskSettings _keepTourSeen(DeskSettings s) {
+    if (state.settings.tourSeen && !s.tourSeen) s = s.copyWith(tourSeen: true);
+    if (state.settings.importWarningSeen && !s.importWarningSeen) s = s.copyWith(importWarningSeen: true);
+    return s;
+  }
 
   Future<void> useNode(String url) => _reopening(() => api.useNode(url));
 

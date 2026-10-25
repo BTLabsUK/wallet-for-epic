@@ -2,6 +2,7 @@ import '../../app/shots.dart';
 import '../../data/mock_wallet.dart' show MockDeskWallet;
 import '../../widgets/kit.dart';
 import 'create_screen.dart';
+import 'import_warning.dart';
 import 'import_wallets_screen.dart';
 import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
@@ -95,6 +96,7 @@ final List<DeskShot> onboardingShots = [
     route: DeskRoute.unlock,
     dialog: (context) => showKillProcessDialog(context),
   ),
+  DeskShot(id: '09-dlg-import-warning', title: 'Before you import', route: DeskRoute.welcome, dialog: (context) => showImportWarningDialog(context)),
   const DeskShot(id: '09a-import-finding', title: 'Import: finding', route: DeskRoute.importWallets, arg: ImportStep.find),
   const DeskShot(id: '09b-import-found', title: 'Import: found', route: DeskRoute.importWallets, arg: ImportStep.found),
   const DeskShot(id: '09c-import-choose', title: 'Import: choose', route: DeskRoute.importWallets, arg: ImportStep.choose),

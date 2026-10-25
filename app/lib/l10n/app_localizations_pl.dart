@@ -1026,6 +1026,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String get historyBackupSaveDialogTitle => 'Zapisz historię płatności';
 
   @override
+  String get importWarnTitle => 'Zanim zaimportujesz';
+
+  @override
+  String get importWarnEarly => 'To wczesna wersja nowej aplikacji.';
+
+  @override
+  String get importWarnReads =>
+      'Import tylko odczytuje twoje stare portfele i pliki; nigdy ich nie usuwa ani nie zmienia.';
+
+  @override
+  String get importWarnBackup =>
+      'Zanim przejdziesz dalej, upewnij się, że masz kopię zapasową każdego portfela: jego frazę odzyskiwania oraz pliki portfela, jeśli je przechowujesz.';
+
+  @override
+  String get importWarnRisk =>
+      'Importujesz na własne ryzyko; nie bierzemy odpowiedzialności za żadne straty.';
+
+  @override
+  String get importWarnAck => 'Mam kopię zapasową każdego portfela';
+
+  @override
   String get historyBackupOpenDialogTitle => 'Otwórz kopię historii';
 
   @override

@@ -145,6 +145,7 @@ abstract final class HelpId {
   static const invoices = 'invoices';
   static const pairingRestore = 'pairing-restore';
   static const cleanup = 'cleanup';
+  static const importWarning = 'import-warning';
 }
 
 /// Which app shows the help: the words differ where the device does.
@@ -363,6 +364,18 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           const HelpBlock.p('**The wallet\'s files** are in [[Settings › This wallet › Wallet folder]]. Keep the recovery phrase even with a copy of them: it works when the files are lost.'),
       ],
       id: HelpId.backup,
+    ),
+    const HelpTopic(
+      'safety',
+      'Before you import',
+      'The import only reads older wallets and files. Have a backup of every wallet first; you import at your own risk.',
+      [
+        HelpBlock.p('This is an early version of a new app.'),
+        HelpBlock.p('The import only reads your old wallets and files and never deletes or changes them.'),
+        HelpBlock.p('Before you continue, make sure you have a backup of every wallet: its recovery phrase, and its wallet files if you keep them.'),
+        HelpBlock.p('You import at your own risk; no responsibility is taken for any loss.'),
+      ],
+      id: HelpId.importWarning,
     ),
     HelpTopic(
       'network',

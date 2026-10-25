@@ -227,6 +227,18 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.backup,
     ),
+    const HelpTopic(
+      'safety',
+      'Zanim zaimportujesz',
+      'Import tylko odczytuje starsze portfele i pliki. Najpierw zrób kopię zapasową każdego portfela; importujesz na własne ryzyko.',
+      [
+        HelpBlock.p('To wczesna wersja nowej aplikacji.'),
+        HelpBlock.p('Import tylko odczytuje twoje stare portfele i pliki; nigdy ich nie usuwa ani nie zmienia.'),
+        HelpBlock.p('Zanim przejdziesz dalej, upewnij się, że masz kopię zapasową każdego portfela: jego frazę odzyskiwania oraz pliki portfela, jeśli je przechowujesz.'),
+        HelpBlock.p('Importujesz na własne ryzyko, a odpowiedzialność za ewentualne straty spoczywa na tobie.'),
+      ],
+      id: HelpId.importWarning,
+    ),
     HelpTopic(
       'network',
       phone ? 'Węzły' : 'Węzły: publiczny lub lokalny',

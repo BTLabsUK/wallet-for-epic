@@ -146,6 +146,7 @@ class AppSettings {
     this.splitChange = true,
     this.hiddenTips = const {},
     this.phoneTourSeen = false,
+    this.importWarningSeen = false,
   });
 
   final ThemeMode themeMode;
@@ -218,6 +219,9 @@ class AppSettings {
   /// The first-unlock tour was shown (or skipped) once; it does not open by itself again.
   final bool phoneTourSeen;
 
+  /// The warning before the first import of a file was acknowledged; it shows once per install.
+  final bool importWarningSeen;
+
   /// Whether any guide is hidden, so Show tips again can be off when there is nothing to show.
   bool get tipsHidden => hiddenTips.isNotEmpty;
 
@@ -242,6 +246,7 @@ class AppSettings {
     bool? splitChange,
     Set<String>? hiddenTips,
     bool? phoneTourSeen,
+    bool? importWarningSeen,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -268,6 +273,7 @@ class AppSettings {
     splitChange: splitChange ?? this.splitChange,
     hiddenTips: hiddenTips ?? this.hiddenTips,
     phoneTourSeen: phoneTourSeen ?? this.phoneTourSeen,
+    importWarningSeen: importWarningSeen ?? this.importWarningSeen,
   );
 }
 
@@ -312,6 +318,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String statusSiteKey = 'app.status_site';
   static const String tipsHiddenKey = 'app.tips_hidden';
   static const String phoneTourSeenKey = 'app.phone_tour_seen';
+  static const String importWarningSeenKey = 'app.import_warning_seen';
   static String _exportedKey(Chain chain) =>
       'app.history_exported.${chain.name}';
   static String _dismissedKey(Chain chain) =>
@@ -344,6 +351,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final splitChange = await store.read(_splitChangeKey);
     final tips = await store.read(tipsHiddenKey);
     final tourSeen = await store.read(phoneTourSeenKey);
+    final importWarned = await store.read(importWarningSeenKey);
     final site = await store.read(statusSiteKey) != 'false';
     statusSite.on = site;
     Future<Map<String, int>> perChain(String Function(Chain) key) async => {
@@ -423,6 +431,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
           : splitChange == 'true',
       hiddenTips: _tipIds(tips),
       phoneTourSeen: tourSeen == 'true',
+      importWarningSeen: importWarned == 'true',
     );
     // The network mode and the Epicbox switch reach the runtime here (network_gate.dart);
     // main.dart set the mode at launch.
@@ -553,6 +562,13 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final store = ref.read(secretStoreProvider);
     await store.write(phoneTourSeenKey, 'true');
     state = AsyncData((await _current()).copyWith(phoneTourSeen: true));
+  }
+
+  /// The import warning was acknowledged (`import_warning.dart`): written like the tour flag.
+  Future<void> markImportWarningSeen() async {
+    final store = ref.read(secretStoreProvider);
+    await store.write(importWarningSeenKey, 'true');
+    state = AsyncData((await _current()).copyWith(importWarningSeen: true));
   }
   /// Advanced › Node failover (`node_failover.dart`).
   Future<void> setNodeFailover(bool on) async =>

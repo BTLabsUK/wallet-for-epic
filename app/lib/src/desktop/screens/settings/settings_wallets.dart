@@ -7,6 +7,7 @@ import '../../desk_l10n.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../onboarding/import_warning.dart';
 import 'dialogs.dart';
 import 'settings_frame.dart';
 
@@ -161,7 +162,7 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                           description: l.deskSetWalletsImportText,
                           icon: EIcons.folderOpen,
                           selected: false,
-                          onTap: () => nav.go(DeskRoute.importWallets),
+                          onTap: () => importAfterWarning(context, ref, () => nav.go(DeskRoute.importWallets)),
                         ),
                       EChoiceCard(
                         title: l.deskSetWalletsRestore,
