@@ -88,6 +88,10 @@
   "@deskSetRecvEpicboxServerHint": {
     "description": "Settings > Receiving: hint under the Epicbox server row."
   },
+  "deskSetRecvEpicboxOwnHint": "This wallet has its own Epicbox server, kept from the older app. A change here applies to this wallet only.",
+  "@deskSetRecvEpicboxOwnHint": {
+    "description": "Hint under the Epicbox server field in Settings when the open wallet has its own server (an imported wallet that kept the older app's server, so its address stays the same): changing it here changes it for this wallet only, not for the app's other wallets."
+  },
   "deskSetRecvSwitchingServer": "Switching the Epicbox server…",
   "@deskSetRecvSwitchingServer": {
     "description": "Settings > Receiving: shown while the Epicbox server is switched."

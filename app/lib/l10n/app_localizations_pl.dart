@@ -6511,7 +6511,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskErrProofHistoryOld =>
-      'Historii z Epic Wallet 5.3 lub starszego nie da się odczytać; skanowanie odtworzy saldo';
+      'Historia jest w starszym formacie bazy danych i nie da się jej odczytać; skanowanie przywraca saldo';
 
   @override
   String get deskErrProofHistoryBusy =>
@@ -13573,11 +13573,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskErrOldLinks =>
-      'Folder tego portfela zawiera dowiązania; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.';
+      'Folder tego portfela zawiera dowiązania, więc nie zostanie zaimportowany. Przywróć portfel z frazy odzyskiwania.';
 
   @override
   String get deskErrOldIncomplete =>
-      'Nie udało się odczytać całego folderu tego portfela; skopiuj go ręcznie albo przywróć portfel z frazy odzyskiwania.';
+      'Folderu tego portfela nie udało się odczytać w całości, więc nie zostanie zaimportowany. Przywróć portfel z frazy odzyskiwania.';
 
   @override
   String get deskErrOldSeedTooLarge =>
@@ -16738,4 +16738,50 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvIssuerToAnyone => 'Faktura dla każdego, kto ma plik';
+
+  @override
+  String deskOnbImportRelayTitle(String name) {
+    return 'Serwer Epicbox dla $name';
+  }
+
+  @override
+  String deskOnbImportRelayLead(String old) {
+    return 'Starsza aplikacja odbierała przez $old. Każdy, kto zapisał adres tego portfela, wysyła właśnie tam.';
+  }
+
+  @override
+  String deskOnbImportRelayKeep(String old) {
+    return 'Zachowaj $old';
+  }
+
+  @override
+  String get deskOnbImportRelayKeepHint =>
+      'Adres się nie zmienia. Serwer zostanie dodany do listy Epicbox i używany dla tego portfela.';
+
+  @override
+  String deskOnbImportRelayApp(String current) {
+    return 'Użyj $current';
+  }
+
+  @override
+  String get deskOnbImportRelayAppHint =>
+      'Adres się zmieni. Osoby ze starym adresem potrzebują nowego; płatności wysłane na stary adres nie dotrą.';
+
+  @override
+  String get deskOnbImportUnlockOld => 'Odblokuj starym hasłem.';
+
+  @override
+  String get deskOnbImportUnlockNew => 'Odblokuj nowym hasłem wybranym tutaj.';
+
+  @override
+  String get deskOnbWelcomeOtherApps =>
+      'Ze Stack Wallet lub Epic Pay: przywróć z frazy odzyskiwania.';
+
+  @override
+  String get deskOnbImportCloseFirstWindows =>
+      'Zamknij starszy Epic Wallet przed importem. W systemie Windows nie da się sprawdzić, czy nadal działa.';
+
+  @override
+  String get deskSetRecvEpicboxOwnHint =>
+      'Ten portfel ma własny serwer Epicbox, zachowany ze starszej aplikacji. Zmiana tutaj dotyczy tylko tego portfela.';
 }

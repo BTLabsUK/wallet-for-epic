@@ -1,6 +1,7 @@
 /// What the Import wizard brings across from an older Epic GUI besides the wallet itself: its
-/// label, node choice, Epicbox server, language and contacts, as GUI 6.1.6's own importer brings
-/// them (epic-gui-wallet src/shared/importer.js at release 6.1.6). Read only: files are opened for
+/// label, node, Epicbox server and contacts, as GUI 6.1.6's own importer brings them
+/// (epic-gui-wallet src/shared/importer.js at release 6.1.6). Its language and built-in node
+/// choice are not read: nothing in this app would apply them. Read only: files are opened for
 /// reading and nothing is created, locked, renamed or written in any folder read. Plain Dart
 /// (dart:io), no Flutter.
 ///
@@ -33,17 +34,6 @@ const String guiDbName = 'Epicwallet';
 /// profile's User row wins in mergeProfiles).
 const List<(String app, String folder)> guiProfiles = [('6.0+', 'epic-desktop-wallet'), ('≤5.3.1', 'EpicWallet')];
 
-/// The app's languages (`appLanguages` in l10n.dart). Kept here so this file needs no Flutter;
-/// a test checks they match.
-const List<String> appLanguageCodes = ['en', 'de', 'pl', 'ru', 'zh', 'th'];
-
-/// The app's language code for a GUI locale code, or null when the app has no such translation
-/// (bg, cz, fa, hi): the app then follows the system language.
-String? appLanguageForGui(String? guiLocale) {
-  final l = (guiLocale ?? '').trim().toLowerCase();
-  return appLanguageCodes.contains(l) ? l : null;
-}
-
 const int _maxJsonBytes = 4 << 20;
 const int _maxTomlBytes = 1 << 20;
 const int _maxContacts = 10000;
@@ -74,10 +64,7 @@ class LegacyNode {
 
 /// What GUI 6.1 keeps for the whole app.
 class LegacyGuiGlobal {
-  const LegacyGuiGlobal({this.appLocale, this.myNodes = const {}, this.notes = const []});
-
-  /// settings.json app.locale; null when unset ('' = the system language) or no 6.1 was found.
-  final String? appLocale;
+  const LegacyGuiGlobal({this.myNodes = const {}, this.notes = const []});
 
   /// Network ('mainnet', 'floonet', 'usernet') → its saved nodes, cleaned as myNodes.js does.
   final Map<String, List<LegacyNode>> myNodes;
@@ -89,10 +76,8 @@ class LegacyGuiImport {
   const LegacyGuiImport({
     this.label,
     this.nodeUrl,
-    this.builtInNode,
     this.epicboxDomain,
     this.epicboxPort,
-    this.language,
     this.contacts = const [],
     this.addressBookDamaged = false,
     this.notes = const [],
@@ -104,17 +89,12 @@ class LegacyGuiImport {
   /// The node address, cleaned as importer.js does; null when the old GUI had none (its default).
   final String? nodeUrl;
 
-  /// The old GUI's nodeInternal: true when it used its built-in node; null when not known.
-  final bool? builtInNode;
-
   /// The Epicbox domain, cleaned (epicbox.epic.tech → epicbox.epiccash.com); null when none.
   final String? epicboxDomain;
 
   /// The Epicbox port: 443 unless the wallet's toml says otherwise; null with no [epicboxDomain].
   final int? epicboxPort;
 
-  /// The GUI's locale code as found (bg, cz, de, en, fa, hi, pl, ru, zh); see [appLanguageForGui].
-  final String? language;
   final List<LegacyContact> contacts;
 
   /// The old address book was found but could not be read whole (a damaged file): [contacts]
@@ -125,15 +105,13 @@ class LegacyGuiImport {
   final List<String> notes;
 }
 
-/// Reads GUI 6.1's app-wide settings: the language and "My nodes". Never throws.
+/// Reads GUI 6.1's app-wide settings: "My nodes". Never throws.
 Future<LegacyGuiGlobal> readGuiGlobal(LegacyRoots roots) async {
   final notes = <String>[];
   for (final root in await legacyGuiRoots(roots)) {
     final s = await _readJson(_join(root, 'settings.json'), notes);
     if (s == null) continue;
-    final app = s['app'];
-    final locale = app is Map && app['locale'] is String ? (app['locale'] as String).trim() : '';
-    return LegacyGuiGlobal(appLocale: locale.isEmpty ? null : locale, myNodes: _myNodes(s['myNodes']), notes: notes);
+    return LegacyGuiGlobal(myNodes: _myNodes(s['myNodes']), notes: notes);
   }
   return LegacyGuiGlobal(notes: notes);
 }
@@ -196,8 +174,6 @@ Future<LegacyGuiImport> _from61(String root, Map s, Map w, LegacyWallet wallet, 
   final id = w['id'] is String ? w['id'] as String : '';
   final set = w['settings'] is Map ? w['settings'] as Map : const {};
   final network = w['network'] is String ? w['network'] as String : wallet.network.guiName;
-  final app = s['app'];
-  final appLocale = app is Map && app['locale'] is String ? (app['locale'] as String).trim() : '';
 
   var damaged = false;
   final read = await _readProfile(_join(root, 'app'), '6.1', notes, damaged: () => damaged = true);
@@ -206,18 +182,14 @@ Future<LegacyGuiImport> _from61(String root, Map s, Map w, LegacyWallet wallet, 
   if (read != null && user == null && id.isNotEmpty) notes.add('GUI 6.1 has no address book for wallet $id.');
 
   final label = w['label'] is String ? cleanGuiLabel(w['label'] as String) : '';
-  final userLang = user != null ? _str(user['language']).trim() : '';
-  final lang = appLocale.isNotEmpty ? appLocale : userLang;
   final toml = await _readToml(w['configDir'] is String ? w['configDir'] as String : wallet.path, notes);
   final node = _node(_str(set['check_node_api_http_addr']), network, notes);
   final box = _str(set['epicbox_domain']).trim();
   return LegacyGuiImport(
     label: label.isEmpty ? null : label,
     nodeUrl: node,
-    builtInNode: set['nodeInternal'] is bool ? set['nodeInternal'] as bool : null,
     epicboxDomain: box.isEmpty ? null : cleanEpicbox(box),
     epicboxPort: box.isEmpty ? null : (toml.epicboxPort ?? 443),
-    language: lang.isEmpty ? null : lang.toLowerCase(),
     contacts: contacts,
     addressBookDamaged: damaged,
     notes: notes,
@@ -251,17 +223,13 @@ Future<LegacyGuiImport> _fromOlderGui(LegacyRoots roots, LegacyWallet wallet, Li
   // importer.js scan(): the label is the User row's name, else the account unless 'default'
   final name = _str(user['name']).trim();
   final label = cleanGuiLabel(name.isNotEmpty ? name : (account == 'default' ? '' : account));
-  // config.json's locale is what the old app showed; the User row's is often the setup's 'en'
-  final oldLang = _str(cfg['locale']).trim().isNotEmpty ? _str(cfg['locale']).trim() : _str(user['language']).trim();
   final box = _str(user['epicbox_domain']).isNotEmpty ? _str(user['epicbox_domain']) : _str(cfg['epicbox_domain']);
   final toml = await _readToml(wallet.path, notes);
   return LegacyGuiImport(
     label: label.isEmpty ? null : label,
     nodeUrl: _node(_str(cfg['check_node_api_http_addr']), network, notes),
-    builtInNode: user['nodeInternal'] is bool ? user['nodeInternal'] as bool : null,
     epicboxDomain: box.trim().isEmpty ? null : cleanEpicbox(box),
     epicboxPort: box.trim().isEmpty ? null : (toml.epicboxPort ?? 443),
-    language: oldLang.isEmpty ? null : oldLang.toLowerCase(),
     contacts: _contactsOf(found),
     addressBookDamaged: damaged,
     notes: notes,

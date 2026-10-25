@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:epic_wallet/src/l10n.dart' show appLanguages;
 import 'package:epic_wallet/src/legacy/gui_rules.dart';
 import 'package:epic_wallet/src/legacy_gui_profile.dart';
 import 'package:epic_wallet/src/legacy_wallets.dart';
@@ -71,17 +70,15 @@ void main() {
       await idb('gui616_log', '$home/.epic-gui/app');
     });
 
-    test('a created wallet: label, node, Epicbox, the app language, its contacts', () async {
+    test('a created wallet: label, node, Epicbox, its contacts', () async {
       final before = await hashes([home]);
       final w = await walletAt('$home/.epic-gui/wallets/w1');
       final r = await readGuiImport(roots(), w, scratch: tmp);
 
       expect(r.label, 'Główny portfel'); // trimmed, the U+202E override dropped (cleanLabel)
       expect(r.nodeUrl, 'https://node.epiccash.com:3413');
-      expect(r.builtInNode, isFalse);
       expect(r.epicboxDomain, 'epicbox.epiccash.com');
       expect(r.epicboxPort, 443);
-      expect(r.language, 'de'); // app.locale wins over the User row's 'pl'
       // Bob was deleted, Carol updated, the second Alice is a repeat of [name, onion]
       expect(names(r), ['Alice', 'Zoë 李雷', 'Carol']);
       final alice = r.contacts[0], zoe = r.contacts[1], carol = r.contacts[2];
@@ -103,7 +100,6 @@ void main() {
       final r = await readGuiImport(roots(), w);
       expect(r.label, isNull);
       expect(r.nodeUrl, 'http://127.0.0.1:3413');
-      expect(r.builtInNode, isTrue);
       expect(r.epicboxDomain, 'epicbox.epiccash.com');
       expect(r.epicboxPort, 8443);
       expect(names(r), ['Dave']);
@@ -113,7 +109,6 @@ void main() {
     test('the app settings: locale and My nodes, cleaned as myNodes.js does', () async {
       final before = await hashes([home]);
       final g = await readGuiGlobal(roots());
-      expect(g.appLocale, 'de');
       expect(g.myNodes.keys, ['mainnet', 'floonet']);
       expect([for (final n in g.myNodes['mainnet']!) (n.address, n.label)], [
         ('https://node.example.com:3413', 'Home node'),
@@ -145,10 +140,8 @@ void main() {
       final r = await readGuiImport(roots(), w);
       expect(r.label, isNull); // no name, and 'default' is no label
       expect(r.nodeUrl, 'https://node.epiccash.com:3413'); // fastepic.eu is gone
-      expect(r.builtInNode, isFalse);
       expect(r.epicboxDomain, 'epicbox.epiccash.com'); // config.json's epicbox.epic.tech, renamed
       expect(r.epicboxPort, 443);
-      expect(r.language, 'de'); // config.json locale '' → the User row's
       expect(names(r), ['Eve']);
       expect(r.contacts.single.epicboxAddress, 'esWNvLomAJ2SHT6CU1F4ok2URGQnmUmCAp9XNwEP4N8JS4Ve8qcx');
       await expectUnchanged(before);
@@ -160,9 +153,7 @@ void main() {
       expect(w.account, 'alpha');
       final r = await readGuiImport(roots(), w);
       expect(r.label, 'Alpha (6.0)');
-      expect(r.builtInNode, isFalse); // 6.0's row; 5.3.1 said true
       expect(r.epicboxDomain, 'epicbox.fastepic.eu'); // the User row before config.json
-      expect(r.language, 'bg'); // config.json's locale before the row's
       expect(r.nodeUrl, 'http://10.100.10.20:3413'); // a LAN host gets http, slashes and spaces go
       // 6.0 first; 5.3.1's 'Shared' is a repeat; Frank and Heidi were written to the log after
       // the table was compacted, Bob deleted before it
@@ -178,7 +169,6 @@ void main() {
       await Directory('$home/.config/epic-desktop-wallet').delete(recursive: true);
       final r = await readGuiImport(roots(), await walletAt('$home/.epic/alpha/main'));
       expect(r.label, 'Alpha');
-      expect(r.builtInNode, isTrue);
       expect(r.epicboxDomain, 'epicbox.epiccash.com'); // the row's epicbox.epic.tech, renamed
       expect(names(r), ['Frank', 'Shared', 'Carol', 'Heidi']);
     });
@@ -192,13 +182,11 @@ void main() {
       await Directory('$home/.config/epic-desktop-wallet').delete(recursive: true);
       final r = await readGuiImport(roots(), await walletAt('$home/.epic/alpha/main'));
       expect(r.notes.join('\n'), contains('damaged block'));
-      expect(r.language, 'bg');
       expect(r.nodeUrl, 'http://10.100.10.20:3413');
     });
 
     test('no global settings without GUI 6.1', () async {
       final g = await readGuiGlobal(roots());
-      expect(g.appLocale, isNull);
       expect(g.myNodes, isEmpty);
     });
   });
@@ -211,10 +199,8 @@ void main() {
     final r = await readGuiImport(roots(), w);
     expect(r.label, isNull);
     expect(r.nodeUrl, 'https://mynode.example:3413');
-    expect(r.builtInNode, isNull);
     expect(r.epicboxDomain, 'epicbox.epiccash.com');
     expect(r.epicboxPort, 1443);
-    expect(r.language, isNull);
     expect(r.contacts, isEmpty);
     await expectUnchanged(before);
   });
@@ -269,17 +255,9 @@ void main() {
       expect(cleanGuiLabel('a' * 31 + '  b'), 'a' * 31);
     });
 
-    test('languages: the GUI fallback and the app codes', () {
+    test('languages: the GUI fallback', () {
       expect(guiSupportedLocale('cz'), 'cz');
       expect(guiSupportedLocale('ru'), 'en');
-      expect(appLanguageForGui('de'), 'de');
-      expect(appLanguageForGui(' PL '), 'pl');
-      expect(appLanguageForGui('ru'), 'ru');
-      expect(appLanguageForGui('th'), 'th');
-      expect(appLanguageForGui('cz'), isNull);
-      expect(appLanguageForGui('bg'), isNull);
-      expect(appLanguageForGui(null), isNull);
-      expect(appLanguageCodes, [for (final l in appLanguages) l.code]);
     });
 
     test('node keys and checks (myNodes.js)', () {

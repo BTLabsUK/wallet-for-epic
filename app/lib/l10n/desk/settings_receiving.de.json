@@ -15,6 +15,7 @@
   "deskSetRecvEpicboxText": "Zahlungen kommen über den Epicbox-Server an, auch bei geschlossener Wallet.",
   "deskSetRecvEpicboxServer": "Epicbox-Server",
   "deskSetRecvEpicboxServerHint": "Welcher Server Zahlungen für diese Adresse hält. Die beiden Wallets können verschiedene Server nutzen.",
+  "deskSetRecvEpicboxOwnHint": "Diese Wallet hat einen eigenen Epicbox-Server aus der älteren App. Eine Änderung hier gilt nur für diese Wallet.",
   "deskSetRecvSwitchingServer": "Epicbox-Server wird gewechselt…",
   "deskSetRecvListNote": "Zustand von status.btlabs.uk, alle paar Minuten geprüft.",
   "deskSetRecvHttpTitle": "Link · HTTP-Empfang",

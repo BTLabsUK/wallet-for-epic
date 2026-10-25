@@ -158,6 +158,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   Future<ImportedWallet> importOldWallet(String id, {required String oldPassword, String? newPassword}) =>
       _r('importOldWallet', () => _m.importOldWallet(id, oldPassword: oldPassword, newPassword: newPassword));
   @override
+  Future<void> keepOldRelay(String id, {required bool keep}) => _r('keepOldRelay', () => _m.keepOldRelay(id, keep: keep));
+  @override
   Future<void> cancelImport() => _r('cancelImport', _m.cancelImport);
   @override
   Future<WalletAccount> account() => _r('account', _m.account);

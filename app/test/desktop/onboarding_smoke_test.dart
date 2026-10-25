@@ -162,6 +162,9 @@ void flows() {
     await tester.tap(find.text('Continue'));
     await tester.pump();
     expect(find.text('Wallets imported'), findsOneWidget);
+    expect(find.text('Unlock with the old password.'), findsOneWidget);
+    expect(find.text('Unlock with the new password chosen here.'), findsOneWidget);
+    expect(find.text('Keep epicbox.example.org'), findsOneWidget);
     await tester.tap(find.text('Open wallet'));
     await tester.pump();
     expect(container.read(deskNavProvider).route, DeskRoute.unlock);

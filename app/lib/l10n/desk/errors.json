@@ -379,9 +379,9 @@
   "@deskErrProofHistoryNone": {
     "description": "A line of the import wizard's result."
   },
-  "deskErrProofHistoryOld": "History of Epic Wallet 5.3 or older is not readable; the scan restores the balance",
+  "deskErrProofHistoryOld": "History in an older database format is not readable; the scan restores the balance",
   "@deskErrProofHistoryOld": {
-    "description": "A line of the import wizard's result."
+    "description": "A line of the import wizard's result: the old wallet's history is in an older database format the app cannot read."
   },
   "deskErrProofHistoryBusy": "History not imported: the older wallet is running. It is imported at the next unlock",
   "@deskErrProofHistoryBusy": {
@@ -662,13 +662,13 @@
   "@deskErrSecretProtect": {
     "description": "Error when Windows (DPAPI) refused to protect the wallet's secrets, e.g. in a remote or service session. DPAPI and Windows are names."
   },
-  "deskErrOldLinks": "This wallet's folder has links in it; copy it by hand or restore from the phrase.",
+  "deskErrOldLinks": "This wallet's folder has links in it, so it is not imported. Restore it from the recovery phrase.",
   "@deskErrOldLinks": {
-    "description": "Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user can copy the folder by hand or restore from the recovery phrase."
+    "description": "Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user restores it from the recovery phrase instead."
   },
-  "deskErrOldIncomplete": "This wallet's folder could not be read completely; copy it by hand or restore from the phrase.",
+  "deskErrOldIncomplete": "This wallet's folder could not be read completely, so it is not imported. Restore it from the recovery phrase.",
   "@deskErrOldIncomplete": {
-    "description": "Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user can copy it by hand or restore from the recovery phrase."
+    "description": "Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user restores it from the recovery phrase instead."
   },
   "deskErrOldSeedTooLarge": "The wallet.seed file is too large to be a wallet seed.",
   "@deskErrOldSeedTooLarge": {

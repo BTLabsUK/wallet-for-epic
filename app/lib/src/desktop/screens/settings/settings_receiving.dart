@@ -501,7 +501,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
             ESetRow(
               title: l.deskSetRecvEpicboxServer,
-              hint: l.deskSetRecvEpicboxServerHint,
+              hint: status.epicboxOwn ? l.deskSetRecvEpicboxOwnHint : l.deskSetRecvEpicboxServerHint,
               stacked: true,
               control: ServerListPanel(
                 kind: ServerKind.relay,

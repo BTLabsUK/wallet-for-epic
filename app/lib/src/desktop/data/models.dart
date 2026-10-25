@@ -605,6 +605,7 @@ class ServiceStatus {
     this.torIncluded = true,
     this.torSlowStart = false,
     this.epicboxViaTor = false,
+    this.epicboxOwn = false,
     this.syncProgress,
     this.scanning = false,
     this.lastUpdate,
@@ -653,6 +654,10 @@ class ServiceStatus {
   /// it waits for tor and never goes directly, so an [epicboxHealth] of checking or down then
   /// means "Connecting via Tor".
   final bool epicboxViaTor;
+
+  /// The open wallet has its own Epicbox server (an import that kept the older app's): a
+  /// change in Settings applies to this wallet only.
+  final bool epicboxOwn;
 
   /// 0..1 while the wallet scans; null when idle.
   final double? syncProgress;
@@ -1235,10 +1240,20 @@ class ImportProof {
 /// A wallet the import made: listed, selected, its history due from a scan at the first unlock.
 @immutable
 class ImportedWallet {
-  const ImportedWallet({required this.id, required this.name, required this.proof});
+  const ImportedWallet({required this.id, required this.name, required this.proof, this.oldRelay, this.appRelay = '', this.newPassword = false});
 
   /// The new wallet's list id ([WalletEntry.id]).
   final String id;
   final String name;
   final List<ImportProof> proof;
+
+  /// The older app's Epicbox server (`host`, or `host:port` off 443) when it is not the app's:
+  /// the wallet keeps it unless [DeskWalletApi.keepOldRelay] says otherwise. Null: same server.
+  final String? oldRelay;
+
+  /// The app's Epicbox server, the other choice.
+  final String appRelay;
+
+  /// The old password was too short and the wallet got the new one typed in the wizard.
+  final bool newPassword;
 }

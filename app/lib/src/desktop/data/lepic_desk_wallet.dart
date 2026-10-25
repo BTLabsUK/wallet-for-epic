@@ -50,6 +50,7 @@ import '../../net/tor_switch.dart';
 import '../../tor_routes.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
+import '../../server_list.dart' show ServerKind, ServerList;
 import '../../seed_contacts.dart';
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName, uniqueFileName;
@@ -137,7 +138,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable ? l.deskErrSendUnbuildable : detail == core.nothingToConsolidate ? l.deskErrNothingToConsolidate : detail.isEmpty ? l.deskErrNotAccepted : l.deskErrNotAcceptedDetail(detail),
     core.WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
     core.WalletErrorKind.pairingFailed => pairingFailureText(l, core.pairingFailureOf(error) ?? core.PairingFailure.invalid),
-    core.WalletErrorKind.restoreScanRequired => detail.isEmpty ? l.deskErrSomethingWrong : detail,
+    core.WalletErrorKind.restoreScanRequired || core.WalletErrorKind.phraseMismatch => detail.isEmpty ? l.deskErrSomethingWrong : detail,
     core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
   };
 }
@@ -528,7 +529,22 @@ class LepicDeskWallet implements DeskWalletApi {
       ? deskEpicboxes
       : [EpicboxServer(domain: preset.epicboxDomain, port: preset.epicboxPort, health: ServiceHealth.checking)];
 
-  Future<EpicboxRelay> _relay() async {
+  /// The open wallet's Epicbox server ([_relayOf]); the app's while locked.
+  Future<EpicboxRelay> _relay() => _relayOf(_openEntry);
+
+  /// The Epicbox server of [entry]: its own when it has one ([_ownRelay]), else the app's.
+  Future<EpicboxRelay> _relayOf(reg.WalletEntry? entry) async => await _ownRelay(entry) ?? await _appRelay();
+
+  /// The wallet's own Epicbox server (meta `epicbox`): an imported wallet that kept the older
+  /// app's server, so its address stays the same. Null: it uses the app's.
+  Future<EpicboxRelay?> _ownRelay(reg.WalletEntry? entry) async {
+    if (entry == null) return null;
+    final own = (await _meta(_metaKey(entry.walletId)))['epicbox'];
+    return own is String ? EpicboxRelay.parse(own) : null;
+  }
+
+  /// The app's Epicbox server, for every wallet without its own.
+  Future<EpicboxRelay> _appRelay() async {
     await (_relaySettled ??= _settleRelay());
     final saved = await _secrets.read(_relayKey);
     return (saved == null ? null : EpicboxRelay.parse(saved)) ??
@@ -581,7 +597,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<core.WalletConfig> _configOf(reg.WalletEntry? entry, {String? nodeUrl, EpicboxRelay? relay}) async => preset.config(
     dataDir: entry == null || entry.isLegacy ? await _walletDir(preset.chain) : await _addedDir(entry),
     nodeUrl: nodeUrl ?? await _nodeUrl(),
-    relay: relay ?? await _relay(),
+    relay: relay ?? await _relayOf(entry),
     walletId: entry?.walletId,
   );
 
@@ -1002,6 +1018,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (_settings.torAutostart && await _findTor() != null) await _expectTor(session);
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
     await _seedContacts();
+    if (entry.walletFingerprint == null) await _keepWalletFingerprint(entry, session);
     try {
       if (_registry != null) _openEntry = await (await _registry!).markOpened(entry.id);
     } on Object catch (e) {
@@ -1181,7 +1198,13 @@ class LepicDeskWallet implements DeskWalletApi {
     Future<void> save() async {
       if (!keep) return;
       await _secrets.write(_nodeKey, nodeUrl);
-      await _secrets.write(_relayKey, relay.label);
+      // A wallet with its own Epicbox server keeps the choice to itself; the app's stays.
+      final open = _openEntry;
+      if (await _ownRelay(open) != null) {
+        await _setMeta({'epicbox': relay.label}, _metaKey(open!.walletId));
+      } else {
+        await _secrets.write(_relayKey, relay.label);
+      }
     }
 
     final password = _password;
@@ -1272,12 +1295,14 @@ class LepicDeskWallet implements DeskWalletApi {
   /// [ownEntry]: always a new entry, never the first wallet's folder (imports).
   /// [fingerprintOf]: the phrase fingerprint of the made wallet, kept in its list entry
   /// ([reg.WalletEntry.phraseFingerprint]) so a later restore of the same phrase finds it.
+  /// [walletFingerprintOf]: the core's fingerprint ([reg.WalletEntry.walletFingerprint]).
   Future<T> _make<T>(
     String name,
     Map<String, Object?> meta,
     Future<T> Function(core.WalletConfig config) create, {
     bool ownEntry = false,
     String Function(T result)? fingerprintOf,
+    String? Function(T result)? walletFingerprintOf,
   }) async {
     final entry = await _newWallet(name, ownEntry: ownEntry);
     final config = await _configOf(entry);
@@ -1305,6 +1330,8 @@ class LepicDeskWallet implements DeskWalletApi {
       try {
         final r = await registry();
         if (fingerprintOf != null) await r.setPhraseFingerprint(listed.id, fingerprintOf(result));
+        final wallet = walletFingerprintOf?.call(result);
+        if (wallet != null) await r.setWalletFingerprint(listed.id, wallet);
         await r.setLastUsed(listed.id);
       } on Object catch (e) {
         logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
@@ -1346,9 +1373,20 @@ class LepicDeskWallet implements DeskWalletApi {
         } finally {
           session.dispose();
         }
-      }, fingerprintOf: (words) => phraseFingerprint(words.join(' ')));
+      }, fingerprintOf: (words) => phraseFingerprint(words.join(' ')), walletFingerprintOf: (words) => _walletFingerprint(words.join(' ')));
     } on core.WalletError catch (e) {
       throw _deskError(e);
+    }
+  }
+
+  /// A wallet made before the list kept the core's fingerprint, or an import from before:
+  /// kept now, so a restore of its phrase finds it (R15). A failure is logged only.
+  Future<void> _keepWalletFingerprint(reg.WalletEntry entry, core.WalletSession session) async {
+    try {
+      final fp = await session.fingerprint();
+      await (await registry()).setWalletFingerprint(entry.id, fp);
+    } on Object catch (e) {
+      logWarn('desk', 'wallet fingerprint not kept: ${e.runtimeType}');
     }
   }
 
@@ -1358,12 +1396,27 @@ class LepicDeskWallet implements DeskWalletApi {
 
   String _mnemonicOf(List<String> phrase) => phrase.map((w) => w.trim().toLowerCase()).join(' ');
 
-  /// The listed wallet of this network whose kept fingerprint is [mnemonic]'s (O1). Wallets
-  /// made before the app kept one (no [reg.WalletEntry.phraseFingerprint]) are never matched:
-  /// the wallet core has no way to derive their address from a phrase without making a store.
+  /// The core's fingerprint of [mnemonic] on this network; null when the core cannot give one.
+  String? _walletFingerprint(String mnemonic) {
+    try {
+      return _service.walletFingerprint(mnemonic: mnemonic, chain: preset.chain);
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'wallet fingerprint not derived: ${e.kind.name}');
+      return null;
+    }
+  }
+
+  /// The listed wallet of this network that is [mnemonic]'s (O1, R15): the same core
+  /// fingerprint ([reg.WalletEntry.walletFingerprint], kept for created, restored and imported
+  /// wallets, and for older ones at their next unlock), or for an entry with only that, the
+  /// same phrase fingerprint. A wallet never unlocked since it was made before either is kept
+  /// is not matched.
   Future<WalletEntry?> _sameWallet(String mnemonic) async {
     final fp = phraseFingerprint(mnemonic);
-    final same = (await _wallets()).where((e) => e.phraseFingerprint == fp).firstOrNull;
+    final wallet = _walletFingerprint(mnemonic);
+    final same = (await _wallets())
+        .where((e) => (wallet != null && e.walletFingerprint == wallet) || e.phraseFingerprint == fp)
+        .firstOrNull;
     if (same == null) return null;
     return (await wallets()).where((w) => w.id == same.id).firstOrNull;
   }
@@ -1387,7 +1440,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await _make(name, {'scanPending': true, if (startHeight != null) 'scanFrom': startHeight.toInt()}, (config) async {
         final session = await _service.create(config: config, mnemonic: mnemonic, password: password);
         session.dispose();
-      }, fingerprintOf: (_) => phraseFingerprint(mnemonic));
+      }, fingerprintOf: (_) => phraseFingerprint(mnemonic), walletFingerprintOf: (_) => _walletFingerprint(mnemonic));
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
@@ -1514,13 +1567,15 @@ class LepicDeskWallet implements DeskWalletApi {
     } on FormatException {
       throw DeskError.l10n((l) => l.deskErrNotSeedFile);
     }
-    final name = _importName(w.displayLabel);
     final fingerprint = sha256.convert(bytes).toString();
     final held = (await _inAppSeeds())[fingerprint];
     if (held != null) throw DeskError.l10n((l) => l.deskErrAlreadyInApp(held));
-    // What the older app kept beside the wallet: contacts, node, Epicbox server. Read only.
+    // What the older app kept beside the wallet: its name, contacts, node, Epicbox server.
+    // Read only.
     final profile = await gui.readGuiImport(_legacyRoots(), w);
     final global = await gui.readGuiGlobal(_legacyRoots());
+    final name = _importName(profile.label ?? w.displayLabel);
+    String? walletFp;
     core.LegacyHistoryImport? history;
     var contacts = const ContactImport();
     reg.WalletEntry? made;
@@ -1530,12 +1585,18 @@ class LepicDeskWallet implements DeskWalletApi {
       await _make(name, {'scanPending': true, 'seedFingerprint': fingerprint, 'importedFrom': w.path}, (config) async {
         final session = await _service.importWalletSeed(config: config, seedFile: seed, seedPassword: oldPassword, password: next);
         try {
+          // The same keys restored or imported before (another seed file of the same phrase):
+          // that wallet is the one to use, not a second copy (R15).
+          walletFp = await _fingerprintOf(session);
+          final fp = walletFp;
+          final twin = fp == null ? null : (await _inList())?.where((e) => e.walletFingerprint == fp).firstOrNull;
+          if (twin != null) throw DeskError.l10n((l) => l.deskErrAlreadyInApp(twin.label));
           history = await _importHistory(session, w.path);
           contacts = await _importContacts(session, profile);
         } finally {
           session.dispose();
         }
-      }, ownEntry: true);
+      }, ownEntry: true, walletFingerprintOf: (_) => walletFp);
       made = (await registry()).byId(_selectedId ?? '');
     } on core.WalletError catch (e) {
       if (e.kind == core.WalletErrorKind.wrongPassword) throw DeskError.l10n((l) => l.deskErrWrongOldPassword, wrongPassword: true);
@@ -1552,21 +1613,76 @@ class LepicDeskWallet implements DeskWalletApi {
     final unchanged = await legacy.folderHash(walletData) == before;
     if (!unchanged) logWarn('desk', 'import: the old folder changed during the import');
     logInfo('desk', 'import: wallet made');
-    final relay = await _relay();
+    // R12: the older app's Epicbox server is part of the old address. Kept for this wallet
+    // unless the Done step's choice says otherwise (keepOldRelay).
+    final relay = await _appRelay();
     final box = profile.epicboxDomain;
+    final old = box == null ? null : EpicboxRelay(host: box, port: profile.epicboxPort ?? 443);
+    final otherRelay = old != null && old.label != relay.label;
+    if (otherRelay) {
+      _oldRelays[made.id] = old.label;
+      await keepOldRelay(made.id, keep: true);
+    }
     return ImportedWallet(
       id: made.id,
       name: made.label,
+      oldRelay: otherRelay ? old.label : null,
+      appRelay: relay.label,
+      newPassword: newPassword != null,
       proof: [
         ImportProof.l10n((l) => l.deskErrProofSeedRead),
         ImportProof.l10n((l) => l.deskErrProofWalletCreated),
         _historyProof(done),
         ...contacts.proof(),
         for (final n in nodes) ImportProof.l10n((l) => l.deskErrProofNode(n.label)),
-        if (box != null && box != relay.host) ImportProof.l10n((l) => l.deskErrProofEpicbox(box, relay.host)),
         unchanged ? ImportProof.l10n((l) => l.deskErrProofFolderUnchanged) : ImportProof.l10n((l) => l.deskErrProofFolderChanged, ok: false),
       ],
     );
+  }
+
+  /// The older app's Epicbox server of each wallet this run imported, by list id.
+  final Map<String, String> _oldRelays = {};
+
+  /// Servers the import put in the Epicbox list (taken out again by "Use" or Cancel).
+  final Set<String> _relaysListed = {};
+
+  /// The core's fingerprint of [session]'s wallet; null when the core cannot give one.
+  Future<String?> _fingerprintOf(core.WalletSession session) async {
+    try {
+      return await session.fingerprint();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'wallet fingerprint not read: ${e.kind.name}');
+      return null;
+    }
+  }
+
+  @override
+  Future<void> keepOldRelay(String id, {required bool keep}) async {
+    final old = _oldRelays[id];
+    final entry = (await registry()).byId(id);
+    if (old == null || entry == null) return;
+    await _setMeta({'epicbox': keep ? old : null}, _metaKey(entry.walletId));
+    logInfo('desk', keep ? 'import: keeps the older Epicbox server' : "import: uses the app's Epicbox server");
+    if (keep) {
+      if (await _listRelay(old)) _relaysListed.add(old);
+    } else if (_relaysListed.remove(old)) {
+      await _unlistRelay(old);
+    }
+  }
+
+  /// Puts [label] in the Epicbox list; false when it was listed already.
+  Future<bool> _listRelay(String label) async {
+    const kind = ServerKind.relay;
+    final list = await _store.serverList(kind, _chain) ??
+        const ServerList().absorb(kind, [for (final b in _builtInBoxes) EpicboxRelay(host: b.domain, port: b.port).label]);
+    if (list.has(kind, label)) return false;
+    await _store.saveServerList(kind, _chain, list.add(kind, label));
+    return true;
+  }
+
+  Future<void> _unlistRelay(String label) async {
+    final list = await _store.serverList(ServerKind.relay, _chain);
+    if (list != null) await _store.saveServerList(ServerKind.relay, _chain, list.remove(ServerKind.relay, label).list);
   }
 
   /// The old wallet's history, or null when the core failed; a failure never fails the import.
@@ -1660,6 +1776,10 @@ class LepicDeskWallet implements DeskWalletApi {
         logWarn('desk', 'import: wallet not removed: ${e.runtimeType}');
       }
       if (_selectedId == id) _selectedId = null;
+    }
+    for (final label in [..._relaysListed]) {
+      _relaysListed.remove(label);
+      await _unlistRelay(label);
     }
   }
 
@@ -1996,6 +2116,7 @@ class LepicDeskWallet implements DeskWalletApi {
       nodeHeight: _tip,
       epicbox: box,
       epicboxHealth: _epicboxHealth,
+      epicboxOwn: config != null && await _ownRelay(_openEntry) != null,
       httpListener: _httpHealth,
       httpProblem: _httpHealth == ServiceHealth.down ? _httpProblem : null,
       httpProblemPort: _httpHealth == ServiceHealth.down && _httpProblem != null ? _httpPort : null,
