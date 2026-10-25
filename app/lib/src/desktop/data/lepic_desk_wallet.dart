@@ -4375,10 +4375,10 @@ class LepicDeskWallet implements DeskWalletApi {
     void step(String what) => logInfo('desk', 'closing: $what after ${watch.elapsedMilliseconds} ms');
     statusSite.removeListener(_statusSiteChanged);
     await _lock(waitAtMost: closeWait);
-    step('wallet locked');
+    step('wallet locked'); // l10n-ok: log text
     await _nodeNoticeSub?.cancel();
     await _node?.stop();
-    step('node stopped');
+    step('node stopped'); // l10n-ok: log text
     // Not awaited: a broadcast stream's close ends only once every listener got its done
     // event, and Riverpod pauses a provider nobody watches (the invoice notices on the unlock
     // screen), so after a lock the close never ended and closing waited its 40 s (LNX-4).
