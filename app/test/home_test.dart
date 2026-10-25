@@ -4236,7 +4236,8 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('File'),
+          // The tab's whole name (since the methods split); its label may wrap.
+          matching: find.byTooltip('Direct · File'),
         ),
       );
       await tester.pumpAndSettle();
@@ -4292,7 +4293,7 @@ void main() {
         expect(_toField(tester), carol);
 
         // The same from the payment file screens.
-        await _tap(tester, find.text('File').last);
+        await _tap(tester, find.text('Direct · File').last);
         await tester.enterText(
           find.widgetWithText(TextField, 'Amount (EPIC)'),
           '1',
