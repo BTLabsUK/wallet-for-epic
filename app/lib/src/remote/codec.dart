@@ -167,10 +167,6 @@ final WireCodec<ManualField> manualFieldWire = enumWire(
   ManualField.values,
 );
 final WireCodec<TxStatus> txStatusWire = enumWire('TxStatus', TxStatus.values);
-final WireCodec<PeerCapability> peerCapabilityWire = enumWire(
-  'PeerCapability',
-  PeerCapability.values,
-);
 final WireCodec<InvoiceStatus> invoiceStatusWire = enumWire(
   'InvoiceStatus',
   InvoiceStatus.values,

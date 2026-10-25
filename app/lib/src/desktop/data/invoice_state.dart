@@ -109,7 +109,6 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
   Future<void> cancelPayment(String slateId) => _then(_api.cancelInvoicePayment(slateId));
   Future<SelfSend> spendToSelf(String slateId) => _then(_api.spendCancelledToSelf(slateId));
   Future<void> setExpiry(Duration expiry) => _then(_api.setInvoiceExpiry(expiry));
-  Future<PeerCapability> capability(String address) => _api.peerCapability(address);
 
   /// Runs [call], then reads the book again (and the wallet, for balance and Activity) whether
   /// it worked or not.

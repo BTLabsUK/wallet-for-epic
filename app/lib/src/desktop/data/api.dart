@@ -385,7 +385,4 @@ abstract interface class DeskWalletApi {
   /// Pairing (RFC 0002) of the open wallet: [PairingApi.supported] false while locked or on a
   /// core without it. The types are the core's (`models.dart`), shared with the phone.
   PairingApi get pairing;
-
-  /// What the wallet learned of the payer at [address].
-  Future<PeerCapability> peerCapability(String address);
 }

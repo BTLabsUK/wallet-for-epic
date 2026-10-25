@@ -263,7 +263,7 @@ void main() {
   group('issue', () {
     test('sends the trimmed address and the cut message to LEPIC', () async {
       final before = DateTime.now();
-      final issued = await session.issueInvoice(
+      final issued = await session.issueToAddress(
         amount: five,
         address: ' $_payer ',
         message: '  ${'é' * 300} ',
@@ -283,13 +283,13 @@ void main() {
     });
 
     test('a blank message goes as none', () async {
-      await session.issueInvoice(amount: five, address: _payer, message: ' ');
+      await session.issueToAddress(amount: five, address: _payer, message: ' ');
       expect(wallet.issued.single.message, isNull);
     });
 
     test('an invalid address never reaches LEPIC', () async {
       await expectLater(
-        session.issueInvoice(amount: five, address: 'not an address'),
+        session.issueToAddress(amount: five, address: 'not an address'),
         _kind(WalletErrorKind.invalidArgument),
       );
       expect(wallet.issued, isEmpty);
@@ -298,12 +298,12 @@ void main() {
     test('its own payments address is refused', () async {
       for (final own in [_payments]) {
         await expectLater(
-          session.issueInvoice(amount: five, address: own),
+          session.issueToAddress(amount: five, address: own),
           _kind(WalletErrorKind.invalidArgument),
         );
       }
       await expectLater(
-        session.issueInvoice(amount: BigInt.zero, address: _payer),
+        session.issueToAddress(amount: BigInt.zero, address: _payer),
         _kind(WalletErrorKind.invalidArgument),
       );
       expect(wallet.issued, isEmpty);
@@ -338,7 +338,7 @@ void main() {
         );
       wallet.issueError = lepic.WalletErrorKind.notDelivered;
       await expectLater(
-        session.issueInvoice(amount: five, address: _payer),
+        session.issueToAddress(amount: five, address: _payer),
         _kind(WalletErrorKind.transportFailed),
       );
       // Only the one this call stored: not an older receive, not a concurrent one.
@@ -351,7 +351,7 @@ void main() {
     test('another failure cancels nothing', () async {
       wallet.issueError = lepic.WalletErrorKind.invalidArgument;
       await expectLater(
-        session.issueInvoice(amount: five, address: _payer),
+        session.issueToAddress(amount: five, address: _payer),
         _kind(WalletErrorKind.invalidArgument),
       );
       expect(wallet.cancelled, isEmpty);
@@ -398,9 +398,9 @@ void main() {
     });
 
     test('each event moves its request once', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
-      final b = await session.issueInvoice(amount: five, address: _payer);
-      final c = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
+      final b = await session.issueToAddress(amount: five, address: _payer);
+      final c = await session.issueToAddress(amount: five, address: _payer);
       final payerEvents = <InvoiceEvent>[];
       final sub = session.invoiceEvents().listen(payerEvents.add);
       wallet.eventSink
@@ -474,7 +474,7 @@ void main() {
     });
 
     test('a decline whose cancel fails is still declined', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
       wallet.cancelError = lepic.WalletErrorKind.onChain;
       wallet.eventSink.add(
         _event(
@@ -491,7 +491,7 @@ void main() {
     });
 
     test('no LEPIC event leads to a spend', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
       for (final kind in lepic.WalletEventKind.values) {
         wallet.eventSink.add(_event(kind, slateId: a.slateId, txId: a.txId));
       }
@@ -510,8 +510,8 @@ void main() {
     );
 
     test('an event marks that request, withdraws it and tells once', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
-      final b = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
+      final b = await session.issueToAddress(amount: five, address: _payer);
       // LEPIC raises it again for a bounce redelivered before it was settled.
       wallet.eventSink
         ..add(bounce(a))
@@ -537,7 +537,7 @@ void main() {
     test(
       'the listener\'s bounce does the same, and with the event once',
       () async {
-        final a = await session.issueInvoice(amount: five, address: _payer);
+        final a = await session.issueToAddress(amount: five, address: _payer);
         final seen = <ListenerEvent>[];
         final sub = session.startListener().listen(seen.add);
         wallet.listenerSink
@@ -573,7 +573,7 @@ void main() {
     );
 
     test('the listener\'s bounce alone marks, withdraws and tells', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
       final sub = session.startListener().listen((_) {});
       wallet.listenerSink.add(
         lepic.ListenerEvent(
@@ -600,7 +600,7 @@ void main() {
     });
 
     test('a bounce for a request already ended changes nothing', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
       await session.withdrawInvoice(slateId: a.slateId);
       wallet.eventSink.add(bounce(a));
       await _settle();
@@ -617,18 +617,6 @@ void main() {
       expect((await session.drainPayments()).bounced, 2);
       await _settle();
       expect(events, isEmpty);
-    });
-
-    test('the payer\'s capability comes from LEPIC, trimmed', () async {
-      wallet.peers[_payer] = lepic.PeerCapability.noInvoices;
-      expect(
-        await session.peerCapability(address: ' $_payer '),
-        PeerCapability.noInvoices,
-      );
-      expect(
-        await session.peerCapability(address: 'otherKey@epicbox.example'),
-        PeerCapability.unknown,
-      );
     });
   });
 
@@ -691,7 +679,7 @@ void main() {
 
   group('withdraw', () {
     test('cancels a waiting request and says so', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
       final withdrawn = await session.withdrawInvoice(slateId: a.slateId);
       expect(withdrawn.state, IssuedInvoiceState.withdrawn);
       expect(wallet.cancelled, [a.txId]);
@@ -711,7 +699,7 @@ void main() {
     });
 
     test('refuses one that is no longer waiting, or unknown', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
       wallet.eventSink.add(
         _event(
           lepic.WalletEventKind.invoiceFinalized,
@@ -732,7 +720,7 @@ void main() {
     });
 
     test('a cancel LEPIC refuses keeps it waiting', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
       wallet.cancelError = lepic.WalletErrorKind.inPool;
       await expectLater(
         session.withdrawInvoice(slateId: a.slateId),
@@ -758,9 +746,9 @@ void main() {
     );
 
     test('a missed event is caught up from LEPIC\'s store', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
-      final b = await session.issueInvoice(amount: five, address: _payer);
-      final c = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
+      final b = await session.issueToAddress(amount: five, address: _payer);
+      final c = await session.issueToAddress(amount: five, address: _payer);
       wallet
         ..setStatus(a.txId, lepic.TxStatus.posted)
         ..setStatus(b.txId, lepic.TxStatus.cancelled);
@@ -791,7 +779,7 @@ void main() {
     });
 
     test('a single request is caught up too, for its details', () async {
-      final a = await session.issueInvoice(amount: five, address: _payer);
+      final a = await session.issueToAddress(amount: five, address: _payer);
       wallet.setStatus(a.txId, lepic.TxStatus.posted);
       expect(
         (await session.issuedInvoice(slateId: a.slateId))!.state,
@@ -820,13 +808,13 @@ void main() {
         wallet,
         history: await WalletHistory.open(dir.path, Chain.floonet),
       );
-      final a = await first.issueInvoice(
+      final a = await first.issueToAddress(
         amount: five,
         address: _payer,
         message: 'Dinner',
       );
       await first.withdrawInvoice(slateId: a.slateId);
-      final b = await first.issueInvoice(amount: five, address: _payer);
+      final b = await first.issueToAddress(amount: five, address: _payer);
       first.dispose();
 
       final again = await LepicWalletSession.openOn(

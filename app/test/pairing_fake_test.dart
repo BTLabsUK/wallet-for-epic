@@ -89,14 +89,20 @@ void main() {
     expect((skipped!.state, skipped.checkSkipped), (PairingState.paired, true));
   });
 
-  test('Allow invoices: only for a verified contact; the allowlist follows it', () async {
+  test('Allow invoices: only for a verified contact; requests park only while it is on', () async {
     final tom = api.seedPaired(name: 'Tom', state: PairingState.paired, paymentsAddress: 'es${'t' * 50}@relay');
     await expectLater(api.setAllowInvoices(tom.id, true), throwsA(isA<WalletError>()));
     final anna = api.seedPaired(name: 'Anna', paymentsAddress: 'es${'a' * 50}@relay');
+    Future<int> parked(String slateId) async {
+      session.relayInvoice(from: 'es${'a' * 50}@relay', slateId: slateId, amount: BigInt.one);
+      return (await session.drainInvoices()).parked;
+    }
+
+    expect(await parked('i0'), 0);
     await api.setAllowInvoices(anna.id, true);
-    expect(session.allowlist, ['es${'a' * 50}@relay']);
+    expect(await parked('i1'), 1);
     await api.setAllowInvoices(anna.id, false);
-    expect(session.allowlist, isEmpty);
+    expect(await parked('i2'), 0);
   });
 
   test('keys changed: the old record stays aside; Keep the old keys brings it back', () async {
@@ -105,7 +111,8 @@ void main() {
     expect(changed.state, PairingState.keysChanged);
     expect(changed.contactId, 'c1');
     expect((await api.pairingForContact('c1'))!.id, changed.id);
-    expect(session.allowlist, isEmpty, reason: 'nothing parks while the keys are in question');
+    session.relayInvoice(from: 'es${'a' * 50}@relay', slateId: 'i1', amount: BigInt.one);
+    expect((await session.drainInvoices()).parked, 0, reason: 'nothing parks while the keys are in question');
     final back = await api.resolveKeysChanged(changed.id, KeysChoice.keepOld);
     expect((back.id, back.state, back.allowInvoices), (old.id, PairingState.verified, true));
     expect(await api.pairing(changed.id), isNull);

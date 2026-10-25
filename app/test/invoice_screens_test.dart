@@ -38,7 +38,6 @@ String _address(String c, [String relay = 'epicbox.epiccash.com']) =>
 
 /// The service the user trusts as "My Exchange", on a relay whose name says something else.
 final String _shop = _address('S', 'binance.example.com');
-final String _other = _address('T');
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -124,7 +123,7 @@ class _Harness {
     String? message = 'Order 1042',
     Duration expiresIn = const Duration(hours: 24),
   }) async {
-    if (session.allowlist.isEmpty) {
+    if (session.pairing.records.isEmpty) {
       session.pairing.seedPaired(name: 'My Exchange', kind: PairingParty.exchange, allowInvoices: true, paymentsAddress: _shop);
     }
     session.relayInvoice(
@@ -422,21 +421,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('My Exchange'), findsNothing);
       expect(find.text(_l.invoicesEmpty), findsOneWidget);
-    });
-
-    testWidgets('names a service with a lost label without the invoice', (
-      tester,
-    ) async {
-      final h = _Harness();
-      h.session.allowlist.add(_other);
-      h.session.relayInvoice(
-        from: _other,
-        slateId: 'x',
-        amount: _epic(1),
-        message: 'From Binance support',
-      );
-      await h.pump(tester, const InvoicesScreen());
-      expect(find.text(_l.invoicesUnnamedService), findsOneWidget);
     });
   });
 

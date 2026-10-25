@@ -129,7 +129,6 @@ void main() {
       all(txFlowWire, TxFlow.values);
       all(txSourceWire, TxSource.values);
       all(txStatusWire, TxStatus.values);
-      all(peerCapabilityWire, PeerCapability.values);
       all(invoiceStatusWire, InvoiceStatus.values);
       all(invoiceEventKindWire, InvoiceEventKind.values);
       all(issuedInvoiceStateWire, IssuedInvoiceState.values);

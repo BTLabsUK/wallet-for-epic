@@ -419,14 +419,14 @@ FakeWalletSession _previewSession() {
           );
       })
       .then(
-        (_) => session.issueInvoice(
+        (_) => session.issueToContact(
           amount: _epic(25),
           address: anna,
           message: 'Concert tickets, Friday',
         ),
       )
       .then(
-        (_) => session.issueInvoice(
+        (_) => session.issueToContact(
           amount: _epic(12),
           address: anna,
           message: 'Pizza',

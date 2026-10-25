@@ -4311,19 +4311,6 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
   }
 
-  @override
-  Future<PeerCapability> peerCapability(String address) async {
-    try {
-      return switch (await _open.peerCapability(address: address.trim())) {
-        core.PeerCapability.unknown => PeerCapability.unknown,
-        core.PeerCapability.lepic => PeerCapability.lepic,
-        core.PeerCapability.noInvoices => PeerCapability.noInvoices,
-      };
-    } on core.WalletError catch (e) {
-      throw invoiceError(e);
-    }
-  }
-
   // ---- Helpers.
 
   /// The open wallet's automatic reposts and resends; a new one per unlock.

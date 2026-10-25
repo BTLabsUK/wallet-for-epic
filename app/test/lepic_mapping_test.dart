@@ -603,12 +603,6 @@ void main() {
     expect(lepicListenerBounce(bounce), 'inv-4');
   });
 
-  test('peer capabilities map one to one', () {
-    for (final c in lepic.PeerCapability.values) {
-      expect(lepicPeerCapability(c).name, c.name);
-    }
-  });
-
   test('contacts and enrichment answer without reaching LEPIC', () async {
     final session = LepicWalletSession(_NoNativeWallet());
     expect(await session.contacts(), isEmpty);

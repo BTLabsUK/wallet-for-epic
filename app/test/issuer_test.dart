@@ -77,7 +77,7 @@ void main() {
     });
 
     test('issues a request that waits, with a day to run', () async {
-      final issued = await s.issueInvoice(
+      final issued = await s.issueToContact(
         amount: five,
         address: ' $payer ',
         message: '  Dinner  ',
@@ -100,7 +100,7 @@ void main() {
     });
 
     test('cuts the message as Send does', () async {
-      await s.issueInvoice(amount: five, address: payer, message: 'é' * 300);
+      await s.issueToContact(amount: five, address: payer, message: 'é' * 300);
       expect(s.issuedRequests.single.message, 'é' * 128);
     });
 
@@ -108,15 +108,15 @@ void main() {
       'refuses an invalid address, its own addresses and no amount',
       () async {
         await expectLater(
-          s.issueInvoice(amount: five, address: 'not-an-address'),
+          s.issueToContact(amount: five, address: 'not-an-address'),
           invalidArgument('not an epicbox address'),
         );
         await expectLater(
-          s.issueInvoice(amount: five, address: s.address),
+          s.issueToContact(amount: five, address: s.address),
           invalidArgument('own addresses'),
         );
         await expectLater(
-          s.issueInvoice(amount: BigInt.zero, address: payer),
+          s.issueToContact(amount: BigInt.zero, address: payer),
           invalidArgument('above zero'),
         );
         expect(await s.issuedInvoices(), isEmpty);
@@ -129,16 +129,16 @@ void main() {
         message: 'relay',
       );
       await expectLater(
-        s.issueInvoice(amount: five, address: payer),
+        s.issueToContact(amount: five, address: payer),
         throwsA(isA<WalletError>()),
       );
       expect(await s.issuedInvoices(), isEmpty);
     });
 
     test('each payer answer moves the request once, with its event', () async {
-      final a = await s.issueInvoice(amount: five, address: payer);
-      final b = await s.issueInvoice(amount: five, address: payer);
-      final c = await s.issueInvoice(amount: five, address: payer);
+      final a = await s.issueToContact(amount: five, address: payer);
+      final b = await s.issueToContact(amount: five, address: payer);
+      final c = await s.issueToContact(amount: five, address: payer);
       await s.payIssued(a.slateId);
       await s.declineIssued(b.slateId);
       await s.expireIssued(c.slateId);
@@ -177,7 +177,7 @@ void main() {
     });
 
     test('withdraw cancels a waiting request only', () async {
-      final a = await s.issueInvoice(amount: five, address: payer);
+      final a = await s.issueToContact(amount: five, address: payer);
       final withdrawn = await s.withdrawInvoice(slateId: a.slateId);
       expect(withdrawn.state, IssuedInvoiceState.withdrawn);
       expect(s.cancelledTxIds, [a.txId]);
@@ -193,7 +193,7 @@ void main() {
         s.withdrawInvoice(slateId: a.slateId),
         invalidArgument('only a waiting invoice'),
       );
-      final b = await s.issueInvoice(amount: five, address: payer);
+      final b = await s.issueToContact(amount: five, address: payer);
       await s.payIssued(b.slateId);
       await expectLater(
         s.withdrawInvoice(slateId: b.slateId),
@@ -207,9 +207,8 @@ void main() {
     });
 
     test('a bounce withdraws that request once and names its payer', () async {
-      final a = await s.issueInvoice(amount: five, address: payer);
-      final b = await s.issueInvoice(amount: five, address: addr('Q'));
-      expect(await s.peerCapability(address: payer), PeerCapability.unknown);
+      final a = await s.issueToContact(amount: five, address: payer);
+      final b = await s.issueToContact(amount: five, address: addr('Q'));
       await s.bounceIssued(a.slateId);
       await s.bounceIssued(a.slateId);
       await settle();
@@ -229,12 +228,11 @@ void main() {
         (await s.issuedInvoice(slateId: b.slateId))!.state,
         IssuedInvoiceState.waiting,
       );
-      expect(await s.peerCapability(address: payer), PeerCapability.noInvoices);
       expectNothingSpent(s);
     });
 
     test('a drain sweeps requests whose day ran out', () async {
-      final a = await s.issueInvoice(amount: five, address: payer);
+      final a = await s.issueToContact(amount: five, address: payer);
       await s.drainPayments();
       expect(
         (await s.issuedInvoice(slateId: a.slateId))!.state,
@@ -251,7 +249,7 @@ void main() {
     test('every issuer call is refused without invoices', () async {
       s.invoicesSupported = false;
       for (final call in <Future<Object?> Function()>[
-        () => s.issueInvoice(amount: five, address: payer),
+        () => s.issueToContact(amount: five, address: payer),
         s.issuedInvoices,
         () => s.issuedInvoice(slateId: 'x'),
         () => s.withdrawInvoice(slateId: 'x'),
@@ -273,12 +271,12 @@ void main() {
       final first = FakeWalletSession(
         invoiceHistory: await WalletHistory.open(dir.path, Chain.floonet),
       )..clock = () => DateTime.utc(2026, 10, 5, 12, 0, 0, 750);
-      final a = await first.issueInvoice(
+      final a = await first.issueToContact(
         amount: five,
         address: payer,
         message: 'Dinner',
       );
-      final b = await first.issueInvoice(amount: BigInt.one, address: payer);
+      final b = await first.issueToContact(amount: BigInt.one, address: payer);
       await first.payIssued(b.slateId);
       first.invoiceHistory.close();
 
@@ -310,7 +308,7 @@ void main() {
     test('are not part of a history file', () async {
       final history = await WalletHistory.open(dir.path, Chain.floonet);
       final s = FakeWalletSession(invoiceHistory: history);
-      await s.issueInvoice(amount: five, address: payer);
+      await s.issueToContact(amount: five, address: payer);
       final payload = history.exportPayload(
         const [],
         walletFp: 'fp',
@@ -356,7 +354,7 @@ void main() {
       c.listen(paymentsDrainProvider, (_, _) {});
       c.read(sessionProvider.notifier).unlocked(s);
       await settle();
-      final issued = await s.issueInvoice(amount: five, address: payer);
+      final issued = await s.issueToContact(amount: five, address: payer);
       await s.bounceIssued(issued.slateId);
       await settle();
       final first = c.read(issuerNoticeProvider)!;
@@ -377,9 +375,8 @@ void main() {
       c.read(sessionProvider.notifier).unlocked(s);
       final sub = c.listen(issuedInvoicesProvider, (_, _) {});
       expect(await c.read(issuedInvoicesProvider.future), isEmpty);
-      final a = await c
-          .read(issuedInvoicesProvider.notifier)
-          .issue(amount: five, address: payer, message: 'Dinner');
+      final a = await s.issueToContact(amount: five, address: payer, message: 'Dinner');
+      c.invalidate(issuedInvoicesProvider);
       expect(await c.read(issuedInvoicesProvider.future), [a]);
 
       final details = c.listen(issuedInvoiceProvider(a.slateId), (_, _) {});
@@ -395,9 +392,8 @@ void main() {
         IssuedInvoiceState.paid,
       );
 
-      final b = await c
-          .read(issuedInvoicesProvider.notifier)
-          .issue(amount: five, address: payer);
+      final b = await s.issueToContact(amount: five, address: payer);
+      c.invalidate(issuedInvoicesProvider);
       await c.read(issuedInvoicesProvider.notifier).withdraw(b.slateId);
       expect(
         (await c.read(issuedInvoicesProvider.future)).first.state,

@@ -523,22 +523,11 @@ abstract interface class WalletSession {
   /// them. Informational: no event pays or cancels anything.
   Stream<InvoiceEvent> invoiceEvents();
 
-  // Issuing invoices (I-05): the user asks someone to pay them. The request goes to the
-  // payer's invoice address; the payment comes back to [epicboxAddress], where the listener
-  // or [drainPayments] finalizes and posts it. Nothing here spends from this wallet, so no
-  // call needs the PIN. Every call throws [invoicesUnsupported] when [supportsInvoices] is
-  // false.
-
-  /// Sends the payer at [address], their invoice address, a request for [amount].
-  /// [message] is cut with [cutMessage] and signed into it. Throws
-  /// [WalletErrorKind.invalidArgument] for an address that is not an epicbox address on this
-  /// chain or is one of this wallet's own, and [WalletErrorKind.transportFailed] when the
-  /// relay did not take it, in which case nothing stays behind.
-  Future<IssuedInvoice> issueInvoice({
-    required BigInt amount,
-    required String address,
-    String? message,
-  });
+  // Issued invoices (I-05): the user asked someone to pay them, a paired contact through
+  // [PairingApi.requestPayment] or anyone with a file ([PairingApi.requestFile]). The payment
+  // comes back to [epicboxAddress], where the listener or [drainPayments] finalizes and posts
+  // it. Nothing here spends from this wallet, so no call needs the PIN. Every call throws
+  // [invoicesUnsupported] when [supportsInvoices] is false.
 
   /// Invoices this wallet issued, newest first, with their current state.
   Future<List<IssuedInvoice>> issuedInvoices();
@@ -558,10 +547,6 @@ abstract interface class WalletSession {
 
   /// What happened to issued invoices, as drains, the listener and sweeps find it.
   Stream<IssuerEvent> issuerEvents();
-
-  /// What this wallet learned about the payer at [address] from their own messages, for a
-  /// warning before a request: [PeerCapability.noInvoices] once one sent a request back.
-  Future<PeerCapability> peerCapability({required String address});
 }
 
 /// The error of an invoice call on a core without them.
@@ -2280,8 +2265,7 @@ class FakeWalletSession implements WalletSession {
   }
 
   // Invoices. The fake plays the wallet's half: an invoice parks only from a sender the
-  // wallet allows ([allowlist], which pairing fills for a verified contact with Allow
-  // invoices on), and issued invoices' states live in [invoiceHistory], as the LEPIC session
+  // wallet allows (a verified paired contact with Allow invoices on, [FakePairing]), and issued invoices' states live in [invoiceHistory], as the LEPIC session
   // keeps them. Tests and the tour drive it with [relayInvoice], [relayNotice], [clock] and
   // [replyError]; [drainInvoices] picks up what was relayed.
 
@@ -2294,8 +2278,6 @@ class FakeWalletSession implements WalletSession {
   /// Now, for expiry. Tests move it forward.
   DateTime Function() clock = DateTime.now;
 
-  /// The senders whose invoices park: their epicbox addresses, matched on the key.
-  final List<String> allowlist = [];
 
   /// Waiting at the relay until the next [drainInvoices].
   final List<_Relayed> _relay = [];
@@ -2322,7 +2304,7 @@ class FakeWalletSession implements WalletSession {
       StreamController<InvoiceEvent>.broadcast();
 
   /// An invoice from [from] waiting at the relay. Parked by the next drain only if [from]'s
-  /// key is on the allowlist and [expiresIn] is at most [maxInvoiceExpiry]; dropped
+  /// key is a verified paired contact's with Allow invoices on and [expiresIn] is at most [maxInvoiceExpiry]; dropped
   /// otherwise.
   void relayInvoice({
     required String from,
@@ -2396,8 +2378,12 @@ class FakeWalletSession implements WalletSession {
     }
   }
 
-  bool _trusted(String from) =>
-      allowlist.any((a) => epicboxKey(a) == epicboxKey(from));
+  /// A request parks only from a verified paired contact with Allow invoices on (RFC 11.1),
+  /// as LEPIC's contact invoices do.
+  bool _trusted(String from) {
+    final r = pairing.recordFor(from);
+    return r != null && r.state == PairingState.verified && r.allowInvoices;
+  }
 
   @override
   bool get supportsInvoices => invoicesSupported;
@@ -2590,19 +2576,15 @@ class FakeWalletSession implements WalletSession {
   // states in [invoiceHistory], as the LEPIC session keeps them; the payer's side is played
   // by [payIssued], [declineIssued], [expireIssued] and [bounceIssued].
 
-  /// When set, [issueInvoice] throws it and records nothing, as LEPIC does when the relay
-  /// does not take the invoice.
+  /// When set, [issueToContact] throws it and records nothing, as LEPIC does when the relay
+  /// does not take the request.
   WalletError? issueError;
 
-  /// Every [issueInvoice] that got past its checks, with what it sent.
+  /// Every request that got past its checks, with what it sent.
   final List<({BigInt amount, String to, String? message})> issuedRequests = [];
 
   /// Number of [drainPayments] calls.
   int drainPaymentCalls = 0;
-
-  /// What [peerCapability] answers, by epicbox key; [PeerCapability.unknown] otherwise.
-  /// [bounceIssued] sets [PeerCapability.noInvoices], as LEPIC does.
-  final Map<String, PeerCapability> peerCapabilities = {};
 
   final StreamController<IssuerEvent> issuerEventsController =
       StreamController<IssuerEvent>.broadcast();
@@ -2650,13 +2632,14 @@ class FakeWalletSession implements WalletSession {
     );
   }
 
-  @override
-  Future<IssuedInvoice> issueInvoice({
+  /// A request to the paired contact whose payments address is [address]
+  /// ([FakePairing.requestPayment]): kept as an incoming invoice waiting for its payer.
+  Future<IssuedInvoice> issueToContact({
     required BigInt amount,
     required String address,
     String? message,
   }) async {
-    _requireInvoices('issueInvoice');
+    _requireInvoices('requestPayment');
     final to = address.trim();
     // Its own addresses first: the fake's are not valid epicbox addresses.
     final own = [this.address];
@@ -2778,13 +2761,6 @@ class FakeWalletSession implements WalletSession {
     return issuerEventsController.stream;
   }
 
-  @override
-  Future<PeerCapability> peerCapability({required String address}) async {
-    _requireInvoices('peerCapability');
-    return peerCapabilities[epicboxKey(address.trim())] ??
-        PeerCapability.unknown;
-  }
-
   /// The payer paid [slateId]; the wallet finalized and posted it.
   Future<void> payIssued(String slateId) =>
       _settleIssued(slateId, IssuedInvoiceState.paid);
@@ -2797,16 +2773,9 @@ class FakeWalletSession implements WalletSession {
   Future<void> expireIssued(String slateId) =>
       _settleIssued(slateId, IssuedInvoiceState.expired);
 
-  /// The payer's wallet sent [slateId] back unpaid: the wallet withdraws it once and learns
-  /// that payer cannot pay invoices, as the LEPIC session does. Call it again for a bounce
-  /// LEPIC delivers twice.
-  Future<void> bounceIssued(String slateId) async {
-    final payer = _request(slateId)?.payerAddress;
-    if (payer != null) {
-      peerCapabilities[epicboxKey(payer)] = PeerCapability.noInvoices;
-    }
-    await _endIssued(slateId, IssuedInvoiceState.bounced);
-  }
+  /// The payer's wallet sent [slateId] back unpaid: the wallet withdraws it once, as the
+  /// LEPIC session does. Call it again for a bounce LEPIC delivers twice.
+  Future<void> bounceIssued(String slateId) => _endIssued(slateId, IssuedInvoiceState.bounced);
 
   Future<void> _endIssued(String slateId, IssuedInvoiceState state) async {
     final issued = _request(slateId);

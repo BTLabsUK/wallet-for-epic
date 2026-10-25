@@ -1174,23 +1174,6 @@ class IssuedInvoicesNotifier extends AsyncNotifier<List<IssuedInvoice>> {
   WalletSession get _session =>
       _invoiceSession(ref) ?? (throw StateError('No wallet with invoices'));
 
-  /// Asks the payer at [address] for [amount]. Throws [WalletError] for an address that
-  /// cannot take it, or when the relay did not.
-  Future<IssuedInvoice> issue({
-    required BigInt amount,
-    required String address,
-    String? message,
-  }) async {
-    final issued = await _session.issueInvoice(
-      amount: amount,
-      address: address,
-      message: message,
-    );
-    ref.invalidateSelf();
-    await future;
-    return issued;
-  }
-
   /// Withdraws a waiting request. The user confirms first.
   Future<IssuedInvoice> withdraw(String slateId) async {
     final withdrawn = await _session.withdrawInvoice(slateId: slateId);

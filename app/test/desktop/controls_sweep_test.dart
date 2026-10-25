@@ -325,8 +325,6 @@ class _Recorder implements DeskWalletApi {
   PairingApi get pairing => _m.pairing;
   @override
   Future<void> setInvoiceExpiry(Duration expiry) => _r('setInvoiceExpiry', () => _m.setInvoiceExpiry(expiry));
-  @override
-  Future<PeerCapability> peerCapability(String address) => _r('peerCapability', () => _m.peerCapability(address));
 }
 
 /// One pressable control: its kind and label, found again by them on a fresh app.

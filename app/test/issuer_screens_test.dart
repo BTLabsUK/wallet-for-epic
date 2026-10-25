@@ -122,7 +122,7 @@ class _Harness {
 
   /// One request to the payer, as the form sends it.
   Future<IssuedInvoice> issue({num amount = 2.5, String? message}) => session
-      .issueInvoice(amount: _epic(amount), address: _payer, message: message);
+      .issueToContact(amount: _epic(amount), address: _payer, message: message);
 
   Future<void> pump(
     WidgetTester tester,

@@ -1573,18 +1573,6 @@ enum TxKind { coinbase, received, sent, receivedCancelled, sentCancelled }
 /// this wallet (a request) and an outgoing one paid by it.
 enum TxFlow { payment, invoice }
 
-/// What this wallet learned about a payer from its own messages, for the request form.
-enum PeerCapability {
-  /// Nothing yet.
-  unknown,
-
-  /// It proved it runs LEPIC: it pays requests.
-  lepic,
-
-  /// It sent a request back unpaid, as a stock `epic-wallet` does: it cannot pay requests.
-  noInvoices,
-}
-
 /// Where a transaction row comes from.
 enum TxSource {
   /// Made by this wallet (live in epic-wallet's log).

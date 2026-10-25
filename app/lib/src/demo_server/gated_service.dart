@@ -588,13 +588,6 @@ class GatedWalletSession implements WalletSession {
   Stream<InvoiceEvent> invoiceEvents() => _inner.invoiceEvents();
 
   @override
-  Future<IssuedInvoice> issueInvoice({
-    required BigInt amount,
-    required String address,
-    String? message,
-  }) => _inner.issueInvoice(amount: amount, address: address, message: message);
-
-  @override
   Future<List<IssuedInvoice>> issuedInvoices() => _inner.issuedInvoices();
 
   @override
@@ -610,8 +603,4 @@ class GatedWalletSession implements WalletSession {
 
   @override
   Stream<IssuerEvent> issuerEvents() => _inner.issuerEvents();
-
-  @override
-  Future<PeerCapability> peerCapability({required String address}) =>
-      _inner.peerCapability(address: address);
 }

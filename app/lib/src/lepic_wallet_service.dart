@@ -401,12 +401,6 @@ SelfSentTx lepicSelfSentTx(lepic.SelfSentTx t) => SelfSentTx(
   outputCount: t.outputCount,
 );
 
-PeerCapability lepicPeerCapability(lepic.PeerCapability c) => switch (c) {
-  lepic.PeerCapability.unknown => PeerCapability.unknown,
-  lepic.PeerCapability.lepic => PeerCapability.lepic,
-  lepic.PeerCapability.noInvoices => PeerCapability.noInvoices,
-};
-
 /// LEPIC's answer to a received slate as the app's, keeping whether it was a repeat.
 ReceivedSlate lepicReceivedSlate(lepic.ReceivedSlate s) =>
     ReceivedSlate(slateId: s.slateId, json: s.json, repeated: s.repeated);
@@ -2221,8 +2215,11 @@ class LepicWalletSession implements WalletSession {
     );
   }
 
-  @override
-  Future<IssuedInvoice> issueInvoice({
+  /// Asks the wallet at [address] for [amount] and keeps the request: the checks, the cut
+  /// message, an undelivered request cancelled, the archive's record. No longer in the
+  /// interface: requests go to a paired contact ([PairingApi.requestPayment]). Phase 2b (U-24)
+  /// sends through LEPIC's contact_issue_invoice here; the bookkeeping stays.
+  Future<IssuedInvoice> issueToAddress({
     required BigInt amount,
     required String address,
     String? message,
@@ -2393,13 +2390,6 @@ class LepicWalletSession implements WalletSession {
       bounced: report.bounced,
     );
   });
-
-  @override
-  Future<PeerCapability> peerCapability({required String address}) => _epicboxGuard('peer capability', 
-    () async => lepicPeerCapability(
-      await _wallet.peerCapability(address: address.trim()),
-    ),
-  );
 
   @override
   Stream<IssuerEvent> issuerEvents() {

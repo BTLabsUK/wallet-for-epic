@@ -281,17 +281,6 @@ class IncomingInvoice {
   );
 }
 
-/// What LEPIC learned of a payer's wallet (U-20 `peer_capability`).
-enum PeerCapability {
-  /// Nothing known yet.
-  unknown,
-
-  /// A LEPIC wallet: pays requests and sends notices.
-  lepic,
-
-  /// It sent a request back before: it cannot pay requests.
-  noInvoices,
-}
 
 /// The last check of the paired contacts' mailboxes (the collect) and the payments address.
 enum InvoiceCheck { ok, checking, failed }

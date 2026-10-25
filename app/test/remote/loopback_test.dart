@@ -797,17 +797,15 @@ void main() {
       final events = <IssuerEvent>[];
       final sub = s.issuerEvents().listen(events.add);
       await settle();
-      final issued = await s.issueInvoice(
-        amount: BigInt.from(500),
-        address: payerAddress,
-        message: 'lunch',
-      );
+      // A request goes to a paired contact; the issued invoice is the wallet's either way.
+      final payer = session.pairing.seedPaired(name: 'Payer', paymentsAddress: payerAddress);
+      final issued = await s.pairing.requestPayment(id: payer.id, amount: BigInt.from(500), message: 'lunch');
       expect(issued.state, IssuedInvoiceState.waiting);
       expect(issued.message, 'lunch');
       expect(issued.issuedAt, now);
       expect(session.issuedRequests.single.to, payerAddress);
       await expectLater(
-        s.issueInvoice(amount: BigInt.zero, address: payerAddress),
+        s.pairing.requestPayment(id: payer.id, amount: BigInt.zero),
         throwsKind(WalletErrorKind.invalidArgument),
       );
       expect(await s.issuedInvoices(), [issued]);
@@ -821,16 +819,6 @@ void main() {
       );
       expect(await s.drainPayments(), const PaymentsDrainReport());
       expect(session.drainPaymentCalls, 1);
-      session.peerCapabilities[epicboxKey(payerAddress)] =
-          PeerCapability.noInvoices;
-      expect(
-        await s.peerCapability(address: payerAddress),
-        PeerCapability.noInvoices,
-      );
-      expect(
-        await s.peerCapability(address: serviceAddress),
-        PeerCapability.unknown,
-      );
       await settle();
       expect(events, [
         IssuerEvent(

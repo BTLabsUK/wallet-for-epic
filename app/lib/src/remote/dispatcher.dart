@@ -573,14 +573,6 @@ class WalletDispatcher {
       nullable(paidInvoiceWire),
     ),
     SessionMember.invoiceEvents => _many(s.invoiceEvents(), invoiceEventWire),
-    SessionMember.issueInvoice => _once(
-      s.issueInvoice(
-        amount: p.of('amount', bigIntWire),
-        address: p.of('address', stringWire),
-        message: p.of('message', optString),
-      ),
-      issuedInvoiceWire,
-    ),
     SessionMember.issuedInvoices => _once(
       s.issuedInvoices(),
       listOf(issuedInvoiceWire),
@@ -696,11 +688,6 @@ class WalletDispatcher {
     SessionMember.pairingPlainSlate => _once(s.pairing.plainSlate(p.of('key', stringWire)), stringWire),
     SessionMember.pairingUseImported => _once(s.pairing.useImportedPairings(), intWire),
     SessionMember.pairingEvents => _many(s.pairing.events(), pairingEventWire),
-
-    SessionMember.peerCapability => _once(
-      s.peerCapability(address: p.of('address', stringWire)),
-      peerCapabilityWire,
-    ),
   };
 }
 

@@ -251,13 +251,6 @@ class InvoiceProto {
     return i;
   }
 
-  PeerCapability capability(String address) {
-    final key = addressKey(address);
-    if (key == addressKey(_olaAddr)) return PeerCapability.noInvoices;
-    if (key == addressKey(_annaAddr) || key == addressKey(_tomAddr)) return PeerCapability.lepic;
-    return PeerCapability.unknown;
-  }
-
   /// Expiries the wallet's sweep applies (flow.md §3.3, §4.4, §4.5).
   void _sweep() {
     for (final r in [...sent]) {

@@ -127,30 +127,7 @@ class FakePairing implements PairingApi {
     } else {
       records.insert(0, r);
     }
-    _syncAllowlist();
   }
-
-  /// Keeps the session's invoice allowlist to the verified contacts with Allow invoices on.
-  void _syncAllowlist() {
-    final s = session;
-    if (s == null) return;
-    final allowed = {
-      for (final r in records)
-        if (r.state == PairingState.verified && r.allowInvoices && r.paymentsAddress != null) epicboxKey(r.paymentsAddress!),
-    };
-    s.allowlist.removeWhere((a) => _pairedKeys.contains(epicboxKey(a)) && !allowed.contains(epicboxKey(a)));
-    for (final r in records) {
-      final a = r.paymentsAddress;
-      if (a != null && allowed.contains(epicboxKey(a)) && !s.allowlist.any((e) => epicboxKey(e) == epicboxKey(a))) {
-        s.allowlist.add(a);
-      }
-    }
-  }
-
-  Set<String> get _pairedKeys => {
-    for (final r in records)
-      if (r.paymentsAddress != null) epicboxKey(r.paymentsAddress!),
-  };
 
   /// The pairing whose contact sends from [address], matched on the key, or null.
   PairingRecord? recordFor(String address) {
@@ -606,8 +583,7 @@ class FakePairing implements PairingApi {
         return verified;
       case PairingCheck.mismatch:
         records.removeWhere((e) => e.id == id);
-        _syncAllowlist();
-        return null;
+            return null;
       case PairingCheck.skip:
         final skipped = r.copyWith(checkSkipped: true);
         _put(skipped);
@@ -636,7 +612,6 @@ class FakePairing implements PairingApi {
     _require('removePairing');
     calls.add('remove');
     records.removeWhere((r) => r.id == id);
-    _syncAllowlist();
   }
 
   @override
@@ -732,7 +707,7 @@ class FakePairing implements PairingApi {
     final s = session;
     if (s == null) throw pairingUnsupported('requestPayment');
     calls.add('request');
-    return s.issueInvoice(amount: amount, address: r.paymentsAddress!, message: message);
+    return s.issueToContact(amount: amount, address: r.paymentsAddress!, message: message);
   }
 
   @override

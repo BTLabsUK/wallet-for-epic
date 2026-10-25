@@ -1066,17 +1066,6 @@ class RemoteWalletSession implements WalletSession {
       _stream(SessionMember.invoiceEvents, invoiceEventWire);
 
   @override
-  Future<IssuedInvoice> issueInvoice({
-    required BigInt amount,
-    required String address,
-    String? message,
-  }) => _call(SessionMember.issueInvoice, issuedInvoiceWire, {
-    'amount': bigIntWire.encode(amount),
-    'address': address,
-    'message': message,
-  });
-
-  @override
   Future<List<IssuedInvoice>> issuedInvoices() =>
       _call(SessionMember.issuedInvoices, listOf(issuedInvoiceWire));
 
@@ -1101,13 +1090,6 @@ class RemoteWalletSession implements WalletSession {
   @override
   Stream<IssuerEvent> issuerEvents() =>
       _stream(SessionMember.issuerEvents, issuerEventWire);
-
-  @override
-  Future<PeerCapability> peerCapability({required String address}) => _call(
-    SessionMember.peerCapability,
-    peerCapabilityWire,
-    {'address': address},
-  );
 }
 
 /// The server session's [WalletSession.pairing], call for call.

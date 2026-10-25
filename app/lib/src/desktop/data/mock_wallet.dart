@@ -1001,12 +1001,6 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<PeerCapability> peerCapability(String address) async {
-    await _wait(0.2);
-    return proto.capability(address);
-  }
-
-  @override
   Future<List<String>> revealPhrase(String password) async {
     await _wait(2);
     if (password == 'wrong') throw StateError('Wrong password');
