@@ -118,6 +118,10 @@ class DeskWindowFrame extends ConsumerWidget {
               ..._resizeEdges(window),
             ],
           );
+        } else if (window.frameless && !w.maximized && deskWindowStyle == DeskWindowStyle.windows) {
+          // Windows keeps its side and bottom borders, but a hidden caption takes the top one
+          // (window_manager adds none on Windows 11): the top edge and corners resize here.
+          body = Stack(children: [Positioned.fill(child: body), ..._topEdge(window)]);
         }
         body = Stack(
           children: [
@@ -159,6 +163,20 @@ class _Closing extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The top edge (5 px) and its corners (12 px), for Windows.
+List<Widget> _topEdge(DeskWindow window) {
+  const e = 5.0, k = 12.0;
+  Widget edge(ResizeEdge at, MouseCursor cursor) => MouseRegion(
+    cursor: cursor,
+    child: GestureDetector(behavior: HitTestBehavior.opaque, onPanStart: (_) => unawaited(window.startResizing(at))),
+  );
+  return [
+    Positioned(left: k, right: k, top: 0, height: e, child: edge(ResizeEdge.top, SystemMouseCursors.resizeUp)),
+    Positioned(left: 0, top: 0, width: k, height: e, child: edge(ResizeEdge.topLeft, SystemMouseCursors.resizeUpLeft)),
+    Positioned(right: 0, top: 0, width: k, height: e, child: edge(ResizeEdge.topRight, SystemMouseCursors.resizeUpRight)),
+  ];
 }
 
 /// 8 px edges and 16 px corners that resize the window (Linux, where the window has no frame).

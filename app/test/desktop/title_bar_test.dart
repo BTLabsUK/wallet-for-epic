@@ -15,6 +15,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:window_manager/window_manager.dart' show ResizeEdge;
 
 class _Window extends DeskWindow {
+  _Window({this.frame = true});
+
+  /// The app draws the border and all edges (Linux); false: the system's frame (Windows).
+  final bool frame;
   final calls = <String>[];
   final _state = ValueNotifier(const DeskWindowState());
   Future<void> Function()? close;
@@ -23,7 +27,7 @@ class _Window extends DeskWindow {
   bool get frameless => true;
 
   @override
-  bool get drawsFrame => true;
+  bool get drawsFrame => frame;
 
   @override
   ValueListenable<DeskWindowState> get state => _state;
@@ -56,11 +60,11 @@ void main() {
   late _Window window;
   late int quits;
 
-  Future<ProviderContainer> pump(WidgetTester tester, {DeskRoute start = DeskRoute.overview}) async {
+  Future<ProviderContainer> pump(WidgetTester tester, {DeskRoute start = DeskRoute.overview, bool frame = true}) async {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    window = _Window();
+    window = _Window(frame: frame);
     quits = 0;
     final container = ProviderContainer(
       overrides: [
@@ -265,5 +269,15 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('bar-menu-quit')), findsNothing);
+  });
+
+  testWidgets('Windows: the top edge resizes (the hidden caption took the system one)', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
+    await pump(tester, frame: false);
+    await tester.dragFrom(const Offset(640, 1), const Offset(0, 40));
+    await tester.pumpAndSettle();
+    expect(window.calls, contains('resize top'));
+    debugDefaultTargetPlatformOverride = null;
   });
 }
