@@ -13722,7 +13722,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advTechnicalHint =>
-      'Zeigt die technischen Zeilen in den Details einer Zahlung: Kernel, Slate-ID, Commitments und Blockhöhe. Bei Rechnungen die Adressrotation und die Zahl verworfener Nachrichten.';
+      'Zeigt die technischen Zeilen in den Details einer Zahlung: Kernel, Slate-ID, Commitments und Blockhöhe. In den Rechnungs-Einstellungen, wie lange eine Rechnung bezahlbar bleibt.';
 
   @override
   String get advSendOptions => 'Zahlungsoptionen';

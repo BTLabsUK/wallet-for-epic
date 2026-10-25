@@ -13572,7 +13572,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advTechnicalHint =>
-      'Shows the technical rows on a payment\'s details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.';
+      'Shows the technical rows on a payment\'s details: kernel, slate ID, commitments and block height. In Invoices settings, shows how long an invoice stays payable.';
 
   @override
   String get advSendOptions => 'Send options';

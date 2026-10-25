@@ -233,6 +233,19 @@ void main() {
       expect(find.byType(PairOnlineScreen), findsNothing);
     });
 
+    testWidgets('pairing words opened again: the open invite shows again, no new one each visit', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const PairingWordsScreen());
+      final first = h.api.records.single;
+      await tester.pumpWidget(const SizedBox());
+      await h.pump(tester, const PairingWordsScreen());
+      expect(h.api.records.single.id, first.id);
+      expect(h.api.calls.where((c) => c == 'makeInvite'), hasLength(1));
+      for (final w in first.inviteWords) {
+        expect(find.text(w.name), findsOneWidget, reason: w.name);
+      }
+    });
+
     testWidgets('pairing words: five of them, good for 10 minutes', (tester) async {
       final h = _Harness();
       await h.pump(tester, const PairingWordsScreen());

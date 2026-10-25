@@ -13995,7 +13995,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advTechnicalHint =>
-      'Pokazuje wiersze techniczne w szczegółach płatności: kernel, ID slate, commitmenty i wysokość bloku. W Fakturach pokazuje rotację adresów i liczbę odrzuconych wiadomości.';
+      'Pokazuje wiersze techniczne w szczegółach płatności: kernel, ID slate, commitmenty i wysokość bloku. W ustawieniach Faktur pokazuje, jak długo faktura pozostaje do zapłaty.';
 
   @override
   String get advSendOptions => 'Opcje wysyłki';

@@ -790,10 +790,41 @@ class _PairingWordsScreenState extends ConsumerState<PairingWordsScreen> {
       }
     });
     if (_invite == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _make());
+      WidgetsBinding.instance.addPostFrameCallback((_) => _start());
     } else {
       _armExpiry();
     }
+  }
+
+  /// A words invite still open from a visit before shows again, not a new one each time.
+  Future<void> _start() async {
+    final open = await _openWordsInvite();
+    if (!mounted) return;
+    if (open == null) return _make();
+    setState(() => _invite = open);
+    _armExpiry();
+  }
+
+  /// This wallet's unanswered words invite for the same contact with 2 minutes or more left.
+  Future<PairingRecord?> _openWordsInvite() async {
+    final List<PairingRecord> all;
+    try {
+      all = await ref.read(pairingsProvider.future);
+    } catch (_) {
+      return null;
+    }
+    final now = ref.read(pairingClockProvider)();
+    final contactId = widget.contact?.id;
+    return all
+        .where(
+          (r) =>
+              r.state == PairingState.pendingInvite &&
+              r.inviteWords.isNotEmpty &&
+              r.contactId == contactId &&
+              r.expiresAt != null &&
+              r.expiresAt!.difference(now) >= const Duration(minutes: 2),
+        )
+        .firstOrNull;
   }
 
   @override

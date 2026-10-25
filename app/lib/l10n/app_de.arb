@@ -3532,7 +3532,7 @@
   "advOutputs": "Outputs",
   "advOutputsHint": "Zeigt die Seite Outputs unter Wallet und auf der Startseite. Sie listet die Coins, aus denen das Guthaben besteht, lässt Sie sie aufteilen oder zusammenführen und legt die Vorgaben für Zahlungen fest. Eine laufende Aufteilung oder Zusammenführung hält die Seite sichtbar.",
   "advTechnical": "Technische Details",
-  "advTechnicalHint": "Zeigt die technischen Zeilen in den Details einer Zahlung: Kernel, Slate-ID, Commitments und Blockhöhe. Bei Rechnungen die Adressrotation und die Zahl verworfener Nachrichten.",
+  "advTechnicalHint": "Zeigt die technischen Zeilen in den Details einer Zahlung: Kernel, Slate-ID, Commitments und Blockhöhe. In den Rechnungs-Einstellungen, wie lange eine Rechnung bezahlbar bleibt.",
   "advSendOptions": "Zahlungsoptionen",
   "advSendOptionsHint": "Zeigt Strategie für Zahlungen und Wechselgeld aufteilen unter Einstellungen › Transaktionen: welche Outputs eine Zahlung verbraucht und ob ihr Wechselgeld aufgeteilt wird. Bleibt sichtbar, solange einer der Werte nicht der Vorgabe entspricht.",
   "advServerDetails": "Server-Details",

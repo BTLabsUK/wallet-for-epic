@@ -17873,7 +17873,7 @@
   "@advTechnical": {
     "description": "Advanced switch: technical rows on transactions."
   },
-  "advTechnicalHint": "Shows the technical rows on a payment's details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.",
+  "advTechnicalHint": "Shows the technical rows on a payment's details: kernel, slate ID, commitments and block height. In Invoices settings, shows how long an invoice stays payable.",
   "@advTechnicalHint": {
     "description": "Info sheet of the Technical details switch."
   },

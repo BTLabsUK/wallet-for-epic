@@ -3532,7 +3532,7 @@
   "advOutputs": "Wyjścia",
   "advOutputsHint": "Pokazuje stronę Wyjścia pod Portfelem i na ekranie głównym. Wymienia monety, z których składa się saldo, pozwala je dzielić lub scalać i ustawia domyślne zasady wysyłki. Trwający podział lub scalanie utrzymuje stronę widoczną.",
   "advTechnical": "Szczegóły techniczne",
-  "advTechnicalHint": "Pokazuje wiersze techniczne w szczegółach płatności: kernel, ID slate, commitmenty i wysokość bloku. W Fakturach pokazuje rotację adresów i liczbę odrzuconych wiadomości.",
+  "advTechnicalHint": "Pokazuje wiersze techniczne w szczegółach płatności: kernel, ID slate, commitmenty i wysokość bloku. W ustawieniach Faktur pokazuje, jak długo faktura pozostaje do zapłaty.",
   "advSendOptions": "Opcje wysyłki",
   "advSendOptionsHint": "Pokazuje Strategię wysyłki i Podziel resztę w Ustawienia › Transakcje: które wyjścia wydaje wysyłka i czy jej reszta jest dzielona. Pozostaje widoczne, dopóki któraś z nich nie jest domyślna.",
   "advServerDetails": "Szczegóły serwerów",

@@ -12864,7 +12864,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advTechnicalHint =>
-      '在付款详情中显示技术信息行：内核、slate ID、承诺和区块高度。在“账单”中显示地址轮换和被丢弃消息的数量。';
+      '在付款详情中显示技术信息行：内核、slate ID、承诺和区块高度。在“账单”设置中显示账单可付款的时长。';
 
   @override
   String get advSendOptions => '发送选项';

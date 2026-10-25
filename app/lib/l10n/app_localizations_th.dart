@@ -13303,7 +13303,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advTechnicalHint =>
-      'แสดงแถวทางเทคนิคในรายละเอียดของรายการ ได้แก่ kernel, slate ID, commitment และความสูงบล็อก ใน ใบแจ้งหนี้ จะแสดงการหมุนเวียนที่อยู่และจำนวนข้อความที่ถูกทิ้ง';
+      'แสดงแถวทางเทคนิคในรายละเอียดของรายการ ได้แก่ kernel, slate ID, commitment และความสูงบล็อก ในการตั้งค่า ใบแจ้งหนี้ จะแสดงว่าใบแจ้งหนี้ชำระได้นานเท่าใด';
 
   @override
   String get advSendOptions => 'ตัวเลือกการส่ง';

@@ -21455,7 +21455,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Technical details switch.
   ///
   /// In en, this message translates to:
-  /// **'Shows the technical rows on a payment\'s details: kernel, slate ID, commitments and block height. In Invoices, shows the address rotation and the count of dropped messages.'**
+  /// **'Shows the technical rows on a payment\'s details: kernel, slate ID, commitments and block height. In Invoices settings, shows how long an invoice stays payable.'**
   String get advTechnicalHint;
 
   /// Advanced switch: strategy and split change on Send.
