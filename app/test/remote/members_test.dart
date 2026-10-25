@@ -38,7 +38,7 @@ void main() {
     final members = interfaceMembers(source, 'WalletSession');
     expect(
       members,
-      containsAll(['dispose', 'supportsInvoices', 'peerCapability']),
+      containsAll(['dispose', 'supportsInvoices', 'pairing']),
     );
     expect(members, {
       for (final m in SessionMember.values)

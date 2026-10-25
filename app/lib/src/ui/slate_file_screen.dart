@@ -286,7 +286,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         ),
       ];
     } else if (_response case final response?) {
-      final name = responseFileName(info!.slateId);
+      // A sealed answer is its own file type (RFC 3.5).
+      final name = _sealedAnswer != null ? sealedFileName(info!.slateId) : responseFileName(info!.slateId);
       body = [
         _Headline(
           icon: Icons.check_circle,
@@ -323,7 +324,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           ),
           const SizedBox(height: 12),
           SlateFileButtons(
-            name: sealedFileName(info.slateId),
+            name: name,
             json: sealed,
             copyable: widget.pasted,
           ),

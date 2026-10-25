@@ -439,14 +439,14 @@ void main() {
       final amount = tester.widget<Text>(find.byKey(invoiceReviewAmountKey));
       expect(amount.data, formatEpic(_epic(8), grouped: true));
       expect(amount.style?.fontSize, 34);
-      // The relay's name only inside the full address under From, never as a name.
+      // A contact's request names the contact: no mailbox address, no relay name (RFC C-21).
       expect(
         find.byWidgetPredicate(
           (w) => w is Text && (w.data ?? '').contains('binance.example'),
         ),
         findsNothing,
       );
-      expect(find.text(_l.invoicesFrom), findsOneWidget);
+      expect(find.text(_l.invoicesFrom), findsNothing);
       final line = invoiceMessageLine(hostile)!;
       expect(line, isNot(contains('\n')));
       expect(line, isNot(contains('\u202E')));

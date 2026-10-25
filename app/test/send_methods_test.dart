@@ -1308,7 +1308,7 @@ void main() {
       await toFile(tester);
       expect(find.text(l.trustSealedFor('Bob')), findsOneWidget);
       await _tap(tester, makeFile());
-      expect(find.text(l.sendSealedTitle('Bob')), findsOneWidget);
+      expect(find.text(l.sendSealedTitle('Bob'), skipOffstage: false), findsOneWidget);
       expect(find.text(l.sendSealedBody('Bob')), findsOneWidget);
       expect(find.text(sealedFileName(h.session.sendSlate.slateId)), findsOneWidget);
       expect(h.session.pairing.calls, contains('seal'));
@@ -1317,12 +1317,12 @@ void main() {
       expect(find.text(l.sendAsPlainTitle), findsOneWidget);
       expect(find.text(l.sendAsPlainBody), findsOneWidget);
       await _tap(tester, find.text(l.sendKeepSealed));
-      expect(find.text(l.sendSealedTitle('Bob')), findsOneWidget, reason: 'kept sealed');
+      expect(find.text(l.sendSealedTitle('Bob'), skipOffstage: false), findsOneWidget, reason: 'kept sealed');
 
       await _tap(tester, find.byKey(sendAsPlainKey));
       await _tap(tester, find.byKey(sendAsPlainConfirmKey));
-      expect(find.text(l.sendSealedTitle('Bob')), findsNothing);
-      expect(find.text(l.sendFileShareHint), findsOneWidget);
+      expect(find.text(l.sendSealedTitle('Bob'), skipOffstage: false), findsNothing);
+      expect(find.text(l.sendFileShareHint, skipOffstage: false), findsOneWidget);
       expect((await h.session.pairing.pairing('p-bob'))!.seal, SealMode.degraded);
     });
 
@@ -1336,7 +1336,7 @@ void main() {
       await _tap(tester, find.byKey(sendPlainOptionKey));
       await _tap(tester, makeFile());
       expect(h.session.pairing.calls, isNot(contains('seal')));
-      expect(find.text(l.sendSealedTitle('Bob')), findsNothing);
+      expect(find.text(l.sendSealedTitle('Bob'), skipOffstage: false), findsNothing);
     });
 
     testWidgets('90 days without a sealed message: the hint offers Send plain', (tester) async {
@@ -1358,7 +1358,7 @@ void main() {
       await toFile(tester);
       expect(find.text(l.trustSealedFor('Bob')), findsNothing);
       await _tap(tester, makeFile());
-      expect(find.text(l.sendFileShareHint), findsOneWidget);
+      expect(find.text(l.sendFileShareHint, skipOffstage: false), findsOneWidget);
     });
   });
 }

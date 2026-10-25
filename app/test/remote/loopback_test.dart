@@ -790,6 +790,7 @@ void main() {
       await crossed(() => p.sendViaMailbox(id: anna.id, amount: BigInt.from(5), minimumConfirmations: BigInt.from(10)));
       await crossed(() => p.plainSlate('none'));
       expect(await p.useImportedPairings(), 0);
+      expect(await p.slateOf('none'), isNull);
     });
 
     test('invoices the wallet issues', () async {

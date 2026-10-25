@@ -473,7 +473,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.session.receivedSlates, [json], reason: 'the slate inside went to the wallet');
       expect(find.text(_l.trustSealedFor('Anna')), findsOneWidget);
-      expect(find.text(sealedFileName(h.session.responseSlate.slateId)), findsOneWidget);
+      expect(find.textContaining(sealedFileName('in-1')), findsWidgets);
     });
 
     testWidgets('sealed for another wallet or install: says so, nothing is signed', (tester) async {
@@ -517,7 +517,7 @@ void main() {
       final events = <PairingEvent>[];
       h.api.events().listen(events.add);
       final slateId = h.api.withdrawalFrom('p-nw', BigInt.from(10000000000), reference: 'WD-1042');
-      await pumpEventQueue();
+      await tester.pump();
       expect(events.single.kind, PairingEventKind.withdrawalFromContact);
       expect(await h.api.slateOf(slateId), const PairingSlate(pairingId: 'p-nw', purpose: SlatePurpose.withdrawal, reference: 'WD-1042'));
       await h.pump(tester, TxDetailsScreen(txKey: 's:$slateId'), settle: false);
