@@ -5,6 +5,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import '../../../l10n.dart' show localClock, localDay, localDayMonth;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
+import '../../data/pairing_state.dart' show deskPairingNameProvider, deskPairingSlateProvider, deskPairsProvider;
 import '../../data/method_names.dart';
 import '../../widgets/kit.dart';
 import '../invoices/invoice_parts.dart' show payStateWord, requestStateWord;
@@ -53,6 +54,23 @@ FoundTexts foundTexts(AppLocalizations l, Tx t) {
     null => (label: l.deskTxFoundRescanLabel, line: l.deskTxFoundScanLine, step: l.deskTxFoundScanStep, note: unknown, tip: l.deskTxFoundScanTip),
   };
 }
+
+/// The paired contact a send went to through its mailbox (RFC 9.1: no address, so LEPIC keeps
+/// it as an export), by name, or null. Rows ask only while it waits for the answer, as each
+/// ask reads the wallet's payments; [any] asks for any such send (the detail pane).
+String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
+  if (t.incoming || t.isInvoice || t.counterparty != null || t.slateId.isEmpty || t.fromBackup) return null;
+  if (!any && t.state != TxState.waitingRecipient) return null;
+  if (!ref.watch(deskPairsProvider)) return null;
+  final pairingId = ref.watch(deskPairingSlateProvider(t.slateId)).value?.pairingId;
+  if (pairingId == null) return null;
+  final name = ref.watch(deskPairingNameProvider(pairingId));
+  return name.isEmpty ? null : name;
+}
+
+/// [statusOf], with "Waiting for Anna to sign" for a send through [mailbox]'s mailbox.
+(String, ETone) statusWithMailbox(AppLocalizations l, Tx t, String? mailbox) =>
+    mailbox != null && t.state == TxState.waitingRecipient && !t.undelivered ? (l.deskTxStatusWaitingFor(mailbox), ETone.warn) : statusOf(l, t);
 
 /// What a row is called: the user's label, else [whoOf].
 String titleOf(AppLocalizations l, Tx t) => t.labelText ?? whoOf(l, t);
@@ -352,7 +370,8 @@ class _TxRowState extends ConsumerState<TxRow> {
     final c = context.dc;
     final ts = context.ts;
     final t = widget.tx;
-    final (word, tone) = invoiceStatusOf(context, ref, t) ?? statusOf(context.l10n, t);
+    final mailbox = deskTxMailboxName(ref, t);
+    final (word, tone) = invoiceStatusOf(context, ref, t) ?? statusWithMailbox(context.l10n, t, mailbox);
     final toneColor = switch (tone) {
       ETone.ok => c.dim,
       ETone.warn => c.warn,
@@ -365,7 +384,8 @@ class _TxRowState extends ConsumerState<TxRow> {
     final editing = widget.labelEditable && ref.watch(txLabelEditingProvider) == _site;
     final labelled = t.labelText != null && widget.title == null;
     final restoredMethod = restoredMethodOf(l, t);
-    final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : methodOf(l, t));
+    // Through a pairing's mailbox: Epicbox, though LEPIC keeps it as an export.
+    final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : (mailbox != null ? methodLabel(l, TxMethod.epicbox) : methodOf(l, t)));
     final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? l.deskTxPaymentProof : null);
     // A label takes the title; who it replaced moves to the second line so nothing is lost.
     final replaced = labelled && whoNamesSomeone(t) ? (t.contactName ?? shortAddress(t.counterparty!, compact: t.method != TxMethod.file)) : null;
@@ -389,7 +409,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     } else if (widget.title == null && whoIsAddress(t) && !t.isInvoice) {
       name = EShortAddress(t.counterparty!, style: ts.mono(size: 12.5, weight: FontWeight.w500));
     } else {
-      name = Text(widget.title ?? invoiceTitleOf(context, t) ?? whoOf(l, t), maxLines: 1, overflow: TextOverflow.ellipsis, style: titleStyle);
+      name = Text(widget.title ?? invoiceTitleOf(context, t) ?? mailbox ?? whoOf(l, t), maxLines: 1, overflow: TextOverflow.ellipsis, style: titleStyle);
     }
     final titleLine = editing
         ? TxLabelField(

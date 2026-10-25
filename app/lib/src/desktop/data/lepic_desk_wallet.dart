@@ -2302,6 +2302,12 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       final message = r.message?.trim().isEmpty ?? true ? null : r.message!.trim();
       switch (method) {
+        // Through a paired contact's mailbox, sealed (RFC 9.1): LEPIC checks the pairing first
+        // and queues the payment in its outbox, also while Epicbox is off.
+        case TxMethod.epicbox when r.pairingId != null:
+          final e = await session.pairing.sendViaMailbox(id: r.pairingId!, amount: BigInt.from(amount), minimumConfirmations: _minConf, message: message, options: r.options);
+          await _reload();
+          return SendDone(_txFor(e));
         case TxMethod.epicbox:
           final to = (r.to ?? '').trim();
           if (!_service.validateEpicboxAddress(address: to)) return SendFailed.l10n((l) => l.deskErrNotEpicboxAddress);
@@ -2364,6 +2370,9 @@ class LepicDeskWallet implements DeskWalletApi {
           stored = true;
         }
       }
+      // A mailbox send that fails leaves nothing behind: LEPIC refuses before it locks the
+      // coins, or cancels what it made.
+      if (r.pairingId != null) return SendFailed.l10n((l) => deskErrorText(e, l));
       if (e.kind == core.WalletErrorKind.transportFailed) {
         if (method == TxMethod.http || method == TxMethod.tor) {
           return stored

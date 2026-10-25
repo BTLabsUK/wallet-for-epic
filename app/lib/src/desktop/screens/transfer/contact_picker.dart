@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../models.dart' show PairingRecord;
 import '../../../payment_prefs.dart' show PaymentPrefs;
 import '../../../recipient.dart' show RecipientKind;
+import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
+import '../../data/pairing_state.dart' show deskContactPairingProvider, deskPairsProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
@@ -36,6 +39,31 @@ bool contactSendable(Contact c) => switch (addressKindOf(c.address)) {
   AddressKind.http => DeskFeatures.httpDirect,
   _ => true,
 };
+
+/// The pairing a contact with no address is paid through (DESIGN 1.3), when the wallet pairs;
+/// null for a contact with an address.
+PairingRecord? contactPairingOnly(WidgetRef ref, Contact c) =>
+    c.addresses.isEmpty && ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(c.id)) : null;
+
+/// "Through Anna's pairing" with the trust badge, where a contact with no address shows its
+/// address in a list.
+class PairingOnlyLine extends StatelessWidget {
+  const PairingOnlyLine({super.key, required this.name, required this.pairing});
+
+  final String name;
+  final PairingRecord pairing;
+
+  @override
+  Widget build(BuildContext context) => Wrap(
+    spacing: Sp.x2,
+    runSpacing: Sp.x1,
+    crossAxisAlignment: WrapCrossAlignment.center,
+    children: [
+      TrustBadge(pairing, short: true),
+      Text(context.l10n.sendRecipientPairing(name), style: context.ts.small),
+    ],
+  );
+}
 
 /// Opens the contact picker over the current page; resolves to the chosen contact or null.
 /// [description] says what the pick is for; Send's line by default.
@@ -105,7 +133,7 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
           shrinkWrap: true,
           itemCount: shown.length,
           separatorBuilder: (_, _) => Divider(height: 1, color: c.line),
-          itemBuilder: (_, i) => _PickRow(contact: shown[i], onTap: () => Navigator.of(context).pop(shown[i])),
+          itemBuilder: (_, i) => _PickRow(contact: shown[i], pairing: contactPairingOnly(ref, shown[i]), onTap: () => Navigator.of(context).pop(shown[i])),
         ),
       );
     }
@@ -154,10 +182,13 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
 }
 
 class _PickRow extends StatefulWidget {
-  const _PickRow({required this.contact, required this.onTap});
+  const _PickRow({required this.contact, required this.onTap, this.pairing});
 
   final Contact contact;
   final VoidCallback onTap;
+
+  /// The pairing of a contact with no address: its row says payments go through it.
+  final PairingRecord? pairing;
 
   @override
   State<_PickRow> createState() => _PickRowState();
@@ -169,9 +200,10 @@ class _PickRowState extends State<_PickRow> {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    final pairing = widget.pairing;
     return Semantics(
       button: true,
-      label: '${widget.contact.name}, ${widget.contact.address}',
+      label: pairing == null ? '${widget.contact.name}, ${widget.contact.address}' : '${widget.contact.name}, ${context.l10n.sendRecipientPairing(widget.contact.name)}',
       excludeSemantics: true,
       child: MouseRegion(
         onEnter: (_) => setState(() => _hover = true),
@@ -187,7 +219,16 @@ class _PickRowState extends State<_PickRow> {
                 EAvatar(widget.contact.name, size: 40.u),
                 SizedBox(width: 14.u),
                 Expanded(
-                  child: EAddressLines(
+                  child: pairing != null
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.contact.name, style: context.ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            SizedBox(height: Sp.x1),
+                            PairingOnlyLine(name: widget.contact.name, pairing: pairing),
+                          ],
+                        )
+                      : EAddressLines(
                     name: widget.contact.name,
                     address: widget.contact.address,
                     note: widget.contact.note,

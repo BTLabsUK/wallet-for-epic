@@ -10,7 +10,7 @@ import 'dart:typed_data';
 
 
 import '../../advanced.dart' show NetworkMode;
-import '../../models.dart' show PairingCaps, PairingParty, PairingState, SealMode;
+import '../../models.dart' show PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
@@ -644,6 +644,8 @@ class MockDeskWallet implements DeskWalletApi {
     );
     _txs.insert(0, tx);
     if (r.method == TxMethod.file) return SendFileReady(tx, sendFileName(tx.slateId));
+    // Through a pairing's mailbox: the prototype's pairing engine knows whom it went to.
+    if (r.pairingId case final id?) pairing.slates[tx.slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.payment);
     return SendDone(tx);
   }
 

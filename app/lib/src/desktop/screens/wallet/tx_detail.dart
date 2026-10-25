@@ -5,11 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../known_relays.dart' show recipientRelay;
 import '../../../l10n.dart' show acceptedAgoText;
-import '../../../models.dart' show IncomingCancel, SlatePurpose, incomingCancelAt;
+import '../../../models.dart' show IncomingCancel, PairingRecord, PairingState, SlatePurpose, incomingCancelAt;
 import '../../data/clock.dart';
 import '../../data/invoice_state.dart' show PayState, deskInvoicesProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
-import '../../data/pairing_state.dart' show deskPairingByIdProvider, deskPairingNameProvider, deskPairingSlateProvider;
+import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairingSlateProvider;
 import '../pairing/pair_screens.dart' show deskAttachPairing, deskPutPairingInContacts, deskSuggestedContact;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -199,7 +199,16 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         (t.incoming
             ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed && (hold?.offered ?? true)
             : (t.cancellable && t.state == TxState.waitingRecipient) || t.notPosted);
-    final finalizable = !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
+    // A send through a paired contact's mailbox (no address; LEPIC keeps it as an export):
+    // its answer comes back by itself, so there is no file to finalize.
+    final mailboxName = deskTxMailboxName(ref, t, any: true);
+    final mailboxPairing = mailboxName == null
+        ? null
+        : switch (ref.watch(deskPairingSlateProvider(t.slateId)).value) {
+            final slate? => ref.watch(deskPairingByIdProvider(slate.pairingId)),
+            null => null,
+          };
+    final finalizable = !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient && mailboxName == null;
     // The node refused it: broadcast it again at once (android-17); the app also does by itself.
     final repostable = !t.fromBackup && !t.isInvoice && t.notPosted;
     // A payment to a paired contact's request, or a withdrawal from a paired exchange: the
@@ -214,6 +223,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ? _paidSteps(l, t, paid!.state, contactName)
         : withdrawal != null
         ? _withdrawalSteps(l, t, contactName)
+        : mailboxName != null
+        ? _mailboxSteps(l, t, mailboxName, mailboxPairing?.homeRelay ?? '', ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff)
         : _steps(l, t);
     final onChain = t.state == TxState.confirming || t.state == TxState.confirmed;
     return Column(
@@ -256,6 +267,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                               // A withdrawal is from the paired exchange, by name.
                               withdrawal != null && contactName.isNotEmpty
                                   ? TextSpan(text: contactName, style: TextStyle(color: c.text))
+                                  : mailboxName != null
+                                  ? TextSpan(text: mailboxName, style: TextStyle(color: c.text))
                                   : TextSpan(
                                       text: whoOf(l, t),
                                       style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
@@ -295,7 +308,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                       EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
                       SizedBox(height: Sp.x1),
                     ],
-                    Text(_now(l, t), style: ts.body),
+                    Text(mailboxName != null && t.state == TxState.waitingRecipient && !t.undelivered ? l.deskTxStatusWaitingFor(mailboxName) : _now(l, t), style: ts.body),
                     if (hold != null) ...[
                       SizedBox(height: Sp.x1),
                       Text(_holdLine(l, hold), key: const ValueKey('tx-cancel-hold'), style: ts.small.copyWith(color: c.faint)),
@@ -306,6 +319,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ],
           ),
         ),
+        // Waiting for a paired contact's answer: its keys changed meanwhile, or its relay is
+        // silent.
+        if (mailboxName != null && t.state == TxState.waitingRecipient && mailboxPairing != null) ..._mailboxNotices(l, mailboxName, mailboxPairing),
         // A withdrawal from a paired exchange, not yet posted by it (SPEC 2.8).
         if (withdrawal != null && !onChain) ...[
           SizedBox(height: Sp.x3),
@@ -340,6 +356,16 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           // A withdrawal names the paired exchange, never its address (RFC C-21).
           if (withdrawal != null)
             (l.deskTxFactFrom, _PairedFrom(pairingId: withdrawal.pairingId, name: contactName))
+          // Through the pairing: the contact, never the mailbox as an address (DESIGN 1.3).
+          else if (mailboxName != null)
+            (
+              l.deskTxFactTo,
+              Column(
+                key: const ValueKey('tx-fact-pairing'),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [Text(mailboxName), Text(l.sendRecipientPairing(mailboxName), style: ts.small)],
+              ),
+            )
           else if (t.counterparty != null)
             (
               t.incoming ? l.deskTxFactFrom : l.deskTxFactTo,
@@ -365,7 +391,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             l.deskTxFactMethod,
             t.foundByScan
                 ? _withTag(t, ManualField.transport, Text(restoredMethodOf(l, t) ?? '–'))
-                : Text(methodLabel(l, t.method)),
+                : Text(methodLabel(l, mailboxName != null ? TxMethod.epicbox : t.method)),
           ),
           (l.deskTxFactAmount, EMoney(t.amount)),
           if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600))],
@@ -505,6 +531,45 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       ),
     ];
   }
+
+  /// A send through a paired contact's mailbox (DESIGN 1.3): sent through it (still current,
+  /// paused, while Epicbox is off and it waits in the outbox), the contact's answer, posted,
+  /// the confirmations.
+  List<_Step> _mailboxSteps(AppLocalizations l, Tx t, String name, String relay, bool paused) {
+    final waiting = t.state == TxState.waitingRecipient;
+    final queued = waiting && paused;
+    final posted = t.state == TxState.confirming || t.state == TxState.confirmed || (t.state == TxState.posted && !t.notPosted);
+    final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
+    final done = t.state == TxState.confirmed;
+    return [
+      _Step(
+        l.txStepSentMailbox(name),
+        queued ? _S.now : _S.done,
+        queued ? '' : timeOf(t),
+        sub: queued ? l.contactPausedEpicboxOff : (relay.isEmpty ? null : l.contactDeliveredVia(relay)),
+      ),
+      _Step(l.txStepAnswerFrom(name), queued ? _S.todo : (waiting ? _S.now : _S.done), '', sub: waiting && !queued ? l.txStepCollecting(name) : null),
+      _Step(l.deskTxStepPosted, posted ? _S.done : (!waiting && !inBlock ? _S.now : _S.todo), ''),
+      _Step(
+        l.deskTxStepConfirming,
+        done ? _S.done : (inBlock ? _S.now : _S.todo),
+        '',
+        sub: t.state == TxState.confirming ? l.deskTxStepProgress(t.confirmations, t.confirmationsNeeded) : null,
+      ),
+      _Step(l.deskTxStepSpendable, done ? _S.done : _S.todo, ''),
+    ];
+  }
+
+  /// The warn notices on a send waiting for [name]'s answer: keys changed, relay silent.
+  List<Widget> _mailboxNotices(AppLocalizations l, String name, PairingRecord p) => [
+    if (p.state == PairingState.keysChanged) ...[
+      SizedBox(height: Sp.x3),
+      ENotice(key: const ValueKey('tx-mailbox-keys'), title: l.contactKeysChangedTitle(name), text: l.contactKeysChangedBody, tone: ETone.warn),
+    ] else if (p.relayDown) ...[
+      SizedBox(height: Sp.x3),
+      ENotice(key: const ValueKey('tx-mailbox-relay'), title: l.contactRelayDownTitle(name), text: l.contactRelayDownBody, tone: ETone.warn),
+    ],
+  ];
 
   List<_Step> _steps(AppLocalizations l, Tx t) {
     final at = t.created;

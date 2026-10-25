@@ -164,6 +164,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // words check themselves, Pending invites keeps the rest.
     ref.listen(deskPairingEventsProvider, (_, next) {
       final e = next.value;
+      // A mailbox payment's answer was finalized: Activity shows it posted.
+      if (e?.kind == PairingEventKind.paymentFinalized) unawaited(ref.read(deskProvider.notifier).refresh());
       final n = e == null ? null : pairingNoticeOf(context.l10n, e);
       if (n == null || !mounted || pairingEventOnScreen(e!)) return;
       final id = e.pairingId;

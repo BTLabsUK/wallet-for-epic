@@ -15,17 +15,18 @@ import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
-import '../../../models.dart' show slateMessageMaxBytes;
+import '../../../models.dart' show PairingRecord, PairingState, slateMessageMaxBytes;
 import '../../../network_gate.dart' show NetBlock;
 import '../../../smart_outputs.dart';
 import '../../../utf8_limit.dart';
 import '../../app/shell.dart' show outputsShown;
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
-import '../../data/pairing_state.dart' show deskPairingOnProvider, deskPairsProvider;
+import '../../data/pairing_state.dart' show DeskPairNet, deskContactPairingProvider, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairingOnProvider, deskPairsProvider;
 import '../../widgets/kit.dart';
 import '../pairing/pair_screens.dart' show deskOpenPairingText;
 import '../../widgets/tor_chip.dart';
+import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
 import 'file_panels.dart';
@@ -63,7 +64,12 @@ class SendArgs {
     this.advancedOpen = false,
     this.code,
     this.codeOrigin = CodeOrigin.link,
+    this.pairingTo,
   });
+
+  /// A paired contact with no address, by its pairing id: paid through its mailbox. A
+  /// [contact] with no address and a pairing that pays this way opens the same.
+  final String? pairingTo;
 
   /// The method Send opens on; null is the one chosen in Settings › Transactions.
   final TxMethod? method;
@@ -114,9 +120,17 @@ class _Draft {
     this.extraFee = 0,
     this.unknownRelay,
     this.code,
+    this.pairingId,
+    this.queued = false,
   });
 
   final TxMethod method;
+
+  /// Through the mailbox of this pairing: a contact with no address, [to] null.
+  final String? pairingId;
+
+  /// Epicbox is off: the payment waits in the outbox until it is on again.
+  final bool queued;
   final String? to;
   final String? contactName;
   final int amount;
@@ -234,6 +248,22 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   bool _codeBanner = false;
   String Function(AppLocalizations l)? _codeError;
 
+  /// A paired contact with no address, by its pairing id (DESIGN 1.3): its card takes the
+  /// To field's place and the payment goes through its mailbox, sealed.
+  String? _pairingTo;
+
+  /// The pairing of a contact with no address, when the wallet pairs; null otherwise.
+  String? _pairingOf(Contact c) {
+    if (c.addresses.isNotEmpty || !ref.read(deskPairsProvider)) return null;
+    return ref.read(deskContactPairingProvider(c.id))?.id;
+  }
+
+  /// [_pairingTo] goes by its mailbox now: Epicbox chosen (File and the rest ignore it).
+  bool get _viaPairing => _pairingTo != null && _method == TxMethod.epicbox;
+
+  /// A mailbox payment made now waits in the outbox: Epicbox is off (LEPIC queues it).
+  bool _queues() => _viaPairing && ref.read(deskPairNetProvider) == DeskPairNet.epicboxOff;
+
   @override
   void initState() {
     super.initState();
@@ -248,6 +278,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final contact = args.contact;
     final contactTo = contact == null ? null : contactAddress(contact, ref.read(deskProvider).settings.payments);
     _method = contact != null ? contactMethod(contact, contactTo) : args.method ?? _startMethod();
+    _pairingTo = args.pairingTo ?? (contact == null ? null : _pairingOf(contact));
+    if (_pairingTo != null) _method = TxMethod.epicbox;
     _to.text = args.recipient ?? contactTo ?? '';
     _autoSwitch(forced: true, tag: args.switched);
     _suggestOff = _to.text.isNotEmpty && !args.suggest;
@@ -322,7 +354,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   bool _epicboxBlocked(DeskState st) {
-    if (_method != TxMethod.epicbox) return false;
+    // LEPIC posts a mailbox payment itself, or keeps it in the outbox until it can.
+    if (_method != TxMethod.epicbox || _viaPairing) return false;
     final h = _epicboxHealth(st);
     return h == ServiceHealth.off || h == ServiceHealth.checking;
   }
@@ -338,6 +371,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// when both its methods are off: the address decides between Link · HTTP and Link · Tor.
   NetBlock _netBlock(DeskState st) => _method == TxMethod.file
       ? NetBlock.none
+      // A pairing's mailbox payment waits in the outbox while Epicbox is off ("Queue
+      // payment"); Offline and Tor still hold it.
+      : _viaPairing
+      ? deskNetBlock(st)
       : deskNetBlock(
           st,
           nodeOnly: _method == TxMethod.http,
@@ -712,6 +749,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         if (old.amount != null && _parsed == old.amount) _amount.clear();
         if (old.noteFilled && _message.text == old.note) _message.clear();
       }
+      _pairingTo = null;
       _to.text = to;
       _lastTo = to;
       fields();
@@ -750,7 +788,23 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   void _use(Contact c) {
+    // A contact with no address is paid through its pairing.
+    if (_pairingOf(c) case final id?) {
+      setState(() {
+        _pairingTo = id;
+        if (_method != TxMethod.file) _method = TxMethod.epicbox;
+        _to.clear();
+        _lastTo = '';
+        _code = null;
+        _codeError = null;
+        _suggestOff = true;
+        _failure = null;
+        if (_result is SendDone) _result = null;
+      });
+      return;
+    }
     setState(() {
+      _pairingTo = null;
       // The address whose method is on, when the contact has one.
       final to = contactAddress(c, ref.read(deskProvider).settings.payments);
       final m = contactMethod(c, to);
@@ -818,7 +872,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return (a.substring(0, at), host.isEmpty ? null : host);
   }
 
-  String? _toError(DeskState st) => _ownAddressError(st) ?? _recipientError(context.l10n, _method, _to.text, ref.read(deskApiProvider));
+  String? _toError(DeskState st) {
+    // A pairing recipient has no address: its card says whether it can be paid.
+    if (_viaPairing) return ref.read(deskPairingByIdProvider(_pairingTo!))?.paysByMailbox ?? false ? null : context.l10n.deskSendErrNoAddress;
+    return _ownAddressError(st) ?? _recipientError(context.l10n, _method, _to.text, ref.read(deskApiProvider));
+  }
 
   /// LEPIC signs at most [slateMessageMaxBytes] UTF-8 bytes of a message and cuts the rest
   /// (linux-09): longer text is refused here instead of being cut without a word.
@@ -885,10 +943,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         : null;
     _Draft draftOf(SmartSendPlan? plan) {
       final balance = ref.read(deskProvider).balance;
+      final viaPairing = _viaPairing;
       return _Draft(
         method: _method,
-        to: _method == TxMethod.file ? null : _to.text.trim(),
-        contactName: _contactOf(contacts)?.name,
+        to: _method == TxMethod.file || viaPairing ? null : _to.text.trim(),
+        contactName: viaPairing ? ref.read(deskPairingNameProvider(_pairingTo!)) : _contactOf(contacts)?.name,
+        pairingId: viaPairing ? _pairingTo : null,
+        queued: _queues(),
         amount: n,
         fee: plan?.estimate.fee ?? _fee ?? 0,
         message: _message.text.trim(),
@@ -946,13 +1007,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             allowPlainHttp: plain,
             // As estimated: the strategy, the change outputs; a send-all spends every output.
             options: draft.options ?? (draft.sendAll ? const SendOptions(strategy: SelectionStrategy.all) : null),
+            pairingId: draft.pairingId,
           ),
         ),
       ),
     );
     if (!mounted || res == null) return;
     // Money out is gold, as its row in Activity.
-    if (res is SendDone) showEToast(context, context.l10n.deskSendSent, text: '${formatEpicL(context.l10n, res.tx.amount)} EPIC', tone: ETone.gold);
+    if (res is SendDone) showEToast(context, draft.queued ? context.l10n.sendQueuedHeadline : context.l10n.deskSendSent, text: '${formatEpicL(context.l10n, res.tx.amount)} EPIC', tone: ETone.gold);
     setState(() {
       switch (res) {
         case final SendFailed failed:
@@ -963,21 +1025,27 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           _failure = null;
           _result = res;
           if (res is SendDone) {
+            _queuedFor = draft.queued ? draft.contactName : null;
             _to.clear();
             _amount.clear();
             _message.clear();
             _fee = null;
             _submitted = false;
             _code = null;
+            _pairingTo = null;
           }
       }
     });
   }
 
+  /// The last send was a mailbox payment queued while Epicbox is off: to whom, for its notice.
+  String? _queuedFor;
+
   void _reset() => setState(() {
     _result = null;
     _failure = null;
     _code = null;
+    _pairingTo = null;
     _to.clear();
     _amount.clear();
     _message.clear();
@@ -1172,8 +1240,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return [
         if (res is SendDone) ...[
           ENotice(
-            title: l.deskSendSent,
+            key: _queuedFor == null ? null : const ValueKey('send-queued'),
+            title: _queuedFor == null ? l.deskSendSent : l.sendQueuedHeadline,
             text: switch (res.tx.method) {
+              _ when _queuedFor != null => l.sendQueuedBody(_queuedFor!),
               TxMethod.tor || TxMethod.http => l.deskSendDoneViaDirect,
               _ => l.deskSendDoneViaEpicbox,
             },
@@ -1224,6 +1294,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final netIdle = net == NetBlock.none;
     final netWhy = netBlockReason(l, net);
     final fileTip = deskOfflineUsesNode(st) ? l.netOfflineNodeHint : null;
+    final pairing = _pairingTo == null ? null : ref.watch(deskPairingByIdProvider(_pairingTo!));
+    final pairingName = _pairingTo == null ? '' : ref.watch(deskPairingNameProvider(_pairingTo!));
     return EPanel(
       padding: EdgeInsets.zero,
       title: l.deskSendMethodHeader,
@@ -1237,14 +1309,18 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           child: ESegmented<TxMethod>(
           stretch: true,
           segments: [
-            ESegment(TxMethod.epicbox, MethodIcons.shortName(l, MethodKind.epicbox), icon: MethodIcons.of(MethodKind.epicbox), enabled: netIdle && st.settings.payments.epicbox, tooltip: netWhy ?? (st.settings.payments.epicbox ? null : l.netBlockEpicboxOff)),
+            // A pairing's mailbox takes a payment with Epicbox off too: it waits in the outbox.
+            ESegment(TxMethod.epicbox, MethodIcons.shortName(l, MethodKind.epicbox), icon: MethodIcons.of(MethodKind.epicbox), enabled: netIdle && (st.settings.payments.epicbox || pairing != null), tooltip: netWhy ?? (st.settings.payments.epicbox || pairing != null ? null : l.netBlockEpicboxOff)),
             // Link: http(s) or an onion, the address decides ([TxMethod.tor] is its route), so
             // the segment names the family. Settings › Transactions: the methods on. The
             // method in use stays (a pasted onion picks Link; a file send in progress or the
             // file fallback of a failed Epicbox keeps File Transfer).
             if ((DeskFeatures.httpDirect || DeskFeatures.tor) &&
                 (st.settings.payments.offersFamily(MethodFamily.link) || _segmentOf(_method) == TxMethod.http))
-              ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
+              // A pairing recipient has no Link address.
+              pairing != null
+                  ? ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: false, tooltip: l.deskSendContactNoLink(pairingName))
+                  : ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
             // The file fallback of a failed Epicbox: only while its switch is on (an Epicbox
             // turned off on purpose is no failure, and File Transfer keeps its own switch).
             if (st.settings.payments.directFile || file || (st.settings.payments.epicbox && (_epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)))
@@ -1265,7 +1341,21 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-        if (!file) ...[
+        if (!file && pairing != null) ...[
+          EField(
+            label: l.deskSendTo,
+            child: _PairingCard(
+              pairing: pairing,
+              name: pairingName,
+              paused: ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff,
+              onClear: () => setState(() {
+                _pairingTo = null;
+                _failure = null;
+              }),
+            ),
+          ),
+          SizedBox(height: Sp.x5),
+        ] else if (!file) ...[
           EField(
             label: l.deskSendTo,
             labelTrailing: _SwitchTag(method: _switchedTo, shown: _tagOn),
@@ -1300,7 +1390,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
           if (matches.isNotEmpty) ...[
             SizedBox(height: Sp.x2),
-            _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => contactAddress(x, st.settings.payments)),
+            _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => contactAddress(x, st.settings.payments), pairingOf: (x) => contactPairingOnly(ref, x)),
           ],
           // A payment request's banner (ui.md §2): it keeps the last code's words while it closes.
           ExpandFade(
@@ -1479,6 +1569,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       updating: st.status?.syncProgress != null,
       hint: hint,
       reviewLabel: switch (_torWay(st)) {
+        _ when _viaPairing && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff => l.sendQueue,
         TorWay.wait => l.deskSendReviewWaitTor,
         TorWay.blocked => l.deskSendReviewTorOff,
         _ => l.deskSendReview,
@@ -1691,12 +1782,96 @@ class _PickedCard extends StatelessWidget {
   }
 }
 
+/// The To slot for a paired contact with no address (DESIGN 1.3): name, trust badge, "Through
+/// Anna's pairing", Clear; under it the mailbox the payment goes through, as a readout, or why
+/// it cannot take one (keys changed, a wallet that does not open sealed messages).
+class _PairingCard extends StatelessWidget {
+  const _PairingCard({required this.pairing, required this.name, required this.paused, required this.onClear});
+
+  final PairingRecord pairing;
+  final String name;
+
+  /// Epicbox is off: the payment waits in the outbox.
+  final bool paused;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final ok = pairing.paysByMailbox;
+    return Container(
+      key: const ValueKey('send-picked-pairing'),
+      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+            child: Row(
+              children: [
+                EAvatar(name, size: 28.u),
+                SizedBox(width: Sp.x3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: Sp.x2,
+                        runSpacing: Sp.x1,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [Text(name, style: ts.strong), TrustBadge(pairing, short: true)],
+                      ),
+                      Text(l.sendRecipientPairing(name), style: ts.small),
+                    ],
+                  ),
+                ),
+                SizedBox(width: Sp.x2),
+                EButton.ghost(label: l.deskSendClear, size: EBtnSize.inline, onPressed: onClear),
+              ],
+            ),
+          ),
+          Divider(height: 1, thickness: 1, color: c.line),
+          Padding(
+            key: const ValueKey('send-pairing-readout'),
+            padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x3),
+            child: Row(
+              children: [
+                Icon(!ok ? EIcons.alert : (paused ? Icons.pause : EIcons.lock), size: 16.u, color: !ok || paused ? c.warn : c.dim),
+                SizedBox(width: Sp.x3),
+                Expanded(
+                  child: ok
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l.sendViaMailbox(name), style: ts.body),
+                            Text(paused ? l.contactPausedEpicboxOff : l.sendViaMailboxHint(pairing.homeRelay), style: ts.small),
+                          ],
+                        )
+                      : Text(
+                          pairing.state == PairingState.keysChanged ? l.contactSendKeysChanged : l.contactSendNoSealed(name),
+                          style: ts.body,
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Contacts matching what is typed in To: a short list right under the field.
 class _Suggestions extends StatelessWidget {
-  const _Suggestions({required this.contacts, required this.onPick, required this.addressOf});
+  const _Suggestions({required this.contacts, required this.onPick, required this.addressOf, required this.pairingOf});
 
   final List<Contact> contacts;
   final ValueChanged<Contact> onPick;
+
+  /// The pairing a contact with no address is paid through ([contactPairingOnly]).
+  final PairingRecord? Function(Contact) pairingOf;
 
   /// The address a pick fills in ([contactAddress]), shown on its row.
   final String Function(Contact) addressOf;
@@ -1737,9 +1912,13 @@ class _Suggestions extends StatelessWidget {
                         SizedBox(width: Sp.x3),
                         Expanded(child: Text(x.name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
                         SizedBox(width: Sp.x2),
-                        EKindTag(addressKindOf(addressOf(x)), compact: true),
-                        SizedBox(width: Sp.x3),
-                        Flexible(child: EShortAddress(addressOf(x), tooltip: false)),
+                        if (pairingOf(x) case final p?)
+                          Flexible(child: PairingOnlyLine(name: x.name, pairing: p))
+                        else ...[
+                          EKindTag(addressKindOf(addressOf(x)), compact: true),
+                          SizedBox(width: Sp.x3),
+                          Flexible(child: EShortAddress(addressOf(x), tooltip: false)),
+                        ],
                       ],
                     ),
                   ),
@@ -1918,6 +2097,19 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           ),
           SizedBox(height: Sp.x4),
           EFacts([
+            // Through the pairing: the name, never an address (the mailbox is not one).
+            if (d.pairingId != null)
+              (
+                l.deskSendFactTo,
+                Column(
+                  key: const ValueKey('send-review-pairing'),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(d.contactName ?? '', style: ts.strong),
+                    Text(l.sendRecipientPairing(d.contactName ?? ''), style: ts.small),
+                  ],
+                ),
+              ),
             if (d.to != null)
               (
                 l.deskSendFactTo,
@@ -1962,6 +2154,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           if (code != null && (code.note != null || codeLabel != null)) ...[
             SizedBox(height: Sp.x4),
             EPayeeClaims(label: codeLabel, note: code.note),
+          ],
+          if (d.queued && !_busy) ...[
+            SizedBox(height: Sp.x4),
+            ENotice(key: const ValueKey('send-review-queued'), tone: ETone.info, title: l.sendQueuedEpicboxOff),
           ],
           if (d.unknownRelay case final unknown? when !_busy) ...[
             SizedBox(height: Sp.x4),
@@ -2020,7 +2216,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       ),
       actions: [
         EButton(label: l.deskSendBack, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: _busy ? l.deskSendSending : l.deskSendConfirm(formatEpicL(l, d.amount)), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
+        EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : l.deskSendConfirm(formatEpicL(l, d.amount))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
       ],
     );
   }

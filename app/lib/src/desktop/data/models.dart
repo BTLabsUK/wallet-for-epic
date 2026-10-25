@@ -1022,10 +1022,14 @@ class DeskSettings {
 /// What Send hands over.
 @immutable
 class SendRequest {
-  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true, this.allowPlainHttp = false, this.options});
+  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true, this.allowPlainHttp = false, this.options, this.pairingId});
 
   final TxMethod method;
   final int amount;
+
+  /// An Epicbox send through the mailbox of this pairing (RFC 9.1): a contact with no
+  /// address, [to] null.
+  final String? pairingId;
 
   /// Address or URL; null for a file send.
   final String? to;

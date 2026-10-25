@@ -567,7 +567,14 @@ class _ContactDetail extends ConsumerWidget {
           spacing: Sp.x2,
           runSpacing: Sp.x2,
           children: [
-            EButton.primary(label: l.deskConSend, icon: EIcons.send, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.send, x)),
+            // A contact with no address is paid through its pairing, while it can take one.
+            EButton.primary(
+              key: const ValueKey('contact-send'),
+              label: l.deskConSend,
+              icon: EIcons.send,
+              size: EBtnSize.sm,
+              onPressed: x.addresses.isEmpty && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
+            ),
             EButton(label: l.deskConEdit, icon: EIcons.pencil, size: EBtnSize.sm, onPressed: onEdit),
             EButton(
               label: x.favourite ? l.deskConUnstar : l.deskConStar,
@@ -604,12 +611,33 @@ class _ContactDetail extends ConsumerWidget {
             ),
           ],
         ),
+        if (x.addresses.isEmpty && pairing != null && !pairing.paysByMailbox) ...[
+          SizedBox(height: Sp.x2),
+          Text(
+            pairing.state == PairingState.keysChanged ? l.contactSendKeysChanged : l.contactSendNoSealed(x.name),
+            key: const ValueKey('contact-send-reason'),
+            style: ts.small,
+          ),
+        ],
         SizedBox(height: Sp.x6),
         Text(l.contactAddresses, style: ts.label),
         SizedBox(height: 6.u),
         ESetGroup(
           gap: false,
           rows: [
+            // A contact with only a pairing: payments go through it.
+            if (x.addresses.isEmpty && pairing != null)
+              Padding(
+                key: const ValueKey('contact-via-pairing'),
+                padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                child: Row(
+                  children: [
+                    Icon(EIcons.lock, size: 16.u, color: c.dim),
+                    SizedBox(width: Sp.x3),
+                    Expanded(child: Text(l.contactNoAddressPaired, style: pairing.caps.opensSealed ? ts.body : ts.bodyDim)),
+                  ],
+                ),
+              ),
             for (final k in x.kinds)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
