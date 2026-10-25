@@ -23522,6 +23522,30 @@ abstract class AppLocalizations {
   /// **'A QR Payment code. Scan it with Epic Cash Mobile.'**
   String get deskSendToQrPayment;
 
+  /// Title of the red notice on the setup's last step after Save failed on a first run. The notice has a button to continue without saving (deskSetupSkipSave).
+  ///
+  /// In en, this message translates to:
+  /// **'Settings not saved'**
+  String get deskSetupSaveFailedTitle;
+
+  /// Text of the red notice on the setup's last step after Save failed on a first run. {reason} is the error text, a short sentence without a final period (e.g. 'The wallet is locked'). 'Settings' is the app's Settings page.
+  ///
+  /// In en, this message translates to:
+  /// **'{reason}. Without saving, the wallet uses the settings stored so far. They can be changed later in Settings.'**
+  String deskSetupSaveFailedText(String reason);
+
+  /// Button in the red notice after Save failed on a first-run setup: leave setup without saving and go to the unlock screen; the wallet keeps the settings stored so far.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without saving'**
+  String get deskSetupSkipSave;
+
+  /// Lead under the title of the setup's node step when the app was closed before a first-run setup was saved and setup starts again. Second sentence is deskSetupNodeLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup was not finished last time. The wallet reads the chain and sends through an Epic node.'**
+  String get deskSetupResumeLead;
+
   /// A line of the import wizard's result: old contacts whose address was already in the address book; the missing addresses or note were added to that contact, nothing saved was changed.
   ///
   /// In en, this message translates to:

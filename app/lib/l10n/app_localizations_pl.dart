@@ -15261,6 +15261,21 @@ class AppLocalizationsPl extends AppLocalizations {
       'Kod Płatności QR. Zeskanuj go w Epic Cash Mobile.';
 
   @override
+  String get deskSetupSaveFailedTitle => 'Ustawienia nie zostały zapisane';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason. Bez zapisu portfel używa ustawień zapisanych do tej pory. Można je później zmienić w Ustawieniach.';
+  }
+
+  @override
+  String get deskSetupSkipSave => 'Kontynuuj bez zapisywania';
+
+  @override
+  String get deskSetupResumeLead =>
+      'Konfiguracja nie została ostatnio dokończona. Portfel czyta łańcuch i wysyła płatności przez węzeł Epic.';
+
+  @override
   String deskErrProofContactsMerged(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

@@ -14023,6 +14023,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendToQrPayment => '这是二维码付款码，请用 Epic Cash Mobile 扫描。';
 
   @override
+  String get deskSetupSaveFailedTitle => '设置未保存';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason。不保存时，钱包使用目前已存储的设置，之后可在“设置”中更改。';
+  }
+
+  @override
+  String get deskSetupSkipSave => '不保存并继续';
+
+  @override
+  String get deskSetupResumeLead => '上次设置未完成。钱包通过 Epic 节点读取区块链并发送交易。';
+
+  @override
   String deskErrProofContactsMerged(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

@@ -24,6 +24,7 @@ import 'src/builtin_node_provider.dart';
 import 'src/data_folder.dart';
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/app/shell.dart' show deskVersion;
+import 'src/desktop/data/close_down.dart';
 import 'src/desktop/data/desk_node.dart';
 import 'src/desktop/data/desk_update.dart' show deskUpdateAutoProvider;
 import 'src/desktop/keyring_check.dart';
@@ -146,11 +147,7 @@ Future<List<Override>> deskOverrides() async {
   // Closing the window must not leave the node running.
   _exitListener = AppLifecycleListener(
     onExitRequested: () async {
-      try {
-        await wallet.dispose();
-      } finally {
-        await stopAllBuiltInNodes();
-      }
+      await deskCloseDown(disposeWallet: wallet.dispose, stopNodes: stopAllBuiltInNodes);
       return AppExitResponse.exit;
     },
   );
@@ -181,8 +178,7 @@ Future<List<Override>> deskOverrides() async {
     deskHistoryFilesProvider.overrideWithValue(const SystemDeskHistoryFiles()),
     deskUpdateAutoProvider.overrideWithValue(true),
     deskQuitProvider.overrideWithValue(() async {
-      await wallet.dispose();
-      await stopAllBuiltInNodes();
+      await deskCloseDown(disposeWallet: wallet.dispose, stopNodes: stopAllBuiltInNodes);
       exit(0);
     }),
     if (!deskStartGiven) deskStartProvider.overrideWithValue(hasWallet ? DeskRoute.unlock : DeskRoute.welcome),

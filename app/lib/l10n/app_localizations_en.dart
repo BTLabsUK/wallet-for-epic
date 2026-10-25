@@ -14818,6 +14818,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'A QR Payment code. Scan it with Epic Cash Mobile.';
 
   @override
+  String get deskSetupSaveFailedTitle => 'Settings not saved';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason. Without saving, the wallet uses the settings stored so far. They can be changed later in Settings.';
+  }
+
+  @override
+  String get deskSetupSkipSave => 'Continue without saving';
+
+  @override
+  String get deskSetupResumeLead =>
+      'Setup was not finished last time. The wallet reads the chain and sends through an Epic node.';
+
+  @override
   String deskErrProofContactsMerged(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

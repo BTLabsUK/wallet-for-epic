@@ -81,6 +81,8 @@ final List<DeskShot> onboardingShots = [
   const DeskShot(id: '04c-setup-epicbox', title: 'Setup: Epicbox', route: DeskRoute.setup, arg: SetupStep.epicbox),
   const DeskShot(id: '04e-setup-epicbox-list', title: 'Setup: the Epicbox list open', route: DeskRoute.setup, arg: SetupDemo(SetupStep.epicbox, listOpen: true)),
   const DeskShot(id: '04d-setup-review', title: 'Setup: review', route: DeskRoute.setup, arg: SetupStep.review),
+  const DeskShot(id: '04f-setup-save-failed', title: 'Setup: Save failed on a first run', route: DeskRoute.setup, arg: SetupDemo(SetupStep.review, first: SetupFirstRun(UnlockAdded('Wallet 1', id: 'demo')), saveFailed: true)),
+  const DeskShot(id: '04g-setup-resumed', title: 'Setup: resumed after a restart', route: DeskRoute.setup, arg: SetupDemo(SetupStep.node, first: SetupFirstRun(UnlockAdded('Wallet 1', id: 'demo'), resumed: true))),
   const DeskShot(id: '05-unlock', title: 'Unlock', route: DeskRoute.unlock),
   const DeskShot(id: '05b-unlock-error', title: 'Unlock: wrong password', route: DeskRoute.unlock, arg: UnlockShow.wrongPassword),
   const DeskShot(id: '05c-unlock-progress', title: 'Unlock: unlocking', route: DeskRoute.unlock, arg: UnlockShow.progress),

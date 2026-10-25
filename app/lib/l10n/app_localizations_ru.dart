@@ -15227,6 +15227,21 @@ class AppLocalizationsRu extends AppLocalizations {
       'Код «Оплата по QR». Отсканируйте его в Epic Cash Mobile.';
 
   @override
+  String get deskSetupSaveFailedTitle => 'Настройки не сохранены';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason. Без сохранения кошелёк использует настройки, сохранённые до сих пор. Их можно изменить позже в настройках.';
+  }
+
+  @override
+  String get deskSetupSkipSave => 'Продолжить без сохранения';
+
+  @override
+  String get deskSetupResumeLead =>
+      'Настройка в прошлый раз не была завершена. Кошелёк читает блокчейн и отправляет платежи через узел Epic.';
+
+  @override
   String deskErrProofContactsMerged(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

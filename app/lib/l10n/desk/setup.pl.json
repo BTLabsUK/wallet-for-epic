@@ -49,5 +49,9 @@
   "deskSetupSaveStartsFallback": "Zapisanie uruchomi węzeł. Pierwsza synchronizacja trwa kilka godzin; portfel otworzy się wcześniej i do tego czasu użyje węzła {node}.",
   "deskSetupSaveStarts": "Zapisanie uruchomi węzeł. Pierwsza synchronizacja trwa kilka godzin; portfel otworzy się wcześniej.",
   "deskSetupServer": "Serwer",
-  "deskSetupOff": "Wyłączony"
+  "deskSetupOff": "Wyłączony",
+  "deskSetupSaveFailedTitle": "Ustawienia nie zostały zapisane",
+  "deskSetupSaveFailedText": "{reason}. Bez zapisu portfel używa ustawień zapisanych do tej pory. Można je później zmienić w Ustawieniach.",
+  "deskSetupSkipSave": "Kontynuuj bez zapisywania",
+  "deskSetupResumeLead": "Konfiguracja nie została ostatnio dokończona. Portfel czyta łańcuch i wysyła płatności przez węzeł Epic."
 }

@@ -14998,6 +14998,21 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein QR-Zahlungscode. Scannen Sie ihn mit Epic Cash Mobile.';
 
   @override
+  String get deskSetupSaveFailedTitle => 'Einstellungen nicht gespeichert';
+
+  @override
+  String deskSetupSaveFailedText(String reason) {
+    return '$reason. Ohne Speichern verwendet die Wallet die bisher gespeicherten Einstellungen. Sie lassen sich später unter Einstellungen ändern.';
+  }
+
+  @override
+  String get deskSetupSkipSave => 'Ohne Speichern fortfahren';
+
+  @override
+  String get deskSetupResumeLead =>
+      'Die Einrichtung wurde beim letzten Mal nicht abgeschlossen. Die Wallet liest die Blockchain und sendet über einen Epic-Node.';
+
+  @override
   String deskErrProofContactsMerged(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

@@ -225,5 +225,27 @@
   "deskSetupOff": "Off",
   "@deskSetupOff": {
     "description": "Value of the Epicbox server row when no server is set: receiving through Epicbox is off."
+  },
+  "deskSetupSaveFailedTitle": "Settings not saved",
+  "@deskSetupSaveFailedTitle": {
+    "description": "Title of the red notice on the setup's last step after Save failed on a first run. The notice has a button to continue without saving (deskSetupSkipSave)."
+  },
+  "deskSetupSaveFailedText": "{reason}. Without saving, the wallet uses the settings stored so far. They can be changed later in Settings.",
+  "@deskSetupSaveFailedText": {
+    "description": "Text of the red notice on the setup's last step after Save failed on a first run. {reason} is the error text, a short sentence without a final period (e.g. 'The wallet is locked'). 'Settings' is the app's Settings page.",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "The wallet is locked"
+      }
+    }
+  },
+  "deskSetupSkipSave": "Continue without saving",
+  "@deskSetupSkipSave": {
+    "description": "Button in the red notice after Save failed on a first-run setup: leave setup without saving and go to the unlock screen; the wallet keeps the settings stored so far."
+  },
+  "deskSetupResumeLead": "Setup was not finished last time. The wallet reads the chain and sends through an Epic node.",
+  "@deskSetupResumeLead": {
+    "description": "Lead under the title of the setup's node step when the app was closed before a first-run setup was saved and setup starts again. Second sentence is deskSetupNodeLead."
   }
 }
