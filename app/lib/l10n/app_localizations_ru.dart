@@ -15032,7 +15032,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Любой, у кого есть это приглашение, может выполнить сопряжение от вашего имени, пока оно действует. Отправляйте его только нужному человеку, затем проверьте слова вместе.';
 
   @override
-  String get pairShareInvite => 'Поделиться приглашением';
+  String get pairShareInvite => 'Поделиться';
 
   @override
   String get pairCopyInvite => 'Копировать приглашение';
