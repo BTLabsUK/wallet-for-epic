@@ -1043,7 +1043,7 @@ void main() {
           of: find.byKey(noticeKey),
           matching: find.text(
             'Could not import the history backup. '
-            'This history file belongs to a different wallet.',
+            'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.',
           ),
         ),
         findsOneWidget,

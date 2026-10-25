@@ -131,17 +131,18 @@ _historyFileTranslations = [
   ),
 ];
 
-/// The core's [detail] as the whole message: as it is in English, translated where it is a
-/// known history-file sentence, else null so a translated summary goes in front.
+/// The core's [detail] as the whole message: the app's own words for a known history-file
+/// sentence (in English too, where they say more than the core's), else in English as it is,
+/// else null so a translated summary goes in front.
 String? _coreSentence(AppLocalizations l, String detail) {
   final sentence = _plainSentence(detail);
-  if (sentence == null || l.localeName == 'en') return sentence;
+  if (sentence == null) return null;
   final line = detail.trim().split('\n').first.trim();
   for (final (pattern, translate) in _historyFileTranslations) {
     final match = pattern.firstMatch(line);
     if (match != null) return translate(l, match);
   }
-  return null;
+  return l.localeName == 'en' ? sentence : null;
 }
 
 /// [detail]'s first line when it is already a sentence for the user, so no "Invalid input."

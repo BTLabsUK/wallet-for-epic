@@ -1812,7 +1812,7 @@ void main() {
         );
         expect(
           say('This history file belongs to a different wallet'),
-          'This history file belongs to a different wallet.',
+          'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.',
         );
         expect(
           say(

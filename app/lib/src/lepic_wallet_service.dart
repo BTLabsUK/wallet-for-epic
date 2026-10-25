@@ -2476,7 +2476,10 @@ class LepicWalletSession implements WalletSession {
     final requests = await _requests();
     return [
       for (final i in requests)
-        if (i.state != IssuedInvoiceState.waiting &&
+        // Only a request LEPIC holds settles here: one a history backup brought back is not
+        // news, so it raises no notice.
+        if (i.txId != null &&
+            i.state != IssuedInvoiceState.waiting &&
             _history.issuedInvoiceState(i.slateId) ==
                 IssuedInvoiceState.waiting)
           await _settledAs(i)
