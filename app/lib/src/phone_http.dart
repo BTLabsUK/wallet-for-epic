@@ -1,7 +1,8 @@
 /// The phone's one owner of the Link · HTTP listener for the open wallet: wallets on the same
 /// Wi-Fi network pay this one at `http://<this phone's LAN address>:3415`. It runs only while a
-/// wallet is open, Link · HTTP is on (Settings › Transactions), the network mode allows it and
-/// Tor is off; it stops on lock, and after the app comes back it starts again if it should run.
+/// wallet is open, Link · HTTP is on (Settings › Transactions), the network mode allows it,
+/// Tor is off and the phone has a Wi-Fi or wired address; it stops on lock, and after the app
+/// comes back it starts again if it should run.
 library;
 
 import 'dart:async';
@@ -43,7 +44,9 @@ enum PhoneHttpPhase {
   /// address ([TorRoute.httpListener]).
   offWhileTor,
 
-  /// Listening, but the phone is on no Wi-Fi or wired network: there is no address to hand out.
+  /// Not listening: the phone is on no Wi-Fi or wired network, so there is no address to hand
+  /// out, and on mobile data alone a carrier's public address would put it on the internet.
+  /// It starts once an address appears.
   noNetwork,
 
   /// Offline mode on a node that is not on this phone or the local network: a received payment
@@ -182,11 +185,11 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
     ref.listen(networkModeProvider, (_, _) => later());
     ref.listen(localNodeProvider, (_, _) => later());
     ref.listen(phoneTorProvider.select((s) => (s.settled, phoneTorState(s))), (_, _) => later());
-    Future.microtask(() {
-      if (_current(generation)) {
-        _apply();
-        unawaited(_readAddress());
-      }
+    // The address first: without one it must not start.
+    Future.microtask(() async {
+      if (!_current(generation)) return;
+      await _readAddress();
+      if (_current(generation)) _apply();
     });
     return const PhoneHttpState();
   }
@@ -206,6 +209,8 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
     // Until the wallet's Tor switch is read it may be on: never listen in the clearnet first.
     if (!tor.settled) return PhoneHttpPhase.off;
     if (torWay(TorRoute.httpListener, phoneTorState(tor)) != TorWay.clearnet) return PhoneHttpPhase.offWhileTor;
+    // It listens on every interface: with no LAN address that is mobile data alone.
+    if (state.address == null) return PhoneHttpPhase.noNetwork;
     return null;
   }
 
@@ -233,7 +238,8 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
     await _stop();
     if (!ref.mounted) return;
     state = state.copyWith(listener: PhoneHttpPhase.off);
-    unawaited(_readAddress());
+    await _readAddress();
+    if (!ref.mounted) return;
     _apply();
   }
 
@@ -255,6 +261,8 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
     if (address != state.address) {
       logInfo('http', address == null ? 'no LAN address' : 'LAN address changed');
       state = state.copyWith(address: () => address);
+      // Gone: stop; back: start.
+      _apply();
     }
   }
 
@@ -283,8 +291,8 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
       state = state.copyWith(listener: phase);
     }
 
-    // Every interface: on a phone 127.0.0.1 reaches nobody. Behind the router's NAT (or the
-    // carrier's) the internet cannot reach it anyway; the LAN can.
+    // Every interface: on a phone 127.0.0.1 reaches nobody. Behind the router's NAT the
+    // internet cannot reach it; the LAN can. Never without a LAN address ([_blocked]).
     sub = session
         .startHttpListener(exposure: HttpExposure.internet, port: phoneHttpPort)
         .listen(

@@ -266,19 +266,41 @@ void main() {
     expect(find.widgetWithText(TextButton, 'Retry'), findsOneWidget);
   });
 
-  testWidgets('no Wi-Fi address: no address to hand out; a network change reads it again', (tester) async {
+  testWidgets('no Wi-Fi address: nothing listens (QA-1, mobile data alone); a network change starts it', (tester) async {
     final h = _Harness()..ip = null;
     await h.pump(tester);
-    await h.emit(tester, HttpListenerEventKind.started, port: 3415);
+    expect(h.session.httpListenerStarts, isEmpty);
     expect(h.http.phase, PhoneHttpPhase.noNetwork);
     expect(find.text('Not on a Wi-Fi network. No address to hand out.'), findsOneWidget);
 
     h.ip = '10.0.1.33';
     h.network.add(true);
     await h.settle(tester);
+    expect(h.session.httpListenerStarts, hasLength(1));
+    await h.emit(tester, HttpListenerEventKind.started, port: 3415);
     expect(h.http.phase, PhoneHttpPhase.listening);
     expect(find.text('http://10.0.1.33:3415'), findsOneWidget);
     // The settle timer's second read.
+    await tester.pump(const Duration(seconds: 4));
+  });
+
+  testWidgets('the Wi-Fi address gone: it stops, the no-network line shows; back: it starts again (QA-1)', (tester) async {
+    final h = _Harness();
+    await h.pump(tester);
+    await h.emit(tester, HttpListenerEventKind.started, port: 3415);
+    expect(h.http.phase, PhoneHttpPhase.listening);
+
+    h.ip = null;
+    h.network.add(true);
+    await h.settle(tester);
+    expect(h.session.httpListenerStops, 1);
+    expect(h.http.phase, PhoneHttpPhase.noNetwork);
+    expect(find.text('Not on a Wi-Fi network. No address to hand out.'), findsOneWidget);
+
+    h.ip = '10.0.1.40';
+    h.network.add(true);
+    await h.settle(tester);
+    expect(h.session.httpListenerStarts, hasLength(2));
     await tester.pump(const Duration(seconds: 4));
   });
 
