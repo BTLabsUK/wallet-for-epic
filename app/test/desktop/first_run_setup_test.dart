@@ -284,6 +284,25 @@ void main() {
     await end(tester);
   });
 
+  for (final restored in [true, false]) {
+    testWidgets('a resumed setup of a ${restored ? 'restored' : 'new'} wallet keeps how it came for Unlock\'s notice (WIN-2)', (tester) async {
+      final added = (await tester.runAsync(() async {
+        await wallet.createWallet(password: 'longpassword');
+        final a = (await wallet.wallets()).last;
+        await markSetupPending(wallet, a.id, restored: restored);
+        return a;
+      }))!;
+      // A new start: only the wallet's own record says how it came.
+      await pumpApp(tester, DeskRoute.unlock);
+      await wait(tester, 800);
+      final arg = container.read(deskNavProvider).arg! as SetupFirstRun;
+      expect(arg.resumed, isTrue);
+      expect(arg.added.id, added.id);
+      expect(arg.added.notice, restored ? 'Wallet restored.' : isNull, reason: 'null: "New wallet added."');
+      await end(tester);
+    });
+  }
+
   testWidgets('create marks the wallet pending until Save', (tester) async {
     await pumpApp(tester, DeskRoute.create);
     await tester.enterText(field(0), 'longpassword');

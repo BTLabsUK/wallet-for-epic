@@ -161,6 +161,14 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> setSetupPending(String id, bool pending) async => pending ? _setupPending.add(id) : _setupPending.remove(id);
 
+  final Set<String> _setupRestored = {};
+
+  @override
+  Future<bool> setupRestored(String id) async => _setupRestored.contains(id);
+
+  @override
+  Future<void> setSetupRestored(String id) async => _setupRestored.add(id);
+
   @override
   Future<void> selectWallet(String id) async => _current = id;
 

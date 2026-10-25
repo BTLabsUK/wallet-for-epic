@@ -738,6 +738,18 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<bool> setupRestored(String id) async {
+    final e = await _entry(id);
+    return (await _meta(_metaKey(e.walletId)))['setupFlow'] == 'restored';
+  }
+
+  @override
+  Future<void> setSetupRestored(String id) async {
+    final e = await _entry(id);
+    await _setMeta({'setupFlow': 'restored'}, _metaKey(e.walletId));
+  }
+
+  @override
   Future<void> selectWallet(String id) async {
     await _entry(id);
     _selectedId = id;

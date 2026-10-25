@@ -22,6 +22,11 @@ abstract interface class DeskWalletApi {
   Future<bool> setupPending(String id);
   Future<void> setSetupPending(String id, bool pending);
 
+  /// Whether wallet [id]'s pending setup came from a restore: a setup resumed after a restart
+  /// says "Wallet restored." again, not "New wallet added." (WIN-2).
+  Future<bool> setupRestored(String id);
+  Future<void> setSetupRestored(String id);
+
   /// Picks the wallet [unlock] opens next (Unlock's Wallet select). The open one stays open.
   Future<void> selectWallet(String id);
 

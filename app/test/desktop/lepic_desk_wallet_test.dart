@@ -248,6 +248,18 @@ void main() {
       expect(service.createdConfig!.chain, core.Chain.mainnet);
     });
 
+    test('a restored wallet\'s pending setup says so, also to a new start (WIN-2)', () async {
+      await wallet.createWallet(name: 'Main', password: _password);
+      final id = (await wallet.wallets()).single.id;
+      expect(await wallet.setupRestored(id), isFalse);
+      await wallet.setSetupPending(id, true);
+      await wallet.setSetupRestored(id);
+      final again = make(service);
+      addTearDown(again.dispose);
+      expect(await again.setupPending(id), isTrue);
+      expect(await again.setupRestored(id), isTrue);
+    });
+
     test('no wallet yet: the wallet list is empty', () async {
       expect(await wallet.wallets(), isEmpty);
     });

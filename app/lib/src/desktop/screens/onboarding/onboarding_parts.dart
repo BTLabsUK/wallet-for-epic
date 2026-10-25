@@ -149,10 +149,12 @@ Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fa
 
 /// Remembers that wallet [id] still has its first-run setup to do (null: the list could not
 /// name it, then Unlock offers the wallet opened last and the setup is skipped).
-Future<void> markSetupPending(DeskWalletApi api, String? id) async {
+Future<void> markSetupPending(DeskWalletApi api, String? id, {bool restored = false}) async {
   if (id == null) return;
   try {
     await api.setSetupPending(id, true);
+    // A setup resumed after a restart says how the wallet came (WIN-2).
+    if (restored) await api.setSetupRestored(id);
   } on Object {
     // The setup still runs now; only a quit halfway would skip it.
   }

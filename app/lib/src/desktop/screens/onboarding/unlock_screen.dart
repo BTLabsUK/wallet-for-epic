@@ -145,7 +145,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       return false;
     }
     if (!pending || !mounted) return false;
-    ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(UnlockAdded(pick.name, id: pick.id), second: second, resumed: true));
+    // How the wallet came, for Unlock's notice after the setup: restored, or new (WIN-2).
+    final restored = await ref.read(deskApiProvider).setupRestored(pick.id).catchError((Object _) => false);
+    if (!mounted) return false;
+    final notice = restored ? context.l10n.deskOnbRestoreDone : null;
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(UnlockAdded(pick.name, id: pick.id, notice: notice), second: second, resumed: true));
     return true;
   }
 

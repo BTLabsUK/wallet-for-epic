@@ -178,7 +178,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       }
       final added = await addedWallet(api, before, 'Restored wallet', notice: context.l10n.deskOnbRestoreDone); // l10n-ok: the wallet's stored default name
       if (!mounted) return;
-      await markSetupPending(api, added.id);
+      await markSetupPending(api, added.id, restored: true);
       if (!mounted) return;
       ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(added, second: before.isNotEmpty));
     } catch (e) {
