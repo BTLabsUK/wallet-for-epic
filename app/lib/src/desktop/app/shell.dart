@@ -15,7 +15,7 @@ import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, d
 import '../../ui/notices.dart' show NoticeLevel;
 import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
-import '../data/pairing_state.dart' show deskKeysBackProvider, deskPairingApiProvider, deskPairingEventsProvider;
+import '../data/pairing_state.dart' show deskInvoicesShownProvider, deskKeysBackProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show showDeskCheckWords;
@@ -198,7 +198,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskProvider.select((s) => s.oldHistory), (_, next) {
       if (next.isNotEmpty && mounted) unawaited(_askOldHistory(next));
     });
-    final page = KeyedSubtree(key: ValueKey(at.route), child: deskScreen(at));
+    // A place of a part switched off (Pairing, Invoices) reads as Overview.
+    final shown = deskRouteShown(ref, at.route) ? at : const DeskLocation(DeskRoute.overview);
+    final page = KeyedSubtree(key: ValueKey(shown.route), child: deskScreen(shown));
     final main = Material(color: c.bg, child: page);
     final tour = ref.watch(deskTourProvider.select((t) => t.open));
     final tourStart = ref.watch(deskTourProvider.select((t) => t.start));
@@ -392,7 +394,7 @@ class _Sidebar extends ConsumerWidget {
     final ts = context.ts;
     final nav = ref.read(deskNavProvider.notifier);
     final pending = ref.watch(deskProvider.select((s) => s.pendingFiles));
-    final invoices = ref.watch(deskApiProvider).supportsInvoices;
+    final invoices = ref.watch(deskInvoicesShownProvider);
     final toPay = ref.watch(deskInvoiceBadgeProvider);
     final account = ref.watch(deskProvider.select((s) => s.account));
     final label = ref.watch(settingsPrefsProvider.select((p) => p.walletLabel));
@@ -613,6 +615,15 @@ class _PhoneTopBar extends ConsumerWidget {
   }
 }
 
+/// Whether [route] is shown: the pairing places need Pairing, the invoice places Invoices
+/// (Settings › Advanced › Experimental).
+bool deskRouteShown(WidgetRef ref, DeskRoute route) => switch (route) {
+  DeskRoute.pair || DeskRoute.pairPending => ref.watch(deskPairsProvider),
+  DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices =>
+    ref.watch(deskInvoicesShownProvider),
+  _ => true,
+};
+
 /// Advanced › Outputs, or a split or consolidation the node did not take yet (never hide what
 /// is in use: its Broadcast again and Cancel live there).
 bool outputsShown(WidgetRef ref) =>
@@ -626,7 +637,7 @@ class _PhoneNav extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
-    final invoices = ref.watch(deskApiProvider).supportsInvoices;
+    final invoices = ref.watch(deskInvoicesShownProvider);
     final items = [
       for (final n in deskNav)
         if ((n.$1 != DeskSection.invoices || invoices) && (n.$1 != DeskSection.outputs || outputsShown(ref))) n,

@@ -8,6 +8,7 @@ import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localInt;
 import 'prefs.dart';
+import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
 
 /// The sections; [invoices] adds Invoices below Transactions (wallets that take invoices), its label
 /// in the app's language.
@@ -42,7 +43,7 @@ class SettingsFrame extends ConsumerWidget {
     final nav = ref.read(deskNavProvider.notifier);
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final l = context.l10n;
-    final items = _itemsFor(l, invoices: ref.watch(deskApiProvider).supportsInvoices);
+    final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider));
     final content = ConstrainedBox(constraints: BoxConstraints(maxWidth: Ctl.narrow), child: child);
     return EPage(
       title: l.deskSetFrameTitle,

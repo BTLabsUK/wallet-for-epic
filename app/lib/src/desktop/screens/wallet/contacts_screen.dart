@@ -1128,7 +1128,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                 onChanged: locked ? null : (v) => _run(() => deskPairingCall(ref, (api) => api.setSeal(p.id, v))),
               ),
             ),
-            ESetRow(
+            if (ref.watch(deskInvoicesOnProvider)) ESetRow(
               title: l.contactAllowInvoices,
               text: changed ? l.contactPausedUntilChecked : (verified ? null : l.contactCheckWordsFirst),
               hint: l.contactAllowInfoDesktop(name),
@@ -1153,7 +1153,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           spacing: Sp.x2,
           runSpacing: Sp.x2,
           children: [
-            if (verified && p.caps.paysInvoices && ref.watch(deskApiProvider).supportsInvoices)
+            if (verified && p.caps.paysInvoices && ref.watch(deskInvoicesShownProvider))
               EButton(label: l.deskInvIssueAction, icon: EIcons.request, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.invoiceIssue, p.id)),
             EButton(
               label: l.contactRemovePairing,

@@ -8,6 +8,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../scan/scan_checks.dart' show CodeOrigin;
 import '../../../scan/scan_router.dart';
@@ -212,3 +213,28 @@ void showCodeDialog(BuildContext context, {required IconData icon, required Stri
     ),
   );
 }
+
+/// A pairing link (or, [invoices], an invoice) while its switch in Settings › Advanced ›
+/// Experimental is off: says so, Open Advanced goes there.
+void showExperimentalOffDialog(BuildContext context, WidgetRef ref, {bool invoices = false}) => unawaited(
+  showEDialog<void>(
+    context,
+    builder: (ctx) => EDialog(
+      key: const ValueKey('experimental-off'),
+      title: invoices ? ctx.l10n.expInvoicesOffTitle : ctx.l10n.expPairingOffTitle,
+      description: invoices ? ctx.l10n.expInvoicesOffBody : ctx.l10n.expPairingOffBody,
+      icon: invoices ? EIcons.invoice : Icons.handshake_outlined,
+      actions: [
+        EButton(label: ctx.l10n.commonClose, onPressed: () => Navigator.of(ctx).pop()),
+        EButton.primary(
+          key: const ValueKey('experimental-off-open'),
+          label: ctx.l10n.expOpenAdvanced,
+          onPressed: () {
+            Navigator.of(ctx).pop();
+            ref.read(deskNavProvider.notifier).go(DeskRoute.settingsAdvanced);
+          },
+        ),
+      ],
+    ),
+  ),
+);

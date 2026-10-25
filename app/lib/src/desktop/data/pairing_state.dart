@@ -23,6 +23,12 @@ final deskPairingOnProvider = Provider<bool>((ref) => ref.watch(deskProvider.sel
 /// Pairing): the Invoices page, requests, notices and Settings › Invoices.
 final deskInvoicesOnProvider = Provider<bool>((ref) => ref.watch(deskProvider.select((s) => s.settings.advanced.invoicesOn)));
 
+/// The invoices show: the wallet takes them and Invoices is on. Off, the Invoices page,
+/// Settings › Invoices, Requests on Activity and every invoice block are hidden.
+final deskInvoicesShownProvider = Provider<bool>(
+  (ref) => ref.watch(deskInvoicesOnProvider) && ref.watch(deskApiProvider).supportsInvoices,
+);
+
 /// The open wallet's pairing; [NoPairing] while locked or while Pairing is off. Follows the unlock and the reopen a
 /// node or Epicbox change makes, which closes the old session's pairing.
 final deskPairingApiProvider = Provider<PairingApi>((ref) {

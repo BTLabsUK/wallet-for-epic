@@ -22,7 +22,7 @@ import '../../../utf8_limit.dart';
 import '../../app/shell.dart' show outputsShown;
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
-import '../../data/pairing_state.dart' show deskPairsProvider;
+import '../../data/pairing_state.dart' show deskPairingOnProvider, deskPairsProvider;
 import '../../widgets/kit.dart';
 import '../pairing/pair_screens.dart' show deskOpenPairingText;
 import '../../widgets/tor_chip.dart';
@@ -635,6 +635,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         );
       case SlateFrames() when pasted:
         fieldError((l) => l.deskSendToQrPayment);
+      // Pairing off (Settings › Advanced): says it is experimental and where to turn it on.
+      case PairingLink() when !ref.read(deskPairingOnProvider) && ref.read(deskApiProvider).pairing.supported:
+        showExperimentalOffDialog(context, ref);
       case PairingLink() when pasted && !ref.read(deskPairsProvider):
         fieldError((l) => l.scanPairingUnavailable);
       case PairingLink(text: final link):

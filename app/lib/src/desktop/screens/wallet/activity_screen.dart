@@ -9,6 +9,7 @@ import '../../widgets/kit.dart';
 import 'tx_detail.dart';
 import 'tx_display.dart';
 import 'tx_label.dart';
+import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
 
 enum _Filter { all, received, sent, requests }
 
@@ -252,7 +253,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           ESegment(_Filter.all, l.deskActFilterAll, count: counts.$1),
           ESegment(_Filter.received, l.deskActFilterReceived, count: counts.$2),
           ESegment(_Filter.sent, l.deskActFilterSent, count: counts.$3),
-          if (ref.watch(deskApiProvider).supportsInvoices)
+          if (ref.watch(deskInvoicesShownProvider))
             ESegment(_Filter.requests, l.deskInvActFilter, icon: EIcons.request, count: all.where((t) => t.isInvoice).length),
         ],
         value: _filter,

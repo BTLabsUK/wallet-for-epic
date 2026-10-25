@@ -21,6 +21,7 @@ import '../../log.dart';
 import '../data/desk_store.dart';
 import '../desk_l10n.dart';
 import '../widgets/kit.dart';
+import '../data/pairing_state.dart' show deskInvoicesShownProvider;
 
 /// One step: the page it opens, the [TourTarget] ids it lights (their union when several are on
 /// screen; the card sits in the middle when none is), the sidebar entry and, on a Settings page,
@@ -262,7 +263,7 @@ class DeskTourOverlay extends ConsumerStatefulWidget {
 class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   /// Fixed for this run of the tour: the wallet does not change while it is open.
   late final List<TourStep> _steps =
-      widget.stepList ?? debugTourSteps ?? deskTourStepsFor(supportsInvoices: ref.read(deskApiProvider).supportsInvoices);
+      widget.stepList ?? debugTourSteps ?? deskTourStepsFor(supportsInvoices: ref.read(deskInvoicesShownProvider));
   late int _i = widget.startAt.clamp(0, _steps.length - 1);
   final _next = FocusNode(debugLabel: 'tour next');
   final _self = GlobalKey();

@@ -16,6 +16,7 @@ import 'api.dart';
 import 'invoices.dart';
 import 'models.dart' show SelfSend;
 import 'state.dart';
+import 'pairing_state.dart' show deskInvoicesOnProvider;
 
 export 'invoices.dart';
 
@@ -38,7 +39,8 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
     final api = ref.watch(deskApiProvider);
     final open = ref.watch(deskProvider.select((s) => s.account != null));
     ref.onDispose(_stop);
-    if (!api.supportsInvoices || !open) return null;
+    // Invoices off (Settings › Advanced): no book, so nothing of invoices shows or is checked.
+    if (!api.supportsInvoices || !ref.watch(deskInvoicesOnProvider) || !open) return null;
     _changes = api.changes().listen((_) => unawaited(load()));
     // The invoice address carries the relay: a switch moves the payments address, read again.
     ref.listen(deskProvider.select((s) => s.epicboxAddress), (before, now) {
@@ -132,7 +134,7 @@ final deskInvoicesProvider = NotifierProvider<DeskInvoices, InvoiceBook?>(DeskIn
 /// shows each as a toast.
 final deskInvoiceNoticesProvider = StreamProvider<InvoiceNotice>((ref) {
   final api = ref.watch(deskApiProvider);
-  return api.supportsInvoices ? api.invoiceNotices() : const Stream.empty();
+  return api.supportsInvoices && ref.watch(deskInvoicesOnProvider) ? api.invoiceNotices() : const Stream.empty();
 });
 
 /// What the sidebar badge counts: invoices to answer and payments to settle.
