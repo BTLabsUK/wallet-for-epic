@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../amount.dart' as shared show formatEpic;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
+import '../../../payment_prefs.dart' show PaymentPrefs;
 import '../../../known_relays.dart';
 import '../../../log.dart';
 import '../../../network.dart' show EpicboxRelay;
@@ -455,6 +456,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     MethodKind.directFile => TxMethod.file,
     _ => TxMethod.epicbox,
   };
+
+  /// Where an empty form goes when its method was switched off (AND-4): the start method, or
+  /// for one the desktop does not send by (QR Payment) the first it does that is on.
+  TxMethod _nextMethod(PaymentPrefs p) {
+    final link = (DeskFeatures.httpDirect || DeskFeatures.tor) && p.offersFamily(MethodFamily.link);
+    final start = _startMethod();
+    if (start != TxMethod.epicbox || p.epicbox) return start;
+    return link ? TxMethod.http : (p.directFile ? TxMethod.file : TxMethod.epicbox);
+  }
 
   static bool _offered(TxMethod m) => switch (m) {
     TxMethod.http => DeskFeatures.httpDirect,
@@ -960,6 +970,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     ref.watch(deskOutputPrefsProvider);
     ref.listen(deskOutputPrefsProvider, (_, _) => _replan());
     ref.listen(deskProvider.select((s) => s.balance), (_, _) => _replan());
+    // A method switched off in Settings › Transactions while Send is open: with To empty and
+    // nothing sent, Send moves to the method it starts on now, as after a restart. An address
+    // in To keeps its method, with the note that it is off (AND-4).
+    ref.listen(deskProvider.select((s) => s.settings.payments), (_, p) {
+      if (_result != null || _to.text.trim().isNotEmpty) return;
+      final on = switch (_method) {
+        TxMethod.http || TxMethod.tor => p.offersFamily(MethodFamily.link),
+        _ => p.offers(methodKindOf(_method)),
+      };
+      if (!on) setState(() => _method = _nextMethod(p));
+    });
     // A half-filled form holds Back (mouse, Alt+Left).
     return DeskStepBack(
       onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,

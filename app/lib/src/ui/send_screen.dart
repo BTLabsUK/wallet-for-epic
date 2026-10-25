@@ -493,6 +493,10 @@ class _SendViewState extends ConsumerState<SendView> {
         _requestAddress = handoff.origin == null ? null : to.address;
       }
     }
+    ref.listenManual(
+      appSettingsProvider.select((s) => s.value?.payments),
+      (_, payments) => _paymentsChanged(payments),
+    );
     // Settings › Transactions: the method Send starts on. A recipient handed over wins; the
     // settings load on their own, so a form still untouched takes them when they arrive.
     if (handoff == null || !recipientShaped(parseRecipient(handoff.text))) {
@@ -515,6 +519,34 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   bool _startApplied = false;
+
+  /// A method switched off in Settings › Transactions while Send is open: an idle form moves to
+  /// the method Send starts on now, as after a restart. An address in To keeps its method,
+  /// with the note that it is off (AND-4).
+  void _paymentsChanged(PaymentPrefs? payments) {
+    if (payments == null || !mounted || _holdsPayment || _formOffered(payments)) return;
+    setState(() {
+      _stage = SendStage.recipient;
+      _viaQr = false;
+      _method = TransferMethod.epicbox;
+      _error = null;
+      _startOn(payments.startMethod);
+    });
+  }
+
+  /// Whether the method the idle form shows is still on in [payments].
+  bool _formOffered(PaymentPrefs payments) {
+    if (_stage == SendStage.fileAmount) {
+      return payments.offers(_viaQr ? MethodKind.directQr : MethodKind.directFile);
+    }
+    if (_stage != SendStage.recipient) return true;
+    if (recipientShaped(parseRecipient(_recipient.text))) return true;
+    return switch (_method) {
+      TransferMethod.epicbox => payments.epicbox,
+      TransferMethod.direct => payments.offersFamily(MethodFamily.link),
+      _ => true,
+    };
+  }
 
   /// Opens the form on [start], the method Settings › Transactions chose (null: not loaded).
   void _startOn(MethodKind? start) {

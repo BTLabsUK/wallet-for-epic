@@ -265,6 +265,15 @@ void main() {
       await _open(tester, DeskRoute.send, payments: const PaymentPrefs(directFile: false, defaultMethod: MethodKind.directFile));
       expect(_selected<TxMethod>(tester), TxMethod.epicbox);
     });
+
+    testWidgets('Epicbox switched off while Send is open: an empty form moves to the start method (AND-4)', (tester) async {
+      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkHttp: true));
+      expect(_selected<TxMethod>(tester), TxMethod.epicbox);
+      await tester.runAsync(() => _container.read(deskProvider.notifier).saveSettings(_container.read(deskProvider).settings.copyWith(payments: const PaymentPrefs(epicbox: false, linkHttp: true))));
+      await _settle(tester);
+      expect(_selected<TxMethod>(tester), TxMethod.http);
+      expect(find.byKey(const ValueKey('send-epicbox-off')), findsNothing);
+    });
   });
 
   group('Send defaults', () {

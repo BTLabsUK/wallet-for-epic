@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
+import 'package:epic_wallet/src/settings.dart' show appSettingsProvider;
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/common.dart';
@@ -562,6 +563,28 @@ void main() {
       );
       expect(_method(tester), TransferMethod.direct);
       expect(find.text('Link address'), findsNothing);
+    });
+
+    testWidgets('a method switched off while Send is open: the idle form moves to the start method (AND-4)', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: const PaymentPrefs(linkHttp: true));
+      expect(_method(tester), TransferMethod.epicbox);
+      await tester.runAsync(() => h.container.read(appSettingsProvider.notifier).setPayments(const PaymentPrefs(epicbox: false, linkHttp: true)));
+      await _settle(tester);
+      expect(_method(tester), TransferMethod.direct);
+      expect(_segment('Epicbox'), findsNothing);
+      expect(find.text('Epicbox is off in Settings › Transactions.'), findsNothing);
+    });
+
+    testWidgets('an Epicbox address in To keeps Epicbox when it goes off, with the note (AND-4)', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: const PaymentPrefs(linkHttp: true));
+      await _enter(tester, 'To', _bob);
+      await tester.runAsync(() => h.container.read(appSettingsProvider.notifier).setPayments(const PaymentPrefs(epicbox: false, linkHttp: true)));
+      await _settle(tester);
+      expect(_method(tester), TransferMethod.epicbox);
+      expect(_toText(tester), _bob);
+      expect(find.text('Epicbox is off in Settings › Transactions.'), findsOneWidget);
     });
 
     testWidgets('a default that is not offered falls back to Epicbox', (tester) async {
