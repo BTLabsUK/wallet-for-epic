@@ -118,6 +118,21 @@ void main() {
       expect(find.text('Link · Tor receiving'), findsNothing);
     });
 
+    testWidgets('Offline on a public node: Link · HTTP refused stays off; Link · Tor offers no Turn on Tor (LNX-8)', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving, advanced: const AdvancedPrefs(networkMode: NetworkMode.offline));
+      await tester.tap(_offer('linkHttp'));
+      await _settle(tester);
+      expect(_payments.linkHttp, isFalse);
+      expect(tester.widget<ESwitch>(_offer('linkHttp')).value, isFalse);
+      expect(find.textContaining('Offline mode'), findsWidgets);
+      await tester.tap(_offer('linkTor'));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsOneWidget);
+      expect(find.text('Turn on Tor'), findsNothing);
+      expect(find.descendant(of: find.byKey(const ValueKey('st-tor-needs-tor')), matching: find.text('Offline mode is on in Advanced.')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+    });
+
     testWidgets('Link · HTTP is one switch: it saves, starts the listener and shows the HTTP group without a second switch', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       await tester.tap(_offer('linkHttp'));

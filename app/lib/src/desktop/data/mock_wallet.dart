@@ -789,6 +789,8 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> setHttpListening(bool on) async {
     await _wait();
+    // As the adapter: Offline on a node that is not local refuses it.
+    if (on && NetGate.offline && !isLocalAddressUrl(_node)) throw DeskError.l10n((l) => l.deskShellOffline);
     // As the adapter: the clearnet listener stays off while Tor is on.
     _http = on && !_settings.tor;
   }

@@ -344,14 +344,22 @@ class DeskController extends Notifier<DeskState> {
   /// for HTTP receiving, saved as `payments.linkHttp` (the listener runs now and at unlock
   /// while it is on) and the listener started or stopped with it.
   Future<void> setHttp(bool on) async {
-    final s = state.settings.copyWith(
-      payments: state.settings.payments.copyWith(linkHttp: on),
+    final was = state.settings;
+    final s = was.copyWith(
+      payments: was.payments.copyWith(linkHttp: on),
       directHttp: on,
       httpAutostart: on,
     );
     state = state.copyWith(settings: s);
     await api.saveSettings(s);
-    await api.setHttpListening(on);
+    try {
+      await api.setHttpListening(on);
+    } on Object {
+      // Refused (Offline on a node that is not local): the switch shows it stayed off (LNX-8).
+      state = state.copyWith(settings: was);
+      await api.saveSettings(was);
+      rethrow;
+    }
     final status = await api.status();
     state = state.copyWith(status: status);
   }

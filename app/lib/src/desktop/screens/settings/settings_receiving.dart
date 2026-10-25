@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
+import '../../../advanced.dart' show NetworkMode;
 import '../../../payment_prefs.dart';
 import '../../data/method_names.dart';
 import '../../data/net_mode_view.dart' show netTorState;
@@ -325,9 +326,13 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               key: const ValueKey('st-tor-needs-tor'),
               icon: EIcons.tor,
               title: l.deskSetTxTorNeedsTor,
+              // Offline: Tor never runs there, so no way to turn it on here; the reason instead.
+              text: s.advanced.networkMode == NetworkMode.offline ? l.netBlockOffline : null,
               actions: [
-                EButton(label: l.deskSetHttpTurnOnTor, icon: EIcons.tor, size: EBtnSize.inline, onPressed: () => _toggle(TxMethod.tor, true)),
-                EButton.ghost(label: l.deskSetRecvPrivacySettings, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor)),
+                if (s.advanced.networkMode != NetworkMode.offline) ...[
+                  EButton(label: l.deskSetHttpTurnOnTor, icon: EIcons.tor, size: EBtnSize.inline, onPressed: () => _toggle(TxMethod.tor, true)),
+                  EButton.ghost(label: l.deskSetRecvPrivacySettings, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor)),
+                ],
               ],
             )
           : null,
