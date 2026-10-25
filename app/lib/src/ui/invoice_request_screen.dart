@@ -555,8 +555,11 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                     ),
             ),
           ),
-          const SizedBox(height: 6),
-          PairSmallPrint(byFile ? (payers.isEmpty ? l.reqNoPayers : l.reqNewToHint) : l.reqNewToHintContacts),
+          // Pairing is beside the point for a code shown to whoever stands there.
+          if (!toQr) ...[
+            const SizedBox(height: 6),
+            PairSmallPrint(byFile ? (payers.isEmpty ? l.reqNoPayers : l.reqNewToHint) : l.reqNewToHintContacts),
+          ],
           const SizedBox(height: 16),
           TextField(
             key: requestAmountKey,

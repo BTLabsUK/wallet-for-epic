@@ -67,6 +67,9 @@ const Duration qrCompleteFor = Duration(milliseconds: 350);
 
 const Duration _notSlateCooldown = Duration(seconds: 2);
 
+/// How long the first start waits before trying a camera that failed once more.
+const Duration qrCameraRetryAfter = Duration(milliseconds: 900);
+
 /// How long "Posted" stays before the screen closes.
 const Duration qrPostedFor = Duration(milliseconds: 800);
 
@@ -151,7 +154,17 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
     final first = widget.first;
     if (first != null) unawaited(_onCode(first));
     // After this frame: the hold is a provider, which a build must not change.
-    Future.microtask(_retry);
+    Future.microtask(_firstStart);
+  }
+
+  /// The first start. Home's scan hands a payment code over the moment it reads one, while its
+  /// own camera may still be closing, so a camera that fails to start is tried once more after
+  /// [qrCameraRetryAfter] before the screen says so.
+  Future<void> _firstStart() async {
+    await _retry();
+    if (!mounted || _camera.value.problem != QrCameraProblem.failed) return;
+    await Future<void>.delayed(qrCameraRetryAfter);
+    await _retry();
   }
 
   @override

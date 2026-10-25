@@ -252,12 +252,29 @@ void main() {
     expect(h.result, isA<QrScanOpenFile>());
   });
 
-  testWidgets('a camera that failed offers Try again, which starts it again', (
+  testWidgets('a camera still closing (Home\'s scan handing over) starts on the second try', (
     tester,
   ) async {
     final h = _Harness();
     h.camera.problem = QrCameraProblem.failed;
     await h.pump(tester);
+    h.camera.problem = null;
+    await tester.pump(qrCameraRetryAfter);
+    await tester.pump();
+    expect(h.camera.starts, 2);
+    expect(find.textContaining('The camera could not start'), findsNothing);
+  });
+
+  testWidgets('a camera that failed twice offers Try again, which starts it again', (
+    tester,
+  ) async {
+    final h = _Harness();
+    h.camera.problem = QrCameraProblem.failed;
+    await h.pump(tester);
+    // The first start tries once more, for a camera another scanner was still closing.
+    await tester.pump(qrCameraRetryAfter);
+    await tester.pump();
+    expect(h.camera.starts, 2);
     expect(find.textContaining('The camera could not start'), findsOneWidget);
     expect(find.text('Open settings'), findsNothing);
     final starts = h.camera.starts;

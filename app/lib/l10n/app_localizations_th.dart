@@ -15980,7 +15980,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String reqQrSummary(String amount) {
-    return 'ใครสแกนโค้ดก็ชำระ $amount ได้ สแกนคำตอบของเขาที่นี่เพื่อทำให้เสร็จ คำขอหมดอายุใน 24 ชม.';
+    return 'ใครสแกนโค้ดก็ชำระ $amount ได้ สแกนคำตอบของเขาที่นี่เพื่อทำให้เสร็จ คำขอหมดอายุใน 24 ชั่วโมง';
   }
 
   @override
@@ -16040,7 +16040,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reqQrOpenNote =>
-      'เปิดอยู่ใน ใบแจ้งหนี้ › ส่งแล้ว เป็นเวลา 24 ชม. แล้วจะหมดอายุ';
+      'เปิดอยู่ใน ใบแจ้งหนี้ › ส่งแล้ว เป็นเวลา 24 ชั่วโมง แล้วจะหมดอายุ';
 
   @override
   String get reqQrWrongReply => 'คำตอบนี้เป็นของคำขออื่น สแกนคำตอบของคำขอนี้';

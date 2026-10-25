@@ -243,6 +243,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     }
     return switch (issued.state) {
       IssuedInvoiceState.waiting => null,
+      // A second payer's answer to a code shown in person: say what it means for them.
+      IssuedInvoiceState.paid when widget.scanned => (AppLocalizations l) => l.reqQrAlreadyPaid,
       IssuedInvoiceState.paid => (AppLocalizations l) => l.reqFileAlreadyPaid,
       _ => (AppLocalizations l) => l.reqFileEnded,
     };
