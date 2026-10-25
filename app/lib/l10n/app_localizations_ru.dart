@@ -16672,9 +16672,5 @@ class AppLocalizationsRu extends AppLocalizations {
       'Это ответ на запрос, которого в этом кошельке больше нет.';
 
   @override
-  String get reqFileNeedsInvoices =>
-      'Включите «Счета» в разделе «Настройки › Дополнительно», чтобы открывать запросы на оплату.';
-
-  @override
   String get deskInvIssuerAnother => 'Ещё один запрос';
 }

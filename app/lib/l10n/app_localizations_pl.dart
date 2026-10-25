@@ -16711,9 +16711,5 @@ class AppLocalizationsPl extends AppLocalizations {
       'To odpowiedź na prośbę, której ten portfel już nie ma.';
 
   @override
-  String get reqFileNeedsInvoices =>
-      'Włącz Faktury w Ustawienia › Zaawansowane, aby otwierać prośby o płatność.';
-
-  @override
   String get deskInvIssuerAnother => 'Kolejna prośba';
 }

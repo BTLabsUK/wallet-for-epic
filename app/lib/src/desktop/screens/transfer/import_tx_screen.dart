@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/files.dart';
-import '../../data/invoice_state.dart' show RequestFile, deskRequestFilesOn;
+import '../../data/invoice_state.dart' show RequestFile;
+import '../../data/pairing_state.dart' show deskInvoicesOnProvider;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../invoices/review_screen.dart' show RequestFileReview;
 import 'file_panels.dart';
+import 'send_code.dart' show showExperimentalOffDialog;
 
 /// Argument of the Import route: [done] opens on the saved response file, [error] on a
 /// refused file.
@@ -26,17 +28,13 @@ enum ImportError {
   wrongType,
   unreadable,
   noPlace,
-  failed,
-
-  /// A payment request with the Invoices switch off (DESIGN §3).
-  needsInvoices;
+  failed;
 
   String title(AppLocalizations l) => switch (this) {
     wrongType => l.deskImpWrongType,
     unreadable => l.deskImpUnreadable,
     noPlace => l.deskImpNoPlace,
     failed => l.deskImpFailed,
-    needsInvoices => l.reqFromFileTitle,
   };
 
   String text(AppLocalizations l) => switch (this) {
@@ -44,7 +42,6 @@ enum ImportError {
     unreadable => l.deskImpUnreadableText,
     noPlace => l.deskImpNoPlaceText,
     failed => l.deskImpFailedText,
-    needsInvoices => l.reqFileNeedsInvoices,
   };
 }
 
@@ -100,9 +97,9 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     await _receive(() => api.receiveFile(path), mock: files == null);
   }
 
-  /// A payment request opens its Review, or is refused while request files are off; true
-  /// when the file was one. Any other file, or one that cannot be read, goes on to signing,
-  /// which says why.
+  /// A payment request opens its Review; with Invoices off (Settings › Advanced) a dialog says
+  /// they are experimental. True when the file was one. Any other file, or one that cannot be
+  /// read, goes on to signing, which says why.
   Future<bool> _isRequest(Future<RequestFile?> Function() read, {bool pasted = false}) async {
     final RequestFile? request;
     try {
@@ -111,14 +108,18 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
       return false;
     }
     if (request == null || !mounted) return false;
+    if (!ref.read(deskInvoicesOnProvider)) {
+      showExperimentalOffDialog(context, invoices: true);
+      return true;
+    }
     setState(() {
       _pasted = pasted;
       _detail = null;
-      if (deskRequestFilesOn(ref)) {
+      if (ref.read(deskApiProvider).supportsRequestFiles) {
         _request = request;
         _error = null;
       } else {
-        _error = ImportError.needsInvoices;
+        _error = ImportError.wrongType;
       }
     });
     return true;

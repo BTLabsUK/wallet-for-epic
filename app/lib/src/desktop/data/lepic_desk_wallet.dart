@@ -2600,7 +2600,6 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       final info = await _service.inspectSlate(json: json);
       if (info.stage != core.SlateStage.requestAnswer) return;
-      if (!supportsRequestFiles) throw DeskError.l10n((l) => l.reqFileNeedsInvoices);
       issued = await _open.issuedInvoice(slateId: info.slateId);
     } on core.WalletError {
       return;

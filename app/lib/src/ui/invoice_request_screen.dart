@@ -43,12 +43,10 @@ const Key requestSummaryKey = ValueKey('request-summary');
 const Key requestToFileKey = ValueKey('request-to-file');
 const Key requestFileWaitingKey = ValueKey('request-file-waiting');
 
-/// Payment requests work as files, both ways: the core handles them and Invoices is on
-/// (DESIGN §3). Off, "Save as file" is absent and request files are refused.
-// TODO(pairing-followups): also require the Invoices experimental switch (invoicesOnProvider)
-// once feat/experimental-flags is on main.
+/// Payment requests work as files, both ways: Invoices is on and the core handles them
+/// (DESIGN §3). Off, "Save as a file for anyone" is absent.
 bool requestFilesOn(WidgetRef ref, {bool listen = true}) =>
-    (listen ? ref.watch(sessionProvider) : ref.read(sessionProvider))?.supportsRequestFiles ?? false;
+    (listen ? ref.watch(invoiceSessionProvider) : ref.read(invoiceSessionProvider))?.supportsRequestFiles ?? false;
 
 /// The picker's value for "Save as a file for anyone".
 const String _fileRow = '\u0000file';

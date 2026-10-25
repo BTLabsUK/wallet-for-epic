@@ -4262,6 +4262,5 @@
   "reqFileEnded": "此请求已结束。",
   "slateIncomingRequestAnswer": "对你 {amount}（手续费 {fee}）付款请求的回复。",
   "reqAnswerUnknown": "这是对本钱包已不存在的请求的回复。",
-  "reqFileNeedsInvoices": "在“设置 › 高级”中开启账单，即可打开付款请求。",
   "deskInvIssuerAnother": "再发一个请求"
 }

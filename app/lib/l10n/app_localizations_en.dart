@@ -16208,9 +16208,5 @@ class AppLocalizationsEn extends AppLocalizations {
       'This answers a request this wallet no longer has.';
 
   @override
-  String get reqFileNeedsInvoices =>
-      'Turn on Invoices in Settings › Advanced to open payment requests.';
-
-  @override
   String get deskInvIssuerAnother => 'Another request';
 }

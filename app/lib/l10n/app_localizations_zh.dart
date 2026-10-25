@@ -15344,8 +15344,5 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqAnswerUnknown => '这是对本钱包已不存在的请求的回复。';
 
   @override
-  String get reqFileNeedsInvoices => '在“设置 › 高级”中开启账单，即可打开付款请求。';
-
-  @override
   String get deskInvIssuerAnother => '再发一个请求';
 }

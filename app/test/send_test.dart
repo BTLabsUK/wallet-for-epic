@@ -2206,11 +2206,10 @@ void main() {
       expect(h.files.saved.single.json, h.session.responseSlate.json);
     });
 
-    testWidgets('the file screen waits for the core, and refuses requests while request files are off', (
+    testWidgets('the file screen waits for the core; a request while Invoices is off says they are experimental', (
       tester,
     ) async {
       final h = _Harness();
-      h.session.requestFilesSupported = false;
       const invoice = '{"id":"invoice"}';
       h.service.slateInfos[invoice] = SlateInfo(
         slateId: 'invoice',
@@ -2234,7 +2233,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.bySemanticsLabel('Reading the file'), findsNothing);
       expect(
-        find.text('Turn on Invoices in Settings › Advanced to open payment requests.'),
+        find.text('Invoices are experimental'),
         findsOneWidget,
       );
       expect(find.text('Accept payment'), findsNothing);

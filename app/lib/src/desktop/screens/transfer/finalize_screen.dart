@@ -49,7 +49,6 @@ bool _requestRefusal(DeskError e) => {
   englishStrings.reqAnswerUnknown,
   englishStrings.reqFileEnded,
   englishStrings.reqFileAlreadyPaid,
-  englishStrings.reqFileNeedsInvoices,
 }.contains(e.message);
 
 class FinalizeScreen extends ConsumerStatefulWidget {

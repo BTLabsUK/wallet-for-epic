@@ -16,7 +16,7 @@ import 'api.dart';
 import 'invoices.dart';
 import 'models.dart' show ReceivedFile, SelfSend;
 import 'state.dart';
-import 'pairing_state.dart' show deskInvoicesOnProvider;
+import 'pairing_state.dart' show deskInvoicesOnProvider, deskInvoicesShownProvider;
 
 export 'invoices.dart';
 
@@ -132,11 +132,9 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
 
 final deskInvoicesProvider = NotifierProvider<DeskInvoices, InvoiceBook?>(DeskInvoices.new);
 
-/// Payment requests work as files, both ways: the core handles them and Invoices is on
-/// (DESIGN §3). Off, "Save as a file for anyone" is absent and request files are refused.
-// TODO(pairing-followups): also require the Invoices experimental switch
-// (deskInvoicesOnProvider) once feat/experimental-flags is on main.
-bool deskRequestFilesOn(WidgetRef ref) => ref.read(deskApiProvider).supportsRequestFiles;
+/// Payment requests work as files, both ways: Invoices is on and the core handles them
+/// (DESIGN §3). Off, "Save as a file for anyone" is absent.
+bool deskRequestFilesOn(WidgetRef ref) => ref.watch(deskInvoicesShownProvider) && ref.watch(deskApiProvider).supportsRequestFiles;
 
 /// The open wallet's invoice notices (paid, declined, expired, sent back, withdrawn); the shell
 /// shows each as a toast.

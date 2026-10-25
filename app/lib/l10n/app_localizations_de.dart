@@ -16400,9 +16400,5 @@ class AppLocalizationsDe extends AppLocalizations {
       'Dies beantwortet eine Anforderung, die diese Wallet nicht mehr hat.';
 
   @override
-  String get reqFileNeedsInvoices =>
-      'Schalten Sie Rechnungen unter Einstellungen › Erweitert ein, um Zahlungsanforderungen zu öffnen.';
-
-  @override
   String get deskInvIssuerAnother => 'Weitere Anforderung';
 }

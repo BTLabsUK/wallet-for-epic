@@ -16,6 +16,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import '../support/experimental.dart';
+
 final _l = englishStrings;
 late ProviderContainer _c;
 late MockDeskWallet _mock;
@@ -33,7 +35,7 @@ Future<void> _real(WidgetTester tester, [int ms = 400]) async {
   }
 }
 
-Future<void> _open(WidgetTester tester, Widget screen, {bool requestFiles = true}) async {
+Future<void> _open(WidgetTester tester, Widget screen, {bool requestFiles = true, bool invoices = true}) async {
   tester.view.physicalSize = const Size(1280, 1400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -48,6 +50,7 @@ Future<void> _open(WidgetTester tester, Widget screen, {bool requestFiles = true
   );
   addTearDown(_c.dispose);
   await tester.runAsync(() => _c.read(deskProvider.notifier).refresh());
+  if (invoices) await tester.runAsync(() => deskExperimentalOn(_c));
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: _c,
@@ -104,7 +107,7 @@ void main() {
       expect(_saves.saved, hasLength(1));
     });
 
-    testWidgets('without request files: no file item, no Save as file', (tester) async {
+    testWidgets('without request files on the core: no file item, no Save as file', (tester) async {
       await _open(tester, const IssueInvoiceScreen(), requestFiles: false);
       await tester.tap(find.byType(ESelect<String>));
       await tester.pumpAndSettle();
@@ -158,11 +161,12 @@ void main() {
       expect(find.byKey(deskRequestFileApproveKey), findsNothing);
     });
 
-    testWidgets('with request files off it is refused, with the way to turn Invoices on', (tester) async {
-      await _open(tester, const ImportTxScreen(), requestFiles: false);
+    testWidgets('with Invoices off it opens nothing and says Invoices are experimental', (tester) async {
+      await _open(tester, const ImportTxScreen(), invoices: false);
       await tester.tap(find.text(_l.deskFinChooseFile));
       await _real(tester);
-      expect(find.text(_l.reqFileNeedsInvoices), findsOneWidget);
+      expect(find.text(_l.expInvoicesOffTitle), findsOneWidget);
+      expect(find.text(_l.reqFromFileTitle), findsNothing);
       expect(find.byKey(deskRequestFileApproveKey), findsNothing);
     });
   });

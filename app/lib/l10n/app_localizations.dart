@@ -25454,12 +25454,6 @@ abstract class AppLocalizations {
   /// **'This answers a request this wallet no longer has.'**
   String get reqAnswerUnknown;
 
-  /// A payment request file opened while the Invoices switch is off.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn on Invoices in Settings › Advanced to open payment requests.'**
-  String get reqFileNeedsInvoices;
-
   /// Request form, after a request was saved as a file: starts a new request.
   ///
   /// In en, this message translates to:

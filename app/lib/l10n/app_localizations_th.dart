@@ -15904,9 +15904,5 @@ class AppLocalizationsTh extends AppLocalizations {
       'นี่เป็นคำตอบของคำขอที่กระเป๋าเงินนี้ไม่มีแล้ว';
 
   @override
-  String get reqFileNeedsInvoices =>
-      'เปิดใบแจ้งหนี้ใน การตั้งค่า › ขั้นสูง เพื่อเปิดคำขอชำระเงิน';
-
-  @override
   String get deskInvIssuerAnother => 'สร้างคำขออีกรายการ';
 }

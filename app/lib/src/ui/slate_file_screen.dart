@@ -191,6 +191,11 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           : (l) => describeError(l, e);
     }
     if (!mounted) return;
+    if (_invoicesOff) {
+      setState(() => _reading = false);
+      unawaited(showExperimentalOffSheet(context, ref, invoices: true));
+      return;
+    }
     if (error == null && info != null && info.stage == SlateStage.request) {
       _toReview(info);
       return;
@@ -203,9 +208,16 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   }
 
   /// Why a payment request file, or the answer to one, cannot be acted on here; null when it
-  /// can (DESIGN §3.3, §3.4). Off with the Invoices switch, request files are refused.
+  /// can (DESIGN §3.3, §3.4). With Invoices off (Settings › Advanced) it opens nothing and the
+  /// screen says Invoices are experimental ([_invoicesOff]).
   Future<String Function(AppLocalizations l)?> _requestProblem(SlateInfo info) async {
-    if (!requestFilesOn(ref, listen: false)) return (AppLocalizations l) => l.reqFileNeedsInvoices;
+    // The settings are read first: the screen can open before they are loaded.
+    final settings = await ref.read(appSettingsProvider.future);
+    if (!settings.advanced.invoicesOn) {
+      _invoicesOff = true;
+      return null;
+    }
+    if (!requestFilesOn(ref, listen: false)) return (AppLocalizations l) => l.slateNotTransactionFile;
     if (info.stage == SlateStage.request) {
       // A sealed request LEPIC does not hand the slate out of cannot be paid from here.
       return _sealedText != null && _sealedInfo != null ? (AppLocalizations l) => l.slateNotTransactionFile : null;
@@ -232,6 +244,9 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
 
   /// The answer names no request this wallet has: a risk card and Close, nothing to finish.
   bool _answerUnknown = false;
+
+  /// A request file, or its answer, while Invoices is off: nothing opens.
+  bool _invoicesOff = false;
 
   /// A payment request: the Review in its file form takes over this screen (DESIGN §3.3).
   void _toReview(SlateInfo info) {
