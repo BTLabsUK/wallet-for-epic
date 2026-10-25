@@ -18944,9 +18944,9 @@
   "@pairOnlineHint": {
     "description": "Subtitle of Online."
   },
-  "pairOfflineHint": "You’re offline. Pair in person instead.",
+  "pairOfflineHint": "You’re offline. The invite and the answer travel by hand.",
   "@pairOfflineHint": {
-    "description": "Subtitle of Online while the wallet is Offline; the row is disabled. Also the docked notice on the Pair screen."
+    "description": "Subtitle of Online while the wallet is Offline (the invite goes by hand, as with Epicbox off). Also the docked notice on the Pair page and on Pair online."
   },
   "pairEnter": "Enter link or words",
   "@pairEnter": {

@@ -13681,7 +13681,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairOnlineHint => '发送邀请链接，或念出配对词';
 
   @override
-  String get pairOfflineHint => '你已离线。请改为当面配对。';
+  String get pairOfflineHint => '你已离线。邀请和回复需手动传递。';
 
   @override
   String get pairEnter => '输入链接或词';

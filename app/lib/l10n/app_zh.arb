@@ -3829,7 +3829,7 @@
   "pairInPersonHint": "出示你的码并扫描对方的码",
   "pairOnline": "在线",
   "pairOnlineHint": "发送邀请链接，或念出配对词",
-  "pairOfflineHint": "你已离线。请改为当面配对。",
+  "pairOfflineHint": "你已离线。邀请和回复需手动传递。",
   "pairEnter": "输入链接或词",
   "pairEnterHint": "粘贴邀请链接，或输入收到的词",
   "pairNotPaired": "未配对",

@@ -15,7 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n.dart' show AppLocalizations, localClock, localDay, localDayMonth;
 import '../../../models.dart'
-    show PairingCheck, PairingEvent, PairingEventKind, PairingFailure, PairingInvitePreview, PairingParty, PairingRecord, PairingState, PairingWay, pairingError, pairingFailureOf;
+    show PairingCard, PairingCheck, PairingEvent, PairingEventKind, PairingFailure, PairingInvitePreview, PairingParty, PairingRecord, PairingState, PairingWay, pairingError, pairingFailureOf;
 import '../../../pairing_api.dart';
 import '../../../pairing_text.dart';
 import '../../../sas_table.dart';
@@ -67,6 +67,11 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   final _name = TextEditingController();
   Duration _expiry = pairingInviteDefaultExpiry;
   PairingRecord? _code;
+
+  /// While nothing reaches the relays (Offline, Epicbox off): this wallet's card, shown and
+  /// copied for pairing face to face, made for the name [_cardFor].
+  PairingCard? _card;
+  String? _cardFor;
   String? _codeError;
   String? _enterError;
 
@@ -76,6 +81,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   bool _busy = false;
   Timer? _tick;
   Timer? _collect;
+  Timer? _typed;
   StreamSubscription<PairingEvent>? _events;
 
   /// Any answer opens its words here.
@@ -104,6 +110,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     pairingWordsOnScreen.remove(_onScreen);
     _tick?.cancel();
     _collect?.cancel();
+    _typed?.cancel();
     _events?.cancel();
     _enter.dispose();
     _name.dispose();
@@ -123,7 +130,23 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     }
     _needName = false;
     if (ref.read(deskPairNetProvider) != DeskPairNet.online) {
-      setState(() => _codeError = l.pairWordsNeedEpicbox);
+      // Pairing words need a relay; the card is made here and travels by hand.
+      final name = _seenAs;
+      try {
+        // The card out now, unless the name changed since it was made.
+        final own = ref.read(deskOwnCardProvider);
+        final card = own != null && (_cardFor == null || _cardFor == name) ? own : await ref.read(deskPairingApiProvider).showCard(name: name);
+        ref.read(deskOwnCardProvider.notifier).set(card);
+        if (mounted) {
+          setState(() {
+            _card = card;
+            _cardFor = name;
+            _codeError = null;
+          });
+        }
+      } catch (error) {
+        if (mounted) setState(() => _codeError = deskErrorText(error, l));
+      }
       return;
     }
     final old = _code;
@@ -147,6 +170,14 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   void _nameChanged() {
     ref.read(deskSeenAsProvider.notifier).set(_name.text);
     setState(() {});
+    // The first name typed makes the code once typing pauses; a later change on Enter or
+    // New words, so no code is made per key (PAIR-LNX-6).
+    _typed?.cancel();
+    if (_code == null && _card == null && _seenAs.isNotEmpty) {
+      _typed = Timer(const Duration(milliseconds: 700), () {
+        if (mounted) _makeCode();
+      });
+    }
   }
 
   /// The typed words, by table name or emoji.
@@ -169,7 +200,14 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     try {
       final card = ref.read(deskOwnCardProvider) ?? await ref.read(deskPairingApiProvider).showCard(name: _seenAs);
       ref.read(deskOwnCardProvider.notifier).set(card);
-      if (mounted) await copyToClipboard(context, card.link, l.pairCopied);
+      if (!mounted) return;
+      if (ref.read(deskPairNetProvider) != DeskPairNet.online) {
+        setState(() {
+          _card = card;
+          _cardFor ??= _seenAs;
+        });
+      }
+      await copyToClipboard(context, card.link, l.pairCopied);
     } catch (error) {
       if (mounted) showEToast(context, deskErrorText(error, l), tone: ETone.risk);
     }
@@ -228,7 +266,10 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     final left = code?.expiresAt?.difference(now);
     final expired = left != null && left.isNegative;
     final net = ref.watch(deskPairNetProvider);
-    final byHand = net == DeskPairNet.epicboxOff;
+    // Offline as with Epicbox off: the invite, the answer and the card travel by hand.
+    final byHand = net != DeskPairNet.online;
+    // A card that paired (Enter link took it) is gone; a new one is made on the next name.
+    final card = ref.watch(deskOwnCardProvider) == null ? null : _card;
     final preview = l.pairShareText(_seenAs.isEmpty ? l.pairYourNamePlaceholder : _seenAs, 'epiccash://pair/1/…', localDayTime(l, now.add(_expiry)));
 
     final show = EPanel(
@@ -239,8 +280,27 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
         children: [
           if (_codeError != null) ...[ENotice(title: _codeError!, tone: ETone.warn), SizedBox(height: Sp.x4)],
           // Neutral until a name exists: the code needs it (the field is in Invite online).
-          if (_needName && code == null) Text(l.pairNameForCode, style: ts.bodyDim),
-          if (code != null)
+          if (_needName && code == null && card == null) Text(l.pairNameForCode, style: ts.bodyDim),
+          if (byHand && card != null)
+            Wrap(
+              spacing: Sp.x5,
+              runSpacing: Sp.x4,
+              children: [
+                Semantics(label: l.pairCodeLabel, image: true, child: EQr(card.link, size: 176.u)),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 340.u),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l.pairShowCodeCaption, style: ts.bodyDim),
+                      SizedBox(height: Sp.x3),
+                      Text(l.pairWordsNeedEpicbox, style: ts.small),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          if (!byHand && code != null)
             Wrap(
               spacing: Sp.x5,
               runSpacing: Sp.x4,
@@ -361,7 +421,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
           ConstrainedBox(constraints: BoxConstraints(maxWidth: 720.u), child: Text(l.pairLead, style: ts.bodyDim)),
           SizedBox(height: Sp.x5),
           if (net == DeskPairNet.offline) ...[ENotice(title: l.pairOfflineHint, tone: ETone.warn), SizedBox(height: Sp.x4)],
-          if (byHand) ...[ENotice(title: l.pairEpicboxOffNotice, tone: ETone.info), SizedBox(height: Sp.x4)],
+          if (net == DeskPairNet.epicboxOff) ...[ENotice(title: l.pairEpicboxOffNotice, tone: ETone.info), SizedBox(height: Sp.x4)],
           // One name for both ways: the code shown in person and the invite sent online.
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 420.u),
@@ -379,10 +439,10 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
                     children: [
                       Expanded(child: show),
                       SizedBox(width: Sp.x5),
-                      if (net != DeskPairNet.offline) Expanded(child: invite),
+                      Expanded(child: invite),
                     ],
                   )
-                : Column(children: [show, SizedBox(height: Sp.x5), if (net != DeskPairNet.offline) invite]),
+                : Column(children: [show, SizedBox(height: Sp.x5), invite]),
           ),
         ],
       ),

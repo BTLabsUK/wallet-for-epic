@@ -14900,7 +14900,8 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wyślij link z zaproszeniem lub przeczytaj słowa parowania';
 
   @override
-  String get pairOfflineHint => 'Jesteś offline. Sparuj się osobiście.';
+  String get pairOfflineHint =>
+      'Jesteś offline. Zaproszenie i odpowiedź przekazuje się ręcznie.';
 
   @override
   String get pairEnter => 'Wpisz link lub słowa';

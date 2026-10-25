@@ -22856,10 +22856,10 @@ abstract class AppLocalizations {
   /// **'Send an invite link, or read out pairing words'**
   String get pairOnlineHint;
 
-  /// Subtitle of Online while the wallet is Offline; the row is disabled. Also the docked notice on the Pair screen.
+  /// Subtitle of Online while the wallet is Offline (the invite goes by hand, as with Epicbox off). Also the docked notice on the Pair page and on Pair online.
   ///
   /// In en, this message translates to:
-  /// **'You’re offline. Pair in person instead.'**
+  /// **'You’re offline. The invite and the answer travel by hand.'**
   String get pairOfflineHint;
 
   /// Pair screen: third way in; also the title of that screen.

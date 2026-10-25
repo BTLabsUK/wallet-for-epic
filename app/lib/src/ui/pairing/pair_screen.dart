@@ -89,8 +89,9 @@ class _PairScreenState extends ConsumerState<PairScreen> {
                 key: pairOnlineKey,
                 icon: Icons.link,
                 title: l.pairOnline,
+                // Offline the invite and the answer travel by hand, as with Epicbox off.
                 subtitle: offline ? l.pairOfflineHint : l.pairOnlineHint,
-                onTap: offline ? null : () => _push(PairOnlineScreen(contact: widget.contact)),
+                onTap: () => _push(PairOnlineScreen(contact: widget.contact)),
               ),
               _WayTile(
                 key: pairEnterKey,
@@ -475,7 +476,8 @@ class _CardScannerState extends ConsumerState<_CardScanner> {
 
 /// Pair online (RFC 7.1): the expiry, the name they see, what they receive, then the share
 /// sheet (or Copy). Once shared, the invite waits under Pending invites and this screen says
-/// so with its countdown. While Epicbox is off the answer comes back by hand.
+/// so with its countdown. While Epicbox is off or the wallet is Offline the answer comes back
+/// by hand.
 class PairOnlineScreen extends ConsumerStatefulWidget {
   const PairOnlineScreen({super.key, this.contact});
 
@@ -499,8 +501,13 @@ class _PairOnlineScreenState extends ConsumerState<PairOnlineScreen> {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && ref.read(pairNetProvider) == PairNet.epicboxOff) {
-        ref.read(noticeProvider.notifier).show(context.l10n.pairEpicboxOffNotice, level: NoticeLevel.info);
+      if (!mounted) return;
+      switch (ref.read(pairNetProvider)) {
+        case PairNet.epicboxOff:
+          ref.read(noticeProvider.notifier).show(context.l10n.pairEpicboxOffNotice, level: NoticeLevel.info);
+        case PairNet.offline:
+          ref.read(noticeProvider.notifier).show(context.l10n.pairOfflineHint, level: NoticeLevel.warning);
+        case PairNet.online:
       }
     });
   }
@@ -581,7 +588,7 @@ class _PairOnlineScreenState extends ConsumerState<PairOnlineScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final byHand = ref.watch(pairNetProvider) == PairNet.epicboxOff;
+    final byHand = ref.watch(pairNetProvider) != PairNet.online;
     final sent = _sent;
     if (sent != null) return _sentView(l, sent);
     final name = ref.watch(pairingSeenAsProvider).value ?? '';

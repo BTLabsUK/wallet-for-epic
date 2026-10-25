@@ -14626,7 +14626,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairOfflineHint =>
-      'Sie sind offline. Koppeln Sie stattdessen persönlich.';
+      'Sie sind offline. Einladung und Antwort gehen von Hand.';
 
   @override
   String get pairEnter => 'Link oder Wörter eingeben';

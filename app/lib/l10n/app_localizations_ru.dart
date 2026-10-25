@@ -14863,7 +14863,8 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отправьте ссылку-приглашение или зачитайте слова сопряжения';
 
   @override
-  String get pairOfflineHint => 'Вы офлайн. Выполните сопряжение лично.';
+  String get pairOfflineHint =>
+      'Вы офлайн. Приглашение и ответ передаются вручную.';
 
   @override
   String get pairEnter => 'Ввести ссылку или слова';

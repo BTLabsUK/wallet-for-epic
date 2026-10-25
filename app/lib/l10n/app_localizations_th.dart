@@ -14169,7 +14169,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairOnlineHint => 'ส่งลิงก์คำเชิญ หรืออ่านคำจับคู่ให้ฟัง';
 
   @override
-  String get pairOfflineHint => 'คุณออฟไลน์อยู่ ให้จับคู่แบบพบตัวแทน';
+  String get pairOfflineHint => 'คุณออฟไลน์อยู่ คำเชิญและคำตอบต้องส่งด้วยตนเอง';
 
   @override
   String get pairEnter => 'ใส่ลิงก์หรือคำ';

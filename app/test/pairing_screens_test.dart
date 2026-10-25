@@ -139,13 +139,22 @@ void main() {
       expect(find.text(_l.pairOnlineTitle), findsOneWidget);
     });
 
-    testWidgets('offline: Online is off and says to pair in person', (tester) async {
+    testWidgets('offline: Online goes by hand, as with Epicbox off (PAIR-LNX-6)', (tester) async {
       final h = _Harness();
       await h.pump(tester, const PairScreen(), net: PairNet.offline);
       final online = tester.widget<ListTile>(find.descendant(of: find.byKey(pairOnlineKey), matching: find.byType(ListTile)));
-      expect(online.enabled, isFalse);
+      expect(online.enabled, isTrue);
       expect(find.text(_l.pairOfflineHint), findsWidgets);
       expect(_notice(tester), _l.pairOfflineHint);
+      await tester.tap(find.byKey(pairOnlineKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairOnlineLeadByHand), findsOneWidget);
+      expect(find.text(_l.pairWordsNeedEpicbox, skipOffstage: false), findsOneWidget);
+      expect(find.byKey(pairUseWordsKey), findsNothing);
+      await tester.tap(find.byKey(pairShareKey));
+      await tester.pumpAndSettle();
+      expect(h.api.records.single.state, PairingState.pendingInvite);
+      expect(find.text(_l.pairInviteSentTitle), findsOneWidget);
     });
 
     testWidgets('names the contact it pairs with', (tester) async {

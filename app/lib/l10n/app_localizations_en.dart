@@ -14451,7 +14451,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairOnlineHint => 'Send an invite link, or read out pairing words';
 
   @override
-  String get pairOfflineHint => 'You’re offline. Pair in person instead.';
+  String get pairOfflineHint =>
+      'You’re offline. The invite and the answer travel by hand.';
 
   @override
   String get pairEnter => 'Enter link or words';

@@ -3829,7 +3829,7 @@
   "pairInPersonHint": "Pokaż swój kod i zeskanuj kod drugiej osoby",
   "pairOnline": "Online",
   "pairOnlineHint": "Wyślij link z zaproszeniem lub przeczytaj słowa parowania",
-  "pairOfflineHint": "Jesteś offline. Sparuj się osobiście.",
+  "pairOfflineHint": "Jesteś offline. Zaproszenie i odpowiedź przekazuje się ręcznie.",
   "pairEnter": "Wpisz link lub słowa",
   "pairEnterHint": "Wklej link z zaproszeniem lub wpisz otrzymane słowa",
   "pairNotPaired": "Niesparowany",

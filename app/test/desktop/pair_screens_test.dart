@@ -1,5 +1,6 @@
 // The desktop's Pair page (SPEC 2.1-2.3, desktop): the code with its words, an online invite
 // copied with the name they will see, a pasted invite answered, and Pending invites.
+import 'package:epic_wallet/src/advanced.dart' show AdvancedPrefs, NetworkMode;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCardProvider, deskPairingsProvider, deskSeenAsProvider;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart' show deskSettingsFromJson, deskSettingsToJson;
@@ -22,6 +23,7 @@ import 'package:intl/date_symbol_data_local.dart';
 final _l = englishStrings;
 late ProviderContainer _c;
 late MockDeskWallet _mock;
+String? _clip;
 
 FakePairing get _pairing => _mock.pairing;
 
@@ -32,16 +34,24 @@ Future<void> _real(WidgetTester tester, [int ms = 400]) async {
   }
 }
 
-Future<void> _open(WidgetTester tester, Widget screen) async {
+Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode}) async {
   tester.view.physicalSize = const Size(1280, 1100);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async => null);
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+    if (call.method == 'Clipboard.setData') _clip = (call.arguments as Map)['text'] as String?;
+    return null;
+  });
+  _clip = null;
   addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
   _mock = MockDeskWallet(delay: Duration.zero);
   _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_mock)]);
   addTearDown(_c.dispose);
   await tester.runAsync(() => _c.read(deskProvider.notifier).refresh());
+  if (mode != null) {
+    final n = _c.read(deskProvider.notifier);
+    await tester.runAsync(() => n.saveSettings(_c.read(deskProvider).settings.copyWith(advanced: AdvancedPrefs.none.withMode(mode))));
+  }
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: _c,
@@ -72,6 +82,8 @@ void main() {
   testWidgets('Copy invite makes an invite under the name they will see', (tester) async {
     await _open(tester, const DeskPairScreen());
     await _seenAs(tester, 'the owner');
+    // The name makes the code (and its words invite) once typing pauses.
+    await _real(tester, 1200);
     final before = (await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingInvite).length;
     await tester.ensureVisible(find.byKey(deskPairCopyInviteKey));
     await tester.tap(find.byKey(deskPairCopyInviteKey));
@@ -138,6 +150,35 @@ void main() {
     expect(find.text(_l.pairCardBackTitle('Ola')), findsNothing);
     expect(find.text(_l.sasDialogTitle('Ola')), findsOneWidget);
     expect(_c.read(deskOwnCardProvider), isNull, reason: 'a card pairs once');
+  });
+
+  testWidgets('the code appears once a name is typed, without opening the page again (PAIR-LNX-6)', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    expect(find.text(_l.pairNameForCode), findsOneWidget);
+    await _seenAs(tester, 'the owner');
+    await _real(tester, 1200);
+    expect(find.text(_l.pairNameForCode), findsNothing);
+    expect(find.bySemanticsLabel(_l.pairCodeLabel), findsOneWidget);
+  });
+
+  testWidgets('Offline pairs by hand: this wallet\'s card shows and copies, and the invite copies (PAIR-LNX-6)', (tester) async {
+    await _open(tester, const DeskPairScreen(), mode: NetworkMode.offline);
+    expect(find.text(_l.pairOfflineHint), findsOneWidget);
+    await _seenAs(tester, 'the owner');
+    await _real(tester, 1200);
+    expect(find.bySemanticsLabel(_l.pairCodeLabel), findsOneWidget);
+    expect(_c.read(deskOwnCardProvider)?.link, startsWith('epiccash://contact/'));
+    await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
+    await tester.tap(find.byKey(deskPairCopyCardKey));
+    await _real(tester);
+    expect(_clip, startsWith('epiccash://contact/'));
+    expect(find.text(_l.pairingInviteOnline), findsOneWidget);
+    expect(find.text(_l.pairOnlineLeadByHand), findsOneWidget);
+    await tester.ensureVisible(find.byKey(deskPairCopyInviteKey));
+    await tester.tap(find.byKey(deskPairCopyInviteKey));
+    await _real(tester);
+    expect(_clip, contains('epiccash://pair/'));
+    expect(tester.takeException(), isNull);
   });
 
   test('an answer a screen turns into the words check shows no notice of its own', () {
