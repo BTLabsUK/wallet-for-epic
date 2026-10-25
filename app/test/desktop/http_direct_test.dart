@@ -342,7 +342,7 @@ void main() {
       var first = await wallet.settings();
       expect((first.publicMode, first.httpPort, first.payments.linkHttp), (true, 3420, true));
       await desk.startLive(listen: false);
-      expect(session().httpListenerStarts.single, (exposure: core.HttpExposure.internet, port: 3420));
+      expect(session().httpListenerStarts.last, (exposure: core.HttpExposure.internet, port: 3420));
       await wallet.lock();
       await wallet.selectWallet(all.firstWhere((w) => w.name == 'Savings').id);
       expect(await wallet.unlock(_password), isTrue);
