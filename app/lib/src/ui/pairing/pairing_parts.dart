@@ -351,9 +351,13 @@ class _PairCountdownState extends ConsumerState<PairCountdown> {
     final last = left < const Duration(minutes: 1);
     final color = last ? t.warn : t.info;
     final time = widget.clock ? pairingClock(left) : pairingSpan(l, left);
+    // No words beside it: the clock and the time stay together, centred.
+    final bare = widget.label == null && !(last && widget.lastMinute != null);
     return Semantics(
       container: true,
       child: Row(
+        mainAxisSize: bare ? MainAxisSize.min : MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           widget.leading ?? Icon(Icons.schedule, size: 18, color: color),
           const SizedBox(width: 8),
@@ -364,9 +368,7 @@ class _PairCountdownState extends ConsumerState<PairCountdown> {
           else if (widget.label != null)
             Expanded(
               child: Text(widget.label!, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: t.text)),
-            )
-          else
-            const Spacer(),
+            ),
           Text(time, style: TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: last ? t.warn : t.dim)),
         ],
       ),

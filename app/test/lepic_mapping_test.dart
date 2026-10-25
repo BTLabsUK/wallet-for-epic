@@ -148,6 +148,12 @@ void main() {
       final shared = {for (final k in WalletErrorKind.values) k.name: k};
       for (final kind in lepic.WalletErrorKind.values) {
         final mapped = mapLepicError(error(kind));
+        // A pairing failure carries which one it is, for the screens (pairingFailureOf).
+        if (lepicPairingFailure(kind) case final failure?) {
+          expect(mapped.kind, WalletErrorKind.pairingFailed, reason: kind.name);
+          expect(pairingFailureOf(mapped), failure, reason: kind.name);
+          continue;
+        }
         // The split errors carry the app's own sentence (tested below).
         if (kind != lepic.WalletErrorKind.changeTooSmall &&
             kind != lepic.WalletErrorKind.tooHeavy &&

@@ -15393,6 +15393,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactKeysChangedStatus => 'запечатывание и счета приостановлены';
 
   @override
+  String get contactKeysChangedPaused => 'Запечатывание и счета приостановлены';
+
+  @override
   String get contactKeepOldKeys => 'Оставить старые ключи';
 
   @override
@@ -15980,6 +15983,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invSetRowAllowed => 'Проверено · разрешено';
+
+  @override
+  String get invSetRowOff => 'Проверено · выключено';
 
   @override
   String get invSetRowCheckFirst =>

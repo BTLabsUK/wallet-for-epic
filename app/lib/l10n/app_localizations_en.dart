@@ -14976,6 +14976,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactKeysChangedStatus => 'sealing and invoices paused';
 
   @override
+  String get contactKeysChangedPaused => 'Sealing and invoices paused';
+
+  @override
   String get contactKeepOldKeys => 'Keep the old keys';
 
   @override
@@ -15551,6 +15554,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invSetRowAllowed => 'Verified · allowed';
+
+  @override
+  String get invSetRowOff => 'Verified · off';
 
   @override
   String get invSetRowCheckFirst =>

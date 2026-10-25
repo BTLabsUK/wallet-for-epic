@@ -19748,6 +19748,10 @@
   "@contactKeysChangedStatus": {
     "description": "Status row readout in the keys-changed state."
   },
+  "contactKeysChangedPaused": "Sealing and invoices paused",
+  "@contactKeysChangedPaused": {
+    "description": "Phone Settings › Invoices: the line under the Keys changed badge, as a sentence of its own."
+  },
   "contactKeepOldKeys": "Keep the old keys",
   "@contactKeepOldKeys": {
     "description": "Button."
@@ -20648,6 +20652,10 @@
   "invSetRowAllowed": "Verified · allowed",
   "@invSetRowAllowed": {
     "description": "Desktop Settings › Invoices row subtitle."
+  },
+  "invSetRowOff": "Verified · off",
+  "@invSetRowOff": {
+    "description": "Settings › Invoices row on the desktop: the words are checked and Allow invoices is off. Same style as invSetRowAllowed."
   },
   "invSetRowCheckFirst": "Paired, not verified · check the words first",
   "@invSetRowCheckFirst": {

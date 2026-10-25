@@ -15431,6 +15431,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get contactKeysChangedStatus => 'pieczętowanie i faktury wstrzymane';
 
   @override
+  String get contactKeysChangedPaused => 'Pieczętowanie i faktury wstrzymane';
+
+  @override
   String get contactKeepOldKeys => 'Zachowaj stare klucze';
 
   @override
@@ -16021,6 +16024,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get invSetRowAllowed => 'Zweryfikowany · dozwolone';
+
+  @override
+  String get invSetRowOff => 'Zweryfikowany · wyłączone';
 
   @override
   String get invSetRowCheckFirst =>

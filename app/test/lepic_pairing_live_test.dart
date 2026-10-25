@@ -1,11 +1,14 @@
 // Live: pairing (RFC 0002) through the app's LEPIC adapter on the real library, with LEPIC's
 // mock chain and mock relay: an invite answered and its words checked, in person by cards,
 // a request to a verified contact paid and finalized, a sealed payment file there and back,
-// and the pairings carried by the history backup to a restored install. Needs the Linux
-// library:
+// and the pairings carried by the history backup to a restored install. Needs LEPIC's mock
+// build of the Linux library (the shipped one has no mock chain; MockChain::new refuses), made
+// from the pinned clone into a folder of your own:
 //
-//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
-//   flutter test test/lepic_pairing_live_test.dart
+//   (cd third_party/lepic && CARGO_TARGET_DIR=$PWD/target/mock \
+//     cargo xtask mobile --package --mock --out "$OUT" --target x86_64-unknown-linux-gnu)
+//   WFE_LEPIC_MOCK_LIB="$OUT/x86_64-unknown-linux-gnu/liblepic_ffi.so" \
+//     flutter test test/lepic_pairing_live_test.dart
 //
 // Without it it is skipped.
 import 'dart:io';
@@ -15,7 +18,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
-final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = Platform.environment['WFE_LEPIC_MOCK_LIB'];
 
 /// A built-in floonet relay, so pairing words are offered; the mock relay serves it.
 const _relay = 'flooepicbox.btlabs.uk';
@@ -134,7 +137,7 @@ void main() {
     expect(pairings.single.seals, isTrue);
     await anna.pairing.removePairing(ids.aSide);
     expect(await anna.pairing.pairings(), isEmpty);
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false);
+  }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 
   test('two phones pair in person by their cards, with no relay', () async {
     final (anna, _) = await wallet();
@@ -146,7 +149,7 @@ void main() {
     expect(a.name, 'Carl');
     expect(c.name, 'Anna');
     expect([for (final w in a.sas) w.name], [for (final w in c.sas) w.name]);
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false);
+  }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 
   test('a request to a verified contact that allows it is paid and finalized', () async {
     final (anna, _) = await wallet(funded: 10);
@@ -186,7 +189,7 @@ void main() {
     }
     await sub.cancel();
     expect(told.map((e) => (e.kind, e.pairingId)), [(IssuerEventKind.paid, ids.aSide)]);
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false);
+  }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 
   test('a sealed payment file goes there and back', () async {
     final (anna, _) = await wallet(funded: 10);
@@ -211,7 +214,7 @@ void main() {
     expect(tx.slateId, slate.slateId);
     expect(chain.pushedCount(), 1);
     expect((await anna.pairing.slateOf(slate.slateId))?.pairingId, ids.aSide);
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false);
+  }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 
   test('the history backup brings the pairings back on a restored install', () async {
     final (anna, annaWallet) = await wallet();
@@ -225,5 +228,5 @@ void main() {
     final back = (await restored.pairing.pairing(ids.aSide))!;
     expect(back.otherDevice, isTrue);
     expect([for (final w in back.sas) w.name], [for (final w in (await anna.pairing.pairing(ids.aSide))!.sas) w.name]);
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false);
+  }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 }

@@ -1618,7 +1618,7 @@ void main() {
       late PairingRecord r;
       await openInvoices(tester, seed: (h) async => r = await paired(h, 'Marta', state: PairingState.keysChanged));
       expect(find.text(l.trustKeysChanged), findsOneWidget);
-      expect(find.text(l.contactKeysChangedStatus), findsOneWidget);
+      expect(find.text(l.contactKeysChangedPaused), findsOneWidget);
       expect(find.text(l.contactCheckWordsFirst), findsNothing, reason: 'not the paired text');
       final sw = tester.widget<Switch>(find.byKey(invoiceSettingsSwitchKey(r.id)));
       expect(sw.onChanged, isNull);

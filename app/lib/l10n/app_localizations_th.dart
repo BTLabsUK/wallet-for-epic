@@ -14693,6 +14693,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get contactKeysChangedStatus => 'หยุดการปิดผนึกและใบแจ้งหนี้ไว้';
 
   @override
+  String get contactKeysChangedPaused => 'หยุดการปิดผนึกและใบแจ้งหนี้ไว้';
+
+  @override
   String get contactKeepOldKeys => 'ใช้คีย์เดิม';
 
   @override
@@ -15262,6 +15265,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get invSetRowAllowed => 'ยืนยันแล้ว · อนุญาต';
+
+  @override
+  String get invSetRowOff => 'ยืนยันแล้ว · ปิด';
 
   @override
   String get invSetRowCheckFirst => 'จับคู่แล้ว ยังไม่ยืนยัน · ตรวจคำก่อน';

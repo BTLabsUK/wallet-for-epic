@@ -160,7 +160,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
     // Keys changed, as the contact page shows it: the risk badge, paused until the words match.
     final changed = r.state == PairingState.keysChanged;
     final subtitle = changed
-        ? l.contactKeysChangedStatus
+        ? l.contactKeysChangedPaused
         : verified
         ? (r.allowInvoices ? l.invSetAllowed : l.invSetOff)
         : l.contactCheckWordsFirst;
@@ -182,20 +182,10 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(name, style: theme.textTheme.bodyLarge?.copyWith(color: verified ? t.text : t.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  if (changed)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          TrustBadge(r, short: true),
-                          Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-                        ],
-                      ),
-                    )
-                  else
+                  if (changed) ...[
+                    Padding(padding: const EdgeInsets.only(top: 2, bottom: 2), child: TrustBadge(r, short: true)),
+                    Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                  ] else
                     Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
                   if (orphan) Text(l.pairNotInContacts, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
                 ],

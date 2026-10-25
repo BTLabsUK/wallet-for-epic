@@ -560,6 +560,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
 
     // A withdrawal from a paired exchange has its own steps (WithdrawalBlock).
     final withdrawal = withdrawalOf(ref, tx);
+    // What the status card offers beside the status.
+    final actions = stuck || (tx.undelivered && tx.transport == 'epicbox') || tx.releasable || (tx.cancellable && tx.id != null && !issued);
     return SlotScaffold(
       appBar: AppBar(
         title: Text(switch (withdrawal) {
@@ -600,8 +602,9 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               ),
             ],
           ),
-          // A withdrawal's own block below says where it stands: no second status here.
-          if (withdrawal == null) ...[
+          // A withdrawal's own block below says where it stands: the card keeps only what
+          // the user can do about it (Cancel, Send again, Release).
+          if (withdrawal == null || actions) ...[
             const SizedBox(height: 16),
             Card(
             child: Padding(
@@ -609,14 +612,14 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TxStatusChip(tx: tx, tip: tip),
-                  const SizedBox(height: 8),
-                  if (withdrawal == null) Text(txExplanation(l, tx, tip, now: now, target: target)),
-                  if (withdrawal == null)
-                    if (txTimeline(l, tx, tip, target: target, now: now)
-                        case final steps?) ...[
-                    const SizedBox(height: 16),
-                    StatusTimeline(steps: steps),
+                  if (withdrawal == null) ...[
+                    TxStatusChip(tx: tx, tip: tip),
+                    const SizedBox(height: 8),
+                    Text(txExplanation(l, tx, tip, now: now, target: target)),
+                    if (txTimeline(l, tx, tip, target: target, now: now) case final steps?) ...[
+                      const SizedBox(height: 16),
+                      StatusTimeline(steps: steps),
+                    ],
                   ],
                   if (ttl != null) ...[
                     const SizedBox(height: 8),

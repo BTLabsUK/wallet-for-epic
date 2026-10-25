@@ -14186,6 +14186,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactKeysChangedStatus => '密封和账单已暂停';
 
   @override
+  String get contactKeysChangedPaused => '密封和账单已暂停';
+
+  @override
   String get contactKeepOldKeys => '保留旧密钥';
 
   @override
@@ -14738,6 +14741,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get invSetRowAllowed => '已验证 · 已允许';
+
+  @override
+  String get invSetRowOff => '已验证 · 已关闭';
 
   @override
   String get invSetRowCheckFirst => '已配对，未验证 · 请先核对词语';

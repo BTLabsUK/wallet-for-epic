@@ -52,7 +52,7 @@ class InvoiceSettingsBlock extends ConsumerWidget {
       final state = changed
           ? l.contactKeysChangedStatus
           : verified
-          ? (r.allowInvoices ? l.invSetRowAllowed : '${l.trustVerified} · ${l.invSetOff}')
+          ? (r.allowInvoices ? l.invSetRowAllowed : l.invSetRowOff)
           : l.invSetRowCheckFirst;
       final text = contact == null ? '$state · ${l.pairNotInContacts}' : state;
       return ESetRow(

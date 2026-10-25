@@ -15159,6 +15159,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contactKeysChangedStatus => 'Versiegeln und Rechnungen pausiert';
 
   @override
+  String get contactKeysChangedPaused => 'Versiegeln und Rechnungen pausiert';
+
+  @override
   String get contactKeepOldKeys => 'Alte Schlüssel behalten';
 
   @override
@@ -15739,6 +15742,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get invSetRowAllowed => 'Verifiziert · erlaubt';
+
+  @override
+  String get invSetRowOff => 'Verifiziert · aus';
 
   @override
   String get invSetRowCheckFirst =>

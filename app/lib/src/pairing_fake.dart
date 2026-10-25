@@ -869,8 +869,10 @@ class FakePairing implements PairingApi {
         id: 700 + slates.length,
         slateId: slateId,
         kind: TxKind.received,
-        // Signed and answered here; the exchange finalizes and posts.
+        // Signed and answered here; the exchange finalizes and posts. Not on the chain yet,
+        // so it can be cancelled, as LEPIC's received transaction can.
         status: TxStatus.awaitingConfirmation,
+        cancellable: true,
         createdAtUnix: clock().millisecondsSinceEpoch ~/ 1000,
         amountCredited: amount,
         counterparty: r.paymentsAddress,

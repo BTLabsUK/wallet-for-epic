@@ -23708,6 +23708,12 @@ abstract class AppLocalizations {
   /// **'sealing and invoices paused'**
   String get contactKeysChangedStatus;
 
+  /// Phone Settings › Invoices: the line under the Keys changed badge, as a sentence of its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealing and invoices paused'**
+  String get contactKeysChangedPaused;
+
   /// Button.
   ///
   /// In en, this message translates to:
@@ -24559,6 +24565,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Verified · allowed'**
   String get invSetRowAllowed;
+
+  /// Settings › Invoices row on the desktop: the words are checked and Allow invoices is off. Same style as invSetRowAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified · off'**
+  String get invSetRowOff;
 
   /// Desktop Settings › Invoices row subtitle for an unverified contact.
   ///

@@ -527,5 +527,17 @@ void main() {
       expect(find.text(_l.reqTlPosted('Northwind Exchange')), findsOneWidget);
       expect(find.text('WD-1042'), findsOneWidget);
     });
+
+    testWidgets('a withdrawal still waiting keeps Cancel payment, without a second status', (tester) async {
+      final h = _Harness();
+      h.api.seedPaired(id: 'p-nw', name: 'Northwind', kind: PairingParty.exchange, paymentsAddress: _anna);
+      final slateId = h.api.withdrawalFrom('p-nw', BigInt.from(10000000000));
+      await tester.pump();
+      await h.pump(tester, TxDetailsScreen(txKey: 's:$slateId'), settle: false);
+      expect(find.text(_l.reqReceivedWaiting('Northwind')), findsOneWidget);
+      await tester.scrollUntilVisible(find.text(_l.txDetailsCancelPayment), 200, scrollable: find.byType(Scrollable).first);
+      expect(find.text(_l.txDetailsCancelPayment), findsOneWidget);
+      expect(find.byType(TxStatusChip), findsNothing, reason: 'the withdrawal block says where it stands');
+    });
   });
 }
