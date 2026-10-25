@@ -66,11 +66,11 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '用文件发送',
       '手动方式：保存交易文件，交给收款方，然后打开对方发回的回复文件。',
       [
-        const HelpBlock.p('文件完成的握手与 Epicbox 相同，只是消息由人工传递，例如通过电子邮件、聊天或 U 盘。它不依赖 Epicbox，也不需要双方钱包同时在线。'),
+        const HelpBlock.p('文件传输完成的握手与 Epicbox 相同，只是消息由人工传递，例如通过电子邮件、聊天或 U 盘。它不依赖 Epicbox，也不需要双方钱包同时在线。'),
         if (phone)
-          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并分享文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 文件|Receive › File]]中打开该文件。其钱包签名后分享一个回复文件（以 .response 结尾），并把该文件发回。', '**发送方：** 在[[接收 › 文件|Receive › File]]中打开回复文件。钱包完成交易并广播。'])
+          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **直接 · 文件传输**，输入金额并分享文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 文件|Receive › File]]中打开该文件。其钱包签名后分享一个回复文件（以 .response 结尾），并把该文件发回。', '**发送方：** 在[[接收 › 文件|Receive › File]]中打开回复文件。钱包完成交易并广播。'])
         else
-          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **文件**，输入金额并保存文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 交易文件 › 签署交易文件|Receive › Transaction files › Sign a transaction file]]中打开该文件。其钱包签名后保存一个回复文件（以 .response 结尾），并把该文件发回。', '**发送方：** 在[[接收 › 交易文件 › 完成回复文件|Receive › Transaction files › Finalize a response file]]中打开回复文件。钱包完成交易并广播。']),
+          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **直接 · 文件传输**，输入金额并保存文件（以 .tx 结尾）。从此刻起输出被锁定。', '**收款方：** 在[[接收 › 交易文件 › 签署交易文件|Receive › Transaction files › Sign a transaction file]]中打开该文件。其钱包签名后保存一个回复文件（以 .response 结尾），并把该文件发回。', '**发送方：** 在[[接收 › 交易文件 › 完成回复文件|Receive › Transaction files › Finalize a response file]]中打开回复文件。钱包完成交易并广播。']),
         const HelpBlock.p('其他 Epic Cash 钱包对这些步骤有各自的叫法。如果一直收不到回复文件，请在“活动”中取消发送以解锁输出。'),
       ],
       id: HelpId.file,
@@ -78,11 +78,11 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
     if (phone)
       const HelpTopic(
         'start',
-        '当面用二维码付款',
+        '当面付款：直接 · 二维码付款',
         '并排的两部手机用动态二维码付款，两者之间无需连接。',
         [
           HelpBlock.p('付款以动态二维码的形式传递，由另一部手机用摄像头扫描。内容没有加密，所以只给你要付款的人看。'),
-          HelpBlock.ol(['**发送方：**在发送页选择**二维码**，输入金额并点**显示二维码**。二维码在你点显示之前一直隐藏，倒数 3、2、1，并会在 40 秒后自动隐藏。', '**接收方：**在[[接收 › 二维码|Receive › QR Code]]点**扫描付款二维码**，接受付款，然后用同样的方式显示回复。', '**发送方：**点**扫描对方的回复**。钱包会发布付款，进度会在跟踪页显示。']),
+          HelpBlock.ol(['**发送方：**在发送页选择**直接 · 二维码付款**，输入金额并点**显示二维码**。二维码在你点显示之前一直隐藏，倒数 3、2、1，并会在 40 秒后自动隐藏。', '**接收方：**在[[接收 › 二维码|Receive › QR Code]]点**扫描付款二维码**，接受付款，然后用同样的方式显示回复。', '**发送方：**点**扫描对方的回复**。钱包会发布付款，进度会在跟踪页显示。']),
           HelpBlock.p('请让二维码保持在取景框内，直到所有段都读完：圆环和计数显示进度。不是付款的码会被提示并忽略。二维码屏幕上禁止截屏。'),
         ],
         id: HelpId.qr,
@@ -94,7 +94,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('[[设置 › 交易|Settings › Transactions]]页面包含三项内容。'),
         HelpBlock.ul([
-          '**付款方式。** 每种一个开关。**Epicbox** 默认开启；关闭后，钱包不连接任何中继，因此没有 Epicbox 付款、账单或通知，“接收”也不显示 Epicbox 地址（发到该地址的付款会在中继上等待）。**链接付款**（向 .onion 和网址付款${phone ? '，以及用这部手机的 Tor 地址收款' : ''}）和**文件**不需要中继。关闭的方式不会出现在“发送”和“接收”中。',
+          '**付款方式。** 每种一个开关。**Epicbox** 默认开启；关闭后，钱包不连接任何中继，因此没有 Epicbox 付款、账单或通知，“接收”也不显示 Epicbox 地址（发到该地址的付款会在中继上等待）。**Link · HTTP**（向网址付款）、**Link · Tor**（向 .onion 地址付款${phone ? '，以及用这部手机的 Tor 地址收款' : ''}）和${phone ? '**直接 · 二维码付款**、' : ''}**直接 · 文件传输**不需要中继。关闭的方式不会出现在“发送”和“接收”中。',
           '**发送从哪种方式开始。** “发送”页面打开时使用的方式。在“发送”中仍可选择其他方式。',
           '**发送默认设置。** 一笔发送花掉哪些输出（“最小”或“全部”），以及找零是否拆分。只有在“高级”中开启**发送选项**时才会显示。',
         ]),
@@ -109,7 +109,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         [
           HelpBlock.ul([
             '**Epicbox**：约 52 个字符，以 **es** 开头，然后是 **@** 和服务器，例如 **esXXXX…XXXX@epicbox.epiccash.com**。默认方式；收款方可以不在线。',
-            '**链接付款**：收款方自己的钱包，且此刻处于打开状态。可以是 **http://host:3415** 这样的网址，也可以是以 **.onion** 结尾、共 56 个字符的 Tor 地址，后者经由 Tor 发送。',
+            '**Link · HTTP** 和 **Link · Tor**：收款方自己的钱包，且此刻处于打开状态。**http://host:3415** 这样的网址走 Link · HTTP；以 **.onion** 结尾、共 56 个字符的 Tor 地址走 Link · Tor，即经由 Tor 发送。',
           ]),
           HelpBlock.p('“发送”会根据粘贴到“收款方”栏中的地址选择方式。口头核对地址时，比较前六个和后六个字符。'),
         ],
@@ -122,7 +122,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Epic Cash 使用 Mimblewimble。它不在区块链上写入地址和金额，而是由两个钱包共同构建每笔交易，就像握手一样：'),
         HelpBlock.ol(['发送方钱包发起交易，并锁定要发送的输出。', '收款方钱包加入自己的部分并签名。', '发送方钱包也签名，完成交易并广播到网络。']),
-        HelpBlock.p('因此需要有东西在两个钱包之间传递消息。**Epicbox** 负责这件事：在对方钱包离线时保存消息，所以双方不必同时在线。**链接付款 · HTTP** 和 **链接付款 · Tor** 在对方钱包打开时直接送达。**交易文件** 是手动方式。'),
+        HelpBlock.p('因此需要有东西在两个钱包之间传递消息。**Epicbox** 负责这件事：在对方钱包离线时保存消息，所以双方不必同时在线。**Link · HTTP** 和 **Link · Tor** 在对方钱包打开时直接送达。**直接 · 文件传输**（交易文件）是手动方式。'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -286,8 +286,8 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           HelpBlock.ul([
             '在[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]中开启。侧边栏中的 Tor 行显示其状态。',
             'Tor 启动中或未连接时，经由 Tor 的内容会等待；不会绕过它。点“重试”，或关闭 Tor。',
-            '发往 http(s) 地址的链接发送不经由 Tor；“发送”会注明这一点。',
-            'Tor 开启期间 链接付款 · HTTP 接收关闭：其他钱包直接发来的付款会到达 链接付款 · Tor 地址。',
+            'Link · HTTP 发往 http(s) 地址时不经由 Tor；“发送”会注明这一点。',
+            'Tor 开启期间 Link · HTTP 接收关闭：其他钱包直接发来的付款会到达 Link · Tor 地址。',
             '某些国家封锁或不允许使用 Tor；在那里它无法连接。',
             '在“高级”中选择“仅 Tor”时，开关保持开启，无法关闭。',
           ]),
@@ -304,7 +304,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         HelpBlock.ul([
           '**标准**：直接连接。Tor 是$torPlace里的开关。',
           '**仅 Tor**：Tor 始终开启，开关被锁定。任何内容都不经过开放的互联网。Tor 启动中或失败时，钱包会显示**等待 Tor**，所有需要网络的操作都会等待，不可用的操作上会写明原因。${phone ? '通知会关闭，因为注册通知会暴露这部手机。' : 'HTTP 接收会关闭，因为普通地址会暴露这台电脑。'}',
-          '**离线**：没有 Epicbox，除本地地址外没有链接付款，${phone ? '没有通知' : '没有 Tor'}，没有状态检查。余额和记录保持上次看到的样子。${phone ? '**二维码付款**和**交易文件**' : '**交易文件**'}仍然可用：它们使用当前的节点来读取链并广播，公共节点也一样，屏幕上会说明。要获得最大的隐私，请使用${phone ? '本地网络中' : '这台电脑上或本地网络中'}的节点：这样余额会刷新${phone ? '' : '，把 HTTP 接收设为**来自互联网**时，链接付款可通过本地网络接收，'}重新核对余额也能运行。',
+          '**离线**：没有 Epicbox，除本地地址外没有链接，${phone ? '没有通知' : '没有 Tor'}，没有状态检查。余额和记录保持上次看到的样子。${phone ? '**直接 · 二维码付款**和**直接 · 文件传输**' : '**直接 · 文件传输**'}仍然可用：它们使用当前的节点来读取链并广播，公共节点也一样，屏幕上会说明。要获得最大的隐私，请使用${phone ? '本地网络中' : '这台电脑上或本地网络中'}的节点：这样余额会刷新${phone ? '' : '，把 HTTP 接收设为**来自互联网**时，Link · HTTP 可通过本地网络接收，'}重新核对余额也能运行。',
         ]),
         const HelpBlock.p('在离线模式下，请用 IP 地址填写节点，例如 **10.100.10.20:3413**。不会解析名称。'),
         if (!phone) const HelpBlock.p('内置节点自己的对等节点是节点本身的设置，不属于模式。'),
@@ -349,9 +349,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('**“节点未同步”：无法发送。** 节点追上网络后即可发送。请稍等，或在[[设置 › 节点|Settings › Node]]中选择另一个节点。'),
         if (phone)
-          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或点“钱包”标签页上的 Epicbox 行，选择另一个服务器。在此期间可以使用文件。')
+          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或点“钱包”标签页上的 Epicbox 行，选择另一个服务器。在此期间可以使用 直接 · 文件传输。')
         else
-          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在[[设置 › 交易|Settings › Transactions]]中选择另一个服务器。在此期间可以使用文件。'),
+          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在[[设置 › 交易|Settings › Transactions]]中选择另一个服务器。在此期间可以使用 直接 · 文件传输。'),
         const HelpBlock.p('**发送显示“等待接收方”。** 对方钱包尚未回复。请对方打开钱包。如果对方一直不会打开，请在“活动”中取消发送以解锁输出。'),
         if (phone)
           const HelpBlock.p('**付款没有到账。** 在“钱包”标签页上检查节点是否已同步、Epicbox 是否在线。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。')
@@ -360,7 +360,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**Tor 显示“未连接”。** Tor 无法连接到其网络。在[[设置 › 隐私与网络|Settings › Privacy & network]]中点“重试”，或关闭 Tor；在此期间不会发出任何内容。'),
         if (!phone) ...const [
-          HelpBlock.p('**“端口 3415 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 链接付款 · HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 Epicbox、链接付款 · Tor 和文件照常工作。'),
+          HelpBlock.p('**“端口 3415 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 Link · HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 Epicbox、Link · Tor 和 直接 · 文件传输照常工作。'),
           HelpBlock.p('**“另一个 Epic 程序正在使用此文件夹”。** 另一个 Epic 钱包或节点打开了相同的文件。关闭它后重试。'),
         ],
         if (phone)

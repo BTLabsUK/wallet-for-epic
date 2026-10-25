@@ -156,7 +156,7 @@ void main() {
   testWidgets('Link http(s) with Tor on: sendable, "Not over Tor", sent over http', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _https, amount: '5'));
     expect(chip('Not over Tor'), findsOneWidget);
-    expect(find.text('Link to http(s) addresses goes over the clearnet, not Tor.'), findsOneWidget);
+    expect(find.text('Link · HTTP goes over the clearnet, not Tor.'), findsOneWidget);
     expect(review(tester).label, 'Review send');
     await tester.tap(find.text('Review send'));
     await tester.pumpAndSettle();
@@ -171,7 +171,7 @@ void main() {
   testWidgets('Link onion with Tor on: "Over Tor", sent over Tor', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'));
     expect(chip('Over Tor'), findsOneWidget);
-    expect(find.text('Link to http(s) addresses goes over the clearnet, not Tor.'), findsNothing);
+    expect(find.text('Link · HTTP goes over the clearnet, not Tor.'), findsNothing);
     expect(review(tester).onPressed, isNotNull);
   });
 
@@ -180,7 +180,7 @@ void main() {
     expect(find.text('Needs Tor'), findsOneWidget);
     expect(chip('Not over Tor'), findsOneWidget);
     expect(review(tester).onPressed, isNull);
-    expect(find.text('Link to http(s) addresses goes over the clearnet, not Tor.'), findsNothing);
+    expect(find.text('Link · HTTP goes over the clearnet, not Tor.'), findsNothing);
     await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
     await tester.pumpAndSettle();
     expect(wallet.torCalls, [true]);

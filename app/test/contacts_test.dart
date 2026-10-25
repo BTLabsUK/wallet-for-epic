@@ -144,9 +144,9 @@ void main() {
 
   test('the tag says how the address is reached', () {
     expect(contactTag(_l, _alice), 'Epicbox');
-    expect(contactTag(_l, _onion), 'Link Payment · Tor');
-    expect(contactTag(_l, 'http://${'t' * 55}d.onion'), 'Link Payment · Tor');
-    expect(contactTag(_l, _http), 'Link Payment · HTTP');
+    expect(contactTag(_l, _onion), 'Link · Tor');
+    expect(contactTag(_l, 'http://${'t' * 55}d.onion'), 'Link · Tor');
+    expect(contactTag(_l, _http), 'Link · HTTP');
   });
 
   group('list', () {
@@ -176,7 +176,7 @@ void main() {
       // List rows show the method glyph alone; its name is the tooltip and the semantics.
       expect(find.byIcon(EpicGlyphs.epicbox), findsNWidgets(2));
       expect(find.byIcon(EpicGlyphs.tor), findsOneWidget);
-      expect(find.byTooltip('Link Payment · Tor'), findsOneWidget);
+      expect(find.byTooltip('Link · Tor'), findsOneWidget);
       expect(find.text('Epicbox'), findsNothing);
       expect(
         find.textContaining(

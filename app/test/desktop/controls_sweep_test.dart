@@ -38,7 +38,7 @@ final Map<RegExp, String> _allowed = {
   RegExp(r'^receive\|[\u{E000}-\u{10FFFF}]*$', unicode: true):
       'The header\'s method icons scroll to their panel; on these shots every panel is in view (receive_test checks the jump).',
   RegExp(r'^outputs\|Smallest spends '): 'A help icon: its text shows on hover and, pressed, in a toast.',
-  RegExp(r'^35[de]-dlg-tx-details-(add|edit)\|(Epicbox|Link|Link · HTTP|Link · Tor|File|Tor|Unknown)$'):
+  RegExp(r'^35[de]-dlg-tx-details-(add|edit)\|(Epicbox|Link|Link · HTTP|Link · Tor|Direct · File|File|Tor|Unknown)$'):
       'A method choice in the details dialog: only the segment\'s own look changes; tx_labels_test saves it.',
   RegExp(r'^35-dlg-tx-proof\|Export$'): 'Behind DeskFeatures.paymentProofs (off): the dialog cannot be opened in the app.',
   RegExp(r'^settingsHelp\|(Getting started|How Epic Cash works|Keeping the wallet safe|Nodes and Epicbox|When something goes wrong)$'):

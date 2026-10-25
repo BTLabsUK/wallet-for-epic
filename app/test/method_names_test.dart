@@ -1,5 +1,5 @@
-// The one naming rule for a payment method on the phone: Epicbox, Link Payment · HTTP, Link Payment · Tor or
-// File, in each language. HTTP and Tor are Link's transport and never a method on their own.
+// The one naming rule for a payment method on the phone: Epicbox, Link · HTTP, Link · Tor or
+// Direct · File Transfer, in each language. HTTP and Tor are Link's transport and never a method on their own.
 // The CSV's `method` column names them in English; the desktop's mapper is in
 // test/desktop/method_names_test.dart.
 import 'package:epic_wallet/src/history/export.dart';
@@ -11,14 +11,14 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Epicbox, Link Payment · HTTP, Link Payment · Tor, File per language; Link is each language's own term.
+/// Epicbox, Link · HTTP, Link · Tor, Direct · File Transfer per language; Link stays Latin, Direct is each language's own word.
 const _names = <String, List<String>>{
-  'en': ['Epicbox', 'Link Payment · HTTP', 'Link Payment · Tor', 'File'],
-  'de': ['Epicbox', 'Link-Zahlung · HTTP', 'Link-Zahlung · Tor', 'Datei'],
-  'pl': ['Epicbox', 'Płatność linkiem · HTTP', 'Płatność linkiem · Tor', 'Plik'],
-  'ru': ['Epicbox', 'Платёж по ссылке · HTTP', 'Платёж по ссылке · Tor', 'Файл'],
-  'zh': ['Epicbox', '链接付款 · HTTP', '链接付款 · Tor', '文件'],
-  'th': ['Epicbox', 'จ่ายผ่านลิงก์ · HTTP', 'จ่ายผ่านลิงก์ · Tor', 'ไฟล์'],
+  'en': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direct · File Transfer'],
+  'de': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direkt · Dateiübertragung'],
+  'pl': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Bezpośrednio · Przesyłanie pliku'],
+  'ru': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Напрямую · Передача файла'],
+  'zh': ['Epicbox', 'Link · HTTP', 'Link · Tor', '直接 · 文件传输'],
+  'th': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'โดยตรง · โอนไฟล์'],
 };
 
 void main() {
@@ -46,7 +46,7 @@ void main() {
         final l = lookupAppLocalizations(Locale(lang));
         for (final t in ['http', 'tor']) {
           expect(txMethodWord(l, t), isNot(anyOf('HTTP', 'Tor')), reason: lang);
-          expect(txMethodWord(l, t), startsWith(l.methodLinkPayment), reason: lang);
+          expect(txMethodWord(l, t), startsWith('Link'), reason: lang);
         }
       }
     });
@@ -54,16 +54,16 @@ void main() {
     test('a contact\'s tag is the method its address is reached by', () {
       final l = lookupAppLocalizations(const Locale('de'));
       expect(contactTag(l, 'esAbc@epicbox.epiccash.com'), 'Epicbox');
-      expect(contactTag(l, 'https://pay.example.org:3415'), 'Link-Zahlung · HTTP');
+      expect(contactTag(l, 'https://pay.example.org:3415'), 'Link · HTTP');
     });
   });
 
   group('the CSV method column', () {
     test('names the four methods the way the app does, in English', () {
       expect(methodWord('epicbox'), 'Epicbox');
-      expect(methodWord('http'), 'Link Payment · HTTP');
-      expect(methodWord('tor'), 'Link Payment · Tor');
-      expect(methodWord('file'), 'File');
+      expect(methodWord('http'), 'Link · HTTP');
+      expect(methodWord('tor'), 'Link · Tor');
+      expect(methodWord('file'), 'Direct · File Transfer');
       expect(methodWord(null), '');
       expect(methodWord('other'), 'other');
     });
@@ -84,7 +84,7 @@ void main() {
         for (final t in ['epicbox', 'http', 'tor', 'file', null]) row(t),
       ], BigInt.from(40)).trim().split('\n');
       final methods = [for (final line in lines.skip(1)) line.split(',')[11]];
-      expect(methods, ['Epicbox', 'Link Payment · HTTP', 'Link Payment · Tor', 'File', '']);
+      expect(methods, ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direct · File Transfer', '']);
       expect(lines.join('\n'), isNot(contains(',http,')));
       expect(lines.join('\n'), isNot(contains(',tor,')));
     });
