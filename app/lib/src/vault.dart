@@ -264,8 +264,11 @@ class WalletVault {
   }
 
   Future<void> disableBiometrics(Chain chain) async {
+    final was = await biometricsEnabled(chain);
     await store.delete(_key(chain, 'pinBiometrics'));
-    await biometrics.delete(_key(chain, 'pin'));
+    // Only a copy that was stored is deleted: opening the biometric store can show the
+    // system prompt, and a new wallet whose owner said "Not now" must never see one (AND-5).
+    if (was) await biometrics.delete(_key(chain, 'pin'));
   }
 
   /// The biometric copy of the PIN. Null if biometrics are off, the prompt was dismissed, or

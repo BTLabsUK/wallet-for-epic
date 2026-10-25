@@ -103,6 +103,10 @@ class PlatformBiometricStore implements BiometricStore {
       // A recognized face continues on its own instead of waiting for a Confirm tap.
       requireBiometricConfirmation: false,
       storageNamespace: 'wfe_biometric',
+      // The plugin takes a namespace it never saw for one made by its old default (RSA) and
+      // migrates it under a prompt whose cancel it never answers: Setup waited for good after
+      // "Use PIN" (AND-5). Nothing here is worth migrating: the entry is a copy of the PIN.
+      migrateOnAlgorithmChange: false,
       biometricPromptTitle: 'Unlock wallet',
       biometricPromptSubtitle: 'Confirm with your fingerprint or face',
       biometricPromptNegativeButton: 'Use PIN',
@@ -188,6 +192,9 @@ class MemoryBiometricStore implements BiometricStore {
   bool available;
   bool succeed = true;
   int prompts = 0;
+
+  /// How often [delete] was called: the real store can prompt for it.
+  int deletes = 0;
   final Map<String, String> values = {};
 
   void _prompt() {
@@ -211,5 +218,8 @@ class MemoryBiometricStore implements BiometricStore {
   }
 
   @override
-  Future<void> delete(String key) async => values.remove(key);
+  Future<void> delete(String key) async {
+    deletes++;
+    values.remove(key);
+  }
 }

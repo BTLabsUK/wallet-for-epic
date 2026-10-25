@@ -60,6 +60,9 @@ void main() {
       );
       final created = await vault.create(config, pin: '123456');
       expect(created.biometrics, isFalse);
+      // "Not now": the biometric store is never opened, so no system prompt shows (AND-5).
+      expect(bio.prompts, 0);
+      expect(bio.deletes, 0);
       expect(service.createdPin, '123456');
       expect(store.values, {
         'wallet.mainnet.pinSealed': fakeSealedPassword('123456'),
