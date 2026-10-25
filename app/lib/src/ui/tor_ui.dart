@@ -20,7 +20,7 @@ import 'theme/tokens.dart';
 /// Tor's icon wherever a method or a status needs one: a private connection.
 const IconData torIcon = EpicGlyphs.tor;
 
-/// Whether Receive's Direct tab and Settings' Tor switch exist: the app has Tor and the
+/// Whether Receive's Link · Tor address and Settings' Tor switch exist: the app has Tor and the
 /// controller has read this wallet's onion. Before that the controller says `off` with no
 /// onion, and nothing Tor shows, so no tab flashes on a phone without Tor.
 bool torShown(PhoneTorState s) =>
@@ -218,7 +218,7 @@ class TorSwitchTile extends ConsumerWidget {
   }
 }
 
-/// Receive's Direct tab under the onion address: "Tor · Starting…" (or On, Not connected),
+/// Receive's Link tab under the onion address: "Tor · Starting…" (or On, Not connected),
 /// why the address is not reachable yet when that is known, Retry after a failure, and a link
 /// to the switch in Settings › Privacy.
 class TorStateLine extends ConsumerWidget {

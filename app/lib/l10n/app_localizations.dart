@@ -7905,28 +7905,28 @@ abstract class AppLocalizations {
   /// **'File Transfer'**
   String get methodFile;
 
-  /// Short method name where space is short (badges, segments): Link · HTTP as just HTTP. Keep the Latin letters.
+  /// Method name in badges, tags, chips and segments: the family, a middle dot, HTTP. Never HTTP alone. Keep the Latin letters.
   ///
   /// In en, this message translates to:
-  /// **'HTTP'**
+  /// **'Link · HTTP'**
   String get methodShortHttp;
 
-  /// Short method name where space is short (badges, segments): Link · Tor as just Tor. Keep the Latin letters; Tor is a name.
+  /// Method name in badges, tags, chips and segments: the family, a middle dot, Tor. Never Tor alone. Keep the Latin letters; Tor is a name.
   ///
   /// In en, this message translates to:
-  /// **'Tor'**
+  /// **'Link · Tor'**
   String get methodShortTor;
 
-  /// Short method name where space is short (badges, segments): QR Payment as just QR. Keep the Latin letters.
+  /// Short method name where space is short (badges, tags, chips, segments): the Direct family, a middle dot, QR. The full name is methodDirectQr.
   ///
   /// In en, this message translates to:
-  /// **'QR'**
+  /// **'Direct · QR'**
   String get methodShortQr;
 
-  /// Short method name where space is short (badges, segments, table cells): Direct · File Transfer as just File.
+  /// Short method name where space is short (badges, tags, chips, segments, table cells): the Direct family, a middle dot, File. The full name is methodDirectFile.
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'Direct · File'**
   String get methodShortFile;
 
   /// Full method name: the Direct family, a middle dot, then QR Payment. Shown where no Direct header stands around it.
@@ -10064,6 +10064,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Link Payment: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get methodArtLabelDirect;
+
+  /// Screen reader label of the Link family's picture on Send and Receive. {method} is the family's name ("Link").
+  ///
+  /// In en, this message translates to:
+  /// **'{method}: the payment goes straight to the recipient\'s wallet, which must be open'**
+  String methodArtSpokenLink(String method);
+
+  /// Screen reader label of the QR Payment picture on Send and Receive. {method} is the method's full name ("Direct · QR Payment").
+  ///
+  /// In en, this message translates to:
+  /// **'{method}: a code passes from one phone to the phone next to it'**
+  String methodArtSpokenQr(String method);
+
+  /// Screen reader label of the File Transfer picture on Send and Receive. {method} is the method's full name ("Direct · File Transfer").
+  ///
+  /// In en, this message translates to:
+  /// **'{method}: a transaction file is handed over, a response file comes back, then the sender finalizes'**
+  String methodArtSpokenFile(String method);
 
   /// Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No "app": the web demo shows it too.
   ///

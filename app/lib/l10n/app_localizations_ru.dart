@@ -5257,16 +5257,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodFile => 'Файл';
 
   @override
-  String get methodShortHttp => 'HTTP';
+  String get methodShortHttp => 'Link · HTTP';
 
   @override
-  String get methodShortTor => 'Tor';
+  String get methodShortTor => 'Link · Tor';
 
   @override
   String get methodShortQr => 'QR';
 
   @override
-  String get methodShortFile => 'File';
+  String get methodShortFile => 'Direct · File';
 
   @override
   String get methodDirectQr => 'Direct · QR Payment';
@@ -6606,6 +6606,21 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get methodArtLabelDirect =>
       'Платёж по ссылке: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+
+  @override
+  String methodArtSpokenLink(String method) {
+    return '$method: the payment goes straight to the recipient\'s wallet, which must be open';
+  }
+
+  @override
+  String methodArtSpokenQr(String method) {
+    return '$method: a code passes from one phone to the phone next to it';
+  }
+
+  @override
+  String methodArtSpokenFile(String method) {
+    return '$method: a transaction file is handed over, a response file comes back, then the sender finalizes';
+  }
 
   @override
   String get methodReceiveEpicboxShort => 'Работает при закрытом кошельке.';

@@ -198,7 +198,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     final info = _info;
     final theme = Theme.of(context);
     final showQr = widget.scanned && offersQrPayment(ref);
-    // The reply goes by QR on a phone with File off; the file buttons need File on.
+    // The reply goes by QR Payment on a phone with File Transfer off; the file buttons need it on.
     final fileOn =
         (ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
                 (ref.watch(phonePaymentsProvider)
@@ -253,7 +253,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
             ),
-            icon: const Icon(Icons.qr_code_2),
+            icon: const Icon(MethodIcons.qr),
             label: Text(l.qrShowReplyAsQr),
             onPressed: () =>
                 _showReply(response.json, info.amount, info.slateId),
@@ -342,7 +342,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     final error = _error;
     return SlotScaffold(
       appBar: AppBar(
-        title: Text(widget.scanned ? l.methodQr : l.slateFileTitle),
+        title: Text(widget.scanned ? MethodIcons.fullName(l, MethodKind.directQr) : l.slateFileTitle),
       ),
       body: ScreenBody(
         children: [
