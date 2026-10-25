@@ -744,7 +744,7 @@ void main() {
         r'''^(?:import|export)\s+['"]([^'"]+)['"]''',
         multiLine: true,
       ).allMatches(source).map((m) => m[1]!).toList();
-      expect(imports, ['dart:convert', '../amount.dart', '../recipient.dart']);
+      expect(imports, ['dart:convert', '../amount.dart', '../payment_method.dart', '../recipient.dart']);
       for (final banned in [
         'dart:io',
         'dart:ffi',
@@ -769,6 +769,12 @@ void main() {
         contains(
           "import 'wallet_service.dart' show onionAddressFormat, onionHost;",
         ),
+      );
+      // payment_method.dart (the MethodKind a link names) is pure Dart: it imports only recipient.dart.
+      final method = File('lib/src/payment_method.dart').readAsStringSync();
+      expect(
+        RegExp(r'''^import\s+['"]([^'"]+)['"]''', multiLine: true).allMatches(method).map((m) => m[1]!).toList(),
+        ['recipient.dart'],
       );
     });
   });
