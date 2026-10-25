@@ -25459,6 +25459,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Another request'**
   String get deskInvIssuerAnother;
+
+  /// Import page, after a request file was paid and its answer saved: start over with another file. Not "sign": paying a request spent money.
+  ///
+  /// In en, this message translates to:
+  /// **'Open another file'**
+  String get deskImpOpenAnother;
 }
 
 class _AppLocalizationsDelegate

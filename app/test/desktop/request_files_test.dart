@@ -134,7 +134,12 @@ void main() {
       await _real(tester, 2000);
       expect(find.text(_l.reqAnswerTitle), findsOneWidget);
       expect(find.text(_l.reqAnswerLead), findsOneWidget);
-      expect(find.text(_l.deskImpAnother), findsOneWidget);
+      // Money left: the page no longer says signing spends nothing, nor offers to sign.
+      expect(find.text(_l.deskImpNoticeTitle), findsNothing);
+      expect(find.text(_l.deskImpTitle), findsNothing);
+      expect(find.text(_l.reqTitle), findsOneWidget);
+      expect(find.text(_l.deskImpAnother), findsNothing);
+      expect(find.text(_l.deskImpOpenAnother), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

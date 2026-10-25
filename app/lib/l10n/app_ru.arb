@@ -4262,5 +4262,6 @@
   "reqFileEnded": "Этот запрос больше не действует.",
   "slateIncomingRequestAnswer": "Ответ на ваш запрос на оплату: {amount} (комиссия {fee}).",
   "reqAnswerUnknown": "Это ответ на запрос, которого в этом кошельке больше нет.",
-  "deskInvIssuerAnother": "Ещё один запрос"
+  "deskInvIssuerAnother": "Ещё один запрос",
+  "deskImpOpenAnother": "Открыть другой файл"
 }

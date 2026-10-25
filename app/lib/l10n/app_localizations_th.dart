@@ -15905,4 +15905,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvIssuerAnother => 'สร้างคำขออีกรายการ';
+
+  @override
+  String get deskImpOpenAnother => 'เปิดไฟล์อื่น';
 }

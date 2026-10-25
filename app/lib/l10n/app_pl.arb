@@ -4262,5 +4262,6 @@
   "reqFileEnded": "Ta prośba jest już nieaktualna.",
   "slateIncomingRequestAnswer": "Odpowiedź na twoją prośbę o płatność: {amount} (opłata {fee}).",
   "reqAnswerUnknown": "To odpowiedź na prośbę, której ten portfel już nie ma.",
-  "deskInvIssuerAnother": "Kolejna prośba"
+  "deskInvIssuerAnother": "Kolejna prośba",
+  "deskImpOpenAnother": "Otwórz kolejny plik"
 }

@@ -186,19 +186,23 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
         ),
       );
     }
+    // After paying a request file the page is about that payment: no "signing spends nothing".
+    final paid = _answered && _response != null;
     return EPage(
-      title: l.deskImpTitle,
+      title: paid ? l.reqTitle : l.deskImpTitle,
       width: EPageWidth.narrow,
       onBack: () => nav.canBack ? nav.back() : nav.go(DeskRoute.receive),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ENotice(
-            title: l.deskImpNoticeTitle,
-            text: l.deskImpNoticeText,
-            icon: EIcons.info,
-          ),
-          SizedBox(height: Sp.x5),
+          if (!paid) ...[
+            ENotice(
+              title: l.deskImpNoticeTitle,
+              text: l.deskImpNoticeText,
+              icon: EIcons.info,
+            ),
+            SizedBox(height: Sp.x5),
+          ],
           if (offlineNode) ...[
             ENotice(
               key: const ValueKey('file-offline-node'),
@@ -228,7 +232,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
                 ],
               ),
               actions: [
-                EButton.primary(label: l.deskImpAnother, icon: EIcons.fileDown, onPressed: _again),
+                EButton.primary(label: paid ? l.deskImpOpenAnother : l.deskImpAnother, icon: EIcons.fileDown, onPressed: _again),
                 EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, _tx?.id)),
               ],
             )

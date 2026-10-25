@@ -16673,4 +16673,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvIssuerAnother => 'Ещё один запрос';
+
+  @override
+  String get deskImpOpenAnother => 'Открыть другой файл';
 }

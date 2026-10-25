@@ -16712,4 +16712,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvIssuerAnother => 'Kolejna prośba';
+
+  @override
+  String get deskImpOpenAnother => 'Otwórz kolejny plik';
 }

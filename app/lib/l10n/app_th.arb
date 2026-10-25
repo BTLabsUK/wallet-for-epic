@@ -4262,5 +4262,6 @@
   "reqFileEnded": "คำขอนี้สิ้นสุดแล้ว",
   "slateIncomingRequestAnswer": "คำตอบสำหรับคำขอชำระเงิน {amount} ของคุณ (ค่าธรรมเนียม {fee})",
   "reqAnswerUnknown": "นี่เป็นคำตอบของคำขอที่กระเป๋าเงินนี้ไม่มีแล้ว",
-  "deskInvIssuerAnother": "สร้างคำขออีกรายการ"
+  "deskInvIssuerAnother": "สร้างคำขออีกรายการ",
+  "deskImpOpenAnother": "เปิดไฟล์อื่น"
 }

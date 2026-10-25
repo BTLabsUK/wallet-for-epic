@@ -16209,4 +16209,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvIssuerAnother => 'Another request';
+
+  @override
+  String get deskImpOpenAnother => 'Open another file';
 }

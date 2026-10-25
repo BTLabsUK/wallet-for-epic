@@ -15345,4 +15345,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvIssuerAnother => '再发一个请求';
+
+  @override
+  String get deskImpOpenAnother => '打开另一个文件';
 }

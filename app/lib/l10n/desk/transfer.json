@@ -215,5 +215,9 @@
   "deskImpChooseText": "The wallet signs it and saves a response for the sender.",
   "@deskImpChooseText": {
     "description": "Text of the drop zone."
+  },
+  "deskImpOpenAnother": "Open another file",
+  "@deskImpOpenAnother": {
+    "description": "Import page, after a request file was paid and its answer saved: start over with another file. Not \"sign\": paying a request spent money."
   }
 }

@@ -4262,5 +4262,6 @@
   "reqFileEnded": "Diese Anforderung ist beendet.",
   "slateIncomingRequestAnswer": "Die Antwort auf Ihre Zahlungsanforderung über {amount} (Gebühr {fee}).",
   "reqAnswerUnknown": "Dies beantwortet eine Anforderung, die diese Wallet nicht mehr hat.",
-  "deskInvIssuerAnother": "Weitere Anforderung"
+  "deskInvIssuerAnother": "Weitere Anforderung",
+  "deskImpOpenAnother": "Weitere Datei öffnen"
 }

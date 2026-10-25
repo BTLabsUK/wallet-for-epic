@@ -48,5 +48,6 @@
   "deskImpAnother": "签署另一个文件",
   "deskImpBusy": "正在签署文件",
   "deskImpChoose": "选择交易文件",
-  "deskImpChooseText": "钱包会签署它，并为发送方保存一份回复。"
+  "deskImpChooseText": "钱包会签署它，并为发送方保存一份回复。",
+  "deskImpOpenAnother": "打开另一个文件"
 }
