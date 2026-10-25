@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
+import 'package:epic_wallet/src/log.dart' show AppLog, MemoryLogSink;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/onboarding_parts.dart';
@@ -326,6 +327,8 @@ void main() {
   for (final stuck in [false, true]) {
     testWidgets('Save fails on a first run → the notice offers to skip → Unlock${stuck ? ' (mark not cleared)' : ''}', (tester) async {
       final refusing = _Refusing(markStuck: stuck);
+      final log = MemoryLogSink();
+      AppLog.use(log);
       wallet = refusing;
       container.dispose();
       container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(refusing), deskNodeProvider.overrideWithValue(MockDeskNode())]);
@@ -349,6 +352,8 @@ void main() {
       await wait(tester, 800);
       expect(container.read(deskNavProvider).route, DeskRoute.setup, reason: 'Save failed: still on Review');
       expect(find.text(l.deskSetupSaveFailedTitle), findsOneWidget);
+      // The failure is in the log, with its kind (item 27).
+      expect(log.lines.where((line) => line.contains('setup not saved (first run)')), isNotEmpty, reason: log.lines.join('\n'));
       await tester.pump(const Duration(seconds: 5)); // the toast goes
       await tester.tap(find.text(l.deskSetupSkipSave));
       await wait(tester, 800);

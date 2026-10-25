@@ -251,6 +251,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   }
 
   void _failed(Object e) {
+    // The kind and the English reason, never a password or a phrase (item 27).
+    logWarn('desk', 'setup not saved${_first != null ? ' (first run)' : ''}: ${e.runtimeType}: ${deskErrorText(e)}');
     if (!mounted) return;
     final reason = deskErrorText(e, context.l10n);
     setState(() {
