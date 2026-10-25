@@ -14996,6 +14996,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get reqNewTo => 'ถึง';
 
   @override
+  String get reqNewToHintContacts =>
+      'ผู้ติดต่อที่จับคู่แล้วซึ่งกระเป๋าเงินชำระคำขอได้';
+
+  @override
+  String get reqNoPayersContacts =>
+      'ยังไม่มีผู้ติดต่อที่จับคู่แล้วซึ่งชำระคำขอได้ จับคู่และตรวจคำกับอีกฝ่าย';
+
+  @override
   String get reqNewToHint =>
       'ผู้ติดต่อที่จับคู่แล้วซึ่งกระเป๋าเงินชำระคำขอได้ สำหรับคนอื่น ให้บันทึกคำขอเป็นไฟล์';
 

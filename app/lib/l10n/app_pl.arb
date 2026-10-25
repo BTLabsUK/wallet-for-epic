@@ -4044,6 +4044,8 @@
   "reqNewLead": "Poproś sparowany kontakt o zapłatę lub zapisz prośbę jako plik dla kogokolwiek.",
   "reqNewLeadContacts": "Poproś sparowany kontakt o zapłatę.",
   "reqNewTo": "Do",
+  "reqNewToHintContacts": "Sparowane kontakty, których portfel opłaca prośby.",
+  "reqNoPayersContacts": "Żaden sparowany kontakt nie opłaca jeszcze próśb. Sparuj się i sprawdź słowa.",
   "reqNewToHint": "Sparowane kontakty, których portfel opłaca prośby. Dla innych: zapisz prośbę jako plik.",
   "reqNewSaveFile": "Zapisz jako plik",
   "reqNewSend": "Wyślij prośbę",

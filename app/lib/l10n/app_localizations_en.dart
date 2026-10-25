@@ -15283,6 +15283,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reqNewTo => 'To';
 
   @override
+  String get reqNewToHintContacts =>
+      'Paired contacts whose wallet pays requests.';
+
+  @override
+  String get reqNoPayersContacts =>
+      'No paired contact pays requests yet. Pair and check the words with them.';
+
+  @override
   String get reqNewToHint =>
       'Paired contacts whose wallet pays requests. Anyone else: save the request as a file.';
 

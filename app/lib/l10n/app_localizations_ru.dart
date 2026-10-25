@@ -15706,6 +15706,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reqNewTo => 'Кому';
 
   @override
+  String get reqNewToHintContacts =>
+      'Сопряжённые контакты, чей кошелёк оплачивает запросы.';
+
+  @override
+  String get reqNoPayersContacts =>
+      'Пока ни один сопряжённый контакт не оплачивает запросы. Выполните сопряжение и проверьте слова.';
+
+  @override
   String get reqNewToHint =>
       'Сопряжённые контакты, чей кошелёк оплачивает запросы. Для остальных: сохраните запрос файлом.';
 

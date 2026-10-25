@@ -880,8 +880,9 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   bool get supportsInvoices => true;
 
+  /// Tests turn it off for a core like LEPIC's, which saves no request files.
   @override
-  bool get supportsRequestFiles => true;
+  bool supportsRequestFiles = true;
 
   @override
   int get sessionRevision => 0;

@@ -113,9 +113,10 @@ class _Review extends ConsumerWidget {
           FittedBox(alignment: Alignment.centerLeft, fit: BoxFit.scaleDown, child: PayAmount(i.amount, size: Fs.h1)),
           SizedBox(height: Sp.x4),
           EFacts([
-            (l.deskInvPayerFee, EMoney(i.fee, size: Fs.md)),
-            (l.deskInvPayerTotal, PayAmount(i.total)),
-            if (spendable != null && open)
+            // No estimate (too little to spend): unknown, never a fee of 0 (PAIR-LNX-5).
+            (l.deskInvPayerFee, i.feeKnown ? EMoney(i.fee, size: Fs.md) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
+            (l.deskInvPayerTotal, i.feeKnown ? PayAmount(i.total) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
+            if (spendable != null && open && (i.feeKnown || short))
               (
                 l.deskInvPayerBalanceAfter,
                 short

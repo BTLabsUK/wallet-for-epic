@@ -175,7 +175,8 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
         ],
         EField(
           label: l.reqNewTo,
-          help: payers.isEmpty ? l.reqNoPayers : l.reqNewToHint,
+          // No file to save on a core without request files: the hint names contacts only.
+          help: payers.isEmpty ? (byFile ? l.reqNoPayers : l.reqNoPayersContacts) : (byFile ? l.reqNewToHint : l.reqNewToHintContacts),
           error: _submitted && to == null && payers.isNotEmpty ? l.reqPickContact : null,
           child: SizedBox(
             width: InvW.lg * 1.4,

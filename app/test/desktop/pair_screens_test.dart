@@ -5,6 +5,9 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCardProvider, deskPairingsProvider, deskSeenAsProvider;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart' show deskSettingsFromJson, deskSettingsToJson;
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart' show deskInvoicesProvider;
+import 'package:epic_wallet/src/desktop/data/invoices.dart' show IncomingInvoice, PayState;
+import 'package:epic_wallet/src/desktop/screens/invoices/issue_invoice_screen.dart';
+import 'package:epic_wallet/src/desktop/screens/invoices/review_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_invoices.dart' show InvoiceSettingsBlock;
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
@@ -272,6 +275,61 @@ void main() {
     await tester.tap(find.byKey(deskPendingRemoveKey));
     await _real(tester);
     expect((await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingReply && r.name == 'Anna'), isEmpty);
+  });
+
+  testWidgets('Review request: a fee with no estimate shows as unknown, never 0 (PAIR-LNX-5)', (tester) async {
+    await _open(tester, const SizedBox.shrink());
+    final now = DateTime.now();
+    _mock.proto.toPay.add(
+      IncomingInvoice(
+        slateId: 'aaaaaaaa-0000-4000-8000-00000000f0e0',
+        senderAddress: 'esA',
+        label: 'Floo C',
+        amount: 8000000,
+        fee: 0,
+        feeKnown: false,
+        receivedAt: now,
+        expiresAt: now.add(const Duration(hours: 5)),
+        state: PayState.waiting,
+      ),
+    );
+    _c.invalidate(deskInvoicesProvider);
+    await _real(tester);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: _c,
+        child: MaterialApp(
+          theme: buildDeskTheme(Brightness.dark),
+          home: const Scaffold(body: InvoiceReviewScreen(arg: 'aaaaaaaa-0000-4000-8000-00000000f0e0')),
+        ),
+      ),
+    );
+    await _real(tester);
+    expect(find.text(_l.deskInvPayerFee), findsOneWidget);
+    expect(find.text('—'), findsNWidgets(2), reason: 'the fee and the total');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('New request on a core without request files names contacts only (PAIR-LNX-5)', (tester) async {
+    await _open(tester, const SizedBox.shrink());
+    _mock.supportsRequestFiles = false;
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: _c,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: IssueInvoiceScreen())),
+      ),
+    );
+    await _real(tester);
+    expect(find.textContaining('as a file'), findsNothing);
+    expect(find.text(_l.reqNewToHintContacts).evaluate().length + find.text(_l.reqNoPayersContacts).evaluate().length, 1);
+  });
+
+  testWidgets('a contact row with no address: no Unknown tag (PAIR-LNX-5)', (tester) async {
+    await _open(tester, const SizedBox(width: 400, child: EAddressLines(name: 'Floo C', address: '', note: 'met at the meetup')));
+    expect(find.text('Floo C'), findsOneWidget);
+    expect(find.text(_l.deskKitUnknown), findsNothing);
+    expect(find.text('met at the meetup'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('the name others see is kept in the settings', (tester) async {

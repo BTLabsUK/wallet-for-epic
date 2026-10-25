@@ -4070,6 +4070,7 @@ class LepicDeskWallet implements DeskWalletApi {
           reference: _line(p.reference),
           amount: amount,
           fee: fee ?? 0,
+          feeKnown: fee != null,
           message: _line(p.message),
           receivedAt: p.receivedAt,
           expiresAt: p.expiresAt,

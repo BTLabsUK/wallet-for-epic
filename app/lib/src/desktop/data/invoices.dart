@@ -204,6 +204,7 @@ class IncomingInvoice {
     this.reference,
     required this.amount,
     required this.fee,
+    this.feeKnown = true,
     required this.receivedAt,
     required this.expiresAt,
     required this.state,
@@ -233,6 +234,9 @@ class IncomingInvoice {
 
   /// The fee this wallet pays on top, as estimated for the amount.
   final int fee;
+
+  /// False while no estimate came (too little to spend): [fee] is 0 then and shows as unknown.
+  final bool feeKnown;
 
   /// The sender's message, already cleaned ([cleanInvoiceText]). Untrusted.
   final String? message;
@@ -269,6 +273,7 @@ class IncomingInvoice {
     reference: reference,
     amount: amount,
     fee: fee,
+    feeKnown: feeKnown,
     message: message,
     receivedAt: receivedAt,
     expiresAt: expiresAt,

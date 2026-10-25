@@ -228,6 +228,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
 
   Future<void> _pickPayer(List<PairingRecord> payers, List<Contact> contacts) async {
     final l = context.l10n;
+    final byFile = ref.read(sessionProvider)?.supportsRequestFiles ?? false;
     final picked = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
@@ -245,7 +246,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               onTap: () => Navigator.pop(context, r.id),
             ),
           if (payers.isEmpty)
-            Padding(padding: const EdgeInsets.all(16), child: Text(l.reqNoPayers)),
+            Padding(padding: const EdgeInsets.all(16), child: Text(byFile ? l.reqNoPayers : l.reqNoPayersContacts)),
         ],
       ),
     );
@@ -426,7 +427,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                 suffixIcon: const Icon(Icons.expand_more),
               ),
               child: to == null
-                  ? Text(payers.isEmpty ? l.reqNoPayers : l.reqPickContact, style: TextStyle(color: t.dim))
+                  ? Text(payers.isEmpty ? (byFile ? l.reqNoPayers : l.reqNoPayersContacts) : l.reqPickContact, style: TextStyle(color: t.dim))
                   : Row(
                       children: [
                         PairAvatar(name: pairingName(to, contacts), kind: to.kind, size: 28),
@@ -439,7 +440,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          PairSmallPrint(l.reqNewToHint),
+          PairSmallPrint(byFile ? l.reqNewToHint : l.reqNewToHintContacts),
           const SizedBox(height: 16),
           TextField(
             key: requestAmountKey,

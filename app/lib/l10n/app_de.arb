@@ -4044,6 +4044,8 @@
   "reqNewLead": "Bitten Sie einen gekoppelten Kontakt um Zahlung oder speichern Sie die Anforderung als Datei für jede beliebige Person.",
   "reqNewLeadContacts": "Bitten Sie einen gekoppelten Kontakt um Zahlung.",
   "reqNewTo": "An",
+  "reqNewToHintContacts": "Gekoppelte Kontakte, deren Wallet Anforderungen bezahlt.",
+  "reqNoPayersContacts": "Noch kein gekoppelter Kontakt bezahlt Anforderungen. Koppeln Sie und prüfen Sie die Wörter.",
   "reqNewToHint": "Gekoppelte Kontakte, deren Wallet Anforderungen bezahlt. Alle anderen: Anforderung als Datei speichern.",
   "reqNewSaveFile": "Als Datei speichern",
   "reqNewSend": "Anforderung senden",

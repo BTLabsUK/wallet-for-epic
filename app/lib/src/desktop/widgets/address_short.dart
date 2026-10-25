@@ -109,13 +109,14 @@ class EAddressLines extends StatelessWidget {
           children: [
             Flexible(child: Text(name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ?nameTrailing,
-            SizedBox(width: Sp.x2),
-            EKindTag(addressKindOf(address), compact: true),
+            // A contact with no address (paired only) has no kind to tag (PAIR-LNX-5).
+            if (address.trim().isNotEmpty) ...[SizedBox(width: Sp.x2), EKindTag(addressKindOf(address), compact: true)],
           ],
         ),
         const SizedBox(height: 2),
         LayoutBuilder(
           builder: (context, box) {
+            if (address.trim().isEmpty) return Text(n, style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis);
             if (n.isEmpty) return EShortAddress(address, style: aStyle);
             final noteMin = _width(context, ' · ${n.length > 12 ? n.substring(0, 12) : n}', nStyle);
             final full = shortAddressWidth(context, address, aStyle);

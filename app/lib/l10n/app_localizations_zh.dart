@@ -14478,6 +14478,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqNewTo => '收款对象';
 
   @override
+  String get reqNewToHintContacts => '钱包可支付请求的已配对联系人。';
+
+  @override
+  String get reqNoPayersContacts => '还没有可支付请求的已配对联系人。请配对并核对词语。';
+
+  @override
   String get reqNewToHint => '钱包可支付请求的已配对联系人。其他人：将请求保存为文件。';
 
   @override

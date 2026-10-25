@@ -15468,6 +15468,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reqNewTo => 'An';
 
   @override
+  String get reqNewToHintContacts =>
+      'Gekoppelte Kontakte, deren Wallet Anforderungen bezahlt.';
+
+  @override
+  String get reqNoPayersContacts =>
+      'Noch kein gekoppelter Kontakt bezahlt Anforderungen. Koppeln Sie und prüfen Sie die Wörter.';
+
+  @override
   String get reqNewToHint =>
       'Gekoppelte Kontakte, deren Wallet Anforderungen bezahlt. Alle anderen: Anforderung als Datei speichern.';
 

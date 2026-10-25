@@ -15748,6 +15748,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get reqNewTo => 'Do';
 
   @override
+  String get reqNewToHintContacts =>
+      'Sparowane kontakty, których portfel opłaca prośby.';
+
+  @override
+  String get reqNoPayersContacts =>
+      'Żaden sparowany kontakt nie opłaca jeszcze próśb. Sparuj się i sprawdź słowa.';
+
+  @override
   String get reqNewToHint =>
       'Sparowane kontakty, których portfel opłaca prośby. Dla innych: zapisz prośbę jako plik.';
 

@@ -24146,6 +24146,18 @@ abstract class AppLocalizations {
   /// **'To'**
   String get reqNewTo;
 
+  /// Under To on New request when the wallet cannot save a request as a file: the reqNewToHint without the file part.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired contacts whose wallet pays requests.'**
+  String get reqNewToHintContacts;
+
+  /// No payer yet on New request when the wallet cannot save a request as a file: the reqNoPayers without the file part.
+  ///
+  /// In en, this message translates to:
+  /// **'No paired contact pays requests yet. Pair and check the words with them.'**
+  String get reqNoPayersContacts;
+
   /// Under the To field.
   ///
   /// In en, this message translates to:

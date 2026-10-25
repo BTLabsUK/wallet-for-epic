@@ -20224,6 +20224,14 @@
   "@reqNewTo": {
     "description": "Field label: the paired contact."
   },
+  "reqNewToHintContacts": "Paired contacts whose wallet pays requests.",
+  "@reqNewToHintContacts": {
+    "description": "Under To on New request when the wallet cannot save a request as a file: the reqNewToHint without the file part."
+  },
+  "reqNoPayersContacts": "No paired contact pays requests yet. Pair and check the words with them.",
+  "@reqNoPayersContacts": {
+    "description": "No payer yet on New request when the wallet cannot save a request as a file: the reqNoPayers without the file part."
+  },
   "reqNewToHint": "Paired contacts whose wallet pays requests. Anyone else: save the request as a file.",
   "@reqNewToHint": {
     "description": "Under the To field."
