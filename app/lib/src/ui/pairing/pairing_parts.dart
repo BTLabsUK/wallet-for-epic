@@ -465,7 +465,8 @@ class PairSwitchRow extends StatelessWidget {
             Semantics(
               label: label,
               hint: hint,
-              child: Switch(key: switchKey, value: value, onChanged: on),
+              // Disabled reads as disabled: not the accent of a switch that can be used.
+              child: Opacity(opacity: on == null ? 0.38 : 1, child: Switch(key: switchKey, value: value, onChanged: on)),
             ),
           ],
         ),

@@ -17,6 +17,7 @@ import '../common.dart';
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
 import 'pair_check.dart';
+import 'pair_incoming.dart' show PairingByHandScreen;
 import 'pair_screen.dart';
 import 'pairing_parts.dart';
 
@@ -202,10 +203,18 @@ class _PendingRow extends ConsumerWidget {
               PopupMenuButton<String>(
                 key: pendingRowMenuKey(r.id),
                 tooltip: l.contactMore,
-                onSelected: (_) async {
-                  if (await confirmRemovePairing(context, name)) await pairingCall(ref, (api) => api.removePairing(r.id));
+                onSelected: (v) async {
+                  if (v == 'byhand') {
+                    await Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairingByHandScreen(pairingId: r.id, confirm: true)));
+                  } else if (await confirmRemovePairing(context, name)) {
+                    await pairingCall(ref, (api) => api.removePairing(r.id));
+                  }
                 },
-                itemBuilder: (context) => [PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk)))],
+                itemBuilder: (context) => [
+                  // The inviter's confirm, again, while the other side waits for it (PAIR-AND-10).
+                  if (r.inviter) PopupMenuItem(value: 'byhand', child: Text(l.pairSendByHand)),
+                  PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk))),
+                ],
               ),
             ],
           ),

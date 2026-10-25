@@ -34,6 +34,8 @@ const Key deskPairCopyInviteKey = ValueKey('desk-pair-copy-invite');
 const Key deskPairCopyCardKey = ValueKey('desk-pair-copy-card');
 const Key deskCardBackLinkKey = ValueKey('desk-card-back-link');
 const Key deskCardBackCheckKey = ValueKey('desk-card-back-check');
+const Key deskConfirmBackLinkKey = ValueKey('desk-confirm-back-link');
+const Key deskConfirmBackCheckKey = ValueKey('desk-confirm-back-check');
 const Key deskIncomingPairKey = ValueKey('desk-incoming-pair');
 const Key deskCheckMatchKey = ValueKey('desk-check-match');
 const Key deskCheckNoMatchKey = ValueKey('desk-check-no-match');
@@ -503,7 +505,13 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
         final preview = await api.openInvite(text);
         if (context.mounted) await showDeskIncoming(context, ref, preview, contact: contact);
       case PairingLinkKind.reply:
+        // Their answer came by hand: the confirm goes back by hand before the words, which
+        // their wallet shows only once it has it (PAIR-AND-10).
         final r = await deskPairingCall(ref, (a) => a.openReply(text));
+        final confirm = await api.confirmLink(r.id).then<String?>((v) => v, onError: (Object _) => null);
+        if (confirm != null && context.mounted) {
+          await showEDialog<void>(context, builder: (_) => _ConfirmBackDialog(name: r.shownName, link: confirm));
+        }
         if (context.mounted) await showDeskCheckWords(context, ref, r.id);
       case PairingLinkKind.confirm:
         final r = await deskPairingCall(ref, (a) => a.openConfirm(text));
@@ -531,6 +539,37 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
     final failure = pairingFailureOf(error);
     if (failure == null || failure == PairingFailure.notFound || !context.mounted) rethrow;
     await showDeskOutcome(context, failure);
+  }
+}
+
+/// The inviter's confirm to send back by hand, as the phone's Send by hand; then the words
+/// check.
+class _ConfirmBackDialog extends StatelessWidget {
+  const _ConfirmBackDialog({required this.name, required this.link});
+
+  final String name;
+  final String link;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final ts = context.ts;
+    return EDialog(
+      title: l.pairByHandTitle,
+      width: 520.u,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.pairConfirmByHandLead(name), style: ts.bodyDim),
+          SizedBox(height: Sp.x3),
+          SelectableText(link, key: deskConfirmBackLinkKey, style: ts.mono()),
+        ],
+      ),
+      actions: [
+        EButton(label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => copyToClipboard(context, link, l.pairCopied)),
+        EButton.primary(key: deskConfirmBackCheckKey, label: l.noticeCheckWords, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
+      ],
+    );
   }
 }
 
@@ -876,8 +915,18 @@ Future<void> deskAttachPairing(BuildContext context, WidgetRef ref, PairingRecor
 /// The name field of the Save as a new contact form, for tests.
 const Key deskSaveContactNameKey = ValueKey('desk-save-contact-name');
 
-Future<void> showDeskCheckWords(BuildContext context, WidgetRef ref, String pairingId, {bool recheck = false}) =>
-    showEDialog<void>(context, builder: (_) => _CheckDialog(pairingId: pairingId, recheck: recheck));
+Future<void> showDeskCheckWords(BuildContext context, WidgetRef ref, String pairingId, {bool recheck = false}) async {
+  // One words check per pairing: an answer's event and the paste that took it both ask.
+  if (!_checksOpen.add(pairingId)) return;
+  try {
+    await showEDialog<void>(context, builder: (_) => _CheckDialog(pairingId: pairingId, recheck: recheck));
+  } finally {
+    _checksOpen.remove(pairingId);
+  }
+}
+
+/// The pairings whose words check dialog is up.
+final Set<String> _checksOpen = {};
 
 /// [showDeskCheckWords] from a plain [BuildContext], for the screenshot catalogue.
 Future<void> showDeskCheckWordsFor(BuildContext context, String pairingId) =>

@@ -97,12 +97,20 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   @override
   void dispose() {
     pairingNewsOnScreen.remove(_shows);
+    _notices.dismissTag(_pausedTag);
     super.dispose();
   }
+
+  /// The Epicbox-off notice of this page.
+  static const _pausedTag = 'contact-paused-epicbox-off';
+
+  /// Read in [initState]: [dispose] closes the page's notice and may not read providers.
+  late final NoticeNotifier _notices;
 
   @override
   void initState() {
     super.initState();
+    _notices = ref.read(noticeProvider.notifier);
     pairingNewsOnScreen.add(_shows);
     // Epicbox off pauses the contact's pairing; say so once on the way in.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -113,7 +121,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       final paired = pairing != null;
       if (paired && ref.read(pairNetProvider) == PairNet.epicboxOff) {
         final l = context.l10n;
-        ref.read(noticeProvider.notifier).show('${l.contactPausedEpicboxOff}. ${l.contactPausedEpicboxOffBody}', level: NoticeLevel.info);
+        // Persistent, so it pushes the page down instead of covering its header; it goes with
+        // the page (PAIR-AND-10).
+        _notices.show('${l.contactPausedEpicboxOff}. ${l.contactPausedEpicboxOffBody}', level: NoticeLevel.info, persistent: true, tag: _pausedTag);
       }
     });
   }

@@ -429,6 +429,24 @@ void main() {
     expect(find.text(_l.deskSendPickDesc), findsNothing);
   });
 
+  testWidgets('an answer pasted by hand: the confirm to send back, then the words (PAIR-AND-10)', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _seenAs(tester, 'the owner');
+    final invite = (await tester.runAsync(() => _pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 24))))!;
+    await tester.enterText(
+      find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)),
+      fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Ola'}),
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    expect(find.text(_l.pairConfirmByHandLead('Ola')), findsOneWidget);
+    expect(tester.widget<SelectableText>(find.byKey(deskConfirmBackLinkKey)).data, startsWith('epiccash://pair-confirm/'));
+    await tester.tap(find.byKey(deskConfirmBackCheckKey));
+    await _real(tester);
+    expect(find.text(_l.sasDialogTitle('Ola')), findsOneWidget);
+  });
+
   testWidgets('the name others see is kept in the settings', (tester) async {
     await _open(tester, const DeskPairScreen());
     await _seenAs(tester, 'the owner');

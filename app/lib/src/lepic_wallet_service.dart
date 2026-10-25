@@ -2520,7 +2520,8 @@ class _LepicPairing implements PairingApi {
     id: c.contactId,
     state: lepicPairingState(c.state),
     way: _ways[c.contactId] ?? PairingWay.inPerson,
-    inviter: false,
+    // The inviter of a pairing whose answer came by hand: its confirm can be sent again.
+    inviter: _confirmLinks.containsKey(c.contactId),
     createdAt: _ms(c.createdAtMs.toInt()),
     name: c.claimedName,
     label: c.label.isEmpty ? null : c.label,

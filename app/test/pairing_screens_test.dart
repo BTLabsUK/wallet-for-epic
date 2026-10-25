@@ -510,6 +510,44 @@ void main() {
     expect(await h.api.pairing(second.id), isNull);
   });
 
+  testWidgets('by hand: the inviter takes the answer, sends the confirm back, then checks the words (PAIR-AND-10)', (tester) async {
+    // The inviter, Epicbox off: an invite, then the answer pasted by hand.
+    final a = _Harness();
+    final invite = await a.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24));
+    final reply = fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Ola'});
+    await a.pump(tester, const EnterLinkScreen(), net: PairNet.epicboxOff);
+    await tester.enterText(find.byKey(pairEnterFieldKey), reply);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(pairEnterGoKey));
+    await _frames(tester);
+    expect(find.byType(PairingByHandScreen), findsOneWidget, reason: 'the confirm goes back first');
+    expect(find.text(_l.pairConfirmByHandLead('Ola')), findsOneWidget);
+    final confirm = await a.api.confirmLink(invite.id);
+    expect(find.text(confirm), findsOneWidget);
+    await tester.tap(find.byKey(byHandCheckWordsKey));
+    await _frames(tester);
+    expect(find.byType(CheckWordsScreen), findsOneWidget);
+    await tester.tap(find.byKey(checkMatchKey));
+    await tester.pumpAndSettle();
+    expect((await a.api.pairing(invite.id))!.state, PairingState.verified);
+  });
+
+  testWidgets('by hand: the one who answered pastes the confirm and its words open (PAIR-AND-10)', (tester) async {
+    final a = _Harness();
+    final invite = await a.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 24));
+    final confirm = await a.api.confirmLink(invite.id);
+    final b = _Harness();
+    final preview = await b.api.openInvite(invite.inviteLink!);
+    await b.api.acceptInvite(token: preview.token, name: 'Ola', byHand: true);
+    await b.pump(tester, const EnterLinkScreen(), net: PairNet.epicboxOff);
+    await tester.enterText(find.byKey(pairEnterFieldKey), confirm);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(pairEnterGoKey));
+    await _frames(tester);
+    expect(find.byType(CheckWordsScreen), findsOneWidget);
+    expect(b.api.records.single.state, PairingState.paired);
+  });
+
   group('Pending invites', () {
     testWidgets('empty: says how an invite gets here', (tester) async {
       final h = _Harness();

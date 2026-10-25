@@ -29,6 +29,7 @@ const Key incomingPairKey = ValueKey('incoming-pair');
 const Key incomingNotNowKey = ValueKey('incoming-not-now');
 const Key incomingAllowKey = ValueKey('incoming-allow');
 const Key waitingByHandKey = ValueKey('waiting-by-hand');
+const Key byHandCheckWordsKey = ValueKey('by-hand-check-words');
 
 /// Opens the pairing link in [text] (an invite, an answer or confirm sent by hand, or a card):
 /// the incoming sheet, the words check, or the screen that says why not. [contact] is the
@@ -55,8 +56,10 @@ Future<void> openPairingLink(
         final preview = await api.openInvite(text);
         if (context.mounted) await showIncomingInvite(context, ref, preview, contact: contact, replace: replace);
       case PairingLinkKind.reply:
+        // Their answer came by hand, so the confirm goes back by hand before the words: their
+        // wallet shows the words only once it has it (PAIR-AND-10).
         final record = await pairingCall(ref, (a) => a.openReply(text));
-        await show(CheckWordsScreen(pairingId: record.id));
+        await show(PairingByHandScreen(pairingId: record.id, confirm: true));
       case PairingLinkKind.confirm:
         final record = await pairingCall(ref, (a) => a.openConfirm(text));
         await show(CheckWordsScreen(pairingId: record.id));
@@ -389,27 +392,46 @@ class _PairingByHandScreenState extends ConsumerState<PairingByHandScreen> {
     return SlotScaffold(
       appBar: AppBar(title: Text(l.pairByHandTitle)),
       body: ScreenBody(
-        bottom: Row(
+        bottom: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                icon: const Icon(Icons.copy, size: 18),
-                label: Text(l.commonCopy),
-                onPressed: link == null ? null : () => copyText(context, link, l.pairCopied),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                    icon: const Icon(Icons.copy, size: 18),
+                    label: Text(l.commonCopy),
+                    onPressed: link == null ? null : () => copyText(context, link, l.pairCopied),
+                  ),
+                ),
+                if (files.canShareText) ...[
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                      icon: const Icon(Icons.ios_share, size: 18),
+                      label: Text(l.commonShare),
+                      onPressed: link == null ? null : () => files.shareText(link),
+                    ),
+                  ),
+                ],
+              ],
             ),
-            if (files.canShareText) ...[
-              const SizedBox(width: 8),
-              Expanded(
-                child: FilledButton.icon(
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  icon: const Icon(Icons.ios_share, size: 18),
-                  label: Text(l.commonShare),
-                  onPressed: link == null ? null : () => files.shareText(link),
+            // The confirm sent, the words are next on both sides.
+            if (widget.confirm)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: OutlinedButton(
+                  key: byHandCheckWordsKey,
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  onPressed: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: widget.pairingId)),
+                  ),
+                  child: Text(l.noticeCheckWords),
                 ),
               ),
-            ],
           ],
         ),
         children: [
@@ -418,7 +440,7 @@ class _PairingByHandScreenState extends ConsumerState<PairingByHandScreen> {
           if (_error != null) ErrorText(_error!),
           if (link != null) ShareBox(label: l.pairByHandYourAnswer, text: link),
           const SizedBox(height: 10),
-          PairSmallPrint(l.pairByHandFooter(name)),
+          if (!widget.confirm) PairSmallPrint(l.pairByHandFooter(name)),
         ],
       ),
     );

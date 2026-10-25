@@ -713,7 +713,10 @@ class _PairOnlineScreenState extends ConsumerState<PairOnlineScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            sent.label == null ? l.pairInviteSentBodyAnyone : l.pairInviteSentBody(sent.label!),
+            // By hand the answer comes back the same way, not on its own.
+            ref.watch(pairNetProvider) != PairNet.online
+                ? l.pairOnlineLeadByHand
+                : (sent.label == null ? l.pairInviteSentBodyAnyone : l.pairInviteSentBody(sent.label!)),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
           ),
