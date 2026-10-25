@@ -3,6 +3,7 @@
 // block, and nothing is sent until the review and the password. Pasted codes Send cannot take
 // stay in To with the reason under it; links get dialogs; plain text is typed text.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/pairing_state.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/finalize_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/import_tx_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_code.dart';
@@ -65,6 +66,12 @@ void main() {
     clip = null;
   });
   tearDown(() => container.dispose());
+
+  /// A build that does not pair: a pairing link says so (the pairing flow has its own tests).
+  void noPairing() {
+    container.dispose();
+    container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet), deskPairsProvider.overrideWithValue(false)]);
+  }
 
   Future<void> show(WidgetTester tester, {Size size = const Size(1280, 1000), String? link, PaymentPrefs? payments}) async {
     tester.view.physicalSize = size;
@@ -238,6 +245,7 @@ void main() {
   });
 
   testWidgets('pasted, another network, a bad address, a QR Payment part or a pairing link stay in To with the reason', (tester) async {
+    noPairing();
     await show(tester);
     final cases = {
       'epic:$_floonet?amount=1': 'This address is for a different Epic network. This wallet cannot pay it.',
@@ -361,6 +369,7 @@ void main() {
     ('epiccash://pair/1/AbCdEfGh123', 'Pairing link'),
   ]) {
     testWidgets('a link "$link" opens "$title" with Copy', (tester) async {
+      if (link.startsWith('epiccash://pair/')) noPairing();
       await show(tester, link: link);
       expect(inDialog(find.text(title)), findsOneWidget);
       expect(text(tester, 'To'), '');
