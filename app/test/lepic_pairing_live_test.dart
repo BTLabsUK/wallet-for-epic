@@ -248,4 +248,48 @@ void main() {
     expect(back.otherDevice, isTrue);
     expect([for (final w in back.sas) w.name], [for (final w in (await anna.pairing.pairing(ids.aSide))!.sas) w.name]);
   }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
+
+  test('a re-pair after a restore folds into the old pairing: one per contact, requests reach it (PAIR-LNX-15)', () async {
+    final (fred, _) = await wallet();
+    final (sara, saraW) = await wallet();
+    final first = await pair(fred, sara);
+    await fred.pairing.attach(first.aSide, 'marta');
+    // Sara's wallet restored from its phrase, without the backup, pairs with Fred again.
+    final (rob, _) = await wallet(mnemonic: await saraW.mnemonic(password: _password));
+    final told = <PairingEvent>[];
+    final sub = fred.pairing.events().listen(told.add);
+    final second = await pair(fred, rob);
+    await fred.pairing.attach(second.aSide, 'marta');
+
+    /// Fred's pairing for Marta as the contact pages pick it: the first paired one.
+    Future<String?> martas() async =>
+        (await fred.pairing.pairings()).where((r) => r.contactId == 'marta' && r.state.isPaired).firstOrNull?.id;
+
+    // While the check runs, Marta's pairing stays the old one, whatever the check finds.
+    expect(await martas(), first.aSide);
+    expect((await fred.pairing.pairingForContact('marta'))?.id, first.aSide);
+
+    await rob.pairing.collect(trigger: PairingCollectTrigger.pull);
+    await fred.pairing.collect(trigger: PairingCollectTrigger.pull);
+    await _settle();
+    expect([for (final e in told) if (e.kind == PairingEventKind.keysRestored) e.pairingId], [first.aSide]);
+    // The engine keeps the folded pairing until its last message is out; it is never listed.
+    expect([for (final r in await fred.pairing.pairings()) if (r.contactId == 'marta') r.id], [first.aSide]);
+    expect((await fred.pairing.pairingForContact('marta'))?.id, first.aSide);
+
+    // It goes a collect later, with no event of the engine's: the lists are told to read again.
+    told.clear();
+    for (var i = 0; i < 3; i++) {
+      await rob.pairing.collect(trigger: PairingCollectTrigger.pull);
+      await fred.pairing.collect(trigger: PairingCollectTrigger.pull);
+    }
+    await _settle();
+    expect(told.map((e) => e.kind), contains(PairingEventKind.contactUpdated));
+    expect([for (final r in await fred.pairing.pairings()) r.id], [first.aSide]);
+    expect(await rob.pairing.pairings(), hasLength(1));
+
+    final asked = await fred.pairing.requestPayment(id: (await martas())!, amount: _epic);
+    expect(asked.pairingId, first.aSide);
+    await sub.cancel();
+  }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 }

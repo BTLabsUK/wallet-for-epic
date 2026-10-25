@@ -97,7 +97,9 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
       _submitted = true;
       _failure = null;
     });
-    final to = _to;
+    // Only a payer listed now: a pairing gone meanwhile asks for a contact again.
+    final payers = deskRequestPayers(ref.read(deskPairingsProvider).value ?? const <PairingRecord>[]);
+    final to = payers.where((r) => r.id == _to).firstOrNull?.id;
     if (to == null || _amountError() != null || _messageBytes > requestMessageMaxBytes) return;
     setState(() => _busy = true);
     final l = context.l10n;

@@ -2501,6 +2501,14 @@ class _LepicPairing implements PairingApi {
   /// What a slate a contact took part in was for, from the events.
   final Map<String, PairingSlate> _slates = {};
 
+  /// Key checks this wallet started (RFC 7.8): the new pairing and the old one it checks.
+  final Map<String, String> _checking = {};
+
+  /// New pairings the engine folded into the old one when the key check found the old keys.
+  /// It deletes them once their last message is out, a collect later and with no event, so
+  /// they are never listed meanwhile: a contact has one pairing, the old one (PAIR-LNX-15).
+  final Set<String> _folded = {};
+
   /// A call to LEPIC: its pairing errors as the app's [PairingFailure], the rest mapped.
   Future<T> _call<T>(Future<T> Function() call) async {
     try {
@@ -2590,9 +2598,15 @@ class _LepicPairing implements PairingApi {
   @override
   Future<List<PairingRecord>> pairings() => _call(() async {
     final pending = [for (final p in await _w.pairingsPending()) _pending(p)];
-    final paired = [for (final c in await _w.contacts()) _record(c)];
-    // Newest first, as the app lists them.
-    return [...pending.reversed, ...paired.reversed];
+    final paired = [
+      for (final c in await _w.contacts())
+        if (!_folded.contains(c.contactId)) _record(c),
+    ];
+    // Newest first, as the app lists them; a new pairing still checking the keys of its
+    // contact's old one last, so the contact's pairing stays the old one, which stays whatever
+    // the check finds.
+    final checking = [for (final r in paired.reversed) if (_checking.containsKey(r.id)) r];
+    return [...pending.reversed, for (final r in paired.reversed) if (!_checking.containsKey(r.id)) r, ...checking];
   });
 
   @override
@@ -2605,9 +2619,14 @@ class _LepicPairing implements PairingApi {
 
   @override
   Future<PairingRecord?> pairingForContact(String contactId) => _call(() async {
-    final found = [for (final c in await _w.pairingsForAppContact(appContact: contactId)) _record(c)];
-    // While a key check runs, the new pairing in keys changed is the one the page shows.
-    return found.where((r) => r.state == PairingState.keysChanged).firstOrNull ?? found.lastOrNull;
+    final found = [
+      for (final c in await _w.pairingsForAppContact(appContact: contactId))
+        if (!_folded.contains(c.contactId)) _record(c),
+    ];
+    // A new pairing in keys changed is the one the page shows; one still checking is not.
+    return found.where((r) => r.state == PairingState.keysChanged).firstOrNull ??
+        found.where((r) => !_checking.containsKey(r.id)).lastOrNull ??
+        found.lastOrNull;
   });
 
   // No second answers are kept: the engine refuses a used invite.
@@ -2802,6 +2821,7 @@ class _LepicPairing implements PairingApi {
   /// says when the relay is down.
   Future<int> collectOrFail(PairingCollectTrigger trigger) async {
     _s._watchEvents();
+    final before = {for (final c in await _w.contacts()) c.contactId};
     final report = await _w.contactsCollect(
       trigger: switch (trigger) {
         PairingCollectTrigger.open => lepic.CollectTrigger.open,
@@ -2818,6 +2838,12 @@ class _LepicPairing implements PairingApi {
     } on lepic.WalletError catch (error) {
       // The outbox retries on the next collect.
       logWarn('pairing', 'outbox not delivered: ${error.kind.name}');
+    }
+    // The engine drops a folded pairing without an event: the lists read again.
+    final now = {for (final c in await _w.contacts()) c.contactId};
+    _folded.retainAll(now);
+    if (before.difference(now).isNotEmpty && !_events.isClosed) {
+      _events.add(const PairingEvent(PairingEventKind.contactUpdated));
     }
     return report.paired;
   }
@@ -2862,6 +2888,7 @@ class _LepicPairing implements PairingApi {
     if (old != null) {
       try {
         await _w.contactKeyCheck(new_: id, old: old.contactId, relayMode: lepicRelayMode());
+        _checking[id] = old.contactId;
       } on lepic.WalletError catch (error) {
         logWarn('pairing', 'key check not started: ${error.kind.name}');
       }
@@ -2977,6 +3004,14 @@ class _LepicPairing implements PairingApi {
     final id = e.contactId;
     final slateId = e.slateId;
     if (e.kind == lepic.WalletEventKind.homeRelayUnreachable && e.relay != null) _relaysDown.add(e.relay!);
+    if (e.kind == lepic.WalletEventKind.contactKeysRestored && id != null) {
+      // The old pairing [id] has its keys back: the new one checking it was folded into it.
+      for (final fresh in [for (final c in _checking.entries) if (c.value == id) c.key]) {
+        _checking.remove(fresh);
+        _folded.add(fresh);
+      }
+    }
+    if (e.kind == lepic.WalletEventKind.contactKeysChanged && id != null) _checking.remove(id);
     if (e.kind == lepic.WalletEventKind.withdrawalFromContact && id != null && slateId != null) {
       _slates[slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.withdrawal, reference: e.reference);
     }

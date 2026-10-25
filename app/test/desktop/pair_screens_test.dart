@@ -482,4 +482,23 @@ void main() {
     expect(find.text(_l.reqTlPosted(name)), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('New request to a pairing gone meanwhile asks for a contact, not "That did not work" (PAIR-LNX-15)', (tester) async {
+    await _open(tester, const SizedBox.shrink());
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: _c,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: IssueInvoiceScreen(arg: 'folded-and-gone'))),
+      ),
+    );
+    await _real(tester);
+    final before = _c.read(deskInvoicesProvider)?.sent.length;
+    await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskInvIssuerAmount), matching: find.byType(EditableText)), '0.04');
+    await tester.pump();
+    await tester.tap(find.text(_l.reqNewSend));
+    await _real(tester);
+    expect(find.text(_l.deskInvFailed), findsNothing);
+    expect(find.text(_l.reqPickContact), findsWidgets);
+    expect(_c.read(deskInvoicesProvider)?.sent.length, before, reason: 'nothing was asked');
+  });
 }
