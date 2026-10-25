@@ -7,6 +7,7 @@
 
 import 'dart:async';
 
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
@@ -99,7 +100,14 @@ class _Harness {
         overrides: [
           relayProbeProvider.overrideWithValue(FakeRelayProbe()),
           walletServiceProvider.overrideWithValue(FakeWalletService()),
-          secretStoreProvider.overrideWithValue(sendPinStore()),
+          // Link · Tor on in Settings › Transactions: these sends are about Tor itself.
+          secretStoreProvider.overrideWithValue(
+            sendPinStore()
+              ..values['app.payment_prefs'] = const PaymentPrefs(
+                linkHttp: true,
+                linkTor: true,
+              ).encode(),
+          ),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: true)),
           priceSourceProvider.overrideWithValue(_NoPrice()),

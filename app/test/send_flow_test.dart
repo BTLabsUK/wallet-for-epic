@@ -476,7 +476,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       final recipient = editable(tester, sendRecipientFieldKey);
-      await _tap(tester, find.text('File'));
+      await _tap(tester, find.text('Direct · File'));
       expect(find.byKey(sendRecipientFieldKey), findsNothing);
       final fileAmount = editable(tester, sendFileAmountFieldKey);
       expect(identical(fileAmount, recipient), isFalse);

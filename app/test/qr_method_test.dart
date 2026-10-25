@@ -146,7 +146,9 @@ class _Harness {
       ),
     );
     await tester.pumpAndSettle();
-    container = ProviderScope.containerOf(tester.element(find.byType(Scaffold).first));
+    container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
     addTearDown(() async {
       await tester.pumpWidget(const SizedBox());
       await tester.pump();
@@ -166,10 +168,8 @@ class _Harness {
   }
 }
 
-Finder _segment(String label) => find.descendant(
-  of: find.byKey(sendMethodsKey),
-  matching: find.text(label),
-);
+Finder _segment(String label) =>
+    find.descendant(of: find.byKey(sendMethodsKey), matching: find.text(label));
 
 Future<void> _tick(WidgetTester tester, int seconds) async {
   for (var i = 0; i < seconds; i++) {
@@ -187,25 +187,26 @@ Future<void> _openHow(WidgetTester tester) async {
 
 void main() {
   group('How it works opens the explanation of the method', () {
-    testWidgets('QR Payment on Send: the five QR steps, phone to phone, no relay', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester, SendView(onDone: () {}));
-      await tester.tap(_segment('Direct · QR'));
-      await tester.pumpAndSettle();
-      await _openHow(tester);
-      expect(find.byType(HandshakeSheet), findsOneWidget);
-      expect(_howCaption(tester), '1. ${_l.handshakeQr1}');
-      final steps = handshakeSteps(HandshakeFlow.qr);
-      expect(steps, hasLength(5));
-      for (final step in steps) {
-        expect(step.caption(_l).toLowerCase(), isNot(contains('relay')));
-      }
-      expect(find.text(_l.handshakeRelay), findsNothing);
-      expect(find.textContaining('relay'), findsNothing);
-      expect(find.textContaining('Their wallet sends it back'), findsNothing);
-    });
+    testWidgets(
+      'QR Payment on Send: the five QR steps, phone to phone, no relay',
+      (tester) async {
+        final h = _Harness();
+        await h.pump(tester, SendView(onDone: () {}));
+        await tester.tap(_segment('Direct · QR'));
+        await tester.pumpAndSettle();
+        await _openHow(tester);
+        expect(find.byType(HandshakeSheet), findsOneWidget);
+        expect(_howCaption(tester), '1. ${_l.handshakeQr1}');
+        final steps = handshakeSteps(HandshakeFlow.qr);
+        expect(steps, hasLength(5));
+        for (final step in steps) {
+          expect(step.caption(_l).toLowerCase(), isNot(contains('relay')));
+        }
+        expect(find.text(_l.handshakeRelay), findsNothing);
+        expect(find.textContaining('relay'), findsNothing);
+        expect(find.textContaining('Their wallet sends it back'), findsNothing);
+      },
+    );
 
     testWidgets('Epicbox, Link and File each open their own tab on Send', (
       tester,
@@ -231,13 +232,15 @@ void main() {
       expect(_howCaption(tester), '1. ${_l.handshakeFile1}');
     });
 
-    testWidgets('Receive › QR Code: the receiver side, no relay', (tester) async {
+    testWidgets('Receive › QR Code: the receiver side, no relay', (
+      tester,
+    ) async {
       final h = _Harness();
       await h.pump(tester, const ReceiveView());
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('Direct · QR'),
+          matching: find.byTooltip('Direct · QR'),
         ),
       );
       await tester.pumpAndSettle();
@@ -260,27 +263,28 @@ void main() {
       expect(_segment('Link'), findsNothing);
     });
 
-    testWidgets('Send: the order is Epicbox · Link · QR · File', (tester) async {
+    testWidgets('Send: the order is Epicbox · Link · QR · File', (
+      tester,
+    ) async {
       final h = _Harness(prefs: 'v2,http,tor,file|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
       final names = ['Epicbox', 'Link', 'Direct · QR', 'Direct · File'];
-      final xs = [
-        for (final n in names) tester.getTopLeft(_segment(n)).dx,
-      ];
+      final xs = [for (final n in names) tester.getTopLeft(_segment(n)).dx];
       expect(xs, [...xs]..sort());
     });
 
-    testWidgets('Send: no QR where the camera does not work, or when QR is off', (
-      tester,
-    ) async {
-      var h = _Harness(scanner: false);
-      await h.pump(tester, SendView(onDone: () {}));
-      expect(find.byKey(sendMethodsKey), findsNothing);
-      h = _Harness(prefs: 'file,noqr|epicbox');
-      await h.pump(tester, SendView(onDone: () {}));
-      expect(_segment('Direct · QR'), findsNothing);
-      expect(_segment('Direct · File'), findsOneWidget);
-    });
+    testWidgets(
+      'Send: no QR where the camera does not work, or when QR is off',
+      (tester) async {
+        var h = _Harness(scanner: false);
+        await h.pump(tester, SendView(onDone: () {}));
+        expect(find.byKey(sendMethodsKey), findsNothing);
+        h = _Harness(prefs: 'file,noqr|epicbox');
+        await h.pump(tester, SendView(onDone: () {}));
+        expect(_segment('Direct · QR'), findsNothing);
+        expect(_segment('Direct · File'), findsOneWidget);
+      },
+    );
 
     testWidgets('Send starts on QR when Settings says so', (tester) async {
       final h = _Harness(prefs: '|qr');
@@ -299,7 +303,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('Direct · QR'),
+          matching: find.byTooltip('Direct · QR'),
         ),
       );
       await tester.pumpAndSettle();
@@ -310,28 +314,29 @@ void main() {
 
     // Offline lets QR Payment use the node in use, like a file; on a node that is not local
     // the note under the button says so.
-    testWidgets('Receive: scanning runs Offline on the node in use, with the node note', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(
-        tester,
-        const ReceiveView(),
-        advanced: const AdvancedPrefs(networkMode: NetworkMode.offline),
-      );
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.text('Direct · QR'),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(
-        tester.widget<FilledButton>(find.byKey(receiveScanQrKey)).onPressed,
-        isNotNull,
-      );
-      expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
-    });
+    testWidgets(
+      'Receive: scanning runs Offline on the node in use, with the node note',
+      (tester) async {
+        final h = _Harness();
+        await h.pump(
+          tester,
+          const ReceiveView(),
+          advanced: const AdvancedPrefs(networkMode: NetworkMode.offline),
+        );
+        await tester.tap(
+          find.descendant(
+            of: find.byKey(receiveTabsKey),
+            matching: find.byTooltip('Direct · QR'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.widget<FilledButton>(find.byKey(receiveScanQrKey)).onPressed,
+          isNotNull,
+        );
+        expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
+      },
+    );
   });
 
   group('the status line', () {
@@ -343,18 +348,15 @@ void main() {
       blockHeight: height,
     );
 
-    String say(
-      QrShowPhase phase, {
-      bool reply = false,
-      TxEntry? tx,
-    }) => qrShowStatus(
-      _l,
-      reply: reply,
-      phase: phase,
-      tx: tx,
-      tip: tip,
-      target: 3,
-    ).text;
+    String say(QrShowPhase phase, {bool reply = false, TxEntry? tx}) =>
+        qrShowStatus(
+          _l,
+          reply: reply,
+          phase: phase,
+          tx: tx,
+          tip: tip,
+          target: 3,
+        ).text;
 
     test('the sender: show this, wait for the scan, show again', () {
       expect(say(QrShowPhase.hidden), 'Show this to the recipient.');
@@ -381,11 +383,7 @@ void main() {
         'Payment received. Waiting for the sender to scan and post it.',
       );
       expect(
-        say(
-          QrShowPhase.timedOut,
-          reply: true,
-          tx: waiting,
-        ),
+        say(QrShowPhase.timedOut, reply: true, tx: waiting),
         'Hidden. Show again if they did not finish scanning.',
       );
       final posted = received(
@@ -411,7 +409,10 @@ void main() {
   });
 
   group('the first start of this version', () {
-    Future<AppSettings> load(MemorySecretStore store, {bool phone = true}) async {
+    Future<AppSettings> load(
+      MemorySecretStore store, {
+      bool phone = true,
+    }) async {
       final container = ProviderContainer(
         overrides: [
           secretStoreProvider.overrideWithValue(store),
@@ -425,14 +426,17 @@ void main() {
     MemorySecretStore withWallet([Map<String, String> more = const {}]) =>
         MemorySecretStore({'wallet.mainnet.pinSealed': 'sealed', ...more});
 
-    test('a phone with a wallet and nothing chosen keeps File, saved on', () async {
-      final store = withWallet();
-      final s = await load(store);
-      expect(s.payments.directFile, isTrue);
-      expect(s.payments.directQr, isTrue);
-      expect(store.values['app.payment_prefs'], 'v2,file|epicbox');
-      expect(store.values['app.qr_method_seen'], '1');
-    });
+    test(
+      'a phone with a wallet and nothing chosen keeps File, saved on',
+      () async {
+        final store = withWallet();
+        final s = await load(store);
+        expect(s.payments.directFile, isTrue);
+        expect(s.payments.directQr, isTrue);
+        expect(store.values['app.payment_prefs'], 'v2,file|epicbox');
+        expect(store.values['app.qr_method_seen'], '1');
+      },
+    );
 
     test('a phone whose stored choice has File on keeps it', () async {
       final store = withWallet({'app.payment_prefs': 'direct,file|direct'});
@@ -442,7 +446,10 @@ void main() {
       expect(s.payments.linkTor, isTrue);
       expect(s.payments.linkHttp, isTrue);
       expect(s.payments.startMethod.family, MethodFamily.link);
-      expect(PaymentPrefs.decode(store.values['app.payment_prefs'], phone: true), s.payments);
+      expect(
+        PaymentPrefs.decode(store.values['app.payment_prefs'], phone: true),
+        s.payments,
+      );
     });
 
     test('a phone that had turned File off keeps it off', () async {
@@ -533,42 +540,45 @@ void main() {
       expect(find.text('Sent to the network'), findsOneWidget);
     });
 
-    testWidgets('Send: a reply of another payment is said so and nothing is posted', (
-      tester,
-    ) async {
-      final h = _Harness();
-      final other = '{"id":"slate-9","step":"response"}';
-      h.service.slateInfos[other] = SlateInfo(
-        slateId: 'slate-9',
-        amount: _epic(1),
-        fee: BigInt.from(8000000),
-        stage: SlateStage.response,
-      );
-      await h.pump(tester, SendView(onDone: () {}));
-      await tester.tap(_segment('Direct · QR'));
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Make payment QR'));
-      await tester.pumpAndSettle();
-      await answerPin(tester);
-      await tester.pump(const Duration(milliseconds: 300));
-      // Back to the step under the code, then scan from there.
-      Navigator.of(tester.element(find.byType(QrShowScreen))).pop();
-      await tester.pumpAndSettle();
-      expect(find.byKey(sendScanReplyKey), findsOneWidget);
-      await tester.tap(find.byKey(sendScanReplyKey));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      await h.scan(tester, await h.parts(other));
-      await tester.pump(qrCompleteFor);
-      await tester.pumpAndSettle();
-      expect(h.session.finalizedSlates, isEmpty);
-      expect(
-        find.text('This reply is for a different payment. Scan the reply for this send.'),
-        findsOneWidget,
-      );
-    });
+    testWidgets(
+      'Send: a reply of another payment is said so and nothing is posted',
+      (tester) async {
+        final h = _Harness();
+        final other = '{"id":"slate-9","step":"response"}';
+        h.service.slateInfos[other] = SlateInfo(
+          slateId: 'slate-9',
+          amount: _epic(1),
+          fee: BigInt.from(8000000),
+          stage: SlateStage.response,
+        );
+        await h.pump(tester, SendView(onDone: () {}));
+        await tester.tap(_segment('Direct · QR'));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Make payment QR'));
+        await tester.pumpAndSettle();
+        await answerPin(tester);
+        await tester.pump(const Duration(milliseconds: 300));
+        // Back to the step under the code, then scan from there.
+        Navigator.of(tester.element(find.byType(QrShowScreen))).pop();
+        await tester.pumpAndSettle();
+        expect(find.byKey(sendScanReplyKey), findsOneWidget);
+        await tester.tap(find.byKey(sendScanReplyKey));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+        await h.scan(tester, await h.parts(other));
+        await tester.pump(qrCompleteFor);
+        await tester.pumpAndSettle();
+        expect(h.session.finalizedSlates, isEmpty);
+        expect(
+          find.text(
+            'This reply is for a different payment. Scan the reply for this send.',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
 
     testWidgets('Receive: with File on, the reply can also be saved', (
       tester,
@@ -585,7 +595,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('Direct · QR'),
+          matching: find.byTooltip('Direct · QR'),
         ),
       );
       await tester.pumpAndSettle();
@@ -616,7 +626,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('Direct · QR'),
+          matching: find.byTooltip('Direct · QR'),
         ),
       );
       await tester.pumpAndSettle();
@@ -631,16 +641,25 @@ void main() {
 
       // The payment screen of a scanned payment.
       expect(find.text('Scanned payment'), findsOneWidget);
-      expect(find.text('Accept it, then show the reply to the sender.'), findsOneWidget);
+      expect(
+        find.text('Accept it, then show the reply to the sender.'),
+        findsOneWidget,
+      );
       // Titled for the method, with no word of files.
       expect(
-        find.descendant(of: find.byType(AppBar), matching: find.text('Direct · QR Payment')),
+        find.descendant(
+          of: find.byType(AppBar),
+          matching: find.text('Direct · QR Payment'),
+        ),
         findsOneWidget,
       );
       expect(find.text('Transaction file'), findsNothing);
       await tester.tap(find.text('Accept payment'));
       await tester.pumpAndSettle();
-      expect(find.text('Accepted. Show the reply to the sender.'), findsOneWidget);
+      expect(
+        find.text('Accepted. Show the reply to the sender.'),
+        findsOneWidget,
+      );
       expect(find.byKey(showReplyQrKey), findsOneWidget);
       // The home notice stays quiet while this screen is open.
       expect(qrPaymentScreensOpen, 1);
@@ -668,7 +687,9 @@ void main() {
       await h.container.read(homeProvider.notifier).reload();
       await tester.pump();
       expect(
-        find.text('Payment received. Waiting for the sender to scan and post it.'),
+        find.text(
+          'Payment received. Waiting for the sender to scan and post it.',
+        ),
         findsOneWidget,
       );
       h.session.transactionsValue = [
@@ -687,10 +708,7 @@ void main() {
       expect(find.text('Show again'), findsNothing);
       expect(find.byKey(qrShowButtonKey), findsNothing);
       expect(find.byKey(qrNextButtonKey), findsOneWidget);
-      expect(
-        tester.widget(find.byKey(qrNextButtonKey)),
-        isA<FilledButton>(),
-      );
+      expect(tester.widget(find.byKey(qrNextButtonKey)), isA<FilledButton>());
       h.session.transactionsValue = [
         fakeTx(
           slateId: 'slate-1',
@@ -708,7 +726,10 @@ void main() {
       await tester.tap(find.byKey(qrNextButtonKey));
       await tester.pumpAndSettle();
       expect(find.text('Reply QR'), findsNothing);
-      expect(find.text('Accepted. Show the reply to the sender.'), findsNothing);
+      expect(
+        find.text('Accepted. Show the reply to the sender.'),
+        findsNothing,
+      );
       expect(h.session.receivedSlates, [json]);
     });
   });

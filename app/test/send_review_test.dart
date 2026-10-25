@@ -511,7 +511,7 @@ void main() {
       expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
       expect(find.text('esXXXX…XXXX@epicbox.epiccash.com'), findsOneWidget);
 
-      await _tap(tester, find.text('File'));
+      await _tap(tester, find.text('Direct · File'));
       expect(find.text('Pay with a file'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'To'), findsNothing);
       expect(find.text('Make payment file'), findsOneWidget);
@@ -539,7 +539,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('File'));
+      await _tap(tester, find.text('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
       await _tap(tester, find.text('Make payment file'));
       expect(h.session.sentAmounts, [_epic(1.5)]);
@@ -573,7 +573,7 @@ void main() {
     testWidgets('a file send signs the note in and keeps it', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('File'));
+      await _tap(tester, find.text('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
       await _tap(tester, find.text('Add a note'));
       await _enter(tester, 'Note', ' For rent ');
@@ -585,7 +585,7 @@ void main() {
     testWidgets('a file send without a note signs none in', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('File'));
+      await _tap(tester, find.text('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
       await _tap(tester, find.text('Make payment file'));
       expect(h.session.sentMessages, [null]);
@@ -602,7 +602,7 @@ void main() {
           case 'amount':
             await _recipient(tester, _bob);
           case 'file':
-            await _tap(tester, find.text('File'));
+            await _tap(tester, find.text('Direct · File'));
           case 'review':
             await _review(tester, _bob);
         }
