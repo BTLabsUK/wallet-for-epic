@@ -15328,12 +15328,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairDurDays(int days, int hours) {
-    return '$days วัน $hours ชม.';
+    return '$days วัน $hours ชั่วโมง';
   }
 
   @override
   String pairDurHours(int hours, int minutes) {
-    return '$hours ชม. $minutes นาที';
+    return '$hours ชั่วโมง $minutes นาที';
   }
 
   @override
@@ -15473,25 +15473,4 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'ใช้การจับคู่บนอุปกรณ์เดียวในแต่ละครั้ง ข้อมูลสำรองที่กู้คืนบนอุปกรณ์เครื่องที่สองจะถามก่อนใช้ผู้ติดต่อที่นั่น';
-
-  @override
-  String get deskInvIssuerFormTitle => 'ออกใบแจ้งหนี้';
-
-  @override
-  String get deskInvIssuerFirstTitle => 'ก่อนออกใบแจ้งหนี้ใบแรก';
-
-  @override
-  String get deskInvIssuerYourAddress => 'ที่อยู่รับเงินของคุณ';
-
-  @override
-  String get deskInvIssuerMethod => 'วิธีส่ง';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => 'โดยตรง · ไฟล์';
-
-  @override
-  String get deskInvIssuerDirect => 'ลิงก์';
 }

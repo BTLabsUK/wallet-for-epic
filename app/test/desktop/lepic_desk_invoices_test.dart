@@ -449,7 +449,7 @@ void main() {
       final paid = await wallet.payInvoice('inv-1', amount: 12000, password: _password);
       expect(lepicWallet.paid, ['inv-1']);
       expect(paid.state, PayState.delivered);
-      expect(paid.label, 'Shop');
+      expect(paid.label, shortAddress(_shop, compact: true));
       await expectLater(
         wallet.payInvoice('inv-1', amount: 12000, password: _password),
         throwsA(isA<InvoiceError>().having((e) => e.problem, 'problem', InvoiceProblem.alreadyAnswered)),
@@ -501,7 +501,7 @@ void main() {
       lepicWallet.events$.add(const lepic.WalletEvent(kind: lepic.WalletEventKind.invoiceWithdrawn, slateId: 'inv-1'));
       await _settle();
       expect(notices.single.kind, InvoiceNoticeKind.withdrawn);
-      expect(notices.single.who, 'Shop');
+      expect(notices.single.who, shortAddress(_shop, compact: true));
       final book = await wallet.invoices();
       expect(book.waiting, isEmpty);
       expect(book.invoice('inv-1')!.state, PayState.withdrawn);

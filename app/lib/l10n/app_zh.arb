@@ -4169,12 +4169,5 @@
   "helpPairRestoreP1": "有历史备份时，恢复会原样带回所有配对：相同的密钥、相同的“已验证”标记、相同的设置。联系人不会察觉任何变化。",
   "helpPairRestoreP2": "没有备份时，配对会从此钱包中消失，但密钥不会：它们来自恢复短语。与保留了配对的联系人重新配对，对方的钱包会找到相同的密钥。它会告诉对方密钥已恢复，联系人也会保留“已验证”标记。在此钱包上，“密封付款”和“允许账单”恢复为默认设置。",
   "helpPairRestoreP3": "只有当恢复短语不同时，联系人才会看到**密钥已更改**。这可能表示一个新钱包，或有其他人在使用这个名字。信任之前请再次核对词语。",
-  "helpPairRestoreP4": "一次只在一台设备上使用配对。在第二台设备上恢复的备份会先询问，再在那里使用联系人。",
-  "deskInvIssuerFormTitle": "开具账单",
-  "deskInvIssuerFirstTitle": "首次开具账单之前",
-  "deskInvIssuerYourAddress": "你的收款地址",
-  "deskInvIssuerMethod": "方式",
-  "deskInvIssuerEpicbox": "Epicbox",
-  "deskInvIssuerFile": "直接 · 文件",
-  "deskInvIssuerDirect": "链接"
+  "helpPairRestoreP4": "一次只在一台设备上使用配对。在第二台设备上恢复的备份会先询问，再在那里使用联系人。"
 }

@@ -356,7 +356,7 @@ class _Addresses extends StatelessWidget {
                 children: [
                   EBadge.kind(kind, l: l),
                   const SizedBox(width: 10),
-                  Expanded(child: AddressText(contact.addressOf(kind)!, short: true)),
+                  Expanded(child: AddressText(contact.addressOf(kind)!, selectable: true)),
                   IconButton(
                     tooltip: l.contactCopyAddress(recipientMethodWord(l, kind)),
                     icon: Icon(Icons.copy, size: 20, color: t.accentText),

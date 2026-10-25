@@ -754,6 +754,44 @@ void main() {
       await sub.cancel();
     });
 
+    test('every pairing call crosses, errors as the engine gave them', () async {
+      final s = await openSession();
+      final p = s.pairing;
+      // A refusal from the engine still crossed the channel; only its kind matters here.
+      Future<void> crossed(Future<Object?> Function() call) async {
+        try {
+          await call();
+        } on WalletError catch (_) {}
+      }
+
+      final anna = session.pairing.seedPaired(name: 'Anna', paymentsAddress: serviceAddress, contactId: 'c1');
+      await crossed(p.strays);
+      await crossed(() => p.removeStray('none'));
+      final invite = await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 1));
+      await crossed(() => p.cancelInvite(invite.id));
+      await crossed(() => p.openReply('epiccash://pair-reply/1/x'));
+      await crossed(() => p.confirmLink(anna.id));
+      final preview = await p.openInvite(session.pairing.inviteLinkFrom(name: 'Tom'));
+      expect(preview.name, 'Tom');
+      await crossed(() => p.openWords(const ['a', 'b', 'c', 'd', 'e']));
+      final answered = await p.acceptInvite(token: preview.token, name: 'the owner');
+      await crossed(() => p.replyLink(answered.id));
+      await crossed(() => p.openConfirm('epiccash://pair-confirm/1/x'));
+      final card = await p.showCard(name: 'the owner');
+      await crossed(() => p.scanCard(cardId: card.id, text: session.pairing.cardLinkFrom('Ola')));
+      expect(await p.collect(), 0);
+      expect((await p.attach(anna.id, 'c2')).contactId, 'c2');
+      final changed = session.pairing.changeKeys(anna.id);
+      expect((await p.resolveKeysChanged(changed.id, KeysChoice.keepOld)).id, anna.id);
+      await crossed(() => p.requestPayment(id: anna.id, amount: BigInt.from(5)));
+      await crossed(() => p.requestFile(amount: BigInt.from(5)));
+      final sealed = await p.sealSlate(id: anna.id, slateJson: '{"id":"s1"}');
+      expect((await p.openSlate(sealed)).slateJson, '{"id":"s1"}');
+      await crossed(() => p.sendViaMailbox(id: anna.id, amount: BigInt.from(5), minimumConfirmations: BigInt.from(10)));
+      await crossed(() => p.plainSlate('none'));
+      expect(await p.useImportedPairings(), 0);
+    });
+
     test('invoices the wallet issues', () async {
       final s = await openSession();
       final events = <IssuerEvent>[];

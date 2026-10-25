@@ -15951,25 +15951,4 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'Nutzen Sie eine Kopplung immer nur auf einem Gerät. Eine auf einem zweiten Gerät wiederhergestellte Sicherung fragt, bevor sie die Kontakte dort verwendet.';
-
-  @override
-  String get deskInvIssuerFormTitle => 'Rechnung ausstellen';
-
-  @override
-  String get deskInvIssuerFirstTitle => 'Vor der ersten Rechnung';
-
-  @override
-  String get deskInvIssuerYourAddress => 'Ihre Zahlungsadresse';
-
-  @override
-  String get deskInvIssuerMethod => 'Methode';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => 'Direkt · Datei';
-
-  @override
-  String get deskInvIssuerDirect => 'Link';
 }

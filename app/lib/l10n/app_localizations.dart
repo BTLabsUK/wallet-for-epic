@@ -24901,48 +24901,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.'**
   String get helpPairRestoreP4;
-
-  /// Title of the form that asks someone to pay you.
-  ///
-  /// In en, this message translates to:
-  /// **'Issue an invoice'**
-  String get deskInvIssuerFormTitle;
-
-  /// Panel title: the one-off steps the payer takes before they can be billed.
-  ///
-  /// In en, this message translates to:
-  /// **'Before the first invoice'**
-  String get deskInvIssuerFirstTitle;
-
-  /// Label: this wallet's normal Epicbox address, which the payer must trust.
-  ///
-  /// In en, this message translates to:
-  /// **'Your payments address'**
-  String get deskInvIssuerYourAddress;
-
-  /// Label of the choice how the request travels: Epicbox, File, Link.
-  ///
-  /// In en, this message translates to:
-  /// **'Method'**
-  String get deskInvIssuerMethod;
-
-  /// Method: the request goes over the Epicbox relay. Product name, usually not translated.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox'**
-  String get deskInvIssuerEpicbox;
-
-  /// Method: the request is saved as a file to hand over.
-  ///
-  /// In en, this message translates to:
-  /// **'Direct · File'**
-  String get deskInvIssuerFile;
-
-  /// Method: the payment comes straight to this wallet over HTTP or Tor.
-  ///
-  /// In en, this message translates to:
-  /// **'Link'**
-  String get deskInvIssuerDirect;
 }
 
 class _AppLocalizationsDelegate

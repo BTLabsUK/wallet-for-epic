@@ -14933,25 +14933,4 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairRestoreP4 => '一次只在一台设备上使用配对。在第二台设备上恢复的备份会先询问，再在那里使用联系人。';
-
-  @override
-  String get deskInvIssuerFormTitle => '开具账单';
-
-  @override
-  String get deskInvIssuerFirstTitle => '首次开具账单之前';
-
-  @override
-  String get deskInvIssuerYourAddress => '你的收款地址';
-
-  @override
-  String get deskInvIssuerMethod => '方式';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => '直接 · 文件';
-
-  @override
-  String get deskInvIssuerDirect => '链接';
 }

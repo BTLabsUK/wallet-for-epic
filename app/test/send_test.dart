@@ -300,6 +300,12 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await answerPin(tester);
 }
 
+/// The contact form's first address field, whose label follows the kind typed into it.
+Future<void> _enterAddress(WidgetTester tester, String text) async {
+  await tester.enterText(find.byKey(contactAddressFieldKey(0)), text);
+  await tester.pumpAndSettle();
+}
+
 Future<void> _enter(WidgetTester tester, String label, String text) async {
   final field = find.widgetWithText(TextField, label);
   // Screens are lazy lists: scroll until the field is built.
@@ -1542,23 +1548,23 @@ void main() {
       expect(find.text('Enter their address.'), findsOneWidget);
 
       await _enter(tester, 'Name', 'Bob');
-      await _enter(tester, 'Address', 'nonsense');
+      await _enterAddress(tester, 'nonsense');
       await _tap(tester, find.text('Save contact'));
       expect(find.textContaining('Use an Epicbox address'), findsOneWidget);
 
-      await _enter(tester, 'Address', ' $_bob ');
+      await _enterAddress(tester, ' $_bob ');
       await _tap(tester, find.text('Save contact'));
       expect(find.text('Bob'), findsOneWidget);
 
       // With contacts, Add is the app bar's icon.
       await _tap(tester, find.byTooltip('Add contact'));
       await _enter(tester, 'Name', 'Carol');
-      await _enter(tester, 'Address', _bob);
+      await _enterAddress(tester, _bob);
       expect(
         find.text('This address is already saved as Bob.'),
         findsOneWidget,
       );
-      await _enter(tester, 'Address', _carol);
+      await _enterAddress(tester, _carol);
       expect(find.textContaining('already saved'), findsNothing);
       await _tap(tester, find.text('Save contact'));
       expect(find.text('Carol'), findsOneWidget);

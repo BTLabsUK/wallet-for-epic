@@ -387,9 +387,9 @@ void main() {
         paymentsDrainReportWire,
         const PaymentsDrainReport(received: 1, finalized: 2, bounced: 3),
       );
-      roundTrip(sessionRefWire, (handle: 'h', invoices: true));
+      roundTrip(sessionRefWire, (handle: 'h', invoices: true, pairing: true));
       roundTrip(pinWalletRefWire, (
-        session: (handle: 'h', invoices: false),
+        session: (handle: 'h', invoices: false, pairing: false),
         sealedPassword: 'sealed',
       ));
     });

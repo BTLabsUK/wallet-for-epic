@@ -15763,25 +15763,4 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.';
-
-  @override
-  String get deskInvIssuerFormTitle => 'Issue an invoice';
-
-  @override
-  String get deskInvIssuerFirstTitle => 'Before the first invoice';
-
-  @override
-  String get deskInvIssuerYourAddress => 'Your payments address';
-
-  @override
-  String get deskInvIssuerMethod => 'Method';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => 'Direct · File';
-
-  @override
-  String get deskInvIssuerDirect => 'Link';
 }

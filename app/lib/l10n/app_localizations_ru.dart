@@ -16193,25 +16193,4 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'Используйте сопряжение только на одном устройстве за раз. Копия, восстановленная на втором устройстве, спросит, прежде чем использовать там контакты.';
-
-  @override
-  String get deskInvIssuerFormTitle => 'Выставить счёт';
-
-  @override
-  String get deskInvIssuerFirstTitle => 'Перед первым счётом';
-
-  @override
-  String get deskInvIssuerYourAddress => 'Ваш адрес для платежей';
-
-  @override
-  String get deskInvIssuerMethod => 'Способ';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => 'Напрямую · Файл';
-
-  @override
-  String get deskInvIssuerDirect => 'Ссылка';
 }

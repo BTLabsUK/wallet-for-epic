@@ -59,7 +59,7 @@ class WordTiles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final l = context.l10n;
+    final l = _l10n(context);
     const gap = 8.0;
     return Semantics(
       container: true,
@@ -204,6 +204,10 @@ class _DashedBox extends CustomPainter {
   bool shouldRepaint(_DashedBox old) => old.color != color || old.radius != radius;
 }
 
+/// The strings, also where only the desktop's localizations are (its screens use these parts).
+AppLocalizations _l10n(BuildContext context) =>
+    Localizations.of<AppLocalizations>(context, AppLocalizations) ?? englishStrings;
+
 /// The trust badge of [record] (SPEC 3): Verified (ok), Paired, not verified (warn, "Paired"
 /// with [short]), Keys changed (risk). Nothing for a pending record.
 class TrustBadge extends StatelessWidget {
@@ -214,7 +218,7 @@ class TrustBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
+    final l = _l10n(context);
     final r = record;
     if (r == null) return const SizedBox.shrink();
     return switch (r.state) {
@@ -234,7 +238,7 @@ class SealedBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
+    final l = _l10n(context);
     final n = name;
     return EBadge(n == null ? l.trustSealed : l.trustSealedFor(n), icon: EpicGlyphs.sealed);
   }
@@ -248,7 +252,7 @@ class ClaimedNameBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
+    final l = _l10n(context);
     return EBadge(long ? l.pairNameClaimed : l.pairNameClaimedShort, icon: Icons.person_outline);
   }
 }
@@ -321,7 +325,7 @@ class _PairCountdownState extends ConsumerState<PairCountdown> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final l = context.l10n;
+    final l = _l10n(context);
     final theme = Theme.of(context);
     final left = widget.until.difference(ref.watch(pairingClockProvider)());
     final last = left < const Duration(minutes: 1);
@@ -359,10 +363,12 @@ class PairCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Container(
-      decoration: BoxDecoration(
-        color: t.surface,
-        border: Border.all(color: t.line),
+    // A Material, not a decorated box: the rows are list tiles whose ink paints on it.
+    return Material(
+      color: t.surface,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: t.line),
         borderRadius: BorderRadius.circular(t.radius),
       ),
       child: Column(

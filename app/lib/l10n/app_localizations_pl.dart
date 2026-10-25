@@ -16234,25 +16234,4 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'Używaj parowania na jednym urządzeniu naraz. Kopia przywrócona na drugim urządzeniu zapyta, zanim użyje tam kontaktów.';
-
-  @override
-  String get deskInvIssuerFormTitle => 'Wystaw fakturę';
-
-  @override
-  String get deskInvIssuerFirstTitle => 'Przed pierwszą fakturą';
-
-  @override
-  String get deskInvIssuerYourAddress => 'Twój adres do płatności';
-
-  @override
-  String get deskInvIssuerMethod => 'Metoda';
-
-  @override
-  String get deskInvIssuerEpicbox => 'Epicbox';
-
-  @override
-  String get deskInvIssuerFile => 'Bezpośrednio · Plik';
-
-  @override
-  String get deskInvIssuerDirect => 'Link';
 }

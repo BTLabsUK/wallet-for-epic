@@ -451,7 +451,7 @@ void main() {
           'and on and on and on and on and on and on and on and on';
       await h.invoice(message: hostile);
       await h.review(tester);
-      expect(find.text('My Exchange'), findsOneWidget);
+      expect(find.text(_l.reqRequests('My Exchange')), findsOneWidget);
       final amount = tester.widget<Text>(find.byKey(invoiceReviewAmountKey));
       expect(amount.data, formatEpic(_epic(8), grouped: true));
       expect(amount.style?.fontSize, 34);

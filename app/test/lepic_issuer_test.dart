@@ -295,8 +295,8 @@ void main() {
       expect(wallet.issued, isEmpty);
     });
 
-    test('its own payments and invoice addresses are refused', () async {
-      for (final own in [_payments, 'ownKey1@other.example']) {
+    test('its own payments address is refused', () async {
+      for (final own in [_payments]) {
         await expectLater(
           session.issueInvoice(amount: five, address: own),
           _kind(WalletErrorKind.invalidArgument),

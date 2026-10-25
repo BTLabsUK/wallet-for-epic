@@ -634,8 +634,9 @@ void main() {
       expect(find.byType(SlateFileScreen), findsOneWidget);
     });
 
-    testWidgets('a pairing link says pairing is not here yet', (tester) async {
+    testWidgets('a pairing link on a core without pairing says it is not here yet', (tester) async {
       final h = _Harness();
+      h.session.pairing.enabled = false;
       await h.pump(tester);
       await h.scan(tester, 'epiccash://pair/1/abc');
       expect(find.text('Pairing link'), findsOneWidget);
@@ -643,6 +644,14 @@ void main() {
         find.text('Pairing is not available in this version.'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('a pairing invite opens the incoming invite', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, h.session.pairing.inviteLinkFrom(name: 'Anna'));
+      expect(find.text('Pair with Anna?'), findsOneWidget);
+      expect(find.text('Pairing is not available in this version.'), findsNothing);
     });
   });
 

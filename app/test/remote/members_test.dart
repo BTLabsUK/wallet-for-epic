@@ -41,8 +41,20 @@ void main() {
       containsAll(['dispose', 'supportsInvoices', 'peerCapability']),
     );
     expect(members, {
-      for (final m in SessionMember.values) m.name,
+      for (final m in SessionMember.values)
+        if (!m.name.startsWith('pairing')) m.name,
       ...localSessionMembers,
+      // Served as its pairing* members, below.
+      'pairing',
     });
+  });
+
+  test('PairingApi members are all served, one pairing* member each', () {
+    final pairing = File('lib/src/pairing_api.dart').readAsStringSync();
+    // supported crosses with the session handle.
+    final members = interfaceMembers(pairing, 'PairingApi')..remove('supported');
+    expect(members, containsAll(['makeInvite', 'checkWords', 'events']));
+    final served = [for (final m in SessionMember.values) if (m.name.startsWith('pairing')) m.name];
+    expect(served, hasLength(members.length));
   });
 }

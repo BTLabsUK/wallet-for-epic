@@ -4169,12 +4169,5 @@
   "helpPairRestoreP1": "Z kopią historii przywrócenie odtwarza każde parowanie bez zmian: te same klucze, te same oznaczenia Zweryfikowany, te same ustawienia. Kontakty niczego nie zauważą.",
   "helpPairRestoreP2": "Bez kopii parowania znikają z tego portfela, ale klucze nie: powstają z frazy odzyskiwania. Sparuj się ponownie z kontaktem, który zachował parowanie, a jego portfel odnajdzie te same klucze. Pokaże, że klucze wróciły, a kontakt zachowa oznaczenie Zweryfikowany. W tym portfelu Pieczętuj płatności i Zezwól na faktury wracają do ustawień domyślnych.",
   "helpPairRestoreP3": "Kontakt widzi **Klucze zmienione** tylko wtedy, gdy fraza jest inna. Może to oznaczać nowy portfel albo kogoś innego, kto używa tej nazwy. Sprawdź słowa ponownie, zanim temu zaufasz.",
-  "helpPairRestoreP4": "Używaj parowania na jednym urządzeniu naraz. Kopia przywrócona na drugim urządzeniu zapyta, zanim użyje tam kontaktów.",
-  "deskInvIssuerFormTitle": "Wystaw fakturę",
-  "deskInvIssuerFirstTitle": "Przed pierwszą fakturą",
-  "deskInvIssuerYourAddress": "Twój adres do płatności",
-  "deskInvIssuerMethod": "Metoda",
-  "deskInvIssuerEpicbox": "Epicbox",
-  "deskInvIssuerFile": "Bezpośrednio · Plik",
-  "deskInvIssuerDirect": "Link"
+  "helpPairRestoreP4": "Używaj parowania na jednym urządzeniu naraz. Kopia przywrócona na drugim urządzeniu zapyta, zanim użyje tam kontaktów."
 }
