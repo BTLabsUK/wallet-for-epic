@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskInvoicesShownProvider;
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
@@ -130,11 +131,13 @@ void main() {
     final container = await _open(tester, _Wallet(), DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
-    expect(find.text('1 of ${deskTourSteps.length}'), findsOneWidget);
+    // The shell's steps: without Invoices while that experimental switch is off (the default).
+    final steps = deskTourStepsFor(supportsInvoices: container.read(deskInvoicesShownProvider));
+    expect(find.text('1 of ${steps.length}'), findsOneWidget);
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await _settle(tester);
-    expect(find.text('2 of ${deskTourSteps.length}'), findsOneWidget);
-    expect(container.read(deskNavProvider).route, deskTourSteps[1].route);
+    expect(find.text('2 of ${steps.length}'), findsOneWidget);
+    expect(container.read(deskNavProvider).route, steps[1].route);
   });
 
   testWidgets('a dropdown closes on Escape and on a click outside, choosing nothing', (tester) async {
