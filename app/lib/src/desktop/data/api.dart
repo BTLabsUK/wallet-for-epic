@@ -213,6 +213,19 @@ abstract interface class DeskWalletApi {
   Future<ReceivedFile> receiveText(String text);
   Future<Tx> finalizeFile(String fileName);
 
+  /// What the transaction file at [path] holds when it is a payment request for this wallet
+  /// to pay (DESIGN §3.3), read without touching the wallet; null for any other file, which
+  /// [receiveFile] signs as before. Throws as [receiveFile] does when it cannot be read.
+  Future<RequestFile?> readRequestFile(String path);
+
+  /// [readRequestFile] for a transaction file's [text] pasted into Send.
+  Future<RequestFile?> readRequestText(String text);
+
+  /// Pays the payment request [file] after checking [password] (the only caller is its
+  /// Review's Approve) for its own amount, and writes the answer beside the file, or in the
+  /// app's files folder. Throws an [InvoiceError] as [payInvoice] does.
+  Future<ReceivedFile> payRequestFile(RequestFile file, {required String password});
+
   /// A transaction file's [text] pasted into Send is an answer to one of this wallet's sends
   /// (the response to finalize), not a send to sign. False when it cannot be read.
   Future<bool> isResponseText(String text);
@@ -360,6 +373,11 @@ abstract interface class DeskWalletApi {
   /// Nothing leaves the wallet, so no password. A request the relay did not take is cancelled at
   /// once and throws a [DeskError]: nothing was sent.
   Future<IssuedRequest> requestPayment(PaymentRequestDraft draft);
+
+  /// Saves a request for [amount] as a payment file for anyone (DESIGN §3.2): the request
+  /// waits in Requests sent, and the answer file comes back through Finalize. Nothing leaves
+  /// the wallet, so no password. Only when [supportsRequestFiles].
+  Future<RequestFileMade> requestFile({required int amount, String? message});
 
   /// Withdraws a waiting request; a LEPIC payer is told.
   Future<void> withdrawRequest(String slateId);

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/files.dart';
+import '../../data/invoice_state.dart' show RequestFile, deskRequestFilesOn;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../invoices/review_screen.dart' show RequestFileReview;
 import 'file_panels.dart';
 
 /// Argument of the Import route: [done] opens on the saved response file, [error] on a
@@ -24,13 +26,17 @@ enum ImportError {
   wrongType,
   unreadable,
   noPlace,
-  failed;
+  failed,
+
+  /// A payment request with the Invoices switch off (DESIGN §3).
+  needsInvoices;
 
   String title(AppLocalizations l) => switch (this) {
     wrongType => l.deskImpWrongType,
     unreadable => l.deskImpUnreadable,
     noPlace => l.deskImpNoPlace,
     failed => l.deskImpFailed,
+    needsInvoices => l.reqFromFileTitle,
   };
 
   String text(AppLocalizations l) => switch (this) {
@@ -38,6 +44,7 @@ enum ImportError {
     unreadable => l.deskImpUnreadableText,
     noPlace => l.deskImpNoPlaceText,
     failed => l.deskImpFailedText,
+    needsInvoices => l.reqFileNeedsInvoices,
   };
 }
 
@@ -62,6 +69,12 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   DeskError? _detail;
   Tx? _tx;
 
+  /// A payment request read from the file, under review (DESIGN §3.3).
+  RequestFile? _request;
+
+  /// The saved file answers a payment request, not a payment to this wallet.
+  bool _answered = false;
+
   @override
   void initState() {
     super.initState();
@@ -69,14 +82,46 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     if (a is ImportArgs && a.done) _response = 'invoice_0042.response.slate';
     if (a is ImportArgs) _error = a.error;
     final text = a is ImportArgs ? a.text : null;
-    if (text != null) WidgetsBinding.instance.addPostFrameCallback((_) => _receive(() => ref.read(deskApiProvider).receiveText(text), pasted: true));
+    if (text != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final api = ref.read(deskApiProvider);
+        if (await _isRequest(() => api.readRequestText(text), pasted: true)) return;
+        await _receive(() => api.receiveText(text), pasted: true);
+      });
+    }
   }
 
   Future<void> _pick() async {
     final files = ref.read(deskFilesProvider);
     final path = files == null ? 'invoice_0042.slate' : await files.pickSlate(title: context.l10n.deskImpPickTitle);
     if (path == null || !mounted) return;
-    await _receive(() => ref.read(deskApiProvider).receiveFile(path), mock: files == null);
+    final api = ref.read(deskApiProvider);
+    if (await _isRequest(() => api.readRequestFile(path))) return;
+    await _receive(() => api.receiveFile(path), mock: files == null);
+  }
+
+  /// A payment request opens its Review, or is refused while request files are off; true
+  /// when the file was one. Any other file, or one that cannot be read, goes on to signing,
+  /// which says why.
+  Future<bool> _isRequest(Future<RequestFile?> Function() read, {bool pasted = false}) async {
+    final RequestFile? request;
+    try {
+      request = await read();
+    } on Object {
+      return false;
+    }
+    if (request == null || !mounted) return false;
+    setState(() {
+      _pasted = pasted;
+      _detail = null;
+      if (deskRequestFilesOn(ref)) {
+        _request = request;
+        _error = null;
+      } else {
+        _error = ImportError.needsInvoices;
+      }
+    });
+    return true;
   }
 
   /// Signs what [receive] reads and shows the answer, or why not.
@@ -112,6 +157,8 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   void _again() => setState(() {
     _response = null;
     _tx = null;
+    _request = null;
+    _answered = false;
   });
 
   @override
@@ -121,6 +168,23 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     final l = context.l10n;
     // Offline on a node that is not local: the file still runs, through that node.
     final offlineNode = ref.watch(deskOfflineUsesNodeProvider);
+    final request = _request;
+    if (request != null && _response == null) {
+      return EPage(
+        title: l.reqTitle,
+        onBack: _again,
+        child: RequestFileReview(
+          file: request,
+          onNotNow: _again,
+          onAnswered: (r) => setState(() {
+            _request = null;
+            _answered = true;
+            _tx = r.tx;
+            _response = r.response;
+          }),
+        ),
+      );
+    }
     return EPage(
       title: l.deskImpTitle,
       width: EPageWidth.narrow,
@@ -150,8 +214,8 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
           ],
           if (_response != null)
             ResultPanel(
-              title: l.deskImpSaved,
-              text: l.deskImpSavedText,
+              title: _answered ? l.reqAnswerTitle : l.deskImpSaved,
+              text: _answered ? l.reqAnswerLead : l.deskImpSavedText,
               body: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

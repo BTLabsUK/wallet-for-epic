@@ -926,6 +926,56 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<RequestFileMade> requestFile({required int amount, String? message}) async {
+    await _wait(0.8);
+    final r = proto.requestFile(amount, message);
+    proto._changed();
+    return RequestFileMade(slateId: r.slateId, json: '{"id":"${r.slateId}","sta":"I1","amt":"$amount"}'); // l10n-ok: a slate
+  }
+
+  /// The prototype's request file to pay: a file whose name or text says it is one
+  /// (`request` in the name, or `"sta":"I1"` in the text), from someone unnamed.
+  static const String mockRequestSlate = '9c8d7e6f-1a2b-4c3d-8e9f-0a1b2c3d4e5f'; // l10n-ok
+
+  /// What [readRequestFile] reads, for tests; null keeps the prototype's.
+  RequestFile? requestFileValue;
+
+  RequestFile _mockRequest(String source) =>
+      requestFileValue ??
+      RequestFile(
+        slateId: mockRequestSlate,
+        amount: _epic(12.5),
+        fee: _epic(0.007),
+        feeKnown: true,
+        message: 'Invoice 2026-118, two bags of beans', // l10n-ok: the other side's text
+        json: '{"id":"$mockRequestSlate","sta":"I1"}', // l10n-ok: a slate
+        source: source,
+        alreadyPaid: _paidRequests.contains(mockRequestSlate),
+      );
+
+  final Set<String> _paidRequests = {};
+
+  @override
+  Future<RequestFile?> readRequestFile(String path) async {
+    await _wait(0.4);
+    return path.contains('request') ? _mockRequest(path) : null; // l10n-ok
+  }
+
+  @override
+  Future<RequestFile?> readRequestText(String text) async =>
+      RegExp(r'"sta"\s*:\s*"I1"').hasMatch(text) ? _mockRequest('pasted') : null; // l10n-ok
+
+  @override
+  Future<ReceivedFile> payRequestFile(RequestFile file, {required String password}) async {
+    await _wait(1.5);
+    if (password == 'wrong') throw const InvoiceError(InvoiceProblem.wrongPassword, 'Wrong password'); // l10n-ok
+    if (!_paidRequests.add(file.slateId)) throw const InvoiceError(InvoiceProblem.alreadyAnswered, 'This request is already paid.'); // l10n-ok
+    final tx = Tx(id: _nextId++, slateId: file.slateId, direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: file.amount, fee: file.fee, cancellable: true, created: DateTime.now(), flow: TxFlow.invoice);
+    _txs.insert(0, tx);
+    return ReceivedFile(tx, responseFileName(file.slateId));
+  }
+
+  @override
   Future<void> withdrawRequest(String slateId) async {
     await _wait(0.8);
     proto.withdraw(slateId);

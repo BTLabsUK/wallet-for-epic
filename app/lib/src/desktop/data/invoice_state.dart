@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../log.dart';
 import 'api.dart';
 import 'invoices.dart';
-import 'models.dart' show SelfSend;
+import 'models.dart' show ReceivedFile, SelfSend;
 import 'state.dart';
 import 'pairing_state.dart' show deskInvoicesOnProvider;
 
@@ -102,6 +102,8 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
   }
 
   Future<IssuedRequest> request(PaymentRequestDraft draft) => _then('request', () => _api.requestPayment(draft));
+  Future<RequestFileMade> requestFile(int amount, String? message) => _then('requestFile', () => _api.requestFile(amount: amount, message: message));
+  Future<ReceivedFile> payFile(RequestFile file, String password) => _then('payRequestFile', () => _api.payRequestFile(file, password: password));
   Future<void> withdraw(String slateId) => _then('withdraw', () => _api.withdrawRequest(slateId));
   Future<void> repost(String slateId) => _then('repost', () => _api.repostRequest(slateId));
   Future<void> cancelRequestPayment(String slateId) => _then('cancelRequestPayment', () => _api.cancelRequestPayment(slateId));
@@ -129,6 +131,12 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
 }
 
 final deskInvoicesProvider = NotifierProvider<DeskInvoices, InvoiceBook?>(DeskInvoices.new);
+
+/// Payment requests work as files, both ways: the core handles them and Invoices is on
+/// (DESIGN §3). Off, "Save as a file for anyone" is absent and request files are refused.
+// TODO(pairing-followups): also require the Invoices experimental switch
+// (deskInvoicesOnProvider) once feat/experimental-flags is on main.
+bool deskRequestFilesOn(WidgetRef ref) => ref.read(deskApiProvider).supportsRequestFiles;
 
 /// The open wallet's invoice notices (paid, declined, expired, sent back, withdrawn); the shell
 /// shows each as a toast.

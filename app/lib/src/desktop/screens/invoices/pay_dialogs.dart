@@ -368,3 +368,138 @@ Future<void> retryPayment(BuildContext context, IncomingInvoice invoice) async {
     if (context.mounted) showEToast(context, l.deskInvPayerRetryFailed, text: l.deskInvPayerRetryFailedText, tone: ETone.risk);
   }
 }
+
+/// Approve on a payment request read from a file → password → pay and save the answer (DESIGN
+/// §3.3). The only path to [DeskInvoices.payFile]. Returns the saved answer, or null when the
+/// dialog closed without paying.
+Future<ReceivedFile?> showApproveRequestFile(BuildContext context, RequestFile file) =>
+    showEDialog<ReceivedFile>(context, builder: (_) => _ApproveFileDialog(file: file));
+
+class _ApproveFileDialog extends ConsumerStatefulWidget {
+  const _ApproveFileDialog({required this.file});
+
+  final RequestFile file;
+
+  @override
+  ConsumerState<_ApproveFileDialog> createState() => _ApproveFileDialogState();
+}
+
+class _ApproveFileDialogState extends ConsumerState<_ApproveFileDialog> {
+  final _password = TextEditingController();
+  bool _busy = false;
+  String? _fieldError;
+
+  /// A refusal that ends the dialog's use: only Close remains.
+  String? _final;
+
+  /// A refusal that may pass (the node): Approve works again.
+  String? _problem;
+
+  @override
+  void dispose() {
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pay() async {
+    // Disabled on the first tap: a second tap (or Enter) cannot pay twice.
+    if (_busy || _final != null) return;
+    final l = context.l10n;
+    if (_password.text.isEmpty) {
+      setState(() => _fieldError = l.deskInvPayerEnterPassword);
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _fieldError = null;
+      _problem = null;
+    });
+    try {
+      final saved = await ref.read(deskInvoicesProvider.notifier).payFile(widget.file, _password.text);
+      if (mounted) Navigator.of(context).pop(saved);
+    } on InvoiceError catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        switch (e.problem) {
+          case InvoiceProblem.wrongPassword:
+            _fieldError = l.deskInvPayerWrongPassword;
+          case InvoiceProblem.nodeDown:
+            _problem = l.deskInvPayerNodeDownPay;
+          case InvoiceProblem.expired:
+            _final = l.reqFileEnded;
+          case InvoiceProblem.alreadyAnswered:
+            _final = l.reqFileAlreadyPaid;
+          case InvoiceProblem.lockedAboveTip:
+            _final = l.deskInvPayerLocked;
+          default:
+            _final = l.deskInvPayerCannotPay;
+        }
+      });
+    } on DeskError catch (e) {
+      // The payment stands; only the answer could not be written.
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _final = e.text(l);
+        });
+      }
+    } on Object {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _final = l.deskInvPayerCannotPay;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final f = widget.file;
+    final reason = _final;
+    final done = reason != null;
+    return EDialog(
+      title: l.reqApproveSaveAnswer,
+      description: l.deskInvPayerApproveText(formatEpicL(l, f.feeKnown ? f.total : f.amount)),
+      icon: EIcons.invoice,
+      tone: ETone.gold,
+      dismissible: !_busy,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (done)
+            ENotice(tone: ETone.warn, title: reason)
+          else
+            EField(
+              label: l.deskInvPayerPassword,
+              error: _fieldError,
+              reserveError: true,
+              child: EPasswordInput(
+                controller: _password,
+                autofocus: true,
+                invalid: _fieldError != null,
+                semanticLabel: l.deskInvPayerPassword,
+                onChanged: (_) {
+                  if (_fieldError != null) setState(() => _fieldError = null);
+                },
+                onSubmitted: (_) => _pay(),
+              ),
+            ),
+          if (_problem != null) ...[
+            SizedBox(height: Sp.x3),
+            ENotice(tone: ETone.risk, title: _problem!),
+          ],
+        ],
+      ),
+      actions: done
+          ? [InvButton(label: l.deskInvPayerClose, onPressed: () => Navigator.of(context).pop())]
+          : [
+              InvButton(label: l.deskInvPayerCancel, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+              InvButton(label: l.deskInvPayerPay, kind: EBtnKind.primary, busy: _busy, onPressed: _busy ? null : _pay),
+            ],
+    );
+  }
+}

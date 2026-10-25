@@ -44,6 +44,14 @@ enum FinalizeError {
   };
 }
 
+/// A refusal of a request's answer (DESIGN §3.4), shown in its own words.
+bool _requestRefusal(DeskError e) => {
+  englishStrings.reqAnswerUnknown,
+  englishStrings.reqFileEnded,
+  englishStrings.reqFileAlreadyPaid,
+  englishStrings.reqFileNeedsInvoices,
+}.contains(e.message);
+
 class FinalizeScreen extends ConsumerStatefulWidget {
   const FinalizeScreen({super.key, this.arg});
 
@@ -58,6 +66,12 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
   bool _done = false;
   int _txId = 38;
   FinalizeError? _error;
+
+  /// The wallet's own reason, under a failed finalize (an answer to a request that ended).
+  DeskError? _detail;
+
+  /// The posted transaction, when it finished one of this wallet's requests.
+  Tx? _request;
 
   @override
   void initState() {
@@ -84,6 +98,8 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
     setState(() {
       _busy = true;
       _error = null;
+      _detail = null;
+      _request = null;
     });
     try {
       final tx = await run(ref.read(deskApiProvider));
@@ -91,10 +107,12 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
       setState(() {
         _txId = tx.id;
         _done = true;
+        _request = tx.isInvoice && tx.direction == TxDirection.received ? tx : null;
       });
       showEToast(context, context.l10n.deskFinPosted, tone: ETone.ok);
     } on DeskError catch (e) {
       if (mounted) {
+        _detail = e;
         setState(() => _error = switch (e.message) {
           'File not readable' => FinalizeError.unreadable, // l10n-ok: DeskError.message is the English key
           'Not a transaction file' => FinalizeError.wrongType, // l10n-ok
@@ -142,7 +160,8 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
           if (_error != null) ...[
             ENotice(
               title: _error!.title(l),
-              text: _error!.text(l),
+              // A refused answer to a request says why in the request's words (DESIGN §3.4).
+              text: _error == FinalizeError.failed && _detail != null && _requestRefusal(_detail!) ? _detail!.text(l) : _error!.text(l),
               tone: ETone.risk,
               icon: EIcons.error,
               actions: [if (_error == FinalizeError.notPosted) EButton(label: l.deskFinTryAgain, icon: EIcons.refresh, size: EBtnSize.inline, onPressed: _busy ? null : _pick)],
@@ -152,7 +171,9 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
           if (_done)
             ResultPanel(
               title: l.deskFinPosted,
-              text: l.deskFinPostedText,
+              text: _request == null
+                  ? l.deskFinPostedText
+                  : '${l.slateIncomingRequestAnswer(formatEpicL(l, _request!.amount), formatEpicL(l, _request!.fee))} ${l.deskFinPostedText}',
               actions: [
                 EButton.primary(label: l.deskFinAnother, icon: EIcons.fileUp, onPressed: () => setState(() => _done = false)),
                 EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, _txId)),

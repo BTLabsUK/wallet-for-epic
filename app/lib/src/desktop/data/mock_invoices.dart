@@ -201,6 +201,24 @@ class InvoiceProto {
     return r;
   }
 
+  /// A request saved as a file for anyone: waiting, with no payer.
+  IssuedRequest requestFile(int amount, String? message) {
+    final r = IssuedRequest(
+      slateId: _newSlate(),
+      txId: _w._nextId++,
+      payerAddress: '',
+      amount: amount,
+      message: message,
+      issuedAt: now,
+      expiresAt: now.add(expiry),
+      state: RequestState.waiting,
+      byFile: true,
+    );
+    sent.insert(0, r);
+    _syncTxs();
+    return r;
+  }
+
   /// Withdraws a waiting request.
   void withdraw(String slateId) => _setReq(slateId, (r) => r.withdrawable ? r.copyWith(state: RequestState.withdrawn, answeredAt: now) : r);
 

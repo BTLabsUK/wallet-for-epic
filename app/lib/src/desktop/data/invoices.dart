@@ -98,6 +98,7 @@ class IssuedRequest {
     this.confirmations = 0,
     this.answeredAt,
     this.lateReplyRefused = false,
+    this.byFile = false,
   });
 
   final String slateId;
@@ -121,6 +122,9 @@ class IssuedRequest {
   /// A payment for it arrived after it ended and was refused (flow.md §5, late I2).
   final bool lateReplyRefused;
 
+  /// Saved as a payment file for anyone (DESIGN §3.2): no payer, the answer comes as a file.
+  final bool byFile;
+
   bool get withdrawable => state == RequestState.waiting;
 
   IssuedRequest copyWith({RequestState? state, int? confirmations, DateTime? answeredAt, bool? lateReplyRefused}) => IssuedRequest(
@@ -136,7 +140,54 @@ class IssuedRequest {
     confirmations: confirmations ?? this.confirmations,
     answeredAt: answeredAt ?? this.answeredAt,
     lateReplyRefused: lateReplyRefused ?? this.lateReplyRefused,
+    byFile: byFile,
   );
+}
+
+/// A request saved as a payment file ([DeskWalletApi.requestFile]): its slate, to save.
+class RequestFileMade {
+  const RequestFileMade({required this.slateId, required this.json});
+
+  final String slateId;
+  final String json;
+}
+
+/// A payment request read from a file (DESIGN §3.3), for its Review: untrusted, nothing says
+/// who made it. [DeskWalletApi.payRequestFile] pays it after the password.
+class RequestFile {
+  const RequestFile({
+    required this.slateId,
+    required this.amount,
+    required this.fee,
+    required this.feeKnown,
+    required this.json,
+    required this.source,
+    this.message,
+    this.alreadyPaid = false,
+  });
+
+  final String slateId;
+
+  /// What it asks, in nanoepic: the amount signed into it, which LEPIC checks again.
+  final int amount;
+
+  /// The fee this wallet would pay on top, estimated now; unknown when it cannot be.
+  final int fee;
+  final bool feeKnown;
+
+  /// The issuer's message, cleaned to one plain line; null when none.
+  final String? message;
+
+  /// The request's slate JSON.
+  final String json;
+
+  /// Where it was read from; the answer is written beside it.
+  final String source;
+
+  /// This wallet paid it before: the Review is read-only.
+  final bool alreadyPaid;
+
+  int get total => amount + fee;
 }
 
 /// Where an invoice this wallet received stands (flow.md §4.4, §4.5).

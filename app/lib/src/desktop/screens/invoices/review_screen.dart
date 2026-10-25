@@ -310,3 +310,178 @@ class _Review extends ConsumerWidget {
     );
   }
 }
+
+/// The keys of the request file review, for tests.
+const Key deskRequestFileWarnKey = ValueKey('desk-request-file-warn');
+const Key deskRequestFileApproveKey = ValueKey('desk-request-file-approve');
+
+/// Review request in its file form (DESIGN §3.3): a payment request read from a file, which
+/// names nobody. A warn notice says so; the message box is the file's own text, cleaned.
+/// Approve asks for the password, pays the amount shown and saves the answer
+/// ([onAnswered]); Not now ([onNotNow]) pays, stores and sends nothing.
+class RequestFileReview extends ConsumerWidget {
+  const RequestFileReview({super.key, required this.file, required this.onAnswered, required this.onNotNow});
+
+  final RequestFile file;
+  final ValueChanged<ReceivedFile> onAnswered;
+  final VoidCallback onNotNow;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
+    final f = file;
+    final balance = ref.watch(deskProvider.select((s) => s.balance));
+    // Not ready as Send counts it: no answer, or the local node at height 0 still downloading.
+    final nodeDown = ref.watch(
+      deskProvider.select((st) {
+        final s = st.status;
+        if (s == null || (s.nodeHealth == ServiceHealth.slow && s.nodeHeight == 0)) return true;
+        return s.nodeHealth != ServiceHealth.ok && s.nodeHealth != ServiceHealth.slow;
+      }),
+    );
+    final spendable = balance?.spendable;
+    final open = !f.alreadyPaid;
+    final short = open && spendable != null && spendable < f.total;
+    final message = cleanInvoiceText(f.message);
+
+    final amountPanel = EPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.deskInvYouPay, style: ts.small),
+          SizedBox(height: Sp.x1),
+          FittedBox(alignment: Alignment.centerLeft, fit: BoxFit.scaleDown, child: PayAmount(f.amount, size: Fs.h1)),
+          SizedBox(height: Sp.x4),
+          EFacts([
+            // No estimate (too little to spend): unknown, never a fee of 0 (PAIR-LNX-5).
+            (l.deskInvPayerFee, f.feeKnown ? EMoney(f.fee, size: Fs.md) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
+            (l.deskInvPayerTotal, f.feeKnown ? PayAmount(f.total) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
+            if (spendable != null && open && (f.feeKnown || short))
+              (
+                l.deskInvPayerBalanceAfter,
+                short
+                    ? Text(l.deskInvPayerShort, style: ts.body.copyWith(color: c.risk))
+                    : EMoney(spendable - f.total, size: Fs.md, color: c.dim),
+              ),
+          ]),
+        ],
+      ),
+    );
+
+    final messagePanel = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l.reqFileMessageLabel, style: ts.label),
+        SizedBox(height: Sp.x2),
+        Container(
+          padding: EdgeInsets.all(Sp.x4),
+          decoration: BoxDecoration(
+            color: c.s1,
+            borderRadius: BorderRadius.circular(Rad.sm),
+            border: Border.all(color: c.lineStrong),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(EIcons.note, size: Ctl.iconSm, color: c.faint),
+              SizedBox(width: Sp.x3),
+              Expanded(
+                // Plain text only: never a link, never rich text.
+                child: Text(message.isEmpty ? l.deskInvPayerNoMessage : message, style: ts.mono(size: Fs.sm, color: message.isEmpty ? c.faint : c.text)),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    final blocked = short || nodeDown;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const ExcludeSemantics(child: _FileTile()),
+            SizedBox(width: Sp.x3),
+            Expanded(child: Semantics(header: true, child: Text(l.reqFromFileTitle, style: ts.h2))),
+          ],
+        ),
+        SizedBox(height: Sp.x5),
+        if (!open) ...[
+          ENotice(tone: ETone.neutral, icon: EIcons.lock, title: l.reqFileAlreadyPaid),
+          SizedBox(height: Sp.x4),
+        ] else ...[
+          ENotice(key: deskRequestFileWarnKey, tone: ETone.warn, icon: EIcons.shield, title: l.reqFromFileWarn),
+          SizedBox(height: Sp.x3),
+          ENotice(tone: ETone.warn, icon: EIcons.shield, title: l.deskInvPayerSafetyTitle, text: l.deskInvPayerSafetyText),
+          SizedBox(height: Sp.x3),
+          if (short) ...[
+            ENotice(
+              tone: ETone.risk,
+              title: l.deskInvPayerShort,
+              text: l.deskInvPayerShortText(formatEpicL(l, f.total), formatEpicL(l, spendable)),
+            ),
+            SizedBox(height: Sp.x3),
+          ],
+          if (nodeDown) ...[
+            ENotice(tone: ETone.risk, icon: EIcons.node, title: l.deskInvPayerNodeDownTitle, text: l.deskInvPayerNodeDownText),
+            SizedBox(height: Sp.x3),
+          ],
+          SizedBox(height: Sp.x1),
+        ],
+        amountPanel,
+        SizedBox(height: Sp.x5),
+        messagePanel,
+        if (advancedHas(ref, AdvancedFeature.technicalDetails)) ...[
+          SizedBox(height: Sp.x3),
+          EDetails(
+            title: l.deskInvAdvanced,
+            child: EFacts([(l.deskInvSlateId, SelectableText(f.slateId, style: ts.mono(size: Fs.sm, color: c.dim)))]),
+          ),
+        ],
+        SizedBox(height: Sp.x6),
+        Wrap(
+          alignment: WrapAlignment.end,
+          spacing: Sp.x3,
+          runSpacing: Sp.x3,
+          children: [
+            InvButton(label: open ? l.reqNotNow : l.deskInvPayerBack, width: InvW.md, size: EBtnSize.md, onPressed: onNotNow),
+            if (open)
+              InvButton(
+                key: deskRequestFileApproveKey,
+                label: l.reqApproveSaveAnswer,
+                width: InvW.lg,
+                size: EBtnSize.md,
+                kind: EBtnKind.primary,
+                tooltip: blocked ? (nodeDown ? l.deskInvPayerNodeDownTitle : l.deskInvPayerShort) : null,
+                onPressed: blocked
+                    ? null
+                    : () async {
+                        final saved = await showApproveRequestFile(context, f);
+                        if (saved != null) onAnswered(saved);
+                      },
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// The file tile of a request read from a file, in place of the sender's avatar.
+class _FileTile extends StatelessWidget {
+  const _FileTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Container(
+      width: 40.u,
+      height: 40.u,
+      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+      child: Icon(EIcons.file, size: Ctl.icon, color: c.dim),
+    );
+  }
+}

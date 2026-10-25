@@ -212,7 +212,7 @@ class _Row extends StatelessWidget {
                             // A bare address: the full one on hover.
                             child: Builder(
                               builder: (context) {
-                                final name = Text(payerOf(r), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.body.copyWith(fontWeight: FontWeight.w600));
+                                final name = Text(r.byFile ? l.reqByFile : payerOf(r), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.body.copyWith(fontWeight: FontWeight.w600));
                                 return r.payerName == null && r.payerAddress.isNotEmpty ? Tooltip(message: r.payerAddress, child: name) : name;
                               },
                             ),
@@ -265,10 +265,11 @@ class RequestDetail extends ConsumerWidget {
     final ts = context.ts;
     final r = request;
     final technical = advancedHas(ref, AdvancedFeature.technicalDetails);
-    final who = payerOf(r);
+    // A request file has no payer: "Anyone with the file", and the file's own texts.
+    final who = r.byFile ? l.reqToAnyone : payerOf(r);
     final (text, tone) = switch (r.state) {
-      RequestState.waiting => (l.deskInvIssuerWaitingText(who), ETone.neutral),
-      RequestState.paid || RequestState.confirming || RequestState.completed => (l.deskInvIssuerPaidText(who), ETone.ok),
+      RequestState.waiting => (r.byFile ? l.reqFileLead : l.deskInvIssuerWaitingText(who), ETone.neutral),
+      RequestState.paid || RequestState.confirming || RequestState.completed => (r.byFile ? l.deskFinPostedText : l.deskInvIssuerPaidText(who), ETone.ok),
       RequestState.notPosted => (l.deskInvIssuerNotPostedText, ETone.risk),
       RequestState.bounced => (l.deskInvIssuerBounced(who), ETone.warn),
       _ => (l.deskInvIssuerEnded, ETone.neutral),
@@ -318,7 +319,7 @@ class RequestDetail extends ConsumerWidget {
         if (step >= 0) ...[SizedBox(height: Sp.x5), _Steps(step: step, confirmations: r.confirmations)],
         SizedBox(height: Sp.x5),
         EFacts(labelWidth: 96.u, [
-          (l.deskInvIssuerPayerFact, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [if (r.payerName != null) Text(r.payerName!), if (r.payerAddress.isNotEmpty) EMonoText(shortAddress(r.payerAddress, compact: true))])),
+          (l.deskInvIssuerPayerFact, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [if (r.byFile) Text(l.reqToAnyone), if (r.payerName != null) Text(r.payerName!), if (r.payerAddress.isNotEmpty) EMonoText(shortAddress(r.payerAddress, compact: true))])),
           if ((r.message ?? '').isNotEmpty) (l.deskInvIssuerMessageFact, Text(cleanInvoiceText(r.message))),
           (l.deskInvIssuerSentFact, Text(invWhen(context, r.issuedAt))),
           if (r.state == RequestState.waiting)

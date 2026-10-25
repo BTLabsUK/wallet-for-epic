@@ -2500,11 +2500,73 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<bool> isResponseText(String text) async {
     try {
       final info = await _service.inspectSlate(json: decodeSlateFile(utf8.encode(text)));
-      return info.stage == core.SlateStage.response;
+      return info.stage == core.SlateStage.response || info.stage == core.SlateStage.requestAnswer;
     } on Object {
       return false;
     }
   }
+
+  @override
+  Future<RequestFile?> readRequestFile(String path) async => _readRequest(await _readSlate(path), path);
+
+  @override
+  Future<RequestFile?> readRequestText(String text) async {
+    final String json;
+    try {
+      json = decodeSlateFile(utf8.encode(text));
+    } on FormatException {
+      throw DeskError.l10n((l) => l.deskErrNotTxFile2);
+    }
+    return _readRequest(json, '${(await _filesDir()).path}${Platform.pathSeparator}pasted');
+  }
+
+  /// [json] as a payment request, or null when it is any other slate (or none: signing says
+  /// why). The fee is estimated now; the message is the issuer's, cleaned, never checked.
+  Future<RequestFile?> _readRequest(String json, String source) async {
+    final core.SlateInfo info;
+    try {
+      info = await _service.inspectSlate(json: json);
+    } on core.WalletError {
+      return null;
+    }
+    if (info.stage != core.SlateStage.request) return null;
+    int? fee;
+    try {
+      fee = (await _open.estimateFee(amount: info.amount, minimumConfirmations: _minConf)).fee.toInt();
+    } on core.WalletError {
+      // Too little to spend, or the node is away: the Review says so.
+    }
+    final paid = (_entries ?? const <core.TxEntry>[]).any((t) => t.slateId == info.slateId && t.kind == core.TxKind.sent);
+    return RequestFile(
+      slateId: info.slateId,
+      amount: info.amount.toInt(),
+      fee: fee ?? 0,
+      feeKnown: fee != null,
+      message: _line(core.messageBy(info.messages, core.SlateRole.receiver) ?? info.messages.firstOrNull?.text),
+      json: json,
+      source: source,
+      alreadyPaid: paid,
+    );
+  }
+
+  /// The only call that pays a request file: its Review's Approve, after the password, which
+  /// is checked here first. LEPIC refuses an amount other than the one signed into it.
+  @override
+  Future<ReceivedFile> payRequestFile(RequestFile file, {required String password}) => _running(() async {
+    final session = _open;
+    if (!await checkPassword(password)) throw const InvoiceError(InvoiceProblem.wrongPassword, 'Wrong password'); // l10n-ok
+    final core.PaidRequestFile paid;
+    try {
+      paid = await session.payRequestFile(slateJson: file.json, amount: BigInt.from(file.amount));
+    } on core.WalletError catch (e) {
+      throw invoiceError(e);
+    }
+    final response = await _writeResponse(file.source, paid.slateId, paid.json);
+    await _reload();
+    final tx = _txs().where((t) => t.id == paid.txId).firstOrNull ??
+        Tx(id: paid.txId, slateId: paid.slateId, direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: paid.amount.toInt(), fee: paid.fee.toInt(), created: DateTime.now());
+    return ReceivedFile(tx, response);
+  });
 
   @override
   Future<Tx> finalizeText(String text) => _running(() async {
@@ -2521,12 +2583,36 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<Tx> finalizeFile(String fileName) => _running(() async => _finalizeJson(await _readSlate(fileName)));
 
   Future<Tx> _finalizeJson(String json) async {
+    await _checkRequestAnswer(json);
     try {
       final e = await _open.finalizeAndPost(slateJson: json);
       await _reload();
       return _txFor(e);
     } on core.WalletError catch (e) {
       throw _deskError(e);
+    }
+  }
+
+  /// Refuses the answer to a request this wallet no longer has, or that ended or is paid
+  /// (DESIGN §3.4), in the screens' words; anything else goes on to finalizing.
+  Future<void> _checkRequestAnswer(String json) async {
+    final core.IssuedInvoice? issued;
+    try {
+      final info = await _service.inspectSlate(json: json);
+      if (info.stage != core.SlateStage.requestAnswer) return;
+      if (!supportsRequestFiles) throw DeskError.l10n((l) => l.reqFileNeedsInvoices);
+      issued = await _open.issuedInvoice(slateId: info.slateId);
+    } on core.WalletError {
+      return;
+    }
+    if (issued == null) throw DeskError.l10n((l) => l.reqAnswerUnknown);
+    switch (issued.state) {
+      case core.IssuedInvoiceState.waiting:
+        return;
+      case core.IssuedInvoiceState.paid:
+        throw DeskError.l10n((l) => l.reqFileAlreadyPaid);
+      default:
+        throw DeskError.l10n((l) => l.reqFileEnded);
     }
   }
 
@@ -4164,6 +4250,7 @@ class LepicDeskWallet implements DeskWalletApi {
       expiresAt: r.issuedAt.add(_invoiceExpiry),
       state: requestState(r.state, e, tip: _tip, minConf: minConf),
       confirmations: tx?.confirmations ?? 0,
+      byFile: r.byFile,
     );
   }
 
@@ -4183,6 +4270,17 @@ class LepicDeskWallet implements DeskWalletApi {
       throw invoiceError(e);
     }
     return invoices();
+  }
+
+  @override
+  Future<RequestFileMade> requestFile({required int amount, String? message}) async {
+    try {
+      final slate = await _open.pairing.requestFile(amount: BigInt.from(amount), message: message);
+      await _reload();
+      return RequestFileMade(slateId: slate.slateId, json: slate.json);
+    } on core.WalletError catch (e) {
+      throw invoiceError(e, issuing: true);
+    }
   }
 
   @override

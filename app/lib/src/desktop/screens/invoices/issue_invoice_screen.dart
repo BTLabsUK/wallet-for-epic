@@ -17,7 +17,15 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../transfer/file_panels.dart' show FileChip, ResultPanel, ResultGlyph;
 import 'invoice_parts.dart';
+
+/// The To select's value for "Save as a file for anyone".
+const String _fileItem = '\u0001file'; // l10n-ok
+
+/// The keys of the request form's file parts, for tests.
+const Key deskRequestSaveFileKey = ValueKey('desk-request-save-file');
+const Key deskRequestFileDoneKey = ValueKey('desk-request-file-done');
 
 /// Epic's supply cap, in nanoepic: no request asks for more.
 const int _supplyCap = 21000000 * nanoPerEpic;
@@ -42,6 +50,14 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
   final _amount = TextEditingController();
   final _message = TextEditingController();
   String? _to;
+
+  /// "Save as a file for anyone" is chosen; null until the user picks, when it is the choice
+  /// only while no paired contact pays requests.
+  bool? _toFile;
+
+  /// The request saved as a file, and where (null until the save dialog saved it).
+  RequestFileMade? _made;
+  String? _path;
   bool _submitted = false;
   bool _busy = false;
   String? _failure;
@@ -127,6 +143,8 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
     }
   }
 
+  /// Makes the request file, then the system dialog saves it (DESIGN §3.2). Nothing is
+  /// spent, so no password; the request waits in Requests sent.
   Future<void> _saveFile() async {
     setState(() {
       _submitted = true;
@@ -136,19 +154,35 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
     final l = context.l10n;
     setState(() => _busy = true);
     try {
-      final slate = await deskPairingCall(ref, (api) => api.requestFile(amount: BigInt.from(parseEpicIn(l, _amount.text)!), message: _msg));
-      final path = await ref.read(deskHistoryFilesProvider).save(
-        name: sendFileName(slate.slateId),
-        bytes: Uint8List.fromList(utf8.encode(slate.json)),
-        title: l.reqFileTitle,
-      );
-      if (mounted && path != null) showEToast(context, l.reqFileSaved, text: path, tone: ETone.ok);
+      final made = await ref.read(deskInvoicesProvider.notifier).requestFile(parseEpicIn(l, _amount.text)!, _msg);
+      if (!mounted) return;
+      setState(() => _made = made);
+      await _saveMade(made);
     } on Object catch (e) {
       if (mounted) setState(() => _failure = deskErrorText(e, l));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
+
+  /// The system save dialog for the made request; closing it leaves the panel's Save button.
+  Future<void> _saveMade(RequestFileMade made) async {
+    final path = await ref.read(deskHistoryFilesProvider).save(
+      name: sendFileName(made.slateId),
+      bytes: Uint8List.fromList(utf8.encode(made.json)),
+      title: context.l10n.reqFileTitle,
+    );
+    if (mounted && path != null) setState(() => _path = path);
+  }
+
+  /// Another request: the form again, empty.
+  void _another() => setState(() {
+    _made = null;
+    _path = null;
+    _submitted = false;
+    _amount.clear();
+    _message.clear();
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -163,15 +197,36 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
     final bytes = _messageBytes;
     final hours = (book?.expiry ?? defaultInvoiceExpiry).inHours;
     final to = payers.where((r) => r.id == _to).firstOrNull;
-    // LEPIC requests from paired contacts only: no file to save.
-    final byFile = ref.watch(deskApiProvider).supportsRequestFiles;
+    // Request files off (the core or the Invoices switch): contacts only.
+    final byFile = deskRequestFilesOn(ref);
+    // The file is the choice the user made, or the only one while no contact pays requests.
+    final toFile = byFile && (_toFile ?? (payers.isEmpty && to == null));
+    final made = _made;
+    if (made != null) {
+      return EPage(
+        title: l.reqNewTitle,
+        width: EPageWidth.mid,
+        onBack: () => ref.read(deskNavProvider.notifier).back(),
+        child: ResultPanel(
+          key: deskRequestFileDoneKey,
+          glyph: const ResultGlyph(icon: EIcons.file),
+          title: l.reqFileSaved,
+          text: l.reqFileLead,
+          body: _path == null ? null : FileChip(_path!),
+          actions: [
+            if (_path == null) InvButton(label: l.reqSaveFile, icon: EIcons.file, kind: EBtnKind.primary, width: InvW.md, onPressed: () => _saveMade(made)),
+            InvButton(label: l.deskInvIssuerAnother, icon: EIcons.request, kind: _path == null ? EBtnKind.secondary : EBtnKind.primary, width: InvW.md, onPressed: _another),
+          ],
+        ),
+      );
+    }
 
     final form = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(byFile ? l.reqNewLead : l.reqNewLeadContacts, style: ts.bodyDim),
         SizedBox(height: Sp.x5),
-        if (relayDown) ...[
+        if (relayDown && !toFile) ...[
           ENotice(tone: ETone.risk, icon: EIcons.epicbox, title: l.deskInvIssuerRelayDown),
           SizedBox(height: Sp.x5),
         ],
@@ -179,18 +234,20 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
           label: l.reqNewTo,
           // No file to save on a core without request files: the hint names contacts only.
           help: payers.isEmpty ? (byFile ? l.reqNoPayers : l.reqNoPayersContacts) : (byFile ? l.reqNewToHint : l.reqNewToHintContacts),
-          error: _submitted && to == null && payers.isNotEmpty ? l.reqPickContact : null,
+          error: _submitted && !toFile && to == null && payers.isNotEmpty ? l.reqPickContact : null,
           child: SizedBox(
             width: InvW.lg * 1.4,
             child: ESelect<String>(
               semanticLabel: l.reqNewTo,
-              value: to?.id ?? '',
+              value: toFile ? _fileItem : to?.id ?? '',
               items: [
-                ESelectItem('', l.reqPickContact),
+                if (payers.isNotEmpty || !byFile) ESelectItem('', l.reqPickContact),
                 for (final r in payers) ESelectItem(r.id, deskPairingName(r, st.contacts), subtitle: l.trustVerified),
+                if (byFile) ESelectItem(_fileItem, l.reqToFile),
               ],
               onChanged: (id) => setState(() {
-                _to = id.isEmpty ? null : id;
+                _toFile = id == _fileItem;
+                if (id != _fileItem) _to = id.isEmpty ? null : id;
                 _failure = null;
               }),
             ),
@@ -240,16 +297,27 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
           spacing: Sp.x3,
           runSpacing: Sp.x2,
           children: [
-            if (byFile) InvButton(label: l.reqNewSaveFile, icon: EIcons.file, width: InvW.md, onPressed: _busy ? null : _saveFile),
-            InvButton(
-              label: l.reqNewSend,
-              icon: EIcons.request,
-              kind: EBtnKind.primary,
-              size: EBtnSize.md,
-              width: InvW.md,
-              busy: _busy,
-              onPressed: _busy || relayDown || payers.isEmpty ? null : _request,
-            ),
+            if (toFile)
+              InvButton(
+                key: deskRequestSaveFileKey,
+                label: l.reqSaveFile,
+                icon: EIcons.file,
+                kind: EBtnKind.primary,
+                size: EBtnSize.md,
+                width: InvW.md,
+                busy: _busy,
+                onPressed: _busy ? null : _saveFile,
+              )
+            else
+              InvButton(
+                label: l.reqNewSend,
+                icon: EIcons.request,
+                kind: EBtnKind.primary,
+                size: EBtnSize.md,
+                width: InvW.md,
+                busy: _busy,
+                onPressed: _busy || relayDown || payers.isEmpty ? null : _request,
+              ),
           ],
         ),
       ],

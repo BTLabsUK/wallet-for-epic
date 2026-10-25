@@ -317,6 +317,14 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<IssuedRequest> requestPayment(PaymentRequestDraft draft) => _r('requestPayment', () => _m.requestPayment(draft));
   @override
+  Future<RequestFileMade> requestFile({required int amount, String? message}) => _r('requestFile', () => _m.requestFile(amount: amount, message: message));
+  @override
+  Future<RequestFile?> readRequestFile(String path) => _r('readRequestFile', () => _m.readRequestFile(path));
+  @override
+  Future<RequestFile?> readRequestText(String text) => _r('readRequestText', () => _m.readRequestText(text));
+  @override
+  Future<ReceivedFile> payRequestFile(RequestFile file, {required String password}) => _r('payRequestFile', () => _m.payRequestFile(file, password: password));
+  @override
   Future<void> withdrawRequest(String slateId) => _r('withdrawRequest', () => _m.withdrawRequest(slateId));
   @override
   Future<void> cancelRequestPayment(String slateId) => _r('cancelRequestPayment', () => _m.cancelRequestPayment(slateId));
