@@ -25591,6 +25591,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The restore scan has not finished yet. Receiving and sending open when it ends.'**
   String get deskErrRestoreScanRequired;
+
+  /// First-run Setup: button on every step that leaves Setup without saving; the stored or default node and Epicbox stay.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get deskSetupSkip;
+
+  /// First-run Setup: toast title when the app could not note that Setup was done or skipped; the reason follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup may open again at the next start'**
+  String get deskSetupMarkStays;
+
+  /// Forgot password: error when the typed phrase is valid but not this wallet's.
+  ///
+  /// In en, this message translates to:
+  /// **'This recovery phrase belongs to another wallet. Nothing was changed.'**
+  String get deskErrPhraseMismatch;
 }
 
 class _AppLocalizationsDelegate

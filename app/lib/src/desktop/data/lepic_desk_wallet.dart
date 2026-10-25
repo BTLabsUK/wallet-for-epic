@@ -138,6 +138,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
     core.WalletErrorKind.pairingFailed => pairingFailureText(l, core.pairingFailureOf(error) ?? core.PairingFailure.invalid),
     core.WalletErrorKind.restoreScanRequired => l.deskErrRestoreScanRequired,
+    core.WalletErrorKind.phraseMismatch => l.deskErrPhraseMismatch,
     core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
   };
 }
@@ -730,14 +731,32 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<bool> setupPending(String id) async {
     final e = await _entry(id);
-    return (await _meta(_metaKey(e.walletId)))['setupPending'] == true;
+    if ((await _meta(_metaKey(e.walletId)))['setupPending'] != true) return false;
+    return !File(await _setupDoneFile(e)).existsSync();
   }
 
   @override
   Future<void> setSetupPending(String id, bool pending) async {
     final e = await _entry(id);
-    await _setMeta({'setupPending': pending}, _metaKey(e.walletId));
+    final done = File(await _setupDoneFile(e));
+    if (pending && done.existsSync()) await done.delete();
+    try {
+      await _setMeta({'setupPending': pending}, _metaKey(e.walletId));
+    } on Object catch (error) {
+      if (pending) rethrow;
+      // The store refused (R11): a file in the wallet's folder says the setup was done or
+      // skipped, so a store that keeps failing does not bring Setup back at every start.
+      logWarn('desk', 'setup mark not cleared in the store: ${error.runtimeType}; noted in the wallet folder');
+      await done.writeAsString('', flush: true);
+    }
   }
+
+  /// [setupPending]'s second answer, when the store could not clear the mark (R11).
+  Future<String> _setupDoneFile(reg.WalletEntry e) async =>
+      '${e.isLegacy ? (await _configOf(null)).dataDir : e.dataDir}${Platform.pathSeparator}$setupDoneFileName';
+
+  /// The file [_setupDoneFile] writes into the wallet's folder.
+  static const setupDoneFileName = 'SETUP-DONE';
 
   @override
   Future<bool> setupRestored(String id) async {
@@ -834,7 +853,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// too, then the folders the registry kept for it, each only while empty (R19).
   Future<void> _removeWalletTxt(String dir, {required bool legacy}) async {
     try {
-      for (final name in ['WALLET.txt', 'WALLET.txt.tmp']) {
+      for (final name in ['WALLET.txt', 'WALLET.txt.tmp', setupDoneFileName]) {
         final f = File('$dir${Platform.pathSeparator}$name');
         if (!FileSystemEntity.isLinkSync(f.path) && f.existsSync()) await f.delete();
       }

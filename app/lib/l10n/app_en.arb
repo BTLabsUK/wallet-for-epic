@@ -21574,5 +21574,17 @@
   "deskErrRestoreScanRequired": "The restore scan has not finished yet. Receiving and sending open when it ends.",
   "@deskErrRestoreScanRequired": {
     "description": "Error when the wallet refuses to receive or send because the scan a restore needs has not finished."
+  },
+  "deskSetupSkip": "Skip for now",
+  "@deskSetupSkip": {
+    "description": "First-run Setup: button on every step that leaves Setup without saving; the stored or default node and Epicbox stay."
+  },
+  "deskSetupMarkStays": "Setup may open again at the next start",
+  "@deskSetupMarkStays": {
+    "description": "First-run Setup: toast title when the app could not note that Setup was done or skipped; the reason follows."
+  },
+  "deskErrPhraseMismatch": "This recovery phrase belongs to another wallet. Nothing was changed.",
+  "@deskErrPhraseMismatch": {
+    "description": "Forgot password: error when the typed phrase is valid but not this wallet's."
   }
 }

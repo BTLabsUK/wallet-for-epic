@@ -15419,4 +15419,14 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskErrRestoreScanRequired =>
       'The restore scan has not finished yet. Receiving and sending open when it ends.';
+
+  @override
+  String get deskSetupSkip => 'Skip for now';
+
+  @override
+  String get deskSetupMarkStays => 'Setup may open again at the next start';
+
+  @override
+  String get deskErrPhraseMismatch =>
+      'This recovery phrase belongs to another wallet. Nothing was changed.';
 }
