@@ -143,11 +143,11 @@
   "@deskConAddrEpicbox": {
     "description": "Label above the address in a contact's detail, for an Epicbox address."
   },
-  "deskConAddrTor": "Link Payment · Tor address",
+  "deskConAddrTor": "Link · Tor address",
   "@deskConAddrTor": {
     "description": "Label above the address in a contact's detail, for a Tor address."
   },
-  "deskConAddrHttp": "Link Payment · HTTP address",
+  "deskConAddrHttp": "Link · HTTP address",
   "@deskConAddrHttp": {
     "description": "Label above the address in a contact's detail, for an HTTP address."
   },

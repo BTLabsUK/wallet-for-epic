@@ -1,5 +1,5 @@
 {
-  "deskTxMethodFile": "File",
+  "deskTxMethodFile": "Direct · File",
   "@deskTxMethodFile": {
     "description": "Transaction method name for a payment made with a file (not Epicbox, HTTP or Tor). Table cell and detail value; one short word."
   },

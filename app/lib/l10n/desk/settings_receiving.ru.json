@@ -17,10 +17,10 @@
   "deskSetRecvEpicboxServerHint": "Какой сервер хранит платежи для этого адреса. У двух кошельков могут быть разные серверы.",
   "deskSetRecvSwitchingServer": "Переключение сервера Epicbox…",
   "deskSetRecvListNote": "Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.",
-  "deskSetRecvHttpTitle": "Платёж по ссылке · HTTP, приём",
-  "deskSetRecvHttpText": "Напрямую из другого кошелька, пока этот открыт.",
+  "deskSetRecvHttpTitle": "Link · HTTP, приём",
+  "deskSetRecvHttpText": "Напрямую из другого кошелька на веб-адрес этого компьютера, пока этот кошелёк открыт.",
   "deskSetRecvHttpOffTitle": "Выключен, пока включён Tor",
-  "deskSetRecvHttpOffText": "Платежи по ссылке вместо этого приходят на адрес Tor этого кошелька.",
+  "deskSetRecvHttpOffText": "Платежи напрямую из другого кошелька вместо этого приходят на адрес Link · Tor.",
   "deskSetRecvPrivacySettings": "Настройки приватности",
   "deskSetHttpNotChanged": "Не изменено",
   "deskSetHttpPortError": "Порт должен быть от 1 до 65535",
@@ -46,5 +46,7 @@
   "deskSetHttpNoRouterText": "Tor работает откуда угодно, ничего перенаправлять не нужно.",
   "deskSetHttpTurnOnTor": "Включить Tor",
   "deskSetHttpExposed": "Открыт только API приёма. Обычный HTTP не шифруется.",
-  "deskSetHttpBackLocal": "Вернуть «Только локально»"
+  "deskSetHttpBackLocal": "Вернуть «Только локально»",
+  "deskSetRecvTorTitle": "Link · Tor, приём",
+  "deskSetRecvTorText": "Напрямую из другого кошелька на адрес Tor этого кошелька, пока он открыт."
 }

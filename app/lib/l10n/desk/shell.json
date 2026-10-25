@@ -85,7 +85,7 @@
       }
     }
   },
-  "deskRailOpenHttp": "Open Link Payment · HTTP receiving",
+  "deskRailOpenHttp": "Open Link · HTTP receiving",
   "@deskRailOpenHttp": {
     "description": "Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings."
   },

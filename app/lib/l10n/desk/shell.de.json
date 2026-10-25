@@ -18,7 +18,7 @@
   "deskRailStopped": "Gestoppt",
   "deskRailPortInternet": "Port {port} · aus dem Internet",
   "deskRailPortLocal": "Port {port} · nur dieser Computer",
-  "deskRailOpenHttp": "Link-Zahlung · HTTP-Empfang öffnen",
+  "deskRailOpenHttp": "Link · HTTP-Empfang öffnen",
   "deskRailTorNotInBuild": "Nicht in dieser Version",
   "deskRailStartingDots": "Startet…",
   "deskRailTorSlow": "{problem}. Senden funktioniert.",

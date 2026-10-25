@@ -1,7 +1,7 @@
 {
   "deskRecvTitle": "Empfangen",
   "deskRecvReceiving": "Empfang",
-  "deskRecvNameFile": "Datei",
+  "deskRecvNameFile": "Direkt · Dateiübertragung",
   "deskRecvTurnOnFailed": "{method} nicht eingeschaltet",
   "deskRecvTurnOffFailed": "{method} nicht ausgeschaltet",
   "deskRecvOtherWays": "Weitere Empfangswege",
@@ -28,15 +28,15 @@
   "deskRecvCopyEpicbox": "Epicbox-Adresse kopieren",
   "deskRecvEpicboxIntro": "Teilen Sie sie, um bezahlt zu werden. Funktioniert auch bei geschlossener Wallet: Der Epicbox-Server hält Zahlungen, bis die Wallet wieder da ist.",
   "deskRecvCheckSix": "Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.",
-  "deskRecvHttpAddress": "Link-Zahlung · HTTP-Adresse",
-  "deskRecvCopyHttp": "HTTP-Adresse kopieren",
+  "deskRecvHttpAddress": "Link · HTTP-Adresse",
+  "deskRecvCopyHttp": "Link · HTTP-Adresse kopieren",
   "deskRecvHttpPublic": "Die öffentliche Adresse Ihres Routers. Absender im Internet nutzen sie, sobald der Router Port {port} weiterleitet.",
   "deskRecvHttpLocal": "Programme auf diesem Computer können an diese Adresse zahlen. Für andere Geräte siehe Einstellungen › Transaktionen.",
   "deskRecvHttpIntro": "Direkt von einer anderen Wallet, solange diese geöffnet ist. Nur auf diesem Computer, sofern die Einstellungen nichts anderes sagen.",
   "deskRecvHttpTorHint": "Schalten Sie Tor unter Einstellungen › Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",
-  "deskRecvDirectTor": "Link-Zahlung · Tor-Adresse",
+  "deskRecvDirectTor": "Link · Tor-Adresse",
   "deskRecvTorIntro": "Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Datenschutz eingestellt.",
-  "deskRecvTorAddress": "Link-Zahlung · Tor-Adresse",
+  "deskRecvTorAddress": "Link · Tor-Adresse",
   "deskRecvCopyTor": "Tor-Adresse kopieren",
   "deskRecvTorOnion": "Manche Wallets zeigen die Adresse ohne .onion; beides ist dieselbe Adresse.",
   "deskRecvFiles": "Transaktionsdateien",
@@ -45,5 +45,7 @@
   "deskRecvOpen": "Öffnen",
   "deskRecvFinalizeTitle": "Antwortdatei abschließen",
   "deskRecvFinalizeText": "Eine Zahlung per Datei hat eine Antwort erhalten. Beim Abschließen wird die Zahlung an das Netzwerk gesendet.",
-  "deskRecvSwitchLabel": "{title}, Empfang"
+  "deskRecvSwitchLabel": "{title}, Empfang",
+  "deskRecvTorOffTitle": "Der Empfang über Link · Tor benötigt Tor.",
+  "deskRecvTorOffText": "Die Tor-Adresse funktioniert, solange Tor an ist. Tor ist der Schalter unter Einstellungen › Datenschutz; er leitet die Verbindungen der Wallet über Tor."
 }

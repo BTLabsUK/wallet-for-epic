@@ -107,15 +107,15 @@
   "@deskKitHeroLabelEpicbox": {
     "description": "Screen-reader description of the Epicbox picture on the Send page."
   },
-  "deskKitHeroLabelHttp": "Link Payment · HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "deskKitHeroLabelHttp": "Link · HTTP: the payment goes straight to the recipient's wallet, which must be open",
   "@deskKitHeroLabelHttp": {
     "description": "Screen-reader description of the HTTP picture on the Send page."
   },
-  "deskKitHeroLabelTor": "Link Payment · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "deskKitHeroLabelTor": "Link · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
   "@deskKitHeroLabelTor": {
     "description": "Screen-reader description of the Tor picture on the Send page."
   },
-  "deskKitHeroLabelFile": "File: a transaction file is handed over, a response file comes back, then the sender finalizes",
+  "deskKitHeroLabelFile": "Direct · File Transfer: a transaction file is handed over, a response file comes back, then the sender finalizes",
   "@deskKitHeroLabelFile": {
     "description": "Screen-reader description of the transaction-file picture on the Send page."
   },
@@ -661,7 +661,7 @@
   "@deskKitMethodTorStoppedDetail": {
     "description": "Detail of the Tor status line when Tor stopped and the core gave no reason."
   },
-  "deskKitMethodFiles": "Files",
+  "deskKitMethodFiles": "Direct · File Transfer",
   "@deskKitMethodFiles": {
     "description": "Bold status word of the transaction-file method line (no state)."
   },

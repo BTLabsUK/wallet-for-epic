@@ -4,7 +4,7 @@
   "deskInvIssuerYourAddress": "Ваш адрес для платежей",
   "deskInvIssuerMethod": "Способ",
   "deskInvIssuerEpicbox": "Epicbox",
-  "deskInvIssuerFile": "Файл",
+  "deskInvIssuerFile": "Напрямую · Файл",
   "deskInvIssuerDirect": "Ссылка",
   "deskInvIssuerSoon": "Скоро",
   "deskInvIssuerPayer": "Адрес для счетов плательщика",

@@ -3538,7 +3538,7 @@
   "@methodArtCaptionQr": {
     "description": "Caption under the QR method picture; two or three words."
   },
-  "methodArtLabelQr": "QR Payment: a code passes from one phone to the phone next to it",
+  "methodArtLabelQr": "Direct · QR Payment: a code passes from one phone to the phone next to it",
   "@methodArtLabelQr": {
     "description": "Spoken description of the QR method picture."
   },
@@ -3574,11 +3574,11 @@
   "@txQrHint": {
     "description": "Settings › Transactions: the explanation behind the info icon of the QR switch."
   },
-  "advTransactionFiles": "Transaction files",
+  "advTransactionFiles": "File Transfer",
   "@advTransactionFiles": {
     "description": "Advanced page switch name: transaction files (the File payment method)."
   },
-  "advTransactionFilesHint": "Adds a File switch under Settings › Transactions: pay or get paid with a file you pass on yourself.",
+  "advTransactionFilesHint": "Adds File Transfer under Settings › Transactions: pay or get paid with a file you pass on yourself.",
   "@advTransactionFilesHint": {
     "description": "Advanced page: what the Transaction files switch shows."
   },
@@ -4839,7 +4839,7 @@
   "@handshakeRelay": {
     "description": "How it works sheet: label of the epicbox relay in the diagram, which carries the payment between the two wallets."
   },
-  "handshakeFile": "File",
+  "handshakeFile": "File Transfer",
   "@handshakeFile": {
     "description": "How it works sheet: toggle segment for paying with a payment file, and the label of the file in the diagram. Keep it short."
   },
@@ -6458,15 +6458,15 @@
   "@methodArtLabelEpicbox": {
     "description": "Screen reader label of the Epicbox picture."
   },
-  "methodArtLabelHttp": "HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "methodArtLabelHttp": "Link · HTTP: the payment goes straight to the recipient's wallet, which must be open",
   "@methodArtLabelHttp": {
     "description": "Screen reader label of the HTTP picture."
   },
-  "methodArtLabelTor": "Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "methodArtLabelTor": "Link · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
   "@methodArtLabelTor": {
     "description": "Screen reader label of the Tor picture."
   },
-  "methodArtLabelFile": "File: a transaction file is handed over, a response file comes back, then the sender finalizes",
+  "methodArtLabelFile": "Direct · File Transfer: a transaction file is handed over, a response file comes back, then the sender finalizes",
   "@methodArtLabelFile": {
     "description": "Screen reader label of the File picture."
   },
@@ -6554,7 +6554,7 @@
   "@sendToHint": {
     "description": "Placeholder of Send's recipient field."
   },
-  "sendSwitchedHttp": "Over HTTP",
+  "sendSwitchedHttp": "Link · HTTP",
   "@sendSwitchedHttp": {
     "description": "Tag beside the To label for 3 s after the method moved to HTTP because of the address."
   },
@@ -6562,11 +6562,11 @@
   "@sendSwitchedEpicbox": {
     "description": "Tag beside the To label for 3 s after the method moved to Epicbox because of the address."
   },
-  "sendSwitchedTorAnnounce": "Tor address. Method set to Tor.",
+  "sendSwitchedTorAnnounce": "Tor address. Method set to Link · Tor.",
   "@sendSwitchedTorAnnounce": {
     "description": "Read out when a Tor address moved the method to Tor."
   },
-  "sendSwitchedHttpAnnounce": "HTTP address. Method set to HTTP.",
+  "sendSwitchedHttpAnnounce": "HTTP address. Method set to Link · HTTP.",
   "@sendSwitchedHttpAnnounce": {
     "description": "Read out when an HTTP address moved the method to HTTP."
   },
@@ -6574,7 +6574,7 @@
   "@sendSwitchedEpicboxAnnounce": {
     "description": "Read out when an Epicbox address moved the method to Epicbox."
   },
-  "sendReviewMethodHttp": "HTTP, straight to their wallet",
+  "sendReviewMethodHttp": "Link · HTTP, straight to their wallet",
   "@sendReviewMethodHttp": {
     "description": "Review, Method row for an HTTP send."
   },
@@ -7075,7 +7075,7 @@
   "@deskInvIssuerEpicbox": {
     "description": "Method: the request goes over the Epicbox relay. Product name, usually not translated."
   },
-  "deskInvIssuerFile": "File",
+  "deskInvIssuerFile": "Direct · File",
   "@deskInvIssuerFile": {
     "description": "Method: the request is saved as a file to hand over."
   },
@@ -8120,7 +8120,7 @@
   "@methodSendDirectLine": {
     "description": "Send's strip line for Link."
   },
-  "methodArtLabelDirect": "Link Payment: the payment goes straight to the recipient's wallet, which must be open",
+  "methodArtLabelDirect": "Link: the payment goes straight to the recipient's wallet, which must be open",
   "@methodArtLabelDirect": {
     "description": "Screen reader label of the Link picture."
   },
@@ -9456,7 +9456,7 @@
   "@deskRecvReceiving": {
     "description": "Label before the method icons in the Receive page header, and before the on/off switch of each receiving method."
   },
-  "deskRecvNameFile": "File",
+  "deskRecvNameFile": "Direct · File Transfer",
   "@deskRecvNameFile": {
     "description": "Name of the file method (transaction files) when read out in a screen reader line such as \"File off\"."
   },
@@ -9635,7 +9635,7 @@
   "@deskRecvHttpAddress": {
     "description": "Title of the HTTP panel on Receive and of its QR code."
   },
-  "deskRecvCopyHttp": "Copy HTTP address",
+  "deskRecvCopyHttp": "Copy Link · HTTP address",
   "@deskRecvCopyHttp": {
     "description": "Label of the copy button next to the HTTP address."
   },
@@ -10110,7 +10110,7 @@
   "@deskSendEpicboxOff": {
     "description": "Title of the warning notice on Send when Epicbox receiving is off."
   },
-  "deskSendEpicboxOffText": "Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.",
+  "deskSendEpicboxOffText": "Epicbox sends work once Epicbox receiving is on. Use Direct · File Transfer meanwhile.",
   "@deskSendEpicboxOffText": {
     "description": "Text of that notice."
   },
@@ -10142,7 +10142,7 @@
   "@deskSendMethodDirect": {
     "description": "Name of the Link send method (an http(s) or onion address), in the method selector and in tags. Short."
   },
-  "deskSendMethodFile": "File",
+  "deskSendMethodFile": "Direct · File",
   "@deskSendMethodFile": {
     "description": "Name of the File send method (a transaction file), in the method selector. Short."
   },
@@ -10186,7 +10186,7 @@
   "@deskSendTurnOnTor": {
     "description": "Button in that warning: switches Tor on."
   },
-  "deskSendHttpClearnet": "Link to http(s) addresses goes over the clearnet, not Tor.",
+  "deskSendHttpClearnet": "Link · HTTP goes over the clearnet, not Tor.",
   "@deskSendHttpClearnet": {
     "description": "Note under the recipient field when Tor is on and the address is http(s)."
   },
@@ -10346,7 +10346,7 @@
   "@deskSendTagDirect": {
     "description": "Small tag next to the To label after the method switched to Link by itself. Short."
   },
-  "deskSendTagFile": "File",
+  "deskSendTagFile": "Direct · File",
   "@deskSendTagFile": {
     "description": "Small tag next to the To label after the method switched to File. Short."
   },
@@ -10358,7 +10358,7 @@
   "@deskSendSwitchedDirect": {
     "description": "Screen reader announcement when the method switched to Link by itself."
   },
-  "deskSendSwitchedFile": "File address. Method set to File.",
+  "deskSendSwitchedFile": "File address. Method set to Direct · File.",
   "@deskSendSwitchedFile": {
     "description": "Screen reader announcement when the method switched to File."
   },
@@ -10391,11 +10391,11 @@
   "@deskSendViaEpicbox": {
     "description": "Value of the Via fact in the review dialog for an Epicbox send."
   },
-  "deskSendViaDirect": "Link Payment · HTTP (their wallet must be open)",
+  "deskSendViaDirect": "Link · HTTP (their wallet must be open)",
   "@deskSendViaDirect": {
     "description": "Value of the Via fact in the review dialog for a Link send over http(s)."
   },
-  "deskSendViaTor": "Link Payment · Tor (their wallet must be open)",
+  "deskSendViaTor": "Link · Tor (their wallet must be open)",
   "@deskSendViaTor": {
     "description": "Value of the Via fact in the review dialog for a Link send to an onion address."
   },
@@ -11015,11 +11015,11 @@
   "@deskConAddrEpicbox": {
     "description": "Label above the address in a contact's detail, for an Epicbox address."
   },
-  "deskConAddrTor": "Link Payment · Tor address",
+  "deskConAddrTor": "Link · Tor address",
   "@deskConAddrTor": {
     "description": "Label above the address in a contact's detail, for a Tor address."
   },
-  "deskConAddrHttp": "Link Payment · HTTP address",
+  "deskConAddrHttp": "Link · HTTP address",
   "@deskConAddrHttp": {
     "description": "Label above the address in a contact's detail, for an HTTP address."
   },
@@ -12053,7 +12053,7 @@
   "@deskOvFinalize": {
     "description": "Ghost button in the open-file-sends notice: opens the Finalize page. Short."
   },
-  "deskTxMethodFile": "File",
+  "deskTxMethodFile": "Direct · File",
   "@deskTxMethodFile": {
     "description": "Transaction method name for a payment made with a file (not Epicbox, HTTP or Tor). Table cell and detail value; one short word."
   },
@@ -13772,7 +13772,7 @@
       }
     }
   },
-  "deskRailOpenHttp": "Open Link Payment · HTTP receiving",
+  "deskRailOpenHttp": "Open Link · HTTP receiving",
   "@deskRailOpenHttp": {
     "description": "Last line of the sidebar HTTP hover card: a click opens the HTTP receiving settings."
   },
@@ -14145,15 +14145,15 @@
   "@deskKitHeroLabelEpicbox": {
     "description": "Screen-reader description of the Epicbox picture on the Send page."
   },
-  "deskKitHeroLabelHttp": "Link Payment · HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "deskKitHeroLabelHttp": "Link · HTTP: the payment goes straight to the recipient's wallet, which must be open",
   "@deskKitHeroLabelHttp": {
     "description": "Screen-reader description of the HTTP picture on the Send page."
   },
-  "deskKitHeroLabelTor": "Link Payment · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "deskKitHeroLabelTor": "Link · Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
   "@deskKitHeroLabelTor": {
     "description": "Screen-reader description of the Tor picture on the Send page."
   },
-  "deskKitHeroLabelFile": "File: a transaction file is handed over, a response file comes back, then the sender finalizes",
+  "deskKitHeroLabelFile": "Direct · File Transfer: a transaction file is handed over, a response file comes back, then the sender finalizes",
   "@deskKitHeroLabelFile": {
     "description": "Screen-reader description of the transaction-file picture on the Send page."
   },
@@ -14699,7 +14699,7 @@
   "@deskKitMethodTorStoppedDetail": {
     "description": "Detail of the Tor status line when Tor stopped and the core gave no reason."
   },
-  "deskKitMethodFiles": "Files",
+  "deskKitMethodFiles": "Direct · File Transfer",
   "@deskKitMethodFiles": {
     "description": "Bold status word of the transaction-file method line (no state)."
   },
@@ -17917,7 +17917,7 @@
   "@deskSetHelpSender": {
     "description": "Tag in the 'How a transaction travels' diagram: the sending wallet. One short word."
   },
-  "deskSetHelpFile": "File",
+  "deskSetHelpFile": "File Transfer",
   "@deskSetHelpFile": {
     "description": "Tag in the 'How a transaction travels' diagram: the transaction file in between. One short word."
   },
@@ -18607,7 +18607,7 @@
   "@advNetworkHeader": {
     "description": "Header over the network mode choice on the Advanced page."
   },
-  "advNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use files; otherwise you see your balance and history as last seen.",
+  "advNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: with a node on your network you can still send to local addresses and use File Transfer; otherwise you see your balance and history as last seen.",
   "@advNetworkHint": {
     "description": "Info sheet behind the Network header on the Advanced page."
   },
@@ -18679,7 +18679,7 @@
   "@advTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, files and Link Payment sends to local addresses still work. The node's own peers are the node's setting.",
+  "advOfflineNote": "Offline pauses Epicbox, Tor, status checks and notifications. With a node on your local network, Recheck balance, File Transfer and Link sends to local addresses still work. The node's own peers are the node's setting.",
   "@advOfflineNote": {
     "description": "Note under the network choice while Offline is selected."
   },
@@ -18775,7 +18775,7 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use files; the built-in node keeps running, as its own peers are the node's setting.",
+  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: with a node here or on your network you can still send to local addresses, receive over Link and use File Transfer; the built-in node keeps running, as its own peers are the node's setting.",
   "@deskSetAdvNetworkHint": {
     "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
   },
@@ -18803,11 +18803,11 @@
   "@deskSetAdvModeOfflineText": {
     "description": "One-line description of the Offline network mode on the Advanced page."
   },
-  "deskSetAdvTorOnlyNote": "Tor only turns HTTP receiving off: a plain address would reveal this computer.",
+  "deskSetAdvTorOnlyNote": "Tor only turns Link · HTTP receiving off: a plain address would reveal this computer.",
   "@deskSetAdvTorOnlyNote": {
     "description": "Note under the network choice while Tor only is selected."
   },
-  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, files and Link Payment to local addresses still work.",
+  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. With a node on this computer or your network, Recheck balance, File Transfer and Link sends to local addresses still work.",
   "@deskSetAdvOfflineNote": {
     "description": "Note under the chosen Offline mode on the Advanced page."
   },
@@ -19093,7 +19093,7 @@
   "@deskNetOpenAdvanced": {
     "description": "Link or small button that opens Settings › Advanced, next to a line that names the network mode."
   },
-  "deskNetSendFileHint": "A transaction file still works.",
+  "deskNetSendFileHint": "File Transfer still works.",
   "@deskNetSendFileHint": {
     "description": "Second line of the notice on Send when the network mode holds Epicbox and Link sends."
   },
@@ -19101,7 +19101,7 @@
   "@deskNetRecvOfflineText": {
     "description": "Text of the notice on Receive while Offline mode is on."
   },
-  "deskNetRecvWaitTorText": "Receiving starts when Tor is connected. A transaction file still works.",
+  "deskNetRecvWaitTorText": "Receiving starts when Tor is connected. File Transfer still works.",
   "@deskNetRecvWaitTorText": {
     "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
   },

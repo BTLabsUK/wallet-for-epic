@@ -17,10 +17,10 @@
   "deskSetRecvEpicboxServerHint": "เซิร์ฟเวอร์ที่เก็บรายการของที่อยู่นี้ สองกระเป๋าเงินใช้เซิร์ฟเวอร์ต่างกันได้",
   "deskSetRecvSwitchingServer": "กำลังเปลี่ยนเซิร์ฟเวอร์ Epicbox…",
   "deskSetRecvListNote": "สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที",
-  "deskSetRecvHttpTitle": "จ่ายผ่านลิงก์ · HTTP: การรับ",
-  "deskSetRecvHttpText": "ตรงจากกระเป๋าเงินอื่นขณะที่กระเป๋าเงินนี้เปิดอยู่",
+  "deskSetRecvHttpTitle": "Link · HTTP: การรับ",
+  "deskSetRecvHttpText": "ตรงจากกระเป๋าเงินอื่นที่ที่อยู่เว็บของคอมพิวเตอร์เครื่องนี้ ขณะที่กระเป๋าเงินนี้เปิดอยู่",
   "deskSetRecvHttpOffTitle": "ปิดอยู่ขณะเปิด Tor",
-  "deskSetRecvHttpOffText": "รายการผ่านลิงก์จะเข้าที่ที่อยู่ Tor ของกระเป๋าเงินนี้แทน",
+  "deskSetRecvHttpOffText": "รายการตรงจากกระเป๋าเงินอื่นจะเข้าที่ที่อยู่ Link · Tor แทน",
   "deskSetRecvPrivacySettings": "การตั้งค่าความเป็นส่วนตัว",
   "deskSetHttpNotChanged": "ไม่ได้เปลี่ยน",
   "deskSetHttpPortError": "พอร์ตต้องอยู่ระหว่าง 1 ถึง 65535",
@@ -46,5 +46,7 @@
   "deskSetHttpNoRouterText": "Tor ใช้ได้จากทุกที่โดยไม่ต้อง forward อะไร",
   "deskSetHttpTurnOnTor": "เปิด Tor",
   "deskSetHttpExposed": "เปิดเฉพาะ API สำหรับรับเงิน HTTP ธรรมดาไม่ได้เข้ารหัส",
-  "deskSetHttpBackLocal": "กลับเป็นในเครื่องเท่านั้น"
+  "deskSetHttpBackLocal": "กลับเป็นในเครื่องเท่านั้น",
+  "deskSetRecvTorTitle": "Link · Tor: การรับ",
+  "deskSetRecvTorText": "ตรงจากกระเป๋าเงินอื่นที่ที่อยู่ Tor ของกระเป๋าเงินนี้ ขณะที่เปิดอยู่"
 }

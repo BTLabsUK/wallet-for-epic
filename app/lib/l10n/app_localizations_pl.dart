@@ -3137,7 +3137,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get methodArtLabelQr =>
-      'Płatność QR: kod przechodzi z jednego telefonu na drugi, obok';
+      'Bezpośrednio · Płatność QR: kod przechodzi z jednego telefonu na drugi, obok';
 
   @override
   String get methodSendQrTitle => 'Dla telefonu obok ciebie.';
@@ -3169,11 +3169,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Płatność QR pokazuje płatność jako animowany kod, który drugi telefon skanuje aparatem, a odpowiedź przyjmuje w ten sam sposób. Działa tylko między telefonami obok siebie, nie wymaga połączenia między portfelami, a kod sam się ukrywa po 40 sekundach. Dodaje Płatność QR do Wyślij i Odbierz.';
 
   @override
-  String get advTransactionFiles => 'Pliki transakcji';
+  String get advTransactionFiles => 'Przesyłanie pliku';
 
   @override
   String get advTransactionFilesHint =>
-      'Dodaje przełącznik Plik w Ustawienia › Transakcje: płać lub dostawaj zapłatę plikiem, który przekazujesz sam.';
+      'Dodaje Przesyłanie pliku w Ustawienia › Transakcje: płać lub dostawaj zapłatę plikiem, który przekazujesz sam.';
 
   @override
   String get sendQrTitle => 'Płatność QR';
@@ -4109,7 +4109,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get handshakeRelay => 'Przekaźnik';
 
   @override
-  String get handshakeFile => 'Plik';
+  String get handshakeFile => 'Przesyłanie pliku';
 
   @override
   String get handshakeBack =>
@@ -5270,13 +5270,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodEpicbox => 'Epicbox';
 
   @override
-  String get methodDirectHttp => 'Płatność linkiem · HTTP';
+  String get methodDirectHttp => 'Link · HTTP';
 
   @override
-  String get methodDirectTor => 'Płatność linkiem · Tor';
+  String get methodDirectTor => 'Link · Tor';
 
   @override
-  String get methodFile => 'Plik';
+  String get methodFile => 'Przesyłanie pliku';
 
   @override
   String get methodShortHttp => 'Link · HTTP';
@@ -5285,10 +5285,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodShortTor => 'Link · Tor';
 
   @override
-  String get methodShortQr => 'QR';
+  String get methodShortQr => 'Bezpośrednio · QR';
 
   @override
-  String get methodShortFile => 'Direct · File';
+  String get methodShortFile => 'Bezpośrednio · Plik';
 
   @override
   String get methodGroupHttp => 'HTTP';
@@ -5297,13 +5297,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodGroupTor => 'Tor';
 
   @override
-  String get methodDirectQr => 'Direct · QR Payment';
+  String get methodDirectQr => 'Bezpośrednio · Płatność QR';
 
   @override
-  String get methodDirectFile => 'Direct · File Transfer';
+  String get methodDirectFile => 'Bezpośrednio · Przesyłanie pliku';
 
   @override
-  String get methodDirectFamily => 'Direct';
+  String get methodDirectFamily => 'Bezpośrednio';
 
   @override
   String get methodArtCaptionEpicbox => 'Serwer Epicbox ją trzyma';
@@ -5323,15 +5323,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get methodArtLabelHttp =>
-      'HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
+      'Link · HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
 
   @override
   String get methodArtLabelTor =>
-      'Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
+      'Link · Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
 
   @override
   String get methodArtLabelFile =>
-      'Plik: plik transakcji jest przekazywany, wraca plik odpowiedzi, potem nadawca finalizuje';
+      'Bezpośrednio · Przesyłanie pliku: plik transakcji jest przekazywany, wraca plik odpowiedzi, potem nadawca finalizuje';
 
   @override
   String get methodSendEpicboxTitle => 'Odbiorca może być offline.';
@@ -5404,23 +5404,25 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendToHint => 'Adres lub kontakt';
 
   @override
-  String get sendSwitchedHttp => 'Przez HTTP';
+  String get sendSwitchedHttp => 'Link · HTTP';
 
   @override
   String get sendSwitchedEpicbox => 'Przez Epicbox';
 
   @override
-  String get sendSwitchedTorAnnounce => 'Adres Tor. Ustawiono metodę Tor.';
+  String get sendSwitchedTorAnnounce =>
+      'Adres Tor. Ustawiono metodę Link · Tor.';
 
   @override
-  String get sendSwitchedHttpAnnounce => 'Adres HTTP. Ustawiono metodę HTTP.';
+  String get sendSwitchedHttpAnnounce =>
+      'Adres HTTP. Ustawiono metodę Link · HTTP.';
 
   @override
   String get sendSwitchedEpicboxAnnounce =>
       'Adres Epicbox. Ustawiono metodę Epicbox.';
 
   @override
-  String get sendReviewMethodHttp => 'HTTP, prosto do portfela';
+  String get sendReviewMethodHttp => 'Link · HTTP, prosto do portfela';
 
   @override
   String get sendCancelRuleEpicbox =>
@@ -5844,7 +5846,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvIssuerEpicbox => 'Epicbox';
 
   @override
-  String get deskInvIssuerFile => 'Plik';
+  String get deskInvIssuerFile => 'Bezpośrednio · Plik';
 
   @override
   String get deskInvIssuerDirect => 'Link';
@@ -6632,21 +6634,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get methodArtLabelDirect =>
-      'Płatność linkiem: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
+      'Link: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
 
   @override
   String methodArtSpokenLink(String method) {
-    return '$method: the payment goes straight to the recipient\'s wallet, which must be open';
+    return '$method: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
   }
 
   @override
   String methodArtSpokenQr(String method) {
-    return '$method: a code passes from one phone to the phone next to it';
+    return '$method: kod przechodzi z jednego telefonu na drugi, obok';
   }
 
   @override
   String methodArtSpokenFile(String method) {
-    return '$method: a transaction file is handed over, a response file comes back, then the sender finalizes';
+    return '$method: plik transakcji jest przekazywany, wraca plik odpowiedzi, potem nadawca finalizuje';
   }
 
   @override
@@ -6706,48 +6708,49 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony.';
+      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony. Przyjmowanie płatności na adres Tor to przełącznik Link · Tor w Transakcje.';
 
   @override
   String get receiveTabDirect => 'Link';
 
   @override
-  String get receiveDirectNeedsTor => 'Odbieranie przez Link wymaga Tora.';
+  String get receiveDirectNeedsTor =>
+      'Odbieranie przez Link · Tor wymaga Tora.';
 
   @override
   String get receiveDirectMeanwhile =>
       'Do tego czasu nadawcy używają adresu Epicbox.';
 
   @override
-  String get receiveHttpTitle => 'Link · HTTP address';
+  String get receiveHttpTitle => 'Adres Link · HTTP';
 
   @override
   String get receiveHttpLanLine =>
-      'For wallets on this Wi-Fi network, while this wallet is open.';
+      'Dla portfeli w tej sieci Wi-Fi, gdy ten portfel jest otwarty.';
 
   @override
   String get receiveHttpNoNetwork =>
-      'Not on a Wi-Fi network. No address to hand out.';
+      'Brak sieci Wi-Fi. Nie ma adresu do podania.';
 
   @override
-  String get receiveHttpOffWhileTor => 'Off while Tor is on.';
+  String get receiveHttpOffWhileTor => 'Wyłączone, gdy Tor jest włączony.';
 
   @override
   String receiveHttpPortInUse(String port) {
-    return 'Port $port is used by another program.';
+    return 'Port $port jest używany przez inny program.';
   }
 
   @override
-  String get receiveHttpFailed => 'Could not start.';
+  String get receiveHttpFailed => 'Nie udało się uruchomić.';
 
   @override
-  String get receiveHttpShowQr => 'Show QR';
+  String get receiveHttpShowQr => 'Pokaż QR';
 
   @override
-  String get receiveHttpHideQr => 'Hide QR';
+  String get receiveHttpHideQr => 'Ukryj QR';
 
   @override
-  String get receiveHttpQrLabel => 'QR code of the Link · HTTP address';
+  String get receiveHttpQrLabel => 'Kod QR adresu Link · HTTP';
 
   @override
   String get netStatusOverTor => 'przez Tor';
@@ -7606,7 +7609,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskRecvReceiving => 'Odbieranie';
 
   @override
-  String get deskRecvNameFile => 'Plik';
+  String get deskRecvNameFile => 'Bezpośrednio · Przesyłanie pliku';
 
   @override
   String deskRecvTurnOnFailed(String method) {
@@ -7707,10 +7710,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.';
 
   @override
-  String get deskRecvHttpAddress => 'Link · adres HTTP';
+  String get deskRecvHttpAddress => 'Adres Link · HTTP';
 
   @override
-  String get deskRecvCopyHttp => 'Kopiuj adres HTTP';
+  String get deskRecvCopyHttp => 'Kopiuj adres Link · HTTP';
 
   @override
   String deskRecvHttpPublic(int port) {
@@ -7730,14 +7733,14 @@ class AppLocalizationsPl extends AppLocalizations {
       'Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Prywatność.';
 
   @override
-  String get deskRecvDirectTor => 'Link · adres Tor';
+  String get deskRecvDirectTor => 'Adres Link · Tor';
 
   @override
   String get deskRecvTorIntro =>
       'Prosto z innego portfela przez Tor, gdy ten jest otwarty. Tor ustawisz w Ustawienia › Prywatność.';
 
   @override
-  String get deskRecvTorAddress => 'Link · adres Tor';
+  String get deskRecvTorAddress => 'Adres Link · Tor';
 
   @override
   String get deskRecvCopyTor => 'Kopiuj adres Tor';
@@ -8132,7 +8135,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendEpicboxOffText =>
-      'Wysyłki przez Epicbox działają, gdy odbieranie przez Epicbox jest włączone. Do tego czasu wyślij plikiem.';
+      'Wysyłki przez Epicbox działają, gdy odbieranie przez Epicbox jest włączone. Do tego czasu użyj: Bezpośrednio · Przesyłanie pliku.';
 
   @override
   String get deskSendEpicboxTurnOn => 'Włącz odbieranie przez Epicbox';
@@ -8157,7 +8160,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendMethodDirect => 'Link';
 
   @override
-  String get deskSendMethodFile => 'Plik';
+  String get deskSendMethodFile => 'Bezpośrednio · Plik';
 
   @override
   String get deskSendTo => 'Do';
@@ -8192,7 +8195,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendHttpClearnet =>
-      'Wysyłka przez Link na adresy http(s) idzie przez zwykły internet, nie przez Tor.';
+      'Link · HTTP idzie przez zwykły internet, nie przez Tor.';
 
   @override
   String get deskSendClear => 'Wyczyść';
@@ -8315,7 +8318,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendTagDirect => 'Link';
 
   @override
-  String get deskSendTagFile => 'Plik';
+  String get deskSendTagFile => 'Bezpośrednio · Plik';
 
   @override
   String get deskSendTagEpicbox => 'Przez Epicbox';
@@ -8324,7 +8327,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendSwitchedDirect => 'Adres Link. Ustawiono metodę Link.';
 
   @override
-  String get deskSendSwitchedFile => 'Adres plikowy. Ustawiono metodę Plik.';
+  String get deskSendSwitchedFile =>
+      'Adres plikowy. Ustawiono metodę Bezpośrednio · Plik.';
 
   @override
   String get deskSendSwitchedEpicbox =>
@@ -8358,11 +8362,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendViaDirect =>
-      'Płatność linkiem · HTTP (portfel odbiorcy musi być otwarty)';
+      'Link · HTTP (portfel odbiorcy musi być otwarty)';
 
   @override
-  String get deskSendViaTor =>
-      'Płatność linkiem · Tor (portfel odbiorcy musi być otwarty)';
+  String get deskSendViaTor => 'Link · Tor (portfel odbiorcy musi być otwarty)';
 
   @override
   String get deskSendViaFile => 'Plik transakcji';
@@ -8855,10 +8858,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskConAddrEpicbox => 'Adres Epicbox';
 
   @override
-  String get deskConAddrTor => 'Link · adres Tor';
+  String get deskConAddrTor => 'Adres Link · Tor';
 
   @override
-  String get deskConAddrHttp => 'Link · adres HTTP';
+  String get deskConAddrHttp => 'Adres Link · HTTP';
 
   @override
   String get deskConNote => 'Notatka';
@@ -9634,7 +9637,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOvFinalize => 'Sfinalizuj';
 
   @override
-  String get deskTxMethodFile => 'Plik';
+  String get deskTxMethodFile => 'Bezpośrednio · Plik';
 
   @override
   String get deskTxMiningReward => 'Nagroda za kopanie';
@@ -10965,7 +10968,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskRailOpenHttp => 'Otwórz odbieranie: Płatność linkiem · HTTP';
+  String get deskRailOpenHttp => 'Otwórz odbieranie: Link · HTTP';
 
   @override
   String get deskRailTorNotInBuild => 'Brak w tej wersji';
@@ -11250,15 +11253,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelHttp =>
-      'Płatność linkiem · HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
+      'Link · HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
 
   @override
   String get deskKitHeroLabelTor =>
-      'Płatność linkiem · Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
+      'Link · Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
 
   @override
   String get deskKitHeroLabelFile =>
-      'Plik: plik transakcji jest przekazywany, wraca plik odpowiedzi, potem nadawca finalizuje';
+      'Bezpośrednio · Przesyłanie pliku: plik transakcji jest przekazywany, wraca plik odpowiedzi, potem nadawca finalizuje';
 
   @override
   String get deskKitReachCheck => 'Sprawdź';
@@ -11653,7 +11656,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskKitMethodTorStoppedDetail => 'Tor się zatrzymał.';
 
   @override
-  String get deskKitMethodFiles => 'Pliki';
+  String get deskKitMethodFiles => 'Bezpośrednio · Przesyłanie pliku';
 
   @override
   String get deskKitChipOverTor => 'Przez Tor';
@@ -13374,18 +13377,18 @@ class AppLocalizationsPl extends AppLocalizations {
       'Stan z status.btlabs.uk, sprawdzany co kilka minut.';
 
   @override
-  String get deskSetRecvHttpTitle => 'Płatność linkiem · HTTP, odbieranie';
+  String get deskSetRecvHttpTitle => 'Link · HTTP, odbieranie';
 
   @override
   String get deskSetRecvHttpText =>
-      'Prosto z innego portfela, gdy ten jest otwarty.';
+      'Prosto z innego portfela na adres internetowy tego komputera, gdy ten portfel jest otwarty.';
 
   @override
   String get deskSetRecvHttpOffTitle => 'Wyłączone, gdy Tor jest włączony';
 
   @override
   String get deskSetRecvHttpOffText =>
-      'Płatności przez Link docierają wtedy na adres Tor tego portfela.';
+      'Płatności prosto z innego portfela docierają wtedy na adres Link · Tor.';
 
   @override
   String get deskSetRecvPrivacySettings => 'Ustawienia prywatności';
@@ -14069,7 +14072,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetHelpSender => 'Nadawca';
 
   @override
-  String get deskSetHelpFile => 'Plik';
+  String get deskSetHelpFile => 'Przesyłanie pliku';
 
   @override
   String get deskSetHelpRecipient => 'Odbiorca';
@@ -14583,7 +14586,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatność i sieć. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na ekranie głównym. Offline zostaje na tym telefonie i w twojej sieci lokalnej: z węzłem w twojej sieci nadal możesz wysyłać na adresy lokalne i używać plików; poza tym widzisz saldo i historię z ostatniego odczytu.';
+      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatność i sieć. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na ekranie głównym. Offline zostaje na tym telefonie i w twojej sieci lokalnej: z węzłem w twojej sieci nadal możesz wysyłać na adresy lokalne i używać przesyłania pliku; poza tym widzisz saldo i historię z ostatniego odczytu.';
 
   @override
   String get advOutputs => 'Wyjścia';
@@ -14647,7 +14650,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Z węzłem w twojej sieci lokalnej nadal działają Sprawdź saldo, pliki i wysyłki przez Płatność linkiem na adresy lokalne. Peery węzła to ustawienie samego węzła.';
+      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Z węzłem w twojej sieci lokalnej nadal działają Sprawdź saldo, Przesyłanie pliku i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
 
   @override
   String get advReset => 'Ukryj wszystko ponownie';
@@ -14728,7 +14731,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvNetworkHint =>
-      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatności. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na pasku bocznym. Offline zostaje na tym komputerze i w twojej sieci lokalnej: z węzłem tutaj lub w twojej sieci nadal możesz wysyłać na adresy lokalne, odbierać przez Bezpośrednio i używać plików; wbudowany węzeł działa dalej, a jego peery to ustawienie samego węzła.';
+      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatności. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na pasku bocznym. Offline zostaje na tym komputerze i w twojej sieci lokalnej: z węzłem tutaj lub w twojej sieci nadal możesz wysyłać na adresy lokalne, odbierać przez Link i używać przesyłania pliku; wbudowany węzeł działa dalej, a jego peery to ustawienie samego węzła.';
 
   @override
   String get deskSetAdvModeStandard => 'Standardowy';
@@ -14753,11 +14756,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvTorOnlyNote =>
-      'Tylko Tor wyłącza odbieranie przez HTTP: zwykły adres ujawniłby ten komputer.';
+      'Tylko Tor wyłącza odbieranie przez Link · HTTP: zwykły adres ujawniłby ten komputer.';
 
   @override
   String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, pliki i Płatność linkiem na adresy lokalne.';
+      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Z węzłem na tym komputerze lub w twojej sieci nadal działają Sprawdź saldo, Przesyłanie pliku i wysyłki przez Link na adresy lokalne.';
 
   @override
   String get deskSetAdvNotInBuild => 'Brak w tej wersji';
@@ -14992,7 +14995,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskNetOpenAdvanced => 'Otwórz Zaawansowane';
 
   @override
-  String get deskNetSendFileHint => 'Plik transakcji nadal działa.';
+  String get deskNetSendFileHint => 'Przesyłanie pliku nadal działa.';
 
   @override
   String get deskNetRecvOfflineText =>
@@ -15000,7 +15003,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskNetRecvWaitTorText =>
-      'Odbieranie zacznie się, gdy Tor się połączy. Plik transakcji nadal działa.';
+      'Odbieranie zacznie się, gdy Tor się połączy. Przesyłanie pliku nadal działa.';
 
   @override
   String get deskNetCantReceive => 'Offline nie można odbierać.';
@@ -15038,46 +15041,46 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txFamilyLinkLine =>
-      'Straight to the other wallet while both are open.';
+      'Prosto do drugiego portfela, gdy oba są otwarte.';
 
   @override
   String get txFamilyDirectLine =>
-      'Hand to hand, with no connection between the wallets.';
+      'Z rąk do rąk, bez połączenia między portfelami.';
 
   @override
   String get txLinkHttpLine =>
-      'Pay web addresses; get paid from this Wi-Fi network.';
+      'Płać na adresy internetowe; dostawaj zapłatę z tej sieci Wi-Fi.';
 
   @override
   String get txLinkHttpHint =>
-      'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.';
+      'Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:3415) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany, nie jest osiągalny z internetu ani przez dane komórkowe i jest wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij i Odbierz.';
 
   @override
   String get txLinkTorLine =>
-      'Pay onion addresses; get paid at this phone’s Tor address.';
+      'Płać na adresy onion; dostawaj zapłatę na adres Tor tego telefonu.';
 
   @override
   String get txLinkTorHint =>
-      'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.';
+      'Link · Tor płaci prosto do portfela pod adresem onion i daje temu telefonowi adres Tor, na który można mu płacić. Oba portfele muszą być otwarte. Wymaga Tora: przełącznik Tor w Prywatność i sieć kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij i Odbierz.';
 
   @override
-  String get txLinkTorNeedsTor =>
-      'Needs Tor. Turn it on under Privacy & network.';
+  String get txLinkTorNeedsTor => 'Wymaga Tora. Włącz go w Prywatność i sieć.';
 
   @override
-  String get txLastMethodNotice => 'Keep at least one payment method on.';
+  String get txLastMethodNotice =>
+      'Przynajmniej jedna metoda płatności musi zostać włączona.';
 
   @override
   String get txEpicboxHint =>
-      'Epicbox płaci przez przekaźnik, więc drugi portfel nie musi być otwarty. Wyłączony: portfel nie łączy się z żadnym przekaźnikiem, więc bez płatności Epicbox, faktur i powiadomień. Płatność QR i pliki nadal działają.';
+      'Epicbox płaci przez przekaźnik, więc drugi portfel nie musi być otwarty. Wyłączony: portfel nie łączy się z żadnym przekaźnikiem, więc bez płatności Epicbox, faktur i powiadomień. Pozostałe metody nadal działają.';
 
   @override
   String get txDirectLine =>
-      'Płać na adresy onion i internetowe; dostawaj zapłatę na adres Tor tego telefonu.';
+      'Płać na adresy internetowe i onion; dostawaj zapłatę prosto z innych portfeli.';
 
   @override
   String get txDirectHint =>
-      'Płatność linkiem wysyła prosto do drugiego portfela na adres onion lub internetowy i daje temu telefonowi adres Tor, na który można mu płacić. Portfel po drugiej stronie musi być otwarty, ten też. Wymaga Tora. Dodaje Płatność linkiem do Wyślij i Odbierz.';
+      'Link płaci prosto do drugiego portfela pod adresem internetowym lub onion i pozwala temu telefonowi przyjmować płatności w ten sam sposób. Oba portfele muszą być otwarte. HTTP działa w tej sieci Wi-Fi; Tor wymaga Tora. Dodaje Link do Wyślij i Odbierz.';
 
   @override
   String get txFileLine =>
@@ -15085,7 +15088,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txFileHint =>
-      'Plik tworzy plik transakcji, który przekazujesz drugiej osobie dowolnym sposobem (wiadomość, mail, kabel), a ona odsyła ci drugi. Nie potrzeba połączenia między portfelami. Dodaje Plik do Wyślij i Odbierz.';
+      'Przesyłanie pliku tworzy plik transakcji, który przekazujesz drugiej osobie dowolnym sposobem (wiadomość, mail, kabel), a ona odsyła ci drugi. Nie potrzeba połączenia między portfelami. Dodaje Przesyłanie pliku do Wyślij i Odbierz.';
 
   @override
   String get txStartHeader => 'Wysyłanie zaczyna od';
@@ -15155,7 +15158,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String netBlockMethodOff(String method) {
-    return '$method is off in Settings › Transactions.';
+    return 'Metoda $method jest wyłączona w Ustawienia › Transakcje.';
   }
 
   @override
@@ -15198,7 +15201,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String sendContactOnlyMethod(String name, String method) {
-    return '$name has only a $method address.';
+    return '$name ma tylko adres dla metody $method.';
   }
 
   @override
@@ -15236,15 +15239,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetTxEpicboxHint =>
-      'Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności. Wyłączony: portfel nie łączy się z żadnym serwerem Epicbox, więc bez płatności Epicbox i faktur. Pliki nadal działają.';
+      'Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności. Wyłączony: portfel nie łączy się z żadnym serwerem Epicbox, więc bez płatności Epicbox i faktur. Pozostałe metody nadal działają.';
 
   @override
   String get deskSetTxDirectHint =>
-      'Płać i dostawaj zapłatę prosto z portfela do portfela, przez HTTP lub Tor, bez serwera pośrodku. Działa tylko, gdy portfel jest otwarty. Dodaje Płatność linkiem do Wyślij, a jego adres do Odbierz.';
+      'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:3415), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte; wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.';
 
   @override
   String get deskSetTxFileHint =>
-      'Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Plik do Wyślij, a kroki z plikami do Odbierz.';
+      'Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Przesyłanie pliku do Wyślij, a kroki z plikami do Odbierz.';
 
   @override
   String get deskSetTxSend => 'Wyślij';
@@ -15366,29 +15369,30 @@ class AppLocalizationsPl extends AppLocalizations {
       'Kod Płatności QR. Zeskanuj go w Epic Cash Mobile.';
 
   @override
-  String get deskSetRecvTorTitle => 'Link · Tor receiving';
+  String get deskSetRecvTorTitle => 'Link · Tor, odbieranie';
 
   @override
   String get deskSetRecvTorText =>
-      'Straight from another wallet at this wallet’s Tor address, while it is open.';
+      'Prosto z innego portfela na adres Tor tego portfela, gdy jest otwarty.';
 
   @override
   String get deskSetTxTorHint =>
-      'Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.';
+      'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem onion, przez Tor, bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Wymaga Tora: przełącznik Tor w Prywatności kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij, a jego adres do Odbierz.';
 
   @override
   String get deskSetTxTorNeedsTor =>
-      'Tor is off. Turn it on under Privacy to be paid at the Tor address.';
+      'Tor jest wyłączony. Włącz go w Prywatności, aby przyjmować płatności na adres Tor.';
 
   @override
-  String get deskSetTxLastMethod => 'Keep at least one payment method on.';
+  String get deskSetTxLastMethod =>
+      'Przynajmniej jedna metoda płatności musi zostać włączona.';
 
   @override
-  String get deskRecvTorOffTitle => 'Link · Tor receiving needs Tor.';
+  String get deskRecvTorOffTitle => 'Odbieranie przez Link · Tor wymaga Tora.';
 
   @override
   String get deskRecvTorOffText =>
-      'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.';
+      'Adres Tor działa, gdy Tor jest włączony. Tor to przełącznik w Ustawienia › Prywatność; kieruje połączenia portfela przez Tor.';
 
   @override
   String get deskSetupSaveFailedTitle => 'Ustawienia nie zostały zapisane';

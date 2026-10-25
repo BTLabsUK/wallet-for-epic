@@ -1,10 +1,13 @@
 {
   "deskSetFrameTransactions": "Transaktionen",
   "deskSetTxMethods": "Zahlungsmethoden",
-  "deskSetTxEpicboxHint": "Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Aus: Die Wallet verbindet sich mit keinem Epicbox-Server, also keine Epicbox-Zahlungen oder Rechnungen. Dateien funktionieren weiter.",
-  "deskSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet, über HTTP oder Tor, ohne Server dazwischen. Funktioniert nur, solange die Wallet geöffnet ist. Fügt Link-Zahlung zu Senden und seine Adresse zu Empfangen hinzu.",
-  "deskSetTxFileHint": "Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt Datei zu Senden und die Dateischritte zu Empfangen hinzu.",
+  "deskSetTxEpicboxHint": "Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Aus: Die Wallet verbindet sich mit keinem Epicbox-Server, also keine Epicbox-Zahlungen oder Rechnungen. Die anderen Methoden funktionieren weiter.",
+  "deskSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:3415), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind; aus, solange Tor an ist. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu.",
+  "deskSetTxFileHint": "Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt die Dateiübertragung zu Senden und die Dateischritte zu Empfangen hinzu.",
   "deskSetTxSend": "Senden",
   "deskSetTxStart": "Senden beginnt mit",
-  "deskSetTxStartHint": "Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern."
+  "deskSetTxStartHint": "Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern.",
+  "deskSetTxTorHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Onion-Adresse, über Tor, ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Braucht Tor: Der Tor-Schalter unter Datenschutz leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und seine Adresse zu Empfangen hinzu.",
+  "deskSetTxTorNeedsTor": "Tor ist aus. Schalten Sie es unter Datenschutz ein, um an der Tor-Adresse bezahlt zu werden.",
+  "deskSetTxLastMethod": "Mindestens eine Zahlungsmethode bleibt eingeschaltet."
 }

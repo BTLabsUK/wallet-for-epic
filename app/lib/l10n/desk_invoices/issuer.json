@@ -19,7 +19,7 @@
   "@deskInvIssuerEpicbox": {
     "description": "Method: the request goes over the Epicbox relay. Product name, usually not translated."
   },
-  "deskInvIssuerFile": "File",
+  "deskInvIssuerFile": "Direct · File",
   "@deskInvIssuerFile": {
     "description": "Method: the request is saved as a file to hand over."
   },
