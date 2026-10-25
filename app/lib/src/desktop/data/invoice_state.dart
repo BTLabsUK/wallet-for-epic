@@ -102,14 +102,14 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
   Future<IssuedRequest> request(PaymentRequestDraft draft) => _then('request', () => _api.requestPayment(draft));
   Future<void> withdraw(String slateId) => _then('withdraw', () => _api.withdrawRequest(slateId));
   Future<void> repost(String slateId) => _then('repost', () => _api.repostRequest(slateId));
-  Future<void> cancelRequestPayment(String slateId) => _then('cancel request payment', () => _api.cancelRequestPayment(slateId));
+  Future<void> cancelRequestPayment(String slateId) => _then('cancelRequestPayment', () => _api.cancelRequestPayment(slateId));
   Future<IncomingInvoice> pay(String slateId, {required int amount, required String password}) =>
       _then('pay', () => _api.payInvoice(slateId, amount: amount, password: password));
   Future<IncomingInvoice> retry(String slateId) => _then('retry', () => _api.retryInvoiceReply(slateId));
   Future<void> decline(String slateId) => _then('decline', () => _api.declineInvoice(slateId));
-  Future<void> cancelPayment(String slateId) => _then('cancel payment', () => _api.cancelInvoicePayment(slateId));
-  Future<SelfSend> spendToSelf(String slateId) => _then('spend to self', () => _api.spendCancelledToSelf(slateId));
-  Future<void> setExpiry(Duration expiry) => _then('set expiry', () => _api.setInvoiceExpiry(expiry));
+  Future<void> cancelPayment(String slateId) => _then('cancelPayment', () => _api.cancelInvoicePayment(slateId));
+  Future<SelfSend> spendToSelf(String slateId) => _then('spendToSelf', () => _api.spendCancelledToSelf(slateId));
+  Future<void> setExpiry(Duration expiry) => _then('setExpiry', () => _api.setInvoiceExpiry(expiry));
 
   /// Runs [call], then reads the book again (and the wallet, for balance and Activity) whether
   /// it worked or not. A failure is logged by its kind; the screens word it.
