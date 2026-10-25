@@ -152,6 +152,16 @@ void main() {
     expect(_c.read(deskOwnCardProvider), isNull, reason: 'a card pairs once');
   });
 
+  testWidgets('no name error on a page just opened; it shows once an action needs the name (PAIR-LNX-2)', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    expect(find.text(_l.pairSeenAsMissing), findsNothing);
+    expect(find.text(_l.pairNameForCode), findsOneWidget);
+    await tester.ensureVisible(find.byKey(deskPairCopyInviteKey));
+    await tester.tap(find.byKey(deskPairCopyInviteKey));
+    await _real(tester);
+    expect(find.text(_l.pairSeenAsMissing), findsOneWidget);
+  });
+
   testWidgets('the code appears once a name is typed, without opening the page again (PAIR-LNX-6)', (tester) async {
     await _open(tester, const DeskPairScreen());
     expect(find.text(_l.pairNameForCode), findsOneWidget);

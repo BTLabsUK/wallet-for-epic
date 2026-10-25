@@ -427,8 +427,17 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
             constraints: BoxConstraints(maxWidth: 420.u),
             child: EField(
               label: l.pairSeenAs,
-              error: (_triedInvite || _needName) && _seenAs.isEmpty ? l.pairSeenAsMissing : null,
-              child: EInput(controller: _name, autofocus: _name.text.isEmpty, onChanged: (_) => _nameChanged(), onSubmitted: (_) => _makeCode()),
+              // Only once something needed the name, never on a page just opened (PAIR-LNX-2).
+              error: _triedInvite && _seenAs.isEmpty ? l.pairSeenAsMissing : null,
+              child: EInput(
+                controller: _name,
+                autofocus: _name.text.isEmpty,
+                onChanged: (_) => _nameChanged(),
+                onSubmitted: (_) {
+                  if (_seenAs.isEmpty) setState(() => _triedInvite = true);
+                  _makeCode();
+                },
+              ),
             ),
           ),
           SizedBox(height: Sp.x5),
