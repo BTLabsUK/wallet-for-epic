@@ -546,6 +546,10 @@ Future<void> main(List<String> a) async {
       expect(iss, contains('AppMutex={#AppMutexName},{#OldAppMutexName}'));
       expect(iss, contains("CheckForMutexes('{#AppMutexName},{#OldAppMutexName}')"));
       expect(iss, contains('Flags: nowait; Check: FromApp'));
+      // An uninstall leaves no empty app folder and no window key; the data folder stays.
+      expect(iss, contains('Type: dirifempty; Name: "{app}"'));
+      expect(iss, contains(r'Root: HKCU; Subkey: "Software\BT Labs\Epic Cash Desktop"; Flags: uninsdeletekey'));
+      expect(iss, isNot(contains('.epic_cash_desktop"; Flags')));
       expect(iss, contains('if FromApp and not InstallDone'), reason: 'a failed or cancelled install opens the app again');
     });
 

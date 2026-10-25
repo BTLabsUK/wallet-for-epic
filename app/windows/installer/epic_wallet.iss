@@ -4,8 +4,8 @@
 ; (PrivilegesRequired=lowest): everything goes in the user's profile.
 ;
 ; The wallet's data (%USERPROFILE%\.epic_cash_desktop) is never touched: [UninstallDelete]
-; names only Setup's own mark next to the app, [InstallDelete] only old shortcut files, and Inno
-; removes only the files it installed.
+; names only Setup's own mark next to the app and the app's folder once empty, [InstallDelete]
+; only old shortcut files, and Inno removes only the files it installed.
 ;
 ; Setup copies file by file and cannot undo a file it replaced: stopped part way (killed, or a
 ; file it could not replace), it leaves old and new files side by side. So the files that must
@@ -127,6 +127,14 @@ Type: files; Name: "{userdesktop}\Epic Wallet.lnk"
 [UninstallDelete]
 ; Setup's mark of an install that did not finish (CurStepChanged). Only this exact file.
 Type: files; Name: "{app}\update-in-progress"
+; The app's folder once it is empty (an uninstall left Apps\EpicWallet behind, empty).
+Type: dirifempty; Name: "{app}"
+
+[Registry]
+; The window's place on screen (windows\runner\window_placement.cpp) goes with the app; the
+; wallet's data folder stays.
+Root: HKCU; Subkey: "Software\BT Labs\Epic Cash Desktop"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\BT Labs"; Flags: uninsdeletekeyifempty
 
 [Run]
 ; "Open Epic Cash Desktop" on the finish page (the stock Finish button, renamed). The "Close" link
