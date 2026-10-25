@@ -1633,7 +1633,7 @@ abstract class AppLocalizations {
   /// **'Save payment history'**
   String get historyBackupSaveDialogTitle;
 
-  /// Title of the one-time warning shown before the first import of wallets or files from older software or backups.
+  /// Title of the one-time warning shown before the first import of wallets from older software (desktop Import wallets).
   ///
   /// In en, this message translates to:
   /// **'Before you import'**
