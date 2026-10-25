@@ -260,6 +260,8 @@ void main() {
         // Nothing exists before the PIN: LEPIC creates the wallet under it.
         expect(service.existingWallets, isEmpty);
 
+        await tester.tap(find.text('Create a new wallet'));
+        await _pumpFrames(tester);
         await _enterNow(tester, 'PIN', _pin);
         await _enterNow(tester, 'Repeat PIN', '654321');
         expect(find.textContaining('do not match'), findsOneWidget);
@@ -297,6 +299,7 @@ void main() {
       final service = FakeWalletService();
       final device = _Device();
       await _pumpApp(tester, service, device);
+      await _tapText(tester, 'Create a new wallet');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
       expect(find.byKey(balanceFigureKey), findsOneWidget);
@@ -323,6 +326,7 @@ void main() {
         await _tap(tester, find.widgetWithText(FilledButton, 'Delete wallet'));
         expect(service.deletedWallets, [_mainnetDir]);
         expect(find.text('Welcome'), findsOneWidget);
+        await _tapText(tester, 'Create a new wallet');
         await _enter(tester, 'PIN', _pin);
         await _enter(tester, 'Repeat PIN', _pin);
         expect(find.byKey(balanceFigureKey), findsOneWidget);
@@ -371,6 +375,7 @@ void main() {
       expect(device.bio.values, {'wallet.mainnet.password': 'old password'});
       expect(device.bio.prompts, 0);
 
+      await _tapText(tester, 'Create a new wallet');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
       await _tapText(tester, 'Not now');
@@ -389,7 +394,7 @@ void main() {
       final service = FakeWalletService();
       final device = _Device(advanced: true);
       await _pumpApp(tester, service, device);
-      await _tapText(tester, 'I already have a wallet: restore it');
+      await _tapText(tester, 'Restore from a phrase');
 
       await _enter(tester, 'Recovery phrase', 'not a valid phrase');
       await _tapText(tester, 'Continue');
@@ -436,6 +441,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Welcome (Usernet, test coins)'), findsOneWidget);
+      await _tapText(tester, 'Create a new wallet');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
       expect(find.byKey(balanceFigureKey), findsOneWidget);
@@ -481,6 +487,7 @@ void main() {
     await _tap(tester, row);
     await _tap(tester, find.byKey(serverListSwitchKey));
     expect(device.store.values['app.relay.mainnet'], 'epicbox.epicnet.us');
+    await _tapText(tester, 'Create a new wallet');
     await _enter(tester, 'PIN', _pin);
     await _enter(tester, 'Repeat PIN', _pin);
     // The relay comes from the config the wallet opens with, which is what the address and

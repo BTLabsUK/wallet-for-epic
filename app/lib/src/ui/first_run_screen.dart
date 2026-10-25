@@ -18,7 +18,16 @@ import 'restore_screen.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
-/// First start: the user picks a PIN, then LEPIC creates the wallet sealed under it.
+/// The first-run screen's "Create a new wallet" button, for tests and the tour.
+const Key firstRunCreateKey = ValueKey('first-run-create');
+
+/// The first-run screen's "Restore from a phrase" button, for tests and the tour.
+const Key firstRunRestoreKey = ValueKey('first-run-restore');
+
+/// First start, and the start after the last wallet was deleted: the user chooses between a
+/// new wallet and a restore, then picks a PIN, and LEPIC creates the wallet sealed under it.
+/// The choice is a step of its own, before any text field: a tester whose keyboard covered
+/// the restore link under the PIN field created a wallet they did not want (26.10.16).
 class FirstRunScreen extends ConsumerStatefulWidget {
   const FirstRunScreen({super.key});
 
@@ -29,6 +38,10 @@ class FirstRunScreen extends ConsumerStatefulWidget {
 class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   ({String pin, bool biometrics})? _answer;
   String? _error;
+
+  /// "Create a new wallet" was chosen: the PIN step shows. The demo and the preview skip the
+  /// choice, as they have no phrase to restore.
+  bool _creating = false;
 
   @override
   void initState() {
@@ -104,8 +117,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     if (answer != null) _finish(answer.pin, answer.biometrics);
   }
 
-  void _leave(Widget screen) => Navigator.of(context)
-      .pushReplacement(MaterialPageRoute<void>(builder: (_) => screen));
+  void _leave(Widget screen) =>
+      Navigator.of(context)
+          .pushReplacement(MaterialPageRoute<void>(builder: (_) => screen));
 
   @override
   Widget build(BuildContext context) {
@@ -116,50 +130,79 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     // The web demo is on floonet for good, and never takes a phrase or biometrics.
     final demo = ref.watch(demoModeProvider);
     final pinless = ref.watch(pinlessProvider);
+    final choosing = !demo && !pinless && !_creating;
 
-    return SlotScaffold(
-      centered: true,
-      glow: heroGlow,
-      // The title is the hero's heading; the bar only holds the network action.
-      appBar: AppBar(
-        // Mainnet on node.btlabs.uk works without a choice, but a new install must be able
-        // to reach floonet or another node before it has a wallet, so this is not Advanced.
-        actions: [
-          if (!demo && !pinless)
-            NetworkSettingsButton(enabled: !waiting),
-        ],
-      ),
-      body: CenteredBody(
-        children: [
-          // The demo has no PIN to choose and no network to name: it only sets itself up.
-          BrandHero(
-            title: demo || pinless ? l.demoPinSetUpTitle : '${l.firstRunTitle}$network',
-          ),
-          const SizedBox(height: 28),
-          if (_answer == null && pinless)
-            const Center(child: CircularProgressIndicator())
-          else if (_answer == null) ...[
-            if (demo)
-              DemoPinFill(onDone: () => _finish(demoPin, false))
-            else
-              PinSetupView(onDone: _finish),
-            if (!demo) ...[
-              const SizedBox(height: 24),
-              TextButton.icon(
+    final onPinStep = _creating && _answer == null;
+    // The system's Back on the PIN step returns to the choice, as the bar's arrow does.
+    return PopScope(
+      canPop: !onPinStep,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) setState(() => _creating = false);
+      },
+      child: SlotScaffold(
+        centered: true,
+        glow: heroGlow,
+        // The title is the hero's heading; the bar only holds the network action, and on the
+        // PIN step the way back to the choice.
+        appBar: AppBar(
+          leading: onPinStep
+              ? BackButton(onPressed: () => setState(() => _creating = false))
+              : null,
+          automaticallyImplyLeading: false,
+          // Mainnet on node.btlabs.uk works without a choice, but a new install must be able
+          // to reach floonet or another node before it has a wallet, so this is not Advanced.
+          actions: [
+            if (!demo && !pinless) NetworkSettingsButton(enabled: !waiting),
+          ],
+        ),
+        body: CenteredBody(
+          children: [
+            // The demo has no PIN to choose and no network to name: it only sets itself up.
+            BrandHero(
+              title: demo || pinless
+                  ? l.demoPinSetUpTitle
+                  : '${l.firstRunTitle}$network',
+            ),
+            const SizedBox(height: 28),
+            if (_answer == null && pinless)
+              const Center(child: CircularProgressIndicator())
+            else if (_answer == null && choosing) ...[
+              // Two plain choices and no text field, so no keyboard can cover either. A new
+              // wallet is the primary one; Restore stands beside it at the same size.
+              FilledButton.icon(
+                key: firstRunCreateKey,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                icon: const Icon(Icons.add),
+                label: Text(l.firstRunCreate),
+                onPressed: () => setState(() => _creating = true),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                key: firstRunRestoreKey,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
                 icon: const Icon(Icons.restore),
                 label: Text(l.firstRunRestore),
                 onPressed: () => _leave(const RestoreScreen()),
               ),
+            ] else if (_answer == null) ...[
+              if (demo)
+                DemoPinFill(onDone: () => _finish(demoPin, false))
+              else
+                PinSetupView(onDone: _finish),
+            ] else if (waiting) ...[
+              const Center(child: CircularProgressIndicator()),
+              const SizedBox(height: 16),
+              Text(l.firstRunSecuring, textAlign: TextAlign.center),
+            ] else ...[
+              ErrorText(_error!),
+              BusyButton(label: l.firstRunTryAgain, onPressed: _retry),
             ],
-          ] else if (waiting) ...[
-            const Center(child: CircularProgressIndicator()),
-            const SizedBox(height: 16),
-            Text(l.firstRunSecuring, textAlign: TextAlign.center),
-          ] else ...[
-            ErrorText(_error!),
-            BusyButton(label: l.firstRunTryAgain, onPressed: _retry),
           ],
-        ],
+        ),
       ),
     );
   }

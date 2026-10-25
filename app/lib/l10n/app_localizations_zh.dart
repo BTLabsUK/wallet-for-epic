@@ -2155,7 +2155,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get firstRunTitle => '欢迎';
 
   @override
-  String get firstRunRestore => '我已有钱包：恢复钱包';
+  String get firstRunCreate => '创建新钱包';
+
+  @override
+  String get firstRunRestore => '用助记词恢复';
+
+  @override
+  String get settingsRestoreReplaces => '用助记词恢复会替换此钱包：先删除此钱包，然后输入要恢复的钱包的助记词。';
 
   @override
   String get firstRunSecuring => '正在保护你的钱包…';

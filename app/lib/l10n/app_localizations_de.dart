@@ -2325,8 +2325,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get firstRunTitle => 'Willkommen';
 
   @override
-  String get firstRunRestore =>
-      'Ich habe bereits eine Wallet: wiederherstellen';
+  String get firstRunCreate => 'Neue Wallet erstellen';
+
+  @override
+  String get firstRunRestore => 'Mit Phrase wiederherstellen';
+
+  @override
+  String get settingsRestoreReplaces =>
+      'Mit Phrase wiederherstellen ersetzt diese Wallet: Sie wird zuerst gelöscht, danach wird die Phrase der wiederherzustellenden Wallet eingegeben.';
 
   @override
   String get firstRunSecuring => 'Ihre Wallet wird gesichert…';

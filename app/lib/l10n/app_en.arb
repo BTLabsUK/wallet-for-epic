@@ -2676,9 +2676,17 @@
   "@firstRunTitle": {
     "description": "Title of the first screen after installing, where the user picks a PIN while the wallet is made."
   },
-  "firstRunRestore": "I already have a wallet: restore it",
+  "firstRunCreate": "Create a new wallet",
+  "@firstRunCreate": {
+    "description": "Primary button on the first screen: make a new wallet (then choose a PIN)."
+  },
+  "firstRunRestore": "Restore from a phrase",
   "@firstRunRestore": {
-    "description": "Button that opens the restore from a recovery phrase instead of making a new wallet."
+    "description": "Button on the first screen, and row in Settings › Wallet, that opens the restore from a recovery phrase instead of making a new wallet."
+  },
+  "settingsRestoreReplaces": "Restoring from a phrase replaces this wallet: it is deleted first, then the phrase of the wallet to restore is entered.",
+  "@settingsRestoreReplaces": {
+    "description": "First paragraph of the delete warning when it opens from Settings › Wallet › Restore from a phrase: the phone keeps one wallet per network, so the restore deletes this one first."
   },
   "firstRunSecuring": "Securing your wallet…",
   "@firstRunSecuring": {

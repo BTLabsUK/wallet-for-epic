@@ -3364,11 +3364,23 @@ abstract class AppLocalizations {
   /// **'Welcome'**
   String get firstRunTitle;
 
-  /// Button that opens the restore from a recovery phrase instead of making a new wallet.
+  /// Primary button on the first screen: make a new wallet (then choose a PIN).
   ///
   /// In en, this message translates to:
-  /// **'I already have a wallet: restore it'**
+  /// **'Create a new wallet'**
+  String get firstRunCreate;
+
+  /// Button on the first screen, and row in Settings › Wallet, that opens the restore from a recovery phrase instead of making a new wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a phrase'**
   String get firstRunRestore;
+
+  /// First paragraph of the delete warning when it opens from Settings › Wallet › Restore from a phrase: the phone keeps one wallet per network, so the restore deletes this one first.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring from a phrase replaces this wallet: it is deleted first, then the phrase of the wallet to restore is entered.'**
+  String get settingsRestoreReplaces;
 
   /// Shown after the PIN while the wallet is locked under it.
   ///

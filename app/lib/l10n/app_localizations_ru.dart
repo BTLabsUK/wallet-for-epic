@@ -2417,7 +2417,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get firstRunTitle => 'Добро пожаловать';
 
   @override
-  String get firstRunRestore => 'У меня уже есть кошелёк: восстановить';
+  String get firstRunCreate => 'Создать новый кошелёк';
+
+  @override
+  String get firstRunRestore => 'Восстановить по фразе';
+
+  @override
+  String get settingsRestoreReplaces =>
+      'Восстановление по фразе заменяет этот кошелёк: сначала он будет удалён, затем вводится фраза восстанавливаемого кошелька.';
 
   @override
   String get firstRunSecuring => 'Защищаем кошелёк…';

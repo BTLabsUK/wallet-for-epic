@@ -21,6 +21,7 @@ import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/language_flag.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
+import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
@@ -401,7 +402,7 @@ void main() {
     ) async {
       final h = _Harness(sealed: false, walletExists: false);
       await h.pump(tester);
-      await _tapText(tester, 'I already have a wallet: restore it');
+      await _tapText(tester, 'Restore from a phrase');
       await _enter(tester, 'Recovery phrase', h.service.phrase);
       await _tapText(tester, 'Start from a date or height');
       await _tapText(tester, 'Pick the date you created the wallet');
@@ -1146,6 +1147,147 @@ void main() {
       expect(h.session.lastStart, BigInt.one);
       expect(h.session.scanCalls, 2);
     });
+  });
+
+  // A tester on 26.10.16 never saw Restore: it was a link under the PIN field, and on a small
+  // phone the keyboard covered it, so the PIN made a new wallet. The first screen now asks
+  // Create or Restore before any field, Delete leads back to that choice, and Settings › Wallet
+  // restores through Delete's own warning and PIN.
+  group('restore is a first-class choice', () {
+    testWidgets(
+      'first run offers Create and Restore before the PIN, in view at 360×760 and text scale '
+      '1.3 with a keyboard-sized inset',
+      (tester) async {
+        final h = _Harness(sealed: false, walletExists: false);
+        tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await h.pump(tester);
+        // 360×760 dp; the lower 300 dp as a keyboard would take them.
+        tester.view.physicalSize = const Size(1080, 2280);
+        tester.view.viewInsets = const FakeViewPadding(bottom: 900);
+        await tester.pumpAndSettle();
+
+        expect(find.byType(FirstRunScreen), findsOneWidget);
+        expect(find.widgetWithText(TextField, 'PIN'), findsNothing);
+        final create = find.byKey(firstRunCreateKey);
+        final restore = find.byKey(firstRunRestoreKey);
+        expect(find.text('Create a new wallet'), findsOneWidget);
+        expect(find.text('Restore from a phrase'), findsOneWidget);
+        // Both whole buttons inside the part of the screen the keyboard leaves, unscrolled.
+        for (final button in [create, restore]) {
+          final rect = tester.getRect(button);
+          expect(rect.top, greaterThanOrEqualTo(0));
+          expect(rect.bottom, lessThanOrEqualTo(760 - 300), reason: 'under the keyboard');
+          expect(rect.left, greaterThanOrEqualTo(0));
+          expect(rect.right, lessThanOrEqualTo(360));
+        }
+        // Node and Epicbox stays on the first screen (as the icon at this text scale).
+        expect(find.byType(NetworkSettingsButton), findsOneWidget);
+
+        // Create leads to the PIN; Back returns to the choice; Restore leads to the phrase.
+        await tester.tap(create);
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        expect(create, findsOneWidget);
+        // The system's Back does the same, instead of leaving the app.
+        await tester.tap(create);
+        await tester.pumpAndSettle();
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(create, findsOneWidget);
+        expect(find.byType(FirstRunScreen), findsOneWidget);
+        await tester.tap(restore);
+        await tester.pumpAndSettle();
+        expect(find.byType(RestoreScreen), findsOneWidget);
+        expect(find.widgetWithText(TextField, 'Recovery phrase'), findsOneWidget);
+      },
+    );
+
+    testWidgets('after Delete the first screen offers Create and Restore', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.wallet);
+      await _tapText(tester, 'Delete this wallet');
+      await tester.tap(find.text('I have written down my recovery phrase'));
+      await _enter(tester, 'Type "delete" to confirm', 'delete');
+      await tester.tap(find.text('Delete wallet'));
+      await tester.pumpAndSettle();
+      await _enter(tester, 'PIN', _pin);
+
+      expect(h.service.deletedWallets, [_mainnetDir]);
+      expect(find.byType(FirstRunScreen), findsOneWidget);
+      expect(find.byKey(firstRunCreateKey), findsOneWidget);
+      expect(find.byKey(firstRunRestoreKey), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'PIN'), findsNothing);
+      await tester.tap(find.byKey(firstRunRestoreKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(RestoreScreen), findsOneWidget);
+    });
+
+    testWidgets(
+      'Settings › Wallet › Restore from a phrase goes through the delete warning and the PIN, '
+      'then opens the restore',
+      (tester) async {
+        final h = _Harness();
+        await h.pump(tester);
+        await h.unlock(tester);
+        await h.openSettings(tester, SettingsSection.wallet);
+        await _reveal(tester, find.byKey(settingsRestoreKey));
+        // Next to Delete, in the row's normal colour.
+        expect(find.text('Restore from a phrase'), findsOneWidget);
+        expect(find.text('Delete this wallet'), findsOneWidget);
+
+        await _tapText(tester, 'Restore from a phrase');
+        expect(find.byType(DeleteWalletDialog), findsOneWidget);
+        expect(
+          find.textContaining('Restoring from a phrase replaces this wallet'),
+          findsOneWidget,
+        );
+        // Keep wallet: nothing deleted, no restore.
+        await _tapText(tester, 'Keep wallet');
+        expect(h.service.deletedWallets, isEmpty);
+        expect(find.byType(RestoreScreen), findsNothing);
+
+        // The extra paragraph makes the dialog scroll on a 360 dp phone: the checkbox is
+        // scrolled into view first, as a user would.
+        final havePhrase = find.text('I have written down my recovery phrase');
+        await _tapText(tester, 'Restore from a phrase');
+        expect(find.byType(DeleteWalletDialog), findsOneWidget);
+        await tester.ensureVisible(havePhrase);
+        await tester.pumpAndSettle();
+        await tester.tap(havePhrase);
+        await _enter(tester, 'Type "delete" to confirm', 'delete');
+        await tester.tap(find.text('Delete wallet'));
+        await tester.pumpAndSettle();
+        // Cancelling the PIN keeps the wallet too.
+        await _tapText(tester, 'Cancel');
+        expect(h.service.deletedWallets, isEmpty);
+        expect(find.byType(RestoreScreen), findsNothing);
+
+        await _tapText(tester, 'Restore from a phrase');
+        await tester.ensureVisible(havePhrase);
+        await tester.pumpAndSettle();
+        await tester.tap(havePhrase);
+        await _enter(tester, 'Type "delete" to confirm', 'delete');
+        await tester.tap(find.text('Delete wallet'));
+        await tester.pumpAndSettle();
+        await _enter(tester, 'PIN', _pin);
+
+        expect(h.service.deletedWallets, [_mainnetDir]);
+        expect(h.store.values['wallet.mainnet.pinSealed'], isNull);
+        expect(find.byType(RestoreScreen), findsOneWidget);
+        expect(find.widgetWithText(TextField, 'Recovery phrase'), findsOneWidget);
+        expect(find.byType(FirstRunScreen), findsNothing);
+        // Back from the phrase goes to the launch screen, which offers the choice again.
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        expect(find.byType(FirstRunScreen), findsOneWidget);
+        expect(find.byKey(firstRunCreateKey), findsOneWidget);
+      },
+    );
   });
 
   group('delete while scanning', () {
@@ -1924,7 +2066,7 @@ void main() {
         // By its semantics label, as label or icon: network_settings_button_test.dart checks
         // which form shows, with the real faces.
         expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
-        await _tapText(tester, 'I already have a wallet: restore it');
+        await _tapText(tester, 'Restore from a phrase');
         expect(find.text('Where to start scanning'), findsNothing);
         expect(find.text('Pick the date you created the wallet'), findsNothing);
         expect(find.text('Block height'), findsNothing);
@@ -1946,7 +2088,7 @@ void main() {
       final h = _Harness(sealed: false, walletExists: false);
       await h.pump(tester);
       expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
-      await _tapText(tester, 'I already have a wallet: restore it');
+      await _tapText(tester, 'Restore from a phrase');
       expect(find.byKey(restoreStartLinkKey), findsOneWidget);
       expect(find.text('Start from a date or height'), findsOneWidget);
       expect(find.text('Where to start scanning'), findsNothing);

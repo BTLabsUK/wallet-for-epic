@@ -27,7 +27,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       ? '[[Ustawienia › Portfel › Eksportuj kopię historii|Settings › Wallet › Export history backup]]'
       : '[[Ustawienia › Ten portfel › Eksportuj kopię historii|Settings › This wallet › Export history backup]]';
   final restorePlace = phone
-      ? '**Mam już portfel: przywróć go** (na pierwszym ekranie lub po usunięciu tego portfela w [[Ustawienia › Portfel|Settings › Wallet]])'
+      ? '**Przywróć z frazy** (na pierwszym ekranie lub w [[Ustawienia › Portfel|Settings › Wallet]])'
       : '**Przywróć z frazy** (na pierwszym ekranie, w Odblokuj › Dodaj portfel lub w [[Ustawienia › Wszystkie portfele|Settings › All wallets]])';
   final recheckPlace = phone ? '[[Ustawienia › Portfel › Sprawdź saldo|Settings › Wallet › Recheck balance]]' : '[[Ustawienia › Sprawdź saldo|Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[Ustawienia › Bezpieczeństwo › Zabezpiecz frazę odzyskiwania|Settings › Security › Back up recovery phrase]]' : '[[Ustawienia › Fraza odzyskiwania|Settings › Recovery phrase]]';

@@ -2430,7 +2430,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get firstRunTitle => 'Witaj';
 
   @override
-  String get firstRunRestore => 'Mam już portfel: przywróć go';
+  String get firstRunCreate => 'Utwórz nowy portfel';
+
+  @override
+  String get firstRunRestore => 'Przywróć z frazy';
+
+  @override
+  String get settingsRestoreReplaces =>
+      'Przywrócenie z frazy zastępuje ten portfel: najpierw zostanie usunięty, potem wpisuje się frazę portfela do przywrócenia.';
 
   @override
   String get firstRunSecuring => 'Zabezpieczanie portfela…';

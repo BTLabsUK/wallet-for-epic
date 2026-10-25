@@ -47,7 +47,7 @@ import 'outputs_screen.dart';
 import 'pin.dart';
 import 'push_switch.dart';
 import 'restore_screen.dart'
-    show ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
+    show RestoreScreen, ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
 import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'settings_history.dart';
 import 'settings_invoices.dart';
@@ -424,7 +424,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     }
   }
 
-  Future<void> _deleteWallet() async {
+  /// Deletes this wallet after the warning dialog and the PIN, then starts over on the first
+  /// screen; with [thenRestore], on the restore from a phrase instead. The phone keeps one
+  /// wallet per network, so a restore replaces this wallet and takes the same safety as
+  /// Delete.
+  Future<void> _deleteWallet({bool thenRestore = false}) async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     // A scan writes to the wallet's files until it ends.
@@ -434,7 +438,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     }
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => const DeleteWalletDialog(),
+      builder: (_) => DeleteWalletDialog(restore: thenRestore),
     );
     if (confirmed != true || !mounted) return;
     final session = ref.read(sessionProvider);
@@ -470,8 +474,12 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           logWarn('delete', 'clearing shared files failed: $error');
         }
         if (!mounted) return;
+        // Restore's Back leads to the launch screen, as from the first screen.
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
+          MaterialPageRoute<void>(
+            builder: (_) =>
+                thenRestore ? const RestoreScreen() : const LaunchScreen(),
+          ),
           (_) => false,
         );
       } catch (error) {
@@ -740,6 +748,16 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           onTap: block == NetBlock.none ? _rescan : null,
         ),
       const Divider(height: 24),
+      // Restore from a phrase replaces this wallet (one per network), so it sits with Delete
+      // and goes through its warning and PIN. Help names this place.
+      if (!demo)
+        ListTile(
+          key: settingsRestoreKey,
+          leading: const Icon(Icons.restore),
+          title: Text(l.firstRunRestore),
+          enabled: !_busy,
+          onTap: () => _deleteWallet(thenRestore: true),
+        ),
       ListTile(
         leading: Icon(Icons.delete_forever, color: error),
         title: Text(
@@ -1585,11 +1603,17 @@ class _RescanDialogState extends State<_RescanDialog> {
   }
 }
 
+/// The Settings › Wallet › Restore from a phrase row, for tests.
+const Key settingsRestoreKey = ValueKey('settings-restore');
+
 /// A strong warning before deleting the wallet. Pops true only after the user typed the
 /// confirm word ([AppLocalizations.settingsDeleteConfirmWord]) and confirmed they have the
-/// recovery phrase.
+/// recovery phrase. With [restore] it opens with why a restore deletes first.
 class DeleteWalletDialog extends StatefulWidget {
-  const DeleteWalletDialog({super.key});
+  const DeleteWalletDialog({super.key, this.restore = false});
+
+  /// The delete is the first step of Restore from a phrase.
+  final bool restore;
 
   @override
   State<DeleteWalletDialog> createState() => _DeleteWalletDialogState();
@@ -1626,6 +1650,10 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (widget.restore) ...[
+              Text(l.settingsRestoreReplaces),
+              const SizedBox(height: 12),
+            ],
             Text(l.settingsDeleteBody),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,

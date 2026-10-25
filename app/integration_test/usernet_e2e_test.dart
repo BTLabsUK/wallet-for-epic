@@ -148,6 +148,10 @@ Future<void> _tapText(WidgetTester tester, String label) async {
 }
 
 Future<void> _pinSetup(WidgetTester tester) async {
+  // The first screen asks Create or Restore before the PIN; Restore has already chosen.
+  if (find.text('Create a new wallet').evaluate().isNotEmpty) {
+    await _tapText(tester, 'Create a new wallet');
+  }
   await _enter(tester, 'PIN', _pin);
   await _enter(tester, 'Repeat PIN', _pin);
 }
@@ -392,7 +396,7 @@ void main() {
       );
 
       // Restore from the phrase, scan, import the backup.
-      await _tapText(tester, 'I already have a wallet: restore it');
+      await _tapText(tester, 'Restore from a phrase');
       await _enter(tester, 'Recovery phrase', phrase);
       await _tapText(tester, 'Continue');
       await _pinSetup(tester);

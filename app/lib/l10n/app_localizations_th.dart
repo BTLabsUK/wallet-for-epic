@@ -2234,7 +2234,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get firstRunTitle => 'ยินดีต้อนรับ';
 
   @override
-  String get firstRunRestore => 'มีกระเป๋าเงินอยู่แล้ว: กู้คืน';
+  String get firstRunCreate => 'สร้างกระเป๋าเงินใหม่';
+
+  @override
+  String get firstRunRestore => 'กู้คืนจากวลีกู้คืน';
+
+  @override
+  String get settingsRestoreReplaces =>
+      'การกู้คืนจากวลีกู้คืนจะแทนที่กระเป๋าเงินนี้: กระเป๋าเงินนี้จะถูกลบก่อน แล้วจึงใส่วลีกู้คืนของกระเป๋าเงินที่ต้องการกู้คืน';
 
   @override
   String get firstRunSecuring => 'กำลังรักษาความปลอดภัยกระเป๋าเงิน…';

@@ -27,7 +27,7 @@ List<HelpTopic> helpTopicsRu(int confirmations, {required HelpPlatform platform,
       ? '[[Настройки › Кошелёк › Экспорт резервной копии истории|Settings › Wallet › Export history backup]]'
       : '[[Настройки › Этот кошелёк › Экспорт резервной копии истории|Settings › This wallet › Export history backup]]';
   final restorePlace = phone
-      ? '**У меня уже есть кошелёк: восстановить** (на первом экране или после удаления этого кошелька в [[Настройки › Кошелёк|Settings › Wallet]])'
+      ? '**Восстановить по фразе** (на первом экране или в [[Настройки › Кошелёк|Settings › Wallet]])'
       : '**Восстановить по фразе** (на первом экране, в «Разблокировка › Добавить кошелёк» или в [[Настройки › Все кошельки|Settings › All wallets]])';
   final recheckPlace = phone ? '[[Настройки › Кошелёк › Сверка баланса|Settings › Wallet › Recheck balance]]' : '[[Настройки › Сверка баланса|Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[Настройки › Безопасность › Сохранить фразу восстановления|Settings › Security › Back up recovery phrase]]' : '[[Настройки › Сид-фраза|Settings › Recovery phrase]]';

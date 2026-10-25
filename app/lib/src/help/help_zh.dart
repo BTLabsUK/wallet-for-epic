@@ -25,7 +25,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       ? '[[设置 › 钱包 › 导出交易记录备份|Settings › Wallet › Export history backup]]'
       : '[[设置 › 此钱包 › 导出交易记录备份|Settings › This wallet › Export history backup]]';
   final restorePlace = phone
-      ? '**我已有钱包：恢复钱包**（在首屏，或在[[设置 › 钱包|Settings › Wallet]]中删除此钱包之后）'
+      ? '**用助记词恢复**（在首屏或[[设置 › 钱包|Settings › Wallet]]中）'
       : '**用助记词恢复**（在首屏、“解锁 › 添加钱包”或[[设置 › 所有钱包|Settings › All wallets]]中）';
   final recheckPlace = phone ? '[[设置 › 钱包 › 重新核对余额|Settings › Wallet › Recheck balance]]' : '[[设置 › 重新核对余额|Settings › Recheck balance]]';
   final phrasePlace = phone ? '[[设置 › 安全 › 备份助记词|Settings › Security › Back up recovery phrase]]' : '[[设置 › 助记词|Settings › Recovery phrase]]';

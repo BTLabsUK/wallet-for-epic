@@ -241,6 +241,9 @@ class _Harness {
 
   /// Chooses and repeats the PIN on first run.
   Future<void> choosePin(WidgetTester tester) async {
+    // The first screen asks Create or Restore before the PIN.
+    await tester.tap(find.byKey(firstRunCreateKey));
+    await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextField, l.pinLabel), _pin);
     await tester.pumpAndSettle();
     await tester.enterText(
@@ -879,7 +882,7 @@ void main() {
     ) async {
       final h = _Harness(demo: false, wallet: false);
       await h.pump(tester);
-      expect(pinField(), findsOneWidget);
+      expect(find.byKey(firstRunCreateKey), findsOneWidget);
       expect(h.container.read(sessionProvider), isNull);
       await h.choosePin(tester);
       expect(find.text(l.pinBiometricsQuestion), findsOneWidget);
