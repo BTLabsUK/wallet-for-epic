@@ -22,13 +22,6 @@ import 'scan_result_sheet.dart';
 import 'scan_screen.dart' show offersQrPayment;
 import 'slate_file_screen.dart';
 
-/// Whether [text] starts like a code the router reads by its scheme (`epic:`, `epiccash:`,
-/// `ur:`) or is a transaction file's text, as opposed to plain text typed or pasted into a
-/// field.
-bool looksLikeCode(String text) =>
-    RegExp(r'^\s*(epic|epiccash|ur):', caseSensitive: false).hasMatch(text) ||
-    classifyScan(text, check: (_) => AddressVerdict.invalid) is SlateText;
-
 /// The methods on in Settings › Transactions, which pick the address a code or a contact
 /// fills in.
 PaymentPrefs sendPayments(WidgetRef ref) =>

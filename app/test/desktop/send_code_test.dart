@@ -223,6 +223,9 @@ void main() {
       'epic:notanaddress?amount=1': 'The address in this code is not valid.',
       'ur:epic-slate/1-3/lpadaxcsencylobemohsgmoyadtaadehoeadaeaoaeamtdaebs': 'A QR Payment code. Scan it with Epic Cash Mobile.',
       'epiccash://pair/1/AbCdEfGh123': 'Pairing is not available in this version.',
+      // LNX-2: a code refused as a whole says so at once.
+      'epic:$_annaAddress?amount=1&amount=2': 'This is not an Epic address or payment code.',
+      'epic:$_annaAddress?${List.generate(9, (i) => 'x$i=1').join('&')}': 'This is not an Epic address or payment code.',
     };
     for (final MapEntry(key: code, value: reason) in cases.entries) {
       await paste(tester, code);

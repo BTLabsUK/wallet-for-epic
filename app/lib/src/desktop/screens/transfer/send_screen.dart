@@ -618,6 +618,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         fieldError((l) => l.scanBadAddress);
       case UnknownCode(reason: UnknownReason.badAddress, text: final t):
         dialog(EIcons.qr, l.scanNotEpicTitle, l.scanBadAddress, t);
+      // An `epic:` code refused as a whole (a part twice, too many parts, too long) says so
+      // at once, not only at Review (LNX-2).
+      case UnknownCode() when pasted && looksLikeCode(text):
+        fieldError((l) => l.scanNotEpicBody);
       case UnknownCode() when pasted:
         return false;
       // A link never carries a QR Payment part: one is no Epic code there.

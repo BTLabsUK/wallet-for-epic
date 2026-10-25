@@ -182,6 +182,13 @@ final class UnknownCode extends ScannedCode {
   final UnknownReason reason;
 }
 
+/// Whether [text] starts like a code the router reads by its scheme (`epic:`, `epiccash:`,
+/// `ur:`) or is a transaction file's text, as opposed to plain text typed or pasted into a
+/// field.
+bool looksLikeCode(String text) =>
+    RegExp(r'^\s*(epic|epiccash|ur):', caseSensitive: false).hasMatch(text) ||
+    classifyScan(text, check: (_) => AddressVerdict.invalid) is SlateText;
+
 /// What [raw] is. Never throws; never reads more than [maxScanLength] characters of a line.
 ScannedCode classifyScan(String raw, {required AddressCheck check}) {
   try {
