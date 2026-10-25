@@ -110,8 +110,8 @@ void main() {
     expect(request.stage, SlateStage.request);
     expect(request.slateId, slate.slateId);
     expect(request.amount, BigInt.from(3) * _epic);
-    // ignore: avoid_print
-    print('request messages: ${[for (final m in request.messages) '${m.role.name}:${m.text}']}');
+    // The issuer's message is the receiver's; the screens clean it before they show it.
+    expect(messageBy(request.messages, SlateRole.receiver), contains('beans'));
 
     await expectLater(
       anna.payRequestFile(slateJson: slate.json, amount: BigInt.from(2) * _epic),
@@ -141,7 +141,10 @@ void main() {
     expect(posted.slateId, slate.slateId);
     final after = (await ben.issuedInvoices()).singleWhere((i) => i.slateId == slate.slateId);
     expect(after.state, IssuedInvoiceState.paid);
-    // The same answer again is refused.
-    await expectLater(ben.finalizeAndPost(slateJson: paid.json), throwsA(isA<WalletError>()));
+    // The same answer again pays nothing twice: LEPIC answers with the same transaction (the
+    // screens say "already paid" before they get here).
+    final again = await ben.finalizeAndPost(slateJson: paid.json);
+    expect(again.slateId, slate.slateId);
+    expect((await ben.issuedInvoices()).where((i) => i.slateId == slate.slateId).single.state, IssuedInvoiceState.paid);
   }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 }
