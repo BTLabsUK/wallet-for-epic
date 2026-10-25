@@ -47,8 +47,9 @@ void main() {
   LegacyRoots roots() => LegacyRoots(home: home, appData: '$home/.config');
 
   Future<LegacyWallet> walletAt(String path) async {
-    final scan = await findLegacyWallets(roots: roots());
-    return scan.wallets.firstWhere((w) => _p(w.path) == _p(path), orElse: () => throw StateError('no wallet at $path'));
+    // a GUI 6.1 folder is not searched: it is picked by hand, as the wizard's Choose a folder does
+    final all = [...(await findLegacyWallets(roots: roots())).wallets, ...(await inspectFolder(path)).wallets];
+    return all.firstWhere((w) => _p(w.path) == _p(path), orElse: () => throw StateError('no wallet at $path'));
   }
 
   Future<Map<String, String>> hashes(List<String> dirs) async => {for (final d in dirs) d: await folderHash(d)};
@@ -108,7 +109,7 @@ void main() {
 
     test('the app settings: locale and My nodes, cleaned as myNodes.js does', () async {
       final before = await hashes([home]);
-      final g = await readGuiGlobal(roots());
+      final g = await readGuiGlobal(await walletAt('$home/.epic-gui/wallets/w1'));
       expect(g.myNodes.keys, ['mainnet', 'floonet']);
       expect([for (final n in g.myNodes['mainnet']!) (n.address, n.label)], [
         ('https://node.example.com:3413', 'Home node'),
@@ -186,7 +187,7 @@ void main() {
     });
 
     test('no global settings without GUI 6.1', () async {
-      final g = await readGuiGlobal(roots());
+      final g = await readGuiGlobal(await walletAt('$home/.epic/alpha/main'));
       expect(g.myNodes, isEmpty);
     });
   });

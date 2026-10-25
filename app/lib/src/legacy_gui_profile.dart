@@ -105,10 +105,11 @@ class LegacyGuiImport {
   final List<String> notes;
 }
 
-/// Reads GUI 6.1's app-wide settings: "My nodes". Never throws.
-Future<LegacyGuiGlobal> readGuiGlobal(LegacyRoots roots) async {
+/// Reads GUI 6.1's app-wide settings, from the root [wallet] was picked in: "My nodes". Nothing
+/// without such a root. Never throws.
+Future<LegacyGuiGlobal> readGuiGlobal(LegacyWallet wallet) async {
   final notes = <String>[];
-  for (final root in await legacyGuiRoots(roots)) {
+  for (final root in [?guiRootOfWallet(wallet.path)]) {
     final s = await _readJson(_join(root, 'settings.json'), notes);
     if (s == null) continue;
     return LegacyGuiGlobal(myNodes: _myNodes(s['myNodes']), notes: notes);
@@ -147,7 +148,7 @@ Map<String, List<LegacyNode>> _myNodes(Object? raw) {
 Future<LegacyGuiImport> readGuiImport(LegacyRoots roots, LegacyWallet wallet, {Directory? scratch}) async {
   final notes = <String>[];
   try {
-    for (final root in await legacyGuiRoots(roots)) {
+    for (final root in [?guiRootOfWallet(wallet.path)]) {
       final s = await _readJson(_join(root, 'settings.json'), notes);
       final list = s?['wallets'];
       if (list is! List) continue;

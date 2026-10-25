@@ -74,16 +74,18 @@ void main() {
     secrets = MemorySecretStore();
     service = _Counting();
     picked = null;
-    // A GUI root with two accounts, and the epic program's mainnet and floonet wallets.
-    final gui = '$home/.epic-gui';
-    final a = await oldWallet('$gui/wallets/w1', '{"seed":"alpha"}');
-    final b = await oldWallet('$gui/wallets/w2', '{"seed":"beta"}');
-    await write('$gui/settings.json', jsonEncode({
-      'wallets': [
-        {'id': 'w1', 'label': 'Savings', 'network': 'mainnet', 'dataDir': a},
-        {'id': 'w2', 'label': 'Everyday', 'network': 'mainnet', 'dataDir': b},
+    // Two accounts of the public GUI (the account list in ~/.epic), and the epic program's mainnet
+    // and floonet wallets. A GUI 6.1 folder is not searched (see the pick test).
+    await oldWallet('$home/acc-a/main', '{"seed":"alpha"}');
+    await oldWallet('$home/acc-b/main', '{"seed":"beta"}');
+    await write('$home/.epic/epic_3-0-0_config.json', jsonEncode({
+      'account_dirs': [
+        {'account': 'Savings', 'userhomedir': '$home/acc-a', 'network': 'mainnet'},
+        {'account': 'Everyday', 'userhomedir': '$home/acc-b', 'network': 'mainnet'},
       ],
     }));
+    final gui = '$home/.epic-gui';
+    await oldWallet('$gui/wallets/w9', '{"seed":"gui61"}');
     await oldWallet('$home/.epic/main', '{"seed":"alpha"}');
     await oldWallet('$home/.epic/floo', '{"seed":"floo"}');
     wallet = make();
@@ -102,6 +104,7 @@ void main() {
   test('finds the GUI and epic program wallets; floonet is listed but blocked; a copy is marked', () async {
     final found = await wallet.findOldWallets();
     expect(found.map((w) => w.name), containsAll(['Savings', 'Everyday', 'Wallet (epic program)']));
+    expect(found.any((w) => w.folder.contains('.epic-gui')), isFalse, reason: 'GUI 6.1 folder is not searched');
     final floo = found.firstWhere((w) => w.network == 'floonet');
     expect(floo.importable, isFalse);
     expect(floo.blocked, contains('Only mainnet'));
@@ -111,6 +114,13 @@ void main() {
     expect(cli.group, OldWalletGroup.cli);
     expect(cli.sameAs, 'Same wallet as Savings');
     expect(cli.inApp, isFalse);
+  });
+
+  test('a GUI 6.1 folder picked by hand is listed', () async {
+    picked = '$home/.epic-gui';
+    final pick = (await wallet.pickFolder())!;
+    expect(pick.wallets.single.group, OldWalletGroup.picked);
+    expect(pick.wallets.single.folder, '$home/.epic-gui/wallets/w9');
   });
 
   test('the old history is imported with the seed and shown in the proof', () async {
@@ -309,9 +319,17 @@ void main() {
     const box = 'epicbox.example.org';
     const listKey = 'desk.serverList.relay.mainnet';
 
+    /// Savings, picked by hand: a GUI 6.1 folder is not searched.
+    Future<OldWallet> savings() async {
+      picked = '$home/.epic-gui';
+      return (await wallet.pickFolder())!.wallets.firstWhere((w) => w.folder.endsWith('/w1'));
+    }
+
     /// Savings used [box] in GUI 6.1.
     Future<void> savingsOnBox() async {
       final gui = '$home/.epic-gui';
+      await oldWallet('$gui/wallets/w1', '{"seed":"alpha"}');
+      await oldWallet('$gui/wallets/w2', '{"seed":"beta"}');
       await write('$gui/settings.json', jsonEncode({
         'wallets': [
           {'id': 'w1', 'label': 'Savings', 'network': 'mainnet', 'dataDir': '$gui/wallets/w1', 'settings': {'epicbox_domain': box}},
@@ -325,7 +343,7 @@ void main() {
 
     test('kept from the import: the wallet listens there, the list has it, the app\'s server stays', () async {
       await savingsOnBox();
-      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      final r = await wallet.importOldWallet((await savings()).id, oldPassword: _old);
       expect(r.oldRelay, box);
       expect(r.appRelay, isNot(box));
       expect(r.proof.map((p) => p.text), isNot(contains(contains('Epicbox'))), reason: 'the choice replaces the proof line');
@@ -341,7 +359,7 @@ void main() {
 
     test('Use the app\'s server: back on it, the list entry the import added goes again', () async {
       await savingsOnBox();
-      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      final r = await wallet.importOldWallet((await savings()).id, oldPassword: _old);
       await wallet.keepOldRelay(r.id, keep: false);
       expect(meta(r.id)['epicbox'], isNull);
       expect(listed(), isNot(contains(box)));
@@ -357,14 +375,14 @@ void main() {
     test('a server listed before stays listed when the wallet goes back to the app\'s', () async {
       await savingsOnBox();
       await secrets.write(listKey, jsonEncode({'entries': ['epicbox.epiccash.com', box]}));
-      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      final r = await wallet.importOldWallet((await savings()).id, oldPassword: _old);
       await wallet.keepOldRelay(r.id, keep: false);
       expect(listed(), contains(box));
     });
 
     test('a Settings pick while the wallet is open is its own; the app\'s server stays', () async {
       await savingsOnBox();
-      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      final r = await wallet.importOldWallet((await savings()).id, oldPassword: _old);
       expect(await wallet.unlock(_old), isTrue);
       await wallet.useEpicbox('epicbox.other.example');
       expect(meta(r.id)['epicbox'], 'epicbox.other.example');
@@ -374,13 +392,14 @@ void main() {
 
     test('Cancel takes the server it listed back out', () async {
       await savingsOnBox();
-      await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      await wallet.importOldWallet((await savings()).id, oldPassword: _old);
       await wallet.cancelImport();
       expect(listed(), isNot(contains(box)));
     });
 
     test('the same server as the app\'s: no choice', () async {
-      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      await oldWallet('$home/.epic-gui/wallets/w1', '{"seed":"alpha"}');
+      final r = await wallet.importOldWallet((await savings()).id, oldPassword: _old);
       expect(r.oldRelay, isNull);
       expect(meta(r.id)['epicbox'], isNull);
     });

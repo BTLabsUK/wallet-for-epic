@@ -1694,7 +1694,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // What the older app kept beside the wallet: its name, contacts, node, Epicbox server.
     // Read only.
     final profile = await gui.readGuiImport(_legacyRoots(), w);
-    final global = await gui.readGuiGlobal(_legacyRoots());
+    final global = await gui.readGuiGlobal(w);
     final name = _importName(profile.label ?? w.displayLabel);
     String? walletFp;
     core.LegacyHistoryImport? history;

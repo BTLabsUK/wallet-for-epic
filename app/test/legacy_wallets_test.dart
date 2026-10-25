@@ -46,38 +46,26 @@ void main() {
     }
   }
 
-  test('GUI root with two wallets: labels, networks, sizes, fingerprints', () async {
+  test('GUI 6.1 root is not searched; picked by hand its wallets are listed', () async {
     final root = '$home/.epic-gui';
     final a = await wallet('$root/wallets/w1', seed: 'alpha');
-    final b = await wallet('$root/wallets/w2', seed: 'beta', chainType: 'Floonet');
+    await wallet('$root/wallets/w2', seed: 'beta', chainType: 'Floonet');
     await write('$root/settings.json', jsonEncode({
       'wallets': [
         {'id': 'w1', 'label': 'Savings', 'network': 'mainnet', 'dataDir': a},
-        {'id': 'w2', 'label': 'Testing', 'network': 'floonet', 'dataDir': b},
       ],
     }));
+    await write('$root/location.json', jsonEncode({'root': root}));
     final before = await hashes([root]);
-    final seen = <ScanProgress>[];
-    final scan = await findLegacyWallets(roots: roots(), progress: seen.add);
+    final scan = await findLegacyWallets(roots: LegacyRoots(home: home, appData: '${tmp.path}/appdata', guiHome: root));
+    expect(scan.wallets, isEmpty);
 
-    expect(scan.wallets.map((w) => w.label), ['Savings', 'Testing']);
-    final s = scan.wallets[0], t = scan.wallets[1];
-    expect(s.source, LegacySource.gui);
-    expect(s.network, LegacyNetwork.main);
-    expect(s.network.tag, isNull);
-    expect(t.network, LegacyNetwork.floo);
-    expect(t.network.tag, 'Floonet');
-    expect(_p(s.seedPath), _p('$a/wallet_data/wallet.seed'));
-    expect(s.sizeBytes, 'alpha'.length + 'db-alpha'.length);
-    expect(s.lastUsed, isNotNull);
-    expect(s.contacts, isNull);
-    expect(s.seedFingerprint, hasLength(64));
-    expect(s.seedFingerprint, isNot(t.seedFingerprint));
-    expect(s.legacyDb, isFalse);
-    expect(s.copyable, isTrue);
-    expect(scan.groups.keys, [LegacySource.gui]);
-    expect(seen, isNotEmpty);
-    expect(seen.last.found, 2);
+    final pick = await inspectFolder(root);
+    expect(pick.wallets.map((w) => _p(w.path).split('/').last).toSet(), {'w1', 'w2'});
+    expect(pick.wallets.every((w) => w.source == LegacySource.picked), isTrue);
+    expect(pick.wallets.firstWhere((w) => _p(w.path).split('/').last == 'w2').network, LegacyNetwork.floo);
+    expect(guiRootOfWallet(a), root);
+    expect(guiRootOfWallet('$home/folders/one'), isNull);
     await expectUnchanged(before);
   });
 
@@ -127,19 +115,14 @@ void main() {
   });
 
   test('network falls back to the toml, then to mainnet (unknown)', () async {
-    final root = '$home/.epic-gui';
-    final a = await wallet('$home/folders/one', chainType: 'UserTesting');
-    final b = await wallet('$home/folders/two');
-    await write('$root/settings.json', jsonEncode({
-      'wallets': [
-        {'label': 'One', 'dataDir': a},
-        {'label': 'Two', 'dataDir': b},
-      ],
-    }));
-    final scan = await findLegacyWallets(roots: roots());
-    expect(scan.wallets[0].network, LegacyNetwork.user);
-    expect(scan.wallets[0].networkKnown, isTrue);
-    expect(scan.wallets[1].networkKnown, isFalse);
+    await wallet('$home/folders/one', chainType: 'UserTesting');
+    await wallet('$home/folders/two');
+    final scan = await inspectFolder('$home/folders');
+    final one = scan.wallets.firstWhere((w) => w.path.endsWith('one'));
+    final two = scan.wallets.firstWhere((w) => w.path.endsWith('two'));
+    expect(one.network, LegacyNetwork.user);
+    expect(one.networkKnown, isTrue);
+    expect(two.networkKnown, isFalse);
   });
 
   test('chain data: next to a wallet and alone', () async {
@@ -266,13 +249,12 @@ void main() {
   test('identical seed files are the same wallet; the app list wins', () async {
     final epic = '$home/.epic';
     await wallet('$epic/main', seed: 'same');
-    await wallet('$home/copy/Backup', seed: 'same');
-    await wallet('$home/other/Else', seed: 'different');
-    final root = '$home/.epic-gui';
-    await write('$root/settings.json', jsonEncode({
-      'wallets': [
-        {'label': 'Backup', 'dataDir': '$home/copy/Backup'},
-        {'label': 'Else', 'dataDir': '$home/other/Else'},
+    await wallet('$home/copy/main', seed: 'same');
+    await wallet('$home/other/main', seed: 'different');
+    await write('$epic/epic_3-0-0_config.json', jsonEncode({
+      'account_dirs': [
+        {'account': 'Backup', 'userhomedir': '$home/copy', 'network': 'mainnet'},
+        {'account': 'Else', 'userhomedir': '$home/other', 'network': 'mainnet'},
       ],
     }));
     final before = await hashes([home]);

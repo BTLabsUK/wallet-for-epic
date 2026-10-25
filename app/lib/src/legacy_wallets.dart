@@ -5,8 +5,8 @@
 /// Where wallets are (ported from the GUI 6.1.6 rules, legacyScan.js and walletFolder.js):
 ///
 /// ```text
-///     <home>/.epic-gui              GUI 6.1: settings.json {wallets: [{label, network, dataDir}]},
-///                                   location.json {root}, wallets/<id>
+///     <home>/.epic-gui              GUI 6.1 (never public): not searched; a folder picked by hand
+///                                   is read (settings.json {wallets: [...]}, wallets/<id>)
 ///     <home>/.epic/epic_3-0-0_config.json account_dirs [{account, userhomedir, network}]
 ///     <home>/.epic/<main|floo|user>                       the epic program's, and GUIs 4.x-6.x
 ///     <home>/.epic/<account>/<net>, <home>/.epic/<net>/<account>   older GUI layouts
@@ -364,20 +364,13 @@ class _Scanner {
   Future<void> run() async {
     _epicDirs = {for (final h in roots._homes) _join(h, '.epic')};
 
-    // 1. GUI 6.1: settings.json says where each wallet is and what it is called.
-    for (final root in await _guiRoots()) {
-      await _readGuiSettings(root);
-      for (final d in await _subdirs(_join(root, 'wallets'))) {
-        await _consider(d, source: LegacySource.gui);
-      }
-    }
-    // 2. The older GUIs' account list: the account name and network are what the user knew it by.
+    // 1. The older GUIs' account list: the account name and network are what the user knew it by.
     for (final epic in _epicDirs) {
       for (final e in await _accountDirs(_join(epic, 'epic_3-0-0_config.json'))) {
         await _fromAccountEntry(e);
       }
     }
-    // 3. The folders in ~/.epic, for wallets the list lost or never had.
+    // 2. The folders in ~/.epic, for wallets the list lost or never had.
     for (final epic in _epicDirs) {
       for (final sub in await _subdirs(epic)) {
         final name = _base(sub);
@@ -392,40 +385,18 @@ class _Scanner {
           }
         }
       }
-      // 4. The CLI's chain data without a wallet next to it.
+      // 3. The CLI's chain data without a wallet next to it.
       for (final n in LegacyNetwork.values) {
         await _addChain(_join(epic, n.folder, 'chain_data'), n);
       }
     }
-    // 5. Older Electron profiles.
+    // 4. Older Electron profiles.
     final data = roots.appData;
     if (data != null) {
       for (final (app, name) in const [('≤5.3.1', 'EpicWallet'), ('6.0+', 'epic-desktop-wallet')]) {
         final p = _join(data, name);
         if (await _isDir(_join(p, 'IndexedDB'))) profiles.add(LegacyProfile(app: app, path: p));
       }
-    }
-  }
-
-  Future<List<String>> _guiRoots() => legacyGuiRoots(roots);
-
-  Future<void> _readGuiSettings(String root) async {
-    Object? j;
-    try {
-      j = jsonDecode(await File(_join(root, 'settings.json')).readAsString());
-    } catch (_) {
-      return;
-    }
-    final list = j is Map && j['wallets'] is List ? j['wallets'] as List : const [];
-    for (final w in list) {
-      if (w is! Map) continue;
-      final dir = w['dataDir'];
-      if (dir is! String || !_isAbs(dir)) continue;
-      final label = w['label'];
-      await _consider(dir,
-          source: LegacySource.gui,
-          label: label is String && label.trim().isNotEmpty ? label.trim() : null,
-          network: LegacyNetwork.fromGui(w['network'] as String?));
     }
   }
 
@@ -567,23 +538,13 @@ class _Scanner {
   }
 }
 
-/// GUI 6.1's root folders, first match first: EPIC_GUI_HOME, location.json's root, ~/.epic-gui.
-Future<List<String>> legacyGuiRoots(LegacyRoots roots) async {
-  final out = <String>[];
-  void add(String? p) {
-    if (p != null && p.isNotEmpty && !out.contains(p)) out.add(p);
-  }
-
-  add(roots.guiHome);
-  for (final h in roots._homes) {
-    final def = _join(h, '.epic-gui');
-    try {
-      final j = jsonDecode(await File(_join(def, 'location.json')).readAsString());
-      if (j is Map && j['root'] is String && _isAbs(j['root'] as String)) add(j['root'] as String);
-    } catch (_) {/* no location file: the default */}
-    add(def);
-  }
-  return out;
+/// The GUI 6.1 root a wallet folder sits in (`<root>/wallets/<id>`), or null. Nothing is searched:
+/// only the folder the user picked, so a GUI 6.1 folder is read when they choose it.
+String? guiRootOfWallet(String walletPath) {
+  final parent = _dirname(walletPath);
+  if (_base(parent) != 'wallets') return null;
+  final root = _dirname(parent);
+  return root == parent ? null : root;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -619,7 +580,8 @@ Future<FolderPick> inspectFolder(String path) async {
       final name = _base(child);
       if (await isWallet(child)) await add(child);
       for (final grand in await subs(child)) {
-        if ((LegacyNetwork.fromFolder(name) != null || LegacyNetwork.fromFolder(_base(grand)) != null) && await isWallet(grand)) {
+        // GUI 6.1's root: its wallets/<id>
+        if ((name == 'wallets' || LegacyNetwork.fromFolder(name) != null || LegacyNetwork.fromFolder(_base(grand)) != null) && await isWallet(grand)) {
           await add(grand);
         }
       }
