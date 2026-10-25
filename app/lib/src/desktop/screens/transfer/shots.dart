@@ -26,7 +26,8 @@ final List<DeskShot> transferShots = [
   const DeskShot(id: '13d-send-epicbox-down', title: 'Send, Epicbox down', route: DeskRoute.send, arg: SendArgs(epicboxHealth: ServiceHealth.down)),
   const DeskShot(id: '13e-send-privacy', title: 'Send, privacy open', route: DeskRoute.send, arg: SendArgs(privacyOpen: true, recipient: _anna, amount: '12.5')),
   const DeskShot(id: '13f-send-suggestions', title: 'Send, matching contacts', route: DeskRoute.send, arg: SendArgs(recipient: 'an', suggest: true)),
-  const DeskShot(id: '13g-send-http', title: 'Send, HTTP', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: 'http://10.0.1.24:3415', amount: '5')),
+  DeskShot(id: '13g-send-http', title: 'Send, Link · HTTP', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: 'http://10.0.1.24:3415', amount: '5'), prepare: (c, _) => _linkOn(c)),
+  DeskShot(id: '13u-send-http-off', title: 'Send, Link · HTTP off, a contact with only that address', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: 'http://10.0.1.24:3415', amount: '5'), prepare: (c, _) => _linkOff(c)),
   const DeskShot(id: '13j-send-summary', title: 'Send, summary with what stays spendable', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '25'), height: 900),
   const DeskShot(id: '13k-send-advanced', title: 'Send, Advanced open', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '25', advancedOpen: true), height: 1000),
   const DeskShot(
@@ -40,8 +41,8 @@ final List<DeskShot> transferShots = [
   const DeskShot(id: '13h-send-tor-off', title: 'Send, onion with Tor off', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '5')),
   const DeskShot(id: '13o-send-tor-starting', title: 'Send, Tor starting', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', tor: TorState.starting)),
   const DeskShot(id: '13p-send-tor-failed', title: 'Send, Tor not connected', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '5', tor: TorState.failed)),
-  const DeskShot(id: '13q-send-http-tor-on', title: 'Send, Direct http with Tor on', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: 'https://pay.example.org:3415', amount: '5', tor: TorState.on)),
-  const DeskShot(id: '13r-send-onion-tor-on', title: 'Send, Direct onion over Tor', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '5', tor: TorState.on)),
+  DeskShot(id: '13q-send-http-tor-on', title: 'Send, Link · HTTP with Tor on', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: 'https://pay.example.org:3415', amount: '5', tor: TorState.on), prepare: (c, _) => _linkOn(c)),
+  DeskShot(id: '13r-send-onion-tor-on', title: 'Send, Link · Tor over Tor', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: _onion, amount: '5', tor: TorState.on), prepare: (c, _) => _linkOn(c)),
   const DeskShot(
     id: '13i-send-switched',
     title: 'Send, Direct set by a pasted onion',
@@ -117,6 +118,19 @@ final List<DeskShot> transferShots = [
   const DeskShot(id: '20c-finalize-error', title: 'Finalize, not posted', route: DeskRoute.finalize, arg: FinalizeArgs(error: FinalizeError.notPosted)),
   DeskShot(id: '36-dlg-contact-picker', title: 'Choose contact', route: DeskRoute.send, dialog: showContactPickerDialog),
 ];
+
+/// Both Link methods on (Settings › Transactions) for a shot of a Link send; [_linkOff] back.
+Future<void> _linkOn(ProviderContainer c) async {
+  final n = c.read(deskProvider.notifier);
+  final s = c.read(deskProvider).settings;
+  await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkHttp: true, linkTor: true)));
+}
+
+Future<void> _linkOff(ProviderContainer c) async {
+  final n = c.read(deskProvider.notifier);
+  final s = c.read(deskProvider).settings;
+  await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkHttp: false, linkTor: false)));
+}
 
 /// Turns the Epicbox switch off for a shot.
 Future<void> _epicboxOff(ProviderContainer c) async {

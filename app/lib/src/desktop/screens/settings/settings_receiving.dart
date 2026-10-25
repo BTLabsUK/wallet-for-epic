@@ -68,13 +68,11 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       if (arg == ReceivingDemo.httpOn || arg == ReceivingDemo.httpFailed || arg == ReceivingDemo.httpPublic) await n.setHttp(true);
       if (arg == ReceivingDemo.httpPublic && !s.publicMode) await n.saveSettings(ref.read(deskProvider).settings.copyWith(publicMode: true));
       if (arg == ReceivingDemo.directOn || arg == ReceivingDemo.sendOptions) {
-        final now = ref.read(deskProvider).settings;
-        await n.saveSettings(
-          now.copyWith(
-            payments: now.payments.copyWith(linkHttp: true),
-            advanced: arg == ReceivingDemo.sendOptions ? now.advanced.withFeature(AdvancedFeature.sendOptions, true) : null,
-          ),
-        );
+        await n.setHttp(true);
+        if (arg == ReceivingDemo.sendOptions) {
+          final now = ref.read(deskProvider).settings;
+          await n.saveSettings(now.copyWith(advanced: now.advanced.withFeature(AdvancedFeature.sendOptions, true)));
+        }
       }
     });
   }
@@ -343,7 +341,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final ts = context.ts;
     return Padding(
       key: ValueKey('st-family-${f.name}'),
-      padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x3, Sp.x5, 0),
+      padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, 0),
       child: Row(
         children: [
           Icon(MethodIcons.family(f), size: 16.u, color: c.dim),
@@ -362,24 +360,25 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   ];
 
   /// Send starts on names Link once for the family (the address picks HTTP or Tor), the
-  /// others by their full name.
+  /// others by their short name (a segment is a tight place).
   String _startName(AppLocalizations l, MethodKind m) => switch (m) {
-    MethodKind.linkHttp || MethodKind.linkTor => l.methodDirect,
-    _ => MethodIcons.fullName(l, m),
+    MethodKind.linkHttp || MethodKind.linkTor => MethodIcons.familyName(l, MethodFamily.link),
+    _ => MethodIcons.shortName(l, m),
   };
 
   /// Payment methods: one switch per method, grouped by family. Epicbox is its own family, so
-  /// its row stands alone; Link and Direct get a subhead over their methods.
+  /// its row stands alone; Link and Direct get a subhead on their first method's row.
   Widget _methodsGroup(PaymentPrefs p, DeskSettings s) {
     final l = context.l10n;
     return ESetGroup(
       title: l.deskSetTxMethods,
       rows: [
         for (final f in MethodFamily.values)
-          if (_familyMethods(f).isNotEmpty) ...[
-            if (f != MethodFamily.epicbox) _familyRow(f),
-            for (final m in _familyMethods(f)) _methodRow(m, p, s),
-          ],
+          for (final (i, m) in _familyMethods(f).indexed)
+            if (i == 0 && f != MethodFamily.epicbox)
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_familyRow(f), _methodRow(m, p, s)])
+            else
+              _methodRow(m, p, s),
       ],
     );
   }
