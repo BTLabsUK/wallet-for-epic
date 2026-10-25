@@ -615,7 +615,9 @@ class ScanNotifier extends Notifier<ScanState> {
     }
     _stopping = false;
     state = const ScanState(running: true);
-    logInfo('scan', 'started from ${startHeight ?? 'the last scanned block'}');
+    // No start height: the core starts at block 0 while the restore is unfinished, otherwise
+    // shortly before the last scanned block.
+    logInfo('scan', 'started from ${startHeight ?? 'the core\'s default (block 0 while the restore is unfinished)'}');
     // The core ends every scan with a `finished` event; on failure its message starts with
     // "Scan failed:" and the stream then closes with the error as well, which wins.
     Object? failure;

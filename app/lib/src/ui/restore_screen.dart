@@ -368,6 +368,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       ],
       TextField(
         controller: _phrase,
+        // A phrase error is about the words as they were: an edit takes it away.
+        onChanged: (_) {
+          if (_error != null) setState(() => _error = null);
+        },
         minLines: 3,
         maxLines: 5,
         autocorrect: false,
