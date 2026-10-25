@@ -691,6 +691,10 @@ String torStatusLine(AppLocalizations l, ServiceStatus s) {
 /// New wallet passwords must have at least this many characters (LEPIC refuses shorter ones).
 const int minPasswordLength = 8;
 
+/// Whether [password] is long enough for a new wallet: counted in characters (runes), as the
+/// core counts them, so four emoji are four characters, not eight (R26).
+bool passwordLongEnough(String password) => password.runes.length >= minPasswordLength;
+
 /// One step of a rescan: the core's message and, when it gives one, the percentage.
 /// [finished] is set on the last step of a scan that ran to its end (not on a stopped one),
 /// with what it found in [counts] when the core reports them.

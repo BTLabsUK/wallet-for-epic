@@ -100,7 +100,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     super.dispose();
   }
 
-  bool get _accountOk => _password.text.length >= 8 && _password.text == _confirm.text && _fromHeightOk;
+  bool get _accountOk => passwordLongEnough(_password.text) && _password.text == _confirm.text && _fromHeightOk;
 
   /// The typed start height: null when empty or not a number.
   BigInt? get _startHeight => _fromOpen ? BigInt.tryParse(_fromHeight.text.trim()) : null;
