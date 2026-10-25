@@ -675,6 +675,10 @@ class RemoteWalletSession implements WalletSession {
       _call(SessionMember.epicboxAddress, stringWire);
 
   @override
+  Future<bool> restoreScanRequired() =>
+      _call(SessionMember.restoreScanRequired, boolWire);
+
+  @override
   Future<FeeEstimate> estimateFee({
     required BigInt amount,
     required BigInt minimumConfirmations,

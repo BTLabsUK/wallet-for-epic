@@ -137,6 +137,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable ? l.deskErrSendUnbuildable : detail == core.nothingToConsolidate ? l.deskErrNothingToConsolidate : detail.isEmpty ? l.deskErrNotAccepted : l.deskErrNotAcceptedDetail(detail),
     core.WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
     core.WalletErrorKind.pairingFailed => pairingFailureText(l, core.pairingFailureOf(error) ?? core.PairingFailure.invalid),
+    core.WalletErrorKind.restoreScanRequired => detail.isEmpty ? l.deskErrSomethingWrong : detail,
     core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
   };
 }

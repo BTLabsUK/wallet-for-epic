@@ -31,6 +31,7 @@ enum SessionMember {
   releaseStuckSend,
   createSendSlate,
   epicboxAddress,
+  restoreScanRequired,
   estimateFee,
   finalizeAndPost,
   sendEpicbox,

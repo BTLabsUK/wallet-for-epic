@@ -1849,6 +1849,11 @@ enum WalletErrorKind {
   /// cancelled instead of finished: nothing was sent and the funds are unlocked.
   paymentExpired,
 
+  /// The wallet was rebuilt from its phrase (a restore, or a damaged database) and the scan
+  /// from block 0 has not finished yet: no new output key is handed out, so receiving, sending
+  /// and invoices are refused until it does. A scan with no start height finishes it.
+  restoreScanRequired,
+
   /// The wallet database was damaged; the core set it aside. Opening the wallet again rebuilds
   /// it, then a scan brings the funds back. History, labels and messages are not in the new one.
   damagedDatabase,
