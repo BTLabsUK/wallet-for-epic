@@ -14,10 +14,11 @@ import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
 import '../../ui/notices.dart' show NoticeLevel;
 import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
-import '../../models.dart' show PairingCollectTrigger;
+import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
 import '../data/pairing_state.dart' show deskKeysBackProvider, deskPairingApiProvider, deskPairingEventsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
+import '../screens/pairing/pair_screens.dart' show showDeskCheckWords;
 import '../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
 import '../screens/settings/prefs.dart';
@@ -165,12 +166,22 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       final e = next.value;
       final n = e == null ? null : pairingNoticeOf(context.l10n, e);
       if (n == null || !mounted || pairingEventOnScreen(e!)) return;
-      showEToast(context, n.text, tone: switch (n.level) {
-        NoticeLevel.success => ETone.ok,
-        NoticeLevel.info => ETone.info,
-        NoticeLevel.warning => ETone.warn,
-        NoticeLevel.error => ETone.risk,
-      });
+      final id = e.pairingId;
+      // An answer to an invite, on any screen: the toast opens the words check (PAIR-LNX-16).
+      final check = (e.kind == PairingEventKind.replied || e.kind == PairingEventKind.confirmed) && id != null
+          ? (label: context.l10n.noticeCheckWords, run: () => unawaited(showDeskCheckWords(context, ref, id)))
+          : null;
+      showEToast(
+        context,
+        n.text,
+        tone: switch (n.level) {
+          NoticeLevel.success => ETone.ok,
+          NoticeLevel.info => ETone.info,
+          NoticeLevel.warning => ETone.warn,
+          NoticeLevel.error => ETone.risk,
+        },
+        action: check,
+      );
     });
     // Node failover moved the wallet to another node for this session: said wherever the
     // user is, never asked.

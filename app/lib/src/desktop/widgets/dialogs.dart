@@ -257,7 +257,8 @@ class EDrawer extends StatelessWidget {
 /// A toast at the bottom right: icon, title, one line. Use [showEToast]. [tone] has no default,
 /// so a failure never borrows the success tick: [ETone.risk] for errors, [ETone.warn] for refusals
 /// and cautions, [ETone.ok] or [ETone.gold] for done, [ETone.info] or [ETone.neutral] for notes.
-void showEToast(BuildContext context, String title, {String? text, required ETone tone}) {
+/// [action] is the next step (a button that closes the toast first); it stays longer.
+void showEToast(BuildContext context, String title, {String? text, required ETone tone, ({String label, VoidCallback run})? action}) {
   final c = context.dc;
   final messenger = ScaffoldMessenger.maybeOf(context);
   if (messenger == null) return;
@@ -275,7 +276,7 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
       width: 380.u,
       backgroundColor: c.s4,
       elevation: 6,
-      duration: const Duration(seconds: 4),
+      duration: Duration(seconds: action == null ? 4 : 10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rad.sm),
         side: BorderSide(color: c.lineStrong),
@@ -310,6 +311,17 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
               ],
             ),
           ),
+          if (action != null) ...[
+            SizedBox(width: Sp.x3),
+            EButton(
+              label: action.label,
+              size: EBtnSize.sm,
+              onPressed: () {
+                messenger.hideCurrentSnackBar();
+                action.run();
+              },
+            ),
+          ],
         ],
       ),
     ),
