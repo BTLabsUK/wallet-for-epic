@@ -14996,4 +14996,57 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSendToQrPayment =>
       'Ein QR-Zahlungscode. Scannen Sie ihn mit Epic Cash Mobile.';
+
+  @override
+  String deskErrProofContactsMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Kontakte mit vorhandenen zusammengeführt',
+      one: '1 Kontakt mit einem vorhandenen zusammengeführt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsKnown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Kontakte waren schon gespeichert',
+      one: '1 Kontakt war schon gespeichert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Kontakte übersprungen: keine gültige Adresse',
+      one: '1 Kontakt übersprungen: keine gültige Adresse',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactAddressesLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count Adressen nicht hinzugefügt: Konflikt mit gespeicherten Kontakten',
+      one: '1 Adresse nicht hinzugefügt: Konflikt mit einem gespeicherten Kontakt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrProofContactsUnreadable =>
+      'Einige alte Kontakte waren nicht lesbar: Das alte Adressbuch ist beschädigt';
+
+  @override
+  String get deskErrProofContactsFailed =>
+      'Nicht alle Kontakte gespeichert: Das Adressbuch konnte nicht geschrieben werden';
 }

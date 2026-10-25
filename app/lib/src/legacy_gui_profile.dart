@@ -94,6 +94,7 @@ class LegacyGuiImport {
     this.epicboxPort,
     this.language,
     this.contacts = const [],
+    this.addressBookDamaged = false,
     this.notes = const [],
   });
 
@@ -115,6 +116,10 @@ class LegacyGuiImport {
   /// The GUI's locale code as found (bg, cz, de, en, fa, hi, pl, ru, zh); see [appLanguageForGui].
   final String? language;
   final List<LegacyContact> contacts;
+
+  /// The old address book was found but could not be read whole (a damaged file): [contacts]
+  /// may lack some.
+  final bool addressBookDamaged;
 
   /// What could not be read, and why, for the log or a quiet line in the wizard.
   final List<String> notes;
@@ -194,7 +199,8 @@ Future<LegacyGuiImport> _from61(String root, Map s, Map w, LegacyWallet wallet, 
   final app = s['app'];
   final appLocale = app is Map && app['locale'] is String ? (app['locale'] as String).trim() : '';
 
-  final read = await _readProfile(_join(root, 'app'), '6.1', notes);
+  var damaged = false;
+  final read = await _readProfile(_join(root, 'app'), '6.1', notes, damaged: () => damaged = true);
   final user = read == null ? null : _userOf(read, id);
   final contacts = read == null || user == null ? <LegacyContact>[] : _contactsOf([(read, user)]);
   if (read != null && user == null && id.isNotEmpty) notes.add('GUI 6.1 has no address book for wallet $id.');
@@ -213,6 +219,7 @@ Future<LegacyGuiImport> _from61(String root, Map s, Map w, LegacyWallet wallet, 
     epicboxPort: box.isEmpty ? null : (toml.epicboxPort ?? 443),
     language: lang.isEmpty ? null : lang.toLowerCase(),
     contacts: contacts,
+    addressBookDamaged: damaged,
     notes: notes,
   );
 }
@@ -226,10 +233,11 @@ Future<LegacyGuiImport> _fromOlderGui(LegacyRoots roots, LegacyWallet wallet, Li
 
   // mergeProfiles: the newest profile's User row wins; contacts of both, a repeat once
   final found = <(IdbRead, Map)>[];
+  var damaged = false;
   final data = roots.appData;
   if (data != null && account.isNotEmpty) {
     for (final (app, folder) in guiProfiles) {
-      final read = await _readProfile(_join(data, folder), app, notes);
+      final read = await _readProfile(_join(data, folder), app, notes, damaged: () => damaged = true);
       if (read == null) continue;
       final u = _userOf(read, account);
       if (u != null) found.add((read, u));
@@ -255,6 +263,7 @@ Future<LegacyGuiImport> _fromOlderGui(LegacyRoots roots, LegacyWallet wallet, Li
     epicboxPort: box.trim().isEmpty ? null : (toml.epicboxPort ?? 443),
     language: oldLang.isEmpty ? null : oldLang.toLowerCase(),
     contacts: _contactsOf(found),
+    addressBookDamaged: damaged,
     notes: notes,
   );
 }
@@ -288,7 +297,8 @@ String? _node(String saved, String network, List<String> notes) {
 
 /// The IndexedDB of an Electron profile (or GUI 6.1's `<root>/app`): the app://. origin's folder,
 /// else another origin's that holds the GUI's database (a development build). Null with a note.
-Future<IdbRead?> _readProfile(String profile, String app, List<String> notes) async {
+/// [damaged] is called when the folder or the database is there but could not be read whole.
+Future<IdbRead?> _readProfile(String profile, String app, List<String> notes, {required void Function() damaged}) async {
   final idb = _join(profile, 'IndexedDB');
   if (!await Directory(idb).exists()) return null;
   final dirs = <String>[];
@@ -301,15 +311,20 @@ Future<IdbRead?> _readProfile(String profile, String app, List<String> notes) as
     }
   } catch (e) {
     notes.add('GUI $app profile: the IndexedDB folder could not be listed.');
+    damaged();
     return null;
   }
   dirs.sort((a, b) => a == 'app_._0.indexeddb.leveldb' ? -1 : (b == 'app_._0.indexeddb.leveldb' ? 1 : a.compareTo(b)));
   for (final d in dirs.take(10)) {
     final r = await readIdbStores(_join(idb, d), guiDbName, {'User', 'Addressbook'});
-    if (!r.found) continue;
+    if (!r.found) {
+      if (r.notes.isNotEmpty) damaged();
+      continue;
+    }
     for (final n in r.notes) {
       notes.add('GUI $app profile: $n');
     }
+    if (r.notes.isNotEmpty) damaged();
     return r;
   }
   notes.add('GUI $app profile: no address book found in its IndexedDB.');

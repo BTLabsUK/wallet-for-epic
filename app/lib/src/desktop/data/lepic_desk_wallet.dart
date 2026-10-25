@@ -30,6 +30,7 @@ import '../../btlabs_keys.dart' show btlabsKeyring;
 import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
 import '../../builtin_node.dart';
+import '../../legacy/gui_contacts.dart' show AddressChecks;
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
 import '../../l10n.dart' show AppLocalizations, englishStrings;
@@ -62,6 +63,7 @@ import 'backup_reminder.dart';
 import 'desk_store.dart';
 import 'desk_update.dart' show deskAppVersion;
 import 'features.dart';
+import 'gui_contact_import.dart';
 import 'http_address.dart';
 import 'invoice_scheduler.dart';
 import 'invoices.dart';
@@ -1427,7 +1429,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final profile = await gui.readGuiImport(_legacyRoots(), w);
     final global = await gui.readGuiGlobal(_legacyRoots());
     core.LegacyHistoryImport? history;
-    var contactsAdded = 0;
+    var contacts = const ContactImport();
     reg.WalletEntry? made;
     try {
       // The seed makes the wallet; the old log brings its history, which the scan at the first
@@ -1436,7 +1438,7 @@ class LepicDeskWallet implements DeskWalletApi {
         final session = await _service.importWalletSeed(config: config, seedFile: seed, seedPassword: oldPassword, password: next);
         try {
           history = await _importHistory(session, w.path);
-          contactsAdded = await _importContacts(session, profile.contacts);
+          contacts = await _importContacts(session, profile);
         } finally {
           session.dispose();
         }
@@ -1466,7 +1468,7 @@ class LepicDeskWallet implements DeskWalletApi {
         ImportProof.l10n((l) => l.deskErrProofSeedRead),
         ImportProof.l10n((l) => l.deskErrProofWalletCreated),
         _historyProof(done),
-        if (contactsAdded > 0) ImportProof.l10n((l) => l.deskErrProofContacts(contactsAdded)),
+        ...contacts.proof(),
         for (final n in nodes) ImportProof.l10n((l) => l.deskErrProofNode(n.label)),
         if (box != null && box != relay.host) ImportProof.l10n((l) => l.deskErrProofEpicbox(box, relay.host)),
         unchanged ? ImportProof.l10n((l) => l.deskErrProofFolderUnchanged) : ImportProof.l10n((l) => l.deskErrProofFolderChanged, ok: false),
@@ -1505,34 +1507,17 @@ class LepicDeskWallet implements DeskWalletApi {
       ImportProof.l10n((l) => l.deskErrProofHistoryUnreadable, ok: false),
   };
 
-  /// Adds the older app's contacts of this wallet that the address book lacks. Returns how many.
-  Future<int> _importContacts(core.WalletSession session, List<gui.LegacyContact> contacts) async {
-    if (contacts.isEmpty) return 0;
-    try {
-      final have = {for (final c in await session.contacts()) c.address.toLowerCase()};
-      var added = 0;
-      for (final c in contacts) {
-        final raw = (c.epicboxAddress ?? c.httpAddress)?.trim();
-        final address = raw == null ? null : parseAddress(raw, this).canonical;
-        final name = cleanOperator(c.name) ?? '';
-        if (address == null || name.isEmpty || !_contactAddressOk(address) || !have.add(address.toLowerCase())) continue;
-        final extra = c.epicboxAddress != null && c.httpAddress != null ? 'HTTP: ${c.httpAddress}' : null;
-        final note = [c.note?.trim() ?? '', extra ?? ''].where((t) => t.isNotEmpty).join('\n');
-        await session.saveContact(contact: core.Contact(id: '', name: name, address: address, note: note.isEmpty ? null : note));
-        added++;
-      }
-      return added;
-    } on core.WalletError catch (e) {
-      logWarn('desk', 'import: contacts not added: ${e.kind.name}');
-      return 0;
-    }
-  }
-
-  /// An address the contact form would take: epicbox, http(s) or, with Tor, an onion.
-  bool _contactAddressOk(String a) {
-    final p = parseAddress(a, this);
-    return p.complete && (p.kind != AddressKind.tor || _torFeature);
-  }
+  /// The older app's contacts of this wallet into the shared address book, with the checks the
+  /// contact form uses (gui_contact_import.dart).
+  Future<ContactImport> _importContacts(core.WalletSession session, gui.LegacyGuiImport profile) => importGuiContacts(
+    session,
+    profile,
+    AddressChecks(
+      epicbox: isEpicboxAddress,
+      onion: isOnionAddress,
+      http: (url) => parseAddress(url, this).complete,
+    ),
+  );
 
   /// Adds the old wallet's node and the older app's own nodes to the node list without switching
   /// to them: the node is app-wide here and would move every wallet. Returns those added.

@@ -3939,5 +3939,11 @@
   "scanCopied": "คัดลอกแล้ว",
   "linkWaitingNotice": "ได้รับลิงก์ชำระเงิน",
   "linkFinishCurrentFirst": "ทำรายการปัจจุบันให้เสร็จก่อน",
-  "deskSendToQrPayment": "โค้ดชำระด้วย QR ให้สแกนด้วย Epic Cash Mobile"
+  "deskSendToQrPayment": "โค้ดชำระด้วย QR ให้สแกนด้วย Epic Cash Mobile",
+  "deskErrProofContactsMerged": "{count, plural, other{รวมผู้ติดต่อ {count} รายเข้ากับรายการที่มีอยู่}}",
+  "deskErrProofContactsKnown": "{count, plural, other{ผู้ติดต่อ {count} รายบันทึกไว้แล้ว}}",
+  "deskErrProofContactsSkipped": "{count, plural, other{ข้ามผู้ติดต่อ {count} ราย: ไม่มีที่อยู่ที่ใช้ได้}}",
+  "deskErrProofContactAddressesLeftOut": "{count, plural, other{ไม่ได้เพิ่มที่อยู่ {count} รายการ: ขัดกับผู้ติดต่อที่บันทึกไว้}}",
+  "deskErrProofContactsUnreadable": "อ่านผู้ติดต่อเดิมบางรายไม่ได้: สมุดที่อยู่เดิมเสียหาย",
+  "deskErrProofContactsFailed": "บันทึกผู้ติดต่อไม่ครบ: เขียนสมุดที่อยู่ไม่ได้"
 }

@@ -15225,4 +15225,64 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSendToQrPayment =>
       'Код «Оплата по QR». Отсканируйте его в Epic Cash Mobile.';
+
+  @override
+  String deskErrProofContactsMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count контакта объединены с существующими',
+      many: '$count контактов объединены с существующими',
+      few: '$count контакта объединены с существующими',
+      one: '$count контакт объединён с существующим',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsKnown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count контакта уже были сохранены',
+      many: '$count контактов уже были сохранены',
+      few: '$count контакта уже были сохранены',
+      one: '$count контакт уже был сохранён',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Пропущено $count контакта: нет действительного адреса',
+      many: 'Пропущено $count контактов: нет действительного адреса',
+      few: 'Пропущено $count контакта: нет действительного адреса',
+      one: 'Пропущен $count контакт: нет действительного адреса',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactAddressesLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count адреса не добавлены: конфликт с сохранёнными контактами',
+      many: '$count адресов не добавлены: конфликт с сохранёнными контактами',
+      few: '$count адреса не добавлены: конфликт с сохранёнными контактами',
+      one: '$count адрес не добавлен: конфликт с сохранённым контактом',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrProofContactsUnreadable =>
+      'Часть старых контактов не удалось прочитать: старая адресная книга повреждена';
+
+  @override
+  String get deskErrProofContactsFailed =>
+      'Не все контакты сохранены: не удалось записать адресную книгу';
 }

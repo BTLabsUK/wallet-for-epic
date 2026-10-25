@@ -19405,5 +19405,49 @@
   "deskSendToQrPayment": "A QR Payment code. Scan it with Epic Cash Mobile.",
   "@deskSendToQrPayment": {
     "description": "Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (Epic Cash Mobile) reads. 'QR Payment' is the method's name."
+  },
+  "deskErrProofContactsMerged": "{count, plural, one{1 contact merged with an existing one} other{{count} contacts merged with existing ones}}",
+  "@deskErrProofContactsMerged": {
+    "description": "A line of the import wizard's result: old contacts whose address was already in the address book; the missing addresses or note were added to that contact, nothing saved was changed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrProofContactsKnown": "{count, plural, one{1 contact already saved} other{{count} contacts already saved}}",
+  "@deskErrProofContactsKnown": {
+    "description": "A line of the import wizard's result: old contacts the address book already had, with nothing to add.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrProofContactsSkipped": "{count, plural, one{1 contact skipped: no valid address} other{{count} contacts skipped: no valid address}}",
+  "@deskErrProofContactsSkipped": {
+    "description": "A line of the import wizard's result (a warning): old contacts with no Epicbox, HTTP or Tor address the app can send to.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrProofContactAddressesLeftOut": "{count, plural, one{1 address not added: it conflicts with a saved contact} other{{count} addresses not added: they conflict with saved contacts}}",
+  "@deskErrProofContactAddressesLeftOut": {
+    "description": "A line of the import wizard's result (a warning): valid addresses of old contacts that were not saved, because the matching saved contact already has a different address of that kind, or another contact has the address.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskErrProofContactsUnreadable": "Some old contacts could not be read: the old address book is damaged",
+  "@deskErrProofContactsUnreadable": {
+    "description": "A line of the import wizard's result (a warning): the old app's contact database was found but part of it could not be read."
+  },
+  "deskErrProofContactsFailed": "Not all contacts were saved: the address book could not be written",
+  "@deskErrProofContactsFailed": {
+    "description": "A line of the import wizard's result (a warning): saving the imported contacts stopped with an error."
   }
 }

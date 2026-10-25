@@ -14021,4 +14021,50 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment => '这是二维码付款码，请用 Epic Cash Mobile 扫描。';
+
+  @override
+  String deskErrProofContactsMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已将 $count 个联系人与现有联系人合并',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsKnown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个联系人此前已保存',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已跳过 $count 个联系人：没有有效地址',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactAddressesLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个地址未添加：与已保存的联系人冲突',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrProofContactsUnreadable => '部分旧联系人无法读取：旧通讯录已损坏';
+
+  @override
+  String get deskErrProofContactsFailed => '联系人未全部保存：无法写入通讯录';
 }

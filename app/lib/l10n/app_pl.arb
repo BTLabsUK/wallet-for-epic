@@ -3939,5 +3939,11 @@
   "scanCopied": "Skopiowano",
   "linkWaitingNotice": "Otrzymano link płatności",
   "linkFinishCurrentFirst": "Najpierw dokończ bieżącą płatność.",
-  "deskSendToQrPayment": "Kod Płatności QR. Zeskanuj go w Epic Cash Mobile."
+  "deskSendToQrPayment": "Kod Płatności QR. Zeskanuj go w Epic Cash Mobile.",
+  "deskErrProofContactsMerged": "{count, plural, one{Scalono {count} kontakt z istniejącym} few{Scalono {count} kontakty z istniejącymi} many{Scalono {count} kontaktów z istniejącymi} other{Scalono {count} kontaktu z istniejącymi}}",
+  "deskErrProofContactsKnown": "{count, plural, one{{count} kontakt był już zapisany} few{{count} kontakty były już zapisane} many{{count} kontaktów było już zapisanych} other{{count} kontaktu było już zapisanych}}",
+  "deskErrProofContactsSkipped": "{count, plural, one{Pominięto {count} kontakt: brak poprawnego adresu} few{Pominięto {count} kontakty: brak poprawnego adresu} many{Pominięto {count} kontaktów: brak poprawnego adresu} other{Pominięto {count} kontaktu: brak poprawnego adresu}}",
+  "deskErrProofContactAddressesLeftOut": "{count, plural, one{Nie dodano {count} adresu: konflikt z zapisanym kontaktem} few{Nie dodano {count} adresów: konflikt z zapisanymi kontaktami} many{Nie dodano {count} adresów: konflikt z zapisanymi kontaktami} other{Nie dodano {count} adresu: konflikt z zapisanymi kontaktami}}",
+  "deskErrProofContactsUnreadable": "Nie udało się odczytać części starych kontaktów: stara książka adresowa jest uszkodzona",
+  "deskErrProofContactsFailed": "Nie wszystkie kontakty zostały zapisane: błąd zapisu książki adresowej"
 }

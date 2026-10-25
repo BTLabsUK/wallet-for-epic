@@ -23521,6 +23521,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A QR Payment code. Scan it with Epic Cash Mobile.'**
   String get deskSendToQrPayment;
+
+  /// A line of the import wizard's result: old contacts whose address was already in the address book; the missing addresses or note were added to that contact, nothing saved was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 contact merged with an existing one} other{{count} contacts merged with existing ones}}'**
+  String deskErrProofContactsMerged(int count);
+
+  /// A line of the import wizard's result: old contacts the address book already had, with nothing to add.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 contact already saved} other{{count} contacts already saved}}'**
+  String deskErrProofContactsKnown(int count);
+
+  /// A line of the import wizard's result (a warning): old contacts with no Epicbox, HTTP or Tor address the app can send to.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 contact skipped: no valid address} other{{count} contacts skipped: no valid address}}'**
+  String deskErrProofContactsSkipped(int count);
+
+  /// A line of the import wizard's result (a warning): valid addresses of old contacts that were not saved, because the matching saved contact already has a different address of that kind, or another contact has the address.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 address not added: it conflicts with a saved contact} other{{count} addresses not added: they conflict with saved contacts}}'**
+  String deskErrProofContactAddressesLeftOut(int count);
+
+  /// A line of the import wizard's result (a warning): the old app's contact database was found but part of it could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Some old contacts could not be read: the old address book is damaged'**
+  String get deskErrProofContactsUnreadable;
+
+  /// A line of the import wizard's result (a warning): saving the imported contacts stopped with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'Not all contacts were saved: the address book could not be written'**
+  String get deskErrProofContactsFailed;
 }
 
 class _AppLocalizationsDelegate

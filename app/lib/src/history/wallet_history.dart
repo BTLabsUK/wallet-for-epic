@@ -8,6 +8,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 
+import '../contact_store.dart';
 import '../wallet_service.dart';
 import 'export.dart';
 import 'merge.dart';
@@ -43,21 +44,48 @@ Contact _contact(ContactRec c) => Contact(
   invoiceAddress: c.invoiceAddress,
 );
 
+Contact _fromShared(ContactFields c) => Contact(
+  id: c.id,
+  name: c.name,
+  epicbox: c.epicbox,
+  http: c.http,
+  tor: c.tor,
+  note: c.note,
+  invoiceAddress: c.invoiceAddress,
+);
+
+ContactRec _recOf(ContactFields c) => ContactRec(
+  id: c.id,
+  name: c.name,
+  epicbox: c.epicbox,
+  http: c.http,
+  tor: c.tor,
+  note: c.note,
+  invoiceAddress: c.invoiceAddress,
+);
+
 String? _trimmed(String? s) {
   final t = s?.trim();
   return t == null || t.isEmpty ? null : t;
 }
 
 class WalletHistory {
-  WalletHistory(this._store, {required this.chain});
+  /// With [contacts], the address book is that store, shared by every wallet on the device
+  /// (`contact_store.dart`), and this wallet's archive no longer holds it; without, the
+  /// archive's own list (tests, and what older builds wrote).
+  WalletHistory(this._store, {required this.chain, ContactStore? contacts})
+    : _shared = contacts;
 
   /// History kept in memory only, for a session with no data directory (tests).
-  WalletHistory.memory({this.chain = Chain.mainnet})
-    : _store = MetaStore.memory();
+  WalletHistory.memory({this.chain = Chain.mainnet, ContactStore? contacts})
+    : _store = MetaStore.memory(),
+      _shared = contacts;
 
   /// Opens the archive in [dataDir].
-  static Future<WalletHistory> open(String dataDir, Chain chain) async =>
-      WalletHistory(await MetaStore.open(dataDir), chain: chain);
+  static Future<WalletHistory> open(String dataDir, Chain chain, {ContactStore? contacts}) async =>
+      WalletHistory(await MetaStore.open(dataDir), chain: chain, contacts: contacts);
+
+  final ContactStore? _shared;
 
   final MetaStore _store;
 
@@ -184,9 +212,12 @@ class WalletHistory {
   }
 
   /// Address book, sorted by name.
-  List<Contact> contacts() =>
-      [for (final c in meta.contacts) _contact(c)]
-        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  List<Contact> contacts() {
+    final shared = _shared;
+    if (shared != null) return [for (final c in shared.list()) _fromShared(c)];
+    return [for (final c in meta.contacts) _contact(c)]
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  }
 
   /// Adds (empty `id`) or replaces a contact. It needs a name and at least one address; each
   /// address is kept in its kind's field ([Contact.epicbox], [Contact.http], [Contact.tor]).
@@ -202,6 +233,22 @@ class WalletHistory {
     // Whether an address is valid is each screen's check, with the core's validators. Nothing
     // here reaches out.
     final isNew = contact.id.trim().isEmpty;
+    final shared = _shared;
+    if (shared != null) {
+      return _fromShared(
+        await shared.save(
+          ContactFields(
+            id: contact.id.trim(),
+            name: name,
+            epicbox: epicbox,
+            http: http,
+            tor: tor,
+            note: _trimmed(contact.note),
+            invoiceAddress: _trimmed(contact.invoiceAddress),
+          ),
+        ),
+      );
+    }
     final rec = ContactRec(
       id: isNew ? _randomHex(16) : contact.id.trim(),
       name: name,
@@ -225,6 +272,7 @@ class WalletHistory {
   }
 
   Future<void> deleteContact(String id) =>
+      _shared?.delete(id) ??
       _store.update((m) => m.contacts.removeWhere((c) => c.id == id));
 
   /// [addresses], the wallet's trusted invoice services, with the labels kept here. An address
@@ -333,7 +381,10 @@ class WalletHistory {
             m.manualFields.isEmpty))
           toRecord(m),
     ],
-    contacts: [for (final c in meta.contacts) ContactRec.fromJson(c.toJson())],
+    contacts: switch (_shared) {
+      final shared? => [for (final c in shared.list()) _recOf(c)],
+      null => [for (final c in meta.contacts) ContactRec.fromJson(c.toJson())],
+    },
     serviceLabels: {...meta.serviceLabels},
     invoiceIndex: meta.invoiceIndex,
   );
@@ -363,8 +414,45 @@ class WalletHistory {
       final trial = _importInto(meta.copy(), payload, live, shown, null, at);
       if (trial.conflicts.isNotEmpty) return trial;
     }
-    return _store.update(
+    final report = await _store.update(
       (m) => _importInto(m, payload, live, shown, useBackup ?? const {}, at),
+    );
+    final shared = _shared;
+    if (shared == null || !report.applied) return report;
+    // The file's contacts go to the shared address book, by the same rule.
+    final added = await shared.update((list) {
+      var n = 0;
+      for (final c in payload.contacts) {
+        final theirs = {
+          for (final a in [c.epicbox, c.http, c.tor])
+            if (_trimmed(a) case final t?) t,
+        };
+        if (theirs.isEmpty || c.name.trim().isEmpty) continue;
+        if (list.any((e) => e.addresses.any((a) => theirs.contains(a.trim())))) continue;
+        final id = c.id.isEmpty || list.any((e) => e.id == c.id) ? _randomHex(16) : c.id;
+        list.add(
+          ContactFields(
+            id: id,
+            name: c.name.trim(),
+            epicbox: _trimmed(c.epicbox),
+            http: _trimmed(c.http),
+            tor: _trimmed(c.tor),
+            note: _trimmed(c.note),
+            invoiceAddress: _trimmed(c.invoiceAddress),
+          ),
+        );
+        n++;
+      }
+      return n;
+    });
+    return ImportReport(
+      merged: report.merged,
+      added: report.added,
+      skipped: report.skipped,
+      contactsAdded: added,
+      conflicts: report.conflicts,
+      applied: report.applied,
+      replaced: report.replaced,
     );
   }
 
@@ -559,8 +647,9 @@ class WalletHistory {
     if (index != null && index > (m.invoiceIndex ?? 1)) {
       m.invoiceIndex = index;
     }
-    // A contact comes in unless one here already holds one of its addresses.
-    for (final c in payload.contacts) {
+    // A contact comes in unless one here already holds one of its addresses; with the shared
+    // address book, [importPayload] adds them there.
+    for (final c in _shared == null ? payload.contacts : const <ContactRec>[]) {
       final theirs = {
         for (final a in [c.epicbox, c.http, c.tor])
           if (_trimmed(a) case final t?) t,

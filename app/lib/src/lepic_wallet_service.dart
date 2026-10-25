@@ -20,6 +20,7 @@ import 'history/export.dart';
 import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
 import 'advanced.dart' show NetworkMode;
+import 'contact_store.dart';
 import 'log.dart';
 import 'net/local_address.dart';
 import 'net/tor_net.dart' show isLoopbackUrl;
@@ -681,10 +682,15 @@ class LepicWalletService implements WalletService {
     required this._secrets,
     lepic.LepicRuntime Function()? runtime,
     this.oneWalletPerChain = false,
+    this.contactsDir,
   }) : _makeRuntime = runtime ?? _defaultRuntime;
 
   final SecretStore _secrets;
   final bool oneWalletPerChain;
+
+  /// The folder of the address book every wallet shares (`contact_store.dart`); null keeps
+  /// each wallet's contacts in its own archive (tests).
+  final Future<String> Function()? contactsDir;
 
   /// The prefix pinned for each chain, once read.
   final Map<Chain, String> _pinnedPrefixes = {};
@@ -945,10 +951,12 @@ class LepicWalletService implements WalletService {
     lepic.EpicWallet wallet,
   ) async {
     try {
+      final dir = contactsDir;
       return (await LepicWalletSession.openOn(
         wallet,
         config.dataDir,
         config.chain,
+        contacts: dir == null ? null : await ContactStore.open(await dir()),
       ))..nodeUrl = config.nodeUrl;
     } catch (_) {
       wallet.lock();
@@ -1077,9 +1085,10 @@ class LepicWalletSession implements WalletSession {
   static Future<LepicWalletSession> openOn(
     lepic.EpicWallet wallet,
     String dataDir,
-    Chain chain,
-  ) async {
-    final history = await WalletHistory.open(dataDir, chain);
+    Chain chain, {
+    ContactStore? contacts,
+  }) async {
+    final history = await WalletHistory.open(dataDir, chain, contacts: contacts);
     final session = LepicWalletSession(wallet, history: history);
     await session.restoreInvoiceIndex();
     return session;

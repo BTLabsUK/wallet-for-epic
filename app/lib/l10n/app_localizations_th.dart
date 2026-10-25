@@ -14536,4 +14536,52 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSendToQrPayment =>
       'โค้ดชำระด้วย QR ให้สแกนด้วย Epic Cash Mobile';
+
+  @override
+  String deskErrProofContactsMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'รวมผู้ติดต่อ $count รายเข้ากับรายการที่มีอยู่',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsKnown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ผู้ติดต่อ $count รายบันทึกไว้แล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ข้ามผู้ติดต่อ $count ราย: ไม่มีที่อยู่ที่ใช้ได้',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskErrProofContactAddressesLeftOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ไม่ได้เพิ่มที่อยู่ $count รายการ: ขัดกับผู้ติดต่อที่บันทึกไว้',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskErrProofContactsUnreadable =>
+      'อ่านผู้ติดต่อเดิมบางรายไม่ได้: สมุดที่อยู่เดิมเสียหาย';
+
+  @override
+  String get deskErrProofContactsFailed =>
+      'บันทึกผู้ติดต่อไม่ครบ: เขียนสมุดที่อยู่ไม่ได้';
 }
