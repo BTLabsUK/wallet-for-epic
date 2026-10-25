@@ -2371,7 +2371,9 @@ String? _receiverMessage(TxEntry tx) =>
 /// cancelled, expired. The payer is LEPIC's counterparty, empty when it kept none.
 IssuedInvoice? issuedInvoiceOf(TxEntry tx, {IssuedInvoiceState? recorded}) {
   final slateId = tx.slateId;
-  final txId = tx.id;
+  // Only a request LEPIC made holds an id it can act on; one a history backup brought back,
+  // perhaps onto a row a scan found, is shown and never acted on.
+  final txId = tx.source == TxSource.wallet ? tx.id : null;
   if (!tx.isRequest || slateId == null) return null;
   if (txId == null) {
     // From a history backup: shown only with the end the backup recorded. One still open when
@@ -2432,7 +2434,7 @@ PaidInvoice? paidInvoiceOf(
     amount: tx.amountDebited - tx.amountCredited - (tx.fee ?? BigInt.zero),
     message: _receiverMessage(tx),
     status: status ?? InvoiceStatus.replied,
-    txId: tx.id,
+    txId: tx.source == TxSource.wallet ? tx.id : null,
     kernelExcess: kernelExcess,
   );
 }

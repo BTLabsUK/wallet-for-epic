@@ -275,6 +275,7 @@ MergedTx _fromRecord(Record r) {
       flow: flowFrom(r.flow),
       pairingId: _someStr(r.pairingId),
       messages: slateMessagesOf(r),
+      transport: _someStr(r.transport),
     ),
   );
   m.kernelLookupMinHeight = r.kernelLookupMinHeight;
@@ -311,6 +312,7 @@ void _absorb(MergedTx m, Record r) {
   m.recordMessages ??= r.messages;
   m.paymentProof ??= r.paymentProof;
   m.pairingId ??= _someStr(r.pairingId);
+  m.transport ??= _someStr(r.transport);
   if (m.messages.isEmpty) m.messages = slateMessagesOf(r);
 }
 

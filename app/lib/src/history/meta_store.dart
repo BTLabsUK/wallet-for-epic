@@ -518,7 +518,8 @@ class Record {
   /// The user's label, in a history file only: an import moves it to [Meta.manual].
   String? label;
 
-  /// What carried the slate (`epicbox`, `http`, `tor`, `file`), in a history file only.
+  /// What carried the slate (`epicbox`, `http`, `tor`, `file`). Kept in the archive when the
+  /// wallet recorded it; one the user typed ([userFields] `method`) goes to [Meta.manual].
   String? transport;
 
   /// Which of `label`, `counterparty`, `method` ([transport]) and `note` the user entered, in
@@ -539,10 +540,11 @@ class Record {
   /// [messages] stay as they were written. Since version 2.
   List<SlateMessageRec> slateMessages;
 
-  /// This record without what only a history file carries, as the archive keeps it.
+  /// This record without what the user entered, as the archive keeps it: that goes to
+  /// [Meta.manual]. A method the wallet recorded stays.
   Record withoutUserFields() => copy()
     ..label = null
-    ..transport = null
+    ..transport = userFields.contains('method') ? null : transport
     ..userFields = []
     ..userEditedAtUnix = null;
 

@@ -2273,7 +2273,7 @@ class LepicWalletSession implements WalletSession {
     // One a history backup brought back: shown as recorded, never resent.
     final live = [for (final d in await _wallet.transactions()) lepicTxEntry(d, sending: _sending > 0)];
     for (final t in _history.transactions(live)) {
-      if (t.id != null || t.slateId != slateId) continue;
+      if (t.source == TxSource.wallet || t.slateId != slateId) continue;
       final paid = paidInvoiceOf(t, status: record?.status, kernelExcess: record?.kernelExcess);
       if (paid == null) continue;
       return PaidInvoice(
@@ -2306,11 +2306,12 @@ class LepicWalletSession implements WalletSession {
       for (final d in await _wallet.transactions())
         lepicTxEntry(d, sending: _sending > 0),
     ];
-    // With the ended requests a history backup brought back, which LEPIC no longer holds.
+    // With the ended requests a history backup brought back, which LEPIC no longer holds as
+    // requests (a paid one's output may be a row a scan found).
     final requests = requestsOf([
       ...live,
       for (final t in _history.transactions(live))
-        if (t.id == null && t.isRequest) t,
+        if (t.source != TxSource.wallet && t.isRequest) t,
     ], _history.issuedInvoiceState);
     return [
       for (final r in requests)

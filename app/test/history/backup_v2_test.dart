@@ -42,6 +42,7 @@ TxEntry _paid() => fakeTx(
   fee: BigInt.from(700000),
   flow: TxFlow.invoice,
   counterparty: _eve,
+  transport: 'epicbox',
   messages: const [SlateMessage(role: SlateRole.receiver, text: 'Order 17')],
 );
 
@@ -110,7 +111,7 @@ void main() {
     expect((p.version, p.settings, p.walletName, p.issuedInvoices.length), (1, null, null, 0));
     final h = WalletHistory.memory();
     final r = await h.importPayload(p, const [], walletFp: 'fp');
-    expect((r.added, r.contactsAdded, r.starsAdded, r.notesAdded, r.labelsAdded), (1, 1, 1, 0, 1));
+    expect((r.added, r.contactsAdded, r.starsAdded, r.notesAdded, r.labelsAdded), (1, 1, 1, 1, 1));
     final row = h.transactions(const []).single;
     expect((row.note, row.label, row.flow), ('rent', 'Flat', TxFlow.payment));
   });
@@ -122,9 +123,9 @@ void main() {
       await before.settleIssuedInvoice('inv1', IssuedInvoiceState.paid);
       await before.putIssuedInvoice('inv3');
       await before.putPaidInvoice('inv2', InvoiceStatus.posted, kernelExcess: 'k2');
-      final file = HistoryPayload.decode(
-        before.exportPayload([_request(), _paid(), _open()], walletFp: 'fp', appVersion: 't').encode(),
-      );
+      final live = [_request(), _paid(), _open()];
+      await before.setNote(live, 's:inv2', 'Shop order');
+      final file = HistoryPayload.decode(before.exportPayload(live, walletFp: 'fp', appVersion: 't').encode());
 
       // Restored from the phrase: the scan found the request's output only.
       final scan = [
@@ -141,19 +142,25 @@ void main() {
       final after = WalletHistory.memory();
       final report = await after.importPayload(file, scan, walletFp: 'fp');
       expect(report.invoicesAdded, 3);
+      // The note travels inside the paid invoice's record, and the summary counts it.
+      expect(report.notesAdded, 1);
       final rows = after.transactions(scan);
       final req = rows.firstWhere((t) => t.slateId == 'inv1');
       expect((req.flow, req.pairingId, req.isRequest), (TxFlow.invoice, 'p1', true));
       expect(messageBy(req.messages, SlateRole.receiver), 'March hosting');
       final paid = rows.firstWhere((t) => t.slateId == 'inv2');
-      expect((paid.flow, paid.counterparty), (TxFlow.invoice, _eve));
+      expect((paid.flow, paid.counterparty, paid.transport, paid.note), (TxFlow.invoice, _eve, 'epicbox', 'Shop order'));
+      // The request's output was found by the scan: its row has the scan's id, yet it is the
+      // backup's request, never one LEPIC could act on.
+      expect((req.id, req.source), (1, TxSource.imported));
+      expect(paidInvoiceOf(paid, status: after.paidInvoiceRecord('inv2')!.status)!.txId, isNull);
       expect(after.paidInvoiceRecord('inv2')!.status, InvoiceStatus.posted);
 
       // The Invoices list shows the ended request, never as something to withdraw; the one
       // still open at export is left to its history row.
       final listed = requestsOf(rows, after.issuedInvoiceState);
       expect(listed.map((i) => (i.slateId, i.state, i.withdrawable)), [('inv1', IssuedInvoiceState.paid, false)]);
-      expect(listed.single.pairingId, 'p1');
+      expect((listed.single.pairingId, listed.single.txId), ('p1', null));
 
       // A second import changes nothing.
       final again = await after.importPayload(file, scan, walletFp: 'fp');

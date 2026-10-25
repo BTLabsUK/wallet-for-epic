@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../contacts.dart' show contactsProvider, favouriteContactsProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart' show pairingsProvider;
@@ -375,7 +376,14 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
       if (choices == null) return false;
       report = await session.importHistory(data: bytes, useBackup: choices);
     }
-    ref.invalidate(homeProvider);
+    // Everything an import can bring back, shown fresh.
+    ref
+      ..invalidate(homeProvider)
+      ..invalidate(contactsProvider)
+      ..invalidate(favouriteContactsProvider)
+      ..invalidate(issuedInvoicesProvider)
+      ..invalidate(pendingInvoicesProvider)
+      ..invalidate(pairingsProvider);
     // The settings: those still as the app came are taken; one the user changed here that
     // differs from the file asks once for all.
     var settingsChanged = 0;

@@ -4756,8 +4756,8 @@ class LepicDeskWallet implements DeskWalletApi {
       for (final r in await session.issuedInvoices())
         if (r.txId != null)
           _request(r, entries.where((e) => e.id == r.txId).firstOrNull, people, minConf: minConf, pairings: pairings)
-        else if (entries.indexWhere((e) => e.id == null && e.slateId == r.slateId && e.isRequest) case final i when i >= 0)
-          _request(r, entries[i], people, minConf: minConf, pairings: pairings, fallbackId: -1 - i),
+        else if (entries.indexWhere((e) => e.source != core.TxSource.wallet && e.slateId == r.slateId && e.isRequest) case final i when i >= 0)
+          _request(r, entries[i], people, minConf: minConf, pairings: pairings, fallbackId: entries[i].id ?? -1 - i),
     ];
 
     return InvoiceBook(

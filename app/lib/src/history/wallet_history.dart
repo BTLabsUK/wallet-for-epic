@@ -508,7 +508,7 @@ class WalletHistory {
     AddressChecks checks,
   ) {
     var merged = 0, added = 0, skipped = 0, contactsAdded = 0;
-    var notes = 0, labels = 0, details = 0, starsAdded = 0;
+    var details = 0, starsAdded = 0;
     // Records whose user fields are applied once the rows are merged with the new records,
     // with the key of the row a record not kept in the archive goes to.
     final userData = <(Record, String?, {bool userOnly})>[];
@@ -603,15 +603,10 @@ class WalletHistory {
         void Function(String value) write,
       ) {
         if (theirs == null || mine == theirs) return;
-        void counted() => switch (f) {
-          ManualField.note => notes++,
-          ManualField.label => labels++,
-          ManualField.counterparty || ManualField.transport => details++,
-        };
         if (mine == null) {
           write(theirs);
           filled = true;
-          counted();
+          if (f == ManualField.counterparty || f == ManualField.transport) details++;
           return;
         }
         if (rec.declined[f.name] == hash(theirs)) return;
@@ -695,6 +690,19 @@ class WalletHistory {
       m.favourites.addAll(_favouritesIn(payload, book));
       starsAdded = m.favourites.length - before;
     }
+    // Notes and labels the rows show now and had nowhere before, whether the file's record
+    // carries them or they landed on a row from its user fields.
+    final after = mergeHistory(live, m);
+    int gained(String? Function(MergedTx t) field) {
+      final had = {
+        for (final t in shown)
+          if (field(t) != null) ...{t.key, ...t.aliases},
+      };
+      return after.where((t) => field(t) != null && !{t.key, ...t.aliases}.any(had.contains)).length;
+    }
+
+    final notes = gained((t) => t.note);
+    final labels = gained((t) => t.label);
     // What became of the invoices: what this install recorded wins, the file fills the rest.
     var invoices = 0;
     for (final e in payload.issuedInvoices.entries) {
