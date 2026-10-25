@@ -14933,4 +14933,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairRestoreP4 => '一次只在一台设备上使用配对。在第二台设备上恢复的备份会先询问，再在那里使用联系人。';
+
+  @override
+  String get pairNameForCode => '输入对方会看到的名字，你的码就会显示在这里。';
+
+  @override
+  String get restoreDone => '历史已恢复。';
+
+  @override
+  String restoreDoneBody(int payments, int contacts, int pairings) {
+    return '已恢复 $payments 笔付款、$contacts 个联系人和 $pairings 个配对。';
+  }
 }

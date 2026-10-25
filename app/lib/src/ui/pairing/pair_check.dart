@@ -32,6 +32,43 @@ const Key resultAddToKey = ValueKey('result-add-to');
 
 /// The words check of the pairing [pairingId]. [recheck] is the contact page's "Check the
 /// words again": Later instead of Skip for now. [inPerson]: the camera saw the other phone.
+/// Asks before removing the pairing with [name] (SPEC 2.4): Keep, or Remove in risk. Undoing it
+/// means pairing again.
+Future<bool> confirmRemovePairing(BuildContext context, String name) async {
+  final l = context.l10n;
+  final sure = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l.contactRemovePairingTitle(name)),
+      content: Text(l.contactRemovePairingBody(name)),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.contactKeep)),
+        TextButton(
+          key: confirmRemovePairingKey,
+          style: TextButton.styleFrom(foregroundColor: context.tokens.risk),
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(l.contactRemove),
+        ),
+      ],
+    ),
+  );
+  return sure ?? false;
+}
+
+/// The Remove button of [confirmRemovePairing], for tests.
+const Key confirmRemovePairingKey = ValueKey('confirm-remove-pairing');
+
+/// Save as a new contact: the form with the name the pairing claims and its card's payments
+/// address, for the user to check. The contact saved, or null.
+Future<Contact?> savePairingAsNewContact(BuildContext context, PairingRecord r) => Navigator.of(context).push<Contact>(
+  MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: r.name, address: r.paymentsAddress)),
+);
+
+/// Add to a contact: the user picks one of theirs; nothing is matched by name or address.
+Future<Contact?> pickContactForPairing(BuildContext context) => Navigator.of(context).push<Contact>(
+  MaterialPageRoute<Contact>(builder: (_) => const ContactsScreen(pick: true)),
+);
+
 class CheckWordsScreen extends ConsumerStatefulWidget {
   const CheckWordsScreen({super.key, required this.pairingId, this.recheck = false, this.inPerson = false});
 
@@ -224,17 +261,13 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
   }
 
   Future<void> _saveNew(PairingRecord r) async {
-    final saved = await Navigator.of(context).push<Contact>(
-      MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: r.name, address: r.paymentsAddress)),
-    );
+    final saved = await savePairingAsNewContact(context, r);
     if (saved == null || !mounted) return;
     await _attach(r, saved);
   }
 
   Future<void> _addTo(PairingRecord r) async {
-    final picked = await Navigator.of(context).push<Contact>(
-      MaterialPageRoute<Contact>(builder: (_) => const ContactsScreen(pick: true)),
-    );
+    final picked = await pickContactForPairing(context);
     if (picked == null || !mounted) return;
     await _attach(r, picked);
   }

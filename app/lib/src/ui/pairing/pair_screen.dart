@@ -131,7 +131,10 @@ class _WayTile extends StatelessWidget {
 
 /// The "They will see you as" field: the name the other side sees, remembered on the device.
 class SeenAsField extends ConsumerStatefulWidget {
-  const SeenAsField({super.key, this.onChanged, this.error});
+  const SeenAsField({super.key, this.onChanged, this.error, this.autofocus = false});
+
+  /// Takes the focus when no name is kept yet: the screen needs one before it can go on.
+  final bool autofocus;
 
   /// After the user changed the name (on submit or when the field loses focus).
   final ValueChanged<String>? onChanged;
@@ -175,6 +178,11 @@ class _SeenAsFieldState extends ConsumerState<SeenAsField> {
     if (!_loaded && saved != null) {
       _loaded = true;
       _text.text = saved;
+      if (widget.autofocus && saved.trim().isEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _focus.requestFocus();
+        });
+      }
     }
     return TextField(
       key: pairNameFieldKey,
@@ -230,18 +238,24 @@ class _InPersonScreenState extends ConsumerState<InPersonScreen> {
   String? _nameError;
   bool _pairing = false;
 
+  /// No name yet: the code waits for one, with no error until the user gave a name.
+  bool _noName = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _makeCard());
   }
 
-  Future<void> _makeCard() async {
+  Future<void> _makeCard({bool typed = false}) async {
     final l = context.l10n;
     final name = await readSeenAs(ref);
     if (!mounted) return;
     final error = seenAsError(l, name);
-    setState(() => _nameError = error);
+    setState(() {
+      _noName = name.trim().isEmpty;
+      _nameError = typed || !_noName ? error : null;
+    });
     if (error != null || name == _cardFor) return;
     try {
       final card = await ref.read(pairingApiProvider).showCard(name: name.trim());
@@ -334,7 +348,18 @@ class _InPersonScreenState extends ConsumerState<InPersonScreen> {
                       borderRadius: BorderRadius.circular(t.radiusSmall),
                     ),
                     child: card == null
-                        ? const SizedBox.square(dimension: 226, child: Center(child: CircularProgressIndicator()))
+                        ? SizedBox.square(
+                            dimension: 226,
+                            child: Center(
+                              child: _noName || _nameError != null
+                                  // Neutral until a name exists: the code needs it.
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Text(l.pairNameForCode, textAlign: TextAlign.center, style: TextStyle(color: protocolLight.dim)),
+                                    )
+                                  : const CircularProgressIndicator(),
+                            ),
+                          )
                         : Semantics(label: l.pairCodeLabel, image: true, child: MarkedQr(data: card.link, size: 226)),
                   ),
                   const SizedBox(height: 12),
@@ -343,7 +368,7 @@ class _InPersonScreenState extends ConsumerState<InPersonScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            SeenAsField(error: _nameError, onChanged: (_) => _makeCard()),
+            SeenAsField(error: _nameError, autofocus: true, onChanged: (_) => _makeCard(typed: true)),
           ] else
             _CardScanner(onCode: _paired, onWords: words ? _words : null),
         ],
@@ -607,7 +632,7 @@ class _PairOnlineScreenState extends ConsumerState<PairOnlineScreen> {
             onSelectionChanged: (s) => setState(() => _expiry = s.first),
           ),
           const SizedBox(height: 16),
-          SeenAsField(error: _nameError, onChanged: (_) => setState(() => _nameError = null)),
+          SeenAsField(error: _nameError, autofocus: true, onChanged: (_) => setState(() => _nameError = null)),
           const SizedBox(height: 8),
           ShareBox(label: l.pairWhatTheyReceive, text: preview),
           const SizedBox(height: 10),

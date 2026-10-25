@@ -4169,5 +4169,8 @@
   "helpPairRestoreP1": "Mit der Verlaufssicherung bringt eine Wiederherstellung jede Kopplung unverändert zurück: dieselben Schlüssel, dieselben Verifiziert-Markierungen, dieselben Einstellungen. Die Kontakte merken nichts.",
   "helpPairRestoreP2": "Ohne die Sicherung sind die Kopplungen aus dieser Wallet verschwunden, die Schlüssel aber nicht: Sie entstehen aus der Wiederherstellungsphrase. Koppeln Sie erneut mit einem Kontakt, der die Kopplung behalten hat, und dessen Wallet findet dieselben Schlüssel. Sie meldet, dass die Schlüssel zurück sind, und der Kontakt behält seine Verifiziert-Markierung. In dieser Wallet starten Zahlungen versiegeln und Rechnungen erlauben mit ihren Vorgaben.",
   "helpPairRestoreP3": "Ein Kontakt sieht **Schlüssel geändert** nur, wenn die Phrase eine andere ist. Das kann eine neue Wallet bedeuten oder jemand anderen, der den Namen verwendet. Prüfen Sie die Wörter erneut, bevor Sie dem vertrauen.",
-  "helpPairRestoreP4": "Nutzen Sie eine Kopplung immer nur auf einem Gerät. Eine auf einem zweiten Gerät wiederhergestellte Sicherung fragt, bevor sie die Kontakte dort verwendet."
+  "helpPairRestoreP4": "Nutzen Sie eine Kopplung immer nur auf einem Gerät. Eine auf einem zweiten Gerät wiederhergestellte Sicherung fragt, bevor sie die Kontakte dort verwendet.",
+  "pairNameForCode": "Geben Sie den Namen ein, den die andere Seite sieht; dann erscheint hier Ihr Code.",
+  "restoreDone": "Verlauf wiederhergestellt.",
+  "restoreDoneBody": "{payments} Zahlungen, {contacts} Kontakte und {pairings} Kopplungen sind zurück."
 }

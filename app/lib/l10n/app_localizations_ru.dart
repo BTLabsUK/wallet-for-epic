@@ -16193,4 +16193,16 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'Используйте сопряжение только на одном устройстве за раз. Копия, восстановленная на втором устройстве, спросит, прежде чем использовать там контакты.';
+
+  @override
+  String get pairNameForCode =>
+      'Введите имя, которое увидит собеседник, и здесь появится ваш код.';
+
+  @override
+  String get restoreDone => 'История восстановлена.';
+
+  @override
+  String restoreDoneBody(int payments, int contacts, int pairings) {
+    return 'Вернулись платежи: $payments, контакты: $contacts и сопряжения: $pairings.';
+  }
 }

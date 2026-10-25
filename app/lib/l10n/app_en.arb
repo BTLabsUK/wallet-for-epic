@@ -20909,5 +20909,28 @@
   "helpPairRestoreP4": "Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.",
   "@helpPairRestoreP4": {
     "description": "Topic 5."
+  },
+  "pairNameForCode": "Enter the name they will see, and your code appears here.",
+  "@pairNameForCode": {
+    "description": "In person, Show my code: the placeholder of the code until the user gave the name the other side sees."
+  },
+  "restoreDone": "History restored.",
+  "@restoreDone": {
+    "description": "Notice title after a history backup was imported with pairings."
+  },
+  "restoreDoneBody": "{payments} payments, {contacts} contacts and {pairings} pairings are back.",
+  "@restoreDoneBody": {
+    "description": "Notice body after a history backup was imported with pairings.",
+    "placeholders": {
+      "payments": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      },
+      "pairings": {
+        "type": "int"
+      }
+    }
   }
 }

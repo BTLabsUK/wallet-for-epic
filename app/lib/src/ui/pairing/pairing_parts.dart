@@ -67,7 +67,8 @@ class WordTiles extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, box) {
           final n = words.length;
-          final fit = (box.maxWidth - gap * (n - 1)) / n;
+          // Each slot is the tile plus 12 for its name: n of them fit one row.
+          final fit = (box.maxWidth - gap * (n - 1)) / n - 12;
           final side = fit < size.tile ? (fit < size.tile * 2 / 3 ? size.tile * 2 / 3 : fit) : size.tile;
           final scale = side / size.tile;
           final tiles = [
@@ -78,18 +79,16 @@ class WordTiles extends StatelessWidget {
                 side: side,
                 nameSize: size.name * (scale < 1 ? (0.85 + 0.15 * scale) : 1),
                 bad: bad.contains(i),
+                dim: dim,
                 emptyLabel: l.pairWordSlot(i + 1),
                 tokens: t,
               ),
           ];
-          return Opacity(
-            opacity: dim ? 0.55 : 1,
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              spacing: gap,
-              runSpacing: 12,
-              children: tiles,
-            ),
+          return Wrap(
+            alignment: WrapAlignment.center,
+            spacing: gap,
+            runSpacing: 12,
+            children: tiles,
           );
         },
       ),
@@ -104,6 +103,7 @@ class _WordTile extends StatelessWidget {
     required this.side,
     required this.nameSize,
     required this.bad,
+    required this.dim,
     required this.emptyLabel,
     required this.tokens,
   });
@@ -113,6 +113,9 @@ class _WordTile extends StatelessWidget {
   final double side;
   final double nameSize;
   final bool bad;
+
+  /// Expired: the square fades, the name stays readable in dim.
+  final bool dim;
   final String emptyLabel;
   final WalletTokens tokens;
 
@@ -123,14 +126,15 @@ class _WordTile extends StatelessWidget {
     final w = word;
     final Widget square;
     if (w == null) {
+      // An empty slot, or a typed word not in the table (outlined risk).
       square = CustomPaint(
-        painter: _DashedBox(t.lineStrong, t.radiusSmall),
+        painter: _DashedBox(bad ? t.risk : t.lineStrong, t.radiusSmall, width: bad ? 2 : 1.5),
         child: SizedBox.square(
           dimension: side,
           child: Center(
             child: Text(
               '${index + 1}',
-              style: TextStyle(fontFamily: t.monoFamily, fontSize: side * 0.24, color: t.faint),
+              style: TextStyle(fontFamily: t.monoFamily, fontSize: side * 0.24, color: bad ? t.risk : t.dim),
             ),
           ),
         ),
@@ -162,14 +166,14 @@ class _WordTile extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            square,
+            Opacity(opacity: dim ? 0.5 : 1, child: square),
             const SizedBox(height: 6),
             Text(
               w?.name ?? '…',
               maxLines: 1,
               overflow: TextOverflow.fade,
               softWrap: false,
-              style: TextStyle(fontFamily: t.headFamily, fontWeight: FontWeight.w600, fontSize: nameSize, color: w == null ? t.faint : t.text),
+              style: TextStyle(fontFamily: t.headFamily, fontWeight: FontWeight.w600, fontSize: nameSize, color: w == null || dim ? t.dim : t.text),
             ),
           ],
         ),
@@ -179,17 +183,18 @@ class _WordTile extends StatelessWidget {
 }
 
 class _DashedBox extends CustomPainter {
-  const _DashedBox(this.color, this.radius);
+  const _DashedBox(this.color, this.radius, {this.width = 1.5});
 
   final Color color;
   final double radius;
+  final double width;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+      ..strokeWidth = width;
     final path = Path()..addRRect(RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(radius)));
     for (final metric in path.computeMetrics()) {
       var d = 0.0;
@@ -201,7 +206,7 @@ class _DashedBox extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_DashedBox old) => old.color != color || old.radius != radius;
+  bool shouldRepaint(_DashedBox old) => old.color != color || old.radius != radius || old.width != width;
 }
 
 /// The strings, also where only the desktop's localizations are (its screens use these parts).
@@ -411,32 +416,40 @@ class PairSwitchRow extends StatelessWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final on = onChanged;
-    return MergeSemantics(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 56),
-        child: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 8, 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(child: Text(label, style: theme.textTheme.bodyLarge?.copyWith(color: on == null ? t.dim : t.text))),
-                        if (info.isNotEmpty) InfoHint(info, title: label),
-                      ],
-                    ),
-                    if (hint case final h?)
-                      Text(h, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-                  ],
-                ),
+    // Not merged: a screen reader reaches the info button on its own, and the switch carries
+    // the row's label and hint.
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 56),
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 8, 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: ExcludeSemantics(
+                          child: Text(label, style: theme.textTheme.bodyLarge?.copyWith(color: on == null ? t.dim : t.text)),
+                        ),
+                      ),
+                      if (info.isNotEmpty) InfoHint(info, title: label),
+                    ],
+                  ),
+                  if (hint case final h?)
+                    ExcludeSemantics(child: Text(h, style: theme.textTheme.bodySmall?.copyWith(color: t.dim))),
+                ],
               ),
-              Switch(key: switchKey, value: value, onChanged: on),
-            ],
-          ),
+            ),
+            Semantics(
+              label: label,
+              hint: hint,
+              child: Switch(key: switchKey, value: value, onChanged: on),
+            ),
+          ],
         ),
       ),
     );

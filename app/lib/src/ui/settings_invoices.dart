@@ -13,7 +13,6 @@ import '../l10n.dart';
 import '../pairing_providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
-import 'contacts_screen.dart';
 import 'pairing/pair_check.dart';
 import 'pairing/pair_screen.dart';
 import 'pairing/pairing_parts.dart';
@@ -23,6 +22,10 @@ import 'theme/tokens.dart';
 
 /// Keys for tests.
 const Key invoiceSettingsPairKey = ValueKey('invoice-settings-pair');
+
+/// The key of the row menu of the pairing [id] (Save as a new contact, Add to a contact, Check
+/// the words, Remove pairing).
+Key invoiceSettingsMenuKey(String id) => ValueKey('invoice-settings-menu-$id');
 
 /// The key of the Allow invoices switch of the pairing [id].
 Key invoiceSettingsSwitchKey(String id) => ValueKey('invoice-settings-allow-$id');
@@ -69,12 +72,18 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
     }
   }
 
-  Future<void> _addToContacts(PairingRecord r) async {
-    final saved = await Navigator.of(context).push<Contact>(
-      MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: r.name, address: r.paymentsAddress)),
-    );
-    if (saved == null || !mounted) return;
-    await pairingCall(ref, (api) => api.attach(r.id, saved.id));
+  /// Puts the pairing [r] in the contacts, the way the user picks (security review: never
+  /// matched for them): a new contact from the form, or one of theirs.
+  Future<void> _attach(PairingRecord r, {required bool asNew}) async {
+    final contact = asNew ? await savePairingAsNewContact(context, r) : await pickContactForPairing(context);
+    if (contact == null || !mounted) return;
+    final l = context.l10n;
+    await pairingCall(ref, (api) => api.attach(r.id, contact.id));
+    ref.read(noticeProvider.notifier).show(l.pairSavedAs(contact.name), level: NoticeLevel.success);
+  }
+
+  Future<void> _remove(PairingRecord r, String name) async {
+    if (await confirmRemovePairing(context, name)) await pairingCall(ref, (api) => api.removePairing(r.id));
   }
 
   @override
@@ -148,62 +157,61 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
     final name = contact?.name ?? r.shownName;
     final verified = r.state == PairingState.verified;
     final orphan = contact == null;
-    final subtitle = orphan
-        ? l.pairNotInContacts
-        : verified
-        ? (r.allowInvoices ? l.invSetAllowed : l.invSetOff)
-        : l.contactCheckWordsFirst;
-    return Opacity(
-      opacity: verified || orphan ? 1 : 0.6,
-      child: MergeSemantics(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 64),
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(14, 8, 8, 8),
-            child: Row(
-              children: [
-                PairAvatar(name: name, kind: r.kind),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(name, style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-                      if (orphan)
-                        Wrap(
-                          spacing: 4,
-                          children: [
-                            TextButton(onPressed: () => _addToContacts(r), child: Text(l.pairAddToContacts)),
-                            TextButton(
-                              style: TextButton.styleFrom(foregroundColor: t.risk),
-                              onPressed: () => pairingCall(ref, (api) => api.removePairing(r.id)),
-                              child: Text(l.contactRemovePairing),
-                            ),
-                          ],
-                        )
-                      else if (!verified && r.state == PairingState.paired)
-                        TextButton(
-                          onPressed: () => Navigator.of(context).push<void>(
-                            MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id)),
-                          ),
-                          child: Text(l.sasTitle),
-                        ),
-                    ],
-                  ),
-                ),
-                Semantics(
-                  label: l.invSetAllowFor(name),
-                  child: Switch(
-                    key: invoiceSettingsSwitchKey(r.id),
-                    value: verified && r.allowInvoices,
-                    onChanged: !verified || paused || _busy.contains(r.id) ? null : (v) => _set(r, name, v),
-                  ),
-                ),
-              ],
+    final subtitle = verified ? (r.allowInvoices ? l.invSetAllowed : l.invSetOff) : l.contactCheckWordsFirst;
+    final checkWords = !verified && r.state == PairingState.paired;
+    // Not faded and not merged: the text keeps its contrast, and a screen reader reaches the
+    // switch and the row's menu on their own.
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 64),
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 0, 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PairAvatar(name: name, kind: r.kind, size: 40),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(name, style: theme.textTheme.bodyLarge?.copyWith(color: verified ? t.text : t.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                  if (orphan) Text(l.pairNotInContacts, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                ],
+              ),
             ),
-          ),
+            Semantics(
+              label: l.invSetAllowFor(name),
+              child: Switch(
+                key: invoiceSettingsSwitchKey(r.id),
+                value: verified && r.allowInvoices,
+                onChanged: !verified || paused || _busy.contains(r.id) ? null : (v) => _set(r, name, v),
+              ),
+            ),
+            if (orphan || checkWords)
+              PopupMenuButton<String>(
+                key: invoiceSettingsMenuKey(r.id),
+                tooltip: l.contactMore,
+                onSelected: (v) => switch (v) {
+                  'new' => _attach(r, asNew: true),
+                  'add' => _attach(r, asNew: false),
+                  'check' => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))),
+                  'remove' => _remove(r, name),
+                  _ => null,
+                },
+                itemBuilder: (context) => [
+                  if (checkWords) PopupMenuItem(value: 'check', child: Text(l.sasTitle)),
+                  if (orphan) ...[
+                    PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),
+                    PopupMenuItem(value: 'add', child: Text(l.pairAddToAContact)),
+                  ],
+                  PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk))),
+                ],
+              )
+            else
+              const SizedBox(width: 8),
+          ],
         ),
       ),
     );

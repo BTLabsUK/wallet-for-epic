@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../desk_l10n.dart';
-import '../../../ui/pairing/pairing_parts.dart' show SealedBadge, TrustBadge;
+import '../../../ui/pairing/pairing_parts.dart' show ClaimedNameBadge, SealedBadge, TrustBadge;
 import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart';
 import '../../widgets/kit.dart';
@@ -193,11 +193,17 @@ class _Review extends ConsumerWidget {
                 runSpacing: Sp.x1,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  if (pairing != null) ...[const SealedBadge(), TrustBadge(pairing)],
-                  Text(
-                    pairing?.verifiedAt == null ? l.reqSealedSigned(i.label) : '${l.reqSealedSigned(i.label)} · ${l.contactWordsChecked(DateFormat.yMMMd(tag).format(pairing!.verifiedAt!))}',
-                    style: ts.small,
-                  ),
+                  // Sealed and signed only when it came from a pairing; its name is the
+                  // contact's, or marked as chosen by the other side.
+                  if (pairing != null) ...[
+                    const SealedBadge(),
+                    TrustBadge(pairing),
+                    if (pairing.contactId == null) const ClaimedNameBadge(),
+                    Text(
+                      pairing.verifiedAt == null ? l.reqSealedSigned(i.label) : '${l.reqSealedSigned(i.label)} · ${l.contactWordsChecked(DateFormat.yMMMd(tag).format(pairing.verifiedAt!))}',
+                      style: ts.small,
+                    ),
+                  ],
                 ],
               ),
             ],

@@ -30,6 +30,7 @@ import 'package:epic_wallet/src/ui/server_list_sheet.dart'
         serverListFieldKey,
         serverListFootKey,
         serverListSwitchKey;
+import 'package:epic_wallet/src/ui/pairing/pair_check.dart' show confirmRemovePairingKey;
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
@@ -1606,7 +1607,9 @@ void main() {
       final sw = tester.widget<Switch>(find.byKey(invoiceSettingsSwitchKey(r.id)));
       expect(sw.onChanged, isNull);
       expect(sw.value, isFalse);
-      await tester.tap(find.text(l.sasTitle));
+      await tester.tap(find.byKey(invoiceSettingsMenuKey(r.id)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.sasTitle).last);
       await tester.pumpAndSettle();
       expect(find.text(l.sasMatch), findsOneWidget);
     });
@@ -1614,7 +1617,13 @@ void main() {
     testWidgets('a pairing whose contact is gone offers Add to contacts and Remove pairing', (tester) async {
       final h = await openInvoices(tester, seed: (h) async => paired(h, 'Marta', saved: false));
       expect(find.text(l.pairNotInContacts), findsOneWidget);
-      await tester.tap(find.text(l.contactRemovePairing));
+      final marta = (await h.session.pairing.pairings()).single;
+      await tester.tap(find.byKey(invoiceSettingsMenuKey(marta.id)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.contactRemovePairing).last);
+      await tester.pumpAndSettle();
+      expect(find.text(l.contactRemovePairingTitle('Marta')), findsOneWidget, reason: 'asks first');
+      await tester.tap(find.byKey(confirmRemovePairingKey));
       await tester.pumpAndSettle();
       expect(await h.session.pairing.pairings(), isEmpty);
     });

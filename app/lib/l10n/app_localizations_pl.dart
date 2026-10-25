@@ -16234,4 +16234,16 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'Używaj parowania na jednym urządzeniu naraz. Kopia przywrócona na drugim urządzeniu zapyta, zanim użyje tam kontaktów.';
+
+  @override
+  String get pairNameForCode =>
+      'Wpisz nazwę, którą zobaczy druga strona, a tutaj pojawi się twój kod.';
+
+  @override
+  String get restoreDone => 'Historia przywrócona.';
+
+  @override
+  String restoreDoneBody(int payments, int contacts, int pairings) {
+    return 'Wróciły płatności: $payments, kontakty: $contacts i parowania: $pairings.';
+  }
 }

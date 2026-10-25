@@ -383,9 +383,11 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
     }
     ref.invalidate(homeProvider);
     if (context.mounted) {
+      // The total, and how many of them were in use on another device.
+      final other = report.pairingsOtherDevice;
       final pairings = report.pairingsAdded == 0
           ? null
-          : '${l.restorePairings}: ${report.pairingsOtherDevice > 0 ? l.restorePairingsOnOtherDevice(report.pairingsAdded) : report.pairingsAdded}';
+          : '${l.restorePairings}: ${other == 0 ? report.pairingsAdded : other == report.pairingsAdded ? l.restorePairingsOnOtherDevice(other) : '${report.pairingsAdded}, ${l.restorePairingsOnOtherDevice(other)}'}';
       await _tell(
         context,
         l.historyBackupImportedTitle,
@@ -394,6 +396,13 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
           if (report.replaced > 0) l.histImportedReplaced(report.replaced),
           ?pairings,
         ].join(' '),
+      );
+    }
+    // A restore that brought pairings back says what came back (SPEC 2.12).
+    if (report.pairingsAdded > 0 && context.mounted) {
+      ref.read(noticeProvider.notifier).show(
+        '${l.restoreDone} ${l.restoreDoneBody(report.merged + report.added, report.contactsAdded, report.pairingsAdded)}',
+        level: NoticeLevel.success,
       );
     }
     // Pairings used on another device wait until the user takes them over here (RFC 9.5).

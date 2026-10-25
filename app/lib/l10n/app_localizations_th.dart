@@ -15473,4 +15473,16 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'ใช้การจับคู่บนอุปกรณ์เดียวในแต่ละครั้ง ข้อมูลสำรองที่กู้คืนบนอุปกรณ์เครื่องที่สองจะถามก่อนใช้ผู้ติดต่อที่นั่น';
+
+  @override
+  String get pairNameForCode =>
+      'ใส่ชื่อที่อีกฝ่ายจะเห็น แล้วโค้ดของคุณจะแสดงที่นี่';
+
+  @override
+  String get restoreDone => 'กู้คืนประวัติแล้ว';
+
+  @override
+  String restoreDoneBody(int payments, int contacts, int pairings) {
+    return 'การชำระเงิน $payments รายการ ผู้ติดต่อ $contacts รายการ และการจับคู่ $pairings รายการกลับมาแล้ว';
+  }
 }

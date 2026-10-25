@@ -23,6 +23,7 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../transfer/contact_picker.dart' show showContactPicker;
 
 /// Keys for tests.
 const Key deskPairEnterKey = ValueKey('desk-pair-enter');
@@ -63,6 +64,10 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   PairingRecord? _code;
   String? _codeError;
   String? _enterError;
+
+  /// No name yet: the code waits for one, and the field says so only once the user tried.
+  bool _needName = false;
+  bool _triedInvite = false;
   bool _busy = false;
   Timer? _tick;
   Timer? _collect;
@@ -100,9 +105,14 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   Future<void> _makeCode() async {
     final l = context.l10n;
     if (_seenAs.isEmpty) {
-      setState(() => _codeError = l.pairSeenAsMissing);
+      setState(() {
+        _needName = true;
+        _codeError = null;
+      });
       return;
     }
+    _needName = false;
+    unawaited(ref.read(deskSeenAsProvider.notifier).set(_seenAs));
     if (ref.read(deskPairNetProvider) != DeskPairNet.online) {
       setState(() => _codeError = l.pairWordsNeedEpicbox);
       return;
@@ -125,10 +135,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     }
   }
 
-  void _nameChanged() {
-    ref.read(deskSeenAsProvider.notifier).set(_name.text);
-    setState(() {});
-  }
+  void _nameChanged() => setState(() {});
 
   /// The typed words, by table name or emoji.
   List<String> get _words => _enter.text.trim().split(RegExp(r'[\s,·]+')).where((w) => w.isNotEmpty).toList();
@@ -159,9 +166,10 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   Future<void> _copyInvite() async {
     final l = context.l10n;
     if (_seenAs.isEmpty) {
-      showEToast(context, l.pairSeenAsMissing, tone: ETone.warn);
+      setState(() => _triedInvite = true);
       return;
     }
+    unawaited(ref.read(deskSeenAsProvider.notifier).set(_seenAs));
     try {
       final invite = await deskPairingCall(
         ref,
@@ -194,6 +202,8 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (_codeError != null) ...[ENotice(title: _codeError!, tone: ETone.warn), SizedBox(height: Sp.x4)],
+          // Neutral until a name exists: the code needs it (the field is in Invite online).
+          if (_needName && code == null) Text(l.pairNameForCode, style: ts.bodyDim),
           if (code != null)
             Wrap(
               spacing: Sp.x5,
@@ -278,8 +288,8 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
           SizedBox(height: Sp.x4),
           EField(
             label: l.pairSeenAs,
-            error: _seenAs.isEmpty ? l.pairSeenAsMissing : null,
-            child: EInput(controller: _name, onChanged: (_) => _nameChanged(), onSubmitted: (_) => _makeCode()),
+            error: _triedInvite && _seenAs.isEmpty ? l.pairSeenAsMissing : null,
+            child: EInput(controller: _name, autofocus: _name.text.isEmpty, onChanged: (_) => _nameChanged(), onSubmitted: (_) => _makeCode()),
           ),
           SizedBox(height: Sp.x4),
           Text(l.pairWhatTheyReceive, style: ts.label),
@@ -564,6 +574,75 @@ class _WaitingDialogState extends ConsumerState<_WaitingDialog> {
 
 /// The words check as a dialog: the four large tiles, Skip for now, They don't match, They
 /// match; then the result as a toast.
+/// Asks before removing the pairing with [name] (SPEC 2.4): Keep, or Remove in risk.
+Future<bool> deskConfirmRemovePairing(BuildContext context, String name) async {
+  final l = context.l10n;
+  final sure = await showEDialog<bool>(
+    context,
+    builder: (ctx) => EDialog(
+      title: l.contactRemovePairingTitle(name),
+      description: l.contactRemovePairingBody(name),
+      tone: ETone.risk,
+      icon: EIcons.trash,
+      actions: [
+        EButton(label: l.contactKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
+        EButton(key: deskConfirmRemovePairingKey, label: l.contactRemove, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+      ],
+    ),
+  );
+  return sure ?? false;
+}
+
+/// The Remove button of [deskConfirmRemovePairing], for tests.
+const Key deskConfirmRemovePairingKey = ValueKey('desk-confirm-remove-pairing');
+
+/// Puts the pairing [r] in the contacts the way the user picks (security review: never
+/// matched or saved for them): with [asNew], a form with the name it claims to check first;
+/// else one of their contacts from the picker.
+Future<void> deskPutPairingInContacts(BuildContext context, WidgetRef ref, PairingRecord r, {required bool asNew}) async {
+  final l = context.l10n;
+  final String contactId;
+  final String name;
+  if (asNew) {
+    final text = TextEditingController(text: r.shownName);
+    final saved = await showEDialog<String>(
+      context,
+      builder: (ctx) => EDialog(
+        title: l.pairSaveContactTitle(r.shownName),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            EField(label: l.deskConFieldName, child: EInput(key: deskSaveContactNameKey, controller: text, autofocus: true)),
+            if (r.paymentsAddress case final a?) ...[
+              SizedBox(height: Sp.x3),
+              EField(label: l.deskConFieldAddress, child: Text(a, style: ctx.ts.mono())),
+            ],
+          ],
+        ),
+        actions: [
+          EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx)),
+          EButton.primary(label: l.deskConSave, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, text.text.trim())),
+        ],
+      ),
+    );
+    text.dispose();
+    if (saved == null || saved.isEmpty || !context.mounted) return;
+    contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved, address: r.paymentsAddress));
+    name = saved;
+  } else {
+    final picked = await showContactPicker(context);
+    if (picked == null) return;
+    contactId = picked.id;
+    name = picked.name;
+  }
+  await deskPairingCall(ref, (api) => api.attach(r.id, contactId));
+  if (context.mounted) showEToast(context, l.pairSavedAs(name), tone: ETone.ok);
+}
+
+/// The name field of the Save as a new contact form, for tests.
+const Key deskSaveContactNameKey = ValueKey('desk-save-contact-name');
+
 Future<void> showDeskCheckWords(BuildContext context, WidgetRef ref, String pairingId, {bool recheck = false}) =>
     showEDialog<void>(context, builder: (_) => _CheckDialog(pairingId: pairingId, recheck: recheck));
 

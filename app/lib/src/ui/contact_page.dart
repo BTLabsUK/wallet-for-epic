@@ -343,7 +343,7 @@ class _Addresses extends StatelessWidget {
                 children: [
                   EBadge.kind(kind, l: l),
                   const SizedBox(width: 10),
-                  Expanded(child: AddressText(contact.addressOf(kind)!, selectable: true)),
+                  Expanded(child: AddressText(contact.addressOf(kind)!, short: true)),
                   IconButton(
                     tooltip: l.contactCopyAddress(recipientMethodWord(l, kind)),
                     icon: Icon(Icons.copy, size: 20, color: t.accentText),
@@ -463,22 +463,7 @@ class _PairingBlock extends ConsumerWidget {
       await pairingCall(ref, (api) => api.resolveKeysChanged(p.id, choice));
     });
     Future<void> remove() async {
-      final sure = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(l.contactRemovePairingTitle(name)),
-          content: Text(l.contactRemovePairingBody(name)),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.contactKeep)),
-            TextButton(
-              style: TextButton.styleFrom(foregroundColor: context.tokens.risk),
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l.contactRemove),
-            ),
-          ],
-        ),
-      );
-      if (sure == true) await run(() => pairingCall(ref, (api) => api.removePairing(p.id)));
+      if (await confirmRemovePairing(context, name)) await run(() => pairingCall(ref, (api) => api.removePairing(p.id)));
     }
 
     final sealInfo = '${l.contactSealInfo(name)}\n\n${l.contactSealInfoMore(name)}';

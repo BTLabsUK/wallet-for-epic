@@ -1066,20 +1066,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
               onPressed: _busy
                   ? null
                   : () async {
-                      final sure = await showEDialog<bool>(
-                        context,
-                        builder: (ctx) => EDialog(
-                          title: l.contactRemovePairingTitle(name),
-                          description: l.contactRemovePairingBody(name),
-                          tone: ETone.risk,
-                          icon: EIcons.trash,
-                          actions: [
-                            EButton(label: l.contactKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-                            EButton(label: l.contactRemove, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
-                          ],
-                        ),
-                      );
-                      if (sure == true) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
+                      if (await deskConfirmRemovePairing(context, name)) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
                     },
             ),
           ],

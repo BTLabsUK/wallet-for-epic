@@ -46,11 +46,8 @@ class InvoiceSettingsBlock extends ConsumerWidget {
       final contact = contacts.where((x) => x.id == r.contactId).firstOrNull;
       final name = contact?.name ?? r.shownName;
       final verified = r.state == PairingState.verified;
-      final text = contact == null
-          ? l.pairNotInContacts
-          : verified
-          ? (r.allowInvoices ? l.invSetRowAllowed : l.trustVerified)
-          : l.invSetRowCheckFirst;
+      final state = verified ? (r.allowInvoices ? l.invSetRowAllowed : l.trustVerified) : l.invSetRowCheckFirst;
+      final text = contact == null ? '$state · ${l.pairNotInContacts}' : state;
       return ESetRow(
         title: name,
         text: text,
@@ -58,16 +55,19 @@ class InvoiceSettingsBlock extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (contact == null) ...[
+              // The user picks how it goes in the contacts; nothing is saved without the form.
+              EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
+              SizedBox(width: Sp.x2),
+              EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
+              SizedBox(width: Sp.x2),
               EButton(
-                label: l.pairAddToContacts,
+                label: l.contactRemovePairing,
+                kind: EBtnKind.danger,
                 size: EBtnSize.sm,
                 onPressed: () async {
-                  final id = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: name, address: r.paymentsAddress));
-                  await deskPairingCall(ref, (api) => api.attach(r.id, id));
+                  if (await deskConfirmRemovePairing(context, name)) await deskPairingCall(ref, (api) => api.removePairing(r.id));
                 },
               ),
-              SizedBox(width: Sp.x2),
-              EButton(label: l.contactRemovePairing, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => deskPairingCall(ref, (api) => api.removePairing(r.id))),
               SizedBox(width: Sp.x3),
             ] else if (!verified && r.state == PairingState.paired) ...[
               EButton(label: l.sasTitle, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, r.id)),

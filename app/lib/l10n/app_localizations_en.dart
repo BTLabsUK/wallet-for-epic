@@ -15763,4 +15763,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.';
+
+  @override
+  String get pairNameForCode =>
+      'Enter the name they will see, and your code appears here.';
+
+  @override
+  String get restoreDone => 'History restored.';
+
+  @override
+  String restoreDoneBody(int payments, int contacts, int pairings) {
+    return '$payments payments, $contacts contacts and $pairings pairings are back.';
+  }
 }

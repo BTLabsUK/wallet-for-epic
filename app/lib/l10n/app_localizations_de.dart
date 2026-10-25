@@ -15951,4 +15951,16 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get helpPairRestoreP4 =>
       'Nutzen Sie eine Kopplung immer nur auf einem Gerät. Eine auf einem zweiten Gerät wiederhergestellte Sicherung fragt, bevor sie die Kontakte dort verwendet.';
+
+  @override
+  String get pairNameForCode =>
+      'Geben Sie den Namen ein, den die andere Seite sieht; dann erscheint hier Ihr Code.';
+
+  @override
+  String get restoreDone => 'Verlauf wiederhergestellt.';
+
+  @override
+  String restoreDoneBody(int payments, int contacts, int pairings) {
+    return '$payments Zahlungen, $contacts Kontakte und $pairings Kopplungen sind zurück.';
+  }
 }

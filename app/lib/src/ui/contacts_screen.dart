@@ -362,7 +362,7 @@ class _ContactRow extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              PairAvatar(name: contact.name, kind: pairing?.kind ?? PairingParty.person, size: 40),
+              PairAvatar(name: contact.name, kind: pairing?.kind ?? PairingParty.person, size: 48),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -380,9 +380,11 @@ class _ContactRow extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Paired: its trust badge; not paired: nothing (the line under it says how
-                        // it is reached).
-                        if (pairing != null) Flexible(child: TrustBadge(pairing, short: true)),
+                        // Paired: its trust badge; not paired: how it is reached (SPEC 2.1).
+                        if (pairing != null)
+                          Flexible(child: TrustBadge(pairing, short: true))
+                        else if (!several && contact.addresses.isNotEmpty)
+                          Flexible(child: EBadge.kind(parseRecipient(contact.address).kind, l: l)),
                       ],
                     ),
                     const SizedBox(height: 2),

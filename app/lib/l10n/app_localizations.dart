@@ -24901,6 +24901,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use a pairing on one device at a time. A backup restored on a second device asks before using the contacts there.'**
   String get helpPairRestoreP4;
+
+  /// In person, Show my code: the placeholder of the code until the user gave the name the other side sees.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the name they will see, and your code appears here.'**
+  String get pairNameForCode;
+
+  /// Notice title after a history backup was imported with pairings.
+  ///
+  /// In en, this message translates to:
+  /// **'History restored.'**
+  String get restoreDone;
+
+  /// Notice body after a history backup was imported with pairings.
+  ///
+  /// In en, this message translates to:
+  /// **'{payments} payments, {contacts} contacts and {pairings} pairings are back.'**
+  String restoreDoneBody(int payments, int contacts, int pairings);
 }
 
 class _AppLocalizationsDelegate
