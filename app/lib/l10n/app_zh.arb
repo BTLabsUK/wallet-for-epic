@@ -3771,6 +3771,7 @@
   "scanPairingUnavailable": "此版本不支持配对。",
   "scanCodeTextLabel": "扫描到的文本",
   "scanCopied": "已复制",
+  "linkWaitingPairingNotice": "收到配对链接",
   "linkWaitingNotice": "收到付款链接",
   "linkFinishCurrentFirst": "请先完成当前付款。",
   "deskSendToQrPayment": "这是二维码付款码，请用 Epic Cash Mobile 扫描。",

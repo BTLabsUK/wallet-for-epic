@@ -14715,6 +14715,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scanCopied => 'Скопировано';
 
   @override
+  String get linkWaitingPairingNotice => 'Получена ссылка для сопряжения';
+
+  @override
   String get linkWaitingNotice => 'Получена ссылка на оплату';
 
   @override

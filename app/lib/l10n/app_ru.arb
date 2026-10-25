@@ -3771,6 +3771,7 @@
   "scanPairingUnavailable": "Сопряжение недоступно в этой версии.",
   "scanCodeTextLabel": "Отсканированный текст",
   "scanCopied": "Скопировано",
+  "linkWaitingPairingNotice": "Получена ссылка для сопряжения",
   "linkWaitingNotice": "Получена ссылка на оплату",
   "linkFinishCurrentFirst": "Сначала завершите текущий платёж.",
   "deskSendToQrPayment": "Код «Оплата по QR». Отсканируйте его в Epic Cash Mobile.",

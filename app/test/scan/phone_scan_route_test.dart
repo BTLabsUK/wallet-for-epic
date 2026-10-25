@@ -783,6 +783,21 @@ void main() {
       expect(_field(tester, sendAmountFieldKey), '1.5');
     });
 
+    testWidgets('under another screen, a pairing link says Pairing link, not Payment link', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      unawaited(
+        Navigator.of(tester.element(find.byType(HomeScreen))).push(
+          MaterialPageRoute<void>(builder: (_) => const SlotScaffold(body: Text('another screen'))),
+        ),
+      );
+      await tester.pumpAndSettle();
+      h.container.read(incomingLinkProvider.notifier).deliver('epiccash://pair/1/AAAA');
+      await tester.pumpAndSettle();
+      expect(find.text('Pairing link received'), findsOneWidget);
+      expect(find.text('Payment link received'), findsNothing);
+    });
+
     testWidgets('while busy: dropped, said so', (tester) async {
       final h = _Harness();
       await h.pump(tester);

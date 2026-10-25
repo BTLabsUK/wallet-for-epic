@@ -14314,6 +14314,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanCopied => 'Copied';
 
   @override
+  String get linkWaitingPairingNotice => 'Pairing link received';
+
+  @override
   String get linkWaitingNotice => 'Payment link received';
 
   @override

@@ -14036,6 +14036,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get scanCopied => 'คัดลอกแล้ว';
 
   @override
+  String get linkWaitingPairingNotice => 'ได้รับลิงก์จับคู่';
+
+  @override
   String get linkWaitingNotice => 'ได้รับลิงก์ชำระเงิน';
 
   @override

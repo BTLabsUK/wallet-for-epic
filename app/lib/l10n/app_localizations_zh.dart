@@ -13557,6 +13557,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scanCopied => '已复制';
 
   @override
+  String get linkWaitingPairingNotice => '收到配对链接';
+
+  @override
   String get linkWaitingNotice => '收到付款链接';
 
   @override

@@ -22676,6 +22676,12 @@ abstract class AppLocalizations {
   /// **'Copied'**
   String get scanCopied;
 
+  /// linkWaitingNotice for a pairing link (an invite, an answer, a confirm or a card) rather than a payment link; its action is commonOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing link received'**
+  String get linkWaitingPairingNotice;
+
   /// Notice when a payment link arrives while another screen is open over home; its action is commonOpen.
   ///
   /// In en, this message translates to:

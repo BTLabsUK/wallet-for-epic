@@ -14753,6 +14753,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get scanCopied => 'Skopiowano';
 
   @override
+  String get linkWaitingPairingNotice => 'Otrzymano link parowania';
+
+  @override
   String get linkWaitingNotice => 'Otrzymano link płatności';
 
   @override

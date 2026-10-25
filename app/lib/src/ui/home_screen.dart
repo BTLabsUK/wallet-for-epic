@@ -369,7 +369,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           openScannedText(context, ref, link.text, origin: CodeOrigin.link),
         );
       }
-    });
+    }, pairing: pairingLinkKind(link.text) != null);
   }
 
   void _goTab(ShellTab tab) => ref.read(shellTabProvider.notifier).go(tab);

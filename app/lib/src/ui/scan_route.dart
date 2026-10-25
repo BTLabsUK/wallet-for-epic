@@ -190,12 +190,13 @@ void showSendTab(BuildContext context, WidgetRef ref) {
 }
 
 /// A payment link came while another screen is open: nothing closes; Open in the notice
-/// closes the screens and opens the link. Dismissed, the link is dropped.
-void showLinkWaiting(WidgetRef ref, AppLocalizations l, VoidCallback open) {
+/// closes the screens and opens the link. Dismissed, the link is dropped. A [pairing] link
+/// says so, not "Payment link".
+void showLinkWaiting(WidgetRef ref, AppLocalizations l, VoidCallback open, {bool pairing = false}) {
   ref
       .read(noticeProvider.notifier)
       .show(
-        l.linkWaitingNotice,
+        pairing ? l.linkWaitingPairingNotice : l.linkWaitingNotice,
         level: NoticeLevel.info,
         action: NoticeAction(l.commonOpen, open),
       );

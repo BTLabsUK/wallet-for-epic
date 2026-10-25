@@ -18792,6 +18792,10 @@
   "@scanCopied": {
     "description": "Notice after Copy on a scan-result sheet copied the scanned text."
   },
+  "linkWaitingPairingNotice": "Pairing link received",
+  "@linkWaitingPairingNotice": {
+    "description": "linkWaitingNotice for a pairing link (an invite, an answer, a confirm or a card) rather than a payment link; its action is commonOpen."
+  },
   "linkWaitingNotice": "Payment link received",
   "@linkWaitingNotice": {
     "description": "Notice when a payment link arrives while another screen is open over home; its action is commonOpen."

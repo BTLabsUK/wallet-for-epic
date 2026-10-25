@@ -3771,6 +3771,7 @@
   "scanPairingUnavailable": "Parowanie nie jest dostępne w tej wersji.",
   "scanCodeTextLabel": "Zeskanowany tekst",
   "scanCopied": "Skopiowano",
+  "linkWaitingPairingNotice": "Otrzymano link parowania",
   "linkWaitingNotice": "Otrzymano link płatności",
   "linkFinishCurrentFirst": "Najpierw dokończ bieżącą płatność.",
   "deskSendToQrPayment": "Kod Płatności QR. Zeskanuj go w Epic Cash Mobile.",

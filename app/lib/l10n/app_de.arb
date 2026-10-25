@@ -3771,6 +3771,7 @@
   "scanPairingUnavailable": "Kopplung ist in dieser Version nicht verfügbar.",
   "scanCodeTextLabel": "Gescannter Text",
   "scanCopied": "Kopiert",
+  "linkWaitingPairingNotice": "Kopplungslink empfangen",
   "linkWaitingNotice": "Zahlungslink empfangen",
   "linkFinishCurrentFirst": "Schließen Sie zuerst die aktuelle Zahlung ab.",
   "deskSendToQrPayment": "Ein QR-Zahlungscode. Scannen Sie ihn mit Epic Cash Mobile.",
