@@ -1021,7 +1021,8 @@ class DeskPairedSaveDialog extends ConsumerWidget {
       title: verified ? l.sasMatchedTitle(name) : l.sasSkippedTitle(name),
       tone: verified ? ETone.ok : ETone.warn,
       icon: verified ? EIcons.trusted : EIcons.shield,
-      width: 520.u,
+      // Room for the three choices on one line in every language.
+      width: suggested == null ? 520.u : 680.u,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
