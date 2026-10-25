@@ -211,6 +211,12 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   /// can (DESIGN §3.3, §3.4). With Invoices off (Settings › Advanced) it opens nothing and the
   /// screen says Invoices are experimental ([_invoicesOff]).
   Future<String Function(AppLocalizations l)?> _requestProblem(SlateInfo info) async {
+    // A request scanned from a QR is paid like any send: no switch, only a core that pays
+    // requests. Its answer, scanned by whoever asked, still needs Invoices on.
+    if (widget.scanned && info.stage == SlateStage.request && _sealedText == null) {
+      final session = ref.read(sessionProvider);
+      return session == null || session.supportsRequestFiles ? null : (AppLocalizations l) => l.qrScanNotPayment;
+    }
     // The settings are read first: the screen can open before they are loaded.
     final settings = await ref.read(appSettingsProvider.future);
     if (!settings.advanced.invoicesOn) {
@@ -256,7 +262,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           json: _file.json,
           info: info,
           pairingId: _sealedText != null ? _sealedFrom?.id : null,
-          pasted: widget.pasted,
+          pasted: widget.pasted && !widget.scanned,
+          scanned: widget.scanned,
         ),
       ),
     );

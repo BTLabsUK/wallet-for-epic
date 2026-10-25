@@ -25507,6 +25507,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invoice for anyone with the file'**
   String get deskInvIssuerToAnyone;
+
+  /// Title of the screen that shows a payment request as a QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment request'**
+  String get qrShowTitleRequest;
+
+  /// Line under the amount on the request QR screen.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} from a phone next to you'**
+  String qrShowSubRequest(String amount);
+
+  /// Card text while the request QR is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever scans it can pay this request. Show it to the person paying.'**
+  String get qrHiddenBodyRequest;
+
+  /// Status line, request QR hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this to the person paying.'**
+  String get qrStatusRequestHidden;
+
+  /// Status line, request QR showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for them to scan and approve. Then scan their reply.'**
+  String get qrStatusRequestShowing;
+
+  /// Spoken label of the request QR card.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment request QR code, {state}'**
+  String qrSemanticsRequest(String state);
+
+  /// Line under the amount on the payer's reply QR screen.
+  ///
+  /// In en, this message translates to:
+  /// **'To whoever asked for {amount}'**
+  String qrShowSubPaid(String amount);
+
+  /// Card text while the payer's reply QR is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to the phone that asked for the payment. Only that wallet can use it.'**
+  String get qrHiddenBodyPaid;
+
+  /// Status line, payer's reply QR hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this to whoever asked for the payment.'**
+  String get qrStatusPaidHidden;
+
+  /// Status line, payer's reply QR showing.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for them to scan and post it.'**
+  String get qrStatusPaidShowing;
+
+  /// Status line once the paid request is confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid.'**
+  String get qrStatusPaid;
+
+  /// Payer picker row: show the request as a QR to a phone next to you.
+  ///
+  /// In en, this message translates to:
+  /// **'Show as QR'**
+  String get reqToQr;
+
+  /// Summary above the button when the request goes as a QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever scans the code can pay {amount}. Their wallet answers with a QR; scan it here to finish.'**
+  String reqQrSummary(String amount);
+
+  /// Button that makes the request and shows it as a QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Show as QR'**
+  String get reqShowQr;
+
+  /// Receive › Direct · QR card button: make a payment request and show it as a QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Request an amount'**
+  String get receiveQrRequest;
+
+  /// Primary button of the sheet shown when a QR request needs Invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Invoices'**
+  String get expInvoicesTurnOn;
+
+  /// Body of the sheet shown when a QR request needs Invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests by QR are part of Invoices, which are experimental. Turn them on here or later in Settings › Advanced.'**
+  String get expInvoicesOffQrBody;
+
+  /// Title of the merchant's receipt after the reply was scanned and posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get reqQrPaidTitle;
+
+  /// Receipt headline.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} paid and sent to the network.'**
+  String reqQrPaidHeadline(String amount);
+
+  /// Receipt button: start the next request.
+  ///
+  /// In en, this message translates to:
+  /// **'New request'**
+  String get reqQrNew;
+
+  /// Merchant scanned a second reply to a request already finished.
+  ///
+  /// In en, this message translates to:
+  /// **'This request is already paid. This reply was not posted; the wallet that made it can cancel its payment.'**
+  String get reqQrAlreadyPaid;
+
+  /// Customer review title for a scanned request.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment request from a QR code'**
+  String get reqFromQrTitle;
+
+  /// Warn card on a scanned request.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in the code says who made it. Pay only the person or shop in front of you, and check the amount.'**
+  String get reqFromQrWarn;
+
+  /// Label of the merchant's note on a scanned request.
+  ///
+  /// In en, this message translates to:
+  /// **'Message in the code'**
+  String get reqQrMessageLabel;
+
+  /// Customer's approve button for a scanned request.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve and show reply'**
+  String get reqApproveShowAnswer;
+
+  /// Customer's page after the reply QR was shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get reqQrAnswerTitle;
+
+  /// Customer's page after the reply QR was shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever asked scans your reply, then posts the payment. It shows in Activity.'**
+  String get reqQrAnswerLead;
+
+  /// Customer: the scanned request is past its time.
+  ///
+  /// In en, this message translates to:
+  /// **'This request has expired. Ask for a new one. Nothing was paid.'**
+  String get reqExpired;
+
+  /// Customer: the scanned request's time limit does not fit this network.
+  ///
+  /// In en, this message translates to:
+  /// **'This request is for another network, or its time is wrong. Nothing was paid.'**
+  String get reqOtherChain;
+
+  /// Scanner: an animated payment QR while Direct · QR Payment is off.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Payment is off'**
+  String get qrPaymentOffTitle;
+
+  /// Scanner: an animated payment QR while Direct · QR Payment is off.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a QR Payment code. Turn on Direct · QR Payment in Settings › Transactions to read it.'**
+  String get qrPaymentOffBody;
 }
 
 class _AppLocalizationsDelegate

@@ -28,6 +28,8 @@ import 'contacts_screen.dart';
 import 'invoices_screen.dart';
 import 'net_block.dart';
 import 'pairing/pairing_parts.dart';
+import 'request_qr_screen.dart' show RequestQrScreen;
+import 'scan_screen.dart' show offersQrPayment;
 import 'slate_file_screen.dart' show SlateFileResult;
 import 'send_screen.dart'
     show Utf8LengthLimiter, maxSendAtomic, normalizeAmountText, utf8Length;
@@ -41,6 +43,8 @@ const Key requestAmountKey = ValueKey('request-amount');
 const Key requestMessageKey = ValueKey('request-message');
 const Key requestSummaryKey = ValueKey('request-summary');
 const Key requestToFileKey = ValueKey('request-to-file');
+const Key requestToQrKey = ValueKey('request-to-qr');
+const Key requestShowQrKey = ValueKey('request-show-qr');
 const Key requestFileWaitingKey = ValueKey('request-file-waiting');
 
 /// Payment requests work as files, both ways: Invoices is on and the core handles them
@@ -50,6 +54,9 @@ bool requestFilesOn(WidgetRef ref, {bool listen = true}) =>
 
 /// The picker's value for "Save as a file for anyone".
 const String _fileRow = '\u0000file';
+
+/// The picker's value for "Show as QR".
+const String _qrRow = '\u0000qr';
 
 /// The payer as the user knows them: the contact's name, else the start of the address.
 ///
@@ -136,10 +143,13 @@ List<PairingRecord> requestPayers(Iterable<PairingRecord> pairings) {
 /// mailbox; Save as file makes a payment file for anyone. No PIN: nothing leaves the wallet.
 /// Success opens the Invoices screen's sent requests.
 class InvoiceRequestScreen extends ConsumerStatefulWidget {
-  const InvoiceRequestScreen({super.key, this.pairingId});
+  const InvoiceRequestScreen({super.key, this.pairingId, this.asQr = false});
 
   /// The paired contact to ask, when the form opens from it.
   final String? pairingId;
+
+  /// The form opens on "Show as QR" (Receive › Direct · QR).
+  final bool asQr;
 
   @override
   ConsumerState<InvoiceRequestScreen> createState() =>
@@ -152,6 +162,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
   /// "Save as a file for anyone" is chosen under To; null until the user picks, when it is
   /// the choice only while no paired contact pays requests.
   bool? _toFile;
+
+  /// "Show as QR" is chosen under To: the request goes to a phone next to this one.
+  late bool _toQr = widget.asQr;
   final _amount = TextEditingController();
   final _message = TextEditingController();
   final _amountFocus = FocusNode();
@@ -253,6 +266,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
   Future<void> _pickPayer(List<PairingRecord> payers, List<Contact> contacts) async {
     final l = context.l10n;
     final byFile = requestFilesOn(ref, listen: false);
+    final byQr = byFile && offersQrPayment(ref);
     final picked = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
@@ -266,7 +280,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               leading: PairAvatar(name: pairingName(r, contacts), kind: r.kind, size: 48),
               title: Text(pairingName(r, contacts)),
               trailing: TrustBadge(r, short: true),
-              selected: r.id == _to && _toFile != true,
+              selected: r.id == _to && _toFile != true && !_toQr,
               onTap: () => Navigator.pop(context, r.id),
             ),
           if (payers.isEmpty && !byFile)
@@ -277,16 +291,26 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               minTileHeight: 64,
               leading: const SizedBox(width: 48, child: Icon(Icons.description_outlined)),
               title: Text(l.reqToFile),
-              selected: _toFile ?? payers.isEmpty,
+              selected: !_toQr && (_toFile ?? payers.isEmpty),
               onTap: () => Navigator.pop(context, _fileRow),
+            ),
+          if (byQr)
+            ListTile(
+              key: requestToQrKey,
+              minTileHeight: 64,
+              leading: const SizedBox(width: 48, child: Icon(Icons.qr_code_2)),
+              title: Text(l.reqToQr),
+              selected: _toQr,
+              onTap: () => Navigator.pop(context, _qrRow),
             ),
         ],
       ),
     );
     if (picked != null && mounted) {
       setState(() {
+        _toQr = picked == _qrRow;
         _toFile = picked == _fileRow;
-        if (picked != _fileRow) _to = picked;
+        if (picked != _fileRow && picked != _qrRow) _to = picked;
         _payerError = null;
       });
     }
@@ -381,6 +405,40 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     }
   }
 
+  /// Makes the request and shows it as a QR (Direct · QR Payment). Nothing is spent, so no PIN;
+  /// the request waits in Requests sent until the payer's answer is scanned.
+  Future<void> _showQr() async {
+    if (_busy) return;
+    final l = context.l10n;
+    final amount = _amountOrSay();
+    if (amount == null) return;
+    final message = _message.text.trim();
+    final notices = ref.read(noticeProvider.notifier);
+    final navigator = Navigator.of(context);
+    setState(() => _busy = true);
+    try {
+      final slate = await ref
+          .read(autoLockHoldProvider.notifier)
+          .during(() => pairingCall(ref, (api) => api.requestFile(amount: amount, message: message.isEmpty ? null : message)));
+      ref
+        ..invalidate(issuedInvoicesProvider)
+        ..invalidate(homeProvider);
+      logInfo('invoices', 'payment request shown as a QR');
+      unawaited(
+        navigator.pushReplacement(
+          MaterialPageRoute<void>(
+            builder: (_) => RequestQrScreen(slate: slate, amount: amount, message: message.isEmpty ? null : message),
+          ),
+        ),
+      );
+    } catch (error) {
+      logWarn('invoices', 'QR request failed: ${describeError(englishStrings, error)}');
+      notices.show(describeError(l, error), level: NoticeLevel.error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final block = watchNetBlock(context, ref);
@@ -398,11 +456,14 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     // Request files off (the core or the Invoices switch): contacts only.
     final byFile = requestFilesOn(ref);
     // The file is the choice the user made, or the only one while no contact pays requests.
-    final toFile = byFile && (_toFile ?? (payers.isEmpty && to == null));
+    final toQr = byFile && _toQr && offersQrPayment(ref);
+    final toFile = !toQr && byFile && (_toFile ?? (payers.isEmpty && to == null));
     final amount = _parsedAmount;
     // What the button does, once the payer and the amount are good.
     final summary = amount == null
         ? null
+        : toQr
+        ? l.reqQrSummary(epicExact(l, amount))
         : toFile
         ? l.reqFileSummary(epicExact(l, amount))
         : to == null
@@ -434,7 +495,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               const SizedBox(height: 12),
             ],
             // Sending the request is a network action; the file is not.
-            if (toFile)
+            if (toQr)
+              BusyButton(key: requestShowQrKey, label: l.reqShowQr, busy: _busy, onPressed: _showQr)
+            else if (toFile)
               BusyButton(key: requestSaveFileKey, label: l.reqSaveFile, busy: _busy, onPressed: _saveFile)
             else ...[
               NetBlockNote(block),
@@ -460,7 +523,15 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                 error: _payerError == null ? null : LiveFieldError(_payerError!),
                 suffixIcon: const Icon(Icons.expand_more),
               ),
-              child: toFile
+              child: toQr
+                  ? Row(
+                      children: [
+                        Icon(Icons.qr_code_2, size: 22, color: t.dim),
+                        const SizedBox(width: 8),
+                        Flexible(child: Text(l.reqToQr, overflow: TextOverflow.ellipsis)),
+                      ],
+                    )
+                  : toFile
                   ? Row(
                       children: [
                         Icon(Icons.description_outlined, size: 22, color: t.dim),

@@ -16235,4 +16235,118 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvIssuerToAnyone => 'Invoice for anyone with the file';
+
+  @override
+  String get qrShowTitleRequest => 'Payment request';
+
+  @override
+  String qrShowSubRequest(String amount) {
+    return '$amount from a phone next to you';
+  }
+
+  @override
+  String get qrHiddenBodyRequest =>
+      'Whoever scans it can pay this request. Show it to the person paying.';
+
+  @override
+  String get qrStatusRequestHidden => 'Show this to the person paying.';
+
+  @override
+  String get qrStatusRequestShowing =>
+      'Waiting for them to scan and approve. Then scan their reply.';
+
+  @override
+  String qrSemanticsRequest(String state) {
+    return 'Payment request QR code, $state';
+  }
+
+  @override
+  String qrShowSubPaid(String amount) {
+    return 'To whoever asked for $amount';
+  }
+
+  @override
+  String get qrHiddenBodyPaid =>
+      'Show it to the phone that asked for the payment. Only that wallet can use it.';
+
+  @override
+  String get qrStatusPaidHidden =>
+      'Show this to whoever asked for the payment.';
+
+  @override
+  String get qrStatusPaidShowing => 'Waiting for them to scan and post it.';
+
+  @override
+  String get qrStatusPaid => 'Paid.';
+
+  @override
+  String get reqToQr => 'Show as QR';
+
+  @override
+  String reqQrSummary(String amount) {
+    return 'Whoever scans the code can pay $amount. Their wallet answers with a QR; scan it here to finish.';
+  }
+
+  @override
+  String get reqShowQr => 'Show as QR';
+
+  @override
+  String get receiveQrRequest => 'Request an amount';
+
+  @override
+  String get expInvoicesTurnOn => 'Turn on Invoices';
+
+  @override
+  String get expInvoicesOffQrBody =>
+      'Requests by QR are part of Invoices, which are experimental. Turn them on here or later in Settings › Advanced.';
+
+  @override
+  String get reqQrPaidTitle => 'Paid';
+
+  @override
+  String reqQrPaidHeadline(String amount) {
+    return '$amount paid and sent to the network.';
+  }
+
+  @override
+  String get reqQrNew => 'New request';
+
+  @override
+  String get reqQrAlreadyPaid =>
+      'This request is already paid. This reply was not posted; the wallet that made it can cancel its payment.';
+
+  @override
+  String get reqFromQrTitle => 'Payment request from a QR code';
+
+  @override
+  String get reqFromQrWarn =>
+      'Nothing in the code says who made it. Pay only the person or shop in front of you, and check the amount.';
+
+  @override
+  String get reqQrMessageLabel => 'Message in the code';
+
+  @override
+  String get reqApproveShowAnswer => 'Approve and show reply';
+
+  @override
+  String get reqQrAnswerTitle => 'Approved';
+
+  @override
+  String get reqQrAnswerLead =>
+      'Whoever asked scans your reply, then posts the payment. It shows in Activity.';
+
+  @override
+  String get reqExpired =>
+      'This request has expired. Ask for a new one. Nothing was paid.';
+
+  @override
+  String get reqOtherChain =>
+      'This request is for another network, or its time is wrong. Nothing was paid.';
+
+  @override
+  String get qrPaymentOffTitle => 'QR Payment is off';
+
+  @override
+  String get qrPaymentOffBody =>
+      'This is a QR Payment code. Turn on Direct · QR Payment in Settings › Transactions to read it.';
 }
