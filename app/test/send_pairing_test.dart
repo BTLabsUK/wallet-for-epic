@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/experimental.dart';
 import 'support/send_pin.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
@@ -72,9 +73,11 @@ final WalletSummary _forty = WalletSummary(
 );
 
 class _Harness {
-  _Harness() {
+  _Harness({bool pairing = true}) {
     allowPinCheck(session);
     session.contactsValue.add(Contact(id: 'c1', name: 'Anna'));
+    // Pairing is an experimental switch (Settings › Advanced), off by default.
+    if (pairing) store.values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
   }
 
   final session = FakeWalletSession(summary: _forty);
@@ -178,6 +181,15 @@ void main() {
         }
       });
     }
+
+    testWidgets('Pairing switched off: a paired contact with no address keeps Send off, no pairing row', (tester) async {
+      final h = _Harness(pairing: false);
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1');
+      await h.pump(tester, const ContactPage(contactId: 'c1'));
+      expect(_enabled(tester, find.byKey(contactPageSendKey)), isFalse);
+      expect(find.byKey(contactPageViaPairingKey), findsNothing);
+      expect(find.text(_l.contactNoAddresses), findsOneWidget);
+    });
 
     testWidgets('not paired and no address: Send off, "No addresses saved."', (tester) async {
       final h = _Harness();
