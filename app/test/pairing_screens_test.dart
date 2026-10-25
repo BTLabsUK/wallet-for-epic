@@ -4,6 +4,7 @@
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
+import 'package:epic_wallet/src/pairing_text.dart' show pairingSpan;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
@@ -421,6 +422,13 @@ void main() {
       expect(find.text(_l.sasSkippedBody('Anna')), findsOneWidget);
       expect((await h.api.pairing('p1'))!.state, PairingState.paired);
     });
+  });
+
+  test('a span counts whole minutes: a fresh 24 h invite is 23 h 59 min, not 1 d 0 h', () {
+    expect(pairingSpan(_l, const Duration(hours: 23, minutes: 59, seconds: 59)), _l.pairDurHours(23, 59));
+    expect(pairingSpan(_l, const Duration(days: 6, hours: 23, minutes: 59, seconds: 59)), _l.pairDurDays(6, 23));
+    expect(pairingSpan(_l, const Duration(minutes: 1, seconds: 30)), _l.pairDurMinutes(1));
+    expect(pairingSpan(_l, const Duration(seconds: 59)), _l.pairDurUnderMinute);
   });
 
   group('Pending invites', () {

@@ -38,10 +38,11 @@ String? pairingFailureBody(AppLocalizations l, PairingFailure failure, {String n
     };
 
 /// A short time span for countdowns: `6 d 23 h`, `23 h 12 min`, `12 min`, `under a minute`.
-/// Minutes round up, so the last minute reads `1 min` until it is under a minute.
+/// Whole minutes only, as a countdown counts: a fresh 24 h invite reads `23 h 59 min`, never
+/// `1 d 0 h` for its first minute, and the last minute reads `under a minute`.
 String pairingSpan(AppLocalizations l, Duration span) {
   if (span < const Duration(minutes: 1)) return l.pairDurUnderMinute;
-  final minutes = (span.inSeconds / 60).ceil();
+  final minutes = span.inMinutes;
   if (minutes < 60) return l.pairDurMinutes(minutes);
   if (minutes < 24 * 60) return l.pairDurHours(minutes ~/ 60, minutes % 60);
   return l.pairDurDays(minutes ~/ (24 * 60), (minutes % (24 * 60)) ~/ 60);
