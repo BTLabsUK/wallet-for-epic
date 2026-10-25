@@ -1032,6 +1032,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _runLock() async {
     await _stopScanForUser();
     // A send, finalize or split under way finishes first ([busy]); none starts meanwhile.
+    if (_busy > 0) logInfo('desk', 'lock waits for $_busy call(s) under way');
     await Future.any<void>([whenIdle(), _lockForce!.future]);
     await _lockNow();
   }
@@ -4314,12 +4315,18 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Stops background work for good (the app is closing).
   Future<void> dispose() async {
+    final watch = Stopwatch()..start();
+    // Each step's time goes to the log, so a slow close says where it waited.
+    void step(String what) => logInfo('desk', 'closing: $what after ${watch.elapsedMilliseconds} ms');
     statusSite.removeListener(_statusSiteChanged);
     await _lock(waitAtMost: closeWait);
+    step('wallet locked');
     await _nodeNoticeSub?.cancel();
     await _node?.stop();
+    step('node stopped');
     await _changes.close();
     await _invoiceNotices.close();
+    step('done');
   }
 }
 

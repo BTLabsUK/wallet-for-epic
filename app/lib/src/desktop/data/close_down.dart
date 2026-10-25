@@ -22,6 +22,9 @@ Future<void> deskCloseDown({
     }
   }
 
+  final watch = Stopwatch()..start();
+  logInfo('desk', 'closing'); // l10n-ok: log text
   await step('wallet', disposeWallet, walletLimit); // l10n-ok: log text
   await step('local node', stopNodes, nodeLimit); // l10n-ok: log text
+  logInfo('desk', 'closed after ${watch.elapsedMilliseconds} ms'); // l10n-ok: log text
 }
