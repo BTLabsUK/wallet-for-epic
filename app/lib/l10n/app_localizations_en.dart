@@ -2973,11 +2973,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Accept the payment, then show your reply the same way.';
 
   @override
-  String get receiveQrTitle => 'Standing next to the sender?';
+  String get receiveQrTitle => 'Next to the other phone?';
 
   @override
   String get receiveQrBody =>
-      'Scan the code on their phone, accept the payment, then show your reply.';
+      'Scan a payment from their screen and show your reply, or ask for an amount and show it as a code for them to scan.';
 
   @override
   String get txQrLine =>
@@ -16246,7 +16246,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qrHiddenBodyRequest =>
-      'Whoever scans it can pay this request. Show it to the person paying.';
+      'Whoever scans it can pay this request. Show it only to the person paying.';
 
   @override
   String get qrStatusRequestHidden => 'Show this to the person paying.';
@@ -16270,8 +16270,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Show it to the phone that asked for the payment. Only that wallet can use it.';
 
   @override
-  String get qrStatusPaidHidden =>
-      'Show this to whoever asked for the payment.';
+  String get qrStatusPaidHidden => 'Show this to whoever asked.';
 
   @override
   String get qrStatusPaidShowing => 'Waiting for them to scan and post it.';
@@ -16280,11 +16279,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qrStatusPaid => 'Paid.';
 
   @override
-  String get reqToQr => 'Show as QR';
+  String get reqToQr => 'Show as QR to a phone nearby';
 
   @override
   String reqQrSummary(String amount) {
-    return 'Whoever scans the code can pay $amount. Their wallet answers with a QR; scan it here to finish.';
+    return 'Whoever scans the code can pay $amount. Scan their reply here to finish. The request expires in 24 h.';
   }
 
   @override
@@ -16298,14 +16297,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expInvoicesOffQrBody =>
-      'Requests by QR are part of Invoices, which are experimental. Turn them on here or later in Settings › Advanced.';
+      'Asking for an amount is part of Invoices, which are experimental and can still change. Turn them on here, or later in Settings › Advanced.';
 
   @override
   String get reqQrPaidTitle => 'Paid';
 
   @override
   String reqQrPaidHeadline(String amount) {
-    return '$amount paid and sent to the network.';
+    return '$amount paid and posted to the network.';
   }
 
   @override
@@ -16313,14 +16312,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqQrAlreadyPaid =>
-      'This request is already paid. This reply was not posted; the wallet that made it can cancel its payment.';
+      'This request is already paid. Nothing was taken from this phone: its payment stays on hold until they cancel it in Activity, or it runs out after a day.';
 
   @override
   String get reqFromQrTitle => 'Payment request from a QR code';
 
   @override
   String get reqFromQrWarn =>
-      'Nothing in the code says who made it. Pay only the person or shop in front of you, and check the amount.';
+      'Not from a paired contact. Nothing in the code says who made it: pay only the person or shop in front of you, and check the amount.';
 
   @override
   String get reqQrMessageLabel => 'Message in the code';
@@ -16333,7 +16332,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqQrAnswerLead =>
-      'Whoever asked scans your reply, then posts the payment. It shows in Activity.';
+      'Whoever asked scans the reply and posts the payment. Until then it waits in Activity as \"Waiting for recipient\".';
 
   @override
   String get reqExpired =>
@@ -16341,12 +16340,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqOtherChain =>
-      'This request is for another network, or its time is wrong. Nothing was paid.';
+      'This request is for another Epic network, or its time limit does not fit this one. Nothing was paid.';
 
   @override
-  String get qrPaymentOffTitle => 'QR Payment is off';
+  String get reqQrOpenNote =>
+      'Open in Invoices › Sent for 24 h, then it expires.';
 
   @override
-  String get qrPaymentOffBody =>
-      'This is a QR Payment code. Turn on Direct · QR Payment in Settings › Transactions to read it.';
+  String get reqQrWrongReply =>
+      'This reply answers a different request. Scan the reply to this one.';
 }

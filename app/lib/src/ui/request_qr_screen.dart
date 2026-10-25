@@ -142,7 +142,7 @@ class _RequestQrScreenState extends ConsumerState<RequestQrScreen> {
         return false;
       }
       if (info.slateId != widget.slate.slateId) {
-        _say((l) => l.slateWrongPaymentQr);
+        _say((l) => l.reqQrWrongReply);
         return false;
       }
       if (info.stage != SlateStage.requestAnswer) {
@@ -177,7 +177,7 @@ class _RequestQrScreenState extends ConsumerState<RequestQrScreen> {
   }
 
   void _newRequest() => Navigator.of(context).pushReplacement(
-    MaterialPageRoute<void>(builder: (_) => const InvoiceRequestScreen(asQr: true)),
+    MaterialPageRoute<void>(builder: (_) => InvoiceRequestScreen(asQr: true, message: widget.message)),
   );
 
   @override
@@ -326,6 +326,8 @@ class _RequestQrScreenState extends ConsumerState<RequestQrScreen> {
           ?noteRow,
           const SizedBox(height: 16),
           Text(l.qrStatusRequestShowing, style: theme.textTheme.bodyLarge?.copyWith(color: t.dim)),
+          const SizedBox(height: 4),
+          Text(l.reqQrOpenNote, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
           if (!canPost) ...[const SizedBox(height: 12), NetBlockNote(watchNetBlock(context, ref, localNode: true))],
           if (error != null) ...[
             const SizedBox(height: 16),

@@ -27,6 +27,7 @@ String describeError(AppLocalizations l, Object error) {
       WalletErrorKind.invoiceAlreadyPaid ||
       WalletErrorKind.invoiceLockedAboveTip ||
       WalletErrorKind.invoiceChanged => l.errorInvalidSlate,
+      WalletErrorKind.invoiceNotForThisChain => l.reqOtherChain,
       WalletErrorKind.invalidArgument ||
       WalletErrorKind.invoiceNotFound ||
       WalletErrorKind.amountMismatch =>

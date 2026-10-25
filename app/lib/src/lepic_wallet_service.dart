@@ -158,6 +158,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.invoiceLockedAboveTip =>
       WalletErrorKind.invoiceLockedAboveTip,
     lepic.WalletErrorKind.invoiceChanged => WalletErrorKind.invoiceChanged,
+    lepic.WalletErrorKind.invoiceNotForThisChain =>
+      WalletErrorKind.invoiceNotForThisChain,
     // An undelivered issue or resend is a transport failure; `payInvoice` catches the kind
     // before it gets here and answers `InvoiceStatus.replyFailed`.
     lepic.WalletErrorKind.notDelivered => WalletErrorKind.transportFailed,

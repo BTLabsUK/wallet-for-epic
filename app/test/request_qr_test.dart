@@ -6,11 +6,9 @@
 import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
-import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/qr_slate.dart';
-import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
@@ -236,6 +234,9 @@ void main() {
       await tester.tap(find.byKey(requestQrNewKey));
       await tester.pumpAndSettle();
       expect(find.byKey(requestShowQrKey), findsOneWidget);
+      // The note stays for the next payer; the amount starts empty.
+      expect(tester.widget<TextField>(find.byKey(requestMessageKey)).controller!.text, 'Table 4');
+      expect(tester.widget<TextField>(find.byKey(requestAmountKey)).controller!.text, isEmpty);
     });
 
     testWidgets('an answer to another request is refused on the request screen; nothing is finished', (tester) async {
@@ -254,7 +255,7 @@ void main() {
       await h.scan(tester, otherAnswer.json);
       await h.finished(tester);
       expect(find.byKey(requestQrErrorKey), findsOneWidget);
-      expect(find.text(_l.slateWrongPaymentQr), findsOneWidget);
+      expect(find.text(_l.reqQrWrongReply), findsOneWidget);
       expect(h.session.finalizedSlates, isEmpty);
     });
   });
@@ -298,6 +299,18 @@ void main() {
       await tester.tap(find.byKey(requestQrShowAnswerKey));
       await tester.pumpAndSettle();
       expect(find.byType(QrShowScreen), findsOneWidget);
+    });
+
+    testWidgets('a request for another network pays nothing and says so', (tester) async {
+      final h = _Harness()..knowRequest();
+      h.session.payRequestFileError = const WalletError(kind: WalletErrorKind.invoiceNotForThisChain, message: 'ttl ends too far ahead');
+      await h.pump(tester, const SlateFileScreen(file: SlateFile(name: scannedSlateName, json: _requestJson), pasted: true, scanned: true));
+      await tester.tap(find.byKey(requestFileApproveKey));
+      await tester.pumpAndSettle();
+      await answerPin(tester);
+      expect(find.text(_l.reqOtherChain), findsOneWidget);
+      expect(find.byKey(requestFileApproveKey), findsNothing);
+      expect(h.session.paidRequestFiles, isEmpty);
     });
 
     testWidgets('an expired request pays nothing and says so', (tester) async {

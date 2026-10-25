@@ -143,13 +143,16 @@ List<PairingRecord> requestPayers(Iterable<PairingRecord> pairings) {
 /// mailbox; Save as file makes a payment file for anyone. No PIN: nothing leaves the wallet.
 /// Success opens the Invoices screen's sent requests.
 class InvoiceRequestScreen extends ConsumerStatefulWidget {
-  const InvoiceRequestScreen({super.key, this.pairingId, this.asQr = false});
+  const InvoiceRequestScreen({super.key, this.pairingId, this.asQr = false, this.message});
 
   /// The paired contact to ask, when the form opens from it.
   final String? pairingId;
 
   /// The form opens on "Show as QR" (Receive › Direct · QR).
   final bool asQr;
+
+  /// The message the form opens with: the last request's, for the next payer at a till.
+  final String? message;
 
   @override
   ConsumerState<InvoiceRequestScreen> createState() =>
@@ -166,7 +169,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
   /// "Show as QR" is chosen under To: the request goes to a phone next to this one.
   late bool _toQr = widget.asQr;
   final _amount = TextEditingController();
-  final _message = TextEditingController();
+  late final _message = TextEditingController(text: widget.message);
   final _amountFocus = FocusNode();
   final _messageFocus = FocusNode();
 
@@ -559,6 +562,8 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
             key: requestAmountKey,
             controller: _amount,
             focusNode: _amountFocus,
+            // At a till the amount is what changes from one payer to the next.
+            autofocus: widget.asQr,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             textInputAction: TextInputAction.next,
             onEditingComplete: _messageFocus.requestFocus,

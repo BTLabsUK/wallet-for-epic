@@ -446,6 +446,7 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
 /// network (a code made on another network, or a clock far off).
 String Function(AppLocalizations l)? requestFileRefusal(Object error, {bool scanned = false}) => switch (error) {
   WalletError(kind: WalletErrorKind.invoiceAlreadyPaid) => (l) => l.reqFileAlreadyPaid,
+  WalletError(kind: WalletErrorKind.invoiceNotForThisChain) => (l) => l.reqOtherChain,
   WalletError(kind: WalletErrorKind.paymentExpired) when scanned => (l) => l.reqExpired,
   WalletError(kind: WalletErrorKind.paymentExpired || WalletErrorKind.invoiceNotFound) => (l) => l.reqFileEnded,
   _ => null,

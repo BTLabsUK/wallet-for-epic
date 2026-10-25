@@ -3549,11 +3549,11 @@
   "@methodReceiveQrLine": {
     "description": "Plain line of the strip on Receive's QR tab."
   },
-  "receiveQrTitle": "Standing next to the sender?",
+  "receiveQrTitle": "Next to the other phone?",
   "@receiveQrTitle": {
     "description": "Title of the QR card on Receive."
   },
-  "receiveQrBody": "Scan the code on their phone, accept the payment, then show your reply.",
+  "receiveQrBody": "Scan a payment from their screen and show your reply, or ask for an amount and show it as a code for them to scan.",
   "@receiveQrBody": {
     "description": "Text of the QR card on Receive."
   },
@@ -21528,7 +21528,7 @@
       }
     }
   },
-  "qrHiddenBodyRequest": "Whoever scans it can pay this request. Show it to the person paying.",
+  "qrHiddenBodyRequest": "Whoever scans it can pay this request. Show it only to the person paying.",
   "@qrHiddenBodyRequest": {
     "description": "Card text while the request QR is hidden."
   },
@@ -21564,7 +21564,7 @@
   "@qrHiddenBodyPaid": {
     "description": "Card text while the payer's reply QR is hidden."
   },
-  "qrStatusPaidHidden": "Show this to whoever asked for the payment.",
+  "qrStatusPaidHidden": "Show this to whoever asked.",
   "@qrStatusPaidHidden": {
     "description": "Status line, payer's reply QR hidden."
   },
@@ -21576,11 +21576,11 @@
   "@qrStatusPaid": {
     "description": "Status line once the paid request is confirmed."
   },
-  "reqToQr": "Show as QR",
+  "reqToQr": "Show as QR to a phone nearby",
   "@reqToQr": {
     "description": "Payer picker row: show the request as a QR to a phone next to you."
   },
-  "reqQrSummary": "Whoever scans the code can pay {amount}. Their wallet answers with a QR; scan it here to finish.",
+  "reqQrSummary": "Whoever scans the code can pay {amount}. Scan their reply here to finish. The request expires in 24 h.",
   "@reqQrSummary": {
     "description": "Summary above the button when the request goes as a QR.",
     "placeholders": {
@@ -21602,7 +21602,7 @@
   "@expInvoicesTurnOn": {
     "description": "Primary button of the sheet shown when a QR request needs Invoices."
   },
-  "expInvoicesOffQrBody": "Requests by QR are part of Invoices, which are experimental. Turn them on here or later in Settings › Advanced.",
+  "expInvoicesOffQrBody": "Asking for an amount is part of Invoices, which are experimental and can still change. Turn them on here, or later in Settings › Advanced.",
   "@expInvoicesOffQrBody": {
     "description": "Body of the sheet shown when a QR request needs Invoices."
   },
@@ -21610,7 +21610,7 @@
   "@reqQrPaidTitle": {
     "description": "Title of the merchant's receipt after the reply was scanned and posted."
   },
-  "reqQrPaidHeadline": "{amount} paid and sent to the network.",
+  "reqQrPaidHeadline": "{amount} paid and posted to the network.",
   "@reqQrPaidHeadline": {
     "description": "Receipt headline.",
     "placeholders": {
@@ -21624,7 +21624,7 @@
   "@reqQrNew": {
     "description": "Receipt button: start the next request."
   },
-  "reqQrAlreadyPaid": "This request is already paid. This reply was not posted; the wallet that made it can cancel its payment.",
+  "reqQrAlreadyPaid": "This request is already paid. Nothing was taken from this phone: its payment stays on hold until they cancel it in Activity, or it runs out after a day.",
   "@reqQrAlreadyPaid": {
     "description": "Merchant scanned a second reply to a request already finished."
   },
@@ -21632,7 +21632,7 @@
   "@reqFromQrTitle": {
     "description": "Customer review title for a scanned request."
   },
-  "reqFromQrWarn": "Nothing in the code says who made it. Pay only the person or shop in front of you, and check the amount.",
+  "reqFromQrWarn": "Not from a paired contact. Nothing in the code says who made it: pay only the person or shop in front of you, and check the amount.",
   "@reqFromQrWarn": {
     "description": "Warn card on a scanned request."
   },
@@ -21648,7 +21648,7 @@
   "@reqQrAnswerTitle": {
     "description": "Customer's page after the reply QR was shown."
   },
-  "reqQrAnswerLead": "Whoever asked scans your reply, then posts the payment. It shows in Activity.",
+  "reqQrAnswerLead": "Whoever asked scans the reply and posts the payment. Until then it waits in Activity as \"Waiting for recipient\".",
   "@reqQrAnswerLead": {
     "description": "Customer's page after the reply QR was shown."
   },
@@ -21656,16 +21656,16 @@
   "@reqExpired": {
     "description": "Customer: the scanned request is past its time."
   },
-  "reqOtherChain": "This request is for another network, or its time is wrong. Nothing was paid.",
+  "reqOtherChain": "This request is for another Epic network, or its time limit does not fit this one. Nothing was paid.",
   "@reqOtherChain": {
     "description": "Customer: the scanned request's time limit does not fit this network."
   },
-  "qrPaymentOffTitle": "QR Payment is off",
-  "@qrPaymentOffTitle": {
-    "description": "Scanner: an animated payment QR while Direct · QR Payment is off."
+  "reqQrOpenNote": "Open in Invoices › Sent for 24 h, then it expires.",
+  "@reqQrOpenNote": {
+    "description": "Dim line on the request page: where the request stays and for how long."
   },
-  "qrPaymentOffBody": "This is a QR Payment code. Turn on Direct · QR Payment in Settings › Transactions to read it.",
-  "@qrPaymentOffBody": {
-    "description": "Scanner: an animated payment QR while Direct · QR Payment is off."
+  "reqQrWrongReply": "This reply answers a different request. Scan the reply to this one.",
+  "@reqQrWrongReply": {
+    "description": "Merchant scanned a reply to a different request."
   }
 }

@@ -307,8 +307,10 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Standing next to the sender?'), findsOneWidget);
+      expect(find.text('Next to the other phone?'), findsOneWidget);
       expect(find.byKey(receiveScanQrKey), findsOneWidget);
+      // Asking for an amount, shown as a QR, sits under the scan.
+      expect(find.byKey(receiveQrRequestKey), findsOneWidget);
       expect(find.text('Direct · File'), findsNothing);
     });
 

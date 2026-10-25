@@ -3114,11 +3114,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Примите платёж, затем покажите свой ответ так же.';
 
   @override
-  String get receiveQrTitle => 'Рядом с отправителем?';
+  String get receiveQrTitle => 'Рядом с другим телефоном?';
 
   @override
   String get receiveQrBody =>
-      'Отсканируйте код на телефоне отправителя, примите платёж и покажите свой ответ.';
+      'Отсканируйте платёж с их экрана и покажите свой ответ, или запросите сумму и покажите её кодом для сканирования.';
 
   @override
   String get txQrLine =>
@@ -16701,116 +16701,117 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvIssuerToAnyone => 'Счёт для любого, у кого есть файл';
 
   @override
-  String get qrShowTitleRequest => 'Payment request';
+  String get qrShowTitleRequest => 'Запрос на оплату';
 
   @override
   String qrShowSubRequest(String amount) {
-    return '$amount from a phone next to you';
+    return '$amount с телефона рядом с вами';
   }
 
   @override
   String get qrHiddenBodyRequest =>
-      'Whoever scans it can pay this request. Show it to the person paying.';
+      'Тот, кто его отсканирует, сможет оплатить этот запрос. Показывайте его только тому, кто платит.';
 
   @override
-  String get qrStatusRequestHidden => 'Show this to the person paying.';
+  String get qrStatusRequestHidden => 'Покажите это тому, кто платит.';
 
   @override
   String get qrStatusRequestShowing =>
-      'Waiting for them to scan and approve. Then scan their reply.';
+      'Ждём, пока они отсканируют и одобрят. Затем отсканируйте их ответ.';
 
   @override
   String qrSemanticsRequest(String state) {
-    return 'Payment request QR code, $state';
+    return 'QR-код запроса на оплату, $state';
   }
 
   @override
   String qrShowSubPaid(String amount) {
-    return 'To whoever asked for $amount';
+    return 'Тому, кто запросил $amount';
   }
 
   @override
   String get qrHiddenBodyPaid =>
-      'Show it to the phone that asked for the payment. Only that wallet can use it.';
+      'Покажите его телефону, который запросил платёж. Использовать его сможет только тот кошелёк.';
 
   @override
-  String get qrStatusPaidHidden =>
-      'Show this to whoever asked for the payment.';
+  String get qrStatusPaidHidden => 'Покажите это тому, кто запросил.';
 
   @override
-  String get qrStatusPaidShowing => 'Waiting for them to scan and post it.';
+  String get qrStatusPaidShowing =>
+      'Ждём, пока они отсканируют и отправят его в сеть.';
 
   @override
-  String get qrStatusPaid => 'Paid.';
+  String get qrStatusPaid => 'Оплачено.';
 
   @override
-  String get reqToQr => 'Show as QR';
+  String get reqToQr => 'Показать как QR телефону рядом';
 
   @override
   String reqQrSummary(String amount) {
-    return 'Whoever scans the code can pay $amount. Their wallet answers with a QR; scan it here to finish.';
+    return 'Тот, кто отсканирует код, сможет оплатить $amount. Отсканируйте здесь их ответ, чтобы завершить. Запрос истекает через 24 ч.';
   }
 
   @override
-  String get reqShowQr => 'Show as QR';
+  String get reqShowQr => 'Показать как QR';
 
   @override
-  String get receiveQrRequest => 'Request an amount';
+  String get receiveQrRequest => 'Запросить сумму';
 
   @override
-  String get expInvoicesTurnOn => 'Turn on Invoices';
+  String get expInvoicesTurnOn => 'Включить счета';
 
   @override
   String get expInvoicesOffQrBody =>
-      'Requests by QR are part of Invoices, which are experimental. Turn them on here or later in Settings › Advanced.';
+      'Запрос суммы — часть счетов, экспериментальной функции, которая ещё может измениться. Включите их здесь или позже в Настройки › Дополнительно.';
 
   @override
-  String get reqQrPaidTitle => 'Paid';
+  String get reqQrPaidTitle => 'Оплачено';
 
   @override
   String reqQrPaidHeadline(String amount) {
-    return '$amount paid and sent to the network.';
+    return '$amount оплачено и отправлено в сеть.';
   }
 
   @override
-  String get reqQrNew => 'New request';
+  String get reqQrNew => 'Новый запрос';
 
   @override
   String get reqQrAlreadyPaid =>
-      'This request is already paid. This reply was not posted; the wallet that made it can cancel its payment.';
+      'Этот запрос уже оплачен. С этого телефона ничего не списано: его платёж остаётся на удержании, пока его не отменят в Активности или он не истечёт через день.';
 
   @override
-  String get reqFromQrTitle => 'Payment request from a QR code';
+  String get reqFromQrTitle => 'Запрос на оплату из QR-кода';
 
   @override
   String get reqFromQrWarn =>
-      'Nothing in the code says who made it. Pay only the person or shop in front of you, and check the amount.';
+      'Не от сопряжённого контакта. Ничто в коде не говорит, кто его создал: платите только человеку или магазину перед вами и проверьте сумму.';
 
   @override
-  String get reqQrMessageLabel => 'Message in the code';
+  String get reqQrMessageLabel => 'Сообщение в коде';
 
   @override
-  String get reqApproveShowAnswer => 'Approve and show reply';
+  String get reqApproveShowAnswer => 'Одобрить и показать ответ';
 
   @override
-  String get reqQrAnswerTitle => 'Approved';
+  String get reqQrAnswerTitle => 'Одобрено';
 
   @override
   String get reqQrAnswerLead =>
-      'Whoever asked scans your reply, then posts the payment. It shows in Activity.';
+      'Тот, кто запросил, сканирует ответ и отправляет платёж в сеть. До тех пор он ждёт в Активности как «Ждёт получателя».';
 
   @override
   String get reqExpired =>
-      'This request has expired. Ask for a new one. Nothing was paid.';
+      'Этот запрос истёк. Попросите новый. Ничего не оплачено.';
 
   @override
   String get reqOtherChain =>
-      'This request is for another network, or its time is wrong. Nothing was paid.';
+      'Этот запрос принадлежит другой сети Epic, или его срок не подходит этой сети. Ничего не оплачено.';
 
   @override
-  String get qrPaymentOffTitle => 'QR Payment is off';
+  String get reqQrOpenNote =>
+      'Открыт в Счета › Отправленные 24 ч, затем истекает.';
 
   @override
-  String get qrPaymentOffBody =>
-      'This is a QR Payment code. Turn on Direct · QR Payment in Settings › Transactions to read it.';
+  String get reqQrWrongReply =>
+      'Этот ответ относится к другому запросу. Отсканируйте ответ на этот.';
 }

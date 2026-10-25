@@ -2892,11 +2892,11 @@ class AppLocalizationsTh extends AppLocalizations {
       'รับรายการ แล้วแสดงคำตอบของคุณด้วยวิธีเดียวกัน';
 
   @override
-  String get receiveQrTitle => 'อยู่ข้างผู้ส่งไหม?';
+  String get receiveQrTitle => 'อยู่ข้างโทรศัพท์อีกเครื่องไหม?';
 
   @override
   String get receiveQrBody =>
-      'สแกนโค้ดบนโทรศัพท์ของผู้ส่ง รับรายการ แล้วแสดงคำตอบของคุณ';
+      'สแกนรายการจากหน้าจอของเขาแล้วแสดงคำตอบของคุณ หรือขอจำนวนเงินแล้วแสดงเป็นโค้ดให้เขาสแกน';
 
   @override
   String get txQrLine => 'จ่ายหรือรับเงินเมื่ออยู่ข้างกัน ด้วยโค้ดบนหน้าจอ';
@@ -15934,116 +15934,114 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvIssuerToAnyone => 'ใบแจ้งหนี้ถึงใครก็ได้ที่มีไฟล์';
 
   @override
-  String get qrShowTitleRequest => 'Payment request';
+  String get qrShowTitleRequest => 'คำขอชำระเงิน';
 
   @override
   String qrShowSubRequest(String amount) {
-    return '$amount from a phone next to you';
+    return '$amount จากโทรศัพท์ที่อยู่ข้างคุณ';
   }
 
   @override
   String get qrHiddenBodyRequest =>
-      'Whoever scans it can pay this request. Show it to the person paying.';
+      'ใครสแกนก็ชำระคำขอนี้ได้ แสดงให้เฉพาะคนที่จ่ายเท่านั้น';
 
   @override
-  String get qrStatusRequestHidden => 'Show this to the person paying.';
+  String get qrStatusRequestHidden => 'แสดงสิ่งนี้ให้คนที่จ่าย';
 
   @override
   String get qrStatusRequestShowing =>
-      'Waiting for them to scan and approve. Then scan their reply.';
+      'รอเขาสแกนและอนุมัติ แล้วสแกนคำตอบของเขา';
 
   @override
   String qrSemanticsRequest(String state) {
-    return 'Payment request QR code, $state';
+    return 'QR ของคำขอชำระเงิน, $state';
   }
 
   @override
   String qrShowSubPaid(String amount) {
-    return 'To whoever asked for $amount';
+    return 'ถึงคนที่ขอ $amount';
   }
 
   @override
   String get qrHiddenBodyPaid =>
-      'Show it to the phone that asked for the payment. Only that wallet can use it.';
+      'แสดงให้โทรศัพท์ที่ขอชำระเงิน เฉพาะกระเป๋านั้นเท่านั้นที่ใช้ได้';
 
   @override
-  String get qrStatusPaidHidden =>
-      'Show this to whoever asked for the payment.';
+  String get qrStatusPaidHidden => 'แสดงสิ่งนี้ให้คนที่ขอ';
 
   @override
-  String get qrStatusPaidShowing => 'Waiting for them to scan and post it.';
+  String get qrStatusPaidShowing => 'รอเขาสแกนและส่งเข้าเครือข่าย';
 
   @override
-  String get qrStatusPaid => 'Paid.';
+  String get qrStatusPaid => 'ชำระแล้ว';
 
   @override
-  String get reqToQr => 'Show as QR';
+  String get reqToQr => 'แสดงเป็น QR ให้โทรศัพท์ที่อยู่ใกล้';
 
   @override
   String reqQrSummary(String amount) {
-    return 'Whoever scans the code can pay $amount. Their wallet answers with a QR; scan it here to finish.';
+    return 'ใครสแกนโค้ดก็ชำระ $amount ได้ สแกนคำตอบของเขาที่นี่เพื่อทำให้เสร็จ คำขอหมดอายุใน 24 ชม.';
   }
 
   @override
-  String get reqShowQr => 'Show as QR';
+  String get reqShowQr => 'แสดงเป็น QR';
 
   @override
-  String get receiveQrRequest => 'Request an amount';
+  String get receiveQrRequest => 'ขอจำนวนเงิน';
 
   @override
-  String get expInvoicesTurnOn => 'Turn on Invoices';
+  String get expInvoicesTurnOn => 'เปิดใบแจ้งหนี้';
 
   @override
   String get expInvoicesOffQrBody =>
-      'Requests by QR are part of Invoices, which are experimental. Turn them on here or later in Settings › Advanced.';
+      'การขอจำนวนเงินเป็นส่วนหนึ่งของใบแจ้งหนี้ ซึ่งเป็นฟีเจอร์ทดลองและอาจเปลี่ยนได้ เปิดได้ที่นี่ หรือภายหลังที่ การตั้งค่า › ขั้นสูง';
 
   @override
-  String get reqQrPaidTitle => 'Paid';
+  String get reqQrPaidTitle => 'ชำระแล้ว';
 
   @override
   String reqQrPaidHeadline(String amount) {
-    return '$amount paid and sent to the network.';
+    return 'ชำระ $amount แล้วและส่งเข้าเครือข่ายแล้ว';
   }
 
   @override
-  String get reqQrNew => 'New request';
+  String get reqQrNew => 'คำขอใหม่';
 
   @override
   String get reqQrAlreadyPaid =>
-      'This request is already paid. This reply was not posted; the wallet that made it can cancel its payment.';
+      'คำขอนี้ชำระแล้ว ไม่มีอะไรถูกหักจากโทรศัพท์เครื่องนี้ รายการของเขาจะถูกพักไว้จนกว่าเขาจะยกเลิกในประวัติ หรือหมดอายุหลังจากหนึ่งวัน';
 
   @override
-  String get reqFromQrTitle => 'Payment request from a QR code';
+  String get reqFromQrTitle => 'คำขอชำระเงินจาก QR';
 
   @override
   String get reqFromQrWarn =>
-      'Nothing in the code says who made it. Pay only the person or shop in front of you, and check the amount.';
+      'ไม่ได้มาจากผู้ติดต่อที่จับคู่ไว้ ไม่มีข้อมูลในโค้ดว่าใครสร้าง ชำระให้เฉพาะคนหรือร้านที่อยู่ตรงหน้าคุณ และตรวจสอบจำนวนเงิน';
 
   @override
-  String get reqQrMessageLabel => 'Message in the code';
+  String get reqQrMessageLabel => 'ข้อความในโค้ด';
 
   @override
-  String get reqApproveShowAnswer => 'Approve and show reply';
+  String get reqApproveShowAnswer => 'อนุมัติและแสดงคำตอบ';
 
   @override
-  String get reqQrAnswerTitle => 'Approved';
+  String get reqQrAnswerTitle => 'อนุมัติแล้ว';
 
   @override
   String get reqQrAnswerLead =>
-      'Whoever asked scans your reply, then posts the payment. It shows in Activity.';
+      'คนที่ขอจะสแกนคำตอบและส่งรายการเข้าเครือข่าย ระหว่างนั้นรายการจะรออยู่ในประวัติเป็น “รอผู้รับ”';
 
   @override
-  String get reqExpired =>
-      'This request has expired. Ask for a new one. Nothing was paid.';
+  String get reqExpired => 'คำขอนี้หมดอายุแล้ว ขอคำขอใหม่ ไม่มีการชำระใดๆ';
 
   @override
   String get reqOtherChain =>
-      'This request is for another network, or its time is wrong. Nothing was paid.';
+      'คำขอนี้เป็นของเครือข่าย Epic อื่น หรือกำหนดเวลาไม่ตรงกับเครือข่ายนี้ ไม่มีการชำระใดๆ';
 
   @override
-  String get qrPaymentOffTitle => 'QR Payment is off';
+  String get reqQrOpenNote =>
+      'เปิดอยู่ใน ใบแจ้งหนี้ › ส่งแล้ว เป็นเวลา 24 ชม. แล้วจะหมดอายุ';
 
   @override
-  String get qrPaymentOffBody =>
-      'This is a QR Payment code. Turn on Direct · QR Payment in Settings › Transactions to read it.';
+  String get reqQrWrongReply => 'คำตอบนี้เป็นของคำขออื่น สแกนคำตอบของคำขอนี้';
 }
