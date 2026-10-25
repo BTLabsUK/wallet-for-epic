@@ -79,6 +79,15 @@ abstract interface class DeskWalletApi {
   /// which becomes the selected one. Passwords under [minPasswordLength] are refused.
   Future<List<String>> createWallet({String name = '', required String password});
 
+  /// The network wallets are listed, made and restored on (`mainnet`, `floonet`, `usernet`):
+  /// mainnet, unless a build with [DeskFeatures.testNetworks] chose another on Welcome.
+  String get network;
+
+  /// Welcome › Advanced › Network ([DeskFeatures.testNetworks]): lists, makes and restores
+  /// wallets of [network] from now on, with its node and Epicbox defaults, and starts on it
+  /// next time. Only while no wallet is open.
+  Future<void> useNetwork(String network);
+
   /// Whether [words] is a recovery phrase: 12, 15, 18, 21 or 24 words of the list whose check
   /// bits match. Answers at once; the restore grid calls it after every change.
   bool checkPhrase(List<String> words);

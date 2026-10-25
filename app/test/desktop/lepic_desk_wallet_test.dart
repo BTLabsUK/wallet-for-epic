@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'package:epic_wallet/src/desktop/app/screens.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
+import 'package:epic_wallet/src/network.dart' show floonetPreset;
 import 'package:epic_wallet/src/desktop/data/phrase_check.dart' show phraseFingerprint;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -203,6 +204,23 @@ void main() {
       final ws = await wallet.wallets();
       expect(ws.single.name, 'Main');
       expect(ws.single.network, 'mainnet');
+    });
+
+    test('Welcome chose Floonet: the wallet is a floonet one, with its node, and the next start stays there (LNX-6)', () async {
+      await wallet.useNetwork('floonet');
+      expect(wallet.network, 'floonet');
+      await wallet.createWallet(name: 'Test', password: _password);
+      expect(service.createdConfig!.chain, core.Chain.floonet);
+      expect(service.createdConfig!.dataDir, '${support.path}/wallets/floonet');
+      expect(service.createdConfig!.nodeUrl, floonetPreset.nodeUrl);
+      final ws = await wallet.wallets();
+      expect(ws.single.network, 'floonet');
+      expect((await LepicDeskWallet.savedPreset(secrets)).chain, core.Chain.floonet);
+      // Back on mainnet: its own (empty) list, not the floonet wallet.
+      await wallet.useNetwork('mainnet');
+      expect(await wallet.wallets(), isEmpty);
+      await wallet.createWallet(name: 'Main', password: _password);
+      expect(service.createdConfig!.chain, core.Chain.mainnet);
     });
 
     test('no wallet yet: the wallet list is empty', () async {

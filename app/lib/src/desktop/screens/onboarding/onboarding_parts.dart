@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../../../app_info.dart';
 import '../../../l10n.dart' show appLanguages;
 import '../../../ui/language_flag.dart';
@@ -171,9 +173,13 @@ class OnbFlow {
 
 class OnbFlowNotifier extends Notifier<OnbFlow> {
   @override
-  OnbFlow build() => const OnbFlow();
+  OnbFlow build() => OnbFlow(network: ref.read(deskApiProvider).network);
 
-  void setNetwork(String n) => state = OnbFlow(network: n, dataFolder: state.dataFolder);
+  /// The wallet layer moves too, so Create and Restore make a wallet of [n] (LNX-6).
+  void setNetwork(String n) {
+    state = OnbFlow(network: n, dataFolder: state.dataFolder);
+    unawaited(ref.read(deskApiProvider).useNetwork(n));
+  }
 
   void setFolder(String? f) => state = OnbFlow(network: state.network, dataFolder: f);
 }

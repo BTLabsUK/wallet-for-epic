@@ -249,6 +249,17 @@ void flows() {
 
 void main() {
   flows();
+  test('Welcome\'s network reaches the wallet layer, and Welcome opens on the one in use (LNX-6)', () async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(onbFlowProvider.notifier).setNetwork('floonet');
+    await Future<void>.delayed(Duration.zero);
+    final api = container.read(deskApiProvider);
+    expect(api.network, 'floonet');
+    final again = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api)]);
+    addTearDown(again.dispose);
+    expect(again.read(onbFlowProvider).network, 'floonet');
+  });
   for (final size in const [Size(1280, 800), Size(1000, 700), Size(600, 800)]) {
     for (final shot in onboardingShots) {
       testWidgets('${shot.id} at ${size.width.toInt()}', (tester) async {

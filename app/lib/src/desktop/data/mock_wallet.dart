@@ -640,6 +640,12 @@ class MockDeskWallet implements DeskWalletApi {
   Future<ReceivedFile> receiveText(String text) => receiveFile('pasted');
 
   @override
+  String network = 'mainnet';
+
+  @override
+  Future<void> useNetwork(String network) async => this.network = network;
+
+  @override
   Future<Tx> finalizeFile(String fileName) => _running(() => _finalize(fileName));
 
   Future<Tx> _finalize(String fileName) async {

@@ -166,7 +166,7 @@ class LepicDeskWallet implements DeskWalletApi {
     required this._filesDir,
     this.relayDirectory,
     this.nodeDirectory,
-    this.preset = mainnetPreset,
+    this._preset = mainnetPreset,
     this._settings = const DeskSettings(),
     BigInt? minimumConfirmations,
     this.nodePoll = const Duration(seconds: 30),
@@ -231,7 +231,40 @@ class LepicDeskWallet implements DeskWalletApi {
   final SecretStore _secrets;
   late final DeskStore _store = DeskStore(_secrets);
   final Future<Directory> Function() _filesDir;
-  final NetworkPreset preset;
+
+  /// The network in use: mainnet, or the test network a dev build chose ([useNetwork]).
+  NetworkPreset get preset => _preset;
+  NetworkPreset _preset;
+
+  /// Where [useNetwork] keeps its choice for the next start ([savedPreset]).
+  static const String networkKey = 'desk.network';
+
+  /// The network a dev build chose last time ([useNetwork]); mainnet when none.
+  static Future<NetworkPreset> savedPreset(SecretStore secrets) async {
+    final name = await secrets.read(networkKey);
+    return networkPresets.where((p) => p.chain.name == name).firstOrNull ?? mainnetPreset;
+  }
+
+  @override
+  String get network => _preset.chain.name;
+
+  @override
+  Future<void> useNetwork(String network) async {
+    final next = networkPresets.where((p) => p.chain.name == network).firstOrNull ?? mainnetPreset;
+    if (next.chain == _preset.chain) return;
+    if (_session != null) throw DeskError.l10n((l) => l.deskErrWalletLocked);
+    _preset = next;
+    // The list, the node and the Epicbox servers are the network's own.
+    _registry = null;
+    _relaySettled = null;
+    _settledHost = null;
+    _dirNodes = null;
+    _dirNodesAt = null;
+    _boxes = null;
+    _boxesAt = null;
+    await _secrets.write(networkKey, network);
+    _changed();
+  }
 
   /// Epicbox server health from status.btlabs.uk; null leaves it unknown.
   final RelayDirectory? relayDirectory;
@@ -485,11 +518,17 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<String> _nodeUrl() async => await _secrets.read(_nodeKey) ?? preset.nodeUrl;
 
+  /// The built-in Epicbox servers of the network in use: mainnet's list, or a test network's
+  /// own server ([NetworkPreset.epicboxDomain]).
+  List<EpicboxServer> get _builtInBoxes => preset.chain == core.Chain.mainnet
+      ? deskEpicboxes
+      : [EpicboxServer(domain: preset.epicboxDomain, port: preset.epicboxPort, health: ServiceHealth.checking)];
+
   Future<EpicboxRelay> _relay() async {
     await (_relaySettled ??= _settleRelay());
     final saved = await _secrets.read(_relayKey);
     return (saved == null ? null : EpicboxRelay.parse(saved)) ??
-        EpicboxRelay(host: _settledHost ?? deskEpicboxes.first.domain);
+        EpicboxRelay(host: _settledHost ?? _builtInBoxes.first.domain, port: _builtInBoxes.first.port);
   }
 
   Future<void>? _relaySettled;
@@ -504,9 +543,10 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _settleRelay() async {
     try {
       if (await _secrets.read(_relayKey) != null) return;
-      final host = await _hadWallet() ? oldDefaultEpicboxHost : deskEpicboxes.first.domain;
+      final mainnet = preset.chain == core.Chain.mainnet;
+      final host = mainnet && await _hadWallet() ? oldDefaultEpicboxHost : _builtInBoxes.first.domain;
       _settledHost = host;
-      await _secrets.write(_relayKey, EpicboxRelay(host: host).label);
+      await _secrets.write(_relayKey, EpicboxRelay(host: host, port: host == _builtInBoxes.first.domain ? _builtInBoxes.first.port : 443).label);
       logInfo('desk', 'epicbox server settled: $host');
     } on Object catch (e) {
       // Not saved: the next run tries again; this one uses what was chosen, if anything.
@@ -1873,7 +1913,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final nodeUrl = config?.nodeUrl ?? await _nodeUrl();
     final relay = config == null ? await _relay() : EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort);
     final node = (await _listed()).where((n) => n.url == nodeUrl).firstOrNull ?? NodeServer(url: nodeUrl, label: Uri.tryParse(nodeUrl)?.host ?? nodeUrl);
-    final box = (_boxes ?? deskEpicboxes).where((b) => b.domain == relay.host).firstOrNull ?? EpicboxServer(domain: relay.host, port: relay.port);
+    final box = (_boxes ?? _builtInBoxes).where((b) => b.domain == relay.host).firstOrNull ?? EpicboxServer(domain: relay.host, port: relay.port);
     return ServiceStatus(
       node: node,
       nodeHealth: _nodeHealth,
@@ -1937,7 +1977,11 @@ class LepicDeskWallet implements DeskWalletApi {
   List<NodeServer> _publicNodes({bool read = true}) {
     if (read) _readNodeDirectory();
     return [
-      for (final n in mergePublicNodes(_dirNodes))
+      for (final n in mergePublicNodes(
+        _dirNodes,
+        // A test network's own node, not mainnet's list.
+        builtIn: preset.chain == core.Chain.mainnet ? builtInNodes : [PublicNode(url: preset.nodeUrl, operator: Uri.parse(preset.nodeUrl).host)],
+      ))
         NodeServer(url: n.url, label: n.operator, operator: n.operator, health: ServiceHealth.checking, icon: n.status?.icon, listedAs: n.status?.operator),
     ];
   }
@@ -1969,13 +2013,18 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<List<EpicboxServer>> epicboxes() async {
     final dir = relayDirectory;
     final at = _boxesAt;
-    if (dir == null || preset.statusChain == null) return deskEpicboxes;
+    if (dir == null || preset.statusChain == null) return _builtInBoxes;
     if (_boxes != null && at != null && DateTime.now().difference(at) < const Duration(minutes: 5)) return _boxes!;
     try {
       final listed = await dir.relays(preset.statusChain!).timeout(nodeTimeout);
-      if (!statusSite.on) return deskEpicboxes;
+      if (!statusSite.on) return _builtInBoxes;
       _boxes = [
-        for (final r in mergePublicRelays(listed))
+        for (final r in mergePublicRelays(
+          listed,
+          builtIn: preset.chain == core.Chain.mainnet
+              ? builtInRelays
+              : [PublicRelay(relay: EpicboxRelay(host: preset.epicboxDomain, port: preset.epicboxPort), operator: preset.epicboxDomain)],
+        ))
           EpicboxServer(
             domain: r.relay.host,
             port: r.relay.port,
@@ -1990,7 +2039,7 @@ class LepicDeskWallet implements DeskWalletApi {
       return _boxes!;
     } on Object catch (e) {
       logWarn('desk', 'epicbox status: ${e.runtimeType}');
-      return _boxes ?? deskEpicboxes;
+      return _boxes ?? _builtInBoxes;
     }
   }
 
@@ -2037,9 +2086,10 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   bool isEpicboxAddress(String to) {
     final t = to.trim();
-    if (!RegExp(r'^es[0-9A-Za-z]{38,58}(@[\w.-]+(:\d+)?)?$').hasMatch(t)) return false;
+    // `es` on mainnet, `zz` on a test network (LNX-6).
+    if (!RegExp(r'^(es|zz)[0-9A-Za-z]{38,58}(@[\w.-]+(:\d+)?)?$').hasMatch(t)) return false;
     // LEPIC checks the key's checksum; it wants the server, any server will do for that.
-    return _service.validateEpicboxAddress(address: t.contains('@') ? t : '$t@epicbox.stackwallet.com');
+    return _service.validateEpicboxAddress(address: t.contains('@') ? t : '$t@${preset.epicboxDomain}');
   }
 
   @override

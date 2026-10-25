@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:path_provider/path_provider.dart';
 
+import 'src/network.dart' show mainnetPreset;
 import 'src/network_gate.dart';
 import 'src/app_log.dart';
 import 'src/btlabs_onions.dart';
@@ -120,6 +121,8 @@ Future<List<Override>> deskOverrides() async {
     torSwitch = false;
   }
   final wallet = LepicDeskWallet(
+    // A dev build with test networks starts on the one chosen last on Welcome.
+    preset: DeskFeatures.testNetworks ? await LepicDeskWallet.savedPreset(secrets) : mainnetPreset,
     service: container.read(walletServiceProvider),
     walletDir: container.read(walletDirProvider),
     secrets: secrets,
