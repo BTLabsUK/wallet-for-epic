@@ -30,7 +30,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ? '**Ich habe bereits eine Wallet: wiederherstellen** (auf dem ersten Bildschirm oder nach dem Löschen dieser Wallet unter [[Einstellungen › Wallet|Settings › Wallet]])'
       : '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm, unter Entsperren › Wallet hinzufügen oder unter [[Einstellungen › Alle Wallets|Settings › All wallets]])';
   final recheckPlace = phone ? '[[Einstellungen › Wallet › Guthaben neu prüfen|Settings › Wallet › Recheck balance]]' : '[[Einstellungen › Guthaben neu prüfen|Settings › Recheck balance]]';
-  final phrasePlace = phone ? '[[Einstellungen › Sicherheit › Wiederherstellungsphrase sichern|Settings › Security › Back up recovery phrase]]' : '[[Einstellungen › Wiederherstellungsphrase|Settings › Recovery phrase]]';
+  final phrasePlace = phone ? '[[Einstellungen › Sicherheit › Wiederherstellungsphrase sichern|Settings › Security › Back up recovery phrase]]' : '[[Einstellungen › Seed-Phrase|Settings › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
       'start',
