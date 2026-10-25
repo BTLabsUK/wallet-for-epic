@@ -279,6 +279,25 @@ void main() {
       expect(h.api.records.single.state, PairingState.pendingInvite, reason: 'nothing answered');
     });
 
+    testWidgets('the incoming invite with no name kept: the field stays while typing, and Pair with the keyboard up uses it (PAIR-AND-1)', (tester) async {
+      final h = _Harness(seenAs: null);
+      await h.pump(tester, const EnterLinkScreen());
+      await tester.enterText(find.byKey(pairEnterFieldKey), h.api.inviteLinkFrom(name: 'Anna'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(pairEnterGoKey));
+      await _frames(tester);
+      expect(find.byKey(pairNameFieldKey), findsOneWidget);
+      await tester.enterText(find.byKey(pairNameFieldKey), 'O');
+      await tester.pump();
+      expect(find.byKey(pairNameFieldKey), findsOneWidget, reason: 'the field does not go after the first letter');
+      await tester.enterText(find.byKey(pairNameFieldKey), 'Ola');
+      await tester.pump();
+      await tester.tap(find.byKey(incomingPairKey));
+      await _frames(tester);
+      expect(find.text(_l.pairSeenAsMissing), findsNothing);
+      expect(h.api.records.single.state, PairingState.pendingReply);
+    });
+
     testWidgets('an invite link opens the incoming invite; Pair answers and waits', (tester) async {
       final h = _Harness();
       await h.pump(tester, const EnterLinkScreen());

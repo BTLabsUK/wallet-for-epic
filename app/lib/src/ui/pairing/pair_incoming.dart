@@ -110,6 +110,10 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
   bool _busy = false;
   String? _nameError;
 
+  /// No name kept when the sheet opened: the field stays while one is typed (the name is
+  /// current at every key, so it would go after the first letter).
+  bool _askName = false;
+
   Future<void> _pair() async {
     final l = context.l10n;
     final name = ref.read(pairingSeenAsProvider).value ?? '';
@@ -151,7 +155,9 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
     final t = context.tokens;
     final theme = Theme.of(context);
     final p = widget.preview;
-    final needsName = (ref.watch(pairingSeenAsProvider).value ?? '').trim().isEmpty || _nameError != null;
+    final seenAs = ref.watch(pairingSeenAsProvider);
+    if (seenAs.hasValue && (seenAs.value ?? '').trim().isEmpty) _askName = true;
+    final needsName = _askName || _nameError != null;
     final foot = MediaQuery.paddingOf(context).bottom;
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(20, 0, 20, 16 + foot),
