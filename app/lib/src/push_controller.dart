@@ -24,7 +24,7 @@ import 'tor_routes.dart';
 import 'wallet_service.dart';
 
 /// What the user is told, in the app's words (`app.dart` shows it, where the language is known).
-enum PushNote { on, off, offEpicbox, available }
+enum PushNote { on, off, offEpicbox }
 
 /// One thing to tell the user; every event is a new object, so the same note again shows again.
 class PushNoteEvent {
@@ -43,12 +43,6 @@ class PushNoteNotifier extends Notifier<PushNoteEvent?> {
 
   void say(PushNote note) => state = PushNoteEvent(note);
 }
-
-/// Saved once the reminder was shown, so it never comes again.
-const String pushHintShownKey = 'app.push_hint_shown';
-
-/// How long after the first unlock of a run the reminder waits.
-const Duration pushHintDelay = Duration(seconds: 60);
 
 /// How long the Epicbox relay must stay put before push follows it: a run of quick switches
 /// counts once, by the relay the wallet ends on.
@@ -70,9 +64,6 @@ final pushTorHooksProvider = Provider<TorSwitchHooks>((ref) {
 /// State: whether the relay accepted this phone's registration in the open wallet's session.
 /// Something always alive must watch it (`app.dart`), so it follows every unlock.
 class PushController extends Notifier<bool> {
-  Timer? _hint;
-  bool _hintScheduled = false;
-
   /// Waits [pushRelaySettle] after the last relay switch before push follows it.
   Timer? _relaySettle;
 
@@ -95,7 +86,6 @@ class PushController extends Notifier<bool> {
   @override
   bool build() {
     ref.onDispose(() {
-      _hint?.cancel();
       _relaySettle?.cancel();
     });
     ref.listen(sessionProvider, (previous, session) {
@@ -103,10 +93,7 @@ class PushController extends Notifier<bool> {
       state = false;
       _relaySettle?.cancel();
       _relaySettle = null;
-      if (session == null) {
-        _hint?.cancel();
-        _hint = null;
-      } else if (!identical(previous, session)) {
+      if (session != null && !identical(previous, session)) {
         unawaited(_unlocked(session));
       }
     });
@@ -228,7 +215,6 @@ class PushController extends Notifier<bool> {
   Future<void> _unlocked(WalletSession session) async {
     await _sync(session, why: 'unlocked');
     if (!identical(ref.read(sessionProvider), session)) return;
-    await _scheduleHint();
   }
 
   /// Starts Firebase and registers, when notifications are wanted and Tor is off. [fresh] asks
@@ -402,30 +388,5 @@ class PushController extends Notifier<bool> {
     final session = ref.read(sessionProvider);
     if (session == null) return;
     await _sync(session, fresh: true, announce: true);
-  }
-
-  // The reminder.
-
-  /// Once per install, about a minute into the first unlock of a run: tells that notifications
-  /// exist, if they are off and Tor is not on.
-  Future<void> _scheduleHint() async {
-    if (_hintScheduled) return;
-    if (!await _available() || await _wanted()) return;
-    if (await ref.read(secretStoreProvider).read(pushHintShownKey) == 'true') {
-      return;
-    }
-    if (ref.read(sessionProvider) == null) return;
-    _hintScheduled = true;
-    _hint = Timer(pushHintDelay, () => unawaited(_hintDue()));
-  }
-
-  Future<void> _hintDue() async {
-    _hint = null;
-    if (ref.read(sessionProvider) == null) return;
-    if (!await _available() || await _wanted() || !await _clearnet()) return;
-    final store = ref.read(secretStoreProvider);
-    if (await store.read(pushHintShownKey) == 'true') return;
-    await store.write(pushHintShownKey, 'true');
-    ref.read(pushNoteProvider.notifier).say(PushNote.available);
   }
 }

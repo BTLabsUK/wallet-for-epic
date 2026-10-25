@@ -5928,7 +5928,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Informuje, gdy przychodzi płatność lub faktura, kiedy aplikacja jest zamknięta. Korzysta z Epicboxa BT Labs i usługi powiadomień Google; wiadomość tylko budzi aplikację i nie zawiera kwoty, nadawcy ani adresu. Wyłączone, gdy Tor jest włączony, bo rejestracja zdradziłaby adres telefonu.';
+      'Eksperymentalne: może się zmienić lub zawodzić. Informuje, gdy przychodzi płatność lub faktura, kiedy aplikacja jest zamknięta. Korzysta z Epicboxa BT Labs i usługi powiadomień Google; wiadomość tylko budzi aplikację i nie zawiera kwoty, nadawcy ani adresu. Wyłączone, gdy Tor jest włączony, bo rejestracja zdradziłaby adres telefonu.';
 
   @override
   String get settingsPushPaused => 'Wstrzymane, gdy Tor jest włączony';
@@ -5960,10 +5960,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pushNoticeOff => 'Powiadomienia wyłączone';
-
-  @override
-  String get pushNoticeAvailable =>
-      'Powiadomienia są w Ustawieniach › Zaawansowane.';
 
   @override
   String get torWayOver => 'Przez Tor';

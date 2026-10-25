@@ -5774,7 +5774,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.';
+      'Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.';
 
   @override
   String get settingsPushPaused => 'Paused while Tor is on';
@@ -5806,10 +5806,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pushNoticeOff => 'Notifications off';
-
-  @override
-  String get pushNoticeAvailable =>
-      'Notifications are available in Settings › Advanced.';
 
   @override
   String get torWayOver => 'Over Tor';

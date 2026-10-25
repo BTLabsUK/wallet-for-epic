@@ -5683,7 +5683,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'แจ้งเมื่อมีการชำระเงินหรือใบแจ้งหนี้เข้ามาขณะที่แอปปิดอยู่ ใช้ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google ข้อความใช้เพียงปลุกแอป ไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่ ปิดขณะเปิด Tor เพราะการลงทะเบียนจะเปิดเผยที่อยู่ของโทรศัพท์';
+      'ฟีเจอร์ทดลอง: อาจเปลี่ยนแปลงหรือทำงานผิดพลาด แจ้งเมื่อมีการชำระเงินหรือใบแจ้งหนี้เข้ามาขณะที่แอปปิดอยู่ ใช้ Epicbox ของ BT Labs และบริการแจ้งเตือนของ Google ข้อความใช้เพียงปลุกแอป ไม่มีจำนวนเงิน ผู้ส่ง หรือที่อยู่ ปิดขณะเปิด Tor เพราะการลงทะเบียนจะเปิดเผยที่อยู่ของโทรศัพท์';
 
   @override
   String get settingsPushPaused => 'หยุดชั่วคราวขณะเปิด Tor';
@@ -5715,9 +5715,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pushNoticeOff => 'ปิดการแจ้งเตือนแล้ว';
-
-  @override
-  String get pushNoticeAvailable => 'เปิดการแจ้งเตือนได้ในการตั้งค่า › ขั้นสูง';
 
   @override
   String get torWayOver => 'ผ่าน Tor';

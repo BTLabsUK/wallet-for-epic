@@ -7510,7 +7510,7 @@
   "@settingsNotifications": {
     "description": "The Notifications switch in Settings: the label only, its explanation is the info tooltip."
   },
-  "settingsNotificationsHint": "Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.",
+  "settingsNotificationsHint": "Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.",
   "@settingsNotificationsHint": {
     "description": "Info sheet behind the Notifications switch: what a notification tells, what the message carries, why Tor turns it off. BT Labs is a name."
   },
@@ -7549,10 +7549,6 @@
   "pushNoticeOff": "Notifications off",
   "@pushNoticeOff": {
     "description": "Notice after the user turned notifications off."
-  },
-  "pushNoticeAvailable": "Notifications are available in Settings › Advanced.",
-  "@pushNoticeAvailable": {
-    "description": "One-time reminder, about a minute after the first unlock, that notifications exist."
   },
   "torWayOver": "Over Tor",
   "@torWayOver": {

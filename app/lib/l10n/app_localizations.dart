@@ -9363,7 +9363,7 @@ abstract class AppLocalizations {
   /// Info sheet behind the Notifications switch: what a notification tells, what the message carries, why Tor turns it off. BT Labs is a name.
   ///
   /// In en, this message translates to:
-  /// **'Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.'**
+  /// **'Experimental: it may change or fail. Tells you when a payment or an invoice arrives while the app is closed. Uses the BT Labs Epicbox and Google’s notification service; the message only wakes the app and carries no amount, sender or address. Off while Tor is on, because registering would reveal the phone’s address.'**
   String get settingsNotificationsHint;
 
   /// State line under the Notifications switch while it is on and Tor is on.
@@ -9419,12 +9419,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notifications off'**
   String get pushNoticeOff;
-
-  /// One-time reminder, about a minute after the first unlock, that notifications exist.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications are available in Settings › Advanced.'**
-  String get pushNoticeAvailable;
 
   /// Status card, Settings › Servers and the server lists: this connection (node or Epicbox) goes through Tor now. Same words as desktop's 'Over Tor'.
   ///

@@ -5466,7 +5466,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      '在应用关闭时，有付款或账单到达会通知你。使用 BT Labs 的 Epicbox 和 Google 的通知服务；消息只用来唤醒应用，不含金额、发送方或地址。Tor 开启时关闭，因为注册会暴露手机的地址。';
+      '实验性功能：可能变化或出错。在应用关闭时，有付款或账单到达会通知你。使用 BT Labs 的 Epicbox 和 Google 的通知服务；消息只用来唤醒应用，不含金额、发送方或地址。Tor 开启时关闭，因为注册会暴露手机的地址。';
 
   @override
   String get settingsPushPaused => 'Tor 开启时已暂停';
@@ -5495,9 +5495,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pushNoticeOff => '通知已关闭';
-
-  @override
-  String get pushNoticeAvailable => '通知可在设置 › 高级中开启。';
 
   @override
   String get torWayOver => '经由 Tor';
