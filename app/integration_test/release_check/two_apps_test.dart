@@ -12,6 +12,7 @@
 //   (c) Both remove what they hold; face to face by pasting each other's card link.
 import 'dart:io';
 
+import 'package:epic_wallet/src/app_log_io.dart' show startLogging;
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/invoices.dart' show PaymentRequestDraft, RequestState;
 import 'package:epic_wallet/src/desktop/data/models.dart' show Contact;
@@ -74,18 +75,20 @@ List<String> shownWords(WidgetTester tester) =>
 Future<List<PairingRecord>> pairings(WidgetTester tester) async =>
     (await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).pairings()))!;
 
-/// The pairing with the other app once verified, waiting for it.
-Future<PairingRecord?> verifiedWithOther(WidgetTester tester) async {
+/// The pairing with the other app once verified, waiting for it; never one in [old].
+Future<PairingRecord?> verifiedWithOther(WidgetTester tester, {Set<String> old = const {}}) async {
   final end = DateTime.now().add(const Duration(seconds: 90));
   while (DateTime.now().isBefore(end)) {
-    final r = (await pairings(tester)).where((p) => p.name == theirName && p.state == PairingState.verified).firstOrNull;
+    final r = (await pairings(tester))
+        .where((p) => p.name == theirName && p.state == PairingState.verified && !old.contains(p.id))
+        .firstOrNull;
     if (r != null) return r;
     await settle(tester, ms: 1000);
   }
   return null;
 }
 
-Future<void> wordsCheck(WidgetTester tester, String step) async {
+Future<PairingRecord?> wordsCheck(WidgetTester tester, String step) async {
   await pumpUntil(tester, () => dialogWords.evaluate().isNotEmpty, timeout: const Duration(minutes: 5), what: 'the words check');
   await settle(tester, ms: 800);
   final mine = shownWords(tester);
@@ -93,11 +96,14 @@ Future<void> wordsCheck(WidgetTester tester, String step) async {
   await put(tester, '$step-words', mine.join(' '));
   final theirs = await take(tester, '$step-words');
   rc('$step: both apps show the same four words', mine.length == 4 && mine.join(' ') == theirs, '${mine.length} words, same: ${mine.join(' ') == theirs}');
+  // The pairings held before this one: the check waits for the new one.
+  final before = {for (final p in await pairings(tester)) if (p.state == PairingState.verified) p.id};
   await tester.tap(find.byKey(deskCheckMatchKey));
   await settle(tester, ms: 1500);
-  final r = await verifiedWithOther(tester);
+  final r = await verifiedWithOther(tester, old: before);
   rc('$step: verified', r != null, (await pairings(tester)).map((p) => '${p.name}:${p.state.name}').join(', '));
   await shot(tester, '$role-$step-verified');
+  return r;
 }
 
 /// Pastes [text] under Enter link or words and presses Pair.
@@ -141,6 +147,8 @@ void main() {
     final events = <PairingEvent>[];
     await tester.runAsync(() => Directory(syncDir).create(recursive: true));
     await boot(tester);
+    // The app's own log, under its data folder, for a step that goes wrong.
+    await tester.runAsync(startLogging);
 
     // A fresh wallet on the given node and relay.
     await tapText(tester, 'Create a new wallet');
@@ -278,9 +286,9 @@ void main() {
       await shot(tester, 'A-b-code');
       rc('b: A shows five pairing words on $relayHost', code?.inviteWords.length == 5, code == null ? texts().where((t) => t.contains('relay') || t.contains('Epicbox')).take(2).join(' / ') : '');
       await put(tester, 'b-words-code', [for (final w in code?.inviteWords ?? const <SasWord>[]) w.name].join(' '));
-      if (code != null) await wordsCheck(tester, 'b');
+      final fresh = code == null ? null : await wordsCheck(tester, 'b');
       // The new pairing joins the contact that has the old one: the key check starts.
-      final fresh = (await pairings(tester)).where((p) => p.name == theirName && p.id != withOther.id && p.state == PairingState.verified).firstOrNull;
+      rc('e: the new pairing joins the contact with the old one', fresh != null, '');
       if (fresh != null) await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).attach(fresh.id, bookId));
       final end = DateTime.now().add(const Duration(minutes: 4));
       while (DateTime.now().isBefore(end) && !events.any((e) => e.kind == PairingEventKind.keysRestored || e.kind == PairingEventKind.keysChanged)) {
@@ -309,8 +317,17 @@ void main() {
       await put(tester, 'c-card', card?.link ?? '');
       await enter(tester, await take(tester, 'c-card'));
     } else {
+      // A fresh Pair page, as a user opens it again.
+      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.contacts);
+      await settle(tester, ms: 1000);
       await enter(tester, await take(tester, 'c-card'));
-      await pumpUntil(tester, () => find.byKey(deskCardBackLinkKey).evaluate().isNotEmpty, what: 'B\'s card to hand back');
+      try {
+        await pumpUntil(tester, () => find.byKey(deskCardBackLinkKey).evaluate().isNotEmpty, what: 'B\'s card to hand back');
+      } on TestFailure {
+        await shot(tester, 'B-c-no-card-back');
+        rc('c: B read A\'s card and shows its own to hand back', false, texts().where((t) => t.length > 10).skip(10).take(14).join(' | '));
+        rethrow;
+      }
       final link = tester.widget<SelectableText>(find.byKey(deskCardBackLinkKey)).data ?? '';
       rc('c: B read A\'s card and shows its own to hand back', link.startsWith('epiccash://contact/1/'), '');
       await shot(tester, 'B-c-card-back');

@@ -1,7 +1,7 @@
 // The desktop's Pair page (SPEC 2.1-2.3, desktop): the code with its words, an online invite
 // copied with the name they will see, a pasted invite answered, and Pending invites.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairingsProvider, deskSeenAsProvider;
+import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCardProvider, deskPairingsProvider, deskSeenAsProvider;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart' show deskSettingsFromJson, deskSettingsToJson;
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart' show deskInvoicesProvider;
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
@@ -10,7 +10,8 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/pairing_fake.dart';
-import 'package:epic_wallet/src/wallet_service.dart' show PairingState;
+import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingWordsOnScreen;
+import 'package:epic_wallet/src/wallet_service.dart' show PairingEvent, PairingEventKind, PairingState;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,6 +93,51 @@ void main() {
     final answered = (await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingReply);
     expect(answered, hasLength(1));
     expect(answered.single.asksInvoices, isFalse, reason: 'Allow invoices is off until the user turns it on');
+  });
+
+  testWidgets('a pasted card link pairs face to face: this wallet\'s card to hand back, then the words', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _seenAs(tester, 'the owner');
+    await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), _pairing.cardLinkFrom('Ola'));
+    await tester.pump();
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    expect(find.text(_l.pairCardBackTitle('Ola')), findsOneWidget);
+    final link = tester.widget<SelectableText>(find.byKey(deskCardBackLinkKey)).data!;
+    expect(link, startsWith('epiccash://contact/'));
+    await tester.tap(find.byKey(deskCardBackCheckKey));
+    await _real(tester);
+    expect(find.text(_l.sasDialogTitle('Ola')), findsOneWidget);
+    expect((await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.paired && r.name == 'Ola'), hasLength(1));
+  });
+
+  testWidgets('Copy my card link first: their card then goes straight to the words', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _seenAs(tester, 'the owner');
+    await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
+    await tester.tap(find.byKey(deskPairCopyCardKey));
+    await _real(tester);
+    expect(_c.read(deskOwnCardProvider)?.link, startsWith('epiccash://contact/'));
+    await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), _pairing.cardLinkFrom('Ola'));
+    await tester.pump();
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    expect(find.text(_l.pairCardBackTitle('Ola')), findsNothing);
+    expect(find.text(_l.sasDialogTitle('Ola')), findsOneWidget);
+    expect(_c.read(deskOwnCardProvider), isNull, reason: 'a card pairs once');
+  });
+
+  test('an answer a screen turns into the words check shows no notice of its own', () {
+    bool shown(PairingEvent e) => e.pairingId == 'p1';
+    const replied = PairingEvent(PairingEventKind.replied, pairingId: 'p1');
+    const other = PairingEvent(PairingEventKind.replied, pairingId: 'p2');
+    const request = PairingEvent(PairingEventKind.invoiceFromContact, pairingId: 'p1');
+    expect(pairingEventOnScreen(replied), isFalse);
+    pairingWordsOnScreen.add(shown);
+    addTearDown(() => pairingWordsOnScreen.remove(shown));
+    expect(pairingEventOnScreen(replied), isTrue);
+    expect(pairingEventOnScreen(other), isFalse);
+    expect(pairingEventOnScreen(request), isFalse, reason: 'only the answered and paired notices');
   });
 
   testWidgets('Pending invites lists what waits, with Cancel', (tester) async {
