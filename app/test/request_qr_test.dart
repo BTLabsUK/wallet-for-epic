@@ -1,5 +1,5 @@
 // A payment request shown as a QR (Direct · QR Payment), against the fakes: whoever asks makes
-// it from Receive (turning Invoices on in place), shows it, scans the payer's answer and gets a
+// it from Receive (Invoices on), shows it, scans the payer's answer and gets a
 // receipt; the payer scans it with no switch on, approves behind the PIN and shows the answer
 // back at once. A request that expired or does not fit this network pays nothing.
 
@@ -163,37 +163,22 @@ class _Entry extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
     body: Center(
-      child: FilledButton(onPressed: () => openQrRequest(context, ref), child: const Text('entry')),
+      child: FilledButton(onPressed: () => openQrRequest(context), child: const Text('entry')),
     ),
   );
 }
 
 void main() {
   group('whoever asks', () {
-    testWidgets('with Invoices off the entry turns them on in place, then the form shows the request as a QR', (tester) async {
-      final h = _Harness();
+    testWidgets('the entry opens the form that shows the request as a QR', (tester) async {
+      final h = _Harness(invoicesOn: true);
       await h.pump(tester, const _Entry());
       await tester.tap(find.text('entry'));
       await tester.pumpAndSettle();
-      expect(find.text(_l.expInvoicesOffQrBody), findsOneWidget);
-      await tester.tap(find.text(_l.expInvoicesTurnOn));
-      await tester.pumpAndSettle();
-      expect(h.store.values[phoneAdvancedPrefsKey], contains('invoices'));
       expect(find.byType(InvoiceRequestScreen), findsOneWidget);
       expect(find.descendant(of: find.byKey(requestPayerKey), matching: find.text(_l.reqToQr)), findsOneWidget);
       expect(find.byKey(requestShowQrKey), findsOneWidget);
       expect(find.byKey(requestSaveFileKey), findsNothing);
-    });
-
-    testWidgets('Close on the sheet leaves Invoices off and opens nothing', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const _Entry());
-      await tester.tap(find.text('entry'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(_l.commonClose));
-      await tester.pumpAndSettle();
-      expect(h.store.values[phoneAdvancedPrefsKey], isNull);
-      expect(find.byType(InvoiceRequestScreen), findsNothing);
     });
 
     testWidgets('makes the request, shows its code, finishes on the payer\'s answer and shows the receipt', (tester) async {

@@ -4354,8 +4354,6 @@
   "reqQrSummary": "Wer den Code scannt, kann {amount} zahlen. Scannen Sie hier deren Antwort, um abzuschließen. Die Anforderung läuft in 24 h ab.",
   "reqShowQr": "Als QR anzeigen",
   "receiveQrRequest": "Betrag anfordern",
-  "expInvoicesTurnOn": "Rechnungen einschalten",
-  "expInvoicesOffQrBody": "Beträge anzufordern gehört zu Rechnungen. Diese sind experimentell und können sich noch ändern. Schalten Sie sie hier ein oder später unter Einstellungen › Erweitert.",
   "reqQrPaidTitle": "Bezahlt",
   "reqQrPaidHeadline": "{amount} bezahlt und an das Netzwerk gesendet.",
   "reqQrNew": "Neue Anforderung",

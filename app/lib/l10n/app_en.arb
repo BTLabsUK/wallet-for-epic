@@ -21945,14 +21945,6 @@
   "@receiveQrRequest": {
     "description": "Receive › Direct · QR card button: make a payment request and show it as a QR."
   },
-  "expInvoicesTurnOn": "Turn on Invoices",
-  "@expInvoicesTurnOn": {
-    "description": "Primary button of the sheet shown when a QR request needs Invoices."
-  },
-  "expInvoicesOffQrBody": "Asking for an amount is part of Invoices, which are experimental and can still change. Turn them on here, or later in Settings › Advanced.",
-  "@expInvoicesOffQrBody": {
-    "description": "Body of the sheet shown when a QR request needs Invoices."
-  },
   "reqQrPaidTitle": "Paid",
   "@reqQrPaidTitle": {
     "description": "Title of the merchant's receipt after the reply was scanned and posted."

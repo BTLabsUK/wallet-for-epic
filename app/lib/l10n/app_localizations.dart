@@ -26006,18 +26006,6 @@ abstract class AppLocalizations {
   /// **'Request an amount'**
   String get receiveQrRequest;
 
-  /// Primary button of the sheet shown when a QR request needs Invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn on Invoices'**
-  String get expInvoicesTurnOn;
-
-  /// Body of the sheet shown when a QR request needs Invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Asking for an amount is part of Invoices, which are experimental and can still change. Turn them on here, or later in Settings › Advanced.'**
-  String get expInvoicesOffQrBody;
-
   /// Title of the merchant's receipt after the reply was scanned and posted.
   ///
   /// In en, this message translates to:

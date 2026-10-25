@@ -16761,13 +16761,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get receiveQrRequest => 'Betrag anfordern';
 
   @override
-  String get expInvoicesTurnOn => 'Rechnungen einschalten';
-
-  @override
-  String get expInvoicesOffQrBody =>
-      'Beträge anzufordern gehört zu Rechnungen. Diese sind experimentell und können sich noch ändern. Schalten Sie sie hier ein oder später unter Einstellungen › Erweitert.';
-
-  @override
   String get reqQrPaidTitle => 'Bezahlt';
 
   @override

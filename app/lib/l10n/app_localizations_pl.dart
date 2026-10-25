@@ -17071,13 +17071,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiveQrRequest => 'Poproś o kwotę';
 
   @override
-  String get expInvoicesTurnOn => 'Włącz faktury';
-
-  @override
-  String get expInvoicesOffQrBody =>
-      'Proszenie o kwotę jest częścią faktur, które są eksperymentalne i mogą się jeszcze zmienić. Włącz je tutaj albo później w Ustawienia › Zaawansowane.';
-
-  @override
   String get reqQrPaidTitle => 'Zapłacono';
 
   @override
