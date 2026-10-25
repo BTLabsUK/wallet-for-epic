@@ -15774,12 +15774,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpPairInvTitle => 'Invoices from paired contacts';
 
   @override
+  String get helpPairInvShortDesktop =>
+      'Only a Verified contact you allow can ask you to pay. Each request waits for the wallet password.';
+
+  @override
   String get helpPairInvShort =>
       'Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.';
 
   @override
   String get helpPairInvP1 =>
       'A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.';
+
+  @override
+  String get helpPairInvP2Desktop =>
+      'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. A request never adds money to your wallet.';
 
   @override
   String get helpPairInvP2 =>

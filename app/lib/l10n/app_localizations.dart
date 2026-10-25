@@ -24908,6 +24908,12 @@ abstract class AppLocalizations {
   /// **'Invoices from paired contacts'**
   String get helpPairInvTitle;
 
+  /// helpPairInvShort on the desktop, which pays with the wallet password, not a PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a Verified contact you allow can ask you to pay. Each request waits for the wallet password.'**
+  String get helpPairInvShortDesktop;
+
   /// Topic 4 lede.
   ///
   /// In en, this message translates to:
@@ -24919,6 +24925,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.'**
   String get helpPairInvP1;
+
+  /// helpPairInvP2 on the desktop, which pays with the wallet password, not a PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. A request never adds money to your wallet.'**
+  String get helpPairInvP2Desktop;
 
   /// Topic 4.
   ///

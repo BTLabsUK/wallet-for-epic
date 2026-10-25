@@ -15962,12 +15962,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get helpPairInvTitle => 'Rechnungen von gekoppelten Kontakten';
 
   @override
+  String get helpPairInvShortDesktop =>
+      'Nur ein verifizierter Kontakt, den Sie erlauben, kann Sie um Zahlung bitten. Jede Anforderung wartet auf das Wallet-Passwort.';
+
+  @override
   String get helpPairInvShort =>
       'Nur ein verifizierter Kontakt, den Sie erlauben, kann Sie um Zahlung bitten. Jede Anforderung wartet auf Ihre PIN.';
 
   @override
   String get helpPairInvP1 =>
       'Ein Shop, eine Börse oder eine Person, mit der Sie gekoppelt sind, kann Zahlungsanforderungen senden, wenn Sie es erlauben: **Rechnungen erlauben** auf der Kontaktseite oder unter [[Einstellungen › Rechnungen|Settings › Invoices]]. Der Schalter funktioniert nur für einen verifizierten Kontakt.';
+
+  @override
+  String get helpPairInvP2Desktop =>
+      'Eine Anforderung steht unter [[Rechnungen › Bezahlen|Invoices › Pay]] mit dem Namen des Kontakts, dem Betrag und einer Referenz. Nichts wird bezahlt, bis Sie mit dem Wallet-Passwort zustimmen. Eine Anforderung bringt nie Geld in Ihre Wallet.';
 
   @override
   String get helpPairInvP2 =>

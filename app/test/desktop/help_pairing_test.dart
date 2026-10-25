@@ -3,6 +3,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_pairing.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_help.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/help/help_content.dart' show HelpPlatform, pairingHelpTopics;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +52,15 @@ void main() {
     await _pump(tester, arg: const HelpAt('pairing', topic: 3), width: 900);
     expect(find.textContaining('Allow invoices', findRichText: true), findsWidgets);
     expect(tester.takeException(), isNull);
+  });
+
+  test('the desktop pays with the wallet password: no PIN in its pairing topics, the phone keeps it', () {
+    String all(HelpPlatform p) => [
+      for (final topic in pairingHelpTopics(englishStrings, platform: p)) ...[topic.title, topic.short, for (final b in topic.body) b.text],
+    ].join(' ');
+    expect(all(HelpPlatform.desktop), isNot(contains('PIN')));
+    expect(englishStrings.helpPairInvShortDesktop, contains('wallet password'));
+    expect(all(HelpPlatform.phone), contains('PIN'));
   });
 
   test('search finds the pairing topics', () {

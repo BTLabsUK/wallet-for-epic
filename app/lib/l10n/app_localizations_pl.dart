@@ -16245,12 +16245,20 @@ class AppLocalizationsPl extends AppLocalizations {
   String get helpPairInvTitle => 'Faktury od sparowanych kontaktów';
 
   @override
+  String get helpPairInvShortDesktop =>
+      'Tylko zweryfikowany kontakt, któremu zezwolisz, może prosić cię o zapłatę. Każda prośba czeka na hasło portfela.';
+
+  @override
   String get helpPairInvShort =>
       'Tylko zweryfikowany kontakt, któremu zezwolisz, może prosić cię o zapłatę. Każda prośba czeka na twój PIN.';
 
   @override
   String get helpPairInvP1 =>
       'Sklep, giełda lub osoba, z którą jesteś sparowany, może wysyłać prośby o zapłatę, jeśli na to zezwolisz: **Zezwól na faktury** na stronie kontaktu lub w [[Ustawienia › Faktury|Settings › Invoices]]. Przełącznik działa tylko dla zweryfikowanego kontaktu.';
+
+  @override
+  String get helpPairInvP2Desktop =>
+      'Prośba pojawia się w [[Faktury › Zapłać|Invoices › Pay]] z nazwą kontaktu, kwotą i numerem referencyjnym. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz jej hasłem portfela. Prośba nigdy nie dodaje pieniędzy do portfela.';
 
   @override
   String get helpPairInvP2 =>

@@ -14943,11 +14943,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpPairInvTitle => '来自已配对联系人的账单';
 
   @override
+  String get helpPairInvShortDesktop => '只有你允许的已验证联系人才能请求你付款。每个请求都会等待钱包密码。';
+
+  @override
   String get helpPairInvShort => '只有你允许的已验证联系人才能请求你付款。每个请求都会等待你的 PIN。';
 
   @override
   String get helpPairInvP1 =>
       '与你配对的商店、交易所或个人在你允许后可以发送付款请求：在联系人页面或[[设置 › 账单|Settings › Invoices]]中打开**允许账单**。此开关仅对已验证的联系人有效。';
+
+  @override
+  String get helpPairInvP2Desktop =>
+      '请求会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用钱包密码批准之前不会付款。请求绝不会向你的钱包加钱。';
 
   @override
   String get helpPairInvP2 =>

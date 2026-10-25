@@ -20951,6 +20951,10 @@
   "@helpPairInvTitle": {
     "description": "Topic 4 title."
   },
+  "helpPairInvShortDesktop": "Only a Verified contact you allow can ask you to pay. Each request waits for the wallet password.",
+  "@helpPairInvShortDesktop": {
+    "description": "helpPairInvShort on the desktop, which pays with the wallet password, not a PIN."
+  },
   "helpPairInvShort": "Only a Verified contact you allow can ask you to pay. Each request waits for your PIN.",
   "@helpPairInvShort": {
     "description": "Topic 4 lede."
@@ -20958,6 +20962,10 @@
   "helpPairInvP1": "A shop, an exchange or a person you paired can send requests to pay, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.",
   "@helpPairInvP1": {
     "description": "Topic 4."
+  },
+  "helpPairInvP2Desktop": "A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. A request never adds money to your wallet.",
+  "@helpPairInvP2Desktop": {
+    "description": "helpPairInvP2 on the desktop, which pays with the wallet password, not a PIN."
   },
   "helpPairInvP2": "A request shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. A request never adds money to your wallet.",
   "@helpPairInvP2": {

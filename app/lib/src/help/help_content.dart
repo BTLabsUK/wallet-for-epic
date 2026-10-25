@@ -515,6 +515,7 @@ List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = H
       ? text.replaceAllMapped(RegExp(r'\[\[(.+?)\]\]'), (m) => _phonePairingPlace(l, m.group(1)!, m.group(0)!))
       : text;
   const s = pairingHelpSection;
+  final phone = platform == HelpPlatform.phone;
   return [
     HelpTopic(s, l.helpPairWhatTitle, l.helpPairWhatShort, [
       HelpBlock.p(t(l.helpPairWhatP1)),
@@ -533,9 +534,10 @@ List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = H
       HelpBlock.p(t(l.helpPairWordsP2)),
       HelpBlock.p(t(l.helpPairWordsP3)),
     ], id: HelpId.pairingWords),
-    HelpTopic(s, l.helpPairInvTitle, l.helpPairInvShort, [
+    // The desktop pays with the wallet password, the phone with a PIN.
+    HelpTopic(s, l.helpPairInvTitle, phone ? l.helpPairInvShort : l.helpPairInvShortDesktop, [
       HelpBlock.p(t(l.helpPairInvP1)),
-      HelpBlock.p(t(l.helpPairInvP2)),
+      HelpBlock.p(t(phone ? l.helpPairInvP2 : l.helpPairInvP2Desktop)),
       HelpBlock.p(t(l.helpPairInvP3)),
       HelpBlock.p(t(l.helpPairInvP4)),
     ], id: HelpId.invoices),
