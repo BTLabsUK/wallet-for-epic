@@ -3716,7 +3716,7 @@
   "advModeOffline": "Offline",
   "advModeOfflineLine": "Tylko ten telefon i twoja sieć lokalna. Płatność QR i Przesyłanie pliku nadal działają przez używany węzeł; wszystko inne czeka, aż wrócisz do poprzedniego trybu.",
   "advTorOnlyNote": "Tylko Tor wstrzymuje powiadomienia: zapisanie się na nie ujawniłoby adres tego telefonu.",
-  "advOfflineNote": "Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Płatność QR i Przesyłanie pliku nadal działają: używają używanego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.",
+  "advOfflineNote": "Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Płatność QR i Przesyłanie pliku nadal działają: korzystają z bieżącego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.",
   "advReset": "Ukryj wszystko ponownie",
   "advHomeOffline": "Tryb offline",
   "advHomeTorOnlyWaiting": "Tylko Tor · czeka na Tor",

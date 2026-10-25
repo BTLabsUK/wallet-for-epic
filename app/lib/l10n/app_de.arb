@@ -3716,7 +3716,7 @@
   "advModeOffline": "Offline",
   "advModeOfflineLine": "Nur dieses Smartphone und Ihr lokales Netzwerk. QR-Zahlung und Dateiübertragung funktionieren weiter über den verwendeten Node; alles andere wartet, bis Sie zurückschalten.",
   "advTorOnlyNote": "Nur Tor pausiert Benachrichtigungen: Sich dafür anzumelden, würde die Adresse dieses Telefons verraten.",
-  "advOfflineNote": "Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. QR-Zahlung und Dateiübertragung funktionieren weiter: Sie nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen. Die Peers des Nodes sind eine Einstellung des Nodes.",
+  "advOfflineNote": "Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. QR-Zahlung und Dateiübertragung funktionieren weiter: Beide nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen. Die Peers des Nodes sind eine Einstellung des Nodes.",
   "advReset": "Alles wieder ausblenden",
   "advHomeOffline": "Offline-Modus",
   "advHomeTorOnlyWaiting": "Nur Tor · wartet auf Tor",

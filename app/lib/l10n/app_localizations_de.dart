@@ -14398,7 +14398,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. QR-Zahlung und Dateiübertragung funktionieren weiter: Sie nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen. Die Peers des Nodes sind eine Einstellung des Nodes.';
+      'Offline pausiert Epicbox, Tor, Statusprüfungen und Benachrichtigungen. QR-Zahlung und Dateiübertragung funktionieren weiter: Beide nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen. Mit einem Node in Ihrem lokalen Netzwerk funktionieren außerdem „Guthaben neu prüfen“ und Link-Zahlungen an lokale Adressen. Die Peers des Nodes sind eine Einstellung des Nodes.';
 
   @override
   String get advReset => 'Alles wieder ausblenden';

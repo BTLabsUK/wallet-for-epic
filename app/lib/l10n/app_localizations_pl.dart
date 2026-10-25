@@ -14666,7 +14666,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advOfflineNote =>
-      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Płatność QR i Przesyłanie pliku nadal działają: używają używanego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
+      'Offline wstrzymuje Epicbox, Tor, sprawdzanie stanu i powiadomienia. Płatność QR i Przesyłanie pliku nadal działają: korzystają z bieżącego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
 
   @override
   String get advReset => 'Ukryj wszystko ponownie';
