@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -546,6 +547,41 @@ void main() {
     await _frames(tester);
     expect(find.byType(CheckWordsScreen), findsOneWidget);
     expect(b.api.records.single.state, PairingState.paired);
+  });
+
+  testWidgets('the wait for the confirm closes once the confirm came by hand under it (item 25)', (tester) async {
+    final h = _Harness();
+    final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
+    final answered = await h.api.acceptInvite(token: preview.token, name: 'the owner', byHand: true);
+    await h.pump(tester, const Scaffold(body: Text('home')));
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => PairingWaitingScreen(pairingId: answered.id))));
+    await _frames(tester);
+    unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => const EnterLinkScreen())));
+    await _frames(tester);
+    await tester.enterText(find.byKey(pairEnterFieldKey), fakePairingLink('pair-confirm', {'t': answered.id, 'n': 'Anna'}));
+    await tester.pump();
+    await tester.tap(find.byKey(pairEnterGoKey));
+    await _frames(tester);
+    expect(find.byType(CheckWordsScreen), findsOneWidget);
+    await tester.tap(find.byKey(checkMatchKey));
+    await _frames(tester);
+    await tester.tap(find.byKey(checkDoneKey));
+    await _frames(tester);
+    expect(find.byType(PairingWaitingScreen, skipOffstage: false), findsNothing, reason: 'Done never lands on the old wait');
+  });
+
+  testWidgets('an answer the relay did not take: Send by hand on its row while the link is known (PAIR-AND-11)', (tester) async {
+    final h = _Harness();
+    h.api.relayUnreachable = true;
+    final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
+    await h.api.acceptInvite(token: preview.token, name: 'the owner');
+    await h.pump(tester, const PendingInvitesScreen());
+    expect(find.byKey(pendingByHandKey), findsOneWidget);
+    expect(find.byKey(pendingRemoveReplyKey), findsOneWidget);
+    await tester.tap(find.byKey(pendingByHandKey));
+    await tester.pumpAndSettle();
+    expect(find.byType(PairingByHandScreen), findsOneWidget);
   });
 
   group('Pending invites', () {

@@ -250,6 +250,7 @@ class PairingWaitingScreen extends ConsumerStatefulWidget {
 
 class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
   PairingCollector? _collector;
+  bool _left = false;
   StreamSubscription<PairingEvent>? _events;
   bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
@@ -261,6 +262,9 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     _collector = PairingCollector(api, every: const Duration(seconds: 5))..start();
     _events = api.events().listen((e) {
       if (e.pairingId != widget.pairingId || !mounted) return;
+      // Under another screen (the confirm pasted by hand opened its own words check), the
+      // build below closes this one instead.
+      if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
       final nav = Navigator.of(context);
       if (e.kind == PairingEventKind.confirmed) {
         nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: widget.pairingId)));
@@ -288,6 +292,22 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     final t = context.tokens;
     final theme = Theme.of(context);
     final record = ref.watch(pairingByIdProvider(widget.pairingId));
+    // Nothing to wait for any more (the confirm came another way, by hand, or the pairing was
+    // removed): this screen goes, so Done on a later screen does not land back on it.
+    final loaded = ref.watch(pairingsProvider).hasValue;
+    if (loaded && !_left && (record == null || record.state != PairingState.pendingReply)) {
+      _left = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final route = ModalRoute.of(context);
+        if (route == null) return;
+        if (route.isCurrent) {
+          Navigator.of(context).pop();
+        } else {
+          Navigator.of(context).removeRoute(route);
+        }
+      });
+    }
     final name = record?.shownName ?? '';
     final overTor = ref.watch(epicboxOverTorProvider);
     final unreachable = (record?.relayDown ?? false) || ref.watch(pairNetProvider) != PairNet.online;

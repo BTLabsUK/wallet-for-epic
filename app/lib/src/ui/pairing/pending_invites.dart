@@ -4,6 +4,8 @@
 /// invite, which are not stored and can be removed.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,15 +28,38 @@ const Key pendingInviteAgainKey = ValueKey('pending-invite-again');
 const Key pendingCheckKey = ValueKey('pending-check');
 const Key pendingRemoveStrayKey = ValueKey('pending-remove-stray');
 const Key pendingRemoveReplyKey = ValueKey('pending-remove-reply');
+const Key pendingByHandKey = ValueKey('pending-by-hand');
 
 /// The menu of a pairing whose words wait to be checked, by its id.
 Key pendingRowMenuKey(String id) => ValueKey('pending-row-menu-$id');
 
-class PendingInvitesScreen extends ConsumerWidget {
+class PendingInvitesScreen extends ConsumerStatefulWidget {
   const PendingInvitesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PendingInvitesScreen> createState() => _PendingInvitesScreenState();
+}
+
+class _PendingInvitesScreenState extends ConsumerState<PendingInvitesScreen> {
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    // The rows' times ("under a minute", "expires in 23 h") move on while the page is open.
+    _tick = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
     final pending = ref.watch(pendingPairingsProvider);
     final strays = ref.watch(pairingStraysProvider).value ?? const <PairingStray>[];
@@ -178,12 +203,25 @@ class _PendingRow extends ConsumerWidget {
           avatar: avatar,
           title: name,
           subtitle: Text(l.pendingWaitingConfirm(pairingSpan(l, now.difference(r.createdAt)))),
-          // The other side may never confirm (They don't match there): the answer can go.
-          trailing: TextButton(
-            key: pendingRemoveReplyKey,
-            style: TextButton.styleFrom(foregroundColor: t.risk),
-            onPressed: () => pairingCall(ref, (api) => api.cancelInvite(r.id)),
-            child: Text(l.contactRemove),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // An answer the relay did not take, while this run still has its link (PAIR-AND-11).
+              if (r.relayDown)
+                IconButton(
+                  key: pendingByHandKey,
+                  tooltip: l.pairSendByHand,
+                  icon: const Icon(Icons.ios_share),
+                  onPressed: () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairingByHandScreen(pairingId: r.id))),
+                ),
+              // The other side may never confirm (They don't match there): the answer can go.
+              TextButton(
+                key: pendingRemoveReplyKey,
+                style: TextButton.styleFrom(foregroundColor: t.risk),
+                onPressed: () => pairingCall(ref, (api) => api.cancelInvite(r.id)),
+                child: Text(l.contactRemove),
+              ),
+            ],
           ),
         );
       default:

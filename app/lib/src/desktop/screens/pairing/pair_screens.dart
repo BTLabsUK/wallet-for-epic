@@ -1128,13 +1128,35 @@ Future<void> showDeskOutcome(BuildContext context, PairingFailure failure, {Stri
 }
 
 /// Contacts › Pending invites.
-class DeskPendingScreen extends ConsumerWidget {
+class DeskPendingScreen extends ConsumerStatefulWidget {
   const DeskPendingScreen({super.key, this.arg});
 
   final Object? arg;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DeskPendingScreen> createState() => _DeskPendingScreenState();
+}
+
+class _DeskPendingScreenState extends ConsumerState<DeskPendingScreen> {
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    // The rows' times move on while the page is open (PAIR-AND-11).
+    _tick = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
     final ts = context.ts;
     final c = context.dc;
