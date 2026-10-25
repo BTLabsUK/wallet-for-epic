@@ -31,6 +31,7 @@ import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
 import '../../builtin_node.dart';
 import '../../legacy/gui_contacts.dart' show AddressChecks;
+import '../../legacy/gui_rules.dart' show cleanGuiLabel;
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
 import '../../l10n.dart' show AppLocalizations, englishStrings;
@@ -1539,11 +1540,10 @@ class LepicDeskWallet implements DeskWalletApi {
     return added;
   }
 
-  /// A list name of at most 32 characters.
-  static String _importName(String label) {
-    final t = label.trim();
-    return t.length <= 32 ? t : t.substring(0, 32).trim();
-  }
+  /// A list name of at most 32 characters, cleaned as the GUI cleaned its labels: an old label
+  /// with a control or direction character (the list refuses those) or an emoji at the cut
+  /// still imports. Empty: the list's own "Wallet N".
+  static String _importName(String label) => cleanGuiLabel(label.replaceAll(RegExp('[\u2028\u2029]'), ' '));
 
   @override
   Future<void> cancelImport() async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/gui_contact_import.dart' show ContactImport;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../../l10n.dart' show localDay, localDigits;
 import '../../desk_l10n.dart';
@@ -132,8 +133,14 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       _done[f.id] = ImportedWallet(
         id: f.id,
         name: f.name,
-        // l10n-ok: the tour's sample proof lines (the real ones come from the wallet service)
-        proof: const [ImportProof('Seed read'), ImportProof('Wallet created'), ImportProof('Old folder unchanged')], // l10n-ok
+        // The tour's sample proof lines (the real ones come from the wallet service).
+        proof: [
+          ImportProof.l10n((l) => l.deskErrProofSeedRead),
+          ImportProof.l10n((l) => l.deskErrProofWalletCreated),
+          ImportProof.l10n((l) => l.deskErrProofHistory(41)),
+          ...const ContactImport(added: 12, merged: 2, skipped: 1).proof(),
+          ImportProof.l10n((l) => l.deskErrProofFolderUnchanged),
+        ],
       );
     }
   }
