@@ -11,6 +11,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../log.dart';
 import 'api.dart';
 import 'invoices.dart';
 import 'models.dart' show SelfSend;
@@ -98,23 +99,26 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
     }
   }
 
-  Future<IssuedRequest> request(PaymentRequestDraft draft) => _then(_api.requestPayment(draft));
-  Future<void> withdraw(String slateId) => _then(_api.withdrawRequest(slateId));
-  Future<void> repost(String slateId) => _then(_api.repostRequest(slateId));
-  Future<void> cancelRequestPayment(String slateId) => _then(_api.cancelRequestPayment(slateId));
+  Future<IssuedRequest> request(PaymentRequestDraft draft) => _then('request', () => _api.requestPayment(draft));
+  Future<void> withdraw(String slateId) => _then('withdraw', () => _api.withdrawRequest(slateId));
+  Future<void> repost(String slateId) => _then('repost', () => _api.repostRequest(slateId));
+  Future<void> cancelRequestPayment(String slateId) => _then('cancel request payment', () => _api.cancelRequestPayment(slateId));
   Future<IncomingInvoice> pay(String slateId, {required int amount, required String password}) =>
-      _then(_api.payInvoice(slateId, amount: amount, password: password));
-  Future<IncomingInvoice> retry(String slateId) => _then(_api.retryInvoiceReply(slateId));
-  Future<void> decline(String slateId) => _then(_api.declineInvoice(slateId));
-  Future<void> cancelPayment(String slateId) => _then(_api.cancelInvoicePayment(slateId));
-  Future<SelfSend> spendToSelf(String slateId) => _then(_api.spendCancelledToSelf(slateId));
-  Future<void> setExpiry(Duration expiry) => _then(_api.setInvoiceExpiry(expiry));
+      _then('pay', () => _api.payInvoice(slateId, amount: amount, password: password));
+  Future<IncomingInvoice> retry(String slateId) => _then('retry', () => _api.retryInvoiceReply(slateId));
+  Future<void> decline(String slateId) => _then('decline', () => _api.declineInvoice(slateId));
+  Future<void> cancelPayment(String slateId) => _then('cancel payment', () => _api.cancelInvoicePayment(slateId));
+  Future<SelfSend> spendToSelf(String slateId) => _then('spend to self', () => _api.spendCancelledToSelf(slateId));
+  Future<void> setExpiry(Duration expiry) => _then('set expiry', () => _api.setInvoiceExpiry(expiry));
 
   /// Runs [call], then reads the book again (and the wallet, for balance and Activity) whether
-  /// it worked or not.
-  Future<T> _then<T>(Future<T> call) async {
+  /// it worked or not. A failure is logged by its kind; the screens word it.
+  Future<T> _then<T>(String what, Future<T> Function() call) async {
     try {
-      return await call;
+      return await call();
+    } on Object catch (e) {
+      logWarn('invoices', '$what failed: ${deskFailureKind(e)}');
+      rethrow;
     } finally {
       await load();
       unawaited(ref.read(deskProvider.notifier).refresh());

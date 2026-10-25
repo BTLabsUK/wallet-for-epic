@@ -8,8 +8,10 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkMode;
+import '../../log.dart';
 import '../../models.dart' show PairingCard, PairingEvent, PairingRecord, PairingSlate, PairingState;
 import '../../pairing_api.dart';
+import 'invoices.dart' show deskFailureKind;
 import 'models.dart' show Contact;
 import 'state.dart';
 
@@ -150,10 +152,13 @@ class DeskSeenAs extends Notifier<String> {
   }
 }
 
-/// Runs [call], then reads the records again.
+/// Runs [call], then reads the records again. A failure is logged by its kind.
 Future<T> deskPairingCall<T>(WidgetRef ref, Future<T> Function(PairingApi api) call) async {
   try {
     return await call(ref.read(deskPairingApiProvider));
+  } on Object catch (e) {
+    logWarn('pairing', 'call failed: ${deskFailureKind(e)}');
+    rethrow;
   } finally {
     unawaited(ref.read(deskPairingsProvider.notifier).reload());
   }

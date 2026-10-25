@@ -8,6 +8,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import '../../models.dart' show WalletError, WalletErrorKind;
 import 'models.dart' show DeskError;
 
 /// How long an invoice stays payable unless Settings says otherwise (UP-14: 24 h, 48 h at most).
@@ -462,7 +463,19 @@ enum InvoiceProblem {
 
 /// An invoice call's failure. [message] is English, for logs; screens word [problem].
 class InvoiceError extends DeskError {
-  const InvoiceError(this.problem, String message) : super(message, wrongPassword: problem == InvoiceProblem.wrongPassword);
+  const InvoiceError(this.problem, String message, {this.cause}) : super(message, wrongPassword: problem == InvoiceProblem.wrongPassword);
 
   final InvoiceProblem problem;
+
+  /// The wallet's error kind behind [problem], for logs.
+  final String? cause;
 }
+
+/// What kind of failure [e] is, for the log: never its message, which may name an address.
+String deskFailureKind(Object e) => switch (e) {
+  InvoiceError(:final problem, :final cause) => cause == null ? problem.name : '${problem.name} ($cause)',
+  // A pairing failure carries only its reason as the message.
+  WalletError(kind: WalletErrorKind.pairingFailed, :final message) => 'pairingFailed ($message)',
+  WalletError(:final kind) => kind.name,
+  _ => e.runtimeType.toString(),
+};
