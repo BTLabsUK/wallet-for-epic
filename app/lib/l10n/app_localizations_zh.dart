@@ -1374,11 +1374,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeSenderPosted => '发送方称付款已广播。区块链确认后即可到账。';
+  String get homeNoticeSenderPosted => '发送方称付款已广播。';
 
   @override
   String homeNoticeSenderPostedAmount(String amount) {
-    return '发送方称 $amount 已广播。区块链确认后即可到账。';
+    return '发送方称 $amount 已广播。';
   }
 
   @override

@@ -262,7 +262,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txStatusWaitingSender => 'Czeka na nadawcę';
 
   @override
-  String get txStatusSenderPosted => 'Nadawca zgłasza wysłanie';
+  String get txStatusSenderPosted => 'Nadawca zgłasza publikację';
 
   @override
   String txStatusConfirming(int count, int target) {
@@ -581,7 +581,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsSenderPosted =>
-      'Według nadawcy ta płatność została wysłana do sieci. Zakończy się, gdy blockchain ją potwierdzi.';
+      'Według nadawcy ta płatność została opublikowana w sieci. Zakończy się, gdy blockchain ją potwierdzi.';
 
   @override
   String get txDetailsPublished =>
@@ -1565,11 +1565,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get homeNoticeSenderPosted =>
-      'Według nadawcy płatność została wysłana. Zakończy się, gdy blockchain ją potwierdzi.';
+      'Według nadawcy płatność została opublikowana.';
 
   @override
   String homeNoticeSenderPostedAmount(String amount) {
-    return 'Według nadawcy wysłano $amount. Płatność zakończy się, gdy blockchain ją potwierdzi.';
+    return 'Według nadawcy opublikowano $amount.';
   }
 
   @override

@@ -1460,12 +1460,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeSenderPosted =>
-      'Sender reports a payment posted. It completes when the blockchain confirms it.';
+  String get homeNoticeSenderPosted => 'Sender reports a payment posted.';
 
   @override
   String homeNoticeSenderPostedAmount(String amount) {
-    return 'Sender reports $amount posted. It completes when the blockchain confirms it.';
+    return 'Sender reports $amount posted.';
   }
 
   @override

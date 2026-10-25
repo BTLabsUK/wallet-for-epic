@@ -1471,11 +1471,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get homeNoticeSenderPosted =>
-      'Laut Absender ist eine Zahlung gesendet. Sie wird abgeschlossen, sobald die Blockchain sie bestätigt.';
+      'Laut Absender wurde eine Zahlung gesendet.';
 
   @override
   String homeNoticeSenderPostedAmount(String amount) {
-    return 'Laut Absender sind $amount gesendet. Die Zahlung wird abgeschlossen, sobald die Blockchain sie bestätigt.';
+    return 'Laut Absender wurden $amount gesendet.';
   }
 
   @override

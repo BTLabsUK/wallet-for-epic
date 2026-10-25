@@ -1414,11 +1414,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get homeNoticeSenderPosted =>
-      'ผู้ส่งแจ้งว่าส่งรายการแล้ว จะสำเร็จเมื่อบล็อกเชนยืนยัน';
+      'ผู้ส่งแจ้งว่าส่งรายการเข้าเครือข่ายแล้ว';
 
   @override
   String homeNoticeSenderPostedAmount(String amount) {
-    return 'ผู้ส่งแจ้งว่าส่ง $amount แล้ว จะสำเร็จเมื่อบล็อกเชนยืนยัน';
+    return 'ผู้ส่งแจ้งว่าส่ง $amount เข้าเครือข่ายแล้ว';
   }
 
   @override

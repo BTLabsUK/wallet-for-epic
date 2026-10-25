@@ -175,7 +175,7 @@ void main() {
     });
 
     test('the notice names the amount unless balances are hidden', () {
-      expect(senderPostedNotice(_l, _waiting()), 'Sender reports 1.5 EPIC posted. It completes when the blockchain confirms it.');
+      expect(senderPostedNotice(_l, _waiting()), 'Sender reports 1.5 EPIC posted.');
       expect(senderPostedNotice(_l, _waiting(), hidden: true), _l.homeNoticeSenderPosted);
       expect(senderPostedNotice(_l, null), _l.homeNoticeSenderPosted);
     });

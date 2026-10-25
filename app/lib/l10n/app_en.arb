@@ -1597,11 +1597,11 @@
       }
     }
   },
-  "homeNoticeSenderPosted": "Sender reports a payment posted. It completes when the blockchain confirms it.",
+  "homeNoticeSenderPosted": "Sender reports a payment posted.",
   "@homeNoticeSenderPosted": {
     "description": "Notice: the sender of an incoming payment reports that it posted it (amount hidden or unknown). Never say received: the blockchain has not confirmed it."
   },
-  "homeNoticeSenderPostedAmount": "Sender reports {amount} posted. It completes when the blockchain confirms it.",
+  "homeNoticeSenderPostedAmount": "Sender reports {amount} posted.",
   "@homeNoticeSenderPostedAmount": {
     "description": "Notice: the sender of an incoming payment of this amount reports that it posted it. Never say received: the blockchain has not confirmed it.",
     "placeholders": {

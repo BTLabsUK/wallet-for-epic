@@ -2053,13 +2053,13 @@ abstract class AppLocalizations {
   /// Notice: the sender of an incoming payment reports that it posted it (amount hidden or unknown). Never say received: the blockchain has not confirmed it.
   ///
   /// In en, this message translates to:
-  /// **'Sender reports a payment posted. It completes when the blockchain confirms it.'**
+  /// **'Sender reports a payment posted.'**
   String get homeNoticeSenderPosted;
 
   /// Notice: the sender of an incoming payment of this amount reports that it posted it. Never say received: the blockchain has not confirmed it.
   ///
   /// In en, this message translates to:
-  /// **'Sender reports {amount} posted. It completes when the blockchain confirms it.'**
+  /// **'Sender reports {amount} posted.'**
   String homeNoticeSenderPostedAmount(String amount);
 
   /// Notice: an outgoing payment was finished and posted to the chain, not yet confirmed.

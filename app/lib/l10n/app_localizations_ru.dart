@@ -1560,12 +1560,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeSenderPosted =>
-      'По словам отправителя, платёж отправлен. Он поступит, когда блокчейн его подтвердит.';
+  String get homeNoticeSenderPosted => 'Отправитель сообщил об отправке.';
 
   @override
   String homeNoticeSenderPostedAmount(String amount) {
-    return 'По словам отправителя, $amount отправлено. Платёж поступит, когда блокчейн его подтвердит.';
+    return 'Отправитель: $amount отправлено.';
   }
 
   @override
