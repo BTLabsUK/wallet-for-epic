@@ -211,12 +211,13 @@ void main() {
     testWidgets('the file route labels the middle node File', (tester) async {
       final l = await _pump(tester);
       expect(find.text(l.handshakeRelay), findsOneWidget);
-      await tester.tap(find.text(l.handshakeFile));
+      await tester.tap(find.text(l.methodShortFile));
       await tester.pump();
       expect(_caption(tester), '1. ${l.handshakeFile1}');
       expect(find.text(l.handshakeRelay), findsNothing);
-      // The segment and the node.
-      expect(find.text(l.handshakeFile), findsNWidgets(2));
+      // The segment names the method, the node the file.
+      expect(find.text(l.methodShortFile), findsOneWidget);
+      expect(find.text(l.handshakeFile), findsOneWidget);
     });
 
     testWidgets('each method opens its own explanation', (tester) async {
@@ -293,7 +294,7 @@ void main() {
     testWidgets('fits a 360 dp phone at text scale 2', (tester) async {
       final l = await _pump(tester, textScale: 2, size: const Size(1080, 2400));
       expect(tester.takeException(), isNull);
-      for (final flow in [l.handshakeRequest, l.handshakeFile]) {
+      for (final flow in [l.handshakeRequest, l.methodShortFile]) {
         await tester.tap(find.text(flow).first);
         await tester.pump();
         for (var i = 0; i < 6; i++) {

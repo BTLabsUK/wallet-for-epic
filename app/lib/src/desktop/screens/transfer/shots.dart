@@ -74,7 +74,7 @@ final List<DeskShot> transferShots = [
   ),
   DeskShot(
     id: '16f-send-review-code-direct',
-    title: 'Send, review of a Link Payment request from a link',
+    title: 'Send, review of a Link request from a link',
     route: DeskRoute.send,
     arg: const SendArgs(step: SendStep.review, code: 'epic:https://pay.example.org:3415?amount=5&label=Corner%20Caf%C3%A9'),
     height: 1000,

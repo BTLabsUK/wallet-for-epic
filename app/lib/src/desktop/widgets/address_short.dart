@@ -59,7 +59,7 @@ double shortAddressWidth(BuildContext context, String address, TextStyle style) 
   return w.ceilToDouble() + 1;
 }
 
-/// The kind badge of an address row: Epicbox, Link Payment · HTTP or Link Payment · Tor, each
+/// The kind badge of an address row: Epicbox, Link · HTTP or Link · Tor, each
 /// with its glyph.
 class EKindTag extends StatelessWidget {
   const EKindTag(this.kind, {super.key, this.compact = false});

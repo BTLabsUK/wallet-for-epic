@@ -201,7 +201,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('File Transfer does the same handshake as Epicbox, but the messages travel by hand, for example by email, chat or a USB stick. They work without Epicbox and without both wallets being online at the same time.'),
         if (phone)
-          const HelpBlock.ol(['**Sender:** on Send, choose **Direct · File Transfer**, enter the amount and share the file (it ends in .tx). The outputs are locked from now on.', '**Recipient:** opens the file under [[Receive › File]]. Their wallet signs it and shares a response file (it ends in .response). They send that file back.', '**Sender:** opens the response file under [[Receive › File]]. The wallet finishes the transaction and posts it.'])
+          const HelpBlock.ol(['**Sender:** on Send, choose **Direct · File Transfer**, enter the amount and share the file (it ends in .tx). The outputs are locked from now on.', '**Recipient:** opens the file under [[Receive › Direct · File]]. Their wallet signs it and shares a response file (it ends in .response). They send that file back.', '**Sender:** opens the response file under [[Receive › Direct · File]]. The wallet finishes the transaction and posts it.'])
         else
           const HelpBlock.ol(['**Sender:** on Send, choose **Direct · File Transfer**, enter the amount and save the file (it ends in .tx). The outputs are locked from now on.', '**Recipient:** opens the file under [[Receive › Transaction files › Sign a transaction file]]. Their wallet signs it and saves a response file (it ends in .response). They send that file back.', '**Sender:** opens the response file under [[Receive › Transaction files › Finalize a response file]]. The wallet finishes the transaction and posts it.']),
         const HelpBlock.p('Other Epic Cash wallets have their own names for these steps. If the response file never comes, cancel the send in Activity to unlock the outputs.'),
@@ -215,7 +215,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         'Two phones next to each other pay with an animated QR code, no connection between them.',
         [
           HelpBlock.p('The payment travels as an animated QR code that the other phone scans with its camera. Nothing is encrypted, so show the code only to the person you pay.'),
-          HelpBlock.ol(['**Sender:** on Send, choose **Direct · QR Payment**, enter the amount and tap **Show QR**. The code stays hidden until you show it, counts 3, 2, 1, and hides itself after 40 seconds.', '**Receiver:** on [[Receive › QR Code]], tap **Scan payment QR**, accept the payment, then show the reply the same way.', '**Sender:** taps **Scan their reply**. The wallet posts the payment and the tracker follows it.']),
+          HelpBlock.ol(['**Sender:** on Send, choose **Direct · QR Payment**, enter the amount and tap **Show QR**. The code stays hidden until you show it, counts 3, 2, 1, and hides itself after 40 seconds.', '**Receiver:** on [[Receive › Direct · QR]], tap **Scan payment QR**, accept the payment, then show the reply the same way.', '**Sender:** taps **Scan their reply**. The wallet posts the payment and the tracker follows it.']),
           HelpBlock.p('Keep the code in the frame until every part is read: the ring and the count show how far it got. A code that is not a payment is said so and ignored. Screenshots are blocked on the code screen.'),
         ],
         id: HelpId.qr,

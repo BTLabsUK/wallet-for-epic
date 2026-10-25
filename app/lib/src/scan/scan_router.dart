@@ -148,7 +148,7 @@ final class PaymentRequest extends ScannedCode {
 
   final Set<RequestProblem> problems;
 
-  /// The address Send should use: the code's own, or its Direct one when Link Payment is
+  /// The address Send should use: the code's own, or its Link one when Link is
   /// on ([directAllowed]) and the code asks for Direct, or Epicbox is off ([epicboxAllowed]).
   Recipient recipientFor({
     required bool directAllowed,

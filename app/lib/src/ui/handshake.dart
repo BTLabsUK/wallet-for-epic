@@ -13,6 +13,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
+import 'method_icons.dart';
 import 'theme/tokens.dart';
 
 /// Which handshake the sheet shows.
@@ -367,11 +368,11 @@ class _HandshakeSheetState extends State<HandshakeSheet>
               segments: [
                 // One tab per way to pay; the QR tab tells the side it was opened from.
                 for (final (flow, label) in [
-                  (HandshakeFlow.payment, l.receiveTabEpicbox),
+                  (HandshakeFlow.payment, MethodIcons.shortName(l, MethodKind.epicbox)),
                   (HandshakeFlow.request, l.handshakeRequest),
-                  (HandshakeFlow.direct, l.receiveTabDirect),
-                  (_qrFlow, l.receiveTabQr),
-                  (HandshakeFlow.file, l.handshakeFile),
+                  (HandshakeFlow.direct, MethodIcons.familyName(l, MethodFamily.link)),
+                  (_qrFlow, MethodIcons.shortName(l, MethodKind.directQr)),
+                  (HandshakeFlow.file, MethodIcons.shortName(l, MethodKind.directFile)),
                 ])
                   ButtonSegment(
                     value: flow,

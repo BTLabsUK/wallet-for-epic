@@ -5,7 +5,7 @@
 /// - Standard: today's app; the Tor switch is the user's.
 /// - Tor only: the Tor switch is on and stays on; nothing goes on the clearnet (a node on this
 ///   computer may stay direct). Covered routes wait for tor and never fall back.
-/// - Offline: no Epicbox, no Link Payment beyond local addresses, no Tor, no push, no status
+/// - Offline: no Epicbox, no Link beyond local addresses, no Tor, no push, no status
 ///   calls, none of the app's own requests. Payments by transaction file and QR Payment stay
 ///   available: they need a node to read the chain and post, so they use the node in use, a
 ///   public one too (the screens say so, [offlineUsesNode]). With a local node in use (the

@@ -80,7 +80,12 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.runAsync(() async {
       if (tor) await wallet.setTor(true);
-      await container.read(deskProvider.notifier).refresh();
+      final n = container.read(deskProvider.notifier);
+      await n.refresh();
+      // Link · Tor on (Settings › Transactions): a send to an onion is about Tor, not an
+      // off method.
+      final s = container.read(deskProvider).settings;
+      await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkHttp: true, linkTor: true)));
     });
     wallet.torCalls.clear();
     await tester.pumpWidget(
