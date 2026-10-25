@@ -7,6 +7,7 @@
 /// face, not just gated by a dialog. Tests use the in-memory versions.
 library;
 
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -138,9 +139,17 @@ class PlatformBiometricStore implements BiometricStore {
     }
   }
 
+  /// How long a call into the biometric store may wait for its prompt. flutter_secure_storage
+  /// 11.2.0 never answers when its prompt is dismissed with "Use PIN" (Android logs "Unknown
+  /// cookie"); past this the call counts as dismissed rather than waiting for good (AND-5).
+  static const Duration promptLimit = Duration(seconds: 90);
+
   Future<T> _guard<T>(Future<T> Function() action) async {
     try {
-      return await action();
+      return await action().timeout(promptLimit);
+    } on TimeoutException {
+      logInfo('biometrics', 'not unlocked: no answer');
+      throw const BiometricCancelled('no answer');
     } on PlatformException catch (error) {
       logInfo('biometrics', 'not unlocked: ${error.code}');
       throw BiometricCancelled(error.message ?? error.code);
@@ -171,6 +180,15 @@ class PlatformBiometricStore implements BiometricStore {
 
   @override
   Future<void> write(String key, String value) => _guard(() async {
+    // local_auth first: it answers a dismissed prompt, which the store's own prompt does not
+    // (AND-5). The store then asks once more, for its key.
+    if (!await _auth.authenticate(
+      localizedReason: prompt.title,
+      biometricOnly: true,
+      sensitiveTransaction: false,
+    )) {
+      throw const BiometricCancelled('dismissed');
+    }
     await _storage.write(key: key, value: value, aOptions: _promptOptions);
     _wroteThisProcess = true;
   });
