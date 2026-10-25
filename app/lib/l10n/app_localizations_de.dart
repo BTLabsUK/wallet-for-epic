@@ -15623,6 +15623,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String noticeKeyCheckRefused(String name) {
+    return '$name ist mit neuen Schlüsseln gekoppelt. Die alten Schlüssel ließen sich nicht prüfen: Es gibt eine Prüfung pro Tag, und sie lief schon.';
+  }
+
+  @override
   String noticeRelayDown(String name) {
     return 'Das Relay von $name antwortet nicht. Wird erneut versucht.';
   }

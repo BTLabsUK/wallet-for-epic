@@ -4082,6 +4082,7 @@
   "noticeRequest": "{name} prosi o {amount} EPIC. Sprawdź w Fakturach.",
   "noticeWithdrawal": "Odebrano {amount} EPIC od {name}. Czekam na publikację.",
   "noticeKeysChanged": "Klucze {name} się zmieniły. Sprawdź słowa ponownie przed zapłatą.",
+  "noticeKeyCheckRefused": "Kontakt {name} jest sparowany z nowymi kluczami. Starych kluczy nie dało się sprawdzić: jest jedno sprawdzenie na dobę i już się odbyło.",
   "noticeRelayDown": "Przekaźnik {name} nie odpowiada. Ponawianie.",
   "noticeWithdrew": "{name} wycofał(a) prośbę. Twoje środki są odblokowane.",
   "restoreUseContactsTitle": "Używać kontaktów na tym urządzeniu?",

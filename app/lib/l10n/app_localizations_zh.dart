@@ -14625,6 +14625,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String noticeKeyCheckRefused(String name) {
+    return '$name 已用新密钥配对。无法核对旧密钥：每天只能核对一次，今天已核对过。';
+  }
+
+  @override
   String noticeRelayDown(String name) {
     return '$name 的中继没有响应。正在重试。';
   }

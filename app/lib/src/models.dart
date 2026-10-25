@@ -2762,6 +2762,10 @@ enum PairingEventKind {
   /// A key check found other keys (C-12).
   keysChanged,
 
+  /// A re-pair was added to a contact, but its key check was refused (RFC 7.8: one a day per
+  /// slot): the new pairing is the contact's, and its old keys were not checked.
+  keyCheckRefused,
+
   /// A sealed message from a contact opened.
   sealedReceived,
 

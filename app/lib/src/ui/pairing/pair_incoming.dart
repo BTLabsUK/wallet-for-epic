@@ -5,6 +5,7 @@
 library;
 
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -161,7 +162,9 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
     final seenAs = ref.watch(pairingSeenAsProvider);
     if (seenAs.hasValue && (seenAs.value ?? '').trim().isEmpty) _askName = true;
     final needsName = _askName || _nameError != null;
-    final foot = MediaQuery.paddingOf(context).bottom;
+    // The keyboard too: a modal sheet is not lifted by it on edge-to-edge Android (PAIR-AND-17).
+    final media = MediaQuery.of(context);
+    final foot = math.max(media.padding.bottom, media.viewInsets.bottom);
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(20, 0, 20, 16 + foot),
       child: Column(
@@ -310,7 +313,8 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     }
     final name = record?.shownName ?? '';
     final overTor = ref.watch(epicboxOverTorProvider);
-    final unreachable = (record?.relayDown ?? false) || ref.watch(pairNetProvider) != PairNet.online;
+    final net = ref.watch(pairNetProvider);
+    final unreachable = (record?.relayDown ?? false) || net != PairNet.online;
     return SlotScaffold(
       appBar: AppBar(automaticallyImplyLeading: false, title: Text(l.pairWaitingTitleShort)),
       body: ScreenBody(
@@ -355,10 +359,15 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
             ),
           if (unreachable) ...[
             const SizedBox(height: 20),
+            // Offline or Epicbox off on this wallet is no relay trouble: it says which.
             PairEdgeNotice(
-              tone: BadgeTone.warn,
-              title: l.pairRelayUnreachableTitle,
-              body: overTor ? l.pairRelayUnreachableTor : l.pairRelayUnreachableBody,
+              tone: net == PairNet.epicboxOff ? BadgeTone.info : BadgeTone.warn,
+              title: switch (net) {
+                PairNet.offline => l.pairOfflineHint,
+                PairNet.epicboxOff => l.pairEpicboxOffNotice,
+                PairNet.online => l.pairRelayUnreachableTitle,
+              },
+              body: net != PairNet.online ? null : (overTor ? l.pairRelayUnreachableTor : l.pairRelayUnreachableBody),
               actions: [
                 FilledButton(onPressed: _byHand, child: Text(l.pairSendByHand)),
                 OutlinedButton(onPressed: () => ref.read(pairingApiProvider).collect().ignore(), child: Text(l.pairEnterTryAgain)),

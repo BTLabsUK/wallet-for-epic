@@ -4082,6 +4082,7 @@
   "noticeRequest": "{name} 请求 {amount} EPIC。请在“账单”中查看。",
   "noticeWithdrawal": "已收到来自 {name} 的 {amount} EPIC。等待发布。",
   "noticeKeysChanged": "{name} 的密钥已更改。付款前请再次核对词语。",
+  "noticeKeyCheckRefused": "{name} 已用新密钥配对。无法核对旧密钥：每天只能核对一次，今天已核对过。",
   "noticeRelayDown": "{name} 的中继没有响应。正在重试。",
   "noticeWithdrew": "{name} 撤回了请求。你的资金已解锁。",
   "restoreUseContactsTitle": "在此设备上使用你的联系人？",

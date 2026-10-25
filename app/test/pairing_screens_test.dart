@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_check.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_incoming.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_screen.dart';
+import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show pairingNoticeOf;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart';
 import 'package:epic_wallet/src/ui/pairing/pending_invites.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -128,6 +129,11 @@ String? _notice(WidgetTester tester) =>
     ProviderScope.containerOf(tester.element(find.byType(Navigator).first)).read(noticeProvider)?.text;
 
 void main() {
+  test('a key check LEPIC refuses (one a day) is said, not silent (PAIR-AND-16)', () {
+    final n = pairingNoticeOf(_l, const PairingEvent(PairingEventKind.keyCheckRefused, pairingId: 'p', name: 'Anna'));
+    expect(n?.text, _l.noticeKeyCheckRefused('Anna'));
+  });
+
   group('Pair', () {
     testWidgets('offers in person, online and entering a link or words', (tester) async {
       final h = _Harness();
@@ -299,6 +305,21 @@ void main() {
       expect(h.api.records.single.state, PairingState.pendingReply);
     });
 
+    testWidgets('the incoming invite with the keyboard up: the name field and Pair stay above it (PAIR-AND-17)', (tester) async {
+      final h = _Harness(seenAs: null);
+      await h.pump(tester, const EnterLinkScreen());
+      await tester.enterText(find.byKey(pairEnterFieldKey), h.api.inviteLinkFrom(name: 'Anna'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(pairEnterGoKey));
+      await _frames(tester);
+      // Edge-to-edge Android 15+: the keyboard is a view inset the sheet itself must clear.
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
+      await _frames(tester);
+      final keyboardTop = 2340 / 3 - 300;
+      expect(tester.getBottomLeft(find.byKey(incomingPairKey)).dy, lessThanOrEqualTo(keyboardTop));
+      expect(tester.getBottomLeft(find.byKey(pairNameFieldKey)).dy, lessThanOrEqualTo(keyboardTop));
+    });
+
     testWidgets('an invite link opens the incoming invite; Pair answers and waits', (tester) async {
       final h = _Harness();
       await h.pump(tester, const EnterLinkScreen());
@@ -350,6 +371,17 @@ void main() {
       await _frames(tester);
       expect(find.byType(PairingByHandScreen), findsOneWidget);
       expect(find.text(_l.pairByHandLead('Anna')), findsOneWidget);
+    });
+    testWidgets('waiting while this wallet is Offline or has Epicbox off: says which, not a relay fault (qa-linux)', (tester) async {
+      for (final (net, text) in [(PairNet.offline, _l.pairOfflineHint), (PairNet.epicboxOff, _l.pairEpicboxOffNotice)]) {
+        final h = _Harness();
+        final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
+        final answered = await h.api.acceptInvite(token: preview.token, name: 'the owner', byHand: true);
+        await h.pump(tester, PairingWaitingScreen(pairingId: answered.id), net: net, settle: false);
+        expect(find.text(text), findsOneWidget, reason: '$net');
+        expect(find.text(_l.pairRelayUnreachableTitle), findsNothing, reason: '$net');
+        await tester.pumpWidget(const SizedBox());
+      }
     });
   });
 

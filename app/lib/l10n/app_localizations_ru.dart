@@ -15861,6 +15861,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String noticeKeyCheckRefused(String name) {
+    return '$name: пара с новыми ключами. Старые ключи проверить не удалось: проверка одна в сутки, и она уже была.';
+  }
+
+  @override
   String noticeRelayDown(String name) {
     return 'Ретранслятор $name не отвечает. Повторная попытка.';
   }

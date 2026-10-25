@@ -773,9 +773,14 @@ class _WaitingDialogState extends ConsumerState<_WaitingDialog> {
             const Center(child: ESpinner()),
             SizedBox(height: Sp.x3),
             Text(l.pairWaitingBody, style: ts.bodyDim),
-            if ((r?.relayDown ?? false) || ref.watch(deskPairNetProvider) != DeskPairNet.online) ...[
+            // Offline or Epicbox off on this wallet is no relay trouble: it says which.
+            if (ref.watch(deskPairNetProvider) case final net when (r?.relayDown ?? false) || net != DeskPairNet.online) ...[
               SizedBox(height: Sp.x3),
-              ENotice(title: l.pairRelayUnreachableTitle, text: l.pairRelayUnreachableBody, tone: ETone.warn),
+              switch (net) {
+                DeskPairNet.offline => ENotice(title: l.pairOfflineHint, tone: ETone.warn),
+                DeskPairNet.epicboxOff => ENotice(title: l.pairEpicboxOffNotice, tone: ETone.info),
+                DeskPairNet.online => ENotice(title: l.pairRelayUnreachableTitle, text: l.pairRelayUnreachableBody, tone: ETone.warn),
+              },
             ],
           ] else ...[
             Text(l.pairByHandLead(name), style: ts.bodyDim),

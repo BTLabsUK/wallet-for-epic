@@ -15903,6 +15903,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String noticeKeyCheckRefused(String name) {
+    return 'Kontakt $name jest sparowany z nowymi kluczami. Starych kluczy nie dało się sprawdzić: jest jedno sprawdzenie na dobę i już się odbyło.';
+  }
+
+  @override
   String noticeRelayDown(String name) {
     return 'Przekaźnik $name nie odpowiada. Ponawianie.';
   }

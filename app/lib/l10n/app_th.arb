@@ -4082,6 +4082,7 @@
   "noticeRequest": "{name} ขอ {amount} EPIC ตรวจสอบได้ที่ ใบแจ้งหนี้",
   "noticeWithdrawal": "ได้รับ {amount} EPIC จาก {name} รอการประกาศ",
   "noticeKeysChanged": "คีย์ของ {name} เปลี่ยน ตรวจคำอีกครั้งก่อนชำระ",
+  "noticeKeyCheckRefused": "{name} จับคู่ด้วยคีย์ใหม่แล้ว ตรวจคีย์เก่าไม่ได้ เพราะตรวจได้วันละครั้งและตรวจไปแล้ว",
   "noticeRelayDown": "รีเลย์ของ {name} ไม่ตอบสนอง กำลังลองใหม่",
   "noticeWithdrew": "{name} ถอนคำขอแล้ว เงินของคุณปลดล็อกแล้ว",
   "restoreUseContactsTitle": "ใช้ผู้ติดต่อของคุณบนอุปกรณ์นี้หรือไม่",

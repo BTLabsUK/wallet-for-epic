@@ -4082,6 +4082,7 @@
   "noticeRequest": "{name} fordert {amount} EPIC an. Prüfen Sie es unter Rechnungen.",
   "noticeWithdrawal": "{amount} EPIC von {name} empfangen. Warten auf die Veröffentlichung.",
   "noticeKeysChanged": "Die Schlüssel von {name} haben sich geändert. Prüfen Sie die Wörter erneut, bevor Sie zahlen.",
+  "noticeKeyCheckRefused": "{name} ist mit neuen Schlüsseln gekoppelt. Die alten Schlüssel ließen sich nicht prüfen: Es gibt eine Prüfung pro Tag, und sie lief schon.",
   "noticeRelayDown": "Das Relay von {name} antwortet nicht. Wird erneut versucht.",
   "noticeWithdrew": "{name} hat die Anforderung zurückgezogen. Ihr Geld ist freigegeben.",
   "restoreUseContactsTitle": "Ihre Kontakte auf diesem Gerät verwenden?",

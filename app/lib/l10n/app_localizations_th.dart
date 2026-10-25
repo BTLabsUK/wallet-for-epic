@@ -15150,6 +15150,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String noticeKeyCheckRefused(String name) {
+    return '$name จับคู่ด้วยคีย์ใหม่แล้ว ตรวจคีย์เก่าไม่ได้ เพราะตรวจได้วันละครั้งและตรวจไปแล้ว';
+  }
+
+  @override
   String noticeRelayDown(String name) {
     return 'รีเลย์ของ $name ไม่ตอบสนอง กำลังลองใหม่';
   }

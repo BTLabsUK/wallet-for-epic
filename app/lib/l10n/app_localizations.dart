@@ -24374,6 +24374,12 @@ abstract class AppLocalizations {
   /// **'{name}’s keys changed. Check the words again before paying.'**
   String noticeKeysChanged(String name);
 
+  /// Docked notice when a re-pair is added to a contact but LEPIC refuses the key check (RFC 0002 7.8: one check per slot a day); the new pairing is used.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is paired with new keys. Their old keys could not be checked: there is one check a day, and it already ran.'**
+  String noticeKeyCheckRefused(String name);
+
   /// Docked notice for HomeRelayUnreachable.
   ///
   /// In en, this message translates to:

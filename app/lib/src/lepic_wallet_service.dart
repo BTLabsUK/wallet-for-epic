@@ -2891,6 +2891,10 @@ class _LepicPairing implements PairingApi {
         _checking[id] = old.contactId;
       } on lepic.WalletError catch (error) {
         logWarn('pairing', 'key check not started: ${error.kind.name}');
+        // Said, not silent: the contact now uses the new pairing (PAIR-AND-16).
+        if (error.kind == lepic.WalletErrorKind.keyCheckRefused && !_events.isClosed) {
+          _events.add(PairingEvent(PairingEventKind.keyCheckRefused, pairingId: id, name: await _nameOf(id)));
+        }
       }
     }
     return _record(await _w.contact(contactId: id));

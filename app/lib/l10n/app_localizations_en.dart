@@ -15438,6 +15438,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String noticeKeyCheckRefused(String name) {
+    return '$name is paired with new keys. Their old keys could not be checked: there is one check a day, and it already ran.';
+  }
+
+  @override
   String noticeRelayDown(String name) {
     return '$name’s relay isn’t answering. Retrying.';
   }

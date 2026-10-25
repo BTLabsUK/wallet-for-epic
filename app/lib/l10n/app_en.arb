@@ -20480,6 +20480,16 @@
       }
     }
   },
+  "noticeKeyCheckRefused": "{name} is paired with new keys. Their old keys could not be checked: there is one check a day, and it already ran.",
+  "@noticeKeyCheckRefused": {
+    "description": "Docked notice when a re-pair is added to a contact but LEPIC refuses the key check (RFC 0002 7.8: one check per slot a day); the new pairing is used.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
   "noticeRelayDown": "{name}’s relay isn’t answering. Retrying.",
   "@noticeRelayDown": {
     "description": "Docked notice for HomeRelayUnreachable.",
