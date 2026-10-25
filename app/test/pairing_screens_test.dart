@@ -383,6 +383,9 @@ void main() {
       // The fake's key check found the old keys: the new pairing folded into the old one.
       expect(await h.api.pairing('p1'), isNull);
       expect((await h.api.pairing('old'))!.contactId, anna.id);
+      // Not an empty page: the contact, whose notice says the keys are back.
+      expect(find.byType(PairingResultScreen), findsNothing);
+      expect(find.byType(ContactPage), findsOneWidget);
     });
 
     testWidgets('no contact of its name, or two unpaired ones: nothing is suggested (PAIR-LNX-7)', (tester) async {

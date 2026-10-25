@@ -14,6 +14,7 @@ import '../../pairing_providers.dart';
 import '../../pairing_text.dart' show sameNamedContact;
 import '../../wallet_service.dart';
 import '../common.dart';
+import '../contact_page.dart' show ContactPage;
 import '../contacts_screen.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
@@ -265,6 +266,12 @@ class PairingResultScreen extends ConsumerStatefulWidget {
 class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
   bool _busy = false;
 
+  /// The contact the user attached it to: when its key check finds the old keys, LEPIC folds
+  /// this pairing into the old one, and the screen goes to that contact (its notice says the
+  /// keys are back) instead of staying empty.
+  String? _attachedTo;
+  bool _left = false;
+
   Future<void> _run(Future<void> Function() call) async {
     if (_busy) return;
     setState(() => _busy = true);
@@ -291,9 +298,26 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
 
   Future<void> _attach(PairingRecord r, Contact contact) => _run(() async {
     final l = context.l10n;
+    _attachedTo = contact.id;
     await pairingCall(ref, (api) => api.attach(r.id, contact.id));
     ref.read(noticeProvider.notifier).show(l.pairSavedAs(contact.name), level: NoticeLevel.success);
   });
+
+  /// The pairing is gone (folded into the old one, or removed): leave once.
+  void _leave() {
+    if (_left) return;
+    _left = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final to = _attachedTo;
+      final nav = Navigator.of(context);
+      if (to == null) {
+        nav.pop();
+      } else {
+        nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => ContactPage(contactId: to)));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -302,6 +326,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
     final theme = Theme.of(context);
     final record = ref.watch(pairingByIdProvider(widget.pairingId));
     if (record == null) {
+      if (ref.watch(pairingsProvider).hasValue) _leave();
       return SlotScaffold(appBar: AppBar(title: Text(l.pairWaitingTitleShort)), body: const SizedBox.shrink());
     }
     final name = ref.watch(pairingNameProvider(record.id));
