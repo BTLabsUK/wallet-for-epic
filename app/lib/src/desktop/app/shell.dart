@@ -15,7 +15,7 @@ import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, d
 import '../../ui/notices.dart' show NoticeLevel;
 import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
 import '../../models.dart' show PairingCollectTrigger;
-import '../data/pairing_state.dart' show deskPairingApiProvider, deskPairingEventsProvider;
+import '../data/pairing_state.dart' show deskKeysBackProvider, deskPairingApiProvider, deskPairingEventsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -175,6 +175,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // Node failover moved the wallet to another node for this session: said wherever the
     // user is, never asked.
     ref.listen(deskFailoverWatchProvider, (_, _) {});
+    // A contact whose keys came back docks the notice on its page, whenever that opens.
+    ref.listen(deskKeysBackProvider, (_, _) {});
     ref.listen(deskFailoverProvider, (before, now) {
       if (now != null && now != before && mounted) {
         showEToast(context, context.l10n.deskNodeFailoverSwitched(nodeHost(now.inUse)), tone: ETone.info);

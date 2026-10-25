@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkMode;
 import '../../log.dart';
-import '../../models.dart' show PairingCard, PairingEvent, PairingRecord, PairingSlate, PairingState;
+import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState;
 import '../../pairing_api.dart';
 import 'invoices.dart' show deskFailureKind;
 import 'models.dart' show Contact;
@@ -88,6 +88,24 @@ final deskPendingPairingsProvider = Provider<List<PairingRecord>>((ref) => [
 ]);
 
 final deskPairingEventsProvider = StreamProvider<PairingEvent>((ref) => ref.watch(deskPairingApiProvider).events());
+
+/// The pairings whose keys a re-pair found again this session (RFC 7.8): their contact page
+/// docks "keys are back" until it is closed (SPEC 2.4). The shell keeps it listening.
+final deskKeysBackProvider = NotifierProvider<DeskKeysBack, Set<String>>(DeskKeysBack.new);
+
+class DeskKeysBack extends Notifier<Set<String>> {
+  @override
+  Set<String> build() {
+    final sub = ref.watch(deskPairingApiProvider).events().listen((e) {
+      final id = e.pairingId;
+      if (e.kind == PairingEventKind.keysRestored && id != null) state = {...state, id};
+    });
+    ref.onDispose(sub.cancel);
+    return const {};
+  }
+
+  void close(String id) => state = {...state}..remove(id);
+}
 
 /// The name for [record]: its contact's, else the one it chose.
 String deskPairingName(PairingRecord record, Iterable<Contact>? contacts) {

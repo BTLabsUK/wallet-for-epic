@@ -1058,6 +1058,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
     final changed = p.state == PairingState.keysChanged;
     final paused = ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff;
     final locked = _busy || paused || changed;
+    final back = ref.watch(deskKeysBackProvider).contains(p.id);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1072,6 +1073,15 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
               EButton(label: l.contactKeepOldKeys, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.resolveKeysChanged(p.id, KeysChoice.keepOld)))),
               EButton(label: l.contactUseNewKeys, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.resolveKeysChanged(p.id, KeysChoice.useNew)))),
             ],
+          ),
+          SizedBox(height: Sp.x4),
+        ],
+        if (back && !changed) ...[
+          ENotice(
+            title: l.contactKeysBack(name),
+            text: l.contactKeysBackBody,
+            tone: ETone.ok,
+            actions: [EButton(label: l.commonOk, size: EBtnSize.sm, onPressed: () => ref.read(deskKeysBackProvider.notifier).close(p.id))],
           ),
           SizedBox(height: Sp.x4),
         ],

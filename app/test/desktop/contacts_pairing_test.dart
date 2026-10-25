@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
 import 'package:epic_wallet/src/wallet_service.dart' show PairingApi;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
@@ -110,5 +111,17 @@ void main() {
     await tester.tap(find.text('Delete contact'));
     await _real(tester, 800);
     expect(_c.read(deskProvider).contacts!.any((x) => x.id == 'c6'), isFalse);
+  });
+
+  testWidgets('keys back: the contact page docks the notice until OK (PAIR-LNX-15)', (tester) async {
+    await _open(tester, const ContactsArgs(selectedId: 'c1'));
+    expect(find.text(_l.contactKeysBack('Anna Kowalska')), findsNothing);
+    (_pairing as FakePairing).restoreKeys(mockAnnaPairing);
+    await _real(tester);
+    expect(find.text(_l.contactKeysBack('Anna Kowalska')), findsOneWidget);
+    expect(find.text(_l.contactKeysBackBody), findsOneWidget);
+    await tester.tap(find.widgetWithText(EButton, _l.commonOk));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text(_l.contactKeysBack('Anna Kowalska')), findsNothing);
   });
 }
