@@ -642,7 +642,8 @@ class AppLocalizationsZh extends AppLocalizations {
       '这笔付款无法送达接收方，因此钱包已立即将其取消。没有发送任何资金，这些资金已恢复可用。';
 
   @override
-  String get txDetailsCancelledIncoming => '已取消。这笔付款不会到账。';
+  String get txDetailsCancelledIncoming =>
+      '已取消。钱包仍会关注网络约一周；如果发送方在此期间广播，付款仍会到账。';
 
   @override
   String get txDetailsFromBackup =>
@@ -742,7 +743,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      '发送方仍可能完成这笔付款。如果对方在你取消后完成，在你重新扫描之前它不会显示。';
+      '发送方可能已经广播了这笔付款。钱包会先询问节点，只取消网络中没有的付款。如果发送方在取消后约一周内广播，付款仍会到账。';
 
   @override
   String get txDetailsCancelSendBody => '取消这笔付款并解锁其资金？仅在接收方尚未完成时这样做。';
@@ -15010,4 +15011,54 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskConPickForPairing => '配对将添加到你选择的联系人。';
+
+  @override
+  String txDetailsAcceptedAgoMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes 分钟前接受。',
+      zero: '刚刚接受。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoHours(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours 小时前接受。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days 天前接受。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsCancelHold(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '如果发送方到时仍未广播，$minutes 分钟后可以取消。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txDetailsCancelOffered => '仅在付款始终未到账时取消：钱包会先检查网络。';
+
+  @override
+  String get txDetailsCancelWhileReported => '发送方报告已广播期间，不提供取消。';
+
+  @override
+  String get txDetailsCancelRefusedOnNetwork => '未取消：网络中已有这笔付款。区块链确认后即完成。';
 }

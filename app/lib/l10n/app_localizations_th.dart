@@ -661,7 +661,8 @@ class AppLocalizationsTh extends AppLocalizations {
       'ส่งถึงผู้รับไม่ได้ กระเป๋าเงินจึงยกเลิกทันที ไม่มีการส่งเงินออก และยอดเงินกลับมาใช้ได้แล้ว';
 
   @override
-  String get txDetailsCancelledIncoming => 'ยกเลิกแล้ว รายการนี้จะไม่เข้า';
+  String get txDetailsCancelledIncoming =>
+      'ยกเลิกแล้ว กระเป๋าเงินจะยังติดตามเครือข่ายอีกประมาณหนึ่งสัปดาห์ ถ้าผู้ส่งเผยแพร่ในช่วงนั้น รายการจะเข้าในที่สุด';
 
   @override
   String get txDetailsFromBackup =>
@@ -764,7 +765,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'ผู้ส่งอาจยังทำรายการนี้ให้เสร็จได้ ถ้าทำหลังจากยกเลิกแล้ว รายการจะไม่แสดงจนกว่าจะตรวจยอดใหม่';
+      'ผู้ส่งอาจเผยแพร่รายการนี้ไปแล้ว กระเป๋าเงินจะถามโหนดก่อนและยกเลิกเฉพาะรายการที่เครือข่ายยังไม่มี ถ้าผู้ส่งเผยแพร่ภายในประมาณหนึ่งสัปดาห์หลังจากนั้น รายการจะยังเข้า';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -15556,4 +15557,57 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskConPickForPairing =>
       'การจับคู่จะเพิ่มไปยังผู้ติดต่อที่คุณเลือก';
+
+  @override
+  String txDetailsAcceptedAgoMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'รับเมื่อ $minutes นาทีที่แล้ว',
+      zero: 'รับเมื่อครู่นี้',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoHours(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: 'รับเมื่อ $hours ชั่วโมงที่แล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'รับเมื่อ $days วันที่แล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsCancelHold(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'ยกเลิกได้ในอีก $minutes นาที ถ้าผู้ส่งยังไม่เผยแพร่รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txDetailsCancelOffered =>
+      'ยกเลิกเฉพาะเมื่อรายการไม่เข้าเลย กระเป๋าเงินจะตรวจสอบเครือข่ายก่อน';
+
+  @override
+  String get txDetailsCancelWhileReported =>
+      'ไม่มีตัวเลือกยกเลิกขณะที่ผู้ส่งรายงานว่าเผยแพร่แล้ว';
+
+  @override
+  String get txDetailsCancelRefusedOnNetwork =>
+      'ไม่ได้ยกเลิก เครือข่ายมีรายการนี้แล้ว รายการจะสำเร็จเมื่อบล็อกเชนยืนยัน';
 }

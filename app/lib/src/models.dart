@@ -1570,6 +1570,76 @@ bool senderReportsPosted(TxEntry tx, {required DateTime now}) {
   return now.difference(DateTime.fromMillisecondsSinceEpoch(at * 1000)) < senderReportWindow;
 }
 
+/// How long after this wallet signs an incoming payment its Cancel stays out of the way. The
+/// sender finalizes and posts in that time, and this wallet, having returned its signature,
+/// cannot stop it: a cancel then would only mislead. Nothing of this wallet's is locked
+/// meanwhile, so waiting costs nothing. After the hold, Cancel is there to clear a payment the
+/// sender never posted; LEPIC asks the node first either way and refuses one the network has.
+const receiveCancelHold = Duration(minutes: 15);
+
+/// Where Cancel stands for an incoming payment this wallet signed ([TxEntry.createdAtUnix] is
+/// the moment it took the payment in and returned its half). Pure: the screens read it with
+/// their clock. See [incomingCancelOf].
+class IncomingCancel {
+  const IncomingCancel({
+    required this.signedAgo,
+    required this.holdLeft,
+    required this.senderReportsPosted,
+  });
+
+  /// How long ago this wallet signed, never negative.
+  final Duration signedAgo;
+
+  /// What is left of [receiveCancelHold]; zero once it is over.
+  final Duration holdLeft;
+
+  /// The sender reports it posted ([senderReportsPosted]): while that report stands, Cancel is
+  /// not offered, as the payment is most likely on its way to a block.
+  final bool senderReportsPosted;
+
+  /// Whether the screen offers Cancel: the hold is over and no sender report stands.
+  bool get offered => holdLeft == Duration.zero && !senderReportsPosted;
+
+  /// Whole minutes of the hold left, at least 1 while any is left, for a "becomes possible in
+  /// N minutes" line.
+  int get holdMinutesLeft => holdLeft == Duration.zero ? 0 : (holdLeft.inSeconds / 60).ceil();
+}
+
+/// [IncomingCancel] for [tx] at [now]. For a payment that is not an incoming one still waiting
+/// for its sender ([TxKind.received], no block, not a request) Cancel is simply offered, so
+/// callers keep the other rules (LEPIC's `cancellable`, invoices) in one place.
+IncomingCancel incomingCancelOf(TxEntry tx, {required DateTime now}) {
+  final waitingSender = tx.kind == TxKind.received &&
+      !tx.isRequest &&
+      tx.status == TxStatus.awaitingConfirmation &&
+      tx.blockHeight == null;
+  if (!waitingSender) {
+    return const IncomingCancel(signedAgo: Duration.zero, holdLeft: Duration.zero, senderReportsPosted: false);
+  }
+  return incomingCancelAt(
+    signedAt: DateTime.fromMillisecondsSinceEpoch(tx.createdAtUnix * 1000),
+    now: now,
+    senderReportsPosted: senderReportsPosted(tx, now: now),
+  );
+}
+
+/// [IncomingCancel] for a payment signed at [signedAt], for screens whose rows keep the time
+/// and the sender's report but not the entry (the desktop's `Tx`).
+IncomingCancel incomingCancelAt({
+  required DateTime signedAt,
+  required DateTime now,
+  required bool senderReportsPosted,
+}) {
+  var ago = now.difference(signedAt);
+  if (ago.isNegative) ago = Duration.zero;
+  final left = receiveCancelHold - ago;
+  return IncomingCancel(
+    signedAgo: ago,
+    holdLeft: left.isNegative ? Duration.zero : left,
+    senderReportsPosted: senderReportsPosted,
+  );
+}
+
 /// Which scan found an output with no record (LEPIC `FoundDuring`).
 enum TxFoundDuring {
   /// The first scan after a restore from the recovery phrase: the wallet held it before.

@@ -163,7 +163,7 @@
   "txDetailsCancelledUnanswered": "Der Empfänger hat nicht innerhalb von 14 Tagen geantwortet, daher hat die Wallet die Zahlung storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.",
   "txDetailsCancelledLateAnswer": "Der Empfänger hat erst nach Ablauf der 14-Tage-Frist geantwortet, daher hat die Wallet die Zahlung storniert, statt sie abzuschließen. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.",
   "txDetailsCancelledUndelivered": "Die Zahlung konnte dem Empfänger nicht zugestellt werden, daher hat die Wallet sie sofort storniert. Es wurde nichts gesendet und der Betrag ist wieder verfügbar.",
-  "txDetailsCancelledIncoming": "Storniert. Diese Zahlung wird nicht eintreffen.",
+  "txDetailsCancelledIncoming": "Storniert. Die Wallet beobachtet das Netzwerk noch etwa eine Woche; veröffentlicht der Absender sie in dieser Zeit, trifft sie doch noch ein.",
   "txDetailsFromBackup": "Diese Zahlung stammt aus einer Verlaufssicherung und war beim Erstellen der Sicherung noch nicht abgeschlossen. Diese Wallet hat keine eigenen Daten dazu und kann daher nicht feststellen, ob sie abgeschlossen wurde. Es ist nichts gesperrt.",
   "txDetailsCancelsAtBlock": "Wird automatisch storniert, wenn sie bis Block {height} nicht abgeschlossen ist.",
   "txDetailsCancelsAtBlockInMinutes": "Wird automatisch storniert, wenn sie bis Block {height} nicht abgeschlossen ist (in etwa {minutes, plural, =1{1 Minute} other{{minutes} Minuten}}).",
@@ -187,7 +187,7 @@
   "txDetailsFundsReleased": "Betrag freigegeben",
   "txDetailsCancelPayment": "Zahlung stornieren",
   "txDetailsCancelTitle": "Zahlung stornieren?",
-  "txDetailsCancelReceiveBody": "Der Absender kann diese Zahlung noch abschließen. Tut er das nach der Stornierung, erscheint sie erst nach einem erneuten Scan.",
+  "txDetailsCancelReceiveBody": "Der Absender hat sie möglicherweise schon veröffentlicht. Die Wallet fragt zuerst den Node und storniert nur eine Zahlung, die das Netzwerk nicht hat. Veröffentlicht der Absender sie danach innerhalb von etwa einer Woche, trifft sie trotzdem ein.",
   "txDetailsCancelSendBody": "Diese Zahlung stornieren und den Betrag freigeben? Tun Sie das nur, wenn der Empfänger sie nicht abgeschlossen hat.",
   "txDetailsCancelKeep": "Behalten",
   "txDetailsPaymentCancelled": "Zahlung storniert",
@@ -4189,5 +4189,12 @@
   "pairYourNamePlaceholder": "Ihr Name",
   "restoreDone": "Verlauf wiederhergestellt.",
   "restoreDoneBody": "{payments} Zahlungen, {contacts} Kontakte und {pairings} Kopplungen sind zurück.",
-  "deskConPickForPairing": "Die Kopplung kommt zu dem Kontakt, den Sie wählen."
+  "deskConPickForPairing": "Die Kopplung kommt zu dem Kontakt, den Sie wählen.",
+  "txDetailsAcceptedAgoMinutes": "{minutes, plural, =0{Gerade eben angenommen.} =1{Vor 1 Minute angenommen.} other{Vor {minutes} Minuten angenommen.}}",
+  "txDetailsAcceptedAgoHours": "{hours, plural, =1{Vor 1 Stunde angenommen.} other{Vor {hours} Stunden angenommen.}}",
+  "txDetailsAcceptedAgoDays": "{days, plural, =1{Vor 1 Tag angenommen.} other{Vor {days} Tagen angenommen.}}",
+  "txDetailsCancelHold": "{minutes, plural, =1{Stornieren ist in 1 Minute möglich, falls der Absender sie bis dahin nicht veröffentlicht hat.} other{Stornieren ist in {minutes} Minuten möglich, falls der Absender sie bis dahin nicht veröffentlicht hat.}}",
+  "txDetailsCancelOffered": "Nur stornieren, wenn sie nie eintrifft: die Wallet prüft zuerst das Netzwerk.",
+  "txDetailsCancelWhileReported": "Stornieren wird nicht angeboten, solange der Absender meldet, sie veröffentlicht zu haben.",
+  "txDetailsCancelRefusedOnNetwork": "Nicht storniert: das Netzwerk hat diese Zahlung bereits. Sie wird abgeschlossen, sobald die Blockchain sie bestätigt."
 }

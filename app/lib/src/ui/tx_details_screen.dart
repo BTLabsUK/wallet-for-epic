@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -216,6 +218,10 @@ String? ttlLine(AppLocalizations l, TxEntry tx, BigInt? tip) {
 /// The key of the "More" link that shows the technical rows once, for tests.
 const Key txDetailsMoreKey = ValueKey('tx-details-more');
 
+/// The receive's Cancel, once its hold is over, and the line that stands in for it before.
+const Key txDetailsCancelReceiveKey = ValueKey('tx-details-cancel-receive');
+const Key txDetailsCancelHoldKey = ValueKey('tx-details-cancel-hold');
+
 /// Everything known about one transaction, with its note, contact and cancel.
 class TxDetailsScreen extends ConsumerStatefulWidget {
   const TxDetailsScreen({super.key, required this.txKey});
@@ -255,11 +261,27 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
 
   @override
   void dispose() {
+    _minute?.cancel();
     pairingNewsOnScreen.remove(_shows);
     super.dispose();
   }
 
   bool _busy = false;
+
+  /// Ticks once a minute while an incoming payment waits inside its Cancel hold, so the
+  /// "accepted N minutes ago" line and the hold's end move without a refresh.
+  Timer? _minute;
+
+  void _tickWhile(bool held) {
+    if (held && _minute == null) {
+      _minute = Timer.periodic(const Duration(minutes: 1), (_) {
+        if (mounted) setState(() {});
+      });
+    } else if (!held && _minute != null) {
+      _minute!.cancel();
+      _minute = null;
+    }
+  }
 
   void _showMessage(String message, {required NoticeLevel level}) =>
       ref.read(noticeProvider.notifier).show(message, level: level);
@@ -490,12 +512,20 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       );
       await _reload();
     } catch (error) {
-      if (mounted) {
-        _showMessage(
-          describeError(context.l10n, error),
-          level: NoticeLevel.error,
-        );
-      }
+      if (!mounted) return;
+      // LEPIC asked the node first and found the kernel in its pool or chain (OnChain,
+      // InPool, mapped to invalidArgument): not a failure, the payment is on its way. The
+      // refresh after it lets the row show that.
+      final onNetwork = receive &&
+          error is WalletError &&
+          error.kind == WalletErrorKind.invalidArgument;
+      _showMessage(
+        onNetwork
+            ? context.l10n.txDetailsCancelRefusedOnNetwork
+            : describeError(context.l10n, error),
+        level: onNetwork ? NoticeLevel.info : NoticeLevel.error,
+      );
+      if (onNetwork) await _reload();
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -572,9 +602,15 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final invoiceHold = paidInvoice != null &&
         (paidInvoice.status == InvoiceStatus.withdrawn ||
             now.difference(DateTime.fromMillisecondsSinceEpoch(tx.createdAtUnix * 1000)) < invoiceExpiry);
-    final cancel = tx.cancellable && tx.id != null && !issued && !invoiceHold;
+    final cancellable = tx.cancellable && tx.id != null && !issued && !invoiceHold;
+    // An incoming payment this wallet signed: for receiveCancelHold after, and while its sender
+    // reports it posted, Cancel stays away and one line says why (incomingCancelOf).
+    final incoming = incomingCancelOf(tx, now: now);
+    final cancel = cancellable && incoming.offered;
+    final cancelHeld = cancellable && !incoming.offered;
+    _tickWhile(cancelHeld && !incoming.senderReportsPosted);
     // What the status card offers beside the status.
-    final actions = stuck || (tx.undelivered && tx.transport == 'epicbox') || tx.releasable || cancel;
+    final actions = stuck || (tx.undelivered && tx.transport == 'epicbox') || tx.releasable || cancel || cancelHeld;
     return SlotScaffold(
       appBar: AppBar(
         title: Text(switch (withdrawal) {
@@ -681,21 +717,46 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: OutlinedButton.icon(
-                        icon: const Icon(Icons.cancel_outlined),
-                        label: Text(l.txDetailsCancelPayment),
-                        onPressed: _busy ? null : () => _cancel(tx),
-                      ),
+                      // A send's Cancel is the way out of waiting; a receive's is a tidy-up
+                      // for a payment the sender never posted, so a quieter button.
+                      child: outgoing
+                          ? OutlinedButton.icon(
+                              icon: const Icon(Icons.cancel_outlined),
+                              label: Text(l.txDetailsCancelPayment),
+                              onPressed: _busy ? null : () => _cancel(tx),
+                            )
+                          : TextButton.icon(
+                              key: txDetailsCancelReceiveKey,
+                              icon: const Icon(Icons.cancel_outlined),
+                              label: Text(l.txDetailsCancelPayment),
+                              onPressed: _busy ? null : () => _cancel(tx),
+                            ),
                     ),
                     const SizedBox(height: 4),
                     Align(
                       alignment: Alignment.centerRight,
                       child: Text(
-                        l.sendCancelPossibleWhileWaiting,
+                        outgoing
+                            ? l.sendCancelPossibleWhileWaiting
+                            : '${acceptedAgoText(l, incoming.signedAgo)} ${l.txDetailsCancelOffered}',
                         textAlign: TextAlign.end,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
+                      ),
+                    ),
+                  ],
+                  // Inside the hold, or while the sender reports it posted: no button, the
+                  // line says when Cancel comes (receiveCancelHold).
+                  if (cancelHeld) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      incoming.senderReportsPosted
+                          ? l.txDetailsCancelWhileReported
+                          : '${acceptedAgoText(l, incoming.signedAgo)} ${l.txDetailsCancelHold(incoming.holdMinutesLeft)}',
+                      key: txDetailsCancelHoldKey,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],

@@ -699,7 +699,8 @@ class AppLocalizationsRu extends AppLocalizations {
       'Платёж не удалось доставить получателю, поэтому кошелёк сразу отменил его. Ничего не отправлено, средства снова доступны.';
 
   @override
-  String get txDetailsCancelledIncoming => 'Отменено. Этот платёж не поступит.';
+  String get txDetailsCancelledIncoming =>
+      'Отменено. Кошелёк ещё около недели следит за сетью; если отправитель опубликует платёж за это время, он всё же поступит.';
 
   @override
   String get txDetailsFromBackup =>
@@ -811,7 +812,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Отправитель ещё может завершить этот платёж. Если это произойдёт после отмены, платёж не отобразится до повторного сканирования.';
+      'Отправитель, возможно, уже опубликовал платёж. Кошелёк сначала спрашивает узел и отменяет только платёж, которого нет в сети. Если отправитель опубликует его в течение примерно недели после отмены, он всё равно поступит.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -16277,4 +16278,73 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskConPickForPairing =>
       'Сопряжение будет добавлено к выбранному контакту.';
+
+  @override
+  String txDetailsAcceptedAgoMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'Принят $minutes минуты назад.',
+      many: 'Принят $minutes минут назад.',
+      few: 'Принят $minutes минуты назад.',
+      one: 'Принят $minutes минуту назад.',
+      zero: 'Принят только что.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoHours(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: 'Принят $hours часа назад.',
+      many: 'Принят $hours часов назад.',
+      few: 'Принят $hours часа назад.',
+      one: 'Принят $hours час назад.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Принят $days дня назад.',
+      many: 'Принят $days дней назад.',
+      few: 'Принят $days дня назад.',
+      one: 'Принят $days день назад.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsCancelHold(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other:
+          'Отмена станет возможна через $minutes минуты, если отправитель к тому времени не опубликует платёж.',
+      many:
+          'Отмена станет возможна через $minutes минут, если отправитель к тому времени не опубликует платёж.',
+      few:
+          'Отмена станет возможна через $minutes минуты, если отправитель к тому времени не опубликует платёж.',
+      one:
+          'Отмена станет возможна через $minutes минуту, если отправитель к тому времени не опубликует платёж.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txDetailsCancelOffered =>
+      'Отменяйте, только если платёж так и не поступил: кошелёк сначала проверяет сеть.';
+
+  @override
+  String get txDetailsCancelWhileReported =>
+      'Отмена не предлагается, пока отправитель сообщает, что опубликовал платёж.';
+
+  @override
+  String get txDetailsCancelRefusedOnNetwork =>
+      'Не отменено: платёж уже есть в сети. Он будет выполнен, когда блокчейн его подтвердит.';
 }

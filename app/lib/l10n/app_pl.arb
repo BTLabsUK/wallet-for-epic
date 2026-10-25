@@ -163,7 +163,7 @@
   "txDetailsCancelledUnanswered": "Odbiorca nie odpowiedział w ciągu 14 dni, więc portfel anulował płatność. Nic nie zostało zapłacone, a środki są znów dostępne.",
   "txDetailsCancelledLateAnswer": "Odbiorca odpowiedział po upływie 14 dni, więc portfel anulował płatność, zamiast ją dokończyć. Nic nie zostało zapłacone, a środki są znów dostępne.",
   "txDetailsCancelledUndelivered": "Nie udało się dostarczyć płatności do odbiorcy, więc portfel od razu ją anulował. Nic nie zostało wysłane, a środki są znów dostępne.",
-  "txDetailsCancelledIncoming": "Anulowano. Ta płatność nie dotrze.",
+  "txDetailsCancelledIncoming": "Anulowano. Portfel obserwuje sieć jeszcze około tygodnia; jeśli nadawca opublikuje płatność w tym czasie, mimo wszystko dotrze.",
   "txDetailsFromBackup": "Ta płatność pochodzi z kopii historii i nie była zakończona, gdy kopię tworzono. Ten portfel nie ma własnego zapisu tej płatności, więc nie wie, czy się zakończyła. Nic nie jest zablokowane.",
   "txDetailsCancelsAtBlock": "Zostanie automatycznie anulowana, jeśli nie zakończy się do bloku {height}.",
   "txDetailsCancelsAtBlockInMinutes": "Zostanie automatycznie anulowana, jeśli nie zakończy się do bloku {height} (za około {minutes, plural, one{{minutes} minutę} few{{minutes} minuty} many{{minutes} minut} other{{minutes} minuty}}).",
@@ -187,7 +187,7 @@
   "txDetailsFundsReleased": "Środki zwolnione",
   "txDetailsCancelPayment": "Anuluj płatność",
   "txDetailsCancelTitle": "Anulować płatność?",
-  "txDetailsCancelReceiveBody": "Nadawca może jeszcze dokończyć tę płatność. Jeśli zrobi to po anulowaniu, płatność nie będzie widoczna do czasu ponownego skanowania.",
+  "txDetailsCancelReceiveBody": "Nadawca mógł już opublikować tę płatność. Portfel najpierw pyta węzeł i anuluje tylko płatność, której sieć nie ma. Jeśli nadawca opublikuje ją w ciągu około tygodnia po anulowaniu, i tak dotrze.",
   "txDetailsCancelSendBody": "Anulować tę płatność i odblokować jej środki? Zrób to tylko wtedy, gdy odbiorca jej nie sfinalizował.",
   "txDetailsCancelKeep": "Zachowaj",
   "txDetailsPaymentCancelled": "Płatność anulowana",
@@ -4189,5 +4189,12 @@
   "pairYourNamePlaceholder": "Twoje imię",
   "restoreDone": "Historia przywrócona.",
   "restoreDoneBody": "Wróciły płatności: {payments}, kontakty: {contacts} i parowania: {pairings}.",
-  "deskConPickForPairing": "Parowanie zostanie dodane do wybranego kontaktu."
+  "deskConPickForPairing": "Parowanie zostanie dodane do wybranego kontaktu.",
+  "txDetailsAcceptedAgoMinutes": "{minutes, plural, =0{Przyjęto przed chwilą.} one{Przyjęto {minutes} minutę temu.} few{Przyjęto {minutes} minuty temu.} many{Przyjęto {minutes} minut temu.} other{Przyjęto {minutes} minuty temu.}}",
+  "txDetailsAcceptedAgoHours": "{hours, plural, one{Przyjęto {hours} godzinę temu.} few{Przyjęto {hours} godziny temu.} many{Przyjęto {hours} godzin temu.} other{Przyjęto {hours} godziny temu.}}",
+  "txDetailsAcceptedAgoDays": "{days, plural, one{Przyjęto {days} dzień temu.} few{Przyjęto {days} dni temu.} many{Przyjęto {days} dni temu.} other{Przyjęto {days} dnia temu.}}",
+  "txDetailsCancelHold": "{minutes, plural, one{Anulowanie będzie możliwe za {minutes} minutę, jeśli nadawca do tego czasu nie opublikuje płatności.} few{Anulowanie będzie możliwe za {minutes} minuty, jeśli nadawca do tego czasu nie opublikuje płatności.} many{Anulowanie będzie możliwe za {minutes} minut, jeśli nadawca do tego czasu nie opublikuje płatności.} other{Anulowanie będzie możliwe za {minutes} minuty, jeśli nadawca do tego czasu nie opublikuje płatności.}}",
+  "txDetailsCancelOffered": "Anuluj tylko, jeśli płatność nigdy nie dotrze: portfel najpierw sprawdza sieć.",
+  "txDetailsCancelWhileReported": "Anulowanie nie jest dostępne, gdy nadawca zgłasza, że opublikował płatność.",
+  "txDetailsCancelRefusedOnNetwork": "Nie anulowano: sieć już ma tę płatność. Zakończy się, gdy blockchain ją potwierdzi."
 }

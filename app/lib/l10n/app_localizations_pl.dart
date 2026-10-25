@@ -702,7 +702,8 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie udało się dostarczyć płatności do odbiorcy, więc portfel od razu ją anulował. Nic nie zostało wysłane, a środki są znów dostępne.';
 
   @override
-  String get txDetailsCancelledIncoming => 'Anulowano. Ta płatność nie dotrze.';
+  String get txDetailsCancelledIncoming =>
+      'Anulowano. Portfel obserwuje sieć jeszcze około tygodnia; jeśli nadawca opublikuje płatność w tym czasie, mimo wszystko dotrze.';
 
   @override
   String get txDetailsFromBackup =>
@@ -814,7 +815,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Nadawca może jeszcze dokończyć tę płatność. Jeśli zrobi to po anulowaniu, płatność nie będzie widoczna do czasu ponownego skanowania.';
+      'Nadawca mógł już opublikować tę płatność. Portfel najpierw pyta węzeł i anuluje tylko płatność, której sieć nie ma. Jeśli nadawca opublikuje ją w ciągu około tygodnia po anulowaniu, i tak dotrze.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -16318,4 +16319,73 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskConPickForPairing =>
       'Parowanie zostanie dodane do wybranego kontaktu.';
+
+  @override
+  String txDetailsAcceptedAgoMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'Przyjęto $minutes minuty temu.',
+      many: 'Przyjęto $minutes minut temu.',
+      few: 'Przyjęto $minutes minuty temu.',
+      one: 'Przyjęto $minutes minutę temu.',
+      zero: 'Przyjęto przed chwilą.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoHours(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: 'Przyjęto $hours godziny temu.',
+      many: 'Przyjęto $hours godzin temu.',
+      few: 'Przyjęto $hours godziny temu.',
+      one: 'Przyjęto $hours godzinę temu.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Przyjęto $days dnia temu.',
+      many: 'Przyjęto $days dni temu.',
+      few: 'Przyjęto $days dni temu.',
+      one: 'Przyjęto $days dzień temu.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsCancelHold(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other:
+          'Anulowanie będzie możliwe za $minutes minuty, jeśli nadawca do tego czasu nie opublikuje płatności.',
+      many:
+          'Anulowanie będzie możliwe za $minutes minut, jeśli nadawca do tego czasu nie opublikuje płatności.',
+      few:
+          'Anulowanie będzie możliwe za $minutes minuty, jeśli nadawca do tego czasu nie opublikuje płatności.',
+      one:
+          'Anulowanie będzie możliwe za $minutes minutę, jeśli nadawca do tego czasu nie opublikuje płatności.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txDetailsCancelOffered =>
+      'Anuluj tylko, jeśli płatność nigdy nie dotrze: portfel najpierw sprawdza sieć.';
+
+  @override
+  String get txDetailsCancelWhileReported =>
+      'Anulowanie nie jest dostępne, gdy nadawca zgłasza, że opublikował płatność.';
+
+  @override
+  String get txDetailsCancelRefusedOnNetwork =>
+      'Nie anulowano: sieć już ma tę płatność. Zakończy się, gdy blockchain ją potwierdzi.';
 }

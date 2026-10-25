@@ -150,3 +150,13 @@ String currencyName(AppLocalizations l, String code) => switch (code) {
   'try' => l.currencyTry,
   _ => code.toUpperCase(),
 };
+
+/// "Accepted 4 minutes ago." for an incoming payment this wallet signed [ago]: minutes below
+/// 90, hours below 48, else days, each its own message so every language inflects it.
+String acceptedAgoText(AppLocalizations l, Duration ago) {
+  final minutes = ago.inMinutes;
+  if (minutes < 90) return l.txDetailsAcceptedAgoMinutes(minutes);
+  final hours = (minutes / 60).round();
+  if (hours < 48) return l.txDetailsAcceptedAgoHours(hours);
+  return l.txDetailsAcceptedAgoDays((hours / 24).round());
+}

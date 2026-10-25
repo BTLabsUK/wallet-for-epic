@@ -3,6 +3,7 @@
 // it) is a toast that leaves the row. The send cancel keeps its words.
 import 'dart:io';
 
+import 'package:epic_wallet/src/desktop/data/clock.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
@@ -31,7 +32,9 @@ class _Desk extends MockDeskWallet {
   }
 }
 
-Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable = true, bool fromBackup = false, TxMethod method = TxMethod.epicbox, bool notPosted = false}) => Tx(
+final _now = DateTime(2026, 10, 25, 12);
+
+Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable = true, bool fromBackup = false, TxMethod method = TxMethod.epicbox, bool notPosted = false, DateTime? created, bool senderPosted = false}) => Tx(
   id: 77,
   slateId: 'f0e1d2c3-b4a5-4697-8879-9f3a7c21a0b1',
   direction: incoming ? TxDirection.received : TxDirection.sent,
@@ -39,8 +42,9 @@ Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable
   method: method,
   amount: 250000000,
   fee: incoming ? 0 : 7000000,
-  created: DateTime(2026, 10, 20),
+  created: created ?? DateTime(2026, 10, 20),
   counterparty: 'esAlice@epicbox.example',
+  senderPosted: senderPosted,
   cancellable: cancellable,
   fromBackup: fromBackup,
   notPosted: notPosted,
@@ -50,7 +54,7 @@ Future<void> _pump(WidgetTester tester, Tx tx, _Desk desk) async {
   tester.view.physicalSize = const Size(900, 1400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(desk)]);
+  final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(desk), deskClockProvider.overrideWithValue(() => _now)]);
   addTearDown(container.dispose);
   await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
   await tester.pumpWidget(
@@ -117,6 +121,43 @@ void main() {
         expect(_cancelButton, findsNothing);
       });
     }
+  });
+
+  // The owner, 2026-10-25: once this wallet signed and returned its half, the sender can post at
+  // any time, so Cancel waits out receiveCancelHold and any sender report (models.dart).
+  group('the hold on an incoming payment', () {
+    Tx waiting({required Duration ago, bool senderPosted = false}) =>
+        _tx(incoming: true, state: TxState.waitingRecipient, created: _now.subtract(ago), senderPosted: senderPosted);
+
+    testWidgets('inside the hold: no Cancel, the status box says when it comes', (tester) async {
+      await _pump(tester, waiting(ago: const Duration(minutes: 5)), _Desk());
+      expect(_cancelButton, findsNothing);
+      expect(find.byKey(const ValueKey('tx-cancel-hold')), findsOneWidget);
+      expect(find.text('Accepted 5 minutes ago. Cancel becomes possible in 10 minutes if the sender has not posted it.'), findsOneWidget);
+      await _end(tester);
+    });
+
+    testWidgets('after the hold: a quiet Cancel, with what it is for', (tester) async {
+      await _pump(tester, waiting(ago: const Duration(minutes: 40)), _Desk());
+      expect(_cancelButton, findsOneWidget);
+      expect(tester.widget<EButton>(_cancelButton).kind, EBtnKind.ghost);
+      expect(find.text('Accepted 40 minutes ago. Cancel only if it never arrives: the wallet checks the network first.'), findsOneWidget);
+      await _end(tester);
+    });
+
+    testWidgets('while the sender reports it posted: no Cancel, the line says so', (tester) async {
+      await _pump(tester, waiting(ago: const Duration(minutes: 40), senderPosted: true), _Desk());
+      expect(_cancelButton, findsNothing);
+      expect(find.text('Cancel is not offered while the sender reports it posted.'), findsOneWidget);
+      expect(find.byKey(const ValueKey('tx-sender-posted')), findsOneWidget);
+      await _end(tester);
+    });
+
+    testWidgets('a send keeps its red Cancel', (tester) async {
+      await _pump(tester, _tx(incoming: false, state: TxState.waitingRecipient, created: _now.subtract(const Duration(minutes: 2))), _Desk());
+      expect(tester.widget<EButton>(_cancelButton).kind, EBtnKind.danger);
+      expect(find.byKey(const ValueKey('tx-cancel-hold')), findsNothing);
+    });
   });
 
   group('the dialog', () {

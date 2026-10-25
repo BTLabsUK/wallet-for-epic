@@ -26,6 +26,20 @@ Future<void> _senderPosted(ProviderContainer c, BuildContext _) async {
   await c.read(deskProvider.notifier).refresh();
 }
 
+/// Adds the mock's incoming payment inside its Cancel hold (5 minutes after this wallet
+/// signed), or past it (40 minutes), and shows it.
+Future<void> _receiveHold(ProviderContainer c, BuildContext _) async {
+  final api = c.read(deskApiProvider);
+  if (api is MockDeskWallet) api.addReceiveCancelDemo(id: MockDeskWallet.receiveHoldDemoId, ago: const Duration(minutes: 5));
+  await c.read(deskProvider.notifier).refresh();
+}
+
+Future<void> _receiveOffered(ProviderContainer c, BuildContext _) async {
+  final api = c.read(deskApiProvider);
+  if (api is MockDeskWallet) api.addReceiveCancelDemo(id: MockDeskWallet.receiveOfferedDemoId, ago: const Duration(minutes: 40));
+  await c.read(deskProvider.notifier).refresh();
+}
+
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
 final List<DeskShot> walletShots = [
@@ -86,6 +100,28 @@ final List<DeskShot> walletShots = [
     route: DeskRoute.activity,
     arg: MockDeskWallet.senderPostedDemoId,
     prepare: _senderPosted,
+  ),
+  DeskShot(
+    id: '12l-tx-detail-receive-cancel-hold',
+    title: 'Transaction detail, an incoming payment inside its Cancel hold',
+    route: DeskRoute.activity,
+    arg: MockDeskWallet.receiveHoldDemoId,
+    prepare: _receiveHold,
+  ),
+  DeskShot(
+    id: '12m-tx-detail-receive-cancel-offered',
+    title: 'Transaction detail, an incoming payment whose Cancel is offered',
+    route: DeskRoute.activity,
+    arg: MockDeskWallet.receiveOfferedDemoId,
+    prepare: _receiveOffered,
+  ),
+  DeskShot(
+    id: '35c-dlg-cancel-receive',
+    title: 'Cancel an incoming payment',
+    route: DeskRoute.activity,
+    arg: MockDeskWallet.receiveOfferedDemoId,
+    prepare: _receiveOffered,
+    dialog: (c) => showCancelTxDialog(c, _tx(c, MockDeskWallet.receiveOfferedDemoId)),
   ),
   DeskShot(id: '35d-dlg-tx-details-add', title: 'Add details to a restored payment', route: DeskRoute.activity, arg: 102, dialog: (c) => showTxDetailsDialog(c, _tx(c, 102))),
   DeskShot(id: '35e-dlg-tx-details-edit', title: 'Edit details of a restored payment', route: DeskRoute.activity, arg: 103, dialog: (c) => showTxDetailsDialog(c, _tx(c, 103))),

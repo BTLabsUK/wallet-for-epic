@@ -1035,6 +1035,19 @@ class MockDeskWallet implements DeskWalletApi {
     );
   }
 
+  static const receiveHoldDemoId = 9141;
+  static const receiveOfferedDemoId = 9142;
+
+  /// For the tour: Anna's Epicbox payment, answered here [ago] (5 minutes: inside the Cancel
+  /// hold; 40: Cancel offered), waiting for its sender. Only its own shots add it.
+  void addReceiveCancelDemo({required int id, required Duration ago}) {
+    if (_txs.any((t) => t.id == id)) return;
+    _txs.insert(
+      0,
+      Tx(id: id, slateId: 'd2e3f4a5-b6c7-4d8e-9f0a-1b2c3d4e5f6a', direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.epicbox, amount: _epic(7.25), fee: 0, created: DateTime.now().subtract(ago), counterparty: _contacts[0].address, contactName: 'Anna Kowalska', cancellable: true, transport: 'epicbox'),
+    );
+  }
+
   /// The history backup record the Backup rows and the reminder show; tours and tests set it.
   HistoryBackupState backup = HistoryBackupState(lastExport: DateTime(2026, 10, 3, 14, 2), unbacked: 12, payments: 48, contacts: 6);
 

@@ -1102,7 +1102,7 @@ abstract class AppLocalizations {
   /// Payment details, status explanation of a cancelled receive.
   ///
   /// In en, this message translates to:
-  /// **'Cancelled. This payment will not arrive.'**
+  /// **'Cancelled. The wallet watches the network for it for about a week; if the sender posts it in that time, it arrives after all.'**
   String get txDetailsCancelledIncoming;
 
   /// Payment details, status explanation of an unfinished payment imported from a history backup file.
@@ -1246,7 +1246,7 @@ abstract class AppLocalizations {
   /// Cancel dialog text for a pending receive. Rescan means scanning the blockchain for the wallet's funds again.
   ///
   /// In en, this message translates to:
-  /// **'The sender may still finish this payment. If they do after you cancel, it will not show until you rescan.'**
+  /// **'The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it within about a week after that, it still arrives.'**
   String get txDetailsCancelReceiveBody;
 
   /// Cancel dialog text for a pending send.
@@ -25021,6 +25021,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The pairing is added to the contact you choose.'**
   String get deskConPickForPairing;
+
+  /// Line under an incoming payment's status: how long ago this wallet accepted (signed) it, in minutes (below 90). A sentence; the Cancel hold or offer sentence follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =0{Accepted just now.} =1{Accepted 1 minute ago.} other{Accepted {minutes} minutes ago.}}'**
+  String txDetailsAcceptedAgoMinutes(int minutes);
+
+  /// As txDetailsAcceptedAgoMinutes, in hours (below 48).
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, =1{Accepted 1 hour ago.} other{Accepted {hours} hours ago.}}'**
+  String txDetailsAcceptedAgoHours(int hours);
+
+  /// As txDetailsAcceptedAgoMinutes, in days.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Accepted 1 day ago.} other{Accepted {days} days ago.}}'**
+  String txDetailsAcceptedAgoDays(int days);
+
+  /// After txDetailsAcceptedAgo*, while an incoming payment is inside its 15-minute Cancel hold: when Cancel comes. The sender finalizes and posts in that time.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{Cancel becomes possible in 1 minute if the sender has not posted it.} other{Cancel becomes possible in {minutes} minutes if the sender has not posted it.}}'**
+  String txDetailsCancelHold(int minutes);
+
+  /// After txDetailsAcceptedAgo*, under an incoming payment's Cancel button once the hold is over: what Cancel is for. LEPIC asks the node first and refuses a payment it holds.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel only if it never arrives: the wallet checks the network first.'**
+  String get txDetailsCancelOffered;
+
+  /// In place of the Cancel button while the sender reports it posted (txStatusSenderPosted, under an hour old).
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel is not offered while the sender reports it posted.'**
+  String get txDetailsCancelWhileReported;
+
+  /// Info notice when a cancel of an incoming payment was refused because the node's pool or chain holds it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not cancelled: the network already has this payment. It completes when the blockchain confirms it.'**
+  String get txDetailsCancelRefusedOnNetwork;
 }
 
 class _AppLocalizationsDelegate

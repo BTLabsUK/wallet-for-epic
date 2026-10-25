@@ -163,7 +163,7 @@
   "txDetailsCancelledUnanswered": "接收方未在 14 天内回复，因此钱包已将其取消。没有支付任何资金，这些资金已恢复可用。",
   "txDetailsCancelledLateAnswer": "接收方在 14 天期限过后才回复，因此钱包取消了这笔付款，而没有完成它。没有支付任何资金，这些资金已恢复可用。",
   "txDetailsCancelledUndelivered": "这笔付款无法送达接收方，因此钱包已立即将其取消。没有发送任何资金，这些资金已恢复可用。",
-  "txDetailsCancelledIncoming": "已取消。这笔付款不会到账。",
+  "txDetailsCancelledIncoming": "已取消。钱包仍会关注网络约一周；如果发送方在此期间广播，付款仍会到账。",
   "txDetailsFromBackup": "这笔付款来自交易记录备份，备份时尚未完成。此钱包自身没有它的记录，因此无法判断它是否已完成。没有锁定任何资金。",
   "txDetailsCancelsAtBlock": "如果在区块 {height} 前未完成，将自动取消。",
   "txDetailsCancelsAtBlockInMinutes": "如果在区块 {height} 前未完成，将自动取消（约 {minutes, plural, other{{minutes} 分钟}}后）。",
@@ -187,7 +187,7 @@
   "txDetailsFundsReleased": "资金已释放",
   "txDetailsCancelPayment": "取消付款",
   "txDetailsCancelTitle": "取消付款？",
-  "txDetailsCancelReceiveBody": "发送方仍可能完成这笔付款。如果对方在你取消后完成，在你重新扫描之前它不会显示。",
+  "txDetailsCancelReceiveBody": "发送方可能已经广播了这笔付款。钱包会先询问节点，只取消网络中没有的付款。如果发送方在取消后约一周内广播，付款仍会到账。",
   "txDetailsCancelSendBody": "取消这笔付款并解锁其资金？仅在接收方尚未完成时这样做。",
   "txDetailsCancelKeep": "保留",
   "txDetailsPaymentCancelled": "付款已取消",
@@ -4189,5 +4189,12 @@
   "pairYourNamePlaceholder": "你的名字",
   "restoreDone": "历史已恢复。",
   "restoreDoneBody": "已恢复 {payments} 笔付款、{contacts} 个联系人和 {pairings} 个配对。",
-  "deskConPickForPairing": "配对将添加到你选择的联系人。"
+  "deskConPickForPairing": "配对将添加到你选择的联系人。",
+  "txDetailsAcceptedAgoMinutes": "{minutes, plural, =0{刚刚接受。} other{{minutes} 分钟前接受。}}",
+  "txDetailsAcceptedAgoHours": "{hours, plural, other{{hours} 小时前接受。}}",
+  "txDetailsAcceptedAgoDays": "{days, plural, other{{days} 天前接受。}}",
+  "txDetailsCancelHold": "{minutes, plural, other{如果发送方到时仍未广播，{minutes} 分钟后可以取消。}}",
+  "txDetailsCancelOffered": "仅在付款始终未到账时取消：钱包会先检查网络。",
+  "txDetailsCancelWhileReported": "发送方报告已广播期间，不提供取消。",
+  "txDetailsCancelRefusedOnNetwork": "未取消：网络中已有这笔付款。区块链确认后即完成。"
 }

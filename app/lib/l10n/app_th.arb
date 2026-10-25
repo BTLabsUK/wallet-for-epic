@@ -163,7 +163,7 @@
   "txDetailsCancelledUnanswered": "ผู้รับไม่ตอบภายใน 14 วัน กระเป๋าเงินจึงยกเลิก ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว",
   "txDetailsCancelledLateAnswer": "ผู้รับตอบหลังครบกำหนด 14 วัน กระเป๋าเงินจึงยกเลิกแทนการทำรายการให้เสร็จ ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว",
   "txDetailsCancelledUndelivered": "ส่งถึงผู้รับไม่ได้ กระเป๋าเงินจึงยกเลิกทันที ไม่มีการส่งเงินออก และยอดเงินกลับมาใช้ได้แล้ว",
-  "txDetailsCancelledIncoming": "ยกเลิกแล้ว รายการนี้จะไม่เข้า",
+  "txDetailsCancelledIncoming": "ยกเลิกแล้ว กระเป๋าเงินจะยังติดตามเครือข่ายอีกประมาณหนึ่งสัปดาห์ ถ้าผู้ส่งเผยแพร่ในช่วงนั้น รายการจะเข้าในที่สุด",
   "txDetailsFromBackup": "รายการนี้มาจากข้อมูลสำรองประวัติ และยังไม่เสร็จตอนสำรองข้อมูล กระเป๋าเงินนี้ไม่มีบันทึกของตัวเอง จึงไม่ทราบว่าสำเร็จหรือไม่ ไม่มียอดเงินถูกล็อก",
   "txDetailsCancelsAtBlock": "ยกเลิกอัตโนมัติถ้าไม่สำเร็จภายในบล็อก {height}",
   "txDetailsCancelsAtBlockInMinutes": "ยกเลิกอัตโนมัติถ้าไม่สำเร็จภายในบล็อก {height} (อีกประมาณ {minutes, plural, other{{minutes} นาที}})",
@@ -187,7 +187,7 @@
   "txDetailsFundsReleased": "ปลดยอดเงินแล้ว",
   "txDetailsCancelPayment": "ยกเลิกรายการ",
   "txDetailsCancelTitle": "ยกเลิกรายการไหม?",
-  "txDetailsCancelReceiveBody": "ผู้ส่งอาจยังทำรายการนี้ให้เสร็จได้ ถ้าทำหลังจากยกเลิกแล้ว รายการจะไม่แสดงจนกว่าจะตรวจยอดใหม่",
+  "txDetailsCancelReceiveBody": "ผู้ส่งอาจเผยแพร่รายการนี้ไปแล้ว กระเป๋าเงินจะถามโหนดก่อนและยกเลิกเฉพาะรายการที่เครือข่ายยังไม่มี ถ้าผู้ส่งเผยแพร่ภายในประมาณหนึ่งสัปดาห์หลังจากนั้น รายการจะยังเข้า",
   "txDetailsCancelSendBody": "ยกเลิกรายการนี้และปลดล็อกยอดเงินไหม? ทำเฉพาะเมื่อผู้รับยังไม่ได้ทำรายการให้เสร็จ",
   "txDetailsCancelKeep": "เก็บไว้",
   "txDetailsPaymentCancelled": "ยกเลิกรายการแล้ว",
@@ -4189,5 +4189,12 @@
   "pairYourNamePlaceholder": "ชื่อของคุณ",
   "restoreDone": "กู้คืนประวัติแล้ว",
   "restoreDoneBody": "การชำระเงิน {payments} รายการ ผู้ติดต่อ {contacts} รายการ และการจับคู่ {pairings} รายการกลับมาแล้ว",
-  "deskConPickForPairing": "การจับคู่จะเพิ่มไปยังผู้ติดต่อที่คุณเลือก"
+  "deskConPickForPairing": "การจับคู่จะเพิ่มไปยังผู้ติดต่อที่คุณเลือก",
+  "txDetailsAcceptedAgoMinutes": "{minutes, plural, =0{รับเมื่อครู่นี้} other{รับเมื่อ {minutes} นาทีที่แล้ว}}",
+  "txDetailsAcceptedAgoHours": "{hours, plural, other{รับเมื่อ {hours} ชั่วโมงที่แล้ว}}",
+  "txDetailsAcceptedAgoDays": "{days, plural, other{รับเมื่อ {days} วันที่แล้ว}}",
+  "txDetailsCancelHold": "{minutes, plural, other{ยกเลิกได้ในอีก {minutes} นาที ถ้าผู้ส่งยังไม่เผยแพร่รายการ}}",
+  "txDetailsCancelOffered": "ยกเลิกเฉพาะเมื่อรายการไม่เข้าเลย กระเป๋าเงินจะตรวจสอบเครือข่ายก่อน",
+  "txDetailsCancelWhileReported": "ไม่มีตัวเลือกยกเลิกขณะที่ผู้ส่งรายงานว่าเผยแพร่แล้ว",
+  "txDetailsCancelRefusedOnNetwork": "ไม่ได้ยกเลิก เครือข่ายมีรายการนี้แล้ว รายการจะสำเร็จเมื่อบล็อกเชนยืนยัน"
 }

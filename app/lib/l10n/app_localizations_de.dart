@@ -680,7 +680,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelledIncoming =>
-      'Storniert. Diese Zahlung wird nicht eintreffen.';
+      'Storniert. Die Wallet beobachtet das Netzwerk noch etwa eine Woche; veröffentlicht der Absender sie in dieser Zeit, trifft sie doch noch ein.';
 
   @override
   String get txDetailsFromBackup =>
@@ -786,7 +786,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Der Absender kann diese Zahlung noch abschließen. Tut er das nach der Stornierung, erscheint sie erst nach einem erneuten Scan.';
+      'Der Absender hat sie möglicherweise schon veröffentlicht. Die Wallet fragt zuerst den Node und storniert nur eine Zahlung, die das Netzwerk nicht hat. Veröffentlicht der Absender sie danach innerhalb von etwa einer Woche, trifft sie trotzdem ein.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -16035,4 +16035,62 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskConPickForPairing =>
       'Die Kopplung kommt zu dem Kontakt, den Sie wählen.';
+
+  @override
+  String txDetailsAcceptedAgoMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'Vor $minutes Minuten angenommen.',
+      one: 'Vor 1 Minute angenommen.',
+      zero: 'Gerade eben angenommen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoHours(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: 'Vor $hours Stunden angenommen.',
+      one: 'Vor 1 Stunde angenommen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Vor $days Tagen angenommen.',
+      one: 'Vor 1 Tag angenommen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsCancelHold(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other:
+          'Stornieren ist in $minutes Minuten möglich, falls der Absender sie bis dahin nicht veröffentlicht hat.',
+      one: 'Stornieren ist in 1 Minute möglich, falls der Absender sie bis dahin nicht veröffentlicht hat.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txDetailsCancelOffered =>
+      'Nur stornieren, wenn sie nie eintrifft: die Wallet prüft zuerst das Netzwerk.';
+
+  @override
+  String get txDetailsCancelWhileReported =>
+      'Stornieren wird nicht angeboten, solange der Absender meldet, sie veröffentlicht zu haben.';
+
+  @override
+  String get txDetailsCancelRefusedOnNetwork =>
+      'Nicht storniert: das Netzwerk hat diese Zahlung bereits. Sie wird abgeschlossen, sobald die Blockchain sie bestätigt.';
 }

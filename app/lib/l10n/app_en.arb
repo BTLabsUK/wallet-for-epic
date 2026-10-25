@@ -759,7 +759,7 @@
   "@txDetailsCancelledUndelivered": {
     "description": "Payment details, why a send is cancelled: it never reached the recipient."
   },
-  "txDetailsCancelledIncoming": "Cancelled. This payment will not arrive.",
+  "txDetailsCancelledIncoming": "Cancelled. The wallet watches the network for it for about a week; if the sender posts it in that time, it arrives after all.",
   "@txDetailsCancelledIncoming": {
     "description": "Payment details, status explanation of a cancelled receive."
   },
@@ -885,7 +885,7 @@
   "@txDetailsCancelTitle": {
     "description": "Title of the dialog that confirms cancelling a pending payment."
   },
-  "txDetailsCancelReceiveBody": "The sender may still finish this payment. If they do after you cancel, it will not show until you rescan.",
+  "txDetailsCancelReceiveBody": "The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it within about a week after that, it still arrives.",
   "@txDetailsCancelReceiveBody": {
     "description": "Cancel dialog text for a pending receive. Rescan means scanning the blockchain for the wallet's funds again."
   },
@@ -21043,5 +21043,53 @@
   "deskConPickForPairing": "The pairing is added to the contact you choose.",
   "@deskConPickForPairing": {
     "description": "Subtitle of the Choose contact dialog when it picks the contact a pairing is added to (Add to a contact), not a Send recipient."
+  },
+  "txDetailsAcceptedAgoMinutes": "{minutes, plural, =0{Accepted just now.} =1{Accepted 1 minute ago.} other{Accepted {minutes} minutes ago.}}",
+  "@txDetailsAcceptedAgoMinutes": {
+    "description": "Line under an incoming payment's status: how long ago this wallet accepted (signed) it, in minutes (below 90). A sentence; the Cancel hold or offer sentence follows it.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsAcceptedAgoHours": "{hours, plural, =1{Accepted 1 hour ago.} other{Accepted {hours} hours ago.}}",
+  "@txDetailsAcceptedAgoHours": {
+    "description": "As txDetailsAcceptedAgoMinutes, in hours (below 48).",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsAcceptedAgoDays": "{days, plural, =1{Accepted 1 day ago.} other{Accepted {days} days ago.}}",
+  "@txDetailsAcceptedAgoDays": {
+    "description": "As txDetailsAcceptedAgoMinutes, in days.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsCancelHold": "{minutes, plural, =1{Cancel becomes possible in 1 minute if the sender has not posted it.} other{Cancel becomes possible in {minutes} minutes if the sender has not posted it.}}",
+  "@txDetailsCancelHold": {
+    "description": "After txDetailsAcceptedAgo*, while an incoming payment is inside its 15-minute Cancel hold: when Cancel comes. The sender finalizes and posts in that time.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsCancelOffered": "Cancel only if it never arrives: the wallet checks the network first.",
+  "@txDetailsCancelOffered": {
+    "description": "After txDetailsAcceptedAgo*, under an incoming payment's Cancel button once the hold is over: what Cancel is for. LEPIC asks the node first and refuses a payment it holds."
+  },
+  "txDetailsCancelWhileReported": "Cancel is not offered while the sender reports it posted.",
+  "@txDetailsCancelWhileReported": {
+    "description": "In place of the Cancel button while the sender reports it posted (txStatusSenderPosted, under an hour old)."
+  },
+  "txDetailsCancelRefusedOnNetwork": "Not cancelled: the network already has this payment. It completes when the blockchain confirms it.",
+  "@txDetailsCancelRefusedOnNetwork": {
+    "description": "Info notice when a cancel of an incoming payment was refused because the node's pool or chain holds it."
   }
 }

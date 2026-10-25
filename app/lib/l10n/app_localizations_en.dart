@@ -673,7 +673,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelledIncoming =>
-      'Cancelled. This payment will not arrive.';
+      'Cancelled. The wallet watches the network for it for about a week; if the sender posts it in that time, it arrives after all.';
 
   @override
   String get txDetailsFromBackup =>
@@ -779,7 +779,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'The sender may still finish this payment. If they do after you cancel, it will not show until you rescan.';
+      'The sender may already have posted it. The wallet asks the node first and cancels only a payment the network does not have. If the sender posts it within about a week after that, it still arrives.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -15847,4 +15847,62 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskConPickForPairing =>
       'The pairing is added to the contact you choose.';
+
+  @override
+  String txDetailsAcceptedAgoMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'Accepted $minutes minutes ago.',
+      one: 'Accepted 1 minute ago.',
+      zero: 'Accepted just now.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoHours(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: 'Accepted $hours hours ago.',
+      one: 'Accepted 1 hour ago.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsAcceptedAgoDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Accepted $days days ago.',
+      one: 'Accepted 1 day ago.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txDetailsCancelHold(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other:
+          'Cancel becomes possible in $minutes minutes if the sender has not posted it.',
+      one: 'Cancel becomes possible in 1 minute if the sender has not posted it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txDetailsCancelOffered =>
+      'Cancel only if it never arrives: the wallet checks the network first.';
+
+  @override
+  String get txDetailsCancelWhileReported =>
+      'Cancel is not offered while the sender reports it posted.';
+
+  @override
+  String get txDetailsCancelRefusedOnNetwork =>
+      'Not cancelled: the network already has this payment. It completes when the blockchain confirms it.';
 }

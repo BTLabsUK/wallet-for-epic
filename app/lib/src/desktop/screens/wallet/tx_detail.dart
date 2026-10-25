@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../known_relays.dart' show recipientRelay;
-import '../../../models.dart' show SlatePurpose;
+import '../../../l10n.dart' show acceptedAgoText;
+import '../../../models.dart' show IncomingCancel, SlatePurpose, incomingCancelAt;
+import '../../data/clock.dart';
 import '../../data/invoice_state.dart' show PayState, deskInvoicesProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/pairing_state.dart' show deskPairingByIdProvider, deskPairingNameProvider, deskPairingSlateProvider;
@@ -41,6 +45,35 @@ class TxDetail extends ConsumerStatefulWidget {
 
 class _TxDetailState extends ConsumerState<TxDetail> {
   bool _cancelling = false;
+
+  /// Ticks once a minute while an incoming payment waits inside its Cancel hold, so the
+  /// "accepted N minutes ago" line and the hold's end move without a refresh.
+  Timer? _minute;
+
+  void _tickWhile(bool held) {
+    if (held && _minute == null) {
+      _minute = Timer.periodic(const Duration(minutes: 1), (_) {
+        if (mounted) setState(() {});
+      });
+    } else if (!held && _minute != null) {
+      _minute!.cancel();
+      _minute = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _minute?.cancel();
+    super.dispose();
+  }
+
+  /// The line under an incoming payment's status while this wallet waits for its sender: how
+  /// long ago it signed, and when Cancel comes or what it is for (receiveCancelHold).
+  String _holdLine(AppLocalizations l, IncomingCancel hold) => hold.senderReportsPosted
+      ? l.txDetailsCancelWhileReported
+      : hold.offered
+      ? '${acceptedAgoText(l, hold.signedAgo)} ${l.txDetailsCancelOffered}'
+      : '${acceptedAgoText(l, hold.signedAgo)} ${l.txDetailsCancelHold(hold.holdMinutesLeft)}';
 
   /// The More link is open: the technical rows show for this view only.
   bool _more = false;
@@ -154,10 +187,17 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     // post (its outputs stay locked otherwise). Once posted (a Direct HTTP or Tor send is
     // finalized and posted in one step) it has gone out and shows as sent, never cancellable.
     // Invoice-flow transactions take their actions from the Invoice block (flow.md §4.4).
+    // An incoming payment this wallet signed: for receiveCancelHold after, and while its sender
+    // reports it posted, Cancel stays away and the status box says why (incomingCancelAt).
+    final waitingIncoming = t.incoming && t.state == TxState.waitingRecipient && !t.fromBackup && !t.isInvoice && t.cancellable;
+    final hold = waitingIncoming
+        ? incomingCancelAt(signedAt: t.created, now: ref.watch(deskClockProvider)(), senderReportsPosted: t.senderPosted)
+        : null;
+    _tickWhile(hold != null && !hold.offered && !hold.senderReportsPosted);
     final cancelable = !t.fromBackup &&
         !t.isInvoice &&
         (t.incoming
-            ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed
+            ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed && (hold?.offered ?? true)
             : (t.cancellable && t.state == TxState.waitingRecipient) || t.notPosted);
     final finalizable = !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
     // The node refused it: broadcast it again at once (android-17); the app also does by itself.
@@ -247,17 +287,21 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               TxStateMark(t),
               SizedBox(width: Sp.x3),
               Expanded(
-                child: t.incoming && t.senderPosted && t.state == TxState.waitingRecipient
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     // The words on the badge, the meaning under it.
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
-                          SizedBox(height: Sp.x1),
-                          Text(_now(l, t), style: ts.body),
-                        ],
-                      )
-                    : Text(_now(l, t), style: ts.body),
+                    if (t.incoming && t.senderPosted && t.state == TxState.waitingRecipient) ...[
+                      EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
+                      SizedBox(height: Sp.x1),
+                    ],
+                    Text(_now(l, t), style: ts.body),
+                    if (hold != null) ...[
+                      SizedBox(height: Sp.x1),
+                      Text(_holdLine(l, hold), key: const ValueKey('tx-cancel-hold'), style: ts.small.copyWith(color: c.faint)),
+                    ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -372,7 +416,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 EButton(
                   label: _cancelling ? l.deskTxCancelling : l.commonCancel,
                   icon: EIcons.cancel,
-                  kind: EBtnKind.danger,
+                  // A receive's Cancel is a tidy-up for a payment the sender never posted, so
+                  // it stays quiet; a send's unlocks funds.
+                  kind: t.incoming ? EBtnKind.ghost : EBtnKind.danger,
                   size: EBtnSize.sm,
                   busy: _cancelling,
                   onPressed: _cancel,
