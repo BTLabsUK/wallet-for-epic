@@ -492,6 +492,8 @@ void main() {
       expect(session.sentAmounts, [amount]);
       expect(session.sentMessages, ['for you']);
       expect(await s.epicboxAddress(), session.address);
+      session.restoreScanPending = true;
+      expect(await s.restoreScanRequired(), isTrue);
       expect(
         await s.estimateFee(amount: amount, minimumConfirmations: ten),
         FeeEstimate(amount: amount, fee: session.fee),
