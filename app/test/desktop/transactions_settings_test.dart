@@ -200,7 +200,7 @@ void main() {
     });
 
     testWidgets('the last method on stays on: the switch does not move and a toast says why', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(directFile: false));
+      await _open(tester, DeskRoute.settingsReceiving, payments: PaymentPrefs.defaults.copyWith(directFile: false));
       expect(_payments.on, [MethodKind.epicbox]);
       await tester.tap(_offer('epicbox'));
       await _settle(tester);
