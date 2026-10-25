@@ -134,7 +134,7 @@ void main() {
   ) async {
     final a = await _lepicWallet();
     final saved = await a.saveContact(
-      contact: const Contact(id: '', name: 'Bob', address: 'bob@relay.example'),
+      contact: Contact(id: '', name: 'Bob', address: 'bob@relay.example'),
     );
     expect(saved.id, isNotEmpty);
     final file = await a.exportHistory();
@@ -174,7 +174,7 @@ void main() {
       password: _password,
     );
     await w.saveContact(
-      contact: const Contact(id: '', name: 'Bob', address: 'bob@relay'),
+      contact: Contact(id: '', name: 'Bob', address: 'bob@relay'),
     );
     final meta = File('${config.dataDir}/$metaFileName');
     expect(meta.existsSync(), isTrue);
@@ -184,7 +184,7 @@ void main() {
     // A late call on the closed session never brings it back.
     await expectLater(
       w.saveContact(
-        contact: const Contact(id: '', name: 'Late', address: 'late@relay'),
+        contact: Contact(id: '', name: 'Late', address: 'late@relay'),
       ),
       throwsA(isA<WalletError>()),
     );
@@ -201,7 +201,7 @@ void main() {
         password: _password,
       );
       await first.saveContact(
-        contact: const Contact(id: '', name: 'Bob', address: 'bob@relay'),
+        contact: Contact(id: '', name: 'Bob', address: 'bob@relay'),
       );
       final live = await first.transactions(refresh: false);
       expect(live, isEmpty);
