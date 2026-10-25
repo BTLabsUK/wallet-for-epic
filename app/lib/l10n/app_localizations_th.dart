@@ -16306,4 +16306,81 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reqQrWrongReply => 'คำตอบนี้เป็นของคำขออื่น สแกนคำตอบของคำขอนี้';
+
+  @override
+  String deskBarMenu(String app) {
+    return 'เมนู $app';
+  }
+
+  @override
+  String get deskBarLock => 'ล็อกกระเป๋าเงิน';
+
+  @override
+  String get deskBarShortcuts => 'แป้นพิมพ์ลัด';
+
+  @override
+  String deskBarAbout(String app) {
+    return 'เกี่ยวกับ $app';
+  }
+
+  @override
+  String get deskBarQuit => 'ออก';
+
+  @override
+  String get deskBarWalletsHere => 'กระเป๋าเงินในคอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String get deskBarAddWallet => 'เพิ่มกระเป๋าเงิน';
+
+  @override
+  String get deskBarWalletSettings => 'การตั้งค่ากระเป๋าเงิน';
+
+  @override
+  String get deskBarStatus => 'สถานะการเชื่อมต่อ';
+
+  @override
+  String get deskBarMinimise => 'ย่อ';
+
+  @override
+  String get deskBarMaximise => 'ขยายเต็มจอ';
+
+  @override
+  String get deskBarRestore => 'คืนขนาด';
+
+  @override
+  String get deskBarClose => 'ปิด';
+
+  @override
+  String get deskBarSendRunningTitle => 'มีการส่งที่กำลังดำเนินอยู่';
+
+  @override
+  String get deskBarSendRunningBody =>
+      'หากปิดตอนนี้ จะไม่ทราบผลของการชำระเงิน กระเป๋าเงินปิดเองได้เมื่อการส่งเสร็จแล้ว';
+
+  @override
+  String get deskBarKeepOpen => 'เปิดไว้';
+
+  @override
+  String get deskBarCloseAfterSend => 'ปิดเมื่อเสร็จ';
+
+  @override
+  String get deskBarClosesAfterSend => 'จะปิดเมื่อการส่งเสร็จ';
+
+  @override
+  String get deskBarClosing => 'กำลังปิด';
+
+  @override
+  String get deskBarKeyBack => 'ย้อนกลับ';
+
+  @override
+  String get deskBarKeyForward => 'ไปข้างหน้า';
+
+  @override
+  String get deskBarKeyClose => 'ปิดเมนูหรือหน้าต่าง';
+
+  @override
+  String get deskBarKeySubmit => 'ทำคำสั่งหลักของแบบฟอร์ม';
+
+  @override
+  String get deskBarKeyList => 'รายการนี้';
 }

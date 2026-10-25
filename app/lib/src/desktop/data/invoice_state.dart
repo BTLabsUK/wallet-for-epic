@@ -108,7 +108,7 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
   Future<void> repost(String slateId) => _then('repost', () => _api.repostRequest(slateId));
   Future<void> cancelRequestPayment(String slateId) => _then('cancelRequestPayment', () => _api.cancelRequestPayment(slateId));
   Future<IncomingInvoice> pay(String slateId, {required int amount, required String password}) =>
-      _then('pay', () => _api.payInvoice(slateId, amount: amount, password: password));
+      _then('pay', () => ref.read(deskSendingProvider.notifier).during(() => _api.payInvoice(slateId, amount: amount, password: password)));
   Future<IncomingInvoice> retry(String slateId) => _then('retry', () => _api.retryInvoiceReply(slateId));
   Future<void> decline(String slateId) => _then('decline', () => _api.declineInvoice(slateId));
   Future<void> cancelPayment(String slateId) => _then('cancelPayment', () => _api.cancelInvoicePayment(slateId));

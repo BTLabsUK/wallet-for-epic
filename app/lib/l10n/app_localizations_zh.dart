@@ -15711,4 +15711,80 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reqQrWrongReply => '此回复属于另一个请求。请扫描针对这个请求的回复。';
+
+  @override
+  String deskBarMenu(String app) {
+    return '$app 菜单';
+  }
+
+  @override
+  String get deskBarLock => '锁定钱包';
+
+  @override
+  String get deskBarShortcuts => '键盘快捷键';
+
+  @override
+  String deskBarAbout(String app) {
+    return '关于 $app';
+  }
+
+  @override
+  String get deskBarQuit => '退出';
+
+  @override
+  String get deskBarWalletsHere => '此电脑上的钱包';
+
+  @override
+  String get deskBarAddWallet => '添加钱包';
+
+  @override
+  String get deskBarWalletSettings => '钱包设置';
+
+  @override
+  String get deskBarStatus => '连接状态';
+
+  @override
+  String get deskBarMinimise => '最小化';
+
+  @override
+  String get deskBarMaximise => '最大化';
+
+  @override
+  String get deskBarRestore => '还原';
+
+  @override
+  String get deskBarClose => '关闭';
+
+  @override
+  String get deskBarSendRunningTitle => '正在发送一笔付款';
+
+  @override
+  String get deskBarSendRunningBody => '现在关闭会使这笔付款的结果无法确定。发送完成后，钱包可以自动关闭。';
+
+  @override
+  String get deskBarKeepOpen => '保持打开';
+
+  @override
+  String get deskBarCloseAfterSend => '完成后关闭';
+
+  @override
+  String get deskBarClosesAfterSend => '发送完成后关闭';
+
+  @override
+  String get deskBarClosing => '正在关闭';
+
+  @override
+  String get deskBarKeyBack => '后退';
+
+  @override
+  String get deskBarKeyForward => '前进';
+
+  @override
+  String get deskBarKeyClose => '关闭菜单或对话框';
+
+  @override
+  String get deskBarKeySubmit => '执行表单的主要操作';
+
+  @override
+  String get deskBarKeyList => '此列表';
 }

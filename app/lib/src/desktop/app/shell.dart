@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../demo.dart' show devNetworksProvider;
-import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, EpicMark;
+import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant;
 import '../desk_l10n.dart';
 import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
@@ -28,6 +28,8 @@ import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_failover.dart';
 import 'rail.dart';
 import 'screens.dart';
+import 'close_guard.dart';
+import 'title_bar.dart' show showDeskShortcuts;
 import 'tour.dart';
 import 'update_notice.dart';
 
@@ -96,6 +98,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   /// Ctrl+L / ⌘L locks, Ctrl+Q / ⌘Q quits, wherever the focus is (6.1.6 app menu).
   bool _onKey(KeyEvent e) {
     if (e is! KeyDownEvent || !mounted) return false;
+    if (_onQuestion(e)) return true;
     final hw = HardwareKeyboard.instance;
     if (!(hw.isControlPressed || hw.isMetaPressed) || hw.isShiftPressed || hw.isAltPressed) return false;
     if (e.logicalKey == LogicalKeyboardKey.keyL) {
@@ -103,10 +106,19 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       return true;
     }
     if (e.logicalKey == LogicalKeyboardKey.keyQ) {
-      quitWallet(context, ref);
+      unawaited(deskClose(ref));
       return true;
     }
     return false;
+  }
+
+  /// ? outside a text field lists the keyboard shortcuts.
+  bool _onQuestion(KeyEvent e) {
+    if (e.character != '?') return false;
+    final hw = HardwareKeyboard.instance;
+    if (hw.isControlPressed || hw.isMetaPressed || hw.isAltPressed || deskTextFocused() || ref.read(deskTourProvider).open) return false;
+    unawaited(showDeskShortcuts());
+    return true;
   }
 
   bool _askingOld = false;
@@ -350,8 +362,9 @@ class DeskLocking extends Notifier<bool> {
 
 final deskLockingProvider = NotifierProvider<DeskLocking, bool>(DeskLocking.new);
 
-/// Lock: back to the unlock screen, the wallet closed.
-Future<void> lockWallet(WidgetRef ref) async {
+/// Lock: back to the unlock screen, the wallet closed. [then] is Unlock's argument (an
+/// `UnlockPick` to have another wallet selected).
+Future<void> lockWallet(WidgetRef ref, {Object? then}) async {
   if (ref.read(deskLockingProvider)) return;
   ref.read(deskLockingProvider.notifier).set(true);
   // A payment under way is never ended by the lock: the lock waits for it.
@@ -365,21 +378,11 @@ Future<void> lockWallet(WidgetRef ref) async {
   // Nothing of the wallet stays over the unlock screen: open dialogs and the tour go.
   deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
   ref.read(deskTourProvider.notifier).close();
-  ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock);
+  ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, then);
 }
 
-/// Quit (the app menu's Ctrl+Q): locks, then closes the app. The mock only locks.
-Future<void> quitWallet(BuildContext context, WidgetRef ref) async {
-  final quit = ref.read(deskQuitProvider);
-  // Quitting mid-send would leave the payment's outcome unknown.
-  if (ref.read(deskProvider.notifier).sending > 0) {
-    showEToast(context, context.l10n.deskShellNotQuitTitle, text: context.l10n.deskShellNotQuitBody, tone: ETone.warn);
-    return;
-  }
-  if (quit == null) showEToast(context, context.l10n.deskShellLockedTitle, text: context.l10n.deskShellLockedBody, tone: ETone.info);
-  await lockWallet(ref);
-  await quit?.call();
-}
+/// Quit (Ctrl+Q, the app menu): the one close rule of close_guard.dart.
+Future<void> quitWallet(WidgetRef ref) => deskClose(ref);
 
 /// Switch wallet: locks, then the unlock screen offers the other wallets.
 Future<void> switchWallet(WidgetRef ref) => lockWallet(ref);
@@ -418,31 +421,8 @@ class _Sidebar extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-              height: Ctl.topbar,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: compact ? 0 : Sp.x5),
-                child: Row(
-                  mainAxisAlignment: compact ? MainAxisAlignment.center : MainAxisAlignment.start,
-                  children: [
-                    // The version is in About and the support report; here a tooltip.
-                    if (compact)
-                      Tooltip(message: '$appName $deskVersion', child: EpicMark(size: 24.u, color: c.accent))
-                    else
-                      Flexible(
-                        child: Tooltip(
-                          message: l.deskShellVersion(deskVersion),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: AlignmentDirectional.centerStart,
-                            child: BrandLockup(variant: BrandVariant.desktop, size: 28.u, textRatio: 0.56),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
+            // The brand is in the title bar's part above (title_bar.dart).
+            SizedBox(height: Sp.x2),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),

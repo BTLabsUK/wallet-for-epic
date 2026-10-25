@@ -65,6 +65,11 @@ dependencies:
   # Full brightness while a payment QR code shows (the window's brightness, never the system
   # setting; lib/src/screen_brightness.dart).
   screen_brightness: 2.1.11
+  # The desktop window without the system's title bar: the app draws its own (title_bar.dart);
+  # the OS keeps the frame, shadow, snapping and moving.
+  window_manager: 0.5.2
+  # Windows 11's snap layouts flyout on the title bar's maximise button (desk_window.dart).
+  snap_layouts: 0.2.0
   firebase_core: 4.15.0
   firebase_messaging: 16.7.0
   # The LEPIC core behind --dart-define=WFE_CORE=lepic: the lepic-flutter binding, a clone pinned

@@ -8,6 +8,8 @@ import '../theme/theme.dart';
 import '../widgets/kit.dart';
 import 'screens.dart';
 import 'auto_lock.dart';
+import 'close_guard.dart';
+import 'title_bar.dart';
 import 'shell.dart';
 import 'tour.dart';
 
@@ -29,6 +31,7 @@ class DeskApp extends ConsumerWidget {
     deskScale = (deskScales.contains(scale) ? scale : 100) / 100 * deskBase;
     return MaterialApp(
       navigatorKey: deskNavigatorKey,
+      navigatorObservers: [deskModalWatch],
       title: appName,
       debugShowCheckedModeBanner: false,
       // The app's own translations (lib/l10n). Screens moved to l10n read context.l10n; the
@@ -50,7 +53,11 @@ class DeskApp extends ConsumerWidget {
         final mq = MediaQuery.of(context);
         return MediaQuery(
           data: mq.copyWith(textScaler: DeskTextScaler(mq.textScaler, deskScale)),
-          child: KeyedSubtree(key: ValueKey(deskScale), child: child!),
+          // The window's own title bar above the navigator (title_bar.dart), and the close rule.
+          child: KeyedSubtree(
+            key: ValueKey(deskScale),
+            child: DeskCloseGuard(child: DeskWindowFrame(child: child!)),
+          ),
         );
       },
       home: const DeskRoot(),

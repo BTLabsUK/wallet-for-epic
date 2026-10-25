@@ -16810,4 +16810,81 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get reqQrWrongReply =>
       'Diese Antwort gehört zu einer anderen Anforderung. Scannen Sie die Antwort auf diese.';
+
+  @override
+  String deskBarMenu(String app) {
+    return 'Menü von $app';
+  }
+
+  @override
+  String get deskBarLock => 'Wallet sperren';
+
+  @override
+  String get deskBarShortcuts => 'Tastenkürzel';
+
+  @override
+  String deskBarAbout(String app) {
+    return 'Über $app';
+  }
+
+  @override
+  String get deskBarQuit => 'Beenden';
+
+  @override
+  String get deskBarWalletsHere => 'Wallets auf diesem Computer';
+
+  @override
+  String get deskBarAddWallet => 'Wallet hinzufügen';
+
+  @override
+  String get deskBarWalletSettings => 'Wallet-Einstellungen';
+
+  @override
+  String get deskBarStatus => 'Verbindungsstatus';
+
+  @override
+  String get deskBarMinimise => 'Minimieren';
+
+  @override
+  String get deskBarMaximise => 'Maximieren';
+
+  @override
+  String get deskBarRestore => 'Wiederherstellen';
+
+  @override
+  String get deskBarClose => 'Schließen';
+
+  @override
+  String get deskBarSendRunningTitle => 'Eine Zahlung wird gesendet';
+
+  @override
+  String get deskBarSendRunningBody =>
+      'Jetzt zu schließen ließe offen, wie die Zahlung ausgeht. Die Wallet kann sich selbst schließen, sobald das Senden abgeschlossen ist.';
+
+  @override
+  String get deskBarKeepOpen => 'Offen lassen';
+
+  @override
+  String get deskBarCloseAfterSend => 'Nach dem Senden schließen';
+
+  @override
+  String get deskBarClosesAfterSend => 'Schließt nach dem Senden';
+
+  @override
+  String get deskBarClosing => 'Wird geschlossen';
+
+  @override
+  String get deskBarKeyBack => 'Zurück';
+
+  @override
+  String get deskBarKeyForward => 'Vorwärts';
+
+  @override
+  String get deskBarKeyClose => 'Menü oder Dialog schließen';
+
+  @override
+  String get deskBarKeySubmit => 'Hauptaktion eines Formulars ausführen';
+
+  @override
+  String get deskBarKeyList => 'Diese Liste';
 }

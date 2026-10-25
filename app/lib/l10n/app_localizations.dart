@@ -26089,6 +26089,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This reply answers a different request. Scan the reply to this one.'**
   String get reqQrWrongReply;
+
+  /// Screen-reader label of the brand button at the left of the window's title bar, which opens the app menu. {app} is the product name, Epic Cash Desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} menu'**
+  String deskBarMenu(String app);
+
+  /// App menu item (title bar) and keyboard-shortcuts row: lock the open wallet. The shortcut is shown beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock wallet'**
+  String get deskBarLock;
+
+  /// App menu item and the title of the dialog that lists the keyboard shortcuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Keyboard shortcuts'**
+  String get deskBarShortcuts;
+
+  /// App menu item: opens Settings › About. {app} is the product name, Epic Cash Desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'About {app}'**
+  String deskBarAbout(String app);
+
+  /// App menu item and keyboard-shortcuts row: lock the wallet and close the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Quit'**
+  String get deskBarQuit;
+
+  /// Small heading over the list of wallets in the title bar's wallet menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets on this computer'**
+  String get deskBarWalletsHere;
+
+  /// Wallet menu item (title bar): opens Settings › All wallets, where a wallet is added.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a wallet'**
+  String get deskBarAddWallet;
+
+  /// Wallet menu item (title bar): opens the open wallet's settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet settings'**
+  String get deskBarWalletSettings;
+
+  /// Tooltip of the node / Epicbox / Tor status icons in the title bar; a click lists them.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection status'**
+  String get deskBarStatus;
+
+  /// Window button tooltip: minimise the window.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimise'**
+  String get deskBarMinimise;
+
+  /// Window button tooltip: maximise the window.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximise'**
+  String get deskBarMaximise;
+
+  /// Window button tooltip on a maximised window: back to its earlier size.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get deskBarRestore;
+
+  /// Window button tooltip: close the app (the wallet locks first).
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get deskBarClose;
+
+  /// Dialog title when the window is closed (close button, Alt+F4, Quit) while a payment is being sent.
+  ///
+  /// In en, this message translates to:
+  /// **'A send is in progress'**
+  String get deskBarSendRunningTitle;
+
+  /// Dialog text under 'A send is in progress'. There is deliberately no way to close at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing now would leave the payment\'s outcome unknown. The wallet can close by itself once the send has finished.'**
+  String get deskBarSendRunningBody;
+
+  /// Main button of the 'A send is in progress' dialog: do not close.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep open'**
+  String get deskBarKeepOpen;
+
+  /// Second button of the 'A send is in progress' dialog: close the app by itself once the send is done.
+  ///
+  /// In en, this message translates to:
+  /// **'Close when it finishes'**
+  String get deskBarCloseAfterSend;
+
+  /// Toast after 'Close when it finishes', and the close button's tooltip until then.
+  ///
+  /// In en, this message translates to:
+  /// **'Closes when the send finishes'**
+  String get deskBarClosesAfterSend;
+
+  /// Shown over the window while the app locks the wallet and stops the local node before it closes.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing'**
+  String get deskBarClosing;
+
+  /// Keyboard-shortcuts row: go back one step (Alt+Left).
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get deskBarKeyBack;
+
+  /// Keyboard-shortcuts row: go forward again (Alt+Right).
+  ///
+  /// In en, this message translates to:
+  /// **'Forward'**
+  String get deskBarKeyForward;
+
+  /// Keyboard-shortcuts row: Esc closes the top-most menu or dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Close a menu or dialog'**
+  String get deskBarKeyClose;
+
+  /// Keyboard-shortcuts row: Ctrl+Enter runs the main button of the form being filled in.
+  ///
+  /// In en, this message translates to:
+  /// **'Run a form\'s main action'**
+  String get deskBarKeySubmit;
+
+  /// Keyboard-shortcuts row: the ? key opens this list.
+  ///
+  /// In en, this message translates to:
+  /// **'This list'**
+  String get deskBarKeyList;
 }
 
 class _AppLocalizationsDelegate

@@ -22006,5 +22006,111 @@
   "reqQrWrongReply": "This reply answers a different request. Scan the reply to this one.",
   "@reqQrWrongReply": {
     "description": "Merchant scanned a reply to a different request."
+  },
+  "deskBarMenu": "{app} menu",
+  "@deskBarMenu": {
+    "description": "Screen-reader label of the brand button at the left of the window's title bar, which opens the app menu. {app} is the product name, Epic Cash Desktop.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "deskBarLock": "Lock wallet",
+  "@deskBarLock": {
+    "description": "App menu item (title bar) and keyboard-shortcuts row: lock the open wallet. The shortcut is shown beside it."
+  },
+  "deskBarShortcuts": "Keyboard shortcuts",
+  "@deskBarShortcuts": {
+    "description": "App menu item and the title of the dialog that lists the keyboard shortcuts."
+  },
+  "deskBarAbout": "About {app}",
+  "@deskBarAbout": {
+    "description": "App menu item: opens Settings › About. {app} is the product name, Epic Cash Desktop.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "deskBarQuit": "Quit",
+  "@deskBarQuit": {
+    "description": "App menu item and keyboard-shortcuts row: lock the wallet and close the app."
+  },
+  "deskBarWalletsHere": "Wallets on this computer",
+  "@deskBarWalletsHere": {
+    "description": "Small heading over the list of wallets in the title bar's wallet menu."
+  },
+  "deskBarAddWallet": "Add a wallet",
+  "@deskBarAddWallet": {
+    "description": "Wallet menu item (title bar): opens Settings › All wallets, where a wallet is added."
+  },
+  "deskBarWalletSettings": "Wallet settings",
+  "@deskBarWalletSettings": {
+    "description": "Wallet menu item (title bar): opens the open wallet's settings."
+  },
+  "deskBarStatus": "Connection status",
+  "@deskBarStatus": {
+    "description": "Tooltip of the node / Epicbox / Tor status icons in the title bar; a click lists them."
+  },
+  "deskBarMinimise": "Minimise",
+  "@deskBarMinimise": {
+    "description": "Window button tooltip: minimise the window."
+  },
+  "deskBarMaximise": "Maximise",
+  "@deskBarMaximise": {
+    "description": "Window button tooltip: maximise the window."
+  },
+  "deskBarRestore": "Restore",
+  "@deskBarRestore": {
+    "description": "Window button tooltip on a maximised window: back to its earlier size."
+  },
+  "deskBarClose": "Close",
+  "@deskBarClose": {
+    "description": "Window button tooltip: close the app (the wallet locks first)."
+  },
+  "deskBarSendRunningTitle": "A send is in progress",
+  "@deskBarSendRunningTitle": {
+    "description": "Dialog title when the window is closed (close button, Alt+F4, Quit) while a payment is being sent."
+  },
+  "deskBarSendRunningBody": "Closing now would leave the payment's outcome unknown. The wallet can close by itself once the send has finished.",
+  "@deskBarSendRunningBody": {
+    "description": "Dialog text under 'A send is in progress'. There is deliberately no way to close at once."
+  },
+  "deskBarKeepOpen": "Keep open",
+  "@deskBarKeepOpen": {
+    "description": "Main button of the 'A send is in progress' dialog: do not close."
+  },
+  "deskBarCloseAfterSend": "Close when it finishes",
+  "@deskBarCloseAfterSend": {
+    "description": "Second button of the 'A send is in progress' dialog: close the app by itself once the send is done."
+  },
+  "deskBarClosesAfterSend": "Closes when the send finishes",
+  "@deskBarClosesAfterSend": {
+    "description": "Toast after 'Close when it finishes', and the close button's tooltip until then."
+  },
+  "deskBarClosing": "Closing",
+  "@deskBarClosing": {
+    "description": "Shown over the window while the app locks the wallet and stops the local node before it closes."
+  },
+  "deskBarKeyBack": "Back",
+  "@deskBarKeyBack": {
+    "description": "Keyboard-shortcuts row: go back one step (Alt+Left)."
+  },
+  "deskBarKeyForward": "Forward",
+  "@deskBarKeyForward": {
+    "description": "Keyboard-shortcuts row: go forward again (Alt+Right)."
+  },
+  "deskBarKeyClose": "Close a menu or dialog",
+  "@deskBarKeyClose": {
+    "description": "Keyboard-shortcuts row: Esc closes the top-most menu or dialog."
+  },
+  "deskBarKeySubmit": "Run a form's main action",
+  "@deskBarKeySubmit": {
+    "description": "Keyboard-shortcuts row: Ctrl+Enter runs the main button of the form being filled in."
+  },
+  "deskBarKeyList": "This list",
+  "@deskBarKeyList": {
+    "description": "Keyboard-shortcuts row: the ? key opens this list."
   }
 }

@@ -196,10 +196,13 @@ const Duration railNodeRefresh = Duration(seconds: 60);
 /// The rail: Node, Epicbox, HTTP, Tor, a divider between every two. [horizontal] lays the
 /// compact rows side by side (the phone's top bar).
 class ServiceRows extends ConsumerStatefulWidget {
-  const ServiceRows({super.key, this.compact = false, this.horizontal = false});
+  const ServiceRows({super.key, this.compact = false, this.horizontal = false, this.builder});
 
   final bool compact;
   final bool horizontal;
+
+  /// Lays the rows out another way (the title bar's status); the rows' content stays this one.
+  final Widget Function(BuildContext context, List<RailItem> items)? builder;
 
   @override
   ConsumerState<ServiceRows> createState() => _ServiceRowsState();
@@ -316,6 +319,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       );
     }
     final items = [nodeItem, ...receivingRailItems(l, status, settings)];
+    if (widget.builder != null) return widget.builder!(context, items);
     Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.jump));
     if (widget.horizontal) {
       return Row(mainAxisSize: MainAxisSize.min, children: [for (final i in items) SizedBox(width: Ctl.md, child: row(i))]);

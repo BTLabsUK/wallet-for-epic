@@ -17120,4 +17120,81 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get reqQrWrongReply =>
       'Ta odpowiedź dotyczy innej prośby. Zeskanuj odpowiedź na tę.';
+
+  @override
+  String deskBarMenu(String app) {
+    return 'Menu $app';
+  }
+
+  @override
+  String get deskBarLock => 'Zablokuj portfel';
+
+  @override
+  String get deskBarShortcuts => 'Skróty klawiszowe';
+
+  @override
+  String deskBarAbout(String app) {
+    return 'O aplikacji $app';
+  }
+
+  @override
+  String get deskBarQuit => 'Zakończ';
+
+  @override
+  String get deskBarWalletsHere => 'Portfele na tym komputerze';
+
+  @override
+  String get deskBarAddWallet => 'Dodaj portfel';
+
+  @override
+  String get deskBarWalletSettings => 'Ustawienia portfela';
+
+  @override
+  String get deskBarStatus => 'Stan połączeń';
+
+  @override
+  String get deskBarMinimise => 'Minimalizuj';
+
+  @override
+  String get deskBarMaximise => 'Maksymalizuj';
+
+  @override
+  String get deskBarRestore => 'Przywróć';
+
+  @override
+  String get deskBarClose => 'Zamknij';
+
+  @override
+  String get deskBarSendRunningTitle => 'Trwa wysyłka';
+
+  @override
+  String get deskBarSendRunningBody =>
+      'Zamknięcie teraz zostawiłoby wynik płatności nieznany. Portfel może zamknąć się sam, gdy wysyłka się zakończy.';
+
+  @override
+  String get deskBarKeepOpen => 'Nie zamykaj';
+
+  @override
+  String get deskBarCloseAfterSend => 'Zamknij po zakończeniu';
+
+  @override
+  String get deskBarClosesAfterSend => 'Zamknie się po zakończeniu wysyłki';
+
+  @override
+  String get deskBarClosing => 'Zamykanie';
+
+  @override
+  String get deskBarKeyBack => 'Wstecz';
+
+  @override
+  String get deskBarKeyForward => 'Dalej';
+
+  @override
+  String get deskBarKeyClose => 'Zamknij menu lub okno';
+
+  @override
+  String get deskBarKeySubmit => 'Wykonaj główną akcję formularza';
+
+  @override
+  String get deskBarKeyList => 'Ta lista';
 }

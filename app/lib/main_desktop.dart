@@ -23,7 +23,9 @@ import 'src/btlabs_onions.dart';
 import 'src/builtin_node.dart';
 import 'src/builtin_node_provider.dart';
 import 'src/data_folder.dart';
+import 'src/desktop/app/close_guard.dart' show deskHoldExit;
 import 'src/desktop/app/desk_app.dart';
+import 'src/desktop/app/desk_window.dart';
 import 'src/desktop/app/shell.dart' show deskVersion;
 import 'src/desktop/data/close_down.dart';
 import 'src/desktop/data/desk_node.dart';
@@ -52,7 +54,9 @@ AppLifecycleListener? _exitListener;
 
 Future<void> main() async {
   if (_mock) {
-    runApp(const ProviderScope(child: DeskApp()));
+    WidgetsFlutterBinding.ensureInitialized();
+    final window = await SystemDeskWindow.init();
+    runApp(ProviderScope(overrides: [if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
     WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
     return;
   }
@@ -84,6 +88,9 @@ Future<void> main() async {
       await ready.future;
     }
     final overrides = await deskOverrides();
+    // The app's own title bar from here on (the keyring screen above keeps the system's).
+    final window = await SystemDeskWindow.init();
+    if (window != null) overrides.add(deskWindowProvider.overrideWithValue(window));
     // Wallet errors are final answers (wrong password, node down); do not retry them silently.
     runApp(ProviderScope(retry: (_, _) => null, overrides: overrides, child: const DeskApp()));
   }, (error, stack) => logError('zone', error, stack));
@@ -147,9 +154,11 @@ Future<List<Override>> deskOverrides() async {
   );
   // Off by default (D10): this starts a node only when the user turned it on before.
   unawaited(wallet.resumeBuiltInNode());
-  // Closing the window must not leave the node running.
+  // Closing the window must not leave the node running, nor cut off a send: while one runs
+  // the app stays open and asks (close_guard.dart, the rule of the title bar's close and Ctrl+Q).
   _exitListener = AppLifecycleListener(
     onExitRequested: () async {
+      if (deskHoldExit()) return AppExitResponse.cancel;
       await deskCloseDown(disposeWallet: wallet.dispose, stopNodes: stopAllBuiltInNodes);
       return AppExitResponse.exit;
     },

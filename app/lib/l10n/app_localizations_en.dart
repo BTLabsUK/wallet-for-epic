@@ -16612,4 +16612,81 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reqQrWrongReply =>
       'This reply answers a different request. Scan the reply to this one.';
+
+  @override
+  String deskBarMenu(String app) {
+    return '$app menu';
+  }
+
+  @override
+  String get deskBarLock => 'Lock wallet';
+
+  @override
+  String get deskBarShortcuts => 'Keyboard shortcuts';
+
+  @override
+  String deskBarAbout(String app) {
+    return 'About $app';
+  }
+
+  @override
+  String get deskBarQuit => 'Quit';
+
+  @override
+  String get deskBarWalletsHere => 'Wallets on this computer';
+
+  @override
+  String get deskBarAddWallet => 'Add a wallet';
+
+  @override
+  String get deskBarWalletSettings => 'Wallet settings';
+
+  @override
+  String get deskBarStatus => 'Connection status';
+
+  @override
+  String get deskBarMinimise => 'Minimise';
+
+  @override
+  String get deskBarMaximise => 'Maximise';
+
+  @override
+  String get deskBarRestore => 'Restore';
+
+  @override
+  String get deskBarClose => 'Close';
+
+  @override
+  String get deskBarSendRunningTitle => 'A send is in progress';
+
+  @override
+  String get deskBarSendRunningBody =>
+      'Closing now would leave the payment\'s outcome unknown. The wallet can close by itself once the send has finished.';
+
+  @override
+  String get deskBarKeepOpen => 'Keep open';
+
+  @override
+  String get deskBarCloseAfterSend => 'Close when it finishes';
+
+  @override
+  String get deskBarClosesAfterSend => 'Closes when the send finishes';
+
+  @override
+  String get deskBarClosing => 'Closing';
+
+  @override
+  String get deskBarKeyBack => 'Back';
+
+  @override
+  String get deskBarKeyForward => 'Forward';
+
+  @override
+  String get deskBarKeyClose => 'Close a menu or dialog';
+
+  @override
+  String get deskBarKeySubmit => 'Run a form\'s main action';
+
+  @override
+  String get deskBarKeyList => 'This list';
 }

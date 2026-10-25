@@ -17083,4 +17083,81 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get reqQrWrongReply =>
       'Этот ответ относится к другому запросу. Отсканируйте ответ на этот.';
+
+  @override
+  String deskBarMenu(String app) {
+    return 'Меню $app';
+  }
+
+  @override
+  String get deskBarLock => 'Заблокировать кошелёк';
+
+  @override
+  String get deskBarShortcuts => 'Сочетания клавиш';
+
+  @override
+  String deskBarAbout(String app) {
+    return 'О программе $app';
+  }
+
+  @override
+  String get deskBarQuit => 'Выйти';
+
+  @override
+  String get deskBarWalletsHere => 'Кошельки на этом компьютере';
+
+  @override
+  String get deskBarAddWallet => 'Добавить кошелёк';
+
+  @override
+  String get deskBarWalletSettings => 'Настройки кошелька';
+
+  @override
+  String get deskBarStatus => 'Состояние подключений';
+
+  @override
+  String get deskBarMinimise => 'Свернуть';
+
+  @override
+  String get deskBarMaximise => 'Развернуть';
+
+  @override
+  String get deskBarRestore => 'Восстановить';
+
+  @override
+  String get deskBarClose => 'Закрыть';
+
+  @override
+  String get deskBarSendRunningTitle => 'Идёт отправка';
+
+  @override
+  String get deskBarSendRunningBody =>
+      'Если закрыть сейчас, исход платежа останется неизвестным. Кошелёк может закрыться сам, когда отправка завершится.';
+
+  @override
+  String get deskBarKeepOpen => 'Не закрывать';
+
+  @override
+  String get deskBarCloseAfterSend => 'Закрыть после отправки';
+
+  @override
+  String get deskBarClosesAfterSend => 'Закроется после отправки';
+
+  @override
+  String get deskBarClosing => 'Закрытие';
+
+  @override
+  String get deskBarKeyBack => 'Назад';
+
+  @override
+  String get deskBarKeyForward => 'Вперёд';
+
+  @override
+  String get deskBarKeyClose => 'Закрыть меню или окно';
+
+  @override
+  String get deskBarKeySubmit => 'Выполнить основное действие формы';
+
+  @override
+  String get deskBarKeyList => 'Этот список';
 }

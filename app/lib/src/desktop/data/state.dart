@@ -401,18 +401,11 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(nodes: nodes);
   }
 
-  /// Sends in flight: Quit waits for them.
-  int get sending => _sending;
-  int _sending = 0;
+  /// Sends in flight: closing the app waits for them ([deskSendingProvider]).
+  int get sending => ref.read(deskSendingProvider);
 
   Future<SendResult> send(SendRequest r) async {
-    _sending++;
-    final SendResult result;
-    try {
-      result = await api.send(r);
-    } finally {
-      _sending--;
-    }
+    final result = await ref.read(deskSendingProvider.notifier).during(() => api.send(r));
     // The lists catch up; a failure here does not change what happened to the payment.
     try {
       final txs = await api.transactions();
@@ -524,6 +517,24 @@ class DeskClosed extends Notifier<String?> {
 }
 
 final deskClosedProvider = NotifierProvider<DeskClosed, String?>(DeskClosed.new);
+
+/// Payments on their way out of this wallet (Send, paying an invoice): closing waits for them.
+class DeskSending extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  /// Runs [send], counted while it runs.
+  Future<T> during<T>(Future<T> Function() send) async {
+    state++;
+    try {
+      return await send();
+    } finally {
+      state--;
+    }
+  }
+}
+
+final deskSendingProvider = NotifierProvider<DeskSending, int>(DeskSending.new);
 
 /// Ends the app (Ctrl+Q) after the wallet is locked; null in the mock, which only locks.
 final deskQuitProvider = Provider<Future<void> Function()?>((ref) => null);
