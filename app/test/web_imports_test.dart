@@ -73,6 +73,10 @@ void main() {
       // reaches them, and it never runs there (http.dart takes http_web.dart).
       'lib/src/net/tor_net.dart',
       'lib/src/net/socks.dart',
+      // Platform.isAndroid behind !kIsWeb: the web keeps the bundled Thai fallback.
+      'lib/src/ui/theme/fonts.dart',
+      // The phone's LAN listener reads its interfaces behind kIsWeb; the web has no listener.
+      'lib/src/phone_http.dart',
     };
     final withIo = {
       for (final MapEntry(key: file, value: uris) in _webGraph().entries)
