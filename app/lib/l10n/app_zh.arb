@@ -4211,7 +4211,7 @@
   "contactsImportOtherNet": "{count, plural, other{跳过 {count} 个：其他网络的地址}}",
   "contactsImportKeeps": "已保存的联系人不会被更改。",
   "contactsImportDo": "导入",
-  "contactsImportNothing": "没有可导入的内容。这些联系人都已存在。",
+  "contactsImportNothing": "没有可导入的内容。",
   "contactsImported": "{added, plural, other{已添加 {added} 个联系人}}，{same, plural, other{{same} 个已存在}}",
   "contactsImportedAdded": "{added, plural, other{已添加 {added} 个联系人}}",
   "contactsImportNotFile": "该文件不是联系人文件。",

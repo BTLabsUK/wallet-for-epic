@@ -4211,7 +4211,7 @@
   "contactsImportOtherNet": "{count, plural, other{ข้าม {count} ราย: ที่อยู่ของเครือข่ายอื่น}}",
   "contactsImportKeeps": "ผู้ติดต่อที่บันทึกไว้จะไม่ถูกเปลี่ยน",
   "contactsImportDo": "นำเข้า",
-  "contactsImportNothing": "ไม่มีอะไรให้นำเข้า ผู้ติดต่อเหล่านี้มีอยู่แล้วทั้งหมด",
+  "contactsImportNothing": "ไม่มีอะไรให้นำเข้า",
   "contactsImported": "{added, plural, other{เพิ่มผู้ติดต่อ {added} ราย}} {same, plural, other{มีอยู่แล้ว {same} ราย}}",
   "contactsImportedAdded": "{added, plural, other{เพิ่มผู้ติดต่อ {added} รายแล้ว}}",
   "contactsImportNotFile": "ไฟล์นี้ไม่ใช่ไฟล์ผู้ติดต่อ",

@@ -169,7 +169,7 @@ ContactsFile readContactsFile(List<int> bytes) {
 
 /// What an import does, with the counts the confirm sheet shows.
 class ContactsImportPlan {
-  ContactsImportPlan(this._plan, {required this.otherNetwork, required this.leftOut});
+  ContactsImportPlan(this._plan, {required this.otherNetwork, required this.leftOut, this.savedAsIs = 0});
 
   final GuiContactPlan _plan;
 
@@ -180,7 +180,12 @@ class ContactsImportPlan {
   List<ContactFields> get update => _plan.update;
 
   /// Contacts already here, with nothing to add.
-  int get same => _plan.alreadySaved;
+  int get same => _plan.alreadySaved + savedAsIs;
+
+  /// Contacts whose address this wallet cannot send to but that the book already holds as
+  /// they are (another network's address saved from the shared book): already here, not left
+  /// out.
+  final int savedAsIs;
 
   /// Contacts with no address this wallet can send to.
   final int leftOut;
@@ -204,15 +209,33 @@ ContactsImportPlan planContactsFile(
   required bool Function(String epicbox) otherChain,
 }) {
   if (file.network != null && file.network != network) throw const ContactsFileError(ContactsFileProblem.otherNetwork);
+  // The shared book holds every network's contacts, so a row this wallet cannot send to may
+  // already be saved exactly as it is: that one is already here, not left out.
+  final savedAddresses = {
+    for (final c in saved)
+      for (final a in [c.epicbox, c.http, c.tor])
+        if (a != null) a.trim().toLowerCase(),
+  };
   var otherNetwork = 0;
+  var savedAsIs = 0;
   for (final row in file.rows) {
     if (guiContactAddresses(row, checks).byKind.isNotEmpty) continue;
+    final raw = [row.externalOne, row.externalTwo, row.onion].whereType<String>().map((a) => a.trim().toLowerCase());
+    if (raw.isNotEmpty && raw.every(savedAddresses.contains)) {
+      savedAsIs++;
+      continue;
+    }
     final epicbox = row.externalOne;
     if (epicbox != null && parseRecipient(epicbox).kind == RecipientKind.epicbox && otherChain(epicbox)) otherNetwork++;
   }
   if (otherNetwork == file.rows.length) throw const ContactsFileError(ContactsFileProblem.otherNetwork);
   final plan = planGuiContacts(file.rows, saved, checks);
-  return ContactsImportPlan(plan, otherNetwork: otherNetwork, leftOut: plan.skippedNoAddress - otherNetwork);
+  return ContactsImportPlan(
+    plan,
+    otherNetwork: otherNetwork,
+    savedAsIs: savedAsIs,
+    leftOut: plan.skippedNoAddress - otherNetwork - savedAsIs,
+  );
 }
 
 /// Saves [plan] through [save]: the new contacts (empty id), then the saved ones that gain a

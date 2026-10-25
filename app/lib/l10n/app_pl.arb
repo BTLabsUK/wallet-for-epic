@@ -4211,7 +4211,7 @@
   "contactsImportOtherNet": "{count, plural, one{Pominięto {count}: adres innej sieci} few{Pominięto {count}: adresy innej sieci} many{Pominięto {count}: adresy innej sieci} other{Pominięto {count}: adresy innej sieci}}",
   "contactsImportKeeps": "Zapisane kontakty pozostają bez zmian.",
   "contactsImportDo": "Importuj",
-  "contactsImportNothing": "Nie ma czego importować. Wszystkie te kontakty są już zapisane.",
+  "contactsImportNothing": "Nie ma czego importować.",
   "contactsImported": "{added, plural, one{Dodano {added} kontakt} few{Dodano {added} kontakty} many{Dodano {added} kontaktów} other{Dodano {added} kontaktu}}, {same, plural, one{{same} już był} few{{same} już były} many{{same} już było} other{{same} już było}}",
   "contactsImportedAdded": "{added, plural, one{Dodano {added} kontakt} few{Dodano {added} kontakty} many{Dodano {added} kontaktów} other{Dodano {added} kontaktu}}",
   "contactsImportNotFile": "Ten plik nie jest plikiem kontaktów.",

@@ -107,6 +107,23 @@ void main() {
     expect((plan.leftOut, plan.otherNetwork), (2, 1));
   });
 
+  test("another network's contact the shared book holds as it is: already here, not left out", () {
+    final saved = [ContactFields(id: 'f', name: 'F', epicbox: _floonet)];
+    final file = _file({
+      'version': 1,
+      'contacts': [
+        {'id': 'f', 'name': 'F', 'epicbox': _floonet},
+        {'id': 'g', 'name': 'Good', 'epicbox': _anna},
+      ],
+    });
+    final plan = _plan(file, saved);
+    expect(plan.add.single.name, 'Good');
+    expect((plan.same, plan.leftOut, plan.otherNetwork), (1, 0, 0));
+    // Only that one in the file: nothing to import, and it is not refused as another network.
+    final only = _plan(_file({'version': 1, 'contacts': [{'id': 'f', 'name': 'F', 'epicbox': _floonet}]}), saved);
+    expect((only.hasChanges, only.same, only.leftOut, only.otherNetwork), (false, 1, 0, 0));
+  });
+
   test('a floonet book on mainnet is refused as another network', () {
     final floonet = utf8.encode(
       encodeContactsFile([ContactFields(id: 'f', name: 'F', epicbox: _floonet)], network: 'floonet', now: DateTime(2026)),

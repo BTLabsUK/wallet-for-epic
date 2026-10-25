@@ -4211,7 +4211,7 @@
   "contactsImportOtherNet": "{count, plural, one{Пропущен {count}: адрес другой сети} few{Пропущено {count}: адреса другой сети} many{Пропущено {count}: адреса другой сети} other{Пропущено {count}: адреса другой сети}}",
   "contactsImportKeeps": "Сохранённые контакты не меняются.",
   "contactsImportDo": "Импортировать",
-  "contactsImportNothing": "Импортировать нечего. Все эти контакты уже сохранены.",
+  "contactsImportNothing": "Импортировать нечего.",
   "contactsImported": "{added, plural, one{Добавлен {added} контакт} few{Добавлено {added} контакта} many{Добавлено {added} контактов} other{Добавлено {added} контакта}}, {same, plural, one{{same} уже был} few{{same} уже были} many{{same} уже были} other{{same} уже были}}",
   "contactsImportedAdded": "{added, plural, one{Добавлен {added} контакт} few{Добавлено {added} контакта} many{Добавлено {added} контактов} other{Добавлено {added} контакта}}",
   "contactsImportNotFile": "Этот файл не является файлом контактов.",

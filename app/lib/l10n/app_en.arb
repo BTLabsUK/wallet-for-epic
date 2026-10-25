@@ -21192,9 +21192,9 @@
   "@contactsImportDo": {
     "description": "Button on the import confirm that saves the contacts."
   },
-  "contactsImportNothing": "Nothing to import. These contacts are all here already.",
+  "contactsImportNothing": "Nothing to import.",
   "@contactsImportNothing": {
-    "description": "Import confirm, when every contact in the file is already here: nothing to import."
+    "description": "Import confirm, when the file adds nothing; the lines under it say what is already here or left out."
   },
   "contactsImported": "{added, plural, =1{1 contact added} other{{added} contacts added}}, {same, plural, =1{1 already there} other{{same} already there}}",
   "@contactsImported": {
