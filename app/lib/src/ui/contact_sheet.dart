@@ -32,7 +32,7 @@ String contactInitials(String name) {
   return words.first.characters.take(2).toString().toUpperCase();
 }
 
-/// How the app reaches [address]: `Epicbox`, `Link Payment · HTTP` for an http(s) address, `Link ·
+/// How the app reaches [address]: `Epicbox`, `Link · HTTP` for an http(s) address, `Link ·
 /// Tor` for an onion address.
 String contactTag(AppLocalizations l, String address) =>
     recipientMethodWord(l, parseRecipient(address).kind);
@@ -62,7 +62,7 @@ class ContactTile extends StatelessWidget {
   }
 }
 
-/// The kind of [address] as a badge: Epicbox, Link Payment · HTTP or Link Payment · Tor.
+/// The kind of [address] as a badge: Epicbox, Link · HTTP or Link · Tor.
 class ContactTag extends StatelessWidget {
   const ContactTag(this.address, {super.key, this.compact = false});
 
