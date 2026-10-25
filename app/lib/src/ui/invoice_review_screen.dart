@@ -336,10 +336,13 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
                           children: [const SealedBadge(), TrustBadge(pairing), if (claimed) const ClaimedNameBadge()],
                         ),
                       ),
-                    Text(
-                      _shortKey(_invoice.senderAddress),
-                      style: mono.copyWith(color: t.dim),
-                    ),
+                    // A contact's request names the contact; its mailbox is never shown as an
+                    // address (RFC C-21).
+                    if (pairing == null)
+                      Text(
+                        _shortKey(_invoice.senderAddress),
+                        style: mono.copyWith(color: t.dim),
+                      ),
                   ],
                 ),
               ),
@@ -360,10 +363,11 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
           if (message != null)
             // Hostile text: plain, its controls and line breaks gone, never a link.
             _Fact(label: l.invoicesMessage, child: Text(message, maxLines: 3)),
-          _Fact(
-            label: l.invoicesFrom,
-            child: _AddressText(_invoice.senderAddress, style: mono),
-          ),
+          if (pairing == null)
+            _Fact(
+              label: l.invoicesFrom,
+              child: _AddressText(_invoice.senderAddress, style: mono),
+            ),
           if (unsent == null)
             _Fact(
               label: l.invoicesPaysFrom,

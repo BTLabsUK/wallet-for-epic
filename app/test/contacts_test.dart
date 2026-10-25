@@ -175,9 +175,9 @@ void main() {
       expect(find.text('BB'), findsOneWidget);
       expect(find.text('AL'), findsOneWidget);
       // List rows show the method glyph alone; its name is the tooltip and the semantics.
-      expect(find.byIcon(EpicGlyphs.epicbox), findsNWidgets(2));
-      expect(find.byIcon(EpicGlyphs.tor), findsOneWidget);
-      expect(find.byTooltip('Link · Tor'), findsOneWidget);
+      // Not paired: no badge after the name, the address says how it is reached.
+      expect(find.byIcon(EpicGlyphs.epicbox), findsNothing);
+      expect(find.byIcon(EpicGlyphs.tor), findsNothing);
       expect(find.text('Epicbox'), findsNothing);
       expect(
         find.textContaining(

@@ -380,10 +380,9 @@ class _ContactRow extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        if (pairing != null)
-                          Flexible(child: TrustBadge(pairing, short: true))
-                        else if (!several && contact.addresses.isNotEmpty)
-                          Flexible(child: ContactTag(contact.address, compact: true)),
+                        // Paired: its trust badge; not paired: nothing (the line under it says how
+                        // it is reached).
+                        if (pairing != null) Flexible(child: TrustBadge(pairing, short: true)),
                       ],
                     ),
                     const SizedBox(height: 2),

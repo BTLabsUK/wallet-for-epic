@@ -164,24 +164,29 @@ class _Review extends ConsumerWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Flexible(
-                    // Plain text, not EShortAddress: its LayoutBuilder has no intrinsic size, and
-                    // the panel sits in an IntrinsicHeight row.
-                    child: Tooltip(
-                      message: i.senderAddress,
-                      child: Semantics(
-                        label: i.senderAddress,
-                        excludeSemantics: true,
-                        child: Text(shortAddress(i.senderAddress, compact: true), style: ts.mono(size: Fs.sm), maxLines: 1, overflow: TextOverflow.ellipsis),
+              // A contact's request names the contact: its mailbox is never shown as an address
+              // (RFC C-21).
+              if (pairing != null)
+                Text(i.label, style: ts.body, maxLines: 1, overflow: TextOverflow.ellipsis)
+              else
+                Row(
+                  children: [
+                    Flexible(
+                      // Plain text, not EShortAddress: its LayoutBuilder has no intrinsic size, and
+                      // the panel sits in an IntrinsicHeight row.
+                      child: Tooltip(
+                        message: i.senderAddress,
+                        child: Semantics(
+                          label: i.senderAddress,
+                          excludeSemantics: true,
+                          child: Text(shortAddress(i.senderAddress, compact: true), style: ts.mono(size: Fs.sm), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: Sp.x2),
-                  ECopyButton(text: i.senderAddress, label: l.deskInvPayerPaysTo),
-                ],
-              ),
+                    SizedBox(width: Sp.x2),
+                    ECopyButton(text: i.senderAddress, label: l.deskInvPayerPaysTo),
+                  ],
+                ),
               // Sealed: it came through the contact's mailbox, sealed and signed by it.
               Wrap(
                 spacing: Sp.x2,

@@ -68,19 +68,6 @@ class ContactTile extends StatelessWidget {
   }
 }
 
-/// The kind of [address] as a badge: Epicbox, Link Payment · HTTP or Link Payment · Tor.
-class ContactTag extends StatelessWidget {
-  const ContactTag(this.address, {super.key, this.compact = false});
-
-  final String address;
-
-  /// The glyph alone, its name in the tooltip: list rows.
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) => EBadge.kind(parseRecipient(address).kind, l: context.l10n, compact: compact);
-}
-
 /// Opens the page of [contact].
 Future<void> openContactPage(BuildContext context, Contact contact) => Navigator.of(context).push<void>(
   MaterialPageRoute<void>(builder: (_) => ContactPage(contactId: contact.id, initial: contact)),
