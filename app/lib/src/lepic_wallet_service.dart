@@ -463,7 +463,7 @@ SlateInfo lepicSlateInfo(lepic.SlateInfo info) => SlateInfo(
 );
 
 /// A contact's waiting invoice as the app's (RFC 11): no address, the contact's pairing, its
-/// reference; LEPIC keeps no message for it.
+/// reference and the issuer's message, which LEPIC passes only when its signature verifies.
 PendingInvoice lepicContactInvoice(lepic.ContactInvoiceView i) {
   final received = DateTime.fromMillisecondsSinceEpoch(i.receivedAtMs.toInt());
   final expires = i.expires;
@@ -475,6 +475,7 @@ PendingInvoice lepicContactInvoice(lepic.ContactInvoiceView i) {
     expiresAt: expires == null ? received.add(invoiceExpiry) : DateTime.fromMillisecondsSinceEpoch(expires.toInt() * 1000),
     pairingId: i.contactId,
     reference: i.reference,
+    message: i.message,
   );
 }
 

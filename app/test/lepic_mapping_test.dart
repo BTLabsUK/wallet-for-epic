@@ -925,4 +925,17 @@ void main() {
       ]);
     });
   });
+
+  test("a contact's invoice keeps the issuer's message LEPIC verified", () {
+    final view = lepic.ContactInvoiceView(
+      slateId: 's1',
+      contactId: 'c1',
+      amount: BigInt.from(5),
+      message: 'for order 1',
+      receivedAtMs: 0,
+      sameAmount: const [],
+    );
+    expect(lepicContactInvoice(view).message, 'for order 1');
+    expect(lepicContactInvoice(lepic.ContactInvoiceView(slateId: 's2', contactId: 'c1', amount: BigInt.one, receivedAtMs: 0, sameAmount: const [])).message, isNull);
+  });
 }

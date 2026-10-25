@@ -497,6 +497,8 @@ void main() {
       final shown = tester.widget<Text>(find.text(line));
       expect(shown.data, isNot(contains('\n')));
       expect(shown.maxLines, 3);
+      // Attributed to its author, never shown as the wallet's own words.
+      expect(find.text(_l.deskInvPayerMessageCaption('My Exchange')), findsOneWidget);
       // Plain text: no link, no gesture on it.
       expect(shown.textSpan, isNull);
       expect(

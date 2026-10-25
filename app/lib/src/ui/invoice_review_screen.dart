@@ -362,7 +362,20 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
             _Fact(label: l.reqReference, child: Text(reference, maxLines: 2)),
           if (message != null)
             // Hostile text: plain, its controls and line breaks gone, never a link.
-            _Fact(label: l.invoicesMessage, child: Text(message, maxLines: 3)),
+            _Fact(
+              label: l.invoicesMessage,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(message, maxLines: 3, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
+                  Text(
+                    l.deskInvPayerMessageCaption(service),
+                    style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+                  ),
+                ],
+              ),
+            ),
           if (pairing == null)
             _Fact(
               label: l.invoicesFrom,
