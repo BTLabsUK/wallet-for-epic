@@ -431,11 +431,14 @@ class _AddressField {
 /// adds a field while a kind is free, and a second address of a kind asks which to keep. Pops
 /// with the saved contact.
 class ContactEditScreen extends ConsumerStatefulWidget {
-  const ContactEditScreen({super.key, this.address, this.contact, this.name});
+  const ContactEditScreen({super.key, this.address, this.contact, this.name, this.addressOptional = false});
 
   final String? address;
   final Contact? contact;
   final String? name;
+
+  /// Saved for a pairing, which pays the contact: an address may be added, never needed.
+  final bool addressOptional;
 
   @override
   ConsumerState<ContactEditScreen> createState() => _ContactEditScreenState();
@@ -552,7 +555,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
         final text = f.text.text.trim();
         f.error = text.isEmpty ? null : checkContactAddress(l, service, text);
       }
-      if (_fields.every((f) => f.text.text.trim().isEmpty)) _fields.first.error = l.contactsAddressMissing;
+      if (!widget.addressOptional && _fields.every((f) => f.text.text.trim().isEmpty)) _fields.first.error = l.contactsAddressMissing;
       _error = null;
     });
     if (_nameError != null || _fields.any((f) => f.error != null || f.clash != null)) return;

@@ -53,10 +53,19 @@ void main() {
     expect(again.contactsAdded, 0);
   });
 
-  test('a contact needs an address of some kind', () async {
+  test('a contact needs a name; one without an address is a pairing\'s, kept by its id', () async {
     expect(
-      () => WalletHistory.memory().saveContact(Contact(id: '', name: 'Nobody')),
+      () => WalletHistory.memory().saveContact(Contact(id: '', name: ' ')),
       throwsA(anything),
     );
+    final history = WalletHistory.memory();
+    final paired = await history.saveContact(Contact(id: '', name: 'Northwind'));
+    expect(paired.addresses, isEmpty);
+    final payload = history.exportPayload(const [], walletFp: 'fp', appVersion: 't');
+    final other = WalletHistory.memory();
+    expect((await other.importPayload(payload, const [], walletFp: 'fp')).contactsAdded, 1);
+    // The pairing names the contact by its id: restored under it, and only once.
+    expect(other.contacts().single.id, paired.id);
+    expect((await other.importPayload(payload, const [], walletFp: 'fp')).contactsAdded, 0);
   });
 }

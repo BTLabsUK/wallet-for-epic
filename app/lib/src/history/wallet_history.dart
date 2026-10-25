@@ -224,9 +224,7 @@ class WalletHistory {
     final http = _trimmed(contact.http);
     final tor = _trimmed(contact.tor);
     if (name.isEmpty) throw _invalid('the contact needs a name');
-    if (epicbox == null && http == null && tor == null) {
-      throw _invalid('the contact needs an address');
-    }
+    // No address: a contact a pairing pays (RFC 0002, the mailbox is never an address).
     // Whether an address is valid is each screen's check, with the core's validators. Nothing
     // here reaches out.
     final isNew = contact.id.trim().isEmpty;
@@ -390,7 +388,9 @@ class WalletHistory {
         final theirs = {
           for (final a in [c.epicbox, c.http, c.tor]) ?_trimmed(a),
         };
-        if (theirs.isEmpty || c.name.trim().isEmpty) continue;
+        if (c.name.trim().isEmpty) continue;
+        // Without an address, the contact of a pairing: its id is what the pairing names.
+        if (theirs.isEmpty && (c.id.isEmpty || list.any((e) => e.id == c.id))) continue;
         if (list.any((e) => e.addresses.any((a) => theirs.contains(a.trim())))) continue;
         final id = c.id.isEmpty || list.any((e) => e.id == c.id) ? _randomHex(16) : c.id;
         list.add(
@@ -612,6 +612,8 @@ class WalletHistory {
       )) {
         continue;
       }
+      // Without an address, the contact of a pairing: its id is what the pairing names.
+      if (theirs.isEmpty && (c.id.isEmpty || m.contacts.any((e) => e.id == c.id))) continue;
       final id = c.id.isEmpty || m.contacts.any((e) => e.id == c.id)
           ? _randomHex(16)
           : c.id;

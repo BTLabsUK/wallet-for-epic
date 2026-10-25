@@ -43,7 +43,10 @@ void main() {
       expect(s.list().last.tor, 'x.onion');
       await expectLater(s.save(const ContactFields(id: 'gone', name: 'X', epicbox: _a)), throwsA(isA<WalletError>()));
       await expectLater(s.save(const ContactFields(name: '  ', epicbox: _a)), throwsA(isA<WalletError>()));
-      await expectLater(s.save(const ContactFields(name: 'No address')), throwsA(isA<WalletError>()));
+      // No address: a contact a pairing pays.
+      final paired = await s.save(const ContactFields(name: 'No address'));
+      expect(paired.addresses, isEmpty);
+      await s.delete(paired.id);
       await s.delete(bob.id);
       expect([for (final c in s.list()) c.name], ['Alice']);
     });

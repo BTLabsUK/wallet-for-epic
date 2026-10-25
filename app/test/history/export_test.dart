@@ -273,12 +273,10 @@ void main() {
           ),
           _invalid('the contact needs a name'),
         );
-        expect(
-          () => history.saveContact(
-            Contact(id: '', name: 'n', address: ''),
-          ),
-          _invalid('the contact needs an address'),
-        );
+        // No address: a contact a pairing pays.
+        final paired = await history.saveContact(Contact(id: '', name: 'n', address: ''));
+        expect(paired.addresses, isEmpty);
+        await history.deleteContact(paired.id);
         await history.deleteContact(bob.id);
         expect(history.contacts().map((c) => c.name), ['Alice']);
       },

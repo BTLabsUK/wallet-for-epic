@@ -60,9 +60,10 @@ Future<bool> confirmRemovePairing(BuildContext context, String name) async {
 const Key confirmRemovePairingKey = ValueKey('confirm-remove-pairing');
 
 /// Save as a new contact: the form with the name the pairing claims and its card's payments
-/// address, for the user to check. The contact saved, or null.
+/// address, when it shows one, for the user to check. The pairing pays the contact, so no
+/// address is needed. The contact saved, or null.
 Future<Contact?> savePairingAsNewContact(BuildContext context, PairingRecord r) => Navigator.of(context).push<Contact>(
-  MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: r.name, address: r.paymentsAddress)),
+  MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: r.name, address: r.paymentsAddress, addressOptional: true)),
 );
 
 /// Add to a contact: the user picks one of theirs; nothing is matched by name or address.

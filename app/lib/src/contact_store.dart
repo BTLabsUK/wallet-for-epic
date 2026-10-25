@@ -164,7 +164,8 @@ class ContactStore {
   /// Every contact, sorted by name.
   List<ContactFields> list() => [..._contacts]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
-  /// Adds (empty id) or replaces a contact. Needs a name and an address.
+  /// Adds (empty id) or replaces a contact. Needs a name; a contact without an address is one
+  /// a pairing pays (RFC 0002: the pairing's mailbox is never shown as an address).
   Future<ContactFields> save(ContactFields contact) async {
     final c = _clean(contact);
     final saved = c.id.isEmpty ? c.copyWith(id: _randomHex(16)) : c;
@@ -202,9 +203,7 @@ class ContactStore {
     String? t(String? s) => s == null || s.trim().isEmpty ? null : s.trim();
     final name = t(c.name);
     if (name == null) throw _invalid('the contact needs a name');
-    final out = ContactFields(id: c.id.trim(), name: name, epicbox: t(c.epicbox), http: t(c.http), tor: t(c.tor), note: t(c.note));
-    if (out.addresses.isEmpty) throw _invalid('the contact needs an address');
-    return out;
+    return ContactFields(id: c.id.trim(), name: name, epicbox: t(c.epicbox), http: t(c.http), tor: t(c.tor), note: t(c.note));
   }
 
   /// Applies [change] to a copy and persists it; the contacts change only if the write
