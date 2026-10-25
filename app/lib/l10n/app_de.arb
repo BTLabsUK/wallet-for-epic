@@ -4017,6 +4017,7 @@
   "reqSealedSigned": "Für diese Wallet versiegelt und von {name} signiert",
   "reqReference": "Referenz",
   "reqPaidWaiting": "Bezahlt. Warten, bis {name} veröffentlicht",
+  "reqPaidWaitingBodyPerson": "Ihr Teil ist erledigt. Die Wallet der anderen Seite schließt ab und veröffentlicht; dies erledigt sich von selbst.",
   "reqPaidWaitingBody": "Ihr Teil ist erledigt. Die Börse schließt ab und veröffentlicht; dies erledigt sich von selbst.",
   "reqTlPaid": "Bezahlt",
   "reqTlDelivered": "An das Relay von {name} zugestellt",

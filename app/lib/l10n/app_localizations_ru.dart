@@ -15587,6 +15587,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get reqPaidWaitingBodyPerson =>
+      'Ваша часть выполнена. Кошелёк другой стороны завершает и публикует; это закроется само.';
+
+  @override
   String get reqPaidWaitingBody =>
       'Ваша часть выполнена. Биржа завершает и публикует; это закроется само.';
 

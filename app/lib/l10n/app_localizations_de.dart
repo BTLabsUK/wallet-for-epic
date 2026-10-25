@@ -15348,6 +15348,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get reqPaidWaitingBodyPerson =>
+      'Ihr Teil ist erledigt. Die Wallet der anderen Seite schließt ab und veröffentlicht; dies erledigt sich von selbst.';
+
+  @override
   String get reqPaidWaitingBody =>
       'Ihr Teil ist erledigt. Die Börse schließt ab und veröffentlicht; dies erledigt sich von selbst.';
 

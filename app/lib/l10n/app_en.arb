@@ -20035,6 +20035,10 @@
       }
     }
   },
+  "reqPaidWaitingBodyPerson": "Your part is done. Their wallet finalizes and posts it; this closes on its own.",
+  "@reqPaidWaitingBodyPerson": {
+    "description": "reqPaidWaitingBody for a request from a paired person rather than an exchange or shop: their wallet, not an exchange, finalizes and posts."
+  },
   "reqPaidWaitingBody": "Your part is done. The exchange finalizes and posts; this closes on its own.",
   "@reqPaidWaitingBody": {
     "description": "Edge card body."

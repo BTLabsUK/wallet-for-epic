@@ -23984,6 +23984,12 @@ abstract class AppLocalizations {
   /// **'Paid. Waiting for {name} to post'**
   String reqPaidWaiting(String name);
 
+  /// reqPaidWaitingBody for a request from a paired person rather than an exchange or shop: their wallet, not an exchange, finalizes and posts.
+  ///
+  /// In en, this message translates to:
+  /// **'Your part is done. Their wallet finalizes and posts it; this closes on its own.'**
+  String get reqPaidWaitingBodyPerson;
+
   /// Edge card body.
   ///
   /// In en, this message translates to:

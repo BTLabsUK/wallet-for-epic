@@ -14368,6 +14368,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get reqPaidWaitingBodyPerson => '你的部分已完成。对方的钱包会完成并发布；此项会自动关闭。';
+
+  @override
   String get reqPaidWaitingBody => '你的部分已完成。交易所会完成并发布；此项会自动关闭。';
 
   @override

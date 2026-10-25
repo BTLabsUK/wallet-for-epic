@@ -4017,6 +4017,7 @@
   "reqSealedSigned": "为此钱包密封并由 {name} 签名",
   "reqReference": "参考号",
   "reqPaidWaiting": "已付款。等待 {name} 发布",
+  "reqPaidWaitingBodyPerson": "你的部分已完成。对方的钱包会完成并发布；此项会自动关闭。",
   "reqPaidWaitingBody": "你的部分已完成。交易所会完成并发布；此项会自动关闭。",
   "reqTlPaid": "已付款",
   "reqTlDelivered": "已送达 {name} 的中继",

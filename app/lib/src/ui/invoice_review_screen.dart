@@ -826,7 +826,14 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
           if (paid.pairingId != null) ...[
             const SizedBox(height: 12),
             if (paid.status == InvoiceStatus.replied && txConfirmations(widget.tx, tip) == null) ...[
-              PairEdgeNotice(tone: BadgeTone.info, title: l.reqPaidWaiting(service), body: l.reqPaidWaitingBody),
+              PairEdgeNotice(
+                tone: BadgeTone.info,
+                title: l.reqPaidWaiting(service),
+                // A person's wallet posts it, not "the exchange" (PAIR-AND-4).
+                body: (ref.watch(pairingByIdProvider(paid.pairingId!))?.kind ?? PairingParty.exchange) == PairingParty.person
+                    ? l.reqPaidWaitingBodyPerson
+                    : l.reqPaidWaitingBody,
+              ),
               const SizedBox(height: 12),
             ],
             RequestTimeline(paid: paid, tx: widget.tx, name: service, tip: tip, target: confirmationsTargetOf(ref)),

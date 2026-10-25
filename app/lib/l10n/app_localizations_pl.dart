@@ -15625,6 +15625,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get reqPaidWaitingBodyPerson =>
+      'Twoja część jest skończona. Portfel drugiej strony finalizuje i publikuje; to zamknie się samo.';
+
+  @override
   String get reqPaidWaitingBody =>
       'Twoja część jest skończona. Giełda finalizuje i publikuje; to zamknie się samo.';
 

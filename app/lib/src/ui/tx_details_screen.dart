@@ -560,8 +560,21 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
 
     // A withdrawal from a paired exchange has its own steps (WithdrawalBlock).
     final withdrawal = withdrawalOf(ref, tx);
+    // An invoice this payment paid (PaidInvoiceBlock): a paired contact's has its own card and
+    // steps (SPEC 2.8), so the card here keeps only what the user can do (PAIR-AND-4).
+    final paidInvoice = switch (tx.slateId) {
+      final slate? => ref.watch(paidInvoiceProvider(slate)).value,
+      null => null,
+    };
+    final ownSteps = withdrawal != null || paidInvoice?.pairingId != null;
+    // LEPIC never releases an invoice payment early: Cancel comes once its time runs out, as
+    // the Invoice block says; a withdrawn one offers Cancel there.
+    final invoiceHold = paidInvoice != null &&
+        (paidInvoice.status == InvoiceStatus.withdrawn ||
+            now.difference(DateTime.fromMillisecondsSinceEpoch(tx.createdAtUnix * 1000)) < invoiceExpiry);
+    final cancel = tx.cancellable && tx.id != null && !issued && !invoiceHold;
     // What the status card offers beside the status.
-    final actions = stuck || (tx.undelivered && tx.transport == 'epicbox') || tx.releasable || (tx.cancellable && tx.id != null && !issued);
+    final actions = stuck || (tx.undelivered && tx.transport == 'epicbox') || tx.releasable || cancel;
     return SlotScaffold(
       appBar: AppBar(
         title: Text(switch (withdrawal) {
@@ -604,7 +617,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           ),
           // A withdrawal's own block below says where it stands: the card keeps only what
           // the user can do about it (Cancel, Send again, Release).
-          if (withdrawal == null || actions) ...[
+          if (!ownSteps || actions) ...[
             const SizedBox(height: 16),
             Card(
             child: Padding(
@@ -612,7 +625,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (withdrawal == null) ...[
+                  if (!ownSteps) ...[
                     TxStatusChip(tx: tx, tip: tip),
                     const SizedBox(height: 8),
                     Text(txExplanation(l, tx, tip, now: now, target: target)),
@@ -664,7 +677,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   ],
                   // A request this wallet sent is withdrawn in its own block, which keeps
                   // its state; a plain cancel would not.
-                  if (tx.cancellable && tx.id != null && !issued) ...[
+                  if (cancel) ...[
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,

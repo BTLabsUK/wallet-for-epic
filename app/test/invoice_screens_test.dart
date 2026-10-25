@@ -737,6 +737,21 @@ void main() {
       tall: true,
     );
 
+    testWidgets('a paired person\'s request just paid: its own card and steps, no generic Waiting card, no Cancel yet (PAIR-AND-4)', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(name: 'Floo C', kind: PairingParty.person, allowInvoices: true, paymentsAddress: _shop);
+      await h.invoice();
+      await h.session.drainInvoices();
+      await h.session.payInvoice(slateId: 'inv-1', amount: _epic(8));
+      await details(tester, h);
+      expect(find.text(_l.reqPaidWaiting('Floo C')), findsOneWidget);
+      expect(find.text(_l.reqPaidWaitingBodyPerson), findsOneWidget, reason: 'a person, not "the exchange"');
+      expect(find.text(_l.reqTlPaid), findsOneWidget);
+      expect(find.byType(TxStatusChip), findsNothing, reason: 'the request block says where it stands');
+      expect(find.text(_l.txDetailsWaitingEpicbox), findsNothing);
+      expect(find.text(_l.txDetailsCancelPayment), findsNothing, reason: 'Cancel comes once its time runs out');
+    });
+
     testWidgets('show the service and message, waiting for the receipt', (
       tester,
     ) async {

@@ -15166,6 +15166,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get reqPaidWaitingBodyPerson =>
+      'Your part is done. Their wallet finalizes and posts it; this closes on its own.';
+
+  @override
   String get reqPaidWaitingBody =>
       'Your part is done. The exchange finalizes and posts; this closes on its own.';
 

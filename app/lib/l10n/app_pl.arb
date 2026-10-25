@@ -4017,6 +4017,7 @@
   "reqSealedSigned": "Zapieczętowane dla tego portfela i podpisane przez {name}",
   "reqReference": "Numer referencyjny",
   "reqPaidWaiting": "Zapłacono. Czekam, aż {name} opublikuje",
+  "reqPaidWaitingBodyPerson": "Twoja część jest skończona. Portfel drugiej strony finalizuje i publikuje; to zamknie się samo.",
   "reqPaidWaitingBody": "Twoja część jest skończona. Giełda finalizuje i publikuje; to zamknie się samo.",
   "reqTlPaid": "Zapłacono",
   "reqTlDelivered": "Dostarczono do przekaźnika {name}",

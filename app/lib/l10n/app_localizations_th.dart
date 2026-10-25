@@ -14880,6 +14880,10 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get reqPaidWaitingBodyPerson =>
+      'ส่วนของคุณเสร็จแล้ว กระเป๋าเงินของอีกฝ่ายจะทำให้เสร็จและประกาศ รายการนี้จะปิดเอง';
+
+  @override
   String get reqPaidWaitingBody =>
       'ส่วนของคุณเสร็จแล้ว ศูนย์แลกเปลี่ยนจะทำให้เสร็จและประกาศ รายการนี้จะปิดเอง';
 
