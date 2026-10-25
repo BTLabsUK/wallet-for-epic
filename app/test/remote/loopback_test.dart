@@ -610,6 +610,10 @@ void main() {
         ),
         throwsKind(WalletErrorKind.invalidArgument),
       );
+      await s.setFavouriteContact(id: saved.id, favourite: true);
+      expect(await s.favouriteContacts(), [saved.id]);
+      await s.setFavouriteContact(id: saved.id, favourite: false);
+      expect(await s.favouriteContacts(), isEmpty);
       await s.deleteContact(id: saved.id);
       expect(await s.contacts(), isEmpty);
     });
