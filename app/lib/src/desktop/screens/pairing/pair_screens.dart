@@ -174,6 +174,25 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
       return;
     }
     final old = _code;
+    // Opened again: the words still open show, not a new invite each visit (WIN2-1).
+    if (old == null) {
+      var all = const <PairingRecord>[];
+      try {
+        all = await ref.read(deskPairingsProvider.future);
+      } catch (_) {
+        // No list: a new invite, as before.
+      }
+      final open = openWordsInvite(all, contactId: _contact?.id, now: DateTime.now());
+      if (open != null) {
+        if (mounted) {
+          setState(() {
+            _code = open;
+            _codeError = null;
+          });
+        }
+        return;
+      }
+    }
     try {
       final code = await deskPairingCall(
         ref,
@@ -1067,6 +1086,16 @@ class DeskPairedSaveDialog extends ConsumerWidget {
     final l = context.l10n;
     final ts = context.ts;
     final r = ref.watch(deskPairingByIdProvider(pairingId));
+    // The pairing is gone (folded into the old one when its keys came back, or removed): the
+    // dialog closes instead of staying open with no name over the page.
+    if (r == null && ref.watch(deskPairingsProvider).hasValue) {
+      final route = ModalRoute.of(context);
+      final nav = Navigator.of(context);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (route != null && route.isActive) nav.removeRoute(route);
+      });
+      return const SizedBox.shrink();
+    }
     final name = ref.watch(deskPairingNameProvider(pairingId));
     Future<void> put({required bool asNew}) async {
       if (r == null) return;

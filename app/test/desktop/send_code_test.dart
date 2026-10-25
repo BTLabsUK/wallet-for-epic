@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import 'package:flutter_test/flutter_test.dart';
 
 // No saved contact has these.
@@ -121,6 +122,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(Dialog), findsNothing);
     expect(container.read(deskNavProvider).route, DeskRoute.settingsAdvanced);
+    // To the switches, not the top of Advanced (LNX3-1).
+    expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.experimental);
   });
 
   /// The Paste button next to To (To must be empty), with [code] on the clipboard.

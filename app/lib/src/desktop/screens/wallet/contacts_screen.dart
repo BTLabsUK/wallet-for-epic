@@ -638,6 +638,14 @@ class _ContactDetail extends ConsumerWidget {
                   ],
                 ),
               ),
+            // None at all (a pairing-only contact while Pairing is off): said, not an empty
+            // group, so the greyed Send has its reason (LNX3-3).
+            if (x.addresses.isEmpty && pairing == null)
+              Padding(
+                key: const ValueKey('contact-no-address'),
+                padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                child: Text(l.contactNoAddresses, style: ts.bodyDim),
+              ),
             for (final k in x.kinds)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),

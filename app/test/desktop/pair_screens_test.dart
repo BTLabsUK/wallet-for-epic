@@ -210,6 +210,27 @@ void main() {
     expect(find.byType(DeskPairedSaveDialog), findsNothing);
   });
 
+  testWidgets('the result closes when its pairing goes meanwhile (folded or removed), never an empty "is verified" (two-app c)', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _seenAs(tester, 'the owner');
+    await tester.ensureVisible(find.byKey(deskPairCopyCardKey));
+    await tester.tap(find.byKey(deskPairCopyCardKey));
+    await _real(tester);
+    await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), _pairing.cardLinkFrom('Ola'));
+    await tester.pump();
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    await tester.tap(find.byKey(deskCheckMatchKey));
+    await _real(tester);
+    expect(find.byType(DeskPairedSaveDialog), findsOneWidget);
+    final ola = (await tester.runAsync(_pairing.pairings))!.singleWhere((r) => r.name == 'Ola');
+    await tester.runAsync(() => _pairing.removePairing(ola.id));
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    expect(find.byType(DeskPairedSaveDialog), findsNothing);
+    expect(find.text(_l.sasMatchedTitle('')), findsNothing);
+  });
+
   testWidgets('Copy my card link first: their card then goes straight to the words', (tester) async {
     await _open(tester, const DeskPairScreen());
     await _seenAs(tester, 'the owner');
@@ -234,6 +255,26 @@ void main() {
     await tester.tap(find.byKey(deskPairCopyInviteKey));
     await _real(tester);
     expect(find.text(_l.pairSeenAsMissing), findsOneWidget);
+  });
+
+  testWidgets('the page opened again shows the words still open, no new invite each visit (WIN2-1)', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    // The mock pins its pairing clock for the shots; the page counts in real time.
+    _pairing.clock = DateTime.now;
+    await _seenAs(tester, 'the owner');
+    await _real(tester, 1200);
+    final first = _pairing.records.where((r) => r.state == PairingState.pendingInvite && r.inviteWords.isNotEmpty).toList();
+    expect(first, hasLength(1));
+    Widget app(Widget screen) => UncontrolledProviderScope(
+      container: _c,
+      child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: screen)),
+    );
+    await tester.pumpWidget(app(const SizedBox()));
+    await tester.pumpWidget(app(const DeskPairScreen()));
+    await _real(tester, 1200);
+    final again = _pairing.records.where((r) => r.state == PairingState.pendingInvite && r.inviteWords.isNotEmpty).toList();
+    expect(again.map((r) => r.id), [first.single.id]);
+    expect(_pairing.calls.where((c) => c == 'makeInvite'), hasLength(1));
   });
 
   testWidgets('the code appears once a name is typed, without opening the page again (PAIR-LNX-6)', (tester) async {

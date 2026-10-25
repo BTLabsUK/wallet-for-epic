@@ -813,18 +813,7 @@ class _PairingWordsScreenState extends ConsumerState<PairingWordsScreen> {
     } catch (_) {
       return null;
     }
-    final now = ref.read(pairingClockProvider)();
-    final contactId = widget.contact?.id;
-    return all
-        .where(
-          (r) =>
-              r.state == PairingState.pendingInvite &&
-              r.inviteWords.isNotEmpty &&
-              r.contactId == contactId &&
-              r.expiresAt != null &&
-              r.expiresAt!.difference(now) >= const Duration(minutes: 2),
-        )
-        .firstOrNull;
+    return openWordsInvite(all, contactId: widget.contact?.id, now: ref.read(pairingClockProvider)());
   }
 
   @override

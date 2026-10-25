@@ -19,6 +19,19 @@ const Duration pairingWordsExpiry = Duration(minutes: 10);
 /// How long the answerer waits for the confirm (RFC 8.2).
 const Duration pairingReplyWait = Duration(hours: 1);
 
+/// This wallet's unanswered words invite for [contactId] (null: none) with 2 minutes or more
+/// left: opened again, the words page shows it instead of making a new one each visit.
+PairingRecord? openWordsInvite(Iterable<PairingRecord> all, {String? contactId, required DateTime now}) => all
+    .where(
+      (r) =>
+          r.state == PairingState.pendingInvite &&
+          r.inviteWords.isNotEmpty &&
+          r.contactId == contactId &&
+          r.expiresAt != null &&
+          r.expiresAt!.difference(now) >= const Duration(minutes: 2),
+    )
+    .firstOrNull;
+
 /// How many words a pairing-words invite has, and the check.
 const int pairingWordCount = 5;
 const int sasWordCount = 4;

@@ -43,9 +43,19 @@ bool pairingEventOnScreen(PairingEvent e) =>
     ((e.kind == PairingEventKind.replied || e.kind == PairingEventKind.confirmed) && pairingWordsOnScreen.any((handles) => handles(e))) ||
     pairingNewsOnScreen.any((shows) => shows(e));
 
+/// Invites whose "No answer from" was said this session.
+final Set<String> _noAnswerSaid = {};
+
 /// The text and level of [e]'s notice, or null for an event that shows none.
 ({String text, NoticeLevel level})? pairingNoticeOf(AppLocalizations l, PairingEvent e) {
   final name = e.name;
+  // An invite of this wallet's that ran out unanswered: once per invite, and only when it has
+  // a name to say ("No answer from" alone said nothing). Its Pending row stays (LNX3-2).
+  if (e.kind == PairingEventKind.failed && (e.failure ?? PairingFailure.invalid) == PairingFailure.noAnswer) {
+    if (name.trim().isEmpty) return null;
+    final id = e.pairingId;
+    if (id != null && !_noAnswerSaid.add(id)) return null;
+  }
   String epic(BigInt? a) => a == null ? '' : localDigits(l, displayEpic(a));
   return switch (e.kind) {
     PairingEventKind.replied => (text: l.noticePairingReplied(name), level: NoticeLevel.success),
