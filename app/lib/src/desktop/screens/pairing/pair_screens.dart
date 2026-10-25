@@ -1032,7 +1032,8 @@ class DeskPairedSaveDialog extends ConsumerWidget {
         ],
       ),
       actions: [
-        EButton.ghost(key: deskSavedNotNowKey, label: l.pairNotNow, onPressed: () => Navigator.pop(context)),
+        // With a contact to offer, the × is Not now: the three choices keep one line.
+        if (suggested == null) EButton.ghost(key: deskSavedNotNowKey, label: l.pairNotNow, onPressed: () => Navigator.pop(context)),
         EButton(key: deskSavedAddToKey, label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => put(asNew: false)),
         if (suggested == null)
           EButton.primary(key: deskSavedNewKey, label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => put(asNew: true))

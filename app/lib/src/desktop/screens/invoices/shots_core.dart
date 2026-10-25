@@ -7,7 +7,7 @@ import '../../../models.dart' show PairingState;
 import '../../../sas_table.dart';
 import '../../data/mock_wallet.dart';
 import '../../data/pairing_state.dart' show deskPairingsProvider;
-import '../pairing/pair_screens.dart' show showDeskCheckWordsFor;
+import '../pairing/pair_screens.dart' show DeskPairedSaveDialog, showDeskCheckWordsFor;
 import '../../widgets/kit.dart';
 import '../wallet/contacts_screen.dart' show ContactsArgs;
 
@@ -87,7 +87,47 @@ final List<DeskShot> invoiceSetShotsCore = [
   const DeskShot(id: 'inv-set-07-contact-keys-changed', title: 'Contact: keys changed', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c9')),
   const DeskShot(id: 'inv-set-08-contact-exchange', title: 'Contact: an exchange, invoices allowed', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c8')),
   const DeskShot(id: 'pair-01-pair', title: 'Contacts › Pair: show my code, enter link or words, invite online', route: DeskRoute.pair),
-  const DeskShot(id: 'pair-02-pending', title: 'Contacts › Pending invites', route: DeskRoute.pairPending),
+  DeskShot(
+    id: 'pair-02-pending',
+    title: 'Contacts › Pending invites: a link, unnamed words, an answer waiting with Remove',
+    route: DeskRoute.pairPending,
+    prepare: (c, _) async {
+      final p = (c.read(deskApiProvider) as MockDeskWallet).pairing..clock = DateTime.now;
+      await p.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Tom');
+      await p.makeInvite(name: 'the owner', expiry: const Duration(minutes: 10), words: true);
+      final preview = await p.openInvite(p.inviteLinkFrom(name: 'Ola'));
+      await p.acceptInvite(token: preview.token, name: 'the owner');
+      c.invalidate(deskPairingsProvider);
+    },
+  ),
+  // A re-pair after a restore: the result offers the contact of its name first (PAIR-LNX-7).
+  DeskShot(
+    id: 'pair-04-result-add-to',
+    title: 'The words-check result of a pairing in no contact: Add to Anna Kowalska first',
+    route: DeskRoute.pair,
+    prepare: (c, _) async {
+      (c.read(deskApiProvider) as MockDeskWallet).pairing.seedPaired(id: 'p-anna-new', name: 'Anna Kowalska', state: PairingState.verified);
+      c.invalidate(deskPairingsProvider);
+    },
+    dialog: (ctx) => showEDialog<void>(ctx, builder: (_) => const DeskPairedSaveDialog(pairingId: 'p-anna-new', verified: true)),
+  ),
+  // A contact with all three kinds of address: the list row shows their tags (PAIR-WIN-2).
+  DeskShot(
+    id: 'pair-05-contacts-three-addresses',
+    title: 'Contacts: a contact with Epicbox, Link · HTTP and Link · Tor addresses',
+    route: DeskRoute.contacts,
+    prepare: (c, _) async {
+      await c.read(deskProvider.notifier).saveContact(
+        Contact(
+          id: '',
+          name: 'Floo C',
+          address: 'esFc7Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@epicbox.epicnet.us',
+          http: 'https://floo.example.net:3415',
+          tor: 'mbkzvq3uyx7nqk2ahtr4oewl6jx5fdcpsy3givn2rw7bmkhq5ufk7uyd.onion',
+        ),
+      );
+    },
+  ),
   // The words check with the table's longest names: each one whole (acceptance F1).
   DeskShot(
     id: 'pair-03-check-words',
