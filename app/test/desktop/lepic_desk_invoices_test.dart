@@ -430,7 +430,8 @@ void main() {
       expect(i.state, PayState.waiting);
       // Without a pairing (LEPIC's is a stub until U-24) the name is the short address.
       expect(i.label, shortAddress(_shop, compact: true), reason: 'never a name from the invoice');
-      expect(i.senderAddress, _shop, reason: 'the stored address, not the relay part it came from');
+      // No pairing to name it (LEPIC's pairing is a stub until U-24): the address it came from.
+      expect(i.senderAddress, 'esShopKey@other.relay');
       expect(i.fee, 700000);
       expect(i.message, 'Order 42 thanks');
       expect(book.waiting.single.slateId, 'inv-1');

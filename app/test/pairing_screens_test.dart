@@ -243,7 +243,7 @@ void main() {
       await tester.enterText(find.byKey(pairEnterFieldKey), link);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(pairEnterGoKey));
-      await tester.pumpAndSettle();
+      await _frames(tester);
       expect(find.text(_l.pairIncomingTitle('Northwind')), findsOneWidget);
       expect(find.byType(ClaimedNameBadge), findsOneWidget);
       // The claimed kind and name prove nothing: invoices stay off until the user says so.

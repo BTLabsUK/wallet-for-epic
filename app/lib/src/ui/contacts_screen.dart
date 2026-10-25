@@ -420,6 +420,9 @@ class _AddressField {
   RecipientKind? clash;
 
   void dispose() => text.dispose();
+
+  /// Disposes after the frame that drops the field's row, which still holds the text until then.
+  void disposeLater() => WidgetsBinding.instance.addPostFrameCallback((_) => dispose());
 }
 
 /// Adds a contact, prefilled with [name] and [address], or edits [contact]. One address per
@@ -487,7 +490,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
   void _keepOld(_AddressField f) => setState(() {
     if (_fields.length > 1) {
       _fields.remove(f);
-      f.dispose();
+      f.disposeLater();
     } else {
       f.text.clear();
       f.clash = null;
@@ -499,12 +502,12 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     final old = _fields.firstWhere((o) => o != f && _kindOf(o) == kind);
     old.text.text = f.text.text;
     _fields.remove(f);
-    f.dispose();
+    f.disposeLater();
   });
 
   void _remove(int i) => setState(() {
     if (_fields.length > 1) {
-      _fields.removeAt(i).dispose();
+      _fields.removeAt(i).disposeLater();
     } else {
       _fields[i].text.clear();
       _fields[i].error = null;
@@ -700,6 +703,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     final clash = f.clash;
     final error = clash != null ? l.addrDuplicateType(shownName, recipientMethodWord(l, clash)) : f.error;
     return Column(
+      key: ObjectKey(f),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextField(

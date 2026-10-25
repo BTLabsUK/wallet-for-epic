@@ -1215,24 +1215,6 @@ final issuedInvoiceProvider = FutureProvider.autoDispose
       return session.issuedInvoice(slateId: slateId);
     });
 
-/// What the open wallet learned about the payer at that invoice address, for the request
-/// form's warning. [PeerCapability.unknown] without invoices or when the wallet cannot say;
-/// the warning is advice, so a failure only leaves it out.
-final peerCapabilityProvider = FutureProvider.autoDispose
-    .family<PeerCapability, String>((ref, address) async {
-      final session = _invoiceSession(ref);
-      if (session == null) return PeerCapability.unknown;
-      try {
-        return await session.peerCapability(address: address);
-      } catch (error) {
-        logWarn(
-          'invoices',
-          'peer capability unknown: ${describeError(englishStrings, error)}',
-        );
-        return PeerCapability.unknown;
-      }
-    });
-
 /// An issuer event for a notice. [id] tells two equal events apart.
 typedef IssuerNotice = ({int id, IssuerEvent event});
 

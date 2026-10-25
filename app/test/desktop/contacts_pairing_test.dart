@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/wallet_service.dart' show PairingApi;
@@ -53,6 +54,8 @@ ESwitch _switchOf(WidgetTester tester, String label) =>
     tester.widget<ESwitch>(find.byWidgetPredicate((w) => w is ESwitch && w.semanticLabel == label));
 
 void main() {
+  setUpAll(initializeDateFormatting);
+
   testWidgets('a verified contact: Verified, the date, both switches on', (tester) async {
     await _open(tester, const ContactsArgs(selectedId: 'c1'));
     expect(find.text(_l.contactPairing), findsOneWidget);

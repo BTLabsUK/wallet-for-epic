@@ -84,7 +84,7 @@ void main() {
       expect(find.text(s.lede), findsOneWidget);
       expect(find.text(s.title), findsNWidgets(2), reason: 'chip and head');
     }
-    expect(find.text('3 topics'), findsWidgets);
+    expect(find.text('5 topics'), findsWidgets, reason: 'Pairing');
     expect(find.text('1 topic'), findsOneWidget);
     expect(find.byType(HelpArt), findsNWidgets(6));
   });
@@ -126,6 +126,9 @@ void main() {
     final container = await _pump(tester, arg: 'words again');
     final link = find.text('Settings › Recovery phrase', findRichText: true);
     expect(link, findsOneWidget);
+    // "Check the words again" in the Pairing topics matches too, above it.
+    await tester.ensureVisible(link);
+    await tester.pumpAndSettle();
     await tester.tap(link);
     await tester.pumpAndSettle();
     expect(container.read(deskNavProvider).route, DeskRoute.settingsPhrase);

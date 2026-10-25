@@ -605,6 +605,9 @@ class _AddrField {
     text.dispose();
     focus.dispose();
   }
+
+  /// Disposes after the frame that drops the field's row, which still holds both until then.
+  void disposeLater() => WidgetsBinding.instance.addPostFrameCallback((_) => dispose());
 }
 
 /// The form in the detail pane (SPEC 2.5, desktop): Name, one field per address with its kind
@@ -682,14 +685,14 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     while (_fields.where((x) => x.text.text.trim().isEmpty).length > 1) {
       final extra = _fields.lastWhere((x) => x.text.text.trim().isEmpty && x != f);
       _fields.remove(extra);
-      extra.dispose();
+      extra.disposeLater();
     }
     setState(() {});
   }
 
   void _remove(_AddrField f) {
     _fields.remove(f);
-    f.dispose();
+    f.disposeLater();
     if (!_fields.any((x) => x.text.text.trim().isEmpty)) _fields.add(_AddrField());
     setState(() {});
   }
@@ -819,6 +822,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
         for (final f in _fields) ...[
           if (f.text.text.trim().isNotEmpty || free.isNotEmpty)
             Padding(
+              key: ObjectKey(f),
               padding: EdgeInsets.only(bottom: Sp.x3),
               child: _addressField(l, c, f, free, noAddress && f == _fields.first),
             ),

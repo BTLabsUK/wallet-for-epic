@@ -93,6 +93,8 @@ void main() {
 
   testWidgets('Pending invites lists what waits, with Cancel', (tester) async {
     await _open(tester, const DeskPendingScreen());
+    // The mock's pairings live on its own date; this one is made now, as the screen counts.
+    _pairing.clock = DateTime.now;
     await tester.runAsync(() => _pairing.makeInvite(name: 'the owner', expiry: const Duration(hours: 24), label: 'Ola'));
     _c.invalidate(deskPairingsProvider);
     await _real(tester);
