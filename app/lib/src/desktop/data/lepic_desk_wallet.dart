@@ -3799,6 +3799,12 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Stream<InvoiceNotice> invoiceNotices() => _invoiceNotices.stream;
 
+  /// A notice for the open screens; none once the app closed ([dispose]): a drain or an event
+  /// still running then would otherwise throw on the closed stream.
+  void _notify(InvoiceNotice notice) {
+    if (!_invoiceNotices.isClosed) _invoiceNotices.add(notice);
+  }
+
   /// After an unlock or a reopen on another server: the session's invoice events and the
   /// scheduler, on that session only.
   void _startInvoices() {
@@ -3871,21 +3877,21 @@ class LepicDeskWallet implements DeskWalletApi {
     switch (e.kind) {
       case core.InvoiceEventKind.withdrawn when seen != null:
         _endedUnpaid[e.slateId] = seen.copyWith(state: PayState.withdrawn, answeredAt: now);
-        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.withdrawn, slateId: e.slateId, who: seen.label));
+        _notify(InvoiceNotice(InvoiceNoticeKind.withdrawn, slateId: e.slateId, who: seen.label));
       case core.InvoiceEventKind.expired when seen != null:
         _endedUnpaid[e.slateId] = seen.copyWith(state: PayState.expired, answeredAt: now);
-        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.expired, slateId: e.slateId, who: seen.label));
+        _notify(InvoiceNotice(InvoiceNoticeKind.expired, slateId: e.slateId, who: seen.label));
       case core.InvoiceEventKind.declined when seen != null:
         _endedUnpaid[e.slateId] = seen.copyWith(state: PayState.declined, answeredAt: now);
       // Unverified (the session tells each slate once): inform only, act on nothing.
       case core.InvoiceEventKind.unknownInvoicePayment:
-        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.unknownPayment, slateId: e.slateId));
+        _notify(InvoiceNotice(InvoiceNoticeKind.unknownPayment, slateId: e.slateId));
         return;
       case core.InvoiceEventKind.unknownSendAnswer:
-        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.unknownAnswer, slateId: e.slateId));
+        _notify(InvoiceNotice(InvoiceNoticeKind.unknownAnswer, slateId: e.slateId));
         return;
       case core.InvoiceEventKind.receiveSuperseded:
-        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.receiveSuperseded, slateId: e.slateId));
+        _notify(InvoiceNotice(InvoiceNoticeKind.receiveSuperseded, slateId: e.slateId));
         await _reload();
         return;
       // Not an invoice: the sender of an Epicbox payment reports it posted. The row says so at
@@ -3929,7 +3935,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     if (_session != session) return;
     final who = _contactFor(await _contactsOr(), payer)?.name ?? (payer.isEmpty ? '' : shortAddress(payer, compact: true));
-    _invoiceNotices.add(InvoiceNotice(kind, slateId: e.slateId, who: who, amount: amount));
+    _notify(InvoiceNotice(kind, slateId: e.slateId, who: who, amount: amount));
   }
 
   Future<List<Contact>> _contactsOr() async {

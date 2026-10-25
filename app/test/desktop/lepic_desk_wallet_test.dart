@@ -51,6 +51,31 @@ class _StrictSession extends core.FakeWalletSession {
   }
 }
 
+/// A session whose refresh waits at [gate] before its last step, and that fails any call once
+/// disposed, as LEPIC's handle does after a lock.
+class _HeldRefresh extends _StrictSession {
+  Completer<void>? gate;
+  bool disposed = false;
+
+  @override
+  Stream<core.RefreshProgress> refresh({required BigInt minimumConfirmations}) async* {
+    await gate?.future;
+    yield* super.refresh(minimumConfirmations: minimumConfirmations);
+  }
+
+  @override
+  Future<List<core.TxEntry>> transactions({required bool refresh}) async {
+    if (disposed) throw StateError('RustArc disposed');
+    return super.transactions(refresh: refresh);
+  }
+
+  @override
+  void dispose() {
+    disposed = true;
+    super.dispose();
+  }
+}
+
 /// Holds every split at [gate] until it is completed: a payment under way.
 class _SlowSplit extends _StrictSession {
   Completer<void>? gate;
@@ -1204,6 +1229,30 @@ void main() {
       await expectLater(w.createWallet(name: 'Savings', password: _password), throwsA(isA<DeskError>()));
       expect((await w.wallets()).map((e) => e.name), ['Main']);
       expect(Directory('${support.path}/wallets').listSync().map((e) => e.path.split('/').last), ['mainnet']);
+    });
+  });
+
+  group('a lock during a sync (LNX-4)', () {
+    test('the sync running when the wallet locks ends quietly, on nothing of the closed session', () async {
+      final session = _HeldRefresh();
+      service = core.FakeWalletService(password: _password, session: session);
+      await wallet.dispose();
+      wallet = make(service);
+      await wallet.createWallet(name: 'Main', password: _password);
+      expect(await wallet.unlock(_password), isTrue);
+      // The fake hands out one session object: Create's own use of it closed it.
+      session.disposed = false;
+      await wallet.sync();
+      final reads = session.transactionsCalls;
+      session.gate = Completer<void>();
+      final running = wallet.sync();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      await wallet.lock();
+      expect(session.disposed, isTrue);
+      session.gate!.complete();
+      // No error out of the sync, and no call on the closed session.
+      await expectLater(running, completes);
+      expect(session.transactionsCalls, reads);
     });
   });
 
