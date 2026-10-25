@@ -14,13 +14,14 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/invoices.dart' show PaymentRequestDraft, RequestState;
+import 'package:epic_wallet/src/desktop/data/models.dart' show Contact;
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart'
     show deskOwnCardProvider, deskPairingApiProvider, deskSeenAsProvider;
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart' show EDialog;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
-import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/wallet_service.dart' hide Contact;
 import 'package:flutter/material.dart' show SelectableText;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -111,7 +112,13 @@ Future<void> enter(WidgetTester tester, String text) async {
 
 /// Answers the incoming invite dialog with Pair.
 Future<void> answerIncoming(WidgetTester tester, String step) async {
-  await pumpUntil(tester, () => find.byKey(deskIncomingPairKey).evaluate().isNotEmpty, timeout: const Duration(seconds: 90), what: 'Pair with $theirName?');
+  try {
+    await pumpUntil(tester, () => find.byKey(deskIncomingPairKey).evaluate().isNotEmpty, timeout: const Duration(seconds: 90), what: 'Pair with $theirName?');
+  } on TestFailure {
+    await shot(tester, '$role-$step-no-incoming');
+    rc('$step: the invite opens as Pair with $theirName?', false, texts().where((t) => t.length > 12).take(12).join(' | '));
+    rethrow;
+  }
   rc('$step: the invite opens as Pair with $theirName?', hasText('Pair with $theirName?'), texts().where((t) => t.contains(theirName)).take(1).join());
   await shot(tester, '$role-$step-incoming');
   await tester.tap(find.byKey(deskIncomingPairKey));
@@ -187,6 +194,14 @@ void main() {
 
     // (d) Allow invoices, a request from A to B, declined by B.
     final withOther = (await verifiedWithOther(tester))!;
+    String? bookId;
+    if (role == 'A') {
+      // A keeps B in its address book: the record a later key check starts from.
+      final api = containerOf(tester).read(deskApiProvider);
+      bookId = await tester.runAsync(() => api.saveContact(Contact(id: '', name: theirName)));
+      await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).attach(withOther.id, bookId));
+      rc('a: A saved B as a contact with the pairing', (await pairings(tester)).any((p) => p.id == withOther.id && p.contactId == bookId), '');
+    }
     if (role == 'B') {
       await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).setAllowInvoices(withOther.id, true));
       rc('d: B allows invoices from A', (await pairings(tester)).any((p) => p.id == withOther.id && p.allowInvoices), '');
@@ -246,6 +261,13 @@ void main() {
         await answerIncoming(tester, 'b');
         await wordsCheck(tester, 'b');
       }
+      // B answers A's key check by collecting.
+      final f = File('$syncDir/A-e-checked');
+      final end = DateTime.now().add(const Duration(minutes: 5));
+      while (DateTime.now().isBefore(end) && !(await tester.runAsync(f.exists))!) {
+        await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).collect(trigger: PairingCollectTrigger.pull));
+        await settle(tester, ms: 4000);
+      }
     } else {
       await take(tester, 'e-removed');
       containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.contacts);
@@ -257,6 +279,15 @@ void main() {
       rc('b: A shows five pairing words on $relayHost', code?.inviteWords.length == 5, code == null ? texts().where((t) => t.contains('relay') || t.contains('Epicbox')).take(2).join(' / ') : '');
       await put(tester, 'b-words-code', [for (final w in code?.inviteWords ?? const <SasWord>[]) w.name].join(' '));
       if (code != null) await wordsCheck(tester, 'b');
+      // The new pairing joins the contact that has the old one: the key check starts.
+      final fresh = (await pairings(tester)).where((p) => p.name == theirName && p.id != withOther.id && p.state == PairingState.verified).firstOrNull;
+      if (fresh != null) await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).attach(fresh.id, bookId));
+      final end = DateTime.now().add(const Duration(minutes: 4));
+      while (DateTime.now().isBefore(end) && !events.any((e) => e.kind == PairingEventKind.keysRestored || e.kind == PairingEventKind.keysChanged)) {
+        await tester.runAsync(() => containerOf(tester).read(deskPairingApiProvider).collect(trigger: PairingCollectTrigger.pull));
+        await settle(tester, ms: 4000);
+      }
+      await put(tester, 'e-checked', '1');
       final back = events.any((e) => e.kind == PairingEventKind.keysRestored);
       final withBen = (await pairings(tester)).where((p) => p.name == theirName).toList();
       rc('e: A, which kept the record, finds the keys back', back, 'events ${events.map((e) => e.kind.name).toSet().join(',')}; records ${withBen.map((p) => p.state.name).join(',')}');
