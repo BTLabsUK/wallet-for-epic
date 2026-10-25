@@ -16,9 +16,9 @@ const _names = <String, List<String>>{
   'en': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direct · File Transfer'],
   'de': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direkt · Dateiübertragung'],
   'pl': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Bezpośrednio · Przesyłanie pliku'],
-  'ru': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Напрямую · Передача файла'],
-  'zh': ['Epicbox', 'Link · HTTP', 'Link · Tor', '直接 · 文件传输'],
-  'th': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'โดยตรง · โอนไฟล์'],
+  'ru': ['Epicbox', 'Ссылка · HTTP', 'Ссылка · Tor', 'Напрямую · Передача файла'],
+  'zh': ['Epicbox', '链接 · HTTP', '链接 · Tor', '直接 · 文件传输'],
+  'th': ['Epicbox', 'ลิงก์ · HTTP', 'ลิงก์ · Tor', 'โดยตรง · โอนไฟล์'],
 };
 
 Future<void> _pump(WidgetTester tester, Widget child, {Locale locale = const Locale('en')}) async {

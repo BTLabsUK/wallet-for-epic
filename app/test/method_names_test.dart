@@ -11,14 +11,14 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Epicbox, Link · HTTP, Link · Tor, Direct · File Transfer per language; Link stays Latin, Direct is each language's own word.
+/// Epicbox, Link · HTTP, Link · Tor, Direct · File Transfer per language; Link stays Latin in en, de and pl; ru, zh and th name it in their own word, as Direct (AND-11).
 const _names = <String, List<String>>{
   'en': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direct · File Transfer'],
   'de': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direkt · Dateiübertragung'],
   'pl': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Bezpośrednio · Przesyłanie pliku'],
-  'ru': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Напрямую · Передача файла'],
-  'zh': ['Epicbox', 'Link · HTTP', 'Link · Tor', '直接 · 文件传输'],
-  'th': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'โดยตรง · โอนไฟล์'],
+  'ru': ['Epicbox', 'Ссылка · HTTP', 'Ссылка · Tor', 'Напрямую · Передача файла'],
+  'zh': ['Epicbox', '链接 · HTTP', '链接 · Tor', '直接 · 文件传输'],
+  'th': ['Epicbox', 'ลิงก์ · HTTP', 'ลิงก์ · Tor', 'โดยตรง · โอนไฟล์'],
 };
 
 void main() {
@@ -46,7 +46,7 @@ void main() {
         final l = lookupAppLocalizations(Locale(lang));
         for (final t in ['http', 'tor']) {
           expect(txMethodWord(l, t), isNot(anyOf('HTTP', 'Tor')), reason: lang);
-          expect(txMethodWord(l, t), startsWith('Link'), reason: lang);
+          expect(txMethodWord(l, t), endsWith(t == 'http' ? ' · HTTP' : ' · Tor'), reason: '$lang: Link\'s word, then the transport');
         }
       }
     });

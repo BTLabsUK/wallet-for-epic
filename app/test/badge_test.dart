@@ -71,7 +71,7 @@ void main() {
       _phone(Builder(builder: (context) => EBadge.kind(RecipientKind.tor, l: AppLocalizations.of(context)))),
     );
     expect(find.byIcon(EpicGlyphs.tor), findsOneWidget);
-    expect(find.text('Tor'), findsOneWidget); // the short name; the full one only in a tooltip
+    expect(find.text('Link · Tor'), findsOneWidget); // the short name, never Tor alone
 
     await tester.pumpWidget(
       _desk(Builder(builder: (context) => EBadge.kind(RecipientKind.epicbox, l: AppLocalizations.of(context), compact: true))),
