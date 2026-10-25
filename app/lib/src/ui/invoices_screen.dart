@@ -144,10 +144,18 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
           level: level,
           action: open == null ? null : NoticeAction(l.homeNoticeView, open),
         );
+    // Who sent it, read before the list drops it.
+    final invoice = ref.read(pendingInvoicesProvider).value?.where((i) => i.slateId == event.slateId).firstOrNull;
+    switch (event.kind) {
+      // An open Invoices or Review screen shows it at once, not on its next visit: a new one
+      // listed, an ended one gone and its Approve off (PAIR-AND-3, PAIR-AND-13).
+      case InvoiceEventKind.received || InvoiceEventKind.withdrawn || InvoiceEventKind.expired || InvoiceEventKind.declined:
+        ref.read(pendingInvoicesProvider.notifier).reload().ignore();
+      default:
+        break;
+    }
     switch (event.kind) {
       case InvoiceEventKind.received:
-        // An open Invoices screen lists it at once, not on its next visit (PAIR-AND-3).
-        ref.read(pendingInvoicesProvider.notifier).reload().ignore();
         view(l.invoiceNoticeReceived, NoticeLevel.info, () => _openInvoice(event.slateId));
       case InvoiceEventKind.posted:
         view(
@@ -162,7 +170,16 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
             : await session.paidInvoice(slateId: event.slateId);
         if (!mounted) return;
         if (paid == null) {
-          view(l.invoiceNoticeWithdrawn, NoticeLevel.info, null);
+          // The sender by name, a person as much as a service (PAIR-AND-13).
+          view(
+            invoice == null
+                ? l.invoiceNoticeWithdrawn
+                : l.deskInvNoticeWithdrawn(
+                    invoiceSenderName(l, ref.read(pairingsProvider).value ?? const [], ref.read(contactsProvider).value ?? const [], invoice.pairingId),
+                  ),
+            NoticeLevel.info,
+            null,
+          );
         } else {
           // Cancel, which asks first, while the payment can still be cancelled; else the way
           // to its details.

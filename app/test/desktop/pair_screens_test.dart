@@ -501,4 +501,42 @@ void main() {
     expect(find.text(_l.reqPickContact), findsWidgets);
     expect(_c.read(deskInvoicesProvider)?.sent.length, before, reason: 'nothing was asked');
   });
+
+  testWidgets('withdrawn while the Approve dialog is open: it names the sender and Pay goes (PAIR-AND-13)', (tester) async {
+    await _open(tester, const SizedBox.shrink());
+    final now = DateTime.now();
+    const id = 'aaaaaaaa-0000-4000-8000-00000000f0e1';
+    final waiting = IncomingInvoice(
+      slateId: id,
+      senderAddress: 'esA',
+      label: 'Anna',
+      amount: 8000000,
+      fee: 1000000,
+      receivedAt: now,
+      expiresAt: now.add(const Duration(hours: 5)),
+      state: PayState.waiting,
+    );
+    _mock.proto.toPay.add(waiting);
+    _c.invalidate(deskInvoicesProvider);
+    await _real(tester);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: _c,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: InvoiceReviewScreen(arg: id))),
+      ),
+    );
+    await _real(tester);
+    await tester.tap(find.text(_l.invoiceApprove).last);
+    await _real(tester);
+    expect(find.text(_l.deskInvPayerPay), findsOneWidget);
+
+    _mock.proto.toPay
+      ..remove(waiting)
+      ..add(waiting.copyWith(state: PayState.withdrawn));
+    await tester.runAsync(() => _c.read(deskInvoicesProvider.notifier).load());
+    await _real(tester);
+    expect(find.text(_l.deskInvNoticeWithdrawn('Anna')), findsWidgets);
+    expect(find.text(_l.deskInvPayerPay), findsNothing);
+    expect(find.text(_l.deskInvPayerClose), findsOneWidget);
+  });
 }

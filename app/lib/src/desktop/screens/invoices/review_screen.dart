@@ -96,12 +96,8 @@ class _Review extends ConsumerWidget {
     final String? readOnly = open
         ? null
         : switch (i.state) {
-            PayState.withdrawn => l.invoiceNoticeWithdrawn,
-            PayState.expired => l.invoiceExpired,
             PayState.waiting => l.invoiceExpired,
-            PayState.declined => l.deskInvPayerDeclinedText,
-            _ when i.state.paid => l.deskInvPayerPaid,
-            _ => l.invoiceGone,
+            _ => deskInvoiceEndedText(l, i),
           };
 
     final amountPanel = EPanel(

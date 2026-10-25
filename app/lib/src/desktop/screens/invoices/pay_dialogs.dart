@@ -125,7 +125,11 @@ class _ApproveDialogState extends ConsumerState<_ApproveDialog> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final i = widget.invoice;
-    final done = _final != null;
+    // Withdrawn, expired or answered elsewhere while the dialog was open: nothing to pay.
+    final live = ref.watch(deskInvoicesProvider)?.toPay.where((x) => x.slateId == i.slateId).firstOrNull;
+    final ended = !_busy && _final == null && live != null && live.state != PayState.waiting ? deskInvoiceEndedText(l, live) : null;
+    final reason = _final ?? ended;
+    final done = reason != null;
     return EDialog(
       title: l.deskInvPayerApproveTitle(formatEpicL(l, i.amount), formatEpicL(l, i.fee), i.label),
       description: l.deskInvPayerApproveText(formatEpicL(l, i.total)),
@@ -137,7 +141,7 @@ class _ApproveDialogState extends ConsumerState<_ApproveDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (done)
-            ENotice(tone: ETone.warn, title: _final!)
+            ENotice(tone: ETone.warn, title: reason)
           else
             EField(
               label: l.deskInvPayerPassword,

@@ -333,6 +333,30 @@ void main() {
       expect(find.text(_l.reqTitle), findsOneWidget, reason: 'View opens that invoice');
     });
 
+    testWidgets('withdrawn while Review is open: Approve off, the notice names the person, the list drops it (PAIR-AND-13)', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(name: 'Anna', allowInvoices: true, paymentsAddress: _shop);
+      await h.invoice(slateId: 'w1');
+      await h.pump(tester, const HomeScreen());
+      await tester.tap(_invoicesTile);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Anna'));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.reqTitle), findsOneWidget);
+      // The withdrawal comes by another drain than this screen's, with its event.
+      h.session.relayNotice(from: _shop, kind: InvoiceEventKind.withdrawn, slateId: 'w1');
+      await tester.runAsync(() => h.session.drainInvoices());
+      await tester.pumpAndSettle();
+      expect(find.text(_l.invoiceGone), findsOneWidget);
+      expect(_notice(tester), _l.deskInvNoticeWithdrawn('Anna'));
+      await tester.tap(find.text(_l.invoiceApprove));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.invoicePinReason), findsNothing);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.text('Anna'), findsNothing, reason: 'the open list dropped it');
+    });
+
     testWidgets('opens the list', (tester) async {
       final h = _Harness();
       await h.invoice();

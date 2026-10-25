@@ -185,3 +185,12 @@ class _InvRevealState extends State<InvReveal> {
   @override
   Widget build(BuildContext context) => Semantics(selected: widget.selected, child: widget.child);
 }
+
+/// Why a received invoice can no longer be paid, naming who sent it (PAIR-AND-13).
+String deskInvoiceEndedText(AppLocalizations l, IncomingInvoice i) => switch (i.state) {
+  PayState.withdrawn => i.label.isEmpty ? l.invoiceNoticeWithdrawn : l.deskInvNoticeWithdrawn(i.label),
+  PayState.expired || PayState.waiting => l.invoiceExpired,
+  PayState.declined => l.deskInvPayerDeclinedText,
+  _ when i.state.paid => l.deskInvPayerPaid,
+  _ => l.invoiceGone,
+};
