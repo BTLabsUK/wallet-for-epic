@@ -14322,7 +14322,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairShareText(String name, String link, String date) {
-    return '$name ต้องการจับคู่กระเป๋าเงิน Epic Cash กับคุณ\n\nเปิดใน Epic Cash:\n$link\n\nหมดอายุ $date';
+    return '$name ต้องการจับคู่กระเป๋าเงิน Epic Cash กับคุณ หมดอายุ $date\n\nเปิดใน Epic Cash:\n$link';
   }
 
   @override

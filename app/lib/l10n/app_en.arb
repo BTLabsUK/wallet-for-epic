@@ -19142,9 +19142,9 @@
   "@pairWhatTheyReceive": {
     "description": "Label above the share text preview."
   },
-  "pairShareText": "{name} wants to pair Epic Cash wallets with you.\n\nOpen in Epic Cash:\n{link}\n\nExpires {date}.",
+  "pairShareText": "{name} wants to pair Epic Cash wallets with you. Expires {date}.\n\nOpen in Epic Cash:\n{link}",
   "@pairShareText": {
-    "description": "The shared invite text. The link only; no code. {date} is the expiry date and time.",
+    "description": "The shared invite text. The link only; no code. {date} is the expiry date and time. The link stays LAST: a one-line field drops the line breaks, and text after the link would run into it.",
     "placeholders": {
       "name": {
         "type": "String",

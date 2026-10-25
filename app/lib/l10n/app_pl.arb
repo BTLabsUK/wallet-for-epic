@@ -3874,7 +3874,7 @@
   "pairExpiry24h": "24 godziny",
   "pairExpiry7d": "7 dni",
   "pairWhatTheyReceive": "Co otrzyma druga osoba",
-  "pairShareText": "{name} chce sparować z tobą portfele Epic Cash.\n\nOtwórz w Epic Cash:\n{link}\n\nWygasa: {date}.",
+  "pairShareText": "{name} chce sparować z tobą portfele Epic Cash. Wygasa: {date}.\n\nOtwórz w Epic Cash:\n{link}",
   "pairShareWarning": "Każdy, kto ma to zaproszenie, może się sparować jako ty, dopóki nie wygaśnie. Wyślij je tylko właściwej osobie, a potem sprawdźcie razem słowa.",
   "pairShareInvite": "Udostępnij zaproszenie",
   "pairCopyInvite": "Kopiuj zaproszenie",

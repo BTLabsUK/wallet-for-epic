@@ -679,4 +679,15 @@ void main() {
     // Uri.parse(text).path when the scheme is `epic` and ignores every parameter, so any of
     // our codes fills the address and nothing else.
   });
+
+  test('a shared invite message routes as its pairing link, its lines kept or run together (PAIR-LNX-1)', () {
+    const link = 'epiccash://pair/1/AbCdEfGh123-_=';
+    final message = 'Anna wants to pair Epic Cash wallets with you. Expires 26 Oct, 06:11.\n\nOpen in Epic Cash:\n$link';
+    for (final text in [message, message.replaceAll('\n', '')]) {
+      final code = _scan(text);
+      expect(code, isA<PairingLink>());
+      expect((code as PairingLink).text, link);
+      expect(code.kind, PairingKind.invite);
+    }
+  });
 }

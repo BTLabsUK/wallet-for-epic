@@ -15057,7 +15057,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String pairShareText(String name, String link, String date) {
-    return '$name chce sparować z tobą portfele Epic Cash.\n\nOtwórz w Epic Cash:\n$link\n\nWygasa: $date.';
+    return '$name chce sparować z tobą portfele Epic Cash. Wygasa: $date.\n\nOtwórz w Epic Cash:\n$link';
   }
 
   @override

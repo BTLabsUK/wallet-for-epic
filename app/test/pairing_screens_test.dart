@@ -167,7 +167,9 @@ void main() {
       final invite = h.api.records.single;
       expect(invite.state, PairingState.pendingInvite);
       expect(h.files.sharedTexts.single, contains(invite.inviteLink!));
-      expect(h.files.sharedTexts.single, startsWith(_l.pairShareText('the owner', '', '').split('\n').first));
+      expect(h.files.sharedTexts.single, startsWith('the owner '));
+      // The link ends the text: a one-line field drops the line breaks (PAIR-LNX-1).
+      expect(h.files.sharedTexts.single, endsWith(invite.inviteLink!));
       expect(find.text(_l.pairInviteSentTitle), findsOneWidget);
       expect(find.text(_l.pairInviteSentBodyAnyone), findsOneWidget);
 

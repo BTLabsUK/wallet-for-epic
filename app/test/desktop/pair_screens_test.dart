@@ -96,6 +96,18 @@ void main() {
     expect(answered.single.asksInvoices, isFalse, reason: 'Allow invoices is off until the user turns it on');
   });
 
+  testWidgets('the whole shared invite message, its lines run together by the field, opens the invite (PAIR-LNX-1)', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _seenAs(tester, 'the owner');
+    final link = _pairing.inviteLinkFrom(name: 'Northwind', asksInvoices: true);
+    final message = _l.pairShareText('Northwind', link, '26 Oct, 06:11').replaceAll('\n', '');
+    await tester.enterText(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText)), message);
+    await tester.pump();
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    expect(find.text(_l.pairIncomingTitle('Northwind')), findsOneWidget);
+  });
+
   testWidgets('a pasted card link pairs face to face: this wallet\'s card to hand back, then the words', (tester) async {
     await _open(tester, const DeskPairScreen());
     await _seenAs(tester, 'the owner');

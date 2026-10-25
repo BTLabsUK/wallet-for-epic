@@ -3874,7 +3874,7 @@
   "pairExpiry24h": "24 Stunden",
   "pairExpiry7d": "7 Tage",
   "pairWhatTheyReceive": "Was die andere Seite erhält",
-  "pairShareText": "{name} möchte Epic-Cash-Wallets mit Ihnen koppeln.\n\nIn Epic Cash öffnen:\n{link}\n\nLäuft ab: {date}.",
+  "pairShareText": "{name} möchte Epic-Cash-Wallets mit Ihnen koppeln. Läuft ab: {date}.\n\nIn Epic Cash öffnen:\n{link}",
   "pairShareWarning": "Wer diese Einladung hat, kann sich bis zum Ablauf als Sie koppeln. Senden Sie sie nur an die gemeinte Person und prüfen Sie danach gemeinsam die Wörter.",
   "pairShareInvite": "Einladung teilen",
   "pairCopyInvite": "Einladung kopieren",

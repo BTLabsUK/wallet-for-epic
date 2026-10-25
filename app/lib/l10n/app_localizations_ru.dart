@@ -15020,7 +15020,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pairShareText(String name, String link, String date) {
-    return '$name предлагает сопрячь кошельки Epic Cash.\n\nОткрыть в Epic Cash:\n$link\n\nДействует до: $date.';
+    return '$name предлагает сопрячь кошельки Epic Cash. Действует до: $date.\n\nОткрыть в Epic Cash:\n$link';
   }
 
   @override

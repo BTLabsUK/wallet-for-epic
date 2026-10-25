@@ -3874,7 +3874,7 @@
   "pairExpiry24h": "24 小时",
   "pairExpiry7d": "7 天",
   "pairWhatTheyReceive": "对方收到的内容",
-  "pairShareText": "{name} 想与你配对 Epic Cash 钱包。\n\n在 Epic Cash 中打开：\n{link}\n\n过期时间：{date}。",
+  "pairShareText": "{name} 想与你配对 Epic Cash 钱包。过期时间：{date}。\n\n在 Epic Cash 中打开：\n{link}",
   "pairShareWarning": "在邀请过期前，任何拥有此邀请的人都能以你的身份配对。只发送给你要配对的人，然后一起核对词语。",
   "pairShareInvite": "分享邀请",
   "pairCopyInvite": "复制邀请",

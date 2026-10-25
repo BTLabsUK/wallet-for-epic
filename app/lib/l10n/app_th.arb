@@ -3874,7 +3874,7 @@
   "pairExpiry24h": "24 ชั่วโมง",
   "pairExpiry7d": "7 วัน",
   "pairWhatTheyReceive": "สิ่งที่อีกฝ่ายได้รับ",
-  "pairShareText": "{name} ต้องการจับคู่กระเป๋าเงิน Epic Cash กับคุณ\n\nเปิดใน Epic Cash:\n{link}\n\nหมดอายุ {date}",
+  "pairShareText": "{name} ต้องการจับคู่กระเป๋าเงิน Epic Cash กับคุณ หมดอายุ {date}\n\nเปิดใน Epic Cash:\n{link}",
   "pairShareWarning": "ใครก็ตามที่มีคำเชิญนี้จับคู่ในนามคุณได้จนกว่าจะหมดอายุ ส่งให้เฉพาะคนที่ตั้งใจเท่านั้น แล้วตรวจคำด้วยกัน",
   "pairShareInvite": "แชร์คำเชิญ",
   "pairCopyInvite": "คัดลอกคำเชิญ",

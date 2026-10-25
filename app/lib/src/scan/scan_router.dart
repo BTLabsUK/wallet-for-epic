@@ -208,9 +208,26 @@ String _firstLine(String raw) {
 final RegExp _controlChars = RegExp(r'[\u0000-\u001f\u007f-\u009f]');
 final RegExp _scheme = RegExp(r'^(epic|epiccash):', caseSensitive: false);
 
+/// A pairing link anywhere in a shared message ("Anna wants to pair…" with the link on its
+/// own line, or the lines run together by a one-line field).
+final RegExp _pairingInText = RegExp(
+  r'epiccash://(pair|pair-reply|pair-confirm|contact)/[A-Za-z0-9_\-/=]+',
+  caseSensitive: false,
+);
+
 ScannedCode _classify(String raw, AddressCheck check) {
   final whole = raw.trim();
   if (_isSlateText(whole)) return SlateText(whole);
+  final shared = _pairingInText.firstMatch(whole);
+  if (shared != null && !whole.toLowerCase().startsWith('epiccash://')) {
+    final kind = switch (shared.group(1)!.toLowerCase()) {
+      'pair' => PairingKind.invite,
+      'pair-reply' => PairingKind.reply,
+      'pair-confirm' => PairingKind.confirm,
+      _ => PairingKind.contact,
+    };
+    return PairingLink(kind, shared.group(0)!);
+  }
   final text = _firstLine(raw);
   if (text.isEmpty) return UnknownCode(text);
   final lower = text.toLowerCase();

@@ -37,12 +37,14 @@ const Key waitingByHandKey = ValueKey('waiting-by-hand');
 Future<void> openPairingLink(
   BuildContext context,
   WidgetRef ref,
-  String text, {
+  String pasted, {
   Contact? contact,
   bool replace = false,
 }) async {
-  final kind = pairingLinkKind(text);
+  final kind = pairingLinkKind(pasted);
   if (kind == null) return;
+  // A shared message holds the link among words: the calls take the link alone (PAIR-LNX-1).
+  final text = pairingLinkIn(pasted)!;
   final api = ref.read(pairingApiProvider);
   final nav = Navigator.of(context);
   Future<void> show(Widget screen) =>

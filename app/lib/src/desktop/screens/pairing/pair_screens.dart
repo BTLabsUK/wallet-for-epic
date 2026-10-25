@@ -330,12 +330,6 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
             ),
           ),
           SizedBox(height: Sp.x4),
-          EField(
-            label: l.pairSeenAs,
-            error: _triedInvite && _seenAs.isEmpty ? l.pairSeenAsMissing : null,
-            child: EInput(controller: _name, autofocus: _name.text.isEmpty, onChanged: (_) => _nameChanged(), onSubmitted: (_) => _makeCode()),
-          ),
-          SizedBox(height: Sp.x4),
           Text(l.pairWhatTheyReceive, style: ts.label),
           SizedBox(height: Sp.x1),
           Container(
@@ -368,6 +362,16 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
           SizedBox(height: Sp.x5),
           if (net == DeskPairNet.offline) ...[ENotice(title: l.pairOfflineHint, tone: ETone.warn), SizedBox(height: Sp.x4)],
           if (byHand) ...[ENotice(title: l.pairEpicboxOffNotice, tone: ETone.info), SizedBox(height: Sp.x4)],
+          // One name for both ways: the code shown in person and the invite sent online.
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 420.u),
+            child: EField(
+              label: l.pairSeenAs,
+              error: (_triedInvite || _needName) && _seenAs.isEmpty ? l.pairSeenAsMissing : null,
+              child: EInput(controller: _name, autofocus: _name.text.isEmpty, onChanged: (_) => _nameChanged(), onSubmitted: (_) => _makeCode()),
+            ),
+          ),
+          SizedBox(height: Sp.x5),
           LayoutBuilder(
             builder: (context, box) => box.maxWidth >= 900.u
                 ? Row(
@@ -397,9 +401,11 @@ Future<void> copyToClipboard(BuildContext context, String text, String toast) as
 
 /// Opens [text]: a pairing link (invite, answer, confirm, card) or five pairing words. The
 /// invite asks "Pair with Anna?"; an answer or a confirm opens the words check.
-Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String text, {Contact? contact}) async {
+Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pasted, {Contact? contact}) async {
   final api = ref.read(deskPairingApiProvider);
-  final kind = pairingLinkKind(text);
+  final kind = pairingLinkKind(pasted);
+  // A shared message holds the link among words: the calls take the link alone (PAIR-LNX-1).
+  final text = pairingLinkIn(pasted) ?? pasted;
   try {
     switch (kind) {
       case PairingLinkKind.invite:

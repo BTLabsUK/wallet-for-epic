@@ -3874,7 +3874,7 @@
   "pairExpiry24h": "24 часа",
   "pairExpiry7d": "7 дней",
   "pairWhatTheyReceive": "Что получит собеседник",
-  "pairShareText": "{name} предлагает сопрячь кошельки Epic Cash.\n\nОткрыть в Epic Cash:\n{link}\n\nДействует до: {date}.",
+  "pairShareText": "{name} предлагает сопрячь кошельки Epic Cash. Действует до: {date}.\n\nОткрыть в Epic Cash:\n{link}",
   "pairShareWarning": "Любой, у кого есть это приглашение, может выполнить сопряжение от вашего имени, пока оно действует. Отправляйте его только нужному человеку, затем проверьте слова вместе.",
   "pairShareInvite": "Поделиться приглашением",
   "pairCopyInvite": "Копировать приглашение",

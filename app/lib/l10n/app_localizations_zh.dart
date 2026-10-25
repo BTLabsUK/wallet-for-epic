@@ -13824,7 +13824,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String pairShareText(String name, String link, String date) {
-    return '$name 想与你配对 Epic Cash 钱包。\n\n在 Epic Cash 中打开：\n$link\n\n过期时间：$date。';
+    return '$name 想与你配对 Epic Cash 钱包。过期时间：$date。\n\n在 Epic Cash 中打开：\n$link';
   }
 
   @override
