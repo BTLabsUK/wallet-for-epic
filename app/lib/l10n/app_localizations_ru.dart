@@ -6568,7 +6568,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskErrProofHistoryOld =>
-      'Историю Epic Wallet 5.3 и старше прочитать нельзя; баланс восстановит сканирование';
+      'История в старом формате базы данных не читается; баланс восстанавливает сканирование';
 
   @override
   String get deskErrProofHistoryBusy =>
@@ -13620,11 +13620,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskErrOldLinks =>
-      'В папке этого кошелька есть ссылки; скопируйте её вручную или восстановите кошелёк по фразе восстановления.';
+      'В папке этого кошелька есть ссылки, поэтому он не импортируется. Восстановите его по фразе восстановления.';
 
   @override
   String get deskErrOldIncomplete =>
-      'Папку этого кошелька не удалось прочитать полностью; скопируйте её вручную или восстановите кошелёк по фразе восстановления.';
+      'Папку этого кошелька не удалось прочитать полностью, поэтому он не импортируется. Восстановите его по фразе восстановления.';
 
   @override
   String get deskErrOldSeedTooLarge =>
@@ -16784,4 +16784,51 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvIssuerToAnyone => 'Счёт для любого, у кого есть файл';
+
+  @override
+  String deskOnbImportRelayTitle(String name) {
+    return 'Сервер Epicbox для $name';
+  }
+
+  @override
+  String deskOnbImportRelayLead(String old) {
+    return 'Старое приложение принимало через $old. Все, кто сохранил адрес этого кошелька, отправляют туда.';
+  }
+
+  @override
+  String deskOnbImportRelayKeep(String old) {
+    return 'Оставить $old';
+  }
+
+  @override
+  String get deskOnbImportRelayKeepHint =>
+      'Адрес не меняется. Сервер добавляется в список Epicbox и используется для этого кошелька.';
+
+  @override
+  String deskOnbImportRelayApp(String current) {
+    return 'Использовать $current';
+  }
+
+  @override
+  String get deskOnbImportRelayAppHint =>
+      'Адрес изменится. Тем, у кого старый адрес, нужен новый; платежи на старый адрес не придут.';
+
+  @override
+  String get deskOnbImportUnlockOld => 'Разблокировка старым паролем.';
+
+  @override
+  String get deskOnbImportUnlockNew =>
+      'Разблокировка новым паролем, выбранным здесь.';
+
+  @override
+  String get deskOnbWelcomeOtherApps =>
+      'Из Stack Wallet или Epic Pay: восстановите по фразе восстановления.';
+
+  @override
+  String get deskOnbImportCloseFirstWindows =>
+      'Закройте старый Epic Wallet перед импортом. В Windows нельзя проверить, запущен ли он ещё.';
+
+  @override
+  String get deskSetRecvEpicboxOwnHint =>
+      'У этого кошелька свой сервер Epicbox, сохранённый из старого приложения. Изменение здесь касается только этого кошелька.';
 }

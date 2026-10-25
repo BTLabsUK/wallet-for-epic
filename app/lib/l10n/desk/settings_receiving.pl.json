@@ -15,6 +15,7 @@
   "deskSetRecvEpicboxText": "Płatności docierają przez serwer Epicbox, także gdy portfel jest zamknięty.",
   "deskSetRecvEpicboxServer": "Serwer Epicbox",
   "deskSetRecvEpicboxServerHint": "Który serwer przechowuje płatności na ten adres. Oba portfele mogą używać różnych serwerów.",
+  "deskSetRecvEpicboxOwnHint": "Ten portfel ma własny serwer Epicbox, zachowany ze starszej aplikacji. Zmiana tutaj dotyczy tylko tego portfela.",
   "deskSetRecvSwitchingServer": "Przełączanie serwera Epicbox…",
   "deskSetRecvListNote": "Stan z status.btlabs.uk, sprawdzany co kilka minut.",
   "deskSetRecvHttpTitle": "Link · HTTP, odbieranie",

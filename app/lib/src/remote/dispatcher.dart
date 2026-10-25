@@ -341,6 +341,14 @@ class WalletDispatcher {
       _service.deleteWallet(config: _config(p)),
       voidWire,
     ),
+    ServiceMember.resetPassword => _once(
+      _service.resetPassword(
+        config: _config(p),
+        mnemonic: p.of('mnemonic', stringWire),
+        newPassword: p.of('newPassword', stringWire),
+      ),
+      voidWire,
+    ),
   };
 
   _Outcome _serveSession(
@@ -413,6 +421,7 @@ class WalletDispatcher {
     ),
     SessionMember.epicboxAddress => _once(s.epicboxAddress(), stringWire),
     SessionMember.restoreScanRequired => _once(s.restoreScanRequired(), boolWire),
+    SessionMember.fingerprint => _once(s.fingerprint(), stringWire),
     SessionMember.estimateFee => _once(
       s.estimateFee(
         amount: p.of('amount', bigIntWire),

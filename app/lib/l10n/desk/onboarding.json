@@ -806,6 +806,66 @@
   "@deskOnbImportDoneLead": {
     "description": "Line under the 'Wallets imported' title."
   },
+  "deskOnbImportRelayTitle": "Epicbox server for {name}",
+  "@deskOnbImportRelayTitle": {
+    "description": "Title of the relay choice at Import › Done when the old wallet used another Epicbox server.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbImportRelayLead": "The older app received through {old}. Anyone who saved this wallet's address sends there.",
+  "@deskOnbImportRelayLead": {
+    "description": "Lead of the relay choice; {old} is the old server host.",
+    "placeholders": {
+      "old": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbImportRelayKeep": "Keep {old}",
+  "@deskOnbImportRelayKeep": {
+    "description": "First option (preselected): keep the old server for this wallet.",
+    "placeholders": {
+      "old": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbImportRelayKeepHint": "The address stays the same. The server is added to the Epicbox list and used for this wallet.",
+  "@deskOnbImportRelayKeepHint": {
+    "description": "Hint under Keep."
+  },
+  "deskOnbImportRelayApp": "Use {current}",
+  "@deskOnbImportRelayApp": {
+    "description": "Second option: the app's Epicbox server; {current} is its host.",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbImportRelayAppHint": "The address changes. Senders who hold the old address need the new one; payments sent to the old address do not arrive.",
+  "@deskOnbImportRelayAppHint": {
+    "description": "Hint under Use the app's server."
+  },
+  "deskOnbImportUnlockOld": "Unlock with the old password.",
+  "@deskOnbImportUnlockOld": {
+    "description": "Done-step line per wallet that kept its old password."
+  },
+  "deskOnbImportUnlockNew": "Unlock with the new password chosen here.",
+  "@deskOnbImportUnlockNew": {
+    "description": "Done-step line per wallet whose old password was too short and got a new one."
+  },
+  "deskOnbWelcomeOtherApps": "From Stack Wallet or Epic Pay: restore with the recovery phrase.",
+  "@deskOnbWelcomeOtherApps": {
+    "description": "One line under the Import tile on Welcome and under deskOnbImportNoneLead on \"No wallets found\" (R31)."
+  },
+  "deskOnbImportCloseFirstWindows": "Close the older Epic Wallet before importing. Whether it is still running cannot be checked on Windows.",
+  "@deskOnbImportCloseFirstWindows": {
+    "description": "Line on the Check step (deskOnbImportCheckTitle) on Windows only, where the process check gives no answer (R28)."
+  },
   "deskOnbImportSelected": "{selected} of {total} selected",
   "@deskOnbImportSelected": {
     "description": "Counter at the bottom of the choose step. Both are numbers.",

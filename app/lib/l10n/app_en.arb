@@ -8077,9 +8077,9 @@
   "@deskErrProofHistoryNone": {
     "description": "A line of the import wizard's result."
   },
-  "deskErrProofHistoryOld": "History of Epic Wallet 5.3 or older is not readable; the scan restores the balance",
+  "deskErrProofHistoryOld": "History in an older database format is not readable; the scan restores the balance",
   "@deskErrProofHistoryOld": {
-    "description": "A line of the import wizard's result."
+    "description": "A line of the import wizard's result: the old wallet's history is in an older database format the app cannot read."
   },
   "deskErrProofHistoryBusy": "History not imported: the older wallet is running. It is imported at the next unlock",
   "@deskErrProofHistoryBusy": {
@@ -17398,13 +17398,13 @@
   "@deskTxThisWallet": {
     "description": "Activity and payment detail: who the other side is for a split or consolidation, where both sides are this wallet. Short, it sits in the name column."
   },
-  "deskErrOldLinks": "This wallet's folder has links in it; copy it by hand or restore from the phrase.",
+  "deskErrOldLinks": "This wallet's folder has links in it, so it is not imported. Restore it from the recovery phrase.",
   "@deskErrOldLinks": {
-    "description": "Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user can copy the folder by hand or restore from the recovery phrase."
+    "description": "Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user restores it from the recovery phrase instead."
   },
-  "deskErrOldIncomplete": "This wallet's folder could not be read completely; copy it by hand or restore from the phrase.",
+  "deskErrOldIncomplete": "This wallet's folder could not be read completely, so it is not imported. Restore it from the recovery phrase.",
   "@deskErrOldIncomplete": {
-    "description": "Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user can copy it by hand or restore from the recovery phrase."
+    "description": "Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user restores it from the recovery phrase instead."
   },
   "deskErrOldSeedTooLarge": "The wallet.seed file is too large to be a wallet seed.",
   "@deskErrOldSeedTooLarge": {
@@ -21610,5 +21610,69 @@
   "deskInvIssuerToAnyone": "Invoice for anyone with the file",
   "@deskInvIssuerToAnyone": {
     "description": "Issuer card title of a payment request saved as a file for anyone (LNX3-10): its own sentence, not deskInvIssuerTo with reqToAnyone."
+  },
+  "deskOnbImportRelayTitle": "Epicbox server for {name}",
+  "@deskOnbImportRelayTitle": {
+    "description": "Title of the relay choice at Import › Done when the old wallet used another Epicbox server.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbImportRelayLead": "The older app received through {old}. Anyone who saved this wallet's address sends there.",
+  "@deskOnbImportRelayLead": {
+    "description": "Lead of the relay choice; {old} is the old server host.",
+    "placeholders": {
+      "old": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbImportRelayKeep": "Keep {old}",
+  "@deskOnbImportRelayKeep": {
+    "description": "First option (preselected): keep the old server for this wallet.",
+    "placeholders": {
+      "old": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbImportRelayKeepHint": "The address stays the same. The server is added to the Epicbox list and used for this wallet.",
+  "@deskOnbImportRelayKeepHint": {
+    "description": "Hint under Keep."
+  },
+  "deskOnbImportRelayApp": "Use {current}",
+  "@deskOnbImportRelayApp": {
+    "description": "Second option: the app's Epicbox server; {current} is its host.",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbImportRelayAppHint": "The address changes. Senders who hold the old address need the new one; payments sent to the old address do not arrive.",
+  "@deskOnbImportRelayAppHint": {
+    "description": "Hint under Use the app's server."
+  },
+  "deskOnbImportUnlockOld": "Unlock with the old password.",
+  "@deskOnbImportUnlockOld": {
+    "description": "Done-step line per wallet that kept its old password."
+  },
+  "deskOnbImportUnlockNew": "Unlock with the new password chosen here.",
+  "@deskOnbImportUnlockNew": {
+    "description": "Done-step line per wallet whose old password was too short and got a new one."
+  },
+  "deskOnbWelcomeOtherApps": "From Stack Wallet or Epic Pay: restore with the recovery phrase.",
+  "@deskOnbWelcomeOtherApps": {
+    "description": "One line under the Import tile on Welcome and under deskOnbImportNoneLead on \"No wallets found\" (R31)."
+  },
+  "deskOnbImportCloseFirstWindows": "Close the older Epic Wallet before importing. Whether it is still running cannot be checked on Windows.",
+  "@deskOnbImportCloseFirstWindows": {
+    "description": "Line on the Check step (deskOnbImportCheckTitle) on Windows only, where the process check gives no answer (R28)."
+  },
+  "deskSetRecvEpicboxOwnHint": "This wallet has its own Epicbox server, kept from the older app. A change here applies to this wallet only.",
+  "@deskSetRecvEpicboxOwnHint": {
+    "description": "Hint under the Epicbox server field in Settings when the open wallet has its own server (an imported wallet that kept the older app's server, so its address stays the same): changing it here changes it for this wallet only, not for the app's other wallets."
   }
 }

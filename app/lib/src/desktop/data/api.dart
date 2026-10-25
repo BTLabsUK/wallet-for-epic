@@ -127,6 +127,13 @@ abstract interface class DeskWalletApi {
   /// [oldPassword] throws [DeskError.wrongPassword] and makes nothing.
   Future<ImportedWallet> importOldWallet(String id, {required String oldPassword, String? newPassword});
 
+  /// R12: whether the wallet [id] this run imported keeps the older app's Epicbox server
+  /// ([ImportedWallet.oldRelay]) as its own, which keeps its address; it does from the import
+  /// on. Keep puts the server in the Epicbox list; false goes back to the app's server (a new
+  /// address) and takes the server out of the list again when the import put it there. The
+  /// app's own server and list defaults never change.
+  Future<void> keepOldRelay(String id, {required bool keep});
+
   /// Deletes the wallets this run imported. Old folders are unchanged.
   Future<void> cancelImport();
 

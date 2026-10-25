@@ -90,6 +90,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 selected: false,
                 onTap: () => nav.go(DeskRoute.importWallets),
               ),
+              SizedBox(height: Sp.x2),
+              Text(l.deskOnbWelcomeOtherApps, style: ts.small),
             ],
             SizedBox(height: Sp.x3),
             EChoiceCard(

@@ -1854,6 +1854,9 @@ enum WalletErrorKind {
   /// and invoices are refused until it does. A scan with no start height finishes it.
   restoreScanRequired,
 
+  /// [WalletService.resetPassword] was given a valid phrase of another wallet: nothing changed.
+  phraseMismatch,
+
   /// The wallet database was damaged; the core set it aside. Opening the wallet again rebuilds
   /// it, then a scan brings the funds back. History, labels and messages are not in the new one.
   damagedDatabase,

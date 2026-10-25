@@ -15,6 +15,7 @@
   "deskSetRecvEpicboxText": "รายการเข้าผ่านเซิร์ฟเวอร์ Epicbox แม้ตอนกระเป๋าเงินปิดอยู่",
   "deskSetRecvEpicboxServer": "เซิร์ฟเวอร์ Epicbox",
   "deskSetRecvEpicboxServerHint": "เซิร์ฟเวอร์ที่เก็บรายการของที่อยู่นี้ สองกระเป๋าเงินใช้เซิร์ฟเวอร์ต่างกันได้",
+  "deskSetRecvEpicboxOwnHint": "กระเป๋านี้มีเซิร์ฟเวอร์ Epicbox ของตัวเองที่เก็บไว้จากแอปเดิม การเปลี่ยนที่นี่มีผลกับกระเป๋านี้เท่านั้น",
   "deskSetRecvSwitchingServer": "กำลังเปลี่ยนเซิร์ฟเวอร์ Epicbox…",
   "deskSetRecvListNote": "สถานะจาก status.btlabs.uk ตรวจทุกไม่กี่นาที",
   "deskSetRecvHttpTitle": "ลิงก์ · HTTP: การรับ",

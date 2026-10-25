@@ -15,6 +15,7 @@
   "deskSetRecvEpicboxText": "Платежи приходят через сервер Epicbox, даже когда кошелёк закрыт.",
   "deskSetRecvEpicboxServer": "Сервер Epicbox",
   "deskSetRecvEpicboxServerHint": "Какой сервер хранит платежи для этого адреса. У двух кошельков могут быть разные серверы.",
+  "deskSetRecvEpicboxOwnHint": "У этого кошелька свой сервер Epicbox, сохранённый из старого приложения. Изменение здесь касается только этого кошелька.",
   "deskSetRecvSwitchingServer": "Переключение сервера Epicbox…",
   "deskSetRecvListNote": "Состояние по данным status.btlabs.uk, проверяется раз в несколько минут.",
   "deskSetRecvHttpTitle": "Ссылка · HTTP, приём",

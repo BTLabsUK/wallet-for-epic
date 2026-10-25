@@ -257,8 +257,22 @@ class MockDeskWallet implements DeskWalletApi {
     _wallets.add(entry);
     _current = entry.id;
     _imported.add(entry.id);
-    return ImportedWallet(id: entry.id, name: name, proof: const [ImportProof('Seed read'), ImportProof('Wallet created'), ImportProof('Old folder unchanged')]);
+    return ImportedWallet(
+      id: entry.id,
+      name: name,
+      proof: const [ImportProof('Seed read'), ImportProof('Wallet created'), ImportProof('Old folder unchanged')],
+      // Savings used another Epicbox server in the older app.
+      oldRelay: id == 'sav' ? 'epicbox.example.org' : null, // l10n-ok: a host
+      appRelay: _epicbox,
+      newPassword: newPassword != null,
+    );
   }
+
+  /// Tests: the [keepOldRelay] calls, as `id:keep`.
+  final List<String> relayChoices = [];
+
+  @override
+  Future<void> keepOldRelay(String id, {required bool keep}) async => relayChoices.add('$id:$keep');
 
   @override
   Future<void> cancelImport() async {

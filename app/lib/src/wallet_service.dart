@@ -20,6 +20,12 @@ export 'pairing_api.dart';
 abstract interface class WalletService {
   bool validateMnemonic({required String phrase});
 
+  /// The wallet's fingerprint for [mnemonic] on [chain]: 8 lowercase hex characters, the same
+  /// value [WalletSession.fingerprint] gives for a wallet created, restored or imported
+  /// (wallet.seed) with that phrase, so "is this wallet here already" has one answer. A phrase
+  /// that is not one throws [WalletError] with [WalletErrorKind.invalidMnemonic].
+  String walletFingerprint({required String mnemonic, required Chain chain});
+
   /// Reads a slate's id, amount, fee and step without touching a wallet. Throws [WalletError]
   /// with [WalletErrorKind.invalidSlate] for anything that is not a slate. LEPIC reads it on
   /// the chain of the last wallet config it saw.
@@ -107,6 +113,19 @@ abstract interface class WalletService {
   /// Deletes the wallet files in `config.dataDir`. Every session on it must be disposed first.
   /// Only the recovery phrase can bring the wallet back.
   Future<void> deleteWallet({required WalletConfig config});
+
+  /// A forgotten password: [mnemonic] must be this wallet's own recovery phrase (the core
+  /// checks it against the wallet's database first, [WalletErrorKind.phraseMismatch] for
+  /// another wallet's), then only the encrypted seed is written again under [newPassword]. The
+  /// history, notes and labels stay, and nothing is scanned again. The wallet must be closed
+  /// ([WalletErrorKind.walletBusy] otherwise); a password under eight characters is
+  /// [WalletErrorKind.invalidArgument]; a wallet that never had a database is
+  /// [WalletErrorKind.walletNotFound] (delete and restore it instead).
+  Future<void> resetPassword({
+    required WalletConfig config,
+    required String mnemonic,
+    required String newPassword,
+  });
 }
 
 /// A wallet from [WalletService.createWithPin] and its password sealed under the PIN.
@@ -200,6 +219,9 @@ abstract interface class WalletSession {
   });
 
   Future<String> epicboxAddress();
+
+  /// This wallet's fingerprint ([WalletService.walletFingerprint] of its phrase and chain).
+  Future<String> fingerprint();
 
   /// What a send of [amount] with [options] would spend, pay and get back now, with nothing
   /// locked. Pass the [options] the send will get.
@@ -603,6 +625,16 @@ String onionHost(String address) {
   return m == null ? address.trim() : '${m[0]!.toLowerCase()}.onion';
 }
 
+/// The fakes' [WalletService.walletFingerprint]: 8 hex characters of an FNV-1a hash of the
+/// chain and the phrase (the core's own value is derived from the seed).
+String fakeWalletFingerprint(String mnemonic, Chain chain) {
+  var h = 0x811c9dc5;
+  for (final b in utf8.encode('${chain.name} $mnemonic')) {
+    h = ((h ^ b) * 0x01000193) & 0xffffffff;
+  }
+  return h.toRadixString(16).padLeft(8, '0');
+}
+
 /// In-memory wallet for widget tests. Holds at most one wallet per data directory.
 ///
 /// Nothing here touches disk, the network or the native library.
@@ -648,6 +680,14 @@ class FakeWalletService implements WalletService {
 
   @override
   bool validateMnemonic({required String phrase}) => phrase == this.phrase;
+
+  @override
+  String walletFingerprint({required String mnemonic, required Chain chain}) {
+    if (!validateMnemonic(phrase: mnemonic)) {
+      throw const WalletError(kind: WalletErrorKind.invalidMnemonic, message: 'not a phrase');
+    }
+    return fakeWalletFingerprint(mnemonic, chain);
+  }
 
   /// Slates [inspectSlate] recognises, by JSON text.
   final Map<String, SlateInfo> slateInfos = {};
@@ -797,8 +837,45 @@ class FakeWalletService implements WalletService {
     this.password = password;
     createdConfig = config;
     createdMnemonic = mnemonic;
+    phraseOf[config.dataDir] = mnemonic ?? phrase;
+    openWallets.add(config.dataDir);
     session.openedConfig = config;
     return session..owner = this;
+  }
+
+  /// The recovery phrase of each wallet [create] made, by data directory; [phrase] otherwise.
+  final Map<String, String> phraseOf = {};
+
+  /// Data directories with an undisposed session, as the core counts them for
+  /// [resetPassword] and [deleteWallet].
+  final Set<String> openWallets = {};
+
+  /// The data directories [resetPassword] changed the password of.
+  final List<String> passwordResets = [];
+
+  @override
+  Future<void> resetPassword({
+    required WalletConfig config,
+    required String mnemonic,
+    required String newPassword,
+  }) async {
+    if (!existingWallets.contains(config.dataDir)) {
+      throw const WalletError(kind: WalletErrorKind.walletNotFound, message: 'no wallet');
+    }
+    if (openWallets.contains(config.dataDir)) {
+      throw const WalletError(kind: WalletErrorKind.walletBusy, message: 'the wallet is open');
+    }
+    if (newPassword.runes.length < 8) {
+      throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'password too short');
+    }
+    if (!validateMnemonic(phrase: mnemonic)) {
+      throw const WalletError(kind: WalletErrorKind.invalidMnemonic, message: 'not a phrase');
+    }
+    if ((phraseOf[config.dataDir] ?? phrase) != mnemonic) {
+      throw const WalletError(kind: WalletErrorKind.phraseMismatch, message: 'phrase of another wallet');
+    }
+    password = newPassword;
+    passwordResets.add(config.dataDir);
   }
 
   /// The seed text and its password [importWalletSeed] was given last.
@@ -807,6 +884,9 @@ class FakeWalletService implements WalletService {
 
   /// The only seed password [importWalletSeed] accepts; any other is wrong.
   String seedFilePassword = 'old password';
+
+  /// The phrase behind the seed file [importWalletSeed] takes; null: one of the seed file's own.
+  String? seedFilePhrase;
 
   @override
   Future<WalletSession> importWalletSeed({
@@ -832,8 +912,10 @@ class FakeWalletService implements WalletService {
     createdConfig = config;
     importedSeedFile = seedFile;
     importedSeedPassword = seedPassword;
+    // Each seed file its own wallet unless a test names its phrase.
+    phraseOf[config.dataDir] = seedFilePhrase ?? 'seed file $seedFile';
     session.openedConfig = config;
-    return session;
+    return session..owner = this;
   }
 
   @override
@@ -853,6 +935,7 @@ class FakeWalletService implements WalletService {
         message: 'wrong password',
       );
     }
+    openWallets.add(config.dataDir);
     session.openedConfig = config;
     return session..owner = this;
   }
@@ -861,6 +944,7 @@ class FakeWalletService implements WalletService {
   Future<void> deleteWallet({required WalletConfig config}) async {
     if (deleteError case final error?) throw error;
     existingWallets.remove(config.dataDir);
+    phraseOf.remove(config.dataDir);
     deletedWallets.add(config.dataDir);
     pinFailureCount = 0;
   }
@@ -1011,7 +1095,10 @@ class FakeWalletSession implements WalletSession {
   WalletError? sendError;
 
   @override
-  void dispose() => disposeCalls++;
+  void dispose() {
+    disposeCalls++;
+    owner?.openWallets.remove(openedConfig?.dataDir);
+  }
 
   @override
   Future<String> mnemonic({required String password}) async => phrase;
@@ -1216,6 +1303,19 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<String> epicboxAddress() async => address;
+
+  /// [fingerprint]'s answer; null: [fakeWalletFingerprint] of the phrase its service made it with.
+  String? fingerprintValue;
+
+  @override
+  Future<String> fingerprint() async {
+    final dir = openedConfig?.dataDir;
+    return fingerprintValue ??
+        fakeWalletFingerprint(
+          owner?.phraseOf[dir] ?? owner?.phrase ?? '',
+          openedConfig?.chain ?? Chain.mainnet,
+        );
+  }
 
   @override
   Future<FeeEstimate> estimateFee({

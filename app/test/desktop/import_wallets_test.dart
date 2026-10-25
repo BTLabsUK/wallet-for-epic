@@ -129,7 +129,7 @@ void main() {
     service.session.legacyImport = const core.LegacyHistoryImport(status: core.LegacyHistoryStatus.oldFormat);
     final savings = byName(await wallet.findOldWallets(), 'Savings');
     final r = await wallet.importOldWallet(savings.id, oldPassword: _old);
-    final history = r.proof.firstWhere((p) => p.text.contains('5.3 or older'));
+    final history = r.proof.firstWhere((p) => p.text.contains('older database format'));
     expect(history.ok, isFalse);
     expect((await wallet.wallets()).single.name, 'Savings');
   });
@@ -304,5 +304,160 @@ void main() {
     expect(await busy.checkOldWallet(cliMain(found).id), OldWalletUse.inUse);
     expect(await busy.checkOldWallet(byName(found, 'Savings').id), OldWalletUse.free);
     await expectLater(busy.checkOldWallet('nope'), throwsA(isA<DeskError>()));
+  });
+  group('R12 the older app\'s Epicbox server', () {
+    const box = 'epicbox.example.org';
+    const listKey = 'desk.serverList.relay.mainnet';
+
+    /// Savings used [box] in GUI 6.1.
+    Future<void> savingsOnBox() async {
+      final gui = '$home/.epic-gui';
+      await write('$gui/settings.json', jsonEncode({
+        'wallets': [
+          {'id': 'w1', 'label': 'Savings', 'network': 'mainnet', 'dataDir': '$gui/wallets/w1', 'settings': {'epicbox_domain': box}},
+          {'id': 'w2', 'label': 'Everyday', 'network': 'mainnet', 'dataDir': '$gui/wallets/w2'},
+        ],
+      }));
+    }
+
+    Map<String, dynamic> meta(String id) => jsonDecode(secrets.values['desk.wallet.mainnet.$id']!) as Map<String, dynamic>;
+    List<String> listed() => [for (final e in (jsonDecode(secrets.values[listKey]!)['entries'] as List)) '$e'];
+
+    test('kept from the import: the wallet listens there, the list has it, the app\'s server stays', () async {
+      await savingsOnBox();
+      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      expect(r.oldRelay, box);
+      expect(r.appRelay, isNot(box));
+      expect(r.proof.map((p) => p.text), isNot(contains(contains('Epicbox'))), reason: 'the choice replaces the proof line');
+      expect(meta(r.id)['epicbox'], box);
+      expect(listed(), contains(box));
+      expect(listed(), contains(r.appRelay), reason: 'the defaults stay listed');
+      expect(await wallet.unlock(_old), isTrue);
+      expect(service.session.openedConfig!.epicboxDomain, box);
+      expect((await wallet.status()).epicbox.domain, box);
+      expect((await wallet.status()).epicboxOwn, isTrue);
+      expect(await secrets.read('app.relay.mainnet'), r.appRelay);
+    });
+
+    test('Use the app\'s server: back on it, the list entry the import added goes again', () async {
+      await savingsOnBox();
+      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      await wallet.keepOldRelay(r.id, keep: false);
+      expect(meta(r.id)['epicbox'], isNull);
+      expect(listed(), isNot(contains(box)));
+      expect(await wallet.unlock(_old), isTrue);
+      expect(service.session.openedConfig!.epicboxDomain, r.appRelay);
+      expect((await wallet.status()).epicboxOwn, isFalse);
+      // And Keep again.
+      await wallet.lock();
+      await wallet.keepOldRelay(r.id, keep: true);
+      expect(listed(), contains(box));
+    });
+
+    test('a server listed before stays listed when the wallet goes back to the app\'s', () async {
+      await savingsOnBox();
+      await secrets.write(listKey, jsonEncode({'entries': ['epicbox.epiccash.com', box]}));
+      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      await wallet.keepOldRelay(r.id, keep: false);
+      expect(listed(), contains(box));
+    });
+
+    test('a Settings pick while the wallet is open is its own; the app\'s server stays', () async {
+      await savingsOnBox();
+      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      expect(await wallet.unlock(_old), isTrue);
+      await wallet.useEpicbox('epicbox.other.example');
+      expect(meta(r.id)['epicbox'], 'epicbox.other.example');
+      expect(await secrets.read('app.relay.mainnet'), r.appRelay);
+      expect(service.session.openedConfig!.epicboxDomain, 'epicbox.other.example');
+    });
+
+    test('Cancel takes the server it listed back out', () async {
+      await savingsOnBox();
+      await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      await wallet.cancelImport();
+      expect(listed(), isNot(contains(box)));
+    });
+
+    test('the same server as the app\'s: no choice', () async {
+      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      expect(r.oldRelay, isNull);
+      expect(meta(r.id)['epicbox'], isNull);
+    });
+  });
+
+  group('R15 one fingerprint for the same wallet', () {
+    List<String> words() => service.phrase.split(' ');
+
+    // Savings' seed file holds the test phrase.
+    setUp(() => service.seedFilePhrase = service.phrase);
+
+    test('an imported wallet is "already here" for a restore of its phrase', () async {
+      final r = await wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old);
+      final entry = (await wallet.registry()).byId(r.id)!;
+      expect(entry.walletFingerprint, core.fakeWalletFingerprint(service.phrase, core.Chain.mainnet));
+      expect((await wallet.walletWithPhrase(words()))?.id, r.id);
+      await expectLater(
+        wallet.restoreWallet(password: _password, phrase: words()),
+        throwsA(isA<DeskError>().having((e) => e.sameWallet?.id, 'sameWallet', r.id)),
+      );
+      expect((await wallet.wallets()).map((e) => e.name), ['Savings']);
+    });
+
+    test('an import of a phrase restored before is refused and leaves nothing', () async {
+      await wallet.restoreWallet(name: 'Main', password: _password, phrase: words());
+      await expectLater(
+        wallet.importOldWallet(byName(await wallet.findOldWallets(), 'Savings').id, oldPassword: _old),
+        throwsA(isA<DeskError>().having((e) => e.message, 'message', 'Already in the app as Main')),
+      );
+      expect((await wallet.wallets()).map((e) => e.name), ['Main']);
+    });
+
+    test('a wallet made before fingerprints gets one at its next unlock', () async {
+      await wallet.createWallet(name: 'Main', password: _password);
+      await wallet.dispose();
+      // As an older build left the list: no fingerprint of either kind.
+      final file = File('${support.path}/wallets.json');
+      final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+      for (final e in json['wallets'] as List) {
+        (e as Map).remove('phraseFingerprint');
+        e.remove('walletFingerprint');
+      }
+      await file.writeAsString(jsonEncode(json));
+      wallet = make();
+      expect(await wallet.walletWithPhrase(words()), isNull, reason: 'nothing to compare yet');
+      expect(await wallet.unlock(_password), isTrue);
+      await wallet.lock();
+      expect((await wallet.walletWithPhrase(words()))?.name, 'Main');
+    });
+  });
+
+  test('R27 an older GUI wallet takes its name from the old profile', () async {
+    const fixtures = 'test/fixtures/legacy_gui';
+    final dir = await oldWallet('$home/.epic/alpha/main', '{"seed":"alpha-old"}');
+    await File('$fixtures/gui531/.epic/alpha/main/config.json').copy('$dir/config.json');
+    for (final (fixture, profile) in [('gui531_table', 'EpicWallet'), ('gui600_log', 'epic-desktop-wallet')]) {
+      final from = Directory('$fixtures/idb/$fixture');
+      await for (final e in from.list(recursive: true)) {
+        if (e is! File) continue;
+        final dest = File('${tmp.path}/appdata/$profile/IndexedDB${e.path.substring(from.path.length)}');
+        await dest.parent.create(recursive: true);
+        await e.copy(dest.path);
+      }
+    }
+    final found = await wallet.findOldWallets();
+    final alpha = found.firstWhere((w) => w.folder == dir);
+    final r = await wallet.importOldWallet(alpha.id, oldPassword: _old);
+    expect(r.name, 'Alpha (6.0)');
+    expect(r.oldRelay, 'epicbox.fastepic.eu');
+  });
+
+  test('R41 Done knows whether the wallet got a new password', () async {
+    final found = await wallet.findOldWallets();
+    final kept = await wallet.importOldWallet(byName(found, 'Savings').id, oldPassword: _old);
+    expect(kept.newPassword, isFalse);
+    service.seedFilePassword = 'short';
+    final fresh = await wallet.importOldWallet(byName(found, 'Everyday').id, oldPassword: 'short', newPassword: _password);
+    expect(fresh.newPassword, isTrue);
   });
 }

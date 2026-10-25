@@ -9933,10 +9933,10 @@ abstract class AppLocalizations {
   /// **'No history in the old folder; the scan restores the balance'**
   String get deskErrProofHistoryNone;
 
-  /// A line of the import wizard's result.
+  /// A line of the import wizard's result: the old wallet's history is in an older database format the app cannot read.
   ///
   /// In en, this message translates to:
-  /// **'History of Epic Wallet 5.3 or older is not readable; the scan restores the balance'**
+  /// **'History in an older database format is not readable; the scan restores the balance'**
   String get deskErrProofHistoryOld;
 
   /// A line of the import wizard's result.
@@ -20924,16 +20924,16 @@ abstract class AppLocalizations {
   /// **'This wallet'**
   String get deskTxThisWallet;
 
-  /// Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user can copy the folder by hand or restore from the recovery phrase.
+  /// Import of an old wallet: why it cannot be imported. Its folder contains links (symlinks, junctions); the user restores it from the recovery phrase instead.
   ///
   /// In en, this message translates to:
-  /// **'This wallet\'s folder has links in it; copy it by hand or restore from the phrase.'**
+  /// **'This wallet\'s folder has links in it, so it is not imported. Restore it from the recovery phrase.'**
   String get deskErrOldLinks;
 
-  /// Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user can copy it by hand or restore from the recovery phrase.
+  /// Import of an old wallet: why it cannot be imported. Its folder is too big to check or a part could not be read; the user restores it from the recovery phrase instead.
   ///
   /// In en, this message translates to:
-  /// **'This wallet\'s folder could not be read completely; copy it by hand or restore from the phrase.'**
+  /// **'This wallet\'s folder could not be read completely, so it is not imported. Restore it from the recovery phrase.'**
   String get deskErrOldIncomplete;
 
   /// Import of an old wallet: why it cannot be imported. wallet.seed is a file name and stays as written.
@@ -25615,6 +25615,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invoice for anyone with the file'**
   String get deskInvIssuerToAnyone;
+
+  /// Title of the relay choice at Import › Done when the old wallet used another Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server for {name}'**
+  String deskOnbImportRelayTitle(String name);
+
+  /// Lead of the relay choice; {old} is the old server host.
+  ///
+  /// In en, this message translates to:
+  /// **'The older app received through {old}. Anyone who saved this wallet\'s address sends there.'**
+  String deskOnbImportRelayLead(String old);
+
+  /// First option (preselected): keep the old server for this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep {old}'**
+  String deskOnbImportRelayKeep(String old);
+
+  /// Hint under Keep.
+  ///
+  /// In en, this message translates to:
+  /// **'The address stays the same. The server is added to the Epicbox list and used for this wallet.'**
+  String get deskOnbImportRelayKeepHint;
+
+  /// Second option: the app's Epicbox server; {current} is its host.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {current}'**
+  String deskOnbImportRelayApp(String current);
+
+  /// Hint under Use the app's server.
+  ///
+  /// In en, this message translates to:
+  /// **'The address changes. Senders who hold the old address need the new one; payments sent to the old address do not arrive.'**
+  String get deskOnbImportRelayAppHint;
+
+  /// Done-step line per wallet that kept its old password.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with the old password.'**
+  String get deskOnbImportUnlockOld;
+
+  /// Done-step line per wallet whose old password was too short and got a new one.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with the new password chosen here.'**
+  String get deskOnbImportUnlockNew;
+
+  /// One line under the Import tile on Welcome and under deskOnbImportNoneLead on "No wallets found" (R31).
+  ///
+  /// In en, this message translates to:
+  /// **'From Stack Wallet or Epic Pay: restore with the recovery phrase.'**
+  String get deskOnbWelcomeOtherApps;
+
+  /// Line on the Check step (deskOnbImportCheckTitle) on Windows only, where the process check gives no answer (R28).
+  ///
+  /// In en, this message translates to:
+  /// **'Close the older Epic Wallet before importing. Whether it is still running cannot be checked on Windows.'**
+  String get deskOnbImportCloseFirstWindows;
+
+  /// Hint under the Epicbox server field in Settings when the open wallet has its own server (an imported wallet that kept the older app's server, so its address stays the same): changing it here changes it for this wallet only, not for the app's other wallets.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet has its own Epicbox server, kept from the older app. A change here applies to this wallet only.'**
+  String get deskSetRecvEpicboxOwnHint;
 }
 
 class _AppLocalizationsDelegate

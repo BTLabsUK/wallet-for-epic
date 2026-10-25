@@ -6362,7 +6362,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskErrProofHistoryOld =>
-      'History of Epic Wallet 5.3 or older is not readable; the scan restores the balance';
+      'History in an older database format is not readable; the scan restores the balance';
 
   @override
   String get deskErrProofHistoryBusy =>
@@ -13241,11 +13241,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskErrOldLinks =>
-      'This wallet\'s folder has links in it; copy it by hand or restore from the phrase.';
+      'This wallet\'s folder has links in it, so it is not imported. Restore it from the recovery phrase.';
 
   @override
   String get deskErrOldIncomplete =>
-      'This wallet\'s folder could not be read completely; copy it by hand or restore from the phrase.';
+      'This wallet\'s folder could not be read completely, so it is not imported. Restore it from the recovery phrase.';
 
   @override
   String get deskErrOldSeedTooLarge =>
@@ -16315,4 +16315,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvIssuerToAnyone => 'Invoice for anyone with the file';
+
+  @override
+  String deskOnbImportRelayTitle(String name) {
+    return 'Epicbox server for $name';
+  }
+
+  @override
+  String deskOnbImportRelayLead(String old) {
+    return 'The older app received through $old. Anyone who saved this wallet\'s address sends there.';
+  }
+
+  @override
+  String deskOnbImportRelayKeep(String old) {
+    return 'Keep $old';
+  }
+
+  @override
+  String get deskOnbImportRelayKeepHint =>
+      'The address stays the same. The server is added to the Epicbox list and used for this wallet.';
+
+  @override
+  String deskOnbImportRelayApp(String current) {
+    return 'Use $current';
+  }
+
+  @override
+  String get deskOnbImportRelayAppHint =>
+      'The address changes. Senders who hold the old address need the new one; payments sent to the old address do not arrive.';
+
+  @override
+  String get deskOnbImportUnlockOld => 'Unlock with the old password.';
+
+  @override
+  String get deskOnbImportUnlockNew =>
+      'Unlock with the new password chosen here.';
+
+  @override
+  String get deskOnbWelcomeOtherApps =>
+      'From Stack Wallet or Epic Pay: restore with the recovery phrase.';
+
+  @override
+  String get deskOnbImportCloseFirstWindows =>
+      'Close the older Epic Wallet before importing. Whether it is still running cannot be checked on Windows.';
+
+  @override
+  String get deskSetRecvEpicboxOwnHint =>
+      'This wallet has its own Epicbox server, kept from the older app. A change here applies to this wallet only.';
 }

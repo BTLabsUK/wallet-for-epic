@@ -15,6 +15,7 @@
   "deskSetRecvEpicboxText": "付款经由 Epicbox 服务器到达，钱包关闭时也可以。",
   "deskSetRecvEpicboxServer": "Epicbox 服务器",
   "deskSetRecvEpicboxServerHint": "由哪个服务器为此地址暂存付款。双方钱包可以使用不同的服务器。",
+  "deskSetRecvEpicboxOwnHint": "此钱包有自己的 Epicbox 服务器，保留自旧应用。此处的更改只适用于此钱包。",
   "deskSetRecvSwitchingServer": "正在切换 Epicbox 服务器…",
   "deskSetRecvListNote": "状态来自 status.btlabs.uk，每隔几分钟检查一次。",
   "deskSetRecvHttpTitle": "链接 · HTTP 接收",

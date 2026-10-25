@@ -6228,7 +6228,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskErrProofHistoryOld =>
-      'อ่านประวัติของ Epic Wallet 5.3 หรือเก่ากว่าไม่ได้ การสแกนจะกู้ยอดคงเหลือคืน';
+      'ประวัติอยู่ในรูปแบบฐานข้อมูลรุ่นเก่า อ่านไม่ได้ การสแกนจะกู้ยอดคืน';
 
   @override
   String get deskErrProofHistoryBusy =>
@@ -12983,11 +12983,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskErrOldLinks =>
-      'โฟลเดอร์ของกระเป๋าเงินนี้มีลิงก์อยู่ คัดลอกด้วยตนเองหรือกู้คืนจากวลีกู้คืน';
+      'โฟลเดอร์ของกระเป๋านี้มีลิงก์อยู่ จึงไม่นำเข้า กู้คืนจากวลีกู้คืนแทน';
 
   @override
   String get deskErrOldIncomplete =>
-      'อ่านโฟลเดอร์ของกระเป๋าเงินนี้ได้ไม่ครบ คัดลอกด้วยตนเองหรือกู้คืนจากวลีกู้คืน';
+      'อ่านโฟลเดอร์ของกระเป๋านี้ได้ไม่ครบ จึงไม่นำเข้า กู้คืนจากวลีกู้คืนแทน';
 
   @override
   String get deskErrOldSeedTooLarge =>
@@ -16011,4 +16011,51 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvIssuerToAnyone => 'ใบแจ้งหนี้ถึงใครก็ได้ที่มีไฟล์';
+
+  @override
+  String deskOnbImportRelayTitle(String name) {
+    return 'เซิร์ฟเวอร์ Epicbox สำหรับ $name';
+  }
+
+  @override
+  String deskOnbImportRelayLead(String old) {
+    return 'แอปเดิมรับผ่าน $old ใครที่บันทึกที่อยู่ของกระเป๋านี้ไว้จะส่งไปที่นั่น';
+  }
+
+  @override
+  String deskOnbImportRelayKeep(String old) {
+    return 'ใช้ $old ต่อไป';
+  }
+
+  @override
+  String get deskOnbImportRelayKeepHint =>
+      'ที่อยู่เหมือนเดิม เซิร์ฟเวอร์จะถูกเพิ่มในรายการ Epicbox และใช้กับกระเป๋านี้';
+
+  @override
+  String deskOnbImportRelayApp(String current) {
+    return 'ใช้ $current';
+  }
+
+  @override
+  String get deskOnbImportRelayAppHint =>
+      'ที่อยู่จะเปลี่ยน ผู้ส่งที่มีที่อยู่เดิมต้องใช้ที่อยู่ใหม่ รายการที่ส่งไปที่อยู่เดิมจะไม่ถึง';
+
+  @override
+  String get deskOnbImportUnlockOld => 'ปลดล็อกด้วยรหัสผ่านเดิม';
+
+  @override
+  String get deskOnbImportUnlockNew =>
+      'ปลดล็อกด้วยรหัสผ่านใหม่ที่ตั้งไว้ที่นี่';
+
+  @override
+  String get deskOnbWelcomeOtherApps =>
+      'มาจาก Stack Wallet หรือ Epic Pay: กู้คืนด้วยวลีกู้คืน';
+
+  @override
+  String get deskOnbImportCloseFirstWindows =>
+      'ปิด Epic Wallet รุ่นเก่าก่อนนำเข้า บน Windows ตรวจไม่ได้ว่ายังเปิดอยู่หรือไม่';
+
+  @override
+  String get deskSetRecvEpicboxOwnHint =>
+      'กระเป๋านี้มีเซิร์ฟเวอร์ Epicbox ของตัวเองที่เก็บไว้จากแอปเดิม การเปลี่ยนที่นี่มีผลกับกระเป๋านี้เท่านั้น';
 }

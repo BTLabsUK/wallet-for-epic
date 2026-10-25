@@ -6007,8 +6007,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskErrProofHistoryNone => '旧文件夹中没有交易记录；扫描会恢复余额';
 
   @override
-  String get deskErrProofHistoryOld =>
-      '无法读取 Epic Wallet 5.3 及更早版本的交易记录；扫描会恢复余额';
+  String get deskErrProofHistoryOld => '交易记录为旧版数据库格式，无法读取；扫描会恢复余额';
 
   @override
   String get deskErrProofHistoryBusy => '交易记录未导入：旧钱包正在运行。下次解锁时会导入';
@@ -12542,10 +12541,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTxThisWallet => '此钱包';
 
   @override
-  String get deskErrOldLinks => '此钱包的文件夹中含有链接；请手动复制它，或用助记词恢复。';
+  String get deskErrOldLinks => '此钱包的文件夹中含有链接，因此不会导入。请用助记词恢复。';
 
   @override
-  String get deskErrOldIncomplete => '无法完整读取此钱包的文件夹；请手动复制它，或用助记词恢复。';
+  String get deskErrOldIncomplete => '无法完整读取此钱包的文件夹，因此不会导入。请用助记词恢复。';
 
   @override
   String get deskErrOldSeedTooLarge => 'wallet.seed 文件太大，不可能是钱包种子文件。';
@@ -15437,4 +15436,47 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvIssuerToAnyone => '开给持有此文件的任何人的账单';
+
+  @override
+  String deskOnbImportRelayTitle(String name) {
+    return '$name 的 Epicbox 服务器';
+  }
+
+  @override
+  String deskOnbImportRelayLead(String old) {
+    return '旧应用通过 $old 接收。保存了此钱包地址的人会发送到那里。';
+  }
+
+  @override
+  String deskOnbImportRelayKeep(String old) {
+    return '保留 $old';
+  }
+
+  @override
+  String get deskOnbImportRelayKeepHint => '地址保持不变。该服务器会加入 Epicbox 列表并用于此钱包。';
+
+  @override
+  String deskOnbImportRelayApp(String current) {
+    return '使用 $current';
+  }
+
+  @override
+  String get deskOnbImportRelayAppHint => '地址会改变。持有旧地址的发送方需要新地址；发到旧地址的付款不会到达。';
+
+  @override
+  String get deskOnbImportUnlockOld => '用旧密码解锁。';
+
+  @override
+  String get deskOnbImportUnlockNew => '用在此设置的新密码解锁。';
+
+  @override
+  String get deskOnbWelcomeOtherApps => '来自 Stack Wallet 或 Epic Pay：请用助记词恢复。';
+
+  @override
+  String get deskOnbImportCloseFirstWindows =>
+      '导入前请先关闭旧版 Epic Wallet。在 Windows 上无法检查它是否仍在运行。';
+
+  @override
+  String get deskSetRecvEpicboxOwnHint =>
+      '此钱包有自己的 Epicbox 服务器，保留自旧应用。此处的更改只适用于此钱包。';
 }

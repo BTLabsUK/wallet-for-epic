@@ -145,8 +145,7 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.onionUnreachable => WalletErrorKind.onionUnreachable,
     lepic.WalletErrorKind.secretStore => WalletErrorKind.io,
     lepic.WalletErrorKind.foreignWallet => WalletErrorKind.invalidArgument,
-    // Only resetPassword returns it, which the phone does not call.
-    lepic.WalletErrorKind.phraseMismatch => WalletErrorKind.invalidArgument,
+    lepic.WalletErrorKind.phraseMismatch => WalletErrorKind.phraseMismatch,
     // The old core refused a cancel of a payment on chain, and a history file of another
     // wallet or a damaged one, as invalidArgument; the UI words them from that.
     lepic.WalletErrorKind.onChain ||
@@ -832,6 +831,15 @@ class LepicWalletService implements WalletService {
       lepic.validateMnemonic(phrase: phrase);
 
   @override
+  String walletFingerprint({required String mnemonic, required Chain chain}) =>
+      _guardSync(
+        () => lepic.walletFingerprint(
+          mnemonic: mnemonic,
+          chain: _lepicChain(chain),
+        ),
+      );
+
+  @override
   Future<SlateInfo> inspectSlate({required String json}) => _guard(
     () async => lepicSlateInfo(
       await lepic.inspectSlate(json: json, chain: _lepicChain(_chain)),
@@ -1042,6 +1050,17 @@ class LepicWalletService implements WalletService {
     // After LEPIC, which refuses while a wallet on the directory is open.
     await MetaStore.deleteFiles(config.dataDir);
   });
+
+  /// Until the binding carries `reset_password` (LEPIC fix/restore-scan): refused.
+  @override
+  Future<void> resetPassword({
+    required WalletConfig config,
+    required String mnemonic,
+    required String newPassword,
+  }) async => throw const WalletError(
+    kind: WalletErrorKind.other,
+    message: 'this build cannot reset a password yet',
+  );
 }
 
 /// What a history file names as the program that wrote it. Informational only.
@@ -1262,6 +1281,9 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Future<String> epicboxAddress() => _guard(_wallet.epicboxAddress);
+
+  @override
+  Future<String> fingerprint() => _guard(_wallet.fingerprint);
 
   @override
   Future<FeeEstimate> estimateFee({

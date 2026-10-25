@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/gui_contact_import.dart' show ContactImport;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/server_lists.dart' show ServerKind, deskServerListProvider;
 import '../../../l10n.dart' show localDay, localDigits;
 import '../../desk_l10n.dart';
 import '../../data/api.dart';
@@ -56,6 +58,9 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   final Map<String, _Use> _use = {};
   final Map<String, ImportedWallet> _done = {};
   final Set<String> _skipped = {};
+
+  /// R12: the wallets that keep the older app's Epicbox server (all of them at first).
+  final Map<String, bool> _keepRelay = {};
 
   final _old = TextEditingController();
   final _new = TextEditingController();
@@ -133,6 +138,8 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       _done[f.id] = ImportedWallet(
         id: f.id,
         name: f.name,
+        oldRelay: f == todo.first ? 'epicbox.example.org' : null, // l10n-ok: a sample host
+        appRelay: 'epicbox.epiccash.com', // l10n-ok: a host
         // The tour's sample proof lines (the real ones come from the wallet service).
         proof: [
           ImportProof.l10n((l) => l.deskErrProofSeedRead),
@@ -155,9 +162,14 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     });
     await Future.wait([for (final f in chosen) _checkOne(f.id)]);
     if (!mounted || _step != ImportStep.check) return;
-    // Nothing in use: straight on to Import.
+    // Nothing in use: straight on to Import; on Windows, which cannot tell, Check stays to
+    // ask for the older app to be closed first (R28).
+    if (_closeFirst) return;
     if (!_chosen.any((f) => _use[f.id] == _Use.inUse)) setState(() => _step = ImportStep.import);
   }
+
+  /// Windows gives the in-use check no answer: Check says to close the older app first.
+  bool get _closeFirst => defaultTargetPlatform == TargetPlatform.windows && _chosen.any((f) => _use[f.id] == _Use.unknown);
 
   Future<void> _checkOne(String id) async {
     if (mounted) setState(() => _use[id] = _Use.checking);
@@ -195,6 +207,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       if (!mounted) return;
       setState(() {
         _done[w.id] = r;
+        if (r.oldRelay != null) _keepRelay[w.id] = true;
         _clearPasswords();
       });
     } on Object catch (e) {
@@ -214,6 +227,20 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     _repeat.clear();
     _needNew = false;
     _error = null;
+  }
+
+  /// R12: Keep or Use for [id]'s Epicbox server; the list follows ([DeskWalletApi.keepOldRelay]).
+  Future<void> _chooseRelay(String id, bool keep) async {
+    if ((_keepRelay[id] ?? true) == keep) return;
+    setState(() => _keepRelay[id] = keep);
+    try {
+      await _api.keepOldRelay(id, keep: keep);
+      ref.invalidate(deskServerListProvider(ServerKind.relay));
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _keepRelay[id] = !keep);
+      showEToast(context, _message(context.l10n, e), tone: ETone.risk);
+    }
   }
 
   void _skipCurrent() {
@@ -529,6 +556,8 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   Widget _none(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
+      Text(context.l10n.deskOnbWelcomeOtherApps, style: context.ts.small),
+      SizedBox(height: Sp.x4),
       _pickButton(),
       SizedBox(height: Sp.x4),
       ELink(label: context.l10n.deskOnbImportRestore, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.restore)),
@@ -611,6 +640,20 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   }
 
   Widget _checkList(BuildContext context) {
+    final l = context.l10n;
+    final list = _checkRows(context);
+    if (!_closeFirst) return list;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ENotice(tone: ETone.warn, icon: EIcons.alert, title: l.deskOnbImportCloseFirstWindows),
+        SizedBox(height: Sp.x4),
+        list,
+      ],
+    );
+  }
+
+  Widget _checkRows(BuildContext context) {
     final ts = context.ts;
     final c = context.dc;
     final l = context.l10n;
@@ -784,6 +827,11 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                     ],
                   ),
                   _proof(context, r),
+                  Padding(
+                    padding: EdgeInsets.only(top: Sp.x2, left: Ctl.icon + Sp.x3),
+                    child: Text(r.newPassword ? l.deskOnbImportUnlockNew : l.deskOnbImportUnlockOld, style: ts.small),
+                  ),
+                  if (r.oldRelay != null) _relayChoice(context, r),
                 ],
               ),
             ),
@@ -791,6 +839,47 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
         SizedBox(height: Sp.x4),
         Text(l.deskOnbImportUnchanged, style: ts.bodyDim),
       ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------- relay choice
+
+extension on _ImportWalletsScreenState {
+  /// R12: Keep the older app's Epicbox server (the address stays) or use the app's (it changes).
+  Widget _relayChoice(BuildContext context, ImportedWallet r) {
+    final ts = context.ts;
+    final l = context.l10n;
+    final old = r.oldRelay!;
+    final keep = _keepRelay[r.id] ?? true;
+    return Padding(
+      padding: EdgeInsets.only(top: Sp.x4, left: Ctl.icon + Sp.x3),
+      child: Semantics(
+        container: true,
+        label: l.deskOnbImportRelayTitle(r.name),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.deskOnbImportRelayTitle(r.name), style: ts.label),
+            SizedBox(height: Sp.x1),
+            Text(l.deskOnbImportRelayLead(old), style: ts.small),
+            SizedBox(height: Sp.x3),
+            EChoiceCard(
+              title: l.deskOnbImportRelayKeep(old),
+              description: l.deskOnbImportRelayKeepHint,
+              selected: keep,
+              onTap: () => _chooseRelay(r.id, true),
+            ),
+            SizedBox(height: Sp.x2),
+            EChoiceCard(
+              title: l.deskOnbImportRelayApp(r.appRelay),
+              description: l.deskOnbImportRelayAppHint,
+              selected: !keep,
+              onTap: () => _chooseRelay(r.id, false),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

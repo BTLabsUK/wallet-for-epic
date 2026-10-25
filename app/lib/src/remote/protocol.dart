@@ -15,6 +15,7 @@ enum ServiceMember {
   openWithPin,
   pinFailures,
   deleteWallet,
+  resetPassword,
 }
 
 /// [WalletSession] members the server answers, sent with the session handle.
@@ -32,6 +33,7 @@ enum SessionMember {
   createSendSlate,
   epicboxAddress,
   restoreScanRequired,
+  fingerprint,
   estimateFee,
   finalizeAndPost,
   sendEpicbox,
