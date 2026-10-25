@@ -1155,7 +1155,7 @@
   },
   "importWarnTitle": "Before you import",
   "@importWarnTitle": {
-    "description": "Title of the one-time warning shown before the first import of wallets or files from older software or backups."
+    "description": "Title of the one-time warning shown before the first import of wallets from older software (desktop Import wallets)."
   },
   "importWarnEarly": "This is an early version of a new app.",
   "@importWarnEarly": {
