@@ -10,6 +10,7 @@ import 'dart:typed_data';
 
 
 import '../../advanced.dart' show NetworkMode;
+import '../../network.dart' show EpicboxRelay;
 import '../../models.dart' show PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
@@ -76,6 +77,10 @@ class MockDeskWallet implements DeskWalletApi {
   String _node = 'https://node.btlabs.uk';
   String _epicbox = 'epicbox.epiccash.com';
   bool _listening = true;
+
+  /// The tour and the tests: the network blocks the relay in use, and [epicboxInstead] is the one offered.
+  bool epicboxBlocked = false;
+  EpicboxRelay? epicboxInstead;
   bool _http = false;
   int _nextId = 40;
 
@@ -606,7 +611,9 @@ class MockDeskWallet implements DeskWalletApi {
       nodeHealth: node.health,
       nodeHeight: 2914414,
       epicbox: box,
-      epicboxHealth: _listening ? box.health : ServiceHealth.off,
+      epicboxHealth: _listening ? (epicboxBlocked ? ServiceHealth.down : box.health) : ServiceHealth.off,
+      epicboxBlocked: _listening && epicboxBlocked,
+      epicboxInstead: _listening && epicboxBlocked ? epicboxInstead : null,
       httpListener: _http ? ServiceHealth.ok : ServiceHealth.off,
       tor: _settings.tor ? ServiceHealth.ok : ServiceHealth.off,
       torCanSend: _settings.tor,
@@ -837,6 +844,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> useEpicbox(String domain) async {
     await _wait();
     _epicbox = domain;
+    epicboxBlocked = false;
   }
 
   @override

@@ -16152,4 +16152,17 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get backupFromOtherWallet =>
       'ไฟล์นี้เป็นของกระเป๋าเงินอื่น เปิดได้เฉพาะกระเป๋าเงินที่กู้คืนจากวลีกู้คืนเดียวกัน';
+
+  @override
+  String get deskEpicboxBlockedWord => 'ถูกบล็อก';
+
+  @override
+  String deskEpicboxBlockedText(String host) {
+    return 'เครือข่ายนี้บล็อก $host อาจเกิดจากตัวกรองของเครือข่าย ลองใช้เซิร์ฟเวอร์ Epicbox อื่นหรือ DNS ส่วนตัว';
+  }
+
+  @override
+  String deskEpicboxBlockedSwitch(String host) {
+    return 'สลับไปที่ $host';
+  }
 }

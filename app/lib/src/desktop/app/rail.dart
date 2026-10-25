@@ -75,8 +75,10 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
   final tor = netTorState(settings, st);
   final ebWay = torWay(TorRoute.epicbox, tor);
   final ebWaits = eb != ServiceHealth.off && (ebWay == TorWay.wait || ebWay == TorWay.blocked);
+  final blocked = st != null && st.epicboxBlocked && eb == ServiceHealth.down && !ebWaits;
   final ebWord = switch (eb) {
     _ when ebWaits => l.deskRailWaitingTor,
+    _ when blocked => l.deskEpicboxBlockedWord,
     ServiceHealth.ok => l.deskRailOn,
     ServiceHealth.checking => l.deskRailConnecting,
     ServiceHealth.slow => l.deskRailSlow,
@@ -103,7 +105,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
         if (eb != ServiceHealth.off && ebHost != null) ebHost,
         if (eb != ServiceHealth.off && ebWay == TorWay.overTor) l.deskRailOverTor,
         if (ebWaits) l.deskRailWaitsForTor,
-        if (eb == ServiceHealth.down && !ebWaits) l.deskRailPaymentsWait,
+        if (blocked) l.deskEpicboxBlockedText(ebHost ?? '') else if (eb == ServiceHealth.down && !ebWaits) l.deskRailPaymentsWait,
       ],
       open: l.deskRailOpenEpicbox,
       jump: SettingsJump.epicbox,

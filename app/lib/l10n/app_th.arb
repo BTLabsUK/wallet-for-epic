@@ -4364,5 +4364,8 @@
   "backupSettingsBody": "{n, plural, other{การตั้งค่าที่นี่ {n} รายการต่างจากข้อมูลสำรอง}} ส่วนที่เหลือของข้อมูลสำรองนำเข้าแล้ว",
   "backupSettingsUseBackup": "ใช้ของข้อมูลสำรอง",
   "backupSettingsKeepMine": "เก็บของฉัน",
-  "backupFromOtherWallet": "ไฟล์นี้เป็นของกระเป๋าเงินอื่น เปิดได้เฉพาะกระเป๋าเงินที่กู้คืนจากวลีกู้คืนเดียวกัน"
+  "backupFromOtherWallet": "ไฟล์นี้เป็นของกระเป๋าเงินอื่น เปิดได้เฉพาะกระเป๋าเงินที่กู้คืนจากวลีกู้คืนเดียวกัน",
+  "deskEpicboxBlockedWord": "ถูกบล็อก",
+  "deskEpicboxBlockedText": "เครือข่ายนี้บล็อก {host} อาจเกิดจากตัวกรองของเครือข่าย ลองใช้เซิร์ฟเวอร์ Epicbox อื่นหรือ DNS ส่วนตัว",
+  "deskEpicboxBlockedSwitch": "สลับไปที่ {host}"
 }

@@ -16,6 +16,7 @@ import '../../settings.dart' show autoLockDefault;
 import '../../smart_outputs.dart' show smartOutputsDefault;
 import '../../ui/send_screen.dart' show normalizeAmountText;
 import '../../recipient.dart' show RecipientKind, parseRecipient;
+import '../../network.dart' show EpicboxRelay;
 import '../../relay_directory.dart' show ServerIcon;
 
 export '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions, txLabelMaxLength, txTransports;
@@ -605,6 +606,8 @@ class ServiceStatus {
     this.torIncluded = true,
     this.torSlowStart = false,
     this.epicboxViaTor = false,
+    this.epicboxBlocked = false,
+    this.epicboxInstead,
     this.epicboxOwn = false,
     this.syncProgress,
     this.scanning = false,
@@ -655,6 +658,14 @@ class ServiceStatus {
   /// it waits for tor and never goes directly, so an [epicboxHealth] of checking or down then
   /// means "Connecting via Tor".
   final bool epicboxViaTor;
+
+  /// This network ends the TLS handshake with [epicbox] twice in a row (relay_block.dart): the
+  /// relay is up, a filter on the way answers for it. Steady until a connection, a stop or a
+  /// switch of relay; the state line says it and offers [epicboxInstead]. Direct only.
+  final bool epicboxBlocked;
+
+  /// The relay to offer while [epicboxBlocked] (relayInstead); null when none is left.
+  final EpicboxRelay? epicboxInstead;
 
   /// The open wallet has its own Epicbox server (an import that kept the older app's): a
   /// change in Settings applies to this wallet only.

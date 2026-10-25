@@ -26050,6 +26050,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.'**
   String get backupFromOtherWallet;
+
+  /// The word of the Epicbox state line when this network ends the TLS handshake with the relay (a network filter answers for it), in the state colour, before the sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get deskEpicboxBlockedWord;
+
+  /// Epicbox state line detail and notice text when the network blocks the relay. {host} is the relay's host name. Never names a provider.
+  ///
+  /// In en, this message translates to:
+  /// **'This network blocks {host}. A network filter may be the cause. Try another Epicbox server or a private DNS.'**
+  String deskEpicboxBlockedText(String host);
+
+  /// Button of the blocked-relay notice: one tap moves the wallet to another Epicbox server, no confirmation. {host} is that server's host name.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {host}'**
+  String deskEpicboxBlockedSwitch(String host);
 }
 
 class _AppLocalizationsDelegate

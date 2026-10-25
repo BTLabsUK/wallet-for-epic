@@ -49,5 +49,8 @@
   "deskImpBusy": "正在签署文件",
   "deskImpChoose": "选择交易文件",
   "deskImpChooseText": "钱包会签署它，并为发送方保存一份回复。",
-  "deskImpOpenAnother": "打开另一个文件"
+  "deskImpOpenAnother": "打开另一个文件",
+  "deskEpicboxBlockedWord": "被拦截",
+  "deskEpicboxBlockedText": "此网络拦截了 {host}。可能是网络过滤所致。请尝试其他 Epicbox 服务器或私人 DNS。",
+  "deskEpicboxBlockedSwitch": "切换到 {host}"
 }

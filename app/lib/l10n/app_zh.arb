@@ -4364,5 +4364,8 @@
   "backupSettingsBody": "{n, plural, other{这里有 {n} 项设置与备份不同。}}备份的其余内容已导入。",
   "backupSettingsUseBackup": "使用备份的",
   "backupSettingsKeepMine": "保留我的",
-  "backupFromOtherWallet": "此文件属于另一个钱包。只有用同一助记词恢复的钱包才能打开它。"
+  "backupFromOtherWallet": "此文件属于另一个钱包。只有用同一助记词恢复的钱包才能打开它。",
+  "deskEpicboxBlockedWord": "被拦截",
+  "deskEpicboxBlockedText": "此网络拦截了 {host}。可能是网络过滤所致。请尝试其他 Epicbox 服务器或私人 DNS。",
+  "deskEpicboxBlockedSwitch": "切换到 {host}"
 }

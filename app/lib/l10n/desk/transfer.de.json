@@ -49,5 +49,8 @@
   "deskImpBusy": "Die Datei wird signiert",
   "deskImpChoose": "Transaktionsdatei wählen",
   "deskImpChooseText": "Die Wallet signiert sie und speichert eine Antwort für den Absender.",
-  "deskImpOpenAnother": "Weitere Datei öffnen"
+  "deskImpOpenAnother": "Weitere Datei öffnen",
+  "deskEpicboxBlockedWord": "Blockiert",
+  "deskEpicboxBlockedText": "Dieses Netzwerk blockiert {host}. Ursache kann ein Netzwerkfilter sein. Versuchen Sie einen anderen Epicbox-Server oder ein privates DNS.",
+  "deskEpicboxBlockedSwitch": "Zu {host} wechseln"
 }

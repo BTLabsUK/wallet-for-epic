@@ -15555,4 +15555,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get backupFromOtherWallet => '此文件属于另一个钱包。只有用同一助记词恢复的钱包才能打开它。';
+
+  @override
+  String get deskEpicboxBlockedWord => '被拦截';
+
+  @override
+  String deskEpicboxBlockedText(String host) {
+    return '此网络拦截了 $host。可能是网络过滤所致。请尝试其他 Epicbox 服务器或私人 DNS。';
+  }
+
+  @override
+  String deskEpicboxBlockedSwitch(String host) {
+    return '切换到 $host';
+  }
 }
