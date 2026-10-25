@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart' show DeskTextScaler;
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
@@ -18,6 +19,9 @@ Widget _screen(DeskRoute r, Object? a) => switch (r) {
 };
 
 void main() {
+  // The contact detail dates its pairing with the app's formatter; the app loads the data through its localizations.
+  setUpAll(initializeDateFormatting);
+
   // Every state at desktop, narrow and phone width; narrow and phone again at 125 % and 150 %.
   const runs = [
     (Size(1280, 800), 1.0),
