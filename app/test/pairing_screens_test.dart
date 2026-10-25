@@ -16,7 +16,7 @@ import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_check.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_incoming.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_screen.dart';
-import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show pairingNoticeOf;
+import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show PairingNotices, pairingNoticeOf;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart';
 import 'package:epic_wallet/src/ui/pairing/pending_invites.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -439,6 +439,30 @@ void main() {
       // Not an empty page: the contact, whose notice says the keys are back.
       expect(find.byType(PairingResultScreen), findsNothing);
       expect(find.byType(ContactPage), findsOneWidget);
+    });
+
+    testWidgets('re-pair answered while the old contact page is open: the notice opens the new words, They match shows the result (PAIR-AND-15)', (tester) async {
+      final h = _Harness();
+      final anna = await h.session.saveContact(contact: Contact(id: '', name: 'Anna', address: _anna));
+      h.api.seedPaired(id: 'old', name: 'Anna', state: PairingState.verified, contactId: anna.id);
+      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      // The test font's wide glyphs: the notice with its action needs more than 360 dp.
+      tester.view.physicalSize = const Size(1800, 2340);
+      final invite = await h.api.makeInvite(name: 'the owner', expiry: const Duration(hours: 1));
+      final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+      unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => ContactPage(contactId: anna.id))));
+      await tester.pumpAndSettle();
+      h.api.answerInvite(invite.id, name: 'Anna');
+      await tester.pumpAndSettle();
+      final c = ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
+      c.read(noticeProvider)!.action!.onPressed();
+      await tester.pumpAndSettle();
+      expect(find.byType(CheckWordsScreen), findsOneWidget);
+      await tester.tap(find.byKey(checkMatchKey));
+      await tester.pumpAndSettle();
+      expect(h.api.calls, contains('check:match'));
+      expect((await h.api.pairing(invite.id))!.state, PairingState.verified);
+      expect(find.byType(PairingResultScreen), findsOneWidget);
     });
 
     testWidgets('no contact of its name, or two unpaired ones: nothing is suggested (PAIR-LNX-7)', (tester) async {
