@@ -410,6 +410,11 @@ void main() {
       expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, 'https://wallet.example.org');
       expect(_selected<TxMethod>(tester), TxMethod.http);
       expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
+      // LNX-9: the card under To names the address in To and its kind, not the contact's first.
+      await tester.runAsync(() => _container.read(deskProvider.notifier).saveContact(Contact(id: '', name: 'Two Way', tor: _onion, http: 'https://wallet.example.org')));
+      await _settle(tester);
+      final kind = find.descendant(of: find.byKey(const ValueKey('send-picked')), matching: find.byType(EKindTag));
+      expect(tester.widget<EKindTag>(kind).kind, AddressKind.http);
     });
 
     testWidgets('a pasted onion of a contact with another address stays, without "only" (qa-next)', (tester) async {

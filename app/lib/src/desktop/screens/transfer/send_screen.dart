@@ -1279,7 +1279,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
           if (matches.isNotEmpty) ...[
             SizedBox(height: Sp.x2),
-            _Suggestions(contacts: matches, onPick: _use),
+            _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => contactAddress(x, st.settings.payments)),
           ],
           // A payment request's banner (ui.md §2): it keeps the last code's words while it closes.
           ExpandFade(
@@ -1312,6 +1312,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             SizedBox(height: Sp.x2),
             _PickedCard(
               contact: contact,
+              address: _to.text.trim(),
               onClear: () {
                 _to.clear();
                 _changed(to: true);
@@ -1636,9 +1637,12 @@ class _SwitchTag extends StatelessWidget {
 
 /// The contact the To field holds: name and kind, the short address, Clear (spec 7.1).
 class _PickedCard extends StatelessWidget {
-  const _PickedCard({required this.contact, required this.onClear});
+  const _PickedCard({required this.contact, required this.address, required this.onClear});
 
   final Contact contact;
+
+  /// The contact's address in To, which a contact with several need not have first (LNX-9).
+  final String address;
   final VoidCallback onClear;
 
   @override
@@ -1652,7 +1656,7 @@ class _PickedCard extends StatelessWidget {
         children: [
           EAvatar(contact.name, size: 28.u),
           SizedBox(width: Sp.x3),
-          Expanded(child: EAddressLines(name: contact.name, address: contact.address)),
+          Expanded(child: EAddressLines(name: contact.name, address: address)),
           SizedBox(width: Sp.x2),
           EButton.ghost(label: context.l10n.deskSendClear, size: EBtnSize.inline, onPressed: onClear),
         ],
@@ -1663,10 +1667,13 @@ class _PickedCard extends StatelessWidget {
 
 /// Contacts matching what is typed in To: a short list right under the field.
 class _Suggestions extends StatelessWidget {
-  const _Suggestions({required this.contacts, required this.onPick});
+  const _Suggestions({required this.contacts, required this.onPick, required this.addressOf});
 
   final List<Contact> contacts;
   final ValueChanged<Contact> onPick;
+
+  /// The address a pick fills in ([contactAddress]), shown on its row.
+  final String Function(Contact) addressOf;
 
   @override
   Widget build(BuildContext context) {
@@ -1691,7 +1698,7 @@ class _Suggestions extends StatelessWidget {
               if (i > 0) Divider(height: 1, color: c.line),
               Semantics(
                 button: true,
-                label: '${x.name}, ${x.address}',
+                label: '${x.name}, ${addressOf(x)}',
                 excludeSemantics: true,
                 child: InkWell(
                   onTap: () => onPick(x),
@@ -1704,9 +1711,9 @@ class _Suggestions extends StatelessWidget {
                         SizedBox(width: Sp.x3),
                         Expanded(child: Text(x.name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
                         SizedBox(width: Sp.x2),
-                        EKindTag(addressKindOf(x.address), compact: true),
+                        EKindTag(addressKindOf(addressOf(x)), compact: true),
                         SizedBox(width: Sp.x3),
-                        Flexible(child: EShortAddress(x.address, tooltip: false)),
+                        Flexible(child: EShortAddress(addressOf(x), tooltip: false)),
                       ],
                     ),
                   ),
