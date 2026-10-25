@@ -549,7 +549,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           receiving
               ? l.slateIncomingSend(epicExact(l, info.amount))
               : info.stage == SlateStage.requestAnswer
-              ? l.slateIncomingRequestAnswer(epicExact(l, info.amount), epicExact(l, info.fee))
+              ? l.slateIncomingRequestAnswer(epicExact(l, info.amount))
               : l.slateIncomingResponse(
                   epicExact(l, info.amount),
                   epicExact(l, info.fee),

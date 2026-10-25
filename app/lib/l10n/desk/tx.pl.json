@@ -98,7 +98,7 @@
   "deskTxStepProgress": "{confirmations} z {needed}",
   "deskTxCancelIncomingTitle": "Anulować tę płatność?",
   "deskTxCancelOutgoingTitle": "Anulować tę wysyłkę?",
-  "deskTxCancelIncomingBody": "{amount} EPIC od {who} zniknie z twojego salda. Portfel najpierw pyta węzeł i odmawia, jeśli płatność jest już w puli węzła albo w bloku. Jeśli nadawca opublikuje ją później, może jednak dotrzeć.",
+  "deskTxCancelIncomingBody": "{amount} EPIC od {who} zniknie z twojego salda. Portfel najpierw pyta węzeł i odmawia, jeśli płatność jest już w puli węzła albo w bloku. Jeśli nadawca opublikuje ją później, i tak dotrze.",
   "deskTxCancelOutgoingBody": "{amount} EPIC do {who}. Zablokowana kwota wróci do salda. Jeśli odbiorca już ją sfinalizował, może jednak zostać potwierdzona.",
   "deskTxCancelKeep": "Zostaw",
   "deskTxCancelIncomingAction": "Anuluj płatność",

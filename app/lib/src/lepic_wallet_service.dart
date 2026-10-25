@@ -88,7 +88,7 @@ void logLepicEntry(lepic.LogEntry entry) {
 /// here instead of reaching the UI unmapped.
 WalletError mapLepicError(lepic.WalletError error) {
   // A pairing call's own failure says which, for the pairing screens' words.
-  if (lepicPairingFailure(error.kind) case final failure?) return pairingError(failure);
+  if (lepicPairingFailure(error.kind, error.message) case final failure?) return pairingError(failure);
   final kind = switch (error.kind) {
     lepic.WalletErrorKind.contactsOffline ||
     lepic.WalletErrorKind.epicboxOff ||
@@ -2354,7 +2354,7 @@ class LepicWalletSession implements WalletSession {
         relayMode: lepicRelayMode(),
       );
     } on lepic.WalletError catch (error) {
-      final failure = lepicPairingFailure(error.kind);
+      final failure = lepicPairingFailure(error.kind, error.message);
       if (failure != null) throw pairingError(failure);
       rethrow;
     }
@@ -2510,7 +2510,10 @@ SlateStage lepicSlateStage(lepic.SlateStage s) => switch (s) {
 };
 
 /// The app's pairing failure for LEPIC's contact errors, or null for any other kind.
-PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k) => switch (k) {
+PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k, [String message = '']) => switch (k) {
+  // LEPIC words why a text was refused; the kind alone says only "not readable" (PAIR-AND-22).
+  lepic.WalletErrorKind.invalidPairingText when message.contains('other network') => PairingFailure.wrongNetwork,
+  lepic.WalletErrorKind.invalidPairingText when message.contains('newer wallet') => PairingFailure.newerVersion,
   lepic.WalletErrorKind.invalidPairingText || lepic.WalletErrorKind.invalidPairingWords => PairingFailure.invalid,
   lepic.WalletErrorKind.inviteExpired => PairingFailure.expired,
   lepic.WalletErrorKind.alreadyPaired => PairingFailure.alreadyUsed,
@@ -2568,7 +2571,7 @@ class _LepicPairing implements PairingApi {
     try {
       return await call();
     } on lepic.WalletError catch (error) {
-      final failure = lepicPairingFailure(error.kind);
+      final failure = lepicPairingFailure(error.kind, error.message);
       if (failure != null) throw pairingError(failure);
       throw mapLepicError(error);
     }

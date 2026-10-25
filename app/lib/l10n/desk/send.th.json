@@ -104,6 +104,7 @@
   "deskSendPrivacyOff": "ความเป็นส่วนตัว · ปิด Dandelion++",
   "deskSendDandelionText": "ส่งธุรกรรมผ่านโหนดสุ่มไม่กี่โหนดก่อนกระจายออกไป เครือข่ายจึงบอกไม่ได้ว่ามาจากไหน",
   "deskSendHintSent": "ส่งแล้ว ใส่จำนวนและผู้รับใหม่เพื่อส่งอีกครั้ง",
+  "deskSendHintQueued": "เข้าคิวแล้ว ใส่จำนวนและผู้รับใหม่เพื่อส่งอีกครั้ง",
   "deskSendHintNode": "รอโหนดซิงก์",
   "deskSendHintEpicbox": "รอ Epicbox เชื่อมต่อ",
   "deskSendHintTorWait": "รอ Tor เชื่อมต่อ",

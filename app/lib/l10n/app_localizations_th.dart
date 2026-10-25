@@ -15204,6 +15204,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairInvalidBody => 'ตรวจว่าคัดลอกลิงก์ครบทั้งหมด หรือขอลิงก์ใหม่';
 
   @override
+  String get pairWrongNetworkBody =>
+      'สร้างโดยกระเป๋าเงินในเครือข่ายอื่น กระเป๋าเงินจับคู่กันได้เฉพาะในเครือข่ายเดียวกัน';
+
+  @override
   String get pairOwnCode => 'นี่คือโค้ดของคุณเอง';
 
   @override
@@ -15898,8 +15902,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get reqFileEnded => 'คำขอนี้สิ้นสุดแล้ว';
 
   @override
-  String slateIncomingRequestAnswer(String amount, String fee) {
-    return 'คำตอบสำหรับคำขอชำระเงิน $amount ของคุณ (ค่าธรรมเนียม $fee)';
+  String slateIncomingRequestAnswer(String amount) {
+    return 'คำตอบสำหรับคำขอชำระเงิน $amount ของคุณ';
   }
 
   @override
@@ -15911,4 +15915,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskImpOpenAnother => 'เปิดไฟล์อื่น';
+
+  @override
+  String get deskInvIssuerToAnyone => 'ใบแจ้งหนี้ถึงใครก็ได้ที่มีไฟล์';
 }

@@ -2893,6 +2893,9 @@ enum PairingFailure {
 
   /// A sealed file for another wallet or install (RFC 9.5).
   sealedForOther,
+
+  /// Made by a wallet on the other network (mainnet or the test network).
+  wrongNetwork,
 }
 
 /// The [PairingFailure] behind [error], or null for any other error.

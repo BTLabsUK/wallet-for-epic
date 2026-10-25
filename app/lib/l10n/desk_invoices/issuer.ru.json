@@ -14,6 +14,7 @@
   "deskInvIssuerNotDelivered": "Счёт не дошёл до сервера Epicbox. Ничего не отправлено. Попробуйте ещё раз.",
   "deskInvIssuerEmpty": "Счетов пока не выставлено. Счёт просит контакт или сервис заплатить вам; он ничего не тратит.",
   "deskInvIssuerTo": "Счёт для {payer}",
+  "deskInvIssuerToAnyone": "Счёт для любого, у кого есть файл",
   "deskInvIssuerIssued": "Выставлен {time}",
   "deskInvIssuerPayerFact": "Плательщик",
   "deskInvIssuerAmountFact": "Сумма",

@@ -287,7 +287,7 @@ class RequestDetail extends ConsumerWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: Text(l.deskInvIssuerTo(who), style: ts.h3)),
+            Expanded(child: Text(r.byFile ? l.deskInvIssuerToAnyone : l.deskInvIssuerTo(who), style: ts.h3)),
             SizedBox(width: Sp.x3),
             RequestStateTag(r),
           ],

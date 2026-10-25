@@ -35,6 +35,15 @@ class ResultGlyph extends StatelessWidget {
   }
 }
 
+/// [path]'s folder with its separator, or '' for a bare name.
+String _folderOf(String path) {
+  final i = path.lastIndexOf(RegExp(r'[\\/]'));
+  return i < 0 ? '' : path.substring(0, i + 1);
+}
+
+/// [path]'s file name.
+String _baseOf(String path) => path.substring(_folderOf(path).length);
+
 /// The file a flow produced: name in mono with Copy, and Open folder while it is on disk (the
 /// wallet writes every file it makes; the mock's names are not).
 class FileChip extends ConsumerWidget {
@@ -57,7 +66,25 @@ class FileChip extends ConsumerWidget {
         children: [
           Icon(EIcons.file, size: Ctl.icon, color: c.dim),
           SizedBox(width: Sp.x3),
-          Expanded(child: SelectableText(name, style: ts.mono(size: Fs.sm), maxLines: 1)),
+          // The folder gives way, the file name stays whole (never overflow): the full path on
+          // hover and in Copy (WIN2-2).
+          Expanded(
+            child: Tooltip(
+              message: name,
+              child: LayoutBuilder(
+                builder: (context, box) => Row(
+                  children: [
+                    Flexible(child: Text(_folderOf(name), style: ts.mono(size: Fs.sm), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                    // First served; cut only when the name alone is wider than the chip.
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: box.maxWidth),
+                      child: Text(_baseOf(name), style: ts.mono(size: Fs.sm), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
           SizedBox(width: Sp.x2),
           if (File(name).existsSync()) ...[
             EButton(

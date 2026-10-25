@@ -104,6 +104,7 @@
   "deskSendPrivacyOff": "Prywatność · Dandelion++ wyłączony",
   "deskSendDandelionText": "Przepuszcza transakcję przez kilka losowych węzłów, zanim się rozejdzie, więc sieć nie wie, skąd pochodzi.",
   "deskSendHintSent": "Wysłano. Wpisz nową kwotę i odbiorcę, aby wysłać ponownie.",
+  "deskSendHintQueued": "W kolejce. Wpisz nową kwotę i odbiorcę, aby wysłać ponownie.",
   "deskSendHintNode": "Oczekiwanie na synchronizację węzła.",
   "deskSendHintEpicbox": "Oczekiwanie na połączenie z Epicbox.",
   "deskSendHintTorWait": "Oczekiwanie na połączenie z Torem.",

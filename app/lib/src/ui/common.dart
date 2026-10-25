@@ -1528,7 +1528,8 @@ String txSpokenLabel(
   }
   // English lower-cases the chip's word mid-sentence; other languages keep it, since German
   // nouns stay capitalised and Chinese has no case.
-  final spokenStatus = l.localeName == 'en' ? status.toLowerCase() : status;
+  // Only the first letter: a name in it keeps its case ("waiting for Anna").
+  final spokenStatus = l.localeName == 'en' && status.isNotEmpty ? status[0].toLowerCase() + status.substring(1) : status;
   final sentence = l.txSpokenRow(what, spokenStatus, date);
   final named = label?.trim() ?? '';
   return named.isEmpty ? sentence : l.txSpokenLabelled(named, sentence);

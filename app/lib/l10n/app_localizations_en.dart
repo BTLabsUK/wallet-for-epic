@@ -15492,6 +15492,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Check that the whole link was copied, or ask for a new one.';
 
   @override
+  String get pairWrongNetworkBody =>
+      'It was made by a wallet on the other network. Wallets pair only on the same network.';
+
+  @override
   String get pairOwnCode => 'This is your own code';
 
   @override
@@ -16202,8 +16206,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reqFileEnded => 'This request has ended.';
 
   @override
-  String slateIncomingRequestAnswer(String amount, String fee) {
-    return 'The answer to your payment request of $amount (fee $fee).';
+  String slateIncomingRequestAnswer(String amount) {
+    return 'The answer to your payment request of $amount.';
   }
 
   @override
@@ -16215,4 +16219,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskImpOpenAnother => 'Open another file';
+
+  @override
+  String get deskInvIssuerToAnyone => 'Invoice for anyone with the file';
 }

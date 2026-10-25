@@ -14676,6 +14676,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairInvalidBody => '请检查是否复制了完整链接，或索取新的链接。';
 
   @override
+  String get pairWrongNetworkBody => '它由另一网络上的钱包生成。钱包只能在同一网络中配对。';
+
+  @override
   String get pairOwnCode => '这是你自己的码';
 
   @override
@@ -15338,8 +15341,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqFileEnded => '此请求已结束。';
 
   @override
-  String slateIncomingRequestAnswer(String amount, String fee) {
-    return '对你 $amount（手续费 $fee）付款请求的回复。';
+  String slateIncomingRequestAnswer(String amount) {
+    return '对你 $amount 付款请求的回复。';
   }
 
   @override
@@ -15350,4 +15353,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskImpOpenAnother => '打开另一个文件';
+
+  @override
+  String get deskInvIssuerToAnyone => '开给持有此文件的任何人的账单';
 }

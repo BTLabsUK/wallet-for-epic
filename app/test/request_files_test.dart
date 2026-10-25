@@ -367,7 +367,7 @@ void main() {
       final h = _Harness();
       final answer = await answered(h);
       await h.open(tester, answer);
-      expect(find.text(_l.slateIncomingRequestAnswer(epicExact(_l, _epic(7)), epicExact(_l, _epic(0.01)))), findsOneWidget);
+      expect(find.text(_l.slateIncomingRequestAnswer(epicExact(_l, _epic(7)))), findsOneWidget);
       await tester.tap(find.text(_l.slateFinishPayment));
       await tester.pumpAndSettle();
       expect(find.text(_l.slatePostedHeadline(epicExact(_l, _epic(7)))), findsOneWidget);

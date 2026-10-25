@@ -148,6 +148,14 @@ void main() {
     lepic.WalletError error(lepic.WalletErrorKind kind) =>
         lepic.WalletError(kind: kind, code: 0, message: 'm');
 
+    test('a pairing text for the other network or a newer wallet says so, not "not a pairing link" (PAIR-AND-22)', () {
+      lepic.WalletError refused(String why) =>
+          lepic.WalletError(kind: lepic.WalletErrorKind.invalidPairingText, code: 58, message: 'pairing text was refused: $why');
+      expect(pairingFailureOf(mapLepicError(refused('made for the other network'))), PairingFailure.wrongNetwork);
+      expect(pairingFailureOf(mapLepicError(refused('made by a newer wallet: version 3'))), PairingFailure.newerVersion);
+      expect(pairingFailureOf(mapLepicError(refused('the text was damaged on the way'))), PairingFailure.invalid);
+    });
+
     test('kinds both cores have keep their name and the message', () {
       final shared = {for (final k in WalletErrorKind.values) k.name: k};
       for (final kind in lepic.WalletErrorKind.values) {

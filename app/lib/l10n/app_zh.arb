@@ -4093,6 +4093,7 @@
   "pairInviteSentBodyAnyone": "对方的钱包打开邀请后即完成配对。你可以离开此页面；邀请会保留在“联系人 › 待处理邀请”中。",
   "pairInvalidLink": "这不是配对链接",
   "pairInvalidBody": "请检查是否复制了完整链接，或索取新的链接。",
+  "pairWrongNetworkBody": "它由另一网络上的钱包生成。钱包只能在同一网络中配对。",
   "pairOwnCode": "这是你自己的码",
   "pairOwnCodeBody": "请扫描另一部手机上的码。",
   "pairUnnamedInvite": "公开邀请",
@@ -4261,8 +4262,9 @@
   "reqAnswerLead": "把此文件发回给请求方。对方会完成付款并广播。",
   "reqFileAlreadyPaid": "此请求已付款。",
   "reqFileEnded": "此请求已结束。",
-  "slateIncomingRequestAnswer": "对你 {amount}（手续费 {fee}）付款请求的回复。",
+  "slateIncomingRequestAnswer": "对你 {amount} 付款请求的回复。",
   "reqAnswerUnknown": "这是对本钱包已不存在的请求的回复。",
   "deskInvIssuerAnother": "再发一个请求",
-  "deskImpOpenAnother": "打开另一个文件"
+  "deskImpOpenAnother": "打开另一个文件",
+  "deskInvIssuerToAnyone": "开给持有此文件的任何人的账单"
 }

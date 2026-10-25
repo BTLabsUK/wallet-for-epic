@@ -24440,6 +24440,12 @@ abstract class AppLocalizations {
   /// **'Check that the whole link was copied, or ask for a new one.'**
   String get pairInvalidBody;
 
+  /// Outcome body for a pairing link or card made on the other network (mainnet vs the test network); the title is scanWrongNetworkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'It was made by a wallet on the other network. Wallets pair only on the same network.'**
+  String get pairWrongNetworkBody;
+
   /// Outcome when the wallet scans or opens its own code or invite.
   ///
   /// In en, this message translates to:
@@ -25451,8 +25457,8 @@ abstract class AppLocalizations {
   /// Transaction file screen: the lead for the payer's answer to a payment request this wallet saved as a file.
   ///
   /// In en, this message translates to:
-  /// **'The answer to your payment request of {amount} (fee {fee}).'**
-  String slateIncomingRequestAnswer(String amount, String fee);
+  /// **'The answer to your payment request of {amount}.'**
+  String slateIncomingRequestAnswer(String amount);
 
   /// Transaction file screen: an answer to a payment request this wallet does not have (cancelled or never made here).
   ///
@@ -25471,6 +25477,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open another file'**
   String get deskImpOpenAnother;
+
+  /// Issuer card title of a payment request saved as a file for anyone (LNX3-10): its own sentence, not deskInvIssuerTo with reqToAnyone.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice for anyone with the file'**
+  String get deskInvIssuerToAnyone;
 }
 
 class _AppLocalizationsDelegate

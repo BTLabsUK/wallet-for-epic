@@ -531,7 +531,7 @@
   "@deskTxCancelOutgoingTitle": {
     "description": "Title of the dialog that asks before cancelling an outgoing payment."
   },
-  "deskTxCancelIncomingBody": "{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.",
+  "deskTxCancelIncomingBody": "{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it still arrives.",
   "@deskTxCancelIncomingBody": {
     "description": "Body of the dialog that asks before cancelling an incoming payment.",
     "placeholders": {

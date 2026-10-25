@@ -98,7 +98,7 @@
   "deskTxStepProgress": "{confirmations} von {needed}",
   "deskTxCancelIncomingTitle": "Diese Zahlung stornieren?",
   "deskTxCancelOutgoingTitle": "Diese Zahlung stornieren?",
-  "deskTxCancelIncomingBody": "{amount} EPIC von {who} verlassen Ihr Guthaben. Die Wallet fragt zuerst den Node und lehnt ab, wenn die Zahlung schon in seinem Pool oder in einem Block ist. Sendet der Absender sie später, kann sie trotzdem ankommen.",
+  "deskTxCancelIncomingBody": "{amount} EPIC von {who} verlassen Ihr Guthaben. Die Wallet fragt zuerst den Node und lehnt ab, wenn die Zahlung schon in seinem Pool oder in einem Block ist. Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.",
   "deskTxCancelOutgoingBody": "{amount} EPIC an {who}. Der gesperrte Betrag kehrt ins Guthaben zurück. Hat der Empfänger sie schon abgeschlossen, kann sie trotzdem bestätigt werden.",
   "deskTxCancelKeep": "Behalten",
   "deskTxCancelIncomingAction": "Zahlung stornieren",

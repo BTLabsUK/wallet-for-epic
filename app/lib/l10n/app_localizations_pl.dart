@@ -15963,6 +15963,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Sprawdź, czy skopiowano cały link, lub poproś o nowy.';
 
   @override
+  String get pairWrongNetworkBody =>
+      'Utworzył go portfel w innej sieci. Portfele parują się tylko w tej samej sieci.';
+
+  @override
   String get pairOwnCode => 'To twój własny kod';
 
   @override
@@ -16705,8 +16709,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get reqFileEnded => 'Ta prośba jest już nieaktualna.';
 
   @override
-  String slateIncomingRequestAnswer(String amount, String fee) {
-    return 'Odpowiedź na twoją prośbę o płatność: $amount (opłata $fee).';
+  String slateIncomingRequestAnswer(String amount) {
+    return 'Odpowiedź na twoją prośbę o płatność: $amount.';
   }
 
   @override
@@ -16718,4 +16722,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskImpOpenAnother => 'Otwórz kolejny plik';
+
+  @override
+  String get deskInvIssuerToAnyone => 'Faktura dla każdego, kto ma plik';
 }

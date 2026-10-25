@@ -20561,6 +20561,10 @@
   "@pairInvalidBody": {
     "description": "Outcome body for an unreadable pairing link."
   },
+  "pairWrongNetworkBody": "It was made by a wallet on the other network. Wallets pair only on the same network.",
+  "@pairWrongNetworkBody": {
+    "description": "Outcome body for a pairing link or card made on the other network (mainnet vs the test network); the title is scanWrongNetworkTitle."
+  },
   "pairOwnCode": "This is your own code",
   "@pairOwnCode": {
     "description": "Outcome when the wallet scans or opens its own code or invite."
@@ -21468,17 +21472,13 @@
   "@reqFileEnded": {
     "description": "A payment request file, or its answer, whose time ran out or that was withdrawn."
   },
-  "slateIncomingRequestAnswer": "The answer to your payment request of {amount} (fee {fee}).",
+  "slateIncomingRequestAnswer": "The answer to your payment request of {amount}.",
   "@slateIncomingRequestAnswer": {
     "description": "Transaction file screen: the lead for the payer's answer to a payment request this wallet saved as a file.",
     "placeholders": {
       "amount": {
         "type": "String",
         "example": "42.5 EPIC"
-      },
-      "fee": {
-        "type": "String",
-        "example": "0.007 EPIC"
       }
     }
   },
@@ -21493,5 +21493,9 @@
   "deskImpOpenAnother": "Open another file",
   "@deskImpOpenAnother": {
     "description": "Import page, after a request file was paid and its answer saved: start over with another file. Not \"sign\": paying a request spent money."
+  },
+  "deskInvIssuerToAnyone": "Invoice for anyone with the file",
+  "@deskInvIssuerToAnyone": {
+    "description": "Issuer card title of a payment request saved as a file for anyone (LNX3-10): its own sentence, not deskInvIssuerTo with reqToAnyone."
   }
 }

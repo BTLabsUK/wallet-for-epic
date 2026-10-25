@@ -36,7 +36,8 @@ class InvButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
 
-  /// One of [InvW]; [InvW.sm] when null.
+  /// One of [InvW], the least width; [InvW.sm] when null. A longer label (German, Russian)
+  /// widens the button instead of being cut (LNX3-9).
   final double? width;
   final EBtnKind kind;
   final EBtnSize size;
@@ -45,9 +46,11 @@ class InvButton extends StatelessWidget {
   final String? tooltip;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    width: width ?? InvW.sm,
-    child: EButton(label: label, onPressed: onPressed, kind: kind, size: size, icon: icon, busy: busy, expand: true, tooltip: tooltip),
+  Widget build(BuildContext context) => IntrinsicWidth(
+    child: ConstrainedBox(
+      constraints: BoxConstraints(minWidth: width ?? InvW.sm),
+      child: EButton(label: label, onPressed: onPressed, kind: kind, size: size, icon: icon, busy: busy, expand: true, tooltip: tooltip),
+    ),
   );
 }
 

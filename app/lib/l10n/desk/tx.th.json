@@ -98,7 +98,7 @@
   "deskTxStepProgress": "{confirmations} จาก {needed}",
   "deskTxCancelIncomingTitle": "ยกเลิกรายการนี้ไหม?",
   "deskTxCancelOutgoingTitle": "ยกเลิกการส่งนี้ไหม?",
-  "deskTxCancelIncomingBody": "{amount} EPIC จาก {who} จะออกจากยอดคงเหลือ กระเป๋าเงินจะถามโหนดก่อน และไม่ยกเลิกถ้ารายการอยู่ใน pool ของโหนดหรืออยู่ในบล็อกแล้ว ถ้าผู้ส่งส่งเข้าเครือข่ายภายหลัง เงินอาจยังเข้า",
+  "deskTxCancelIncomingBody": "{amount} EPIC จาก {who} จะออกจากยอดคงเหลือ กระเป๋าเงินจะถามโหนดก่อน และไม่ยกเลิกถ้ารายการอยู่ใน pool ของโหนดหรืออยู่ในบล็อกแล้ว ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า",
   "deskTxCancelOutgoingBody": "{amount} EPIC ถึง {who} ยอดที่ถูกล็อกจะกลับเข้ายอดคงเหลือ ถ้าผู้รับทำรายการเสร็จไปแล้ว รายการอาจยังได้รับการยืนยัน",
   "deskTxCancelKeep": "เก็บไว้",
   "deskTxCancelIncomingAction": "ยกเลิกรายการ",

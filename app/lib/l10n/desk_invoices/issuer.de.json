@@ -14,6 +14,7 @@
   "deskInvIssuerNotDelivered": "Die Rechnung hat den Epicbox-Server nicht erreicht. Es wurde nichts gesendet. Versuchen Sie es erneut.",
   "deskInvIssuerEmpty": "Noch keine Rechnungen ausgestellt. Eine Rechnung bittet einen Kontakt oder Dienst, Sie zu bezahlen; sie kostet nichts.",
   "deskInvIssuerTo": "Rechnung an {payer}",
+  "deskInvIssuerToAnyone": "Rechnung an jede Person mit der Datei",
   "deskInvIssuerIssued": "Ausgestellt {time}",
   "deskInvIssuerPayerFact": "Zahler",
   "deskInvIssuerAmountFact": "Betrag",

@@ -4093,6 +4093,7 @@
   "pairInviteSentBodyAnyone": "Die Kopplung ist fertig, wenn die andere Wallet die Einladung öffnet. Sie können diesen Bildschirm verlassen; die Einladung bleibt unter Kontakte › Offene Einladungen.",
   "pairInvalidLink": "Das ist kein Kopplungslink",
   "pairInvalidBody": "Prüfen Sie, ob der ganze Link kopiert wurde, oder bitten Sie um einen neuen.",
+  "pairWrongNetworkBody": "Er wurde von einer Wallet im anderen Netzwerk erstellt. Wallets koppeln sich nur im selben Netzwerk.",
   "pairOwnCode": "Das ist Ihr eigener Code",
   "pairOwnCodeBody": "Scannen Sie den Code auf dem anderen Telefon.",
   "pairUnnamedInvite": "Offene Einladung",
@@ -4261,8 +4262,9 @@
   "reqAnswerLead": "Schicken Sie diese Datei an die Person zurück, die angefragt hat. Sie schließt die Zahlung ab und sendet sie ins Netzwerk.",
   "reqFileAlreadyPaid": "Diese Anforderung ist bereits bezahlt.",
   "reqFileEnded": "Diese Anforderung ist beendet.",
-  "slateIncomingRequestAnswer": "Die Antwort auf Ihre Zahlungsanforderung über {amount} (Gebühr {fee}).",
+  "slateIncomingRequestAnswer": "Die Antwort auf Ihre Zahlungsanforderung über {amount}.",
   "reqAnswerUnknown": "Dies beantwortet eine Anforderung, die diese Wallet nicht mehr hat.",
   "deskInvIssuerAnother": "Weitere Anforderung",
-  "deskImpOpenAnother": "Weitere Datei öffnen"
+  "deskImpOpenAnother": "Weitere Datei öffnen",
+  "deskInvIssuerToAnyone": "Rechnung an jede Person mit der Datei"
 }

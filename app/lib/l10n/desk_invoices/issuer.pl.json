@@ -14,6 +14,7 @@
   "deskInvIssuerNotDelivered": "Faktura nie dotarła do serwera Epicbox. Nic nie wysłano. Spróbuj ponownie.",
   "deskInvIssuerEmpty": "Nie wystawiono jeszcze faktur. Faktura prosi kontakt lub serwis o zapłatę; niczego nie wydaje.",
   "deskInvIssuerTo": "Faktura dla: {payer}",
+  "deskInvIssuerToAnyone": "Faktura dla każdego, kto ma plik",
   "deskInvIssuerIssued": "Wystawiono {time}",
   "deskInvIssuerPayerFact": "Płacący",
   "deskInvIssuerAmountFact": "Kwota",

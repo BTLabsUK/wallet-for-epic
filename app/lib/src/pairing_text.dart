@@ -19,6 +19,7 @@ String pairingFailureText(AppLocalizations l, PairingFailure failure, {String na
   PairingFailure.relayUnreachable => l.pairRelayUnreachableTitle,
   PairingFailure.ownCard => l.pairOwnCode,
   PairingFailure.sealedForOther => l.openSealedOtherTitle,
+  PairingFailure.wrongNetwork => l.scanWrongNetworkTitle,
 };
 
 /// The second line of an outcome screen for [failure], or null where the title says it all.
@@ -35,6 +36,7 @@ String? pairingFailureBody(AppLocalizations l, PairingFailure failure, {String n
       PairingFailure.relayUnreachable => l.pairRelayUnreachableBody,
       PairingFailure.ownCard => l.pairOwnCodeBody,
       PairingFailure.sealedForOther => l.openSealedOtherBody,
+      PairingFailure.wrongNetwork => l.pairWrongNetworkBody,
     };
 
 /// A short time span for countdowns: `6 d 23 h`, `23 h 12 min`, `12 min`, `under a minute`.

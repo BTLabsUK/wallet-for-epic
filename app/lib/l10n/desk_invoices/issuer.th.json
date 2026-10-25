@@ -14,6 +14,7 @@
   "deskInvIssuerNotDelivered": "ใบแจ้งหนี้ไปไม่ถึงเซิร์ฟเวอร์ Epicbox ไม่มีสิ่งใดถูกส่ง ลองอีกครั้ง",
   "deskInvIssuerEmpty": "ยังไม่ได้ออกใบแจ้งหนี้ ใบแจ้งหนี้คือการขอให้ผู้ติดต่อหรือบริการชำระเงินให้คุณ โดยไม่ใช้เงินของคุณ",
   "deskInvIssuerTo": "ใบแจ้งหนี้ถึง {payer}",
+  "deskInvIssuerToAnyone": "ใบแจ้งหนี้ถึงใครก็ได้ที่มีไฟล์",
   "deskInvIssuerIssued": "ออกเมื่อ {time}",
   "deskInvIssuerPayerFact": "ผู้ชำระ",
   "deskInvIssuerAmountFact": "จำนวน",

@@ -172,7 +172,7 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
               title: l.deskFinPosted,
               text: _request == null
                   ? l.deskFinPostedText
-                  : '${l.slateIncomingRequestAnswer(formatEpicL(l, _request!.amount), formatEpicL(l, _request!.fee))} ${l.deskFinPostedText}',
+                  : '${l.slateIncomingRequestAnswer(formatEpicL(l, _request!.amount))} ${l.deskFinPostedText}',
               actions: [
                 EButton.primary(label: l.deskFinAnother, icon: EIcons.fileUp, onPressed: () => setState(() => _done = false)),
                 EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, _txId)),

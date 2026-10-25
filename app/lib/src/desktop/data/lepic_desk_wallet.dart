@@ -4101,6 +4101,13 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _onIssuerEvent(core.WalletSession session, core.IssuerEvent e) async {
     if (_session != session) return;
     await _reload();
+    // "Paid" comes when the invoice is finalized; its post follows in the same collect. Read
+    // again once it is out, so the row never sits on "Not posted" (LNX3-4).
+    if (e.kind == core.IssuerEventKind.paid) {
+      unawaited(Future<void>.delayed(const Duration(seconds: 5), () async {
+        if (_session == session) await _reload();
+      }));
+    }
     final kind = switch (e.kind) {
       core.IssuerEventKind.paid => InvoiceNoticeKind.paid,
       core.IssuerEventKind.declined => InvoiceNoticeKind.declined,

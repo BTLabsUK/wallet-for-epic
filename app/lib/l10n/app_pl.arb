@@ -4093,6 +4093,7 @@
   "pairInviteSentBodyAnyone": "Parowanie kończy się, gdy drugi portfel otworzy zaproszenie. Możesz opuścić ten ekran; zaproszenie zostaje w Kontakty › Oczekujące zaproszenia.",
   "pairInvalidLink": "To nie jest link do parowania",
   "pairInvalidBody": "Sprawdź, czy skopiowano cały link, lub poproś o nowy.",
+  "pairWrongNetworkBody": "Utworzył go portfel w innej sieci. Portfele parują się tylko w tej samej sieci.",
   "pairOwnCode": "To twój własny kod",
   "pairOwnCodeBody": "Zeskanuj kod na drugim telefonie.",
   "pairUnnamedInvite": "Otwarte zaproszenie",
@@ -4261,8 +4262,9 @@
   "reqAnswerLead": "Odeślij ten plik osobie, która prosiła. Ona dokończy płatność i wyśle ją do sieci.",
   "reqFileAlreadyPaid": "Ta prośba jest już opłacona.",
   "reqFileEnded": "Ta prośba jest już nieaktualna.",
-  "slateIncomingRequestAnswer": "Odpowiedź na twoją prośbę o płatność: {amount} (opłata {fee}).",
+  "slateIncomingRequestAnswer": "Odpowiedź na twoją prośbę o płatność: {amount}.",
   "reqAnswerUnknown": "To odpowiedź na prośbę, której ten portfel już nie ma.",
   "deskInvIssuerAnother": "Kolejna prośba",
-  "deskImpOpenAnother": "Otwórz kolejny plik"
+  "deskImpOpenAnother": "Otwórz kolejny plik",
+  "deskInvIssuerToAnyone": "Faktura dla każdego, kto ma plik"
 }

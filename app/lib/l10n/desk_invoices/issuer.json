@@ -77,6 +77,10 @@
       }
     }
   },
+  "deskInvIssuerToAnyone": "Invoice for anyone with the file",
+  "@deskInvIssuerToAnyone": {
+    "description": "Issuer card title of a payment request saved as a file for anyone (LNX3-10): its own sentence, not deskInvIssuerTo with reqToAnyone."
+  },
   "deskInvIssuerIssued": "Issued {time}",
   "@deskInvIssuerIssued": {
     "description": "When the request was sent, e.g. 'Sent 21 Oct, 12:40'.",

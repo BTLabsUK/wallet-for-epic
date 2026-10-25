@@ -15922,6 +15922,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Проверьте, что ссылка скопирована целиком, или попросите новую.';
 
   @override
+  String get pairWrongNetworkBody =>
+      'Его создал кошелёк в другой сети. Кошельки сопрягаются только в одной сети.';
+
+  @override
   String get pairOwnCode => 'Это ваш собственный код';
 
   @override
@@ -16666,8 +16670,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reqFileEnded => 'Этот запрос больше не действует.';
 
   @override
-  String slateIncomingRequestAnswer(String amount, String fee) {
-    return 'Ответ на ваш запрос на оплату: $amount (комиссия $fee).';
+  String slateIncomingRequestAnswer(String amount) {
+    return 'Ответ на ваш запрос на оплату: $amount.';
   }
 
   @override
@@ -16679,4 +16683,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskImpOpenAnother => 'Открыть другой файл';
+
+  @override
+  String get deskInvIssuerToAnyone => 'Счёт для любого, у кого есть файл';
 }
